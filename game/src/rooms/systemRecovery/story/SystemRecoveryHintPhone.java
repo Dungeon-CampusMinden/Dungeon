@@ -6,10 +6,13 @@ import feature.hints.Hint;
 import feature.hints.HintSystem;
 import feature.hud.dialogs.DialogFactory;
 import java.util.Optional;
+import java.util.OptionalInt;
+import rooms.systemRecovery.petrinet.SystemRecoveryHintCatalog;
+import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
-import rooms.systemRecovery.petrinet.SystemRecoveryProgressPlace;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 
 /**
  * Telephone front end for the shared System Recovery hint sequence.
@@ -22,7 +25,11 @@ public final class SystemRecoveryHintPhone {
 
   private SystemRecoveryHintPhone() {}
 
-  /** Opens the next-hint conversation for the player who interacted with the phone. */
+  /**
+   * Opens the next-hint conversation for the player who interacted with the phone.
+   *
+   * @param player player who requested the hint
+   */
   public static void request(Entity player) {
     if (player == null) return;
 
@@ -30,28 +37,33 @@ public final class SystemRecoveryHintPhone {
         HintSystem.class,
         hintSystem -> {
           Optional<Hint> nextHint = hintSystem.peekSharedHint();
-          Optional<SystemRecoveryProgressPlace> activePlace =
-              SystemRecoveryProgressNet.activePlace();
-          if (nextHint.isEmpty() || activePlace.isEmpty()) {
+          Optional<SystemRecoveryLearningStep> activeStep = SystemRecoveryProgressNet.activeStep();
+          if (nextHint.isEmpty() || activeStep.isEmpty()) {
             DialogFactory.showDialogDialog(
                 SystemRecoveryText.phoneCall("hint-none"), () -> {}, player.id());
             return;
           }
 
           Hint hint = nextHint.orElseThrow();
-          SystemRecoveryProgressPlace place = activePlace.orElseThrow();
+          SystemRecoveryLearningStep step = activeStep.orElseThrow();
+          OptionalInt placeEntityId = SystemRecoveryProgressNet.hintEntityId(step);
+          if (placeEntityId.isEmpty()) {
+            DialogFactory.showDialogDialog(
+                SystemRecoveryText.phoneCall("hint-none"), () -> {}, player.id());
+            return;
+          }
+          HintOffer offer = new HintOffer(step, placeEntityId.orElseThrow(), hint);
           String conversation =
               hint.solution()
                   ? SystemRecoveryText.phoneCall("hint-solution-warning")
                   : SystemRecoveryText.phoneCall("hint-offer");
           DialogFactory.showDialogDialog(
-              conversation,
-              () -> showConfirmation(hintSystem, player, hint.solution()),
-              player.id());
+              conversation, () -> showConfirmation(hintSystem, player, offer), player.id());
         });
   }
 
-  private static void showConfirmation(HintSystem hintSystem, Entity player, boolean solution) {
+  private static void showConfirmation(HintSystem hintSystem, Entity player, HintOffer offer) {
+    boolean solution = offer.hint().solution();
     String message =
         solution
             ? SystemRecoveryText.key("hints.solution-confirm")
@@ -64,12 +76,20 @@ public final class SystemRecoveryHintPhone {
         message,
         title,
         () ->
-            hintSystem
-                .acceptSharedHint()
+            SystemRecoveryProgressNet.activeStep()
+                .filter(offer.step()::equals)
+                .flatMap(
+                    ignored -> hintSystem.acceptSharedHint(offer.placeEntityId(), offer.hint()))
                 .ifPresentOrElse(
                     accepted -> {
-                      SystemRecoveryProgressNet.activePlace()
-                          .ifPresent(place -> SystemRecoveryQuestLogUtil.addHintEntry(place.riddleKey(), accepted));
+                      String hintId = SystemRecoveryHintCatalog.hintId(offer.step(), accepted);
+                      offer
+                          .step()
+                          .puzzle()
+                          .ifPresent(
+                              puzzle ->
+                                  SystemRecoveryPuzzleEvents.hintUsed(puzzle, hintId, player));
+                      SystemRecoveryQuestLogUtil.addHintEntry(offer.step().riddleKey(), accepted);
                       String key = accepted.solution() ? "hint-solution-delivery" : "hint-delivery";
                       DialogFactory.showDialogDialog(
                           SystemRecoveryText.phoneCall(key, accepted.text()),
@@ -80,4 +100,13 @@ public final class SystemRecoveryHintPhone {
         () -> {},
         player.id());
   }
+
+  /**
+   * Immutable snapshot of the hint offer shown before the confirmation dialog.
+   *
+   * @param step active learning step for which the hint was requested
+   * @param placeEntityId ECS place entity whose shared hint sequence was offered
+   * @param hint shared hint offered by the hint system
+   */
+  private record HintOffer(SystemRecoveryLearningStep step, int placeEntityId, Hint hint) {}
 }

@@ -12,15 +12,17 @@ import engine.Entity;
 import engine.Game;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
+import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
 import feature.interaction.keypad.KeypadFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.ModuleEntityFactory;
 
 /** Verifies that the module chips leave the sockets for the inventory scanner. */
 class ModuleStorageRiddleTest {
@@ -28,14 +30,16 @@ class ModuleStorageRiddleTest {
   private final List<Entity> sockets = new ArrayList<>();
   private final List<Entity> chips = new ArrayList<>();
   private MockedStatic<Game> game;
-  private MockedStatic<EntityFactory> factory;
+  private MockedStatic<ModuleEntityFactory> factory;
   private MockedStatic<KeypadFactory> keypads;
 
   @BeforeEach
   void setUp() {
     game = mockStatic(Game.class);
-    factory = mockStatic(EntityFactory.class);
+    factory = mockStatic(ModuleEntityFactory.class);
     keypads = mockStatic(KeypadFactory.class);
+    DoorTile scannerDoor = mock(DoorTile.class);
+    game.when(() -> Game.tileAt(any(Point.class))).thenReturn(Optional.of(scannerDoor));
 
     when(level.getPoint(anyString()))
         .thenAnswer(
@@ -50,7 +54,7 @@ class ModuleStorageRiddleTest {
               return new Point(20, 20);
             });
     factory
-        .when(() -> EntityFactory.moduleSocket(any()))
+        .when(() -> ModuleEntityFactory.moduleSocket(any()))
         .thenAnswer(
             invocation -> {
               Entity socket = new Entity("socket");
@@ -59,7 +63,7 @@ class ModuleStorageRiddleTest {
               return socket;
             });
     factory
-        .when(() -> EntityFactory.moduleChip(any(), anyString()))
+        .when(() -> ModuleEntityFactory.moduleChip(any(), anyString()))
         .thenAnswer(
             invocation -> {
               Entity chip = new Entity("module");

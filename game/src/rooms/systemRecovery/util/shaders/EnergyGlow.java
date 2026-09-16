@@ -9,6 +9,7 @@ public final class EnergyGlow {
 
   /** Identifier used by the runtime draw shader list. */
   public static final String SHADER_ID = "energyGlow";
+
   private static final float GLOW_HUE = 0.7f;
 
   private EnergyGlow() {}
@@ -29,7 +30,11 @@ public final class EnergyGlow {
         .shineColor(glowColor);
   }
 
-  /** Adds the glow to a runtime draw component if it is not already present. */
+  /**
+   * Adds the glow to a runtime draw component if it is not already present.
+   *
+   * @param draw draw component receiving the glow
+   */
   public static void addTo(DrawComponent draw) {
     if (draw.shaders().get(SHADER_ID) == null) {
       draw.shaders().add(SHADER_ID, create(), 1);

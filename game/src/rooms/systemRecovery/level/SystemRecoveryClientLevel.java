@@ -3,14 +3,14 @@ package rooms.systemRecovery.level;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
+import engine.components.DrawComponent;
+import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.components.PositionComponent;
 import engine.systems.DrawSystem;
 import engine.utils.Point;
 import engine.utils.Tuple;
-import engine.components.DrawComponent;
 import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.deco.Deco;
 import feature.interaction.keypad.KeypadComponent;
@@ -129,7 +129,8 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
     Game.levelEntities()
         .forEach(
             entity ->
-                entity.fetch(DrawComponent.class)
+                entity
+                    .fetch(DrawComponent.class)
                     .ifPresent(draw -> draw.shaders().remove(MODULE_SCAN_SHADER_ID)));
   }
 
@@ -160,7 +161,11 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
     addSystemRecoveryLights(lighting);
   }
 
-  /** Adds local light sources to the important interactive objects in the room. */
+  /**
+   * Adds local light sources to the important interactive objects in the room.
+   *
+   * @param lighting client-side lighting shader receiving the light sources
+   */
   private void addSystemRecoveryLights(LightingShader lighting) {
     Game.levelEntities()
         .filter(this::isTerminal)

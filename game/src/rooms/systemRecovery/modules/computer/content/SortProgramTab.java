@@ -17,8 +17,7 @@ import rooms.systemRecovery.util.SystemRecoveryText;
 /** Editor shown while an empty sort-program stick is inserted into the computer. */
 public final class SortProgramTab extends SystemRecoveryComputerTab {
 
-  private static final String INITIAL_SOURCE =
-      SystemRecoveryText.text("computer.sort-template");
+  private static final String INITIAL_SOURCE = SystemRecoveryText.text("computer.sort-template");
 
   /** Creates the sort-program editor tab. */
   public SortProgramTab() {

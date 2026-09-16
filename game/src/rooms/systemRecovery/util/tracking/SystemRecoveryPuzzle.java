@@ -1,5 +1,7 @@
 package rooms.systemRecovery.util.tracking;
 
+import rooms.systemRecovery.util.interpreter.TerminalStep;
+
 /** Stable identifiers and default event metadata for System Recovery riddles. */
 public enum SystemRecoveryPuzzle {
   ENERGY("energy-array", "energy-lever", "lever"),
@@ -51,16 +53,6 @@ public enum SystemRecoveryPuzzle {
    * @return owning puzzle, or {@link #SYSTEM_CORE} for unknown final states
    */
   public static SystemRecoveryPuzzle fromTerminalState(int state) {
-    return switch (state) {
-      case 0, 1 -> ENERGY;
-      case 2, 3, 4, 5 -> MODULE_STORAGE;
-      case 6 -> INVENTORY_SCANNER;
-      case 7, 8 -> TRANSPORT_STORAGE;
-      case 9 -> DATA_ARCHIVE;
-      case 10, 11 -> TWO_DIMENSIONAL_STORAGE;
-      case 12 -> SEARCH_ROBOT;
-      case 13, 14, 15, 16 -> SYSTEM_CORE;
-      default -> SYSTEM_CORE;
-    };
+    return TerminalStep.fromStateId(state).map(TerminalStep::puzzle).orElse(SYSTEM_CORE);
   }
 }

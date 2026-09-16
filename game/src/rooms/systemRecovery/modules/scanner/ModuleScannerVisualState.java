@@ -7,7 +7,9 @@ public final class ModuleScannerVisualState implements Component {
 
   private boolean scanning;
 
-  /** @return whether the scanner is currently examining modules */
+  /**
+   * @return whether the scanner is currently examining modules
+   */
   public boolean scanning() {
     return scanning;
   }

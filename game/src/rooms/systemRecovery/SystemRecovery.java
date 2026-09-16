@@ -52,8 +52,7 @@ public final class SystemRecovery {
     CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
   };
 
-  /** Enables debug systems while developing the room. */
-  public static final boolean DEBUG_MODE = true;
+  private static boolean debugMode;
 
   private SystemRecovery() {}
 
@@ -64,6 +63,7 @@ public final class SystemRecovery {
    *     --leveleditor} starts the room directly in editor mode
    */
   public static void main(String[] args) {
+    configureDebugMode(args);
     Tracking.configureRoom("system-recovery");
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
@@ -102,11 +102,39 @@ public final class SystemRecovery {
     MainMenu.run(args, game, client, server);
   }
 
+  /**
+   * Returns whether debug-only room controls are enabled for this process.
+   *
+   * @return {@code true} for an explicit debug launch or the level editor
+   */
+  public static boolean debugMode() {
+    return debugMode;
+  }
+
+  /**
+   * Configures the process-wide debug flag from launcher arguments.
+   *
+   * @param args launcher arguments inspected for debug or level-editor mode
+   */
+  public static void configureDebugMode(String... args) {
+    debugMode = containsArgument(args, "--debug") || containsArgument(args, "--leveleditor");
+  }
+
+  private static boolean containsArgument(String[] args, String expected) {
+    if (args == null) return false;
+    for (String arg : args) {
+      if (expected.equals(arg)) return true;
+    }
+    return false;
+  }
+
   /** Registers the shared escape-room translations used by the menu and default dialogs. */
   static void initLocalization() {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
     localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
+    localization.registerTranslationFile(Language.DE, "language/systemRecovery/de.json");
+    localization.registerTranslationFile(Language.EN, "language/systemRecovery/en.json");
     localization.setCurrentTranslator(new SystemRecoveryTranslator());
   }
 
@@ -133,7 +161,7 @@ public final class SystemRecovery {
     ECSManagement.add(new PetriNetSystem());
     ECSManagement.add(new HintSystem());
 
-    if (DEBUG_MODE && !Game.isHeadless()) {
+    if (debugMode() && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
       KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
       ECSManagement.add(new DebugDrawSystem());

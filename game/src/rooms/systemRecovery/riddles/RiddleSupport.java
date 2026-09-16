@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.utils.Point;
 import feature.components.CharacterClassComponent;
 import feature.systems.PositionSync;
+import java.util.NoSuchElementException;
 import rooms.lasthour.starter.LastHourClient;
 
 /** Shared presentation helpers; puzzle state stays in its owning riddle. */
@@ -17,12 +18,19 @@ final class RiddleSupport {
     PositionSync.syncPosition(entity);
   }
 
-  /** Returns the first available named point, allowing old editor spellings during migration. */
+  /**
+   * Returns the first available named point, allowing old editor spellings during migration.
+   *
+   * @param level level whose named points should be searched
+   * @param names canonical name followed by optional legacy aliases
+   * @return resolved point
+   * @throws IllegalArgumentException if none of the supplied names exists
+   */
   static Point point(engine.level.DungeonLevel level, String... names) {
     for (String name : names) {
       try {
         return level.getPoint(name);
-      } catch (RuntimeException ignored) {
+      } catch (NoSuchElementException ignored) {
         // Try the next alias. Older level files contain a few misspelled point names.
       }
     }

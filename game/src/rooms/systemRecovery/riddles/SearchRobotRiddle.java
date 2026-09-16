@@ -14,13 +14,11 @@ import feature.hud.dialogs.DialogFactory;
 import feature.systems.EventScheduler;
 import java.util.Arrays;
 import java.util.List;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.ScannerEntityFactory;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
-import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.SystemRecoveryText;
-import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /**
  * Riddle 9: program the search chip and let the robot inspect a matrix defined by two corner
@@ -41,12 +39,21 @@ public final class SearchRobotRiddle {
   private boolean running;
   private boolean completed;
 
-  /** Creates the search-robot controller for the owning level. */
+  /**
+   * Creates the search-robot controller for the owning level.
+   *
+   * @param level level that owns the search-robot entities
+   */
   public SearchRobotRiddle(DungeonLevel level) {
     this(level, RiddleCallbacks.noop());
   }
 
-  /** Creates the search-robot riddle with callbacks for chip insertion attempts. */
+  /**
+   * Creates the search-robot riddle with callbacks for chip insertion attempts.
+   *
+   * @param level level that owns the search-robot entities
+   * @param callbacks success and failure callbacks
+   */
   public SearchRobotRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
     this.callbacks = callbacks;
@@ -57,14 +64,14 @@ public final class SearchRobotRiddle {
     matrix =
         SearchRobotMatrix.between(
             RiddleSupport.point(level, "roboter_start"), RiddleSupport.point(level, "roboter_end"));
-    searchTarget = EntityFactory.searchTargetItem(matrix.pointAt(matrix.size() - 1));
+    searchTarget = ScannerEntityFactory.searchTargetItem(matrix.pointAt(matrix.size() - 1));
     Game.add(searchTarget);
 
-    robot = EntityFactory.searchRobot(RiddleSupport.point(level, "suchroboter"));
+    robot = ScannerEntityFactory.searchRobot(RiddleSupport.point(level, "suchroboter"));
     Game.add(robot);
 
     Entity controller =
-        EntityFactory.searchRobotController(
+        ScannerEntityFactory.searchRobotController(
             RiddleSupport.point(level, "suchroboter_controller", "suchroboter_controlls"),
             this::onControllerInteract);
     Game.add(controller);
@@ -187,21 +194,24 @@ public final class SearchRobotRiddle {
   }
 
   private void finishScan() {
+    if (completed) return;
     running = false;
     scanIndex = -1;
-    completed = true;
-    callbacks.solved();
     collectSearchTarget();
     RiddleSupport.moveSortEntity(
         robot, RiddleSupport.point(level, "roboter_item_destination", "roboter_item_destionation"));
-    TerminalInterpreter.instance().synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
-
     Point destination =
         RiddleSupport.point(level, "roboter_item_destination", "roboter_item_destionation");
-    if (Game.entityAtPoint(destination)
-        .noneMatch(entity -> entity.name().contains("Systemkern-Modul"))) {
+    boolean moduleAlreadyDelivered =
+        Game.entityAtPoint(destination)
+            .anyMatch(entity -> entity.name().contains("Systemkern-Modul"));
+    if (!moduleAlreadyDelivered) {
       Game.add(WorldItemBuilder.buildWorldItem(new SystemCoreAccessChipItem(), destination));
     }
+    completed =
+        Game.entityAtPoint(destination)
+            .anyMatch(entity -> entity.name().contains("Systemkern-Modul"));
+    if (completed) callbacks.solved();
   }
 
   private void collectSearchTarget() {

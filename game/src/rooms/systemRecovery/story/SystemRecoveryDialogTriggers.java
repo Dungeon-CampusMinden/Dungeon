@@ -22,7 +22,7 @@ public final class SystemRecoveryDialogTriggers {
   public static final String TRANSPORT_STORAGE = "dialog_trigger_transport_storage";
 
   /** Trigger point used inside the manual-sorting room. */
-  public static final String MANUAL_SORTING = "sort_trigger";
+  public static final String MANUAL_SORTING = "dialog_trigger_manual_sorting";
 
   /** Trigger point used when entering the data-archive room. */
   public static final String DATA_ARCHIVE = "dialog_trigger_data_archive";
@@ -46,6 +46,11 @@ public final class SystemRecoveryDialogTriggers {
 
   private SystemRecoveryDialogTriggers() {}
 
-  /** One movable world trigger and the story instruction it starts. */
+  /**
+   * One movable world trigger and the story instruction it starts.
+   *
+   * @param pointName custom-point name of the trigger
+   * @param step story instruction started by the trigger
+   */
   public record DialogTrigger(String pointName, SystemRecoveryStoryDialogs.StoryStep step) {}
 }

@@ -11,9 +11,11 @@ import java.util.regex.Pattern;
 public final class SystemRecoveryTranslator extends Translator {
 
   private static final Pattern KEY_PATTERN =
-      Pattern.compile("systemRecovery\\.[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+(?:\\|\\|([^\\s\\]]+))?");
+      Pattern.compile(
+          "(?:systemRecovery|questlog)\\.[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+(?:\\|\\|([^\\s\\]]+))?");
 
   private final Translation translation = new Translation("systemRecovery");
+  private final Translation questLog = new Translation("questlog");
 
   /** Creates the translator and registers the System Recovery key namespace. */
   public SystemRecoveryTranslator() {
@@ -28,16 +30,21 @@ public final class SystemRecoveryTranslator extends Translator {
     while (matcher.find()) {
       String token = matcher.group();
       String[] parts = token.split("\\|\\|", 2);
-      String path = parts[0].substring(SystemRecoveryText.KEY_PREFIX.length());
+      boolean isQuestLogKey = parts[0].startsWith("questlog.");
+      String prefix = isQuestLogKey ? "questlog." : SystemRecoveryText.KEY_PREFIX;
+      String path = parts[0].substring(prefix.length());
       Object[] values = parts.length == 1 ? new Object[0] : decodeValues(parts[1]);
       matcher.appendReplacement(
-          translated, Matcher.quoteReplacement(translation.text(path, values)));
+          translated,
+          Matcher.quoteReplacement((isQuestLogKey ? questLog : translation).text(path, values)));
     }
     matcher.appendTail(translated);
     String result = translated.toString();
     // Dynamic values may themselves be System Recovery keys (for example archive status labels).
     // Resolve those nested keys as well, while keeping a hard limit against malformed cycles.
-    for (int pass = 0; pass < 4 && !result.equals(text) && KEY_PATTERN.matcher(result).find(); pass++) {
+    for (int pass = 0;
+        pass < 4 && !result.equals(text) && KEY_PATTERN.matcher(result).find();
+        pass++) {
       String next = translate(result);
       if (next.equals(result)) break;
       result = next;
@@ -51,8 +58,7 @@ public final class SystemRecoveryTranslator extends Translator {
     Object[] decoded = new Object[values.length];
     for (int index = 0; index < values.length; index++) {
       decoded[index] =
-          new String(
-              Base64.getUrlDecoder().decode(values[index]), StandardCharsets.UTF_8);
+          new String(Base64.getUrlDecoder().decode(values[index]), StandardCharsets.UTF_8);
     }
     return decoded;
   }

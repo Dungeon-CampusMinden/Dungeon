@@ -16,6 +16,7 @@ import engine.Game;
 import engine.components.PlayerComponent;
 import engine.language.Translation;
 import engine.network.NetworkUtils;
+import engine.network.handler.INetworkHandler;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InputMessage;
 import engine.utils.BaseContainerUI;
@@ -31,6 +32,8 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.hud.elements.RichLabel;
+import feature.systems.HudSystem;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +65,9 @@ public final class QuestLogUI {
   /** Custom input command used by clients to request the quest log from the server. */
   public static final String COMMAND_SHOW_QUESTLOG = "core:questlog";
 
+  /** Custom input command used by clients to request one selected quest log tab. */
+  public static final String COMMAND_SELECT_QUESTLOG_TAB = "core:questlog_tab";
+
   private static final DialogType DIALOG_TYPE = () -> "QUEST_LOG";
   private static final String CTX_TABS = "questlog.tabs";
   private static final String CTX_SELECTED_TAB = "questlog.selectedTab";
@@ -69,8 +75,11 @@ public final class QuestLogUI {
   private static final String CTX_ENTRY_TEXTS = "questlog.entryTexts";
   private static final String CTX_ENTRY_OWNERS = "questlog.entryOwners";
   private static final String CTX_ENTRY_TIMESTAMPS = "questlog.entryTimestamps";
+  private static final String CTX_VIEWER_ID = "questlog.viewerId";
+  private static final String CTX_UNAVAILABLE = "questlog.unavailable";
   private static final String T_TITLE = "title";
   private static final String T_EMPTY_QUESTLOG = "empty";
+  private static final String T_NOT_INITIALIZED = "not_initialized";
   private static final String T_CREATE = "create";
   private static final String T_CREATE_PERSONAL = "create_personal";
   private static final String T_NOTE_PROMPT = "note_prompt";
@@ -112,10 +121,34 @@ public final class QuestLogUI {
    */
   public static void requestQuestLog(Entity player) {
     if (NetworkUtils.isNetworkClient()) {
-      Game.network().sendInput(InputMessage.custom(COMMAND_SHOW_QUESTLOG));
+      sendReliableRequest(Game.network(), null);
     } else {
       showQuestLogForPlayers(player.id());
     }
+  }
+
+  /**
+   * Creates the small reliable request used to open the shared quest log or select a tab.
+   *
+   * <p>The requester identity is deliberately absent from the payload. The server obtains it from
+   * the authenticated {@link engine.network.input.InputCommandRouter.InputCommandContext}.
+   *
+   * @param selectedTab tab to select, or {@code null} to open the default tab
+   * @return a custom input message suitable for reliable TCP delivery
+   */
+  static InputMessage createQuestLogRequest(String selectedTab) {
+    if (selectedTab == null || selectedTab.isBlank()) {
+      return InputMessage.custom(COMMAND_SHOW_QUESTLOG);
+    }
+    byte[] tabPayload = selectedTab.getBytes(StandardCharsets.UTF_8);
+    if (tabPayload.length > 256) {
+      throw new IllegalArgumentException("Quest log tab key exceeds 256 UTF-8 bytes.");
+    }
+    return InputMessage.custom(COMMAND_SELECT_QUESTLOG_TAB, tabPayload);
+  }
+
+  static void sendReliableRequest(INetworkHandler network, String selectedTab) {
+    network.send((short) 0, createQuestLogRequest(selectedTab), true);
   }
 
   /**
@@ -131,8 +164,8 @@ public final class QuestLogUI {
    * clients receive it, but note creation needs exactly one requesting player entity so the creator
    * can be resolved.
    *
-   * <p>If the quest log was not initialized, this method does not show anything to players. It logs
-   * the missing setup in the background and returns {@code false}.
+   * <p>If the quest log was not initialized, a localized notice is shown to the requested players
+   * and the method returns {@code false}.
    *
    * @param targetEntityIds optional player entity IDs that should receive the quest log
    * @return {@code true} if a quest log was available and the display request was created, {@code
@@ -157,30 +190,56 @@ public final class QuestLogUI {
    */
   public static boolean showQuestLogForPlayers(String selectedTab, int... targetEntityIds) {
     return QuestLogUtil.getQuestLogComponent()
-        .map(
-            questLog -> {
-              showFormattedQuestLogDialog(questLog, selectedTab, targetEntityIds);
-              return true;
-            })
+        .map(questLog -> showFormattedQuestLogDialog(questLog, selectedTab, targetEntityIds))
         .orElseGet(
             () -> {
               logMissingQuestLog();
+              showQuestLogUnavailable(targetEntityIds);
               return false;
             });
   }
 
-  private static void showFormattedQuestLogDialog(
-      QuestLogComponent questLog, String selectedTab, int... targetEntityIds) {
-    int[] dialogTargetIds = resolveDialogTargetIds(targetEntityIds);
-    if (dialogTargetIds.length > 1) {
-      for (int targetEntityId : dialogTargetIds) {
-        showFormattedQuestLogDialog(questLog, selectedTab, targetEntityId);
+  private static void showQuestLogUnavailable(int... targetEntityIds) {
+    int[] recipients = resolveDialogTargetIds(targetEntityIds);
+    if (recipients.length > 1) {
+      for (int recipient : recipients) {
+        showQuestLogUnavailable(recipient);
       }
       return;
     }
+    if (recipients.length == 1 && !canOpenQuestLogFor(recipients[0])) return;
+
+    DialogContext context =
+        DialogContext.builder()
+            .type(DIALOG_TYPE)
+            .put(DialogContextKeys.TITLE, "")
+            .put(CTX_TABS, new String[0])
+            .put(CTX_SELECTED_TAB, "")
+            .put(CTX_ENTRY_TABS, new String[0])
+            .put(CTX_ENTRY_TEXTS, new String[0])
+            .put(CTX_ENTRY_OWNERS, new String[0])
+            .put(CTX_ENTRY_TIMESTAMPS, new int[0])
+            .put(CTX_UNAVAILABLE, true)
+            .build();
+    UIComponent ui = DialogFactory.show(context, recipients);
+    ui.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(ui));
+  }
+
+  private static boolean showFormattedQuestLogDialog(
+      QuestLogComponent questLog, String selectedTab, int... targetEntityIds) {
+    int[] dialogTargetIds = resolveDialogTargetIds(targetEntityIds);
+    if (dialogTargetIds.length > 1) {
+      boolean shownToAnyPlayer = false;
+      for (int targetEntityId : dialogTargetIds) {
+        shownToAnyPlayer |= showFormattedQuestLogDialog(questLog, selectedTab, targetEntityId);
+      }
+      return shownToAnyPlayer;
+    }
+    if (dialogTargetIds.length == 0) return false;
 
     Entity viewer =
         dialogTargetIds.length == 1 ? Game.findEntityById(dialogTargetIds[0]).orElse(null) : null;
+    if (!canOpenQuestLogFor(dialogTargetIds[0])) return false;
     UIComponent ui =
         DialogFactory.show(createDialogContext(questLog, selectedTab, viewer), dialogTargetIds);
 
@@ -191,6 +250,17 @@ public final class QuestLogUI {
           UIUtils.closeDialog(ui);
         });
     ui.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(ui));
+    return true;
+  }
+
+  private static boolean canOpenQuestLogFor(int playerId) {
+    Entity player = Game.findEntityById(playerId).orElse(null);
+    boolean available = player != null && !HudSystem.getInstance().hasOpenUI(player);
+    if (!available) {
+      LOGGER.info(
+          "Declined quest log for player {} because another dialog is already open.", playerId);
+    }
+    return available;
   }
 
   private static int[] resolveDialogTargetIds(int... targetEntityIds) {
@@ -211,11 +281,15 @@ public final class QuestLogUI {
    */
   public static Group build(DialogContext ctx) {
     QuestLogViewData viewData = viewDataFrom(ctx);
+    boolean unavailable = ctx.find(CTX_UNAVAILABLE, Boolean.class).orElse(false);
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup(
-          trans.text(T_TITLE), viewData.toHeadlessText(), trans.text(T_CREATE));
+          trans.text(T_TITLE),
+          unavailable ? trans.text(T_NOT_INITIALIZED) : viewData.toHeadlessText(),
+          trans.text(T_CREATE));
     }
-    return new BaseContainerUI(new QuestLogDialog(ctx.dialogId(), viewData), false, true);
+    return new BaseContainerUI(
+        new QuestLogDialog(ctx.dialogId(), viewData, unavailable), false, true);
   }
 
   private static DialogContext createDialogContext(
@@ -223,7 +297,8 @@ public final class QuestLogUI {
     QuestLogViewData viewData = viewDataFrom(questLog, selectedTab, viewer);
     return DialogContext.builder()
         .type(DIALOG_TYPE)
-        .put(DialogContextKeys.TITLE, trans.text(T_TITLE))
+        .put(DialogContextKeys.TITLE, "")
+        .put(CTX_VIEWER_ID, viewer == null ? -1 : viewer.id())
         .put(CTX_TABS, viewData.tabs().toArray(new String[0]))
         .put(CTX_SELECTED_TAB, viewData.selectedTab())
         .put(CTX_ENTRY_TABS, viewData.entryTabs().toArray(new String[0]))
@@ -240,34 +315,44 @@ public final class QuestLogUI {
         List.of(ctx.find(CTX_ENTRY_TABS, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_TEXTS, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_OWNERS, String[].class).orElse(new String[0])),
-        ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]));
+        ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]),
+        ctx.find(CTX_VIEWER_ID, Integer.class).orElse(-1));
+  }
+
+  /**
+   * Resolves a synchronized label or entry only on the client that renders the quest log.
+   *
+   * @param text synchronized text or translation key
+   * @return localized text for the current client
+   */
+  private static String displayText(String text) {
+    return Game.localization().getCurrentTranslator().translate(text == null ? "" : text);
   }
 
   private static QuestLogViewData viewDataFrom(
       QuestLogComponent questLog, String requestedTab, Entity viewer) {
     QuestLogSelection selection = selectionFor(questLog, requestedTab, viewer);
-    String viewerName = playerName(viewer).orElse(null);
     List<String> entryTabs = new ArrayList<>();
     List<String> entryTexts = new ArrayList<>();
     List<String> entryOwners = new ArrayList<>();
     List<Integer> entryTimestamps = new ArrayList<>();
 
-    for (String tab : selection.tabs()) {
-      for (QuestLogEntry entry : visibleEntriesFor(questLog, tab, viewerName)) {
-        entryTabs.add(tab);
-        entryTexts.add(entryText(entry));
-        entryOwners.add(entry.owner());
-        entryTimestamps.add(entry.timestamp());
-      }
+    String selectedTab = selection.selectedTab().orElse("");
+    for (QuestLogEntry entry : selection.selectedEntries()) {
+      entryTabs.add(selectedTab);
+      entryTexts.add(entryText(entry));
+      entryOwners.add(entry.owner());
+      entryTimestamps.add(entry.timestamp());
     }
 
     return new QuestLogViewData(
         selection.tabs(),
-        selection.selectedTab().orElse(""),
+        selectedTab,
         entryTabs,
         entryTexts,
         entryOwners,
-        entryTimestamps.stream().mapToInt(Integer::intValue).toArray());
+        entryTimestamps.stream().mapToInt(Integer::intValue).toArray(),
+        viewer == null ? -1 : viewer.id());
   }
 
   private static void openCreateNoteDialog(
@@ -285,12 +370,12 @@ public final class QuestLogUI {
 
     int targetPlayerId = playerId.get();
     DialogFactory.showInputDialog(
-        trans.text(T_NOTE_PROMPT),
-        trans.text(T_TITLE),
+        "dialog.questlog.ui.note_prompt",
+        "dialog.questlog.ui.title",
         "",
-        trans.text(T_NOTE_PLACEHOLDER),
-        trans.text(T_CREATE),
-        trans.text(T_CANCEL),
+        "dialog.questlog.ui.note_placeholder",
+        "dialog.questlog.ui.create",
+        "dialog.questlog.ui.cancel",
         payload -> handleSubmittedNote(targetPlayerId, selectedTab, onlyForCreator, payload),
         () -> {},
         targetPlayerId);
@@ -646,7 +731,8 @@ public final class QuestLogUI {
       List<String> entryTabs,
       List<String> entryTexts,
       List<String> entryOwners,
-      int[] entryTimestamps) {
+      int[] entryTimestamps,
+      int viewerId) {
 
     private QuestLogViewData {
       tabs = List.copyOf(Objects.requireNonNull(tabs, "tabs"));
@@ -686,9 +772,9 @@ public final class QuestLogUI {
         if (!builder.isEmpty()) {
           builder.append(System.lineSeparator()).append(System.lineSeparator());
         }
-        builder.append(tab);
+        builder.append(displayText(tab));
         for (QuestLogEntryView entry : entriesFor(tab)) {
-          builder.append(System.lineSeparator()).append("- ").append(entry.text());
+          builder.append(System.lineSeparator()).append("- ").append(displayText(entry.text()));
         }
       }
       return builder.toString();
@@ -698,6 +784,7 @@ public final class QuestLogUI {
   private static final class QuestLogDialog extends Table {
     private final String dialogId;
     private final QuestLogViewData viewData;
+    private final boolean unavailable;
     private final Skin skin;
     private final Table sidebar;
     private final Container<Table> detailContainer;
@@ -705,9 +792,10 @@ public final class QuestLogUI {
     private final Drawable rowSelected;
     private String selectedTab;
 
-    private QuestLogDialog(String dialogId, QuestLogViewData viewData) {
+    private QuestLogDialog(String dialogId, QuestLogViewData viewData, boolean unavailable) {
       this.dialogId = dialogId;
       this.viewData = viewData;
+      this.unavailable = unavailable;
       this.skin = UIUtils.defaultSkin();
       this.sidebar = new Table();
       this.detailContainer = new Container<>();
@@ -776,18 +864,33 @@ public final class QuestLogUI {
       row.setTouchable(Touchable.enabled);
 
       RichLabel title =
-          label(preview(sidebarLabel(tab), 34), selected ? FONT_SELECTED : FONT_ROW, false);
+          label(
+              preview(displayText(sidebarLabel(tab)), 34),
+              selected ? FONT_SELECTED : FONT_ROW,
+              false);
       row.add(title).growX().left().padLeft(22f).padRight(14f);
 
       row.addListener(
           new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              selectedTab = tab;
-              refresh();
+              selectTab(tab);
             }
           });
       return row;
+    }
+
+    private void selectTab(String tab) {
+      if (tab.equals(selectedTab)) return;
+      DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL)
+          .accept(null);
+      if (NetworkUtils.isNetworkClient()) {
+        sendReliableRequest(Game.network(), tab);
+      } else if (viewData.viewerId() >= 0) {
+        showQuestLogForPlayers(tab, viewData.viewerId());
+      } else {
+        showQuestLogForPlayers(tab);
+      }
     }
 
     private Table buildDetail() {
@@ -797,7 +900,7 @@ public final class QuestLogUI {
 
       Table header = new Table();
       header.left();
-      header.add(label(detailTitle(selectedTab), FONT_TITLE, false)).growX().left();
+      header.add(label(displayText(detailTitle(selectedTab)), FONT_TITLE, false)).growX().left();
       TextButton close = new TextButton("x", skin, "red-outline");
       close.getLabel().setFontScale(0.55f);
       close.addListener(
@@ -812,7 +915,15 @@ public final class QuestLogUI {
       detail.add(header).width(CONTENT_WIDTH).padBottom(16f).row();
 
       List<QuestLogEntryView> entries = viewData.entriesFor(selectedTab);
-      if (entries.isEmpty()) {
+      if (unavailable) {
+        detail
+            .add(label(trans.text(T_NOT_INITIALIZED), FONT_BODY, true))
+            .width(CONTENT_WIDTH)
+            .left()
+            .top()
+            .padBottom(18f)
+            .row();
+      } else if (entries.isEmpty()) {
         detail
             .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true))
             .width(CONTENT_WIDTH)
@@ -825,14 +936,16 @@ public final class QuestLogUI {
       }
 
       detail.add().growY().row();
-      detail.add(buildFooter()).width(CONTENT_WIDTH).left().bottom();
+      if (!unavailable) {
+        detail.add(buildFooter()).width(CONTENT_WIDTH).left().bottom();
+      }
       return detail;
     }
 
     private void addEntryList(Table detail, List<QuestLogEntryView> entries) {
       for (QuestLogEntryView entry : entries) {
         detail
-            .add(label(entry.text(), FONT_BODY, true))
+            .add(label(displayText(entry.text()), FONT_BODY, true))
             .width(CONTENT_WIDTH)
             .left()
             .top()

@@ -22,7 +22,13 @@ public final class SystemRecoveryText {
 
   private SystemRecoveryText() {}
 
-  /** Resolves a System Recovery translation key relative to the project namespace. */
+  /**
+   * Resolves a System Recovery translation key relative to the project namespace.
+   *
+   * @param key translation key relative to the System Recovery namespace
+   * @param values optional format arguments
+   * @return localized text for the current process
+   */
   public static String text(String key, Object... values) {
     return TEXT.text(key, values);
   }
@@ -32,9 +38,31 @@ public final class SystemRecoveryText {
    *
    * <p>Arguments are encoded so arbitrary translated text, including line breaks and rich-label
    * markup, can travel inside the same key without being confused with another key.
+   *
+   * @param key translation key relative to the System Recovery namespace
+   * @param values optional format arguments
+   * @return transport-safe translation key
    */
   public static String key(String key, Object... values) {
-    String fullKey = KEY_PREFIX + key;
+    return encodedKey(KEY_PREFIX, key, values);
+  }
+
+  /**
+   * Creates a transport-safe quest-log key.
+   *
+   * <p>Quest-log identifiers remain stable on the server. The quest-log UI resolves these keys only
+   * while rendering, so two clients can display the same shared entry in different languages.
+   *
+   * @param key translation key relative to the System Recovery namespace
+   * @param values optional format arguments
+   * @return transport-safe quest-log key
+   */
+  public static String questKey(String key, Object... values) {
+    return encodedKey("questlog.", key, values);
+  }
+
+  private static String encodedKey(String prefix, String key, Object... values) {
+    String fullKey = prefix + key;
     if (values == null || values.length == 0) return fullKey;
     String encodedValues =
         Stream.of(values)
@@ -44,12 +72,24 @@ public final class SystemRecoveryText {
     return fullKey + "||" + encodedValues;
   }
 
-  /** Resolves a localized quest-log value used by the hint catalog. */
+  /**
+   * Resolves a localized quest-log value used by the hint catalog.
+   *
+   * @param key translation key relative to the quest-log namespace
+   * @param values optional format arguments
+   * @return localized quest-log text
+   */
   public static String quest(String key, Object... values) {
     return QUESTLOG.text(key, values);
   }
 
-  /** Creates a Last Hour-style story script whose text is resolved on the rendering client. */
+  /**
+   * Creates a Last Hour-style story script whose text is resolved on the rendering client.
+   *
+   * @param key story translation key
+   * @param values optional format arguments
+   * @return keyed story script
+   */
   public static String story(String key, Object... values) {
     return "[speaker img="
         + SPEAKER_IMAGE
@@ -59,7 +99,13 @@ public final class SystemRecoveryText {
         + key("story." + key, values);
   }
 
-  /** Creates a phone script with the lead AI as the Last Hour-style speaker. */
+  /**
+   * Creates a phone script with the lead AI as the Last Hour-style speaker.
+   *
+   * @param key phone translation key
+   * @param values optional format arguments
+   * @return keyed phone script
+   */
   public static String phoneCall(String key, Object... values) {
     return "[speaker img="
         + SPEAKER_IMAGE
@@ -69,7 +115,11 @@ public final class SystemRecoveryText {
         + key("story." + key, values);
   }
 
-  /** Returns the keyed Last Hour-style control overview for the opening call. */
+  /**
+   * Returns the keyed Last Hour-style control overview for the opening call.
+   *
+   * @return keyed control overview
+   */
   public static String controls() {
     return phoneCall(
         "controls",
@@ -84,7 +134,11 @@ public final class SystemRecoveryText {
         feature.input.configuration.KeyboardConfig.PAUSE_MENU.value());
   }
 
-  /** Returns keyed opening lore pages for client-side translation. */
+  /**
+   * Returns keyed opening lore pages for client-side translation.
+   *
+   * @return opening lore pages and their display durations
+   */
   public static List<Tuple<String, Integer>> introPages() {
     return List.of(
         Tuple.of(key("intro.page1"), 32),
@@ -95,7 +149,11 @@ public final class SystemRecoveryText {
         Tuple.of(key("intro.title"), 120));
   }
 
-  /** Returns keyed ending pages shown after the player reaches the final exit point. */
+  /**
+   * Returns keyed ending pages shown after the player reaches the final exit point.
+   *
+   * @return ending lore pages and their display durations
+   */
   public static List<Tuple<String, Integer>> endingPages() {
     return List.of(
         Tuple.of(key("outro.page1"), 32),

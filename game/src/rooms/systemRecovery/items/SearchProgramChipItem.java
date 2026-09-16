@@ -34,14 +34,18 @@ public final class SearchProgramChipItem extends Item {
     this(false);
   }
 
-  /** Creates a locator chip with the requested programming state. */
+  /**
+   * Creates a locator chip with the requested programming state.
+   *
+   * @param programmed whether the chip already contains the search program
+   */
   public SearchProgramChipItem(boolean programmed) {
     super(
-        SystemRecoveryText.text(
+        SystemRecoveryText.key(
             programmed ? "items.search-programmed-name" : "items.search-empty-name"),
         programmed
-            ? SystemRecoveryText.text("items.search-programmed-description")
-            : SystemRecoveryText.text("items.search-empty-description"),
+            ? SystemRecoveryText.key("items.search-programmed-description")
+            : SystemRecoveryText.key("items.search-empty-description"),
         new Animation(TEXTURE),
         new Animation(TEXTURE));
     this.programmed = programmed;

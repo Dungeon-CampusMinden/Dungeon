@@ -6,37 +6,60 @@ import rooms.systemRecovery.util.SystemRecoveryText;
 /** Builds the four localized hint stages attached to each player-facing progress place. */
 public final class SystemRecoveryHintCatalog {
 
+  private static final String[] STAGES = {"orientation", "approach", "near", "solution"};
+
   private SystemRecoveryHintCatalog() {}
 
   /**
    * Creates the staged hints for a place.
    *
-   * <p>The first two entries orient the player, the third gives the almost-complete instruction,
-   * and the fourth is explicitly marked as the complete solution. The actual question and warning
-   * are shown by the telephone, not stored in the Petri net.
+   * <p>All four entries are dedicated to this step; there is intentionally no generic fallback. The
+   * actual question and warning are shown by the telephone, not stored in the Petri net.
    *
-   * @param place active progress place
+   * @param step active learning step
    * @return four localized hints in increasing disclosure order
    */
-  public static Hint[] hints(SystemRecoveryProgressPlace place) {
-    String topic = SystemRecoveryText.quest(place.riddleKey() + ".tab");
-    String nearSolution =
-        place.storyKey() == null
-            ? SystemRecoveryText.text("hints.generic.near")
-            : SystemRecoveryText.text("story." + place.storyKey());
-
+  public static Hint[] hints(SystemRecoveryLearningStep step) {
+    if (step == null || !step.isLearningStep()) {
+      throw new IllegalArgumentException("Only learning steps own hints.");
+    }
     return new Hint[] {
       new Hint(
-          SystemRecoveryText.text("hints.orientation-title"),
-          SystemRecoveryText.text("hints.generic.orientation", topic)),
+          SystemRecoveryText.key("hints.orientation-title"),
+          SystemRecoveryText.key("hints.steps." + step.hintKey() + ".orientation")),
       new Hint(
-          SystemRecoveryText.text("hints.approach-title"),
-          SystemRecoveryText.text("hints.generic.approach", topic)),
-      new Hint(SystemRecoveryText.text("hints.near-title"), nearSolution),
+          SystemRecoveryText.key("hints.approach-title"),
+          SystemRecoveryText.key("hints.steps." + step.hintKey() + ".approach")),
       new Hint(
-          SystemRecoveryText.text("hints.solution-title"),
-          SystemRecoveryText.text("hints.solution." + place.hintKey()),
+          SystemRecoveryText.key("hints.near-title"),
+          SystemRecoveryText.key("hints.steps." + step.hintKey() + ".near")),
+      new Hint(
+          SystemRecoveryText.key("hints.solution-title"),
+          SystemRecoveryText.key("hints.steps." + step.hintKey() + ".solution"),
           true)
     };
+  }
+
+  /**
+   * Returns the stable tracking identifier for an exact hint offered by this step.
+   *
+   * @param step learning step owning the offer
+   * @param acceptedHint hint accepted by the shared HintSystem
+   * @return {@code <step>:<stage>} tracking ID
+   * @throws IllegalArgumentException if the hint does not belong to the step
+   */
+  public static String hintId(SystemRecoveryLearningStep step, Hint acceptedHint) {
+    if (step == null || !step.isLearningStep() || acceptedHint == null) {
+      throw new IllegalArgumentException(
+          "A hint ID requires a learning step and its accepted hint.");
+    }
+
+    Hint[] stepHints = hints(step);
+    for (int index = 0; index < stepHints.length; index++) {
+      if (stepHints[index].equals(acceptedHint)) {
+        return step.hintKey() + ":" + STAGES[index];
+      }
+    }
+    throw new IllegalArgumentException("The accepted hint does not belong to " + step.hintKey());
   }
 }

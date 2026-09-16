@@ -30,12 +30,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
 import rooms.systemRecovery.modules.computer.content.SortProgramTab;
-import rooms.systemRecovery.modules.computer.content.SystemCoreMetaTab;
 import rooms.systemRecovery.modules.computer.content.SystemCoreAccessTab;
+import rooms.systemRecovery.modules.computer.content.SystemCoreMetaTab;
 import rooms.systemRecovery.modules.computer.content.TerminalTab;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.SystemRecoveryText;
-import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /** Tabbed computer dialog for the System Recovery escape room. */
 public class SystemRecoveryComputerDialog extends Group {
@@ -90,7 +90,7 @@ public class SystemRecoveryComputerDialog extends Group {
     super.act(delta);
     if (!tabs.containsKey(SystemCoreMetaTab.KEY)
         && TerminalInterpreter.instance().currentState()
-            == TerminalInterpreterSetup.CENTRAL_META_STATE) {
+            == TerminalStep.SYSTEM_CORE_META.stateId()) {
       addTab(new SystemCoreMetaTab());
       activeTab = SystemCoreMetaTab.KEY;
       showContent(activeTab);

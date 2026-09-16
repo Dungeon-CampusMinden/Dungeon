@@ -84,11 +84,7 @@ Modul-Steps ebenfalls `m` verwenden.
 Minimal:
 
 ```java
-module[0] = "CPU";
-module[1] = "RAM";
-module[2] = "GPU";
-module[3] = "SSD";
-module[4] = "NETWORK";
+dw
 ```
 
 Alternative mit flexiblem Namen und gemischter Formatierung:

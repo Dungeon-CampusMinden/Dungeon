@@ -16,8 +16,11 @@ import feature.interaction.keypad.KeypadFactory;
 import feature.systems.EventScheduler;
 import feature.utils.ICommand;
 import java.util.List;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.ScannerEntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
+import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
+import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -39,7 +42,11 @@ public final class InventoryScannerRiddle {
   private int currentScanIndex = -1;
   private boolean scannerFaultDetected = false;
 
-  /** Returns whether the visual module scan has finished. */
+  /**
+   * Returns whether the visual module scan has finished.
+   *
+   * @return whether the scanner riddle is complete
+   */
   public boolean completed() {
     return scannerCompleted;
   }
@@ -53,12 +60,16 @@ public final class InventoryScannerRiddle {
     return scannerRunning ? currentScanIndex : -1;
   }
 
-  /** @return whether the GPU fault was detected during the scan */
+  /**
+   * @return whether the GPU fault was detected during the scan
+   */
   public boolean scannerFaultDetected() {
     return scannerFaultDetected;
   }
 
-  /** @return whether the scanner is currently moving across the module row */
+  /**
+   * @return whether the scanner is currently moving across the module row
+   */
   public boolean running() {
     return scannerRunning;
   }
@@ -66,12 +77,21 @@ public final class InventoryScannerRiddle {
   private Entity scannerEntity;
   private Entity scannerDisplay;
 
-  /** Creates the riddle for the owning level. */
+  /**
+   * Creates the riddle for the owning level.
+   *
+   * @param level level that owns the scanner entities
+   */
   public InventoryScannerRiddle(DungeonLevel level) {
     this(level, RiddleCallbacks.noop());
   }
 
-  /** Creates the riddle with callbacks for physical success and failure events. */
+  /**
+   * Creates the riddle with callbacks for physical success and failure events.
+   *
+   * @param level level that owns the scanner entities
+   * @param callbacks success, failure and completion callbacks
+   */
   public InventoryScannerRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
     this.callbacks = callbacks;
@@ -81,13 +101,14 @@ public final class InventoryScannerRiddle {
   public void setup() {
     setupTransportStorageKeypad();
     scannerEntity =
-        EntityFactory.moduleScanner(level.getPoint("scanner0").translate(SCANNER_OFFSET));
+        ScannerEntityFactory.moduleScanner(
+            level.getPoint("scanner0").translate(SCANNER_OFFSET), 1f);
     Game.add(scannerEntity);
 
     scannerDisplay =
-        EntityFactory.hintDisplay(
+        SystemRecoveryDisplayFactory.hintDisplay(
             level.getPoint("scanner_display"),
-            () -> SystemRecoveryText.text("world.scanner.display-pending"),
+            () -> SystemRecoveryText.key("world.scanner.display-pending"),
             SystemRecoveryText.key("world.scanner.title"));
     Game.add(scannerDisplay);
 
@@ -148,22 +169,47 @@ public final class InventoryScannerRiddle {
     currentScanIndex = -1;
     scannerCompleted = true;
     callbacks.solved();
-    EntityFactory.updateDisplayText(
-        scannerDisplay, SystemRecoveryText.text("world.scanner.display-complete"));
+    SystemRecoveryDisplayFactory.updateDisplayText(
+        scannerDisplay, SystemRecoveryText.key("world.scanner.display-complete"));
   }
 
   private void setupTransportStorageKeypad() {
+    DoorTile transportDoor =
+        (DoorTile) Game.tileAt(level.getPoint("door_transportlager")).orElseThrow();
+    boolean[] openedForExpectedStep = {false};
     Entity keypad =
         KeypadFactory.createKeypad(
             level.getPoint("keypad_transportlager"),
             List.of(4),
-            () -> ((DoorTile) Game.tileAt(level.getPoint("door_transportlager")).get()).open(),
+            () -> {
+              if (SystemRecoveryProgressNet.activeStep().orElse(null)
+                      != SystemRecoveryLearningStep.ROOM3_DOOR_CODE
+                  || transportDoor.isOpen()) {
+                return;
+              }
+              transportDoor.open();
+              if (!transportDoor.isOpen()) return;
+              if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ROOM3_DOOR_CODE)) {
+                openedForExpectedStep[0] = true;
+              } else {
+                transportDoor.close();
+              }
+            },
             true);
     keypad
         .fetch(KeypadComponent.class)
         .ifPresent(
             component -> {
-              component.onCorrectCode(player -> callbacks.success("4", player.id()));
+              component.onCorrectCode(
+                  player -> {
+                    if (openedForExpectedStep[0]) {
+                      callbacks.success("4", player.id());
+                      return;
+                    }
+                    component.isUnlocked(false);
+                    component.enteredDigits().clear();
+                    callbacks.failure("4-out-of-order", player.id());
+                  });
               component.onWrongCode(
                   player -> callbacks.failure(component.enteredString(), player.id()));
             });

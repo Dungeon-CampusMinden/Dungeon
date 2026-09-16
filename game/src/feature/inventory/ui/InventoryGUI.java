@@ -320,8 +320,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
     if (item.isEmpty()) return;
     Item itemToShow = item.get();
 
-    String title = itemToShow.displayName();
-    String description = UIUtils.formatString(itemToShow.description());
+    String title = displayText(itemToShow.displayName());
+    String description = UIUtils.formatString(displayText(itemToShow.description()));
     GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
     GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
 
@@ -350,6 +350,16 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   private static boolean isPlayersInventory(Entity player, InventoryComponent inventoryComponent) {
     Optional<Entity> owner = Game.findInAll(inventoryComponent);
     return owner.isPresent() && owner.get().id() == player.id();
+  }
+
+  /**
+   * Resolves item keys on the client that renders the inventory tooltip.
+   *
+   * @param text synchronized item text or translation key
+   * @return localized text for the current client
+   */
+  private static String displayText(String text) {
+    return Game.localization().getCurrentTranslator().translate(text == null ? "" : text);
   }
 
   @Override

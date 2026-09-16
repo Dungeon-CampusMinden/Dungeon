@@ -11,13 +11,13 @@ import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.systems.EventScheduler;
 import java.util.Map;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.ScannerEntityFactory;
+import rooms.systemRecovery.entities.StorageEntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.SystemRecoveryText;
-import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
-import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 
 /**
  * Riddle 8: materialize and inspect the three-by-four storage matrix.
@@ -51,23 +51,32 @@ public final class TwoDimensionalStorageRiddle {
   private Entity storageDisplay;
   private String storageDisplayText;
 
-  /** Creates the storage-matrix controller for the owning level. */
+  /**
+   * Creates the storage-matrix controller for the owning level.
+   *
+   * @param level owning System Recovery level
+   */
   public TwoDimensionalStorageRiddle(DungeonLevel level) {
     this(level, RiddleCallbacks.noop());
   }
 
-  /** Creates the storage riddle with callbacks for physical interactions. */
+  /**
+   * Creates the storage riddle with callbacks for physical interactions.
+   *
+   * @param level owning System Recovery level
+   * @param callbacks hooks for successful, failed and completed interactions
+   */
   public TwoDimensionalStorageRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
     this.callbacks = callbacks;
-    this.storageDisplayText = SystemRecoveryText.text("world.matrix.display-array");
+    this.storageDisplayText = SystemRecoveryText.key("world.matrix.display-array");
   }
 
   /** Spawns the shared terminal and all twelve storage cells in their 3x4 layout. */
   public void setup() {
     spawnTerminal();
     storageDisplay =
-        EntityFactory.hintDisplay(
+        SystemRecoveryDisplayFactory.hintDisplay(
             level.getPoint("display_2d"),
             () -> storageDisplayText,
             SystemRecoveryText.key("world.matrix.title"));
@@ -75,7 +84,7 @@ public final class TwoDimensionalStorageRiddle {
     Game.add(storageDisplay);
     for (int row = 0; row < ROW_COUNT; row++) {
       for (int column = 0; column < COLUMN_COUNT; column++) {
-        Entity cell = EntityFactory.storageMatrixCell(cellPoint(row, column), row, column);
+        Entity cell = StorageEntityFactory.matrixCell(cellPoint(row, column), row, column);
         cells[row][column] = cell;
         Game.add(cell);
       }
@@ -94,7 +103,7 @@ public final class TwoDimensionalStorageRiddle {
   public void activateMatrix() {
     if (stage >= 1) return;
     stage = 1;
-    storageDisplayText = SystemRecoveryText.text("world.matrix.display-values");
+    storageDisplayText = SystemRecoveryText.key("world.matrix.display-values");
     updateStorageDisplay();
     for (int row = 0; row < ROW_COUNT; row++) {
       for (int column = 0; column < COLUMN_COUNT; column++) {
@@ -123,7 +132,7 @@ public final class TwoDimensionalStorageRiddle {
     stage = 3;
     callbacks.success("matrix-filled", -1);
     callbacks.solved();
-    storageDisplayText = SystemRecoveryText.text("world.matrix.display-complete");
+    storageDisplayText = SystemRecoveryText.key("world.matrix.display-complete");
     updateStorageDisplay();
     deliverChipWithGrabArm();
   }
@@ -141,7 +150,13 @@ public final class TwoDimensionalStorageRiddle {
     return stage >= 1 ? "active" : "empty";
   }
 
-  /** Returns the value shown by a filled matrix cell, or zero for an empty cell. */
+  /**
+   * Returns the value shown by a filled matrix cell, or zero for an empty cell.
+   *
+   * @param row matrix row
+   * @param column matrix column
+   * @return stored value, or zero when the cell is empty
+   */
   public int cellValue(int row, int column) {
     return FILLED_VALUES.getOrDefault(row + "_" + column, 0);
   }
@@ -179,7 +194,7 @@ public final class TwoDimensionalStorageRiddle {
 
   private void updateStorageDisplay() {
     if (storageDisplay != null) {
-      EntityFactory.updateDisplayText(storageDisplay, storageDisplayText);
+      SystemRecoveryDisplayFactory.updateDisplayText(storageDisplay, storageDisplayText);
     }
   }
 
@@ -198,7 +213,7 @@ public final class TwoDimensionalStorageRiddle {
     for (Map.Entry<String, Integer> entry : FILLED_VALUES.entrySet()) {
       String[] coordinate = entry.getKey().split("_");
       Entity item =
-          EntityFactory.storageValueItem(
+          StorageEntityFactory.valueItem(
               cellPoint(Integer.parseInt(coordinate[0]), Integer.parseInt(coordinate[1])),
               entry.getValue());
       storageItems[itemIndex++] = item;
@@ -208,7 +223,7 @@ public final class TwoDimensionalStorageRiddle {
 
   private void deliverChipWithGrabArm() {
     if (chipDelivered || chipGrabArm != null) return;
-    chipGrabArm = EntityFactory.chipGrabArm(cellPoint(1, 3));
+    chipGrabArm = ScannerEntityFactory.chipGrabArm(cellPoint(1, 3));
     Game.add(chipGrabArm);
     Game.audio().playGlobal(SoundSpec.builder("retro_beep_01"));
     moveChipGrabArm(0);
@@ -231,8 +246,6 @@ public final class TwoDimensionalStorageRiddle {
     if (!chipDelivered) {
       chipDelivered = true;
       Game.add(WorldItemBuilder.buildWorldItem(new SearchProgramChipItem(), destination));
-      SystemRecoveryPuzzleEvents.progress(
-          SystemRecoveryPuzzle.TWO_DIMENSIONAL_STORAGE, "chip-delivered");
     }
   }
 }

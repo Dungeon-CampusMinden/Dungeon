@@ -91,7 +91,7 @@ public class TerminalInterpreterSetupTest {
         storage[1][3] = 2;
         storage[2][1] = 3;
         """);
-    submit(
+    String searchProgram =
         """
         for (int row = 0; row < map.length; ++row) {
             for (int column = 0; column < map[row].length; ++column) {
@@ -100,7 +100,10 @@ public class TerminalInterpreterSetupTest {
                 }
             }
         }
-        """);
+        """;
+    assertTrue(TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram));
+    assertEquals(12, TerminalInterpreter.instance().currentState());
+    TerminalInterpreter.instance().synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
     submit(
         """
         for (int outer = 0; outer <= values.length - 2; ++outer) {
@@ -171,7 +174,7 @@ public class TerminalInterpreterSetupTest {
   public void riddleNineRejectsBatterySearchWithoutCollectCall() {
     advanceToRiddleNine();
 
-    source +=
+    String searchProgram =
         """
         for (int row = 0; row < map.length; row++) {
             for (int column = 0; column < map[row].length; column++) {
@@ -182,7 +185,8 @@ public class TerminalInterpreterSetupTest {
         }
         """;
 
-    assertFalse(TerminalInterpreter.instance().interpret(source));
+    assertFalse(TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram));
+    assertFalse(TerminalInterpreter.instance().interpret(searchProgram));
   }
 
   /** The prepared one-column search is rejected until the missing inner loop is added. */
@@ -190,7 +194,7 @@ public class TerminalInterpreterSetupTest {
   public void riddleNineRequiresTheMissingInnerLoop() {
     advanceToRiddleNine();
 
-    source +=
+    String searchProgram =
         """
         for (int i = 0; i < map.length; i++) {
             int j = 0;
@@ -200,7 +204,8 @@ public class TerminalInterpreterSetupTest {
         }
         """;
 
-    assertFalse(TerminalInterpreter.instance().interpret(source));
+    assertFalse(TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram));
+    assertFalse(TerminalInterpreter.instance().interpret(searchProgram));
   }
 
   /** The inner loop can replace the prepared column initialization and complete the search. */
@@ -208,7 +213,7 @@ public class TerminalInterpreterSetupTest {
   public void riddleNineAcceptsTheInnerLoopAddedToThePreparedCode() {
     advanceToRiddleNine();
 
-    source +=
+    String searchProgram =
         """
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
@@ -219,7 +224,9 @@ public class TerminalInterpreterSetupTest {
         }
         """;
 
-    assertTrue(TerminalInterpreter.instance().interpret(source));
+    assertTrue(TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram));
+    assertFalse(TerminalInterpreter.instance().interpret(searchProgram));
+    assertEquals(12, TerminalInterpreter.instance().currentState());
   }
 
   /** Riddle 8 accepts a flexible storage array name but rejects mixing it with another name. */
@@ -323,12 +330,12 @@ public class TerminalInterpreterSetupTest {
         """);
   }
 
-  /** Supported loop variants stay strict about variable consistency. */
+  /** The standalone search-chip requirement accepts equivalent loop bounds and increments. */
   @Test
-  public void registeredRiddlesAcceptEquivalentLoopIncrementAndBoundsVariants() {
+  public void searchChipAcceptsEquivalentLoopIncrementAndBoundsVariants() {
     advanceToRiddleNine();
 
-    submit(
+    String searchProgram =
         """
         for (int row = 0; row <= map.length - 1; row += 1) {
             for (int column = 0; column <= map[row].length - 1; column = column + 1) {
@@ -337,15 +344,18 @@ public class TerminalInterpreterSetupTest {
                 }
             }
         }
-        """);
+        """;
+
+    assertTrue(TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram));
+    assertFalse(TerminalInterpreter.instance().interpret(searchProgram));
+    assertEquals(12, TerminalInterpreter.instance().currentState());
   }
 
   /**
-   * The search chip reuses the real riddle-9 requirement without advancing the shared terminal
-   * state.
+   * The search-chip requirement validates its source without advancing the shared terminal state.
    */
   @Test
-  public void searchChipUsesTheRegisteredThreeByTwoRiddleRequirement() {
+  public void searchChipValidationDoesNotAdvanceTheSharedTerminalState() {
     advanceToRiddleNine();
     String searchProgram =
         """
@@ -360,7 +370,7 @@ public class TerminalInterpreterSetupTest {
 
     assertTrue(
         TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram),
-        "The search chip must use the same registered nested-loop requirement");
+        "The search chip must use the standalone nested-loop requirement");
     assertEquals(12, TerminalInterpreter.instance().currentState());
   }
 
@@ -544,7 +554,7 @@ public class TerminalInterpreterSetupTest {
         lager[1][3] = 2;
         lager[2][1] = 3;
         """);
-    submit(
+    String searchProgram =
         """
         for (int row = 0; row < map.length; ++row) {
             for (int column = 0; column < map[row].length; ++column) {
@@ -553,6 +563,8 @@ public class TerminalInterpreterSetupTest {
                 }
             }
         }
-        """);
+        """;
+    assertTrue(TerminalInterpreterSetup.matchesSearchRobotProgram(searchProgram));
+    TerminalInterpreter.instance().synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
   }
 }

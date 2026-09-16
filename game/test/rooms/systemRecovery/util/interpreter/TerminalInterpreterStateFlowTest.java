@@ -39,7 +39,7 @@ public class TerminalInterpreterStateFlowTest {
     submitOk(dataArchiveArrays(), 10);
     submitOk(storageArrayCreation(), 11);
     submitOk(storageAssignments(), 12);
-    submitOk(mapSearchLoop(), 13);
+    completeSearchChip();
     submitOk(bubbleSortLoop(), 14);
     submitOk(centralModuleCountLoop(), 15);
     submitOk(centralMapSearchLoop(), FINAL_STATE);
@@ -60,7 +60,7 @@ public class TerminalInterpreterStateFlowTest {
     submitChunkOk(dataArchiveArrays(), 10);
     submitChunkOk(storageArrayCreation(), 11);
     submitChunkOk(storageAssignments(), 12);
-    submitChunkOk(mapSearchLoop(), 13);
+    completeSearchChip();
     submitChunkOk(bubbleSortLoop(), 14);
     submitChunkOk(centralModuleCountLoop(), 15);
     submitChunkOk(centralMapSearchLoop(), FINAL_STATE);
@@ -85,7 +85,7 @@ public class TerminalInterpreterStateFlowTest {
     submitOk(dataArchiveArrays(), 10);
     submitOk(storageArrayCreation(), 11);
     submitOk(storageAssignments(), 12);
-    submitOk(mapSearchLoop(), 13);
+    completeSearchChip();
     submitOk(bubbleSortLoop(), 14);
     submitOk(centralModuleCountLoop(), 15);
     submitOk(centralMapSearchLoop(), FINAL_STATE);
@@ -113,7 +113,7 @@ public class TerminalInterpreterStateFlowTest {
 
     submitFailsWithAdditionalCode(mapSearchLoop(), 11);
     submitOk(storageAssignments(), 12);
-    submitOk(mapSearchLoop(), 13);
+    completeSearchChip();
 
     submitOk(bubbleSortLoop(), 14);
     submitFailsWithAdditionalCode(centralMapSearchLoop(), 14);
@@ -138,6 +138,12 @@ public class TerminalInterpreterStateFlowTest {
     assertFalse(interpreter.interpret(source), addition);
     assertEquals(expectedState, interpreter.currentState(), addition);
     source = previousSource;
+  }
+
+  private void completeSearchChip() {
+    assertTrue(TerminalInterpreterSetup.matchesSearchRobotProgram(mapSearchLoop()));
+    assertEquals(12, interpreter.currentState());
+    interpreter.synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
   }
 
   private static String energyArrayCreation() {
@@ -279,5 +285,4 @@ public class TerminalInterpreterStateFlowTest {
         }
         """;
   }
-
 }

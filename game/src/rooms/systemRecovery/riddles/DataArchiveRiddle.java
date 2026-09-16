@@ -4,7 +4,7 @@ import engine.Game;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.ArchiveEntityFactory;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -24,12 +24,21 @@ public final class DataArchiveRiddle {
   private final RiddleCallbacks callbacks;
   private boolean completed;
 
-  /** Creates the archive riddle for the owning level. */
+  /**
+   * Creates the archive riddle for the owning level.
+   *
+   * @param level level that owns the archive entities
+   */
   public DataArchiveRiddle(DungeonLevel level) {
     this(level, RiddleCallbacks.noop());
   }
 
-  /** Creates the archive riddle with callbacks for physical interactions. */
+  /**
+   * Creates the archive riddle with callbacks for physical interactions.
+   *
+   * @param level level that owns the archive entities
+   * @param callbacks success, failure and completion callbacks
+   */
   public DataArchiveRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
     this.callbacks = callbacks;
@@ -64,17 +73,17 @@ public final class DataArchiveRiddle {
 
   private void spawnBookshelves() {
     Game.add(
-        EntityFactory.archiveBookshelf(
+        ArchiveEntityFactory.archiveBookshelf(
             level.getPoint("archive_shelf_energie"),
             "archive_shelf_energie",
             SystemRecoveryText.key("world.archive.shelf-energy")));
     Game.add(
-        EntityFactory.archiveBookshelf(
+        ArchiveEntityFactory.archiveBookshelf(
             level.getPoint("archive_shelf_module"),
             "archive_shelf_module",
             SystemRecoveryText.key("world.archive.shelf-module")));
     Game.add(
-        EntityFactory.archiveBookshelf(
+        ArchiveEntityFactory.archiveBookshelf(
             level.getPoint("archive_shelf_aktiv"),
             "archive_shelf_aktiv",
             SystemRecoveryText.key("world.archive.shelf-active")));
@@ -85,11 +94,11 @@ public final class DataArchiveRiddle {
       Point node = level.getPoint("archive_node" + index);
       String nodeName = "archive_node" + index;
       String dataText =
-          SystemRecoveryText.text(
+          SystemRecoveryText.key(
               "world.archive.node", index, ENERGY_VALUES[index], MODULE_VALUES[index]);
-      Game.add(EntityFactory.archiveDataDisplay(node, nodeName + "_data", dataText));
+      Game.add(ArchiveEntityFactory.archiveDataDisplay(node, nodeName + "_data", dataText));
       Game.add(
-          EntityFactory.archiveStatusLight(
+          ArchiveEntityFactory.archiveStatusLight(
               node.translate(0, -1.25f), nodeName + "_status", index, ACTIVE_VALUES[index]));
     }
   }

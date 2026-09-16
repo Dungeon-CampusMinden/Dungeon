@@ -12,9 +12,12 @@ import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
+import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
+import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
+import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -39,7 +42,11 @@ public final class TransportStorageRiddle {
   private Entity transportDisplay;
   private String transportDisplayText;
 
-  /** Returns whether every package has been collected. */
+  /**
+   * Returns whether every package has been collected.
+   *
+   * @return whether the transport riddle is complete
+   */
   public boolean completed() {
     return transportCompleted;
   }
@@ -50,16 +57,25 @@ public final class TransportStorageRiddle {
   private static final long SCANNER_PACKAGE_INTERVAL_MS =
       SCANNER_TRAVEL_STEPS * SCANNER_TRAVEL_STEP_MS + SCANNER_COLLECTION_WAIT_MS + 300L;
 
-  /** Creates the riddle for the owning level. */
+  /**
+   * Creates the riddle for the owning level.
+   *
+   * @param level level that owns the conveyor entities
+   */
   public TransportStorageRiddle(DungeonLevel level) {
     this(level, RiddleCallbacks.noop());
   }
 
-  /** Creates the riddle with callbacks for physical success and failure events. */
+  /**
+   * Creates the riddle with callbacks for physical success and failure events.
+   *
+   * @param level level that owns the conveyor entities
+   * @param callbacks success, failure and completion callbacks
+   */
   public TransportStorageRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
     this.callbacks = callbacks;
-    this.transportDisplayText = SystemRecoveryText.text("world.transport.display-values");
+    this.transportDisplayText = SystemRecoveryText.key("world.transport.display-values");
   }
 
   /** Spawns the shared terminal, collection scanner and tile-based conveyor. */
@@ -71,7 +87,7 @@ public final class TransportStorageRiddle {
     Game.add(terminal);
 
     transportDisplay =
-        EntityFactory.hintDisplay(
+        SystemRecoveryDisplayFactory.hintDisplay(
             level.getPoint("display_storage"),
             () -> transportDisplayText,
             SystemRecoveryText.key("world.transport.title"));
@@ -79,7 +95,7 @@ public final class TransportStorageRiddle {
     Game.add(transportDisplay);
 
     transportScanner =
-        EntityFactory.transportScanner(
+        TransportEntityFactory.scanner(
             level.getPoint("band_start").translate(TRANSPORT_SCANNER_OFFSET));
     Game.add(transportScanner);
     Point start = level.getPoint("band_start");
@@ -87,14 +103,14 @@ public final class TransportStorageRiddle {
     int segmentCount = Math.round(Math.abs(end.x() - start.x()));
     float direction = Math.signum(end.x() - start.x());
     for (int index = 0; index <= segmentCount; index++) {
-      Game.add(EntityFactory.conveyorSegment(start.translate(direction * index, -0.25f)));
+      Game.add(TransportEntityFactory.conveyorSegment(start.translate(direction * index, -0.25f)));
     }
   }
 
   private Point transportEndPoint() {
     try {
       return level.getPoint("band_ende");
-    } catch (RuntimeException ignored) {
+    } catch (java.util.NoSuchElementException ignored) {
       return level.getPoint("baned_end");
     }
   }
@@ -105,11 +121,11 @@ public final class TransportStorageRiddle {
     int[] weights = {15, 40, 20, 60, 30};
     for (int index = 0; index < weights.length; index++) {
       transportPackages[index] =
-          EntityFactory.transportPackage(level.getPoint("band" + index), weights[index]);
+          TransportEntityFactory.packageEntity(level.getPoint("band" + index), weights[index]);
       Game.add(transportPackages[index]);
     }
     transportPackagesSpawned = true;
-    transportDisplayText = SystemRecoveryText.text("world.transport.display-collect");
+    transportDisplayText = SystemRecoveryText.key("world.transport.display-collect");
     updateTransportDisplay();
   }
 
@@ -117,7 +133,7 @@ public final class TransportStorageRiddle {
   public void startTransportSequence() {
     if (!transportPackagesSpawned || transportRunning || transportScanner == null) return;
     transportRunning = true;
-    transportDisplayText = SystemRecoveryText.text("world.transport.display-running");
+    transportDisplayText = SystemRecoveryText.key("world.transport.display-running");
     updateTransportDisplay();
     for (int index = 0; index < transportPackages.length; index++) {
       final int packageIndex = index;
@@ -172,25 +188,38 @@ public final class TransportStorageRiddle {
     transportCompleted = true;
     callbacks.success("all-packages-collected", -1);
     callbacks.solved();
-    transportDisplayText = SystemRecoveryText.text("world.transport.display-complete");
+    transportDisplayText = SystemRecoveryText.key("world.transport.display-complete");
     updateTransportDisplay();
-    ((DoorTile) Game.tileAt(level.getPoint("door_datenspeicher")).get()).open();
+    DoorTile storageDoor =
+        (DoorTile) Game.tileAt(level.getPoint("door_datenspeicher")).orElseThrow();
+    storageDoor.open();
+    if (storageDoor.isOpen()) {
+      SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN);
+    }
     SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.DATA_STORAGE_PROBLEM);
   }
 
-  /** Returns the conveyor scanner shared with riddle 6. */
+  /**
+   * Returns the conveyor scanner shared with riddle 6.
+   *
+   * @return current conveyor scanner
+   */
   Entity scanner() {
     return transportScanner;
   }
 
-  /** Replaces the scanner reference when riddle 6 needs a wider scanner. */
+  /**
+   * Replaces the scanner reference when riddle 6 needs a wider scanner.
+   *
+   * @param scanner replacement scanner
+   */
   void replaceScanner(Entity scanner) {
     transportScanner = scanner;
   }
 
   private void updateTransportDisplay() {
     if (transportDisplay != null) {
-      EntityFactory.updateDisplayText(transportDisplay, transportDisplayText);
+      SystemRecoveryDisplayFactory.updateDisplayText(transportDisplay, transportDisplayText);
     }
   }
 }

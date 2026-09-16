@@ -4,7 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-/** Parses the compact payload sent by the System Core result input mask. */
+/**
+ * Parses the compact payload sent by the System Core result input mask.
+ *
+ * @param sortedEnergy sorted energy values submitted by the player
+ * @param activeModules number of non-null module entries
+ * @param batterySignals number of detected battery signals
+ */
 public record SystemCoreMetaInput(
     List<Integer> sortedEnergy, int activeModules, int batterySignals) {
 

@@ -133,7 +133,7 @@ public class HintSystem extends System {
    *
    * @return the next hint for the active state, if available
    */
-  public Optional<Hint> peekSharedHint() {
+  public synchronized Optional<Hint> peekSharedHint() {
     return activeHintEntity().flatMap(entity -> hintAt(entity, sharedHintIndex(entity.id())));
   }
 
@@ -146,6 +146,21 @@ public class HintSystem extends System {
    * @return the accepted hint, or empty if the state changed before confirmation
    */
   public Optional<Hint> acceptSharedHint() {
+    return acceptSharedHint(null);
+  }
+
+  /**
+   * Confirms a previously offered shared hint if it is still the current hint.
+   *
+   * <p>The check and index increment happen together so two players confirming the same phone
+   * dialog cannot consume two hint stages. Passing {@code null} preserves the unconditional
+   * behavior of {@link #acceptSharedHint()} for callers that do not keep an offer snapshot.
+   *
+   * @param expectedHint hint that was shown to the player, or {@code null} to accept the current
+   *     hint without comparing it
+   * @return the accepted hint, or empty if the shared hint changed before confirmation
+   */
+  public synchronized Optional<Hint> acceptSharedHint(Hint expectedHint) {
     Optional<Entity> activeEntity = activeHintEntity();
     if (activeEntity.isEmpty()) return Optional.empty();
 
@@ -153,13 +168,47 @@ public class HintSystem extends System {
     int index = sharedHintIndex(entity.id());
     Optional<Hint> hint = hintAt(entity, index);
     if (hint.isEmpty()) return Optional.empty();
+    if (expectedHint != null && !expectedHint.equals(hint.orElseThrow())) {
+      return Optional.empty();
+    }
 
     sharedHintIndices.put(entity.id(), index + 1);
     return hint;
   }
 
+  /**
+   * Confirms a hint only if the active place is still the entity that produced the offer.
+   *
+   * @param expectedEntityId entity ID captured when the telephone offered the hint
+   * @param expectedHint exact hint shown in that offer
+   * @return accepted hint, or empty when the place or hint changed
+   */
+  public synchronized Optional<Hint> acceptSharedHint(int expectedEntityId, Hint expectedHint) {
+    Optional<Entity> activeEntity = activeHintEntity();
+    if (activeEntity.isEmpty() || activeEntity.orElseThrow().id() != expectedEntityId) {
+      return Optional.empty();
+    }
+    return acceptSharedHint(expectedHint);
+  }
+
+  /**
+   * Reads the accepted shared-hint count for one hint-bearing entity without advancing it.
+   *
+   * @param entity entity whose active place owns the hint sequence
+   * @return accepted and total hint counts, or {@code 0/0} when the entity has no hint component
+   */
+  public synchronized SharedHintProgress sharedProgress(Entity entity) {
+    if (entity == null) return new SharedHintProgress(0, 0);
+    Optional<HintComponent> component = entity.fetch(HintComponent.class);
+    if (component.isEmpty()) return new SharedHintProgress(0, 0);
+
+    int count = component.orElseThrow().size();
+    int accepted = Math.min(sharedHintIndex(entity.id()), count);
+    return new SharedHintProgress(accepted, count);
+  }
+
   /** Resets the shared phone hint progress for the room. */
-  public void resetHintProgress() {
+  public synchronized void resetHintProgress() {
     sharedHintIndices.clear();
   }
 
@@ -171,7 +220,10 @@ public class HintSystem extends System {
     return filteredEntityStream()
         .filter(
             entity ->
-                entity.fetch(PlaceComponent.class).map(place -> place.tokenCount() > 0).orElse(false))
+                entity
+                    .fetch(PlaceComponent.class)
+                    .map(place -> place.tokenCount() > 0)
+                    .orElse(false))
         .min(Comparator.comparingInt(Entity::id));
   }
 
@@ -213,4 +265,12 @@ public class HintSystem extends System {
     }
     return null;
   }
+
+  /**
+   * Immutable inspection result for the shared telephone-hint sequence.
+   *
+   * @param acceptedCount number of accepted hints in the current shared sequence
+   * @param hintCount number of available hints in that sequence
+   */
+  public record SharedHintProgress(int acceptedCount, int hintCount) {}
 }

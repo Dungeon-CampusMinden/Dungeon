@@ -18,7 +18,8 @@ import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
 import rooms.systemRecovery.SystemRecovery;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.SortingEntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
@@ -45,17 +46,32 @@ public final class ManualSortingRiddle {
   private int sortInnerIndex;
   private boolean sortCompleted;
 
-  /** Returns whether all comparison decisions have been completed correctly. */
+  /**
+   * Returns whether all comparison decisions have been completed correctly.
+   *
+   * @return whether the manual sorting riddle is complete
+   */
   public boolean completed() {
     return sortCompleted;
   }
 
-  /** Creates the comparison exercise; the machine dependency prevents overlapping interactions. */
+  /**
+   * Creates the comparison exercise; the machine dependency prevents overlapping interactions.
+   *
+   * @param level level that owns the sorting entities
+   * @param bubbleSort machine that shares the conveyor area
+   */
   public ManualSortingRiddle(DungeonLevel level, BubbleSortRiddle bubbleSort) {
     this(level, bubbleSort, RiddleCallbacks.noop());
   }
 
-  /** Creates the comparison exercise with callbacks for successful and failed choices. */
+  /**
+   * Creates the comparison exercise with callbacks for successful and failed choices.
+   *
+   * @param level level that owns the sorting entities
+   * @param bubbleSort machine that shares the conveyor area
+   * @param callbacks success, failure and completion callbacks
+   */
   public ManualSortingRiddle(
       DungeonLevel level, BubbleSortRiddle bubbleSort, RiddleCallbacks callbacks) {
     this.level = level;
@@ -69,7 +85,7 @@ public final class ManualSortingRiddle {
     for (int index = 0; index < sortPoints.length; index++) {
       String pointName = index == 0 ? "sort_data_0" : "sort_data" + index;
       sortPoints[index] = level.getPoint(pointName);
-      sortData[index] = EntityFactory.sortingDataCrystal(sortPoints[index], sortValues[index]);
+      sortData[index] = SortingEntityFactory.dataCrystal(sortPoints[index], sortValues[index]);
       sortOriginalData[index] = sortData[index];
       Game.add(sortData[index]);
     }
@@ -77,7 +93,7 @@ public final class ManualSortingRiddle {
     sortInnerIndex = 0;
     sortCompleted = false;
     sortDisplay =
-        EntityFactory.moduleDisplay(
+        SystemRecoveryDisplayFactory.moduleDisplay(
             level.getPoint("sort_compare_display"), this::sortDisplayText, this::showSortChoice);
     sortDisplay.name("sort_compare_display");
     Game.add(sortDisplay);
@@ -85,10 +101,10 @@ public final class ManualSortingRiddle {
   }
 
   private String sortDisplayText() {
-    if (sortCompleted) return SystemRecoveryText.text("world.sort.display-complete");
+    if (sortCompleted) return SystemRecoveryText.key("world.sort.display-complete");
     int left = sortValues[sortInnerIndex];
     int right = sortValues[sortInnerIndex + 1];
-    return SystemRecoveryText.text("world.sort.display", sortInnerIndex, left, right);
+    return SystemRecoveryText.key("world.sort.display", sortInnerIndex, left, right);
   }
 
   private String sortDialogText() {
@@ -104,7 +120,7 @@ public final class ManualSortingRiddle {
             List.of(
                 ChoiceOption.of(SystemRecoveryText.key("world.sort.swap"), "swap"),
                 ChoiceOption.of(SystemRecoveryText.key("world.sort.keep"), "keep")));
-    if (SystemRecovery.DEBUG_MODE) {
+    if (SystemRecovery.debugMode()) {
       choices.add(ChoiceOption.of(SystemRecoveryText.key("world.sort.skip"), "skip"));
     }
     DialogFactory.showMultipleChoiceDialog(
@@ -125,9 +141,13 @@ public final class ManualSortingRiddle {
         player.id());
   }
 
-  /** Completes the manual sorting riddle for local debug sessions. */
+  /**
+   * Completes the manual sorting riddle for local debug sessions.
+   *
+   * @param player player receiving the debug reward and story feedback
+   */
   void skipForDebug(Entity player) {
-    if (!SystemRecovery.DEBUG_MODE || sortCompleted) return;
+    if (!SystemRecovery.debugMode() || sortCompleted) return;
     sortValuesAndEntities();
     sortOuterIndex = sortValues.length - 1;
     sortInnerIndex = 0;
@@ -225,7 +245,7 @@ public final class ManualSortingRiddle {
 
   private void updateSortDisplay() {
     if (sortDisplay != null) {
-      EntityFactory.updateDisplayText(sortDisplay, sortDisplayText());
+      SystemRecoveryDisplayFactory.updateDisplayText(sortDisplay, sortDisplayText());
     }
     updateSortComparisonHighlight();
   }
@@ -248,9 +268,7 @@ public final class ManualSortingRiddle {
                     .add(
                         "sortComparisonFill",
                         new EnergyFillShader(
-                                sortValue(data),
-                                Color.CYAN,
-                                "objects/tech/CryoBox.png")
+                                sortValue(data), Color.CYAN, "objects/tech/CryoBox.png")
                             .animMagnitude(0));
                 EnergyGlow.addTo(draw);
               });
@@ -271,7 +289,7 @@ public final class ManualSortingRiddle {
     int separator = name.lastIndexOf('_');
     try {
       return Integer.parseInt(name.substring(separator + 1)) / 100f;
-    } catch (RuntimeException ignored) {
+    } catch (NumberFormatException ignored) {
       return 0f;
     }
   }

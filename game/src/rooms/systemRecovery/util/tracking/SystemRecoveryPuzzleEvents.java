@@ -1,41 +1,89 @@
 package rooms.systemRecovery.util.tracking;
 
 import engine.Entity;
-import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /**
- * Single integration boundary for System Recovery progress events.
+ * Server-side boundary for System Recovery attempt tracking and explicit learning-step callbacks.
  *
- * <p>Riddle controllers emit semantic events through this class instead of importing the engine
- * tracking API. This keeps tracking, puzzle identifiers and the System Recovery Petri-net adapter
- * in one place. The net receives only authoritative state events; it never validates source code
- * or performs world effects.
+ * <p>Tracking an attempt or marking a riddle solved does not implicitly change Petri progress.
+ * Progress moves only at a concrete success callback that names its expected learning step.
  */
 public final class SystemRecoveryPuzzleEvents {
+
   private SystemRecoveryPuzzleEvents() {}
 
   /**
-   * Creates the standard callbacks for one riddle interaction.
+   * Creates callbacks for interactions that only need attempt and completion tracking.
    *
-   * <p>Every success, failure and completion event created here uses the same puzzle metadata. New
-   * riddle controllers should request their callbacks here instead of calling tracking directly.
+   * @param puzzle riddle that owns the interaction
+   * @param objectId stable object identifier
+   * @param answerKind stable answer identifier
+   * @return callbacks that never advance the progress net implicitly
    */
   public static RiddleCallbacks forPuzzle(
       SystemRecoveryPuzzle puzzle, String objectId, String answerKind) {
-    return new RiddleCallbacks(
-        attempt -> attempt(puzzle, objectId, answerKind, attempt.input(), true, attempt.playerId()),
-        attempt ->
-            attempt(puzzle, objectId, answerKind, attempt.input(), false, attempt.playerId()),
-        () -> solved(puzzle));
+    return callbacks(puzzle, objectId, answerKind, null);
   }
 
-  /** Creates callbacks using the default tracking metadata owned by the puzzle definition. */
+  /**
+   * Creates callbacks whose first successful riddle completion owns one learning step.
+   *
+   * @param puzzle riddle that owns the interaction
+   * @param objectId stable object identifier
+   * @param answerKind stable answer identifier
+   * @param completedStep step completed by the riddle's solved callback
+   * @return callbacks with an explicit, typed completion mapping
+   */
+  public static RiddleCallbacks forPuzzleCompleting(
+      SystemRecoveryPuzzle puzzle,
+      String objectId,
+      String answerKind,
+      SystemRecoveryLearningStep completedStep) {
+    return callbacks(puzzle, objectId, answerKind, completedStep);
+  }
+
+  /**
+   * Creates callbacks using the puzzle's default tracking metadata without Petri progression.
+   *
+   * @param puzzle riddle that owns the interaction
+   * @return callbacks using the puzzle's default object and answer identifiers
+   */
   public static RiddleCallbacks forPuzzle(SystemRecoveryPuzzle puzzle) {
     return forPuzzle(puzzle, puzzle.defaultObjectId(), puzzle.defaultAnswerKind());
   }
 
-  /** Records a server-evaluated interaction attempt. */
+  private static RiddleCallbacks callbacks(
+      SystemRecoveryPuzzle puzzle,
+      String objectId,
+      String answerKind,
+      SystemRecoveryLearningStep completedStep) {
+    return new RiddleCallbacks(
+        attempt ->
+            SystemRecoveryTracking.attempt(
+                puzzle, objectId, answerKind, attempt.input(), true, attempt.playerId()),
+        attempt ->
+            SystemRecoveryTracking.attempt(
+                puzzle, objectId, answerKind, attempt.input(), false, attempt.playerId()),
+        () -> {
+          solved(puzzle);
+          if (completedStep != null) SystemRecoveryProgressNet.complete(completedStep);
+        });
+  }
+
+  /**
+   * Records an authoritative interaction attempt without changing progression.
+   *
+   * @param puzzle owning riddle
+   * @param objectId stable object identifier
+   * @param answerKind stable answer identifier
+   * @param rawAnswer submitted value
+   * @param correct authoritative validator result
+   * @param playerId authoritative player ID, or negative if unavailable
+   */
   public static void attempt(
       SystemRecoveryPuzzle puzzle,
       String objectId,
@@ -44,10 +92,18 @@ public final class SystemRecoveryPuzzleEvents {
       boolean correct,
       int playerId) {
     SystemRecoveryTracking.attempt(puzzle, objectId, answerKind, rawAnswer, correct, playerId);
-    if (correct) SystemRecoveryProgressNet.successfulInteraction(puzzle, answerKind);
   }
 
-  /** Records a server-evaluated interaction attempt made by an entity. */
+  /**
+   * Records an authoritative interaction attempt made by a player entity.
+   *
+   * @param puzzle riddle that owns the interaction
+   * @param objectId stable object identifier
+   * @param answerKind stable answer identifier
+   * @param rawAnswer submitted value
+   * @param correct authoritative validator result
+   * @param player player entity that submitted the value
+   */
   public static void attempt(
       SystemRecoveryPuzzle puzzle,
       String objectId,
@@ -56,33 +112,51 @@ public final class SystemRecoveryPuzzleEvents {
       boolean correct,
       Entity player) {
     SystemRecoveryTracking.attempt(puzzle, objectId, answerKind, rawAnswer, correct, player);
-    if (correct) SystemRecoveryProgressNet.successfulInteraction(puzzle, answerKind);
   }
 
-  /** Records the result of a terminal submission against the state that received it. */
+  /**
+   * Records a terminal attempt and completes its one explicitly mapped learning step on success.
+   *
+   * @param state interpreter state that received the input
+   * @param source full submitted source
+   * @param correct whether the authoritative interpreter accepted it
+   * @param playerId authoritative player ID, or negative if unavailable
+   */
   public static void terminalAttempt(int state, String source, boolean correct, int playerId) {
     SystemRecoveryTracking.terminalAttempt(state, source, correct, playerId);
-    if (correct) SystemRecoveryProgressNet.terminalSuccess(state);
+    if (!correct) return;
+    TerminalStep.fromStateId(state)
+        .flatMap(SystemRecoveryLearningStep::fromTerminalStep)
+        .ifPresent(SystemRecoveryProgressNet::complete);
   }
 
-  /** Records an authoritative puzzle completion exactly at the state transition boundary. */
+  /**
+   * Records a puzzle completion without inferring any progress transition.
+   *
+   * @param puzzle completed puzzle
+   */
   public static void solved(SystemRecoveryPuzzle puzzle) {
     SystemRecoveryTracking.solved(puzzle);
-    SystemRecoveryProgressNet.solved(puzzle);
   }
 
-  /** Records that a puzzle became available to the player flow. */
+  /**
+   * Records that a puzzle became available in the shared room progression.
+   *
+   * @param puzzle puzzle that became available
+   */
   public static void started(SystemRecoveryPuzzle puzzle) {
     SystemRecoveryTracking.started(puzzle);
   }
 
-  /** Emits a non-terminal progress event, such as the asynchronous chip delivery. */
-  public static void progress(SystemRecoveryPuzzle puzzle, String answerKind) {
-    SystemRecoveryProgressNet.successfulInteraction(puzzle, answerKind);
-  }
-
-  /** Emits the authoritative completion of the opening telephone call. */
-  public static void openingCallFinished() {
-    SystemRecoveryProgressNet.openingCallFinished();
+  /**
+   * Records one accepted telephone hint for its requesting participant.
+   *
+   * @param puzzle puzzle for which the hint was accepted
+   * @param hintId stable identifier of the accepted hint stage
+   * @param player participant who requested the hint
+   */
+  public static void hintUsed(SystemRecoveryPuzzle puzzle, String hintId, Entity player) {
+    if (puzzle == null || hintId == null || player == null) return;
+    SystemRecoveryTracking.hintUsed(puzzle, hintId, player);
   }
 }
