@@ -31,14 +31,17 @@ public final class SortProgramStickItem extends Item {
     this(false);
   }
 
-  /** Creates a sort-program stick with the requested programming state. */
+  /**
+   * Creates a sort-program stick with the requested programming state.
+   *
+   * @param programmed whether the stick already contains the sort program
+   */
   public SortProgramStickItem(boolean programmed) {
     super(
-        SystemRecoveryText.text(
-            programmed ? "items.sort-programmed-name" : "items.sort-empty-name"),
+        SystemRecoveryText.key(programmed ? "items.sort-programmed-name" : "items.sort-empty-name"),
         programmed
-            ? SystemRecoveryText.text("items.sort-programmed-description")
-            : SystemRecoveryText.text("items.sort-empty-description"),
+            ? SystemRecoveryText.key("items.sort-programmed-description")
+            : SystemRecoveryText.key("items.sort-empty-description"),
         new Animation(TEXTURE),
         new Animation(TEXTURE));
     this.programmed = programmed;

@@ -5,7 +5,6 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
-import engine.utils.Point;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import java.util.Arrays;
@@ -13,7 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.SortingEntityFactory;
+import rooms.systemRecovery.entities.SystemCoreEntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -38,7 +39,11 @@ public final class SystemCoreRiddle {
   private Entity display;
   private int stage;
 
-  /** Creates the central-computer riddle for the owning level. */
+  /**
+   * Creates the central-computer riddle for the owning level.
+   *
+   * @param level level that owns the system-core entities
+   */
   public SystemCoreRiddle(DungeonLevel level) {
     this.level = level;
   }
@@ -85,7 +90,9 @@ public final class SystemCoreRiddle {
     door.open();
   }
 
-  /** @return whether all three routines and the final combination have been accepted */
+  /**
+   * @return whether all three routines and the final combination have been accepted
+   */
   public boolean completed() {
     return stage >= 4;
   }
@@ -108,7 +115,8 @@ public final class SystemCoreRiddle {
    */
   public boolean acceptsMetaInput(String payload) {
     return SystemCoreMetaInput.parse(payload)
-        .map(input -> input.matches(sortedEnergyValues(), activeModuleCount(), BATTERY_CELLS.size()))
+        .map(
+            input -> input.matches(sortedEnergyValues(), activeModuleCount(), BATTERY_CELLS.size()))
         .orElse(false);
   }
 
@@ -122,7 +130,7 @@ public final class SystemCoreRiddle {
 
   private void spawnDisplay() {
     display =
-        EntityFactory.hintDisplay(
+        SystemRecoveryDisplayFactory.hintDisplay(
             level.getPoint("core_display"),
             this::displayText,
             SystemRecoveryText.key("world.system-core.title"));
@@ -134,7 +142,7 @@ public final class SystemCoreRiddle {
   private void spawnSortArea() {
     for (int index = 0; index < SORT_VALUES.length; index++) {
       Entity entry =
-          EntityFactory.sortingDataCrystal(level.getPoint("b" + index), SORT_VALUES[index]);
+          SortingEntityFactory.dataCrystal(level.getPoint("b" + index), SORT_VALUES[index]);
       entry.name("system_core_sort_" + index);
       sortEntries[index] = entry;
       Game.add(entry);
@@ -144,7 +152,7 @@ public final class SystemCoreRiddle {
   private void spawnModuleArea() {
     for (int index = 0; index < MODULE_VALUES.length; index++) {
       Entity entry =
-          EntityFactory.systemCoreModuleEntry(
+          SystemCoreEntityFactory.moduleEntry(
               level.getPoint("mod" + index), index, MODULE_VALUES[index]);
       moduleEntries[index] = entry;
       Game.add(entry);
@@ -157,8 +165,7 @@ public final class SystemCoreRiddle {
       for (int column = 0; column < map.columns(); column++) {
         boolean batterySignal = BATTERY_CELLS.contains(row + "_" + column);
         Entity cell =
-            EntityFactory.systemCoreMapCell(
-                map.pointAt(row, column), row, column, batterySignal);
+            SystemCoreEntityFactory.mapCell(map.pointAt(row, column), row, column, batterySignal);
         mapEntries.add(cell);
         Game.add(cell);
       }
@@ -167,18 +174,18 @@ public final class SystemCoreRiddle {
 
   private String displayText() {
     return switch (stage) {
-      case 0 -> SystemRecoveryText.text("world.system-core.display-sort");
-      case 1 -> SystemRecoveryText.text("world.system-core.display-count");
-      case 2 -> SystemRecoveryText.text("world.system-core.display-search");
+      case 0 -> SystemRecoveryText.key("world.system-core.display-sort");
+      case 1 -> SystemRecoveryText.key("world.system-core.display-count");
+      case 2 -> SystemRecoveryText.key("world.system-core.display-search");
       case 3 -> metaDisplayText();
-      default -> SystemRecoveryText.text("world.system-core.display-complete");
+      default -> SystemRecoveryText.key("world.system-core.display-complete");
     };
   }
 
   private String metaDisplayText() {
     String sortedValues =
         sortedEnergyValues().stream().map(String::valueOf).collect(Collectors.joining(" "));
-    return SystemRecoveryText.text(
+    return SystemRecoveryText.key(
         "world.system-core.display-meta", sortedValues, activeModuleCount(), BATTERY_CELLS.size());
   }
 
@@ -192,7 +199,7 @@ public final class SystemCoreRiddle {
 
   private void updateDisplay() {
     if (display != null) {
-      EntityFactory.updateDisplayText(display, displayText());
+      SystemRecoveryDisplayFactory.updateDisplayText(display, displayText());
     }
   }
 
@@ -205,8 +212,6 @@ public final class SystemCoreRiddle {
   private void tint(Set<Entity> entities) {
     entities.forEach(
         entity ->
-            entity
-                .fetch(DrawComponent.class)
-                .ifPresent(draw -> draw.tintColor(COMPLETE_TINT)));
+            entity.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(COMPLETE_TINT)));
   }
 }

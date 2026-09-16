@@ -16,14 +16,14 @@ import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
-import feature.questlog.QuestLogUtil;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.PositionSync;
 import java.util.Map;
 import java.util.Objects;
-import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
+import rooms.systemRecovery.network.SystemCoreVisualSync;
+import rooms.systemRecovery.network.SystemRecoveryComponentSync;
 
 /** Client-side setup for System Recovery. */
 public final class SystemRecoveryClient {
@@ -36,7 +36,7 @@ public final class SystemRecoveryClient {
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
 
-    if (SystemRecovery.DEBUG_MODE) {
+    if (SystemRecovery.debugMode()) {
       Game.add(new Debugger());
       KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
       Game.add(new DebugDrawSystem());
@@ -83,18 +83,9 @@ public final class SystemRecoveryClient {
               if (event.shaderComponent() != null) {
                 newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
               }
-              SystemRecoverySnapshotTranslator.applyInteractableMetadata(
-                  newEntity, event.metadata());
-              SystemRecoverySnapshotTranslator.applySystemCoreAlarm(event.metadata());
-              SystemRecoverySnapshotTranslator.applySystemCoreVisualMetadata(
-                  newEntity, event.metadata());
-              SystemRecoverySnapshotTranslator.questLogFromMetadata(event.metadata())
-                  .ifPresent(
-                      questLog -> {
-                        newEntity.add(questLog);
-                        QuestLogUtil.setClientQuestLog(newEntity);
-                      });
-              applyCollideMetadata(newEntity, event.metadata());
+              SystemRecoveryComponentSync.applyEntityMetadata(newEntity, event.metadata());
+              SystemCoreVisualSync.applyAlarm(event.metadata());
+              SystemCoreVisualSync.applyCompletionMetadata(newEntity, event.metadata());
               Game.add(newEntity);
               if (ctx != null) {
                 ctx.clientState().ifPresent(state -> state.trackNetworkEntity(event.entityId()));
@@ -148,7 +139,7 @@ public final class SystemRecoveryClient {
   }
 
   private static void applyCollideMetadata(Entity entity, Map<String, String> metadata) {
-    SystemRecoverySnapshotTranslator.collideComponentFromMetadata(metadata)
+    SystemRecoveryComponentSync.collideComponentFromMetadata(metadata)
         .ifPresent(
             collideComponent -> {
               CollideComponent component =

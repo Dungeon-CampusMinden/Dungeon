@@ -1,6 +1,7 @@
 package rooms.systemRecovery.modules.interpreter;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 /**
  * Defines the code required for one interpreter state and its callbacks.
@@ -11,7 +12,10 @@ import java.util.Arrays;
  * @param onFailure callback for an unsuccessful interpretation
  */
 public record TerminalCodeRequirement(
-    CodeLine[] codeLines, boolean requiresOrder, Runnable onSuccess, Runnable onFailure) {
+    CodeLine[] codeLines,
+    boolean requiresOrder,
+    Consumer<TerminalAttempt> onSuccess,
+    Consumer<TerminalAttempt> onFailure) {
 
   /**
    * Creates an unordered terminal puzzle step.
@@ -21,7 +25,15 @@ public record TerminalCodeRequirement(
    * @param onFailure callback for an unsuccessful interpretation
    */
   public TerminalCodeRequirement(CodeLine[] codeLines, Runnable onSuccess, Runnable onFailure) {
-    this(codeLines, false, onSuccess, onFailure);
+    this(
+        codeLines,
+        false,
+        ignored -> {
+          if (onSuccess != null) onSuccess.run();
+        },
+        ignored -> {
+          if (onFailure != null) onFailure.run();
+        });
   }
 
   /**
@@ -34,8 +46,8 @@ public record TerminalCodeRequirement(
    */
   public TerminalCodeRequirement {
     codeLines = Arrays.copyOf(codeLines, codeLines.length);
-    onSuccess = onSuccess == null ? () -> {} : onSuccess;
-    onFailure = onFailure == null ? () -> {} : onFailure;
+    onSuccess = onSuccess == null ? ignored -> {} : onSuccess;
+    onFailure = onFailure == null ? ignored -> {} : onFailure;
   }
 
   /**

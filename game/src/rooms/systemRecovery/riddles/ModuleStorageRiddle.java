@@ -9,9 +9,12 @@ import feature.hud.DialogUtils;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
 import java.util.List;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.ModuleEntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
+import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
+import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -37,16 +40,25 @@ public final class ModuleStorageRiddle {
   private boolean lengthInspected;
   private boolean moduleChipsPorted;
 
-  /** Creates the riddle for the owning level. */
+  /**
+   * Creates the riddle for the owning level.
+   *
+   * @param level level that owns the module entities
+   */
   public ModuleStorageRiddle(DungeonLevel level) {
     this(level, RiddleCallbacks.noop());
   }
 
-  /** Creates the riddle with callbacks for physical success and failure events. */
+  /**
+   * Creates the riddle with callbacks for physical success and failure events.
+   *
+   * @param level level that owns the module entities
+   * @param callbacks success, failure and completion callbacks
+   */
   public ModuleStorageRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
     this.callbacks = callbacks;
-    this.moduleDisplayText = SystemRecoveryText.text("world.module.display-pending");
+    this.moduleDisplayText = SystemRecoveryText.key("world.module.display-pending");
   }
 
   /** Creates the room objects and the exit keypad. */
@@ -54,12 +66,12 @@ public final class ModuleStorageRiddle {
     setupRoomThreeKeypad();
     for (int index = 0; index < 5; index++) {
       moduleSocketPoints[index] = level.getPoint("s" + index);
-      moduleSockets[index] = EntityFactory.moduleSocket(moduleSocketPoints[index]);
+      moduleSockets[index] = ModuleEntityFactory.moduleSocket(moduleSocketPoints[index]);
       Game.add(moduleSockets[index]);
     }
 
     moduleDisplay =
-        EntityFactory.moduleDisplay(
+        SystemRecoveryDisplayFactory.moduleDisplay(
             level.getPoint("display_room2"), () -> moduleDisplayText, this::inspectModuleDisplay);
     Game.add(moduleDisplay);
   }
@@ -67,15 +79,15 @@ public final class ModuleStorageRiddle {
   /** Activates all module sockets after the module array is initialized. */
   public void activateModuleSockets() {
     for (Entity socket : moduleSockets) {
-      EntityFactory.activateModuleSocket(socket);
+      ModuleEntityFactory.activateModuleSocket(socket);
     }
   }
 
   /** Shows the available modules and their required array indices after the battery is inserted. */
   public void showModuleAssignments() {
-    moduleDisplayText = SystemRecoveryText.text("world.module.display-values");
+    moduleDisplayText = SystemRecoveryText.key("world.module.display-values");
     if (moduleDisplay != null) {
-      EntityFactory.updateDisplayText(moduleDisplay, moduleDisplayText);
+      SystemRecoveryDisplayFactory.updateDisplayText(moduleDisplay, moduleDisplayText);
     }
   }
 
@@ -84,8 +96,9 @@ public final class ModuleStorageRiddle {
     if (moduleChips[0] != null) return;
 
     for (int index = 0; index < MODULE_NAMES.length; index++) {
-      EntityFactory.occupyModuleSocket(moduleSockets[index], MODULE_NAMES[index]);
-      moduleChips[index] = EntityFactory.moduleChip(moduleSocketPoints[index], MODULE_NAMES[index]);
+      ModuleEntityFactory.occupyModuleSocket(moduleSockets[index], MODULE_NAMES[index]);
+      moduleChips[index] =
+          ModuleEntityFactory.moduleChip(moduleSocketPoints[index], MODULE_NAMES[index]);
       Game.add(moduleChips[index]);
     }
   }
@@ -95,7 +108,7 @@ public final class ModuleStorageRiddle {
     if (moduleChips[2] != null) {
       Game.remove(moduleChips[2]);
       moduleChips[2] = null;
-      EntityFactory.clearModuleSocket(moduleSockets[2]);
+      ModuleEntityFactory.clearModuleSocket(moduleSockets[2]);
     }
   }
 
@@ -116,8 +129,8 @@ public final class ModuleStorageRiddle {
       }
       Point target = RiddleSupport.point(level, "scanner" + index, "scanner_" + index);
       Game.remove(moduleChip);
-      EntityFactory.clearModuleSocket(moduleSockets[index]);
-      moduleChips[index] = EntityFactory.moduleChip(target, MODULE_NAMES[index]);
+      ModuleEntityFactory.clearModuleSocket(moduleSockets[index]);
+      moduleChips[index] = ModuleEntityFactory.moduleChip(target, MODULE_NAMES[index]);
       Game.add(moduleChips[index]);
     }
   }
@@ -125,11 +138,11 @@ public final class ModuleStorageRiddle {
   /** Updates the room display with the module array length. */
   public void showModuleArrayLength() {
     if (completed) return;
-    moduleDisplayText = SystemRecoveryText.text("world.module.display-length", 5);
+    moduleDisplayText = SystemRecoveryText.key("world.module.display-length", 5);
     completed = true;
     callbacks.solved();
     if (moduleDisplay != null) {
-      EntityFactory.updateDisplayText(moduleDisplay, moduleDisplayText);
+      SystemRecoveryDisplayFactory.updateDisplayText(moduleDisplay, moduleDisplayText);
     }
   }
 
@@ -166,17 +179,42 @@ public final class ModuleStorageRiddle {
   }
 
   private void setupRoomThreeKeypad() {
+    DoorTile scannerDoor =
+        (DoorTile) Game.tileAt(level.getPoint("door_inventarscanner")).orElseThrow();
+    boolean[] openedForExpectedStep = {false};
     Entity keypad =
         KeypadFactory.createKeypad(
             level.getPoint("room3_keypad"),
             List.of(5),
-            () -> ((DoorTile) Game.tileAt(level.getPoint("door_inventarscanner")).get()).open(),
+            () -> {
+              if (SystemRecoveryProgressNet.activeStep().orElse(null)
+                      != SystemRecoveryLearningStep.ROOM2_DOOR_CODE
+                  || scannerDoor.isOpen()) {
+                return;
+              }
+              scannerDoor.open();
+              if (!scannerDoor.isOpen()) return;
+              if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
+                openedForExpectedStep[0] = true;
+              } else {
+                scannerDoor.close();
+              }
+            },
             true);
     keypad
         .fetch(KeypadComponent.class)
         .ifPresent(
             component -> {
-              component.onCorrectCode(player -> callbacks.success("5", player.id()));
+              component.onCorrectCode(
+                  player -> {
+                    if (openedForExpectedStep[0]) {
+                      callbacks.success("5", player.id());
+                      return;
+                    }
+                    component.isUnlocked(false);
+                    component.enteredDigits().clear();
+                    callbacks.failure("5-out-of-order", player.id());
+                  });
               component.onWrongCode(
                   player -> callbacks.failure(component.enteredString(), player.id()));
             });

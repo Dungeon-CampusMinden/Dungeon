@@ -4,18 +4,21 @@ import static rooms.systemRecovery.riddles.RiddleSupport.moveSortEntity;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import engine.utils.Point;
 import feature.components.InventoryComponent;
+import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
 import feature.systems.EventScheduler;
 import java.util.List;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.SortingEntityFactory;
+import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
@@ -36,7 +39,11 @@ public final class BubbleSortRiddle {
   private boolean sortMachineRunning;
   private boolean completed;
 
-  /** Returns whether the conveyor sort has finished successfully. */
+  /**
+   * Returns whether the conveyor sort has finished successfully.
+   *
+   * @return whether the bubble-sort riddle is complete
+   */
   public boolean completed() {
     return completed;
   }
@@ -48,12 +55,23 @@ public final class BubbleSortRiddle {
   private int sortBeltInnerIndex;
   private int sortMachinePlayerId;
 
-  /** Creates the riddle for the owning level and its shared conveyor dependency. */
+  /**
+   * Creates the riddle for the owning level and its shared conveyor dependency.
+   *
+   * @param level level that owns the sorting machine
+   * @param transport shared transport-room controller
+   */
   public BubbleSortRiddle(DungeonLevel level, TransportStorageRiddle transport) {
     this(level, transport, RiddleCallbacks.noop());
   }
 
-  /** Creates the machine with callbacks for insertion success and failure. */
+  /**
+   * Creates the machine with callbacks for insertion success and failure.
+   *
+   * @param level level that owns the sorting machine
+   * @param transport shared transport-room controller
+   * @param callbacks success, failure and completion callbacks
+   */
   public BubbleSortRiddle(
       DungeonLevel level, TransportStorageRiddle transport, RiddleCallbacks callbacks) {
     this.level = level;
@@ -64,11 +82,15 @@ public final class BubbleSortRiddle {
   /** Spawns the machine that accepts a programmed sort chip. */
   public void setup() {
     Game.add(
-        EntityFactory.bubbleSortMachine(
+        SortingEntityFactory.bubbleSortMachine(
             level.getPoint("sort_machine"), this::onBubbleSortMachineInteract));
   }
 
-  /** Returns whether a conveyor sorting run is in progress. */
+  /**
+   * Returns whether a conveyor sorting run is in progress.
+   *
+   * @return whether the machine is currently running
+   */
   public boolean running() {
     return sortMachineRunning;
   }
@@ -154,7 +176,7 @@ public final class BubbleSortRiddle {
         Game.remove(sortBeltPackages[index]);
       }
       sortBeltPackages[index] =
-          EntityFactory.transportPackage(sortBeltPoints[index], sortBeltValues[index]);
+          TransportEntityFactory.packageEntity(sortBeltPoints[index], sortBeltValues[index]);
       Game.add(sortBeltPackages[index]);
     }
     sortBeltOuterIndex = 0;
@@ -164,7 +186,7 @@ public final class BubbleSortRiddle {
       Game.remove(transport.scanner());
     }
     transport.replaceScanner(
-        EntityFactory.transportScanner(sortBeltPoints[0].translate(0, 1), 1.4f));
+        TransportEntityFactory.scanner(sortBeltPoints[0].translate(0, 1), 1.4f));
     transport.scanner().name("sort_belt_scanner");
     Game.add(transport.scanner());
     runTransportBubbleSortStep();
@@ -173,10 +195,13 @@ public final class BubbleSortRiddle {
   private void runTransportBubbleSortStep() {
     if (!sortMachineRunning) return;
     if (sortBeltOuterIndex >= sortBeltValues.length - 1) {
+      if (!awardArchiveKey()) {
+        EventScheduler.scheduleAction(this::runTransportBubbleSortStep, 700L);
+        return;
+      }
       sortMachineRunning = false;
       completed = true;
       callbacks.solved();
-      awardArchiveKey();
       SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_INTRO);
       DialogUtils.showTextPopup(
           SystemRecoveryText.key("world.sort.complete"),
@@ -213,11 +238,26 @@ public final class BubbleSortRiddle {
         700L);
   }
 
-  /** Adds the archive key to the player who started the bubble-sort machine. */
-  private void awardArchiveKey() {
-    Game.findEntityById(sortMachinePlayerId)
-        .flatMap(player -> player.fetch(InventoryComponent.class))
-        .ifPresent(inventory -> inventory.add(new ItemKey()));
+  /**
+   * Adds the archive key to the player who started the bubble-sort machine.
+   *
+   * @return whether the key was added to the inventory or dropped into the world
+   */
+  private boolean awardArchiveKey() {
+    Entity player = Game.findEntityById(sortMachinePlayerId).orElse(null);
+    if (player == null) return false;
+    ItemKey key = new ItemKey();
+    if (player.fetch(InventoryComponent.class).map(inventory -> inventory.add(key)).orElse(false)) {
+      return true;
+    }
+    return player
+        .fetch(PositionComponent.class)
+        .map(
+            position -> {
+              Game.add(WorldItemBuilder.buildWorldItem(key, position.position()));
+              return true;
+            })
+        .orElse(false);
   }
 
   /**
@@ -239,7 +279,11 @@ public final class BubbleSortRiddle {
     };
   }
 
-  /** Returns all active conveyor package IDs paired with their authoritative weights. */
+  /**
+   * Returns all active conveyor package IDs paired with their authoritative weights.
+   *
+   * @return comma-separated package ID and weight pairs
+   */
   public String currentBeltPackageMetadata() {
     StringBuilder metadata = new StringBuilder();
     for (int index = 0; index < sortBeltPackages.length; index++) {

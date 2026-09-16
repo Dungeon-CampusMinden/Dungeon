@@ -23,9 +23,8 @@ import feature.emote.EmoteFactory;
 import feature.entities.MiscFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hud.DialogUtils;
-import feature.hud.dialogs.DialogFactory;
 import feature.hints.HintSystem;
+import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.inventory.items.ItemKey;
@@ -39,10 +38,12 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.systemRecovery.SystemRecovery;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryRoomFactory;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
+import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.BubbleSortRiddle;
 import rooms.systemRecovery.riddles.DataArchiveRiddle;
@@ -61,6 +62,7 @@ import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -89,12 +91,20 @@ public class SystemRecoveryLevel extends DungeonLevel {
       new BubbleSortRiddle(
           this,
           transportStorage,
-          SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.BUBBLE_SORT));
+          SystemRecoveryPuzzleEvents.forPuzzleCompleting(
+              SystemRecoveryPuzzle.BUBBLE_SORT,
+              "sort-machine",
+              "run",
+              SystemRecoveryLearningStep.BUBBLE_SORT_MACHINE));
   private final ManualSortingRiddle manualSorting =
       new ManualSortingRiddle(
           this,
           bubbleSort,
-          SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.MANUAL_SORTING));
+          SystemRecoveryPuzzleEvents.forPuzzleCompleting(
+              SystemRecoveryPuzzle.MANUAL_SORTING,
+              "sort-display",
+              "choice",
+              SystemRecoveryLearningStep.MANUAL_SORTING));
   private final DataArchiveRiddle dataArchive =
       new DataArchiveRiddle(
           this, SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.DATA_ARCHIVE));
@@ -103,13 +113,30 @@ public class SystemRecoveryLevel extends DungeonLevel {
           this, SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.TWO_DIMENSIONAL_STORAGE));
   private final SearchRobotRiddle searchRobot =
       new SearchRobotRiddle(
-          this, SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.SEARCH_ROBOT));
+          this,
+          SystemRecoveryPuzzleEvents.forPuzzleCompleting(
+              SystemRecoveryPuzzle.SEARCH_ROBOT,
+              "search-controller",
+              "chip",
+              SystemRecoveryLearningStep.SEARCH_ROBOT_RUN));
   private final SystemCoreRiddle systemCore = new SystemCoreRiddle(this);
   private final List<Entity> doorLabels = new ArrayList<>();
   private final SystemRecoveryStoryDialogs storyDialogs = new SystemRecoveryStoryDialogs();
   private final Set<Integer> introShownPlayers = new HashSet<>();
   private final Set<Integer> controlsShownPlayers = new HashSet<>();
   private final Set<String> triggeredDialogPoints = new HashSet<>();
+  private Map<String, Point> resolvedPoints = Map.of();
+  private final SystemRecoveryRiddleRegistry riddleRegistry =
+      new SystemRecoveryRiddleRegistry(
+          energy,
+          moduleStorage,
+          inventoryScanner,
+          transportStorage,
+          dataArchive,
+          twoDimensionalStorage,
+          systemCore,
+          storyDialogs,
+          this::completeSystemCoreRiddleInternal);
   private Entity phone;
   private Entity ringingPhoneEmote;
   private boolean openingPhoneCallTriggered;
@@ -149,6 +176,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    resolvedPoints = SystemRecoveryPointRegistry.resolve(this);
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryQuestLogUtil.initializeQuestLog();
     Game.system(HintSystem.class, HintSystem::resetHintProgress);
@@ -206,7 +234,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                     player.id()));
   }
 
-  /** Shows the controls immediately after the intro, before the opening phone call starts. */
+  /**
+   * Shows the controls immediately after the intro, before the opening phone call starts.
+   *
+   * @param playerId player who completed the intro
+   */
   private void finishIntroForPlayer(int playerId) {
     if (!controlsShownPlayers.add(playerId)) {
       triggerOpeningPhoneCall();
@@ -218,7 +250,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Spawns the phone and keeps it interactable after the opening call has been answered. */
   private void setupPhone() {
-    phone = DecoFactory.createDeco(getPoint("phone"), Deco.Phone);
+    phone = DecoFactory.createDeco(point("phone"), Deco.Phone);
     phone.remove(DecoComponent.class);
     DrawSystem.getInstance().changeEntityDepth(phone, DepthLayer.AbovePlayer.depth());
     Game.add(phone);
@@ -257,7 +289,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 })));
   }
 
-  /** Stops the ringing and records the first terminal task after the call is finished. */
+  /**
+   * Stops the ringing and records the first terminal task after the call is finished.
+   *
+   * @param playerId player who answered the opening call
+   */
   private void finishOpeningPhoneCall(int playerId) {
     if (terminalsUnlocked) return;
     terminalsUnlocked = true;
@@ -267,8 +303,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
       Game.remove(ringingPhoneEmote);
       ringingPhoneEmote = null;
     }
-    SystemRecoveryPuzzleEvents.started(SystemRecoveryPuzzle.ENERGY);
-    SystemRecoveryPuzzleEvents.openingCallFinished();
     SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "array");
   }
 
@@ -280,21 +314,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
             player ->
                 SystemRecoveryDialogTriggers.ROOM_ENTRY.forEach(
                     trigger -> {
-                      try {
-                        Point triggerPoint = getPoint(trigger.pointName());
-                        Point playerPoint =
-                            player
-                                .fetch(engine.components.PositionComponent.class)
-                                .orElseThrow()
-                                .position();
-                        if (!isDialogTriggerEnabled(trigger)) return;
-                        String triggerKey = trigger.pointName() + ":" + player.id();
-                        if (playerPoint.distanceSquared(triggerPoint) <= 1.0
-                            && triggeredDialogPoints.add(triggerKey)) {
-                          storyDialogs.announceForPlayer(trigger.step(), player.id());
-                        }
-                      } catch (RuntimeException ignored) {
-                        // A trigger point may be absent in an intermediate editor version.
+                      Point triggerPoint = point(trigger.pointName());
+                      Point playerPoint =
+                          player
+                              .fetch(engine.components.PositionComponent.class)
+                              .orElseThrow()
+                              .position();
+                      if (!isDialogTriggerEnabled(trigger)) return;
+                      String triggerKey = trigger.pointName() + ":" + player.id();
+                      if (playerPoint.distanceSquared(triggerPoint) <= 1.0
+                          && triggeredDialogPoints.add(triggerKey)) {
+                        storyDialogs.announceForPlayer(trigger.step(), player.id());
                       }
                     }));
   }
@@ -322,7 +352,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
     return (SystemRecoveryLevel) Game.currentLevel().orElseThrow();
   }
 
-  /** Returns whether the opening call has unlocked the room's computer terminals. */
+  /**
+   * Returns whether the opening call has unlocked the room's computer terminals.
+   *
+   * @return whether terminals are available
+   */
   public static boolean terminalsUnlocked() {
     return currentLevel().map(level -> level.terminalsUnlocked).orElse(false);
   }
@@ -332,116 +366,109 @@ public class SystemRecoveryLevel extends DungeonLevel {
     active().energy.spawnEnergyCrates();
   }
 
-  /** Runs terminal input with the submitting player attached to story callbacks. */
+  /**
+   * Runs terminal input with an explicit server-side player context.
+   *
+   * @param source complete source submitted by the player
+   * @param playerId authoritative player ID
+   * @return whether the input was accepted
+   */
   public static boolean interpretTerminalInput(String source, int playerId) {
     if (!terminalsUnlocked()) return false;
     int state = TerminalInterpreter.instance().currentState();
-    if (state == TerminalInterpreterSetup.CENTRAL_META_STATE) {
-      return SystemRecoveryStoryDialogs.withTerminalPlayer(
-          playerId,
-          () ->
-              InterpretationCallbacks.withTerminalAttempt(
-                  state,
-                  source,
-                  () -> {
-                    InterpretationCallbacks.onIncorrectTerminalInput();
-                    return false;
-                  }));
+    TerminalAttempt attempt = new TerminalAttempt(state, source, playerId);
+    if (state == TerminalStep.SYSTEM_CORE_META.stateId()) {
+      InterpretationCallbacks.onIncorrectTerminalInput(attempt);
+      return false;
     }
-    if (TerminalInterpreter.instance().currentState()
-        == TerminalInterpreterSetup.SEARCH_ROBOT_PROGRAM_STATE) {
-      return SystemRecoveryStoryDialogs.withTerminalPlayer(
-          playerId,
-          () ->
-              InterpretationCallbacks.withTerminalAttempt(
-                  state,
-                  source,
-                  () -> {
-                    InterpretationCallbacks.onIncorrectTerminalInput();
-                    return false;
-                  }));
+    if (state == TerminalStep.SEARCH_PROGRAM.stateId()) {
+      InterpretationCallbacks.onIncorrectTerminalInput(attempt);
+      return false;
     }
-    return SystemRecoveryStoryDialogs.withTerminalPlayer(
-        playerId,
-        () ->
-            InterpretationCallbacks.withTerminalAttempt(
-        state, source, () -> TerminalInterpreter.instance().interpret(source)));
+    return TerminalInterpreter.instance().interpret(source, playerId);
   }
 
-  /** Returns whether the final system-core result mask should be available in the computer. */
+  /**
+   * Applies a validated terminal step to the riddle instances of the active level.
+   *
+   * @param step accepted terminal step
+   * @param attempt authoritative attempt context
+   */
+  public static void applyTerminalStep(TerminalStep step, TerminalAttempt attempt) {
+    currentLevel().ifPresent(level -> level.riddleRegistry.apply(step, attempt));
+  }
+
+  /**
+   * Returns whether the final system-core result mask should be available in the computer.
+   *
+   * @return whether the final input mask is available
+   */
   public static boolean systemCoreMetaAvailable() {
     return terminalsUnlocked()
-        && TerminalInterpreter.instance().currentState()
-            == TerminalInterpreterSetup.CENTRAL_META_STATE;
+        && TerminalInterpreter.instance().currentState() == TerminalStep.SYSTEM_CORE_META.stateId();
   }
 
-  /** Validates and submits the final system-core results from the dedicated input mask. */
+  /**
+   * Validates and submits the final system-core results from the dedicated input mask.
+   *
+   * @param payload submitted combination
+   * @param playerId authoritative player ID
+   * @return whether the combination was accepted
+   */
   public static boolean submitSystemCoreMeta(String payload, int playerId) {
     if (!systemCoreMetaAvailable()) return false;
     int state = TerminalInterpreter.instance().currentState();
-    return SystemRecoveryStoryDialogs.withTerminalPlayer(
-        playerId,
-        () ->
-            InterpretationCallbacks.withTerminalAttempt(
-                state,
-                payload,
-                () -> {
-                  if (!active().systemCore.acceptsMetaInput(payload)) {
-                    InterpretationCallbacks.onIncorrectTerminalInput();
-                    return false;
-                  }
-                  TerminalInterpreter.instance().synchronizeState(state + 1);
-                  InterpretationCallbacks.onRiddleTenMetaCombinationCompleted();
-                  return true;
-                }));
+    TerminalAttempt attempt = new TerminalAttempt(state, payload, playerId);
+    if (!active().systemCore.acceptsMetaInput(payload)) {
+      InterpretationCallbacks.onIncorrectTerminalInput(attempt);
+      return false;
+    }
+    TerminalInterpreter.instance().synchronizeState(state + 1);
+    InterpretationCallbacks.onRiddleTenMetaCombinationCompleted(attempt);
+    return true;
   }
 
-  /** Advances one terminal state in debug mode with the submitting player attached to the story. */
+  /**
+   * Advances one terminal state in debug mode with the submitting player attached to the story.
+   *
+   * @param playerId player using the debug action
+   * @return whether a state was advanced
+   */
   public static boolean advanceTerminalStateForDebug(int playerId) {
     if (!terminalsUnlocked()) return false;
-    int state = TerminalInterpreter.instance().currentState();
-    return SystemRecoveryStoryDialogs.withTerminalPlayer(
-        playerId,
-        () ->
-            InterpretationCallbacks.withTerminalAttempt(
-                state,
-                "<debug-next-step>",
-                () -> {
-                  boolean advanced = TerminalInterpreter.instance().advanceCurrentStateForDebug();
-                  if (advanced) SystemRecoveryProgressNet.debugAdvanceAfterTerminal(state);
-                  return advanced;
-                }));
+    return TerminalInterpreter.instance().advanceCurrentStateForDebug(playerId);
   }
 
-  /** Shows the authoritative token state of the System Recovery Petri net to one debug client. */
+  /**
+   * Shows the authoritative token state of the System Recovery Petri net to one debug client.
+   *
+   * @param playerId debug client receiving the snapshot
+   */
   public static void showPetriNetDebug(int playerId) {
-    if (!SystemRecovery.DEBUG_MODE) return;
+    if (!SystemRecovery.debugMode()) return;
     DialogFactory.showTextDialog(
-        SystemRecoveryProgressNet.debugSnapshot(),
+        SystemRecoveryProgressNet.debugSnapshot().dialogPayload(),
         SystemRecoveryText.key("computer.debug-petri-net-title"),
         () -> {},
         SystemRecoveryText.key("computer.debug-close"),
         playerId);
   }
 
-  /** Announces one story instruction to the player who completed a terminal step. */
-  public static void announceStoryForCurrentTerminalPlayer(
-      SystemRecoveryStoryDialogs.StoryStep step) {
-    int playerId = SystemRecoveryStoryDialogs.currentTerminalPlayer().orElse(-1);
-    currentLevel()
-        .ifPresent(
-            level -> {
-              if (playerId >= 0) level.storyDialogs.announceForPlayer(step, playerId);
-              else level.storyDialogs.announceToAllPlayers(step);
-            });
-  }
-
-  /** Announces one story instruction after a shared physical room sequence. */
+  /**
+   * Announces one story instruction after a shared physical room sequence.
+   *
+   * @param step story step to announce
+   */
   public static void announceStoryToAllPlayers(SystemRecoveryStoryDialogs.StoryStep step) {
     currentLevel().ifPresent(level -> level.storyDialogs.announceToAllPlayers(step));
   }
 
-  /** Announces one story instruction to one player after a world interaction. */
+  /**
+   * Announces one story instruction to one player after a world interaction.
+   *
+   * @param step story step to announce
+   * @param playerId player receiving the instruction
+   */
   public static void announceStoryForPlayer(
       SystemRecoveryStoryDialogs.StoryStep step, int playerId) {
     currentLevel().ifPresent(level -> level.storyDialogs.announceForPlayer(step, playerId));
@@ -468,14 +495,28 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Locks the archive door with the shared key-and-lock interaction. */
   private void setupArchiveDoorLock() {
-    DoorTile archiveDoor = (DoorTile) tileAt(getPoint("door_datenarchiv")).orElseThrow();
-    Game.add(MiscFactory.createDoorBlocker(archiveDoor, ItemKey.class));
+    DoorTile archiveDoor = (DoorTile) tileAt(point("door_datenarchiv")).orElseThrow();
+    Game.add(
+        MiscFactory.createDoorBlocker(
+            archiveDoor,
+            ItemKey.class,
+            player -> {
+              if (!archiveDoor.isOpen()) return;
+              SystemRecoveryPuzzleEvents.attempt(
+                  SystemRecoveryPuzzle.BUBBLE_SORT,
+                  "archive-door",
+                  "use-sort-key",
+                  "key",
+                  true,
+                  player);
+              SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ARCHIVE_ACCESS);
+            }));
   }
 
   /** Starts the shared ending cutscene when a player reaches the final point after all riddles. */
   private void setupEndTrigger() {
     Entity trigger = new Entity("system-recovery-end-trigger");
-    trigger.add(new PositionComponent(getPoint("end")));
+    trigger.add(new PositionComponent(point("end")));
     trigger.add(
         new CollideComponent(
                 Vector2.ZERO,
@@ -500,54 +541,61 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void setupRoomLabel() {
     addDoorLabel(
         "label_modulspeicher",
-        SystemRecoveryText.text("world.labels.module-storage"),
-        SystemRecoveryText.text("world.labels.room", 2),
+        SystemRecoveryText.key("world.labels.module-storage"),
+        SystemRecoveryText.key("world.labels.room", 2),
         moduleStorage::completed);
     addDoorLabel(
         "label_inventarscanner",
-        SystemRecoveryText.text("world.labels.inventory-scanner"),
-        SystemRecoveryText.text("world.labels.room", 3),
+        SystemRecoveryText.key("world.labels.inventory-scanner"),
+        SystemRecoveryText.key("world.labels.room", 3),
         inventoryScanner::completed);
     addDoorLabel(
         "label_transportlager",
-        SystemRecoveryText.text("world.labels.transport-storage"),
-        SystemRecoveryText.text("world.labels.room", 4),
+        SystemRecoveryText.key("world.labels.transport-storage"),
+        SystemRecoveryText.key("world.labels.room", 4),
         transportStorage::completed);
     addDoorLabel(
         "label_datenspeicher",
-        SystemRecoveryText.text("world.labels.data-storage"),
-        SystemRecoveryText.text("world.labels.room", 5),
+        SystemRecoveryText.key("world.labels.data-storage"),
+        SystemRecoveryText.key("world.labels.room", 5),
         manualSorting::completed);
     addDoorLabel(
         "label_sortmachine",
-        SystemRecoveryText.text("world.labels.bubble-sort"),
-        SystemRecoveryText.text("world.labels.room", 6),
+        SystemRecoveryText.key("world.labels.bubble-sort"),
+        SystemRecoveryText.key("world.labels.room", 6),
         bubbleSort::completed);
     addDoorLabel(
         "label_archive",
-        SystemRecoveryText.text("world.labels.data-archive"),
-        SystemRecoveryText.text("world.labels.room", 7),
+        SystemRecoveryText.key("world.labels.data-archive"),
+        SystemRecoveryText.key("world.labels.room", 7),
         dataArchive::completed);
     addDoorLabel(
         "label_speicher",
-        SystemRecoveryText.text("world.labels.two-dimensional-storage"),
-        SystemRecoveryText.text("world.labels.room", 8),
+        SystemRecoveryText.key("world.labels.two-dimensional-storage"),
+        SystemRecoveryText.key("world.labels.room", 8),
         twoDimensionalStorage::completed);
     addDoorLabel(
         "label_suchroboter",
-        SystemRecoveryText.text("world.labels.search-robot"),
-        SystemRecoveryText.text("world.labels.room", 9),
+        SystemRecoveryText.key("world.labels.search-robot"),
+        SystemRecoveryText.key("world.labels.room", 9),
         searchRobot::completed);
     addDoorLabel(
         "label_systemcore",
-        SystemRecoveryText.text("world.labels.system-core"),
-        SystemRecoveryText.text("world.labels.system-core-room"),
+        SystemRecoveryText.key("world.labels.system-core"),
+        SystemRecoveryText.key("world.labels.system-core-room"),
         () -> systemCoreRiddleCompleted);
   }
 
-  /** Associates each destination label with its prerequisite, independent of its door lock. */
+  /**
+   * Associates each destination label with its prerequisite, independent of its door lock.
+   *
+   * @param point label custom-point name
+   * @param text localized label text or translation key
+   * @param title localized interaction title or translation key
+   * @param completed supplier for the prerequisite completion state
+   */
   private void addDoorLabel(String point, String text, String title, BooleanSupplier completed) {
-    Entity label = EntityFactory.roomLabel(getPoint(point), text, title);
+    Entity label = SystemRecoveryRoomFactory.roomLabel(this.point(point), text, title);
     label.name(point);
     label.add(new DoorLabelComponent(completed));
     DoorLabelComponent.updateAppearance(label, completed.getAsBoolean());
@@ -558,7 +606,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void setupTerminal() {
     TerminalInterpreter.instance().reset();
     TerminalInterpreterSetup.setupRoomStates();
-    Entity terminal = DecoFactory.createDeco(getPoint(TERMINAL_POINT), Deco.DeskWithPC1);
+    Entity terminal = DecoFactory.createDeco(point(TERMINAL_POINT), Deco.DeskWithPC1);
     terminal.name(TERMINAL_POINT);
     terminal.remove(DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(terminal);
@@ -605,17 +653,29 @@ public class SystemRecoveryLevel extends DungeonLevel {
     active().inventoryScanner.completeScannerPuzzle();
   }
 
-  /** Returns the module index currently being examined by the inventory scanner. */
+  /**
+   * Returns the module index currently being examined by the inventory scanner.
+   *
+   * @return zero-based module index
+   */
   public static int currentScannerModuleIndex() {
     return active().inventoryScanner.currentScanIndex();
   }
 
-  /** Returns whether the inventory scanner has detected the defective GPU. */
+  /**
+   * Returns whether the inventory scanner has detected the defective GPU.
+   *
+   * @return whether the GPU fault was detected
+   */
   public static boolean scannerFaultDetected() {
     return active().inventoryScanner.scannerFaultDetected();
   }
 
-  /** Returns whether the inventory scanner is currently examining the module row. */
+  /**
+   * Returns whether the inventory scanner is currently examining the module row.
+   *
+   * @return whether the scanner animation is running
+   */
   public static boolean scannerRunning() {
     return active().inventoryScanner.running();
   }
@@ -651,7 +711,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
     return active().bubbleSort.currentBeltSortEntityIds();
   }
 
-  /** Returns all active conveyor package IDs paired with their authoritative weights. */
+  /**
+   * Returns all active conveyor package IDs paired with their authoritative weights.
+   *
+   * @return serialized package metadata for the current conveyor sequence
+   */
   public static String currentBeltPackageMetadata() {
     return active().bubbleSort.currentBeltPackageMetadata();
   }
@@ -676,7 +740,12 @@ public class SystemRecoveryLevel extends DungeonLevel {
     active().twoDimensionalStorage.complete();
   }
 
-  /** Returns the server-authoritative state of one storage matrix cell. */
+  /**
+   * Returns the server-authoritative state of one storage matrix cell.
+   *
+   * @param entityName synchronized matrix-cell entity name
+   * @return empty, active, target or filled
+   */
   public static String storageCellState(String entityName) {
     String[] parts = entityName.split("_");
     if (parts.length < 5) return "empty";
@@ -689,22 +758,38 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
   }
 
-  /** Returns whether the system-core access script has been accepted by the server. */
+  /**
+   * Returns whether the system-core access script has been accepted by the server.
+   *
+   * @return whether system-core access was granted
+   */
   public static boolean systemCoreAccessGranted() {
     return active().systemCoreAccessGranted;
   }
 
-  /** Returns whether the final system-core terminal riddle has been solved. */
+  /**
+   * Returns whether the final system-core terminal riddle has been solved.
+   *
+   * @return whether the final riddle is complete
+   */
   public static boolean systemCoreRiddleCompleted() {
     return active().systemCoreRiddleCompleted;
   }
 
-  /** Returns the server-authoritative completion stage of the three system-core areas. */
+  /**
+   * Returns the server-authoritative completion stage of the three system-core areas.
+   *
+   * @return number of completed system-core areas
+   */
   public static int systemCoreStage() {
     return active().systemCore.stage();
   }
 
-  /** Returns whether the red system-core alarm should currently be active. */
+  /**
+   * Returns whether the red system-core alarm should currently be active.
+   *
+   * @return whether the alarm is active
+   */
   public static boolean systemCoreAlarmActive() {
     SystemRecoveryLevel level = active();
     return level.systemCoreAccessGranted && !level.systemCoreRiddleCompleted;
@@ -728,19 +813,63 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Marks the final system-core terminal riddle as solved. */
   public static void completeSystemCoreRiddle() {
     SystemRecoveryLevel level = active();
-    if (level.systemCoreRiddleCompleted) return;
-    level.systemCore.complete();
-    level.systemCoreRiddleCompleted = true;
+    level.completeSystemCoreRiddleInternal();
+  }
+
+  private void completeSystemCoreRiddleInternal() {
+    if (systemCoreRiddleCompleted) return;
+    systemCore.complete();
+    systemCoreRiddleCompleted = true;
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryPuzzleEvents.solved(SystemRecoveryPuzzle.SYSTEM_CORE);
   }
 
-  /** Opens the system-core door after the access module's script was executed. */
-  public static void completeSystemCoreAccess(int playerId) {
+  /**
+   * Atomically accepts the system-core access script and opens the system-core door.
+   *
+   * <p>The progression-place check is intentionally performed before tracking and world changes. A
+   * delayed callback from an older computer dialog therefore cannot grant access after the shared
+   * progression has moved elsewhere.
+   *
+   * @param playerId player who executed the script
+   * @return whether the access script was accepted
+   */
+  public static boolean completeSystemCoreAccess(int playerId) {
     SystemRecoveryLevel level = active();
-    if (level.systemCoreAccessGranted) return;
+    if (level.systemCoreAccessGranted
+        || SystemRecoveryProgressNet.activeStep().orElse(null)
+            != SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS) {
+      SystemRecoveryPuzzleEvents.attempt(
+          SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", false, playerId);
+      return false;
+    }
+    DoorTile systemCoreDoor = (DoorTile) level.tileAt(level.point("door_systemcore")).orElseThrow();
+    systemCoreDoor.open();
+    if (!systemCoreDoor.isOpen()
+        || !SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS)) {
+      SystemRecoveryPuzzleEvents.attempt(
+          SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", false, playerId);
+      return false;
+    }
     level.systemCoreAccessGranted = true;
-    ((DoorTile) level.tileAt(level.getPoint("door_systemcore")).orElseThrow()).open();
+    SystemRecoveryPuzzleEvents.attempt(
+        SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", true, playerId);
     SystemRecoveryAlarm.activate();
+    TerminalInterpreter.instance().synchronizeState(TerminalStep.CENTRAL_SORT.stateId());
+    return true;
+  }
+
+  /**
+   * Returns a point validated during this level's first setup tick.
+   *
+   * @param name validated custom-point name
+   * @return resolved world point
+   */
+  private Point point(String name) {
+    Point point = resolvedPoints.get(name);
+    if (point == null) {
+      throw new IllegalStateException("Validated System Recovery point is unavailable: " + name);
+    }
+    return point;
   }
 }

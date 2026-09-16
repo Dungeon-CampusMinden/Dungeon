@@ -1,8 +1,21 @@
 package rooms.systemRecovery.riddles;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import engine.Entity;
 import engine.Game;
@@ -22,7 +35,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.entities.SortingEntityFactory;
+import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 
 /** Checks that a server-side dialog response, not the initial interaction, consumes the USB. */
@@ -44,23 +58,24 @@ class BubbleSortConfirmationTest {
     AtomicReference<Consumer<DialogResponseMessage.Payload>> respond = new AtomicReference<>();
 
     try (var game = mockStatic(Game.class, RETURNS_DEEP_STUBS);
-        var factory = mockStatic(EntityFactory.class);
+        var factory = mockStatic(SortingEntityFactory.class);
+        var transportFactory = mockStatic(TransportEntityFactory.class);
         var dialogs = mockStatic(DialogFactory.class);
         var popups = mockStatic(DialogUtils.class);
         var scheduler = mockStatic(EventScheduler.class);
         var effects = mockStatic(SkillTools.class)) {
       factory
-          .when(() -> EntityFactory.bubbleSortMachine(any(), any()))
+          .when(() -> SortingEntityFactory.bubbleSortMachine(any(), any()))
           .thenAnswer(
               call -> {
                 interact.set(call.getArgument(1));
                 return new Entity("machine");
               });
-      factory
-          .when(() -> EntityFactory.transportPackage(any(), anyInt()))
+      transportFactory
+          .when(() -> TransportEntityFactory.packageEntity(any(), anyInt()))
           .thenAnswer(call -> entityAt(call.getArgument(0)));
-      factory
-          .when(() -> EntityFactory.transportScanner(any(), anyFloat()))
+      transportFactory
+          .when(() -> TransportEntityFactory.scanner(any(), anyFloat()))
           .thenAnswer(call -> entityAt(call.getArgument(0)));
       dialogs
           .when(

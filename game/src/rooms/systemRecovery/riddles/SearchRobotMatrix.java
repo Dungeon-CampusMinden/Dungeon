@@ -10,6 +10,10 @@ import java.util.List;
  * <p>The first point is the first cell in row-major scan order and the second point is the last
  * cell. This keeps the order intuitive even when the level designer places the corners in a
  * different direction.
+ *
+ * @param rows number of matrix rows
+ * @param columns number of matrix columns
+ * @param points row-major cell positions
  */
 record SearchRobotMatrix(int rows, int columns, List<Point> points) {
 

@@ -15,7 +15,7 @@ statischen, über mehrere Levelstarts hinweg geteilten Sitzung.
 | 2 – Modulspeicher | `ModuleStorageRiddle` | Sockel aktivieren und belegen, GPU entfernen, Länge anzeigen, Chips zum Scanner bewegen | `s0`–`s4`, `display_room2`, `room3_keypad` |
 | 3 – Inventarscanner | `InventoryScannerRiddle` | Hebel nach Terminaleingabe freigeben, Scan durchführen, Ergebnis anzeigen | `scanner0`–`scanner4`, `scanner_display`, `scanner_lever`, `scanner_terminal`, `keypad_transportlager` |
 | 4 – Transportlager | `TransportStorageRiddle` | Förderband und Pakete, sequenzielles Einsammeln, Tür zum Datenspeicher | `band_start`, `band_ende`, `band0`–`band4`, `lager_terminal`, `display_storage`, `door_datenspeicher` |
-| 5 – Datenspeicher | `ManualSortingRiddle` | Benachbarte Werte vergleichen, bei Fehler zurücksetzen, leeren USB-Stick vergeben | `sort_data_0`, `sort_data1`–`sort_data4`, `sort_compare_display`, `sort_trigger`, `chip_spawn` |
+| 5 – Datenspeicher | `ManualSortingRiddle` | Benachbarte Werte vergleichen, bei Fehler zurücksetzen, leeren USB-Stick vergeben | `sort_data_0`, `sort_data1`–`sort_data4`, `sort_compare_display`, `sort_trigger`, `dialog_trigger_manual_sorting`, `chip_spawn` |
 | 6 – Bubble-Sort-Maschine | `BubbleSortRiddle` | Programmierten Stick annehmen, Pakete auf dem Lagerband sortieren, Archivschlüssel vergeben | `sort_machine`, gemeinsam genutzte `band0`–`band4` |
 | 7 – Datenarchiv | `DataArchiveRiddle` | Array-Hinweise aus Regalen lesen, Datenknoten untersuchen, Archivzugang öffnen | `archive_shelf_energie`, `archive_shelf_module`, `archive_shelf_aktiv`, `archive_node0`–`archive_node2`, `door_speicher` |
 | 8 – Zweidimensionaler Speicher | `TwoDimensionalStorageRiddle` | Eine 3×4-Matrix anlegen, drei Koordinaten befüllen, Datenobjekte materialisieren, Ortungschip freigeben | `storage_cell_0_0`–`storage_cell_2_3`, `display_2d`, `chip` |
@@ -23,7 +23,9 @@ statischen, über mehrere Levelstarts hinweg geteilten Sitzung.
 | 10 – Rechenzentrum | `SystemCoreRiddle` + `TerminalInterpreterSetup` | Drei Bereiche im zentralen Terminal prüfen und anschließend ihre Ergebnisse als gemeinsamen Systemzustand eingeben: Bubble Sort, belegte Module zählen und ein 3×5-Raster durchsuchen | `core_terminal`, `core_display`, `b0`–`b4`, `mod0`–`mod4`, `map00`, `map24`, `door_elevator` |
 
 Die frei positionierbaren Story-Trigger heißen `dialog_trigger_*` und liegen aktuell an den
-jeweiligen Türen. Ihre Zuordnung zu den Dialogschritten ist in
+jeweiligen Türen oder Rätselräumen. Der Sortierdialog verwendet
+`dialog_trigger_manual_sorting`; `sort_trigger` bleibt für den Sortieraufbau reserviert. Die
+Zuordnung zu den Dialogschritten ist in
 `story.SystemRecoveryDialogTriggers` gebündelt. Die Punkte können im Level Editor unabhängig
 von den Türen verschoben werden. Jeder Trigger wird pro Spieler nur einmal ausgelöst.
 
@@ -31,14 +33,19 @@ Die abweichenden Schreibweisen `sort_data_0`, `baned_end`, `storage_2_2`,
 `suchroboter_controlls` und `roboter_item_destionation` werden weiterhin unterstützt. Rätsel 8 und Rätsel 9 verwenden
 bewusst getrennte Matrizen: Die Speicherzellen von Rätsel 8 bilden ein 3x4-Raster. Die Matrix
 von Rätsel 9 wird zur Laufzeit aus `roboter_start` und `roboter_end` als inklusiver Laufweg erzeugt.
+Beim Levelstart prüft `level.SystemRecoveryPointRegistry` alle Pflichtpunkte einmal und meldet
+fehlende Punkte gesammelt mit Rätsel und Namen. Die drei historischen Tippfehler werden dabei
+noch als Übergangs-Aliase aufgelöst.
 Der Archiv-Türverschluss bleibt beim Levelaufbau
 (`door_datenarchiv`), die Schlüsselbelohnung beim Bubble-Sort-Rätsel.
 
 ## Terminal und USB-Stick
 
 - `util.interpreter.TerminalInterpreterSetup`: Pattern und Steps in Spielreihenfolge.
-- `util.interpreter.InterpretationCallbacks`: Zuordnung akzeptierter Steps zu den Rätseln,
-  sowie Dialog- und Soundfeedback. Noch nicht ausgebaute Räume behalten ihre TODOs hier.
+- `util.interpreter.InterpretationCallbacks`: einheitliches Feedback für akzeptierte und
+  abgelehnte Eingaben.
+- `level.SystemRecoveryRiddleRegistry`: Zuordnung eines benannten Terminal-Schritts zur
+  zuständigen Rätselinstanz und zur direkt folgenden Storyaktion.
 - `modules.interpreter`: Allgemeine Prüfung des Codes; keine Abhängigkeit zur Spiellogik.
 - `modules.computer`: Gemeinsamer Computer für alle Räume, inklusive Editor und USB-Dialog.
 - `modules.computer.content.SortProgramTab`: Lückencode zum Programmieren des Sortierchips.
@@ -69,8 +76,11 @@ System-Recovery-Zustand an die Clients synchronisiert.
 
 ## Entitäten und Multiplayer
 
-`entities.EntityFactory` baut wiederverwendbare Objekte, besitzt aber keinen
-Rätselfortschritt. Zustandsänderungen kommen aus den Rätselklassen.
+Die spezialisierten Factories unter `entities` bauen wiederverwendbare Objekte, besitzen aber
+keinen Rätselfortschritt. `EnergyEntityFactory`, `ModuleEntityFactory`, `TransportEntityFactory`,
+`SortingEntityFactory`, `StorageEntityFactory`, `ScannerEntityFactory`, `SystemCoreEntityFactory`,
+`ArchiveEntityFactory` und `SystemRecoveryDisplayFactory` halten jeweils nur die Konstruktion
+ihres Bereichs. Zustandsänderungen kommen aus den Rätselklassen.
 
 Der Server entscheidet über Fortschritt, Belohnungen, Türen und zeitgesteuerte Abläufe.
 `network.SystemRecoverySnapshotTranslator` und `SystemRecoveryEntitySpawnStrategy`
@@ -94,10 +104,10 @@ Die Bubble-Sort-Maschine fragt vor dem Einsetzen des programmierten USB-Sticks n
 Erst nach „Einsetzen“ prüft sie erneut Inventar und Maschinenstatus und verbraucht
 den Stick. „Abbrechen“ verändert weder Inventar noch Rätselzustand.
 
-`SystemRecoveryLevel` behält schlanke statische Weiterleitungen für bestehende
-Interpreter-Callbacks und Snapshot-Abfragen. Diese arbeiten mit den Rätselinstanzen
-des aktuell aktiven Levels. Neue Spiellogik gehört in die betreffende Rätselklasse,
-nicht in diese Weiterleitungen.
+`SystemRecoveryLevel` enthält den Level-Lebenszyklus und einige rückwärtskompatible statische
+Weiterleitungen für Snapshot-Abfragen und physische Interaktionen. Terminal-Schritte laufen
+über `SystemRecoveryRiddleRegistry` und werden nicht mehr einzeln in der Levelklasse verdrahtet.
+Neue Spiellogik gehört in die betreffende Rätselklasse, nicht in die Weiterleitungen.
 
 ## Fortschritt, Tracking und Petri-Netz
 
@@ -108,12 +118,12 @@ Rätsel-IDs und die Weiterleitung an das serverseitige Tracking liegen zentral i
 verwenden diesen Einstiegspunkt. Dadurch muss eine neue Tracking- oder Analyse-Integration
 nicht in jedem Rätsel angepasst werden.
 
-Das Petri-Netz ist aktuell noch nicht als System-Recovery-Hint-Netz aktiviert. Der spätere
-Anschluss gehört ebenfalls in `util.tracking.SystemRecoveryPuzzleEvents`, an den markierten
-`started`-/`attempt`-/`solved`-Ereignisgrenzen. Die Rätsel selbst bleiben die einzige Quelle
-für fachliche Lösungen, Items, Türen und Animationen; das Petri-Netz soll später nur
-Hinweisverfügbarkeit und alternative Lernpfade steuern. So entstehen keine parallelen
-Zustände für ein Rätsel.
+Das Petri-Netz ist als serverseitiges Fortschrittsmodell aktiviert. Jeder aktive
+Fortschritts-Place trägt einen `HintComponent`; das Hinweistelefon liest daraus den nächsten
+gemeinsamen Hinweis. `SystemRecoveryProgressNet` hält genau einen aktiven Fortschritts-Token und
+akzeptiert Events nur aus dem erwarteten Place. Die Rätsel selbst bleiben die einzige Quelle für
+fachliche Lösungen, Items, Türen und Animationen. Tracking und Fortschrittsnetz sind über
+`util.tracking.SystemRecoveryPuzzleEvents` an klaren Ereignisgrenzen angebunden.
 
 ## Tests
 
