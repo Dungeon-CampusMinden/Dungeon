@@ -8,7 +8,6 @@ import engine.network.messages.s2c.EntitySpawnEvent;
 import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
-import feature.questlog.QuestLogComponent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -51,8 +50,6 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_SYSTEM_CORE_ACCESS = "systemRecovery.systemCoreAccess";
   public static final String METADATA_SYSTEM_CORE_ALARM = "systemRecovery.systemCoreAlarm";
   public static final String METADATA_SYSTEM_CORE_STAGE = "systemRecovery.systemCoreStage";
-  public static final String METADATA_QUESTLOG_ENTRIES = "systemRecovery.questlog.entries";
-  public static final String TYPE_QUESTLOG = "questlog";
 
   /** Metadata prefix for synchronized collider state. */
   public static final String METADATA_COLLIDER_PREFIX = "systemRecovery.collider";
@@ -76,15 +73,12 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
-    entity.fetch(KeypadComponent.class).ifPresent(keypad -> appendKeypadMetadata(keypad, metadata));
+    entity
+        .fetch(KeypadComponent.class)
+        .ifPresent(keypad -> SystemRecoveryComponentSync.appendKeypadMetadata(keypad, metadata));
     entity
         .fetch(DisplayTextComponent.class)
         .ifPresent(display -> metadata.put(METADATA_DISPLAY_TEXT, display.text()));
-    entity
-        .fetch(QuestLogComponent.class)
-        .ifPresent(
-            questLog ->
-                metadata.putAll(SystemRecoverySnapshotTranslator.questLogMetadata(questLog)));
     if (entity.name() != null && entity.name().endsWith("terminal")) {
       metadata.put(
           METADATA_TERMINAL_STATE, String.valueOf(TerminalInterpreter.instance().currentState()));
@@ -98,8 +92,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
           METADATA_SYSTEM_CORE_ACCESS,
           String.valueOf(SystemRecoveryLevel.systemCoreAccessGranted()));
       metadata.put(
-          METADATA_SYSTEM_CORE_ALARM,
-          String.valueOf(SystemRecoveryLevel.systemCoreAlarmActive()));
+          METADATA_SYSTEM_CORE_ALARM, String.valueOf(SystemRecoveryLevel.systemCoreAlarmActive()));
     }
     if (isSystemCoreArea(entity)) {
       metadata.put(
@@ -136,32 +129,16 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
             .build());
   }
 
-  private void appendKeypadMetadata(KeypadComponent keypad, Map<String, String> metadata) {
-    metadata.put(METADATA_KEYPAD, "true");
-    metadata.put(METADATA_KEYPAD_CORRECT_DIGITS, digitsToString(keypad.correctDigits()));
-    metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
-    metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
-    metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
-  }
-
   private void appendModuleScanMetadata(Entity entity, Map<String, String> metadata) {
     if ("module_scanner".equals(entity.name())) {
       metadata.put(
           METADATA_MODULE_SCAN_RUNNING, String.valueOf(SystemRecoveryLevel.scannerRunning()));
       metadata.put(
-          METADATA_MODULE_SCAN_FAULT,
-          String.valueOf(SystemRecoveryLevel.scannerFaultDetected()));
+          METADATA_MODULE_SCAN_FAULT, String.valueOf(SystemRecoveryLevel.scannerFaultDetected()));
     }
   }
 
   private boolean isSystemCoreArea(Entity entity) {
     return entity.name() != null && entity.name().startsWith("system_core_");
-  }
-
-  private String digitsToString(java.util.List<Integer> digits) {
-    return digits.stream()
-        .map(String::valueOf)
-        .reduce((left, right) -> left + "," + right)
-        .orElse("");
   }
 }

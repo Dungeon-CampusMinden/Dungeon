@@ -23,8 +23,8 @@ public class BatteryItem extends Item {
   /** Creates a new battery item. */
   public BatteryItem() {
     super(
-        SystemRecoveryText.text("items.battery-name"),
-        SystemRecoveryText.text("items.battery-description"),
+        SystemRecoveryText.key("items.battery-name"),
+        SystemRecoveryText.key("items.battery-description"),
         new Animation(TEXTURE),
         new Animation(TEXTURE));
   }

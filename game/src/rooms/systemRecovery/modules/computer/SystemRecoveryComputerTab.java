@@ -40,17 +40,36 @@ public abstract class SystemRecoveryComputerTab extends Table {
     return context;
   }
 
-  /** Creates a computer label with the shared black text color. */
+  /**
+   * Creates a computer label with the shared black text color.
+   *
+   * @param text label text
+   * @param fontSize font size in pixels
+   * @return configured label
+   */
   protected Label createLabel(String text, int fontSize) {
     return Scene2dElementFactory.createLabel(text, fontSize, LABEL_COLOR);
   }
 
-  /** Creates a computer label with the shared black text color and a custom font. */
+  /**
+   * Creates a computer label with the shared black text color and a custom font.
+   *
+   * @param text label text
+   * @param fontSpec font configuration
+   * @return configured label
+   */
   protected Label createLabel(String text, engine.utils.FontSpec fontSpec) {
     return Scene2dElementFactory.createLabel(text, fontSpec.withColor(LABEL_COLOR));
   }
 
-  /** Creates a computer button whose nested label also uses the shared black text color. */
+  /**
+   * Creates a computer button whose nested label also uses the shared black text color.
+   *
+   * @param text button text
+   * @param styleName button style name
+   * @param fontSize font size in pixels
+   * @return configured button
+   */
   protected TextButton createButton(String text, String styleName, int fontSize) {
     TextButton button = Scene2dElementFactory.createButton(text, styleName, fontSize);
     Label.LabelStyle labelStyle = button.getLabel().getStyle();

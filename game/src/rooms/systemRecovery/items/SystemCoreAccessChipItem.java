@@ -21,8 +21,8 @@ public final class SystemCoreAccessChipItem extends Item {
   /** Creates one system-core access module. */
   public SystemCoreAccessChipItem() {
     super(
-        SystemRecoveryText.text("items.system-core-name"),
-        SystemRecoveryText.text("items.system-core-description"),
+        SystemRecoveryText.key("items.system-core-name"),
+        SystemRecoveryText.key("items.system-core-description"),
         new Animation(TEXTURE),
         new Animation(TEXTURE));
   }

@@ -9,18 +9,28 @@ import java.util.Map;
 public final class DisplayTextStatusShader extends AbstractShader {
   private boolean completed;
 
-  /** Creates the client-side display effect without changing the sprite bounds. */
+  /**
+   * Creates the client-side display effect without changing the sprite bounds.
+   *
+   * @param completed whether the associated riddle is complete
+   */
   public DisplayTextStatusShader(boolean completed) {
     super("shaders/passthrough.vert", "shaders/systemRecovery/display_text_status.frag");
     this.completed = completed;
   }
 
-  /** Selects red lettering when unsolved and the original green lettering when completed. */
+  /**
+   * Selects red lettering when unsolved and the original green lettering when completed.
+   *
+   * @param completed whether the associated riddle is complete
+   */
   public void completed(boolean completed) {
     this.completed = completed;
   }
 
-  /** @return whether the label currently represents a completed riddle */
+  /**
+   * @return whether the label currently represents a completed riddle
+   */
   public boolean completed() {
     return completed;
   }

@@ -17,8 +17,7 @@ import rooms.systemRecovery.util.SystemRecoveryText;
 /** Editor shown while an empty locator chip is inserted into the computer. */
 public final class SearchProgramTab extends SystemRecoveryComputerTab {
 
-  private static final String INITIAL_SOURCE =
-      SystemRecoveryText.text("computer.search-template");
+  private static final String INITIAL_SOURCE = SystemRecoveryText.text("computer.search-template");
 
   /** Creates the search-program editor tab. */
   public SearchProgramTab() {

@@ -10,17 +10,27 @@ import java.util.function.Consumer;
  * below zero means that the engine interaction did not expose an actor (for example a lever
  * command). Such callbacks can still record puzzle starts and completions, while per-player answer
  * events are naturally omitted.
+ *
+ * @param onSuccess callback for a correct interaction
+ * @param onFailure callback for an incorrect interaction
+ * @param onSolved callback for the puzzle's first completion
  */
 public record RiddleCallbacks(
     Consumer<Attempt> onSuccess, Consumer<Attempt> onFailure, Runnable onSolved) {
 
+  /** Normalizes absent hooks to no-op callbacks. */
   public RiddleCallbacks {
     onSuccess = Objects.requireNonNullElse(onSuccess, attempt -> {});
     onFailure = Objects.requireNonNullElse(onFailure, attempt -> {});
     onSolved = Objects.requireNonNullElse(onSolved, () -> {});
   }
 
-  /** Keeps the two-hook constructor convenient for isolated riddle tests. */
+  /**
+   * Keeps the two-hook constructor convenient for isolated riddle tests.
+   *
+   * @param onSuccess callback for a correct interaction
+   * @param onFailure callback for an incorrect interaction
+   */
   public RiddleCallbacks(Consumer<Attempt> onSuccess, Consumer<Attempt> onFailure) {
     this(onSuccess, onFailure, null);
   }
@@ -47,6 +57,11 @@ public record RiddleCallbacks(
     onSolved.run();
   }
 
-  /** One concrete interaction attempt. */
+  /**
+   * One concrete interaction attempt.
+   *
+   * @param input interaction label or submitted value
+   * @param playerId authoritative player ID, or a negative value when unavailable
+   */
   public record Attempt(String input, int playerId) {}
 }

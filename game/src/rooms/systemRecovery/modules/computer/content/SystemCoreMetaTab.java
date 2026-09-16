@@ -20,6 +20,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
 
   /** Stable tab key used by the computer dialog. */
   public static final String KEY = "system-core-meta";
+
   private static final int ENERGY_SLOT_COUNT = 5;
 
   private final TextField[] energyFields = new TextField[ENERGY_SLOT_COUNT];
@@ -49,9 +50,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     for (int index = 0; index < ENERGY_SLOT_COUNT; index++) {
       energyFields[index] = createNumberField();
       Table slot = new Table(skin);
-      slot.add(
-              createLabel(
-                  SystemRecoveryText.text("computer.meta-energy-slot", index + 1), 18))
+      slot.add(createLabel(SystemRecoveryText.text("computer.meta-energy-slot", index + 1), 18))
           .left()
           .row();
       slot.add(energyFields[index]).width(100).height(48).padTop(5);
@@ -71,8 +70,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     layout.add(feedback).left().padTop(18).row();
 
     Table buttons = new Table(skin);
-    TextButton submit =
-        createButton(SystemRecoveryText.text("computer.meta-submit"), "green", 24);
+    TextButton submit = createButton(SystemRecoveryText.text("computer.meta-submit"), "green", 24);
     submit.addListener(
         new ChangeListener() {
           @Override
@@ -80,7 +78,8 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
             submitValues();
           }
         });
-    TextButton clear = createButton(SystemRecoveryText.text("computer.meta-clear"), "red-outline", 24);
+    TextButton clear =
+        createButton(SystemRecoveryText.text("computer.meta-clear"), "red-outline", 24);
     clear.addListener(
         new ChangeListener() {
           @Override
@@ -101,10 +100,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   }
 
   private void addCountField(Table parent, String labelKey, TextField field) {
-    parent
-        .add(createLabel(SystemRecoveryText.text(labelKey), 20))
-        .left()
-        .padRight(12);
+    parent.add(createLabel(SystemRecoveryText.text(labelKey), 20)).left().padRight(12);
     parent.add(field).width(120).height(48).padRight(28);
   }
 

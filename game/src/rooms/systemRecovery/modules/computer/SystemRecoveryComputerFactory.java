@@ -5,6 +5,7 @@ import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
+import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
@@ -20,6 +21,8 @@ import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
+import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
@@ -48,7 +51,11 @@ public final class SystemRecoveryComputerFactory {
     TerminalInterpreterSetup.setupPreviewStates();
   }
 
-  /** Adds the computer dialog interaction to a terminal entity. */
+  /**
+   * Adds the computer dialog interaction to a terminal entity.
+   *
+   * @param terminal terminal entity receiving the interaction
+   */
   public static void attachComputerDialog(Entity terminal) {
     terminal.add(
         new InteractionComponent(new Interaction((interacted, who) -> openComputerForPlayer(who))));
@@ -70,7 +77,7 @@ public final class SystemRecoveryComputerFactory {
           emptySearchChip,
           SystemRecoveryText.key("computer.empty-search-prompt"),
           SystemRecoveryText.key("computer.insert-search"),
-          ProgramKind.SEARCH);
+          ComputerProgramKind.SEARCH);
       return;
     }
 
@@ -81,7 +88,7 @@ public final class SystemRecoveryComputerFactory {
           emptySortStick,
           SystemRecoveryText.key("computer.empty-sort-prompt"),
           SystemRecoveryText.key("computer.insert-sort"),
-          ProgramKind.SORT);
+          ComputerProgramKind.SORT);
       return;
     }
 
@@ -92,15 +99,19 @@ public final class SystemRecoveryComputerFactory {
           accessChip,
           SystemRecoveryText.key("computer.empty-access-prompt"),
           SystemRecoveryText.key("computer.insert-access"),
-          ProgramKind.ACCESS);
+          ComputerProgramKind.ACCESS);
       return;
     }
 
-    showComputerDialog(player.id(), ProgramKind.NONE);
+    showComputerDialog(player.id(), ComputerProgramKind.NONE, null);
   }
 
   private static void showChipChoice(
-      Entity player, Item chip, String prompt, String insertLabel, ProgramKind programKind) {
+      Entity player,
+      Item chip,
+      String prompt,
+      String insertLabel,
+      ComputerProgramKind programKind) {
     DialogFactory.showMultipleChoiceDialog(
         prompt,
         SystemRecoveryText.key("computer.terminal"),
@@ -111,14 +122,34 @@ public final class SystemRecoveryComputerFactory {
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String choice)
               && "insert".equals(choice)) {
-            SystemRecoveryPuzzleEvents.attempt(
-                puzzleFor(programKind), "computer-chip", "insert", choice, true, player);
-            player.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(chip));
-            showComputerDialog(player.id(), programKind);
+            var step = SystemRecoveryProgressNet.activeStep().orElse(null);
+            if (!ComputerProgramRules.canMount(programKind, step)) {
+              showActionUnavailable(player.id(), puzzleFor(programKind), "computer.terminal");
+              return;
+            }
+            Item insertedChip = removeMountedChip(player.id(), chip).orElse(null);
+            if (insertedChip == null) {
+              SystemRecoveryPuzzleEvents.attempt(
+                  puzzleFor(programKind), "computer-chip", "insert", choice, false, player);
+              DialogUtils.showTextPopup(
+                  SystemRecoveryText.key("computer.chip-missing"),
+                  SystemRecoveryText.key("computer.terminal"),
+                  player.id());
+              return;
+            }
+            if (!recordChipMount(programKind, choice, player)) {
+              returnInsertedChip(player.id(), insertedChip);
+              DialogUtils.showTextPopup(
+                  SystemRecoveryText.key("computer.action-unavailable"),
+                  SystemRecoveryText.key("computer.terminal"),
+                  player.id());
+              return;
+            }
+            showComputerDialog(player.id(), programKind, insertedChip);
           } else {
             SystemRecoveryPuzzleEvents.attempt(
                 puzzleFor(programKind), "computer-chip", "insert", "cancel", false, player);
-            showComputerDialog(player.id(), ProgramKind.NONE);
+            showComputerDialog(player.id(), ComputerProgramKind.NONE, null);
           }
         },
         () -> {},
@@ -163,35 +194,24 @@ public final class SystemRecoveryComputerFactory {
         .orElse(null);
   }
 
-  private static void showComputerDialog(int targetEntityId, ProgramKind programKind) {
-    final boolean[] programReturned = {false};
+  private static void showComputerDialog(
+      int targetEntityId, ComputerProgramKind programKind, Item insertedChip) {
+    ComputerChipSession chipSession = new ComputerChipSession();
     UIComponent ui =
         DialogFactory.show(
             DialogContext.builder()
                 .type(SystemRecoveryDialogTypes.COMPUTER)
-                .put(SORT_PROGRAM_INSERTED, programKind == ProgramKind.SORT)
-                .put(SEARCH_PROGRAM_INSERTED, programKind == ProgramKind.SEARCH)
-                .put(ACCESS_MODULE_INSERTED, programKind == ProgramKind.ACCESS)
-                .put(
-                    SYSTEM_CORE_META_AVAILABLE,
-                    SystemRecoveryLevel.systemCoreMetaAvailable())
+                .put(SORT_PROGRAM_INSERTED, programKind == ComputerProgramKind.SORT)
+                .put(SEARCH_PROGRAM_INSERTED, programKind == ComputerProgramKind.SEARCH)
+                .put(ACCESS_MODULE_INSERTED, programKind == ComputerProgramKind.ACCESS)
+                .put(SYSTEM_CORE_META_AVAILABLE, SystemRecoveryLevel.systemCoreMetaAvailable())
                 .build(),
             targetEntityId);
     ui.registerCallback(
         DialogContextKeys.ON_CLOSE,
         data -> {
-          if (programReturned[0]) return;
-          Game.findEntityById(targetEntityId)
-              .flatMap(entity -> entity.fetch(InventoryComponent.class))
-              .ifPresent(
-                  inventory -> {
-                    switch (programKind) {
-                      case SORT -> inventory.add(new SortProgramStickItem());
-                      case SEARCH -> inventory.add(new SearchProgramChipItem());
-                      case ACCESS -> inventory.add(new SystemCoreAccessChipItem());
-                      case NONE -> {}
-                    }
-                  });
+          if (insertedChip == null) return;
+          chipSession.resolve(() -> returnInsertedChip(targetEntityId, insertedChip));
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.TERMINAL_SEND,
@@ -211,7 +231,18 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
-          if (programReturned[0]) return;
+          if (chipSession.resolved()) return;
+          if (programKind != ComputerProgramKind.SORT) {
+            showActionUnavailable(
+                targetEntityId, SystemRecoveryPuzzle.BUBBLE_SORT, "computer.sort-tab");
+            return;
+          }
+          if (!ComputerProgramRules.canSave(
+              programKind, SystemRecoveryProgressNet.activeStep().orElse(null))) {
+            showActionUnavailable(
+                targetEntityId, SystemRecoveryPuzzle.BUBBLE_SORT, "computer.sort-tab");
+            return;
+          }
           if (!isBubbleSortCondition(source)) {
             SystemRecoveryPuzzleEvents.attempt(
                 SystemRecoveryPuzzle.BUBBLE_SORT,
@@ -226,25 +257,69 @@ public final class SystemRecoveryComputerFactory {
                 targetEntityId);
             return;
           }
-          SystemRecoveryPuzzleEvents.attempt(
-              SystemRecoveryPuzzle.BUBBLE_SORT,
-              "sort-program",
-              "source",
-              source,
-              true,
-              targetEntityId);
-          addToInventory(targetEntityId, new SortProgramStickItem(true));
-          programReturned[0] = true;
-          DialogUtils.showTextPopup(
-              SystemRecoveryText.key("computer.sort-saved"),
-              SystemRecoveryText.key("computer.sort-tab"),
-              targetEntityId);
+          chipSession.resolve(
+              () -> {
+                SortProgramStickItem programmedStick = new SortProgramStickItem(true);
+                if (!addToInventory(targetEntityId, programmedStick)) {
+                  SystemRecoveryPuzzleEvents.attempt(
+                      SystemRecoveryPuzzle.BUBBLE_SORT,
+                      "sort-program",
+                      "source",
+                      source,
+                      false,
+                      targetEntityId);
+                  DialogUtils.showTextPopup(
+                      SystemRecoveryText.key("computer.action-unavailable"),
+                      SystemRecoveryText.key("computer.sort-tab"),
+                      targetEntityId);
+                  return false;
+                }
+                if (!SystemRecoveryProgressNet.complete(
+                    SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION)) {
+                  removeFromInventory(targetEntityId, programmedStick);
+                  SystemRecoveryPuzzleEvents.attempt(
+                      SystemRecoveryPuzzle.BUBBLE_SORT,
+                      "sort-program",
+                      "source",
+                      source,
+                      false,
+                      targetEntityId);
+                  DialogUtils.showTextPopup(
+                      SystemRecoveryText.key("computer.action-unavailable"),
+                      SystemRecoveryText.key("computer.sort-tab"),
+                      targetEntityId);
+                  return false;
+                }
+                SystemRecoveryPuzzleEvents.attempt(
+                    SystemRecoveryPuzzle.BUBBLE_SORT,
+                    "sort-program",
+                    "source",
+                    source,
+                    true,
+                    targetEntityId);
+                DialogUtils.showTextPopup(
+                    SystemRecoveryText.key("computer.sort-saved"),
+                    SystemRecoveryText.key("computer.sort-tab"),
+                    targetEntityId);
+                return true;
+              });
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.SEARCH_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
-          if (programReturned[0]) return;
+          if (chipSession.resolved()) return;
+          if (programKind != ComputerProgramKind.SEARCH) {
+            showActionUnavailable(
+                targetEntityId, SystemRecoveryPuzzle.SEARCH_ROBOT, "computer.search-tab");
+            return;
+          }
+          if (!ComputerProgramRules.canSave(
+              programKind, SystemRecoveryProgressNet.activeStep().orElse(null))) {
+            showActionUnavailable(
+                targetEntityId, SystemRecoveryPuzzle.SEARCH_ROBOT, "computer.search-tab");
+            return;
+          }
           if (!TerminalInterpreterSetup.matchesSearchRobotProgram(source)) {
             SystemRecoveryPuzzleEvents.attempt(
                 SystemRecoveryPuzzle.SEARCH_ROBOT,
@@ -259,49 +334,89 @@ public final class SystemRecoveryComputerFactory {
                 targetEntityId);
             return;
           }
-          SystemRecoveryPuzzleEvents.attempt(
-              SystemRecoveryPuzzle.SEARCH_ROBOT,
-              "search-program",
-              "source",
-              source,
-              true,
-              targetEntityId);
-          addToInventory(targetEntityId, new SearchProgramChipItem(true));
-          programReturned[0] = true;
-          DialogUtils.showTextPopup(
-              SystemRecoveryText.key("computer.search-saved"),
-              SystemRecoveryText.key("computer.search-tab"),
-              targetEntityId);
+          chipSession.resolve(
+              () -> {
+                SearchProgramChipItem programmedChip = new SearchProgramChipItem(true);
+                if (!addToInventory(targetEntityId, programmedChip)) {
+                  SystemRecoveryPuzzleEvents.attempt(
+                      SystemRecoveryPuzzle.SEARCH_ROBOT,
+                      "search-program",
+                      "source",
+                      source,
+                      false,
+                      targetEntityId);
+                  DialogUtils.showTextPopup(
+                      SystemRecoveryText.key("computer.action-unavailable"),
+                      SystemRecoveryText.key("computer.search-tab"),
+                      targetEntityId);
+                  return false;
+                }
+                if (!SystemRecoveryProgressNet.complete(
+                    SystemRecoveryLearningStep.SEARCH_PROGRAM)) {
+                  removeFromInventory(targetEntityId, programmedChip);
+                  SystemRecoveryPuzzleEvents.attempt(
+                      SystemRecoveryPuzzle.SEARCH_ROBOT,
+                      "search-program",
+                      "source",
+                      source,
+                      false,
+                      targetEntityId);
+                  DialogUtils.showTextPopup(
+                      SystemRecoveryText.key("computer.action-unavailable"),
+                      SystemRecoveryText.key("computer.search-tab"),
+                      targetEntityId);
+                  return false;
+                }
+                SystemRecoveryPuzzleEvents.attempt(
+                    SystemRecoveryPuzzle.SEARCH_ROBOT,
+                    "search-program",
+                    "source",
+                    source,
+                    true,
+                    targetEntityId);
+                DialogUtils.showTextPopup(
+                    SystemRecoveryText.key("computer.search-saved"),
+                    SystemRecoveryText.key("computer.search-tab"),
+                    targetEntityId);
+                return true;
+              });
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.SYSTEM_CORE_SCRIPT_RUN,
         data -> {
-          if (programKind != ProgramKind.ACCESS) return;
-          programReturned[0] = true;
-          SystemRecoveryPuzzleEvents.attempt(
-              SystemRecoveryPuzzle.SYSTEM_CORE,
-              "access-script",
-              "execute",
-              "run",
-              true,
-              targetEntityId);
-          SystemRecoveryLevel.completeSystemCoreAccess(targetEntityId);
-          DialogUtils.showTextPopup(
-              SystemRecoveryText.key("computer.access-success"),
-              SystemRecoveryText.key("computer.access-tab"),
-              targetEntityId);
+          if (programKind != ComputerProgramKind.ACCESS) {
+            showActionUnavailable(
+                targetEntityId, SystemRecoveryPuzzle.SYSTEM_CORE, "computer.access-tab");
+            return;
+          }
+          if (chipSession.resolved()) return;
+          chipSession.resolve(
+              () -> {
+                if (!SystemRecoveryLevel.completeSystemCoreAccess(targetEntityId)) {
+                  DialogUtils.showTextPopup(
+                      SystemRecoveryText.key("computer.access-unavailable"),
+                      SystemRecoveryText.key("computer.access-tab"),
+                      targetEntityId);
+                  return false;
+                }
+                DialogUtils.showTextPopup(
+                    SystemRecoveryText.key("computer.access-success"),
+                    SystemRecoveryText.key("computer.access-tab"),
+                    targetEntityId);
+                return true;
+              });
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.TERMINAL_NEXT_STEP,
         data -> {
-          if (SystemRecovery.DEBUG_MODE) {
+          if (SystemRecovery.debugMode()) {
             SystemRecoveryLevel.advanceTerminalStateForDebug(targetEntityId);
           }
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.DEBUG_SPAWN_ALL_ITEMS,
         data -> {
-          if (!SystemRecovery.DEBUG_MODE) return;
+          if (!SystemRecovery.debugMode()) return;
           Game.findEntityById(targetEntityId)
               .flatMap(entity -> entity.fetch(InventoryComponent.class))
               .ifPresent(inventory -> spawnAllDebugItems(inventory, targetEntityId));
@@ -309,13 +424,27 @@ public final class SystemRecoveryComputerFactory {
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.DEBUG_PETRI_NET,
         data -> {
-          if (SystemRecovery.DEBUG_MODE) {
+          if (SystemRecovery.debugMode()) {
             SystemRecoveryLevel.showPetriNetDebug(targetEntityId);
           }
         });
   }
 
-  private static SystemRecoveryPuzzle puzzleFor(ProgramKind programKind) {
+  private static boolean recordChipMount(
+      ComputerProgramKind programKind, String rawChoice, Entity player) {
+    String answerKind =
+        switch (programKind) {
+          case SORT -> "resume-programming";
+          case SEARCH -> "mount-for-programming";
+          case ACCESS -> "mount-access-module";
+          case NONE -> "insert";
+        };
+    SystemRecoveryPuzzleEvents.attempt(
+        puzzleFor(programKind), "computer-chip", answerKind, rawChoice, true, player);
+    return programKind != ComputerProgramKind.NONE;
+  }
+
+  private static SystemRecoveryPuzzle puzzleFor(ComputerProgramKind programKind) {
     return switch (programKind) {
       case SORT -> SystemRecoveryPuzzle.BUBBLE_SORT;
       case SEARCH -> SystemRecoveryPuzzle.SEARCH_ROBOT;
@@ -323,10 +452,57 @@ public final class SystemRecoveryComputerFactory {
     };
   }
 
-  private static void addToInventory(int entityId, Item item) {
+  static boolean addToInventory(int entityId, Item item) {
+    return Game.findEntityById(entityId)
+        .flatMap(entity -> entity.fetch(InventoryComponent.class))
+        .map(inventory -> inventory.add(item))
+        .orElse(false);
+  }
+
+  private static void removeFromInventory(int entityId, Item item) {
     Game.findEntityById(entityId)
         .flatMap(entity -> entity.fetch(InventoryComponent.class))
-        .ifPresent(inventory -> inventory.add(item));
+        .ifPresent(inventory -> inventory.remove(item));
+  }
+
+  static java.util.Optional<Item> removeMountedChip(int entityId, Item chip) {
+    return Game.findEntityById(entityId)
+        .flatMap(entity -> entity.fetch(InventoryComponent.class))
+        .flatMap(inventory -> inventory.remove(chip));
+  }
+
+  /**
+   * Returns a removed chip to the player, dropping it at their position if the inventory is full.
+   *
+   * @param playerId player who owns the computer dialog
+   * @param chip chip to return
+   * @return whether the chip was returned to inventory or dropped in the world
+   */
+  static boolean returnInsertedChip(int playerId, Item chip) {
+    Entity player = Game.findEntityById(playerId).orElse(null);
+    if (player == null) return false;
+
+    boolean added =
+        player.fetch(InventoryComponent.class).map(inventory -> inventory.add(chip)).orElse(false);
+    if (added) return true;
+
+    return Game.positionOf(player)
+        .map(
+            position -> {
+              Game.add(WorldItemBuilder.buildWorldItem(chip, position));
+              return true;
+            })
+        .orElse(false);
+  }
+
+  private static void showActionUnavailable(
+      int playerId, SystemRecoveryPuzzle puzzle, String titleKey) {
+    SystemRecoveryPuzzleEvents.attempt(
+        puzzle, "computer-action", "phase", "invalid", false, playerId);
+    DialogUtils.showTextPopup(
+        SystemRecoveryText.key("computer.action-unavailable"),
+        SystemRecoveryText.key(titleKey),
+        playerId);
   }
 
   private static void spawnAllDebugItems(InventoryComponent inventory, int targetEntityId) {
@@ -348,12 +524,5 @@ public final class SystemRecoveryComputerFactory {
 
   private static boolean isBubbleSortCondition(String source) {
     return source.replaceAll("\\s+", "").contains("array[j]>array[j+1]");
-  }
-
-  private enum ProgramKind {
-    NONE,
-    SORT,
-    SEARCH,
-    ACCESS
   }
 }

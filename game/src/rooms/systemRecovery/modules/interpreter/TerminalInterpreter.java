@@ -68,20 +68,32 @@ public final class TerminalInterpreter {
    * @return true if the complete current state is correct
    */
   public boolean interpret(String source) {
+    return interpret(source, -1);
+  }
+
+  /**
+   * Checks source and passes explicit player context to the registered callback.
+   *
+   * @param source source text entered in the terminal
+   * @param playerId authoritative player ID, or {@code -1} for a non-player call
+   * @return whether the complete current state is correct
+   */
+  public boolean interpret(String source, int playerId) {
     TerminalCodeRequirement puzzleState = states.get(currentState);
     if (puzzleState == null) {
       return false;
     }
 
+    TerminalAttempt attempt = new TerminalAttempt(currentState, source, playerId);
     AnalysisResult result = analysis(source, successfulContext.copy());
     boolean successful = result.successful();
     if (successful) {
       successfulContext.replaceWith(result.context());
       currentState++;
       // Room-side feedback must not be able to block the already validated state transition.
-      puzzleState.onSuccess().run();
+      puzzleState.onSuccess().accept(attempt);
     } else {
-      puzzleState.onFailure().run();
+      puzzleState.onFailure().accept(attempt);
     }
     return successful;
   }
@@ -92,13 +104,24 @@ public final class TerminalInterpreter {
    * @return true if a state was completed
    */
   public boolean advanceCurrentStateForDebug() {
+    return advanceCurrentStateForDebug(-1);
+  }
+
+  /**
+   * Completes the current state in debug mode with explicit player context.
+   *
+   * @param playerId authoritative player ID, or {@code -1} for a non-player call
+   * @return whether a state was completed
+   */
+  public boolean advanceCurrentStateForDebug(int playerId) {
     TerminalCodeRequirement puzzleState = states.get(currentState);
     if (puzzleState == null) {
       return false;
     }
 
+    TerminalAttempt attempt = new TerminalAttempt(currentState, "<debug-next-step>", playerId);
     currentState++;
-    puzzleState.onSuccess().run();
+    puzzleState.onSuccess().accept(attempt);
     return true;
   }
 
@@ -110,6 +133,28 @@ public final class TerminalInterpreter {
    */
   public boolean analyze(String source) {
     return analysis(source, successfulContext.copy()).successful();
+  }
+
+  /**
+   * Checks a standalone requirement without registering it as a shared terminal state.
+   *
+   * <p>This is used for code stored on physical programming items. The requirement gets a fresh
+   * capture context and only its own statements are allowed, so a previous terminal state cannot
+   * accidentally make chip code valid.
+   *
+   * @param requirement code requirement to validate
+   * @param source source text to validate
+   * @return whether the source completely satisfies the standalone requirement
+   */
+  public boolean analyze(TerminalCodeRequirement requirement, String source) {
+    if (requirement == null) {
+      return false;
+    }
+    TerminalMatchContext context = new TerminalMatchContext();
+    List<TerminalStatement> statements = parsedStatements(source);
+    return !statements.isEmpty()
+        && matchesRequiredCodeLines(statements, requirement, context)
+        && containsOnlyRequiredStatements(statements, requirement, context);
   }
 
   /**
@@ -226,6 +271,27 @@ public final class TerminalInterpreter {
     return true;
   }
 
+  private static boolean containsOnlyRequiredStatements(
+      List<TerminalStatement> statements,
+      TerminalCodeRequirement requirement,
+      TerminalMatchContext context) {
+    for (TerminalStatement statement : statements) {
+      boolean known = false;
+      for (CodeLine codeLine : requirement.codeLines()) {
+        TerminalMatchContext candidate = context.copy();
+        if (codeLine.check(statement.source(), candidate)) {
+          context.replaceWith(candidate);
+          known = true;
+          break;
+        }
+      }
+      if (!known) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * Checks whether a statement belongs to the current or an already completed state.
    *
@@ -235,6 +301,7 @@ public final class TerminalInterpreter {
    * limitation.
    *
    * @param statement statement to check
+   * @param state highest state whose requirements may be reused
    * @param context already known named captures used to keep flexible variable names consistent
    * @return whether the statement matches a requirement up to the requested state
    */

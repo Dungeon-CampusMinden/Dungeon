@@ -1,8 +1,17 @@
 package rooms.systemRecovery.riddles;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 import engine.Entity;
 import engine.Game;
@@ -20,7 +29,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
-import rooms.systemRecovery.entities.EntityFactory;
+import rooms.systemRecovery.SystemRecovery;
+import rooms.systemRecovery.entities.SortingEntityFactory;
+import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 
 /** Exercises the real riddle controller without requiring textures or a graphical client. */
@@ -31,7 +42,8 @@ class ManualSortingRiddleTest {
   private final Entity player = new Entity("player");
   private final Entity reward = new Entity("reward");
   private MockedStatic<Game> game;
-  private MockedStatic<EntityFactory> factory;
+  private MockedStatic<SortingEntityFactory> factory;
+  private MockedStatic<SystemRecoveryDisplayFactory> displays;
   private MockedStatic<DialogUtils> dialogs;
   private MockedStatic<WorldItemBuilder> worldItems;
   private MockedConstruction<SortProgramStickItem> sticks;
@@ -39,8 +51,10 @@ class ManualSortingRiddleTest {
 
   @BeforeEach
   void setup() {
+    SystemRecovery.configureDebugMode("--debug");
     game = mockStatic(Game.class, RETURNS_DEEP_STUBS);
-    factory = mockStatic(EntityFactory.class);
+    factory = mockStatic(SortingEntityFactory.class);
+    displays = mockStatic(SystemRecoveryDisplayFactory.class);
     dialogs = mockStatic(DialogUtils.class);
     worldItems = mockStatic(WorldItemBuilder.class);
     sticks = mockConstruction(SortProgramStickItem.class);
@@ -55,7 +69,7 @@ class ManualSortingRiddleTest {
                   : new Point(10, 10);
             });
     factory
-        .when(() -> EntityFactory.sortingDataCrystal(any(), anyInt()))
+        .when(() -> SortingEntityFactory.dataCrystal(any(), anyInt()))
         .thenAnswer(
             call -> {
               Entity container = new Entity("sort_data_" + call.getArgument(1));
@@ -64,8 +78,8 @@ class ManualSortingRiddleTest {
               containers.add(container);
               return container;
             });
-    factory
-        .when(() -> EntityFactory.moduleDisplay(any(), any(), any()))
+    displays
+        .when(() -> SystemRecoveryDisplayFactory.moduleDisplay(any(), any(), any()))
         .thenAnswer(ignored -> new Entity("display"));
     worldItems
         .when(() -> WorldItemBuilder.buildWorldItem(any(SortProgramStickItem.class), any()))
@@ -76,9 +90,11 @@ class ManualSortingRiddleTest {
 
   @AfterEach
   void cleanup() {
+    SystemRecovery.configureDebugMode();
     sticks.close();
     worldItems.close();
     dialogs.close();
+    displays.close();
     factory.close();
     game.close();
   }

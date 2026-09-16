@@ -7,7 +7,11 @@ import engine.components.DrawComponent;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
-/** Links a door label to the authoritative completion condition of its prerequisite riddle. */
+/**
+ * Links a door label to the authoritative completion condition of its prerequisite riddle.
+ *
+ * @param completed supplier for the current authoritative completion state
+ */
 public record DoorLabelComponent(BooleanSupplier completed) implements Component {
   /** Shared spawn/snapshot key, including for players joining after a riddle is solved. */
   public static final String METADATA_KEY = "systemRecovery.doorLabel.completed";

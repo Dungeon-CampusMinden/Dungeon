@@ -6,12 +6,10 @@ import feature.components.UIComponent;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.LevelEditorSystem;
 import java.util.Arrays;
-import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Supplier;
 import rooms.systemRecovery.modules.computer.SystemRecoveryDialogTypes;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -108,7 +106,6 @@ public final class SystemRecoveryStoryDialogs {
 
   private final Set<String> shownToPlayer = ConcurrentHashMap.newKeySet();
   private final Queue<PendingDialog> pendingDialogs = new ConcurrentLinkedQueue<>();
-  private static final ThreadLocal<Integer> TERMINAL_PLAYER = new ThreadLocal<>();
 
   /** Creates the story controller for one authoritative level instance. */
   public SystemRecoveryStoryDialogs() {}
@@ -136,12 +133,21 @@ public final class SystemRecoveryStoryDialogs {
     }
   }
 
-  /** Queues one instruction for one player after a successful personal action. */
+  /**
+   * Queues one instruction for one player after a successful personal action.
+   *
+   * @param step story step to announce
+   * @param playerId player receiving the instruction
+   */
   public void announceForPlayer(StoryStep step, int playerId) {
     showStepAfterDelay(step, playerId);
   }
 
-  /** Queues one shared-room instruction for every currently connected player. */
+  /**
+   * Queues one shared-room instruction for every currently connected player.
+   *
+   * @param step story step to announce
+   */
   public void announceToAllPlayers(StoryStep step) {
     Game.levelEntities(Set.of(PlayerComponent.class))
         .mapToInt(engine.Entity::id)
@@ -151,26 +157,6 @@ public final class SystemRecoveryStoryDialogs {
   /** Queues the final shared story response. */
   public void announceCompletionToAllPlayers() {
     announceToAllPlayers(COMPLETED);
-  }
-
-  /** Executes terminal work with the submitting player available to success callbacks. */
-  public static <T> T withTerminalPlayer(int playerId, Supplier<T> action) {
-    Integer previous = TERMINAL_PLAYER.get();
-    TERMINAL_PLAYER.set(playerId);
-    try {
-      return action.get();
-    } finally {
-      if (previous == null) TERMINAL_PLAYER.remove();
-      else TERMINAL_PLAYER.set(previous);
-    }
-  }
-
-  /**
-   * @return the player currently executing a terminal callback, if there is one
-   */
-  public static OptionalInt currentTerminalPlayer() {
-    Integer playerId = TERMINAL_PLAYER.get();
-    return playerId == null ? OptionalInt.empty() : OptionalInt.of(playerId);
   }
 
   private void showStepAfterDelay(StoryStep step, int playerId) {
@@ -186,6 +172,9 @@ public final class SystemRecoveryStoryDialogs {
    *
    * <p>The check uses the target IDs instead of client-local visibility. This keeps story delivery
    * correct in multiplayer: only the player currently working at a computer is deferred.
+   *
+   * @param playerId player whose computer state is checked
+   * @return whether this player's computer dialog is open
    */
   private static boolean hasOpenComputer(int playerId) {
     return Game.levelEntities()
@@ -206,9 +195,20 @@ public final class SystemRecoveryStoryDialogs {
     return new StoryStep(id, riddleKey, entryKey, id);
   }
 
-  /** One atomic instruction shown after the previous puzzle action. */
+  /**
+   * One atomic instruction shown after the previous puzzle action.
+   *
+   * @param id stable story-step identifier
+   * @param riddleKey quest-log tab key
+   * @param entryKey quest-log entry key
+   * @param messageKey story message key
+   */
   public record StoryStep(String id, String riddleKey, String entryKey, String messageKey) {
-    /** Creates the keyed dialog script; the target client localizes it when displayed. */
+    /**
+     * Creates the keyed dialog script; the target client localizes it when displayed.
+     *
+     * @return keyed story script
+     */
     public String script() {
       return SystemRecoveryText.story(messageKey);
     }

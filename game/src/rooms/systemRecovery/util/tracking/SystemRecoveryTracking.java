@@ -12,18 +12,34 @@ import engine.tracking.Tracking;
 final class SystemRecoveryTracking {
   private SystemRecoveryTracking() {}
 
-  /** Records that a puzzle became available. */
+  /**
+   * Records that a puzzle became available.
+   *
+   * @param puzzle puzzle whose place became active
+   */
   static void started(SystemRecoveryPuzzle puzzle) {
     Tracking.puzzleStarted(puzzle.id());
   }
 
-  /** Records a completed puzzle once the authoritative room state has changed. */
+  /**
+   * Records a completed puzzle once the authoritative room state has changed.
+   *
+   * @param puzzle puzzle that has completed
+   */
   static void solved(SystemRecoveryPuzzle puzzle) {
-    started(puzzle);
     Tracking.puzzleSolved(puzzle.id());
   }
 
-  /** Records a server-evaluated attempt made by a concrete player entity. */
+  /**
+   * Records a server-evaluated attempt made by a concrete player entity.
+   *
+   * @param puzzle riddle that owns the interaction
+   * @param objectId stable identifier of the interacted object
+   * @param answerKind stable semantic label for the answer
+   * @param rawAnswer submitted answer payload
+   * @param correct whether the answer was accepted
+   * @param player player entity that performed the interaction
+   */
   static void attempt(
       SystemRecoveryPuzzle puzzle,
       String objectId,
@@ -32,13 +48,21 @@ final class SystemRecoveryTracking {
       boolean correct,
       Entity player) {
     if (player == null) {
-      started(puzzle);
       return;
     }
     attempt(puzzle, objectId, answerKind, rawAnswer, correct, player.id());
   }
 
-  /** Records a server-evaluated attempt made by a player ID, when one is available. */
+  /**
+   * Records a server-evaluated attempt made by a player ID, when one is available.
+   *
+   * @param puzzle riddle that owns the interaction
+   * @param objectId stable identifier of the interacted object
+   * @param answerKind stable semantic label for the answer
+   * @param rawAnswer submitted answer payload
+   * @param correct whether the answer was accepted
+   * @param playerId authoritative player ID, or a negative value when unavailable
+   */
   static void attempt(
       SystemRecoveryPuzzle puzzle,
       String objectId,
@@ -46,7 +70,6 @@ final class SystemRecoveryTracking {
       String rawAnswer,
       boolean correct,
       int playerId) {
-    started(puzzle);
     if (playerId < 0) return;
     Tracking.participantForEntity(playerId)
         .ifPresent(
@@ -60,9 +83,29 @@ final class SystemRecoveryTracking {
                     participantId));
   }
 
-  /** Records a terminal answer using the state that was active when it was submitted. */
+  /**
+   * Records a terminal answer using the state that was active when it was submitted.
+   *
+   * @param state terminal state that received the source
+   * @param source complete submitted source
+   * @param correct whether the source was accepted
+   * @param playerId authoritative player ID, or a negative value when unavailable
+   */
   static void terminalAttempt(int state, String source, boolean correct, int playerId) {
     SystemRecoveryPuzzle puzzle = SystemRecoveryPuzzle.fromTerminalState(state);
     attempt(puzzle, "terminal-state-" + state, "terminal-source", source, correct, playerId);
+  }
+
+  /**
+   * Records one accepted use of a shared telephone hint.
+   *
+   * @param puzzle puzzle whose hint was requested
+   * @param hintId stable hint identifier
+   * @param player player who accepted the hint
+   */
+  static void hintUsed(SystemRecoveryPuzzle puzzle, String hintId, Entity player) {
+    if (player == null) return;
+    Tracking.participantForEntity(player.id())
+        .ifPresent(participantId -> Tracking.hintUsed(puzzle.id(), hintId, participantId));
   }
 }

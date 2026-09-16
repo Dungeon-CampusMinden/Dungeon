@@ -1,6 +1,12 @@
 # Petri-Netz-Konzept für System Recovery
 
-Stand: Implementiert als erster serverseitiger POC.
+> **Überholt:** Dieses Dokument beschreibt den ersten, zu feingranularen serverseitigen POC.
+> Für neue Änderungen gilt ausschließlich
+> [`system_recovery_progress_hint_rework.md`](system_recovery_progress_hint_rework.md). Insbesondere
+> dürfen Tür-, Display-, Item-, Scanner- und Animationszustände nicht erneut als Hint-Places
+> eingeführt werden.
+
+Stand: Historische Beschreibung des ersten serverseitigen POC.
 
 ## 1. Ziel und Abgrenzung
 

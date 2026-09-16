@@ -125,7 +125,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         });
     buttons.add(sendButton).width(150).height(52).padRight(12);
     buttons.add(deleteButton).width(150).height(52);
-    if (SystemRecovery.DEBUG_MODE) {
+    if (SystemRecovery.debugMode()) {
       buttons.add(nextStepButton).width(180).height(52).padLeft(12);
       buttons.add(spawnDebugItemsButton).width(220).height(52).padLeft(12);
       buttons.add(petriNetButton).width(180).height(52).padLeft(12);

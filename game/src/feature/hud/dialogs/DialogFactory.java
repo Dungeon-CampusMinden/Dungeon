@@ -641,7 +641,12 @@ public class DialogFactory {
     return context;
   }
 
-  /** Translates selectable labels without changing their stable callback values. */
+  /**
+   * Translates selectable labels without changing their stable callback values.
+   *
+   * @param context dialog context containing selectable options
+   * @return context with localized option labels
+   */
   private static DialogContext translateOptions(DialogContext context) {
     Object value = context.attributes().get(DialogContextKeys.OPTIONS);
     if (!(value instanceof ChoiceOptions options)) return context;

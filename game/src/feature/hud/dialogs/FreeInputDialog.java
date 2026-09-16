@@ -46,12 +46,14 @@ final class FreeInputDialog {
    * @return The created Dialog instance or HeadlessDialogGroup.
    */
   static Group build(DialogContext ctx) {
-    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(trans.text(T_TITLE));
-    String question = ctx.find(DialogContextKeys.QUESTION, String.class).orElse("");
+    String title =
+        localize(ctx.find(DialogContextKeys.TITLE, String.class).orElse(trans.text(T_TITLE)));
+    String question = localize(ctx.find(DialogContextKeys.QUESTION, String.class).orElse(""));
     String okLabel =
-        ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(trans.text(T_OK));
+        localize(ctx.find(DialogContextKeys.CONFIRM_LABEL, String.class).orElse(trans.text(T_OK)));
     String cancelLabel =
-        ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(trans.text(T_CANCEL));
+        localize(
+            ctx.find(DialogContextKeys.CANCEL_LABEL, String.class).orElse(trans.text(T_CANCEL)));
 
     // On headless server, return placeholder
     if (Game.isHeadless()) {
@@ -83,9 +85,10 @@ final class FreeInputDialog {
     TextField input =
         new TextField(context.find(DialogContextKeys.INPUT_PREFILL, String.class).orElse(""), skin);
     input.setMessageText(
-        context
-            .find(DialogContextKeys.INPUT_PLACEHOLDER, String.class)
-            .orElse(trans.text(T_PLACEHOLDER)));
+        localize(
+            context
+                .find(DialogContextKeys.INPUT_PLACEHOLDER, String.class)
+                .orElse(trans.text(T_PLACEHOLDER))));
 
     Dialog dialog =
         new Dialog(title, skin, title.isBlank() ? "default" : "no-title") {
@@ -124,5 +127,9 @@ final class FreeInputDialog {
     dialog.pack();
 
     return new BaseContainerUI(dialog);
+  }
+
+  private static String localize(String text) {
+    return Game.localization().getCurrentTranslator().translate(text);
   }
 }
