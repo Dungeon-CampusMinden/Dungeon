@@ -2,8 +2,10 @@ package engine.game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Entity;
 import engine.Game;
 import engine.level.utils.Coordinate;
@@ -12,6 +14,8 @@ import engine.network.NetworkTelemetry;
 import engine.network.SnapshotTranslator;
 import engine.network.delta.SnapshotDeltaCompressor;
 import engine.network.messages.s2c.DeltaSnapshotMessage;
+import engine.network.messages.s2c.DialogCloseMessage;
+import engine.network.messages.s2c.DialogShowMessage;
 import engine.network.messages.s2c.DoorTileState;
 import engine.network.messages.s2c.EntityDelta;
 import engine.network.messages.s2c.EntityState;
@@ -21,10 +25,16 @@ import engine.network.server.ClientState;
 import engine.network.server.Session;
 import engine.utils.Direction;
 import engine.utils.Point;
+import feature.components.UIComponent;
 import feature.entities.CharacterClass;
+import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +52,53 @@ public class GameLoopNetworkReconciliationTest {
     Game.removeAllSystems();
     Game.currentLevel(null);
     NetworkTelemetry.reset();
+    PreRunConfiguration.multiplayerEnabled(false);
+    PreRunConfiguration.isNetworkServer(true);
+  }
+
+  /** A repeated server show preserves the local dialog and its current presentation state. */
+  @Test
+  public void repeatedDialogShowKeepsOneInstanceUntilServerClose() throws Exception {
+    Game.removeAllEntities();
+    Game.removeAllSystems();
+    MockNetworkHandler.useLocalNetworkHandler();
+    PreRunConfiguration.multiplayerEnabled(true);
+    PreRunConfiguration.isNetworkServer(false);
+    DialogType type = () -> "network-reconciliation-test";
+    DialogFactory.register(type, ignored -> new Group());
+    setupGameLoopMessageHandlers();
+    MessageDispatcher dispatcher = Game.network().messageDispatcher();
+    // Each delivery is decoded separately and still names the server's absent UI owner.
+    dispatcher.dispatch(
+        null,
+        new DialogShowMessage(
+            new DialogContext(
+                type, false, Map.of(DialogContextKeys.OWNER_ENTITY, 1000000), "intro"),
+            false));
+    UIComponent first =
+        Game.levelEntities()
+            .flatMap(e -> e.fetch(UIComponent.class).stream())
+            .findFirst()
+            .orElseThrow();
+    Group dialog = first.dialog();
+    dialog.setUserObject("page two");
+
+    dispatcher.dispatch(
+        null,
+        new DialogShowMessage(
+            new DialogContext(
+                type, false, Map.of(DialogContextKeys.OWNER_ENTITY, 1000000), "intro"),
+            false));
+
+    List<UIComponent> open =
+        Game.levelEntities().flatMap(e -> e.fetch(UIComponent.class).stream()).toList();
+    assertEquals(1, open.size(), "Repeated synchronization must not stack another intro");
+    assertSame(first, open.getFirst());
+    assertSame(dialog, open.getFirst().dialog());
+    assertEquals("page two", dialog.getUserObject());
+    dispatcher.dispatch(null, new DialogCloseMessage("intro"));
+    assertTrue(
+        Game.levelEntities().flatMap(e -> e.fetch(UIComponent.class).stream()).findAny().isEmpty());
   }
 
   /** Verifies authoritative full snapshots remove only tracked network entities. */

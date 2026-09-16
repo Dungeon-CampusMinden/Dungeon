@@ -10,6 +10,7 @@ import engine.network.server.Session;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for network operations, particularly for translating between entity IDs and
@@ -70,6 +71,20 @@ public final class NetworkUtils {
     }
 
     return getServerSessions().keySet();
+  }
+
+  /**
+   * Returns connected clients that have finished applying the initial world.
+   *
+   * @return client IDs eligible to receive live world presentation
+   */
+  public static Set<Short> readyClientIds() {
+    return getServerSessions().values().stream()
+        .filter(session -> !session.isClosed())
+        .flatMap(session -> session.clientState().stream())
+        .filter(ClientState::initialWorldReady)
+        .map(ClientState::clientId)
+        .collect(Collectors.toSet());
   }
 
   /**

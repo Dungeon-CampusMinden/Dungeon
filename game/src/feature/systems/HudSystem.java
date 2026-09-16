@@ -7,8 +7,6 @@ import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.game.PreRunConfiguration;
-import engine.network.NetworkUtils;
-import engine.network.messages.s2c.DialogShowMessage;
 import engine.network.server.DialogTracker;
 import engine.utils.Tuple;
 import engine.utils.components.MissingComponentException;
@@ -183,10 +181,7 @@ public final class HudSystem extends System {
 
     Group dialog = component.dialog();
 
-    Game.stage()
-        .ifPresentOrElse(
-            stage -> addDialogToStage(dialog, stage),
-            () -> sendDialogToClients(entity, component, affectedIds));
+    Game.stage().ifPresent(stage -> addDialogToStage(dialog, stage));
 
     entityUIComponentMap.put(entity, component);
     if (dialogsSuppressed) suppressDialog(component);
@@ -194,35 +189,6 @@ public final class HudSystem extends System {
     // response authorization in DialogTracker.
     if (!Game.isMultiplayerClient()) {
       DialogTracker.instance().registerDialog(component);
-    }
-  }
-
-  /**
-   * Sends the dialog to all connected and relevant clients.
-   *
-   * <p>A dialog is relevant for a client, if the targetEntityIds of the UIComponent contains the id
-   * of an entity controlled by the client or if targetEntityIds is empty (meaning all clients).
-   *
-   * @param entity the entity which owns the UIComponent
-   * @param component the UIComponent to send
-   * @param targetIds all clients that are connect and should receive the dialog
-   */
-  private void sendDialogToClients(
-      final Entity entity, final UIComponent component, int[] targetIds) {
-    Set<Short> clientIds =
-        (targetIds.length == 0)
-            ? NetworkUtils.getAllConnectedClientIds()
-            : NetworkUtils.entityIdsToClientIds(targetIds);
-
-    if (clientIds.isEmpty()) {
-      return; // No clients to send to
-    }
-
-    // Send dialog to all target clients
-    DialogShowMessage msg =
-        new DialogShowMessage(component.dialogContext(), component.canBeClosed());
-    for (short clientId : clientIds) {
-      Game.network().send(clientId, msg, true);
     }
   }
 
