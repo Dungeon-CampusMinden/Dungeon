@@ -231,6 +231,7 @@ public class SettingsMode extends LevelEditorMode {
               position.position(oldPosition.translate(x, y));
               PositionSync.syncPosition(entity);
             });
+    LevelEditorSystem.refreshPrefabs(level);
 
     LevelEditorSystem.showFeedback("Shifted level " + directionName, Color.WHITE);
     levelChanged();

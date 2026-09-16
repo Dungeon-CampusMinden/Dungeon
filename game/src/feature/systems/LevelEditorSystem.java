@@ -17,6 +17,7 @@ import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
+import engine.level.elements.ILevel;
 import engine.level.loader.DungeonLoader;
 import engine.level.loader.DungeonSaver;
 import engine.systems.CameraSystem;
@@ -38,6 +39,8 @@ import feature.leveleditor.SettingsMode;
 import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
 import feature.leveleditor.ui.LevelEditorUI;
+import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
 import java.io.File;
 import java.util.Objects;
 
@@ -308,6 +311,25 @@ public class LevelEditorSystem extends System {
   }
 
   /**
+   * Refreshes the runtime prefab entities for the given level from its authored instances.
+   *
+   * @param level level whose prefab entities should be refreshed
+   */
+  public static void refreshPrefabs(ILevel level) {
+    PrefabSide[] sides;
+    if (Game.isMultiplayerClient()) {
+      sides = new PrefabSide[] {PrefabSide.CLIENT};
+    } else if (Game.isSingleplayer()) {
+      sides = new PrefabSide[] {PrefabSide.SERVER, PrefabSide.CLIENT};
+    } else {
+      sides = new PrefabSide[] {PrefabSide.SERVER};
+    }
+
+    for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
+    for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
+  }
+
+  /**
    * Switches to the given editor mode.
    *
    * <p>Exits the previous mode, creates a new instance of the given mode and enters it. Also
@@ -324,6 +346,7 @@ public class LevelEditorSystem extends System {
     if (ui != null) {
       ui.modePanel().selected(mode);
       ui.detailsPanel().mode(currentModeInstance);
+      ui.secondaryDetailsPanel().mode(currentModeInstance);
     }
   }
 
@@ -348,6 +371,7 @@ public class LevelEditorSystem extends System {
                 ui.setSize(stage.getWidth(), stage.getHeight());
                 stage.addActor(ui);
                 ui.detailsPanel().mode(currentModeInstance);
+                ui.secondaryDetailsPanel().mode(currentModeInstance);
               });
     }
     if (ui != null) {
@@ -586,12 +610,12 @@ public class LevelEditorSystem extends System {
     Decos,
     /** Mode to place and remove named points. */
     Points,
+    /** Mode to author registered prefab instances. */
+    Prefabs,
     /** Mode to define the start (spawn) tiles. */
     StartTiles,
     /** Mode to resize, shift, and save the current level. */
-    Settings,
-    /** Mode to author registered prefab instances. */
-    Prefabs;
+    Settings;
 
     /**
      * Gets the mode with the given index.
@@ -617,9 +641,9 @@ public class LevelEditorSystem extends System {
         case Tiles -> new TilesMode(onLevelChanged);
         case Decos -> new DecoMode(onLevelChanged);
         case Points -> new PointMode(onLevelChanged);
+        case Prefabs -> new PrefabMode(onLevelChanged);
         case StartTiles -> new StartTilesMode(onLevelChanged);
         case Settings -> new SettingsMode(onLevelChanged);
-        case Prefabs -> new PrefabMode(onLevelChanged);
       };
     }
   }

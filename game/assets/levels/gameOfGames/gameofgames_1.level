@@ -21,7 +21,7 @@
         "x" : 3.0,
         "y" : 9.0
       },
-      "image" : "images/binary_hex.png"
+      "image" : "images/binary_hex.jpg"
     }
   }, {
     "name" : "door-keypad",
@@ -32,11 +32,25 @@
         "y" : 10.0
       },
       "keypadPosition" : {
-        "x" : 16.0,
-        "y" : 10.0
+        "x" : 5.0,
+        "y" : 13.0
       },
       "code" : "1234",
       "showDigitCount" : true
+    }
+  }, {
+    "name" : "r1 hider",
+    "type" : "level-hider",
+    "properties" : {
+      "firstCorner" : {
+        "x" : 2.0,
+        "y" : 3.0
+      },
+      "secondCorner" : {
+        "x" : 5.0,
+        "y" : 5.0
+      },
+      "transitionSize" : 1.0
     }
   } ]
 }

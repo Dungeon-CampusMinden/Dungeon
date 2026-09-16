@@ -160,6 +160,7 @@ public final class GameLoop extends ScreenAdapter {
 
         List<Entity> allPlayers = serverAuthority ? ECSManagement.allPlayers().toList() : List.of();
         if (serverAuthority) {
+          PrefabSpawner.clear(PrefabSide.SERVER);
           allPlayers.forEach(ECSManagement::remove);
           if (Game.isSingleplayer()) {
             PrefabSpawner.clear(PrefabSide.CLIENT);

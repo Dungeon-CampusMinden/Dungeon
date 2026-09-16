@@ -52,12 +52,4 @@ public final class BookshelfImagePrefab extends Prefab {
     feedback.point(position, "Bookshelf");
     feedback.label(position.translate(0, 1.25f), value(instance, IMAGE));
   }
-
-  @Override
-  public List<Entity> createEditorPreview(PrefabCreationContext context, PrefabInstance instance) {
-    Entity bookshelf = context.createEntity(instance.name() + " preview");
-    DecoFactory.createDeco(bookshelf, value(instance, POSITION), Deco.BookshelfLarge);
-    bookshelf.remove(DecoComponent.class);
-    return List.of(bookshelf);
-  }
 }

@@ -4,20 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import engine.Entity;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.Game;
-import engine.components.DrawComponent;
 import engine.level.DungeonLevel;
-import engine.network.messages.c2s.DialogResponseMessage;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
-import feature.components.CollideComponent;
-import feature.hud.dialogs.DialogFactory;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.FiniteFloatSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
@@ -26,12 +22,12 @@ import feature.leveleditor.ui.PointSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.leveleditor.ui.StringSetting;
 import feature.prefabs.Prefab;
-import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -46,14 +42,13 @@ public final class PrefabMode extends LevelEditorMode {
 
   private static final float PICK_DISTANCE = 0.7f;
 
-  private final List<Entity> previewEntities = new ArrayList<>();
   private String selectedName;
   private Prefab selectedPrefab;
   private Consumer<Point> pendingPointAssignment;
   private SnapMode snapMode = SnapMode.OnGrid;
   private Table detailsContent;
+  private Table secondaryContent;
   private Table listContent;
-  private Table propertyContent;
   private SelectSetting<Prefab> prefabTypeSetting;
   private boolean rebuildPending;
 
@@ -67,16 +62,29 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   @Override
+  public String getHeader() {
+    return "";
+  }
+
+  @Override
   public void onEnter() {
     clearPendingPointAssignment();
     selectedName = getLevel().prefabs().stream().map(PrefabInstance::name).findFirst().orElse(null);
-    rebuildPreview();
+    try {
+      respawnAll();
+    } catch (RuntimeException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+    }
   }
 
   @Override
   public void onExit() {
     clearPendingPointAssignment();
-    removePreviews();
+    try {
+      respawnAll();
+    } catch (RuntimeException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+    }
   }
 
   @Override
@@ -122,28 +130,13 @@ public final class PrefabMode extends LevelEditorMode {
     if (selectedPrefab == null && prefabDefinitions.length > 0) {
       selectedPrefab = prefabDefinitions[0];
     }
-    prefabTypeSetting =
-        new SelectSetting<>(
-            "Prefab Type",
-            prefabDefinitions,
-            () -> selectedPrefab,
-            prefab -> selectedPrefab = prefab,
-            prefab -> prefab.displayName() + " (" + prefab.type() + ")");
-    content.add(prefabTypeSetting).growX().row();
-
     listContent = new Table();
-    listContent.top().defaults().growX().pad(2f);
-    ScrollPane list = new ScrollPane(listContent);
-    list.setFadeScrollBars(false);
-    content
-        .add(Scene2dElementFactory.createLabel("Prefab Instances", 16, ModeDetailsPanel.TEXT_COLOR))
-        .growX()
-        .left()
-        .row();
-    content.add(list).growX().height(150f).row();
+    listContent.top().defaults().growX().pad(1f);
+    var list = Scene2dElementFactory.createScrollPane(listContent, false, true);
+    content.add(list).growX().height(300f).row();
 
     Table actions = new Table();
-    TextButton add = Scene2dElementFactory.createButton("Add Prefab", "default", 16);
+    ImageButton add = Scene2dElementFactory.createImageButton("hud/check.png", "blue-outline");
     add.addListener(
         new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
           @Override
@@ -151,15 +144,8 @@ public final class PrefabMode extends LevelEditorMode {
             addSelectedPrefab();
           }
         });
-    TextButton rename = Scene2dElementFactory.createButton("Rename", "default", 16);
-    rename.addListener(
-        new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            selected().ifPresent(i -> showRenameDialog(i));
-          }
-        });
-    TextButton duplicate = Scene2dElementFactory.createButton("Duplicate", "default", 16);
+    ImageButton duplicate =
+        Scene2dElementFactory.createImageButton("hud/kenney/chess_king.png", "default");
     duplicate.addListener(
         new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
           @Override
@@ -167,7 +153,7 @@ public final class PrefabMode extends LevelEditorMode {
             duplicateSelected();
           }
         });
-    TextButton delete = Scene2dElementFactory.createButton("Delete", "red-outline", 16);
+    ImageButton delete = Scene2dElementFactory.createImageButton("hud/cross.png", "red-outline");
     delete.addListener(
         new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
           @Override
@@ -175,16 +161,39 @@ public final class PrefabMode extends LevelEditorMode {
             selected().ifPresent(i -> delete(i.name()));
           }
         });
-    actions.add(add).growX();
-    actions.add(rename).growX();
-    actions.row();
-    actions.add(duplicate).growX();
-    actions.add(delete).growX();
+    actions.add(add).size(42f);
+    actions.add(duplicate).size(42f);
+    actions.add(delete).size(42f);
+    prefabTypeSetting =
+        new SelectSetting<>(
+            "Prefab Type",
+            prefabDefinitions,
+            () -> selectedPrefab,
+            prefab -> selectedPrefab = prefab,
+            prefab -> prefab.displayName() + " (" + prefab.type() + ")");
+    content.add(prefabTypeSetting).growX().padTop(6f).row();
     content.add(actions).growX().padTop(4f).row();
-    propertyContent = new Table();
-    propertyContent.top().defaults().growX().padTop(5f);
-    content.add(propertyContent).growX().row();
     rebuildDetails();
+  }
+
+  @Override
+  public boolean hasSecondaryDetailsUI() {
+    return selected().isPresent();
+  }
+
+  @Override
+  public void buildSecondaryDetailsUI(Table content) {
+    secondaryContent = content;
+    content.clearChildren();
+    rebuildDetails();
+  }
+
+  @Override
+  public void updateSecondaryDetailsUI() {
+    if (rebuildPending) {
+      rebuildPending = false;
+      rebuildDetails();
+    }
   }
 
   @Override
@@ -214,7 +223,11 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void rebuildDetails() {
-    if (listContent == null || propertyContent == null) return;
+    rebuildDetails(true);
+  }
+
+  private void rebuildDetails(boolean rebuildSecondary) {
+    if (listContent == null) return;
     listContent.clearChildren();
     for (PrefabInstance instance : getLevel().prefabs()) {
       Prefab prefab = PrefabRegistry.require(instance.type());
@@ -228,23 +241,33 @@ public final class PrefabMode extends LevelEditorMode {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
               clearPendingPointAssignment();
-              selectedName = instance.name();
+              selectedName = Objects.equals(selectedName, instance.name()) ? null : instance.name();
               rebuildPending = true;
-              rebuildPreview();
             }
           });
-      listContent.add(entry).row();
+      listContent.add(entry).height(30f).pad(1f).row();
     }
-    propertyContent.clearChildren();
+    if (!rebuildSecondary || secondaryContent == null) return;
+    secondaryContent.clearChildren();
     selected()
         .ifPresent(
             instance -> {
               Prefab prefab = PrefabRegistry.require(instance.type());
-              propertyContent
+              TextField name = Scene2dElementFactory.createTextField(instance.name());
+              name.setMessageText("Prefab name");
+              name.setTextFieldListener(
+                  (field, character) -> {
+                    if (character == '\r' || character == '\n') rename(instance, field.getText());
+                  });
+              secondaryContent.add(name).growX().row();
+              secondaryContent
                   .add(
                       Scene2dElementFactory.createLabel(
-                          prefab.displayName(), 18, ModeDetailsPanel.TEXT_COLOR))
+                          prefab.displayName(),
+                          14,
+                          ModeDetailsPanel.TEXT_COLOR.cpy().mul(1f, 1f, 1f, .65f)))
                   .left()
+                  .padBottom(5f)
                   .row();
               for (PrefabProperty<?> property : prefab.properties())
                 addProperty(property, instance);
@@ -256,7 +279,7 @@ public final class PrefabMode extends LevelEditorMode {
     switch (type) {
       case STRING -> {
         PrefabProperty<String> p = cast(property);
-        propertyContent
+        secondaryContent
             .add(
                 new StringSetting(
                     p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
@@ -266,7 +289,7 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<Integer> p = cast(property);
         int min = p.minimum().orElse(Integer.MIN_VALUE).intValue();
         int max = p.maximum().orElse(Integer.MAX_VALUE).intValue();
-        propertyContent
+        secondaryContent
             .add(
                 new NumberSetting(
                     p.displayName(),
@@ -280,7 +303,7 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<Float> p = cast(property);
         float min = p.minimum().orElse(-Float.MAX_VALUE).floatValue();
         float max = p.maximum().orElse(Float.MAX_VALUE).floatValue();
-        propertyContent
+        secondaryContent
             .add(
                 new FiniteFloatSetting(
                     p.displayName(),
@@ -292,7 +315,7 @@ public final class PrefabMode extends LevelEditorMode {
       }
       case BOOLEAN -> {
         PrefabProperty<Boolean> p = cast(property);
-        propertyContent
+        secondaryContent
             .add(
                 new BooleanSetting(
                     p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
@@ -301,7 +324,7 @@ public final class PrefabMode extends LevelEditorMode {
       case ENUM -> {
         PrefabProperty<String> p = cast(property);
         String[] values = p.choices().toArray(String[]::new);
-        propertyContent
+        secondaryContent
             .add(
                 new SelectSetting<>(
                     p.displayName(),
@@ -313,7 +336,7 @@ public final class PrefabMode extends LevelEditorMode {
       }
       case POINT -> {
         PrefabProperty<Point> p = cast(property);
-        propertyContent
+        secondaryContent
             .add(
                 new PointSetting(
                     p.displayName(),
@@ -338,9 +361,7 @@ public final class PrefabMode extends LevelEditorMode {
                 PrefabInstance replacement = prefab.normalize(property.set(source, value));
                 int index = getLevel().prefabs().indexOf(source);
                 if (index >= 0) {
-                  getLevel().replacePrefab(index, replacement);
-                  levelChanged();
-                  rebuildPreview();
+                  applyChange(() -> getLevel().replacePrefab(index, replacement));
                 }
               } catch (IllegalArgumentException exception) {
                 LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
@@ -374,11 +395,12 @@ public final class PrefabMode extends LevelEditorMode {
       instance =
           prefab.translate(instance, Vector2.of(cursor.x() - anchor.x(), cursor.y() - anchor.y()));
     }
-    getLevel().addPrefab(prefab.normalize(instance));
-    selectedName = name;
-    levelChanged();
-    requestRebuild();
-    rebuildPreview();
+    PrefabInstance added = prefab.normalize(instance);
+    applyChange(
+        () -> {
+          getLevel().addPrefab(added);
+          selectedName = name;
+        });
   }
 
   private void duplicateSelected() {
@@ -387,40 +409,24 @@ public final class PrefabMode extends LevelEditorMode {
         .ifPresent(
             source -> {
               String name = uniqueName(source.name());
-              getLevel().addPrefab(source.withName(name));
-              selectedName = name;
-              levelChanged();
-              requestRebuild();
-              rebuildPreview();
+              applyChange(
+                  () -> {
+                    getLevel().addPrefab(source.withName(name));
+                    selectedName = name;
+                  });
             });
   }
 
   private void delete(String name) {
     clearPendingPointAssignment();
-    if (getLevel().removePrefab(name)) {
-      if (Objects.equals(selectedName, name))
-        selectedName =
-            getLevel().prefabs().stream().map(PrefabInstance::name).findFirst().orElse(null);
-      levelChanged();
-      requestRebuild();
-      rebuildPreview();
-    }
-  }
-
-  private void showRenameDialog(PrefabInstance source) {
-    DialogFactory.showInputDialog(
-        "",
-        "Rename Prefab",
-        source.name(),
-        "Unique name",
-        "Rename",
-        "Cancel",
-        false,
-        payload -> {
-          if (payload instanceof DialogResponseMessage.StringValue(String value))
-            rename(source, value);
-        },
-        () -> {});
+    if (getLevel().prefabs().stream().noneMatch(instance -> instance.name().equals(name))) return;
+    applyChange(
+        () -> {
+          getLevel().removePrefab(name);
+          if (Objects.equals(selectedName, name))
+            selectedName =
+                getLevel().prefabs().stream().map(PrefabInstance::name).findFirst().orElse(null);
+        });
   }
 
   private void rename(PrefabInstance source, String name) {
@@ -430,15 +436,16 @@ public final class PrefabMode extends LevelEditorMode {
         || getLevel().prefabs().stream()
             .anyMatch(i -> !i.name().equals(source.name()) && i.name().equals(name))) {
       LevelEditorSystem.showFeedback("Prefab name must be non-empty and unique.", Color.YELLOW);
+      requestRebuild();
       return;
     }
     int index = getLevel().prefabs().indexOf(source);
     if (index >= 0) {
-      getLevel().replacePrefab(index, source.withName(name));
-      selectedName = name;
-      levelChanged();
-      requestRebuild();
-      rebuildPreview();
+      applyChange(
+          () -> {
+            getLevel().replacePrefab(index, source.withName(name));
+            selectedName = name;
+          });
     }
   }
 
@@ -470,7 +477,6 @@ public final class PrefabMode extends LevelEditorMode {
               clearPendingPointAssignment();
               selectedName = i.name();
               requestRebuild();
-              rebuildPreview();
             });
   }
 
@@ -499,51 +505,53 @@ public final class PrefabMode extends LevelEditorMode {
         });
   }
 
-  private void rebuildPreview() {
-    removePreviews();
-    selected()
-        .ifPresent(
-            source -> {
-              List<Entity> created = null;
-              try {
-                Prefab prefab = PrefabRegistry.require(source.type());
-                created =
-                    prefab.createEditorPreview(
-                        new PrefabCreationContext(getLevel(), PrefabSide.CLIENT),
-                        prefab.normalize(source));
-                List<Entity> added = new ArrayList<>();
-                for (Entity entity : created) {
-                  entity
-                      .fetch(CollideComponent.class)
-                      .ifPresent(collision -> collision.isSolid(false));
-                  entity
-                      .fetch(DrawComponent.class)
-                      .ifPresent(draw -> draw.tintColor(Color.rgba8888(1f, 1f, 1f, 0.45f)));
-                  Game.add(entity);
-                  added.add(entity);
-                }
-                previewEntities.addAll(added);
-              } catch (RuntimeException exception) {
-                removePreviewEntities(created);
-                LevelEditorSystem.showFeedback(
-                    "Preview unavailable: " + exception.getMessage(), Color.YELLOW);
-              }
-            });
-  }
-
-  private void removePreviews() {
-    removePreviewEntities(previewEntities);
-    previewEntities.clear();
-  }
-
-  private void removePreviewEntities(Iterable<Entity> entities) {
-    if (entities == null) return;
-    for (Entity entity : entities) {
-      if (entity == null) continue;
-      Game.findEntityById(entity.id())
-          .filter(existing -> existing == entity)
-          .ifPresent(Game::remove);
+  private void respawnAll() {
+    despawnAll();
+    try {
+      for (PrefabSide side : activeSides()) {
+        PrefabSpawner.spawn(getLevel(), side);
+      }
+    } catch (RuntimeException exception) {
+      despawnAll();
+      throw exception;
     }
+  }
+
+  private void applyChange(Runnable mutation) {
+    applyChange(mutation, true);
+  }
+
+  private void applyChange(Runnable mutation, boolean rebuildDetails) {
+    List<PrefabInstance> previousPrefabs = new ArrayList<>(getLevel().prefabs());
+    String previousSelection = selectedName;
+    try {
+      mutation.run();
+      respawnAll();
+      levelChanged();
+      if (rebuildDetails) requestRebuild();
+      else rebuildDetails(false);
+    } catch (RuntimeException exception) {
+      getLevel().prefabs().clear();
+      getLevel().prefabs().addAll(previousPrefabs);
+      selectedName = previousSelection;
+      try {
+        respawnAll();
+      } catch (RuntimeException rollbackException) {
+        exception.addSuppressed(rollbackException);
+      }
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+      requestRebuild();
+    }
+  }
+
+  private void despawnAll() {
+    for (PrefabSide side : activeSides()) PrefabSpawner.clear(getLevel(), side);
+  }
+
+  private PrefabSide[] activeSides() {
+    if (Game.isMultiplayerClient()) return new PrefabSide[] {PrefabSide.CLIENT};
+    if (Game.isSingleplayer()) return new PrefabSide[] {PrefabSide.SERVER, PrefabSide.CLIENT};
+    return new PrefabSide[] {PrefabSide.SERVER};
   }
 
   private void clearPendingPointAssignment() {

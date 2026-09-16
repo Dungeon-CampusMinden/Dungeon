@@ -115,6 +115,29 @@ public abstract class LevelEditorMode {
   }
 
   /**
+   * Builds the optional secondary details panel shown on the right side of the editor.
+   *
+   * @param content panel content table
+   */
+  public void buildSecondaryDetailsUI(Table content) {
+    // Default: no secondary content
+  }
+
+  /** Refreshes the optional secondary details panel. */
+  public void updateSecondaryDetailsUI() {
+    // Default: nothing to refresh
+  }
+
+  /**
+   * Returns whether the secondary details panel should be visible.
+   *
+   * @return whether this mode has secondary content
+   */
+  public boolean hasSecondaryDetailsUI() {
+    return false;
+  }
+
+  /**
    * Gets additional information this mode wants to display to the user in the details panel.
    *
    * <p>Called every frame, so the returned text may be dynamic. If the returned text is {@code

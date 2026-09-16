@@ -10,6 +10,7 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
+import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import java.util.List;
 
@@ -63,6 +64,29 @@ public final class DoorKeypadPrefab extends Prefab {
         door::open,
         value(instance, SHOW_DIGIT_COUNT));
     return List.of(keypad);
+  }
+
+  @Override
+  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
+    Point doorPosition = value(instance, DOOR_POSITION);
+    boolean anotherKeypadTargetsDoor =
+        context.level().prefabs().stream()
+            .filter(
+                candidate ->
+                    candidate.type().equals(type())
+                        && !(candidate.name().equals(instance.name())
+                            && candidate.type().equals(instance.type())))
+            .map(candidate -> PrefabRegistry.require(candidate.type()).normalize(candidate))
+            .map(candidate -> value(candidate, DOOR_POSITION))
+            .anyMatch(doorPosition::equals);
+    if (anotherKeypadTargetsDoor) return;
+
+    context
+        .level()
+        .tileAt(doorPosition)
+        .filter(DoorTile.class::isInstance)
+        .map(DoorTile.class::cast)
+        .ifPresent(DoorTile::open);
   }
 
   @Override

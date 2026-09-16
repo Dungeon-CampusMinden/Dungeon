@@ -173,15 +173,12 @@ public abstract class Prefab {
       PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {}
 
   /**
-   * Creates optional disposable local preview entities for the future level-editor mode.
+   * Cleans up side effects created while spawning an instance.
    *
-   * @param context client-side creation context
+   * @param context side-aware creation context
    * @param instance normalized instance
-   * @return preview entities, empty by default
    */
-  public List<Entity> createEditorPreview(PrefabCreationContext context, PrefabInstance instance) {
-    return List.of();
-  }
+  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {}
 
   /**
    * Reads a typed property value from a normalized instance.

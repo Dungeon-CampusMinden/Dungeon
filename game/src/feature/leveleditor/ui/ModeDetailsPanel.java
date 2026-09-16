@@ -42,9 +42,20 @@ public class ModeDetailsPanel extends Table {
 
   private LevelEditorMode mode = null;
   private String informationText = null;
+  private final boolean secondary;
 
   /** Creates an empty details panel. */
   public ModeDetailsPanel() {
+    this(false);
+  }
+
+  /**
+   * Creates a details panel for either the primary or secondary mode content.
+   *
+   * @param secondary whether to use secondary mode hooks
+   */
+  public ModeDetailsPanel(boolean secondary) {
+    this.secondary = secondary;
     setTouchable(Touchable.enabled);
     setBackground(UIUtils.defaultSkin().getDrawable("generic-area"));
     pad(12f);
@@ -78,13 +89,15 @@ public class ModeDetailsPanel extends Table {
   private void buildModeContent() {
     modeContent.clearChildren();
     if (mode != null) {
-      mode.buildDetailsUI(modeContent);
+      if (secondary) mode.buildSecondaryDetailsUI(modeContent);
+      else mode.buildDetailsUI(modeContent);
     }
   }
 
   /** Clears and rebuilds the controls grid of this panel. */
   private void buildControlsContent() {
     controlsContent.clearChildren();
+    if (secondary) return;
     if (mode == null) return;
     Map<Integer, String> modeControls = mode.controls();
     if (modeControls == null || modeControls.isEmpty()) return;
@@ -107,8 +120,17 @@ public class ModeDetailsPanel extends Table {
     informationText = null;
     if (mode == null) return;
 
-    header.setText(mode.getHeader());
-    add(header).growX().padBottom(10f).row();
+    if (secondary) {
+      add(modeContent).growX().row();
+      add().grow().row();
+      return;
+    }
+
+    String modeHeader = mode.getHeader();
+    if (modeHeader != null && !modeHeader.isBlank()) {
+      header.setText(modeHeader);
+      add(header).growX().padBottom(10f).row();
+    }
 
     add(modeContent).growX().row();
 
@@ -133,8 +155,9 @@ public class ModeDetailsPanel extends Table {
   public void act(float delta) {
     super.act(delta);
     if (mode == null || !LevelEditorSystem.active()) return;
-    mode.updateDetailsUI();
-    updateInformation();
+    if (secondary) mode.updateSecondaryDetailsUI();
+    else mode.updateDetailsUI();
+    if (!secondary) updateInformation();
   }
 
   @Override
