@@ -9,8 +9,11 @@ import feature.collision.CollideSync;
 import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
+import feature.interaction.keypad.TextKeyPadComponent;
 import feature.puzzle.PuzzlePieceItem;
 import feature.questlog.QuestLogComponent;
+import feature.tasks.FreeTextTask;
+import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerComponent;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +23,8 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
 
 /**
  * Entity spawn strategy for The Last Hour that supports metadata-only spawn events for {@link
- * ComputerStateComponent}, {@link KeypadComponent}, {@link WorldTimerComponent}, and {@link
- * feature.components.CollideComponent} entities.
+ * ComputerStateComponent}, {@link KeypadComponent},{@link TextKeyPadComponent} {@link
+ * WorldTimerComponent}, and {@link feature.components.CollideComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("collider");
@@ -29,11 +32,18 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key identifying the custom entity type. */
   public static final String METADATA_TYPE = "lh.type";
 
+  public static final String METADATA_TYPE_TWO = "lh.typeTwo";
+
   /** Type value for computer-state entities. */
   public static final String TYPE_COMPUTER = "computer-state";
 
   /** Type value for keypad entities. */
   public static final String TYPE_KEYPAD = "keypad";
+
+  /** Type value for textKeypad entities. */
+  public static final String TYPE_TEXT_KEYPAD = "textKeypad";
+
+  public static final String TYPE_TASK = "task";
 
   /** Type value for world-timer entities. */
   public static final String TYPE_WORLD_TIMER = "world-timer";
@@ -86,6 +96,12 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key for the digits entered on the keypad so far. */
   public static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
 
+  /** Metadata key for the keypad's correct texts. */
+  public static final String METADATA_TEXT_KEYPAD_CORRECT_TEXTS = "textKeypad.correctTexts";
+
+  /** Metadata key for the text entered on the keypad so far. */
+  public static final String METADATA_TEXT_KEYPAD_ENTERED_TEXT = "textKeypad.enteredText";
+
   /** Metadata key indicating whether the keypad is unlocked. */
   public static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
 
@@ -119,6 +135,12 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key for the 0-based index of the puzzle piece itself. */
   public static final String METADATA_PUZZLE_PIECE_INDEX = "puzzlePiece.pieceIndex";
 
+  public static final String METADATA_TASK_SOLVED = "task.isSolved";
+  public static final String METADATA_TASK_ATTEMPTS = "task.attempts";
+  public static final String METADATA_TASK_TEXT = "task.text";
+  public static final String METADATA_TASK_FREE_TEXT_ACCEPTED_ANSWERS =
+      "task.freeTextTask.acceptedAnswers";
+
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
   /**
@@ -140,6 +162,20 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
+    entity
+        .fetch(TextKeyPadComponent.class)
+        .ifPresent(
+            textKeyPad ->
+                metadata.putAll(LastHourSnapshotTranslator.textKeypadMetadata(textKeyPad)));
+    entity
+        .fetch(TaskComponent.class)
+        .ifPresent(
+            taskComponent -> {
+              if (taskComponent.getTask() instanceof FreeTextTask freeTextTask) {
+                metadata.putAll(
+                    LastHourSnapshotTranslator.freeTextTaskMetaData(taskComponent, freeTextTask));
+              }
+            });
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
