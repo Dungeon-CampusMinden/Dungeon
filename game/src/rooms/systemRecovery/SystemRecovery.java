@@ -8,6 +8,7 @@ import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
+import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
@@ -97,6 +98,7 @@ public final class SystemRecovery {
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.EN)
             .levelEditor("levels/systemRecovery")
+            .serverArguments(hostedServerArguments())
             .build();
 
     MainMenu.run(args, game, client, server);
@@ -118,6 +120,16 @@ public final class SystemRecovery {
    */
   public static void configureDebugMode(String... args) {
     debugMode = containsArgument(args, "--debug") || containsArgument(args, "--leveleditor");
+  }
+
+  /**
+   * Returns launch arguments for the dedicated host child process.
+   *
+   * @return server mode and, when enabled, the debug mode flag
+   */
+  static String[] hostedServerArguments() {
+    if (debugMode) return new String[] {ServerProcess.SERVER_ARGUMENT, "--debug"};
+    return new String[] {ServerProcess.SERVER_ARGUMENT};
   }
 
   private static boolean containsArgument(String[] args, String expected) {
