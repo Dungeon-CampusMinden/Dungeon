@@ -252,7 +252,8 @@ aber keinen Server und zwei vollständige Clients.
 
 ## 8. Testprotokoll
 
-Der finale vollständige `game:test`-Lauf meldete 837 Tests, 0 Fehler und 0 übersprungene Tests.
+Der finale vollständige `game:test`-Lauf nach dem Debug-Host-Fix meldete 840 Tests, 0 Fehler und
+0 übersprungene Tests.
 
 | Kommando | Ergebnis |
 | --- | --- |
@@ -267,7 +268,8 @@ Der finale vollständige `game:test`-Lauf meldete 837 Tests, 0 Fehler und 0 übe
 | `./gradlew game:test --tests 'rooms.systemRecovery.petrinet.*'` | Final erneut ausgeführt: 15 bestanden, 0 Fehler, 0 übersprungen. |
 | `./gradlew game:test --tests 'rooms.systemRecovery.network.*'` | 6 bestanden. |
 | `./gradlew game:test --tests 'rooms.systemRecovery.util.SystemRecoveryTranslatorTest'` | 5 bestanden. |
-| `./gradlew game:test` | Früher Lauf vor den letzten Trackingtests: 835, zunächst ein Fixturefehler, danach bestanden. Finaler Lauf: 837 bestanden, 0 Fehler, 0 übersprungen. |
+| `./gradlew game:test --tests 'rooms.systemRecovery.SystemRecoveryDebugModeTest' --tests 'rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactoryTest'` | 12 bestanden; Host-Debugflag wird nur im Debugstart weitergegeben, im Normalstart nicht. |
+| `./gradlew game:test` | Frühere Läufe: 835 und 837 bestanden. Final nach Debug-Host-Fix: 840 bestanden, 0 Fehler, 0 übersprungen. |
 | `./gradlew game:checkstyleMain game:checkstyleTest` | Erster Lauf: 38 Javadoc-/Import-Warnungen; gezielt korrigiert. Wiederholung erfolgreich. |
 | `./gradlew game:buildSystemRecoveryJar game:buildSystemRecoveryServerJar` | Beide JAR-Builds erfolgreich. |
 | `git diff --check` | Final erfolgreich; keine Whitespace- oder Patchfehler. |
@@ -278,6 +280,15 @@ des vorhandenen Wrapper-Locks unter `~/.gradle/...gradle-9.7.1-bin.zip.lck` verh
 (`Operation not permitted`). Derselbe Test lief mit freigegebenem Cachezugriff erfolgreich. Das war
 kein Codefehler. Nach Ergänzung des Hint-Tracking-Adaptertests wurde der Paket-3-Lauf erneut
 ausgeführt und war erfolgreich.
+
+Nach Abschluss der sieben Pakete zeigte ein manueller Start, dass alle Terminal-Debugaktionen
+(„Next step“, Debug-Items und Petri-Netz) im gehosteten Spiel scheinbar wirkungslos waren. Die UI
+lief im Client mit `--debug`, aber `GameStarter` startete den autoritativen Server als separate JVM
+nur mit `--server`. Dessen Debug-Guards lehnten die Aktionen daher korrekt ab. `SystemRecovery`
+übergibt `--debug` jetzt zusätzlich an den Host-Kindprozess, wenn der aufrufende Prozess im
+Debugmodus ist. `SystemRecoveryDebugModeTest` prüft Debugstart, Level-Editorstart und Normalstart.
+Danach liefen die fokussierten Computer-/Debugtests (12), Checkstyle und die vollständige Suite
+(840 Tests) erfolgreich.
 
 ## 9. Manuelle Restprüfung: Zwei Clients
 
@@ -319,6 +330,17 @@ ausgeführt und war erfolgreich.
 1. `game/src/rooms/systemRecovery/petrinet/SystemRecoveryLearningStep.java`
 2. `game/src/rooms/systemRecovery/petrinet/SystemRecoveryProgressNet.java`
 3. `game/src/rooms/systemRecovery/petrinet/SystemRecoveryHintCatalog.java`
+
+## 12. Follow-up: Debugaktionen im gehosteten Spiel
+
+Die Debugaktionen waren im Host-Spiel wirkungslos, weil der Menü-/Clientprozess `--debug` kannte,
+der separat gestartete autoritative Server jedoch nur `--server` erhielt. Der Server ließ damit
+`next step`, Debug-Items und Petri-Netz-Ansicht an seinen Debug-Guards abprallen. Der
+System-Recovery-`GameStarter` reicht den Modus nun per `--debug` an den Kindprozess weiter; der
+Normalstart bleibt ohne Debugflag. Tests: `SystemRecoveryDebugModeTest` deckt Debug-,
+Level-Editor- und Normalstart ab. Fokussierte Tests, `game:checkstyleMain`, `game:checkstyleTest`
+und die vollständige `game:test`-Suite mit 840 Tests bestanden. Ein interaktiver Klicktest am
+laufenden Multiplayer-Host wurde nach der Korrektur nicht erneut ausgeführt.
 4. `game/src/rooms/systemRecovery/story/SystemRecoveryHintPhone.java`
 5. `game/src/rooms/systemRecovery/util/tracking/SystemRecoveryPuzzleEvents.java`
 6. `game/src/rooms/systemRecovery/level/SystemRecoveryRiddleRegistry.java`
