@@ -42,8 +42,12 @@ public final class SystemRecoveryStoryDialogs {
   /** The module assignments after the module array exists. */
   public static final StoryStep MODULE_VALUES = step("module-values", "riddle2", "values");
 
-  /** The single removal operation for the defective GPU. */
-  public static final StoryStep REMOVE_GPU = step("remove-gpu", "riddle2", "remove_gpu");
+  /** The instruction to inspect the modules after their assignments were accepted. */
+  public static final StoryStep MODULE_ASSIGNMENT =
+      step("module-assignment", "riddle2", "assignment");
+
+  /** The diagnosis shown after the player examines the defective GPU. */
+  public static final StoryStep GPU_FAULT = step("gpu-fault", "riddle2", "gpu-fault");
 
   /** The array-length read required before the scanner can be used. */
   public static final StoryStep READ_MODULE_LENGTH = step("module-length", "riddle2", "length");
@@ -130,7 +134,10 @@ public final class SystemRecoveryStoryDialogs {
       }
 
       SystemRecoveryQuestLogUtil.addDialogEntry(
-          pending.step().riddleKey(), pending.step().entryKey());
+          pending.step().riddleKey(),
+          pending.step().id(),
+          pending.step().speakerKey(),
+          pending.step().messageKey());
       DialogFactory.showDialogDialog(pending.step().script(), () -> {}, pending.playerId());
     }
   }
@@ -221,6 +228,11 @@ public final class SystemRecoveryStoryDialogs {
       return speaker == Speaker.AXIOM
           ? SystemRecoveryText.axiomCall(messageKey)
           : SystemRecoveryText.story(messageKey);
+    }
+
+    /** Returns the translation key for the speaker label used by this dialog. */
+    public String speakerKey() {
+      return speaker == Speaker.AXIOM ? "axiom" : "speaker";
     }
   }
 
