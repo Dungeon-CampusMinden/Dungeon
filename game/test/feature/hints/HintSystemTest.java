@@ -113,4 +113,61 @@ class HintSystemTest {
     hintSystem.execute();
     assertTrue(hintSystem.nextHint().isEmpty());
   }
+
+  /** Verifies that the telephone hint sequence is shared by all players in the room. */
+  @Test
+  void testPhoneHintProgressIsShared() {
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+
+    assertEquals(hint1_1, hintSystem.acceptSharedHint().orElseThrow());
+    assertEquals(hint1_2, hintSystem.peekSharedHint().orElseThrow());
+
+    assertEquals(hint1_2, hintSystem.acceptSharedHint().orElseThrow());
+    assertTrue(hintSystem.peekSharedHint().isEmpty());
+  }
+
+  /** Verifies that declining the confirmation leaves the shared hint available. */
+  @Test
+  void testDeclinedPhoneHintDoesNotAdvanceSharedProgress() {
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+  }
+
+  /** A stale phone offer must not consume the next shared hint. */
+  @Test
+  void stalePhoneOfferDoesNotAdvanceSharedProgress() {
+    assertTrue(hintSystem.acceptSharedHint(hint1_2).isEmpty());
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+  }
+
+  /** Two confirmations for the same offer can advance the shared sequence only once. */
+  @Test
+  void duplicatePhoneOfferConfirmationAdvancesOnce() {
+    assertEquals(hint1_1, hintSystem.acceptSharedHint(hint1_1).orElseThrow());
+    assertTrue(hintSystem.acceptSharedHint(hint1_1).isEmpty());
+    assertEquals(hint1_2, hintSystem.peekSharedHint().orElseThrow());
+  }
+
+  /** The debug view can inspect the shared counter without consuming a hint. */
+  @Test
+  void sharedProgressReportsAcceptedCountWithoutAdvancingIt() {
+    HintSystem.SharedHintProgress initial = hintSystem.sharedProgress(entity1);
+    assertEquals(0, initial.acceptedCount());
+    assertEquals(2, initial.hintCount());
+
+    hintSystem.acceptSharedHint(hint1_1).orElseThrow();
+    HintSystem.SharedHintProgress afterAcceptance = hintSystem.sharedProgress(entity1);
+    assertEquals(1, afterAcceptance.acceptedCount());
+    assertEquals(2, afterAcceptance.hintCount());
+  }
+
+  /** An offer tied to a previous Petri place cannot consume an identical next-place hint. */
+  @Test
+  void confirmationMustMatchTheEntityThatOwnedTheOffer() {
+    assertTrue(hintSystem.acceptSharedHint(entity2.id(), hint2_1).isEmpty());
+    assertEquals(hint1_1, hintSystem.peekSharedHint().orElseThrow());
+
+    assertEquals(hint1_1, hintSystem.acceptSharedHint(entity1.id(), hint1_1).orElseThrow());
+  }
 }

@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -571,6 +572,32 @@ public final class MiscFactory {
    */
   public static Entity createDoorBlocker(
       DoorTile door, final Class<? extends Item> requiredKeyType) {
+    return createDoorBlocker(door, requiredKeyType, interactor -> {});
+  }
+
+  /**
+   * Creates a key-locked door blocker and invokes a server callback after the door opens.
+   *
+   * @param door the door tile to unlock
+   * @param requiredKeyType key item required to open the door
+   * @param onUnlocked callback invoked after the authoritative open state changes
+   * @return a new DoorBlocker entity
+   */
+  public static Entity createDoorBlocker(
+      DoorTile door, final Class<? extends Item> requiredKeyType, Runnable onUnlocked) {
+    return createDoorBlocker(door, requiredKeyType, interactor -> onUnlocked.run());
+  }
+
+  /**
+   * Creates a key-locked door blocker and provides the unlocking player to its callback.
+   *
+   * @param door the door tile to unlock
+   * @param requiredKeyType key item required to open the door
+   * @param onUnlocked callback invoked after the authoritative open state changes
+   * @return a new DoorBlocker entity
+   */
+  public static Entity createDoorBlocker(
+      DoorTile door, final Class<? extends Item> requiredKeyType, Consumer<Entity> onUnlocked) {
     if (!ItemKey.class.equals(requiredKeyType) && !ItemBigKey.class.equals(requiredKeyType)) {
       throw new IllegalArgumentException(
           "DoorBlocker entity could not be created: Only ItemKey.class or ItemBigKey.class are allowed as requiredKeyType");
@@ -618,6 +645,7 @@ public final class MiscFactory {
                         invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
                         Game.remove(interacted);
                         door.open();
+                        if (door.isOpen()) onUnlocked.accept(interactor);
                         UIUtils.closeDialog(doorUI);
                       });
                   doorUI.registerCallback(

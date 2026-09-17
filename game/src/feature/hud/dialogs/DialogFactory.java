@@ -191,6 +191,8 @@ public class DialogFactory {
     if (Game.isMultiplayerClient() || Game.isSingleplayer()) {
       translatedContext = translateText(DialogContextKeys.MESSAGE, translatedContext);
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
+      translatedContext = translateText(DialogContextKeys.TITLE, translatedContext);
+      translatedContext = translateOptions(translatedContext);
     }
 
     UIComponent ui =
@@ -637,5 +639,32 @@ public class DialogFactory {
       return new DialogContext.Builder(context).put(type, translatedTexts).build();
     }
     return context;
+  }
+
+  /**
+   * Translates selectable labels without changing their stable callback values.
+   *
+   * @param context dialog context containing selectable options
+   * @return context with localized option labels
+   */
+  private static DialogContext translateOptions(DialogContext context) {
+    Object value = context.attributes().get(DialogContextKeys.OPTIONS);
+    if (!(value instanceof ChoiceOptions options)) return context;
+
+    List<ChoiceOption> translatedOptions =
+        options.values().stream()
+            .map(
+                option ->
+                    new ChoiceOption(
+                        Translator.hasKey(option.label())
+                            ? Localization.getInstance()
+                                .getCurrentTranslator()
+                                .translate(option.label())
+                            : option.label(),
+                        option.value()))
+            .toList();
+    return new DialogContext.Builder(context)
+        .put(DialogContextKeys.OPTIONS, new ChoiceOptions(translatedOptions))
+        .build();
   }
 }
