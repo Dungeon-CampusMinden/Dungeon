@@ -19,7 +19,7 @@ import engine.utils.Vector2;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.FloatSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
-import feature.leveleditor.ui.NumberSetting;
+import feature.leveleditor.ui.IntegerSetting;
 import feature.leveleditor.ui.PointSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.leveleditor.ui.StringSetting;
@@ -30,6 +30,7 @@ import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
+import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -42,12 +43,16 @@ import java.util.function.Consumer;
 /** Editor mode for authoring registered prefab instances in a level. */
 public final class PrefabMode extends LevelEditorMode {
 
-  private static final float PICK_DISTANCE = 0.7f;
+  public static final int PROPERTY_LABEL_SIZE = 18;
+
+  private static final float PICK_DISTANCE = 1.4f;
+  private static final float POINT_ASSIGNMENT_PREVIEW_RADIUS = 0.12f;
+  private static final Color POINT_ASSIGNMENT_PREVIEW_COLOR = new Color(0.25f, 1f, 0.45f, 0.8f);
   private static final int SETTINGS_PAD = 6;
 
   private String selectedName;
   private Prefab selectedPrefab;
-  private Consumer<Point> pendingPointAssignment;
+  private PendingPointAssignment pendingPointAssignment;
   private SnapMode snapMode = SnapMode.OnGrid;
   private Table detailsContent;
   private Table secondaryContent;
@@ -72,12 +77,14 @@ public final class PrefabMode extends LevelEditorMode {
   @Override
   public void onEnter() {
     clearPendingPointAssignment();
-    selectedName = getLevel().prefabs().stream().map(PrefabInstance::name).findFirst().orElse(null);
+    if (selectedName != null && selected().isEmpty()) selectedName = null;
     try {
       respawnAll();
     } catch (RuntimeException exception) {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
     }
+    rebuildPending = false;
+    rebuildDetails();
   }
 
   @Override
@@ -101,9 +108,9 @@ public final class PrefabMode extends LevelEditorMode {
     Point cursor = getCursorPosition();
     if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
       if (pendingPointAssignment != null) {
-        Consumer<Point> assignment = pendingPointAssignment;
+        PendingPointAssignment assignment = pendingPointAssignment;
         pendingPointAssignment = null;
-        assignment.accept(snapMode.getPosition(cursor));
+        assignment.assignment().accept(snapMode.getPosition(cursor));
         return;
       }
       selectNear(cursor);
@@ -122,6 +129,14 @@ public final class PrefabMode extends LevelEditorMode {
           prefab.normalize(source),
           new DebugDrawPrefabEditorFeedback(Objects.equals(selectedName, source.name())),
           Objects.equals(selectedName, source.name()));
+    }
+    if (pendingPointAssignment != null) {
+      Point preview = snapMode.getPosition(getCursorPosition());
+      Point offset = pendingPointAssignment.feedbackOffset();
+      DebugDrawSystem.drawPoint(
+          preview.translate(offset.x(), offset.y()),
+          POINT_ASSIGNMENT_PREVIEW_RADIUS,
+          POINT_ASSIGNMENT_PREVIEW_COLOR);
     }
   }
 
@@ -307,7 +322,7 @@ public final class PrefabMode extends LevelEditorMode {
         secondaryContent
             .add(
                 new StringSetting(
-                    p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
+                    p.displayName(), () -> p.get(current()), value -> setProperty(p, value), true))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -318,7 +333,7 @@ public final class PrefabMode extends LevelEditorMode {
         int max = p.maximum().orElse(Integer.MAX_VALUE).intValue();
         secondaryContent
             .add(
-                new NumberSetting(
+                new IntegerSetting(
                     p.displayName(),
                     min,
                     max,
@@ -377,7 +392,10 @@ public final class PrefabMode extends LevelEditorMode {
                     p.displayName(),
                     () -> p.get(current()),
                     value -> setProperty(p, value),
-                    callback -> pendingPointAssignment = callback))
+                    callback ->
+                        pendingPointAssignment =
+                            new PendingPointAssignment(callback, p.editorFeedbackOffset()),
+                    true))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -508,13 +526,16 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void selectNear(Point cursor) {
-    prefabNear(cursor)
-        .ifPresent(
-            i -> {
-              clearPendingPointAssignment();
-              selectedName = i.name();
-              requestRebuild();
-            });
+    Optional<PrefabInstance> near = prefabNear(cursor);
+    if (near.isPresent()) {
+      clearPendingPointAssignment();
+      selectedName = near.get().name();
+      requestRebuild();
+    } else if (selected().isPresent()) {
+      clearPendingPointAssignment();
+      selectedName = null;
+      requestRebuild();
+    }
   }
 
   private float nearestDistance(PrefabInstance instance, Point cursor) {
@@ -594,6 +615,9 @@ public final class PrefabMode extends LevelEditorMode {
   private void clearPendingPointAssignment() {
     pendingPointAssignment = null;
   }
+
+  private record PendingPointAssignment(
+      Consumer<Point> assignment, Point feedbackOffset) {}
 
   @SuppressWarnings("unchecked")
   private static <T> PrefabProperty<T> cast(PrefabProperty<?> property) {

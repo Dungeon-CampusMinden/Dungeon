@@ -1,12 +1,16 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogDesign;
+import feature.leveleditor.PrefabMode;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -34,6 +38,27 @@ public class FloatSetting extends Table {
    */
   public FloatSetting(
       String label, float min, float max, Supplier<Float> getter, Consumer<Float> setter) {
+    this(label, min, max, getter, setter, true, false);
+  }
+
+  /**
+   * Creates a float setting with optional commit-on-submit behavior.
+   *
+   * @param label the text shown above the text field
+   * @param min the smallest allowed value
+   * @param max the largest allowed value
+   * @param getter supplies the current value
+   * @param setter applies a new value
+   * @param commitOnFocusLost whether to commit only on Enter or focus loss
+   */
+  public FloatSetting(
+      String label,
+      float min,
+      float max,
+      Supplier<Float> getter,
+      Consumer<Float> setter,
+      boolean commitOnFocusLost,
+      boolean isNested) {
     if (!Float.isFinite(min) || !Float.isFinite(max) || min > max) {
       throw new IllegalArgumentException("invalid float bounds");
     }
@@ -55,9 +80,24 @@ public class FloatSetting extends Table {
       style.disabledBackground.setLeftWidth(10);
     }
     textField.setStyle(style);
-    Scene2dElementFactory.addTextFieldChangeListener(textField, this::applyText);
+    if (commitOnFocusLost) {
+      textField.setTextFieldListener(
+          (field, character) -> {
+            if (character == '\r' || character == '\n') commitText();
+          });
+      textField.addListener(
+          new FocusListener() {
+            @Override
+            public void keyboardFocusChanged(
+                FocusListener.FocusEvent event, Actor actor, boolean focused) {
+              if (!focused && !commitText()) refresh();
+            }
+          });
+    } else {
+      Scene2dElementFactory.addTextFieldChangeListener(textField, this::applyText);
+    }
 
-    add(Scene2dElementFactory.createLabel(label, FONT_SIZE, ModeDetailsPanel.TEXT_COLOR))
+    add(Scene2dElementFactory.createLabel(label, isNested ? 14 : PrefabMode.PROPERTY_LABEL_SIZE, ModeDetailsPanel.TEXT_COLOR))
         .growX()
         .left()
         .row();
@@ -105,6 +145,19 @@ public class FloatSetting extends Table {
     } catch (NumberFormatException ignored) {
       // Partial values such as "-" are allowed while the user is typing.
     }
+  }
+
+  private boolean commitText() {
+    try {
+      float value = Float.parseFloat(textField.getText());
+      if (Float.isFinite(value) && value >= min && value <= max) {
+        setter.accept(value);
+        return true;
+      }
+    } catch (NumberFormatException ignored) {
+      // Partial values such as "-" are allowed while the user is typing.
+    }
+    return false;
   }
 
   private float checked(Float value) {

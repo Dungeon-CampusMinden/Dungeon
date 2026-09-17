@@ -17,6 +17,7 @@ import tools.jackson.databind.node.ObjectNode;
 public abstract class PrefabProperty<T> {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final Point ZERO_POINT = new Point(0f, 0f);
 
   private final String key;
   private final String displayName;
@@ -65,6 +66,15 @@ public abstract class PrefabProperty<T> {
    */
   public final T defaultValue() {
     return defaultValue;
+  }
+
+  /**
+   * Returns the visual offset used for this property's editor feedback point.
+   *
+   * @return editor feedback offset, or zero for non-point properties
+   */
+  public Point editorFeedbackOffset() {
+    return ZERO_POINT;
   }
 
   /**
@@ -313,7 +323,30 @@ public abstract class PrefabProperty<T> {
    * @return point property descriptor
    */
   public static PrefabProperty<Point> point(String key, String displayName, Point defaultValue) {
+    return point(key, displayName, defaultValue, ZERO_POINT);
+  }
+
+  /**
+   * Creates a finite world-point property with an editor feedback offset.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default point
+   * @param editorFeedbackOffset visual offset for editor feedback markers
+   * @return point property descriptor
+   */
+  public static PrefabProperty<Point> point(
+      String key, String displayName, Point defaultValue, Point editorFeedbackOffset) {
+    Objects.requireNonNull(editorFeedbackOffset, "editorFeedbackOffset");
+    if (!Float.isFinite(editorFeedbackOffset.x()) || !Float.isFinite(editorFeedbackOffset.y())) {
+      throw new IllegalArgumentException("editor feedback offset must be finite");
+    }
     return new PrefabProperty<>(key, displayName, PrefabPropertyType.POINT, defaultValue) {
+      @Override
+      public Point editorFeedbackOffset() {
+        return editorFeedbackOffset;
+      }
+
       @Override
       public Point decode(JsonNode node) {
         if (!node.isObject()

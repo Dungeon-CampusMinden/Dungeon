@@ -9,9 +9,9 @@ import feature.systems.DebugDrawSystem;
 public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback {
 
   private static final Style SELECTED_STYLE =
-      new Style(new Color(1f, 0.75f, 0.1f, 1f), Color.WHITE, 0.11f);
+      new Style(new Color(1f, 0.75f, 0.1f, 1f), Color.WHITE, 0.09f);
   private static final Style UNSELECTED_STYLE =
-      new Style(new Color(0.25f, 0.85f, 1f, 0.35f), new Color(1f, 1f, 1f, 0.45f), 0.08f);
+      new Style(new Color(0.25f, 0.85f, 1f, 0.35f), new Color(1f, 1f, 1f, 0.45f), 0.09f);
 
   private final Style style;
 

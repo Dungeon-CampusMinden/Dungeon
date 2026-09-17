@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
+import feature.leveleditor.PrefabMode;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -39,6 +41,24 @@ public class PointSetting extends Table {
       Supplier<Point> getter,
       Consumer<Point> setter,
       Consumer<Consumer<Point>> cursorAssignmentRequester) {
+    this(label, getter, setter, cursorAssignmentRequester, false);
+  }
+
+  /**
+   * Creates a point setting with optional commit-on-submit behavior for its coordinate fields.
+   *
+   * @param label the setting label
+   * @param getter supplies the current point
+   * @param setter applies a new point
+   * @param cursorAssignmentRequester starts assignment from the world cursor
+   * @param commitOnFocusLost whether coordinate fields commit only on Enter or focus loss
+   */
+  public PointSetting(
+      String label,
+      Supplier<Point> getter,
+      Consumer<Point> setter,
+      Consumer<Consumer<Point>> cursorAssignmentRequester,
+      boolean commitOnFocusLost) {
     this.getter = Objects.requireNonNull(getter, "getter");
     this.setter = Objects.requireNonNull(setter, "setter");
     Objects.requireNonNull(cursorAssignmentRequester, "cursorAssignmentRequester");
@@ -50,14 +70,18 @@ public class PointSetting extends Table {
             -Float.MAX_VALUE,
             Float.MAX_VALUE,
             () -> checked(getter.get()).x(),
-            x -> value(new Point(x, checked(getter.get()).y())));
+            x -> value(new Point(x, checked(getter.get()).y())),
+            commitOnFocusLost,
+            true);
     ySetting =
         new FloatSetting(
             "Y",
             -Float.MAX_VALUE,
             Float.MAX_VALUE,
             () -> checked(getter.get()).y(),
-            y -> value(new Point(checked(getter.get()).x(), y)));
+            y -> value(new Point(checked(getter.get()).x(), y)),
+            commitOnFocusLost,
+            true);
 
     ImageButton cursorButton = Scene2dElementFactory.createIconButton("hud/check.png", "default");
     cursorButton.addListener(
@@ -68,7 +92,7 @@ public class PointSetting extends Table {
           }
         });
 
-    add(Scene2dElementFactory.createLabel(label, FONT_SIZE, ModeDetailsPanel.TEXT_COLOR))
+    add(Scene2dElementFactory.createLabel(label, PrefabMode.PROPERTY_LABEL_SIZE, ModeDetailsPanel.TEXT_COLOR))
         .growX()
         .left()
         .row();

@@ -18,7 +18,7 @@ import feature.hud.elements.RichLabel;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
-import feature.leveleditor.ui.NumberSetting;
+import feature.leveleditor.ui.IntegerSetting;
 import feature.leveleditor.ui.StringSetting;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabRegistry;
@@ -36,8 +36,8 @@ public class SettingsMode extends LevelEditorMode {
   private static final int MAX_LEVEL_SIZE = 1000;
   private static final String EXISTING_FILE_WARNING = "File already exists, will be overwritten";
 
-  private NumberSetting heightSetting;
-  private NumberSetting widthSetting;
+  private IntegerSetting heightSetting;
+  private IntegerSetting widthSetting;
   private StringSetting savePathSetting;
   private RichLabel savePathStatusLabel;
   private BooleanSetting autoSaveSetting;
@@ -57,14 +57,14 @@ public class SettingsMode extends LevelEditorMode {
     content.clearChildren();
     detailsContent = content;
     heightSetting =
-        new NumberSetting(
+        new IntegerSetting(
             "Level Height",
             MIN_LEVEL_SIZE,
             MAX_LEVEL_SIZE,
             () -> getLevel().layout().length,
             height -> resizeLevel(getLevel().layout()[0].length, height));
     widthSetting =
-        new NumberSetting(
+        new IntegerSetting(
             "Level Width",
             MIN_LEVEL_SIZE,
             MAX_LEVEL_SIZE,

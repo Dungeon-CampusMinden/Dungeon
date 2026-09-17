@@ -18,9 +18,11 @@ import java.util.List;
 public final class DoorKeypadPrefab extends Prefab {
 
   private static final PrefabProperty<Point> DOOR_POSITION =
-      PrefabProperty.point("doorPosition", "Door Position", new Point(0, 0));
+      PrefabProperty.point(
+          "doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
   private static final PrefabProperty<Point> KEYPAD_POSITION =
-      PrefabProperty.point("keypadPosition", "Keypad Position", new Point(1, 0));
+      PrefabProperty.point(
+          "keypadPosition", "Keypad Position", new Point(1, 0), new Point(0.5f, 0.5f));
   private static final PrefabProperty<String> CODE =
       PrefabProperty.string(
           "code",
@@ -38,7 +40,7 @@ public final class DoorKeypadPrefab extends Prefab {
         "door-keypad",
         "Door + Keypad",
         PrefabSide.SERVER,
-        List.of(DOOR_POSITION, KEYPAD_POSITION, CODE, SHOW_DIGIT_COUNT));
+        List.of(KEYPAD_POSITION, DOOR_POSITION, CODE, SHOW_DIGIT_COUNT));
   }
 
   @Override
@@ -92,9 +94,16 @@ public final class DoorKeypadPrefab extends Prefab {
   @Override
   public void renderEditorFeedback(
       PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point keypad = value(instance, KEYPAD_POSITION).translate(0.5f, 0.5f);
-    Point door = value(instance, DOOR_POSITION).translate(0.5f, 0.5f);
+    Point keypad = editorFeedbackPoint(instance, KEYPAD_POSITION);
+    Point door = editorFeedbackPoint(instance, DOOR_POSITION);
     feedback.point(keypad, instance.name());
     feedback.line(keypad, door, true);
+  }
+
+  private Point editorFeedbackPoint(
+      PrefabInstance instance, PrefabProperty<Point> property) {
+    Point point = value(instance, property);
+    Point offset = property.editorFeedbackOffset();
+    return point.translate(offset.x(), offset.y());
   }
 }

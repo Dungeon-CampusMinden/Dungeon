@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
+import feature.leveleditor.PrefabMode;
+
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -36,7 +38,7 @@ public class BooleanSetting extends Table {
         });
 
     setTouchable(Touchable.enabled);
-    add(Scene2dElementFactory.createLabel(label, 16, ModeDetailsPanel.TEXT_COLOR)).growX().left();
+    add(Scene2dElementFactory.createLabel(label, PrefabMode.PROPERTY_LABEL_SIZE, ModeDetailsPanel.TEXT_COLOR)).growX().left();
     add(checkBox).right();
   }
 

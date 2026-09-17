@@ -20,7 +20,7 @@ import java.util.function.IntSupplier;
  *
  * <p>The value is always clamped into the configured range.
  */
-public class NumberSetting extends Table {
+public class IntegerSetting extends Table {
 
   private static final int FONT_SIZE = 16;
   private static final float BUTTON_SIZE = 30f;
@@ -43,7 +43,7 @@ public class NumberSetting extends Table {
    * @param getter supplies the current value.
    * @param setter applies a new value.
    */
-  public NumberSetting(String label, int min, int max, IntSupplier getter, IntConsumer setter) {
+  public IntegerSetting(String label, int min, int max, IntSupplier getter, IntConsumer setter) {
     this.getter = getter;
     this.setter = setter;
     this.min = min;

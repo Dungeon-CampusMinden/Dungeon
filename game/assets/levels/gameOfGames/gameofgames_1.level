@@ -1,7 +1,7 @@
 {
   "version" : 3,
   "design" : "DEFAULT",
-  "layout" : [ "WWWWWWWWWWWWWWWWWWWW", "WFFFFFFFFFFFFFFWFFFW", "WFFFFFFFFFFFFFFWFFFW", "WFFFFFFFFFFFFFFWWDWW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WWWWWWWWWWWWWWWWWWWW" ],
+  "layout" : [ "WWWWWWWWWWWWWWWWWWWW", "WFFWFFFFFFFFFFFWFFFW", "WFFWFFFFFFFFFFFWFFFW", "WWDWFFFFFFFFFFFWWDWW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WWWWWWWWWWWWWWWWWWWW" ],
   "startTiles" : [ {
     "x" : 10.0,
     "y" : 7.0
@@ -18,8 +18,8 @@
     "type" : "bookshelf-image",
     "properties" : {
       "position" : {
-        "x" : 3.0,
-        "y" : 10.0
+        "x" : 13.0,
+        "y" : 5.0
       },
       "image" : "images/binary_hex.jpg"
     }
@@ -27,15 +27,15 @@
     "name" : "door-keypad",
     "type" : "door-keypad",
     "properties" : {
-      "doorPosition" : {
-        "x" : 17.0,
-        "y" : 10.0
-      },
       "keypadPosition" : {
         "x" : 6.0,
         "y" : 13.0
       },
-      "code" : "12345",
+      "doorPosition" : {
+        "x" : 17.0,
+        "y" : 10.0
+      },
+      "code" : "123",
       "showDigitCount" : true
     }
   }, {
