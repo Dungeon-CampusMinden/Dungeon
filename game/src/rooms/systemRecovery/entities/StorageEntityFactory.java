@@ -10,6 +10,7 @@ import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import rooms.systemRecovery.util.StorageCellColors;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Builds the cell markers and materialized values used by riddle 8. */
@@ -60,7 +61,7 @@ public final class StorageEntityFactory {
     entity.add(new CollideComponent());
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
     draw.depth(DepthLayer.AbovePlayer.depth());
-    draw.tintColor(valueTint(value));
+    draw.tintColor(StorageCellColors.forValue(value));
     entity.add(draw);
     entity.add(
         new InteractionComponent(
@@ -73,12 +74,4 @@ public final class StorageEntityFactory {
     return entity;
   }
 
-  private static int valueTint(int value) {
-    return switch (value) {
-      case 1 -> 0x33CCFFFF;
-      case 2 -> 0xFFFF33FF;
-      case 3 -> 0xFF66FFFF;
-      default -> 0xFFFFFFFF;
-    };
-  }
 }

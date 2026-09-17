@@ -17,6 +17,7 @@ import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.util.StorageCellColors;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
@@ -33,10 +34,6 @@ public final class TwoDimensionalStorageRiddle {
   public static final int COLUMN_COUNT = 4;
 
   private static final Map<String, Integer> FILLED_VALUES = Map.of("0_2", 1, "1_3", 2, "2_1", 3);
-  private static final int ACTIVE_CELL_TINT = 0x4D7EA8FF;
-  private static final int VALUE_ONE_TINT = 0x42C8E6FF;
-  private static final int VALUE_TWO_TINT = 0xF0B84AFF;
-  private static final int VALUE_THREE_TINT = 0xD66CFFFF;
   private static final long CHIP_ARM_STEP_MS = 100L;
   private static final int CHIP_ARM_STEPS = 12;
 
@@ -112,7 +109,9 @@ public final class TwoDimensionalStorageRiddle {
         tintCell(
             row,
             column,
-            target ? valueTint(FILLED_VALUES.get(row + "_" + column)) : ACTIVE_CELL_TINT);
+            target
+                ? StorageCellColors.forValue(FILLED_VALUES.get(row + "_" + column))
+                : StorageCellColors.active());
       }
     }
   }
@@ -187,7 +186,7 @@ public final class TwoDimensionalStorageRiddle {
   private void markFilled(int row, int column) {
     Entity cell = cells[row][column];
     cell.name("storage_matrix_cell_" + row + "_" + column + "_filled");
-    tintCell(row, column, valueTint(cellValue(row, column)));
+    tintCell(row, column, StorageCellColors.forValue(cellValue(row, column)));
   }
 
   private void tintCell(int row, int column, int tint) {
@@ -198,15 +197,6 @@ public final class TwoDimensionalStorageRiddle {
     if (storageDisplay != null) {
       SystemRecoveryDisplayFactory.updateDisplayText(storageDisplay, storageDisplayText);
     }
-  }
-
-  private int valueTint(int value) {
-    return switch (value) {
-      case 1 -> VALUE_ONE_TINT;
-      case 2 -> VALUE_TWO_TINT;
-      case 3 -> VALUE_THREE_TINT;
-      default -> ACTIVE_CELL_TINT;
-    };
   }
 
   private void spawnStorageItems() {

@@ -9,10 +9,10 @@ import java.util.Optional;
  *
  * @param sortedEnergy sorted energy values submitted by the player
  * @param activeModules number of non-null module entries
- * @param batterySignals number of detected battery signals
+ * @param scannedModules number of modules visited by the central search
  */
 public record SystemCoreMetaInput(
-    List<Integer> sortedEnergy, int activeModules, int batterySignals) {
+    List<Integer> sortedEnergy, int activeModules, int scannedModules) {
 
   private static final String FIELD_SEPARATOR = "\\|";
   private static final String ENERGY_SEPARATOR = ",";
@@ -24,7 +24,7 @@ public record SystemCoreMetaInput(
   }
 
   /**
-   * Parses the wire format used by the input mask: {@code energy0,...,energy4|modules|signals}.
+   * Parses the wire format used by the input mask: {@code energy0,...,energy4|modules|scanned}.
    *
    * @param payload serialized values from the client input mask
    * @return parsed values, or empty when the payload is malformed
@@ -54,13 +54,13 @@ public record SystemCoreMetaInput(
    *
    * @param expectedEnergy sorted energy result
    * @param expectedModules occupied module count
-   * @param expectedBatterySignals found battery-signal count
+   * @param expectedScannedModules number of modules that must be visited
    * @return whether all three results match exactly
    */
   public boolean matches(
-      List<Integer> expectedEnergy, int expectedModules, int expectedBatterySignals) {
+      List<Integer> expectedEnergy, int expectedModules, int expectedScannedModules) {
     return sortedEnergy.equals(expectedEnergy)
         && activeModules == expectedModules
-        && batterySignals == expectedBatterySignals;
+        && scannedModules == expectedScannedModules;
   }
 }

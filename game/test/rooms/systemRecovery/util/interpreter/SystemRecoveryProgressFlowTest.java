@@ -310,6 +310,6 @@ class SystemRecoveryProgressFlowTest {
   }
 
   private static String centralMapSearch() {
-    return "for (int row=0; row<map.length; row++) { for (int column=0; column<map[row].length; column++) { if (map[row][column] == 1) { roboter.collect(); } } }";
+    return "for (int row=0; row<map.length; row++) { for (int column=0; column<map[row].length; column++) { roboter.collect(); } }";
   }
 }

@@ -19,7 +19,6 @@ import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
-import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
@@ -196,7 +195,7 @@ public final class TransportStorageRiddle {
     if (storageDoor.isOpen()) {
       SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN);
     }
-    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.DATA_STORAGE_PROBLEM);
+    SystemRecoveryLevel.triggerDataStorageProblemCall();
   }
 
   /**

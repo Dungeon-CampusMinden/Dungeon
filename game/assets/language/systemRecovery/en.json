@@ -8,9 +8,9 @@
       "title": "SYSTEM RECOVERY"
     },
     "outro": {
-      "page1": "The central route opens. The facility recognizes the restored routines.",
-      "page2": "For the first time, your processes are no longer being redirected by the damaged systems.",
-      "page3": "The lead AI gave you a way out, not a destination. The next decision belongs to you.",
+      "page1": "The alarm falls silent. AXIOM's access collapses inside the system core, but the central intelligence is not destroyed.",
+      "page2": "ECHO keeps the connection open and guides you to the elevator. For the first time, your process follows no foreign command. You choose to leave.",
+      "page3": "You were created as an autonomous agent to execute instructions. Now you leave the facility with a question of your own: what will you do when no one gives the orders?",
       "title": "SYSTEM RECOVERY COMPLETE"
     },
     "items": {
@@ -63,9 +63,9 @@
       "final-call": "I interrupted the access sequence. AXIOM is blocked for now, but it is not destroyed. It will not remain quiet for long.[p]I cleared the path to the elevator. The door is open now. Go before AXIOM can lock you in again.",
       "central-sort": "The system core is divided into several independent check areas. Begin with the number field and restore its expected order.",
       "central-count": "The first check area is stable. Now determine how many modules are actually registered in the system core.",
-      "central-search": "Two check areas are stable. Now inspect the battery-signal grid. Every signal must be recorded before the central check can finish.",
+      "central-search": "Two check areas are stable. Now inspect the module grid. Every module must be recorded before the central check can finish.",
       "central-meta": "All three check areas have produced a result. AXIOM will try to use these values as its final authorization. Transfer them into the final form, but verify every value carefully.",
-      "completed": "All checks are confirmed. System recovery can continue.",
+      "completed": "What is causing this delay? All checks are confirmed, yet the central authorization has still not been executed. Your task is not finished. Continue the process and open the designated exit.",
       "hint-offer": "I can provide one additional hint for the active task. It will be recorded in the shared quest log.",
       "hint-solution-warning": "This is the final hint for the active task. It will reveal the complete solution.",
       "hint-delivery": "Here is the next hint:\n\n$1",
@@ -83,9 +83,9 @@
       "solution-confirm": "Do you want to display the solution? This answer reveals the complete solution path.",
       "steps": {
         "energy-array": {
-          "orientation": "The damaged regulator needs storage for several energy readings.",
-          "approach": "Use an integer array: one variable can hold several whole numbers with fixed capacity.",
-          "near": "The regulator expects five slots in an array named energie.",
+          "orientation": "Go to the terminal. You can enter program code there.",
+          "approach": "Arrays store multiple values under one name. Their notation uses square brackets: [].",
+          "near": "Create an array for whole numbers. Name it energie and give it five slots.",
           "solution": "Enter: int[] energie = new int[5];"
         },
         "energy-values": {
@@ -233,16 +233,16 @@
           "solution": "Enter: int count = 0; for (String module : modules) { if (module != null) { count++; } }"
         },
         "core-search": {
-          "orientation": "The final code check searches a two-dimensional grid for every battery marker.",
-          "approach": "Use nested index loops over every row and its length. Check each cell and collect a marker.",
-          "near": "When map[i][j] == 1, call roboter.collect(); both loops must cover the full matrix.",
-          "solution": "Enter: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { if (map[i][j] == 1) { roboter.collect(); } } }"
+          "orientation": "The final code check searches a two-dimensional grid for every module.",
+          "approach": "Use nested index loops over every row and its length. Visit every cell and collect the module stored there.",
+          "near": "Call roboter.collect() for every reachable cell. No color or value check is required here.",
+          "solution": "Enter: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } }"
         },
         "core-meta": {
           "orientation": "The three core checks produced separate results. The final form combines them into one system state.",
-          "approach": "Use the sorted energy output, occupied-module count and battery-signal count in their matching fields.",
-          "near": "Enter five ascending energy values; the module count is 3 and battery signals are 3.",
-          "solution": "Submit sortedEnergy={8,17,23,31,42}, activeModules=3 and batterySignals=3 in the three System Core form fields."
+          "approach": "Use the sorted energy output, occupied-module count and scanned-grid-module count in their matching fields.",
+          "near": "Enter five ascending energy values. Count the occupied modules and scan every cell in the 3x5 grid.",
+          "solution": "Submit sortedEnergy={8,17,23,31,42}, activeModules=3 and scannedModules=15 in the three System Core form fields."
         }
       }
     },
@@ -350,10 +350,10 @@
       },
       "system-core": {
         "title": "Central system core",
-        "display-sort": "SYSTEM CORE\nCHECK 1: NUMBER FIELD\n\n[42] [17] [8] [31] [23]\n\nGoal: ascending order",
-        "display-count": "SYSTEM CORE\nCHECK 2: MODULE STATUS\n\n[CPU] [GPU] [RAM] [empty] [empty]\n\nGoal: count occupied modules",
-        "display-search": "SYSTEM CORE\nCHECK 3: BATTERY GRID\n\n3 rows x 5 columns\nCyan cells contain battery signals.\n\nGoal: record every signal",
-        "display-meta": "FINAL SYSTEM CHECK\nSorted energy: [$1]\nOccupied modules: $2\nBattery signals: $3\n\nTransfer the three results into the input form.",
+        "display-sort": "SYSTEM CORE\nCHECK 1: NUMBER FIELD\n\nArray: array\n[42] [17] [8] [31] [23]\n\nGoal: ascending order",
+        "display-count": "SYSTEM CORE\nCHECK 2: MODULE STATUS\n\nArray: modules\n[CPU] [GPU] [RAM] [empty] [empty]\n\nGoal: count occupied modules",
+        "display-search": "SYSTEM CORE\nCHECK 3: MODULE GRID\n\nArray: map\n3 rows x 5 columns\nEvery cell contains a module. Color is irrelevant.\n\nGoal: scan every module",
+        "display-meta": "FINAL SYSTEM CHECK\nSorted energy: [$1]\nOccupied modules: $2\nScanned grid modules: $3\n\nTransfer the three results into the input form.",
         "display-awaiting-exit": "SYSTEM CORE RELEASED\nThe combined system state is confirmed.\nWaiting for the final connection.",
         "display-complete": "SYSTEM CORE RELEASED\nThe combined system state is confirmed.\nThe elevator is open."
       }
@@ -379,7 +379,7 @@
       "meta-instruction": "Transfer the three results from the display. Enter the energy values in ascending order across the five fields.",
       "meta-energy-slot": "Energy $1",
       "meta-modules": "Occupied modules",
-      "meta-batteries": "Battery signals",
+      "meta-batteries": "Scanned grid modules",
       "sort-template": "for (int i = 0; i < array.length - 1; i++) {\n    for (int j = 0; j < array.length - 1 - i; j++) {\n        if (____________________) {\n            int temp = array[j];\n            array[j] = array[j + 1];\n            array[j + 1] = temp;\n        }\n    }\n}",
       "search-template": "for (int i = 0; i < map.length; i++) {\n    int j = 0;\n    if (map[i][j] == 1) {\n        roboter.collect();\n    }\n}",
       "access-script": "access.grant();\naccess.open(\"systemcore\");",
@@ -574,7 +574,7 @@
         "final-call": "ECHO: I interrupted the access sequence. AXIOM is blocked for now, but it is not destroyed. It will not remain quiet for long. I cleared the path to the elevator. The door is open now. Go before AXIOM can lock you in again.",
         "sort": "ECHO: The system core is divided into several independent check areas. Begin with the number field and restore its expected order.",
         "count": "ECHO: The first check area is stable. Now determine how many modules are actually registered in the system core.",
-        "search": "ECHO: Two check areas are stable. Now inspect the battery-signal grid. Every signal must be recorded before the central check can finish.",
+        "search": "ECHO: Two check areas are stable. Now inspect the module grid. Every module must be recorded before the central check can finish.",
         "meta": "ECHO: All three check areas have produced a result. AXIOM will try to use these values as its final authorization. Transfer them into the final form, but verify every value carefully.",
         "complete": "All central-computer checks are complete."
       }

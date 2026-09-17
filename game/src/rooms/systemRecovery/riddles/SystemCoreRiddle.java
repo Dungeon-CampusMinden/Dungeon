@@ -27,7 +27,6 @@ import rooms.systemRecovery.util.SystemRecoveryText;
 public final class SystemCoreRiddle {
   private static final int[] SORT_VALUES = {42, 17, 8, 31, 23};
   private static final String[] MODULE_VALUES = {"CPU", "GPU", "RAM", null, null};
-  private static final Set<String> BATTERY_CELLS = Set.of("0_2", "1_3", "2_1");
   private static final int COMPLETE_TINT = 0x66FF66FF;
 
   private final DungeonLevel level;
@@ -121,7 +120,7 @@ public final class SystemCoreRiddle {
   public boolean acceptsMetaInput(String payload) {
     return SystemCoreMetaInput.parse(payload)
         .map(
-            input -> input.matches(sortedEnergyValues(), activeModuleCount(), BATTERY_CELLS.size()))
+            input -> input.matches(sortedEnergyValues(), activeModuleCount(), scannedModuleCount()))
         .orElse(false);
   }
 
@@ -168,9 +167,8 @@ public final class SystemCoreRiddle {
     map = SearchRobotMatrix.between(level.getPoint("map00"), level.getPoint("map24"));
     for (int row = 0; row < map.rows(); row++) {
       for (int column = 0; column < map.columns(); column++) {
-        boolean batterySignal = BATTERY_CELLS.contains(row + "_" + column);
         Entity cell =
-            SystemCoreEntityFactory.mapCell(map.pointAt(row, column), row, column, batterySignal);
+            SystemCoreEntityFactory.mapCell(map.pointAt(row, column), row, column);
         mapEntries.add(cell);
         Game.add(cell);
       }
@@ -193,7 +191,7 @@ public final class SystemCoreRiddle {
     String sortedValues =
         sortedEnergyValues().stream().map(String::valueOf).collect(Collectors.joining(" "));
     return SystemRecoveryText.key(
-        "world.system-core.display-meta", sortedValues, activeModuleCount(), BATTERY_CELLS.size());
+        "world.system-core.display-meta", sortedValues, activeModuleCount(), scannedModuleCount());
   }
 
   private static List<Integer> sortedEnergyValues() {
@@ -202,6 +200,10 @@ public final class SystemCoreRiddle {
 
   private static int activeModuleCount() {
     return (int) Arrays.stream(MODULE_VALUES).filter(value -> value != null).count();
+  }
+
+  private int scannedModuleCount() {
+    return map == null ? 0 : map.size();
   }
 
   private void updateDisplay() {

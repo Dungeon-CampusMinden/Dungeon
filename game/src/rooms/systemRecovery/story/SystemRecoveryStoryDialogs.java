@@ -120,8 +120,8 @@ public final class SystemRecoveryStoryDialogs {
   /** ECHO's instruction for combining the three central-computer results. */
   public static final StoryStep CENTRAL_META = echoStep("central-meta", "riddle10", "meta");
 
-  /** The final story response after all central checks. */
-  public static final StoryStep COMPLETED = step("completed", "riddle10", "complete");
+  /** AXIOM's irritated response after all central checks have been accepted. */
+  public static final StoryStep COMPLETED = axiomStep("completed", "riddle10", "complete");
 
   private final Set<String> shownToPlayer = ConcurrentHashMap.newKeySet();
   private final Queue<PendingDialog> pendingDialogs = new ConcurrentLinkedQueue<>();

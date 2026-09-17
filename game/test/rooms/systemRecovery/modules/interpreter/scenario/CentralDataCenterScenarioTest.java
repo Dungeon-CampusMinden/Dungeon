@@ -48,9 +48,7 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
             """
             for (int row = 0; row < map.length; row++) {
                 for (int column = 0; column < map[row].length; column++) {
-                    if (map[row][column] == 1) {
-                        roboter.collect();
-                    }
+                    roboter.collect();
                 }
             }
             """));
@@ -152,7 +150,28 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             indexedForLoop("i", "map\\s*\\.\\s*length"),
             indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
-            "if\\s*\\(\\s*map\\s*\\[\\s*i\\s*]\\s*\\[\\s*j\\s*]\\s*==\\s*1\\s*\\)" + "\\s*\\{",
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+
+    String source =
+        """
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                roboter.collect();
+            }
+        }
+        """;
+
+    assertTrue(interpreter.interpret(source));
+  }
+
+  /** The central search visits every cell instead of filtering by a marker value. */
+  @Test
+  public void centralDataCenterMapSearchRejectsColorFilter_riddle10() {
+    interpreter.register(
+        0,
+        orderedRequirement(
+            indexedForLoop("i", "map\\s*\\.\\s*length"),
+            indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
             "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
 
     String source =
@@ -166,6 +185,6 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
         }
         """;
 
-    assertTrue(interpreter.interpret(source));
+    assertFalse(interpreter.interpret(source));
   }
 }

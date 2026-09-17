@@ -118,7 +118,6 @@ final class SystemRecoveryRiddleRegistry {
       }
       case SYSTEM_CORE_META -> {
         completeSystemCore.run();
-        storyDialogs.announceCompletionToAllPlayers();
       }
       case SEARCH_PROGRAM -> {
         // Search-chip source is validated by the chip editor, not by the shared terminal.

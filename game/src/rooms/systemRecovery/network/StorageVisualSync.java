@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.components.PositionComponent;
 import java.util.Map;
+import rooms.systemRecovery.util.StorageCellColors;
 
 /** Reconstructs the authoritative tint of one two-dimensional storage cell. */
 final class StorageVisualSync {
@@ -38,15 +39,8 @@ final class StorageVisualSync {
 
   private static int tintFor(String state, int value) {
     return switch (state) {
-      case "active" -> 0x4D7EA8FF;
-      case "target" -> 0xF0D248FF;
-      case "filled" ->
-          switch (value) {
-            case 1 -> 0x42C8E6FF;
-            case 2 -> 0xF0B84AFF;
-            case 3 -> 0xD66CFFFF;
-            default -> 0x4D7EA8FF;
-          };
+      case "active" -> StorageCellColors.active();
+      case "target", "filled" -> StorageCellColors.forValue(value);
       default -> -1;
     };
   }

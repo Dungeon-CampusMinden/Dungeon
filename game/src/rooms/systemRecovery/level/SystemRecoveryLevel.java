@@ -18,6 +18,7 @@ import engine.utils.components.draw.DepthLayer;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
+import feature.components.InventoryComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.MiscFactory;
@@ -77,6 +78,7 @@ import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 public class SystemRecoveryLevel extends DungeonLevel {
   private static final String LEVEL_NAME = "system-recovery-1";
   private static final String TERMINAL_POINT = "terminal";
+  private static final int PLAYER_INVENTORY_SIZE = 1;
   private final EnergyRiddle energy =
       new EnergyRiddle(this, SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.ENERGY));
   private final ModuleStorageRiddle moduleStorage =
@@ -143,12 +145,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private Entity phone;
   private Entity ringingPhoneEmote;
   private boolean echoCallTriggered;
+  private boolean dataStorageProblemCallTriggered;
   private boolean systemCoreWarningCallTriggered;
   private boolean finalEchoCallTriggered;
   private boolean finalEchoCallPending;
   private boolean phoneRinging;
   private String ringingCallKey;
   private boolean terminalsUnlocked;
+  private boolean systemCoreAccessModuleDelivered;
   private boolean systemCoreAccessGranted;
   private boolean systemCoreAlarmActive;
   private boolean systemCoreRiddleCompleted;
@@ -185,6 +189,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     resolvedPoints = SystemRecoveryPointRegistry.resolve(this);
+    enforcePlayerInventorySize();
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryQuestLogUtil.initializeQuestLog();
     Game.system(HintSystem.class, HintSystem::resetHintProgress);
@@ -213,6 +218,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onTick() {
+    enforcePlayerInventorySize();
     showIntroForNewPlayers();
     triggerDialogPoints();
     storyDialogs.tick();
@@ -226,6 +232,32 @@ public class SystemRecoveryLevel extends DungeonLevel {
                           DoorLabelComponent.updateAppearance(
                               label, status.completed().getAsBoolean())));
     }
+  }
+
+  /** Keeps the System Recovery inventory intentionally limited to one carried item. */
+  private void enforcePlayerInventorySize() {
+    if (!Game.network().isServer()) return;
+
+    Game.allPlayers()
+        .forEach(
+            player ->
+                player
+                    .fetch(InventoryComponent.class)
+                    .ifPresent(
+                        inventory -> {
+                          if (inventory.items().length == PLAYER_INVENTORY_SIZE) return;
+
+                          InventoryComponent singleSlotInventory =
+                              new InventoryComponent(PLAYER_INVENTORY_SIZE);
+                          for (var item : inventory.items()) {
+                            if (item != null) {
+                              singleSlotInventory.add(item);
+                              break;
+                            }
+                          }
+                          player.remove(InventoryComponent.class);
+                          player.add(singleSlotInventory);
+                        }));
   }
 
   /** Sends the room's lore to each player once through the networked dialog system. */
@@ -273,6 +305,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (systemCoreWarningCallTriggered || phone == null) return;
     systemCoreWarningCallTriggered = true;
     startRingingCall("system-core-warning");
+  }
+
+  /** Starts ECHO's transition call after the transport-storage sequence has completed. */
+  public static void triggerDataStorageProblemCall() {
+    currentLevel().ifPresent(SystemRecoveryLevel::triggerDataStorageProblemCallInternal);
+  }
+
+  private void triggerDataStorageProblemCallInternal() {
+    if (dataStorageProblemCallTriggered || phone == null) return;
+    dataStorageProblemCallTriggered = true;
+    startRingingCall("data-storage-problem");
   }
 
   /** Starts ECHO's final call after the system-core routines have been completed. */
@@ -333,6 +376,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
         finalEchoCallPending = false;
         startRingingCall("final-call");
       }
+    } else if ("data-storage-problem".equals(completedCallKey)) {
+      SystemRecoveryQuestLogUtil.addDialogEntry(
+          "riddle5", "data-storage-problem", "echo", "data-storage-problem");
     } else if ("final-call".equals(completedCallKey)) {
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle10", "final-call", "echo", "final-call");
@@ -495,17 +541,15 @@ public class SystemRecoveryLevel extends DungeonLevel {
     currentLevel().ifPresent(level -> level.storyDialogs.announceForPlayer(step, playerId));
   }
 
-  /** Announces AXIOM's reaction and starts the shared alarm sequence after module recovery. */
+  /** Announces AXIOM's reaction when the search robot delivers the access module. */
   public static void announceSystemCoreAccessModuleDelivered() {
     currentLevel().ifPresent(SystemRecoveryLevel::handleSystemCoreAccessModuleDelivered);
   }
 
   private void handleSystemCoreAccessModuleDelivered() {
-    if (systemCoreAlarmActive) return;
-    systemCoreAlarmActive = true;
+    if (systemCoreAccessModuleDelivered) return;
+    systemCoreAccessModuleDelivered = true;
     storyDialogs.announceToAllPlayers(SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
-    SystemRecoveryAlarm.activate();
-    triggerSystemCoreWarningCall();
   }
 
   /** Announces the final system message after the last terminal riddle. */
@@ -899,6 +943,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     SystemRecoveryPuzzleEvents.attempt(
         SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", true, playerId);
     SystemRecoveryAlarm.activate();
+    level.triggerSystemCoreWarningCall();
     TerminalInterpreter.instance().synchronizeState(TerminalStep.CENTRAL_SORT.stateId());
     return true;
   }
