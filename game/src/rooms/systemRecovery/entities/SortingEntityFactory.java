@@ -6,6 +6,7 @@ import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -48,6 +49,7 @@ public final class SortingEntityFactory {
   public static Entity bubbleSortMachine(Point point, BiConsumer<Entity, Entity> onInteract) {
     Entity entity = new Entity("bubble_sort_machine");
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(new DrawComponent(new Animation(new SimpleIPath("objects/tech/Screen_device.png"))));
     entity.add(new InteractionComponent(new Interaction(onInteract)));
     return entity;

@@ -99,33 +99,6 @@ public final class TerminalInterpreter {
   }
 
   /**
-   * Completes the current state without source validation for local debug sessions.
-   *
-   * @return true if a state was completed
-   */
-  public boolean advanceCurrentStateForDebug() {
-    return advanceCurrentStateForDebug(-1);
-  }
-
-  /**
-   * Completes the current state in debug mode with explicit player context.
-   *
-   * @param playerId authoritative player ID, or {@code -1} for a non-player call
-   * @return whether a state was completed
-   */
-  public boolean advanceCurrentStateForDebug(int playerId) {
-    TerminalCodeRequirement puzzleState = states.get(currentState);
-    if (puzzleState == null) {
-      return false;
-    }
-
-    TerminalAttempt attempt = new TerminalAttempt(currentState, "<debug-next-step>", playerId);
-    currentState++;
-    puzzleState.onSuccess().accept(attempt);
-    return true;
-  }
-
-  /**
    * Checks the source without invoking callbacks or changing state.
    *
    * @param source source text entered in the terminal

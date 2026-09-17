@@ -66,21 +66,6 @@ class SystemRecoveryTerminalControllerTest {
     assertEquals(1, successCallbacks.get());
   }
 
-  @Test
-  void debugAdvanceCannotSkipThePhysicalBatteryStep() {
-    SystemRecoveryTerminalController controller = controller();
-
-    assertFalse(controller.advanceForDebug(17));
-    assertEquals(TerminalStep.MODULE_ARRAY.stateId(), interpreter.currentState());
-    assertEquals(0, successCallbacks.get());
-
-    activeStep.set(SystemRecoveryLearningStep.MODULE_ARRAY);
-
-    assertTrue(controller.advanceForDebug(17));
-    assertEquals(TerminalStep.MODULE_VALUES.stateId(), interpreter.currentState());
-    assertEquals(1, successCallbacks.get());
-  }
-
   private SystemRecoveryTerminalController controller() {
     return new SystemRecoveryTerminalController(
         interpreter,

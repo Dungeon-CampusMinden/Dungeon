@@ -14,7 +14,9 @@ import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
+import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Terminal/editor tab for recovery code input. */
 public class TerminalTab extends SystemRecoveryComputerTab {
@@ -78,8 +80,6 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 24);
     TextButton nextStepButton =
         createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 24);
-    TextButton spawnDebugItemsButton =
-        createButton(SystemRecoveryText.text("computer.spawn-debug-items"), "blue-outline", 24);
     TextButton petriNetButton =
         createButton(SystemRecoveryText.text("computer.petri-net"), "blue-outline", 24);
     sendButton.addListener(
@@ -100,18 +100,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            DialogCallbackResolver.createButtonCallback(
-                    context().dialogId(), SystemRecoveryComputerCallbacks.TERMINAL_NEXT_STEP)
-                .accept(new DialogResponseMessage.StringValue(""));
-          }
-        });
-    spawnDebugItemsButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            DialogCallbackResolver.createButtonCallback(
-                    context().dialogId(), SystemRecoveryComputerCallbacks.DEBUG_SPAWN_ALL_ITEMS)
-                .accept(new DialogResponseMessage.StringValue(""));
+            fillDebugSource();
           }
         });
     petriNetButton.addListener(
@@ -127,7 +116,6 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     buttons.add(deleteButton).width(150).height(52);
     if (SystemRecovery.debugMode()) {
       buttons.add(nextStepButton).width(180).height(52).padLeft(12);
-      buttons.add(spawnDebugItemsButton).width(220).height(52).padLeft(12);
       buttons.add(petriNetButton).width(180).height(52).padLeft(12);
     }
     footer.add(buttons).right();
@@ -151,6 +139,22 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     if (codeEditor.getStage() != null) {
       codeEditor.getStage().setKeyboardFocus(codeEditor);
     }
+  }
+
+  /** Replaces the editor content with valid example code without submitting it. */
+  private void fillDebugSource() {
+    TerminalInterpreterSetup.debugSourceForState(TerminalInterpreter.instance().currentState())
+        .ifPresent(
+            source -> {
+              codeEditor.setText(source);
+              codeEditor.setCursorPosition(0);
+              savedCode = source;
+              showFeedback("");
+              updateLineNumbers();
+              if (codeEditor.getStage() != null) {
+                codeEditor.getStage().setKeyboardFocus(codeEditor);
+              }
+            });
   }
 
   private void sendCode() {

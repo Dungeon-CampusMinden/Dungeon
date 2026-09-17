@@ -6,6 +6,7 @@ import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -27,6 +28,7 @@ public final class StorageEntityFactory {
   public static Entity matrixCell(Point point, int row, int column) {
     Entity entity = new Entity("storage_matrix_cell_" + row + "_" + column);
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(
         new InteractionComponent(
             new Interaction(
@@ -55,6 +57,7 @@ public final class StorageEntityFactory {
   public static Entity valueItem(Point point, int value) {
     Entity entity = new Entity("storage_value_item_" + value);
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
     draw.depth(DepthLayer.AbovePlayer.depth());
     draw.tintColor(valueTint(value));

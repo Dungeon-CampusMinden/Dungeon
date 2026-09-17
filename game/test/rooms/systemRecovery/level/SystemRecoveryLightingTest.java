@@ -1,7 +1,9 @@
 package rooms.systemRecovery.level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,5 +33,13 @@ class SystemRecoveryLightingTest {
   void completedLabelsCastGreenLightAndIncompleteLabelsCastRedLight() {
     assertSame(Color.GREEN, SystemRecoveryClientLevel.doorLabelLightColor(true));
     assertSame(Color.RED, SystemRecoveryClientLevel.doorLabelLightColor(false));
+  }
+
+  @Test
+  void everyMovingScannerEntityIsRecognizedAsLightSource() {
+    assertTrue(SystemRecoveryClientLevel.isScanner(new Entity("module_scanner")));
+    assertTrue(SystemRecoveryClientLevel.isScanner(new Entity("transport_scanner")));
+    assertTrue(SystemRecoveryClientLevel.isScanner(new Entity("sort_belt_scanner")));
+    assertFalse(SystemRecoveryClientLevel.isScanner(new Entity("scanner_terminal")));
   }
 }

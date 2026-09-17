@@ -407,21 +407,6 @@ public final class SystemRecoveryComputerFactory {
               });
         });
     ui.registerCallback(
-        SystemRecoveryComputerCallbacks.TERMINAL_NEXT_STEP,
-        data -> {
-          if (SystemRecovery.debugMode()) {
-            SystemRecoveryLevel.advanceTerminalStateForDebug(targetEntityId);
-          }
-        });
-    ui.registerCallback(
-        SystemRecoveryComputerCallbacks.DEBUG_SPAWN_ALL_ITEMS,
-        data -> {
-          if (!SystemRecovery.debugMode()) return;
-          Game.findEntityById(targetEntityId)
-              .flatMap(entity -> entity.fetch(InventoryComponent.class))
-              .ifPresent(inventory -> spawnAllDebugItems(inventory, targetEntityId));
-        });
-    ui.registerCallback(
         SystemRecoveryComputerCallbacks.DEBUG_PETRI_NET,
         data -> {
           if (SystemRecovery.debugMode()) {
@@ -503,23 +488,6 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryText.key("computer.action-unavailable"),
         SystemRecoveryText.key(titleKey),
         playerId);
-  }
-
-  private static void spawnAllDebugItems(InventoryComponent inventory, int targetEntityId) {
-    boolean sortAdded = inventory.add(new SortProgramStickItem(true));
-    boolean searchAdded = inventory.add(new SearchProgramChipItem(true));
-    boolean accessAdded = inventory.add(new SystemCoreAccessChipItem());
-    if (sortAdded && searchAdded && accessAdded) {
-      DialogUtils.showTextPopup(
-          SystemRecoveryText.key("computer.debug-all-items"),
-          SystemRecoveryText.key("computer.debug-title"),
-          targetEntityId);
-    } else {
-      DialogUtils.showTextPopup(
-          SystemRecoveryText.key("computer.debug-full"),
-          SystemRecoveryText.key("computer.debug-title"),
-          targetEntityId);
-    }
   }
 
   private static boolean isBubbleSortCondition(String source) {

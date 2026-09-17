@@ -10,6 +10,7 @@ import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
+import feature.components.CollideComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -43,6 +44,7 @@ public class KeypadFactory {
     Entity entity = new Entity("keypad");
 
     entity.add(new PositionComponent(pos));
+    entity.add(new CollideComponent());
 
     State stClosed = new State("closed", TEXTURE_OFF);
     State stOpen = new State("open", TEXTURE_ON);

@@ -12,6 +12,9 @@ import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.utils.CursorUtil;
 import engine.utils.components.draw.DrawComponentFactory;
+import engine.utils.components.draw.TextureGenerator;
+import engine.utils.components.draw.shader.ColorGradeShader;
+import engine.utils.components.draw.shader.ShaderList;
 import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
@@ -35,6 +38,7 @@ public final class SystemRecoveryClient {
     registerEntitySpawnHandler();
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
+    registerInputPromptTexture();
 
     if (SystemRecovery.debugMode()) {
       Game.add(new Debugger());
@@ -54,6 +58,20 @@ public final class SystemRecoveryClient {
               @Override
               public void onDisconnected(String reason) {}
             });
+  }
+
+  /**
+   * Applies the same input-prompt treatment as Last Hour.
+   *
+   * <p>The source spritesheet uses transparent cut-outs for key glyphs. Rendering it through the
+   * shared inversion pipeline turns the prompts into the dark key style used by the tutorial, while
+   * preserving the texture path expected by the rich-label parser.
+   */
+  private static void registerInputPromptTexture() {
+    String keyboardPromptPath = "hud/input/keyboard_mouse.png";
+    ShaderList shaders = new ShaderList();
+    shaders.add("invert", new ColorGradeShader().invert(true));
+    TextureGenerator.registerRenderShaderTexture(keyboardPromptPath, keyboardPromptPath, shaders);
   }
 
   private static void registerEntitySpawnHandler() {

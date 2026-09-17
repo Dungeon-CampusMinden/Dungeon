@@ -45,8 +45,6 @@ public class DataArchiveScenarioTest extends TerminalScenarioTestSupport {
   }
 
   private void advanceToDataArchive() {
-    for (int state = 0; state < 9; state++) {
-      assertTrue(interpreter.advanceCurrentStateForDebug());
-    }
+    interpreter.synchronizeState(9);
   }
 }
