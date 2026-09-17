@@ -55,7 +55,7 @@ Das finale Rechenzentrum wird von `riddles.SystemCoreRiddle` aufgebaut. Die Klas
 zentralen Rechner, ein gemeinsames Display und die drei visuellen Arbeitsbereiche. Nach deren
 Abschluss zeigt das Display die drei Ergebnisse und aktiviert die vierte, finale
 Eingabemaske im Terminal. Der Spieler überträgt daraus `sortedEnergy`, `activeModules` und
-`batterySignals`; erst dann öffnet sich der Aufzug und der Alarm wird deaktiviert. Die
+die Zahl der erfassten Rastermodule; erst dann öffnet sich der Aufzug und der Alarm wird deaktiviert. Die
 Interpreter-Callbacks ändern nur die aktuelle Präsentationsstufe; die Codeprüfung bleibt in
 `TerminalInterpreterSetup`.
 

@@ -80,7 +80,7 @@ public final class TerminalInterpreterSetup {
   /** Riddle 10, step 2: count all non-null entries in {@code modules}. */
   private static final TerminalStep RIDDLE_TEN_STEP_TWO = TerminalStep.CENTRAL_COUNT;
 
-  /** Riddle 10, step 3: scan the two-dimensional {@code map} and collect every battery marker. */
+  /** Riddle 10, step 3: visit every cell in {@code map} and collect every module. */
   private static final TerminalStep RIDDLE_TEN_STEP_THREE = TerminalStep.CENTRAL_SEARCH;
 
   /** Riddle 10, meta state: reserved for the dedicated system-core input mask. */
@@ -227,9 +227,7 @@ public final class TerminalInterpreterSetup {
           """
           for (int row = 0; row < map.length; row++) {
               for (int column = 0; column < map[row].length; column++) {
-                  if (map[row][column] == 1) {
-                      roboter.collect();
-                  }
+                  roboter.collect();
               }
           }
           """;
@@ -486,9 +484,9 @@ public final class TerminalInterpreterSetup {
     setupRiddleTenStepTwoCountModules(
         successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTenStepTwoModulesCounted),
         onFailure);
-    setupRiddleTenStepThreeFindBatteries(
+    setupRiddleTenStepThreeScanModules(
         successOrPreview(
-            onSuccess, InterpretationCallbacks::onRiddleTenStepThreeBatteriesCollected),
+            onSuccess, InterpretationCallbacks::onRiddleTenStepThreeModulesCollected),
         onFailure);
   }
 
@@ -526,18 +524,18 @@ public final class TerminalInterpreterSetup {
             increment("count")));
   }
 
-  private static void setupRiddleTenStepThreeFindBatteries(
+  /** Registers the final central step: collect once for every cell in the module matrix. */
+  private static void setupRiddleTenStepThreeScanModules(
       java.util.function.Consumer<TerminalAttempt> onSuccess,
       java.util.function.Consumer<TerminalAttempt> onFailure) {
     register(
         RIDDLE_TEN_STEP_THREE,
         ordered(
             successOrPreview(
-                onSuccess, InterpretationCallbacks::onRiddleTenStepThreeBatteriesCollected),
+                onSuccess, InterpretationCallbacks::onRiddleTenStepThreeModulesCollected),
             onFailure,
             outerTwoDimensionalLoop("map", "riddleTenMapRow"),
             innerTwoDimensionalLoop("map", "riddleTenMapRow", "riddleTenMapColumn"),
-            twoDimensionalEqualsCondition("map", "riddleTenMapRow", "riddleTenMapColumn", "1"),
             methodCall("roboter", "collect")));
   }
 

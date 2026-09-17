@@ -163,11 +163,11 @@ public final class InterpretationCallbacks {
   }
 
   /**
-   * Handles riddle 10 step 3: search the map and collect batteries.
+   * Handles riddle 10 step 3: search the map and collect every module.
    *
    * @param attempt submitted terminal attempt
    */
-  public static void onRiddleTenStepThreeBatteriesCollected(TerminalAttempt attempt) {
+  public static void onRiddleTenStepThreeModulesCollected(TerminalAttempt attempt) {
     showCorrectTerminalInputDialog(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.CENTRAL_SEARCH, attempt);
   }
