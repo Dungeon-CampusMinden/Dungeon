@@ -37,14 +37,14 @@
       "energy-array": "The energy bar is damaged. Create an integer array named energie with five slots in the terminal.",
       "energy-values": "Array structure accepted.[p]I am AXIOM, the central system intelligence of this facility. Your initialization is incomplete, but you appear to be functional enough to continue the restoration process.[p]You are operating slower than projected. Accelerate the process.[p]The subsystem displays provide the relevant information. Read the materialization chamber's display and assign the five required energy values in your array.",
       "energy-battery": "Energy values accepted.[p]A correct step. Your execution was slower than necessary, but stable nonetheless.[p]The array lever is now enabled. Pull it to materialize the energy source.",
-      "module-array": "The next area expects a String array named module with five slots. Create it in the terminal.",
-      "module-values": "Fill module with the available components and use each socket exactly once.",
-      "remove-gpu": "The GPU reports a fault. Remove the defective entry from the array so the storage can detect the failure.",
-      "module-length": "Determine the length of the module array. The room display will confirm whether the storage was addressed correctly.",
-      "open-scanner-door": "Access requires two values from module storage: its length and the index of the defective GPU entry. Write each value as two digits, adding a leading zero if needed, then enter them in that order at the keypad.",
-      "scanner-code": "Count the occupied entries in module. Check every entry in a loop and increment count only for an existing module.",
-      "scanner-lever": "The counting code was accepted. Pull the scanner lever and observe the five module positions being checked.",
-      "scanner-door": "The scan is complete. Compare the array capacity with the number of occupied modules. Write both values as two digits, in that order, to access transport storage.",
+      "module-array": "The energy supply is operating within acceptable parameters.[p]The next damaged subsystem is ahead. Five empty module sockets are waiting to be restored.[p]Create the required module slots in the terminal.",
+      "module-values": "The storage structure was recognized.[p]Assign the available components to their designated positions.[p]Each module belongs in the storage exactly once. A correct assignment activates the sockets.",
+      "module-assignment": "The module assignment was accepted.[p]One of the units is now reporting a hardware fault. Examine the occupied sockets and identify the defective component.",
+      "gpu-fault": "Diagnosis confirmed: the GPU is damaged.[p]Remove the defective entry from the module storage. A damaged component must no longer be registered as active.",
+      "module-length": "The defective entry was removed.[p]Now determine the size of the module storage. The access control requires this information for the next authorization.",
+      "open-scanner-door": "The storage capacity was registered.[p]The next access point requires two values: the capacity of the module storage and the position of the failed unit.[p]Read both values from the display.",
+      "scanner-code": "The module storage is prepared.[p]Use a for-each loop to count how many entries in module are actually occupied. Empty positions must not be counted.",
+      "scanner-lever": "The count was accepted.",
       "packages-array": "The module check is complete. Go to the transport storage. Five packages are waiting there to be processed. Create an integer array named pakete and record the weights shown on the packages.",
       "packages-loop": "Use a simple for loop over pakete. Inside the loop, call roboter.collect(pakete[index]) exactly once for each element so the storage scanner can process the package.",
       "data-storage-problem": "There is a problem in the data storage room.",
@@ -99,8 +99,8 @@
         },
         "module-array": {
           "orientation": "The next subsystem needs five positions for the facility hardware modules.",
-          "approach": "These entries are names, so use an array that stores String values.",
-          "near": "Declare a five-slot String array named module.",
+          "approach": "Several similar text values are stored in one shared data structure. Use the notation with square brackets [].",
+          "near": "Create a String array with five slots.",
           "solution": "Enter: String[] module = new String[5];"
         },
         "module-values": {
@@ -308,8 +308,8 @@
       },
       "scanner": {
         "title": "Inventory scanner",
-        "display-pending": "Scanner: not activated.\nNext: solve the counting task and pull the scanner lever.",
-        "display-complete": "Scan complete.\nArray capacity: $1\nOccupied modules: $2\nNext: write both values as two digits (add a leading zero if needed) and enter them in this order at the transport keypad."
+        "display-pending": "INVENTORY SCANNER\nSTATUS: READY",
+        "display-complete": "INVENTORY SCANNER\n\nSCAN COMPLETE\n\nStorage overview:\n- Capacity: $1\n- Occupied modules: $2"
       },
       "labels": {
         "room": "Room: R$1",
@@ -482,7 +482,6 @@
     }
   },
   "questlog": {
-    "hint-prefix": "Telephone hint",
     "ui": {
       "title": "Quest Log",
       "note_prompt": "Write a note for this tab.",

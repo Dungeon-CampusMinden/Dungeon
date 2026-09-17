@@ -71,7 +71,10 @@ final class SystemRecoveryRiddleRegistry {
         moduleStorage.activateModuleSockets();
         tellPlayer(SystemRecoveryStoryDialogs.MODULE_VALUES, attempt);
       }
-      case MODULE_VALUES -> moduleStorage.spawnModuleChips();
+      case MODULE_VALUES -> {
+        moduleStorage.spawnModuleChips();
+        tellPlayer(SystemRecoveryStoryDialogs.MODULE_ASSIGNMENT, attempt);
+      }
       case MODULE_REMOVE_GPU -> {
         moduleStorage.removeGpuChip();
         tellPlayer(SystemRecoveryStoryDialogs.READ_MODULE_LENGTH, attempt);

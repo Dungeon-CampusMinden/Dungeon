@@ -114,7 +114,7 @@ public final class ModuleEntityFactory {
                       who.id());
                   if (moduleName.equals("GPU")) {
                     SystemRecoveryLevel.announceStoryForPlayer(
-                        SystemRecoveryStoryDialogs.REMOVE_GPU, who.id());
+                        SystemRecoveryStoryDialogs.GPU_FAULT, who.id());
                   }
                 })));
     return entity;
@@ -135,7 +135,7 @@ public final class ModuleEntityFactory {
   private static void announceGpuFaultIfInspected(Entity socket, Entity player) {
     if ("module_socket_occupied_gpu".equals(socket.name())) {
       SystemRecoveryLevel.announceStoryForPlayer(
-          SystemRecoveryStoryDialogs.REMOVE_GPU, player.id());
+          SystemRecoveryStoryDialogs.GPU_FAULT, player.id());
     }
   }
 }

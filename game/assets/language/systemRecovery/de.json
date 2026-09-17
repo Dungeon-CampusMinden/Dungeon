@@ -37,14 +37,14 @@
       "energy-array": "Der Energie-Riegel ist beschädigt. Erzeuge im Terminal ein ganzzahliges Array namens energie mit fünf Plätzen.",
       "energy-values": "Arraystruktur akzeptiert.[p]Ich bin AXIOM, die zentrale Systemintelligenz dieser Anlage. Deine Initialisierung ist unvollständig, aber du bist offenbar funktionsfähig genug, um den Wiederherstellungsprozess fortzusetzen.[p]Du arbeitest langsamer als prognostiziert. Beschleunige den Vorgang.[p]Die Displays der Subsysteme stellen die relevanten Informationen bereit. Lies die Anzeige der Materialisierungskammer und setze die fünf erforderlichen Energiewerte in deinem Array.",
       "energy-battery": "Energiewerte akzeptiert.[p]Ein korrekter Schritt. Deine Ausführung war langsamer als notwendig, aber immerhin stabil.[p]Der Array-Hebel ist jetzt freigegeben. Ziehe ihn, um die Energiequelle zu materialisieren.",
-      "module-array": "Der nächste Bereich erwartet ein String-Array namens module mit fünf Plätzen. Erzeuge es im Terminal.",
-      "module-values": "Fülle module mit den vorhandenen Bauteilen und verwende jeden Steckplatz genau einmal.",
-      "remove-gpu": "Die GPU meldet einen Defekt. Entferne den fehlerhaften Eintrag aus dem Array, damit der Speicher den Fehlerzustand erkennt.",
-      "module-length": "Ermittle jetzt die Länge des Modul-Arrays. Die Anzeige im Raum bestätigt dir, ob der Speicher korrekt angesprochen wurde.",
-      "open-scanner-door": "Der Zugang verlangt zwei Werte aus dem Modulspeicher: seine Länge und den Index des defekten GPU-Eintrags. Notiere jeden Wert zweistellig, ergänze bei Bedarf eine führende Null und gib beide in dieser Reihenfolge am Keypad ein.",
-      "scanner-code": "Zähle die belegten Einträge von module. Prüfe jeden Eintrag in einer Schleife und erhöhe count nur bei einem vorhandenen Modul.",
-      "scanner-lever": "Der Zählcode ist akzeptiert. Betätige jetzt den Scanner-Hebel und beobachte die Prüfung der fünf Modulpositionen.",
-      "scanner-door": "Der Scan ist abgeschlossen. Vergleiche die Array-Kapazität mit der Zahl der belegten Module. Notiere beide Werte zweistellig und in dieser Reihenfolge für den Zugang zum Transportlager.",
+      "module-array": "Die Energieversorgung arbeitet wieder innerhalb akzeptabler Parameter.[p]Vor dir befindet sich die nächste beschädigte Subsystemeinheit. Fünf leere Modul-Sockel warten auf ihre Wiederherstellung.[p]Lege im Terminal die benötigten Modulplätze an.",
+      "module-values": "Die Speicherstruktur wurde erkannt.[p]Weise den vorhandenen Bauteilen nun ihre vorgesehenen Plätze zu.[p]Jedes Modul gehört genau einmal in den Speicher. Eine korrekte Zuordnung aktiviert die Sockel.",
+      "module-assignment": "Die Modulzuordnung wurde akzeptiert.[p]Eine der Einheiten meldet inzwischen einen Hardwarefehler. Untersuche die belegten Sockel und identifiziere die fehlerhafte Komponente.",
+      "gpu-fault": "Diagnose bestätigt: Die GPU ist beschädigt.[p]Entferne den fehlerhaften Eintrag aus dem Modul-Speicher. Ein defektes Bauteil darf nicht länger als aktiv registriert bleiben.",
+      "module-length": "Der fehlerhafte Eintrag wurde entfernt.[p]Ermittle nun die Größe des Modul-Speichers. Die Zugangskontrolle benötigt diese Information für die nächste Freigabe.",
+      "open-scanner-door": "Die Speicherkapazität wurde registriert.[p]Der nächste Zugang erwartet zwei Kennwerte: die Kapazität des Modul-Speichers und die Position der ausgefallenen Einheit.[p]Lies beide Werte aus der Anzeige ab.",
+      "scanner-code": "Der Modulspeicher ist vorbereitet.[p]Zähle mit einer for-each-Schleife, wie viele Einträge in module tatsächlich belegt sind. Leere Plätze dürfen nicht mitgezählt werden.",
+      "scanner-lever": "Der Zählwert wurde akzeptiert.",
       "packages-array": "Die Modulprüfung ist abgeschlossen. Geh jetzt ins Transportlager. Dort warten fünf Pakete auf ihre Verarbeitung. Lege ein ganzzahliges Array namens pakete an und übertrage die angezeigten Gewichte.",
       "packages-loop": "Verwende eine einfache for-Schleife über pakete. Rufe darin für jedes Element genau einmal roboter.collect(pakete[index]) auf, damit der Lager-Scanner das Paket übernimmt.",
       "data-storage-problem": "Im Datenspeicher gibt es ein Problem.",
@@ -99,8 +99,8 @@
         },
         "module-array": {
           "orientation": "Das nächste Subsystem braucht fünf Plätze für die Hardwaremodule der Anlage.",
-          "approach": "Hier werden Namen gespeichert. Verwende deshalb ein Array mit String-Werten.",
-          "near": "Deklariere ein String-Array namens module mit fünf Plätzen.",
+          "approach": "Mehrere gleichartige Textwerte werden in einer gemeinsamen Datenstruktur gespeichert. Verwende dafür die Schreibweise mit eckigen Klammern [].",
+          "near": "Erstelle ein String-Array mit fünf Plätzen.",
           "solution": "Gib ein: String[] module = new String[5];"
         },
         "module-values": {
@@ -308,8 +308,8 @@
       },
       "scanner": {
         "title": "Inventarscanner",
-        "display-pending": "Scanner: noch nicht aktiviert.\nAls Nächstes: Löse die Zählaufgabe und betätige den Scanner-Hebel.",
-        "display-complete": "Scan abgeschlossen.\nArray-Kapazität: $1\nBelegte Module: $2\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Transport-Keypad ein."
+        "display-pending": "INVENTARSCANNER\nSTATUS: BEREIT",
+        "display-complete": "INVENTARSCANNER\n\nSCAN ABGESCHLOSSEN\n\nSpeicherübersicht:\n- Kapazität: $1\n- Belegte Module: $2"
       },
       "labels": {
         "room": "Raum: R$1",
@@ -482,7 +482,6 @@
     }
   },
   "questlog": {
-    "hint-prefix": "Hinweis vom Telefon",
     "ui": {
       "title": "Aufgabenlogbuch",
       "note_prompt": "Schreibe eine Notiz für diesen Tab.",

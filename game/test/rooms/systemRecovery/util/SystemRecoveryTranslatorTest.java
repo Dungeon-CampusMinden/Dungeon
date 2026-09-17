@@ -61,7 +61,7 @@ class SystemRecoveryTranslatorTest {
         "Array length: 5\nGPU fault record: defective entry at index 2\nNext: write both values as two digits (add a leading zero if needed) and enter them in this order at the inventory scanner keypad.",
         translator.translate(displayKey));
     assertEquals(
-        "Scan complete.\nArray capacity: 5\nOccupied modules: 4\nNext: write both values as two digits (add a leading zero if needed) and enter them in this order at the transport keypad.",
+        "INVENTORY SCANNER\n\nSCAN COMPLETE\n\nStorage overview:\n- Capacity: 5\n- Occupied modules: 4",
         translator.translate(scannerDisplayKey));
 
     localization.currentLanguage(Language.DE);
@@ -69,7 +69,7 @@ class SystemRecoveryTranslatorTest {
         "Array-Länge: 5\nGPU-Fehlerprotokoll: defekter Eintrag an Index 2\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Keypad zum Inventarscanner ein.",
         translator.translate(displayKey));
     assertEquals(
-        "Scan abgeschlossen.\nArray-Kapazität: 5\nBelegte Module: 4\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Transport-Keypad ein.",
+        "INVENTARSCANNER\n\nSCAN ABGESCHLOSSEN\n\nSpeicherübersicht:\n- Kapazität: 5\n- Belegte Module: 4",
         translator.translate(scannerDisplayKey));
   }
 

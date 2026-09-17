@@ -12,7 +12,9 @@ public final class SystemRecoveryTranslator extends Translator {
 
   private static final Pattern KEY_PATTERN =
       Pattern.compile(
-          "(?:systemRecovery|questlog)\\.[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+(?:\\|\\|([^\\s\\]]+))?");
+          // Translation keys may be a single leaf (for example questlog.hint-prefix) or a
+          // nested path (for example questlog.riddle1.tab).
+          "(?:systemRecovery|questlog)\\.[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*(?:\\|\\|([^\\s\\]]+))?");
 
   private final Translation translation = new Translation("systemRecovery");
   private final Translation questLog = new Translation("questlog");
