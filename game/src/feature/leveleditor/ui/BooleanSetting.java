@@ -3,17 +3,13 @@ package feature.leveleditor.ui;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
-import feature.leveleditor.PrefabMode;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /** A labeled checkbox setting backed by a getter and setter. */
-public class BooleanSetting extends Table {
+public class BooleanSetting extends EditorSetting {
 
   private final BooleanSupplier getter;
   private final CheckBox checkBox;
@@ -26,6 +22,7 @@ public class BooleanSetting extends Table {
    * @param setter applies a new value.
    */
   public BooleanSetting(String label, BooleanSupplier getter, Consumer<Boolean> setter) {
+    super(label);
     this.getter = getter;
     checkBox = new CheckBox("", UIUtils.defaultSkin());
     checkBox.setChecked(getter.getAsBoolean());
@@ -36,9 +33,7 @@ public class BooleanSetting extends Table {
             setter.accept(checkBox.isChecked());
           }
         });
-
     setTouchable(Touchable.enabled);
-    add(Scene2dElementFactory.createLabel(label, PrefabMode.PROPERTY_LABEL_SIZE, ModeDetailsPanel.TEXT_COLOR)).growX().left();
     add(checkBox).right();
   }
 

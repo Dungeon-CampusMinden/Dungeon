@@ -1,6 +1,7 @@
 package feature.prefabs;
 
 import engine.Entity;
+import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import java.util.LinkedHashMap;
@@ -165,12 +166,13 @@ public abstract class Prefab {
   /**
    * Renders prefab-specific editor feedback.
    *
+   * @param level level currently being edited
    * @param instance normalized instance
    * @param feedback editor rendering abstraction
    * @param selected whether the instance is currently selected
    */
   public void renderEditorFeedback(
-      PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {}
+      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {}
 
   /**
    * Cleans up side effects created while spawning an instance.

@@ -1,7 +1,6 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
@@ -9,14 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogDesign;
-import feature.leveleditor.PrefabMode;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /** A labeled text field setting backed by a getter and setter. */
-public class StringSetting extends Table {
+public class StringSetting extends EditorSetting {
 
   private static final int FONT_SIZE = 16;
   private static final float HORIZONTAL_PADDING = 10f;
@@ -45,10 +42,8 @@ public class StringSetting extends Table {
    * @param commitOnFocusLost whether to commit only on Enter or focus loss
    */
   public StringSetting(
-      String label,
-      Supplier<String> getter,
-      Consumer<String> setter,
-      boolean commitOnFocusLost) {
+      String label, Supplier<String> getter, Consumer<String> setter, boolean commitOnFocusLost) {
+    super(label);
     this.getter = getter;
     this.setter = setter;
     textField = Scene2dElementFactory.createTextField(Objects.requireNonNullElse(getter.get(), ""));
@@ -75,10 +70,7 @@ public class StringSetting extends Table {
       Scene2dElementFactory.addTextFieldChangeListener(textField, setter);
     }
 
-    add(Scene2dElementFactory.createLabel(label, PrefabMode.PROPERTY_LABEL_SIZE, ModeDetailsPanel.TEXT_COLOR))
-        .growX()
-        .left()
-        .row();
+    row();
     add(textField).growX().height(40f).padTop(4f);
   }
 

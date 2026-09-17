@@ -1,6 +1,7 @@
 package feature.prefabs.types;
 
 import engine.Entity;
+import engine.level.elements.ILevel;
 import engine.utils.Point;
 import feature.level.visibility.LevelHideFactory;
 import feature.prefabs.Prefab;
@@ -57,7 +58,7 @@ public final class LevelHiderPrefab extends Prefab {
 
   @Override
   public void renderEditorFeedback(
-      PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
+      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point first = value(instance, FIRST_CORNER);
     Point second = value(instance, SECOND_CORNER);
     feedback.point(first, instance.name()+" 1");

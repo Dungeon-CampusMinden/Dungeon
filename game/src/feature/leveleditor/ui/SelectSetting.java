@@ -1,12 +1,8 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Cell;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
@@ -19,7 +15,7 @@ import java.util.function.Supplier;
  *
  * @param <T> the type of value in the select box.
  */
-public class SelectSetting<T> extends Table {
+public class SelectSetting<T> extends EditorSetting {
 
   private static final int FONT_SIZE = 16;
 
@@ -43,6 +39,7 @@ public class SelectSetting<T> extends Table {
       java.util.function.Consumer<T> setter,
       Function<T, String> formatter,
       boolean labelNewLine) {
+    super(label);
     this.getter = getter;
     selectBox = Scene2dElementFactory.createSelectBox(formatter);
     BitmapFont font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
@@ -58,9 +55,8 @@ public class SelectSetting<T> extends Table {
           }
         });
 
-    Cell<Label> cell = add(Scene2dElementFactory.createLabel(label, 16, Color.BLACK)).growX().left();
     if (labelNewLine) {
-      cell.row();
+      row();
       add(selectBox).growX().left();
     } else {
       add(selectBox).width(200f).right();

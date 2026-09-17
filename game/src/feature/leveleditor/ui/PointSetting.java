@@ -6,8 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
-import feature.leveleditor.PrefabMode;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,7 +13,7 @@ import java.util.function.Supplier;
 /**
  * A labeled finite world-point setting with editable coordinates and a cursor assignment action.
  */
-public class PointSetting extends Table {
+public class PointSetting extends EditorSetting {
 
   private static final int FONT_SIZE = 16;
 
@@ -59,6 +57,7 @@ public class PointSetting extends Table {
       Consumer<Point> setter,
       Consumer<Consumer<Point>> cursorAssignmentRequester,
       boolean commitOnFocusLost) {
+    super(label);
     this.getter = Objects.requireNonNull(getter, "getter");
     this.setter = Objects.requireNonNull(setter, "setter");
     Objects.requireNonNull(cursorAssignmentRequester, "cursorAssignmentRequester");
@@ -92,10 +91,7 @@ public class PointSetting extends Table {
           }
         });
 
-    add(Scene2dElementFactory.createLabel(label, PrefabMode.PROPERTY_LABEL_SIZE, ModeDetailsPanel.TEXT_COLOR))
-        .growX()
-        .left()
-        .row();
+    row();
     Table coordinates = new Table();
     coordinates.defaults().height(FONT_SIZE + 40);
     coordinates.add(xSetting).colspan(2);

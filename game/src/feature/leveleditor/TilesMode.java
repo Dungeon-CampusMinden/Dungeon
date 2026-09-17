@@ -114,7 +114,8 @@ public class TilesMode extends LevelEditorMode {
             DesignLabel.values(),
             this::designLabel,
             this::designLabel,
-            DesignLabel::name);
+            DesignLabel::name,
+            true);
     brushSizeSetting =
         new IntegerSetting(
             "Brush Size", 1, MAX_BRUSH_SIZE, () -> brushSize, size -> brushSize = size);

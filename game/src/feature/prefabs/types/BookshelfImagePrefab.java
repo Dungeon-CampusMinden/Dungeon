@@ -1,6 +1,7 @@
 package feature.prefabs.types;
 
 import engine.Entity;
+import engine.level.elements.ILevel;
 import engine.utils.Point;
 import feature.components.DecoComponent;
 import feature.components.ShowImageComponent;
@@ -47,7 +48,7 @@ public final class BookshelfImagePrefab extends Prefab {
 
   @Override
   public void renderEditorFeedback(
-      PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
+      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point position = value(instance, POSITION);
     feedback.point(position, instance.name());
     if(selected){

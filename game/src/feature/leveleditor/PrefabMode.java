@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import engine.Game;
 import engine.level.DungeonLevel;
+import engine.systems.CameraSystem;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
@@ -43,8 +44,6 @@ import java.util.function.Consumer;
 /** Editor mode for authoring registered prefab instances in a level. */
 public final class PrefabMode extends LevelEditorMode {
 
-  public static final int PROPERTY_LABEL_SIZE = 18;
-
   private static final float PICK_DISTANCE = 1.4f;
   private static final float POINT_ASSIGNMENT_PREVIEW_RADIUS = 0.12f;
   private static final Color POINT_ASSIGNMENT_PREVIEW_COLOR = new Color(0.25f, 1f, 0.45f, 0.8f);
@@ -53,6 +52,7 @@ public final class PrefabMode extends LevelEditorMode {
   private String selectedName;
   private Prefab selectedPrefab;
   private PendingPointAssignment pendingPointAssignment;
+  private PendingPointAssignment lastPointAssignment;
   private SnapMode snapMode = SnapMode.OnGrid;
   private Table detailsContent;
   private Table secondaryContent;
@@ -116,7 +116,7 @@ public final class PrefabMode extends LevelEditorMode {
       selectNear(cursor);
     }
     if (InputManager.isKeyJustPressed(TERTIARY)) {
-      prefabNear(cursor).ifPresent(instance -> delete(instance.name()));
+      pendingPointAssignment = lastPointAssignment;
     }
   }
 
@@ -126,6 +126,7 @@ public final class PrefabMode extends LevelEditorMode {
     for (PrefabInstance source : level.prefabs()) {
       Prefab prefab = PrefabRegistry.require(source.type());
       prefab.renderEditorFeedback(
+          level,
           prefab.normalize(source),
           new DebugDrawPrefabEditorFeedback(Objects.equals(selectedName, source.name())),
           Objects.equals(selectedName, source.name()));
@@ -238,7 +239,7 @@ public final class PrefabMode extends LevelEditorMode {
     Map<Integer, String> controls = new LinkedHashMap<>();
     controls.put(Input.Buttons.LEFT, "Select prefab / assign point");
     controls.put(SECONDARY_UP, "Change point snap mode");
-    controls.put(TERTIARY, "Delete prefab under cursor");
+    controls.put(TERTIARY, "Arm last point assignment");
     return controls;
   }
 
@@ -393,8 +394,8 @@ public final class PrefabMode extends LevelEditorMode {
                     () -> p.get(current()),
                     value -> setProperty(p, value),
                     callback ->
-                        pendingPointAssignment =
-                            new PendingPointAssignment(callback, p.editorFeedbackOffset()),
+                        armPointAssignment(
+                            new PendingPointAssignment(callback, p.editorFeedbackOffset())),
                     true))
             .growX()
             .padTop(SETTINGS_PAD)
@@ -437,7 +438,9 @@ public final class PrefabMode extends LevelEditorMode {
     clearPendingPointAssignment();
     String name = uniqueName(prefab.type());
     PrefabInstance instance = prefab.newInstance(name);
-    Point cursor = snapMode.getPosition(getCursorPosition());
+    Point screenCenter =
+        new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y);
+    Point spawnPosition = snapMode.getPosition(screenCenter);
     Point anchor = null;
     for (PrefabProperty<?> descriptor : prefab.properties()) {
       if (descriptor.type() == PrefabPropertyType.POINT) {
@@ -448,7 +451,9 @@ public final class PrefabMode extends LevelEditorMode {
     }
     if (anchor != null) {
       instance =
-          prefab.translate(instance, Vector2.of(cursor.x() - anchor.x(), cursor.y() - anchor.y()));
+          prefab.translate(
+              instance,
+              Vector2.of(spawnPosition.x() - anchor.x(), spawnPosition.y() - anchor.y()));
     }
     PrefabInstance added = prefab.normalize(instance);
     applyChange(
@@ -474,13 +479,18 @@ public final class PrefabMode extends LevelEditorMode {
 
   private void delete(String name) {
     clearPendingPointAssignment();
-    if (getLevel().prefabs().stream().noneMatch(instance -> instance.name().equals(name))) return;
+    int deletedIndex = indexOf(name);
+    if (deletedIndex < 0) return;
+    int selectionIndex = deletedIndex;
     applyChange(
         () -> {
           getLevel().removePrefab(name);
-          if (Objects.equals(selectedName, name))
+          if (Objects.equals(selectedName, name)) {
             selectedName =
-                getLevel().prefabs().stream().map(PrefabInstance::name).findFirst().orElse(null);
+                selectionIndex < getLevel().prefabs().size()
+                    ? getLevel().prefabs().get(selectionIndex).name()
+                    : null;
+          }
         });
   }
 
@@ -513,6 +523,13 @@ public final class PrefabMode extends LevelEditorMode {
 
   private boolean containsName(String name) {
     return getLevel().prefabs().stream().anyMatch(i -> i.name().equals(name));
+  }
+
+  private int indexOf(String name) {
+    for (int index = 0; index < getLevel().prefabs().size(); index++) {
+      if (getLevel().prefabs().get(index).name().equals(name)) return index;
+    }
+    return -1;
   }
 
   private Optional<PrefabInstance> selected() {
@@ -614,6 +631,12 @@ public final class PrefabMode extends LevelEditorMode {
 
   private void clearPendingPointAssignment() {
     pendingPointAssignment = null;
+    lastPointAssignment = null;
+  }
+
+  private void armPointAssignment(PendingPointAssignment assignment) {
+    lastPointAssignment = assignment;
+    pendingPointAssignment = assignment;
   }
 
   private record PendingPointAssignment(

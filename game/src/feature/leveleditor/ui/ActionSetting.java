@@ -1,16 +1,12 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.Scene2dElementFactory;
-import feature.leveleditor.PrefabMode;
 
 /** A full-width button setting that performs an action when activated. */
-public class ActionSetting extends Table {
-
-  private static final int FONT_SIZE = 16;
+public class ActionSetting extends EditorSetting {
 
   /**
    * Creates an action setting.
@@ -19,7 +15,8 @@ public class ActionSetting extends Table {
    * @param action the action performed when the button is activated.
    */
   public ActionSetting(String label, Runnable action) {
-    TextButton button = Scene2dElementFactory.createButton(label, "default", PrefabMode.PROPERTY_LABEL_SIZE);
+    super(label);
+    TextButton button = Scene2dElementFactory.createButton(label, "default", 18);
     button.addListener(
         new ChangeListener() {
           @Override

@@ -1,5 +1,6 @@
 package feature.prefabs;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.utils.Point;
 
 /**
@@ -24,6 +25,20 @@ public interface PrefabEditorFeedback {
    * @param arrow whether to draw an arrow head
    */
   void line(Point from, Point to, boolean arrow);
+
+  /**
+   * Draws a line with an optional color override.
+   *
+   * <p>A {@code null} color uses the feedback renderer's default geometry color.
+   *
+   * @param from line start
+   * @param to line end
+   * @param arrow whether to draw an arrow head
+   * @param color optional line color override
+   */
+  default void line(Point from, Point to, boolean arrow, Color color) {
+    line(from, to, arrow);
+  }
 
   /**
    * Draws a rectangle using two opposite corners.

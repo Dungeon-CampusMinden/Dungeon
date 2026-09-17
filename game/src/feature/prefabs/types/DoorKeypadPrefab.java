@@ -1,7 +1,8 @@
 package feature.prefabs.types;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
-import engine.level.Tile;
+import engine.level.elements.ILevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
 import feature.interaction.keypad.KeypadFactory;
@@ -13,6 +14,7 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import java.util.List;
+import java.util.Optional;
 
 /** Prefab that closes a door and opens it when the correct keypad code is entered. */
 public final class DoorKeypadPrefab extends Prefab {
@@ -46,16 +48,7 @@ public final class DoorKeypadPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point doorPosition = value(instance, DOOR_POSITION);
-    Tile tile =
-        context
-            .level()
-            .tileAt(doorPosition)
-            .orElseThrow(() -> new IllegalArgumentException("door position is outside the level"));
-    if (!(tile instanceof DoorTile door)) {
-      throw new IllegalArgumentException("door position does not contain a DoorTile");
-    }
-
-    door.close();
+    doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
     List<Integer> digits =
         value(instance, CODE).chars().map(character -> character - '0').boxed().toList();
     Entity keypad = context.createEntity(instance.name() + " keypad");
@@ -63,7 +56,7 @@ public final class DoorKeypadPrefab extends Prefab {
         keypad,
         value(instance, KEYPAD_POSITION),
         digits,
-        door::open,
+        () -> doorAt(context.level(), doorPosition).ifPresent(DoorTile::open),
         value(instance, SHOW_DIGIT_COUNT));
     return List.of(keypad);
   }
@@ -83,21 +76,25 @@ public final class DoorKeypadPrefab extends Prefab {
             .anyMatch(doorPosition::equals);
     if (anotherKeypadTargetsDoor) return;
 
-    context
-        .level()
-        .tileAt(doorPosition)
-        .filter(DoorTile.class::isInstance)
-        .map(DoorTile.class::cast)
-        .ifPresent(DoorTile::open);
+    doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
   }
 
   @Override
   public void renderEditorFeedback(
-      PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
+      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point keypad = editorFeedbackPoint(instance, KEYPAD_POSITION);
     Point door = editorFeedbackPoint(instance, DOOR_POSITION);
     feedback.point(keypad, instance.name());
-    feedback.line(keypad, door, true);
+    Color lineColor =
+        doorAt(level, value(instance, DOOR_POSITION)).isPresent() ? null : Color.RED;
+    feedback.line(keypad, door, true, lineColor);
+  }
+
+  private static Optional<DoorTile> doorAt(ILevel level, Point position) {
+    return level
+        .tileAt(position)
+        .filter(DoorTile.class::isInstance)
+        .map(DoorTile.class::cast);
   }
 
   private Point editorFeedbackPoint(

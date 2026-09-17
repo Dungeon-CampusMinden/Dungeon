@@ -43,14 +43,43 @@
     "type" : "level-hider",
     "properties" : {
       "firstCorner" : {
-        "x" : 2.0,
-        "y" : 3.0
+        "x" : 0.0,
+        "y" : 0.0
       },
       "secondCorner" : {
-        "x" : 5.0,
-        "y" : 5.0
+        "x" : 2.0,
+        "y" : 2.0
       },
-      "transitionSize" : 1.0
+      "transitionSize" : 5.0
+    }
+  }, {
+    "name" : "storage-room-keypad",
+    "type" : "door-keypad",
+    "properties" : {
+      "keypadPosition" : {
+        "x" : 13.0,
+        "y" : 13.0
+      },
+      "doorPosition" : {
+        "x" : 2.0,
+        "y" : 10.0
+      },
+      "code" : "1234",
+      "showDigitCount" : true
+    }
+  }, {
+    "name" : "level-hider",
+    "type" : "level-hider",
+    "properties" : {
+      "firstCorner" : {
+        "x" : 0.0,
+        "y" : 11.25
+      },
+      "secondCorner" : {
+        "x" : 3.25,
+        "y" : 14.0
+      },
+      "transitionSize" : 0.5
     }
   } ]
 }

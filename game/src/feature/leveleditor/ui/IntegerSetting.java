@@ -1,12 +1,10 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogDesign;
@@ -20,7 +18,7 @@ import java.util.function.IntSupplier;
  *
  * <p>The value is always clamped into the configured range.
  */
-public class IntegerSetting extends Table {
+public class IntegerSetting extends EditorSetting {
 
   private static final int FONT_SIZE = 16;
   private static final float BUTTON_SIZE = 30f;
@@ -44,16 +42,12 @@ public class IntegerSetting extends Table {
    * @param setter applies a new value.
    */
   public IntegerSetting(String label, int min, int max, IntSupplier getter, IntConsumer setter) {
+    super(label);
     this.getter = getter;
     this.setter = setter;
     this.min = min;
     this.max = max;
     this.lastValue = getter.getAsInt();
-
-    Label name =
-        Scene2dElementFactory.createLabel(
-            label,
-            FontSpec.of(Scene2dElementFactory.FONT_PATH, FONT_SIZE, ModeDetailsPanel.TEXT_COLOR));
 
     TextButton minus = Scene2dElementFactory.createButton("-", "default", FONT_SIZE + 4);
     minus.addListener(
@@ -80,7 +74,6 @@ public class IntegerSetting extends Table {
           }
         });
 
-    add(name).growX().left();
     add(minus).size(BUTTON_SIZE).padRight(4f);
     add(valueContainer).width(VALUE_WIDTH).height(BUTTON_SIZE).padRight(4f);
     add(plus).size(BUTTON_SIZE);

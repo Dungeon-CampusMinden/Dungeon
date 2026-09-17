@@ -2,6 +2,7 @@ package feature.leveleditor;
 
 import com.badlogic.gdx.graphics.Color;
 import engine.utils.Point;
+import engine.utils.components.draw.ColorUtils;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.systems.DebugDrawSystem;
 
@@ -14,6 +15,7 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
       new Style(new Color(0.25f, 0.85f, 1f, 0.35f), new Color(1f, 1f, 1f, 0.45f), 0.09f);
 
   private final Style style;
+  private final float selectionAlpha;
 
   /**
    * Creates feedback using the standard selection style.
@@ -21,7 +23,7 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
    * @param selected whether the rendered prefab is selected
    */
   public DebugDrawPrefabEditorFeedback(boolean selected) {
-    this(selected ? SELECTED_STYLE : UNSELECTED_STYLE);
+    this(selected ? SELECTED_STYLE : UNSELECTED_STYLE, selected ? 1f : 0.35f);
   }
 
   /**
@@ -30,7 +32,12 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
    * @param style drawing style
    */
   public DebugDrawPrefabEditorFeedback(Style style) {
+    this(style, style.geometryColor().a);
+  }
+
+  private DebugDrawPrefabEditorFeedback(Style style, float selectionAlpha) {
     this.style = style;
+    this.selectionAlpha = selectionAlpha;
   }
 
   @Override
@@ -45,6 +52,15 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
   @Override
   public void line(Point from, Point to, boolean arrow) {
     DebugDrawSystem.drawLine(from, to, arrow, style.geometryColor());
+  }
+
+  @Override
+  public void line(Point from, Point to, boolean arrow, Color color) {
+    DebugDrawSystem.drawLine(
+        from,
+        to,
+        arrow,
+        color == null ? style.geometryColor() : ColorUtils.withAlpha(color, selectionAlpha));
   }
 
   @Override

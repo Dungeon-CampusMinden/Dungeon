@@ -1,7 +1,6 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
@@ -9,14 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogDesign;
-import feature.leveleditor.PrefabMode;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /** A labeled text field for a bounded, finite floating-point setting. */
-public class FloatSetting extends Table {
+public class FloatSetting extends EditorSetting {
 
   public static final int FONT_SIZE = 16;
   private static final float HORIZONTAL_PADDING = 10f;
@@ -50,6 +47,7 @@ public class FloatSetting extends Table {
    * @param getter supplies the current value
    * @param setter applies a new value
    * @param commitOnFocusLost whether to commit only on Enter or focus loss
+   * @param isNested whether the setting is nested inside another setting
    */
   public FloatSetting(
       String label,
@@ -59,6 +57,7 @@ public class FloatSetting extends Table {
       Consumer<Float> setter,
       boolean commitOnFocusLost,
       boolean isNested) {
+    super(label, isNested);
     if (!Float.isFinite(min) || !Float.isFinite(max) || min > max) {
       throw new IllegalArgumentException("invalid float bounds");
     }
@@ -73,10 +72,10 @@ public class FloatSetting extends Table {
     style.font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
     style.messageFont = style.font;
     style.background.setLeftWidth(10);
-    if (style.focusedBackground != null){
+    if (style.focusedBackground != null) {
       style.focusedBackground.setLeftWidth(10);
     }
-    if (style.disabledBackground != null){
+    if (style.disabledBackground != null) {
       style.disabledBackground.setLeftWidth(10);
     }
     textField.setStyle(style);
@@ -97,11 +96,8 @@ public class FloatSetting extends Table {
       Scene2dElementFactory.addTextFieldChangeListener(textField, this::applyText);
     }
 
-    add(Scene2dElementFactory.createLabel(label, isNested ? 14 : PrefabMode.PROPERTY_LABEL_SIZE, ModeDetailsPanel.TEXT_COLOR))
-        .growX()
-        .left()
-        .row();
-    add(textField).growX().minWidth(0).minHeight(FONT_SIZE + 10).padTop(4f);
+    row();
+    add(textField).growX().minWidth(0).height(40f).padTop(4f);
   }
 
   /**
