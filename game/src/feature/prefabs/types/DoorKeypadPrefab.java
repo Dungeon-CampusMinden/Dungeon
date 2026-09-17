@@ -92,10 +92,9 @@ public final class DoorKeypadPrefab extends Prefab {
   @Override
   public void renderEditorFeedback(
       PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point keypad = value(instance, KEYPAD_POSITION);
-    Point door = value(instance, DOOR_POSITION);
-    feedback.point(keypad, "Keypad");
-    feedback.point(door, "Door");
+    Point keypad = value(instance, KEYPAD_POSITION).translate(0.5f, 0.5f);
+    Point door = value(instance, DOOR_POSITION).translate(0.5f, 0.5f);
+    feedback.point(keypad, instance.name());
     feedback.line(keypad, door, true);
   }
 }

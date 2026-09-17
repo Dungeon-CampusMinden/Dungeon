@@ -49,7 +49,9 @@ public final class BookshelfImagePrefab extends Prefab {
   public void renderEditorFeedback(
       PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point position = value(instance, POSITION);
-    feedback.point(position, "Bookshelf");
-    feedback.label(position.translate(0, 1.25f), value(instance, IMAGE));
+    feedback.point(position, instance.name());
+    if(selected){
+      feedback.label(position.translate(0, 0.6f), "("+value(instance, IMAGE)+")");
+    }
   }
 }

@@ -60,8 +60,8 @@ public final class LevelHiderPrefab extends Prefab {
       PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point first = value(instance, FIRST_CORNER);
     Point second = value(instance, SECOND_CORNER);
-    feedback.point(first, "Corner 1");
-    feedback.point(second, "Corner 2");
+    feedback.point(first, instance.name()+" 1");
+    feedback.point(second, instance.name()+" 2");
     feedback.rectangle(first, second);
   }
 }
