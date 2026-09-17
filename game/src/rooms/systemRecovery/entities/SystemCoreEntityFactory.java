@@ -5,6 +5,7 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 
 /** Builds the data entries and map cells displayed by riddle 10. */
 public final class SystemCoreEntityFactory {
@@ -22,6 +23,7 @@ public final class SystemCoreEntityFactory {
   public static Entity moduleEntry(Point point, int index, String moduleName) {
     Entity entity = new Entity("system_core_module_" + index);
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     DrawComponent draw =
         new DrawComponent(
             new SimpleIPath(
@@ -45,6 +47,7 @@ public final class SystemCoreEntityFactory {
   public static Entity mapCell(Point point, int row, int column, boolean batterySignal) {
     Entity entity = new Entity("system_core_map_" + row + "_" + column);
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
     draw.tintColor(batterySignal ? 0x33E6FFFF : 0x56616BFF);
     entity.add(draw);

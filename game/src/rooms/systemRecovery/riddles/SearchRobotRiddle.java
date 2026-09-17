@@ -35,6 +35,7 @@ public final class SearchRobotRiddle {
   private SearchRobotMatrix matrix;
   private Entity robot;
   private Entity searchTarget;
+  private Entity deliveredAccessChip;
   private int scanIndex = -1;
   private boolean running;
   private boolean completed;
@@ -202,15 +203,14 @@ public final class SearchRobotRiddle {
         robot, RiddleSupport.point(level, "roboter_item_destination", "roboter_item_destionation"));
     Point destination =
         RiddleSupport.point(level, "roboter_item_destination", "roboter_item_destionation");
-    boolean moduleAlreadyDelivered =
-        Game.entityAtPoint(destination)
-            .anyMatch(entity -> entity.name().contains("Systemkern-Modul"));
-    if (!moduleAlreadyDelivered) {
-      Game.add(WorldItemBuilder.buildWorldItem(new SystemCoreAccessChipItem(), destination));
+    if (deliveredAccessChip == null) {
+      deliveredAccessChip =
+          WorldItemBuilder.buildWorldItem(new SystemCoreAccessChipItem(), destination);
+      Game.add(deliveredAccessChip);
     }
-    completed =
-        Game.entityAtPoint(destination)
-            .anyMatch(entity -> entity.name().contains("Systemkern-Modul"));
+    // Do not inspect the localized entity name here. It is a translation key on the server and
+    // therefore cannot be used as a stable gameplay identifier.
+    completed = deliveredAccessChip != null;
     if (completed) callbacks.solved();
   }
 

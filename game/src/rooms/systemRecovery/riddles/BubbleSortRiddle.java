@@ -53,6 +53,11 @@ public final class BubbleSortRiddle {
   private Point[] sortBeltPoints;
   private int sortBeltOuterIndex;
   private int sortBeltInnerIndex;
+
+  // The loop indices may already point at the next comparison while the scanner is still waiting
+  // above the previous pair. These IDs represent the comparison currently visible in the world.
+  private int activeSortLeftPackageId = -1;
+  private int activeSortRightPackageId = -1;
   private int sortMachinePlayerId;
 
   /**
@@ -181,6 +186,8 @@ public final class BubbleSortRiddle {
     }
     sortBeltOuterIndex = 0;
     sortBeltInnerIndex = 0;
+    activeSortLeftPackageId = -1;
+    activeSortRightPackageId = -1;
     sortMachineRunning = true;
     if (transport.scanner() != null) {
       Game.remove(transport.scanner());
@@ -200,6 +207,8 @@ public final class BubbleSortRiddle {
         return;
       }
       sortMachineRunning = false;
+      activeSortLeftPackageId = -1;
+      activeSortRightPackageId = -1;
       completed = true;
       callbacks.solved();
       SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_INTRO);
@@ -214,6 +223,8 @@ public final class BubbleSortRiddle {
     Entity rightEntity = sortBeltPackages[sortBeltInnerIndex + 1];
     Point leftPoint = sortBeltPoints[sortBeltInnerIndex];
     Point rightPoint = sortBeltPoints[sortBeltInnerIndex + 1];
+    activeSortLeftPackageId = leftEntity.id();
+    activeSortRightPackageId = rightEntity.id();
     moveSortEntity(transport.scanner(), leftPoint.translate(0, 1));
     Game.audio().playGlobal(SoundSpec.builder(SCANNER_SOUND));
 
@@ -263,20 +274,19 @@ public final class BubbleSortRiddle {
   /**
    * Returns the IDs of the two packages and the scanner currently active on the conveyor.
    *
+   * <p>The package IDs describe the comparison currently visible beneath the scanner, not the loop
+   * indices already prepared for the next scheduled step.
+   *
    * @return left package, right package and scanner IDs; {@code -1} when idle
    */
   public int[] currentBeltSortEntityIds() {
     if (!sortMachineRunning
-        || sortBeltPackages[sortBeltInnerIndex] == null
-        || sortBeltPackages[sortBeltInnerIndex + 1] == null
+        || activeSortLeftPackageId < 0
+        || activeSortRightPackageId < 0
         || transport.scanner() == null) {
       return new int[] {-1, -1, -1};
     }
-    return new int[] {
-      sortBeltPackages[sortBeltInnerIndex].id(),
-      sortBeltPackages[sortBeltInnerIndex + 1].id(),
-      transport.scanner().id()
-    };
+    return new int[] {activeSortLeftPackageId, activeSortRightPackageId, transport.scanner().id()};
   }
 
   /**

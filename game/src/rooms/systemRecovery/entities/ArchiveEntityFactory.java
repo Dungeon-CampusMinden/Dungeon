@@ -5,6 +5,7 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -49,6 +50,7 @@ public final class ArchiveEntityFactory {
   public static Entity archiveDataDisplay(Point point, String name, String text) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png")));
     entity.add(new DisplayTextComponent(text));
     entity.add(
@@ -72,6 +74,7 @@ public final class ArchiveEntityFactory {
   public static Entity archiveStatusLight(Point point, String name, int index, boolean active) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
     draw.tintColor(active ? 0x33FF66FF : 0xFF3333FF);
     entity.add(draw);

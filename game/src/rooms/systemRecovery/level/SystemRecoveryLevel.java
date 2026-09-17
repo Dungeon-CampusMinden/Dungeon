@@ -283,7 +283,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   if (phoneRinging) {
                     DialogFactory.showDialogDialog(
                         SystemRecoveryText.phoneCall("opening-call"),
-                        "logo/cat_logo_64x64.png",
+                        "images/system_recovery_ai_profile_pixel.png",
                         () -> finishOpeningPhoneCall(who.id()),
                         who.id());
                     return;
@@ -419,17 +419,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
     TerminalInterpreter.instance().synchronizeState(state + 1);
     InterpretationCallbacks.onRiddleTenMetaCombinationCompleted(attempt);
     return true;
-  }
-
-  /**
-   * Advances one terminal state in debug mode with the submitting player attached to the story.
-   *
-   * @param playerId player using the debug action
-   * @return whether a state was advanced
-   */
-  public static boolean advanceTerminalStateForDebug(int playerId) {
-    if (!terminalsUnlocked()) return false;
-    return active().terminalController.advanceForDebug(playerId);
   }
 
   /**

@@ -173,6 +173,10 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
         .forEach(entity -> addLight(lighting, entity, 0.45f, Color.CYAN));
 
     Game.levelEntities()
+        .filter(SystemRecoveryClientLevel::isScanner)
+        .forEach(entity -> addLight(lighting, entity, 0.55f, Color.CYAN));
+
+    Game.levelEntities()
         .filter(entity -> entity.isPresent(KeypadComponent.class))
         .forEach(
             entity -> {
@@ -193,6 +197,11 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
   private boolean isTerminal(Entity entity) {
     String name = entity.name();
     return name != null && (name.equals("terminal") || name.endsWith("_terminal"));
+  }
+
+  static boolean isScanner(Entity entity) {
+    String name = entity.name();
+    return name != null && name.endsWith("_scanner");
   }
 
   private boolean isDoorLabel(Entity entity) {

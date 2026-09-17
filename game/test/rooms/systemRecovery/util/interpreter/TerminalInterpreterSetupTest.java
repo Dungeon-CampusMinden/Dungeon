@@ -407,6 +407,44 @@ public class TerminalInterpreterSetupTest {
     assertFalse(TerminalInterpreter.instance().interpret(source));
   }
 
+  /** Debug examples do not advance by themselves and pass through the normal interpreter path. */
+  @Test
+  public void debugSourcesAreValidWithoutSkippingTerminalStates() {
+    TerminalInterpreter interpreter = TerminalInterpreter.instance();
+
+    for (int state = 0; state <= 11; state++) {
+      assertEquals(state, interpreter.currentState());
+      String debugSource = TerminalInterpreterSetup.debugSourceForState(state).orElseThrow();
+      assertEquals(state, interpreter.currentState(), "requesting source must not advance state");
+      assertTrue(interpreter.interpret(debugSource), "invalid debug source for state " + state);
+    }
+
+    assertFalse(TerminalInterpreterSetup.debugSourceForState(12).isPresent());
+    interpreter.synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
+
+    for (int state = 13; state <= 15; state++) {
+      assertEquals(state, interpreter.currentState());
+      String debugSource = TerminalInterpreterSetup.debugSourceForState(state).orElseThrow();
+      assertEquals(state, interpreter.currentState(), "requesting source must not advance state");
+      assertTrue(interpreter.interpret(debugSource), "invalid debug source for state " + state);
+    }
+
+    assertFalse(TerminalInterpreterSetup.debugSourceForState(16).isPresent());
+    assertFalse(TerminalInterpreterSetup.debugSourceForState(Integer.MAX_VALUE).isPresent());
+  }
+
+  /** The debug Solve programs are the same programs accepted by the two chip validators. */
+  @Test
+  public void debugChipSourcesAreValid() {
+    assertTrue(
+        TerminalInterpreterSetup.matchesSearchRobotProgram(
+            TerminalInterpreterSetup.searchRobotDebugSource()));
+
+    TerminalInterpreter.instance().synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
+    assertTrue(
+        TerminalInterpreter.instance().interpret(TerminalInterpreterSetup.bubbleSortDebugSource()));
+  }
+
   private void submit(String addition) {
     source += addition;
     assertTrue(TerminalInterpreter.instance().interpret(source), addition);

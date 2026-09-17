@@ -5,6 +5,7 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -25,6 +26,7 @@ public final class SystemRecoveryRoomFactory {
   public static Entity roomLabel(Point point, String text, String title) {
     Entity entity = new Entity();
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(new DrawComponent(new SimpleIPath("objects/tech/Computer_1.png")));
     entity.add(
         new InteractionComponent(

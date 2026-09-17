@@ -63,17 +63,6 @@ public final class SystemRecoveryTerminalController {
     return interpreter.interpret(source, playerId);
   }
 
-  /**
-   * Advances the current terminal step for debugging without bypassing physical learning steps.
-   *
-   * @param playerId authoritative player ID
-   * @return whether the active terminal step was advanced
-   */
-  public synchronized boolean advanceForDebug(int playerId) {
-    if (!currentTerminalStepIsActive(interpreter.currentState())) return false;
-    return interpreter.advanceCurrentStateForDebug(playerId);
-  }
-
   private boolean currentTerminalStepIsActive(int state) {
     Optional<TerminalStep> terminalStep = TerminalStep.fromStateId(state);
     if (terminalStep.isEmpty()

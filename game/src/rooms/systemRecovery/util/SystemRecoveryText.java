@@ -18,7 +18,7 @@ public final class SystemRecoveryText {
 
   private static final Translation TEXT = new Translation("systemRecovery");
   private static final Translation QUESTLOG = new Translation("questlog");
-  private static final String SPEAKER_IMAGE = "logo/cat_logo_64x64.png";
+  private static final String SPEAKER_IMAGE = "images/system_recovery_ai_profile_pixel.png";
 
   private SystemRecoveryText() {}
 

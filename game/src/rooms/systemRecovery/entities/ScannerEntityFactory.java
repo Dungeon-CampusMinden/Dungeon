@@ -8,6 +8,7 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -29,6 +30,7 @@ public final class ScannerEntityFactory {
   public static Entity moduleScanner(Point point, float widthScale) {
     Entity entity = new Entity("module_scanner");
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(
         new DrawComponent(
             new Animation(
@@ -46,6 +48,7 @@ public final class ScannerEntityFactory {
   public static Entity searchRobot(Point point) {
     Entity entity = new Entity("search_robot");
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     DrawComponent draw =
         new DrawComponent(new Animation(new SimpleIPath("objects/tech/transport_robot.png")));
     draw.depth(DepthLayer.AbovePlayer.depth());
@@ -63,6 +66,7 @@ public final class ScannerEntityFactory {
   public static Entity searchRobotController(Point point, BiConsumer<Entity, Entity> onInteract) {
     Entity entity = new Entity("search_robot_controller");
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(new DrawComponent(new SimpleIPath("objects/tech/Screen_device.png")));
     entity.add(
         new InteractionComponent(
@@ -86,6 +90,7 @@ public final class ScannerEntityFactory {
   public static Entity searchTargetItem(Point point) {
     Entity entity = new Entity("search_target_item");
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Hand_scanner.png"));
     draw.depth(DepthLayer.AbovePlayer.depth());
     entity.add(draw);

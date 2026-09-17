@@ -10,9 +10,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
+import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Editor shown while an empty sort-program stick is inserted into the computer. */
 public final class SortProgramTab extends SystemRecoveryComputerTab {
@@ -50,7 +52,27 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
             feedback.setText(SystemRecoveryText.text("computer.saving"));
           }
         });
-    layout.add(save).right().width(220).height(52).padTop(12);
+    Table actions = new Table(skin);
+    actions.right();
+    if (SystemRecovery.debugMode()) {
+      TextButton solve =
+          createButton(SystemRecoveryText.text("computer.solve"), "blue-outline", 24);
+      solve.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              DialogCallbackResolver.createButtonCallback(
+                      context().dialogId(), SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE)
+                  .accept(
+                      new DialogResponseMessage.StringValue(
+                          TerminalInterpreterSetup.bubbleSortDebugSource()));
+              feedback.setText(SystemRecoveryText.text("computer.saving"));
+            }
+          });
+      actions.add(solve).width(180).height(52).padRight(12);
+    }
+    actions.add(save).width(220).height(52);
+    layout.add(actions).right().padTop(12);
     add(layout).grow();
   }
 }
