@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Scaling;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.utils.components.draw.TextureMap;
@@ -103,13 +104,14 @@ public class Scene2dElementFactory {
    * Creates a TextField with default styling and a typing sound effect.
    *
    * @param text the initial text for the field
+   * @param fontSize the size of the font for the text field
    * @return a new TextField instance
    */
-  public static TextField createTextField(String text) {
+  public static TextField createTextField(String text, int fontSize) {
     TextField element = new TextField(text, DEFAULT_SKIN);
 
     TextField.TextFieldStyle style = new TextField.TextFieldStyle(element.getStyle());
-    BitmapFont font = FontHelper.getFont(FONT_PATH, 24, Color.WHITE, 0, Color.BLACK);
+    BitmapFont font = FontHelper.getFont(FONT_PATH, fontSize, Color.WHITE, 0, Color.BLACK);
     style.font = font;
     style.messageFont = font;
 
@@ -126,6 +128,16 @@ public class Scene2dElementFactory {
           }
         });
     return element;
+  }
+
+  /**
+   * Creates a TextField with default styling and a typing sound effect.
+   *
+   * @param text the initial text for the field
+   * @return a new TextField instance
+   */
+  public static TextField createTextField(String text) {
+    return createTextField(text, 24);
   }
 
   /**
@@ -220,6 +232,20 @@ public class Scene2dElementFactory {
   public static ImageButton createImageButton(String assetPath, String styleName) {
     return createImageButton(
         TextureMap.instance().textureAt(new SimpleIPath(assetPath)), styleName);
+  }
+
+  /**
+   * Creates an ImageButton with an image loaded from an asset path, fitting the image to the button.
+   *
+   * @param assetPath the path to the image asset
+   * @param styleName the name of the button background style in the skin
+   * @return a new ImageButton instance
+   */
+  public static ImageButton createIconButton(String assetPath, String styleName) {
+    ImageButton button = createImageButton(assetPath, styleName);
+    button.getImageCell().grow();
+    button.getImage().setScaling(Scaling.fit);
+    return button;
   }
 
   /**

@@ -117,11 +117,12 @@ public class ModeDetailsPanel extends Table {
   /** Rebuilds the section layout of this panel from the current mode. */
   public void rebuild() {
     clearChildren();
+    pad(12f);
     informationText = null;
     if (mode == null) return;
 
     if (secondary) {
-      add(modeContent).growX().row();
+      add(modeContent).growX().fillX().minWidth(0f).row();
       add().grow().row();
       return;
     }
@@ -132,7 +133,7 @@ public class ModeDetailsPanel extends Table {
       add(header).growX().padBottom(10f).row();
     }
 
-    add(modeContent).growX().row();
+    add(modeContent).growX().fillX().minWidth(0f).row();
 
     if (controlsContent.hasChildren()) {
       addSeparator();

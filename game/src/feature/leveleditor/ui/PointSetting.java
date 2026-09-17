@@ -1,8 +1,8 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
@@ -19,8 +19,8 @@ public class PointSetting extends Table {
 
   private final Supplier<Point> getter;
   private final Consumer<Point> setter;
-  private final FiniteFloatSetting xSetting;
-  private final FiniteFloatSetting ySetting;
+  private final FloatSetting xSetting;
+  private final FloatSetting ySetting;
 
   /**
    * Creates a point setting.
@@ -45,22 +45,21 @@ public class PointSetting extends Table {
 
     checked(getter.get());
     xSetting =
-        new FiniteFloatSetting(
+        new FloatSetting(
             "X",
             -Float.MAX_VALUE,
             Float.MAX_VALUE,
             () -> checked(getter.get()).x(),
             x -> value(new Point(x, checked(getter.get()).y())));
     ySetting =
-        new FiniteFloatSetting(
+        new FloatSetting(
             "Y",
             -Float.MAX_VALUE,
             Float.MAX_VALUE,
             () -> checked(getter.get()).y(),
             y -> value(new Point(checked(getter.get()).x(), y)));
 
-    TextButton cursorButton =
-        Scene2dElementFactory.createButton("Use World Cursor", "default", FONT_SIZE);
+    ImageButton cursorButton = Scene2dElementFactory.createIconButton("hud/check.png", "default");
     cursorButton.addListener(
         new ChangeListener() {
           @Override
@@ -74,10 +73,11 @@ public class PointSetting extends Table {
         .left()
         .row();
     Table coordinates = new Table();
-    coordinates.add(xSetting).growX().padRight(4f);
-    coordinates.add(ySetting).growX();
-    add(coordinates).growX().padTop(4f).row();
-    add(cursorButton).growX().height(40f).padTop(4f);
+    coordinates.defaults().height(24f).growX().minWidth(0f);
+    coordinates.add(xSetting).colspan(2).padRight(4f).minWidth(0f);
+    coordinates.add(ySetting).colspan(2).padRight(4f).minWidth(0f);
+    coordinates.add(cursorButton).growX().minWidth(0f).bottom();
+    add(coordinates).growX().padTop(4f);
   }
 
   /**

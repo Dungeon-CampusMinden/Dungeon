@@ -3,6 +3,8 @@ package feature.leveleditor.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -32,13 +34,15 @@ public class SelectSetting<T> extends Table {
    * @param getter supplies the current value.
    * @param setter applies a selected value.
    * @param formatter converts values to display text.
+   * @param labelNewLine whether to place the label on a new line above the select box.
    */
   public SelectSetting(
       String label,
       T[] values,
       Supplier<T> getter,
       java.util.function.Consumer<T> setter,
-      Function<T, String> formatter) {
+      Function<T, String> formatter,
+      boolean labelNewLine) {
     this.getter = getter;
     selectBox = Scene2dElementFactory.createSelectBox(formatter);
     BitmapFont font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
@@ -54,8 +58,31 @@ public class SelectSetting<T> extends Table {
           }
         });
 
-    add(Scene2dElementFactory.createLabel(label, 16, Color.BLACK)).growX().left();
-    add(selectBox).width(200f).right();
+    Cell<Label> cell = add(Scene2dElementFactory.createLabel(label, 16, Color.BLACK)).growX().left();
+    if (labelNewLine) {
+      cell.row();
+      add(selectBox).growX().left();
+    } else {
+      add(selectBox).width(200f).right();
+    }
+  }
+
+  /**
+   * Creates a select setting.
+   *
+   * @param label the text shown in front of the select box.
+   * @param values the selectable values.
+   * @param getter supplies the current value.
+   * @param setter applies a selected value.
+   * @param formatter converts values to display text.
+   */
+  public SelectSetting(
+      String label,
+      T[] values,
+      Supplier<T> getter,
+      java.util.function.Consumer<T> setter,
+      Function<T, String> formatter) {
+    this(label, values, getter, setter, formatter, false);
   }
 
   /** Synchronizes the displayed value with the current setting. */

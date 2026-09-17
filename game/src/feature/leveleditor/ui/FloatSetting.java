@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /** A labeled text field for a bounded, finite floating-point setting. */
-public class FiniteFloatSetting extends Table {
+public class FloatSetting extends Table {
 
   private static final int FONT_SIZE = 16;
   private static final float HORIZONTAL_PADDING = 10f;
@@ -24,7 +24,7 @@ public class FiniteFloatSetting extends Table {
   private final TextField textField;
 
   /**
-   * Creates a finite float setting.
+   * Creates a float setting.
    *
    * @param label the text shown above the text field
    * @param min the smallest allowed value
@@ -32,10 +32,10 @@ public class FiniteFloatSetting extends Table {
    * @param getter supplies the current value
    * @param setter applies a new value
    */
-  public FiniteFloatSetting(
+  public FloatSetting(
       String label, float min, float max, Supplier<Float> getter, Consumer<Float> setter) {
     if (!Float.isFinite(min) || !Float.isFinite(max) || min > max) {
-      throw new IllegalArgumentException("invalid finite float bounds");
+      throw new IllegalArgumentException("invalid float bounds");
     }
     this.getter = Objects.requireNonNull(getter, "getter");
     this.setter = Objects.requireNonNull(setter, "setter");
@@ -47,8 +47,8 @@ public class FiniteFloatSetting extends Table {
     TextField.TextFieldStyle style = new TextField.TextFieldStyle(textField.getStyle());
     style.font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
     style.messageFont = style.font;
-    style.background = withHorizontalPadding(style.background);
-    style.focusedBackground = withHorizontalPadding(style.focusedBackground);
+//    style.background = withHorizontalPadding(style.background);
+//    style.focusedBackground = withHorizontalPadding(style.focusedBackground);
     textField.setStyle(style);
     Scene2dElementFactory.addTextFieldChangeListener(textField, this::applyText);
 
@@ -56,7 +56,7 @@ public class FiniteFloatSetting extends Table {
         .growX()
         .left()
         .row();
-    add(textField).growX().height(40f).padTop(4f);
+    add(textField).growX().fillX().padTop(4f);
   }
 
   /**

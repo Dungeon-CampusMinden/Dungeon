@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import engine.Game;
 import engine.level.DungeonLevel;
 import engine.systems.input.InputManager;
@@ -15,7 +17,7 @@ import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
 import feature.leveleditor.ui.BooleanSetting;
-import feature.leveleditor.ui.FiniteFloatSetting;
+import feature.leveleditor.ui.FloatSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.NumberSetting;
 import feature.leveleditor.ui.PointSetting;
@@ -131,46 +133,48 @@ public final class PrefabMode extends LevelEditorMode {
       selectedPrefab = prefabDefinitions[0];
     }
     listContent = new Table();
-    listContent.top().defaults().growX().pad(1f);
+    listContent.top().defaults().growX();
     var list = Scene2dElementFactory.createScrollPane(listContent, false, true);
-    content.add(list).growX().height(300f).row();
+    content.add(list).growX().height(350f).row();
 
     Table actions = new Table();
-    ImageButton add = Scene2dElementFactory.createImageButton("hud/check.png", "blue-outline");
+    ImageButton add = Scene2dElementFactory.createIconButton("hud/check.png", "blue-outline");
     add.addListener(
-        new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
+        new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             addSelectedPrefab();
           }
         });
     ImageButton duplicate =
-        Scene2dElementFactory.createImageButton("hud/kenney/chess_king.png", "default");
+        Scene2dElementFactory.createIconButton("hud/kenney/chess_king.png", "default");
     duplicate.addListener(
-        new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
+        new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             duplicateSelected();
           }
         });
-    ImageButton delete = Scene2dElementFactory.createImageButton("hud/cross.png", "red-outline");
+    ImageButton delete = Scene2dElementFactory.createIconButton("hud/cross.png", "red-outline");
     delete.addListener(
-        new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
+        new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             selected().ifPresent(i -> delete(i.name()));
           }
         });
-    actions.add(add).size(42f);
-    actions.add(duplicate).size(42f);
-    actions.add(delete).size(42f);
+    actions.defaults().minWidth(0).growX().uniformX().height(50f).pad(2f);
+    actions.add(add);
+    actions.add(duplicate);
+    actions.add(delete);
     prefabTypeSetting =
         new SelectSetting<>(
             "Prefab Type",
             prefabDefinitions,
             () -> selectedPrefab,
             prefab -> selectedPrefab = prefab,
-            prefab -> prefab.displayName() + " (" + prefab.type() + ")");
+            Prefab::displayName,
+            true);
     content.add(prefabTypeSetting).growX().padTop(6f).row();
     content.add(actions).growX().padTop(4f).row();
     rebuildDetails();
@@ -233,7 +237,7 @@ public final class PrefabMode extends LevelEditorMode {
       Prefab prefab = PrefabRegistry.require(instance.type());
       TextButton entry =
           Scene2dElementFactory.createButton(
-              instance.name() + " (" + prefab.displayName() + ")",
+              instance.name(),
               Objects.equals(selectedName, instance.name()) ? "blue-outline" : "default",
               14);
       entry.addListener(
@@ -245,7 +249,9 @@ public final class PrefabMode extends LevelEditorMode {
               rebuildPending = true;
             }
           });
-      listContent.add(entry).height(30f).pad(1f).row();
+      Table entryContainer = new Table();
+      entryContainer.add(entry).growX().fillX().height(30f);
+      listContent.add(entryContainer).growX().fillX().pad(1f).padLeft(6f).padRight(6f).row();
     }
     if (!rebuildSecondary || secondaryContent == null) return;
     secondaryContent.clearChildren();
@@ -253,13 +259,30 @@ public final class PrefabMode extends LevelEditorMode {
         .ifPresent(
             instance -> {
               Prefab prefab = PrefabRegistry.require(instance.type());
-              TextField name = Scene2dElementFactory.createTextField(instance.name());
+              TextField name = Scene2dElementFactory.createTextField(instance.name(), 20);
               name.setMessageText("Prefab name");
+              final String[] lastSubmittedName = {instance.name()};
+              Consumer<String> commitName =
+                  value -> {
+                    if (Objects.equals(value, lastSubmittedName[0])) return;
+                    lastSubmittedName[0] = value;
+                    rename(instance, value);
+                  };
               name.setTextFieldListener(
                   (field, character) -> {
-                    if (character == '\r' || character == '\n') rename(instance, field.getText());
+                    if (character == '\r' || character == '\n') {
+                      commitName.accept(field.getText());
+                    }
                   });
-              secondaryContent.add(name).growX().row();
+              name.addListener(
+                  new FocusListener() {
+                    @Override
+                    public void keyboardFocusChanged(
+                        FocusListener.FocusEvent event, Actor actor, boolean focused) {
+                      if (!focused) commitName.accept(name.getText());
+                    }
+                  });
+              secondaryContent.add(name).growX().height(40f).row();
               secondaryContent
                   .add(
                       Scene2dElementFactory.createLabel(
@@ -268,7 +291,9 @@ public final class PrefabMode extends LevelEditorMode {
                           ModeDetailsPanel.TEXT_COLOR.cpy().mul(1f, 1f, 1f, .65f)))
                   .left()
                   .padBottom(5f)
+                  .padLeft(5f)
                   .row();
+              secondaryContent.add(Scene2dElementFactory.createHorizontalDivider()).row();
               for (PrefabProperty<?> property : prefab.properties())
                 addProperty(property, instance);
             });
@@ -283,6 +308,8 @@ public final class PrefabMode extends LevelEditorMode {
             .add(
                 new StringSetting(
                     p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
+            .growX()
+            .fillX()
             .row();
       }
       case INTEGER -> {
@@ -297,6 +324,8 @@ public final class PrefabMode extends LevelEditorMode {
                     max,
                     () -> p.get(current()),
                     value -> setProperty(p, value)))
+            .growX()
+            .fillX()
             .row();
       }
       case FLOAT -> {
@@ -305,12 +334,14 @@ public final class PrefabMode extends LevelEditorMode {
         float max = p.maximum().orElse(Float.MAX_VALUE).floatValue();
         secondaryContent
             .add(
-                new FiniteFloatSetting(
+                new FloatSetting(
                     p.displayName(),
                     min,
                     max,
                     () -> p.get(current()),
                     value -> setProperty(p, value)))
+            .growX()
+            .fillX()
             .row();
       }
       case BOOLEAN -> {
@@ -319,6 +350,8 @@ public final class PrefabMode extends LevelEditorMode {
             .add(
                 new BooleanSetting(
                     p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
+            .growX()
+            .fillX()
             .row();
       }
       case ENUM -> {
@@ -332,6 +365,8 @@ public final class PrefabMode extends LevelEditorMode {
                     () -> p.get(current()),
                     value -> setProperty(p, value),
                     value -> value))
+            .growX()
+            .fillX()
             .row();
       }
       case POINT -> {
@@ -343,6 +378,8 @@ public final class PrefabMode extends LevelEditorMode {
                     () -> p.get(current()),
                     value -> setProperty(p, value),
                     callback -> pendingPointAssignment = callback))
+            .growX()
+            .fillX()
             .row();
       }
     }
