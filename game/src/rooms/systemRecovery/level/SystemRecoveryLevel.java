@@ -296,7 +296,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
       Game.remove(ringingPhoneEmote);
       ringingPhoneEmote = null;
     }
-    SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "array");
+    SystemRecoveryQuestLogUtil.addDialogEntry(
+        "riddle1", "opening-call", "echo", "opening-call");
   }
 
   /** Starts ECHO's introductory call after the first rejected terminal input. */

@@ -96,7 +96,7 @@ public final class SystemRecovery {
     GameStarter game =
         GameStarter.builder("System Recovery", SystemRecovery.class)
             .accentColor(MENU_ACCENT_COLOR)
-            .language(Language.EN)
+        .language(Language.DE)
             .levelEditor("levels/systemRecovery")
             .serverArguments(hostedServerArguments())
             .build();

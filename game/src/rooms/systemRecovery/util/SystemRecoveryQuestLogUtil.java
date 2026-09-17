@@ -20,23 +20,31 @@ public final class SystemRecoveryQuestLogUtil {
   }
 
   /**
-   * Adds one dialog instruction to the tab belonging to its riddle.
+   * Adds one complete story dialog to the tab belonging to its riddle.
+   *
+   * <p>The speaker and dialog body remain separate transport keys, so every client can render the
+   * same entry in its own language.
    *
    * @param riddleKey stable riddle translation key
-   * @param entryKey stable dialog-entry translation key
+   * @param dialogKey stable dialog identifier used for de-duplication
+   * @param speakerKey key below {@code story}, for example {@code speaker} or {@code axiom}
+   * @param messageKey key below {@code story} containing the complete dialog body
    */
-  public static void addDialogEntry(String riddleKey, String entryKey) {
-    if (riddleKey == null || entryKey == null) {
+  public static void addDialogEntry(
+      String riddleKey, String dialogKey, String speakerKey, String messageKey) {
+    if (riddleKey == null || dialogKey == null || speakerKey == null || messageKey == null) {
       return;
     }
 
-    String uniqueKey = riddleKey + "." + entryKey;
+    String uniqueKey = riddleKey + "." + dialogKey;
     if (!ADDED_ENTRIES.add(uniqueKey)) return;
 
     boolean added =
         QuestLogUtil.add(
             SystemRecoveryText.questKey(riddleKey + ".tab"),
-            SystemRecoveryText.questKey(riddleKey + ".entries." + entryKey));
+            SystemRecoveryText.key("story." + speakerKey)
+                + "\n"
+                + SystemRecoveryText.key("story." + messageKey));
     if (!added) {
       ADDED_ENTRIES.remove(uniqueKey);
     }
@@ -57,7 +65,7 @@ public final class SystemRecoveryQuestLogUtil {
     boolean added =
         QuestLogUtil.add(
             SystemRecoveryText.questKey(riddleKey + ".tab"),
-            SystemRecoveryText.questKey("hint-prefix") + "\n" + hint.title() + "\n" + hint.text());
+            hint.text());
     if (!added) ADDED_ENTRIES.remove(uniqueKey);
   }
 }
