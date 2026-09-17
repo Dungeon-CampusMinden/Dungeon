@@ -23,21 +23,16 @@ class SystemRecoveryQuestLogUtilTest {
   void firstRiddleDialogEntriesContainTheOriginalSpeakersAndCompleteDialogs() {
     SystemRecoveryQuestLogUtil.initializeQuestLog();
 
-    SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle1", "opening-call", "echo", "opening-call");
-    SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle1", "energy-values", "axiom", "energy-values");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "opening-call", "echo", "opening-call");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "energy-values", "axiom", "energy-values");
     SystemRecoveryQuestLogUtil.addDialogEntry(
         "riddle1", "energy-battery", "axiom", "energy-battery");
 
     assertEquals(
         List.of(
-            "systemRecovery.story.echo\n"
-                + "systemRecovery.story.opening-call",
-            "systemRecovery.story.axiom\n"
-                + "systemRecovery.story.energy-values",
-            "systemRecovery.story.axiom\n"
-                + "systemRecovery.story.energy-battery"),
+            "systemRecovery.story.echo\n" + "systemRecovery.story.opening-call",
+            "systemRecovery.story.axiom\n" + "systemRecovery.story.energy-values",
+            "systemRecovery.story.axiom\n" + "systemRecovery.story.energy-battery"),
         entriesFor("riddle1"));
   }
 
@@ -46,7 +41,10 @@ class SystemRecoveryQuestLogUtilTest {
     SystemRecoveryQuestLogUtil.initializeQuestLog();
 
     SystemRecoveryQuestLogUtil.addHintEntry(
-        "riddle1", new Hint("systemRecovery.hints.orientation-title", "systemRecovery.hints.steps.energy-array.orientation"));
+        "riddle1",
+        new Hint(
+            "systemRecovery.hints.orientation-title",
+            "systemRecovery.hints.steps.energy-array.orientation"));
 
     assertEquals(
         List.of("systemRecovery.hints.steps.energy-array.orientation"), entriesFor("riddle1"));
@@ -56,14 +54,12 @@ class SystemRecoveryQuestLogUtilTest {
   void secondRiddleDialogEntriesUseTheCompleteStoryMessages() {
     SystemRecoveryQuestLogUtil.initializeQuestLog();
 
-    SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "module-array", "speaker", "module-array");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-array", "speaker", "module-array");
     SystemRecoveryQuestLogUtil.addDialogEntry(
         "riddle2", "module-values", "speaker", "module-values");
     SystemRecoveryQuestLogUtil.addDialogEntry(
         "riddle2", "module-assignment", "speaker", "module-assignment");
-    SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "gpu-fault", "speaker", "gpu-fault");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "gpu-fault", "speaker", "gpu-fault");
     SystemRecoveryQuestLogUtil.addDialogEntry(
         "riddle2", "module-length", "speaker", "module-length");
     SystemRecoveryQuestLogUtil.addDialogEntry(

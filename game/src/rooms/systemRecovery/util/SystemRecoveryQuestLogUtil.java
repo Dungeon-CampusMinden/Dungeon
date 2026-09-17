@@ -62,10 +62,7 @@ public final class SystemRecoveryQuestLogUtil {
     String uniqueKey = riddleKey + ".hint." + hint.title() + "." + hint.text();
     if (!ADDED_ENTRIES.add(uniqueKey)) return;
 
-    boolean added =
-        QuestLogUtil.add(
-            SystemRecoveryText.questKey(riddleKey + ".tab"),
-            hint.text());
+    boolean added = QuestLogUtil.add(SystemRecoveryText.questKey(riddleKey + ".tab"), hint.text());
     if (!added) ADDED_ENTRIES.remove(uniqueKey);
   }
 }

@@ -134,8 +134,7 @@ public final class ModuleEntityFactory {
 
   private static void announceGpuFaultIfInspected(Entity socket, Entity player) {
     if ("module_socket_occupied_gpu".equals(socket.name())) {
-      SystemRecoveryLevel.announceStoryForPlayer(
-          SystemRecoveryStoryDialogs.GPU_FAULT, player.id());
+      SystemRecoveryLevel.announceStoryForPlayer(SystemRecoveryStoryDialogs.GPU_FAULT, player.id());
     }
   }
 }
