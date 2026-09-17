@@ -9,6 +9,7 @@ import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -39,6 +40,7 @@ public final class TransportEntityFactory {
   public static Entity scanner(Point point, float widthScale) {
     Entity entity = new Entity("transport_scanner");
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(
         new DrawComponent(
             new Animation(
@@ -80,6 +82,7 @@ public final class TransportEntityFactory {
   public static Entity packageEntity(Point point, int weight) {
     Entity entity = new Entity("transport_package_" + weight);
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     DrawComponent draw =
         new DrawComponent(new Animation(new SimpleIPath("objects/crate/basic.png")));
     draw.depth(DepthLayer.ForegroundDeco.depth());

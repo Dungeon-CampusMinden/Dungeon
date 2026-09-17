@@ -6,12 +6,6 @@ public final class SystemRecoveryComputerCallbacks {
   /** Sends the current terminal source text to the server-side interpreter. */
   public static final String TERMINAL_SEND = "terminalSend";
 
-  /** Advances the terminal state through the server-side debug callback. */
-  public static final String TERMINAL_NEXT_STEP = "terminalNextStep";
-
-  /** Spawns all programmed System Recovery items for local puzzle debugging. */
-  public static final String DEBUG_SPAWN_ALL_ITEMS = "debugSpawnAllItems";
-
   /** Opens the server-authoritative Petri-net token inspection for local debugging. */
   public static final String DEBUG_PETRI_NET = "debugPetriNet";
 

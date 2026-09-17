@@ -158,13 +158,6 @@ class SystemRecoveryProgressFlowTest {
   }
 
   @Test
-  void debugSkipUsesTheSameRegisteredSuccessCallbackAndTokenInvariant() {
-    assertTrue(terminalController.advanceForDebug(202));
-    assertState(SystemRecoveryLearningStep.ENERGY_VALUES, 1);
-    assertEquals("energy-array", SystemRecoveryProgressNet.debugSnapshot().lastAcceptedStepKey());
-  }
-
-  @Test
   void moduleArrayIsRejectedUntilBatteryInsertionActivatesItsPlace() {
     submit(energyArray(), 101, SystemRecoveryLearningStep.ENERGY_VALUES, 1);
     submit(energyValues(), 101, SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY, 2);

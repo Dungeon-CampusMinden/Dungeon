@@ -100,6 +100,7 @@ public final class ModuleEntityFactory {
   public static Entity moduleChip(Point point, String moduleName) {
     Entity entity = new Entity("module_" + moduleName.toLowerCase());
     entity.add(new PositionComponent(point));
+    entity.add(new CollideComponent());
     entity.add(new DrawComponent(new SimpleIPath("objects/tech/Screen_info_1.png")));
     entity.add(
         new InteractionComponent(

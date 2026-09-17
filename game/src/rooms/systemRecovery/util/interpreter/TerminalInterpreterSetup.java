@@ -1,6 +1,7 @@
 package rooms.systemRecovery.util.interpreter;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -105,6 +106,136 @@ public final class TerminalInterpreterSetup {
   /** Registers all terminal riddles in their gameplay order. */
   public static void setupRoomStates() {
     setupAllTerminalRiddles(SUCCESS, FAILURE);
+  }
+
+  /**
+   * Returns valid example source for the requested terminal-backed step.
+   *
+   * <p>The debug terminal uses these examples to populate its editor. Merely requesting a source
+   * never interprets code, invokes callbacks or changes the current state.
+   *
+   * @param state interpreter state whose example should be inserted
+   * @return valid source, or empty when the state belongs to another input surface
+   */
+  public static Optional<String> debugSourceForState(int state) {
+    return TerminalStep.fromStateId(state)
+        .filter(step -> step.inputMode() == TerminalStep.InputMode.TERMINAL)
+        .map(TerminalInterpreterSetup::debugSourceForStep);
+  }
+
+  /**
+   * Returns the canonical Bubble Sort program used by the debug Solve action.
+   *
+   * @return valid Bubble Sort source code
+   */
+  public static String bubbleSortDebugSource() {
+    return debugSourceForState(CENTRAL_SORT_STATE).orElseThrow();
+  }
+
+  /**
+   * Returns the canonical nested scan program used by the debug Solve action.
+   *
+   * @return valid locator-chip source code
+   */
+  public static String searchRobotDebugSource() {
+    return """
+        for (int row = 0; row < map.length; row++) {
+            for (int column = 0; column < map[row].length; column++) {
+                if (map[row][column] == 1) {
+                    roboter.collect();
+                }
+            }
+        }
+        """;
+  }
+
+  private static String debugSourceForStep(TerminalStep step) {
+    return switch (step) {
+      case ENERGY_ARRAY -> "int[] energie = new int[5];";
+      case ENERGY_VALUES ->
+          """
+          energie[0] = 40;
+          energie[1] = 10;
+          energie[2] = 80;
+          energie[3] = 30;
+          energie[4] = 60;
+          """;
+      case MODULE_ARRAY -> "String[] module = new String[5];";
+      case MODULE_VALUES ->
+          """
+          module[0] = "CPU";
+          module[1] = "RAM";
+          module[2] = "GPU";
+          module[3] = "SSD";
+          module[4] = "NETWORK";
+          """;
+      case MODULE_REMOVE_GPU -> "module[2] = null;";
+      case MODULE_LENGTH -> "module.length;";
+      case INVENTORY_COUNT ->
+          """
+          int count = 0;
+
+          for (String entry : module) {
+              if (entry != null) {
+                  count++;
+              }
+          }
+          """;
+      case TRANSPORT_ARRAY -> "int[] pakete = {15, 40, 20, 60, 30};";
+      case TRANSPORT_COLLECT ->
+          """
+          for (int i = 0; i < pakete.length; i++) {
+              roboter.collect(pakete[i]);
+          }
+          """;
+      case ARCHIVE_ARRAYS ->
+          """
+          int[] energie = {20, 50, 80};
+          String[] module = {"CPU", "GPU", "RAM"};
+          boolean[] aktiv = {true, false, true};
+          """;
+      case STORAGE_ARRAY -> "int[][] lager = new int[3][4];";
+      case STORAGE_VALUES ->
+          """
+          lager[0][2] = 1;
+          lager[1][3] = 2;
+          lager[2][1] = 3;
+          """;
+      case CENTRAL_SORT ->
+          """
+          for (int i = 0; i < array.length - 1; i++) {
+              for (int j = 0; j < array.length - 1 - i; j++) {
+                  if (array[j] > array[j + 1]) {
+                      int temp = array[j];
+                      array[j] = array[j + 1];
+                      array[j + 1] = temp;
+                  }
+              }
+          }
+          """;
+      case CENTRAL_COUNT ->
+          """
+          int count = 0;
+
+          for (String module : modules) {
+              if (module != null) {
+                  count++;
+              }
+          }
+          """;
+      case CENTRAL_SEARCH ->
+          """
+          for (int row = 0; row < map.length; row++) {
+              for (int column = 0; column < map[row].length; column++) {
+                  if (map[row][column] == 1) {
+                      roboter.collect();
+                  }
+              }
+          }
+          """;
+      case SEARCH_PROGRAM, SYSTEM_CORE_META ->
+          throw new IllegalArgumentException("Step is not backed by the terminal editor: " + step);
+    };
   }
 
   private static void setupAllTerminalRiddles(
