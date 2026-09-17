@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 /** A labeled text field for a bounded, finite floating-point setting. */
 public class FloatSetting extends Table {
 
-  private static final int FONT_SIZE = 16;
+  public static final int FONT_SIZE = 16;
   private static final float HORIZONTAL_PADDING = 10f;
 
   private final Supplier<Float> getter;
@@ -47,8 +47,13 @@ public class FloatSetting extends Table {
     TextField.TextFieldStyle style = new TextField.TextFieldStyle(textField.getStyle());
     style.font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
     style.messageFont = style.font;
-//    style.background = withHorizontalPadding(style.background);
-//    style.focusedBackground = withHorizontalPadding(style.focusedBackground);
+    style.background.setLeftWidth(10);
+    if (style.focusedBackground != null){
+      style.focusedBackground.setLeftWidth(10);
+    }
+    if (style.disabledBackground != null){
+      style.disabledBackground.setLeftWidth(10);
+    }
     textField.setStyle(style);
     Scene2dElementFactory.addTextFieldChangeListener(textField, this::applyText);
 
@@ -56,7 +61,7 @@ public class FloatSetting extends Table {
         .growX()
         .left()
         .row();
-    add(textField).growX().fillX().padTop(4f);
+    add(textField).growX().minWidth(0).minHeight(FONT_SIZE + 10).padTop(4f);
   }
 
   /**

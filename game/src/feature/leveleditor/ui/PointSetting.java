@@ -73,11 +73,13 @@ public class PointSetting extends Table {
         .left()
         .row();
     Table coordinates = new Table();
-    coordinates.defaults().height(24f).growX().minWidth(0f);
-    coordinates.add(xSetting).colspan(2).padRight(4f).minWidth(0f);
-    coordinates.add(ySetting).colspan(2).padRight(4f).minWidth(0f);
-    coordinates.add(cursorButton).growX().minWidth(0f).bottom();
-    add(coordinates).growX().padTop(4f);
+    coordinates.defaults().height(FONT_SIZE + 40);
+    coordinates.add(xSetting).colspan(2);
+    coordinates.add().width(10f);
+    coordinates.add(ySetting).colspan(2);
+    coordinates.add().width(10f);
+    coordinates.add(cursorButton);
+    add(coordinates).grow();
   }
 
   /**

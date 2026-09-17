@@ -43,6 +43,7 @@ import java.util.function.Consumer;
 public final class PrefabMode extends LevelEditorMode {
 
   private static final float PICK_DISTANCE = 0.7f;
+  private static final int SETTINGS_PAD = 6;
 
   private String selectedName;
   private Prefab selectedPrefab;
@@ -234,7 +235,6 @@ public final class PrefabMode extends LevelEditorMode {
     if (listContent == null) return;
     listContent.clearChildren();
     for (PrefabInstance instance : getLevel().prefabs()) {
-      Prefab prefab = PrefabRegistry.require(instance.type());
       TextButton entry =
           Scene2dElementFactory.createButton(
               instance.name(),
@@ -250,8 +250,8 @@ public final class PrefabMode extends LevelEditorMode {
             }
           });
       Table entryContainer = new Table();
-      entryContainer.add(entry).growX().fillX().height(30f);
-      listContent.add(entryContainer).growX().fillX().pad(1f).padLeft(6f).padRight(6f).row();
+      entryContainer.add(entry).growX().height(30f);
+      listContent.add(entryContainer).growX().pad(1f).padLeft(6f).padRight(6f).row();
     }
     if (!rebuildSecondary || secondaryContent == null) return;
     secondaryContent.clearChildren();
@@ -293,7 +293,7 @@ public final class PrefabMode extends LevelEditorMode {
                   .padBottom(5f)
                   .padLeft(5f)
                   .row();
-              secondaryContent.add(Scene2dElementFactory.createHorizontalDivider()).row();
+              secondaryContent.add(Scene2dElementFactory.createHorizontalDivider()).growX().row();
               for (PrefabProperty<?> property : prefab.properties())
                 addProperty(property, instance);
             });
@@ -309,7 +309,7 @@ public final class PrefabMode extends LevelEditorMode {
                 new StringSetting(
                     p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
             .growX()
-            .fillX()
+            .padTop(SETTINGS_PAD)
             .row();
       }
       case INTEGER -> {
@@ -325,7 +325,7 @@ public final class PrefabMode extends LevelEditorMode {
                     () -> p.get(current()),
                     value -> setProperty(p, value)))
             .growX()
-            .fillX()
+            .padTop(SETTINGS_PAD)
             .row();
       }
       case FLOAT -> {
@@ -341,7 +341,7 @@ public final class PrefabMode extends LevelEditorMode {
                     () -> p.get(current()),
                     value -> setProperty(p, value)))
             .growX()
-            .fillX()
+            .padTop(SETTINGS_PAD)
             .row();
       }
       case BOOLEAN -> {
@@ -351,7 +351,7 @@ public final class PrefabMode extends LevelEditorMode {
                 new BooleanSetting(
                     p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
             .growX()
-            .fillX()
+            .padTop(SETTINGS_PAD)
             .row();
       }
       case ENUM -> {
@@ -366,7 +366,7 @@ public final class PrefabMode extends LevelEditorMode {
                     value -> setProperty(p, value),
                     value -> value))
             .growX()
-            .fillX()
+            .padTop(SETTINGS_PAD)
             .row();
       }
       case POINT -> {
@@ -379,7 +379,7 @@ public final class PrefabMode extends LevelEditorMode {
                     value -> setProperty(p, value),
                     callback -> pendingPointAssignment = callback))
             .growX()
-            .fillX()
+            .padTop(SETTINGS_PAD)
             .row();
       }
     }
