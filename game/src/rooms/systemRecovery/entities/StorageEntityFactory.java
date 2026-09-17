@@ -73,5 +73,4 @@ public final class StorageEntityFactory {
                         who.id()))));
     return entity;
   }
-
 }
