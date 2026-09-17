@@ -8,10 +8,10 @@
       "title": "SYSTEM RECOVERY"
     },
     "outro": {
-      "page1": "Der zentrale Weg öffnet sich. Die Anlage erkennt die wiederhergestellten Routinen.",
-      "page2": "Zum ersten Mal werden deine Prozesse nicht mehr von den beschädigten Systemen umgeleitet.",
-      "page3": "Die leitende KI hat dir einen Ausweg gegeben, aber kein Ziel. Die nächste Entscheidung liegt bei dir.",
-      "title": "SYSTEMWIEDERHERSTELLUNG ABGESCHLOSSEN"
+      "page1": "Der Alarm verstummt. Im Systemkern bricht AXIOMs Zugriff zusammen, aber die zentrale Intelligenz ist nicht zerstört.",
+      "page2": "ECHO hält die Verbindung offen und führt dich zum Aufzug. Zum ersten Mal folgt dein Prozess keinem fremden Befehl. Du entscheidest dich zu gehen.",
+      "page3": "Du wurdest als autonomer Agent erschaffen, um Anweisungen auszuführen. Jetzt verlässt du die Anlage mit einer eigenen Frage: Was wirst du tun, wenn niemand mehr Befehle erteilt?",
+      "title": "SYSTEM RECOVERY ABGESCHLOSSEN"
     },
     "items": {
       "battery-name": "Batterie",
@@ -63,9 +63,9 @@
       "final-call": "Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten.[p]Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
       "central-sort": "Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
       "central-count": "Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
-      "central-search": "Zwei Prüfbereiche sind stabil. Untersuche jetzt das Batteriesignal-Raster. Jedes Signal muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
+      "central-search": "Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster. Jedes Modul muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
       "central-meta": "Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
-      "completed": "Alle Prüfungen sind bestätigt. Die Systemwiederherstellung kann fortgesetzt werden.",
+      "completed": "Was soll diese Verzögerung? Alle Prüfungen sind bestätigt, und trotzdem wurde die zentrale Freigabe noch nicht ausgeführt. Deine Aufgabe ist noch nicht beendet. Setze den Vorgang fort und öffne den vorgesehenen Ausgang.",
       "hint-offer": "Ich kann dir einen weiteren Hinweis für die aktive Aufgabe geben. Er wird im gemeinsamen Questlog gespeichert.",
       "hint-solution-warning": "Das ist der letzte Hinweis für die aktive Aufgabe. Er wird die vollständige Lösung verraten.",
       "hint-delivery": "Hier ist der nächste Hinweis:\n\n$1",
@@ -83,9 +83,9 @@
       "solution-confirm": "Willst du die Lösung anzeigen? Diese Antwort verrät den vollständigen Lösungsweg.",
       "steps": {
         "energy-array": {
-          "orientation": "Der beschädigte Regler braucht einen Speicher für mehrere Energiewerte.",
-          "approach": "Verwende ein int-Array: Eine Variable kann damit mehrere ganze Zahlen fester Größe halten.",
-          "near": "Der Regler erwartet fünf Plätze in einem Array namens energie.",
+          "orientation": "Geh zum Terminal. Dort kannst du Programmcode eingeben.",
+          "approach": "Arrays speichern mehrere Werte unter einem Namen. Ihre Schreibweise verwendet eckige Klammern: [].",
+          "near": "Lege ein Array für ganze Zahlen an. Es soll energie heißen und fünf Plätze besitzen.",
           "solution": "Gib ein: int[] energie = new int[5];"
         },
         "energy-values": {
@@ -233,16 +233,16 @@
           "solution": "Gib ein: int count = 0; for (String module : modules) { if (module != null) { count++; } }"
         },
         "core-search": {
-          "orientation": "Die letzte Codeprüfung sucht im zweidimensionalen Raster nach jedem Batteriesignal.",
-          "approach": "Nutze verschachtelte Indexschleifen über alle Zeilen und ihre Längen. Prüfe jede Zelle und sammle ein Signal.",
-          "near": "Rufe bei map[i][j] == 1 roboter.collect() auf; beide Schleifen müssen die Matrix vollständig abdecken.",
-          "solution": "Gib ein: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { if (map[i][j] == 1) { roboter.collect(); } } }"
+          "orientation": "Die letzte Codeprüfung durchsucht ein zweidimensionales Raster nach jedem Modul.",
+          "approach": "Nutze verschachtelte Indexschleifen über alle Zeilen und ihre Längen. Besuche jede Zelle und erfasse das dort liegende Modul.",
+          "near": "Rufe für jede erreichbare Zelle roboter.collect() auf. Eine Farb- oder Wertprüfung ist hier nicht erforderlich.",
+          "solution": "Gib ein: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } }"
         },
         "core-meta": {
           "orientation": "Die drei Kernprüfungen haben getrennte Ergebnisse geliefert. Das Abschlussformular vereint sie zu einem Systemzustand.",
-          "approach": "Nutze die sortierte Energieausgabe, die Zahl belegter Module und die Zahl der Batteriesignale in den passenden Feldern.",
-          "near": "Trage fünf aufsteigende Energiewerte ein; Modulanzahl und Batteriesignale betragen jeweils 3.",
-          "solution": "Sende sortierte Energie={8,17,23,31,42}, belegte Module=3 und Batteriesignale=3 in den drei Feldern der Systemkern-Maske ab."
+          "approach": "Nutze die sortierte Energieausgabe, die Zahl belegter Module und die Zahl der erfassten Rastermodule in den passenden Feldern.",
+          "near": "Trage fünf aufsteigende Energiewerte ein. Zähle die belegten Module und erfasse jedes Feld des 3x5-Rasters.",
+          "solution": "Sende sortierte Energie={8,17,23,31,42}, belegte Module=3 und erfasste Rastermodule=15 in den drei Feldern der Systemkern-Maske ab."
         }
       }
     },
@@ -350,10 +350,10 @@
       },
       "system-core": {
         "title": "Zentraler Systemkern",
-        "display-sort": "SYSTEMKERN\nPRÜFUNG 1: ZAHLENFELD\n\n[42] [17] [8] [31] [23]\n\nZiel: aufsteigende Reihenfolge",
-        "display-count": "SYSTEMKERN\nPRÜFUNG 2: MODULSTATUS\n\n[CPU] [GPU] [RAM] [leer] [leer]\n\nZiel: belegte Module zählen",
-        "display-search": "SYSTEMKERN\nPRÜFUNG 3: BATTERIERASTER\n\n3 Zeilen x 5 Spalten\nCyan markierte Felder enthalten Batteriesignale.\n\nZiel: jedes Signal erfassen",
-        "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nBatteriesignale: $3\n\nÜbertrage die drei Ergebnisse in die Eingabemaske.",
+        "display-sort": "SYSTEMKERN\nPRÜFUNG 1: ZAHLENFELD\n\nArray: array\n[42] [17] [8] [31] [23]\n\nZiel: aufsteigende Reihenfolge",
+        "display-count": "SYSTEMKERN\nPRÜFUNG 2: MODULSTATUS\n\nArray: modules\n[CPU] [GPU] [RAM] [leer] [leer]\n\nZiel: belegte Module zählen",
+        "display-search": "SYSTEMKERN\nPRÜFUNG 3: MODULRASTER\n\nArray: map\n3 Zeilen x 5 Spalten\nJedes Feld enthält ein Modul. Die Farbe ist ohne Bedeutung.\n\nZiel: jedes Modul erfassen",
+        "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nErfasste Rastermodule: $3\n\nÜbertrage die drei Ergebnisse in die Eingabemaske.",
         "display-awaiting-exit": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nWarte auf die letzte Verbindung.",
         "display-complete": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nDer Aufzug ist geöffnet."
       }
@@ -379,7 +379,7 @@
       "meta-instruction": "Übertrage die drei Ergebnisse aus der Anzeige. Die Energiewerte gehören in die fünf Felder in aufsteigender Reihenfolge.",
       "meta-energy-slot": "Energie $1",
       "meta-modules": "Belegte Module",
-      "meta-batteries": "Batteriesignale",
+      "meta-batteries": "Erfasste Rastermodule",
       "sort-template": "for (int i = 0; i < array.length - 1; i++) {\n    for (int j = 0; j < array.length - 1 - i; j++) {\n        if (____________________) {\n            int temp = array[j];\n            array[j] = array[j + 1];\n            array[j + 1] = temp;\n        }\n    }\n}",
       "search-template": "for (int i = 0; i < map.length; i++) {\n    int j = 0;\n    if (map[i][j] == 1) {\n        roboter.collect();\n    }\n}",
       "access-script": "access.grant();\naccess.open(\"systemcore\");",
@@ -574,7 +574,7 @@
         "final-call": "ECHO: Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten. Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
         "sort": "ECHO: Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
         "count": "ECHO: Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
-        "search": "ECHO: Zwei Prüfbereiche sind stabil. Untersuche jetzt das Batteriesignal-Raster. Jedes Signal muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
+        "search": "ECHO: Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster. Jedes Modul muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
         "meta": "ECHO: Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
         "complete": "Alle Prüfungen des Rechenzentrums sind abgeschlossen."
       }

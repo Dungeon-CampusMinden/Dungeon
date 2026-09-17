@@ -196,7 +196,39 @@ public class SystemRecoverySnapshotTranslatorTest {
                   SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_STATE, "filled",
                   SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_VALUE, "2"));
 
-      assertEquals(0xF0B84AFF, Game.tileAt(new Point(1, 1)).orElseThrow().tintColor());
+      assertEquals(0xFFB000FF, Game.tileAt(new Point(1, 1)).orElseThrow().tintColor());
+    } finally {
+      Game.currentLevel(null);
+      Game.removeAllSystems();
+      Game.removeAllEntities();
+    }
+  }
+
+  /** A synchronized target cell keeps the color assigned to its required value. */
+  @Test
+  void storageCellSnapshotRestoresTheTargetValueColor() {
+    Game.removeAllEntities();
+    Game.removeAllSystems();
+    Game.add(new LevelSystem());
+    Game.currentLevel(
+        new DungeonLevel(
+            new LevelElement[][] {
+              {LevelElement.FLOOR, LevelElement.FLOOR},
+              {LevelElement.FLOOR, LevelElement.FLOOR}
+            },
+            DesignLabel.DEFAULT));
+    try {
+      Entity cell = new Entity("storage_matrix_cell_0_0_target");
+      cell.add(new PositionComponent(new Point(1, 1)));
+
+      new StorageVisualSync()
+          .apply(
+              cell,
+              Map.of(
+                  SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_STATE, "target",
+                  SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_VALUE, "3"));
+
+      assertEquals(0xFF00FFFF, Game.tileAt(new Point(1, 1)).orElseThrow().tintColor());
     } finally {
       Game.currentLevel(null);
       Game.removeAllSystems();
