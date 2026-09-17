@@ -18,8 +18,10 @@ import java.util.Optional;
 public class PointMode extends LevelEditorMode {
 
   private static SnapMode snapMode = SnapMode.OnGrid;
+  private static SnapMode snapModeBeforePickup;
   private static String heldPointName = null;
   private String hoveredPointName;
+  private Point cursorPreviewPosition;
 
   /**
    * Constructs a new PointMode.
@@ -33,16 +35,19 @@ public class PointMode extends LevelEditorMode {
   @Override
   public void onEnter() {
     hoveredPointName = null;
+    cursorPreviewPosition = null;
   }
 
   @Override
   public void onExit() {
     hoveredPointName = null;
+    cursorPreviewPosition = null;
   }
 
   @Override
   public void onCursorLeaveWorld() {
     hoveredPointName = null;
+    cursorPreviewPosition = null;
   }
 
   @Override
@@ -58,9 +63,11 @@ public class PointMode extends LevelEditorMode {
         // Place held point
         getLevel().addNamedPoint(heldPointName, snapPos);
         heldPointName = null;
+        restoreSnapModeAfterPickup();
         levelChanged();
       } else {
         // Place new point instance
+        Point placementPosition = snapPos;
         DialogFactory.showInputDialog(
             "",
             "Add Named Point",
@@ -72,7 +79,7 @@ public class PointMode extends LevelEditorMode {
             payload -> {
               if (payload instanceof DialogResponseMessage.StringValue(String value)
                   && !value.isBlank()) {
-                getLevel().addNamedPoint(value, snapPos);
+                getLevel().addNamedPoint(value, placementPosition);
                 levelChanged();
               }
             },
@@ -80,7 +87,15 @@ public class PointMode extends LevelEditorMode {
       }
     } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
       Optional<String> clickedPoint = getOnPosition(cursorPos);
-      clickedPoint.ifPresent(point -> heldPointName = point);
+      if (clickedPoint.isPresent()) {
+        String point = clickedPoint.get();
+        if (heldPointName == null) {
+          snapModeBeforePickup = snapMode;
+        }
+        heldPointName = point;
+        snapMode = snapModeFor(getLevel().namedPoints().get(point));
+        snapPos = snapMode.getPosition(cursorPos);
+      }
 
       if (heldPointName == null) {
         LevelEditorSystem.showFeedback("No point to pickup on coordinate!", Color.YELLOW);
@@ -100,6 +115,7 @@ public class PointMode extends LevelEditorMode {
                 levelChanged();
               });
     }
+    cursorPreviewPosition = snapPos;
     hoveredPointName = getOnPosition(cursorPos).orElse(null);
   }
 
@@ -107,6 +123,9 @@ public class PointMode extends LevelEditorMode {
   public void render() {
     String highlightedPoint = hoveredPointName != null ? hoveredPointName : heldPointName;
     DebugDrawSystem.drawNamedPoints(highlightedPoint, true);
+    if (cursorPreviewPosition != null) {
+      DebugDrawSystem.drawNamedPointPreview(cursorPreviewPosition, heldPointName != null);
+    }
   }
 
   @Override
@@ -152,5 +171,28 @@ public class PointMode extends LevelEditorMode {
         .filter(entry -> entry.getValue().toCoordinate().equals(toCheck))
         .map(Map.Entry::getKey)
         .findFirst();
+  }
+
+  private static SnapMode snapModeFor(Point point) {
+    if (alignedToGrid(point, 1)) return SnapMode.OnGrid;
+    if (alignedToGrid(point, 4)) return SnapMode.QuarterGrid;
+    if (alignedToGrid(point, 16)) return SnapMode.PixelGrid;
+    return SnapMode.OffGrid;
+  }
+
+  private static boolean alignedToGrid(Point point, int divisions) {
+    return alignedToGrid(point.x(), divisions) && alignedToGrid(point.y(), divisions);
+  }
+
+  private static boolean alignedToGrid(float value, int divisions) {
+    float scaled = value * divisions;
+    return Math.abs(scaled - Math.round(scaled)) < 0.0001f;
+  }
+
+  private static void restoreSnapModeAfterPickup() {
+    if (snapModeBeforePickup != null) {
+      snapMode = snapModeBeforePickup;
+      snapModeBeforePickup = null;
+    }
   }
 }

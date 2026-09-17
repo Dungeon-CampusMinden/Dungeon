@@ -105,7 +105,7 @@ public class ModePanel extends Table {
               Scene2dElementFactory.createImageButton("hud/settings.png", STYLE_UNSELECTED);
           case Prefabs ->
               Scene2dElementFactory.createImageButton(
-                  "hud/kenney/flag_square.png", STYLE_UNSELECTED);
+                  "items/rpg/item_book_blue_square.png", STYLE_UNSELECTED);
         };
     imageButton.getImageCell().size(BUTTON_SIZE * 0.68f);
     imageButton.getImage().setScaling(Scaling.fit);

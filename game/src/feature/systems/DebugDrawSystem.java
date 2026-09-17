@@ -380,6 +380,21 @@ public class DebugDrawSystem extends System {
   }
 
   /**
+   * Draws a preview of a named point at a prospective position.
+   *
+   * @param point prospective point position
+   * @param alternateColor whether to use the highlighted point color
+   */
+  public static void drawNamedPointPreview(Point point, boolean alternateColor) {
+    Color color = alternateColor ? NAMED_POINT_HIGHLIGHT_COLOR : POINT_MODE_COLOR;
+    if (isNearInteger(point.x()) && isNearInteger(point.y())) {
+      drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
+    } else {
+      drawPoint(point, 0.08f, color);
+    }
+  }
+
+  /**
    * Draw a red rectangle around the hitbox of the entity.
    *
    * @param entity Entity to draw the rectangle for.
