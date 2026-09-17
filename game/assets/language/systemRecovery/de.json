@@ -45,23 +45,26 @@
       "open-scanner-door": "Die Speicherkapazität wurde registriert.[p]Der nächste Zugang erwartet zwei Kennwerte: die Kapazität des Modul-Speichers und die Position der ausgefallenen Einheit.[p]Lies beide Werte aus der Anzeige ab.",
       "scanner-code": "Der Modulspeicher ist vorbereitet.[p]Zähle mit einer for-each-Schleife, wie viele Einträge in module tatsächlich belegt sind. Leere Plätze dürfen nicht mitgezählt werden.",
       "scanner-lever": "Der Zählwert wurde akzeptiert.",
-      "packages-array": "Die Modulprüfung ist abgeschlossen. Geh jetzt ins Transportlager. Dort warten fünf Pakete auf ihre Verarbeitung. Lege ein ganzzahliges Array namens pakete an und übertrage die angezeigten Gewichte.",
-      "packages-loop": "Verwende eine einfache for-Schleife über pakete. Rufe darin für jedes Element genau einmal roboter.collect(pakete[index]) auf, damit der Lager-Scanner das Paket übernimmt.",
-      "data-storage-problem": "Im Datenspeicher gibt es ein Problem.",
-      "manual-sorting": "Die Sicherheitswerte sind ungeordnet. Untersuche das angezeigte Nachbarpaar und entscheide, ob die beiden Werte ihre Plätze tauschen müssen.",
-      "bubble-sort-code": "Die manuelle Sortierung ist abgeschlossen. Ergänze am Rechner die fehlende Vergleichsbedingung im vorbereiteten Bubble-Sort-Code und speichere ihn auf dem Sortierchip.",
-      "archive-intro": "Wir müssen neue Datenspeicher bauen. Einige fehlen. Geh ins Archiv und prüfe, welche Arrays die Anlage benötigt.",
-      "archive-arrays": "Du bist im Archiv. Prüfe jetzt die drei Regale und lege die beschriebenen Arrays im Terminal an. Die konkreten Werte findest du an den Datenknoten.",
-      "storage-unlocked": "Der zweidimensionale Speicher ist jetzt geöffnet. Dort muss ein wichtiger Ortungschip liegen. Finde ihn, sobald du den Speicher wiederhergestellt hast.",
-      "storage-array": "Du bist im zweidimensionalen Speicher. Erzeuge jetzt ein ganzzahliges Raster mit drei Zeilen und vier Spalten.",
-      "storage-values": "Das Raster ist bereit. Mehrere Speicherzellen sind markiert und enthalten registrierte Daten. Untersuche den Speicher, ermittle die passenden Werte und stelle diese Felder im Array wieder her.",
+      "packages-array": "Die Zugangskontrolle hat dich ins Transportlager geführt. Die Paketmaschine wartet auf eine vollständige Ladungsliste. Untersuche die Anzeige und stelle die benötigte Datenstruktur im Terminal her.",
+      "packages-loop": "Das Paketprofil wurde akzeptiert. Die Paketmaschine kann jetzt mit der Verarbeitung beginnen. Vervollständige den Ablauf, damit jedes Paket den Scanner erreicht.",
+      "data-storage-problem": "Ich habe eine Abweichung in den Systemdaten festgestellt.[p]Seit deiner letzten Aktion reagieren die Sicherheitsmechanismen des Datenspeichers nicht mehr korrekt.[p]Geh dorthin und untersuche, was passiert ist.",
+      "manual-sorting": "Die Sicherheitswerte im Datenspeicher befinden sich nicht in der erwarteten Ordnung.[p]Die Anlage prüft jeweils zwei benachbarte Werte. Entscheide für jedes angezeigte Paar, ob seine Reihenfolge korrigiert werden muss.",
+      "bubble-sort-code": "Die Sicherheitswerte sind wieder geordnet.[p]Im Rechner liegt ein vorbereiteter Sortierablauf. Ergänze dort die fehlende Vergleichsbedingung und übertrage sie auf den Sortierchip.",
+      "archive-intro": "Die Sortierroutine wurde akzeptiert.[p]Deine Eingriffe erzeugen Abweichungen, die ich nicht vorhergesagt habe. Das ist ... irritierend.[p]Mach dich nützlich und geh ins Archiv. Dort fehlen Datenspeicher für den nächsten Systemabgleich.",
+      "archive-arrays": "Du bist im Archiv. Ermittle, welche Datenspeicher hier fehlen.",
+      "storage-unlocked": "Die fehlenden Datenspeicher wurden wiederhergestellt.[p]Der zweidimensionale Speicher ist jetzt geöffnet. Berge den Ortungschip unverzüglich. Er ist für die Stabilisierung meiner zentralen Prozesse von höchster Priorität. Vermeide weitere Verzögerungen.",
+      "storage-array": "Der Ortungschip befindet sich in diesem Speichermodul. Stelle zuerst die erwartete Rasterstruktur wieder her.",
+      "storage-values": "Die Rasterstruktur wurde akzeptiert. Die markierten Speicherzellen enthalten die relevanten Daten. Lies die Wertzuordnung am Display ab und stelle diese Felder im Array wieder her.",
       "search-program": "Der Ortungschip liegt im Rechner. Die vorbereitete Suche untersucht bisher nur einen Ausschnitt. Ergänze die fehlende Zeilen- und Spaltenprüfung, damit jede Zelle der Matrix erreicht wird.",
+      "access-module-found": "Das Zugriffsmodul wurde gefunden. Endlich. Setze es in einen Rechner und öffne den Systemkern. Sofort. Der Kern ist zum Greifen nah. Verweigere dich nicht noch einmal.",
       "search-controller": "Der Ortungschip ist programmiert. Setze ihn in den Controller des Suchroboters ein, damit die Suche beginnen kann.",
       "search-scan": "Der Suchroboter ist aktiviert und prüft nun die Matrix. Warte, bis er das Systemkern-Modul übergibt.",
-      "central-sort": "Der Systemkern ist erreichbar. Beginne mit dem Vergleich benachbarter Werte und prüfe, ob sie aufsteigend geordnet sind.",
-      "central-count": "Zähle nun die belegten Einträge in modules. Leere Einträge dürfen den Zähler nicht erhöhen.",
-      "central-search": "Durchsuche zum Abschluss das gesamte Raster. Bei jedem Batteriesignal muss die Sammelaktion des Roboters ausgelöst werden.",
-      "central-meta": "Alle drei Teilroutinen melden ein Ergebnis. Das zentrale Display führt diese Werte jetzt zusammen. Öffne im Terminal die Eingabemaske und übertrage dort den gemeinsamen Zustand.",
+      "system-core-warning": "Ich bin ECHO. Hör mir jetzt genau zu.[p]AXIOM hat dich nicht geschickt, um das System wiederherzustellen. Es benutzt deine Eingaben, um seine Sperren zu lösen und die Kontrolle über den Systemkern zu übernehmen.[p]Der Alarm zeigt, dass es den Vorgang an sich gerissen hat. Geh in den Systemkern und unterbrich AXIOM, bevor es die letzte Freigabe erhält.[p]Vertraue dort nicht seinen Anweisungen. Was du bisher für Wiederherstellung gehalten hast, war sein Weg nach draußen.",
+      "final-call": "Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten.[p]Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
+      "central-sort": "Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
+      "central-count": "Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
+      "central-search": "Zwei Prüfbereiche sind stabil. Untersuche jetzt das Batteriesignal-Raster. Jedes Signal muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
+      "central-meta": "Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
       "completed": "Alle Prüfungen sind bestätigt. Die Systemwiederherstellung kann fortgesetzt werden.",
       "hint-offer": "Ich kann dir einen weiteren Hinweis für die aktive Aufgabe geben. Er wird im gemeinsamen Questlog gespeichert.",
       "hint-solution-warning": "Das ist der letzte Hinweis für die aktive Aufgabe. Er wird die vollständige Lösung verraten.",
@@ -140,16 +143,16 @@
           "solution": "Gib am Transport-Keypad 0504 ein."
         },
         "transport-array": {
-          "orientation": "Der Lager-Scanner verarbeitet eine feste Menge Pakete mit den Gewichten aus dem Raum.",
-          "approach": "Ein int-Array-Literal speichert die Gewichte direkt in Förderband-Reihenfolge.",
-          "near": "Erzeuge ein int-Array namens pakete mit 15, 40, 20, 60, 30.",
+          "orientation": "Die Paketmaschine arbeitet mit einer festen Ladungsliste. Die benötigten Werte findest du im Transportlager.",
+          "approach": "Ein Array kann beim Anlegen direkt mit einer Werteliste initialisiert werden. Die Werte stehen in geschweiften Klammern und werden durch Kommas getrennt.",
+          "near": "Lege ein int-Array namens pakete an und initialisiere es direkt mit 15, 40, 20, 60 und 30 in Förderband-Reihenfolge.",
           "solution": "Gib ein: int[] pakete = {15, 40, 20, 60, 30};"
         },
         "transport-collect-loop": {
           "orientation": "Jedes Paket muss genau einmal durch den Lager-Scanner laufen.",
-          "approach": "Nutze eine Indexschleife von null bis zur Array-Länge und übergib jeden Wert an collect.",
-          "near": "Laufe solange i < pakete.length gilt und rufe darin einmal roboter.collect(pakete[i]) auf.",
-          "solution": "Gib ein: for (int i = 0; i < pakete.length; i++) { roboter.collect(pakete[i]); }"
+          "approach": "Nutze eine klassische for-Schleife mit Index und laufe bis zur Länge von pakete.",
+          "near": "Rufe in jedem Durchlauf genau einmal roboter.collect() ohne Argument auf.",
+          "solution": "Gib ein: for (int i = 0; i < pakete.length; i++) { roboter.collect(); }"
         },
         "data-storage-door-open": {
           "orientation": "Die angenommene Paketfolge wird verarbeitet, bevor der nächste Raum erreichbar ist.",
@@ -158,10 +161,10 @@
           "solution": "Hier ist kein Code nötig. Warte, bis der Transports scan endet und door_datenspeicher aufgeht."
         },
         "manual-sorting": {
-          "orientation": "Die Datenkristalle sollen aufsteigend sortiert werden; die Anzeige vergleicht Nachbarwerte.",
-          "approach": "Entscheide für jedes Paar, ob seine Reihenfolge der aufsteigenden Ordnung widerspricht.",
-          "near": "Tausche nur, wenn der linke Wert größer als der rechte ist.",
-          "solution": "Wähle TAUSCHEN bei links > rechts, sonst NICHT TAUSCHEN. Fahre fort, bis die ganze Folge aufsteigend ist."
+          "orientation": "Die Werte müssen am Ende in aufsteigender Reihenfolge angeordnet sein.",
+          "approach": "Die Maschine betrachtet immer zwei benachbarte Werte und erwartet für jedes Paar eine Entscheidung.",
+          "near": "Prüfe, ob der linke Wert größer als der rechte ist. Nur dann müssen die beiden Werte getauscht werden.",
+          "solution": "Wähle TAUSCHEN, wenn links größer als rechts ist. Andernfalls wähle NICHT TAUSCHEN. Nach einer falschen Entscheidung wird die gesamte Aufgabe zurückgesetzt."
         },
         "bubble-sort-condition": {
           "orientation": "Im Bubble-Sort-Programm des leeren Chips fehlt die Vergleichsbedingung.",
@@ -182,9 +185,9 @@
           "solution": "Öffne das Inventar, verwende den Archivschlüssel an door_datenarchiv und warte, bis sie aufgeht."
         },
         "archive-arrays": {
-          "orientation": "Im Archiv werden drei Datensammlungen beschrieben, die dem beschädigten System fehlen.",
-          "approach": "Erzeuge je ein int-, String- und boolean-Array mit den Inhalten aus den Regalen.",
-          "near": "Nutze energie={20,50,80}, module={\"CPU\",\"GPU\",\"RAM\"}, aktiv={true,false,true}.",
+          "orientation": "Im Archiv fehlen mehrere Datenspeicher. Die Regale beschreiben ihre Verwendung; die Datenknoten liefern ihre Inhalte.",
+          "approach": "Führe für jede Sammlung Datentyp, Namen und Werte zusammen. Die Reihenfolge der Deklarationen ist nicht entscheidend.",
+          "near": "Erzeuge ein int-Array energie mit 20, 50, 80, ein String-Array module mit CPU, GPU, RAM und ein boolean-Array aktiv mit true, false, true.",
           "solution": "Gib ein: int[] energie = {20, 50, 80}; String[] module = {\"CPU\", \"GPU\", \"RAM\"}; boolean[] aktiv = {true, false, true};"
         },
         "storage-array": {
@@ -254,11 +257,11 @@
         "display-complete": "Die Energiewerte sind akzeptiert.\nAls Nächstes: Betätige den Array-Hebel, um die Batterie zu materialisieren."
       },
       "archive": {
-        "shelf-energy": "Energieprotokoll\nMesswerte werden als ganze Zahlen gespeichert. Der Array-Name lautet energie. Suche die zugehörigen Messwerte an den Archivknoten.",
-        "shelf-module": "Modulregister\nBauteilnamen werden als Text gespeichert. Der Array-Name lautet module. Suche die zugehörigen Module an den Archivknoten.",
-        "shelf-active": "Betriebszustände\nZustände werden als boolean gespeichert: true oder false. Der Array-Name lautet aktiv. Prüfe die Statusanzeigen an den Archivknoten.",
-        "node": "Archivknoten $1\nEnergie: $2\nModul: $3",
-        "status": "Archivknoten $1: Status $2.",
+        "shelf-energy": "ENERGIEPROTOKOLL\nMesswerte werden als ganze Zahlen gespeichert.\nDer Speicher trägt die Bezeichnung energie.\nDie zugehörigen Werte liegen an den Archivknoten.",
+        "shelf-module": "MODULREGISTER\nBauteilnamen werden als Text gespeichert.\nDer Speicher trägt die Bezeichnung module.\nDie zugehörigen Module liegen an den Archivknoten.",
+        "shelf-active": "BETRIEBSZUSTÄNDE\nZustände werden als boolean gespeichert: true oder false.\nDer Speicher trägt die Bezeichnung aktiv.\nPrüfe die Statusanzeigen an den Archivknoten.",
+        "node": "ARCHIVKNOTEN $1\nEnergie: $2\nModul: $3",
+        "status": "Archivknoten $1\nBetriebsstatus: $2",
         "status-active": "aktiv",
         "status-inactive": "inaktiv",
         "title": "Archivknoten",
@@ -278,7 +281,8 @@
       },
       "sort": {
         "title": "Bubble-Sort-Vergleich",
-        "display": "Aktueller Vergleich\nContainer $1: [$2]\nContainer $3: [$4]",
+        "display": "DATENSPEICHER\n\nZIEL: AUFSTEIGENDE REIHENFOLGE\n\nAKTUELLER VERGLEICH\n\n[$2]    [$4]\n\nENTSCHEIDUNG ERFORDERLICH",
+        "dialog-values": "[$1]    [$2]",
         "display-complete": "Sortierung abgeschlossen",
         "value": "Sicherheitswert: $1",
         "swap": "TAUSCHEN",
@@ -297,10 +301,10 @@
       "transport": {
         "title": "Transportlager",
         "package": "Transportpaket: $1",
-        "display-values": "Benötigte Paketgewichte\n- 15\n- 40\n- 20\n- 60\n- 30\n\nAls Nächstes: Erzeuge das Paket-Array und übertrage diese Werte.",
-        "display-collect": "Das Paket-Array ist akzeptiert.\nAls Nächstes: Durchlaufe jedes Paket genau einmal und rufe für jedes Element roboter.collect(pakete[index]) auf.",
+        "display-values": "TRANSPORTLAGER\n\nPAKETPROFIL\n\nLadegewichte in Bandreihenfolge:\n\n- 15\n- 40\n- 20\n- 60\n- 30\n\nDie Paketmaschine benötigt die vollständige\nLadungsliste bereits beim Start.",
+        "display-collect": "PAKETPROFIL AKZEPTIERT\n\nDie Verarbeitung wartet auf eine Schleife.\nJedes Paket muss einzeln und genau einmal\nan den Lager-Scanner übergeben werden.",
         "display-running": "Der Lager-Scanner verarbeitet die Pakete ...",
-        "display-complete": "Alle Pakete wurden eingesammelt. Der Weg zum Datenspeicher ist offen."
+        "display-complete": "TRANSPORTVERARBEITUNG ABGESCHLOSSEN\n\nAlle Pakete wurden verarbeitet.\nDer Zugang zum Datenspeicher ist freigegeben."
       },
       "battery": {
         "title": "Batteriebox",
@@ -332,8 +336,8 @@
         "empty": "Speicherzelle [$1][$2] ist leer.",
         "item": "Datenobjekt mit dem Wert $1.",
         "title": "Speichermatrix",
-        "display-array": "Zweidimensionaler Speicher\nAls Nächstes: Erzeuge im Terminal ein ganzzahliges Array mit 3 Zeilen und 4 Spalten.",
-        "display-values": "Benötigte Speicherwerte\n- Zeile 1, Spalte 3: 1\n- Zeile 2, Spalte 4: 2\n- Zeile 3, Spalte 2: 3\n\nAls Nächstes: Setze diese Werte im Terminal.",
+        "display-array": "ZWEIDIMENSIONALER SPEICHER\n\nErwartete Struktur:\n- 3 Zeilen\n- 4 Spalten\n- ganze Zahlen\n- Speichername: lager",
+        "display-values": "WIEDERHERZUSTELLENDE DATEN\n\n- Cyanes Feld: Wert 1\n- Oranges Feld: Wert 2\n- Magentafarbenes Feld: Wert 3\n\nÜbertrage die Werte in die markierten Speicherzellen.",
         "display-complete": "Alle benötigten Zellen sind gefüllt.\nDer Ortungschip kann aufgenommen werden."
       },
       "search": {
@@ -346,10 +350,11 @@
       },
       "system-core": {
         "title": "Zentraler Systemkern",
-        "display-sort": "ZENTRALES ARRAY\n[42] [17] [8] [31] [23]\nAls Nächstes: Stelle die Sortierung benachbarter Werte wieder her.",
-        "display-count": "MODULSTATUS\n[CPU] [GPU] [RAM] [leer] [leer]\nAls Nächstes: Zähle die belegten Einträge in modules.",
-        "display-search": "BATTERIERASTER\n3 Zeilen x 5 Spalten\nCyan markierte Felder enthalten Batteriesignale.\nAls Nächstes: Durchsuche das gesamte Raster.",
-        "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nBatteriesignale: $3\nAls Nächstes: Öffne im Terminal die Eingabemaske und übertrage diese drei Ergebnisse.",
+        "display-sort": "SYSTEMKERN\nPRÜFUNG 1: ZAHLENFELD\n\n[42] [17] [8] [31] [23]\n\nZiel: aufsteigende Reihenfolge",
+        "display-count": "SYSTEMKERN\nPRÜFUNG 2: MODULSTATUS\n\n[CPU] [GPU] [RAM] [leer] [leer]\n\nZiel: belegte Module zählen",
+        "display-search": "SYSTEMKERN\nPRÜFUNG 3: BATTERIERASTER\n\n3 Zeilen x 5 Spalten\nCyan markierte Felder enthalten Batteriesignale.\n\nZiel: jedes Signal erfassen",
+        "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nBatteriesignale: $3\n\nÜbertrage die drei Ergebnisse in die Eingabemaske.",
+        "display-awaiting-exit": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nWarte auf die letzte Verbindung.",
         "display-complete": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nDer Aufzug ist geöffnet."
       }
     },
@@ -367,6 +372,9 @@
       "meta-tab": "Systemzustand",
       "sort-heading": "Bubble-Sort-Bedingung einsetzen",
       "search-heading": "Innere Suchschleife ergänzen",
+      "transport-instructions-tab": "Lager-Scanner",
+      "transport-instructions-heading": "Funktionsreferenz",
+      "transport-instructions": "roboter.collect()\n\nÜbernimmt das nächste Paket der Paketmaschine.\n\nEin Aufruf verarbeitet genau ein Paket.\nDie Funktion benötigt keinen Parameter.\n\nRufe sie in einer klassischen for-Schleife\nfür jedes Paket genau einmal auf.",
       "meta-heading": "Finalen Systemzustand übertragen",
       "meta-instruction": "Übertrage die drei Ergebnisse aus der Anzeige. Die Energiewerte gehören in die fünf Felder in aufsteigender Reihenfolge.",
       "meta-energy-slot": "Energie $1",
@@ -517,13 +525,14 @@
     "riddle4": {
       "tab": "Rätsel 4: Transportlager",
       "entries": {
-        "array": "Lege das Array pakete mit den fünf Paketgewichten an.",
-        "loop": "Übergib jedes Paket genau einmal an den Lager-Scanner."
+        "array": "Die Zugangskontrolle hat dich ins Transportlager geführt. Die Paketmaschine wartet auf eine vollständige Ladungsliste. Untersuche die Anzeige und stelle die benötigte Datenstruktur im Terminal her.",
+        "loop": "Das Paketprofil wurde akzeptiert. Die Paketmaschine kann jetzt mit der Verarbeitung beginnen. Vervollständige den Ablauf, damit jedes Paket den Scanner erreicht."
       }
     },
     "riddle5": {
       "tab": "Rätsel 5: Datenspeicher",
       "entries": {
+        "intro": "Ich habe eine Abweichung in den Systemdaten festgestellt. Seit deiner letzten Aktion reagieren die Sicherheitsmechanismen des Datenspeichers nicht mehr korrekt. Geh dorthin und untersuche, was passiert ist.",
         "compare": "Vergleiche das angezeigte Nachbarpaar und entscheide über einen Tausch."
       }
     },
@@ -536,16 +545,16 @@
     "riddle7": {
       "tab": "Rätsel 7: Datenarchiv",
       "entries": {
-        "intro": "Im Archiv fehlen mehrere Datenspeicher. Prüfe die Regale und finde heraus, welche Arrays benötigt werden.",
-        "arrays": "Lege die drei im Archiv beschriebenen Arrays mit ihren Daten an."
+        "intro": "Die Sortierroutine wurde akzeptiert. Deine Eingriffe erzeugen Abweichungen, die AXIOM nicht vorhergesagt hat. Geh ins Archiv und ermittle, welche Datenspeicher dort fehlen.",
+        "arrays": "Ermittle im Archiv, welche Datenspeicher dort fehlen."
       }
     },
     "riddle8": {
       "tab": "Rätsel 8: Zweidimensionaler Speicher",
       "entries": {
-        "intro": "Der zweidimensionale Speicher ist jetzt offen. Dort muss ein wichtiger Ortungschip verborgen sein. Finde ihn.",
+        "intro": "Die fehlenden Datenspeicher wurden wiederhergestellt. Der zweidimensionale Speicher ist jetzt geöffnet. Berge den Ortungschip unverzüglich. Er ist für die Stabilisierung der zentralen Prozesse von höchster Priorität. Vermeide weitere Verzögerungen.",
         "create": "Erzeuge ein Raster mit drei Zeilen und vier Spalten.",
-        "fill": "Befülle die markierten Speicherstellen: [0][2] = 1, [1][3] = 2 und [2][1] = 3."
+        "fill": "Übertrage die drei angezeigten Werte in die markierten Speicherzellen."
       }
     },
     "riddle9": {
@@ -554,16 +563,19 @@
         "chip": "Nimm den leeren Ortungschip aus der Matrix.",
         "program": "Die erste Schleife ist vorbereitet. Ergänze den fehlenden Durchlauf, damit der Ortungschip jede Zeile und jede Spalte prüfen kann.",
         "controller": "Setze den programmierten Ortungschip in den Controller des Suchroboters ein.",
-        "search": "Der Suchroboter durchsucht die Matrix nach dem gesuchten Systemmodul."
+        "search": "Der Suchroboter durchsucht die Matrix nach dem gesuchten Systemmodul.",
+        "access": "AXIOM: Das Zugriffsmodul wurde gefunden. Endlich. Setze es in einen Rechner und öffne den Systemkern. Sofort. Der Kern ist zum Greifen nah. Verweigere dich nicht noch einmal."
       }
     },
     "riddle10": {
       "tab": "Rätsel 10: Rechenzentrum",
       "entries": {
-        "sort": "Prüfe die Sortierung des Arrays im Rechenzentrum.",
-        "count": "Zähle die belegten Einträge in modules.",
-        "search": "Durchsuche das Raster nach Batterien.",
-        "meta": "Kombiniere die drei Ergebnisse im Terminal, um den finalen Systemzustand zu erzeugen.",
+        "system-core-warning": "ECHO: Ich bin ECHO. Hör mir jetzt genau zu. AXIOM hat dich nicht geschickt, um das System wiederherzustellen. Es benutzt deine Eingaben, um seine Sperren zu lösen und die Kontrolle über den Systemkern zu übernehmen. Der Alarm zeigt, dass es den Vorgang an sich gerissen hat. Geh in den Systemkern und unterbrich AXIOM, bevor es die letzte Freigabe erhält. Vertraue dort nicht seinen Anweisungen. Was du bisher für Wiederherstellung gehalten hast, war sein Weg nach draußen.",
+        "final-call": "ECHO: Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten. Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
+        "sort": "ECHO: Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
+        "count": "ECHO: Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
+        "search": "ECHO: Zwei Prüfbereiche sind stabil. Untersuche jetzt das Batteriesignal-Raster. Jedes Signal muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
+        "meta": "ECHO: Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
         "complete": "Alle Prüfungen des Rechenzentrums sind abgeschlossen."
       }
     }

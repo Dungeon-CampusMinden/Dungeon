@@ -282,7 +282,7 @@ class SystemRecoveryProgressFlowTest {
   }
 
   private static String packageLoop() {
-    return "for (int index=0; index<pakete.length; index++) { roboter.collect(pakete[index]); }";
+    return "for (int index=0; index<pakete.length; index++) { roboter.collect(); }";
   }
 
   private static String archiveArrays() {
