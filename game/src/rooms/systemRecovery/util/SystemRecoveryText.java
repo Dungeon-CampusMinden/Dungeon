@@ -19,6 +19,7 @@ public final class SystemRecoveryText {
   private static final Translation TEXT = new Translation("systemRecovery");
   private static final Translation QUESTLOG = new Translation("questlog");
   private static final String SPEAKER_IMAGE = "images/system_recovery_ai_profile_pixel.png";
+  private static final String ECHO_SPEAKER_IMAGE = "images/system_recovery_echo_profile_pixel.png";
 
   private SystemRecoveryText() {}
 
@@ -115,6 +116,31 @@ public final class SystemRecoveryText {
         + key("story." + key, values);
   }
 
+  /** Creates a Last Hour-style phone script spoken by the isolated ECHO process. */
+  public static String echoCall(String key, Object... values) {
+    return "[speaker img="
+        + ECHO_SPEAKER_IMAGE
+        + " name=\"[color=#aaaaaa]"
+        + key("story.echo")
+        + "[/color]\"]"
+        + key("story." + key, values);
+  }
+
+  /** Returns the ECHO avatar used by dialogs that provide an explicit portrait fallback. */
+  public static String echoSpeakerImage() {
+    return ECHO_SPEAKER_IMAGE;
+  }
+
+  /** Creates a Last Hour-style system script spoken by AXIOM. */
+  public static String axiomCall(String key, Object... values) {
+    return "[speaker img="
+        + SPEAKER_IMAGE
+        + " name=\"[color=#aaaaaa]"
+        + key("story.axiom")
+        + "[/color]\"]"
+        + key("story." + key, values);
+  }
+
   /**
    * Returns the keyed Last Hour-style control overview for the opening call.
    *
@@ -130,6 +156,7 @@ public final class SystemRecoveryText {
         feature.input.configuration.KeyboardConfig.INTERACT_WORLD.value(),
         Input.Buttons.LEFT,
         feature.input.configuration.KeyboardConfig.INVENTORY_OPEN.value(),
+        feature.input.configuration.KeyboardConfig.QUESTLOG_OPEN.value(),
         feature.input.configuration.KeyboardConfig.CLOSE_UI.value(),
         feature.input.configuration.KeyboardConfig.PAUSE_MENU.value());
   }
@@ -145,7 +172,6 @@ public final class SystemRecoveryText {
         Tuple.of(key("intro.page2"), 32),
         Tuple.of(key("intro.page3"), 32),
         Tuple.of(key("intro.page4"), 32),
-        Tuple.of(key("intro.page5"), 32),
         Tuple.of(key("intro.title"), 120));
   }
 

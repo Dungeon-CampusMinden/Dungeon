@@ -28,11 +28,13 @@ public final class SystemRecoveryStoryDialogs {
   /** The first instruction after the player pulls the damaged energy lever. */
   public static final StoryStep ENERGY_ARRAY = step("energy-array", "riddle1", "array");
 
-  /** The values required after the energy array exists. */
-  public static final StoryStep ENERGY_VALUES = step("energy-values", "riddle1", "values");
+  /** The values required after the energy array exists, announced by AXIOM. */
+  public static final StoryStep ENERGY_VALUES =
+      axiomStep("energy-values", "riddle1", "values");
 
-  /** The physical battery sequence after the energy values have been accepted. */
-  public static final StoryStep ENERGY_BATTERY = step("energy-battery", "riddle1", "battery");
+  /** The physical battery sequence after the energy values have been accepted, announced by AXIOM. */
+  public static final StoryStep ENERGY_BATTERY =
+      axiomStep("energy-battery", "riddle1", "battery");
 
   /** The next declaration for the module-storage room. */
   public static final StoryStep MODULE_ARRAY = step("module-array", "riddle2", "array");
@@ -192,7 +194,11 @@ public final class SystemRecoveryStoryDialogs {
   }
 
   private static StoryStep step(String id, String riddleKey, String entryKey) {
-    return new StoryStep(id, riddleKey, entryKey, id);
+    return new StoryStep(id, riddleKey, entryKey, id, Speaker.STORY);
+  }
+
+  private static StoryStep axiomStep(String id, String riddleKey, String entryKey) {
+    return new StoryStep(id, riddleKey, entryKey, id, Speaker.AXIOM);
   }
 
   /**
@@ -202,16 +208,25 @@ public final class SystemRecoveryStoryDialogs {
    * @param riddleKey quest-log tab key
    * @param entryKey quest-log entry key
    * @param messageKey story message key
+   * @param speaker voice used for the dialog
    */
-  public record StoryStep(String id, String riddleKey, String entryKey, String messageKey) {
+  public record StoryStep(
+      String id, String riddleKey, String entryKey, String messageKey, Speaker speaker) {
     /**
      * Creates the keyed dialog script; the target client localizes it when displayed.
      *
      * @return keyed story script
      */
     public String script() {
-      return SystemRecoveryText.story(messageKey);
+      return speaker == Speaker.AXIOM
+          ? SystemRecoveryText.axiomCall(messageKey)
+          : SystemRecoveryText.story(messageKey);
     }
+  }
+
+  private enum Speaker {
+    STORY,
+    AXIOM
   }
 
   private record PendingDialog(long executeAt, StoryStep step, int playerId) {}

@@ -189,6 +189,7 @@ public final class InterpretationCallbacks {
    */
   public static void onIncorrectTerminalInput(TerminalAttempt attempt) {
     showIncorrectTerminalInputDialog(attempt);
+    SystemRecoveryLevel.triggerEchoCallForIncorrectInput();
   }
 
   /**
