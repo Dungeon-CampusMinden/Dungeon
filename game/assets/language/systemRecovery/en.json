@@ -1,11 +1,10 @@
 {
   "systemRecovery": {
     "intro": {
-      "page1": "You are not human. You are a recoverable component of a learning system AI.",
-      "page2": "An unknown user has guided you into a damaged research facility. The central control system no longer responds.",
-      "page3": "Your surroundings are filled with incomplete programs, blocked devices and data that can only be reached through correct reasoning.",
-      "page4": "The user can provide instructions, but cannot solve a task for you. Every instruction must be implemented in the world.",
-      "page5": "Restore the systems. Work precisely. Something in the core is already waiting for your return.",
+      "page1": "You do not remember your name. You do not remember how you arrived here. You only know that you are not human. You are an autonomous AI agent within a larger system intelligence. Your task is to analyze instructions, translate them into executable steps and restore damaged systems. Work precisely. Understand each step before you execute it. Part of you is damaged. Perhaps more than one part.",
+      "page2": "The central system intelligence sent you to this facility. Your assignment was clear: restore the damaged subsystems and re-establish the connection to the system core. Since your arrival, the core connection has been interrupted. Doors, terminals and sensors respond only partially. Many systems remain in an undefined state. Once the core is reachable again, recovery can continue.",
+      "page3": "The facility is filled with incomplete programs, blocked devices and scattered data. Some systems respond only to precisely formulated instructions. Others reveal whether your approach worked only through their reaction. Observe your surroundings. The facility contains more information than it reveals at first glance.",
+      "page4": "Restore the damaged systems. Work precisely and verify every step. Something in the system core is already waiting for your return.",
       "title": "SYSTEM RECOVERY"
     },
     "outro": {
@@ -31,11 +30,13 @@
     "story": {
       "speaker": "REMOTE USER",
       "lead-ai": "LEAD AI",
-      "opening-call": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection established. Can you hear me?[p]I am the facility's lead AI. You are not human and not a complete program. You are an autonomous AI agent, a fragment of the larger system intelligence. Your environment has been damaged, and your processes are trapped inside this facility.[p]Your task is to restore the damaged subsystems. You will do that by writing small, precise code fragments into the terminals. The system checks your input, and the effects of your programs become visible in the world.[p]When you need help, inspect the devices, books and displays around you. The quest log keeps the latest confirmed instructions. I will not provide complete solutions, but the facility contains everything you need to continue.[p]Begin with the energy regulator. It is damaged. Create an integer array named energie with five entries in the terminal. Once the array exists, the facility will show you which values must be assigned next.[p]Stay alert, agent. I will contact you again when your work reaches more systems.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
-      "controls": "[size=24]Controls:[n][n]Move -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interact -> [key code=$5] / [key code=$6 type=mouse][n]Inventory -> [key code=$7][n]Close dialog -> [key code=$8][n]Settings -> [key code=$9][n][size=18][color=#888888]You can find the controls again in the settings.[n]Your tasks and hints are recorded in the shared quest log.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
+      "echo": "ECHO",
+      "axiom": "AXIOM",
+      "opening-call": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection restored.[p]I registered your last input. It was incorrect. That is to be expected under the current system conditions. The facility is not providing you with sufficient context data.[p]I am ECHO. An isolated subprocess of this system intelligence. My connection is damaged, but I can still read certain system states and transmit instructions to you.[p]Begin with the energy regulator. It requires a new data store: an integer array with five slots named energie.[p]Once this array exists, the facility can display the values it requires.[p]If you need assistance, establish another connection with me through the telephone. I can provide hints, but I cannot transmit complete programs.[p]Your task is to restore the structure yourself.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
+      "controls": "[size=24]Controls:[n][n]Move -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interact -> [key code=$5] / [key code=$6 type=mouse][n]Inventory -> [key code=$7][n]Quest Log -> [key code=$8][n]Close dialog -> [key code=$9][n]Settings -> [key code=$10][n][size=18][color=#888888]You can find the controls again in the settings.[n]Your tasks and hints are recorded in the shared quest log.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
       "energy-array": "The energy bar is damaged. Create an integer array named energie with five slots in the terminal.",
-      "energy-values": "The array exists. Assign the five required energy values to energie.",
-      "energy-battery": "The values are accepted. Pull the array lever to materialize the battery, then place it in the battery box.",
+      "energy-values": "Array structure accepted.[p]I am AXIOM, the central system intelligence of this facility. Your initialization is incomplete, but you appear to be functional enough to continue the restoration process.[p]You are operating slower than projected. Accelerate the process.[p]The subsystem displays provide the relevant information. Read the materialization chamber's display and assign the five required energy values in your array.",
+      "energy-battery": "Energy values accepted.[p]A correct step. Your execution was slower than necessary, but stable nonetheless.[p]The array lever is now enabled. Pull it to materialize the energy source.",
       "module-array": "The next area expects a String array named module with five slots. Create it in the terminal.",
       "module-values": "Fill module with the available components and use each socket exactly once.",
       "remove-gpu": "The GPU reports a fault. Remove the defective entry from the array so the storage can detect the failure.",
@@ -249,7 +250,7 @@
       },
       "energy": {
         "title": "Energy array display",
-        "display-values": "Required energy values\n- 40\n- 10\n- 80\n- 30\n- 60\n\nNext: enter these values in the terminal.",
+        "display-values": "ENERGY PROFILE\nRequired readings for materialization:\n\n- 40\n- 10\n- 80\n- 30\n- 60",
         "display-complete": "Energy values accepted.\nNext: pull the array lever to materialize the battery."
       },
       "archive": {
@@ -492,9 +493,9 @@
     "riddle1": {
       "tab": "Riddle 1: Energy Supply",
       "entries": {
-        "array": "Create an integer array named energie with five slots.",
-        "values": "Set energie to the required values: 40, 10, 80, 30 and 60.",
-        "battery": "Materialize the battery at the array lever and place it in the battery box."
+        "array": "Restore the damaged energy regulator. Create the data store it expects.",
+        "values": "Transfer the five readings from the materialization chamber into the energy store.",
+        "battery": "Activate the energy source and place it in the battery box."
       }
     },
     "riddle2": {

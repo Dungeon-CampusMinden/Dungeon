@@ -40,7 +40,7 @@ public final class SystemRecoveryHintPhone {
           Optional<SystemRecoveryLearningStep> activeStep = SystemRecoveryProgressNet.activeStep();
           if (nextHint.isEmpty() || activeStep.isEmpty()) {
             DialogFactory.showDialogDialog(
-                SystemRecoveryText.phoneCall("hint-none"), () -> {}, player.id());
+                SystemRecoveryText.echoCall("hint-none"), () -> {}, player.id());
             return;
           }
 
@@ -49,14 +49,14 @@ public final class SystemRecoveryHintPhone {
           OptionalInt placeEntityId = SystemRecoveryProgressNet.hintEntityId(step);
           if (placeEntityId.isEmpty()) {
             DialogFactory.showDialogDialog(
-                SystemRecoveryText.phoneCall("hint-none"), () -> {}, player.id());
+                SystemRecoveryText.echoCall("hint-none"), () -> {}, player.id());
             return;
           }
           HintOffer offer = new HintOffer(step, placeEntityId.orElseThrow(), hint);
           String conversation =
               hint.solution()
-                  ? SystemRecoveryText.phoneCall("hint-solution-warning")
-                  : SystemRecoveryText.phoneCall("hint-offer");
+                  ? SystemRecoveryText.echoCall("hint-solution-warning")
+                  : SystemRecoveryText.echoCall("hint-offer");
           DialogFactory.showDialogDialog(
               conversation, () -> showConfirmation(hintSystem, player, offer), player.id());
         });
@@ -92,7 +92,7 @@ public final class SystemRecoveryHintPhone {
                       SystemRecoveryQuestLogUtil.addHintEntry(offer.step().riddleKey(), accepted);
                       String key = accepted.solution() ? "hint-solution-delivery" : "hint-delivery";
                       DialogFactory.showDialogDialog(
-                          SystemRecoveryText.phoneCall(key, accepted.text()),
+                          SystemRecoveryText.echoCall(key, accepted.text()),
                           () -> {},
                           player.id());
                     },

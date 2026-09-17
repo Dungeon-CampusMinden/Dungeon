@@ -142,7 +142,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
           this::completeSystemCoreRiddleInternal);
   private Entity phone;
   private Entity ringingPhoneEmote;
-  private boolean openingPhoneCallTriggered;
+  private boolean echoCallTriggered;
   private boolean phoneRinging;
   private boolean terminalsUnlocked;
   private boolean systemCoreAccessGranted;
@@ -185,6 +185,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
     Game.system(HintSystem.class, HintSystem::resetHintProgress);
     SystemRecoveryProgressNet.reset();
     SystemRecoveryProgressNet.initialize();
+    if (!Game.isHeadless() && LevelEditorSystem.active()) {
+      terminalsUnlocked = true;
+    }
     setupTerminal();
     setupPhone();
     setupRoomLabel();
@@ -237,18 +240,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                     player.id()));
   }
 
-  /**
-   * Shows the controls immediately after the intro, before the opening phone call starts.
-   *
-   * @param playerId player who completed the intro
-   */
+  /** Shows the controls immediately after the intro and unlocks the terminal afterwards. */
   private void finishIntroForPlayer(int playerId) {
-    if (!controlsShownPlayers.add(playerId)) {
-      triggerOpeningPhoneCall();
-      return;
-    }
+    if (!controlsShownPlayers.add(playerId)) return;
     DialogFactory.showDialogDialog(
-        SystemRecoveryText.controls(), this::triggerOpeningPhoneCall, playerId);
+        SystemRecoveryText.controls(), () -> terminalsUnlocked = true, playerId);
   }
 
   /** Spawns the phone and keeps it interactable after the opening call has been answered. */
@@ -260,10 +256,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
     updatePhoneInteraction();
   }
 
-  /** Starts the one opening call after the lore cutscene has finished. */
-  private void triggerOpeningPhoneCall() {
-    if (openingPhoneCallTriggered || phone == null) return;
-    openingPhoneCallTriggered = true;
+  /** Starts ECHO's one introductory call after the first rejected terminal attempt. */
+  private void triggerEchoCall() {
+    if (echoCallTriggered || phone == null) return;
+    echoCallTriggered = true;
     phoneRinging = true;
     Sounds.play(LastHourSounds.PHONE_RINGING);
     updatePhoneInteraction();
@@ -282,9 +278,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 (_, who) -> {
                   if (phoneRinging) {
                     DialogFactory.showDialogDialog(
-                        SystemRecoveryText.phoneCall("opening-call"),
-                        "images/system_recovery_ai_profile_pixel.png",
-                        () -> finishOpeningPhoneCall(who.id()),
+                        SystemRecoveryText.echoCall("opening-call"),
+                        SystemRecoveryText.echoSpeakerImage(),
+                        this::finishEchoCall,
                         who.id());
                     return;
                   }
@@ -292,14 +288,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 })));
   }
 
-  /**
-   * Stops the ringing and records the first terminal task after the call is finished.
-   *
-   * @param playerId player who answered the opening call
-   */
-  private void finishOpeningPhoneCall(int playerId) {
-    if (terminalsUnlocked) return;
-    terminalsUnlocked = true;
+  /** Stops ECHO's ringing and records the first terminal task after the call is finished. */
+  private void finishEchoCall() {
     phoneRinging = false;
     updatePhoneInteraction();
     if (ringingPhoneEmote != null) {
@@ -307,6 +297,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
       ringingPhoneEmote = null;
     }
     SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "array");
+  }
+
+  /** Starts ECHO's introductory call after the first rejected terminal input. */
+  public static void triggerEchoCallForIncorrectInput() {
+    currentLevel().ifPresent(level -> level.triggerEchoCall());
   }
 
   /** Starts the next instruction when a player reaches a configured room-entry trigger. */
