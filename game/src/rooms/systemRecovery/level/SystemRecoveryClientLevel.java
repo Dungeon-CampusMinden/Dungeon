@@ -15,6 +15,7 @@ import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.deco.Deco;
 import feature.interaction.keypad.KeypadComponent;
 import feature.systems.LevelEditorSystem;
+import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -157,7 +158,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
     // Match Last Hour while its room lights are switched on: objects remain readable while
     // terminals, keypads, labels and players still provide local light sources.
     lighting.ambientLight(0.5f);
-    Game.allPlayers().forEach(player -> lighting.addLightSource(positionOf(player), 1.0f));
+    Game.allPlayers().forEach(player -> lighting.addLightSource(lightSourcePosition(player), 1.0f));
     addSystemRecoveryLights(lighting);
   }
 
@@ -185,8 +186,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
         .forEach(
             entity -> {
               DisplayTextStatusShader labelShader = doorLabelShader(entity);
-              Color color = labelShader.completed() ? Color.GREEN : Color.RED;
-              addLight(lighting, entity, 0.25f, color);
+              addLight(lighting, entity, 0.5f, doorLabelLightColor(labelShader.completed()));
             });
   }
 
@@ -209,11 +209,15 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
   }
 
   private void addLight(LightingShader lighting, Entity entity, float intensity, Color color) {
-    lighting.addLightSource(positionOf(entity).translate(0.5f, 0.5f), intensity, color);
+    lighting.addLightSource(lightSourcePosition(entity), intensity, color);
   }
 
-  private Point positionOf(Entity entity) {
-    return Game.positionOf(entity).orElse(new Point(0, 0));
+  static Point lightSourcePosition(Entity entity) {
+    return EntityUtils.getPosition(entity);
+  }
+
+  static Color doorLabelLightColor(boolean completed) {
+    return completed ? Color.GREEN : Color.RED;
   }
 
   private Optional<Point> positionOfOptional(Entity entity) {

@@ -89,7 +89,16 @@ class SystemRecoveryKeypadProgressTest {
   void inventoryScannerDoorCodeCannotBeConsumedBeforeItsStep() throws ReflectiveOperationException {
     invokeSetup(new ModuleStorageRiddle(level), "setupRoomThreeKeypad");
 
+    assertEquals(List.of(0, 5, 0, 2), keypad.correctDigits());
     submit("5");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("52");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("0502");
 
     assertFalse(door.isOpen());
     assertFalse(keypad.isUnlocked());
@@ -100,6 +109,18 @@ class SystemRecoveryKeypadProgressTest {
 
     activate(SystemRecoveryLearningStep.ROOM2_DOOR_CODE);
     submit("5");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("52");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("0503");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("0502");
 
     assertTrue(door.isOpen());
     assertTrue(keypad.isUnlocked());
@@ -112,7 +133,16 @@ class SystemRecoveryKeypadProgressTest {
   void transportDoorCodeCannotBeConsumedBeforeItsStep() throws ReflectiveOperationException {
     invokeSetup(new InventoryScannerRiddle(level), "setupTransportStorageKeypad");
 
+    assertEquals(List.of(0, 5, 0, 4), keypad.correctDigits());
     submit("4");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("54");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("0504");
 
     assertFalse(door.isOpen());
     assertFalse(keypad.isUnlocked());
@@ -123,6 +153,18 @@ class SystemRecoveryKeypadProgressTest {
 
     activate(SystemRecoveryLearningStep.ROOM3_DOOR_CODE);
     submit("4");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("54");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("0505");
+    assertFalse(door.isOpen());
+    assertFalse(keypad.isUnlocked());
+
+    submit("0504");
 
     assertTrue(door.isOpen());
     assertTrue(keypad.isUnlocked());
@@ -133,6 +175,7 @@ class SystemRecoveryKeypadProgressTest {
 
   private void submit(String code) {
     Entity player = new Entity("test-player");
+    keypad.enteredDigits().clear();
     code.chars().forEach(digit -> keypad.addDigit(Character.digit(digit, 10)));
     keypad.checkUnlock(player);
   }

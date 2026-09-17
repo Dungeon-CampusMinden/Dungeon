@@ -27,13 +27,19 @@ import rooms.systemRecovery.util.SystemRecoveryText;
  */
 public final class ModuleStorageRiddle {
   private static final String[] MODULE_NAMES = {"CPU", "RAM", "GPU", "SSD", "NETWORK"};
+  // Door codes encode two zero-padded two-digit fields: capacity, then the puzzle result.
+  static final int MODULE_CAPACITY = MODULE_NAMES.length;
+  static final int DEFECTIVE_GPU_INDEX = 2;
+  static final int OCCUPIED_MODULE_COUNT = MODULE_CAPACITY - 1;
+  private static final List<Integer> SCANNER_DOOR_CODE =
+      List.of(0, MODULE_CAPACITY, 0, DEFECTIVE_GPU_INDEX);
 
   private final DungeonLevel level;
   private final RiddleCallbacks callbacks;
 
-  private final Entity[] moduleSockets = new Entity[5];
-  private final Entity[] moduleChips = new Entity[5];
-  private final Point[] moduleSocketPoints = new Point[5];
+  private final Entity[] moduleSockets = new Entity[MODULE_CAPACITY];
+  private final Entity[] moduleChips = new Entity[MODULE_CAPACITY];
+  private final Point[] moduleSocketPoints = new Point[MODULE_CAPACITY];
   private Entity moduleDisplay;
   private String moduleDisplayText;
   private boolean completed;
@@ -64,7 +70,7 @@ public final class ModuleStorageRiddle {
   /** Creates the room objects and the exit keypad. */
   public void setup() {
     setupRoomThreeKeypad();
-    for (int index = 0; index < 5; index++) {
+    for (int index = 0; index < MODULE_CAPACITY; index++) {
       moduleSocketPoints[index] = level.getPoint("s" + index);
       moduleSockets[index] = ModuleEntityFactory.moduleSocket(moduleSocketPoints[index]);
       Game.add(moduleSockets[index]);
@@ -105,10 +111,10 @@ public final class ModuleStorageRiddle {
 
   /** Removes the defective GPU chip from the third socket. */
   public void removeGpuChip() {
-    if (moduleChips[2] != null) {
-      Game.remove(moduleChips[2]);
-      moduleChips[2] = null;
-      ModuleEntityFactory.clearModuleSocket(moduleSockets[2]);
+    if (moduleChips[DEFECTIVE_GPU_INDEX] != null) {
+      Game.remove(moduleChips[DEFECTIVE_GPU_INDEX]);
+      moduleChips[DEFECTIVE_GPU_INDEX] = null;
+      ModuleEntityFactory.clearModuleSocket(moduleSockets[DEFECTIVE_GPU_INDEX]);
     }
   }
 
@@ -138,7 +144,8 @@ public final class ModuleStorageRiddle {
   /** Updates the room display with the module array length. */
   public void showModuleArrayLength() {
     if (completed) return;
-    moduleDisplayText = SystemRecoveryText.key("world.module.display-length", 5);
+    moduleDisplayText =
+        SystemRecoveryText.key("world.module.display-length", MODULE_CAPACITY, DEFECTIVE_GPU_INDEX);
     completed = true;
     callbacks.solved();
     if (moduleDisplay != null) {
@@ -185,7 +192,7 @@ public final class ModuleStorageRiddle {
     Entity keypad =
         KeypadFactory.createKeypad(
             level.getPoint("room3_keypad"),
-            List.of(5),
+            SCANNER_DOOR_CODE,
             () -> {
               if (SystemRecoveryProgressNet.activeStep().orElse(null)
                       != SystemRecoveryLearningStep.ROOM2_DOOR_CODE
@@ -208,12 +215,12 @@ public final class ModuleStorageRiddle {
               component.onCorrectCode(
                   player -> {
                     if (openedForExpectedStep[0]) {
-                      callbacks.success("5", player.id());
+                      callbacks.success("0502", player.id());
                       return;
                     }
                     component.isUnlocked(false);
                     component.enteredDigits().clear();
-                    callbacks.failure("5-out-of-order", player.id());
+                    callbacks.failure("0502-out-of-order", player.id());
                   });
               component.onWrongCode(
                   player -> callbacks.failure(component.enteredString(), player.id()));
