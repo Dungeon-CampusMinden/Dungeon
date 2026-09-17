@@ -72,7 +72,7 @@ public class TerminalInterpreterSetupTest {
     submit(
         """
         for (int index = 0; index < pakete.length; ++index) {
-            roboter.collect(pakete[index]);
+            roboter.collect();
         }
         """);
     submit(
@@ -499,7 +499,7 @@ public class TerminalInterpreterSetupTest {
     submit(
         """
         for (int index = 0; index < pakete.length; ++index) {
-            roboter.collect(pakete[index]);
+            roboter.collect();
         }
         """);
     submit(
@@ -569,7 +569,7 @@ public class TerminalInterpreterSetupTest {
     submit(
         """
         for (int index = 0; index < pakete.length; ++index) {
-            roboter.collect(pakete[index]);
+            roboter.collect();
         }
         """);
     submit(
