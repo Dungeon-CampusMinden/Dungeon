@@ -17,6 +17,7 @@ import java.util.List;
 import rooms.systemRecovery.entities.ScannerEntityFactory;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -211,7 +212,10 @@ public final class SearchRobotRiddle {
     // Do not inspect the localized entity name here. It is a translation key on the server and
     // therefore cannot be used as a stable gameplay identifier.
     completed = deliveredAccessChip != null;
-    if (completed) callbacks.solved();
+    if (completed) {
+      callbacks.solved();
+      SystemRecoveryLevel.announceSystemCoreAccessModuleDelivered();
+    }
   }
 
   private void collectSearchTarget() {

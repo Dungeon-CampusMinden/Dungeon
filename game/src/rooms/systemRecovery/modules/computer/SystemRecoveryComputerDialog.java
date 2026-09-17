@@ -33,6 +33,7 @@ import rooms.systemRecovery.modules.computer.content.SortProgramTab;
 import rooms.systemRecovery.modules.computer.content.SystemCoreAccessTab;
 import rooms.systemRecovery.modules.computer.content.SystemCoreMetaTab;
 import rooms.systemRecovery.modules.computer.content.TerminalTab;
+import rooms.systemRecovery.modules.computer.content.TransportInstructionsTab;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalStep;
@@ -59,6 +60,9 @@ public class SystemRecoveryComputerDialog extends Group {
     setSize(Game.windowWidth(), Game.windowHeight());
     createActors();
     addTab(new TerminalTab());
+    if (isTransportStorageState()) {
+      addTab(new TransportInstructionsTab());
+    }
     boolean metaAvailable =
         context
             .find(SystemRecoveryComputerFactory.SYSTEM_CORE_META_AVAILABLE, Boolean.class)
@@ -230,5 +234,11 @@ public class SystemRecoveryComputerDialog extends Group {
     }
     contentArea.clearChildren();
     contentArea.add(tabs.get(tabKey)).grow();
+  }
+
+  private static boolean isTransportStorageState() {
+    int state = TerminalInterpreter.instance().currentState();
+    return state == TerminalStep.TRANSPORT_ARRAY.stateId()
+        || state == TerminalStep.TRANSPORT_COLLECT.stateId();
   }
 }

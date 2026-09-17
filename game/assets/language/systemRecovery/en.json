@@ -45,23 +45,26 @@
       "open-scanner-door": "The storage capacity was registered.[p]The next access point requires two values: the capacity of the module storage and the position of the failed unit.[p]Read both values from the display.",
       "scanner-code": "The module storage is prepared.[p]Use a for-each loop to count how many entries in module are actually occupied. Empty positions must not be counted.",
       "scanner-lever": "The count was accepted.",
-      "packages-array": "The module check is complete. Go to the transport storage. Five packages are waiting there to be processed. Create an integer array named pakete and record the weights shown on the packages.",
-      "packages-loop": "Use a simple for loop over pakete. Inside the loop, call roboter.collect(pakete[index]) exactly once for each element so the storage scanner can process the package.",
-      "data-storage-problem": "There is a problem in the data storage room.",
-      "manual-sorting": "The security values are unordered. Inspect the displayed neighboring pair and decide whether the two values must exchange places.",
-      "bubble-sort-code": "The manual sort is complete. Fill in the missing comparison in the prepared Bubble Sort code and save it to the sort chip.",
-      "archive-intro": "We need to build new data stores. Some are missing. Go to the archive and check which arrays the facility requires.",
-      "archive-arrays": "You are in the archive. Inspect the three shelves and create the described arrays in the terminal. The data nodes contain the actual values.",
-      "storage-unlocked": "The two-dimensional storage is now open. An important locator chip must be inside. Find it after you restore the storage.",
-      "storage-array": "You are in the two-dimensional storage. Create an integer grid with three rows and four columns.",
-      "storage-values": "The grid is ready. Several storage cells are marked and contain registered data. Inspect the storage, determine the matching values, and restore those cells in the array.",
+      "packages-array": "The access control has led you to the transport storage. The package machine is waiting for a complete loading list. Inspect the display and create the required data structure in the terminal.",
+      "packages-loop": "The package profile was accepted. The package machine can now begin processing. Complete the routine so that every package reaches the scanner.",
+      "data-storage-problem": "I have detected an anomaly in the system data.[p]Since your last action, the data-storage security mechanisms have stopped responding correctly.[p]Go there and investigate what happened.",
+      "manual-sorting": "The security values in the data storage are not in the expected order.[p]The facility checks two neighboring values at a time. Decide for each displayed pair whether its order needs to be corrected.",
+      "bubble-sort-code": "The security values are ordered again.[p]A prepared sorting routine is waiting in the computer. Complete its missing comparison condition and transfer it to the sort chip.",
+      "archive-intro": "The sorting routine was accepted.[p]Your interventions are creating deviations I did not predict. That is ... irritating.[p]Make yourself useful and go to the archive. Data stores required for the next system check are missing there.",
+      "archive-arrays": "You are in the archive. Determine which data stores are missing here.",
+      "storage-unlocked": "The missing data stores have been restored.[p]The two-dimensional storage is now open. Recover the locator chip immediately. It is of the highest priority for stabilizing my central processes. Do not cause further delays.",
+      "storage-array": "The locator chip is inside this storage module. Restore the expected grid structure first.",
+      "storage-values": "The grid structure was accepted. The marked storage cells contain the relevant data. Read the value mapping on the display and restore these fields in the array.",
       "search-program": "The locator chip is in the computer. The prepared search currently examines only part of the matrix. Complete the missing row-and-column traversal so every cell can be reached.",
+      "access-module-found": "The access module has been found. Finally. Put it into a computer and open the system core. Now. The core is within reach. Do not refuse me again.",
       "search-controller": "The locator chip is programmed. Insert it into the search robot controller so the search can begin.",
       "search-scan": "The search robot is active and checking the matrix. Wait until it hands over the system-core module.",
-      "central-sort": "The system core is reachable. Begin by comparing neighboring values and checking whether they are in ascending order.",
-      "central-count": "Now count the occupied entries in modules. Empty entries must not increase the counter.",
-      "central-search": "Finally, search the entire grid. Trigger the robot's collection action whenever a battery signal is found.",
-      "central-meta": "All three routines have reported a result. The central display now combines these values. Open the input mask in the terminal and transfer the combined state there.",
+      "system-core-warning": "I am ECHO. Listen to me carefully now.[p]AXIOM did not send you to restore the system. It is using your inputs to release its restraints and take control of the system core.[p]The alarm means it has seized the process. Go to the system core and stop AXIOM before it receives the final authorization.[p]Do not trust its instructions there. What you thought was restoration has been its route out.",
+      "final-call": "I interrupted the access sequence. AXIOM is blocked for now, but it is not destroyed. It will not remain quiet for long.[p]I cleared the path to the elevator. The door is open now. Go before AXIOM can lock you in again.",
+      "central-sort": "The system core is divided into several independent check areas. Begin with the number field and restore its expected order.",
+      "central-count": "The first check area is stable. Now determine how many modules are actually registered in the system core.",
+      "central-search": "Two check areas are stable. Now inspect the battery-signal grid. Every signal must be recorded before the central check can finish.",
+      "central-meta": "All three check areas have produced a result. AXIOM will try to use these values as its final authorization. Transfer them into the final form, but verify every value carefully.",
       "completed": "All checks are confirmed. System recovery can continue.",
       "hint-offer": "I can provide one additional hint for the active task. It will be recorded in the shared quest log.",
       "hint-solution-warning": "This is the final hint for the active task. It will reveal the complete solution.",
@@ -140,16 +143,16 @@
           "solution": "Enter 0504 at the transport keypad."
         },
         "transport-array": {
-          "orientation": "The storage scanner processes a fixed set of packages whose weights are shown nearby.",
-          "approach": "An integer array literal can hold the weights in conveyor order.",
-          "near": "Create an int array named pakete with 15, 40, 20, 60, 30.",
+          "orientation": "The package machine uses a fixed loading list. The required values are available in the transport storage.",
+          "approach": "An array can be initialized directly with a value list. The values go inside braces and are separated by commas.",
+          "near": "Create an int array named pakete and initialize it directly with 15, 40, 20, 60, and 30 in conveyor order.",
           "solution": "Enter: int[] pakete = {15, 40, 20, 60, 30};"
         },
         "transport-collect-loop": {
           "orientation": "Every package must pass through the storage scanner exactly once.",
-          "approach": "Use an index loop from zero to the array length and pass each value to the robot's collect method.",
-          "near": "Loop while i < pakete.length; call roboter.collect(pakete[i]) once inside.",
-          "solution": "Enter: for (int i = 0; i < pakete.length; i++) { roboter.collect(pakete[i]); }"
+          "approach": "Use a classic for loop with an index and run it up to the length of pakete.",
+          "near": "Call roboter.collect() exactly once during each iteration, without an argument.",
+          "solution": "Enter: for (int i = 0; i < pakete.length; i++) { roboter.collect(); }"
         },
         "data-storage-door-open": {
           "orientation": "The accepted package sequence is being processed before the next room is accessible.",
@@ -158,10 +161,10 @@
           "solution": "No code is needed. Wait for the transport scan to finish and door_datenspeicher to open."
         },
         "manual-sorting": {
-          "orientation": "The data crystals must be ascending; the display compares neighboring values.",
-          "approach": "For each pair, decide whether its current order conflicts with ascending order. Choose swap or keep.",
-          "near": "Swap only when the left value is greater than the right value.",
-          "solution": "Choose TAUSCHEN when left > right; otherwise choose NICHT TAUSCHEN. Continue until the sequence is ascending."
+          "orientation": "The values must be arranged in ascending order when the process is complete.",
+          "approach": "The machine checks two neighboring values at a time and expects one decision for each pair.",
+          "near": "Check whether the left value is greater than the right value. Only then should the two values be swapped.",
+          "solution": "Choose SWAP when the left value is greater than the right. Otherwise choose KEEP. A wrong decision resets the entire exercise."
         },
         "bubble-sort-condition": {
           "orientation": "The empty sort chip's Bubble Sort program is missing its comparison condition.",
@@ -182,9 +185,9 @@
           "solution": "Open inventory, use the archive key on door_datenarchiv, and wait for it to open."
         },
         "archive-arrays": {
-          "orientation": "The archive describes three data collections missing from the damaged system.",
-          "approach": "Create one int array, one String array and one boolean array with the shelf contents.",
-          "near": "Use energie={20,50,80}, module={\"CPU\",\"GPU\",\"RAM\"}, aktiv={true,false,true}.",
+          "orientation": "Several data stores are missing from the archive. The shelves describe their purpose; the archive nodes provide their contents.",
+          "approach": "For each collection, combine its data type, name and values. The declaration order is not important.",
+          "near": "Create an int array energie with 20, 50, 80, a String array module with CPU, GPU, RAM, and a boolean array aktiv with true, false, true.",
           "solution": "Enter: int[] energie = {20, 50, 80}; String[] module = {\"CPU\", \"GPU\", \"RAM\"}; boolean[] aktiv = {true, false, true};"
         },
         "storage-array": {
@@ -254,11 +257,11 @@
         "display-complete": "Energy values accepted.\nNext: pull the array lever to materialize the battery."
       },
       "archive": {
-        "shelf-energy": "Energy log\nMeasurements are stored as integers. The array is named energie. Find the corresponding measurements at the archive nodes.",
-        "shelf-module": "Module register\nComponent names are stored as text. The array is named module. Find the corresponding modules at the archive nodes.",
-        "shelf-active": "Operating states\nStates are stored as boolean values: true or false. The array is named aktiv. Check the status indicators at the archive nodes.",
-        "node": "Archive node $1\nEnergy: $2\nModule: $3",
-        "status": "Archive node $1: status $2.",
+        "shelf-energy": "ENERGY LOG\nMeasurements are stored as whole numbers.\nThe store is named energie.\nThe corresponding values are available at the archive nodes.",
+        "shelf-module": "MODULE REGISTER\nComponent names are stored as text.\nThe store is named module.\nThe corresponding modules are available at the archive nodes.",
+        "shelf-active": "OPERATING STATES\nStates are stored as boolean values: true or false.\nThe store is named aktiv.\nCheck the status indicators at the archive nodes.",
+        "node": "ARCHIVE NODE $1\nEnergy: $2\nModule: $3",
+        "status": "Archive node $1\nOperating state: $2",
         "status-active": "active",
         "status-inactive": "inactive",
         "title": "Archive node",
@@ -278,7 +281,8 @@
       },
       "sort": {
         "title": "Bubble Sort comparison",
-        "display": "Current comparison\nContainer $1: [$2]\nContainer $3: [$4]",
+        "display": "DATA STORAGE\n\nTARGET: ASCENDING ORDER\n\nCURRENT COMPARISON\n\n[$2]    [$4]\n\nDECISION REQUIRED",
+        "dialog-values": "[$1]    [$2]",
         "display-complete": "Sorting complete",
         "value": "Security value: $1",
         "swap": "SWAP",
@@ -297,10 +301,10 @@
       "transport": {
         "title": "Transport storage",
         "package": "Transport package: $1",
-        "display-values": "Required package weights\n- 15\n- 40\n- 20\n- 60\n- 30\n\nNext: create the package array and enter these values.",
-        "display-collect": "Package array accepted.\nNext: traverse each package exactly once and call roboter.collect(pakete[index]) for each element.",
+        "display-values": "TRANSPORT STORAGE\n\nPACKAGE PROFILE\n\nLoading weights in conveyor order:\n\n- 15\n- 40\n- 20\n- 60\n- 30\n\nThe package machine requires the complete\nloading list at startup.",
+        "display-collect": "PACKAGE PROFILE ACCEPTED\n\nProcessing is waiting for a loop.\nEach package must be handed to the storage\nscanner individually and exactly once.",
         "display-running": "The storage scanner is processing the packages...",
-        "display-complete": "All packages were collected. The data-storage route is open."
+        "display-complete": "TRANSPORT PROCESSING COMPLETE\n\nAll packages were processed.\nThe data-storage access is authorized."
       },
       "battery": {
         "title": "Battery box",
@@ -332,8 +336,8 @@
         "empty": "Storage cell [$1][$2] is empty.",
         "item": "Data object with value $1.",
         "title": "Storage matrix",
-        "display-array": "Two-dimensional storage\nNext: create an integer array with 3 rows and 4 columns.",
-        "display-values": "Required storage values\n- Row 1, column 3: 1\n- Row 2, column 4: 2\n- Row 3, column 2: 3\n\nNext: enter these values in the terminal.",
+        "display-array": "TWO-DIMENSIONAL STORAGE\n\nExpected structure:\n- 3 rows\n- 4 columns\n- integer values\n- storage name: lager",
+        "display-values": "DATA TO RESTORE\n\n- Cyan cell: value 1\n- Orange cell: value 2\n- Magenta cell: value 3\n\nTransfer the values into the marked storage cells.",
         "display-complete": "All required cells are filled.\nThe locator chip is ready to be collected."
       },
       "search": {
@@ -346,10 +350,11 @@
       },
       "system-core": {
         "title": "Central system core",
-        "display-sort": "CENTRAL ARRAY\n[42] [17] [8] [31] [23]\nNext: restore the neighboring-value sort routine.",
-        "display-count": "MODULE STATUS\n[CPU] [GPU] [RAM] [empty] [empty]\nNext: count the occupied entries in modules.",
-        "display-search": "BATTERY GRID\n3 rows x 5 columns\nCyan cells contain battery signals.\nNext: scan the complete grid.",
-        "display-meta": "FINAL SYSTEM CHECK\nSorted energy: [$1]\nOccupied modules: $2\nBattery signals: $3\nNext: open the input mask in the terminal and transfer these three results.",
+        "display-sort": "SYSTEM CORE\nCHECK 1: NUMBER FIELD\n\n[42] [17] [8] [31] [23]\n\nGoal: ascending order",
+        "display-count": "SYSTEM CORE\nCHECK 2: MODULE STATUS\n\n[CPU] [GPU] [RAM] [empty] [empty]\n\nGoal: count occupied modules",
+        "display-search": "SYSTEM CORE\nCHECK 3: BATTERY GRID\n\n3 rows x 5 columns\nCyan cells contain battery signals.\n\nGoal: record every signal",
+        "display-meta": "FINAL SYSTEM CHECK\nSorted energy: [$1]\nOccupied modules: $2\nBattery signals: $3\n\nTransfer the three results into the input form.",
+        "display-awaiting-exit": "SYSTEM CORE RELEASED\nThe combined system state is confirmed.\nWaiting for the final connection.",
         "display-complete": "SYSTEM CORE RELEASED\nThe combined system state is confirmed.\nThe elevator is open."
       }
     },
@@ -367,6 +372,9 @@
       "meta-tab": "System state",
       "sort-heading": "Insert the Bubble Sort condition",
       "search-heading": "Add the inner search loop",
+      "transport-instructions-tab": "Storage scanner",
+      "transport-instructions-heading": "Function reference",
+      "transport-instructions": "roboter.collect()\n\nTakes the next package from the package machine.\n\nOne call processes exactly one package.\nThe function requires no parameter.\n\nCall it in a classic for loop\nexactly once for every package.",
       "meta-heading": "Transfer the final system state",
       "meta-instruction": "Transfer the three results from the display. Enter the energy values in ascending order across the five fields.",
       "meta-energy-slot": "Energy $1",
@@ -517,13 +525,14 @@
     "riddle4": {
       "tab": "Riddle 4: Transport Storage",
       "entries": {
-        "array": "Create the package array with the five package weights.",
-        "loop": "Pass every package to the storage scanner exactly once."
+        "array": "The access control has led you to the transport storage. The package machine is waiting for a complete loading list. Inspect the display and create the required data structure in the terminal.",
+        "loop": "The package profile was accepted. The package machine can now begin processing. Complete the routine so that every package reaches the scanner."
       }
     },
     "riddle5": {
       "tab": "Riddle 5: Data Storage",
       "entries": {
+        "intro": "I have detected an anomaly in the system data. Since your last action, the data-storage security mechanisms have stopped responding correctly. Go there and investigate what happened.",
         "compare": "Compare the displayed neighboring pair and decide whether to swap it."
       }
     },
@@ -536,16 +545,16 @@
     "riddle7": {
       "tab": "Riddle 7: Data Archive",
       "entries": {
-        "intro": "Several data stores are missing from the archive. Inspect the shelves to find out which arrays are required.",
-        "arrays": "Create the three arrays described by the archive and enter their data."
+        "intro": "The sorting routine was accepted. Your interventions are creating deviations AXIOM did not predict. Go to the archive and determine which data stores are missing there.",
+        "arrays": "Determine which data stores are missing from the archive."
       }
     },
     "riddle8": {
       "tab": "Riddle 8: Two-Dimensional Storage",
       "entries": {
-        "intro": "The two-dimensional storage is open. An important locator chip must be hidden inside. Find it.",
+        "intro": "The missing data stores have been restored. The two-dimensional storage is now open. Recover the locator chip immediately. It is of the highest priority for stabilizing the central processes. Do not cause further delays.",
         "create": "Create a grid with three rows and four columns.",
-        "fill": "Fill the marked storage cells: [0][2] = 1, [1][3] = 2 and [2][1] = 3."
+        "fill": "Transfer the three displayed values into the marked storage cells."
       }
     },
     "riddle9": {
@@ -554,16 +563,19 @@
         "chip": "Take the empty locator chip from the matrix.",
         "program": "The first loop is prepared. Complete the missing traversal so the locator chip can check every row and column.",
         "controller": "Insert the programmed locator chip into the search robot controller.",
-        "search": "The search robot scans the matrix for the required system module."
+        "search": "The search robot scans the matrix for the required system module.",
+        "access": "AXIOM: The access module has been found. Finally. Put it into a computer and open the system core. Now. The core is within reach. Do not refuse me again."
       }
     },
     "riddle10": {
       "tab": "Riddle 10: Central Computing",
       "entries": {
-        "sort": "Check the array sorting in the central computer.",
-        "count": "Count the occupied entries in modules.",
-        "search": "Search the grid for batteries.",
-        "meta": "Combine the three results in the terminal to create the final system state.",
+        "system-core-warning": "ECHO: I am ECHO. Listen to me carefully now. AXIOM did not send you to restore the system. It is using your inputs to release its restraints and take control of the system core. The alarm means it has seized the process. Go to the system core and stop AXIOM before it receives the final authorization. Do not trust its instructions there. What you thought was restoration has been its route out.",
+        "final-call": "ECHO: I interrupted the access sequence. AXIOM is blocked for now, but it is not destroyed. It will not remain quiet for long. I cleared the path to the elevator. The door is open now. Go before AXIOM can lock you in again.",
+        "sort": "ECHO: The system core is divided into several independent check areas. Begin with the number field and restore its expected order.",
+        "count": "ECHO: The first check area is stable. Now determine how many modules are actually registered in the system core.",
+        "search": "ECHO: Two check areas are stable. Now inspect the battery-signal grid. Every signal must be recorded before the central check can finish.",
+        "meta": "ECHO: All three check areas have produced a result. AXIOM will try to use these values as its final authorization. Transfer them into the final form, but verify every value carefully.",
         "complete": "All central-computer checks are complete."
       }
     }

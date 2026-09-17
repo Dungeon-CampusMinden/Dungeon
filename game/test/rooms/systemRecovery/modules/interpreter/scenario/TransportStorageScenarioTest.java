@@ -21,7 +21,7 @@ public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             "for\\s*\\(\\s*int\\s+i\\s*=\\s*0\\s*;\\s*i\\s*<\\s*pakete\\s*"
                 + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{",
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*pakete\\s*\\[\\s*i\\s*]\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
 
     String source = "int[] pakete = {15, 40, 20, 60, 30};";
     assertTrue(interpreter.interpret(source));
@@ -30,7 +30,7 @@ public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
         """
 
         for (int i = 0; i < pakete.length; i++) {
-            roboter.collect(pakete[i]);
+            roboter.collect();
         }
         """;
     assertTrue(interpreter.interpret(source));
@@ -44,13 +44,13 @@ public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             "for\\s*\\(\\s*int\\s+i\\s*=\\s*0\\s*;\\s*i\\s*<\\s*pakete\\s*"
                 + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{",
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*pakete\\s*\\[\\s*i\\s*]\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
 
     String source =
         """
         for (int i = 0; i < pakete.length; i++) {
         }
-        roboter.collect(pakete[i]);
+        roboter.collect();
         """;
 
     assertFalse(interpreter.interpret(source));

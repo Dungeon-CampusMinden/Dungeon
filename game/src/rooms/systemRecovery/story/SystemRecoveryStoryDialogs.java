@@ -61,51 +61,64 @@ public final class SystemRecoveryStoryDialogs {
   /** The physical scanner action after its code has been accepted. */
   public static final StoryStep SCANNER_LEVER = step("scanner-lever", "riddle3", "scan");
 
-  /** The package array declaration for the transport storage. */
-  public static final StoryStep PACKAGES_ARRAY = step("packages-array", "riddle4", "array");
+  /** AXIOM's instruction to restore the package profile in the transport storage. */
+  public static final StoryStep PACKAGES_ARRAY =
+      axiomStep("packages-array", "riddle4", "array");
 
-  /** The loop that hands every package to the transport scanner. */
-  public static final StoryStep PACKAGES_LOOP = step("packages-loop", "riddle4", "loop");
+  /** AXIOM's instruction to complete the package-processing routine. */
+  public static final StoryStep PACKAGES_LOOP =
+      axiomStep("packages-loop", "riddle4", "loop");
 
-  /** The short transition message after the transport scan. */
+  /** ECHO's transition call after the transport scan, starting riddle five. */
   public static final StoryStep DATA_STORAGE_PROBLEM =
-      step("data-storage-problem", "riddle4", "problem");
+      echoStep("data-storage-problem", "riddle5", "intro");
 
-  /** The next manual comparison after the transport sequence. */
-  public static final StoryStep MANUAL_SORTING = step("manual-sorting", "riddle5", "compare");
+  /** ECHO's instruction to begin the manual comparison exercise. */
+  public static final StoryStep MANUAL_SORTING =
+      echoStep("manual-sorting", "riddle5", "compare");
 
-  /** The missing comparison expression for the sort-program chip. */
-  public static final StoryStep BUBBLE_SORT_CODE = step("bubble-sort-code", "riddle6", "code");
+  /** ECHO's instruction to complete the Bubble Sort program after manual sorting. */
+  public static final StoryStep BUBBLE_SORT_CODE =
+      echoStep("bubble-sort-code", "riddle6", "code");
 
-  /** The instruction shown before the player enters the data archive. */
-  public static final StoryStep ARCHIVE_INTRO = step("archive-intro", "riddle7", "intro");
+  /** AXIOM's irritated instruction to continue in the data archive. */
+  public static final StoryStep ARCHIVE_INTRO =
+      axiomStep("archive-intro", "riddle7", "intro");
 
-  /** The three array declarations for the data archive. */
-  public static final StoryStep ARCHIVE_ARRAYS = step("archive-arrays", "riddle7", "arrays");
+  /** AXIOM's instruction to reconstruct the missing archive data stores. */
+  public static final StoryStep ARCHIVE_ARRAYS =
+      axiomStep("archive-arrays", "riddle7", "arrays");
 
-  /** The transition message after the archive arrays unlock the storage room. */
-  public static final StoryStep STORAGE_UNLOCKED = step("storage-unlocked", "riddle8", "intro");
+  /** AXIOM's transition message after the archive arrays unlock the storage room. */
+  public static final StoryStep STORAGE_UNLOCKED =
+      axiomStep("storage-unlocked", "riddle8", "intro");
 
-  /** The two-dimensional array declaration for the storage room. */
-  public static final StoryStep STORAGE_ARRAY = step("storage-array", "riddle8", "create");
+  /** AXIOM's instruction to restore the two-dimensional storage structure. */
+  public static final StoryStep STORAGE_ARRAY =
+      axiomStep("storage-array", "riddle8", "create");
 
-  /** The marked coordinate assignments in the storage room. */
-  public static final StoryStep STORAGE_VALUES = step("storage-values", "riddle8", "fill");
+  /** AXIOM's instruction to restore the marked storage cells. */
+  public static final StoryStep STORAGE_VALUES =
+      axiomStep("storage-values", "riddle8", "fill");
 
   /** The prepared search-chip program after the empty chip has been inserted. */
   public static final StoryStep SEARCH_PROGRAM = step("search-program", "riddle9", "program");
 
-  /** The first central-computer check. */
-  public static final StoryStep CENTRAL_SORT = step("central-sort", "riddle10", "sort");
+  /** AXIOM's reaction when the search robot has recovered the system-core access module. */
+  public static final StoryStep ACCESS_MODULE_FOUND =
+      axiomStep("access-module-found", "riddle9", "access");
 
-  /** The central module-count check. */
-  public static final StoryStep CENTRAL_COUNT = step("central-count", "riddle10", "count");
+  /** ECHO's instruction for the first central-computer check. */
+  public static final StoryStep CENTRAL_SORT = echoStep("central-sort", "riddle10", "sort");
 
-  /** The central map search check. */
-  public static final StoryStep CENTRAL_SEARCH = step("central-search", "riddle10", "search");
+  /** ECHO's instruction for the central module-count check. */
+  public static final StoryStep CENTRAL_COUNT = echoStep("central-count", "riddle10", "count");
 
-  /** The final combination of the three central-computer results. */
-  public static final StoryStep CENTRAL_META = step("central-meta", "riddle10", "meta");
+  /** ECHO's instruction for the central map-search check. */
+  public static final StoryStep CENTRAL_SEARCH = echoStep("central-search", "riddle10", "search");
+
+  /** ECHO's instruction for combining the three central-computer results. */
+  public static final StoryStep CENTRAL_META = echoStep("central-meta", "riddle10", "meta");
 
   /** The final story response after all central checks. */
   public static final StoryStep COMPLETED = step("completed", "riddle10", "complete");
@@ -208,6 +221,10 @@ public final class SystemRecoveryStoryDialogs {
     return new StoryStep(id, riddleKey, entryKey, id, Speaker.AXIOM);
   }
 
+  private static StoryStep echoStep(String id, String riddleKey, String entryKey) {
+    return new StoryStep(id, riddleKey, entryKey, id, Speaker.ECHO);
+  }
+
   /**
    * One atomic instruction shown after the previous puzzle action.
    *
@@ -225,20 +242,27 @@ public final class SystemRecoveryStoryDialogs {
      * @return keyed story script
      */
     public String script() {
-      return speaker == Speaker.AXIOM
-          ? SystemRecoveryText.axiomCall(messageKey)
-          : SystemRecoveryText.story(messageKey);
+      return switch (speaker) {
+        case AXIOM -> SystemRecoveryText.axiomCall(messageKey);
+        case ECHO -> SystemRecoveryText.echoCall(messageKey);
+        case STORY -> SystemRecoveryText.story(messageKey);
+      };
     }
 
     /** Returns the translation key for the speaker label used by this dialog. */
     public String speakerKey() {
-      return speaker == Speaker.AXIOM ? "axiom" : "speaker";
+      return switch (speaker) {
+        case AXIOM -> "axiom";
+        case ECHO -> "echo";
+        case STORY -> "speaker";
+      };
     }
   }
 
   private enum Speaker {
     STORY,
-    AXIOM
+    AXIOM,
+    ECHO
   }
 
   private record PendingDialog(long executeAt, StoryStep step, int playerId) {}

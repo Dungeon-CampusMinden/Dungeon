@@ -45,8 +45,8 @@ public final class TerminalInterpreterSetup {
   private static final TerminalStep RIDDLE_FOUR_STEP_ONE = TerminalStep.TRANSPORT_ARRAY;
 
   /**
-   * Riddle 4, step 2: iterate over {@code pakete} and call {@code roboter.collect(...)} once per
-   * package.
+   * Riddle 4, step 2: iterate over {@code pakete} and call the parameterless
+   * {@code roboter.collect()} once per package.
    */
   private static final TerminalStep RIDDLE_FOUR_STEP_TWO = TerminalStep.TRANSPORT_COLLECT;
 
@@ -185,7 +185,7 @@ public final class TerminalInterpreterSetup {
       case TRANSPORT_COLLECT ->
           """
           for (int i = 0; i < pakete.length; i++) {
-              roboter.collect(pakete[i]);
+              roboter.collect();
           }
           """;
       case ARCHIVE_ARRAYS ->
@@ -385,7 +385,7 @@ public final class TerminalInterpreterSetup {
             onSuccess,
             onFailure,
             indexedForLoop("pakete", "packageIndex"),
-            methodCallWithArrayAccess("roboter", "collect", "pakete", "packageIndex")));
+            methodCall("roboter", "collect")));
   }
 
   private static void setupRiddleFiveChaoticDataStorage() {

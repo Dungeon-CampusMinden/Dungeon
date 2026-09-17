@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.level.DungeonLevel;
-import engine.level.elements.tile.DoorTile;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import java.util.Arrays;
@@ -38,6 +37,7 @@ public final class SystemCoreRiddle {
   private SearchRobotMatrix map;
   private Entity display;
   private int stage;
+  private boolean exitOpen;
 
   /**
    * Creates the central-computer riddle for the owning level.
@@ -86,8 +86,13 @@ public final class SystemCoreRiddle {
     if (stage < 3 || stage >= 4) return;
     stage = 4;
     updateDisplay();
-    DoorTile door = (DoorTile) level.tileAt(level.getPoint("door_elevator")).orElseThrow();
-    door.open();
+  }
+
+  /** Updates the display after ECHO has opened the route to the elevator. */
+  public void markExitOpen() {
+    if (stage < 4 || exitOpen) return;
+    exitOpen = true;
+    updateDisplay();
   }
 
   /**
@@ -178,7 +183,9 @@ public final class SystemCoreRiddle {
       case 1 -> SystemRecoveryText.key("world.system-core.display-count");
       case 2 -> SystemRecoveryText.key("world.system-core.display-search");
       case 3 -> metaDisplayText();
-      default -> SystemRecoveryText.key("world.system-core.display-complete");
+      default ->
+          SystemRecoveryText.key(
+              "world.system-core." + (exitOpen ? "display-complete" : "display-awaiting-exit"));
     };
   }
 

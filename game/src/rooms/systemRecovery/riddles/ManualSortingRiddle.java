@@ -111,7 +111,7 @@ public final class ManualSortingRiddle {
     if (sortCompleted) return SystemRecoveryText.key("world.sort.display-complete");
     int left = sortValues[sortInnerIndex];
     int right = sortValues[sortInnerIndex + 1];
-    return SystemRecoveryText.key("world.sort.display", sortInnerIndex, left, right);
+    return SystemRecoveryText.key("world.sort.dialog-values", left, right);
   }
 
   private void showSortChoice(Entity display, Entity player) {

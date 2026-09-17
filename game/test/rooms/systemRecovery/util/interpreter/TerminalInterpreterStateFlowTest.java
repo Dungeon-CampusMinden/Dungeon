@@ -210,7 +210,7 @@ public class TerminalInterpreterStateFlowTest {
   private static String packageCollectLoop() {
     return """
         for (int index = 0; index < pakete.length; index++) {
-            roboter.collect(pakete[index]);
+            roboter.collect();
         }
         """;
   }

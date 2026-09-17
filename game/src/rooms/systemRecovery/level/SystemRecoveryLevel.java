@@ -143,9 +143,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private Entity phone;
   private Entity ringingPhoneEmote;
   private boolean echoCallTriggered;
+  private boolean systemCoreWarningCallTriggered;
+  private boolean finalEchoCallTriggered;
+  private boolean finalEchoCallPending;
   private boolean phoneRinging;
+  private String ringingCallKey;
   private boolean terminalsUnlocked;
   private boolean systemCoreAccessGranted;
+  private boolean systemCoreAlarmActive;
   private boolean systemCoreRiddleCompleted;
   private boolean endingTriggered;
 
@@ -260,6 +265,29 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void triggerEchoCall() {
     if (echoCallTriggered || phone == null) return;
     echoCallTriggered = true;
+    startRingingCall("opening-call");
+  }
+
+  /** Starts ECHO's warning call after AXIOM has obtained the system-core access module. */
+  private void triggerSystemCoreWarningCall() {
+    if (systemCoreWarningCallTriggered || phone == null) return;
+    systemCoreWarningCallTriggered = true;
+    startRingingCall("system-core-warning");
+  }
+
+  /** Starts ECHO's final call after the system-core routines have been completed. */
+  private void triggerFinalEchoCall() {
+    if (finalEchoCallTriggered || phone == null) return;
+    finalEchoCallTriggered = true;
+    if (phoneRinging) {
+      finalEchoCallPending = true;
+      return;
+    }
+    startRingingCall("final-call");
+  }
+
+  private void startRingingCall(String callKey) {
+    ringingCallKey = callKey;
     phoneRinging = true;
     Sounds.play(LastHourSounds.PHONE_RINGING);
     updatePhoneInteraction();
@@ -278,7 +306,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 (_, who) -> {
                   if (phoneRinging) {
                     DialogFactory.showDialogDialog(
-                        SystemRecoveryText.echoCall("opening-call"),
+                        SystemRecoveryText.echoCall(ringingCallKey),
                         SystemRecoveryText.echoSpeakerImage(),
                         this::finishEchoCall,
                         who.id());
@@ -290,14 +318,29 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Stops ECHO's ringing and records the first terminal task after the call is finished. */
   private void finishEchoCall() {
+    String completedCallKey = ringingCallKey;
     phoneRinging = false;
+    ringingCallKey = null;
     updatePhoneInteraction();
     if (ringingPhoneEmote != null) {
       Game.remove(ringingPhoneEmote);
       ringingPhoneEmote = null;
     }
-    SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle1", "opening-call", "echo", "opening-call");
+    if ("system-core-warning".equals(completedCallKey)) {
+      SystemRecoveryQuestLogUtil.addDialogEntry(
+          "riddle10", "system-core-warning", "echo", "system-core-warning");
+      if (finalEchoCallPending) {
+        finalEchoCallPending = false;
+        startRingingCall("final-call");
+      }
+    } else if ("final-call".equals(completedCallKey)) {
+      SystemRecoveryQuestLogUtil.addDialogEntry(
+          "riddle10", "final-call", "echo", "final-call");
+      openElevatorAfterFinalCall();
+    } else {
+      SystemRecoveryQuestLogUtil.addDialogEntry(
+          "riddle1", "opening-call", "echo", "opening-call");
+    }
   }
 
   /** Starts ECHO's introductory call after the first rejected terminal input. */
@@ -450,6 +493,19 @@ public class SystemRecoveryLevel extends DungeonLevel {
   public static void announceStoryForPlayer(
       SystemRecoveryStoryDialogs.StoryStep step, int playerId) {
     currentLevel().ifPresent(level -> level.storyDialogs.announceForPlayer(step, playerId));
+  }
+
+  /** Announces AXIOM's reaction and starts the shared alarm sequence after module recovery. */
+  public static void announceSystemCoreAccessModuleDelivered() {
+    currentLevel().ifPresent(SystemRecoveryLevel::handleSystemCoreAccessModuleDelivered);
+  }
+
+  private void handleSystemCoreAccessModuleDelivered() {
+    if (systemCoreAlarmActive) return;
+    systemCoreAlarmActive = true;
+    storyDialogs.announceToAllPlayers(SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
+    SystemRecoveryAlarm.activate();
+    triggerSystemCoreWarningCall();
   }
 
   /** Announces the final system message after the last terminal riddle. */
@@ -770,7 +826,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static boolean systemCoreAlarmActive() {
     SystemRecoveryLevel level = active();
-    return level.systemCoreAccessGranted && !level.systemCoreRiddleCompleted;
+    return level.systemCoreAlarmActive && !level.systemCoreRiddleCompleted;
   }
 
   /** Marks the Bubble Sort section of the central-computer riddle as solved. */
@@ -798,8 +854,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (systemCoreRiddleCompleted) return;
     systemCore.complete();
     systemCoreRiddleCompleted = true;
+    systemCoreAlarmActive = false;
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryPuzzleEvents.solved(SystemRecoveryPuzzle.SYSTEM_CORE);
+    triggerFinalEchoCall();
+  }
+
+  /** Opens the shared elevator exit only after ECHO's final call has been answered. */
+  private void openElevatorAfterFinalCall() {
+    DoorTile elevatorDoor = (DoorTile) tileAt(point("door_elevator")).orElseThrow();
+    elevatorDoor.open();
+    if (elevatorDoor.isOpen()) systemCore.markExitOpen();
   }
 
   /**
@@ -830,6 +895,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       return false;
     }
     level.systemCoreAccessGranted = true;
+    level.systemCoreAlarmActive = true;
     SystemRecoveryPuzzleEvents.attempt(
         SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", true, playerId);
     SystemRecoveryAlarm.activate();

@@ -34,7 +34,6 @@ public final class TwoDimensionalStorageRiddle {
 
   private static final Map<String, Integer> FILLED_VALUES = Map.of("0_2", 1, "1_3", 2, "2_1", 3);
   private static final int ACTIVE_CELL_TINT = 0x4D7EA8FF;
-  private static final int TARGET_CELL_TINT = 0xF0D248FF;
   private static final int VALUE_ONE_TINT = 0x42C8E6FF;
   private static final int VALUE_TWO_TINT = 0xF0B84AFF;
   private static final int VALUE_THREE_TINT = 0xD66CFFFF;
@@ -110,7 +109,10 @@ public final class TwoDimensionalStorageRiddle {
         boolean target = FILLED_VALUES.containsKey(row + "_" + column);
         cells[row][column].name(
             "storage_matrix_cell_" + row + "_" + column + (target ? "_target" : "_active"));
-        tintCell(row, column, target ? TARGET_CELL_TINT : ACTIVE_CELL_TINT);
+        tintCell(
+            row,
+            column,
+            target ? valueTint(FILLED_VALUES.get(row + "_" + column)) : ACTIVE_CELL_TINT);
       }
     }
   }
