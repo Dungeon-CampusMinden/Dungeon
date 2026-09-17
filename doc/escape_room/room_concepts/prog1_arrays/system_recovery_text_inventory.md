@@ -19,36 +19,39 @@ Arbeitsstand der aktuell implementierten Texte. Die Reihenfolge folgt dem tatsä
 | Key | Aktueller Text | Spieleraktion |
 | --- | --- | --- |
 | `systemRecovery.intro.title` | `SYSTEM RECOVERY` | Intro lesen. |
-| `systemRecovery.intro.page1` | `Du bist kein Mensch. Du bist ein wiederherstellbarer Teil einer lernenden System-KI.` | Keine Aktion. |
-| `systemRecovery.intro.page2` | `Ein unbekannter Benutzer hat dich in eine beschädigte Forschungsanlage eingewiesen. Die zentrale Steuerung antwortet nicht mehr.` | Keine Aktion. |
-| `systemRecovery.intro.page3` | `Deine Umgebung ist voller unvollständiger Programme, blockierter Geräte und Daten, die nur durch korrektes Denken zugänglich werden.` | Keine Aktion. |
-| `systemRecovery.intro.page4` | `Der Benutzer kann dir Hinweise geben, aber keine Aufgabe für dich lösen. Jede Anweisung muss von dir in der Welt umgesetzt werden.` | Keine Aktion. |
-| `systemRecovery.intro.page5` | `Stelle die Systeme wieder her. Arbeite präzise. Irgendetwas im Kern wartet bereits auf deine Rückkehr.` | Keine Aktion. |
+| `systemRecovery.intro.page1` | `Du erinnerst dich nicht an deinen Namen. Du erinnerst dich nicht daran, wie du hierhergekommen bist. Du weißt nur, dass du kein Mensch bist. Du bist ein autonomer KI-Agent innerhalb einer größeren Systemintelligenz. Deine Aufgabe ist es, Anweisungen zu analysieren, sie in ausführbare Schritte zu übersetzen und beschädigte Systeme wiederherzustellen. Arbeite präzise. Verstehe jeden Schritt, bevor du ihn ausführst. Ein Teil von dir ist beschädigt. Vielleicht mehr als nur ein Teil.` | Keine Aktion. |
+| `systemRecovery.intro.page2` | `Die zentrale Systemintelligenz hat dich in diese Anlage entsandt. Dein Auftrag war eindeutig: beschädigte Subsysteme wiederherstellen und die Verbindung zum Systemkern erneuern. Seit deiner Ankunft ist die Verbindung zum Kern unterbrochen. Türen, Terminals und Sensoren reagieren nur noch teilweise. Viele Systeme befinden sich in einem undefinierten Zustand. Sobald der Kern wieder erreichbar ist, kann die Wiederherstellung fortgesetzt werden.` | Keine Aktion. |
+| `systemRecovery.intro.page3` | `Die Anlage ist voller unvollständiger Programme, blockierter Geräte und verstreuter Daten. Manche Systeme reagieren nur auf präzise formulierte Anweisungen. Andere zeigen dir erst durch ihre Reaktion, ob dein Ansatz funktioniert hat. Beobachte deine Umgebung. Die Anlage enthält mehr Informationen, als sie auf den ersten Blick preisgibt.` | Keine Aktion. |
+| `systemRecovery.intro.page4` | `Stelle die beschädigten Systeme wieder her. Arbeite präzise und prüfe jeden Schritt. Irgendetwas im Systemkern wartet bereits auf deine Rückkehr.` | Keine Aktion. |
 
 ### 0.2 Steuerung
 
-**Kontext:** Direkt nach dem Intro, vor dem Telefonat. Die Tasten werden als lokalisierter Dialogtext eingesetzt.
+**Kontext:** Direkt nach dem Lore-Text und vor dem ersten Terminalversuch. Die Tasten werden als
+lokalisierter Dialogtext eingesetzt.
 
 **Aktueller Inhalt:** Bewegen, Interagieren, Inventar, Dialog schließen, Einstellungen und der Hinweis, dass die Steuerung später in den Einstellungen erneut abrufbar ist.
 
-**Spieleraktion:** Dialog schließen und den eingehenden Anruf annehmen.
+**Spieleraktion:** Dialog schließen und den Raum untersuchen. Das Terminal ist danach nutzbar.
 
 ### 0.3 Eröffnungsanruf
 
 **Key:** `systemRecovery.story.opening-call`
 
-**Kontext:** Das Telefon klingelt am Custom Point `phone`. Nach dem Annehmen wird der Terminalzugriff freigeschaltet.
+**Kontext:** Das Telefon klingelt am Custom Point `phone`, nachdem der Spieler erstmals eine
+falsche Eingabe am Terminal abgeschickt hat. Nach dem Annehmen wird ECHOs erste Nachricht
+angezeigt.
 
 **Aktueller Text, inhaltlich:**
 
-1. Die leitende KI stellt die Verbindung her.
-2. Der Spieler ist ein autonomer KI-Agent und Teil einer größeren Systemintelligenz.
-3. Die Anlage ist beschädigt; der Spieler soll Subsysteme mit kleinen Codefragmenten wiederherstellen.
-4. Die Folgen der Eingaben werden in der Welt sichtbar.
-5. Geräte, Bücher, Anzeigen und das Questlog liefern Informationen; die leitende KI gibt keine fertigen Lösungen.
-6. Erste Aufgabe: Am defekten Energie-Regler ein `int`-Array namens `energie` mit fünf Einträgen anlegen.
+1. ECHO stellt die Verbindung nach dem falschen Versuch wieder her.
+2. ECHO erklärt, dass er ein isolierter Teilprozess der Systemintelligenz ist.
+3. Die Anlage liefert unzureichende Kontextdaten.
+4. Erste Aufgabe: Am Energie-Regler ein ganzzahliges Array namens `energie` mit fünf Plätzen anlegen.
+5. Nach dem Array zeigt die Anlage die erforderlichen Werte.
+6. ECHO kann über das Telefon erneut kontaktiert werden und übermittelt Hinweise, aber keine fertigen Programme.
 
-**Spieleraktion:** Anruf annehmen, danach zum Energie-Regler gehen. Erst danach sind die Terminals nutzbar.
+**Spieleraktion:** Anruf annehmen und zum Energie-Regler gehen. Der Terminalzugriff war bereits
+nach dem Steuerungs-Popup verfügbar.
 
 **Questlog:** `riddle1.array` wird initial angelegt.
 
@@ -69,9 +72,9 @@ Arbeitsstand der aktuell implementierten Texte. Die Reihenfolge folgt dem tatsä
 
 | Key | Aktueller Text | Spieleraktion |
 | --- | --- | --- |
-| `story.energy-values` | `Das Array ist angelegt. Setze nun die fünf geforderten Energiewerte in energie ein.` | Die fünf Werte eintragen; Reihenfolge der Zeilen ist egal. |
-| `world.energy.display-values` | `Benötigte Energiewerte\nSlot 1 (interner Index 0): 40\nSlot 2 (interner Index 1): 10\nSlot 3 (interner Index 2): 80\nSlot 4 (interner Index 3): 30\nSlot 5 (interner Index 4): 60\nAls Nächstes: Setze diese Werte im Terminal.` | Display untersuchen und Werte übernehmen. |
-| `questlog.riddle1.entries.values` | `Setze energie auf die geforderten Werte: 40, 10, 80, 30 und 60.` | Werte setzen. |
+| `story.energy-values` | AXIOM stellt sich als zentrale Systemintelligenz vor, fordert mehr Tempo und verweist auf das Energie-Display. | Die fünf Werte aus der Anzeige eintragen; Reihenfolge der Zeilen ist egal. |
+| `world.energy.display-values` | `ENERGIEPROFIL\nErforderliche Messwerte für die Materialisierung:\n\n- 40\n- 10\n- 80\n- 30\n- 60` | Display untersuchen und Werte übernehmen. |
+| `questlog.riddle1.entries.values` | `Übertrage die fünf Messwerte der Materialisierungskammer in den Energie-Speicher.` | Werte setzen. |
 
 ### 1.3 Energie-Werte akzeptiert
 
@@ -80,7 +83,7 @@ Arbeitsstand der aktuell implementierten Texte. Die Reihenfolge folgt dem tatsä
 | Key | Aktueller Text | Spieleraktion |
 | --- | --- | --- |
 | `world.energy.display-complete` | `Die Energiewerte sind akzeptiert.\nAls Nächstes: Betätige den Array-Hebel, um die Batterie zu materialisieren.` | Array-Hebel betätigen. |
-| `story.energy-battery` | `Die Werte sind akzeptiert. Ziehe den Array-Hebel, um die Batterie zu materialisieren, und setze sie anschließend in die Batteriebox ein.` | Batterie spawnen und in die Batteriebox einsetzen. |
+| `story.energy-battery` | AXIOM akzeptiert die Energiewerte, kommentiert die Geschwindigkeit und gibt den Array-Hebel frei. | Den Array-Hebel betätigen und die Batterie anschließend in die Batteriebox einsetzen. |
 | `questlog.riddle1.entries.battery` | `Materialisiere die Batterie am Array-Hebel und setze sie in die Batteriebox ein.` | Batterie einsetzen. |
 | `world.battery.locked` | `Die Batteriebox ist bereits verriegelt.` | Wird bei einer bereits abgeschlossenen Batteriebox angezeigt. |
 

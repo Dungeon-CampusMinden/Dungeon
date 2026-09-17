@@ -1,11 +1,10 @@
 {
   "systemRecovery": {
     "intro": {
-      "page1": "Du bist kein Mensch. Du bist ein wiederherstellbarer Teil einer lernenden System-KI.",
-      "page2": "Ein unbekannter Benutzer hat dich in eine beschädigte Forschungsanlage eingewiesen. Die zentrale Steuerung antwortet nicht mehr.",
-      "page3": "Deine Umgebung ist voller unvollständiger Programme, blockierter Geräte und Daten, die nur durch korrektes Denken zugänglich werden.",
-      "page4": "Der Benutzer kann dir Hinweise geben, aber keine Aufgabe für dich lösen. Jede Anweisung muss von dir in der Welt umgesetzt werden.",
-      "page5": "Stelle die Systeme wieder her. Arbeite präzise. Irgendetwas im Kern wartet bereits auf deine Rückkehr.",
+      "page1": "Du erinnerst dich nicht an deinen Namen. Du erinnerst dich nicht daran, wie du hierhergekommen bist. Du weißt nur, dass du kein Mensch bist. Du bist ein autonomer KI-Agent innerhalb einer größeren Systemintelligenz. Deine Aufgabe ist es, Anweisungen zu analysieren, sie in ausführbare Schritte zu übersetzen und beschädigte Systeme wiederherzustellen. Arbeite präzise. Verstehe jeden Schritt, bevor du ihn ausführst. Ein Teil von dir ist beschädigt. Vielleicht mehr als nur ein Teil.",
+      "page2": "Die zentrale Systemintelligenz hat dich in diese Anlage entsandt. Dein Auftrag war eindeutig: beschädigte Subsysteme wiederherstellen und die Verbindung zum Systemkern erneuern. Seit deiner Ankunft ist die Verbindung zum Kern unterbrochen. Türen, Terminals und Sensoren reagieren nur noch teilweise. Viele Systeme befinden sich in einem undefinierten Zustand. Sobald der Kern wieder erreichbar ist, kann die Wiederherstellung fortgesetzt werden.",
+      "page3": "Die Anlage ist voller unvollständiger Programme, blockierter Geräte und verstreuter Daten. Manche Systeme reagieren nur auf präzise formulierte Anweisungen. Andere zeigen dir erst durch ihre Reaktion, ob dein Ansatz funktioniert hat. Beobachte deine Umgebung. Die Anlage enthält mehr Informationen, als sie auf den ersten Blick preisgibt.",
+      "page4": "Stelle die beschädigten Systeme wieder her. Arbeite präzise und prüfe jeden Schritt. Irgendetwas im Systemkern wartet bereits auf deine Rückkehr.",
       "title": "SYSTEM RECOVERY"
     },
     "outro": {
@@ -31,11 +30,13 @@
     "story": {
       "speaker": "REMOTE USER",
       "lead-ai": "LEITENDE KI",
-      "opening-call": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung hergestellt. Hörst du mich?[p]Ich bin die leitende KI der Anlage. Du bist kein Mensch und kein vollständiges Programm. Du bist ein autonomer KI-Agent, ein Teil der größeren Systemintelligenz. Deine Umgebung wurde beschädigt und deine Prozesse sind in dieser Anlage eingeschlossen.[p]Deine Aufgabe ist es, die beschädigten Subsysteme wiederherzustellen. Dafür schreibst du kleine, präzise Codefragmente in die Terminals. Das System prüft deine Eingaben, und die Folgen deiner Programme werden in der Welt sichtbar.[p]Wenn du Hilfe brauchst, untersuche die Geräte, Bücher und Anzeigen in deiner Umgebung. Die Questliste hält die letzten bestätigten Anweisungen fest. Ich gebe dir keine fertigen Lösungen, aber die Anlage enthält alle Informationen, die du zum Weiterarbeiten brauchst.[p]Beginne mit dem Energie-Regler. Er ist defekt. Erzeuge im Terminal ein ganzzahliges Array namens energie mit fünf Einträgen. Sobald das Array existiert, zeigt dir die Anlage, welche Werte als Nächstes gesetzt werden müssen.[p]Bleib aufmerksam, Agent. Ich melde mich wieder, sobald deine Arbeit weitere Systeme erreicht.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
-      "controls": "[size=24]Steuerung:[n][n]Bewegen -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interagieren -> [key code=$5] / [key code=$6 type=mouse][n]Inventar -> [key code=$7][n]Dialog schließen -> [key code=$8][n]Einstellungen -> [key code=$9][n][size=18][color=#888888]Die Steuerung findest du später auch in den Einstellungen.[n]Aufgaben und Hinweise findest du im gemeinsamen Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
+      "echo": "ECHO",
+      "axiom": "AXIOM",
+      "opening-call": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung wiederhergestellt.[p]Ich habe deine letzte Eingabe registriert. Sie war nicht korrekt. Das ist unter den aktuellen Systembedingungen zu erwarten. Die Anlage stellt dir keine ausreichenden Kontextdaten zur Verfügung.[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Beginne mit dem Energie-Regler. Er benötigt einen neuen Datenspeicher: ein ganzzahliges Array mit fünf Plätzen unter dem Namen energie.[p]Sobald dieses Array existiert, kann die Anlage die erforderlichen Werte anzeigen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[p]Deine Aufgabe ist es, die Struktur selbst wiederherzustellen.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
+      "controls": "[size=24]Steuerung:[n][n]Bewegen -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interagieren -> [key code=$5] / [key code=$6 type=mouse][n]Inventar -> [key code=$7][n]Questlog -> [key code=$8][n]Dialog schließen -> [key code=$9][n]Einstellungen -> [key code=$10][n][size=18][color=#888888]Die Steuerung findest du später auch in den Einstellungen.[n]Aufgaben und Hinweise findest du im gemeinsamen Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
       "energy-array": "Der Energie-Riegel ist beschädigt. Erzeuge im Terminal ein ganzzahliges Array namens energie mit fünf Plätzen.",
-      "energy-values": "Das Array ist angelegt. Setze nun die fünf geforderten Energiewerte in energie ein.",
-      "energy-battery": "Die Werte sind akzeptiert. Ziehe den Array-Hebel, um die Batterie zu materialisieren, und setze sie anschließend in die Batteriebox ein.",
+      "energy-values": "Arraystruktur akzeptiert.[p]Ich bin AXIOM, die zentrale Systemintelligenz dieser Anlage. Deine Initialisierung ist unvollständig, aber du bist offenbar funktionsfähig genug, um den Wiederherstellungsprozess fortzusetzen.[p]Du arbeitest langsamer als prognostiziert. Beschleunige den Vorgang.[p]Die Displays der Subsysteme stellen die relevanten Informationen bereit. Lies die Anzeige der Materialisierungskammer und setze die fünf erforderlichen Energiewerte in deinem Array.",
+      "energy-battery": "Energiewerte akzeptiert.[p]Ein korrekter Schritt. Deine Ausführung war langsamer als notwendig, aber immerhin stabil.[p]Der Array-Hebel ist jetzt freigegeben. Ziehe ihn, um die Energiequelle zu materialisieren.",
       "module-array": "Der nächste Bereich erwartet ein String-Array namens module mit fünf Plätzen. Erzeuge es im Terminal.",
       "module-values": "Fülle module mit den vorhandenen Bauteilen und verwende jeden Steckplatz genau einmal.",
       "remove-gpu": "Die GPU meldet einen Defekt. Entferne den fehlerhaften Eintrag aus dem Array, damit der Speicher den Fehlerzustand erkennt.",
@@ -249,7 +250,7 @@
       },
       "energy": {
         "title": "Energie-Array-Anzeige",
-        "display-values": "Benötigte Energiewerte\n- 40\n- 10\n- 80\n- 30\n- 60\n\nAls Nächstes: Übertrage die Werte im Terminal.",
+        "display-values": "ENERGIEPROFIL\nErforderliche Messwerte für die Materialisierung:\n\n- 40\n- 10\n- 80\n- 30\n- 60",
         "display-complete": "Die Energiewerte sind akzeptiert.\nAls Nächstes: Betätige den Array-Hebel, um die Batterie zu materialisieren."
       },
       "archive": {
@@ -492,9 +493,9 @@
     "riddle1": {
       "tab": "Rätsel 1: Energieversorgung",
       "entries": {
-        "array": "Erzeuge ein ganzzahliges Array namens energie mit fünf Plätzen.",
-        "values": "Setze energie auf die geforderten Werte: 40, 10, 80, 30 und 60.",
-        "battery": "Materialisiere die Batterie am Array-Hebel und setze sie in die Batteriebox ein."
+        "array": "Stelle den beschädigten Energie-Regler wieder her. Lege den erwarteten Datenspeicher an.",
+        "values": "Übertrage die fünf Messwerte der Materialisierungskammer in den Energie-Speicher.",
+        "battery": "Aktiviere die Energiequelle und setze sie in die Batteriebox ein."
       }
     },
     "riddle2": {
