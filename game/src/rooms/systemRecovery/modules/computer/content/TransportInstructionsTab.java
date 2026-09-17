@@ -21,7 +21,8 @@ public final class TransportInstructionsTab extends SystemRecoveryComputerTab {
   protected void createActors() {
     Table layout = new Table(skin);
     layout.top().defaults().growX();
-    layout.add(createLabel(SystemRecoveryText.text("computer.transport-instructions-heading"), 24))
+    layout
+        .add(createLabel(SystemRecoveryText.text("computer.transport-instructions-heading"), 24))
         .left()
         .row();
 

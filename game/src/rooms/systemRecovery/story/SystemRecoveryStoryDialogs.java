@@ -29,12 +29,12 @@ public final class SystemRecoveryStoryDialogs {
   public static final StoryStep ENERGY_ARRAY = step("energy-array", "riddle1", "array");
 
   /** The values required after the energy array exists, announced by AXIOM. */
-  public static final StoryStep ENERGY_VALUES =
-      axiomStep("energy-values", "riddle1", "values");
+  public static final StoryStep ENERGY_VALUES = axiomStep("energy-values", "riddle1", "values");
 
-  /** The physical battery sequence after the energy values have been accepted, announced by AXIOM. */
-  public static final StoryStep ENERGY_BATTERY =
-      axiomStep("energy-battery", "riddle1", "battery");
+  /**
+   * The physical battery sequence after the energy values have been accepted, announced by AXIOM.
+   */
+  public static final StoryStep ENERGY_BATTERY = axiomStep("energy-battery", "riddle1", "battery");
 
   /** The next declaration for the module-storage room. */
   public static final StoryStep MODULE_ARRAY = step("module-array", "riddle2", "array");
@@ -62,44 +62,36 @@ public final class SystemRecoveryStoryDialogs {
   public static final StoryStep SCANNER_LEVER = step("scanner-lever", "riddle3", "scan");
 
   /** AXIOM's instruction to restore the package profile in the transport storage. */
-  public static final StoryStep PACKAGES_ARRAY =
-      axiomStep("packages-array", "riddle4", "array");
+  public static final StoryStep PACKAGES_ARRAY = axiomStep("packages-array", "riddle4", "array");
 
   /** AXIOM's instruction to complete the package-processing routine. */
-  public static final StoryStep PACKAGES_LOOP =
-      axiomStep("packages-loop", "riddle4", "loop");
+  public static final StoryStep PACKAGES_LOOP = axiomStep("packages-loop", "riddle4", "loop");
 
   /** ECHO's transition call after the transport scan, starting riddle five. */
   public static final StoryStep DATA_STORAGE_PROBLEM =
       echoStep("data-storage-problem", "riddle5", "intro");
 
   /** ECHO's instruction to begin the manual comparison exercise. */
-  public static final StoryStep MANUAL_SORTING =
-      echoStep("manual-sorting", "riddle5", "compare");
+  public static final StoryStep MANUAL_SORTING = echoStep("manual-sorting", "riddle5", "compare");
 
   /** ECHO's instruction to complete the Bubble Sort program after manual sorting. */
-  public static final StoryStep BUBBLE_SORT_CODE =
-      echoStep("bubble-sort-code", "riddle6", "code");
+  public static final StoryStep BUBBLE_SORT_CODE = echoStep("bubble-sort-code", "riddle6", "code");
 
   /** AXIOM's irritated instruction to continue in the data archive. */
-  public static final StoryStep ARCHIVE_INTRO =
-      axiomStep("archive-intro", "riddle7", "intro");
+  public static final StoryStep ARCHIVE_INTRO = axiomStep("archive-intro", "riddle7", "intro");
 
   /** AXIOM's instruction to reconstruct the missing archive data stores. */
-  public static final StoryStep ARCHIVE_ARRAYS =
-      axiomStep("archive-arrays", "riddle7", "arrays");
+  public static final StoryStep ARCHIVE_ARRAYS = axiomStep("archive-arrays", "riddle7", "arrays");
 
   /** AXIOM's transition message after the archive arrays unlock the storage room. */
   public static final StoryStep STORAGE_UNLOCKED =
       axiomStep("storage-unlocked", "riddle8", "intro");
 
   /** AXIOM's instruction to restore the two-dimensional storage structure. */
-  public static final StoryStep STORAGE_ARRAY =
-      axiomStep("storage-array", "riddle8", "create");
+  public static final StoryStep STORAGE_ARRAY = axiomStep("storage-array", "riddle8", "create");
 
   /** AXIOM's instruction to restore the marked storage cells. */
-  public static final StoryStep STORAGE_VALUES =
-      axiomStep("storage-values", "riddle8", "fill");
+  public static final StoryStep STORAGE_VALUES = axiomStep("storage-values", "riddle8", "fill");
 
   /** The prepared search-chip program after the empty chip has been inserted. */
   public static final StoryStep SEARCH_PROGRAM = step("search-program", "riddle9", "program");

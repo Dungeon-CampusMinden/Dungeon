@@ -380,12 +380,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle5", "data-storage-problem", "echo", "data-storage-problem");
     } else if ("final-call".equals(completedCallKey)) {
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle10", "final-call", "echo", "final-call");
+      SystemRecoveryQuestLogUtil.addDialogEntry("riddle10", "final-call", "echo", "final-call");
       openElevatorAfterFinalCall();
     } else {
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle1", "opening-call", "echo", "opening-call");
+      SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "opening-call", "echo", "opening-call");
     }
   }
 

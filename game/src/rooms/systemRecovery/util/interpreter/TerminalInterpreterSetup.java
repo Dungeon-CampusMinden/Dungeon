@@ -45,8 +45,8 @@ public final class TerminalInterpreterSetup {
   private static final TerminalStep RIDDLE_FOUR_STEP_ONE = TerminalStep.TRANSPORT_ARRAY;
 
   /**
-   * Riddle 4, step 2: iterate over {@code pakete} and call the parameterless
-   * {@code roboter.collect()} once per package.
+   * Riddle 4, step 2: iterate over {@code pakete} and call the parameterless {@code
+   * roboter.collect()} once per package.
    */
   private static final TerminalStep RIDDLE_FOUR_STEP_TWO = TerminalStep.TRANSPORT_COLLECT;
 
@@ -485,8 +485,7 @@ public final class TerminalInterpreterSetup {
         successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTenStepTwoModulesCounted),
         onFailure);
     setupRiddleTenStepThreeScanModules(
-        successOrPreview(
-            onSuccess, InterpretationCallbacks::onRiddleTenStepThreeModulesCollected),
+        successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTenStepThreeModulesCollected),
         onFailure);
   }
 

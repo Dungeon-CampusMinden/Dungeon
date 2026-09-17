@@ -10,7 +10,9 @@ public final class StorageCellColors {
 
   private StorageCellColors() {}
 
-  /** @return the tint for an active but unmarked storage cell */
+  /**
+   * @return the tint for an active but unmarked storage cell
+   */
   public static int active() {
     return ACTIVE;
   }

@@ -167,8 +167,7 @@ public final class SystemCoreRiddle {
     map = SearchRobotMatrix.between(level.getPoint("map00"), level.getPoint("map24"));
     for (int row = 0; row < map.rows(); row++) {
       for (int column = 0; column < map.columns(); column++) {
-        Entity cell =
-            SystemCoreEntityFactory.mapCell(map.pointAt(row, column), row, column);
+        Entity cell = SystemCoreEntityFactory.mapCell(map.pointAt(row, column), row, column);
         mapEntries.add(cell);
         Game.add(cell);
       }

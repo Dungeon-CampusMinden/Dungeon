@@ -92,9 +92,7 @@ public final class SystemRecoveryHintPhone {
                       SystemRecoveryQuestLogUtil.addHintEntry(offer.step().riddleKey(), accepted);
                       String key = accepted.solution() ? "hint-solution-delivery" : "hint-delivery";
                       DialogFactory.showDialogDialog(
-                          SystemRecoveryText.echoCall(key, accepted.text()),
-                          () -> {},
-                          player.id());
+                          SystemRecoveryText.echoCall(key, accepted.text()), () -> {}, player.id());
                     },
                     () -> request(player)),
         () -> {},
