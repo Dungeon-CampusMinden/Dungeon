@@ -9,10 +9,13 @@ import engine.Game;
 import feature.hints.Hint;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.ProgressDebugSnapshot;
 import rooms.systemRecovery.petrinet.SystemRecoveryHintCatalog;
@@ -28,7 +31,9 @@ import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 class SystemRecoveryProgressFlowTest {
 
   private final TerminalInterpreter interpreter = TerminalInterpreter.instance();
+  private final List<TerminalAttempt> unavailableAttempts = new ArrayList<>();
   private HintSystem hints;
+  private SystemRecoveryTerminalController terminalController;
 
   @BeforeEach
   void setUp() {
@@ -41,6 +46,10 @@ class SystemRecoveryProgressFlowTest {
     SystemRecoveryProgressNet.initialize();
     interpreter.reset();
     TerminalInterpreterSetup.setupRoomStates();
+    unavailableAttempts.clear();
+    terminalController =
+        new SystemRecoveryTerminalController(
+            interpreter, SystemRecoveryProgressNet::activeStep, unavailableAttempts::add);
   }
 
   @AfterEach
@@ -150,16 +159,35 @@ class SystemRecoveryProgressFlowTest {
 
   @Test
   void debugSkipUsesTheSameRegisteredSuccessCallbackAndTokenInvariant() {
-    assertTrue(interpreter.advanceCurrentStateForDebug(202));
+    assertTrue(terminalController.advanceForDebug(202));
     assertState(SystemRecoveryLearningStep.ENERGY_VALUES, 1);
     assertEquals("energy-array", SystemRecoveryProgressNet.debugSnapshot().lastAcceptedStepKey());
+  }
+
+  @Test
+  void moduleArrayIsRejectedUntilBatteryInsertionActivatesItsPlace() {
+    submit(energyArray(), 101, SystemRecoveryLearningStep.ENERGY_VALUES, 1);
+    submit(energyValues(), 101, SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY, 2);
+
+    assertFalse(terminalController.interpret(moduleArray(), 202));
+    assertState(SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY, 2);
+    assertEquals(1, unavailableAttempts.size());
+    assertEquals(2, unavailableAttempts.getFirst().state());
+    assertEquals(moduleArray(), unavailableAttempts.getFirst().source());
+
+    complete(
+        SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY,
+        101,
+        SystemRecoveryLearningStep.MODULE_ARRAY,
+        2);
+    submit(moduleArray(), 202, SystemRecoveryLearningStep.MODULE_VALUES, 3);
   }
 
   private void submit(
       String source, int playerId, SystemRecoveryLearningStep nextStep, int nextTerminalState) {
     SystemRecoveryLearningStep current = SystemRecoveryProgressNet.activeStep().orElseThrow();
     assertEquals(current.terminalStep().orElseThrow().stateId(), interpreter.currentState());
-    assertTrue(interpreter.interpret(source, playerId), "source was rejected:\n" + source);
+    assertTrue(terminalController.interpret(source, playerId), "source was rejected:\n" + source);
     assertState(nextStep, nextTerminalState);
   }
 

@@ -40,10 +40,10 @@
       "module-values": "Fülle module mit den vorhandenen Bauteilen und verwende jeden Steckplatz genau einmal.",
       "remove-gpu": "Die GPU meldet einen Defekt. Entferne den fehlerhaften Eintrag aus dem Array, damit der Speicher den Fehlerzustand erkennt.",
       "module-length": "Ermittle jetzt die Länge des Modul-Arrays. Die Anzeige im Raum bestätigt dir, ob der Speicher korrekt angesprochen wurde.",
-      "open-scanner-door": "Die angezeigte Länge bestätigt den Zugangscode. Verwende sie, um die Tür zum Inventarscanner zu öffnen.",
+      "open-scanner-door": "Der Zugang verlangt zwei Werte aus dem Modulspeicher: seine Länge und den Index des defekten GPU-Eintrags. Notiere jeden Wert zweistellig, ergänze bei Bedarf eine führende Null und gib beide in dieser Reihenfolge am Keypad ein.",
       "scanner-code": "Zähle die belegten Einträge von module. Prüfe jeden Eintrag in einer Schleife und erhöhe count nur bei einem vorhandenen Modul.",
       "scanner-lever": "Der Zählcode ist akzeptiert. Betätige jetzt den Scanner-Hebel und beobachte die Prüfung der fünf Modulpositionen.",
-      "scanner-door": "Der Scan ist abgeschlossen. Die Anzeige nennt den Zugangscode für das Transportlager. Öffne die Tür und folge dem nächsten Signal.",
+      "scanner-door": "Der Scan ist abgeschlossen. Vergleiche die Array-Kapazität mit der Zahl der belegten Module. Notiere beide Werte zweistellig und in dieser Reihenfolge für den Zugang zum Transportlager.",
       "packages-array": "Die Modulprüfung ist abgeschlossen. Geh jetzt ins Transportlager. Dort warten fünf Pakete auf ihre Verarbeitung. Lege ein ganzzahliges Array namens pakete an und übertrage die angezeigten Gewichte.",
       "packages-loop": "Verwende eine einfache for-Schleife über pakete. Rufe darin für jedes Element genau einmal roboter.collect(pakete[index]) auf, damit der Lager-Scanner das Paket übernimmt.",
       "data-storage-problem": "Im Datenspeicher gibt es ein Problem.",
@@ -121,10 +121,10 @@
           "solution": "Gib ein: module.length;"
         },
         "room2-door-code": {
-          "orientation": "Das Modulanzeigefeld liefert den Wert für das Keypad zum nächsten Raum.",
-          "approach": "Lies nach Annahme des length-Ausdrucks die Anzeige und übertrage ihren Wert auf die Tür.",
-          "near": "Die angezeigte Array-Länge beträgt 5. Gib am Keypad die 5 ein.",
-          "solution": "Gib am Keypad neben der Inventarscanner-Tür die Ziffer 5 ein."
+          "orientation": "Für den Zugang sind zwei Informationen aus dem Modulspeicher wichtig: die Array-Länge und die Position des defekten GPU-Eintrags.",
+          "approach": "Lies die Länge auf dem Display ab und verwende den Fehlerindex aus dem GPU-Protokoll. Notiere beide Werte zweistellig; die Länge steht zuerst.",
+          "near": "Das Array hat die Länge 5; die defekte GPU liegt an Index 2. Ergänze bei beiden Werten eine führende Null und gib sie der Reihe nach ein.",
+          "solution": "Gib am Keypad der Inventarscanner-Tür 0502 ein."
         },
         "inventory-count": {
           "orientation": "Der Scanner braucht die Zahl der eingesetzten Module, nicht die Array-Kapazität.",
@@ -133,10 +133,10 @@
           "solution": "Gib ein: int count = 0; for (String entry : module) { if (entry != null) { count++; } }"
         },
         "room3-door-code": {
-          "orientation": "Der abgeschlossene Inventarscan zeigt den Zugangswert für das Transportlager.",
-          "approach": "Warte auf die fertige Scanneranzeige und übertrage den Zählerstand auf das Keypad.",
-          "near": "Der Scan meldet vier belegte Module. Gib am Transport-Keypad die 4 ein.",
-          "solution": "Gib am Keypad der Transportlager-Tür die Ziffer 4 ein."
+          "orientation": "Der Zugang zum Transportlager hängt von der Kapazität und dem Ergebnis des Inventarscans ab.",
+          "approach": "Lies nach dem Scan beide Werte vom Display ab. Notiere sie jeweils zweistellig; die Array-Länge kommt zuerst.",
+          "near": "Die Array-Länge ist 5 und vier Einträge sind belegt. Schreibe beide Werte mit je zwei Stellen und gib sie in dieser Reihenfolge ein.",
+          "solution": "Gib am Transport-Keypad 0504 ein."
         },
         "transport-array": {
           "orientation": "Der Lager-Scanner verarbeitet eine feste Menge Pakete mit den Gewichten aus dem Raum.",
@@ -273,7 +273,7 @@
         "display-title": "Modulspeicher-Display",
         "display-pending": "Das Modul-Array wurde noch nicht erstellt.\nAls Nächstes: Erzeuge das Array mit fünf Plätzen im Terminal.",
         "display-values": "Benötigte Module\n- CPU\n- RAM\n- GPU\n- SSD\n- NETWORK\n\nAls Nächstes: Übertrage jedes Modul genau einmal.",
-        "display-length": "Array-Länge: $1\nAls Nächstes: Verwende diese Länge, um die Tür zum Inventarscanner zu öffnen."
+        "display-length": "Array-Länge: $1\nGPU-Fehlerprotokoll: defekter Eintrag an Index $2\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Keypad zum Inventarscanner ein."
       },
       "sort": {
         "title": "Bubble-Sort-Vergleich",
@@ -308,7 +308,7 @@
       "scanner": {
         "title": "Inventarscanner",
         "display-pending": "Scanner: noch nicht aktiviert.\nAls Nächstes: Löse die Zählaufgabe und betätige den Scanner-Hebel.",
-        "display-complete": "Scan abgeschlossen.\nZugangscode für das Transportlager: 4"
+        "display-complete": "Scan abgeschlossen.\nArray-Kapazität: $1\nBelegte Module: $2\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Transport-Keypad ein."
       },
       "labels": {
         "room": "Raum: R$1",
@@ -516,7 +516,7 @@
       "entries": {
         "loop": "Zähle mit einer Schleife nur die belegten Einträge von module.",
         "scan": "Betätige nach dem akzeptierten Code den Scanner-Hebel.",
-        "door": "Der Scan ist abgeschlossen. Verwende den angezeigten Zugangscode für das Transportlager."
+        "door": "Der Scan ist abgeschlossen. Verwende Array-Kapazität und Zahl der belegten Module zweistellig und in dieser Reihenfolge für den Zugang zum Transportlager."
       }
     },
     "riddle4": {

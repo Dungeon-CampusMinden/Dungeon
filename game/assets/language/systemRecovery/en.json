@@ -40,10 +40,10 @@
       "module-values": "Fill module with the available components and use each socket exactly once.",
       "remove-gpu": "The GPU reports a fault. Remove the defective entry from the array so the storage can detect the failure.",
       "module-length": "Determine the length of the module array. The room display will confirm whether the storage was addressed correctly.",
-      "open-scanner-door": "The displayed length confirms the access code. Use it to open the inventory scanner door.",
+      "open-scanner-door": "Access requires two values from module storage: its length and the index of the defective GPU entry. Write each value as two digits, adding a leading zero if needed, then enter them in that order at the keypad.",
       "scanner-code": "Count the occupied entries in module. Check every entry in a loop and increment count only for an existing module.",
       "scanner-lever": "The counting code was accepted. Pull the scanner lever and observe the five module positions being checked.",
-      "scanner-door": "The scan is complete. The display gives the access code for the transport storage. Open the door and follow the next signal.",
+      "scanner-door": "The scan is complete. Compare the array capacity with the number of occupied modules. Write both values as two digits, in that order, to access transport storage.",
       "packages-array": "The module check is complete. Go to the transport storage. Five packages are waiting there to be processed. Create an integer array named pakete and record the weights shown on the packages.",
       "packages-loop": "Use a simple for loop over pakete. Inside the loop, call roboter.collect(pakete[index]) exactly once for each element so the storage scanner can process the package.",
       "data-storage-problem": "There is a problem in the data storage room.",
@@ -121,10 +121,10 @@
           "solution": "Enter: module.length;"
         },
         "room2-door-code": {
-          "orientation": "The module display gives a value that releases the next room keypad.",
-          "approach": "After the length expression is accepted, read the display and enter its value at the door.",
-          "near": "The displayed array length is 5. Enter 5 on the keypad.",
-          "solution": "Enter the digit 5 at the inventory-scanner door keypad."
+          "orientation": "Two pieces of information from module storage matter for access: the array length and the position of the defective GPU entry.",
+          "approach": "Read the length on the display and use the fault index from the GPU record. Write both as two digits; the length comes first.",
+          "near": "The array length is 5; the defective GPU is at index 2. Add a leading zero to each value and enter them in order.",
+          "solution": "Enter 0502 at the inventory-scanner door keypad."
         },
         "inventory-count": {
           "orientation": "The scanner needs the number of modules still installed, not array capacity.",
@@ -133,10 +133,10 @@
           "solution": "Enter: int count = 0; for (String entry : module) { if (entry != null) { count++; } }"
         },
         "room3-door-code": {
-          "orientation": "The completed inventory scan reports the access value for transport storage.",
-          "approach": "Wait for the scanner display to finish, then transfer its count to the keypad.",
-          "near": "The scan reports four occupied modules. Enter 4 on the transport keypad.",
-          "solution": "Enter the digit 4 at the transport-storage door keypad."
+          "orientation": "Access to transport storage depends on the array capacity and the inventory scan result.",
+          "approach": "After the scan, read both values from the display. Write them as two digits each; the array length comes first.",
+          "near": "The array length is 5 and four entries are occupied. Write both as two-digit values and enter them in that order.",
+          "solution": "Enter 0504 at the transport keypad."
         },
         "transport-array": {
           "orientation": "The storage scanner processes a fixed set of packages whose weights are shown nearby.",
@@ -273,7 +273,7 @@
         "display-title": "Module storage display",
         "display-pending": "The module array has not been created yet.\nNext: create the five-slot module array in the terminal.",
         "display-values": "Required modules\n- CPU\n- RAM\n- GPU\n- SSD\n- NETWORK\n\nNext: enter every module exactly once.",
-        "display-length": "Array length: $1\nNext: use this length to open the inventory scanner door."
+        "display-length": "Array length: $1\nGPU fault record: defective entry at index $2\nNext: write both values as two digits (add a leading zero if needed) and enter them in this order at the inventory scanner keypad."
       },
       "sort": {
         "title": "Bubble Sort comparison",
@@ -308,7 +308,7 @@
       "scanner": {
         "title": "Inventory scanner",
         "display-pending": "Scanner: not activated.\nNext: solve the counting task and pull the scanner lever.",
-        "display-complete": "Scan complete.\nAccess code for the transport storage: 4"
+        "display-complete": "Scan complete.\nArray capacity: $1\nOccupied modules: $2\nNext: write both values as two digits (add a leading zero if needed) and enter them in this order at the transport keypad."
       },
       "labels": {
         "room": "Room: R$1",
@@ -516,7 +516,7 @@
       "entries": {
         "loop": "Use a loop to count only the occupied module entries.",
         "scan": "After the code is accepted, pull the scanner lever.",
-        "door": "The scan is complete. Use the displayed access code for the transport storage."
+        "door": "The scan is complete. Use the array capacity and the number of occupied modules as two-digit values, in that order, to access transport storage."
       }
     },
     "riddle4": {
