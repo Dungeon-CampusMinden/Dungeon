@@ -550,11 +550,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
     storyDialogs.announceToAllPlayers(SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
   }
 
-  /** Announces the final system message after the last terminal riddle. */
-  public static void announceStoryCompletion() {
-    currentLevel().ifPresent(level -> level.storyDialogs.announceCompletionToAllPlayers());
-  }
-
   private static java.util.Optional<SystemRecoveryLevel> currentLevel() {
     return Game.currentLevel()
         .filter(SystemRecoveryLevel.class::isInstance)
@@ -899,6 +894,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     systemCoreAlarmActive = false;
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryPuzzleEvents.solved(SystemRecoveryPuzzle.SYSTEM_CORE);
+    storyDialogs.announceCompletionToAllPlayers();
     triggerFinalEchoCall();
   }
 

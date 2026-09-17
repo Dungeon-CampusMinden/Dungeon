@@ -25,9 +25,6 @@ public final class SystemRecoveryStoryDialogs {
 
   private static final long STORY_DELAY_MS = 900L;
 
-  /** The first instruction after the player pulls the damaged energy lever. */
-  public static final StoryStep ENERGY_ARRAY = step("energy-array", "riddle1", "array");
-
   /** The values required after the energy array exists, announced by AXIOM. */
   public static final StoryStep ENERGY_VALUES = axiomStep("energy-values", "riddle1", "values");
 
@@ -67,10 +64,6 @@ public final class SystemRecoveryStoryDialogs {
   /** AXIOM's instruction to complete the package-processing routine. */
   public static final StoryStep PACKAGES_LOOP = axiomStep("packages-loop", "riddle4", "loop");
 
-  /** ECHO's transition call after the transport scan, starting riddle five. */
-  public static final StoryStep DATA_STORAGE_PROBLEM =
-      echoStep("data-storage-problem", "riddle5", "intro");
-
   /** ECHO's instruction to begin the manual comparison exercise. */
   public static final StoryStep MANUAL_SORTING = echoStep("manual-sorting", "riddle5", "compare");
 
@@ -92,9 +85,6 @@ public final class SystemRecoveryStoryDialogs {
 
   /** AXIOM's instruction to restore the marked storage cells. */
   public static final StoryStep STORAGE_VALUES = axiomStep("storage-values", "riddle8", "fill");
-
-  /** The prepared search-chip program after the empty chip has been inserted. */
-  public static final StoryStep SEARCH_PROGRAM = step("search-program", "riddle9", "program");
 
   /** AXIOM's reaction when the search robot has recovered the system-core access module. */
   public static final StoryStep ACCESS_MODULE_FOUND =
