@@ -31,6 +31,9 @@ import rooms.systemRecovery.util.SystemRecoveryText;
  * clients receive entity state through the existing snapshot protocol.
  */
 public final class InventoryScannerRiddle {
+  private static final List<Integer> TRANSPORT_DOOR_CODE =
+      List.of(0, ModuleStorageRiddle.MODULE_CAPACITY, 0, ModuleStorageRiddle.OCCUPIED_MODULE_COUNT);
+
   private final DungeonLevel level;
   private final RiddleCallbacks callbacks;
 
@@ -146,7 +149,7 @@ public final class InventoryScannerRiddle {
 
   private void startModuleScan() {
     scannerRunning = true;
-    for (int index = 0; index < 5; index++) {
+    for (int index = 0; index < ModuleStorageRiddle.MODULE_CAPACITY; index++) {
       int scannerIndex = index;
       EventScheduler.scheduleAction(() -> highlightScannerModule(scannerIndex), index * 600L);
     }
@@ -170,7 +173,11 @@ public final class InventoryScannerRiddle {
     scannerCompleted = true;
     callbacks.solved();
     SystemRecoveryDisplayFactory.updateDisplayText(
-        scannerDisplay, SystemRecoveryText.key("world.scanner.display-complete"));
+        scannerDisplay,
+        SystemRecoveryText.key(
+            "world.scanner.display-complete",
+            ModuleStorageRiddle.MODULE_CAPACITY,
+            ModuleStorageRiddle.OCCUPIED_MODULE_COUNT));
   }
 
   private void setupTransportStorageKeypad() {
@@ -180,7 +187,7 @@ public final class InventoryScannerRiddle {
     Entity keypad =
         KeypadFactory.createKeypad(
             level.getPoint("keypad_transportlager"),
-            List.of(4),
+            TRANSPORT_DOOR_CODE,
             () -> {
               if (SystemRecoveryProgressNet.activeStep().orElse(null)
                       != SystemRecoveryLearningStep.ROOM3_DOOR_CODE
@@ -203,12 +210,12 @@ public final class InventoryScannerRiddle {
               component.onCorrectCode(
                   player -> {
                     if (openedForExpectedStep[0]) {
-                      callbacks.success("4", player.id());
+                      callbacks.success("0504", player.id());
                       return;
                     }
                     component.isUnlocked(false);
                     component.enteredDigits().clear();
-                    callbacks.failure("4-out-of-order", player.id());
+                    callbacks.failure("0504-out-of-order", player.id());
                   });
               component.onWrongCode(
                   player -> callbacks.failure(component.enteredString(), player.id()));

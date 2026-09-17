@@ -61,6 +61,7 @@ import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
+import rooms.systemRecovery.util.interpreter.SystemRecoveryTerminalController;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 import rooms.systemRecovery.util.interpreter.TerminalStep;
 import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
@@ -126,6 +127,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private final Set<Integer> controlsShownPlayers = new HashSet<>();
   private final Set<String> triggeredDialogPoints = new HashSet<>();
   private Map<String, Point> resolvedPoints = Map.of();
+  private final SystemRecoveryTerminalController terminalController =
+      new SystemRecoveryTerminalController();
   private final SystemRecoveryRiddleRegistry riddleRegistry =
       new SystemRecoveryRiddleRegistry(
           energy,
@@ -375,17 +378,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static boolean interpretTerminalInput(String source, int playerId) {
     if (!terminalsUnlocked()) return false;
-    int state = TerminalInterpreter.instance().currentState();
-    TerminalAttempt attempt = new TerminalAttempt(state, source, playerId);
-    if (state == TerminalStep.SYSTEM_CORE_META.stateId()) {
-      InterpretationCallbacks.onIncorrectTerminalInput(attempt);
-      return false;
-    }
-    if (state == TerminalStep.SEARCH_PROGRAM.stateId()) {
-      InterpretationCallbacks.onIncorrectTerminalInput(attempt);
-      return false;
-    }
-    return TerminalInterpreter.instance().interpret(source, playerId);
+    return active().terminalController.interpret(source, playerId);
   }
 
   /**
@@ -436,7 +429,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static boolean advanceTerminalStateForDebug(int playerId) {
     if (!terminalsUnlocked()) return false;
-    return TerminalInterpreter.instance().advanceCurrentStateForDebug(playerId);
+    return active().terminalController.advanceForDebug(playerId);
   }
 
   /**

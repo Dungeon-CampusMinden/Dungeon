@@ -53,17 +53,24 @@ class SystemRecoveryTranslatorTest {
 
   @Test
   void dynamicWorldKeyUsesTheCurrentClientLanguage() {
-    String displayKey = SystemRecoveryText.key("world.module.display-length", 5);
+    String displayKey = SystemRecoveryText.key("world.module.display-length", 5, 2);
+    String scannerDisplayKey = SystemRecoveryText.key("world.scanner.display-complete", 5, 4);
 
     localization.currentLanguage(Language.EN);
     assertEquals(
-        "Array length: 5\nNext: use this length to open the inventory scanner door.",
+        "Array length: 5\nGPU fault record: defective entry at index 2\nNext: write both values as two digits (add a leading zero if needed) and enter them in this order at the inventory scanner keypad.",
         translator.translate(displayKey));
+    assertEquals(
+        "Scan complete.\nArray capacity: 5\nOccupied modules: 4\nNext: write both values as two digits (add a leading zero if needed) and enter them in this order at the transport keypad.",
+        translator.translate(scannerDisplayKey));
 
     localization.currentLanguage(Language.DE);
     assertEquals(
-        "Array-Länge: 5\nAls Nächstes: Verwende diese Länge, um die Tür zum Inventarscanner zu öffnen.",
+        "Array-Länge: 5\nGPU-Fehlerprotokoll: defekter Eintrag an Index 2\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Keypad zum Inventarscanner ein.",
         translator.translate(displayKey));
+    assertEquals(
+        "Scan abgeschlossen.\nArray-Kapazität: 5\nBelegte Module: 4\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Transport-Keypad ein.",
+        translator.translate(scannerDisplayKey));
   }
 
   @Test
