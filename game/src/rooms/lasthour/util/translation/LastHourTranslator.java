@@ -104,12 +104,12 @@ public class LastHourTranslator extends Translator {
                         ? R2_PUZZLE_IMAGE_DE
                         : R2_PUZZLE_IMAGE_EN);
         case TranslationKey.ScientistProfile ->
-          translatedText =
-            translatedText.replace(
-              s,
-              Game.localization().currentLanguage().equals(Language.DE)
-                ? scientistProfileDE
-                : scientistProfileEN);
+            translatedText =
+                translatedText.replace(
+                    s,
+                    Game.localization().currentLanguage().equals(Language.DE)
+                        ? scientistProfileDE
+                        : scientistProfileEN);
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
