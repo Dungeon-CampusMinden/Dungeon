@@ -471,7 +471,7 @@ public class LastHourLevel extends DungeonLevel {
             new Interaction(
                 (e, who) -> {
                   LastHourQuestLogUtil.addProfilePaperQuestLogEntry();
-                  DialogUtils.showImagePopUp("images/scientist_profile.png", who.id());
+                  DialogUtils.showImagePopUp(TranslationKey.ScientistProfile, who.id());
                 })));
     Game.add(profilePaper);
   }
@@ -557,8 +557,8 @@ public class LastHourLevel extends DungeonLevel {
   // Puzzle definition for the r2-papers puzzle. Shared between the server (which spawns the
   // world items in r2SpawnPapers) and the client (which pre-generates the matching textures
   // in ensureClientPuzzles) so both derive the same deterministic puzzle id.
-  private static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code_en.png");
-  private static final SimpleIPath R2_PUZZLE_IMAGE_DE = new SimpleIPath("images/final-code_de.png");
+  private static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code-en.png");
+  private static final SimpleIPath R2_PUZZLE_IMAGE_DE = new SimpleIPath("images/final-code-de.png");
   private static final int R2_PUZZLE_PIECE_COUNT = 4;
   private static final long R2_PUZZLE_SEED = 1586791695537379744L;
 
@@ -688,7 +688,7 @@ public class LastHourLevel extends DungeonLevel {
         new InteractionComponent(
             new Interaction(
                 (e, who) -> {
-                  DialogFactory.showOkDialog(TranslationKey.VentDialog, "", () -> {}, who.id());
+                  DialogFactory.showOkDialog(TranslationKey.RealVentDialog, "", () -> {}, who.id());
                 })));
     Game.add(vent);
 

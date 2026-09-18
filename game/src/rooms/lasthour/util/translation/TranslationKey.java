@@ -5,7 +5,8 @@ public class TranslationKey {
 
   public static final String DecoyVentDialog1 = "DecoyVentDialog1";
   public static final String DecoyVentDialog2 = "DecoyVentDialog2";
-  public static final String VentDialog = "VentDialog";
+  public static final String RealVentDialog = "RealVentDialog";
+  public static final String ScientistProfile = "ScientistProfile";
   public static final String R2DeskNoteText = "R2DeskNoteText";
   public static final String R2PuzzleImage = "R2PuzzleImage";
   public static final String IntroText_1 = "IntroText_1";

@@ -21,6 +21,8 @@ public class LastHourTranslator extends Translator {
   private final String cabinetImagePathDE = "images/virus-phrases-de.png";
   private final String R2_PUZZLE_IMAGE_EN = "images/final-code-en.png";
   private final String R2_PUZZLE_IMAGE_DE = "images/final-code-de.png";
+  private final String scientistProfileEN = "images/scientist_profile.png";
+  private final String scientistProfileDE = "images/scientist_profile-de.png";
   public static Puzzle currentPuzzle;
 
   /** List of URLs mentioned in the emails, which may or may not be trustworthy. */
@@ -77,7 +79,7 @@ public class LastHourTranslator extends Translator {
         case TranslationKey.DecoyVentDialog2 ->
             translatedText =
                 translatedText.replace(s, translation.text(s, DecoyVentSerialNumbers.get(1)));
-        case TranslationKey.VentDialog ->
+        case TranslationKey.RealVentDialog ->
             translatedText = translatedText.replace(s, translation.text(s, VentSerialNumber));
         case TranslationKey.Email_2_Content ->
             translatedText = translatedText.replace(s, translation.text(s, EmailCodeUrls.get(1)));
@@ -101,6 +103,13 @@ public class LastHourTranslator extends Translator {
                     Game.localization().currentLanguage().equals(Language.DE)
                         ? R2_PUZZLE_IMAGE_DE
                         : R2_PUZZLE_IMAGE_EN);
+        case TranslationKey.ScientistProfile ->
+          translatedText =
+            translatedText.replace(
+              s,
+              Game.localization().currentLanguage().equals(Language.DE)
+                ? scientistProfileDE
+                : scientistProfileEN);
         default -> translatedText = translatedText.replace(s, translation.text(s));
       }
     }
@@ -111,8 +120,9 @@ public class LastHourTranslator extends Translator {
   public static void addAllKeys() {
     registerKey(TranslationKey.DecoyVentDialog1);
     registerKey(TranslationKey.DecoyVentDialog2);
-    registerKey(TranslationKey.VentDialog);
+    registerKey(TranslationKey.RealVentDialog);
     registerKey(TranslationKey.R2DeskNoteText);
+    registerKey(TranslationKey.ScientistProfile);
     registerKey(TranslationKey.R2PuzzleImage);
     registerKey(TranslationKey.IntroText_1);
     registerKey(TranslationKey.IntroText_2);
