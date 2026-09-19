@@ -14,6 +14,7 @@ import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /**
  * An {@link Item} that represents a single piece of a {@link Puzzle}.
@@ -80,8 +81,8 @@ public class PuzzlePieceItem extends Item {
   public PuzzlePieceItem(
       String puzzleId, int pieceIndex, IPath imagePath, int pieceCount, long seed) {
     super(
-        "A Puzzle Piece",
-        "There must be more of them...\n[Use] to see the puzzle.",
+        TranslationKey.PuzzleItemName,
+        TranslationKey.PuzzleItemDescription,
         new Animation(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzleId, pieceIndex))));
     this.puzzleId = puzzleId;
     this.pieceIndex = pieceIndex;

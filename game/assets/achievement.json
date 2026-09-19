@@ -57,7 +57,7 @@
       "hidden": true
     },
     {
-      "imagePath": "images/final-code.png",
+      "imagePath": "images/final-code-en.png",
       "id": "escaped_in_time",
       "developerNote": "Finish the game before the timer runs out.",
       "unlockForAll": true,

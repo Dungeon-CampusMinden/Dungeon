@@ -10,6 +10,7 @@ import feature.inventory.ItemRegistry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /**
  * An inventory item that, when used, opens an image popup showing a referenced image.
@@ -21,10 +22,6 @@ import java.util.Objects;
  * items/rpg/item_paper.png} but can be overridden via the constructor.
  */
 public class HintItem extends Item {
-
-  private static final String DEFAULT_NAME = "Hint";
-  private static final String DEFAULT_DESCRIPTION =
-      "A note with an image. [Use] to view the image.";
 
   /** Item-data key carrying the path to the popup image. */
   public static final String DATA_KEY_IMAGE_PATH = "imagePath";
@@ -52,6 +49,30 @@ public class HintItem extends Item {
 
   private final IPath imagePath;
   private final IPath worldSprite;
+  private final String translationKey;
+
+  /**
+   * Creates a new {@link HintItem} with full control over visuals and texts.
+   *
+   * @param imagePath Path to the image that is shown via {@link DialogUtils#showImagePopUp(String,
+   *     int...)} when the item is used from the inventory.
+   * @param worldSprite Path to the sprite used for both the inventory icon and the dropped
+   *     world-item representation.
+   * @param name Display name of the item.
+   * @param description Description of the item.
+   * @param translationKey key that is being used to refer to the translated item.
+   */
+  public HintItem(
+      final IPath imagePath,
+      final IPath worldSprite,
+      final String name,
+      final String description,
+      String translationKey) {
+    super(name, description, new Animation(Objects.requireNonNull(worldSprite, "worldSprite")));
+    this.imagePath = Objects.requireNonNull(imagePath, "imagePath");
+    this.worldSprite = worldSprite;
+    this.translationKey = translationKey;
+  }
 
   /**
    * Creates a new {@link HintItem} with full control over visuals and texts.
@@ -65,9 +86,7 @@ public class HintItem extends Item {
    */
   public HintItem(
       final IPath imagePath, final IPath worldSprite, final String name, final String description) {
-    super(name, description, new Animation(Objects.requireNonNull(worldSprite, "worldSprite")));
-    this.imagePath = Objects.requireNonNull(imagePath, "imagePath");
-    this.worldSprite = worldSprite;
+    this(imagePath, worldSprite, name, description, "");
   }
 
   /**
@@ -88,7 +107,22 @@ public class HintItem extends Item {
    * @param imagePath Path to the image that is shown when the item is used from the inventory.
    */
   public HintItem(final IPath imagePath) {
-    this(imagePath, imagePath, DEFAULT_NAME, DEFAULT_DESCRIPTION);
+    this(imagePath, imagePath, TranslationKey.HintItemName, TranslationKey.HintItemDescription);
+  }
+
+  /**
+   * Creates a new {@link HintItem} with default name, description and world sprite.
+   *
+   * @param imagePath Path to the image that is shown when the item is used from the inventory.
+   * @param translationKey key for the translation, used when the item is being used.
+   */
+  public HintItem(final IPath imagePath, String translationKey) {
+    this(
+        imagePath,
+        imagePath,
+        TranslationKey.HintItemName,
+        TranslationKey.HintItemDescription,
+        translationKey);
   }
 
   /**
@@ -103,8 +137,8 @@ public class HintItem extends Item {
     Map<String, String> data = new LinkedHashMap<>();
     data.put(DATA_KEY_IMAGE_PATH, imagePath.pathString());
     data.put(DATA_KEY_WORLD_SPRITE, worldSprite.pathString());
-    data.put(DATA_KEY_NAME, displayName());
-    data.put(DATA_KEY_DESCRIPTION, description());
+    data.put(DATA_KEY_NAME, TranslationKey.HintItemName);
+    data.put(DATA_KEY_DESCRIPTION, TranslationKey.HintItemDescription);
     return data;
   }
 
@@ -118,8 +152,9 @@ public class HintItem extends Item {
   private static HintItem fromData(Map<String, String> data) {
     String imagePath = require(data, DATA_KEY_IMAGE_PATH);
     String worldSprite = data.getOrDefault(DATA_KEY_WORLD_SPRITE, imagePath);
-    String name = data.getOrDefault(DATA_KEY_NAME, DEFAULT_NAME);
-    String description = data.getOrDefault(DATA_KEY_DESCRIPTION, DEFAULT_DESCRIPTION);
+    String name = data.getOrDefault(DATA_KEY_NAME, TranslationKey.HintItemName);
+    String description =
+        data.getOrDefault(DATA_KEY_DESCRIPTION, TranslationKey.HintItemDescription);
     return new HintItem(
         new SimpleIPath(imagePath), new SimpleIPath(worldSprite), name, description);
   }
@@ -135,9 +170,11 @@ public class HintItem extends Item {
   @Override
   public void use(final Entity user) {
     if (user == null) {
-      DialogUtils.showImagePopUp(imagePath.pathString());
+      if (translationKey.isEmpty()) DialogUtils.showImagePopUp(imagePath.pathString());
+      else DialogUtils.showImagePopUp(translationKey);
       return;
     }
-    DialogUtils.showImagePopUp(imagePath.pathString(), user.id());
+    if (translationKey.isEmpty()) DialogUtils.showImagePopUp(imagePath.pathString(), user.id());
+    else DialogUtils.showImagePopUp(translationKey, user.id());
   }
 }

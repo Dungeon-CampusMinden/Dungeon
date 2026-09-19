@@ -1,18 +1,32 @@
 package rooms.lasthour.modules.usbstick;
 
+import rooms.lasthour.util.translation.TranslationKey;
+
 /** Enum representing all USB stick color variants used by the game. */
 public enum UsbStickColor {
   /** Red USB stick. */
-  Red("Red USB Stick", "A red USB stick.", "items/usb-side-red.png"),
+  Red(
+      TranslationKey.RedUSBStickName,
+      TranslationKey.RedUSBStickDescription,
+      "items/usb-side-red.png"),
 
   /** Green USB stick. */
-  Green("Green USB Stick", "A green USB stick.", "items/usb-side-green.png"),
+  Green(
+      TranslationKey.GreenUSBStickName,
+      TranslationKey.GreenUSBStickDescription,
+      "items/usb-side-green.png"),
 
   /** Yellow USB stick. */
-  Yellow("Yellow USB Stick", "A yellow USB stick.", "items/usb-side-yellow.png"),
+  Yellow(
+      TranslationKey.YellowUSBStickName,
+      TranslationKey.YellowUSBStickDescription,
+      "items/usb-side-yellow.png"),
 
   /** Blue USB stick. */
-  Blue("Blue USB Stick", "A blue USB stick.", "items/usb-side-blue.png");
+  Blue(
+      TranslationKey.BlueUSBStickName,
+      TranslationKey.BlueUSBStickDescription,
+      "items/usb-side-blue.png");
 
   private final String displayName;
   private final String description;

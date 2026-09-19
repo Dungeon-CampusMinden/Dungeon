@@ -2,6 +2,7 @@ package feature.inventory;
 
 import engine.Entity;
 import engine.Game;
+import engine.language.Localization;
 import engine.level.Tile;
 import engine.level.elements.tile.FloorTile;
 import engine.utils.Point;
@@ -293,7 +294,8 @@ public class Item {
   public String displayName() {
     String prefix = "";
     if (this.stackSize > 1) prefix = this.stackSize() + " x ";
-    return prefix.concat(this.displayName);
+    return prefix.concat(
+        Localization.getInstance().getCurrentTranslator().translate(this.displayName));
   }
 
   /**
@@ -311,7 +313,7 @@ public class Item {
    * @return The description.
    */
   public String description() {
-    return this.description;
+    return Localization.getInstance().getCurrentTranslator().translate(this.description);
   }
 
   /**
