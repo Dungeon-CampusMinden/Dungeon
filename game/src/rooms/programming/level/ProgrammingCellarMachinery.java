@@ -45,8 +45,7 @@ final class ProgrammingCellarMachinery {
       for (int i = 0; i < 3; i++) {
         Point at = goal.translate(1 + i * .85f, 2.1f + (i % 2) * .1f);
         if (debris.size() == 4) at = goal.translate(5.2f + i * .8f, .1f);
-        Entity stone = prop("rubble", at, "objects/stone", .8f, .55f);
-        stone.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Ground.depth());
+        Entity stone = prop("rubble", at, "objects/stone", .8f, .55f, DepthLayer.Ground);
         pile.add(stone);
       }
       debris.add(pile);
@@ -80,8 +79,7 @@ final class ProgrammingCellarMachinery {
     var wallTexture = level.tileAt(gate.translate(-1, 0)).orElseThrow().texturePath();
     for (int x = (int) gate.x(); x <= level.getPoint("act2-gate-end").x(); x++) {
       Point at = new Point(x, gate.y());
-      Entity floor = prop("wall-threshold", at, "rooms/programming/sluice.png", 1, 1);
-      floor.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Ground.depth());
+      prop("wall-threshold", at, "rooms/programming/sluice.png", 1, 1, DepthLayer.Ground);
       wall.add(prop("sliding-wall", at, wallTexture.pathString(), 1, 1));
     }
     focus = prop("sequence-focus", end.translate(4, 1), "objects/stone", 1, 1);
@@ -89,13 +87,19 @@ final class ProgrammingCellarMachinery {
   }
 
   static Entity prop(String name, Point at, String path, float width, float height) {
+    return prop(name, at, path, width, height, DepthLayer.Player);
+  }
+
+  private static Entity prop(
+      String name, Point at, String path, float width, float height, DepthLayer layer) {
     Entity entity = new Entity("programming-cellar-" + name);
     PositionComponent position = new PositionComponent(at);
     position.scale(Vector2.of(width, height));
     entity.add(position);
     DrawComponent draw = new DrawComponent(new SimpleIPath(path));
     if (path.equals("objects/stone")) draw.stateMachine().setState("idle", null);
-    draw.depth(DepthLayer.Player.depth());
+    // Set the layer before Game.add registers the entity in the renderer's depth groups.
+    draw.depth(layer.depth());
     entity.add(draw);
     Game.add(entity);
     return entity;

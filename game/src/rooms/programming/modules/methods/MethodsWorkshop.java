@@ -266,10 +266,17 @@ public final class MethodsWorkshop {
 
   /** Starts with the expanded, executable route, including explicit caller bookkeeping. */
   public MethodsWorkshop() {
+    main.addAll(originalProgram());
+    mainVariables.put("kristalle", "0");
+  }
+
+  /** Immutable starting program, also used by the editor's read-only reference view. */
+  public static List<Block> originalProgram() {
+    var original = new ArrayList<Block>();
     int id = 0;
     for (var station : MethodsRoute.STATIONS) {
       for (var step : station.body())
-        main.add(
+        original.add(
             new Block(
                 "b" + (id++),
                 step.action(),
@@ -281,7 +288,7 @@ public final class MethodsWorkshop {
                 List.of(),
                 ResultMode.REPLACE));
       if (station.kind() == MethodsRoute.Kind.COLLECT)
-        main.add(
+        original.add(
             new Block(
                 "b" + (id++),
                 Action.ASSIGN,
@@ -291,7 +298,7 @@ public final class MethodsWorkshop {
                 List.of(),
                 ResultMode.REPLACE));
       if (station.kind() == MethodsRoute.Kind.ALTAR)
-        main.add(
+        original.add(
             new Block(
                 "b" + (id++),
                 Action.ASSIGN,
@@ -301,7 +308,7 @@ public final class MethodsWorkshop {
                 List.of(),
                 ResultMode.REPLACE));
     }
-    mainVariables.put("kristalle", "0");
+    return List.copyOf(original);
   }
 
   /** Returns a snapshot; current-frame variables reveal parameter bindings during execution. */

@@ -47,6 +47,11 @@ Maustaste ändert ihre Größe: Hauptprogramm und Bausteinauswahl nur in der Hö
 der Methodenentwurf auch in der Breite. Fenster werden am Titel verschoben.
 Das Mausrad scrollt das Fenster unter dem Zeiger. Auch an den Scrollgrenzen bleibt der
 Zoom unverändert. Über dem freien Hintergrund zoomt es die Arbeitsfläche.
+Rechts neben dem Hauptprogrammzähler schaltet „Original“ auf den unveränderten Startcode
+zum Vergleichen. Diese Ansicht ist schreibgeschützt: keine Bearbeitung, Auswahl oder
+Drag-and-drop von Codeblöcken hinein oder heraus. „Mein Code“ wechselt zurück zum eigenen
+Programm; beide Ansichten behalten ihre Scrollposition. Der Zähler und „Ausführen“ beziehen
+sich weiterhin auf das eigene Programm. Die Ansicht ist eine lokale Einstellung des Spielers.
 
 Der Methodenentwurf hat einen frei wählbaren Namen, Eingaben und einen Körper.
 „Methode bauen“ erzeugt ausdrücklich eine benannte Rune. Eine Rune lässt sich als

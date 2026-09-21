@@ -218,6 +218,8 @@ class MethodsWorkshopTest {
   @Test
   void individualBlocksCanBeExtractedReorderedAndLeftDisconnected() {
     var workshop = claimed();
+    var original = MethodsWorkshop.originalProgram();
+    assertEquals(original, workshop.state().main());
     Block first = workshop.state().main().getFirst();
     edit(workshop, Operation.MOVE_BLOCK, new Edit(first.id(), "draft", 0, null));
     assertEquals(first, workshop.state().draft().body().getFirst());
@@ -230,6 +232,9 @@ class MethodsWorkshopTest {
         new Edit(first.id(), "main", workshop.state().main().size(), null));
     assertEquals(first, workshop.state().main().getLast());
     assertEquals(second, workshop.state().scrap().getFirst());
+    assertEquals(original, MethodsWorkshop.originalProgram());
+    assertEquals(first, original.getFirst());
+    assertThrows(UnsupportedOperationException.class, () -> original.removeFirst());
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
     assertEquals(Action.OPEN_GATE, workshop.next().orElseThrow().action());
   }

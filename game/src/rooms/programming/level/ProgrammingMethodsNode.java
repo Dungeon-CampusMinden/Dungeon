@@ -44,6 +44,7 @@ import tools.jackson.databind.json.JsonMapper;
 /** Code windows and frameless loose groups share the same instruction rows and editors. */
 final class ProgrammingMethodsNode extends CanvasNode {
   private static final JsonMapper JSON = JsonMapper.builder().build();
+  private static final List<Block> ORIGINAL_PROGRAM = MethodsWorkshop.originalProgram();
 
   static void register() {
     if (!CanvasNodeType.isRegistered("programming.methods.blocks"))
@@ -73,6 +74,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
   private ProgrammingMethodsUI owner;
   private ScrollPane scroll;
   private float scrollY;
+  private float alternateScrollY;
+  private boolean showOriginal;
   private String expanded = "";
   private String revealedError = "";
   private boolean rebuilding;
@@ -237,6 +240,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
   }
 
   private void revealError() {
+    if (showOriginal) return;
     String failed =
         panelBlocks(owner.state()).stream()
             .map(Block::id)
@@ -366,9 +370,31 @@ final class ProgrammingMethodsNode extends CanvasNode {
     var heading =
         ProgrammingUI.zoomLabel(
             title + count,
-            23,
+            container.equals("main") ? 20 : 23,
             methodTooLong || !unreachable.isEmpty() ? ProgrammingUI.ERROR : ProgrammingUI.GOLD);
-    content.add(heading).growX().height(35).padBottom(8).row();
+    Table header = new Table();
+    header.add(heading).growX().minWidth(0);
+    if (container.equals("main")) {
+      TextButton toggle =
+          ProgrammingUI.zoomButton(
+              showOriginal ? "Mein Code" : "Original", showOriginal, this::toggleOriginal);
+      toggle.setName("toggle-original-program");
+      toggle.pad(4);
+      header.add(toggle).width(106).height(30).padLeft(6);
+    }
+    content.add(header).growX().height(35).padBottom(8).row();
+    if (showOriginal)
+      content
+          .add(
+              ProgrammingUI.zoomLabel(
+                  "Original · "
+                      + ORIGINAL_PROGRAM.size()
+                      + " Zeilen · nur Lesen\nAusführen startet dein eigenes Programm.",
+                  15,
+                  ProgrammingUI.MUTED))
+          .growX()
+          .padBottom(8)
+          .row();
     if (methodTooLong)
       content
           .add(
@@ -401,12 +427,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
       if (container.equals("draft")) methodHeader(body, !unreachable.isEmpty());
       List<Block> blocks =
           switch (container) {
-            case "main" -> owner.state().main();
+            case "main" -> showOriginal ? ORIGINAL_PROGRAM : owner.state().main();
             case "draft" -> owner.state().draft().body();
             default -> owner.state().scrap();
           };
       for (int i = 0; i <= blocks.size(); i++) {
-        insertion(body, i, blocks.isEmpty());
+        if (!showOriginal) insertion(body, i, blocks.isEmpty());
         if (i < blocks.size())
           blockRow(body, blocks.get(i), i, unreachable.getOrDefault(blocks.get(i).id(), ""));
       }
@@ -418,6 +444,19 @@ final class ProgrammingMethodsNode extends CanvasNode {
     content.validate();
     scroll.setScrollY(scrollY);
     scroll.updateVisualScroll();
+  }
+
+  private void toggleOriginal() {
+    owner.flushFields();
+    float previousScroll = scroll == null ? scrollY : scroll.getScrollY();
+    scrollY = alternateScrollY;
+    alternateScrollY = previousScroll;
+    scroll = null;
+    showOriginal = !showOriginal;
+    selected.clear();
+    selectionAnchor = "";
+    expanded = "";
+    owner.refreshPanels();
   }
 
   private ScrollPane codeScroll(Table body) {
@@ -574,6 +613,14 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   private void blockRow(Table table, Block block, int index, String staticError) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
+    if (showOriginal) {
+      row.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
+      row.add(ProgrammingUI.zoomSyntaxLabel("[#a6aeaa]" + (index + 1) + ".  " + syntax(block), 18))
+          .growX()
+          .minWidth(0);
+      table.add(row).growX().minHeight(42).padBottom(6).row();
+      return;
+    }
     String error =
         staticError.isEmpty()
             ? owner.state().blockErrors().getOrDefault(block.id(), "")
@@ -1169,7 +1216,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   // Field acknowledgments can arrive during a drag; the move still refers to the live block ID.
   boolean validDrag(Drag drag) {
-    if (!owner.editable()) return false;
+    if (showOriginal || drag.source().showOriginal || !owner.editable()) return false;
     if (drag.copy()) {
       if (drag.block().action() != Action.CALL) return true;
       var method = owner.state().definitions().get(drag.block().method());
