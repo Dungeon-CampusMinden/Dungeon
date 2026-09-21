@@ -640,12 +640,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
         "label_modulspeicher",
         SystemRecoveryText.key("world.labels.module-storage"),
         SystemRecoveryText.key("world.labels.room", 2),
-        moduleStorage::completed);
+        moduleStorage::completed,
+        -90f);
     addDoorLabel(
         "label_inventarscanner",
         SystemRecoveryText.key("world.labels.inventory-scanner"),
         SystemRecoveryText.key("world.labels.room", 3),
-        inventoryScanner::completed);
+        inventoryScanner::completed,
+        180f);
     addDoorLabel(
         "label_transportlager",
         SystemRecoveryText.key("world.labels.transport-storage"),
@@ -670,7 +672,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
         "label_speicher",
         SystemRecoveryText.key("world.labels.two-dimensional-storage"),
         SystemRecoveryText.key("world.labels.room", 8),
-        twoDimensionalStorage::completed);
+        twoDimensionalStorage::completed,
+        90f);
     addDoorLabel(
         "label_suchroboter",
         SystemRecoveryText.key("world.labels.search-robot"),
@@ -680,7 +683,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
         "label_systemcore",
         SystemRecoveryText.key("world.labels.system-core"),
         SystemRecoveryText.key("world.labels.system-core-room"),
-        () -> systemCoreRiddleCompleted);
+        () -> systemCoreRiddleCompleted,
+        -90f);
   }
 
   /**
@@ -692,7 +696,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @param completed supplier for the prerequisite completion state
    */
   private void addDoorLabel(String point, String text, String title, BooleanSupplier completed) {
-    Entity label = SystemRecoveryRoomFactory.roomLabel(this.point(point), text, title);
+    addDoorLabel(point, text, title, completed, 0f);
+  }
+
+  /** Adds a room label with an explicit visual orientation. */
+  private void addDoorLabel(
+      String point, String text, String title, BooleanSupplier completed, float rotation) {
+    Entity label = SystemRecoveryRoomFactory.roomLabel(this.point(point), text, title, rotation);
     label.name(point);
     label.add(new DoorLabelComponent(completed));
     DoorLabelComponent.updateAppearance(label, completed.getAsBoolean());
