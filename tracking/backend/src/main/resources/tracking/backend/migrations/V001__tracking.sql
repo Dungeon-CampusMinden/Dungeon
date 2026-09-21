@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS tracking_events (
     room_id TEXT NOT NULL,
     event_type TEXT NOT NULL CHECK (event_type IN (
         'PARTICIPANT_JOINED', 'PARTICIPANT_LEFT', 'PUZZLE_STARTED', 'ANSWER_SUBMITTED',
-        'HINT_USED', 'PUZZLE_SOLVED')),
+        'HINT_USED', 'PUZZLE_SOLVED', 'INTERACTION')),
     puzzle_id TEXT,
     object_id TEXT,
     outcome TEXT,
@@ -57,10 +57,14 @@ CREATE TABLE IF NOT EXISTS tracking_events (
         AND payload ->> 'attemptNumber' ~ '^[1-9][0-9]*$')
         OR (event_type <> 'ANSWER_SUBMITTED' AND outcome IS NULL)),
     CHECK (event_type <> 'HINT_USED' OR object_id IS NOT NULL),
+    CHECK (event_type <> 'INTERACTION' OR (object_id IS NOT NULL
+        AND payload ? 'actionId'
+        AND jsonb_typeof(payload -> 'actionId') = 'string'
+        AND btrim(payload ->> 'actionId') <> '')),
     CHECK ((event_type IN ('PUZZLE_STARTED', 'ANSWER_SUBMITTED', 'HINT_USED', 'PUZZLE_SOLVED'))
         = (puzzle_id IS NOT NULL)),
     CHECK ((event_type IN ('PARTICIPANT_JOINED', 'PARTICIPANT_LEFT', 'ANSWER_SUBMITTED',
-        'HINT_USED')) = (participant_id IS NOT NULL))
+        'HINT_USED', 'INTERACTION')) = (participant_id IS NOT NULL))
 );
 
 CREATE INDEX IF NOT EXISTS tracking_events_session_puzzle_sequence_idx

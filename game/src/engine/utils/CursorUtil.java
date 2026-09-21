@@ -3,6 +3,8 @@ package engine.utils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -10,9 +12,18 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 /** Utility class for managing custom mouse cursors in LibGDX. */
 public class CursorUtil {
+
+  /** A UI region can override child cursors during an operation such as drag-and-drop. */
+  public interface CursorOverride {
+    /**
+     * @return an active operation's cursor, or empty to use the hovered actor's cursor
+     */
+    Optional<Cursors> cursorOverride();
+  }
 
   private static Cursors currentCursor;
 
@@ -97,32 +108,45 @@ public class CursorUtil {
    */
   public static void initListener(Stage stage) {
     resetCursor();
+    stage.addAction(
+        new Action() {
+          private final Vector2 pointer = new Vector2();
+
+          @Override
+          public boolean act(float delta) {
+            stage.screenToStageCoordinates(pointer.set(Gdx.input.getX(), Gdx.input.getY()));
+            setCursor(cursorFor(stage.hit(pointer.x, pointer.y, true)));
+            return false;
+          }
+        });
     stage.addListener(
         new InputListener() {
           @Override
           public boolean mouseMoved(InputEvent event, float x, float y) {
-            Actor hit = stage.hit(x, y, true);
-            // Fall back to the world override (if any) instead of hard-coding DEFAULT
-            Cursors fallback = worldCursorOverride != null ? worldCursorOverride : Cursors.DEFAULT;
-            Cursors target = fallback;
-
-            while (hit != null) {
-              if (hit.getUserObject() instanceof Cursors c) {
-                if (hit instanceof Disableable d && d.isDisabled()) {
-                  target = Cursors.DISABLED;
-                  break;
-                }
-                target = c;
-                break;
-              }
-              hit = hit.getParent();
-            }
-
-            if (getCurrentCursor() != target) {
-              setCursor(target);
-            }
+            setCursor(cursorFor(stage.hit(x, y, true)));
             return false;
           }
         });
+  }
+
+  /**
+   * Resolves the nearest cursor tag, with active UI operations taking priority over child controls.
+   *
+   * @param hit actor under the pointer, or null for the world
+   * @return the cursor for the current UI and world state
+   */
+  public static Cursors cursorFor(Actor hit) {
+    Cursors target = null;
+    for (Actor actor = hit; actor != null; actor = actor.getParent()) {
+      if (actor instanceof CursorOverride override) {
+        var cursor = override.cursorOverride();
+        if (cursor.isPresent()) return cursor.get();
+      }
+      if (target == null && actor.getUserObject() instanceof Cursors cursor)
+        target = actor instanceof Disableable d && d.isDisabled() ? Cursors.DISABLED : cursor;
+    }
+    return target != null
+        ? target
+        : worldCursorOverride != null ? worldCursorOverride : Cursors.DEFAULT;
   }
 }

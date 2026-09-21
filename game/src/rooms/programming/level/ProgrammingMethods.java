@@ -38,13 +38,15 @@ public final class ProgrammingMethods {
     ProgrammingMethodsNode.register();
     DialogFactory.register(
         Type.METHODS,
-        context ->
-            Game.isHeadless()
-                ? new HeadlessDialogGroup()
-                : new ProgrammingMethodsUI(
-                    context.dialogId(),
-                    decode(context.require(ID, String.class)),
-                    context.require("editorViewer", Integer.class)));
+        context -> {
+          context.find(ProgrammingHelp.ID, String.class).ifPresent(ProgrammingHelp::receive);
+          return Game.isHeadless()
+              ? new HeadlessDialogGroup()
+              : new ProgrammingMethodsUI(
+                  context.dialogId(),
+                  decode(context.require(ID, String.class)),
+                  context.require("editorViewer", Integer.class));
+        });
   }
 
   /**
@@ -60,7 +62,7 @@ public final class ProgrammingMethods {
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
-            DialogContext.builder()
+            ProgrammingHelp.context(DialogContext.builder())
                 .type(Type.METHODS)
                 .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .put(ID, encode(state))
@@ -70,6 +72,7 @@ public final class ProgrammingMethods {
             false,
             true,
             who.id());
+    ProgrammingHelp.callbacks(ui, who);
     ui.registerCallback(
         "intent",
         payload -> {

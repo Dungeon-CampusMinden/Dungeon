@@ -50,6 +50,7 @@ public class ProgrammingLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    ProgrammingProgress.initialize();
     runtime = ProgrammingRoomElements.spawn(this);
     ProgrammingAtmosphere.install();
   }

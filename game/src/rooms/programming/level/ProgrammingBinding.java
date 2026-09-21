@@ -37,11 +37,13 @@ public final class ProgrammingBinding {
     ProgrammingBindingNode.register();
     DialogFactory.register(
         Type.BINDING,
-        context ->
-            Game.isHeadless()
-                ? new HeadlessDialogGroup()
-                : new ProgrammingBindingUI(
-                    context.dialogId(), decode(context.require(ID, String.class))));
+        context -> {
+          context.find(ProgrammingHelp.ID, String.class).ifPresent(ProgrammingHelp::receive);
+          return Game.isHeadless()
+              ? new HeadlessDialogGroup()
+              : new ProgrammingBindingUI(
+                  context.dialogId(), decode(context.require(ID, String.class)));
+        });
   }
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
@@ -49,7 +51,7 @@ public final class ProgrammingBinding {
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
-            DialogContext.builder()
+            ProgrammingHelp.context(DialogContext.builder())
                 .type(Type.BINDING)
                 .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .put(ID, encode(runtime.bindingState()))
@@ -58,6 +60,7 @@ public final class ProgrammingBinding {
             true,
             false,
             who.id());
+    ProgrammingHelp.callbacks(ui, who);
     ui.registerCallback(CanvasUI.EVENT_CLOSE, ignored -> UIUtils.closeDialog(ui));
     for (String event : new String[] {"vessel", "essence"}) {
       ui.registerCallback(

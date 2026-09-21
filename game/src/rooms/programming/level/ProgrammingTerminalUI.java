@@ -6,12 +6,33 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
+import java.util.Optional;
 import rooms.programming.modules.loops.TerminalState;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
-final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI {
+final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI
+    implements CursorUtil.CursorOverride {
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    for (var node : area().nodes()) {
+      if (node instanceof ProgrammingTerminalNode source && source.dragging()) {
+        boolean blocked =
+            area().intersectsAll(source).stream()
+                .anyMatch(
+                    target ->
+                        target instanceof ProgrammingTerminalNode slot
+                            && slot.executor()
+                            && !slot.accepts(source));
+        return Optional.of(blocked ? Cursors.DISABLED : Cursors.GRABBING);
+      }
+    }
+    return Optional.empty();
+  }
+
   private final Label code = ProgrammingUI.label("", 18, ProgrammingUI.TEXT);
   private final Group tooltip =
       new Group() {
@@ -33,8 +54,9 @@ final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI {
         "Ziehe eine Rune in den Executor und führe Nox zu den fünf Wegzeichen.",
         ProgrammingTerminal.nodes(initial));
     footer.clearChildren();
+    footer.add(status).growX().padTop(8);
     help(
-        "Kellersteuerung\n\nZiehe eine Rune in das Executor-Feld. Das Programm startet beim Einsetzen. Fahre mit der Maus über eine Rune, um ihren Code zu lesen.\n\nWährend Nox arbeitet, bleibt die eingesetzte Rune gesperrt. Sobald er fertig ist, kannst du sie herausziehen oder durch eine andere Rune ersetzen.\n\nDie Befehle stehen unter dem Runenvorrat. Der Sehstein im Raum zeigt Nox aus der Nähe.");
+        "Starten: Rune in den Executor ziehen.\nCode lesen: Maus über eine Rune halten.\nWechseln: Nach dem Lauf Rune herausziehen oder ersetzen.\nBeobachten: Die Karte zeigt Nox und das nächste Wegzeichen.");
     update(initial);
     tooltip.setTransform(false);
     tooltip.setTouchable(Touchable.disabled);
@@ -102,6 +124,15 @@ final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI {
   }
 
   private void update(TerminalState state) {
+    status.setText(
+        ProgrammingHelp.state()
+            .filter(s -> s.puzzleId().equals("cellar-" + state.checkpoint()) && s.level() >= 3)
+            .map(
+                s ->
+                    s.status().isBlank()
+                        ? "Gold zeigt den aktuellen Weg. Nur passende Runengruppen sind sichtbar."
+                        : s.status())
+            .orElse(""));
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       String id = state.collectedRunes().get(i);
       if (area().nodeById(id).isEmpty()) area().addNode(ProgrammingTerminal.card(id, i));

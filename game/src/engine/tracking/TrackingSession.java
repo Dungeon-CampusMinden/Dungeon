@@ -30,7 +30,7 @@ import tracking.core.TrackingSessionStatus;
 /** Mutable state of one authoritative tracking session. Guarded by the facade lock. */
 final class TrackingSession {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TrackingSession.class);
-  private static final int SCHEMA_VERSION = 1;
+  private static final int SCHEMA_VERSION = 2;
   private static final Duration FINAL_UPLOAD_TIMEOUT = Duration.ofMillis(2500);
 
   private final TrackingConfig config;
@@ -108,7 +108,8 @@ final class TrackingSession {
       String answerKind,
       String rawAnswer,
       boolean correct,
-      UUID participantId) {
+      UUID participantId,
+      Optional<AttemptDetails> details) {
     String attemptedPuzzle = requireText(puzzleId, "puzzleId");
     int attemptNumber = attemptsByPuzzle.getOrDefault(attemptedPuzzle, 0) + 1;
     ObjectNode payload =
@@ -116,6 +117,13 @@ final class TrackingSession {
             .put("answerKind", requireText(answerKind, "answerKind"))
             .put("attemptNumber", attemptNumber)
             .put("answer", java.util.Objects.requireNonNull(rawAnswer, "rawAnswer"));
+    details.ifPresent(
+        value -> {
+          payload.put("hintLevel", value.hintLevel());
+          payload.put("automaticSolution", value.automaticSolution());
+          var reasons = payload.putArray("failureReasons");
+          value.failureReasons().forEach(reasons::add);
+        });
     TrackingEvent attemptEvent =
         event(
             TrackingEventType.ANSWER_SUBMITTED,
@@ -148,6 +156,21 @@ final class TrackingSession {
         Optional.of(requireText(objectId, "objectId")),
         Optional.empty(),
         payload);
+  }
+
+  TrackingEvent interaction(String objectId, String actionId, UUID participantId) {
+    return event(
+        TrackingEventType.INTERACTION,
+        Optional.of(participantId),
+        Optional.empty(),
+        Optional.of(requireText(objectId, "objectId")),
+        Optional.empty(),
+        TrackingJson.object().put("actionId", requireText(actionId, "actionId")));
+  }
+
+  boolean participantKnown(UUID participantId) {
+    return participantsByClient.values().stream()
+        .anyMatch(state -> state.participant.participantId().equals(participantId));
   }
 
   Optional<TrackingEvent> hintUsed(String puzzleId, String hintId, UUID participantId) {

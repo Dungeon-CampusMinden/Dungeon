@@ -17,6 +17,7 @@ import java.util.Map;
 /** Local light follows the same visible objects and torch states on every client. */
 final class ProgrammingLightingShader extends AbstractShader {
   private static final float AMBIENT_LIGHT = 0.82f;
+  private static final float BLACKOUT_AMBIENT_LIGHT = 0.025f;
   // Match programming-lighting.frag's capacity. Filter extinguished sources before allocating
   // slots.
   private static final int MAX_LIGHTS = 100;
@@ -69,7 +70,8 @@ final class ProgrammingLightingShader extends AbstractShader {
                           : new Vector3(0.90f, 0.50f, 0.16f));
             });
     return List.of(
-        new FloatUniform("u_ambientLight", AMBIENT_LIGHT),
+        new FloatUniform(
+            "u_ambientLight", ProgrammingProps.blackout() ? BLACKOUT_AMBIENT_LIGHT : AMBIENT_LIGHT),
         new Vector3ArrayUniform("u_lightSources", positions),
         new Vector3ArrayUniform("u_lightColors", colors),
         new Vector3ArrayUniform(

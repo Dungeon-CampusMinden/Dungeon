@@ -20,6 +20,12 @@ Spielclients erhalten nie Datenbankzugangsdaten. Die HTTP-Grenze akzeptiert Type
 `tracking:core`; nur das Backend erreicht PostgreSQL. Compose veröffentlicht den Datenbankport
 nicht. Der auf dem Host veröffentlichte Backend-Port lauscht nur auf Loopback.
 
+Neue Sitzungen verwenden Schema-Version 2 mit dem Ereignis `INTERACTION`. Aktualisiere Game,
+Tracking-Core, Importwerkzeug und Backend gemeinsam. `V001__tracking.sql` enthält die erweiterten
+Ereignis- und Nutzlastbedingungen für neue Datenbanken. Eine bereits als Version 001 registrierte
+Datenbank führt dieses Skript beim Neustart nicht erneut aus; ihre Bedingungen müssen beim
+Deployment ausdrücklich aktualisiert werden, bevor sie diese Ereignisse annehmen kann.
+
 ## Schnellstart mit Docker Compose
 
 Setze vor dem ersten Start drei voneinander unabhängige Zufallswerte in der Hostumgebung.

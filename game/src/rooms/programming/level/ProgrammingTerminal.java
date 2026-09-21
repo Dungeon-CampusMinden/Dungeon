@@ -52,6 +52,7 @@ public final class ProgrammingTerminal {
     DialogFactory.register(
         Type.TERMINAL,
         context -> {
+          context.find(ProgrammingHelp.ID, String.class).ifPresent(ProgrammingHelp::receive);
           if (Game.isHeadless()) return new HeadlessDialogGroup();
           TerminalState initial = decode(context.require(STATE, String.class));
           return new ProgrammingTerminalUI(context.dialogId(), initial);
@@ -64,7 +65,7 @@ public final class ProgrammingTerminal {
     stopWalking(who);
     UIComponent ui =
         DialogFactory.show(
-            DialogContext.builder()
+            ProgrammingHelp.context(DialogContext.builder())
                 .type(Type.TERMINAL)
                 .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .put(STATE, encode(runtime.terminalState()))
@@ -73,6 +74,7 @@ public final class ProgrammingTerminal {
             true,
             false,
             who.id());
+    ProgrammingHelp.callbacks(ui, who);
     ui.registerCallback(CanvasUI.EVENT_CLOSE, payload -> UIUtils.closeDialog(ui));
     ui.registerCallback(
         "execute",
@@ -142,6 +144,7 @@ public final class ProgrammingTerminal {
   }
 
   static void reset() {
+    ProgrammingHelp.reset();
     ProgrammingBinding.reset();
     received = null;
     CanvasStore.clear(ID);

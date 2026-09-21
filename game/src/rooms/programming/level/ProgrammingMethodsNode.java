@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
+import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -81,11 +83,14 @@ final class ProgrammingMethodsNode extends CanvasNode {
   private boolean rebuilding;
   private String buildFailure = "";
   private Definition failedDraft;
+  private int resizingPointer = -1;
+  private boolean moving;
 
   ProgrammingMethodsNode(String container, String title, float width, float height) {
     super("methods-blocks-" + container, width, height);
     this.container = container.startsWith("loose-") ? "scrap" : container;
     this.title = title;
+    setUserObject(Cursors.GRAB);
     deletable(false);
     addCaptureListener(
         new InputListener() {
@@ -94,7 +99,6 @@ final class ProgrammingMethodsNode extends CanvasNode {
           private float initialWidth;
           private float initialHeight;
           private float top;
-          private int resizingPointer = -1;
 
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -141,6 +145,31 @@ final class ProgrammingMethodsNode extends CanvasNode {
         Math.max(
             ProgrammingMethodsUI.BOARD_BOTTOM,
             Math.min(y, ProgrammingMethodsUI.BOARD_TOP - height())));
+  }
+
+  Optional<Cursors> manipulationCursor() {
+    if (resizingPointer >= 0)
+      return Optional.of(
+          container.equals("draft") ? Cursors.RESIZE_DIAGONAL : Cursors.RESIZE_VERTICAL);
+    return moving ? Optional.of(Cursors.GRABBING) : Optional.empty();
+  }
+
+  @Override
+  public void onMove(float dx, float dy) {
+    if (movable()) moving = true;
+    super.onMove(dx, dy);
+  }
+
+  @Override
+  public void onDrop(float worldX, float worldY) {
+    moving = false;
+    super.onDrop(worldX, worldY);
+  }
+
+  @Override
+  public void onClick(float localX, float localY, int button) {
+    moving = false;
+    super.onClick(localX, localY, button);
   }
 
   void attach(ProgrammingMethodsUI owner) {
@@ -419,6 +448,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
           .row();
     Table body = new Table();
     body.top().left();
+    body.setUserObject(Cursors.DEFAULT);
     if (container.equals("main"))
       body.setBackground(ProgrammingUI.background(Color.valueOf("20282b"), false));
     body.padLeft(12).padRight(12);
@@ -461,6 +491,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   private ScrollPane codeScroll(Table body) {
     ScrollPane pane = new ScrollPane(body, UIUtils.defaultSkin());
+    pane.setUserObject(Cursors.DEFAULT);
     var style = new ScrollPane.ScrollPaneStyle(pane.getStyle());
     style.background = null;
     pane.setStyle(style);
@@ -519,7 +550,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     controls.add(build).growX();
     controls
         .add(
-            ProgrammingUI.zoomButton(
+            editButton(
                 "Neue Methode",
                 false,
                 () -> {
@@ -537,6 +568,16 @@ final class ProgrammingMethodsNode extends CanvasNode {
   }
 
   private void palette(Table table) {
+    if (owner.simplified())
+      table
+          .add(
+              ProgrammingUI.zoomLabel(
+                  "Gold markiert wiederholte Folgen und Bausteine für Eingaben und Rückgaben. Unterschiedliche Mengen werden zu Eingaben.",
+                  16,
+                  ProgrammingUI.GOLD))
+          .growX()
+          .padBottom(12)
+          .row();
     table
         .add(ProgrammingUI.zoomLabel("Anweisungen hier herausziehen", 16, ProgrammingUI.MUTED))
         .growX()
@@ -586,7 +627,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                       ResultMode.REPLACE));
               table
                   .add(
-                      ProgrammingUI.zoomButton(
+                      editButton(
                           "Bearbeiten",
                           false,
                           () -> {
@@ -602,6 +643,11 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   private void paletteRow(Table table, String text, Block block) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
+    row.aided =
+        owner.simplified()
+            && (block.action() == Action.RETURN
+                || block.action() == Action.COLLECT
+                || block.action() == Action.CALL);
     row.add(
             ProgrammingUI.zoomLabel(
                 text, 18, block.action() == Action.CALL ? ProgrammingUI.GOLD : ProgrammingUI.TEXT))
@@ -611,8 +657,41 @@ final class ProgrammingMethodsNode extends CanvasNode {
     source(row, block, true);
   }
 
+  /**
+   * Marks recurring adjacent actions without changing code or the user's selection.
+   *
+   * @param block statement being displayed
+   * @param index block position in the current panel
+   * @return whether the adjacent action pair appears elsewhere in the panel
+   */
+  private boolean repeatedSequence(Block block, int index) {
+    List<Block> blocks = showOriginal ? ORIGINAL_PROGRAM : panelBlocks(owner.state());
+    for (int start = Math.max(0, index - 1); start <= index && start + 1 < blocks.size(); start++) {
+      for (int other = 0; other + 1 < blocks.size(); other++) {
+        if (Math.abs(other - start) < 2) continue;
+        if (blocks.get(start).action() == blocks.get(other).action()
+            && blocks.get(start + 1).action() == blocks.get(other + 1).action()) return true;
+      }
+    }
+    return false;
+  }
+
   private void blockRow(Table table, Block block, int index, String staticError) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
+    row.aided = owner.simplified() && repeatedSequence(block, index);
+    if (owner.simplified()) {
+      String note =
+          switch (block.action()) {
+            case COLLECT -> "Sammelmenge als Rückgabe nutzen";
+            case RETURN -> "Diesen Wert am Aufruf übernehmen";
+            case CALL -> "Eingaben am Aufruf anpassen";
+            default -> "";
+          };
+      if (!note.isEmpty()) {
+        table.add(ProgrammingUI.zoomLabel(note, 14, ProgrammingUI.GOLD)).growX().padTop(6).row();
+        row.aided = true;
+      }
+    }
     if (showOriginal) {
       row.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
       row.add(ProgrammingUI.zoomSyntaxLabel("[#a6aeaa]" + (index + 1) + ".  " + syntax(block), 18))
@@ -715,7 +794,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
             editor, block, "target", "Ergebnis speichern in · leer = ignorieren", block.target());
         editor
             .add(
-                ProgrammingUI.zoomButton(
+                editButton(
                     resultModeLabel(block.mode()),
                     false,
                     () -> edit(block, "mode", nextResultMode(block.mode()).name(), ignored -> {})))
@@ -736,7 +815,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
       }
       editor
           .add(
-              ProgrammingUI.zoomButton(
+              editButton(
                   "Baustein löschen", false, () -> owner.send(Operation.DELETE_BLOCK, block.id())))
           .growX()
           .padTop(8)
@@ -745,7 +824,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
     }
   }
 
-  /** Keep the canonical statement intact; only its argument/expression changes ink. */
+  /**
+   * Keep the canonical statement intact; only its argument/expression changes ink.
+   *
+   * @param block statement being displayed
+   * @return statement markup with its expression highlighted
+   */
   private static String syntax(Block block) {
     String source = MethodsWorkshop.blockSource(block);
     int start =
@@ -788,6 +872,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     private final ClickListener pointer = new ClickListener();
     private boolean selected;
     private boolean failed;
+    private boolean aided;
     private int insertion;
 
     private CodeRow(boolean method) {
@@ -803,7 +888,11 @@ final class ProgrammingMethodsNode extends CanvasNode {
               Color fill =
                   pointer.isPressed()
                       ? PRESSED
-                      : selected ? SELECTED : failed ? ERROR_FILL : pointer.isOver() ? HOVER : REST;
+                      : selected
+                          ? SELECTED
+                          : failed
+                              ? ERROR_FILL
+                              : aided ? SELECTED : pointer.isOver() ? HOVER : REST;
               float notch = Math.min(24, width / 4);
               float tongue = 20;
               // The top notch remains transparent; it never paints over its surrounding panel.
@@ -828,7 +917,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                   y + height - 1,
                   width - notch - tongue,
                   1);
-              if (selected || method || failed)
+              if (selected || method || failed || aided)
                 CanvasGraphics.fill(
                     batch,
                     failed ? ERROR : ProgrammingUI.GOLD,
@@ -906,6 +995,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
     return List.copyOf(arguments);
   }
 
+  private TextButton editButton(String caption, boolean primary, Runnable action) {
+    TextButton button = ProgrammingUI.zoomButton(caption, primary, action);
+    button.setDisabled(!owner.editable());
+    return button;
+  }
+
   private TextField field(String key, String initial, BiConsumer<String, Consumer<State>> commit) {
     TextField field = new CanvasTextField(drafts.getOrDefault(key, initial));
     var style = new TextField.TextFieldStyle(field.getStyle());
@@ -923,6 +1018,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     }
     field.setStyle(style);
     field.setName(key);
+    field.setUserObject(Cursors.TEXT);
     field.setDisabled(!owner.editable());
     final String[] saved = {initial};
     Runnable save =
@@ -1043,6 +1139,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
   }
 
   private void source(Actor actor, Block block, boolean copy) {
+    actor.setUserObject(owner.editable() ? copy ? Cursors.COPY : Cursors.GRAB : Cursors.DISABLED);
     boolean[] pressedEditor = {false};
     actor.addCaptureListener(
         new InputListener() {
@@ -1081,6 +1178,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                                 .map(Block::id)
                                 .filter(selected::contains)
                                 .toList()));
+                owner.dragStarted((Drag) payload.getObject());
                 CodeRow ghost = new CodeRow(block.action() == Action.CALL);
                 ghost.selected = true;
                 ghost
@@ -1136,6 +1234,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                   float y,
                   int pointer) {
                 boolean valid = payload.getObject() instanceof Drag d && validDrag(d);
+                owner.dropAllowed(valid);
                 if (row && gap instanceof CodeRow codeRow) {
                   codeRow.insertion = valid ? (y >= gap.getHeight() / 2 ? 1 : -1) : 0;
                 } else {
@@ -1148,6 +1247,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
               @Override
               public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
+                owner.dropAllowed(false);
                 if (row && gap instanceof CodeRow codeRow) codeRow.insertion = 0;
                 else gap.setBackground(ProgrammingUI.background(Color.valueOf("20282b"), false));
               }
@@ -1172,7 +1272,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
             });
   }
 
-  /** Each queued move resolves its index after earlier moves and field edits are acknowledged. */
+  /**
+   * Each queued move resolves its index after earlier moves and field edits are acknowledged.
+   *
+   * @param drag dragged blocks and destination container
+   * @param index block position in the current panel
+   */
   private void queueDrop(Drag drag, int index) {
     String anchor =
         panelBlocks(owner.state()).stream()

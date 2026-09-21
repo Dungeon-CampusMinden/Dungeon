@@ -32,6 +32,10 @@
       "name": "Auf Sicht",
       "description": "Beobachte Nox durch den Sehstein im Keller."
     },
+    "programming_blackout": {
+      "name": "Blackout",
+      "description": "Sorgt dafür, dass alle Fackeln im Escape Room gleichzeitig aus sind. Wer braucht schon Licht?"
+    },
     "programming_first_route": {
       "name": "Läuft",
       "description": "Schließt den ersten Räumauftrag im Keller ab."

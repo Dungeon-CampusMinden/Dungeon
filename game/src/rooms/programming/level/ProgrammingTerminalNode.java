@@ -32,6 +32,8 @@ final class ProgrammingTerminalNode extends CanvasNode {
   private Label text;
   private Label slotState;
   private boolean hover;
+  private boolean aided;
+  private boolean candidate;
   private boolean pending;
   private float pendingTime;
   private TextureRegion head;
@@ -90,10 +92,19 @@ final class ProgrammingTerminalNode extends CanvasNode {
 
   void update(TerminalState value) {
     state = value;
+    aided = ProgrammingHelpUI.simplified("cellar-" + value.checkpoint());
+    candidate =
+        aided
+            && value.checkpoint() < LoopPuzzle.challenges().size()
+            && id().startsWith(LoopPuzzle.challenges().get(value.checkpoint()) + "-");
+    if (kind.equals("rune"))
+      setVisible(!aided || candidate || value.activeRune().equals(id()) || dragging);
+    if (kind.equals("executor"))
+      setUserObject(value.busy() || value.finished() ? Cursors.DISABLED : Cursors.DEFAULT);
     if (kind.equals("rune")) {
       boolean inserted = value.activeRune().equals(id());
       movable(!(inserted && value.busy()));
-      setUserObject(movable() ? Cursors.INTERACT : Cursors.DISABLED);
+      setUserObject(movable() ? Cursors.GRAB : Cursors.DISABLED);
       if (inserted) {
         if (!slotted) {
           homeX = dragging ? dragStartX : x();
@@ -228,7 +239,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
       CanvasGraphics.fill(batch, ProgrammingTerminal.INK, alpha, x(), y(), width(), height());
       CanvasGraphics.outline(
           batch,
-          slot ? ProgrammingTerminal.ACCENT : ProgrammingUI.MUTED,
+          slot || candidate ? ProgrammingTerminal.ACCENT : ProgrammingUI.MUTED,
           alpha,
           x(),
           y(),
@@ -279,7 +290,9 @@ final class ProgrammingTerminalNode extends CanvasNode {
         boolean path = LoopMaze.cells().contains(new LoopMaze.Cell(col, row));
         CanvasGraphics.fill(
             batch,
-            path ? Color.valueOf("50616a") : ProgrammingTerminal.INK,
+            path
+                ? (routeCell(col, row) ? Color.valueOf("82734b") : Color.valueOf("50616a"))
+                : ProgrammingTerminal.INK,
             alpha,
             x() + MAP_INSET + (col + 1) * CELL_STEP,
             y() + MAP_INSET + row * CELL_STEP,
@@ -312,12 +325,44 @@ final class ProgrammingTerminalNode extends CanvasNode {
     }
   }
 
+  private boolean routeCell(int x, int y) {
+    if (!aided
+        || state == null
+        || state.finished()
+        || state.checkpoint() >= LoopMaze.checkpoints().size()) return false;
+    var checkpoint = LoopMaze.checkpoints().get(state.checkpoint());
+    if (state.checkpoint() == 4)
+      return (x == 0 && y == 7) || (x == 1 && (y == 7 || y == 8)) || (x == 2 && (y == 8 || y == 9));
+    return x >= Math.min(checkpoint.start().x(), checkpoint.goal().x())
+        && x <= Math.max(checkpoint.start().x(), checkpoint.goal().x())
+        && y >= Math.min(checkpoint.start().y(), checkpoint.goal().y())
+        && y <= Math.max(checkpoint.start().y(), checkpoint.goal().y());
+  }
+
   Optional<String> hoverCode() {
     String runeId =
         kind.equals("rune")
             ? id()
             : kind.equals("executor") && state != null ? state.activeRune() : "";
     return LoopPuzzle.rune(runeId).map(LoopRune::code);
+  }
+
+  boolean dragging() {
+    return dragging;
+  }
+
+  boolean executor() {
+    return kind.equals("executor");
+  }
+
+  boolean accepts(ProgrammingTerminalNode rune) {
+    return executor()
+        && state != null
+        && rune.kind.equals("rune")
+        && !state.busy()
+        && !state.finished()
+        && !pending
+        && !state.activeRune().equals(rune.id());
   }
 
   @Override
@@ -360,8 +405,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
     // Keep the existing slot until the server accepts the replacement, including during return.
     rune.position(rune.dragStartX, rune.dragStartY);
     rune.dragging = false;
-    if (state.busy() || state.finished() || pending || state.activeRune().equals(rune.id()))
-      return true;
+    if (!accepts(rune)) return true;
     pending = true;
     pendingTime = 0;
     canvas().fireServerEvent("execute", new DialogResponseMessage.StringValue(rune.id()));

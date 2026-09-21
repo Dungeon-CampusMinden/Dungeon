@@ -31,6 +31,14 @@ final class ProgrammingWorkshopRuntime {
   private boolean moving;
   private boolean awarded;
   private boolean sluiceClosed;
+  private boolean assisted;
+  private java.util.UUID runParticipant;
+  private String runCode = "";
+  private boolean runPending;
+  private int runHintLevel;
+  private boolean runAutomaticSolution;
+  private static final tools.jackson.databind.json.JsonMapper JSON =
+      tools.jackson.databind.json.JsonMapper.builder().build();
 
   ProgrammingWorkshopRuntime(DungeonLevel level, Entity golem, ProgrammingGolemRuntime motion) {
     this.level = level;
@@ -42,6 +50,8 @@ final class ProgrammingWorkshopRuntime {
 
   void arrive() {
     arrived = true;
+    ProgrammingProgress.started(
+        "methods", "Kürze das Werkstattprogramm mit Methoden und erledige alle Arbeitsstellen.");
     if (direction == null) face(ProgrammingWorkshopWorld.startFacing(0));
     publish();
   }
@@ -86,6 +96,10 @@ final class ProgrammingWorkshopRuntime {
   }
 
   private void accept(Entity player, MethodsWorkshop.Intent intent) {
+    accept(player, intent, false);
+  }
+
+  private void accept(Entity player, MethodsWorkshop.Intent intent, boolean automaticSolution) {
     if (intent == null || !arrived || !motion.methodsActive() || !authorized(player)) return;
     if (intent.operation() == MethodsWorkshop.Operation.STOP) {
       if (workshop.stop(player.id(), intent)) {
@@ -93,17 +107,36 @@ final class ProgrammingWorkshopRuntime {
         executing = false;
         moving = false;
         pause = 0;
+        ProgrammingProgress.interaction("methods", "execute-stop", player);
+        recordOutcome();
         golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
       }
       publish();
       return;
     }
     if (intent.operation() != MethodsWorkshop.Operation.EXECUTE) {
-      workshop.apply(player.id(), intent);
+      if (workshop.apply(player.id(), intent))
+        ProgrammingProgress.interaction(
+            "methods", intent.operation().name().toLowerCase(java.util.Locale.ROOT), player);
       publish();
       return;
     }
+    var submitted = workshop.state();
     if (!workshop.execute(player.id(), intent)) return;
+    runParticipant = ProgrammingProgress.participant(player).orElse(null);
+    runHintLevel = motion.help().level("methods");
+    runAutomaticSolution = automaticSolution;
+    runCode =
+        JSON.writeValueAsString(
+            java.util.Map.of(
+                "main",
+                submitted.main(),
+                "draft",
+                submitted.draft(),
+                "definitions",
+                submitted.definitions()));
+    runPending = true;
+    ProgrammingProgress.interaction("methods", "execute", player);
     motion.stopWorkshopMovement();
     ProgrammingWorkshopWorld.resetAll();
     golem.fetch(PositionComponent.class).orElseThrow().position(ProgrammingWorkshopWorld.start(0));
@@ -244,10 +277,14 @@ final class ProgrammingWorkshopRuntime {
     moving = false;
     pause = 0;
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
+    recordOutcome();
     if (workshop.state().completed()) {
+      ProgrammingProgress.solved(
+          "methods",
+          "Alle Arbeitsstellen und Programmprüfungen sind erfüllt. Der Nebenausgang ist offen.");
       ProgrammingWorkshopWorld.openExit();
       ProgrammingGates.open(level, 3);
-      if (!awarded) {
+      if (!awarded && !assisted) {
         awarded = true;
         (workshop.state().errors() == 0
                 ? ProgrammingAchievements.METHODS_FLAWLESS
@@ -256,6 +293,57 @@ final class ProgrammingWorkshopRuntime {
       }
     }
     publish();
+  }
+
+  boolean helpReady() {
+    return arrived && !workshop.state().busy() && !workshop.state().completed();
+  }
+
+  String helpStatus() {
+    return !arrived ? "Nox ist auf dem Weg zur Werkstatt." : workshop.state().feedback();
+  }
+
+  boolean helpAuthorized(Entity player) {
+    return authorized(player);
+  }
+
+  boolean helpSolveAuthorized(Entity player) {
+    return helpReady() && authorized(player) && workshop.state().editorId() == player.id();
+  }
+
+  void solveHelp(Entity player) {
+    if (!helpSolveAuthorized(player) || !workshop.loadHelpSolution(player.id())) return;
+    assisted = true;
+    var state = workshop.state();
+    accept(
+        player,
+        new MethodsWorkshop.Intent(
+            state.revision(), state.stage(), MethodsWorkshop.Operation.EXECUTE, ""),
+        true);
+  }
+
+  private void recordOutcome() {
+    if (!runPending) return;
+    runPending = false;
+    if (runParticipant != null) {
+      var state = workshop.state();
+      List<String> reasons =
+          state.completed()
+              ? List.of()
+              : state.runState() == MethodsWorkshop.RunState.FINISHED
+                  ? state.checks().stream()
+                      .filter(check -> check.status() == MethodsWorkshop.CheckStatus.FAILED)
+                      .map(MethodsWorkshop.Check::message)
+                      .toList()
+                  : List.of(state.feedback());
+      ProgrammingProgress.attempt(
+          "methods",
+          "workshop-program",
+          "code",
+          runCode,
+          runParticipant,
+          new engine.tracking.AttemptDetails(runHintLevel, runAutomaticSolution, reasons));
+    }
   }
 
   private void face(Direction facing) {

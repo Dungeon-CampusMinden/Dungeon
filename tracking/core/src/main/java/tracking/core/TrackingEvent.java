@@ -67,7 +67,8 @@ public record TrackingEvent(
               PARTICIPANT_LEFT,
               ANSWER_SUBMITTED,
               INTERACTION_RECORDED,
-              HINT_USED ->
+              HINT_USED,
+              INTERACTION ->
               true;
           default -> false;
         };
@@ -92,6 +93,15 @@ public record TrackingEvent(
           || !attemptNumber.canConvertToInt()
           || attemptNumber.intValue() < 1) {
         throw new IllegalArgumentException("ANSWER_SUBMITTED requires a positive attemptNumber");
+      }
+    }
+    if (eventType == TrackingEventType.INTERACTION) {
+      JsonNode action = payload.get("actionId");
+      if (objectId.isEmpty()
+          || action == null
+          || !action.isString()
+          || action.stringValue().isBlank()) {
+        throw new IllegalArgumentException("INTERACTION requires objectId and non-blank actionId");
       }
     }
     if (eventType == TrackingEventType.HINT_USED && objectId.isEmpty()) {

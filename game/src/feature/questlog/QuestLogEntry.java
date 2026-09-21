@@ -6,7 +6,9 @@ import engine.Game;
  * Represents a single entry in the quest log.
  *
  * <p>An entry stores the displayed quest text together with metadata about the game tick at which
- * it was created, who created it, and whether its visibility is restricted to the creator.
+ * it was created, who created it, and whether its visibility is restricted to the creator. A
+ * single-line title followed by a blank line and details is displayed as a collapsible entry; the
+ * details start closed in the quest log.
  *
  * <p>Normal game code should use {@link #QuestLogEntry(String, boolean)} or {@link
  * #QuestLogEntry(String, String, boolean)}. These constructors set {@link #timestamp()} to {@link

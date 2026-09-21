@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
+import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
@@ -53,7 +54,13 @@ final class ProgrammingUI {
     return label;
   }
 
-  /** Syntax colors share the same zoom-aware typography as ordinary canvas labels. */
+  /**
+   * Syntax colors share the same zoom-aware typography as ordinary canvas labels.
+   *
+   * @param text displayed text
+   * @param size base font size before zoom
+   * @return wrapped, non-interactive label supporting syntax colors and zoom
+   */
   static Label zoomSyntaxLabel(String text, int size) {
     Label label = new ZoomLabel(text, size, Color.WHITE, Scene2dElementFactory.FONT_PATH, true);
     label.setWrap(true);
@@ -215,6 +222,7 @@ final class ProgrammingUI {
   static Table header(String title, Table actions, Runnable close) {
     Label heading = label(title, 27, TEXT);
     TextButton leave = button("Zurück zum Raum", false, close);
+    leave.setUserObject(Cursors.CROSS);
     return new Table() {
       private boolean compact;
 

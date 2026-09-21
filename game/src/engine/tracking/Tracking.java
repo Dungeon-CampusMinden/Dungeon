@@ -264,6 +264,69 @@ public final class Tracking {
       String rawAnswer,
       boolean correct,
       UUID participantId) {
+    return attempt(
+        puzzleId, objectId, answerKind, rawAnswer, correct, participantId, Optional.empty());
+  }
+
+  /**
+   * Records an answer with the help state at submission and concrete outcome details.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objectId stable interacted-object identifier
+   * @param answerKind answer representation
+   * @param rawAnswer complete submitted answer
+   * @param correct server-evaluated correctness
+   * @param participantId session-scoped anonymous participant
+   * @param details help state and final failure reasons
+   * @return newly recorded event, or empty when tracking is inactive or recording fails
+   */
+  public static Optional<TrackingEvent> attempt(
+      String puzzleId,
+      String objectId,
+      String answerKind,
+      String rawAnswer,
+      boolean correct,
+      UUID participantId,
+      AttemptDetails details) {
+    if (correct != details.failureReasons().isEmpty())
+      throw new IllegalArgumentException("Failure reasons must agree with the answer outcome");
+    return attempt(
+        puzzleId, objectId, answerKind, rawAnswer, correct, participantId, Optional.of(details));
+  }
+
+  private static Optional<TrackingEvent> attempt(
+      String puzzleId,
+      String objectId,
+      String answerKind,
+      String rawAnswer,
+      boolean correct,
+      UUID participantId,
+      Optional<AttemptDetails> details) {
+    synchronized (LOCK) {
+      if (session == null || session.finished() || !session.participantKnown(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(
+            session.attempt(
+                puzzleId, objectId, answerKind, rawAnswer, correct, participantId, details));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
+   * Records a meaningful player interaction, such as discovering an object or requesting help.
+   *
+   * @param objectId stable room-local object identifier
+   * @param actionId stable action identifier, never display text or mouse coordinates
+   * @param participantId session-scoped anonymous participant
+   * @return newly recorded event, or empty when inactive
+   */
+  public static Optional<TrackingEvent> interaction(
+      String objectId, String actionId, UUID participantId) {
     synchronized (LOCK) {
       if (!trackingAllowed
           || session == null
@@ -272,8 +335,7 @@ public final class Tracking {
         return Optional.empty();
       }
       try {
-        return Optional.of(
-            session.attempt(puzzleId, objectId, answerKind, rawAnswer, correct, participantId));
+        return Optional.of(session.interaction(objectId, actionId, participantId));
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();
