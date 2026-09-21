@@ -249,6 +249,7 @@
       },
       "energy": {
         "title": "Energie-Array-Anzeige",
+        "display-standby": "ENERGIE-REGULATOR // STATUS: BESCHÄDIGT\n\nMaterialisierungskammer offline.\nKein Energieprofil geladen.\n\nWarte auf Wiederherstellung der Speicherstruktur.",
         "display-values": "ENERGIEPROFIL\nErforderliche Messwerte für die Materialisierung:\n\n- 40\n- 10\n- 80\n- 30\n- 60",
         "display-complete": "Die Energiewerte sind akzeptiert.\nAls Nächstes: Betätige den Array-Hebel, um die Batterie zu materialisieren."
       },
