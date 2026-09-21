@@ -14,7 +14,12 @@ class DialogFeedbackConverterTest {
   @Test
   void roundTripPreservesTargetAndLocalizedStatus() {
     DialogFeedbackMessage message =
-        new DialogFeedbackMessage("dialog-terminal", "computer.feedback-correct", true);
+        new DialogFeedbackMessage(
+            "dialog-terminal",
+            "system-core-meta",
+            "abc123",
+            "computer.feedback-correct",
+            true);
 
     var proto = CONVERTER.toProto(message);
     DialogFeedbackMessage roundTrip = CONVERTER.fromProto(proto);

@@ -17,6 +17,8 @@ public final class DialogFeedbackConverter
         .setDialogId(message.dialogId())
         .setMessageKey(message.messageKey())
         .setSuccessful(message.successful())
+        .setTargetTabKey(message.targetTabKey())
+        .setSourceFingerprint(message.sourceFingerprint())
         .build();
   }
 
@@ -24,7 +26,11 @@ public final class DialogFeedbackConverter
   public DialogFeedbackMessage fromProto(
       engine.network.proto.s2c.DialogFeedbackMessage proto) {
     return new DialogFeedbackMessage(
-        proto.getDialogId(), proto.getMessageKey(), proto.getSuccessful());
+        proto.getDialogId(),
+        proto.getTargetTabKey(),
+        proto.getSourceFingerprint(),
+        proto.getMessageKey(),
+        proto.getSuccessful());
   }
 
   @Override

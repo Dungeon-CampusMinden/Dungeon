@@ -100,10 +100,11 @@ public final class TerminalInterpreter {
     AnalysisResult result = analysis(source, successfulContext.copy());
     boolean successful = result.successful();
     if (successful) {
+      // Apply the room effect before committing the shared interpreter state. If the room-side
+      // effect fails, the step remains retryable instead of looking accepted to the player.
+      puzzleState.onSuccess().accept(attempt);
       successfulContext.replaceWith(result.context());
       currentState++;
-      // Room-side feedback must not be able to block the already validated state transition.
-      puzzleState.onSuccess().accept(attempt);
     } else {
       puzzleState.onFailure().accept(attempt);
     }

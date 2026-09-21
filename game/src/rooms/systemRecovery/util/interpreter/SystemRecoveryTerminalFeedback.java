@@ -3,7 +3,10 @@ package rooms.systemRecovery.util.interpreter;
 import engine.Game;
 import engine.network.NetworkUtils;
 import engine.network.messages.s2c.DialogFeedbackMessage;
+import feature.hud.dialogs.DialogFeedbackFingerprint;
 import feature.hud.dialogs.DialogFeedbackRouter;
+import rooms.systemRecovery.modules.computer.content.SystemCoreMetaTab;
+import rooms.systemRecovery.modules.computer.content.TerminalTab;
 import java.util.Set;
 import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
 
@@ -27,6 +30,8 @@ public final class SystemRecoveryTerminalFeedback {
     DialogFeedbackMessage message =
         new DialogFeedbackMessage(
             attempt.dialogId(),
+            targetTab(attempt),
+            DialogFeedbackFingerprint.of(attempt.source()),
             successful ? "computer.feedback-correct" : "computer.feedback-incorrect",
             successful);
 
@@ -38,5 +43,11 @@ public final class SystemRecoveryTerminalFeedback {
 
     Set<Short> clientIds = NetworkUtils.entityIdsToClientIds(new int[] {attempt.playerId()});
     clientIds.forEach(clientId -> Game.network().send(clientId, message, true));
+  }
+
+  private static String targetTab(TerminalAttempt attempt) {
+    return attempt.state() == TerminalStep.SYSTEM_CORE_META.stateId()
+        ? SystemCoreMetaTab.KEY
+        : TerminalTab.KEY;
   }
 }

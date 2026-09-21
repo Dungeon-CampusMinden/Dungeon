@@ -463,7 +463,8 @@
         "complete": "Recovery complete"
       },
       "feedback-correct": "Input accepted",
-      "feedback-incorrect": "Input rejected"
+      "feedback-incorrect": "Input rejected",
+      "feedback-submitting": "Checking input ..."
     },
     "riddle8": {
       "display-ready": "Matrix initialized",

@@ -11,15 +11,30 @@ import java.util.Objects;
  * must not be broadcast as shared game state.
  *
  * @param dialogId dialog receiving the feedback
+ * @param targetTabKey optional local tab key that should render the feedback
+ * @param sourceFingerprint fingerprint of the submitted source, or an empty string when the
+ *     sender did not provide one
  * @param messageKey localization key relative to the active room namespace
  * @param successful whether the server accepted the submitted action
  */
-public record DialogFeedbackMessage(String dialogId, String messageKey, boolean successful)
+public record DialogFeedbackMessage(
+    String dialogId,
+    String targetTabKey,
+    String sourceFingerprint,
+    String messageKey,
+    boolean successful)
     implements NetworkMessage {
 
   /** Creates a validated dialog feedback message. */
   public DialogFeedbackMessage {
     Objects.requireNonNull(dialogId, "dialogId");
+    Objects.requireNonNull(targetTabKey, "targetTabKey");
+    Objects.requireNonNull(sourceFingerprint, "sourceFingerprint");
     Objects.requireNonNull(messageKey, "messageKey");
+  }
+
+  /** Creates feedback using the legacy terminal target and no source correlation. */
+  public DialogFeedbackMessage(String dialogId, String messageKey, boolean successful) {
+    this(dialogId, "", "", messageKey, successful);
   }
 }

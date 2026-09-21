@@ -14,6 +14,7 @@ import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
+import feature.hud.dialogs.DialogFeedbackFingerprint;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
@@ -34,6 +35,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   private Label lineNumbers;
   private Label feedbackLabel;
   private Table feedbackBar;
+  private String lastSubmittedFingerprint;
   private int displayedFirstLine = -1;
   private int displayedLineCount = -1;
 
@@ -69,6 +71,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         codeEditor,
         text -> {
           savedCode = text;
+          lastSubmittedFingerprint = null;
           updateLineNumbers();
         });
 
@@ -148,6 +151,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   private void clearCodeLines() {
     codeEditor.setText("");
     savedCode = "";
+    lastSubmittedFingerprint = null;
     showFeedback("");
     updateLineNumbers();
     if (codeEditor.getStage() != null) {
@@ -163,6 +167,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
               codeEditor.setText(source);
               codeEditor.setCursorPosition(0);
               savedCode = source;
+              lastSubmittedFingerprint = null;
               showFeedback("");
               updateLineNumbers();
               if (codeEditor.getStage() != null) {
@@ -173,6 +178,8 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   private void sendCode() {
     String source = codeText();
+    lastSubmittedFingerprint = DialogFeedbackFingerprint.of(source);
+    showFeedback(SystemRecoveryText.text("computer.feedback-submitting"), LABEL_COLOR, "generic-area-depth");
     DialogCallbackResolver.createButtonCallback(
             context().dialogId(), SystemRecoveryComputerCallbacks.TERMINAL_SEND)
         .accept(new DialogResponseMessage.StringValue(source));
@@ -180,6 +187,10 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   /** Applies a server response to the inline terminal status area. */
   public void applyServerFeedback(DialogFeedbackMessage feedback) {
+    if (!feedback.sourceFingerprint().isEmpty()
+        && !feedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
+      return;
+    }
     showFeedback(
         SystemRecoveryText.text(feedback.messageKey()),
         feedback.successful() ? SUCCESS_COLOR : FAILURE_COLOR,
