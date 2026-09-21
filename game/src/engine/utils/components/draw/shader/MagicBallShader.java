@@ -16,6 +16,7 @@ public class MagicBallShader extends AbstractShader {
 
   private String bgTexture;
   private float ballSize;
+  private float curvedEdgeWidth;
   private Vector2 ballOffset;
   private Rectangle textureRegion;
   private Color ballColor;
@@ -82,6 +83,7 @@ public class MagicBallShader extends AbstractShader {
     return List.of(
         new TextureUniform("u_bgTexture", bgTexture, 1),
         new FloatUniform("u_ballSize", ballSize),
+        new FloatUniform("u_curvedEdgeWidth", curvedEdgeWidth * actualUpscale),
         new Vector2Uniform("u_ballOffset", ballOffset),
         new Vector4Uniform(
             "u_textureRegion", textureRegion == null ? FULL_TEXTURE_REGION : textureRegion),
@@ -137,6 +139,28 @@ public class MagicBallShader extends AbstractShader {
    */
   public MagicBallShader ballSize(float ballSize) {
     this.ballSize = validateBallSize(ballSize);
+    return this;
+  }
+
+  /**
+   * Returns the width of the curved rim around the flat scene view.
+   *
+   * @return rim width in pixels, or 0 to project the entire scene onto the sphere
+   */
+  public float curvedEdgeWidth() {
+    return curvedEdgeWidth;
+  }
+
+  /**
+   * Keeps the scene flat except for a smooth blend into the sphere at its rim.
+   *
+   * @param pixels rim width in pixels, or 0 to use the full spherical projection
+   * @return this shader for chaining
+   */
+  public MagicBallShader curvedEdgeWidth(float pixels) {
+    if (!Float.isFinite(pixels) || pixels < 0)
+      throw new IllegalArgumentException("Curved edge width must be finite and non-negative.");
+    curvedEdgeWidth = pixels;
     return this;
   }
 
@@ -244,6 +268,7 @@ public class MagicBallShader extends AbstractShader {
   protected void writeProperties(Map<String, String> properties) {
     properties.put("bgTexture", bgTexture);
     properties.put("ballSize", Float.toString(ballSize));
+    properties.put("curvedEdgeWidth", Float.toString(curvedEdgeWidth));
     properties.put("ballOffsetX", Float.toString(ballOffset.x));
     properties.put("ballOffsetY", Float.toString(ballOffset.y));
     properties.put("glowStrength", Float.toString(glowStrength));
@@ -258,10 +283,10 @@ public class MagicBallShader extends AbstractShader {
   protected void readProperties(Map<String, String> properties) {
     bgTexture(property(properties, "bgTexture"));
     ballSize(floatProperty(properties, "ballSize"));
+    curvedEdgeWidth(floatProperty(properties, "curvedEdgeWidth"));
     ballOffset(
         new Vector2(
-            floatProperty(properties, "ballOffsetX"),
-            floatProperty(properties, "ballOffsetY")));
+            floatProperty(properties, "ballOffsetX"), floatProperty(properties, "ballOffsetY")));
     textureRegion(properties.containsKey("width") ? rectangleProperty(properties) : null);
     ballColor(colorProperty(properties, "ballColor"));
     glowStrength(floatProperty(properties, "glowStrength"));
@@ -301,20 +326,5 @@ public class MagicBallShader extends AbstractShader {
       throw new IllegalArgumentException(name + " color must not be null.");
     }
     return color;
-  }
-
-  private static void putColor(Map<String, String> properties, String prefix, Color color) {
-    properties.put(prefix + "Red", Float.toString(color.r));
-    properties.put(prefix + "Green", Float.toString(color.g));
-    properties.put(prefix + "Blue", Float.toString(color.b));
-    properties.put(prefix + "Alpha", Float.toString(color.a));
-  }
-
-  private static Color colorProperty(Map<String, String> properties, String prefix) {
-    return new Color(
-        floatProperty(properties, prefix + "Red"),
-        floatProperty(properties, prefix + "Green"),
-        floatProperty(properties, prefix + "Blue"),
-        floatProperty(properties, prefix + "Alpha"));
   }
 }

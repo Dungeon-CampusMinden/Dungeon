@@ -4,16 +4,18 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import engine.Entity;
 import engine.Game;
 import engine.components.CameraComponent;
+import engine.components.DrawComponent;
 import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
+import engine.utils.Rectangle;
+import engine.utils.components.draw.shader.MagicBallShader;
 import feature.canvas.CanvasGraphics;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
@@ -87,7 +89,15 @@ public final class ProgrammingObservation {
     private final Label label;
     private final com.badlogic.gdx.scenes.scene2d.ui.Table header;
     private float curtain = 1;
-    private final ProgrammingObservationShader shader = new ProgrammingObservationShader();
+    private final MagicBallShader shader =
+        new MagicBallShader(
+                "images/shader-bg.png",
+                .84f,
+                new com.badlogic.gdx.math.Vector2(-.018f, 0),
+                Color.valueOf("95b8f0"),
+                .6f,
+                Color.valueOf("BCDFFFFF"))
+            .curvedEdgeWidth(1);
     private final String shaderKey;
     private DrawSystem drawSystem;
 
@@ -173,7 +183,31 @@ public final class ProgrammingObservation {
                       && Math.abs(camera.position.y - focus.y()) < 1)
                     curtain = Math.max(0, curtain - delta * 4);
                 });
-      if (!cinematic && followed != null && curtain < 1) shader.advance(delta, 1 - curtain);
+      if (!cinematic) {
+        float width = Math.min(1, getHeight() / getWidth());
+        float height = Math.min(1, getWidth() / getHeight());
+        shader.textureRegion(new Rectangle(width, height, (1 - width) / 2, (1 - height) / 2));
+        updateCurvedEdge();
+      }
+    }
+
+    /** Keeps Nox's complete sprite and four surrounding tiles inside the flat view. */
+    private void updateCurvedEdge() {
+      if (followed == null) return;
+      var position = followed.fetch(PositionComponent.class).orElseThrow();
+      var draw = followed.fetch(DrawComponent.class).orElseThrow();
+      var camera = CameraSystem.camera();
+      var size = draw.size().scale(position.scale());
+      float left = position.position().x() - camera.position.x;
+      float bottom = position.position().y() - camera.position.y;
+      float horizontal = Math.max(Math.abs(left), Math.abs(left + size.x()));
+      float vertical = Math.max(Math.abs(bottom), Math.abs(bottom + size.y()));
+      float flatRadiusTiles = (float) Math.hypot(horizontal, vertical) + 4;
+      float diameterPixels = shader.ballSize() * Math.min(getWidth(), getHeight());
+      float visibleTiles = Math.min(camera.viewportWidth, camera.viewportHeight) * camera.zoom;
+      float flatRadiusPixels = flatRadiusTiles * diameterPixels / visibleTiles;
+      // A positive width keeps the center flat even when the protected area fills the ball.
+      shader.curvedEdgeWidth(Math.max(1, diameterPixels / 2 - flatRadiusPixels));
     }
 
     @Override
@@ -188,25 +222,7 @@ public final class ProgrammingObservation {
     protected void setStage(Stage stage) {
       if (stage == null) {
         if (drawSystem != null) {
-          var shaders = drawSystem.sceneShaders();
-          float strength = shader.strength();
-          Stage previousStage = getStage();
-          if (previousStage != null) {
-            previousStage.addAction(
-                new TemporalAction(0.3f) {
-                  @Override
-                  protected void update(float percent) {
-                    shader.strength(strength * (1 - percent * percent * (3 - 2 * percent)));
-                  }
-
-                  @Override
-                  protected void end() {
-                    shaders.remove(shaderKey);
-                  }
-                });
-          } else {
-            shaders.remove(shaderKey);
-          }
+          drawSystem.sceneShaders().remove(shaderKey);
           drawSystem = null;
         }
         if (followed != null) {

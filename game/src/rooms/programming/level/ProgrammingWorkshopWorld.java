@@ -1,5 +1,6 @@
 package rooms.programming.level;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
@@ -11,8 +12,10 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.SpritesheetConfig;
+import engine.utils.components.draw.shader.SlotShader;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
+import feature.shader.ShaderComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -209,7 +212,7 @@ final class ProgrammingWorkshopWorld {
             prop(
                 "socket-" + station.index() + "-" + i,
                 altarPosition(station.index()).translate(firstSocket + i * socketSpacing, .5f),
-                "items/rpg/item_gem_quartz.png",
+                "items/rpg/item_gem_amethyst.png",
                 socketSize,
                 socketSize,
                 false);
@@ -303,7 +306,7 @@ final class ProgrammingWorkshopWorld {
           return new ActionResult(
               false, "Dieser Altar hat noch " + capacity + " freie Fassungen.", 0);
         for (int i = supplied[station]; i < supplied[station] + amount; i++)
-          tint("socket-" + station + "-" + i, 0xBDA0FFFF);
+          socket(station, i, true);
         supplied[station] += amount;
         if (supplied[station] == MethodsRoute.STATIONS.get(station).amount())
           tint("altar-link-" + station, 0xBDA0FFFF);
@@ -359,7 +362,7 @@ final class ProgrammingWorkshopWorld {
         }
         case ALTAR -> {
           tint("altar-link-" + index, 0x4E7F9FFF);
-          for (int i = 0; i < station.amount(); i++) tint("socket-" + index + "-" + i, 0xFFFFFFFF);
+          for (int i = 0; i < station.amount(); i++) socket(index, i, false);
         }
       }
     }
@@ -378,6 +381,21 @@ final class ProgrammingWorkshopWorld {
 
   private static Point altarPosition(int station) {
     return actionPoint(station).translate(-3, .2f);
+  }
+
+  // Replacing the declaration synchronizes empty/filled sockets with every client.
+  private static void socket(int station, int index, boolean filled) {
+    Game.levelEntities()
+        .filter(
+            entity -> entity.name().equals("programming-methods-socket-" + station + "-" + index))
+        .forEach(
+            entity ->
+                entity.add(
+                    new ShaderComponent(
+                        "crystal-slot",
+                        0,
+                        new SlotShader(1, Color.valueOf("839AA8"), Color.valueOf("111821CC"))
+                            .enabled(!filled))));
   }
 
   private static Point lampPosition(int station) {

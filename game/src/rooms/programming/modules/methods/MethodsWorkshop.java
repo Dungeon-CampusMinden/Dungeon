@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import rooms.programming.modules.methods.MethodsRoute.Action;
 import rooms.programming.modules.methods.MethodsRoute.Direction;
 import rooms.programming.modules.methods.MethodsRoute.Step;
@@ -133,13 +134,16 @@ public final class MethodsWorkshop {
   private static final class Frame {
     final List<Block> body;
     final Map<String, String> variables;
-    final Block caller;
+    final Consumer<String> returnValue;
+    final Deque<Expression> expressions = new ArrayDeque<>();
+    final Deque<String> values = new ArrayDeque<>();
+    Block active;
     int pc;
 
-    Frame(List<Block> body, Map<String, String> variables, Block caller) {
+    Frame(List<Block> body, Map<String, String> variables, Consumer<String> returnValue) {
       this.body = body;
       this.variables = variables;
-      this.caller = caller;
+      this.returnValue = returnValue;
     }
   }
 
@@ -494,38 +498,48 @@ public final class MethodsWorkshop {
     try {
       while (!stack.isEmpty()) {
         Frame frame = stack.peek();
-        if (frame.pc >= frame.body.size()) {
-          returnFrom(null);
+        if (frame.active == null) {
+          if (frame.pc >= frame.body.size()) {
+            returnFrom(null);
+            continue;
+          }
+          if (++instructions > 512)
+            throw new IllegalArgumentException("Mehr als 512 Anweisungen. Lauf abgebrochen.");
+          frame.active = frame.body.get(frame.pc++);
+          switch (frame.active.action()) {
+            case CALL -> frame.active.arguments().forEach(a -> parse(a, frame.expressions));
+            case RETURN, ASSIGN, TURN, MOVE, PLACE ->
+                parse(frame.active.operand(), frame.expressions);
+            default -> {}
+          }
+        }
+        if (!frame.expressions.isEmpty()) {
+          evaluateNext(frame);
           continue;
         }
-        if (++instructions > 512)
-          throw new IllegalArgumentException("Mehr als 512 Anweisungen. Lauf abgebrochen.");
-        Block block = frame.body.get(frame.pc++);
+        Block block = frame.active;
+        frame.active = null;
         switch (block.action()) {
           case CALL -> {
-            Definition method = definitions.get(block.method());
-            if (method == null)
-              throw new IllegalArgumentException("Methode nicht gebaut: " + block.method());
-            if (method.parameters().size() != block.arguments().size())
-              throw new IllegalArgumentException("Argumentanzahl passt nicht zu " + method.name());
-            if (stack.size() >= 16)
-              throw new IllegalArgumentException("Zu viele verschachtelte Aufrufe.");
-            Map<String, String> locals = new LinkedHashMap<>();
-            for (int i = 0; i < method.parameters().size(); i++)
-              locals.put(
-                  method.parameters().get(i), evaluate(block.arguments().get(i), frame.variables));
-            int count = calls.merge(method.name(), 1, Integer::sum);
-            if (!method.parameters().isEmpty() && count >= 2) parameterReuse = true;
-            stack.push(new Frame(method.body(), locals, block));
+            invoke(
+                block.method(),
+                arguments(frame, block.arguments().size()),
+                value -> {
+                  if (!block.target().isBlank()) {
+                    requireReturn(block.method(), value);
+                    assign(frame.variables, block.target(), value, block.mode());
+                    returnedValueUsed = true;
+                  }
+                });
           }
           case RETURN -> {
-            String value = evaluate(block.operand(), frame.variables);
+            String value = frame.values.pop();
             returnFrom(value);
             trace.add(Step.action(Action.RETURN, numeric(value)));
             revision++;
           }
           case ASSIGN -> {
-            String value = evaluate(block.operand(), frame.variables);
+            String value = frame.values.pop();
             assign(frame.variables, block.target(), value, block.mode());
             trace.add(Step.action(Action.ASSIGN, numeric(value)));
             revision++;
@@ -533,10 +547,8 @@ public final class MethodsWorkshop {
           default -> {
             Step step =
                 switch (block.action()) {
-                  case TURN -> Step.turn(direction(evaluate(block.operand(), frame.variables)));
-                  case MOVE, PLACE ->
-                      Step.action(
-                          block.action(), numeric(evaluate(block.operand(), frame.variables)));
+                  case TURN -> Step.turn(direction(frame.values.pop()));
+                  case MOVE, PLACE -> Step.action(block.action(), numeric(frame.values.pop()));
                   default -> Step.action(block.action(), 0);
                 };
             if (step.action() == Action.MOVE && (step.amount() < 1 || step.amount() > 32))
@@ -564,10 +576,7 @@ public final class MethodsWorkshop {
     try {
       if (pending.action() == Action.COLLECT)
         assign(
-            stack.peek().variables,
-            pending.target(),
-            Integer.toString(value),
-            ResultMode.REPLACE);
+            stack.peek().variables, pending.target(), Integer.toString(value), ResultMode.REPLACE);
       pending = null;
       revision++;
     } catch (IllegalArgumentException ex) {
@@ -577,15 +586,32 @@ public final class MethodsWorkshop {
 
   private void returnFrom(String value) {
     Frame finished = stack.pop();
-    if (finished.caller == null) return;
-    Block call = finished.caller;
-    if (!call.target().isBlank()) {
-      if (value == null)
-        throw new IllegalArgumentException(
-            "Methode " + call.method() + " gibt keinen Wert zurück.");
-      assign(stack.peek().variables, call.target(), value, call.mode());
-      returnedValueUsed = true;
-    }
+    if (finished.returnValue != null) finished.returnValue.accept(value);
+  }
+
+  private void invoke(String name, List<String> arguments, Consumer<String> returnValue) {
+    Definition method = definitions.get(name);
+    if (method == null) throw new IllegalArgumentException("Methode nicht gebaut: " + name);
+    if (method.parameters().size() != arguments.size())
+      throw new IllegalArgumentException("Argumentanzahl passt nicht zu " + name);
+    if (stack.size() >= 16) throw new IllegalArgumentException("Zu viele verschachtelte Aufrufe.");
+    Map<String, String> locals = new LinkedHashMap<>();
+    for (int i = 0; i < arguments.size(); i++)
+      locals.put(method.parameters().get(i), arguments.get(i));
+    int count = calls.merge(name, 1, Integer::sum);
+    if (!method.parameters().isEmpty() && count >= 2) parameterReuse = true;
+    stack.push(new Frame(method.body(), locals, returnValue));
+  }
+
+  private static void requireReturn(String method, String value) {
+    if (value == null)
+      throw new IllegalArgumentException("Methode " + method + " gibt keinen Wert zurück.");
+  }
+
+  private static List<String> arguments(Frame frame, int count) {
+    var arguments = new ArrayList<String>();
+    for (int i = 0; i < count; i++) arguments.addFirst(frame.values.pop());
+    return arguments;
   }
 
   /** True after the main program has returned and all physical actions have completed. */
@@ -676,29 +702,156 @@ public final class MethodsWorkshop {
     };
   }
 
-  private static String evaluate(String expression, Map<String, String> vars) {
-    String input = expression.trim();
-    if (input.length() > 100 || input.isEmpty())
-      throw new IllegalArgumentException("Ausdruck fehlt.");
-    for (int i = input.length() - 1; i > 0; i--)
-      if (input.charAt(i) == '+' || input.charAt(i) == '-') {
-        int a = numeric(evaluate(input.substring(0, i), vars)),
-            b = numeric(evaluate(input.substring(i + 1), vars));
+  private sealed interface Expression {}
+
+  private record Value(String text) implements Expression {}
+
+  private record Arithmetic(char operator) implements Expression {}
+
+  private record Function(String name, int argumentCount) implements Expression {}
+
+  /**
+   * Evaluates left to right, suspending the current block while a method runs physical actions.
+   *
+   * @param frame scope and saved progress of the current expression
+   */
+  private void evaluateNext(Frame frame) {
+    switch (frame.expressions.removeFirst()) {
+      case Value value -> {
+        String input = value.text();
+        if (input.matches("-?[0-9]+")) {
+          numeric(input);
+          frame.values.push(input);
+        } else if (List.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN").contains(input)) {
+          frame.values.push(input);
+        } else {
+          String result = frame.variables.get(input);
+          if (result == null) throw new IllegalArgumentException("Unbekannte Variable: " + input);
+          frame.values.push(result);
+        }
+      }
+      case Arithmetic arithmetic -> {
+        int b = numeric(frame.values.pop()), a = numeric(frame.values.pop());
         try {
-          return Integer.toString(
-              input.charAt(i) == '+' ? Math.addExact(a, b) : Math.subtractExact(a, b));
+          frame.values.push(
+              Integer.toString(
+                  arithmetic.operator() == '+' ? Math.addExact(a, b) : Math.subtractExact(a, b)));
         } catch (ArithmeticException ex) {
           throw new IllegalArgumentException("Zahl zu groß.");
         }
       }
-    if (input.matches("-?[0-9]+")) {
-      numeric(input);
-      return input;
+      case Function function ->
+          invoke(
+              function.name(),
+              arguments(frame, function.argumentCount()),
+              value -> {
+                requireReturn(function.name(), value);
+                frame.values.push(value);
+                returnedValueUsed = true;
+              });
     }
-    if (List.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN").contains(input)) return input;
-    String value = vars.get(input);
-    if (value == null) throw new IllegalArgumentException("Unbekannte Variable: " + input);
-    return value;
+  }
+
+  private static void parse(String expression, Deque<Expression> output) {
+    if (expression.isBlank() || expression.length() > 100)
+      throw new IllegalArgumentException("Ausdruck fehlt.");
+    var parser = new ExpressionParser(expression, output);
+    parser.sum();
+    parser.whitespace();
+    if (parser.position != expression.length()) throw parser.invalid();
+  }
+
+  /** Compiles sums, parentheses and nested calls into operations whose progress survives a tick. */
+  private static final class ExpressionParser {
+    private final String input;
+    private final Deque<Expression> output;
+    private int position;
+
+    ExpressionParser(String input, Deque<Expression> output) {
+      this.input = input;
+      this.output = output;
+    }
+
+    void sum() {
+      atom();
+      while (true) {
+        if (take('+')) {
+          atom();
+          output.addLast(new Arithmetic('+'));
+        } else if (take('-')) {
+          atom();
+          output.addLast(new Arithmetic('-'));
+        } else return;
+      }
+    }
+
+    private void atom() {
+      if (take('(')) {
+        sum();
+        expect(')');
+        return;
+      }
+      if (take('+')) {
+        atom();
+        return;
+      }
+      boolean negative = take('-');
+      whitespace();
+      int start = position;
+      while (position < input.length()
+          && input.charAt(position) >= '0'
+          && input.charAt(position) <= '9') position++;
+      if (position > start) {
+        output.addLast(new Value((negative ? "-" : "") + input.substring(start, position)));
+        return;
+      }
+      if (negative) {
+        output.addLast(new Value("0"));
+        atom();
+        output.addLast(new Arithmetic('-'));
+        return;
+      }
+      while (position < input.length()) {
+        int character = input.codePointAt(position);
+        if (!Character.isLetterOrDigit(character) && character != '_') break;
+        position += Character.charCount(character);
+      }
+      String name = input.substring(start, position);
+      if (!identifier(name)) throw invalid();
+      if (!take('(')) {
+        output.addLast(new Value(name));
+        return;
+      }
+      int count = 0;
+      if (!take(')')) {
+        do {
+          sum();
+          count++;
+        } while (take(','));
+        expect(')');
+      }
+      output.addLast(new Function(name, count));
+    }
+
+    private boolean take(char character) {
+      whitespace();
+      if (position >= input.length() || input.charAt(position) != character) return false;
+      position++;
+      return true;
+    }
+
+    private void expect(char character) {
+      if (!take(character)) throw invalid();
+    }
+
+    private void whitespace() {
+      while (position < input.length() && Character.isWhitespace(input.charAt(position)))
+        position++;
+    }
+
+    private IllegalArgumentException invalid() {
+      return new IllegalArgumentException("Ungültiger Ausdruck: " + input);
+    }
   }
 
   /** Renders the actual editable statement, including arguments and result assignment. */

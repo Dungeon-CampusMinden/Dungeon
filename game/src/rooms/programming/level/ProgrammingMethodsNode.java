@@ -24,7 +24,7 @@ import feature.canvas.CanvasNode;
 import feature.canvas.CanvasNodeType;
 import feature.canvas.NodeState;
 import feature.hud.UIUtils;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -596,8 +596,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                 ProgrammingUI.zoomButton(
                     resultModeLabel(block.mode()),
                     false,
-                    () ->
-                        edit(block, "mode", nextResultMode(block.mode()).name(), ignored -> {})))
+                    () -> edit(block, "mode", nextResultMode(block.mode()).name(), ignored -> {})))
             .growX()
             .row();
       } else {
@@ -762,9 +761,24 @@ final class ProgrammingMethodsNode extends CanvasNode {
   }
 
   private static List<String> arguments(String value) {
-    return value.isBlank()
-        ? List.of()
-        : Arrays.stream(value.split(",", -1)).map(String::trim).toList();
+    if (value.isBlank()) return List.of();
+    var arguments = new ArrayList<String>();
+    int depth = 0, start = 0;
+    for (int i = 0; i < value.length(); i++) {
+      switch (value.charAt(i)) {
+        case '(' -> depth++;
+        case ')' -> depth--;
+        case ',' -> {
+          if (depth == 0) {
+            arguments.add(value.substring(start, i).trim());
+            start = i + 1;
+          }
+        }
+        default -> {}
+      }
+    }
+    arguments.add(value.substring(start).trim());
+    return List.copyOf(arguments);
   }
 
   private TextField field(String key, String initial, BiConsumer<String, Consumer<State>> commit) {

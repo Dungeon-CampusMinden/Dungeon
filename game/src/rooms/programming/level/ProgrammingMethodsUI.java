@@ -410,12 +410,12 @@ final class ProgrammingMethodsUI extends CanvasUI {
               + "\n\nZiehe eine Codezeile vor oder hinter eine andere Zeile. Strg-Klick wählt einzelne Zeilen, Umschalt-Klick einen Bereich im selben Fenster. Ziehe eine ausgewählte Zeile, um die ganze Auswahl zu verschieben. Auch zwischen Hauptprogramm und Methode. Ziehe Code auf den freien Hintergrund, um ihn dort als lose Gruppe abzulegen. Lose Gruppen werden nicht ausgeführt; ziehe sie zum Anschließen zurück in ein Programm.\n\n"
               + "Lege eine eigene Methode an, gib ihr einen Namen und ziehe Code hinein. Eingaben sind frei benannte Parameter, getrennt durch Kommas. Erst Methode bauen erzeugt eine Rune. Ziehe diese Rune ins Hauptprogramm.\n\n"
               + "Mit Bearbeiten änderst du Werte, Ausdrücke, Argumente und das Ziel einer Rückgabe. Enter oder Verlassen eines Feldes speichert den Wert. Ein neuer Lauf setzt den Raum zurück und behält deinen Code.\n\n"
-              + "Mittlere Maustaste oder Leertaste + Ziehen verschiebt die begrenzte Arbeitsfläche. Mausrad über dem Hintergrund zoomt; über Code scrollt es. Fenster am Titel verschieben. Mit gedrückter rechter Maustaste die Fenstergröße ändern: Hauptprogramm und Bausteine nur in der Höhe, die Methode auch in der Breite.\n\nAusdrücke: Zahlen, Variablennamen, + und -. Richtungen: LINKS, RECHTS, HINTEN. SAMMLE_ALLE speichert die tatsächliche Feldmenge.\n\n"
+              + "Mittlere Maustaste oder Leertaste + Ziehen verschiebt die begrenzte Arbeitsfläche. Mausrad über dem Hintergrund zoomt; über Code scrollt es. Fenster am Titel verschieben. Mit gedrückter rechter Maustaste die Fenstergröße ändern: Hauptprogramm und Bausteine nur in der Höhe, die Methode auch in der Breite.\n\nAusdrücke: Zahlen, Variablennamen, +, -, Klammern und Aufrufe gebauter Methoden. Bei Variable setzen ist zum Beispiel 1 + meineMethode(15) möglich. Die Methode führt ihre Anweisungen aus und muss einen Wert zurückgeben. Richtungen: LINKS, RECHTS, HINTEN. SAMMLE_ALLE speichert die tatsächliche Feldmenge.\n\n"
               + (hint == 0
                   ? ""
                   : hint == 1
                       ? "Suche wiederholte Folgen im Hauptprogramm. Was bleibt gleich, welche Werte ändern sich?"
-                      : "Eine Methode kann Eingaben verwenden und einen Wert zurückgeben. Am Aufruf entscheidest du, wo dieser Wert gespeichert wird.");
+                      : "Eine Methode kann Eingaben verwenden und einen Wert zurückgeben. Du kannst am Aufruf ein Speicherziel wählen oder den Aufruf direkt in einem Ausdruck verwenden.");
       content.add(ProgrammingUI.label(text, 19, ProgrammingUI.TEXT)).growX().padTop(16).row();
       content.add(feedback).growX().padTop(16).row();
       content

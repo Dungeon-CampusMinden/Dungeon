@@ -54,6 +54,14 @@ Aufruf ins Hauptprogramm ziehen. Argumente, Zuweisungsziel und Rückgabewerte bl
 bearbeitbar. Gebaute Methoden können erneut bearbeitet und bewusst ersetzt werden.
 Unfertige Entwürfe verändern eine bereits gebaute Rune nicht stillschweigend.
 
+In „Variable setzen“ sind auch Aufrufe gebauter Methoden erlaubt, etwa
+`kristalle = 1 + meineMethode(15)`. Ausdrücke unterstützen Zahlen, Variablen, `+`, `-`,
+Klammern und verschachtelte Methodenaufrufe, auch in Argumenten und Rückgaben.
+Aufrufe werden von links nach rechts ausgeführt, einschließlich ihrer Aktionen im Raum.
+Danach wird mit dem Rückgabewert weitergerechnet. Fehlt die Rückgabe, stoppt der Lauf
+mit einer Fehlermeldung. Das Speicherziel direkt am Aufruf bleibt eine gleichwertige
+Option; beide Schreibweisen zählen als Verwendung eines Rückgabewerts für die Kontrollrune.
+
 Hilfe enthält Auftrag, Bedienung, Begriffe, gestufte Denkanstöße und die letzte
 Rückmeldung. Ausführungsrückmeldungen stehen in der Raumansicht; Fehler beim
 Methodenbau direkt im Methodenentwurf. Die Hilfe ist jederzeit
@@ -108,6 +116,8 @@ den beiden Runensteinen, zwei Kristallfeldern und zwei Altären vor dem Nebenaus
 Tore schließen ihre gesamte Passage. Die Laufwege berücksichtigen Nox' fünf Felder
 breite Kollisionsfläche; Möbel stehen außerhalb dieser Wege. Aktionen beziehen sich
 auf tatsächlich erreichbare Objekte, nicht auf eine unsichtbare Aufgabennummer.
+Leere Kristallfassungen an den Altären verwenden den Slot-Shader. Beim Ablegen wird
+der Amethyst sichtbar; ein neuer Versuch stellt die leeren Fassungen wieder her.
 
 Der Keller und das Archiv behalten ihren bestehenden Ablauf. Nach dem letzten
 Kellerauftrag kehrt Nox über den normalen kollisionsgeprüften Weg zur Werkbank zurück.

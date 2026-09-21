@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import rooms.programming.modules.methods.MethodsRoute.Action;
 import rooms.programming.modules.methods.MethodsRoute.Direction;
 import rooms.programming.modules.methods.MethodsRoute.Step;
@@ -34,9 +36,46 @@ class MethodsWorkshopTest {
     assertEquals(original, workshop.state().main());
   }
 
-  @Test
-  void eightCallsExecuteReusableMethodsWithScopedArgumentsAndReturnedStock() {
+  @ParameterizedTest
+  @ValueSource(strings = {"", "1 + %s - 1", "function_xy(%s, -1) - 1", "(%s + identity(1)) - 1"})
+  void eightCallsExecuteReusableMethodsWithScopedArgumentsAndReturnedStock(String expression) {
     var workshop = canonical();
+    if (!expression.isEmpty()) {
+      build(workshop, "identity", "wert", List.of(block(Action.RETURN, "wert", "")));
+      build(
+          workshop,
+          "function_xy",
+          "wert, abzug",
+          List.of(block(Action.RETURN, "identity(wert) - abzug", "")));
+      for (Block old : workshop.state().main()) {
+        if (old.target().isBlank()) continue;
+        String argument =
+            old.arguments().isEmpty() ? "" : "function_xy(" + old.arguments().getFirst() + ", 0)";
+        String invocation = old.method() + "(" + argument + ")";
+        String operand = expression.formatted(invocation);
+        operand =
+            switch (old.mode()) {
+              case REPLACE -> operand;
+              case ADD -> "kristalle + (" + operand + ")";
+              case SUBTRACT -> "kristalle - (" + operand + ")";
+            };
+        edit(
+            workshop,
+            Operation.EDIT_BLOCK,
+            new Edit(
+                old.id(),
+                null,
+                0,
+                new Block(
+                    old.id(),
+                    Action.ASSIGN,
+                    operand,
+                    old.target(),
+                    "",
+                    List.of(),
+                    ResultMode.REPLACE)));
+      }
+    }
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
     List<Step> steps = run(workshop, 3, 5);
     workshop.finish(true, 0);
@@ -234,12 +273,25 @@ class MethodsWorkshopTest {
         current, JSON.readValue(JSON.writeValueAsString(current), MethodsWorkshop.State.class));
   }
 
-  @Test
-  void recursiveProgramsStopAtTheExecutionBound() {
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void recursiveProgramsStopAtTheExecutionBound(boolean expression) {
     var workshop = claimed();
     clearMain(workshop);
-    build(workshop, "rekursiv", "", List.of(call("rekursiv", "", ResultMode.REPLACE)));
-    add(workshop, "main", call("rekursiv", "", ResultMode.REPLACE));
+    build(
+        workshop,
+        "rekursiv",
+        "",
+        List.of(
+            expression
+                ? block(Action.RETURN, "1 + rekursiv()", "")
+                : call("rekursiv", "", ResultMode.REPLACE)));
+    add(
+        workshop,
+        "main",
+        expression
+            ? block(Action.ASSIGN, "rekursiv()", "kristalle")
+            : call("rekursiv", "", ResultMode.REPLACE));
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
     assertTrue(workshop.next().isEmpty());
     assertFalse(workshop.state().busy());
@@ -287,8 +339,7 @@ class MethodsWorkshopTest {
             call("sammeln", "kristalle", ResultMode.REPLACE),
             call("sammeln", "kristalle", ResultMode.ADD),
             call("altar", "kristalle", ResultMode.SUBTRACT, "3"),
-            call("altar", "kristalle", ResultMode.SUBTRACT, "5")))
-      add(workshop, "main", block);
+            call("altar", "kristalle", ResultMode.SUBTRACT, "5"))) add(workshop, "main", block);
     return workshop;
   }
 
