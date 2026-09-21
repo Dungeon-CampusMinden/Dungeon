@@ -1,0 +1,29 @@
+{
+  "achievements": [
+    {"imagePath":"images/achievements/system_recovery_01.png","id":"system_initialization","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_02.png","id":"modular_thinking","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_03.png","id":"count_what_exists","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_04.png","id":"every_package_counts","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_05.png","id":"sorted_is_sorted","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_06.png","id":"archive_access","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_07.png","id":"two_dimensional_thinking","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_08.png","id":"locator_established","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_09.png","id":"search_complete","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_10.png","id":"three_results_one_core","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_11.png","id":"free_variable","unlockForAll":true,"hidden":false},
+    {"imagePath":"images/achievements/system_recovery_12.png","id":"direct_first_try","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_13.png","id":"no_finished_solution","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_14.png","id":"every_cell_counts","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_15.png","id":"loop_understanding","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_16.png","id":"clean_upload","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_17.png","id":"no_lost_index","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_18.png","id":"intentional_failure","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_19.png","id":"syntax_personality","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_20.png","id":"just_asking","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_21.png","id":"echo_still_there","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_22.png","id":"not_for_consumption","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_23.png","id":"axiom_relax","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_24.png","id":"not_a_bug","unlockForAll":true,"hidden":true},
+    {"imagePath":"images/achievements/system_recovery_25.png","id":"debug_is_not_gameplay","unlockForAll":true,"hidden":true}
+  ]
+}

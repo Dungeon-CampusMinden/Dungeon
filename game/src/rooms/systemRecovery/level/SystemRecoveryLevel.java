@@ -61,6 +61,7 @@ import rooms.systemRecovery.story.SystemRecoveryHintPhone;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
 import rooms.systemRecovery.util.interpreter.SystemRecoveryTerminalController;
@@ -194,6 +195,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     resolvedPoints = SystemRecoveryPointRegistry.resolve(this);
+    SystemRecoveryAchievements.resetRun(SystemRecovery.debugMode());
     enforcePlayerInventorySize();
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryQuestLogUtil.initializeQuestLog();

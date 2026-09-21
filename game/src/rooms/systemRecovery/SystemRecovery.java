@@ -44,6 +44,7 @@ import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
 import rooms.systemRecovery.util.SystemRecoveryTranslator;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 
 /** Entry point for the System Recovery escape room. */
 public final class SystemRecovery {
@@ -154,6 +155,7 @@ public final class SystemRecovery {
   /** Registers shared translations and custom dialog builders. */
   static void registerContent() {
     initLocalization();
+    SystemRecoveryAchievements.register();
     BlackFadeCutscene.register();
     BatteryItem.ensureRegistration();
     SearchProgramChipItem.ensureRegistration();

@@ -593,5 +593,32 @@
         "complete": "Alle Prüfungen des Rechenzentrums sind abgeschlossen."
       }
     }
+  },
+  "achievements": {
+    "system_initialization": {"name": "Initialisierung abgeschlossen", "description": "Stelle das erste beschädigte Subsystem wieder her."},
+    "modular_thinking": {"name": "Modular gedacht", "description": "Stelle den Modulspeicher wieder her."},
+    "count_what_exists": {"name": "Zählen will gelernt sein", "description": "Aktiviere den Inventarscanner."},
+    "every_package_counts": {"name": "Jedes Paket zählt", "description": "Verarbeite jedes Paket im Transportlager."},
+    "sorted_is_sorted": {"name": "Sortiert ist sortiert", "description": "Schließe die Bubble-Sort-Maschine ab."},
+    "archive_access": {"name": "Archivzugang", "description": "Öffne den Zugang zum Datenarchiv."},
+    "two_dimensional_thinking": {"name": "Zweidimensional gedacht", "description": "Stelle den zweidimensionalen Speicher wieder her."},
+    "locator_established": {"name": "Ortung hergestellt", "description": "Programmiere den Ortungschip."},
+    "search_complete": {"name": "Suchlauf abgeschlossen", "description": "Lass den Suchroboter das Zugriffsmodul bergen."},
+    "three_results_one_core": {"name": "Drei Prüfungen, ein Kern", "description": "Führe die finale Systemkern-Kombination aus."},
+    "free_variable": {"name": "Freie Variable", "description": "Schließe die Wiederherstellung ab und öffne den Ausgang."},
+    "direct_first_try": {"name": "Direkt beim ersten Versuch", "description": "Akzeptiere die erste Terminalstruktur ohne Fehlversuch."},
+    "no_finished_solution": {"name": "Keine fertige Lösung nötig", "description": "Löse ein Rätsel ohne einen Telefonhinweis."},
+    "every_cell_counts": {"name": "Jede Zelle zählt", "description": "Lass den Suchroboter jede Matrixzelle erreichen."},
+    "loop_understanding": {"name": "Schleifenverständnis", "description": "Löse beide Schleifenrätsel ohne falsche Terminaleingabe."},
+    "clean_upload": {"name": "Sauber hochgeladen", "description": "Programmiere beide Chips ohne einen fehlerhaften Upload."},
+    "no_lost_index": {"name": "Kein Index verloren", "description": "Löse den zweidimensionalen Speicher ohne falsche Terminaleingabe."},
+    "intentional_failure": {"name": "Das war Absicht", "description": "Erzeuge fünf falsche Terminaleingaben."},
+    "syntax_personality": {"name": "Syntax ist auch ein Charakterzug", "description": "Erzeuge zehn falsche Terminaleingaben."},
+    "just_asking": {"name": "Ich frage nur für einen Freund", "description": "Fordere die vollständige Lösung eines Rätsels an."},
+    "echo_still_there": {"name": "ECHO, bist du noch da?", "description": "Nimm drei Telefonhinweise in Anspruch."},
+    "not_for_consumption": {"name": "Nicht zum Verzehr geeignet", "description": "Programmiere einen Chip, ohne ihn zu verbrauchen."},
+    "axiom_relax": {"name": "AXIOM, entspann dich", "description": "Öffne den Systemkern trotz AXIOMs Drängen."},
+    "not_a_bug": {"name": "Das war kein Bug", "description": "Mach nach einem Fehlversuch erfolgreich weiter."},
+    "debug_is_not_gameplay": {"name": "Debug ist kein Gameplay", "description": "Beende System Recovery ohne Debug-Skip."}
   }
 }

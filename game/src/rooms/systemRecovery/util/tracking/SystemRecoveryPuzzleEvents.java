@@ -1,9 +1,11 @@
 package rooms.systemRecovery.util.tracking;
 
 import engine.Entity;
+import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /**
@@ -91,6 +93,7 @@ public final class SystemRecoveryPuzzleEvents {
       String rawAnswer,
       boolean correct,
       int playerId) {
+    SystemRecoveryAchievements.physicalAttempt(puzzle, rawAnswer, correct, playerId);
     SystemRecoveryTracking.attempt(puzzle, objectId, answerKind, rawAnswer, correct, playerId);
   }
 
@@ -123,6 +126,9 @@ public final class SystemRecoveryPuzzleEvents {
    * @param playerId authoritative player ID, or negative if unavailable
    */
   public static void terminalAttempt(int state, String source, boolean correct, int playerId) {
+    SystemRecoveryAchievements.terminalAttempt(
+        new TerminalAttempt(state, source, playerId, null),
+        correct);
     SystemRecoveryTracking.terminalAttempt(state, source, correct, playerId);
     if (!correct) return;
     TerminalStep.fromStateId(state)
@@ -136,6 +142,7 @@ public final class SystemRecoveryPuzzleEvents {
    * @param puzzle completed puzzle
    */
   public static void solved(SystemRecoveryPuzzle puzzle) {
+    SystemRecoveryAchievements.puzzleSolved(puzzle);
     SystemRecoveryTracking.solved(puzzle);
   }
 
@@ -157,6 +164,7 @@ public final class SystemRecoveryPuzzleEvents {
    */
   public static void hintUsed(SystemRecoveryPuzzle puzzle, String hintId, Entity player) {
     if (puzzle == null || hintId == null || player == null) return;
+    SystemRecoveryAchievements.hintUsed(puzzle, hintId);
     SystemRecoveryTracking.hintUsed(puzzle, hintId, player);
   }
 }
