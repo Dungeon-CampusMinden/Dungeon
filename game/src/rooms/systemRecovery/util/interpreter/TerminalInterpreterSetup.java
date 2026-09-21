@@ -18,6 +18,7 @@ public final class TerminalInterpreterSetup {
   private static final Consumer<TerminalAttempt> FAILURE =
       InterpretationCallbacks::onIncorrectTerminalInput;
   private static final String MODULE_ARRAY = "moduleArray";
+  private static final String PACKAGE_ARRAY = "packageArray";
   private static final String STORAGE_ARRAY = "storageArray";
 
   /** Riddle 1, step 1: create {@code int[] energie} with five slots. */
@@ -41,11 +42,11 @@ public final class TerminalInterpreterSetup {
   /** Riddle 3, step 1: count all non-null module entries with an enhanced {@code for} loop. */
   private static final TerminalStep RIDDLE_THREE_STEP_ONE = TerminalStep.INVENTORY_COUNT;
 
-  /** Riddle 4, step 1: create {@code int[] pakete} with the five package weights. */
+  /** Riddle 4, step 1: create an integer array with the five package weights. */
   private static final TerminalStep RIDDLE_FOUR_STEP_ONE = TerminalStep.TRANSPORT_ARRAY;
 
   /**
-   * Riddle 4, step 2: iterate over {@code pakete} and call the parameterless {@code
+   * Riddle 4, step 2: iterate over the array declared in step 1 and call the parameterless {@code
    * roboter.collect()} once per package.
    */
   private static final TerminalStep RIDDLE_FOUR_STEP_TWO = TerminalStep.TRANSPORT_COLLECT;
@@ -371,7 +372,10 @@ public final class TerminalInterpreterSetup {
       java.util.function.Consumer<TerminalAttempt> onFailure) {
     register(
         RIDDLE_FOUR_STEP_ONE,
-        unordered(onSuccess, onFailure, intArrayLiteral("pakete", "15", "40", "20", "60", "30")));
+        unordered(
+            onSuccess,
+            onFailure,
+            capturedArrayLiteral(PACKAGE_ARRAY, "int", "15", "40", "20", "60", "30")));
   }
 
   private static void setupRiddleFourStepTwoTransportPackages(
@@ -382,7 +386,7 @@ public final class TerminalInterpreterSetup {
         ordered(
             onSuccess,
             onFailure,
-            indexedForLoop("pakete", "packageIndex"),
+            capturedIndexedForLoop(PACKAGE_ARRAY, "packageIndex"),
             methodCall("roboter", "collect")));
   }
 
@@ -622,23 +626,21 @@ public final class TerminalInterpreterSetup {
                 + "\\s*]"));
   }
 
-  private static CodeLine intArrayLiteral(String variable, String... values) {
-    return arrayLiteral("int", variable, values);
-  }
-
-  private static CodeLine arrayLiteral(String type, String variable, String... values) {
+  private static CodeLine capturedArrayLiteral(
+      String variableCapture, String type, String... values) {
+    String variablePattern = capture(variableCapture);
     return new CodeLine(
         Pattern.compile(
             type
                 + "\\s*\\[\\s*]\\s*"
-                + variable
+                + variablePattern
                 + "\\s*=\\s*\\{\\s*"
                 + String.join("\\s*,\\s*", values)
                 + "\\s*}"),
         Pattern.compile(
             type
                 + "\\s+"
-                + variable
+                + variablePattern
                 + "\\s*\\[\\s*]\\s*=\\s*\\{\\s*"
                 + String.join("\\s*,\\s*", values)
                 + "\\s*}"));
@@ -783,13 +785,17 @@ public final class TerminalInterpreterSetup {
         Pattern.compile(variable + "\\s*=\\s*" + variable + "\\s*\\+\\s*1"));
   }
 
-  private static CodeLine indexedForLoop(String arrayVariable, String indexCapture) {
+  private static CodeLine capturedIndexedForLoop(
+      String arrayCapture, String indexCapture) {
     return new CodeLine(
         Pattern.compile(
-            indexedForLoopRegex(indexCapture, "<", arrayVariable + "\\s*\\.\\s*length")),
+            indexedForLoopRegex(
+                indexCapture, "<", capturedIdentifier(arrayCapture) + "\\s*\\.\\s*length")),
         Pattern.compile(
             indexedForLoopRegex(
-                indexCapture, "<=", arrayVariable + "\\s*\\.\\s*length\\s*-\\s*1")));
+                indexCapture,
+                "<=",
+                capturedIdentifier(arrayCapture) + "\\s*\\.\\s*length\\s*-\\s*1")));
   }
 
   private static CodeLine indexedForLoopWithUpperBound(String indexCapture, String upperBound) {
