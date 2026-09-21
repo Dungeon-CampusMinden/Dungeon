@@ -147,6 +147,7 @@ public final class ProgrammingMazeWorld {
       Entity torch = ProgrammingCellarMachinery.prop("lamp", at, "objects/torch", .8f, .8f);
       torch.name("programming-prop-torch-cellar-" + cell.x() + "-" + cell.y());
       torch.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
+      ProgrammingProps.switchableTorch(torch);
     }
   }
 

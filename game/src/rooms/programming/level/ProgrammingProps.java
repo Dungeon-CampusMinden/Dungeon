@@ -84,22 +84,7 @@ final class ProgrammingProps {
               if (name.equals("prop-tabletop-tools")) position.scale(0.6f);
               prop.add(position);
               prop.add(draw);
-              if (name.startsWith("prop-torch"))
-                prop.add(
-                    new InteractionComponent(
-                        new Interaction(
-                            (interacted, who) -> {
-                              if (Game.isMultiplayerClient()) return;
-                              var state =
-                                  interacted
-                                      .fetch(DrawComponent.class)
-                                      .orElseThrow()
-                                      .stateMachine();
-                              state.setState(
-                                  state.getCurrentStateName().equals("on") ? "off" : "on", null);
-                              if (state.getCurrentStateName().equals("off"))
-                                ProgrammingAchievements.LIGHTS_OUT.unlock(who);
-                            })));
+              if (name.startsWith("prop-torch")) switchableTorch(prop);
               if (name.startsWith("prop-workbench"))
                 prop.add(new CollideComponent(Vector2.of(0.05f, 0.05f), Vector2.of(1.9f, 0.65f)));
               else if (name.startsWith("prop-forge-crate") || name.startsWith("prop-forge-kettle"))
@@ -108,5 +93,34 @@ final class ProgrammingProps {
                 prop.add(vaseCollider());
               Game.add(prop);
             });
+  }
+
+  /** All room torches use the same server-owned interaction and synchronized flame state. */
+  static void switchableTorch(Entity torch) {
+    torch.add(new InteractionComponent(new Interaction(ProgrammingProps::toggleTorch)));
+  }
+
+  static void toggleTorch(Entity torch, Entity who) {
+    if (Game.isMultiplayerClient()) return;
+    var state = torch.fetch(DrawComponent.class).orElseThrow().stateMachine();
+    state.setState(state.getCurrentStateName().equals("on") ? "off" : "on", null);
+    if (state.getCurrentStateName().equals("off")) ProgrammingAchievements.LIGHTS_OUT.unlock(who);
+    if (blackout()) ProgrammingAchievements.BLACKOUT.unlock(who);
+  }
+
+  /** Every room torch must explicitly be off; an empty world is not a blackout. */
+  static boolean blackout() {
+    var torches =
+        Game.levelEntities()
+            .filter(entity -> entity.name().startsWith("programming-prop-torch-"))
+            .toList();
+    return !torches.isEmpty()
+        && torches.stream()
+            .allMatch(
+                entity ->
+                    entity
+                        .fetch(DrawComponent.class)
+                        .map(draw -> draw.stateMachine().getCurrentStateName().equals("off"))
+                        .orElse(false));
   }
 }

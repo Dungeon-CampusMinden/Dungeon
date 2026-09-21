@@ -167,6 +167,7 @@ final class ProgrammingWorkshopWorld {
               false);
       lamp.name("programming-prop-torch-workshop-station-" + station.index());
       lamp.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
+      ProgrammingProps.switchableTorch(lamp);
       switch (station.kind()) {
         case GATE -> gate(station.index());
         case RUNE -> {

@@ -43,6 +43,12 @@
       "hidden": true
     },
     {
+      "id": "programming_blackout",
+      "imagePath": "items/rpg/item_torch.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
       "id": "programming_observer",
       "imagePath": "items/rpg/item_compass.png",
       "unlockForAll": false,
