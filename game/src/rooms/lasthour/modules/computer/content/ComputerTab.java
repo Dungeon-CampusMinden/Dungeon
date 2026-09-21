@@ -2,6 +2,7 @@ package rooms.lasthour.modules.computer.content;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import engine.language.Localization;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import rooms.lasthour.modules.computer.ComputerDialog;
@@ -57,7 +58,7 @@ public abstract class ComputerTab extends Table {
    * @return the title of this tab
    */
   public String title() {
-    return title;
+    return Localization.getInstance().getCurrentTranslator().translate(title);
   }
 
   /**
