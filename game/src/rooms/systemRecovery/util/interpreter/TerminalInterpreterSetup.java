@@ -1,5 +1,6 @@
 package rooms.systemRecovery.util.interpreter;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -527,7 +528,12 @@ public final class TerminalInterpreterSetup {
             increment("count")));
   }
 
-  /** Registers the final central step: collect once for every cell in the module matrix. */
+  /**
+   * Registers the final central step: collect once for every cell in the module matrix.
+   *
+   * @param onSuccess callback after a valid program
+   * @param onFailure callback after an invalid program
+   */
   private static void setupRiddleTenStepThreeScanModules(
       java.util.function.Consumer<TerminalAttempt> onSuccess,
       java.util.function.Consumer<TerminalAttempt> onFailure) {
@@ -630,20 +636,7 @@ public final class TerminalInterpreterSetup {
       String variableCapture, String type, String... values) {
     String variablePattern = capture(variableCapture);
     return new CodeLine(
-        Pattern.compile(
-            type
-                + "\\s*\\[\\s*]\\s*"
-                + variablePattern
-                + "\\s*=\\s*\\{\\s*"
-                + String.join("\\s*,\\s*", values)
-                + "\\s*}"),
-        Pattern.compile(
-            type
-                + "\\s+"
-                + variablePattern
-                + "\\s*\\[\\s*]\\s*=\\s*\\{\\s*"
-                + String.join("\\s*,\\s*", values)
-                + "\\s*}"));
+        arrayLiteralPatterns(type, variablePattern, String.join("\\s*,\\s*", values)));
   }
 
   /**
@@ -662,22 +655,35 @@ public final class TerminalInterpreterSetup {
         permutations.stream()
             .flatMap(
                 permutation ->
-                    java.util.stream.Stream.of(
-                        Pattern.compile(
-                            type
-                                + "\\s*\\[\\s*]\\s*"
-                                + variable
-                                + "\\s*=\\s*\\{\\s*"
-                                + permutation
-                                + "\\s*}"),
-                        Pattern.compile(
-                            type
-                                + "\\s+"
-                                + variable
-                                + "\\s*\\[\\s*]\\s*=\\s*\\{\\s*"
-                                + permutation
-                                + "\\s*}")))
+                    Arrays.stream(arrayLiteralPatterns(type, variable, permutation)))
             .toArray(Pattern[]::new));
+  }
+
+  /**
+   * Creates patterns for both Java array-literal declaration forms.
+   *
+   * <p>The short form ({@code int[] values = {...}}) and the explicit form ({@code int[] values =
+   * new int[]{...}}) are both valid Java and should behave identically in the puzzle terminal.
+   *
+   * @param type array element type
+   * @param variablePattern regular expression for the captured variable name
+   * @param valuesPattern regular expression for the accepted values
+   * @return patterns for the supported declaration forms
+   */
+  private static Pattern[] arrayLiteralPatterns(
+      String type, String variablePattern, String valuesPattern) {
+    String literal = "\\{\\s*" + valuesPattern + "\\s*}";
+    String explicitLiteral = "new\\s+" + type + "\\s*\\[\\s*]\\s*" + literal;
+    return new Pattern[] {
+      Pattern.compile(
+          type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + literal),
+      Pattern.compile(
+          type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + literal),
+      Pattern.compile(
+          type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + explicitLiteral),
+      Pattern.compile(
+          type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + explicitLiteral)
+    };
   }
 
   private static void addPermutations(String[] values, int start, Set<String> permutations) {
@@ -785,8 +791,7 @@ public final class TerminalInterpreterSetup {
         Pattern.compile(variable + "\\s*=\\s*" + variable + "\\s*\\+\\s*1"));
   }
 
-  private static CodeLine capturedIndexedForLoop(
-      String arrayCapture, String indexCapture) {
+  private static CodeLine capturedIndexedForLoop(String arrayCapture, String indexCapture) {
     return new CodeLine(
         Pattern.compile(
             indexedForLoopRegex(

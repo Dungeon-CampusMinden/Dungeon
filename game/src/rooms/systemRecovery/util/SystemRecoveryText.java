@@ -20,6 +20,8 @@ public final class SystemRecoveryText {
   private static final Translation QUESTLOG = new Translation("questlog");
   private static final String SPEAKER_IMAGE = "images/system_recovery_ai_profile_pixel.png";
   private static final String ECHO_SPEAKER_IMAGE = "images/system_recovery_echo_profile_pixel.png";
+  private static final String ROBOT_SPEAKER_IMAGE =
+      "images/system_recovery_search_robot_pixel.png";
 
   private SystemRecoveryText() {}
 
@@ -116,7 +118,13 @@ public final class SystemRecoveryText {
         + key("story." + key, values);
   }
 
-  /** Creates a Last Hour-style phone script spoken by the isolated ECHO process. */
+  /**
+   * Creates a Last Hour-style phone script spoken by the isolated ECHO process.
+   *
+   * @param key story translation key
+   * @param values optional format arguments
+   * @return keyed story script
+   */
   public static String echoCall(String key, Object... values) {
     return "[speaker img="
         + ECHO_SPEAKER_IMAGE
@@ -126,12 +134,38 @@ public final class SystemRecoveryText {
         + key("story." + key, values);
   }
 
-  /** Returns the ECHO avatar used by dialogs that provide an explicit portrait fallback. */
+  /**
+   * Creates a Last Hour-style dialog spoken by the search robot.
+   *
+   * @param key story translation key
+   * @param values optional format arguments
+   * @return keyed story script
+   */
+  public static String robotCall(String key, Object... values) {
+    return "[speaker img="
+        + ROBOT_SPEAKER_IMAGE
+        + " name=\"[color=#aaaaaa]"
+        + key("story.search-robot")
+        + "[/color]\"]"
+        + key("story." + key, values);
+  }
+
+  /**
+   * Returns the ECHO avatar used by dialogs that provide an explicit portrait fallback.
+   *
+   * @return ECHO avatar asset path
+   */
   public static String echoSpeakerImage() {
     return ECHO_SPEAKER_IMAGE;
   }
 
-  /** Creates a Last Hour-style system script spoken by AXIOM. */
+  /**
+   * Creates a Last Hour-style system script spoken by AXIOM.
+   *
+   * @param key story translation key
+   * @param values optional format arguments
+   * @return keyed story script
+   */
   public static String axiomCall(String key, Object... values) {
     return "[speaker img="
         + SPEAKER_IMAGE

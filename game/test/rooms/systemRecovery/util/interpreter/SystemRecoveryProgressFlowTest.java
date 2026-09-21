@@ -151,7 +151,12 @@ class SystemRecoveryProgressFlowTest {
 
     submit(bubbleSort(), 202, SystemRecoveryLearningStep.CORE_COUNT, 14);
     submit(centralModuleCount(), 101, SystemRecoveryLearningStep.CORE_SEARCH, 15);
-    submit(centralMapSearch(), 202, SystemRecoveryLearningStep.CORE_META, 16);
+    submit(centralMapSearch(), 202, SystemRecoveryLearningStep.CORE_SEARCH_ROBOT, 16);
+    complete(
+        SystemRecoveryLearningStep.CORE_SEARCH_ROBOT,
+        202,
+        SystemRecoveryLearningStep.CORE_META,
+        16);
     interpreter.synchronizeState(17);
     complete(SystemRecoveryLearningStep.CORE_META, 101, SystemRecoveryLearningStep.COMPLETE, 17);
     assertNoActiveHint();

@@ -15,8 +15,8 @@ public final class SystemRecoveryComputerFeedback {
   /**
    * Sends a localized result to the computer tab that initiated the write.
    *
-   * <p>Singleplayer delivers the same message directly. In multiplayer only the client owning
-   * the submitting player receives it, so another player's computer dialog cannot be updated.
+   * <p>Singleplayer delivers the same message directly. In multiplayer only the client owning the
+   * submitting player receives it, so another player's computer dialog cannot be updated.
    *
    * @param dialogId open computer dialog receiving the update
    * @param targetTabKey stable local tab key
@@ -36,11 +36,7 @@ public final class SystemRecoveryComputerFeedback {
 
     DialogFeedbackMessage message =
         new DialogFeedbackMessage(
-            dialogId,
-            targetTabKey,
-            DialogFeedbackFingerprint.of(source),
-            messageKey,
-            successful);
+            dialogId, targetTabKey, DialogFeedbackFingerprint.of(source), messageKey, successful);
     if (Game.isSingleplayer()) {
       DialogFeedbackRouter.deliver(message);
       return;

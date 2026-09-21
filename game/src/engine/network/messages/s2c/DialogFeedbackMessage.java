@@ -12,8 +12,8 @@ import java.util.Objects;
  *
  * @param dialogId dialog receiving the feedback
  * @param targetTabKey optional local tab key that should render the feedback
- * @param sourceFingerprint fingerprint of the submitted source, or an empty string when the
- *     sender did not provide one
+ * @param sourceFingerprint fingerprint of the submitted source, or an empty string when the sender
+ *     did not provide one
  * @param messageKey localization key relative to the active room namespace
  * @param successful whether the server accepted the submitted action
  */

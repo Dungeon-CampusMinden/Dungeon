@@ -7,8 +7,8 @@ import engine.components.DrawComponent;
 import engine.utils.Point;
 import engine.utils.components.draw.DrawComponentFactory;
 import engine.utils.components.draw.DrawInfoData;
-import feature.components.CollideComponent;
 import feature.collision.Collider;
+import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
 import org.junit.jupiter.api.Test;
 

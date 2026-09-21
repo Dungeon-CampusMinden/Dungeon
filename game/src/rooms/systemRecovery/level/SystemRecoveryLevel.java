@@ -60,6 +60,7 @@ import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
 import rooms.systemRecovery.story.SystemRecoveryHintPhone;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
+import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
 import rooms.systemRecovery.util.interpreter.SystemRecoveryTerminalController;
@@ -122,12 +123,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
               "search-controller",
               "chip",
               SystemRecoveryLearningStep.SEARCH_ROBOT_RUN));
-  private final SystemCoreRiddle systemCore = new SystemCoreRiddle(this);
+  private final SearchRobotRiddle systemCoreSearchRobot = new SearchRobotRiddle(this);
+  private final SystemCoreRiddle systemCore = new SystemCoreRiddle(this, systemCoreSearchRobot);
   private final List<Entity> doorLabels = new ArrayList<>();
   private final SystemRecoveryStoryDialogs storyDialogs = new SystemRecoveryStoryDialogs();
   private final Set<Integer> introShownPlayers = new HashSet<>();
   private final Set<Integer> controlsShownPlayers = new HashSet<>();
   private final Set<String> triggeredDialogPoints = new HashSet<>();
+  private final SystemRecoveryMemoryWatch memoryWatch = new SystemRecoveryMemoryWatch();
   private Map<String, Point> resolvedPoints = Map.of();
   private final SystemRecoveryTerminalController terminalController =
       new SystemRecoveryTerminalController();
@@ -157,6 +160,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private boolean systemCoreAlarmActive;
   private boolean systemCoreRiddleCompleted;
   private boolean endingTriggered;
+  private boolean initialTerminalAttemptRecorded;
+  private boolean initialTerminalAttemptWasCorrect;
 
   /**
    * Creates the System Recovery level.
@@ -277,7 +282,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                     player.id()));
   }
 
-  /** Shows the controls immediately after the intro and unlocks the terminal afterwards. */
+  /**
+   * Shows the controls immediately after the intro and unlocks the terminal afterwards.
+   *
+   * @param playerId player receiving the controls dialog
+   */
   private void finishIntroForPlayer(int playerId) {
     if (!controlsShownPlayers.add(playerId)) return;
     DialogFactory.showDialogDialog(
@@ -355,6 +364,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                         who.id());
                     return;
                   }
+                  if (!echoCallTriggered) {
+                    DialogFactory.showDialogDialog(
+                        SystemRecoveryText.echoCall("dead-line"), () -> {}, who.id());
+                    return;
+                  }
                   SystemRecoveryHintPhone.request(who);
                 })));
   }
@@ -384,6 +398,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
     } else if ("final-call".equals(completedCallKey)) {
       SystemRecoveryQuestLogUtil.addDialogEntry("riddle10", "final-call", "echo", "final-call");
       openElevatorAfterFinalCall();
+    } else if ("opening-call-correct".equals(completedCallKey)) {
+      SystemRecoveryQuestLogUtil.addDialogEntry(
+          "riddle1", "opening-call-correct", "echo", "opening-call-correct");
     } else {
       SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "opening-call", "echo", "opening-call");
     }
@@ -405,7 +422,54 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Starts ECHO's introductory call after the first rejected terminal input. */
   public static void triggerEchoCallForIncorrectInput() {
-    currentLevel().ifPresent(level -> level.triggerEchoCall());
+    currentLevel()
+        .ifPresent(
+            level -> {
+              level.recordInitialTerminalAttemptInternal(false);
+              level.triggerEchoCall();
+            });
+  }
+
+  /**
+   * Records the first energy-terminal attempt and returns whether it was accepted.
+   *
+   * @param correct whether the submitted attempt was correct
+   * @return whether the attempt was recorded as correct
+   */
+  public static boolean recordInitialTerminalAttempt(boolean correct) {
+    return currentLevel()
+        .map(level -> level.recordInitialTerminalAttemptInternal(correct))
+        .orElse(false);
+  }
+
+  private boolean recordInitialTerminalAttemptInternal(boolean correct) {
+    if (initialTerminalAttemptRecorded
+        || TerminalInterpreter.instance().currentState() != TerminalStep.ENERGY_ARRAY.stateId()) {
+      return false;
+    }
+    initialTerminalAttemptRecorded = true;
+    initialTerminalAttemptWasCorrect = correct;
+    return correct;
+  }
+
+  /** Starts ECHO's successful first-contact call after AXIOM's dialog has closed. */
+  public static void triggerEchoCallAfterInitialCorrectInput() {
+    currentLevel().ifPresent(SystemRecoveryLevel::triggerCorrectOpeningCall);
+  }
+
+  private void triggerCorrectOpeningCall() {
+    if (echoCallTriggered || phone == null) return;
+    echoCallTriggered = true;
+    startRingingCall("opening-call-correct");
+  }
+
+  /**
+   * Returns whether the first accepted terminal input was the correct energy-array code.
+   *
+   * @return whether the first attempt was correct
+   */
+  public static boolean recordedInitialTerminalAttemptWasCorrect() {
+    return currentLevel().map(level -> level.initialTerminalAttemptWasCorrect).orElse(false);
   }
 
   /** Starts the next instruction when a player reaches a configured room-entry trigger. */
@@ -479,10 +543,58 @@ public class SystemRecoveryLevel extends DungeonLevel {
     return interpretTerminalInput(source, playerId, null);
   }
 
-  /** Runs terminal input while preserving the submitting dialog for targeted feedback. */
+  /**
+   * Runs terminal input while preserving the submitting dialog for targeted feedback.
+   *
+   * @param source complete source submitted by the player
+   * @param playerId authoritative player ID
+   * @param dialogId originating dialog ID, or {@code null}
+   * @return whether the input was accepted
+   */
   public static boolean interpretTerminalInput(String source, int playerId, String dialogId) {
     if (!terminalsUnlocked()) return false;
     return active().terminalController.interpret(source, playerId, dialogId);
+  }
+
+  /**
+   * Records an accepted player source for the shared quest log and Memory Watch.
+   *
+   * @param attempt accepted terminal attempt
+   */
+  public static void recordAcceptedSolution(TerminalAttempt attempt) {
+    if (attempt == null) return;
+    currentLevel()
+        .ifPresent(
+            level -> {
+              level.memoryWatch.recordAcceptedSource(attempt.source());
+              SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
+            });
+  }
+
+  /**
+   * Records an accepted chip program or final result payload for its matching riddle.
+   *
+   * @param step learning step receiving the solution entry
+   * @param source accepted source or payload
+   */
+  public static void recordAcceptedSolution(SystemRecoveryLearningStep step, String source) {
+    currentLevel()
+        .ifPresent(
+            level -> {
+              level.memoryWatch.recordAcceptedSource(source);
+              SystemRecoveryQuestLogUtil.addSolutionEntry(step, source);
+            });
+  }
+
+  /**
+   * Returns accepted array identifiers and data types for the Memory Watch tab.
+   *
+   * @return accepted array entries
+   */
+  public static String[] memoryWatchArrayEntries() {
+    return currentLevel()
+        .map(level -> level.memoryWatch.arrayEntries())
+        .orElseGet(() -> new String[0]);
   }
 
   /**
@@ -502,7 +614,36 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static boolean systemCoreMetaAvailable() {
     return terminalsUnlocked()
-        && TerminalInterpreter.instance().currentState() == TerminalStep.SYSTEM_CORE_META.stateId();
+        && TerminalInterpreter.instance().currentState() == TerminalStep.SYSTEM_CORE_META.stateId()
+        && SystemRecoveryProgressNet.activeStep().orElse(null)
+            == SystemRecoveryLearningStep.CORE_META;
+  }
+
+  /**
+   * Completes the final System Core robot run after the robot reached every matrix cell.
+   *
+   * @param playerId player whose accepted program started the scan, or a negative shared context
+   */
+  public static void completeSystemCoreRobotSearch(int playerId) {
+    currentLevel()
+        .ifPresent(
+            level -> {
+              if (SystemRecoveryProgressNet.activeStep().orElse(null)
+                  != SystemRecoveryLearningStep.CORE_SEARCH_ROBOT) {
+                return;
+              }
+              level.systemCore.completeMapSearch();
+              if (!SystemRecoveryProgressNet.complete(
+                  SystemRecoveryLearningStep.CORE_SEARCH_ROBOT)) {
+                return;
+              }
+              if (playerId >= 0) {
+                level.storyDialogs.announceForPlayer(
+                    SystemRecoveryStoryDialogs.CENTRAL_META, playerId);
+              } else {
+                level.storyDialogs.announceToAllPlayers(SystemRecoveryStoryDialogs.CENTRAL_META);
+              }
+            });
   }
 
   /**
@@ -516,7 +657,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
     return submitSystemCoreMeta(payload, playerId, null);
   }
 
-  /** Validates the final input mask while preserving the submitting dialog for feedback. */
+  /**
+   * Validates the final input mask while preserving the submitting dialog for feedback.
+   *
+   * @param payload submitted combination
+   * @param playerId authoritative player ID
+   * @param dialogId originating dialog ID, or {@code null}
+   * @return whether the combination was accepted
+   */
   public static boolean submitSystemCoreMeta(String payload, int playerId, String dialogId) {
     if (!systemCoreMetaAvailable()) return false;
     int state = TerminalInterpreter.instance().currentState();
@@ -699,7 +847,15 @@ public class SystemRecoveryLevel extends DungeonLevel {
     addDoorLabel(point, text, title, completed, 0f);
   }
 
-  /** Adds a room label with an explicit visual orientation. */
+  /**
+   * Adds a room label with an explicit visual orientation.
+   *
+   * @param point label custom-point name
+   * @param text localized label text or translation key
+   * @param title localized interaction title or translation key
+   * @param completed supplier for the prerequisite completion state
+   * @param rotation visual rotation in degrees
+   */
   private void addDoorLabel(
       String point, String text, String title, BooleanSupplier completed, float rotation) {
     Entity label = SystemRecoveryRoomFactory.roomLabel(this.point(point), text, title, rotation);
@@ -785,6 +941,33 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static boolean scannerRunning() {
     return active().inventoryScanner.running();
+  }
+
+  /**
+   * Returns the matrix cell currently examined by the search robot, if any.
+   *
+   * @return current matrix cell as a coordinate string, or an empty string
+   */
+  public static String currentSearchRobotCell() {
+    engine.utils.Point point = active().searchRobot.currentCellPoint();
+    return point == null ? "" : point.x() + "," + point.y();
+  }
+
+  /**
+   * Returns the matrix cell currently examined by the specified synchronized robot entity.
+   *
+   * @param robotEntity synchronized robot entity to inspect
+   * @return current matrix cell as a coordinate string, or an empty string
+   */
+  public static String currentSearchRobotCell(Entity robotEntity) {
+    SystemRecoveryLevel level = active();
+    engine.utils.Point point =
+        level.searchRobot.controls(robotEntity)
+            ? level.searchRobot.currentCellPoint()
+            : level.systemCoreSearchRobot.controls(robotEntity)
+                ? level.systemCoreSearchRobot.currentCellPoint()
+                : null;
+    return point == null ? "" : point.x() + "," + point.y();
   }
 
   /** Spawns the packages for transport riddle four exactly once. */

@@ -22,6 +22,7 @@ import java.util.Optional;
 import rooms.lasthour.util.shaders.LightingShader;
 import rooms.systemRecovery.modules.display.DisplayTextStatusShader;
 import rooms.systemRecovery.modules.scanner.ModuleScannerVisualState;
+import rooms.systemRecovery.modules.computer.content.SystemCoreMetaDraft;
 
 /** Client-side rendering setup for System Recovery. */
 public class SystemRecoveryClientLevel extends DungeonLevel {
@@ -65,6 +66,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    SystemCoreMetaDraft.clear();
     setupLightingShader();
   }
 

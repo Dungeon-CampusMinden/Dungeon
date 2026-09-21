@@ -45,6 +45,9 @@ public final class SystemRecoveryComputerFactory {
   /** Dialog attribute indicating that the final system-core input mask is available. */
   public static final String SYSTEM_CORE_META_AVAILABLE = "systemCoreMetaAvailable";
 
+  /** Dialog attribute containing accepted array identifiers and data types for Memory Watch. */
+  public static final String MEMORY_ARRAY_ENTRIES = "memoryArrayEntries";
+
   private SystemRecoveryComputerFactory() {}
 
   /** Registers the custom System Recovery computer dialog. */
@@ -207,6 +210,7 @@ public final class SystemRecoveryComputerFactory {
                 .put(SEARCH_PROGRAM_INSERTED, programKind == ComputerProgramKind.SEARCH)
                 .put(ACCESS_MODULE_INSERTED, programKind == ComputerProgramKind.ACCESS)
                 .put(SYSTEM_CORE_META_AVAILABLE, SystemRecoveryLevel.systemCoreMetaAvailable())
+                .put(MEMORY_ARRAY_ENTRIES, SystemRecoveryLevel.memoryWatchArrayEntries())
                 .build(),
             targetEntityId);
     ui.registerCallback(
@@ -329,6 +333,8 @@ public final class SystemRecoveryComputerFactory {
                     source,
                     true,
                     targetEntityId);
+                SystemRecoveryLevel.recordAcceptedSolution(
+                    SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION, source);
                 SystemRecoveryComputerFeedback.send(
                     ui.dialogContext().dialogId(),
                     SortProgramTab.KEY,
@@ -437,6 +443,8 @@ public final class SystemRecoveryComputerFactory {
                     source,
                     true,
                     targetEntityId);
+                SystemRecoveryLevel.recordAcceptedSolution(
+                    SystemRecoveryLearningStep.SEARCH_PROGRAM, source);
                 SystemRecoveryComputerFeedback.send(
                     ui.dialogContext().dialogId(),
                     SearchProgramTab.KEY,

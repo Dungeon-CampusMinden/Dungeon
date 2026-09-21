@@ -12,6 +12,7 @@ import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.components.draw.shader.ShineShader;
 import feature.shader.ShaderComponent;
 import java.util.List;
+import rooms.systemRecovery.util.shaders.SystemRecoveryAlarmShader;
 
 /** Converts synchronized shader components to and from their network representation. */
 public final class ShaderComponentCodec {
@@ -22,6 +23,7 @@ public final class ShaderComponentCodec {
   private static final String TYPE_SHINE = "shine";
   private static final String TYPE_PASSTHROUGH = "passthrough";
   private static final String TYPE_LEVEL_HIDE = "level_hide";
+  private static final String TYPE_SYSTEM_RECOVERY_ALARM = "system_recovery_alarm";
 
   private ShaderComponentCodec() {}
 
@@ -128,6 +130,8 @@ public final class ShaderComponentCodec {
       type = TYPE_PASSTHROUGH;
     } else if (shader instanceof LevelHideShader) {
       type = TYPE_LEVEL_HIDE;
+    } else if (shader instanceof SystemRecoveryAlarmShader) {
+      type = TYPE_SYSTEM_RECOVERY_ALARM;
     } else {
       throw new IllegalArgumentException(
           "Unsupported synchronized shader type: " + shader.getClass().getName());
@@ -146,6 +150,7 @@ public final class ShaderComponentCodec {
           case TYPE_SHINE -> new ShineShader();
           case TYPE_PASSTHROUGH -> new PassthroughShader();
           case TYPE_LEVEL_HIDE -> new LevelHideShader();
+          case TYPE_SYSTEM_RECOVERY_ALARM -> new SystemRecoveryAlarmShader();
           default -> throw new IllegalArgumentException("Unsupported shader type: " + entry.type());
         };
     shader.loadProperties(entry.properties());

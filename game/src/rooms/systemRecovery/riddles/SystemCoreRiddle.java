@@ -30,6 +30,7 @@ public final class SystemCoreRiddle {
   private static final int COMPLETE_TINT = 0x66FF66FF;
 
   private final DungeonLevel level;
+  private final SearchRobotRiddle searchRobot;
   private final Entity[] sortEntries = new Entity[SORT_VALUES.length];
   private final Entity[] moduleEntries = new Entity[MODULE_VALUES.length];
   private final Set<Entity> mapEntries = new HashSet<>();
@@ -37,6 +38,7 @@ public final class SystemCoreRiddle {
   private Entity display;
   private int stage;
   private boolean exitOpen;
+  private boolean mapSearchStarted;
 
   /**
    * Creates the central-computer riddle for the owning level.
@@ -45,6 +47,18 @@ public final class SystemCoreRiddle {
    */
   public SystemCoreRiddle(DungeonLevel level) {
     this.level = level;
+    this.searchRobot = null;
+  }
+
+  /**
+   * Creates the central-computer riddle with the shared search robot.
+   *
+   * @param level level that owns the system-core entities
+   * @param searchRobot dedicated controller for the second robot used by the final matrix scan
+   */
+  public SystemCoreRiddle(DungeonLevel level, SearchRobotRiddle searchRobot) {
+    this.level = level;
+    this.searchRobot = searchRobot;
   }
 
   /** Spawns the dedicated central terminal, the shared display and all three task areas. */
@@ -54,6 +68,9 @@ public final class SystemCoreRiddle {
     spawnSortArea();
     spawnModuleArea();
     spawnMapArea();
+    if (searchRobot != null) {
+      searchRobot.setupSystemCoreRobot(map.pointAt(0));
+    }
   }
 
   /** Marks the Bubble Sort area as complete and advances the shared display. */
@@ -78,6 +95,25 @@ public final class SystemCoreRiddle {
     stage = 3;
     tint(mapEntries);
     updateDisplay();
+  }
+
+  /**
+   * Starts the shared search robot on the System Core matrix.
+   *
+   * <p>The terminal code only authorizes this run. The actual learning step is completed by the
+   * robot callback after it has reached every cell, so the final input mask cannot appear early.
+   *
+   * @param onComplete callback invoked after the robot has scanned all cells
+   * @return whether a new scan was started
+   */
+  public boolean startMapSearch(Runnable onComplete) {
+    if (stage < 2 || stage >= 3 || mapSearchStarted || searchRobot == null || map == null) {
+      return false;
+    }
+    if (!searchRobot.startSystemCoreScan(map, onComplete)) return false;
+    mapSearchStarted = true;
+    updateDisplay();
+    return true;
   }
 
   /** Completes the meta-riddle and opens the route beyond the system core. */

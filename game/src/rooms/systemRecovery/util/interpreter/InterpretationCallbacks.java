@@ -26,6 +26,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleOneStepOneEnergyArrayInitialized(TerminalAttempt attempt) {
+    SystemRecoveryLevel.recordInitialTerminalAttempt(true);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.ENERGY_ARRAY, attempt);
     showCorrectTerminalFeedback(attempt);
   }
@@ -196,6 +197,7 @@ public final class InterpretationCallbacks {
    * @param attempt accepted terminal attempt
    */
   public static void showCorrectTerminalFeedback(TerminalAttempt attempt) {
+    SystemRecoveryLevel.recordAcceptedSolution(attempt);
     track(attempt, true);
     SystemRecoveryTerminalFeedback.send(attempt, true);
     Game.audio().playGlobal(SoundSpec.builder(SUCCESS_SOUND));

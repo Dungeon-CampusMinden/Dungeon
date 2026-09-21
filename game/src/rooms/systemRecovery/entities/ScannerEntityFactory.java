@@ -3,6 +3,7 @@ package rooms.systemRecovery.entities;
 import engine.Entity;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.components.VelocityComponent;
 import engine.systems.VelocitySystem;
 import engine.utils.Point;
 import engine.utils.components.draw.DepthLayer;
@@ -12,16 +13,15 @@ import engine.utils.components.draw.state.DirectionalState;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.AIComponent;
 import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiConsumer;
-
-import feature.systems.HealthSystem;
+import java.util.function.Consumer;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Builds scanner devices and search-robot visuals used by riddles 3, 4 and 9. */
@@ -55,14 +55,25 @@ public final class ScannerEntityFactory {
    * @return configured search robot
    */
   public static Entity searchRobot(Point point) {
+    return searchRobot(point, _ -> {});
+  }
+
+  /**
+   * Creates a search robot whose movement is driven by the shared {@code AISystem}.
+   *
+   * @param point robot position
+   * @param movementBehavior AI behavior that advances the robot toward its current target
+   * @return configured search robot
+   */
+  public static Entity searchRobot(Point point, Consumer<Entity> movementBehavior) {
     Entity entity = new Entity("search_robot");
     entity.add(new PositionComponent(point));
     entity.add(new CollideComponent());
+    entity.add(new VelocityComponent(2.5f));
+    entity.add(new AIComponent(_ -> {}, movementBehavior, _ -> false));
 
     Map<String, Animation> animationMap =
-
-
-      Animation.loadAnimationSpritesheet(new SimpleIPath("character/roboter_cleaner"));
+        Animation.loadAnimationSpritesheet(new SimpleIPath("character/roboter_cleaner"));
     State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
     State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
     StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
@@ -110,7 +121,6 @@ public final class ScannerEntityFactory {
   public static Entity searchTargetItem(Point point) {
     Entity entity = new Entity("search_target_item");
     entity.add(new PositionComponent(point));
-    entity.add(new CollideComponent());
     DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Hand_scanner.png"));
     draw.depth(DepthLayer.AbovePlayer.depth());
     entity.add(draw);

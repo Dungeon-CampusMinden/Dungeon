@@ -9,8 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.FontHelper;
+import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogFeedbackFingerprint;
 import java.util.Arrays;
@@ -25,9 +25,8 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   /** Stable tab key used by the computer dialog. */
   public static final String KEY = "system-core-meta";
 
-  private static final int ENERGY_SLOT_COUNT = 5;
-
-  private final TextField[] energyFields = new TextField[ENERGY_SLOT_COUNT];
+  private final TextField[] energyFields =
+      new TextField[SystemCoreMetaDraft.ENERGY_SLOT_COUNT];
   private TextField moduleField;
   private TextField batteryField;
   private Label feedback;
@@ -55,8 +54,12 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
 
     Table energyTable = new Table(skin);
     energyTable.top().left();
-    for (int index = 0; index < ENERGY_SLOT_COUNT; index++) {
-      energyFields[index] = createNumberField();
+    for (int index = 0; index < SystemCoreMetaDraft.ENERGY_SLOT_COUNT; index++) {
+      int slotIndex = index;
+      energyFields[index] =
+          createNumberField(
+              SystemCoreMetaDraft.energyValue(index),
+              value -> SystemCoreMetaDraft.energyValue(slotIndex, value));
       Table slot = new Table(skin);
       slot.add(createLabel(SystemRecoveryText.text("computer.meta-energy-slot", index + 1), 18))
           .left()
@@ -68,8 +71,13 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
 
     Table counts = new Table(skin);
     counts.left().top();
-    moduleField = createNumberField();
-    batteryField = createNumberField();
+    moduleField =
+        createNumberField(
+            SystemCoreMetaDraft.moduleCount(), SystemCoreMetaDraft::moduleCount);
+    batteryField =
+        createNumberField(
+            SystemCoreMetaDraft.scannedModuleCount(),
+            SystemCoreMetaDraft::scannedModuleCount);
     addCountField(counts, "computer.meta-modules", moduleField);
     addCountField(counts, "computer.meta-batteries", batteryField);
     layout.add(counts).left().padTop(24).row();
@@ -107,10 +115,16 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     add(layout).grow();
   }
 
-  private TextField createNumberField() {
-    TextField field = Scene2dElementFactory.createTextField("");
+  private TextField createNumberField(
+      String initialValue, java.util.function.Consumer<String> draftWriter) {
+    TextField field = Scene2dElementFactory.createTextField(initialValue);
     field.setMaxLength(3);
-    Scene2dElementFactory.addTextFieldChangeListener(field, ignored -> lastSubmittedFingerprint = null);
+    Scene2dElementFactory.addTextFieldChangeListener(
+        field,
+        value -> {
+          draftWriter.accept(value);
+          lastSubmittedFingerprint = null;
+        });
     return field;
   }
 
@@ -132,6 +146,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   }
 
   private void clearValues() {
+    SystemCoreMetaDraft.clear();
     Arrays.stream(energyFields).forEach(field -> field.setText(""));
     moduleField.setText("");
     batteryField.setText("");
@@ -139,7 +154,11 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     applyLocalFeedback("", LABEL_COLOR, "generic-area-depth");
   }
 
-  /** Applies server-authoritative feedback to the currently used final input mask. */
+  /**
+   * Applies server-authoritative feedback to the currently used final input mask.
+   *
+   * @param serverFeedback authoritative validation result
+   */
   public void applyServerFeedback(DialogFeedbackMessage serverFeedback) {
     if (!serverFeedback.sourceFingerprint().isEmpty()
         && !serverFeedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {

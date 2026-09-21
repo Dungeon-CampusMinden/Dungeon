@@ -30,6 +30,8 @@ import feature.hud.dialogs.DialogFeedbackReceiver;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.modules.computer.content.MemoryWatchTab;
 import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
 import rooms.systemRecovery.modules.computer.content.SortProgramTab;
 import rooms.systemRecovery.modules.computer.content.SystemCoreAccessTab;
@@ -62,6 +64,11 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     setSize(Game.windowWidth(), Game.windowHeight());
     createActors();
     addTab(new TerminalTab());
+    addTab(
+        new MemoryWatchTab(
+            context
+                .find(SystemRecoveryComputerFactory.MEMORY_ARRAY_ENTRIES, String[].class)
+                .orElse(new String[0])));
     if (isTransportStorageState()) {
       addTab(new TransportInstructionsTab());
     }
@@ -96,7 +103,8 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     super.act(delta);
     if (!tabs.containsKey(SystemCoreMetaTab.KEY)
         && TerminalInterpreter.instance().currentState()
-            == TerminalStep.SYSTEM_CORE_META.stateId()) {
+            == TerminalStep.SYSTEM_CORE_META.stateId()
+        && SystemRecoveryLevel.systemCoreMetaAvailable()) {
       addTab(new SystemCoreMetaTab());
       activeTab = SystemCoreMetaTab.KEY;
       showContent(activeTab);
@@ -248,7 +256,8 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     }
     if (SortProgramTab.KEY.equals(feedback.targetTabKey())
         && tabs.get(SortProgramTab.KEY) instanceof SortProgramTab sort) {
-      sort.applyServerFeedback(feedback, feedback.successful() ? this::closeAfterProgramWrite : null);
+      sort.applyServerFeedback(
+          feedback, feedback.successful() ? this::closeAfterProgramWrite : null);
       return;
     }
     if (SearchProgramTab.KEY.equals(feedback.targetTabKey())
@@ -259,6 +268,11 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     }
     if (tabs.get(TerminalTab.KEY) instanceof TerminalTab terminal) {
       terminal.applyServerFeedback(feedback);
+      if (tabs.get(MemoryWatchTab.KEY) instanceof MemoryWatchTab memoryWatch) {
+        terminal
+            .sourceForFeedback(feedback)
+            .ifPresent(memoryWatch::mergeAcceptedSource);
+      }
     }
   }
 

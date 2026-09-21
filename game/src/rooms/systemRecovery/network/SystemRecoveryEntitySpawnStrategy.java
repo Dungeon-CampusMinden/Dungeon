@@ -50,6 +50,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_SYSTEM_CORE_ACCESS = "systemRecovery.systemCoreAccess";
   public static final String METADATA_SYSTEM_CORE_ALARM = "systemRecovery.systemCoreAlarm";
   public static final String METADATA_SYSTEM_CORE_STAGE = "systemRecovery.systemCoreStage";
+  public static final String METADATA_SEARCH_ROBOT_CELL = "systemRecovery.searchRobot.cell";
 
   /** Metadata prefix for synchronized collider state. */
   public static final String METADATA_COLLIDER_PREFIX = "systemRecovery.collider";
@@ -84,6 +85,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
           METADATA_TERMINAL_STATE, String.valueOf(TerminalInterpreter.instance().currentState()));
     }
     appendModuleScanMetadata(entity, metadata);
+    appendSearchRobotMetadata(entity, metadata);
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     DoorLabelComponent.appendMetadata(entity, metadata);
 
@@ -135,6 +137,13 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
           METADATA_MODULE_SCAN_RUNNING, String.valueOf(SystemRecoveryLevel.scannerRunning()));
       metadata.put(
           METADATA_MODULE_SCAN_FAULT, String.valueOf(SystemRecoveryLevel.scannerFaultDetected()));
+    }
+  }
+
+  private void appendSearchRobotMetadata(Entity entity, Map<String, String> metadata) {
+    if ("search_robot".equals(entity.name())) {
+      metadata.put(
+          METADATA_SEARCH_ROBOT_CELL, SystemRecoveryLevel.currentSearchRobotCell(entity));
     }
   }
 

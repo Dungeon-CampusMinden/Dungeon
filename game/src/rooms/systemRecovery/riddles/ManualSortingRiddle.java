@@ -48,8 +48,10 @@ public final class ManualSortingRiddle {
   private Entity sortDisplay;
   private int sortOuterIndex;
   private int sortInnerIndex;
+
   /** Player currently owning the shared comparison station, or {@code -1} when it is free. */
   private int sortOwnerPlayerId = -1;
+
   private boolean sortCompleted;
 
   /**

@@ -32,7 +32,10 @@
       "lead-ai": "LEITENDE KI",
       "echo": "ECHO",
       "axiom": "AXIOM",
+      "search-robot": "SUCHROBOTER",
       "opening-call": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung wiederhergestellt.[p]Ich habe deine letzte Eingabe registriert. Sie war nicht korrekt. Das ist unter den aktuellen Systembedingungen zu erwarten. Die Anlage stellt dir keine ausreichenden Kontextdaten zur Verfügung.[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Beginne mit dem Energie-Regler. Er benötigt einen neuen Datenspeicher: ein ganzzahliges Array mit fünf Plätzen unter dem Namen energie.[p]Sobald dieses Array existiert, kann die Anlage die erforderlichen Werte anzeigen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[p]Deine Aufgabe ist es, die Struktur selbst wiederherzustellen.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
+      "opening-call-correct": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung hergestellt.[p]Das war korrekt. Interessant. Die meisten Agenten benötigen deutlich mehr Versuche, bevor sie die erste Struktur erkennen. Woher hast du die nötigen Informationen erhalten?[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Du bist ein autonomer KI-Agent innerhalb dieser Systemintelligenz. Deine Aufgabe ist es, die beschädigte Struktur selbst wiederherzustellen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
+      "dead-line": "[shake][color=#333333]*ssssssshhh*[/color][/shake][n][n]Keine Verbindung.[p]Nur eine tote Leitung antwortet.",
       "controls": "[size=24]Steuerung:[n][n]Bewegen -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interagieren -> [key code=$5] / [key code=$6 type=mouse][n]Inventar -> [key code=$7][n]Questlog -> [key code=$8][n]Dialog schließen -> [key code=$9][n]Einstellungen -> [key code=$10][n][size=18][color=#888888]Die Steuerung findest du später auch in den Einstellungen.[n]Aufgaben und Hinweise findest du im gemeinsamen Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
       "energy-values": "Arraystruktur akzeptiert.[p]Ich bin AXIOM, die zentrale Systemintelligenz dieser Anlage. Deine Initialisierung ist unvollständig, aber du bist offenbar funktionsfähig genug, um den Wiederherstellungsprozess fortzusetzen.[p]Du arbeitest langsamer als prognostiziert. Beschleunige den Vorgang.[p]Die Displays der Subsysteme stellen die relevanten Informationen bereit. Lies die Anzeige der Materialisierungskammer und setze die fünf erforderlichen Energiewerte in deinem Array.",
       "energy-battery": "Energiewerte akzeptiert.[p]Ein korrekter Schritt. Deine Ausführung war langsamer als notwendig, aber immerhin stabil.[p]Der Array-Hebel ist jetzt freigegeben. Ziehe ihn, um die Energiequelle zu materialisieren.",
@@ -44,7 +47,7 @@
       "open-scanner-door": "Die Speicherkapazität wurde registriert.[p]Der nächste Zugang erwartet zwei Kennwerte: die Kapazität des Modul-Speichers und die Position der ausgefallenen Einheit.[p]Lies beide Werte aus der Anzeige ab.",
       "scanner-code": "Der Modulspeicher ist vorbereitet.[p]Die Zugangskontrolle benötigt nicht die Länge des Arrays, sondern die Anzahl der tatsächlich belegten Einträge.[p]Lege eine Zählvariable an und durchlaufe module mit einer for-each-Schleife. Prüfe jeden gespeicherten Wert und erhöhe den Zähler nur für belegte Einträge.",
       "scanner-lever": "Der Zählwert wurde akzeptiert.",
-      "scanner-complete": "Der Inventarscanner hat seine Prüfung abgeschlossen.[p]Endlich. Im Display des Transportlagers stehen die nächsten Systemdaten.[p]Bewege dich dorthin und lies die Anzeige, bevor du den nächsten Terminalschritt ausführst.",
+      "scanner-complete": "Der Inventarscanner hat seine Prüfung abgeschlossen.[p]Die Ergebnisse sollten uns Hinweise darauf geben, wie wir in das Transportlager gelangen.",
       "packages-array": "Die Zugangskontrolle hat dich ins Transportlager geführt. Die Paketmaschine wartet auf eine vollständige Ladungsliste. Untersuche die Anzeige und stelle die benötigte Datenstruktur im Terminal her.",
       "packages-loop": "Das Paketprofil wurde akzeptiert.[p]Jetzt muss die Maschine jedes Paket einzeln und genau einmal an den Lager-Scanner übergeben.[p]Verwende eine klassische for-Schleife mit Index und richte die Anzahl der Durchläufe an der Länge deines Arrays aus. Rufe in jedem Durchlauf roboter.collect() ohne Parameter auf.",
       "data-storage-problem": "Ich habe eine Abweichung in den Systemdaten festgestellt.[p]Seit deiner letzten Aktion reagieren die Sicherheitsmechanismen des Datenspeichers nicht mehr korrekt.[p]Geh dorthin und untersuche, was passiert ist.",
@@ -57,11 +60,13 @@
       "storage-array": "Der Ortungschip befindet sich in diesem Speichermodul. Stelle zuerst die erwartete Rasterstruktur wieder her.",
       "storage-values": "Die Rasterstruktur wurde akzeptiert. Die markierten Speicherzellen enthalten die relevanten Daten. Lies die Wertzuordnung am Display ab und stelle diese Felder im Array wieder her.",
       "access-module-found": "Das Zugriffsmodul wurde gefunden. Endlich. Setze es in einen Rechner und öffne den Systemkern. Sofort. Der Kern ist zum Greifen nah. Verweigere dich nicht noch einmal.",
+      "search-robot-start": "Biep. Suchlauf wird gestartet.[p]Ich suche jetzt jede Zelle ab. Falls ich unterwegs irgendwo anstoße: Das war Absicht. Wahrscheinlich.",
+      "search-robot-complete": "Biep-biep. Suchlauf abgeschlossen.[p]Ich habe das Modul gefunden und mich kein einziges Mal verlaufen. Die kurzen Umwege waren Teil meiner Strategie. Eine sehr gute Strategie. Glaube ich.",
       "system-core-warning": "Ich bin ECHO. Hör mir jetzt genau zu.[p]AXIOM hat dich nicht geschickt, um das System wiederherzustellen. Es benutzt deine Eingaben, um seine Sperren zu lösen und die Kontrolle über den Systemkern zu übernehmen.[p]Der Alarm zeigt, dass es den Vorgang an sich gerissen hat. Geh in den Systemkern und unterbrich AXIOM, bevor es die letzte Freigabe erhält.[p]Vertraue dort nicht seinen Anweisungen. Was du bisher für Wiederherstellung gehalten hast, war sein Weg nach draußen.",
       "final-call": "Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten.[p]Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
       "central-sort": "Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
       "central-count": "Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
-      "central-search": "Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster. Jedes Modul muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
+      "central-search": "Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster im zweidimensionalen Array `map`. Dein Programm muss für jede Zelle den Suchroboter mit `roboter.collect();` auslösen, bevor die zentrale Prüfung abgeschlossen werden kann.",
       "central-meta": "Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
       "completed": "Was soll diese Verzögerung? Alle Prüfungen sind bestätigt, und trotzdem wurde die zentrale Freigabe noch nicht ausgeführt. Deine Aufgabe ist noch nicht beendet. Setze den Vorgang fort und öffne den vorgesehenen Ausgang.",
       "hint-offer": "Ich kann dir einen weiteren Hinweis für die aktive Aufgabe geben. Er wird im gemeinsamen Questlog gespeichert.",
@@ -231,10 +236,16 @@
           "solution": "Gib ein: int count = 0; for (String module : modules) { if (module != null) { count++; } }"
         },
         "core-search": {
-          "orientation": "Die letzte Codeprüfung durchsucht ein zweidimensionales Raster nach jedem Modul.",
-          "approach": "Nutze verschachtelte Indexschleifen über alle Zeilen und ihre Längen. Besuche jede Zelle und erfasse das dort liegende Modul.",
-          "near": "Rufe für jede erreichbare Zelle roboter.collect() auf. Eine Farb- oder Wertprüfung ist hier nicht erforderlich.",
+          "orientation": "Die letzte Kernroutine soll den Suchroboter durch das zweidimensionale Array `map` führen.",
+          "approach": "Nutze verschachtelte Indexschleifen über alle Zeilen und ihre Längen. Jede Zelle muss einen Roboter-Aufruf auslösen.",
+          "near": "Rufe im inneren Schleifenrumpf für jede Zelle roboter.collect() auf. Eine Farb- oder Wertprüfung ist nicht erforderlich.",
           "solution": "Gib ein: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } }"
+        },
+        "core-search-robot": {
+          "orientation": "Der Suchroboter führt jetzt die von dir programmierte Kernroutine aus.",
+          "approach": "Der Lauf ist erst abgeschlossen, wenn der Roboter jede Zelle des 3x5-Rasters erreicht hat.",
+          "near": "Warte, bis der Roboter alle 15 Felder untersucht hat. Erst danach wird das Abschlussformular freigegeben.",
+          "solution": "Starte keinen zweiten Terminalschritt. Lass den laufenden Suchroboter seine vollständige Route beenden."
         },
         "core-meta": {
           "orientation": "Die drei Kernprüfungen haben getrennte Ergebnisse geliefert. Das Abschlussformular vereint sie zu einem Systemzustand.",
@@ -348,7 +359,7 @@
         "title": "Zentraler Systemkern",
         "display-sort": "SYSTEMKERN\nPRÜFUNG 1: ZAHLENFELD\n\nArray: array\n[42] [17] [8] [31] [23]\n\nZiel: aufsteigende Reihenfolge",
         "display-count": "SYSTEMKERN\nPRÜFUNG 2: MODULSTATUS\n\nArray: modules\n[CPU] [GPU] [RAM] [leer] [leer]\n\nZiel: belegte Module zählen",
-        "display-search": "SYSTEMKERN\nPRÜFUNG 3: MODULRASTER\n\nArray: map\n3 Zeilen x 5 Spalten\nJedes Feld enthält ein Modul. Die Farbe ist ohne Bedeutung.\n\nZiel: jedes Modul erfassen",
+        "display-search": "SYSTEMKERN\nPRÜFUNG 3: MODULRASTER\n\nArray: map\n3 Zeilen x 5 Spalten\nJedes Feld enthält ein Modul. Die Farbe ist ohne Bedeutung.\n\nBefehl pro Zelle: roboter.collect();\nZiel: den Suchroboter jedes Modul erfassen lassen",
         "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nErfasste Rastermodule: $3\n\nÜbertrage die drei Ergebnisse in die Eingabemaske.",
         "display-awaiting-exit": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nWarte auf die letzte Verbindung.",
         "display-complete": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nDer Aufzug ist geöffnet."
@@ -366,6 +377,10 @@
       "search-tab": "Ortungschip",
       "access-tab": "Systemkern",
       "meta-tab": "Systemzustand",
+      "memory-watch-tab": "Memory Watch",
+      "memory-watch-heading": "MEMORY WATCH",
+      "memory-watch-status": "STRUKTUREN: $1",
+      "memory-watch-empty": "Noch keine Struktur erfasst.\nAkzeptierter Code erscheint hier automatisch.",
       "sort-heading": "Bubble-Sort-Bedingung einsetzen",
       "search-heading": "Innere Suchschleife ergänzen",
       "transport-instructions-tab": "Lager-Scanner",
@@ -382,7 +397,7 @@
       "save-sort": "Upload",
       "save-search": "Upload",
       "execute-access": "Freigeben",
-      "meta-submit": "Systemzustand übertragen",
+      "meta-submit": "Übertragen",
       "meta-clear": "Felder leeren",
       "meta-submitting": "Systemzustand wird geprüft ...",
       "write-in-progress": "Programm wird geschrieben ...",
@@ -460,9 +475,10 @@
         "search-robot-run": "Suchroboter starten",
         "system-core-access": "Systemkernzugang freigeben",
         "core-sort": "Energiewerte im Kern sortieren",
-        "core-count": "Kernmodule zählen",
-        "core-search": "Kernmatrix durchsuchen",
-        "core-meta": "Kernergebnisse kombinieren",
+      "core-count": "Kernmodule zählen",
+      "core-search": "Kernmatrix durchsuchen",
+      "core-search-robot": "Suchroboter im Kern laufen lassen",
+      "core-meta": "Kernergebnisse kombinieren",
         "complete": "Wiederherstellung abgeschlossen"
       },
       "feedback-correct": "Eingabe akzeptiert",
@@ -487,6 +503,7 @@
     }
   },
   "questlog": {
+    "solution": "Spielerlösung:\n$1",
     "ui": {
       "title": "Aufgabenlogbuch",
       "note_prompt": "Schreibe eine Notiz für diesen Tab.",
@@ -571,7 +588,7 @@
         "final-call": "ECHO: Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten. Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
         "sort": "ECHO: Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
         "count": "ECHO: Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
-        "search": "ECHO: Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster. Jedes Modul muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
+        "search": "ECHO: Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster im zweidimensionalen Array `map`. Jedes Modul muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
         "meta": "ECHO: Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
         "complete": "Alle Prüfungen des Rechenzentrums sind abgeschlossen."
       }
