@@ -249,6 +249,7 @@
       },
       "energy": {
         "title": "Energy array display",
+        "display-standby": "ENERGY REGULATOR // STATUS: DAMAGED\n\nMaterialization chamber offline.\nNo energy profile loaded.\n\nAwaiting restoration of the storage structure.",
         "display-values": "ENERGY PROFILE\nRequired readings for materialization:\n\n- 40\n- 10\n- 80\n- 30\n- 60",
         "display-complete": "Energy values accepted.\nNext: pull the array lever to materialize the battery."
       },
