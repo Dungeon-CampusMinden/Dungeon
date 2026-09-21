@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.logging.Logger;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 
@@ -133,6 +134,7 @@ public final class SystemRecoveryProgressNet {
 
     if (findActiveStep().orElse(null) == successor) {
       lastAcceptedStepKey = expected.hintKey();
+      SystemRecoveryAchievements.learningStepCompleted(expected);
       trackPuzzleStartIfChanged(expected, successor);
       return true;
     }

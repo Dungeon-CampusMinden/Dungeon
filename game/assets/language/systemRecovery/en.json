@@ -593,5 +593,32 @@
         "complete": "All central-computer checks are complete."
       }
     }
+  },
+  "achievements": {
+    "system_initialization": {"name": "Initialization Complete", "description": "Restore the first damaged subsystem."},
+    "modular_thinking": {"name": "Modular Thinking", "description": "Restore the module storage."},
+    "count_what_exists": {"name": "Count What Exists", "description": "Activate the inventory scanner."},
+    "every_package_counts": {"name": "Every Package Counts", "description": "Process every package in transport storage."},
+    "sorted_is_sorted": {"name": "Sorted Is Sorted", "description": "Complete the Bubble Sort machine."},
+    "archive_access": {"name": "Archive Access", "description": "Open the data archive."},
+    "two_dimensional_thinking": {"name": "Two-Dimensional Thinking", "description": "Restore the two-dimensional storage."},
+    "locator_established": {"name": "Locator Established", "description": "Program the locator chip."},
+    "search_complete": {"name": "Search Complete", "description": "Let the search robot recover the access module."},
+    "three_results_one_core": {"name": "Three Checks, One Core", "description": "Execute the final system-core combination."},
+    "free_variable": {"name": "Free Variable", "description": "Finish the recovery and open the exit."},
+    "direct_first_try": {"name": "Directly on the First Try", "description": "Accept the first terminal structure without a failed attempt."},
+    "no_finished_solution": {"name": "No Finished Solution Needed", "description": "Solve a riddle without a telephone hint."},
+    "every_cell_counts": {"name": "Every Cell Counts", "description": "Let the search robot reach every matrix cell."},
+    "loop_understanding": {"name": "Loop Understanding", "description": "Solve both loop riddles without a wrong terminal input."},
+    "clean_upload": {"name": "Clean Upload", "description": "Program both chips without a failed upload."},
+    "no_lost_index": {"name": "No Index Lost", "description": "Solve the two-dimensional storage without a wrong terminal input."},
+    "intentional_failure": {"name": "That Was Intentional", "description": "Create five incorrect terminal inputs."},
+    "syntax_personality": {"name": "Syntax Is a Personality", "description": "Create ten incorrect terminal inputs."},
+    "just_asking": {"name": "Just Asking for a Friend", "description": "Request the complete solution for a riddle."},
+    "echo_still_there": {"name": "ECHO, Are You Still There?", "description": "Use three telephone hints."},
+    "not_for_consumption": {"name": "Not for Consumption", "description": "Program a chip without consuming it."},
+    "axiom_relax": {"name": "AXIOM, Relax", "description": "Open the system core despite AXIOM's pressure."},
+    "not_a_bug": {"name": "That Was Not a Bug", "description": "Continue successfully after a failed attempt."},
+    "debug_is_not_gameplay": {"name": "Debug Is Not Gameplay", "description": "Finish System Recovery without a debug skip."}
   }
 }

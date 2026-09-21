@@ -26,6 +26,7 @@ import rooms.systemRecovery.modules.computer.content.SortProgramTab;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -271,6 +272,7 @@ public final class SystemRecoveryComputerFactory {
             return;
           }
           if (!isBubbleSortCondition(source)) {
+            SystemRecoveryAchievements.chipUploadAttempt("sort", false);
             SystemRecoveryPuzzleEvents.attempt(
                 SystemRecoveryPuzzle.BUBBLE_SORT,
                 "sort-program",
@@ -333,6 +335,7 @@ public final class SystemRecoveryComputerFactory {
                     source,
                     true,
                     targetEntityId);
+                SystemRecoveryAchievements.chipUploadAttempt("sort", true);
                 SystemRecoveryLevel.recordAcceptedSolution(
                     SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION, source);
                 SystemRecoveryComputerFeedback.send(
@@ -381,6 +384,7 @@ public final class SystemRecoveryComputerFactory {
             return;
           }
           if (!TerminalInterpreterSetup.matchesSearchRobotProgram(source)) {
+            SystemRecoveryAchievements.chipUploadAttempt("search", false);
             SystemRecoveryPuzzleEvents.attempt(
                 SystemRecoveryPuzzle.SEARCH_ROBOT,
                 "search-program",
@@ -443,6 +447,7 @@ public final class SystemRecoveryComputerFactory {
                     source,
                     true,
                     targetEntityId);
+                SystemRecoveryAchievements.chipUploadAttempt("search", true);
                 SystemRecoveryLevel.recordAcceptedSolution(
                     SystemRecoveryLearningStep.SEARCH_PROGRAM, source);
                 SystemRecoveryComputerFeedback.send(
