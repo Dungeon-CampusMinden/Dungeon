@@ -23,6 +23,7 @@ import feature.systems.CollisionSystem;
 import java.util.logging.Level;
 import rooms.programming.level.ProgrammingClientLevel;
 import rooms.programming.level.ProgrammingLevel;
+import rooms.programming.level.ProgrammingMethods;
 import rooms.programming.level.ProgrammingTerminal;
 import rooms.programming.network.ProgrammingSnapshotTranslator;
 
@@ -79,6 +80,7 @@ public final class Programming {
     ServerLifecycle.install("Programming server stopped");
     BlackFadeCutscene.register();
     ProgrammingTerminal.register();
+    ProgrammingMethods.register();
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
@@ -90,5 +92,6 @@ public final class Programming {
   private static void clientSetup() {
     BlackFadeCutscene.register();
     ProgrammingTerminal.register();
+    ProgrammingMethods.register();
   }
 }

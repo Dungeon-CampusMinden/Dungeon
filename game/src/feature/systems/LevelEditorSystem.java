@@ -197,6 +197,8 @@ public class LevelEditorSystem extends System {
     Entity player = Game.player().orElseThrow();
     if (active) {
       loadSettingsForCurrentLevel();
+      Game.hud().dialogsSuppressed(true);
+      Game.stage().ifPresent(Stage::unfocusAll);
       cameraZoomBeforeEditor = CameraSystem.camera().zoom;
       editorCameraComponent = player.fetch(CameraComponent.class).orElseThrow();
       player.remove(CameraComponent.class);
@@ -206,7 +208,6 @@ public class LevelEditorSystem extends System {
               CameraSystem.camera().position.x, CameraSystem.camera().position.y));
       editorCamera.add(editorCameraComponent);
       LevelEditorSystem.active = true;
-      Game.hud().dialogsSuppressed(true);
       playerControlsDeactivatedBeforeEditor = null;
       player
           .fetch(InputComponent.class)
@@ -243,6 +244,7 @@ public class LevelEditorSystem extends System {
       }
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
       currentModeInstance.onExit();
+      Game.stage().ifPresent(Stage::unfocusAll);
       Game.hud().dialogsSuppressed(false);
     }
     updateUI();
@@ -417,7 +419,7 @@ public class LevelEditorSystem extends System {
       active(true);
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE)) {
+    if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE, true)) {
       active(!active);
     }
 

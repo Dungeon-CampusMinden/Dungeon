@@ -3,13 +3,16 @@ package rooms.programming.level;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
+import engine.components.PositionComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.Point;
 import feature.canvas.CanvasNode;
 import feature.canvas.CanvasStore;
 import feature.canvas.CanvasUI;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import rooms.programming.modules.loops.LoopMaze;
 import rooms.programming.modules.loops.TerminalState;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -24,9 +28,9 @@ import tools.jackson.databind.json.JsonMapper;
 public final class ProgrammingTerminal {
   static final String ID = "programming.loop-terminal";
   static final String STATE = "programming.terminal";
-  static final Color INK = Color.valueOf("101820");
-  static final Color PAPER = Color.valueOf("263440");
-  static final Color ACCENT = Color.valueOf("eab66c");
+  static final Color INK = ProgrammingUI.INK;
+  static final Color PAPER = ProgrammingUI.SURFACE;
+  static final Color ACCENT = ProgrammingUI.GOLD;
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static TerminalState received;
 
@@ -56,14 +60,16 @@ public final class ProgrammingTerminal {
   }
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
+    if (Game.hud().blocksGameplayInput(who)) return;
     stopWalking(who);
     UIComponent ui =
         DialogFactory.show(
             DialogContext.builder()
                 .type(Type.TERMINAL)
+                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .put(STATE, encode(runtime.terminalState()))
                 .build(),
-            true,
+            false,
             true,
             false,
             who.id());
@@ -112,6 +118,27 @@ public final class ProgrammingTerminal {
    */
   public static void receive(String value) {
     received = decode(value);
+  }
+
+  /**
+   * Uses the same visible entity position as the observation camera, including network smoothing.
+   *
+   * @param state latest authoritative terminal state
+   * @return continuous grid position, falling back to the snapshot before the entity is available
+   */
+  static Point mapPosition(TerminalState state) {
+    return Game.currentLevel()
+        .map(level -> level.namedPoints().get("maze-origin"))
+        .flatMap(
+            origin ->
+                Game.findEntityById(state.golemId())
+                    .flatMap(entity -> entity.fetch(PositionComponent.class))
+                    .map(
+                        position ->
+                            new Point(
+                                (position.position().x() - origin.x()) / LoopMaze.CELL_WIDTH,
+                                (position.position().y() - origin.y()) / LoopMaze.CELL_HEIGHT)))
+        .orElseGet(() -> new Point(state.cellX(), state.cellY()));
   }
 
   static void reset() {

@@ -3,18 +3,15 @@ package rooms.programming.level;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.UIUtils;
@@ -32,8 +29,15 @@ final class ProgrammingBindingBook extends Group {
   private static final Color FADED_INK = Color.valueOf("786955");
   private final Group pages = new Group();
   private final Group content = new Group();
-  private final Label previous;
-  private final Label next;
+  private final com.badlogic.gdx.scenes.scene2d.ui.TextButton previous;
+  private final com.badlogic.gdx.scenes.scene2d.ui.TextButton next;
+  private final com.badlogic.gdx.scenes.scene2d.ui.Table shell =
+      new com.badlogic.gdx.scenes.scene2d.ui.Table();
+  private final com.badlogic.gdx.scenes.scene2d.ui.Table pageLayout =
+      new com.badlogic.gdx.scenes.scene2d.ui.Table();
+  private final Group pageViewport = new Group();
+  private final com.badlogic.gdx.scenes.scene2d.ui.ScrollPane scroll;
+  private final Label pageCount = ProgrammingUI.label("", 16, ProgrammingUI.MUTED);
   private int spread;
 
   private enum Type implements DialogType {
@@ -64,24 +68,51 @@ final class ProgrammingBindingBook extends Group {
 
   private ProgrammingBindingBook(String dialogId) {
     setSize(Game.windowWidth(), Game.windowHeight());
-    addActor(pages);
+    pageViewport.addActor(pages);
     Image paper =
         new Image(TextureMap.instance().textureAt(new SimpleIPath("images/open-book.png")));
     paper.setBounds(0, 0, 1260, 900);
     pages.addActor(paper);
-
     pages.addActor(content);
-    previous = link("< Zurück", 80, 76, 210, () -> turn(-1));
-    next = link("Weiter >", 960, 76, 210, () -> turn(1));
-    next.setAlignment(Align.right);
-    Label close =
-        link(
-            "Zuklappen",
-            530,
-            12,
-            200,
-            () -> DialogCallbackResolver.createButtonCallback(dialogId, "close").accept(null));
-    close.setAlignment(Align.center);
+    shell.setFillParent(true);
+    shell.top().pad(20);
+    shell.setBackground(ProgrammingUI.background(ProgrammingUI.INK, false));
+    shell
+        .add(
+            ProgrammingUI.header(
+                "Valerius · Bindungsplan",
+                new com.badlogic.gdx.scenes.scene2d.ui.Table(),
+                () -> DialogCallbackResolver.createButtonCallback(dialogId, "close").accept(null)))
+        .growX()
+        .padBottom(16)
+        .row();
+    pageLayout.add(pageViewport);
+    scroll = new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane(pageLayout, UIUtils.defaultSkin());
+    var style =
+        new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle(scroll.getStyle());
+    style.background = null;
+    scroll.setStyle(style);
+    scroll.setScrollingDisabled(true, false);
+    scroll.setFadeScrollBars(false);
+    scroll.setFlickScroll(false);
+    scroll.addListener(
+        new com.badlogic.gdx.scenes.scene2d.InputListener() {
+          @Override
+          public boolean mouseMoved(InputEvent event, float x, float y) {
+            if (getStage() != null) getStage().setScrollFocus(scroll);
+            return false;
+          }
+        });
+    shell.add(scroll).grow().minSize(0).row();
+    previous = ProgrammingUI.button("Zurück", false, () -> turn(-1));
+    next = ProgrammingUI.button("Weiter", true, () -> turn(1));
+    var navigation = new com.badlogic.gdx.scenes.scene2d.ui.Table();
+    navigation.add(previous).width(125).minHeight(44);
+    pageCount.setAlignment(Align.center);
+    navigation.add(pageCount).growX();
+    navigation.add(next).width(150).minHeight(44);
+    shell.add(navigation).growX().padTop(12);
+    addActor(shell);
     showSpread();
   }
 
@@ -99,8 +130,10 @@ final class ProgrammingBindingBook extends Group {
     content.clearChildren();
     page(GolemProperty.values()[spread * 2], 80, spread * 2 + 1);
     page(GolemProperty.values()[spread * 2 + 1], 710, spread * 2 + 2);
-    previous.setVisible(spread > 0);
-    next.setVisible((spread + 1) * 2 < GolemProperty.values().length);
+    previous.setDisabled(spread == 0);
+    next.setDisabled((spread + 1) * 2 >= GolemProperty.values().length);
+    pageCount.setText("Seiten " + (spread * 2 + 1) + " und " + (spread * 2 + 2) + " von 6");
+    scroll.setScrollY(0);
   }
 
   /**
@@ -154,33 +187,9 @@ final class ProgrammingBindingBook extends Group {
     pageNumber.setColor(FADED_INK);
   }
 
-  private Label link(String text, float x, float y, float width, Runnable action) {
-    Label link = Scene2dElementFactory.createLabel(text, 24, INK);
-    link.setBounds(x, y, width, 48);
-    link.setTouchable(Touchable.enabled);
-    pages.addActor(link);
-    link.addListener(
-        new ClickListener() {
-          @Override
-          public void clicked(InputEvent event, float x, float y) {
-            action.run();
-          }
-
-          @Override
-          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-            link.setColor(FADED_INK);
-          }
-
-          @Override
-          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            link.setColor(INK);
-          }
-        });
-    return link;
-  }
-
   private Label label(String text, int size, float x, float y, float width, float height) {
-    Label label = Scene2dElementFactory.createLabel(text, size, INK);
+    Label label = ProgrammingUI.zoomLabel(text, size, INK);
+    label.setAlignment(Align.left);
     label.setWrap(true);
     label.setBounds(x, y, width, height);
     label.setTouchable(Touchable.disabled);
@@ -191,9 +200,13 @@ final class ProgrammingBindingBook extends Group {
   @Override
   public void draw(Batch batch, float alpha) {
     setSize(Game.windowWidth(), Game.windowHeight());
-    float scale = Math.min(1, Math.min((getWidth() - 48) / 1260, (getHeight() - 48) / 900));
+    shell.validate();
+    float scale =
+        Math.min(Math.max(1, scroll.getWidth() - 18) / 1260, Math.max(1, scroll.getHeight()) / 900);
     pages.setScale(scale);
-    pages.setPosition((getWidth() - 1260 * scale) / 2, (getHeight() - 900 * scale) / 2);
+    pageLayout.getCell(pageViewport).size(1260 * scale, 900 * scale);
+    pageLayout.invalidateHierarchy();
+    shell.validate();
     super.draw(batch, alpha);
   }
 }

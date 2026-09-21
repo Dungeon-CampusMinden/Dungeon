@@ -79,6 +79,18 @@
       "hidden": false
     },
     {
+      "id": "programming_methods_flawless",
+      "imagePath": "items/rpg/item_gem_diamond_smooth.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "programming_methods_persistent",
+      "imagePath": "items/rpg/item_book_purple.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
       "id": "programming_platinum",
       "imagePath": "items/rpg/item_gem_diamond_rough.png",
       "unlockForAll": false,

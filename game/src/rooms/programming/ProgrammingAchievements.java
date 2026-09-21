@@ -24,6 +24,8 @@ public enum ProgrammingAchievements {
   SPIN,
   CELLAR_CLEAR,
   CLEAN_RUN,
+  METHODS_FLAWLESS,
+  METHODS_PERSISTENT,
   PLATINUM;
 
   /** Registers room definitions for the menu, client and server. */

@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.canvas.CanvasDragContext;
@@ -61,6 +60,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
                 : kind.equals("executor") ? 88 : kind.equals("help") ? 210 : 168);
     this.kind = kind;
     deletable(false);
+    selectable(false);
     movable(kind.equals("rune"));
     if (kind.equals("status")) setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
   }
@@ -146,27 +146,26 @@ final class ProgrammingTerminalNode extends CanvasNode {
   protected void buildContent() {
     if (kind.equals("rune") || kind.equals("executor")) return;
     heading =
-        Scene2dElementFactory.createLabel(
+        ProgrammingUI.zoomLabel(
             switch (kind) {
               case "map" -> "Keller";
               case "status" -> "Executor";
               default -> "Befehle";
             },
             22,
-            Color.valueOf("f1eadc"));
+            ProgrammingUI.TEXT);
     heading.setAlignment(Align.left);
     addActor(heading);
     if (!kind.equals("map")) {
-      text =
-          Scene2dElementFactory.createLabel(
-              caption(), kind.equals("help") ? 16 : 18, Color.valueOf("f1eadc"));
+      text = ProgrammingUI.zoomLabel(caption(), kind.equals("help") ? 16 : 18, ProgrammingUI.TEXT);
       text.setAlignment(kind.equals("status") ? Align.left : Align.topLeft);
       text.setWrap(true);
       addActor(text);
     }
     if (kind.equals("status")) {
-      slotState = Scene2dElementFactory.createLabel(slotCaption(), 14, ProgrammingTerminal.ACCENT);
+      slotState = ProgrammingUI.zoomLabel(slotCaption(), 14, ProgrammingTerminal.ACCENT);
       slotState.setAlignment(Align.center);
+      slotState.setWrap(false);
       addActor(slotState);
     }
     if (kind.equals("map")) {
@@ -189,7 +188,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
               case SOUTH -> "v";
             };
         Label marker =
-            Scene2dElementFactory.createLabel("" + (i + 1) + arrow, 16, ProgrammingTerminal.ACCENT);
+            ProgrammingUI.zoomLabel("" + (i + 1) + arrow, 16, ProgrammingTerminal.ACCENT);
         marker.setBounds(
             MAP_INSET + (cell.x() + 1) * CELL_STEP + 3,
             MAP_INSET + cell.y() * CELL_STEP + 2,
@@ -199,7 +198,8 @@ final class ProgrammingTerminalNode extends CanvasNode {
         addActor(marker);
       }
       for (var cell : java.util.List.of(LoopMaze.monster(), LoopMaze.pit())) {
-        Label marker = Scene2dElementFactory.createLabel("!", 24, ProgrammingTerminal.ACCENT);
+        Label marker = ProgrammingUI.zoomLabel("!", 24, ProgrammingTerminal.ACCENT);
+        marker.setWrap(false);
         marker.setBounds(
             MAP_INSET + (cell.x() + 1) * CELL_STEP,
             MAP_INSET + cell.y() * CELL_STEP,
@@ -218,7 +218,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
       float inset = kind.equals("status") ? 136 : 24;
       text.setBounds(inset, 24, width() - inset - 24, height() - 80);
     }
-    if (slotState != null) slotState.setBounds(24, 4, 88, 20);
+    if (slotState != null) slotState.setBounds(12, 4, 112, 20);
   }
 
   @Override
@@ -228,13 +228,13 @@ final class ProgrammingTerminalNode extends CanvasNode {
       CanvasGraphics.fill(batch, ProgrammingTerminal.INK, alpha, x(), y(), width(), height());
       CanvasGraphics.outline(
           batch,
-          slot ? ProgrammingTerminal.ACCENT : Color.valueOf("647784"),
+          slot ? ProgrammingTerminal.ACCENT : ProgrammingUI.MUTED,
           alpha,
           x(),
           y(),
           width(),
           height(),
-          slot ? 3 : 1);
+          slot ? 3 : Math.max(1, 1 / canvas().zoom()));
       if (hover)
         CanvasGraphics.fill(
             batch, ProgrammingTerminal.ACCENT, alpha * .2f, x(), y(), width(), height());
@@ -267,7 +267,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
     CanvasGraphics.fill(batch, ProgrammingTerminal.PAPER, alpha, x(), y(), width(), height());
     CanvasGraphics.fill(
         batch,
-        hover ? ProgrammingTerminal.ACCENT : Color.valueOf("647784"),
+        hover ? ProgrammingTerminal.ACCENT : ProgrammingUI.MUTED,
         alpha,
         x(),
         y() + height() - 3,
@@ -301,11 +301,12 @@ final class ProgrammingTerminalNode extends CanvasNode {
     }
     if (!state.observationReady()) return;
     if (head != null) {
+      var at = ProgrammingTerminal.mapPosition(state);
       batch.setColor(Color.WHITE);
       batch.draw(
           head,
-          x() + MAP_INSET + (state.cellX() + 1) * CELL_STEP + (CELL_SIZE - 28) / 2f,
-          y() + MAP_INSET + state.cellY() * CELL_STEP + (CELL_SIZE - 33) / 2f,
+          x() + MAP_INSET + (at.x() + 1) * CELL_STEP + (CELL_SIZE - 28) / 2f,
+          y() + MAP_INSET + at.y() * CELL_STEP + (CELL_SIZE - 33) / 2f,
           28,
           33);
     }

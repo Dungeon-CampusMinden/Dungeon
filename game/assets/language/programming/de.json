@@ -55,6 +55,14 @@
     "programming_platinum": {
       "name": "Valerius wäre stolz",
       "description": "Schalte alle anderen Achievements dieses Raums frei, auch über mehrere Durchläufe."
+    },
+    "programming_methods_flawless": {
+      "name": "Aus einem Guss",
+      "description": "Schließt Valerius' Methodenprüfung ohne fehlgeschlagene Ausführung ab."
+    },
+    "programming_methods_persistent": {
+      "name": "Übung macht den Meister",
+      "description": "Schließt Valerius' Methodenprüfung nach mindestens einer fehlgeschlagenen Ausführung ab."
     }
   }
 }
