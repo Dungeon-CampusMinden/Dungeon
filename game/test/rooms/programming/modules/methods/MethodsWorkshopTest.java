@@ -12,6 +12,7 @@ import rooms.programming.modules.methods.MethodsWorkshop.Block;
 import rooms.programming.modules.methods.MethodsWorkshop.Edit;
 import rooms.programming.modules.methods.MethodsWorkshop.Intent;
 import rooms.programming.modules.methods.MethodsWorkshop.Operation;
+import rooms.programming.modules.methods.MethodsWorkshop.ResultMode;
 import tools.jackson.databind.json.JsonMapper;
 
 class MethodsWorkshopTest {
@@ -43,7 +44,7 @@ class MethodsWorkshopTest {
     assertTrue(workshop.state().parameterReuse());
     assertTrue(workshop.state().returnedValueUsed());
     assertEquals(0, workshop.state().crystals());
-    assertFalse(workshop.state().variables().containsKey("bestand"));
+    assertFalse(workshop.state().variables().containsKey("menge"));
     assertFalse(workshop.state().variables().containsKey("gesammelt"));
     var expected = new ArrayList<Step>();
     for (var station : MethodsRoute.STATIONS)
@@ -107,7 +108,7 @@ class MethodsWorkshopTest {
             old.target(),
             old.method(),
             List.of("BACK"),
-            false);
+            ResultMode.REPLACE);
     edit(workshop, Operation.EDIT_BLOCK, new Edit(old.id(), null, 0, wrong));
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
     Step step;
@@ -237,8 +238,8 @@ class MethodsWorkshopTest {
   void recursiveProgramsStopAtTheExecutionBound() {
     var workshop = claimed();
     clearMain(workshop);
-    build(workshop, "rekursiv", "", List.of(call("rekursiv", "", false)));
-    add(workshop, "main", call("rekursiv", "", false));
+    build(workshop, "rekursiv", "", List.of(call("rekursiv", "", ResultMode.REPLACE)));
+    add(workshop, "main", call("rekursiv", "", ResultMode.REPLACE));
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
     assertTrue(workshop.next().isEmpty());
     assertFalse(workshop.state().busy());
@@ -271,22 +272,23 @@ class MethodsWorkshopTest {
     build(
         workshop,
         "altar",
-        "menge, bestand",
+        "menge",
         List.of(
             block(Action.MOVE, "1", ""),
             block(Action.PLACE, "menge", ""),
             block(Action.MOVE, "1", ""),
-            block(Action.RETURN, "bestand - menge", "")));
+            block(Action.RETURN, "menge", "")));
     for (Block block :
         List.of(
-            call("tor", "", false),
-            call("tor", "", false),
-            call("rune", "", false, "RIGHT"),
-            call("rune", "", false, "LEFT"),
-            call("sammeln", "kristalle", true),
-            call("sammeln", "kristalle", true),
-            call("altar", "kristalle", false, "3", "kristalle"),
-            call("altar", "kristalle", false, "5", "kristalle"))) add(workshop, "main", block);
+            call("tor", "", ResultMode.REPLACE),
+            call("tor", "", ResultMode.REPLACE),
+            call("rune", "", ResultMode.REPLACE, "RIGHT"),
+            call("rune", "", ResultMode.REPLACE, "LEFT"),
+            call("sammeln", "kristalle", ResultMode.REPLACE),
+            call("sammeln", "kristalle", ResultMode.ADD),
+            call("altar", "kristalle", ResultMode.SUBTRACT, "3"),
+            call("altar", "kristalle", ResultMode.SUBTRACT, "5")))
+      add(workshop, "main", block);
     return workshop;
   }
 
@@ -310,11 +312,11 @@ class MethodsWorkshopTest {
   }
 
   private static Block block(Action action, String operand, String target) {
-    return new Block("", action, operand, target, "", List.of(), false);
+    return new Block("", action, operand, target, "", List.of(), ResultMode.REPLACE);
   }
 
-  private static Block call(String method, String target, boolean additive, String... args) {
-    return new Block("", Action.CALL, "", target, method, List.of(args), additive);
+  private static Block call(String method, String target, ResultMode mode, String... args) {
+    return new Block("", Action.CALL, "", target, method, List.of(args), mode);
   }
 
   private static void add(MethodsWorkshop w, String container, Block b) {

@@ -37,6 +37,7 @@ import rooms.programming.modules.methods.MethodsWorkshop;
 import rooms.programming.modules.methods.MethodsWorkshop.Block;
 import rooms.programming.modules.methods.MethodsWorkshop.Definition;
 import rooms.programming.modules.methods.MethodsWorkshop.Operation;
+import rooms.programming.modules.methods.MethodsWorkshop.ResultMode;
 import rooms.programming.modules.methods.MethodsWorkshop.State;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -457,7 +458,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
               action == Action.COLLECT ? "gesammelt" : action == Action.ASSIGN ? "kristalle" : "",
               "",
               List.of(),
-              false);
+              ResultMode.REPLACE);
       paletteRow(table, caption(action), block);
     }
     table
@@ -488,7 +489,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                       "",
                       name,
                       definition.parameters().stream().map(p -> "1").toList(),
-                      false));
+                      ResultMode.REPLACE));
               table
                   .add(
                       ProgrammingUI.zoomButton(
@@ -593,11 +594,10 @@ final class ProgrammingMethodsNode extends CanvasNode {
         editor
             .add(
                 ProgrammingUI.zoomButton(
-                    block.additive() ? "Ergebnis addieren (+)" : "Ergebnis ersetzen (=)",
+                    resultModeLabel(block.mode()),
                     false,
                     () ->
-                        edit(
-                            block, "additive", Boolean.toString(!block.additive()), ignored -> {})))
+                        edit(block, "mode", nextResultMode(block.mode()).name(), ignored -> {})))
             .growX()
             .row();
       } else {
@@ -755,7 +755,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                   field.equals("target") ? value : current.target(),
                   current.method(),
                   field.equals("arguments") ? arguments(value) : current.arguments(),
-                  field.equals("additive") ? Boolean.parseBoolean(value) : current.additive());
+                  field.equals("mode") ? ResultMode.valueOf(value) : current.mode());
           return JSON.writeValueAsString(Map.of("id", old.id(), "block", updated));
         },
         acknowledged);
@@ -1109,6 +1109,22 @@ final class ProgrammingMethodsNode extends CanvasNode {
       case RETURN -> "Wert zurückgeben";
       case ASSIGN -> "Variable setzen";
       case CALL -> "Methode aufrufen";
+    };
+  }
+
+  private static String resultModeLabel(ResultMode mode) {
+    return switch (mode) {
+      case REPLACE -> "Ergebnis ersetzen (=)";
+      case ADD -> "Ergebnis addieren (+)";
+      case SUBTRACT -> "Ergebnis subtrahieren (-)";
+    };
+  }
+
+  private static ResultMode nextResultMode(ResultMode mode) {
+    return switch (mode) {
+      case REPLACE -> ResultMode.ADD;
+      case ADD -> ResultMode.SUBTRACT;
+      case SUBTRACT -> ResultMode.REPLACE;
     };
   }
 

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import rooms.programming.modules.methods.MethodsRoute.Action;
 import rooms.programming.modules.methods.MethodsRoute.Direction;
@@ -35,6 +36,23 @@ public final class MethodsWorkshop {
   /** Revision and room phase identify the exact authoritative snapshot being edited. */
   public record Intent(long revision, int stage, Operation operation, String value) {}
 
+  /** Controls how a returned or assigned value is written to its target variable. */
+  public enum ResultMode {
+    REPLACE(" = "),
+    ADD(" += "),
+    SUBTRACT(" -= ");
+
+    private final String operator;
+
+    ResultMode(String operator) {
+      this.operator = operator;
+    }
+
+    String operator() {
+      return operator;
+    }
+  }
+
   /**
    * A draggable statement: operand is an expression; target receives assignment or call results.
    */
@@ -45,9 +63,10 @@ public final class MethodsWorkshop {
       String target,
       String method,
       List<String> arguments,
-      boolean additive) {
+      ResultMode mode) {
     public Block {
       arguments = List.copyOf(arguments);
+      Objects.requireNonNull(mode);
     }
   }
 
@@ -139,7 +158,7 @@ public final class MethodsWorkshop {
                 step.action() == Action.COLLECT ? "gesammelt" : "",
                 "",
                 List.of(),
-                false));
+                ResultMode.REPLACE));
       if (station.kind() == MethodsRoute.Kind.COLLECT)
         main.add(
             new Block(
@@ -149,7 +168,7 @@ public final class MethodsWorkshop {
                 "kristalle",
                 "",
                 List.of(),
-                false));
+                ResultMode.REPLACE));
       if (station.kind() == MethodsRoute.Kind.ALTAR)
         main.add(
             new Block(
@@ -159,7 +178,7 @@ public final class MethodsWorkshop {
                 "kristalle",
                 "",
                 List.of(),
-                false));
+                ResultMode.REPLACE));
     }
     mainVariables.put("kristalle", "0");
   }
@@ -262,7 +281,7 @@ public final class MethodsWorkshop {
                                   b.target(),
                                   b.method(),
                                   b.arguments(),
-                                  b.additive()))
+                                  b.mode()))
                       .toList());
           editingName = found.name();
         }
@@ -303,7 +322,7 @@ public final class MethodsWorkshop {
                           b.target(),
                           b.method(),
                           b.arguments(),
-                          b.additive()));
+                          b.mode()));
                   found = true;
                 }
               setBody(container, body);
@@ -337,7 +356,7 @@ public final class MethodsWorkshop {
                       block.target(),
                       block.method(),
                       block.arguments(),
-                      block.additive());
+                      block.mode());
             }
             int index = edit.index();
             if (origin != null) {
@@ -381,7 +400,7 @@ public final class MethodsWorkshop {
           || !a.target().equals(b.target())
           || !a.method().equals(b.method())
           || !a.arguments().equals(b.arguments())
-          || a.additive() != b.additive()) return false;
+          || a.mode() != b.mode()) return false;
     }
     return true;
   }
@@ -507,7 +526,7 @@ public final class MethodsWorkshop {
           }
           case ASSIGN -> {
             String value = evaluate(block.operand(), frame.variables);
-            assign(frame.variables, block.target(), value, block.additive());
+            assign(frame.variables, block.target(), value, block.mode());
             trace.add(Step.action(Action.ASSIGN, numeric(value)));
             revision++;
           }
@@ -544,7 +563,11 @@ public final class MethodsWorkshop {
     }
     try {
       if (pending.action() == Action.COLLECT)
-        assign(stack.peek().variables, pending.target(), Integer.toString(value), false);
+        assign(
+            stack.peek().variables,
+            pending.target(),
+            Integer.toString(value),
+            ResultMode.REPLACE);
       pending = null;
       revision++;
     } catch (IllegalArgumentException ex) {
@@ -560,7 +583,7 @@ public final class MethodsWorkshop {
       if (value == null)
         throw new IllegalArgumentException(
             "Methode " + call.method() + " gibt keinen Wert zurück.");
-      assign(stack.peek().variables, call.target(), value, call.additive());
+      assign(stack.peek().variables, call.target(), value, call.mode());
       returnedValueUsed = true;
     }
   }
@@ -618,14 +641,20 @@ public final class MethodsWorkshop {
     return value != null && value.matches("[\\p{L}_][\\p{L}\\p{N}_]{0,39}");
   }
 
-  private static void assign(Map<String, String> vars, String target, String value, boolean add) {
+  private static void assign(
+      Map<String, String> vars, String target, String value, ResultMode mode) {
     if (!identifier(target))
       throw new IllegalArgumentException("Ungültiger Variablenname: " + target);
-    numeric(value);
-    if (add) {
+    int amount = numeric(value);
+    if (mode != ResultMode.REPLACE) {
       if (!vars.containsKey(target))
         throw new IllegalArgumentException("Unbekannte Variable: " + target);
-      value = Integer.toString(Math.addExact(numeric(vars.get(target)), numeric(value)));
+      int current = numeric(vars.get(target));
+      value =
+          Integer.toString(
+              mode == ResultMode.ADD
+                  ? Math.addExact(current, amount)
+                  : Math.subtractExact(current, amount));
     }
     vars.put(target, value);
   }
@@ -682,9 +711,9 @@ public final class MethodsWorkshop {
       case COLLECT -> b.target() + " = SAMMLE_ALLE()";
       case PLACE -> "LEGE_AB(" + b.operand() + ")";
       case RETURN -> "GIB_ZURÜCK " + b.operand();
-      case ASSIGN -> b.target() + (b.additive() ? " += " : " = ") + b.operand();
+      case ASSIGN -> b.target() + b.mode().operator() + b.operand();
       case CALL ->
-          (b.target().isBlank() ? "" : b.target() + (b.additive() ? " += " : " = "))
+          (b.target().isBlank() ? "" : b.target() + b.mode().operator())
               + b.method()
               + "("
               + String.join(", ", b.arguments())
