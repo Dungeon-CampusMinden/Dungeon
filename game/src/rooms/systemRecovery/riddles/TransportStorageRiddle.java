@@ -3,7 +3,6 @@ package rooms.systemRecovery.riddles;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
-import engine.level.elements.tile.DoorTile;
 import engine.sound.SoundSpec;
 import engine.utils.Point;
 import engine.utils.Vector2;
@@ -16,8 +15,6 @@ import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
-import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
-import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -189,12 +186,6 @@ public final class TransportStorageRiddle {
     callbacks.solved();
     transportDisplayText = SystemRecoveryText.key("world.transport.display-complete");
     updateTransportDisplay();
-    DoorTile storageDoor =
-        (DoorTile) Game.tileAt(level.getPoint("door_datenspeicher")).orElseThrow();
-    storageDoor.open();
-    if (storageDoor.isOpen()) {
-      SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN);
-    }
     SystemRecoveryLevel.triggerDataStorageProblemCall();
   }
 
