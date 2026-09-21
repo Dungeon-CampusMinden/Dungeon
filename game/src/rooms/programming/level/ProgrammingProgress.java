@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import rooms.programming.modules.loops.LoopPuzzle;
+import rooms.programming.modules.loops.LoopRune;
 import tools.jackson.databind.json.JsonMapper;
 
 /** Authoritative journal and tracking for the room's discoveries and learning progress. */
@@ -83,6 +85,16 @@ public final class ProgrammingProgress {
     if (Game.isMultiplayerClient()) return;
     interaction(objectId, "discover", who);
     record("discovery:" + objectId, "Fundstücke", title + "\n\n" + text);
+  }
+
+  /** Gives collected runes distinct titles even while their source is collapsed. */
+  static void discoverRune(LoopRune rune, Entity who) {
+    String type = rune.program().type().name().toLowerCase(java.util.Locale.ROOT).replace('_', '-');
+    discover(
+        "rune-" + rune.id(),
+        "Schleifenrune " + (LoopPuzzle.runes().indexOf(rune) + 1) + " · " + type,
+        rune.code(),
+        who);
   }
 
   private static void record(String key, String tab, String text) {

@@ -351,11 +351,7 @@ final class ProgrammingGolemRuntime {
     if (controller.collectLoopRune(runeId) != PuzzleSubmissionResult.ACCEPTED) return false;
     assistedRuneCollection |= assisted;
     if (assisted) {
-      ProgrammingProgress.discover(
-          "rune-" + runeId,
-          "Schleifenrune gefunden",
-          runeId + "\n" + LoopPuzzle.rune(runeId).orElseThrow().code(),
-          who);
+      ProgrammingProgress.discoverRune(LoopPuzzle.rune(runeId).orElseThrow(), who);
       Game.levelEntities()
           .filter(entity -> entity.name().equals("programming-rune-" + runeId))
           .toList()

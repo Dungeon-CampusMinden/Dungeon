@@ -4,11 +4,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import engine.Entity;
@@ -19,6 +21,7 @@ import engine.network.NetworkUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InputMessage;
 import engine.utils.BaseContainerUI;
+import engine.utils.Cursors;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.logging.DungeonLogger;
@@ -33,9 +36,11 @@ import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.hud.elements.RichLabel;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Placeholder UI for displaying the shared quest log and creating player notes.
@@ -650,7 +655,8 @@ public final class QuestLogUI {
     }
   }
 
-  private record QuestLogEntryView(String tab, String text, String owner, int timestamp) {}
+  private record QuestLogEntryView(
+      int index, String tab, String text, String owner, int timestamp) {}
 
   private record QuestLogViewData(
       List<String> tabs,
@@ -683,7 +689,7 @@ public final class QuestLogUI {
         if (tab.equals(entryTabs.get(i))) {
           entries.add(
               new QuestLogEntryView(
-                  entryTabs.get(i), entryTexts.get(i), entryOwners.get(i), entryTimestamps[i]));
+                  i, entryTabs.get(i), entryTexts.get(i), entryOwners.get(i), entryTimestamps[i]));
         }
       }
       return entries;
@@ -715,6 +721,7 @@ public final class QuestLogUI {
     private final Container<Table> detailContainer;
     private final Drawable rowNormal;
     private final Drawable rowSelected;
+    private final Set<Integer> expandedEntries = new HashSet<>();
     private String selectedTab;
 
     private QuestLogDialog(String dialogId, QuestLogViewData viewData) {
@@ -851,13 +858,7 @@ public final class QuestLogUI {
 
     private void addEntryList(Table detail, List<QuestLogEntryView> entries) {
       for (QuestLogEntryView entry : entries) {
-        detail
-            .add(label(entry.text(), FONT_BODY, true))
-            .width(CONTENT_WIDTH - 18f)
-            .left()
-            .top()
-            .padBottom(10f)
-            .row();
+        detail.add(buildEntry(entry)).width(CONTENT_WIDTH - 18f).left().top().padBottom(10f).row();
         Optional<String> metadata = metadataFor(entry.owner());
         if (metadata.isPresent()) {
           detail
@@ -868,6 +869,55 @@ public final class QuestLogUI {
               .row();
         }
       }
+    }
+
+    /** A title followed by a blank line introduces locally collapsible details. */
+    private Table buildEntry(QuestLogEntryView entry) {
+      Table row = new Table();
+      row.top().left();
+      String[] parts = entry.text().split("\\R\\h*\\R", 2);
+      if (parts.length != 2
+          || parts[0].isBlank()
+          || parts[0].lines().count() != 1
+          || parts[1].isBlank()) {
+        row.add(label(entry.text(), FONT_BODY, true)).growX();
+        return row;
+      }
+
+      Button.ButtonStyle style = new Button.ButtonStyle();
+      style.up = rowNormal;
+      style.over = rowSelected;
+      style.down = rowSelected;
+      style.checked = rowSelected;
+      Button toggle = new Button(style);
+      toggle.setUserObject(Cursors.INTERACT);
+      toggle.setChecked(expandedEntries.contains(entry.index()));
+      RichLabel marker = label(toggle.isChecked() ? "-" : "+", FONT_SELECTED, false);
+      toggle.add(marker).width(24f).top();
+      toggle.add(label(parts[0], FONT_SELECTED, true)).growX().left();
+      toggle.pad(10f);
+      row.add(toggle).growX().minHeight(44f).row();
+      Table body = new Table();
+      row.add(body).growX();
+      Runnable update =
+          () -> {
+            body.clearChildren();
+            marker.setText(toggle.isChecked() ? "-" : "+");
+            if (toggle.isChecked()) {
+              expandedEntries.add(entry.index());
+              body.add(label(parts[1].strip(), FONT_BODY, true)).growX().pad(12f);
+            } else expandedEntries.remove(entry.index());
+            row.invalidateHierarchy();
+          };
+      toggle.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+              update.run();
+            }
+          });
+      update.run();
+      return row;
     }
 
     private Table buildFooter() {

@@ -166,11 +166,7 @@ final class ProgrammingRoomElements {
             new Interaction(
                 (interacted, who) -> {
                   if (!runtime.collectRune(rune.id(), who)) return;
-                  ProgrammingProgress.discover(
-                      "rune-" + rune.id(),
-                      "Schleifenrune gefunden",
-                      rune.id() + "\n" + rune.code(),
-                      who);
+                  ProgrammingProgress.discoverRune(rune, who);
                   Game.remove(interacted);
                 })));
     Game.add(entity);
