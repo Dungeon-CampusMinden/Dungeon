@@ -74,6 +74,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
   private ScrollPane scroll;
   private float scrollY;
   private String expanded = "";
+  private String revealedError = "";
   private boolean rebuilding;
   private String buildFailure = "";
   private Definition failedDraft;
@@ -224,6 +225,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     rebuilding = true;
     rebuildContent();
     ensureContentBuilt();
+    revealError();
     if (focusKey != null && getStage() != null) {
       Actor replacement = findActor(focusKey);
       if (replacement instanceof TextField field) {
@@ -232,6 +234,21 @@ final class ProgrammingMethodsNode extends CanvasNode {
       }
     }
     rebuilding = false;
+  }
+
+  private void revealError() {
+    String failed =
+        owner.state().blockErrors().keySet().stream()
+            .filter(rows::containsKey)
+            .findFirst()
+            .orElse("");
+    if (!failed.isEmpty() && !failed.equals(revealedError) && scroll != null) {
+      scroll.validate();
+      CodeRow row = rows.get(failed);
+      scroll.scrollTo(0, row.getY(), row.getWidth(), row.getHeight());
+      scroll.updateVisualScroll();
+    }
+    revealedError = failed;
   }
 
   // Keep local typing only until its server value changes or its block leaves this panel.
@@ -519,6 +536,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   private void blockRow(Table table, Block block, int index) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
+    String error = owner.state().blockErrors().getOrDefault(block.id(), "");
+    row.failed = !error.isEmpty();
     rows.put(block.id(), row);
     row.addListener(
         new ClickListener() {
@@ -553,7 +572,11 @@ final class ProgrammingMethodsNode extends CanvasNode {
     source(row, block, false);
     if (!loose()) target(row, index, true);
     paintSelection();
-    row.add(ProgrammingUI.zoomSyntaxLabel(syntax(block), 18)).growX().minWidth(0).padRight(8);
+    String line = container.equals("main") ? "[#a6aeaa]" + (index + 1) + ".  " : "";
+    row.add(ProgrammingUI.zoomSyntaxLabel(line + syntax(block), 18))
+        .growX()
+        .minWidth(0)
+        .padRight(8);
     TextButton options =
         ProgrammingUI.zoomButton(
             "...",
@@ -573,6 +596,14 @@ final class ProgrammingMethodsNode extends CanvasNode {
     options.setChecked(expanded.equals(block.id()));
     options.pad(0);
     row.add(options).width(28).height(26);
+    if (row.failed) {
+      row.row();
+      row.add(ProgrammingUI.zoomLabel("Fehler: " + error, 16, CodeRow.ERROR))
+          .colspan(2)
+          .growX()
+          .minWidth(0)
+          .padTop(6);
+    }
     table.add(row).growX().minHeight(42).row();
     if (expanded.equals(block.id())) {
       Table editor = new Table();
@@ -660,9 +691,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
     private static final Color PRESSED = Color.valueOf("2b383f");
     private static final Color EDGE = Color.valueOf("65767a");
     private static final Color SHADOW = Color.valueOf("101719");
+    private static final Color ERROR = Color.valueOf("ffb0a3");
+    private static final Color ERROR_FILL = Color.valueOf("503438");
     private final boolean method;
     private final ClickListener pointer = new ClickListener();
     private boolean selected;
+    private boolean failed;
     private int insertion;
 
     private CodeRow(boolean method) {
@@ -678,7 +712,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
               Color fill =
                   pointer.isPressed()
                       ? PRESSED
-                      : selected ? SELECTED : pointer.isOver() ? HOVER : REST;
+                      : selected ? SELECTED : failed ? ERROR_FILL : pointer.isOver() ? HOVER : REST;
               float notch = Math.min(24, width / 4);
               float tongue = 20;
               // The top notch remains transparent; it never paints over its surrounding panel.
@@ -703,14 +737,14 @@ final class ProgrammingMethodsNode extends CanvasNode {
                   y + height - 1,
                   width - notch - tongue,
                   1);
-              if (selected || method)
+              if (selected || method || failed)
                 CanvasGraphics.fill(
                     batch,
-                    ProgrammingUI.GOLD,
-                    alpha * (selected ? 1 : .65f),
+                    failed ? ERROR : ProgrammingUI.GOLD,
+                    alpha * (selected || failed ? 1 : .65f),
                     x,
                     y + 7,
-                    selected ? 3 : 2,
+                    selected || failed ? 3 : 2,
                     height - 14);
               if (insertion != 0)
                 CanvasGraphics.fill(

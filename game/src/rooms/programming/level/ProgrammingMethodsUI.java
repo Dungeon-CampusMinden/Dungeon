@@ -2,6 +2,7 @@ package rooms.programming.level;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -43,6 +44,7 @@ import rooms.programming.modules.methods.MethodsRoute;
 import rooms.programming.modules.methods.MethodsWorkshop;
 import rooms.programming.modules.methods.MethodsWorkshop.Block;
 import rooms.programming.modules.methods.MethodsWorkshop.Operation;
+import rooms.programming.modules.methods.MethodsWorkshop.RunState;
 import rooms.programming.modules.methods.MethodsWorkshop.State;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -58,6 +60,7 @@ final class ProgrammingMethodsUI extends CanvasUI {
   private final int viewer;
   private final Table shell = new Table();
   private final Table workspace = new Table();
+  private final Table evaluation = new Table();
   private final Label feedback = ProgrammingUI.label("", 17, ProgrammingUI.GOLD);
   private final Label observation = ProgrammingUI.label("", 20, ProgrammingUI.TEXT);
   private final DragAndDrop dragging = new DragAndDrop();
@@ -164,6 +167,7 @@ final class ProgrammingMethodsUI extends CanvasUI {
         .growX()
         .row();
     shell.add(heading).growX().row();
+    shell.add(evaluation).growX().row();
     shell.add(workspace).grow().minSize(0).padTop(10).row();
     addActor(shell);
     for (CanvasNode node : area().nodes())
@@ -240,23 +244,104 @@ final class ProgrammingMethodsUI extends CanvasUI {
         closing = false;
       }
       if (!dragging.isDragging()) refreshPanels();
+      refreshEvaluation();
     }
     run.setText(state.busy() ? "Stoppen" : "Ausführen");
     run.setDisabled(state.editorId() != viewer);
     feedback.setText(
         state.feedback()
             + (state.editorId() != viewer ? " · Ein anderer Spieler bearbeitet den Code." : ""));
-    observation.setText(
-        (state.busy() ? "Nox führt dein Hauptprogramm aus.\n" : "Versuch beendet.\n")
-            + (state.activeStep() >= 0 && state.activeStep() < state.trace().size()
-                ? MethodsRoute.source(state.trace().get(state.activeStep())) + "\n"
-                : "")
-            + "Kristalle: "
-            + state.crystals()
-            + "\n"
-            + state.variables()
-            + "\n\n"
-            + state.feedback());
+    observation.setText(observationText());
+    observation.setColor(resultColor());
+  }
+
+  private Color resultColor() {
+    if (state.completed()) return ProgrammingUI.SUCCESS;
+    if (state.runState() == RunState.FAILED) return ProgrammingUI.ERROR;
+    return state.runState() == RunState.FINISHED ? ProgrammingUI.GOLD : ProgrammingUI.TEXT;
+  }
+
+  private String failureLocation() {
+    for (int i = 0; i < state.main().size(); i++) {
+      String error = state.blockErrors().get(state.main().get(i).id());
+      if (error != null) return "Hauptprogramm, Zeile " + (i + 1) + ": " + error;
+    }
+    return state.feedback();
+  }
+
+  private String observationText() {
+    String title = state.resultTitle();
+    return switch (state.runState()) {
+      case FINISHED -> state.completed() ? title : title + "\n\n" + state.feedback();
+      case FAILED ->
+          title
+              + "\n\n"
+              + failureLocation()
+              + "\n\nMit Zum Code kommst du zurück zur markierten Fehlerzeile.";
+      case STOPPED -> title + "\n\nDer nächste Start setzt Nox und den Raum zurück.";
+      case NOT_RUN, CHANGED -> title + "\n\nStarte das Hauptprogramm mit Ausführen.";
+      case RUNNING ->
+          title
+              + (state.activeStep() >= 0 && state.activeStep() < state.trace().size()
+                  ? "\nAktuell: " + MethodsRoute.source(state.trace().get(state.activeStep()))
+                  : "")
+              + "\n\nAktuelle Variablen:\n"
+              + state.variables().entrySet().stream()
+                  .map(entry -> entry.getKey() + " = " + entry.getValue())
+                  .collect(java.util.stream.Collectors.joining("\n"));
+    };
+  }
+
+  /** Keep the result visible above the canvas, independently of its pan and zoom. */
+  private void refreshEvaluation() {
+    evaluation.clearChildren();
+    if (observing || help) {
+      evaluation.pad(0);
+      return;
+    }
+    evaluation.top().left().pad(12);
+    evaluation.setBackground(ProgrammingUI.background(ProgrammingUI.SURFACE, false));
+    evaluation
+        .add(ProgrammingUI.label(state.resultTitle(), 21, resultColor()))
+        .colspan(2)
+        .growX()
+        .padBottom(8)
+        .row();
+    if (state.runState() == RunState.FAILED)
+      evaluation
+          .add(ProgrammingUI.label(failureLocation(), 17, ProgrammingUI.ERROR))
+          .colspan(2)
+          .growX()
+          .padBottom(8)
+          .row();
+    int index = 0;
+    for (var check : state.checks()) {
+      Color color =
+          switch (check.status()) {
+            case PASSED -> ProgrammingUI.SUCCESS;
+            case FAILED -> ProgrammingUI.GOLD;
+            case PENDING -> ProgrammingUI.MUTED;
+          };
+      String status =
+          switch (check.status()) {
+            case PASSED -> "Erfüllt";
+            case FAILED -> "Offen";
+            case PENDING -> "Ungeprüft";
+          };
+      Table item = new Table();
+      item.top().left();
+      item.add(ProgrammingUI.label(status, 16, color)).width(88).top().padRight(8);
+      item.add(ProgrammingUI.label(check.message(), 16, ProgrammingUI.TEXT)).growX().minWidth(0);
+      evaluation
+          .add(item)
+          .uniformX()
+          .growX()
+          .minWidth(0)
+          .top()
+          .padRight(index % 2 == 0 ? 24 : 0)
+          .padBottom(5);
+      if (++index % 2 == 0) evaluation.row();
+    }
   }
 
   /** Rebuild targets together so the background remains behind every instruction target. */
@@ -398,6 +483,7 @@ final class ProgrammingMethodsUI extends CanvasUI {
     helpButton.setChecked(help);
     shell.setBackground(observing ? null : ProgrammingUI.background(ProgrammingUI.INK, false));
     watch.setText(observing ? "Zum Code" : "Raum ansehen");
+    refreshEvaluation();
     if (help) {
       Table content = new Table();
       content.top().left().pad(24).setBackground(ProgrammingUI.background(ProgrammingUI.INK, true));

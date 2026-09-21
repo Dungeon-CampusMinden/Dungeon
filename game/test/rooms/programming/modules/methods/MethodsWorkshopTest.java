@@ -4,36 +4,59 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import rooms.programming.modules.methods.MethodsRoute.Action;
 import rooms.programming.modules.methods.MethodsRoute.Direction;
 import rooms.programming.modules.methods.MethodsRoute.Step;
 import rooms.programming.modules.methods.MethodsWorkshop.Block;
+import rooms.programming.modules.methods.MethodsWorkshop.CheckStatus;
 import rooms.programming.modules.methods.MethodsWorkshop.Edit;
 import rooms.programming.modules.methods.MethodsWorkshop.Intent;
 import rooms.programming.modules.methods.MethodsWorkshop.Operation;
 import rooms.programming.modules.methods.MethodsWorkshop.ResultMode;
+import rooms.programming.modules.methods.MethodsWorkshop.RunState;
 import tools.jackson.databind.json.JsonMapper;
 
 class MethodsWorkshopTest {
   private static final JsonMapper JSON = JsonMapper.builder().build();
 
-  @Test
-  void expandedProgramRunsBeforeRefactoringAndReceivesActualCollectionValues() {
+  @ParameterizedTest
+  @CsvSource({"0, 0", "16, 0", "0, 3", "16, 3"})
+  void expandedProgramRunsBeforeRefactoringAndReceivesActualCollectionValues(
+      int stock, int carried) {
     var workshop = claimed();
+    if (stock != 0)
+      add(workshop, "main", block(Action.ASSIGN, Integer.toString(stock), "kristalle"));
     List<Block> original = workshop.state().main();
     assertEquals("\u00d6FFNE()", MethodsWorkshop.blockSource(original.getFirst()));
     assertTrue(workshop.state().feedback().contains("zur\u00fcck"));
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
     run(workshop, 3, 5);
-    workshop.finish(true, 0);
+    workshop.finish(true, carried);
     assertTrue(workshop.state().worldSolved());
     assertFalse(workshop.state().completed());
     assertFalse(workshop.state().compact());
-    assertEquals(0, workshop.state().crystals());
+    assertEquals(stock, workshop.state().crystals());
     assertEquals(original, workshop.state().main());
+    var checks = workshop.state().checks();
+    assertEquals(RunState.FINISHED, workshop.state().runState());
+    assertEquals(CheckStatus.PASSED, checks.get(0).status());
+    assertEquals(carried == 0 ? CheckStatus.PASSED : CheckStatus.FAILED, checks.get(1).status());
+    assertEquals(stock == 0 ? CheckStatus.PASSED : CheckStatus.FAILED, checks.get(2).status());
+    assertEquals(CheckStatus.FAILED, checks.get(3).status());
+    assertEquals(CheckStatus.FAILED, checks.get(4).status());
+    assertEquals(CheckStatus.FAILED, checks.get(5).status());
+    assertTrue(
+        workshop.state().feedback().contains(original.size() + " Blöcke, höchstens 8 erlaubt"));
+    if (stock != 0) {
+      assertTrue(workshop.state().feedback().contains("Variable kristalle: 16. Erwartet: 0."));
+    }
+    if (carried != 0)
+      assertTrue(workshop.state().feedback().contains("Nox trägt 3 Kristalle. Erwartet: 0."));
   }
 
   @ParameterizedTest
@@ -80,6 +103,9 @@ class MethodsWorkshopTest {
     List<Step> steps = run(workshop, 3, 5);
     workshop.finish(true, 0);
     assertTrue(workshop.state().completed(), workshop.state().feedback());
+    assertTrue(
+        workshop.state().checks().stream().allMatch(check -> check.status() == CheckStatus.PASSED));
+    assertTrue(workshop.state().resultTitle().contains("Geschafft!"));
     assertTrue(workshop.state().parameterReuse());
     assertTrue(workshop.state().returnedValueUsed());
     assertEquals(0, workshop.state().crystals());
@@ -90,6 +116,13 @@ class MethodsWorkshopTest {
       for (var step : station.body())
         expected.add(step.action() == Action.COLLECT ? Step.action(Action.COLLECT, 0) : step);
     assertEquals(expected, steps);
+    edit(workshop, Operation.NAME, "neuerEntwurf");
+    assertTrue(workshop.state().completed());
+    assertEquals(RunState.FINISHED, workshop.state().runState());
+    add(workshop, "main", block(Action.MOVE, "1", ""));
+    assertFalse(workshop.state().completed());
+    assertEquals(RunState.CHANGED, workshop.state().runState());
+    assertEquals(CheckStatus.PENDING, workshop.state().checks().get(2).status());
   }
 
   @Test
@@ -101,7 +134,19 @@ class MethodsWorkshopTest {
     workshop.actionResult(false, 0, "Kein Tor an dieser Position.");
     assertFalse(workshop.state().busy());
     assertEquals(1, workshop.state().errors());
+    var errors = Map.of(code.getFirst().id(), "Kein Tor an dieser Position.");
+    assertEquals(errors, workshop.state().blockErrors());
+    assertEquals(RunState.FAILED, workshop.state().runState());
+    assertEquals(CheckStatus.PENDING, workshop.state().checks().get(0).status());
+    assertTrue(workshop.releaseEditor(1));
+    edit(workshop, Operation.CLAIM, "");
+    assertEquals(errors, workshop.state().blockErrors());
+    var failed = workshop.state();
+    assertEquals(
+        failed, JSON.readValue(JSON.writeValueAsString(failed), MethodsWorkshop.State.class));
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
+    assertTrue(workshop.state().blockErrors().isEmpty());
+    assertEquals(RunState.RUNNING, workshop.state().runState());
     assertEquals(0, workshop.state().crystals());
     run(workshop, 3, 5);
     workshop.finish(true, 0);
@@ -121,7 +166,9 @@ class MethodsWorkshopTest {
     assertTrue(workshop.state().revision() > stopAtGate.revision());
     assertFalse(workshop.stop(2, stopAtGate));
     assertTrue(workshop.stop(1, stopAtGate));
+    assertEquals(RunState.STOPPED, workshop.state().runState());
     assertFalse(workshop.state().busy());
+    assertTrue(workshop.state().blockErrors().isEmpty());
     assertFalse(workshop.apply(1, editAtGate));
 
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
@@ -161,6 +208,11 @@ class MethodsWorkshopTest {
     assertFalse(workshop.state().busy());
     assertFalse(workshop.state().completed());
     assertEquals("Wand im Weg.", workshop.state().feedback());
+    assertEquals(Map.of(old.id(), "Wand im Weg."), workshop.state().blockErrors());
+    edit(workshop, Operation.EDIT_BLOCK, new Edit(old.id(), null, 0, old));
+    assertTrue(workshop.state().blockErrors().isEmpty());
+    assertEquals(RunState.CHANGED, workshop.state().runState());
+    assertEquals(CheckStatus.PENDING, workshop.state().checks().get(2).status());
   }
 
   @Test
@@ -250,6 +302,11 @@ class MethodsWorkshopTest {
     run(workshop, 3, 5);
     assertFalse(workshop.state().busy());
     assertTrue(workshop.state().feedback().contains("Unbekannte Variable: kristalle"));
+    assertEquals(
+        Map.of(workshop.state().main().get(4).id(), "Unbekannte Variable: kristalle"),
+        workshop.state().blockErrors());
+    edit(workshop, Operation.BUILD, "");
+    assertTrue(workshop.state().blockErrors().isEmpty());
   }
 
   @Test
@@ -296,6 +353,9 @@ class MethodsWorkshopTest {
     assertTrue(workshop.next().isEmpty());
     assertFalse(workshop.state().busy());
     assertTrue(workshop.state().feedback().contains("verschachtelte"));
+    assertEquals(
+        Map.of(workshop.state().main().getFirst().id(), workshop.state().feedback()),
+        workshop.state().blockErrors());
   }
 
   private static MethodsWorkshop canonical() {

@@ -84,6 +84,26 @@ public final class MethodsWorkshop {
    */
   public record Edit(String id, String container, int index, Block block) {}
 
+  /** Distinguishes a completed evaluation from an interrupted run or changed code. */
+  public enum RunState {
+    NOT_RUN,
+    RUNNING,
+    FINISHED,
+    FAILED,
+    STOPPED,
+    CHANGED
+  }
+
+  /** A condition is only evaluated after normal program termination, except the block limit. */
+  public enum CheckStatus {
+    PASSED,
+    FAILED,
+    PENDING
+  }
+
+  /** One visible condition for opening the exit. */
+  public record Check(CheckStatus status, String message) {}
+
   /** Immutable editor snapshot, interpreter observations and visible control-rune criteria. */
   public record State(
       int stage,
@@ -98,19 +118,94 @@ public final class MethodsWorkshop {
       Definition draft,
       Map<String, Definition> definitions,
       String feedback,
+      Map<String, String> blockErrors,
       List<Step> trace,
       int activeStep,
       Map<String, String> variables,
       boolean compact,
       boolean parameterReuse,
       boolean returnedValueUsed,
-      boolean worldSolved) {
+      boolean worldSolved,
+      RunState runState,
+      int remainingCrystals) {
     public State {
       main = List.copyOf(main);
       scrap = List.copyOf(scrap);
       definitions = Map.copyOf(definitions);
+      blockErrors = Map.copyOf(blockErrors);
       trace = List.copyOf(trace);
       variables = Map.copyOf(variables);
+    }
+
+    /** Uses the same six conditions for the completion decision and the player's checklist. */
+    public List<Check> checks() {
+      boolean evaluated = runState == RunState.FINISHED;
+      return List.of(
+          check(
+              evaluated,
+              worldSolved,
+              worldSolved && evaluated
+                  ? "Alle Arbeitsstellen erledigt."
+                  : "Alle Arbeitsstellen erledigen: Tore, Runen und beide Altäre."),
+          check(
+              evaluated,
+              remainingCrystals == 0,
+              evaluated
+                  ? "Nox trägt " + remainingCrystals + " Kristalle. Erwartet: 0."
+                  : "Nox soll am Ende keine Kristalle mehr tragen."),
+          check(
+              evaluated,
+              crystals == 0,
+              evaluated
+                  ? "Variable kristalle: "
+                      + crystals
+                      + ". Erwartet: 0."
+                      + (crystals == 0 ? "" : " Prüfe die Rechnung beim Sammeln und Ablegen.")
+                  : "Die Variable kristalle muss am Ende 0 sein."),
+          check(
+              true,
+              compact,
+              "Hauptprogramm: "
+                  + main.size()
+                  + " Blöcke, höchstens 8 erlaubt."
+                  + (compact ? "" : " Fasse Anweisungen in Methoden zusammen.")),
+          check(
+              evaluated,
+              parameterReuse,
+              parameterReuse && evaluated
+                  ? "Methode mit Parametern mehrfach aufgerufen."
+                  : "Rufe dieselbe Methode mit Parametern mindestens zweimal auf."),
+          check(
+              evaluated,
+              returnedValueUsed,
+              returnedValueUsed && evaluated
+                  ? "Rückgabewert im Aufrufer verwendet."
+                  : "Verwende einen Rückgabewert in einer Zuweisung oder einem Ausdruck."));
+    }
+
+    /** Short, explicit outcome shared by the canvas and observation view. */
+    public String resultTitle() {
+      return switch (runState) {
+        case NOT_RUN -> "Noch nicht geprüft";
+        case RUNNING -> "Programm läuft";
+        case FINISHED ->
+            completed
+                ? "Geschafft! Nebenausgang offen."
+                : "Noch nicht geschafft: "
+                    + checks().stream()
+                        .filter(check -> check.status() == CheckStatus.PASSED)
+                        .count()
+                    + " / 6 Bedingungen erfüllt";
+        case FAILED -> "Ausführung wegen eines Fehlers abgebrochen";
+        case STOPPED -> "Programm angehalten. Prüfung nicht abgeschlossen.";
+        case CHANGED -> "Code geändert. Bitte erneut ausführen.";
+      };
+    }
+
+    private static Check check(boolean evaluated, boolean passed, String message) {
+      return new Check(
+          !evaluated ? CheckStatus.PENDING : passed ? CheckStatus.PASSED : CheckStatus.FAILED,
+          message);
     }
   }
 
@@ -123,12 +218,16 @@ public final class MethodsWorkshop {
   private long executionRevision;
   private int editorId = -1, errors, instructions;
   private boolean busy, completed, parameterReuse, returnedValueUsed, worldSolved;
+  private RunState runState = RunState.NOT_RUN;
+  private int remainingCrystals;
   private String feedback =
       "Verbinde dein Hauptprogramm. Jeder Start setzt Nox und alle Arbeitsstellen zurück.";
   private final List<Step> trace = new ArrayList<>();
   private final Deque<Frame> stack = new ArrayDeque<>();
   private final Map<String, Integer> calls = new HashMap<>();
   private final Map<String, String> mainVariables = new LinkedHashMap<>();
+  private final Map<String, String> blockErrors = new LinkedHashMap<>();
+  private String activeMainBlockId = "";
   private Block pending;
 
   private static final class Frame {
@@ -202,13 +301,16 @@ public final class MethodsWorkshop {
         draft,
         definitions,
         feedback,
+        blockErrors,
         trace,
         trace.size() - 1,
         stack.isEmpty() ? mainVariables : stack.peek().variables,
         main.size() <= 8,
         parameterReuse,
         returnedValueUsed,
-        worldSolved);
+        worldSolved,
+        runState,
+        remainingCrystals);
   }
 
   private boolean current(Intent i) {
@@ -304,6 +406,7 @@ public final class MethodsWorkshop {
           if (definitions.size() >= 32 && !definitions.containsKey(draft.name()))
             return rejectEdit("Die Sammlung enthält höchstens 32 Methoden.");
           definitions.put(draft.name(), draft);
+          invalidateResult();
           editingName = draft.name();
           feedback = "Methode " + draft.name() + " gebaut. Die Rune kann jetzt aufgerufen werden.";
         }
@@ -378,7 +481,6 @@ public final class MethodsWorkshop {
           return false;
         }
       }
-      completed = false;
       revision++;
       return true;
     } catch (RuntimeException invalid) {
@@ -445,6 +547,7 @@ public final class MethodsWorkshop {
   private void setBody(String c, List<Block> b) {
     switch (c) {
       case "main" -> {
+        if (!main.equals(b)) invalidateResult();
         main.clear();
         main.addAll(b);
       }
@@ -454,6 +557,15 @@ public final class MethodsWorkshop {
       }
       case "draft" -> draft = new Definition(draft.name(), draft.parameters(), b);
       default -> throw new IllegalArgumentException();
+    }
+  }
+
+  private void invalidateResult() {
+    blockErrors.clear();
+    completed = false;
+    if (runState != RunState.NOT_RUN) {
+      runState = RunState.CHANGED;
+      feedback = "Code geändert. Führe das Hauptprogramm erneut aus, um es zu prüfen.";
     }
   }
 
@@ -479,6 +591,8 @@ public final class MethodsWorkshop {
     stack.push(new Frame(List.copyOf(main), mainVariables, null));
     calls.clear();
     trace.clear();
+    blockErrors.clear();
+    activeMainBlockId = "";
     pending = null;
     instructions = 0;
     parameterReuse = false;
@@ -486,6 +600,7 @@ public final class MethodsWorkshop {
     worldSolved = false;
     completed = false;
     busy = true;
+    runState = RunState.RUNNING;
     feedback = "Nox führt das Hauptprogramm aus.";
     revision++;
     executionRevision = revision;
@@ -503,9 +618,11 @@ public final class MethodsWorkshop {
             returnFrom(null);
             continue;
           }
+          frame.active = frame.body.get(frame.pc++);
+          // Keep the caller selected while nested methods or physical actions are running.
+          if (stack.size() == 1) activeMainBlockId = frame.active.id();
           if (++instructions > 512)
             throw new IllegalArgumentException("Mehr als 512 Anweisungen. Lauf abgebrochen.");
-          frame.active = frame.body.get(frame.pc++);
           switch (frame.active.action()) {
             case CALL -> frame.active.arguments().forEach(a -> parse(a, frame.expressions));
             case RETURN, ASSIGN, TURN, MOVE, PLACE ->
@@ -623,29 +740,31 @@ public final class MethodsWorkshop {
   public void finish(boolean solved, int inventory) {
     if (!exhausted()) return;
     worldSolved = solved;
-    completed =
-        solved
-            && inventory == 0
-            && state().crystals() == 0
-            && main.size() <= 8
-            && parameterReuse
-            && returnedValueUsed;
+    remainingCrystals = inventory;
+    runState = RunState.FINISHED;
+    completed = state().checks().stream().allMatch(check -> check.status() == CheckStatus.PASSED);
     busy = false;
     feedback =
         completed
-            ? "Kontrollrune aktiv. Nebenausgang offen."
-            : solved
-                ? "Arbeitsstellen gelöst. Kontrollrune: höchstens 8 Hauptblöcke, parametrisierte Methode mehrfach aufrufen, Rückgabe übernehmen, kristalle = 0."
-                : "Programm beendet. Noch nicht alle Arbeitsstellen sind gelöst.";
+            ? "Alle Bedingungen erfüllt. Der Nebenausgang ist offen."
+            : (solved
+                    ? "Alle Arbeitsstellen sind erledigt. Für den Ausgang fehlt noch:\n"
+                    : "Für den Ausgang fehlt noch:\n")
+                + state().checks().stream()
+                    .filter(check -> check.status() == CheckStatus.FAILED)
+                    .map(check -> "- " + check.message())
+                    .collect(java.util.stream.Collectors.joining("\n"));
     revision++;
   }
 
   /** Keeps the last trace and physical effects visible after a runtime error. */
   public void fail(String reason) {
     busy = false;
+    runState = RunState.FAILED;
     pending = null;
     errors++;
     feedback = reason == null ? "Lauf abgebrochen." : reason;
+    if (!activeMainBlockId.isEmpty()) blockErrors.put(activeMainBlockId, feedback);
     revision++;
   }
 
@@ -660,6 +779,8 @@ public final class MethodsWorkshop {
         || intent.revision() < executionRevision
         || intent.revision() > revision) return false;
     fail("Programm angehalten. Der nächste Start setzt die Welt zurück.");
+    runState = RunState.STOPPED;
+    blockErrors.clear();
     return true;
   }
 

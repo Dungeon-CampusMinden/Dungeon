@@ -63,9 +63,26 @@ mit einer Fehlermeldung. Das Speicherziel direkt am Aufruf bleibt eine gleichwer
 Option; beide Schreibweisen zählen als Verwendung eines Rückgabewerts für die Kontrollrune.
 
 Hilfe enthält Auftrag, Bedienung, Begriffe, gestufte Denkanstöße und die letzte
-Rückmeldung. Ausführungsrückmeldungen stehen in der Raumansicht; Fehler beim
-Methodenbau direkt im Methodenentwurf. Die Hilfe ist jederzeit
+Rückmeldung. Ausführungsfehler stehen zusätzlich direkt am betroffenen Block im
+Hauptprogramm, rot markiert und mit ausgeschriebener Meldung. Bei Fehlern innerhalb
+einer Methode wird der auslösende Hauptprogrammblock markiert. Das Codefenster scrollt
+zur Fehlerzeile. Die Meldung bleibt beim Wechsel aus der Raumansicht und beim erneuten
+Öffnen erhalten, bis das Hauptprogramm geändert, eine Methode gebaut oder ein neuer
+Lauf gestartet wird. Manuelles Stoppen markiert keinen Block als fehlerhaft.
+Fehler beim Methodenbau stehen direkt im Methodenentwurf. Die Hilfe ist jederzeit
 schließbar. Der Canvas bleibt beim Umschalten und bei neuen Serverzuständen erhalten.
+
+Über dem Canvas bleibt eine Prüfleiste unabhängig von Zoom und Verschiebung sichtbar.
+Sie unterscheidet sechs Bedingungen: Arbeitsstellen erledigt, Nox trägt keine Kristalle,
+Variable `kristalle = 0`, höchstens acht Hauptblöcke, dieselbe parametrisierte Methode
+mehrfach aufgerufen und einen Rückgabewert verwendet. Jede Bedingung zeigt ausdrücklich
+„Erfüllt“, „Offen“ oder „Ungeprüft“. Die Blockanzahl ist sofort prüfbar; die übrigen
+Bedingungen werden erst nach einem vollständig ausgeführten Programm bewertet.
+Die Abschlussmeldung nennt nur die fehlenden Bedingungen mit konkreten Ist- und Sollwerten.
+Nox' Kristallvorrat und die Variable `kristalle` werden getrennt benannt.
+Nach Änderungen am ausführbaren Programm werden die Ergebnisse als ungeprüft angezeigt;
+Änderungen an einem noch nicht gebauten Methodenentwurf verändern das Ergebnis nicht.
+Bei einem Laufzeitfehler nennen Prüfleiste und Raumansicht die nummerierte Hauptprogrammzeile.
 
 ## Ausführung und Fehlversuche
 
