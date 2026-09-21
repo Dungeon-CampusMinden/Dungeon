@@ -16,7 +16,7 @@ import feature.interaction.InteractionComponent;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
-/** Builds the bookshelves, archive data display and status lamps used by riddle 7. */
+/** Builds the bookshelves and combined archive data modules used by riddle 7. */
 public final class ArchiveEntityFactory {
 
   private ArchiveEntityFactory() {}
@@ -45,13 +45,16 @@ public final class ArchiveEntityFactory {
    * @param point display position
    * @param name stable entity name
    * @param text data key shown by the display
+   * @param active whether the module represents an active archive node
    * @return configured archive data display
    */
-  public static Entity archiveDataDisplay(Point point, String name, String text) {
+  public static Entity archiveDataDisplay(Point point, String name, String text, boolean active) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(point));
     entity.add(new CollideComponent());
-    entity.add(new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png")));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
+    draw.tintColor(active ? 0x33FF66FF : 0xFF3333FF);
+    entity.add(draw);
     entity.add(new DisplayTextComponent(text));
     entity.add(
         new InteractionComponent(
@@ -59,36 +62,6 @@ public final class ArchiveEntityFactory {
                 (_, who) ->
                     DialogUtils.showTextPopup(
                         text, SystemRecoveryText.key("world.archive.title"), who.id()))));
-    return entity;
-  }
-
-  /**
-   * Creates an interactable status lamp for one archived data node.
-   *
-   * @param point lamp position
-   * @param name stable entity name
-   * @param index archive node index shown in the popup
-   * @param active whether the lamp represents an active state
-   * @return configured archive status lamp
-   */
-  public static Entity archiveStatusLight(Point point, String name, int index, boolean active) {
-    Entity entity = new Entity(name);
-    entity.add(new PositionComponent(point));
-    entity.add(new CollideComponent());
-    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/tech/Screen_info_3.png"));
-    draw.tintColor(active ? 0x33FF66FF : 0xFF3333FF);
-    entity.add(draw);
-    String statusKey =
-        SystemRecoveryText.key(
-            active ? "world.archive.status-active" : "world.archive.status-inactive");
-    entity.add(
-        new InteractionComponent(
-            new Interaction(
-                (_, who) ->
-                    DialogUtils.showTextPopup(
-                        SystemRecoveryText.key("world.archive.status", index, statusKey),
-                        SystemRecoveryText.key("world.archive.status-title"),
-                        who.id()))));
     return entity;
   }
 }

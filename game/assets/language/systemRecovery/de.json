@@ -181,7 +181,7 @@
           "solution": "Öffne das Inventar, verwende den Archivschlüssel an door_datenarchiv und warte, bis sie aufgeht."
         },
         "archive-arrays": {
-          "orientation": "Im Archiv fehlen mehrere Datenspeicher. Die Regale beschreiben ihre Verwendung; die Datenknoten liefern ihre Inhalte.",
+          "orientation": "Im Archiv fehlen mehrere Datenspeicher. Die Regale beschreiben ihre Verwendung; die farbigen Archivknoten liefern ihre Inhalte. Rot markiert einen inaktiven, grün einen aktiven Knoten.",
           "approach": "Führe für jede Sammlung Datentyp, Namen und Werte zusammen. Die Reihenfolge der Deklarationen ist nicht entscheidend.",
           "near": "Erzeuge ein int-Array energie mit 20, 50, 80, ein String-Array module mit CPU, GPU, RAM und ein boolean-Array aktiv mit true, false, true.",
           "solution": "Gib ein: int[] energie = {20, 50, 80}; String[] module = {\"CPU\", \"GPU\", \"RAM\"}; boolean[] aktiv = {true, false, true};"
@@ -256,13 +256,9 @@
       "archive": {
         "shelf-energy": "ENERGIEPROTOKOLL\nMesswerte werden als ganze Zahlen gespeichert.\nDer Speicher trägt die Bezeichnung energie.\nDie zugehörigen Werte liegen an den Archivknoten.",
         "shelf-module": "MODULREGISTER\nBauteilnamen werden als Text gespeichert.\nDer Speicher trägt die Bezeichnung module.\nDie zugehörigen Module liegen an den Archivknoten.",
-        "shelf-active": "BETRIEBSZUSTÄNDE\nZustände werden als boolean gespeichert: true oder false.\nDer Speicher trägt die Bezeichnung aktiv.\nPrüfe die Statusanzeigen an den Archivknoten.",
+        "shelf-active": "BETRIEBSZUSTÄNDE\nZustände werden als boolean gespeichert: true oder false.\nDer Speicher trägt die Bezeichnung aktiv.\nPrüfe die Farbe der Archivknoten.",
         "node": "ARCHIVKNOTEN $1\nEnergie: $2\nModul: $3",
-        "status": "Archivknoten $1\nBetriebsstatus: $2",
-        "status-active": "aktiv",
-        "status-inactive": "inaktiv",
-        "title": "Archivknoten",
-        "status-title": "Betriebszustand"
+        "title": "Archivknoten"
       },
       "module": {
         "socket-title": "Modulsockel",

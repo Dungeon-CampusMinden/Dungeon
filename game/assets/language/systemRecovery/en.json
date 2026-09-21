@@ -181,7 +181,7 @@
           "solution": "Open inventory, use the archive key on door_datenarchiv, and wait for it to open."
         },
         "archive-arrays": {
-          "orientation": "Several data stores are missing from the archive. The shelves describe their purpose; the archive nodes provide their contents.",
+          "orientation": "Several data stores are missing from the archive. The shelves describe their purpose; the colored archive nodes provide their contents. Red marks an inactive node, green an active one.",
           "approach": "For each collection, combine its data type, name and values. The declaration order is not important.",
           "near": "Create an int array energie with 20, 50, 80, a String array module with CPU, GPU, RAM, and a boolean array aktiv with true, false, true.",
           "solution": "Enter: int[] energie = {20, 50, 80}; String[] module = {\"CPU\", \"GPU\", \"RAM\"}; boolean[] aktiv = {true, false, true};"
@@ -256,13 +256,9 @@
       "archive": {
         "shelf-energy": "ENERGY LOG\nMeasurements are stored as whole numbers.\nThe store is named energie.\nThe corresponding values are available at the archive nodes.",
         "shelf-module": "MODULE REGISTER\nComponent names are stored as text.\nThe store is named module.\nThe corresponding modules are available at the archive nodes.",
-        "shelf-active": "OPERATING STATES\nStates are stored as boolean values: true or false.\nThe store is named aktiv.\nCheck the status indicators at the archive nodes.",
+        "shelf-active": "OPERATING STATES\nStates are stored as boolean values: true or false.\nThe store is named aktiv.\nCheck the color of the archive nodes.",
         "node": "ARCHIVE NODE $1\nEnergy: $2\nModule: $3",
-        "status": "Archive node $1\nOperating state: $2",
-        "status-active": "active",
-        "status-inactive": "inactive",
-        "title": "Archive node",
-        "status-title": "Operating state"
+        "title": "Archive node"
       },
       "module": {
         "socket-title": "Module socket",
