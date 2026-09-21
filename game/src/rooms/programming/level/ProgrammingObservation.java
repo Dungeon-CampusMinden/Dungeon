@@ -52,6 +52,7 @@ public final class ProgrammingObservation {
 
   static void open(Entity who, ProgrammingGolemRuntime runtime) {
     if (Game.hud().blocksGameplayInput(who)) return;
+    ProgrammingProgress.interaction("loop-observation", "open", who);
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
@@ -65,7 +66,11 @@ public final class ProgrammingObservation {
             false,
             who.id());
     ui.registerCallback(
-        feature.canvas.CanvasUI.EVENT_CLOSE, ignored -> feature.hud.UIUtils.closeDialog(ui));
+        feature.canvas.CanvasUI.EVENT_CLOSE,
+        ignored -> {
+          ProgrammingProgress.interaction("loop-observation", "close", who);
+          feature.hud.UIUtils.closeDialog(ui);
+        });
     ui.registerCallback(
         "torch",
         payload -> {

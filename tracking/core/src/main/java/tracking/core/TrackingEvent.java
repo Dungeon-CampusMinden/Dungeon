@@ -62,7 +62,8 @@ public record TrackingEvent(
     }
     boolean participantEvent =
         switch (eventType) {
-          case PARTICIPANT_JOINED, PARTICIPANT_LEFT, ANSWER_SUBMITTED, HINT_USED -> true;
+          case PARTICIPANT_JOINED, PARTICIPANT_LEFT, ANSWER_SUBMITTED, HINT_USED, INTERACTION ->
+              true;
           default -> false;
         };
     if (participantEvent != participantId.isPresent()) {
@@ -86,6 +87,15 @@ public record TrackingEvent(
           || !attemptNumber.canConvertToInt()
           || attemptNumber.intValue() < 1) {
         throw new IllegalArgumentException("ANSWER_SUBMITTED requires a positive attemptNumber");
+      }
+    }
+    if (eventType == TrackingEventType.INTERACTION) {
+      JsonNode action = payload.get("actionId");
+      if (objectId.isEmpty()
+          || action == null
+          || !action.isString()
+          || action.stringValue().isBlank()) {
+        throw new IllegalArgumentException("INTERACTION requires objectId and non-blank actionId");
       }
     }
     if (eventType == TrackingEventType.HINT_USED && objectId.isEmpty()) {

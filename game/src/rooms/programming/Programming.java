@@ -13,6 +13,7 @@ import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
+import engine.tracking.Tracking;
 import engine.utils.CursorUtil;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
@@ -20,6 +21,7 @@ import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
+import feature.questlog.QuestLogUI;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import java.util.logging.Level;
@@ -48,6 +50,8 @@ public final class Programming {
         .enableConsole(true)
         .enableFile(false)
         .build();
+
+    Tracking.configureRoom("programming-1");
 
     ServerStarter server =
         ServerStarter.builder(Programming::serverSetup)
@@ -81,6 +85,7 @@ public final class Programming {
   private static void serverSetup() {
     ServerLifecycle.install("Programming server stopped");
     BlackFadeCutscene.register();
+    QuestLogUI.register();
     ProgrammingTerminal.register();
     ProgrammingMethods.register();
     ECSManagement.add(new PositionSystem());
@@ -94,6 +99,7 @@ public final class Programming {
   private static void clientSetup() {
     Game.stage().ifPresent(CursorUtil::initListener);
     BlackFadeCutscene.register();
+    QuestLogUI.register();
     ProgrammingTerminal.register();
     ProgrammingMethods.register();
   }

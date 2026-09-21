@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import rooms.programming.level.ProgrammingBinding;
 import rooms.programming.level.ProgrammingMethods;
+import rooms.programming.level.ProgrammingProgress;
 import rooms.programming.level.ProgrammingTerminal;
 
 /** Adds collider geometry, interaction reach and room state to ordinary world snapshots. */
@@ -57,6 +58,8 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                       .ifPresent(
                           s -> {
                             metadata.put("programming.terminal", ProgrammingTerminal.encode(s));
+                            metadata.put(
+                                "programming.journal", ProgrammingProgress.publicJournal());
                             if (s.finished())
                               ProgrammingMethods.state()
                                   .ifPresent(
@@ -82,6 +85,10 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
     delegate.applySnapshot(snapshot, dispatcher);
     for (EntityState state : snapshot.entities()) {
+      state
+          .metadata()
+          .map(metadata -> metadata.get("programming.journal"))
+          .ifPresent(ProgrammingProgress::receiveJournal);
       state
           .metadata()
           .map(metadata -> metadata.get("programming.methods"))

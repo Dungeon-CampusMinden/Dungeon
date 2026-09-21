@@ -80,7 +80,7 @@ public final class QuestLogUI {
   private static final float UI_HEIGHT = 650f;
   private static final float SIDEBAR_WIDTH = 290f;
   private static final float ROW_HEIGHT = 62f;
-  private static final float CONTENT_WIDTH = UI_WIDTH - SIDEBAR_WIDTH - 76f;
+  private static final float CONTENT_WIDTH = UI_WIDTH - SIDEBAR_WIDTH - 84f;
   private static final FontSpec FONT_TITLE =
       FontSpec.of("fonts/Roboto-SemiBold.ttf", 28, new Color(0.78f, 0.66f, 0.51f, 1f));
   private static final FontSpec FONT_SECTION =
@@ -97,6 +97,11 @@ public final class QuestLogUI {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(QuestLogUI.class);
 
   static {
+    register();
+  }
+
+  /** Registers the quest log dialog in every runtime that displays it. */
+  public static void register() {
     DialogFactory.register(DIALOG_TYPE, QuestLogUI::build);
   }
 
@@ -159,6 +164,13 @@ public final class QuestLogUI {
     return QuestLogUtil.getQuestLogComponent()
         .map(
             questLog -> {
+              if (!Game.isMultiplayerClient()) {
+                for (int entityId : resolveDialogTargetIds(targetEntityIds)) {
+                  engine.tracking.Tracking.participantForEntity(entityId)
+                      .ifPresent(
+                          id -> engine.tracking.Tracking.interaction("quest-log", "open", id));
+                }
+              }
               showFormattedQuestLogDialog(questLog, selectedTab, targetEntityIds);
               return true;
             })
@@ -730,6 +742,7 @@ public final class QuestLogUI {
       sidebarScroll.setFadeScrollBars(false);
 
       detailContainer
+          .fill()
           .top()
           .left()
           .background(skin.newDrawable("generic-area", new Color(0.07f, 0.08f, 0.08f, 0.74f)));
@@ -811,20 +824,23 @@ public final class QuestLogUI {
       header.add(close).size(34f).right();
       detail.add(header).width(CONTENT_WIDTH).padBottom(16f).row();
 
+      Table entryList = new Table();
+      entryList.top().left();
       List<QuestLogEntryView> entries = viewData.entriesFor(selectedTab);
       if (entries.isEmpty()) {
-        detail
+        entryList
             .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
+            .width(CONTENT_WIDTH - 18f)
             .left()
-            .top()
-            .padBottom(18f)
-            .row();
+            .top();
       } else {
-        addEntryList(detail, entries);
+        addEntryList(entryList, entries);
       }
-
-      detail.add().growY().row();
+      ScrollPane entriesScroll = Scene2dElementFactory.createScrollPane(entryList, false, true);
+      entriesScroll.setOverscroll(false, false);
+      entriesScroll.setFadeScrollBars(false);
+      entriesScroll.setFlickScroll(false);
+      detail.add(entriesScroll).width(CONTENT_WIDTH).minHeight(0f).growY().padBottom(18f).row();
       detail.add(buildFooter()).width(CONTENT_WIDTH).left().bottom();
       return detail;
     }
@@ -833,7 +849,7 @@ public final class QuestLogUI {
       for (QuestLogEntryView entry : entries) {
         detail
             .add(label(entry.text(), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
+            .width(CONTENT_WIDTH - 18f)
             .left()
             .top()
             .padBottom(10f)
@@ -842,7 +858,7 @@ public final class QuestLogUI {
         if (metadata.isPresent()) {
           detail
               .add(label(metadata.get(), FONT_MUTED, false))
-              .width(CONTENT_WIDTH)
+              .width(CONTENT_WIDTH - 18f)
               .left()
               .padBottom(22f)
               .row();

@@ -59,11 +59,22 @@ final class ProgrammingBindingBook extends Group {
   }
 
   static void open(Entity who) {
+    String reference =
+        java.util.Arrays.stream(GolemProperty.values())
+            .map(
+                property ->
+                    property.label()
+                        + ": "
+                        + VariablePuzzle.essenceSolution().get(property).literal())
+            .collect(java.util.stream.Collectors.joining("\n"));
+    ProgrammingProgress.discover(
+        "variables-translation", "Valerius · Bindungsplan", reference, who);
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
             DialogContext.builder().type(Type.BINDING_BOOK).build(), false, true, false, who.id());
     ui.registerCallback("close", ignored -> UIUtils.closeDialog(ui));
+    ui.registerCallback("quest-log", ignored -> feature.questlog.QuestLogUI.requestQuestLog(who));
   }
 
   private ProgrammingBindingBook(String dialogId) {
@@ -109,6 +120,17 @@ final class ProgrammingBindingBook extends Group {
     next = ProgrammingUI.button("Weiter", true, () -> turn(1));
     var navigation = new com.badlogic.gdx.scenes.scene2d.ui.Table();
     navigation.add(previous).width(125).minHeight(44);
+    navigation
+        .add(
+            ProgrammingUI.button(
+                "Questlog",
+                false,
+                () ->
+                    DialogCallbackResolver.createButtonCallback(dialogId, "quest-log")
+                        .accept(null)))
+        .width(140)
+        .minHeight(44)
+        .padLeft(12);
     pageCount.setAlignment(Align.center);
     navigation.add(pageCount).growX();
     navigation.add(next).width(150).minHeight(44);

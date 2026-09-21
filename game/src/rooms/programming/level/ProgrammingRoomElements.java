@@ -40,7 +40,12 @@ final class ProgrammingRoomElements {
     ProgrammingGolemRuntime runtime = new ProgrammingGolemRuntime(level, golem);
     golem.add(
         new InteractionComponent(
-            new Interaction((interacted, who) -> runtime.show(who), GOLEM_INTERACTION_RANGE)));
+            new Interaction(
+                (interacted, who) -> {
+                  ProgrammingProgress.interaction("variables-golem", "open", who);
+                  runtime.show(who);
+                },
+                GOLEM_INTERACTION_RANGE)));
     Game.add(golem);
     spawnBindingChest(level, runtime, true);
     spawnBindingChest(level, runtime, false);
@@ -48,7 +53,12 @@ final class ProgrammingRoomElements {
     Entity methods = createEntity(level, "methods-console", Visual.BOOK, 0);
     methods.add(
         new InteractionComponent(
-            new Interaction((interacted, who) -> runtime.showMethods(who), 2f)));
+            new Interaction(
+                (interacted, who) -> {
+                  ProgrammingProgress.interaction("methods-console", "open", who);
+                  runtime.showMethods(who);
+                },
+                2f)));
     Game.add(methods);
     spawnControl(level, "loop-terminal", Visual.BOOK, runtime, false);
     spawnControl(level, "loop-monitor", Visual.SEHSTEIN, runtime, true);
@@ -73,6 +83,7 @@ final class ProgrammingRoomElements {
             new Interaction(
                 (interacted, who) -> {
                   if (Game.isMultiplayerClient()) return;
+                  ProgrammingProgress.discover(point, title(point), text, who);
                   ProgrammingGolemRuntime.showText(who, text);
                 })));
     Game.add(entity);
@@ -88,7 +99,24 @@ final class ProgrammingRoomElements {
             new Interaction(
                 (interacted, who) -> {
                   if (Game.isMultiplayerClient()) return;
+                  boolean collectedBefore =
+                      properties
+                          ? runtime.bindingState().propertiesCollected()
+                          : runtime.bindingState().vesselsCollected();
                   runtime.collectBindingSupply(properties, who);
+                  boolean collectedAfter =
+                      properties
+                          ? runtime.bindingState().propertiesCollected()
+                          : runtime.bindingState().vesselsCollected();
+                  if (!collectedAfter) return;
+                  if (!collectedBefore)
+                    ProgrammingProgress.discover(
+                        properties ? "variables-properties" : "variables-vessels",
+                        properties ? "Eigenschaften gefunden" : "Gefäße gefunden",
+                        properties
+                            ? "Die Eigenschaften für Nox liegen jetzt am Bindungstisch bereit."
+                            : "Die Typgefäße liegen jetzt am Bindungstisch bereit.",
+                        who);
                   interacted
                       .fetch(DrawComponent.class)
                       .orElseThrow()
@@ -110,6 +138,7 @@ final class ProgrammingRoomElements {
         new InteractionComponent(
             new Interaction(
                 (interacted, who) -> {
+                  ProgrammingProgress.interaction(point, "open", who);
                   if (observation) runtime.showObservation(who);
                   else runtime.showTerminal(who);
                 },
@@ -137,9 +166,24 @@ final class ProgrammingRoomElements {
             new Interaction(
                 (interacted, who) -> {
                   if (!runtime.collectRune(rune.id(), who)) return;
+                  ProgrammingProgress.discover(
+                      "rune-" + rune.id(),
+                      "Schleifenrune gefunden",
+                      rune.id() + "\n" + rune.code(),
+                      who);
                   Game.remove(interacted);
                 })));
     Game.add(entity);
+  }
+
+  private static String title(String point) {
+    return switch (point) {
+      case "archive-instructions" -> "Hinweise aus dem Archiv";
+      case "workshop-experiments" -> "Valerius' Versuchsnotizen";
+      case "intro-tablet" -> "Valerius' Brief";
+      case "forge-maintenance-note" -> "Wartungsnotiz";
+      default -> "Werkstattnotiz";
+    };
   }
 
   private static Entity createEntity(

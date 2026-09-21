@@ -104,6 +104,7 @@ final class ProgrammingProps {
     if (Game.isMultiplayerClient()) return;
     var state = torch.fetch(DrawComponent.class).orElseThrow().stateMachine();
     state.setState(state.getCurrentStateName().equals("on") ? "off" : "on", null);
+    ProgrammingProgress.interaction(torch.name(), "turn-" + state.getCurrentStateName(), who);
     if (state.getCurrentStateName().equals("off")) ProgrammingAchievements.LIGHTS_OUT.unlock(who);
     if (blackout()) ProgrammingAchievements.BLACKOUT.unlock(who);
   }

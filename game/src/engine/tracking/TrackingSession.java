@@ -29,7 +29,7 @@ import tracking.core.TrackingSessionStatus;
 /** Mutable state of one authoritative tracking session. Guarded by the facade lock. */
 final class TrackingSession {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TrackingSession.class);
-  private static final int SCHEMA_VERSION = 1;
+  private static final int SCHEMA_VERSION = 2;
   private static final Duration FINAL_UPLOAD_TIMEOUT = Duration.ofMillis(2500);
 
   private final TrackingConfig config;
@@ -125,6 +125,21 @@ final class TrackingSession {
     attemptsByPuzzle.put(attemptedPuzzle, attemptNumber);
     touchActivePuzzle(attemptedPuzzle);
     return attemptEvent;
+  }
+
+  TrackingEvent interaction(String objectId, String actionId, UUID participantId) {
+    return event(
+        TrackingEventType.INTERACTION,
+        Optional.of(participantId),
+        Optional.empty(),
+        Optional.of(requireText(objectId, "objectId")),
+        Optional.empty(),
+        TrackingJson.object().put("actionId", requireText(actionId, "actionId")));
+  }
+
+  boolean participantKnown(UUID participantId) {
+    return participantsByClient.values().stream()
+        .anyMatch(state -> state.participant.participantId().equals(participantId));
   }
 
   Optional<TrackingEvent> hintUsed(String puzzleId, String hintId, UUID participantId) {

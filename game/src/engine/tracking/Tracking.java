@@ -151,12 +151,35 @@ public final class Tracking {
       boolean correct,
       UUID participantId) {
     synchronized (LOCK) {
-      if (session == null || session.finished() || !session.participantActive(participantId)) {
+      if (session == null || session.finished() || !session.participantKnown(participantId)) {
         return Optional.empty();
       }
       try {
         return Optional.of(
             session.attempt(puzzleId, objectId, answerKind, rawAnswer, correct, participantId));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
+   * Records a meaningful player interaction, such as discovering an object or requesting help.
+   *
+   * @param objectId stable room-local object identifier
+   * @param actionId stable action identifier, never display text or mouse coordinates
+   * @param participantId session-scoped anonymous participant
+   * @return newly recorded event, or empty when inactive
+   */
+  public static Optional<TrackingEvent> interaction(
+      String objectId, String actionId, UUID participantId) {
+    synchronized (LOCK) {
+      if (session == null || session.finished() || !session.participantActive(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(session.interaction(objectId, actionId, participantId));
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();
