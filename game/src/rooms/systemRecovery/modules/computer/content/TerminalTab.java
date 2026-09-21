@@ -1,5 +1,6 @@
 package rooms.systemRecovery.modules.computer.content;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -8,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.network.messages.s2c.DialogFeedbackMessage;
+import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
@@ -23,12 +26,14 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   public static final String KEY = "terminal";
   private static final int VISIBLE_LINE_COUNT = 14;
+  private static final Color SUCCESS_COLOR = new Color(0.12f, 0.65f, 0.25f, 1f);
+  private static final Color FAILURE_COLOR = new Color(0.85f, 0.12f, 0.12f, 1f);
   private static String savedCode = "";
-  private static String savedFeedback = "";
 
   private TextArea codeEditor;
   private Label lineNumbers;
   private Label feedbackLabel;
+  private Table feedbackBar;
   private int displayedFirstLine = -1;
   private int displayedLineCount = -1;
 
@@ -54,6 +59,10 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
     TextField styledField = Scene2dElementFactory.createTextField(savedCode);
     codeEditor = new TextArea(savedCode, new TextField.TextFieldStyle(styledField.getStyle()));
+    Label.LabelStyle lineNumberStyle = lineNumbers.getStyle();
+    lineNumberStyle.font = codeEditor.getStyle().font;
+    lineNumberStyle.fontColor = LABEL_COLOR;
+    lineNumbers.setStyle(lineNumberStyle);
     codeEditor.setPrefRows(VISIBLE_LINE_COUNT);
     codeEditor.setFocusTraversal(false);
     Scene2dElementFactory.addTextFieldChangeListener(
@@ -63,15 +72,20 @@ public class TerminalTab extends SystemRecoveryComputerTab {
           updateLineNumbers();
         });
 
-    editorPanel.add(lineNumbers).width(48).growY().top().right().padRight(14);
+    editorPanel.add(lineNumbers).width(64).growY().top().right().padRight(12);
     editorPanel.add(codeEditor).grow();
     layout.add(editorPanel).grow().row();
 
-    feedbackLabel = createLabel(savedFeedback, 18);
+    feedbackLabel = createLabel("", 18);
     feedbackLabel.setWrap(true);
 
     Table footer = new Table(skin);
-    footer.add(feedbackLabel).growX().left().padRight(20);
+    Table feedbackPanel = new Table(skin);
+    feedbackBar = new Table(skin);
+    feedbackBar.setBackground("generic-area-depth");
+    feedbackPanel.add(feedbackBar).width(8).growY().padRight(10);
+    feedbackPanel.add(feedbackLabel).growX().left();
+    footer.add(feedbackPanel).growX().left().padRight(20);
 
     Table buttons = new Table(skin);
     buttons.right();
@@ -164,6 +178,14 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         .accept(new DialogResponseMessage.StringValue(source));
   }
 
+  /** Applies a server response to the inline terminal status area. */
+  public void applyServerFeedback(DialogFeedbackMessage feedback) {
+    showFeedback(
+        SystemRecoveryText.text(feedback.messageKey()),
+        feedback.successful() ? SUCCESS_COLOR : FAILURE_COLOR,
+        feedback.successful() ? "green_square_depth_flat" : "red_square_flat");
+  }
+
   private String codeText() {
     return codeEditor.getText();
   }
@@ -191,9 +213,17 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   }
 
   private void showFeedback(String message) {
-    savedFeedback = message;
+    showFeedback(message, LABEL_COLOR, "generic-area-depth");
+  }
+
+  private void showFeedback(String message, Color color, String barBackground) {
     if (feedbackLabel != null) {
+      feedbackLabel.getStyle().font =
+          FontHelper.getFont(Scene2dElementFactory.FONT_PATH, 18, color, 0, color);
       feedbackLabel.setText(message);
+    }
+    if (feedbackBar != null) {
+      feedbackBar.setBackground(barBackground);
     }
   }
 }

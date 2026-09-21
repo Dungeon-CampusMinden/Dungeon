@@ -462,8 +462,8 @@
         "core-meta": "Kernergebnisse kombinieren",
         "complete": "Wiederherstellung abgeschlossen"
       },
-      "feedback-correct": "War richtig",
-      "feedback-incorrect": "War falsch"
+      "feedback-correct": "Eingabe akzeptiert",
+      "feedback-incorrect": "Eingabe nicht akzeptiert"
     },
     "riddle8": {
       "display-ready": "Matrix initialisiert",

@@ -2,10 +2,8 @@ package rooms.systemRecovery.util.interpreter;
 
 import engine.Game;
 import engine.sound.SoundSpec;
-import feature.hud.DialogUtils;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
-import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 
 /**
@@ -28,7 +26,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleOneStepOneEnergyArrayInitialized(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.ENERGY_ARRAY, attempt);
   }
 
@@ -38,7 +36,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleOneStepTwoEnergyValuesSet(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.ENERGY_VALUES, attempt);
   }
 
@@ -48,7 +46,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepOneModuleArrayInitialized(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_ARRAY, attempt);
   }
 
@@ -58,7 +56,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepTwoModulesAssigned(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_VALUES, attempt);
   }
 
@@ -68,7 +66,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepThreeGpuRemoved(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_REMOVE_GPU, attempt);
   }
 
@@ -78,7 +76,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepFourModuleLengthRead(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_LENGTH, attempt);
   }
 
@@ -88,7 +86,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleThreeStepOneInventoryScannerCompleted(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.INVENTORY_COUNT, attempt);
   }
 
@@ -98,7 +96,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleFourStepOnePackagesCreated(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.TRANSPORT_ARRAY, attempt);
   }
 
@@ -108,7 +106,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleFourStepTwoPackagesCollected(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.TRANSPORT_COLLECT, attempt);
   }
 
@@ -118,7 +116,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleSevenStepOneDataArchiveLoaded(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.ARCHIVE_ARRAYS, attempt);
   }
 
@@ -128,7 +126,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleEightStepOneStorageCreated(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.STORAGE_ARRAY, attempt);
   }
 
@@ -138,7 +136,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleEightStepTwoStorageFilled(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.STORAGE_VALUES, attempt);
   }
 
@@ -148,7 +146,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenStepOneBubbleSortCompleted(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.CENTRAL_SORT, attempt);
   }
 
@@ -158,7 +156,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenStepTwoModulesCounted(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.CENTRAL_COUNT, attempt);
   }
 
@@ -168,7 +166,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenStepThreeModulesCollected(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.CENTRAL_SEARCH, attempt);
   }
 
@@ -178,7 +176,7 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenMetaCombinationCompleted(TerminalAttempt attempt) {
-    showCorrectTerminalInputDialog(attempt);
+    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.SYSTEM_CORE_META, attempt);
   }
 
@@ -188,35 +186,29 @@ public final class InterpretationCallbacks {
    * @param attempt rejected terminal attempt
    */
   public static void onIncorrectTerminalInput(TerminalAttempt attempt) {
-    showIncorrectTerminalInputDialog(attempt);
+    showIncorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.triggerEchoCallForIncorrectInput();
   }
 
   /**
-   * Shows feedback for a correct terminal input.
+   * Sends feedback for a correct terminal input to the submitting terminal.
    *
    * @param attempt accepted terminal attempt
    */
-  public static void showCorrectTerminalInputDialog(TerminalAttempt attempt) {
+  public static void showCorrectTerminalFeedback(TerminalAttempt attempt) {
     track(attempt, true);
-    DialogUtils.showTextPopup(
-        SystemRecoveryText.key("computer.feedback-correct"),
-        SystemRecoveryText.key("computer.terminal"),
-        attempt.playerId());
+    SystemRecoveryTerminalFeedback.send(attempt, true);
     Game.audio().playGlobal(SoundSpec.builder(SUCCESS_SOUND));
   }
 
   /**
-   * Shows feedback for an incorrect terminal input.
+   * Sends feedback for an incorrect terminal input to the submitting terminal.
    *
    * @param attempt rejected terminal attempt
    */
-  public static void showIncorrectTerminalInputDialog(TerminalAttempt attempt) {
+  public static void showIncorrectTerminalFeedback(TerminalAttempt attempt) {
     track(attempt, false);
-    DialogUtils.showTextPopup(
-        SystemRecoveryText.key("computer.feedback-incorrect"),
-        SystemRecoveryText.key("computer.terminal"),
-        attempt.playerId());
+    SystemRecoveryTerminalFeedback.send(attempt, false);
     Game.audio().playGlobal(SoundSpec.builder(FAILURE_SOUND));
   }
 

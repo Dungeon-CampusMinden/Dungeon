@@ -55,12 +55,17 @@ public final class SystemRecoveryTerminalController {
    * @return whether the source was accepted by the interpreter
    */
   public synchronized boolean interpret(String source, int playerId) {
+    return interpret(source, playerId, null);
+  }
+
+  /** Interprets a submission while preserving the originating dialog ID for feedback routing. */
+  public synchronized boolean interpret(String source, int playerId, String dialogId) {
     int state = interpreter.currentState();
     if (!currentTerminalStepIsActive(state)) {
-      onUnavailableStep.accept(new TerminalAttempt(state, source, playerId));
+      onUnavailableStep.accept(new TerminalAttempt(state, source, playerId, dialogId));
       return false;
     }
-    return interpreter.interpret(source, playerId);
+    return interpreter.interpret(source, playerId, dialogId);
   }
 
   private boolean currentTerminalStepIsActive(int state) {

@@ -217,14 +217,16 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.TERMINAL_SEND,
         data -> {
           if (data instanceof DialogResponseMessage.StringValue(String source)) {
-            SystemRecoveryLevel.interpretTerminalInput(source, targetEntityId);
+            SystemRecoveryLevel.interpretTerminalInput(
+                source, targetEntityId, ui.dialogContext().dialogId());
           }
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.SYSTEM_CORE_META_SUBMIT,
         data -> {
           if (data instanceof DialogResponseMessage.StringValue(String payload)) {
-            SystemRecoveryLevel.submitSystemCoreMeta(payload, targetEntityId);
+            SystemRecoveryLevel.submitSystemCoreMeta(
+                payload, targetEntityId, ui.dialogContext().dialogId());
           }
         });
     ui.registerCallback(
