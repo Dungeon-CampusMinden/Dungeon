@@ -7,6 +7,7 @@ import engine.tracking.Tracking;
 import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,9 +21,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 /** Authoritative journal and tracking for the room's discoveries and learning progress. */
 public final class ProgrammingProgress {
-  private static final Set<String> RECORDED = new HashSet<>();
+  private static final Map<String, QuestLogEntry> RECORDED = new LinkedHashMap<>();
   private static final JsonMapper JSON = JsonMapper.builder().build();
-  private static final Map<String, String> OBJECTIVES = new LinkedHashMap<>();
   private static final Set<String> COMPLETED = new HashSet<>();
   private static Optional<QuestLogEntry> taskOverview = Optional.empty();
   private static String currentObjective = "";
@@ -32,7 +32,6 @@ public final class ProgrammingProgress {
   /** Starts a fresh room journal before spawning puzzle runtimes. */
   static void initialize() {
     RECORDED.clear();
-    OBJECTIVES.clear();
     COMPLETED.clear();
     taskOverview = Optional.empty();
     currentObjective = "";
@@ -44,7 +43,6 @@ public final class ProgrammingProgress {
   public static void started(String puzzleId, String objective) {
     if (Game.isMultiplayerClient()) return;
     Tracking.puzzleStarted(puzzleId);
-    OBJECTIVES.putIfAbsent(puzzleId, objective);
     if (COMPLETED.contains(puzzleId)) return;
     currentObjective = puzzleId;
     updateTasks(objective);
@@ -74,16 +72,9 @@ public final class ProgrammingProgress {
         .ifPresent(
             log -> {
               taskOverview.ifPresent(entry -> log.remove("Aufgaben", entry));
-              StringBuilder text =
-                  new StringBuilder("[color=#dbb463]Aktuelle Aufgabe[/color]\n> ").append(current);
-              OBJECTIVES.forEach(
-                  (id, objective) -> {
-                    if (COMPLETED.contains(id))
-                      text.append("\n\n[color=#9bae92][x] Erledigt:[/color] ").append(objective);
-                  });
               QuestLogEntry entry =
                   new QuestLogEntry(
-                      text.toString(),
+                      "[color=#dbb463]Aktuelle Aufgabe[/color]\n> " + current,
                       taskOverview.map(QuestLogEntry::timestamp).orElse(Game.currentTick()),
                       false,
                       QuestLogEntry.DEFAULT_OWNER,
@@ -91,6 +82,30 @@ public final class ProgrammingProgress {
               log.add("Aufgaben", entry);
               taskOverview = Optional.of(entry);
             });
+    updateReferences();
+  }
+
+  /** Keeps the current task limited to found reference material and its released tips. */
+  private static void updateReferences() {
+    List<QuestLogEntry> references = new ArrayList<>();
+    List<String> discoveries =
+        switch (currentObjective) {
+          case "vessels", "essences" -> List.of("variables-translation");
+          case "cellar-0", "cellar-1", "cellar-2", "cellar-3", "cellar-4" ->
+              List.of("archive-instructions");
+          case "methods" -> List.of("workshop-experiments");
+          default -> List.of();
+        };
+    for (String discovery : discoveries) {
+      QuestLogEntry entry = RECORDED.get("discovery:" + discovery);
+      if (entry != null) references.add(entry);
+    }
+    RECORDED.forEach(
+        (key, entry) -> {
+          if (!currentObjective.isEmpty() && key.startsWith("hint:" + currentObjective + ":"))
+            references.add(entry);
+        });
+    QuestLogUtil.getQuestLogComponent().ifPresent(log -> log.overview("Aufgaben", references));
   }
 
   /** Resolves the actor at submission time so delayed outcomes retain their attribution. */
@@ -152,7 +167,12 @@ public final class ProgrammingProgress {
   }
 
   private static void record(String key, String tab, String text) {
-    if (!RECORDED.contains(key) && QuestLogUtil.add(tab, text)) RECORDED.add(key);
+    if (RECORDED.containsKey(key)) return;
+    QuestLogEntry entry = new QuestLogEntry(text, false);
+    if (QuestLogUtil.add(tab, entry)) {
+      RECORDED.put(key, entry);
+      updateReferences();
+    }
   }
 
   /** Serializes only public entries; private notes travel in the requesting player's dialog. */
