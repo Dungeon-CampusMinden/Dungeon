@@ -13,6 +13,7 @@ import engine.utils.Point;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.WorldItemBuilder;
+import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
@@ -34,16 +35,21 @@ import rooms.systemRecovery.util.shaders.EnergyGlow;
  * clients receive entity state through the existing snapshot protocol.
  */
 public final class ManualSortingRiddle {
+  /** Values are deliberately spread across the shader's 0..100 fill range. */
+  private static final int[] INITIAL_SORT_VALUES = {90, 30, 10, 70, 50};
+
   private final DungeonLevel level;
   private final BubbleSortRiddle bubbleSort;
   private final RiddleCallbacks callbacks;
-  private final int[] sortValues = {42, 17, 8, 31, 23};
+  private final int[] sortValues = INITIAL_SORT_VALUES.clone();
   private final Entity[] sortData = new Entity[sortValues.length];
   private final Entity[] sortOriginalData = new Entity[sortValues.length];
   private Point[] sortPoints;
   private Entity sortDisplay;
   private int sortOuterIndex;
   private int sortInnerIndex;
+  /** Player currently owning the shared comparison station, or {@code -1} when it is free. */
+  private int sortOwnerPlayerId = -1;
   private boolean sortCompleted;
 
   /**
@@ -91,6 +97,7 @@ public final class ManualSortingRiddle {
     }
     sortOuterIndex = 0;
     sortInnerIndex = 0;
+    sortOwnerPlayerId = -1;
     sortCompleted = false;
     sortDisplay =
         SystemRecoveryDisplayFactory.moduleDisplay(
@@ -115,6 +122,18 @@ public final class ManualSortingRiddle {
   }
 
   private void showSortChoice(Entity display, Entity player) {
+    if (sortCompleted) {
+      DialogFactory.showDialogDialog(
+          SystemRecoveryText.echoCall("sort-complete"), () -> {}, player.id());
+      return;
+    }
+    if (!claimSortStation(player.id())) {
+      DialogUtils.showTextPopup(
+          SystemRecoveryText.key("world.sort.in-use"),
+          SystemRecoveryText.key("world.sort.title"),
+          player.id());
+      return;
+    }
     List<ChoiceOption> choices =
         new ArrayList<>(
             List.of(
@@ -137,7 +156,7 @@ public final class ManualSortingRiddle {
             }
           }
         },
-        () -> {},
+        () -> releaseSortStation(player.id()),
         player.id());
   }
 
@@ -152,6 +171,7 @@ public final class ManualSortingRiddle {
     sortOuterIndex = sortValues.length - 1;
     sortInnerIndex = 0;
     sortCompleted = true;
+    releaseSortStation(player.id());
     callbacks.success("debug-skip", player.id());
     callbacks.solved();
     updateSortDisplay();
@@ -175,8 +195,17 @@ public final class ManualSortingRiddle {
     }
   }
 
-  void applySortChoice(boolean swap, Entity player) {
+  synchronized void applySortChoice(boolean swap, Entity player) {
     if (sortCompleted) return;
+    // Direct calls are useful for authoritative tests and debug commands; normal UI interaction
+    // claims the station in showSortChoice before reaching this method.
+    if (sortOwnerPlayerId == -1) {
+      sortOwnerPlayerId = player.id();
+    }
+    if (sortOwnerPlayerId != player.id()) {
+      callbacks.failure("not-owner", player.id());
+      return;
+    }
     if (bubbleSort.running()) {
       callbacks.failure("blocked-machine", player.id());
       return;
@@ -206,15 +235,20 @@ public final class ManualSortingRiddle {
     updateSortDisplay();
     Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
     if (sortCompleted) {
+      releaseSortStation(player.id());
       callbacks.solved();
       spawnSortProgramStick();
       SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.BUBBLE_SORT_CODE);
+    } else {
+      // The next comparison is a new server-authoritative dialog for the same player. A wrong
+      // answer returns above after resetting the station and therefore never opens a follow-up.
+      showSortChoice(sortDisplay, player);
     }
   }
 
   /** Restores the original values and positions after a wrong comparison decision. */
   private void resetSortStation() {
-    System.arraycopy(new int[] {42, 17, 8, 31, 23}, 0, sortValues, 0, sortValues.length);
+    System.arraycopy(INITIAL_SORT_VALUES, 0, sortValues, 0, sortValues.length);
     sortOuterIndex = 0;
     sortInnerIndex = 0;
     sortCompleted = false;
@@ -223,6 +257,20 @@ public final class ManualSortingRiddle {
       moveSortEntity(sortData[index], sortPoints[index]);
     }
     updateSortDisplay();
+  }
+
+  private synchronized boolean claimSortStation(int playerId) {
+    if (sortOwnerPlayerId == -1 || sortOwnerPlayerId == playerId) {
+      sortOwnerPlayerId = playerId;
+      return true;
+    }
+    return false;
+  }
+
+  private synchronized void releaseSortStation(int playerId) {
+    if (sortOwnerPlayerId == playerId) {
+      sortOwnerPlayerId = -1;
+    }
   }
 
   private void spawnSortProgramStick() {
