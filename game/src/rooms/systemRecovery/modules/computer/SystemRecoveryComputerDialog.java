@@ -241,6 +241,11 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
   /** Applies server-authoritative feedback to the terminal tab without reopening the dialog. */
   @Override
   public void applyFeedback(DialogFeedbackMessage feedback) {
+    if (SystemCoreMetaTab.KEY.equals(feedback.targetTabKey())
+        && tabs.get(SystemCoreMetaTab.KEY) instanceof SystemCoreMetaTab meta) {
+      meta.applyServerFeedback(feedback);
+      return;
+    }
     if (tabs.get(TerminalTab.KEY) instanceof TerminalTab terminal) {
       terminal.applyServerFeedback(feedback);
     }

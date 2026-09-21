@@ -26,8 +26,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleOneStepOneEnergyArrayInitialized(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.ENERGY_ARRAY, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -36,8 +36,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleOneStepTwoEnergyValuesSet(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.ENERGY_VALUES, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -46,8 +46,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepOneModuleArrayInitialized(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_ARRAY, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -56,8 +56,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepTwoModulesAssigned(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_VALUES, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -66,8 +66,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepThreeGpuRemoved(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_REMOVE_GPU, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -76,8 +76,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTwoStepFourModuleLengthRead(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.MODULE_LENGTH, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -86,8 +86,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleThreeStepOneInventoryScannerCompleted(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.INVENTORY_COUNT, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -96,8 +96,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleFourStepOnePackagesCreated(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.TRANSPORT_ARRAY, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -106,8 +106,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleFourStepTwoPackagesCollected(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.TRANSPORT_COLLECT, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -116,8 +116,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleSevenStepOneDataArchiveLoaded(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.ARCHIVE_ARRAYS, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -126,8 +126,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleEightStepOneStorageCreated(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.STORAGE_ARRAY, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -136,8 +136,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleEightStepTwoStorageFilled(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.STORAGE_VALUES, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -146,8 +146,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenStepOneBubbleSortCompleted(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.CENTRAL_SORT, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -156,8 +156,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenStepTwoModulesCounted(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.CENTRAL_COUNT, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -166,8 +166,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenStepThreeModulesCollected(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.CENTRAL_SEARCH, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**
@@ -176,8 +176,8 @@ public final class InterpretationCallbacks {
    * @param attempt submitted terminal attempt
    */
   public static void onRiddleTenMetaCombinationCompleted(TerminalAttempt attempt) {
-    showCorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.applyTerminalStep(TerminalStep.SYSTEM_CORE_META, attempt);
+    showCorrectTerminalFeedback(attempt);
   }
 
   /**

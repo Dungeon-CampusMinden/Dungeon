@@ -463,7 +463,8 @@
         "complete": "Wiederherstellung abgeschlossen"
       },
       "feedback-correct": "Eingabe akzeptiert",
-      "feedback-incorrect": "Eingabe nicht akzeptiert"
+      "feedback-incorrect": "Eingabe nicht akzeptiert",
+      "feedback-submitting": "Eingabe wird geprüft ..."
     },
     "riddle8": {
       "display-ready": "Matrix initialisiert",

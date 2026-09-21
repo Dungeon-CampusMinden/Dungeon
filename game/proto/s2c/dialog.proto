@@ -64,4 +64,10 @@ message DialogFeedbackMessage {
 
   // Whether the server accepted the submitted action.
   bool successful = 3;
+
+  // Local tab key that should render the update, for example "terminal".
+  string target_tab_key = 4;
+
+  // Fingerprint of the submitted source used to ignore stale responses.
+  string source_fingerprint = 5;
 }

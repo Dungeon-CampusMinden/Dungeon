@@ -1,5 +1,6 @@
 package rooms.systemRecovery.modules.computer.content;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -7,8 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.utils.Scene2dElementFactory;
+import engine.utils.FontHelper;
 import feature.hud.dialogs.DialogCallbackResolver;
+import feature.hud.dialogs.DialogFeedbackFingerprint;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
@@ -27,6 +31,10 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   private TextField moduleField;
   private TextField batteryField;
   private Label feedback;
+  private Table feedbackBar;
+  private String lastSubmittedFingerprint;
+  private static final Color SUCCESS_COLOR = new Color(0.12f, 0.65f, 0.25f, 1f);
+  private static final Color FAILURE_COLOR = new Color(0.85f, 0.12f, 0.12f, 1f);
 
   /** Creates the final system-state input mask. */
   public SystemCoreMetaTab() {
@@ -66,8 +74,14 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     addCountField(counts, "computer.meta-batteries", batteryField);
     layout.add(counts).left().padTop(24).row();
 
+    Table feedbackPanel = new Table(skin);
+    feedbackBar = new Table(skin);
+    feedbackBar.setBackground("generic-area-depth");
+    feedbackPanel.add(feedbackBar).width(8).growY().padRight(10);
     feedback = createLabel("", 18);
-    layout.add(feedback).left().padTop(18).row();
+    feedback.setWrap(true);
+    feedbackPanel.add(feedback).growX().left();
+    layout.add(feedbackPanel).growX().left().padTop(18).row();
 
     Table buttons = new Table(skin);
     TextButton submit = createButton(SystemRecoveryText.text("computer.meta-submit"), "green", 24);
@@ -96,6 +110,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   private TextField createNumberField() {
     TextField field = Scene2dElementFactory.createTextField("");
     field.setMaxLength(3);
+    Scene2dElementFactory.addTextFieldChangeListener(field, ignored -> lastSubmittedFingerprint = null);
     return field;
   }
 
@@ -108,16 +123,37 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     String energy =
         Arrays.stream(energyFields).map(TextField::getText).collect(Collectors.joining(","));
     String payload = energy + "|" + moduleField.getText() + "|" + batteryField.getText();
+    lastSubmittedFingerprint = DialogFeedbackFingerprint.of(payload);
+    applyLocalFeedback(SystemRecoveryText.text("computer.meta-submitting"), LABEL_COLOR, "generic-area-depth");
     DialogCallbackResolver.createButtonCallback(
             context().dialogId(), SystemRecoveryComputerCallbacks.SYSTEM_CORE_META_SUBMIT)
         .accept(new DialogResponseMessage.StringValue(payload));
-    feedback.setText(SystemRecoveryText.text("computer.meta-submitting"));
   }
 
   private void clearValues() {
     Arrays.stream(energyFields).forEach(field -> field.setText(""));
     moduleField.setText("");
     batteryField.setText("");
-    feedback.setText("");
+    lastSubmittedFingerprint = null;
+    applyLocalFeedback("", LABEL_COLOR, "generic-area-depth");
+  }
+
+  /** Applies server-authoritative feedback to the currently used final input mask. */
+  public void applyServerFeedback(DialogFeedbackMessage serverFeedback) {
+    if (!serverFeedback.sourceFingerprint().isEmpty()
+        && !serverFeedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
+      return;
+    }
+    applyLocalFeedback(
+        SystemRecoveryText.text(serverFeedback.messageKey()),
+        serverFeedback.successful() ? SUCCESS_COLOR : FAILURE_COLOR,
+        serverFeedback.successful() ? "green_square_depth_flat" : "red_square_flat");
+  }
+
+  private void applyLocalFeedback(String text, Color color, String barBackground) {
+    feedback.getStyle().font =
+        FontHelper.getFont(Scene2dElementFactory.FONT_PATH, 18, color, 0, color);
+    feedback.setText(text);
+    feedbackBar.setBackground(barBackground);
   }
 }
