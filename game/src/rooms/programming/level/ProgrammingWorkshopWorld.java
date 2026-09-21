@@ -220,16 +220,6 @@ final class ProgrammingWorkshopWorld {
       }
     }
     ironBars("exit-door", new Point(34, 49), false);
-    for (int station : List.of(6, 7)) {
-      prop(
-          "altar-link-" + station,
-          new Point(station == 6 ? 32 : 40, 47.5f),
-          "dungeon/default/floor/floor_1.png",
-          .2f,
-          2,
-          true);
-      tint("altar-link-" + station, 0x4E7F9FFF);
-    }
     resetAll();
   }
 
@@ -308,8 +298,6 @@ final class ProgrammingWorkshopWorld {
         for (int i = supplied[station]; i < supplied[station] + amount; i++)
           socket(station, i, true);
         supplied[station] += amount;
-        if (supplied[station] == MethodsRoute.STATIONS.get(station).amount())
-          tint("altar-link-" + station, 0xBDA0FFFF);
       }
       default -> {
         return new ActionResult(false, "Kein Weltbefehl.", 0);
@@ -361,7 +349,6 @@ final class ProgrammingWorkshopWorld {
           for (int i = 0; i < station.amount(); i++) tint("crystal-" + index + "-" + i, 0xFFFFFF00);
         }
         case ALTAR -> {
-          tint("altar-link-" + index, 0x4E7F9FFF);
           for (int i = 0; i < station.amount(); i++) socket(index, i, false);
         }
       }

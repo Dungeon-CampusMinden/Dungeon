@@ -83,6 +83,9 @@ zur Fehlerzeile. Die Meldung bleibt beim Wechsel aus der Raumansicht und beim er
 Lauf gestartet wird. Manuelles Stoppen markiert keinen Block als fehlerhaft.
 Fehler beim Methodenbau stehen direkt im Methodenentwurf. Die Hilfe ist jederzeit
 schließbar. Der Canvas bleibt beim Umschalten und bei neuen Serverzuständen erhalten.
+Solange die Methodenwerkstatt geöffnet ist, sind Bewegungen und Interaktionen im Level
+für diesen Spieler gesperrt, auch in der Raumansicht und Hilfe. Nox und die Simulation
+laufen weiter. Andere Spieler bleiben steuerbar; Schließen gibt die Eingaben wieder frei.
 
 Über dem Canvas bleibt eine Prüfleiste unabhängig von Zoom und Verschiebung sichtbar.
 Sie unterscheidet sechs Bedingungen: Arbeitsstellen erledigt, Nox trägt keine Kristalle,
