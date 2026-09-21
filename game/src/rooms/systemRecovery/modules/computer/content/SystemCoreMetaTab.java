@@ -124,7 +124,8 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
         Arrays.stream(energyFields).map(TextField::getText).collect(Collectors.joining(","));
     String payload = energy + "|" + moduleField.getText() + "|" + batteryField.getText();
     lastSubmittedFingerprint = DialogFeedbackFingerprint.of(payload);
-    applyLocalFeedback(SystemRecoveryText.text("computer.meta-submitting"), LABEL_COLOR, "generic-area-depth");
+    applyLocalFeedback(
+        SystemRecoveryText.text("computer.meta-submitting"), LABEL_COLOR, "generic-area-depth");
     DialogCallbackResolver.createButtonCallback(
             context().dialogId(), SystemRecoveryComputerCallbacks.SYSTEM_CORE_META_SUBMIT)
         .accept(new DialogResponseMessage.StringValue(payload));
