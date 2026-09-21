@@ -3,16 +3,25 @@ package rooms.systemRecovery.entities;
 import engine.Entity;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.systems.VelocitySystem;
 import engine.utils.Point;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
+import engine.utils.components.draw.state.DirectionalState;
+import engine.utils.components.draw.state.State;
+import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.BiConsumer;
+
+import feature.systems.HealthSystem;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Builds scanner devices and search-robot visuals used by riddles 3, 4 and 9. */
@@ -49,10 +58,21 @@ public final class ScannerEntityFactory {
     Entity entity = new Entity("search_robot");
     entity.add(new PositionComponent(point));
     entity.add(new CollideComponent());
-    DrawComponent draw =
-        new DrawComponent(new Animation(new SimpleIPath("objects/tech/transport_robot.png")));
-    draw.depth(DepthLayer.AbovePlayer.depth());
-    entity.add(draw);
+
+    Map<String, Animation> animationMap =
+
+
+      Animation.loadAnimationSpritesheet(new SimpleIPath("character/roboter_cleaner"));
+    State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
+    State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
+    sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stIdle, VelocitySystem.IDLE_SIGNAL, stIdle);
+    sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
+    DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.AbovePlayer.depth());
+    entity.add(dc);
     return entity;
   }
 

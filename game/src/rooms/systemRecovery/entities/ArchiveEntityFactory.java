@@ -30,7 +30,7 @@ public final class ArchiveEntityFactory {
    * @return configured bookshelf entity
    */
   public static Entity archiveBookshelf(Point point, String name, String text) {
-    Entity entity = DecoFactory.createDeco(point, Deco.BookshelfLarge);
+    Entity entity = DecoFactory.createDeco(point.translate(-0.15f, -0.35f), Deco.DigitalArchiveShelf);
     entity.name(name);
     entity.remove(DecoComponent.class);
     entity.add(

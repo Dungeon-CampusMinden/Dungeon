@@ -29,6 +29,8 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
   private static final String LEVEL_NAME = "system-recovery-1";
   private static final String LIGHTING_SHADER_ID = "systemRecoveryLighting";
   private static final String MODULE_SCAN_SHADER_ID = "moduleScannerLocal";
+  private static final String ARCHIVE_SHELF_TEXTURE =
+      "objects/tech/digital_archive_shelf_animated.png";
   private static final String[] MODULE_NAMES = {"cpu", "ram", "gpu", "ssd", "network"};
 
   private int highlightedModuleIndex = -1;
@@ -177,6 +179,13 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
         .forEach(entity -> addLight(lighting, entity, 0.55f, Color.CYAN));
 
     Game.levelEntities()
+        .filter(SystemRecoveryClientLevel::isArchiveShelf)
+        .forEach(
+            entity ->
+                lighting.addLightSource(
+                    lightSourcePosition(entity).translate(1.15f, 0.8f), 0.6f, Color.CYAN));
+
+    Game.levelEntities()
         .filter(entity -> entity.isPresent(KeypadComponent.class))
         .forEach(
             entity -> {
@@ -202,6 +211,14 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
   static boolean isScanner(Entity entity) {
     String name = entity.name();
     return name != null && name.endsWith("_scanner");
+  }
+
+  static boolean isArchiveShelf(Entity entity) {
+    return entity
+        .fetch(DrawComponent.class)
+        .flatMap(draw -> draw.currentAnimation().sourcePath())
+        .map(path -> ARCHIVE_SHELF_TEXTURE.equals(path.pathString()))
+        .orElse(false);
   }
 
   private boolean isDoorLabel(Entity entity) {
