@@ -1,5 +1,6 @@
 package rooms.systemRecovery.items;
 
+import engine.Entity;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.inventory.Item;
@@ -56,6 +57,16 @@ public final class SearchProgramChipItem extends Item {
    */
   public boolean programmed() {
     return programmed;
+  }
+
+  /**
+   * Keeps the chip in the inventory until a computer or the search-robot controller transfers it.
+   *
+   * @param user entity that attempted to use the chip
+   */
+  @Override
+  public void use(final Entity user) {
+    // Intentionally empty: puzzle interactions handle the transfer explicitly.
   }
 
   @Override
