@@ -47,17 +47,62 @@ Maustaste ändert ihre Größe: Hauptprogramm und Bausteinauswahl nur in der Hö
 der Methodenentwurf auch in der Breite. Fenster werden am Titel verschoben.
 Das Mausrad scrollt das Fenster unter dem Zeiger. Auch an den Scrollgrenzen bleibt der
 Zoom unverändert. Über dem freien Hintergrund zoomt es die Arbeitsfläche.
+Rechts neben dem Hauptprogrammzähler schaltet „Original“ auf den unveränderten Startcode
+zum Vergleichen. Diese Ansicht ist schreibgeschützt: keine Bearbeitung, Auswahl oder
+Drag-and-drop von Codeblöcken hinein oder heraus. „Mein Code“ wechselt zurück zum eigenen
+Programm; beide Ansichten behalten ihre Scrollposition. Der Zähler und „Ausführen“ beziehen
+sich weiterhin auf das eigene Programm. Die Ansicht ist eine lokale Einstellung des Spielers.
 
 Der Methodenentwurf hat einen frei wählbaren Namen, Eingaben und einen Körper.
 „Methode bauen“ erzeugt ausdrücklich eine benannte Rune. Eine Rune lässt sich als
 Aufruf ins Hauptprogramm ziehen. Argumente, Zuweisungsziel und Rückgabewerte bleiben
 bearbeitbar. Gebaute Methoden können erneut bearbeitet und bewusst ersetzt werden.
 Unfertige Entwürfe verändern eine bereits gebaute Rune nicht stillschweigend.
+Eine Methode darf höchstens sechs Anweisungen enthalten, einschließlich Aufrufen und
+Rückgaben. Das Methodenfenster zeigt die Zeilenzahl als `4 / 6` und nummeriert die Blöcke.
+Längere Entwürfe bleiben bearbeitbar; Überschrift und Hinweis werden rot, und
+„Methode bauen“ ist gesperrt. Auch der Server lehnt das Bauen mit mehr als sechs Zeilen ab.
+Eine zuvor gebaute Version bleibt dabei erhalten. Nach dem Kürzen lässt sich der Entwurf
+wieder bauen.
+`GIB_ZURÜCK` beendet die Methode sofort. Alle Blöcke danach werden im Entwurf rot
+als nicht erreichbar markiert, mit Verweis auf die Zeile der ersten Rückgabe.
+Das Methodenfenster zeigt die Warnung auch oberhalb des scrollbaren Codes und scrollt
+zur ersten betroffenen Zeile. UI und Server verhindern das Bauen, bis diese Blöcke
+gelöscht oder vor die Rückgabe verschoben wurden. Eine Rückgabe als letzte Anweisung
+ist erlaubt; eine Methode ohne Rückgabe bleibt ebenfalls erlaubt.
+
+In „Variable setzen“ sind auch Aufrufe gebauter Methoden erlaubt, etwa
+`kristalle = 1 + meineMethode(15)`. Ausdrücke unterstützen Zahlen, Variablen, `+`, `-`,
+Klammern und verschachtelte Methodenaufrufe, auch in Argumenten und Rückgaben.
+Aufrufe werden von links nach rechts ausgeführt, einschließlich ihrer Aktionen im Raum.
+Danach wird mit dem Rückgabewert weitergerechnet. Fehlt die Rückgabe, stoppt der Lauf
+mit einer Fehlermeldung. Das Speicherziel direkt am Aufruf bleibt eine gleichwertige
+Option; beide Schreibweisen zählen als Verwendung eines Rückgabewerts für die Kontrollrune.
 
 Hilfe enthält Auftrag, Bedienung, Begriffe, gestufte Denkanstöße und die letzte
-Rückmeldung. Ausführungsrückmeldungen stehen in der Raumansicht; Fehler beim
-Methodenbau direkt im Methodenentwurf. Die Hilfe ist jederzeit
+Rückmeldung. Ausführungsfehler stehen zusätzlich direkt am betroffenen Block im
+Hauptprogramm, rot markiert und mit ausgeschriebener Meldung. Bei Fehlern innerhalb
+einer Methode wird der auslösende Hauptprogrammblock markiert. Das Codefenster scrollt
+zur Fehlerzeile. Die Meldung bleibt beim Wechsel aus der Raumansicht und beim erneuten
+Öffnen erhalten, bis das Hauptprogramm geändert, eine Methode gebaut oder ein neuer
+Lauf gestartet wird. Manuelles Stoppen markiert keinen Block als fehlerhaft.
+Fehler beim Methodenbau stehen direkt im Methodenentwurf. Die Hilfe ist jederzeit
 schließbar. Der Canvas bleibt beim Umschalten und bei neuen Serverzuständen erhalten.
+Solange die Methodenwerkstatt geöffnet ist, sind Bewegungen und Interaktionen im Level
+für diesen Spieler gesperrt, auch in der Raumansicht und Hilfe. Nox und die Simulation
+laufen weiter. Andere Spieler bleiben steuerbar; Schließen gibt die Eingaben wieder frei.
+
+Über dem Canvas bleibt eine Prüfleiste unabhängig von Zoom und Verschiebung sichtbar.
+Sie unterscheidet sechs Bedingungen: Arbeitsstellen erledigt, Nox trägt keine Kristalle,
+Variable `kristalle = 0`, höchstens acht Hauptblöcke, dieselbe parametrisierte Methode
+mehrfach aufgerufen und einen Rückgabewert verwendet. Jede Bedingung zeigt ausdrücklich
+„Erfüllt“, „Offen“ oder „Ungeprüft“. Die Blockanzahl ist sofort prüfbar; die übrigen
+Bedingungen werden erst nach einem vollständig ausgeführten Programm bewertet.
+Die Abschlussmeldung nennt nur die fehlenden Bedingungen mit konkreten Ist- und Sollwerten.
+Nox' Kristallvorrat und die Variable `kristalle` werden getrennt benannt.
+Nach Änderungen am ausführbaren Programm werden die Ergebnisse als ungeprüft angezeigt;
+Änderungen an einem noch nicht gebauten Methodenentwurf verändern das Ergebnis nicht.
+Bei einem Laufzeitfehler nennen Prüfleiste und Raumansicht die nummerierte Hauptprogrammzeile.
 
 ## Ausführung und Fehlversuche
 
@@ -108,6 +153,8 @@ den beiden Runensteinen, zwei Kristallfeldern und zwei Altären vor dem Nebenaus
 Tore schließen ihre gesamte Passage. Die Laufwege berücksichtigen Nox' fünf Felder
 breite Kollisionsfläche; Möbel stehen außerhalb dieser Wege. Aktionen beziehen sich
 auf tatsächlich erreichbare Objekte, nicht auf eine unsichtbare Aufgabennummer.
+Leere Kristallfassungen an den Altären verwenden den Slot-Shader. Beim Ablegen wird
+der Amethyst sichtbar; ein neuer Versuch stellt die leeren Fassungen wieder her.
 
 Der Keller und das Archiv behalten ihren bestehenden Ablauf. Nach dem letzten
 Kellerauftrag kehrt Nox über den normalen kollisionsgeprüften Weg zur Werkbank zurück.

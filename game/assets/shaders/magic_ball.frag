@@ -21,6 +21,7 @@ uniform vec4 u_entityBounds;
 // ----- Custom uniforms -----
 uniform sampler2D u_bgTexture;
 uniform float u_ballSize;
+uniform float u_curvedEdgeWidth;
 uniform vec2 u_ballOffset;
 uniform vec4 u_textureRegion;
 uniform vec4 u_ballColor;
@@ -63,24 +64,29 @@ void main() {
     vec2 spherePosition = ballPosition / radius;
     float sphereZ = sqrt(max(0.0, 1.0 - dot(spherePosition, spherePosition)));
     float textureLimit = 1.0 - BALL_TEXTURE_VERTICAL_GAP;
-    vec4 ballColor = u_ballColor;
+    float maxLatitude = asin(textureLimit);
+    vec2 sceneUv = vec2(
+        atan(spherePosition.x, sphereZ) / PI + 0.5,
+        asin(clamp(spherePosition.y, -textureLimit, textureLimit))
+            / (2.0 * maxLatitude) + 0.5);
+    if (u_curvedEdgeWidth > 0.0) {
+      // Keep the center unchanged; bend the sampling coordinates only within the rim.
+      // Sampling once avoids double images where the two projections meet.
+      float distanceToEdgePixels = (radius - distanceFromCenter) * shortSide;
+      float curvedWeight = 1.0 - smoothstep(0.0, u_curvedEdgeWidth, distanceToEdgePixels);
+      sceneUv = mix(spherePosition * 0.5 + 0.5, sceneUv, curvedWeight);
+    }
+    vec4 sphericalColor = u_ballColor;
 
-    if (abs(spherePosition.y) <= textureLimit) {
-      float maxLatitude = asin(textureLimit);
-      vec2 sceneUv =
-          vec2(
-              atan(spherePosition.x, sphereZ) / PI + 0.5,
-              asin(clamp(spherePosition.y, -textureLimit, textureLimit))
-                      / (2.0 * maxLatitude)
-                  + 0.5);
+    if (u_curvedEdgeWidth > 0.0 || abs(spherePosition.y) <= textureLimit) {
       vec2 mappedSceneUv = u_textureRegion.xy + sceneUv * u_textureRegion.zw;
       vec4 sceneColor = unPma(texture2D(u_texture, mappedSceneUv));
       if (sceneColor.a > 0.0) {
-        ballColor = sceneColor;
+        sphericalColor = sceneColor;
       }
     }
 
-    vec4 ballLayer = pma(ballColor);
+    vec4 ballLayer = pma(sphericalColor);
     result = ballLayer + result * (1.0 - ballLayer.a);
   }
 
@@ -109,6 +115,10 @@ void main() {
   fog *= noiseInfluence * step(glowRingWidth, abs(edgeDistance));
 
   float glow = max(opaqueRing, fog) * u_glowStrength;
+  if (u_curvedEdgeWidth > 0.0) {
+    // Leave the curved scene visible inside the ball, retaining the bright outer halo.
+    glow *= mix(0.2, 1.0, smoothstep(-glowRingWidth, 0.0, edgeDistance));
+  }
   float glowAlpha = clamp(glow * u_glowColor.a, 0.0, 1.0);
   vec4 glowLayer = vec4(u_glowColor.rgb * glowAlpha, glowAlpha);
   result = glowLayer + result * (1.0 - glowLayer.a);

@@ -7,6 +7,7 @@ import feature.canvas.CanvasStore;
 import feature.canvas.CanvasUI;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
@@ -55,11 +56,13 @@ public final class ProgrammingMethods {
    */
   static void open(
       Entity who, MethodsWorkshop.State state, Consumer<MethodsWorkshop.Intent> callback) {
+    if (Game.hud().blocksGameplayInput(who)) return;
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
             DialogContext.builder()
                 .type(Type.METHODS)
+                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .put(ID, encode(state))
                 .put("editorViewer", who.id())
                 .build(),

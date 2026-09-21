@@ -25,12 +25,14 @@ import engine.systems.input.InputManager;
 import engine.systems.input.InputSystem;
 import engine.utils.Direction;
 import engine.utils.Point;
+import feature.canvas.CanvasUI;
 import feature.components.CharacterClassComponent;
 import feature.components.UIComponent;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
+import feature.interaction.Interaction;
+import feature.interaction.InteractionComponent;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,6 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import rooms.programming.modules.loops.TerminalState;
+import rooms.programming.modules.methods.MethodsWorkshop;
 import rooms.programming.modules.variables.BindingState;
 import rooms.programming.state.VariablePuzzleStage;
 import testingUtils.MockNetworkHandler;
@@ -61,6 +64,13 @@ class ProgrammingLoopRuntimeTest {
     DialogFactory.register(
         DialogFactory.registeredTypes().stream()
             .filter(type -> type.type().equals(ProgrammingBinding.ID))
+            .findFirst()
+            .orElseThrow(),
+        ignored -> new Group());
+    ProgrammingMethods.register();
+    DialogFactory.register(
+        DialogFactory.registeredTypes().stream()
+            .filter(type -> type.type().equals(ProgrammingMethods.ID))
             .findFirst()
             .orElseThrow(),
         ignored -> new Group());
@@ -91,23 +101,25 @@ class ProgrammingLoopRuntimeTest {
   }
 
   @ParameterizedTest
-  @ValueSource(booleans = {false, true})
-  void workbenchLocksInputWithoutPausingSimulation(boolean binding) {
+  @ValueSource(strings = {"binding", "terminal", "methods"})
+  void workbenchLocksInputWithoutPausingSimulation(String workbench) {
     Runnable open =
-        binding
-            ? () -> ProgrammingBinding.open(player, runtime)
-            : () -> ProgrammingTerminal.open(player, runtime);
+        switch (workbench) {
+          case "binding" -> () -> ProgrammingBinding.open(player, runtime);
+          case "methods" ->
+              () -> ProgrammingMethods.open(player, new MethodsWorkshop().state(), ignored -> {});
+          default -> () -> ProgrammingTerminal.open(player, runtime);
+        };
     open.run();
     assertFalse(
         dialog().willPauseGame(), "The terminal must not stop movement while executing code");
+    verifyInputLock();
+    open.run();
     open.run();
     assertEquals(
         1,
         Game.levelEntities().filter(e -> e.isPresent(UIComponent.class)).count(),
         "Repeated interaction must not open another workbench");
-    verifyInputLock();
-    open.run();
-    assertEquals(1, Game.levelEntities().filter(e -> e.isPresent(UIComponent.class)).count());
   }
 
   @Test
@@ -153,6 +165,16 @@ class ProgrammingLoopRuntimeTest {
   }
 
   private void verifyInputLock() {
+    Point target = new Point(1, 0);
+    var interactions = new AtomicInteger();
+    Entity object = new Entity();
+    object.add(new PositionComponent(target));
+    object.add(
+        new InteractionComponent(new Interaction((entity, who) -> interactions.incrementAndGet())));
+    Game.add(object);
+    sendInput(
+        player, new InputMessage(InputMessage.Action.INTERACT, new InputMessage.Interact(target)));
+    assertEquals(0, interactions.get(), "World interaction must not pass through the open canvas");
     var velocity = player.fetch(VelocityComponent.class).orElseThrow();
     sendMove(player);
     assertTrue(
@@ -175,24 +197,40 @@ class ProgrammingLoopRuntimeTest {
     var input = new InputComponent();
     var movementCalls = new AtomicInteger();
     input.registerCallback(Input.Keys.W, ignored -> movementCalls.incrementAndGet());
+    input.registerCallback(Input.Buttons.LEFT, who -> HeroController.interact(who, target));
     UIComponent opened = dialog();
-    input.registerCallback(Input.Keys.ESCAPE, ignored -> UIUtils.closeDialog(opened), false, true);
+    input.registerCallback(
+        Input.Keys.ESCAPE,
+        ignored -> opened.callbacks().get(CanvasUI.EVENT_CLOSE).accept(null),
+        false,
+        true);
     player.add(input);
     var inputs = new InputSystem();
     Game.add(inputs);
     try (var keys = mockStatic(InputManager.class)) {
       keys.when(() -> InputManager.isKeyPressed(Input.Keys.W)).thenReturn(true);
+      keys.when(() -> InputManager.isButtonPressed(Input.Buttons.LEFT)).thenReturn(true);
+      keys.when(() -> InputManager.isButtonJustPressed(Input.Buttons.LEFT)).thenReturn(true);
       inputs.execute();
       assertEquals(0, movementCalls.get(), "Local gameplay callbacks must be blocked");
+      assertEquals(0, interactions.get(), "Local mouse input must not interact through the canvas");
       keys.when(() -> InputManager.isKeyJustPressed(Input.Keys.ESCAPE)).thenReturn(true);
       inputs.execute();
       assertFalse(Game.hud().hasOpenUI(player), "Closing must remain possible");
       keys.when(() -> InputManager.isKeyJustPressed(Input.Keys.ESCAPE)).thenReturn(false);
       int before = movementCalls.get();
+      int beforeInteractions = interactions.get();
       inputs.execute();
       assertEquals(before + 1, movementCalls.get(), "Closing must restore gameplay controls");
+      assertEquals(
+          beforeInteractions + 1, interactions.get(), "Closing must restore mouse interactions");
     }
     player.remove(InputComponent.class);
+    int beforeInteractions = interactions.get();
+    sendInput(
+        player, new InputMessage(InputMessage.Action.INTERACT, new InputMessage.Interact(target)));
+    assertEquals(
+        beforeInteractions + 1, interactions.get(), "Closing must restore server interactions");
     sendMove(player);
     assertTrue(
         velocity.force(HeroController.MOVEMENT_ID).isPresent(),
@@ -200,10 +238,14 @@ class ProgrammingLoopRuntimeTest {
   }
 
   private static void sendMove(Entity target) {
+    sendInput(target, InputMessage.move(Direction.RIGHT));
+  }
+
+  private static void sendInput(Entity target, InputMessage message) {
     var client =
         new ClientState((short) 1, "tester", 1, new byte[] {1, 2, 3}, CharacterClass.WIZARD);
     client.playerEntity(target);
-    HeroController.enqueueInput(client, InputMessage.move(Direction.RIGHT));
+    HeroController.enqueueInput(client, message);
     HeroController.drainAndApplyInputs();
   }
 }

@@ -24,6 +24,8 @@ final class ProgrammingUI {
   static final Color TEXT = Color.valueOf("eee5d4");
   static final Color MUTED = Color.valueOf("a6aeaa");
   static final Color GOLD = Color.valueOf("d6ae70");
+  static final Color SUCCESS = Color.valueOf("9ccca8");
+  static final Color ERROR = Color.valueOf("ffb0a3");
 
   private ProgrammingUI() {}
 
