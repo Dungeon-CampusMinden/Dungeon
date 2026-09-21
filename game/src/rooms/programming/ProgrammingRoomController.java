@@ -121,6 +121,18 @@ public final class ProgrammingRoomController {
     return PuzzleSubmissionResult.ACCEPTED;
   }
 
+  /** Advances only after the authoritative workshop has completed its physical program. */
+  public void completeMethods() {
+    requireAuthority();
+    if (phase == ProgrammingPhase.METHODS) phase = ProgrammingPhase.DECISIONS;
+  }
+
+  /** Records arrival at the Herzfeuer after six executed branches. */
+  public void completeDecisions() {
+    requireAuthority();
+    if (phase == ProgrammingPhase.DECISIONS) phase = ProgrammingPhase.COMPLETE;
+  }
+
   private boolean variableStageActive(VariablePuzzleStage expected) {
     return phase == ProgrammingPhase.VARIABLES && variableStage == expected;
   }

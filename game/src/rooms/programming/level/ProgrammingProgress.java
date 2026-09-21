@@ -70,7 +70,8 @@ public final class ProgrammingProgress {
           switch (puzzleId) {
             case "essences" -> "Aktiviere Nox an der Bindungsfläche.";
             case "cellar-4" -> "Folge Nox zur Methodenwerkstatt.";
-            case "methods" -> "Alle Rätsel gelöst! Verlasse die Werkstatt durch den Nebenausgang.";
+            case "methods" -> "Folge Nox durch den Nebenausgang zum Labyrinth der Entscheidungen.";
+            case "decisions" -> "Das Herzfeuer brennt. Nox hat alle vier Prüfungen bestanden.";
             default -> "Nox bereitet den nächsten Schritt vor.";
           });
     }

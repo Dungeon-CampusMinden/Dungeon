@@ -106,7 +106,7 @@ public final class ProgrammingObservation {
         Game.allPlayers().mapToInt(Entity::id).toArray());
   }
 
-  private static final class View extends Group {
+  static final class View extends Group {
     private final int golemId;
     private final boolean cinematic;
     private final Map<Entity, CameraComponent> previous = new LinkedHashMap<>();

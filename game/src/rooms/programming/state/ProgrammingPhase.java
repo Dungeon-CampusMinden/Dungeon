@@ -4,5 +4,7 @@ package rooms.programming.state;
 public enum ProgrammingPhase {
   VARIABLES,
   LOOPS,
-  METHODS;
+  METHODS,
+  DECISIONS,
+  COMPLETE;
 }

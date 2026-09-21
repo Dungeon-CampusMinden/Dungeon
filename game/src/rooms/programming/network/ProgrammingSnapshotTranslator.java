@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.programming.level.ProgrammingBinding;
+import rooms.programming.level.ProgrammingDecisions;
 import rooms.programming.level.ProgrammingHelp;
 import rooms.programming.level.ProgrammingMethods;
 import rooms.programming.level.ProgrammingProgress;
@@ -73,6 +74,12 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                                           metadata.put(
                                               "programming.methods",
                                               ProgrammingMethods.encode(methods)));
+                            ProgrammingDecisions.state()
+                                .ifPresent(
+                                    decisions ->
+                                        metadata.put(
+                                            ProgrammingDecisions.ID,
+                                            ProgrammingDecisions.encode(decisions)));
                             ProgrammingBinding.state()
                                 .ifPresent(
                                     binding ->
@@ -90,6 +97,11 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
   @Override
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
     delegate.applySnapshot(snapshot, dispatcher);
+    for (EntityState state : snapshot.entities())
+      state
+          .metadata()
+          .map(metadata -> metadata.get(ProgrammingDecisions.ID))
+          .ifPresent(ProgrammingDecisions::receive);
     for (EntityState state : snapshot.entities()) {
       state
           .metadata()

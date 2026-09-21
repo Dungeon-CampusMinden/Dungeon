@@ -48,6 +48,7 @@ import rooms.programming.state.VariablePuzzleStage;
 /** Server-owned assignment dialogs and collision-checked movement of the one shared golem. */
 final class ProgrammingGolemRuntime {
   private static final float SPEED = 2.5f;
+  private static final float DECISION_SPEED = 5f;
   private final DungeonLevel level;
   private final ProgrammingRoomController controller = new ProgrammingRoomController();
   private final PositionComponent position;
@@ -59,6 +60,7 @@ final class ProgrammingGolemRuntime {
   private final Entity golem;
   private final ProgrammingCellarMachinery machinery;
   private final ProgrammingWorkshopRuntime workshop;
+  private final ProgrammingDecisionRuntime decisions;
   private final ProgrammingHelp help;
   private boolean assistedLoops;
   private boolean assistedRuneCollection;
@@ -110,13 +112,16 @@ final class ProgrammingGolemRuntime {
     wall = ProgrammingProps.wall(level);
     machinery = new ProgrammingCellarMachinery(level, golem);
     workshop = new ProgrammingWorkshopRuntime(level, golem, this);
+    decisions = new ProgrammingDecisionRuntime(level, golem, this);
     help = new ProgrammingHelp(this);
     ProgrammingProgress.started("vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
   }
 
   void show(Entity who) {
     if (!authorized(who, "variables-golem", 4.5f)) return;
-    if (busy) {
+    if (decisions.active()) {
+      decisions.show(who);
+    } else if (busy) {
       text(who, status);
     } else if (controller.phase() == ProgrammingPhase.VARIABLES) {
       ProgrammingBinding.open(who, this);
@@ -384,6 +389,16 @@ final class ProgrammingGolemRuntime {
 
   void showMethods(Entity who) {
     workshop.show(who);
+  }
+
+  void beginDecisions() {
+    controller.completeMethods();
+    velocity.maxSpeed(DECISION_SPEED);
+    decisions.start();
+  }
+
+  void completeDecisions() {
+    controller.completeDecisions();
   }
 
   boolean methodsActive() {
@@ -708,6 +723,7 @@ final class ProgrammingGolemRuntime {
       if (workshopRouteRetry <= 0) beginWorkshopReturn();
     }
     workshop.tick();
+    decisions.tick();
     if (wallBreakTime > 0) {
       wallBreakTime -= 1f / Game.frameRate();
       if (wallBreakTime <= 0) wall.forEach(draw -> draw.stateMachine().setState("broken", null));
@@ -800,7 +816,8 @@ final class ProgrammingGolemRuntime {
       return;
     }
     float distance = Point.calculateDistance(from, target);
-    float fraction = distance <= SPEED * delta ? 1 : SPEED * delta / distance;
+    float speed = decisions.active() ? DECISION_SPEED : SPEED;
+    float fraction = distance <= speed * delta ? 1 : speed * delta / distance;
     Point next =
         from.translate((target.x() - from.x()) * fraction, (target.y() - from.y()) * fraction);
     if (breakingGate && touchesDeparture(next)) ProgrammingGates.departure(level, true);
@@ -982,6 +999,7 @@ final class ProgrammingGolemRuntime {
   }
 
   String helpPuzzle() {
+    if (decisions.active()) return "methods";
     if (controller.phase() == ProgrammingPhase.METHODS) return "methods";
     if (controller.phase() == ProgrammingPhase.LOOPS)
       return "cellar-" + controller.completedLoops();
@@ -989,6 +1007,7 @@ final class ProgrammingGolemRuntime {
   }
 
   boolean helpReady() {
+    if (decisions.active()) return false;
     if (controller.phase() == ProgrammingPhase.METHODS) return workshop.helpReady();
     if (busy) return false;
     return controller.phase() == ProgrammingPhase.LOOPS ? mazeReady : !bindingState().revealed();
@@ -1000,6 +1019,7 @@ final class ProgrammingGolemRuntime {
   }
 
   String helpStatus() {
+    if (decisions.active()) return decisions.feedback();
     if (controller.phase() == ProgrammingPhase.METHODS) return workshop.helpStatus();
     if (controller.phase() == ProgrammingPhase.VARIABLES) return bindingFeedback;
     return status;
@@ -1010,6 +1030,7 @@ final class ProgrammingGolemRuntime {
       case VARIABLES -> authorized(who, "variables-golem", 4.5f);
       case LOOPS -> authorized(who, "loop-terminal", 3f);
       case METHODS -> workshop.helpAuthorized(who);
+      case DECISIONS, COMPLETE -> false;
     };
   }
 
@@ -1045,6 +1066,7 @@ final class ProgrammingGolemRuntime {
         executeRune(rune, who, true);
       }
       case METHODS -> workshop.solveHelp(who);
+      case DECISIONS, COMPLETE -> {}
     }
   }
 
