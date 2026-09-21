@@ -1,18 +1,37 @@
 package rooms.programming.level;
 
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import feature.canvas.CanvasNode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import rooms.programming.modules.variables.BindingState;
 import rooms.programming.modules.variables.GolemProperty;
 import rooms.programming.modules.variables.MagicalEssence;
 import rooms.programming.modules.variables.SoulVessel;
 
 /** One workbench: reusable vessel stamps, named storage and replaceable value tokens. */
-final class ProgrammingBindingUI extends ProgrammingWorkbenchUI {
+final class ProgrammingBindingUI extends ProgrammingWorkbenchUI
+    implements CursorUtil.CursorOverride {
   private BindingState state;
   private ProgrammingBindingNode.Kind selectedKind;
   private String selectedSupply = "";
+
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    for (var node : area().nodes()) {
+      if (node instanceof ProgrammingBindingNode source && source.dragging()) {
+        boolean valid =
+            area().intersectsAll(source).stream()
+                .anyMatch(
+                    target ->
+                        target instanceof ProgrammingBindingNode socket && socket.accepts(source));
+        return Optional.of(valid ? Cursors.GRABBING : Cursors.DISABLED);
+      }
+    }
+    return Optional.empty();
+  }
 
   ProgrammingBindingUI(String dialogId, BindingState initial) {
     super(

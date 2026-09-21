@@ -102,6 +102,7 @@ public final class ProgrammingObservation {
     private DrawSystem drawSystem;
 
     View(int golemId, String dialogId, boolean cinematic) {
+      setUserObject(engine.utils.Cursors.DEFAULT);
       this.golemId = golemId;
       this.cinematic = cinematic;
       shaderKey = "programming-observation-" + dialogId;

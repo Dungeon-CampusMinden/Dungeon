@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
+import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
@@ -215,6 +216,7 @@ final class ProgrammingUI {
   static Table header(String title, Table actions, Runnable close) {
     Label heading = label(title, 27, TEXT);
     TextButton leave = button("Zurück zum Raum", false, close);
+    leave.setUserObject(Cursors.CROSS);
     return new Table() {
       private boolean compact;
 

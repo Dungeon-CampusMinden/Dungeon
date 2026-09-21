@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.utils.BaseContainerUI;
+import engine.utils.Cursors;
 import feature.hud.UIUtils;
 import feature.input.configuration.KeyboardConfig;
 import java.util.List;
@@ -100,6 +101,7 @@ final class DialogDialog {
         };
 
     dialog.setTouchable(Touchable.enabled);
+    dialog.setUserObject(Cursors.INTERACT);
     dialog.addCaptureListener(
         new InputListener() {
           @Override

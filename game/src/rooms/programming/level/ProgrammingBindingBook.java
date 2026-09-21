@@ -67,6 +67,7 @@ final class ProgrammingBindingBook extends Group {
   }
 
   private ProgrammingBindingBook(String dialogId) {
+    setUserObject(engine.utils.Cursors.DEFAULT);
     setSize(Game.windowWidth(), Game.windowHeight());
     pageViewport.addActor(pages);
     Image paper =

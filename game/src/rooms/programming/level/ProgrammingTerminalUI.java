@@ -6,12 +6,33 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
+import java.util.Optional;
 import rooms.programming.modules.loops.TerminalState;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
-final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI {
+final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI
+    implements CursorUtil.CursorOverride {
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    for (var node : area().nodes()) {
+      if (node instanceof ProgrammingTerminalNode source && source.dragging()) {
+        boolean blocked =
+            area().intersectsAll(source).stream()
+                .anyMatch(
+                    target ->
+                        target instanceof ProgrammingTerminalNode slot
+                            && slot.executor()
+                            && !slot.accepts(source));
+        return Optional.of(blocked ? Cursors.DISABLED : Cursors.GRABBING);
+      }
+    }
+    return Optional.empty();
+  }
+
   private final Label code = ProgrammingUI.label("", 18, ProgrammingUI.TEXT);
   private final Group tooltip =
       new Group() {

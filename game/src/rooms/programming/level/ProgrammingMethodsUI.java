@@ -22,6 +22,8 @@ import engine.components.CameraComponent;
 import engine.game.ECSManagement;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.systems.CameraSystem;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasLayout;
 import feature.canvas.CanvasNode;
@@ -36,6 +38,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -49,7 +52,7 @@ import rooms.programming.modules.methods.MethodsWorkshop.State;
 import tools.jackson.databind.json.JsonMapper;
 
 /** A free code canvas and a world observation view share the same authoritative program. */
-final class ProgrammingMethodsUI extends CanvasUI {
+final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOverride {
   private static final JsonMapper JSON = JsonMapper.builder().build();
   static final float BOARD_LEFT = -2115;
   static final float BOARD_BOTTOM = -1717.5f;
@@ -64,6 +67,8 @@ final class ProgrammingMethodsUI extends CanvasUI {
   private final Label feedback = ProgrammingUI.label("", 17, ProgrammingUI.GOLD);
   private final Label observation = ProgrammingUI.label("", 20, ProgrammingUI.TEXT);
   private final DragAndDrop dragging = new DragAndDrop();
+  private boolean dropAllowed;
+  private ProgrammingMethodsNode.Drag activeDrag;
   private final ArrayDeque<Edit> edits = new ArrayDeque<>();
   private final Map<Entity, CameraComponent> previousCameras = new LinkedHashMap<>();
   private final TextButton run;
@@ -127,6 +132,7 @@ final class ProgrammingMethodsUI extends CanvasUI {
               }
             });
     clearChildren();
+    setUserObject(Cursors.DEFAULT);
     shell.setFillParent(true);
     shell.top().pad(14);
     Table actions = new Table();
@@ -137,6 +143,7 @@ final class ProgrammingMethodsUI extends CanvasUI {
               help = !help;
               layoutBody();
             });
+    helpButton.setUserObject(Cursors.HELP);
     actions.add(helpButton).width(90).height(44);
     run =
         ProgrammingUI.button(
@@ -198,6 +205,30 @@ final class ProgrammingMethodsUI extends CanvasUI {
 
   DragAndDrop dragging() {
     return dragging;
+  }
+
+  void dragStarted(ProgrammingMethodsNode.Drag drag) {
+    activeDrag = drag;
+    dropAllowed = false;
+  }
+
+  void dropAllowed(boolean allowed) {
+    dropAllowed = allowed;
+  }
+
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    for (CanvasNode node : area().nodes()) {
+      if (node instanceof ProgrammingMethodsNode panel) {
+        var cursor = panel.manipulationCursor();
+        if (cursor.isPresent()) return cursor;
+      }
+    }
+    if (!dragging.isDragging()) return Optional.empty();
+    return Optional.of(
+        dropAllowed && activeDrag != null && activeDrag.source().validDrag(activeDrag)
+            ? activeDrag.copy() ? Cursors.COPY : Cursors.GRABBING
+            : Cursors.DISABLED);
   }
 
   boolean editable() {
@@ -359,9 +390,17 @@ final class ProgrammingMethodsUI extends CanvasUI {
               float x,
               float y,
               int pointer) {
-            return payload.getObject() instanceof ProgrammingMethodsNode.Drag drag
-                && drag.source().validDrag(drag)
-                && freeCanvas(x, y);
+            boolean valid =
+                payload.getObject() instanceof ProgrammingMethodsNode.Drag drag
+                    && drag.source().validDrag(drag)
+                    && freeCanvas(x, y);
+            dropAllowed(valid);
+            return valid;
+          }
+
+          @Override
+          public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
+            dropAllowed(false);
           }
 
           @Override

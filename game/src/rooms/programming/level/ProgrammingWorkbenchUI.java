@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
+import engine.utils.Cursors;
 import feature.canvas.CanvasLayout;
 import feature.canvas.CanvasNode;
 import feature.canvas.CanvasOptions;
@@ -60,6 +61,7 @@ abstract class ProgrammingWorkbenchUI extends CanvasUI {
         dialogId,
         nodes);
     clearChildren();
+    setUserObject(Cursors.DEFAULT);
     shell.setFillParent(true);
     shell.top().pad(20);
     shell.setBackground(ProgrammingUI.background(ProgrammingUI.INK, false));
@@ -104,10 +106,9 @@ abstract class ProgrammingWorkbenchUI extends CanvasUI {
   }
 
   protected final void help(String text) {
-    actions
-        .add(ProgrammingUI.referenceButton("Hilfe", () -> reference(text)))
-        .width(95)
-        .minHeight(44);
+    var button = ProgrammingUI.referenceButton("Hilfe", () -> reference(text));
+    button.setUserObject(Cursors.HELP);
+    actions.add(button).width(95).minHeight(44);
   }
 
   private void reference(String text) {

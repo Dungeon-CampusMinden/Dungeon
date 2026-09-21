@@ -1,5 +1,6 @@
 package rooms.programming;
 
+import engine.Game;
 import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
@@ -12,6 +13,7 @@ import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
+import engine.utils.CursorUtil;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
@@ -90,6 +92,7 @@ public final class Programming {
   }
 
   private static void clientSetup() {
+    Game.stage().ifPresent(CursorUtil::initListener);
     BlackFadeCutscene.register();
     ProgrammingTerminal.register();
     ProgrammingMethods.register();

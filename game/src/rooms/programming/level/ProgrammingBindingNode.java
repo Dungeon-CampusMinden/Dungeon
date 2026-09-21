@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.Cursors;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.canvas.CanvasDragContext;
@@ -59,6 +60,7 @@ final class ProgrammingBindingNode extends CanvasNode {
   void selection(String id, java.util.function.BiConsumer<Kind, String> callback) {
     selectedSupply = id;
     select = callback;
+    updateCursor();
   }
 
   static void register() {
@@ -125,6 +127,7 @@ final class ProgrammingBindingNode extends CanvasNode {
       movable(next.propertiesCollected() && next.vesselsCollected() && !next.revealed());
     }
     if (title != null) refreshText();
+    updateCursor();
     invalidateLayout();
   }
 
@@ -156,6 +159,7 @@ final class ProgrammingBindingNode extends CanvasNode {
       addActor(activate);
     }
     refreshText();
+    updateCursor();
   }
 
   private Label label(int size, Color color) {
@@ -190,10 +194,7 @@ final class ProgrammingBindingNode extends CanvasNode {
         if (state.revealed())
           detail.setText(
               container.javaType() + " " + property.identifier() + " = " + stored.literal() + ";");
-        if (!state.revealed()
-            && (stored != null
-                || state.stage() == VariablePuzzleStage.VESSELS && container != null))
-          erase.setText("×");
+        if (clearable()) erase.setText("×");
       }
       case CORE -> {
         title.setText(
@@ -238,6 +239,46 @@ final class ProgrammingBindingNode extends CanvasNode {
 
   private boolean emptySupply() {
     return (kind == Kind.VESSEL || kind == Kind.ESSENCE) && !state.vesselsCollected();
+  }
+
+  private boolean clearable() {
+    return state != null
+        && kind == Kind.SOCKET
+        && !state.revealed()
+        && (state.essences().containsKey(property())
+            || state.stage() == VariablePuzzleStage.VESSELS
+                && state.vessels().containsKey(property()));
+  }
+
+  private void updateCursor() {
+    Cursors cursor = Cursors.DEFAULT;
+    if (kind == Kind.VESSEL || kind == Kind.ESSENCE)
+      cursor = state != null && movable() ? Cursors.GRAB : Cursors.DISABLED;
+    else if (kind == Kind.SOCKET && state != null)
+      cursor =
+          state.revealed()
+              ? Cursors.DISABLED
+              : selectedSupply.isEmpty() ? Cursors.DEFAULT : Cursors.INTERACT;
+    setUserObject(cursor);
+    if (erase != null) {
+      erase.setUserObject(Cursors.CROSS);
+      erase.setTouchable(
+          clearable()
+              ? com.badlogic.gdx.scenes.scene2d.Touchable.enabled
+              : com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
+    }
+  }
+
+  boolean dragging() {
+    return dragging;
+  }
+
+  boolean accepts(ProgrammingBindingNode source) {
+    return kind == Kind.SOCKET
+        && state != null
+        && !state.revealed()
+        && source.movable()
+        && (source.kind == Kind.VESSEL || source.kind == Kind.ESSENCE);
   }
 
   @Override
@@ -353,11 +394,7 @@ final class ProgrammingBindingNode extends CanvasNode {
 
   @Override
   public boolean onNodeDropped(CanvasDragContext context) {
-    if (kind != Kind.SOCKET
-        || state == null
-        || state.revealed()
-        || !(context.draggedNode() instanceof ProgrammingBindingNode source)) return false;
-    if (!source.movable() || (source.kind != Kind.VESSEL && source.kind != Kind.ESSENCE))
+    if (!(context.draggedNode() instanceof ProgrammingBindingNode source) || !accepts(source))
       return false;
     source.returnToSupply();
     boolean vessel = source.kind == Kind.VESSEL;
@@ -372,7 +409,7 @@ final class ProgrammingBindingNode extends CanvasNode {
   @Override
   public void onClick(float localX, float localY, int button) {
     if (button != 0 || state == null) return;
-    if (kind == Kind.SOCKET && !state.revealed() && localX > width() - 42 && localY > height() - 48)
+    if (clearable() && localX > width() - 42 && localY > height() - 48)
       canvas().fireServerEvent("clear", new DialogResponseMessage.StringValue(id()));
     else if (kind == Kind.SOCKET || movable()) select.accept(kind, id());
   }

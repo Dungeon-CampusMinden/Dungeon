@@ -90,10 +90,12 @@ final class ProgrammingTerminalNode extends CanvasNode {
 
   void update(TerminalState value) {
     state = value;
+    if (kind.equals("executor"))
+      setUserObject(value.busy() || value.finished() ? Cursors.DISABLED : Cursors.DEFAULT);
     if (kind.equals("rune")) {
       boolean inserted = value.activeRune().equals(id());
       movable(!(inserted && value.busy()));
-      setUserObject(movable() ? Cursors.INTERACT : Cursors.DISABLED);
+      setUserObject(movable() ? Cursors.GRAB : Cursors.DISABLED);
       if (inserted) {
         if (!slotted) {
           homeX = dragging ? dragStartX : x();
@@ -320,6 +322,24 @@ final class ProgrammingTerminalNode extends CanvasNode {
     return LoopPuzzle.rune(runeId).map(LoopRune::code);
   }
 
+  boolean dragging() {
+    return dragging;
+  }
+
+  boolean executor() {
+    return kind.equals("executor");
+  }
+
+  boolean accepts(ProgrammingTerminalNode rune) {
+    return executor()
+        && state != null
+        && rune.kind.equals("rune")
+        && !state.busy()
+        && !state.finished()
+        && !pending
+        && !state.activeRune().equals(rune.id());
+  }
+
   @Override
   public void onMove(float dx, float dy) {
     if (!movable()) return;
@@ -360,8 +380,7 @@ final class ProgrammingTerminalNode extends CanvasNode {
     // Keep the existing slot until the server accepts the replacement, including during return.
     rune.position(rune.dragStartX, rune.dragStartY);
     rune.dragging = false;
-    if (state.busy() || state.finished() || pending || state.activeRune().equals(rune.id()))
-      return true;
+    if (!accepts(rune)) return true;
     pending = true;
     pendingTime = 0;
     canvas().fireServerEvent("execute", new DialogResponseMessage.StringValue(rune.id()));
