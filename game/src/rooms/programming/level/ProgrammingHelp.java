@@ -122,6 +122,10 @@ public final class ProgrammingHelp {
         status);
   }
 
+  int level(String puzzleId) {
+    return puzzles.get(puzzleId).level();
+  }
+
   void accept(Entity who, String event, String expected) {
     State state = snapshot();
     if (!state.puzzleId().equals(expected) || !runtime.helpAuthorized(who)) return;

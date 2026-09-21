@@ -150,13 +150,41 @@ public final class Tracking {
       String rawAnswer,
       boolean correct,
       UUID participantId) {
+    return attempt(
+        puzzleId, objectId, answerKind, rawAnswer, correct, participantId, Optional.empty());
+  }
+
+  /** Records an answer with the help state at submission and concrete outcome details. */
+  public static Optional<TrackingEvent> attempt(
+      String puzzleId,
+      String objectId,
+      String answerKind,
+      String rawAnswer,
+      boolean correct,
+      UUID participantId,
+      AttemptDetails details) {
+    if (correct != details.failureReasons().isEmpty())
+      throw new IllegalArgumentException("Failure reasons must agree with the answer outcome");
+    return attempt(
+        puzzleId, objectId, answerKind, rawAnswer, correct, participantId, Optional.of(details));
+  }
+
+  private static Optional<TrackingEvent> attempt(
+      String puzzleId,
+      String objectId,
+      String answerKind,
+      String rawAnswer,
+      boolean correct,
+      UUID participantId,
+      Optional<AttemptDetails> details) {
     synchronized (LOCK) {
       if (session == null || session.finished() || !session.participantKnown(participantId)) {
         return Optional.empty();
       }
       try {
         return Optional.of(
-            session.attempt(puzzleId, objectId, answerKind, rawAnswer, correct, participantId));
+            session.attempt(
+                puzzleId, objectId, answerKind, rawAnswer, correct, participantId, details));
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();

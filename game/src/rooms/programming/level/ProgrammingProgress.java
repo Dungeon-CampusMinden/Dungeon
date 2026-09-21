@@ -2,12 +2,15 @@ package rooms.programming.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.tracking.AttemptDetails;
 import engine.tracking.Tracking;
 import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -19,24 +22,32 @@ import tools.jackson.databind.json.JsonMapper;
 public final class ProgrammingProgress {
   private static final Set<String> RECORDED = new HashSet<>();
   private static final JsonMapper JSON = JsonMapper.builder().build();
+  private static final Map<String, String> OBJECTIVES = new LinkedHashMap<>();
+  private static final Set<String> COMPLETED = new HashSet<>();
+  private static Optional<QuestLogEntry> taskOverview = Optional.empty();
+  private static String currentObjective = "";
 
   private ProgrammingProgress() {}
 
   /** Starts a fresh room journal before spawning puzzle runtimes. */
   static void initialize() {
     RECORDED.clear();
+    OBJECTIVES.clear();
+    COMPLETED.clear();
+    taskOverview = Optional.empty();
+    currentObjective = "";
     Game.add(QuestLogUtil.initServerQuestLog());
-    record(
-        "arrival",
-        "Aufgaben",
-        "Erkunde Valerius' Werkstatt und finde heraus, wie du Nox wieder erwecken kannst.");
+    updateTasks("Erkunde Valerius' Werkstatt und finde heraus, wie du Nox wieder erwecken kannst.");
   }
 
   /** Records an available puzzle once, without revealing its solution. */
   public static void started(String puzzleId, String objective) {
     if (Game.isMultiplayerClient()) return;
     Tracking.puzzleStarted(puzzleId);
-    record("start:" + puzzleId, "Aufgaben", objective);
+    OBJECTIVES.putIfAbsent(puzzleId, objective);
+    if (COMPLETED.contains(puzzleId)) return;
+    currentObjective = puzzleId;
+    updateTasks(objective);
   }
 
   /** Records the real successful puzzle outcome once. */
@@ -44,6 +55,42 @@ public final class ProgrammingProgress {
     if (Game.isMultiplayerClient()) return;
     Tracking.puzzleSolved(puzzleId);
     record("solved:" + puzzleId, "Fortschritt", summary);
+    COMPLETED.add(puzzleId);
+    if (currentObjective.equals(puzzleId)) {
+      currentObjective = "";
+      updateTasks(
+          switch (puzzleId) {
+            case "essences" -> "Aktiviere Nox an der Bindungsfläche.";
+            case "cellar-4" -> "Folge Nox zur Methodenwerkstatt.";
+            case "methods" -> "Alle Rätsel gelöst! Verlasse die Werkstatt durch den Nebenausgang.";
+            default -> "Nox bereitet den nächsten Schritt vor.";
+          });
+    }
+  }
+
+  /** Replaces only the room's overview; player notes in the same tab remain untouched. */
+  private static void updateTasks(String current) {
+    QuestLogUtil.getQuestLogComponent()
+        .ifPresent(
+            log -> {
+              taskOverview.ifPresent(entry -> log.remove("Aufgaben", entry));
+              StringBuilder text =
+                  new StringBuilder("[color=#dbb463]Aktuelle Aufgabe[/color]\n> ").append(current);
+              OBJECTIVES.forEach(
+                  (id, objective) -> {
+                    if (COMPLETED.contains(id))
+                      text.append("\n\n[color=#9bae92][x] Erledigt:[/color] ").append(objective);
+                  });
+              QuestLogEntry entry =
+                  new QuestLogEntry(
+                      text.toString(),
+                      taskOverview.map(QuestLogEntry::timestamp).orElse(Game.currentTick()),
+                      false,
+                      QuestLogEntry.DEFAULT_OWNER,
+                      false);
+              log.add("Aufgaben", entry);
+              taskOverview = Optional.of(entry);
+            });
   }
 
   /** Resolves the actor at submission time so delayed outcomes retain their attribution. */
@@ -57,10 +104,17 @@ public final class ProgrammingProgress {
       String objectId,
       String answerKind,
       String rawAnswer,
-      boolean correct,
-      UUID participantId) {
+      UUID participantId,
+      AttemptDetails details) {
     if (Game.isMultiplayerClient()) return;
-    Tracking.attempt(puzzleId, objectId, answerKind, rawAnswer, correct, participantId);
+    Tracking.attempt(
+        puzzleId,
+        objectId,
+        answerKind,
+        rawAnswer,
+        details.failureReasons().isEmpty(),
+        participantId,
+        details);
   }
 
   /** Keeps released help in the journal and attributes it to the requesting participant. */

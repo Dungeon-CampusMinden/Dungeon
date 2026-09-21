@@ -106,7 +106,8 @@ final class TrackingSession {
       String answerKind,
       String rawAnswer,
       boolean correct,
-      UUID participantId) {
+      UUID participantId,
+      Optional<AttemptDetails> details) {
     String attemptedPuzzle = requireText(puzzleId, "puzzleId");
     int attemptNumber = attemptsByPuzzle.getOrDefault(attemptedPuzzle, 0) + 1;
     ObjectNode payload =
@@ -114,6 +115,13 @@ final class TrackingSession {
             .put("answerKind", requireText(answerKind, "answerKind"))
             .put("attemptNumber", attemptNumber)
             .put("answer", java.util.Objects.requireNonNull(rawAnswer, "rawAnswer"));
+    details.ifPresent(
+        value -> {
+          payload.put("hintLevel", value.hintLevel());
+          payload.put("automaticSolution", value.automaticSolution());
+          var reasons = payload.putArray("failureReasons");
+          value.failureReasons().forEach(reasons::add);
+        });
     TrackingEvent attemptEvent =
         event(
             TrackingEventType.ANSWER_SUBMITTED,

@@ -66,6 +66,8 @@ final class ProgrammingGolemRuntime {
   private java.util.UUID attemptParticipant;
   private String attemptCode = "";
   private String attemptPuzzle = "";
+  private int attemptHintLevel;
+  private boolean attemptAutomaticSolution;
   private java.util.function.Consumer<String> movementFailed;
   private boolean workshopTransit;
   private boolean awaitingWorkshopRoute;
@@ -172,7 +174,9 @@ final class ProgrammingGolemRuntime {
             property,
             selected.name(),
             true,
-            VariablePuzzle.vesselSolution().get(property) == selected);
+            VariablePuzzle.vesselSolution().get(property) == selected
+                ? List.of()
+                : List.of("Falscher Gefäßtyp für " + property.label() + "."));
         if (VariablePuzzle.vesselSolution().get(property) != selected) {
           bindingFeedback =
               selected == SoulVessel.CRYSTAL_BOTTLE
@@ -200,9 +204,23 @@ final class ProgrammingGolemRuntime {
             property,
             selected.name(),
             false,
-            container != null
-                && VariablePuzzle.fits(container, selected)
-                && VariablePuzzle.essenceSolution().get(property) == selected);
+            container == null
+                ? List.of("Gefäß fehlt für " + property.label() + ".")
+                : !VariablePuzzle.fits(container, selected)
+                    ? List.of(
+                        "Falscher Datentyp: "
+                            + selected.literal()
+                            + " passt nicht in "
+                            + container.label()
+                            + ".")
+                    : VariablePuzzle.essenceSolution().get(property) != selected
+                        ? List.of(
+                            "Falscher Wert für "
+                                + property.label()
+                                + ": "
+                                + selected.literal()
+                                + ".")
+                        : List.of());
         if (container == null || !VariablePuzzle.fits(container, selected)) {
           if (container != null && !solvingBinding) ProgrammingAchievements.WRONG_TYPE.unlock(who);
           bindingFeedback =
@@ -462,6 +480,10 @@ final class ProgrammingGolemRuntime {
   }
 
   void executeRune(String runeId, Entity who) {
+    executeRune(runeId, who, false);
+  }
+
+  private void executeRune(String runeId, Entity who, boolean automaticSolution) {
     if (!authorized(who, "loop-terminal", 3f)
         || busy
         || activeRune.equals(runeId)
@@ -480,6 +502,8 @@ final class ProgrammingGolemRuntime {
     attemptParticipant = ProgrammingProgress.participant(who).orElse(null);
     attemptPuzzle = "cellar-" + checkpoint;
     attemptCode = rune.orElseThrow().code();
+    attemptHintLevel = help.level(attemptPuzzle);
+    attemptAutomaticSolution = automaticSolution;
     ProgrammingProgress.interaction(attemptPuzzle, "execute", who);
     attempt = new LoopExecution(checkpoint, rune.orElseThrow(), monsterAlive);
     activeRune = runeId;
@@ -551,7 +575,16 @@ final class ProgrammingGolemRuntime {
     attacking = false;
     position.rotation(0);
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
-    if (!success) recordLoopOutcome(false);
+    if (!success)
+      recordLoopOutcome(
+          List.of(
+              reason.isEmpty()
+                  ? finished
+                          .cell()
+                          .equals(LoopMaze.checkpoints().get(controller.completedLoops()).goal())
+                      ? "Blickrichtung falsch."
+                      : "Zielmarke nicht erreicht."
+                  : reason));
     if (success) {
       String challenge = currentChallenge();
       busy = true;
@@ -565,7 +598,7 @@ final class ProgrammingGolemRuntime {
                 controller.completedLoops(),
                 () -> {
                   controller.completeExecutedLoop(challenge);
-                  recordLoopOutcome(true);
+                  recordLoopOutcome(List.of());
                   ProgrammingProgress.solved(
                       attemptPuzzle,
                       "Nox hat die Zielmarke erreicht und den Räumauftrag erledigt.");
@@ -1009,14 +1042,18 @@ final class ProgrammingGolemRuntime {
         if (!controller.collectedLoopRunes().contains(rune)) collectRune(rune, who, true);
         assistedLoops = true;
         if (!activeRune.isEmpty()) removeRune(activeRune, who);
-        executeRune(rune, who);
+        executeRune(rune, who, true);
       }
       case METHODS -> workshop.solveHelp(who);
     }
   }
 
   private void recordBinding(
-      Entity who, GolemProperty property, String selected, boolean vessel, boolean correct) {
+      Entity who,
+      GolemProperty property,
+      String selected,
+      boolean vessel,
+      List<String> failureReasons) {
     ProgrammingProgress.participant(who)
         .ifPresent(
             participant ->
@@ -1025,14 +1062,23 @@ final class ProgrammingGolemRuntime {
                     property.name(),
                     vessel ? "vessel" : "essence",
                     property.name() + "=" + selected,
-                    correct,
-                    participant));
+                    participant,
+                    new engine.tracking.AttemptDetails(
+                        help.level(vessel ? "vessels" : "essences"),
+                        solvingBinding,
+                        failureReasons)));
   }
 
-  private void recordLoopOutcome(boolean correct) {
+  private void recordLoopOutcome(List<String> failureReasons) {
     if (attemptParticipant != null)
       ProgrammingProgress.attempt(
-          attemptPuzzle, activeRune, "code", attemptCode, correct, attemptParticipant);
+          attemptPuzzle,
+          activeRune,
+          "code",
+          attemptCode,
+          attemptParticipant,
+          new engine.tracking.AttemptDetails(
+              attemptHintLevel, attemptAutomaticSolution, failureReasons));
   }
 
   private String currentChallenge() {
