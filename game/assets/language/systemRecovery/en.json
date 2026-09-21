@@ -141,14 +141,14 @@
         "transport-array": {
           "orientation": "The package machine uses a fixed loading list. The required values are available in the transport storage.",
           "approach": "An array can be initialized directly with a value list. The values go inside braces and are separated by commas.",
-          "near": "Create an int array named pakete and initialize it directly with 15, 40, 20, 60, and 30 in conveyor order.",
-          "solution": "Enter: int[] pakete = {15, 40, 20, 60, 30};"
+          "near": "Create an int array and initialize it directly with 15, 40, 20, 60, and 30 in conveyor order. The variable name is your choice.",
+          "solution": "Example: int[] pakete = {15, 40, 20, 60, 30}; The name pakete is only an example. Continue using your own variable name in the loop."
         },
         "transport-collect-loop": {
           "orientation": "Every package must pass through the storage scanner exactly once.",
-          "approach": "Use a classic for loop with an index and run it up to the length of pakete.",
+          "approach": "Use a classic for loop with an index and run it up to the length of your package array.",
           "near": "Call roboter.collect() exactly once during each iteration, without an argument.",
-          "solution": "Enter: for (int i = 0; i < pakete.length; i++) { roboter.collect(); }"
+          "solution": "Example: for (int i = 0; i < pakete.length; i++) { roboter.collect(); } Replace pakete with the name of your array."
         },
         "data-storage-door-open": {
           "orientation": "The accepted package sequence is being processed before the next room is accessible.",

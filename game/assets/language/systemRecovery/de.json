@@ -141,14 +141,14 @@
         "transport-array": {
           "orientation": "Die Paketmaschine arbeitet mit einer festen Ladungsliste. Die benötigten Werte findest du im Transportlager.",
           "approach": "Ein Array kann beim Anlegen direkt mit einer Werteliste initialisiert werden. Die Werte stehen in geschweiften Klammern und werden durch Kommas getrennt.",
-          "near": "Lege ein int-Array namens pakete an und initialisiere es direkt mit 15, 40, 20, 60 und 30 in Förderband-Reihenfolge.",
-          "solution": "Gib ein: int[] pakete = {15, 40, 20, 60, 30};"
+          "near": "Lege ein int-Array an und initialisiere es direkt mit 15, 40, 20, 60 und 30 in Förderband-Reihenfolge. Der Variablenname ist frei wählbar.",
+          "solution": "Beispiel: int[] pakete = {15, 40, 20, 60, 30}; Der Name pakete ist nur ein Beispiel. Verwende in der Schleife deinen eigenen Variablennamen weiter."
         },
         "transport-collect-loop": {
           "orientation": "Jedes Paket muss genau einmal durch den Lager-Scanner laufen.",
-          "approach": "Nutze eine klassische for-Schleife mit Index und laufe bis zur Länge von pakete.",
+          "approach": "Nutze eine klassische for-Schleife mit Index und laufe bis zur Länge deines Paket-Arrays.",
           "near": "Rufe in jedem Durchlauf genau einmal roboter.collect() ohne Argument auf.",
-          "solution": "Gib ein: for (int i = 0; i < pakete.length; i++) { roboter.collect(); }"
+          "solution": "Beispiel: for (int i = 0; i < pakete.length; i++) { roboter.collect(); } Ersetze pakete durch den Namen deines Arrays."
         },
         "data-storage-door-open": {
           "orientation": "Die angenommene Paketfolge wird verarbeitet, bevor der nächste Raum erreichbar ist.",

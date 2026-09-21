@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
+import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Tests the terminal scenario for the transport storage. */
 public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
@@ -34,6 +36,38 @@ public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
         }
         """;
     assertTrue(interpreter.interpret(source));
+  }
+
+  /** The room configuration carries the chosen array name into the package loop. */
+  @Test
+  public void transportStorageReusesAPlayerChosenArrayName_riddle4() {
+    TerminalInterpreterSetup.setupPreviewStates();
+    interpreter.synchronizeState(TerminalStep.TRANSPORT_ARRAY.stateId());
+
+    assertTrue(interpreter.interpret("int[] packets = {15, 40, 20, 60, 30};"));
+    assertTrue(
+        interpreter.interpret(
+            """
+            for (int index = 0; index < packets.length; index++) {
+                roboter.collect();
+            }
+            """));
+  }
+
+  /** A package loop using a different name than the declaration is rejected. */
+  @Test
+  public void transportStorageRejectsAnInconsistentArrayName_riddle4() {
+    TerminalInterpreterSetup.setupPreviewStates();
+    interpreter.synchronizeState(TerminalStep.TRANSPORT_ARRAY.stateId());
+
+    assertTrue(interpreter.interpret("int[] packets = {15, 40, 20, 60, 30};"));
+    assertFalse(
+        interpreter.interpret(
+            """
+            for (int index = 0; index < pakete.length; index++) {
+                roboter.collect();
+            }
+            """));
   }
 
   /** The robot command must be inside the loop body. */
