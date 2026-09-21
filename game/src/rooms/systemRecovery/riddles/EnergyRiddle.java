@@ -33,6 +33,7 @@ public final class EnergyRiddle {
   private final RiddleCallbacks callbacks;
 
   private boolean energyPuzzleSolved = false;
+  private boolean energyArrayCreated = false;
   private boolean batterySpawned = false;
   private boolean batteryInserted = false;
   private Entity energyDisplay;
@@ -56,7 +57,7 @@ public final class EnergyRiddle {
   public EnergyRiddle(DungeonLevel level, RiddleCallbacks callbacks) {
     this.level = level;
     this.callbacks = callbacks;
-    this.energyDisplayText = SystemRecoveryText.key("world.energy.display-values");
+    this.energyDisplayText = SystemRecoveryText.key("world.energy.display-standby");
   }
 
   /** Spawns the battery lever and the door power socket. */
@@ -143,9 +144,33 @@ public final class EnergyRiddle {
 
   /** Materializes one empty container per array element after terminal step 1. */
   public void spawnEnergyCrates() {
+    revealEnergyDisplayText();
     for (int index = 0; index < 5; index++) {
       Game.add(EnergyEntityFactory.cryoBox(level.getPoint("a" + index), false));
     }
+  }
+
+  /**
+   * Reveals the energy values after the player has created the required array.
+   *
+   * <p>The display entity itself exists from level setup, which keeps its world position and
+   * multiplayer spawn stable. Only its synchronized text changes when the authoritative terminal
+   * callback accepts the array declaration.
+   */
+  private void revealEnergyDisplayText() {
+    if (energyArrayCreated) return;
+    energyArrayCreated = true;
+    energyDisplayText = SystemRecoveryText.key("world.energy.display-values");
+    SystemRecoveryDisplayFactory.updateDisplayText(energyDisplay, energyDisplayText);
+  }
+
+  /**
+   * Returns whether the player has created the energy array and unlocked its display.
+   *
+   * @return {@code true} after the first terminal step has been accepted
+   */
+  public boolean energyArrayCreated() {
+    return energyArrayCreated;
   }
 
   /**
