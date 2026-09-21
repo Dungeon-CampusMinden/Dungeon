@@ -12,6 +12,8 @@ import engine.Entity;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
+import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.path.SimpleIPath;
 import org.junit.jupiter.api.Test;
 
 /** Tests the center and progress color used by System Recovery's local light sources. */
@@ -41,5 +43,16 @@ class SystemRecoveryLightingTest {
     assertTrue(SystemRecoveryClientLevel.isScanner(new Entity("transport_scanner")));
     assertTrue(SystemRecoveryClientLevel.isScanner(new Entity("sort_belt_scanner")));
     assertFalse(SystemRecoveryClientLevel.isScanner(new Entity("scanner_terminal")));
+  }
+
+  @Test
+  void animatedArchiveShelfIsRecognizedWithoutReplicatedEntityName() {
+    Entity shelf = new Entity(123);
+    shelf.add(
+        new DrawComponent(
+            new Animation(new SimpleIPath("objects/tech/digital_archive_shelf_animated.png"))));
+
+    assertTrue(SystemRecoveryClientLevel.isArchiveShelf(shelf));
+    assertFalse(SystemRecoveryClientLevel.isArchiveShelf(new Entity(124)));
   }
 }
