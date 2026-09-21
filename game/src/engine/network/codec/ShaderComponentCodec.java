@@ -10,6 +10,7 @@ import engine.utils.components.draw.shader.LevelHideShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.components.draw.shader.ShineShader;
+import engine.utils.components.draw.shader.SlotShader;
 import feature.shader.ShaderComponent;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public final class ShaderComponentCodec {
   private static final String TYPE_SHINE = "shine";
   private static final String TYPE_PASSTHROUGH = "passthrough";
   private static final String TYPE_LEVEL_HIDE = "level_hide";
+  private static final String TYPE_SLOT = "slot";
 
   private ShaderComponentCodec() {}
 
@@ -128,6 +130,8 @@ public final class ShaderComponentCodec {
       type = TYPE_PASSTHROUGH;
     } else if (shader instanceof LevelHideShader) {
       type = TYPE_LEVEL_HIDE;
+    } else if (shader instanceof SlotShader) {
+      type = TYPE_SLOT;
     } else {
       throw new IllegalArgumentException(
           "Unsupported synchronized shader type: " + shader.getClass().getName());
@@ -146,6 +150,7 @@ public final class ShaderComponentCodec {
           case TYPE_SHINE -> new ShineShader();
           case TYPE_PASSTHROUGH -> new PassthroughShader();
           case TYPE_LEVEL_HIDE -> new LevelHideShader();
+          case TYPE_SLOT -> new SlotShader();
           default -> throw new IllegalArgumentException("Unsupported shader type: " + entry.type());
         };
     shader.loadProperties(entry.properties());

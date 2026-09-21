@@ -472,13 +472,24 @@ public abstract class AbstractShader implements Disposable {
    * @param color color to write
    */
   protected static void putColor(Map<String, String> properties, Color color) {
+    putColor(properties, "", color);
+  }
+
+  /**
+   * Writes a color using a prefix and the property names used by synchronized shaders.
+   *
+   * @param properties destination property map
+   * @param prefix prefix to prepend to each color component property
+   * @param color color to write
+   */
+  protected static void putColor(Map<String, String> properties, String prefix, Color color) {
     if (color == null) {
       throw new IllegalArgumentException("Shader color must not be null.");
     }
-    properties.put("red", Float.toString(color.r));
-    properties.put("green", Float.toString(color.g));
-    properties.put("blue", Float.toString(color.b));
-    properties.put("alpha", Float.toString(color.a));
+    properties.put(colorComponentKey(prefix, "red"), Float.toString(color.r));
+    properties.put(colorComponentKey(prefix, "green"), Float.toString(color.g));
+    properties.put(colorComponentKey(prefix, "blue"), Float.toString(color.b));
+    properties.put(colorComponentKey(prefix, "alpha"), Float.toString(color.a));
   }
 
   /**
@@ -488,11 +499,29 @@ public abstract class AbstractShader implements Disposable {
    * @return the color represented by the properties
    */
   protected static Color colorProperty(Map<String, String> properties) {
+    return colorProperty(properties, "");
+  }
+
+  /**
+   * Reads a color using a prefix and the property names used by synchronized shaders.
+   *
+   * @param properties source property map
+   * @param prefix prefix prepended to each color component property
+   * @return the color represented by the properties
+   */
+  protected static Color colorProperty(Map<String, String> properties, String prefix) {
     return new Color(
-        floatProperty(properties, "red"),
-        floatProperty(properties, "green"),
-        floatProperty(properties, "blue"),
-        floatProperty(properties, "alpha"));
+        floatProperty(properties, colorComponentKey(prefix, "red")),
+        floatProperty(properties, colorComponentKey(prefix, "green")),
+        floatProperty(properties, colorComponentKey(prefix, "blue")),
+        floatProperty(properties, colorComponentKey(prefix, "alpha")));
+  }
+
+  private static String colorComponentKey(String prefix, String component) {
+    if (prefix.isEmpty()) {
+      return component;
+    }
+    return prefix + Character.toUpperCase(component.charAt(0)) + component.substring(1);
   }
 
   /**
