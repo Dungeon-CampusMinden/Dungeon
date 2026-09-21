@@ -145,7 +145,8 @@ final class MultipleChoiceDialog {
 
     if (!title.isBlank()) {
       headerBg.setTopHeight(12);
-      RichLabel titleLabel = new RichLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE, true);
+      // Dialog titles are status labels, not dialogue content; reveal them immediately.
+      RichLabel titleLabel = new RichLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE, false);
       header.add(titleLabel).center().padBottom(18).row();
     }
 

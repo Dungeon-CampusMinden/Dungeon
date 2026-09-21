@@ -21,6 +21,7 @@ import engine.utils.Point;
 import feature.components.CollideComponent;
 import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
+import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -45,6 +46,7 @@ class ManualSortingRiddleTest {
   private MockedStatic<SortingEntityFactory> factory;
   private MockedStatic<SystemRecoveryDisplayFactory> displays;
   private MockedStatic<DialogUtils> dialogs;
+  private MockedStatic<DialogFactory> choiceDialogs;
   private MockedStatic<WorldItemBuilder> worldItems;
   private MockedConstruction<SortProgramStickItem> sticks;
   private ManualSortingRiddle riddle;
@@ -56,6 +58,7 @@ class ManualSortingRiddleTest {
     factory = mockStatic(SortingEntityFactory.class);
     displays = mockStatic(SystemRecoveryDisplayFactory.class);
     dialogs = mockStatic(DialogUtils.class);
+    choiceDialogs = mockStatic(DialogFactory.class);
     worldItems = mockStatic(WorldItemBuilder.class);
     sticks = mockConstruction(SortProgramStickItem.class);
     game.when(Game::isHeadless).thenReturn(true);
@@ -94,6 +97,7 @@ class ManualSortingRiddleTest {
     sticks.close();
     worldItems.close();
     dialogs.close();
+    choiceDialogs.close();
     displays.close();
     factory.close();
     game.close();
