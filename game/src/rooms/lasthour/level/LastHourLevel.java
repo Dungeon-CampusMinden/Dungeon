@@ -43,7 +43,6 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
 import feature.interaction.keypad.TextKeyPadComponent;
 import feature.inventory.Item;
@@ -152,23 +151,23 @@ public class LastHourLevel extends DungeonLevel {
     keypad =
         KeypadFactory.createTextKeypad(
             getPoint("keypad-storage"),
-            List.of("ABC","LOL"), //  Lore.DoorCode,
+            List.of("ABC", "LOL"), //  Lore.DoorCode,
             () -> {});
     keypad
         .fetch(TaskComponent.class)
         .ifPresent(
             component -> {
-              TaskComponent<String> tc = (TaskComponent<String>) component;
-              TextKeyPadComponent textKeyPadComponent = keypad.fetch(TextKeyPadComponent.class).get();
-              tc.onCorrect(
+              TextKeyPadComponent textKeyPadComponent =
+                  keypad.fetch(TextKeyPadComponent.class).get();
+              component.onCorrect(
                   player -> {
                     LastHourTracking.attempt(
-                      LastHourPuzzle.STORAGE_ACCESS,
-                      "storage-keypad",
-                      "numeric-code",
-                      textKeyPadComponent.enteredText(),
-                      true,
-                      player);
+                        LastHourPuzzle.STORAGE_ACCESS,
+                        "storage-keypad",
+                        "numeric-code",
+                        textKeyPadComponent.enteredText(),
+                        true,
+                        player);
                     LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
                     LastHourTracking.started(LastHourPuzzle.BLUE_USB);
                     LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
@@ -178,16 +177,17 @@ public class LastHourLevel extends DungeonLevel {
                     EventScheduler.scheduleAction(
                         this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
                   });
-              tc.onWrong(player -> {
-                LastHourTracking.attempt(
-                  LastHourPuzzle.STORAGE_ACCESS,
-                  "storage-keypad",
-                  "numeric-code",
-                    textKeyPadComponent.enteredText(),
-                  false,
-                  player);
-                LastHourAchievements.checkBruteforce(player, tc.attempts());
-              });
+              component.onWrong(
+                  player -> {
+                    LastHourTracking.attempt(
+                        LastHourPuzzle.STORAGE_ACCESS,
+                        "storage-keypad",
+                        "numeric-code",
+                        textKeyPadComponent.enteredText(),
+                        false,
+                        player);
+                    LastHourAchievements.checkBruteforce(player, component.attempts());
+                  });
             });
     Game.add(keypad);
 

@@ -16,6 +16,7 @@ import feature.interaction.keypad.TextKeyPadComponent;
 import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
+import feature.tasks.Answer;
 import feature.tasks.FreeTextTask;
 import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerComponent;
@@ -25,6 +26,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -276,9 +278,9 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         LastHourEntitySpawnStrategy.METADATA_TASK_SOLVED,
         String.valueOf(task.isSolved()),
         LastHourEntitySpawnStrategy.METADATA_TASK_TEXT,
-        freeTextTask.getTaskText(),
-        LastHourEntitySpawnStrategy.METADATA_TASK_ATTEMPTS,
-        String.valueOf(task.attempts()),
+        freeTextTask.getTaskDescription(),
+        LastHourEntitySpawnStrategy.METADATA_TASK_FREE_TEXT_SUBMITTED_ANSWERS,
+        task.getAttempts().stream().map(Objects::toString).collect(Collectors.joining(";")),
         LastHourEntitySpawnStrategy.METADATA_TASK_FREE_TEXT_ACCEPTED_ANSWERS,
         freeTextTask.getAcceptedAnswer().stream().collect(Collectors.joining(";")));
   }
@@ -498,17 +500,25 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         Boolean.parseBoolean(
             metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_TASK_SOLVED, "false"));
     String text = metadata.get(LastHourEntitySpawnStrategy.METADATA_TASK_TEXT);
-    int attempts =
-        Integer.parseInt(metadata.get(LastHourEntitySpawnStrategy.METADATA_TASK_ATTEMPTS));
+    List<Answer> submittedAnswers =
+        List.of(
+                metadata
+                    .getOrDefault(
+                        LastHourEntitySpawnStrategy.METADATA_TASK_FREE_TEXT_SUBMITTED_ANSWERS,
+                        "false")
+                    .split(";"))
+            .stream()
+            .map(Answer::new)
+            .toList();
     List<String> acceptAnswers =
         List.of(
             metadata
                 .get(LastHourEntitySpawnStrategy.METADATA_TASK_FREE_TEXT_ACCEPTED_ANSWERS)
                 .split(";"));
 
-    TaskComponent<String> taskComponent =
-        new TaskComponent<>(new FreeTextTask(text, acceptAnswers));
-    taskComponent.setAttempts(attempts);
+    TaskComponent taskComponent =
+        new TaskComponent(new FreeTextTask(text, acceptAnswers), submittedAnswers);
+
     taskComponent.setSolved(isSolved);
 
     return Optional.of(taskComponent);

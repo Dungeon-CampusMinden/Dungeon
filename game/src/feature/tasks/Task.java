@@ -1,7 +1,7 @@
 package feature.tasks;
 
-public abstract class Task<T> {
-  protected String taskText;
+public abstract class Task {
+  protected String taskDescription;
 
-  public abstract boolean isCorrect(T answer);
+  public abstract boolean isCorrect(Answer answer);
 }

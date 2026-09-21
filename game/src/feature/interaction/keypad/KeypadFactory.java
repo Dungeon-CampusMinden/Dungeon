@@ -81,33 +81,31 @@ public class KeypadFactory {
    */
   public static Entity createTextKeypad(Point pos, List<String> correctTexts, Runnable action) {
     Entity entity = createBaseKeypad(pos);
-    TaskComponent<String> taskComponent = new TaskComponent<>(new FreeTextTask(correctTexts));
+    TaskComponent taskComponent = new TaskComponent(new FreeTextTask(correctTexts));
     TextKeyPadComponent kc = new TextKeyPadComponent(action);
     entity.add(kc);
     entity.add(taskComponent);
 
     entity.add(
         new InteractionComponent(
-            () ->
-                new Interaction(
-                    (e, who) -> {
-                      DialogContext context =
-                          DialogContext.builder()
-                              .type(DialogType.DefaultTypes.TEXT_KEYPAD)
-                              .put(DialogContextKeys.ENTITY, e.id())
-                              .build();
-                      UIComponent uic = DialogFactory.show(context, who.id());
-                      uic.registerCallback(
-                          DialogContextKeys.ON_CONFIRM,
-                          (payload) -> {
-                            if (payload
-                                instanceof DialogResponseMessage.StringValue(String value)) {
-                              TextKeypadUI.onButtonPress(e, taskComponent, who, value);
-                            }
-                          });
-                      LOGGER.info("Interacted with keypad sprite");
-                    },
-                    DEFAULT_INTERACTION_RADIUS)));
+            new Interaction(
+                (e, who) -> {
+                  DialogContext context =
+                      DialogContext.builder()
+                          .type(DialogType.DefaultTypes.TEXT_KEYPAD)
+                          .put(DialogContextKeys.ENTITY, e.id())
+                          .build();
+                  UIComponent uic = DialogFactory.show(context, who.id());
+                  uic.registerCallback(
+                      DialogContextKeys.ON_CONFIRM,
+                      (payload) -> {
+                        if (payload instanceof DialogResponseMessage.StringValue(String value)) {
+                          TextKeypadUI.onButtonPress(e, taskComponent, who, value);
+                        }
+                      });
+                  LOGGER.info("Interacted with keypad sprite");
+                },
+                DEFAULT_INTERACTION_RADIUS)));
     return entity;
   }
 

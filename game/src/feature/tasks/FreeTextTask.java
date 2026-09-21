@@ -2,13 +2,13 @@ package feature.tasks;
 
 import java.util.List;
 
-public class FreeTextTask extends Task<String> {
+public class FreeTextTask extends Task {
 
   private final List<String> acceptedAnswer;
   private boolean caseSensitive;
 
-  public FreeTextTask(String taskText, List<String> acceptedAnswer, boolean caseSensitive) {
-    this.taskText = taskText;
+  public FreeTextTask(String taskDescription, List<String> acceptedAnswer, boolean caseSensitive) {
+    this.taskDescription = taskDescription;
     this.caseSensitive = caseSensitive;
     if (this.caseSensitive) {
       this.acceptedAnswer = acceptedAnswer;
@@ -17,8 +17,8 @@ public class FreeTextTask extends Task<String> {
     }
   }
 
-  public FreeTextTask(String taskText, List<String> acceptedAnswer) {
-    this(taskText, acceptedAnswer, false);
+  public FreeTextTask(String taskDescription, List<String> acceptedAnswer) {
+    this(taskDescription, acceptedAnswer, false);
   }
 
   public FreeTextTask(List<String> acceptedAnswer) {
@@ -26,18 +26,18 @@ public class FreeTextTask extends Task<String> {
   }
 
   @Override
-  public boolean isCorrect(String answer) {
+  public boolean isCorrect(Answer answer) {
     if (this.caseSensitive) {
-      return acceptedAnswer.contains(answer);
+      return acceptedAnswer.contains(answer.answer());
     }
-    return acceptedAnswer.contains(answer.toLowerCase());
+    return acceptedAnswer.contains(answer.answer().toLowerCase());
   }
 
   public List<String> getAcceptedAnswer() {
     return acceptedAnswer;
   }
 
-  public String getTaskText() {
-    return taskText;
+  public String getTaskDescription() {
+    return taskDescription;
   }
 }
