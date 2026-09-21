@@ -75,7 +75,18 @@ public class TerminalTab extends SystemRecoveryComputerTab {
           updateLineNumbers();
         });
 
-    editorPanel.add(lineNumbers).width(64).growY().top().right().padRight(12);
+    float editorTextTopInset =
+        codeEditor.getStyle().background == null
+            ? 0f
+            : codeEditor.getStyle().background.getTopHeight();
+    editorPanel
+        .add(lineNumbers)
+        .width(64)
+        .growY()
+        .top()
+        .right()
+        .padTop(editorTextTopInset)
+        .padRight(12);
     editorPanel.add(codeEditor).grow();
     layout.add(editorPanel).grow().row();
 
