@@ -250,6 +250,37 @@ class MethodsWorkshopTest {
     workshop.next();
     workshop.actionResult(true, 0, "");
     assertEquals(1, workshop.next().orElseThrow().amount());
+    assertTrue(workshop.stop(1, intent(workshop, Operation.STOP, "")));
+    while (workshop.state().draft().body().size() < 6)
+      add(workshop, "draft", block(Action.MOVE, "1", ""));
+    edit(workshop, Operation.BUILD, "");
+    var sixLines = workshop.state().definitions().get("tor");
+    assertEquals(6, sixLines.body().size());
+    add(workshop, "draft", block(Action.RETURN, "1", ""));
+    edit(workshop, Operation.BUILD, "");
+    assertEquals(sixLines, workshop.state().definitions().get("tor"));
+    assertEquals(7, workshop.state().draft().body().size());
+    assertTrue(workshop.state().feedback().contains("7 Zeilen, höchstens 6 erlaubt"));
+    edit(workshop, Operation.DELETE_BLOCK, workshop.state().draft().body().getFirst().id());
+    edit(workshop, Operation.BUILD, "");
+    assertEquals(workshop.state().draft(), workshop.state().definitions().get("tor"));
+    var built = workshop.state().definitions().get("tor");
+    String returnId = workshop.state().draft().body().getLast().id();
+    edit(workshop, Operation.MOVE_BLOCK, new Edit(returnId, "draft", 2, null));
+    var draft = workshop.state().draft();
+    assertEquals(3, draft.unreachableBlocks().size());
+    for (Block unreachable : draft.body().subList(3, 6))
+      assertEquals(
+          "Nicht erreichbar: Die Methode endet bereits in Zeile 3.",
+          draft.unreachableBlocks().get(unreachable.id()));
+    edit(workshop, Operation.BUILD, "");
+    assertEquals(built, workshop.state().definitions().get("tor"));
+    assertEquals(
+        "Nicht erreichbar: Die Methode endet bereits in Zeile 3.", workshop.state().feedback());
+    edit(workshop, Operation.MOVE_BLOCK, new Edit(returnId, "draft", 6, null));
+    assertTrue(workshop.state().draft().unreachableBlocks().isEmpty());
+    edit(workshop, Operation.BUILD, "");
+    assertEquals(workshop.state().draft(), workshop.state().definitions().get("tor"));
   }
 
   @Test

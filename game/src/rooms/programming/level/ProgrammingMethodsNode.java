@@ -238,8 +238,9 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   private void revealError() {
     String failed =
-        owner.state().blockErrors().keySet().stream()
-            .filter(rows::containsKey)
+        panelBlocks(owner.state()).stream()
+            .map(Block::id)
+            .filter(id -> rows.containsKey(id) && rows.get(id).failed)
             .findFirst()
             .orElse("");
     if (!failed.isEmpty() && !failed.equals(revealedError) && scroll != null) {
@@ -331,7 +332,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
       Table body = new Table();
       body.top().left();
       List<Block> blocks = panelBlocks(owner.state());
-      for (int i = 0; i < blocks.size(); i++) blockRow(body, blocks.get(i), i);
+      for (int i = 0; i < blocks.size(); i++) blockRow(body, blocks.get(i), i, "");
       body.setWidth(width());
       float naturalHeight = Math.max(42, body.getPrefHeight());
       // Match the initial code-window height so even long loose groups stay usable on screen.
@@ -351,12 +352,45 @@ final class ProgrammingMethodsNode extends CanvasNode {
       return;
     }
     content.top().left().pad(12);
+    int methodLines = owner.state().draft().body().size();
+    boolean methodTooLong =
+        container.equals("draft") && methodLines > MethodsWorkshop.MAX_METHOD_BLOCKS;
+    Map<String, String> unreachable =
+        container.equals("draft") ? owner.state().draft().unreachableBlocks() : Map.of();
+    String count =
+        switch (container) {
+          case "main" -> " · " + owner.state().main().size() + " / 8";
+          case "draft" -> " · " + methodLines + " / " + MethodsWorkshop.MAX_METHOD_BLOCKS;
+          default -> "";
+        };
     var heading =
         ProgrammingUI.zoomLabel(
-            title + (container.equals("main") ? " · " + owner.state().main().size() + " / 8" : ""),
+            title + count,
             23,
-            ProgrammingUI.GOLD);
+            methodTooLong || !unreachable.isEmpty() ? ProgrammingUI.ERROR : ProgrammingUI.GOLD);
     content.add(heading).growX().height(35).padBottom(8).row();
+    if (methodTooLong)
+      content
+          .add(
+              ProgrammingUI.zoomLabel(
+                  "Entwurf zu lang: "
+                      + methodLines
+                      + " Zeilen, höchstens "
+                      + MethodsWorkshop.MAX_METHOD_BLOCKS
+                      + " erlaubt. Kürze die Methode, bevor du sie baust.",
+                  16,
+                  ProgrammingUI.ERROR))
+          .growX()
+          .padBottom(8)
+          .row();
+    if (!unreachable.isEmpty())
+      content
+          .add(
+              ProgrammingUI.zoomLabel(
+                  unreachable.values().iterator().next(), 16, ProgrammingUI.ERROR))
+          .growX()
+          .padBottom(8)
+          .row();
     Table body = new Table();
     body.top().left();
     if (container.equals("main"))
@@ -364,7 +398,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     body.padLeft(12).padRight(12);
     if (container.equals("palette")) palette(body);
     else {
-      if (container.equals("draft")) methodHeader(body);
+      if (container.equals("draft")) methodHeader(body, !unreachable.isEmpty());
       List<Block> blocks =
           switch (container) {
             case "main" -> owner.state().main();
@@ -373,7 +407,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
           };
       for (int i = 0; i <= blocks.size(); i++) {
         insertion(body, i, blocks.isEmpty());
-        if (i < blocks.size()) blockRow(body, blocks.get(i), i);
+        if (i < blocks.size())
+          blockRow(body, blocks.get(i), i, unreachable.getOrDefault(blocks.get(i).id(), ""));
       }
     }
     scroll = codeScroll(body);
@@ -396,7 +431,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     return pane;
   }
 
-  private void methodHeader(Table table) {
+  private void methodHeader(Table table, boolean unreachable) {
     var definition = owner.state().draft();
     table.add(ProgrammingUI.zoomLabel("Name", 15, ProgrammingUI.MUTED)).growX().row();
     table
@@ -423,23 +458,26 @@ final class ProgrammingMethodsNode extends CanvasNode {
         .height(36)
         .row();
     Table controls = new Table();
-    controls
-        .add(
-            ProgrammingUI.zoomButton(
-                "Methode bauen",
-                true,
-                () ->
-                    owner.send(
-                        Operation.BUILD,
-                        ignored -> "",
-                        next -> {
-                          buildFailure =
-                              next.draft().equals(next.definitions().get(next.draft().name()))
-                                  ? ""
-                                  : next.feedback();
-                          failedDraft = next.draft();
-                        })))
-        .growX();
+    TextButton build =
+        ProgrammingUI.zoomButton(
+            "Methode bauen",
+            true,
+            () ->
+                owner.send(
+                    Operation.BUILD,
+                    ignored -> "",
+                    next -> {
+                      buildFailure =
+                          next.draft().equals(next.definitions().get(next.draft().name()))
+                              ? ""
+                              : next.feedback();
+                      failedDraft = next.draft();
+                    }));
+    build.setDisabled(
+        !owner.editable()
+            || definition.body().size() > MethodsWorkshop.MAX_METHOD_BLOCKS
+            || unreachable);
+    controls.add(build).growX();
     controls
         .add(
             ProgrammingUI.zoomButton(
@@ -534,9 +572,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
     source(row, block, true);
   }
 
-  private void blockRow(Table table, Block block, int index) {
+  private void blockRow(Table table, Block block, int index, String staticError) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
-    String error = owner.state().blockErrors().getOrDefault(block.id(), "");
+    String error =
+        staticError.isEmpty()
+            ? owner.state().blockErrors().getOrDefault(block.id(), "")
+            : staticError;
     row.failed = !error.isEmpty();
     rows.put(block.id(), row);
     row.addListener(
@@ -572,7 +613,10 @@ final class ProgrammingMethodsNode extends CanvasNode {
     source(row, block, false);
     if (!loose()) target(row, index, true);
     paintSelection();
-    String line = container.equals("main") ? "[#a6aeaa]" + (index + 1) + ".  " : "";
+    String line =
+        container.equals("main") || container.equals("draft")
+            ? "[#a6aeaa]" + (index + 1) + ".  "
+            : "";
     row.add(ProgrammingUI.zoomSyntaxLabel(line + syntax(block), 18))
         .growX()
         .minWidth(0)

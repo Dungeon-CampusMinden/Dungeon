@@ -17,6 +17,9 @@ import tools.jackson.databind.json.JsonMapper;
 
 /** Server-owned block editor and incremental interpreter. Only connected main blocks execute. */
 public final class MethodsWorkshop {
+  /** Each instruction block, including calls and returns, counts toward this method limit. */
+  public static final int MAX_METHOD_BLOCKS = 6;
+
   /** Edits and run controls accepted from the player holding the editor. */
   public enum Operation {
     CLAIM,
@@ -76,6 +79,21 @@ public final class MethodsWorkshop {
     public Definition {
       parameters = List.copyOf(parameters);
       body = List.copyOf(body);
+    }
+
+    /** Every statement after the first unconditional return is unreachable. */
+    public Map<String, String> unreachableBlocks() {
+      Map<String, String> errors = new LinkedHashMap<>();
+      int returnLine = 0;
+      for (int index = 0; index < body.size(); index++) {
+        Block block = body.get(index);
+        if (returnLine > 0)
+          errors.put(
+              block.id(),
+              "Nicht erreichbar: Die Methode endet bereits in Zeile " + returnLine + ".");
+        else if (block.action() == Action.RETURN) returnLine = index + 1;
+      }
+      return Map.copyOf(errors);
     }
   }
 
@@ -392,6 +410,15 @@ public final class MethodsWorkshop {
           editingName = found.name();
         }
         case BUILD -> {
+          if (draft.body().size() > MAX_METHOD_BLOCKS)
+            return rejectEdit(
+                "Methode zu lang: "
+                    + draft.body().size()
+                    + " Zeilen, höchstens "
+                    + MAX_METHOD_BLOCKS
+                    + " erlaubt.");
+          var unreachable = draft.unreachableBlocks();
+          if (!unreachable.isEmpty()) return rejectEdit(unreachable.values().iterator().next());
           if (!identifier(draft.name()) || draft.body().isEmpty())
             return rejectEdit("Methode braucht einen gültigen Namen und einen Methodenrumpf.");
           if (draft.parameters().stream().anyMatch(n -> !identifier(n))

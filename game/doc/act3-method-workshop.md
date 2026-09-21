@@ -53,6 +53,18 @@ Der Methodenentwurf hat einen frei wählbaren Namen, Eingaben und einen Körper.
 Aufruf ins Hauptprogramm ziehen. Argumente, Zuweisungsziel und Rückgabewerte bleiben
 bearbeitbar. Gebaute Methoden können erneut bearbeitet und bewusst ersetzt werden.
 Unfertige Entwürfe verändern eine bereits gebaute Rune nicht stillschweigend.
+Eine Methode darf höchstens sechs Anweisungen enthalten, einschließlich Aufrufen und
+Rückgaben. Das Methodenfenster zeigt die Zeilenzahl als `4 / 6` und nummeriert die Blöcke.
+Längere Entwürfe bleiben bearbeitbar; Überschrift und Hinweis werden rot, und
+„Methode bauen“ ist gesperrt. Auch der Server lehnt das Bauen mit mehr als sechs Zeilen ab.
+Eine zuvor gebaute Version bleibt dabei erhalten. Nach dem Kürzen lässt sich der Entwurf
+wieder bauen.
+`GIB_ZURÜCK` beendet die Methode sofort. Alle Blöcke danach werden im Entwurf rot
+als nicht erreichbar markiert, mit Verweis auf die Zeile der ersten Rückgabe.
+Das Methodenfenster zeigt die Warnung auch oberhalb des scrollbaren Codes und scrollt
+zur ersten betroffenen Zeile. UI und Server verhindern das Bauen, bis diese Blöcke
+gelöscht oder vor die Rückgabe verschoben wurden. Eine Rückgabe als letzte Anweisung
+ist erlaubt; eine Methode ohne Rückgabe bleibt ebenfalls erlaubt.
 
 In „Variable setzen“ sind auch Aufrufe gebauter Methoden erlaubt, etwa
 `kristalle = 1 + meineMethode(15)`. Ausdrücke unterstützen Zahlen, Variablen, `+`, `-`,
