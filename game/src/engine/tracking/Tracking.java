@@ -154,7 +154,18 @@ public final class Tracking {
         puzzleId, objectId, answerKind, rawAnswer, correct, participantId, Optional.empty());
   }
 
-  /** Records an answer with the help state at submission and concrete outcome details. */
+  /**
+   * Records an answer with the help state at submission and concrete outcome details.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objectId stable interacted-object identifier
+   * @param answerKind answer representation
+   * @param rawAnswer complete submitted answer
+   * @param correct server-evaluated correctness
+   * @param participantId session-scoped anonymous participant
+   * @param details help state and final failure reasons
+   * @return newly recorded event, or empty when tracking is inactive or recording fails
+   */
   public static Optional<TrackingEvent> attempt(
       String puzzleId,
       String objectId,

@@ -657,7 +657,13 @@ final class ProgrammingMethodsNode extends CanvasNode {
     source(row, block, true);
   }
 
-  /** Marks recurring adjacent actions without changing code or the user's selection. */
+  /**
+   * Marks recurring adjacent actions without changing code or the user's selection.
+   *
+   * @param block statement being displayed
+   * @param index block position in the current panel
+   * @return whether the adjacent action pair appears elsewhere in the panel
+   */
   private boolean repeatedSequence(Block block, int index) {
     List<Block> blocks = showOriginal ? ORIGINAL_PROGRAM : panelBlocks(owner.state());
     for (int start = Math.max(0, index - 1); start <= index && start + 1 < blocks.size(); start++) {
@@ -818,7 +824,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
     }
   }
 
-  /** Keep the canonical statement intact; only its argument/expression changes ink. */
+  /**
+   * Keep the canonical statement intact; only its argument/expression changes ink.
+   *
+   * @param block statement being displayed
+   * @return statement markup with its expression highlighted
+   */
   private static String syntax(Block block) {
     String source = MethodsWorkshop.blockSource(block);
     int start =
@@ -1261,7 +1272,12 @@ final class ProgrammingMethodsNode extends CanvasNode {
             });
   }
 
-  /** Each queued move resolves its index after earlier moves and field edits are acknowledged. */
+  /**
+   * Each queued move resolves its index after earlier moves and field edits are acknowledged.
+   *
+   * @param drag dragged blocks and destination container
+   * @param index block position in the current panel
+   */
   private void queueDrop(Drag drag, int index) {
     String anchor =
         panelBlocks(owner.state()).stream()

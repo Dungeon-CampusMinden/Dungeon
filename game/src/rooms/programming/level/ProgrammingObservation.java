@@ -251,6 +251,10 @@ public final class ProgrammingObservation {
 
     /**
      * Repeats magic_ball.frag's sampling transform to pick the displayed torch, including the rim.
+     *
+     * @param x horizontal position within the observation view
+     * @param y vertical position within the observation view
+     * @return torch at the displayed position, or empty when none can be picked
      */
     private Optional<Entity> torchAt(float x, float y) {
       if (followed == null || curtain > 0 || getWidth() <= 0 || getHeight() <= 0)

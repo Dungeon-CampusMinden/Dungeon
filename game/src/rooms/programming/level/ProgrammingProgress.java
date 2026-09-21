@@ -39,7 +39,12 @@ public final class ProgrammingProgress {
     updateTasks("Erkunde Valerius' Werkstatt und finde heraus, wie du Nox wieder erwecken kannst.");
   }
 
-  /** Records an available puzzle once, without revealing its solution. */
+  /**
+   * Records an available puzzle once, without revealing its solution.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objective current objective shown in the journal
+   */
   public static void started(String puzzleId, String objective) {
     if (Game.isMultiplayerClient()) return;
     Tracking.puzzleStarted(puzzleId);
@@ -48,7 +53,12 @@ public final class ProgrammingProgress {
     updateTasks(objective);
   }
 
-  /** Records the real successful puzzle outcome once. */
+  /**
+   * Records the real successful puzzle outcome once.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param summary successful outcome shown in the journal
+   */
   public static void solved(String puzzleId, String summary) {
     if (Game.isMultiplayerClient()) return;
     Tracking.puzzleSolved(puzzleId);
@@ -66,7 +76,11 @@ public final class ProgrammingProgress {
     }
   }
 
-  /** Replaces only the room's overview; player notes in the same tab remain untouched. */
+  /**
+   * Replaces only the room's overview; player notes in the same tab remain untouched.
+   *
+   * @param current current task description
+   */
   private static void updateTasks(String current) {
     QuestLogUtil.getQuestLogComponent()
         .ifPresent(
@@ -108,12 +122,26 @@ public final class ProgrammingProgress {
     QuestLogUtil.getQuestLogComponent().ifPresent(log -> log.overview("Aufgaben", references));
   }
 
-  /** Resolves the actor at submission time so delayed outcomes retain their attribution. */
+  /**
+   * Resolves the actor at submission time so delayed outcomes retain their attribution.
+   *
+   * @param who acting player, or null when no player is available
+   * @return anonymous participant identifier, or empty when the actor is unknown
+   */
   public static Optional<UUID> participant(Entity who) {
     return who == null ? Optional.empty() : Tracking.participantForEntity(who.id());
   }
 
-  /** Stores each complete submitted answer and its authoritative outcome. */
+  /**
+   * Stores each complete submitted answer and its authoritative outcome.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objectId stable interacted-object identifier
+   * @param answerKind answer representation
+   * @param rawAnswer complete submitted answer
+   * @param participantId session-scoped anonymous participant
+   * @param details help state and final failure reasons
+   */
   public static void attempt(
       String puzzleId,
       String objectId,
@@ -132,31 +160,62 @@ public final class ProgrammingProgress {
         details);
   }
 
-  /** Keeps released help in the journal and attributes it to the requesting participant. */
+  /**
+   * Keeps released help in the journal and attributes it to the requesting participant.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param hintId released hint identifier
+   * @param text displayed text
+   * @param who acting player, or null when no player is available
+   */
   public static void hint(String puzzleId, String hintId, String text, Entity who) {
     if (Game.isMultiplayerClient()) return;
     participant(who).ifPresent(id -> Tracking.hintUsed(puzzleId, hintId, id));
     record("hint:" + puzzleId + ":" + hintId, "Hilfe", text);
   }
 
-  /** Records a meaningful action without adding repetitive journal entries. */
+  /**
+   * Records a meaningful action without adding repetitive journal entries.
+   *
+   * @param objectId stable interacted-object identifier
+   * @param actionId tracked action identifier
+   * @param who acting player, or null when no player is available
+   */
   public static void interaction(String objectId, String actionId, Entity who) {
     participant(who).ifPresent(id -> interaction(objectId, actionId, id));
   }
 
-  /** Records a meaningful action using an actor captured before asynchronous execution. */
+  /**
+   * Records a meaningful action using an actor captured before asynchronous execution.
+   *
+   * @param objectId stable interacted-object identifier
+   * @param actionId tracked action identifier
+   * @param participantId session-scoped anonymous participant
+   */
   public static void interaction(String objectId, String actionId, UUID participantId) {
     if (!Game.isMultiplayerClient()) Tracking.interaction(objectId, actionId, participantId);
   }
 
-  /** Adds found information once; repeated visits remain visible in tracking. */
+  /**
+   * Adds found information once; repeated visits remain visible in tracking.
+   *
+   * @param objectId stable interacted-object identifier
+   * @param title display title
+   * @param text displayed text
+   * @param who acting player, or null when no player is available
+   */
   public static void discover(String objectId, String title, String text, Entity who) {
     if (Game.isMultiplayerClient()) return;
     interaction(objectId, "discover", who);
     record("discovery:" + objectId, "Fundstücke", title + "\n\n" + text);
   }
 
-  /** Gives collected runes distinct titles even while their source is collapsed. */
+  /**
+   * Gives collected runes distinct titles even while their source is collapsed.
+   *
+   * @param rune collected loop rune
+   * @param who acting player, or null when no player is available
+   */
   static void discoverRune(LoopRune rune, Entity who) {
     String type = rune.program().type().name().toLowerCase(java.util.Locale.ROOT).replace('_', '-');
     discover(
@@ -175,7 +234,11 @@ public final class ProgrammingProgress {
     }
   }
 
-  /** Serializes only public entries; private notes travel in the requesting player's dialog. */
+  /**
+   * Serializes only public entries; private notes travel in the requesting player's dialog.
+   *
+   * @return serialized public journal entries
+   */
   public static String publicJournal() {
     List<JournalEntry> entries =
         QuestLogUtil.getQuestLogComponent().stream()
@@ -196,7 +259,11 @@ public final class ProgrammingProgress {
     return JSON.writeValueAsString(entries);
   }
 
-  /** Restores the synchronized public journal even before its carrier entity has spawned. */
+  /**
+   * Restores the synchronized public journal even before its carrier entity has spawned.
+   *
+   * @param serialized public journal JSON received from the host
+   */
   public static void receiveJournal(String serialized) {
     if (!Game.isMultiplayerClient()) return;
     QuestLogComponent log = new QuestLogComponent();
@@ -211,7 +278,15 @@ public final class ProgrammingProgress {
     QuestLogUtil.setClientQuestLog(journal);
   }
 
-  /** Public journal wire representation. */
+  /**
+   * Public journal wire representation.
+   *
+   * @param tab journal tab name
+   * @param text displayed text
+   * @param timestamp game tick when the entry was created
+   * @param userCreated whether a player wrote the entry
+   * @param owner journal entry owner
+   */
   public record JournalEntry(
       String tab, String text, int timestamp, boolean userCreated, String owner) {}
 }

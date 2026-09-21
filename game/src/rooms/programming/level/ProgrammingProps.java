@@ -95,7 +95,11 @@ final class ProgrammingProps {
             });
   }
 
-  /** All room torches use the same server-owned interaction and synchronized flame state. */
+  /**
+   * All room torches use the same server-owned interaction and synchronized flame state.
+   *
+   * @param torch torch to equip with the shared toggle interaction
+   */
   static void switchableTorch(Entity torch) {
     torch.add(new InteractionComponent(new Interaction(ProgrammingProps::toggleTorch)));
   }
@@ -109,7 +113,11 @@ final class ProgrammingProps {
     if (blackout()) ProgrammingAchievements.BLACKOUT.unlock(who);
   }
 
-  /** Every room torch must explicitly be off; an empty world is not a blackout. */
+  /**
+   * Every room torch must explicitly be off; an empty world is not a blackout.
+   *
+   * @return whether at least one torch exists and all room torches are off
+   */
   static boolean blackout() {
     var torches =
         Game.levelEntities()

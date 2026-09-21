@@ -248,7 +248,13 @@ final class ProgrammingWorkshopWorld {
     return entity;
   }
 
-  /** Places the atlas's low stone plinth without stretching its pixel proportions. */
+  /**
+   * Places the atlas's low stone plinth without stretching its pixel proportions.
+   *
+   * @param name local name used to identify the plinth entity
+   * @param at world position of the plinth
+   * @param scale uniform sprite scale
+   */
   private static void stone(String name, Point at, float scale) {
     Entity entity = new Entity("programming-methods-" + name);
     PositionComponent position = new PositionComponent(at);
@@ -263,7 +269,14 @@ final class ProgrammingWorkshopWorld {
     Game.add(entity);
   }
 
-  /** Performs an action on the nearest reachable object, independent of the original route. */
+  /**
+   * Performs an action on the nearest reachable object, independent of the original route.
+   *
+   * @param action physical action to perform
+   * @param position Nox's current world position
+   * @param amount requested crystal count
+   * @return observed success, feedback and collected crystal count
+   */
   static ActionResult perform(MethodsRoute.Action action, Point position, int amount) {
     Optional<Integer> target = stationAt(action, position);
     if (target.isEmpty()) return new ActionResult(false, "Kein passendes Objekt in Reichweite.", 0);
@@ -307,7 +320,13 @@ final class ProgrammingWorkshopWorld {
     return new ActionResult(true, "", amount);
   }
 
-  /** Reach is measured from each object's working position at Nox's hands and feet. */
+  /**
+   * Reach is measured from each object's working position at Nox's hands and feet.
+   *
+   * @param action physical action to perform
+   * @param position Nox's current world position
+   * @return nearest compatible station index within reach, or empty
+   */
   static Optional<Integer> stationAt(MethodsRoute.Action action, Point position) {
     MethodsRoute.Kind kind =
         switch (action) {

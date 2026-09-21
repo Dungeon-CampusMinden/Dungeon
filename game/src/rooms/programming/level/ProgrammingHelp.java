@@ -25,11 +25,27 @@ public final class ProgrammingHelp {
   private final Map<String, Progress> puzzles = new LinkedHashMap<>();
   private final List<ReleasedHint> history = new ArrayList<>();
 
-  /** A previously requested hint remains readable after its puzzle is complete. */
+  /**
+   * A previously requested hint remains readable after its puzzle is complete.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param title display title
+   * @param step released hint stage, starting at one
+   * @param text displayed text
+   */
   public record ReleasedHint(String puzzleId, String title, int step, String text) {}
 
   /**
    * Immutable snapshot; eligibility is room-wide, with player permission checked on each action.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param title display title
+   * @param goal current puzzle objective
+   * @param history previously released hints
+   * @param level number of released hint stages
+   * @param canRequest whether another hint can be requested
+   * @param canSolve whether the automatic solution is available
+   * @param status current help availability message
    */
   public record State(
       String puzzleId,
@@ -40,6 +56,18 @@ public final class ProgrammingHelp {
       boolean canRequest,
       boolean canSolve,
       String status) {
+    /**
+     * Copies the released hints so later requests cannot change this snapshot.
+     *
+     * @param puzzleId stable room-local puzzle identifier
+     * @param title display title
+     * @param goal current puzzle objective
+     * @param history previously released hints
+     * @param level number of released hint stages
+     * @param canRequest whether another hint can be requested
+     * @param canSolve whether the automatic solution is available
+     * @param status current help availability message
+     */
     public State {
       history = List.copyOf(history);
     }
@@ -198,7 +226,11 @@ public final class ProgrammingHelp {
           });
   }
 
-  /** Current authoritative state on the host, or the most recent client snapshot. */
+  /**
+   * Current authoritative state on the host, or the most recent client snapshot.
+   *
+   * @return current help snapshot, or empty when no host or client snapshot is available
+   */
   public static Optional<State> state() {
     return Game.currentLevel()
         .filter(ProgrammingLevel.class::isInstance)
@@ -209,14 +241,26 @@ public final class ProgrammingHelp {
         .or(() -> Optional.ofNullable(received));
   }
 
+  /**
+   * Serializes a help snapshot for dialog synchronization.
+   *
+   * @param state authoritative help snapshot
+   * @return help snapshot as JSON
+   */
   public static String encode(State state) {
     return JSON.writeValueAsString(state);
   }
 
+  /**
+   * Stores the latest help snapshot received from the host.
+   *
+   * @param value serialized help snapshot
+   */
   public static void receive(String value) {
     received = JSON.readValue(value, State.class);
   }
 
+  /** Clears the cached client help snapshot. */
   public static void reset() {
     received = null;
   }
@@ -224,6 +268,12 @@ public final class ProgrammingHelp {
   /** Used only for an explicitly released simplification or a confirmed solve. */
   private static final Map<Integer, String> RECOMMENDED_RUNES = new java.util.HashMap<>();
 
+  /**
+   * Finds a rune that solves the requested cellar checkpoint.
+   *
+   * @param checkpoint zero-based cellar checkpoint
+   * @return identifier of a rune verified by the loop interpreter
+   */
   public static String recommendedRune(int checkpoint) {
     return RECOMMENDED_RUNES.computeIfAbsent(checkpoint, ProgrammingHelp::findRecommendedRune);
   }

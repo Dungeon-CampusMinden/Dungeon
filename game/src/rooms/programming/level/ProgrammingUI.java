@@ -54,7 +54,13 @@ final class ProgrammingUI {
     return label;
   }
 
-  /** Syntax colors share the same zoom-aware typography as ordinary canvas labels. */
+  /**
+   * Syntax colors share the same zoom-aware typography as ordinary canvas labels.
+   *
+   * @param text displayed text
+   * @param size base font size before zoom
+   * @return wrapped, non-interactive label supporting syntax colors and zoom
+   */
   static Label zoomSyntaxLabel(String text, int size) {
     Label label = new ZoomLabel(text, size, Color.WHITE, Scene2dElementFactory.FONT_PATH, true);
     label.setWrap(true);

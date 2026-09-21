@@ -37,7 +37,14 @@ public final class MethodsWorkshop {
     STOP
   }
 
-  /** Revision and room phase identify the exact authoritative snapshot being edited. */
+  /**
+   * Revision and room phase identify the exact authoritative snapshot being edited.
+   *
+   * @param revision authoritative snapshot revision
+   * @param stage room phase of the snapshot
+   * @param operation requested editor operation
+   * @param value operation-specific payload
+   */
   public record Intent(long revision, int stage, Operation operation, String value) {}
 
   /** Controls how a returned or assigned value is written to its target variable. */
@@ -59,6 +66,14 @@ public final class MethodsWorkshop {
 
   /**
    * A draggable statement: operand is an expression; target receives assignment or call results.
+   *
+   * @param id stable block identifier
+   * @param action instruction performed by this block
+   * @param operand statement expression
+   * @param target variable receiving the result
+   * @param method called method name
+   * @param arguments argument expressions in parameter order
+   * @param mode how the result updates the target variable
    */
   public record Block(
       String id,
@@ -68,20 +83,48 @@ public final class MethodsWorkshop {
       String method,
       List<String> arguments,
       ResultMode mode) {
+    /**
+     * Copies call arguments and requires an explicit result mode.
+     *
+     * @param id stable block identifier
+     * @param action instruction performed by this block
+     * @param operand statement expression
+     * @param target variable receiving the result
+     * @param method called method name
+     * @param arguments argument expressions in parameter order
+     * @param mode how the result updates the target variable
+     */
     public Block {
       arguments = List.copyOf(arguments);
       Objects.requireNonNull(mode);
     }
   }
 
-  /** Detached editable or built body with its own parameter and local-variable scope. */
+  /**
+   * Detached editable or built body with its own parameter and local-variable scope.
+   *
+   * @param name method name
+   * @param parameters parameter names in call order
+   * @param body ordered method statements
+   */
   public record Definition(String name, List<String> parameters, List<Block> body) {
+    /**
+     * Copies parameter names and statements into an immutable definition.
+     *
+     * @param name method name
+     * @param parameters parameter names in call order
+     * @param body ordered method statements
+     */
     public Definition {
       parameters = List.copyOf(parameters);
       body = List.copyOf(body);
     }
 
-    /** Every statement after the first unconditional return is unreachable. */
+    /**
+     * Every statement after the first unconditional return is unreachable.
+     *
+     * @return unreachable block identifiers mapped to their error messages
+     */
     public Map<String, String> unreachableBlocks() {
       Map<String, String> errors = new LinkedHashMap<>();
       int returnLine = 0;
@@ -99,6 +142,11 @@ public final class MethodsWorkshop {
 
   /**
    * JSON payload for block moves, insertion and replacement; containers are main, draft or scrap.
+   *
+   * @param id stable block identifier
+   * @param container destination container: main, draft or scrap
+   * @param index destination insertion index
+   * @param block statement inserted or used as replacement
    */
   public record Edit(String id, String container, int index, Block block) {}
 
@@ -119,10 +167,40 @@ public final class MethodsWorkshop {
     PENDING
   }
 
-  /** One visible condition for opening the exit. */
+  /**
+   * One visible condition for opening the exit.
+   *
+   * @param status evaluation status of this condition
+   * @param message condition description shown to the player
+   */
   public record Check(CheckStatus status, String message) {}
 
-  /** Immutable editor snapshot, interpreter observations and visible control-rune criteria. */
+  /**
+   * Immutable editor snapshot, interpreter observations and visible control-rune criteria.
+   *
+   * @param stage room phase of the snapshot
+   * @param revision authoritative snapshot revision
+   * @param editorId owning player entity ID, or -1 when unclaimed
+   * @param crystals current value of the kristalle variable
+   * @param errors number of execution failures
+   * @param busy whether the interpreter is running
+   * @param completed whether every completion condition passed
+   * @param main connected main-program blocks
+   * @param scrap detached statement blocks
+   * @param draft method currently being edited
+   * @param definitions built methods indexed by name
+   * @param feedback latest editor or execution feedback
+   * @param blockErrors feedback indexed by block identifier
+   * @param trace physical actions produced by the interpreter
+   * @param activeStep index of the current physical action in the trace
+   * @param variables variables visible in the current interpreter frame
+   * @param compact whether the main program satisfies the block limit
+   * @param parameterReuse whether a parameterized method was called repeatedly
+   * @param returnedValueUsed whether a caller used a returned value
+   * @param worldSolved whether all physical workstations are complete
+   * @param runState current execution outcome
+   * @param remainingCrystals crystals still carried by Nox
+   */
   public record State(
       int stage,
       long revision,
@@ -146,6 +224,32 @@ public final class MethodsWorkshop {
       boolean worldSolved,
       RunState runState,
       int remainingCrystals) {
+    /**
+     * Copies editor collections and interpreter observations into an immutable snapshot.
+     *
+     * @param stage room phase of the snapshot
+     * @param revision authoritative snapshot revision
+     * @param editorId owning player entity ID, or -1 when unclaimed
+     * @param crystals current value of the kristalle variable
+     * @param errors number of execution failures
+     * @param busy whether the interpreter is running
+     * @param completed whether every completion condition passed
+     * @param main connected main-program blocks
+     * @param scrap detached statement blocks
+     * @param draft method currently being edited
+     * @param definitions built methods indexed by name
+     * @param feedback latest editor or execution feedback
+     * @param blockErrors feedback indexed by block identifier
+     * @param trace physical actions produced by the interpreter
+     * @param activeStep index of the current physical action in the trace
+     * @param variables variables visible in the current interpreter frame
+     * @param compact whether the main program satisfies the block limit
+     * @param parameterReuse whether a parameterized method was called repeatedly
+     * @param returnedValueUsed whether a caller used a returned value
+     * @param worldSolved whether all physical workstations are complete
+     * @param runState current execution outcome
+     * @param remainingCrystals crystals still carried by Nox
+     */
     public State {
       main = List.copyOf(main);
       scrap = List.copyOf(scrap);
@@ -155,7 +259,11 @@ public final class MethodsWorkshop {
       variables = Map.copyOf(variables);
     }
 
-    /** Uses the same six conditions for the completion decision and the player's checklist. */
+    /**
+     * Uses the same six conditions for the completion decision and the player's checklist.
+     *
+     * @return the six completion conditions with their current status
+     */
     public List<Check> checks() {
       boolean evaluated = runState == RunState.FINISHED;
       return List.of(
@@ -201,7 +309,11 @@ public final class MethodsWorkshop {
                   : "Verwende einen Rückgabewert in einer Zuweisung oder einem Ausdruck."));
     }
 
-    /** Short, explicit outcome shared by the canvas and observation view. */
+    /**
+     * Short, explicit outcome shared by the canvas and observation view.
+     *
+     * @return localized summary of the current execution outcome
+     */
     public String resultTitle() {
       return switch (runState) {
         case NOT_RUN -> "Noch nicht geprüft";
@@ -270,7 +382,11 @@ public final class MethodsWorkshop {
     mainVariables.put("kristalle", "0");
   }
 
-  /** Immutable starting program, also used by the editor's read-only reference view. */
+  /**
+   * Immutable starting program, also used by the editor's read-only reference view.
+   *
+   * @return immutable expanded starting program
+   */
   public static List<Block> originalProgram() {
     var original = new ArrayList<Block>();
     int id = 0;
@@ -311,7 +427,12 @@ public final class MethodsWorkshop {
     return List.copyOf(original);
   }
 
-  /** Loads the offered example through the same validated edits and builds as the workbench. */
+  /**
+   * Loads the offered example through the same validated edits and builds as the workbench.
+   *
+   * @param actor acting player entity ID
+   * @return whether the example was built and loaded successfully
+   */
   public boolean loadHelpSolution(int actor) {
     if (editorId != actor || busy || completed) return false;
     MethodsWorkshop example = new MethodsWorkshop();
@@ -426,7 +547,11 @@ public final class MethodsWorkshop {
     return apply(actor, new Intent(revision, 0, operation, value));
   }
 
-  /** Returns a snapshot; current-frame variables reveal parameter bindings during execution. */
+  /**
+   * Returns a snapshot; current-frame variables reveal parameter bindings during execution.
+   *
+   * @return immutable editor and interpreter snapshot
+   */
   public State state() {
     return new State(
         0,
@@ -461,7 +586,13 @@ public final class MethodsWorkshop {
         && i.value() != null;
   }
 
-  /** Applies current edits only for the owner. Invalid content is acknowledged with feedback. */
+  /**
+   * Applies current edits only for the owner. Invalid content is acknowledged with feedback.
+   *
+   * @param actor acting player entity ID
+   * @param intent requested operation and its snapshot version
+   * @return whether the intent was accepted, including edits rejected with feedback
+   */
   public boolean apply(int actor, Intent intent) {
     if (!current(intent)) return false;
     if (intent.operation() == Operation.CLAIM) {
@@ -720,6 +851,9 @@ public final class MethodsWorkshop {
 
   /**
    * Releases the editor on close, disconnect or departure without interrupting a running program.
+   *
+   * @param actor acting player entity ID
+   * @return whether the actor owned and released the editor
    */
   public boolean releaseEditor(int actor) {
     if (editorId != actor) return false;
@@ -730,6 +864,10 @@ public final class MethodsWorkshop {
 
   /**
    * Starts a fresh interpreter; the runtime must reset all physical objects before asking next().
+   *
+   * @param actor acting player entity ID
+   * @param intent requested operation and its snapshot version
+   * @return whether a fresh execution was started
    */
   public boolean execute(int actor, Intent intent) {
     if (!current(intent) || editorId != actor || busy || intent.operation() != Operation.EXECUTE)
@@ -756,7 +894,11 @@ public final class MethodsWorkshop {
     return true;
   }
 
-  /** Produces one physical action; variables and calls are interpreted only when reached. */
+  /**
+   * Produces one physical action; variables and calls are interpreted only when reached.
+   *
+   * @return next physical action, or empty when none is ready
+   */
   public Optional<Step> next() {
     if (!busy || pending != null) return Optional.empty();
     try {
@@ -832,7 +974,13 @@ public final class MethodsWorkshop {
     return Optional.empty();
   }
 
-  /** Delivers the observed physical result, notably the actual collection count, to this scope. */
+  /**
+   * Delivers the observed physical result, notably the actual collection count, to this scope.
+   *
+   * @param success whether the physical action succeeded
+   * @param value actual crystal count returned by the physical action
+   * @param reason failure message shown to the player
+   */
   public void actionResult(boolean success, int value, String reason) {
     if (!busy || pending == null) return;
     if (!success) {
@@ -880,12 +1028,21 @@ public final class MethodsWorkshop {
     return arguments;
   }
 
-  /** True after the main program has returned and all physical actions have completed. */
+  /**
+   * True after the main program has returned and all physical actions have completed.
+   *
+   * @return whether execution is awaiting final world evaluation
+   */
   public boolean exhausted() {
     return busy && pending == null && stack.isEmpty();
   }
 
-  /** Evaluates the visible goal against observed world state after normal program termination. */
+  /**
+   * Evaluates the visible goal against observed world state after normal program termination.
+   *
+   * @param solved whether all physical workstations are complete
+   * @param inventory crystals still carried by Nox
+   */
   public void finish(boolean solved, int inventory) {
     if (!exhausted()) return;
     worldSolved = solved;
@@ -906,7 +1063,11 @@ public final class MethodsWorkshop {
     revision++;
   }
 
-  /** Keeps the last trace and physical effects visible after a runtime error. */
+  /**
+   * Keeps the last trace and physical effects visible after a runtime error.
+   *
+   * @param reason failure message shown to the player
+   */
   public void fail(String reason) {
     busy = false;
     runState = RunState.FAILED;
@@ -917,7 +1078,13 @@ public final class MethodsWorkshop {
     revision++;
   }
 
-  /** Accepts stop snapshots from this run despite progress; the runtime also cancels movement. */
+  /**
+   * Accepts stop snapshots from this run despite progress; the runtime also cancels movement.
+   *
+   * @param actor acting player entity ID
+   * @param intent requested operation and its snapshot version
+   * @return whether the stop request was accepted
+   */
   public boolean stop(int actor, Intent intent) {
     if (intent == null
         || editorId != actor
@@ -1124,7 +1291,12 @@ public final class MethodsWorkshop {
     }
   }
 
-  /** Renders the actual editable statement, including arguments and result assignment. */
+  /**
+   * Renders the actual editable statement, including arguments and result assignment.
+   *
+   * @param b statement to render
+   * @return source text for the statement
+   */
   public static String blockSource(Block b) {
     return switch (b.action()) {
       case MOVE -> "GEHE(" + b.operand() + ")";
@@ -1144,7 +1316,12 @@ public final class MethodsWorkshop {
     };
   }
 
-  /** Renders a method signature and its stored body. */
+  /**
+   * Renders a method signature and its stored body.
+   *
+   * @param d method definition to render
+   * @return method signature and body as source lines
+   */
   public static List<String> definitionSource(Definition d) {
     var lines = new ArrayList<String>();
     lines.add(d.name() + "(" + String.join(", ", d.parameters()) + ") {");
