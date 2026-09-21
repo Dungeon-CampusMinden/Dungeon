@@ -246,9 +246,25 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
       meta.applyServerFeedback(feedback);
       return;
     }
+    if (SortProgramTab.KEY.equals(feedback.targetTabKey())
+        && tabs.get(SortProgramTab.KEY) instanceof SortProgramTab sort) {
+      sort.applyServerFeedback(feedback, feedback.successful() ? this::closeAfterProgramWrite : null);
+      return;
+    }
+    if (SearchProgramTab.KEY.equals(feedback.targetTabKey())
+        && tabs.get(SearchProgramTab.KEY) instanceof SearchProgramTab search) {
+      search.applyServerFeedback(
+          feedback, feedback.successful() ? this::closeAfterProgramWrite : null);
+      return;
+    }
     if (tabs.get(TerminalTab.KEY) instanceof TerminalTab terminal) {
       terminal.applyServerFeedback(feedback);
     }
+  }
+
+  private void closeAfterProgramWrite() {
+    DialogCallbackResolver.createButtonCallback(context.dialogId(), DialogContextKeys.ON_CLOSE)
+        .accept(null);
   }
 
   private static boolean isTransportStorageState() {

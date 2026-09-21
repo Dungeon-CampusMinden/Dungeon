@@ -1,13 +1,14 @@
 package rooms.systemRecovery.modules.computer.content;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.systemRecovery.SystemRecovery;
@@ -19,11 +20,15 @@ import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 /** Editor shown while an empty sort-program stick is inserted into the computer. */
 public final class SortProgramTab extends SystemRecoveryComputerTab {
 
+  /** Stable tab key used by server feedback routing. */
+  public static final String KEY = "sort-program";
+
   private static final String INITIAL_SOURCE = SystemRecoveryText.text("computer.sort-template");
+  private ProgramWriteStatus writeStatus;
 
   /** Creates the sort-program editor tab. */
   public SortProgramTab() {
-    super("sort-program", SystemRecoveryText.text("computer.sort-tab"));
+    super(KEY, SystemRecoveryText.text("computer.sort-tab"));
     createActors();
   }
 
@@ -38,18 +43,19 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
     editor.setPrefRows(14);
     layout.add(editor).grow().padTop(12).row();
 
-    Label feedback = createLabel("", 18);
-    layout.add(feedback).left().padTop(10).row();
+    writeStatus = new ProgramWriteStatus();
+    layout.add(writeStatus).growX().left().padTop(10).row();
 
     TextButton save = createButton(SystemRecoveryText.text("computer.save-sort"), "green", 24);
     save.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
+            String source = editor.getText();
+            beginWrite(source);
             DialogCallbackResolver.createButtonCallback(
                     context().dialogId(), SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE)
-                .accept(new DialogResponseMessage.StringValue(editor.getText()));
-            feedback.setText(SystemRecoveryText.text("computer.saving"));
+                .accept(new DialogResponseMessage.StringValue(source));
           }
         });
     Table actions = new Table(skin);
@@ -61,12 +67,11 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
           new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+              String source = TerminalInterpreterSetup.bubbleSortDebugSource();
+              beginWrite(source);
               DialogCallbackResolver.createButtonCallback(
                       context().dialogId(), SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE)
-                  .accept(
-                      new DialogResponseMessage.StringValue(
-                          TerminalInterpreterSetup.bubbleSortDebugSource()));
-              feedback.setText(SystemRecoveryText.text("computer.saving"));
+                  .accept(new DialogResponseMessage.StringValue(source));
             }
           });
       actions.add(solve).width(180).height(52).padRight(12);
@@ -74,5 +79,14 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
     actions.add(save).width(220).height(52);
     layout.add(actions).right().padTop(12);
     add(layout).grow();
+  }
+
+  private void beginWrite(String source) {
+    writeStatus.begin(source);
+  }
+
+  /** Applies the authoritative write result without opening a modal popup. */
+  public void applyServerFeedback(DialogFeedbackMessage serverFeedback, Runnable onSuccess) {
+    writeStatus.apply(serverFeedback, onSuccess);
   }
 }

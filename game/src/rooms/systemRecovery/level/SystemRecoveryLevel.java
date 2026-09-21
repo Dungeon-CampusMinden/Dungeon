@@ -362,6 +362,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Stops ECHO's ringing and records the first terminal task after the call is finished. */
   private void finishEchoCall() {
     String completedCallKey = ringingCallKey;
+    if (completedCallKey == null) return;
     phoneRinging = false;
     ringingCallKey = null;
     updatePhoneInteraction();
@@ -379,11 +380,26 @@ public class SystemRecoveryLevel extends DungeonLevel {
     } else if ("data-storage-problem".equals(completedCallKey)) {
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle5", "data-storage-problem", "echo", "data-storage-problem");
+      openDataStorageAfterEchoCall();
     } else if ("final-call".equals(completedCallKey)) {
       SystemRecoveryQuestLogUtil.addDialogEntry("riddle10", "final-call", "echo", "final-call");
       openElevatorAfterFinalCall();
     } else {
       SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "opening-call", "echo", "opening-call");
+    }
+  }
+
+  /** Opens the data-storage room only after the player has answered ECHO's warning call. */
+  private void openDataStorageAfterEchoCall() {
+    if (SystemRecoveryProgressNet.activeStep().orElse(null)
+        != SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN) {
+      return;
+    }
+
+    DoorTile storageDoor = (DoorTile) tileAt(point("door_datenspeicher")).orElseThrow();
+    storageDoor.open();
+    if (storageDoor.isOpen()) {
+      SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN);
     }
   }
 

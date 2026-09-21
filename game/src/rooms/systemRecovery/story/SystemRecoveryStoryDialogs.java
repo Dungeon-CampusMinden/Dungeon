@@ -58,6 +58,10 @@ public final class SystemRecoveryStoryDialogs {
   /** The physical scanner action after its code has been accepted. */
   public static final StoryStep SCANNER_LEVER = step("scanner-lever", "riddle3", "scan");
 
+  /** AXIOM's transition message after the inventory scan points to the transport storage. */
+  public static final StoryStep SCANNER_COMPLETE =
+      axiomStep("scanner-complete", "riddle3", "transport");
+
   /** AXIOM's instruction to restore the package profile in the transport storage. */
   public static final StoryStep PACKAGES_ARRAY = axiomStep("packages-array", "riddle4", "array");
 

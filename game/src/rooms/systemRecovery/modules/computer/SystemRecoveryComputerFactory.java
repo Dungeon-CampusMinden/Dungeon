@@ -21,6 +21,8 @@ import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
+import rooms.systemRecovery.modules.computer.content.SortProgramTab;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -233,16 +235,35 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
-          if (chipSession.resolved()) return;
+          if (chipSession.resolved()) {
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SortProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.write-unavailable",
+                false);
+            return;
+          }
           if (programKind != ComputerProgramKind.SORT) {
-            showActionUnavailable(
-                targetEntityId, SystemRecoveryPuzzle.BUBBLE_SORT, "computer.sort-tab");
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SortProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.write-unavailable",
+                false);
             return;
           }
           if (!ComputerProgramRules.canSave(
               programKind, SystemRecoveryProgressNet.activeStep().orElse(null))) {
-            showActionUnavailable(
-                targetEntityId, SystemRecoveryPuzzle.BUBBLE_SORT, "computer.sort-tab");
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SortProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.write-unavailable",
+                false);
             return;
           }
           if (!isBubbleSortCondition(source)) {
@@ -253,10 +274,13 @@ public final class SystemRecoveryComputerFactory {
                 source,
                 false,
                 targetEntityId);
-            DialogUtils.showTextPopup(
-                SystemRecoveryText.key("computer.sort-invalid"),
-                SystemRecoveryText.key("computer.sort-tab"),
-                targetEntityId);
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SortProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.sort-write-error",
+                false);
             return;
           }
           chipSession.resolve(
@@ -270,10 +294,13 @@ public final class SystemRecoveryComputerFactory {
                       source,
                       false,
                       targetEntityId);
-                  DialogUtils.showTextPopup(
-                      SystemRecoveryText.key("computer.action-unavailable"),
-                      SystemRecoveryText.key("computer.sort-tab"),
-                      targetEntityId);
+                  SystemRecoveryComputerFeedback.send(
+                      ui.dialogContext().dialogId(),
+                      SortProgramTab.KEY,
+                      source,
+                      targetEntityId,
+                      "computer.write-unavailable",
+                      false);
                   return false;
                 }
                 if (!SystemRecoveryProgressNet.complete(
@@ -286,10 +313,13 @@ public final class SystemRecoveryComputerFactory {
                       source,
                       false,
                       targetEntityId);
-                  DialogUtils.showTextPopup(
-                      SystemRecoveryText.key("computer.action-unavailable"),
-                      SystemRecoveryText.key("computer.sort-tab"),
-                      targetEntityId);
+                  SystemRecoveryComputerFeedback.send(
+                      ui.dialogContext().dialogId(),
+                      SortProgramTab.KEY,
+                      source,
+                      targetEntityId,
+                      "computer.write-unavailable",
+                      false);
                   return false;
                 }
                 SystemRecoveryPuzzleEvents.attempt(
@@ -299,10 +329,13 @@ public final class SystemRecoveryComputerFactory {
                     source,
                     true,
                     targetEntityId);
-                DialogUtils.showTextPopup(
-                    SystemRecoveryText.key("computer.sort-saved"),
-                    SystemRecoveryText.key("computer.sort-tab"),
-                    targetEntityId);
+                SystemRecoveryComputerFeedback.send(
+                    ui.dialogContext().dialogId(),
+                    SortProgramTab.KEY,
+                    source,
+                    targetEntityId,
+                    "computer.write-success",
+                    true);
                 return true;
               });
         });
@@ -310,16 +343,35 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.SEARCH_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
-          if (chipSession.resolved()) return;
+          if (chipSession.resolved()) {
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SearchProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.write-unavailable",
+                false);
+            return;
+          }
           if (programKind != ComputerProgramKind.SEARCH) {
-            showActionUnavailable(
-                targetEntityId, SystemRecoveryPuzzle.SEARCH_ROBOT, "computer.search-tab");
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SearchProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.write-unavailable",
+                false);
             return;
           }
           if (!ComputerProgramRules.canSave(
               programKind, SystemRecoveryProgressNet.activeStep().orElse(null))) {
-            showActionUnavailable(
-                targetEntityId, SystemRecoveryPuzzle.SEARCH_ROBOT, "computer.search-tab");
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SearchProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.write-unavailable",
+                false);
             return;
           }
           if (!TerminalInterpreterSetup.matchesSearchRobotProgram(source)) {
@@ -330,10 +382,13 @@ public final class SystemRecoveryComputerFactory {
                 source,
                 false,
                 targetEntityId);
-            DialogUtils.showTextPopup(
-                SystemRecoveryText.key("computer.search-invalid"),
-                SystemRecoveryText.key("computer.search-tab"),
-                targetEntityId);
+            SystemRecoveryComputerFeedback.send(
+                ui.dialogContext().dialogId(),
+                SearchProgramTab.KEY,
+                source,
+                targetEntityId,
+                "computer.search-write-error",
+                false);
             return;
           }
           chipSession.resolve(
@@ -347,10 +402,13 @@ public final class SystemRecoveryComputerFactory {
                       source,
                       false,
                       targetEntityId);
-                  DialogUtils.showTextPopup(
-                      SystemRecoveryText.key("computer.action-unavailable"),
-                      SystemRecoveryText.key("computer.search-tab"),
-                      targetEntityId);
+                  SystemRecoveryComputerFeedback.send(
+                      ui.dialogContext().dialogId(),
+                      SearchProgramTab.KEY,
+                      source,
+                      targetEntityId,
+                      "computer.write-unavailable",
+                      false);
                   return false;
                 }
                 if (!SystemRecoveryProgressNet.complete(
@@ -363,10 +421,13 @@ public final class SystemRecoveryComputerFactory {
                       source,
                       false,
                       targetEntityId);
-                  DialogUtils.showTextPopup(
-                      SystemRecoveryText.key("computer.action-unavailable"),
-                      SystemRecoveryText.key("computer.search-tab"),
-                      targetEntityId);
+                  SystemRecoveryComputerFeedback.send(
+                      ui.dialogContext().dialogId(),
+                      SearchProgramTab.KEY,
+                      source,
+                      targetEntityId,
+                      "computer.write-unavailable",
+                      false);
                   return false;
                 }
                 SystemRecoveryPuzzleEvents.attempt(
@@ -376,10 +437,13 @@ public final class SystemRecoveryComputerFactory {
                     source,
                     true,
                     targetEntityId);
-                DialogUtils.showTextPopup(
-                    SystemRecoveryText.key("computer.search-saved"),
-                    SystemRecoveryText.key("computer.search-tab"),
-                    targetEntityId);
+                SystemRecoveryComputerFeedback.send(
+                    ui.dialogContext().dialogId(),
+                    SearchProgramTab.KEY,
+                    source,
+                    targetEntityId,
+                    "computer.write-success",
+                    true);
                 return true;
               });
         });

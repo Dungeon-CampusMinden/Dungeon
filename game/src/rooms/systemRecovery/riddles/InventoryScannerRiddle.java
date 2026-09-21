@@ -18,10 +18,12 @@ import feature.utils.ICommand;
 import java.util.List;
 import rooms.systemRecovery.entities.ScannerEntityFactory;
 import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
@@ -178,6 +180,7 @@ public final class InventoryScannerRiddle {
             "world.scanner.display-complete",
             ModuleStorageRiddle.MODULE_CAPACITY,
             ModuleStorageRiddle.OCCUPIED_MODULE_COUNT));
+    SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.SCANNER_COMPLETE);
   }
 
   private void setupTransportStorageKeypad() {
