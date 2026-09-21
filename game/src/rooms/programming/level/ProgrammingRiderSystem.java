@@ -104,7 +104,7 @@ final class ProgrammingRiderSystem extends System {
 
   private static Vector2 saddle(Direction direction) {
     return switch (direction) {
-      case LEFT -> Vector2.of(.6f, 3.25f);
+      case LEFT -> Vector2.of(-.4f, 3.25f);
       case RIGHT -> Vector2.of(-.5f, 3.25f);
       case UP -> Vector2.of(.05f, 2.8f);
       default -> Vector2.of(.05f, 3.6f);
