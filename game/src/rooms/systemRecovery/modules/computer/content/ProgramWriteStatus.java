@@ -10,8 +10,8 @@ import engine.Game;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.sound.SoundSpec;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.dialogs.DialogFeedbackFingerprint;
 import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogFeedbackFingerprint;
 import java.util.Objects;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -50,7 +50,11 @@ final class ProgramWriteStatus extends Table {
     progress.setVisible(false);
   }
 
-  /** Starts the visible write phase before the request is sent to the authoritative server. */
+  /**
+   * Starts the visible write phase before the request is sent to the authoritative server.
+   *
+   * @param source program source submitted to the server
+   */
   void begin(String source) {
     submittedFingerprint = DialogFeedbackFingerprint.of(source);
     pendingFeedback = null;
@@ -72,7 +76,12 @@ final class ProgramWriteStatus extends Table {
                 })));
   }
 
-  /** Applies a server result after the minimum visible write duration has elapsed. */
+  /**
+   * Applies a server result after the minimum visible write duration has elapsed.
+   *
+   * @param serverFeedback authoritative write result
+   * @param onSuccess action to run after a successful write animation
+   */
   void apply(DialogFeedbackMessage serverFeedback, Runnable onSuccess) {
     Objects.requireNonNull(serverFeedback, "serverFeedback");
     if (!serverFeedback.sourceFingerprint().isEmpty()
@@ -101,8 +110,7 @@ final class ProgramWriteStatus extends Table {
       Runnable closeDialog = successAction;
       successAction = () -> {};
       progress.addAction(
-          Actions.sequence(
-              Actions.delay(SUCCESS_VISIBLE_SECONDS), Actions.run(closeDialog)));
+          Actions.sequence(Actions.delay(SUCCESS_VISIBLE_SECONDS), Actions.run(closeDialog)));
       return;
     }
 

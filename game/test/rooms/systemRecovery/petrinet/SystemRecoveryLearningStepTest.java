@@ -15,15 +15,15 @@ import rooms.systemRecovery.util.interpreter.TerminalStep;
 class SystemRecoveryLearningStepTest {
 
   @Test
-  void listsTwentySevenLearningStepsAndOneTerminalMarkerInOrder() {
+  void listsTwentyEightLearningStepsAndOneTerminalMarkerInOrder() {
     SystemRecoveryLearningStep[] steps = SystemRecoveryLearningStep.values();
 
-    assertEquals(28, steps.length);
+    assertEquals(29, steps.length);
     assertEquals(SystemRecoveryLearningStep.ENERGY_ARRAY, steps[0]);
-    assertEquals(SystemRecoveryLearningStep.CORE_META, steps[26]);
-    assertEquals(SystemRecoveryLearningStep.COMPLETE, steps[27]);
+    assertEquals(SystemRecoveryLearningStep.CORE_META, steps[27]);
+    assertEquals(SystemRecoveryLearningStep.COMPLETE, steps[28]);
     assertTrue(
-        Arrays.stream(steps).filter(SystemRecoveryLearningStep::isLearningStep).count() == 27);
+        Arrays.stream(steps).filter(SystemRecoveryLearningStep::isLearningStep).count() == 28);
   }
 
   @Test
@@ -52,7 +52,7 @@ class SystemRecoveryLearningStepTest {
             .map(SystemRecoveryLearningStep::hintKey)
             .collect(Collectors.toSet());
 
-    assertEquals(27, keys.size());
+    assertEquals(28, keys.size());
     assertFalse(SystemRecoveryLearningStep.COMPLETE.isLearningStep());
     assertTrue(SystemRecoveryLearningStep.COMPLETE.terminalStep().isEmpty());
   }

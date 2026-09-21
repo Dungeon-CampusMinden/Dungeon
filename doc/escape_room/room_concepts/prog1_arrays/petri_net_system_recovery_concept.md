@@ -42,7 +42,7 @@ wiederhergestellt.
 | 7 Archiv | `ARCHIVE_ACCESS` -> `ARCHIVE_ARRAYS` | Archivschlüssel, danach Terminal |
 | 8 2D-Speicher | `STORAGE_ARRAY` -> `STORAGE_VALUES` | Terminalschritte |
 | 9 Suchroboter | `SEARCH_PROGRAM` -> `SEARCH_ROBOT_RUN` | programmierter Chip, danach Suchlauf |
-| 10 Systemkern | `SYSTEM_CORE_ACCESS` -> `CORE_SORT` -> `CORE_COUNT` -> `CORE_SEARCH` -> `CORE_META` -> `COMPLETE` | Zugriffsskript und vier Terminalschritte |
+| 10 Systemkern | `SYSTEM_CORE_ACCESS` -> `CORE_SORT` -> `CORE_COUNT` -> `CORE_SEARCH` -> `CORE_SEARCH_ROBOT` -> `CORE_META` -> `COMPLETE` | Zugriffsskript, drei Terminalschritte, danach ein eigener Suchroboter und die Abschlussmaske |
 
 Terminalerfolge werden in `SystemRecoveryPuzzleEvents.terminalAttempt(...)` anhand von
 `TerminalStep` eindeutig einem Place zugeordnet. Physische Aktionen nennen ihren erwarteten Place

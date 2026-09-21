@@ -26,7 +26,8 @@ public final class DialogFeedbackFingerprint {
       }
       return result.toString();
     } catch (NoSuchAlgorithmException exception) {
-      throw new IllegalStateException("SHA-256 is required for dialog response correlation", exception);
+      throw new IllegalStateException(
+          "SHA-256 is required for dialog response correlation", exception);
     }
   }
 }

@@ -84,7 +84,12 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
     writeStatus.begin(source);
   }
 
-  /** Applies the authoritative write result without opening a modal popup. */
+  /**
+   * Applies the authoritative write result without opening a modal popup.
+   *
+   * @param serverFeedback authoritative write result
+   * @param onSuccess action to run after a successful write
+   */
   public void applyServerFeedback(DialogFeedbackMessage serverFeedback, Runnable onSuccess) {
     writeStatus.apply(serverFeedback, onSuccess);
   }

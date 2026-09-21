@@ -41,6 +41,7 @@ public enum SystemRecoveryLearningStep {
   CORE_SORT("core-sort", "riddle10", "system-core", TerminalStep.CENTRAL_SORT),
   CORE_COUNT("core-count", "riddle10", "system-core", TerminalStep.CENTRAL_COUNT),
   CORE_SEARCH("core-search", "riddle10", "system-core", TerminalStep.CENTRAL_SEARCH),
+  CORE_SEARCH_ROBOT("core-search-robot", "riddle10", "system-core"),
   CORE_META("core-meta", "riddle10", "system-core", TerminalStep.SYSTEM_CORE_META),
   COMPLETE("complete", null, null);
 
@@ -100,7 +101,7 @@ public enum SystemRecoveryLearningStep {
   }
 
   /**
-   * @return whether this enum value represents one of the 27 hint-bearing tasks
+   * @return whether this enum value represents one of the 28 hint-bearing tasks
    */
   public boolean isLearningStep() {
     return this != COMPLETE;

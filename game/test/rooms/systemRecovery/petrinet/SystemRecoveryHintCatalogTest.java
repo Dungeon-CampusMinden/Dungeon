@@ -40,7 +40,7 @@ class SystemRecoveryHintCatalogTest {
         assertTrue(allHintIds.add(step.puzzleId().orElseThrow() + ":" + id), id);
       }
     }
-    assertEquals(27 * STAGES.length, allHintIds.size());
+    assertEquals(28 * STAGES.length, allHintIds.size());
   }
 
   @Test

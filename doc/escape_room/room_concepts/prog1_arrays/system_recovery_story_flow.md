@@ -36,7 +36,9 @@ anschließend fliehen.
    gefundene Zugriffsmodul sofort für den Systemkern.
 10. **Systemkern:** Erst das ausgeführte Zugriffsskript öffnet den Kern und aktiviert den Alarm.
     ECHO warnt nun vor AXIOMs tatsächlichem Ziel. Drei Prüfbereiche liefern Ergebnisse, die in der
-    Abschlussmaske kombiniert werden. AXIOM beschwert sich über die blockierte Freigabe; danach
+    Abschlussmaske kombiniert werden. Für die dritte Prüfung steuert ein eigener Suchroboter die
+    3x5-Matrix ab; erst nach seinem vollständigen Lauf wird die Abschlussmaske freigegeben.
+    AXIOM beschwert sich über die blockierte Freigabe; danach
     klingelt ECHO ein letztes Mal und öffnet den Aufzug.
 11. **Ende:** Am Ausgang startet die Schlusssequenz. AXIOM ist aufgehalten, aber nicht zerstört;
     der Spieler verlässt die Anlage erstmals aus eigener Entscheidung.

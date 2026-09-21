@@ -2,6 +2,7 @@ package rooms.systemRecovery.story;
 
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.utils.IVoidFunction;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.LevelEditorSystem;
@@ -33,30 +34,32 @@ public final class SystemRecoveryStoryDialogs {
    */
   public static final StoryStep ENERGY_BATTERY = axiomStep("energy-battery", "riddle1", "battery");
 
-  /** The next declaration for the module-storage room. */
-  public static final StoryStep MODULE_ARRAY = step("module-array", "riddle2", "array");
+  /** AXIOM's instruction to declare the module-storage array. */
+  public static final StoryStep MODULE_ARRAY = axiomStep("module-array", "riddle2", "array");
 
-  /** The module assignments after the module array exists. */
-  public static final StoryStep MODULE_VALUES = step("module-values", "riddle2", "values");
+  /** AXIOM's instruction to assign the module values. */
+  public static final StoryStep MODULE_VALUES = axiomStep("module-values", "riddle2", "values");
 
-  /** The instruction to inspect the modules after their assignments were accepted. */
+  /** AXIOM's instruction to inspect the modules after their assignments were accepted. */
   public static final StoryStep MODULE_ASSIGNMENT =
-      step("module-assignment", "riddle2", "assignment");
+      axiomStep("module-assignment", "riddle2", "assignment");
 
-  /** The diagnosis shown after the player examines the defective GPU. */
-  public static final StoryStep GPU_FAULT = step("gpu-fault", "riddle2", "gpu-fault");
+  /** AXIOM's diagnosis shown after the player examines the defective GPU. */
+  public static final StoryStep GPU_FAULT = axiomStep("gpu-fault", "riddle2", "gpu-fault");
 
-  /** The array-length read required before the scanner can be used. */
-  public static final StoryStep READ_MODULE_LENGTH = step("module-length", "riddle2", "length");
+  /** AXIOM's instruction to read the module-array length before the scanner can be used. */
+  public static final StoryStep READ_MODULE_LENGTH =
+      axiomStep("module-length", "riddle2", "length");
 
-  /** The instruction shown after the player examines the confirmed array length. */
-  public static final StoryStep OPEN_SCANNER_DOOR = step("open-scanner-door", "riddle2", "door");
+  /** AXIOM's instruction after the player examines the confirmed array length. */
+  public static final StoryStep OPEN_SCANNER_DOOR =
+      axiomStep("open-scanner-door", "riddle2", "door");
 
-  /** The counting loop for the inventory scanner. */
-  public static final StoryStep SCANNER_CODE = step("scanner-code", "riddle3", "loop");
+  /** AXIOM's instruction for the inventory-scanner counting loop. */
+  public static final StoryStep SCANNER_CODE = axiomStep("scanner-code", "riddle3", "loop");
 
-  /** The physical scanner action after its code has been accepted. */
-  public static final StoryStep SCANNER_LEVER = step("scanner-lever", "riddle3", "scan");
+  /** AXIOM's instruction for the physical scanner action after its code is accepted. */
+  public static final StoryStep SCANNER_LEVER = axiomStep("scanner-lever", "riddle3", "scan");
 
   /** AXIOM's transition message after the inventory scan points to the transport storage. */
   public static final StoryStep SCANNER_COMPLETE =
@@ -93,6 +96,14 @@ public final class SystemRecoveryStoryDialogs {
   /** AXIOM's reaction when the search robot has recovered the system-core access module. */
   public static final StoryStep ACCESS_MODULE_FOUND =
       axiomStep("access-module-found", "riddle9", "access");
+
+  /** The search robot's clumsy announcement when its scan begins. */
+  public static final StoryStep SEARCH_ROBOT_START =
+      robotStep("search-robot-start", "riddle9", "search");
+
+  /** The search robot's clumsy announcement after delivering the access module. */
+  public static final StoryStep SEARCH_ROBOT_COMPLETE =
+      robotStep("search-robot-complete", "riddle9", "search");
 
   /** ECHO's instruction for the first central-computer check. */
   public static final StoryStep CENTRAL_SORT = echoStep("central-sort", "riddle10", "sort");
@@ -137,7 +148,8 @@ public final class SystemRecoveryStoryDialogs {
           pending.step().id(),
           pending.step().speakerKey(),
           pending.step().messageKey());
-      DialogFactory.showDialogDialog(pending.step().script(), () -> {}, pending.playerId());
+      DialogFactory.showDialogDialog(
+          pending.step().script(), pending.afterClose(), pending.playerId());
     }
   }
 
@@ -148,7 +160,18 @@ public final class SystemRecoveryStoryDialogs {
    * @param playerId player receiving the instruction
    */
   public void announceForPlayer(StoryStep step, int playerId) {
-    showStepAfterDelay(step, playerId);
+    announceForPlayer(step, playerId, () -> {});
+  }
+
+  /**
+   * Queues a story step and runs an authoritative action after its dialog closes.
+   *
+   * @param step story step to announce
+   * @param playerId player receiving the instruction
+   * @param afterClose action to run after the dialog closes
+   */
+  public void announceForPlayer(StoryStep step, int playerId, IVoidFunction afterClose) {
+    showStepAfterDelay(step, playerId, afterClose);
   }
 
   /**
@@ -159,7 +182,7 @@ public final class SystemRecoveryStoryDialogs {
   public void announceToAllPlayers(StoryStep step) {
     Game.levelEntities(Set.of(PlayerComponent.class))
         .mapToInt(engine.Entity::id)
-        .forEach(playerId -> showStepAfterDelay(step, playerId));
+        .forEach(playerId -> showStepAfterDelay(step, playerId, () -> {}));
   }
 
   /** Queues the final shared story response. */
@@ -167,12 +190,16 @@ public final class SystemRecoveryStoryDialogs {
     announceToAllPlayers(COMPLETED);
   }
 
-  private void showStepAfterDelay(StoryStep step, int playerId) {
+  private void showStepAfterDelay(StoryStep step, int playerId, IVoidFunction afterClose) {
     if (step == null || playerId < 0) return;
     String key = step.id() + ":" + playerId;
     if (!shownToPlayer.add(key)) return;
     pendingDialogs.add(
-        new PendingDialog(System.currentTimeMillis() + STORY_DELAY_MS, step, playerId));
+        new PendingDialog(
+            System.currentTimeMillis() + STORY_DELAY_MS,
+            step,
+            playerId,
+            afterClose == null ? () -> {} : afterClose));
   }
 
   /**
@@ -199,16 +226,16 @@ public final class SystemRecoveryStoryDialogs {
     return targets.length == 0 || Arrays.stream(targets).anyMatch(target -> target == playerId);
   }
 
-  private static StoryStep step(String id, String riddleKey, String entryKey) {
-    return new StoryStep(id, riddleKey, entryKey, id, Speaker.STORY);
-  }
-
   private static StoryStep axiomStep(String id, String riddleKey, String entryKey) {
     return new StoryStep(id, riddleKey, entryKey, id, Speaker.AXIOM);
   }
 
   private static StoryStep echoStep(String id, String riddleKey, String entryKey) {
     return new StoryStep(id, riddleKey, entryKey, id, Speaker.ECHO);
+  }
+
+  private static StoryStep robotStep(String id, String riddleKey, String entryKey) {
+    return new StoryStep(id, riddleKey, entryKey, id, Speaker.ROBOT);
   }
 
   /**
@@ -231,25 +258,30 @@ public final class SystemRecoveryStoryDialogs {
       return switch (speaker) {
         case AXIOM -> SystemRecoveryText.axiomCall(messageKey);
         case ECHO -> SystemRecoveryText.echoCall(messageKey);
-        case STORY -> SystemRecoveryText.story(messageKey);
+        case ROBOT -> SystemRecoveryText.robotCall(messageKey);
       };
     }
 
-    /** Returns the translation key for the speaker label used by this dialog. */
+    /**
+     * Returns the translation key for the speaker label used by this dialog.
+     *
+     * @return speaker translation key
+     */
     public String speakerKey() {
       return switch (speaker) {
         case AXIOM -> "axiom";
         case ECHO -> "echo";
-        case STORY -> "speaker";
+        case ROBOT -> "search-robot";
       };
     }
   }
 
   private enum Speaker {
-    STORY,
     AXIOM,
-    ECHO
+    ECHO,
+    ROBOT
   }
 
-  private record PendingDialog(long executeAt, StoryStep step, int playerId) {}
+  private record PendingDialog(
+      long executeAt, StoryStep step, int playerId, IVoidFunction afterClose) {}
 }

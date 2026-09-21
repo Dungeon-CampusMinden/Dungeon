@@ -15,6 +15,7 @@ import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogFeedbackFingerprint;
+import java.util.Optional;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
@@ -190,13 +191,18 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   private void sendCode() {
     String source = codeText();
     lastSubmittedFingerprint = DialogFeedbackFingerprint.of(source);
-    showFeedback(SystemRecoveryText.text("computer.feedback-submitting"), LABEL_COLOR, "generic-area-depth");
+    showFeedback(
+        SystemRecoveryText.text("computer.feedback-submitting"), LABEL_COLOR, "generic-area-depth");
     DialogCallbackResolver.createButtonCallback(
             context().dialogId(), SystemRecoveryComputerCallbacks.TERMINAL_SEND)
         .accept(new DialogResponseMessage.StringValue(source));
   }
 
-  /** Applies a server response to the inline terminal status area. */
+  /**
+   * Applies a server response to the inline terminal status area.
+   *
+   * @param feedback authoritative terminal result
+   */
   public void applyServerFeedback(DialogFeedbackMessage feedback) {
     if (!feedback.sourceFingerprint().isEmpty()
         && !feedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
@@ -206,6 +212,21 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         SystemRecoveryText.text(feedback.messageKey()),
         feedback.successful() ? SUCCESS_COLOR : FAILURE_COLOR,
         feedback.successful() ? "green_square_depth_flat" : "red_square_flat");
+  }
+
+  /**
+   * Returns the source currently shown in the editor when it matches a server response.
+   *
+   * @param feedback server response to correlate
+   * @return the submitted source, or empty for a stale response
+   */
+  public Optional<String> sourceForFeedback(DialogFeedbackMessage feedback) {
+    if (feedback == null || !feedback.successful()) return Optional.empty();
+    if (!feedback.sourceFingerprint().isEmpty()
+        && !feedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
+      return Optional.empty();
+    }
+    return Optional.of(codeText());
   }
 
   private String codeText() {

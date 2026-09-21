@@ -9,6 +9,8 @@ import feature.questlog.QuestLogUtil;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /** Tests the localized story and hint entries written to the System Recovery quest log. */
 class SystemRecoveryQuestLogUtilTest {
@@ -54,26 +56,51 @@ class SystemRecoveryQuestLogUtilTest {
   void secondRiddleDialogEntriesUseTheCompleteStoryMessages() {
     SystemRecoveryQuestLogUtil.initializeQuestLog();
 
-    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-array", "speaker", "module-array");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-array", "axiom", "module-array");
     SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "module-values", "speaker", "module-values");
+        "riddle2", "module-values", "axiom", "module-values");
     SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "module-assignment", "speaker", "module-assignment");
-    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "gpu-fault", "speaker", "gpu-fault");
+        "riddle2", "module-assignment", "axiom", "module-assignment");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "gpu-fault", "axiom", "gpu-fault");
     SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "module-length", "speaker", "module-length");
+        "riddle2", "module-length", "axiom", "module-length");
     SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "open-scanner-door", "speaker", "open-scanner-door");
+        "riddle2", "open-scanner-door", "axiom", "open-scanner-door");
 
     assertEquals(
         List.of(
-            "systemRecovery.story.speaker\nsystemRecovery.story.module-array",
-            "systemRecovery.story.speaker\nsystemRecovery.story.module-values",
-            "systemRecovery.story.speaker\nsystemRecovery.story.module-assignment",
-            "systemRecovery.story.speaker\nsystemRecovery.story.gpu-fault",
-            "systemRecovery.story.speaker\nsystemRecovery.story.module-length",
-            "systemRecovery.story.speaker\nsystemRecovery.story.open-scanner-door"),
+            "systemRecovery.story.axiom\nsystemRecovery.story.module-array",
+            "systemRecovery.story.axiom\nsystemRecovery.story.module-values",
+            "systemRecovery.story.axiom\nsystemRecovery.story.module-assignment",
+            "systemRecovery.story.axiom\nsystemRecovery.story.gpu-fault",
+            "systemRecovery.story.axiom\nsystemRecovery.story.module-length",
+            "systemRecovery.story.axiom\nsystemRecovery.story.open-scanner-door"),
         entriesFor("riddle2"));
+  }
+
+  @Test
+  void acceptedSolutionIsStoredVerbatimInTheMatchingRiddleTab() {
+    SystemRecoveryQuestLogUtil.initializeQuestLog();
+    String source = "int[] eigeneEnergie = new int[5];";
+
+    SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(
+        new TerminalAttempt(TerminalStep.ENERGY_ARRAY.stateId(), source, 7));
+
+    assertEquals(
+        List.of(SystemRecoveryText.questKey("solution", source)), entriesFor("riddle1"));
+  }
+
+  @Test
+  void identicalAcceptedSolutionIsNotDuplicated() {
+    SystemRecoveryQuestLogUtil.initializeQuestLog();
+    String source = "String[] meineModule = new String[5];";
+    TerminalAttempt attempt =
+        new TerminalAttempt(TerminalStep.MODULE_ARRAY.stateId(), source, 7);
+
+    SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
+    SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
+
+    assertEquals(1, entriesFor("riddle2").size());
   }
 
   private static List<String> entriesFor(String riddleKey) {

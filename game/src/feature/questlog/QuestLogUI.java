@@ -910,13 +910,16 @@ public final class QuestLogUI {
               DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL)
                   .accept(null);
             }
-          });
+      });
       header.add(close).size(34f).right();
       detail.add(header).width(CONTENT_WIDTH).padBottom(16f).row();
 
+      Table entriesContent = new Table();
+      entriesContent.top().left();
+      entriesContent.defaults().growX();
       List<QuestLogEntryView> entries = viewData.entriesFor(selectedTab);
       if (unavailable) {
-        detail
+        entriesContent
             .add(label(trans.text(T_NOT_INITIALIZED), FONT_BODY, true))
             .width(CONTENT_WIDTH)
             .left()
@@ -924,7 +927,7 @@ public final class QuestLogUI {
             .padBottom(18f)
             .row();
       } else if (entries.isEmpty()) {
-        detail
+        entriesContent
             .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true))
             .width(CONTENT_WIDTH)
             .left()
@@ -932,10 +935,13 @@ public final class QuestLogUI {
             .padBottom(18f)
             .row();
       } else {
-        addEntryList(detail, entries);
+        addEntryList(entriesContent, entries);
       }
 
-      detail.add().growY().row();
+      ScrollPane entriesScroll = Scene2dElementFactory.createScrollPane(entriesContent, false, true);
+      entriesScroll.setOverscroll(false, false);
+      entriesScroll.setFadeScrollBars(false);
+      detail.add(entriesScroll).width(CONTENT_WIDTH).grow().left().row();
       if (!unavailable) {
         detail.add(buildFooter()).width(CONTENT_WIDTH).left().bottom();
       }

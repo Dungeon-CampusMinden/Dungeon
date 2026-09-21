@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import rooms.systemRecovery.util.interpreter.TerminalStep;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /** Tests the terminal scenario for the transport storage. */
 public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {

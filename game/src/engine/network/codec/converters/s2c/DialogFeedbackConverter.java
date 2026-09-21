@@ -6,9 +6,8 @@ import engine.network.messages.s2c.DialogFeedbackMessage;
 
 /** Converter for server-to-client live dialog feedback messages. */
 public final class DialogFeedbackConverter
-    implements
-        MessageConverter<
-            DialogFeedbackMessage, engine.network.proto.s2c.DialogFeedbackMessage> {
+    implements MessageConverter<
+        DialogFeedbackMessage, engine.network.proto.s2c.DialogFeedbackMessage> {
   private static final byte WIRE_TYPE_ID = 30;
 
   @Override
@@ -23,8 +22,7 @@ public final class DialogFeedbackConverter
   }
 
   @Override
-  public DialogFeedbackMessage fromProto(
-      engine.network.proto.s2c.DialogFeedbackMessage proto) {
+  public DialogFeedbackMessage fromProto(engine.network.proto.s2c.DialogFeedbackMessage proto) {
     return new DialogFeedbackMessage(
         proto.getDialogId(),
         proto.getTargetTabKey(),

@@ -67,7 +67,7 @@ public class TerminalInterpreterSetupTest {
         """);
     submit(
         """
-        int[] pakete = {15, 40, 20, 60, 30};
+        int[] pakete = new int[]{15, 40, 20, 60, 30};
         """);
     submit(
         """
@@ -77,9 +77,9 @@ public class TerminalInterpreterSetupTest {
         """);
     submit(
         """
-        int[] energie = {20, 50, 80};
-        String[] module = {"CPU", "GPU", "RAM"};
-        boolean[] aktiv = {true, false, true};
+        int[] energie = new int[]{20, 50, 80};
+        String[] module = new String[]{"CPU", "GPU", "RAM"};
+        boolean[] aktiv = new boolean[]{true, false, true};
         """);
     submit(
         """

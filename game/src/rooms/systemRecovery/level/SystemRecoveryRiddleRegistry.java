@@ -61,7 +61,14 @@ final class SystemRecoveryRiddleRegistry {
     switch (step) {
       case ENERGY_ARRAY -> {
         energy.spawnEnergyCrates();
-        tellPlayer(SystemRecoveryStoryDialogs.ENERGY_VALUES, attempt);
+        if (SystemRecoveryLevel.recordedInitialTerminalAttemptWasCorrect()) {
+          storyDialogs.announceForPlayer(
+              SystemRecoveryStoryDialogs.ENERGY_VALUES,
+              attempt.playerId(),
+              SystemRecoveryLevel::triggerEchoCallAfterInitialCorrectInput);
+        } else {
+          tellPlayer(SystemRecoveryStoryDialogs.ENERGY_VALUES, attempt);
+        }
       }
       case ENERGY_VALUES -> {
         energy.completeEnergyPuzzle();
@@ -113,8 +120,8 @@ final class SystemRecoveryRiddleRegistry {
         tellPlayer(SystemRecoveryStoryDialogs.CENTRAL_SEARCH, attempt);
       }
       case CENTRAL_SEARCH -> {
-        systemCore.completeMapSearch();
-        tellPlayer(SystemRecoveryStoryDialogs.CENTRAL_META, attempt);
+        systemCore.startMapSearch(
+            () -> SystemRecoveryLevel.completeSystemCoreRobotSearch(attempt.playerId()));
       }
       case SYSTEM_CORE_META -> {
         completeSystemCore.run();

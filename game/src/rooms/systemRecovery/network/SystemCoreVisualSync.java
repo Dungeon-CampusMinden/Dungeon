@@ -19,16 +19,16 @@ public final class SystemCoreVisualSync {
    */
   public static void applyAlarm(Map<String, String> metadata) {
     String alarm = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM);
-    if (alarm != null) {
-      if (Boolean.parseBoolean(alarm)) SystemRecoveryAlarm.activate();
-      else SystemRecoveryAlarm.deactivate();
-      return;
-    }
-    if (Boolean.parseBoolean(
-        metadata.getOrDefault(
-            SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS, "false"))) {
-      SystemRecoveryAlarm.activate();
-    }
+    boolean active =
+        alarm != null
+            ? Boolean.parseBoolean(alarm)
+            : Boolean.parseBoolean(
+                metadata.getOrDefault(
+                    SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS, "false"));
+
+    // The red filter is a managed scene shader and arrives through ShaderSyncSystem. Metadata is
+    // deliberately used only for the one-shot audio feedback and late-join compatibility.
+    SystemRecoveryAlarm.syncClientSound(active);
   }
 
   /**

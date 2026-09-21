@@ -58,7 +58,14 @@ public final class SystemRecoveryTerminalController {
     return interpret(source, playerId, null);
   }
 
-  /** Interprets a submission while preserving the originating dialog ID for feedback routing. */
+  /**
+   * Interprets a submission while preserving the originating dialog ID for feedback routing.
+   *
+   * @param source complete source submitted by the player
+   * @param playerId authoritative player ID
+   * @param dialogId originating dialog ID, or {@code null}
+   * @return whether the source was accepted by the interpreter
+   */
   public synchronized boolean interpret(String source, int playerId, String dialogId) {
     int state = interpreter.currentState();
     if (!currentTerminalStepIsActive(state)) {

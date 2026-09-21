@@ -52,10 +52,7 @@ class EnergyRiddleTest {
         .thenAnswer(invocation -> new Entity("energy-cryo-box"));
     display = new Entity("energy-display");
     displays
-        .when(
-            () ->
-                SystemRecoveryDisplayFactory.hintDisplay(
-                    any(Point.class), any(), anyString()))
+        .when(() -> SystemRecoveryDisplayFactory.hintDisplay(any(Point.class), any(), anyString()))
         .thenReturn(display);
   }
 

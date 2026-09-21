@@ -33,6 +33,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
   private final ConveyorSortVisualSync conveyorSortVisualSync = new ConveyorSortVisualSync();
   private final ModuleScannerVisualSync moduleScannerVisualSync = new ModuleScannerVisualSync();
   private final StorageVisualSync storageVisualSync = new StorageVisualSync();
+  private final SearchRobotVisualSync searchRobotVisualSync = new SearchRobotVisualSync();
 
   /**
    * Builds a snapshot and appends System Recovery metadata for shared components.
@@ -92,6 +93,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                 conveyorSortVisualSync.apply(metadata.orElseThrow());
                 moduleScannerVisualSync.apply(entity, metadata.orElseThrow());
                 storageVisualSync.apply(entity, metadata.orElseThrow());
+                searchRobotVisualSync.apply(entity, metadata.orElseThrow());
                 SystemCoreVisualSync.applyAlarm(metadata.orElseThrow());
                 SystemCoreVisualSync.applyCompletionMetadata(entity, metadata.orElseThrow());
                 String terminalState =
@@ -159,6 +161,11 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SCAN_FAULT,
           String.valueOf(SystemRecoveryLevel.scannerFaultDetected()));
+    }
+    if ("search_robot".equals(entity.name())) {
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_SEARCH_ROBOT_CELL,
+          SystemRecoveryLevel.currentSearchRobotCell(entity));
     }
     if (entity.name().startsWith("storage_matrix_cell_")) {
       metadata.put(

@@ -18,11 +18,12 @@ zugeordnet. Neue Rätsellogik gehört nicht in statische Level-Weiterleitungen.
 | 7 | `DataArchiveRiddle` | drei Array-Deklarationen rekonstruieren |
 | 8 | `TwoDimensionalStorageRiddle` | 3x4-Matrix und markierte Zellen |
 | 9 | `SearchRobotRiddle` | Ortungschip und zweidimensionale Suche |
-| 10 | `SystemCoreRiddle` | drei Kernprüfungen und Abschlussmaske |
+| 10 | `SystemCoreRiddle` | drei Kernprüfungen mit eigenem Suchroboter und Abschlussmaske |
 
 Pflichtpunkte werden beim Levelstart durch `SystemRecoveryPointRegistry` gesammelt geprüft.
 Historische Tippfehler werden dort nur als explizite Aliase unterstützt. Rätsel 8 nutzt die festen
 `storage_cell_*`-Punkte; Rätsel 9 erzeugt seinen Laufweg aus `roboter_start` und `roboter_end`.
+Rätsel 10 setzt einen zweiten, controllerlosen Roboter am `map00`-Eingang ein.
 
 ## Fortschritt und Hinweise
 
@@ -32,10 +33,15 @@ Terminaleingaben werden über `SystemRecoveryPuzzleEvents.terminalAttempt(...)` 
 physische Aktionen schließen ihren erwarteten Schritt ausdrücklich ab. Story-Trigger verändern
 das Netz nicht.
 
-Jeder aktive Place besitzt vier gemeinsame Hinweise. `SystemRecoveryHintPhone` zeigt sie nach
+Jeder aktive Place besitzt vier spezifische Hinweise. `SystemRecoveryHintPhone` zeigt sie nach
 Bestätigung, schreibt sie ins Questlog und trackt ihre Verwendung. Versuche, Lösungen und
 Rätselstarts laufen ebenfalls zentral über `SystemRecoveryPuzzleEvents` und die Dungeon-Tracking-
 API.
+
+Jede serverseitig akzeptierte Code- oder Ergebnis-Eingabe wird zusätzlich als originale
+Spielerlösung im passenden Rätsel-Tab des gemeinsamen Questlogs gespeichert. Der PC enthält den
+Tab `Memory Watch`; er zeigt die Array-Namen aus diesen akzeptierten Eingaben und aktualisiert sich
+nach einer bestätigten Terminaleingabe direkt im geöffneten PC.
 
 Die ausführliche, aktuelle Beschreibung steht in:
 

@@ -28,6 +28,7 @@ import feature.entities.HeroController;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
 import feature.systems.AttributeBarSystem;
+import feature.systems.AISystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
@@ -166,6 +167,7 @@ public final class SystemRecovery {
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new AISystem());
     ECSManagement.remove(AttributeBarSystem.class);
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());

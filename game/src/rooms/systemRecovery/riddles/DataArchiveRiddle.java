@@ -97,8 +97,7 @@ public final class DataArchiveRiddle {
           SystemRecoveryText.key(
               "world.archive.node", index, ENERGY_VALUES[index], MODULE_VALUES[index]);
       Game.add(
-          ArchiveEntityFactory.archiveDataDisplay(
-              node, nodeName, dataText, ACTIVE_VALUES[index]));
+          ArchiveEntityFactory.archiveDataDisplay(node, nodeName, dataText, ACTIVE_VALUES[index]));
     }
   }
 }
