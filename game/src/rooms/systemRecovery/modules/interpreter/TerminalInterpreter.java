@@ -79,12 +79,24 @@ public final class TerminalInterpreter {
    * @return whether the complete current state is correct
    */
   public boolean interpret(String source, int playerId) {
+    return interpret(source, playerId, null);
+  }
+
+  /**
+   * Checks source and keeps the originating dialog available to room-side callbacks.
+   *
+   * @param source source text entered in the terminal
+   * @param playerId authoritative player ID, or {@code -1} for a non-player call
+   * @param dialogId dialog that submitted the source, or {@code null}
+   * @return whether the complete current state is correct
+   */
+  public boolean interpret(String source, int playerId, String dialogId) {
     TerminalCodeRequirement puzzleState = states.get(currentState);
     if (puzzleState == null) {
       return false;
     }
 
-    TerminalAttempt attempt = new TerminalAttempt(currentState, source, playerId);
+    TerminalAttempt attempt = new TerminalAttempt(currentState, source, playerId, dialogId);
     AnalysisResult result = analysis(source, successfulContext.copy());
     boolean successful = result.successful();
     if (successful) {

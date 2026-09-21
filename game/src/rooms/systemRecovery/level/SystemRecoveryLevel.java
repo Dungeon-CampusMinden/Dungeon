@@ -460,8 +460,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @return whether the input was accepted
    */
   public static boolean interpretTerminalInput(String source, int playerId) {
+    return interpretTerminalInput(source, playerId, null);
+  }
+
+  /** Runs terminal input while preserving the submitting dialog for targeted feedback. */
+  public static boolean interpretTerminalInput(String source, int playerId, String dialogId) {
     if (!terminalsUnlocked()) return false;
-    return active().terminalController.interpret(source, playerId);
+    return active().terminalController.interpret(source, playerId, dialogId);
   }
 
   /**
@@ -492,9 +497,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @return whether the combination was accepted
    */
   public static boolean submitSystemCoreMeta(String payload, int playerId) {
+    return submitSystemCoreMeta(payload, playerId, null);
+  }
+
+  /** Validates the final input mask while preserving the submitting dialog for feedback. */
+  public static boolean submitSystemCoreMeta(String payload, int playerId, String dialogId) {
     if (!systemCoreMetaAvailable()) return false;
     int state = TerminalInterpreter.instance().currentState();
-    TerminalAttempt attempt = new TerminalAttempt(state, payload, playerId);
+    TerminalAttempt attempt = new TerminalAttempt(state, payload, playerId, dialogId);
     if (!active().systemCore.acceptsMetaInput(payload)) {
       InterpretationCallbacks.onIncorrectTerminalInput(attempt);
       return false;

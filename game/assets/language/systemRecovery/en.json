@@ -462,8 +462,8 @@
         "core-meta": "Combine the core results",
         "complete": "Recovery complete"
       },
-      "feedback-correct": "Correct",
-      "feedback-incorrect": "Incorrect"
+      "feedback-correct": "Input accepted",
+      "feedback-incorrect": "Input rejected"
     },
     "riddle8": {
       "display-ready": "Matrix initialized",

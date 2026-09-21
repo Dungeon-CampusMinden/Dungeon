@@ -52,3 +52,16 @@ message DialogCloseMessage {
   // ID of the dialog to close.
   string dialog_id = 1;
 }
+
+// Server-to-client: Update a live dialog without reopening it.
+// Maps to: engine.network.messages.s2c.DialogFeedbackMessage
+message DialogFeedbackMessage {
+  // Unique identifier of the open dialog receiving the update.
+  string dialog_id = 1;
+
+  // Localization key resolved by the receiving client.
+  string message_key = 2;
+
+  // Whether the server accepted the submitted action.
+  bool successful = 3;
+}

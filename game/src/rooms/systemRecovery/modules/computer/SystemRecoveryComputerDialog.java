@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Game;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.utils.Cursors;
@@ -25,6 +26,7 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.DialogFeedbackReceiver;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,7 +41,7 @@ import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /** Tabbed computer dialog for the System Recovery escape room. */
-public class SystemRecoveryComputerDialog extends Group {
+public class SystemRecoveryComputerDialog extends Group implements DialogFeedbackReceiver {
 
   private final Skin skin;
   private final DialogContext context;
@@ -234,6 +236,14 @@ public class SystemRecoveryComputerDialog extends Group {
     }
     contentArea.clearChildren();
     contentArea.add(tabs.get(tabKey)).grow();
+  }
+
+  /** Applies server-authoritative feedback to the terminal tab without reopening the dialog. */
+  @Override
+  public void applyFeedback(DialogFeedbackMessage feedback) {
+    if (tabs.get(TerminalTab.KEY) instanceof TerminalTab terminal) {
+      terminal.applyServerFeedback(feedback);
+    }
   }
 
   private static boolean isTransportStorageState() {

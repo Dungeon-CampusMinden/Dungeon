@@ -16,6 +16,7 @@ import engine.network.codec.converters.s2c.DebugPongConverter;
 import engine.network.codec.converters.s2c.DebugTelemetrySnapshotConverter;
 import engine.network.codec.converters.s2c.DeltaSnapshotConverter;
 import engine.network.codec.converters.s2c.DialogCloseConverter;
+import engine.network.codec.converters.s2c.DialogFeedbackConverter;
 import engine.network.codec.converters.s2c.DialogShowConverter;
 import engine.network.codec.converters.s2c.EntityDespawnConverter;
 import engine.network.codec.converters.s2c.EntitySpawnBatchConverter;
@@ -55,6 +56,7 @@ public final class CoreConverters {
     registry.register(new ConnectRejectConverter());
     registry.register(new DialogShowConverter());
     registry.register(new DialogCloseConverter());
+    registry.register(new DialogFeedbackConverter());
     registry.register(new EntitySpawnEventConverter());
     registry.register(new EntitySpawnBatchConverter());
     registry.register(new EntityDespawnConverter());
