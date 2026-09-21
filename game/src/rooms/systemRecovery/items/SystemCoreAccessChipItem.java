@@ -1,5 +1,6 @@
 package rooms.systemRecovery.items;
 
+import engine.Entity;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.inventory.Item;
@@ -25,5 +26,15 @@ public final class SystemCoreAccessChipItem extends Item {
         SystemRecoveryText.key("items.system-core-description"),
         new Animation(TEXTURE),
         new Animation(TEXTURE));
+  }
+
+  /**
+   * Keeps the access module in the inventory until the system-core interaction transfers it.
+   *
+   * @param user entity that attempted to use the access module
+   */
+  @Override
+  public void use(final Entity user) {
+    // Intentionally empty: puzzle interactions handle the transfer explicitly.
   }
 }
