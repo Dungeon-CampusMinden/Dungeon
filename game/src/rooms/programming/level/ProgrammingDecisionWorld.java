@@ -11,7 +11,9 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
+import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.path.SimpleIPath;
+import feature.components.CollideComponent;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.Arrays;
@@ -19,45 +21,60 @@ import java.util.List;
 import java.util.Map;
 import rooms.programming.modules.decisions.DecisionMaze;
 
-/** Six small threshold chambers share an outer return passage. Positions are Nox's feet. */
+/** Six rune workshops have gated onward passages and separate outer return galleries. */
 final class ProgrammingDecisionWorld {
-  static final Point START = new Point(34, 54);
+  static final Point START = new Point(34, 55);
+  private static final int[] LEFT_X = {28, 27, 28, 26, 28, 27};
+  private static final int[] RIGHT_X = {40, 41, 40, 42, 41, 40};
+  private static final int LEFT_RETURN = 20;
+  private static final int RIGHT_RETURN = 48;
+  private static final int[] JUNCTION_Y = {61, 70, 80, 89, 99, 108, 118};
 
   static Point junction(int index) {
-    return new Point(34, 60 + index * 10);
+    return new Point(34, JUNCTION_Y[index]);
+  }
+
+  /**
+   * @param index current rune
+   * @param left whether to locate the left entrance
+   * @return center of the physical choice door
+   */
+  static Point choicePoint(int index, boolean left) {
+    return new Point((left ? LEFT_X[index] : RIGHT_X[index]) + 2.5f, JUNCTION_Y[index] + 3.5f);
   }
 
   static LevelElement[][] layout(LevelElement[][] source, Map<String, Point> points) {
     LevelElement[][] result =
-        new LevelElement[Math.max(source.length, 127)][Math.max(source[0].length, 57)];
+        new LevelElement[Math.max(source.length, 124)][Math.max(source[0].length, 57)];
     for (var row : result) Arrays.fill(row, LevelElement.SKIP);
     for (int y = 0; y < source.length; y++)
       System.arraycopy(source[y], 0, result[y], 0, source[y].length);
-    floor(result, 34, 50, 38, 59);
-    floor(result, 18, 54, 54, 57);
-    floor(result, 18, 54, 22, 117);
-    floor(result, 50, 54, 54, 117);
+    floor(result, 34, 50, 38, 63);
+    floor(result, LEFT_RETURN, 55, RIGHT_RETURN + 4, 57);
+    floor(result, LEFT_RETURN, 55, LEFT_RETURN + 4, 114);
+    floor(result, RIGHT_RETURN, 55, RIGHT_RETURN + 4, 114);
     for (int i = 0; i < 6; i++) {
-      int y = (int) junction(i).y();
-      floor(result, 26, y, 46, y + 2);
-      floor(result, 26, y, 30, y + 7);
-      floor(result, 42, y, 46, y + 7);
-      floor(result, 18, y + 5, 54, y + 7);
-      floor(result, 34, y + 5, 38, y + 12);
-      for (int x : new int[] {26, 42}) {
-        for (int dx = 0; dx < 5; dx++) result[y + 3][x + dx] = LevelElement.DOOR;
-        String id = "act4-" + i + "-" + x;
-        points.put(id + "-gate-start", new Point(x, y + 3));
-        points.put(id + "-gate-end", new Point(x + 4, y + 3));
-      }
+      int y = JUNCTION_Y[i];
+      floor(result, LEFT_X[i], y, RIGHT_X[i] + 4, y + 2);
+      floor(result, LEFT_X[i], y, LEFT_X[i] + 4, y + 6);
+      floor(result, RIGHT_X[i], y, RIGHT_X[i] + 4, y + 6);
+      floor(result, LEFT_RETURN, y + 4, RIGHT_RETURN + 4, y + 6);
+      floor(result, 34, y + 4, 38, JUNCTION_Y[i + 1] + 2);
+      // A full wall row separates these bays from the branch exits below.
+      floor(result, 32, y + 8, 33, y + (i % 2 == 0 ? 8 : 9));
+      floor(result, 39, y + 8, 40, y + (i % 2 == 0 ? 8 : 9));
+      // Lamps have real floor recesses, outside the swept return lanes.
+      int nearLamp = i % 2 == 0 ? 18 : 53;
+      int farLamp = i % 2 == 0 ? 53 : 18;
+      floor(result, nearLamp, y + 1, nearLamp + 1, y + 3);
+      int farLampY = y + (i == 5 ? 1 : 7);
+      floor(result, farLamp, farLampY, farLamp + 1, farLampY + 2);
+      for (int x : new int[] {LEFT_X[i], RIGHT_X[i]})
+        gate(result, points, "act4-" + i + "-entry-" + x, x, y + 3, x + 4, y + 3);
+      for (int x : outlets(i))
+        gate(result, points, "act4-" + i + "-outlet-" + x, x, y + 4, x, y + 6);
     }
-    // Shallow furnishing alcoves sit outside the five-tile travel lanes.
-    for (int i = 0; i < 6; i++) {
-      int y = 60 + i * 10;
-      floor(result, 31, y + 5, 33, y + 8);
-      floor(result, 39, y + 5, 41, y + 8);
-    }
-    floor(result, 30, 120, 44, 124);
+    floor(result, 32, 118, 44, 121);
     for (int y = 50; y < result.length - 1; y++)
       for (int x = 1; x < result[y].length - 1; x++)
         if (result[y][x] == LevelElement.FLOOR || result[y][x] == LevelElement.DOOR)
@@ -65,9 +82,8 @@ final class ProgrammingDecisionWorld {
             for (int dx = -1; dx <= 1; dx++)
               if (result[y + dy][x + dx] == LevelElement.SKIP)
                 result[y + dy][x + dx] = LevelElement.WALL;
-    points.put("decisions-console", new Point(40, 54));
     points.put("decisions-start", START);
-    points.put("decisions-heart", new Point(41, 122));
+    points.put("decisions-heart", new Point(41, 120));
     return result;
   }
 
@@ -75,134 +91,215 @@ final class ProgrammingDecisionWorld {
     for (int y = y0; y <= y1; y++) for (int x = x0; x <= x1; x++) grid[y][x] = LevelElement.FLOOR;
   }
 
+  private static void gate(
+      LevelElement[][] grid,
+      Map<String, Point> points,
+      String name,
+      int x0,
+      int y0,
+      int x1,
+      int y1) {
+    for (int y = y0; y <= y1; y++) for (int x = x0; x <= x1; x++) grid[y][x] = LevelElement.DOOR;
+    points.put(name + "-gate-start", new Point(x0, y0));
+    points.put(name + "-gate-end", new Point(x1, y1));
+  }
+
   static List<Point> route(int index, DecisionMaze.Side side, boolean correct) {
-    int x = side == DecisionMaze.Side.LEFT ? 26 : 42;
+    boolean left = side == DecisionMaze.Side.LEFT;
+    int x = left ? LEFT_X[index] : RIGHT_X[index];
+    int back = left ? LEFT_RETURN : RIGHT_RETURN;
     float y = junction(index).y();
     return correct
-        ? List.of(new Point(x, y), new Point(x, y + 5), new Point(34, y + 5), junction(index + 1))
+        ? List.of(new Point(x, y), new Point(x, y + 4), new Point(34, y + 4), junction(index + 1))
         : List.of(
             new Point(x, y),
-            new Point(x, y + 5),
-            new Point(x == 26 ? 18 : 50, y + 5),
-            new Point(x == 26 ? 18 : 50, 54),
+            new Point(x, y + 4),
+            new Point(back, y + 4),
+            new Point(back, START.y()),
             START);
   }
 
-  static void open(DungeonLevel level, int index, DecisionMaze.Side side) {
-    int x = side == DecisionMaze.Side.LEFT ? 26 : 42;
-    for (int dx = 0; dx < 5; dx++)
-      level
-          .tileAt(new Coordinate(x + dx, (int) junction(index).y() + 3))
-          .filter(DoorTile.class::isInstance)
-          .map(DoorTile.class::cast)
-          .ifPresent(DoorTile::open);
+  /**
+   * Reveals exactly one exit after a choice.
+   *
+   * @param level shared labyrinth
+   * @param index current rune
+   * @param side selected branch
+   * @param correct whether the branch leads onward
+   */
+  static void open(DungeonLevel level, int index, DecisionMaze.Side side, boolean correct) {
+    boolean left = side == DecisionMaze.Side.LEFT;
+    int x = left ? LEFT_X[index] : RIGHT_X[index];
+    int outlet = left ? (correct ? x + 5 : LEFT_RETURN + 5) : (correct ? x - 1 : RIGHT_RETURN - 1);
+    int y = JUNCTION_Y[index];
+    doors(level, x, y + 3, x + 4, y + 3, true);
+    doors(level, outlet, y + 4, outlet, y + 6, true);
   }
 
-  static void spawn(DungeonLevel level, ProgrammingDecisionRuntime runtime) {
-    Entity book =
-        prop(
-            "console",
-            level.getPoint("decisions-console"),
-            "items/rpg/item_book_brown.png",
-            1,
-            1,
-            false);
-    book.add(new InteractionComponent(new Interaction((target, who) -> runtime.show(who), 3f)));
+  /**
+   * Closes previous choices after Nox has returned to START.
+   *
+   * @param level shared labyrinth
+   */
+  static void reset(DungeonLevel level) {
+    for (int i = 0; i < 6; i++) {
+      int y = JUNCTION_Y[i];
+      for (int x : new int[] {LEFT_X[i], RIGHT_X[i]}) doors(level, x, y + 3, x + 4, y + 3, false);
+      for (int x : outlets(i)) doors(level, x, y + 4, x, y + 6, false);
+    }
+  }
+
+  private static int[] outlets(int index) {
+    return new int[] {LEFT_RETURN + 5, LEFT_X[index] + 5, RIGHT_X[index] - 1, RIGHT_RETURN - 1};
+  }
+
+  private static void doors(DungeonLevel level, int x0, int y0, int x1, int y1, boolean open) {
+    for (int y = y0; y <= y1; y++)
+      for (int x = x0; x <= x1; x++)
+        level
+            .tileAt(new Coordinate(x, y))
+            .filter(DoorTile.class::isInstance)
+            .map(DoorTile.class::cast)
+            .ifPresent(
+                door -> {
+                  if (open) door.open();
+                  else door.close();
+                });
+  }
+
+  static void spawn(DungeonLevel level) {
     for (int i = 0; i < 6; i++) {
       int n = i;
       float y = junction(i).y();
-      for (int x : new int[] {25, 47}) {
-        Entity torch =
-            prop("torch-" + i + "-" + x, new Point(x, y + 3), "objects/torch", 1, 1, false);
-        torch.name("programming-prop-torch-decisions-" + i + "-" + x);
-        torch.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
-      }
+      torch("gallery-" + i, new Point(i % 2 == 0 ? 18.5f : 53.5f, y + 2));
+      torch("gallery-source-" + i, new Point(i % 2 == 0 ? 53.5f : 18.5f, y + (i == 5 ? 2 : 8)));
+      // Workbenches repeat the archive's furniture; each source has its own tools and vessels.
+      if (i == 0 || i == 3 || i == 5) bench("source-bench-" + i, new Point(32, y + 8));
+      else plinth("source-base-" + i, new Point(32, y + 8), 1.6f);
+      plinth("rune-base-" + i, new Point(39, y + 8), .8f);
+      plinth("tablet-base-" + i, new Point(40, y + 8), .8f);
       Entity rune =
           prop(
-              "rune-" + i, new Point(39, y + 5), "items/rpg/item_gem_amethyst.png", .8f, .8f, true);
+              "rune-" + i,
+              new Point(39.1f, y + 8.3f),
+              "items/rpg/item_gem_amethyst.png",
+              .5f,
+              .5f,
+              false);
       rune.add(
           new InteractionComponent(
               new Interaction(
                   (target, who) -> ProgrammingGolemRuntime.showText(who, DecisionMaze.event(n)),
                   2f)));
-      Entity tablet =
-          prop(
-              "decision-tablet-" + i,
-              new Point(39.5f, y),
-              "items/rpg/item_scroll.png",
-              .8f,
-              .8f,
-              true);
-      tablet.add(new InteractionComponent(new Interaction((target, who) -> runtime.show(who), 3f)));
       rune.fetch(DrawComponent.class)
           .orElseThrow()
           .tintColor(
               new int[] {0x87B5DFFF, 0xADA1F7FF, 0xEFA26BFF, 0xDAC283FF, 0xEE9565FF, 0xFFC666FF}
                   [i]);
+      prop(
+          "decision-tablet-" + i,
+          new Point(40.1f, y + 8.3f),
+          "items/rpg/item_scroll.png",
+          .55f,
+          .55f,
+          false);
       switch (i) {
         case 0 -> {
-          prop("drained-vessel", new Point(31.5f, y + 6), "objects/vase", 1, 1, false);
-          prop("note", new Point(32.6f, y + 7), "items/rpg/item_scroll.png", .5f, .5f, true);
+          prop("drained-vessel", new Point(32.1f, y + 8.4f), "objects/vase", .8f, .8f, false);
+          prop("note", new Point(33, y + 8.5f), "items/rpg/item_scroll.png", .5f, .5f, false);
         }
         case 1 -> {
           for (int c = 0; c < 4; c++)
             prop(
                 "source-crystal-" + c,
-                new Point(31.3f + c * .45f, y + 6 + c % 2 * .7f),
+                new Point(32.1f + c % 2 * .7f, y + 8.3f + c / 2 * .5f),
                 "items/rpg/item_gem_amethyst.png",
                 .6f,
                 .6f,
-                true);
+                false);
         }
         case 2 -> {
-          prop("strength-stone", new Point(31.4f, y + 6), "objects/stone", 1.4f, 1.4f, false);
-          prop("pick", new Point(32.7f, y + 7), "items/rpg/pickaxe_crusty.png", .7f, .7f, true);
+          prop("strength-stone", new Point(32.1f, y + 8.3f), "objects/stone", 1.1f, 1.1f, false);
+          prop("pick", new Point(33.1f, y + 8.4f), "items/rpg/pickaxe_crusty.png", .6f, .6f, false);
         }
         case 3 -> {
           Entity kettle =
-              prop("forge", new Point(31.4f, y + 6), "objects/magic_kettle", 1.3f, 1.3f, false);
+              prop("forge", new Point(32.1f, y + 8.4f), "objects/magic_kettle", 1, 1, false);
           kettle.name("programming-prop-forge-kettle-decisions");
-        }
-        case 4 -> {
           prop(
-              "vessel",
-              new Point(31.4f, y + 6),
-              "objects/cauldron/cauldron.png",
-              1.4f,
-              1.4f,
+              "forge-tools",
+              new Point(33.1f, y + 8.5f),
+              "items/rpg/pickaxe_crusty.png",
+              .6f,
+              .6f,
               false);
         }
+        case 4 ->
+            prop(
+                "vessel",
+                new Point(32.2f, y + 8.2f),
+                "objects/cauldron/cauldron.png",
+                1.2f,
+                1.2f,
+                false);
         default -> {
-          prop("seal", new Point(31.4f, y + 6), "items/rpg/item_book_brown.png", 1, 1, false);
+          prop(
+              "seal", new Point(32.2f, y + 8.5f), "items/rpg/item_book_brown.png", .8f, .8f, false);
+          prop(
+              "seal-gem",
+              new Point(33.1f, y + 8.5f),
+              "items/rpg/item_gem_amethyst.png",
+              .5f,
+              .5f,
+              false);
         }
       }
-      for (int x : new int[] {26, 42}) {
-        Entity threshold =
-            prop(
-                "threshold-" + i + "-" + x,
-                new Point(x, y + 3),
-                "rooms/programming/sluice.png",
-                5,
-                .25f,
-                true);
-        threshold.fetch(DrawComponent.class).orElseThrow().tintColor(0xBFA26CFF);
-      }
     }
-    // The shrine stands beside Nox's arrival footprint so his sprite cannot hide the flame.
-    prop("heart-plinth-left", new Point(39.6f, 121), "objects/stone", 1.6f, 1.6f, true);
-    prop("heart-plinth-right", new Point(41.2f, 121), "objects/stone", 1.6f, 1.6f, true);
+    plinth("heart-plinth", new Point(40, 119), 2);
     for (float x : new float[] {39.6f, 42.5f})
       prop(
           "heart-offering-" + x,
-          new Point(x, 120.2f),
+          new Point(x, 118.5f),
           "items/rpg/item_gem_amethyst.png",
           .8f,
           .8f,
-          true);
-    Entity fire = prop("heart", new Point(40.3f, 121.5f), "objects/torch", 2, 2, false);
-    fire.name("programming-prop-torch-decisions-heart");
-    fire.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
-    fire.add(new InteractionComponent(new Interaction((target, who) -> runtime.show(who), 4f)));
+          false);
+    Entity fire = torch("heart", new Point(40.3f, 119.5f));
+    fire.fetch(PositionComponent.class).orElseThrow().scale(2);
+    prop("heart-inscription", new Point(42.3f, 120), "items/rpg/item_scroll.png", .8f, .8f, false);
+  }
+
+  private static Entity torch(String name, Point at) {
+    Entity torch = prop("torch-" + name, at, "objects/torch", 1, 1, false);
+    torch.name("programming-prop-torch-decisions-" + name);
+    torch.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
+    ProgrammingProps.switchableTorch(torch);
+    return torch;
+  }
+
+  private static void bench(String name, Point at) {
+    Entity bench = atlas(name, at, 192, 352, 32, 16, 1, DepthLayer.Ground.depth() + 1);
+    bench.add(new CollideComponent(Vector2.of(.05f, .05f), Vector2.of(1.9f, .65f)));
+  }
+
+  private static void plinth(String name, Point at, float scale) {
+    atlas(name, at, 272, 144, 16, 16, scale, DepthLayer.Ground.depth());
+  }
+
+  private static Entity atlas(
+      String name, Point at, int x, int y, int w, int h, float scale, int depth) {
+    Entity entity = new Entity("programming-decisions-" + name);
+    PositionComponent position = new PositionComponent(at);
+    position.scale(scale);
+    entity.add(position);
+    DrawComponent draw =
+        new DrawComponent(
+            new SimpleIPath("spritesheets/FD_Dungeon_Free.png"),
+            new SpritesheetConfig(x, y, 1, 1, w, h));
+    draw.depth(depth);
+    entity.add(draw);
+    Game.add(entity);
+    return entity;
   }
 
   private static Entity prop(
@@ -212,7 +309,7 @@ final class ProgrammingDecisionWorld {
     position.scale(Vector2.of(w, h));
     entity.add(position);
     DrawComponent draw = new DrawComponent(new SimpleIPath(asset));
-    draw.depth(ground ? DepthLayer.Ground.depth() : DepthLayer.Player.depth());
+    draw.depth(ground ? DepthLayer.Ground.depth() : DepthLayer.Ground.depth() + 2);
     entity.add(draw);
     Game.add(entity);
     return entity;

@@ -3,8 +3,6 @@ package rooms.programming.level;
 import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
-import feature.canvas.CanvasUI;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
@@ -15,7 +13,7 @@ import java.util.function.Consumer;
 import rooms.programming.modules.decisions.DecisionMaze.Values;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Typed, revisioned Act IV state shared by observers and the single controller. */
+/** Typed, revisioned Act IV state shared by the mounted player and the world. */
 public final class ProgrammingDecisions {
   public static final String ID = "programming.decisions";
 
@@ -24,7 +22,7 @@ public final class ProgrammingDecisions {
    *
    * @param revision monotonically increasing state revision
    * @param golemId entity followed by the camera
-   * @param driver player controlling Nox, or -1 when free
+   * @param driver mounted player controlling Nox, or -1 when free
    * @param junction zero-based current junction, six when complete
    * @param failures completed return trips
    * @param values actual values carried by Nox
@@ -48,10 +46,10 @@ public final class ProgrammingDecisions {
       String feedback) {}
 
   /**
-   * A direction, continuation or release request, never a client-supplied result.
+   * A direction or continuation request, never a client-supplied result.
    *
    * @param revision expected authoritative revision
-   * @param operation LEFT, RIGHT, RESUME or RELEASE
+   * @param operation LEFT, RIGHT or RESUME
    */
   public record Intent(int revision, String operation) {}
 
@@ -94,7 +92,7 @@ public final class ProgrammingDecisions {
                 .build(),
             false,
             false,
-            true,
+            false,
             who.id());
     ui.registerCallback(
         "intent",
@@ -104,12 +102,6 @@ public final class ProgrammingDecisions {
             callback.accept(JSON.readValue(value.value(), Intent.class));
           } catch (tools.jackson.core.JacksonException ignored) {
           }
-        });
-    ui.registerCallback(
-        CanvasUI.EVENT_CLOSE,
-        ignored -> {
-          state().ifPresent(s -> callback.accept(new Intent(s.revision(), "RELEASE")));
-          UIUtils.closeDialog(ui, true);
         });
   }
 
@@ -122,6 +114,7 @@ public final class ProgrammingDecisions {
 
   static void publish(State state) {
     received = state;
+    ProgrammingRiderSystem.refresh();
   }
 
   /**
@@ -145,9 +138,11 @@ public final class ProgrammingDecisions {
    */
   public static void receive(String text) {
     received = decode(text);
+    ProgrammingRiderSystem.refresh();
   }
 
   static void reset() {
     received = null;
+    ProgrammingRiderSystem.refresh();
   }
 }

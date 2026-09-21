@@ -7,7 +7,6 @@ import engine.level.DungeonLevel;
 import engine.utils.Point;
 import feature.components.UIComponent;
 import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.List;
 import rooms.programming.modules.decisions.DecisionMaze;
 import rooms.programming.modules.decisions.DecisionMaze.Side;
@@ -31,7 +30,7 @@ final class ProgrammingDecisionRuntime {
     this.golem = golem;
     this.motion = motion;
     ProgrammingDecisions.reset();
-    ProgrammingDecisionWorld.spawn(level, this);
+    ProgrammingDecisionWorld.spawn(level);
     publish();
   }
 
@@ -40,7 +39,7 @@ final class ProgrammingDecisionRuntime {
     active = true;
     ProgrammingProgress.started(
         "decisions", "Verfolge die sechs Runen und führe Nox zum Herzfeuer.");
-    feedback = "Nox betritt das Labyrinth. Das Runenbuch steht am START.";
+    feedback = "Nox betritt das Labyrinth. Steige mit E auf Nox auf.";
     var approach = motion.workshopPath(ProgrammingDecisionWorld.START);
     if (approach.isEmpty()
         && Point.calculateDistance(
@@ -53,63 +52,58 @@ final class ProgrammingDecisionRuntime {
       return;
     }
     var points = new java.util.ArrayList<>(approach);
-    points.add(ProgrammingDecisionWorld.junction(0));
     travel(
         points,
         () -> {
-          feedback = "Lies von oben nach unten. Welcher Zweig führt zu LINKS oder RECHTS?";
+          feedback = "Steige mit E auf Nox auf und lies die erste Rune.";
           publish();
+          if (driver >= 0) enter();
         });
   }
 
   void show(Entity who) {
-    if (!active || !authorized(who)) return;
-    if (driver < 0) {
-      driver = who.id();
-      publish();
-    }
+    if (!active || !authorized(who) || Game.hud().blocksGameplayInput(who)) return;
+    if (driver >= 0 && driver != who.id()) return;
+    driver = who.id();
+    publish();
     ProgrammingDecisions.open(who, state(), intent -> accept(who, intent));
+    if (!moving
+        && !blocked
+        && !completed
+        && Point.calculateDistance(
+                golem.fetch(PositionComponent.class).orElseThrow().position(),
+                ProgrammingDecisionWorld.START)
+            < .1f) enter();
+  }
+
+  private void enter() {
+    travel(
+        List.of(ProgrammingDecisionWorld.junction(0)),
+        () -> {
+          feedback = "Lies von oben nach unten. Welcher Zweig f\u00fchrt zu LINKS oder RECHTS?";
+          publish();
+        });
   }
 
   private boolean authorized(Entity who) {
     return who != null
         && !Game.isMultiplayerClient()
-        && Game.allPlayers().anyMatch(p -> p == who)
+        && Game.allPlayers().anyMatch(player -> player == who)
+        && Game.levelEntities().anyMatch(entity -> entity == who)
         && who.fetch(PositionComponent.class)
             .map(
                 at ->
-                    viewing(who)
-                        || Point.calculateDistance(
-                                at.position(), level.getPoint("decisions-console"))
-                            <= 5f
+                    driver == who.id()
                         || Point.calculateDistance(
                                 at.position(),
                                 golem.fetch(PositionComponent.class).orElseThrow().position())
-                            <= 7f
-                        || completed
-                            && Point.calculateDistance(
-                                    at.position(), level.getPoint("decisions-heart"))
-                                <= 6f)
+                            <= 7f)
             .orElse(false);
-  }
-
-  // A camera observer stays authorized after Nox walks away from the opening position.
-  private boolean viewing(Entity who) {
-    return Game.levelEntities()
-        .flatMap(e -> e.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType().type().equals(ProgrammingDecisions.ID))
-        .anyMatch(
-            ui -> java.util.Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == who.id()));
   }
 
   void accept(Entity who, ProgrammingDecisions.Intent intent) {
     if (intent == null || !authorized(who) || driver != who.id() || revision != intent.revision())
       return;
-    if ("RELEASE".equals(intent.operation())) {
-      driver = -1;
-      publish();
-      return;
-    }
     if ("RESUME".equals(intent.operation()) && blocked) {
       blocked = false;
       if (route.isEmpty()) {
@@ -164,7 +158,7 @@ final class ProgrammingDecisionRuntime {
                         correct
                             ? List.of()
                             : List.of("Ausgeführter Zweig führt zur anderen Tür."))));
-    ProgrammingDecisionWorld.open(level, junction, side);
+    ProgrammingDecisionWorld.open(level, junction, side, correct);
     feedback =
         correct
             ? "Die Tür führt weiter. Nox folgt dem ausgeführten Zweig."
@@ -183,6 +177,7 @@ final class ProgrammingDecisionRuntime {
               ProgrammingProgress.solved("decisions", feedback);
             }
           } else {
+            ProgrammingDecisionWorld.reset(level);
             failures++;
             junction = 0;
             // Events accumulate on the actual carried values, including previously crossed runes.
@@ -240,24 +235,20 @@ final class ProgrammingDecisionRuntime {
   }
 
   void tick() {
-    var viewers = new HashSet<Integer>();
-    Game.levelEntities()
-        .flatMap(e -> e.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType().type().equals(ProgrammingDecisions.ID))
-        .forEach(ui -> java.util.Arrays.stream(ui.targetEntityIds()).forEach(viewers::add));
-    if (!viewers.contains(driver)
-        || Game.allPlayers().filter(p -> p.id() == driver).noneMatch(this::authorized)) {
-      int nextDriver =
-          Game.allPlayers()
-              .filter(p -> viewers.contains(p.id()))
-              .filter(this::authorized)
-              .mapToInt(Entity::id)
-              .min()
-              .orElse(-1);
-      if (driver != nextDriver) {
-        driver = nextDriver;
-        publish();
-      }
+    if (driver >= 0
+        && Game.allPlayers().filter(player -> player.id() == driver).noneMatch(this::authorized)) {
+      int previousDriver = driver;
+      driver = -1;
+      Game.levelEntities()
+          .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+          .filter(ui -> ui.dialogContext().dialogType().type().equals(ProgrammingDecisions.ID))
+          .filter(
+              ui ->
+                  java.util.Arrays.stream(ui.targetEntityIds())
+                      .anyMatch(id -> id == previousDriver))
+          .toList()
+          .forEach(ui -> feature.hud.UIUtils.closeDialog(ui, true));
+      publish();
     }
   }
 

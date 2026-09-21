@@ -1,108 +1,162 @@
 package rooms.programming.level;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
-import feature.canvas.CanvasUI;
+import engine.systems.CameraSystem;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.programming.modules.decisions.DecisionMaze;
 
-/** The code stays beside the live scene; during travel only the current values remain over it. */
+/** Rune book below the rider, with choices attached to the two passage entrances. */
 final class ProgrammingDecisionUI extends Group {
   private final String dialogId;
   private final int viewer;
   private final Table panel = new Table();
   private final Table bar = new Table();
-  private final Label title = ProgrammingUI.label("", 22, ProgrammingUI.GOLD);
-  private final Label values = ProgrammingUI.label("", 18, ProgrammingUI.TEXT);
-  private final Label feedback = ProgrammingUI.label("", 17, ProgrammingUI.TEXT);
+  private final Label values = ProgrammingUI.label("", 17, ProgrammingUI.TEXT);
+  private final Label feedback = ProgrammingUI.label("", 16, ProgrammingUI.TEXT);
   private final Label code = ProgrammingUI.label("", 18, ProgrammingUI.TEXT);
-  private final Table actions = new Table();
+  private final ScrollPane scroll;
+  private final TextButton heading;
+  private final TextButton left;
+  private final TextButton right;
+  private final TextButton resume;
+  private final Vector3 projected = new Vector3();
+  private final Vector2 stagePoint = new Vector2();
   private ProgrammingDecisions.State state;
   private int revision = -1;
   private boolean showRune = true;
-  private com.badlogic.gdx.scenes.scene2d.ui.TextButton viewButton;
+  private String title = "";
 
   ProgrammingDecisionUI(String dialogId, ProgrammingDecisions.State initial, int viewer) {
     this.dialogId = dialogId;
     this.viewer = viewer;
-    addActor(new ProgrammingObservation.View(initial.golemId(), dialogId, true));
+    addActor(new ProgrammingRiderCamera(initial.golemId()));
     panel.setBackground(ProgrammingUI.background(ProgrammingUI.INK, true));
-    panel.pad(20);
-    panel.top().left();
-    title.setWrap(true);
-    panel.add(title).growX().row();
-    var scroll = new ScrollPane(code);
-    scroll.setScrollingDisabled(false, false);
-    panel.add(scroll).grow().padTop(14).row();
-    panel.add(actions).growX().padTop(12);
-    addActor(panel);
-    bar.setBackground(ProgrammingUI.background(ProgrammingUI.INK, true));
-    bar.pad(14);
-    values.setWrap(true);
-    bar.add(values).growX();
-    viewButton =
+    panel.top();
+    heading =
         ProgrammingUI.button(
-            "Raum ansehen",
-            false,
+            "",
+            true,
             () -> {
               showRune = !showRune;
-              viewButton.setText(showRune ? "Raum ansehen" : "Rune ansehen");
-              panel.setVisible(showRune && !state.moving());
+              arrangePanel();
             });
-    bar.add(viewButton).width(155).height(40).padLeft(12);
-    bar.add(
-            ProgrammingUI.button(
-                "Schließen",
-                false,
-                () ->
-                    DialogCallbackResolver.createButtonCallback(dialogId, CanvasUI.EVENT_CLOSE)
-                        .accept(null)))
-        .width(125)
-        .height(40)
-        .padLeft(12)
-        .row();
+    code.setWrap(false);
+    scroll = new ScrollPane(code, UIUtils.defaultSkin());
+    var style = new ScrollPane.ScrollPaneStyle(scroll.getStyle());
+    style.background = null;
+    scroll.setStyle(style);
+    scroll.setScrollingDisabled(false, false);
+    scroll.setFlickScroll(false);
+    scroll.setFadeScrollBars(false);
+    addActor(panel);
+    bar.setBackground(ProgrammingUI.background(ProgrammingUI.INK, true));
+    bar.pad(10);
+    values.setWrap(true);
     feedback.setWrap(true);
-    bar.add(feedback).colspan(3).growX().padTop(8);
+    bar.add(values).growX();
+    resume = ProgrammingUI.button("Weiter", true, () -> send("RESUME"));
+    bar.add(resume).width(110).height(38).padLeft(10).row();
+    bar.add(feedback).colspan(2).growX().padTop(5);
     addActor(bar);
+    left = ProgrammingUI.button("LINKS", true, () -> send("LEFT"));
+    right = ProgrammingUI.button("RECHTS", true, () -> send("RIGHT"));
+    addActor(left);
+    addActor(right);
     update(initial);
   }
 
   @Override
   public void act(float delta) {
     super.act(delta);
-    setSize(Game.windowWidth(), Game.windowHeight());
+    setSize(
+        getStage() == null ? Game.windowWidth() : getStage().getWidth(),
+        getStage() == null ? Game.windowHeight() : getStage().getHeight());
     setPosition(0, 0);
     ProgrammingDecisions.state().ifPresent(this::update);
-    float width = Math.min(560, getWidth() * .46f);
-    bar.setBounds(16, 16, getWidth() - 32, 128);
-    panel.setBounds(16, 160, width, Math.max(180, getHeight() - 176));
+    // Measure wrapped status text at its actual cell width before sizing the book.
+    values.setWidth(getWidth() - 24 - 20 - 120);
+    feedback.setWidth(getWidth() - 24 - 20);
+    float barHeight = 20 + Math.max(38, values.getPrefHeight()) + 5 + feedback.getPrefHeight();
+    bar.setBounds(12, 12, getWidth() - 24, barHeight);
+    float width = Math.min(560, getWidth() - 40);
+    heading.getLabel().setWidth(width - 20);
+    float headingHeight = Math.max(48, heading.getLabel().getPrefHeight() + 20);
+    panel.getCell(heading).height(headingHeight);
+    float bottom = bar.getY() + barHeight + 8;
+    // Keep the book's upper edge below Nox even on a short window.
+    float height = showRune ? Math.max(100, getHeight() * .45f - bottom) : headingHeight;
+    panel.setBounds((getWidth() - width) / 2, bottom, width, height);
+    placeChoice(left, true);
+    placeChoice(right, false);
+  }
+
+  private void arrangePanel() {
+    panel.clearChildren();
+    heading.setText((showRune ? "v  " : ">  ") + title);
+    panel.add(heading).growX().height(48).row();
+    if (showRune) panel.add(scroll).grow().minSize(0).pad(12);
+  }
+
+  /**
+   * Camera projection uses bottom-up pixels; Scene2D's screen conversion expects top-down.
+   *
+   * @param button choice button to position
+   * @param isLeft whether this is the left branch
+   */
+  private void placeChoice(TextButton button, boolean isLeft) {
+    if (!button.isVisible() || getStage() == null) return;
+    var point = ProgrammingDecisionWorld.choicePoint(state.junction(), isLeft);
+    CameraSystem.camera().project(projected.set(point.x(), point.y() + .8f, 0));
+    stagePoint.set(projected.x, Gdx.graphics.getHeight() - projected.y);
+    getStage().screenToStageCoordinates(stagePoint);
+    stageToLocalCoordinates(stagePoint);
+    float width = 124;
+    float height = 44;
+    // Clamp within the matching half of the screen without crossing the rider in the center.
+    float minX = isLeft ? 12 : getWidth() / 2 + 72;
+    float maxX = isLeft ? getWidth() / 2 - 72 - width : getWidth() - width - 12;
+    float x = Math.clamp(stagePoint.x - width / 2, minX, maxX);
+    float y = Math.clamp(stagePoint.y + 8, getHeight() * .52f, getHeight() - height - 12);
+    button.setBounds(x, y, width, height);
   }
 
   private void update(ProgrammingDecisions.State next) {
-    state = next;
     if (revision == next.revision()) return;
+    boolean arrived =
+        state == null
+            || state.junction() != next.junction()
+            || (state.moving() && !next.moving() && !next.blocked());
+    boolean newCode =
+        state == null
+            || state.junction() != next.junction()
+            || state.completed() != next.completed();
+    state = next;
     revision = next.revision();
+    if (arrived) showRune = true;
     values.setText(next.values().label() + "     Versuch " + (next.failures() + 1));
     feedback.setText(
-        next.feedback()
-            + (next.driver() != viewer
-                ? " · Du beobachtest. Ein anderer Spieler steuert Nox."
-                : ""));
-    panel.setVisible(showRune && !next.moving());
-    title.setText(
+        next.feedback() + (next.driver() != viewer ? " · Ein anderer Spieler reitet Nox." : ""));
+    title =
         next.completed()
             ? "Herzfeuer · Die Runen waren Programmcode"
             : "Kreuzung "
                 + (next.junction() + 1)
                 + " / 6 · "
-                + DecisionMaze.TITLES[Math.min(5, next.junction())]);
-    code.setText(
-        next.completed()
-            ?
+                + DecisionMaze.TITLES[Math.min(5, next.junction())];
+    if (newCode) {
+      code.setText(
+          next.completed()
+              ?
 """
 Eine Bedingung wählt einen Zweig.
 Ein Zweig kann weitere Bedingungen enthalten.
@@ -113,18 +167,20 @@ UND = &&    ODER = ||
 WAHR = true    FALSCH = false
 
 """
-                + DecisionMaze.JAVA
-            : DecisionMaze.RUNES[Math.min(5, next.junction())]);
-    actions.clearChildren();
-    if (next.blocked())
-      actions.add(ProgrammingUI.button("Weiter", true, () -> send("RESUME"))).growX();
-    else if (!next.completed()) {
-      actions.add(ProgrammingUI.button("LINKS", true, () -> send("LEFT"))).growX().padRight(12);
-      actions.add(ProgrammingUI.button("RECHTS", true, () -> send("RIGHT"))).growX();
+                  + DecisionMaze.JAVA
+              : DecisionMaze.RUNES[Math.min(5, next.junction())]);
+      scroll.setScrollX(0);
+      scroll.setScrollY(0);
+      scroll.updateVisualScroll();
     }
-    for (var child : actions.getChildren())
-      if (child instanceof com.badlogic.gdx.scenes.scene2d.ui.TextButton button)
-        button.setDisabled(next.driver() != viewer);
+    arrangePanel();
+    boolean choosing = !next.moving() && !next.blocked() && !next.completed();
+    left.setVisible(choosing);
+    right.setVisible(choosing);
+    left.setDisabled(next.driver() != viewer);
+    right.setDisabled(next.driver() != viewer);
+    resume.setVisible(next.blocked());
+    resume.setDisabled(next.driver() != viewer);
   }
 
   private void send(String operation) {
