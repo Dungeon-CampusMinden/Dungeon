@@ -59,6 +59,13 @@ final class ProgrammingGolemRuntime {
   private final Entity golem;
   private final ProgrammingCellarMachinery machinery;
   private final ProgrammingWorkshopRuntime workshop;
+  private final ProgrammingHelp help;
+  private boolean assistedLoops;
+  private boolean assistedRuneCollection;
+  private boolean solvingBinding;
+  private java.util.UUID attemptParticipant;
+  private String attemptCode = "";
+  private String attemptPuzzle = "";
   private java.util.function.Consumer<String> movementFailed;
   private boolean workshopTransit;
   private boolean awaitingWorkshopRoute;
@@ -101,6 +108,8 @@ final class ProgrammingGolemRuntime {
     wall = ProgrammingProps.wall(level);
     machinery = new ProgrammingCellarMachinery(level, golem);
     workshop = new ProgrammingWorkshopRuntime(level, golem, this);
+    help = new ProgrammingHelp(this);
+    ProgrammingProgress.started("vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
   }
 
   void show(Entity who) {
@@ -158,6 +167,12 @@ final class ProgrammingGolemRuntime {
       GolemProperty property = GolemProperty.valueOf(propertyName);
       if (vessel) {
         SoulVessel selected = SoulVessel.valueOf(value);
+        recordBinding(
+            who,
+            property,
+            selected.name(),
+            true,
+            VariablePuzzle.vesselSolution().get(property) == selected);
         if (VariablePuzzle.vesselSolution().get(property) != selected) {
           bindingFeedback =
               selected == SoulVessel.CRYSTAL_BOTTLE
@@ -173,13 +188,23 @@ final class ProgrammingGolemRuntime {
         bindingFeedback = property.label() + ": " + selected.label() + " eingesetzt.";
         if (vessels.size() == GolemProperty.values().length) {
           controller.submitVessels(vessels);
+          ProgrammingProgress.solved("vessels", "Alle Gefäße sind zugeordnet.");
+          ProgrammingProgress.started("essences", "Setze die Werte aus dem Bindungsplan ein.");
           bindingFeedback = "Alle Gefäße eingesetzt. Fehlende Füllungen ergänzen.";
         }
       } else {
         MagicalEssence selected = MagicalEssence.valueOf(value);
         SoulVessel container = vessels.get(property);
+        recordBinding(
+            who,
+            property,
+            selected.name(),
+            false,
+            container != null
+                && VariablePuzzle.fits(container, selected)
+                && VariablePuzzle.essenceSolution().get(property) == selected);
         if (container == null || !VariablePuzzle.fits(container, selected)) {
-          if (container != null) ProgrammingAchievements.WRONG_TYPE.unlock(who);
+          if (container != null && !solvingBinding) ProgrammingAchievements.WRONG_TYPE.unlock(who);
           bindingFeedback =
               selected.literal()
                   + " passt nicht in "
@@ -189,9 +214,11 @@ final class ProgrammingGolemRuntime {
           return;
         }
         MagicalEssence previous = essences.put(property, selected);
-        if (previous != null && previous != selected) ProgrammingAchievements.OVERWRITE.unlock(who);
-        if (property == GolemProperty.ACTIVATED && selected == MagicalEssence.BOOLEAN_FALSE)
-          ProgrammingAchievements.SLEEPY.unlock(who);
+        if (!solvingBinding && previous != null && previous != selected)
+          ProgrammingAchievements.OVERWRITE.unlock(who);
+        if (!solvingBinding
+            && property == GolemProperty.ACTIVATED
+            && selected == MagicalEssence.BOOLEAN_FALSE) ProgrammingAchievements.SLEEPY.unlock(who);
         bindingFeedback =
             property.label()
                 + " = "
@@ -202,6 +229,8 @@ final class ProgrammingGolemRuntime {
                     : " Bindung reagiert nicht.");
         if (VariablePuzzle.essencesCorrect(essences)) {
           controller.submitEssences(essences);
+          ProgrammingProgress.solved(
+              "essences", "Die Seelenbindung ist vollständig. Aktiviere Nox.");
           ProgrammingAchievements.BOUND.unlock();
           bindingFeedback = "Seelenbindung vollständig. Gefäß, Name und Wert bilden eine Variable.";
         }
@@ -220,6 +249,7 @@ final class ProgrammingGolemRuntime {
       if (bindingState().revealed()) return;
       if (essences.remove(property) == null
           && controller.variableStage() == VariablePuzzleStage.VESSELS) vessels.remove(property);
+      ProgrammingProgress.interaction(helpPuzzle(), "clear-" + property.name(), who);
       bindingFeedback = property.label() + ": Fassung geleert.";
     } catch (IllegalArgumentException ignored) {
       // Ignore unknown property IDs.
@@ -246,6 +276,7 @@ final class ProgrammingGolemRuntime {
       breakingGate = false;
       return;
     }
+    ProgrammingProgress.interaction("essences", "activate-golem", who);
     status = "Aktivierung läuft.";
     ProgrammingBinding.closeAll();
     move(
@@ -271,6 +302,8 @@ final class ProgrammingGolemRuntime {
                   level.getPoint("maze-origin"), LoopMaze.checkpoints().getFirst().start()));
           PositionSync.syncPosition(golem);
           mazeReady = true;
+          ProgrammingProgress.started(
+              "cellar-0", "Bringe Nox zur ersten Zielmarke und richte ihn aus.");
           Game.levelEntities()
               .filter(entity -> entity.name().equals("programming-loop-monitor"))
               .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
@@ -311,10 +344,27 @@ final class ProgrammingGolemRuntime {
 
   boolean collectRune(String runeId, Entity who) {
     if (!authorized(who, "rune-" + runeId, 3f)) return false;
+    return collectRune(runeId, who, false);
+  }
+
+  private boolean collectRune(String runeId, Entity who, boolean assisted) {
     if (controller.collectLoopRune(runeId) != PuzzleSubmissionResult.ACCEPTED) return false;
+    assistedRuneCollection |= assisted;
+    if (assisted) {
+      ProgrammingProgress.discover(
+          "rune-" + runeId,
+          "Schleifenrune gefunden",
+          runeId + "\n" + LoopPuzzle.rune(runeId).orElseThrow().code(),
+          who);
+      Game.levelEntities()
+          .filter(entity -> entity.name().equals("programming-rune-" + runeId))
+          .toList()
+          .forEach(Game::remove);
+    }
     int collected = controller.collectedLoopRunes().size();
-    if (collected == 1) ProgrammingAchievements.FIRST_RUNE.unlock();
-    if (collected == LoopPuzzle.runes().size()) ProgrammingAchievements.ARCHIVIST.unlock();
+    if (!assisted && collected == 1) ProgrammingAchievements.FIRST_RUNE.unlock();
+    if (!assistedRuneCollection && collected == LoopPuzzle.runes().size())
+      ProgrammingAchievements.ARCHIVIST.unlock();
     return true;
   }
 
@@ -431,6 +481,10 @@ final class ProgrammingGolemRuntime {
                     level.getPoint("maze-origin"), LoopMaze.checkpoints().get(checkpoint).start()))
             > .1f
         || facing != LoopMaze.checkpoints().get(checkpoint).facing()) return;
+    attemptParticipant = ProgrammingProgress.participant(who).orElse(null);
+    attemptPuzzle = "cellar-" + checkpoint;
+    attemptCode = rune.orElseThrow().code();
+    ProgrammingProgress.interaction(attemptPuzzle, "execute", who);
     attempt = new LoopExecution(checkpoint, rune.orElseThrow(), monsterAlive);
     activeRune = runeId;
     busy = true;
@@ -439,6 +493,7 @@ final class ProgrammingGolemRuntime {
 
   void removeRune(String runeId, Entity who) {
     if (!authorized(who, "loop-terminal", 3f) || busy || !activeRune.equals(runeId)) return;
+    ProgrammingProgress.interaction("rune-" + runeId, "remove", who);
     activeRune = "";
   }
 
@@ -500,6 +555,7 @@ final class ProgrammingGolemRuntime {
     attacking = false;
     position.rotation(0);
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
+    if (!success) recordLoopOutcome(false);
     if (success) {
       String challenge = currentChallenge();
       busy = true;
@@ -513,16 +569,24 @@ final class ProgrammingGolemRuntime {
                 controller.completedLoops(),
                 () -> {
                   controller.completeExecutedLoop(challenge);
+                  recordLoopOutcome(true);
+                  ProgrammingProgress.solved(
+                      attemptPuzzle,
+                      "Nox hat die Zielmarke erreicht und den Räumauftrag erledigt.");
                   if (controller.completedLoops() == 1)
                     ProgrammingAchievements.FIRST_ROUTE.unlock();
                   if (checkpointFailures > 0) ProgrammingAchievements.SECOND_TRY.unlock();
                   checkpointFailures = 0;
                   if (controller.phase() == ProgrammingPhase.METHODS) {
                     ProgrammingAchievements.CELLAR_CLEAR.unlock();
-                    if (loopFailures == 0) ProgrammingAchievements.CLEAN_RUN.unlock();
+                    if (loopFailures == 0 && !assistedLoops)
+                      ProgrammingAchievements.CLEAN_RUN.unlock();
                     returnUpstairs();
                     return;
                   }
+                  ProgrammingProgress.started(
+                      "cellar-" + controller.completedLoops(),
+                      "Bringe Nox zur nächsten Zielmarke und richte ihn aus.");
                   busy = false;
                   status = "Räumauftrag erledigt. Nächste Arbeitsposition bereit.";
                 });
@@ -882,6 +946,97 @@ final class ProgrammingGolemRuntime {
         && x <= Math.max(a.x(), b.x())
         && y >= Math.min(a.y(), b.y())
         && y <= Math.max(a.y(), b.y());
+  }
+
+  ProgrammingHelp help() {
+    return help;
+  }
+
+  String helpPuzzle() {
+    if (controller.phase() == ProgrammingPhase.METHODS) return "methods";
+    if (controller.phase() == ProgrammingPhase.LOOPS)
+      return "cellar-" + controller.completedLoops();
+    return controller.variableStage() == VariablePuzzleStage.VESSELS ? "vessels" : "essences";
+  }
+
+  boolean helpReady() {
+    if (controller.phase() == ProgrammingPhase.METHODS) return workshop.helpReady();
+    if (busy) return false;
+    return controller.phase() == ProgrammingPhase.LOOPS ? mazeReady : !bindingState().revealed();
+  }
+
+  boolean helpSolvable() {
+    return controller.phase() != ProgrammingPhase.VARIABLES
+        || propertiesCollected && vesselsCollected;
+  }
+
+  String helpStatus() {
+    if (controller.phase() == ProgrammingPhase.METHODS) return workshop.helpStatus();
+    if (controller.phase() == ProgrammingPhase.VARIABLES) return bindingFeedback;
+    return status;
+  }
+
+  boolean helpAuthorized(Entity who) {
+    return switch (controller.phase()) {
+      case VARIABLES -> authorized(who, "variables-golem", 4.5f);
+      case LOOPS -> authorized(who, "loop-terminal", 3f);
+      case METHODS -> workshop.helpAuthorized(who);
+    };
+  }
+
+  boolean helpSolveAuthorized(Entity who) {
+    return helpReady()
+        && helpAuthorized(who)
+        && (controller.phase() != ProgrammingPhase.METHODS || workshop.helpSolveAuthorized(who));
+  }
+
+  void solveHelp(Entity who) {
+    if (!helpSolveAuthorized(who) || !helpSolvable()) return;
+    switch (controller.phase()) {
+      case VARIABLES -> {
+        solvingBinding = true;
+        try {
+          if (controller.variableStage() == VariablePuzzleStage.VESSELS)
+            VariablePuzzle.vesselSolution()
+                .forEach(
+                    (property, value) -> assignBinding(who, property.name(), value.name(), true));
+          else
+            VariablePuzzle.essenceSolution()
+                .forEach(
+                    (property, value) -> assignBinding(who, property.name(), value.name(), false));
+        } finally {
+          solvingBinding = false;
+        }
+      }
+      case LOOPS -> {
+        String rune = ProgrammingHelp.recommendedRune(controller.completedLoops());
+        if (!controller.collectedLoopRunes().contains(rune)) collectRune(rune, who, true);
+        assistedLoops = true;
+        if (!activeRune.isEmpty()) removeRune(activeRune, who);
+        executeRune(rune, who);
+      }
+      case METHODS -> workshop.solveHelp(who);
+    }
+  }
+
+  private void recordBinding(
+      Entity who, GolemProperty property, String selected, boolean vessel, boolean correct) {
+    ProgrammingProgress.participant(who)
+        .ifPresent(
+            participant ->
+                ProgrammingProgress.attempt(
+                    vessel ? "vessels" : "essences",
+                    property.name(),
+                    vessel ? "vessel" : "essence",
+                    property.name() + "=" + selected,
+                    correct,
+                    participant));
+  }
+
+  private void recordLoopOutcome(boolean correct) {
+    if (attemptParticipant != null)
+      ProgrammingProgress.attempt(
+          attemptPuzzle, activeRune, "code", attemptCode, correct, attemptParticipant);
   }
 
   private String currentChallenge() {

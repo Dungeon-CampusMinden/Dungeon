@@ -54,8 +54,9 @@ final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI
         "Ziehe eine Rune in den Executor und führe Nox zu den fünf Wegzeichen.",
         ProgrammingTerminal.nodes(initial));
     footer.clearChildren();
+    footer.add(status).growX().padTop(8);
     help(
-        "Kellersteuerung\n\nZiehe eine Rune in das Executor-Feld. Das Programm startet beim Einsetzen. Fahre mit der Maus über eine Rune, um ihren Code zu lesen.\n\nWährend Nox arbeitet, bleibt die eingesetzte Rune gesperrt. Sobald er fertig ist, kannst du sie herausziehen oder durch eine andere Rune ersetzen.\n\nDie Befehle stehen unter dem Runenvorrat. Der Sehstein im Raum zeigt Nox aus der Nähe.");
+        "Starten: Rune in den Executor ziehen.\nCode lesen: Maus über eine Rune halten.\nWechseln: Nach dem Lauf Rune herausziehen oder ersetzen.\nBeobachten: Die Karte zeigt Nox und das nächste Wegzeichen.");
     update(initial);
     tooltip.setTransform(false);
     tooltip.setTouchable(Touchable.disabled);
@@ -123,6 +124,15 @@ final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI
   }
 
   private void update(TerminalState state) {
+    status.setText(
+        ProgrammingHelp.state()
+            .filter(s -> s.puzzleId().equals("cellar-" + state.checkpoint()) && s.level() >= 3)
+            .map(
+                s ->
+                    s.status().isBlank()
+                        ? "Gold zeigt den aktuellen Weg. Nur passende Runengruppen sind sichtbar."
+                        : s.status())
+            .orElse(""));
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       String id = state.collectedRunes().get(i);
       if (area().nodeById(id).isEmpty()) area().addNode(ProgrammingTerminal.card(id, i));

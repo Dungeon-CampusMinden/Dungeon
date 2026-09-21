@@ -311,6 +311,121 @@ public final class MethodsWorkshop {
     return List.copyOf(original);
   }
 
+  /** Loads the offered example through the same validated edits and builds as the workbench. */
+  public boolean loadHelpSolution(int actor) {
+    if (editorId != actor || busy || completed) return false;
+    MethodsWorkshop example = new MethodsWorkshop();
+    example.apply(actor, new Intent(0, 0, Operation.CLAIM, ""));
+    if (!example.buildHelpSolution(actor)) return false;
+    main.clear();
+    main.addAll(example.main);
+    scrap.clear();
+    definitions.clear();
+    definitions.putAll(example.definitions);
+    draft = new Definition("", List.of(), List.of());
+    editingName = "";
+    invalidateResult();
+    revision++;
+    return true;
+  }
+
+  private boolean buildHelpSolution(int actor) {
+    // Construct the example with the normal block, parameter and method validators.
+    for (String container : List.of("main", "scrap", "draft"))
+      for (Block block : List.copyOf(body(container)))
+        if (!helpEdit(actor, Operation.DELETE_BLOCK, block.id())) return false;
+    for (MethodsRoute.Kind kind : MethodsRoute.Kind.values()) {
+      String name =
+          switch (kind) {
+            case GATE -> "hilfeTor";
+            case RUNE -> "hilfeRune";
+            case COLLECT -> "hilfeSammeln";
+            case ALTAR -> "hilfeAltar";
+          };
+      if (!helpEdit(actor, Operation.NEW_METHOD, "")
+          || !helpEdit(actor, Operation.NAME, name)
+          || !helpEdit(
+              actor,
+              Operation.PARAMETER,
+              kind == MethodsRoute.Kind.RUNE
+                  ? "richtung"
+                  : kind == MethodsRoute.Kind.ALTAR ? "menge" : "")) return false;
+      int index = 0;
+      for (Step step : MethodsRoute.body(kind, Direction.RIGHT, 3)) {
+        String operand =
+            step.action() == Action.TURN
+                ? "richtung"
+                : step.action() == Action.PLACE ? "menge" : Integer.toString(step.amount());
+        Block block =
+            new Block(
+                "",
+                step.action(),
+                operand,
+                step.action() == Action.COLLECT ? "gesammelt" : "",
+                "",
+                List.of(),
+                ResultMode.REPLACE);
+        if (!helpEdit(
+            actor,
+            Operation.ADD_BLOCK,
+            JSON.writeValueAsString(new Edit("", "draft", index++, block)))) return false;
+      }
+      if (kind == MethodsRoute.Kind.COLLECT || kind == MethodsRoute.Kind.ALTAR) {
+        Block result =
+            new Block(
+                "",
+                Action.RETURN,
+                kind == MethodsRoute.Kind.COLLECT ? "gesammelt" : "menge",
+                "",
+                "",
+                List.of(),
+                ResultMode.REPLACE);
+        if (!helpEdit(
+            actor,
+            Operation.ADD_BLOCK,
+            JSON.writeValueAsString(new Edit("", "draft", index, result)))) return false;
+      }
+      if (!helpEdit(actor, Operation.BUILD, "") || !definitions.containsKey(name)) return false;
+    }
+    int index = 0;
+    for (var station : MethodsRoute.STATIONS) {
+      String name =
+          switch (station.kind()) {
+            case GATE -> "hilfeTor";
+            case RUNE -> "hilfeRune";
+            case COLLECT -> "hilfeSammeln";
+            case ALTAR -> "hilfeAltar";
+          };
+      boolean returns =
+          station.kind() == MethodsRoute.Kind.COLLECT || station.kind() == MethodsRoute.Kind.ALTAR;
+      List<String> arguments =
+          switch (station.kind()) {
+            case RUNE -> List.of(station.direction().label());
+            case ALTAR -> List.of(Integer.toString(station.amount()));
+            default -> List.of();
+          };
+      Block call =
+          new Block(
+              "",
+              Action.CALL,
+              "",
+              returns ? "kristalle" : "",
+              name,
+              arguments,
+              station.kind() == MethodsRoute.Kind.ALTAR
+                  ? ResultMode.SUBTRACT
+                  : returns ? ResultMode.ADD : ResultMode.REPLACE);
+      if (!helpEdit(
+          actor, Operation.ADD_BLOCK, JSON.writeValueAsString(new Edit("", "main", index++, call))))
+        return false;
+    }
+    return true;
+  }
+
+  private boolean helpEdit(int actor, Operation operation, String value) {
+    return apply(actor, new Intent(revision, 0, operation, value));
+  }
+
   /** Returns a snapshot; current-frame variables reveal parameter bindings during execution. */
   public State state() {
     return new State(

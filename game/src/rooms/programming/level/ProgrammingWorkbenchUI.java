@@ -30,8 +30,8 @@ abstract class ProgrammingWorkbenchUI extends CanvasUI {
   private final Table canvasContent = new Table();
   private final ScrollPane scroll;
   private final Stack body = new Stack();
-  private final ScrollPane reference;
-  private final Label referenceText = ProgrammingUI.label("", 20, ProgrammingUI.TEXT);
+  private ProgrammingHelpUI reference;
+  private com.badlogic.gdx.scenes.scene2d.ui.TextButton helpButton;
   private boolean referenceOpen;
 
   ProgrammingWorkbenchUI(
@@ -87,17 +87,7 @@ abstract class ProgrammingWorkbenchUI extends CanvasUI {
             return true;
           }
         });
-    Table referenceContent = new Table();
-    referenceContent.top().left().pad(20);
-    referenceContent.add(referenceText).growX().top();
-    reference = new ScrollPane(referenceContent, UIUtils.defaultSkin());
-    reference.setStyle(new ScrollPane.ScrollPaneStyle(scrollStyle));
-    reference.setScrollingDisabled(true, false);
-    reference.setFadeScrollBars(false);
-    reference.setFlickScroll(false);
-    reference.setVisible(false);
     body.add(scroll);
-    body.add(reference);
     shell.add(body).grow().minSize(0).row();
     footer.add(feedback).growX().padTop(12).row();
     footer.add(status).growX().padTop(6).row();
@@ -105,22 +95,59 @@ abstract class ProgrammingWorkbenchUI extends CanvasUI {
     addActor(shell);
   }
 
-  protected final void help(String text) {
-    var button = ProgrammingUI.referenceButton("Hilfe", () -> reference(text));
-    button.setUserObject(Cursors.HELP);
-    actions.add(button).width(95).minHeight(44);
+  protected final void help(String controls) {
+    reference = new ProgrammingHelpUI(controls, this::helpEvent, () -> reference(false));
+    reference.setVisible(false);
+    body.add(reference);
+    helpButton =
+        ProgrammingUI.referenceButton(
+            "Hilfe",
+            () -> {
+              if (referenceOpen) {
+                reference.returnToPuzzle();
+                return;
+              }
+              if (!referenceOpen)
+                ProgrammingHelp.state().ifPresent(s -> helpEvent("help.open", s.puzzleId()));
+              reference(!referenceOpen);
+            });
+    helpButton.setUserObject(Cursors.HELP);
+    actions.add(helpButton).width(95).minHeight(44);
+    actions
+        .add(
+            ProgrammingUI.button(
+                "Quest-Log",
+                false,
+                () ->
+                    ProgrammingHelp.state()
+                        .ifPresent(s -> helpEvent("help.questlog", s.puzzleId()))))
+        .width(120)
+        .minHeight(44)
+        .padLeft(8);
   }
 
-  private void reference(String text) {
-    referenceOpen = !referenceOpen;
-    referenceText.setText(text);
-    reference.setVisible(referenceOpen);
-    scroll.setVisible(!referenceOpen);
-    if (getStage() != null) getStage().setScrollFocus(referenceOpen ? reference : scroll);
+  private void helpEvent(String action, String puzzleId) {
+    area()
+        .fireServerEvent(
+            action, new engine.network.messages.c2s.DialogResponseMessage.StringValue(puzzleId));
+  }
+
+  private void reference(boolean open) {
+    referenceOpen = open;
+    helpButton.setChecked(open);
+    reference.setVisible(open);
+    scroll.setVisible(!open);
+    if (getStage() != null) getStage().setScrollFocus(open ? null : scroll);
   }
 
   protected final boolean referenceOpen() {
     return referenceOpen;
+  }
+
+  @Override
+  public void requestClose() {
+    if (reference != null) reference.dismissConfirmation();
+    super.requestClose();
   }
 
   /**

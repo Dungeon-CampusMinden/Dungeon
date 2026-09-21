@@ -51,6 +51,7 @@ final class ProgrammingBindingNode extends CanvasNode {
   private String imagePath = "";
   private float pulse;
   private boolean over;
+  private boolean aided;
   private boolean dragging;
   private float homeX;
   private float homeY;
@@ -129,6 +130,22 @@ final class ProgrammingBindingNode extends CanvasNode {
     if (title != null) refreshText();
     updateCursor();
     invalidateLayout();
+  }
+
+  void simplify(boolean enabled, GolemProperty focus) {
+    aided = enabled && focus != null && kind == Kind.SOCKET && property() == focus;
+    boolean visible = true;
+    if (enabled && focus != null && state != null) {
+      if (kind == Kind.VESSEL)
+        visible =
+            state.stage() == VariablePuzzleStage.VESSELS
+                && vessel() == VariablePuzzle.vesselSolution().get(focus);
+      if (kind == Kind.ESSENCE)
+        visible =
+            state.stage() != VariablePuzzleStage.VESSELS
+                && VariablePuzzle.fits(VariablePuzzle.vesselSolution().get(focus), essence());
+    }
+    setVisible(visible || dragging);
   }
 
   private GolemProperty property() {
@@ -326,9 +343,16 @@ final class ProgrammingBindingNode extends CanvasNode {
       CanvasGraphics.fill(batch, INK, alpha, x() + 12, storageY, width() - 24, 46);
       if (container != null)
         sprite(batch, vesselImage(container), x() + 20, storageY + 2, 40, 40, alpha);
-      if (over || pulse > 0)
+      if (over || aided || pulse > 0)
         CanvasGraphics.outline(
-            batch, GOLD, alpha * Math.max(over ? .85f : 0, pulse), x(), y(), width(), height(), 2);
+            batch,
+            GOLD,
+            alpha * Math.max(over || aided ? .85f : 0, pulse),
+            x(),
+            y(),
+            width(),
+            height(),
+            2);
     } else if (kind == Kind.VESSEL)
       sprite(
           batch, vesselImage(vessel()), x() + 10, y() + 20, 48, 48, alpha * (movable() ? 1 : .45f));

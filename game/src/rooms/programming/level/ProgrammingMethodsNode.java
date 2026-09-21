@@ -568,6 +568,16 @@ final class ProgrammingMethodsNode extends CanvasNode {
   }
 
   private void palette(Table table) {
+    if (owner.simplified())
+      table
+          .add(
+              ProgrammingUI.zoomLabel(
+                  "Gold markiert wiederholte Folgen und Bausteine für Eingaben und Rückgaben. Unterschiedliche Mengen werden zu Eingaben.",
+                  16,
+                  ProgrammingUI.GOLD))
+          .growX()
+          .padBottom(12)
+          .row();
     table
         .add(ProgrammingUI.zoomLabel("Anweisungen hier herausziehen", 16, ProgrammingUI.MUTED))
         .growX()
@@ -633,6 +643,11 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   private void paletteRow(Table table, String text, Block block) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
+    row.aided =
+        owner.simplified()
+            && (block.action() == Action.RETURN
+                || block.action() == Action.COLLECT
+                || block.action() == Action.CALL);
     row.add(
             ProgrammingUI.zoomLabel(
                 text, 18, block.action() == Action.CALL ? ProgrammingUI.GOLD : ProgrammingUI.TEXT))
@@ -642,8 +657,35 @@ final class ProgrammingMethodsNode extends CanvasNode {
     source(row, block, true);
   }
 
+  /** Marks recurring adjacent actions without changing code or the user's selection. */
+  private boolean repeatedSequence(Block block, int index) {
+    List<Block> blocks = showOriginal ? ORIGINAL_PROGRAM : panelBlocks(owner.state());
+    for (int start = Math.max(0, index - 1); start <= index && start + 1 < blocks.size(); start++) {
+      for (int other = 0; other + 1 < blocks.size(); other++) {
+        if (Math.abs(other - start) < 2) continue;
+        if (blocks.get(start).action() == blocks.get(other).action()
+            && blocks.get(start + 1).action() == blocks.get(other + 1).action()) return true;
+      }
+    }
+    return false;
+  }
+
   private void blockRow(Table table, Block block, int index, String staticError) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
+    row.aided = owner.simplified() && repeatedSequence(block, index);
+    if (owner.simplified()) {
+      String note =
+          switch (block.action()) {
+            case COLLECT -> "Sammelmenge als Rückgabe nutzen";
+            case RETURN -> "Diesen Wert am Aufruf übernehmen";
+            case CALL -> "Eingaben am Aufruf anpassen";
+            default -> "";
+          };
+      if (!note.isEmpty()) {
+        table.add(ProgrammingUI.zoomLabel(note, 14, ProgrammingUI.GOLD)).growX().padTop(6).row();
+        row.aided = true;
+      }
+    }
     if (showOriginal) {
       row.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
       row.add(ProgrammingUI.zoomSyntaxLabel("[#a6aeaa]" + (index + 1) + ".  " + syntax(block), 18))
@@ -819,6 +861,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     private final ClickListener pointer = new ClickListener();
     private boolean selected;
     private boolean failed;
+    private boolean aided;
     private int insertion;
 
     private CodeRow(boolean method) {
@@ -834,7 +877,11 @@ final class ProgrammingMethodsNode extends CanvasNode {
               Color fill =
                   pointer.isPressed()
                       ? PRESSED
-                      : selected ? SELECTED : failed ? ERROR_FILL : pointer.isOver() ? HOVER : REST;
+                      : selected
+                          ? SELECTED
+                          : failed
+                              ? ERROR_FILL
+                              : aided ? SELECTED : pointer.isOver() ? HOVER : REST;
               float notch = Math.min(24, width / 4);
               float tongue = 20;
               // The top notch remains transparent; it never paints over its surrounding panel.
@@ -859,7 +906,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                   y + height - 1,
                   width - notch - tongue,
                   1);
-              if (selected || method || failed)
+              if (selected || method || failed || aided)
                 CanvasGraphics.fill(
                     batch,
                     failed ? ERROR : ProgrammingUI.GOLD,

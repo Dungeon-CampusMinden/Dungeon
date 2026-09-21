@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -31,7 +30,6 @@ import feature.canvas.CanvasOptions;
 import feature.canvas.CanvasSnapshot;
 import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
-import feature.hud.UIUtils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -58,8 +56,6 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   static final float BOARD_BOTTOM = -1717.5f;
   static final float BOARD_RIGHT = BOARD_LEFT + 5400;
   static final float BOARD_TOP = BOARD_BOTTOM + 3600;
-  private static final String OBJECTIVE =
-      "Versorge beide Altäre mit kristalle = 0 am Ende. Höchstens 8 Anweisungen im Hauptprogramm. Nutze eine Methode mit Eingaben mehrfach und übernimm eine Rückgabe.";
   private final int viewer;
   private final Table shell = new Table();
   private final Table workspace = new Table();
@@ -83,7 +79,8 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private boolean help;
   private boolean positioned;
   private boolean closing;
-  private int hint;
+  private boolean simplified;
+  private ProgrammingHelpUI helpView;
   private Entity followed;
   private float previousZoom;
 
@@ -140,11 +137,44 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
         ProgrammingUI.referenceButton(
             "Hilfe",
             () -> {
+              if (help) {
+                helpView.returnToPuzzle();
+                return;
+              }
+              if (!help)
+                ProgrammingHelp.state().ifPresent(s -> helpEvent("help.open", s.puzzleId()));
               help = !help;
               layoutBody();
             });
     helpButton.setUserObject(Cursors.HELP);
     actions.add(helpButton).width(90).height(44);
+    actions
+        .add(
+            ProgrammingUI.button(
+                "Quest-Log",
+                false,
+                () ->
+                    ProgrammingHelp.state()
+                        .ifPresent(s -> helpEvent("help.questlog", s.puzzleId()))))
+        .width(120)
+        .height(44)
+        .padLeft(8);
+    helpView =
+        new ProgrammingHelpUI(
+            "Code ordnen: Zeilen ziehen. Strg-Klick wählt einzelne Zeilen, Umschalt-Klick einen Bereich.\n"
+                + "Methode bauen: Namen und Eingaben festlegen, Code hineinziehen, Methode bauen wählen. Die neue Rune ins Hauptprogramm ziehen.\n"
+                + "Werte ändern: ... an einer Zeile öffnen. Enter oder Verlassen des Felds speichert.\n"
+                + "Arbeitsfläche: Mittlere Maustaste oder Leertaste + Ziehen. Mausrad über Hintergrund zoomt, über Code scrollt es.\n"
+                + "Fenster: Titel ziehen; rechte Maustaste halten und ziehen zum Vergrößern.\n"
+                + "Ausdrücke: Zahlen, Variablen, +, -, Klammern und eigene Methoden. Eine Methode hat höchstens "
+                + MethodsWorkshop.MAX_METHOD_BLOCKS
+                + " Zeilen.",
+            this::helpEvent,
+            () -> {
+              help = false;
+              layoutBody();
+            },
+            () -> editable() && pending < 0 && edits.isEmpty());
     run =
         ProgrammingUI.button(
             "Ausführen",
@@ -197,6 +227,15 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
             .map(CanvasNode::toState)
             .map(s -> s.withOrigin(NodeOrigin.DEFAULT))
             .toList());
+  }
+
+  private void helpEvent(String action, String puzzleId) {
+    flushFields();
+    area().fireServerEvent(action, new DialogResponseMessage.StringValue(puzzleId));
+  }
+
+  boolean simplified() {
+    return simplified;
   }
 
   State state() {
@@ -524,47 +563,8 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     watch.setText(observing ? "Zum Code" : "Raum ansehen");
     refreshEvaluation();
     if (help) {
-      Table content = new Table();
-      content.top().left().pad(24).setBackground(ProgrammingUI.background(ProgrammingUI.INK, true));
-      content
-          .add(ProgrammingUI.label("Code verschieben, Methoden bauen", 25, ProgrammingUI.GOLD))
-          .growX()
-          .row();
-      String text =
-          OBJECTIVE
-              + "\n\nZiehe eine Codezeile vor oder hinter eine andere Zeile. Strg-Klick wählt einzelne Zeilen, Umschalt-Klick einen Bereich im selben Fenster. Ziehe eine ausgewählte Zeile, um die ganze Auswahl zu verschieben. Auch zwischen Hauptprogramm und Methode. Ziehe Code auf den freien Hintergrund, um ihn dort als lose Gruppe abzulegen. Lose Gruppen werden nicht ausgeführt; ziehe sie zum Anschließen zurück in ein Programm.\n\n"
-              + "Lege eine eigene Methode an, gib ihr einen Namen und ziehe Code hinein. Eine Methode darf höchstens "
-              + MethodsWorkshop.MAX_METHOD_BLOCKS
-              + " Zeilen haben. Jeder Block zählt als eine Zeile, auch Aufrufe und Rückgaben. Eingaben sind frei benannte Parameter, getrennt durch Kommas. Erst Methode bauen erzeugt eine Rune. Ziehe diese Rune ins Hauptprogramm.\n\n"
-              + "Mit Bearbeiten änderst du Werte, Ausdrücke, Argumente und das Ziel einer Rückgabe. Enter oder Verlassen eines Feldes speichert den Wert. Ein neuer Lauf setzt den Raum zurück und behält deinen Code.\n\n"
-              + "Mittlere Maustaste oder Leertaste + Ziehen verschiebt die begrenzte Arbeitsfläche. Mausrad über dem Hintergrund zoomt; über Code scrollt es. Fenster am Titel verschieben. Mit gedrückter rechter Maustaste die Fenstergröße ändern: Hauptprogramm und Bausteine nur in der Höhe, die Methode auch in der Breite.\n\nAusdrücke: Zahlen, Variablennamen, +, -, Klammern und Aufrufe gebauter Methoden. Bei Variable setzen ist zum Beispiel 1 + meineMethode(15) möglich. Die Methode führt ihre Anweisungen aus und muss einen Wert zurückgeben. Richtungen: LINKS, RECHTS, HINTEN. SAMMLE_ALLE speichert die tatsächliche Feldmenge.\n\n"
-              + (hint == 0
-                  ? ""
-                  : hint == 1
-                      ? "Suche wiederholte Folgen im Hauptprogramm. Was bleibt gleich, welche Werte ändern sich?"
-                      : "Eine Methode kann Eingaben verwenden und einen Wert zurückgeben. Du kannst am Aufruf ein Speicherziel wählen oder den Aufruf direkt in einem Ausdruck verwenden.");
-      content.add(ProgrammingUI.label(text, 19, ProgrammingUI.TEXT)).growX().padTop(16).row();
-      content.add(feedback).growX().padTop(16).row();
-      content
-          .add(
-              ProgrammingUI.button(
-                  "Weiterer Hinweis",
-                  false,
-                  () -> {
-                    hint++;
-                    layoutBody();
-                  }))
-          .left()
-          .width(200)
-          .height(44)
-          .padTop(14)
-          .row();
-      content.add().growY();
-      ScrollPane helpScroll = new ScrollPane(content, UIUtils.defaultSkin());
-      helpScroll.setScrollingDisabled(true, false);
-      helpScroll.setFlickScroll(false);
-      workspace.add(helpScroll).grow();
-      if (getStage() != null) getStage().setScrollFocus(helpScroll);
+      workspace.add(helpView).grow().minSize(0);
+      if (getStage() != null) getStage().setScrollFocus(null);
     } else if (observing) {
       workspace.bottom().left();
       Table box = new Table();
@@ -659,6 +659,12 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     }
     if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) requestClose();
     ProgrammingMethods.state().ifPresent(this::update);
+    boolean aid = ProgrammingHelpUI.simplified("methods");
+    if (aid != simplified && !dragging.isDragging()) {
+      flushFields();
+      simplified = aid;
+      refreshPanels();
+    }
     if (pending >= 0 && (pendingSeconds += delta) > 2) {
       feedback.setText("Warte auf Bestätigung. Deine Änderungen bleiben vorgemerkt.");
     }
@@ -742,6 +748,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
 
   @Override
   public void requestClose() {
+    if (helpView != null) helpView.dismissConfirmation();
     flushFields();
     closing = true;
     if (pending < 0 && edits.isEmpty()) {

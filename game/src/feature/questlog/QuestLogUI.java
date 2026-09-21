@@ -837,6 +837,10 @@ public final class QuestLogUI {
         addEntryList(entryList, entries);
       }
       ScrollPane entriesScroll = Scene2dElementFactory.createScrollPane(entryList, false, true);
+      ScrollPane.ScrollPaneStyle entriesStyle =
+          new ScrollPane.ScrollPaneStyle(entriesScroll.getStyle());
+      entriesStyle.background = null;
+      entriesScroll.setStyle(entriesStyle);
       entriesScroll.setOverscroll(false, false);
       entriesScroll.setFadeScrollBars(false);
       entriesScroll.setFlickScroll(false);
