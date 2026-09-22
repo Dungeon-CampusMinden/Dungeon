@@ -225,6 +225,22 @@ public final class SystemRecoveryLoad {
     };
   }
 
+  /**
+   * Returns whether a newly reached checkpoint may be written by the automatic save system.
+   *
+   * <p>The initial energy-array step remains a valid legacy/load checkpoint, but it is deliberately
+   * excluded here. The first new save is created at {@code MODULE_ARRAY}, after the player has
+   * completed the first riddle and inserted the battery.
+   *
+   * @param step learning step to classify
+   * @return whether the step may trigger an automatic save
+   */
+  public static boolean isAutoSaveCheckpoint(SystemRecoveryLearningStep step) {
+    return step != null
+        && step != SystemRecoveryLearningStep.ENERGY_ARRAY
+        && isMainPuzzleCheckpoint(step);
+  }
+
   private static List<?> list(Object value) {
     if (value == null) return List.of();
     if (!(value instanceof List<?> list)) throw new IllegalArgumentException("Expected JSON array");
