@@ -72,7 +72,14 @@ final class ProgrammingBindingBook extends Group {
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
-            DialogContext.builder().type(Type.BINDING_BOOK).build(), false, true, false, who.id());
+            DialogContext.builder()
+                .type(Type.BINDING_BOOK)
+                .put(feature.hud.dialogs.DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
+                .build(),
+            false,
+            true,
+            false,
+            who.id());
     ui.registerCallback("close", ignored -> UIUtils.closeDialog(ui));
     ui.registerCallback("quest-log", ignored -> feature.questlog.QuestLogUI.requestQuestLog(who));
   }

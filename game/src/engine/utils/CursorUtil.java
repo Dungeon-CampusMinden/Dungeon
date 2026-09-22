@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
+import engine.Game;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -75,30 +76,37 @@ public class CursorUtil {
 
   /**
    * Set a world-cursor override. While active, the Stage input listener will fall back to this
-   * cursor instead of {@link Cursors#DEFAULT} when no UI element overrides the cursor. If the
-   * current cursor is DEFAULT or the previous world override, it is immediately switched to the new
-   * override.
+   * cursor instead of {@link Cursors#DEFAULT} when the pointer is over the world. The UI under the
+   * pointer keeps priority when the world target changes.
    *
    * @param cursor the world cursor to use as the fallback
    */
   public static void setWorldCursor(Cursors cursor) {
     worldCursorOverride = cursor;
-    // Apply immediately if no UI element is overriding the cursor
-    if (currentCursor == Cursors.DEFAULT || currentCursor == cursor) {
-      setCursor(cursor);
-    }
+    refreshCursor();
   }
 
   /**
    * Clear the world-cursor override. The Stage listener will fall back to {@link Cursors#DEFAULT}
-   * again. If the current cursor equals the old override it is reset to DEFAULT.
+   * again. The UI under the pointer keeps its own cursor.
    */
   public static void clearWorldCursor() {
-    Cursors old = worldCursorOverride;
     worldCursorOverride = null;
-    if (currentCursor == old) {
-      resetCursor();
-    }
+    refreshCursor();
+  }
+
+  private static void refreshCursor() {
+    Actor hit =
+        Game.stage()
+            .map(
+                stage -> {
+                  Vector2 pointer =
+                      stage.screenToStageCoordinates(
+                          new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+                  return stage.hit(pointer.x, pointer.y, true);
+                })
+            .orElse(null);
+    setCursor(cursorFor(hit));
   }
 
   /**
@@ -147,6 +155,6 @@ public class CursorUtil {
     }
     return target != null
         ? target
-        : worldCursorOverride != null ? worldCursorOverride : Cursors.DEFAULT;
+        : hit == null && worldCursorOverride != null ? worldCursorOverride : Cursors.DEFAULT;
   }
 }
