@@ -215,12 +215,19 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   }
 
   private int getSlotByCoordinates(int x, int y) {
-    if (this.slotSize == 0) return -1; // Prevent division by zero
-    return (x / this.slotSize) + (y / this.slotSize) * this.slotsPerRow;
+    if (slotSize <= 0 || x < 0 || y < 0 || x >= slotSize * slotsPerRow) return -1;
+    int slot = x / slotSize + (y / slotSize) * slotsPerRow;
+    return slot < inventoryComponent.items().length ? slot : -1;
   }
 
   private int getSlotByCoordinates(float x, float y) {
+    if (x < 0 || y < 0) return -1;
     return this.getSlotByCoordinates((int) x, (int) y);
+  }
+
+  private int slotAtStage(float stageX, float stageY) {
+    var local = stageToLocalCoordinates(new com.badlogic.gdx.math.Vector2(stageX, stageY));
+    return getSlotByCoordinates(local.x, local.y);
   }
 
   private void drawItems(Batch batch) {
@@ -400,17 +407,24 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
           int pointer,
           DragAndDrop.Payload payload,
           DragAndDrop.Target target) {
-        if (target == null
-            && payload != null
-            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-          if (Game.network().isServer()) {
-            HeroController.dropItem(
-                Game.player().orElseThrow(),
-                itemDragPayload.inventoryComponent(),
-                itemDragPayload.slot());
-          } else {
-            Game.network().send((short) 0, InputMessage.invDrop(itemDragPayload.slot()), true);
-          }
+        if (event.isTouchFocusCancel()
+            || payload == null
+            || !(payload.getObject() instanceof ItemDragPayload itemDragPayload)) return;
+        Optional<InventoryGUI> destination =
+            UIUtils.findAllTypesInGroup(event.getStage().getRoot(), InventoryGUI.class)
+                .filter(InventoryGUI::ancestorsVisible)
+                .filter(gui -> gui.slotAtStage(event.getStageX(), event.getStageY()) >= 0)
+                .findFirst();
+        if (destination.isPresent()) {
+          InventoryGUI gui = destination.get();
+          gui.receiveDrop(itemDragPayload, gui.slotAtStage(event.getStageX(), event.getStageY()));
+        } else if (Game.network().isServer()) {
+          HeroController.dropItem(
+              Game.player().orElseThrow(),
+              itemDragPayload.inventoryComponent(),
+              itemDragPayload.slot());
+        } else {
+          Game.network().send((short) 0, InputMessage.invDrop(itemDragPayload.slot()), true);
         }
       }
     };
@@ -421,33 +435,26 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
       @Override
       public boolean drag(
           DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-        // Valid if item in hand (cursor)
-        return payload.getObject() != null && payload.getObject() instanceof ItemDragPayload;
+        return payload.getObject() instanceof ItemDragPayload && getSlotByCoordinates(x, y) >= 0;
       }
 
       @Override
       public void drop(
           DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-        int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
-        if (payload.getObject() != null
-            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-          int sourceSlot = itemDragPayload.slot();
-          if (itemDragPayload.wasHeroInv()) {
-            sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory (to distinguish)
-          }
-          int targetSlot = slot;
-          if (isPlayersInventory(
-              Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
-            targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
-          }
-          if (Game.network().isServer()) {
-            HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
-          } else {
-            Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
-          }
-        }
+        // Resolve the final release position in dragStop, even without a last drag event.
       }
     };
+  }
+
+  private void receiveDrop(ItemDragPayload payload, int slot) {
+    int sourceSlot = payload.wasHeroInv() ? -payload.slot() - 1 : payload.slot();
+    int targetSlot =
+        isPlayersInventory(Game.player().orElseThrow(), inventoryComponent) ? -slot - 1 : slot;
+    if (Game.network().isServer()) {
+      HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
+    } else {
+      Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
+    }
   }
 
   private void addInputListener() {

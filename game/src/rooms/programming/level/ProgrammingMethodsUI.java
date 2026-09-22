@@ -30,6 +30,7 @@ import feature.canvas.CanvasOptions;
 import feature.canvas.CanvasSnapshot;
 import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
+import feature.hud.DragAndDropFactory;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -62,7 +63,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private final Table evaluation = new Table();
   private final Label feedback = ProgrammingUI.label("", 17, ProgrammingUI.GOLD);
   private final Label observation = ProgrammingUI.label("", 20, ProgrammingUI.TEXT);
-  private final DragAndDrop dragging = new DragAndDrop();
+  private final DragAndDrop dragging = DragAndDropFactory.create();
   private boolean dropAllowed;
   private ProgrammingMethodsNode.Drag activeDrag;
   private final ArrayDeque<Edit> edits = new ArrayDeque<>();
@@ -109,9 +110,6 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
         nodes());
     this.viewer = viewer;
     state = initial;
-    // The movement threshold already separates clicks from drags; quick drops are intentional.
-    dragging.setDragTime(0);
-    dragging.setKeepWithinStage(false);
     // CanvasArea owns scroll focus; route window wheels before either native listener runs.
     area()
         .addCaptureListener(
@@ -462,11 +460,6 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private boolean freeCanvas(float x, float y) {
     if (help || observing || x < 0 || y < 0 || x >= area().getWidth() || y >= area().getHeight())
       return false;
-    Vector2 world = area().areaToWorld(x, y);
-    if (world.x < BOARD_LEFT
-        || world.x > BOARD_RIGHT
-        || world.y < BOARD_BOTTOM
-        || world.y > BOARD_TOP) return false;
     Actor hit = area().hit(x, y, true);
     while (hit != null && hit != area()) {
       if (hit instanceof CanvasNode) return false;
@@ -701,21 +694,6 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     }
     if (observing) followNox();
     else restoreCamera();
-    constrainView();
-  }
-
-  private void constrainView() {
-    float zoom = area().zoom();
-    Vector2 pan = area().pan();
-    float x = boundedPan(pan.x, area().getWidth(), BOARD_LEFT * zoom, BOARD_RIGHT * zoom);
-    float y = boundedPan(pan.y, area().getHeight(), BOARD_BOTTOM * zoom, BOARD_TOP * zoom);
-    if (x != pan.x || y != pan.y) area().pan(x, y);
-  }
-
-  private static float boundedPan(float pan, float viewport, float lower, float upper) {
-    return viewport >= upper - lower
-        ? (viewport - lower - upper) / 2
-        : Math.max(viewport - upper, Math.min(pan, -lower));
   }
 
   @Override
@@ -746,7 +724,6 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
               (area().getHeight() - (bottom + top) * zoom) / 2);
       positioned = true;
     }
-    constrainView();
     super.draw(batch, alpha);
   }
 

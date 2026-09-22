@@ -122,8 +122,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
                     ? Math.max(410, initialWidth + current.x - press.x)
                     : initialWidth;
             float nextHeight = Math.max(180, initialHeight - current.y + press.y);
-            nextHeight = Math.min(nextHeight, top - ProgrammingMethodsUI.BOARD_BOTTOM);
-            size(Math.min(nextWidth, ProgrammingMethodsUI.BOARD_RIGHT - x()), nextHeight);
+            size(nextWidth, nextHeight);
             position(x(), top - height());
             event.stop();
           }
@@ -135,17 +134,6 @@ final class ProgrammingMethodsNode extends CanvasNode {
             event.stop();
           }
         });
-  }
-
-  @Override
-  public CanvasNode position(float x, float y) {
-    return super.position(
-        Math.max(
-            ProgrammingMethodsUI.BOARD_LEFT,
-            Math.min(x, ProgrammingMethodsUI.BOARD_RIGHT - width())),
-        Math.max(
-            ProgrammingMethodsUI.BOARD_BOTTOM,
-            Math.min(y, ProgrammingMethodsUI.BOARD_TOP - height())));
   }
 
   Optional<Cursors> manipulationCursor() {
