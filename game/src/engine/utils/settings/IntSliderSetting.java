@@ -95,7 +95,7 @@ public class IntSliderSetting extends SettingValue<Integer> {
               if (val == value()) return;
               value(val);
               valueLabel.setText(labelFormatter.apply(val));
-              Sounds.play(CoreSounds.SETTINGS_SLIDER_STEP);
+              Sounds.playUi(CoreSounds.SETTINGS_SLIDER_STEP);
             }
           }
         });

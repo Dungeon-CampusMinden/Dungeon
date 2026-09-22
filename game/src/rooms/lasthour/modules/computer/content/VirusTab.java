@@ -151,9 +151,9 @@ public class VirusTab extends ComputerTab {
     if (virusType == null || inputCode.equalsIgnoreCase(expectedString)) {
       virusLabel.setText(
           Localization.getInstance().getCurrentTranslator().translate(TranslationKey.VirusText09));
-      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+      Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
-      Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+      Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_FAILED);
     }
   }
 

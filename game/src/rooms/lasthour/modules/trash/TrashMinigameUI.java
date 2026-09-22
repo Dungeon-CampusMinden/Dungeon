@@ -324,7 +324,7 @@ public class TrashMinigameUI extends Group {
       DialogCallbackResolver.createButtonCallback(dialogId, callbackKey).accept(null);
 
       toFront();
-      Sounds.play(LastHourSounds.TRASH_MINIGAME_WIN);
+      Sounds.playUi(LastHourSounds.TRASH_MINIGAME_WIN);
       addAction(
           Actions.sequence(
               Actions.scaleTo(getScaleX() * 1.6f, getScaleY() * 1.6f, WIN_SCALE_DURATION),

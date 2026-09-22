@@ -485,9 +485,9 @@ public class ControlPanelTab extends ComputerTab {
             context().dialogId(), ComputerCallbacks.EXIT_ATTEMPT_KEY)
         .accept(new DialogResponseMessage.StringValue(entered == null ? "" : entered));
     if (entered != null && entered.equalsIgnoreCase(Lore.ControlPanelDoor2Password)) {
-      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+      Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
-      Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+      Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_FAILED);
     }
   }
 
@@ -501,14 +501,14 @@ public class ControlPanelTab extends ComputerTab {
             context().dialogId(), ComputerCallbacks.VENTILATION_ATTEMPT_KEY)
         .accept(new DialogResponseMessage.StringValue(entered == null ? "" : entered));
     if (entered != null && entered.equals(Lore.VentSerialNumber)) {
-      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+      Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     } else {
       acVentStatusLabel.setColor(STATE_OFF_COLOR);
       acVentStatusLabel.setText(
           Localization.getInstance()
               .getCurrentTranslator()
               .translate(TranslationKey.ControlPanel12));
-      Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+      Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_FAILED);
     }
   }
 

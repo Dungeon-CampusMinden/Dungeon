@@ -214,8 +214,27 @@ public final class GameLoop extends ScreenAdapter {
           new com.badlogic.gdx.Game() {
             @Override
             public void create() {
+              if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
+                soundPlayer = new GdxSoundPlayer(new AssetManager());
+              }
               setScreen(
                   initialScreenSupplier != null ? initialScreenSupplier.get() : new GameLoop());
+            }
+
+            @Override
+            public void render() {
+              soundPlayer.update(Gdx.graphics.getDeltaTime());
+              super.render();
+            }
+
+            @Override
+            public void dispose() {
+              try {
+                super.dispose();
+              } finally {
+                soundPlayer.dispose();
+                soundPlayer = new NoSoundPlayer();
+              }
             }
           };
       try {
@@ -371,10 +390,6 @@ public final class GameLoop extends ScreenAdapter {
   private void setupClient() {
     LOGGER.info("Setting up client...");
     doSetup = false;
-    if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
-      AssetManager assetManager = new AssetManager();
-      soundPlayer = new GdxSoundPlayer(assetManager);
-    }
     createSystems();
 
     if (PreRunConfiguration.multiplayerEnabled()) {
@@ -891,7 +906,6 @@ public final class GameLoop extends ScreenAdapter {
       synchronizeWindowSize();
       displayModeTransitionFrames--;
     }
-    Game.soundPlayer().update(delta);
     PreRunConfiguration.userOnFrame().execute();
   }
 

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Client-side system for handling positional audio. For each entity with a SoundComponent, plays
@@ -40,15 +41,15 @@ public class SoundSystem extends System {
    */
   private final Map<Integer, Map<Long, PlayHandle>> activePlaybackHandlesByEntity = new HashMap<>();
 
-  /** The sound player used to play and update audio instances. */
-  private final ISoundPlayer soundPlayer;
+  /** Resolves the player after client audio initialization, even if ECS was loaded earlier. */
+  private final Supplier<ISoundPlayer> soundPlayer;
 
   /** Create a new SoundSystem using the default sound player. */
   public SoundSystem() {
-    this(Game.soundPlayer());
+    this(Game::soundPlayer);
   }
 
-  SoundSystem(ISoundPlayer soundPlayer) {
+  SoundSystem(Supplier<ISoundPlayer> soundPlayer) {
     super(AuthoritativeSide.CLIENT, SoundComponent.class);
     this.soundPlayer = soundPlayer;
     this.onEntityRemove = this::onEntityRemoved;
@@ -134,19 +135,21 @@ public class SoundSystem extends System {
     long soundInstanceId = soundSpec.instanceId();
 
     Optional<PlayHandle> handleOpt =
-        soundPlayer.playWithInstance(
-            soundInstanceId,
-            soundSpec.soundName(),
-            soundSpec.baseVolume(),
-            soundSpec.looping(),
-            soundSpec.pitch(),
-            0,
-            () -> {
-              if (Game.isMultiplayerClient()) {
-                Game.network().send((short) 0, new SoundFinishedMessage(soundInstanceId), true);
-              }
-              Game.audio().notifySoundFinished(soundInstanceId);
-            });
+        soundPlayer
+            .get()
+            .playWithInstance(
+                soundInstanceId,
+                soundSpec.soundName(),
+                soundSpec.baseVolume(),
+                soundSpec.looping(),
+                soundSpec.pitch(),
+                0,
+                () -> {
+                  if (Game.isMultiplayerClient()) {
+                    Game.network().send((short) 0, new SoundFinishedMessage(soundInstanceId), true);
+                  }
+                  Game.audio().notifySoundFinished(soundInstanceId);
+                });
 
     handleOpt.ifPresentOrElse(
         handle -> entityActiveSounds.put(soundInstanceId, handle),
@@ -234,14 +237,14 @@ public class SoundSystem extends System {
     // If beyond max distance -> mute
     if (soundSpec.maxDistance() > 0f && distance > soundSpec.maxDistance()) {
       var soundUpdate = ISoundPlayer.SoundUpdate.builder().volume(0f);
-      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
+      soundPlayer.get().updateSound(playbackHandle.instanceId(), soundUpdate.build());
       return;
     }
 
     // Global sounds (no distance attenuation)
     if (soundSpec.maxDistance() <= 0f) {
       var soundUpdate = ISoundPlayer.SoundUpdate.builder().build();
-      soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate);
+      soundPlayer.get().updateSound(playbackHandle.instanceId(), soundUpdate);
       return;
     }
 
@@ -259,7 +262,7 @@ public class SoundSystem extends System {
     pan *= panAttenuation;
 
     var soundUpdate = ISoundPlayer.SoundUpdate.builder().pan(pan, newVolume);
-    soundPlayer.updateSound(playbackHandle.instanceId(), soundUpdate.build());
+    soundPlayer.get().updateSound(playbackHandle.instanceId(), soundUpdate.build());
   }
 
   /**

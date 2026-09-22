@@ -61,6 +61,15 @@ public final class AudioApi {
   }
 
   /**
+   * Generates a negative ID for local sounds, separate from positive server-generated IDs.
+   *
+   * @return a unique local sound instance ID
+   */
+  public long newLocalInstanceId() {
+    return -newInstanceId();
+  }
+
+  /**
    * Plays a sound on a specific entity.
    *
    * <p>Adds a SoundSpec to the entity's SoundComponent (creates component if needed). The sound

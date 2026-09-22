@@ -150,7 +150,7 @@ public class LoginTab extends ComputerTab {
             .translate(TranslationKey.LoginScreenCorrectFeedback));
     loginFeedback.setColor(CORRECT_COLOR);
     if (!completedPrior) {
-      Sounds.play(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
+      Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_SUCCESS);
     }
   }
 
@@ -159,7 +159,7 @@ public class LoginTab extends ComputerTab {
         Localization.getInstance()
             .getCurrentTranslator()
             .translate(TranslationKey.LoginScreenWrongFeedback));
-    Sounds.play(LastHourSounds.COMPUTER_LOGIN_FAILED);
+    Sounds.playUi(LastHourSounds.COMPUTER_LOGIN_FAILED);
   }
 
   private void tryLogin() {

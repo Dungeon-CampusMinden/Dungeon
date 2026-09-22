@@ -78,7 +78,7 @@ public class BaseContainerUI extends Table implements IResizable {
 
     setContent(content);
 
-    if (playSound) Sounds.play(CoreSounds.INTERFACE_DIALOG_OPENED);
+    if (playSound) Sounds.playUi(CoreSounds.INTERFACE_DIALOG_OPENED);
   }
 
   @Override
