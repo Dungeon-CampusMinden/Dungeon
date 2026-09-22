@@ -178,6 +178,15 @@ public final class TwoDimensionalStorageRiddle {
     return stage >= 3;
   }
 
+  /** Restores the released-chip state without replaying the grab-arm animation. */
+  public void restoreCompletedState() {
+    if (stage < 1) activateMatrix();
+    if (stage < 2) fillMatrix();
+    stage = 3;
+    storageDisplayText = SystemRecoveryText.key("world.matrix.display-complete");
+    updateStorageDisplay();
+  }
+
   private Point cellPoint(int row, int column) {
     return RiddleSupport.point(
         level, "storage_cell_" + row + "_" + column, "storage_" + row + "_" + column);

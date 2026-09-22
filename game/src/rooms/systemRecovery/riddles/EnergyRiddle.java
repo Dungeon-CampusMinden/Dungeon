@@ -36,6 +36,7 @@ public final class EnergyRiddle {
   private boolean energyArrayCreated = false;
   private boolean batterySpawned = false;
   private boolean batteryInserted = false;
+  private boolean energyCratesSpawned = false;
   private Entity energyDisplay;
   private String energyDisplayText;
 
@@ -144,10 +145,24 @@ public final class EnergyRiddle {
 
   /** Materializes one empty container per array element after terminal step 1. */
   public void spawnEnergyCrates() {
+    if (energyCratesSpawned) return;
+    energyCratesSpawned = true;
     revealEnergyDisplayText();
     for (int index = 0; index < 5; index++) {
       Game.add(EnergyEntityFactory.cryoBox(level.getPoint("a" + index), false));
     }
+  }
+
+  /** Restores the completed energy state without firing gameplay callbacks. */
+  public void restoreCompletedState() {
+    energyPuzzleSolved = true;
+    batteryInserted = true;
+    spawnEnergyCrates();
+    energyDisplayText = SystemRecoveryText.key("world.energy.display-complete");
+    if (energyDisplay != null) {
+      SystemRecoveryDisplayFactory.updateDisplayText(energyDisplay, energyDisplayText);
+    }
+    markEnergyCratesCorrect();
   }
 
   /**

@@ -1,6 +1,7 @@
 package rooms.systemRecovery.level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
@@ -93,5 +94,25 @@ class SystemRecoveryDialogTriggerProgressTest {
       assertEquals(1, snapshot.totalTokens());
       assertEquals(1, snapshot.tokenCounts().get("energy-array"));
     }
+  }
+
+  @Test
+  void completedRoomTriggerDoesNotReplayAfterAProgressRestore()
+      throws ReflectiveOperationException {
+    Method enabled =
+        SystemRecoveryLevel.class.getDeclaredMethod(
+            "isDialogTriggerEnabled", SystemRecoveryDialogTriggers.DialogTrigger.class);
+    enabled.setAccessible(true);
+    SystemRecoveryDialogTriggers.DialogTrigger archiveTrigger =
+        SystemRecoveryDialogTriggers.ROOM_ENTRY.stream()
+            .filter(trigger -> trigger.pointName().equals(SystemRecoveryDialogTriggers.DATA_ARCHIVE))
+            .findFirst()
+            .orElseThrow();
+
+    SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.ARCHIVE_ARRAYS);
+    assertTrue((boolean) enabled.invoke(level, archiveTrigger));
+
+    SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.SEARCH_PROGRAM);
+    assertFalse((boolean) enabled.invoke(level, archiveTrigger));
   }
 }

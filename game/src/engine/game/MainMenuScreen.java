@@ -69,6 +69,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final Color BACKGROUND_TINT = new Color(0.5f, 0.5f, 0.5f, 1f);
 
   private static final String T_HOST = "host";
+  private static final String T_CONTINUE = "continue";
   private static final String T_JOIN = "join";
   private static final String T_LEVEL_EDITOR = "level_editor";
   private static final String T_ACHIEVEMENTS = "achievements";
@@ -123,6 +124,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private TextButton joinBackButton;
 
   private volatile boolean launching = false;
+  private boolean continueGameSelected;
 
   /**
    * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
@@ -227,6 +229,8 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private Table buildMainView() {
     TextButton hostButton = menuButton(trans.text(T_HOST), "green", this::showHostNameView);
+    TextButton continueButton =
+        menuButton(trans.text(T_CONTINUE), "green", this::showContinueHostNameView);
     TextButton joinButton = menuButton(trans.text(T_JOIN), "blue-outline", this::joinGame);
     TextButton levelEditorButton =
         menuButton(trans.text(T_LEVEL_EDITOR), "blue-outline", this::startLevelEditor);
@@ -238,6 +242,9 @@ public class MainMenuScreen extends ScreenAdapter {
         menuButton(trans.text(T_EXIT), "red-outline", () -> Game.exit("Exit from main menu"));
 
     Table menu = new Table();
+    if (starter.continueAvailable()) {
+      menu.add(continueButton).width(BUTTON_WIDTH).padBottom(12).row();
+    }
     menu.add(hostButton).width(BUTTON_WIDTH).padBottom(12).row();
     menu.add(joinButton).width(BUTTON_WIDTH).padBottom(12).row();
     if (showLevelEditorOption && levelEditorLauncher != null) {
@@ -379,6 +386,16 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private void showHostNameView() {
+    continueGameSelected = false;
+    showHostNameViewInternal();
+  }
+
+  private void showContinueHostNameView() {
+    continueGameSelected = true;
+    showHostNameViewInternal();
+  }
+
+  private void showHostNameViewInternal() {
     activeView = View.HOST_NAME;
     hostStatusLabel.setText("");
     setHostControlsDisabled(false);
@@ -438,25 +455,29 @@ public class MainMenuScreen extends ScreenAdapter {
       hostStatusLabel.setText(trans.text(T_INVALID_NAME));
       return;
     }
-    startHosting();
+    startHosting(continueGameSelected);
   }
 
   /**
    * Starts a dedicated server child process, waits (off the render thread) until it is reachable,
    * then enters the client view connecting to the local server.
+   *
+   * @param continueGame whether the child should restore the configured checkpoint
    */
-  private void startHosting() {
+  private void startHosting(boolean continueGame) {
     launching = true;
     setHostControlsDisabled(true);
     hostStatusLabel.setText(trans.text(T_STARTING_SERVER));
 
     int port = starter.localServerPort();
-    Thread launcher = new Thread(() -> launchHostedServer(port), "hosted-server-launcher");
+    Thread launcher =
+        new Thread(
+            () -> launchHostedServer(port, continueGame), "hosted-server-launcher");
     launcher.setDaemon(true);
     launcher.start();
   }
 
-  private void launchHostedServer(int port) {
+  private void launchHostedServer(int port, boolean continueGame) {
     ServerProcess server;
     try {
       server =
@@ -465,7 +486,7 @@ public class MainMenuScreen extends ScreenAdapter {
               port,
               TrackingRuntime.childEnvironmentOverrides(),
               TrackingRuntime::handleManagedServerStatus,
-              starter.serverArguments());
+              continueGame ? starter.continueServerArguments() : starter.serverArguments());
     } catch (IOException e) {
       LOGGER.error("Failed to start server process.", e);
       Gdx.app.postRunnable(() -> onHostFailed(trans.text(T_SERVER_START_FAILED, e.getMessage())));

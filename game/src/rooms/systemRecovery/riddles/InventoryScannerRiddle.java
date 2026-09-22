@@ -149,6 +149,23 @@ public final class InventoryScannerRiddle {
     scannerPuzzleSolved = true;
   }
 
+  /** Restores the completed scanner state without replaying its animation or callbacks. */
+  public void restoreCompletedState() {
+    scannerPuzzleSolved = true;
+    scannerCompleted = true;
+    scannerRunning = false;
+    currentScanIndex = -1;
+    scannerFaultDetected = true;
+    if (scannerDisplay != null) {
+      SystemRecoveryDisplayFactory.updateDisplayText(
+          scannerDisplay,
+          SystemRecoveryText.key(
+              "world.scanner.display-complete",
+              ModuleStorageRiddle.MODULE_CAPACITY,
+              ModuleStorageRiddle.OCCUPIED_MODULE_COUNT));
+    }
+  }
+
   private void startModuleScan() {
     scannerRunning = true;
     for (int index = 0; index < ModuleStorageRiddle.MODULE_CAPACITY; index++) {

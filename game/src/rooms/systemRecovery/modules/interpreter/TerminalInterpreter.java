@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 /** Interprets registered terminal puzzle states without knowing room-specific behavior. */
@@ -14,6 +15,7 @@ public final class TerminalInterpreter {
 
   private final Map<Integer, TerminalCodeRequirement> states = new HashMap<>();
   private final TerminalMatchContext successfulContext = new TerminalMatchContext();
+  private final List<AcceptedInput> acceptedInputs = new ArrayList<>();
   private int currentState;
 
   private TerminalInterpreter() {}
@@ -41,6 +43,49 @@ public final class TerminalInterpreter {
   public void reset() {
     currentState = 0;
     successfulContext.clear();
+    acceptedInputs.clear();
+  }
+
+  /**
+   * Returns the accepted source history needed to reconstruct flexible variable names after a
+   * checkpoint load.
+   *
+   * @return immutable copy in acceptance order
+   */
+  public List<AcceptedInput> acceptedInputs() {
+    return Collections.unmodifiableList(new ArrayList<>(acceptedInputs));
+  }
+
+  /**
+   * Restores accepted terminal input without invoking room callbacks, tracking, sounds or UI.
+   *
+   * <p>Every source is revalidated against the same parser and capture context used during normal
+   * play. A malformed or out-of-order history is rejected as one operation and leaves the
+   * interpreter reset, preventing a partially restored state.
+   *
+   * @param inputs accepted source history in original order
+   * @throws IllegalArgumentException if the history cannot be replayed
+   */
+  public void restoreAcceptedInputs(List<AcceptedInput> inputs) {
+    reset();
+    if (inputs == null) {
+      throw new IllegalArgumentException("Accepted input history must not be null.");
+    }
+    for (AcceptedInput input : inputs) {
+      if (input == null || input.state() != currentState || input.source() == null) {
+        reset();
+        throw new IllegalArgumentException("Accepted input history is not sequential.");
+      }
+      AnalysisResult result = analysis(input.state(), input.source(), successfulContext.copy());
+      if (!result.successful()) {
+        reset();
+        throw new IllegalArgumentException(
+            "Accepted input history contains invalid source for state " + input.state());
+      }
+      successfulContext.replaceWith(result.context());
+      acceptedInputs.add(input);
+      currentState++;
+    }
   }
 
   /**
@@ -104,6 +149,7 @@ public final class TerminalInterpreter {
       // effect fails, the step remains retryable instead of looking accepted to the player.
       puzzleState.onSuccess().accept(attempt);
       successfulContext.replaceWith(result.context());
+      acceptedInputs.add(new AcceptedInput(currentState, source));
       currentState++;
     } else {
       puzzleState.onFailure().accept(attempt);
@@ -401,4 +447,12 @@ public final class TerminalInterpreter {
   private record TerminalStatement(String source, int blockDepth) {}
 
   private record AnalysisResult(boolean successful, TerminalMatchContext context) {}
+
+  /**
+   * One source accepted by the shared interpreter at a stable state ID.
+   *
+   * @param state interpreter state that accepted the source
+   * @param source exact source submitted by the player
+   */
+  public record AcceptedInput(int state, String source) {}
 }

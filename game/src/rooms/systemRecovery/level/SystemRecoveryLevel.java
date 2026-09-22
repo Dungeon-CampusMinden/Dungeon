@@ -22,6 +22,7 @@ import feature.components.InventoryComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.MiscFactory;
+import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hints.HintSystem;
@@ -31,11 +32,13 @@ import feature.interaction.InteractionComponent;
 import feature.inventory.items.ItemKey;
 import feature.systems.LevelEditorSystem;
 import feature.utils.EntityUtils;
+import feature.components.ItemComponent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.systemRecovery.SystemRecovery;
@@ -70,6 +73,10 @@ import rooms.systemRecovery.util.interpreter.TerminalStep;
 import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import rooms.systemRecovery.save.SystemRecoveryLoad;
+import rooms.systemRecovery.save.SystemRecoverySave;
+import rooms.systemRecovery.items.SearchProgramChipItem;
+import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 
 /**
  * Builds System Recovery in room order and owns one controller per riddle.
@@ -161,6 +168,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private boolean systemCoreAlarmActive;
   private boolean systemCoreRiddleCompleted;
   private boolean endingTriggered;
+  private boolean introSuppressed;
+  private SystemRecoveryLearningStep savedCheckpoint;
+  private int saveRevision;
+  private Optional<SystemRecoverySave.SaveData> pendingSave = Optional.empty();
   private boolean initialTerminalAttemptRecorded;
   private boolean initialTerminalAttemptWasCorrect;
 
@@ -200,8 +211,16 @@ public class SystemRecoveryLevel extends DungeonLevel {
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryQuestLogUtil.initializeQuestLog();
     Game.system(HintSystem.class, HintSystem::resetHintProgress);
+    pendingSave =
+        SystemRecovery.loadFromSave() ? SystemRecoveryLoad.read() : Optional.empty();
     SystemRecoveryProgressNet.reset();
-    SystemRecoveryProgressNet.initialize();
+    if (pendingSave.isPresent()) {
+      // Start from a safe fresh marking. A syntactically valid but semantically corrupt history
+      // must not leave the net stranded at a checkpoint when runtime restoration fails.
+      SystemRecoveryProgressNet.initializeAtSilently(SystemRecoveryLearningStep.ENERGY_ARRAY);
+    } else {
+      SystemRecoveryProgressNet.initialize();
+    }
     if (!Game.isHeadless() && LevelEditorSystem.active()) {
       terminalsUnlocked = true;
     }
@@ -221,11 +240,18 @@ public class SystemRecoveryLevel extends DungeonLevel {
     searchRobot.setup();
     systemCore.setup();
     setupEndTrigger();
+    if (restoreSaveIfRequested(pendingSave)) {
+      boolean pastIntroduction = savedCheckpoint != SystemRecoveryLearningStep.ENERGY_ARRAY;
+      terminalsUnlocked = pastIntroduction;
+      introSuppressed = pastIntroduction;
+      echoCallTriggered = pastIntroduction;
+    }
   }
 
   @Override
   protected void onTick() {
     enforcePlayerInventorySize();
+    saveCheckpointIfNeeded();
     showIntroForNewPlayers();
     triggerDialogPoints();
     storyDialogs.tick();
@@ -239,6 +265,155 @@ public class SystemRecoveryLevel extends DungeonLevel {
                           DoorLabelComponent.updateAppearance(
                               label, status.completed().getAsBoolean())));
     }
+  }
+
+  /**
+   * Restores the validated save after all authoritative room entities exist.
+   *
+   * @param save save data selected by the server launcher
+   * @return whether a save was restored successfully
+   */
+  private boolean restoreSaveIfRequested(Optional<SystemRecoverySave.SaveData> save) {
+    if (!Game.network().isServer() || save.isEmpty()) return false;
+    Optional<SystemRecoveryLearningStep> checkpoint =
+        save.flatMap(
+            data ->
+                SystemRecoveryLoad.restoreRuntime(data)
+                    .map(
+                        restoredCheckpoint -> {
+                          restoreWorldAtCheckpoint(restoredCheckpoint);
+                          return restoredCheckpoint;
+                        }));
+    checkpoint.ifPresent(restoredCheckpoint -> savedCheckpoint = restoredCheckpoint);
+    if (checkpoint.isPresent()) {
+      save.orElseThrow().acceptedTerminalInputs().forEach(input -> memoryWatch.recordAcceptedSource(input.source()));
+    }
+    return checkpoint.isPresent();
+  }
+
+  /** Writes only when the active token enters the first step of a different main riddle. */
+  private void saveCheckpointIfNeeded() {
+    if (!Game.network().isServer()) return;
+    SystemRecoveryProgressNet.activeStep()
+        .filter(SystemRecoveryLoad::isMainPuzzleCheckpoint)
+        .ifPresent(
+            checkpoint -> {
+              if (checkpoint == savedCheckpoint) return;
+              try {
+                SystemRecoverySave.write(SystemRecoverySave.capture(checkpoint));
+                savedCheckpoint = checkpoint;
+                saveRevision++;
+              } catch (java.io.IOException exception) {
+                java.util.logging.Logger.getLogger(SystemRecoveryLevel.class.getName())
+                    .warning("Could not write System Recovery checkpoint: " + exception.getMessage());
+              }
+            });
+  }
+
+  /**
+   * Projects the world to the beginning of a main riddle without firing puzzle callbacks.
+   *
+   * @param checkpoint checkpoint to project
+   */
+  private void restoreWorldAtCheckpoint(SystemRecoveryLearningStep checkpoint) {
+    switch (checkpoint) {
+      case ENERGY_ARRAY -> {}
+      case MODULE_ARRAY -> {
+        energy.restoreCompletedState();
+        openDoor("door_modulspeicher");
+        moduleStorage.showModuleAssignments();
+      }
+      case INVENTORY_COUNT -> {
+        restoreCompletedModules();
+        openDoor("door_inventarscanner");
+      }
+      case TRANSPORT_ARRAY -> {
+        restoreCompletedModules();
+        inventoryScanner.restoreCompletedState();
+        openDoor("door_inventarscanner");
+        openDoor("door_transportlager");
+      }
+      case MANUAL_SORTING, BUBBLE_SORT_CONDITION -> {
+        restoreCompletedTransport();
+        openDoor("door_datenspeicher");
+        if (checkpoint == SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION) {
+          manualSorting.restoreCompletedState();
+        }
+      }
+      case ARCHIVE_ACCESS -> {
+        restoreCompletedBubbleSort();
+        spawnWorldItemIfMissing(new ItemKey(), "chip_spawn");
+      }
+      case STORAGE_ARRAY -> {
+        restoreCompletedBubbleSort();
+        openDoor("door_datenarchiv");
+        dataArchive.restoreCompletedState();
+      }
+      case SEARCH_PROGRAM -> {
+        restoreCompletedStorage();
+        spawnWorldItemIfMissing(new SearchProgramChipItem(), "chip");
+      }
+      case SYSTEM_CORE_ACCESS -> {
+        restoreCompletedStorage();
+        searchRobot.restoreCompletedState();
+        systemCoreAccessModuleDelivered = true;
+        spawnWorldItemIfMissing(new SystemCoreAccessChipItem(), "roboter_item_destination");
+      }
+      default -> throw new IllegalArgumentException("Not a main-riddle checkpoint: " + checkpoint);
+    }
+  }
+
+  private void restoreCompletedModules() {
+    energy.restoreCompletedState();
+    moduleStorage.restoreCompletedState();
+    openDoor("door_modulspeicher");
+  }
+
+  private void restoreCompletedTransport() {
+    restoreCompletedModules();
+    inventoryScanner.restoreCompletedState();
+    transportStorage.restoreCompletedState();
+    openDoor("door_inventarscanner");
+    openDoor("door_transportlager");
+  }
+
+  private void restoreCompletedBubbleSort() {
+    restoreCompletedTransport();
+    openDoor("door_datenspeicher");
+    manualSorting.restoreCompletedState(false);
+    bubbleSort.restoreCompletedState();
+  }
+
+  private void restoreCompletedStorage() {
+    restoreCompletedBubbleSort();
+    openDoor("door_datenarchiv");
+    dataArchive.restoreCompletedState();
+    twoDimensionalStorage.restoreCompletedState();
+  }
+
+  private void openDoor(String pointName) {
+    tileAt(point(pointName)).filter(DoorTile.class::isInstance).map(DoorTile.class::cast).ifPresent(DoorTile::open);
+  }
+
+  private void spawnWorldItemIfMissing(feature.inventory.Item item, String pointName) {
+    Point spawnPoint = point(pointName);
+    boolean alreadyPresent =
+        Game.entityAtPoint(spawnPoint)
+            .anyMatch(
+                entity ->
+                    entity
+                        .fetch(ItemComponent.class)
+                        .map(component -> component.item().getClass() == item.getClass())
+                        .orElse(false));
+    if (!alreadyPresent) Game.add(WorldItemBuilder.buildWorldItem(item, spawnPoint));
+  }
+
+  /** Revision of the most recent checkpoint the server successfully wrote.
+   *
+   * @return current server save revision, or zero outside this level
+   */
+  public static int saveRevision() {
+    return currentLevel().map(level -> level.saveRevision).orElse(0);
   }
 
   /** Keeps the System Recovery inventory intentionally limited to one carried item. */
@@ -270,7 +445,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Sends the room's lore to each player once through the networked dialog system. */
   private void showIntroForNewPlayers() {
     // Do not initialize the graphical level-editor class on the headless authoritative server.
-    if (!Game.isHeadless() && LevelEditorSystem.active()) return;
+    if (introSuppressed || (!Game.isHeadless() && LevelEditorSystem.active())) return;
     Game.allPlayers()
         .filter(player -> introShownPlayers.add(player.id()))
         .forEach(
@@ -498,6 +673,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
   }
 
   private boolean isDialogTriggerEnabled(SystemRecoveryDialogTriggers.DialogTrigger trigger) {
+    SystemRecoveryLearningStep requiredStep = switch (trigger.pointName()) {
+      case SystemRecoveryDialogTriggers.MODULE_STORAGE -> SystemRecoveryLearningStep.MODULE_ARRAY;
+      case SystemRecoveryDialogTriggers.INVENTORY_SCANNER -> SystemRecoveryLearningStep.INVENTORY_COUNT;
+      case SystemRecoveryDialogTriggers.TRANSPORT_STORAGE -> SystemRecoveryLearningStep.TRANSPORT_ARRAY;
+      case SystemRecoveryDialogTriggers.MANUAL_SORTING -> SystemRecoveryLearningStep.MANUAL_SORTING;
+      case SystemRecoveryDialogTriggers.DATA_ARCHIVE -> SystemRecoveryLearningStep.ARCHIVE_ARRAYS;
+      case SystemRecoveryDialogTriggers.TWO_DIMENSIONAL_STORAGE -> SystemRecoveryLearningStep.STORAGE_ARRAY;
+      case SystemRecoveryDialogTriggers.SYSTEM_CORE -> SystemRecoveryLearningStep.CORE_SORT;
+      default -> throw new IllegalArgumentException("Unknown dialog trigger: " + trigger.pointName());
+    };
+    if (SystemRecoveryProgressNet.activeStep().orElse(null) != requiredStep) return false;
     if (SystemRecoveryDialogTriggers.MODULE_STORAGE.equals(trigger.pointName())) {
       return energy.batteryInserted();
     }

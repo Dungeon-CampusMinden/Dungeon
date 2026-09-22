@@ -15,7 +15,6 @@ import java.util.OptionalInt;
 import java.util.logging.Logger;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
-import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 
 /**
@@ -40,21 +39,57 @@ public final class SystemRecoveryProgressNet {
   private String lastRejectedStepKey = "";
   private String rejectionReasonKey = "";
 
-  private SystemRecoveryProgressNet(PetriNetSystem petriNet) {
+  private SystemRecoveryProgressNet(
+      PetriNetSystem petriNet, SystemRecoveryLearningStep initialStep) {
     this.petriNet = petriNet;
     createPlaces();
     connectLinearTransitions();
-    places.get(SystemRecoveryLearningStep.ENERGY_ARRAY).place().produce();
+    places.get(initialStep).place().produce();
   }
 
   /** Initializes the authoritative room net with {@code ENERGY_ARRAY} as its only token. */
   public static synchronized void initialize() {
+    initializeAt(SystemRecoveryLearningStep.ENERGY_ARRAY);
+  }
+
+  /**
+   * Initializes the authoritative room net at a validated checkpoint.
+   *
+   * @param initialStep step that receives the initial token
+   */
+  public static synchronized void initializeAt(SystemRecoveryLearningStep initialStep) {
+    initializeAt(initialStep, true);
+  }
+
+  /**
+   * Initializes a checkpoint without emitting a new puzzle-start tracking event.
+   *
+   * @param initialStep step that receives the initial token
+   */
+  public static synchronized void initializeAtSilently(
+      SystemRecoveryLearningStep initialStep) {
+    initializeAt(initialStep, false);
+  }
+
+  /**
+   * Initializes a checkpoint and optionally emits its puzzle-start event.
+   *
+   * @param initialStep step that receives the initial token
+   * @param trackPuzzleStart whether to emit the puzzle-start event
+   */
+  private static synchronized void initializeAt(
+      SystemRecoveryLearningStep initialStep, boolean trackPuzzleStart) {
     if (instance != null) return;
+    if (initialStep == null) throw new IllegalArgumentException("initialStep must not be null");
     Game.system(
         PetriNetSystem.class,
         system -> {
-          instance = new SystemRecoveryProgressNet(system);
-          SystemRecoveryPuzzleEvents.started(SystemRecoveryPuzzle.ENERGY);
+          instance = new SystemRecoveryProgressNet(system, initialStep);
+          if (trackPuzzleStart) {
+            initialStep
+                .puzzle()
+                .ifPresent(puzzle -> SystemRecoveryPuzzleEvents.started(puzzle));
+          }
         });
   }
 
@@ -64,6 +99,20 @@ public final class SystemRecoveryProgressNet {
     instance.petriNet.clear();
     instance.places.values().forEach(binding -> Game.remove(binding.entity()));
     instance = null;
+  }
+
+  /**
+   * Moves the stable marking to a checkpoint without firing callbacks or transitions.
+   *
+   * @param checkpoint step that should contain the stable token
+   * @return whether the checkpoint became the sole active place
+   */
+  public static synchronized boolean restoreActiveStep(
+      SystemRecoveryLearningStep checkpoint) {
+    if (instance == null || checkpoint == null) return false;
+    instance.clearMarking();
+    instance.places.get(checkpoint).place().produce();
+    return instance.findActiveStep().orElse(null) == checkpoint;
   }
 
   /**
@@ -176,6 +225,13 @@ public final class SystemRecoveryProgressNet {
       int expected = marking[index];
       if (current > expected) place.consume(current - expected);
       else if (current < expected) place.produce(expected - current);
+    }
+  }
+
+  private void clearMarking() {
+    for (PlaceBinding binding : places.values()) {
+      int tokens = binding.place().tokenCount();
+      if (tokens > 0) binding.place().consume(tokens);
     }
   }
 
