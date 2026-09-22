@@ -292,7 +292,8 @@ public final class ProgrammingProgress {
           new QuestLogEntry(
               entry.text(), entry.timestamp(), entry.userCreated(), entry.owner(), false));
     }
-    Entity journal = QuestLogUtil.getQuestLog().orElseGet(() -> new Entity("Programming journal"));
+    Entity journal =
+        QuestLogUtil.getQuestLog().orElseGet(() -> Entity.createLocalEntity("Programming journal"));
     journal.add(log);
     QuestLogUtil.setClientQuestLog(journal);
   }
