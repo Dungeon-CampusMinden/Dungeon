@@ -19,6 +19,8 @@ public enum CoreSounds implements ISound {
   INTERFACE_TEXTFIELD_TYPED("kenney_ui_bong_001", 0.7f),
   /** A sound effect. */
   INTERFACE_QUESTLOG_ENTRY_CREATED("uisp_African2", 0.5f),
+  /** Sound when an achievement is unlocked. */
+  INTERFACE_ACHIEVEMENT_UNLOCKED("kenney_ui_confirmation_004", 1.0f),
 
   /** A sound effect. */
   SETTINGS_TOGGLE_CLICK("kenney_ui_switch_001", 0.4f),

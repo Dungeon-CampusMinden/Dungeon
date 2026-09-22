@@ -1,10 +1,11 @@
 package rooms.mushroom;
 
 import engine.Game;
+import engine.sound.ISound;
 import engine.sound.SoundSpec;
 
 /** Enum that lists available in-game sounds and convenient playback helpers. */
-public enum Sounds {
+public enum Sounds implements ISound {
   /** Sound for picking up a key item. */
   KEY_ITEM_PICKUP_SOUND("uisp_African4", 1.0f),
 
@@ -78,6 +79,16 @@ public enum Sounds {
   Sounds(String soundName, float volume) {
     this.soundName = soundName;
     this.volume = volume;
+  }
+
+  @Override
+  public String soundName() {
+    return soundName;
+  }
+
+  @Override
+  public float volume() {
+    return volume;
   }
 
   /**

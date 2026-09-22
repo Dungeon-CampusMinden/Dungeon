@@ -121,7 +121,7 @@ public class Scene2dElementFactory {
           public void changed(ChangeEvent event, Actor actor) {
             if (actor instanceof TextField) {
               float pitch = 0.85f + (float) Math.random() * 0.3f;
-              Sounds.play(CoreSounds.INTERFACE_TEXTFIELD_TYPED, pitch);
+              Sounds.playUi(CoreSounds.INTERFACE_TEXTFIELD_TYPED, pitch);
             }
           }
         });
@@ -371,7 +371,7 @@ public class Scene2dElementFactory {
             if ((fromActor != null && fromActor.isDescendantOf(actor))
                 || pointer != -1
                 || (actor instanceof Disableable disableable && disableable.isDisabled())) return;
-            Sounds.play(CoreSounds.INTERFACE_ITEM_HOVERED);
+            Sounds.playUi(CoreSounds.INTERFACE_ITEM_HOVERED);
             super.enter(event, x, y, pointer, fromActor);
           }
         });

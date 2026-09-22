@@ -494,7 +494,7 @@ public class PuzzleUI extends Group {
               if (puzzle.isFullySolved()) {
                 if (statusLabel != null) {
                   statusLabel.setText("[size=28][color=green]SOLVED");
-                  Sounds.play(CoreSounds.INTERFACE_BUTTON_FORWARD);
+                  Sounds.playUi(CoreSounds.INTERFACE_BUTTON_FORWARD);
                 }
                 DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_COMPLETE)
                     .accept(null);
