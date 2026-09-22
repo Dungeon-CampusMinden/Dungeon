@@ -222,7 +222,13 @@ public final class SystemRecovery {
         SystemRecovery::deleteLocalTrackingData);
   }
 
-  /** Resolves the privacy copy that matches the active tracking storage deployment. */
+  /**
+   * Resolves the privacy copy that matches the active tracking storage deployment.
+   *
+   * @param translation translation source for the tracking consent text
+   * @param key localization key within the selected storage deployment
+   * @return the localized tracking consent text
+   */
   private static String trackingText(Translation translation, String key) {
     String variant = Tracking.remoteStorageEnabled() ? "central" : "local";
     return translation.text(variant + "." + key);
