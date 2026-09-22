@@ -310,6 +310,15 @@ tasks.register('installTheLastHourDist', Sync) {
     from configurations.runtimeClasspath
 }
 
+tasks.register('installSystemRecoveryDist', Sync) {
+    group = 'build'
+    dependsOn tasks.named('buildSystemRecoveryJar')
+
+    into layout.buildDirectory.dir('installSystemRecovery/systemRecovery/lib')
+    from tasks.named('buildSystemRecoveryJar')
+    from configurations.runtimeClasspath
+}
+
 tasks.register('installTheLastHourServerDist', Sync) {
     group = 'build'
     dependsOn tasks.named('buildTheLastHourServerJar')
@@ -319,12 +328,13 @@ tasks.register('installTheLastHourServerDist', Sync) {
     from configurations.runtimeClasspath
 }
 
-def configureTheLastHourJpackageImage(
+def configureRoomJpackageImage(
     task,
     installTask,
     inputDirPath,
     appName,
     mainJar,
+    mainClass,
     appArgs = []
 ) {
     task.group = 'build'
@@ -342,7 +352,7 @@ def configureTheLastHourJpackageImage(
         '--dest', outputDir.absolutePath,
         '--input', inputDir.absolutePath,
         '--main-jar', mainJar,
-        '--main-class', 'rooms.lasthour.starter.TheLastHour',
+        '--main-class', mainClass,
         '--runtime-image', jreDir.absolutePath
     ]
     appArgs.each { arg ->
@@ -357,22 +367,24 @@ def configureTheLastHourJpackageImage(
 }
 
 tasks.register('jpackageImageTheLastHour', Exec) {
-    configureTheLastHourJpackageImage(
+    configureRoomJpackageImage(
         it,
         tasks.named('installTheLastHourDist'),
         'installTheLastHour/theLastHour/lib',
         'TheLastHour',
-        'TheLastHour.jar'
+        'TheLastHour.jar',
+        'rooms.lasthour.starter.TheLastHour'
     )
 }
 
 tasks.register('jpackageImageTheLastHourServer', Exec) {
-    configureTheLastHourJpackageImage(
+    configureRoomJpackageImage(
         it,
         tasks.named('installTheLastHourServerDist'),
         'installTheLastHourServer/theLastHourServer/lib',
         'TheLastHourServer',
         'TheLastHourServer.jar',
+        'rooms.lasthour.starter.TheLastHour',
         ['--server']
     )
 }
@@ -381,6 +393,17 @@ tasks.register('jpackageImageTheLastHourAll') {
     group = 'build'
     dependsOn tasks.named('jpackageImageTheLastHour')
     dependsOn tasks.named('jpackageImageTheLastHourServer')
+}
+
+tasks.register('jpackageImageSystemRecovery', Exec) {
+    configureRoomJpackageImage(
+        it,
+        tasks.named('installSystemRecoveryDist'),
+        'installSystemRecovery/systemRecovery/lib',
+        'SystemRecovery',
+        'SystemRecovery.jar',
+        'rooms.systemRecovery.SystemRecovery'
+    )
 }
 
 tasks.register('generateLauncherProperties') {
