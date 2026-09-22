@@ -45,6 +45,7 @@ import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
 import rooms.systemRecovery.util.SystemRecoveryTranslator;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.save.SystemRecoverySave;
 
 /** Entry point for the System Recovery escape room. */
 public final class SystemRecovery {
@@ -56,6 +57,8 @@ public final class SystemRecovery {
   };
 
   private static boolean debugMode;
+  private static boolean loadFromSave;
+  private static final String LOAD_SAVE_ARGUMENT = "--load-system-recovery";
 
   private SystemRecovery() {}
 
@@ -67,6 +70,7 @@ public final class SystemRecovery {
    */
   public static void main(String[] args) {
     configureDebugMode(args);
+    configureLoadFromSave(args);
     Tracking.configureRoom("system-recovery");
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
@@ -101,6 +105,9 @@ public final class SystemRecovery {
             .language(Language.DE)
             .levelEditor("levels/systemRecovery")
             .serverArguments(hostedServerArguments())
+            .continueGame(
+                SystemRecoverySave::exists,
+                hostedServerArguments(true))
             .build();
 
     MainMenu.run(args, game, client, server);
@@ -125,13 +132,36 @@ public final class SystemRecovery {
   }
 
   /**
+   * Configures whether the authoritative server should restore the menu checkpoint.
+   *
+   * @param args launcher arguments inspected for the continue flag
+   */
+  public static void configureLoadFromSave(String... args) {
+    loadFromSave = containsArgument(args, LOAD_SAVE_ARGUMENT);
+  }
+
+  /**
+   * @return whether this process was launched by the main-menu continue action
+   */
+  public static boolean loadFromSave() {
+    return loadFromSave;
+  }
+
+  /**
    * Returns launch arguments for the dedicated host child process.
    *
    * @return server mode and, when enabled, the debug mode flag
    */
   static String[] hostedServerArguments() {
-    if (debugMode) return new String[] {ServerProcess.SERVER_ARGUMENT, "--debug"};
-    return new String[] {ServerProcess.SERVER_ARGUMENT};
+    return hostedServerArguments(false);
+  }
+
+  static String[] hostedServerArguments(boolean continueGame) {
+    java.util.List<String> arguments = new java.util.ArrayList<>();
+    arguments.add(ServerProcess.SERVER_ARGUMENT);
+    if (continueGame) arguments.add(LOAD_SAVE_ARGUMENT);
+    if (debugMode) arguments.add("--debug");
+    return arguments.toArray(String[]::new);
   }
 
   private static boolean containsArgument(String[] args, String expected) {

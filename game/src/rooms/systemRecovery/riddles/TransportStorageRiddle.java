@@ -189,6 +189,15 @@ public final class TransportStorageRiddle {
     SystemRecoveryLevel.triggerDataStorageProblemCall();
   }
 
+  /** Restores the finished conveyor without replaying collection or story callbacks. */
+  public void restoreCompletedState() {
+    transportPackagesSpawned = true;
+    transportRunning = false;
+    transportCompleted = true;
+    transportDisplayText = SystemRecoveryText.key("world.transport.display-complete");
+    updateTransportDisplay();
+  }
+
   /**
    * Returns the conveyor scanner shared with riddle 6.
    *

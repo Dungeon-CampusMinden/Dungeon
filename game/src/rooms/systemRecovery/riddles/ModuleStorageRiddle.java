@@ -162,6 +162,23 @@ public final class ModuleStorageRiddle {
     return completed;
   }
 
+  /** Restores the module puzzle's completed physical state without callbacks or dialogs. */
+  public void restoreCompletedState() {
+    activateModuleSockets();
+    showModuleAssignments();
+    spawnModuleChips();
+    removeGpuChip();
+    moduleChipsPorted = false;
+    portModuleChipsToScanner();
+    moduleDisplayText =
+        SystemRecoveryText.key("world.module.display-length", MODULE_CAPACITY, DEFECTIVE_GPU_INDEX);
+    completed = true;
+    lengthInspected = true;
+    if (moduleDisplay != null) {
+      SystemRecoveryDisplayFactory.updateDisplayText(moduleDisplay, moduleDisplayText);
+    }
+  }
+
   /**
    * Returns whether a player has examined the display after the array length was shown.
    *

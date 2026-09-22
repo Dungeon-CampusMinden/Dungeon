@@ -94,6 +94,7 @@
         "language": "Sprache"
     },
     "main_menu": {
+        "continue": "Fortsetzen",
         "host": "Spiel hosten",
         "join": "Spiel beitreten",
         "level_editor": "Level-Editor",

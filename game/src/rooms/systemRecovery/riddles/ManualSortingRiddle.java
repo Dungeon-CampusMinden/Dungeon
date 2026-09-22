@@ -63,6 +63,25 @@ public final class ManualSortingRiddle {
     return sortCompleted;
   }
 
+  /** Restores the solved comparison station without awarding a second item or firing callbacks. */
+  public void restoreCompletedState() {
+    restoreCompletedState(true);
+  }
+
+  /** Restores the sorted station, keeping its reward only while the next machine needs it.
+   *
+   * @param stickAvailable whether the sorting stick should remain available in the world
+   */
+  public void restoreCompletedState(boolean stickAvailable) {
+    if (sortCompleted) return;
+    sortValuesAndEntities();
+    sortOuterIndex = sortValues.length - 1;
+    sortInnerIndex = 0;
+    sortCompleted = true;
+    updateSortDisplay();
+    if (stickAvailable) spawnSortProgramStick();
+  }
+
   /**
    * Creates the comparison exercise; the machine dependency prevents overlapping interactions.
    *

@@ -1,5 +1,8 @@
 {
   "systemRecovery": {
+    "hud": {
+      "autosave": "Automatisch gespeichert"
+    },
     "intro": {
       "page1": "Du erinnerst dich nicht an deinen Namen. Du erinnerst dich nicht daran, wie du hierhergekommen bist. Du weißt nur, dass du kein Mensch bist. Du bist ein autonomer KI-Agent innerhalb einer größeren Systemintelligenz. Deine Aufgabe ist es, Anweisungen zu analysieren, sie in ausführbare Schritte zu übersetzen und beschädigte Systeme wiederherzustellen. Arbeite präzise. Verstehe jeden Schritt, bevor du ihn ausführst. Ein Teil von dir ist beschädigt. Vielleicht mehr als nur ein Teil.",
       "page2": "Die zentrale Systemintelligenz hat dich in diese Anlage entsandt. Dein Auftrag war eindeutig: beschädigte Subsysteme wiederherstellen und die Verbindung zum Systemkern erneuern. Seit deiner Ankunft ist die Verbindung zum Kern unterbrochen. Türen, Terminals und Sensoren reagieren nur noch teilweise. Viele Systeme befinden sich in einem undefinierten Zustand. Sobald der Kern wieder erreichbar ist, kann die Wiederherstellung fortgesetzt werden.",

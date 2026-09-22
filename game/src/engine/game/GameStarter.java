@@ -6,6 +6,7 @@ import engine.language.Localization;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 /**
  * Immutable menu/hosting integration config for wiring an explicit game into the reusable {@link
@@ -32,6 +33,8 @@ public final class GameStarter {
   private final int localServerPort;
   private final Language language;
   private final String levelEditorLevelPath;
+  private final BooleanSupplier continueAvailable;
+  private final String[] continueServerArguments;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -42,6 +45,9 @@ public final class GameStarter {
     this.localServerPort = builder.localServerPort;
     this.language = builder.language;
     this.levelEditorLevelPath = builder.levelEditorLevelPath;
+    this.continueAvailable = builder.continueAvailable;
+    this.continueServerArguments =
+        builder.continueServerArguments == null ? null : builder.continueServerArguments.clone();
   }
 
   /**
@@ -117,6 +123,26 @@ public final class GameStarter {
     return Optional.ofNullable(levelEditorLevelPath);
   }
 
+  /**
+   * Returns whether this game currently exposes a resumable local save in its main menu.
+   *
+   * @return whether the optional continue action is configured and available
+   */
+  public boolean continueAvailable() {
+    return continueAvailable != null && continueAvailable.getAsBoolean();
+  }
+
+  /**
+   * @return server arguments used by the optional continue action
+   * @throws IllegalStateException if no continue action was configured
+   */
+  public String[] continueServerArguments() {
+    if (continueServerArguments == null) {
+      throw new IllegalStateException("No continue game configuration was provided.");
+    }
+    return continueServerArguments.clone();
+  }
+
   /** Builder for {@link GameStarter}. */
   public static final class Builder {
     private final String title;
@@ -128,6 +154,8 @@ public final class GameStarter {
     private int localServerPort = PreRunConfiguration.networkPort();
     private Language language = Localization.getInstance().currentLanguage();
     private String levelEditorLevelPath;
+    private BooleanSupplier continueAvailable;
+    private String[] continueServerArguments;
 
     private Builder(String title, Class<?> serverMainClass) {
       this.title = validateTitle(title);
@@ -210,6 +238,28 @@ public final class GameStarter {
      */
     public Builder levelEditor(String pathToLevels) {
       this.levelEditorLevelPath = Objects.requireNonNull(pathToLevels, "pathToLevels");
+      return this;
+    }
+
+    /**
+     * Adds an optional local continue action to the main menu.
+     *
+     * <p>The availability supplier is evaluated when the menu is built. The alternate arguments
+     * are passed to the dedicated server child instead of the normal new-game arguments; this
+     * keeps save ownership on the authoritative server.
+     *
+     * @param available checks whether a resumable save exists
+     * @param serverArguments arguments for the server process when continuing
+     * @return this builder
+     */
+    public Builder continueGame(BooleanSupplier available, String... serverArguments) {
+      this.continueAvailable = Objects.requireNonNull(available, "available");
+      Objects.requireNonNull(serverArguments, "serverArguments");
+      if (serverArguments.length == 0) {
+        throw new IllegalArgumentException("continue serverArguments must not be empty");
+      }
+      this.continueServerArguments =
+          Arrays.stream(serverArguments).map(String::trim).toArray(String[]::new);
       return this;
     }
 

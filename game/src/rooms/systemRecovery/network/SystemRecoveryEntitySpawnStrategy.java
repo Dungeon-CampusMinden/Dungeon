@@ -37,6 +37,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   public static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "systemRecovery.keypad.showCount";
   public static final String METADATA_DISPLAY_TEXT = "systemRecovery.display.text";
   public static final String METADATA_TERMINAL_STATE = "systemRecovery.terminal.state";
+  public static final String METADATA_SAVE_REVISION = "systemRecovery.save.revision";
   public static final String METADATA_SORT_LEFT_ENTITY = "systemRecovery.sort.leftEntity";
   public static final String METADATA_SORT_RIGHT_ENTITY = "systemRecovery.sort.rightEntity";
   public static final String METADATA_BELT_LEFT_PACKAGE = "systemRecovery.belt.leftPackage";
@@ -83,6 +84,9 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     if (entity.name() != null && entity.name().endsWith("terminal")) {
       metadata.put(
           METADATA_TERMINAL_STATE, String.valueOf(TerminalInterpreter.instance().currentState()));
+    }
+    if ("terminal".equals(entity.name())) {
+      metadata.put(METADATA_SAVE_REVISION, String.valueOf(SystemRecoveryLevel.saveRevision()));
     }
     appendModuleScanMetadata(entity, metadata);
     appendSearchRobotMetadata(entity, metadata);

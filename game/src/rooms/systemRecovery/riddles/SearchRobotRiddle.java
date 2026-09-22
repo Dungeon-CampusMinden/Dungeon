@@ -157,6 +157,16 @@ public final class SearchRobotRiddle {
     return completed;
   }
 
+  /** Restores a finished search before the system-core access step. */
+  public void restoreCompletedState() {
+    if (searchTarget != null) {
+      Game.remove(searchTarget);
+      searchTarget = null;
+    }
+    running = false;
+    completed = true;
+  }
+
   /**
    * @return current scan cell in row-major order, or -1 while idle
    */

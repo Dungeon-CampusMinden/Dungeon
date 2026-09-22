@@ -17,6 +17,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
 import feature.systems.EventScheduler;
 import java.util.List;
+import java.util.Arrays;
 import rooms.systemRecovery.entities.SortingEntityFactory;
 import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -46,6 +47,26 @@ public final class BubbleSortRiddle {
    */
   public boolean completed() {
     return completed;
+  }
+
+  /** Restores the finished belt without replaying its animation or awarding another key. */
+  public void restoreCompletedState() {
+    if (completed) return;
+    Arrays.sort(sortBeltValues);
+    sortBeltPoints = new Point[sortBeltValues.length];
+    for (int index = 0; index < sortBeltValues.length; index++) {
+      sortBeltPoints[index] = level.getPoint("band" + index);
+      sortBeltPackages[index] =
+          TransportEntityFactory.packageEntity(sortBeltPoints[index], sortBeltValues[index]);
+      Game.add(sortBeltPackages[index]);
+    }
+    if (transport.scanner() != null) Game.remove(transport.scanner());
+    transport.replaceScanner(
+        TransportEntityFactory.scanner(sortBeltPoints[0].translate(0, 1), 1.4f));
+    transport.scanner().name("sort_belt_scanner");
+    Game.add(transport.scanner());
+    sortMachineRunning = false;
+    completed = true;
   }
 
   private final int[] sortBeltValues = {15, 40, 20, 60, 30};

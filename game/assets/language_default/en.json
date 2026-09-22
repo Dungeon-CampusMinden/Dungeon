@@ -94,6 +94,7 @@
         "language": "Language"
     },
     "main_menu": {
+        "continue": "Continue",
         "host": "Host Game",
         "join": "Join Game",
         "level_editor": "Level Editor",

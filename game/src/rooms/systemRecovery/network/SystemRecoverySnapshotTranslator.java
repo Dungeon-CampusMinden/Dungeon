@@ -21,6 +21,7 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.save.SystemRecoveryAutoSaveHud;
 
 /** Snapshot translator for metadata-backed System Recovery components. */
 public final class SystemRecoverySnapshotTranslator implements SnapshotTranslator {
@@ -103,6 +104,8 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                 if (terminalState != null) {
                   TerminalInterpreter.instance().synchronizeState(Integer.parseInt(terminalState));
                 }
+                SystemRecoveryAutoSaveHud.acceptRevision(
+                    metadata.orElseThrow().get(SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION));
               });
     }
   }
@@ -153,6 +156,11 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_TERMINAL_STATE,
           String.valueOf(TerminalInterpreter.instance().currentState()));
+    }
+    if ("terminal".equals(entity.name())) {
+      metadata.put(
+          SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION,
+          String.valueOf(SystemRecoveryLevel.saveRevision()));
     }
     if ("module_scanner".equals(entity.name())) {
       metadata.put(

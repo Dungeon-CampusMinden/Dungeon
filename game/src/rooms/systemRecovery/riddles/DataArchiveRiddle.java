@@ -64,6 +64,12 @@ public final class DataArchiveRiddle {
     ((DoorTile) Game.tileAt(level.getPoint("door_speicher")).orElseThrow()).open();
   }
 
+  /** Restores the accepted archive arrays and opened storage door without gameplay callbacks. */
+  public void restoreCompletedState() {
+    completed = true;
+    ((DoorTile) Game.tileAt(level.getPoint("door_speicher")).orElseThrow()).open();
+  }
+
   /**
    * @return whether the archive terminal requirement has been solved
    */

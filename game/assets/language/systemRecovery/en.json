@@ -1,5 +1,8 @@
 {
   "systemRecovery": {
+    "hud": {
+      "autosave": "Autosaved"
+    },
     "intro": {
       "page1": "You do not remember your name. You do not remember how you arrived here. You only know that you are not human. You are an autonomous AI agent within a larger system intelligence. Your task is to analyze instructions, translate them into executable steps and restore damaged systems. Work precisely. Understand each step before you execute it. Part of you is damaged. Perhaps more than one part.",
       "page2": "The central system intelligence sent you to this facility. Your assignment was clear: restore the damaged subsystems and re-establish the connection to the system core. Since your arrival, the core connection has been interrupted. Doors, terminals and sensors respond only partially. Many systems remain in an undefined state. Once the core is reachable again, recovery can continue.",
