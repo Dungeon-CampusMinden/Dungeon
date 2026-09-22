@@ -109,6 +109,9 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
         nodes());
     this.viewer = viewer;
     state = initial;
+    // The movement threshold already separates clicks from drags; quick drops are intentional.
+    dragging.setDragTime(0);
+    dragging.setKeepWithinStage(false);
     // CanvasArea owns scroll focus; route window wheels before either native listener runs.
     area()
         .addCaptureListener(
@@ -521,6 +524,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   }
 
   private void dropLoose(ProgrammingMethodsNode.Drag drag, Vector2 position) {
+    position.add(-drag.grabX(), drag.grabFromTop());
     if (!drag.copy() && drag.source().loose() && drag.ids().equals(drag.source().looseIds())) {
       drag.source().position(position.x, position.y - drag.source().height());
       return;

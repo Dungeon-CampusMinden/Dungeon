@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -474,6 +475,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
     content.validate();
     scroll.setScrollY(scrollY);
     scroll.updateVisualScroll();
+    if (!container.equals("palette") && !showOriginal)
+      target(scroll, panelBlocks(owner.state()).size(), false);
   }
 
   private void toggleOriginal() {
@@ -1098,7 +1101,9 @@ final class ProgrammingMethodsNode extends CanvasNode {
       String container,
       Block block,
       boolean copy,
-      List<String> ids) {}
+      List<String> ids,
+      float grabX,
+      float grabFromTop) {}
 
   private static List<Block> blocks(State state, String container) {
     return switch (container) {
@@ -1165,6 +1170,52 @@ final class ProgrammingMethodsNode extends CanvasNode {
                   } else select(block.id(), false, false);
                 }
                 owner.flushFields();
+                List<Block> draggedBlocks =
+                    copy
+                        ? List.of(block)
+                        : panelBlocks(owner.state()).stream()
+                            .filter(selectedBlock -> selected.contains(selectedBlock.id()))
+                            .toList();
+                Table preview = new Table();
+                preview.top().left();
+                float grabFromTop = actor.getHeight() - y;
+                boolean beforeGrabbed = true;
+                for (Block draggedBlock : draggedBlocks) {
+                  CodeRow original = rows.get(draggedBlock.id());
+                  float rowHeight = original == null ? actor.getHeight() : original.getHeight();
+                  if (draggedBlock.id().equals(block.id())) beforeGrabbed = false;
+                  if (beforeGrabbed) grabFromTop += rowHeight;
+                  CodeRow ghost = new CodeRow(draggedBlock.action() == Action.CALL);
+                  ghost.selected = true;
+                  ghost
+                      .add(ProgrammingUI.zoomSyntaxLabel(syntax(draggedBlock), 18))
+                      .growX()
+                      .minWidth(0);
+                  preview.add(ghost).width(actor.getWidth()).height(rowHeight).row();
+                }
+                preview.pack();
+                Vector2 origin = actor.localToStageCoordinates(new Vector2());
+                Vector2 extent =
+                    actor.localToStageCoordinates(new Vector2(actor.getWidth(), actor.getHeight()));
+                float scaleX = (extent.x - origin.x) / actor.getWidth();
+                float scaleY = (extent.y - origin.y) / actor.getHeight();
+                preview.setTransform(true);
+                preview.setScale(scaleX, scaleY);
+                Group ghost = new Group();
+                ghost.setSize(preview.getWidth() * scaleX, preview.getHeight() * scaleY);
+                ghost.addActor(preview);
+                owner
+                    .dragging()
+                    .setDragActorPosition(
+                        ghost.getWidth() - x * scaleX, grabFromTop * scaleY - ghost.getHeight());
+                // Moving a whole loose group preserves its current scroll position as well.
+                float dropGrabFromTop =
+                    !copy && loose() && draggedBlocks.size() == looseIds.size()
+                        ? height()
+                            - actor.localToAscendantCoordinates(
+                                    ProgrammingMethodsNode.this, new Vector2(x, y))
+                                .y
+                        : grabFromTop;
                 var payload = new DragAndDrop.Payload();
                 payload.setObject(
                     new Drag(
@@ -1172,25 +1223,10 @@ final class ProgrammingMethodsNode extends CanvasNode {
                         container,
                         block,
                         copy,
-                        copy
-                            ? List.of()
-                            : panelBlocks(owner.state()).stream()
-                                .map(Block::id)
-                                .filter(selected::contains)
-                                .toList()));
+                        copy ? List.of() : draggedBlocks.stream().map(Block::id).toList(),
+                        x,
+                        dropGrabFromTop));
                 owner.dragStarted((Drag) payload.getObject());
-                CodeRow ghost = new CodeRow(block.action() == Action.CALL);
-                ghost.selected = true;
-                ghost
-                    .add(
-                        ProgrammingUI.label(
-                            (selected.size() > 1 && !copy
-                                ? selected.size() + " Anweisungen"
-                                : MethodsWorkshop.blockSource(block)),
-                            18,
-                            ProgrammingUI.TEXT))
-                    .width(260);
-                ghost.pack();
                 payload.setDragActor(ghost);
                 return payload;
               }
@@ -1220,7 +1256,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
     target(gap, index, false);
   }
 
-  private void target(Table gap, int index, boolean row) {
+  private void target(Actor gap, int index, boolean row) {
     List<String> destinationIds = panelBlocks(owner.state()).stream().map(Block::id).toList();
     owner
         .dragging()
@@ -1237,8 +1273,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
                 owner.dropAllowed(valid);
                 if (row && gap instanceof CodeRow codeRow) {
                   codeRow.insertion = valid ? (y >= gap.getHeight() / 2 ? 1 : -1) : 0;
-                } else {
-                  gap.setBackground(
+                } else if (gap instanceof Table table) {
+                  table.setBackground(
                       ProgrammingUI.background(
                           valid ? ProgrammingUI.GOLD : Color.valueOf("20282b"), false));
                 }
@@ -1249,7 +1285,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
               public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
                 owner.dropAllowed(false);
                 if (row && gap instanceof CodeRow codeRow) codeRow.insertion = 0;
-                else gap.setBackground(ProgrammingUI.background(Color.valueOf("20282b"), false));
+                else if (gap instanceof Table table)
+                  table.setBackground(ProgrammingUI.background(Color.valueOf("20282b"), false));
               }
 
               @Override
