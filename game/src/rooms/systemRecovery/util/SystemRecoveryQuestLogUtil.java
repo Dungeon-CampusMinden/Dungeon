@@ -40,8 +40,7 @@ public final class SystemRecoveryQuestLogUtil {
     String uniqueKey = riddleKey + "." + dialogKey;
     if (!ADDED_ENTRIES.add(uniqueKey)) return;
 
-    boolean added =
-        QuestLogUtil.add(SystemRecoveryText.questKey(riddleKey + ".tab"), dialogScript);
+    boolean added = QuestLogUtil.add(SystemRecoveryText.questKey(riddleKey + ".tab"), dialogScript);
     if (!added) {
       ADDED_ENTRIES.remove(uniqueKey);
     }

@@ -17,7 +17,6 @@ import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
-import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 
 /** Reads and applies a System Recovery checkpoint without replaying gameplay side effects. */
 public final class SystemRecoveryLoad {
@@ -143,12 +142,7 @@ public final class SystemRecoveryLoad {
       boolean onlyForCreator = booleanValue(map.get("onlyForCreator"));
       questLog.add(
           new SystemRecoverySave.QuestLogEntryData(
-              tab,
-              text,
-              timestamp,
-              userCreated,
-              owner,
-              onlyForCreator));
+              tab, text, timestamp, userCreated, owner, onlyForCreator));
     }
     if (!hasExpectedHistory(findCheckpoint(checkpoint).orElseThrow(), inputs)) {
       return Optional.empty();
@@ -159,13 +153,7 @@ public final class SystemRecoveryLoad {
             : null;
     return Optional.of(
         new SystemRecoverySave.SaveData(
-            checkpoint,
-            inputs,
-            questLog,
-            runId,
-            playerName,
-            trackingConsent,
-            achievementProgress));
+            checkpoint, inputs, questLog, runId, playerName, trackingConsent, achievementProgress));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
