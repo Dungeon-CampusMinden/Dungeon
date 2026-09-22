@@ -24,8 +24,7 @@ class SystemRecoveryAchievementAssetsTest {
     try (InputStream input =
         loader.getResourceAsStream(SystemRecoveryAchievements.DEFINITION_PATH)) {
       assertNotNull(input, "System Recovery achievement definition is missing");
-      definition =
-          JsonHandler.readJson(new String(input.readAllBytes(), StandardCharsets.UTF_8));
+      definition = JsonHandler.readJson(new String(input.readAllBytes(), StandardCharsets.UTF_8));
     }
 
     List<?> achievements = assertInstanceOf(List.class, definition.get("achievements"));

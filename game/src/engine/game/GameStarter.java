@@ -244,9 +244,9 @@ public final class GameStarter {
     /**
      * Adds an optional local continue action to the main menu.
      *
-     * <p>The availability supplier is evaluated when the menu is built. The alternate arguments
-     * are passed to the dedicated server child instead of the normal new-game arguments; this
-     * keeps save ownership on the authoritative server.
+     * <p>The availability supplier is evaluated when the menu is built. The alternate arguments are
+     * passed to the dedicated server child instead of the normal new-game arguments; this keeps
+     * save ownership on the authoritative server.
      *
      * @param available checks whether a resumable save exists
      * @param serverArguments arguments for the server process when continuing

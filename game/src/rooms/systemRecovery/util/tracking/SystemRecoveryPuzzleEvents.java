@@ -127,8 +127,7 @@ public final class SystemRecoveryPuzzleEvents {
    */
   public static void terminalAttempt(int state, String source, boolean correct, int playerId) {
     SystemRecoveryAchievements.terminalAttempt(
-        new TerminalAttempt(state, source, playerId, null),
-        correct);
+        new TerminalAttempt(state, source, playerId, null), correct);
     SystemRecoveryTracking.terminalAttempt(state, source, correct, playerId);
     if (!correct) return;
     TerminalStep.fromStateId(state)

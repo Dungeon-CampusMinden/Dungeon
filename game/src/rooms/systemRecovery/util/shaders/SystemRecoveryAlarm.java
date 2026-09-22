@@ -15,8 +15,8 @@ public final class SystemRecoveryAlarm {
   /**
    * Enables the red alarm filter for the complete rendered scene.
    *
-   * <p>The assignment goes through {@link ShaderSystem}, so the server remains the source of
-   * truth and the same scene shader is synchronized to every connected client.
+   * <p>The assignment goes through {@link ShaderSystem}, so the server remains the source of truth
+   * and the same scene shader is synchronized to every connected client.
    */
   public static void activate() {
     ShaderSystem shaderSystem = ShaderSystem.getInstance();
@@ -38,9 +38,9 @@ public final class SystemRecoveryAlarm {
   /**
    * Plays the client-side alarm sound when synchronized metadata arrives.
    *
-   * <p>The scene shader itself is already synchronized by {@link ShaderSystem}. Metadata can
-   * arrive independently while a client joins, so it is only used here to keep the one-shot sound
-   * feedback intact without adding the shader a second time locally.
+   * <p>The scene shader itself is already synchronized by {@link ShaderSystem}. Metadata can arrive
+   * independently while a client joins, so it is only used here to keep the one-shot sound feedback
+   * intact without adding the shader a second time locally.
    *
    * @param active whether the authoritative alarm is active
    */

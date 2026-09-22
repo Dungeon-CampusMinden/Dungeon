@@ -38,8 +38,7 @@ public enum SystemRecoveryLearningStep {
       "storage-array", "riddle8", "two-dimensional-storage", TerminalStep.STORAGE_ARRAY, 10),
   STORAGE_VALUES(
       "storage-values", "riddle8", "two-dimensional-storage", TerminalStep.STORAGE_VALUES),
-  SEARCH_PROGRAM(
-      "search-program", "riddle9", "search-robot", TerminalStep.SEARCH_PROGRAM, 12),
+  SEARCH_PROGRAM("search-program", "riddle9", "search-robot", TerminalStep.SEARCH_PROGRAM, 12),
   SEARCH_ROBOT_RUN("search-robot-run", "riddle9", "search-robot"),
   SYSTEM_CORE_ACCESS("system-core-access", "riddle10", "system-core", 12),
   CORE_SORT("core-sort", "riddle10", "system-core", TerminalStep.CENTRAL_SORT),
@@ -121,8 +120,7 @@ public enum SystemRecoveryLearningStep {
   }
 
   /**
-   * Returns the number of accepted terminal inputs that must exist at this main-riddle
-   * checkpoint.
+   * Returns the number of accepted terminal inputs that must exist at this main-riddle checkpoint.
    *
    * @return accepted input count, or {@code -1} for non-checkpoint steps
    */

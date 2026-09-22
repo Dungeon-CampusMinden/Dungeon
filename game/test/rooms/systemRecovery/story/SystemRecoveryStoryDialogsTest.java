@@ -26,7 +26,6 @@ class SystemRecoveryStoryDialogsTest {
     assertEquals("echo", SystemRecoveryStoryDialogs.MANUAL_SORTING.speakerKey());
     assertEquals("echo", SystemRecoveryStoryDialogs.CENTRAL_META.speakerKey());
     assertEquals("search-robot", SystemRecoveryStoryDialogs.SEARCH_ROBOT_START.speakerKey());
-    assertEquals(
-        "search-robot", SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE.speakerKey());
+    assertEquals("search-robot", SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE.speakerKey());
   }
 }

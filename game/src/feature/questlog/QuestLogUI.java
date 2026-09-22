@@ -910,7 +910,7 @@ public final class QuestLogUI {
               DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL)
                   .accept(null);
             }
-      });
+          });
       header.add(close).size(34f).right();
       detail.add(header).width(CONTENT_WIDTH).padBottom(16f).row();
 
@@ -938,7 +938,8 @@ public final class QuestLogUI {
         addEntryList(entriesContent, entries);
       }
 
-      ScrollPane entriesScroll = Scene2dElementFactory.createScrollPane(entriesContent, false, true);
+      ScrollPane entriesScroll =
+          Scene2dElementFactory.createScrollPane(entriesContent, false, true);
       entriesScroll.setOverscroll(false, false);
       entriesScroll.setFadeScrollBars(false);
       detail.add(entriesScroll).width(CONTENT_WIDTH).grow().left().row();

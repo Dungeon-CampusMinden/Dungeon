@@ -21,8 +21,7 @@ final class SearchRobotVisualSync {
   void apply(Entity entity, Map<String, String> metadata) {
     if (!"search_robot".equals(entity.name())) return;
 
-    String cellValue =
-        metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SEARCH_ROBOT_CELL);
+    String cellValue = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SEARCH_ROBOT_CELL);
     Point nextCell = parsePoint(cellValue);
     if (nextCell == null) {
       clearHighlight(entity.id());

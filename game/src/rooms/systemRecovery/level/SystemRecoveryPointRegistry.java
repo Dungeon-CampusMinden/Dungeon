@@ -16,6 +16,7 @@ public final class SystemRecoveryPointRegistry {
 
   /** Door custom points used by checkpoint restoration. */
   public static final String DOOR_MODULE_STORAGE = "door_modulspeicher";
+
   public static final String DOOR_INVENTORY_SCANNER = "door_inventarscanner";
   public static final String DOOR_TRANSPORT_STORAGE = "door_transportlager";
   public static final String DOOR_DATA_STORAGE = "door_datenspeicher";
@@ -23,9 +24,9 @@ public final class SystemRecoveryPointRegistry {
 
   /** World item custom points used by checkpoint restoration. */
   public static final String ARCHIVE_KEY_SPAWN = "chip_spawn";
+
   public static final String SEARCH_PROGRAM_CHIP = "chip";
-  public static final String SYSTEM_CORE_ACCESS_MODULE_DESTINATION =
-      "roboter_item_destination";
+  public static final String SYSTEM_CORE_ACCESS_MODULE_DESTINATION = "roboter_item_destination";
 
   private static final List<PointGroup> REQUIRED_GROUPS = createRequiredGroups();
 

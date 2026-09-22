@@ -66,8 +66,7 @@ public final class SystemRecoveryProgressNet {
    *
    * @param initialStep step that receives the initial token
    */
-  public static synchronized void initializeAtSilently(
-      SystemRecoveryLearningStep initialStep) {
+  public static synchronized void initializeAtSilently(SystemRecoveryLearningStep initialStep) {
     initializeAt(initialStep, false);
   }
 
@@ -86,9 +85,7 @@ public final class SystemRecoveryProgressNet {
         system -> {
           instance = new SystemRecoveryProgressNet(system, initialStep);
           if (trackPuzzleStart) {
-            initialStep
-                .puzzle()
-                .ifPresent(puzzle -> SystemRecoveryPuzzleEvents.started(puzzle));
+            initialStep.puzzle().ifPresent(puzzle -> SystemRecoveryPuzzleEvents.started(puzzle));
           }
         });
   }
@@ -107,8 +104,7 @@ public final class SystemRecoveryProgressNet {
    * @param checkpoint step that should contain the stable token
    * @return whether the checkpoint became the sole active place
    */
-  public static synchronized boolean restoreActiveStep(
-      SystemRecoveryLearningStep checkpoint) {
+  public static synchronized boolean restoreActiveStep(SystemRecoveryLearningStep checkpoint) {
     if (instance == null || checkpoint == null) return false;
     instance.clearMarking();
     instance.places.get(checkpoint).place().produce();

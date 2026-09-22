@@ -11,14 +11,13 @@ import java.util.regex.Pattern;
  * Server-authoritative list of array identifiers discovered in accepted System Recovery code.
  *
  * <p>The interpreter deliberately keeps its capture context private. The Memory Watch therefore
- * extracts only identifiers that occur in a source submission after the server has already
- * accepted that submission. It is a display aid, not a second code validator.
+ * extracts only identifiers that occur in a source submission after the server has already accepted
+ * that submission. It is a display aid, not a second code validator.
  */
 public final class SystemRecoveryMemoryWatch {
 
   private static final Pattern ARRAY_DECLARATION =
-      Pattern.compile(
-          "\\b(int|String|boolean)\\s*((?:\\[\\s*]\\s*)+)([A-Za-z][A-Za-z0-9_]*)\\s*=");
+      Pattern.compile("\\b(int|String|boolean)\\s*((?:\\[\\s*]\\s*)+)([A-Za-z][A-Za-z0-9_]*)\\s*=");
   private static final Pattern ARRAY_ACCESS =
       Pattern.compile("\\b([A-Za-z][A-Za-z0-9_]*)\\s*(?=\\[\\s*[^]]*])");
   private static final Pattern ARRAY_LENGTH =
@@ -146,7 +145,8 @@ public final class SystemRecoveryMemoryWatch {
         && !name.equals("new");
   }
 
-  /** Name and data type shown for one Memory Watch entry.
+  /**
+   * Name and data type shown for one Memory Watch entry.
    *
    * @param name array identifier
    * @param type array data type

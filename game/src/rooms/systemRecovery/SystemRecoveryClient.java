@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import rooms.systemRecovery.network.SystemCoreVisualSync;
 import rooms.systemRecovery.network.SystemRecoveryComponentSync;
-import rooms.systemRecovery.save.SystemRecoveryAutoSaveHud;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
+import rooms.systemRecovery.save.SystemRecoveryAutoSaveHud;
 
 /** Client-side setup for System Recovery. */
 public final class SystemRecoveryClient {

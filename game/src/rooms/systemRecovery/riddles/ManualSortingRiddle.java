@@ -68,7 +68,8 @@ public final class ManualSortingRiddle {
     restoreCompletedState(true);
   }
 
-  /** Restores the sorted station, keeping its reward only while the next machine needs it.
+  /**
+   * Restores the sorted station, keeping its reward only while the next machine needs it.
    *
    * @param stickAvailable whether the sorting stick should remain available in the world
    */

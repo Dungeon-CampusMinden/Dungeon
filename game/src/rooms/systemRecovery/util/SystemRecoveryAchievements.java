@@ -73,8 +73,7 @@ public final class SystemRecoveryAchievements {
    *
    * @param snapshot saved achievement progress
    */
-  public static synchronized void restore(
-      SystemRecoveryAchievementTracker.Snapshot snapshot) {
+  public static synchronized void restore(SystemRecoveryAchievementTracker.Snapshot snapshot) {
     tracker.restore(snapshot);
   }
 

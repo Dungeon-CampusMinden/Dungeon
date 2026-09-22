@@ -49,7 +49,8 @@ public final class SystemRecoveryPhoneController {
   public void setup(Point phonePoint) {
     phone = DecoFactory.createDeco(phonePoint, Deco.Phone);
     phone.remove(feature.components.DecoComponent.class);
-    engine.systems.DrawSystem.getInstance().changeEntityDepth(phone, DepthLayer.AbovePlayer.depth());
+    engine.systems.DrawSystem.getInstance()
+        .changeEntityDepth(phone, DepthLayer.AbovePlayer.depth());
     Game.add(phone);
     updatePhoneInteraction();
   }

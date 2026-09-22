@@ -105,7 +105,8 @@ class SystemRecoveryDialogTriggerProgressTest {
     enabled.setAccessible(true);
     SystemRecoveryDialogTriggers.DialogTrigger archiveTrigger =
         SystemRecoveryDialogTriggers.ROOM_ENTRY.stream()
-            .filter(trigger -> trigger.pointName().equals(SystemRecoveryDialogTriggers.DATA_ARCHIVE))
+            .filter(
+                trigger -> trigger.pointName().equals(SystemRecoveryDialogTriggers.DATA_ARCHIVE))
             .findFirst()
             .orElseThrow();
 

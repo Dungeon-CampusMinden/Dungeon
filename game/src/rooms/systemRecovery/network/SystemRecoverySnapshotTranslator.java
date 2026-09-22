@@ -105,7 +105,9 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                   TerminalInterpreter.instance().synchronizeState(Integer.parseInt(terminalState));
                 }
                 SystemRecoveryAutoSaveHud.acceptRevision(
-                    metadata.orElseThrow().get(SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION));
+                    metadata
+                        .orElseThrow()
+                        .get(SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION));
               });
     }
   }

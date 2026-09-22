@@ -102,8 +102,7 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
   public void act(float delta) {
     super.act(delta);
     if (!tabs.containsKey(SystemCoreMetaTab.KEY)
-        && TerminalInterpreter.instance().currentState()
-            == TerminalStep.SYSTEM_CORE_META.stateId()
+        && TerminalInterpreter.instance().currentState() == TerminalStep.SYSTEM_CORE_META.stateId()
         && SystemRecoveryLevel.systemCoreMetaAvailable()) {
       addTab(new SystemCoreMetaTab());
       activeTab = SystemCoreMetaTab.KEY;
@@ -269,9 +268,7 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     if (tabs.get(TerminalTab.KEY) instanceof TerminalTab terminal) {
       terminal.applyServerFeedback(feedback);
       if (tabs.get(MemoryWatchTab.KEY) instanceof MemoryWatchTab memoryWatch) {
-        terminal
-            .sourceForFeedback(feedback)
-            .ifPresent(memoryWatch::mergeAcceptedSource);
+        terminal.sourceForFeedback(feedback).ifPresent(memoryWatch::mergeAcceptedSource);
       }
     }
   }
