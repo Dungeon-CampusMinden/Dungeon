@@ -60,6 +60,16 @@ public final class Tracking {
   }
 
   /**
+   * Configures a room with an optional stable playthrough identifier.
+   *
+   * @param roomId stable room identifier
+   * @param runId optional identifier shared by sessions of one playthrough
+   */
+  public static void configureRoom(String roomId, Optional<UUID> runId) {
+    configure(TrackingConfig.forRoom(roomId, runId));
+  }
+
+  /**
    * Configures a room with an operator email while retaining other deployment settings.
    *
    * @param roomId stable room identifier
@@ -67,6 +77,18 @@ public final class Tracking {
    */
   public static void configureRoom(String roomId, String operatorEmail) {
     configure(TrackingConfig.forRoom(roomId, operatorEmail));
+  }
+
+  /**
+   * Configures a room with operator email and an optional playthrough identifier.
+   *
+   * @param roomId stable room identifier
+   * @param operatorEmail operator email shown when tracking persistence remains pending
+   * @param runId optional identifier shared by sessions of one playthrough
+   */
+  public static void configureRoom(
+      String roomId, String operatorEmail, Optional<UUID> runId) {
+    configure(TrackingConfig.forRoom(roomId, operatorEmail, runId));
   }
 
   /**

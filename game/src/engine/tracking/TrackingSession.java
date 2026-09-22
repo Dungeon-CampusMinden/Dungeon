@@ -52,7 +52,8 @@ final class TrackingSession {
     this.config = config;
     UUID sessionId = UUID.randomUUID();
     this.descriptor =
-        new TrackingSessionDescriptor(SCHEMA_VERSION, sessionId, config.roomId(), Instant.now());
+        new TrackingSessionDescriptor(
+            SCHEMA_VERSION, sessionId, config.roomId(), Instant.now(), config.runId());
     this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
         TrackingConfig.TRACKING_ENABLED ? new TrackingUploader(config, descriptor) : null;

@@ -7,6 +7,16 @@ Tracking läuft nur im autoritativen Serverprozess oder im Einzelspielermodus. K
 Tracking.configureRoom("my-room");
 ```
 
+Ein Raum kann optional eine stabile `runId` für einen zusammenhängenden Spieldurchlauf setzen:
+
+```java
+Tracking.configureRoom("system-recovery", Optional.of(runId));
+```
+
+Die ID wird im Sitzungsdeskriptor der JSONL-Outbox gespeichert. Dadurch lassen sich mehrere
+Tracking-Sitzungen nach einem Savegame-Laden derselben Partie zuordnen. Ohne `runId` bleibt das
+bisherige Verhalten unverändert.
+
 `configureRoom` trennt die Deployment-Einstellungen vom Raumcode. Das Deployment kann Folgendes
 festlegen:
 
@@ -56,9 +66,10 @@ er sie einmalig in ihrer ursprünglichen Reihenfolge direkt nach dem ersten
 Bereitschaft, nicht schon während Bootstrap oder Weltübertragung.
 
 Jede konfigurierte Sitzung erzeugt eine neue Datei `<session UUID>.jsonl`. Eine vorhandene Datei
-wird nie wiederverwendet. Die erste Zeile enthält den Sitzungsdeskriptor, danach folgen geordnete
-Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung schließt mit einem Abschlussdatensatz. Fehlt
-dieser, gilt die Sitzung als unterbrochen. Diese eine Datei enthält alles für den Offline-Import.
+wird nie wiederverwendet. Die erste Zeile enthält den Sitzungsdeskriptor einschließlich der
+optionalen `runId`, danach folgen geordnete Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung
+schließt mit einem Abschlussdatensatz. Fehlt dieser, gilt die Sitzung als unterbrochen. Diese eine
+Datei enthält alles für den Offline-Import.
 Lösche sie erst, wenn das Backend die Sitzung bestätigt oder ein Betreiber sie importiert hat.
 
 Beendet sich ein über "Spiel hosten" gestarteter Server ohne bestätigte Speicherung, übermittelt
