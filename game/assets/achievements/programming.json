@@ -43,6 +43,12 @@
       "hidden": true
     },
     {
+      "id": "programming_heartfire_out",
+      "imagePath": "items/rpg/item_torch.png",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
       "id": "programming_blackout",
       "imagePath": "items/rpg/item_torch.png",
       "unlockForAll": true,

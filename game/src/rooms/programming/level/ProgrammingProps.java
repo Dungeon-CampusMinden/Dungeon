@@ -109,7 +109,11 @@ final class ProgrammingProps {
     var state = torch.fetch(DrawComponent.class).orElseThrow().stateMachine();
     state.setState(state.getCurrentStateName().equals("on") ? "off" : "on", null);
     ProgrammingProgress.interaction(torch.name(), "turn-" + state.getCurrentStateName(), who);
-    if (state.getCurrentStateName().equals("off")) ProgrammingAchievements.LIGHTS_OUT.unlock(who);
+    if (state.getCurrentStateName().equals("off")) {
+      ProgrammingAchievements.LIGHTS_OUT.unlock(who);
+      if (torch.name().equals("programming-prop-torch-decisions-heart"))
+        ProgrammingAchievements.HEARTFIRE_OUT.unlock(who);
+    }
     if (blackout()) ProgrammingAchievements.BLACKOUT.unlock(who);
   }
 

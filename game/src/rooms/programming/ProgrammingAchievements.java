@@ -18,6 +18,7 @@ public enum ProgrammingAchievements {
   OVERWRITE,
   SLEEPY,
   LIGHTS_OUT,
+  HEARTFIRE_OUT,
   BLACKOUT,
   OBSERVER,
   FIRST_ROUTE,

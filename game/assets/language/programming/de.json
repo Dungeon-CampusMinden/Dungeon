@@ -28,6 +28,10 @@
       "name": "Licht aus",
       "description": "Lösche eine brennende Fackel."
     },
+    "programming_heartfire_out": {
+      "name": "Ähm...?",
+      "description": "Lösche das Herzfeuer. Dafür sind wir den ganzen Weg hierhergekommen?"
+    },
     "programming_observer": {
       "name": "Auf Sicht",
       "description": "Beobachte Nox durch den Sehstein im Keller."

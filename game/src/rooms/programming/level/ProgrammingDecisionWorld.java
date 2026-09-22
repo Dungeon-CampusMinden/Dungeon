@@ -264,7 +264,7 @@ final class ProgrammingDecisionWorld {
           .8f,
           .8f,
           false);
-    Entity fire = torch("heart", new Point(40.3f, 119.5f));
+    Entity fire = torch("heart", new Point(40, 119.5f));
     fire.fetch(PositionComponent.class).orElseThrow().scale(2);
     prop("heart-inscription", new Point(42.3f, 120), "items/rpg/item_scroll.png", .8f, .8f, false);
   }

@@ -28,6 +28,10 @@
       "name": "Lights out",
       "description": "Extinguish a burning torch."
     },
+    "programming_heartfire_out": {
+      "name": "Umm...?",
+      "description": "Extinguish the Heartfire. Is this what we came all this way for?"
+    },
     "programming_observer": {
       "name": "Eyes on Nox",
       "description": "Watch Nox in the cellar through the viewing stone."
