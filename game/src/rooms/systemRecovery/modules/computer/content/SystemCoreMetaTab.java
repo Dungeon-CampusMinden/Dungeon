@@ -25,8 +25,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   /** Stable tab key used by the computer dialog. */
   public static final String KEY = "system-core-meta";
 
-  private final TextField[] energyFields =
-      new TextField[SystemCoreMetaDraft.ENERGY_SLOT_COUNT];
+  private final TextField[] energyFields = new TextField[SystemCoreMetaDraft.ENERGY_SLOT_COUNT];
   private TextField moduleField;
   private TextField batteryField;
   private Label feedback;
@@ -72,12 +71,10 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     Table counts = new Table(skin);
     counts.left().top();
     moduleField =
-        createNumberField(
-            SystemCoreMetaDraft.moduleCount(), SystemCoreMetaDraft::moduleCount);
+        createNumberField(SystemCoreMetaDraft.moduleCount(), SystemCoreMetaDraft::moduleCount);
     batteryField =
         createNumberField(
-            SystemCoreMetaDraft.scannedModuleCount(),
-            SystemCoreMetaDraft::scannedModuleCount);
+            SystemCoreMetaDraft.scannedModuleCount(), SystemCoreMetaDraft::scannedModuleCount);
     addCountField(counts, "computer.meta-modules", moduleField);
     addCountField(counts, "computer.meta-batteries", batteryField);
     layout.add(counts).left().padTop(24).row();

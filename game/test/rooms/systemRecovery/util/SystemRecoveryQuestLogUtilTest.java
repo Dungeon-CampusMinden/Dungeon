@@ -57,13 +57,11 @@ class SystemRecoveryQuestLogUtilTest {
     SystemRecoveryQuestLogUtil.initializeQuestLog();
 
     SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-array", "axiom", "module-array");
-    SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "module-values", "axiom", "module-values");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-values", "axiom", "module-values");
     SystemRecoveryQuestLogUtil.addDialogEntry(
         "riddle2", "module-assignment", "axiom", "module-assignment");
     SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "gpu-fault", "axiom", "gpu-fault");
-    SystemRecoveryQuestLogUtil.addDialogEntry(
-        "riddle2", "module-length", "axiom", "module-length");
+    SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-length", "axiom", "module-length");
     SystemRecoveryQuestLogUtil.addDialogEntry(
         "riddle2", "open-scanner-door", "axiom", "open-scanner-door");
 
@@ -86,16 +84,14 @@ class SystemRecoveryQuestLogUtilTest {
     SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(
         new TerminalAttempt(TerminalStep.ENERGY_ARRAY.stateId(), source, 7));
 
-    assertEquals(
-        List.of(SystemRecoveryText.questKey("solution", source)), entriesFor("riddle1"));
+    assertEquals(List.of(SystemRecoveryText.questKey("solution", source)), entriesFor("riddle1"));
   }
 
   @Test
   void identicalAcceptedSolutionIsNotDuplicated() {
     SystemRecoveryQuestLogUtil.initializeQuestLog();
     String source = "String[] meineModule = new String[5];";
-    TerminalAttempt attempt =
-        new TerminalAttempt(TerminalStep.MODULE_ARRAY.stateId(), source, 7);
+    TerminalAttempt attempt = new TerminalAttempt(TerminalStep.MODULE_ARRAY.stateId(), source, 7);
 
     SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
     SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);

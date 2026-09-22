@@ -34,7 +34,8 @@ public final class SystemRecoveryAutoSaveHud {
     lastRevision = 0;
   }
 
-  /** Shows one confirmation when a newer server-written revision arrives in a snapshot.
+  /**
+   * Shows one confirmation when a newer server-written revision arrives in a snapshot.
    *
    * @param encodedRevision revision supplied by the authoritative server
    */
@@ -47,16 +48,17 @@ public final class SystemRecoveryAutoSaveHud {
       return;
     }
     if (revision <= lastRevision) return;
-    Game.stage().ifPresent(
-        stage -> {
-          if (stage != attachedStage) {
-            reset();
-            attachedStage = stage;
-          }
-          if (revision <= lastRevision) return;
-          lastRevision = revision;
-          show(stage);
-        });
+    Game.stage()
+        .ifPresent(
+            stage -> {
+              if (stage != attachedStage) {
+                reset();
+                attachedStage = stage;
+              }
+              if (revision <= lastRevision) return;
+              lastRevision = revision;
+              show(stage);
+            });
   }
 
   private static void show(Stage stage) {

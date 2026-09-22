@@ -10,6 +10,7 @@ import feature.petrinet.PetriNetSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,6 +86,20 @@ class SystemRecoverySaveTest {
   }
 
   @Test
+  void preservesRunMetadata() throws Exception {
+    UUID runId = UUID.randomUUID();
+    SystemRecoverySave.SaveData expected =
+        new SystemRecoverySave.SaveData(
+            SystemRecoveryLearningStep.ENERGY_ARRAY.hintKey(), List.of(), List.of(), runId, null);
+    Path savePath = temporaryDirectory.resolve("run-id-save.json");
+
+    SystemRecoverySave.write(savePath, expected);
+
+    SystemRecoverySave.SaveData restored = SystemRecoveryLoad.read(savePath).orElseThrow();
+    assertEquals(runId, restored.runId());
+  }
+
+  @Test
   void rejectsUnsupportedAndMalformedSaves() throws Exception {
     Path versionPath = temporaryDirectory.resolve("version.json");
     Files.writeString(versionPath, "{\"formatVersion\":99,\"checkpoint\":\"energy-array\"}");
@@ -94,7 +109,8 @@ class SystemRecoverySaveTest {
     assertTrue(SystemRecoveryLoad.read(versionPath).isEmpty());
     assertTrue(SystemRecoveryLoad.read(malformedPath).isEmpty());
     assertTrue(SystemRecoveryLoad.read(temporaryDirectory.resolve("missing.json")).isEmpty());
-    assertFalse(SystemRecoveryLoad.isMainPuzzleCheckpoint(SystemRecoveryLearningStep.ENERGY_VALUES));
+    assertFalse(
+        SystemRecoveryLoad.isMainPuzzleCheckpoint(SystemRecoveryLearningStep.ENERGY_VALUES));
   }
 
   @Test
@@ -112,7 +128,9 @@ class SystemRecoverySaveTest {
     assertEquals(
         SystemRecoveryLearningStep.MODULE_ARRAY,
         SystemRecoveryLoad.restoreRuntime(save).orElseThrow());
-    assertEquals(SystemRecoveryLearningStep.MODULE_ARRAY, SystemRecoveryProgressNet.activeStep().orElseThrow());
+    assertEquals(
+        SystemRecoveryLearningStep.MODULE_ARRAY,
+        SystemRecoveryProgressNet.activeStep().orElseThrow());
     assertEquals(2, TerminalInterpreter.instance().currentState());
     assertEquals(2, TerminalInterpreter.instance().acceptedInputs().size());
   }
@@ -165,7 +183,8 @@ class SystemRecoverySaveTest {
       assertEquals(acceptedCount, TerminalInterpreter.instance().currentState(), step.name());
 
       List<SystemRecoverySave.AcceptedInput> wrongHistory =
-          acceptedCount == 0 ? List.of(new SystemRecoverySave.AcceptedInput(0, "bad"))
+          acceptedCount == 0
+              ? List.of(new SystemRecoverySave.AcceptedInput(0, "bad"))
               : history.subList(0, acceptedCount - 1);
       SystemRecoverySave.SaveData invalid =
           new SystemRecoverySave.SaveData(step.hintKey(), wrongHistory, List.of());

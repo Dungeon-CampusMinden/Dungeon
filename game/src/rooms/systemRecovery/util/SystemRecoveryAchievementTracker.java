@@ -22,9 +22,12 @@ public final class SystemRecoveryAchievementTracker {
   private static final int WRONG_ATTEMPTS_FOR_SYNTAX_MILESTONE = 10;
 
   private final Consumer<String> unlock;
-  private final Set<SystemRecoveryPuzzle> hintedPuzzles = EnumSet.noneOf(SystemRecoveryPuzzle.class);
-  private final Set<SystemRecoveryPuzzle> solvedPuzzles = EnumSet.noneOf(SystemRecoveryPuzzle.class);
-  private final Set<SystemRecoveryPuzzle> failedPuzzles = EnumSet.noneOf(SystemRecoveryPuzzle.class);
+  private final Set<SystemRecoveryPuzzle> hintedPuzzles =
+      EnumSet.noneOf(SystemRecoveryPuzzle.class);
+  private final Set<SystemRecoveryPuzzle> solvedPuzzles =
+      EnumSet.noneOf(SystemRecoveryPuzzle.class);
+  private final Set<SystemRecoveryPuzzle> failedPuzzles =
+      EnumSet.noneOf(SystemRecoveryPuzzle.class);
   private final Set<SystemRecoveryPuzzle> failedTerminalPuzzles =
       EnumSet.noneOf(SystemRecoveryPuzzle.class);
   private final Set<String> failedUploads = new HashSet<>();
@@ -99,9 +102,15 @@ public final class SystemRecoveryAchievementTracker {
     firstTerminalAttemptSeen = snapshot.firstTerminalAttemptSeen();
     wrongTerminalAttempts = snapshot.wrongTerminalAttempts();
     acceptedHints = snapshot.acceptedHints();
-    snapshot.hintedPuzzles().stream().map(SystemRecoveryAchievementTracker::puzzle).forEach(hintedPuzzles::add);
-    snapshot.solvedPuzzles().stream().map(SystemRecoveryAchievementTracker::puzzle).forEach(solvedPuzzles::add);
-    snapshot.failedPuzzles().stream().map(SystemRecoveryAchievementTracker::puzzle).forEach(failedPuzzles::add);
+    snapshot.hintedPuzzles().stream()
+        .map(SystemRecoveryAchievementTracker::puzzle)
+        .forEach(hintedPuzzles::add);
+    snapshot.solvedPuzzles().stream()
+        .map(SystemRecoveryAchievementTracker::puzzle)
+        .forEach(solvedPuzzles::add);
+    snapshot.failedPuzzles().stream()
+        .map(SystemRecoveryAchievementTracker::puzzle)
+        .forEach(failedPuzzles::add);
     snapshot.failedTerminalPuzzles().stream()
         .map(SystemRecoveryAchievementTracker::puzzle)
         .forEach(failedTerminalPuzzles::add);
@@ -173,9 +182,13 @@ public final class SystemRecoveryAchievementTracker {
       emittedAchievements = normalizeStrings(emittedAchievements);
     }
 
-    /** @return an empty state for legacy savegames without achievement data */
+    /**
+     * @return an empty state for legacy savegames without achievement data
+     */
     public static Snapshot empty() {
-      return new Snapshot(false, false, 0, 0, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+      return new Snapshot(
+          false, false, 0, 0, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
+          List.of());
     }
 
     private static List<String> normalizeIds(List<String> ids) {

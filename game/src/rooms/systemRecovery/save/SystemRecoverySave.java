@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
@@ -22,7 +23,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievements;
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 2;
+  public static final int FORMAT_VERSION = 3;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -45,9 +46,21 @@ public final class SystemRecoverySave {
    * @return immutable save data
    */
   public static SaveData capture(SystemRecoveryLearningStep checkpoint) {
+    return capture(checkpoint, UUID.randomUUID());
+  }
+
+  /**
+   * Captures a checkpoint while retaining the stable run ID across later loads.
+   *
+   * @param checkpoint first learning step of the active main riddle
+   * @param runId stable ID of the complete playthrough
+   * @return immutable save data
+   */
+  public static SaveData capture(SystemRecoveryLearningStep checkpoint, UUID runId) {
     if (checkpoint == null || checkpoint.riddleKey() == null) {
       throw new IllegalArgumentException("A learning checkpoint is required.");
     }
+    if (runId == null) throw new IllegalArgumentException("A run ID is required.");
     List<AcceptedInput> inputs =
         TerminalInterpreter.instance().acceptedInputs().stream()
             .map(input -> new AcceptedInput(input.state(), input.source()))
@@ -60,9 +73,10 @@ public final class SystemRecoverySave {
                     .getEntries()
                     .forEach(
                         (tab, entries) ->
-                            entries.forEach(entry -> questLog.add(QuestLogEntryData.from(tab, entry)))));
+                            entries.forEach(
+                                entry -> questLog.add(QuestLogEntryData.from(tab, entry)))));
     return new SaveData(
-        checkpoint.hintKey(), inputs, questLog, SystemRecoveryAchievements.snapshot());
+        checkpoint.hintKey(), inputs, questLog, runId, SystemRecoveryAchievements.snapshot());
   }
 
   /**
@@ -84,10 +98,7 @@ public final class SystemRecoverySave {
     Files.writeString(temporary, toJson(data), StandardCharsets.UTF_8);
     try {
       Files.move(
-          temporary,
-          absolute,
-          StandardCopyOption.REPLACE_EXISTING,
-          StandardCopyOption.ATOMIC_MOVE);
+          temporary, absolute, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     } catch (AtomicMoveNotSupportedException ignored) {
       Files.move(temporary, absolute, StandardCopyOption.REPLACE_EXISTING);
     }
@@ -113,18 +124,13 @@ public final class SystemRecoverySave {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("formatVersion", FORMAT_VERSION);
     root.put("checkpoint", data.checkpointKey());
+    root.put("metadata", Map.of("runId", data.runId().toString()));
     root.put(
         "acceptedTerminalInputs",
         data.acceptedTerminalInputs().stream()
-            .map(
-                input ->
-                    Map.of("state", input.state(), "source", input.source()))
+            .map(input -> Map.of("state", input.state(), "source", input.source()))
             .toList());
-    root.put(
-        "questLog",
-        data.questLog().stream()
-            .map(QuestLogEntryData::toMap)
-            .toList());
+    root.put("questLog", data.questLog().stream().map(QuestLogEntryData::toMap).toList());
     if (data.achievementProgress() != null) {
       root.put("achievementProgress", achievementProgressMap(data.achievementProgress()));
     }
@@ -154,12 +160,14 @@ public final class SystemRecoverySave {
    * @param checkpointKey stable first-step key of the active riddle
    * @param acceptedTerminalInputs accepted terminal sources in order
    * @param questLog shared quest-log entries, including player-created notes
+   * @param runId stable ID shared by every loaded continuation of this save
    * @param achievementProgress run-local achievement conditions; nullable for legacy saves
    */
   public record SaveData(
       String checkpointKey,
       List<AcceptedInput> acceptedTerminalInputs,
       List<QuestLogEntryData> questLog,
+      UUID runId,
       SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
     /**
      * Validates and defensively copies the save collections.
@@ -172,7 +180,7 @@ public final class SystemRecoverySave {
         String checkpointKey,
         List<AcceptedInput> acceptedTerminalInputs,
         List<QuestLogEntryData> questLog) {
-      this(checkpointKey, acceptedTerminalInputs, questLog, null);
+      this(checkpointKey, acceptedTerminalInputs, questLog, UUID.randomUUID(), null);
     }
 
     /**
@@ -183,13 +191,30 @@ public final class SystemRecoverySave {
      * @param questLog shared quest-log entries, including player-created notes
      * @param achievementProgress run-local achievement conditions; nullable for legacy saves
      */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
+      this(checkpointKey, acceptedTerminalInputs, questLog, UUID.randomUUID(), achievementProgress);
+    }
+
+    /**
+     * Validates the stable identity and defensively copies all save collections.
+     *
+     * @param checkpointKey stable first-step key of the active main riddle
+     * @param acceptedTerminalInputs accepted terminal sources in order
+     * @param questLog shared quest-log entries, including player-created notes
+     * @param runId stable ID shared by every loaded continuation of this save
+     * @param achievementProgress run-local achievement conditions; nullable for legacy saves
+     */
     public SaveData {
       if (checkpointKey == null || checkpointKey.isBlank()) {
         throw new IllegalArgumentException("checkpointKey must not be blank");
       }
+      if (runId == null) throw new IllegalArgumentException("runId must not be null");
       acceptedTerminalInputs =
-          List.copyOf(
-              acceptedTerminalInputs == null ? List.of() : acceptedTerminalInputs);
+          List.copyOf(acceptedTerminalInputs == null ? List.of() : acceptedTerminalInputs);
       questLog = List.copyOf(questLog == null ? List.of() : questLog);
     }
   }

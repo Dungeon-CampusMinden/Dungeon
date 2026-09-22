@@ -32,8 +32,8 @@ import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
- * Riddle 9 and the final System Core scan: program the search chip for the first matrix, then run
- * a dedicated second robot through the core's 3x5 matrix after the central program is accepted.
+ * Riddle 9 and the final System Core scan: program the search chip for the first matrix, then run a
+ * dedicated second robot through the core's 3x5 matrix after the central program is accepted.
  *
  * <p>The scan is authoritative. Clients receive the robot position and the current cell index via
  * the normal entity snapshot plus System Recovery metadata.
@@ -51,6 +51,7 @@ public final class SearchRobotRiddle {
   private static final long SCAN_INTERVAL_MS = 750L;
   private static final int DELIVERY_SEARCH_RADIUS = 4;
   private static final float WAYPOINT_TOLERANCE = 0.05f;
+
   /** Cyan highlight shown while the robot examines one matrix cell. */
   public static final int SCAN_TINT = 0x33D9FFFF;
 
@@ -125,8 +126,8 @@ public final class SearchRobotRiddle {
    * Spawns a second, controller-less robot for the System Core matrix.
    *
    * <p>The core robot is deliberately a separate entity and controller instance. It is already
-   * placed at the matrix entrance when the level is built, so starting the scan never teleports
-   * the Riddle 9 robot or mixes their synchronized highlight state.
+   * placed at the matrix entrance when the level is built, so starting the scan never teleports the
+   * Riddle 9 robot or mixes their synchronized highlight state.
    *
    * @param startPoint first cell of the System Core matrix
    */
@@ -153,9 +154,7 @@ public final class SearchRobotRiddle {
    * @return whether a scan is currently running
    */
   public boolean running() {
-    return phase == Phase.SCANNING
-        || phase == Phase.WAITING_AT_CELL
-        || phase == Phase.DELIVERING;
+    return phase == Phase.SCANNING || phase == Phase.WAITING_AT_CELL || phase == Phase.DELIVERING;
   }
 
   /**
@@ -182,8 +181,8 @@ public final class SearchRobotRiddle {
   }
 
   /**
-   * Returns the matrix cell currently being examined, or {@code null} while the robot is moving
-   * to the next cell or delivering the recovered module.
+   * Returns the matrix cell currently being examined, or {@code null} while the robot is moving to
+   * the next cell or delivering the recovered module.
    *
    * @return active scan cell for synchronized visual feedback
    */
@@ -509,10 +508,10 @@ public final class SearchRobotRiddle {
   private void highlightCurrentCell() {
     Point cell =
         running()
-            && phase != Phase.DELIVERING
-            && matrix != null
-            && scanIndex >= 0
-            && scanIndex < matrix.size()
+                && phase != Phase.DELIVERING
+                && matrix != null
+                && scanIndex >= 0
+                && scanIndex < matrix.size()
             ? matrix.pointAt(scanIndex)
             : null;
     if (cell == null) {

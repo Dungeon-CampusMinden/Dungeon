@@ -36,8 +36,7 @@ class SystemRecoveryAchievementTrackerTest {
 
   @Test
   void wrongTerminalThresholdsAreEachEmittedOnce() {
-    TerminalAttempt wrong =
-        new TerminalAttempt(TerminalStep.ENERGY_ARRAY.stateId(), "wrong", 1);
+    TerminalAttempt wrong = new TerminalAttempt(TerminalStep.ENERGY_ARRAY.stateId(), "wrong", 1);
     for (int index = 0; index < 10; index++) {
       tracker.terminalAttempt(wrong, false);
     }

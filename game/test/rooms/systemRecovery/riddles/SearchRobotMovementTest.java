@@ -28,8 +28,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rooms.systemRecovery.entities.SystemCoreEntityFactory;
-import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 
 /** Runs the search robot with the real movement systems on the shipped room layout. */
 class SearchRobotMovementTest {
@@ -52,7 +52,8 @@ class SearchRobotMovementTest {
         getClass().getResourceAsStream("/levels/systemRecovery/systemrecovery_1.level")) {
       assertNotNull(resource);
       level =
-          LevelParser.parseLevel(new String(resource.readAllBytes(), StandardCharsets.UTF_8), "test");
+          LevelParser.parseLevel(
+              new String(resource.readAllBytes(), StandardCharsets.UTF_8), "test");
     }
     Game.currentLevel(level);
     collision = new CollisionSystem();
@@ -78,10 +79,7 @@ class SearchRobotMovementTest {
     riddle.setup();
     riddle.startScan();
     Entity robot =
-        Game.levelEntities()
-            .filter(e -> "search_robot".equals(e.name()))
-            .findFirst()
-            .orElseThrow();
+        Game.levelEntities().filter(e -> "search_robot".equals(e.name())).findFirst().orElseThrow();
 
     for (int tick = 0; tick < 180; tick++) {
       clock.addAndGet(50);
@@ -104,10 +102,7 @@ class SearchRobotMovementTest {
     riddle.startScan();
     assertEquals(-1, Game.tileAt(new Point(23, 41)).orElseThrow().tintColor());
     Entity robot =
-        Game.levelEntities()
-            .filter(e -> "search_robot".equals(e.name()))
-            .findFirst()
-            .orElseThrow();
+        Game.levelEntities().filter(e -> "search_robot".equals(e.name())).findFirst().orElseThrow();
     Point previous = robot.fetch(PositionComponent.class).orElseThrow().position();
     Set<Integer> visited = new HashSet<>();
     boolean observedHighlight = false;
@@ -141,7 +136,8 @@ class SearchRobotMovementTest {
     assertTrue(riddle.completed(), "robot did not finish the search and delivery");
     assertTrue(observedHighlight, "no matrix cell was highlighted during scanning");
     assertEquals(28, visited.size());
-    assertEquals(0, Game.levelEntities().filter(e -> "search_target_item".equals(e.name())).count());
+    assertEquals(
+        0, Game.levelEntities().filter(e -> "search_target_item".equals(e.name())).count());
     Entity accessModule =
         Game.levelEntities()
             .filter(

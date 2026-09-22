@@ -5,9 +5,9 @@ import java.util.Arrays;
 /**
  * Client-local draft for the final System Core result form.
  *
- * <p>The draft is deliberately not sent to the server. It only preserves unfinished input while
- * a player closes and reopens the local computer dialog. The server still receives and validates
- * the complete payload only when the player submits it.
+ * <p>The draft is deliberately not sent to the server. It only preserves unfinished input while a
+ * player closes and reopens the local computer dialog. The server still receives and validates the
+ * complete payload only when the player submits it.
  */
 public final class SystemCoreMetaDraft {
 
@@ -46,7 +46,9 @@ public final class SystemCoreMetaDraft {
     energyValues[index] = value == null ? "" : value;
   }
 
-  /** @return the unfinished occupied-module count */
+  /**
+   * @return the unfinished occupied-module count
+   */
   public static synchronized String moduleCount() {
     return moduleCount;
   }
@@ -60,7 +62,9 @@ public final class SystemCoreMetaDraft {
     moduleCount = value == null ? "" : value;
   }
 
-  /** @return the unfinished scanned-module count */
+  /**
+   * @return the unfinished scanned-module count
+   */
   public static synchronized String scannedModuleCount() {
     return scannedModuleCount;
   }

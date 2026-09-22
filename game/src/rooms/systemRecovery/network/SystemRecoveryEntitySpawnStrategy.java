@@ -146,8 +146,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
 
   private void appendSearchRobotMetadata(Entity entity, Map<String, String> metadata) {
     if ("search_robot".equals(entity.name())) {
-      metadata.put(
-          METADATA_SEARCH_ROBOT_CELL, SystemRecoveryLevel.currentSearchRobotCell(entity));
+      metadata.put(METADATA_SEARCH_ROBOT_CELL, SystemRecoveryLevel.currentSearchRobotCell(entity));
     }
   }
 

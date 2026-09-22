@@ -16,22 +16,23 @@ import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
+import feature.components.ItemComponent;
 import feature.entities.MiscFactory;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hud.dialogs.DialogFactory;
 import feature.hints.HintSystem;
+import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
 import feature.systems.LevelEditorSystem;
-import feature.components.ItemComponent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.entities.SystemRecoveryRoomFactory;
@@ -51,13 +52,15 @@ import rooms.systemRecovery.riddles.SearchRobotRiddle;
 import rooms.systemRecovery.riddles.SystemCoreRiddle;
 import rooms.systemRecovery.riddles.TransportStorageRiddle;
 import rooms.systemRecovery.riddles.TwoDimensionalStorageRiddle;
+import rooms.systemRecovery.save.SystemRecoveryLoad;
+import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
 import rooms.systemRecovery.story.SystemRecoveryPhoneController;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
-import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
-import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
-import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
+import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
 import rooms.systemRecovery.util.interpreter.SystemRecoveryTerminalController;
@@ -66,8 +69,6 @@ import rooms.systemRecovery.util.interpreter.TerminalStep;
 import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
-import rooms.systemRecovery.save.SystemRecoveryLoad;
-import rooms.systemRecovery.save.SystemRecoverySave;
 
 /**
  * Builds System Recovery in room order and owns one controller per riddle.
@@ -159,6 +160,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
   private int saveRevision;
   private Optional<SystemRecoverySave.SaveData> pendingSave = Optional.empty();
+  private UUID runId;
   private boolean initialTerminalAttemptRecorded;
   private boolean initialTerminalAttemptWasCorrect;
 
@@ -198,8 +200,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryQuestLogUtil.initializeQuestLog();
     Game.system(HintSystem.class, HintSystem::resetHintProgress);
-    pendingSave =
-        SystemRecovery.loadFromSave() ? SystemRecoveryLoad.read() : Optional.empty();
+    pendingSave = SystemRecovery.loadFromSave() ? SystemRecoveryLoad.read() : Optional.empty();
+    runId = UUID.randomUUID();
     SystemRecoveryProgressNet.reset();
     if (pendingSave.isPresent()) {
       // Start from a safe fresh marking. A syntactically valid but semantically corrupt history
@@ -275,6 +277,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
         restoredCheckpoint -> {
           SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
           savedCheckpoint = restoredCheckpoint;
+          runId = restoredSave.runId();
           savedQuestLog = restoredSave.questLog();
           savedAchievementProgress = restoredSave.achievementProgress();
         });
@@ -293,7 +296,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
         .filter(SystemRecoveryLoad::isMainPuzzleCheckpoint)
         .ifPresent(
             checkpoint -> {
-              SystemRecoverySave.SaveData save = SystemRecoverySave.capture(checkpoint);
+              SystemRecoverySave.SaveData save = SystemRecoverySave.capture(checkpoint, runId);
               boolean checkpointChanged = checkpoint != savedCheckpoint;
               boolean questLogChanged = !save.questLog().equals(savedQuestLog);
               boolean achievementProgressChanged =
@@ -307,7 +310,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 saveRevision++;
               } catch (java.io.IOException exception) {
                 java.util.logging.Logger.getLogger(SystemRecoveryLevel.class.getName())
-                    .warning("Could not write System Recovery checkpoint: " + exception.getMessage());
+                    .warning(
+                        "Could not write System Recovery checkpoint: " + exception.getMessage());
               }
             });
   }
@@ -370,7 +374,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
   }
 
   void openDoor(String pointName) {
-    tileAt(point(pointName)).filter(DoorTile.class::isInstance).map(DoorTile.class::cast).ifPresent(DoorTile::open);
+    tileAt(point(pointName))
+        .filter(DoorTile.class::isInstance)
+        .map(DoorTile.class::cast)
+        .ifPresent(DoorTile::open);
   }
 
   void spawnWorldItemIfMissing(feature.inventory.Item item, String pointName) {
@@ -386,7 +393,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (!alreadyPresent) Game.add(WorldItemBuilder.buildWorldItem(item, spawnPoint));
   }
 
-  /** Revision of the most recent checkpoint the server successfully wrote.
+  /**
+   * Revision of the most recent checkpoint the server successfully wrote.
    *
    * @return current server save revision, or zero outside this level
    */
@@ -561,16 +569,24 @@ public class SystemRecoveryLevel extends DungeonLevel {
   }
 
   private boolean isDialogTriggerEnabled(SystemRecoveryDialogTriggers.DialogTrigger trigger) {
-    SystemRecoveryLearningStep requiredStep = switch (trigger.pointName()) {
-      case SystemRecoveryDialogTriggers.MODULE_STORAGE -> SystemRecoveryLearningStep.MODULE_ARRAY;
-      case SystemRecoveryDialogTriggers.INVENTORY_SCANNER -> SystemRecoveryLearningStep.INVENTORY_COUNT;
-      case SystemRecoveryDialogTriggers.TRANSPORT_STORAGE -> SystemRecoveryLearningStep.TRANSPORT_ARRAY;
-      case SystemRecoveryDialogTriggers.MANUAL_SORTING -> SystemRecoveryLearningStep.MANUAL_SORTING;
-      case SystemRecoveryDialogTriggers.DATA_ARCHIVE -> SystemRecoveryLearningStep.ARCHIVE_ARRAYS;
-      case SystemRecoveryDialogTriggers.TWO_DIMENSIONAL_STORAGE -> SystemRecoveryLearningStep.STORAGE_ARRAY;
-      case SystemRecoveryDialogTriggers.SYSTEM_CORE -> SystemRecoveryLearningStep.CORE_SORT;
-      default -> throw new IllegalArgumentException("Unknown dialog trigger: " + trigger.pointName());
-    };
+    SystemRecoveryLearningStep requiredStep =
+        switch (trigger.pointName()) {
+          case SystemRecoveryDialogTriggers.MODULE_STORAGE ->
+              SystemRecoveryLearningStep.MODULE_ARRAY;
+          case SystemRecoveryDialogTriggers.INVENTORY_SCANNER ->
+              SystemRecoveryLearningStep.INVENTORY_COUNT;
+          case SystemRecoveryDialogTriggers.TRANSPORT_STORAGE ->
+              SystemRecoveryLearningStep.TRANSPORT_ARRAY;
+          case SystemRecoveryDialogTriggers.MANUAL_SORTING ->
+              SystemRecoveryLearningStep.MANUAL_SORTING;
+          case SystemRecoveryDialogTriggers.DATA_ARCHIVE ->
+              SystemRecoveryLearningStep.ARCHIVE_ARRAYS;
+          case SystemRecoveryDialogTriggers.TWO_DIMENSIONAL_STORAGE ->
+              SystemRecoveryLearningStep.STORAGE_ARRAY;
+          case SystemRecoveryDialogTriggers.SYSTEM_CORE -> SystemRecoveryLearningStep.CORE_SORT;
+          default ->
+              throw new IllegalArgumentException("Unknown dialog trigger: " + trigger.pointName());
+        };
     if (SystemRecoveryProgressNet.activeStep().orElse(null) != requiredStep) return false;
     if (SystemRecoveryDialogTriggers.MODULE_STORAGE.equals(trigger.pointName())) {
       return energy.batteryInserted();

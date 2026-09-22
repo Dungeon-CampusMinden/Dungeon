@@ -654,8 +654,7 @@ public final class TerminalInterpreterSetup {
     return new CodeLine(
         permutations.stream()
             .flatMap(
-                permutation ->
-                    Arrays.stream(arrayLiteralPatterns(type, variable, permutation)))
+                permutation -> Arrays.stream(arrayLiteralPatterns(type, variable, permutation)))
             .toArray(Pattern[]::new));
   }
 
@@ -675,14 +674,10 @@ public final class TerminalInterpreterSetup {
     String literal = "\\{\\s*" + valuesPattern + "\\s*}";
     String explicitLiteral = "new\\s+" + type + "\\s*\\[\\s*]\\s*" + literal;
     return new Pattern[] {
-      Pattern.compile(
-          type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + literal),
-      Pattern.compile(
-          type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + literal),
-      Pattern.compile(
-          type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + explicitLiteral),
-      Pattern.compile(
-          type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + explicitLiteral)
+      Pattern.compile(type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + literal),
+      Pattern.compile(type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + literal),
+      Pattern.compile(type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + explicitLiteral),
+      Pattern.compile(type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + explicitLiteral)
     };
   }
 

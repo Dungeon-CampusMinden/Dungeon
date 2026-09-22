@@ -2,10 +2,10 @@ package rooms.systemRecovery.modules.interpreter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 /** Interprets registered terminal puzzle states without knowing room-specific behavior. */

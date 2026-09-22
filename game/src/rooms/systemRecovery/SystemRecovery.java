@@ -27,8 +27,8 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
-import feature.systems.AttributeBarSystem;
 import feature.systems.AISystem;
+import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
@@ -43,9 +43,9 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
-import rooms.systemRecovery.util.SystemRecoveryTranslator;
-import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.save.SystemRecoverySave;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.util.SystemRecoveryTranslator;
 
 /** Entry point for the System Recovery escape room. */
 public final class SystemRecovery {
@@ -105,9 +105,7 @@ public final class SystemRecovery {
             .language(Language.DE)
             .levelEditor("levels/systemRecovery")
             .serverArguments(hostedServerArguments())
-            .continueGame(
-                SystemRecoverySave::exists,
-                hostedServerArguments(true))
+            .continueGame(SystemRecoverySave::exists, hostedServerArguments(true))
             .build();
 
     MainMenu.run(args, game, client, server);

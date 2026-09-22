@@ -38,8 +38,7 @@ class SystemRecoveryProfileAssetsTest {
         SystemRecoveryText.axiomCall("test")
             .contains("profiles/system_recovery_ai_profile_pixel.png"));
     assertEquals(
-        "profiles/system_recovery_echo_profile_pixel.png",
-        SystemRecoveryText.echoSpeakerImage());
+        "profiles/system_recovery_echo_profile_pixel.png", SystemRecoveryText.echoSpeakerImage());
     assertTrue(
         SystemRecoveryText.robotCall("test")
             .contains("profiles/system_recovery_search_robot_pixel.png"));

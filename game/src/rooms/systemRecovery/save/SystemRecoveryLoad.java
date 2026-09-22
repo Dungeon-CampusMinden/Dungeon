@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
@@ -52,16 +53,15 @@ public final class SystemRecoveryLoad {
    * @param data parsed save data
    * @return recognized main-riddle checkpoint, or empty for invalid data
    */
-  public static Optional<SystemRecoveryLearningStep> checkpoint(
-      SystemRecoverySave.SaveData data) {
+  public static Optional<SystemRecoveryLearningStep> checkpoint(SystemRecoverySave.SaveData data) {
     return data == null ? Optional.empty() : findCheckpoint(data.checkpointKey());
   }
 
   /**
    * Restores the Petri marking, terminal capture context and quest log silently.
    *
-   * <p>World objects are restored by the level's checkpoint projection after all entities have
-   * been set up. This method only restores the state that has no visual ownership in a riddle.
+   * <p>World objects are restored by the level's checkpoint projection after all entities have been
+   * set up. This method only restores the state that has no visual ownership in a riddle.
    *
    * @param data validated save data
    * @return the restored checkpoint
@@ -89,8 +89,7 @@ public final class SystemRecoveryLoad {
     }
   }
 
-  private static void restoreQuestLog(
-      List<SystemRecoverySave.QuestLogEntryData> entries) {
+  private static void restoreQuestLog(List<SystemRecoverySave.QuestLogEntryData> entries) {
     QuestLogUtil.getQuestLogComponent()
         .ifPresent(
             component -> {
@@ -111,14 +110,20 @@ public final class SystemRecoveryLoad {
   private static Optional<SystemRecoverySave.SaveData> parse(String json) {
     Map<String, Object> root = JsonHandler.readJson(json);
     int version = integer(root.get("formatVersion"));
-    if (version != 1 && version != SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
+    if (version < 1 || version > SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
     String checkpoint = string(root.get("checkpoint"));
     if (checkpoint == null || findCheckpoint(checkpoint).isEmpty()) return Optional.empty();
+    UUID runId =
+        optionalUuid(root.get("runId"))
+            .or(() -> metadataRunId(root.get("metadata")))
+            .orElseGet(UUID::randomUUID);
 
     List<SystemRecoverySave.AcceptedInput> inputs = new ArrayList<>();
     for (Object value : list(root.get("acceptedTerminalInputs"))) {
       if (!(value instanceof Map<?, ?> map)) return Optional.empty();
-      inputs.add(new SystemRecoverySave.AcceptedInput(integer(map.get("state")), stringRequired(map.get("source"))));
+      inputs.add(
+          new SystemRecoverySave.AcceptedInput(
+              integer(map.get("state")), stringRequired(map.get("source"))));
     }
 
     List<SystemRecoverySave.QuestLogEntryData> questLog = new ArrayList<>();
@@ -141,7 +146,7 @@ public final class SystemRecoveryLoad {
             ? parseAchievementProgress(root.get("achievementProgress"))
             : null;
     return Optional.of(
-        new SystemRecoverySave.SaveData(checkpoint, inputs, questLog, achievementProgress));
+        new SystemRecoverySave.SaveData(checkpoint, inputs, questLog, runId, achievementProgress));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
@@ -169,7 +174,8 @@ public final class SystemRecoveryLoad {
   private static boolean hasExpectedHistory(
       SystemRecoveryLearningStep checkpoint, List<SystemRecoverySave.AcceptedInput> inputs) {
     int expectedInputCount = checkpoint.acceptedTerminalInputCount();
-    if (expectedInputCount < 0 || inputs == null || inputs.size() != expectedInputCount) return false;
+    if (expectedInputCount < 0 || inputs == null || inputs.size() != expectedInputCount)
+      return false;
     for (int index = 0; index < inputs.size(); index++) {
       SystemRecoverySave.AcceptedInput input = inputs.get(index);
       if (input == null || input.state() != index || input.source() == null) return false;
@@ -201,7 +207,8 @@ public final class SystemRecoveryLoad {
           ARCHIVE_ACCESS,
           STORAGE_ARRAY,
           SEARCH_PROGRAM,
-          SYSTEM_CORE_ACCESS -> true;
+          SYSTEM_CORE_ACCESS ->
+          true;
       default -> false;
     };
   }
@@ -232,5 +239,21 @@ public final class SystemRecoveryLoad {
     String text = string(value);
     if (text == null) throw new IllegalArgumentException("Expected string");
     return text;
+  }
+
+  private static Optional<UUID> optionalUuid(Object value) {
+    if (value == null) return Optional.empty();
+    if (!(value instanceof String text)) {
+      throw new IllegalArgumentException("Expected UUID string");
+    }
+    return Optional.of(UUID.fromString(text));
+  }
+
+  private static Optional<UUID> metadataRunId(Object value) {
+    if (value == null) return Optional.empty();
+    if (!(value instanceof Map<?, ?> metadata)) {
+      throw new IllegalArgumentException("Expected save metadata object");
+    }
+    return optionalUuid(metadata.get("runId"));
   }
 }

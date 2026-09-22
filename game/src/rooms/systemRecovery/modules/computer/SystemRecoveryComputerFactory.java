@@ -27,8 +27,8 @@ import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
 import rooms.systemRecovery.modules.computer.content.SortProgramTab;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
-import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -401,12 +401,7 @@ public final class SystemRecoveryComputerFactory {
     SystemRecoveryPuzzleEvents.attempt(
         puzzle, trackingStep, "source", source, success, targetEntityId);
     SystemRecoveryComputerFeedback.send(
-        dialogId,
-        tabKey,
-        source,
-        targetEntityId,
-        "computer.write-unavailable",
-        success);
+        dialogId, tabKey, source, targetEntityId, "computer.write-unavailable", success);
   }
 
   private static boolean recordChipMount(

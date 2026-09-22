@@ -58,8 +58,7 @@ public final class MemoryWatchTab extends SystemRecoveryComputerTab {
 
     entries = new Table(skin);
     entries.top().left().defaults().growX().fillX();
-    ScrollPane entryScroll =
-        Scene2dElementFactory.createScrollPane(entries, false, true);
+    ScrollPane entryScroll = Scene2dElementFactory.createScrollPane(entries, false, true);
     entryScroll.setOverscroll(false, false);
     entryScroll.setFadeScrollBars(false);
     layout.add(entryScroll).grow().left().padTop(12).row();
@@ -91,8 +90,7 @@ public final class MemoryWatchTab extends SystemRecoveryComputerTab {
   private void renderEntries() {
     if (entries == null) return;
     entries.clearChildren();
-    status.setText(
-        SystemRecoveryText.text("computer.memory-watch-status", arrayTypes.size()));
+    status.setText(SystemRecoveryText.text("computer.memory-watch-status", arrayTypes.size()));
     if (arrayTypes.isEmpty()) {
       Table emptyState = new Table(skin);
       emptyState.setBackground("generic-area");
@@ -109,22 +107,13 @@ public final class MemoryWatchTab extends SystemRecoveryComputerTab {
     for (Map.Entry<String, String> array : arrayTypes.entrySet()) {
       Table row = new Table(skin);
       row.setBackground(index % 2 == 0 ? "generic-area" : "generic-area-depth");
-      row
-          .add(createLabel(String.format("%02d", index + 1), 18))
+      row.add(createLabel(String.format("%02d", index + 1), 18))
           .width(52)
           .left()
           .pad(10, 14, 10, 8);
       row.add(createLabel("[]", 24)).width(54).left().pad(10, 0, 10, 8);
-      row
-          .add(createLabel(array.getKey(), 20))
-          .growX()
-          .left()
-          .pad(10, 0, 10, 14);
-      row
-          .add(createLabel(array.getValue(), 18))
-          .width(100)
-          .right()
-          .pad(10, 14, 10, 0);
+      row.add(createLabel(array.getKey(), 20)).growX().left().pad(10, 0, 10, 14);
+      row.add(createLabel(array.getValue(), 18)).width(100).right().pad(10, 14, 10, 0);
       entries.add(row).growX().left().padBottom(5).row();
       index++;
     }

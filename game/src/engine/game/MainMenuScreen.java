@@ -471,8 +471,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
     int port = starter.localServerPort();
     Thread launcher =
-        new Thread(
-            () -> launchHostedServer(port, continueGame), "hosted-server-launcher");
+        new Thread(() -> launchHostedServer(port, continueGame), "hosted-server-launcher");
     launcher.setDaemon(true);
     launcher.start();
   }
