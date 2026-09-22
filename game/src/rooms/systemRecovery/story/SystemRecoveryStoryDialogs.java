@@ -143,13 +143,10 @@ public final class SystemRecoveryStoryDialogs {
         continue;
       }
 
+      String script = pending.step().script();
       SystemRecoveryQuestLogUtil.addDialogEntry(
-          pending.step().riddleKey(),
-          pending.step().id(),
-          pending.step().speakerKey(),
-          pending.step().messageKey());
-      DialogFactory.showDialogDialog(
-          pending.step().script(), pending.afterClose(), pending.playerId());
+          pending.step().riddleKey(), pending.step().id(), script);
+      DialogFactory.showDialogDialog(script, pending.afterClose(), pending.playerId());
     }
   }
 

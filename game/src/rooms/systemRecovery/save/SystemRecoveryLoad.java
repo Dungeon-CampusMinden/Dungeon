@@ -17,6 +17,7 @@ import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 
 /** Reads and applies a System Recovery checkpoint without replaying gameplay side effects. */
 public final class SystemRecoveryLoad {
@@ -134,14 +135,20 @@ public final class SystemRecoveryLoad {
     List<SystemRecoverySave.QuestLogEntryData> questLog = new ArrayList<>();
     for (Object value : list(root.get("questLog"))) {
       if (!(value instanceof Map<?, ?> map)) return Optional.empty();
+      String tab = stringRequired(map.get("tab"));
+      String text = stringRequired(map.get("text"));
+      int timestamp = integer(map.get("timestamp"));
+      boolean userCreated = booleanValue(map.get("userCreated"));
+      String owner = stringRequired(map.get("owner"));
+      boolean onlyForCreator = booleanValue(map.get("onlyForCreator"));
       questLog.add(
           new SystemRecoverySave.QuestLogEntryData(
-              stringRequired(map.get("tab")),
-              stringRequired(map.get("text")),
-              integer(map.get("timestamp")),
-              booleanValue(map.get("userCreated")),
-              stringRequired(map.get("owner")),
-              booleanValue(map.get("onlyForCreator"))));
+              tab,
+              text,
+              timestamp,
+              userCreated,
+              owner,
+              onlyForCreator));
     }
     if (!hasExpectedHistory(findCheckpoint(checkpoint).orElseThrow(), inputs)) {
       return Optional.empty();

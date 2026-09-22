@@ -1,6 +1,7 @@
 package feature.questlog;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
@@ -20,13 +22,17 @@ import engine.network.messages.c2s.InputMessage;
 import engine.utils.BaseContainerUI;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.DialogEntry;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogScript;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.hud.elements.RichLabel;
@@ -84,22 +90,23 @@ public final class QuestLogUI {
   private static final String T_NOTE_PLACEHOLDER = "note_placeholder";
   private static final String T_CANCEL = "cancel";
   private static final float UI_WIDTH = 980f;
-  private static final float UI_HEIGHT = 650f;
+  private static final float UI_HEIGHT = 850f;
   private static final float SIDEBAR_WIDTH = 290f;
   private static final float ROW_HEIGHT = 62f;
   private static final float CONTENT_WIDTH = UI_WIDTH - SIDEBAR_WIDTH - 76f;
+  private static final float SPEAKER_IMAGE_SIZE = 86f;
   private static final FontSpec FONT_TITLE =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 28, new Color(0.78f, 0.66f, 0.51f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 28, Color.valueOf("C7A882FF"));
   private static final FontSpec FONT_SECTION =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, new Color(0.74f, 0.52f, 0.24f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, Color.valueOf("BD853DFF"));
   private static final FontSpec FONT_BODY =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 16, new Color(0.70f, 0.68f, 0.61f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 16, Color.valueOf("333333FF"));
   private static final FontSpec FONT_MUTED =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 13, new Color(0.46f, 0.45f, 0.40f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 13, Color.valueOf("666666FF"));
   private static final FontSpec FONT_SELECTED =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, new Color(0.86f, 0.78f, 0.64f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, Color.valueOf("DBC7A3FF"));
   private static final FontSpec FONT_ROW =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, new Color(0.62f, 0.60f, 0.54f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, Color.valueOf("9E998AFF"));
   private static final Translation trans = new Translation("dialog.questlog");
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(QuestLogUI.class);
 
@@ -807,8 +814,8 @@ public final class QuestLogUI {
       this.skin = UIUtils.defaultSkin();
       this.sidebar = new Table();
       this.detailContainer = new Container<>();
-      this.rowNormal = skin.newDrawable("generic-area", new Color(0.08f, 0.09f, 0.09f, 0.92f));
-      this.rowSelected = skin.newDrawable("generic-area", new Color(0.30f, 0.23f, 0.15f, 0.98f));
+      this.rowNormal = skin.newDrawable("generic-area", Color.valueOf("141717EB"));
+      this.rowSelected = skin.newDrawable("generic-area", Color.valueOf("4C3A27FA"));
       this.selectedTab = resolveInitialSelectedTab(viewData);
 
       buildLayout();
@@ -959,23 +966,33 @@ public final class QuestLogUI {
     private void addEntryList(Table detail, List<QuestLogEntryView> entries) {
       for (int index = entries.size() - 1; index >= 0; index--) {
         QuestLogEntryView entry = entries.get(index);
-        RichLabel label = label(displayEntryText(entry.text()), FONT_BODY, true);
-        label.setMaxPrefWidth(CONTENT_WIDTH - 80f);
-        detail
-            .add(label)
-            .left()
-            .top()
-            .growX()
-            .padBottom(10)
-            .padRight(10)
-            .row();
+        List<DialogEntry> pages = DialogScript.parse(displayText(entry.text()));
+        String previousSpeakerImage = null;
+        for (DialogEntry page : pages) {
+          boolean speakerChanged =
+              page.hasSpeaker() && !page.imagePath().equals(previousSpeakerImage);
+          if (speakerChanged) {
+            detail.add(speakerHeader(page)).left().top().growX().padBottom(8).padRight(10).row();
+          }
+          previousSpeakerImage = page.hasSpeaker() ? page.imagePath() : null;
+          RichLabel pageLabel = label(page.text(), FONT_BODY, true);
+          pageLabel.setMaxPrefWidth(CONTENT_WIDTH - 80f);
+          detail
+              .add(pageLabel)
+              .left()
+              .top()
+              .growX()
+              .padBottom(10)
+              .padRight(10)
+              .row();
+        }
         Optional<String> metadata = metadataFor(entry.owner());
         if (metadata.isPresent()) {
           detail
-              .add(label(metadata.get(), FONT_MUTED, false))
+              .add(label("- "+metadata.get(), FONT_MUTED, false))
               .left()
               .growX()
-              .padBottom(24)
+              .padBottom(10)
               .padRight(10)
               .row();
         }
@@ -990,6 +1007,26 @@ public final class QuestLogUI {
         }
       }
     }
+
+    private Table speakerHeader(DialogEntry entry) {
+        Table header = new Table();
+        header.left().top();
+
+        Image image = new Image();
+        image.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+        Texture texture =
+            TextureMap.instance().textureAt(new SimpleIPath(entry.imagePath()));
+        if (texture != null) {
+          image.setDrawable(new TextureRegionDrawable(texture));
+        } else {
+          LOGGER.warn("Could not load quest log speaker image '{}'.", entry.imagePath());
+        }
+
+        RichLabel name = label(entry.speakerName() == null ? "" : entry.speakerName(), FONT_BODY, false);
+        header.add(image).size(SPEAKER_IMAGE_SIZE).left().top();
+        header.add(name).left().center().padLeft(16f);
+        return header;
+      }
 
     private Table buildFooter() {
       Table footer = new Table();
@@ -1032,10 +1069,6 @@ public final class QuestLogUI {
       RichLabel label = new RichLabel(RichLabel.toRichText(text), font, false);
       label.setWrap(wrap);
       return label;
-    }
-
-    private static String displayEntryText(String text) {
-      return displayText(text).replace("[p]", "\n\n");
     }
 
     private static String resolveInitialSelectedTab(QuestLogViewData viewData) {
