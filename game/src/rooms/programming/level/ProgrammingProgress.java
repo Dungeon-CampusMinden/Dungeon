@@ -17,12 +17,13 @@ import java.util.Set;
 import java.util.UUID;
 import rooms.programming.modules.loops.LoopPuzzle;
 import rooms.programming.modules.loops.LoopRune;
-import tools.jackson.databind.json.JsonMapper;
 
 /** Authoritative journal and tracking for the room's discoveries and learning progress. */
 public final class ProgrammingProgress {
+  /** Marks the snapshot entity carrying the complete public journal metadata. */
+  public static final String JOURNAL_KEY = "programming.journal";
+
   private static final Map<String, QuestLogEntry> RECORDED = new LinkedHashMap<>();
-  private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final Set<String> COMPLETED = new HashSet<>();
   private static Optional<QuestLogEntry> taskOverview = Optional.empty();
   private static String currentObjective = "";
@@ -236,39 +237,56 @@ public final class ProgrammingProgress {
   }
 
   /**
-   * Serializes only public entries; private notes travel in the requesting player's dialog.
+   * Serializes public entries separately so snapshot deltas only send changed journal entries.
    *
-   * @return serialized public journal entries
+   * @return journal marker and encoded public entries keyed by tab and position
    */
-  public static String publicJournal() {
-    List<JournalEntry> entries =
-        QuestLogUtil.getQuestLogComponent().stream()
-            .flatMap(log -> log.getEntries().entrySet().stream())
-            .flatMap(
-                tab ->
-                    tab.getValue().stream()
-                        .filter(entry -> !entry.onlyForCreator())
-                        .map(
-                            entry ->
-                                new JournalEntry(
-                                    tab.getKey(),
-                                    entry.text(),
-                                    entry.timestamp(),
-                                    entry.userCreated(),
-                                    entry.owner())))
-            .toList();
-    return JSON.writeValueAsString(entries);
+  public static Map<String, String> publicJournal() {
+    Map<String, String> entries = new LinkedHashMap<>();
+    entries.put(JOURNAL_KEY, "");
+    QuestLogUtil.getQuestLogComponent()
+        .ifPresent(
+            log ->
+                log.getEntries()
+                    .forEach(
+                        (tab, values) -> {
+                          int index = 0;
+                          for (QuestLogEntry entry : values) {
+                            if (entry.onlyForCreator()) continue;
+                            String key =
+                                JOURNAL_KEY
+                                    + "."
+                                    + tab
+                                    + ":"
+                                    + String.format(java.util.Locale.ROOT, "%08d", index++);
+                            entries.put(
+                                key,
+                                ProgrammingStateCodec.encode(
+                                    new JournalEntry(
+                                        tab,
+                                        entry.text(),
+                                        entry.timestamp(),
+                                        entry.userCreated(),
+                                        entry.owner())));
+                          }
+                        }));
+    return entries;
   }
 
   /**
    * Restores the synchronized public journal even before its carrier entity has spawned.
    *
-   * @param serialized public journal JSON received from the host
+   * @param metadata complete, materialized metadata of the journal carrier entity
    */
-  public static void receiveJournal(String serialized) {
+  public static void receiveJournal(Map<String, String> metadata) {
     if (!Game.isMultiplayerClient()) return;
     QuestLogComponent log = new QuestLogComponent();
-    for (JournalEntry entry : JSON.readValue(serialized, JournalEntry[].class)) {
+    for (JournalEntry entry :
+        metadata.entrySet().stream()
+            .filter(entry -> entry.getKey().startsWith(JOURNAL_KEY + "."))
+            .sorted(Map.Entry.comparingByKey())
+            .map(entry -> ProgrammingStateCodec.decode(entry.getValue(), JournalEntry.class))
+            .toList()) {
       log.add(
           entry.tab(),
           new QuestLogEntry(

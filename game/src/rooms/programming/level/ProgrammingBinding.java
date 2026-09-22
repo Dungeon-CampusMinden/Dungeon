@@ -14,12 +14,10 @@ import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.Optional;
 import rooms.programming.modules.variables.BindingState;
-import tools.jackson.databind.json.JsonMapper;
 
 /** Server-owned assignments carried by the existing room dialog and snapshot metadata. */
 public final class ProgrammingBinding {
   static final String ID = "programming.binding";
-  private static final JsonMapper JSON = JsonMapper.builder().build();
   private static BindingState received;
 
   private ProgrammingBinding() {}
@@ -106,14 +104,14 @@ public final class ProgrammingBinding {
    * Encodes the workbench state for snapshot metadata and dialog values.
    *
    * @param state shared workbench state
-   * @return JSON metadata
+   * @return compact state representation
    */
   public static String encode(BindingState state) {
-    return JSON.writeValueAsString(state);
+    return ProgrammingStateCodec.encode(state);
   }
 
   static BindingState decode(String value) {
-    return JSON.readValue(value, BindingState.class);
+    return ProgrammingStateCodec.decode(value, BindingState.class);
   }
 
   /**

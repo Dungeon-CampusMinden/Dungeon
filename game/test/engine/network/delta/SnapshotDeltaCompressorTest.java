@@ -47,6 +47,9 @@ public class SnapshotDeltaCompressorTest {
   /** Verifies changed fields are sent without unrelated unchanged fields. */
   @Test
   void compressIncludesOnlyChangedEntityFields() {
+    Map<String, String> baselineMetadata = Map.of("ui", "unchanged".repeat(300), "step", "1");
+    Map<String, String> currentMetadata =
+        Map.of("ui", baselineMetadata.get("ui"), "step", "2", "feedback", "ready");
     SnapshotMessage baseline =
         new SnapshotMessage(
             10,
@@ -56,6 +59,7 @@ public class SnapshotDeltaCompressorTest {
                     .position(new Point(1, 2))
                     .viewDirection(Direction.LEFT)
                     .currentHealth(5)
+                    .metadata(baselineMetadata)
                     .build()),
             new LevelState(Set.of()));
     SnapshotMessage current =
@@ -67,6 +71,7 @@ public class SnapshotDeltaCompressorTest {
                     .position(new Point(3, 4))
                     .viewDirection(Direction.LEFT)
                     .currentHealth(5)
+                    .metadata(currentMetadata)
                     .build()),
             new LevelState(Set.of()));
 
@@ -77,12 +82,17 @@ public class SnapshotDeltaCompressorTest {
     assertEquals(new Point(3, 4), entityDelta.changedState().position().orElseThrow());
     assertTrue(entityDelta.changedState().viewDirection().isEmpty());
     assertTrue(entityDelta.changedState().currentHealth().isEmpty());
+    assertEquals(
+        Map.of("step", "2", "feedback", "ready"),
+        entityDelta.changedState().metadata().orElseThrow());
 
     SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
     EntityState merged = materialized.entities().getFirst();
     assertEquals(new Point(3, 4), merged.position().orElseThrow());
     assertEquals("LEFT", merged.viewDirection().orElseThrow());
     assertEquals(5, merged.currentHealth().orElseThrow());
+    assertEquals(currentMetadata, merged.metadata().orElseThrow());
+    assertEquals(baselineMetadata, baseline.entities().getFirst().metadata().orElseThrow());
   }
 
   /** Verifies fields can be explicitly cleared by a delta. */
@@ -381,7 +391,7 @@ public class SnapshotDeltaCompressorTest {
     assertEquals(1, secondItem.stackSize());
   }
 
-  /** Verifies empty current metadata clears baseline metadata in deltas. */
+  /** Verifies removed metadata keys clear the baseline before applying remaining entries. */
   @Test
   void compressClearsMetadataWhenCurrentMetadataIsEmpty() {
     SnapshotMessage baseline =
@@ -389,17 +399,19 @@ public class SnapshotDeltaCompressorTest {
             10,
             List.of(EntityState.builder().entityId(1).metadata(Map.of("state", "active")).build()),
             new LevelState(Set.of()));
-    SnapshotMessage current =
-        new SnapshotMessage(
-            11,
-            List.of(EntityState.builder().entityId(1).metadata(Map.of()).build()),
-            new LevelState(Set.of()));
-
-    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
-
-    assertTrue(delta.entityDeltas().getFirst().clearedFields().contains(EntityStateField.METADATA));
-    SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
-    assertTrue(entity(materialized, 1).metadata().isEmpty());
+    for (Map<String, String> metadata : List.of(Map.<String, String>of(), Map.of("other", "new"))) {
+      SnapshotMessage current =
+          new SnapshotMessage(
+              11,
+              List.of(EntityState.builder().entityId(1).metadata(metadata).build()),
+              new LevelState(Set.of()));
+      DeltaSnapshotMessage delta =
+          SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+      assertTrue(
+          delta.entityDeltas().getFirst().clearedFields().contains(EntityStateField.METADATA));
+      SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
+      assertEquals(metadata, entity(materialized, 1).metadata().orElse(Map.of()));
+    }
   }
 
   /** Regression test for client/server delta flow across A -> B -> A. */

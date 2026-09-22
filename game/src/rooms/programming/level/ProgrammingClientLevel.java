@@ -36,7 +36,7 @@ public class ProgrammingClientLevel extends DungeonLevel {
         namedPoints,
         decorations,
         LEVEL_NAME);
-    ProgrammingProgress.receiveJournal("[]");
+    ProgrammingProgress.receiveJournal(Map.of());
     ProgrammingTerminal.reset();
     ProgrammingMethods.reset();
     ProgrammingDecisions.reset();

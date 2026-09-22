@@ -65,10 +65,11 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                                     help ->
                                         metadata.put(
                                             ProgrammingHelp.ID, ProgrammingHelp.encode(help)));
-                            metadata.put(
-                                "programming.journal", ProgrammingProgress.publicJournal());
+                            metadata.putAll(ProgrammingProgress.publicJournal());
                             if (s.finished())
                               ProgrammingMethods.state()
+                                  // The opening dialog carries the untouched starting program.
+                                  .filter(methods -> methods.revision() > 0)
                                   .ifPresent(
                                       methods ->
                                           metadata.put(
@@ -109,7 +110,7 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
           .ifPresent(ProgrammingHelp::receive);
       state
           .metadata()
-          .map(metadata -> metadata.get("programming.journal"))
+          .filter(metadata -> metadata.containsKey(ProgrammingProgress.JOURNAL_KEY))
           .ifPresent(ProgrammingProgress::receiveJournal);
       state
           .metadata()

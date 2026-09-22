@@ -14,12 +14,10 @@ import java.util.Map;
 import java.util.Optional;
 import rooms.programming.modules.loops.LoopExecution;
 import rooms.programming.modules.loops.LoopPuzzle;
-import tools.jackson.databind.json.JsonMapper;
 
 /** Room-owned, requested Petri-net transitions release hints without publishing future answers. */
 public final class ProgrammingHelp {
   public static final String ID = "programming.help";
-  private static final JsonMapper JSON = JsonMapper.builder().build();
   private static State received;
   private final ProgrammingGolemRuntime runtime;
   private final Map<String, Progress> puzzles = new LinkedHashMap<>();
@@ -242,14 +240,33 @@ public final class ProgrammingHelp {
   }
 
   /**
-   * Serializes a help snapshot for dialog synchronization.
+   * Serializes released hint references; their static titles and texts are already on each client.
    *
    * @param state authoritative help snapshot
-   * @return help snapshot as JSON
+   * @return compact help snapshot
    */
   public static String encode(State state) {
-    return JSON.writeValueAsString(state);
+    return ProgrammingStateCodec.encode(
+        new WireState(
+            state.puzzleId(),
+            state.history().stream()
+                .map(hint -> new HintRef(hint.puzzleId(), hint.step()))
+                .toList(),
+            state.level(),
+            state.canRequest(),
+            state.canSolve(),
+            state.status()));
   }
+
+  private record HintRef(String puzzleId, int step) {}
+
+  private record WireState(
+      String puzzleId,
+      List<HintRef> history,
+      int level,
+      boolean canRequest,
+      boolean canSolve,
+      String status) {}
 
   /**
    * Stores the latest help snapshot received from the host.
@@ -257,7 +274,25 @@ public final class ProgrammingHelp {
    * @param value serialized help snapshot
    */
   public static void receive(String value) {
-    received = JSON.readValue(value, State.class);
+    WireState state = ProgrammingStateCodec.decode(value, WireState.class);
+    received =
+        new State(
+            state.puzzleId(),
+            title(state.puzzleId()),
+            goal(state.puzzleId()),
+            state.history().stream()
+                .map(
+                    hint ->
+                        new ReleasedHint(
+                            hint.puzzleId(),
+                            title(hint.puzzleId()),
+                            hint.step(),
+                            hints(hint.puzzleId()).get(hint.step() - 1)))
+                .toList(),
+            state.level(),
+            state.canRequest(),
+            state.canSolve(),
+            state.status());
   }
 
   /** Clears the cached client help snapshot. */
