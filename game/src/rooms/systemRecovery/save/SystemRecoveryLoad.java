@@ -113,10 +113,15 @@ public final class SystemRecoveryLoad {
     if (version < 1 || version > SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
     String checkpoint = string(root.get("checkpoint"));
     if (checkpoint == null || findCheckpoint(checkpoint).isEmpty()) return Optional.empty();
+    Map<?, ?> metadata = metadataMap(root.get("metadata"));
     UUID runId =
         optionalUuid(root.get("runId"))
-            .or(() -> metadataRunId(root.get("metadata")))
+            .or(() -> optionalUuid(metadata.get("runId")))
             .orElseGet(UUID::randomUUID);
+    String playerName = string(root.get("playerName"));
+    if (playerName == null) playerName = string(metadata.get("playerName"));
+    Boolean trackingConsent = booleanOrNull(root.get("trackingConsent"));
+    if (trackingConsent == null) trackingConsent = booleanOrNull(metadata.get("trackingConsent"));
 
     List<SystemRecoverySave.AcceptedInput> inputs = new ArrayList<>();
     for (Object value : list(root.get("acceptedTerminalInputs"))) {
@@ -146,7 +151,14 @@ public final class SystemRecoveryLoad {
             ? parseAchievementProgress(root.get("achievementProgress"))
             : null;
     return Optional.of(
-        new SystemRecoverySave.SaveData(checkpoint, inputs, questLog, runId, achievementProgress));
+        new SystemRecoverySave.SaveData(
+            checkpoint,
+            inputs,
+            questLog,
+            runId,
+            playerName,
+            trackingConsent,
+            achievementProgress));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
@@ -231,6 +243,11 @@ public final class SystemRecoveryLoad {
     return booleanValue;
   }
 
+  private static Boolean booleanOrNull(Object value) {
+    if (value == null) return null;
+    return booleanValue(value);
+  }
+
   private static String string(Object value) {
     return value instanceof String text ? text : null;
   }
@@ -249,11 +266,11 @@ public final class SystemRecoveryLoad {
     return Optional.of(UUID.fromString(text));
   }
 
-  private static Optional<UUID> metadataRunId(Object value) {
-    if (value == null) return Optional.empty();
+  private static Map<?, ?> metadataMap(Object value) {
+    if (value == null) return Map.of();
     if (!(value instanceof Map<?, ?> metadata)) {
       throw new IllegalArgumentException("Expected save metadata object");
     }
-    return optionalUuid(metadata.get("runId"));
+    return metadata;
   }
 }

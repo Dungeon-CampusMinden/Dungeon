@@ -3,6 +3,45 @@
     "hud": {
       "autosave": "Autosaved"
     },
+    "trackingConsent": {
+      "local": {
+        "title": "Privacy and tracking",
+        "summary": "The game works without tracking. With your consent, we store gameplay data including your complete terminal inputs locally.",
+        "message": "Who is responsible?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden, Germany. Contact: amatutat@hsbi.de.\n\nPurpose and data\nWe analyze gameplay to improve this escape room. We record puzzle steps, complete terminal inputs, hints used, results, timestamps, and random session and participant identifiers. The legal basis is your consent.\n\nWhere and for how long?\nThe tracking file is stored locally on the computer hosting the game. In multiplayer, your inputs are sent to the host; other clients do not keep their own tracking file. The game does not automatically send the tracking file to an online service. It is not deleted automatically and remains on the host computer until it is manually deleted.\n\nYour choice\nConsent is voluntary. If one multiplayer participant declines, recording stops for the shared run. Data already stored remains until deleted. You will be asked again when you next start the game.\n\nWithdrawal and deletion\nIn the main menu, Settings > Privacy lets you change your decision for the next run and delete tracking files stored on this computer. You can also contact amatutat@hsbi.de to withdraw consent or ask questions. Withdrawal does not affect processing carried out before it.\n\nYour rights\nYou may request access, rectification, erasure, restriction of processing, and data portability. You may complain to the Data Protection and Freedom of Information Commissioner of North Rhine-Westphalia: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
+        "accept": "Allow tracking",
+        "decline": "Play without tracking",
+        "settingsTitle": "Privacy",
+        "settingsSummary": "Change your decision for the next run or delete tracking files stored on this computer.",
+        "enable": "Enable tracking",
+        "disable": "Disable tracking",
+        "delete": "Delete local data",
+        "deleteTitle": "Delete local tracking data",
+        "deleteMessage": "All tracking files in the local tracking folder will be deleted, including files for other saves or rooms using that folder. Savegames and quest-log data remain unchanged. Continue?",
+        "deleted": "Local tracking files were deleted. No further data will be recorded for this run.",
+        "deleteFailed": "Not all local tracking files could be deleted. Check the tracking folder on this computer."
+      },
+      "central": {
+        "title": "Privacy and tracking",
+        "summary": "The game works without tracking. With your consent, we store gameplay data on a self-managed server in Germany.",
+        "message": "Who is responsible?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden, Germany. Contact: amatutat@hsbi.de.\n\nPurpose and data\nWe analyze gameplay to improve this escape room. We record puzzle steps, complete terminal inputs, hints used, results, timestamps, and random session and participant identifiers. The identifiers are pseudonymous and do not make the data anonymous. Please do not enter personal information into the terminal. Processing is based on your freely given consent.\n\nWhere and for how long?\nThe tracking data is stored on a self-managed server in Germany. Access is limited to people authorized to perform the evaluation. In multiplayer, data is recorded only while all participants in the shared run have consented. Data is stored until the evaluation is complete and for no longer than 90 days after the game ends.\n\nYour choice\nConsent is voluntary. You can play without tracking. If a multiplayer participant declines or withdraws consent, further recording for the shared run stops. Already stored data is deleted according to the retention period.\n\nWithdrawal and deletion\nYou can withdraw consent at any time in the privacy settings or by contacting amatutat@hsbi.de. Further recording stops after withdrawal. Send requests for access or deletion to amatutat@hsbi.de. Withdrawal does not affect processing carried out before it.\n\nYour rights\nYou may request access, rectification, erasure, restriction of processing, and data portability. You may complain to the Data Protection and Freedom of Information Commissioner of North Rhine-Westphalia: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
+        "accept": "Allow tracking",
+        "decline": "Play without tracking",
+        "settingsTitle": "Privacy",
+        "settingsSummary": "Change your decision for the next run or manage your tracking data.",
+        "enable": "Enable tracking",
+        "disable": "Withdraw consent",
+        "delete": "Delete local copy",
+        "deleteTitle": "Delete tracking data",
+        "deleteMessage": "This action deletes only the local tracking copy on this computer. To request deletion of centrally stored tracking data, contact amatutat@hsbi.de. Continue?",
+        "deleted": "Local tracking data was deleted. Contact amatutat@hsbi.de to request deletion of centrally stored data.",
+        "deleteFailed": "Local tracking data could not be deleted completely. Contact amatutat@hsbi.de about centrally stored data."
+      },
+      "status": {
+        "undecided": "Status: No decision yet",
+        "enabled": "Status: Tracking enabled",
+        "disabled": "Status: Tracking disabled"
+      }
+    },
     "intro": {
       "page1": "You do not remember your name. You do not remember how you arrived here. You only know that you are not human. You are an autonomous AI agent within a larger system intelligence. Your task is to analyze instructions, translate them into executable steps and restore damaged systems. Work precisely. Understand each step before you execute it. Part of you is damaged. Perhaps more than one part.",
       "page2": "The central system intelligence sent you to this facility. Your assignment was clear: restore the damaged subsystems and re-establish the connection to the system core. Since your arrival, the core connection has been interrupted. Doors, terminals and sensors respond only partially. Many systems remain in an undefined state. Once the core is reachable again, recovery can continue.",

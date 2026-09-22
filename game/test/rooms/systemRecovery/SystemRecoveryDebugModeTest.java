@@ -17,20 +17,26 @@ class SystemRecoveryDebugModeTest {
   void hostedServerReceivesDebugFlagWhenClientStartsInDebugMode() {
     SystemRecovery.configureDebugMode("--debug");
 
-    assertArrayEquals(new String[] {"--server", "--debug"}, SystemRecovery.hostedServerArguments());
+    assertArrayEquals(
+        new String[] {"--server", "--new-system-recovery", "--debug"},
+        SystemRecovery.hostedServerArguments());
   }
 
   @Test
   void hostedServerReceivesDebugFlagWhenLevelEditorStarts() {
     SystemRecovery.configureDebugMode("--leveleditor");
 
-    assertArrayEquals(new String[] {"--server", "--debug"}, SystemRecovery.hostedServerArguments());
+    assertArrayEquals(
+        new String[] {"--server", "--new-system-recovery", "--debug"},
+        SystemRecovery.hostedServerArguments());
   }
 
   @Test
   void normalHostedServerDoesNotReceiveDebugFlag() {
     SystemRecovery.configureDebugMode();
 
-    assertArrayEquals(new String[] {"--server"}, SystemRecovery.hostedServerArguments());
+    assertArrayEquals(
+        new String[] {"--server", "--new-system-recovery"},
+        SystemRecovery.hostedServerArguments());
   }
 }

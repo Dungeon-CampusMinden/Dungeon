@@ -7,7 +7,27 @@ import java.util.concurrent.CompletableFuture;
 
 /** Engine lifecycle bridge. Room code should use {@link Tracking} instead. */
 public final class TrackingRuntime {
+  private static Boolean localTrackingConsent;
+
   private TrackingRuntime() {}
+
+  /**
+   * Sets the consent decision that must be sent with the next multiplayer handshake.
+   *
+   * @param consent this client&apos;s decision, or {@code null} for rooms without a consent flow
+   */
+  public static void localTrackingConsent(Boolean consent) {
+    localTrackingConsent = consent;
+  }
+
+  /**
+   * Returns this client&apos;s consent decision for the initial-world handshake.
+   *
+   * @return optional decision; empty for rooms without a consent flow
+   */
+  public static Optional<Boolean> localTrackingConsent() {
+    return Optional.ofNullable(localTrackingConsent);
+  }
 
   /**
    * Starts singleplayer tracking once the initial world and local player are ready.
@@ -42,11 +62,11 @@ public final class TrackingRuntime {
   }
 
   /**
-   * Records or resumes an anonymous participant after initial-world readiness.
+   * Records or resumes a session-scoped participant identifier after initial-world readiness.
    *
    * @param clientId transient network client ID
    * @param roomPlayedBefore client-local fact sent for this session
-   * @return session-scoped anonymous participant
+   * @return session-scoped participant identifier
    */
   public static Optional<UUID> participantJoined(short clientId, boolean roomPlayedBefore) {
     return Tracking.participantJoined(clientId, roomPlayedBefore);
@@ -59,6 +79,20 @@ public final class TrackingRuntime {
    */
   public static void participantLeft(short clientId) {
     Tracking.participantLeft(clientId);
+  }
+
+  /** Disables tracking for the whole authoritative run after a participant refuses consent. */
+  public static void disableTrackingForRun() {
+    Tracking.disableTrackingForRun();
+  }
+
+  /**
+   * Deletes the local tracking outbox without touching savegames or other files.
+   *
+   * @return whether every local tracking file was removed
+   */
+  public static boolean deleteLocalData() {
+    return Tracking.deleteLocalData();
   }
 
   /**

@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Immutable menu/hosting integration config for wiring an explicit game into the reusable {@link
@@ -35,6 +37,8 @@ public final class GameStarter {
   private final String levelEditorLevelPath;
   private final BooleanSupplier continueAvailable;
   private final String[] continueServerArguments;
+  private final Supplier<StartupConsent> startupConsent;
+  private final Supplier<TrackingSettings> trackingSettings;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -48,6 +52,8 @@ public final class GameStarter {
     this.continueAvailable = builder.continueAvailable;
     this.continueServerArguments =
         builder.continueServerArguments == null ? null : builder.continueServerArguments.clone();
+    this.startupConsent = builder.startupConsent;
+    this.trackingSettings = builder.trackingSettings;
   }
 
   /**
@@ -143,6 +149,129 @@ public final class GameStarter {
     return continueServerArguments.clone();
   }
 
+  /**
+   * Resolves the optional consent prompt that should be shown before the main menu can be used.
+   *
+   * @return a consent prompt, or empty when consent has already been decided
+   */
+  public Optional<StartupConsent> startupConsent() {
+    return Optional.ofNullable(startupConsent.get());
+  }
+
+  /**
+   * Resolves the optional tracking-management view for the main-menu settings.
+   *
+   * @return localized tracking settings, or empty for games without a consent flow
+   */
+  public Optional<TrackingSettings> trackingSettings() {
+    return Optional.ofNullable(trackingSettings.get());
+  }
+
+  /**
+   * Text and callback for one mandatory startup consent decision.
+   *
+   * @param title dialog title
+   * @param summary short explanation shown above the detailed information
+   * @param message information shown before the decision
+   * @param acceptLabel label for accepting the consent
+   * @param declineLabel label for declining the consent
+   * @param decision callback receiving the selected decision
+   */
+  public record StartupConsent(
+      String title,
+      String summary,
+      String message,
+      String acceptLabel,
+      String declineLabel,
+      Consumer<Boolean> decision) {
+    /**
+     * Validates the consent prompt fields.
+     *
+     * @param title dialog title
+     * @param summary short explanation shown above the detailed information
+     * @param message information shown before the decision
+     * @param acceptLabel label for accepting the consent
+     * @param declineLabel label for declining the consent
+     * @param decision callback receiving the selected decision
+     */
+    public StartupConsent {
+      Objects.requireNonNull(title, "title");
+      Objects.requireNonNull(summary, "summary");
+      Objects.requireNonNull(message, "message");
+      Objects.requireNonNull(acceptLabel, "acceptLabel");
+      Objects.requireNonNull(declineLabel, "declineLabel");
+      Objects.requireNonNull(decision, "decision");
+    }
+  }
+
+  /**
+   * Localized controls for reviewing a tracking decision and deleting local tracking data.
+   *
+   * @param title dialog title
+   * @param summary short explanation shown above the detailed information
+   * @param message detailed information shown in a scrollable area
+   * @param status current decision text
+   * @param enableLabel label for enabling tracking for the next run
+   * @param disableLabel label for withdrawing consent for the next run
+   * @param deleteLabel label for deleting local tracking files
+   * @param deleteConfirmationTitle confirmation dialog title
+   * @param deleteConfirmationMessage confirmation dialog message
+   * @param deletedMessage feedback shown after successful deletion
+   * @param deleteFailedMessage feedback shown when deletion fails
+   * @param currentDecision current decision, or {@code null} when undecided
+   * @param decision callback receiving the new decision
+   * @param deleteLocalData deletes local tracking data and returns whether it succeeded
+   */
+  public record TrackingSettings(
+      String title,
+      String summary,
+      String message,
+      String status,
+      String enableLabel,
+      String disableLabel,
+      String deleteLabel,
+      String deleteConfirmationTitle,
+      String deleteConfirmationMessage,
+      String deletedMessage,
+      String deleteFailedMessage,
+      Boolean currentDecision,
+      Consumer<Boolean> decision,
+      BooleanSupplier deleteLocalData) {
+    /**
+     * Validates one tracking-management configuration.
+     *
+     * @param title dialog title
+     * @param summary short explanation shown above the detailed information
+     * @param message detailed information shown in a scrollable area
+     * @param status current decision text
+     * @param enableLabel label for enabling tracking
+     * @param disableLabel label for withdrawing consent
+     * @param deleteLabel label for deleting local tracking files
+     * @param deleteConfirmationTitle confirmation dialog title
+     * @param deleteConfirmationMessage confirmation dialog message
+     * @param deletedMessage success feedback
+     * @param deleteFailedMessage failure feedback
+     * @param currentDecision current decision, or {@code null}
+     * @param decision callback receiving the new decision
+     * @param deleteLocalData callback deleting local tracking data
+     */
+    public TrackingSettings {
+      Objects.requireNonNull(title, "title");
+      Objects.requireNonNull(summary, "summary");
+      Objects.requireNonNull(message, "message");
+      Objects.requireNonNull(status, "status");
+      Objects.requireNonNull(enableLabel, "enableLabel");
+      Objects.requireNonNull(disableLabel, "disableLabel");
+      Objects.requireNonNull(deleteLabel, "deleteLabel");
+      Objects.requireNonNull(deleteConfirmationTitle, "deleteConfirmationTitle");
+      Objects.requireNonNull(deleteConfirmationMessage, "deleteConfirmationMessage");
+      Objects.requireNonNull(deletedMessage, "deletedMessage");
+      Objects.requireNonNull(deleteFailedMessage, "deleteFailedMessage");
+      Objects.requireNonNull(decision, "decision");
+      Objects.requireNonNull(deleteLocalData, "deleteLocalData");
+    }
+  }
+
   /** Builder for {@link GameStarter}. */
   public static final class Builder {
     private final String title;
@@ -156,6 +285,8 @@ public final class GameStarter {
     private String levelEditorLevelPath;
     private BooleanSupplier continueAvailable;
     private String[] continueServerArguments;
+    private Supplier<StartupConsent> startupConsent = () -> null;
+    private Supplier<TrackingSettings> trackingSettings = () -> null;
 
     private Builder(String title, Class<?> serverMainClass) {
       this.title = validateTitle(title);
@@ -260,6 +391,29 @@ public final class GameStarter {
       }
       this.continueServerArguments =
           Arrays.stream(serverArguments).map(String::trim).toArray(String[]::new);
+      return this;
+    }
+
+    /**
+     * Adds a startup consent prompt. The supplier is evaluated after localization has been
+     * initialized and may return {@code null} once the decision is already known.
+     *
+     * @param startupConsent supplier for the optional consent prompt
+     * @return this builder
+     */
+    public Builder startupConsent(Supplier<StartupConsent> startupConsent) {
+      this.startupConsent = Objects.requireNonNull(startupConsent, "startupConsent");
+      return this;
+    }
+
+    /**
+     * Adds an optional tracking-management view to the main-menu settings.
+     *
+     * @param trackingSettings supplier for localized tracking controls
+     * @return this builder instance
+     */
+    public Builder trackingSettings(Supplier<TrackingSettings> trackingSettings) {
+      this.trackingSettings = Objects.requireNonNull(trackingSettings, "trackingSettings");
       return this;
     }
 

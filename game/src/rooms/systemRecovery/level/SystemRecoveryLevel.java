@@ -158,6 +158,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private SystemRecoveryLearningStep savedCheckpoint;
   private List<SystemRecoverySave.QuestLogEntryData> savedQuestLog = List.of();
   private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
+  private String savedPlayerName;
+  private Boolean savedTrackingConsent;
   private int saveRevision;
   private Optional<SystemRecoverySave.SaveData> pendingSave = Optional.empty();
   private UUID runId;
@@ -280,6 +282,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
           runId = restoredSave.runId();
           savedQuestLog = restoredSave.questLog();
           savedAchievementProgress = restoredSave.achievementProgress();
+          savedPlayerName = restoredSave.playerName();
+          savedTrackingConsent = restoredSave.trackingConsent();
         });
     if (checkpoint.isPresent()) {
       save.orElseThrow()
@@ -296,17 +300,29 @@ public class SystemRecoveryLevel extends DungeonLevel {
         .filter(SystemRecoveryLoad::isMainPuzzleCheckpoint)
         .ifPresent(
             checkpoint -> {
-              SystemRecoverySave.SaveData save = SystemRecoverySave.capture(checkpoint, runId);
+              SystemRecoverySave.SaveData save =
+                  SystemRecoverySave.capture(
+                      checkpoint, runId, SystemRecovery.trackingConsent());
+              if (save.playerName() == null || save.playerName().isBlank()) return;
               boolean checkpointChanged = checkpoint != savedCheckpoint;
               boolean questLogChanged = !save.questLog().equals(savedQuestLog);
               boolean achievementProgressChanged =
                   !Objects.equals(save.achievementProgress(), savedAchievementProgress);
-              if (!checkpointChanged && !questLogChanged && !achievementProgressChanged) return;
+              boolean playerNameChanged = !Objects.equals(save.playerName(), savedPlayerName);
+              boolean trackingConsentChanged =
+                  !Objects.equals(save.trackingConsent(), savedTrackingConsent);
+              if (!checkpointChanged
+                  && !questLogChanged
+                  && !achievementProgressChanged
+                  && !playerNameChanged
+                  && !trackingConsentChanged) return;
               try {
                 SystemRecoverySave.write(save);
                 savedCheckpoint = checkpoint;
                 savedQuestLog = save.questLog();
                 savedAchievementProgress = save.achievementProgress();
+                savedPlayerName = save.playerName();
+                savedTrackingConsent = save.trackingConsent();
                 saveRevision++;
               } catch (java.io.IOException exception) {
                 java.util.logging.Logger.getLogger(SystemRecoveryLevel.class.getName())

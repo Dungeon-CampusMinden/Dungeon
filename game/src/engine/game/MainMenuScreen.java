@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -36,6 +37,7 @@ import feature.achievements.AchievementManager;
 import feature.achievements.AchievementMenuView;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ClientConnectionDialog;
+import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.RichLabel;
 import java.io.IOException;
 import java.time.Duration;
@@ -65,6 +67,8 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final int TITLE_SIZE = 64;
   private static final Color PANEL_TEXT_COLOR = Color.BLACK;
   private static final Color ERROR_COLOR = new Color(0.6f, 0f, 0f, 1f);
+  private static final float PRIVACY_DIALOG_WIDTH = 740f;
+  private static final Object DELETE_TRACKING_DATA = new Object();
   // Darkens the background image so the title and panel stay readable on any image.
   private static final Color BACKGROUND_TINT = new Color(0.5f, 0.5f, 0.5f, 1f);
 
@@ -85,6 +89,9 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final String T_STARTING_SERVER = "starting_server";
   private static final String T_SERVER_START_FAILED = "server_start_failed";
   private static final String T_SERVER_TIMEOUT = "server_timeout";
+  private static final String T_NEW_GAME_OVERWRITE_TITLE = "new_game_overwrite_title";
+  private static final String T_NEW_GAME_OVERWRITE_MESSAGE = "new_game_overwrite_message";
+  private static final String T_CANCEL = "cancel";
   private static final Translation trans = new Translation("main_menu");
 
   private final GameStarter starter;
@@ -190,6 +197,87 @@ public class MainMenuScreen extends ScreenAdapter {
     showMainView();
   }
 
+  private void showStartupConsent(Runnable afterDecision) {
+    Optional<GameStarter.StartupConsent> optionalConsent = starter.startupConsent();
+    if (optionalConsent.isEmpty()) {
+      afterDecision.run();
+      return;
+    }
+
+    GameStarter.StartupConsent consent = optionalConsent.get();
+    Dialog dialog =
+        new Dialog("", skin, "no-title") {
+          @Override
+          protected void result(Object object) {
+            consent.decision().accept(Boolean.TRUE.equals(object));
+            afterDecision.run();
+          }
+        };
+    DialogDesign.setDialogDefaults(dialog, consent.title());
+    float width = privacyDialogWidth();
+    addPrivacySummary(dialog, consent.summary(), width);
+    addPrivacyDetails(dialog, consent.message(), width);
+    dialog.getButtonTable().defaults().minWidth(220).height(48).space(12);
+    dialog.button(new TextButton(consent.declineLabel(), skin, "blue-outline"), Boolean.FALSE);
+    dialog.button(new TextButton(consent.acceptLabel(), skin, "green"), Boolean.TRUE);
+    dialog.show(stage);
+  }
+
+  /**
+   * Keeps the short decision summary visible while the detailed notice scrolls below it.
+   *
+   * @param dialog dialog receiving the summary
+   * @param summary short explanation shown above the scroll area
+   * @param width available content width
+   */
+  private void addPrivacySummary(Dialog dialog, String summary, float width) {
+    Label label =
+        Scene2dElementFactory.createLabel(
+            summary, FontSpec.of(TITLE_FONT, 21, PANEL_TEXT_COLOR));
+    label.setWrap(true);
+    label.setAlignment(Align.topLeft);
+    dialog.getContentTable().add(label).width(width - 32).pad(8, 16, 14, 16).left().row();
+    dialog
+        .getContentTable()
+        .add(Scene2dElementFactory.createHorizontalDivider())
+        .width(width)
+        .padBottom(10)
+        .row();
+  }
+
+  private void addPrivacyDetails(Dialog dialog, String message, float width) {
+    float textWidth = width - 48;
+    Table content = new Table();
+    content.top().left();
+    String[] sections = message.split("\\R\\s*\\R");
+    for (int index = 0; index < sections.length; index++) {
+      String[] parts = sections[index].trim().split("\\R", 2);
+      Label heading =
+          Scene2dElementFactory.createLabel(
+              parts[0], FontSpec.of(TITLE_FONT, 19, PANEL_TEXT_COLOR));
+      heading.setWrap(true);
+      heading.setAlignment(Align.topLeft);
+      content.add(heading).width(textWidth).padBottom(5).left().row();
+      if (parts.length > 1) {
+        Label body =
+            Scene2dElementFactory.createLabel(
+                parts[1], DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+        body.setWrap(true);
+        body.setAlignment(Align.topLeft);
+        content.add(body).width(textWidth).padBottom(18).left().row();
+      }
+    }
+    ScrollPane pane = Scene2dElementFactory.createScrollPane(content, false, true);
+    pane.setFadeScrollBars(false);
+    pane.setScrollbarsVisible(true);
+    pane.setScrollbarsOnTop(false);
+    dialog.getContentTable().add(pane).width(width).height(315).padBottom(14).row();
+  }
+
+  private float privacyDialogWidth() {
+    return Math.min(PRIVACY_DIALOG_WIDTH, stage.getViewport().getWorldWidth() - 80f);
+  }
+
   private void addBackgroundIfPresent(Stack root) {
     Optional<String> background = starter.backgroundImage();
     if (background.isEmpty()) {
@@ -230,7 +318,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table buildMainView() {
     TextButton hostButton = menuButton(trans.text(T_HOST), "green", this::showHostNameView);
     TextButton continueButton =
-        menuButton(trans.text(T_CONTINUE), "green", this::showContinueHostNameView);
+        menuButton(trans.text(T_CONTINUE), "green", this::continueGame);
     TextButton joinButton = menuButton(trans.text(T_JOIN), "blue-outline", this::joinGame);
     TextButton levelEditorButton =
         menuButton(trans.text(T_LEVEL_EDITOR), "blue-outline", this::startLevelEditor);
@@ -331,6 +419,15 @@ public class MainMenuScreen extends ScreenAdapter {
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(5).row();
     menu.add(scrollPane).width(550).height(380).row();
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(5).row();
+    starter
+        .trackingSettings()
+        .ifPresent(
+            settings ->
+                menu
+                    .add(menuButton(settings.title(), "blue-outline", this::showTrackingSettings))
+                    .width(300)
+                    .padTop(15)
+                    .row());
     menu.add(backButton).width(300).padTop(15).padBottom(15).row();
     return menu;
   }
@@ -379,6 +476,75 @@ public class MainMenuScreen extends ScreenAdapter {
     swapContent(settingsView);
   }
 
+  private void showTrackingSettings() {
+    Optional<GameStarter.TrackingSettings> optionalSettings = starter.trackingSettings();
+    if (optionalSettings.isEmpty()) return;
+
+    GameStarter.TrackingSettings settings = optionalSettings.get();
+    Dialog dialog =
+        new Dialog("", skin, "no-title") {
+          @Override
+          protected void result(Object object) {
+            if (object instanceof Boolean decision) {
+              settings.decision().accept(decision);
+              showTrackingSettings();
+            } else if (object == DELETE_TRACKING_DATA) {
+              showTrackingDeleteConfirmation(settings);
+            }
+          }
+        };
+    DialogDesign.setDialogDefaults(dialog, settings.title());
+    float width = privacyDialogWidth();
+    addPrivacySummary(dialog, settings.summary(), width);
+    Label status =
+        Scene2dElementFactory.createLabel(
+            settings.status(), FontSpec.of(TITLE_FONT, 20, PANEL_TEXT_COLOR));
+    status.setWrap(true);
+    status.setAlignment(Align.topLeft);
+    dialog.getContentTable().add(status).width(width - 32).padBottom(12).left().row();
+    addPrivacyDetails(dialog, settings.message(), width);
+    dialog.getButtonTable().defaults().minWidth(220).height(46).space(8);
+    dialog.button(new TextButton(settings.disableLabel(), skin, "blue-outline"), Boolean.FALSE);
+    dialog.button(new TextButton(settings.enableLabel(), skin, "green"), Boolean.TRUE);
+    dialog.getButtonTable().row();
+    dialog.button(new TextButton(settings.deleteLabel(), skin, "red-outline"), DELETE_TRACKING_DATA);
+    dialog.button(new TextButton(trans.text(T_BACK), skin, "blue-outline"), null);
+    dialog.show(stage);
+  }
+
+  private void showTrackingDeleteConfirmation(GameStarter.TrackingSettings settings) {
+    Dialog confirmation =
+        new Dialog("", skin, "no-title") {
+          @Override
+          protected void result(Object object) {
+            if (!Boolean.TRUE.equals(object)) return;
+            boolean deleted = settings.deleteLocalData().getAsBoolean();
+            showMessageDialog(
+                settings.title(), deleted ? settings.deletedMessage() : settings.deleteFailedMessage());
+          }
+        };
+    DialogDesign.setDialogDefaults(confirmation, settings.deleteConfirmationTitle());
+    addWrappedDialogText(confirmation, settings.deleteConfirmationMessage());
+    confirmation.button(trans.text(T_CONFIRM), Boolean.TRUE);
+    confirmation.button(trans.text(T_CANCEL), Boolean.FALSE);
+    confirmation.show(stage);
+  }
+
+  private void showMessageDialog(String title, String message) {
+    Dialog dialog = new Dialog("", skin, "no-title");
+    DialogDesign.setDialogDefaults(dialog, title);
+    addWrappedDialogText(dialog, message);
+    dialog.button(trans.text(T_CONFIRM), Boolean.TRUE);
+    dialog.show(stage);
+  }
+
+  private void addWrappedDialogText(Dialog dialog, String message) {
+    Label label = Scene2dElementFactory.createLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+    label.setWrap(true);
+    label.setAlignment(Align.topLeft);
+    dialog.getContentTable().add(label).width(Math.min(590f, privacyDialogWidth() - 40f)).pad(10).row();
+  }
+
   private void showAchievementsView() {
     activeView = View.ACHIEVEMENTS;
     achievementsView = buildAchievementsView();
@@ -387,12 +553,47 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private void showHostNameView() {
     continueGameSelected = false;
-    showHostNameViewInternal();
+    if (starter.continueAvailable()) {
+      showNewGameOverwriteConfirmation();
+      return;
+    }
+    beginNewGame();
   }
 
-  private void showContinueHostNameView() {
+  private void continueGame() {
     continueGameSelected = true;
-    showHostNameViewInternal();
+    showStartupConsent(() -> startHosting(true));
+  }
+
+  private void showNewGameOverwriteConfirmation() {
+    Dialog confirmation =
+        new Dialog("", skin, "no-title") {
+          @Override
+          protected void result(Object object) {
+            if (Boolean.TRUE.equals(object)) {
+              beginNewGame();
+            }
+          }
+        };
+    DialogDesign.setDialogDefaults(confirmation, trans.text(T_NEW_GAME_OVERWRITE_TITLE));
+    confirmation.text(trans.text(T_NEW_GAME_OVERWRITE_MESSAGE));
+    confirmation.button(trans.text(T_CONFIRM), Boolean.TRUE);
+    confirmation.button(trans.text(T_CANCEL), Boolean.FALSE);
+    confirmation.show(stage);
+  }
+
+  /**
+   * Starts the new-game setup after the optional tracking decision has been made.
+   *
+   * <p>The prompt is shown when the player chooses to start, continue, or join a run, instead of
+   * opening automatically with the main menu.
+   */
+  private void beginNewGame() {
+    showStartupConsent(
+        () -> {
+          hostNameField.setText(ClientConnectionDialog.defaultUsername());
+          showHostNameViewInternal();
+        });
   }
 
   private void showHostNameViewInternal() {
@@ -558,7 +759,7 @@ public class MainMenuScreen extends ScreenAdapter {
       return;
     }
 
-    enterClient(config.host(), config.port());
+    showStartupConsent(() -> enterClient(config.host(), config.port()));
   }
 
   private void setHostControlsDisabled(boolean disabled) {
