@@ -278,7 +278,7 @@ final class ProgrammingBindingNode extends CanvasNode {
               : selectedSupply.isEmpty() ? Cursors.DEFAULT : Cursors.INTERACT;
     setUserObject(cursor);
     if (erase != null) {
-      erase.setUserObject(Cursors.CROSS);
+      erase.setUserObject(Cursors.INTERACT);
       erase.setTouchable(
           clearable()
               ? com.badlogic.gdx.scenes.scene2d.Touchable.enabled
