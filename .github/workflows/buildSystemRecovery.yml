@@ -1,0 +1,90 @@
+name: Build and Release System Recovery
+
+on:
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+            - name: Set up JDK 25
+              uses: actions/setup-java@v6
+              with:
+                  java-version: '25'
+                  distribution: 'temurin'
+                  cache: 'gradle'
+            - name: Make gradlew executable
+              run: chmod +x gradlew
+            - name: Build System Recovery JAR
+              run: ./gradlew :game:buildSystemRecoveryJar
+            - name: Upload JAR
+              uses: actions/upload-artifact@v7
+              with:
+                  name: SystemRecovery-JAR
+                  path: game/build/libs/SystemRecovery.jar
+                  if-no-files-found: error
+
+    buildExecutables:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                include:
+                    - os: windows-latest
+                      platform_name: win-x86_64
+                    - os: ubuntu-latest
+                      platform_name: linux-x86_64
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+            - name: Set up JDK 25
+              uses: actions/setup-java@v6
+              with:
+                  java-version: '25'
+                  distribution: 'temurin'
+                  cache: 'gradle'
+            - name: Make gradlew executable
+              run: chmod +x gradlew
+            - name: Build System Recovery app image
+              run: ./gradlew :game:jpackageImageSystemRecovery
+            - name: Archive System Recovery
+              shell: bash
+              run: |
+                  if [ "${{ runner.os }}" == "Windows" ]; then
+                    7z a SystemRecovery-${{ matrix.platform_name }}.zip ./game/build/jpackage/SystemRecovery
+                  else
+                    tar -czf SystemRecovery-${{ matrix.platform_name }}.tar.gz -C game/build/jpackage SystemRecovery
+                  fi
+            - name: Upload app image
+              uses: actions/upload-artifact@v7
+              with:
+                  name: SystemRecovery-${{ matrix.platform_name }}
+                  path: SystemRecovery-*
+                  if-no-files-found: error
+
+    deploy:
+        needs: [build, buildExecutables]
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+            - name: Download all artifacts
+              uses: actions/download-artifact@v8
+              with:
+                  merge-multiple: true
+            - name: Create draft GitHub release
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  TAG="system-recovery-v1.0.${{ github.run_number }}"
+                  gh release create "$TAG" *.jar *.zip *.tar.gz \
+                    --title "System Recovery (Programming Escape Room)" \
+                    --notes-file ".github/workflows/releaseInstructionsSystemRecovery.md" \
+                    --draft=true \
+                    --prerelease=false
