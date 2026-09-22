@@ -12,8 +12,8 @@
     "questlog": {
       "title": "Quest Log",
       "empty": "There are no entries in this tab.",
-      "create": "Add note",
-      "create_personal": "Add private note",
+      "create": "Note",
+      "create_personal": "Private Note",
       "note_prompt": "Write a note for this tab.",
       "note_placeholder": "Your note",
       "cancel": "Cancel",

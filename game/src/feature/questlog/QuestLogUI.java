@@ -4,13 +4,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
@@ -246,8 +244,8 @@ public final class QuestLogUI {
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
         data -> {
-          openCreateNoteDialog(selectedTabFrom(data), onlyForCreatorFrom(data), dialogTargetIds);
-          UIUtils.closeDialog(ui);
+          openCreateNoteDialog(
+              ui, selectedTabFrom(data), onlyForCreatorFrom(data), dialogTargetIds);
         });
     ui.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(ui));
     return true;
@@ -356,7 +354,10 @@ public final class QuestLogUI {
   }
 
   private static void openCreateNoteDialog(
-      String selectedTab, boolean onlyForCreator, int... targetEntityIds) {
+      UIComponent questLogUi,
+      String selectedTab,
+      boolean onlyForCreator,
+      int... targetEntityIds) {
     if (selectedTab == null || selectedTab.isBlank()) {
       LOGGER.warn("Cannot create quest log entry without a selected tab.");
       return;
@@ -370,13 +371,15 @@ public final class QuestLogUI {
 
     int targetPlayerId = playerId.get();
     DialogFactory.showInputDialog(
-        "dialog.questlog.ui.note_prompt",
-        "dialog.questlog.ui.title",
+        trans.text(T_NOTE_PROMPT),
+        trans.text(T_TITLE),
         "",
-        "dialog.questlog.ui.note_placeholder",
-        "dialog.questlog.ui.create",
-        "dialog.questlog.ui.cancel",
-        payload -> handleSubmittedNote(targetPlayerId, selectedTab, onlyForCreator, payload),
+        trans.text(T_NOTE_PLACEHOLDER),
+        trans.text(onlyForCreator ? T_CREATE_PERSONAL : T_CREATE),
+        trans.text(T_CANCEL),
+        payload ->
+            handleSubmittedNote(
+                questLogUi, targetPlayerId, selectedTab, onlyForCreator, payload),
         () -> {},
         targetPlayerId);
   }
@@ -392,6 +395,7 @@ public final class QuestLogUI {
   }
 
   private static void handleSubmittedNote(
+      UIComponent questLogUi,
       int playerEntityId,
       String selectedTab,
       boolean onlyForCreator,
@@ -405,7 +409,11 @@ public final class QuestLogUI {
     Game.findEntityById(playerEntityId)
         .filter(
             player -> QuestLogUtil.addPlayerNote(player, selectedTab, note.get(), onlyForCreator))
-        .ifPresent(player -> showQuestLogForPlayers(selectedTab, playerEntityId));
+        .ifPresent(
+            player -> {
+              UIUtils.closeDialog(questLogUi);
+              showQuestLogForPlayers(selectedTab, playerEntityId);
+            });
   }
 
   private static String selectedTabFrom(DialogResponseMessage.Payload payload) {
@@ -809,25 +817,20 @@ public final class QuestLogUI {
 
     private void buildLayout() {
       setSize(UI_WIDTH, UI_HEIGHT);
-      setBackground(skin.newDrawable("window_background_big", new Color(0.08f, 0.09f, 0.09f, 1f)));
-      top().left();
+      setBackground(skin.newDrawable("generic-area", Color.valueOf("333333FF")));
       pad(18f);
 
       ScrollPane sidebarScroll = Scene2dElementFactory.createScrollPane(sidebar, false, true);
-      sidebarScroll.setOverscroll(false, false);
-      sidebarScroll.setFadeScrollBars(false);
+      ScrollPane.ScrollPaneStyle sidebarScrollStyle =
+          new ScrollPane.ScrollPaneStyle(sidebarScroll.getStyle());
+      sidebarScrollStyle.background = skin.newDrawable("generic-area", Color.valueOf("0D0D0DFF"));
+      sidebarScroll.setStyle(sidebarScrollStyle);
 
       detailContainer
-          .top()
-          .left()
-          .background(skin.newDrawable("generic-area", new Color(0.07f, 0.08f, 0.08f, 0.74f)));
+          .background(skin.newDrawable("generic-area", Color.valueOf("171717BB")));
 
-      add(sidebarScroll).width(SIDEBAR_WIDTH).height(UI_HEIGHT - 36f).left().top();
-      add(detailContainer)
-          .width(UI_WIDTH - SIDEBAR_WIDTH - 36f)
-          .height(UI_HEIGHT - 36f)
-          .left()
-          .top();
+      add(sidebarScroll).width(SIDEBAR_WIDTH).maxHeight(UI_HEIGHT).growY();
+      add(detailContainer).maxHeight(UI_HEIGHT).growY();
     }
 
     private void refresh() {
@@ -839,20 +842,24 @@ public final class QuestLogUI {
     private void rebuildSidebar() {
       sidebar.clearChildren();
       sidebar.top().left();
-      sidebar.setBackground(skin.newDrawable("generic-area", new Color(0.05f, 0.06f, 0.06f, 1f)));
+      sidebar.pad(4);
 
       if (viewData.tabs().isEmpty()) {
         sidebar
             .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_MUTED, true))
-            .width(SIDEBAR_WIDTH - 40f)
-            .pad(22f)
-            .left()
-            .top();
+            .growX()
+            .maxWidth(SIDEBAR_WIDTH - 40f)
+            .pad(22f);
         return;
       }
 
       for (String tab : viewData.tabs()) {
-        sidebar.add(buildTabRow(tab)).width(SIDEBAR_WIDTH - 8f).height(ROW_HEIGHT).row();
+        sidebar
+            .add(buildTabRow(tab))
+            .growX()
+            .minHeight(ROW_HEIGHT)
+            .maxWidth(SIDEBAR_WIDTH - 8f)
+            .row();
       }
     }
 
@@ -868,7 +875,11 @@ public final class QuestLogUI {
               preview(displayText(sidebarLabel(tab)), 34),
               selected ? FONT_SELECTED : FONT_ROW,
               false);
-      row.add(title).growX().left().padLeft(22f).padRight(14f);
+      row.add(title)
+          .minWidth(0f)
+          .growX()
+          .padLeft(22f)
+          .padRight(22f);
 
       row.addListener(
           new ClickListener() {
@@ -896,13 +907,14 @@ public final class QuestLogUI {
     private Table buildDetail() {
       Table detail = new Table();
       detail.top().left();
-      detail.pad(24f);
+      detail.pad(10, 10, 10, 10);
 
       Table header = new Table();
       header.left();
       header.add(label(displayText(detailTitle(selectedTab)), FONT_TITLE, false)).growX().left();
-      TextButton close = new TextButton("x", skin, "red-outline");
-      close.getLabel().setFontScale(0.55f);
+      TextButton close = Scene2dElementFactory.createButton("x", "red-outline", 16);
+      close.pad(5, 6, 10, 6);
+      close.getLabel().setAlignment(Align.center);
       close.addListener(
           new ClickListener() {
             @Override
@@ -910,9 +922,9 @@ public final class QuestLogUI {
               DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL)
                   .accept(null);
             }
-          });
-      header.add(close).size(34f).right();
-      detail.add(header).width(CONTENT_WIDTH).padBottom(16f).row();
+      });
+      header.add(close).size(34).right();
+      detail.add(header).growX().padBottom(16f).row();
 
       Table entriesContent = new Table();
       entriesContent.top().left();
@@ -921,50 +933,59 @@ public final class QuestLogUI {
       if (unavailable) {
         entriesContent
             .add(label(trans.text(T_NOT_INITIALIZED), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
-            .left()
-            .top()
-            .padBottom(18f)
+            .growX()
             .row();
       } else if (entries.isEmpty()) {
         entriesContent
             .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
-            .left()
-            .top()
-            .padBottom(18f)
+            .growX()
             .row();
       } else {
         addEntryList(entriesContent, entries);
       }
 
-      ScrollPane entriesScroll =
-          Scene2dElementFactory.createScrollPane(entriesContent, false, true);
-      entriesScroll.setOverscroll(false, false);
-      entriesScroll.setFadeScrollBars(false);
-      detail.add(entriesScroll).width(CONTENT_WIDTH).grow().left().row();
-      if (!unavailable) {
-        detail.add(buildFooter()).width(CONTENT_WIDTH).left().bottom();
+      ScrollPane entriesScroll = Scene2dElementFactory.createScrollPane(entriesContent, false, true);
+      ScrollPane.ScrollPaneStyle entriesScrollStyle =
+          new ScrollPane.ScrollPaneStyle(entriesScroll.getStyle());
+      entriesScrollStyle.background = skin.newDrawable("generic-area", Color.valueOf("EEEEEEFF"));
+      entriesScroll.setStyle(entriesScrollStyle);
+      detail.add(entriesScroll).grow().row();
+      if (!unavailable && !entries.isEmpty()) {
+        detail.add(buildFooter()).padTop(18).growX().left().bottom();
       }
       return detail;
     }
 
     private void addEntryList(Table detail, List<QuestLogEntryView> entries) {
-      for (QuestLogEntryView entry : entries) {
+      for (int index = entries.size() - 1; index >= 0; index--) {
+        QuestLogEntryView entry = entries.get(index);
+        RichLabel label = label(displayEntryText(entry.text()), FONT_BODY, true);
+        label.setMaxPrefWidth(CONTENT_WIDTH - 80f);
         detail
-            .add(label(displayText(entry.text()), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
+            .add(label)
             .left()
             .top()
-            .padBottom(10f)
+            .growX()
+            .padBottom(10)
+            .padRight(10)
             .row();
         Optional<String> metadata = metadataFor(entry.owner());
         if (metadata.isPresent()) {
           detail
               .add(label(metadata.get(), FONT_MUTED, false))
-              .width(CONTENT_WIDTH)
               .left()
-              .padBottom(22f)
+              .growX()
+              .padBottom(24)
+              .padRight(10)
+              .row();
+        }
+        if (index > 0) {
+          detail
+              .add(Scene2dElementFactory.createHorizontalDivider())
+              .height(4)
+              .left()
+              .growX()
+              .padBottom(10)
               .row();
         }
       }
@@ -974,8 +995,8 @@ public final class QuestLogUI {
       Table footer = new Table();
       footer.left();
 
-      TextButton addNote = new TextButton("+  " + trans.text(T_CREATE), skin, "blue-outline");
-      addNote.getLabel().setFontScale(0.55f);
+      TextButton addNote = Scene2dElementFactory.createButton("+ " + trans.text(T_CREATE), "blue-outline", 16);
+      addNote.getLabel().setColor(Color.BLACK);
       addNote.addListener(
           new ClickListener() {
             @Override
@@ -986,8 +1007,8 @@ public final class QuestLogUI {
           });
 
       TextButton addPersonalNote =
-          new TextButton("+  " + trans.text(T_CREATE_PERSONAL), skin, "blue-outline");
-      addPersonalNote.getLabel().setFontScale(0.55f);
+          Scene2dElementFactory.createButton("+ " + trans.text(T_CREATE_PERSONAL), "blue-outline", 16);
+      addPersonalNote.getLabel().setColor(Color.BLACK);
       addPersonalNote.addListener(
           new ClickListener() {
             @Override
@@ -1011,6 +1032,10 @@ public final class QuestLogUI {
       RichLabel label = new RichLabel(RichLabel.toRichText(text), font, false);
       label.setWrap(wrap);
       return label;
+    }
+
+    private static String displayEntryText(String text) {
+      return displayText(text).replace("[p]", "\n\n");
     }
 
     private static String resolveInitialSelectedTab(QuestLogViewData viewData) {
