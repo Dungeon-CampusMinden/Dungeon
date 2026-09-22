@@ -15,17 +15,20 @@ anschließend fliehen.
 
 1. **Start:** Eine Lore-Sequenz erklärt Identität und Auftrag, danach zeigt ein Popup Steuerung und
    Questlog. Erst anschließend sind die Terminals freigegeben.
-2. **Erster Fehler:** Nach der ersten falschen Terminaleingabe klingelt das Telefon. ECHO stellt
-   sich vor, erklärt das Energie-Array und bietet weitere Hinweise über das Telefon an.
-3. **Energie:** Nach der Array-Deklaration stellt AXIOM sich vor. Der Spieler setzt die angezeigten
+2. **Erster Kontakt:** Vor dem ersten Anruf meldet das Telefon nur eine tote Leitung. Nach der
+   ersten falschen Energie-Terminaleingabe klingelt es; ECHO stellt sich vor und erklärt den
+   fehlenden Datenspeicher. Ist bereits die erste Eingabe richtig, stellt sich zunächst AXIOM vor;
+   anschließend klingelt ECHO mit einem eigenen Gespräch für diesen Fall. Beide Wege führen
+   zum selben weiteren Rätselablauf und zur telefonischen Hilfe.
+3. **Energie:** Nach der Array-Deklaration meldet sich AXIOM. Der Spieler setzt die angezeigten
    Werte, materialisiert die Batterie und setzt sie ein.
 4. **Module:** Der Spieler legt die Modulplätze an, weist die Module zu, entfernt die defekte GPU,
    liest die Arraylänge und öffnet den Scannerzugang mit den ermittelten Kennwerten.
 5. **Inventarscanner:** Eine for-each-Schleife zählt die belegten Module. Scannergebnis und
    Arraylänge ergeben den nächsten Türcode.
 6. **Transportlager:** Unter AXIOMs Anleitung erstellt der Spieler die Paketliste und verarbeitet
-   jedes Paket mit einer indexbasierten Schleife. Nach dem Transportlauf öffnet sich der
-   Datenspeicher und ECHO ruft wegen einer auffälligen Störung an.
+   jedes Paket mit einer indexbasierten Schleife. Nach dem Transportlauf ruft ECHO wegen einer
+   auffälligen Störung an. Erst nach diesem Telefonat öffnet sich der Datenspeicher.
 7. **Sortierung:** Der Spieler ordnet die Werte zunächst manuell und ergänzt danach die
    Bubble-Sort-Bedingung auf einem Stick. Die Maschine sortiert die Pakete und gibt den
    Archivschlüssel frei.
@@ -38,8 +41,9 @@ anschließend fliehen.
     ECHO warnt nun vor AXIOMs tatsächlichem Ziel. Drei Prüfbereiche liefern Ergebnisse, die in der
     Abschlussmaske kombiniert werden. Für die dritte Prüfung steuert ein eigener Suchroboter die
     3x5-Matrix ab; erst nach seinem vollständigen Lauf wird die Abschlussmaske freigegeben.
-    AXIOM beschwert sich über die blockierte Freigabe; danach
-    klingelt ECHO ein letztes Mal und öffnet den Aufzug.
+    Nach der bestätigten Eingabemaske beschwert sich AXIOM über die blockierte Freigabe und
+    der Alarm endet. Danach klingelt ECHO ein letztes Mal. Erst das beantwortete Gespräch
+    öffnet den Aufzug.
 11. **Ende:** Am Ausgang startet die Schlusssequenz. AXIOM ist aufgehalten, aber nicht zerstört;
     der Spieler verlässt die Anlage erstmals aus eigener Entscheidung.
 
@@ -54,6 +58,8 @@ anschließend fliehen.
 - Positionsbasierte `dialog_trigger_*` starten nur Raumdialoge. Sie verändern weder Rätselzustand
   noch Petri-Netz.
 - ECHOs Übergangs- und Abschlussgespräche erfordern eine Interaktion mit dem klingelnden Telefon.
+- Das Petri-Netz folgt akzeptierten Terminal-, Chip- und physischen Erfolgen. Ein Raumdialog
+  darf die Markierung nicht verändern.
 
 ## Textregeln
 
@@ -69,3 +75,4 @@ Alle Texte werden im passenden Questlog-Tab protokolliert.
 - `story/SystemRecoveryHintPhone.java`: ECHO-Hinweise
 - `level/SystemRecoveryLevel.java`: Lore, Telefonanrufe und Endsequenz
 - `assets/language/systemRecovery/{de,en}.json`: sämtliche sichtbaren System-Recovery-Texte
+- [Save/Load](system_recovery_save_load.md): Checkpoints und Wiederherstellung ohne Dialog-Replay
