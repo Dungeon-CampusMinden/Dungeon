@@ -256,17 +256,17 @@ final class ProgrammingDecisionWorld {
       }
     }
     plinth("heart-plinth", new Point(40, 119), 2);
-    for (float x : new float[] {39.6f, 42.5f})
+    for (float x : new float[] {39.2f, 42f})
       prop(
           "heart-offering-" + x,
-          new Point(x, 118.5f),
+          new Point(x, 119.4f),
           "items/rpg/item_gem_amethyst.png",
           .8f,
           .8f,
           false);
     Entity fire = torch("heart", new Point(40, 119.5f));
     fire.fetch(PositionComponent.class).orElseThrow().scale(2);
-    prop("heart-inscription", new Point(42.3f, 120), "items/rpg/item_scroll.png", .8f, .8f, false);
+    prop("heart-inscription", new Point(40.6f, 118), "items/rpg/item_scroll.png", .8f, .8f, false);
   }
 
   private static Entity torch(String name, Point at) {
