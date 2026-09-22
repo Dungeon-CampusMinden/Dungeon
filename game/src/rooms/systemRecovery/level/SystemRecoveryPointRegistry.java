@@ -11,6 +11,22 @@ import java.util.Objects;
 /** Resolves and validates the named points required by the System Recovery level. */
 public final class SystemRecoveryPointRegistry {
 
+  /** Main terminal custom point. */
+  public static final String TERMINAL = "terminal";
+
+  /** Door custom points used by checkpoint restoration. */
+  public static final String DOOR_MODULE_STORAGE = "door_modulspeicher";
+  public static final String DOOR_INVENTORY_SCANNER = "door_inventarscanner";
+  public static final String DOOR_TRANSPORT_STORAGE = "door_transportlager";
+  public static final String DOOR_DATA_STORAGE = "door_datenspeicher";
+  public static final String DOOR_DATA_ARCHIVE = "door_datenarchiv";
+
+  /** World item custom points used by checkpoint restoration. */
+  public static final String ARCHIVE_KEY_SPAWN = "chip_spawn";
+  public static final String SEARCH_PROGRAM_CHIP = "chip";
+  public static final String SYSTEM_CORE_ACCESS_MODULE_DESTINATION =
+      "roboter_item_destination";
+
   private static final List<PointGroup> REQUIRED_GROUPS = createRequiredGroups();
 
   private SystemRecoveryPointRegistry() {}
@@ -55,13 +71,13 @@ public final class SystemRecoveryPointRegistry {
             "level",
             List.of(
                 "phone",
-                "terminal",
+                TERMINAL,
                 "end",
-                "door_modulspeicher",
-                "door_inventarscanner",
-                "door_transportlager",
-                "door_datenspeicher",
-                "door_datenarchiv",
+                DOOR_MODULE_STORAGE,
+                DOOR_INVENTORY_SCANNER,
+                DOOR_TRANSPORT_STORAGE,
+                DOOR_DATA_STORAGE,
+                DOOR_DATA_ARCHIVE,
                 "door_speicher",
                 "door_systemcore",
                 "door_elevator",
@@ -116,7 +132,7 @@ public final class SystemRecoveryPointRegistry {
                 "sort_data4",
                 "sort_compare_display",
                 "sort_trigger",
-                "chip_spawn")));
+                ARCHIVE_KEY_SPAWN)));
     groups.add(new PointGroup("riddle 6 - bubble sort", List.of("sort_machine")));
     groups.add(
         new PointGroup(
@@ -129,7 +145,7 @@ public final class SystemRecoveryPointRegistry {
             "riddle 8 - two-dimensional storage",
             merge(
                 indexedMatrix("storage_cell_", 3, 4),
-                List.of("display_2d", "storage_terminal", "chip"))));
+                List.of("display_2d", "storage_terminal", SEARCH_PROGRAM_CHIP))));
     groups.add(
         new PointGroup(
             "riddle 9 - search robot",
@@ -138,7 +154,7 @@ public final class SystemRecoveryPointRegistry {
                 "suchroboter_controller",
                 "roboter_start",
                 "roboter_end",
-                "roboter_item_destination")));
+                SYSTEM_CORE_ACCESS_MODULE_DESTINATION)));
     groups.add(
         new PointGroup(
             "riddle 10 - system core",
