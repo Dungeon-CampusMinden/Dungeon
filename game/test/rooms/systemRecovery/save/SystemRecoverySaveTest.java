@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Game;
+import engine.Entity;
+import engine.components.PlayerComponent;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
 import java.nio.file.Files;
@@ -90,13 +92,33 @@ class SystemRecoverySaveTest {
     UUID runId = UUID.randomUUID();
     SystemRecoverySave.SaveData expected =
         new SystemRecoverySave.SaveData(
-            SystemRecoveryLearningStep.ENERGY_ARRAY.hintKey(), List.of(), List.of(), runId, null);
+            SystemRecoveryLearningStep.ENERGY_ARRAY.hintKey(),
+            List.of(),
+            List.of(),
+            runId,
+            "Ada",
+            true,
+            null);
     Path savePath = temporaryDirectory.resolve("run-id-save.json");
 
     SystemRecoverySave.write(savePath, expected);
 
     SystemRecoverySave.SaveData restored = SystemRecoveryLoad.read(savePath).orElseThrow();
     assertEquals(runId, restored.runId());
+    assertEquals("Ada", restored.playerName());
+    assertEquals(true, restored.trackingConsent());
+  }
+
+  @Test
+  void capturesTheAuthoritativePlayerNameInsteadOfTheJvmFallback() {
+    Entity player = new Entity("authoritative-player");
+    player.add(new PlayerComponent(true, "Ada"));
+    Game.add(player);
+
+    SystemRecoverySave.SaveData save =
+        SystemRecoverySave.capture(SystemRecoveryLearningStep.ENERGY_ARRAY, UUID.randomUUID());
+
+    assertEquals("Ada", save.playerName());
   }
 
   @Test

@@ -1,5 +1,8 @@
 package rooms.systemRecovery.save;
 
+import engine.Game;
+import engine.components.PlayerComponent;
+import engine.game.PreRunConfiguration;
 import engine.utils.JsonHandler;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
@@ -23,7 +27,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievements;
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 3;
+  public static final int FORMAT_VERSION = 4;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -57,6 +61,19 @@ public final class SystemRecoverySave {
    * @return immutable save data
    */
   public static SaveData capture(SystemRecoveryLearningStep checkpoint, UUID runId) {
+    return capture(checkpoint, runId, null);
+  }
+
+  /**
+   * Captures a checkpoint and persists the run-level tracking decision.
+   *
+   * @param checkpoint first learning step of the active main riddle
+   * @param runId stable ID of the complete playthrough
+   * @param trackingConsent nullable consent decision; null means not decided yet
+   * @return immutable save data
+   */
+  public static SaveData capture(
+      SystemRecoveryLearningStep checkpoint, UUID runId, Boolean trackingConsent) {
     if (checkpoint == null || checkpoint.riddleKey() == null) {
       throw new IllegalArgumentException("A learning checkpoint is required.");
     }
@@ -76,7 +93,44 @@ public final class SystemRecoverySave {
                             entries.forEach(
                                 entry -> questLog.add(QuestLogEntryData.from(tab, entry)))));
     return new SaveData(
-        checkpoint.hintKey(), inputs, questLog, runId, SystemRecoveryAchievements.snapshot());
+        checkpoint.hintKey(),
+        inputs,
+        questLog,
+        runId,
+        currentPlayerName(),
+        trackingConsent,
+        SystemRecoveryAchievements.snapshot());
+  }
+
+  private static String currentPlayerName() {
+    Optional<String> authoritativeName =
+        Game.allPlayers()
+            .flatMap(player -> player.fetch(PlayerComponent.class).stream())
+            .map(PlayerComponent::playerName)
+            .filter(name -> name != null && !name.isBlank())
+            .findFirst();
+    if (authoritativeName.isPresent()) return authoritativeName.orElseThrow();
+
+    // A network server must wait for a connected player instead of persisting its JVM default.
+    if (PreRunConfiguration.multiplayerEnabled()) return null;
+    return PreRunConfiguration.username();
+  }
+
+  /** Deletes the default checkpoint so a confirmed new game starts from a clean save state. */
+  public static void delete() throws IOException {
+    Files.deleteIfExists(DEFAULT_PATH);
+  }
+
+  /**
+   * Updates the consent decision in an existing checkpoint without changing its game progress.
+   *
+   * @param consent new run-level decision
+   * @throws IOException if the checkpoint cannot be rewritten
+   */
+  public static void updateTrackingConsent(Boolean consent) throws IOException {
+    if (consent == null) return;
+    Optional<SaveData> existing = SystemRecoveryLoad.read();
+    if (existing.isPresent()) write(existing.orElseThrow().withTrackingConsent(consent));
   }
 
   /**
@@ -124,7 +178,15 @@ public final class SystemRecoverySave {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("formatVersion", FORMAT_VERSION);
     root.put("checkpoint", data.checkpointKey());
-    root.put("metadata", Map.of("runId", data.runId().toString()));
+    Map<String, Object> metadata = new LinkedHashMap<>();
+    metadata.put("runId", data.runId().toString());
+    if (data.playerName() != null && !data.playerName().isBlank()) {
+      metadata.put("playerName", data.playerName());
+    }
+    if (data.trackingConsent() != null) {
+      metadata.put("trackingConsent", data.trackingConsent());
+    }
+    root.put("metadata", metadata);
     root.put(
         "acceptedTerminalInputs",
         data.acceptedTerminalInputs().stream()
@@ -161,6 +223,8 @@ public final class SystemRecoverySave {
    * @param acceptedTerminalInputs accepted terminal sources in order
    * @param questLog shared quest-log entries, including player-created notes
    * @param runId stable ID shared by every loaded continuation of this save
+   * @param playerName authoritative player name stored for the continue flow
+   * @param trackingConsent run-level tracking decision; nullable for legacy or undecided saves
    * @param achievementProgress run-local achievement conditions; nullable for legacy saves
    */
   public record SaveData(
@@ -168,7 +232,26 @@ public final class SystemRecoverySave {
       List<AcceptedInput> acceptedTerminalInputs,
       List<QuestLogEntryData> questLog,
       UUID runId,
+      String playerName,
+      Boolean trackingConsent,
       SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
+
+    /**
+     * Returns this checkpoint with a replaced run-level tracking decision.
+     *
+     * @param consent new run-level tracking decision
+     * @return copied checkpoint with the new decision
+     */
+    public SaveData withTrackingConsent(Boolean consent) {
+      return new SaveData(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          consent,
+          achievementProgress);
+    }
     /**
      * Validates and defensively copies the save collections.
      *
@@ -180,7 +263,7 @@ public final class SystemRecoverySave {
         String checkpointKey,
         List<AcceptedInput> acceptedTerminalInputs,
         List<QuestLogEntryData> questLog) {
-      this(checkpointKey, acceptedTerminalInputs, questLog, UUID.randomUUID(), null);
+      this(checkpointKey, acceptedTerminalInputs, questLog, UUID.randomUUID(), null, null);
     }
 
     /**
@@ -196,7 +279,59 @@ public final class SystemRecoverySave {
         List<AcceptedInput> acceptedTerminalInputs,
         List<QuestLogEntryData> questLog,
         SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
-      this(checkpointKey, acceptedTerminalInputs, questLog, UUID.randomUUID(), achievementProgress);
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          UUID.randomUUID(),
+          null,
+          null,
+          achievementProgress);
+    }
+
+    /**
+     * Creates save data with an explicit run ID and no stored player name.
+     *
+     * @param checkpointKey stable first-step key of the active main riddle
+     * @param acceptedTerminalInputs accepted terminal sources in order
+     * @param questLog shared quest-log entries, including player-created notes
+     * @param runId stable ID shared by every loaded continuation of this save
+     * @param achievementProgress run-local achievement conditions; nullable for legacy saves
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
+      this(checkpointKey, acceptedTerminalInputs, questLog, runId, null, achievementProgress);
+    }
+
+    /**
+     * Creates save data with an explicit run ID, player name and achievement state.
+     *
+     * @param checkpointKey stable first-step key of the active main riddle
+     * @param acceptedTerminalInputs accepted terminal sources in order
+     * @param questLog shared quest-log entries, including player-created notes
+     * @param runId stable ID shared by every loaded continuation of this save
+     * @param playerName authoritative player name stored for the continue flow
+     * @param achievementProgress run-local achievement conditions; nullable for legacy saves
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        String playerName,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          null,
+          achievementProgress);
     }
 
     /**
@@ -206,6 +341,8 @@ public final class SystemRecoverySave {
      * @param acceptedTerminalInputs accepted terminal sources in order
      * @param questLog shared quest-log entries, including player-created notes
      * @param runId stable ID shared by every loaded continuation of this save
+     * @param playerName authoritative player name stored for the continue flow
+     * @param trackingConsent run-level tracking decision; nullable for legacy or undecided saves
      * @param achievementProgress run-local achievement conditions; nullable for legacy saves
      */
     public SaveData {
@@ -213,6 +350,7 @@ public final class SystemRecoverySave {
         throw new IllegalArgumentException("checkpointKey must not be blank");
       }
       if (runId == null) throw new IllegalArgumentException("runId must not be null");
+      if (playerName != null && playerName.isBlank()) playerName = null;
       acceptedTerminalInputs =
           List.copyOf(acceptedTerminalInputs == null ? List.of() : acceptedTerminalInputs);
       questLog = List.copyOf(questLog == null ? List.of() : questLog);

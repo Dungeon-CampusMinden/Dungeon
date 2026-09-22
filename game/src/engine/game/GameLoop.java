@@ -888,7 +888,12 @@ public final class GameLoop extends ScreenAdapter {
     }
     initialWorldReadySent = true;
     Game.network()
-        .send((short) 0, new InitialWorldReady(TrackingRuntime.clientRoomPlayedBefore()), true)
+        .send(
+            (short) 0,
+            new InitialWorldReady(
+                TrackingRuntime.clientRoomPlayedBefore(),
+                TrackingRuntime.localTrackingConsent()),
+            true)
         .whenComplete(
             (success, error) -> {
               if (error == null && Boolean.TRUE.equals(success)) {

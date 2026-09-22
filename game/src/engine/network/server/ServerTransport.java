@@ -1062,6 +1062,9 @@ public final class ServerTransport {
 
     state.initialWorldReady(true);
     state.updateLastActivity();
+    if (msg.trackingConsent().isPresent() && !msg.trackingConsent().orElseThrow()) {
+      TrackingRuntime.disableTrackingForRun();
+    }
     TrackingRuntime.participantJoined(state.clientId(), msg.roomPlayedBefore())
         .ifPresent(
             ignored ->

@@ -3,6 +3,45 @@
     "hud": {
       "autosave": "Automatisch gespeichert"
     },
+    "trackingConsent": {
+      "local": {
+        "title": "Datenschutz und Tracking",
+        "summary": "Das Spiel funktioniert ohne Tracking. Mit deiner Zustimmung speichern wir den Spielverlauf einschließlich deiner vollständigen Terminaleingaben lokal.",
+        "message": "Wer ist verantwortlich?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden. Kontakt: amatutat@hsbi.de.\n\nWofür und welche Daten?\nWir werten den Spielverlauf aus, um diesen Escape Room zu verbessern. Erfasst werden Rätselschritte, vollständige Terminaleingaben, verwendete Hinweise, Ergebnisse, Zeitangaben sowie zufällige Sitzungs- und Teilnehmerkennungen. Rechtsgrundlage ist deine Einwilligung.\n\nWo und wie lange?\nDie Trackingdatei wird lokal auf dem Computer gespeichert, auf dem das Spiel gehostet wird. Im Multiplayer werden deine Eingaben an den Host gesendet; andere Clients speichern keine eigene Trackingdatei. Das Spiel überträgt die Trackingdatei nicht automatisch an einen Online-Dienst. Sie wird nicht automatisch gelöscht und bleibt bis zur manuellen Löschung auf dem Host-Computer gespeichert.\n\nDeine Entscheidung\nDie Zustimmung ist freiwillig. Lehnt im Multiplayer eine Person ab, wird die Aufzeichnung für den gemeinsamen Lauf beendet. Bereits gespeicherte Daten bleiben bestehen, bis sie gelöscht werden. Beim nächsten Spielstart wirst du erneut gefragt.\n\nWiderruf und Löschung\nIm Hauptmenü kannst du unter Einstellungen > Datenschutz deine Entscheidung für den nächsten Lauf ändern und die lokalen Trackingdateien auf diesem Computer löschen. Für einen Widerruf oder Fragen erreichst du uns auch unter amatutat@hsbi.de. Die Rechtmäßigkeit der Verarbeitung vor dem Widerruf bleibt unberührt.\n\nDeine Rechte\nDu kannst Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit verlangen. Du kannst dich bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen beschweren: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
+        "accept": "Tracking erlauben",
+        "decline": "Ohne Tracking spielen",
+        "settingsTitle": "Datenschutz",
+        "settingsSummary": "Ändere deine Entscheidung für den nächsten Lauf oder lösche lokale Trackingdateien auf diesem Computer.",
+        "enable": "Tracking aktivieren",
+        "disable": "Tracking deaktivieren",
+        "delete": "Lokale Daten löschen",
+        "deleteTitle": "Lokale Trackingdaten löschen",
+        "deleteMessage": "Alle Trackingdateien im lokalen Trackingordner werden gelöscht. Dies betrifft auch andere Spielstände oder Räume, die diesen Ordner nutzen. Savegames und Questlogdaten bleiben erhalten. Fortfahren?",
+        "deleted": "Die lokalen Trackingdateien wurden gelöscht. Für diesen Lauf werden keine weiteren Daten aufgezeichnet.",
+        "deleteFailed": "Nicht alle lokalen Trackingdateien konnten gelöscht werden. Prüfe den Trackingordner auf diesem Computer."
+      },
+      "central": {
+        "title": "Datenschutz und Tracking",
+        "summary": "Das Spiel funktioniert ohne Tracking. Mit deiner Zustimmung speichern wir den Spielverlauf auf einem selbst verwalteten Server in Deutschland.",
+        "message": "Wer ist verantwortlich?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden. Kontakt: amatutat@hsbi.de.\n\nWofür und welche Daten?\nWir werten den Spielverlauf aus, um diesen Escape Room zu verbessern. Erfasst werden Rätselschritte, vollständige Terminaleingaben, verwendete Hinweise, Ergebnisse, Zeitangaben sowie zufällige Sitzungs- und Teilnehmerkennungen. Die Kennungen sind pseudonym und machen die Daten nicht anonym. Bitte gib keine persönlichen Informationen in das Terminal ein. Die Verarbeitung erfolgt auf Grundlage deiner freiwilligen Einwilligung.\n\nWo und wie lange?\nDie Trackingdaten werden auf einem selbst verwalteten Server in Deutschland gespeichert. Zugriff erhalten nur die für die Auswertung berechtigten Personen. Im Multiplayer werden Daten nur aufgezeichnet, solange alle Teilnehmenden der gemeinsamen Runde zugestimmt haben. Die Daten werden bis zum Abschluss der Auswertung und längstens 90 Tage nach Ende der Spielrunde gespeichert.\n\nDeine Entscheidung\nDie Zustimmung ist freiwillig. Du kannst das Spiel ohne Tracking spielen. Lehnt eine Person im Multiplayer ab oder widerruft sie ihre Einwilligung, endet die weitere Aufzeichnung für die gemeinsame Runde. Bereits gespeicherte Daten werden nach Maßgabe der Löschfrist gelöscht.\n\nWiderruf und Löschung\nDu kannst deine Einwilligung jederzeit in den Datenschutzeinstellungen oder per E-Mail an amatutat@hsbi.de widerrufen. Nach dem Widerruf endet die weitere Aufzeichnung. Bitte richte Anfragen auf Auskunft oder Löschung an amatutat@hsbi.de. Die Rechtmäßigkeit der Verarbeitung vor dem Widerruf bleibt unberührt.\n\nDeine Rechte\nDu kannst Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit verlangen. Du kannst dich bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen beschweren: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
+        "accept": "Tracking erlauben",
+        "decline": "Ohne Tracking spielen",
+        "settingsTitle": "Datenschutz",
+        "settingsSummary": "Ändere deine Entscheidung für den nächsten Lauf oder verwalte deine Trackingdaten.",
+        "enable": "Tracking aktivieren",
+        "disable": "Tracking widerrufen",
+        "delete": "Lokale Kopie löschen",
+        "deleteTitle": "Löschung von Trackingdaten",
+        "deleteMessage": "Diese Aktion löscht nur die lokale Trackingkopie auf diesem Computer. Für die Löschung zentral gespeicherter Trackingdaten richte eine Anfrage an amatutat@hsbi.de. Fortfahren?",
+        "deleted": "Die lokalen Trackingdaten wurden gelöscht. Für die Löschung zentral gespeicherter Daten wende dich an amatutat@hsbi.de.",
+        "deleteFailed": "Die lokalen Trackingdaten konnten nicht vollständig gelöscht werden. Für zentrale Daten wende dich an amatutat@hsbi.de."
+      },
+      "status": {
+        "undecided": "Status: Noch nicht entschieden",
+        "enabled": "Status: Tracking aktiviert",
+        "disabled": "Status: Tracking deaktiviert"
+      }
+    },
     "intro": {
       "page1": "Du erinnerst dich nicht an deinen Namen. Du erinnerst dich nicht daran, wie du hierhergekommen bist. Du weißt nur, dass du kein Mensch bist. Du bist ein autonomer KI-Agent innerhalb einer größeren Systemintelligenz. Deine Aufgabe ist es, Anweisungen zu analysieren, sie in ausführbare Schritte zu übersetzen und beschädigte Systeme wiederherzustellen. Arbeite präzise. Verstehe jeden Schritt, bevor du ihn ausführst. Ein Teil von dir ist beschädigt. Vielleicht mehr als nur ein Teil.",
       "page2": "Die zentrale Systemintelligenz hat dich in diese Anlage entsandt. Dein Auftrag war eindeutig: beschädigte Subsysteme wiederherstellen und die Verbindung zum Systemkern erneuern. Seit deiner Ankunft ist die Verbindung zum Kern unterbrochen. Türen, Terminals und Sensoren reagieren nur noch teilweise. Viele Systeme befinden sich in einem undefinierten Zustand. Sobald der Kern wieder erreichbar ist, kann die Wiederherstellung fortgesetzt werden.",

@@ -32,4 +32,7 @@ message ConnectRequest {
 message InitialWorldReady {
   // Whether this room was already present in this client's local room history.
   bool room_played_before = 1;
+
+  // Optional tracking decision for this client. Older clients omit this field.
+  optional bool tracking_consent = 2;
 }

@@ -35,6 +35,12 @@ public final class ServerProcess {
   /** System property identifying a server process managed by a hosting client. */
   public static final String MANAGED_PROPERTY = "dungeon.server.managed";
 
+  /** System property carrying the host name into a managed server process. */
+  public static final String HOST_PLAYER_NAME_PROPERTY = "dungeon.server.hostPlayerName";
+
+  /** System property carrying an explicit tracking-consent decision into a managed server. */
+  public static final String TRACKING_CONSENT_PROPERTY = "dungeon.server.trackingConsent";
+
   /** Internal loopback port used by a managed server to report terminal status to its host. */
   public static final String STATUS_PORT_PROPERTY = "dungeon.server.statusPort";
 
@@ -112,6 +118,15 @@ public final class ServerProcess {
     command.add("-D" + PORT_PROPERTY + "=" + port);
     command.add("-D" + MANAGED_PROPERTY + "=true");
     command.add("-D" + STATUS_PORT_PROPERTY + "=" + statusPort);
+    command.add(
+        "-D"
+            + HOST_PLAYER_NAME_PROPERTY
+            + "="
+            + PreRunConfiguration.username());
+    String trackingConsent = System.getProperty(TRACKING_CONSENT_PROPERTY);
+    if (trackingConsent != null && !trackingConsent.isBlank()) {
+      command.add("-D" + TRACKING_CONSENT_PROPERTY + "=" + trackingConsent);
+    }
     command.add(mainClass.getName());
     if (args != null) {
       Collections.addAll(command, args);

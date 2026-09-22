@@ -20,6 +20,12 @@ bisherige Verhalten unverändert.
 `configureRoom` trennt die Deployment-Einstellungen vom Raumcode. Das Deployment kann Folgendes
 festlegen:
 
+Räume mit personenbezogener Einwilligungslogik können die Überladung mit einem expliziten
+Consent-Boolean verwenden. Bei `false` wird weder eine Tracking-Sitzung noch eine JSONL-Outbox
+erzeugt. In einem Mehrspielerlauf kann jeder Client seine Entscheidung mit `InitialWorldReady`
+übermitteln. Lehnt ein Client ab, beendet der autoritative Server die weitere Erfassung für den
+gesamten gemeinsamen Lauf. Die Entscheidung muss vor dem Start der autoritativen Welt feststehen.
+
 | Systemeigenschaft | Umgebungsvariable | Standardwert |
 | --- | --- | --- |
 | `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | `http://127.0.0.1:8088` |
@@ -30,6 +36,14 @@ festlegen:
 `false`. JSONL-Tracking bleibt dabei aktiv. Mit dem Wert `true` verwendet Dungeon den
 konfigurierten Endpunkt oder ohne Override das lokale Backend. Das Pause-Menü zeigt bei `false`
 "Deaktiviert" statt einen Verbindungsstatus.
+
+System Recovery besitzt passend dazu zwei lokalisierte Datenschutzvarianten. Bei deaktiviertem
+HTTP-Backend wird die lokale JSONL-Speicherung beschrieben. Sobald das zentrale Backend aktiviert
+ist, verwendet das Menü die Variante für den selbst verwalteten Server in Deutschland. Vor einer
+Produktivaktivierung müssen Verantwortliche Stelle, berechtigte Zugriffsrollen, die konkrete
+Löschfrist sowie die serverseitige Bearbeitung von Auskunfts- und Löschanfragen geprüft und
+umgesetzt sein. Der zentrale Text nennt aktuell eine maximale Aufbewahrung von 90 Tagen; diese
+Frist ist eine Projektentscheidung und muss vor dem Einsatz bestätigt werden.
 
 Für die E-Mail-Adresse des Betreibers gilt der im Quellcode definierte Standardwert. Der Raumcode
 kann als zweites Argument von `configureRoom` eine andere Adresse übergeben. Deployment-Eigenschaften

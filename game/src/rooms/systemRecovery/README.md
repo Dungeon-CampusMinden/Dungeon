@@ -62,8 +62,9 @@ Aufzug.
 
 Der Server speichert automatisch am Anfang jedes Haupträtsels. Beim Laden werden die aktiven
 Petri-Place, abgeschlossene Räume, akzeptierte Terminaleingaben, Questlog und
-Achievement-Fortschritt wiederhergestellt; Dialoge werden nicht erneut abgespielt. Teilschritte
-innerhalb eines Rätsels sind keine Checkpoints. Details und Grenzen stehen in der
+Achievement-Fortschritt sowie die Tracking-Einwilligung wiederhergestellt; Dialoge werden nicht
+erneut abgespielt. Teilschritte innerhalb eines Rätsels sind keine Checkpoints. Details und
+Grenzen stehen in der
 [Save/Load-Dokumentation](../../../../doc/escape_room/room_concepts/prog1_arrays/system_recovery_save_load.md).
 
 Alle sichtbaren Texte liegen in `game/assets/language/systemRecovery/de.json` und `en.json`.
@@ -77,6 +78,19 @@ Der Server entscheidet über Fortschritt, Items, Türen und zeitgesteuerte Ablä
 `SystemRecoverySnapshotTranslator` und `SystemRecoveryEntitySpawnStrategy` übertragen den
 aktuellen Zustand. Renderingeffekte werden nur auf grafischen Clients erzeugt; der Headless-Server
 lädt keine Texturen oder Schriftarten.
+
+Das Savegame ist ein gemeinsamer, serverautoritärer Spielstand. Der Hostname wird beim Start des
+verwalteten Serverprozesses übergeben und zusätzlich vom Client im Netzwerk-Handshake bestätigt.
+Der Server schreibt `system-recovery-save.json`; Clients schreiben keine Save-Datei und senden beim
+Fortsetzen auch keine Datei an den Server. Beim Fortsetzen liest der Server den Spielstand ein und
+überträgt den wiederhergestellten Weltzustand, Questlog und Fortschritt an alle Clients. Der erste
+verbundene Spieler ist der gespeicherte Name des gemeinsamen Spielstands; weitere Joiner ändern
+diesen Namen nicht automatisch.
+
+Wenn der Server vor dem ersten Client-Tick noch keinen Spieler kennt, wird kein Fallbackname wie
+`Player` gespeichert. Sobald der Host verbunden ist, wird der Checkpoint mit dem tatsächlichen
+Namen geschrieben. Dadurch bleibt der Spielstand auch dann korrekt, wenn der Server schneller
+startet als der Client.
 
 ## Tests
 
