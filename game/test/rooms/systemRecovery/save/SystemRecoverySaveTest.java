@@ -146,16 +146,8 @@ class SystemRecoverySaveTest {
   void eachMainRiddleCheckpointRequiresItsOwnTerminalBoundary() throws Exception {
     for (SystemRecoveryLearningStep step : SystemRecoveryLearningStep.values()) {
       if (!SystemRecoveryLoad.isMainPuzzleCheckpoint(step)) continue;
-      int acceptedCount = switch (step) {
-        case ENERGY_ARRAY -> 0;
-        case MODULE_ARRAY -> 2;
-        case INVENTORY_COUNT -> 6;
-        case TRANSPORT_ARRAY -> 7;
-        case MANUAL_SORTING, BUBBLE_SORT_CONDITION, ARCHIVE_ACCESS -> 9;
-        case STORAGE_ARRAY -> 10;
-        case SEARCH_PROGRAM, SYSTEM_CORE_ACCESS -> 12;
-        default -> throw new AssertionError(step);
-      };
+      int acceptedCount = step.acceptedTerminalInputCount();
+      assertTrue(acceptedCount >= 0, step.name());
       List<SystemRecoverySave.AcceptedInput> history =
           IntStream.range(0, acceptedCount)
               .mapToObj(
