@@ -88,7 +88,7 @@ import rooms.systemRecovery.items.SystemCoreAccessChipItem;
  */
 public class SystemRecoveryLevel extends DungeonLevel {
   private static final String LEVEL_NAME = "system-recovery-1";
-  private static final String TERMINAL_POINT = "terminal";
+  private static final String TERMINAL_POINT = SystemRecoveryPointRegistry.TERMINAL;
   private static final int PLAYER_INVENTORY_SIZE = 1;
   private final EnergyRiddle energy =
       new EnergyRiddle(this, SystemRecoveryPuzzleEvents.forPuzzle(SystemRecoveryPuzzle.ENERGY));
@@ -339,44 +339,47 @@ public class SystemRecoveryLevel extends DungeonLevel {
       case ENERGY_ARRAY -> {}
       case MODULE_ARRAY -> {
         energy.restoreCompletedState();
-        openDoor("door_modulspeicher");
+        openDoor(SystemRecoveryPointRegistry.DOOR_MODULE_STORAGE);
         moduleStorage.showModuleAssignments();
       }
       case INVENTORY_COUNT -> {
         restoreCompletedModules();
-        openDoor("door_inventarscanner");
+        openDoor(SystemRecoveryPointRegistry.DOOR_INVENTORY_SCANNER);
       }
       case TRANSPORT_ARRAY -> {
         restoreCompletedModules();
         inventoryScanner.restoreCompletedState();
-        openDoor("door_inventarscanner");
-        openDoor("door_transportlager");
+        openDoor(SystemRecoveryPointRegistry.DOOR_INVENTORY_SCANNER);
+        openDoor(SystemRecoveryPointRegistry.DOOR_TRANSPORT_STORAGE);
       }
       case MANUAL_SORTING, BUBBLE_SORT_CONDITION -> {
         restoreCompletedTransport();
-        openDoor("door_datenspeicher");
+        openDoor(SystemRecoveryPointRegistry.DOOR_DATA_STORAGE);
         if (checkpoint == SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION) {
           manualSorting.restoreCompletedState();
         }
       }
       case ARCHIVE_ACCESS -> {
         restoreCompletedBubbleSort();
-        spawnWorldItemIfMissing(new ItemKey(), "chip_spawn");
+        spawnWorldItemIfMissing(new ItemKey(), SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN);
       }
       case STORAGE_ARRAY -> {
         restoreCompletedBubbleSort();
-        openDoor("door_datenarchiv");
+        openDoor(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE);
         dataArchive.restoreCompletedState();
       }
       case SEARCH_PROGRAM -> {
         restoreCompletedStorage();
-        spawnWorldItemIfMissing(new SearchProgramChipItem(), "chip");
+        spawnWorldItemIfMissing(
+            new SearchProgramChipItem(), SystemRecoveryPointRegistry.SEARCH_PROGRAM_CHIP);
       }
       case SYSTEM_CORE_ACCESS -> {
         restoreCompletedStorage();
         searchRobot.restoreCompletedState();
         systemCoreAccessModuleDelivered = true;
-        spawnWorldItemIfMissing(new SystemCoreAccessChipItem(), "roboter_item_destination");
+        spawnWorldItemIfMissing(
+            new SystemCoreAccessChipItem(),
+            SystemRecoveryPointRegistry.SYSTEM_CORE_ACCESS_MODULE_DESTINATION);
       }
       default -> throw new IllegalArgumentException("Not a main-riddle checkpoint: " + checkpoint);
     }
@@ -385,27 +388,27 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void restoreCompletedModules() {
     energy.restoreCompletedState();
     moduleStorage.restoreCompletedState();
-    openDoor("door_modulspeicher");
+    openDoor(SystemRecoveryPointRegistry.DOOR_MODULE_STORAGE);
   }
 
   private void restoreCompletedTransport() {
     restoreCompletedModules();
     inventoryScanner.restoreCompletedState();
     transportStorage.restoreCompletedState();
-    openDoor("door_inventarscanner");
-    openDoor("door_transportlager");
+    openDoor(SystemRecoveryPointRegistry.DOOR_INVENTORY_SCANNER);
+    openDoor(SystemRecoveryPointRegistry.DOOR_TRANSPORT_STORAGE);
   }
 
   private void restoreCompletedBubbleSort() {
     restoreCompletedTransport();
-    openDoor("door_datenspeicher");
+    openDoor(SystemRecoveryPointRegistry.DOOR_DATA_STORAGE);
     manualSorting.restoreCompletedState(false);
     bubbleSort.restoreCompletedState();
   }
 
   private void restoreCompletedStorage() {
     restoreCompletedBubbleSort();
-    openDoor("door_datenarchiv");
+    openDoor(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE);
     dataArchive.restoreCompletedState();
     twoDimensionalStorage.restoreCompletedState();
   }
