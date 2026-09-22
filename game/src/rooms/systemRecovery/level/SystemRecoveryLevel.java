@@ -297,7 +297,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void saveCheckpointIfNeeded() {
     if (!Game.network().isServer()) return;
     SystemRecoveryProgressNet.activeStep()
-        .filter(SystemRecoveryLoad::isMainPuzzleCheckpoint)
+        .filter(SystemRecoveryLoad::isAutoSaveCheckpoint)
         .ifPresent(
             checkpoint -> {
               SystemRecoverySave.SaveData save =

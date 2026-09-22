@@ -6,20 +6,17 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
-import engine.utils.FontSpec;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
-import feature.hud.UIUtils;
-import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Brief client HUD confirmation for checkpoints that the authoritative server has written. */
 public final class SystemRecoveryAutoSaveHud {
   private static final String CHECK_ICON = "hud/check.png";
+  private static final float ICON_SIZE = 20f;
   private static final float VISIBLE_SECONDS = 2.5f;
+  private static final Color ICON_COLOR = new Color(0.25f, 1f, 0.4f, 1f);
   private static Stage attachedStage;
   private static Table badge;
   private static int lastRevision;
@@ -63,24 +60,15 @@ public final class SystemRecoveryAutoSaveHud {
 
   private static void show(Stage stage) {
     if (badge == null) {
-      Table content = new Table(UIUtils.defaultSkin());
-      content.setBackground("window_background_big");
-      content.pad(5f, 9f, 5f, 9f);
       Texture texture = TextureMap.instance().textureAt(new SimpleIPath(CHECK_ICON));
       Image icon = new Image(texture);
-      icon.setColor(Color.GREEN);
-      Label label =
-          Scene2dElementFactory.createLabel(
-              SystemRecoveryText.text("hud.autosave"),
-              FontSpec.of("fonts/Lexend-Regular.ttf", 17, Color.WHITE));
-      content.add(icon).size(20f).padRight(7f);
-      content.add(label);
+      icon.setColor(ICON_COLOR);
 
       badge = new Table();
       badge.setFillParent(true);
       badge.setTouchable(Touchable.disabled);
       badge.bottom().right();
-      badge.add(content).padRight(18f).padBottom(18f);
+      badge.add(icon).size(ICON_SIZE).padRight(18f).padBottom(18f);
       stage.addActor(badge);
     }
     badge.clearActions();

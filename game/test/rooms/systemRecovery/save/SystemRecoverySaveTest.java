@@ -136,6 +136,14 @@ class SystemRecoverySaveTest {
   }
 
   @Test
+  void delaysNewAutomaticSavesUntilTheFirstRiddleIsComplete() {
+    assertFalse(
+        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.ENERGY_ARRAY));
+    assertTrue(
+        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.MODULE_ARRAY));
+  }
+
+  @Test
   void restoresPetriPlaceAndFlexibleTerminalContextWithoutCallbacks() {
     List<SystemRecoverySave.AcceptedInput> inputs =
         List.of(
