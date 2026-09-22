@@ -97,6 +97,7 @@ public final class ProgrammingObservation {
     return DialogFactory.show(
         DialogContext.builder()
             .type(ProgrammingTerminal.Type.OBSERVATION)
+            .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
             .put("golem", focusId)
             .put("cinematic", true)
             .build(),

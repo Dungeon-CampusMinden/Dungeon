@@ -22,7 +22,6 @@ import java.util.Locale;
 import java.util.Optional;
 import rooms.programming.modules.loops.LoopMaze;
 import rooms.programming.modules.loops.TerminalState;
-import tools.jackson.databind.json.JsonMapper;
 
 /** The shared loop terminal, with server state and a locally arranged canvas. */
 public final class ProgrammingTerminal {
@@ -31,7 +30,7 @@ public final class ProgrammingTerminal {
   static final Color INK = ProgrammingUI.INK;
   static final Color PAPER = ProgrammingUI.SURFACE;
   static final Color ACCENT = ProgrammingUI.GOLD;
-  private static final JsonMapper JSON = JsonMapper.builder().build();
+
   private static TerminalState received;
 
   private ProgrammingTerminal() {}
@@ -154,14 +153,14 @@ public final class ProgrammingTerminal {
    * Encodes the terminal state for snapshot metadata and dialog values.
    *
    * @param state the terminal state
-   * @return JSON metadata
+   * @return compact state representation
    */
   public static String encode(TerminalState state) {
-    return JSON.writeValueAsString(state);
+    return ProgrammingStateCodec.encode(state);
   }
 
   static TerminalState decode(String value) {
-    return JSON.readValue(value, TerminalState.class);
+    return ProgrammingStateCodec.decode(value, TerminalState.class);
   }
 
   static List<CanvasNode> nodes(TerminalState state) {

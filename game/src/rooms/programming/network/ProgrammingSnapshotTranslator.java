@@ -66,6 +66,8 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                                             ProgrammingHelp.ID, ProgrammingHelp.encode(help)));
                             if (s.finished())
                               ProgrammingMethods.state()
+                                  // The opening dialog carries the untouched starting program.
+                                  .filter(methods -> methods.revision() > 0)
                                   .ifPresent(
                                       methods ->
                                           metadata.put(

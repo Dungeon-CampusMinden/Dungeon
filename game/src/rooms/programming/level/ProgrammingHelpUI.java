@@ -173,18 +173,6 @@ final class ProgrammingHelpUI extends Table {
       line("Bedienung", 18, ProgrammingUI.GOLD);
       for (String control : controls.split("\n")) line(control, 17, ProgrammingUI.TEXT);
     }
-    content
-        .add(ProgrammingUI.button("Zurück zum Rätsel", false, this::returnToPuzzle))
-        .growX()
-        .minHeight(44)
-        .padTop(12)
-        .row();
-    content
-        .add(ProgrammingUI.button("Quest-Log öffnen", false, () -> event("help.questlog")))
-        .growX()
-        .minHeight(44)
-        .padTop(8)
-        .row();
     if (!confirming
         && state != null
         && state.history().stream().anyMatch(t -> !t.puzzleId().equals(state.puzzleId()))) {

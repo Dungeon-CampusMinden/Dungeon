@@ -119,14 +119,14 @@ public final class ProgrammingDecisions {
 
   /**
    * @param state snapshot to transmit
-   * @return JSON dialog and world metadata payload
+   * @return compact dialog and world metadata payload
    */
   public static String encode(State state) {
-    return JSON.writeValueAsString(state);
+    return ProgrammingStateCodec.encode(state);
   }
 
   static State decode(String text) {
-    return JSON.readValue(text, State.class);
+    return ProgrammingStateCodec.decode(text, State.class);
   }
 
   static String intent(Intent intent) {
@@ -134,7 +134,7 @@ public final class ProgrammingDecisions {
   }
 
   /**
-   * @param text authoritative JSON snapshot received by the client
+   * @param text encoded authoritative snapshot received by the client
    */
   public static void receive(String text) {
     received = decode(text);

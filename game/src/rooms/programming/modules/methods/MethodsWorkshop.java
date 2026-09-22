@@ -345,6 +345,7 @@ public final class MethodsWorkshop {
   private Definition draft = new Definition("", List.of(), List.of());
   private String editingName = "";
   private long revision;
+  private long nextBlockId;
   private long executionRevision;
   private int editorId = -1, errors, instructions;
   private boolean busy, completed, parameterReuse, returnedValueUsed, worldSolved;
@@ -436,6 +437,7 @@ public final class MethodsWorkshop {
   public boolean loadHelpSolution(int actor) {
     if (editorId != actor || busy || completed) return false;
     MethodsWorkshop example = new MethodsWorkshop();
+    example.nextBlockId = nextBlockId;
     example.apply(actor, new Intent(0, 0, Operation.CLAIM, ""));
     if (!example.buildHelpSolution(actor)) return false;
     main.clear();
@@ -443,6 +445,7 @@ public final class MethodsWorkshop {
     scrap.clear();
     definitions.clear();
     definitions.putAll(example.definitions);
+    nextBlockId = example.nextBlockId;
     draft = new Definition("", List.of(), List.of());
     editingName = "";
     invalidateResult();
@@ -652,7 +655,7 @@ public final class MethodsWorkshop {
                       .map(
                           b ->
                               new Block(
-                                  java.util.UUID.randomUUID().toString(),
+                                  "n" + nextBlockId++,
                                   b.action(),
                                   b.operand(),
                                   b.target(),
@@ -737,7 +740,7 @@ public final class MethodsWorkshop {
                 return rejectEdit("Die Arbeitsfläche enthält höchstens 256 Blöcke.");
               block =
                   new Block(
-                      java.util.UUID.randomUUID().toString(),
+                      "n" + nextBlockId++,
                       block.action(),
                       block.operand(),
                       block.target(),

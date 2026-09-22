@@ -123,14 +123,14 @@ public final class ProgrammingMethods {
    * Encodes a snapshot for dialogs and world metadata.
    *
    * @param state workshop snapshot to send
-   * @return JSON representation
+   * @return compact state representation
    */
   public static String encode(MethodsWorkshop.State state) {
-    return JSON.writeValueAsString(state);
+    return ProgrammingStateCodec.encode(state);
   }
 
   static MethodsWorkshop.State decode(String value) {
-    return JSON.readValue(value, MethodsWorkshop.State.class);
+    return ProgrammingStateCodec.decode(value, MethodsWorkshop.State.class);
   }
 
   static String encodeIntent(MethodsWorkshop.Intent intent) {

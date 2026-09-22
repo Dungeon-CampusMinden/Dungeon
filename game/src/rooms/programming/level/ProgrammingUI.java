@@ -222,7 +222,7 @@ final class ProgrammingUI {
   static Table header(String title, Table actions, Runnable close) {
     Label heading = label(title, 27, TEXT);
     TextButton leave = button("Zurück zum Raum", false, close);
-    leave.setUserObject(Cursors.CROSS);
+    leave.setUserObject(Cursors.INTERACT);
     return new Table() {
       private boolean compact;
 

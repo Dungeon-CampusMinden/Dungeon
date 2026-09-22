@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.tracking.AttemptDetails;
 import engine.tracking.Tracking;
-import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.util.ArrayList;

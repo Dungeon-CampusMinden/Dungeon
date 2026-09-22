@@ -72,9 +72,15 @@ final class ProgrammingBindingBook extends Group {
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
-            DialogContext.builder().type(Type.BINDING_BOOK).build(), false, true, false, who.id());
+            DialogContext.builder()
+                .type(Type.BINDING_BOOK)
+                .put(feature.hud.dialogs.DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
+                .build(),
+            false,
+            true,
+            false,
+            who.id());
     ui.registerCallback("close", ignored -> UIUtils.closeDialog(ui));
-    ui.registerCallback("quest-log", ignored -> feature.questlog.QuestLogUI.requestQuestLog(who));
   }
 
   private ProgrammingBindingBook(String dialogId) {
@@ -120,17 +126,6 @@ final class ProgrammingBindingBook extends Group {
     next = ProgrammingUI.button("Weiter", true, () -> turn(1));
     var navigation = new com.badlogic.gdx.scenes.scene2d.ui.Table();
     navigation.add(previous).width(125).minHeight(44);
-    navigation
-        .add(
-            ProgrammingUI.button(
-                "Questlog",
-                false,
-                () ->
-                    DialogCallbackResolver.createButtonCallback(dialogId, "quest-log")
-                        .accept(null)))
-        .width(140)
-        .minHeight(44)
-        .padLeft(12);
     pageCount.setAlignment(Align.center);
     navigation.add(pageCount).growX();
     navigation.add(next).width(150).minHeight(44);
