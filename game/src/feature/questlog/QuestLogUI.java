@@ -35,6 +35,7 @@ import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.hud.elements.RichLabel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -115,10 +116,10 @@ public final class QuestLogUI {
   private QuestLogUI() {}
 
   /**
-   * Requests that the quest log is shown for the given player.
+   * Toggles the quest log for the given player.
    *
    * <p>On a network client this sends {@link #COMMAND_SHOW_QUESTLOG} to the server. In local or
-   * server-side contexts this opens the placeholder quest log dialog directly for the given player.
+   * server-side contexts this closes an existing quest log or opens one for the given player.
    *
    * @param player player entity requesting the quest log
    */
@@ -126,8 +127,24 @@ public final class QuestLogUI {
     if (NetworkUtils.isNetworkClient()) {
       Game.network().sendInput(InputMessage.custom(COMMAND_SHOW_QUESTLOG));
     } else {
-      showQuestLogForPlayers(player.id());
+      List<UIComponent> openDialogs = openQuestLogs(player.id());
+      if (openDialogs.isEmpty()) {
+        showQuestLogForPlayers(player.id());
+      } else {
+        openDialogs.forEach(UIUtils::closeDialog);
+      }
     }
+  }
+
+  private static List<UIComponent> openQuestLogs(int playerId) {
+    return Game.entities()
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> DIALOG_TYPE.type().equals(ui.dialogContext().dialogType().type()))
+        .filter(
+            ui ->
+                ui.targetEntityIds().length == 0
+                    || Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == playerId))
+        .toList();
   }
 
   /**
@@ -198,6 +215,9 @@ public final class QuestLogUI {
 
     Entity viewer =
         dialogTargetIds.length == 1 ? Game.findEntityById(dialogTargetIds[0]).orElse(null) : null;
+    for (int targetEntityId : dialogTargetIds) {
+      openQuestLogs(targetEntityId).forEach(UIUtils::closeDialog);
+    }
     UIComponent ui =
         DialogFactory.show(createDialogContext(questLog, selectedTab, viewer), dialogTargetIds);
 
