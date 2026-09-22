@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.Map;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
+import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 
 /** Writes the small, checkpoint-based save file for System Recovery. */
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 1;
+  public static final int FORMAT_VERSION = 2;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -59,7 +61,8 @@ public final class SystemRecoverySave {
                     .forEach(
                         (tab, entries) ->
                             entries.forEach(entry -> questLog.add(QuestLogEntryData.from(tab, entry)))));
-    return new SaveData(checkpoint.hintKey(), inputs, questLog);
+    return new SaveData(
+        checkpoint.hintKey(), inputs, questLog, SystemRecoveryAchievements.snapshot());
   }
 
   /**
@@ -122,7 +125,27 @@ public final class SystemRecoverySave {
         data.questLog().stream()
             .map(QuestLogEntryData::toMap)
             .toList());
+    if (data.achievementProgress() != null) {
+      root.put("achievementProgress", achievementProgressMap(data.achievementProgress()));
+    }
     return JsonHandler.writeJson(root, true);
+  }
+
+  private static Map<String, Object> achievementProgressMap(
+      SystemRecoveryAchievementTracker.Snapshot progress) {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("debugRun", progress.debugRun());
+    map.put("firstTerminalAttemptSeen", progress.firstTerminalAttemptSeen());
+    map.put("wrongTerminalAttempts", progress.wrongTerminalAttempts());
+    map.put("acceptedHints", progress.acceptedHints());
+    map.put("hintedPuzzles", progress.hintedPuzzles());
+    map.put("solvedPuzzles", progress.solvedPuzzles());
+    map.put("failedPuzzles", progress.failedPuzzles());
+    map.put("failedTerminalPuzzles", progress.failedTerminalPuzzles());
+    map.put("failedUploads", progress.failedUploads());
+    map.put("acceptedUploads", progress.acceptedUploads());
+    map.put("emittedAchievements", progress.emittedAchievements());
+    return map;
   }
 
   /**
@@ -130,18 +153,35 @@ public final class SystemRecoverySave {
    *
    * @param checkpointKey stable first-step key of the active riddle
    * @param acceptedTerminalInputs accepted terminal sources in order
-   * @param questLog shared quest-log entries
+   * @param questLog shared quest-log entries, including player-created notes
+   * @param achievementProgress run-local achievement conditions; nullable for legacy saves
    */
   public record SaveData(
       String checkpointKey,
       List<AcceptedInput> acceptedTerminalInputs,
-      List<QuestLogEntryData> questLog) {
+      List<QuestLogEntryData> questLog,
+      SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
     /**
      * Validates and defensively copies the save collections.
      *
      * @param checkpointKey stable first-step key of the active riddle
      * @param acceptedTerminalInputs accepted terminal sources in order
-     * @param questLog shared quest-log entries
+     * @param questLog shared quest-log entries, including player-created notes
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog) {
+      this(checkpointKey, acceptedTerminalInputs, questLog, null);
+    }
+
+    /**
+     * Validates and defensively copies the save collections.
+     *
+     * @param checkpointKey stable first-step key of the active main riddle
+     * @param acceptedTerminalInputs accepted terminal sources in order
+     * @param questLog shared quest-log entries, including player-created notes
+     * @param achievementProgress run-local achievement conditions; nullable for legacy saves
      */
     public SaveData {
       if (checkpointKey == null || checkpointKey.isBlank()) {

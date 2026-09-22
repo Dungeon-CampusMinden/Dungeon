@@ -14,6 +14,8 @@ import java.util.Optional;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
+import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 
 /** Reads and applies a System Recovery checkpoint without replaying gameplay side effects. */
 public final class SystemRecoveryLoad {
@@ -78,6 +80,9 @@ public final class SystemRecoveryLoad {
       TerminalInterpreter.instance().restoreAcceptedInputs(inputs);
       if (!SystemRecoveryProgressNet.restoreActiveStep(checkpoint)) return Optional.empty();
       restoreQuestLog(data.questLog());
+      if (data.achievementProgress() != null) {
+        SystemRecoveryAchievements.restore(data.achievementProgress());
+      }
       return Optional.of(checkpoint);
     } catch (RuntimeException ignored) {
       return Optional.empty();
@@ -106,7 +111,7 @@ public final class SystemRecoveryLoad {
   private static Optional<SystemRecoverySave.SaveData> parse(String json) {
     Map<String, Object> root = JsonHandler.readJson(json);
     int version = integer(root.get("formatVersion"));
-    if (version != SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
+    if (version != 1 && version != SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
     String checkpoint = string(root.get("checkpoint"));
     if (checkpoint == null || findCheckpoint(checkpoint).isEmpty()) return Optional.empty();
 
@@ -131,7 +136,34 @@ public final class SystemRecoveryLoad {
     if (!hasExpectedHistory(findCheckpoint(checkpoint).orElseThrow(), inputs)) {
       return Optional.empty();
     }
-    return Optional.of(new SystemRecoverySave.SaveData(checkpoint, inputs, questLog));
+    SystemRecoveryAchievementTracker.Snapshot achievementProgress =
+        version >= 2 && root.containsKey("achievementProgress")
+            ? parseAchievementProgress(root.get("achievementProgress"))
+            : null;
+    return Optional.of(
+        new SystemRecoverySave.SaveData(checkpoint, inputs, questLog, achievementProgress));
+  }
+
+  private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
+    if (!(value instanceof Map<?, ?> map)) {
+      throw new IllegalArgumentException("Expected achievement progress object");
+    }
+    return new SystemRecoveryAchievementTracker.Snapshot(
+        booleanValue(map.get("debugRun")),
+        booleanValue(map.get("firstTerminalAttemptSeen")),
+        integer(map.get("wrongTerminalAttempts")),
+        integer(map.get("acceptedHints")),
+        strings(map.get("hintedPuzzles")),
+        strings(map.get("solvedPuzzles")),
+        strings(map.get("failedPuzzles")),
+        strings(map.get("failedTerminalPuzzles")),
+        strings(map.get("failedUploads")),
+        strings(map.get("acceptedUploads")),
+        strings(map.get("emittedAchievements")));
+  }
+
+  private static List<String> strings(Object value) {
+    return list(value).stream().map(SystemRecoveryLoad::stringRequired).toList();
   }
 
   private static boolean hasExpectedHistory(

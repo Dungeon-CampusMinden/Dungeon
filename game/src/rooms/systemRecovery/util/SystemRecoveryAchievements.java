@@ -60,6 +60,25 @@ public final class SystemRecoveryAchievements {
   }
 
   /**
+   * Captures the run-local achievement conditions for a System Recovery checkpoint.
+   *
+   * @return immutable achievement progress
+   */
+  public static synchronized SystemRecoveryAchievementTracker.Snapshot snapshot() {
+    return tracker.snapshot();
+  }
+
+  /**
+   * Restores run-local achievement conditions without triggering new achievements.
+   *
+   * @param snapshot saved achievement progress
+   */
+  public static synchronized void restore(
+      SystemRecoveryAchievementTracker.Snapshot snapshot) {
+    tracker.restore(snapshot);
+  }
+
+  /**
    * Records an accepted or rejected terminal attempt.
    *
    * @param attempt submitted terminal source and state

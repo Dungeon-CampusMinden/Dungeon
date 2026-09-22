@@ -18,6 +18,8 @@ import org.junit.jupiter.api.io.TempDir;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
+import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
 /** Tests the checkpoint file contract independently from the rendered level. */
@@ -59,7 +61,21 @@ class SystemRecoverySaveTest {
             inputs,
             List.of(
                 new SystemRecoverySave.QuestLogEntryData(
-                    "riddle1.tab", "systemRecovery.story.energy", 12, false, "System", false)));
+                    "riddle1.tab", "systemRecovery.story.energy", 12, false, "System", false),
+                new SystemRecoverySave.QuestLogEntryData(
+                    "Notes", "remember the GPU", 42, true, "Ada", true)),
+            new SystemRecoveryAchievementTracker.Snapshot(
+                false,
+                true,
+                2,
+                1,
+                List.of("energy-array"),
+                List.of("energy-array"),
+                List.of("module-storage"),
+                List.of("module-storage"),
+                List.of("sort"),
+                List.of("search"),
+                List.of(SystemRecoveryAchievements.INTENTIONAL_FAILURE)));
     Path savePath = temporaryDirectory.resolve("system-recovery-save.json");
 
     SystemRecoverySave.write(savePath, expected);
@@ -99,6 +115,31 @@ class SystemRecoverySaveTest {
     assertEquals(SystemRecoveryLearningStep.MODULE_ARRAY, SystemRecoveryProgressNet.activeStep().orElseThrow());
     assertEquals(2, TerminalInterpreter.instance().currentState());
     assertEquals(2, TerminalInterpreter.instance().acceptedInputs().size());
+  }
+
+  @Test
+  void restoresRunLocalAchievementProgressWithoutEmittingUnlocks() {
+    SystemRecoveryAchievementTracker.Snapshot expected =
+        new SystemRecoveryAchievementTracker.Snapshot(
+            true,
+            true,
+            5,
+            3,
+            List.of("energy-array"),
+            List.of("energy-array"),
+            List.of("energy-array"),
+            List.of("energy-array"),
+            List.of("search"),
+            List.of("sort"),
+            List.of(SystemRecoveryAchievements.INTENTIONAL_FAILURE));
+    SystemRecoveryAchievements.resetRun(false);
+    SystemRecoverySave.SaveData save =
+        new SystemRecoverySave.SaveData(
+            SystemRecoveryLearningStep.MODULE_ARRAY.hintKey(), List.of(), List.of(), expected);
+
+    SystemRecoveryAchievements.restore(save.achievementProgress());
+
+    assertEquals(expected, SystemRecoveryAchievements.snapshot());
   }
 
   @Test
