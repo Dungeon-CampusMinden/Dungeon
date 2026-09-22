@@ -11,6 +11,20 @@ final class ProgrammingStory {
     return List.of(Tuple.of("Aethelgard\nDie Schmiede des vermissten Meisters Valerius", 30));
   }
 
+  static List<Tuple<String, Integer>> ending() {
+    return List.of(
+        Tuple.of(
+            "Die Kristalle verglühen im Herzfeuer.\n"
+                + "Für einen Moment leuchten Nox' Runen im selben Takt wie die Flammen.",
+            30),
+        Tuple.of(
+            "Du hast es geschafft!\n\n"
+                + "Du hast Nox zum Leben erweckt und bis zum Herzfeuer geführt.\n"
+                + "Variablen, Schleifen, Methoden und Bedingungen waren deine Werkzeuge.\n\n"
+                + "Programmieren 1 ist abgeschlossen.\nKlicke, um deine Reise zu beenden.",
+            30));
+  }
+
   static String letter() {
     return "Falls jemand nach mir sucht: Ich bin zum Herzfeuer gegangen.\n\n"
         + "Der zweite Ausgang klemmt. Schutt blockiert die Torwinde im Keller, "

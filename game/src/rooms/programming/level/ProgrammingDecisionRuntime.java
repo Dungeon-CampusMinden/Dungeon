@@ -17,6 +17,7 @@ final class ProgrammingDecisionRuntime {
   private final DungeonLevel level;
   private final Entity golem;
   private final ProgrammingGolemRuntime motion;
+  final ProgrammingEnding ending;
   private final ArrayDeque<Point> route = new ArrayDeque<>();
   private Values values = new Values(45, 70, 22);
   private int revision, junction, failures;
@@ -30,7 +31,7 @@ final class ProgrammingDecisionRuntime {
     this.golem = golem;
     this.motion = motion;
     ProgrammingDecisions.reset();
-    ProgrammingDecisionWorld.spawn(level);
+    ending = new ProgrammingEnding(ProgrammingDecisionWorld.spawn(level), () -> completed);
     publish();
   }
 
@@ -173,7 +174,9 @@ final class ProgrammingDecisionRuntime {
             if (junction == 6) {
               completed = true;
               motion.completeDecisions();
-              feedback = "Das Herzfeuer brennt. Jede Entscheidung hat einen Zweig ausgeführt.";
+              feedback =
+                  "Das Herzfeuer ist erreicht. Steige von Nox ab und lies die Schriftrolle vor dem Feuer, "
+                      + "um die Opfergabe darzubringen und den Raum abzuschließen.";
               ProgrammingProgress.solved("decisions", feedback);
             }
           } else {

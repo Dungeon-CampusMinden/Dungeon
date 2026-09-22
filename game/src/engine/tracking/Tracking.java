@@ -293,8 +293,8 @@ public final class Tracking {
     }
   }
 
-  /** Internal lifecycle hook that ends the session normally. Repeated calls do nothing. */
-  static void completed() {
+  /** Ends the session successfully before an outro or shutdown. Repeated calls do nothing. */
+  public static void completed() {
     finish(TrackingSessionStatus.COMPLETED, Optional.empty());
   }
 

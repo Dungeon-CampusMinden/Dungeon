@@ -73,6 +73,18 @@ Bei langem Code oder kleinen Fenstern lässt sich der Bereich horizontal und ver
 scrollen. Am Herzfeuer bleibt die letzte Rune als Java-Code einschließlich `&&` und `||`
 sichtbar.
 
+## Abschluss am Herzfeuer
+
+Nach der sechsten Rune steigt der Spieler von Nox ab und interagiert mit der Schriftrolle
+vor dem Herzfeuer. Der Button „Opfergabe darbringen“ verbraucht die beiden dekorativen
+Kristalle und entzündet das Herzfeuer. Das Schließen des Dialogs bricht die Auswahl ab.
+
+`ProgrammingEnding` nimmt die Opfergabe nur nach Abschluss des Labyrinths und nur einmal
+auf dem Server an. Dabei beendet `Tracking.completed()` die Sitzung erfolgreich, bevor
+der Abspann beginnt. Alle verbundenen Spieler sehen den Erfolgstext. Wer ihn bestätigt,
+wartet auf die übrigen Spieler; getrennte Spieler halten den Abschluss nicht auf.
+Anschließend beendet `Game.complete()` das Spiel über den regulären Shutdown.
+
 ## Zuständigkeit
 
 `DecisionMaze` enthält Programme, Auswertung und feste Zustandsänderungen.

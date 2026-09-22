@@ -401,6 +401,11 @@ final class ProgrammingGolemRuntime {
     controller.completeDecisions();
   }
 
+  boolean tickEnding() {
+    decisions.ending.tick();
+    return decisions.ending.active();
+  }
+
   boolean methodsActive() {
     return controller.phase() == ProgrammingPhase.METHODS;
   }
