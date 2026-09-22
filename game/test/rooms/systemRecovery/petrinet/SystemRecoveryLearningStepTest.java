@@ -56,4 +56,13 @@ class SystemRecoveryLearningStepTest {
     assertFalse(SystemRecoveryLearningStep.COMPLETE.isLearningStep());
     assertTrue(SystemRecoveryLearningStep.COMPLETE.terminalStep().isEmpty());
   }
+
+  @Test
+  void storesTerminalHistoryBoundaryOnlyOnMainPuzzleCheckpoints() {
+    assertEquals(0, SystemRecoveryLearningStep.ENERGY_ARRAY.acceptedTerminalInputCount());
+    assertEquals(2, SystemRecoveryLearningStep.MODULE_ARRAY.acceptedTerminalInputCount());
+    assertEquals(12, SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS.acceptedTerminalInputCount());
+    assertEquals(-1, SystemRecoveryLearningStep.ENERGY_VALUES.acceptedTerminalInputCount());
+    assertEquals(-1, SystemRecoveryLearningStep.COMPLETE.acceptedTerminalInputCount());
+  }
 }

@@ -168,25 +168,13 @@ public final class SystemRecoveryLoad {
 
   private static boolean hasExpectedHistory(
       SystemRecoveryLearningStep checkpoint, List<SystemRecoverySave.AcceptedInput> inputs) {
-    if (inputs == null || inputs.size() != expectedTerminalState(checkpoint)) return false;
+    int expectedInputCount = checkpoint.acceptedTerminalInputCount();
+    if (expectedInputCount < 0 || inputs == null || inputs.size() != expectedInputCount) return false;
     for (int index = 0; index < inputs.size(); index++) {
       SystemRecoverySave.AcceptedInput input = inputs.get(index);
       if (input == null || input.state() != index || input.source() == null) return false;
     }
     return true;
-  }
-
-  private static int expectedTerminalState(SystemRecoveryLearningStep checkpoint) {
-    return switch (checkpoint) {
-      case ENERGY_ARRAY -> 0;
-      case MODULE_ARRAY -> 2;
-      case INVENTORY_COUNT -> 6;
-      case TRANSPORT_ARRAY -> 7;
-      case MANUAL_SORTING, BUBBLE_SORT_CONDITION, ARCHIVE_ACCESS -> 9;
-      case STORAGE_ARRAY -> 10;
-      case SEARCH_PROGRAM, SYSTEM_CORE_ACCESS -> 12;
-      default -> throw new IllegalArgumentException("Not a main-riddle checkpoint: " + checkpoint);
-    };
   }
 
   private static Optional<SystemRecoveryLearningStep> findCheckpoint(String key) {

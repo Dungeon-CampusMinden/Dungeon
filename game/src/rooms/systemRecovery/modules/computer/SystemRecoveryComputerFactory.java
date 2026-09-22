@@ -16,6 +16,8 @@ import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -240,225 +242,41 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.SORT_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
-          if (chipSession.resolved()) {
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SortProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.write-unavailable",
-                false);
-            return;
-          }
-          if (programKind != ComputerProgramKind.SORT) {
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SortProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.write-unavailable",
-                false);
-            return;
-          }
-          if (!ComputerProgramRules.canSave(
-              programKind, SystemRecoveryProgressNet.activeStep().orElse(null))) {
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SortProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.write-unavailable",
-                false);
-            return;
-          }
-          if (!isBubbleSortCondition(source)) {
-            SystemRecoveryAchievements.chipUploadAttempt("sort", false);
-            SystemRecoveryPuzzleEvents.attempt(
-                SystemRecoveryPuzzle.BUBBLE_SORT,
-                "sort-program",
-                "source",
-                source,
-                false,
-                targetEntityId);
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SortProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.sort-write-error",
-                false);
-            return;
-          }
-          chipSession.resolve(
-              () -> {
-                SortProgramStickItem programmedStick = new SortProgramStickItem(true);
-                if (!addToInventory(targetEntityId, programmedStick)) {
-                  SystemRecoveryPuzzleEvents.attempt(
-                      SystemRecoveryPuzzle.BUBBLE_SORT,
-                      "sort-program",
-                      "source",
-                      source,
-                      false,
-                      targetEntityId);
-                  SystemRecoveryComputerFeedback.send(
-                      ui.dialogContext().dialogId(),
-                      SortProgramTab.KEY,
-                      source,
-                      targetEntityId,
-                      "computer.write-unavailable",
-                      false);
-                  return false;
-                }
-                if (!SystemRecoveryProgressNet.complete(
-                    SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION)) {
-                  removeFromInventory(targetEntityId, programmedStick);
-                  SystemRecoveryPuzzleEvents.attempt(
-                      SystemRecoveryPuzzle.BUBBLE_SORT,
-                      "sort-program",
-                      "source",
-                      source,
-                      false,
-                      targetEntityId);
-                  SystemRecoveryComputerFeedback.send(
-                      ui.dialogContext().dialogId(),
-                      SortProgramTab.KEY,
-                      source,
-                      targetEntityId,
-                      "computer.write-unavailable",
-                      false);
-                  return false;
-                }
-                SystemRecoveryPuzzleEvents.attempt(
-                    SystemRecoveryPuzzle.BUBBLE_SORT,
-                    "sort-program",
-                    "source",
-                    source,
-                    true,
-                    targetEntityId);
-                SystemRecoveryAchievements.chipUploadAttempt("sort", true);
-                SystemRecoveryLevel.recordAcceptedSolution(
-                    SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION, source);
-                SystemRecoveryComputerFeedback.send(
-                    ui.dialogContext().dialogId(),
-                    SortProgramTab.KEY,
-                    source,
-                    targetEntityId,
-                    "computer.write-success",
-                    true);
-                return true;
-              });
+          handleProgramUpload(
+              ui,
+              targetEntityId,
+              chipSession,
+              programKind,
+              ComputerProgramKind.SORT,
+              SortProgramTab.KEY,
+              source,
+              SystemRecoveryPuzzle.BUBBLE_SORT,
+              "sort-program",
+              "sort",
+              "computer.sort-write-error",
+              SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION,
+              () -> isBubbleSortCondition(source),
+              () -> new SortProgramStickItem(true));
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.SEARCH_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
-          if (chipSession.resolved()) {
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SearchProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.write-unavailable",
-                false);
-            return;
-          }
-          if (programKind != ComputerProgramKind.SEARCH) {
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SearchProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.write-unavailable",
-                false);
-            return;
-          }
-          if (!ComputerProgramRules.canSave(
-              programKind, SystemRecoveryProgressNet.activeStep().orElse(null))) {
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SearchProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.write-unavailable",
-                false);
-            return;
-          }
-          if (!TerminalInterpreterSetup.matchesSearchRobotProgram(source)) {
-            SystemRecoveryAchievements.chipUploadAttempt("search", false);
-            SystemRecoveryPuzzleEvents.attempt(
-                SystemRecoveryPuzzle.SEARCH_ROBOT,
-                "search-program",
-                "source",
-                source,
-                false,
-                targetEntityId);
-            SystemRecoveryComputerFeedback.send(
-                ui.dialogContext().dialogId(),
-                SearchProgramTab.KEY,
-                source,
-                targetEntityId,
-                "computer.search-write-error",
-                false);
-            return;
-          }
-          chipSession.resolve(
-              () -> {
-                SearchProgramChipItem programmedChip = new SearchProgramChipItem(true);
-                if (!addToInventory(targetEntityId, programmedChip)) {
-                  SystemRecoveryPuzzleEvents.attempt(
-                      SystemRecoveryPuzzle.SEARCH_ROBOT,
-                      "search-program",
-                      "source",
-                      source,
-                      false,
-                      targetEntityId);
-                  SystemRecoveryComputerFeedback.send(
-                      ui.dialogContext().dialogId(),
-                      SearchProgramTab.KEY,
-                      source,
-                      targetEntityId,
-                      "computer.write-unavailable",
-                      false);
-                  return false;
-                }
-                if (!SystemRecoveryProgressNet.complete(
-                    SystemRecoveryLearningStep.SEARCH_PROGRAM)) {
-                  removeFromInventory(targetEntityId, programmedChip);
-                  SystemRecoveryPuzzleEvents.attempt(
-                      SystemRecoveryPuzzle.SEARCH_ROBOT,
-                      "search-program",
-                      "source",
-                      source,
-                      false,
-                      targetEntityId);
-                  SystemRecoveryComputerFeedback.send(
-                      ui.dialogContext().dialogId(),
-                      SearchProgramTab.KEY,
-                      source,
-                      targetEntityId,
-                      "computer.write-unavailable",
-                      false);
-                  return false;
-                }
-                SystemRecoveryPuzzleEvents.attempt(
-                    SystemRecoveryPuzzle.SEARCH_ROBOT,
-                    "search-program",
-                    "source",
-                    source,
-                    true,
-                    targetEntityId);
-                SystemRecoveryAchievements.chipUploadAttempt("search", true);
-                SystemRecoveryLevel.recordAcceptedSolution(
-                    SystemRecoveryLearningStep.SEARCH_PROGRAM, source);
-                SystemRecoveryComputerFeedback.send(
-                    ui.dialogContext().dialogId(),
-                    SearchProgramTab.KEY,
-                    source,
-                    targetEntityId,
-                    "computer.write-success",
-                    true);
-                return true;
-              });
+          handleProgramUpload(
+              ui,
+              targetEntityId,
+              chipSession,
+              programKind,
+              ComputerProgramKind.SEARCH,
+              SearchProgramTab.KEY,
+              source,
+              SystemRecoveryPuzzle.SEARCH_ROBOT,
+              "search-program",
+              "search",
+              "computer.search-write-error",
+              SystemRecoveryLearningStep.SEARCH_PROGRAM,
+              () -> TerminalInterpreterSetup.matchesSearchRobotProgram(source),
+              () -> new SearchProgramChipItem(true));
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.SYSTEM_CORE_SCRIPT_RUN,
@@ -492,6 +310,103 @@ public final class SystemRecoveryComputerFactory {
             SystemRecoveryLevel.showPetriNetDebug(targetEntityId);
           }
         });
+  }
+
+  /**
+   * Executes the authoritative transaction shared by the two programmable USB riddles.
+   *
+   * <p>The inventory mutation happens before the Petri transition so a failed transition can be
+   * rolled back. The mounted session is resolved only after the transaction succeeds, preventing
+   * duplicate programmed items when a client repeats the callback.
+   *
+   * @param ui computer dialog receiving server feedback
+   * @param targetEntityId player entity receiving the programmed item
+   * @param chipSession mounted-chip session guarding duplicate callbacks
+   * @param mountedKind program currently mounted in the computer
+   * @param expectedKind program required by this upload callback
+   * @param tabKey computer tab receiving feedback
+   * @param source submitted program source
+   * @param puzzle tracking puzzle owning the upload
+   * @param trackingStep tracking step for the upload
+   * @param achievementKind achievement category for the upload
+   * @param invalidSourceKey translation key for a rejected program
+   * @param completedStep Petri learning step completed by a valid upload
+   * @param sourceMatches validator for the submitted source
+   * @param programmedItemFactory creates the programmed replacement item
+   */
+  private static void handleProgramUpload(
+      UIComponent ui,
+      int targetEntityId,
+      ComputerChipSession chipSession,
+      ComputerProgramKind mountedKind,
+      ComputerProgramKind expectedKind,
+      String tabKey,
+      String source,
+      SystemRecoveryPuzzle puzzle,
+      String trackingStep,
+      String achievementKind,
+      String invalidSourceKey,
+      SystemRecoveryLearningStep completedStep,
+      BooleanSupplier sourceMatches,
+      Supplier<Item> programmedItemFactory) {
+    String dialogId = ui.dialogContext().dialogId();
+    if (chipSession.resolved()
+        || mountedKind != expectedKind
+        || !ComputerProgramRules.canSave(
+            mountedKind, SystemRecoveryProgressNet.activeStep().orElse(null))) {
+      SystemRecoveryComputerFeedback.send(
+          dialogId, tabKey, source, targetEntityId, "computer.write-unavailable", false);
+      return;
+    }
+    if (!sourceMatches.getAsBoolean()) {
+      SystemRecoveryAchievements.chipUploadAttempt(achievementKind, false);
+      SystemRecoveryPuzzleEvents.attempt(
+          puzzle, trackingStep, "source", source, false, targetEntityId);
+      SystemRecoveryComputerFeedback.send(
+          dialogId, tabKey, source, targetEntityId, invalidSourceKey, false);
+      return;
+    }
+    chipSession.resolve(
+        () -> {
+          Item programmedItem = programmedItemFactory.get();
+          if (!addToInventory(targetEntityId, programmedItem)) {
+            recordUploadFailure(
+                puzzle, trackingStep, source, targetEntityId, dialogId, tabKey, false);
+            return false;
+          }
+          if (!SystemRecoveryProgressNet.complete(completedStep)) {
+            removeFromInventory(targetEntityId, programmedItem);
+            recordUploadFailure(
+                puzzle, trackingStep, source, targetEntityId, dialogId, tabKey, false);
+            return false;
+          }
+          SystemRecoveryPuzzleEvents.attempt(
+              puzzle, trackingStep, "source", source, true, targetEntityId);
+          SystemRecoveryAchievements.chipUploadAttempt(achievementKind, true);
+          SystemRecoveryLevel.recordAcceptedSolution(completedStep, source);
+          SystemRecoveryComputerFeedback.send(
+              dialogId, tabKey, source, targetEntityId, "computer.write-success", true);
+          return true;
+        });
+  }
+
+  private static void recordUploadFailure(
+      SystemRecoveryPuzzle puzzle,
+      String trackingStep,
+      String source,
+      int targetEntityId,
+      String dialogId,
+      String tabKey,
+      boolean success) {
+    SystemRecoveryPuzzleEvents.attempt(
+        puzzle, trackingStep, "source", source, success, targetEntityId);
+    SystemRecoveryComputerFeedback.send(
+        dialogId,
+        tabKey,
+        source,
+        targetEntityId,
+        "computer.write-unavailable",
+        success);
   }
 
   private static boolean recordChipMount(

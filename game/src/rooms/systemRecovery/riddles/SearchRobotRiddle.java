@@ -39,6 +39,15 @@ import rooms.systemRecovery.util.SystemRecoveryText;
  * the normal entity snapshot plus System Recovery metadata.
  */
 public final class SearchRobotRiddle {
+  /** Mutually exclusive movement phases of one search robot. */
+  private enum Phase {
+    IDLE,
+    SCANNING,
+    WAITING_AT_CELL,
+    DELIVERING,
+    COMPLETED
+  }
+
   private static final long SCAN_INTERVAL_MS = 750L;
   private static final int DELIVERY_SEARCH_RADIUS = 4;
   private static final float WAYPOINT_TOLERANCE = 0.05f;
@@ -58,13 +67,10 @@ public final class SearchRobotRiddle {
   private int pathTargetIndex = -1;
   private Point deliveryDestination;
   private Point itemSpawnPoint;
-  private boolean delivering;
-  private boolean waitingAtCell;
   private long scanResumeAt;
   private Point highlightedCell;
   private int highlightedCellOriginalTint = -1;
-  private boolean running;
-  private boolean completed;
+  private Phase phase = Phase.IDLE;
   private boolean systemCoreScan;
   private boolean systemCoreScanCompleted;
   private boolean systemCoreRobotWasSolid;
@@ -147,14 +153,16 @@ public final class SearchRobotRiddle {
    * @return whether a scan is currently running
    */
   public boolean running() {
-    return running;
+    return phase == Phase.SCANNING
+        || phase == Phase.WAITING_AT_CELL
+        || phase == Phase.DELIVERING;
   }
 
   /**
    * @return whether the search robot has delivered the system-core module
    */
   public boolean completed() {
-    return completed;
+    return phase == Phase.COMPLETED;
   }
 
   /** Restores a finished search before the system-core access step. */
@@ -163,15 +171,14 @@ public final class SearchRobotRiddle {
       Game.remove(searchTarget);
       searchTarget = null;
     }
-    running = false;
-    completed = true;
+    phase = Phase.COMPLETED;
   }
 
   /**
    * @return current scan cell in row-major order, or -1 while idle
    */
   public int currentCellIndex() {
-    return running ? scanIndex : -1;
+    return running() ? scanIndex : -1;
   }
 
   /**
@@ -181,11 +188,11 @@ public final class SearchRobotRiddle {
    * @return active scan cell for synchronized visual feedback
    */
   public Point currentCellPoint() {
-    return running && !delivering ? highlightedCell : null;
+    return running() && phase != Phase.DELIVERING ? highlightedCell : null;
   }
 
   private void onControllerInteract(Entity ignored, Entity player) {
-    if (running || completed) {
+    if (running() || completed()) {
       callbacks.failure("insert", player.id());
       DialogUtils.showTextPopup(
           SystemRecoveryText.key("world.search.controller-running"),
@@ -217,7 +224,7 @@ public final class SearchRobotRiddle {
             callbacks.failure("cancel", player.id());
             return;
           }
-          if (running || completed) {
+          if (running() || completed()) {
             callbacks.failure("insert", player.id());
             return;
           }
@@ -255,14 +262,11 @@ public final class SearchRobotRiddle {
   }
 
   void startScan() {
-    if (running || completed) return;
+    if (running() || completed()) return;
     systemCoreScan = false;
     systemCoreScanCompletion = () -> {};
-    running = true;
-    completed = false;
+    phase = Phase.SCANNING;
     scanIndex = 0;
-    delivering = false;
-    waitingAtCell = false;
     scanResumeAt = 0L;
     currentPath = null;
     pathCursor = 0;
@@ -281,7 +285,7 @@ public final class SearchRobotRiddle {
    * @return whether the scan was started
    */
   public boolean startSystemCoreScan(SearchRobotMatrix coreMatrix, Runnable onComplete) {
-    if (running || systemCoreScanCompleted || coreMatrix == null || robot == null) return false;
+    if (running() || systemCoreScanCompleted || coreMatrix == null || robot == null) return false;
     systemCoreScan = true;
     systemCoreScanCompletion = onComplete == null ? () -> {} : onComplete;
     matrix = coreMatrix;
@@ -299,10 +303,8 @@ public final class SearchRobotRiddle {
               systemCoreRobotWasSolid = collide.isSolid();
               collide.isSolid(false);
             });
-    running = true;
+    phase = Phase.SCANNING;
     scanIndex = 0;
-    delivering = false;
-    waitingAtCell = false;
     scanResumeAt = 0L;
     currentPath = null;
     pathCursor = 0;
@@ -317,17 +319,17 @@ public final class SearchRobotRiddle {
    * @param entity robot entity being moved
    */
   private void followCurrentPath(Entity entity) {
-    if (!running) return;
+    if (!running()) return;
 
-    if (waitingAtCell) {
+    if (phase == Phase.WAITING_AT_CELL) {
       if (clock.getAsLong() < scanResumeAt) return;
-      waitingAtCell = false;
+      phase = Phase.SCANNING;
       clearHighlightedCell();
       scanIndex++;
       currentPath = null;
     }
 
-    if (!delivering && scanIndex >= matrix.size()) {
+    if (phase != Phase.DELIVERING && scanIndex >= matrix.size()) {
       if (systemCoreScan) {
         completeSystemCoreScan();
       } else {
@@ -336,6 +338,7 @@ public final class SearchRobotRiddle {
       return;
     }
 
+    boolean delivering = phase == Phase.DELIVERING;
     Point target = delivering ? deliveryDestination : matrix.pointAt(scanIndex);
     int targetIndex = delivering ? -1 : scanIndex;
     PositionComponent position = entity.fetch(PositionComponent.class).orElse(null);
@@ -392,18 +395,17 @@ public final class SearchRobotRiddle {
 
   /** Pauses briefly after the robot enters a cell, then advances the scan program. */
   private void waitAtScannedCell() {
-    if (waitingAtCell) return;
-    waitingAtCell = true;
+    if (phase == Phase.WAITING_AT_CELL) return;
+    phase = Phase.WAITING_AT_CELL;
     scanResumeAt = clock.getAsLong() + SCAN_INTERVAL_MS;
     Game.audio().playGlobal(SoundSpec.builder("retro_beep_01"));
   }
 
   /** Switches the same AI movement from matrix scanning to the delivery route. */
   private void beginDelivery() {
-    if (delivering) return;
+    if (phase == Phase.DELIVERING) return;
     collectSearchTarget();
-    delivering = true;
-    waitingAtCell = false;
+    phase = Phase.DELIVERING;
     scanIndex = -1;
     currentPath = null;
     pathCursor = 0;
@@ -457,9 +459,8 @@ public final class SearchRobotRiddle {
 
   /** Creates the access module only after the robot has physically reached its destination. */
   private void completeDelivery() {
-    if (completed) return;
-    running = false;
-    delivering = false;
+    if (completed()) return;
+    phase = Phase.IDLE;
     currentPath = null;
     clearHighlightedCell();
     Point destination = itemSpawnPoint == null ? deliveryDestination : itemSpawnPoint;
@@ -470,8 +471,8 @@ public final class SearchRobotRiddle {
     }
     // Do not inspect the localized entity name here. It is a translation key on the server and
     // therefore cannot be used as a stable gameplay identifier.
-    completed = deliveredAccessChip != null;
-    if (completed) {
+    phase = deliveredAccessChip != null ? Phase.COMPLETED : Phase.IDLE;
+    if (completed()) {
       SystemRecoveryLevel.announceStoryToAllPlayers(
           SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE);
       callbacks.solved();
@@ -481,12 +482,10 @@ public final class SearchRobotRiddle {
 
   /** Completes the final matrix scan without consuming or spawning another item. */
   private void completeSystemCoreScan() {
-    if (!running || !systemCoreScan) return;
-    running = false;
+    if (!running() || !systemCoreScan) return;
+    phase = Phase.IDLE;
     systemCoreScan = false;
     systemCoreScanCompleted = true;
-    delivering = false;
-    waitingAtCell = false;
     scanIndex = -1;
     currentPath = null;
     pathCursor = 0;
@@ -509,7 +508,11 @@ public final class SearchRobotRiddle {
 
   private void highlightCurrentCell() {
     Point cell =
-        running && !delivering && matrix != null && scanIndex >= 0 && scanIndex < matrix.size()
+        running()
+            && phase != Phase.DELIVERING
+            && matrix != null
+            && scanIndex >= 0
+            && scanIndex < matrix.size()
             ? matrix.pointAt(scanIndex)
             : null;
     if (cell == null) {

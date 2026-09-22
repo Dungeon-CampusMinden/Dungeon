@@ -9,29 +9,21 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.sound.Sounds;
-import engine.systems.DrawSystem;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
-import engine.utils.components.draw.DepthLayer;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
-import feature.emote.Emote;
-import feature.emote.EmoteFactory;
 import feature.entities.MiscFactory;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hints.HintSystem;
 import feature.hud.dialogs.DialogFactory;
-import feature.interaction.Interaction;
-import feature.interaction.InteractionComponent;
+import feature.hints.HintSystem;
 import feature.inventory.items.ItemKey;
 import feature.systems.LevelEditorSystem;
-import feature.utils.EntityUtils;
 import feature.components.ItemComponent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,7 +33,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
-import rooms.lasthour.util.LastHourSounds;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.entities.SystemRecoveryRoomFactory;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
@@ -61,7 +52,7 @@ import rooms.systemRecovery.riddles.SystemCoreRiddle;
 import rooms.systemRecovery.riddles.TransportStorageRiddle;
 import rooms.systemRecovery.riddles.TwoDimensionalStorageRiddle;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
-import rooms.systemRecovery.story.SystemRecoveryHintPhone;
+import rooms.systemRecovery.story.SystemRecoveryPhoneController;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
@@ -77,8 +68,6 @@ import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 import rooms.systemRecovery.save.SystemRecoveryLoad;
 import rooms.systemRecovery.save.SystemRecoverySave;
-import rooms.systemRecovery.items.SearchProgramChipItem;
-import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 
 /**
  * Builds System Recovery in room order and owns one controller per riddle.
@@ -137,6 +126,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private final SystemCoreRiddle systemCore = new SystemCoreRiddle(this, systemCoreSearchRobot);
   private final List<Entity> doorLabels = new ArrayList<>();
   private final SystemRecoveryStoryDialogs storyDialogs = new SystemRecoveryStoryDialogs();
+  private final SystemRecoveryPhoneController phoneController =
+      new SystemRecoveryPhoneController(
+          this::openDataStorageAfterEchoCall, this::openElevatorAfterFinalCall);
   private final Set<Integer> introShownPlayers = new HashSet<>();
   private final Set<Integer> controlsShownPlayers = new HashSet<>();
   private final Set<String> triggeredDialogPoints = new HashSet<>();
@@ -155,15 +147,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
           systemCore,
           storyDialogs,
           this::completeSystemCoreRiddleInternal);
-  private Entity phone;
-  private Entity ringingPhoneEmote;
-  private boolean echoCallTriggered;
-  private boolean dataStorageProblemCallTriggered;
-  private boolean systemCoreWarningCallTriggered;
-  private boolean finalEchoCallTriggered;
-  private boolean finalEchoCallPending;
-  private boolean phoneRinging;
-  private String ringingCallKey;
   private boolean terminalsUnlocked;
   private boolean systemCoreAccessModuleDelivered;
   private boolean systemCoreAccessGranted;
@@ -248,7 +231,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       boolean pastIntroduction = savedCheckpoint != SystemRecoveryLearningStep.ENERGY_ARRAY;
       terminalsUnlocked = pastIntroduction;
       introSuppressed = pastIntroduction;
-      echoCallTriggered = pastIntroduction;
+      phoneController.restorePastIntroduction(pastIntroduction);
     }
   }
 
@@ -285,7 +268,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 SystemRecoveryLoad.restoreRuntime(data)
                     .map(
                         restoredCheckpoint -> {
-                          restoreWorldAtCheckpoint(restoredCheckpoint);
+                          SystemRecoveryCheckpointProjection.apply(this, restoredCheckpoint);
                           return restoredCheckpoint;
                         }));
     checkpoint.ifPresent(
@@ -329,69 +312,26 @@ public class SystemRecoveryLevel extends DungeonLevel {
             });
   }
 
-  /**
-   * Projects the world to the beginning of a main riddle without firing puzzle callbacks.
-   *
-   * @param checkpoint checkpoint to project
-   */
-  private void restoreWorldAtCheckpoint(SystemRecoveryLearningStep checkpoint) {
-    switch (checkpoint) {
-      case ENERGY_ARRAY -> {}
-      case MODULE_ARRAY -> {
-        energy.restoreCompletedState();
-        openDoor(SystemRecoveryPointRegistry.DOOR_MODULE_STORAGE);
-        moduleStorage.showModuleAssignments();
-      }
-      case INVENTORY_COUNT -> {
-        restoreCompletedModules();
-        openDoor(SystemRecoveryPointRegistry.DOOR_INVENTORY_SCANNER);
-      }
-      case TRANSPORT_ARRAY -> {
-        restoreCompletedModules();
-        inventoryScanner.restoreCompletedState();
-        openDoor(SystemRecoveryPointRegistry.DOOR_INVENTORY_SCANNER);
-        openDoor(SystemRecoveryPointRegistry.DOOR_TRANSPORT_STORAGE);
-      }
-      case MANUAL_SORTING, BUBBLE_SORT_CONDITION -> {
-        restoreCompletedTransport();
-        openDoor(SystemRecoveryPointRegistry.DOOR_DATA_STORAGE);
-        if (checkpoint == SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION) {
-          manualSorting.restoreCompletedState();
-        }
-      }
-      case ARCHIVE_ACCESS -> {
-        restoreCompletedBubbleSort();
-        spawnWorldItemIfMissing(new ItemKey(), SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN);
-      }
-      case STORAGE_ARRAY -> {
-        restoreCompletedBubbleSort();
-        openDoor(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE);
-        dataArchive.restoreCompletedState();
-      }
-      case SEARCH_PROGRAM -> {
-        restoreCompletedStorage();
-        spawnWorldItemIfMissing(
-            new SearchProgramChipItem(), SystemRecoveryPointRegistry.SEARCH_PROGRAM_CHIP);
-      }
-      case SYSTEM_CORE_ACCESS -> {
-        restoreCompletedStorage();
-        searchRobot.restoreCompletedState();
-        systemCoreAccessModuleDelivered = true;
-        spawnWorldItemIfMissing(
-            new SystemCoreAccessChipItem(),
-            SystemRecoveryPointRegistry.SYSTEM_CORE_ACCESS_MODULE_DESTINATION);
-      }
-      default -> throw new IllegalArgumentException("Not a main-riddle checkpoint: " + checkpoint);
-    }
+  /** Restores the completed energy state without firing puzzle callbacks. */
+  void restoreCompletedEnergy() {
+    energy.restoreCompletedState();
   }
 
-  private void restoreCompletedModules() {
+  void showModuleAssignmentsAfterRestore() {
+    moduleStorage.showModuleAssignments();
+  }
+
+  void restoreCompletedModules() {
     energy.restoreCompletedState();
     moduleStorage.restoreCompletedState();
     openDoor(SystemRecoveryPointRegistry.DOOR_MODULE_STORAGE);
   }
 
-  private void restoreCompletedTransport() {
+  void restoreCompletedInventoryScanner() {
+    inventoryScanner.restoreCompletedState();
+  }
+
+  void restoreCompletedTransport() {
     restoreCompletedModules();
     inventoryScanner.restoreCompletedState();
     transportStorage.restoreCompletedState();
@@ -399,25 +339,41 @@ public class SystemRecoveryLevel extends DungeonLevel {
     openDoor(SystemRecoveryPointRegistry.DOOR_TRANSPORT_STORAGE);
   }
 
-  private void restoreCompletedBubbleSort() {
+  void restoreCompletedManualSorting() {
+    manualSorting.restoreCompletedState();
+  }
+
+  void restoreCompletedBubbleSort() {
     restoreCompletedTransport();
     openDoor(SystemRecoveryPointRegistry.DOOR_DATA_STORAGE);
     manualSorting.restoreCompletedState(false);
     bubbleSort.restoreCompletedState();
   }
 
-  private void restoreCompletedStorage() {
+  void restoreCompletedDataArchive() {
+    dataArchive.restoreCompletedState();
+  }
+
+  void restoreCompletedStorage() {
     restoreCompletedBubbleSort();
     openDoor(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE);
     dataArchive.restoreCompletedState();
     twoDimensionalStorage.restoreCompletedState();
   }
 
-  private void openDoor(String pointName) {
+  void restoreCompletedSearchRobot() {
+    searchRobot.restoreCompletedState();
+  }
+
+  void markSystemCoreAccessModuleDeliveredAfterRestore() {
+    systemCoreAccessModuleDelivered = true;
+  }
+
+  void openDoor(String pointName) {
     tileAt(point(pointName)).filter(DoorTile.class::isInstance).map(DoorTile.class::cast).ifPresent(DoorTile::open);
   }
 
-  private void spawnWorldItemIfMissing(feature.inventory.Item item, String pointName) {
+  void spawnWorldItemIfMissing(feature.inventory.Item item, String pointName) {
     Point spawnPoint = point(pointName);
     boolean alreadyPresent =
         Game.entityAtPoint(spawnPoint)
@@ -492,117 +448,29 @@ public class SystemRecoveryLevel extends DungeonLevel {
         SystemRecoveryText.controls(), () -> terminalsUnlocked = true, playerId);
   }
 
-  /** Spawns the phone and keeps it interactable after the opening call has been answered. */
+  /** Spawns the phone and keeps it interactable after every call. */
   private void setupPhone() {
-    phone = DecoFactory.createDeco(point("phone"), Deco.Phone);
-    phone.remove(DecoComponent.class);
-    DrawSystem.getInstance().changeEntityDepth(phone, DepthLayer.AbovePlayer.depth());
-    Game.add(phone);
-    updatePhoneInteraction();
+    phoneController.setup(point("phone"));
   }
 
   /** Starts ECHO's one introductory call after the first rejected terminal attempt. */
   private void triggerEchoCall() {
-    if (echoCallTriggered || phone == null) return;
-    echoCallTriggered = true;
-    startRingingCall("opening-call");
+    phoneController.triggerOpeningCall();
   }
 
   /** Starts ECHO's warning call after AXIOM has obtained the system-core access module. */
   private void triggerSystemCoreWarningCall() {
-    if (systemCoreWarningCallTriggered || phone == null) return;
-    systemCoreWarningCallTriggered = true;
-    startRingingCall("system-core-warning");
+    phoneController.triggerSystemCoreWarningCall();
   }
 
   /** Starts ECHO's transition call after the transport-storage sequence has completed. */
   public static void triggerDataStorageProblemCall() {
-    currentLevel().ifPresent(SystemRecoveryLevel::triggerDataStorageProblemCallInternal);
-  }
-
-  private void triggerDataStorageProblemCallInternal() {
-    if (dataStorageProblemCallTriggered || phone == null) return;
-    dataStorageProblemCallTriggered = true;
-    startRingingCall("data-storage-problem");
+    currentLevel().ifPresent(level -> level.phoneController.triggerDataStorageProblemCall());
   }
 
   /** Starts ECHO's final call after the system-core routines have been completed. */
   private void triggerFinalEchoCall() {
-    if (finalEchoCallTriggered || phone == null) return;
-    finalEchoCallTriggered = true;
-    if (phoneRinging) {
-      finalEchoCallPending = true;
-      return;
-    }
-    startRingingCall("final-call");
-  }
-
-  private void startRingingCall(String callKey) {
-    ringingCallKey = callKey;
-    phoneRinging = true;
-    Sounds.play(LastHourSounds.PHONE_RINGING);
-    updatePhoneInteraction();
-    ringingPhoneEmote =
-        EmoteFactory.createEmote(EntityUtils.getPosition(phone), Emote.EXCLAMATION, 60 * 60 * 1000);
-    Game.add(ringingPhoneEmote);
-  }
-
-  /** Updates the phone interaction between the ringing and answered states. */
-  private void updatePhoneInteraction() {
-    if (phone == null) return;
-    phone.remove(InteractionComponent.class);
-    phone.add(
-        new InteractionComponent(
-            new Interaction(
-                (_, who) -> {
-                  if (phoneRinging) {
-                    DialogFactory.showDialogDialog(
-                        SystemRecoveryText.echoCall(ringingCallKey),
-                        SystemRecoveryText.echoSpeakerImage(),
-                        this::finishEchoCall,
-                        who.id());
-                    return;
-                  }
-                  if (!echoCallTriggered) {
-                    DialogFactory.showDialogDialog(
-                        SystemRecoveryText.echoCall("dead-line"), () -> {}, who.id());
-                    return;
-                  }
-                  SystemRecoveryHintPhone.request(who);
-                })));
-  }
-
-  /** Stops ECHO's ringing and records the first terminal task after the call is finished. */
-  private void finishEchoCall() {
-    String completedCallKey = ringingCallKey;
-    if (completedCallKey == null) return;
-    phoneRinging = false;
-    ringingCallKey = null;
-    updatePhoneInteraction();
-    if (ringingPhoneEmote != null) {
-      Game.remove(ringingPhoneEmote);
-      ringingPhoneEmote = null;
-    }
-    if ("system-core-warning".equals(completedCallKey)) {
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle10", "system-core-warning", "echo", "system-core-warning");
-      if (finalEchoCallPending) {
-        finalEchoCallPending = false;
-        startRingingCall("final-call");
-      }
-    } else if ("data-storage-problem".equals(completedCallKey)) {
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle5", "data-storage-problem", "echo", "data-storage-problem");
-      openDataStorageAfterEchoCall();
-    } else if ("final-call".equals(completedCallKey)) {
-      SystemRecoveryQuestLogUtil.addDialogEntry("riddle10", "final-call", "echo", "final-call");
-      openElevatorAfterFinalCall();
-    } else if ("opening-call-correct".equals(completedCallKey)) {
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle1", "opening-call-correct", "echo", "opening-call-correct");
-    } else {
-      SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "opening-call", "echo", "opening-call");
-    }
+    phoneController.triggerFinalEchoCall();
   }
 
   /** Opens the data-storage room only after the player has answered ECHO's warning call. */
@@ -657,9 +525,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   }
 
   private void triggerCorrectOpeningCall() {
-    if (echoCallTriggered || phone == null) return;
-    echoCallTriggered = true;
-    startRingingCall("opening-call-correct");
+    phoneController.triggerCorrectOpeningCall();
   }
 
   /**
@@ -1377,7 +1243,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @param name validated custom-point name
    * @return resolved world point
    */
-  private Point point(String name) {
+  Point point(String name) {
     Point point = resolvedPoints.get(name);
     if (point == null) {
       throw new IllegalStateException("Validated System Recovery point is unavailable: " + name);

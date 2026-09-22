@@ -113,6 +113,18 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
   Map<String, String> snapshotMetadata(Entity entity) {
     Map<String, String> metadata = new HashMap<>();
     DoorLabelComponent.appendMetadata(entity, metadata);
+    appendPresentationMetadata(entity, metadata);
+    appendSortMetadata(entity, metadata);
+    appendTerminalMetadata(entity, metadata);
+    appendScannerMetadata(entity, metadata);
+    appendSearchRobotMetadata(entity, metadata);
+    appendStorageMetadata(entity, metadata);
+    appendSystemCoreMetadata(entity, metadata);
+    COLLIDE_SYNC.appendMetadata(entity, metadata);
+    return metadata;
+  }
+
+  private void appendPresentationMetadata(Entity entity, Map<String, String> metadata) {
     entity
         .fetch(DisplayTextComponent.class)
         .ifPresent(
@@ -131,6 +143,9 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> SystemRecoveryComponentSync.appendKeypadMetadata(keypad, metadata));
+  }
+
+  private void appendSortMetadata(Entity entity, Map<String, String> metadata) {
     if ("sort_compare_display".equals(entity.name())) {
       int[] comparison = SystemRecoveryLevel.currentSortComparisonEntityIds();
       metadata.put(
@@ -152,6 +167,9 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
           SystemRecoveryEntitySpawnStrategy.METADATA_BELT_PACKAGES,
           SystemRecoveryLevel.currentBeltPackageMetadata());
     }
+  }
+
+  private void appendTerminalMetadata(Entity entity, Map<String, String> metadata) {
     if (entity.name() != null && entity.name().endsWith("terminal")) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_TERMINAL_STATE,
@@ -162,6 +180,9 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
           SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION,
           String.valueOf(SystemRecoveryLevel.saveRevision()));
     }
+  }
+
+  private void appendScannerMetadata(Entity entity, Map<String, String> metadata) {
     if ("module_scanner".equals(entity.name())) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SCAN_RUNNING,
@@ -170,11 +191,17 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
           SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SCAN_FAULT,
           String.valueOf(SystemRecoveryLevel.scannerFaultDetected()));
     }
+  }
+
+  private void appendSearchRobotMetadata(Entity entity, Map<String, String> metadata) {
     if ("search_robot".equals(entity.name())) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_SEARCH_ROBOT_CELL,
           SystemRecoveryLevel.currentSearchRobotCell(entity));
     }
+  }
+
+  private void appendStorageMetadata(Entity entity, Map<String, String> metadata) {
     if (entity.name().startsWith("storage_matrix_cell_")) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_STORAGE_CELL_STATE,
@@ -192,6 +219,9 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
         }
       }
     }
+  }
+
+  private void appendSystemCoreMetadata(Entity entity, Map<String, String> metadata) {
     if ("label_systemcore".equals(entity.name())) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS,
@@ -205,8 +235,6 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
           SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_STAGE,
           String.valueOf(SystemRecoveryLevel.systemCoreStage()));
     }
-    COLLIDE_SYNC.appendMetadata(entity, metadata);
-    return metadata;
   }
 
   private int activeStorageCellValue(int row, int column) {
