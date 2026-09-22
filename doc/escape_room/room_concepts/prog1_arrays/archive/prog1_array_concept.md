@@ -1,4 +1,8 @@
-# Programmieren 2 DEER - Dungeon GPT
+# VERALTET: Programmieren 2 DEER - Dungeon GPT
+
+> Historischer Konzeptentwurf. Er beschreibt nicht den aktuellen Spielstand. Insbesondere
+> Chat-UI, finale Rätsel und Türschloss wurden später geändert. Die gepflegten Dokumente
+> liegen eine Ebene höher in diesem Ordner.
 
 Digital Educational Escape Room für das Fach Programmieren 1 im ersten Semester Informatik. Der Escape Room soll ein Praktikum sein bei denen sich die Studenten mit den Konzepten von Arrays vertraut machen, die sie zuvor in der Vorlesung kennen gelernt haben.
 

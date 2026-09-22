@@ -18,10 +18,10 @@ public final class SystemRecoveryText {
 
   private static final Translation TEXT = new Translation("systemRecovery");
   private static final Translation QUESTLOG = new Translation("questlog");
-  private static final String SPEAKER_IMAGE = "images/system_recovery_ai_profile_pixel.png";
-  private static final String ECHO_SPEAKER_IMAGE = "images/system_recovery_echo_profile_pixel.png";
+  private static final String SPEAKER_IMAGE = "profiles/system_recovery_ai_profile_pixel.png";
+  private static final String ECHO_SPEAKER_IMAGE = "profiles/system_recovery_echo_profile_pixel.png";
   private static final String ROBOT_SPEAKER_IMAGE =
-      "images/system_recovery_search_robot_pixel.png";
+      "profiles/system_recovery_search_robot_pixel.png";
 
   private SystemRecoveryText() {}
 

@@ -47,14 +47,24 @@ Die ausführliche, aktuelle Beschreibung steht in:
 
 - `doc/escape_room/room_concepts/prog1_arrays/petri_net_system_recovery_concept.md`
 - `doc/escape_room/room_concepts/prog1_arrays/system_recovery_story_flow.md`
+- `doc/escape_room/room_concepts/prog1_arrays/system_recovery_save_load.md`
 
 ## Story und Lokalisierung
 
 Nach Lore und Steuerungsdialog werden die Terminals freigegeben. Die erste falsche Eingabe lässt
-ECHOs Telefon klingeln. AXIOM übernimmt anschließend die Wiederherstellungsanweisungen; ECHO
-liefert Übergangsgespräche und Hinweise. Das Öffnen des Systemkerns aktiviert Alarm und Wendepunkt.
+ECHOs Telefon klingeln. Ist bereits die erste Eingabe korrekt, meldet sich zunächst AXIOM; danach
+klingelt ECHO mit einem anderen Einstiegsgespräch. ECHO liefert später Übergangsgespräche und
+Hinweise. Das Öffnen des Systemkerns aktiviert Alarm und Wendepunkt.
 Nach dem letzten Kernschritt klingelt ECHO erneut; erst nach diesem Gespräch öffnet sich der
 Aufzug.
+
+## Save und Load
+
+Der Server speichert automatisch am Anfang jedes Haupträtsels. Beim Laden werden die aktiven
+Petri-Place, abgeschlossene Räume, akzeptierte Terminaleingaben, Questlog und
+Achievement-Fortschritt wiederhergestellt; Dialoge werden nicht erneut abgespielt. Teilschritte
+innerhalb eines Rätsels sind keine Checkpoints. Details und Grenzen stehen in der
+[Save/Load-Dokumentation](../../../../doc/escape_room/room_concepts/prog1_arrays/system_recovery_save_load.md).
 
 Alle sichtbaren Texte liegen in `game/assets/language/systemRecovery/de.json` und `en.json`.
 Serverseitig erzeugte Dialoge transportieren Schlüssel, damit jeder Client in seiner eigenen
