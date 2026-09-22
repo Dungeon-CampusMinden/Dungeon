@@ -2,6 +2,7 @@ package rooms.systemRecovery.util;
 
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
@@ -61,6 +62,145 @@ public final class SystemRecoveryAchievementTracker {
     firstTerminalAttemptSeen = false;
     wrongTerminalAttempts = 0;
     acceptedHints = 0;
+  }
+
+  /**
+   * Captures the run-local facts used by conditional achievements.
+   *
+   * <p>This snapshot contains no persistent unlock status. Persistent unlocks remain owned by the
+   * achievement store; the snapshot only makes continuing a checkpoint behave like the original
+   * run.
+   *
+   * @return immutable run-local achievement state
+   */
+  public Snapshot snapshot() {
+    return new Snapshot(
+        debugRun,
+        firstTerminalAttemptSeen,
+        wrongTerminalAttempts,
+        acceptedHints,
+        hintedPuzzles.stream().map(SystemRecoveryPuzzle::id).toList(),
+        solvedPuzzles.stream().map(SystemRecoveryPuzzle::id).toList(),
+        failedPuzzles.stream().map(SystemRecoveryPuzzle::id).toList(),
+        failedTerminalPuzzles.stream().map(SystemRecoveryPuzzle::id).toList(),
+        List.copyOf(failedUploads),
+        List.copyOf(acceptedUploads),
+        List.copyOf(emittedAchievements));
+  }
+
+  /**
+   * Restores run-local achievement facts without evaluating rules or emitting unlock callbacks.
+   *
+   * @param snapshot saved run-local state
+   */
+  public void restore(Snapshot snapshot) {
+    if (snapshot == null) return;
+    reset(snapshot.debugRun());
+    firstTerminalAttemptSeen = snapshot.firstTerminalAttemptSeen();
+    wrongTerminalAttempts = snapshot.wrongTerminalAttempts();
+    acceptedHints = snapshot.acceptedHints();
+    snapshot.hintedPuzzles().stream().map(SystemRecoveryAchievementTracker::puzzle).forEach(hintedPuzzles::add);
+    snapshot.solvedPuzzles().stream().map(SystemRecoveryAchievementTracker::puzzle).forEach(solvedPuzzles::add);
+    snapshot.failedPuzzles().stream().map(SystemRecoveryAchievementTracker::puzzle).forEach(failedPuzzles::add);
+    snapshot.failedTerminalPuzzles().stream()
+        .map(SystemRecoveryAchievementTracker::puzzle)
+        .forEach(failedTerminalPuzzles::add);
+    failedUploads.addAll(snapshot.failedUploads());
+    acceptedUploads.addAll(snapshot.acceptedUploads());
+    emittedAchievements.addAll(snapshot.emittedAchievements());
+  }
+
+  private static SystemRecoveryPuzzle puzzle(String id) {
+    return java.util.Arrays.stream(SystemRecoveryPuzzle.values())
+        .filter(puzzle -> puzzle.id().equals(id))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Unknown System Recovery puzzle: " + id));
+  }
+
+  /**
+   * Serialized state needed to continue conditional achievements across a checkpoint load.
+   *
+   * @param debugRun whether the run was started with debug controls
+   * @param firstTerminalAttemptSeen whether any terminal attempt has occurred
+   * @param wrongTerminalAttempts number of rejected terminal submissions
+   * @param acceptedHints number of accepted telephone hints
+   * @param hintedPuzzles puzzles for which at least one hint was accepted
+   * @param solvedPuzzles puzzles completed during the run
+   * @param failedPuzzles puzzles with an unsuccessful physical or terminal attempt
+   * @param failedTerminalPuzzles puzzles with an unsuccessful terminal attempt
+   * @param failedUploads chip types that received an unsuccessful upload
+   * @param acceptedUploads chip types that received a successful upload
+   * @param emittedAchievements achievement IDs already emitted during this run
+   */
+  public record Snapshot(
+      boolean debugRun,
+      boolean firstTerminalAttemptSeen,
+      int wrongTerminalAttempts,
+      int acceptedHints,
+      List<String> hintedPuzzles,
+      List<String> solvedPuzzles,
+      List<String> failedPuzzles,
+      List<String> failedTerminalPuzzles,
+      List<String> failedUploads,
+      List<String> acceptedUploads,
+      List<String> emittedAchievements) {
+
+    /**
+     * Creates a defensive, validated snapshot value.
+     *
+     * @param debugRun whether the run was started with debug controls
+     * @param firstTerminalAttemptSeen whether any terminal attempt has occurred
+     * @param wrongTerminalAttempts number of rejected terminal submissions
+     * @param acceptedHints number of accepted telephone hints
+     * @param hintedPuzzles puzzles for which at least one hint was accepted
+     * @param solvedPuzzles puzzles completed during the run
+     * @param failedPuzzles puzzles with an unsuccessful physical or terminal attempt
+     * @param failedTerminalPuzzles puzzles with an unsuccessful terminal attempt
+     * @param failedUploads chip types that received an unsuccessful upload
+     * @param acceptedUploads chip types that received a successful upload
+     * @param emittedAchievements achievement IDs already emitted during this run
+     */
+    public Snapshot {
+      if (wrongTerminalAttempts < 0 || acceptedHints < 0) {
+        throw new IllegalArgumentException("Achievement counters must not be negative.");
+      }
+      hintedPuzzles = normalizeIds(hintedPuzzles);
+      solvedPuzzles = normalizeIds(solvedPuzzles);
+      failedPuzzles = normalizeIds(failedPuzzles);
+      failedTerminalPuzzles = normalizeIds(failedTerminalPuzzles);
+      failedUploads = normalizeStrings(failedUploads);
+      acceptedUploads = normalizeStrings(acceptedUploads);
+      emittedAchievements = normalizeStrings(emittedAchievements);
+    }
+
+    /** @return an empty state for legacy savegames without achievement data */
+    public static Snapshot empty() {
+      return new Snapshot(false, false, 0, 0, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+    }
+
+    private static List<String> normalizeIds(List<String> ids) {
+      return java.util.stream.Stream.ofNullable(ids)
+          .flatMap(List::stream)
+          .map(String::valueOf)
+          .peek(Snapshot::validatePuzzleId)
+          .distinct()
+          .sorted()
+          .toList();
+    }
+
+    private static void validatePuzzleId(String id) {
+      puzzle(id);
+    }
+
+    private static List<String> normalizeStrings(List<String> values) {
+      return java.util.stream.Stream.ofNullable(values)
+          .flatMap(List::stream)
+          .map(String::valueOf)
+          .filter(value -> !value.isBlank())
+          .distinct()
+          .sorted()
+          .toList();
+    }
   }
 
   /**

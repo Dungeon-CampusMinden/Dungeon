@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -65,6 +66,7 @@ import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
 import rooms.systemRecovery.util.interpreter.SystemRecoveryTerminalController;
@@ -170,6 +172,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private boolean endingTriggered;
   private boolean introSuppressed;
   private SystemRecoveryLearningStep savedCheckpoint;
+  private List<SystemRecoverySave.QuestLogEntryData> savedQuestLog = List.of();
+  private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
   private int saveRevision;
   private Optional<SystemRecoverySave.SaveData> pendingSave = Optional.empty();
   private boolean initialTerminalAttemptRecorded;
@@ -284,24 +288,39 @@ public class SystemRecoveryLevel extends DungeonLevel {
                           restoreWorldAtCheckpoint(restoredCheckpoint);
                           return restoredCheckpoint;
                         }));
-    checkpoint.ifPresent(restoredCheckpoint -> savedCheckpoint = restoredCheckpoint);
+    checkpoint.ifPresent(
+        restoredCheckpoint -> {
+          SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
+          savedCheckpoint = restoredCheckpoint;
+          savedQuestLog = restoredSave.questLog();
+          savedAchievementProgress = restoredSave.achievementProgress();
+        });
     if (checkpoint.isPresent()) {
-      save.orElseThrow().acceptedTerminalInputs().forEach(input -> memoryWatch.recordAcceptedSource(input.source()));
+      save.orElseThrow()
+          .acceptedTerminalInputs()
+          .forEach(input -> memoryWatch.recordAcceptedSource(input.source()));
     }
     return checkpoint.isPresent();
   }
 
-  /** Writes only when the active token enters the first step of a different main riddle. */
+  /** Writes when the checkpoint or any persisted run-local state changes. */
   private void saveCheckpointIfNeeded() {
     if (!Game.network().isServer()) return;
     SystemRecoveryProgressNet.activeStep()
         .filter(SystemRecoveryLoad::isMainPuzzleCheckpoint)
         .ifPresent(
             checkpoint -> {
-              if (checkpoint == savedCheckpoint) return;
+              SystemRecoverySave.SaveData save = SystemRecoverySave.capture(checkpoint);
+              boolean checkpointChanged = checkpoint != savedCheckpoint;
+              boolean questLogChanged = !save.questLog().equals(savedQuestLog);
+              boolean achievementProgressChanged =
+                  !Objects.equals(save.achievementProgress(), savedAchievementProgress);
+              if (!checkpointChanged && !questLogChanged && !achievementProgressChanged) return;
               try {
-                SystemRecoverySave.write(SystemRecoverySave.capture(checkpoint));
+                SystemRecoverySave.write(save);
                 savedCheckpoint = checkpoint;
+                savedQuestLog = save.questLog();
+                savedAchievementProgress = save.achievementProgress();
                 saveRevision++;
               } catch (java.io.IOException exception) {
                 java.util.logging.Logger.getLogger(SystemRecoveryLevel.class.getName())
