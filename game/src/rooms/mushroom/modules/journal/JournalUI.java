@@ -40,7 +40,7 @@ public class JournalUI extends Group {
   private final Array<BookEntry> entries = new Array<>();
   private int currentPageIndex = 0;
   private final Skin skin;
-  private long soundHandle = -1;
+  private long soundHandle = 0;
 
   /**
    * Constructs a new JournalUI with the specified skin and book background.
@@ -154,8 +154,8 @@ public class JournalUI extends Group {
   }
 
   private void playPageFlipSound() {
-    Game.audio().stopInstance(soundHandle);
-    soundHandle = Sounds.FLIP_BOOK_PAGE.play();
+    Game.soundPlayer().stopByInstance(soundHandle);
+    soundHandle = engine.sound.Sounds.playUi(Sounds.FLIP_BOOK_PAGE);
   }
 
   private void refreshPage() {

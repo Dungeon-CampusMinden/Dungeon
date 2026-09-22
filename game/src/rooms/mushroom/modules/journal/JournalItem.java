@@ -48,7 +48,6 @@ public class JournalItem extends Item {
   @Override
   public void use(final Entity user) {
     openJournal(user, this.unlockedPages);
-    Sounds.OPEN_INVENTORY_SOUND.play();
   }
 
   /**
@@ -66,7 +65,6 @@ public class JournalItem extends Item {
                       i -> {
                         JournalItem journalItem = (JournalItem) i;
                         openJournal(user, journalItem.unlockedPages);
-                        Sounds.OPEN_INVENTORY_SOUND.play();
                       });
             });
   }
@@ -100,6 +98,7 @@ public class JournalItem extends Item {
       bookUI.addEntry(t, text);
     }
 
+    engine.sound.Sounds.playUi(Sounds.OPEN_INVENTORY_SOUND);
     return bookUI;
   }
 

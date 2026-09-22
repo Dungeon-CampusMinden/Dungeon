@@ -10,9 +10,10 @@ public class Sounds {
    * Plays local UI feedback immediately, without entities or network messages.
    *
    * @param sound the sound to play
+   * @return the allocated local sound instance ID
    */
-  public static void playUi(ISound sound) {
-    playUi(sound, 1);
+  public static long playUi(ISound sound) {
+    return playUi(sound, 1);
   }
 
   /**
@@ -20,9 +21,10 @@ public class Sounds {
    *
    * @param sound the sound to play
    * @param pitch playback pitch
+   * @return the allocated local sound instance ID
    */
-  public static void playUi(ISound sound, float pitch) {
-    playUi(sound, pitch, 1);
+  public static long playUi(ISound sound, float pitch) {
+    return playUi(sound, pitch, 1);
   }
 
   /**
@@ -32,12 +34,15 @@ public class Sounds {
    * @param sound the sound to play
    * @param pitch playback pitch
    * @param volumeModifier additional volume multiplier
+   * @return the allocated local sound instance ID; stop it via {@link
+   *     engine.sound.player.ISoundPlayer#stopByInstance(long)}
    */
-  public static void playUi(ISound sound, float pitch, float volumeModifier) {
+  public static long playUi(ISound sound, float pitch, float volumeModifier) {
     long instanceId = Game.audio().newLocalInstanceId();
     float volume = getEffectsVolume() * sound.volume() * volumeModifier;
     Game.soundPlayer()
         .playWithInstance(instanceId, sound.soundName(), volume, false, pitch, 0, null);
+    return instanceId;
   }
 
   private static float getEffectsVolume() {
