@@ -201,7 +201,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     SystemRecoveryQuestLogUtil.initializeQuestLog();
     Game.system(HintSystem.class, HintSystem::resetHintProgress);
     pendingSave = SystemRecovery.loadFromSave() ? SystemRecoveryLoad.read() : Optional.empty();
-    runId = UUID.randomUUID();
+    runId = SystemRecovery.runId();
     SystemRecoveryProgressNet.reset();
     if (pendingSave.isPresent()) {
       // Start from a safe fresh marking. A syntactically valid but semantically corrupt history

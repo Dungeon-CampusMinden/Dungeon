@@ -33,6 +33,8 @@ import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LeverSystem;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import rooms.systemRecovery.items.BatteryItem;
 import rooms.systemRecovery.items.SearchProgramChipItem;
@@ -44,6 +46,7 @@ import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
 import rooms.systemRecovery.save.SystemRecoverySave;
+import rooms.systemRecovery.save.SystemRecoveryLoad;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryTranslator;
 
@@ -58,6 +61,7 @@ public final class SystemRecovery {
 
   private static boolean debugMode;
   private static boolean loadFromSave;
+  private static UUID runId;
   private static final String LOAD_SAVE_ARGUMENT = "--load-system-recovery";
 
   private SystemRecovery() {}
@@ -71,7 +75,8 @@ public final class SystemRecovery {
   public static void main(String[] args) {
     configureDebugMode(args);
     configureLoadFromSave(args);
-    Tracking.configureRoom("system-recovery");
+    runId = resolveRunIdForLaunch();
+    Tracking.configureRoom("system-recovery", Optional.of(runId));
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
         .enableConsole(true)
@@ -143,6 +148,23 @@ public final class SystemRecovery {
    */
   public static boolean loadFromSave() {
     return loadFromSave;
+  }
+
+  /**
+   * Returns the stable playthrough identifier selected for this process.
+   *
+   * @return current run identifier
+   */
+  public static UUID runId() {
+    if (runId == null) runId = UUID.randomUUID();
+    return runId;
+  }
+
+  private static UUID resolveRunIdForLaunch() {
+    if (!loadFromSave) return UUID.randomUUID();
+    return SystemRecoveryLoad.read()
+        .map(SystemRecoverySave.SaveData::runId)
+        .orElseGet(UUID::randomUUID);
   }
 
   /**
