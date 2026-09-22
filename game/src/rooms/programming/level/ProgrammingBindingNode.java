@@ -408,7 +408,21 @@ final class ProgrammingBindingNode extends CanvasNode {
 
   @Override
   public void onDragEnter(CanvasDragContext context) {
-    over = kind == Kind.SOCKET;
+    onDragOver(context);
+  }
+
+  @Override
+  public void onDragOver(CanvasDragContext context) {
+    over = acceptsDrop(context);
+  }
+
+  private boolean acceptsDrop(CanvasDragContext context) {
+    return context.draggedNode() instanceof ProgrammingBindingNode source
+        && accepts(source)
+        && context.localX() >= 0
+        && context.localX() < width()
+        && context.localY() >= 0
+        && context.localY() < height();
   }
 
   @Override
@@ -418,8 +432,8 @@ final class ProgrammingBindingNode extends CanvasNode {
 
   @Override
   public boolean onNodeDropped(CanvasDragContext context) {
-    if (!(context.draggedNode() instanceof ProgrammingBindingNode source) || !accepts(source))
-      return false;
+    if (!acceptsDrop(context)) return false;
+    ProgrammingBindingNode source = (ProgrammingBindingNode) context.draggedNode();
     source.returnToSupply();
     boolean vessel = source.kind == Kind.VESSEL;
     canvas()
