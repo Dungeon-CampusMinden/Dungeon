@@ -37,7 +37,7 @@ public final class InteractionFeedback {
   public static void update() {
     Optional<Entity> hero = Game.player();
 
-    if (hero.isEmpty()) {
+    if (hero.isEmpty() || Game.hud().blocksGameplayInput(hero.orElseThrow())) {
       clearFeedback();
       return;
     }
