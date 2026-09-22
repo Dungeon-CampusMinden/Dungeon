@@ -49,6 +49,7 @@ public final class DrawComponent implements Component {
 
   private final StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();
+  private Vector2 visualOffset = Vector2.ZERO;
 
   private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
@@ -389,6 +390,22 @@ public final class DrawComponent implements Component {
    */
   public void depth(int depth) {
     this.depth = depth;
+  }
+
+  /**
+   * @return visual translation in world units, independent of collision and Y sorting
+   */
+  public Vector2 visualOffset() {
+    return visualOffset;
+  }
+
+  /**
+   * Moves the rendered sprite without moving its physical footprint.
+   *
+   * @param offset visual translation in world units
+   */
+  public void visualOffset(Vector2 offset) {
+    visualOffset = java.util.Objects.requireNonNull(offset);
   }
 
   /**

@@ -35,8 +35,10 @@ public class ProgrammingLevel extends DungeonLevel {
       Map<String, Point> namedPoints,
       List<Tuple<Deco, Point>> decorations) {
     super(
-        ProgrammingWorkshopWorld.layout(
-            ProgrammingMazeWorld.layout(layout, namedPoints), namedPoints),
+        ProgrammingDecisionWorld.layout(
+            ProgrammingWorkshopWorld.layout(
+                ProgrammingMazeWorld.layout(layout, namedPoints), namedPoints),
+            namedPoints),
         designLabel,
         namedPoints,
         decorations,

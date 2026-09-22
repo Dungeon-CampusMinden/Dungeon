@@ -26,6 +26,7 @@ import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import java.util.logging.Level;
 import rooms.programming.level.ProgrammingClientLevel;
+import rooms.programming.level.ProgrammingDecisions;
 import rooms.programming.level.ProgrammingLevel;
 import rooms.programming.level.ProgrammingMethods;
 import rooms.programming.level.ProgrammingTerminal;
@@ -88,6 +89,7 @@ public final class Programming {
     QuestLogUI.register();
     ProgrammingTerminal.register();
     ProgrammingMethods.register();
+    ProgrammingDecisions.register();
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
@@ -102,5 +104,6 @@ public final class Programming {
     QuestLogUI.register();
     ProgrammingTerminal.register();
     ProgrammingMethods.register();
+    ProgrammingDecisions.register();
   }
 }

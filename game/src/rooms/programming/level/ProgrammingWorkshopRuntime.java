@@ -293,6 +293,7 @@ final class ProgrammingWorkshopRuntime {
       }
     }
     publish();
+    if (workshop.state().completed()) motion.beginDecisions();
   }
 
   boolean helpReady() {
