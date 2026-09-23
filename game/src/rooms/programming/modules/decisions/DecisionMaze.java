@@ -34,6 +34,23 @@ public final class DecisionMaze {
     }
   }
 
+  // Each attempt starts from its own set, so a retry needs recalculation, not memory. Every set
+  // decides all six runes inside their outer condition and splits evenly between LEFT and RIGHT.
+  private static final Values[] START_VALUES = {
+    new Values(45, 70, 22), // RRLLRL
+    new Values(50, 90, 21), // RLRRLL
+    new Values(35, 70, 15), // LLRRRL
+    new Values(40, 75, 27) // RRLLLR
+  };
+
+  /**
+   * @param failures completed return trips
+   * @return start values of the next attempt
+   */
+  public static Values start(int failures) {
+    return START_VALUES[failures % START_VALUES.length];
+  }
+
   public static final String[] TITLES = {
     "Das Tor der Energie",
     "Das Tor der Temperatur",
@@ -119,26 +136,6 @@ SONST:
     RECHTS
 """
   };
-  public static final String JAVA =
-"""
-if (energie >= 40) {
-    if (kraft > 60) {
-        if (temperatur > 30 && energie < 50) {
-            if (kraft >= 70 || temperatur > 35) {
-                // RECHTS
-            } else {
-                // LINKS
-            }
-        } else {
-            // LINKS
-        }
-    } else {
-        // LINKS
-    }
-} else {
-    // RECHTS
-}
-""";
 
   private DecisionMaze() {}
 

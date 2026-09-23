@@ -59,6 +59,7 @@ public class ProgrammingLevel extends DungeonLevel {
 
   @Override
   protected void onTick() {
+    if (runtime != null && runtime.tickEnding()) return;
     Game.allPlayers()
         .filter(player -> introducedPlayers.add(player.id()))
         .forEach(

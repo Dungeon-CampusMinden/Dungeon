@@ -167,7 +167,7 @@ final class ProgrammingDecisionWorld {
                 });
   }
 
-  static void spawn(DungeonLevel level) {
+  static Entity spawn(DungeonLevel level) {
     for (int i = 0; i < 6; i++) {
       int n = i;
       float y = junction(i).y();
@@ -266,7 +266,8 @@ final class ProgrammingDecisionWorld {
           false);
     Entity fire = torch("heart", new Point(40, 119.5f));
     fire.fetch(PositionComponent.class).orElseThrow().scale(2);
-    prop("heart-inscription", new Point(40.6f, 118), "items/rpg/item_scroll.png", .8f, .8f, false);
+    return prop(
+        "heart-inscription", new Point(40.6f, 118), "items/rpg/item_scroll.png", .8f, .8f, false);
   }
 
   private static Entity torch(String name, Point at) {

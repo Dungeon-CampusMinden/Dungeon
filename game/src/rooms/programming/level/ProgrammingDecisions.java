@@ -70,13 +70,15 @@ public final class ProgrammingDecisions {
   public static void register() {
     DialogFactory.register(
         Type.DECISIONS,
-        context ->
-            Game.isHeadless()
-                ? new HeadlessDialogGroup()
-                : new ProgrammingDecisionUI(
-                    context.dialogId(),
-                    decode(context.require(ID, String.class)),
-                    context.require("viewer", Integer.class)));
+        context -> {
+          context.find(ProgrammingHelp.ID, String.class).ifPresent(ProgrammingHelp::receive);
+          return Game.isHeadless()
+              ? new HeadlessDialogGroup()
+              : new ProgrammingDecisionUI(
+                  context.dialogId(),
+                  decode(context.require(ID, String.class)),
+                  context.require("viewer", Integer.class));
+        });
   }
 
   static void open(Entity who, State state, Consumer<Intent> callback) {
@@ -84,7 +86,7 @@ public final class ProgrammingDecisions {
     ProgrammingTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
-            DialogContext.builder()
+            ProgrammingHelp.context(DialogContext.builder())
                 .type(Type.DECISIONS)
                 .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .put(ID, encode(state))
@@ -94,6 +96,7 @@ public final class ProgrammingDecisions {
             false,
             false,
             who.id());
+    ProgrammingHelp.callbacks(ui, who);
     ui.registerCallback(
         "intent",
         payload -> {
