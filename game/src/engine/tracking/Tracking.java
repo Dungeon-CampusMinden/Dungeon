@@ -87,8 +87,7 @@ public final class Tracking {
    * @param runId optional stable playthrough identifier
    * @param trackingAllowed whether the player consented to tracking
    */
-  public static void configureRoom(
-      String roomId, Optional<UUID> runId, boolean trackingAllowed) {
+  public static void configureRoom(String roomId, Optional<UUID> runId, boolean trackingAllowed) {
     configure(TrackingConfig.forRoom(roomId, runId), trackingAllowed);
   }
 
@@ -122,8 +121,7 @@ public final class Tracking {
    * @param operatorEmail operator email shown when tracking persistence remains pending
    * @param runId optional identifier shared by sessions of one playthrough
    */
-  public static void configureRoom(
-      String roomId, String operatorEmail, Optional<UUID> runId) {
+  public static void configureRoom(String roomId, String operatorEmail, Optional<UUID> runId) {
     configure(TrackingConfig.forRoom(roomId, operatorEmail, runId));
   }
 

@@ -301,8 +301,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
         .ifPresent(
             checkpoint -> {
               SystemRecoverySave.SaveData save =
-                  SystemRecoverySave.capture(
-                      checkpoint, runId, SystemRecovery.trackingConsent());
+                  SystemRecoverySave.capture(checkpoint, runId, SystemRecovery.trackingConsent());
               if (save.playerName() == null || save.playerName().isBlank()) return;
               boolean checkpointChanged = checkpoint != savedCheckpoint;
               boolean questLogChanged = !save.questLog().equals(savedQuestLog);

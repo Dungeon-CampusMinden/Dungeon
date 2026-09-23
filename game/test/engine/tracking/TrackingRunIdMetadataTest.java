@@ -17,7 +17,10 @@ class TrackingRunIdMetadataTest {
     UUID runId = UUID.randomUUID();
     TrackingSessionDescriptor descriptor =
         new TrackingSessionDescriptor(
-            1, UUID.randomUUID(), "system-recovery", Instant.parse("2026-09-22T08:25:32Z"),
+            1,
+            UUID.randomUUID(),
+            "system-recovery",
+            Instant.parse("2026-09-22T08:25:32Z"),
             Optional.of(runId));
 
     TrackingSessionDescriptor restored =

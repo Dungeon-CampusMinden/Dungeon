@@ -252,6 +252,7 @@ public final class SystemRecoverySave {
           consent,
           achievementProgress);
     }
+
     /**
      * Validates and defensively copies the save collections.
      *

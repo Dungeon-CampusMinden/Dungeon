@@ -550,7 +550,8 @@
       "title": "Aufgabenlogbuch",
       "note_prompt": "Schreibe eine Notiz für diesen Tab.",
       "note_placeholder": "Deine Notiz",
-      "create": "Notiz hinzufügen",
+      "create": "Notiz",
+      "create_personal": "Private Notiz",
       "cancel": "Abbrechen"
     },
     "riddle1": {

@@ -15,11 +15,7 @@ import java.util.UUID;
  * @param runId optional stable playthrough identifier shared by resumed sessions
  */
 public record TrackingSessionDescriptor(
-    int schemaVersion,
-    UUID sessionId,
-    String roomId,
-    Instant startedAt,
-    Optional<UUID> runId) {
+    int schemaVersion, UUID sessionId, String roomId, Instant startedAt, Optional<UUID> runId) {
   /** Creates a descriptor without a playthrough identifier. */
   public TrackingSessionDescriptor(
       int schemaVersion, UUID sessionId, String roomId, Instant startedAt) {

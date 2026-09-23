@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -232,8 +232,7 @@ public class MainMenuScreen extends ScreenAdapter {
    */
   private void addPrivacySummary(Dialog dialog, String summary, float width) {
     Label label =
-        Scene2dElementFactory.createLabel(
-            summary, FontSpec.of(TITLE_FONT, 21, PANEL_TEXT_COLOR));
+        Scene2dElementFactory.createLabel(summary, FontSpec.of(TITLE_FONT, 21, PANEL_TEXT_COLOR));
     label.setWrap(true);
     label.setAlignment(Align.topLeft);
     dialog.getContentTable().add(label).width(width - 32).pad(8, 16, 14, 16).left().row();
@@ -260,8 +259,7 @@ public class MainMenuScreen extends ScreenAdapter {
       content.add(heading).width(textWidth).padBottom(5).left().row();
       if (parts.length > 1) {
         Label body =
-            Scene2dElementFactory.createLabel(
-                parts[1], DialogDesign.DIALOG_FONT_SPEC_NORMAL);
+            Scene2dElementFactory.createLabel(parts[1], DialogDesign.DIALOG_FONT_SPEC_NORMAL);
         body.setWrap(true);
         body.setAlignment(Align.topLeft);
         content.add(body).width(textWidth).padBottom(18).left().row();
@@ -317,8 +315,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private Table buildMainView() {
     TextButton hostButton = menuButton(trans.text(T_HOST), "green", this::showHostNameView);
-    TextButton continueButton =
-        menuButton(trans.text(T_CONTINUE), "green", this::continueGame);
+    TextButton continueButton = menuButton(trans.text(T_CONTINUE), "green", this::continueGame);
     TextButton joinButton = menuButton(trans.text(T_JOIN), "blue-outline", this::joinGame);
     TextButton levelEditorButton =
         menuButton(trans.text(T_LEVEL_EDITOR), "blue-outline", this::startLevelEditor);
@@ -423,8 +420,7 @@ public class MainMenuScreen extends ScreenAdapter {
         .trackingSettings()
         .ifPresent(
             settings ->
-                menu
-                    .add(menuButton(settings.title(), "blue-outline", this::showTrackingSettings))
+                menu.add(menuButton(settings.title(), "blue-outline", this::showTrackingSettings))
                     .width(300)
                     .padTop(15)
                     .row());
@@ -507,7 +503,8 @@ public class MainMenuScreen extends ScreenAdapter {
     dialog.button(new TextButton(settings.disableLabel(), skin, "blue-outline"), Boolean.FALSE);
     dialog.button(new TextButton(settings.enableLabel(), skin, "green"), Boolean.TRUE);
     dialog.getButtonTable().row();
-    dialog.button(new TextButton(settings.deleteLabel(), skin, "red-outline"), DELETE_TRACKING_DATA);
+    dialog.button(
+        new TextButton(settings.deleteLabel(), skin, "red-outline"), DELETE_TRACKING_DATA);
     dialog.button(new TextButton(trans.text(T_BACK), skin, "blue-outline"), null);
     dialog.show(stage);
   }
@@ -520,7 +517,8 @@ public class MainMenuScreen extends ScreenAdapter {
             if (!Boolean.TRUE.equals(object)) return;
             boolean deleted = settings.deleteLocalData().getAsBoolean();
             showMessageDialog(
-                settings.title(), deleted ? settings.deletedMessage() : settings.deleteFailedMessage());
+                settings.title(),
+                deleted ? settings.deletedMessage() : settings.deleteFailedMessage());
           }
         };
     DialogDesign.setDialogDefaults(confirmation, settings.deleteConfirmationTitle());
@@ -542,7 +540,12 @@ public class MainMenuScreen extends ScreenAdapter {
     Label label = Scene2dElementFactory.createLabel(message, DialogDesign.DIALOG_FONT_SPEC_NORMAL);
     label.setWrap(true);
     label.setAlignment(Align.topLeft);
-    dialog.getContentTable().add(label).width(Math.min(590f, privacyDialogWidth() - 40f)).pad(10).row();
+    dialog
+        .getContentTable()
+        .add(label)
+        .width(Math.min(590f, privacyDialogWidth() - 40f))
+        .pad(10)
+        .row();
   }
 
   private void showAchievementsView() {

@@ -134,14 +134,15 @@ public final class SystemRecoveryLoad {
     List<SystemRecoverySave.QuestLogEntryData> questLog = new ArrayList<>();
     for (Object value : list(root.get("questLog"))) {
       if (!(value instanceof Map<?, ?> map)) return Optional.empty();
+      String tab = stringRequired(map.get("tab"));
+      String text = stringRequired(map.get("text"));
+      int timestamp = integer(map.get("timestamp"));
+      boolean userCreated = booleanValue(map.get("userCreated"));
+      String owner = stringRequired(map.get("owner"));
+      boolean onlyForCreator = booleanValue(map.get("onlyForCreator"));
       questLog.add(
           new SystemRecoverySave.QuestLogEntryData(
-              stringRequired(map.get("tab")),
-              stringRequired(map.get("text")),
-              integer(map.get("timestamp")),
-              booleanValue(map.get("userCreated")),
-              stringRequired(map.get("owner")),
-              booleanValue(map.get("onlyForCreator"))));
+              tab, text, timestamp, userCreated, owner, onlyForCreator));
     }
     if (!hasExpectedHistory(findCheckpoint(checkpoint).orElseThrow(), inputs)) {
       return Optional.empty();
@@ -152,13 +153,7 @@ public final class SystemRecoveryLoad {
             : null;
     return Optional.of(
         new SystemRecoverySave.SaveData(
-            checkpoint,
-            inputs,
-            questLog,
-            runId,
-            playerName,
-            trackingConsent,
-            achievementProgress));
+            checkpoint, inputs, questLog, runId, playerName, trackingConsent, achievementProgress));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {

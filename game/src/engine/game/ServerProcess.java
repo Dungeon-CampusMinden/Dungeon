@@ -118,11 +118,7 @@ public final class ServerProcess {
     command.add("-D" + PORT_PROPERTY + "=" + port);
     command.add("-D" + MANAGED_PROPERTY + "=true");
     command.add("-D" + STATUS_PORT_PROPERTY + "=" + statusPort);
-    command.add(
-        "-D"
-            + HOST_PLAYER_NAME_PROPERTY
-            + "="
-            + PreRunConfiguration.username());
+    command.add("-D" + HOST_PLAYER_NAME_PROPERTY + "=" + PreRunConfiguration.username());
     String trackingConsent = System.getProperty(TRACKING_CONSENT_PROPERTY);
     if (trackingConsent != null && !trackingConsent.isBlank()) {
       command.add("-D" + TRACKING_CONSENT_PROPERTY + "=" + trackingConsent);

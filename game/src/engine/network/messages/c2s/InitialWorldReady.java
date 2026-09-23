@@ -8,8 +8,7 @@ import java.util.Optional;
  * Client-to-server: confirms that the client applied the initial world bootstrap.
  *
  * @param roomPlayedBefore client-local fact for the current room
- * @param trackingConsent this client's tracking decision, or empty for rooms without a consent
- *     flow
+ * @param trackingConsent this client's tracking decision, or empty for rooms without a consent flow
  */
 public record InitialWorldReady(boolean roomPlayedBefore, Optional<Boolean> trackingConsent)
     implements NetworkMessage {

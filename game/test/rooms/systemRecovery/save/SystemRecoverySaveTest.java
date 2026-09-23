@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import engine.Game;
 import engine.Entity;
+import engine.Game;
 import engine.components.PlayerComponent;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
@@ -137,10 +137,8 @@ class SystemRecoverySaveTest {
 
   @Test
   void delaysNewAutomaticSavesUntilTheFirstRiddleIsComplete() {
-    assertFalse(
-        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.ENERGY_ARRAY));
-    assertTrue(
-        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.MODULE_ARRAY));
+    assertFalse(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.ENERGY_ARRAY));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.MODULE_ARRAY));
   }
 
   @Test

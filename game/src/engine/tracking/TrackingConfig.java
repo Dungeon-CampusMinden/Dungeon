@@ -89,8 +89,7 @@ record TrackingConfig(
   }
 
   /** Creates room configuration with operator email and optional playthrough identifier. */
-  static TrackingConfig forRoom(
-      String roomId, String operatorEmail, Optional<UUID> runId) {
+  static TrackingConfig forRoom(String roomId, String operatorEmail, Optional<UUID> runId) {
     Builder builder = builder(roomId).operatorEmail(operatorEmail);
     applyDeploymentValues(builder);
     builder.runId(runId);
@@ -239,12 +238,7 @@ record TrackingConfig(
      */
     private TrackingConfig build() {
       return new TrackingConfig(
-          roomId,
-          endpoint,
-          Optional.ofNullable(apiKey),
-          outboxDirectory,
-          operatorEmail,
-          runId);
+          roomId, endpoint, Optional.ofNullable(apiKey), outboxDirectory, operatorEmail, runId);
     }
   }
 }

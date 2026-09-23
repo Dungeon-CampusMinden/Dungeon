@@ -550,7 +550,8 @@
       "title": "Quest Log",
       "note_prompt": "Write a note for this tab.",
       "note_placeholder": "Your note",
-      "create": "Add note",
+      "create": "Note",
+      "create_personal": "Private Note",
       "cancel": "Cancel"
     },
     "riddle1": {

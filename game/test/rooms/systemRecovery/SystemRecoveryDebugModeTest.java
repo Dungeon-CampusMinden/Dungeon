@@ -36,7 +36,6 @@ class SystemRecoveryDebugModeTest {
     SystemRecovery.configureDebugMode();
 
     assertArrayEquals(
-        new String[] {"--server", "--new-system-recovery"},
-        SystemRecovery.hostedServerArguments());
+        new String[] {"--server", "--new-system-recovery"}, SystemRecovery.hostedServerArguments());
   }
 }
