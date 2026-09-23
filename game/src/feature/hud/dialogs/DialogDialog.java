@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.utils.BaseContainerUI;
 import feature.hud.UIUtils;
-import feature.input.configuration.KeyboardConfig;
 import java.util.List;
 
 /**
@@ -24,8 +23,9 @@ import java.util.List;
  * <p>User interaction:
  *
  * <ul>
- *   <li>Any mouse click anywhere on the dialog or pressing the configured interact key (see {@link
- *       feature.input.configuration.KeyboardConfig#INTERACT_WORLD}) advances the script view.
+ *   <li>Any mouse click anywhere on the dialog, pressing the configured interact key (see {@link
+ *       feature.input.configuration.KeyboardConfig#INTERACT_WORLD}), or pressing {@code ESC}
+ *       advances the script view.
  *   <li>If the typewriter is still revealing text, advancing skips to the end of the current
  *       entry's text.
  *   <li>Otherwise, the next page is shown.
@@ -110,12 +110,12 @@ final class DialogDialog {
           }
         });
 
-    // Key listener on the dialog itself, only the configured interact key advances.
+    // Key listener on the dialog itself: both interaction and ESC advance one sequence step.
     dialog.addListener(
         new InputListener() {
           @Override
           public boolean keyDown(InputEvent event, int keycode) {
-            if (keycode != KeyboardConfig.INTERACT_WORLD.value()) {
+            if (!DialogAdvanceInput.isAdvanceKey(keycode)) {
               return false;
             }
             advance.run();
