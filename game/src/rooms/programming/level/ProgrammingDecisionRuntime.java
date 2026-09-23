@@ -19,7 +19,7 @@ final class ProgrammingDecisionRuntime {
   private final ProgrammingGolemRuntime motion;
   final ProgrammingEnding ending;
   private final ArrayDeque<Point> route = new ArrayDeque<>();
-  private Values values = new Values(45, 70, 22);
+  private Values values = DecisionMaze.start(0);
   private int revision, junction, failures;
   private int driver = -1;
   private boolean active, moving, blocked, completed;
@@ -64,6 +64,10 @@ final class ProgrammingDecisionRuntime {
 
   void show(Entity who) {
     if (!active || !authorized(who) || Game.hud().blocksGameplayInput(who)) return;
+    if (completed) {
+      ProgrammingGolemRuntime.showText(who, feedback);
+      return;
+    }
     if (driver >= 0 && driver != who.id()) return;
     driver = who.id();
     publish();
@@ -135,13 +139,42 @@ final class ProgrammingDecisionRuntime {
       }
       return;
     }
-    if (moving || blocked || completed) return;
+    if (!choosing()) return;
     Side side;
     try {
       side = Side.valueOf(intent.operation());
     } catch (IllegalArgumentException | NullPointerException ignored) {
       return;
     }
+    choose(who, side, false);
+  }
+
+  /**
+   * @return whether Nox waits at a junction for the next decision
+   */
+  boolean choosing() {
+    return active && !moving && !blocked && !completed;
+  }
+
+  /**
+   * @param who player requesting help
+   * @return whether the player currently rides Nox and may use its help
+   */
+  boolean helpAuthorized(Entity who) {
+    return driver >= 0 && driver == who.id() && authorized(who);
+  }
+
+  /**
+   * Takes the executed branch at the current junction after a confirmed help request.
+   *
+   * @param who riding player
+   */
+  void solve(Entity who) {
+    if (helpAuthorized(who) && choosing())
+      choose(who, DecisionMaze.evaluate(junction, values), true);
+  }
+
+  private void choose(Entity who, Side side, boolean assisted) {
     boolean correct = side == DecisionMaze.evaluate(junction, values);
     ProgrammingProgress.interaction("decisions", "junction-" + (junction + 1) + "-" + side, who);
     ProgrammingProgress.participant(who)
@@ -154,8 +187,8 @@ final class ProgrammingDecisionRuntime {
                     side.name(),
                     participant,
                     new engine.tracking.AttemptDetails(
-                        0,
-                        false,
+                        motion.help().level("decisions"),
+                        assisted,
                         correct
                             ? List.of()
                             : List.of("Ausgeführter Zweig führt zur anderen Tür."))));
@@ -168,30 +201,28 @@ final class ProgrammingDecisionRuntime {
         ProgrammingDecisionWorld.route(junction, side, correct),
         () -> {
           if (correct) {
-            var delta = DecisionMaze.delta(junction);
+            var delta = DecisionMaze.delta(junction++);
             values = values.plus(delta.kraft(), delta.energie(), delta.temperatur());
-            feedback = DecisionMaze.event(junction++);
+            feedback = "";
             if (junction == 6) {
               completed = true;
               motion.completeDecisions();
               feedback =
-                  "Das Herzfeuer ist erreicht. Steige von Nox ab und lies die Schriftrolle vor dem Feuer, "
+                  "Das Herzfeuer ist erreicht. Lies die Schriftrolle vor dem Feuer, "
                       + "um die Opfergabe darzubringen und den Raum abzuschließen.";
               ProgrammingProgress.solved("decisions", feedback);
+              // The ride ends at the goal; the rider walks to the inscription on foot.
+              int rider = driver;
+              dismount();
+              Game.findEntityById(rider)
+                  .ifPresent(player -> ProgrammingGolemRuntime.showText(player, feedback));
             }
           } else {
             ProgrammingDecisionWorld.reset(level);
             failures++;
             junction = 0;
-            // Events accumulate on the actual carried values, including previously crossed runes.
-            if (failures % 2 == 1) {
-              values = values.plus(15, -15, 5);
-              feedback =
-                  "START · Kraftquelle KRAFT +15 · Rückweg ENERGIE -15 · Feuerrune TEMPERATUR +5";
-            } else {
-              values = values.plus(0, 10, -5);
-              feedback = "START · Kristallquelle ENERGIE +10 · Eisrune TEMPERATUR -5";
-            }
+            values = DecisionMaze.start(failures);
+            feedback = "Zurück am START. Nox trägt neue Startwerte.";
           }
           publish();
           if (!correct) {
@@ -240,19 +271,23 @@ final class ProgrammingDecisionRuntime {
   void tick() {
     if (driver >= 0
         && Game.allPlayers().filter(player -> player.id() == driver).noneMatch(this::authorized)) {
-      int previousDriver = driver;
-      driver = -1;
-      Game.levelEntities()
-          .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-          .filter(ui -> ui.dialogContext().dialogType().type().equals(ProgrammingDecisions.ID))
-          .filter(
-              ui ->
-                  java.util.Arrays.stream(ui.targetEntityIds())
-                      .anyMatch(id -> id == previousDriver))
-          .toList()
-          .forEach(ui -> feature.hud.UIUtils.closeDialog(ui, true));
+      dismount();
       publish();
     }
+  }
+
+  /** Frees the seat and closes the former rider's controls; the caller publishes the change. */
+  private void dismount() {
+    int previousDriver = driver;
+    driver = -1;
+    Game.levelEntities()
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> ui.dialogContext().dialogType().type().equals(ProgrammingDecisions.ID))
+        .filter(
+            ui ->
+                java.util.Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == previousDriver))
+        .toList()
+        .forEach(ui -> feature.hud.UIUtils.closeDialog(ui, true));
   }
 
   boolean active() {

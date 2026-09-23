@@ -1004,7 +1004,7 @@ final class ProgrammingGolemRuntime {
   }
 
   String helpPuzzle() {
-    if (decisions.active()) return "methods";
+    if (decisions.active()) return "decisions";
     if (controller.phase() == ProgrammingPhase.METHODS) return "methods";
     if (controller.phase() == ProgrammingPhase.LOOPS)
       return "cellar-" + controller.completedLoops();
@@ -1012,7 +1012,7 @@ final class ProgrammingGolemRuntime {
   }
 
   boolean helpReady() {
-    if (decisions.active()) return false;
+    if (decisions.active()) return decisions.choosing();
     if (controller.phase() == ProgrammingPhase.METHODS) return workshop.helpReady();
     if (busy) return false;
     return controller.phase() == ProgrammingPhase.LOOPS ? mazeReady : !bindingState().revealed();
@@ -1035,7 +1035,8 @@ final class ProgrammingGolemRuntime {
       case VARIABLES -> authorized(who, "variables-golem", 4.5f);
       case LOOPS -> authorized(who, "loop-terminal", 3f);
       case METHODS -> workshop.helpAuthorized(who);
-      case DECISIONS, COMPLETE -> false;
+      case DECISIONS -> decisions.helpAuthorized(who);
+      case COMPLETE -> false;
     };
   }
 
@@ -1071,7 +1072,8 @@ final class ProgrammingGolemRuntime {
         executeRune(rune, who, true);
       }
       case METHODS -> workshop.solveHelp(who);
-      case DECISIONS, COMPLETE -> {}
+      case DECISIONS -> decisions.solve(who);
+      case COMPLETE -> {}
     }
   }
 

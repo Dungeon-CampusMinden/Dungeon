@@ -109,7 +109,8 @@ public final class ProgrammingHelp {
             "cellar-2",
             "cellar-3",
             "cellar-4",
-            "methods")) puzzles.put(id, new Progress());
+            "methods",
+            "decisions")) puzzles.put(id, new Progress());
   }
 
   State snapshot() {
@@ -331,6 +332,7 @@ public final class ProgrammingHelp {
       case "vessels" -> "Gefäße zuordnen";
       case "essences" -> "Essenzen einsetzen";
       case "methods" -> "Werkstattprogramm kürzen";
+      case "decisions" -> "Labyrinth der Entscheidungen";
       default -> "Kellerauftrag " + (Integer.parseInt(id.substring(7)) + 1);
     };
   }
@@ -341,6 +343,8 @@ public final class ProgrammingHelp {
       case "essences" -> "Fülle die Gefäße mit den Werten aus Valerius' Bindungsplan.";
       case "methods" ->
           "Erledige alle Arbeitsstellen mit höchstens acht Hauptblöcken und wiederverwendbaren Methoden.";
+      case "decisions" ->
+          "Führe die Rune mit Nox' aktuellen Werten aus und wähle die Tür des ausgeführten Zweigs.";
       default -> "Bringe Nox zur Zielmarke und richte ihn für den Räumauftrag aus.";
     };
   }
@@ -362,6 +366,11 @@ public final class ProgrammingHelp {
               "Nox arbeitet die verbundenen Hauptblöcke ab. Vergleiche das lange Ausgangsprogramm mit den Arbeitsstellen und fasse wiederholte Abschnitte zusammen.",
               "Höchstens acht Hauptblöcke und sechs Blöcke je Methode. Rufe eine Methode mit Parametern mehrfach auf und verwende einen Rückgabewert. Beide Altäre müssen gefüllt sein; Nox und kristalle müssen am Ende 0 haben.",
               "Die Werkbank markiert jetzt wiederholte Anweisungen und veränderliche Eingaben in Gold. Nutze Richtung und Menge als Parameter. Sammeln gibt die Menge zurück; der Aufrufer addiert sie zu kristalle und zieht abgelegte Mengen wieder ab.");
+      case "decisions" ->
+          List.of(
+              "Lies die Rune von oben nach unten. Setze Nox' aktuelle Werte in die erste Bedingung ein. Ist sie wahr, gilt der eingerückte Block darunter, sonst der Block nach dem zugehörigen SONST.",
+              "Prüfe nur die Bedingungen auf deinem Weg; übersprungene Blöcke zählen nicht. Bei UND müssen beide Teile wahr sein, bei ODER reicht einer. Achte auf > und >=: 50 > 50 ist falsch, 50 >= 50 ist wahr.",
+              "Das Runenbuch setzt jetzt Nox' aktuelle Werte in die Bedingungen ein. Vergleiche nur noch die Zahlen und folge dem Zweig, dessen Bedingung wahr ist.");
       default ->
           List.of(
               "Beobachte Nox und die Zielmarke am Sehstein. Sammle Programmrunen im Archiv und lege in der Kellersteuerung eine Rune in den Executor.",

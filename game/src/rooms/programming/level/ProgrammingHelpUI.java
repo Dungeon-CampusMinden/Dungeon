@@ -111,9 +111,14 @@ final class ProgrammingHelpUI extends Table {
       if (confirming) {
         line("Rätsel wirklich lösen?", 22, ProgrammingUI.GOLD);
         line(
-            state.puzzleId().equals("methods")
-                ? "Dein bisheriger Code wird durch die Lösung ersetzt und ausgeführt. Das Rätsel wird für alle Spieler gelöst."
-                : "Die Hilfe setzt die Lösung für dieses Rätsel ein. Das Rätsel wird für alle Spieler gelöst.",
+            switch (state.puzzleId()) {
+              case "methods" ->
+                  "Dein bisheriger Code wird durch die Lösung ersetzt und ausgeführt. Das Rätsel wird für alle Spieler gelöst.";
+              case "decisions" ->
+                  "Nox nimmt an dieser Kreuzung die Tür des ausgeführten Zweigs. Die folgenden Kreuzungen entscheidest du weiter selbst.";
+              default ->
+                  "Die Hilfe setzt die Lösung für dieses Rätsel ein. Das Rätsel wird für alle Spieler gelöst.";
+            },
             18,
             ProgrammingUI.TEXT);
         content

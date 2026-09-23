@@ -6,7 +6,7 @@ Mit E an Nox steigt ein Spieler auf. Die Steuerung öffnet sich automatisch und 
 bis zum Ende der Fahrt offen. Nur dieser Spieler entscheidet; weitere Spieler bewegen
 sich weiterhin frei im Raum. Nach einem Verbindungsabbruch wird der Sitz wieder frei.
 Ein anderer Spieler kann dann direkt an Nox aufsteigen und den laufenden Versuch fortsetzen.
-Auch am Herzfeuer bleibt der Spieler auf Nox und befindet sich tatsächlich am Ziel.
+Am Herzfeuer endet die Fahrt: Der Reiter steigt automatisch ab und die Steuerung schließt sich.
 
 ## Runen und Werte
 
@@ -24,17 +24,25 @@ auf den erfolgreichen Wegen die tatsächlich mitgeführten Werte:
 | 5 | Herzglut: Energie -13; Temperatur +4 | 68 / 42 / 31 |
 
 Damit lautet der erste fehlerfreie Weg RECHTS, RECHTS, LINKS, LINKS, RECHTS, LINKS.
-Die Werte werden bei einer Wiederholung nicht zurückgesetzt. Bereits ausgelöste
-Runenänderungen bleiben bestehen. Auf jedem erfolgreichen Durchgang wirkt die jeweilige
-Rune erneut. Nach ungeraden Fehlversuchen verändert der Rückweg am START Kraft +15,
-Energie -15 und Temperatur +5. Nach geraden Fehlversuchen folgen Energie +10 und
-Temperatur -5. Die Ereignisse sind deterministisch. Dieselbe Kreuzung kann anschließend
-einen anderen Zweig ausführen.
 
-Eine falsche Tür führt durch den äußeren Rückgang bis zum START. Erst dort ändern sich
-die Werte. Mit Weiter beginnt der nächste Versuch. Diese Pause lässt die Veränderung
-lesbar. Bei einem tatsächlichen Hindernis setzt Weiter den unterbrochenen Abschnitt
-von Nox' aktueller Position fort.
+Jeder weitere Versuch beginnt mit eigenen, festen Startwerten; nach dem vierten
+wiederholen sie sich:
+
+| Versuch | Kraft / Energie / Temperatur | Fehlerfreier Weg |
+| --- | --- | --- |
+| 1 | 45 / 70 / 22 | RECHTS, RECHTS, LINKS, LINKS, RECHTS, LINKS |
+| 2 | 50 / 90 / 21 | RECHTS, LINKS, RECHTS, RECHTS, LINKS, LINKS |
+| 3 | 35 / 70 / 15 | LINKS, LINKS, RECHTS, RECHTS, RECHTS, LINKS |
+| 4 | 40 / 75 / 27 | RECHTS, RECHTS, LINKS, LINKS, LINKS, RECHTS |
+
+Die Runen am Weg verändern die Werte wie oben. Bei jedem Satz erfüllt Nox an allen sechs
+Kreuzungen die äußerste Bedingung, sodass nie das äußerste SONST entscheidet. Dieselbe
+Kreuzung kann deshalb in einem neuen Versuch einen anderen Zweig verlangen, ohne dass
+sich die Runen auf einen trivialen Zweig reduzieren.
+
+Eine falsche Tür führt durch den äußeren Rückgang bis zum START. Erst dort erhält Nox
+die neuen Startwerte. Mit Weiter beginnt der nächste Versuch. Bei einem tatsächlichen
+Hindernis setzt Weiter den unterbrochenen Abschnitt von Nox' aktueller Position fort.
 
 ## Raum und Bewegung
 
@@ -67,17 +75,27 @@ Die vorhandene kollisionsgeprüfte Bewegung arbeitet die Wegpunkte mit fünf Til
 Die Kamera folgt Nox ohne Beobachtungseffekt. Der Code steht anfangs aufgeklappt unten
 in der Bildschirmmitte; LINKS und RECHTS stehen über den zugehörigen Türen. Ein Klick
 auf die Überschrift klappt den Codebereich ein oder aus. Während der Bewegung bleibt
-dieser Zustand erhalten; bei der Ankunft klappt der Bereich automatisch auf. Werte und
-Ereignistext bleiben sichtbar. Der Code hat Einrückungen und übersetzte Schlüsselwörter.
-Bei langem Code oder kleinen Fenstern lässt sich der Bereich horizontal und vertikal
-scrollen. Am Herzfeuer bleibt die letzte Rune als Java-Code einschließlich `&&` und `||`
-sichtbar.
+dieser Zustand erhalten; bei der Ankunft klappt der Bereich automatisch auf. Die aktuellen
+Werte bleiben sichtbar. Die Statuszeile darunter erscheint nur bei Hinweisen. Der Code hat
+Einrückungen und übersetzte Schlüsselwörter. Bei langem Code oder kleinen Fenstern
+lässt sich der Bereich horizontal und vertikal scrollen.
+
+## Hilfe und Questlog
+
+Neben Weiter stehen Hilfe und Quest-Log. Die Hilfe nutzt dieselbe Petri-Netz-Stufung wie
+Akt I bis III und ersetzt dabei das Runenbuch. Nur der Reiter kann sie verwenden, und nur
+solange Nox an einer Kreuzung wartet, werden Tipps freigegeben. Tipp 1 erklärt das Lesen
+von oben nach unten, Tipp 2 UND, ODER sowie `>` und `>=`. Tipp 3 setzt im Runenbuch
+Nox' aktuelle Werte in die Bedingungen ein. Danach wählt die bestätigte Lösung nur an der
+aktuellen Kreuzung die Tür des ausgeführten Zweigs; die Versuche werden mit Hilfestufe und
+automatischer Lösung getrackt.
 
 ## Abschluss am Herzfeuer
 
-Nach der sechsten Rune steigt der Spieler von Nox ab und interagiert mit der Schriftrolle
-vor dem Herzfeuer. Der Button „Opfergabe darbringen“ verbraucht die beiden dekorativen
-Kristalle und entzündet das Herzfeuer. Das Schließen des Dialogs bricht die Auswahl ab.
+Nach der sechsten Rune steigt der Spieler automatisch von Nox ab. Ein Hinweis verweist
+auf die Schriftrolle vor dem Herzfeuer. Der Button „Opfergabe darbringen“ verbraucht die
+beiden dekorativen Kristalle und entzündet das Herzfeuer. Das Schließen des Dialogs
+bricht die Auswahl ab.
 
 `ProgrammingEnding` nimmt die Opfergabe nur nach Abschluss des Labyrinths und nur einmal
 auf dem Server an. Dabei beendet `Tracking.completed()` die Sitzung erfolgreich, bevor

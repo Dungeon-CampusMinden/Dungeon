@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.systems.CameraSystem;
+import engine.utils.Cursors;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.programming.modules.decisions.DecisionMaze;
@@ -23,17 +25,21 @@ final class ProgrammingDecisionUI extends Group {
   private final Table bar = new Table();
   private final Label values = ProgrammingUI.label("", 17, ProgrammingUI.TEXT);
   private final Label feedback = ProgrammingUI.label("", 16, ProgrammingUI.TEXT);
+  private final Cell<Label> feedbackCell;
   private final Label code = ProgrammingUI.label("", 18, ProgrammingUI.TEXT);
   private final ScrollPane scroll;
   private final TextButton heading;
   private final TextButton left;
   private final TextButton right;
   private final TextButton resume;
+  private final TextButton helpButton;
+  private final ProgrammingHelpUI helpView;
   private final Vector3 projected = new Vector3();
   private final Vector2 stagePoint = new Vector2();
   private ProgrammingDecisions.State state;
   private int revision = -1;
   private boolean showRune = true;
+  private boolean helpOpen;
   private String title = "";
 
   ProgrammingDecisionUI(String dialogId, ProgrammingDecisions.State initial, int viewer) {
@@ -65,9 +71,42 @@ final class ProgrammingDecisionUI extends Group {
     feedback.setWrap(true);
     bar.add(values).growX();
     resume = ProgrammingUI.button("Weiter", true, () -> send("RESUME"));
-    bar.add(resume).width(110).height(38).padLeft(10).row();
-    bar.add(feedback).colspan(2).growX().padTop(5);
+    bar.add(resume).width(110).height(38).padLeft(10);
+    helpView =
+        new ProgrammingHelpUI(
+            "Entscheiden: LINKS oder RECHTS über der Tür wählen.\n"
+                + "Rune: Überschrift anklicken zum Ein- oder Ausklappen.\n"
+                + "Weiter: Setzt Nox nach einer Unterbrechung oder am START fort.",
+            this::helpEvent,
+            () -> help(false));
+    helpButton =
+        ProgrammingUI.referenceButton(
+            "Hilfe",
+            () -> {
+              if (helpOpen) {
+                helpView.returnToPuzzle();
+                return;
+              }
+              ProgrammingHelp.state().ifPresent(s -> helpEvent("help.open", s.puzzleId()));
+              help(true);
+            });
+    helpButton.setUserObject(Cursors.HELP);
+    bar.add(helpButton).width(95).height(38).padLeft(10);
+    bar.add(
+            ProgrammingUI.button(
+                "Quest-Log",
+                false,
+                () ->
+                    ProgrammingHelp.state()
+                        .ifPresent(s -> helpEvent("help.questlog", s.puzzleId()))))
+        .width(120)
+        .height(38)
+        .padLeft(8)
+        .row();
+    feedbackCell = bar.add(feedback).colspan(4).growX().padTop(5);
     addActor(bar);
+    helpView.setVisible(false);
+    addActor(helpView);
     left = ProgrammingUI.button("LINKS", true, () -> send("LEFT"));
     right = ProgrammingUI.button("RECHTS", true, () -> send("RIGHT"));
     addActor(left);
@@ -84,9 +123,14 @@ final class ProgrammingDecisionUI extends Group {
     setPosition(0, 0);
     ProgrammingDecisions.state().ifPresent(this::update);
     // Measure wrapped status text at its actual cell width before sizing the book.
-    values.setWidth(getWidth() - 24 - 20 - 120);
+    values.setWidth(getWidth() - 24 - 20 - 120 - 105 - 128);
     feedback.setWidth(getWidth() - 24 - 20);
-    float barHeight = 20 + Math.max(38, values.getPrefHeight()) + 5 + feedback.getPrefHeight();
+    // Without a status message the bar collapses to the value row.
+    boolean hasFeedback = feedback.getText().length() > 0;
+    float feedbackHeight = hasFeedback ? feedback.getPrefHeight() : 0;
+    feedbackCell.padTop(hasFeedback ? 5 : 0).height(feedbackHeight);
+    float barHeight =
+        20 + Math.max(38, values.getPrefHeight()) + (hasFeedback ? 5 : 0) + feedbackHeight;
     bar.setBounds(12, 12, getWidth() - 24, barHeight);
     float width = Math.min(560, getWidth() - 40);
     heading.getLabel().setWidth(width - 20);
@@ -94,10 +138,39 @@ final class ProgrammingDecisionUI extends Group {
     panel.getCell(heading).height(headingHeight);
     float bottom = bar.getY() + barHeight + 8;
     // Keep the book's upper edge below Nox even on a short window.
-    float height = showRune ? Math.max(100, getHeight() * .45f - bottom) : headingHeight;
-    panel.setBounds((getWidth() - width) / 2, bottom, width, height);
+    float expanded = Math.max(100, getHeight() * .45f - bottom);
+    panel.setBounds((getWidth() - width) / 2, bottom, width, showRune ? expanded : headingHeight);
+    helpView.setBounds(panel.getX(), bottom, width, expanded);
+    // Help level changes do not alter the decision revision; the simplified book follows them.
+    String rune = runeText(state);
+    if (!code.getText().toString().equals(rune)) code.setText(rune);
     placeChoice(left, true);
     placeChoice(right, false);
+  }
+
+  private void help(boolean open) {
+    helpOpen = open;
+    helpButton.setChecked(open);
+    helpView.setVisible(open);
+    panel.setVisible(!open);
+  }
+
+  private void helpEvent(String action, String puzzleId) {
+    DialogCallbackResolver.createButtonCallback(dialogId, action)
+        .accept(new DialogResponseMessage.StringValue(puzzleId));
+  }
+
+  /**
+   * @param state current decision snapshot
+   * @return current rune; after the third tip with Nox' values substituted into its conditions
+   */
+  private static String runeText(ProgrammingDecisions.State state) {
+    String rune = DecisionMaze.RUNES[Math.min(5, state.junction())];
+    if (!ProgrammingHelpUI.simplified("decisions")) return rune;
+    var values = state.values();
+    return rune.replace("Kraft", String.valueOf(values.kraft()))
+        .replace("Energie", String.valueOf(values.energie()))
+        .replace("Temperatur", String.valueOf(values.temperatur()));
   }
 
   private void arrangePanel() {
@@ -136,39 +209,21 @@ final class ProgrammingDecisionUI extends Group {
         state == null
             || state.junction() != next.junction()
             || (state.moving() && !next.moving() && !next.blocked());
-    boolean newCode =
-        state == null
-            || state.junction() != next.junction()
-            || state.completed() != next.completed();
+    boolean newCode = state == null || state.junction() != next.junction();
     state = next;
     revision = next.revision();
     if (arrived) showRune = true;
     values.setText(next.values().label() + "     Versuch " + (next.failures() + 1));
     feedback.setText(
-        next.feedback() + (next.driver() != viewer ? " · Ein anderer Spieler reitet Nox." : ""));
-    title =
-        next.completed()
-            ? "Herzfeuer · Die Runen waren Programmcode"
-            : "Kreuzung "
-                + (next.junction() + 1)
-                + " / 6 · "
-                + DecisionMaze.TITLES[Math.min(5, next.junction())];
+        next.driver() == viewer
+            ? next.feedback()
+            : (next.feedback().isEmpty() ? "" : next.feedback() + " · ")
+                + "Ein anderer Spieler reitet Nox.");
+    // The completed state may arrive just before the server closes this dialog.
+    int rune = Math.min(5, next.junction());
+    title = "Kreuzung " + (rune + 1) + " / 6 · " + DecisionMaze.TITLES[rune];
     if (newCode) {
-      code.setText(
-          next.completed()
-              ?
-"""
-Eine Bedingung wählt einen Zweig.
-Ein Zweig kann weitere Bedingungen enthalten.
-Das heißt Verschachtelung.
-
-WENN = if    SONST = else
-UND = &&    ODER = ||
-WAHR = true    FALSCH = false
-
-"""
-                  + DecisionMaze.JAVA
-              : DecisionMaze.RUNES[Math.min(5, next.junction())]);
+      code.setText(runeText(next));
       scroll.setScrollX(0);
       scroll.setScrollY(0);
       scroll.updateVisualScroll();

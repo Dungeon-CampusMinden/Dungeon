@@ -80,12 +80,13 @@ Sie beobachten ihn über eine Karte und einen Sehstein.
 
 ## Hilfe, Questlog und Erfolge
 
-**Hilfe.** In Akt I bis III kann die Gruppe für die aktuelle Aufgabe gestufte Hinweise
+**Hilfe.** In jedem Akt kann die Gruppe für die aktuelle Aufgabe gestufte Hinweise
 anfordern. Die Stufen werden nacheinander freigegeben. Stufe 1 erklärt die Aufgabe,
 Stufe 2 nennt die entscheidende Idee und Stufe 3 markiert die Lösung im UI. Danach bietet
 die Hilfe eine automatische Lösung an, die erst nach einer Bestätigung ausgeführt wird.
-Freigegebene Hinweise bleiben im Questlog lesbar. Akt IV hat keine Hilfe, weil jede
-Entscheidung direkt am sichtbaren Code nachrechenbar ist.
+In Akt IV setzt Stufe 3 Nox' aktuelle Werte in die Rune ein, und die automatische Lösung
+wählt nur an der aktuellen Kreuzung die richtige Tür. Freigegebene Hinweise bleiben im
+Questlog lesbar.
 
 **Questlog.** Das Questlog zeigt die aktuelle Aufgabe, gefundene Texte und Hinweise.
 
@@ -348,16 +349,16 @@ RECHTS. Weitere Spieler bewegen sich frei. Trennt sich der Reiter, wird der Sitz
 und ein anderer Spieler kann weitermachen.
 
 Unten in der Mitte steht die Rune als eingerückter Pseudocode mit WENN, SONST, UND und
-ODER. Die aktuellen Werte und das letzte Ereignis bleiben sichtbar. Die Wahl öffnet die
-gewählte Tür:
+ODER. Die aktuellen Werte bleiben sichtbar. Die Wahl öffnet die gewählte Tür:
 
 - **Richtig:** Nox läuft weiter zur nächsten Kreuzung. Eine Rune am Weg verändert seine
   Werte.
-- **Falsch:** Nox nimmt den äußeren Rückgang bis zum START. Erst dort ändern sich die
-  Werte deterministisch, danach beginnt der nächste Versuch.
+- **Falsch:** Nox nimmt den äußeren Rückgang bis zum START. Dort erhält er die festen
+  Startwerte des nächsten Versuchs.
 
-Die Werte werden nie zurückgesetzt. Nach einem Fehler kann dieselbe Kreuzung deshalb
-einen anderen Zweig verlangen. Auswendiglernen hilft nicht, nur Nachrechnen.
+Jeder Versuch hat eigene Startwerte, bei denen keine Rune im äußersten SONST endet.
+Nach einem Fehler kann dieselbe Kreuzung deshalb einen anderen Zweig verlangen.
+Auswendiglernen hilft nicht, nur Nachrechnen.
 
 ## Runen und Werte
 
@@ -373,27 +374,7 @@ Start: Kraft 45, Energie 70, Temperatur 22.
 | 6 | Herzfeuer-Siegel | 68 / 42 / 31 | LINKS | Ankunft am Herzfeuer |
 
 Das gilt für einen fehlerfreien Durchlauf. Die letzte Rune hat vier Ebenen und
-verbindet Bedingungen mit UND und ODER. Am Herzfeuer bleibt sie als Java-Code sichtbar:
-
-```java
-if (energie >= 40) {
-    if (kraft > 60) {
-        if (temperatur > 30 && energie < 50) {
-            if (kraft >= 70 || temperatur > 35) {
-                // RECHTS
-            } else {
-                // LINKS
-            }
-        } else {
-            // LINKS
-        }
-    } else {
-        // LINKS
-    }
-} else {
-    // RECHTS
-}
-```
+verbindet Bedingungen mit UND und ODER.
 
 ## Lernziel
 
@@ -438,7 +419,7 @@ Zielzeit hinaus verlängern.
 | I | Werte passen nur in bestimmte Gefäße | `int`, `double`, `String`, `char`, `boolean` als Deklaration |
 | II | Nox wiederholt Bewegungen, bis etwas eintritt oder gezählt ist | `while`, `do-while`, `for` im Runencode |
 | III | Das lange Programm passt nicht in die Steuerung | Methode, Parameter, Rückgabe |
-| IV | Werte bestimmen den Weg | `if` / `else`, `&&`, `||` als Java-Code am Herzfeuer |
+| IV | Werte bestimmen den Weg | WENN / SONST, UND, ODER als Runen-Pseudocode |
 
 Die Abstraktion steigt von Akt zu Akt. In Akt I ordnen die Spieler zu, in Akt II wählen
 sie fertige Programme, in Akt III bauen sie Programme um, und in Akt IV werten sie
