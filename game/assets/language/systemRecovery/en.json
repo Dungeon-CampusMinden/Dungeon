@@ -459,6 +459,7 @@
       "delete": "Delete",
       "next-step": "Next Step",
       "petri-net": "Petri Net",
+      "get-usb": "Get USB",
       "debug-petri-net-title": "Petri Net Debug",
       "debug-close": "Close",
       "debug-petri-net-not-initialized": "Petri net: not initialized",

@@ -9,6 +9,9 @@ public final class SystemRecoveryComputerCallbacks {
   /** Opens the server-authoritative Petri-net token inspection for local debugging. */
   public static final String DEBUG_PETRI_NET = "debugPetriNet";
 
+  /** Gives an empty sort-program USB stick to the requesting player's inventory. */
+  public static final String DEBUG_GIVE_USB = "debugGiveUsb";
+
   /** Stores the edited bubble-sort condition on the inserted sort-program stick. */
   public static final String SORT_PROGRAM_SAVE = "sortProgramSave";
 

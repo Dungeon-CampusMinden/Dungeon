@@ -382,6 +382,15 @@ public final class HeroBuilder {
                     firstUI -> {
                       UIComponent uiComp = firstUI.b();
 
+                      // Sequenced dialogs consume ESC themselves so it advances one page instead
+                      // of closing the complete tree through the global UI close handler.
+                      if (uiComp
+                          .dialogContext()
+                          .find(DialogContextKeys.ESCAPE_ADVANCES, Boolean.class)
+                          .orElse(false)) {
+                        return;
+                      }
+
                       String dialogId = uiComp.dialogContext().dialogId();
                       DialogCallbackResolver.createButtonCallback(
                               dialogId, DialogContextKeys.ON_CLOSE)

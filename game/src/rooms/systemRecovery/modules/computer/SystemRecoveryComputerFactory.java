@@ -310,6 +310,13 @@ public final class SystemRecoveryComputerFactory {
             SystemRecoveryLevel.showPetriNetDebug(targetEntityId);
           }
         });
+    ui.registerCallback(
+        SystemRecoveryComputerCallbacks.DEBUG_GIVE_USB,
+        data -> {
+          if (SystemRecovery.debugMode()) {
+            addToInventory(targetEntityId, new SortProgramStickItem());
+          }
+        });
   }
 
   /**

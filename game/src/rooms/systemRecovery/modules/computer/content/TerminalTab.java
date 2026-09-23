@@ -111,6 +111,8 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 24);
     TextButton petriNetButton =
         createButton(SystemRecoveryText.text("computer.petri-net"), "blue-outline", 24);
+    TextButton getUsbButton =
+        createButton(SystemRecoveryText.text("computer.get-usb"), "blue-outline", 24);
     sendButton.addListener(
         new ChangeListener() {
           @Override
@@ -141,11 +143,21 @@ public class TerminalTab extends SystemRecoveryComputerTab {
                 .accept(new DialogResponseMessage.StringValue(""));
           }
         });
+    getUsbButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            DialogCallbackResolver.createButtonCallback(
+                    context().dialogId(), SystemRecoveryComputerCallbacks.DEBUG_GIVE_USB)
+                .accept(new DialogResponseMessage.StringValue(""));
+          }
+        });
     buttons.add(sendButton).width(150).height(52).padRight(12);
     buttons.add(deleteButton).width(150).height(52);
     if (SystemRecovery.debugMode()) {
       buttons.add(nextStepButton).width(180).height(52).padLeft(12);
       buttons.add(petriNetButton).width(180).height(52).padLeft(12);
+      buttons.add(getUsbButton).width(160).height(52).padLeft(12);
     }
     footer.add(buttons).right();
     layout.add(footer).growX().height(68).padTop(12);

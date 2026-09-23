@@ -32,6 +32,7 @@ public class DialogShowConverterTest {
             .dialogId("dialog-42")
             .put(DialogContextKeys.TITLE, "Hello")
             .put(DialogContextKeys.MESSAGE, "World")
+            .put(DialogContextKeys.ESCAPE_ADVANCES, true)
             .put(DialogContextKeys.OWNER_ENTITY, 10)
             .put(DialogContextKeys.ENTITY, 20)
             .put(DialogContextKeys.ADDITIONAL_BUTTONS, new String[] {"Retry", "Quit"})
@@ -84,6 +85,7 @@ public class DialogShowConverterTest {
     assertEquals(context.center(), roundTrip.center());
     assertEquals("Hello", roundTrip.require(DialogContextKeys.TITLE, String.class));
     assertEquals("World", roundTrip.require(DialogContextKeys.MESSAGE, String.class));
+    assertTrue(roundTrip.require(DialogContextKeys.ESCAPE_ADVANCES, Boolean.class));
     assertEquals(10, roundTrip.require(DialogContextKeys.OWNER_ENTITY, Integer.class));
     assertEquals(20, roundTrip.require(DialogContextKeys.ENTITY, Integer.class));
     assertArrayEquals(

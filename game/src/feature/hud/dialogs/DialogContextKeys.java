@@ -101,6 +101,9 @@ public class DialogContextKeys {
   /** The key for the dialog script (String) used by {@link DialogDialog}. */
   public static final String DIALOG = "dialog";
 
+  /** The key for dialogs where {@code ESC} advances instead of closing the dialog (Boolean). */
+  public static final String ESCAPE_ADVANCES = "escapeAdvances";
+
   /** The image path substituted for {@code {path}} in a translated dialog script. */
   public static final String SPEAKER_IMAGE = "speakerImage";
 
