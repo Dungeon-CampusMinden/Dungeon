@@ -49,8 +49,8 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
-import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.save.SystemRecoveryLoad;
+import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryTranslator;
 
@@ -179,7 +179,9 @@ public final class SystemRecovery {
     return runId;
   }
 
-  /** @return the saved or explicitly selected tracking decision for this run */
+  /**
+   * @return the saved or explicitly selected tracking decision for this run
+   */
   public static Boolean trackingConsent() {
     return trackingConsent;
   }
@@ -202,9 +204,7 @@ public final class SystemRecovery {
     String status =
         decision == null
             ? translation.text("status.undecided")
-            : decision
-                ? translation.text("status.enabled")
-                : translation.text("status.disabled");
+            : decision ? translation.text("status.enabled") : translation.text("status.disabled");
     return new GameStarter.TrackingSettings(
         trackingText(translation, "settingsTitle"),
         trackingText(translation, "settingsSummary"),
@@ -222,7 +222,13 @@ public final class SystemRecovery {
         SystemRecovery::deleteLocalTrackingData);
   }
 
-  /** Resolves the privacy copy that matches the active tracking storage deployment. */
+  /**
+   * Resolves the privacy copy that matches the active tracking storage deployment.
+   *
+   * @param translation translation source for the tracking consent text
+   * @param key localization key within the selected storage deployment
+   * @return the localized tracking consent text
+   */
   private static String trackingText(Translation translation, String key) {
     String variant = Tracking.remoteStorageEnabled() ? "central" : "local";
     return translation.text(variant + "." + key);
@@ -242,7 +248,8 @@ public final class SystemRecovery {
     try {
       SystemRecoverySave.updateTrackingConsent(consentGiven);
     } catch (IOException exception) {
-      throw new IllegalStateException("Could not update tracking consent in the savegame.", exception);
+      throw new IllegalStateException(
+          "Could not update tracking consent in the savegame.", exception);
     }
   }
 
@@ -250,8 +257,8 @@ public final class SystemRecovery {
    * Restores the host name passed by the menu when this is a managed server child process.
    *
    * <p>The client still sends the name again during the normal network handshake. This property
-   * only closes the startup race in which the server can reach its first save checkpoint before
-   * the host client has connected and spawned its authoritative player entity.
+   * only closes the startup race in which the server can reach its first save checkpoint before the
+   * host client has connected and spawned its authoritative player entity.
    */
   private static void configureManagedServerPlayerName() {
     String hostName = System.getProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY);
@@ -270,9 +277,7 @@ public final class SystemRecovery {
     // The client asks again after every application restart. A managed server has no UI and must
     // restore the decision supplied by its client or the existing savegame.
     if (!containsArgument(args, ServerProcess.SERVER_ARGUMENT)) return null;
-    return SystemRecoveryLoad.read()
-        .map(SystemRecoverySave.SaveData::trackingConsent)
-        .orElse(null);
+    return SystemRecoveryLoad.read().map(SystemRecoverySave.SaveData::trackingConsent).orElse(null);
   }
 
   private static void publishTrackingConsentProperty() {

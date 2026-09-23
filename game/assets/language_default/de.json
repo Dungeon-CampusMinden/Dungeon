@@ -41,8 +41,8 @@
         "questlog": {
             "title": "Questlog",
             "empty": "Questlog ist leer.",
-            "create": "Erstellen",
-            "create_personal": "Persönliche Notiz",
+            "create": "Notiz",
+            "create_personal": "Private Notiz",
             "cancel": "Abbrechen",
             "note_prompt": "Schreibe eine Notiz fuer das Questlog.",
             "note_placeholder": "Deine Notiz..."

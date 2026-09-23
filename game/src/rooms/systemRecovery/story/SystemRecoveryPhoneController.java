@@ -150,23 +150,25 @@ public final class SystemRecoveryPhoneController {
     }
     if ("system-core-warning".equals(completedCallKey)) {
       SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle10", "system-core-warning", "echo", "system-core-warning");
+          "riddle10", "system-core-warning", SystemRecoveryText.echoCall(completedCallKey));
       if (finalEchoCallPending) {
         finalEchoCallPending = false;
         startRingingCall("final-call");
       }
     } else if ("data-storage-problem".equals(completedCallKey)) {
       SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle5", "data-storage-problem", "echo", "data-storage-problem");
+          "riddle5", "data-storage-problem", SystemRecoveryText.echoCall(completedCallKey));
       openDataStorage.run();
     } else if ("final-call".equals(completedCallKey)) {
-      SystemRecoveryQuestLogUtil.addDialogEntry("riddle10", "final-call", "echo", "final-call");
+      SystemRecoveryQuestLogUtil.addDialogEntry(
+          "riddle10", "final-call", SystemRecoveryText.echoCall(completedCallKey));
       openElevator.run();
     } else if ("opening-call-correct".equals(completedCallKey)) {
       SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle1", "opening-call-correct", "echo", "opening-call-correct");
+          "riddle1", "opening-call-correct", SystemRecoveryText.echoCall(completedCallKey));
     } else {
-      SystemRecoveryQuestLogUtil.addDialogEntry("riddle1", "opening-call", "echo", "opening-call");
+      SystemRecoveryQuestLogUtil.addDialogEntry(
+          "riddle1", "opening-call", SystemRecoveryText.echoCall(completedCallKey));
     }
   }
 }

@@ -25,8 +25,33 @@ public final class SystemRecoveryQuestLogUtil {
   /**
    * Adds one complete story dialog to the tab belonging to its riddle.
    *
-   * <p>The speaker and dialog body remain separate transport keys, so every client can render the
+   * <p>The complete dialog script remains a string transport value, so every client can render the
    * same entry in its own language.
+   *
+   * @param riddleKey stable riddle translation key
+   * @param dialogKey stable dialog identifier used for de-duplication
+   * @param dialogScript canonical dialog script, including its speaker tag
+   */
+  public static void addDialogEntry(String riddleKey, String dialogKey, String dialogScript) {
+    if (riddleKey == null || dialogKey == null || dialogScript == null) {
+      return;
+    }
+
+    String uniqueKey = riddleKey + "." + dialogKey;
+    if (!ADDED_ENTRIES.add(uniqueKey)) return;
+
+    boolean added = QuestLogUtil.add(SystemRecoveryText.questKey(riddleKey + ".tab"), dialogScript);
+    if (!added) {
+      ADDED_ENTRIES.remove(uniqueKey);
+    }
+  }
+
+  /**
+   * Adds one complete story dialog using the legacy speaker/message-key API.
+   *
+   * <p>This overload remains for callers compiled against the earlier package API and preserves its
+   * historical two-translation-key newline payload. Live dialog paths that need speaker metadata
+   * use the three-argument canonical script overload instead.
    *
    * @param riddleKey stable riddle translation key
    * @param dialogKey stable dialog identifier used for de-duplication
@@ -35,22 +60,12 @@ public final class SystemRecoveryQuestLogUtil {
    */
   public static void addDialogEntry(
       String riddleKey, String dialogKey, String speakerKey, String messageKey) {
-    if (riddleKey == null || dialogKey == null || speakerKey == null || messageKey == null) {
-      return;
-    }
-
-    String uniqueKey = riddleKey + "." + dialogKey;
-    if (!ADDED_ENTRIES.add(uniqueKey)) return;
-
-    boolean added =
-        QuestLogUtil.add(
-            SystemRecoveryText.questKey(riddleKey + ".tab"),
-            SystemRecoveryText.key("story." + speakerKey)
-                + "\n"
-                + SystemRecoveryText.key("story." + messageKey));
-    if (!added) {
-      ADDED_ENTRIES.remove(uniqueKey);
-    }
+    if (speakerKey == null || messageKey == null) return;
+    String legacyScript =
+        SystemRecoveryText.key("story." + speakerKey)
+            + "\n"
+            + SystemRecoveryText.key("story." + messageKey);
+    addDialogEntry(riddleKey, dialogKey, legacyScript);
   }
 
   /**

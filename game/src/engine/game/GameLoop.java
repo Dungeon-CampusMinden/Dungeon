@@ -891,8 +891,7 @@ public final class GameLoop extends ScreenAdapter {
         .send(
             (short) 0,
             new InitialWorldReady(
-                TrackingRuntime.clientRoomPlayedBefore(),
-                TrackingRuntime.localTrackingConsent()),
+                TrackingRuntime.clientRoomPlayedBefore(), TrackingRuntime.localTrackingConsent()),
             true)
         .whenComplete(
             (success, error) -> {
