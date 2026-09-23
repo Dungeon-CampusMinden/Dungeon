@@ -158,9 +158,9 @@ public class Scene2dElementFactory {
    */
   public static TextButton createButton(String text, String styleName, int fontSize) {
     TextButton element = new TextButton(text, DEFAULT_SKIN, styleName);
-    Label.LabelStyle style = element.getLabel().getStyle();
+    TextButton.TextButtonStyle style = element.getStyle();
     style.font = FontHelper.getFont(FONT_PATH_BOLD, fontSize, Color.WHITE, 0, Color.BLACK);
-    element.getLabel().setStyle(style);
+    element.setStyle(style);
     element.setUserObject(Cursors.INTERACT);
     if (element.getStyle().up != null) {
       var up = element.getStyle().up;

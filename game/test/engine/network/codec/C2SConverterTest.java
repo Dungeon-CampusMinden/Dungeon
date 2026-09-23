@@ -628,7 +628,7 @@ public class C2SConverterTest {
   /** Verifies initial world ready conversion. */
   @Test
   public void testInitialWorldReadyRoundTrip() {
-    InitialWorldReady message = new InitialWorldReady(true);
+    InitialWorldReady message = new InitialWorldReady(true, true);
 
     engine.network.proto.c2s.InitialWorldReady proto =
         INITIAL_WORLD_READY_CONVERTER.toProto(message);
@@ -637,6 +637,7 @@ public class C2SConverterTest {
     InitialWorldReady roundTrip = INITIAL_WORLD_READY_CONVERTER.fromProto(proto);
 
     assertTrue(roundTrip.roomPlayedBefore());
+    assertEquals(Optional.of(true), roundTrip.trackingConsent());
     assertEquals(message, roundTrip);
   }
 

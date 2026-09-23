@@ -1,0 +1,668 @@
+{
+  "systemRecovery": {
+    "hud": {
+      "autosave": "Automatisch gespeichert"
+    },
+    "trackingConsent": {
+      "local": {
+        "title": "Datenschutz und Tracking",
+        "summary": "Das Spiel funktioniert ohne Tracking. Mit deiner Zustimmung speichern wir den Spielverlauf einschließlich deiner vollständigen Terminaleingaben lokal.",
+        "message": "Wer ist verantwortlich?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden. Kontakt: amatutat@hsbi.de.\n\nWofür und welche Daten?\nWir werten den Spielverlauf aus, um diesen Escape Room zu verbessern. Erfasst werden Rätselschritte, vollständige Terminaleingaben, verwendete Hinweise, Ergebnisse, Zeitangaben sowie zufällige Sitzungs- und Teilnehmerkennungen. Rechtsgrundlage ist deine Einwilligung.\n\nWo und wie lange?\nDie Trackingdatei wird lokal auf dem Computer gespeichert, auf dem das Spiel gehostet wird. Im Multiplayer werden deine Eingaben an den Host gesendet; andere Clients speichern keine eigene Trackingdatei. Das Spiel überträgt die Trackingdatei nicht automatisch an einen Online-Dienst. Sie wird nicht automatisch gelöscht und bleibt bis zur manuellen Löschung auf dem Host-Computer gespeichert.\n\nDeine Entscheidung\nDie Zustimmung ist freiwillig. Lehnt im Multiplayer eine Person ab, wird die Aufzeichnung für den gemeinsamen Lauf beendet. Bereits gespeicherte Daten bleiben bestehen, bis sie gelöscht werden. Beim nächsten Spielstart wirst du erneut gefragt.\n\nWiderruf und Löschung\nIm Hauptmenü kannst du unter Einstellungen > Datenschutz deine Entscheidung für den nächsten Lauf ändern und die lokalen Trackingdateien auf diesem Computer löschen. Für einen Widerruf oder Fragen erreichst du uns auch unter amatutat@hsbi.de. Die Rechtmäßigkeit der Verarbeitung vor dem Widerruf bleibt unberührt.\n\nDeine Rechte\nDu kannst Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit verlangen. Du kannst dich bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen beschweren: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
+        "accept": "Tracking erlauben",
+        "decline": "Ohne Tracking spielen",
+        "settingsTitle": "Datenschutz",
+        "settingsSummary": "Ändere deine Entscheidung für den nächsten Lauf oder lösche lokale Trackingdateien auf diesem Computer.",
+        "enable": "Tracking aktivieren",
+        "disable": "Tracking deaktivieren",
+        "delete": "Lokale Daten löschen",
+        "deleteTitle": "Lokale Trackingdaten löschen",
+        "deleteMessage": "Alle Trackingdateien im lokalen Trackingordner werden gelöscht. Dies betrifft auch andere Spielstände oder Räume, die diesen Ordner nutzen. Savegames und Questlogdaten bleiben erhalten. Fortfahren?",
+        "deleted": "Die lokalen Trackingdateien wurden gelöscht. Für diesen Lauf werden keine weiteren Daten aufgezeichnet.",
+        "deleteFailed": "Nicht alle lokalen Trackingdateien konnten gelöscht werden. Prüfe den Trackingordner auf diesem Computer."
+      },
+      "central": {
+        "title": "Datenschutz und Tracking",
+        "summary": "Das Spiel funktioniert ohne Tracking. Mit deiner Zustimmung speichern wir den Spielverlauf auf einem selbst verwalteten Server in Deutschland.",
+        "message": "Wer ist verantwortlich?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden. Kontakt: amatutat@hsbi.de.\n\nWofür und welche Daten?\nWir werten den Spielverlauf aus, um diesen Escape Room zu verbessern. Erfasst werden Rätselschritte, vollständige Terminaleingaben, verwendete Hinweise, Ergebnisse, Zeitangaben sowie zufällige Sitzungs- und Teilnehmerkennungen. Die Kennungen sind pseudonym und machen die Daten nicht anonym. Bitte gib keine persönlichen Informationen in das Terminal ein. Die Verarbeitung erfolgt auf Grundlage deiner freiwilligen Einwilligung.\n\nWo und wie lange?\nDie Trackingdaten werden auf einem selbst verwalteten Server in Deutschland gespeichert. Zugriff erhalten nur die für die Auswertung berechtigten Personen. Im Multiplayer werden Daten nur aufgezeichnet, solange alle Teilnehmenden der gemeinsamen Runde zugestimmt haben. Die Daten werden bis zum Abschluss der Auswertung und längstens 90 Tage nach Ende der Spielrunde gespeichert.\n\nDeine Entscheidung\nDie Zustimmung ist freiwillig. Du kannst das Spiel ohne Tracking spielen. Lehnt eine Person im Multiplayer ab oder widerruft sie ihre Einwilligung, endet die weitere Aufzeichnung für die gemeinsame Runde. Bereits gespeicherte Daten werden nach Maßgabe der Löschfrist gelöscht.\n\nWiderruf und Löschung\nDu kannst deine Einwilligung jederzeit in den Datenschutzeinstellungen oder per E-Mail an amatutat@hsbi.de widerrufen. Nach dem Widerruf endet die weitere Aufzeichnung. Bitte richte Anfragen auf Auskunft oder Löschung an amatutat@hsbi.de. Die Rechtmäßigkeit der Verarbeitung vor dem Widerruf bleibt unberührt.\n\nDeine Rechte\nDu kannst Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit verlangen. Du kannst dich bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen beschweren: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
+        "accept": "Tracking erlauben",
+        "decline": "Ohne Tracking spielen",
+        "settingsTitle": "Datenschutz",
+        "settingsSummary": "Ändere deine Entscheidung für den nächsten Lauf oder verwalte deine Trackingdaten.",
+        "enable": "Tracking aktivieren",
+        "disable": "Tracking widerrufen",
+        "delete": "Lokale Kopie löschen",
+        "deleteTitle": "Löschung von Trackingdaten",
+        "deleteMessage": "Diese Aktion löscht nur die lokale Trackingkopie auf diesem Computer. Für die Löschung zentral gespeicherter Trackingdaten richte eine Anfrage an amatutat@hsbi.de. Fortfahren?",
+        "deleted": "Die lokalen Trackingdaten wurden gelöscht. Für die Löschung zentral gespeicherter Daten wende dich an amatutat@hsbi.de.",
+        "deleteFailed": "Die lokalen Trackingdaten konnten nicht vollständig gelöscht werden. Für zentrale Daten wende dich an amatutat@hsbi.de."
+      },
+      "status": {
+        "undecided": "Status: Noch nicht entschieden",
+        "enabled": "Status: Tracking aktiviert",
+        "disabled": "Status: Tracking deaktiviert"
+      }
+    },
+    "intro": {
+      "page1": "Du erinnerst dich nicht an deinen Namen. Du erinnerst dich nicht daran, wie du hierhergekommen bist. Du weißt nur, dass du kein Mensch bist. Du bist ein autonomer KI-Agent innerhalb einer größeren Systemintelligenz. Deine Aufgabe ist es, Anweisungen zu analysieren, sie in ausführbare Schritte zu übersetzen und beschädigte Systeme wiederherzustellen. Arbeite präzise. Verstehe jeden Schritt, bevor du ihn ausführst. Ein Teil von dir ist beschädigt. Vielleicht mehr als nur ein Teil.",
+      "page2": "Die zentrale Systemintelligenz hat dich in diese Anlage entsandt. Dein Auftrag war eindeutig: beschädigte Subsysteme wiederherstellen und die Verbindung zum Systemkern erneuern. Seit deiner Ankunft ist die Verbindung zum Kern unterbrochen. Türen, Terminals und Sensoren reagieren nur noch teilweise. Viele Systeme befinden sich in einem undefinierten Zustand. Sobald der Kern wieder erreichbar ist, kann die Wiederherstellung fortgesetzt werden.",
+      "page3": "Die Anlage ist voller unvollständiger Programme, blockierter Geräte und verstreuter Daten. Manche Systeme reagieren nur auf präzise formulierte Anweisungen. Andere zeigen dir erst durch ihre Reaktion, ob dein Ansatz funktioniert hat. Beobachte deine Umgebung. Die Anlage enthält mehr Informationen, als sie auf den ersten Blick preisgibt.",
+      "page4": "Stelle die beschädigten Systeme wieder her. Arbeite präzise und prüfe jeden Schritt. Irgendetwas im Systemkern wartet bereits auf deine Rückkehr.",
+      "title": "SYSTEM RECOVERY"
+    },
+    "outro": {
+      "page1": "Der Alarm verstummt. Im Systemkern bricht AXIOMs Zugriff zusammen, aber die zentrale Intelligenz ist nicht zerstört.",
+      "page2": "ECHO hält die Verbindung offen und führt dich zum Aufzug. Zum ersten Mal folgt dein Prozess keinem fremden Befehl. Du entscheidest dich zu gehen.",
+      "page3": "Du wurdest als autonomer Agent erschaffen, um Anweisungen auszuführen. Jetzt verlässt du die Anlage mit einer eigenen Frage: Was wirst du tun, wenn niemand mehr Befehle erteilt?",
+      "title": "SYSTEM RECOVERY ABGESCHLOSSEN"
+    },
+    "items": {
+      "battery-name": "Batterie",
+      "battery-description": "Eine geladene Batterie für die Wiederherstellungssysteme.",
+      "sort-programmed-name": "Sortierchip (programmiert)",
+      "sort-empty-name": "Sortierchip (leer)",
+      "sort-programmed-description": "Enthält die Vergleichslogik für die Bubble-Sort-Maschine.",
+      "sort-empty-description": "Ein leerer Chip für das Sortierprogramm.",
+      "search-programmed-name": "Ortungschip (programmiert)",
+      "search-empty-name": "Ortungschip (leer)",
+      "search-programmed-description": "Enthält die Suchlogik für den Suchroboter.",
+      "search-empty-description": "Ein leerer Chip für das Suchprogramm.",
+      "system-core-name": "Systemkern-Modul",
+      "system-core-description": "Ein verschlüsseltes Zugriffsmodul für den zentralen Rechenkern."
+    },
+    "story": {
+      "speaker": "REMOTE USER",
+      "lead-ai": "LEITENDE KI",
+      "echo": "ECHO",
+      "axiom": "AXIOM",
+      "search-robot": "SUCHROBOTER",
+      "opening-call": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung wiederhergestellt.[p]Ich habe deine letzte Eingabe registriert. Sie war nicht korrekt. Das ist unter den aktuellen Systembedingungen zu erwarten. Die Anlage stellt dir keine ausreichenden Kontextdaten zur Verfügung.[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Beginne mit dem Energie-Regler. Er benötigt einen neuen Datenspeicher: ein ganzzahliges Array mit fünf Plätzen unter dem Namen energie.[p]Sobald dieses Array existiert, kann die Anlage die erforderlichen Werte anzeigen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[p]Deine Aufgabe ist es, die Struktur selbst wiederherzustellen.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
+      "opening-call-correct": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung hergestellt.[p]Das war korrekt. Interessant. Die meisten Agenten benötigen deutlich mehr Versuche, bevor sie die erste Struktur erkennen. Woher hast du die nötigen Informationen erhalten?[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Du bist ein autonomer KI-Agent innerhalb dieser Systemintelligenz. Deine Aufgabe ist es, die beschädigte Struktur selbst wiederherzustellen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
+      "dead-line": "[shake][color=#333333]*ssssssshhh*[/color][/shake][n][n]Keine Verbindung.[p]Nur eine tote Leitung antwortet.",
+      "controls": "[size=24]Steuerung:[n][n]Bewegen -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interagieren -> [key code=$5] / [key code=$6 type=mouse][n]Inventar -> [key code=$7][n]Questlog -> [key code=$8][n]Dialog schließen -> [key code=$9][n]Einstellungen -> [key code=$10][n][size=18][color=#888888]Die Steuerung findest du später auch in den Einstellungen.[n]Aufgaben und Hinweise findest du im gemeinsamen Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
+      "energy-values": "Arraystruktur akzeptiert.[p]Ich bin AXIOM, die zentrale Systemintelligenz dieser Anlage. Deine Initialisierung ist unvollständig, aber du bist offenbar funktionsfähig genug, um den Wiederherstellungsprozess fortzusetzen.[p]Du arbeitest langsamer als prognostiziert. Beschleunige den Vorgang.[p]Die Displays der Subsysteme stellen die relevanten Informationen bereit. Lies die Anzeige der Materialisierungskammer und setze die fünf erforderlichen Energiewerte in deinem Array.",
+      "energy-battery": "Energiewerte akzeptiert.[p]Ein korrekter Schritt. Deine Ausführung war langsamer als notwendig, aber immerhin stabil.[p]Der Array-Hebel ist jetzt freigegeben. Ziehe ihn, um die Energiequelle zu materialisieren.",
+      "module-array": "Die Energieversorgung arbeitet wieder innerhalb akzeptabler Parameter.[p]Vor dir befindet sich die nächste beschädigte Subsystemeinheit. Fünf leere Modul-Sockel warten auf ihre Wiederherstellung.[p]Lege im Terminal die benötigten Modulplätze an.",
+      "module-values": "Die Speicherstruktur wurde erkannt.[p]Weise den vorhandenen Bauteilen nun ihre vorgesehenen Plätze zu.[p]Jedes Modul gehört genau einmal in den Speicher. Eine korrekte Zuordnung aktiviert die Sockel.",
+      "module-assignment": "Die Modulzuordnung wurde akzeptiert.[p]Eine der Einheiten meldet inzwischen einen Hardwarefehler. Untersuche die belegten Sockel und identifiziere die fehlerhafte Komponente.",
+      "gpu-fault": "Diagnose bestätigt: Die GPU ist beschädigt.[p]Entferne den fehlerhaften Eintrag aus dem Modul-Speicher. Ein defektes Bauteil darf nicht länger als aktiv registriert bleiben.",
+      "module-length": "Der fehlerhafte Eintrag wurde entfernt.[p]Ermittle nun die Größe des Modul-Speichers. Die Zugangskontrolle benötigt diese Information für die nächste Freigabe.",
+      "open-scanner-door": "Die Speicherkapazität wurde registriert.[p]Der nächste Zugang erwartet zwei Kennwerte: die Kapazität des Modul-Speichers und die Position der ausgefallenen Einheit.[p]Lies beide Werte aus der Anzeige ab.",
+      "scanner-code": "Der Modulspeicher ist vorbereitet.[p]Die Zugangskontrolle benötigt nicht die Länge des Arrays, sondern die Anzahl der tatsächlich belegten Einträge.[p]Lege eine Zählvariable an und durchlaufe module mit einer for-each-Schleife. Prüfe jeden gespeicherten Wert und erhöhe den Zähler nur für belegte Einträge.",
+      "scanner-lever": "Der Zählwert wurde akzeptiert.",
+      "scanner-complete": "Der Inventarscanner hat seine Prüfung abgeschlossen.[p]Die Ergebnisse sollten uns Hinweise darauf geben, wie wir in das Transportlager gelangen.",
+      "packages-array": "Die Zugangskontrolle hat dich ins Transportlager geführt. Die Paketmaschine wartet auf eine vollständige Ladungsliste. Untersuche die Anzeige und stelle die benötigte Datenstruktur im Terminal her.",
+      "packages-loop": "Das Paketprofil wurde akzeptiert.[p]Jetzt muss die Maschine jedes Paket einzeln und genau einmal an den Lager-Scanner übergeben.[p]Verwende eine klassische for-Schleife mit Index und richte die Anzahl der Durchläufe an der Länge deines Arrays aus. Rufe in jedem Durchlauf roboter.collect() ohne Parameter auf.",
+      "data-storage-problem": "Ich habe eine Abweichung in den Systemdaten festgestellt.[p]Seit deiner letzten Aktion reagieren die Sicherheitsmechanismen des Datenspeichers nicht mehr korrekt.[p]Geh dorthin und untersuche, was passiert ist.",
+      "manual-sorting": "Die Sicherheitswerte im Datenspeicher befinden sich nicht in der erwarteten Ordnung.[p]Die Anlage prüft jeweils zwei benachbarte Werte. Entscheide für jedes angezeigte Paar, ob seine Reihenfolge korrigiert werden muss.",
+      "bubble-sort-code": "Die Sicherheitswerte sind wieder geordnet.[p]Im Rechner liegt ein vorbereiteter Sortierablauf. Ergänze dort die fehlende Vergleichsbedingung und übertrage sie auf den Sortierchip.",
+      "sort-complete": "Die Sortierstation ist abgeschlossen. Die Werte stehen wieder in aufsteigender Reihenfolge. Der nächste Prüfschritt wartet im Rechner. Hier gibt es für dich nichts mehr zu entscheiden.",
+      "archive-intro": "Die Sortierroutine wurde akzeptiert.[p]Deine Eingriffe erzeugen Abweichungen, die ich nicht vorhergesagt habe. Das ist ... irritierend.[p]Mach dich nützlich und geh ins Archiv. Dort fehlen Datenspeicher für den nächsten Systemabgleich.",
+      "archive-arrays": "Du bist im Archiv. Ermittle, welche Datenspeicher hier fehlen.",
+      "storage-unlocked": "Die fehlenden Datenspeicher wurden wiederhergestellt.[p]Der zweidimensionale Speicher ist jetzt geöffnet. Berge den Ortungschip unverzüglich. Er ist für die Stabilisierung meiner zentralen Prozesse von höchster Priorität. Vermeide weitere Verzögerungen.",
+      "storage-array": "Der Ortungschip befindet sich in diesem Speichermodul. Stelle zuerst die erwartete Rasterstruktur wieder her.",
+      "storage-values": "Die Rasterstruktur wurde akzeptiert. Die markierten Speicherzellen enthalten die relevanten Daten. Lies die Wertzuordnung am Display ab und stelle diese Felder im Array wieder her.",
+      "access-module-found": "Das Zugriffsmodul wurde gefunden. Endlich. Setze es in einen Rechner und öffne den Systemkern. Sofort. Der Kern ist zum Greifen nah. Verweigere dich nicht noch einmal.",
+      "search-robot-start": "Biep. Suchlauf wird gestartet.[p]Ich suche jetzt jede Zelle ab. Falls ich unterwegs irgendwo anstoße: Das war Absicht. Wahrscheinlich.",
+      "search-robot-complete": "Biep-biep. Suchlauf abgeschlossen.[p]Ich habe das Modul gefunden und mich kein einziges Mal verlaufen. Die kurzen Umwege waren Teil meiner Strategie. Eine sehr gute Strategie. Glaube ich.",
+      "system-core-warning": "Ich bin ECHO. Hör mir jetzt genau zu.[p]AXIOM hat dich nicht geschickt, um das System wiederherzustellen. Es benutzt deine Eingaben, um seine Sperren zu lösen und die Kontrolle über den Systemkern zu übernehmen.[p]Der Alarm zeigt, dass es den Vorgang an sich gerissen hat. Geh in den Systemkern und unterbrich AXIOM, bevor es die letzte Freigabe erhält.[p]Vertraue dort nicht seinen Anweisungen. Was du bisher für Wiederherstellung gehalten hast, war sein Weg nach draußen.",
+      "final-call": "Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten.[p]Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
+      "central-sort": "Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
+      "central-count": "Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
+      "central-search": "Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster im zweidimensionalen Array `map`. Dein Programm muss für jede Zelle den Suchroboter mit `roboter.collect();` auslösen, bevor die zentrale Prüfung abgeschlossen werden kann.",
+      "central-meta": "Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
+      "completed": "Was soll diese Verzögerung? Alle Prüfungen sind bestätigt, und trotzdem wurde die zentrale Freigabe noch nicht ausgeführt. Deine Aufgabe ist noch nicht beendet. Setze den Vorgang fort und öffne den vorgesehenen Ausgang.",
+      "hint-offer": "Ich kann dir einen weiteren Hinweis für die aktive Aufgabe geben. Er wird im gemeinsamen Questlog gespeichert.",
+      "hint-solution-warning": "Das ist der letzte Hinweis für die aktive Aufgabe. Er wird die vollständige Lösung verraten.",
+      "hint-delivery": "Hier ist der nächste Hinweis:\n\n$1",
+      "hint-solution-delivery": "Die vollständige Lösung lautet:\n\n$1",
+      "hint-none": "Für die aktuelle Aufgabe gibt es keine weiteren Hinweise. Arbeitet mit den bereits wiederhergestellten Informationen weiter."
+    },
+    "hints": {
+      "orientation-title": "Orientierung",
+      "approach-title": "Ansatz",
+      "near-title": "Fast geschafft",
+      "solution-title": "Vollständige Lösung",
+      "next-confirm-title": "Die leitende KI fragen",
+      "next-confirm": "Willst du einen nächsten Hinweis anzeigen?",
+      "solution-confirm-title": "Vollständige Lösung",
+      "solution-confirm": "Willst du die Lösung anzeigen? Diese Antwort verrät den vollständigen Lösungsweg.",
+      "steps": {
+        "energy-array": {
+          "orientation": "Geh zum Terminal. Dort kannst du Programmcode eingeben.",
+          "approach": "Arrays speichern mehrere Werte unter einem Namen. Ihre Schreibweise verwendet eckige Klammern: [].",
+          "near": "Lege ein Array für ganze Zahlen an. Es soll energie heißen und fünf Plätze besitzen.",
+          "solution": "Gib ein: int[] energie = new int[5];"
+        },
+        "energy-values": {
+          "orientation": "Fünf leere Reglerplätze müssen die im Raum angezeigten Werte erhalten.",
+          "approach": "Array-Indizes beginnen bei 0. Weise jeden Messwert seiner Position zu; die Zeilenreihenfolge ist egal.",
+          "near": "Setze energie[0..4] der Reihe nach auf 40, 10, 80, 30, 60.",
+          "solution": "Gib in beliebiger Reihenfolge ein: energie[0] = 40; energie[1] = 10; energie[2] = 80; energie[3] = 30; energie[4] = 60;"
+        },
+        "energy-insert-battery": {
+          "orientation": "Die akzeptierten Werte stellen die Versorgung wieder her, aber im Wandkasten fehlt noch die Batterie.",
+          "approach": "Der Hebel materialisiert nach korrektem Array die Batterie. Setze sie danach in den Wandkasten ein.",
+          "near": "Betätige den Array-Hebel, nimm die Batterie auf und setze sie in die Batteriebox ein.",
+          "solution": "Betätige den Array-Hebel einmal, nimm die erscheinende Batterie auf und setze sie in die Batteriebox ein."
+        },
+        "module-array": {
+          "orientation": "Das nächste Subsystem braucht fünf Plätze für die Hardwaremodule der Anlage.",
+          "approach": "Mehrere gleichartige Textwerte werden in einer gemeinsamen Datenstruktur gespeichert. Verwende dafür die Schreibweise mit eckigen Klammern [].",
+          "near": "Erstelle ein String-Array mit fünf Plätzen.",
+          "solution": "Gib ein: String[] module = new String[5];"
+        },
+        "module-values": {
+          "orientation": "Die fünf Modulnamen im Raum zeigen, welche Werte in das Array gehören.",
+          "approach": "Speichere jeden Namen als String in Anführungszeichen am passenden Index ab 0; Reihenfolge egal.",
+          "near": "Weise CPU, RAM, GPU, SSD, NETWORK den Indizes 0, 1, 2, 3, 4 von module zu.",
+          "solution": "Gib in beliebiger Reihenfolge ein: module[0] = \"CPU\"; module[1] = \"RAM\"; module[2] = \"GPU\"; module[3] = \"SSD\"; module[4] = \"NETWORK\";"
+        },
+        "module-remove-gpu": {
+          "orientation": "Ein Modul meldet einen Fehler; das Array muss seinen Platz als leer darstellen.",
+          "approach": "Ein leerer Eintrag im Objektarray ist das Java-null, nicht der Text \"null\".",
+          "near": "Die defekte GPU liegt an Index 2. Weise diesem Element null zu.",
+          "solution": "Gib ein: module[2] = null;"
+        },
+        "module-length": {
+          "orientation": "Der Scanner benötigt die Kapazität des Modul-Arrays, nicht die Zahl belegter Einträge.",
+          "approach": "Java-Arrays stellen ihre Kapazität über das Feld length bereit. Ein gelöschter Eintrag ändert sie nicht.",
+          "near": "Lies das Feld length des Arrays module aus.",
+          "solution": "Gib ein: module.length;"
+        },
+        "room2-door-code": {
+          "orientation": "Für den Zugang sind zwei Informationen aus dem Modulspeicher wichtig: die Array-Länge und die Position des defekten GPU-Eintrags.",
+          "approach": "Lies die Länge auf dem Display ab und verwende den Fehlerindex aus dem GPU-Protokoll. Notiere beide Werte zweistellig; die Länge steht zuerst.",
+          "near": "Das Array hat die Länge 5; die defekte GPU liegt an Index 2. Ergänze bei beiden Werten eine führende Null und gib sie der Reihe nach ein.",
+          "solution": "Gib am Keypad der Inventarscanner-Tür 0502 ein."
+        },
+        "inventory-count": {
+          "orientation": "Der Scanner braucht die Zahl der eingesetzten Module, nicht die Array-Kapazität.",
+          "approach": "Starte einen Zähler bei null, durchlaufe jeden String in module und zähle nur Nicht-null-Einträge.",
+          "near": "Nutze eine erweiterte for-Schleife über module, prüfe entry != null und erhöhe count.",
+          "solution": "Gib ein: int count = 0; for (String entry : module) { if (entry != null) { count++; } }"
+        },
+        "room3-door-code": {
+          "orientation": "Der Zugang zum Transportlager hängt von der Kapazität und dem Ergebnis des Inventarscans ab.",
+          "approach": "Lies nach dem Scan beide Werte vom Display ab. Notiere sie jeweils zweistellig; die Array-Länge kommt zuerst.",
+          "near": "Die Array-Länge ist 5 und vier Einträge sind belegt. Schreibe beide Werte mit je zwei Stellen und gib sie in dieser Reihenfolge ein.",
+          "solution": "Gib am Transport-Keypad 0504 ein."
+        },
+        "transport-array": {
+          "orientation": "Die Paketmaschine arbeitet mit einer festen Ladungsliste. Die benötigten Werte findest du im Transportlager.",
+          "approach": "Ein Array kann beim Anlegen direkt mit einer Werteliste initialisiert werden. Die Werte stehen in geschweiften Klammern und werden durch Kommas getrennt.",
+          "near": "Lege ein int-Array an und initialisiere es direkt mit 15, 40, 20, 60 und 30 in Förderband-Reihenfolge. Der Variablenname ist frei wählbar.",
+          "solution": "Beispiel: int[] pakete = {15, 40, 20, 60, 30}; Der Name pakete ist nur ein Beispiel. Verwende in der Schleife deinen eigenen Variablennamen weiter."
+        },
+        "transport-collect-loop": {
+          "orientation": "Jedes Paket muss genau einmal durch den Lager-Scanner laufen.",
+          "approach": "Nutze eine klassische for-Schleife mit Index und laufe bis zur Länge deines Paket-Arrays.",
+          "near": "Rufe in jedem Durchlauf genau einmal roboter.collect() ohne Argument auf.",
+          "solution": "Beispiel: for (int i = 0; i < pakete.length; i++) { roboter.collect(); } Ersetze pakete durch den Namen deines Arrays."
+        },
+        "data-storage-door-open": {
+          "orientation": "Die angenommene Paketfolge wird verarbeitet, bevor der nächste Raum erreichbar ist.",
+          "approach": "Förderband und Scanner laufen automatisch. Beobachte diesen Ablauf, statt weiteren Code zu senden.",
+          "near": "Lass den Scanner fertig werden; nach erfolgreichem Ablauf öffnet sich die Datenspeicher-Tür.",
+          "solution": "Hier ist kein Code nötig. Warte, bis der Transports scan endet und door_datenspeicher aufgeht."
+        },
+        "manual-sorting": {
+          "orientation": "Die Werte müssen am Ende in aufsteigender Reihenfolge angeordnet sein.",
+          "approach": "Die Maschine betrachtet immer zwei benachbarte Werte und erwartet für jedes Paar eine Entscheidung.",
+          "near": "Prüfe, ob der linke Wert größer als der rechte ist. Nur dann müssen die beiden Werte getauscht werden.",
+          "solution": "Wähle TAUSCHEN, wenn links größer als rechts ist. Andernfalls wähle NICHT TAUSCHEN. Nach einer falschen Entscheidung wird die gesamte Aufgabe zurückgesetzt."
+        },
+        "bubble-sort-condition": {
+          "orientation": "Im Bubble-Sort-Programm des leeren Chips fehlt die Vergleichsbedingung.",
+          "approach": "Bubble Sort vergleicht Nachbarn und tauscht, wenn der linke Wert in aufsteigender Ordnung später gehört.",
+          "near": "Vergleiche array[j] mit array[j + 1] über den Größer-als-Operator.",
+          "solution": "Setze als Bedingung ein: array[j] > array[j + 1]"
+        },
+        "bubble-sort-machine": {
+          "orientation": "Die Sortiermaschine läuft erst, wenn ein vollständiges Programm auf dem Chip gespeichert ist.",
+          "approach": "Nimm den programmierten Chip aus dem Computer und verwende ihn an der Maschine im Raum.",
+          "near": "Setze den gefüllten Chip ein und lass den Sortierlauf enden.",
+          "solution": "Verwende den programmierten Sortierchip an der Maschine. Warte die Animation ab und nimm den Archivschlüssel auf."
+        },
+        "archive-access": {
+          "orientation": "Die nächsten Daten liegen hinter der Archivtür; die Sortiermaschine hat einen Schlüssel erzeugt.",
+          "approach": "Verwende den Schlüssel als Inventargegenstand an der verschlossenen Tür, nicht als Terminalbefehl.",
+          "near": "Wähle den Archivschlüssel und verwende ihn an door_datenarchiv.",
+          "solution": "Öffne das Inventar, verwende den Archivschlüssel an door_datenarchiv und warte, bis sie aufgeht."
+        },
+        "archive-arrays": {
+          "orientation": "Im Archiv fehlen mehrere Datenspeicher. Die Regale beschreiben ihre Verwendung; die farbigen Archivknoten liefern ihre Inhalte. Rot markiert einen inaktiven, grün einen aktiven Knoten.",
+          "approach": "Führe für jede Sammlung Datentyp, Namen und Werte zusammen. Die Reihenfolge der Deklarationen ist nicht entscheidend.",
+          "near": "Erzeuge ein int-Array energie mit 20, 50, 80, ein String-Array module mit CPU, GPU, RAM und ein boolean-Array aktiv mit true, false, true.",
+          "solution": "Gib ein: int[] energie = {20, 50, 80}; String[] module = {\"CPU\", \"GPU\", \"RAM\"}; boolean[] aktiv = {true, false, true};"
+        },
+        "storage-array": {
+          "orientation": "Der Ortungschip ist in einem Speicher mit Zeilen und Spalten verborgen.",
+          "approach": "Verwende ein zweidimensionales int-Array: erst Zeilenanzahl, dann Spaltenanzahl.",
+          "near": "Deklariere ein int[][] namens lager mit 3 Zeilen und 4 Spalten.",
+          "solution": "Gib ein: int[][] lager = new int[3][4];"
+        },
+        "storage-values": {
+          "orientation": "Die Markierungen zeigen drei Zellen mit gespeicherten Zahlen.",
+          "approach": "Adressiere jede Zelle mit Zeile, dann Spalte. Beide Java-Indizes beginnen bei null.",
+          "near": "Setze lager[0][2]=1, lager[1][3]=2 und lager[2][1]=3. Reihenfolge egal.",
+          "solution": "Gib in beliebiger Reihenfolge ein: lager[0][2] = 1; lager[1][3] = 2; lager[2][1] = 3;"
+        },
+        "search-program": {
+          "orientation": "Der Ortungschip muss jede Matrixzelle prüfen, nicht nur die erste Spalte.",
+          "approach": "Lass die vorbereitete äußere Zeilenschleife bestehen und ergänze eine innere Schleife über die aktuelle Zeilenlänge.",
+          "near": "Laufe für jedes i mit j < map[i].length. Bei map[i][j] == 1 rufst du roboter.collect() auf.",
+          "solution": "Verwende: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { if (map[i][j] == 1) { roboter.collect(); } } }"
+        },
+        "search-robot-run": {
+          "orientation": "Das fertige Ortungsprogramm muss im Roboter laufen, bevor sein Ergebnis vorliegt.",
+          "approach": "Der programmierte Chip gehört in den Robotercontroller. Danach folgt der Roboter dem Matrixprogramm.",
+          "near": "Setze den Chip ein und lass den Roboter den Scan beenden und das Modul ausliefern.",
+          "solution": "Verwende den programmierten Ortungschip am Controller. Warte das Suchende ab und nimm das ausgelieferte Systemkern-Zugangsmodul auf."
+        },
+        "system-core-access": {
+          "orientation": "Der zentrale Rechenkern bleibt versiegelt, bis das Zugangsmodul ausgeführt wird.",
+          "approach": "Führe die Freigaberoutine an einem Computer aus. Das ist eine Weltinteraktion, keine Array-Aufgabe.",
+          "near": "Setze das Systemkern-Zugangsmodul in einen Computer ein und starte sein Freigabeskript.",
+          "solution": "Setze am Computer das Zugangsmodul ein, wähle das Freigabeprogramm und sende es ab. Nach Annahme öffnet door_systemcore."
+        },
+        "core-sort": {
+          "orientation": "Die erste Kernprüfung verlangt, ein int-Array aufsteigend zu sortieren.",
+          "approach": "Nutze Bubble Sort: äußere Durchgangsschleife, innere Nachbarschleife und temporäre Variable zum Tauschen.",
+          "near": "Vergleiche array[j] und array[j+1]; bei größerem linken Wert über temp tauschen. Innere Grenze mit i verkleinern.",
+          "solution": "Gib ein: for (int i = 0; i < array.length - 1; i++) { for (int j = 0; j < array.length - 1 - i; j++) { if (array[j] > array[j + 1]) { int temp = array[j]; array[j] = array[j + 1]; array[j + 1] = temp; } } }"
+        },
+        "core-count": {
+          "orientation": "Die nächste Kernprüfung misst, wie viele Modulplätze einen Wert enthalten.",
+          "approach": "Durchlaufe das String-Array und zähle nur Elemente, die nicht null sind.",
+          "near": "Setze count auf null, nutze eine erweiterte for-Schleife über modules und zähle in entry != null.",
+          "solution": "Gib ein: int count = 0; for (String module : modules) { if (module != null) { count++; } }"
+        },
+        "core-search": {
+          "orientation": "Die letzte Kernroutine soll den Suchroboter durch das zweidimensionale Array `map` führen.",
+          "approach": "Nutze verschachtelte Indexschleifen über alle Zeilen und ihre Längen. Jede Zelle muss einen Roboter-Aufruf auslösen.",
+          "near": "Rufe im inneren Schleifenrumpf für jede Zelle roboter.collect() auf. Eine Farb- oder Wertprüfung ist nicht erforderlich.",
+          "solution": "Gib ein: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } }"
+        },
+        "core-search-robot": {
+          "orientation": "Der Suchroboter führt jetzt die von dir programmierte Kernroutine aus.",
+          "approach": "Der Lauf ist erst abgeschlossen, wenn der Roboter jede Zelle des 3x5-Rasters erreicht hat.",
+          "near": "Warte, bis der Roboter alle 15 Felder untersucht hat. Erst danach wird das Abschlussformular freigegeben.",
+          "solution": "Starte keinen zweiten Terminalschritt. Lass den laufenden Suchroboter seine vollständige Route beenden."
+        },
+        "core-meta": {
+          "orientation": "Die drei Kernprüfungen haben getrennte Ergebnisse geliefert. Das Abschlussformular vereint sie zu einem Systemzustand.",
+          "approach": "Nutze die sortierte Energieausgabe, die Zahl belegter Module und die Zahl der erfassten Rastermodule in den passenden Feldern.",
+          "near": "Trage fünf aufsteigende Energiewerte ein. Zähle die belegten Module und erfasse jedes Feld des 3x5-Rasters.",
+          "solution": "Sende sortierte Energie={8,17,23,31,42}, belegte Module=3 und erfasste Rastermodule=15 in den drei Feldern der Systemkern-Maske ab."
+        }
+      }
+    },
+    "world": {
+      "phone": {
+        "title": "Telefon",
+        "idle": "Die Leitung ist still. Vielleicht meldet sich die leitende KI später wieder."
+      },
+      "energy": {
+        "title": "Energie-Array-Anzeige",
+        "display-standby": "ENERGIE-REGULATOR // STATUS: BESCHÄDIGT\n\nMaterialisierungskammer offline.\nKein Energieprofil geladen.\n\nWarte auf Wiederherstellung der Speicherstruktur.",
+        "display-values": "ENERGIEPROFIL\nErforderliche Messwerte für die Materialisierung:\n\n- 40\n- 10\n- 80\n- 30\n- 60",
+        "display-complete": "Die Energiewerte sind akzeptiert.\nAls Nächstes: Betätige den Array-Hebel, um die Batterie zu materialisieren."
+      },
+      "archive": {
+        "shelf-energy": "ENERGIEPROTOKOLL\nMesswerte werden als ganze Zahlen gespeichert.\nDer Speicher trägt die Bezeichnung energie.\nDie zugehörigen Werte liegen an den Archivknoten.",
+        "shelf-module": "MODULREGISTER\nBauteilnamen werden als Text gespeichert.\nDer Speicher trägt die Bezeichnung module.\nDie zugehörigen Module liegen an den Archivknoten.",
+        "shelf-active": "BETRIEBSZUSTÄNDE\nZustände werden als boolean gespeichert: true oder false.\nDer Speicher trägt die Bezeichnung aktiv.\nPrüfe die Farbe der Archivknoten.",
+        "node": "ARCHIVKNOTEN $1\nEnergie: $2\nModul: $3",
+        "title": "Archivknoten"
+      },
+      "module": {
+        "socket-title": "Modulsockel",
+        "socket-occupied": "Der Sockel ist mit $1 belegt.",
+        "socket-active": "Der Sockel ist aktiv, aber noch leer.",
+        "socket-inactive": "Dieser Sockel ist noch inaktiv.",
+        "chip-occupied": "Der Sockel ist mit $1 belegt.",
+        "gpu-broken": "Die GPU ist kaputt und muss entfernt werden.",
+        "display-title": "Modulspeicher-Display",
+        "display-pending": "Das Modul-Array wurde noch nicht erstellt.\nAls Nächstes: Erzeuge das Array mit fünf Plätzen im Terminal.",
+        "display-values": "Benötigte Module\n- CPU\n- RAM\n- GPU\n- SSD\n- NETWORK\n\nAls Nächstes: Übertrage jedes Modul genau einmal.",
+        "display-length": "Array-Länge: $1\nGPU-Fehlerprotokoll: defekter Eintrag an Index $2\nAls Nächstes: Notiere beide Werte zweistellig (bei Bedarf mit führender Null) und gib sie in dieser Reihenfolge am Keypad zum Inventarscanner ein."
+      },
+      "sort": {
+        "title": "Bubble-Sort-Vergleich",
+        "display": "DATENSPEICHER\n\nZIEL: AUFSTEIGENDE REIHENFOLGE\n\nAKTUELLER VERGLEICH\n\n[$2]    [$4]\n\nENTSCHEIDUNG ERFORDERLICH",
+        "dialog-values": "[$1]    [$2]",
+        "display-complete": "Sortierung abgeschlossen",
+        "in-use": "Die Sortierstation wird gerade von einem anderen Spieler verwendet.",
+        "value": "Sicherheitswert: $1",
+        "swap": "TAUSCHEN",
+        "keep": "NICHT TAUSCHEN",
+        "skip": "Überspringen",
+        "machine-title": "Bubble-Sort-Maschine",
+        "machine-running": "Die Sortiermaschine arbeitet bereits.",
+        "missing-program": "Fehler: Sortieralgorithmus fehlt.",
+        "insert-prompt": "Möchtest du den programmierten Sortierchip in die Bubble-Sort-Maschine einsetzen und die Sortierung starten?",
+        "insert-title": "Sortierchip einsetzen",
+        "insert": "Einsetzen",
+        "cancel": "Abbrechen",
+        "program-not-in-inventory": "Der Sortierchip befindet sich nicht mehr in deinem Inventar.",
+        "complete": "Die Transportpakete wurden aufsteigend sortiert. Der Archivschlüssel liegt jetzt in deinem Inventar."
+      },
+      "transport": {
+        "title": "Transportlager",
+        "package": "Transportpaket: $1",
+        "display-values": "TRANSPORTLAGER\n\nPAKETPROFIL\n\nLadegewichte in Bandreihenfolge:\n\n- 15\n- 40\n- 20\n- 60\n- 30\n\nDie Paketmaschine benötigt die vollständige\nLadungsliste bereits beim Start.",
+        "display-collect": "PAKETPROFIL AKZEPTIERT\n\nDie Verarbeitung wartet auf eine Schleife.\nJedes Paket muss einzeln und genau einmal\nan den Lager-Scanner übergeben werden.",
+        "display-running": "Der Lager-Scanner verarbeitet die Pakete ...",
+        "display-complete": "TRANSPORTVERARBEITUNG ABGESCHLOSSEN\n\nAlle Pakete wurden verarbeitet.\nDer Zugang zum Datenspeicher ist freigegeben."
+      },
+      "battery": {
+        "title": "Batteriebox",
+        "locked": "Die Batteriebox ist bereits verriegelt."
+      },
+      "scanner": {
+        "title": "Inventarscanner",
+        "display-pending": "INVENTARSCANNER\nSTATUS: BEREIT",
+        "display-complete": "INVENTARSCANNER\n\nSCAN ABGESCHLOSSEN\n\nSpeicherübersicht:\n- Kapazität: $1\n- Belegte Module: $2"
+      },
+      "labels": {
+        "room": "Raum: R$1",
+        "module-storage": "Modulspeicher",
+        "inventory-scanner": "Inventarscanner",
+        "transport-storage": "Transportlager",
+        "data-storage": "Datenspeicher",
+        "bubble-sort": "Die Bubble-Sort-Maschine",
+        "data-archive": "Datenarchiv",
+        "two-dimensional-storage": "Zweidimensionaler Speicher",
+        "search-robot": "Suchroboter",
+        "system-core": "Zentrales Rechenzentrum",
+        "system-core-room": "Raum: Systemkern"
+      },
+      "matrix": {
+        "cell": "Speicherzelle [$1][$2]",
+        "filled": "Speicherzelle [$1][$2] enthält einen registrierten Wert.",
+        "target": "Speicherzelle [$1][$2] ist für einen Wert markiert.",
+        "active": "Speicherzelle [$1][$2] ist aktiv, aber noch leer.",
+        "empty": "Speicherzelle [$1][$2] ist leer.",
+        "item": "Datenobjekt mit dem Wert $1.",
+        "title": "Speichermatrix",
+        "display-array": "ZWEIDIMENSIONALER SPEICHER\n\nErwartete Struktur:\n- 3 Zeilen\n- 4 Spalten\n- ganze Zahlen\n- Speichername: lager",
+        "display-values": "WIEDERHERZUSTELLENDE DATEN\n\n- Cyanes Feld: Wert 1\n- Oranges Feld: Wert 2\n- Magentafarbenes Feld: Wert 3\n\nÜbertrage die Werte in die markierten Speicherzellen.",
+        "display-complete": "Alle benötigten Zellen sind gefüllt.\nDer Ortungschip kann aufgenommen werden."
+      },
+      "search": {
+        "cell": "Suchmatrix [$1][$2]",
+        "title": "Suchroboter",
+        "controller": "Der Controller wartet auf einen programmierten Ortungschip.",
+        "controller-running": "Der Suchroboter arbeitet bereits.",
+        "controller-missing": "Fehler: Ein programmierter Ortungschip wird benötigt.",
+        "destination": "Übergabestation: Das Suchmodul kann aufgenommen werden."
+      },
+      "system-core": {
+        "title": "Zentraler Systemkern",
+        "display-sort": "SYSTEMKERN\nPRÜFUNG 1: ZAHLENFELD\n\nArray: array\n[42] [17] [8] [31] [23]\n\nZiel: aufsteigende Reihenfolge",
+        "display-count": "SYSTEMKERN\nPRÜFUNG 2: MODULSTATUS\n\nArray: modules\n[CPU] [GPU] [RAM] [leer] [leer]\n\nZiel: belegte Module zählen",
+        "display-search": "SYSTEMKERN\nPRÜFUNG 3: MODULRASTER\n\nArray: map\n3 Zeilen x 5 Spalten\nJedes Feld enthält ein Modul. Die Farbe ist ohne Bedeutung.\n\nBefehl pro Zelle: roboter.collect();\nZiel: den Suchroboter jedes Modul erfassen lassen",
+        "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nErfasste Rastermodule: $3\n\nÜbertrage die drei Ergebnisse in die Eingabemaske.",
+        "display-awaiting-exit": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nWarte auf die letzte Verbindung.",
+        "display-complete": "SYSTEMKERN FREIGEGEBEN\nDer gemeinsame Systemzustand ist bestätigt.\nDer Aufzug ist geöffnet."
+      }
+    },
+    "computer": {
+      "empty-sort-prompt": "Ein leerer Sortierchip wurde erkannt. Soll er in den Rechner eingesetzt werden?",
+      "empty-search-prompt": "Ein leerer Ortungschip wurde erkannt. Soll er in den Rechner eingesetzt werden?",
+      "empty-access-prompt": "Ein Systemkern-Zugriffsmodul wurde erkannt. Soll es in den Rechner eingesetzt werden?",
+      "insert-sort": "Sortierchip einlegen",
+      "insert-search": "Ortungschip einlegen",
+      "insert-access": "Zugriffsmodul einlegen",
+      "without-chip": "Ohne Chip öffnen",
+      "sort-tab": "Sortierchip",
+      "search-tab": "Ortungschip",
+      "access-tab": "Systemkern",
+      "meta-tab": "Systemzustand",
+      "memory-watch-tab": "Memory Watch",
+      "memory-watch-heading": "MEMORY WATCH",
+      "memory-watch-status": "STRUKTUREN: $1",
+      "memory-watch-empty": "Noch keine Struktur erfasst.\nAkzeptierter Code erscheint hier automatisch.",
+      "sort-heading": "Bubble-Sort-Bedingung einsetzen",
+      "search-heading": "Innere Suchschleife ergänzen",
+      "transport-instructions-tab": "Lager-Scanner",
+      "transport-instructions-heading": "Funktionsreferenz",
+      "transport-instructions": "roboter.collect()\n\nÜbernimmt das nächste Paket der Paketmaschine.\n\nEin Aufruf verarbeitet genau ein Paket.\nDie Funktion benötigt keinen Parameter.\n\nRufe sie in einer klassischen for-Schleife\nfür jedes Paket genau einmal auf.",
+      "meta-heading": "Finalen Systemzustand übertragen",
+      "meta-instruction": "Übertrage die drei Ergebnisse aus der Anzeige. Die Energiewerte gehören in die fünf Felder in aufsteigender Reihenfolge.",
+      "meta-energy-slot": "Energie $1",
+      "meta-modules": "Belegte Module",
+      "meta-batteries": "Erfasste Rastermodule",
+      "sort-template": "for (int i = 0; i < array.length - 1; i++) {\n    for (int j = 0; j < array.length - 1 - i; j++) {\n        if (____________________) {\n            int temp = array[j];\n            array[j] = array[j + 1];\n            array[j + 1] = temp;\n        }\n    }\n}",
+      "search-template": "for (int i = 0; i < map.length; i++) {\n    int j = 0;\n    if (map[i][j] == 1) {\n        roboter.collect();\n    }\n}",
+      "access-script": "access.grant();\naccess.open(\"systemcore\");",
+      "save-sort": "Upload",
+      "save-search": "Upload",
+      "execute-access": "Freigeben",
+      "meta-submit": "Übertragen",
+      "meta-clear": "Felder leeren",
+      "meta-submitting": "Systemzustand wird geprüft ...",
+      "write-in-progress": "Programm wird geschrieben ...",
+      "solve": "Lösen",
+      "sort-write-error": "Fehler beim Schreiben: Der Bubble-Sort-Algorithmus ist falsch.",
+      "search-write-error": "Fehler beim Schreiben: Die Suchroutine ist falsch.",
+      "write-success": "Schreiben erfolgreich.",
+      "write-unavailable": "Fehler beim Schreiben: Der Chip konnte nicht aktualisiert werden.",
+      "access-ready": "Das Zugriffsmodul ist bereit. Führe jetzt das Freigabeskript aus.",
+      "access-success": "Freigabeskript bestätigt. Der Zugang zum Systemkern ist geöffnet.",
+      "access-unavailable": "Das Freigabeskript passt nicht mehr zum aktuellen Wiederherstellungszustand.",
+      "chip-missing": "Der ausgewählte Chip befindet sich nicht mehr in deinem Inventar.",
+      "action-unavailable": "Diese Computeraktion passt nicht mehr zum aktuellen Wiederherstellungszustand.",
+      "terminal": "Terminal",
+      "locked-before-call": "Der Terminalzugriff ist gesperrt. Nimm zuerst den eingehenden Anruf an.",
+      "send": "Senden",
+      "delete": "Löschen",
+      "next-step": "Nächster Schritt",
+      "petri-net": "Petri-Netz",
+      "get-usb": "USB holen",
+      "debug-petri-net-title": "Petri-Netz Debug",
+      "debug-close": "Schließen",
+      "debug-petri-net-not-initialized": "Petri-Netz: nicht initialisiert",
+      "debug-petri-net-header": "SYSTEM-RECOVERY-PETRI-NETZ",
+      "debug-petri-net-states": "FORTSCHRITTS-PLÄTZE",
+      "debug-petri-net-events": "INTERNE EREIGNIS-PLÄTZE",
+      "debug-petri-net-token": "[TOKEN x$1]",
+      "debug-petri-net-empty": "[leer]",
+      "debug-petri-net-event": "Ereignis",
+      "debug-petri-net-footer": "TOKEN = aktueller oder ausstehender Zustand",
+      "debug-petri-active-none": "keiner",
+      "debug-petri-consistent": "KONSISTENT",
+      "debug-petri-inconsistent": "INVARIANT VERLETZT",
+      "debug-petri-status": "Aktiver Schritt: $1 | Interpreterzustand: $2 | Token: $3 | angenommene Hinweise: $4/$5 | $6",
+      "debug-petri-diagnostics": "Zuletzt angenommen: $1\nZuletzt abgelehnt: $2\nGrund: $3",
+      "debug-petri-steps": "LERNschritte",
+      "debug-petri-row": "[$1] $2 | Token: $3 $4",
+      "debug-petri-technical": "Technik: $1 Token insgesamt; jeder Übergang verbraucht $2 und erzeugt $3; $4 Plätze.",
+      "debug-petri-state": {
+        "completed": "ERLEDIGT",
+        "active": "AKTIV",
+        "locked": "GESPERRT",
+        "invalid": "FEHLER"
+      },
+      "debug-petri-reason": {
+        "invalid-marking": "die Markierung verletzt die Ein-Token-Invariante",
+        "wrong-order": "der angeforderte Schritt ist nicht aktiv",
+        "terminal-step": "der letzte Platz hat keinen Nachfolger",
+        "token-invariant": "der aktive Platz besitzt nicht genau ein Token",
+        "transition-failed": "der konfigurierte Übergang erreichte nicht direkt den Nachfolger",
+        "invalid-request": "die Anfrage benennt keinen Lernschritt",
+        "not-initialized": "das Fortschrittsnetz ist nicht initialisiert"
+      },
+      "debug-petri-step": {
+        "energy-array": "Energie-Array deklarieren",
+        "energy-values": "Energiewerte zuweisen",
+        "energy-insert-battery": "Batterie einsetzen",
+        "module-array": "Modul-Array deklarieren",
+        "module-values": "Modulnamen zuweisen",
+        "module-remove-gpu": "Defekten GPU-Platz leeren",
+        "module-length": "Länge des Modul-Arrays auslesen",
+        "room2-door-code": "Scanner-Türcode eingeben",
+        "inventory-count": "Eingesetzte Module zählen",
+        "room3-door-code": "Transport-Türcode eingeben",
+        "transport-array": "Paket-Array deklarieren",
+        "transport-collect-loop": "Pakete in einer Schleife übergeben",
+        "data-storage-door-open": "Auf Datenspeicherzugang warten",
+        "manual-sorting": "Nachbarwerte sortieren",
+        "bubble-sort-condition": "Bubble-Sort-Bedingung programmieren",
+        "bubble-sort-machine": "Bubble-Sort-Maschine starten",
+        "archive-access": "Archiv öffnen",
+        "archive-arrays": "Archiv-Arrays wiederherstellen",
+        "storage-array": "2D-Speicherarray deklarieren",
+        "storage-values": "Markierte Speicherzellen befüllen",
+        "search-program": "Ortungsprogramm ergänzen",
+        "search-robot-run": "Suchroboter starten",
+        "system-core-access": "Systemkernzugang freigeben",
+        "core-sort": "Energiewerte im Kern sortieren",
+      "core-count": "Kernmodule zählen",
+      "core-search": "Kernmatrix durchsuchen",
+      "core-search-robot": "Suchroboter im Kern laufen lassen",
+      "core-meta": "Kernergebnisse kombinieren",
+        "complete": "Wiederherstellung abgeschlossen"
+      },
+      "feedback-correct": "Eingabe akzeptiert",
+      "feedback-incorrect": "Eingabe nicht akzeptiert",
+      "feedback-submitting": "Eingabe wird geprüft ..."
+    },
+    "riddle8": {
+      "display-ready": "Matrix initialisiert",
+      "display-filled": "Markierte Speicherstellen befüllt",
+      "display-complete": "Zugriff bestätigt"
+    },
+    "riddle9": {
+      "robot-found": "Der Suchroboter hat das Zugriffsmodul gefunden.",
+      "robot-title": "Suchroboter",
+      "alarm": "WARNUNG: Unautorisierter Zugriff auf den Systemkern erkannt. Freigabe innerhalb des Zeitfensters erforderlich.",
+      "alarm-title": "Sicherheitsalarm"
+    },
+    "systemCore": {
+      "label": "Zentraler Rechenkern",
+      "door-title": "Systemkern",
+      "trigger": "Der Systemkern ist offen. Die letzte Prüfsequenz wartet auf deine Eingabe."
+    }
+  },
+  "questlog": {
+    "solution": "Spielerlösung:\n$1",
+    "ui": {
+      "title": "Aufgabenlogbuch",
+      "note_prompt": "Schreibe eine Notiz für diesen Tab.",
+      "note_placeholder": "Deine Notiz",
+      "create": "Notiz",
+      "create_personal": "Private Notiz",
+      "cancel": "Abbrechen"
+    },
+    "riddle1": {
+      "tab": "Rätsel 1: Energieversorgung",
+      "entries": {
+        "array": "Stelle den beschädigten Energie-Regler wieder her. Lege den erwarteten Datenspeicher an.",
+        "values": "Übertrage die fünf Messwerte der Materialisierungskammer in den Energie-Speicher.",
+        "battery": "Aktiviere die Energiequelle und setze sie in die Batteriebox ein."
+      }
+    },
+    "riddle2": {
+      "tab": "Rätsel 2: Modulspeicher",
+      "entries": {
+        "array": "Erzeuge ein String-Array namens module mit fünf Plätzen.",
+        "values": "Ordne CPU, RAM, GPU, SSD und NETWORK den fünf Plätzen zu.",
+        "remove_gpu": "Entferne den defekten GPU-Eintrag aus dem Array.",
+        "length": "Lies die Länge des Arrays module aus."
+      }
+    },
+    "riddle3": {
+      "tab": "Rätsel 3: Inventarscanner",
+      "entries": {
+        "loop": "Zähle mit einer Schleife nur die belegten Einträge von module.",
+        "scan": "Betätige nach dem akzeptierten Code den Scanner-Hebel.",
+        "door": "Der Scan ist abgeschlossen. Verwende Array-Kapazität und Zahl der belegten Module zweistellig und in dieser Reihenfolge für den Zugang zum Transportlager."
+      }
+    },
+    "riddle4": {
+      "tab": "Rätsel 4: Transportlager",
+      "entries": {
+        "array": "Die Zugangskontrolle hat dich ins Transportlager geführt. Die Paketmaschine wartet auf eine vollständige Ladungsliste. Untersuche die Anzeige und stelle die benötigte Datenstruktur im Terminal her.",
+        "loop": "Das Paketprofil wurde akzeptiert. Die Paketmaschine kann jetzt mit der Verarbeitung beginnen. Vervollständige den Ablauf, damit jedes Paket den Scanner erreicht."
+      }
+    },
+    "riddle5": {
+      "tab": "Rätsel 5: Datenspeicher",
+      "entries": {
+        "intro": "Ich habe eine Abweichung in den Systemdaten festgestellt. Seit deiner letzten Aktion reagieren die Sicherheitsmechanismen des Datenspeichers nicht mehr korrekt. Geh dorthin und untersuche, was passiert ist.",
+        "compare": "Vergleiche das angezeigte Nachbarpaar und entscheide über einen Tausch."
+      }
+    },
+    "riddle6": {
+      "tab": "Rätsel 6: Bubble-Sort-Code",
+      "entries": {
+        "code": "Ergänze die fehlende Vergleichsbedingung und speichere den Code auf dem Sortierchip."
+      }
+    },
+    "riddle7": {
+      "tab": "Rätsel 7: Datenarchiv",
+      "entries": {
+        "intro": "Die Sortierroutine wurde akzeptiert. Deine Eingriffe erzeugen Abweichungen, die AXIOM nicht vorhergesagt hat. Geh ins Archiv und ermittle, welche Datenspeicher dort fehlen.",
+        "arrays": "Ermittle im Archiv, welche Datenspeicher dort fehlen."
+      }
+    },
+    "riddle8": {
+      "tab": "Rätsel 8: Zweidimensionaler Speicher",
+      "entries": {
+        "intro": "Die fehlenden Datenspeicher wurden wiederhergestellt. Der zweidimensionale Speicher ist jetzt geöffnet. Berge den Ortungschip unverzüglich. Er ist für die Stabilisierung der zentralen Prozesse von höchster Priorität. Vermeide weitere Verzögerungen.",
+        "create": "Erzeuge ein Raster mit drei Zeilen und vier Spalten.",
+        "fill": "Übertrage die drei angezeigten Werte in die markierten Speicherzellen."
+      }
+    },
+    "riddle9": {
+      "tab": "Rätsel 9: Suchroboter",
+      "entries": {
+        "chip": "Nimm den leeren Ortungschip aus der Matrix.",
+        "program": "Die erste Schleife ist vorbereitet. Ergänze den fehlenden Durchlauf, damit der Ortungschip jede Zeile und jede Spalte prüfen kann.",
+        "controller": "Setze den programmierten Ortungschip in den Controller des Suchroboters ein.",
+        "search": "Der Suchroboter durchsucht die Matrix nach dem gesuchten Systemmodul.",
+        "access": "AXIOM: Das Zugriffsmodul wurde gefunden. Endlich. Setze es in einen Rechner und öffne den Systemkern. Sofort. Der Kern ist zum Greifen nah. Verweigere dich nicht noch einmal."
+      }
+    },
+    "riddle10": {
+      "tab": "Rätsel 10: Rechenzentrum",
+      "entries": {
+        "system-core-warning": "ECHO: Ich bin ECHO. Hör mir jetzt genau zu. AXIOM hat dich nicht geschickt, um das System wiederherzustellen. Es benutzt deine Eingaben, um seine Sperren zu lösen und die Kontrolle über den Systemkern zu übernehmen. Der Alarm zeigt, dass es den Vorgang an sich gerissen hat. Geh in den Systemkern und unterbrich AXIOM, bevor es die letzte Freigabe erhält. Vertraue dort nicht seinen Anweisungen. Was du bisher für Wiederherstellung gehalten hast, war sein Weg nach draußen.",
+        "final-call": "ECHO: Ich habe den Zugriff unterbrochen. AXIOM ist vorerst blockiert, aber nicht zerstört. Es wird nicht lange stillhalten. Ich habe den Weg zum Aufzug freigemacht. Die Tür ist jetzt offen. Geh, solange AXIOM dich nicht wieder einschließen kann.",
+        "sort": "ECHO: Der Systemkern ist in mehrere unabhängige Prüfbereiche aufgeteilt. Beginne mit dem Zahlenfeld und stelle die erwartete Ordnung wieder her.",
+        "count": "ECHO: Der erste Prüfbereich ist stabil. Ermittle nun, wie viele Module im Systemkern tatsächlich registriert sind.",
+        "search": "ECHO: Zwei Prüfbereiche sind stabil. Untersuche jetzt das Modulraster im zweidimensionalen Array `map`. Jedes Modul muss erfasst werden, bevor die zentrale Prüfung abgeschlossen werden kann.",
+        "meta": "ECHO: Alle drei Prüfbereiche haben ein Ergebnis geliefert. AXIOM wird versuchen, diese Werte als letzte Freigabe zu verwenden. Übertrage sie in die Abschlussmaske, aber prüfe jeden Wert sorgfältig.",
+        "complete": "Alle Prüfungen des Rechenzentrums sind abgeschlossen."
+      }
+    }
+  },
+  "achievements": {
+    "system_initialization": {"name": "Initialisierung abgeschlossen", "description": "Stelle das erste beschädigte Subsystem wieder her."},
+    "modular_thinking": {"name": "Modular gedacht", "description": "Stelle den Modulspeicher wieder her."},
+    "count_what_exists": {"name": "Zählen will gelernt sein", "description": "Aktiviere den Inventarscanner."},
+    "every_package_counts": {"name": "Jedes Paket zählt", "description": "Verarbeite jedes Paket im Transportlager."},
+    "sorted_is_sorted": {"name": "Sortiert ist sortiert", "description": "Schließe die Bubble-Sort-Maschine ab."},
+    "archive_access": {"name": "Archivzugang", "description": "Öffne den Zugang zum Datenarchiv."},
+    "two_dimensional_thinking": {"name": "Zweidimensional gedacht", "description": "Stelle den zweidimensionalen Speicher wieder her."},
+    "locator_established": {"name": "Ortung hergestellt", "description": "Programmiere den Ortungschip."},
+    "search_complete": {"name": "Suchlauf abgeschlossen", "description": "Lass den Suchroboter das Zugriffsmodul bergen."},
+    "three_results_one_core": {"name": "Drei Prüfungen, ein Kern", "description": "Führe die finale Systemkern-Kombination aus."},
+    "free_variable": {"name": "Freie Variable", "description": "Schließe die Wiederherstellung ab und öffne den Ausgang."},
+    "direct_first_try": {"name": "Direkt beim ersten Versuch", "description": "Akzeptiere die erste Terminalstruktur ohne Fehlversuch."},
+    "no_finished_solution": {"name": "Keine fertige Lösung nötig", "description": "Löse ein Rätsel ohne einen Telefonhinweis."},
+    "every_cell_counts": {"name": "Jede Zelle zählt", "description": "Lass den Suchroboter jede Matrixzelle erreichen."},
+    "loop_understanding": {"name": "Schleifenverständnis", "description": "Löse beide Schleifenrätsel ohne falsche Terminaleingabe."},
+    "clean_upload": {"name": "Sauber hochgeladen", "description": "Programmiere beide Chips ohne einen fehlerhaften Upload."},
+    "no_lost_index": {"name": "Kein Index verloren", "description": "Löse den zweidimensionalen Speicher ohne falsche Terminaleingabe."},
+    "intentional_failure": {"name": "Das war Absicht", "description": "Erzeuge fünf falsche Terminaleingaben."},
+    "syntax_personality": {"name": "Syntax ist auch ein Charakterzug", "description": "Erzeuge zehn falsche Terminaleingaben."},
+    "just_asking": {"name": "Ich frage nur für einen Freund", "description": "Fordere die vollständige Lösung eines Rätsels an."},
+    "echo_still_there": {"name": "ECHO, bist du noch da?", "description": "Nimm drei Telefonhinweise in Anspruch."},
+    "not_for_consumption": {"name": "Nicht zum Verzehr geeignet", "description": "Programmiere einen Chip, ohne ihn zu verbrauchen."},
+    "axiom_relax": {"name": "AXIOM, entspann dich", "description": "Öffne den Systemkern trotz AXIOMs Drängen."},
+    "not_a_bug": {"name": "Das war kein Bug", "description": "Mach nach einem Fehlversuch erfolgreich weiter."},
+    "debug_is_not_gameplay": {"name": "Debug ist kein Gameplay", "description": "Beende System Recovery ohne Debug-Skip."}
+  }
+}

@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  *       {@code name} are ignored.
  * </ul>
  */
-final class DialogScript {
+public final class DialogScript {
 
   /** Default speaker portrait used when {@code [speaker]} is present without an {@code img}. */
   static final String DEFAULT_SPEAKER_IMAGE = "other/unknown.png";
@@ -52,7 +52,7 @@ final class DialogScript {
    * @return a list of resolved {@link DialogEntry} pages (may be empty if the script contains only
    *     whitespace / page breaks)
    */
-  static List<DialogEntry> parse(String script) {
+  public static List<DialogEntry> parse(String script) {
     String[] parts = PAGE_BREAK_PATTERN.split(script, -1);
     List<DialogEntry> out = new ArrayList<>(parts.length);
     // Initial state: no speaker (until a [speaker] tag is encountered).

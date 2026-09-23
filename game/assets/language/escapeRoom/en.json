@@ -1,12 +1,23 @@
 {
-    "menu": {
-        "exit": "Exit"
-    },
-    "text": {
-        "test": {
-            "title": "Welcome",
-            "message": "Hello, I'm the hero of the game!"
-        }
+  "menu": {
+    "exit": "Exit"
+  },
+  "text": {
+    "test": {
+      "title": "Welcome",
+      "message": "Hello, I'm the hero of the game!"
     }
+  },
+  "dialog": {
+    "questlog": {
+      "title": "Quest Log",
+      "empty": "There are no entries in this tab.",
+      "create": "Note",
+      "create_personal": "Private Note",
+      "note_prompt": "Write a note for this tab.",
+      "note_placeholder": "Your note",
+      "cancel": "Cancel",
+      "not_initialized": "The shared quest log is not available yet. Try again in a moment."
+    }
+  }
 }
-

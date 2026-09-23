@@ -7,8 +7,24 @@ Tracking läuft nur im autoritativen Serverprozess oder im Einzelspielermodus. K
 Tracking.configureRoom("my-room");
 ```
 
+Ein Raum kann optional eine stabile `runId` für einen zusammenhängenden Spieldurchlauf setzen:
+
+```java
+Tracking.configureRoom("system-recovery", Optional.of(runId));
+```
+
+Die ID wird im Sitzungsdeskriptor der JSONL-Outbox gespeichert. Dadurch lassen sich mehrere
+Tracking-Sitzungen nach einem Savegame-Laden derselben Partie zuordnen. Ohne `runId` bleibt das
+bisherige Verhalten unverändert.
+
 `configureRoom` trennt die Deployment-Einstellungen vom Raumcode. Das Deployment kann Folgendes
 festlegen:
+
+Räume mit personenbezogener Einwilligungslogik können die Überladung mit einem expliziten
+Consent-Boolean verwenden. Bei `false` wird weder eine Tracking-Sitzung noch eine JSONL-Outbox
+erzeugt. In einem Mehrspielerlauf kann jeder Client seine Entscheidung mit `InitialWorldReady`
+übermitteln. Lehnt ein Client ab, beendet der autoritative Server die weitere Erfassung für den
+gesamten gemeinsamen Lauf. Die Entscheidung muss vor dem Start der autoritativen Welt feststehen.
 
 | Systemeigenschaft | Umgebungsvariable | Standardwert |
 | --- | --- | --- |
@@ -20,6 +36,14 @@ festlegen:
 `false`. JSONL-Tracking bleibt dabei aktiv. Mit dem Wert `true` verwendet Dungeon den
 konfigurierten Endpunkt oder ohne Override das lokale Backend. Das Pause-Menü zeigt bei `false`
 "Deaktiviert" statt einen Verbindungsstatus.
+
+System Recovery besitzt passend dazu zwei lokalisierte Datenschutzvarianten. Bei deaktiviertem
+HTTP-Backend wird die lokale JSONL-Speicherung beschrieben. Sobald das zentrale Backend aktiviert
+ist, verwendet das Menü die Variante für den selbst verwalteten Server in Deutschland. Vor einer
+Produktivaktivierung müssen Verantwortliche Stelle, berechtigte Zugriffsrollen, die konkrete
+Löschfrist sowie die serverseitige Bearbeitung von Auskunfts- und Löschanfragen geprüft und
+umgesetzt sein. Der zentrale Text nennt aktuell eine maximale Aufbewahrung von 90 Tagen; diese
+Frist ist eine Projektentscheidung und muss vor dem Einsatz bestätigt werden.
 
 Für die E-Mail-Adresse des Betreibers gilt der im Quellcode definierte Standardwert. Der Raumcode
 kann als zweites Argument von `configureRoom` eine andere Adresse übergeben. Deployment-Eigenschaften
@@ -56,9 +80,10 @@ er sie einmalig in ihrer ursprünglichen Reihenfolge direkt nach dem ersten
 Bereitschaft, nicht schon während Bootstrap oder Weltübertragung.
 
 Jede konfigurierte Sitzung erzeugt eine neue Datei `<session UUID>.jsonl`. Eine vorhandene Datei
-wird nie wiederverwendet. Die erste Zeile enthält den Sitzungsdeskriptor, danach folgen geordnete
-Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung schließt mit einem Abschlussdatensatz. Fehlt
-dieser, gilt die Sitzung als unterbrochen. Diese eine Datei enthält alles für den Offline-Import.
+wird nie wiederverwendet. Die erste Zeile enthält den Sitzungsdeskriptor einschließlich der
+optionalen `runId`, danach folgen geordnete Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung
+schließt mit einem Abschlussdatensatz. Fehlt dieser, gilt die Sitzung als unterbrochen. Diese eine
+Datei enthält alles für den Offline-Import.
 Lösche sie erst, wenn das Backend die Sitzung bestätigt oder ein Betreiber sie importiert hat.
 
 Beendet sich ein über "Spiel hosten" gestarteter Server ohne bestätigte Speicherung, übermittelt

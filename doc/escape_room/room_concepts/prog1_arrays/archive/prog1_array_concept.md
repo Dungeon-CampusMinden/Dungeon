@@ -1,4 +1,8 @@
-# Programmieren 2 DEER - Dungeon GPT
+# VERALTET: Programmieren 2 DEER - Dungeon GPT
+
+> Historischer Konzeptentwurf. Er beschreibt nicht den aktuellen Spielstand. Insbesondere
+> Chat-UI, finale Rätsel und Türschloss wurden später geändert. Die gepflegten Dokumente
+> liegen eine Ebene höher in diesem Ordner.
 
 Digital Educational Escape Room für das Fach Programmieren 1 im ersten Semester Informatik. Der Escape Room soll ein Praktikum sein bei denen sich die Studenten mit den Konzepten von Arrays vertraut machen, die sie zuvor in der Vorlesung kennen gelernt haben.
 
@@ -324,7 +328,7 @@ Das System fragt:
 Die Studierenden müssen `module.length` verwenden.
 
 ```java
-module.length
+module.length;s
 ```
 
 Ergebnis:
@@ -816,44 +820,18 @@ lager[1][3] = 2;
 lager[2][1] = 3;
 ```
 
-Daraufhin erscheinen die Objekte genau an diesen Positionen.
+Daraufhin werden die zwölf Bodenfelder der Matrix aktiviert, die drei Zielfelder markiert und
+nach dem Befüllen drei Datenobjekte genau an diesen Positionen sichtbar gemacht.
 
 ---
 
 ## Aha-Moment
 
-Die Studierenden sehen:
-
-```java
-lager[1][3]
-```
-
-und gleichzeitig in der Spielwelt:
-
-```text
-       0    1    2    3
-    ┌────┬────┬────┬────┐
- 0  │    │    │    │    │
-    ├────┼────┼────┼────┤
- 1  │    │    │    │ 🔑 │
-    ├────┼────┼────┼────┤
- 2  │    │ 💻 │    │    │
-    └────┴────┴────┴────┘
-```
-
-Der Zusammenhang zwischen:
-
-```text
-Zeile + Spalte
-```
-
-und:
-
-```text
-lager[zeile][spalte]
-```
-
-wird unmittelbar sichtbar.
+Nach der Array-Deklaration leuchten die zwölf Bodenfelder und die drei Zielfelder werden
+markiert. Nach dem Befüllen erscheinen an den entsprechenden Positionen drei Datenobjekte.
+Kurz danach wird der Ortungschip sichtbar aus der Matrix
+herausgeführt und kann aufgenommen werden. Die Verbindung zwischen Zeile, Spalte und
+Objektposition wird dadurch unmittelbar in der Spielwelt sichtbar.
 
 ---
 
@@ -898,14 +876,26 @@ Dabei bedeutet:
 
 Der Roboter soll jede einzelne Kachel überprüfen.
 
-Die Studierenden müssen eine verschachtelte Schleife erstellen:
+Die äußere Schleife ist auf dem Ortungschip bereits vorbereitet. Die Studierenden müssen die
+vorbereitete Zeile `int j = 0;` durch eine innere Schleife ersetzen:
+
+```java
+for (int i = 0; i < map.length; i++) {
+    int j = 0;
+    if (map[i][j] == 1) {
+        roboter.collect();
+    }
+}
+```
+
+Die vollständige Schleife prüft danach jede Spalte der aktuellen Zeile:
 
 ```java
 for (int i = 0; i < map.length; i++) {
     for (int j = 0; j < map[i].length; j++) {
-
-        // Kachel untersuchen
-
+        if (map[i][j] == 1) {
+            roboter.collect();
+        }
     }
 }
 ```

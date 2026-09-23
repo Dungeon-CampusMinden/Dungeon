@@ -20,6 +20,7 @@ import engine.network.messages.s2c.DebugPong;
 import engine.network.messages.s2c.DebugTelemetrySnapshot;
 import engine.network.messages.s2c.DeltaSnapshotMessage;
 import engine.network.messages.s2c.DialogCloseMessage;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.network.messages.s2c.EntityDelta;
 import engine.network.messages.s2c.EntityDespawnEvent;
 import engine.network.messages.s2c.EntityState;
@@ -85,6 +86,7 @@ class NetworkCodecTest {
         new ConnectAck((short) 5, 42, new byte[] {4, 5, 6}, ""),
         new ConnectReject(ConnectReject.Reason.INVALID_NAME),
         new DialogCloseMessage("dialog-2"),
+        new DialogFeedbackMessage("dialog-terminal", "computer.feedback-incorrect", false),
         new EntityDespawnEvent(77, "left"),
         new DeltaSnapshotMessage(
             10,

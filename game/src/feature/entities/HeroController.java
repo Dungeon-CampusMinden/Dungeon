@@ -31,6 +31,7 @@ import feature.questlog.QuestLogUI;
 import feature.skills.cursor.CursorSkill;
 import feature.skills.projectile.ProjectileSkill;
 import feature.utils.EntityUtils;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -386,6 +387,8 @@ public class HeroController {
     registerDefaultHandler(InputMessage.Action.INV_USE, true, HeroController::handleInventoryUse);
     registerDefaultHandler(
         QuestLogUI.COMMAND_SHOW_QUESTLOG, true, HeroController::handleShowQuestLog);
+    registerDefaultHandler(
+        QuestLogUI.COMMAND_SELECT_QUESTLOG_TAB, true, HeroController::handleSelectQuestLogTab);
   }
 
   private static void registerDefaultHandler(
@@ -468,6 +471,17 @@ public class HeroController {
 
   private static void handleShowQuestLog(InputCommandRouter.InputCommandContext context) {
     QuestLogUI.showQuestLogForPlayers(context.playerEntity().id());
+  }
+
+  private static void handleSelectQuestLogTab(InputCommandRouter.InputCommandContext context) {
+    InputMessage.Custom request = context.payloadAs(InputMessage.Custom.class);
+    String tab = new String(request.payload(), StandardCharsets.UTF_8);
+    if (tab.isBlank() || request.payload().length > 256) {
+      LOGGER.warn(
+          "Ignoring invalid quest log tab request from entity {}", context.playerEntity().id());
+      return;
+    }
+    QuestLogUI.showQuestLogForPlayers(tab, context.playerEntity().id());
   }
 
   /**

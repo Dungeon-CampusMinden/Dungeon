@@ -116,6 +116,7 @@ class ConverterRegistryTest {
         engine.network.proto.s2c.ConnectReject.getDefaultInstance(),
         engine.network.proto.s2c.DialogShowMessage.getDefaultInstance(),
         engine.network.proto.s2c.DialogCloseMessage.getDefaultInstance(),
+        engine.network.proto.s2c.DialogFeedbackMessage.getDefaultInstance(),
         engine.network.proto.s2c.EntitySpawnEvent.getDefaultInstance(),
         engine.network.proto.s2c.EntitySpawnBatch.getDefaultInstance(),
         engine.network.proto.s2c.EntityDespawnEvent.getDefaultInstance(),

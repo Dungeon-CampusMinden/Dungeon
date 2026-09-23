@@ -1,36 +1,47 @@
 package feature.questlog;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.language.Translation;
 import engine.network.NetworkUtils;
+import engine.network.handler.INetworkHandler;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InputMessage;
 import engine.utils.BaseContainerUI;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.DialogEntry;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogScript;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.hud.elements.RichLabel;
+import feature.systems.HudSystem;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +73,9 @@ public final class QuestLogUI {
   /** Custom input command used by clients to request the quest log from the server. */
   public static final String COMMAND_SHOW_QUESTLOG = "core:questlog";
 
+  /** Custom input command used by clients to request one selected quest log tab. */
+  public static final String COMMAND_SELECT_QUESTLOG_TAB = "core:questlog_tab";
+
   private static final DialogType DIALOG_TYPE = () -> "QUEST_LOG";
   private static final String CTX_TABS = "questlog.tabs";
   private static final String CTX_SELECTED_TAB = "questlog.selectedTab";
@@ -69,30 +83,34 @@ public final class QuestLogUI {
   private static final String CTX_ENTRY_TEXTS = "questlog.entryTexts";
   private static final String CTX_ENTRY_OWNERS = "questlog.entryOwners";
   private static final String CTX_ENTRY_TIMESTAMPS = "questlog.entryTimestamps";
+  private static final String CTX_VIEWER_ID = "questlog.viewerId";
+  private static final String CTX_UNAVAILABLE = "questlog.unavailable";
   private static final String T_TITLE = "title";
   private static final String T_EMPTY_QUESTLOG = "empty";
+  private static final String T_NOT_INITIALIZED = "not_initialized";
   private static final String T_CREATE = "create";
   private static final String T_CREATE_PERSONAL = "create_personal";
   private static final String T_NOTE_PROMPT = "note_prompt";
   private static final String T_NOTE_PLACEHOLDER = "note_placeholder";
   private static final String T_CANCEL = "cancel";
   private static final float UI_WIDTH = 980f;
-  private static final float UI_HEIGHT = 650f;
+  private static final float UI_HEIGHT = 850f;
   private static final float SIDEBAR_WIDTH = 290f;
   private static final float ROW_HEIGHT = 62f;
   private static final float CONTENT_WIDTH = UI_WIDTH - SIDEBAR_WIDTH - 76f;
+  private static final float SPEAKER_IMAGE_SIZE = 86f;
   private static final FontSpec FONT_TITLE =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 28, new Color(0.78f, 0.66f, 0.51f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 28, Color.valueOf("C7A882FF"));
   private static final FontSpec FONT_SECTION =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, new Color(0.74f, 0.52f, 0.24f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, Color.valueOf("BD853DFF"));
   private static final FontSpec FONT_BODY =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 16, new Color(0.70f, 0.68f, 0.61f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 16, Color.valueOf("333333FF"));
   private static final FontSpec FONT_MUTED =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 13, new Color(0.46f, 0.45f, 0.40f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 13, Color.valueOf("666666FF"));
   private static final FontSpec FONT_SELECTED =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, new Color(0.86f, 0.78f, 0.64f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, Color.valueOf("DBC7A3FF"));
   private static final FontSpec FONT_ROW =
-      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, new Color(0.62f, 0.60f, 0.54f, 1f));
+      FontSpec.of("fonts/Roboto-SemiBold.ttf", 15, Color.valueOf("9E998AFF"));
   private static final Translation trans = new Translation("dialog.questlog");
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(QuestLogUI.class);
 
@@ -112,10 +130,34 @@ public final class QuestLogUI {
    */
   public static void requestQuestLog(Entity player) {
     if (NetworkUtils.isNetworkClient()) {
-      Game.network().sendInput(InputMessage.custom(COMMAND_SHOW_QUESTLOG));
+      sendReliableRequest(Game.network(), null);
     } else {
       showQuestLogForPlayers(player.id());
     }
+  }
+
+  /**
+   * Creates the small reliable request used to open the shared quest log or select a tab.
+   *
+   * <p>The requester identity is deliberately absent from the payload. The server obtains it from
+   * the authenticated {@link engine.network.input.InputCommandRouter.InputCommandContext}.
+   *
+   * @param selectedTab tab to select, or {@code null} to open the default tab
+   * @return a custom input message suitable for reliable TCP delivery
+   */
+  static InputMessage createQuestLogRequest(String selectedTab) {
+    if (selectedTab == null || selectedTab.isBlank()) {
+      return InputMessage.custom(COMMAND_SHOW_QUESTLOG);
+    }
+    byte[] tabPayload = selectedTab.getBytes(StandardCharsets.UTF_8);
+    if (tabPayload.length > 256) {
+      throw new IllegalArgumentException("Quest log tab key exceeds 256 UTF-8 bytes.");
+    }
+    return InputMessage.custom(COMMAND_SELECT_QUESTLOG_TAB, tabPayload);
+  }
+
+  static void sendReliableRequest(INetworkHandler network, String selectedTab) {
+    network.send((short) 0, createQuestLogRequest(selectedTab), true);
   }
 
   /**
@@ -131,8 +173,8 @@ public final class QuestLogUI {
    * clients receive it, but note creation needs exactly one requesting player entity so the creator
    * can be resolved.
    *
-   * <p>If the quest log was not initialized, this method does not show anything to players. It logs
-   * the missing setup in the background and returns {@code false}.
+   * <p>If the quest log was not initialized, a localized notice is shown to the requested players
+   * and the method returns {@code false}.
    *
    * @param targetEntityIds optional player entity IDs that should receive the quest log
    * @return {@code true} if a quest log was available and the display request was created, {@code
@@ -157,40 +199,77 @@ public final class QuestLogUI {
    */
   public static boolean showQuestLogForPlayers(String selectedTab, int... targetEntityIds) {
     return QuestLogUtil.getQuestLogComponent()
-        .map(
-            questLog -> {
-              showFormattedQuestLogDialog(questLog, selectedTab, targetEntityIds);
-              return true;
-            })
+        .map(questLog -> showFormattedQuestLogDialog(questLog, selectedTab, targetEntityIds))
         .orElseGet(
             () -> {
               logMissingQuestLog();
+              showQuestLogUnavailable(targetEntityIds);
               return false;
             });
   }
 
-  private static void showFormattedQuestLogDialog(
-      QuestLogComponent questLog, String selectedTab, int... targetEntityIds) {
-    int[] dialogTargetIds = resolveDialogTargetIds(targetEntityIds);
-    if (dialogTargetIds.length > 1) {
-      for (int targetEntityId : dialogTargetIds) {
-        showFormattedQuestLogDialog(questLog, selectedTab, targetEntityId);
+  private static void showQuestLogUnavailable(int... targetEntityIds) {
+    int[] recipients = resolveDialogTargetIds(targetEntityIds);
+    if (recipients.length > 1) {
+      for (int recipient : recipients) {
+        showQuestLogUnavailable(recipient);
       }
       return;
     }
+    if (recipients.length == 1 && !canOpenQuestLogFor(recipients[0])) return;
+
+    DialogContext context =
+        DialogContext.builder()
+            .type(DIALOG_TYPE)
+            .put(DialogContextKeys.TITLE, "")
+            .put(CTX_TABS, new String[0])
+            .put(CTX_SELECTED_TAB, "")
+            .put(CTX_ENTRY_TABS, new String[0])
+            .put(CTX_ENTRY_TEXTS, new String[0])
+            .put(CTX_ENTRY_OWNERS, new String[0])
+            .put(CTX_ENTRY_TIMESTAMPS, new int[0])
+            .put(CTX_UNAVAILABLE, true)
+            .build();
+    UIComponent ui = DialogFactory.show(context, recipients);
+    ui.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(ui));
+  }
+
+  private static boolean showFormattedQuestLogDialog(
+      QuestLogComponent questLog, String selectedTab, int... targetEntityIds) {
+    int[] dialogTargetIds = resolveDialogTargetIds(targetEntityIds);
+    if (dialogTargetIds.length > 1) {
+      boolean shownToAnyPlayer = false;
+      for (int targetEntityId : dialogTargetIds) {
+        shownToAnyPlayer |= showFormattedQuestLogDialog(questLog, selectedTab, targetEntityId);
+      }
+      return shownToAnyPlayer;
+    }
+    if (dialogTargetIds.length == 0) return false;
 
     Entity viewer =
         dialogTargetIds.length == 1 ? Game.findEntityById(dialogTargetIds[0]).orElse(null) : null;
+    if (!canOpenQuestLogFor(dialogTargetIds[0])) return false;
     UIComponent ui =
         DialogFactory.show(createDialogContext(questLog, selectedTab, viewer), dialogTargetIds);
 
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
         data -> {
-          openCreateNoteDialog(selectedTabFrom(data), onlyForCreatorFrom(data), dialogTargetIds);
-          UIUtils.closeDialog(ui);
+          openCreateNoteDialog(
+              ui, selectedTabFrom(data), onlyForCreatorFrom(data), dialogTargetIds);
         });
     ui.registerCallback(DialogContextKeys.ON_CANCEL, data -> UIUtils.closeDialog(ui));
+    return true;
+  }
+
+  private static boolean canOpenQuestLogFor(int playerId) {
+    Entity player = Game.findEntityById(playerId).orElse(null);
+    boolean available = player != null && !HudSystem.getInstance().hasOpenUI(player);
+    if (!available) {
+      LOGGER.info(
+          "Declined quest log for player {} because another dialog is already open.", playerId);
+    }
+    return available;
   }
 
   private static int[] resolveDialogTargetIds(int... targetEntityIds) {
@@ -211,11 +290,15 @@ public final class QuestLogUI {
    */
   public static Group build(DialogContext ctx) {
     QuestLogViewData viewData = viewDataFrom(ctx);
+    boolean unavailable = ctx.find(CTX_UNAVAILABLE, Boolean.class).orElse(false);
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup(
-          trans.text(T_TITLE), viewData.toHeadlessText(), trans.text(T_CREATE));
+          trans.text(T_TITLE),
+          unavailable ? trans.text(T_NOT_INITIALIZED) : viewData.toHeadlessText(),
+          trans.text(T_CREATE));
     }
-    return new BaseContainerUI(new QuestLogDialog(ctx.dialogId(), viewData), false, true);
+    return new BaseContainerUI(
+        new QuestLogDialog(ctx.dialogId(), viewData, unavailable), false, true);
   }
 
   private static DialogContext createDialogContext(
@@ -223,7 +306,8 @@ public final class QuestLogUI {
     QuestLogViewData viewData = viewDataFrom(questLog, selectedTab, viewer);
     return DialogContext.builder()
         .type(DIALOG_TYPE)
-        .put(DialogContextKeys.TITLE, trans.text(T_TITLE))
+        .put(DialogContextKeys.TITLE, "")
+        .put(CTX_VIEWER_ID, viewer == null ? -1 : viewer.id())
         .put(CTX_TABS, viewData.tabs().toArray(new String[0]))
         .put(CTX_SELECTED_TAB, viewData.selectedTab())
         .put(CTX_ENTRY_TABS, viewData.entryTabs().toArray(new String[0]))
@@ -240,38 +324,48 @@ public final class QuestLogUI {
         List.of(ctx.find(CTX_ENTRY_TABS, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_TEXTS, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_OWNERS, String[].class).orElse(new String[0])),
-        ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]));
+        ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]),
+        ctx.find(CTX_VIEWER_ID, Integer.class).orElse(-1));
+  }
+
+  /**
+   * Resolves a synchronized label or entry only on the client that renders the quest log.
+   *
+   * @param text synchronized text or translation key
+   * @return localized text for the current client
+   */
+  private static String displayText(String text) {
+    return Game.localization().getCurrentTranslator().translate(text == null ? "" : text);
   }
 
   private static QuestLogViewData viewDataFrom(
       QuestLogComponent questLog, String requestedTab, Entity viewer) {
     QuestLogSelection selection = selectionFor(questLog, requestedTab, viewer);
-    String viewerName = playerName(viewer).orElse(null);
     List<String> entryTabs = new ArrayList<>();
     List<String> entryTexts = new ArrayList<>();
     List<String> entryOwners = new ArrayList<>();
     List<Integer> entryTimestamps = new ArrayList<>();
 
-    for (String tab : selection.tabs()) {
-      for (QuestLogEntry entry : visibleEntriesFor(questLog, tab, viewerName)) {
-        entryTabs.add(tab);
-        entryTexts.add(entryText(entry));
-        entryOwners.add(entry.owner());
-        entryTimestamps.add(entry.timestamp());
-      }
+    String selectedTab = selection.selectedTab().orElse("");
+    for (QuestLogEntry entry : selection.selectedEntries()) {
+      entryTabs.add(selectedTab);
+      entryTexts.add(entryText(entry));
+      entryOwners.add(entry.owner());
+      entryTimestamps.add(entry.timestamp());
     }
 
     return new QuestLogViewData(
         selection.tabs(),
-        selection.selectedTab().orElse(""),
+        selectedTab,
         entryTabs,
         entryTexts,
         entryOwners,
-        entryTimestamps.stream().mapToInt(Integer::intValue).toArray());
+        entryTimestamps.stream().mapToInt(Integer::intValue).toArray(),
+        viewer == null ? -1 : viewer.id());
   }
 
   private static void openCreateNoteDialog(
-      String selectedTab, boolean onlyForCreator, int... targetEntityIds) {
+      UIComponent questLogUi, String selectedTab, boolean onlyForCreator, int... targetEntityIds) {
     if (selectedTab == null || selectedTab.isBlank()) {
       LOGGER.warn("Cannot create quest log entry without a selected tab.");
       return;
@@ -289,9 +383,10 @@ public final class QuestLogUI {
         trans.text(T_TITLE),
         "",
         trans.text(T_NOTE_PLACEHOLDER),
-        trans.text(T_CREATE),
+        trans.text(onlyForCreator ? T_CREATE_PERSONAL : T_CREATE),
         trans.text(T_CANCEL),
-        payload -> handleSubmittedNote(targetPlayerId, selectedTab, onlyForCreator, payload),
+        payload ->
+            handleSubmittedNote(questLogUi, targetPlayerId, selectedTab, onlyForCreator, payload),
         () -> {},
         targetPlayerId);
   }
@@ -307,6 +402,7 @@ public final class QuestLogUI {
   }
 
   private static void handleSubmittedNote(
+      UIComponent questLogUi,
       int playerEntityId,
       String selectedTab,
       boolean onlyForCreator,
@@ -320,7 +416,11 @@ public final class QuestLogUI {
     Game.findEntityById(playerEntityId)
         .filter(
             player -> QuestLogUtil.addPlayerNote(player, selectedTab, note.get(), onlyForCreator))
-        .ifPresent(player -> showQuestLogForPlayers(selectedTab, playerEntityId));
+        .ifPresent(
+            player -> {
+              UIUtils.closeDialog(questLogUi);
+              showQuestLogForPlayers(selectedTab, playerEntityId);
+            });
   }
 
   private static String selectedTabFrom(DialogResponseMessage.Payload payload) {
@@ -646,7 +746,8 @@ public final class QuestLogUI {
       List<String> entryTabs,
       List<String> entryTexts,
       List<String> entryOwners,
-      int[] entryTimestamps) {
+      int[] entryTimestamps,
+      int viewerId) {
 
     private QuestLogViewData {
       tabs = List.copyOf(Objects.requireNonNull(tabs, "tabs"));
@@ -686,9 +787,9 @@ public final class QuestLogUI {
         if (!builder.isEmpty()) {
           builder.append(System.lineSeparator()).append(System.lineSeparator());
         }
-        builder.append(tab);
+        builder.append(displayText(tab));
         for (QuestLogEntryView entry : entriesFor(tab)) {
-          builder.append(System.lineSeparator()).append("- ").append(entry.text());
+          builder.append(System.lineSeparator()).append("- ").append(displayText(entry.text()));
         }
       }
       return builder.toString();
@@ -698,6 +799,7 @@ public final class QuestLogUI {
   private static final class QuestLogDialog extends Table {
     private final String dialogId;
     private final QuestLogViewData viewData;
+    private final boolean unavailable;
     private final Skin skin;
     private final Table sidebar;
     private final Container<Table> detailContainer;
@@ -705,14 +807,15 @@ public final class QuestLogUI {
     private final Drawable rowSelected;
     private String selectedTab;
 
-    private QuestLogDialog(String dialogId, QuestLogViewData viewData) {
+    private QuestLogDialog(String dialogId, QuestLogViewData viewData, boolean unavailable) {
       this.dialogId = dialogId;
       this.viewData = viewData;
+      this.unavailable = unavailable;
       this.skin = UIUtils.defaultSkin();
       this.sidebar = new Table();
       this.detailContainer = new Container<>();
-      this.rowNormal = skin.newDrawable("generic-area", new Color(0.08f, 0.09f, 0.09f, 0.92f));
-      this.rowSelected = skin.newDrawable("generic-area", new Color(0.30f, 0.23f, 0.15f, 0.98f));
+      this.rowNormal = skin.newDrawable("generic-area", Color.valueOf("141717EB"));
+      this.rowSelected = skin.newDrawable("generic-area", Color.valueOf("4C3A27FA"));
       this.selectedTab = resolveInitialSelectedTab(viewData);
 
       buildLayout();
@@ -721,25 +824,19 @@ public final class QuestLogUI {
 
     private void buildLayout() {
       setSize(UI_WIDTH, UI_HEIGHT);
-      setBackground(skin.newDrawable("window_background_big", new Color(0.08f, 0.09f, 0.09f, 1f)));
-      top().left();
+      setBackground(skin.newDrawable("generic-area", Color.valueOf("333333FF")));
       pad(18f);
 
       ScrollPane sidebarScroll = Scene2dElementFactory.createScrollPane(sidebar, false, true);
-      sidebarScroll.setOverscroll(false, false);
-      sidebarScroll.setFadeScrollBars(false);
+      ScrollPane.ScrollPaneStyle sidebarScrollStyle =
+          new ScrollPane.ScrollPaneStyle(sidebarScroll.getStyle());
+      sidebarScrollStyle.background = skin.newDrawable("generic-area", Color.valueOf("0D0D0DFF"));
+      sidebarScroll.setStyle(sidebarScrollStyle);
 
-      detailContainer
-          .top()
-          .left()
-          .background(skin.newDrawable("generic-area", new Color(0.07f, 0.08f, 0.08f, 0.74f)));
+      detailContainer.background(skin.newDrawable("generic-area", Color.valueOf("171717BB")));
 
-      add(sidebarScroll).width(SIDEBAR_WIDTH).height(UI_HEIGHT - 36f).left().top();
-      add(detailContainer)
-          .width(UI_WIDTH - SIDEBAR_WIDTH - 36f)
-          .height(UI_HEIGHT - 36f)
-          .left()
-          .top();
+      add(sidebarScroll).width(SIDEBAR_WIDTH).maxHeight(UI_HEIGHT).growY();
+      add(detailContainer).maxHeight(UI_HEIGHT).growY();
     }
 
     private void refresh() {
@@ -751,20 +848,24 @@ public final class QuestLogUI {
     private void rebuildSidebar() {
       sidebar.clearChildren();
       sidebar.top().left();
-      sidebar.setBackground(skin.newDrawable("generic-area", new Color(0.05f, 0.06f, 0.06f, 1f)));
+      sidebar.pad(4);
 
       if (viewData.tabs().isEmpty()) {
         sidebar
             .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_MUTED, true))
-            .width(SIDEBAR_WIDTH - 40f)
-            .pad(22f)
-            .left()
-            .top();
+            .growX()
+            .maxWidth(SIDEBAR_WIDTH - 40f)
+            .pad(22f);
         return;
       }
 
       for (String tab : viewData.tabs()) {
-        sidebar.add(buildTabRow(tab)).width(SIDEBAR_WIDTH - 8f).height(ROW_HEIGHT).row();
+        sidebar
+            .add(buildTabRow(tab))
+            .growX()
+            .minHeight(ROW_HEIGHT)
+            .maxWidth(SIDEBAR_WIDTH - 8f)
+            .row();
       }
     }
 
@@ -776,30 +877,46 @@ public final class QuestLogUI {
       row.setTouchable(Touchable.enabled);
 
       RichLabel title =
-          label(preview(sidebarLabel(tab), 34), selected ? FONT_SELECTED : FONT_ROW, false);
-      row.add(title).growX().left().padLeft(22f).padRight(14f);
+          label(
+              preview(displayText(sidebarLabel(tab)), 34),
+              selected ? FONT_SELECTED : FONT_ROW,
+              false);
+      row.add(title).minWidth(0f).growX().padLeft(22f).padRight(22f);
 
       row.addListener(
           new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              selectedTab = tab;
-              refresh();
+              selectTab(tab);
             }
           });
       return row;
     }
 
+    private void selectTab(String tab) {
+      if (tab.equals(selectedTab)) return;
+      DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CANCEL)
+          .accept(null);
+      if (NetworkUtils.isNetworkClient()) {
+        sendReliableRequest(Game.network(), tab);
+      } else if (viewData.viewerId() >= 0) {
+        showQuestLogForPlayers(tab, viewData.viewerId());
+      } else {
+        showQuestLogForPlayers(tab);
+      }
+    }
+
     private Table buildDetail() {
       Table detail = new Table();
       detail.top().left();
-      detail.pad(24f);
+      detail.pad(10, 10, 10, 10);
 
       Table header = new Table();
       header.left();
-      header.add(label(detailTitle(selectedTab), FONT_TITLE, false)).growX().left();
-      TextButton close = new TextButton("x", skin, "red-outline");
-      close.getLabel().setFontScale(0.55f);
+      header.add(label(displayText(detailTitle(selectedTab)), FONT_TITLE, false)).growX().left();
+      TextButton close = Scene2dElementFactory.createButton("x", "red-outline", 16);
+      close.pad(5, 6, 10, 6);
+      close.getLabel().setAlignment(Align.center);
       close.addListener(
           new ClickListener() {
             @Override
@@ -808,54 +925,99 @@ public final class QuestLogUI {
                   .accept(null);
             }
           });
-      header.add(close).size(34f).right();
-      detail.add(header).width(CONTENT_WIDTH).padBottom(16f).row();
+      header.add(close).size(38).right();
+      detail.add(header).growX().padBottom(16f).row();
 
+      Table entriesContent = new Table();
+      entriesContent.top().left();
+      entriesContent.defaults().growX();
       List<QuestLogEntryView> entries = viewData.entriesFor(selectedTab);
-      if (entries.isEmpty()) {
-        detail
-            .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
-            .left()
-            .top()
-            .padBottom(18f)
-            .row();
+      if (unavailable) {
+        entriesContent.add(label(trans.text(T_NOT_INITIALIZED), FONT_BODY, true)).growX().row();
+      } else if (entries.isEmpty()) {
+        entriesContent.add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true)).growX().row();
       } else {
-        addEntryList(detail, entries);
+        addEntryList(entriesContent, entries);
       }
 
-      detail.add().growY().row();
-      detail.add(buildFooter()).width(CONTENT_WIDTH).left().bottom();
+      ScrollPane entriesScroll =
+          Scene2dElementFactory.createScrollPane(entriesContent, false, true);
+      ScrollPane.ScrollPaneStyle entriesScrollStyle =
+          new ScrollPane.ScrollPaneStyle(entriesScroll.getStyle());
+      entriesScrollStyle.background = skin.newDrawable("generic-area", Color.valueOf("EEEEEEFF"));
+      entriesScroll.setStyle(entriesScrollStyle);
+      detail.add(entriesScroll).grow().row();
+      if (!unavailable && !entries.isEmpty()) {
+        detail.add(buildFooter()).padTop(18).growX().left().bottom();
+      }
       return detail;
     }
 
     private void addEntryList(Table detail, List<QuestLogEntryView> entries) {
-      for (QuestLogEntryView entry : entries) {
-        detail
-            .add(label(entry.text(), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
-            .left()
-            .top()
-            .padBottom(10f)
-            .row();
+      for (int index = entries.size() - 1; index >= 0; index--) {
+        QuestLogEntryView entry = entries.get(index);
+        List<DialogEntry> pages = DialogScript.parse(displayText(entry.text()));
+        String previousSpeakerImage = null;
+        for (DialogEntry page : pages) {
+          boolean speakerChanged =
+              page.hasSpeaker() && !page.imagePath().equals(previousSpeakerImage);
+          if (speakerChanged) {
+            detail.add(speakerHeader(page)).left().top().growX().padBottom(8).padRight(10).row();
+          }
+          previousSpeakerImage = page.hasSpeaker() ? page.imagePath() : null;
+          RichLabel pageLabel = label(page.text(), FONT_BODY, true);
+          pageLabel.setMaxPrefWidth(CONTENT_WIDTH - 80f);
+          detail.add(pageLabel).left().top().growX().padBottom(10).padRight(10).row();
+        }
         Optional<String> metadata = metadataFor(entry.owner());
         if (metadata.isPresent()) {
           detail
-              .add(label(metadata.get(), FONT_MUTED, false))
-              .width(CONTENT_WIDTH)
+              .add(label("- " + metadata.get(), FONT_MUTED, false))
               .left()
-              .padBottom(22f)
+              .growX()
+              .padBottom(10)
+              .padRight(10)
+              .row();
+        }
+        if (index > 0) {
+          detail
+              .add(Scene2dElementFactory.createHorizontalDivider())
+              .height(4)
+              .left()
+              .growX()
+              .padBottom(10)
               .row();
         }
       }
+    }
+
+    private Table speakerHeader(DialogEntry entry) {
+      Table header = new Table();
+      header.left().top();
+
+      Image image = new Image();
+      image.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+      Texture texture = TextureMap.instance().textureAt(new SimpleIPath(entry.imagePath()));
+      if (texture != null) {
+        image.setDrawable(new TextureRegionDrawable(texture));
+      } else {
+        LOGGER.warn("Could not load quest log speaker image '{}'.", entry.imagePath());
+      }
+
+      RichLabel name =
+          label(entry.speakerName() == null ? "" : entry.speakerName(), FONT_BODY, false);
+      header.add(image).size(SPEAKER_IMAGE_SIZE).left().top();
+      header.add(name).left().center().padLeft(16f);
+      return header;
     }
 
     private Table buildFooter() {
       Table footer = new Table();
       footer.left();
 
-      TextButton addNote = new TextButton("+  " + trans.text(T_CREATE), skin, "blue-outline");
-      addNote.getLabel().setFontScale(0.55f);
+      TextButton addNote =
+          Scene2dElementFactory.createButton("+ " + trans.text(T_CREATE), "blue-outline", 16);
+      addNote.getLabel().setColor(Color.BLACK);
       addNote.addListener(
           new ClickListener() {
             @Override
@@ -866,8 +1028,9 @@ public final class QuestLogUI {
           });
 
       TextButton addPersonalNote =
-          new TextButton("+  " + trans.text(T_CREATE_PERSONAL), skin, "blue-outline");
-      addPersonalNote.getLabel().setFontScale(0.55f);
+          Scene2dElementFactory.createButton(
+              "+ " + trans.text(T_CREATE_PERSONAL), "blue-outline", 16);
+      addPersonalNote.getLabel().setColor(Color.BLACK);
       addPersonalNote.addListener(
           new ClickListener() {
             @Override

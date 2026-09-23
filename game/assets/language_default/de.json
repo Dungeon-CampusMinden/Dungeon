@@ -41,8 +41,8 @@
         "questlog": {
             "title": "Questlog",
             "empty": "Questlog ist leer.",
-            "create": "Erstellen",
-            "create_personal": "Persönliche Notiz",
+            "create": "Notiz",
+            "create_personal": "Private Notiz",
             "cancel": "Abbrechen",
             "note_prompt": "Schreibe eine Notiz fuer das Questlog.",
             "note_placeholder": "Deine Notiz..."
@@ -94,6 +94,7 @@
         "language": "Sprache"
     },
     "main_menu": {
+        "continue": "Fortsetzen",
         "host": "Spiel hosten",
         "join": "Spiel beitreten",
         "level_editor": "Level-Editor",
@@ -102,6 +103,9 @@
         "exit": "Beenden",
         "back": "Zurück",
         "confirm": "Bestätigen",
+        "cancel": "Abbrechen",
+        "new_game_overwrite_title": "Neues Spiel starten",
+        "new_game_overwrite_message": "Das vorhandene Savegame wird überschrieben. Möchtest du fortfahren?",
         "player_name": "Spielername",
         "server_address": "Serveradresse",
         "port": "Port",

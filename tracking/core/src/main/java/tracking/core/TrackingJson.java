@@ -416,6 +416,7 @@ public final class TrackingJson {
     root.put("sessionId", session.sessionId().toString());
     root.put("roomId", session.roomId());
     root.put("startedAt", session.startedAt().toString());
+    session.runId().ifPresent(value -> root.put("runId", value.toString()));
     return root;
   }
 
@@ -424,7 +425,8 @@ public final class TrackingJson {
         requiredInt(root, "schemaVersion"),
         requiredUuid(root, "sessionId"),
         requiredText(root, "roomId"),
-        requiredInstant(root, "startedAt"));
+        requiredInstant(root, "startedAt"),
+        optionalUuid(root, "runId"));
   }
 
   private static ObjectNode participantNode(final TrackingParticipant participant) {

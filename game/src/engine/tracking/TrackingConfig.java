@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Immutable configuration for one authoritative tracking session.
@@ -15,13 +16,15 @@ import java.util.Optional;
  * @param apiKey optional bearer credential
  * @param outboxDirectory directory for local append-only tracking files
  * @param operatorEmail operator email shown when remote upload remains pending
+ * @param runId optional stable playthrough identifier
  */
 record TrackingConfig(
     String roomId,
     URI endpoint,
     Optional<String> apiKey,
     Path outboxDirectory,
-    String operatorEmail) {
+    String operatorEmail,
+    Optional<UUID> runId) {
 
   // Controls HTTP upload and backend health checks. JSONL tracking remains active.
   static final boolean TRACKING_ENABLED = false;
@@ -57,6 +60,7 @@ record TrackingConfig(
     apiKey = optionalText(apiKey, "apiKey");
     outboxDirectory = Objects.requireNonNull(outboxDirectory, "outboxDirectory").toAbsolutePath();
     operatorEmail = requireText(operatorEmail, "operatorEmail");
+    runId = Objects.requireNonNull(runId, "runId");
   }
 
   /** Creates a builder with the required stable room ID. */
@@ -68,15 +72,27 @@ record TrackingConfig(
    * Creates room configuration while retaining deployment settings from properties or environment.
    */
   static TrackingConfig forRoom(String roomId) {
+    return forRoom(roomId, Optional.empty());
+  }
+
+  /** Creates room configuration with an optional stable playthrough identifier. */
+  static TrackingConfig forRoom(String roomId, Optional<UUID> runId) {
     Builder builder = builder(roomId);
     applyDeploymentValues(builder);
+    builder.runId(runId);
     return builder.build();
   }
 
   /** Creates room configuration with an explicit operator email. */
   static TrackingConfig forRoom(String roomId, String operatorEmail) {
+    return forRoom(roomId, operatorEmail, Optional.empty());
+  }
+
+  /** Creates room configuration with operator email and optional playthrough identifier. */
+  static TrackingConfig forRoom(String roomId, String operatorEmail, Optional<UUID> runId) {
     Builder builder = builder(roomId).operatorEmail(operatorEmail);
     applyDeploymentValues(builder);
+    builder.runId(runId);
     return builder.build();
   }
 
@@ -160,6 +176,7 @@ record TrackingConfig(
     private String apiKey;
     private Path outboxDirectory = Path.of("tracking-outbox");
     private String operatorEmail = DEFAULT_OPERATOR_EMAIL;
+    private Optional<UUID> runId = Optional.empty();
 
     private Builder(String roomId) {
       this.roomId = requireText(roomId, "roomId");
@@ -209,6 +226,11 @@ record TrackingConfig(
       return this;
     }
 
+    private Builder runId(Optional<UUID> runId) {
+      this.runId = Objects.requireNonNull(runId, "runId");
+      return this;
+    }
+
     /**
      * Builds the immutable configuration.
      *
@@ -216,7 +238,7 @@ record TrackingConfig(
      */
     private TrackingConfig build() {
       return new TrackingConfig(
-          roomId, endpoint, Optional.ofNullable(apiKey), outboxDirectory, operatorEmail);
+          roomId, endpoint, Optional.ofNullable(apiKey), outboxDirectory, operatorEmail, runId);
     }
   }
 }

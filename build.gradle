@@ -158,8 +158,13 @@ allprojects {
 }
 
 tasks.named('clean') {
+    dependsOn subprojects.collect { it.tasks.named('clean') }
     delete(
             file("$rootDir/dungeon_config.json"),
+            file("$rootDir/system-recovery-save.json"),
+            file("$rootDir/last_session.dat"),
+            file("$rootDir/tracking-room-history.properties"),
+            file("$rootDir/tracking-outbox"),
             fileTree(rootDir) {
                 include '**/*achievement-unlock.json'
             }
