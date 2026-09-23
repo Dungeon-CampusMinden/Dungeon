@@ -88,7 +88,12 @@ In Akt IV setzt Stufe 3 Nox' aktuelle Werte in die Rune ein, und die automatisch
 wählt nur an der aktuellen Kreuzung die richtige Tür. Freigegebene Hinweise bleiben im
 Questlog lesbar.
 
-**Questlog.** Das Questlog zeigt die aktuelle Aufgabe, gefundene Texte und Hinweise.
+**Questlog.** Das Questlog zeigt die aktuelle Aufgabe und gefundene Texte. Jeder Akt hat
+einen eigenen Tab mit seinem Verlauf: kompakte Blöcke mit den Ergebnissen der Versuche,
+dazu die angeforderten Tipps und die gelösten Aufgaben. Akt I führt jede Zuordnung,
+Akt II jeden Kellerlauf, Akt III jeden Programmlauf und Akt IV jede Kreuzungsentscheidung
+mit den Werten, bei denen sie getroffen wurde. Hilfe über die automatische Lösung ist
+markiert.
 
 **Erfolge.** Der Raum hat 18 Erfolge. Einige gibt es für Fortschritt, zum Beispiel
 "Seelenweber" für die fertige Bindung oder "Mit Nebenwirkungen" für den geräumten Keller.

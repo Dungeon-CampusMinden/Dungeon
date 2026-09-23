@@ -36,6 +36,7 @@ final class ProgrammingWorkshopRuntime {
   private String runCode = "";
   private boolean runPending;
   private int runHintLevel;
+  private int runs;
   private boolean runAutomaticSolution;
   private static final tools.jackson.databind.json.JsonMapper JSON =
       tools.jackson.databind.json.JsonMapper.builder().build();
@@ -326,17 +327,26 @@ final class ProgrammingWorkshopRuntime {
   private void recordOutcome() {
     if (!runPending) return;
     runPending = false;
+    var state = workshop.state();
+    List<String> reasons =
+        state.completed()
+            ? List.of()
+            : state.runState() == MethodsWorkshop.RunState.FINISHED
+                ? state.checks().stream()
+                    .filter(check -> check.status() == MethodsWorkshop.CheckStatus.FAILED)
+                    .map(MethodsWorkshop.Check::message)
+                    .toList()
+                : List.of(state.feedback());
+    ProgrammingProgress.log(
+        "methods",
+        "Werkstattprogramm",
+        "Lauf "
+            + ++runs
+            + " · "
+            + state.resultTitle()
+            + (reasons.isEmpty() ? "" : " · " + reasons.getFirst())
+            + (runAutomaticSolution ? " (Hilfe)" : ""));
     if (runParticipant != null) {
-      var state = workshop.state();
-      List<String> reasons =
-          state.completed()
-              ? List.of()
-              : state.runState() == MethodsWorkshop.RunState.FINISHED
-                  ? state.checks().stream()
-                      .filter(check -> check.status() == MethodsWorkshop.CheckStatus.FAILED)
-                      .map(MethodsWorkshop.Check::message)
-                      .toList()
-                  : List.of(state.feedback());
       ProgrammingProgress.attempt(
           "methods",
           "workshop-program",

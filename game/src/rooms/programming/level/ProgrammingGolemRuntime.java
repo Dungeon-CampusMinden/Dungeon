@@ -182,6 +182,12 @@ final class ProgrammingGolemRuntime {
             VariablePuzzle.vesselSolution().get(property) == selected
                 ? List.of()
                 : List.of("Falscher Gefäßtyp für " + property.label() + "."));
+        logBinding(
+            true,
+            property.label() + ": " + selected.label(),
+            VariablePuzzle.vesselSolution().get(property) == selected
+                ? "richtig"
+                : "falscher Gefäßtyp");
         if (VariablePuzzle.vesselSolution().get(property) != selected) {
           bindingFeedback =
               selected == SoulVessel.CRYSTAL_BOTTLE
@@ -226,6 +232,16 @@ final class ProgrammingGolemRuntime {
                                 + selected.literal()
                                 + ".")
                         : List.of());
+        logBinding(
+            false,
+            property.label() + " = " + selected.literal(),
+            container == null
+                ? "Gefäß fehlt"
+                : !VariablePuzzle.fits(container, selected)
+                    ? "passt nicht in " + container.label()
+                    : VariablePuzzle.essenceSolution().get(property) != selected
+                        ? "falscher Wert"
+                        : "richtig");
         if (container == null || !VariablePuzzle.fits(container, selected)) {
           if (container != null && !solvingBinding) ProgrammingAchievements.WRONG_TYPE.unlock(who);
           bindingFeedback =
@@ -1098,7 +1114,21 @@ final class ProgrammingGolemRuntime {
                         failureReasons)));
   }
 
+  private void logBinding(boolean vessel, String entry, String outcome) {
+    ProgrammingProgress.log(
+        vessel ? "vessels" : "essences",
+        vessel ? "Gefäße zuordnen" : "Essenzen einsetzen",
+        entry + " · " + outcome + (solvingBinding ? " (Hilfe)" : ""));
+  }
+
   private void recordLoopOutcome(List<String> failureReasons) {
+    ProgrammingProgress.log(
+        attemptPuzzle,
+        "Kellerauftrag " + (Integer.parseInt(attemptPuzzle.substring(7)) + 1),
+        LoopPuzzle.rune(activeRune).map(ProgrammingProgress::runeTitle).orElse(activeRune)
+            + " · "
+            + (failureReasons.isEmpty() ? "Ziel erreicht" : failureReasons.getFirst())
+            + (attemptAutomaticSolution ? " (Hilfe)" : ""));
     if (attemptParticipant != null)
       ProgrammingProgress.attempt(
           attemptPuzzle,

@@ -192,6 +192,21 @@ final class ProgrammingDecisionRuntime {
                         correct
                             ? List.of()
                             : List.of("Ausgeführter Zweig führt zur anderen Tür."))));
+    ProgrammingProgress.log(
+        "decisions",
+        "Versuch " + (failures + 1),
+        "Kreuzung "
+            + (junction + 1)
+            + " · K"
+            + values.kraft()
+            + " E"
+            + values.energie()
+            + " T"
+            + values.temperatur()
+            + " · "
+            + (side == Side.LEFT ? "LINKS" : "RECHTS")
+            + (correct ? " · richtig" : " · falsch, zurück zum START")
+            + (assisted ? " (Hilfe)" : ""));
     ProgrammingDecisionWorld.open(level, junction, side, correct);
     feedback =
         correct

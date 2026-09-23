@@ -8,6 +8,7 @@ import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,13 +19,17 @@ import java.util.UUID;
 import rooms.programming.modules.loops.LoopPuzzle;
 import rooms.programming.modules.loops.LoopRune;
 
-/** Authoritative journal and tracking for the room's discoveries and learning progress. */
+/**
+ * Authoritative journal and tracking for the room's discoveries and learning progress. Each act has
+ * its own journal tab with a compact history of outcomes, released tips and completions.
+ */
 public final class ProgrammingProgress {
   /** Marks the snapshot entity carrying the complete public journal metadata. */
   public static final String JOURNAL_KEY = "programming.journal";
 
   private static final Map<String, QuestLogEntry> RECORDED = new LinkedHashMap<>();
   private static final Set<String> COMPLETED = new HashSet<>();
+  private static final Map<String, QuestLogEntry> HISTORY = new HashMap<>();
   private static Optional<QuestLogEntry> taskOverview = Optional.empty();
   private static String currentObjective = "";
 
@@ -34,6 +39,7 @@ public final class ProgrammingProgress {
   static void initialize() {
     RECORDED.clear();
     COMPLETED.clear();
+    HISTORY.clear();
     taskOverview = Optional.empty();
     currentObjective = "";
     Game.add(QuestLogUtil.initServerQuestLog());
@@ -63,7 +69,7 @@ public final class ProgrammingProgress {
   public static void solved(String puzzleId, String summary) {
     if (Game.isMultiplayerClient()) return;
     Tracking.puzzleSolved(puzzleId);
-    record("solved:" + puzzleId, "Fortschritt", summary);
+    record("solved:" + puzzleId, tab(puzzleId), summary);
     COMPLETED.add(puzzleId);
     if (currentObjective.equals(puzzleId)) {
       currentObjective = "";
@@ -72,10 +78,51 @@ public final class ProgrammingProgress {
             case "essences" -> "Aktiviere Nox an der Bindungsfläche.";
             case "cellar-4" -> "Folge Nox zur Methodenwerkstatt.";
             case "methods" -> "Folge Nox durch den Nebenausgang zum Labyrinth der Entscheidungen.";
-            case "decisions" -> "Das Herzfeuer brennt. Nox hat alle vier Prüfungen bestanden.";
+            case "decisions" ->
+                "Lies die Schriftrolle vor dem Herzfeuer und bringe die Opfergabe dar.";
             default -> "Nox bereitet den nächsten Schritt vor.";
           });
     }
+  }
+
+  /**
+   * Appends one outcome to an always expanded history block in the act's tab. A block keeps the
+   * position where it started, so blocks, tips and completions read in the order they began.
+   *
+   * @param puzzleId stable room-local puzzle identifier; selects the act tab
+   * @param block single-line block title, unique within the act
+   * @param line appended outcome
+   */
+  public static void log(String puzzleId, String block, String line) {
+    if (Game.isMultiplayerClient()) return;
+    String tab = tab(puzzleId);
+    String key = tab + ":" + block;
+    QuestLogEntry previous = HISTORY.get(key);
+    QuestLogEntry entry =
+        new QuestLogEntry(
+            (previous == null ? "[color=#dbb463]" + block + "[/color]" : previous.text())
+                + "\n"
+                + line,
+            previous == null ? Game.currentTick() : previous.timestamp(),
+            false,
+            QuestLogEntry.DEFAULT_OWNER,
+            false);
+    QuestLogUtil.getQuestLogComponent()
+        .ifPresent(
+            log -> {
+              if (previous != null) log.remove(tab, previous);
+              log.add(tab, entry);
+              HISTORY.put(key, entry);
+            });
+  }
+
+  private static String tab(String puzzleId) {
+    return switch (puzzleId) {
+      case "vessels", "essences" -> "Akt I · Seelenbindung";
+      case "methods" -> "Akt III · Werkstatt";
+      case "decisions" -> "Akt IV · Labyrinth";
+      default -> "Akt II · Keller";
+    };
   }
 
   /**
@@ -173,7 +220,7 @@ public final class ProgrammingProgress {
   public static void hint(String puzzleId, String hintId, String text, Entity who) {
     if (Game.isMultiplayerClient()) return;
     participant(who).ifPresent(id -> Tracking.hintUsed(puzzleId, hintId, id));
-    record("hint:" + puzzleId + ":" + hintId, "Hilfe", text);
+    record("hint:" + puzzleId + ":" + hintId, tab(puzzleId), text);
   }
 
   /**
@@ -219,12 +266,16 @@ public final class ProgrammingProgress {
    * @param who acting player, or null when no player is available
    */
   static void discoverRune(LoopRune rune, Entity who) {
+    discover("rune-" + rune.id(), runeTitle(rune), rune.code(), who);
+  }
+
+  /**
+   * @param rune loop rune
+   * @return journal name shared by its discovery and its executions
+   */
+  static String runeTitle(LoopRune rune) {
     String type = rune.program().type().name().toLowerCase(java.util.Locale.ROOT).replace('_', '-');
-    discover(
-        "rune-" + rune.id(),
-        "Schleifenrune " + (LoopPuzzle.runes().indexOf(rune) + 1) + " · " + type,
-        rune.code(),
-        who);
+    return "Schleifenrune " + (LoopPuzzle.runes().indexOf(rune) + 1) + " · " + type;
   }
 
   private static void record(String key, String tab, String text) {
