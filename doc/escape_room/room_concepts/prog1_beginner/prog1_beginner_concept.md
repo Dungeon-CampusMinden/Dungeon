@@ -1,2084 +1,460 @@
-# Programmieren 1 – Escape Room
+# Programmieren 1: Das Erbe der Seelenweber
 
-## Das Erbe der Seelenweber
-
----
+Dieses Dokument beschreibt den umgesetzten Escape Room für Programmieren 1 als Ganzes.
+Der ursprüngliche Entwurf steht im Pitch-Dokument
+`Pitch-Dokument_Programmieren-Einsteiger-Room.pdf`. Technische Einzelheiten zu Akt III und
+Akt IV stehen in [Akt III: Methodenwerkstatt](../../../../game/doc/act3-method-workshop.md)
+und [Akt IV: Labyrinth der Entscheidungen](../../../../game/doc/act4-decision-labyrinth.md).
 
 # 1. Überblick
 
-**Fach:** Programmieren 1
-**Studiengang:** Informatik, 1. Semester
-**Einsatz:** Nach der ersten Vorlesung als Selbststudium / Vertiefung
-**Dauer:** maximal 60 Minuten
-**Spieler:** 1–2 Personen
-**Setting:** Fantasy / Magische Schmiede
+| | |
+| --- | --- |
+| Fach | Programmieren 1, Informatik, 1. Semester |
+| Einsatz | Nach der ersten Vorlesung, als Selbststudium oder Vertiefung |
+| Dauer | Zielwert 60 bis 65 Minuten, im Playtest zu prüfen |
+| Spieler | 1 bis 2, allein oder im Multiplayer |
+| Setting | Fantasy, verlassene magische Schmiede |
+| Start | `rooms.programming.Programming`, Tracking-Raum `programming-1` |
 
-Der Escape Room besteht aus vier aufeinander aufbauenden Akten:
+Der Raum behandelt vier Grundlagen in fester Reihenfolge:
 
-1. **Die Schmiede des Golems** – Variablen und Datentypen
-2. **Das Labyrinth der ewigen Wächter** – Schleifen
-3. **Die Fertigkeits-Scrolls** – Methoden
-4. **Das Labyrinth der Entscheidungen** – `if` / `else`
+1. Variablen und Datentypen
+2. Schleifen (`while`, `do-while`, `for`)
+3. Methoden mit Parametern und Rückgabewerten
+4. Verschachtelte Bedingungen (`if` / `else`, `&&`, `||`)
 
-Die vier Rätsel bauen auf demselben Golem auf. Die Ergebnisse eines Rätsels werden teilweise in den nächsten Akt übernommen.
-
----
+Alle vier Akte arbeiten mit demselben Golem Nox. Die Spieler steuern ihn nie direkt. Sie
+geben ihm Werte, Programme, Methoden und Entscheidungen und sehen dann, was er damit tut.
+Jeder Akt beginnt mit einem Problem in der Spielwelt. Die Java-Schreibweise folgt erst,
+wenn die Idee dahinter schon funktioniert hat.
 
 # 2. Rahmenhandlung
 
-Die Spieler erwachen in der verlassenen Schmiede von **Aethelgard**.
+Ein Zwischentitel eröffnet das Spiel: "Aethelgard. Die Schmiede des vermissten Meisters
+Valerius."
 
-Die Schmiede gehörte dem legendären Seelenweber **Meister Valerius**. Er erschuf einen mächtigen Wächter-Golem, der das Herzfeuer der Schmiede beschützen sollte.
+Am Eingang liegt ein Brief von Valerius. Er ist zum Herzfeuer gegangen und nicht
+zurückgekehrt. Der zweite Ausgang der Schmiede klemmt, weil Schutt die Torwinde im Keller
+blockiert und aus den Leitungen heißer Dampf austritt. Menschen sollen nicht hinunter.
+Für solche Arbeiten hat Valerius den Golem Nox gebaut, doch dessen Seelenbindung ist
+erloschen.
 
-Doch Valerius verschwand.
+Daraus ergibt sich der Auftrag des Raums:
 
-Seitdem breitet sich die **Entropie**, eine magische Kraft des Verfalls, durch die Schmiede aus. Die Maschinen stehen still, die Schutzmechanismen versagen und das Herzfeuer droht zu erlöschen.
+1. Nox' Seelenbindung wiederherstellen (Akt I).
+2. Nox fernsteuern, bis er den Keller geräumt hat (Akt II).
+3. Die Winde bricht dabei. Der Nebenausgang der Werkstatt ist der letzte Weg. Seine
+   Steuerung verlangt ein kurzes Programm mit Methoden (Akt III).
+4. Hinter der Werkstatt liegt das Labyrinth der Entscheidungen. An seinem Ende brennt das
+   Herzfeuer (Akt IV).
+5. Am Herzfeuer bringen die Spieler eine Opfergabe dar und beenden das Spiel (Abschluss).
 
-Der Golem könnte die Schmiede retten.
+Nox spricht kurz und trocken. Nach der gebrochenen Winde sagt er: "Der Schutt ist
+beseitigt. Die Winde leider auch."
 
-Doch seine Seele ist leer.
+# 3. Raum und Ablauf
 
-Auf einer alten Steintafel steht:
+| Abschnitt | Ort | Konzept | Zentrale Frage |
+| --- | --- | --- | --- |
+| Akt I | Schmiede | Variablen / Datentypen | Was speichert Nox und in welchem Gefäß? |
+| Akt II | Archiv, ferngesteuerter Keller | Schleifen | Wie oft und wie lange soll Nox etwas tun? |
+| Akt III | Valerius' Werkstatt | Methoden | Welche Arbeit lässt sich benennen und wiederverwenden? |
+| Akt IV | Labyrinth der Entscheidungen | Bedingungen | Welcher Weg folgt aus Nox' aktuellen Werten? |
+| Abschluss | Herzfeuer | Alle | Die Reise endet |
 
-> *„Ein Körper braucht Essenz.*
-> *Eine Seele braucht Rhythmus.*
-> *Ein Geist braucht Fertigkeiten.*
-> *Und ein Wächter muss entscheiden können.“*
+Die Akte laufen nacheinander. Tore und Durchbrüche trennen die Bereiche und öffnen sich
+erst, wenn der vorherige Akt gelöst ist. Den Keller aus Akt II betreten die Spieler nie.
+Sie beobachten ihn über eine Karte und einen Sehstein.
 
-Die Spieler müssen die vier Säulen der Seelenbindung wiederherstellen.
+## Gemeinsame Regeln
 
----
+- Falsche Eingaben kosten nichts außer Zeit. Jede Aufgabe lässt sich beliebig oft
+  wiederholen. Ein Fehlversuch setzt nur den aktuellen Abschnitt zurück, nie den
+  bisherigen Fortschritt.
+- Programme laufen wirklich ab. Ein falsches Programm lässt Nox sichtbar scheitern. Das
+  Spiel meldet nicht bloß "falsch".
+- Der Server besitzt Fortschritt, Werte und Ausführung. Clients schicken nur Absichten.
+- Alle Spieler starten an derselben Stelle als Char03. Es gibt keine festen Rollen. Im
+  Multiplayer sehen beide denselben Zustand und können sich die Arbeit aufteilen.
 
-# AKT I – Die Schmiede des Golems
+## Hilfe, Questlog und Erfolge
 
-## Thema
+**Hilfe.** In Akt I bis III kann die Gruppe für die aktuelle Aufgabe gestufte Hinweise
+anfordern. Die Stufen werden nacheinander freigegeben. Stufe 1 erklärt die Aufgabe,
+Stufe 2 nennt die entscheidende Idee und Stufe 3 markiert die Lösung im UI. Danach bietet
+die Hilfe eine automatische Lösung an, die erst nach einer Bestätigung ausgeführt wird.
+Freigegebene Hinweise bleiben im Questlog lesbar. Akt IV hat keine Hilfe, weil jede
+Entscheidung direkt am sichtbaren Code nachrechenbar ist.
 
-**Variablen und Datentypen**
+**Questlog.** Das Questlog zeigt die aktuelle Aufgabe, gefundene Texte und Hinweise.
 
----
+**Erfolge.** Der Raum hat 18 Erfolge. Einige gibt es für Fortschritt, zum Beispiel
+"Seelenweber" für die fertige Bindung oder "Mit Nebenwirkungen" für den geräumten Keller.
+Andere belohnen Neugier: ein Wert im falschen Gefäß, `aktiviert = false`, die endlose
+Drehrune bis zum Sicherheitsstopp, alle Fackeln gleichzeitig aus oder das gelöschte
+Herzfeuer. Im Keller und in der Werkstatt unterscheiden je zwei Erfolge einen
+fehlerfreien Durchlauf von einem Abschluss nach Fehlversuchen. "Valerius wäre stolz"
+(Platin) verlangt alle übrigen Erfolge, auch über mehrere Durchläufe. Nach einer
+automatischen Lösung im Keller entfällt "Auf Anhieb". In der Werkstatt entfallen dann
+beide Abschlusserfolge.
+
+## Tracking
+
+Das Tracking erfasst pro Rätsel Start, Lösung, Versuche mit Fehlergründen, genutzte
+Hinweise und wichtige Interaktionen. Die Rätsel heißen `vessels`, `essences`,
+`cellar-0` bis `cellar-4`, `methods` und `decisions`. Die Opfergabe am Herzfeuer beendet
+die Sitzung als erfolgreich abgeschlossen. Die Lesezeit des Abspanns zählt damit nicht
+mehr zur Spielzeit.
+
+# 4. Akt I: Die Schmiede des Golems
+
+**Konzept:** Variablen und Datentypen
 
 ## Story
 
-In der Mitte der Schmiede steht ein unvollständiger Steingolem.
+In der Schmiede steht Nox, ein fünf Tiles hoher Steingolem mit leerem Seelenkern. Zwei
+Werkstattkisten enthalten die Eigenschaftsrunen und die Seelengefäße mit den Essenzen.
+Neben dem Golem liegt Valerius' Bindungsplan: ein Buch mit einer Seite pro Eigenschaft,
+einem Bild, dem gewünschten Wert und einer kurzen Notiz. Zum Beispiel: "O wie Osten.
+Dorthin soll er sich nach dem Erwachen wenden."
 
-Sein Körper ist fertig, doch in seiner Brust befindet sich ein leerer Seelenkristall.
+## Ablauf
 
-Auf einem Altar steht:
+Die Gruppe öffnet beide Kisten und dann die Seelenwerkbank am Golem. Dort bindet sie in
+zwei Stufen.
 
-> *„Jeder Golem benötigt Eigenschaften.*
-> *Doch jede Eigenschaft verlangt das richtige Gefäß.“*
+**Gefäße.** Jede der sechs Eigenschaften bekommt ein Gefäß. Die Gefäße nennen nur, was
+sie fassen können, noch keine Java-Namen:
 
-Im Raum liegen drei Arten magischer Gegenstände:
+| Gefäß | Prägung | Aufgedeckt als |
+| --- | --- | --- |
+| Eisenkiste | Ganze Zahlen | `int` |
+| Kristallflasche | Zahlen, auch Bruchteile | `double` |
+| Pergament | Wörter und Texte | `String` |
+| Runenstein | Ein einzelnes Zeichen | `char` |
+| Lichtkugel | An oder aus | `boolean` |
 
-* Eigenschaftsrunen
-* Seelengefäße
-* Magische Essenzen
+Ein falsches Gefäß wird abgelehnt und erklärt. Ein Sonderfall bekommt eine eigene
+Antwort: Die Kristallflasche fasst auch ganze Zahlen, Valerius verwendet dafür aber die
+Eisenkiste.
 
-Die Spieler müssen die drei Ebenen miteinander verbinden.
+**Essenzen.** Danach kommen die Werte `125`, `17`, `3.5`, `true`, `false`, `"Nox"` und
+`'O'` in die Gefäße. Ein Wert vom falschen Typ passt nicht hinein. Ein Wert mit passendem
+Typ, aber falschem Inhalt wird gespeichert, doch die Bindung reagiert nicht. `false` ist
+der bewusste Ablenker. Ein neuer Wert überschreibt den alten.
 
----
+Sobald alle Werte stimmen, deckt die Werkbank die Java-Typen auf und zeigt jede Fassung
+als Deklaration, etwa `int schritte = 17;`. Mit "Aktivieren" erwacht Nox, bricht durch
+die Wand und läuft zur Schleuse in den Keller.
 
-# Rätsel 1.1 – Die Eigenschaften des Golems
+## Lösung
 
-## Material für die Spieler
+| Eigenschaft | Gefäß | Wert | Java |
+| --- | --- | --- | --- |
+| Name | Pergament | `"Nox"` | `String name = "Nox";` |
+| Lebensenergie | Eisenkiste | `125` | `int lebensenergie = 125;` |
+| Mana | Kristallflasche | `3.5` | `double mana = 3.5;` |
+| Aktiviert | Lichtkugel | `true` | `boolean aktiviert = true;` |
+| Blickrichtung | Runenstein | `'O'` | `char blickrichtung = 'O';` |
+| Schritte | Eisenkiste | `17` | `int schritte = 17;` |
 
-Spieler A erhält folgende Runen:
+## Lernziel
 
-| Rune              | Beschreibung                                   |
-| ----------------- | ---------------------------------------------- |
-| **Name**          | Wie heißt der Golem?                           |
-| **Lebensenergie** | Wie viel Schaden hält er aus?                  |
-| **Mana**          | Wie viel magische Energie besitzt er?          |
-| **Aktiviert**     | Ist der Golem eingeschaltet?                   |
-| **Blickrichtung** | Welches einzelne Zeichen zeigt seine Richtung? |
-| **Schritte**      | Wie viele Schritte ist er bereits gegangen?    |
+- Eine Variable besteht aus Typ, Name und Wert.
+- Der Typ bestimmt, welche Werte hineinpassen.
+- Ein passender Typ allein reicht nicht. Der Wert muss auch zur Bedeutung passen.
+- Eine Zuweisung überschreibt den bisherigen Wert.
 
-Spieler B erhält folgende Gefäße:
+# 5. Akt II: Der Maschinenkeller
 
-| Gefäß               | Beschreibung                          |
-| ------------------- | ------------------------------------- |
-| **Eisenkiste**      | Kann nur ganze Mengen aufnehmen       |
-| **Kristallflasche** | Kann auch Bruchteile speichern        |
-| **Pergament**       | Kann beliebig viele Zeichen speichern |
-| **Runenstein**      | Kann genau ein Zeichen aufnehmen      |
-| **Lichtkugel**      | Kennt nur JA oder NEIN                |
+**Konzept:** Schleifen mit `while`, `do-while` und `for`
 
----
+## Story
+
+Im Archiv liegt Valerius' Arbeitsauftrag für den Keller. Nox soll die Förderbahn, den
+Pumpenzugang und den Kettenzug freiräumen, den beschädigten Kühlkanal überqueren und
+zuletzt den Schutt an der Torwinde entfernen. Messingmarken zeigen seine
+Arbeitspositionen, Pfeile die geforderte Ausrichtung.
+
+## Material
+
+- **24 Rhythmusrunen** liegen auf den Lesetischen im Archiv und an zwei frühen Fundorten
+  in der Schmiede. Für jeden der fünf Abschnitte gibt es je eine `while`-, `do-while`-
+  und `for`-Variante (blau, violett, orange). Dazu kommen neun Ablenker aus alten
+  Probeläufen, darunter eine endlose Drehrune. Eine gesammelte Rune gehört der ganzen
+  Gruppe.
+- **Die Kellersteuerung** am Schleusentor ist eine Arbeitsfläche. Die gesammelten Runen
+  liegen dort als Karten mit ihrem Code. Genau eine Rune passt in den Executor.
+- **Die Karte** zeigt das Raster des Kellers, Nox' Kopf mit Blickrichtung und Gefahren
+  als `!`.
+- **Der Sehstein** zeigt Nox' Umgebung live. Dort erkennt man, dass ein `!` ein
+  Eindringling oder eine Grube ist. Während der Beobachtung ist die eigene Figur gesperrt.
+
+Die Runen verwenden echten Java-Code mit deutschen Befehlen, zum Beispiel:
+
+```java
+do {
+    schritt();
+    angreifen();
+} while (bodenVoraus());
+rechtsDrehen();
+```
+
+Befehle: `schritt()`, `linksDrehen()`, `rechtsDrehen()`, `angreifen()`, `springen()`.
+Bedingungen: `bodenVoraus()`, `amWegzeichen()`, `!amWegzeichen()`.
+
+## Ablauf
+
+Nox muss fünf Arbeitspositionen nacheinander erreichen und dort richtig ausgerichtet
+stehen bleiben. Die bloße Berührung einer Marke genügt nicht.
+
+| Abschnitt | Ort | Besonderheit |
+| --- | --- | --- |
+| 1 | Förderbahn | Das Ziel liegt vor dem Ende des Gangs |
+| 2 | Pumpenzugang | Das Ziel liegt am Ende eines längeren Gangs |
+| 3 | Kettenzug | Ein Eindringling steht im Weg. Angriff vor dem Schritt |
+| 4 | Kühlkanal | Eine Grube. Sprung vor dem Schritt |
+| 5 | Torwinde | Der Weg knickt wiederholt. Ein Schleifenrumpf mit Schritten und Drehungen |
+
+Das Programm läuft tatsächlich ab. `while` prüft vor jedem Durchlauf, `do-while` erst
+danach und `for` zählt. Die Auswertung nutzt Nox' Position, Blickrichtung und die
+Hindernisse. Nach 24 Wiederholungen bricht ein Sicherheitsstopp ab. Ein falscher Lauf
+zeigt das Scheitern, und Nox kehrt zur letzten Arbeitsposition zurück. Die Rune verlässt
+den Executor, bleibt aber gesammelt. Während Nox läuft, nimmt die Steuerung kein neues
+Programm an.
+
+Nach dem fünften Abschnitt räumt Nox die Torwinde frei. Die verrostete Halterung bricht,
+das Gegengewicht fällt, und der zweite Ausgang im Archiv öffnet sich. Eine
+Wartungsnotiz in der Schmiede hat den Rost schon angekündigt. Der Schaden folgt auch aus
+dem richtigen Programm. Nox kehrt über die Schleuse zurück und geht zur Werkstatt.
+
+## Lösung
+
+Jeder Abschnitt hat mindestens eine passende Rune aus seiner Familie. Die Hilfe verweist
+auf diese:
+
+| Abschnitt | Passende Rune |
+| --- | --- |
+| 1 Förderbahn | `for` (orange) |
+| 2 Pumpenzugang | `while` (blau) |
+| 3 Kettenzug | `while` (blau) |
+| 4 Kühlkanal | `do-while` (violett) |
+| 5 Torwinde | `for` (orange) |
+
+Auch andere Runen zählen, wenn sie Nox richtig ausgerichtet ans Ziel bringen.
+
+## Lernziel
+
+- `while` prüft zuerst und kann null Durchläufe haben.
+- `do-while` läuft mindestens einmal.
+- `for` wiederholt eine feste Anzahl.
+- Die Reihenfolge im Rumpf zählt, etwa Angriff vor Schritt oder Sprung vor Schritt.
+- Ein Programm liest man, sagt seine Wirkung vorher und prüft sie dann am Verhalten.
+
+# 6. Akt III: Valerius' Werkstatt
+
+**Konzept:** Methoden, Parameter und Rückgabewerte.
+Details: [act3-method-workshop.md](../../../../game/doc/act3-method-workshop.md)
+
+## Story
+
+Die Winde ist zerstört. Übrig bleibt der Nebenausgang der Werkstatt. Zwei Kristallaltäre
+versorgen ihn, der erste mit drei, der zweite mit fünf Kristallen. Zwei Runensteine geben
+die Kristallfelder frei.
+
+Valerius' langes Programm im Steuerbuch auf der Werkbank erledigt alles schon. Seine
+Steuerung fasst aber nur acht Befehle im Hauptprogramm. Methoden haben ihren eigenen
+Speicher. Die Gruppe muss das Programm also umbauen, ohne dass es aufhört zu
+funktionieren.
 
 ## Aufgabe
 
-Die Spieler müssen für jede Eigenschaft das passende Gefäß finden.
+Das Ausgangsprogramm hat 28 Zeilen und durchläuft acht Arbeitsstellen: zwei Tore, einen
+Runenstein rechts, einen Runenstein links, zwei Kristallfelder und zwei Altäre. Befehle
+sind etwa `ÖFFNE();`, `GEHE(4);`, `DREHE(RECHTS);`, `AKTIVIERE();`,
+`gesammelt = SAMMLE_ALLE();` und `LEGE_AB(3);`.
 
-### Spielerblatt
+Die Prüfleiste verlangt sechs Bedingungen:
 
-| Eigenschaft   | Passendes Gefäß |
-| ------------- | --------------- |
-| Name          | __________      |
-| Lebensenergie | __________      |
-| Mana          | __________      |
-| Aktiviert     | __________      |
-| Blickrichtung | __________      |
-| Schritte      | __________      |
+1. Alle Arbeitsstellen sind erledigt, beide Altäre sind gefüllt.
+2. Nox trägt am Ende keine Kristalle mehr.
+3. Die Variable `kristalle` ist `0`.
+4. Das Hauptprogramm hat höchstens acht Blöcke.
+5. Dieselbe Methode mit Parameter wird mehrfach aufgerufen.
+6. Ein Rückgabewert wird im Aufrufer verwendet.
 
----
+## Werkstatt
 
-## Lösung
+Die Werkbank ist eine freie Arbeitsfläche mit Hauptprogramm, Methodenentwurf, gebauten
+Methodenrunen und losen Blöcken. Zeilen lassen sich einzeln oder als Auswahl zwischen
+Hauptprogramm, Entwurf und Hintergrund verschieben. "Methode bauen" erzeugt aus dem
+Entwurf eine benannte Rune mit höchstens sechs Zeilen. Diese Rune kommt als Aufruf ins
+Hauptprogramm. Ausdrücke wie `kristalle = 1 + sammeln()` sind erlaubt. `GIB_ZURÜCK`
+beendet eine Methode, und Blöcke danach werden als unerreichbar markiert. Die Ansicht
+"Original" zeigt jederzeit das unveränderte Ausgangsprogramm.
 
-| Eigenschaft   | Gefäß           | Begründung                                   |
-| ------------- | --------------- | -------------------------------------------- |
-| Name          | Pergament       | Ein Name besteht aus beliebig vielen Zeichen |
-| Lebensenergie | Eisenkiste      | Lebensenergie wird als ganze Menge angegeben |
-| Mana          | Kristallflasche | Mana kann Bruchteile enthalten               |
-| Aktiviert     | Lichtkugel      | Es gibt nur JA oder NEIN                     |
-| Blickrichtung | Runenstein      | Es wird genau ein Zeichen gespeichert        |
-| Schritte      | Eisenkiste      | Die Anzahl der Schritte ist eine ganze Zahl  |
+"Ausführen" setzt Nox und alle Arbeitsstellen zurück und startet dann einen ganzen Lauf.
+Code und gebaute Methoden bleiben dabei erhalten. Fehler erscheinen rot am auslösenden
+Block im Hauptprogramm. Eine Befehls- und Aufruftiefengrenze stoppt endlose Rekursion.
+Es gibt keine vorgeschriebene Klickfolge. Namen und Methodengrenzen sind frei wählbar.
 
-Damit haben die Spieler die verschiedenen Arten von Werten unterschieden, ohne zunächst mit Java-Datentypen arbeiten zu müssen.
+## Beispiellösung
 
----
-
-# Rätsel 1.2 – Die magischen Essenzen
-
-Nach der Zuordnung erscheinen folgende Essenzen:
-
-```text
-125
-17
-3.5
-true
-false
-"Nox"
-'O'
-```
-
-Die Spieler müssen die passenden Essenzen den Eigenschaften zuordnen.
-
----
-
-## Aufgabe
-
-Ordnet jeder Eigenschaft den passenden konkreten Wert zu.
-
-### Spielerblatt
-
-| Eigenschaft   | Gefäß           | Wert       |
-| ------------- | --------------- | ---------- |
-| Name          | Pergament       | __________ |
-| Lebensenergie | Eisenkiste      | __________ |
-| Mana          | Kristallflasche | __________ |
-| Aktiviert     | Lichtkugel      | __________ |
-| Blickrichtung | Runenstein      | __________ |
-| Schritte      | Eisenkiste      | __________ |
-
----
-
-## Lösung
-
-| Eigenschaft   | Gefäß           | Wert    |
-| ------------- | --------------- | ------- |
-| Name          | Pergament       | `"Nox"` |
-| Lebensenergie | Eisenkiste      | `125`   |
-| Mana          | Kristallflasche | `3.5`   |
-| Aktiviert     | Lichtkugel      | `true`  |
-| Blickrichtung | Runenstein      | `'O'`   |
-| Schritte      | Eisenkiste      | `17`    |
-
-Die übrigen Essenzen `false` werden nicht benötigt.
-
----
-
-# Rätsel 1.3 – Die Übersetzung der Gefäße
-
-Wenn alle Werte korrekt eingesetzt wurden, aktiviert sich der Seelenkristall.
-
-Auf einer Steintafel erscheint:
-
-| Magisches Gefäß | Programmiersprache |
-| --------------- | ------------------ |
-| Eisenkiste      | `int`              |
-| Kristallflasche | `double`           |
-| Pergament       | `String`           |
-| Runenstein      | `char`             |
-| Lichtkugel      | `boolean`          |
-
----
-
-## Finale Werte des Golems
+Diese Lösung lädt auch die Hilfe:
 
 ```text
-Name:
-Nox
+hilfeTor():            ÖFFNE(); GEHE(4);
+hilfeRune(richtung):   GEHE(1); DREHE(richtung); GEHE(3); AKTIVIERE();
+hilfeSammeln():        GEHE(1); gesammelt = SAMMLE_ALLE(); GEHE(1); GIB_ZURÜCK gesammelt;
+hilfeAltar(menge):     GEHE(1); LEGE_AB(menge); GEHE(1); GIB_ZURÜCK menge;
 
-Lebensenergie:
-125
-
-Mana:
-3.5
-
-Aktiviert:
-true
-
-Blickrichtung:
-'O'
-
-Schritte:
-17
+Hauptprogramm:
+hilfeTor();
+hilfeTor();
+hilfeRune(RECHTS);
+hilfeRune(LINKS);
+kristalle += hilfeSammeln();
+kristalle += hilfeSammeln();
+kristalle -= hilfeAltar(3);
+kristalle -= hilfeAltar(5);
 ```
 
-Diese Werte werden im weiteren Verlauf des Escape Rooms verwendet.
+Nach dem erfolgreichen Lauf öffnet sich der Nebenausgang. Ohne Fehlversuch gibt es den
+Erfolg "Aus einem Guss", sonst "Übung macht den Meister".
 
----
+## Lernziel
 
-## Lösungsschlüssel Akt I
+- Wiederholte Abläufe als benannte Methode herauslösen.
+- Unterschiede zwischen ähnlichen Stellen als Parameter übergeben.
+- Ein lokales Ergebnis mit `GIB_ZURÜCK` an den Aufrufer geben und dort weiterrechnen.
+- Lokale Methodenvariablen von Variablen des Hauptprogramms unterscheiden.
+- Refactoring ändert die Form des Programms, nicht seine Wirkung.
 
-```text
-Name         → Pergament → "Nox" → String
-Lebensenergie→ Eisenkiste → 125 → int
-Mana         → Kristallflasche → 3.5 → double
-Aktiviert    → Lichtkugel → true → boolean
-Blickrichtung→ Runenstein → 'O' → char
-Schritte     → Eisenkiste → 17 → int
-```
+# 7. Akt IV: Das Labyrinth der Entscheidungen
 
----
-
-# AKT II – Das Labyrinth der ewigen Wächter
-
-## Thema
-
-**Schleifen: `while`, `do-while`, `for`**
-
----
+**Konzept:** verschachtelte Bedingungen mit `if` / `else`, `&&` und `||`.
+Details: [act4-decision-labyrinth.md](../../../../game/doc/act4-decision-labyrinth.md)
 
 ## Story
 
-Der Golem ist erwacht.
-
-Doch er kann seine Bewegungen noch nicht kontrollieren. Er muss lernen, Handlungen zu wiederholen.
-
-Vor dem Labyrinth stehen drei Steintafeln:
-
-### Der Wächterzauber
-
-> *„Erst prüfen, dann handeln.“*
-
-### Der Vorstoßzauber
-
-> *„Erst handeln, dann prüfen.“*
-
-### Der Zählerzauber
-
-> *„Beginne mit einem Zähler. Wiederhole die Handlung, solange du noch nicht am Ziel bist.“*
-
-Im Labyrinth befinden sich verschiedene Situationen.
-
-Die Spieler müssen die passende Rune für jede Situation finden.
-
----
-
-# Die drei Schleifenrunen
-
-## Rune W – Der Wächter
-
-> **Solange die Bedingung erfüllt ist:**
->
-> Führe die Handlung aus.
->
-> Prüfe anschließend erneut die Bedingung.
->
-> Wenn die Bedingung nicht erfüllt ist, endet der Zauber.
-
-**Typ:** `while`
-
----
-
-## Rune D – Der Vorstoß
-
-> Führe die Handlung zunächst einmal aus.
->
-> Prüfe anschließend die Bedingung.
->
-> Wenn sie erfüllt ist, wiederhole die Handlung.
-
-**Typ:** `do-while`
-
----
-
-## Rune F – Der Zähler
-
-> Lege einen Startwert fest.
->
-> Prüfe, ob der Zähler noch nicht am Ziel ist.
->
-> Führe die Handlung aus.
->
-> Verändere anschließend den Zähler.
->
-> Wiederhole den Vorgang.
-
-**Typ:** `for`
-
----
-
-# Die 15 Labyrinthstationen
-
-Die folgenden Stationen liegen in einem zusammenhängenden Labyrinth.
-
-Die Nummerierung dient nur der Spielleitung.
-
-Die Spieler erhalten die Situationen in einer gemischten Reihenfolge bzw. finden sie auf ihrem Weg.
-
----
-
-## Station 1 – Der lange Gang
-
-### Situation
-
-Vor dem Golem befindet sich ein langer, gerader Gang. Am Ende befindet sich eine Wand.
-
-```text
-████████████████████
-█ Golem → · · · · · █
-████████████████████
-```
-
-### Aufgabe
-
-Der Golem soll so lange vorwärts gehen, wie der Weg frei ist.
-
-### Rune
-
-> **Solange der Weg vor dir frei ist:**
->
-> → Gehe einen Schritt vorwärts.
->
-> → Prüfe danach erneut den Weg.
->
-> Wenn der Weg nicht mehr frei ist: Ende.
-
-### Lösung
-
-**`while`**
-
----
-
-## Station 2 – Die Wand zur Linken
-
-### Situation
-
-Links vom Golem befindet sich eine Wand. An einer bestimmten Stelle endet die Wand.
-
-```text
-████████████████
-█ Golem → · · · █
-██████████████ █
-```
-
-### Aufgabe
-
-Der Golem soll sich bewegen, solange sich links von ihm eine Wand befindet.
-
-### Rune
-
-> **Solange sich links vom Golem eine Wand befindet:**
->
-> → Gehe einen Schritt vorwärts.
->
-> → Prüfe danach erneut die linke Seite.
-
-### Lösung
-
-**`while`**
-
----
-
-## Station 3 – Der Druckschalter
-
-### Situation
-
-Vor dem Golem befindet sich ein magischer Druckschalter.
-
-```text
-██████████████
-█ Golem → · ◆ · · █
-██████████████
-```
-
-Der Schalter wird erst aktiviert, wenn der Golem ihn betritt.
-
-### Aufgabe
-
-Der Golem muss sich zunächst bewegen. Danach wird geprüft, ob der Schalter aktiviert wurde.
-
-### Rune
-
-> **Gehe zuerst einen Schritt vorwärts.**
->
-> Prüfe danach:
->
-> **Ist der Druckschalter aktiviert?**
->
-> Solange der Schalter noch nicht aktiviert ist:
->
-> → Gehe einen weiteren Schritt.
->
-> → Prüfe den Schalter erneut.
-
-### Lösung
-
-**`do-while`**
-
----
-
-## Station 4 – Die fünf Bewegungskristalle
-
-### Situation
-
-Der Golem besitzt fünf Bewegungskristalle.
-
-```text
-████████████████
-█ Golem → · · · · · G █
-████████████████
-```
-
-### Aufgabe
-
-Der Golem darf höchstens fünf Schritte gehen.
-
-### Rune
-
-> **Beginne mit 0 verbrauchten Schritten.**
->
-> Solange weniger als 5 Schritte verbraucht wurden:
->
-> → Gehe einen Schritt vorwärts.
->
-> → Erhöhe die Schrittzahl um 1.
-
-### Lösung
-
-**`for`**
-
----
-
-## Station 5 – Die Wand zur Rechten
-
-### Situation
-
-Rechts vom Golem befindet sich eine Wand.
-
-### Aufgabe
-
-Der Golem soll sich bewegen, solange sich rechts von ihm eine Wand befindet.
-
-### Rune
-
-> **Prüfe zuerst die rechte Seite.**
->
-> Solange sich dort eine Wand befindet:
->
-> → Gehe einen Schritt vorwärts.
->
-> → Prüfe erneut die rechte Seite.
-
-### Lösung
-
-**`while`**
-
----
-
-## Station 6 – Die magische Brücke
-
-### Situation
-
-Vor dem Golem befindet sich ein magisches Feld. Wenn der Golem das Feld betritt, erscheint eine Brücke.
-
-```text
-██████████████
-█ Golem → ◆ ─ ─ ─ G █
-██████████████
-```
-
-### Aufgabe
-
-Der Golem muss zunächst das Feld betreten.
-
-### Rune
-
-> **Betritt zuerst das nächste Feld.**
->
-> Prüfe danach:
->
-> **Ist die magische Brücke erschienen?**
->
-> Solange die Brücke vorhanden ist:
->
-> → Gehe einen Schritt weiter.
->
-> → Prüfe erneut.
-
-### Lösung
-
-**`do-while`**
-
----
-
-## Station 7 – Die brennenden Fackeln
-
-### Situation
-
-Entlang des Weges befinden sich Fackeln.
-
-```text
-██████████████████
-█ Golem → 🔥 🔥 🔥 🔥 · G █
-██████████████████
-```
-
-### Aufgabe
-
-Der Golem soll den Fackeln folgen, solange die nächste Fackel brennt.
-
-### Rune
-
-> **Prüfe die nächste Fackel.**
->
-> Solange sie brennt:
->
-> → Gehe einen Schritt vorwärts.
->
-> → Prüfe danach die nächste Fackel.
-
-### Lösung
-
-**`while`**
-
----
-
-## Station 8 – Die drei Runensteine
-
-### Situation
-
-Auf dem Weg befinden sich drei Runensteine.
-
-```text
-████████████████
-█ Golem → ◆ → ◆ → ◆ → G █
-████████████████
-```
-
-### Aufgabe
-
-Der Golem soll genau drei Runensteine aktivieren.
-
-### Rune
-
-> **Beginne mit dem ersten Runenstein.**
->
-> Solange noch nicht 3 Runensteine aktiviert wurden:
->
-> → Aktiviere den nächsten Runenstein.
->
-> → Erhöhe die Anzahl um 1.
-
-### Lösung
-
-**`for`**
-
----
-
-## Station 9 – Der Nebelgang
-
-### Situation
-
-Der Golem betritt einen magischen Nebel.
-
-```text
-██████████████████
-█ Golem → 🌫 · · · · · G █
-██████████████████
-```
-
-Der Ausgang ist zunächst nicht sichtbar.
-
-### Aufgabe
-
-Der Golem muss zunächst in den Nebel laufen.
-
-### Rune
-
-> **Gehe zuerst einen Schritt in den Nebel.**
->
-> Prüfe danach:
->
-> **Ist der Ausgang sichtbar?**
->
-> Solange der Ausgang noch nicht sichtbar ist:
->
-> → Gehe einen weiteren Schritt.
->
-> → Prüfe erneut.
-
-### Lösung
-
-**`do-while`**
-
----
-
-## Station 10 – Die sieben Kristalle
-
-### Situation
-
-Auf dem Weg liegen sieben Kristalle.
-
-```text
-████████████████████
-█ Golem → ◆ ◆ ◆ ◆ ◆ ◆ ◆ → G █
-████████████████████
-```
-
-### Aufgabe
-
-Der Golem soll alle sieben Kristalle einsammeln.
-
-### Rune
-
-> **Beginne mit 0 gesammelten Kristallen.**
->
-> Solange weniger als 7 Kristalle gesammelt wurden:
->
-> → Sammle einen Kristall.
->
-> → Erhöhe die Anzahl um 1.
-
-### Lösung
-
-**`for`**
-
----
-
-## Station 11 – Das verschlossene Tor
-
-### Situation
-
-Der Weg führt zu einem magischen Tor.
-
-```text
-████████████████
-█ Golem → · · 🔒 · · G █
-████████████████
-```
-
-Das Tor öffnet sich, sobald der Golem den richtigen Punkt erreicht.
-
-### Aufgabe
-
-Der Golem soll sich bewegen, solange das Tor verschlossen ist.
-
-### Rune
-
-> **Solange das Tor verschlossen ist:**
->
-> → Gehe einen Schritt vorwärts.
->
-> → Prüfe danach erneut das Tor.
-
-### Lösung
-
-**`while`**
-
----
-
-## Station 12 – Die magische Rune
-
-### Situation
-
-Vor dem Golem befindet sich eine magische Rune.
-
-```text
-████████████████
-█ Golem → · ◆ · · · G █
-████████████████
-```
-
-Beim Betreten verändert sich der Zustand des Labyrinths.
-
-### Aufgabe
-
-Der Golem muss die Rune zunächst betreten.
-
-### Rune
-
-> **Betritt zuerst das nächste Runenfeld.**
->
-> Prüfe danach:
->
-> **Ist die Rune noch aktiv?**
->
-> Solange die Rune aktiv ist:
->
-> → Gehe zum nächsten Feld.
->
-> → Prüfe erneut.
-
-### Lösung
-
-**`do-while`**
-
----
-
-## Station 13 – Die vier Wächter
-
-### Situation
-
-Auf dem Weg befinden sich vier Wächter.
-
-```text
-████████████████████
-█ Golem → 👤 · 👤 · 👤 · 👤 → G █
-████████████████████
-```
-
-### Aufgabe
-
-Der Golem soll genau vier Wächter passieren.
-
-### Rune
-
-> **Beginne bei Wächter Nummer 1.**
->
-> Solange noch nicht 4 Wächter passiert wurden:
->
-> → Gehe am nächsten Wächter vorbei.
->
-> → Erhöhe die Wächterzahl um 1.
-
-### Lösung
-
-**`for`**
-
----
-
-## Station 14 – Der Ausgang im Nebel
-
-### Situation
-
-Der Ausgang ist zunächst nicht sichtbar.
-
-### Aufgabe
-
-Der Golem soll sich bewegen, bis er den Ausgang sehen kann.
-
-### Rune
-
-> **Prüfe zuerst: Ist der Ausgang sichtbar?**
->
-> Wenn nein:
->
-> → Gehe einen Schritt vorwärts.
->
-> → Prüfe erneut.
->
-> Wiederhole dies, solange der Ausgang nicht sichtbar ist.
-
-### Lösung
-
-**`while`**
-
----
-
-## Station 15 – Die letzte Passage
-
-### Situation
-
-Der Golem besitzt maximal fünf Bewegungskristalle. Gleichzeitig befindet sich ein Hindernis auf dem Weg.
-
-```text
-████████████████████
-█ Golem → · · ◆ · · · G █
-████████████████████
-```
-
-### Aufgabe
-
-Der Golem darf höchstens fünf Schritte gehen und darf nicht gegen das Hindernis laufen.
-
-### Rune
-
-> **Beginne mit 0 verbrauchten Schritten.**
->
-> Solange weniger als 5 Schritte verbraucht wurden:
->
-> → Prüfe, ob der Weg frei ist.
->
-> → Wenn der Weg frei ist, gehe einen Schritt.
->
-> → Erhöhe danach die Schrittzahl um 1.
->
-> Wenn 5 Schritte erreicht sind oder der Weg nicht mehr frei ist: Ende.
-
-### Lösung
-
-**`for`**
-
----
-
-# Gemischte Runen – Material für das Rätsel
-
-Die 15 Runen werden in gemischter Reihenfolge ausgegeben.
-
-| Rune | Gehört zu               |
-| ---- | ----------------------- |
-| A    | Langer Gang             |
-| B    | Wand zur Linken         |
-| C    | Druckschalter           |
-| D    | Fünf Bewegungskristalle |
-| E    | Wand zur Rechten        |
-| F    | Magische Brücke         |
-| G    | Brennende Fackeln       |
-| H    | Drei Runensteine        |
-| I    | Nebelgang               |
-| J    | Sieben Kristalle        |
-| K    | Verschlossenes Tor      |
-| L    | Magische Rune           |
-| M    | Vier Wächter            |
-| N    | Ausgang im Nebel        |
-| O    | Letzte Passage          |
-
-### Ausgabe-Reihenfolge
-
-Die tatsächliche Reihenfolge der ausgeteilten Runen:
-
-1. H
-2. C
-3. N
-4. F
-5. D
-6. K
-7. I
-8. M
-9. B
-10. O
-11. G
-12. L
-13. A
-14. J
-15. E
-
----
-
-# Lösungsschlüssel Akt II
-
-| Abschnitt | Rune | Schleifentyp |
-| --------: | ---- | ------------ |
-|         1 | A    | `while`      |
-|         2 | B    | `while`      |
-|         3 | C    | `do-while`   |
-|         4 | D    | `for`        |
-|         5 | E    | `while`      |
-|         6 | F    | `do-while`   |
-|         7 | G    | `while`      |
-|         8 | H    | `for`        |
-|         9 | I    | `do-while`   |
-|        10 | J    | `for`        |
-|        11 | K    | `while`      |
-|        12 | L    | `do-while`   |
-|        13 | M    | `for`        |
-|        14 | N    | `while`      |
-|        15 | O    | `for`        |
-
----
-
-# AKT III – Die Fertigkeits-Scrolls
-
-## Thema
-
-**Methoden**
-
----
-
-## Story
-
-Der Golem erreicht die Werkstatt von Meister Valerius.
-
-Auf einer großen Steintafel steht ein langes Ritual.
-
-Das Ritual funktioniert, ist aber unnötig lang.
-
-Immer wieder werden dieselben Abläufe vollständig ausgeschrieben.
-
-Der Seelenkern beginnt zu überhitzen.
-
-Eine Inschrift erscheint:
-
-> *„Mein Golem kennt viele Fertigkeiten.*
-> *Doch ich habe jede Handlung immer wieder einzeln niedergeschrieben.*
-> *Findet die Abläufe, die zusammengehören.*
-> *Gebt ihnen einen Namen.*
-> *Was einmal gelernt wurde, kann immer wieder verwendet werden.“*
-
----
-
-# Rollen
-
-### Spieler A – Seelenweber
-
-Besitzt das vollständige Ritual.
-
-### Spieler B – Meistermechaniker
-
-Besitzt leere Fertigkeits-Scrolls.
-
----
-
-# Rätsel 3.1 – Das große Ritual
-
-## Material für Spieler A
-
-```text
-BEGINNE SEELENRITUAL
-
-ENERGIE = 120
-KRAFT = 80
-KRISTALLE = 0
-HERZENERGIE = 0
-TOR_STATUS = GESCHLOSSEN
-
-AUSGABE "Der Golem erwacht."
-
---------------------------------------------------
-NORDTOR
---------------------------------------------------
-
-GEHE ZUM NORDTOR
-
-ENERGIE = ENERGIE - 10
-RUNE_AKTIV = WAHR
-SIEGELSTÄRKE = 30
-ENERGIE = ENERGIE - SIEGELSTÄRKE
-TOR_STATUS = OFFEN
-
-KRISTALL_GEFUNDEN = 1
-KRISTALLE = KRISTALLE + KRISTALL_GEFUNDEN
-ENERGIE = ENERGIE + 15
-
---------------------------------------------------
-OSTTOR
---------------------------------------------------
-
-GEHE ZUM OSTTOR
-
-ENERGIE = ENERGIE - 10
-RUNE_AKTIV = WAHR
-SIEGELSTÄRKE = 30
-ENERGIE = ENERGIE - SIEGELSTÄRKE
-TOR_STATUS = OFFEN
-
-KRAFTVERLUST = 15
-KRAFT = KRAFT - KRAFTVERLUST
-
-KRISTALL_GEFUNDEN = 1
-KRISTALLE = KRISTALLE + KRISTALL_GEFUNDEN
-ENERGIE = ENERGIE + 15
-
---------------------------------------------------
-SÜDTOR
---------------------------------------------------
-
-GEHE ZUM SÜDTOR
-
-ENERGIE = ENERGIE - 10
-RUNE_AKTIV = WAHR
-SIEGELSTÄRKE = 30
-ENERGIE = ENERGIE - SIEGELSTÄRKE
-TOR_STATUS = OFFEN
-
-KRISTALL_GEFUNDEN = 1
-KRISTALLE = KRISTALLE + KRISTALL_GEFUNDEN
-ENERGIE = ENERGIE + 15
-
-KRAFTVERLUST = 20
-KRAFT = KRAFT - KRAFTVERLUST
-
---------------------------------------------------
-HERZFEUER
---------------------------------------------------
-
-HERZENERGIE = ENERGIE + KRISTALLE * 10
-
-AUSGABE "Herzenergie:"
-AUSGABE HERZENERGIE
-
-ENDE SEELENRITUAL
-```
-
----
-
-# Rätsel 3.2 – Wiederkehrende Abläufe finden
-
-Die Spieler sollen alle Abläufe finden, die mehrfach vorkommen und gemeinsam eine sinnvolle Aufgabe erfüllen.
-
----
-
-## Ablauf A
-
-```text
-ENERGIE = ENERGIE - 10
-RUNE_AKTIV = WAHR
-SIEGELSTÄRKE = 30
-ENERGIE = ENERGIE - SIEGELSTÄRKE
-TOR_STATUS = OFFEN
-```
-
-### Frage
-
-Welche Aufgabe erfüllt dieser Ablauf?
-
-### Lösung
-
-Der Ablauf **öffnet ein Tor**.
-
-Möglicher Methodenname:
-
-```text
-OEFFNE_TOR
-```
-
----
-
-## Ablauf B
-
-```text
-KRISTALL_GEFUNDEN = 1
-KRISTALLE = KRISTALLE + KRISTALL_GEFUNDEN
-ENERGIE = ENERGIE + 15
-```
-
-### Frage
-
-Welche Aufgabe erfüllt dieser Ablauf?
-
-### Lösung
-
-Der Ablauf **sammelt einen Kristall und erhöht die Energie**.
-
-Möglicher Methodenname:
-
-```text
-SAMMLE_KRISTALL
-```
-
----
-
-# Rätsel 3.3 – Fertigkeits-Scrolls erstellen
-
-Die Spieler erstellen zwei Scrolls.
-
-## Scroll A
-
-```text
-NAME:
-____________________________
-
-AUFGABE:
-____________________________
-
-ENTHÄLT:
-
-ENERGIE = ENERGIE - 10
-RUNE_AKTIV = WAHR
-SIEGELSTÄRKE = 30
-ENERGIE = ENERGIE - SIEGELSTÄRKE
-TOR_STATUS = OFFEN
-```
-
-### Lösung
-
-```text
-NAME:
-OEFFNE_TOR
-
-AUFGABE:
-Öffnet ein Tor und verbraucht Energie.
-```
-
----
-
-## Scroll B
-
-```text
-NAME:
-____________________________
-
-AUFGABE:
-____________________________
-
-ENTHÄLT:
-
-KRISTALL_GEFUNDEN = 1
-KRISTALLE = KRISTALLE + KRISTALL_GEFUNDEN
-ENERGIE = ENERGIE + 15
-```
-
-### Lösung
-
-```text
-NAME:
-SAMMLE_KRISTALL
-
-AUFGABE:
-Sammelt einen Kristall und erhöht die Energie.
-```
-
----
-
-# Rätsel 3.4 – Das Ritual verkürzen
-
-Die Spieler ersetzen die wiederkehrenden Abläufe durch ihre neuen Fertigkeiten.
-
-## Nordtor
-
-Vorher:
-
-```text
-GEHE ZUM NORDTOR
-
-ENERGIE = ENERGIE - 10
-RUNE_AKTIV = WAHR
-SIEGELSTÄRKE = 30
-ENERGIE = ENERGIE - SIEGELSTÄRKE
-TOR_STATUS = OFFEN
-
-KRISTALL_GEFUNDEN = 1
-KRISTALLE = KRISTALLE + KRISTALL_GEFUNDEN
-ENERGIE = ENERGIE + 15
-```
-
-Nachher:
-
-```text
-GEHE ZUM NORDTOR
-
-____________________________
-
-____________________________
-```
-
-### Lösung
-
-```text
-GEHE ZUM NORDTOR
-
-OEFFNE_TOR
-
-SAMMLE_KRISTALL
-```
-
----
-
-## Osttor
-
-```text
-GEHE ZUM OSTTOR
-
-____________________________
-
-KRAFTVERLUST = 15
-KRAFT = KRAFT - KRAFTVERLUST
-
-____________________________
-```
-
-### Lösung
-
-```text
-GEHE ZUM OSTTOR
-
-OEFFNE_TOR
-
-KRAFTVERLUST = 15
-KRAFT = KRAFT - KRAFTVERLUST
-
-SAMMLE_KRISTALL
-```
-
----
-
-## Südtor
-
-```text
-GEHE ZUM SÜDTOR
-
-____________________________
-
-____________________________
-
-KRAFTVERLUST = 20
-KRAFT = KRAFT - KRAFTVERLUST
-```
-
-### Lösung
-
-```text
-GEHE ZUM SÜDTOR
-
-OEFFNE_TOR
-
-SAMMLE_KRISTALL
-
-KRAFTVERLUST = 20
-KRAFT = KRAFT - KRAFTVERLUST
-```
-
----
-
-# Rätsel 3.5 – Eine Fertigkeit benötigt Werte
-
-Auf einer weiteren Schriftrolle steht:
-
-```text
-FERTIGKEIT: BERECHNE_ENERGIE
-
-BENÖTIGT:
-ENERGIE
-SIEGELSTÄRKE
-
-BERECHNUNG:
-ERGEBNIS = ENERGIE - SIEGELSTÄRKE
-
-GIBT ZURÜCK:
-ERGEBNIS
-```
-
----
-
-## Fragen
-
-### 1. Welche Werte benötigt die Fertigkeit?
-
-**Lösung:**
-
-```text
-ENERGIE
-SIEGELSTÄRKE
-```
-
-### 2. Was berechnet sie?
-
-**Lösung:**
-
-```text
-ENERGIE - SIEGELSTÄRKE
-```
-
-### 3. Was gibt sie zurück?
-
-**Lösung:**
-
-```text
-ERGEBNIS
-```
-
-### 4. Was ergibt sich bei diesen Werten?
-
-```text
-ENERGIE = 100
-SIEGELSTÄRKE = 30
-```
-
-**Lösung:**
-
-```text
-100 - 30 = 70
-```
-
----
-
-# Rätsel 3.6 – Rückgabewert verwenden
-
-Vervollständigt:
-
-```text
-ENERGIE = 100
-SIEGELSTÄRKE = 30
-
-ENERGIE = __________________________
-
-AUSGABE ENERGIE
-```
-
-### Lösung
-
-```text
-ENERGIE = BERECHNE_ENERGIE
-```
-
-Ausgabe:
-
-```text
-70
-```
-
----
-
-# Rätsel 3.7 – Abschlussrechnung
-
-Startwerte:
-
-```text
-ENERGIE = 120
-KRISTALLE = 0
-```
-
-Die Tor-Fertigkeit wird dreimal ausgeführt.
-
-Jedes Tor verursacht:
-
-```text
--10
--30
-```
-
-Die Kristall-Fertigkeit wird ebenfalls dreimal ausgeführt.
-
-Jeder Kristall verursacht:
-
-```text
-KRISTALLE + 1
-ENERGIE + 15
-```
-
----
-
-## Aufgabe
-
-Berechnet:
-
-```text
-120
-- 10
-- 30
-+ 15
-- 10
-- 30
-+ 15
-- 10
-- 30
-+ 15
-
-= __________
-```
-
-### Lösung
-
-```text
-45
-```
-
-Also:
-
-```text
-ENERGIE = 45
-```
-
----
-
-## Kristalle
-
-```text
-KRISTALLE = 3
-```
-
----
-
-## Herzfeuer
-
-```text
-HERZENERGIE = ENERGIE + KRISTALLE * 10
-```
-
-Einsetzen:
-
-```text
-HERZENERGIE = 45 + 3 * 10
-```
-
-Ergebnis:
-
-```text
-HERZENERGIE = 75
-```
-
-### Code für Akt IV
-
-```text
-75
-```
-
----
-
-# AKT IV – Das Labyrinth der Entscheidungen
-
-## Thema
-
-**`if` / `else` und verschachtelte Bedingungen**
-
----
-
-## Story
-
-Der Golem erreicht das Herzfeuer.
-
-Doch vor ihm liegt ein letztes Labyrinth.
-
-An jeder Kreuzung befindet sich eine Entscheidungsrune.
-
-Die Rune kennt nur zwei Antworten:
-
-```text
-WAHR
-FALSCH
-```
-
-Die Antwort bestimmt den Weg:
-
-```text
-WAHR   → RECHTS
-FALSCH → LINKS
-```
-
----
-
-# Rollen
-
-## Oracle
-
-Bleibt am Eingang.
-
-Kennt die aktuellen Werte des Golems.
-
-## Guardian
-
-Betritt das Labyrinth.
-
-Sieht die Entscheidungsrunen, kennt aber die Werte nicht.
-
----
-
-# Startwerte
-
-Der Oracle sieht:
-
-```text
-KRAFT       = 45
-ENERGIE     = 70
-TEMPERATUR  = 22
-```
-
-Der Guardian darf diese Werte nicht sehen.
-
----
-
-# Entscheidungsregel
-
-> **WENN** eine Aussage wahr ist, wird der rechte Weg gewählt.
->
-> **SONST** wird der linke Weg gewählt.
-
----
-
-# Station 1 – Das Tor der Energie
-
-## Rune
-
-> **WENN die Energie des Golems größer als 50 ist,**
->
-> → RECHTS
->
-> **SONST**
->
-> → LINKS
-
-## Wert
-
-```text
-ENERGIE = 70
-```
-
-## Lösung
-
-```text
-70 > 50
-```
-
-→ WAHR
-
-→ **RECHTS**
-
----
-
-# Station 2 – Die verschachtelte Kraftprüfung
-
-## Rune
-
-> **WENN die Temperatur größer als 20 ist:**
->
->   **WENN die Kraft mindestens 50 beträgt:**
->
->     → RECHTS
->
->   **SONST:**
->
->     → LINKS
->
-> **SONST:**
->
->   → LINKS
-
-## Werte
-
-```text
-TEMPERATUR = 22
-KRAFT = 45
-```
-
-## Lösung
-
-Äußere Bedingung:
-
-```text
-22 > 20
-```
-
-→ WAHR
-
-Innere Bedingung:
-
-```text
-45 >= 50
-```
-
-→ FALSCH
-
-→ **LINKS**
-
----
-
-# Station 3 – Das Tor der Hitze
-
-## Rune
-
-> **WENN die Temperatur größer als 20 ist:**
->
->   **WENN die Temperatur kleiner als 25 ist:**
->
->     → LINKS
->
->   **SONST:**
->
->     → RECHTS
->
-> **SONST:**
->
->   → RECHTS
-
-## Wert
-
-```text
-TEMPERATUR = 22
-```
-
-## Lösung
-
-```text
-22 > 20
-```
-
-→ WAHR
-
-Danach:
-
-```text
-22 < 25
-```
-
-→ WAHR
-
-→ **LINKS**
-
----
-
-# Station 4 – Das Tor der Erfahrung
-
-## Rune
-
-> **WENN die Kraft mindestens 50 beträgt:**
->
->   **WENN die Kraft mindestens 80 beträgt:**
->
->     → LINKS
->
->   **SONST:**
->
->     → RECHTS
->
-> **SONST:**
->
->   → LINKS
-
-## Wert
-
-```text
-KRAFT = 45
-```
-
-## Lösung
-
-```text
-45 >= 50
-```
-
-→ FALSCH
-
-Der äußere `SONST`-Zweig wird ausgeführt.
-
-→ **LINKS**
-
-Die innere Bedingung wird nicht geprüft.
-
----
-
-# Station 5 – Das Tor der Zeit
-
-## Rune
-
-> **WENN die Energie mindestens 50 beträgt:**
->
->   **WENN die Energie höchstens 80 beträgt:**
->
->     → RECHTS
->
->   **SONST:**
->
->     → LINKS
->
-> **SONST:**
->
->   → RECHTS
-
-## Wert
-
-```text
-ENERGIE = 70
-```
-
-## Lösung
-
-```text
-70 >= 50
-```
-
-→ WAHR
-
-Dann:
-
-```text
-70 <= 80
-```
-
-→ WAHR
-
-→ **RECHTS**
-
----
-
-# Erster Lösungspfad
-
-Die fünf Stationen ergeben:
-
-| Station | Ergebnis | Richtung |
-| ------: | -------- | -------- |
-|       1 | WAHR     | Rechts   |
-|       2 | FALSCH   | Links    |
-|       3 | WAHR     | Links    |
-|       4 | FALSCH   | Links    |
-|       5 | WAHR     | Rechts   |
-
-Der korrekte Pfad lautet:
-
-```text
-RECHTS
-→ LINKS
-→ LINKS
-→ LINKS
-→ RECHTS
-```
-
----
-
-# Falscher Weg
-
-Eine falsche Entscheidung führt nicht sofort zu einer Sackgasse.
-
-Der Spieler gelangt zu einer versiegelten Tür.
-
-Auf ihr steht:
-
-> *„Die Rune verweigert den Weg.“*
->
-> *„Kehrt zum Anfang zurück.“*
-
-Der Spieler muss zum Eingang zurückkehren und die Entscheidung erneut treffen.
-
----
-
-# Dynamische Erweiterung
-
-Optional können sich Werte während des Labyrinths verändern.
-
-Beispiele:
-
-### Feuerrune
-
-```text
-TEMPERATUR + 5
-```
-
-### Kristallquelle
-
-```text
-ENERGIE + 10
-```
-
-### Kraftquelle
-
-```text
-KRAFT + 15
-```
-
-### Eisrune
-
-```text
-TEMPERATUR - 5
-```
-
-Dadurch können sich spätere Entscheidungen verändern.
-
----
-
-# Zweiter Durchlauf
-
-Wenn der erste Spieler das Ziel erreicht, findet er dort neue Werte.
-
-```text
-KRAFT       = 68
-ENERGIE     = 42
-TEMPERATUR  = 31
-```
-
-Die Spieler wechseln die Rollen.
-
-Der zweite Spieler betritt nun das Labyrinth.
-
-Der erste Spieler kennt die neuen Werte und muss den zweiten Spieler durch das Labyrinth lotsen.
-
----
-
-# Station 6 – Die letzte Entscheidung
-
-Die letzte Rune ist stärker verschachtelt.
-
-## Rune
-
-> **WENN die Energie mindestens 40 beträgt:**
->
->   **WENN die Kraft größer als 60 ist:**
->
->     **WENN die Temperatur größer als 30 ist:**
->
->       → RECHTS
->
->     **SONST:**
->
->       → LINKS
->
->   **SONST:**
->
->     → LINKS
->
-> **SONST:**
->
->   → RECHTS
-
-## Werte
-
-```text
-ENERGIE = 42
-KRAFT = 68
-TEMPERATUR = 31
-```
-
-## Lösung
-
-Erste Bedingung:
-
-```text
-42 >= 40
-```
-
-→ WAHR
-
-Zweite Bedingung:
-
-```text
-68 > 60
-```
-
-→ WAHR
-
-Dritte Bedingung:
-
-```text
-31 > 30
-```
-
-→ WAHR
-
-Damit:
-
-**RECHTS**
-
----
-
-# Abschluss von Akt IV
-
-Hinter dem letzten Tor befindet sich das Herzfeuer.
-
-Eine letzte Inschrift erscheint:
-
-> *„Ihr habt gelernt, dass ein Golem nicht nur handeln muss.*
-> *Er muss entscheiden können.*
-> *Eine Bedingung führt zu einer Entscheidung.*
-> *Eine Entscheidung führt zu einem Weg.“*
-
-Erst jetzt wird die Sprache der Runen übersetzt:
-
-| Runensprache | Java    |
-| ------------ | ------- |
-| WENN         | `if`    |
-| SONST        | `else`  |
-| WAHR         | `true`  |
-| FALSCH       | `false` |
-
----
-
-# FINALE – Die vollständige Seele
-
-Die vier Prüfungen haben jeweils einen Teil der Seele des Golems wiederhergestellt.
-
-## 1. Essenz
-
-Der Golem besitzt Werte.
-
-**Variablen und Datentypen**
-
-```text
-Name
-Energie
-Mana
-Aktiviert
-Blickrichtung
-Schritte
-```
-
-## 2. Rhythmus
-
-Der Golem kann Handlungen wiederholen.
-
-**Schleifen**
-
-```text
-while
-do-while
-for
-```
-
-## 3. Fertigkeiten
-
-Der Golem kann Aufgaben bündeln und wiederverwenden.
-
-**Methoden**
-
-```text
-OEFFNE_TOR
-SAMMLE_KRISTALL
-BERECHNE_ENERGIE
-```
-
-## 4. Entscheidungen
-
-Der Golem kann abhängig von seinem Zustand unterschiedliche Handlungen ausführen.
-
-**If / Else**
-
-```text
-WENN ...
-SONST ...
-```
-
----
-
-# Finale Aufgabe
-
-Der Golem muss das Herzfeuer aktivieren.
-
-Die Spieler erhalten eine letzte Anweisung:
-
-> *„Nutze alles, was du gelernt hast.*
->
-> *Trage deine Werte in den Seelenkern ein.*
->
-> *Lass den Golem den Weg durch das Herzfeuer finden.*
->
-> *Wiederhole seine Bewegungen, solange es nötig ist.*
->
-> *Nutze seine Fertigkeiten.*
->
-> *Und entscheide an jeder Barriere anhand seines aktuellen Zustands.“*
-
-Die Spieler müssen dabei die vier bisher erlernten Konzepte miteinander verbinden.
-
----
-
-# Abschluss
-
-Das Herzfeuer erwacht.
-
-Die Zahnräder der Schmiede beginnen sich wieder zu drehen.
-
-Magische Energie fließt durch die Kupferrohre.
-
-Der Golem öffnet seine Augen.
-
-Auf der letzten Steintafel erscheint:
-
-> **„Die Seele ist gebunden.“**
->
-> **„Der Wächter ist erwacht.“**
->
-> **„Aethelgard ist gerettet.“**
-
-Die Spieler erhalten den Titel:
-
-## Meister-Seelenweber
-
----
-
-# Lösungsschlüssel – Gesamtübersicht
-
-| Akt | Rätsel              | Lösung                                     |
-| --- | ------------------- | ------------------------------------------ |
-| I   | Eigenschaft → Gefäß | Name → Pergament                           |
-| I   | Eigenschaft → Gefäß | Lebensenergie → Eisenkiste                 |
-| I   | Eigenschaft → Gefäß | Mana → Kristallflasche                     |
-| I   | Eigenschaft → Gefäß | Aktiviert → Lichtkugel                     |
-| I   | Eigenschaft → Gefäß | Blickrichtung → Runenstein                 |
-| I   | Eigenschaft → Gefäß | Schritte → Eisenkiste                      |
-| I   | Essenzen            | `"Nox"`, `125`, `3.5`, `true`, `'O'`, `17` |
-| II  | Langer Gang         | `while`                                    |
-| II  | Wand links          | `while`                                    |
-| II  | Druckschalter       | `do-while`                                 |
-| II  | Fünf Schritte       | `for`                                      |
-| II  | Wand rechts         | `while`                                    |
-| II  | Magische Brücke     | `do-while`                                 |
-| II  | Fackeln             | `while`                                    |
-| II  | Drei Runensteine    | `for`                                      |
-| II  | Nebelgang           | `do-while`                                 |
-| II  | Sieben Kristalle    | `for`                                      |
-| II  | Verschlossenes Tor  | `while`                                    |
-| II  | Magische Rune       | `do-while`                                 |
-| II  | Vier Wächter        | `for`                                      |
-| II  | Ausgang im Nebel    | `while`                                    |
-| II  | Letzte Passage      | `for`                                      |
-| III | Wiederholung A      | `OEFFNE_TOR`                               |
-| III | Wiederholung B      | `SAMMLE_KRISTALL`                          |
-| III | Ritual verkürzen    | Methoden einsetzen                         |
-| III | Berechnung          | `100 - 30 = 70`                            |
-| III | Rückgabewert        | `ENERGIE = BERECHNE_ENERGIE`               |
-| III | Abschlussenergie    | `45`                                       |
-| III | Kristalle           | `3`                                        |
-| III | Herzenergie         | `75`                                       |
-| IV  | Energie             | Rechts                                     |
-| IV  | Kraftprüfung        | Links                                      |
-| IV  | Hitze               | Links                                      |
-| IV  | Erfahrung           | Links                                      |
-| IV  | Zeit                | Rechts                                     |
-| IV  | Letzte Entscheidung | Rechts                                     |
-
----
-
-# 9. Materialübersicht
-
-Für die praktische Umsetzung werden mindestens benötigt:
-
-## Akt I
-
-* 6 Eigenschaftsrunen
-* 5 Seelengefäße
-* 7 magische Essenzen
-* Zuordnungstafel
-* Übersetzungstafel mit Java-Datentypen
-* Golem-/Seelenkern-Asset
-
-## Akt II
-
-* Labyrinthkarte
-* Golem-Figur
-* 15 Situationskarten bzw. Labyrinthstationen
-* 15 Schleifenrunen
-* Wand-, Kristall-, Fackel-, Tor- und Wächter-Assets
-* Lösungskarte für die Spielleitung
-
-## Akt III
-
-* Großes Ritual als Spieler-A-Dokument
-* 2 leere Fertigkeits-Scrolls
-* Material zum Markieren der wiederkehrenden Abschnitte
-* Schriftrolle `BERECHNE_ENERGIE`
-* Abschlussrechnung
-* Lösungsschlüssel
-
-## Akt IV
-
-* Labyrinthkarte
-* Entscheidungsrunen
-* Wertekarte für das Oracle
-* zweite Wertekarte
-* mehrere Abzweigungen
-* falsche Wege / Rückkehr zum Start
-* optionale Ereigniskarten zur Veränderung der Werte
-* finale verschachtelte Entscheidungsrune
-
-## Finale
-
-* Herzfeuer-Asset
-* finale Aktivierung
-* Abschlussinschrift
-* optional Zertifikat / Titel „Meister-Seelenweber“
-
----
+Hinter der Werkstatt liegt das Labyrinth vor dem Herzfeuer. Sechs Kreuzungen tragen je
+eine Entscheidungsrune. Nox trägt drei Werte mit sich: Kraft, Energie und Temperatur.
+
+## Ablauf
+
+Ein Spieler steigt mit E auf Nox und entscheidet an jeder Kreuzung zwischen LINKS und
+RECHTS. Weitere Spieler bewegen sich frei. Trennt sich der Reiter, wird der Sitz frei,
+und ein anderer Spieler kann weitermachen.
+
+Unten in der Mitte steht die Rune als eingerückter Pseudocode mit WENN, SONST, UND und
+ODER. Die aktuellen Werte und das letzte Ereignis bleiben sichtbar. Die Wahl öffnet die
+gewählte Tür:
+
+- **Richtig:** Nox läuft weiter zur nächsten Kreuzung. Eine Rune am Weg verändert seine
+  Werte.
+- **Falsch:** Nox nimmt den äußeren Rückgang bis zum START. Erst dort ändern sich die
+  Werte deterministisch, danach beginnt der nächste Versuch.
+
+Die Werte werden nie zurückgesetzt. Nach einem Fehler kann dieselbe Kreuzung deshalb
+einen anderen Zweig verlangen. Auswendiglernen hilft nicht, nur Nachrechnen.
+
+## Runen und Werte
+
+Start: Kraft 45, Energie 70, Temperatur 22.
+
+| Kreuzung | Rune | Werte davor (K / E / T) | Richtig | Ereignis danach |
+| --- | --- | --- | --- | --- |
+| 1 | Tor der Energie | 45 / 70 / 22 | RECHTS | Energie -30 |
+| 2 | Tor der Temperatur | 45 / 40 / 22 | RECHTS | Energie +30 |
+| 3 | Tor der drei Runen | 45 / 70 / 22 | LINKS | Kraft +10, Temperatur +5 |
+| 4 | Tor der zwei Pfade | 55 / 70 / 27 | LINKS | Kraft +13, Energie -15 |
+| 5 | Tor der verbundenen Kräfte | 68 / 55 / 27 | RECHTS | Energie -13, Temperatur +4 |
+| 6 | Herzfeuer-Siegel | 68 / 42 / 31 | LINKS | Ankunft am Herzfeuer |
+
+Das gilt für einen fehlerfreien Durchlauf. Die letzte Rune hat vier Ebenen und
+verbindet Bedingungen mit UND und ODER. Am Herzfeuer bleibt sie als Java-Code sichtbar:
+
+```java
+if (energie >= 40) {
+    if (kraft > 60) {
+        if (temperatur > 30 && energie < 50) {
+            if (kraft >= 70 || temperatur > 35) {
+                // RECHTS
+            } else {
+                // LINKS
+            }
+        } else {
+            // LINKS
+        }
+    } else {
+        // LINKS
+    }
+} else {
+    // RECHTS
+}
+```
+
+## Lernziel
+
+- Eine Bedingung ergibt wahr oder falsch und wählt damit genau einen Zweig.
+- Verschachtelte Bedingungen werden von außen nach innen geprüft. Ein falscher äußerer
+  Zweig überspringt die inneren Prüfungen.
+- `&&` und `||` verbinden Bedingungen.
+- Dasselbe Programm liefert bei anderen Werten einen anderen Weg.
+
+# 8. Abschluss am Herzfeuer
+
+Nach der sechsten Rune steigt der Reiter ab. Vor dem Herzfeuer liegt eine Schriftrolle:
+
+> Lege die Kristalle ins Herzfeuer.
+> Damit schließt ihr den Raum ab.
+> Nach dem Abspann endet das Spiel für alle.
+
+"Opfergabe darbringen" nimmt nur der Server an, einmal und erst nach dem Labyrinth.
+Schließen bricht ab. Die Opfergabe verbraucht die beiden Kristalle am Sockel, entzündet
+das Herzfeuer und beendet das Tracking als erfolgreich. Danach sehen alle verbundenen
+Spieler den Abspann:
+
+> Die Kristalle verglühen im Herzfeuer. Für einen Moment leuchten Nox' Runen im selben
+> Takt wie die Flammen.
+>
+> Du hast es geschafft! Du hast Nox zum Leben erweckt und bis zum Herzfeuer geführt.
+> Variablen, Schleifen, Methoden und Bedingungen waren deine Werkzeuge.
+> Programmieren 1 ist abgeschlossen.
+
+Wer den Abspann bestätigt, wartet auf die anderen. Getrennte Spieler halten das Ende
+nicht auf. Sobald alle verbundenen Spieler bestätigt haben, endet das Spiel regulär.
+
+Eine eigene Abschlussaufgabe, die alle vier Konzepte kombiniert, gibt es bewusst nicht.
+Akt IV ist schon die Prüfung, die frühere Konzepte wieder aufgreift: Nox trägt Werte,
+läuft Wege und reagiert auf Bedingungen. Ein weiteres Rätsel würde den Raum über die
+Zielzeit hinaus verlängern.
+
+# 9. Didaktischer Aufbau
+
+| Akt | Erst die Erfahrung | Dann der Begriff |
+| --- | --- | --- |
+| I | Werte passen nur in bestimmte Gefäße | `int`, `double`, `String`, `char`, `boolean` als Deklaration |
+| II | Nox wiederholt Bewegungen, bis etwas eintritt oder gezählt ist | `while`, `do-while`, `for` im Runencode |
+| III | Das lange Programm passt nicht in die Steuerung | Methode, Parameter, Rückgabe |
+| IV | Werte bestimmen den Weg | `if` / `else`, `&&`, `||` als Java-Code am Herzfeuer |
+
+Die Abstraktion steigt von Akt zu Akt. In Akt I ordnen die Spieler zu, in Akt II wählen
+sie fertige Programme, in Akt III bauen sie Programme um, und in Akt IV werten sie
+Programme im Kopf aus.
 
 # 10. Zeitplanung
 
-| Abschnitt          |      Richtwert |
-| ------------------ | -------------: |
-| Einführung         |      5 Minuten |
-| Akt I – Variablen  |     10 Minuten |
-| Akt II – Schleifen |     15 Minuten |
-| Akt III – Methoden |     15 Minuten |
-| Akt IV – If / Else |     10 Minuten |
-| Finale             |      5 Minuten |
-| **Gesamt**         | **60 Minuten** |
+| Abschnitt | Richtwert |
+| --- | ---: |
+| Einführung und Brief | 3 Min. |
+| Akt I: Variablen | 10 Min. |
+| Akt II: Schleifen | 15 Min. |
+| Akt III: Methoden | 20 bis 25 Min. |
+| Akt IV: Bedingungen | 10 Min. |
+| Abschluss | 2 Min. |
+| **Gesamt** | **60 bis 65 Min.** |
 
-Die Rätsel sind so konzipiert, dass einzelne Unteraufgaben bei Zeitmangel übersprungen werden können. Besonders Akt II enthält mit 15 Stationen mehr Material als zwingend notwendig, sodass die Spielleitung je nach verfügbarer Zeit eine Auswahl treffen kann.
+Die Werte sind Schätzungen. Die tatsächliche Dauer, die Verständlichkeit und die
+Hinweisstufen müssen mit Lernenden getestet werden.
