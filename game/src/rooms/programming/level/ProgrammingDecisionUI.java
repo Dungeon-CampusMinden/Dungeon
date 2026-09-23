@@ -40,6 +40,7 @@ final class ProgrammingDecisionUI extends Group {
   private int revision = -1;
   private boolean showRune = true;
   private boolean helpOpen;
+  private boolean choosing;
   private String title = "";
 
   ProgrammingDecisionUI(String dialogId, ProgrammingDecisions.State initial, int viewer) {
@@ -140,7 +141,8 @@ final class ProgrammingDecisionUI extends Group {
     // Keep the book's upper edge below Nox even on a short window.
     float expanded = Math.max(100, getHeight() * .45f - bottom);
     panel.setBounds((getWidth() - width) / 2, bottom, width, showRune ? expanded : headingHeight);
-    helpView.setBounds(panel.getX(), bottom, width, expanded);
+    // Help covers the view above the bar so tips and actions fit without scrolling.
+    helpView.setBounds(panel.getX(), bottom, width, Math.max(100, getHeight() - bottom - 12));
     // Help level changes do not alter the decision revision; the simplified book follows them.
     String rune = runeText(state);
     if (!code.getText().toString().equals(rune)) code.setText(rune);
@@ -153,6 +155,12 @@ final class ProgrammingDecisionUI extends Group {
     helpButton.setChecked(open);
     helpView.setVisible(open);
     panel.setVisible(!open);
+    showChoices();
+  }
+
+  private void showChoices() {
+    left.setVisible(choosing && !helpOpen);
+    right.setVisible(choosing && !helpOpen);
   }
 
   private void helpEvent(String action, String puzzleId) {
@@ -229,9 +237,8 @@ final class ProgrammingDecisionUI extends Group {
       scroll.updateVisualScroll();
     }
     arrangePanel();
-    boolean choosing = !next.moving() && !next.blocked() && !next.completed();
-    left.setVisible(choosing);
-    right.setVisible(choosing);
+    choosing = !next.moving() && !next.blocked() && !next.completed();
+    showChoices();
     left.setDisabled(next.driver() != viewer);
     right.setDisabled(next.driver() != viewer);
     resume.setVisible(next.blocked());

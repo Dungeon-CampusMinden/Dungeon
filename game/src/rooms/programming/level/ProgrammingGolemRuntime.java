@@ -1040,7 +1040,7 @@ final class ProgrammingGolemRuntime {
   }
 
   String helpStatus() {
-    if (decisions.active()) return decisions.feedback();
+    if (decisions.active()) return decisions.helpStatus();
     if (controller.phase() == ProgrammingPhase.METHODS) return workshop.helpStatus();
     if (controller.phase() == ProgrammingPhase.VARIABLES) return bindingFeedback;
     return status;

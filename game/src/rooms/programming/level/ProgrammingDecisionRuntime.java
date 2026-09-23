@@ -309,8 +309,14 @@ final class ProgrammingDecisionRuntime {
     return active;
   }
 
-  String feedback() {
-    return feedback;
+  /**
+   * @return why tips are unavailable, or empty while Nox waits at a junction
+   */
+  String helpStatus() {
+    if (completed) return "Das Labyrinth ist geschafft.";
+    if (moving) return "Nox ist unterwegs. Tipps gibt es wieder an der nächsten Kreuzung.";
+    if (blocked) return "Wähle Weiter, damit Nox zur nächsten Kreuzung läuft.";
+    return "";
   }
 
   ProgrammingDecisions.State state() {

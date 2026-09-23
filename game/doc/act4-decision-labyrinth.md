@@ -83,8 +83,10 @@ lässt sich der Bereich horizontal und vertikal scrollen.
 ## Hilfe und Questlog
 
 Neben Weiter stehen Hilfe und Quest-Log. Die Hilfe nutzt dieselbe Petri-Netz-Stufung wie
-Akt I bis III und ersetzt dabei das Runenbuch. Nur der Reiter kann sie verwenden, und nur
-solange Nox an einer Kreuzung wartet, werden Tipps freigegeben. Tipp 1 erklärt das Lesen
+Akt I bis III. Sie ersetzt das Runenbuch, reicht bis zum oberen Bildrand und blendet LINKS
+und RECHTS aus, bis der Spieler zur Rune zurückkehrt. Nur der Reiter kann sie verwenden,
+und nur solange Nox an einer Kreuzung wartet, werden Tipps freigegeben; sonst nennt die
+Hilfe den Grund. Tipp 1 erklärt das Lesen
 von oben nach unten, Tipp 2 UND, ODER sowie `>` und `>=`. Tipp 3 setzt im Runenbuch
 Nox' aktuelle Werte in die Bedingungen ein. Danach wählt die bestätigte Lösung nur an der
 aktuellen Kreuzung die Tür des ausgeführten Zweigs; die Versuche werden mit Hilfestufe und
