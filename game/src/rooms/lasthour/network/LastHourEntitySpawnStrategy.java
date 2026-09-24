@@ -30,8 +30,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key identifying the custom entity type. */
   public static final String METADATA_TYPE = "lh.type";
 
-  public static final String METADATA_TYPE_TWO = "lh.typeTwo";
-
   /** Type value for computer-state entities. */
   public static final String TYPE_COMPUTER = "computer-state";
 
@@ -132,16 +130,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Metadata key for the 0-based index of the puzzle piece itself. */
   public static final String METADATA_PUZZLE_PIECE_INDEX = "puzzlePiece.pieceIndex";
-
-  public static final String METADATA_TASK_SOLVED = "task.isSolved";
-
-  public static final String METADATA_TASK_TEXT = "task.text";
-
-  public static final String METADATA_TASK_FREE_TEXT_SUBMITTED_ANSWERS =
-      "task.freeTextTask.submittedAnswers";
-
-  public static final String METADATA_TASK_FREE_TEXT_ACCEPTED_ANSWERS =
-      "task.freeTextTask.acceptedAnswers";
 
   private final EntitySpawnStrategy delegate = new DefaultEntitySpawnStrategy();
 
