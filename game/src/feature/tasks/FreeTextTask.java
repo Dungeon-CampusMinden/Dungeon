@@ -2,7 +2,7 @@ package feature.tasks;
 
 import java.util.List;
 
-public class FreeTextTask extends Task {
+public class FreeTextTask extends Task<String> {
 
   private final List<String> acceptedAnswer;
   private boolean caseSensitive;
@@ -26,11 +26,11 @@ public class FreeTextTask extends Task {
   }
 
   @Override
-  public boolean isCorrect(Answer answer) {
+  public boolean isCorrect(String answer) {
     if (this.caseSensitive) {
-      return acceptedAnswer.contains(answer.answer());
+      return acceptedAnswer.contains(answer);
     }
-    return acceptedAnswer.contains(answer.answer().toLowerCase());
+    return acceptedAnswer.contains(answer.toLowerCase());
   }
 
   public List<String> getAcceptedAnswer() {

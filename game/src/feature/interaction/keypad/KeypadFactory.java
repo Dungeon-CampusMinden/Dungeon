@@ -81,7 +81,7 @@ public class KeypadFactory {
    */
   public static Entity createTextKeypad(Point pos, List<String> correctTexts, Runnable action) {
     Entity entity = createBaseKeypad(pos);
-    TaskComponent taskComponent = new TaskComponent(new FreeTextTask(correctTexts));
+    TaskComponent<String> taskComponent = new TaskComponent<>(new FreeTextTask(correctTexts));
     TextKeyPadComponent kc = new TextKeyPadComponent(action);
     entity.add(kc);
     entity.add(taskComponent);

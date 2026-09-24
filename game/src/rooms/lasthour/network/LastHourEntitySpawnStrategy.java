@@ -12,8 +12,6 @@ import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.TextKeyPadComponent;
 import feature.puzzle.PuzzlePieceItem;
 import feature.questlog.QuestLogComponent;
-import feature.tasks.FreeTextTask;
-import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerComponent;
 import java.util.HashMap;
 import java.util.List;
@@ -171,15 +169,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         .ifPresent(
             textKeyPad ->
                 metadata.putAll(LastHourSnapshotTranslator.textKeypadMetadata(textKeyPad)));
-    entity
-        .fetch(TaskComponent.class)
-        .ifPresent(
-            taskComponent -> {
-              if (taskComponent.getTask() instanceof FreeTextTask freeTextTask) {
-                metadata.putAll(
-                    LastHourSnapshotTranslator.freeTextTaskMetaData(taskComponent, freeTextTask));
-              }
-            });
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));

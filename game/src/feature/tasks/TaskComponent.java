@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TaskComponent implements Component {
+public class TaskComponent<T> implements Component {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TaskComponent.class);
 
-  private final Task task;
+  private final Task<T> task;
   private boolean solved;
-  private List<Answer> attempts;
+  private List<T> attempts;
   private Consumer<Entity> onCorrect =
       (e) -> {
         LOGGER.info("Task was solved in {} attempts", attempts());
@@ -28,12 +28,8 @@ public class TaskComponent implements Component {
     this.attempts = new ArrayList<>();
   }
 
-  public TaskComponent(Task task, List<Answer> attempts) {
-    this.task = task;
-    this.attempts = attempts;
-  }
 
-  public boolean submit(Answer answer, Entity source) throws TaskException {
+  public boolean submit(T answer, Entity source) throws TaskException {
     if (this.solved) {
       throw new TaskException("Task already solved.");
     }
@@ -54,7 +50,7 @@ public class TaskComponent implements Component {
     return attempts.size();
   }
 
-  public List<Answer> getAttempts() {
+  public List<T> getAttempts() {
     return attempts;
   }
 

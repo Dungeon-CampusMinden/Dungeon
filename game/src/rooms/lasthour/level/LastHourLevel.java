@@ -157,9 +157,10 @@ public class LastHourLevel extends DungeonLevel {
         .fetch(TaskComponent.class)
         .ifPresent(
             component -> {
+              TaskComponent<String> tc = (TaskComponent<String>) component;
               TextKeyPadComponent textKeyPadComponent =
                   keypad.fetch(TextKeyPadComponent.class).get();
-              component.onCorrect(
+              tc.onCorrect(
                   player -> {
                     LastHourTracking.attempt(
                         LastHourPuzzle.STORAGE_ACCESS,
@@ -177,7 +178,7 @@ public class LastHourLevel extends DungeonLevel {
                     EventScheduler.scheduleAction(
                         this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
                   });
-              component.onWrong(
+              tc.onWrong(
                   player -> {
                     LastHourTracking.attempt(
                         LastHourPuzzle.STORAGE_ACCESS,
