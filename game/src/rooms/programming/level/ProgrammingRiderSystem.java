@@ -9,6 +9,7 @@ import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.systems.DrawSystem;
 import engine.utils.Direction;
+import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.state.StateMachine;
 import feature.components.CollideComponent;
@@ -22,7 +23,6 @@ final class ProgrammingRiderSystem extends System {
   private boolean controlsDisabled;
   private boolean solid;
   private int depth;
-  private Vector2 visualOffset;
 
   private ProgrammingRiderSystem() {
     super(AuthoritativeSide.BOTH);
@@ -84,22 +84,25 @@ final class ProgrammingRiderSystem extends System {
           Game.isMultiplayerClient()
               ? mount.fetch(DrawComponent.class).orElseThrow().depth()
               : draw.depth();
-      visualOffset = draw.visualOffset();
     }
-    // The physical player remains inside Nox's floor footprint; only the sprite is raised.
+    // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
     rider.remove(VelocityComponent.class);
     rider.fetch(InputComponent.class).ifPresent(input -> input.deactivateControls(true));
     rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(false));
     var origin = mount.fetch(PositionComponent.class).orElseThrow();
     var position = rider.fetch(PositionComponent.class).orElseThrow();
-    position.position(origin.position().translate(2, 1));
+    position.position(footprint(mount).translate(saddle(origin.viewDirection())));
     position.viewDirection(origin.viewDirection());
     PositionSync.syncPosition(rider);
     var draw = rider.fetch(DrawComponent.class).orElseThrow();
     draw.stateMachine().setState(StateMachine.IDLE_STATE, origin.viewDirection());
-    draw.visualOffset(saddle(origin.viewDirection()));
     int mountDepth = mount.fetch(DrawComponent.class).orElseThrow().depth();
     changeDepth(origin.viewDirection() == Direction.UP ? mountDepth + 1 : mountDepth);
+  }
+
+  /** Walkable point inside Nox's floor footprint, used as the rider's base and dismount point. */
+  private static Point footprint(Entity mount) {
+    return mount.fetch(PositionComponent.class).orElseThrow().position().translate(2, 1);
   }
 
   private static Vector2 saddle(Direction direction) {
@@ -132,7 +135,14 @@ final class ProgrammingRiderSystem extends System {
         .fetch(InputComponent.class)
         .ifPresent(input -> input.deactivateControls(controlsDisabled));
     rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(solid));
-    rider.fetch(DrawComponent.class).ifPresent(draw -> draw.visualOffset(visualOffset));
+    if (mount.isPresent(PositionComponent.class))
+      rider
+          .fetch(PositionComponent.class)
+          .ifPresent(
+              position -> {
+                position.position(footprint(mount));
+                PositionSync.syncPosition(rider);
+              });
     changeDepth(depth);
     rider = null;
     mount = null;
