@@ -1,4 +1,6 @@
-# Akt III – Nox' freie Runenwerkstatt
+# Akt III: Valerius' Werkstatt
+
+Teil des Raums [Programmieren 1: Das Erbe der Seelenweber](prog1_beginner_concept.md).
 
 ## Auftrag und Geschichte
 
@@ -173,3 +175,35 @@ der feste Ausgangspunkt jedes Versuchs.
 
 Die Zielzeit bleibt vorläufig 20–25 Minuten. Verständlichkeit, Spaß und tatsächliche
 Dauer müssen mit Lernenden getestet werden; technische Abnahme ersetzt diesen Playtest nicht.
+
+## Beispiellösung
+
+Diese Lösung lädt auch die Hilfe:
+
+```text
+hilfeTor():            ÖFFNE(); GEHE(4);
+hilfeRune(richtung):   GEHE(1); DREHE(richtung); GEHE(3); AKTIVIERE();
+hilfeSammeln():        GEHE(1); gesammelt = SAMMLE_ALLE(); GEHE(1); GIB_ZURÜCK gesammelt;
+hilfeAltar(menge):     GEHE(1); LEGE_AB(menge); GEHE(1); GIB_ZURÜCK menge;
+
+Hauptprogramm:
+hilfeTor();
+hilfeTor();
+hilfeRune(RECHTS);
+hilfeRune(LINKS);
+kristalle += hilfeSammeln();
+kristalle += hilfeSammeln();
+kristalle -= hilfeAltar(3);
+kristalle -= hilfeAltar(5);
+```
+
+Nach dem erfolgreichen Lauf öffnet sich der Nebenausgang. Ohne Fehlversuch gibt es den
+Erfolg "Aus einem Guss", sonst "Übung macht den Meister".
+
+## Lernziel
+
+- Wiederholte Abläufe als benannte Methode herauslösen.
+- Unterschiede zwischen ähnlichen Stellen als Parameter übergeben.
+- Ein lokales Ergebnis mit `GIB_ZURÜCK` an den Aufrufer geben und dort weiterrechnen.
+- Lokale Methodenvariablen von Variablen des Hauptprogramms unterscheiden.
+- Refactoring ändert die Form des Programms, nicht seine Wirkung.
