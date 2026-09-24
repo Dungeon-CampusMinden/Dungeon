@@ -532,11 +532,7 @@ public final class DrawSystem extends System implements Disposable {
    * @param dsd the data record of the entity to process
    */
   private void processShaderPassesSingleEntity(final DSData dsd) {
-    PositionComponent visual =
-        new PositionComponent(dsd.pc.position().translate(dsd.dc.visualOffset()));
-    visual.scale(dsd.pc.scale());
-    visual.rotation(dsd.pc.rotation());
-    FrameBuffer generated = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), visual);
+    FrameBuffer generated = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
     FrameBuffer oldFbo = entityFboCache.put(dsd.e, generated);
     if (oldFbo != null) {
       LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
@@ -721,7 +717,6 @@ public final class DrawSystem extends System implements Disposable {
       Point offsetPosition =
           dsd.pc
               .position()
-              .translate(dsd.dc.visualOffset())
               .translate(
                   -paddingX * dsd.pc.scale().x() * worldWidth,
                   -paddingY * dsd.pc.scale().y() * worldHeight);
@@ -775,7 +770,7 @@ public final class DrawSystem extends System implements Disposable {
     Sprite sprite = dsd.dc.getSprite();
     DrawConfig conf =
         makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
-    draw(dsd.pc.position().translate(dsd.dc.visualOffset()), sprite, conf);
+    draw(dsd.pc.position(), sprite, conf);
   }
 
   /**
@@ -836,9 +831,7 @@ public final class DrawSystem extends System implements Disposable {
       return CameraSystem.getCameraWorldBounds();
     }
     return getFboWorldBounds(
-        dsd.pc.position().translate(dsd.dc.visualOffset()),
-        dsd.pc.scale(),
-        Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
+        dsd.pc.position(), dsd.pc.scale(), Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
   }
 
   private Rectangle getFboWorldBounds(Point pos, Vector2 scale, Vector2 size) {
@@ -944,7 +937,7 @@ public final class DrawSystem extends System implements Disposable {
 
     Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
 
-    Point pos = data.pc.position().translate(data.dc.visualOffset());
+    Point pos = data.pc.position();
     float width = data.dc.getWidth() * data.pc.scale().x();
     float height = data.dc.getHeight() * data.pc.scale().y();
     List<Point> corners =

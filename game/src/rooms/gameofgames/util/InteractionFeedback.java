@@ -10,7 +10,6 @@ import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import engine.utils.Point;
 import engine.utils.components.draw.shader.OutlineShader;
-import feature.entities.HeroController;
 import feature.interaction.InteractionComponent;
 import feature.utils.EntityUtils;
 import java.util.Optional;
@@ -33,9 +32,8 @@ public final class InteractionFeedback {
     Game.player()
         .ifPresent(
             hero -> {
-              Point cursorPosition = CursorUtils.positionInWorld();
-              Optional<Entity> nearCursor = findCursorNearEntity(cursorPosition);
-              Optional<Entity> inRange = HeroController.findInteractable(hero, cursorPosition);
+              Optional<Entity> nearCursor = findCursorNearEntity();
+              Optional<Entity> inRange = findInteractTarget(hero);
 
               clearHighlight(currentHighlightedEntity);
               clearHighlight(currentSemiHighlightedEntity);
@@ -57,9 +55,22 @@ public final class InteractionFeedback {
             });
   }
 
-  private static Optional<Entity> findCursorNearEntity(Point point) {
+  private static Optional<Entity> findCursorNearEntity() {
     return EntityUtils.findEntityAtPoint(
-        point, Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)));
+        CursorUtils.positionInWorld(),
+        Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)));
+  }
+
+  private static Optional<Entity> findInteractTarget(Entity hero) {
+    Point heroPos = EntityUtils.getPosition(hero);
+
+    return findCursorNearEntity()
+        .filter(
+            entity -> {
+              float range =
+                  entity.fetch(InteractionComponent.class).orElseThrow().interaction().range();
+              return heroPos.distanceSquared(EntityUtils.getPosition(entity)) <= range * range;
+            });
   }
 
   private static void updateWorldCursor(boolean hasTarget) {

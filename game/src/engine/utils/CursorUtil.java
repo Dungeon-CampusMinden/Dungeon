@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import engine.Game;
@@ -32,10 +30,8 @@ public class CursorUtil {
   private static final Map<Cursors, Cursor> cursorCache = new EnumMap<>(Cursors.class);
 
   /**
-   * Optional world-cursor override. When set, the Stage input listener uses this instead of {@link
-   * Cursors#DEFAULT} as its fallback when no UI element requests a specific cursor. This prevents
-   * the Stage listener from flickering back to DEFAULT every frame while the game wants a different
-   * cursor (e.g., INTERACT).
+   * Optional world-cursor override. When set, it replaces {@link Cursors#DEFAULT} while the pointer
+   * is over the world instead of a UI element, for example INTERACT above an interactable entity.
    */
   private static Cursors worldCursorOverride = null;
 
@@ -75,9 +71,8 @@ public class CursorUtil {
   }
 
   /**
-   * Set a world-cursor override. While active, the Stage input listener will fall back to this
-   * cursor instead of {@link Cursors#DEFAULT} when the pointer is over the world. The UI under the
-   * pointer keeps priority when the world target changes.
+   * Set a world-cursor override. While active, this cursor replaces {@link Cursors#DEFAULT} when
+   * the pointer is over the world. The UI under the pointer keeps priority.
    *
    * @param cursor the world cursor to use as the fallback
    */
@@ -87,8 +82,8 @@ public class CursorUtil {
   }
 
   /**
-   * Clear the world-cursor override. The Stage listener will fall back to {@link Cursors#DEFAULT}
-   * again. The UI under the pointer keeps its own cursor.
+   * Clear the world-cursor override. The world falls back to {@link Cursors#DEFAULT} again; the UI
+   * under the pointer keeps its own cursor.
    */
   public static void clearWorldCursor() {
     worldCursorOverride = null;
@@ -110,28 +105,18 @@ public class CursorUtil {
   }
 
   /**
-   * Initialize the cursor management system by adding an input listener to the specified stage.
+   * Initialize cursor management for the game stage. The cursor is resolved every frame, so UI that
+   * opens or closes under a resting pointer updates it as well.
    *
-   * @param stage the stage to which the input listener will be added
+   * @param stage the game stage
    */
   public static void initListener(Stage stage) {
     resetCursor();
     stage.addAction(
         new Action() {
-          private final Vector2 pointer = new Vector2();
-
           @Override
           public boolean act(float delta) {
-            stage.screenToStageCoordinates(pointer.set(Gdx.input.getX(), Gdx.input.getY()));
-            setCursor(cursorFor(stage.hit(pointer.x, pointer.y, true)));
-            return false;
-          }
-        });
-    stage.addListener(
-        new InputListener() {
-          @Override
-          public boolean mouseMoved(InputEvent event, float x, float y) {
-            setCursor(cursorFor(stage.hit(x, y, true)));
+            refreshCursor();
             return false;
           }
         });
@@ -143,7 +128,7 @@ public class CursorUtil {
    * @param hit actor under the pointer, or null for the world
    * @return the cursor for the current UI and world state
    */
-  public static Cursors cursorFor(Actor hit) {
+  private static Cursors cursorFor(Actor hit) {
     Cursors target = null;
     for (Actor actor = hit; actor != null; actor = actor.getParent()) {
       if (actor instanceof CursorOverride override) {

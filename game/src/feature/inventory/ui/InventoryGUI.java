@@ -225,11 +225,6 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
     return this.getSlotByCoordinates((int) x, (int) y);
   }
 
-  private int slotAtStage(float stageX, float stageY) {
-    var local = stageToLocalCoordinates(new com.badlogic.gdx.math.Vector2(stageX, stageY));
-    return getSlotByCoordinates(local.x, local.y);
-  }
-
   private void drawItems(Batch batch) {
     for (int i = 0; i < this.inventoryComponent.items().length; i++) {
       if (this.inventoryComponent.items()[i] == null) continue;
@@ -407,24 +402,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
           int pointer,
           DragAndDrop.Payload payload,
           DragAndDrop.Target target) {
-        if (event.isTouchFocusCancel()
-            || payload == null
-            || !(payload.getObject() instanceof ItemDragPayload itemDragPayload)) return;
-        Optional<InventoryGUI> destination =
-            UIUtils.findAllTypesInGroup(event.getStage().getRoot(), InventoryGUI.class)
-                .filter(InventoryGUI::ancestorsVisible)
-                .filter(gui -> gui.slotAtStage(event.getStageX(), event.getStageY()) >= 0)
-                .findFirst();
-        if (destination.isPresent()) {
-          InventoryGUI gui = destination.get();
-          gui.receiveDrop(itemDragPayload, gui.slotAtStage(event.getStageX(), event.getStageY()));
-        } else if (Game.network().isServer()) {
-          HeroController.dropItem(
-              Game.player().orElseThrow(),
-              itemDragPayload.inventoryComponent(),
-              itemDragPayload.slot());
-        } else {
-          Game.network().send((short) 0, InputMessage.invDrop(itemDragPayload.slot()), true);
+        if (target == null
+            && payload != null
+            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+          if (Game.network().isServer()) {
+            HeroController.dropItem(
+                Game.player().orElseThrow(),
+                itemDragPayload.inventoryComponent(),
+                itemDragPayload.slot());
+          } else {
+            Game.network().send((short) 0, InputMessage.invDrop(itemDragPayload.slot()), true);
+          }
         }
       }
     };
@@ -435,26 +423,35 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
       @Override
       public boolean drag(
           DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-        return payload.getObject() instanceof ItemDragPayload && getSlotByCoordinates(x, y) >= 0;
+        // Valid if item in hand (cursor)
+        return payload.getObject() != null && payload.getObject() instanceof ItemDragPayload;
       }
 
       @Override
       public void drop(
           DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-        // Resolve the final release position in dragStop, even without a last drag event.
+        int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
+        // Drops on the border or padding keep the item in its slot.
+        if (slot < 0) return;
+        if (payload.getObject() != null
+            && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
+          int sourceSlot = itemDragPayload.slot();
+          if (itemDragPayload.wasHeroInv()) {
+            sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory (to distinguish)
+          }
+          int targetSlot = slot;
+          if (isPlayersInventory(
+              Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
+            targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
+          }
+          if (Game.network().isServer()) {
+            HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
+          } else {
+            Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
+          }
+        }
       }
     };
-  }
-
-  private void receiveDrop(ItemDragPayload payload, int slot) {
-    int sourceSlot = payload.wasHeroInv() ? -payload.slot() - 1 : payload.slot();
-    int targetSlot =
-        isPlayersInventory(Game.player().orElseThrow(), inventoryComponent) ? -slot - 1 : slot;
-    if (Game.network().isServer()) {
-      HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
-    } else {
-      Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
-    }
   }
 
   private void addInputListener() {

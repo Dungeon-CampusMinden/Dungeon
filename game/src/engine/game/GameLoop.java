@@ -837,7 +837,7 @@ public final class GameLoop extends ScreenAdapter {
         DialogCloseMessage.class,
         (ctx, msg) -> {
           LOGGER.debug("Received DialogCloseMessage for dialog: {}", msg.dialogId());
-          // A server close is authoritative for every local copy of the dialog.
+          // Find and remove the UiComponent with the given dialogId
           Game.levelEntities()
               .filter(
                   e ->
@@ -847,9 +847,9 @@ public final class GameLoop extends ScreenAdapter {
                                   comp.dialogContext() != null
                                       && msg.dialogId().equals(comp.dialogContext().dialogId()))
                           .orElse(false))
-              .flatMap(e -> e.fetch(UIComponent.class).stream())
-              .toList()
-              .forEach(component -> UIUtils.closeDialog(component, true));
+              .findFirst()
+              .flatMap(e -> e.fetch(UIComponent.class))
+              .ifPresent(component -> UIUtils.closeDialog(component, true));
         });
   }
 

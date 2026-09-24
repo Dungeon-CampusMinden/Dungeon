@@ -1,17 +1,15 @@
 package rooms.gameofgames.level;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Vector2;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
-import engine.utils.Rectangle;
 import engine.utils.Tuple;
+import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.HueRemapShader;
-import engine.utils.components.draw.shader.MagicBallShader;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -102,20 +100,13 @@ public class GameOfGamesLevel extends DungeonLevel {
 
                   if (unlocked) {
                     ShaderSystem.getInstance()
-                        .addSceneShader(
+                        .addLevelShader(
                             "level",
                             0,
-                            new MagicBallShader(
-                                "images/shader-bg.png",
-                                0.95f,
-                                new Vector2(-0.018f, 0.00f),
-                                Color.valueOf("95b8f0"),
-                                1.0f,
-                                Color.WHITE,
-                                new Rectangle(0.8f, 1.0f, 0.1f, 0.0f)),
+                            new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
                             who.id());
                   } else {
-                    ShaderSystem.getInstance().removeSceneShader("level", who.id());
+                    ShaderSystem.getInstance().removeLevelShader("level", who.id());
                   }
 
                   GameOfGamesCanvas.unlockExtraNodes(unlocked);

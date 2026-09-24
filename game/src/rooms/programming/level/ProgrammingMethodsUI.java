@@ -30,7 +30,6 @@ import feature.canvas.CanvasOptions;
 import feature.canvas.CanvasSnapshot;
 import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
-import feature.hud.DragAndDropFactory;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,7 +62,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private final Table evaluation = new Table();
   private final Label feedback = ProgrammingUI.label("", 17, ProgrammingUI.GOLD);
   private final Label observation = ProgrammingUI.label("", 20, ProgrammingUI.TEXT);
-  private final DragAndDrop dragging = DragAndDropFactory.create();
+  private final DragAndDrop dragging = immediateDragAndDrop();
   private boolean dropAllowed;
   private ProgrammingMethodsNode.Drag activeDrag;
   private final ArrayDeque<Edit> edits = new ArrayDeque<>();
@@ -213,6 +212,15 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     refreshPanels();
     layoutBody();
     update(initial);
+  }
+
+  /** Starts dragging code blocks on the first pointer movement and accepts drops immediately. */
+  private static DragAndDrop immediateDragAndDrop() {
+    DragAndDrop dragAndDrop = new DragAndDrop();
+    dragAndDrop.setDragTime(0);
+    dragAndDrop.setTapSquareSize(0);
+    dragAndDrop.setKeepWithinStage(false);
+    return dragAndDrop;
   }
 
   private static List<CanvasNode> nodes() {

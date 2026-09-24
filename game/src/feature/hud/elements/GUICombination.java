@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.Disposable;
 import engine.Game;
 import engine.utils.Vector2;
 import feature.components.UIComponent;
-import feature.hud.DragAndDropFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -49,7 +48,10 @@ public final class GUICombination extends Group implements Disposable {
       this.combinableGuis.forEach(this::addActor);
       return;
     }
-    this.dragAndDrop = DragAndDropFactory.create();
+    this.dragAndDrop = new DragAndDrop();
+    // LibGDX rejects drops during the first 250 ms, which dropped quickly moved items into the
+    // world.
+    this.dragAndDrop.setDragTime(0);
     this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
 
     this.combinableGuis.forEach(
