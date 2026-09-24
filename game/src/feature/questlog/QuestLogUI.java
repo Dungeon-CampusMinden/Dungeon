@@ -4,11 +4,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import engine.Entity;
@@ -19,6 +21,7 @@ import engine.network.NetworkUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InputMessage;
 import engine.utils.BaseContainerUI;
+import engine.utils.Cursors;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.logging.DungeonLogger;
@@ -32,10 +35,13 @@ import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.hud.elements.RichLabel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Placeholder UI for displaying the shared quest log and creating player notes.
@@ -69,6 +75,8 @@ public final class QuestLogUI {
   private static final String CTX_ENTRY_TEXTS = "questlog.entryTexts";
   private static final String CTX_ENTRY_OWNERS = "questlog.entryOwners";
   private static final String CTX_ENTRY_TIMESTAMPS = "questlog.entryTimestamps";
+  private static final String CTX_OVERVIEW_TAB = "questlog.overviewTab";
+  private static final String CTX_OVERVIEW_REFERENCES = "questlog.overviewReferences";
   private static final String T_TITLE = "title";
   private static final String T_EMPTY_QUESTLOG = "empty";
   private static final String T_CREATE = "create";
@@ -80,7 +88,7 @@ public final class QuestLogUI {
   private static final float UI_HEIGHT = 650f;
   private static final float SIDEBAR_WIDTH = 290f;
   private static final float ROW_HEIGHT = 62f;
-  private static final float CONTENT_WIDTH = UI_WIDTH - SIDEBAR_WIDTH - 76f;
+  private static final float CONTENT_WIDTH = UI_WIDTH - SIDEBAR_WIDTH - 84f;
   private static final FontSpec FONT_TITLE =
       FontSpec.of("fonts/Roboto-SemiBold.ttf", 28, new Color(0.78f, 0.66f, 0.51f, 1f));
   private static final FontSpec FONT_SECTION =
@@ -97,16 +105,21 @@ public final class QuestLogUI {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(QuestLogUI.class);
 
   static {
+    register();
+  }
+
+  /** Registers the quest log dialog in every runtime that displays it. */
+  public static void register() {
     DialogFactory.register(DIALOG_TYPE, QuestLogUI::build);
   }
 
   private QuestLogUI() {}
 
   /**
-   * Requests that the quest log is shown for the given player.
+   * Toggles the quest log for the given player.
    *
    * <p>On a network client this sends {@link #COMMAND_SHOW_QUESTLOG} to the server. In local or
-   * server-side contexts this opens the placeholder quest log dialog directly for the given player.
+   * server-side contexts this closes an existing quest log or opens one for the given player.
    *
    * @param player player entity requesting the quest log
    */
@@ -114,8 +127,24 @@ public final class QuestLogUI {
     if (NetworkUtils.isNetworkClient()) {
       Game.network().sendInput(InputMessage.custom(COMMAND_SHOW_QUESTLOG));
     } else {
-      showQuestLogForPlayers(player.id());
+      List<UIComponent> openDialogs = openQuestLogs(player.id());
+      if (openDialogs.isEmpty()) {
+        showQuestLogForPlayers(player.id());
+      } else {
+        openDialogs.forEach(UIUtils::closeDialog);
+      }
     }
+  }
+
+  private static List<UIComponent> openQuestLogs(int playerId) {
+    return Game.entities()
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> DIALOG_TYPE.type().equals(ui.dialogContext().dialogType().type()))
+        .filter(
+            ui ->
+                ui.targetEntityIds().length == 0
+                    || Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == playerId))
+        .toList();
   }
 
   /**
@@ -145,10 +174,8 @@ public final class QuestLogUI {
   /**
    * Shows the shared quest log for the requested players with a preferred selected tab.
    *
-   * <p>The selected tab is resolved defensively: if the requested tab is missing or blank, the
-   * newest tab is selected. This keeps the future dedicated quest log UI independent from the
-   * storage order and gives callers a stable entry point for restoring or changing the sidebar
-   * selection.
+   * <p>If the requested tab is missing or blank, the configured overview is selected, falling back
+   * to the newest visible tab for logs without an overview.
    *
    * @param selectedTab preferred tab to show in the detail area; may be {@code null}
    * @param targetEntityIds optional player entity IDs that should receive the quest log
@@ -159,6 +186,13 @@ public final class QuestLogUI {
     return QuestLogUtil.getQuestLogComponent()
         .map(
             questLog -> {
+              if (!Game.isMultiplayerClient()) {
+                for (int entityId : resolveDialogTargetIds(targetEntityIds)) {
+                  engine.tracking.Tracking.participantForEntity(entityId)
+                      .ifPresent(
+                          id -> engine.tracking.Tracking.interaction("quest-log", "open", id));
+                }
+              }
               showFormattedQuestLogDialog(questLog, selectedTab, targetEntityIds);
               return true;
             })
@@ -181,6 +215,9 @@ public final class QuestLogUI {
 
     Entity viewer =
         dialogTargetIds.length == 1 ? Game.findEntityById(dialogTargetIds[0]).orElse(null) : null;
+    for (int targetEntityId : dialogTargetIds) {
+      openQuestLogs(targetEntityId).forEach(UIUtils::closeDialog);
+    }
     UIComponent ui =
         DialogFactory.show(createDialogContext(questLog, selectedTab, viewer), dialogTargetIds);
 
@@ -230,6 +267,8 @@ public final class QuestLogUI {
         .put(CTX_ENTRY_TEXTS, viewData.entryTexts().toArray(new String[0]))
         .put(CTX_ENTRY_OWNERS, viewData.entryOwners().toArray(new String[0]))
         .put(CTX_ENTRY_TIMESTAMPS, viewData.entryTimestamps())
+        .put(CTX_OVERVIEW_TAB, viewData.overviewTab())
+        .put(CTX_OVERVIEW_REFERENCES, viewData.overviewReferences())
         .build();
   }
 
@@ -240,7 +279,9 @@ public final class QuestLogUI {
         List.of(ctx.find(CTX_ENTRY_TABS, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_TEXTS, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_OWNERS, String[].class).orElse(new String[0])),
-        ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]));
+        ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]),
+        ctx.find(CTX_OVERVIEW_TAB, String.class).orElse(""),
+        ctx.find(CTX_OVERVIEW_REFERENCES, int[].class).orElse(new int[0]));
   }
 
   private static QuestLogViewData viewDataFrom(
@@ -251,9 +292,13 @@ public final class QuestLogUI {
     List<String> entryTexts = new ArrayList<>();
     List<String> entryOwners = new ArrayList<>();
     List<Integer> entryTimestamps = new ArrayList<>();
+    List<QuestLogEntry> references =
+        questLog.overview().map(QuestLogComponent.Overview::references).orElse(List.of());
+    List<QuestLogEntry> visibleEntries = new ArrayList<>();
 
     for (String tab : selection.tabs()) {
       for (QuestLogEntry entry : visibleEntriesFor(questLog, tab, viewerName)) {
+        visibleEntries.add(entry);
         entryTabs.add(tab);
         entryTexts.add(entryText(entry));
         entryOwners.add(entry.owner());
@@ -267,7 +312,13 @@ public final class QuestLogUI {
         entryTabs,
         entryTexts,
         entryOwners,
-        entryTimestamps.stream().mapToInt(Integer::intValue).toArray());
+        entryTimestamps.stream().mapToInt(Integer::intValue).toArray(),
+        questLog.overview().map(QuestLogComponent.Overview::tab).orElse(""),
+        references.stream()
+            .mapToInt(visibleEntries::indexOf)
+            .filter(index -> index >= 0)
+            .distinct()
+            .toArray());
   }
 
   private static void openCreateNoteDialog(
@@ -374,9 +425,10 @@ public final class QuestLogUI {
   /**
    * Builds the selection state for a quest log UI.
    *
-   * <p>Tabs are ordered by newest entry first. The selected tab is the requested tab if it exists,
-   * otherwise the newest tab. If the quest log is empty, {@link QuestLogSelection#selectedTab()} is
-   * empty and {@link QuestLogSelection#selectedEntries()} returns an empty list.
+   * <p>The optional overview tab is first; remaining tabs are ordered by newest entry. The selected
+   * tab is the requested tab if it exists, otherwise the first visible tab. If the quest log is
+   * empty, {@link QuestLogSelection#selectedTab()} is empty and {@link
+   * QuestLogSelection#selectedEntries()} returns an empty list.
    *
    * @param questLog quest log to read
    * @param requestedTab preferred selected tab; may be {@code null}
@@ -403,9 +455,17 @@ public final class QuestLogUI {
 
     String viewerName = playerName(viewer).orElse(null);
     List<String> tabs =
-        questLog.getTabsOrderedByLastEntry().stream()
-            .filter(tab -> !visibleEntriesFor(questLog, tab, viewerName).isEmpty())
-            .toList();
+        new ArrayList<>(
+            questLog.getTabsOrderedByLastEntry().stream()
+                .filter(tab -> !visibleEntriesFor(questLog, tab, viewerName).isEmpty())
+                .toList());
+    questLog
+        .overview()
+        .map(QuestLogComponent.Overview::tab)
+        .ifPresent(
+            tab -> {
+              if (tabs.remove(tab)) tabs.addFirst(tab);
+            });
     Optional<String> selectedTab = selectTab(tabs, requestedTab);
     List<QuestLogEntry> selectedEntries =
         selectedTab.map(tab -> visibleEntriesFor(questLog, tab, viewerName)).orElseGet(List::of);
@@ -638,7 +698,8 @@ public final class QuestLogUI {
     }
   }
 
-  private record QuestLogEntryView(String tab, String text, String owner, int timestamp) {}
+  private record QuestLogEntryView(
+      int index, String tab, String text, String owner, int timestamp) {}
 
   private record QuestLogViewData(
       List<String> tabs,
@@ -646,7 +707,9 @@ public final class QuestLogUI {
       List<String> entryTabs,
       List<String> entryTexts,
       List<String> entryOwners,
-      int[] entryTimestamps) {
+      int[] entryTimestamps,
+      String overviewTab,
+      int[] overviewReferences) {
 
     private QuestLogViewData {
       tabs = List.copyOf(Objects.requireNonNull(tabs, "tabs"));
@@ -655,6 +718,8 @@ public final class QuestLogUI {
       entryTexts = List.copyOf(Objects.requireNonNull(entryTexts, "entryTexts"));
       entryOwners = List.copyOf(Objects.requireNonNull(entryOwners, "entryOwners"));
       entryTimestamps = Objects.requireNonNull(entryTimestamps, "entryTimestamps").clone();
+      overviewTab = Objects.requireNonNull(overviewTab, "overviewTab");
+      overviewReferences = Objects.requireNonNull(overviewReferences, "overviewReferences").clone();
     }
 
     private List<QuestLogEntryView> entriesFor(String tab) {
@@ -671,7 +736,7 @@ public final class QuestLogUI {
         if (tab.equals(entryTabs.get(i))) {
           entries.add(
               new QuestLogEntryView(
-                  entryTabs.get(i), entryTexts.get(i), entryOwners.get(i), entryTimestamps[i]));
+                  i, entryTabs.get(i), entryTexts.get(i), entryOwners.get(i), entryTimestamps[i]));
         }
       }
       return entries;
@@ -703,7 +768,9 @@ public final class QuestLogUI {
     private final Container<Table> detailContainer;
     private final Drawable rowNormal;
     private final Drawable rowSelected;
+    private final Set<Integer> expandedEntries = new HashSet<>();
     private String selectedTab;
+    private Optional<QuestLogEntryView> focusedEntry = Optional.empty();
 
     private QuestLogDialog(String dialogId, QuestLogViewData viewData) {
       this.dialogId = dialogId;
@@ -730,6 +797,7 @@ public final class QuestLogUI {
       sidebarScroll.setFadeScrollBars(false);
 
       detailContainer
+          .fill()
           .top()
           .left()
           .background(skin.newDrawable("generic-area", new Color(0.07f, 0.08f, 0.08f, 0.74f)));
@@ -784,6 +852,7 @@ public final class QuestLogUI {
             @Override
             public void clicked(InputEvent event, float x, float y) {
               selectedTab = tab;
+              focusedEntry = Optional.empty();
               refresh();
             }
           });
@@ -811,43 +880,173 @@ public final class QuestLogUI {
       header.add(close).size(34f).right();
       detail.add(header).width(CONTENT_WIDTH).padBottom(16f).row();
 
-      List<QuestLogEntryView> entries = viewData.entriesFor(selectedTab);
-      if (entries.isEmpty()) {
-        detail
-            .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
-            .left()
-            .top()
-            .padBottom(18f)
+      Table entryList = new Table();
+      entryList.top().left();
+      List<QuestLogEntryView> entries =
+          focusedEntry.map(List::of).orElseGet(() -> viewData.entriesFor(selectedTab));
+      if (focusedEntry.isPresent()) {
+        entryList
+            .add(
+                navigationButton(
+                    "< " + viewData.overviewTab(),
+                    () -> {
+                      focusedEntry = Optional.empty();
+                      selectedTab = viewData.overviewTab();
+                      refresh();
+                    }))
+            .width(CONTENT_WIDTH - 18f)
+            .minHeight(44f)
+            .padBottom(12f)
             .row();
-      } else {
-        addEntryList(detail, entries);
       }
-
-      detail.add().growY().row();
+      if (entries.isEmpty()) {
+        entryList
+            .add(label(trans.text(T_EMPTY_QUESTLOG), FONT_BODY, true))
+            .width(CONTENT_WIDTH - 18f)
+            .left()
+            .top();
+      } else {
+        addEntryList(entryList, entries);
+      }
+      ScrollPane entriesScroll = Scene2dElementFactory.createScrollPane(entryList, false, true);
+      ScrollPane.ScrollPaneStyle entriesStyle =
+          new ScrollPane.ScrollPaneStyle(entriesScroll.getStyle());
+      entriesStyle.background = null;
+      entriesScroll.setStyle(entriesStyle);
+      entriesScroll.setOverscroll(false, false);
+      entriesScroll.setFadeScrollBars(false);
+      entriesScroll.setFlickScroll(false);
+      detail.add(entriesScroll).width(CONTENT_WIDTH).minHeight(0f).growY().padBottom(18f).row();
       detail.add(buildFooter()).width(CONTENT_WIDTH).left().bottom();
       return detail;
     }
 
     private void addEntryList(Table detail, List<QuestLogEntryView> entries) {
       for (QuestLogEntryView entry : entries) {
-        detail
-            .add(label(entry.text(), FONT_BODY, true))
-            .width(CONTENT_WIDTH)
-            .left()
-            .top()
-            .padBottom(10f)
-            .row();
+        detail.add(buildEntry(entry)).width(CONTENT_WIDTH - 18f).left().top().padBottom(10f).row();
+        if (focusedEntry.isEmpty()
+            && selectedTab.equals(viewData.overviewTab())
+            && entry.equals(entries.getFirst())) {
+          addOverviewReferences(detail);
+        }
         Optional<String> metadata = metadataFor(entry.owner());
         if (metadata.isPresent()) {
           detail
               .add(label(metadata.get(), FONT_MUTED, false))
-              .width(CONTENT_WIDTH)
+              .width(CONTENT_WIDTH - 18f)
               .left()
               .padBottom(22f)
               .row();
         }
       }
+    }
+
+    /**
+     * Opens the original entry, keeping long reference text out of the task overview.
+     *
+     * @param detail the table containing the current task
+     */
+    private void addOverviewReferences(Table detail) {
+      List<QuestLogEntryView> entries =
+          viewData.tabs().stream().flatMap(tab -> viewData.entriesFor(tab).stream()).toList();
+      for (int index : viewData.overviewReferences()) {
+        entries.stream()
+            .filter(entry -> entry.index() == index)
+            .findFirst()
+            .ifPresent(
+                entry -> {
+                  String title = entry.text().lines().findFirst().orElse(entry.tab());
+                  detail
+                      .add(
+                          navigationButton(
+                              "> " + title,
+                              () -> {
+                                selectedTab = entry.tab();
+                                focusedEntry = Optional.of(entry);
+                                expandedEntries.add(entry.index());
+                                refresh();
+                              }))
+                      .width(CONTENT_WIDTH - 18f)
+                      .minHeight(44f)
+                      .padBottom(8f)
+                      .row();
+                });
+      }
+    }
+
+    private Button navigationButton(String title, Runnable action) {
+      Button.ButtonStyle style = new Button.ButtonStyle();
+      style.up = rowNormal;
+      style.over = rowSelected;
+      style.down = rowSelected;
+      Button button = new Button(style);
+      button.setUserObject(Cursors.INTERACT);
+      button.add(label(title, FONT_SELECTED, true)).width(CONTENT_WIDTH - 38f).left();
+      button.pad(10f);
+      button.addListener(
+          new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              action.run();
+            }
+          });
+      return button;
+    }
+
+    /**
+     * A title followed by a blank line introduces locally collapsible details.
+     *
+     * @param entry the entry to display
+     * @return its title and optional expandable body within the detail column
+     */
+    private Table buildEntry(QuestLogEntryView entry) {
+      Table row = new Table();
+      row.top().left();
+      String[] parts = entry.text().split("\\R\\h*\\R", 2);
+      if (parts.length != 2
+          || parts[0].isBlank()
+          || parts[0].lines().count() != 1
+          || parts[1].isBlank()) {
+        row.add(label(entry.text(), FONT_BODY, true)).width(CONTENT_WIDTH - 18f);
+        return row;
+      }
+
+      Button.ButtonStyle style = new Button.ButtonStyle();
+      style.up = rowNormal;
+      style.over = rowSelected;
+      style.down = rowSelected;
+      style.checked = rowSelected;
+      Button toggle = new Button(style);
+      toggle.setUserObject(Cursors.INTERACT);
+      toggle.setChecked(expandedEntries.contains(entry.index()));
+      RichLabel marker = label(toggle.isChecked() ? "-" : "+", FONT_SELECTED, false);
+      toggle.add(marker).width(24f).top();
+      toggle.add(label(parts[0], FONT_SELECTED, true)).width(CONTENT_WIDTH - 62f).left();
+      toggle.pad(10f);
+      row.add(toggle).growX().minHeight(44f).row();
+      Table body = new Table();
+      row.add(body).growX();
+      Runnable update =
+          () -> {
+            body.clearChildren();
+            marker.setText(toggle.isChecked() ? "-" : "+");
+            if (toggle.isChecked()) {
+              expandedEntries.add(entry.index());
+              body.add(label(parts[1].strip(), FONT_BODY, true))
+                  .width(CONTENT_WIDTH - 42f)
+                  .pad(12f);
+            } else expandedEntries.remove(entry.index());
+            row.invalidateHierarchy();
+          };
+      toggle.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+              update.run();
+            }
+          });
+      update.run();
+      return row;
     }
 
     private Table buildFooter() {

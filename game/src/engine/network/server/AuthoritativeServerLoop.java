@@ -15,7 +15,6 @@ import engine.network.NetworkTelemetry;
 import engine.network.delta.SnapshotDeltaCompressor;
 import engine.network.delta.SnapshotHistory;
 import engine.network.messages.s2c.DeltaSnapshotMessage;
-import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.Point;
@@ -334,19 +333,8 @@ public final class AuthoritativeServerLoop {
     EntityUtils.setPosition(
         hero,
         Game.startTile().map(tile -> tile.position().toCenteredPoint()).orElse(new Point(0, 0)));
-    // Add the hero to the game, after the client knows the id.
-    Game.network()
-        .send(state.clientId(), new EntitySpawnEvent(hero), true)
-        .thenAccept(
-            success -> {
-              if (success) {
-                Game.add(hero);
-              } else {
-                LOGGER.warn(
-                    "Failed to send Hero's EntitySpawnEvent to client {}, not adding hero to game",
-                    state);
-              }
-            });
+    // Adding the hero broadcasts its spawn to all clients, including its owner.
+    Game.add(hero);
     return hero;
   }
 }

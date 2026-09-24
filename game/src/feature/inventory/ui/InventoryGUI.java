@@ -215,11 +215,13 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   }
 
   private int getSlotByCoordinates(int x, int y) {
-    if (this.slotSize == 0) return -1; // Prevent division by zero
-    return (x / this.slotSize) + (y / this.slotSize) * this.slotsPerRow;
+    if (slotSize <= 0 || x < 0 || y < 0 || x >= slotSize * slotsPerRow) return -1;
+    int slot = x / slotSize + (y / slotSize) * slotsPerRow;
+    return slot < inventoryComponent.items().length ? slot : -1;
   }
 
   private int getSlotByCoordinates(float x, float y) {
+    if (x < 0 || y < 0) return -1;
     return this.getSlotByCoordinates((int) x, (int) y);
   }
 
@@ -429,6 +431,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
       public void drop(
           DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
         int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
+        // Drops on the border or padding keep the item in its slot.
+        if (slot < 0) return;
         if (payload.getObject() != null
             && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
           int sourceSlot = itemDragPayload.slot();

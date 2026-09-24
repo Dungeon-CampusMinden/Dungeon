@@ -1,0 +1,454 @@
+package rooms.programming.level;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.Align;
+import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.Cursors;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
+import feature.canvas.CanvasDragContext;
+import feature.canvas.CanvasGraphics;
+import feature.canvas.CanvasNode;
+import feature.canvas.CanvasNodeType;
+import feature.canvas.NodeState;
+import java.util.Objects;
+import rooms.programming.modules.variables.BindingState;
+import rooms.programming.modules.variables.GolemProperty;
+import rooms.programming.modules.variables.MagicalEssence;
+import rooms.programming.modules.variables.SoulVessel;
+import rooms.programming.modules.variables.VariablePuzzle;
+import rooms.programming.state.VariablePuzzleStage;
+
+/** Physical supply tokens, labelled storage sockets, and the golem's assembly preview. */
+final class ProgrammingBindingNode extends CanvasNode {
+  enum Kind {
+    VESSEL,
+    ESSENCE,
+    SOCKET,
+    CORE,
+    HEADING
+  }
+
+  private static final String TYPE = "programming.binding-node";
+  private static final Color INK = ProgrammingUI.INK;
+  private static final Color SURFACE = ProgrammingUI.SURFACE;
+  private static final Color TEXT = ProgrammingUI.TEXT;
+  private static final Color MUTED = ProgrammingUI.MUTED;
+  private static final Color GOLD = ProgrammingUI.GOLD;
+  private Kind kind;
+  private BindingState state;
+  private Label title;
+  private Label detail;
+  private Label value;
+  private Label erase;
+  private TextButton activate;
+  private TextureRegion texture;
+  private String imagePath = "";
+  private float pulse;
+  private boolean over;
+  private boolean aided;
+  private boolean dragging;
+  private float homeX;
+  private float homeY;
+  private String selectedSupply = "";
+  private java.util.function.BiConsumer<Kind, String> select = (kind, id) -> {};
+
+  void selection(String id, java.util.function.BiConsumer<Kind, String> callback) {
+    selectedSupply = id;
+    select = callback;
+    updateCursor();
+  }
+
+  static void register() {
+    if (!CanvasNodeType.isRegistered(TYPE))
+      CanvasNodeType.register(
+          TYPE, s -> new ProgrammingBindingNode(s.id(), Kind.valueOf(s.prop("kind", "SOCKET"))));
+  }
+
+  ProgrammingBindingNode(String id, Kind kind) {
+    super(
+        id,
+        switch (kind) {
+          case VESSEL -> 220;
+          case ESSENCE -> 136;
+          case SOCKET -> 278;
+          case CORE -> 220;
+          case HEADING -> 300;
+        },
+        switch (kind) {
+          case VESSEL -> 86;
+          case ESSENCE -> 90;
+          case SOCKET -> 146;
+          case CORE -> 340;
+          case HEADING -> 36;
+        });
+    this.kind = kind;
+    deletable(false);
+    movable(kind == Kind.VESSEL || kind == Kind.ESSENCE);
+    selectable(false);
+    if (kind == Kind.HEADING) setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
+  }
+
+  @Override
+  public String typeId() {
+    return TYPE;
+  }
+
+  @Override
+  protected void writeProps(NodeState.Props props) {
+    props.put("kind", kind.name());
+  }
+
+  @Override
+  protected void readProps(NodeState state) {
+    kind = Kind.valueOf(state.prop("kind", "SOCKET"));
+  }
+
+  void update(BindingState next) {
+    if (Objects.equals(state, next)) return;
+    boolean changed =
+        state != null
+            && kind == Kind.SOCKET
+            && (state.vessels().get(property()) != next.vessels().get(property())
+                || state.essences().get(property()) != next.essences().get(property()));
+    state = next;
+    if (changed) pulse = 1;
+    if (kind == Kind.VESSEL) {
+      movable(
+          next.propertiesCollected()
+              && next.vesselsCollected()
+              && next.stage() == VariablePuzzleStage.VESSELS);
+    }
+    if (kind == Kind.ESSENCE) {
+      movable(next.propertiesCollected() && next.vesselsCollected() && !next.revealed());
+    }
+    if (title != null) refreshText();
+    updateCursor();
+    invalidateLayout();
+  }
+
+  void simplify(boolean enabled, GolemProperty focus) {
+    aided = enabled && focus != null && kind == Kind.SOCKET && property() == focus;
+    boolean visible = true;
+    if (enabled && focus != null && state != null) {
+      if (kind == Kind.VESSEL)
+        visible =
+            state.stage() == VariablePuzzleStage.VESSELS
+                && vessel() == VariablePuzzle.vesselSolution().get(focus);
+      if (kind == Kind.ESSENCE)
+        visible =
+            state.stage() != VariablePuzzleStage.VESSELS
+                && VariablePuzzle.fits(VariablePuzzle.vesselSolution().get(focus), essence());
+    }
+    setVisible(visible || dragging);
+  }
+
+  private GolemProperty property() {
+    return GolemProperty.valueOf(id());
+  }
+
+  private SoulVessel vessel() {
+    return SoulVessel.valueOf(id().substring("vessel-".length()));
+  }
+
+  private MagicalEssence essence() {
+    return MagicalEssence.valueOf(id().substring("essence-".length()));
+  }
+
+  @Override
+  protected void buildContent() {
+    title = label(20, TEXT);
+    detail = label(16, MUTED);
+    value = label(24, TEXT);
+    erase = label(22, MUTED);
+    if (kind == Kind.CORE) {
+      activate =
+          ProgrammingUI.zoomButton(
+              "Aktivieren",
+              true,
+              () ->
+                  canvas().fireServerEvent("activate", new DialogResponseMessage.StringValue("")));
+      addActor(activate);
+    }
+    refreshText();
+    updateCursor();
+  }
+
+  private Label label(int size, Color color) {
+    Label label = ProgrammingUI.zoomLabel("", size, color);
+    label.setAlignment(Align.left);
+    label.setWrap(true);
+    addActor(label);
+    return label;
+  }
+
+  private void refreshText() {
+    if (activate != null)
+      activate.setDisabled(state == null || state.stage() != VariablePuzzleStage.REVEAL);
+    title.setText("");
+    detail.setText("");
+    value.setText("");
+    erase.setText("");
+    if (state == null || emptySupply()) return;
+    switch (kind) {
+      case VESSEL -> {
+        title.setText(vessel().label());
+        detail.setText(state.revealed() ? vessel().javaType() : vessel().capacity());
+      }
+      case ESSENCE -> value.setText(essence().literal());
+      case SOCKET -> {
+        var property = property();
+        var container = state.vessels().get(property);
+        var stored = state.essences().get(property);
+        title.setText(property.label());
+        value.setText(
+            container == null ? "Gefäß ablegen" : stored == null ? "leer" : stored.literal());
+        if (state.revealed())
+          detail.setText(
+              container.javaType() + " " + property.identifier() + " = " + stored.literal() + ";");
+        if (clearable()) erase.setText("×");
+      }
+      case CORE -> {
+        title.setText(
+            state.essences().get(GolemProperty.NAME) == MagicalEssence.NAME_VALUE ? "Nox" : "");
+        title.setAlignment(Align.center);
+        detail.setAlignment(Align.center);
+        detail.setText(state.revealed() ? "Seelenbindung vollständig" : "Seelenkern");
+        value.setAlignment(Align.center);
+        value.setText("");
+      }
+      case HEADING -> title.setText(id().equals("vessel-heading") ? "Gefäßvorrat" : "Essenzfach");
+    }
+  }
+
+  @Override
+  protected void layoutContent() {
+    switch (kind) {
+      case VESSEL -> {
+        title.setBounds(66, 42, 146, 34);
+        detail.setBounds(66, 8, 146, 34);
+      }
+      case ESSENCE -> {
+        value.setBounds(8, 10, width() - 16, 34);
+        value.setAlignment(Align.center);
+      }
+      case SOCKET -> {
+        title.setBounds(16, height() - 39, width() - 56, 26);
+        detail.setBounds(
+            16, state != null && state.revealed() ? 4 : height() - 65, width() - 32, 30);
+        value.setBounds(78, state != null && state.revealed() ? 34 : 50, width() - 94, 40);
+        erase.setBounds(width() - 34, height() - 40, 24, 28);
+      }
+      case CORE -> {
+        title.setBounds(0, 308, width(), 28);
+        detail.setBounds(0, 65, width(), 38);
+        value.setBounds(4, 10, width() - 8, 40);
+        activate.setBounds(35, 10, width() - 70, 44);
+      }
+      case HEADING -> title.setBounds(0, 0, width(), height());
+    }
+  }
+
+  private boolean emptySupply() {
+    return (kind == Kind.VESSEL || kind == Kind.ESSENCE) && !state.vesselsCollected();
+  }
+
+  private boolean clearable() {
+    return state != null
+        && kind == Kind.SOCKET
+        && !state.revealed()
+        && (state.essences().containsKey(property())
+            || state.stage() == VariablePuzzleStage.VESSELS
+                && state.vessels().containsKey(property()));
+  }
+
+  private void updateCursor() {
+    Cursors cursor = Cursors.DEFAULT;
+    if (kind == Kind.VESSEL || kind == Kind.ESSENCE)
+      cursor = state != null && movable() ? Cursors.GRAB : Cursors.DISABLED;
+    else if (kind == Kind.SOCKET && state != null)
+      cursor =
+          state.revealed()
+              ? Cursors.DISABLED
+              : selectedSupply.isEmpty() ? Cursors.DEFAULT : Cursors.INTERACT;
+    setUserObject(cursor);
+    if (erase != null) {
+      erase.setUserObject(Cursors.INTERACT);
+      erase.setTouchable(
+          clearable()
+              ? com.badlogic.gdx.scenes.scene2d.Touchable.enabled
+              : com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
+    }
+  }
+
+  boolean dragging() {
+    return dragging;
+  }
+
+  boolean accepts(ProgrammingBindingNode source) {
+    return kind == Kind.SOCKET
+        && state != null
+        && !state.revealed()
+        && source.movable()
+        && (source.kind == Kind.VESSEL || source.kind == Kind.ESSENCE);
+  }
+
+  @Override
+  public void act(float delta) {
+    super.act(delta);
+    pulse = Math.max(0, pulse - delta * 2);
+  }
+
+  @Override
+  protected void drawBackground(Batch batch, float alpha) {
+    if (state == null) return;
+    if (kind == Kind.CORE) {
+      int charged =
+          (int)
+              state.essences().entrySet().stream()
+                  .filter(e -> VariablePuzzle.essenceSolution().get(e.getKey()) == e.getValue())
+                  .count();
+      sprite(
+          batch,
+          "character/monster/programming_golem/programming_golem.png",
+          x() + 20,
+          y() + 106,
+          180,
+          202,
+          alpha * (state.revealed() ? 1 : .65f));
+      for (int i = 0; i < 6; i++)
+        CanvasGraphics.fill(
+            batch, i < charged ? GOLD : SURFACE, alpha, x() + 22 + i * 30, y() + 100, 22, 5);
+      return;
+    }
+    if (kind == Kind.HEADING) return;
+    CanvasGraphics.fill(batch, SURFACE, alpha, x(), y(), width(), height());
+    CanvasGraphics.fill(
+        batch,
+        GOLD,
+        alpha * (over || id().equals(selectedSupply) ? 1 : .35f),
+        x(),
+        y() + height() - 2,
+        width(),
+        2);
+    if (emptySupply()) return;
+    if (kind == Kind.SOCKET) {
+      var container = state.vessels().get(property());
+      float storageY = y() + (state.revealed() ? 32 : 48);
+      CanvasGraphics.fill(batch, INK, alpha, x() + 12, storageY, width() - 24, 46);
+      if (container != null)
+        sprite(batch, vesselImage(container), x() + 20, storageY + 2, 40, 40, alpha);
+      if (over || aided || pulse > 0)
+        CanvasGraphics.outline(
+            batch,
+            GOLD,
+            alpha * Math.max(over || aided ? .85f : 0, pulse),
+            x(),
+            y(),
+            width(),
+            height(),
+            2);
+    } else if (kind == Kind.VESSEL)
+      sprite(
+          batch, vesselImage(vessel()), x() + 10, y() + 20, 48, 48, alpha * (movable() ? 1 : .45f));
+    else if (kind == Kind.ESSENCE)
+      sprite(batch, "items/rpg/item_gem_quartz.png", x() + 52, y() + 48, 32, 32, alpha);
+  }
+
+  private String vesselImage(SoulVessel vessel) {
+    return switch (vessel) {
+      case IRON_CHEST -> "rooms/programming/art/iron-chest.png";
+      case CRYSTAL_BOTTLE -> "items/potion/water_bottle.png";
+      case PARCHMENT -> "items/rpg/item_scroll.png";
+      case RUNE_STONE -> "rooms/programming/art/rune-stone.png";
+      case LIGHT_ORB -> "items/rpg/item_orb.png";
+    };
+  }
+
+  private void sprite(
+      Batch batch, String path, float x, float y, float width, float height, float alpha) {
+    if (!imagePath.equals(path)) {
+      imagePath = path;
+      texture = new TextureRegion(TextureMap.instance().textureAt(new SimpleIPath(path)));
+      if (kind == Kind.CORE) texture.setRegion(0, 0, 64, 72);
+    }
+    Color previous = batch.getColor().cpy();
+    batch.setColor(1, 1, 1, alpha);
+    batch.draw(texture, x, y, width, height);
+    batch.setColor(previous);
+  }
+
+  @Override
+  public void onMove(float dx, float dy) {
+    if (!movable()) return;
+    if (!dragging) {
+      clearActions();
+      homeX = x();
+      homeY = y();
+      dragging = true;
+    }
+    super.onMove(dx, dy);
+  }
+
+  private void returnToSupply() {
+    dragging = false;
+    clearActions();
+    addAction(Actions.moveTo(homeX, homeY, .16f));
+  }
+
+  @Override
+  public void onDrop(float worldX, float worldY) {
+    if (dragging) returnToSupply();
+  }
+
+  @Override
+  public void onDragEnter(CanvasDragContext context) {
+    onDragOver(context);
+  }
+
+  @Override
+  public void onDragOver(CanvasDragContext context) {
+    over = acceptsDrop(context);
+  }
+
+  private boolean acceptsDrop(CanvasDragContext context) {
+    return context.draggedNode() instanceof ProgrammingBindingNode source
+        && accepts(source)
+        && context.localX() >= 0
+        && context.localX() < width()
+        && context.localY() >= 0
+        && context.localY() < height();
+  }
+
+  @Override
+  public void onDragExit(CanvasDragContext context) {
+    over = false;
+  }
+
+  @Override
+  public boolean onNodeDropped(CanvasDragContext context) {
+    if (!acceptsDrop(context)) return false;
+    ProgrammingBindingNode source = (ProgrammingBindingNode) context.draggedNode();
+    source.returnToSupply();
+    boolean vessel = source.kind == Kind.VESSEL;
+    canvas()
+        .fireServerEvent(
+            vessel ? "vessel" : "essence",
+            new DialogResponseMessage.StringValue(
+                id() + ":" + (vessel ? source.vessel().name() : source.essence().name())));
+    return true;
+  }
+
+  @Override
+  public void onClick(float localX, float localY, int button) {
+    if (button != 0 || state == null) return;
+    if (clearable() && localX > width() - 42 && localY > height() - 48)
+      canvas().fireServerEvent("clear", new DialogResponseMessage.StringValue(id()));
+    else if (kind == Kind.SOCKET || movable()) select.accept(kind, id());
+  }
+}

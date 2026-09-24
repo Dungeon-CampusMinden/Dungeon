@@ -12,6 +12,7 @@ import engine.utils.Tuple;
 import engine.utils.components.MissingComponentException;
 import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
+import feature.hud.dialogs.DialogContextKeys;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -76,6 +77,25 @@ public final class HudSystem extends System {
   public boolean hasOpenPausingUI(Entity entity) {
     return entityUIComponentMap.values().stream()
         .anyMatch(component -> component.willPauseGame() && isVisibleFor(component, entity));
+  }
+
+  /**
+   * Checks whether a visible dialog captures a player's gameplay controls without requiring a
+   * simulation pause. Dialog-close controls remain available.
+   *
+   * @param entity player whose controls are checked
+   * @return true for a pausing dialog or a dialog explicitly blocking gameplay input
+   */
+  public boolean blocksGameplayInput(Entity entity) {
+    return entityUIComponentMap.values().stream()
+        .anyMatch(
+            component ->
+                (component.willPauseGame()
+                        || component
+                            .dialogContext()
+                            .find(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, Boolean.class)
+                            .orElse(false))
+                    && isVisibleFor(component, entity));
   }
 
   /**

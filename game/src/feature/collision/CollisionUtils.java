@@ -1,12 +1,15 @@
 package feature.collision;
 
+import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
 import engine.components.VelocityComponent;
 import engine.level.Tile;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
+import feature.systems.CollisionSystem;
 import java.util.List;
 import java.util.Set;
 
@@ -14,14 +17,17 @@ import java.util.Set;
 public class CollisionUtils {
 
   /**
-   * Checks if a collider, when set on a specific position, is colliding with any other solid
-   * colliders in the game.
+   * Checks whether an entity at a given position overlaps another solid entity, respecting the
+   * player collision policy.
    *
-   * @param collider the collider to check
+   * @param entity the entity whose collider is checked
    * @param newPos the position to set the collider to for the check
    * @return true if colliding with any other solid colliders, false otherwise
    */
-  public static boolean isCollidingWithOtherSolids(Collider collider, Point newPos) {
+  public static boolean isCollidingWithOtherSolids(Entity entity, Point newPos) {
+    Collider collider = entity.fetch(CollideComponent.class).orElseThrow().collider();
+    boolean ignorePlayers =
+        !CollisionSystem.ALLOW_PLAYER_COLLISIONS && entity.isPresent(PlayerComponent.class);
     Point oldPos = collider.position();
     collider.position(newPos);
 
@@ -29,6 +35,7 @@ public class CollisionUtils {
         Game.levelEntities(Set.of(CollideComponent.class))
             .anyMatch(
                 other -> {
+                  if (ignorePlayers && other.isPresent(PlayerComponent.class)) return false;
                   CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
                   if (!ccOther.isSolid()) return false;
 

@@ -1,0 +1,183 @@
+package rooms.programming.level;
+
+import com.badlogic.gdx.graphics.Color;
+import engine.Entity;
+import engine.Game;
+import engine.components.PositionComponent;
+import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.Point;
+import feature.canvas.CanvasNode;
+import feature.canvas.CanvasStore;
+import feature.canvas.CanvasUI;
+import feature.components.UIComponent;
+import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogType;
+import feature.hud.dialogs.HeadlessDialogGroup;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import rooms.programming.modules.loops.LoopMaze;
+import rooms.programming.modules.loops.TerminalState;
+
+/** The shared loop terminal, with server state and a locally arranged canvas. */
+public final class ProgrammingTerminal {
+  static final String ID = "programming.loop-terminal";
+  static final String STATE = "programming.terminal";
+  static final Color INK = ProgrammingUI.INK;
+  static final Color PAPER = ProgrammingUI.SURFACE;
+  static final Color ACCENT = ProgrammingUI.GOLD;
+
+  private static TerminalState received;
+
+  private ProgrammingTerminal() {}
+
+  enum Type implements DialogType {
+    TERMINAL,
+    OBSERVATION;
+
+    public String type() {
+      return "programming." + name().toLowerCase(Locale.ROOT);
+    }
+  }
+
+  /** Registers room dialog and node types in each runtime. */
+  public static void register() {
+    ProgrammingBinding.register();
+    ProgrammingTerminalNode.register();
+    DialogFactory.register(
+        Type.TERMINAL,
+        context -> {
+          context.find(ProgrammingHelp.ID, String.class).ifPresent(ProgrammingHelp::receive);
+          if (Game.isHeadless()) return new HeadlessDialogGroup();
+          TerminalState initial = decode(context.require(STATE, String.class));
+          return new ProgrammingTerminalUI(context.dialogId(), initial);
+        });
+    ProgrammingObservation.register();
+  }
+
+  static void open(Entity who, ProgrammingGolemRuntime runtime) {
+    if (Game.hud().blocksGameplayInput(who)) return;
+    stopWalking(who);
+    UIComponent ui =
+        DialogFactory.show(
+            ProgrammingHelp.context(DialogContext.builder())
+                .type(Type.TERMINAL)
+                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
+                .put(STATE, encode(runtime.terminalState()))
+                .build(),
+            false,
+            true,
+            false,
+            who.id());
+    ProgrammingHelp.callbacks(ui, who);
+    ui.registerCallback(CanvasUI.EVENT_CLOSE, payload -> UIUtils.closeDialog(ui));
+    ui.registerCallback(
+        "execute",
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue value)
+            runtime.executeRune(value.value(), who);
+        });
+    ui.registerCallback(
+        "removeRune",
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue value)
+            runtime.removeRune(value.value(), who);
+        });
+  }
+
+  static void stopWalking(Entity who) {
+    who.fetch(engine.components.VelocityComponent.class)
+        .ifPresent(
+            velocity -> {
+              velocity.removeForce(feature.entities.HeroController.MOVEMENT_ID);
+              velocity.currentVelocity(engine.utils.Vector2.ZERO);
+            });
+  }
+
+  /**
+   * Returns authoritative room state on the server, or the latest received client state.
+   *
+   * @return the current room state, if available
+   */
+  public static Optional<TerminalState> state() {
+    return Game.currentLevel()
+        .filter(ProgrammingLevel.class::isInstance)
+        .map(ProgrammingLevel.class::cast)
+        .map(ProgrammingLevel::runtime)
+        .map(ProgrammingGolemRuntime::terminalState)
+        .or(() -> Optional.ofNullable(received));
+  }
+
+  /**
+   * Applies the small room state carried by golem snapshot metadata.
+   *
+   * @param value the encoded terminal state
+   */
+  public static void receive(String value) {
+    received = decode(value);
+  }
+
+  /**
+   * Uses the same visible entity position as the observation camera, including network smoothing.
+   *
+   * @param state latest authoritative terminal state
+   * @return continuous grid position, falling back to the snapshot before the entity is available
+   */
+  static Point mapPosition(TerminalState state) {
+    return Game.currentLevel()
+        .map(level -> level.namedPoints().get("maze-origin"))
+        .flatMap(
+            origin ->
+                Game.findEntityById(state.golemId())
+                    .flatMap(entity -> entity.fetch(PositionComponent.class))
+                    .map(
+                        position ->
+                            new Point(
+                                (position.position().x() - origin.x()) / LoopMaze.CELL_WIDTH,
+                                (position.position().y() - origin.y()) / LoopMaze.CELL_HEIGHT)))
+        .orElseGet(() -> new Point(state.cellX(), state.cellY()));
+  }
+
+  static void reset() {
+    ProgrammingHelp.reset();
+    ProgrammingBinding.reset();
+    received = null;
+    CanvasStore.clear(ID);
+  }
+
+  /**
+   * Encodes the terminal state for snapshot metadata and dialog values.
+   *
+   * @param state the terminal state
+   * @return compact state representation
+   */
+  public static String encode(TerminalState state) {
+    return ProgrammingStateCodec.encode(state);
+  }
+
+  static TerminalState decode(String value) {
+    return ProgrammingStateCodec.decode(value, TerminalState.class);
+  }
+
+  static List<CanvasNode> nodes(TerminalState state) {
+    List<CanvasNode> result = new ArrayList<>();
+    result.add(new ProgrammingTerminalNode("map", "map").position(0, 0));
+    result.add(new ProgrammingTerminalNode("executor", "executor").position(428, 412));
+    result.add(new ProgrammingTerminalNode("feedback", "status").position(404, 388).z(-1));
+    result.add(new ProgrammingTerminalNode("commands", "help").position(404, -222));
+    for (int i = 0; i < state.collectedRunes().size(); i++) {
+      result.add(card(state.collectedRunes().get(i), i));
+    }
+    return result;
+  }
+
+  static ProgrammingTerminalNode card(String id, int index) {
+    ProgrammingTerminalNode node = new ProgrammingTerminalNode(id, "rune");
+    node.position(404 + index % 6 * 80, 300 - index / 6 * 80);
+    return node;
+  }
+}
