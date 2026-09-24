@@ -16,6 +16,7 @@ import feature.entities.deco.DecoFactory;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.prefabs.types.DoorKeypadPrefab;
 import feature.shader.ShaderComponent;
 import feature.shader.ShaderSystem;
 import java.util.List;

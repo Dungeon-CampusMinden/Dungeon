@@ -18,12 +18,15 @@ import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
 import feature.leveleditor.ui.BooleanSetting;
+import feature.leveleditor.ui.ColorSetting;
 import feature.leveleditor.ui.FloatSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.IntegerSetting;
 import feature.leveleditor.ui.PointSetting;
+import feature.leveleditor.ui.RegionSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.leveleditor.ui.StringSetting;
+import feature.leveleditor.ui.Vector2Setting;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
@@ -31,6 +34,7 @@ import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
+import feature.prefabs.Region;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
@@ -45,14 +49,19 @@ import java.util.function.Consumer;
 public final class PrefabMode extends LevelEditorMode {
 
   private static final float PICK_DISTANCE = 1.4f;
+  private static final float ANCHOR_HIT_DISTANCE = 0.38f;
+  private static final float DRAG_START_DISTANCE = 0.14f;
   private static final float POINT_ASSIGNMENT_PREVIEW_RADIUS = 0.12f;
   private static final Color POINT_ASSIGNMENT_PREVIEW_COLOR = new Color(0.25f, 1f, 0.45f, 0.8f);
+  private static final Color DRAG_ORIGINAL_COLOR = new Color(1f, 0.15f, 0.1f, 1f);
+  private static final Color DRAG_PREVIEW_COLOR = new Color(0.25f, 1f, 0.45f, 0.9f);
   private static final int SETTINGS_PAD = 6;
 
   private String selectedName;
   private Prefab selectedPrefab;
   private PendingPointAssignment pendingPointAssignment;
   private PendingPointAssignment lastPointAssignment;
+  private PendingAnchorDrag pendingAnchorDrag;
   private SnapMode snapMode = SnapMode.OnGrid;
   private Table detailsContent;
   private Table secondaryContent;
@@ -76,6 +85,7 @@ public final class PrefabMode extends LevelEditorMode {
 
   @Override
   public void onEnter() {
+    cancelAnchorDrag();
     clearPendingPointAssignment();
     if (selectedName != null && selected().isEmpty()) selectedName = null;
     try {
@@ -89,6 +99,7 @@ public final class PrefabMode extends LevelEditorMode {
 
   @Override
   public void onExit() {
+    cancelAnchorDrag();
     clearPendingPointAssignment();
     try {
       respawnAll();
@@ -100,6 +111,7 @@ public final class PrefabMode extends LevelEditorMode {
   @Override
   public void onCursorLeaveWorld() {
     // A cursor assignment intentionally remains armed while the UI has focus.
+    cancelAnchorDrag();
   }
 
   @Override
@@ -113,7 +125,30 @@ public final class PrefabMode extends LevelEditorMode {
         assignment.assignment().accept(snapMode.getPosition(cursor));
         return;
       }
-      selectNear(cursor);
+      Optional<WorldAnchor> anchor = anchorNear(cursor);
+      if (anchor.isPresent()) {
+        WorldAnchor clicked = anchor.get();
+        if (!Objects.equals(selectedName, clicked.instanceName())) {
+          clearPendingPointAssignment();
+          selectedName = clicked.instanceName();
+          requestRebuild();
+        }
+        pendingAnchorDrag = new PendingAnchorDrag(clicked, cursor);
+      } else {
+        selectNear(cursor);
+      }
+    }
+    if (pendingAnchorDrag != null
+        && InputManager.isButtonPressed(Input.Buttons.LEFT)
+        && !pendingAnchorDrag.active()
+        && pendingAnchorDrag.startPosition().distance(cursor) > DRAG_START_DISTANCE) {
+      pendingAnchorDrag = pendingAnchorDrag.activate();
+    }
+    if (pendingAnchorDrag != null
+        && InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {
+      PendingAnchorDrag drag = pendingAnchorDrag;
+      pendingAnchorDrag = null;
+      if (drag.active()) commitAnchorDrag(drag, snapMode.getPosition(cursor));
     }
     if (InputManager.isKeyJustPressed(TERTIARY)) {
       pendingPointAssignment = lastPointAssignment;
@@ -125,11 +160,27 @@ public final class PrefabMode extends LevelEditorMode {
     DungeonLevel level = getLevel();
     for (PrefabInstance source : level.prefabs()) {
       Prefab prefab = PrefabRegistry.require(source.type());
+      Point highlighted =
+          pendingAnchorDrag != null
+                  && pendingAnchorDrag.active()
+                  && pendingAnchorDrag.anchor().instanceName().equals(source.name())
+              ? pendingAnchorDrag.anchor().displayPosition()
+              : null;
       prefab.renderEditorFeedback(
           level,
           prefab.normalize(source),
-          new DebugDrawPrefabEditorFeedback(Objects.equals(selectedName, source.name())),
+          new DebugDrawPrefabEditorFeedback(
+              Objects.equals(selectedName, source.name()), highlighted),
           Objects.equals(selectedName, source.name()));
+    }
+    if (pendingAnchorDrag != null && pendingAnchorDrag.active()) {
+      Point destination = snapMode.getPosition(getCursorPosition());
+      DebugDrawSystem.drawPoint(
+          pendingAnchorDrag.anchor().displayPosition(),
+          POINT_ASSIGNMENT_PREVIEW_RADIUS,
+          DRAG_ORIGINAL_COLOR);
+      DebugDrawSystem.drawPoint(
+          destination, POINT_ASSIGNMENT_PREVIEW_RADIUS, DRAG_PREVIEW_COLOR);
     }
     if (pendingPointAssignment != null) {
       Point preview = snapMode.getPosition(getCursorPosition());
@@ -230,16 +281,17 @@ public final class PrefabMode extends LevelEditorMode {
   public String additionalInformation() {
     return "Snap Mode: "
         + snapMode.name()
+        + "\nDrag a prefab point or region corner to move it"
         + "\nWorld click selects the nearest prefab anchor"
-        + (pendingPointAssignment == null ? "" : "\nWaiting for world cursor assignment");
+        + (pendingPointAssignment == null ? "" : "\nWaiting for world point assignment");
   }
 
   @Override
   public Map<Integer, String> getControls() {
     Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(Input.Buttons.LEFT, "Select prefab / assign point");
-    controls.put(SECONDARY_UP, "Change point snap mode");
-    controls.put(TERTIARY, "Arm last point assignment");
+    controls.put(Input.Buttons.LEFT, "Select / drag prefab anchors / assign point");
+    controls.put(SECONDARY_UP, "Change point and region snap mode");
+    controls.put(TERTIARY, "Arm last world point assignment");
     return controls;
   }
 
@@ -260,6 +312,7 @@ public final class PrefabMode extends LevelEditorMode {
           new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+              cancelAnchorDrag();
               clearPendingPointAssignment();
               selectedName = Objects.equals(selectedName, instance.name()) ? null : instance.name();
               rebuildPending = true;
@@ -401,6 +454,46 @@ public final class PrefabMode extends LevelEditorMode {
             .padTop(SETTINGS_PAD)
             .row();
       }
+      case REGION -> {
+        PrefabProperty<Region> p = cast(property);
+        secondaryContent
+            .add(
+                new RegionSetting(
+                    p.displayName(),
+                    () -> p.get(current()),
+                    value -> setProperty(p, value),
+                    callback ->
+                        armPointAssignment(
+                            new PendingPointAssignment(callback, new Point(0f, 0f)))))
+            .growX()
+            .padTop(SETTINGS_PAD)
+            .row();
+      }
+      case VECTOR2 -> {
+        PrefabProperty<Vector2> p = cast(property);
+        secondaryContent
+            .add(
+                new Vector2Setting(
+                    p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
+            .growX()
+            .padTop(SETTINGS_PAD)
+            .row();
+      }
+      case COLOR -> {
+        PrefabProperty<Color> p = cast(property);
+        secondaryContent
+            .add(
+                new ColorSetting(
+                    p.displayName(),
+                    () -> p.get(current()),
+                    value -> setProperty(p, value),
+                    message ->
+                        LevelEditorSystem.showFeedback(
+                            p.displayName() + ": " + message, Color.YELLOW)))
+            .growX()
+            .padTop(SETTINGS_PAD)
+            .row();
+      }
     }
   }
 
@@ -435,25 +528,22 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void add(Prefab prefab) {
+    cancelAnchorDrag();
     clearPendingPointAssignment();
     String name = uniqueName(prefab.type());
     PrefabInstance instance = prefab.newInstance(name);
     Point screenCenter =
         new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y);
     Point spawnPosition = snapMode.getPosition(screenCenter);
-    Point anchor = null;
-    for (PrefabProperty<?> descriptor : prefab.properties()) {
-      if (descriptor.type() == PrefabPropertyType.POINT) {
-        PrefabProperty<Point> point = cast(descriptor);
-        anchor = point.get(instance);
-        break;
-      }
-    }
-    if (anchor != null) {
+    Optional<WorldAnchor> anchor = worldAnchors(instance).stream().findFirst();
+    if (anchor.isPresent()) {
+      Point anchorPosition = anchor.get().displayPosition();
       instance =
           prefab.translate(
               instance,
-              Vector2.of(spawnPosition.x() - anchor.x(), spawnPosition.y() - anchor.y()));
+              Vector2.of(
+                  spawnPosition.x() - anchorPosition.x(),
+                  spawnPosition.y() - anchorPosition.y()));
     }
     PrefabInstance added = prefab.normalize(instance);
     applyChange(
@@ -464,6 +554,7 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void duplicateSelected() {
+    cancelAnchorDrag();
     clearPendingPointAssignment();
     selected()
         .ifPresent(
@@ -478,6 +569,7 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void delete(String name) {
+    cancelAnchorDrag();
     clearPendingPointAssignment();
     int deletedIndex = indexOf(name);
     if (deletedIndex < 0) return;
@@ -495,6 +587,7 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void rename(PrefabInstance source, String name) {
+    cancelAnchorDrag();
     clearPendingPointAssignment();
     if (name == null
         || name.isBlank()
@@ -545,10 +638,12 @@ public final class PrefabMode extends LevelEditorMode {
   private void selectNear(Point cursor) {
     Optional<PrefabInstance> near = prefabNear(cursor);
     if (near.isPresent()) {
+      cancelAnchorDrag();
       clearPendingPointAssignment();
       selectedName = near.get().name();
       requestRebuild();
     } else if (selected().isPresent()) {
+      cancelAnchorDrag();
       clearPendingPointAssignment();
       selectedName = null;
       requestRebuild();
@@ -556,16 +651,97 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private float nearestDistance(PrefabInstance instance, Point cursor) {
-    Prefab prefab = PrefabRegistry.require(instance.type());
     float best = Float.MAX_VALUE;
+    for (WorldAnchor anchor : worldAnchors(instance)) {
+      best = Math.min(best, (float) anchor.displayPosition().distance(cursor));
+    }
+    return best;
+  }
+
+  private Optional<WorldAnchor> anchorNear(Point cursor) {
+    return getLevel().prefabs().stream()
+        .flatMap(instance -> worldAnchors(instance).stream())
+        .filter(anchor -> anchor.displayPosition().distance(cursor) <= ANCHOR_HIT_DISTANCE)
+        .min(
+            (first, second) ->
+                Double.compare(
+                    first.displayPosition().distance(cursor),
+                    second.displayPosition().distance(cursor)));
+  }
+
+  private List<WorldAnchor> worldAnchors(PrefabInstance instance) {
+    Prefab prefab = PrefabRegistry.require(instance.type());
+    List<WorldAnchor> anchors = new ArrayList<>();
     for (PrefabProperty<?> property : prefab.properties()) {
       if (property.type() == PrefabPropertyType.POINT) {
         PrefabProperty<Point> pointProperty = cast(property);
         Point point = pointProperty.get(instance);
-        best = Math.min(best, (float) point.distance(cursor));
+        Point offset = pointProperty.editorFeedbackOffset();
+        anchors.add(
+            new WorldAnchor(
+                instance.name(),
+                pointProperty,
+                point.translate(offset.x(), offset.y()),
+                offset,
+                AnchorCorner.POINT));
+      } else if (property.type() == PrefabPropertyType.REGION) {
+        PrefabProperty<Region> regionProperty = cast(property);
+        Region region = regionProperty.get(instance);
+        anchors.add(
+            new WorldAnchor(
+                instance.name(),
+                regionProperty,
+                region.bottomLeft(),
+                new Point(0f, 0f),
+                AnchorCorner.BOTTOM_LEFT));
+        anchors.add(
+            new WorldAnchor(
+                instance.name(),
+                regionProperty,
+                region.topRight(),
+                new Point(0f, 0f),
+                AnchorCorner.TOP_RIGHT));
       }
     }
-    return best;
+    return anchors;
+  }
+
+  private void commitAnchorDrag(PendingAnchorDrag drag, Point snappedDisplayPosition) {
+    WorldAnchor anchor = drag.anchor();
+    if (!Objects.equals(selectedName, anchor.instanceName())
+        || !Float.isFinite(snappedDisplayPosition.x())
+        || !Float.isFinite(snappedDisplayPosition.y())) {
+      return;
+    }
+    PrefabInstance source =
+        selected().filter(instance -> instance.name().equals(anchor.instanceName())).orElse(null);
+    if (source == null) return;
+    Point point =
+        snappedDisplayPosition.translate(-anchor.feedbackOffset().x(), -anchor.feedbackOffset().y());
+    try {
+      PrefabInstance replacement;
+      if (anchor.corner() == AnchorCorner.POINT) {
+        replacement = cast(anchor.property()).set(source, point);
+      } else {
+        PrefabProperty<Region> regionProperty = cast(anchor.property());
+        Region region = regionProperty.get(source);
+        replacement =
+            regionProperty.set(
+                source,
+                anchor.corner() == AnchorCorner.BOTTOM_LEFT
+                    ? new Region(point, region.topRight())
+                    : new Region(region.bottomLeft(), point));
+      }
+      replacement = PrefabRegistry.require(source.type()).normalize(replacement);
+      int index = getLevel().prefabs().indexOf(source);
+      if (index >= 0) {
+        PrefabInstance committed = replacement;
+        applyChange(() -> getLevel().replacePrefab(index, committed));
+      }
+    } catch (IllegalArgumentException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+      requestRebuild();
+    }
   }
 
   private void requestRebuild() {
@@ -634,6 +810,10 @@ public final class PrefabMode extends LevelEditorMode {
     lastPointAssignment = null;
   }
 
+  private void cancelAnchorDrag() {
+    pendingAnchorDrag = null;
+  }
+
   private void armPointAssignment(PendingPointAssignment assignment) {
     lastPointAssignment = assignment;
     pendingPointAssignment = assignment;
@@ -641,6 +821,30 @@ public final class PrefabMode extends LevelEditorMode {
 
   private record PendingPointAssignment(
       Consumer<Point> assignment, Point feedbackOffset) {}
+
+  private enum AnchorCorner {
+    POINT,
+    BOTTOM_LEFT,
+    TOP_RIGHT
+  }
+
+  private record WorldAnchor(
+      String instanceName,
+      PrefabProperty<?> property,
+      Point displayPosition,
+      Point feedbackOffset,
+      AnchorCorner corner) {}
+
+  private record PendingAnchorDrag(WorldAnchor anchor, Point startPosition, boolean active) {
+
+    private PendingAnchorDrag(WorldAnchor anchor, Point startPosition) {
+      this(anchor, startPosition, false);
+    }
+
+    private PendingAnchorDrag activate() {
+      return new PendingAnchorDrag(anchor, startPosition, true);
+    }
+  }
 
   @SuppressWarnings("unchecked")
   private static <T> PrefabProperty<T> cast(PrefabProperty<?> property) {

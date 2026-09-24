@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -21,6 +22,8 @@ public abstract class Prefab {
   private final PrefabSide side;
   private final List<PrefabProperty<?>> properties;
   private final Map<String, PrefabProperty<?>> propertiesByKey;
+  private ILevel boundLevel;
+  private String boundName;
 
   /**
    * Creates a prefab definition.
@@ -32,9 +35,34 @@ public abstract class Prefab {
    */
   protected Prefab(
       String type, String displayName, PrefabSide side, List<PrefabProperty<?>> properties) {
+    this(type, displayName, side, properties, null, null);
+  }
+
+  /**
+   * Creates either a definition or a level-bound view of one authored instance.
+   *
+   * @param type stable serialized registry ID
+   * @param displayName editor-facing prefab type name
+   * @param side runtime creation side
+   * @param properties ordered customizability settings
+   * @param level owning level for a bound view, or {@code null} for a definition
+   * @param instanceName authored instance name for a bound view, or {@code null} for a definition
+   */
+  protected Prefab(
+      String type,
+      String displayName,
+      PrefabSide side,
+      List<PrefabProperty<?>> properties,
+      ILevel level,
+      String instanceName) {
     this.type = requireText(type, "type");
     this.displayName = requireText(displayName, "displayName");
     this.side = Objects.requireNonNull(side, "side");
+    if ((level == null) != (instanceName == null)) {
+      throw new IllegalArgumentException("A bound prefab view requires both a level and a name");
+    }
+    this.boundLevel = level;
+    this.boundName = instanceName;
     this.properties = List.copyOf(properties);
     Map<String, PrefabProperty<?>> byKey = new LinkedHashMap<>();
     for (PrefabProperty<?> property : this.properties) {
@@ -80,6 +108,83 @@ public abstract class Prefab {
    */
   public final List<PrefabProperty<?>> properties() {
     return properties;
+  }
+
+  /**
+   * Returns whether this object is a per-instance view rather than a shared definition.
+   *
+   * @return true when bound to an authored instance
+   */
+  public final boolean isBound() {
+    return boundLevel != null;
+  }
+
+  /**
+   * Binds a newly-created registry view to one authored instance.
+   *
+   * @param level owning level
+   * @param instanceName authored instance name
+   * @return this bound view
+   */
+  final Prefab bind(ILevel level, String instanceName) {
+    Objects.requireNonNull(level, "level");
+    requireText(instanceName, "instanceName");
+    if (isBound()) throw new IllegalStateException("Prefab view is already bound");
+    boundLevel = level;
+    boundName = instanceName;
+    return this;
+  }
+
+  /**
+   * Returns the authored instance name represented by this view.
+   *
+   * @return instance name
+   * @throws IllegalStateException if this is an unbound prefab definition
+   */
+  public final String name() {
+    requireBound();
+    return boundName;
+  }
+
+  /**
+   * Resolves the latest authored data for this view.
+   *
+   * <p>The result becomes empty when the instance is deleted or replaced by another prefab type.
+   *
+   * @return the current normalized authored instance, if it still exists
+   */
+  public final Optional<PrefabInstance> currentInstance() {
+    if (!isBound()) return Optional.empty();
+    PrefabInstance latest = null;
+    for (PrefabInstance instance : boundLevel.prefabs()) {
+      if (boundName.equals(instance.name())) latest = instance;
+    }
+    return latest == null || !type.equals(latest.type())
+        ? Optional.empty()
+        : Optional.of(normalize(latest));
+  }
+
+  /**
+   * Returns the current serialized property values for this view.
+   *
+   * @return an immutable property map, or empty if the authored instance was deleted/replaced
+   */
+  public final Optional<Map<String, JsonNode>> currentProperties() {
+    return currentInstance().map(PrefabInstance::properties);
+  }
+
+  /**
+   * Returns entities currently spawned for this exact authored instance.
+   *
+   * <p>This is empty before spawning, on a runtime side where this prefab is not active, and after
+   * despawn, deletion, replacement, or removal of the tracked entities. A subsequent respawn is
+   * resolved dynamically and returns the new entities.
+   *
+   * @return live entities produced by this prefab instance
+   */
+  public final List<Entity> liveEntities() {
+    if (!isBound()) return List.of();
+    return PrefabSpawner.liveEntities(boundLevel, side, boundName, type);
   }
 
   /**
@@ -142,6 +247,17 @@ public abstract class Prefab {
         translated =
             translated.withProperty(
                 pointProperty.key(), pointProperty.encode(PROPERTY_MAPPER, point));
+      } else if (property.type() == PrefabPropertyType.REGION) {
+        @SuppressWarnings("unchecked")
+        PrefabProperty<Region> regionProperty = (PrefabProperty<Region>) property;
+        Region region = regionProperty.get(translated);
+        Region shifted =
+            new Region(
+                region.bottomLeft().translate(translation),
+                region.topRight().translate(translation));
+        translated =
+            translated.withProperty(
+                regionProperty.key(), regionProperty.encode(PROPERTY_MAPPER, shifted));
       }
     }
     return normalize(translated);
@@ -192,6 +308,12 @@ public abstract class Prefab {
    */
   protected final <T> T value(PrefabInstance instance, PrefabProperty<T> property) {
     return property.get(instance);
+  }
+
+  private void requireBound() {
+    if (!isBound()) {
+      throw new IllegalStateException("This prefab is a definition, not an instance view");
+    }
   }
 
   private static String requireText(String value, String field) {

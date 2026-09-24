@@ -16,6 +16,7 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
 
   private final Style style;
   private final float selectionAlpha;
+  private final Point highlightedPoint;
 
   /**
    * Creates feedback using the standard selection style.
@@ -23,7 +24,20 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
    * @param selected whether the rendered prefab is selected
    */
   public DebugDrawPrefabEditorFeedback(boolean selected) {
-    this(selected ? SELECTED_STYLE : UNSELECTED_STYLE, selected ? 1f : 0.35f);
+    this(selected ? SELECTED_STYLE : UNSELECTED_STYLE, selected ? 1f : 0.35f, null);
+  }
+
+  /**
+   * Creates selection feedback with one point marker highlighted during a drag.
+   *
+   * @param selected whether the rendered prefab is selected
+   * @param highlightedPoint point marker to recolor, or {@code null}
+   */
+  public DebugDrawPrefabEditorFeedback(boolean selected, Point highlightedPoint) {
+    this(
+        selected ? SELECTED_STYLE : UNSELECTED_STYLE,
+        selected ? 1f : 0.35f,
+        highlightedPoint);
   }
 
   /**
@@ -32,20 +46,26 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
    * @param style drawing style
    */
   public DebugDrawPrefabEditorFeedback(Style style) {
-    this(style, style.geometryColor().a);
+    this(style, style.geometryColor().a, null);
   }
 
-  private DebugDrawPrefabEditorFeedback(Style style, float selectionAlpha) {
+  private DebugDrawPrefabEditorFeedback(
+      Style style, float selectionAlpha, Point highlightedPoint) {
     this.style = style;
     this.selectionAlpha = selectionAlpha;
+    this.highlightedPoint = highlightedPoint;
   }
 
   @Override
   public void point(Point point, String label) {
-    DebugDrawSystem.drawPoint(point, style.pointRadius(), style.geometryColor());
+    boolean highlighted = point.equals(highlightedPoint);
+    Color pointColor = highlighted ? new Color(1f, 0.15f, 0.1f, 1f) : style.geometryColor();
+    DebugDrawSystem.drawPoint(point, style.pointRadius(), pointColor);
     if (label != null && !label.isBlank()) {
       DebugDrawSystem.drawTextInWorldCoordsCentered(
-          label, point.translate(0f, style.pointRadius() + 0.2f), style.labelColor());
+          label,
+          point.translate(0f, style.pointRadius() + 0.2f),
+          highlighted ? pointColor : style.labelColor());
     }
   }
 

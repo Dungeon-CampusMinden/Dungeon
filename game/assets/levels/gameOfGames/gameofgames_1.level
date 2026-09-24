@@ -18,8 +18,8 @@
     "type" : "bookshelf-image",
     "properties" : {
       "position" : {
-        "x" : 13.0,
-        "y" : 5.0
+        "x" : 14.0,
+        "y" : 7.0
       },
       "image" : "images/binary_hex.jpg"
     }
@@ -32,25 +32,11 @@
         "y" : 13.0
       },
       "doorPosition" : {
-        "x" : 17.0,
-        "y" : 10.0
+        "x" : 16.5,
+        "y" : 11.5
       },
       "code" : "123",
       "showDigitCount" : true
-    }
-  }, {
-    "name" : "r1 hider",
-    "type" : "level-hider",
-    "properties" : {
-      "firstCorner" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "secondCorner" : {
-        "x" : 2.0,
-        "y" : 2.0
-      },
-      "transitionSize" : 5.0
     }
   }, {
     "name" : "storage-room-keypad",
@@ -68,18 +54,66 @@
       "showDigitCount" : true
     }
   }, {
-    "name" : "level-hider",
-    "type" : "level-hider",
+    "name" : "design-label-region",
+    "type" : "design-label-region",
     "properties" : {
-      "firstCorner" : {
-        "x" : 0.0,
-        "y" : 11.25
+      "region" : {
+        "bottomLeft" : {
+          "x" : 4.0,
+          "y" : 3.0
+        },
+        "topRight" : {
+          "x" : 19.0,
+          "y" : 5.0
+        }
       },
-      "secondCorner" : {
-        "x" : 3.25,
-        "y" : 14.0
+      "designLabel" : "FIRE"
+    }
+  }, {
+    "name" : "design-label-region_1",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 4.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 16.0,
+          "y" : 3.0
+        }
       },
-      "transitionSize" : 0.5
+      "designLabel" : "FOREST"
+    }
+  }, {
+    "name" : "deco-dialog",
+    "type" : "deco-dialog",
+    "properties" : {
+      "position" : {
+        "x" : 3.0,
+        "y" : 7.0
+      },
+      "deco" : "BookshelfLarge",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      },
+      "text" : "Hello.",
+      "once" : true
+    }
+  }, {
+    "name" : "door-lever",
+    "type" : "door-lever",
+    "properties" : {
+      "leverPosition" : {
+        "x" : 12.0,
+        "y" : 8.0
+      },
+      "doorPosition" : {
+        "x" : 17.0,
+        "y" : 10.0
+      },
+      "closeable" : true
     }
   } ]
 }

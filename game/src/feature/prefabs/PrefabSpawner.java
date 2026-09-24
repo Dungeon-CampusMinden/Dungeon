@@ -7,6 +7,7 @@ import feature.components.ShowImageComponent;
 import feature.level.visibility.LevelHideComponent;
 import feature.level.visibility.LevelHideSystem;
 import feature.systems.ShowImageSystem;
+import feature.prefabs.types.DesignLabelRegionPrefab;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
@@ -76,9 +77,83 @@ public final class PrefabSpawner {
           .computeIfAbsent(side, ignored -> new LinkedHashMap<>())
           .put(instance.name(), tracked);
       if (side == PrefabSide.CLIENT) CLIENT_ENTITIES.addAll(added);
+      refreshDesignLabelRegions(level, side);
     } catch (RuntimeException e) {
       throw creationFailureWithCleanup(instance, prefab, context, added, tracked, e);
     }
+  }
+
+  /**
+   * Returns whether a normalized authored instance currently has an active tracked spawn.
+   *
+   * <p>Entity-less client prefabs are considered active while tracked. This is used by region
+   * overlays, which intentionally create no entities.
+   *
+   * @param level owning level
+   * @param side runtime side
+   * @param name authored instance name
+   * @param type stable prefab type
+   * @return whether this exact authored instance is spawned
+   */
+  public static boolean isActive(ILevel level, PrefabSide side, String name, String type) {
+    Map<PrefabSide, Map<String, TrackedPrefab>> bySide = TRACKED.get(level);
+    if (bySide == null || bySide.get(side) == null) return false;
+    TrackedPrefab tracked = bySide.get(side).get(name);
+    if (tracked == null || !type.equals(tracked.source().type())) return false;
+    PrefabInstance authored =
+        level.prefabs().stream()
+            .filter(instance -> name.equals(instance.name()))
+            .reduce((first, second) -> second)
+            .orElse(null);
+    if (authored == null || !type.equals(authored.type())) return false;
+    try {
+      return tracked.source().equals(PrefabRegistry.require(type).normalize(authored));
+    } catch (IllegalArgumentException invalidAuthoredRecord) {
+      return false;
+    }
+  }
+
+  /**
+   * Reapplies client-side design-region overrides over the level's persistent base design.
+   *
+   * @param level owning level
+   */
+  public static void refreshDesignLabelRegions(ILevel level) {
+    DesignLabelRegionPrefab.refresh(level);
+  }
+
+  /**
+   * Resolves the currently tracked entities for a bound prefab view.
+   *
+   * <p>Both the authored record and the entity objects are checked by identity/current value so
+   * stale views do not expose entities from a deleted, edited, replaced, or despawned instance.
+   *
+   * @param level owning level
+   * @param side runtime side
+   * @param name authored instance name
+   * @param type stable prefab type
+   * @return present entities from the current spawn, in creation order
+   */
+  public static List<Entity> liveEntities(ILevel level, PrefabSide side, String name, String type) {
+    PrefabInstance authored = null;
+    for (PrefabInstance candidate : level.prefabs()) {
+      if (name.equals(candidate.name())) authored = candidate;
+    }
+    if (authored == null || !type.equals(authored.type())) return List.of();
+
+    Map<PrefabSide, Map<String, TrackedPrefab>> bySide = TRACKED.get(level);
+    if (bySide == null || bySide.get(side) == null) return List.of();
+    TrackedPrefab tracked = bySide.get(side).get(name);
+    if (tracked == null || !type.equals(tracked.source().type())) return List.of();
+
+    PrefabInstance normalized;
+    try {
+      normalized = PrefabRegistry.require(type).normalize(authored);
+    } catch (IllegalArgumentException invalidAuthoredRecord) {
+      return List.of();
+    }
+    if (!tracked.source().equals(normalized)) return List.of();
+    return tracked.entities().stream().filter(PrefabSpawner::isPresent).toList();
   }
 
   /**
@@ -92,8 +167,12 @@ public final class PrefabSpawner {
     Map<PrefabSide, Map<String, TrackedPrefab>> bySide = TRACKED.get(level);
     if (bySide == null || bySide.get(side) == null) return;
     TrackedPrefab tracked = bySide.get(side).remove(instance.name());
-    if (tracked != null) removeTracked(tracked, side);
-    discardEmpty(level, bySide, side);
+    try {
+      if (tracked != null) removeTracked(tracked, side);
+    } finally {
+      discardEmpty(level, bySide, side);
+      refreshDesignLabelRegions(level, side);
+    }
   }
 
   /**
@@ -117,6 +196,7 @@ public final class PrefabSpawner {
         else failure.addSuppressed(exception);
       }
     }
+    refreshDesignLabelRegions(level, side);
     if (failure != null) throw failure;
   }
 
@@ -149,6 +229,10 @@ public final class PrefabSpawner {
     }
   }
 
+  private static void refreshDesignLabelRegions(ILevel level, PrefabSide side) {
+    if (side == PrefabSide.CLIENT) refreshDesignLabelRegions(level);
+  }
+
   private static IllegalStateException creationFailureWithCleanup(
       PrefabInstance instance,
       Prefab prefab,
@@ -165,6 +249,11 @@ public final class PrefabSpawner {
     }
     try {
       removeAdded(added);
+    } catch (RuntimeException cleanupFailure) {
+      failure.addSuppressed(cleanupFailure);
+    }
+    try {
+      refreshDesignLabelRegions(context.level(), context.side());
     } catch (RuntimeException cleanupFailure) {
       failure.addSuppressed(cleanupFailure);
     }

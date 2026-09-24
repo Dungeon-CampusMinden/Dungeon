@@ -9,6 +9,8 @@ import engine.utils.Tuple;
 import feature.entities.deco.Deco;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabProperty;
+import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -186,28 +188,67 @@ public final class V3FormatParser extends LevelFormatParser {
     for (int index = 0; index < nodes.size(); index++) {
       JsonNode node = nodes.get(index);
       if (!(node instanceof ObjectNode object)) {
-        throw new IllegalArgumentException("Prefab " + index + " must be a JSON object");
+        warnSkippedPrefab(index, null, null, "record must be a JSON object");
+        continue;
       }
-      rejectUnknown(object, PREFAB_PROPERTIES, "prefab " + index);
-      String name = requireText(object, "name");
-      if (name.isBlank() || !names.add(name)) {
-        throw new IllegalArgumentException(
-            "Prefab names must be non-empty and unique; invalid name: '" + name + "'");
+
+      String name = optionalText(object, "name");
+      String type = optionalText(object, "type");
+      try {
+        rejectUnknown(object, PREFAB_PROPERTIES, "prefab " + index);
+        name = requireText(object, "name");
+        if (name.isBlank()) {
+          throw new IllegalArgumentException("name must not be blank");
+        }
+        type = requireText(object, "type");
+        Prefab prefab = PrefabRegistry.require(type);
+        JsonNode propertiesNode = require(object, "properties");
+        if (!(propertiesNode instanceof ObjectNode propertiesObject)) {
+          throw new IllegalArgumentException("properties must be a JSON object");
+        }
+        if (type.equals("level-hider")
+            && (propertiesObject.has("firstCorner") || propertiesObject.has("secondCorner"))) {
+          throw new IllegalArgumentException(
+              "legacy Level Hider firstCorner/secondCorner properties are no longer supported");
+        }
+        for (PrefabProperty<?> property : prefab.properties()) {
+          if (property.type() == PrefabPropertyType.REGION
+              && !propertiesObject.has(property.key())) {
+            throw new IllegalArgumentException(
+                "required Region property '" + property.key() + "' is missing");
+          }
+        }
+
+        Map<String, JsonNode> properties = new LinkedHashMap<>();
+        propertiesObject
+            .properties()
+            .forEach(entry -> properties.put(entry.getKey(), entry.getValue()));
+        PrefabInstance normalized =
+            prefab.normalize(new PrefabInstance(name, type, properties));
+        if (names.contains(name)) {
+          throw new IllegalArgumentException("duplicate prefab name '" + name + "'");
+        }
+        result.add(normalized);
+        names.add(name);
+      } catch (IllegalArgumentException exception) {
+        warnSkippedPrefab(index, name, type, exception.getMessage());
       }
-      String type = requireText(object, "type");
-      Prefab prefab = PrefabRegistry.require(type);
-      JsonNode propertiesNode = require(object, "properties");
-      if (!(propertiesNode instanceof ObjectNode propertiesObject)) {
-        throw new IllegalArgumentException(
-            "Properties for prefab '" + name + "' must be a JSON object");
-      }
-      Map<String, JsonNode> properties = new LinkedHashMap<>();
-      propertiesObject
-          .properties()
-          .forEach(entry -> properties.put(entry.getKey(), entry.getValue()));
-      result.add(prefab.normalize(new PrefabInstance(name, type, properties)));
     }
     return result;
+  }
+
+  private static String optionalText(ObjectNode object, String property) {
+    JsonNode value = object.get(property);
+    return value != null && value.isTextual() ? value.asText() : null;
+  }
+
+  private static void warnSkippedPrefab(int index, String name, String type, String reason) {
+    LOGGER.warn(
+        "Skipping prefab at index {} (name='{}', type='{}'): {}",
+        index,
+        name == null ? "<missing or invalid>" : name,
+        type == null ? "<missing or invalid>" : type,
+        reason == null || reason.isBlank() ? "invalid prefab record" : reason);
   }
 
   private static List<Point> parsePointArray(ArrayNode nodes, String fieldName) {

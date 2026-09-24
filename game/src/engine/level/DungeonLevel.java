@@ -26,6 +26,7 @@ import feature.entities.deco.Deco;
 import feature.level.ITickable;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabRegistry;
+import feature.prefabs.PrefabSpawner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public class DungeonLevel implements ILevel, ITickable {
   protected final List<PrefabInstance> prefabs = new ArrayList<>();
 
   private static int levelNameSuffix = 1;
+  private DesignLabel baseDesignLabel;
   protected String levelName;
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
@@ -82,8 +84,18 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public DungeonLevel(Tile[][] layout) {
     this.layout = layout;
+    this.baseDesignLabel = findInitialDesignLabel(layout);
     putTilesInLists();
     levelName = "level_" + levelNameSuffix++;
+  }
+
+  private static DesignLabel findInitialDesignLabel(Tile[][] layout) {
+    for (Tile[] row : layout) {
+      for (Tile tile : row) {
+        if (tile != null) return tile.designLabel();
+      }
+    }
+    return DesignLabel.DEFAULT;
   }
 
   /**
@@ -346,18 +358,22 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public void designLabel(DesignLabel designLabel) {
     Objects.requireNonNull(designLabel);
-    for (Tile[] row : layout) {
-      for (Tile tile : row) {
-        tile.designLabel(designLabel);
-      }
-    }
-    LevelElement[][] elementLayout = TileTextureFactory.levelElementLayout(layout);
-    for (Tile[] row : layout) {
-      for (Tile tile : row) {
-        tile.texturePath(
-            TileTextureFactory.findTexturePath(tile, layout, elementLayout, tile.levelElement()));
-      }
-    }
+    baseDesignLabel = designLabel;
+    PrefabSpawner.refreshDesignLabelRegions(this);
+  }
+
+  /**
+   * Returns the level's authored design independently of temporary prefab overrides on tiles.
+   *
+   * @return base level design
+   */
+  public DesignLabel baseDesignLabel() {
+    return baseDesignLabel;
+  }
+
+  @Override
+  public Optional<DesignLabel> designLabel() {
+    return Optional.ofNullable(baseDesignLabel);
   }
 
   @Override
@@ -376,6 +392,7 @@ public class DungeonLevel implements ILevel, ITickable {
     gitterTiles.clear();
     glassWallTiles.clear();
     putTilesInLists();
+    PrefabSpawner.refreshDesignLabelRegions(this);
   }
 
   @Override

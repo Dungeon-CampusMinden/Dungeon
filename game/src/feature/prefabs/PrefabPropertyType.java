@@ -7,5 +7,8 @@ public enum PrefabPropertyType {
   FLOAT,
   BOOLEAN,
   ENUM,
-  POINT
+  POINT,
+  REGION,
+  VECTOR2,
+  COLOR
 }

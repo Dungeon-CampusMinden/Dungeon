@@ -11,7 +11,6 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
-import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +44,34 @@ public final class DoorKeypadPrefab extends Prefab {
         List.of(KEYPAD_POSITION, DOOR_POSITION, CODE, SHOW_DIGIT_COUNT));
   }
 
+  /**
+   * Creates a bound view for one authored door-keypad instance.
+   *
+   * @param level owning level
+   * @param name authored instance name
+   */
+  public DoorKeypadPrefab(ILevel level, String name) {
+    super(
+        "door-keypad",
+        "Door + Keypad",
+        PrefabSide.SERVER,
+        List.of(KEYPAD_POSITION, DOOR_POSITION, CODE, SHOW_DIGIT_COUNT),
+        level,
+        name);
+  }
+
+  /**
+   * Returns the keypad entity for this instance when it is currently spawned.
+   *
+   * <p>This is empty before server-side spawn, after despawn or deletion, and while running on a
+   * side where server entities are not present. A later respawn is resolved automatically.
+   *
+   * @return the currently live keypad entity, if any
+   */
+  public Optional<Entity> keypadEntity() {
+    return liveEntities().stream().findFirst();
+  }
+
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point doorPosition = value(instance, DOOR_POSITION);
@@ -64,19 +91,9 @@ public final class DoorKeypadPrefab extends Prefab {
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     Point doorPosition = value(instance, DOOR_POSITION);
-    boolean anotherKeypadTargetsDoor =
-        context.level().prefabs().stream()
-            .filter(
-                candidate ->
-                    candidate.type().equals(type())
-                        && !(candidate.name().equals(instance.name())
-                            && candidate.type().equals(instance.type())))
-            .map(candidate -> PrefabRegistry.require(candidate.type()).normalize(candidate))
-            .map(candidate -> value(candidate, DOOR_POSITION))
-            .anyMatch(doorPosition::equals);
-    if (anotherKeypadTargetsDoor) return;
-
-    doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
+    if (!DoorPrefabSupport.hasOtherTarget(context.level(), doorPosition, instance)) {
+      doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
+    }
   }
 
   @Override
@@ -88,6 +105,7 @@ public final class DoorKeypadPrefab extends Prefab {
     Color lineColor =
         doorAt(level, value(instance, DOOR_POSITION)).isPresent() ? null : Color.RED;
     feedback.line(keypad, door, true, lineColor);
+    if (lineColor != null) feedback.label(door, "Missing door target");
   }
 
   private static Optional<DoorTile> doorAt(ILevel level, Point position) {

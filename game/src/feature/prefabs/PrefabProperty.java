@@ -1,7 +1,10 @@
 package feature.prefabs;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.utils.Point;
+import engine.utils.Vector2;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -379,6 +382,135 @@ public abstract class PrefabProperty<T> {
   }
 
   /**
+   * Creates a finite, normalized world-region property.
+   *
+   * <p>The serialized form is an object with {@code bottomLeft} and {@code topRight} point
+   * objects, each containing numeric {@code x} and {@code y} coordinates. Reversed corners are
+   * normalized; zero-area regions are valid.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default region
+   * @return region property descriptor
+   */
+  public static PrefabProperty<Region> region(
+      String key, String displayName, Region defaultValue) {
+    Objects.requireNonNull(defaultValue, "defaultValue");
+    return new PrefabProperty<>(key, displayName, PrefabPropertyType.REGION, defaultValue) {
+      @Override
+      public Region decode(JsonNode node) {
+        if (node == null
+            || !node.isObject()
+            || node.size() != 2
+            || !node.has("bottomLeft")
+            || !node.has("topRight")) {
+          throw invalid(key, "must contain bottomLeft and topRight point objects");
+        }
+        return validate(
+            new Region(
+                decodePoint(node.get("bottomLeft"), key),
+                decodePoint(node.get("topRight"), key)));
+      }
+
+      @Override
+      public JsonNode encode(ObjectMapper mapper, Region value) {
+        Region region = validate(value);
+        ObjectNode node = mapper.createObjectNode();
+        node.set("bottomLeft", encodePoint(mapper, region.bottomLeft()));
+        node.set("topRight", encodePoint(mapper, region.topRight()));
+        return node;
+      }
+
+      private Region validate(Region value) {
+        if (value == null) throw invalid(key, "must not be null");
+        try {
+          return new Region(value.bottomLeft(), value.topRight());
+        } catch (IllegalArgumentException exception) {
+          throw invalid(key, "must contain finite coordinates");
+        }
+      }
+    };
+  }
+
+  /**
+   * Creates a finite vector property.
+   *
+   * <p>The serialized form is an object containing numeric {@code x} and {@code y} components.
+   * Unlike a point, a vector is not a world position and is not translated with a level.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default vector
+   * @return vector property descriptor
+   */
+  public static PrefabProperty<Vector2> vector2(
+      String key, String displayName, Vector2 defaultValue) {
+    Vector2 validatedDefault = validateVector(key, defaultValue);
+    return new PrefabProperty<>(key, displayName, PrefabPropertyType.VECTOR2, validatedDefault) {
+      @Override
+      public Vector2 decode(JsonNode node) {
+        Point point = decodePoint(node, key);
+        return validateVector(key, Vector2.of(point.x(), point.y()));
+      }
+
+      @Override
+      public JsonNode encode(ObjectMapper mapper, Vector2 value) {
+        return encodeVector(mapper, validateVector(key, value));
+      }
+    };
+  }
+
+  /**
+   * Creates a color property encoded as eight hexadecimal RGBA digits.
+   *
+   * <p>Input accepts exactly eight hexadecimal digits, optionally prefixed with {@code #}, in
+   * either case. Output is always eight uppercase digits without a prefix. Typed colors must have
+   * finite red, green, blue, and alpha channels in the inclusive range from zero to one.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default color
+   * @return color property descriptor
+   */
+  public static PrefabProperty<Color> color(
+      String key, String displayName, Color defaultValue) {
+    Color validatedDefault = new Color(validateColor(key, defaultValue));
+    return new PrefabProperty<>(key, displayName, PrefabPropertyType.COLOR, validatedDefault) {
+      @Override
+      public Color decode(JsonNode node) {
+        if (node == null || !node.isTextual()) {
+          throw invalid(key, "must be an eight-digit RGBA hexadecimal string");
+        }
+        String encoded = node.asText();
+        if (encoded.startsWith("#")) encoded = encoded.substring(1);
+        if (encoded.length() != 8 || !isAsciiHex(encoded)) {
+          throw invalid(key, "must be an eight-digit RGBA hexadecimal string");
+        }
+        int red = Integer.parseInt(encoded.substring(0, 2), 16);
+        int green = Integer.parseInt(encoded.substring(2, 4), 16);
+        int blue = Integer.parseInt(encoded.substring(4, 6), 16);
+        int alpha = Integer.parseInt(encoded.substring(6, 8), 16);
+        return new Color(red / 255f, green / 255f, blue / 255f, alpha / 255f);
+      }
+
+      @Override
+      public JsonNode encode(ObjectMapper mapper, Color value) {
+        Color color = validateColor(key, value);
+        return mapper
+            .getNodeFactory()
+            .textNode(
+                String.format(
+                    Locale.ROOT,
+                    "%02X%02X%02X%02X",
+                    Math.round(color.r * 255f),
+                    Math.round(color.g * 255f),
+                    Math.round(color.b * 255f),
+                    Math.round(color.a * 255f)));
+      }
+    };
+  }
+
+  /**
    * Selectable values for enum properties.
    *
    * @return empty for non-enum properties
@@ -413,5 +545,70 @@ public abstract class PrefabProperty<T> {
 
   private static IllegalArgumentException invalid(String key, String message) {
     return new IllegalArgumentException("Prefab property '" + key + "' " + message);
+  }
+
+  private static Point decodePoint(JsonNode node, String key) {
+    if (node == null
+        || !node.isObject()
+        || node.size() != 2
+        || !node.has("x")
+        || !node.has("y")
+        || !node.get("x").isNumber()
+        || !node.get("y").isNumber()) {
+      throw invalid(key, "must be an object containing numeric x and y properties");
+    }
+    Point point = new Point(node.get("x").floatValue(), node.get("y").floatValue());
+    if (!Float.isFinite(point.x()) || !Float.isFinite(point.y())) {
+      throw invalid(key, "must contain finite coordinates");
+    }
+    return point;
+  }
+
+  private static ObjectNode encodePoint(ObjectMapper mapper, Point point) {
+    ObjectNode node = mapper.createObjectNode();
+    node.put("x", point.x());
+    node.put("y", point.y());
+    return node;
+  }
+
+  private static ObjectNode encodeVector(ObjectMapper mapper, Vector2 vector) {
+    ObjectNode node = mapper.createObjectNode();
+    node.put("x", vector.x());
+    node.put("y", vector.y());
+    return node;
+  }
+
+  private static Vector2 validateVector(String key, Vector2 vector) {
+    if (vector == null || !Float.isFinite(vector.x()) || !Float.isFinite(vector.y())) {
+      throw invalid(key, "must contain finite x and y components");
+    }
+    return Vector2.of(vector.x(), vector.y());
+  }
+
+  private static Color validateColor(String key, Color color) {
+    if (color == null
+        || !validColorChannel(color.r)
+        || !validColorChannel(color.g)
+        || !validColorChannel(color.b)
+        || !validColorChannel(color.a)) {
+      throw invalid(key, "must contain finite RGBA channels between zero and one");
+    }
+    return color;
+  }
+
+  private static boolean validColorChannel(float value) {
+    return Float.isFinite(value) && value >= 0 && value <= 1;
+  }
+
+  private static boolean isAsciiHex(String value) {
+    for (int i = 0; i < value.length(); i++) {
+      char digit = value.charAt(i);
+      if (!((digit >= '0' && digit <= '9')
+          || (digit >= 'a' && digit <= 'f')
+          || (digit >= 'A' && digit <= 'F'))) {
+        return false;
+      }
+    }
+    return true;
   }
 }

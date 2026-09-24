@@ -110,7 +110,10 @@ public class ModeDetailsPanel extends Table {
     keysByAction.forEach(
         (action, keys) -> {
           controlsContent.add(text(keys)).left().padRight(10f).padBottom(2f);
-          controlsContent.add(text(action)).left().growX().padBottom(2f).row();
+          RichLabel actionLabel = text(action);
+          actionLabel.setWrap(true);
+          actionLabel.setMaxPrefWidth(getWidth() - getPadLeft() - getPadRight() - 30f);
+          controlsContent.add(actionLabel).left().growX().padBottom(2f).row();
         });
   }
 

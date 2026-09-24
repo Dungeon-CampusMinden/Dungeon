@@ -48,7 +48,23 @@ public class LeverFactory {
    * @see feature.systems.LeverSystem LeverSystem
    */
   public static Entity createLever(Point pos, ICommand onInteract, IPath texturePath) {
-    Entity lever = new Entity("lever");
+    return createLever(new Entity("lever"), pos, onInteract, texturePath);
+  }
+
+  /**
+   * Configures a supplied entity as a lever.
+   *
+   * <p>This overload is useful for callers that need to control entity identity or locality while
+   * retaining the standard lever interaction and rendering behavior.
+   *
+   * @param lever the entity to configure
+   * @param pos the position where the lever will be created
+   * @param onInteract the behavior when the lever is interacted with
+   * @param texturePath defines the texture(s) to use for the lever
+   * @return the configured lever entity
+   */
+  public static Entity createLever(
+      Entity lever, Point pos, ICommand onInteract, IPath texturePath) {
     lever.add(new PositionComponent(pos));
 
     Map<String, Animation> map = Animation.loadAnimationSpritesheet(texturePath);
@@ -78,6 +94,18 @@ public class LeverFactory {
                 },
                 DEFAULT_INTERACTION_RADIUS)));
     return lever;
+  }
+
+  /**
+   * Configures a supplied entity as a lever with the default lever design.
+   *
+   * @param lever the entity to configure
+   * @param pos the position where the lever will be created
+   * @param onInteract the behavior when the lever is interacted with
+   * @return the configured lever entity
+   */
+  public static Entity createLever(Entity lever, Point pos, ICommand onInteract) {
+    return createLever(lever, pos, onInteract, LEVER_PATH);
   }
 
   /**

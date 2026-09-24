@@ -26,7 +26,9 @@ import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
 import feature.entities.deco.Deco;
+import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabRegistry;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
@@ -429,4 +431,24 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return ordered prefab instances
    */
   List<PrefabInstance> prefabs();
+
+  /**
+   * Returns ordered, per-authored-instance views of the requested prefab subtype.
+   *
+   * <p>Unlike {@link #prefabs()}, these views are not the mutable serialized data. Each lookup
+   * constructs a distinct bound view through the explicit factory registered for its prefab type.
+   * Bound views resolve current authored properties by level/name/type; their live entity accessors
+   * are empty before spawn and when the prefab is inactive on the current runtime side.
+   *
+   * @param prefabClass requested prefab definition/view subtype
+   * @param <P> prefab subtype
+   * @return views in authored level order
+   */
+  default <P extends Prefab> List<P> prefabs(Class<P> prefabClass) {
+    return prefabs().stream()
+        .filter(
+            instance -> prefabClass.isInstance(PrefabRegistry.require(instance.type())))
+        .map(instance -> prefabClass.cast(PrefabRegistry.createView(this, instance)))
+        .toList();
+  }
 }
