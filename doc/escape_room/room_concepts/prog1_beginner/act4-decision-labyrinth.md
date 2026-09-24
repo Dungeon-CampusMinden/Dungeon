@@ -1,5 +1,7 @@
 # Akt IV: Das Labyrinth der Entscheidungen
 
+Teil des Raums [Programmieren 1: Das Erbe der Seelenweber](prog1_beginner_concept.md).
+
 Nach dem vollständig ausgeführten Werkstattprogramm öffnet sich der Ausgang aus Akt III.
 Nox geht durch die Tür zum Start des Labyrinths und wartet auf einen Reiter.
 Mit E an Nox steigt ein Spieler auf. Die Steuerung öffnet sich automatisch und bleibt
@@ -51,9 +53,8 @@ y=61, 70, 80, 89, 99 und 108. Nox erreicht das Herzfeuer bei 34/118;
 der Schrein steht daneben bei 41/120. Die linken Türspuren liegen bei x=28, 27, 28, 26, 28, 27;
 die rechten bei x=40, 41, 40, 42, 41, 40. Die unterschiedlich breiten
 Kammern teilen Rückgänge bei x=20 und x=48. Am unteren Rand verbinden sich beide Rückgänge
-mit START. Der Reiter wird innerhalb von Nox' Grundfläche mitgeführt. Sein Sprite sitzt
-über dem Körper, beim Blick nach oben vor dem Kopf, sonst dahinter. Kollisionsfreiheit
-während der Fahrt verhindert gegenseitiges Schieben. Beim Verlassen des Levels werden
+mit START. Der Reiter sitzt ohne Kollision auf Nox' Schultern, beim Blick nach oben vor
+dem Kopf, sonst dahinter. Beim Absteigen kehrt er auf Nox' Grundfläche zurück. Beim Verlassen des Levels werden
 die normalen Bewegungs- und Kollisionskomponenten wiederhergestellt.
 
 Die Wege berücksichtigen Nox' fünf Tiles breite und zweieinhalb Tiles tiefe Grundfläche.
@@ -95,15 +96,29 @@ automatischer Lösung getrackt.
 ## Abschluss am Herzfeuer
 
 Nach der sechsten Rune steigt der Spieler automatisch von Nox ab. Ein Hinweis verweist
-auf die Schriftrolle vor dem Herzfeuer. Der Button „Opfergabe darbringen“ verbraucht die
-beiden dekorativen Kristalle und entzündet das Herzfeuer. Das Schließen des Dialogs
-bricht die Auswahl ab.
+auf die Schriftrolle vor dem Herzfeuer:
+
+> Lege die Kristalle ins Herzfeuer.
+> Damit schließt ihr den Raum ab.
+> Nach dem Abspann endet das Spiel für alle.
+
+Der Button „Opfergabe darbringen“ verbraucht die beiden dekorativen Kristalle und
+entzündet das Herzfeuer. Das Schließen des Dialogs bricht die Auswahl ab.
 
 `ProgrammingEnding` nimmt die Opfergabe nur nach Abschluss des Labyrinths und nur einmal
 auf dem Server an. Dabei beendet `Tracking.completed()` die Sitzung erfolgreich, bevor
 der Abspann beginnt. Alle verbundenen Spieler sehen den Erfolgstext. Wer ihn bestätigt,
 wartet auf die übrigen Spieler; getrennte Spieler halten den Abschluss nicht auf.
 Anschließend beendet `Game.complete()` das Spiel über den regulären Shutdown.
+
+Der Abspann:
+
+> Die Kristalle verglühen im Herzfeuer. Für einen Moment leuchten Nox' Runen im selben
+> Takt wie die Flammen.
+>
+> Du hast es geschafft! Du hast Nox zum Leben erweckt und bis zum Herzfeuer geführt.
+> Variablen, Schleifen, Methoden und Bedingungen waren deine Werkzeuge.
+> Programmieren 1 ist abgeschlossen.
 
 ## Zuständigkeit
 
@@ -118,3 +133,11 @@ kann eine Entscheidung auslösen. Veraltete Auswahlen und Auswahlen während der
 werden verworfen. Der Client übermittelt keine Werte oder Ergebnisse.
 
 Akt III behält seine bisherigen Erfolge. Erst das Herzfeuer schließt die letzte Phase ab.
+
+## Lernziel
+
+- Eine Bedingung ergibt wahr oder falsch und wählt damit genau einen Zweig.
+- Verschachtelte Bedingungen werden von außen nach innen geprüft. Ein falscher äußerer
+  Zweig überspringt die inneren Prüfungen.
+- `&&` und `||` verbinden Bedingungen.
+- Dasselbe Programm liefert bei anderen Werten einen anderen Weg.
