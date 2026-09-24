@@ -5,6 +5,7 @@ public enum PrefabPropertyType {
   STRING,
   INTEGER,
   FLOAT,
+  NUMBER_SLIDER,
   BOOLEAN,
   ENUM,
   POINT,

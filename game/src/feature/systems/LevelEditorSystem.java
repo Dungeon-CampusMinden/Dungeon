@@ -307,7 +307,7 @@ public class LevelEditorSystem extends System {
 
   /** Saves the current level when auto-save is enabled. */
   public static void levelChanged() {
-    if (autoSave) saveLevel();
+    if (autoSave) DungeonSaver.saveCurrentDungeon(pathToLevels, false);
   }
 
   /**

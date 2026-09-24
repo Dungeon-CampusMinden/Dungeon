@@ -254,6 +254,109 @@ public abstract class PrefabProperty<T> {
   }
 
   /**
+   * Creates a numeric slider property using the default range of zero to one and continuous
+   * precision.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default value
+   * @return slider property descriptor
+   */
+  public static PrefabProperty<Float> numberSlider(
+      String key, String displayName, float defaultValue) {
+    return numberSlider(key, displayName, defaultValue, 0f, 1f, 0f);
+  }
+
+  /**
+   * Creates a bounded finite float property intended to be edited with a slider.
+   *
+   * <p>Values are anchored to {@code minimum} when quantized. The maximum is also a valid endpoint
+   * even when it is not an exact multiple of {@code step}.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default value (clamped and quantized to the slider range)
+   * @param minimum minimum slider value
+   * @param maximum maximum slider value
+   * @param step quantization step, or zero for continuous values
+   * @return slider property descriptor
+   */
+  public static PrefabProperty<Float> numberSlider(
+      String key,
+      String displayName,
+      float defaultValue,
+      float minimum,
+      float maximum,
+      float step) {
+    if (!Float.isFinite(minimum)
+        || !Float.isFinite(maximum)
+        || !Float.isFinite(step)
+        || minimum > maximum
+        || step < 0f) {
+      throw new IllegalArgumentException("invalid number slider bounds or step");
+    }
+    if (!Float.isFinite(defaultValue)) {
+      throw new IllegalArgumentException("number slider default must be finite");
+    }
+    float normalizedDefault = quantize(clamp(defaultValue, minimum, maximum), minimum, maximum, step);
+    return new PrefabProperty<>(
+        key, displayName, PrefabPropertyType.NUMBER_SLIDER, normalizedDefault) {
+      @Override
+      public Float decode(JsonNode node) {
+        if (!node.isNumber()) throw invalid(key, "must be a number");
+        float value = node.floatValue();
+        if (!Float.isFinite(value) || value < minimum || value > maximum) {
+          throw invalid(key, "must be finite and between " + minimum + " and " + maximum);
+        }
+        // Quantization is the one intentional normalization performed on loaded values.
+        return quantize(value, minimum, maximum, step);
+      }
+
+      @Override
+      public JsonNode encode(ObjectMapper mapper, Float value) {
+        if (value == null || !Float.isFinite(value)) {
+          throw invalid(key, "must be finite");
+        }
+        return mapper.getNodeFactory()
+            .numberNode(quantize(clamp(value, minimum, maximum), minimum, maximum, step));
+      }
+
+      @Override
+      public Optional<Number> minimum() {
+        return Optional.of(minimum);
+      }
+
+      @Override
+      public Optional<Number> maximum() {
+        return Optional.of(maximum);
+      }
+
+      @Override
+      public Optional<Number> step() {
+        return Optional.of(step);
+      }
+    };
+  }
+
+  private static float clamp(float value, float minimum, float maximum) {
+    return Math.max(minimum, Math.min(maximum, value));
+  }
+
+  private static float quantize(float value, float minimum, float maximum, float step) {
+    if (step == 0f || minimum == maximum) return value;
+
+    double offset = (double) value - minimum;
+    double stepCount = Math.floor(offset / step + 0.5d);
+    double quantized = (double) minimum + stepCount * step;
+    // Include maximum as a terminal stop when the range is not divisible by step.
+    quantized = Math.max(minimum, Math.min(maximum, quantized));
+    double toMaximum = Math.abs((double) maximum - value);
+    double toQuantized = Math.abs(quantized - value);
+    if (toMaximum < toQuantized) return maximum;
+    return (float) quantized;
+  }
+
+  /**
    * Creates a boolean property.
    *
    * @param key serialized key
@@ -534,6 +637,15 @@ public abstract class PrefabProperty<T> {
    * @return upper bound, if this is a bounded numeric property
    */
   public Optional<Number> maximum() {
+    return Optional.empty();
+  }
+
+  /**
+   * Optional step size for generated numeric slider controls.
+   *
+   * @return slider step, if this is a slider property
+   */
+  public Optional<Number> step() {
     return Optional.empty();
   }
 

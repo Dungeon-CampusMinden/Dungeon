@@ -173,7 +173,7 @@ public class PointMode extends LevelEditorMode {
         .findFirst();
   }
 
-  private static SnapMode snapModeFor(Point point) {
+  static SnapMode snapModeFor(Point point) {
     if (alignedToGrid(point, 1)) return SnapMode.OnGrid;
     if (alignedToGrid(point, 4)) return SnapMode.QuarterGrid;
     if (alignedToGrid(point, 16)) return SnapMode.PixelGrid;

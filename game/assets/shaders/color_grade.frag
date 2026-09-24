@@ -60,6 +60,8 @@ void main() {
         float t = max(0.0, sdf) / u_transitionSize;
         t = t * t * t;
         color = mix(newColor, color, t);
+    } else {
+        color = newColor;
     }
 
     gl_FragColor = pma(color);

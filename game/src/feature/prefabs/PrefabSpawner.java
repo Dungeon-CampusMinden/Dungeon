@@ -3,11 +3,15 @@ package feature.prefabs;
 import engine.Entity;
 import engine.Game;
 import engine.level.elements.ILevel;
+import feature.components.LeverComponent;
+import feature.components.PressurePlateComponent;
 import feature.components.ShowImageComponent;
 import feature.level.visibility.LevelHideComponent;
 import feature.level.visibility.LevelHideSystem;
-import feature.systems.ShowImageSystem;
 import feature.prefabs.types.DesignLabelRegionPrefab;
+import feature.systems.LeverSystem;
+import feature.systems.PressurePlateSystem;
+import feature.systems.ShowImageSystem;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
@@ -294,6 +298,14 @@ public final class PrefabSpawner {
   }
 
   private static void ensureRequiredSystems(List<Entity> entities) {
+    if (entities.stream().anyMatch(entity -> entity.isPresent(LeverComponent.class))
+        && !Game.systems().containsKey(LeverSystem.class)) {
+      Game.add(new LeverSystem());
+    }
+    if (entities.stream().anyMatch(entity -> entity.isPresent(PressurePlateComponent.class))
+        && !Game.systems().containsKey(PressurePlateSystem.class)) {
+      Game.add(new PressurePlateSystem());
+    }
     if (entities.stream().anyMatch(entity -> entity.isPresent(ShowImageComponent.class))
         && !Game.systems().containsKey(ShowImageSystem.class)) {
       Game.add(new ShowImageSystem());

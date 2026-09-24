@@ -12,53 +12,51 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
-import feature.utils.IEntityCommand;
+import feature.utils.ICommand;
 import java.util.List;
 import java.util.Optional;
 
-/** Server-side prefab for a lever controlling a door. */
-public final class DoorLeverPrefab extends Prefab {
+/** Server-side pressure plate that opens its target door while pressed. */
+public final class PressurePlatePrefab extends Prefab {
 
-  private static final PrefabProperty<Point> LEVER_POSITION =
+  private static final PrefabProperty<Point> POSITION =
       PrefabProperty.point(
-          "leverPosition", "Lever Position", new Point(1, 0), new Point(0.5f, 0.5f));
+          "position", "Position", new Point(0, 0), new Point(0.5f, 0.5f));
   private static final PrefabProperty<Point> DOOR_POSITION =
       PrefabProperty.point(
-          "doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
-  private static final PrefabProperty<Boolean> CLOSEABLE =
-      PrefabProperty.bool("closeable", "Closeable", true);
+          "doorPosition", "Door Position", new Point(1, 0), new Point(0.5f, 0.5f));
 
-  /** Creates the door-lever definition. */
-  public DoorLeverPrefab() {
+  /** Creates the pressure-plate definition. */
+  public PressurePlatePrefab() {
     super(
-        "door-lever",
-        "Door + Lever",
+        "pressure-plate",
+        "Pressure Plate + Door",
         PrefabSide.SERVER,
-        List.of(LEVER_POSITION, DOOR_POSITION, CLOSEABLE));
+        List.of(POSITION, DOOR_POSITION));
   }
 
   /**
-   * Creates a bound view for one authored door-lever instance.
+   * Creates a bound view for one authored pressure plate.
    *
    * @param level owning level
    * @param name authored instance name
    */
-  public DoorLeverPrefab(ILevel level, String name) {
+  public PressurePlatePrefab(ILevel level, String name) {
     super(
-        "door-lever",
-        "Door + Lever",
+        "pressure-plate",
+        "Pressure Plate + Door",
         PrefabSide.SERVER,
-        List.of(LEVER_POSITION, DOOR_POSITION, CLOSEABLE),
+        List.of(POSITION, DOOR_POSITION),
         level,
         name);
   }
 
   /**
-   * Returns the lever entity for this instance when it is currently spawned.
+   * Returns this instance's live plate entity, if spawned.
    *
-   * @return the currently live lever entity, if any
+   * @return the live plate entity, or empty when it is not spawned
    */
-  public Optional<Entity> leverEntity() {
+  public Optional<Entity> pressurePlateEntity() {
     return liveEntities().stream().findFirst();
   }
 
@@ -67,22 +65,23 @@ public final class DoorLeverPrefab extends Prefab {
     Point doorPosition = value(instance, DOOR_POSITION);
     doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
 
-    boolean closeable = value(instance, CLOSEABLE);
-    IEntityCommand command =
-        new IEntityCommand() {
+    Entity plate = context.createEntity(instance.name());
+    LeverFactory.pressurePlate(
+        plate,
+        value(instance, POSITION),
+        1.0f,
+        new ICommand() {
           @Override
-          public void execute(Entity lever) {
+          public void execute() {
             doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
           }
 
           @Override
-          public void undo(Entity lever) {
-            if (closeable) doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
+          public void undo() {
+            doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
           }
-        };
-    Entity lever = context.createEntity(instance.name());
-    LeverFactory.createLever(lever, value(instance, LEVER_POSITION), command);
-    return List.of(lever);
+        });
+    return List.of(plate);
   }
 
   @Override
@@ -96,12 +95,12 @@ public final class DoorLeverPrefab extends Prefab {
   @Override
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point lever = feedbackPoint(instance, LEVER_POSITION);
-    Point door = feedbackPoint(instance, DOOR_POSITION);
-    feedback.point(lever, instance.name());
+    Point position = feedbackPoint(instance, POSITION);
+    Point doorPosition = feedbackPoint(instance, DOOR_POSITION);
     boolean hasDoor = doorAt(level, value(instance, DOOR_POSITION)).isPresent();
-    feedback.point(door, hasDoor ? null : "Missing door");
-    feedback.line(lever, door, true, hasDoor ? null : Color.RED);
+    feedback.point(position, instance.name());
+    feedback.point(doorPosition, hasDoor ? null : "Missing door");
+    feedback.line(position, doorPosition, true, hasDoor ? null : Color.RED);
   }
 
   private static Optional<DoorTile> doorAt(ILevel level, Point position) {

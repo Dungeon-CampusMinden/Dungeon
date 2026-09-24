@@ -6,9 +6,9 @@ import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.DecoComponent;
+import feature.components.ShowImageComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.prefabs.Prefab;
@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-/** Client-side decoration that opens a dialog when interacted with. */
-public final class DecoDialogPrefab extends Prefab {
+/** Client-side decoration that opens an image when interacted with. */
+public final class DecoImagePrefab extends Prefab {
 
   private static final float INTERACTION_RADIUS = 1.5f;
   private static final PrefabProperty<Point> POSITION =
@@ -36,32 +36,31 @@ public final class DecoDialogPrefab extends Prefab {
           Arrays.stream(Deco.values()).map(Enum::name).toList());
   private static final PrefabProperty<Vector2> SCALE =
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
-  private static final PrefabProperty<String> TEXT =
-      PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
-  private static final PrefabProperty<Boolean> ONCE =
-      PrefabProperty.bool("once", "Once", false);
+  private static final PrefabProperty<String> IMAGE =
+      PrefabProperty.string(
+          "image", "Image Path", "images/binary_hex.jpg", value -> !value.isBlank());
 
-  /** Creates the decoration-dialog definition. */
-  public DecoDialogPrefab() {
+  /** Creates the decoration-image definition. */
+  public DecoImagePrefab() {
     super(
-        "deco-dialog",
-        "Decoration + Dialog",
+        "deco-image",
+        "Decoration + Image",
         PrefabSide.CLIENT,
-        List.of(POSITION, DECO, SCALE, TEXT, ONCE));
+        List.of(POSITION, DECO, SCALE, IMAGE));
   }
 
   /**
-   * Creates a bound view for one authored decoration-dialog instance.
+   * Creates a bound view for one authored decoration-image instance.
    *
    * @param level owning level
    * @param name authored instance name
    */
-  public DecoDialogPrefab(ILevel level, String name) {
+  public DecoImagePrefab(ILevel level, String name) {
     super(
-        "deco-dialog",
-        "Decoration + Dialog",
+        "deco-image",
+        "Decoration + Image",
         PrefabSide.CLIENT,
-        List.of(POSITION, DECO, SCALE, TEXT, ONCE),
+        List.of(POSITION, DECO, SCALE, IMAGE),
         level,
         name);
   }
@@ -78,8 +77,12 @@ public final class DecoDialogPrefab extends Prefab {
   @Override
   protected void validate(PrefabInstance instance) {
     Vector2 scale = value(instance, SCALE);
-    if (scale.x() <= 0 || scale.y() <= 0) {
-      throw new IllegalArgumentException("Prefab property 'scale' must be positive");
+    if (!Float.isFinite(scale.x())
+        || !Float.isFinite(scale.y())
+        || scale.x() <= 0
+        || scale.y() <= 0) {
+      throw new IllegalArgumentException(
+          "Prefab property 'scale' must contain positive finite components");
     }
   }
 
@@ -93,24 +96,17 @@ public final class DecoDialogPrefab extends Prefab {
     position.scale(value(instance, SCALE));
     PositionSync.syncPosition(deco);
 
-    String dialog = value(instance, TEXT);
-    boolean once = value(instance, ONCE);
-    InteractionComponent interaction =
+    ShowImageComponent showImage = new ShowImageComponent(value(instance, IMAGE));
+    deco.add(showImage);
+    deco.add(
         new InteractionComponent(
-            new Interaction(
-                (entity, who) -> {
-                  DialogFactory.showDialogDialog(dialog, () -> {}, who.id());
-                  if (once) entity.remove(InteractionComponent.class);
-                },
-                INTERACTION_RADIUS));
-    deco.add(interaction);
+            new Interaction((entity, who) -> showImage.isUIOpen(true), INTERACTION_RADIUS)));
     return List.of(deco);
   }
 
   @Override
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point position = value(instance, POSITION);
-    feedback.point(position, instance.name());
+    feedback.point(value(instance, POSITION), instance.name());
   }
 }

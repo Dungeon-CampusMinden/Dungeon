@@ -98,13 +98,13 @@ public class SettingsMode extends LevelEditorMode {
     shiftGrid.top();
     shiftGrid.defaults().growX().uniformX().height(40f).pad(2f);
     shiftGrid.add();
-    shiftGrid.add(new ActionSetting("Up", () -> shiftLevel(0, 1)));
+    shiftGrid.add(new ActionSetting("Up", () -> shiftLevel(0, 1), false));
     shiftGrid.add().row();
-    shiftGrid.add(new ActionSetting("Left", () -> shiftLevel(-1, 0)));
+    shiftGrid.add(new ActionSetting("Left", () -> shiftLevel(-1, 0), false));
     shiftGrid.add();
-    shiftGrid.add(new ActionSetting("Right", () -> shiftLevel(1, 0))).row();
+    shiftGrid.add(new ActionSetting("Right", () -> shiftLevel(1, 0), false)).row();
     shiftGrid.add();
-    shiftGrid.add(new ActionSetting("Down", () -> shiftLevel(0, -1)));
+    shiftGrid.add(new ActionSetting("Down", () -> shiftLevel(0, -1), false));
     shiftGrid.add();
     content.add(shiftGrid).growX().row();
 

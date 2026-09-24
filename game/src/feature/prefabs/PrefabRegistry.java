@@ -2,11 +2,17 @@ package feature.prefabs;
 
 import engine.level.elements.ILevel;
 import feature.prefabs.types.BookshelfImagePrefab;
+import feature.prefabs.types.ColorGradeRegionPrefab;
 import feature.prefabs.types.DecoDialogPrefab;
+import feature.prefabs.types.DecoImagePrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.prefabs.types.DoorLeverPrefab;
 import feature.prefabs.types.DoorKeypadPrefab;
+import feature.prefabs.types.DialogTriggerPrefab;
 import feature.prefabs.types.LevelHiderPrefab;
+import feature.prefabs.types.PressurePlatePrefab;
+import feature.prefabs.types.PushableStonePrefab;
+import feature.prefabs.types.TorchPrefab;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -32,6 +38,12 @@ public final class PrefabRegistry {
     register(new DesignLabelRegionPrefab(), DesignLabelRegionPrefab::new);
     register(new DoorLeverPrefab(), DoorLeverPrefab::new);
     register(new DecoDialogPrefab(), DecoDialogPrefab::new);
+    register(new ColorGradeRegionPrefab(), ColorGradeRegionPrefab::new);
+    register(new DialogTriggerPrefab(), DialogTriggerPrefab::new);
+    register(new PushableStonePrefab(), PushableStonePrefab::new);
+    register(new PressurePlatePrefab(), PressurePlatePrefab::new);
+    register(new TorchPrefab(), TorchPrefab::new);
+    register(new DecoImagePrefab(), DecoImagePrefab::new);
   }
 
   private PrefabRegistry() {}

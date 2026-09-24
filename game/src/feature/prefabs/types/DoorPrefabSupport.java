@@ -6,18 +6,19 @@ import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRegistry;
+import java.util.Set;
 
 /** Shared helpers for prefabs that temporarily control a target door. */
 final class DoorPrefabSupport {
 
-  private static final String DOOR_KEYPAD_TYPE = "door-keypad";
-  private static final String DOOR_LEVER_TYPE = "door-lever";
+  private static final Set<String> DOOR_CONTROLLER_TYPES =
+      Set.of("door-keypad", "door-lever", "pressure-plate");
   private static final String DOOR_POSITION_PROPERTY = "doorPosition";
 
   private DoorPrefabSupport() {}
 
   /**
-   * Checks whether another authored keypad or lever instance also targets the same door.
+   * Checks whether another authored keypad, lever, or pressure plate also targets the same door.
    *
    * @param level owning level
    * @param position target door position
@@ -29,8 +30,7 @@ final class DoorPrefabSupport {
       if (candidate.name().equals(removing.name()) && candidate.type().equals(removing.type())) {
         continue;
       }
-      if (!candidate.type().equals(DOOR_KEYPAD_TYPE)
-          && !candidate.type().equals(DOOR_LEVER_TYPE)) {
+      if (!DOOR_CONTROLLER_TYPES.contains(candidate.type())) {
         continue;
       }
       try {

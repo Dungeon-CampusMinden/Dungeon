@@ -53,9 +53,11 @@ public final class RegionSetting extends EditorSetting {
               refresh();
             }),
             true);
+    bottomLeftSetting.useNestedLabelStyle();
+    topRightSetting.useNestedLabelStyle();
     row();
     add(bottomLeftSetting).growX().row();
-    add(topRightSetting).growX();
+    add(topRightSetting).growX().padTop(4f);
   }
 
   /**

@@ -1,7 +1,7 @@
 {
   "version" : 3,
   "design" : "DEFAULT",
-  "layout" : [ "WWWWWWWWWWWWWWWWWWWW", "WFFWFFFFFFFFFFFWFFFW", "WFFWFFFFFFFFFFFWFFFW", "WWDWFFFFFFFFFFFWWDWW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFFW", "WWWWWWWWWWWWWWWWWWWW" ],
+  "layout" : [ "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "WWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSS", "WFFWFFFFFFFFFFFWFFFWSSSSSSSSSSSSSSS", "WFFWFFFFFFFFFFFWFFFWSSSSSSSSSSSSSSS", "WWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSS", "WWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
     "x" : 10.0,
     "y" : 7.0
@@ -18,8 +18,8 @@
     "type" : "bookshelf-image",
     "properties" : {
       "position" : {
-        "x" : 14.0,
-        "y" : 7.0
+        "x" : 12.0,
+        "y" : 8.0
       },
       "image" : "images/binary_hex.jpg"
     }
@@ -32,14 +32,14 @@
         "y" : 13.0
       },
       "doorPosition" : {
-        "x" : 16.5,
-        "y" : 11.5
+        "x" : 2.0,
+        "y" : 10.0
       },
       "code" : "123",
       "showDigitCount" : true
     }
   }, {
-    "name" : "storage-room-keypad",
+    "name" : "aaaa-room-keypad",
     "type" : "door-keypad",
     "properties" : {
       "keypadPosition" : {
@@ -54,33 +54,33 @@
       "showDigitCount" : true
     }
   }, {
-    "name" : "design-label-region",
+    "name" : "dl-fire",
     "type" : "design-label-region",
     "properties" : {
       "region" : {
         "bottomLeft" : {
-          "x" : 4.0,
-          "y" : 3.0
+          "x" : 11.0,
+          "y" : 1.0
         },
         "topRight" : {
-          "x" : 19.0,
-          "y" : 5.0
+          "x" : 17.0,
+          "y" : 6.0
         }
       },
       "designLabel" : "FIRE"
     }
   }, {
-    "name" : "design-label-region_1",
+    "name" : "dl-forest",
     "type" : "design-label-region",
     "properties" : {
       "region" : {
         "bottomLeft" : {
           "x" : 4.0,
-          "y" : 1.0
+          "y" : 3.0
         },
         "topRight" : {
-          "x" : 16.0,
-          "y" : 3.0
+          "x" : 18.0,
+          "y" : 5.0
         }
       },
       "designLabel" : "FOREST"
@@ -90,8 +90,8 @@
     "type" : "deco-dialog",
     "properties" : {
       "position" : {
-        "x" : 3.0,
-        "y" : 7.0
+        "x" : 8.0,
+        "y" : 8.0
       },
       "deco" : "BookshelfLarge",
       "scale" : {
@@ -106,14 +106,118 @@
     "type" : "door-lever",
     "properties" : {
       "leverPosition" : {
-        "x" : 12.0,
-        "y" : 8.0
+        "x" : 13.0,
+        "y" : 11.0
       },
       "doorPosition" : {
         "x" : 17.0,
         "y" : 10.0
       },
       "closeable" : true
+    }
+  }, {
+    "name" : "stone-3",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 22.0,
+        "y" : 9.0
+      }
+    }
+  }, {
+    "name" : "stone-1",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 21.0,
+        "y" : 3.0
+      }
+    }
+  }, {
+    "name" : "stone-2",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 23.0,
+        "y" : 7.0
+      }
+    }
+  }, {
+    "name" : "pressure-plate",
+    "type" : "pressure-plate",
+    "properties" : {
+      "position" : {
+        "x" : 20.0,
+        "y" : 9.0
+      },
+      "doorPosition" : {
+        "x" : 17.0,
+        "y" : 10.0
+      }
+    }
+  }, {
+    "name" : "dialog-trigger",
+    "type" : "dialog-trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 19.0,
+          "y" : 6.0
+        },
+        "topRight" : {
+          "x" : 20.0,
+          "y" : 8.0
+        }
+      },
+      "text" : "Hello.",
+      "onceAll" : true,
+      "oncePlayer" : false
+    }
+  }, {
+    "name" : "torch",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 6.0,
+        "y" : 8.0
+      },
+      "on" : true,
+      "toggleable" : true
+    }
+  }, {
+    "name" : "shader-green",
+    "type" : "shader-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 21.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 28.0,
+          "y" : 11.0
+        }
+      },
+      "hue" : 0.33999997,
+      "saturationMult" : 2.5,
+      "valueMult" : 1.0,
+      "transitionSize" : 1.8000001,
+      "scene" : true
+    }
+  }, {
+    "name" : "deco-image",
+    "type" : "deco-image",
+    "properties" : {
+      "position" : {
+        "x" : 5.0,
+        "y" : 6.0
+      },
+      "deco" : "Printer1",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      },
+      "image" : "images/binary_hex.jpg"
     }
   } ]
 }

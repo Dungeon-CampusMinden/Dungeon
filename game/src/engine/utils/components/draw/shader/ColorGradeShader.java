@@ -10,6 +10,7 @@ public class ColorGradeShader extends AbstractShader {
 
   private static final String VERT_PATH = "shaders/passthrough.vert";
   private static final String FRAG_PATH = "shaders/color_grade.frag";
+  private static final float MIN_CULL_PADDING = 1e-6f;
 
   private Rectangle region = new Rectangle(0, 0, 0, 0);
   private float hue = -1.0f;
@@ -57,7 +58,18 @@ public class ColorGradeShader extends AbstractShader {
   @Override
   public Rectangle worldBounds() {
     if (region == null) return null;
-    return region.expand(transitionSize);
+    if (transitionSize != 0.0f) return region.expand(transitionSize);
+
+    // DrawSystem culls with strict rectangle intersection. Keep a zero-transition region
+    // conservatively visible when its edge nearly coincides with an FBO edge due to float
+    // rounding; this affects pass selection only, not the SDF boundary in the fragment shader.
+    float maxCoordinate =
+        Math.max(
+            Math.max(Math.abs(region.x()), Math.abs(region.y())),
+            Math.max(
+                Math.abs(region.x() + region.width()), Math.abs(region.y() + region.height())));
+    float cullPadding = Math.max(MIN_CULL_PADDING, 2.0f * Math.ulp(maxCoordinate));
+    return region.expand(cullPadding);
   }
 
   /**

@@ -105,7 +105,6 @@ public final class DoorKeypadPrefab extends Prefab {
     Color lineColor =
         doorAt(level, value(instance, DOOR_POSITION)).isPresent() ? null : Color.RED;
     feedback.line(keypad, door, true, lineColor);
-    if (lineColor != null) feedback.label(door, "Missing door target");
   }
 
   private static Optional<DoorTile> doorAt(ILevel level, Point position) {
