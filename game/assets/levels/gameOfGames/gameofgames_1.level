@@ -274,7 +274,7 @@
       "color" : "1A66B3FF",
       "speed" : 0.32999998,
       "layer" : -50,
-      "repeat" : 3.0,
+      "repeat" : 8.0,
       "foamMinWidth" : 2,
       "foamMaxWidth" : 4,
       "lineInterval" : 4.0
@@ -357,6 +357,28 @@
       "speed" : 0.32999998,
       "layer" : -50,
       "repeat" : 3.0,
+      "foamMinWidth" : 2,
+      "foamMaxWidth" : 4,
+      "lineInterval" : 4.0
+    }
+  }, {
+    "name" : "water_2",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 31.0,
+          "y" : 3.0
+        },
+        "topRight" : {
+          "x" : 34.0,
+          "y" : 9.0
+        }
+      },
+      "color" : "1A66B3FF",
+      "speed" : 0.32999998,
+      "layer" : -51,
+      "repeat" : 8.0,
       "foamMinWidth" : 2,
       "foamMaxWidth" : 4,
       "lineInterval" : 4.0

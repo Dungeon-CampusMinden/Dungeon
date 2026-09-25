@@ -22,8 +22,7 @@ import java.util.Optional;
 public final class PushableStonePrefab extends Prefab {
 
   private static final PrefabProperty<Point> POSITION =
-      PrefabProperty.point(
-          "position", "Position", new Point(0, 0), new Point(0.5f, 0.5f));
+      PrefabProperty.point("position", "Position", new Point(0, 0), new Point(0.5f, 0.5f));
 
   /** Creates the pushable-stone definition. */
   public PushableStonePrefab() {
@@ -37,13 +36,7 @@ public final class PushableStonePrefab extends Prefab {
    * @param name authored instance name
    */
   public PushableStonePrefab(ILevel level, String name) {
-    super(
-        "pushable-stone",
-        "Pushable Stone",
-        PrefabSide.SERVER,
-        List.of(POSITION),
-        level,
-        name);
+    super("pushable-stone", "Pushable Stone", PrefabSide.SERVER, List.of(POSITION), level, name);
   }
 
   /**

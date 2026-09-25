@@ -36,11 +36,7 @@ public final class DialogTriggerPrefab extends Prefab {
 
   /** Creates the dialog-trigger definition. */
   public DialogTriggerPrefab() {
-    super(
-        TYPE,
-        "Dialog Trigger",
-        PrefabSide.SERVER,
-        List.of(REGION, TEXT, ONCE_ALL, ONCE_PLAYER));
+    super(TYPE, "Dialog Trigger", PrefabSide.SERVER, List.of(REGION, TEXT, ONCE_ALL, ONCE_PLAYER));
   }
 
   /**

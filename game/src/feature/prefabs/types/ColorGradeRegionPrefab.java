@@ -34,8 +34,7 @@ public final class ColorGradeRegionPrefab extends Prefab {
       PrefabProperty.numberSlider("valueMult", "Value Multiplier", 1f, 0f, 10f, 0.1f);
   private static final PrefabProperty<Float> TRANSITION_SIZE =
       PrefabProperty.numberSlider("transitionSize", "Transition Size", 2f, 0f, 20f, 0.1f);
-  private static final PrefabProperty<Boolean> SCENE =
-      PrefabProperty.bool("scene", "Scene", false);
+  private static final PrefabProperty<Boolean> SCENE = PrefabProperty.bool("scene", "Scene", false);
 
   /*
    * Shader lists are global to DrawSystem, so include a stable ID for the owning level as well as

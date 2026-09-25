@@ -26,9 +26,7 @@ public record Region(Point bottomLeft, Point topRight) {
     }
     Point first = bottomLeft;
     Point second = topRight;
-    bottomLeft =
-        new Point(Math.min(first.x(), second.x()), Math.min(first.y(), second.y()));
-    topRight =
-        new Point(Math.max(first.x(), second.x()), Math.max(first.y(), second.y()));
+    bottomLeft = new Point(Math.min(first.x(), second.x()), Math.min(first.y(), second.y()));
+    topRight = new Point(Math.max(first.x(), second.x()), Math.max(first.y(), second.y()));
   }
 }

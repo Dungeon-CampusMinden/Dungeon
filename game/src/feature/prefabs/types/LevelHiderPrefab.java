@@ -16,24 +16,19 @@ import java.util.List;
 /**
  * Client-side rectangular level-hide region.
  *
- * <p>Saved instances use the {@code region} property. Legacy instances with {@code firstCorner}
- * or {@code secondCorner} are skipped by the V3 loader rather than converted.
+ * <p>Saved instances use the {@code region} property. Legacy instances with {@code firstCorner} or
+ * {@code secondCorner} are skipped by the V3 loader rather than converted.
  */
 public final class LevelHiderPrefab extends Prefab {
 
   private static final PrefabProperty<Region> REGION =
-      PrefabProperty.region(
-          "region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
+      PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
   private static final PrefabProperty<Float> TRANSITION_SIZE =
       PrefabProperty.floating("transitionSize", "Transition Size", 2f, 0f, Float.MAX_VALUE);
 
   /** Creates the level-hider definition. */
   public LevelHiderPrefab() {
-    super(
-        "level-hider",
-        "Level Hider",
-        PrefabSide.CLIENT,
-        List.of(REGION, TRANSITION_SIZE));
+    super("level-hider", "Level Hider", PrefabSide.CLIENT, List.of(REGION, TRANSITION_SIZE));
   }
 
   @Override

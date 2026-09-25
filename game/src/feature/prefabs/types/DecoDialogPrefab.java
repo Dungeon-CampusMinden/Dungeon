@@ -38,8 +38,7 @@ public final class DecoDialogPrefab extends Prefab {
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
   private static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
-  private static final PrefabProperty<Boolean> ONCE =
-      PrefabProperty.bool("once", "Once", false);
+  private static final PrefabProperty<Boolean> ONCE = PrefabProperty.bool("once", "Once", false);
 
   /** Creates the decoration-dialog definition. */
   public DecoDialogPrefab() {

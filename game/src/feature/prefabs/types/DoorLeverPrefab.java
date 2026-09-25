@@ -23,8 +23,7 @@ public final class DoorLeverPrefab extends Prefab {
       PrefabProperty.point(
           "leverPosition", "Lever Position", new Point(1, 0), new Point(0.5f, 0.5f));
   private static final PrefabProperty<Point> DOOR_POSITION =
-      PrefabProperty.point(
-          "doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
+      PrefabProperty.point("doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
   private static final PrefabProperty<Boolean> CLOSEABLE =
       PrefabProperty.bool("closeable", "Closeable", true);
 
@@ -105,10 +104,7 @@ public final class DoorLeverPrefab extends Prefab {
   }
 
   private static Optional<DoorTile> doorAt(ILevel level, Point position) {
-    return level
-        .tileAt(position)
-        .filter(DoorTile.class::isInstance)
-        .map(DoorTile.class::cast);
+    return level.tileAt(position).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
   }
 
   private Point feedbackPoint(PrefabInstance instance, PrefabProperty<Point> property) {

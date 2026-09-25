@@ -21,6 +21,7 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
 import feature.prefabs.Region;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -58,15 +59,7 @@ public final class WaterPrefab extends Prefab {
   private static final PrefabProperty<Float> LINE_INTERVAL =
       PrefabProperty.floating("lineInterval", "Shore Line Interval (s)", 2.5f, 0.1f, 60f);
   private static final List<PrefabProperty<?>> PROPERTIES =
-      List.of(
-          REGION,
-          COLOR,
-          SPEED,
-          LAYER,
-          REPEAT,
-          FOAM_MIN_WIDTH,
-          FOAM_MAX_WIDTH,
-          LINE_INTERVAL);
+      List.of(REGION, COLOR, SPEED, LAYER, REPEAT, FOAM_MIN_WIDTH, FOAM_MAX_WIDTH, LINE_INTERVAL);
 
   private static final int MAX_FIELD_PIXELS = 4096;
   // Squared distance larger than any field can produce, marks water before the transform.
@@ -117,20 +110,18 @@ public final class WaterPrefab extends Prefab {
             value(instance, FOAM_MIN_WIDTH),
             value(instance, FOAM_MAX_WIDTH),
             value(instance, LINE_INTERVAL));
+    ILevel level = context.level();
     synchronized (LAYERS) {
-      Map<Integer, LayerWater> layers =
-          LAYERS.computeIfAbsent(context.level(), ignored -> new HashMap<>());
+      Map<Integer, LayerWater> layers = LAYERS.computeIfAbsent(level, ignored -> new HashMap<>());
       // A changed instance may have moved to another layer.
       for (LayerWater other : layers.values()) {
-        if (other.layer() != layer && other.instances().remove(instance.name()) != null) {
-          rebuild(context.level(), other);
+        if (other.layer != layer && other.instances.remove(instance.name()) != null) {
+          scheduleRebuild(level, other);
         }
       }
-      layers.values().removeIf(other -> other.instances().isEmpty());
-      LayerWater layerWater =
-          layers.computeIfAbsent(layer, ignored -> newLayerWater(context.level(), layer));
-      layerWater.instances().put(instance.name(), settings);
-      rebuild(context.level(), layerWater);
+      LayerWater layerWater = layers.computeIfAbsent(layer, ignored -> newLayerWater(level, layer));
+      layerWater.instances.put(instance.name(), settings);
+      scheduleRebuild(level, layerWater);
     }
     return List.of(water);
   }
@@ -141,12 +132,10 @@ public final class WaterPrefab extends Prefab {
       Map<Integer, LayerWater> layers = LAYERS.get(context.level());
       if (layers == null) return;
       for (LayerWater layerWater : layers.values()) {
-        if (layerWater.instances().remove(instance.name()) != null) {
-          rebuild(context.level(), layerWater);
+        if (layerWater.instances.remove(instance.name()) != null) {
+          scheduleRebuild(context.level(), layerWater);
         }
       }
-      layers.values().removeIf(layerWater -> layerWater.instances().isEmpty());
-      if (layers.isEmpty()) LAYERS.remove(context.level());
     }
   }
 
@@ -181,9 +170,24 @@ public final class WaterPrefab extends Prefab {
         layer,
         TYPE + ":" + name,
         "generated/water-field/" + name + ".png",
-        DrawSystem.getInstance().entityDepthShaders(layer),
-        new LinkedHashMap<>(),
-        new WaterShader[1]);
+        DrawSystem.getInstance().entityDepthShaders(layer));
+  }
+
+  /**
+   * Rebuilds a layer once the current batch of prefab changes is done, so spawning many water
+   * instances only rebuilds each layer once.
+   *
+   * @param level owning level
+   * @param layerWater layer state to rebuild
+   */
+  private static void scheduleRebuild(ILevel level, LayerWater layerWater) {
+    PrefabSpawner.afterChanges(
+        layerWater,
+        () -> {
+          synchronized (LAYERS) {
+            rebuild(level, layerWater);
+          }
+        });
   }
 
   /**
@@ -194,36 +198,49 @@ public final class WaterPrefab extends Prefab {
    * @param layerWater layer state to rebuild
    */
   private static void rebuild(ILevel level, LayerWater layerWater) {
-    WaterShader shader = layerWater.shader()[0];
-    if (layerWater.instances().isEmpty()) {
-      if (shader != null && layerWater.shaders().get(layerWater.shaderKey()) == shader) {
-        layerWater.shaders().remove(layerWater.shaderKey());
+    WaterShader shader = layerWater.shader;
+    if (layerWater.instances.isEmpty()) {
+      if (shader != null && layerWater.shaders.get(layerWater.shaderKey) == shader) {
+        layerWater.shaders.remove(layerWater.shaderKey);
       }
-      layerWater.shader()[0] = null;
-      Texture field = TextureMap.instance().remove(layerWater.fieldPath());
+      layerWater.shader = null;
+      layerWater.fieldRegions = List.of();
+      Texture field = TextureMap.instance().remove(layerWater.fieldPath);
       if (field != null) field.dispose();
+      Map<Integer, LayerWater> layers = LAYERS.get(level);
+      if (layers != null && layers.get(layerWater.layer) == layerWater) {
+        layers.remove(layerWater.layer);
+        if (layers.isEmpty()) LAYERS.remove(level);
+      }
       return;
     }
 
-    Rectangle fieldRegion = buildShoreField(layerWater);
+    // The shore field only depends on the regions, other settings only update the shader.
+    List<Rectangle> regions =
+        layerWater.instances.values().stream().map(WaterSettings::region).toList();
+    if (!regions.equals(layerWater.fieldRegions)
+        || !TextureMap.instance().containsKey(layerWater.fieldPath)) {
+      layerWater.fieldRegion = buildShoreField(regions, layerWater.fieldPath);
+      layerWater.fieldRegions = regions;
+    }
     WaterSettings primary = primarySettings(level, layerWater);
     if (shader == null) {
       shader = new WaterShader();
-      layerWater.shader()[0] = shader;
+      layerWater.shader = shader;
     }
     shader
-        .region(fieldRegion)
-        .shoreField(layerWater.fieldPath())
+        .region(layerWater.fieldRegion)
+        .shoreField(layerWater.fieldPath)
         .color(primary.color())
         .speed(primary.speed())
         .repeat(primary.repeat())
         .foamMinWidth(primary.foamMinWidth())
         .foamMaxWidth(primary.foamMaxWidth())
         .lineInterval(primary.lineInterval());
-    if (layerWater.shaders().get(layerWater.shaderKey()) != shader
-        && !layerWater.shaders().add(layerWater.shaderKey(), shader)) {
+    if (layerWater.shaders.get(layerWater.shaderKey) != shader
+        && !layerWater.shaders.add(layerWater.shaderKey, shader)) {
       throw new IllegalStateException(
-          "Cannot add water shader: shader key collision '" + layerWater.shaderKey() + "'");
+          "Cannot add water shader: shader key collision '" + layerWater.shaderKey + "'");
     }
   }
 
@@ -237,10 +254,10 @@ public final class WaterPrefab extends Prefab {
    */
   private static WaterSettings primarySettings(ILevel level, LayerWater layerWater) {
     for (PrefabInstance authored : level.prefabs()) {
-      WaterSettings settings = layerWater.instances().get(authored.name());
+      WaterSettings settings = layerWater.instances.get(authored.name());
       if (settings != null) return settings;
     }
-    return layerWater.instances().values().iterator().next();
+    return layerWater.instances.values().iterator().next();
   }
 
   /**
@@ -248,16 +265,16 @@ public final class WaterPrefab extends Prefab {
    * it in the texture map. Each pixel stores the distance from its center to the center of the
    * nearest non-water pixel.
    *
-   * @param layerWater layer state
+   * @param regions water regions of the layer
+   * @param fieldPath texture map path to register the shore field at
    * @return world region covered by the generated texture
    */
-  private static Rectangle buildShoreField(LayerWater layerWater) {
+  private static Rectangle buildShoreField(List<Rectangle> regions, String fieldPath) {
     float minX = Float.MAX_VALUE;
     float minY = Float.MAX_VALUE;
     float maxX = -Float.MAX_VALUE;
     float maxY = -Float.MAX_VALUE;
-    for (WaterSettings settings : layerWater.instances().values()) {
-      Rectangle r = settings.region();
+    for (Rectangle r : regions) {
       minX = Math.min(minX, r.x());
       minY = Math.min(minY, r.y());
       maxX = Math.max(maxX, r.x() + r.width());
@@ -279,15 +296,13 @@ public final class WaterPrefab extends Prefab {
     int height = (int) Math.ceil(maxY * pixelsPerTile) + 1 - originY;
 
     float[] distances = new float[width * height];
-    for (WaterSettings settings : layerWater.instances().values()) {
-      Rectangle r = settings.region();
+    for (Rectangle r : regions) {
       int x0 = firstPixelCenterAtOrAfter(r.x() * pixelsPerTile - originX);
       int x1 = firstPixelCenterAtOrAfter((r.x() + r.width()) * pixelsPerTile - originX);
       int y0 = firstPixelCenterAtOrAfter(r.y() * pixelsPerTile - originY);
       int y1 = firstPixelCenterAtOrAfter((r.y() + r.height()) * pixelsPerTile - originY);
       for (int y = Math.max(y0, 0); y < Math.min(y1, height); y++) {
-        Arrays.fill(
-            distances, y * width + Math.max(x0, 0), y * width + Math.min(x1, width), INF);
+        Arrays.fill(distances, y * width + Math.max(x0, 0), y * width + Math.min(x1, width), INF);
       }
     }
     squaredDistanceTransform(distances, width, height);
@@ -313,7 +328,7 @@ public final class WaterPrefab extends Prefab {
     pixmap.dispose();
     texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
-    TextureMap.instance().putTexture(new SimpleIPath(layerWater.fieldPath()), texture);
+    TextureMap.instance().putTexture(new SimpleIPath(fieldPath), texture);
 
     return new Rectangle(
         (float) width / pixelsPerTile,
@@ -423,21 +438,30 @@ public final class WaterPrefab extends Prefab {
       int foamMaxWidth,
       float lineInterval) {}
 
-  /**
-   * Shared water state of one depth layer in one level.
-   *
-   * @param layer depth layer
-   * @param shaderKey key of the shared shader in the layer shader list
-   * @param fieldPath texture map path of the shore field
-   * @param shaders shader list of the depth layer
-   * @param instances water regions on the layer by instance name
-   * @param shader holder of the shared shader, empty until the first rebuild
-   */
-  private record LayerWater(
-      int layer,
-      String shaderKey,
-      String fieldPath,
-      ShaderList shaders,
-      Map<String, WaterSettings> instances,
-      WaterShader[] shader) {}
+  /** Shared water state of one depth layer in one level. */
+  private static final class LayerWater {
+    private final int layer;
+    private final String shaderKey;
+    private final String fieldPath;
+    private final ShaderList shaders;
+    private final Map<String, WaterSettings> instances = new LinkedHashMap<>();
+    private WaterShader shader;
+    private List<Rectangle> fieldRegions = List.of();
+    private Rectangle fieldRegion;
+
+    /**
+     * Creates the empty state of a layer.
+     *
+     * @param layer depth layer
+     * @param shaderKey key of the shared shader in the layer shader list
+     * @param fieldPath texture map path of the shore field
+     * @param shaders shader list of the depth layer
+     */
+    private LayerWater(int layer, String shaderKey, String fieldPath, ShaderList shaders) {
+      this.layer = layer;
+      this.shaderKey = shaderKey;
+      this.fieldPath = fieldPath;
+      this.shaders = shaders;
+    }
+  }
 }

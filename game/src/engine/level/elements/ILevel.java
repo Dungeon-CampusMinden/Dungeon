@@ -446,8 +446,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    */
   default <P extends Prefab> List<P> prefabs(Class<P> prefabClass) {
     return prefabs().stream()
-        .filter(
-            instance -> prefabClass.isInstance(PrefabRegistry.require(instance.type())))
+        .filter(instance -> prefabClass.isInstance(PrefabRegistry.require(instance.type())))
         .map(instance -> prefabClass.cast(PrefabRegistry.createView(this, instance)))
         .toList();
   }

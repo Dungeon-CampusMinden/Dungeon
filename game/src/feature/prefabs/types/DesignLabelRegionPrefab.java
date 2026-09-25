@@ -4,7 +4,10 @@ import engine.Entity;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.elements.ILevel;
+import engine.level.elements.tile.PitTile;
 import engine.level.utils.DesignLabel;
+import engine.level.utils.LevelElement;
+import engine.level.utils.TileTextureFactory;
 import engine.utils.Point;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
@@ -15,15 +18,19 @@ import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
 import feature.prefabs.Region;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Client-side design override for tiles inside a half-open world region.
  *
- * <p>Region corners are normalized. Integer tile coordinates on the bottom-left bounds are
- * included and coordinates on the top-right bounds are excluded. If regions overlap, the later
- * authored active region wins.
+ * <p>Region corners are normalized. Integer tile coordinates on the bottom-left bounds are included
+ * and coordinates on the top-right bounds are excluded. If regions overlap, the later authored
+ * active region wins.
  */
 public final class DesignLabelRegionPrefab extends Prefab {
 
@@ -39,11 +46,7 @@ public final class DesignLabelRegionPrefab extends Prefab {
 
   /** Creates the design-label region definition. */
   public DesignLabelRegionPrefab() {
-    super(
-        TYPE,
-        "Design Label Region",
-        PrefabSide.CLIENT,
-        List.of(REGION, DESIGN_LABEL));
+    super(TYPE, "Design Label Region", PrefabSide.CLIENT, List.of(REGION, DESIGN_LABEL));
   }
 
   /**
@@ -54,12 +57,7 @@ public final class DesignLabelRegionPrefab extends Prefab {
    */
   public DesignLabelRegionPrefab(ILevel level, String name) {
     super(
-        TYPE,
-        "Design Label Region",
-        PrefabSide.CLIENT,
-        List.of(REGION, DESIGN_LABEL),
-        level,
-        name);
+        TYPE, "Design Label Region", PrefabSide.CLIENT, List.of(REGION, DESIGN_LABEL), level, name);
   }
 
   @Override
@@ -84,8 +82,9 @@ public final class DesignLabelRegionPrefab extends Prefab {
   /**
    * Recomputes tile designs from the persistent level design and currently spawned client regions.
    *
-   * <p>This method is intentionally stateless: no tile's currently overridden label is ever used
-   * as a new base, and all winners are resolved in authored order on every refresh.
+   * <p>This method is intentionally stateless: no tile's currently overridden label is ever used as
+   * a new base, and all winners are resolved in authored order on every refresh. Only tiles whose
+   * design changes get their texture resolved again.
    *
    * @param level owning level
    */
@@ -95,11 +94,11 @@ public final class DesignLabelRegionPrefab extends Prefab {
             ? dungeonLevel.baseDesignLabel()
             : level.designLabel().orElse(DesignLabel.DEFAULT);
     Tile[][] layout = level.layout();
-    for (Tile[] row : layout) {
-      for (Tile tile : row) {
-        if (tile != null) tile.designLabel(base);
-      }
-    }
+    if (layout.length == 0) return;
+    int height = layout.length;
+    int width = layout[0].length;
+    DesignLabel[][] targets = new DesignLabel[height][width];
+    for (DesignLabel[] row : targets) Arrays.fill(row, base);
 
     for (PrefabInstance authored : level.prefabs()) {
       if (!TYPE.equals(authored.type())
@@ -109,25 +108,46 @@ public final class DesignLabelRegionPrefab extends Prefab {
       PrefabInstance normalized = PrefabRegistry.require(TYPE).normalize(authored);
       Region region = REGION.get(normalized);
       DesignLabel selected = DesignLabel.valueOf(DESIGN_LABEL.get(normalized));
-      for (Tile[] row : layout) {
-        for (Tile tile : row) {
-          if (tile == null) continue;
-          int x = tile.coordinate().x();
-          int y = tile.coordinate().y();
-          if (x >= region.bottomLeft().x()
-              && x < region.topRight().x()
-              && y >= region.bottomLeft().y()
-              && y < region.topRight().y()) {
-            tile.designLabel(selected);
-          }
-        }
+      // Integer tile coordinates inside [bottomLeft, topRight).
+      int x0 = Math.max((int) Math.ceil(region.bottomLeft().x()), 0);
+      int y0 = Math.max((int) Math.ceil(region.bottomLeft().y()), 0);
+      int x1 = Math.min((int) Math.ceil(region.topRight().x()), width);
+      int y1 = Math.min((int) Math.ceil(region.topRight().y()), height);
+      for (int y = y0; y < y1; y++) {
+        for (int x = x0; x < x1; x++) targets[y][x] = selected;
       }
     }
 
+    List<Tile> changed = new ArrayList<>();
     for (Tile[] row : layout) {
       for (Tile tile : row) {
-        if (tile != null) tile.refreshTexture();
+        if (tile == null) continue;
+        DesignLabel target = targets[tile.coordinate().y()][tile.coordinate().x()];
+        if (tile.designLabel() != target) {
+          tile.designLabel(target);
+          changed.add(tile);
+        }
       }
     }
+    if (changed.isEmpty()) return;
+
+    // The element layout is the same for every tile, so derive it only once.
+    LevelElement[][] elements = TileTextureFactory.levelElementLayout(layout);
+    Set<Tile> refreshed = Collections.newSetFromMap(new IdentityHashMap<>());
+    for (Tile tile : changed) {
+      refreshTexture(tile, layout, elements, refreshed);
+      // Open pits resolve their texture from the tile above them.
+      int x = tile.coordinate().x();
+      for (int y = tile.coordinate().y() - 1; y >= 0 && layout[y][x] instanceof PitTile; y--) {
+        refreshTexture(layout[y][x], layout, elements, refreshed);
+      }
+    }
+  }
+
+  private static void refreshTexture(
+      Tile tile, Tile[][] layout, LevelElement[][] elements, Set<Tile> refreshed) {
+    if (!refreshed.add(tile)) return;
+    tile.texturePath(
+        TileTextureFactory.findTexturePath(tile, layout, elements, tile.levelElement()));
   }
 }

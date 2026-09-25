@@ -223,8 +223,7 @@ public final class V3FormatParser extends LevelFormatParser {
         propertiesObject
             .properties()
             .forEach(entry -> properties.put(entry.getKey(), entry.getValue()));
-        PrefabInstance normalized =
-            prefab.normalize(new PrefabInstance(name, type, properties));
+        PrefabInstance normalized = prefab.normalize(new PrefabInstance(name, type, properties));
         if (names.contains(name)) {
           throw new IllegalArgumentException("duplicate prefab name '" + name + "'");
         }

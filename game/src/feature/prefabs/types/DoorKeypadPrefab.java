@@ -19,8 +19,7 @@ import java.util.Optional;
 public final class DoorKeypadPrefab extends Prefab {
 
   private static final PrefabProperty<Point> DOOR_POSITION =
-      PrefabProperty.point(
-          "doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
+      PrefabProperty.point("doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
   private static final PrefabProperty<Point> KEYPAD_POSITION =
       PrefabProperty.point(
           "keypadPosition", "Keypad Position", new Point(1, 0), new Point(0.5f, 0.5f));
@@ -102,20 +101,15 @@ public final class DoorKeypadPrefab extends Prefab {
     Point keypad = editorFeedbackPoint(instance, KEYPAD_POSITION);
     Point door = editorFeedbackPoint(instance, DOOR_POSITION);
     feedback.point(keypad, instance.name());
-    Color lineColor =
-        doorAt(level, value(instance, DOOR_POSITION)).isPresent() ? null : Color.RED;
+    Color lineColor = doorAt(level, value(instance, DOOR_POSITION)).isPresent() ? null : Color.RED;
     feedback.line(keypad, door, true, lineColor);
   }
 
   private static Optional<DoorTile> doorAt(ILevel level, Point position) {
-    return level
-        .tileAt(position)
-        .filter(DoorTile.class::isInstance)
-        .map(DoorTile.class::cast);
+    return level.tileAt(position).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
   }
 
-  private Point editorFeedbackPoint(
-      PrefabInstance instance, PrefabProperty<Point> property) {
+  private Point editorFeedbackPoint(PrefabInstance instance, PrefabProperty<Point> property) {
     Point point = value(instance, property);
     Point offset = property.editorFeedbackOffset();
     return point.translate(offset.x(), offset.y());

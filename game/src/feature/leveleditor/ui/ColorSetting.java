@@ -138,7 +138,6 @@ public final class ColorSetting extends EditorSetting {
     int green = Integer.parseInt(value.substring(2, 4), 16);
     int blue = Integer.parseInt(value.substring(4, 6), 16);
     int alpha = Integer.parseInt(value.substring(6, 8), 16);
-    return java.util.Optional.of(
-        new Color(red / 255f, green / 255f, blue / 255f, alpha / 255f));
+    return java.util.Optional.of(new Color(red / 255f, green / 255f, blue / 255f, alpha / 255f));
   }
 }

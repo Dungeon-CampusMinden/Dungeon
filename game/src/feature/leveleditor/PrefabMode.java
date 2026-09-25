@@ -20,8 +20,8 @@ import engine.utils.Vector2;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ColorSetting;
 import feature.leveleditor.ui.FloatSetting;
-import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.IntegerSetting;
+import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.NumberSliderSetting;
 import feature.leveleditor.ui.PointSetting;
 import feature.leveleditor.ui.RegionSetting;
@@ -41,6 +41,7 @@ import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,8 @@ public final class PrefabMode extends LevelEditorMode {
   private Table listContent;
   private SelectSetting<Prefab> prefabTypeSetting;
   private boolean rebuildPending;
+  // Authored instances are immutable, so their normalized form is reused between frames.
+  private Map<PrefabInstance, PrefabInstance> normalizedRenderInstances = new IdentityHashMap<>();
 
   /**
    * Creates a prefab editor mode.
@@ -106,7 +109,7 @@ public final class PrefabMode extends LevelEditorMode {
     cancelAnchorDrag();
     clearPendingPointAssignment();
     try {
-      respawnAll();
+      syncChanged();
     } catch (RuntimeException exception) {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
     }
@@ -152,8 +155,7 @@ public final class PrefabMode extends LevelEditorMode {
         snapMode = predictedSnapMode;
       }
     }
-    if (pendingAnchorDrag != null
-        && InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {
+    if (pendingAnchorDrag != null && InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {
       PendingAnchorDrag drag = pendingAnchorDrag;
       pendingAnchorDrag = null;
       if (drag.active()) {
@@ -175,8 +177,12 @@ public final class PrefabMode extends LevelEditorMode {
   @Override
   public void render() {
     DungeonLevel level = getLevel();
+    Map<PrefabInstance, PrefabInstance> normalized = new IdentityHashMap<>();
     for (PrefabInstance source : level.prefabs()) {
       Prefab prefab = PrefabRegistry.require(source.type());
+      PrefabInstance instance = normalizedRenderInstances.get(source);
+      if (instance == null) instance = prefab.normalize(source);
+      normalized.put(source, instance);
       Point highlighted =
           pendingAnchorDrag != null
                   && pendingAnchorDrag.active()
@@ -185,11 +191,12 @@ public final class PrefabMode extends LevelEditorMode {
               : null;
       prefab.renderEditorFeedback(
           level,
-          prefab.normalize(source),
+          instance,
           new DebugDrawPrefabEditorFeedback(
               Objects.equals(selectedName, source.name()), highlighted),
           Objects.equals(selectedName, source.name()));
     }
+    normalizedRenderInstances = normalized;
     if (pendingAnchorDrag != null && pendingAnchorDrag.active()) {
       Point destination =
           feedbackPositionForCursor(
@@ -198,13 +205,11 @@ public final class PrefabMode extends LevelEditorMode {
           pendingAnchorDrag.anchor().displayPosition(),
           POINT_ASSIGNMENT_PREVIEW_RADIUS,
           DRAG_ORIGINAL_COLOR);
-      DebugDrawSystem.drawPoint(
-          destination, POINT_ASSIGNMENT_PREVIEW_RADIUS, DRAG_PREVIEW_COLOR);
+      DebugDrawSystem.drawPoint(destination, POINT_ASSIGNMENT_PREVIEW_RADIUS, DRAG_PREVIEW_COLOR);
     }
     if (pendingPointAssignment != null) {
       DebugDrawSystem.drawPoint(
-          feedbackPositionForCursor(
-              getCursorPosition(), pendingPointAssignment.feedbackOffset()),
+          feedbackPositionForCursor(getCursorPosition(), pendingPointAssignment.feedbackOffset()),
           POINT_ASSIGNMENT_PREVIEW_RADIUS,
           POINT_ASSIGNMENT_PREVIEW_COLOR);
     }
@@ -327,8 +332,7 @@ public final class PrefabMode extends LevelEditorMode {
     for (PrefabInstance instance :
         getLevel().prefabs().stream()
             .sorted(
-                Comparator.comparing(
-                        PrefabInstance::name, String.CASE_INSENSITIVE_ORDER)
+                Comparator.comparing(PrefabInstance::name, String.CASE_INSENSITIVE_ORDER)
                     .thenComparing(PrefabInstance::name))
             .toList()) {
       TextButton entry =
@@ -570,8 +574,7 @@ public final class PrefabMode extends LevelEditorMode {
                 int index = getLevel().prefabs().indexOf(source);
                 if (index >= 0) {
                   applyChange(
-                      () -> getLevel().replacePrefab(index, replacement),
-                      rebuildSecondaryDetails);
+                      () -> getLevel().replacePrefab(index, replacement), rebuildSecondaryDetails);
                 }
               } catch (IllegalArgumentException exception) {
                 LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
@@ -603,8 +606,7 @@ public final class PrefabMode extends LevelEditorMode {
           prefab.translate(
               instance,
               Vector2.of(
-                  spawnPosition.x() - anchorPosition.x(),
-                  spawnPosition.y() - anchorPosition.y()));
+                  spawnPosition.x() - anchorPosition.x(), spawnPosition.y() - anchorPosition.y()));
     }
     PrefabInstance added = prefab.normalize(instance);
     applyChange(
@@ -734,9 +736,7 @@ public final class PrefabMode extends LevelEditorMode {
   private Optional<WorldAnchor> nearestAnchorNear(PrefabInstance instance, Point cursor) {
     return worldAnchors(instance).stream()
         .filter(anchor -> anchor.displayPosition().distance(cursor) <= ANCHOR_HIT_DISTANCE)
-        .min(
-            Comparator.comparingDouble(
-                anchor -> anchor.displayPosition().distance(cursor)));
+        .min(Comparator.comparingDouble(anchor -> anchor.displayPosition().distance(cursor)));
   }
 
   private List<WorldAnchor> worldAnchors(PrefabInstance instance) {
@@ -842,11 +842,12 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void respawnAll() {
-    despawnAll();
     try {
-      for (PrefabSide side : activeSides()) {
-        PrefabSpawner.spawn(getLevel(), side);
-      }
+      PrefabSpawner.batch(
+          () -> {
+            despawnAll();
+            for (PrefabSide side : activeSides()) PrefabSpawner.spawn(getLevel(), side);
+          });
     } catch (RuntimeException exception) {
       despawnAll();
       throw exception;
@@ -862,7 +863,7 @@ public final class PrefabMode extends LevelEditorMode {
     String previousSelection = selectedName;
     try {
       mutation.run();
-      respawnAll();
+      syncChanged();
       levelChanged();
       if (rebuildDetails) requestRebuild();
       else rebuildDetails(false);
@@ -871,13 +872,21 @@ public final class PrefabMode extends LevelEditorMode {
       getLevel().prefabs().addAll(previousPrefabs);
       selectedName = previousSelection;
       try {
-        respawnAll();
+        syncChanged();
       } catch (RuntimeException rollbackException) {
         exception.addSuppressed(rollbackException);
       }
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       requestRebuild();
     }
+  }
+
+  /** Respawns only the prefab instances that were added, changed, renamed or removed. */
+  private void syncChanged() {
+    PrefabSpawner.batch(
+        () -> {
+          for (PrefabSide side : activeSides()) PrefabSpawner.sync(getLevel(), side);
+        });
   }
 
   private void despawnAll() {
@@ -921,8 +930,7 @@ public final class PrefabMode extends LevelEditorMode {
     pendingPointAssignment = assignment;
   }
 
-  private record PendingPointAssignment(
-      Consumer<Point> assignment, Point feedbackOffset) {}
+  private record PendingPointAssignment(Consumer<Point> assignment, Point feedbackOffset) {}
 
   private enum AnchorCorner {
     POINT,

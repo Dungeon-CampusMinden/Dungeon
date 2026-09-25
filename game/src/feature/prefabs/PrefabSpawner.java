@@ -32,6 +32,9 @@ public final class PrefabSpawner {
   private static final Map<ILevel, Map<PrefabSide, Map<String, TrackedPrefab>>> TRACKED =
       new IdentityHashMap<>();
 
+  private static final Map<Object, Runnable> PENDING_ACTIONS = new LinkedHashMap<>();
+  private static int batchDepth;
+
   private PrefabSpawner() {}
 
   /**
@@ -41,10 +44,87 @@ public final class PrefabSpawner {
    * @param side side to instantiate
    */
   public static void spawn(ILevel level, PrefabSide side) {
-    for (PrefabInstance source : level.prefabs()) {
-      Prefab prefab = PrefabRegistry.require(source.type());
-      if (prefab.side() != side) continue;
-      spawnInstance(level, source, side);
+    batch(
+        () -> {
+          for (PrefabInstance source : level.prefabs()) {
+            Prefab prefab = PrefabRegistry.require(source.type());
+            if (prefab.side() != side) continue;
+            spawnInstance(level, source, side);
+          }
+        });
+  }
+
+  /**
+   * Brings the spawned instances of a level side in line with its authored instances.
+   *
+   * <p>Only instances that were added, changed, renamed, or removed since they were spawned are
+   * respawned or despawned. Unchanged instances keep their entities and runtime state.
+   *
+   * @param level owning level
+   * @param side side to synchronize
+   */
+  public static void sync(ILevel level, PrefabSide side) {
+    batch(
+        () -> {
+          Map<String, PrefabInstance> authored = new LinkedHashMap<>();
+          for (PrefabInstance source : level.prefabs()) {
+            if (PrefabRegistry.require(source.type()).side() == side) {
+              authored.put(source.name(), source);
+            }
+          }
+          for (TrackedPrefab tracked : List.copyOf(trackedOf(level, side).values())) {
+            PrefabInstance source = authored.get(tracked.source().name());
+            if (source == null || !source.type().equals(tracked.source().type())) {
+              despawnInstance(level, tracked.source(), side);
+            }
+          }
+          for (PrefabInstance source : authored.values()) {
+            TrackedPrefab tracked = trackedOf(level, side).get(source.name());
+            if (tracked == null || !isSpawnOf(tracked, source)) spawnInstance(level, source, side);
+          }
+        });
+  }
+
+  /**
+   * Runs prefab changes as one batch. Follow-up work registered with {@link #afterChanges} during
+   * the batch runs once when the outermost batch ends, even if the changes fail.
+   *
+   * @param changes spawn and despawn calls to batch
+   */
+  public static void batch(Runnable changes) {
+    batchDepth++;
+    RuntimeException failure = null;
+    try {
+      changes.run();
+    } catch (RuntimeException exception) {
+      failure = exception;
+    } finally {
+      batchDepth--;
+    }
+    if (batchDepth == 0) {
+      try {
+        runPendingActions();
+      } catch (RuntimeException exception) {
+        if (failure == null) failure = exception;
+        else failure.addSuppressed(exception);
+      }
+    }
+    if (failure != null) throw failure;
+  }
+
+  /**
+   * Registers work that has to happen after prefabs changed, such as rebuilding state shared by
+   * several instances. Outside of a batch the action runs immediately. Inside a batch it runs once
+   * per key when the batch ends, so shared state is rebuilt once instead of once per instance.
+   *
+   * @param key identity of the work, actions with an equal key are merged
+   * @param action work to run
+   */
+  public static void afterChanges(Object key, Runnable action) {
+    if (batchDepth == 0) {
+      action.run();
+    } else {
+      PENDING_ACTIONS.putIfAbsent(key, action);
     }
   }
 
@@ -81,7 +161,7 @@ public final class PrefabSpawner {
           .computeIfAbsent(side, ignored -> new LinkedHashMap<>())
           .put(instance.name(), tracked);
       if (side == PrefabSide.CLIENT) CLIENT_ENTITIES.addAll(added);
-      refreshDesignLabelRegions(level, side);
+      refreshDesignLabelRegions(level, side, prefab);
     } catch (RuntimeException e) {
       throw creationFailureWithCleanup(instance, prefab, context, added, tracked, e);
     }
@@ -175,7 +255,7 @@ public final class PrefabSpawner {
       if (tracked != null) removeTracked(tracked, side);
     } finally {
       discardEmpty(level, bySide, side);
-      refreshDesignLabelRegions(level, side);
+      if (tracked != null) refreshDesignLabelRegions(level, side, tracked.prefab());
     }
   }
 
@@ -191,17 +271,20 @@ public final class PrefabSpawner {
     Map<String, TrackedPrefab> tracked = bySide.remove(side);
     if (tracked == null) return;
     if (bySide.isEmpty()) TRACKED.remove(level);
-    RuntimeException failure = null;
-    for (TrackedPrefab record : new ArrayList<>(tracked.values())) {
-      try {
-        removeTracked(record, side);
-      } catch (RuntimeException exception) {
-        if (failure == null) failure = exception;
-        else failure.addSuppressed(exception);
-      }
-    }
-    refreshDesignLabelRegions(level, side);
-    if (failure != null) throw failure;
+    batch(
+        () -> {
+          RuntimeException failure = null;
+          for (TrackedPrefab record : new ArrayList<>(tracked.values())) {
+            try {
+              refreshDesignLabelRegions(level, side, record.prefab());
+              removeTracked(record, side);
+            } catch (RuntimeException exception) {
+              if (failure == null) failure = exception;
+              else failure.addSuppressed(exception);
+            }
+          }
+          if (failure != null) throw failure;
+        });
   }
 
   /**
@@ -233,8 +316,56 @@ public final class PrefabSpawner {
     }
   }
 
-  private static void refreshDesignLabelRegions(ILevel level, PrefabSide side) {
-    if (side == PrefabSide.CLIENT) refreshDesignLabelRegions(level);
+  private static void refreshDesignLabelRegions(ILevel level, PrefabSide side, Prefab prefab) {
+    if (side == PrefabSide.CLIENT && prefab instanceof DesignLabelRegionPrefab) {
+      afterChanges(new DesignRefreshKey(level), () -> refreshDesignLabelRegions(level));
+    }
+  }
+
+  private record DesignRefreshKey(ILevel level) {
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof DesignRefreshKey key && key.level == level;
+    }
+
+    @Override
+    public int hashCode() {
+      return System.identityHashCode(level);
+    }
+  }
+
+  private static void runPendingActions() {
+    RuntimeException failure = null;
+    while (!PENDING_ACTIONS.isEmpty()) {
+      List<Runnable> actions = new ArrayList<>(PENDING_ACTIONS.values());
+      PENDING_ACTIONS.clear();
+      for (Runnable action : actions) {
+        try {
+          action.run();
+        } catch (RuntimeException exception) {
+          if (failure == null) failure = exception;
+          else failure.addSuppressed(exception);
+        }
+      }
+    }
+    if (failure != null) throw failure;
+  }
+
+  private static Map<String, TrackedPrefab> trackedOf(ILevel level, PrefabSide side) {
+    Map<PrefabSide, Map<String, TrackedPrefab>> bySide = TRACKED.get(level);
+    if (bySide == null) return Map.of();
+    Map<String, TrackedPrefab> byName = bySide.get(side);
+    return byName == null ? Map.of() : byName;
+  }
+
+  private static boolean isSpawnOf(TrackedPrefab tracked, PrefabInstance source) {
+    if (tracked.source().equals(source)) return true;
+    if (!tracked.source().type().equals(source.type())) return false;
+    try {
+      return tracked.source().equals(tracked.prefab().normalize(source));
+    } catch (IllegalArgumentException invalidAuthoredRecord) {
+      return false;
+    }
   }
 
   private static IllegalStateException creationFailureWithCleanup(
@@ -257,7 +388,7 @@ public final class PrefabSpawner {
       failure.addSuppressed(cleanupFailure);
     }
     try {
-      refreshDesignLabelRegions(context.level(), context.side());
+      refreshDesignLabelRegions(context.level(), context.side(), prefab);
     } catch (RuntimeException cleanupFailure) {
       failure.addSuppressed(cleanupFailure);
     }

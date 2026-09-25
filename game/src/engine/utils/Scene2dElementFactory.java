@@ -235,7 +235,8 @@ public class Scene2dElementFactory {
   }
 
   /**
-   * Creates an ImageButton with an image loaded from an asset path, fitting the image to the button.
+   * Creates an ImageButton with an image loaded from an asset path, fitting the image to the
+   * button.
    *
    * @param assetPath the path to the image asset
    * @param styleName the name of the button background style in the skin

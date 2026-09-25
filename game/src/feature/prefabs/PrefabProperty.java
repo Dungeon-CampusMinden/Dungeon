@@ -298,7 +298,8 @@ public abstract class PrefabProperty<T> {
     if (!Float.isFinite(defaultValue)) {
       throw new IllegalArgumentException("number slider default must be finite");
     }
-    float normalizedDefault = quantize(clamp(defaultValue, minimum, maximum), minimum, maximum, step);
+    float normalizedDefault =
+        quantize(clamp(defaultValue, minimum, maximum), minimum, maximum, step);
     return new PrefabProperty<>(
         key, displayName, PrefabPropertyType.NUMBER_SLIDER, normalizedDefault) {
       @Override
@@ -317,7 +318,8 @@ public abstract class PrefabProperty<T> {
         if (value == null || !Float.isFinite(value)) {
           throw invalid(key, "must be finite");
         }
-        return mapper.getNodeFactory()
+        return mapper
+            .getNodeFactory()
             .numberNode(quantize(clamp(value, minimum, maximum), minimum, maximum, step));
       }
 
@@ -487,17 +489,16 @@ public abstract class PrefabProperty<T> {
   /**
    * Creates a finite, normalized world-region property.
    *
-   * <p>The serialized form is an object with {@code bottomLeft} and {@code topRight} point
-   * objects, each containing numeric {@code x} and {@code y} coordinates. Reversed corners are
-   * normalized; zero-area regions are valid.
+   * <p>The serialized form is an object with {@code bottomLeft} and {@code topRight} point objects,
+   * each containing numeric {@code x} and {@code y} coordinates. Reversed corners are normalized;
+   * zero-area regions are valid.
    *
    * @param key serialized key
    * @param displayName editor label
    * @param defaultValue default region
    * @return region property descriptor
    */
-  public static PrefabProperty<Region> region(
-      String key, String displayName, Region defaultValue) {
+  public static PrefabProperty<Region> region(String key, String displayName, Region defaultValue) {
     Objects.requireNonNull(defaultValue, "defaultValue");
     return new PrefabProperty<>(key, displayName, PrefabPropertyType.REGION, defaultValue) {
       @Override
@@ -511,8 +512,7 @@ public abstract class PrefabProperty<T> {
         }
         return validate(
             new Region(
-                decodePoint(node.get("bottomLeft"), key),
-                decodePoint(node.get("topRight"), key)));
+                decodePoint(node.get("bottomLeft"), key), decodePoint(node.get("topRight"), key)));
       }
 
       @Override
@@ -575,8 +575,7 @@ public abstract class PrefabProperty<T> {
    * @param defaultValue default color
    * @return color property descriptor
    */
-  public static PrefabProperty<Color> color(
-      String key, String displayName, Color defaultValue) {
+  public static PrefabProperty<Color> color(String key, String displayName, Color defaultValue) {
     Color validatedDefault = new Color(validateColor(key, defaultValue));
     return new PrefabProperty<>(key, displayName, PrefabPropertyType.COLOR, validatedDefault) {
       @Override

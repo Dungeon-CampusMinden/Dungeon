@@ -34,10 +34,7 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
    * @param highlightedPoint point marker to recolor, or {@code null}
    */
   public DebugDrawPrefabEditorFeedback(boolean selected, Point highlightedPoint) {
-    this(
-        selected ? SELECTED_STYLE : UNSELECTED_STYLE,
-        selected ? 1f : 0.35f,
-        highlightedPoint);
+    this(selected ? SELECTED_STYLE : UNSELECTED_STYLE, selected ? 1f : 0.35f, highlightedPoint);
   }
 
   /**
@@ -49,8 +46,7 @@ public final class DebugDrawPrefabEditorFeedback implements PrefabEditorFeedback
     this(style, style.geometryColor().a, null);
   }
 
-  private DebugDrawPrefabEditorFeedback(
-      Style style, float selectionAlpha, Point highlightedPoint) {
+  private DebugDrawPrefabEditorFeedback(Style style, float selectionAlpha, Point highlightedPoint) {
     this.style = style;
     this.selectionAlpha = selectionAlpha;
     this.highlightedPoint = highlightedPoint;

@@ -325,8 +325,11 @@ public class LevelEditorSystem extends System {
       sides = new PrefabSide[] {PrefabSide.SERVER};
     }
 
-    for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
-    for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
+    PrefabSpawner.batch(
+        () -> {
+          for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
+          for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
+        });
   }
 
   /**

@@ -204,9 +204,7 @@ public final class NumberSliderSetting extends EditorSetting {
     BigDecimal decimalValue = decimal(value).max(decimalMin).min(decimalMax);
 
     BigDecimal count =
-        decimalValue
-            .subtract(decimalMin)
-            .divide(decimalStep, 0, RoundingMode.HALF_UP);
+        decimalValue.subtract(decimalMin).divide(decimalStep, 0, RoundingMode.HALF_UP);
     BigDecimal nearest = decimalMin.add(count.multiply(decimalStep));
     if (nearest.compareTo(decimalMax) > 0) nearest = decimalMax;
 

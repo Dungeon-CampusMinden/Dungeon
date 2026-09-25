@@ -35,21 +35,19 @@ public abstract class EditorSetting extends Table {
   protected EditorSetting(String label, boolean isNested) {
     this.label = Objects.requireNonNull(label, "label");
     this.isNested = isNested;
-    labelActor = Scene2dElementFactory.createLabel(
+    labelActor =
+        Scene2dElementFactory.createLabel(
             this.label,
             this.isNested ? NESTED_LABEL_FONT_SIZE : LABEL_FONT_SIZE,
             ModeDetailsPanel.TEXT_COLOR);
-    add(labelActor)
-        .growX()
-        .left();
+    add(labelActor).growX().left();
   }
 
   /** Applies the standard smaller label style used by settings nested in a compound setting. */
   protected final void useNestedLabelStyle() {
     Label.LabelStyle style = new Label.LabelStyle(labelActor.getStyle());
     style.font =
-        FontHelper.getFont(
-            DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(NESTED_LABEL_FONT_SIZE));
+        FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(NESTED_LABEL_FONT_SIZE));
     labelActor.setStyle(style);
   }
 }

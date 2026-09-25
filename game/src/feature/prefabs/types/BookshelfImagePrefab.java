@@ -51,8 +51,8 @@ public final class BookshelfImagePrefab extends Prefab {
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point position = value(instance, POSITION);
     feedback.point(position, instance.name());
-    if(selected){
-      feedback.label(position.translate(0, 0.6f), "("+value(instance, IMAGE)+")");
+    if (selected) {
+      feedback.label(position.translate(0, 0.6f), "(" + value(instance, IMAGE) + ")");
     }
   }
 }
