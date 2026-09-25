@@ -376,7 +376,7 @@ public abstract class AbstractShader implements Disposable {
       Texture texture = resolveTexture(texturePath);
 
       // Activate this texture in OpenGL
-      Gdx.gl.glActiveTexture(unit);
+      Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0 + unit);
       texture.bind(unit);
       program.setUniformi(name, unit);
 

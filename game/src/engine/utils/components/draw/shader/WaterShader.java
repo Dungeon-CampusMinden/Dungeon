@@ -1,0 +1,107 @@
+package engine.utils.components.draw.shader;
+
+import com.badlogic.gdx.graphics.Color;
+import engine.utils.Rectangle;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+/** World-aligned, animated water applied to a depth layer within a world region. */
+public final class WaterShader extends AbstractShader {
+
+  private static final String DUDV_TEXTURE = "images/dudv-water.png";
+
+  private Rectangle region = new Rectangle(0, 0, 0, 0);
+  private Color color = new Color(0.1f, 0.4f, 0.7f, 1f);
+  private float speed = 0.15f;
+  private float repeat = 1f;
+
+  /** Creates a water shader with default color and speed. */
+  public WaterShader() {
+    super("shaders/passthrough.vert", "shaders/water.frag");
+  }
+
+  @Override
+  protected List<UniformBinding> getUniforms(int actualUpscale) {
+    return List.of(
+        new ColorUniform("u_waterColor", color),
+        new FloatUniform("u_speed", speed),
+        new FloatUniform("u_repeat", repeat),
+        new Vector4Uniform("u_waterRegion", region),
+        new TextureUniform("u_dudv", DUDV_TEXTURE, 1));
+  }
+
+  @Override
+  public int padding() {
+    return 0;
+  }
+
+  @Override
+  public Rectangle worldBounds() {
+    return region;
+  }
+
+  /**
+   * Sets the region to shade in world coordinates.
+   *
+   * @param region water bounds
+   * @return this shader
+   */
+  public WaterShader region(Rectangle region) {
+    this.region = Objects.requireNonNull(region, "region");
+    return this;
+  }
+
+  /**
+   * Sets the base water color.
+   *
+   * @param color water color
+   * @return this shader
+   */
+  public WaterShader color(Color color) {
+    this.color = new Color(Objects.requireNonNull(color, "color"));
+    return this;
+  }
+
+  /**
+   * Sets the speed of the back-and-forth wave.
+   *
+   * @param speed wave speed
+   * @return this shader
+   */
+  public WaterShader speed(float speed) {
+    if (!Float.isFinite(speed)) throw new IllegalArgumentException("Water speed must be finite");
+    this.speed = speed;
+    return this;
+  }
+
+  /**
+   * Sets the number of pattern repetitions per world tile.
+   *
+   * @param repeat repetitions per tile
+   * @return this shader
+   */
+  public WaterShader repeat(float repeat) {
+    if (!Float.isFinite(repeat) || repeat < 0.1f || repeat > 64f) {
+      throw new IllegalArgumentException("Water repeat must be between 0.1 and 64");
+    }
+    this.repeat = repeat;
+    return this;
+  }
+
+  @Override
+  protected void writeProperties(Map<String, String> properties) {
+    putRectangle(properties, region);
+    putColor(properties, color);
+    properties.put("speed", Float.toString(speed));
+    properties.put("repeat", Float.toString(repeat));
+  }
+
+  @Override
+  protected void readProperties(Map<String, String> properties) {
+    region(rectangleProperty(properties));
+    color(colorProperty(properties));
+    speed(floatProperty(properties, "speed"));
+    repeat(floatProperty(properties, "repeat"));
+  }
+}

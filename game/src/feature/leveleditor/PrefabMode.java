@@ -146,7 +146,11 @@ public final class PrefabMode extends LevelEditorMode {
         && pendingAnchorDrag.startPosition().distance(cursor) > DRAG_START_DISTANCE) {
       pendingAnchorDrag = pendingAnchorDrag.activate();
       snapModeBeforeAnchorDrag = snapMode;
-      snapMode = PointMode.snapModeFor(pendingAnchorDrag.anchor().authoredPosition());
+      SnapMode predictedSnapMode =
+          PointMode.snapModeFor(pendingAnchorDrag.anchor().authoredPosition());
+      if (predictedSnapMode.isMorePreciseThan(snapMode)) {
+        snapMode = predictedSnapMode;
+      }
     }
     if (pendingAnchorDrag != null
         && InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {

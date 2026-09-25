@@ -1,20 +1,18 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
+import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogDesign;
-import feature.hud.elements.RichLabel;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 /**
- * A labeled integer setting consisting of a minus button, a read-only display of the current value,
- * and a plus button.
+ * A labeled integer setting consisting of a minus button, an editable value, and a plus button.
  *
  * <p>The value is always clamped into the configured range.
  */
@@ -22,15 +20,12 @@ public class IntegerSetting extends EditorSetting {
 
   private static final int FONT_SIZE = 16;
   private static final float BUTTON_SIZE = 30f;
-  private static final float VALUE_WIDTH = 50f;
 
-  private final RichLabel valueLabel;
+  private final TextField valueField;
   private final IntSupplier getter;
   private final IntConsumer setter;
   private final int min;
   private final int max;
-
-  private int lastValue;
 
   /**
    * Creates a new number setting.
@@ -47,35 +42,51 @@ public class IntegerSetting extends EditorSetting {
     this.setter = setter;
     this.min = min;
     this.max = max;
-    this.lastValue = getter.getAsInt();
-
     TextButton minus = Scene2dElementFactory.createButton("-", "default", FONT_SIZE + 4);
     minus.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            value(value() - 1);
+            value(value() == min ? min : value() - 1);
           }
         });
 
-    valueLabel =
-        new RichLabel(String.valueOf(lastValue), DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(16));
-    valueLabel.setAlignment(Align.center);
-    Table valueContainer = new Table();
-    valueContainer.setBackground(UIUtils.defaultSkin().getDrawable("generic-area"));
-    valueContainer.add(valueLabel).grow();
+    valueField = Scene2dElementFactory.createTextField(String.valueOf(getter.getAsInt()));
+    TextField.TextFieldStyle style = new TextField.TextFieldStyle(valueField.getStyle());
+    style.font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
+    style.messageFont = style.font;
+    style.background.setLeftWidth(10);
+    if (style.focusedBackground != null) {
+      style.focusedBackground.setLeftWidth(10);
+    }
+    if (style.disabledBackground != null) {
+      style.disabledBackground.setLeftWidth(10);
+    }
+    valueField.setStyle(style);
+    valueField.setTextFieldListener(
+        (field, character) -> {
+          if (character == '\r' || character == '\n') commitText();
+        });
+    valueField.addListener(
+        new FocusListener() {
+          @Override
+          public void keyboardFocusChanged(
+              FocusListener.FocusEvent event, Actor actor, boolean focused) {
+            if (!focused && !commitText()) refresh();
+          }
+        });
 
     TextButton plus = Scene2dElementFactory.createButton("+", "default", FONT_SIZE + 4);
     plus.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            value(value() + 1);
+            value(value() == max ? max : value() + 1);
           }
         });
 
     add(minus).size(BUTTON_SIZE).padRight(4f);
-    add(valueContainer).width(VALUE_WIDTH).height(BUTTON_SIZE).padRight(4f);
+    add(valueField).width(80f).height(40f).padRight(4f);
     add(plus).size(BUTTON_SIZE);
   }
 
@@ -100,9 +111,21 @@ public class IntegerSetting extends EditorSetting {
 
   /** Synchronizes the displayed value with the current value. */
   public void refresh() {
-    int current = getter.getAsInt();
-    if (current == lastValue) return;
-    lastValue = current;
-    valueLabel.setText(String.valueOf(current));
+    if (valueField.hasKeyboardFocus()) return;
+    String current = String.valueOf(getter.getAsInt());
+    if (!current.equals(valueField.getText())) valueField.setText(current);
+  }
+
+  private boolean commitText() {
+    try {
+      int value = Integer.parseInt(valueField.getText());
+      if (value >= min && value <= max) {
+        setter.accept(value);
+        return true;
+      }
+    } catch (NumberFormatException ignored) {
+      // Partial values such as "-" are allowed while the user is typing.
+    }
+    return false;
   }
 }

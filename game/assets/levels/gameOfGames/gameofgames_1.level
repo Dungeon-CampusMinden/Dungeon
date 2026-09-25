@@ -1,14 +1,14 @@
 {
   "version" : 3,
   "design" : "DEFAULT",
-  "layout" : [ "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "WWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSS", "WFFWFFFFFFFFFFFWFFFWSSSSSSSSSSSSSSS", "WFFWFFFFFFFFFFFWFFFWSSSSSSSSSSSSSSS", "WWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSS", "WFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSS", "WWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSS" ],
+  "layout" : [ "SSSSSSSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SWWWWWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SSFFFWSSSSSSSSSSSSSSWFFWFFWFFWSSSSSSSSSSS", "SSFFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWWWWWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
-    "x" : 10.0,
+    "x" : 15.0,
     "y" : 7.0
   } ],
   "namedPoints" : {
     "bookshelf" : {
-      "x" : 10.0,
+      "x" : 15.0,
       "y" : 11.0
     }
   },
@@ -18,7 +18,7 @@
     "type" : "bookshelf-image",
     "properties" : {
       "position" : {
-        "x" : 12.0,
+        "x" : 17.0,
         "y" : 8.0
       },
       "image" : "images/binary_hex.jpg"
@@ -28,11 +28,11 @@
     "type" : "door-keypad",
     "properties" : {
       "keypadPosition" : {
-        "x" : 6.0,
+        "x" : 11.0,
         "y" : 13.0
       },
       "doorPosition" : {
-        "x" : 2.0,
+        "x" : 7.0,
         "y" : 10.0
       },
       "code" : "123",
@@ -43,11 +43,11 @@
     "type" : "door-keypad",
     "properties" : {
       "keypadPosition" : {
-        "x" : 13.0,
+        "x" : 18.0,
         "y" : 13.0
       },
       "doorPosition" : {
-        "x" : 2.0,
+        "x" : 7.0,
         "y" : 10.0
       },
       "code" : "1234",
@@ -59,11 +59,11 @@
     "properties" : {
       "region" : {
         "bottomLeft" : {
-          "x" : 11.0,
+          "x" : 16.0,
           "y" : 1.0
         },
         "topRight" : {
-          "x" : 17.0,
+          "x" : 22.0,
           "y" : 6.0
         }
       },
@@ -75,11 +75,11 @@
     "properties" : {
       "region" : {
         "bottomLeft" : {
-          "x" : 4.0,
+          "x" : 9.0,
           "y" : 3.0
         },
         "topRight" : {
-          "x" : 18.0,
+          "x" : 23.0,
           "y" : 5.0
         }
       },
@@ -90,7 +90,7 @@
     "type" : "deco-dialog",
     "properties" : {
       "position" : {
-        "x" : 8.0,
+        "x" : 13.0,
         "y" : 8.0
       },
       "deco" : "BookshelfLarge",
@@ -106,11 +106,11 @@
     "type" : "door-lever",
     "properties" : {
       "leverPosition" : {
-        "x" : 13.0,
+        "x" : 18.0,
         "y" : 11.0
       },
       "doorPosition" : {
-        "x" : 17.0,
+        "x" : 22.0,
         "y" : 10.0
       },
       "closeable" : true
@@ -120,7 +120,7 @@
     "type" : "pushable-stone",
     "properties" : {
       "position" : {
-        "x" : 22.0,
+        "x" : 27.0,
         "y" : 9.0
       }
     }
@@ -129,7 +129,7 @@
     "type" : "pushable-stone",
     "properties" : {
       "position" : {
-        "x" : 21.0,
+        "x" : 26.0,
         "y" : 3.0
       }
     }
@@ -138,7 +138,7 @@
     "type" : "pushable-stone",
     "properties" : {
       "position" : {
-        "x" : 23.0,
+        "x" : 28.0,
         "y" : 7.0
       }
     }
@@ -147,11 +147,11 @@
     "type" : "pressure-plate",
     "properties" : {
       "position" : {
-        "x" : 20.0,
+        "x" : 25.0,
         "y" : 9.0
       },
       "doorPosition" : {
-        "x" : 17.0,
+        "x" : 22.0,
         "y" : 10.0
       }
     }
@@ -161,11 +161,11 @@
     "properties" : {
       "region" : {
         "bottomLeft" : {
-          "x" : 19.0,
+          "x" : 24.0,
           "y" : 6.0
         },
         "topRight" : {
-          "x" : 20.0,
+          "x" : 25.0,
           "y" : 8.0
         }
       },
@@ -178,7 +178,7 @@
     "type" : "torch",
     "properties" : {
       "position" : {
-        "x" : 6.0,
+        "x" : 11.0,
         "y" : 8.0
       },
       "on" : true,
@@ -190,18 +190,18 @@
     "properties" : {
       "region" : {
         "bottomLeft" : {
-          "x" : 21.0,
+          "x" : 24.75,
           "y" : 1.0
         },
         "topRight" : {
-          "x" : 28.0,
-          "y" : 11.0
+          "x" : 32.25,
+          "y" : 10.6875
         }
       },
       "hue" : 0.33999997,
       "saturationMult" : 2.5,
       "valueMult" : 1.0,
-      "transitionSize" : 1.8000001,
+      "transitionSize" : 0.0,
       "scene" : true
     }
   }, {
@@ -209,7 +209,7 @@
     "type" : "deco-image",
     "properties" : {
       "position" : {
-        "x" : 5.0,
+        "x" : 10.0,
         "y" : 6.0
       },
       "deco" : "Printer1",
@@ -218,6 +218,76 @@
         "y" : 1.0
       },
       "image" : "images/binary_hex.jpg"
+    }
+  }, {
+    "name" : "water_1",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : -25.0,
+          "y" : -12.0
+        },
+        "topRight" : {
+          "x" : 2.0,
+          "y" : 40.5
+        }
+      },
+      "color" : "2060A1FF",
+      "speed" : 0.55,
+      "layer" : -120,
+      "repeat" : 0.5
+    }
+  }, {
+    "name" : "dl-forest_1",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : 0.0
+        },
+        "topRight" : {
+          "x" : 5.0,
+          "y" : 18.0
+        }
+      },
+      "designLabel" : "FOREST"
+    }
+  }, {
+    "name" : "water",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 24.0,
+          "y" : 14.0
+        },
+        "topRight" : {
+          "x" : 26.0,
+          "y" : 16.0
+        }
+      },
+      "color" : "1A66B3FF",
+      "speed" : 0.14999999,
+      "layer" : -50,
+      "repeat" : 0.25
+    }
+  }, {
+    "name" : "design-label-region",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 22.0,
+          "y" : 12.0
+        },
+        "topRight" : {
+          "x" : 28.0,
+          "y" : 18.0
+        }
+      },
+      "designLabel" : "TEMPLE"
     }
   } ]
 }

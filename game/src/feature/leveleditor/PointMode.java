@@ -93,7 +93,10 @@ public class PointMode extends LevelEditorMode {
           snapModeBeforePickup = snapMode;
         }
         heldPointName = point;
-        snapMode = snapModeFor(getLevel().namedPoints().get(point));
+        SnapMode predictedSnapMode = snapModeFor(getLevel().namedPoints().get(point));
+        if (predictedSnapMode.isMorePreciseThan(snapMode)) {
+          snapMode = predictedSnapMode;
+        }
         snapPos = snapMode.getPosition(cursorPos);
       }
 

@@ -258,6 +258,19 @@ public abstract class LevelEditorMode {
       return values()[(this.ordinal() + 1) % values().length];
     }
 
+    boolean isMorePreciseThan(SnapMode other) {
+      return precision() > other.precision();
+    }
+
+    private int precision() {
+      return switch (this) {
+        case OnGrid, CheckerGridEven, CheckerGridOdd -> 1;
+        case QuarterGrid -> 4;
+        case PixelGrid -> 16;
+        case OffGrid -> Integer.MAX_VALUE;
+      };
+    }
+
     Point getPosition(Point position) {
       return switch (this) {
         case OnGrid ->
