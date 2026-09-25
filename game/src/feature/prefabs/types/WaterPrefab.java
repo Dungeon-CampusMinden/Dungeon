@@ -1,17 +1,18 @@
 package feature.prefabs.types;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import engine.Entity;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.ILevel;
+import engine.systems.DrawSystem;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
-import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.TextureMap;
-import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.draw.shader.WaterShader;
 import engine.utils.components.path.SimpleIPath;
 import feature.prefabs.Prefab;
@@ -21,9 +22,22 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.Region;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
-/** Client-side water rectangle rendered on a configurable depth layer. */
+/**
+ * Client-side water rectangle rendered on a configurable depth layer.
+ *
+ * <p>All water instances on the same layer of a level share one {@link WaterShader}. Their regions
+ * are merged, so the shore only appears where water meets non-water. Color, speed and the other
+ * look settings of a layer come from its first water instance in the level file.
+ */
 public final class WaterPrefab extends Prefab {
 
   private static final String TYPE = "water";
@@ -54,9 +68,12 @@ public final class WaterPrefab extends Prefab {
           FOAM_MAX_WIDTH,
           LINE_INTERVAL);
 
-  private static final String SHADER_KEY = "water";
-  private static final int PIXELS_PER_TILE = 16;
-  private static final int MAX_CANVAS_PIXELS = 4096;
+  private static final int MAX_FIELD_PIXELS = 4096;
+  // Squared distance larger than any field can produce, marks water before the transform.
+  private static final float INF = 1e20f;
+  private static final Map<ILevel, Map<Integer, LayerWater>> LAYERS = new IdentityHashMap<>();
+  private static final Map<ILevel, Long> LEVEL_IDS = new WeakHashMap<>();
+  private static long nextLevelId;
 
   /** Creates the water prefab definition. */
   public WaterPrefab() {
@@ -81,26 +98,56 @@ public final class WaterPrefab extends Prefab {
     float height = region.topRight().y() - region.bottomLeft().y();
     if (width == 0f || height == 0f) return List.of();
 
+    // The entity only marks the water on its depth layer, the shared layer shader draws it.
     Entity water = context.createEntity(instance.name());
-    DrawComponent draw = new DrawComponent(new Animation(new SimpleIPath(canvasTexture(width, height))));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("hud/white.png"));
+    draw.tintColor(Color.rgba8888(Color.BLACK));
     draw.depth(layer);
     PositionComponent position = new PositionComponent(region.bottomLeft());
     position.scale(Vector2.of(width / draw.getWidth(), height / draw.getHeight()));
     water.add(position);
     water.add(draw);
 
-    draw.shaders()
-        .add(
-            SHADER_KEY,
-            new WaterShader()
-                .region(new Rectangle(region.bottomLeft(), region.topRight()))
-                .color(value(instance, COLOR))
-                .speed(value(instance, SPEED))
-                .repeat(value(instance, REPEAT))
-                .foamMinWidth(value(instance, FOAM_MIN_WIDTH))
-                .foamMaxWidth(value(instance, FOAM_MAX_WIDTH))
-                .lineInterval(value(instance, LINE_INTERVAL)));
+    WaterSettings settings =
+        new WaterSettings(
+            new Rectangle(region.bottomLeft(), region.topRight()),
+            value(instance, COLOR),
+            value(instance, SPEED),
+            value(instance, REPEAT),
+            value(instance, FOAM_MIN_WIDTH),
+            value(instance, FOAM_MAX_WIDTH),
+            value(instance, LINE_INTERVAL));
+    synchronized (LAYERS) {
+      Map<Integer, LayerWater> layers =
+          LAYERS.computeIfAbsent(context.level(), ignored -> new HashMap<>());
+      // A changed instance may have moved to another layer.
+      for (LayerWater other : layers.values()) {
+        if (other.layer() != layer && other.instances().remove(instance.name()) != null) {
+          rebuild(context.level(), other);
+        }
+      }
+      layers.values().removeIf(other -> other.instances().isEmpty());
+      LayerWater layerWater =
+          layers.computeIfAbsent(layer, ignored -> newLayerWater(context.level(), layer));
+      layerWater.instances().put(instance.name(), settings);
+      rebuild(context.level(), layerWater);
+    }
     return List.of(water);
+  }
+
+  @Override
+  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
+    synchronized (LAYERS) {
+      Map<Integer, LayerWater> layers = LAYERS.get(context.level());
+      if (layers == null) return;
+      for (LayerWater layerWater : layers.values()) {
+        if (layerWater.instances().remove(instance.name()) != null) {
+          rebuild(context.level(), layerWater);
+        }
+      }
+      layers.values().removeIf(layerWater -> layerWater.instances().isEmpty());
+      if (layers.isEmpty()) LAYERS.remove(context.level());
+    }
   }
 
   @Override
@@ -118,24 +165,279 @@ public final class WaterPrefab extends Prefab {
   }
 
   /**
-   * Returns the path of a white texture whose pixel size matches the water region. Entity shaders
-   * render at sprite resolution, so this keeps the water on the same pixel grid as the tiles.
+   * Creates the empty shared water state of a depth layer.
    *
-   * @param width region width in world units
-   * @param height region height in world units
-   * @return path of the registered canvas texture
+   * @param level owning level
+   * @param layer depth layer
+   * @return new layer state
    */
-  private static String canvasTexture(float width, float height) {
-    int pixelWidth = canvasPixels(width);
-    int pixelHeight = canvasPixels(height);
-    String path = "generated/water_" + pixelWidth + "x" + pixelHeight + ".png";
-    if (!TextureMap.instance().containsKey(path)) {
-      TextureGenerator.registerGenerateColorTexture(path, pixelWidth, pixelHeight, Color.WHITE);
+  private static LayerWater newLayerWater(ILevel level, int layer) {
+    long id;
+    synchronized (LEVEL_IDS) {
+      id = LEVEL_IDS.computeIfAbsent(level, ignored -> nextLevelId++);
     }
-    return path;
+    String name = "level-" + id + "-layer-" + layer;
+    return new LayerWater(
+        layer,
+        TYPE + ":" + name,
+        "generated/water-field/" + name + ".png",
+        DrawSystem.getInstance().entityDepthShaders(layer),
+        new LinkedHashMap<>(),
+        new WaterShader[1]);
   }
 
-  private static int canvasPixels(float worldSize) {
-    return MathUtils.clamp(Math.round(Math.abs(worldSize) * PIXELS_PER_TILE), 1, MAX_CANVAS_PIXELS);
+  /**
+   * Regenerates the shore field of a layer and updates its shared shader, or removes both once no
+   * water is left on the layer.
+   *
+   * @param level owning level
+   * @param layerWater layer state to rebuild
+   */
+  private static void rebuild(ILevel level, LayerWater layerWater) {
+    WaterShader shader = layerWater.shader()[0];
+    if (layerWater.instances().isEmpty()) {
+      if (shader != null && layerWater.shaders().get(layerWater.shaderKey()) == shader) {
+        layerWater.shaders().remove(layerWater.shaderKey());
+      }
+      layerWater.shader()[0] = null;
+      Texture field = TextureMap.instance().remove(layerWater.fieldPath());
+      if (field != null) field.dispose();
+      return;
+    }
+
+    Rectangle fieldRegion = buildShoreField(layerWater);
+    WaterSettings primary = primarySettings(level, layerWater);
+    if (shader == null) {
+      shader = new WaterShader();
+      layerWater.shader()[0] = shader;
+    }
+    shader
+        .region(fieldRegion)
+        .shoreField(layerWater.fieldPath())
+        .color(primary.color())
+        .speed(primary.speed())
+        .repeat(primary.repeat())
+        .foamMinWidth(primary.foamMinWidth())
+        .foamMaxWidth(primary.foamMaxWidth())
+        .lineInterval(primary.lineInterval());
+    if (layerWater.shaders().get(layerWater.shaderKey()) != shader
+        && !layerWater.shaders().add(layerWater.shaderKey(), shader)) {
+      throw new IllegalStateException(
+          "Cannot add water shader: shader key collision '" + layerWater.shaderKey() + "'");
+    }
   }
+
+  /**
+   * Returns the settings of the water instance on the layer that comes first in the level file, so
+   * the look of a layer does not change when other instances are edited.
+   *
+   * @param level owning level
+   * @param layerWater layer state
+   * @return settings used for the whole layer
+   */
+  private static WaterSettings primarySettings(ILevel level, LayerWater layerWater) {
+    for (PrefabInstance authored : level.prefabs()) {
+      WaterSettings settings = layerWater.instances().get(authored.name());
+      if (settings != null) return settings;
+    }
+    return layerWater.instances().values().iterator().next();
+  }
+
+  /**
+   * Generates the shore field texture of a layer from the union of its water regions and registers
+   * it in the texture map. Each pixel stores the distance from its center to the center of the
+   * nearest non-water pixel.
+   *
+   * @param layerWater layer state
+   * @return world region covered by the generated texture
+   */
+  private static Rectangle buildShoreField(LayerWater layerWater) {
+    float minX = Float.MAX_VALUE;
+    float minY = Float.MAX_VALUE;
+    float maxX = -Float.MAX_VALUE;
+    float maxY = -Float.MAX_VALUE;
+    for (WaterSettings settings : layerWater.instances().values()) {
+      Rectangle r = settings.region();
+      minX = Math.min(minX, r.x());
+      minY = Math.min(minY, r.y());
+      maxX = Math.max(maxX, r.x() + r.width());
+      maxY = Math.max(maxY, r.y() + r.height());
+    }
+
+    // Use the water pixel grid, halving the resolution only if the texture would get too big.
+    int pixelsPerTile = WaterShader.PIXELS_PER_TILE;
+    while (pixelsPerTile > 1
+        && Math.max(maxX - minX, maxY - minY) * pixelsPerTile + 2 > MAX_FIELD_PIXELS) {
+      pixelsPerTile /= 2;
+    }
+    float waterPixelsPerFieldPixel = (float) WaterShader.PIXELS_PER_TILE / pixelsPerTile;
+
+    // One pixel of land around the union guarantees a shore at the outer edges.
+    int originX = (int) Math.floor(minX * pixelsPerTile) - 1;
+    int originY = (int) Math.floor(minY * pixelsPerTile) - 1;
+    int width = (int) Math.ceil(maxX * pixelsPerTile) + 1 - originX;
+    int height = (int) Math.ceil(maxY * pixelsPerTile) + 1 - originY;
+
+    float[] distances = new float[width * height];
+    for (WaterSettings settings : layerWater.instances().values()) {
+      Rectangle r = settings.region();
+      int x0 = firstPixelCenterAtOrAfter(r.x() * pixelsPerTile - originX);
+      int x1 = firstPixelCenterAtOrAfter((r.x() + r.width()) * pixelsPerTile - originX);
+      int y0 = firstPixelCenterAtOrAfter(r.y() * pixelsPerTile - originY);
+      int y1 = firstPixelCenterAtOrAfter((r.y() + r.height()) * pixelsPerTile - originY);
+      for (int y = Math.max(y0, 0); y < Math.min(y1, height); y++) {
+        Arrays.fill(
+            distances, y * width + Math.max(x0, 0), y * width + Math.min(x1, width), INF);
+      }
+    }
+    squaredDistanceTransform(distances, width, height);
+
+    Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+    ByteBuffer pixels = pixmap.getPixels();
+    float scale = 255f / WaterShader.SHORE_FIELD_MAX_PIXELS;
+    for (int i = 0; i < distances.length; i++) {
+      float value = 0f;
+      if (distances[i] > 0f) {
+        // Convert to water pixels while keeping the shore half a water pixel from the center.
+        float fieldPixels = (float) Math.sqrt(distances[i]);
+        value = (fieldPixels - 0.5f) * waterPixelsPerFieldPixel + 0.5f;
+      }
+      int encoded = Math.round(Math.min(value, WaterShader.SHORE_FIELD_MAX_PIXELS) * scale);
+      // Pixmap rows are uploaded bottom-up in texture space, matching world y.
+      pixels.put(i * 4, (byte) encoded);
+      pixels.put(i * 4 + 1, (byte) 0);
+      pixels.put(i * 4 + 2, (byte) 0);
+      pixels.put(i * 4 + 3, (byte) 255);
+    }
+    Texture texture = new Texture(pixmap);
+    pixmap.dispose();
+    texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+    texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+    TextureMap.instance().putTexture(new SimpleIPath(layerWater.fieldPath()), texture);
+
+    return new Rectangle(
+        (float) width / pixelsPerTile,
+        (float) height / pixelsPerTile,
+        (float) originX / pixelsPerTile,
+        (float) originY / pixelsPerTile);
+  }
+
+  /**
+   * Returns the index of the first pixel whose center lies at or after a pixel grid coordinate.
+   *
+   * @param gridCoordinate coordinate in field pixels
+   * @return pixel index
+   */
+  private static int firstPixelCenterAtOrAfter(float gridCoordinate) {
+    return (int) Math.ceil(gridCoordinate - 0.5f);
+  }
+
+  /**
+   * Replaces every non-zero value with the squared Euclidean distance to the nearest zero value
+   * (Felzenszwalb and Huttenlocher), first along columns, then along rows.
+   *
+   * @param grid row-major values, 0 for land and {@link #INF} for water
+   * @param width grid width
+   * @param height grid height
+   */
+  private static void squaredDistanceTransform(float[] grid, int width, int height) {
+    int size = Math.max(width, height);
+    float[] line = new float[size];
+    float[] result = new float[size];
+    int[] parabolas = new int[size];
+    float[] bounds = new float[size + 1];
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) line[y] = grid[y * width + x];
+      distanceTransform1d(line, height, result, parabolas, bounds);
+      for (int y = 0; y < height; y++) grid[y * width + x] = result[y];
+    }
+    for (int y = 0; y < height; y++) {
+      System.arraycopy(grid, y * width, line, 0, width);
+      distanceTransform1d(line, width, result, parabolas, bounds);
+      System.arraycopy(result, 0, grid, y * width, width);
+    }
+  }
+
+  /**
+   * One dimensional squared distance transform of a sampled function.
+   *
+   * @param f sampled function
+   * @param n number of samples
+   * @param d output squared distances
+   * @param v scratch buffer for parabola locations
+   * @param z scratch buffer for parabola boundaries
+   */
+  private static void distanceTransform1d(float[] f, int n, float[] d, int[] v, float[] z) {
+    int k = 0;
+    v[0] = 0;
+    z[0] = -Float.MAX_VALUE;
+    z[1] = Float.MAX_VALUE;
+    for (int q = 1; q < n; q++) {
+      float s = intersection(f, q, v[k]);
+      while (s <= z[k]) {
+        k--;
+        s = intersection(f, q, v[k]);
+      }
+      k++;
+      v[k] = q;
+      z[k] = s;
+      z[k + 1] = Float.MAX_VALUE;
+    }
+    k = 0;
+    for (int q = 0; q < n; q++) {
+      while (z[k + 1] < q) k++;
+      float dq = q - v[k];
+      d[q] = dq * dq + f[v[k]];
+    }
+  }
+
+  /**
+   * Returns where the parabolas rooted at two samples intersect.
+   *
+   * @param f sampled function
+   * @param q first sample
+   * @param p second sample
+   * @return intersection position
+   */
+  private static float intersection(float[] f, int q, int p) {
+    return ((f[q] + (float) q * q) - (f[p] + (float) p * p)) / (2f * q - 2f * p);
+  }
+
+  /**
+   * Settings of a single authored water region.
+   *
+   * @param region water bounds
+   * @param color water color
+   * @param speed wave speed
+   * @param repeat wave pattern scale
+   * @param foamMinWidth minimum foam rim width in pixels
+   * @param foamMaxWidth maximum foam rim width in pixels
+   * @param lineInterval seconds between shore foam lines
+   */
+  private record WaterSettings(
+      Rectangle region,
+      Color color,
+      float speed,
+      float repeat,
+      int foamMinWidth,
+      int foamMaxWidth,
+      float lineInterval) {}
+
+  /**
+   * Shared water state of one depth layer in one level.
+   *
+   * @param layer depth layer
+   * @param shaderKey key of the shared shader in the layer shader list
+   * @param fieldPath texture map path of the shore field
+   * @param shaders shader list of the depth layer
+   * @param instances water regions on the layer by instance name
+   * @param shader holder of the shared shader, empty until the first rebuild
+   */
+  private record LayerWater(
+      int layer,
+      String shaderKey,
+      String fieldPath,
+      ShaderList shaders,
+      Map<String, WaterSettings> instances,
+      WaterShader[] shader) {}
 }

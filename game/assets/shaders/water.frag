@@ -18,7 +18,9 @@ uniform vec2 u_resolution;
 
 // ----- Custom uniforms -----
 uniform sampler2D u_dudv;
-uniform vec4 u_waterRegion; // x,y = bottom-left corner, z,w = size
+uniform sampler2D u_shoreField; // r = distance to the nearest land pixel / SHORE_FIELD_MAX
+uniform vec4 u_fieldRegion;     // world bounds of u_shoreField: x,y = bottom-left, z,w = size
+uniform float u_pixelsPerTile;
 uniform vec4 u_waterColor;
 uniform float u_speed;
 uniform float u_repeat;
@@ -38,6 +40,7 @@ uniform float u_lineInterval; // seconds between foam lines leaving the shore
 #define CALM_WIDTH 2.0        // tiles over which the waves calm down towards the shore
 #define LINE_SPEED 0.25       // tiles per second a foam line travels away from the shore
 #define LINE_FADE 1.1         // tiles a foam line travels before it has faded out
+#define SHORE_FIELD_MAX 63.75 // pixels encoded by a shore field value of 1.0
 
 // ----- Custom functions -----
 
@@ -103,16 +106,28 @@ vec2 sampleDudv(vec2 p) {
 
 // ----- Main -----
 void main() {
-  vec4 color = unPma(texture2D(u_texture, uv));
+  vec4 layerColor = texture2D(u_texture, uv);
+  vec4 color = unPma(layerColor);
 
-  // The shader runs as an entity shader on a sprite that exactly covers the water region.
-  vec2 waterPos = u_waterRegion.xy + uv * u_waterRegion.zw;
+  // The shader runs on a whole depth layer. Snap to the water pixel grid so the water keeps the
+  // same pixel size as the tiles regardless of the screen resolution.
+  float pixel = 1.0 / u_pixelsPerTile;
+  vec2 waterPos = (floor(worldPos * u_pixelsPerTile) + 0.5) * pixel;
+
+  // The shore field says where the water is and how far away the nearest shore is.
+  vec2 fieldUv = (waterPos - u_fieldRegion.xy) / u_fieldRegion.zw;
+  float fieldPixels = texture2D(u_shoreField, fieldUv).r * SHORE_FIELD_MAX;
+  if (fieldUv.x < 0.0 || fieldUv.y < 0.0 || fieldUv.x > 1.0 || fieldUv.y > 1.0
+      || fieldPixels < 0.5) {
+    gl_FragColor = layerColor;
+    return;
+  }
+
   float t = u_time * u_speed * TIME_SCALE;
 
   // Distance to the nearest shore in tiles, wobbled by static noise so the edge looks natural.
-  vec2 toMin = waterPos - u_waterRegion.xy;
-  vec2 toMax = u_waterRegion.xy + u_waterRegion.zw - waterPos;
-  float shoreDist = min(min(toMin.x, toMin.y), min(toMax.x, toMax.y));
+  // The field stores pixel center distances, the shore itself lies half a pixel closer.
+  float shoreDist = (fieldPixels - 0.5) * pixel;
   float shoreNoise = snoise(waterPos * 0.9 + vec2(37.0, 11.0));
   float shore = max(shoreDist + shoreNoise * 0.12, 0.0);
   float shallow = 1.0 - smoothstep(0.0, SHALLOW_WIDTH, shore);
@@ -166,7 +181,6 @@ void main() {
   vec3 water = mix(clamp(body, 0.0, 1.0), bright, highlight);
 
   // Foam rim: always at least the minimum width, randomly and slowly growing outwards.
-  float pixel = max(u_waterRegion.z / u_resolution.x, u_waterRegion.w / u_resolution.y);
   float rimNoise = snoise(waterPos * 1.1 + vec2(0.013, -0.009) * t);
   float rimPixels = mix(u_foamMinWidth, max(u_foamMaxWidth, u_foamMinWidth),
     smoothstep(-0.2, 1.0, rimNoise));

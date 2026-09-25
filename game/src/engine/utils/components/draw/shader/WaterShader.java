@@ -6,13 +6,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/** World-aligned, animated water applied to a depth layer within a world region. */
+/**
+ * World-aligned, animated water applied to a depth layer.
+ *
+ * <p>Where the water is and how far each point is from the shore comes from a shore field texture:
+ * a {@link #PIXELS_PER_TILE} texture covering {@link #region(Rectangle)} whose red channel stores
+ * the distance to the nearest non-water pixel divided by {@link #SHORE_FIELD_MAX_PIXELS}. Zero
+ * marks land.
+ */
 public final class WaterShader extends AbstractShader {
+
+  /** Resolution of the water pixel grid and the shore field in pixels per world tile. */
+  public static final int PIXELS_PER_TILE = 16;
+
+  /** Shore distance in pixels that maps to the maximum shore field channel value. */
+  public static final float SHORE_FIELD_MAX_PIXELS = 63.75f;
 
   private static final String DUDV_TEXTURE = "images/dudv-water.png";
   private static final int MAX_FOAM_WIDTH = 32;
 
   private Rectangle region = new Rectangle(0, 0, 0, 0);
+  private String shoreField;
   private Color color = new Color(0.1f, 0.4f, 0.7f, 1f);
   private float speed = 0.15f;
   private float repeat = 1f;
@@ -34,8 +48,10 @@ public final class WaterShader extends AbstractShader {
         new FloatUniform("u_foamMinWidth", foamMinWidth),
         new FloatUniform("u_foamMaxWidth", foamMaxWidth),
         new FloatUniform("u_lineInterval", lineInterval),
-        new Vector4Uniform("u_waterRegion", region),
-        new TextureUniform("u_dudv", DUDV_TEXTURE, 1));
+        new FloatUniform("u_pixelsPerTile", PIXELS_PER_TILE),
+        new Vector4Uniform("u_fieldRegion", region),
+        new TextureUniform("u_dudv", DUDV_TEXTURE, 1),
+        new TextureUniform("u_shoreField", shoreField, 2));
   }
 
   @Override
@@ -49,13 +65,27 @@ public final class WaterShader extends AbstractShader {
   }
 
   /**
-   * Sets the region to shade in world coordinates.
+   * Sets the world region covered by the shore field texture.
    *
-   * @param region water bounds
+   * @param region shore field bounds
    * @return this shader
    */
   public WaterShader region(Rectangle region) {
     this.region = Objects.requireNonNull(region, "region");
+    return this;
+  }
+
+  /**
+   * Sets the shore field texture describing where the water is and how far it is from the shore.
+   *
+   * @param texturePath path of the shore field in the texture map
+   * @return this shader
+   */
+  public WaterShader shoreField(String texturePath) {
+    if (texturePath == null || texturePath.isBlank()) {
+      throw new IllegalArgumentException("Water shore field path must not be blank");
+    }
+    this.shoreField = texturePath;
     return this;
   }
 
@@ -144,6 +174,7 @@ public final class WaterShader extends AbstractShader {
   @Override
   protected void writeProperties(Map<String, String> properties) {
     putRectangle(properties, region);
+    properties.put("shoreField", shoreField);
     putColor(properties, color);
     properties.put("speed", Float.toString(speed));
     properties.put("repeat", Float.toString(repeat));
@@ -155,6 +186,7 @@ public final class WaterShader extends AbstractShader {
   @Override
   protected void readProperties(Map<String, String> properties) {
     region(rectangleProperty(properties));
+    shoreField(properties.get("shoreField"));
     color(colorProperty(properties));
     speed(floatProperty(properties, "speed"));
     repeat(floatProperty(properties, "repeat"));
