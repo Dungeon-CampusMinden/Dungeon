@@ -10,11 +10,15 @@ import java.util.Objects;
 public final class WaterShader extends AbstractShader {
 
   private static final String DUDV_TEXTURE = "images/dudv-water.png";
+  private static final int MAX_FOAM_WIDTH = 32;
 
   private Rectangle region = new Rectangle(0, 0, 0, 0);
   private Color color = new Color(0.1f, 0.4f, 0.7f, 1f);
   private float speed = 0.15f;
   private float repeat = 1f;
+  private int foamMinWidth = 1;
+  private int foamMaxWidth = 3;
+  private float lineInterval = 2.5f;
 
   /** Creates a water shader with default color and speed. */
   public WaterShader() {
@@ -27,6 +31,9 @@ public final class WaterShader extends AbstractShader {
         new ColorUniform("u_waterColor", color),
         new FloatUniform("u_speed", speed),
         new FloatUniform("u_repeat", repeat),
+        new FloatUniform("u_foamMinWidth", foamMinWidth),
+        new FloatUniform("u_foamMaxWidth", foamMaxWidth),
+        new FloatUniform("u_lineInterval", lineInterval),
         new Vector4Uniform("u_waterRegion", region),
         new TextureUniform("u_dudv", DUDV_TEXTURE, 1));
   }
@@ -64,7 +71,7 @@ public final class WaterShader extends AbstractShader {
   }
 
   /**
-   * Sets the speed of the back-and-forth wave.
+   * Sets the speed of the travelling waves.
    *
    * @param speed wave speed
    * @return this shader
@@ -76,9 +83,9 @@ public final class WaterShader extends AbstractShader {
   }
 
   /**
-   * Sets the number of pattern repetitions per world tile.
+   * Sets the scale of the wave pattern per world tile. Higher values produce smaller waves.
    *
-   * @param repeat repetitions per tile
+   * @param repeat pattern scale per tile
    * @return this shader
    */
   public WaterShader repeat(float repeat) {
@@ -89,12 +96,60 @@ public final class WaterShader extends AbstractShader {
     return this;
   }
 
+  /**
+   * Sets the minimum width of the foam rim along the shore.
+   *
+   * @param pixels minimum width in pixels
+   * @return this shader
+   */
+  public WaterShader foamMinWidth(int pixels) {
+    if (pixels < 0 || pixels > MAX_FOAM_WIDTH) {
+      throw new IllegalArgumentException(
+          "Water foam min width must be between 0 and " + MAX_FOAM_WIDTH);
+    }
+    this.foamMinWidth = pixels;
+    return this;
+  }
+
+  /**
+   * Sets the maximum width the foam rim randomly grows to. Values below the minimum width are
+   * treated as the minimum width.
+   *
+   * @param pixels maximum width in pixels
+   * @return this shader
+   */
+  public WaterShader foamMaxWidth(int pixels) {
+    if (pixels < 0 || pixels > MAX_FOAM_WIDTH) {
+      throw new IllegalArgumentException(
+          "Water foam max width must be between 0 and " + MAX_FOAM_WIDTH);
+    }
+    this.foamMaxWidth = pixels;
+    return this;
+  }
+
+  /**
+   * Sets the time between foam lines leaving the shore. Higher values make calmer water.
+   *
+   * @param seconds interval in seconds
+   * @return this shader
+   */
+  public WaterShader lineInterval(float seconds) {
+    if (!Float.isFinite(seconds) || seconds < 0.1f || seconds > 60f) {
+      throw new IllegalArgumentException("Water line interval must be between 0.1 and 60");
+    }
+    this.lineInterval = seconds;
+    return this;
+  }
+
   @Override
   protected void writeProperties(Map<String, String> properties) {
     putRectangle(properties, region);
     putColor(properties, color);
     properties.put("speed", Float.toString(speed));
     properties.put("repeat", Float.toString(repeat));
+    properties.put("foamMinWidth", Integer.toString(foamMinWidth));
+    properties.put("foamMaxWidth", Integer.toString(foamMaxWidth));
+    properties.put("lineInterval", Float.toString(lineInterval));
   }
 
   @Override
@@ -103,5 +158,8 @@ public final class WaterShader extends AbstractShader {
     color(colorProperty(properties));
     speed(floatProperty(properties, "speed"));
     repeat(floatProperty(properties, "repeat"));
+    foamMinWidth(intProperty(properties, "foamMinWidth"));
+    foamMaxWidth(intProperty(properties, "foamMaxWidth"));
+    lineInterval(floatProperty(properties, "lineInterval"));
   }
 }

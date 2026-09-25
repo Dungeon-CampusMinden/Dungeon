@@ -78,7 +78,7 @@ public class GameOfGamesLevel extends DungeonLevel {
   }
 
   private void setupCanvasTerminal() {
-    Entity terminal = DecoFactory.createDeco(new Point(7.0f, 10.0f), Deco.PCFlat);
+    Entity terminal = DecoFactory.createDeco(new Point(8.0f, 8.0f), Deco.PCFlat);
     terminal.remove(DecoComponent.class);
     terminal.add(
         new InteractionComponent(

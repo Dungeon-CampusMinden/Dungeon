@@ -1,15 +1,17 @@
 package feature.prefabs.types;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import engine.Entity;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.ILevel;
-import engine.systems.DrawSystem;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
-import engine.utils.components.draw.shader.ShaderList;
+import engine.utils.components.draw.TextureGenerator;
+import engine.utils.components.draw.TextureMap;
+import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.shader.WaterShader;
 import engine.utils.components.path.SimpleIPath;
 import feature.prefabs.Prefab;
@@ -19,11 +21,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.Region;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 /** Client-side water rectangle rendered on a configurable depth layer. */
 public final class WaterPrefab extends Prefab {
@@ -39,17 +37,30 @@ public final class WaterPrefab extends Prefab {
       PrefabProperty.integer("layer", "Layer", -50, Integer.MIN_VALUE, Integer.MAX_VALUE);
   private static final PrefabProperty<Float> REPEAT =
       PrefabProperty.floating("repeat", "Repeat", 1f, 0.1f, 64f);
+  private static final PrefabProperty<Integer> FOAM_MIN_WIDTH =
+      PrefabProperty.integer("foamMinWidth", "Foam Min", 1, 0, 32);
+  private static final PrefabProperty<Integer> FOAM_MAX_WIDTH =
+      PrefabProperty.integer("foamMaxWidth", "Foam Max", 3, 0, 32);
+  private static final PrefabProperty<Float> LINE_INTERVAL =
+      PrefabProperty.floating("lineInterval", "Shore Line Interval (s)", 2.5f, 0.1f, 60f);
+  private static final List<PrefabProperty<?>> PROPERTIES =
+      List.of(
+          REGION,
+          COLOR,
+          SPEED,
+          LAYER,
+          REPEAT,
+          FOAM_MIN_WIDTH,
+          FOAM_MAX_WIDTH,
+          LINE_INTERVAL);
 
-  private static final Map<ILevel, Long> LEVEL_IDS = new WeakHashMap<>();
-  private static final Map<ILevel, Map<String, OwnedShader>> OWNED_SHADERS =
-      new IdentityHashMap<>();
-  private static long nextLevelId;
-
-  private record OwnedShader(ShaderList shaders, String key, WaterShader shader) {}
+  private static final String SHADER_KEY = "water";
+  private static final int PIXELS_PER_TILE = 16;
+  private static final int MAX_CANVAS_PIXELS = 4096;
 
   /** Creates the water prefab definition. */
   public WaterPrefab() {
-    super(TYPE, "Water", PrefabSide.CLIENT, List.of(REGION, COLOR, SPEED, LAYER, REPEAT));
+    super(TYPE, "Water", PrefabSide.CLIENT, PROPERTIES);
   }
 
   /**
@@ -59,13 +70,7 @@ public final class WaterPrefab extends Prefab {
    * @param name authored instance name
    */
   public WaterPrefab(ILevel level, String name) {
-    super(
-        TYPE,
-        "Water",
-        PrefabSide.CLIENT,
-        List.of(REGION, COLOR, SPEED, LAYER, REPEAT),
-        level,
-        name);
+    super(TYPE, "Water", PrefabSide.CLIENT, PROPERTIES, level, name);
   }
 
   @Override
@@ -77,45 +82,25 @@ public final class WaterPrefab extends Prefab {
     if (width == 0f || height == 0f) return List.of();
 
     Entity water = context.createEntity(instance.name());
-    DrawComponent draw = new DrawComponent(new SimpleIPath("hud/white.png"));
-    draw.tintColor(Color.rgba8888(Color.BLACK));
+    DrawComponent draw = new DrawComponent(new Animation(new SimpleIPath(canvasTexture(width, height))));
     draw.depth(layer);
     PositionComponent position = new PositionComponent(region.bottomLeft());
     position.scale(Vector2.of(width / draw.getWidth(), height / draw.getHeight()));
     water.add(position);
     water.add(draw);
 
-    WaterShader shader =
-        new WaterShader()
-            .region(new Rectangle(region.bottomLeft(), region.topRight()))
-            .color(value(instance, COLOR))
-            .speed(value(instance, SPEED))
-            .repeat(value(instance, REPEAT));
-    ShaderList shaders = DrawSystem.getInstance().entityDepthShaders(layer);
-    String key = shaderKey(context.level(), instance.name());
-    synchronized (OWNED_SHADERS) {
-      if (!shaders.add(key, shader)) {
-        throw new IllegalStateException(
-            "Cannot add water shader: shader key collision '" + key + "'");
-      }
-      OWNED_SHADERS
-          .computeIfAbsent(context.level(), ignored -> new HashMap<>())
-          .put(instance.name(), new OwnedShader(shaders, key, shader));
-    }
+    draw.shaders()
+        .add(
+            SHADER_KEY,
+            new WaterShader()
+                .region(new Rectangle(region.bottomLeft(), region.topRight()))
+                .color(value(instance, COLOR))
+                .speed(value(instance, SPEED))
+                .repeat(value(instance, REPEAT))
+                .foamMinWidth(value(instance, FOAM_MIN_WIDTH))
+                .foamMaxWidth(value(instance, FOAM_MAX_WIDTH))
+                .lineInterval(value(instance, LINE_INTERVAL)));
     return List.of(water);
-  }
-
-  @Override
-  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
-    synchronized (OWNED_SHADERS) {
-      Map<String, OwnedShader> byName = OWNED_SHADERS.get(context.level());
-      if (byName == null) return;
-      OwnedShader owned = byName.remove(instance.name());
-      if (owned != null && owned.shaders().get(owned.key()) == owned.shader()) {
-        owned.shaders().remove(owned.key());
-      }
-      if (byName.isEmpty()) OWNED_SHADERS.remove(context.level());
-    }
   }
 
   @Override
@@ -132,10 +117,25 @@ public final class WaterPrefab extends Prefab {
         instance.name());
   }
 
-  private static String shaderKey(ILevel level, String name) {
-    synchronized (LEVEL_IDS) {
-      long id = LEVEL_IDS.computeIfAbsent(level, ignored -> nextLevelId++);
-      return TYPE + ":level-" + id + ":" + name;
+  /**
+   * Returns the path of a white texture whose pixel size matches the water region. Entity shaders
+   * render at sprite resolution, so this keeps the water on the same pixel grid as the tiles.
+   *
+   * @param width region width in world units
+   * @param height region height in world units
+   * @return path of the registered canvas texture
+   */
+  private static String canvasTexture(float width, float height) {
+    int pixelWidth = canvasPixels(width);
+    int pixelHeight = canvasPixels(height);
+    String path = "generated/water_" + pixelWidth + "x" + pixelHeight + ".png";
+    if (!TextureMap.instance().containsKey(path)) {
+      TextureGenerator.registerGenerateColorTexture(path, pixelWidth, pixelHeight, Color.WHITE);
     }
+    return path;
+  }
+
+  private static int canvasPixels(float worldSize) {
+    return MathUtils.clamp(Math.round(Math.abs(worldSize) * PIXELS_PER_TILE), 1, MAX_CANVAS_PIXELS);
   }
 }

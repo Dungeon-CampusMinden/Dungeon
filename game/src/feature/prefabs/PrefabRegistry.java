@@ -9,6 +9,7 @@ import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.prefabs.types.DialogTriggerPrefab;
 import feature.prefabs.types.DoorKeypadPrefab;
 import feature.prefabs.types.DoorLeverPrefab;
+import feature.prefabs.types.InvisibleWallPrefab;
 import feature.prefabs.types.LevelHiderPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
@@ -46,6 +47,7 @@ public final class PrefabRegistry {
     register(new PressurePlatePrefab(), PressurePlatePrefab::new);
     register(new TorchPrefab(), TorchPrefab::new);
     register(new DecoImagePrefab(), DecoImagePrefab::new);
+    register(new InvisibleWallPrefab(), InvisibleWallPrefab::new);
   }
 
   private PrefabRegistry() {}
