@@ -43,15 +43,14 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
-import feature.interaction.keypad.TextKeyPadComponent;
 import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
-import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerFactory;
 import feature.utils.EntityUtils;
 import java.util.HashSet;
@@ -149,45 +148,47 @@ public class LastHourLevel extends DungeonLevel {
     this.exitDoor = entryDoor;
 
     keypad =
-        KeypadFactory.createTextKeypad(
+        KeypadFactory.createKeypad(
             getPoint("keypad-storage"),
-            List.of("ABC", "LOL"), //  Lore.DoorCode,
-            () -> {});
+            Lore.DoorCode,
+            () -> {
+              storageDoor.open();
+              LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
+              LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
+              EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
+            },
+            false);
     keypad
-        .fetch(TaskComponent.class)
+        .fetch(KeypadComponent.class)
         .ifPresent(
             component -> {
-              TaskComponent<String> tc = (TaskComponent<String>) component;
-              TextKeyPadComponent textKeyPadComponent =
-                  keypad.fetch(TextKeyPadComponent.class).get();
-              tc.onCorrect(
+              component.onCorrectCode(
                   player -> {
                     LastHourTracking.attempt(
                         LastHourPuzzle.STORAGE_ACCESS,
                         "storage-keypad",
                         "numeric-code",
-                        textKeyPadComponent.enteredText(),
+                        component.enteredDigits().stream()
+                            .map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining()),
                         true,
                         player);
                     LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
                     LastHourTracking.started(LastHourPuzzle.BLUE_USB);
                     LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
-                    storageDoor.open();
-                    LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
-                    LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
-                    EventScheduler.scheduleAction(
-                        this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
                   });
-              tc.onWrong(
+              component.onWrongCode(
                   player -> {
                     LastHourTracking.attempt(
                         LastHourPuzzle.STORAGE_ACCESS,
                         "storage-keypad",
                         "numeric-code",
-                        textKeyPadComponent.enteredText(),
+                        component.enteredDigits().stream()
+                            .map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining()),
                         false,
                         player);
-                    LastHourAchievements.checkBruteforce(player, component.attempts());
+                    LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts());
                   });
             });
     Game.add(keypad);
@@ -892,7 +893,7 @@ public class LastHourLevel extends DungeonLevel {
 
         ls.addLightSource(timerPos.translate(0.75f, 0), 0.5f, Color.RED);
 
-        var keyComp = keypad.fetch(TextKeyPadComponent.class).orElseThrow();
+        var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
         Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
         ls.addLightSource(
             Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),
