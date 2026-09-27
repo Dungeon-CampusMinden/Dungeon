@@ -157,7 +157,7 @@ public class LastHourLevel extends DungeonLevel {
               LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
               EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
             },
-            false);
+            true);
     keypad
         .fetch(KeypadComponent.class)
         .ifPresent(
