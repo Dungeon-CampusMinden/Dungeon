@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.sound.Sounds;
 import engine.utils.Point;
+import rooms.systemRecovery.SystemRecovery;
 import engine.utils.components.draw.DepthLayer;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
@@ -52,6 +53,7 @@ public final class SystemRecoveryPhoneController {
     engine.systems.DrawSystem.getInstance()
         .changeEntityDepth(phone, DepthLayer.AbovePlayer.depth());
     Game.add(phone);
+    if (SystemRecovery.levelEditorMode()) return;
     updatePhoneInteraction();
   }
 
@@ -104,6 +106,7 @@ public final class SystemRecoveryPhoneController {
   }
 
   private void startRingingCall(String callKey) {
+    if (SystemRecovery.levelEditorMode()) return;
     ringingCallKey = callKey;
     phoneRinging = true;
     Sounds.play(LastHourSounds.PHONE_RINGING);
@@ -117,6 +120,7 @@ public final class SystemRecoveryPhoneController {
   private void updatePhoneInteraction() {
     if (phone == null) return;
     phone.remove(InteractionComponent.class);
+    if (SystemRecovery.levelEditorMode()) return;
     phone.add(
         new InteractionComponent(
             new Interaction(

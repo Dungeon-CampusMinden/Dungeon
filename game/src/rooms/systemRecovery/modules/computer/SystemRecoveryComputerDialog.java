@@ -52,6 +52,7 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
 
   private Table tabArea;
   private Table contentArea;
+  private Table rootContainer;
   private String activeTab;
 
   /**
@@ -116,6 +117,9 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
 
   @Override
   public void act(float delta) {
+    if (getWidth() != Game.windowWidth() || getHeight() != Game.windowHeight()) {
+      setSize(Game.windowWidth(), Game.windowHeight());
+    }
     super.act(delta);
     if (!tabs.containsKey(DisplayInstructionsTab.KEY) && isDisplayOutputState()) {
       addTab(new DisplayInstructionsTab());
@@ -144,12 +148,12 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
   }
 
   private void createActors() {
-    Table container = new Table();
-    container.setTouchable(Touchable.enabled);
-    container.setFillParent(true);
-    container.pad(100);
-    this.addActor(container);
-    addUnfocusListener(container);
+    rootContainer = new Table();
+    rootContainer.setTouchable(Touchable.enabled);
+    rootContainer.setFillParent(true);
+    updateOuterPadding();
+    this.addActor(rootContainer);
+    addUnfocusListener(rootContainer);
 
     tabArea = new Table(skin);
     tabArea.left().padLeft(20);
@@ -185,8 +189,24 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     contentArea.pad(15);
     computerArea.add(contentArea).grow();
 
-    container.add(tabArea).growX().left().row();
-    container.add(computerArea).grow();
+    rootContainer.add(tabArea).growX().left().row();
+    rootContainer.add(computerArea).grow();
+  }
+
+  @Override
+  protected void sizeChanged() {
+    super.sizeChanged();
+    updateOuterPadding();
+  }
+
+  private void updateOuterPadding() {
+    if (rootContainer == null) return;
+    rootContainer.pad(outerPaddingForSize(getWidth(), getHeight()));
+    rootContainer.invalidateHierarchy();
+  }
+
+  static float outerPaddingForSize(float width, float height) {
+    return Math.max(12f, Math.min(100f, Math.min(width, height) * 0.06f));
   }
 
   private void addUnfocusListener(Table container) {

@@ -3,6 +3,9 @@
     "hud": {
       "autosave": "Autosaved"
     },
+    "menu": {
+      "start": "Start Game"
+    },
     "trackingConsent": {
       "local": {
         "title": "Privacy and tracking",
@@ -292,8 +295,8 @@
         "core-meta": {
           "orientation": "The three core checks produced separate results. The final form combines them into one system state.",
           "approach": "Use the sorted energy output, occupied-module count and scanned-grid-module count in their matching fields.",
-          "near": "Enter five ascending energy values. Count the occupied modules and scan every cell in the 3x5 grid.",
-          "solution": "Submit sortedEnergy={8,17,23,31,42}, activeModules=3 and scannedModules=15 in the three System Core form fields."
+          "near": "Enter the six ascending energy values. Count the occupied modules and scan every cell in the 3x5 grid.",
+          "solution": "Submit sortedEnergy={4,8,15,16,23,42}, activeModules=3 and scannedModules=15 in the three System Core form fields."
         }
       }
     },
@@ -399,7 +402,7 @@
       },
       "system-core": {
         "title": "Central system core",
-        "display-sort": "SYSTEM CORE\nCHECK 1: NUMBER FIELD\n\nArray: array\n[42] [17] [8] [31] [23]\n\nGoal: ascending order",
+        "display-sort": "SYSTEM CORE\nCHECK 1: NUMBER FIELD\n\nArray: array\n[42] [8] [23] [4] [16] [15]\n\nGoal: ascending order",
         "display-count": "SYSTEM CORE\nCHECK 2: MODULE STATUS\n\nArray: modules\n[CPU] [GPU] [RAM] [empty] [empty]\n\nGoal: count occupied modules",
         "display-search": "SYSTEM CORE\nCHECK 3: MODULE GRID\n\nArray: map\n3 rows x 5 columns\nEvery cell contains a module. Color is irrelevant.\n\nCall per cell: roboter.collect();\nGoal: let the search robot scan every module",
         "display-meta": "FINAL SYSTEM CHECK\nSorted energy: [$1]\nOccupied modules: $2\nScanned grid modules: $3\n\nTransfer the three results into the input form.",
@@ -672,6 +675,7 @@
     "not_for_consumption": {"name": "Not for Consumption", "description": "Program a chip without consuming it."},
     "axiom_relax": {"name": "AXIOM, Relax", "description": "Open the system core despite AXIOM's pressure."},
     "not_a_bug": {"name": "That Was Not a Bug", "description": "Continue successfully after a failed attempt."},
-    "debug_is_not_gameplay": {"name": "Debug Is Not Gameplay", "description": "Finish System Recovery without a debug skip."}
+    "debug_is_not_gameplay": {"name": "Debug Is Not Gameplay", "description": "Finish System Recovery without a debug skip."},
+    "not_by_plan": {"name": "Not According to Plan", "description": "Type the sorted values directly instead of writing the Bubble Sort program."}
   }
 }

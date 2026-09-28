@@ -22,6 +22,7 @@ import rooms.systemRecovery.entities.SortingEntityFactory;
 import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -80,6 +81,7 @@ public final class BubbleSortRiddle {
   private int activeSortLeftPackageId = -1;
   private int activeSortRightPackageId = -1;
   private int sortMachinePlayerId;
+  private SortProgramStickItem runningProgramStick;
 
   /**
    * Creates the riddle for the owning level and its shared conveyor dependency.
@@ -185,6 +187,8 @@ public final class BubbleSortRiddle {
             return;
           }
           sortMachinePlayerId = player.id();
+          runningProgramStick = programmedStick;
+          MountedPuzzleItems.mount(player, programmedStick);
           callbacks.success("insert", player.id());
           startTransportBubbleSort();
         },
@@ -231,6 +235,8 @@ public final class BubbleSortRiddle {
       activeSortLeftPackageId = -1;
       activeSortRightPackageId = -1;
       completed = true;
+      MountedPuzzleItems.unmount(sortMachinePlayerId, runningProgramStick);
+      runningProgramStick = null;
       callbacks.solved();
       SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_INTRO);
       DialogUtils.showTextPopup(

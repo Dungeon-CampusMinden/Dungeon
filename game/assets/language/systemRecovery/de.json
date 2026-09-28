@@ -3,6 +3,9 @@
     "hud": {
       "autosave": "Automatisch gespeichert"
     },
+    "menu": {
+      "start": "Spiel starten"
+    },
     "trackingConsent": {
       "local": {
         "title": "Datenschutz und Tracking",
@@ -292,8 +295,8 @@
         "core-meta": {
           "orientation": "Die drei Kernprüfungen haben getrennte Ergebnisse geliefert. Das Abschlussformular vereint sie zu einem Systemzustand.",
           "approach": "Nutze die sortierte Energieausgabe, die Zahl belegter Module und die Zahl der erfassten Rastermodule in den passenden Feldern.",
-          "near": "Trage fünf aufsteigende Energiewerte ein. Zähle die belegten Module und erfasse jedes Feld des 3x5-Rasters.",
-          "solution": "Sende sortierte Energie={8,17,23,31,42}, belegte Module=3 und erfasste Rastermodule=15 in den drei Feldern der Systemkern-Maske ab."
+          "near": "Trage die sechs aufsteigenden Energiewerte ein. Zähle die belegten Module und erfasse jedes Feld des 3x5-Rasters.",
+          "solution": "Sende sortierte Energie={4,8,15,16,23,42}, belegte Module=3 und erfasste Rastermodule=15 in den drei Feldern der Systemkern-Maske ab."
         }
       }
     },
@@ -399,7 +402,7 @@
       },
       "system-core": {
         "title": "Zentraler Systemkern",
-        "display-sort": "SYSTEMKERN\nPRÜFUNG 1: ZAHLENFELD\n\nArray: array\n[42] [17] [8] [31] [23]\n\nZiel: aufsteigende Reihenfolge",
+        "display-sort": "SYSTEMKERN\nPRÜFUNG 1: ZAHLENFELD\n\nArray: array\n[42] [8] [23] [4] [16] [15]\n\nZiel: aufsteigende Reihenfolge",
         "display-count": "SYSTEMKERN\nPRÜFUNG 2: MODULSTATUS\n\nArray: modules\n[CPU] [GPU] [RAM] [leer] [leer]\n\nZiel: belegte Module zählen",
         "display-search": "SYSTEMKERN\nPRÜFUNG 3: MODULRASTER\n\nArray: map\n3 Zeilen x 5 Spalten\nJedes Feld enthält ein Modul. Die Farbe ist ohne Bedeutung.\n\nBefehl pro Zelle: roboter.collect();\nZiel: den Suchroboter jedes Modul erfassen lassen",
         "display-meta": "FINALE SYSTEMPRÜFUNG\nSortierte Energie: [$1]\nBelegte Module: $2\nErfasste Rastermodule: $3\n\nÜbertrage die drei Ergebnisse in die Eingabemaske.",
@@ -672,6 +675,7 @@
     "not_for_consumption": {"name": "Nicht zum Verzehr geeignet", "description": "Programmiere einen Chip, ohne ihn zu verbrauchen."},
     "axiom_relax": {"name": "AXIOM, entspann dich", "description": "Öffne den Systemkern trotz AXIOMs Drängen."},
     "not_a_bug": {"name": "Das war kein Bug", "description": "Mach nach einem Fehlversuch erfolgreich weiter."},
-    "debug_is_not_gameplay": {"name": "Debug ist kein Gameplay", "description": "Beende System Recovery ohne Debug-Skip."}
+    "debug_is_not_gameplay": {"name": "Debug ist kein Gameplay", "description": "Beende System Recovery ohne Debug-Skip."},
+    "not_by_plan": {"name": "Nicht nach Plan", "description": "Tippe die sortierten Werte direkt ein, statt das Bubble-Sort-Programm zu schreiben."}
   }
 }

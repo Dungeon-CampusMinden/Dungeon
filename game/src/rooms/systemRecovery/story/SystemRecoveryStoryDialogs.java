@@ -3,6 +3,7 @@ package rooms.systemRecovery.story;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.utils.IVoidFunction;
+import rooms.systemRecovery.SystemRecovery;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.LevelEditorSystem;
@@ -128,7 +129,7 @@ public final class SystemRecoveryStoryDialogs {
 
   /** Dispatches delayed dialogs. This is intentionally inert while the level editor is active. */
   public void tick() {
-    if (!Game.isHeadless() && LevelEditorSystem.active()) return;
+    if (SystemRecovery.levelEditorMode() || (!Game.isHeadless() && LevelEditorSystem.active())) return;
 
     long now = System.currentTimeMillis();
     int pendingCount = pendingDialogs.size();
@@ -168,6 +169,7 @@ public final class SystemRecoveryStoryDialogs {
    * @param afterClose action to run after the dialog closes
    */
   public void announceForPlayer(StoryStep step, int playerId, IVoidFunction afterClose) {
+    if (SystemRecovery.levelEditorMode()) return;
     showStepAfterDelay(step, playerId, afterClose);
   }
 
@@ -177,6 +179,7 @@ public final class SystemRecoveryStoryDialogs {
    * @param step story step to announce
    */
   public void announceToAllPlayers(StoryStep step) {
+    if (SystemRecovery.levelEditorMode()) return;
     Game.levelEntities(Set.of(PlayerComponent.class))
         .mapToInt(engine.Entity::id)
         .forEach(playerId -> showStepAfterDelay(step, playerId, () -> {}));
@@ -184,6 +187,7 @@ public final class SystemRecoveryStoryDialogs {
 
   /** Queues the final shared story response. */
   public void announceCompletionToAllPlayers() {
+    if (SystemRecovery.levelEditorMode()) return;
     announceToAllPlayers(COMPLETED);
   }
 

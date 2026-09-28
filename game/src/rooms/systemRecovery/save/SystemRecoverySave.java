@@ -26,6 +26,7 @@ import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
@@ -114,22 +115,49 @@ public final class SystemRecoverySave {
   }
 
   private static List<PlayerItemData> currentPuzzleItems() {
-    return Game.allPlayers()
-        .flatMap(
-            player ->
-                player.fetch(InventoryComponent.class).stream()
-                    .flatMap(
-                        inventory ->
-                            java.util.Arrays.stream(inventory.items())
-                                .filter(java.util.Objects::nonNull)
-                                .map(item -> playerItem(player, item))
-                                .flatMap(Optional::stream)))
-        .toList();
+    List<PlayerItemData> inventoryItems =
+        Game.allPlayers()
+            .flatMap(
+                player ->
+                    player.fetch(InventoryComponent.class).stream()
+                        .flatMap(
+                            inventory ->
+                                java.util.Arrays.stream(inventory.items())
+                                    .filter(java.util.Objects::nonNull)
+                                    .map(item -> playerItem(player, item))
+                                    .flatMap(Optional::stream)))
+            .toList();
+    return mergeMountedPuzzleItems(inventoryItems, MountedPuzzleItems.snapshot());
+  }
+
+  static List<PlayerItemData> mergeMountedPuzzleItems(
+      List<PlayerItemData> inventoryItems, List<MountedPuzzleItems.MountedItem> mountedItems) {
+    Map<String, PlayerItemData> result = new LinkedHashMap<>();
+    if (inventoryItems != null) {
+      inventoryItems.forEach(item -> result.put(itemIdentity(item), item));
+    }
+    if (mountedItems != null) {
+      mountedItems.stream()
+          .map(
+              mounted ->
+                  playerItem(mounted.playerName(), mounted.item()).orElse(null))
+          .filter(java.util.Objects::nonNull)
+          .forEach(item -> result.putIfAbsent(itemIdentity(item), item));
+    }
+    return List.copyOf(result.values());
+  }
+
+  private static String itemIdentity(PlayerItemData item) {
+    return String.valueOf(item.playerName()) + "\u0000" + item.itemKey();
   }
 
   private static Optional<PlayerItemData> playerItem(engine.Entity player, Item item) {
     String playerName =
         player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
+    return playerItem(playerName, item);
+  }
+
+  private static Optional<PlayerItemData> playerItem(String playerName, Item item) {
     if (item instanceof SortProgramStickItem stick) {
       return Optional.of(
           new PlayerItemData(playerName, "sort-program-stick", stick.programmed(), stick.draft()));

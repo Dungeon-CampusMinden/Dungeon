@@ -7,6 +7,11 @@ import java.util.function.BooleanSupplier;
 final class ComputerChipSession {
 
   private final AtomicBoolean resolved = new AtomicBoolean();
+  private Runnable onResolved = () -> {};
+
+  void onResolved(Runnable callback) {
+    onResolved = callback == null ? () -> {} : callback;
+  }
 
   /**
    * Runs a chip transfer once. A failed transfer leaves the session open for a later retry.
@@ -21,7 +26,8 @@ final class ComputerChipSession {
       completed = transfer.getAsBoolean();
       return completed;
     } finally {
-      if (!completed) resolved.set(false);
+      if (completed) onResolved.run();
+      else resolved.set(false);
     }
   }
 

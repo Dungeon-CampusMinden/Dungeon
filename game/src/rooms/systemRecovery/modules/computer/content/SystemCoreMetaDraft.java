@@ -12,7 +12,7 @@ import java.util.Arrays;
 public final class SystemCoreMetaDraft {
 
   /** Number of values required by the final energy result. */
-  public static final int ENERGY_SLOT_COUNT = 5;
+  public static final int ENERGY_SLOT_COUNT = 6;
 
   private static final String[] energyValues = new String[ENERGY_SLOT_COUNT];
   private static String moduleCount = "";

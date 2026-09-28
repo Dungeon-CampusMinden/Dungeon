@@ -39,6 +39,7 @@ public final class SystemRecoveryAchievements {
   public static final String AXIOM_RELAX = "axiom_relax";
   public static final String NOT_A_BUG = "not_a_bug";
   public static final String DEBUG_IS_NOT_GAMEPLAY = "debug_is_not_gameplay";
+  public static final String NOT_BY_PLAN = "not_by_plan";
 
   private static SystemRecoveryAchievementTracker tracker =
       new SystemRecoveryAchievementTracker(SystemRecoveryAchievements::unlock);
@@ -85,6 +86,11 @@ public final class SystemRecoveryAchievements {
    */
   public static synchronized void terminalAttempt(TerminalAttempt attempt, boolean correct) {
     tracker.terminalAttempt(attempt, correct);
+  }
+
+  /** Unlocks the rejected direct-sort shortcut achievement once per run. */
+  public static synchronized void directSortShortcutEntered() {
+    tracker.directSortShortcutEntered();
   }
 
   /**

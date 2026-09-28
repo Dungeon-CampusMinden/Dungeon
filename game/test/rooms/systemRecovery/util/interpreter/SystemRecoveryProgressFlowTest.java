@@ -274,6 +274,22 @@ class SystemRecoveryProgressFlowTest {
     }
   }
 
+  @Test
+  void directSortedArrayAtCoreSortDoesNotAdvanceAndBubbleSortStillDoes() {
+    SystemRecoveryProgressNet.reset();
+    SystemRecoveryProgressNet.initializeAt(SystemRecoveryLearningStep.CORE_SORT);
+    interpreter.synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
+    assertState(SystemRecoveryLearningStep.CORE_SORT, 13);
+
+    assertFalse(
+        terminalController.interpret(
+            "int[] array = {4, 8, 15, 16, 23, 42};", 101));
+    assertState(SystemRecoveryLearningStep.CORE_SORT, 13);
+    assertTrue(interpreter.acceptedInputs().isEmpty());
+
+    submit(bubbleSort(), 101, SystemRecoveryLearningStep.CORE_COUNT, 14);
+  }
+
   private void submit(
       String source, int playerId, SystemRecoveryLearningStep nextStep, int nextTerminalState) {
     SystemRecoveryLearningStep current = SystemRecoveryProgressNet.activeStep().orElseThrow();

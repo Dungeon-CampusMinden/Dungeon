@@ -3,6 +3,7 @@ package rooms.systemRecovery.modules.computer.content;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -31,6 +32,9 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   private Label feedback;
   private Table feedbackBar;
   private String lastSubmittedFingerprint;
+  private boolean requestPending;
+  private TextButton submitButton;
+  private TextButton clearButton;
   private static final Color SUCCESS_COLOR = new Color(0.12f, 0.65f, 0.25f, 1f);
   private static final Color FAILURE_COLOR = new Color(0.85f, 0.12f, 0.12f, 1f);
 
@@ -42,10 +46,10 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
 
   @Override
   protected void createActors() {
-    Table layout = new Table(skin);
-    layout.top().defaults().growX();
-    layout.add(createLabel(SystemRecoveryText.text("computer.meta-heading"), 24)).left().row();
-    layout
+    Table content = new Table(skin);
+    content.top().defaults().growX();
+    content.add(createLabel(SystemRecoveryText.text("computer.meta-heading"), 24)).left().row();
+    content
         .add(createLabel(SystemRecoveryText.text("computer.meta-instruction"), 20))
         .left()
         .padTop(12)
@@ -63,10 +67,11 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
       slot.add(createLabel(SystemRecoveryText.text("computer.meta-energy-slot", index + 1), 18))
           .left()
           .row();
-      slot.add(energyFields[index]).width(100).height(48).padTop(5);
-      energyTable.add(slot).left().padRight(14);
+      slot.add(energyFields[index]).growX().height(48).padTop(5);
+      energyTable.add(slot).growX().padRight(12);
+      if (index % 2 == 1) energyTable.row();
     }
-    layout.add(energyTable).left().padTop(22).row();
+    content.add(energyTable).growX().left().padTop(22).row();
 
     Table counts = new Table(skin);
     counts.left().top();
@@ -76,8 +81,9 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
         createNumberField(
             SystemCoreMetaDraft.scannedModuleCount(), SystemCoreMetaDraft::scannedModuleCount);
     addCountField(counts, "computer.meta-modules", moduleField);
+    counts.row();
     addCountField(counts, "computer.meta-batteries", batteryField);
-    layout.add(counts).left().padTop(24).row();
+    content.add(counts).growX().left().padTop(24).row();
 
     Table feedbackPanel = new Table(skin);
     feedbackBar = new Table(skin);
@@ -86,30 +92,35 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     feedback = createLabel("", 18);
     feedback.setWrap(true);
     feedbackPanel.add(feedback).growX().left();
-    layout.add(feedbackPanel).growX().left().padTop(18).row();
+    content.add(feedbackPanel).growX().left().padTop(18).row();
 
     Table buttons = new Table(skin);
-    TextButton submit = createButton(SystemRecoveryText.text("computer.meta-submit"), "green", 24);
-    submit.addListener(
+    submitButton = createButton(SystemRecoveryText.text("computer.meta-submit"), "green", 24);
+    submitButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             submitValues();
           }
         });
-    TextButton clear =
+    clearButton =
         createButton(SystemRecoveryText.text("computer.meta-clear"), "red-outline", 24);
-    clear.addListener(
+    clearButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             clearValues();
           }
         });
-    buttons.add(submit).width(290).height(52).padRight(12);
-    buttons.add(clear).width(180).height(52);
-    layout.add(buttons).right().padTop(18);
-    add(layout).grow();
+    buttons.add(submitButton).growX().height(52).padRight(12);
+    buttons.add(clearButton).growX().height(52);
+    content.add(buttons).growX().padTop(18).row();
+
+    ScrollPane scroll = new ScrollPane(content, skin);
+    scroll.setScrollingDisabled(true, false);
+    scroll.setOverscroll(false, false);
+    scroll.setFadeScrollBars(false);
+    add(scroll).grow();
   }
 
   private TextField createNumberField(
@@ -120,21 +131,29 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
         field,
         value -> {
           draftWriter.accept(value);
-          lastSubmittedFingerprint = null;
+          if (!requestPending) lastSubmittedFingerprint = null;
         });
     return field;
   }
 
   private void addCountField(Table parent, String labelKey, TextField field) {
-    parent.add(createLabel(SystemRecoveryText.text(labelKey), 20)).left().padRight(12);
-    parent.add(field).width(120).height(48).padRight(28);
+    Table group = new Table(skin);
+    group.top().left();
+    Label label = createLabel(SystemRecoveryText.text(labelKey), 20);
+    label.setWrap(true);
+    group.add(label).growX().left().row();
+    group.add(field).growX().height(48).padTop(5);
+    parent.add(group).growX().padRight(12);
   }
 
   private void submitValues() {
+    if (requestPending) return;
     String energy =
         Arrays.stream(energyFields).map(TextField::getText).collect(Collectors.joining(","));
     String payload = energy + "|" + moduleField.getText() + "|" + batteryField.getText();
     lastSubmittedFingerprint = DialogFeedbackFingerprint.of(payload);
+    requestPending = true;
+    setInputsDisabled(true);
     applyLocalFeedback(
         SystemRecoveryText.text("computer.meta-submitting"), LABEL_COLOR, "generic-area-depth");
     DialogCallbackResolver.createButtonCallback(
@@ -143,6 +162,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   }
 
   private void clearValues() {
+    if (requestPending) return;
     SystemCoreMetaDraft.clear();
     Arrays.stream(energyFields).forEach(field -> field.setText(""));
     moduleField.setText("");
@@ -157,14 +177,23 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
    * @param serverFeedback authoritative validation result
    */
   public void applyServerFeedback(DialogFeedbackMessage serverFeedback) {
-    if (!serverFeedback.sourceFingerprint().isEmpty()
-        && !serverFeedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
-      return;
-    }
+    if (!requestPending
+        || lastSubmittedFingerprint == null
+        || !lastSubmittedFingerprint.equals(serverFeedback.sourceFingerprint())) return;
+    requestPending = false;
+    setInputsDisabled(false);
     applyLocalFeedback(
         SystemRecoveryText.text(serverFeedback.messageKey()),
         serverFeedback.successful() ? SUCCESS_COLOR : FAILURE_COLOR,
         serverFeedback.successful() ? "green_square_depth_flat" : "red_square_flat");
+  }
+
+  private void setInputsDisabled(boolean disabled) {
+    Arrays.stream(energyFields).forEach(field -> field.setDisabled(disabled));
+    if (moduleField != null) moduleField.setDisabled(disabled);
+    if (batteryField != null) batteryField.setDisabled(disabled);
+    if (submitButton != null) submitButton.setDisabled(disabled);
+    if (clearButton != null) clearButton.setDisabled(disabled);
   }
 
   private void applyLocalFeedback(String text, Color color, String barBackground) {

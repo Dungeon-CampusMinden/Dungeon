@@ -214,6 +214,11 @@ public final class SystemRecoveryComputerFactory {
   private static void showComputerDialog(
       int targetEntityId, ComputerProgramKind programKind, Item insertedChip) {
     ComputerChipSession chipSession = new ComputerChipSession();
+    if (insertedChip != null) {
+      Game.findEntityById(targetEntityId)
+          .ifPresent(player -> MountedPuzzleItems.mount(player, insertedChip));
+      chipSession.onResolved(() -> MountedPuzzleItems.unmount(targetEntityId, insertedChip));
+    }
     UIComponent ui =
         DialogFactory.show(
             DialogContext.builder()

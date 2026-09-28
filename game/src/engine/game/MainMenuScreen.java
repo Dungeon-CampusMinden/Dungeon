@@ -314,7 +314,8 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private Table buildMainView() {
-    TextButton hostButton = menuButton(trans.text(T_HOST), "green", this::showHostNameView);
+    String hostLabel = starter.hostActionLabel().orElseGet(() -> trans.text(T_HOST));
+    TextButton hostButton = menuButton(hostLabel, "green", this::showHostNameView);
     TextButton continueButton = menuButton(trans.text(T_CONTINUE), "green", this::continueGame);
     TextButton joinButton = menuButton(trans.text(T_JOIN), "blue-outline", this::joinGame);
     TextButton levelEditorButton =
@@ -331,7 +332,9 @@ public class MainMenuScreen extends ScreenAdapter {
       menu.add(continueButton).width(BUTTON_WIDTH).padBottom(12).row();
     }
     menu.add(hostButton).width(BUTTON_WIDTH).padBottom(12).row();
-    menu.add(joinButton).width(BUTTON_WIDTH).padBottom(12).row();
+    if (starter.showJoinButton()) {
+      menu.add(joinButton).width(BUTTON_WIDTH).padBottom(12).row();
+    }
     if (showLevelEditorOption && levelEditorLauncher != null) {
       menu.add(levelEditorButton).width(BUTTON_WIDTH).padBottom(12).row();
     }
@@ -344,7 +347,8 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private Table buildHostNameView() {
-    Label title = label(trans.text(T_HOST), 36, PANEL_TEXT_COLOR);
+    Label title =
+        label(starter.hostActionLabel().orElseGet(() -> trans.text(T_HOST)), 36, PANEL_TEXT_COLOR);
     Label nameLabel = label(trans.text(T_PLAYER_NAME), 22, PANEL_TEXT_COLOR);
     hostNameField = Scene2dElementFactory.createTextField(ClientConnectionDialog.defaultUsername());
     hostStatusLabel = label("", 18, ERROR_COLOR);

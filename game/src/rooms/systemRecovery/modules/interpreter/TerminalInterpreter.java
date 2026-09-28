@@ -807,6 +807,17 @@ public final class TerminalInterpreter {
     return statements;
   }
 
+  /**
+   * Splits source into normalized statements using the same parser used by terminal validation.
+   *
+   * @param source submitted source text
+   * @return statement text with line comments excluded
+   */
+  public static List<String> statementsForSource(String source) {
+    if (source == null || source.isBlank()) return List.of();
+    return parsedStatements(source).stream().map(TerminalStatement::source).toList();
+  }
+
   private static int updatedParenthesesDepth(int parenthesesDepth, char character) {
     if (character == '(') {
       return parenthesesDepth + 1;

@@ -3,6 +3,7 @@ package rooms.systemRecovery.level;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import engine.level.DungeonLevel;
@@ -30,5 +31,17 @@ class SystemRecoveryPointRegistryTest {
   @Test
   void manualSortingStoryUsesItsDedicatedDialogTrigger() {
     assertEquals("dialog_trigger_manual_sorting", SystemRecoveryDialogTriggers.MANUAL_SORTING);
+  }
+
+  @Test
+  void requiresSixthSystemCoreSortPoint() {
+    DungeonLevel level = mock(DungeonLevel.class);
+    when(level.getPoint(anyString())).thenReturn(new Point(0, 0));
+    when(level.getPoint("b5")).thenReturn(new Point(12, 15));
+
+    Map<String, Point> points = SystemRecoveryPointRegistry.resolve(level);
+
+    assertEquals(new Point(12, 15), points.get("b5"));
+    verify(level).getPoint("b5");
   }
 }

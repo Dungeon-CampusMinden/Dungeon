@@ -25,7 +25,7 @@ import rooms.systemRecovery.util.SystemRecoveryText;
  * interpreter does not need to know about computers, containers, map cells or doors.
  */
 public final class SystemCoreRiddle {
-  private static final int[] SORT_VALUES = {42, 17, 8, 31, 23};
+  private static final int[] SORT_VALUES = {42, 8, 23, 4, 16, 15};
   private static final String[] MODULE_VALUES = {"CPU", "GPU", "RAM", null, null};
   private static final int COMPLETE_TINT = 0x66FF66FF;
 

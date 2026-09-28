@@ -16,7 +16,7 @@ public record SystemCoreMetaInput(
 
   private static final String FIELD_SEPARATOR = "\\|";
   private static final String ENERGY_SEPARATOR = ",";
-  private static final int ENERGY_VALUE_COUNT = 5;
+  private static final int ENERGY_VALUE_COUNT = 6;
 
   /** Keeps the parsed energy values immutable for server-side validation. */
   public SystemCoreMetaInput {
@@ -24,7 +24,7 @@ public record SystemCoreMetaInput(
   }
 
   /**
-   * Parses the wire format used by the input mask: {@code energy0,...,energy4|modules|scanned}.
+   * Parses the wire format used by the input mask: {@code energy0,...,energy5|modules|scanned}.
    *
    * @param payload serialized values from the client input mask
    * @return parsed values, or empty when the payload is malformed

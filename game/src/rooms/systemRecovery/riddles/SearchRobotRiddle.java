@@ -27,6 +27,7 @@ import rooms.systemRecovery.entities.ScannerEntityFactory;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -62,6 +63,8 @@ public final class SearchRobotRiddle {
   private Entity robot;
   private Entity searchTarget;
   private Entity deliveredAccessChip;
+  private SearchProgramChipItem runningProgramChip;
+  private int runningProgramPlayerId = -1;
   private int scanIndex = -1;
   private GraphPath<Tile> currentPath;
   private int pathCursor;
@@ -232,6 +235,9 @@ public final class SearchRobotRiddle {
               .flatMap(inventory -> inventory.remove(chip))
               .ifPresentOrElse(
                   removed -> {
+                    runningProgramChip = chip;
+                    runningProgramPlayerId = player.id();
+                    MountedPuzzleItems.mount(player, chip);
                     callbacks.success("insert", player.id());
                     startScan();
                   },
@@ -472,6 +478,11 @@ public final class SearchRobotRiddle {
     // therefore cannot be used as a stable gameplay identifier.
     phase = deliveredAccessChip != null ? Phase.COMPLETED : Phase.IDLE;
     if (completed()) {
+      if (runningProgramChip != null) {
+        MountedPuzzleItems.unmount(runningProgramPlayerId, runningProgramChip);
+      }
+      runningProgramChip = null;
+      runningProgramPlayerId = -1;
       SystemRecoveryLevel.announceStoryToAllPlayers(
           SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE);
       callbacks.solved();

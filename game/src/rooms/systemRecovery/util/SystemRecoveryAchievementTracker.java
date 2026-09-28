@@ -244,6 +244,11 @@ public final class SystemRecoveryAchievementTracker {
     }
   }
 
+  /** Records the deliberate direct-array shortcut achievement without completing the puzzle. */
+  public void directSortShortcutEntered() {
+    emit(SystemRecoveryAchievements.NOT_BY_PLAN);
+  }
+
   /**
    * Records one physical or item-related interaction attempt.
    *

@@ -73,13 +73,23 @@ public final class EnergyEntityFactory {
     inventory.onItemAdded(
         item -> {
           if (!(item instanceof BatteryItem)) return;
-          entity.fetch(DrawComponent.class).ifPresent(draw -> draw.sendSignal("battery_inserted"));
+          markBatteryInserted(entity);
           if (onBatteryInserted != null) onBatteryInserted.run();
-          entity.remove(InventoryComponent.class);
         });
     entity.add(inventory);
     entity.add(new InteractionComponent(new Interaction(EnergyEntityFactory::openDualInventory)));
     return entity;
+  }
+
+  /**
+   * Projects the inserted-battery state once, both during play and checkpoint restoration.
+   *
+   * @param entity battery box receiving the inserted state
+   */
+  public static void markBatteryInserted(Entity entity) {
+    if (entity == null || !entity.isPresent(InventoryComponent.class)) return;
+    entity.fetch(DrawComponent.class).ifPresent(draw -> draw.sendSignal("battery_inserted"));
+    entity.remove(InventoryComponent.class);
   }
 
   private static void openDualInventory(Entity container, Entity player) {

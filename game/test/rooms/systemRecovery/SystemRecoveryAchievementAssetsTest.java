@@ -28,7 +28,7 @@ class SystemRecoveryAchievementAssetsTest {
     }
 
     List<?> achievements = assertInstanceOf(List.class, definition.get("achievements"));
-    assertEquals(25, achievements.size());
+    assertEquals(26, achievements.size());
     for (Object entry : achievements) {
       Map<?, ?> achievement = assertInstanceOf(Map.class, entry);
       String imagePath = assertInstanceOf(String.class, achievement.get("imagePath"));

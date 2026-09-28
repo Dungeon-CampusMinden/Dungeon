@@ -52,6 +52,7 @@ import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
 import rooms.systemRecovery.save.SystemRecoveryLoad;
 import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.SystemRecoveryTranslator;
 
 /** Entry point for the System Recovery escape room. */
@@ -60,11 +61,13 @@ public final class SystemRecovery {
   private static final String LEVEL_KEY = "systemrecovery";
   private static final Color MENU_ACCENT_COLOR = new Color(0.43f, 0.78f, 0.72f, 1f);
   private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
+  private static final boolean SHOW_JOIN_IN_MENU = false;
   private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
     CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
   };
 
   private static boolean debugMode;
+  private static boolean levelEditorMode;
   private static boolean loadFromSave;
   private static UUID runId;
   private static Boolean trackingConsent;
@@ -126,6 +129,9 @@ public final class SystemRecovery {
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.DE)
             .levelEditor("levels/systemRecovery")
+            .beforeLevelEditorStart(() -> levelEditorMode = true)
+            .showJoinButton(SHOW_JOIN_IN_MENU)
+            .hostActionLabel(() -> SystemRecoveryText.text("menu.start"))
             .serverArguments(hostedServerArguments())
             .continueGame(SystemRecoverySave::exists, hostedServerArguments(true))
             .startupConsent(SystemRecovery::trackingConsentPrompt)
@@ -144,6 +150,11 @@ public final class SystemRecovery {
     return debugMode;
   }
 
+  /** @return whether this process was explicitly launched into the local level editor */
+  public static boolean levelEditorMode() {
+    return levelEditorMode;
+  }
+
   /**
    * Configures the process-wide debug flag from launcher arguments.
    *
@@ -151,6 +162,7 @@ public final class SystemRecovery {
    */
   public static void configureDebugMode(String... args) {
     debugMode = containsArgument(args, "--debug") || containsArgument(args, "--leveleditor");
+    levelEditorMode = containsArgument(args, "--leveleditor");
   }
 
   /**

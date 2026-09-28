@@ -15,7 +15,6 @@ import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
-import feature.hud.dialogs.DialogFeedbackFingerprint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,9 +32,8 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   private static final int VISIBLE_LINE_COUNT = 14;
   private static final Color SUCCESS_COLOR = new Color(0.12f, 0.65f, 0.25f, 1f);
   private static final Color FAILURE_COLOR = new Color(0.85f, 0.12f, 0.12f, 1f);
-  private static String savedCode = "";
-
   private final List<String> acceptedSources = new ArrayList<>();
+  private final PendingDialogRequest pendingRequest = new PendingDialogRequest();
   private TextArea codeEditor;
   private Label lineNumbers;
   private Label feedbackLabel;
@@ -44,7 +42,9 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   private Table historyView;
   private Table historyEntries;
   private ScrollPane historyScroll;
-  private String lastSubmittedFingerprint;
+  private TextButton sendButton;
+  private TextButton deleteButton;
+  private TextButton nextStepButton;
   private int displayedFirstLine = -1;
   private int displayedLineCount = -1;
 
@@ -97,8 +97,9 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     lineNumbers = createLabel("", FontSpec.of(Scene2dElementFactory.FONT_PATH, 24, LABEL_COLOR));
     lineNumbers.setAlignment(com.badlogic.gdx.utils.Align.topRight);
 
-    TextField styledField = Scene2dElementFactory.createTextField(savedCode);
-    codeEditor = new TextArea(savedCode, new TextField.TextFieldStyle(styledField.getStyle()));
+    String draft = TerminalDraftStore.code();
+    TextField styledField = Scene2dElementFactory.createTextField(draft);
+    codeEditor = new TextArea(draft, new TextField.TextFieldStyle(styledField.getStyle()));
     Label.LabelStyle lineNumberStyle = lineNumbers.getStyle();
     lineNumberStyle.font = codeEditor.getStyle().font;
     lineNumberStyle.fontColor = LABEL_COLOR;
@@ -108,8 +109,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     Scene2dElementFactory.addTextFieldChangeListener(
         codeEditor,
         text -> {
-          savedCode = text;
-          lastSubmittedFingerprint = null;
+          TerminalDraftStore.code(text);
           updateLineNumbers();
         });
 
@@ -140,10 +140,10 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
     Table buttons = new Table(skin);
     buttons.right();
-    TextButton sendButton = createButton(SystemRecoveryText.text("computer.send"), "green", 20);
-    TextButton deleteButton =
+    sendButton = createButton(SystemRecoveryText.text("computer.send"), "green", 20);
+    deleteButton =
         createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 20);
-    TextButton nextStepButton =
+    nextStepButton =
         createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 18);
     TextButton petriNetButton =
         createButton(SystemRecoveryText.text("computer.petri-net"), "blue-outline", 18);
@@ -229,9 +229,9 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   }
 
   private void clearCodeLines() {
+    if (pendingRequest.pending()) return;
     codeEditor.setText("");
-    savedCode = "";
-    lastSubmittedFingerprint = null;
+    TerminalDraftStore.clear();
     showFeedback("");
     updateLineNumbers();
     if (codeEditor.getStage() != null) {
@@ -241,13 +241,13 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   /** Replaces the editor content with valid example code without submitting it. */
   private void fillDebugSource() {
+    if (pendingRequest.pending()) return;
     TerminalInterpreterSetup.debugSourceForState(TerminalInterpreter.instance().currentState())
         .ifPresent(
             source -> {
               codeEditor.setText(source);
               codeEditor.setCursorPosition(0);
-              savedCode = source;
-              lastSubmittedFingerprint = null;
+              TerminalDraftStore.code(source);
               showFeedback("");
               updateLineNumbers();
               if (codeEditor.getStage() != null) {
@@ -258,7 +258,8 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   private void sendCode() {
     String source = codeText();
-    lastSubmittedFingerprint = DialogFeedbackFingerprint.of(source);
+    if (!pendingRequest.begin(source)) return;
+    setRequestPending(true);
     showFeedback(
         SystemRecoveryText.text("computer.feedback-submitting"), LABEL_COLOR, "generic-area-depth");
     DialogCallbackResolver.createButtonCallback(
@@ -272,15 +273,13 @@ public class TerminalTab extends SystemRecoveryComputerTab {
    * @param feedback authoritative terminal result
    */
   public void applyServerFeedback(DialogFeedbackMessage feedback) {
-    if (!feedback.sourceFingerprint().isEmpty()
-        && !feedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
-      return;
-    }
+    Optional<String> submittedSource = pendingRequest.resolve(feedback.sourceFingerprint());
+    if (submittedSource.isEmpty()) return;
+    setRequestPending(false);
     if (feedback.successful()) {
-      addHistoryEntry(codeText());
+      addHistoryEntry(submittedSource.orElseThrow());
       codeEditor.setText("");
-      savedCode = "";
-      lastSubmittedFingerprint = null;
+      TerminalDraftStore.clear();
       updateLineNumbers();
     }
     showFeedback(
@@ -297,11 +296,14 @@ public class TerminalTab extends SystemRecoveryComputerTab {
    */
   public Optional<String> sourceForFeedback(DialogFeedbackMessage feedback) {
     if (feedback == null || !feedback.successful()) return Optional.empty();
-    if (!feedback.sourceFingerprint().isEmpty()
-        && !feedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
-      return Optional.empty();
-    }
-    return Optional.of(codeText());
+    return pendingRequest.sourceFor(feedback.sourceFingerprint());
+  }
+
+  private void setRequestPending(boolean pending) {
+    codeEditor.setDisabled(pending);
+    sendButton.setDisabled(pending);
+    deleteButton.setDisabled(pending);
+    nextStepButton.setDisabled(pending);
   }
 
   private void addHistoryEntry(String source) {

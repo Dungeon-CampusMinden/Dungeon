@@ -17,6 +17,9 @@ class SystemRecoveryDebugModeTest {
   void hostedServerReceivesDebugFlagWhenClientStartsInDebugMode() {
     SystemRecovery.configureDebugMode("--debug");
 
+    org.junit.jupiter.api.Assertions.assertTrue(SystemRecovery.debugMode());
+    org.junit.jupiter.api.Assertions.assertFalse(SystemRecovery.levelEditorMode());
+
     assertArrayEquals(
         new String[] {"--server", "--new-system-recovery", "--debug"},
         SystemRecovery.hostedServerArguments());
@@ -26,6 +29,9 @@ class SystemRecoveryDebugModeTest {
   void hostedServerReceivesDebugFlagWhenLevelEditorStarts() {
     SystemRecovery.configureDebugMode("--leveleditor");
 
+    org.junit.jupiter.api.Assertions.assertTrue(SystemRecovery.debugMode());
+    org.junit.jupiter.api.Assertions.assertTrue(SystemRecovery.levelEditorMode());
+
     assertArrayEquals(
         new String[] {"--server", "--new-system-recovery", "--debug"},
         SystemRecovery.hostedServerArguments());
@@ -34,6 +40,9 @@ class SystemRecoveryDebugModeTest {
   @Test
   void normalHostedServerDoesNotReceiveDebugFlag() {
     SystemRecovery.configureDebugMode();
+
+    org.junit.jupiter.api.Assertions.assertFalse(SystemRecovery.debugMode());
+    org.junit.jupiter.api.Assertions.assertFalse(SystemRecovery.levelEditorMode());
 
     assertArrayEquals(
         new String[] {"--server", "--new-system-recovery"}, SystemRecovery.hostedServerArguments());

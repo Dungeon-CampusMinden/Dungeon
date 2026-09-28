@@ -47,6 +47,21 @@ class SystemRecoveryAchievementTrackerTest {
   }
 
   @Test
+  void directSortShortcutUnlocksOnceAndSurvivesCheckpointSnapshot() {
+    tracker.directSortShortcutEntered();
+    tracker.directSortShortcutEntered();
+    SystemRecoveryAchievementTracker.Snapshot snapshot = tracker.snapshot();
+    unlocked.clear();
+    tracker = new SystemRecoveryAchievementTracker(unlocked::add);
+    tracker.restore(snapshot);
+
+    tracker.directSortShortcutEntered();
+
+    assertTrue(snapshot.emittedAchievements().contains(SystemRecoveryAchievements.NOT_BY_PLAN));
+    assertTrue(unlocked.isEmpty());
+  }
+
+  @Test
   void solutionHintPreventsNoHintAchievementButTracksHintMilestones() {
     tracker.hintUsed(SystemRecoveryPuzzle.ENERGY, "energy-array:solution");
     tracker.hintUsed(SystemRecoveryPuzzle.MODULE_STORAGE, "module-array:near");

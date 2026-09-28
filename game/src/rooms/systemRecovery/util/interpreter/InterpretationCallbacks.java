@@ -4,6 +4,7 @@ import engine.Game;
 import engine.sound.SoundSpec;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 
 /**
@@ -199,6 +200,11 @@ public final class InterpretationCallbacks {
    * @param attempt rejected terminal attempt
    */
   public static void onIncorrectTerminalInput(TerminalAttempt attempt) {
+    if (attempt.state() == TerminalInterpreterSetup.CENTRAL_SORT_STATE
+        && rooms.systemRecovery.riddles.SystemCoreSortShortcut
+            .isDirectSortedArrayInitialization(attempt.source())) {
+      SystemRecoveryAchievements.directSortShortcutEntered();
+    }
     showIncorrectTerminalFeedback(attempt);
     SystemRecoveryLevel.triggerEchoCallForIncorrectInput();
   }

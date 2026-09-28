@@ -10,6 +10,7 @@ import engine.Game;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.loader.LevelParser;
+import engine.level.utils.LevelElement;
 import engine.systems.FrictionSystem;
 import engine.systems.LevelSystem;
 import engine.systems.MoveSystem;
@@ -92,6 +93,14 @@ class SearchRobotMovementTest {
 
     assertFalse(riddle.completed());
     assertTrue(robot.fetch(PositionComponent.class).orElseThrow().position().x() > 24.8f);
+  }
+
+  @Test
+  void sixthSystemCoreCrystalPointIsPresentOnWalkableFloor() {
+    Point sixthCrystal = level.getPoint("b5");
+
+    assertEquals(new Point(12, 15), sixthCrystal);
+    assertEquals(LevelElement.FLOOR, level.tileAt(sixthCrystal).orElseThrow().levelElement());
   }
 
   @Test

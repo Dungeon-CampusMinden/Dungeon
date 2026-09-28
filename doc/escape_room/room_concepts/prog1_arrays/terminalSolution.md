@@ -201,7 +201,7 @@ zugewiesen werden.
 Mit dem Zugriffsmodul das Freigabeskript ausführen; erst dann öffnet der Systemkern
 und der Alarm beginnt. Die drei Prüfbereiche benutzen folgende Arraynamen:
 
-1. `array`: Bubble Sort für `42, 17, 8, 31, 23`.
+1. `array`: Bubble Sort für `42, 8, 23, 4, 16, 15`; das Ergebnis lautet `4, 8, 15, 16, 23, 42`.
 2. `modules`: belegte Einträge zählen.
 3. `map`: den Suchroboter jedes Feld der 3x5-Matrix besuchen lassen.
 

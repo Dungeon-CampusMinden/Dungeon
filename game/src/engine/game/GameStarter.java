@@ -39,6 +39,9 @@ public final class GameStarter {
   private final String[] continueServerArguments;
   private final Supplier<StartupConsent> startupConsent;
   private final Supplier<TrackingSettings> trackingSettings;
+  private final Supplier<String> hostActionLabel;
+  private final boolean showJoinButton;
+  private final Runnable beforeLevelEditorStart;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -54,6 +57,9 @@ public final class GameStarter {
         builder.continueServerArguments == null ? null : builder.continueServerArguments.clone();
     this.startupConsent = builder.startupConsent;
     this.trackingSettings = builder.trackingSettings;
+    this.hostActionLabel = builder.hostActionLabel;
+    this.showJoinButton = builder.showJoinButton;
+    this.beforeLevelEditorStart = builder.beforeLevelEditorStart;
   }
 
   /**
@@ -165,6 +171,21 @@ public final class GameStarter {
    */
   public Optional<TrackingSettings> trackingSettings() {
     return Optional.ofNullable(trackingSettings.get());
+  }
+
+  /** @return the optional localized label for the host/start action */
+  public Optional<String> hostActionLabel() {
+    return hostActionLabel == null ? Optional.empty() : Optional.ofNullable(hostActionLabel.get());
+  }
+
+  /** @return whether the main menu should show its multiplayer join entry */
+  public boolean showJoinButton() {
+    return showJoinButton;
+  }
+
+  /** Runs the project hook before the level editor starts creating the level. */
+  public void beforeLevelEditorStart() {
+    beforeLevelEditorStart.run();
   }
 
   /**
@@ -287,6 +308,9 @@ public final class GameStarter {
     private String[] continueServerArguments;
     private Supplier<StartupConsent> startupConsent = () -> null;
     private Supplier<TrackingSettings> trackingSettings = () -> null;
+    private Supplier<String> hostActionLabel;
+    private boolean showJoinButton = true;
+    private Runnable beforeLevelEditorStart = () -> {};
 
     private Builder(String title, Class<?> serverMainClass) {
       this.title = validateTitle(title);
@@ -414,6 +438,40 @@ public final class GameStarter {
      */
     public Builder trackingSettings(Supplier<TrackingSettings> trackingSettings) {
       this.trackingSettings = Objects.requireNonNull(trackingSettings, "trackingSettings");
+      return this;
+    }
+
+    /**
+     * Sets an optional localized replacement for the default host button label.
+     *
+     * @param hostActionLabel supplier returning the label in the active language
+     * @return this builder instance
+     */
+    public Builder hostActionLabel(Supplier<String> hostActionLabel) {
+      this.hostActionLabel = Objects.requireNonNull(hostActionLabel, "hostActionLabel");
+      return this;
+    }
+
+    /**
+     * Configures whether the multiplayer join option is shown (default: {@code true}).
+     *
+     * @param showJoinButton whether to show the join action in the menu
+     * @return this builder instance
+     */
+    public Builder showJoinButton(boolean showJoinButton) {
+      this.showJoinButton = showJoinButton;
+      return this;
+    }
+
+    /**
+     * Registers a hook that runs before a local level-editor launch.
+     *
+     * @param beforeLevelEditorStart hook for project-specific editor setup
+     * @return this builder instance
+     */
+    public Builder beforeLevelEditorStart(Runnable beforeLevelEditorStart) {
+      this.beforeLevelEditorStart =
+          Objects.requireNonNull(beforeLevelEditorStart, "beforeLevelEditorStart");
       return this;
     }
 

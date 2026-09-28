@@ -40,6 +40,7 @@ import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
+import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
@@ -207,6 +208,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    MountedPuzzleItems.clear();
     resolvedPoints = SystemRecoveryPointRegistry.resolve(this);
     SystemRecoveryAchievements.resetRun(SystemRecovery.debugMode());
     enforcePlayerInventorySize();
@@ -223,8 +225,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
     } else {
       SystemRecoveryProgressNet.initialize();
     }
-    if (!Game.isHeadless() && LevelEditorSystem.active()) {
+    if (SystemRecovery.levelEditorMode() || (!Game.isHeadless() && LevelEditorSystem.active())) {
       terminalsUnlocked = true;
+      introSuppressed = true;
     }
     setupTerminal();
     setupPhone();
@@ -252,6 +255,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onTick() {
+    if (SystemRecovery.levelEditorMode()) return;
     enforcePlayerInventorySize();
     applyPendingPuzzleInventory();
     saveCheckpointIfNeeded();
@@ -342,9 +346,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
         SystemRecoverySave.capture(checkpoint, runId, SystemRecovery.trackingConsent());
     if (save.playerName() == null || save.playerName().isBlank()) return false;
     boolean checkpointChanged = checkpoint != savedCheckpoint;
-    if (!checkpointChanged && !savedInventoryItems.isEmpty() && save.inventoryItems().isEmpty()) {
-      save = save.withInventoryItems(savedInventoryItems);
-    }
     boolean changed =
         checkpointChanged
             || !save.questLog().equals(savedQuestLog)
@@ -699,6 +700,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Starts ECHO's introductory call after the first rejected terminal input. */
   public static void triggerEchoCallForIncorrectInput() {
+    if (SystemRecovery.levelEditorMode()) return;
     currentLevel()
         .ifPresent(
             level -> {
@@ -731,6 +733,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Starts ECHO's successful first-contact call after AXIOM's dialog has closed. */
   public static void triggerEchoCallAfterInitialCorrectInput() {
+    if (SystemRecovery.levelEditorMode()) return;
     currentLevel().ifPresent(SystemRecoveryLevel::triggerCorrectOpeningCall);
   }
 
@@ -1032,6 +1035,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @param step story step to announce
    */
   public static void announceStoryToAllPlayers(SystemRecoveryStoryDialogs.StoryStep step) {
+    if (SystemRecovery.levelEditorMode()) return;
     currentLevel().ifPresent(level -> level.storyDialogs.announceToAllPlayers(step));
   }
 
@@ -1043,6 +1047,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static void announceStoryForPlayer(
       SystemRecoveryStoryDialogs.StoryStep step, int playerId) {
+    if (SystemRecovery.levelEditorMode()) return;
     currentLevel().ifPresent(level -> level.storyDialogs.announceForPlayer(step, playerId));
   }
 

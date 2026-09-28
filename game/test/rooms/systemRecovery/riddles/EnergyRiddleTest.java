@@ -99,4 +99,14 @@ class EnergyRiddleTest {
         () -> SystemRecoveryDisplayFactory.updateDisplayText(any(Entity.class), anyString()),
         times(1));
   }
+
+  @Test
+  void checkpointRestoreProjectsBatteryIntoBoxWithoutRunningInsertionCallback() {
+    EnergyRiddle riddle = new EnergyRiddle(level);
+    riddle.setup();
+
+    riddle.restoreCompletedState();
+
+    energyEntities.verify(() -> EnergyEntityFactory.markBatteryInserted(any(Entity.class)));
+  }
 }

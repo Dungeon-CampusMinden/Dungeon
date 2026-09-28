@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.items.SearchProgramChipItem;
+import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.modules.computer.UsbProgramDraft;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
@@ -36,6 +38,7 @@ class SystemRecoverySaveTest {
 
   @BeforeEach
   void setUp() {
+    MountedPuzzleItems.clear();
     SystemRecoveryProgressNet.reset();
     Game.removeAllEntities();
     Game.removeAllSystems();
@@ -48,10 +51,42 @@ class SystemRecoverySaveTest {
 
   @AfterEach
   void tearDown() {
+    MountedPuzzleItems.clear();
     SystemRecoveryProgressNet.reset();
     TerminalInterpreter.instance().reset();
     Game.removeAllEntities();
     Game.removeAllSystems();
+  }
+
+  @Test
+  void mountedChipIsSavedAsOwnedItemAndDoesNotDuplicateInventoryVersion() {
+    SortProgramStickItem mountedStick =
+        new SortProgramStickItem(false, "if (array[j] > array[j + 1]) {");
+    Entity player = new Entity("mounted-stick-owner");
+    player.add(new PlayerComponent(true, "Ada"));
+    MountedPuzzleItems.mount(player, mountedStick);
+    Game.add(player);
+
+    List<SystemRecoverySave.PlayerItemData> onlyMounted =
+        SystemRecoverySave.mergeMountedPuzzleItems(List.of(), MountedPuzzleItems.snapshot());
+    List<SystemRecoverySave.PlayerItemData> inventoryPreferred =
+        SystemRecoverySave.mergeMountedPuzzleItems(
+            List.of(new SystemRecoverySave.PlayerItemData("Ada", "sort-program-stick", true)),
+            MountedPuzzleItems.snapshot());
+    SystemRecoverySave.SaveData duringMachineRun =
+        SystemRecoverySave.capture(SystemRecoveryLearningStep.BUBBLE_SORT_MACHINE, UUID.randomUUID());
+
+    assertEquals(1, onlyMounted.size());
+    assertEquals("sort-program-stick", onlyMounted.getFirst().itemKey());
+    assertEquals("if (array[j] > array[j + 1]) {", onlyMounted.getFirst().draft());
+    assertEquals(1, inventoryPreferred.size());
+    assertTrue(inventoryPreferred.getFirst().programmed());
+    assertEquals(onlyMounted, duringMachineRun.inventoryItems());
+    assertTrue(MountedPuzzleItems.unmount(player.id(), mountedStick));
+    assertTrue(
+        SystemRecoverySave.capture(SystemRecoveryLearningStep.ARCHIVE_ACCESS, UUID.randomUUID())
+            .inventoryItems()
+            .isEmpty());
   }
 
   @Test

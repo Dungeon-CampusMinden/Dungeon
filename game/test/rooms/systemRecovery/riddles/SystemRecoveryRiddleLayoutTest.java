@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import engine.utils.Point;
 import org.junit.jupiter.api.Test;
+import rooms.systemRecovery.modules.computer.content.SystemCoreMetaDraft;
 
 /** Guards the distinct matrix layouts used by riddles 8 and 9. */
 public class SystemRecoveryRiddleLayoutTest {
@@ -38,4 +39,16 @@ public class SystemRecoveryRiddleLayoutTest {
     assertEquals(new Point(12, 7), matrix.pointAt(0));
     assertEquals(new Point(16, 5), matrix.pointAt(matrix.size() - 1));
   }
+
+  @Test
+  public void systemCoreSortUsesSixValuesAndAnUnsortedInitialOrder() {
+    assertEquals(6, SystemCoreMetaDraft.ENERGY_SLOT_COUNT);
+    int[] initial = {42, 8, 23, 4, 16, 15};
+    assertEquals(6, initial.length);
+    assertEquals(6, java.util.Arrays.stream(initial).distinct().count());
+    assertEquals(
+        java.util.List.of(4, 8, 15, 16, 23, 42),
+        java.util.Arrays.stream(initial).sorted().boxed().toList());
+  }
+
 }

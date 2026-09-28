@@ -19,11 +19,13 @@ class SystemCoreMetaDraftTest {
   void preservesUnfinishedValues() {
     SystemCoreMetaDraft.energyValue(0, "42");
     SystemCoreMetaDraft.energyValue(4, "23");
+    SystemCoreMetaDraft.energyValue(5, "15");
     SystemCoreMetaDraft.moduleCount("3");
     SystemCoreMetaDraft.scannedModuleCount("5");
 
     assertEquals("42", SystemCoreMetaDraft.energyValue(0));
     assertEquals("23", SystemCoreMetaDraft.energyValue(4));
+    assertEquals("15", SystemCoreMetaDraft.energyValue(5));
     assertEquals("3", SystemCoreMetaDraft.moduleCount());
     assertEquals("5", SystemCoreMetaDraft.scannedModuleCount());
   }

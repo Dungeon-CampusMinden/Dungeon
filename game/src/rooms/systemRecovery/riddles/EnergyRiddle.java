@@ -38,6 +38,7 @@ public final class EnergyRiddle {
   private boolean batteryInserted = false;
   private boolean energyCratesSpawned = false;
   private Entity energyDisplay;
+  private Entity batteryBox;
   private String energyDisplayText;
 
   /**
@@ -93,7 +94,7 @@ public final class EnergyRiddle {
             SystemRecoveryText.key("world.energy.title"));
     energyDisplay.name("energy_display");
     Game.add(energyDisplay);
-    Game.add(
+    batteryBox =
         EnergyEntityFactory.batteryBox(
             level.getPoint("batteriebox_modul"),
             () -> {
@@ -110,7 +111,8 @@ public final class EnergyRiddle {
               }
               SystemRecoveryLevel.announceStoryToAllPlayers(
                   SystemRecoveryStoryDialogs.MODULE_ARRAY);
-            }));
+            });
+    Game.add(batteryBox);
   }
 
   /** Enables the array lever after the energy puzzle has been solved. */
@@ -157,6 +159,7 @@ public final class EnergyRiddle {
   public void restoreCompletedState() {
     energyPuzzleSolved = true;
     batteryInserted = true;
+    EnergyEntityFactory.markBatteryInserted(batteryBox);
     spawnEnergyCrates();
     energyDisplayText = SystemRecoveryText.key("world.energy.display-complete");
     if (energyDisplay != null) {

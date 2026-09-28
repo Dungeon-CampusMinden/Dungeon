@@ -162,7 +162,7 @@ public final class SystemRecoveryPointRegistry {
             "riddle 10 - system core",
             merge(
                 merge(
-                    merge(List.of("core_terminal", "core_display"), indexed("b", 5)),
+                    merge(List.of("core_terminal", "core_display"), indexed("b", 6)),
                     indexed("mod", 5)),
                 List.of("map00", "map24"))));
     groups.add(
