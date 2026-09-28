@@ -156,7 +156,7 @@ public final class ModuleStorageRiddle {
   /**
    * Returns whether the module-array puzzle has reached its final terminal step.
    *
-   * @return {@code true} after {@code module.length;} was accepted
+   * @return {@code true} after the module length was sent to the display
    */
   public boolean completed() {
     return completed;

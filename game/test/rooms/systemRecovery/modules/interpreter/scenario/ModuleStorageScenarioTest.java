@@ -23,7 +23,9 @@ public class ModuleStorageScenarioTest extends TerminalScenarioTestSupport {
             assignment("module", 3, "\"SSD\""),
             assignment("module", 4, "\"NETWORK\"")));
     interpreter.register(2, requirement(assignment("module", 2, "null")));
-    interpreter.register(3, requirement("module\\s*\\.\\s*length\\s*;"));
+    interpreter.register(
+        3,
+        requirement("display\\s*\\.\\s*show\\s*\\(\\s*module\\s*\\.\\s*length\\s*\\)\\s*;"));
 
     String source = "String[] module = new String[5];";
     assertTrue(interpreter.interpret(source));
@@ -39,7 +41,7 @@ public class ModuleStorageScenarioTest extends TerminalScenarioTestSupport {
     source += "module[2] = null;";
     assertTrue(interpreter.interpret(source));
 
-    source += "module.length;";
+    source += "display.show(module.length);";
     assertTrue(interpreter.interpret(source));
   }
 }

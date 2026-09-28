@@ -38,10 +38,10 @@ public final class TerminalInterpreterSetup {
   /** Riddle 2, step 3: remove the defective GPU by assigning {@code null} to slot 2. */
   private static final TerminalStep RIDDLE_TWO_STEP_THREE = TerminalStep.MODULE_REMOVE_GPU;
 
-  /** Riddle 2, step 4: read {@code module.length} to reveal the array size. */
+  /** Riddle 2, step 4: display the length of the module array. */
   private static final TerminalStep RIDDLE_TWO_STEP_FOUR = TerminalStep.MODULE_LENGTH;
 
-  /** Riddle 3, step 1: count all non-null module entries with an enhanced {@code for} loop. */
+  /** Riddle 3, step 1: count and display non-null module entries with an enhanced {@code for}. */
   private static final TerminalStep RIDDLE_THREE_STEP_ONE = TerminalStep.INVENTORY_COUNT;
 
   /** Riddle 4, step 1: create an integer array with the five package weights. */
@@ -173,7 +173,7 @@ public final class TerminalInterpreterSetup {
           module[4] = "NETWORK";
           """;
       case MODULE_REMOVE_GPU -> "module[2] = null;";
-      case MODULE_LENGTH -> "module.length;";
+      case MODULE_LENGTH -> "display.show(module.length);";
       case INVENTORY_COUNT ->
           """
           int count = 0;
@@ -183,6 +183,7 @@ public final class TerminalInterpreterSetup {
                   count++;
               }
           }
+          display.show(count);
           """;
       case TRANSPORT_ARRAY -> "int[] pakete = {15, 40, 20, 60, 30};";
       case TRANSPORT_COLLECT ->
@@ -359,7 +360,11 @@ public final class TerminalInterpreterSetup {
       java.util.function.Consumer<TerminalAttempt> onSuccess,
       java.util.function.Consumer<TerminalAttempt> onFailure) {
     register(
-        RIDDLE_TWO_STEP_FOUR, unordered(onSuccess, onFailure, capturedLengthAccess(MODULE_ARRAY)));
+        RIDDLE_TWO_STEP_FOUR,
+        unordered(
+            onSuccess,
+            onFailure,
+            displayShow(capturedIdentifier(MODULE_ARRAY) + "\\s*\\.\\s*length")));
   }
 
   private static void setupRiddleThreeInventoryScanner(
@@ -374,7 +379,9 @@ public final class TerminalInterpreterSetup {
             declarationWithCapturedVariable("int", "riddleThreeCounter", "0"),
             enhancedForLoop("String", capturedIdentifier(MODULE_ARRAY), "riddleThreeModuleItem"),
             notNullCondition("riddleThreeModuleItem"),
-            increment("riddleThreeCounter")));
+            increment("riddleThreeCounter"),
+            displayShow(capturedIdentifier("riddleThreeCounter")))
+            .requiringBlockDepths(0, 0, 1, 2, 0));
   }
 
   private static void setupRiddleFourTransportStorage(
@@ -876,12 +883,9 @@ public final class TerminalInterpreterSetup {
             + "\\s*]\\s*;");
   }
 
-  private static CodeLine lengthAccess(String variable) {
-    return codeLine(variable + "\\s*\\.\\s*length\\s*;");
-  }
-
-  private static CodeLine capturedLengthAccess(String variableCapture) {
-    return codeLine(capturedIdentifier(variableCapture) + "\\s*\\.\\s*length\\s*;");
+  private static CodeLine displayShow(String valueExpression) {
+    return codeLine(
+        "display\\s*\\.\\s*show\\s*\\(\\s*" + valueExpression + "\\s*\\)\\s*;");
   }
 
   private static CodeLine declaration(String type, String variable, String value) {

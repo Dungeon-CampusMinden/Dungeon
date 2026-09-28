@@ -31,6 +31,7 @@ import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.modules.computer.content.DisplayInstructionsTab;
 import rooms.systemRecovery.modules.computer.content.MemoryWatchTab;
 import rooms.systemRecovery.modules.computer.content.SearchProgramTab;
 import rooms.systemRecovery.modules.computer.content.SortProgramTab;
@@ -72,6 +73,9 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     if (isTransportStorageState()) {
       addTab(new TransportInstructionsTab());
     }
+    if (isDisplayOutputState()) {
+      addTab(new DisplayInstructionsTab());
+    }
     boolean metaAvailable =
         context
             .find(SystemRecoveryComputerFactory.SYSTEM_CORE_META_AVAILABLE, Boolean.class)
@@ -101,6 +105,9 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
   @Override
   public void act(float delta) {
     super.act(delta);
+    if (!tabs.containsKey(DisplayInstructionsTab.KEY) && isDisplayOutputState()) {
+      addTab(new DisplayInstructionsTab());
+    }
     if (!tabs.containsKey(SystemCoreMetaTab.KEY)
         && TerminalInterpreter.instance().currentState() == TerminalStep.SYSTEM_CORE_META.stateId()
         && SystemRecoveryLevel.systemCoreMetaAvailable()) {
@@ -282,5 +289,11 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     int state = TerminalInterpreter.instance().currentState();
     return state == TerminalStep.TRANSPORT_ARRAY.stateId()
         || state == TerminalStep.TRANSPORT_COLLECT.stateId();
+  }
+
+  private static boolean isDisplayOutputState() {
+    int state = TerminalInterpreter.instance().currentState();
+    return state == TerminalStep.MODULE_LENGTH.stateId()
+        || state == TerminalStep.INVENTORY_COUNT.stateId();
   }
 }

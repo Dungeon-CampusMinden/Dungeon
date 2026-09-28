@@ -51,8 +51,26 @@ module[2] = null;
 Anschließend:
 
 ```java
-module.length;
+display.show(module.length);
 ```
+
+Die Länge darf auch vorher in einer frei benannten `int`-Variablen gespeichert werden:
+
+```java
+int size = module.length;
+display.show(size);
+```
+
+Oder in zwei Anweisungen:
+
+```java
+int size = 0;
+size = module.length;
+display.show(size);
+```
+
+Für diesen Ausgabeschritt reicht `module.length;` allein nicht: Der Wert muss mit
+`display.show(...)` auf der Anzeige erscheinen.
 
 Der Arrayname darf frei gewählt werden, muss dann aber in allen Modul- und Scanner-Schritten
 gleich bleiben. Der Code für den Zugang zum Inventarscanner ist aktuell **0502**:
@@ -67,10 +85,12 @@ for (String entry : module) {
         count++;
     }
 }
+display.show(count);
 ```
 
-Die for-each-Variable ist frei wählbar; der Arrayname stammt aus Rätsel 2. Nach dem Scan sind
-vier Einträge belegt. Der Code zum Transportlager ist aktuell **0504**.
+Die for-each-Variable und der Zählername sind frei wählbar; der Arrayname stammt aus Rätsel 2.
+`display.show(<Zählername>);` steht nach der Schleife. Nach dem Scan sind vier Einträge belegt.
+Der Code zum Transportlager ist aktuell **0504**.
 
 ## 4. Transportlager
 
@@ -88,6 +108,19 @@ for (int i = 0; i < pakete.length; i++) {
     roboter.collect();
 }
 ```
+
+Die Länge kann auch vorab zwischengespeichert werden, zum Beispiel:
+
+```java
+int paketAnzahl = pakete.length;
+for (int i = 0; i < paketAnzahl; i++) {
+    roboter.collect();
+}
+```
+
+Auch `int paketAnzahl = 0;` gefolgt von `paketAnzahl = pakete.length;` ist gültig. Der Name
+der Zwischenspeichervariable ist frei; sie muss die Länge desselben Arrays enthalten, das die
+Schleife durchläuft.
 
 Es ist eine indexbasierte `for`-Schleife gefordert. `collect()` hat **keinen Parameter**.
 Nach dem Transportlauf muss ECHOs Anruf beantwortet werden, bevor der Datenspeicher aufgeht.
@@ -158,6 +191,11 @@ Das Programm wird auf den Ortungschip geschrieben. Nach dem Einsetzen fährt der
 seine Matrix ab und liefert das Systemkern-Zugriffsmodul. Die Matrixgröße wird aus
 `roboter_start` und `roboter_end` ermittelt.
 
+Auch die Schleifengrenzen dürfen aus frei benannten `int`-Variablen gelesen werden: Für die
+äußere Schleife ist das `map.length`, für jede Zeile die jeweilige `map[i].length`. Beide
+Variablen dürfen direkt mit `.length` initialisiert oder erst mit `0` angelegt und danach
+zugewiesen werden.
+
 ## 10. Systemkern
 
 Mit dem Zugriffsmodul das Freigabeskript ausführen; erst dann öffnet der Systemkern
@@ -181,6 +219,20 @@ for (int i = 0; i < array.length - 1; i++) {
 }
 ```
 
+Statt `array.length` kann die Schleife eine zuvor gespeicherte Arraylänge verwenden:
+
+```java
+int size = array.length;
+for (int i = 0; i < size - 1; i++) {
+    for (int j = 0; j < size - 1 - i; j++) {
+        // Vergleich und Tausch wie oben
+    }
+}
+```
+
+`size` darf beliebig heißen und auch zunächst mit `0` angelegt und danach mit
+`array.length` belegt werden.
+
 **Module zählen:**
 
 ```java
@@ -201,6 +253,22 @@ for (int row = 0; row < map.length; row++) {
     }
 }
 ```
+
+Auch die beiden Längen dürfen in frei benannten Variablen zwischengespeichert werden. Für die
+Spalten muss dabei die Länge der jeweils aktuellen Zeile verwendet werden:
+
+```java
+int rows = map.length;
+for (int row = 0; row < rows; row++) {
+    int columns = map[row].length;
+    for (int column = 0; column < columns; column++) {
+        roboter.collect();
+    }
+}
+```
+
+Beide Variablen dürfen alternativ mit `0` angelegt und anschließend mit der passenden
+`.length` belegt werden.
 
 Im letzten Bereich wird **jedes** Feld erfasst; die Farbe und der Zellwert sind egal.
 Die Eingabe startet den zweiten Roboter. Erst wenn er fertig ist, steht die

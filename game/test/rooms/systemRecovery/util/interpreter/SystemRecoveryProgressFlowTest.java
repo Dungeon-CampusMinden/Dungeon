@@ -368,11 +368,11 @@ class SystemRecoveryProgressFlowTest {
   }
 
   private static String moduleLength() {
-    return "module.length;";
+    return "display.show(module.length);";
   }
 
   private static String moduleCount() {
-    return "int count=0; for (String item : module) { if (item != null) { count++; } }";
+    return "int count=0; for (String item : module) { if (item != null) { count++; } } display.show(count);";
   }
 
   private static String packageArray() {

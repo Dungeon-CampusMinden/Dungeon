@@ -17,6 +17,8 @@ import java.util.function.Consumer;
  * @param onPartialInput callback for an accepted but incomplete submission
  * @param prerequisites code-line indexes that must already be matched for each code line
  * @param distinctCaptureGroups capture names that must resolve to distinct values
+ * @param requiredBlockDepths exact block depth for ordered lines, or {@code null} for legacy
+ *     matching
  */
 public record TerminalCodeRequirement(
     CodeLine[] codeLines,
@@ -27,7 +29,8 @@ public record TerminalCodeRequirement(
     boolean acceptsFollowingStepInSameSubmission,
     Consumer<TerminalAttempt> onPartialInput,
     int[][] prerequisites,
-    List<Set<String>> distinctCaptureGroups) {
+    List<Set<String>> distinctCaptureGroups,
+    int[] requiredBlockDepths) {
 
   /**
    * Creates the standard all-or-nothing requirement for one terminal step.
@@ -42,7 +45,7 @@ public record TerminalCodeRequirement(
       boolean requiresOrder,
       Consumer<TerminalAttempt> onSuccess,
       Consumer<TerminalAttempt> onFailure) {
-    this(codeLines, requiresOrder, onSuccess, onFailure, false, false, null, null, List.of());
+    this(codeLines, requiresOrder, onSuccess, onFailure, false, false, null, null, List.of(), null);
   }
 
   /** Creates a requirement using the previous extended constructor shape. */
@@ -63,7 +66,32 @@ public record TerminalCodeRequirement(
         acceptsFollowingStepInSameSubmission,
         onPartialInput,
         null,
-        List.of());
+        List.of(),
+        null);
+  }
+
+  /** Creates a requirement using the previous prerequisites-and-captures constructor shape. */
+  public TerminalCodeRequirement(
+      CodeLine[] codeLines,
+      boolean requiresOrder,
+      Consumer<TerminalAttempt> onSuccess,
+      Consumer<TerminalAttempt> onFailure,
+      boolean acceptsPartialInput,
+      boolean acceptsFollowingStepInSameSubmission,
+      Consumer<TerminalAttempt> onPartialInput,
+      int[][] prerequisites,
+      List<Set<String>> distinctCaptureGroups) {
+    this(
+        codeLines,
+        requiresOrder,
+        onSuccess,
+        onFailure,
+        acceptsPartialInput,
+        acceptsFollowingStepInSameSubmission,
+        onPartialInput,
+        prerequisites,
+        distinctCaptureGroups,
+        null);
   }
 
   /**
@@ -87,7 +115,8 @@ public record TerminalCodeRequirement(
         false,
         null,
         null,
-        List.of());
+        List.of(),
+        null);
   }
 
   /**
@@ -108,6 +137,16 @@ public record TerminalCodeRequirement(
         distinctCaptureGroups == null
             ? List.of()
             : distinctCaptureGroups.stream().map(Set::copyOf).toList();
+    if (requiredBlockDepths != null) {
+      if (!requiresOrder || requiredBlockDepths.length != codeLines.length) {
+        throw new IllegalArgumentException(
+            "Exact block depths require ordered code lines and one depth per line.");
+      }
+      requiredBlockDepths = Arrays.copyOf(requiredBlockDepths, requiredBlockDepths.length);
+      if (Arrays.stream(requiredBlockDepths).anyMatch(depth -> depth < 0)) {
+        throw new IllegalArgumentException("Block depths cannot be negative.");
+      }
+    }
   }
 
   /**
@@ -127,7 +166,8 @@ public record TerminalCodeRequirement(
         acceptsFollowingStepInSameSubmission,
         callback,
         prerequisites,
-        distinctCaptureGroups);
+        distinctCaptureGroups,
+        requiredBlockDepths);
   }
 
   /**
@@ -145,7 +185,8 @@ public record TerminalCodeRequirement(
         true,
         onPartialInput,
         prerequisites,
-        distinctCaptureGroups);
+        distinctCaptureGroups,
+        requiredBlockDepths);
   }
 
   /**
@@ -164,7 +205,8 @@ public record TerminalCodeRequirement(
         acceptsFollowingStepInSameSubmission,
         onPartialInput,
         linePrerequisites,
-        distinctCaptureGroups);
+        distinctCaptureGroups,
+        requiredBlockDepths);
   }
 
   /**
@@ -183,7 +225,28 @@ public record TerminalCodeRequirement(
         acceptsFollowingStepInSameSubmission,
         onPartialInput,
         prerequisites,
-        captureGroups);
+        captureGroups,
+        requiredBlockDepths);
+  }
+
+  /**
+   * Returns a copy requiring each ordered line at the specified nesting depth.
+   *
+   * @param blockDepths nesting depth for each code line
+   * @return configured requirement
+   */
+  public TerminalCodeRequirement requiringBlockDepths(int... blockDepths) {
+    return new TerminalCodeRequirement(
+        codeLines,
+        requiresOrder,
+        onSuccess,
+        onFailure,
+        acceptsPartialInput,
+        acceptsFollowingStepInSameSubmission,
+        onPartialInput,
+        prerequisites,
+        distinctCaptureGroups,
+        blockDepths);
   }
 
   boolean prerequisitesMet(int lineIndex, boolean[] matchedLines) {
@@ -217,6 +280,14 @@ public record TerminalCodeRequirement(
   @Override
   public int[][] prerequisites() {
     return copyPrerequisites(prerequisites, codeLines.length);
+  }
+
+  /** Returns a defensive copy of the required block depths, if configured. */
+  @Override
+  public int[] requiredBlockDepths() {
+    return requiredBlockDepths == null
+        ? null
+        : Arrays.copyOf(requiredBlockDepths, requiredBlockDepths.length);
   }
 
   private static int[][] copyPrerequisites(int[][] source, int lineCount) {

@@ -186,7 +186,7 @@ public class TerminalInterpreterStateFlowTest {
 
   private static String moduleLengthAccess() {
     return """
-        module.length;
+        display.show(module.length);
         """;
   }
 
@@ -198,6 +198,7 @@ public class TerminalInterpreterStateFlowTest {
                 count++;
             }
         }
+        display.show(count);
         """;
   }
 

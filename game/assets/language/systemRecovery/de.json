@@ -85,9 +85,9 @@
       "module-values": "Die Speicherstruktur wurde erkannt.[p]Weise den vorhandenen Bauteilen nun ihre vorgesehenen Plätze zu.[p]Jedes Modul gehört genau einmal in den Speicher. Eine korrekte Zuordnung aktiviert die Sockel.",
       "module-assignment": "Die Modulzuordnung wurde akzeptiert.[p]Eine der Einheiten meldet inzwischen einen Hardwarefehler. Untersuche die belegten Sockel und identifiziere die fehlerhafte Komponente.",
       "gpu-fault": "Diagnose bestätigt: Die GPU ist beschädigt.[p]Entferne den fehlerhaften Eintrag aus dem Modul-Speicher. Ein defektes Bauteil darf nicht länger als aktiv registriert bleiben.",
-      "module-length": "Der fehlerhafte Eintrag wurde entfernt.[p]Ermittle nun die Größe des Modul-Speichers. Die Zugangskontrolle benötigt diese Information für die nächste Freigabe.",
+      "module-length": "Der fehlerhafte Eintrag wurde entfernt.[p]Ermittle nun die Größe des Modul-Speichers und übermittle den Wert an die Anzeige. Die Zugangskontrolle benötigt diese Information für die nächste Freigabe.",
       "open-scanner-door": "Die Speicherkapazität wurde registriert.[p]Der nächste Zugang erwartet zwei Kennwerte: die Kapazität des Modul-Speichers und die Position der ausgefallenen Einheit.[p]Lies beide Werte aus der Anzeige ab.",
-      "scanner-code": "Der Modulspeicher ist vorbereitet.[p]Die Zugangskontrolle benötigt nicht die Länge des Arrays, sondern die Anzahl der tatsächlich belegten Einträge.[p]Lege eine Zählvariable an und durchlaufe module mit einer for-each-Schleife. Prüfe jeden gespeicherten Wert und erhöhe den Zähler nur für belegte Einträge.",
+      "scanner-code": "Der Modulspeicher ist vorbereitet.[p]Die Zugangskontrolle benötigt nicht die Länge des Arrays, sondern die Anzahl der tatsächlich belegten Einträge.[p]Lege eine Zählvariable an und durchlaufe module mit einer for-each-Schleife. Prüfe jeden gespeicherten Wert, erhöhe den Zähler nur für belegte Einträge und gib den fertigen Zählerstand auf der Anzeige aus.",
       "scanner-lever": "Der Zählwert wurde akzeptiert.",
       "scanner-complete": "Der Inventarscanner hat seine Prüfung abgeschlossen.[p]Die Ergebnisse sollten uns Hinweise darauf geben, wie wir in das Transportlager gelangen.",
       "packages-array": "Die Zugangskontrolle hat dich ins Transportlager geführt. Die Paketmaschine wartet auf eine vollständige Ladungsliste. Untersuche die Anzeige und stelle die benötigte Datenstruktur im Terminal her.",
@@ -165,9 +165,9 @@
         },
         "module-length": {
           "orientation": "Der Scanner benötigt die Kapazität des Modul-Arrays, nicht die Zahl belegter Einträge.",
-          "approach": "Java-Arrays stellen ihre Kapazität über das Feld length bereit. Ein gelöschter Eintrag ändert sie nicht.",
-          "near": "Lies das Feld length des Arrays module aus.",
-          "solution": "Gib ein: module.length;"
+          "approach": "Java-Arrays stellen ihre Kapazität über length bereit. Übermittle den ermittelten Wert mit der Anzeigefunktion; ein gelöschter Eintrag ändert die Kapazität nicht.",
+          "near": "Lies die Länge von module aus und gib sie über display.show(...) aus. Du kannst die Länge dafür auch in einer int-Variablen deiner Wahl zwischenspeichern.",
+          "solution": "Direkt: display.show(module.length);\nOder mit Zwischenspeicher: int size = module.length; display.show(size);\nAuch möglich: int size = 0; size = module.length; display.show(size); Der Variablenname size ist frei wählbar."
         },
         "room2-door-code": {
           "orientation": "Für den Zugang sind zwei Informationen aus dem Modulspeicher wichtig: die Array-Länge und die Position des defekten GPU-Eintrags.",
@@ -177,9 +177,9 @@
         },
         "inventory-count": {
           "orientation": "Der Scanner braucht die Zahl der eingesetzten Module, nicht die Array-Kapazität.",
-          "approach": "Starte einen Zähler bei null, durchlaufe jeden String in module und zähle nur Nicht-null-Einträge.",
-          "near": "Nutze eine erweiterte for-Schleife über module, prüfe entry != null und erhöhe count.",
-          "solution": "Gib ein: int count = 0; for (String entry : module) { if (entry != null) { count++; } }"
+          "approach": "Starte einen Zähler bei null, durchlaufe jeden String in module und zähle nur Nicht-null-Einträge. Gib den fertigen Zählerstand nach der Schleife auf der Anzeige aus.",
+          "near": "Nutze eine for-each-Schleife über module, prüfe jeden Eintrag auf null, erhöhe deinen Zähler bei belegten Einträgen und rufe danach display.show(...) mit diesem Zähler auf.",
+          "solution": "Gib ein:\nint count = 0;\nfor (String entry : module) {\n    if (entry != null) {\n        count++;\n    }\n}\ndisplay.show(count);"
         },
         "room3-door-code": {
           "orientation": "Der Zugang zum Transportlager hängt von der Kapazität und dem Ergebnis des Inventarscans ab.",
@@ -195,9 +195,9 @@
         },
         "transport-collect-loop": {
           "orientation": "Jedes Paket muss genau einmal durch den Lager-Scanner laufen.",
-          "approach": "Nutze eine klassische for-Schleife mit Index und laufe bis zur Länge deines Paket-Arrays.",
+          "approach": "Nutze eine klassische for-Schleife mit Index und richte ihre Grenze an der Länge deines Paket-Arrays aus.",
           "near": "Rufe in jedem Durchlauf genau einmal roboter.collect() ohne Argument auf.",
-          "solution": "Beispiel: for (int i = 0; i < pakete.length; i++) { roboter.collect(); } Ersetze pakete durch den Namen deines Arrays."
+          "solution": "Beispiel: for (int i = 0; i < pakete.length; i++) { roboter.collect(); } Ersetze pakete durch deinen Arraynamen. Du darfst die Länge auch vorher in einer int-Variablen mit frei wählbarem Namen speichern; sie kann direkt mit .length initialisiert oder mit 0 angelegt und danach zugewiesen werden."
         },
         "data-storage-door-open": {
           "orientation": "Die angenommene Paketfolge wird verarbeitet, bevor der nächste Raum erreichbar ist.",
@@ -251,7 +251,7 @@
           "orientation": "Der Ortungschip muss jede Matrixzelle prüfen, nicht nur die erste Spalte.",
           "approach": "Lass die vorbereitete äußere Zeilenschleife bestehen und ergänze eine innere Schleife über die aktuelle Zeilenlänge.",
           "near": "Laufe für jedes i mit j < map[i].length. Bei map[i][j] == 1 rufst du roboter.collect() auf.",
-          "solution": "Verwende: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { if (map[i][j] == 1) { roboter.collect(); } } }"
+          "solution": "Verwende: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { if (map[i][j] == 1) { roboter.collect(); } } } Du kannst map.length und map[i].length auch jeweils in einer frei benannten int-Variablen speichern; die Spaltenlänge muss zur aktuellen Zeile gehören. Solche Variablen dürfen direkt mit .length initialisiert oder mit 0 angelegt und danach zugewiesen werden."
         },
         "search-robot-run": {
           "orientation": "Das fertige Ortungsprogramm muss im Roboter laufen, bevor sein Ergebnis vorliegt.",
@@ -269,7 +269,7 @@
           "orientation": "Die erste Kernprüfung verlangt, ein int-Array aufsteigend zu sortieren.",
           "approach": "Nutze Bubble Sort: äußere Durchgangsschleife, innere Nachbarschleife und temporäre Variable zum Tauschen.",
           "near": "Vergleiche array[j] und array[j+1]; bei größerem linken Wert über temp tauschen. Innere Grenze mit i verkleinern.",
-          "solution": "Gib ein: for (int i = 0; i < array.length - 1; i++) { for (int j = 0; j < array.length - 1 - i; j++) { if (array[j] > array[j + 1]) { int temp = array[j]; array[j] = array[j + 1]; array[j + 1] = temp; } } }"
+          "solution": "Gib ein: for (int i = 0; i < array.length - 1; i++) { for (int j = 0; j < array.length - 1 - i; j++) { if (array[j] > array[j + 1]) { int temp = array[j]; array[j] = array[j + 1]; array[j + 1] = temp; } } } Statt array.length darfst du die Arraylänge vorher in einer int-Variablen mit frei wählbarem Namen speichern; auch Deklaration mit 0 und spätere Zuweisung sind gültig."
         },
         "core-count": {
           "orientation": "Die nächste Kernprüfung misst, wie viele Modulplätze einen Wert enthalten.",
@@ -281,7 +281,7 @@
           "orientation": "Die letzte Kernroutine soll den Suchroboter durch das zweidimensionale Array `map` führen.",
           "approach": "Nutze verschachtelte Indexschleifen über alle Zeilen und ihre Längen. Jede Zelle muss einen Roboter-Aufruf auslösen.",
           "near": "Rufe im inneren Schleifenrumpf für jede Zelle roboter.collect() auf. Eine Farb- oder Wertprüfung ist nicht erforderlich.",
-          "solution": "Gib ein: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } }"
+          "solution": "Gib ein: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } } Du darfst map.length und map[i].length jeweils in einer frei benannten int-Variablen speichern; die Spaltenlänge muss aus der aktuellen Zeile stammen. Solche Variablen dürfen direkt mit .length initialisiert oder mit 0 angelegt und danach zugewiesen werden."
         },
         "core-search-robot": {
           "orientation": "Der Suchroboter führt jetzt die von dir programmierte Kernroutine aus.",
@@ -428,6 +428,9 @@
       "transport-instructions-tab": "Lager-Scanner",
       "transport-instructions-heading": "Funktionsreferenz",
       "transport-instructions": "roboter.collect()\n\nÜbernimmt das nächste Paket der Paketmaschine.\n\nEin Aufruf verarbeitet genau ein Paket.\nDie Funktion benötigt keinen Parameter.\n\nRufe sie in einer klassischen for-Schleife\nfür jedes Paket genau einmal auf.",
+      "display-instructions-tab": "Anzeige",
+      "display-instructions-heading": "Werte ausgeben",
+      "display-instructions": "display.show(wert)\n\nÜbergibt einen berechneten Wert an das Display des aktuellen Rätsels.",
       "meta-heading": "Finalen Systemzustand übertragen",
       "meta-instruction": "Übertrage die drei Ergebnisse aus der Anzeige. Die Energiewerte gehören in die fünf Felder in aufsteigender Reihenfolge.",
       "meta-energy-slot": "Energie $1",
@@ -500,7 +503,7 @@
         "module-array": "Modul-Array deklarieren",
         "module-values": "Modulnamen zuweisen",
         "module-remove-gpu": "Defekten GPU-Platz leeren",
-        "module-length": "Länge des Modul-Arrays auslesen",
+        "module-length": "Länge des Modul-Arrays anzeigen",
         "room2-door-code": "Scanner-Türcode eingeben",
         "inventory-count": "Eingesetzte Module zählen",
         "room3-door-code": "Transport-Türcode eingeben",
@@ -569,13 +572,13 @@
         "array": "Erzeuge ein String-Array namens module mit fünf Plätzen.",
         "values": "Ordne CPU, RAM, GPU, SSD und NETWORK den fünf Plätzen zu.",
         "remove_gpu": "Entferne den defekten GPU-Eintrag aus dem Array.",
-        "length": "Lies die Länge des Arrays module aus."
+        "length": "Ermittle die Länge des Arrays module und gib sie auf der Anzeige aus."
       }
     },
     "riddle3": {
       "tab": "Rätsel 3: Inventarscanner",
       "entries": {
-        "loop": "Zähle mit einer Schleife nur die belegten Einträge von module.",
+        "loop": "Zähle mit einer for-each-Schleife die belegten Einträge von module und gib den Zählerstand danach auf der Anzeige aus.",
         "scan": "Betätige nach dem akzeptierten Code den Scanner-Hebel.",
         "door": "Der Scan ist abgeschlossen. Verwende Array-Kapazität und Zahl der belegten Module zweistellig und in dieser Reihenfolge für den Zugang zum Transportlager."
       }

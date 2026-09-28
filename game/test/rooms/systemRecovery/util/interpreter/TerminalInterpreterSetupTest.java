@@ -54,7 +54,7 @@ public class TerminalInterpreterSetupTest {
         """);
     submit(
         """
-        m.length;
+        display.show(m.length);
         """);
     submit(
         """
@@ -64,6 +64,7 @@ public class TerminalInterpreterSetupTest {
                 count += 1;
             }
         }
+        display.show(count);
         """);
     submit(
         """
@@ -479,7 +480,7 @@ public class TerminalInterpreterSetupTest {
         """);
     submit(
         """
-        module.length;
+        display.show(module.length);
         """);
     submit(
         """
@@ -489,6 +490,7 @@ public class TerminalInterpreterSetupTest {
                 count++;
             }
         }
+        display.show(count);
         """);
     submit(
         """
@@ -549,7 +551,7 @@ public class TerminalInterpreterSetupTest {
         """);
     submit(
         """
-        module.length;
+        display.show(module.length);
         """);
     submit(
         """
@@ -559,6 +561,7 @@ public class TerminalInterpreterSetupTest {
                 count++;
             }
         }
+        display.show(count);
         """);
     submit(
         """

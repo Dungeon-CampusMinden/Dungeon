@@ -13,14 +13,6 @@ public class InventoryScannerScenarioTest extends TerminalScenarioTestSupport {
   /** The inventory scanner accepts counting all non-null modules. */
   @Test
   public void inventoryScannerScenarioIsSupported_riddle3() {
-    interpreter.register(
-        0,
-        orderedRequirement(
-            "int\\s+count\\s*=\\s*0\\s*;",
-            "for\\s*\\(\\s*String\\s+m\\s*:\\s*module\\s*\\)\\s*\\{",
-            "if\\s*\\(\\s*m\\s*!=\\s*null\\s*\\)\\s*\\{",
-            "count\\s*\\+\\+\\s*;"));
-
     String source =
         """
         int count = 0;
@@ -30,8 +22,11 @@ public class InventoryScannerScenarioTest extends TerminalScenarioTestSupport {
                 count++;
             }
         }
+        display.show(count);
         """;
 
+    TerminalInterpreterSetup.setupPreviewStates();
+    interpreter.synchronizeState(TerminalStep.INVENTORY_COUNT.stateId());
     assertTrue(interpreter.interpret(source));
   }
 
@@ -45,9 +40,10 @@ public class InventoryScannerScenarioTest extends TerminalScenarioTestSupport {
             int occupied = 0;
             for (String part : module) {
                 if (!(part == null)) {
-                    occupied = occupied + 1;
+                occupied = occupied + 1;
                 }
             }
+            display.show(occupied);
             """));
 
     assertTrue(
@@ -60,6 +56,7 @@ public class InventoryScannerScenarioTest extends TerminalScenarioTestSupport {
                     filled++;
                 }
             }
+            display.show(filled);
             """));
   }
 

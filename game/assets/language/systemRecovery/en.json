@@ -85,9 +85,9 @@
       "module-values": "The storage structure was recognized.[p]Assign the available components to their designated positions.[p]Each module belongs in the storage exactly once. A correct assignment activates the sockets.",
       "module-assignment": "The module assignment was accepted.[p]One of the units is now reporting a hardware fault. Examine the occupied sockets and identify the defective component.",
       "gpu-fault": "Diagnosis confirmed: the GPU is damaged.[p]Remove the defective entry from the module storage. A damaged component must no longer be registered as active.",
-      "module-length": "The defective entry was removed.[p]Now determine the size of the module storage. The access control requires this information for the next authorization.",
+      "module-length": "The defective entry was removed.[p]Now determine the size of module storage and send the value to the display. The access control needs this information for its next authorization.",
       "open-scanner-door": "The storage capacity was registered.[p]The next access point requires two values: the capacity of the module storage and the position of the failed unit.[p]Read both values from the display.",
-      "scanner-code": "The module storage is prepared.[p]The access control does not need the array length. It needs the number of entries that are actually occupied.[p]Create a counter variable and traverse module with a for-each loop. Check each stored value and increase the counter only for occupied entries.",
+      "scanner-code": "The module storage is prepared.[p]The access control does not need the array length. It needs the number of entries that are actually occupied.[p]Create a counter variable and traverse module with a for-each loop. Check each stored value, increase the counter only for occupied entries, then display the final count.",
       "scanner-lever": "The count was accepted.",
       "scanner-complete": "The inventory scanner has completed its examination.[p]The results should give us clues about how to reach the transport storage.",
       "packages-array": "The access control has led you to the transport storage. The package machine is waiting for a complete loading list. Inspect the display and create the required data structure in the terminal.",
@@ -165,9 +165,9 @@
         },
         "module-length": {
           "orientation": "The scanner needs the module array's capacity, not its number of occupied entries.",
-          "approach": "Java arrays expose capacity through their length field. Clearing an entry does not change it.",
-          "near": "Read the length field of the array named module.",
-          "solution": "Enter: module.length;"
+          "approach": "Java arrays expose capacity through length. Send the resulting value to the display; clearing an entry does not change capacity.",
+          "near": "Read the length of module and output it with display.show(...). You may also store the length in an int variable of your choice first.",
+          "solution": "Directly: display.show(module.length);\nOr with a temporary: int size = module.length; display.show(size);\nAlso valid: int size = 0; size = module.length; display.show(size); The variable name size is arbitrary."
         },
         "room2-door-code": {
           "orientation": "Two pieces of information from module storage matter for access: the array length and the position of the defective GPU entry.",
@@ -177,9 +177,9 @@
         },
         "inventory-count": {
           "orientation": "The scanner needs the number of modules still installed, not array capacity.",
-          "approach": "Start a counter at zero, visit each String in module, and increment only for non-null entries.",
-          "near": "Use an enhanced for loop over module; test entry != null and increment count.",
-          "solution": "Enter: int count = 0; for (String entry : module) { if (entry != null) { count++; } }"
+          "approach": "Start a counter at zero, visit each String in module, and increment only for non-null entries. Display the final count after the loop.",
+          "near": "Use an enhanced for loop over module, test each entry for null, increment your counter for occupied entries, then call display.show(...) with that counter.",
+          "solution": "Enter:\nint count = 0;\nfor (String entry : module) {\n    if (entry != null) {\n        count++;\n    }\n}\ndisplay.show(count);"
         },
         "room3-door-code": {
           "orientation": "Access to transport storage depends on the array capacity and the inventory scan result.",
@@ -195,9 +195,9 @@
         },
         "transport-collect-loop": {
           "orientation": "Every package must pass through the storage scanner exactly once.",
-          "approach": "Use a classic for loop with an index and run it up to the length of your package array.",
+          "approach": "Use a classic for loop with an index and set its bound from the length of your package array.",
           "near": "Call roboter.collect() exactly once during each iteration, without an argument.",
-          "solution": "Example: for (int i = 0; i < pakete.length; i++) { roboter.collect(); } Replace pakete with the name of your array."
+          "solution": "Example: for (int i = 0; i < pakete.length; i++) { roboter.collect(); } Replace pakete with your array name. You may also store the length in an int variable with any name first; initialize it directly with .length or declare it as 0 and assign the length afterward."
         },
         "data-storage-door-open": {
           "orientation": "The accepted package sequence is being processed before the next room is accessible.",
@@ -251,7 +251,7 @@
           "orientation": "The locator must inspect every matrix cell, not only the first column.",
           "approach": "Keep the prepared outer row loop and add an inner loop bounded by the current row length.",
           "near": "For each i, loop j while j < map[i].length. At map[i][j] == 1 call roboter.collect().",
-          "solution": "Use: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { if (map[i][j] == 1) { roboter.collect(); } } }"
+          "solution": "Use: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { if (map[i][j] == 1) { roboter.collect(); } } } You may store map.length and map[i].length in int variables with any names; the column length must belong to the current row. Initialize these variables with .length directly, or declare them as 0 and assign the length afterward."
         },
         "search-robot-run": {
           "orientation": "The completed locator program must run on the robot before its result is available.",
@@ -269,7 +269,7 @@
           "orientation": "The first core check asks the program to sort an integer array in ascending order.",
           "approach": "Use Bubble Sort: an outer pass loop, an inner adjacent-pair loop and a temporary variable for swaps.",
           "near": "Compare array[j] to array[j+1]; if greater, swap via temp. Reduce the inner bound by i.",
-          "solution": "Enter: for (int i = 0; i < array.length - 1; i++) { for (int j = 0; j < array.length - 1 - i; j++) { if (array[j] > array[j + 1]) { int temp = array[j]; array[j] = array[j + 1]; array[j + 1] = temp; } } }"
+          "solution": "Enter: for (int i = 0; i < array.length - 1; i++) { for (int j = 0; j < array.length - 1 - i; j++) { if (array[j] > array[j + 1]) { int temp = array[j]; array[j] = array[j + 1]; array[j + 1] = temp; } } } Instead of array.length, you may store the array length in an int variable with any name first; declaring it as 0 and assigning the length afterward also works."
         },
         "core-count": {
           "orientation": "The next core check measures how many module slots contain a value.",
@@ -281,7 +281,7 @@
           "orientation": "The final core routine must guide the search robot through the two-dimensional array `map`.",
           "approach": "Use nested index loops over every row and its length. Each cell must trigger one robot call.",
           "near": "Call roboter.collect() inside the inner loop for every cell. No color or value check is required.",
-          "solution": "Enter: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } }"
+          "solution": "Enter: for (int i = 0; i < map.length; i++) { for (int j = 0; j < map[i].length; j++) { roboter.collect(); } } You may store map.length and map[i].length in int variables with any names; the column length must come from the current row. Initialize these variables with .length directly, or declare them as 0 and assign the length afterward."
         },
         "core-search-robot": {
           "orientation": "The search robot is now executing the core routine you programmed.",
@@ -428,6 +428,9 @@
       "transport-instructions-tab": "Storage scanner",
       "transport-instructions-heading": "Function reference",
       "transport-instructions": "roboter.collect()\n\nTakes the next package from the package machine.\n\nOne call processes exactly one package.\nThe function requires no parameter.\n\nCall it in a classic for loop\nexactly once for every package.",
+      "display-instructions-tab": "Display",
+      "display-instructions-heading": "Output values",
+      "display-instructions": "display.show(value)\n\nSends a computed value to the display for the current puzzle.",
       "meta-heading": "Transfer the final system state",
       "meta-instruction": "Transfer the three results from the display. Enter the energy values in ascending order across the five fields.",
       "meta-energy-slot": "Energy $1",
@@ -500,7 +503,7 @@
         "module-array": "Module array declaration",
         "module-values": "Assign module names",
         "module-remove-gpu": "Clear failed GPU slot",
-        "module-length": "Read module array length",
+        "module-length": "Display module array length",
         "room2-door-code": "Enter scanner-door code",
         "inventory-count": "Count installed modules",
         "room3-door-code": "Enter transport-door code",
@@ -569,13 +572,13 @@
         "array": "Create a string array named module with five slots.",
         "values": "Assign CPU, RAM, GPU, SSD and NETWORK to the five slots.",
         "remove_gpu": "Remove the defective GPU entry from the array.",
-        "length": "Read the length of the module array."
+        "length": "Determine the length of module and output it to the display."
       }
     },
     "riddle3": {
       "tab": "Riddle 3: Inventory Scanner",
       "entries": {
-        "loop": "Use a loop to count only the occupied module entries.",
+        "loop": "Use an enhanced for loop to count occupied entries in module, then output the count to the display.",
         "scan": "After the code is accepted, pull the scanner lever.",
         "door": "The scan is complete. Use the array capacity and the number of occupied modules as two-digit values, in that order, to access transport storage."
       }

@@ -217,10 +217,10 @@ class PartialArrayPuzzleInputsTest {
             "module[0] = \"CPU\"; module[1] = \"RAM\"; module[2] = \"GPU\"; "
                 + "module[3] = \"SSD\"; module[4] = \"NETWORK\";"));
     assertTrue(interpreter.interpret("module[2] = null;"));
-    assertTrue(interpreter.interpret("module.length;"));
+    assertTrue(interpreter.interpret("display.show(module.length);"));
     assertTrue(
         interpreter.interpret(
-            "int count = 0; for (String entry : module) { if (entry != null) { count++; } }"));
+            "int count = 0; for (String entry : module) { if (entry != null) { count++; } } display.show(count);"));
     assertTrue(interpreter.interpret("int[] pakete = {15, 40, 20, 60, 30};"));
     assertTrue(
         interpreter.interpret(
