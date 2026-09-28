@@ -81,7 +81,13 @@ public class KeypadFactory {
    */
   public static Entity createTextKeypad(Point pos, List<String> correctTexts, Runnable action) {
     Entity entity = createBaseKeypad(pos);
+    boolean valid = correctTexts.stream().allMatch(s -> s != null && s.matches("[A-Za-z ]+"));
+    if (!valid) {
+      throw new TextKeyPadException(
+          "TextKeypad only supports letter in the range A-Z, a-z and spaces.");
+    }
     TaskComponent<String> taskComponent = new TaskComponent<>(new FreeTextTask(correctTexts));
+    taskComponent.onCorrect((caller) -> action.run());
     TextKeyPadComponent kc = new TextKeyPadComponent(action);
     entity.add(kc);
     entity.add(taskComponent);
