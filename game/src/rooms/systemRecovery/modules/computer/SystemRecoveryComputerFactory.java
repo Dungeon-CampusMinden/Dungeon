@@ -395,6 +395,7 @@ public final class SystemRecoveryComputerFactory {
               puzzle, trackingStep, "source", source, true, targetEntityId);
           SystemRecoveryAchievements.chipUploadAttempt(achievementKind, true);
           SystemRecoveryLevel.recordAcceptedSolution(completedStep, source);
+          SystemRecoveryLevel.saveCheckpointNow();
           SystemRecoveryComputerFeedback.send(
               dialogId, tabKey, source, targetEntityId, "computer.write-success", true);
           return true;

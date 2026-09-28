@@ -36,6 +36,9 @@ import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.entities.SystemRecoveryRoomFactory;
+import rooms.systemRecovery.items.SearchProgramChipItem;
+import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
@@ -151,13 +154,20 @@ public class SystemRecoveryLevel extends DungeonLevel {
           this::completeSystemCoreRiddleInternal);
   private boolean terminalsUnlocked;
   private boolean systemCoreAccessModuleDelivered;
+  private Entity archiveDoorBlocker;
   private boolean systemCoreAccessGranted;
   private boolean systemCoreAlarmActive;
   private boolean systemCoreRiddleCompleted;
+  private boolean systemCoreExitOpen;
   private boolean endingTriggered;
   private boolean introSuppressed;
   private SystemRecoveryLearningStep savedCheckpoint;
   private List<SystemRecoverySave.QuestLogEntryData> savedQuestLog = List.of();
+  private List<SystemRecoverySave.PlayerItemData> savedInventoryItems = List.of();
+  private List<SystemRecoverySave.PlayerItemData> pendingInventoryItems = List.of();
+  private String pendingInventoryPlayerName;
+  private List<String> savedTerminalHistory = List.of();
+  private List<String> savedMemoryWatchEntries = List.of();
   private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
   private String savedPlayerName;
   private Boolean savedTrackingConsent;
@@ -243,6 +253,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     enforcePlayerInventorySize();
+    applyPendingPuzzleInventory();
     saveCheckpointIfNeeded();
     showIntroForNewPlayers();
     triggerDialogPoints();
@@ -273,7 +284,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 SystemRecoveryLoad.restoreRuntime(data)
                     .map(
                         restoredCheckpoint -> {
-                          SystemRecoveryCheckpointProjection.apply(this, restoredCheckpoint);
+                          restorePuzzleInventory(data.inventoryItems(), data.playerName());
+                          SystemRecoveryCheckpointProjection.apply(
+                              this, restoredCheckpoint, data.systemCoreExitOpen());
                           return restoredCheckpoint;
                         }));
     checkpoint.ifPresent(
@@ -282,18 +295,28 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedCheckpoint = restoredCheckpoint;
           runId = restoredSave.runId();
           savedQuestLog = restoredSave.questLog();
+          savedInventoryItems = restoredSave.inventoryItems();
+          savedTerminalHistory = restoredSave.terminalHistory();
+          savedMemoryWatchEntries = restoredSave.memoryWatchEntries();
           savedAchievementProgress = restoredSave.achievementProgress();
           savedPlayerName = restoredSave.playerName();
           savedTrackingConsent = restoredSave.trackingConsent();
+          systemCoreExitOpen = restoredSave.systemCoreExitOpen();
         });
     if (checkpoint.isPresent()) {
-      save.orElseThrow()
-          .acceptedTerminalInputs()
-          .forEach(
-                input -> {
-                  memoryWatch.recordAcceptedSource(input.source());
-                  recordTerminalHistory(input.source());
-                });
+      SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
+      if (restoredSave.terminalHistory().isEmpty()
+          && restoredSave.memoryWatchEntries().isEmpty()) {
+        restoredSave.acceptedTerminalInputs().forEach(
+            input -> {
+              memoryWatch.recordAcceptedSource(input.source());
+              recordTerminalHistory(input.source());
+            });
+      } else {
+        acceptedTerminalHistory.clear();
+        acceptedTerminalHistory.addAll(restoredSave.terminalHistory());
+        memoryWatch.restoreEntries(restoredSave.memoryWatchEntries().toArray(String[]::new));
+      }
     }
     return checkpoint.isPresent();
   }
@@ -309,7 +332,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   SystemRecoverySave.capture(checkpoint, runId, SystemRecovery.trackingConsent());
               if (save.playerName() == null || save.playerName().isBlank()) return;
               boolean checkpointChanged = checkpoint != savedCheckpoint;
+              if (!checkpointChanged
+                  && !savedInventoryItems.isEmpty()
+                  && save.inventoryItems().isEmpty()) {
+                save = save.withInventoryItems(savedInventoryItems);
+              }
               boolean questLogChanged = !save.questLog().equals(savedQuestLog);
+              boolean inventoryChanged = !save.inventoryItems().equals(savedInventoryItems);
+              boolean terminalHistoryChanged =
+                  !save.terminalHistory().equals(savedTerminalHistory);
+              boolean memoryWatchChanged =
+                  !save.memoryWatchEntries().equals(savedMemoryWatchEntries);
               boolean achievementProgressChanged =
                   !Objects.equals(save.achievementProgress(), savedAchievementProgress);
               boolean playerNameChanged = !Objects.equals(save.playerName(), savedPlayerName);
@@ -317,6 +350,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   !Objects.equals(save.trackingConsent(), savedTrackingConsent);
               if (!checkpointChanged
                   && !questLogChanged
+                  && !inventoryChanged
+                  && !terminalHistoryChanged
+                  && !memoryWatchChanged
                   && !achievementProgressChanged
                   && !playerNameChanged
                   && !trackingConsentChanged) return;
@@ -324,6 +360,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 SystemRecoverySave.write(save);
                 savedCheckpoint = checkpoint;
                 savedQuestLog = save.questLog();
+                savedInventoryItems = save.inventoryItems();
+                savedTerminalHistory = save.terminalHistory();
+                savedMemoryWatchEntries = save.memoryWatchEntries();
                 savedAchievementProgress = save.achievementProgress();
                 savedPlayerName = save.playerName();
                 savedTrackingConsent = save.trackingConsent();
@@ -334,6 +373,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                         "Could not write System Recovery checkpoint: " + exception.getMessage());
               }
             });
+  }
+
+  /** Immediately commits a newly accepted checkpoint after a transactional computer action. */
+  public static void saveCheckpointNow() {
+    currentLevel().ifPresent(SystemRecoveryLevel::saveCheckpointIfNeeded);
   }
 
   /** Restores the completed energy state without firing puzzle callbacks. */
@@ -367,11 +411,21 @@ public class SystemRecoveryLevel extends DungeonLevel {
     manualSorting.restoreCompletedState();
   }
 
+  void restoreCompletedManualSorting(boolean stickAvailable) {
+    manualSorting.restoreCompletedState(stickAvailable);
+  }
+
   void restoreCompletedBubbleSort() {
     restoreCompletedTransport();
     openDoor(SystemRecoveryPointRegistry.DOOR_DATA_STORAGE);
     manualSorting.restoreCompletedState(false);
     bubbleSort.restoreCompletedState();
+  }
+
+  void restoreAtBubbleSortMachine() {
+    restoreCompletedTransport();
+    openDoor(SystemRecoveryPointRegistry.DOOR_DATA_STORAGE);
+    manualSorting.restoreCompletedState(false);
   }
 
   void restoreCompletedDataArchive() {
@@ -389,15 +443,127 @@ public class SystemRecoveryLevel extends DungeonLevel {
     searchRobot.restoreCompletedState();
   }
 
+  boolean playerHasPuzzleItem(String itemKey) {
+    return pendingInventoryItems.stream().anyMatch(item -> item.itemKey().equals(itemKey))
+        || Game.allPlayers()
+            .flatMap(player -> player.fetch(InventoryComponent.class).stream())
+            .flatMap(inventory -> java.util.Arrays.stream(inventory.items()))
+            .filter(Objects::nonNull)
+            .anyMatch(item -> matchesPuzzleItem(item, itemKey));
+  }
+
+  private static boolean matchesPuzzleItem(feature.inventory.Item item, String itemKey) {
+    return switch (itemKey) {
+      case "sort-program-stick" -> item instanceof SortProgramStickItem;
+      case "search-program-chip" -> item instanceof SearchProgramChipItem;
+      case "system-core-access" -> item instanceof SystemCoreAccessChipItem;
+      default -> false;
+    };
+  }
+
+  private void restorePuzzleInventory(
+      List<SystemRecoverySave.PlayerItemData> items, String savePlayerName) {
+    pendingInventoryItems = List.copyOf(items);
+    pendingInventoryPlayerName = savePlayerName;
+    applyPendingPuzzleInventory();
+  }
+
+  private void applyPendingPuzzleInventory() {
+    if (pendingInventoryItems.isEmpty()) return;
+    List<Entity> players = Game.allPlayers().toList();
+    List<SystemRecoverySave.PlayerItemData> unresolved = new ArrayList<>();
+    for (SystemRecoverySave.PlayerItemData itemData : pendingInventoryItems) {
+      String ownerName =
+          itemData.playerName() == null ? pendingInventoryPlayerName : itemData.playerName();
+      Entity owner =
+          players.stream()
+              .filter(
+                  player ->
+                      player
+                          .fetch(PlayerComponent.class)
+                          .map(PlayerComponent::playerName)
+                          .filter(name -> Objects.equals(name, ownerName))
+                          .isPresent())
+              .findFirst()
+              .orElse(
+                  players.size() == 1 && pendingInventoryItems.size() == 1
+                      ? players.get(0)
+                      : null);
+      if (owner == null) {
+        unresolved.add(itemData);
+        continue;
+      }
+      feature.inventory.Item item = createPuzzleItem(itemData);
+      if (item == null) continue;
+      InventoryComponent inventory =
+          owner
+              .fetch(InventoryComponent.class)
+              .orElseGet(
+                  () -> {
+                    InventoryComponent created = new InventoryComponent(PLAYER_INVENTORY_SIZE);
+                    owner.add(created);
+                    return created;
+                  });
+      inventory.set(0, item);
+    }
+    pendingInventoryItems = List.copyOf(unresolved);
+  }
+
+  private static feature.inventory.Item createPuzzleItem(SystemRecoverySave.PlayerItemData data) {
+    return switch (data.itemKey()) {
+      case "sort-program-stick" -> new SortProgramStickItem(data.programmed());
+      case "search-program-chip" -> new SearchProgramChipItem(data.programmed());
+      case "system-core-access" -> new SystemCoreAccessChipItem();
+      default -> null;
+    };
+  }
+
+  void restoreCoreCheckpoint(SystemRecoveryLearningStep checkpoint, boolean exitOpen) {
+    openDoor(SystemRecoveryPointRegistry.DOOR_SYSTEM_CORE);
+    systemCoreAccessModuleDelivered = true;
+    systemCoreAccessGranted = true;
+    systemCoreExitOpen = exitOpen;
+    systemCoreAlarmActive = checkpoint != SystemRecoveryLearningStep.COMPLETE;
+    systemCoreRiddleCompleted = checkpoint == SystemRecoveryLearningStep.COMPLETE;
+    if (systemCoreAlarmActive) SystemRecoveryAlarm.activate();
+    else SystemRecoveryAlarm.deactivate();
+
+    int restoredStage =
+        switch (checkpoint) {
+          case CORE_SORT -> 0;
+          case CORE_COUNT -> 1;
+          case CORE_SEARCH, CORE_SEARCH_ROBOT -> 2;
+          case CORE_META -> 3;
+          case COMPLETE -> 4;
+          default -> throw new IllegalArgumentException("Not a core checkpoint: " + checkpoint);
+        };
+    systemCore.restoreStage(restoredStage, exitOpen);
+    if (checkpoint == SystemRecoveryLearningStep.CORE_SEARCH_ROBOT) {
+      systemCore.startMapSearch(() -> completeSystemCoreRobotSearch(-1));
+    } else if (checkpoint == SystemRecoveryLearningStep.COMPLETE) {
+      if (exitOpen) openElevatorAfterFinalCall();
+      else phoneController.triggerFinalEchoCall();
+    }
+  }
+
   void markSystemCoreAccessModuleDeliveredAfterRestore() {
     systemCoreAccessModuleDelivered = true;
   }
 
   void openDoor(String pointName) {
+    if (SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE.equals(pointName)) {
+      removeArchiveDoorBlocker();
+    }
     tileAt(point(pointName))
         .filter(DoorTile.class::isInstance)
         .map(DoorTile.class::cast)
         .ifPresent(DoorTile::open);
+  }
+
+  private void removeArchiveDoorBlocker() {
+    if (archiveDoorBlocker == null) return;
+    Game.remove(archiveDoorBlocker);
+    archiveDoorBlocker = null;
   }
 
   void spawnWorldItemIfMissing(feature.inventory.Item item, String pointName) {
@@ -891,12 +1057,15 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Locks the archive door with the shared key-and-lock interaction. */
   private void setupArchiveDoorLock() {
-    DoorTile archiveDoor = (DoorTile) tileAt(point("door_datenarchiv")).orElseThrow();
-    Game.add(
+    DoorTile archiveDoor =
+        (DoorTile)
+            tileAt(point(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE)).orElseThrow();
+    archiveDoorBlocker =
         MiscFactory.createDoorBlocker(
             archiveDoor,
             ItemKey.class,
             player -> {
+              archiveDoorBlocker = null;
               if (!archiveDoor.isOpen()) return;
               SystemRecoveryPuzzleEvents.attempt(
                   SystemRecoveryPuzzle.BUBBLE_SORT,
@@ -906,7 +1075,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   true,
                   player);
               SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ARCHIVE_ACCESS);
-            }));
+            });
+    Game.add(archiveDoorBlocker);
   }
 
   /** Starts the shared ending cutscene when a player reaches the final point after all riddles. */
@@ -1272,7 +1442,19 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void openElevatorAfterFinalCall() {
     DoorTile elevatorDoor = (DoorTile) tileAt(point("door_elevator")).orElseThrow();
     elevatorDoor.open();
-    if (elevatorDoor.isOpen()) systemCore.markExitOpen();
+    if (elevatorDoor.isOpen()) {
+      systemCoreExitOpen = true;
+      systemCore.markExitOpen();
+    }
+  }
+
+  /**
+   * Returns whether ECHO's final call has already opened the elevator exit.
+   *
+   * @return whether the exit door is open
+   */
+  public static boolean systemCoreExitOpen() {
+    return currentLevel().map(level -> level.systemCoreExitOpen).orElse(false);
   }
 
   /**

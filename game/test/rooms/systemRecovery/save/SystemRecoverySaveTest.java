@@ -7,23 +7,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import feature.components.InventoryComponent;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
+import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /** Tests the checkpoint file contract independently from the rendered level. */
 class SystemRecoverySaveTest {
@@ -110,6 +112,28 @@ class SystemRecoverySaveTest {
   }
 
   @Test
+  void persistsTerminalHistoryMemoryWatchAndProgrammedInventory() throws Exception {
+    SystemRecoverySave.SaveData expected =
+        new SystemRecoverySave.SaveData(
+            SystemRecoveryLearningStep.SEARCH_ROBOT_RUN.hintKey(),
+            terminalInputsThrough(12),
+            List.of(),
+            UUID.randomUUID(),
+            "Ada",
+            true,
+            null,
+            List.of("int[] map = new int[3][5];", "roboter.collect();"),
+            List.of("map\tint[][]\t[[0, 1], [1, 0]]"),
+            List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", true)),
+            false);
+    Path savePath = temporaryDirectory.resolve("complete-state.json");
+
+    SystemRecoverySave.write(savePath, expected);
+
+    assertEquals(expected, SystemRecoveryLoad.read(savePath).orElseThrow());
+  }
+
+  @Test
   void capturesTheAuthoritativePlayerNameInsteadOfTheJvmFallback() {
     Entity player = new Entity("authoritative-player");
     player.add(new PlayerComponent(true, "Ada"));
@@ -119,6 +143,23 @@ class SystemRecoverySaveTest {
         SystemRecoverySave.capture(SystemRecoveryLearningStep.ENERGY_ARRAY, UUID.randomUUID());
 
     assertEquals("Ada", save.playerName());
+  }
+
+  @Test
+  void capturesProgrammedPuzzleItemsWithTheirOwner() {
+    Entity player = new Entity("authoritative-player");
+    player.add(new PlayerComponent(true, "Ada"));
+    InventoryComponent inventory = new InventoryComponent(1);
+    inventory.add(new SearchProgramChipItem(true));
+    player.add(inventory);
+    Game.add(player);
+
+    SystemRecoverySave.SaveData save =
+        SystemRecoverySave.capture(SystemRecoveryLearningStep.SEARCH_ROBOT_RUN, UUID.randomUUID());
+
+    assertEquals(
+        List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", true)),
+        save.inventoryItems());
   }
 
   @Test
@@ -139,6 +180,27 @@ class SystemRecoverySaveTest {
   void delaysNewAutomaticSavesUntilTheFirstRiddleIsComplete() {
     assertFalse(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.ENERGY_ARRAY));
     assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.MODULE_ARRAY));
+  }
+
+  @Test
+  void savesProgrammedChipsAndEverySystemCoreSubstep() {
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.BUBBLE_SORT_MACHINE));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.SEARCH_ROBOT_RUN));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_SORT));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_COUNT));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_SEARCH));
+    assertTrue(
+        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_SEARCH_ROBOT));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_META));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.COMPLETE));
+  }
+
+  @Test
+  void savesTheUnlockedArchiveDoorBeforeTheArchiveTerminalPuzzle() {
+    assertTrue(SystemRecoveryLoad.isMainPuzzleCheckpoint(SystemRecoveryLearningStep.ARCHIVE_ARRAYS));
+    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.ARCHIVE_ARRAYS));
+    assertEquals(9, SystemRecoveryLearningStep.ARCHIVE_ARRAYS.acceptedTerminalInputCount());
   }
 
   @Test
@@ -194,21 +256,14 @@ class SystemRecoverySaveTest {
       if (!SystemRecoveryLoad.isMainPuzzleCheckpoint(step)) continue;
       int acceptedCount = step.acceptedTerminalInputCount();
       assertTrue(acceptedCount >= 0, step.name());
-      List<SystemRecoverySave.AcceptedInput> history =
-          IntStream.range(0, acceptedCount)
-              .mapToObj(
-                  state ->
-                      new SystemRecoverySave.AcceptedInput(
-                          state, TerminalInterpreterSetup.debugSourceForState(state).orElseThrow()))
-              .toList();
+      List<SystemRecoverySave.AcceptedInput> history = terminalInputsThrough(acceptedCount);
       Path path = temporaryDirectory.resolve(step.hintKey() + ".json");
-      SystemRecoverySave.SaveData valid =
-          new SystemRecoverySave.SaveData(step.hintKey(), history, List.of());
+      SystemRecoverySave.SaveData valid = saveForCheckpoint(step, history);
 
       SystemRecoverySave.write(path, valid);
       assertEquals(valid, SystemRecoveryLoad.read(path).orElseThrow(), step.name());
       assertEquals(step, SystemRecoveryLoad.restoreRuntime(valid).orElseThrow(), step.name());
-      assertEquals(acceptedCount, TerminalInterpreter.instance().currentState(), step.name());
+      assertEquals(step.terminalState(), TerminalInterpreter.instance().currentState(), step.name());
 
       List<SystemRecoverySave.AcceptedInput> wrongHistory =
           acceptedCount == 0
@@ -235,5 +290,64 @@ class SystemRecoverySaveTest {
     assertTrue(SystemRecoveryLoad.restoreRuntime(save).isEmpty());
     assertEquals(0, TerminalInterpreter.instance().currentState());
     assertTrue(TerminalInterpreter.instance().acceptedInputs().isEmpty());
+  }
+
+  @Test
+  void rejectsCoreCheckpointThatSkipsAnOrdinaryTerminalInput() {
+    List<SystemRecoverySave.AcceptedInput> invalid =
+        java.util.stream.Stream.concat(
+                terminalInputsThrough(12).stream(),
+                java.util.stream.Stream.of(
+                    new SystemRecoverySave.AcceptedInput(
+                        14, TerminalInterpreterSetup.debugSourceForState(14).orElseThrow())))
+            .toList();
+    SystemRecoverySave.SaveData save =
+        new SystemRecoverySave.SaveData(
+            SystemRecoveryLearningStep.CORE_COUNT.hintKey(), invalid, List.of());
+    Path path = temporaryDirectory.resolve("invalid-core-history.json");
+
+    try {
+      SystemRecoverySave.write(path, save);
+    } catch (java.io.IOException exception) {
+      throw new AssertionError(exception);
+    }
+
+    assertTrue(SystemRecoveryLoad.read(path).isEmpty());
+  }
+
+  private static List<SystemRecoverySave.AcceptedInput> terminalInputsThrough(int count) {
+    return java.util.Arrays.stream(TerminalStep.values())
+        .filter(step -> step.inputMode() == TerminalStep.InputMode.TERMINAL)
+        .limit(count)
+        .map(
+            step ->
+                new SystemRecoverySave.AcceptedInput(
+                    step.stateId(),
+                    TerminalInterpreterSetup.debugSourceForState(step.stateId()).orElseThrow()))
+        .toList();
+  }
+
+  private static SystemRecoverySave.SaveData saveForCheckpoint(
+      SystemRecoveryLearningStep checkpoint, List<SystemRecoverySave.AcceptedInput> history) {
+    List<SystemRecoverySave.PlayerItemData> items =
+        switch (checkpoint) {
+          case BUBBLE_SORT_MACHINE ->
+              List.of(new SystemRecoverySave.PlayerItemData(null, "sort-program-stick", true));
+          case SEARCH_ROBOT_RUN ->
+              List.of(new SystemRecoverySave.PlayerItemData(null, "search-program-chip", true));
+          default -> List.of();
+        };
+    return new SystemRecoverySave.SaveData(
+        checkpoint.hintKey(),
+        history,
+        List.of(),
+        UUID.randomUUID(),
+        null,
+        null,
+        null,
+        List.of(),
+        List.of(),
+        items,
+        false);
   }
 }

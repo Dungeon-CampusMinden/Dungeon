@@ -2,71 +2,81 @@
 
 ## Prinzip
 
-System Recovery verwendet **einen automatischen Checkpoint am Anfang jedes Haupträtsels**,
-keinen frei wählbaren Spielstand und kein Replay aller bisherigen Eingaben. Der autoritative
-Server schreibt `system-recovery-save.json` im Arbeitsverzeichnis. Im Hauptmenü erscheint
-`Load Game`, wenn ein lesbarer Spielstand vorliegt.
+System Recovery speichert automatisch den aktiven Petri-Place und den dazu passenden Spielzustand.
+Es gibt keinen frei wählbaren Spielstand und kein nachträgliches Replay der Dialoge. Der
+autoritative Server schreibt `system-recovery-save.json` ins Arbeitsverzeichnis; das Hauptmenü
+bietet `Fortsetzen` an, wenn die Datei gültig ist.
 
-| Rätsel | Wiederhergestellter Start-Place |
+| Bereich | Checkpoints |
 | --- | --- |
-| 1 Energie | `ENERGY_ARRAY` |
-| 2 Module | `MODULE_ARRAY` |
-| 3 Scanner | `INVENTORY_COUNT` |
-| 4 Transport | `TRANSPORT_ARRAY` |
-| 5 Manuelle Sortierung | `MANUAL_SORTING` |
-| 6 Bubble Sort | `BUBBLE_SORT_CONDITION` |
-| 7 Archivzugang | `ARCHIVE_ACCESS` |
+| 1 Energie | `MODULE_ARRAY` nach dem Einsetzen der Batterie |
+| 2 Module | `INVENTORY_COUNT` |
+| 3 Inventarscanner | `TRANSPORT_ARRAY` |
+| 4 Transportlager | `MANUAL_SORTING` |
+| 5 Manuelle Sortierung | `BUBBLE_SORT_CONDITION` und direkt nach erfolgreichem USB-Upload `BUBBLE_SORT_MACHINE` |
+| 6 Bubble Sort | `ARCHIVE_ACCESS` nach Abschluss der Maschine |
+| 7 Archiv | `ARCHIVE_ACCESS`, nach dem Öffnen der Tür zusätzlich `ARCHIVE_ARRAYS` |
 | 8 2D-Speicher | `STORAGE_ARRAY` |
-| 9 Suchroboter | `SEARCH_PROGRAM` |
-| 10 Systemkern | `SYSTEM_CORE_ACCESS` |
+| 9 Suchroboter | `SEARCH_PROGRAM` und direkt nach erfolgreichem Chip-Upload `SEARCH_ROBOT_RUN`; nach der Lieferung des Zugangschips `SYSTEM_CORE_ACCESS` |
+| 10 Systemkern | `CORE_SORT`, `CORE_COUNT`, `CORE_SEARCH`, `CORE_SEARCH_ROBOT`, `CORE_META` und `COMPLETE` |
 
-Ein Fortschritt **innerhalb** des aktuellen Rätsels ist kein neuer Checkpoint. Wer beispielsweise
-im Systemkern bereits zwei Prüfungen löst und dann beendet, beginnt beim Laden wieder vor dem
-Zugangsskript. Erst der nächste Haupträtsel-Place wird zum neuen Checkpoint.
+Die erste automatische Speicherung entsteht nach Rätsel 1 beim Übergang zu `MODULE_ARRAY`.
+Während eine Maschine oder ein Roboter einen programmierten Stick verarbeitet, bleibt der letzte
+gespeicherte Inventarstand erhalten. Erst der nächste Petri-Place speichert den Verbrauch. So kann
+man während der Verarbeitung laden und den Schritt wiederholen; nach erfolgreichem Abschluss wird
+der Stick nicht erneut vergeben.
 
-## Was gespeichert wird
+Der Zugangschip zum Systemkern wird schon im Place `SYSTEM_CORE_ACCESS` gesichert, sobald er
+aufgehoben wurde. Wird er benutzt, wechselt das Netz zu `CORE_SORT`; ab dort wird der verbrauchte
+Chip nicht wiederhergestellt.
 
-- Stabile Kennung des Checkpoints (Petri-Place).
-- Bisher akzeptierte Terminaleingaben mit ursprünglichem Quelltext. So bleiben auch frei
-  gewählte Arraynamen für spätere Prüfungen erhalten.
-- Gemeinsames Questlog einschließlich der Einträge und privaten Notizen von Spielern.
-- Laufzeit-Fortschritt der Achievements, etwa Fehlversuche und bereits vergebene Erfolge.
+## Gespeicherte Daten
 
-Die dauerhaften Achievement-Unlocks liegen zusätzlich in
-`system-recovery-achievement-unlock.json` und werden von der Achievement-Verwaltung
-getrennt gespeichert. Der `Memory Watch` wird aus den akzeptierten Eingaben wieder aufgebaut.
-Gespeichert wird serverseitig bei einem neuen Haupträtsel-Place sowie bei Änderungen an
-Questlog oder Achievement-Fortschritt, **solange** ein solcher Checkpoint aktiv ist.
+- Aktiver Petri-Place und akzeptierte Terminal-Quelltexte samt Interpreterzustand. Chip-Editor und
+  finale Eingabemaske sind keine normalen Terminaleingaben; ihre Zustände dürfen beim Laden
+  übersprungen werden, erforderliche Terminalschritte jedoch nicht.
+- Terminal-History exakt in der Reihenfolge, in der sie im UI angezeigt wird.
+- Memory Watch mit Arraynamen, Datentypen und bekannten Zellinhalten.
+- Questlog einschließlich Dialogen, Hinweisen und eigenen privaten oder gemeinsamen Notizen.
+- Rätselrelevante Inventargegenstände pro Spielername: Sortierstick, Ortungschip und
+  Systemkern-Zugangsmodul, jeweils mit Programmierstatus.
+- Run-ID, Spielername, Tracking-Einwilligung, Achievement-Fortschritt und Zustand der
+  Systemkern-Ausgangstür.
 
-## Wie geladen wird
+Achievement-Unlocks liegen zusätzlich in `system-recovery-achievement-unlock.json`.
 
-1. `SystemRecoveryLoad` prüft Formatversion, Checkpoint und die erwartete Folge akzeptierter
-   Terminal-States. Ein fehlender oder ungültiger Spielstand wird nicht als Fortsetzung angeboten.
-2. Das Level erzeugt die gewöhnlichen Entitäten. Danach setzt `restoreRuntime` genau einen
-   Token auf den Checkpoint-Place, stellt Interpreterkontext, Questlog und Achievement-Fortschritt
-   wieder her.
-3. `SystemRecoveryLevel.restoreWorldAtCheckpoint` stellt die bereits abgeschlossenen Räume,
-   Türen und benötigten Items direkt her. Rätsel-Callbacks und Storydialoge werden dabei
-   **nicht erneut abgespielt**.
-4. Ab dem Checkpoint spielt man das aktuelle Rätsel wieder von Anfang an. Für Checkpoints nach
-   dem Intro sind die Terminals sofort nutzbar.
+## Laden
 
-Die gespeicherten Questlog-Einträge werden direkt geladen; Dialoge werden nicht im Hintergrund
-nachgespielt. Das Petri-Netz speichert also **nicht allein** den vollständigen Spielzustand:
-Interpreterhistorie, Questlog und Achievement-Fortschritt gehören ebenfalls zum Save.
+1. `SystemRecoveryLoad` prüft Formatversion, Checkpoint, Zahl und Reihenfolge akzeptierter
+   Terminaleingaben. Fehlende normale Code-Schritte machen den Save ungültig; nicht-terminale
+   Eingabeflächen dürfen übersprungen werden. Ein Upload-Checkpoint ist außerdem nur gültig,
+   wenn der dazugehörige programmierte Stick im Save enthalten ist.
+2. Der Server stellt Interpreterkontext, Petri-Markierung, Questlog, History, Memory Watch und
+   gespeicherte Puzzle-Items wieder her.
+3. Die Checkpoint-Projektion rekonstruiert Türen, abgeschlossene Räume, Displays, Roboter und
+   Items ohne Rätsel-Callbacks oder frühere Dialoge erneut auszuführen.
+4. Ein beim Laden noch nicht verbundener Item-Besitzer wird anhand des gespeicherten Spielernamens
+   nachträglich gesucht. Ein wiederhergestellter Gegenstand wird nicht zusätzlich in der Welt
+   gespawnt.
+5. Ein gespeicherter laufender Suchroboter beginnt seinen Scan kontrolliert von vorn. Der
+   jeweilige programmierte Chip bleibt dafür im Inventar.
 
-## Bekannte Grenze
+Bei alten Save-Formatversionen werden History und Memory Watch, soweit möglich, aus den
+akzeptierten Terminaleingaben rekonstruiert. Neue Saves speichern beide Ansichten direkt.
 
-Der gemeinsame Hinweiszähler des `HintSystem` wird beim Levelstart zurückgesetzt und ist nicht
-Teil des Save-Formats. Bereits gelesene Hinweise stehen weiter im geladenen Questlog, aber das
-Telefon kann beim neu begonnenen aktiven Rätsel wieder mit dessen erstem Hinweis anfangen.
-Questlog-/Achievement-Änderungen während eines begonnenen Teilschritts nach dem letzten
-Checkpoint werden ebenfalls erst mit einem neuen speicherbaren Zustand dauerhaft.
+## Grenzen
+
+Der Hinweiszähler des `HintSystem` wird beim Levelstart zurückgesetzt; bereits gelesene Hinweise
+bleiben im Questlog erhalten. Ein erneutes Laden des aktiven Rätsels kann daher dessen Hinweise
+wieder von vorn anbieten. Multiplayer-Inventare werden über den gespeicherten Spielernamen
+zugeordnet; bei mehreren gleichzeitig verbundenen Spielern mit identischem Namen ist die
+Zuordnung nicht eindeutig.
 
 ## Zuständigkeiten
 
-- `save/SystemRecoverySave.java`: Snapshot und atomisches JSON-Schreiben (Formatversion 2).
-- `save/SystemRecoveryLoad.java`: Validierung und stille Wiederherstellung des Runtime-Zustands.
-- `level/SystemRecoveryLevel.java`: Zeitpunkt des Autosaves und Projektion der Spielwelt.
+- `save/SystemRecoverySave.java`: Snapshot, Formatversion 5 und atomisches JSON-Schreiben.
+- `save/SystemRecoveryLoad.java`: Validierung und stille Runtime-Wiederherstellung.
+- `level/SystemRecoveryLevel.java`: Autosave-Auslöser, Item-Recovery und Weltenprojektion.
+- `level/SystemRecoveryCheckpointProjection.java`: rekonstruiert den Raum für den Checkpoint.
 - `petrinet/SystemRecoveryProgressNet.java`: aktiver Token; siehe
   [Petri-Netz](petri_net_system_recovery_concept.md).

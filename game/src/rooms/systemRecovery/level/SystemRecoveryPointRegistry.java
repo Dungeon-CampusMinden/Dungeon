@@ -21,6 +21,7 @@ public final class SystemRecoveryPointRegistry {
   public static final String DOOR_TRANSPORT_STORAGE = "door_transportlager";
   public static final String DOOR_DATA_STORAGE = "door_datenspeicher";
   public static final String DOOR_DATA_ARCHIVE = "door_datenarchiv";
+  public static final String DOOR_SYSTEM_CORE = "door_systemcore";
 
   /** World item custom points used by checkpoint restoration. */
   public static final String ARCHIVE_KEY_SPAWN = "chip_spawn";
@@ -80,7 +81,7 @@ public final class SystemRecoveryPointRegistry {
                 DOOR_DATA_STORAGE,
                 DOOR_DATA_ARCHIVE,
                 "door_speicher",
-                "door_systemcore",
+                DOOR_SYSTEM_CORE,
                 "door_elevator",
                 "label_modulspeicher",
                 "label_inventarscanner",

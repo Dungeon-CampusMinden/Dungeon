@@ -4,6 +4,8 @@ import engine.Game;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
 import engine.utils.JsonHandler;
+import feature.components.InventoryComponent;
+import feature.inventory.Item;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.io.IOException;
@@ -18,6 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import rooms.systemRecovery.items.SearchProgramChipItem;
+import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.items.SystemCoreAccessChipItem;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
@@ -27,7 +33,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievements;
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 4;
+  public static final int FORMAT_VERSION = 5;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -74,7 +80,7 @@ public final class SystemRecoverySave {
    */
   public static SaveData capture(
       SystemRecoveryLearningStep checkpoint, UUID runId, Boolean trackingConsent) {
-    if (checkpoint == null || checkpoint.riddleKey() == null) {
+    if (checkpoint == null || !SystemRecoveryLoad.isMainPuzzleCheckpoint(checkpoint)) {
       throw new IllegalArgumentException("A learning checkpoint is required.");
     }
     if (runId == null) throw new IllegalArgumentException("A run ID is required.");
@@ -99,7 +105,44 @@ public final class SystemRecoverySave {
         runId,
         currentPlayerName(),
         trackingConsent,
-        SystemRecoveryAchievements.snapshot());
+        SystemRecoveryAchievements.snapshot(),
+        List.of(SystemRecoveryLevel.acceptedTerminalSources()),
+        List.of(SystemRecoveryLevel.memoryWatchArrayEntries()),
+        currentPuzzleItems(),
+        isSystemCoreExitOpen());
+  }
+
+  private static List<PlayerItemData> currentPuzzleItems() {
+    return Game.allPlayers()
+        .flatMap(
+            player ->
+                player.fetch(InventoryComponent.class).stream()
+                    .flatMap(
+                        inventory ->
+                            java.util.Arrays.stream(inventory.items())
+                                .filter(java.util.Objects::nonNull)
+                                .map(item -> playerItem(player, item))
+                                .flatMap(Optional::stream)))
+        .toList();
+  }
+
+  private static Optional<PlayerItemData> playerItem(engine.Entity player, Item item) {
+    String playerName =
+        player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
+    if (item instanceof SortProgramStickItem stick) {
+      return Optional.of(new PlayerItemData(playerName, "sort-program-stick", stick.programmed()));
+    }
+    if (item instanceof SearchProgramChipItem chip) {
+      return Optional.of(new PlayerItemData(playerName, "search-program-chip", chip.programmed()));
+    }
+    if (item instanceof SystemCoreAccessChipItem) {
+      return Optional.of(new PlayerItemData(playerName, "system-core-access", false));
+    }
+    return Optional.empty();
+  }
+
+  private static boolean isSystemCoreExitOpen() {
+    return SystemRecoveryLevel.systemCoreExitOpen();
   }
 
   private static String currentPlayerName() {
@@ -193,6 +236,12 @@ public final class SystemRecoverySave {
             .map(input -> Map.of("state", input.state(), "source", input.source()))
             .toList());
     root.put("questLog", data.questLog().stream().map(QuestLogEntryData::toMap).toList());
+    root.put("terminalHistory", data.terminalHistory());
+    root.put("memoryWatch", data.memoryWatchEntries());
+    root.put(
+        "inventoryItems",
+        data.inventoryItems().stream().map(PlayerItemData::toMap).toList());
+    root.put("systemCoreExitOpen", data.systemCoreExitOpen());
     if (data.achievementProgress() != null) {
       root.put("achievementProgress", achievementProgressMap(data.achievementProgress()));
     }
@@ -226,6 +275,10 @@ public final class SystemRecoverySave {
    * @param playerName authoritative player name stored for the continue flow
    * @param trackingConsent run-level tracking decision; nullable for legacy or undecided saves
    * @param achievementProgress run-local achievement conditions; nullable for legacy saves
+   * @param terminalHistory accepted source history shown in the terminal UI
+   * @param memoryWatchEntries array names, types and values shown in Memory Watch
+   * @param inventoryItems puzzle items carried by each named player
+   * @param systemCoreExitOpen whether ECHO's final call has already opened the elevator
    */
   public record SaveData(
       String checkpointKey,
@@ -234,7 +287,11 @@ public final class SystemRecoverySave {
       UUID runId,
       String playerName,
       Boolean trackingConsent,
-      SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
+      SystemRecoveryAchievementTracker.Snapshot achievementProgress,
+      List<String> terminalHistory,
+      List<String> memoryWatchEntries,
+      List<PlayerItemData> inventoryItems,
+      boolean systemCoreExitOpen) {
 
     /**
      * Returns this checkpoint with a replaced run-level tracking decision.
@@ -250,7 +307,65 @@ public final class SystemRecoverySave {
           runId,
           playerName,
           consent,
-          achievementProgress);
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          inventoryItems,
+          systemCoreExitOpen);
+    }
+
+    /**
+     * Returns this checkpoint with the last safely committed item state.
+     *
+     * @param items item snapshot to preserve
+     * @return copied checkpoint with the supplied item snapshot
+     */
+    public SaveData withInventoryItems(List<PlayerItemData> items) {
+      return new SaveData(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          items,
+          systemCoreExitOpen);
+    }
+
+    /**
+     * Backwards-compatible constructor for callers that have not supplied the view snapshots.
+     *
+     * @param checkpointKey stable key of the active checkpoint
+     * @param acceptedTerminalInputs accepted terminal source history
+     * @param questLog shared quest-log entries
+     * @param runId stable playthrough ID
+     * @param playerName saved player name
+     * @param trackingConsent run-level tracking decision
+     * @param achievementProgress run-local achievement state
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        String playerName,
+        Boolean trackingConsent,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress) {
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          List.of(),
+          List.of(),
+          List.of(),
+          false);
     }
 
     /**
@@ -345,6 +460,10 @@ public final class SystemRecoverySave {
      * @param playerName authoritative player name stored for the continue flow
      * @param trackingConsent run-level tracking decision; nullable for legacy or undecided saves
      * @param achievementProgress run-local achievement conditions; nullable for legacy saves
+     * @param terminalHistory accepted source history shown in the terminal UI
+     * @param memoryWatchEntries array names, types and values shown in Memory Watch
+     * @param inventoryItems puzzle items carried by each named player
+     * @param systemCoreExitOpen whether the final call has opened the elevator
      */
     public SaveData {
       if (checkpointKey == null || checkpointKey.isBlank()) {
@@ -355,6 +474,27 @@ public final class SystemRecoverySave {
       acceptedTerminalInputs =
           List.copyOf(acceptedTerminalInputs == null ? List.of() : acceptedTerminalInputs);
       questLog = List.copyOf(questLog == null ? List.of() : questLog);
+      terminalHistory = List.copyOf(terminalHistory == null ? List.of() : terminalHistory);
+      memoryWatchEntries =
+          List.copyOf(memoryWatchEntries == null ? List.of() : memoryWatchEntries);
+      inventoryItems = List.copyOf(inventoryItems == null ? List.of() : inventoryItems);
+    }
+  }
+
+  /**
+   * One puzzle-relevant item held by a named player at the checkpoint.
+   *
+   * @param playerName inventory owner
+   * @param itemKey stable item kind key
+   * @param programmed whether the item contains its uploaded program
+   */
+  public record PlayerItemData(String playerName, String itemKey, boolean programmed) {
+    Map<String, Object> toMap() {
+      Map<String, Object> map = new LinkedHashMap<>();
+      if (playerName != null && !playerName.isBlank()) map.put("playerName", playerName);
+      map.put("itemKey", itemKey);
+      map.put("programmed", programmed);
+      return map;
     }
   }
 

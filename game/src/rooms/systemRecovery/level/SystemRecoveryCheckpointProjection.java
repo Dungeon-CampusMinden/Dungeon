@@ -17,6 +17,11 @@ final class SystemRecoveryCheckpointProjection {
    * @param checkpoint saved main-riddle checkpoint
    */
   static void apply(SystemRecoveryLevel level, SystemRecoveryLearningStep checkpoint) {
+    apply(level, checkpoint, false);
+  }
+
+  static void apply(
+      SystemRecoveryLevel level, SystemRecoveryLearningStep checkpoint, boolean systemCoreExitOpen) {
     switch (checkpoint) {
       case ENERGY_ARRAY -> {}
       case MODULE_ARRAY -> {
@@ -38,12 +43,18 @@ final class SystemRecoveryCheckpointProjection {
         level.restoreCompletedTransport();
         level.openDoor(SystemRecoveryPointRegistry.DOOR_DATA_STORAGE);
         if (checkpoint == SystemRecoveryLearningStep.BUBBLE_SORT_CONDITION) {
-          level.restoreCompletedManualSorting();
+          level.restoreCompletedManualSorting(
+              !level.playerHasPuzzleItem("sort-program-stick"));
         }
       }
+      case BUBBLE_SORT_MACHINE -> level.restoreAtBubbleSortMachine();
       case ARCHIVE_ACCESS -> {
         level.restoreCompletedBubbleSort();
         level.spawnWorldItemIfMissing(new ItemKey(), SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN);
+      }
+      case ARCHIVE_ARRAYS -> {
+        level.restoreCompletedBubbleSort();
+        level.openDoor(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE);
       }
       case STORAGE_ARRAY -> {
         level.restoreCompletedBubbleSort();
@@ -52,16 +63,26 @@ final class SystemRecoveryCheckpointProjection {
       }
       case SEARCH_PROGRAM -> {
         level.restoreCompletedStorage();
-        level.spawnWorldItemIfMissing(
-            new SearchProgramChipItem(), SystemRecoveryPointRegistry.SEARCH_PROGRAM_CHIP);
+        if (!level.playerHasPuzzleItem("search-program-chip")) {
+          level.spawnWorldItemIfMissing(
+              new SearchProgramChipItem(), SystemRecoveryPointRegistry.SEARCH_PROGRAM_CHIP);
+        }
       }
+      case SEARCH_ROBOT_RUN -> level.restoreCompletedStorage();
       case SYSTEM_CORE_ACCESS -> {
         level.restoreCompletedStorage();
         level.restoreCompletedSearchRobot();
         level.markSystemCoreAccessModuleDeliveredAfterRestore();
-        level.spawnWorldItemIfMissing(
-            new SystemCoreAccessChipItem(),
-            SystemRecoveryPointRegistry.SYSTEM_CORE_ACCESS_MODULE_DESTINATION);
+        if (!level.playerHasPuzzleItem("system-core-access")) {
+          level.spawnWorldItemIfMissing(
+              new SystemCoreAccessChipItem(),
+              SystemRecoveryPointRegistry.SYSTEM_CORE_ACCESS_MODULE_DESTINATION);
+        }
+      }
+      case CORE_SORT, CORE_COUNT, CORE_SEARCH, CORE_SEARCH_ROBOT, CORE_META, COMPLETE -> {
+        level.restoreCompletedStorage();
+        level.restoreCompletedSearchRobot();
+        level.restoreCoreCheckpoint(checkpoint, systemCoreExitOpen);
       }
       default -> throw new IllegalArgumentException("Not a main-riddle checkpoint: " + checkpoint);
     }

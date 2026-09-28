@@ -31,41 +31,48 @@ public enum SystemRecoveryLearningStep {
   DATA_STORAGE_DOOR_OPEN("data-storage-door-open", "riddle4", "transport-storage"),
   MANUAL_SORTING("manual-sorting", "riddle5", "manual-sorting", 9),
   BUBBLE_SORT_CONDITION("bubble-sort-condition", "riddle6", "bubble-sort", 9),
-  BUBBLE_SORT_MACHINE("bubble-sort-machine", "riddle6", "bubble-sort"),
+  BUBBLE_SORT_MACHINE("bubble-sort-machine", "riddle6", "bubble-sort", 9),
   ARCHIVE_ACCESS("archive-access", "riddle7", "data-archive", 9),
-  ARCHIVE_ARRAYS("archive-arrays", "riddle7", "data-archive", TerminalStep.ARCHIVE_ARRAYS),
+  ARCHIVE_ARRAYS("archive-arrays", "riddle7", "data-archive", TerminalStep.ARCHIVE_ARRAYS, 9),
   STORAGE_ARRAY(
       "storage-array", "riddle8", "two-dimensional-storage", TerminalStep.STORAGE_ARRAY, 10),
   STORAGE_VALUES(
       "storage-values", "riddle8", "two-dimensional-storage", TerminalStep.STORAGE_VALUES),
   SEARCH_PROGRAM("search-program", "riddle9", "search-robot", TerminalStep.SEARCH_PROGRAM, 12),
-  SEARCH_ROBOT_RUN("search-robot-run", "riddle9", "search-robot"),
+  SEARCH_ROBOT_RUN("search-robot-run", "riddle9", "search-robot", 12),
   SYSTEM_CORE_ACCESS("system-core-access", "riddle10", "system-core", 12),
-  CORE_SORT("core-sort", "riddle10", "system-core", TerminalStep.CENTRAL_SORT),
-  CORE_COUNT("core-count", "riddle10", "system-core", TerminalStep.CENTRAL_COUNT),
-  CORE_SEARCH("core-search", "riddle10", "system-core", TerminalStep.CENTRAL_SEARCH),
-  CORE_SEARCH_ROBOT("core-search-robot", "riddle10", "system-core"),
-  CORE_META("core-meta", "riddle10", "system-core", TerminalStep.SYSTEM_CORE_META),
-  COMPLETE("complete", null, null);
+  CORE_SORT("core-sort", "riddle10", "system-core", TerminalStep.CENTRAL_SORT, 12, 13),
+  CORE_COUNT("core-count", "riddle10", "system-core", TerminalStep.CENTRAL_COUNT, 13, 14),
+  CORE_SEARCH("core-search", "riddle10", "system-core", TerminalStep.CENTRAL_SEARCH, 14, 15),
+  CORE_SEARCH_ROBOT("core-search-robot", "riddle10", "system-core", 15, 16),
+  CORE_META("core-meta", "riddle10", "system-core", TerminalStep.SYSTEM_CORE_META, 15, 16),
+  COMPLETE("complete", null, null, 15, 17);
 
   private final String hintKey;
   private final String riddleKey;
   private final String puzzleId;
   private final TerminalStep terminalStep;
   private final int acceptedTerminalInputCount;
+  private final int terminalState;
 
   SystemRecoveryLearningStep(String hintKey, String riddleKey, String puzzleId) {
-    this(hintKey, riddleKey, puzzleId, null, -1);
+    this(hintKey, riddleKey, puzzleId, null, -1, -1);
   }
 
   SystemRecoveryLearningStep(
       String hintKey, String riddleKey, String puzzleId, int acceptedTerminalInputCount) {
-    this(hintKey, riddleKey, puzzleId, null, acceptedTerminalInputCount);
+    this(hintKey, riddleKey, puzzleId, null, acceptedTerminalInputCount, acceptedTerminalInputCount);
   }
 
   SystemRecoveryLearningStep(
       String hintKey, String riddleKey, String puzzleId, TerminalStep terminalStep) {
-    this(hintKey, riddleKey, puzzleId, terminalStep, -1);
+    this(
+        hintKey,
+        riddleKey,
+        puzzleId,
+        terminalStep,
+        -1,
+        terminalStep == null ? -1 : terminalStep.stateId());
   }
 
   SystemRecoveryLearningStep(
@@ -74,11 +81,37 @@ public enum SystemRecoveryLearningStep {
       String puzzleId,
       TerminalStep terminalStep,
       int acceptedTerminalInputCount) {
+    this(
+        hintKey,
+        riddleKey,
+        puzzleId,
+        terminalStep,
+        acceptedTerminalInputCount,
+        terminalStep == null ? acceptedTerminalInputCount : terminalStep.stateId());
+  }
+
+  SystemRecoveryLearningStep(
+      String hintKey,
+      String riddleKey,
+      String puzzleId,
+      int acceptedTerminalInputCount,
+      int terminalState) {
+    this(hintKey, riddleKey, puzzleId, null, acceptedTerminalInputCount, terminalState);
+  }
+
+  SystemRecoveryLearningStep(
+      String hintKey,
+      String riddleKey,
+      String puzzleId,
+      TerminalStep terminalStep,
+      int acceptedTerminalInputCount,
+      int terminalState) {
     this.hintKey = hintKey;
     this.riddleKey = riddleKey;
     this.puzzleId = puzzleId;
     this.terminalStep = terminalStep;
     this.acceptedTerminalInputCount = acceptedTerminalInputCount;
+    this.terminalState = terminalState;
   }
 
   /**
@@ -126,6 +159,16 @@ public enum SystemRecoveryLearningStep {
    */
   public int acceptedTerminalInputCount() {
     return acceptedTerminalInputCount;
+  }
+
+  /**
+   * Returns the interpreter state to restore at this checkpoint. This can differ from the number
+   * of accepted terminal entries when a chip editor or a physical task advances the puzzle.
+   *
+   * @return terminal state, or {@code -1} for non-terminal checkpoints
+   */
+  public int terminalState() {
+    return terminalState;
   }
 
   /**

@@ -17,6 +17,7 @@ import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /** Reads and applies a System Recovery checkpoint without replaying gameplay side effects. */
 public final class SystemRecoveryLoad {
@@ -77,7 +78,7 @@ public final class SystemRecoveryLoad {
           data.acceptedTerminalInputs().stream()
               .map(input -> new TerminalInterpreter.AcceptedInput(input.state(), input.source()))
               .toList();
-      TerminalInterpreter.instance().restoreAcceptedInputs(inputs);
+      TerminalInterpreter.instance().restoreAcceptedInputs(inputs, checkpoint.terminalState());
       if (!SystemRecoveryProgressNet.restoreActiveStep(checkpoint)) return Optional.empty();
       restoreQuestLog(data.questLog());
       if (data.achievementProgress() != null) {
@@ -147,13 +148,39 @@ public final class SystemRecoveryLoad {
     if (!hasExpectedHistory(findCheckpoint(checkpoint).orElseThrow(), inputs)) {
       return Optional.empty();
     }
+    List<String> terminalHistory = strings(root.get("terminalHistory"));
+    List<String> memoryWatchEntries = strings(root.get("memoryWatch"));
+    List<SystemRecoverySave.PlayerItemData> inventoryItems = new ArrayList<>();
+    for (Object value : list(root.get("inventoryItems"))) {
+      if (!(value instanceof Map<?, ?> map)) return Optional.empty();
+      inventoryItems.add(
+          new SystemRecoverySave.PlayerItemData(
+              string(map.get("playerName")),
+              stringRequired(map.get("itemKey")),
+              booleanValue(map.get("programmed"))));
+    }
+    if (!hasRequiredCheckpointItem(findCheckpoint(checkpoint).orElseThrow(), inventoryItems)) {
+      return Optional.empty();
+    }
+    boolean systemCoreExitOpen =
+        root.containsKey("systemCoreExitOpen") && booleanValue(root.get("systemCoreExitOpen"));
     SystemRecoveryAchievementTracker.Snapshot achievementProgress =
         version >= 2 && root.containsKey("achievementProgress")
             ? parseAchievementProgress(root.get("achievementProgress"))
             : null;
     return Optional.of(
         new SystemRecoverySave.SaveData(
-            checkpoint, inputs, questLog, runId, playerName, trackingConsent, achievementProgress));
+            checkpoint,
+            inputs,
+            questLog,
+            runId,
+            playerName,
+            trackingConsent,
+            achievementProgress,
+            terminalHistory,
+            memoryWatchEntries,
+            inventoryItems,
+            systemCoreExitOpen));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
@@ -181,27 +208,62 @@ public final class SystemRecoveryLoad {
   private static boolean hasExpectedHistory(
       SystemRecoveryLearningStep checkpoint, List<SystemRecoverySave.AcceptedInput> inputs) {
     int expectedInputCount = checkpoint.acceptedTerminalInputCount();
-    if (expectedInputCount < 0 || inputs == null || inputs.size() != expectedInputCount)
+    int targetState = checkpoint.terminalState();
+    if (expectedInputCount < 0
+        || targetState < 0
+        || inputs == null
+        || inputs.size() != expectedInputCount) {
       return false;
-    for (int index = 0; index < inputs.size(); index++) {
-      SystemRecoverySave.AcceptedInput input = inputs.get(index);
-      if (input == null || input.state() != index || input.source() == null) return false;
     }
-    return true;
+    int expectedState = 0;
+    for (SystemRecoverySave.AcceptedInput input : inputs) {
+      if (input == null || input.source() == null) return false;
+      expectedState = skipNonTerminalStates(expectedState, input.state());
+      TerminalStep inputStep = TerminalStep.fromStateId(input.state()).orElse(null);
+      if (input.state() != expectedState
+          || inputStep == null
+          || inputStep.inputMode() != TerminalStep.InputMode.TERMINAL) return false;
+      expectedState++;
+    }
+    return skipNonTerminalStates(expectedState, targetState) == targetState;
+  }
+
+  private static int skipNonTerminalStates(int currentState, int targetState) {
+    int state = currentState;
+    while (state < targetState) {
+      TerminalStep step = TerminalStep.fromStateId(state).orElse(null);
+      if (step == null || step.inputMode() == TerminalStep.InputMode.TERMINAL) break;
+      state++;
+    }
+    return state;
+  }
+
+  private static boolean hasRequiredCheckpointItem(
+      SystemRecoveryLearningStep checkpoint, List<SystemRecoverySave.PlayerItemData> items) {
+    String requiredItem =
+        switch (checkpoint) {
+          case BUBBLE_SORT_MACHINE -> "sort-program-stick";
+          case SEARCH_ROBOT_RUN -> "search-program-chip";
+          default -> null;
+        };
+    return requiredItem == null
+        || items.stream()
+            .anyMatch(
+                item -> requiredItem.equals(item.itemKey()) && item.programmed());
   }
 
   private static Optional<SystemRecoveryLearningStep> findCheckpoint(String key) {
     return java.util.Arrays.stream(SystemRecoveryLearningStep.values())
-        .filter(step -> step.hintKey().equals(key) && step.riddleKey() != null)
+        .filter(step -> step.hintKey().equals(key))
         .filter(SystemRecoveryLoad::isMainPuzzleCheckpoint)
         .findFirst();
   }
 
   /**
-   * Returns whether a step is the only checkpoint written for its main riddle.
+   * Returns whether a step is a supported save checkpoint.
    *
    * @param step learning step to classify
-   * @return whether the step is a main-riddle checkpoint
+   * @return whether the step is a supported checkpoint
    */
   public static boolean isMainPuzzleCheckpoint(SystemRecoveryLearningStep step) {
     return switch (step) {
@@ -211,10 +273,19 @@ public final class SystemRecoveryLoad {
           TRANSPORT_ARRAY,
           MANUAL_SORTING,
           BUBBLE_SORT_CONDITION,
+          BUBBLE_SORT_MACHINE,
           ARCHIVE_ACCESS,
+          ARCHIVE_ARRAYS,
           STORAGE_ARRAY,
           SEARCH_PROGRAM,
-          SYSTEM_CORE_ACCESS ->
+          SEARCH_ROBOT_RUN,
+          SYSTEM_CORE_ACCESS,
+          CORE_SORT,
+          CORE_COUNT,
+          CORE_SEARCH,
+          CORE_SEARCH_ROBOT,
+          CORE_META,
+          COMPLETE ->
           true;
       default -> false;
     };
@@ -225,7 +296,9 @@ public final class SystemRecoveryLoad {
    *
    * <p>The initial energy-array step remains a valid legacy/load checkpoint, but it is deliberately
    * excluded here. The first new save is created at {@code MODULE_ARRAY}, after the player has
-   * completed the first riddle and inserted the battery.
+   * completed the first riddle and inserted the battery. Later puzzle places include successful
+   * chip uploads, the consumed-key archive door transition, every System Core substep and final
+   * completion.
    *
    * @param step learning step to classify
    * @return whether the step may trigger an automatic save

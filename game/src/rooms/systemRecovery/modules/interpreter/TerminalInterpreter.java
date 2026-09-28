@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import rooms.systemRecovery.util.interpreter.TerminalStep;
 
 /** Interprets registered terminal puzzle states without knowing room-specific behavior. */
 public final class TerminalInterpreter {
@@ -94,12 +95,31 @@ public final class TerminalInterpreter {
    * @throws IllegalArgumentException if the history cannot be replayed
    */
   public void restoreAcceptedInputs(List<AcceptedInput> inputs) {
+    restoreAcceptedInputs(inputs, -1);
+  }
+
+  /**
+   * Restores accepted terminal input and positions the interpreter at a validated checkpoint.
+   * Non-terminal editor/form states may be crossed, but a missing ordinary terminal input is
+   * rejected.
+   *
+   * @param inputs accepted source history in original order
+   * @param targetState checkpoint state, or a negative value to stop after the last accepted input
+   * @throws IllegalArgumentException if the history or target skips an ordinary terminal state
+   */
+  public void restoreAcceptedInputs(List<AcceptedInput> inputs, int targetState) {
     reset();
     if (inputs == null) {
       throw new IllegalArgumentException("Accepted input history must not be null.");
     }
+    int expectedState = 0;
     for (AcceptedInput input : inputs) {
-      if (input == null || input.state() != currentState || input.source() == null) {
+      if (input == null || input.source() == null) {
+        reset();
+        throw new IllegalArgumentException("Accepted input history contains an invalid entry.");
+      }
+      expectedState = skipNonTerminalStates(expectedState, input.state());
+      if (input.state() != expectedState) {
         reset();
         throw new IllegalArgumentException("Accepted input history is not sequential.");
       }
@@ -111,8 +131,29 @@ public final class TerminalInterpreter {
       }
       successfulContext.replaceWith(result.context());
       acceptedInputs.add(input);
-      currentState++;
+      expectedState++;
     }
+
+    if (targetState >= 0) {
+      expectedState = skipNonTerminalStates(expectedState, targetState);
+      if (expectedState != targetState) {
+        reset();
+        throw new IllegalArgumentException("Checkpoint skips a required terminal state.");
+      }
+      currentState = targetState;
+    } else {
+      currentState = expectedState;
+    }
+  }
+
+  private static int skipNonTerminalStates(int state, int targetState) {
+    int next = state;
+    while (next < targetState) {
+      TerminalStep step = TerminalStep.fromStateId(next).orElse(null);
+      if (step == null || step.inputMode() == TerminalStep.InputMode.TERMINAL) break;
+      next++;
+    }
+    return next;
   }
 
   /**

@@ -147,6 +147,20 @@ public final class SystemCoreRiddle {
     return stage;
   }
 
+  /** Restores the completed-area presentation without replaying any puzzle callback.
+   *
+   * @param restoredStage number of completed core areas
+   * @param restoredExitOpen whether ECHO has opened the elevator
+   */
+  public void restoreStage(int restoredStage, boolean restoredExitOpen) {
+    stage = Math.max(0, Math.min(4, restoredStage));
+    if (stage >= 1) tint(sortEntries);
+    if (stage >= 2) tint(moduleEntries);
+    if (stage >= 3) tint(mapEntries);
+    exitOpen = stage >= 4 && restoredExitOpen;
+    updateDisplay();
+  }
+
   /**
    * Checks the final result payload against the values produced by the three central areas.
    *
