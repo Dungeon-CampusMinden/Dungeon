@@ -19,6 +19,7 @@ public final class TerminalInterpreter {
   private final Map<Integer, TerminalCodeRequirement> states = new HashMap<>();
   private final Map<Integer, boolean[]> partialMatches = new HashMap<>();
   private final Map<Integer, List<String>> partialSources = new HashMap<>();
+  private final Map<Integer, TerminalMatchContext> partialBaseContexts = new HashMap<>();
   private final TerminalMatchContext successfulContext = new TerminalMatchContext();
   private final List<AcceptedInput> acceptedInputs = new ArrayList<>();
   private int currentState;
@@ -49,6 +50,7 @@ public final class TerminalInterpreter {
     currentState = 0;
     partialMatches.clear();
     partialSources.clear();
+    partialBaseContexts.clear();
     successfulContext.clear();
     acceptedInputs.clear();
   }
@@ -114,6 +116,7 @@ public final class TerminalInterpreter {
     if (currentState != synchronizedState) {
       partialMatches.clear();
       partialSources.clear();
+      partialBaseContexts.clear();
     }
     currentState = synchronizedState;
   }
@@ -179,7 +182,9 @@ public final class TerminalInterpreter {
                 playerId,
                 dialogId,
                 combinedSubmission,
-                acceptedSourceForStep(state, source));
+                evaluation.completeSubmission()
+                    ? source
+                    : acceptedSourceForStep(state, source));
 
         // Apply room effects before committing this state so a failed callback stays retryable.
         requirement.onSuccess().accept(attempt);
@@ -187,6 +192,7 @@ public final class TerminalInterpreter {
         acceptedInputs.add(new AcceptedInput(state, attempt.acceptedSource()));
         partialMatches.remove(state);
         partialSources.remove(state);
+        partialBaseContexts.remove(state);
         currentState++;
         accepted = true;
 
@@ -195,6 +201,7 @@ public final class TerminalInterpreter {
       }
 
       if (evaluation.status() == EvaluationStatus.PARTIAL) {
+        partialBaseContexts.putIfAbsent(state, successfulContext.copy());
         partialMatches.put(state, evaluation.matchedLines());
         partialSources.computeIfAbsent(state, ignored -> new ArrayList<>()).add(source);
         successfulContext.replaceWith(evaluation.context());
@@ -287,7 +294,7 @@ public final class TerminalInterpreter {
       int state, String source, TerminalMatchContext context, int maxKnownState) {
     TerminalCodeRequirement requirement = states.get(state);
     if (requirement == null) {
-      return new StateEvaluation(EvaluationStatus.INVALID, context, new boolean[0]);
+      return new StateEvaluation(EvaluationStatus.INVALID, context, new boolean[0], false);
     }
 
     if (!requirement.acceptsPartialInput()) {
@@ -295,7 +302,8 @@ public final class TerminalInterpreter {
       return new StateEvaluation(
           result.successful() ? EvaluationStatus.COMPLETE : EvaluationStatus.INVALID,
           result.context(),
-          new boolean[0]);
+          new boolean[0],
+          result.successful());
     }
 
     return evaluatePartialState(state, source, context, maxKnownState, requirement);
@@ -313,6 +321,19 @@ public final class TerminalInterpreter {
         Arrays.copyOf(
             partialMatches.getOrDefault(state, new boolean[requiredLines.length]),
             requiredLines.length);
+
+    TerminalMatchContext baseContext =
+        partialBaseContexts.getOrDefault(state, context).copy();
+    AnalysisResult completeSubmission =
+        analysis(state, source, baseContext, maxKnownState);
+    if (completeSubmission.successful()) {
+      return new StateEvaluation(
+          EvaluationStatus.COMPLETE,
+          completeSubmission.context(),
+          matchedLines,
+          true);
+    }
+
     boolean matchedCurrentStep = false;
 
     for (TerminalStatement statement : statements) {
@@ -332,20 +353,21 @@ public final class TerminalInterpreter {
         }
       }
       if (!matchedStatement && !matchesStateUpTo(statement.source(), maxKnownState, context)) {
-        return new StateEvaluation(EvaluationStatus.INVALID, context, matchedLines);
+        return new StateEvaluation(EvaluationStatus.INVALID, context, matchedLines, false);
       }
     }
 
     if (statements.isEmpty()) {
-      return new StateEvaluation(EvaluationStatus.NO_PROGRESS, context, matchedLines);
+      return new StateEvaluation(EvaluationStatus.NO_PROGRESS, context, matchedLines, false);
     }
     if (allMatched(matchedLines)) {
-      return new StateEvaluation(EvaluationStatus.COMPLETE, context, matchedLines);
+      return new StateEvaluation(EvaluationStatus.COMPLETE, context, matchedLines, false);
     }
     return new StateEvaluation(
         matchedCurrentStep ? EvaluationStatus.PARTIAL : EvaluationStatus.NO_PROGRESS,
         context,
-        matchedLines);
+        matchedLines,
+        false);
   }
 
   private static boolean allMatched(boolean[] matches) {
@@ -631,7 +653,10 @@ public final class TerminalInterpreter {
   private record AnalysisResult(boolean successful, TerminalMatchContext context) {}
 
   private record StateEvaluation(
-      EvaluationStatus status, TerminalMatchContext context, boolean[] matchedLines) {}
+      EvaluationStatus status,
+      TerminalMatchContext context,
+      boolean[] matchedLines,
+      boolean completeSubmission) {}
 
   private enum EvaluationStatus {
     COMPLETE,

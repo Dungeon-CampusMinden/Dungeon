@@ -125,6 +125,24 @@ class PartialArrayPuzzleInputsTest {
   }
 
   @Test
+  void completeArchiveSolutionIsCheckedIndependentlyOfEarlierPartialIndexes() {
+    advanceToArchive();
+    assertTrue(interpreter.interpret("int[] energie = new int[3];"));
+    assertTrue(interpreter.interpret("energie[0] = 20;"));
+
+    String fullSolution =
+        "int[] energie = new int[3];\n"
+            + "energie[2] = 20;\n"
+            + "energie[0] = 50;\n"
+            + "energie[1] = 80;\n"
+            + "String[] module = {\"CPU\", \"GPU\", \"RAM\"};\n"
+            + "boolean[] aktiv = {true, false, true};";
+    assertTrue(interpreter.interpret(fullSolution));
+    assertEquals(10, interpreter.currentState());
+    assertEquals(fullSolution, interpreter.acceptedInputs().getLast().source());
+  }
+
+  @Test
   void archiveRejectsAssignmentsBeforeDeclarationAndDuplicateIndexes() {
     advanceToArchive();
     assertFalse(interpreter.interpret("energie[0] = 20;"));
