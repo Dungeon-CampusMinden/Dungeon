@@ -17,7 +17,7 @@ public class SearchRobotScenarioTest extends TerminalScenarioTestSupport {
             indexedForLoop("i", "map\\s*\\.\\s*length"),
             indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
             "if\\s*\\(\\s*map\\s*\\[\\s*i\\s*]\\s*\\[\\s*j\\s*]\\s*==\\s*1\\s*\\)" + "\\s*\\{",
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)\\s*;"));
 
     String source =
         """
@@ -42,7 +42,7 @@ public class SearchRobotScenarioTest extends TerminalScenarioTestSupport {
             indexedForLoop("i", "map\\s*\\.\\s*length"),
             indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
             "if\\s*\\(\\s*map\\s*\\[\\s*i\\s*]\\s*\\[\\s*j\\s*]\\s*==\\s*1\\s*\\)" + "\\s*\\{",
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)\\s*;"));
 
     String preparedSource =
         """
@@ -66,7 +66,7 @@ public class SearchRobotScenarioTest extends TerminalScenarioTestSupport {
             indexedForLoop("i", "map\\s*\\.\\s*length"),
             indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
             "if\\s*\\(\\s*map\\s*\\[\\s*i\\s*]\\s*\\[\\s*j\\s*]\\s*==\\s*1\\s*\\)" + "\\s*\\{",
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)\\s*;"));
 
     String source =
         """

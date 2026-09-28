@@ -351,10 +351,10 @@ public final class TerminalInterpreterSetup {
             successOrPreview(
                 onSuccess, InterpretationCallbacks::onRiddleThreeStepOneInventoryScannerCompleted),
             onFailure,
-            declaration("int", "count", "0"),
+            declarationWithCapturedVariable("int", "riddleThreeCounter", "0"),
             enhancedForLoop("String", capturedIdentifier(MODULE_ARRAY), "riddleThreeModuleItem"),
             notNullCondition("riddleThreeModuleItem"),
-            increment("count")));
+            increment("riddleThreeCounter")));
   }
 
   private static void setupRiddleFourTransportStorage(
@@ -522,10 +522,10 @@ public final class TerminalInterpreterSetup {
         ordered(
             successOrPreview(onSuccess, InterpretationCallbacks::onRiddleTenStepTwoModulesCounted),
             onFailure,
-            declaration("int", "count", "0"),
+            declarationWithCapturedVariable("int", "riddleTenCounter", "0"),
             enhancedForLoop("String", "modules", "riddleTenModuleItem"),
             notNullCondition("riddleTenModuleItem"),
-            increment("count")));
+            increment("riddleTenCounter")));
   }
 
   /**
@@ -807,16 +807,25 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine notNullCondition(String itemCapture) {
-    return codeLine(
-        "if\\s*\\(\\s*" + capturedIdentifier(itemCapture) + "\\s*!=\\s*null\\s*\\)\\s*\\{");
+    return new CodeLine(
+        Pattern.compile(
+            "if\\s*\\(\\s*"
+                + capturedIdentifier(itemCapture)
+                + "\\s*!=\\s*null\\s*\\)\\s*\\{"),
+        Pattern.compile(
+            "if\\s*\\(\\s*!\\s*\\(\\s*"
+                + capturedIdentifier(itemCapture)
+                + "\\s*==\\s*null\\s*\\)\\s*\\)\\s*\\{"));
   }
 
-  private static CodeLine increment(String variable) {
+  private static CodeLine increment(String variableCapture) {
+    String variable = capturedIdentifier(variableCapture);
+    String sameVariable = backReference(variableCapture);
     return new CodeLine(
         Pattern.compile(variable + "\\s*\\+\\+\\s*;"),
         Pattern.compile("\\+\\+" + variable + "\\s*;"),
         Pattern.compile(variable + "\\s*\\+=\\s*1\\s*;"),
-        Pattern.compile(variable + "\\s*=\\s*" + variable + "\\s*\\+\\s*1\\s*;"));
+        Pattern.compile(variable + "\\s*=\\s*" + sameVariable + "\\s*\\+\\s*1\\s*;"));
   }
 
   private static CodeLine capturedIndexedForLoop(String arrayCapture, String indexCapture) {

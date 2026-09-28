@@ -66,9 +66,9 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
                 + "\\.\\s*length\\s*-\\s*1\\s*-\\s*i\\s*;\\s*j\\+\\+\\s*\\)\\s*\\{",
             "if\\s*\\(\\s*array\\s*\\[\\s*j\\s*]\\s*>\\s*array\\s*"
                 + "\\[\\s*j\\s*\\+\\s*1\\s*]\\s*\\)\\s*\\{",
-            "int\\s+temp\\s*=\\s*array\\s*\\[\\s*j\\s*]",
-            "array\\s*\\[\\s*j\\s*]\\s*=\\s*array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]",
-            "array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]\\s*=\\s*temp"));
+            "int\\s+temp\\s*=\\s*array\\s*\\[\\s*j\\s*]\\s*;",
+            "array\\s*\\[\\s*j\\s*]\\s*=\\s*array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]\\s*;",
+            "array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]\\s*=\\s*temp\\s*;"));
 
     String source =
         """
@@ -97,9 +97,9 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
                 + "\\.\\s*length\\s*-\\s*1\\s*-\\s*i\\s*;\\s*j\\+\\+\\s*\\)\\s*\\{",
             "if\\s*\\(\\s*array\\s*\\[\\s*j\\s*]\\s*>\\s*array\\s*"
                 + "\\[\\s*j\\s*\\+\\s*1\\s*]\\s*\\)\\s*\\{",
-            "int\\s+temp\\s*=\\s*array\\s*\\[\\s*j\\s*]",
-            "array\\s*\\[\\s*j\\s*]\\s*=\\s*array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]",
-            "array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]\\s*=\\s*temp"));
+            "int\\s+temp\\s*=\\s*array\\s*\\[\\s*j\\s*]\\s*;",
+            "array\\s*\\[\\s*j\\s*]\\s*=\\s*array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]\\s*;",
+            "array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]\\s*=\\s*temp\\s*;"));
 
     String source =
         """
@@ -123,10 +123,10 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
     interpreter.register(
         0,
         orderedRequirement(
-            "int\\s+count\\s*=\\s*0",
+            "int\\s+count\\s*=\\s*0\\s*;",
             "for\\s*\\(\\s*String\\s+module\\s*:\\s*modules\\s*\\)\\s*\\{",
             "if\\s*\\(\\s*module\\s*!=\\s*null\\s*\\)\\s*\\{",
-            "count\\s*\\+\\+"));
+            "count\\s*\\+\\+\\s*;"));
 
     String source =
         """
@@ -150,7 +150,7 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             indexedForLoop("i", "map\\s*\\.\\s*length"),
             indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)\\s*;"));
 
     String source =
         """
@@ -172,7 +172,7 @@ public class CentralDataCenterScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             indexedForLoop("i", "map\\s*\\.\\s*length"),
             indexedForLoop("j", "map\\s*\\[\\s*i\\s*]\\s*\\.\\s*length"),
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)\\s*;"));
 
     String source =
         """

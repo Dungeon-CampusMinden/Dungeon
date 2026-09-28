@@ -17,7 +17,7 @@ public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
         0,
         requirement(
             "int\\s*\\[\\s*]\\s*pakete\\s*=\\s*\\{\\s*15\\s*,\\s*40\\s*,"
-                + "\\s*20\\s*,\\s*60\\s*,\\s*30\\s*}"));
+                + "\\s*20\\s*,\\s*60\\s*,\\s*30\\s*}\\s*;"));
     interpreter.register(
         1,
         orderedRequirement(
