@@ -57,4 +57,14 @@ class SystemRecoveryCheckpointProjectionTest {
 
     verify(level, never()).spawnWorldItemIfMissing(any(Item.class), eq("chip"));
   }
+
+  @Test
+  void restoresAnUnansweredSystemCoreWarningCallAsPending() {
+    SystemRecoveryLevel level = mock(SystemRecoveryLevel.class);
+
+    SystemRecoveryCheckpointProjection.apply(
+        level, SystemRecoveryLearningStep.CORE_SORT, false, false);
+
+    verify(level).restoreCoreCheckpoint(SystemRecoveryLearningStep.CORE_SORT, false, false);
+  }
 }

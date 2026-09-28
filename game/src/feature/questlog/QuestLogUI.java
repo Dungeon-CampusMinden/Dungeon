@@ -44,9 +44,13 @@ import feature.systems.HudSystem;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Placeholder UI for displaying the shared quest log and creating player notes.
@@ -85,6 +89,8 @@ public final class QuestLogUI {
   private static final String CTX_ENTRY_TIMESTAMPS = "questlog.entryTimestamps";
   private static final String CTX_VIEWER_ID = "questlog.viewerId";
   private static final String CTX_UNAVAILABLE = "questlog.unavailable";
+  private static final Pattern SYSTEM_RECOVERY_RIDDLE_TAB =
+      Pattern.compile("^questlog\\.riddle(\\d+)\\.tab$");
   private static final String T_TITLE = "title";
   private static final String T_EMPTY_QUESTLOG = "empty";
   private static final String T_NOT_INITIALIZED = "not_initialized";
@@ -451,8 +457,8 @@ public final class QuestLogUI {
   /**
    * Formats a quest log as readable text for the placeholder quest log dialog.
    *
-   * <p>Tabs are ordered by their newest entry first. Entries inside each tab keep their insertion
-   * order.
+   * <p>System Recovery riddle tabs are ordered numerically; other tabs remain ordered by recency.
+   * Entries inside each tab keep their insertion order.
    *
    * @param questLog the quest log component to format
    * @return a readable quest log representation
@@ -460,7 +466,7 @@ public final class QuestLogUI {
   public static String formatQuestLog(QuestLogComponent questLog) {
     StringBuilder builder = new StringBuilder();
 
-    for (String tab : questLog.getTabsOrderedByLastEntry()) {
+    for (String tab : orderedTabs(questLog)) {
       appendTab(builder, tab, questLog.get(tab));
     }
 
@@ -474,9 +480,10 @@ public final class QuestLogUI {
   /**
    * Builds the selection state for a quest log UI.
    *
-   * <p>Tabs are ordered by newest entry first. The selected tab is the requested tab if it exists,
-   * otherwise the newest tab. If the quest log is empty, {@link QuestLogSelection#selectedTab()} is
-   * empty and {@link QuestLogSelection#selectedEntries()} returns an empty list.
+   * <p>System Recovery riddle tabs are ordered numerically; other tabs remain ordered by recency.
+   * The selected tab is the requested tab if it exists, otherwise the first tab in display order.
+   * If the quest log is empty, {@link QuestLogSelection#selectedTab()} is empty and
+   * {@link QuestLogSelection#selectedEntries()} returns an empty list.
    *
    * @param questLog quest log to read
    * @param requestedTab preferred selected tab; may be {@code null}
@@ -503,7 +510,7 @@ public final class QuestLogUI {
 
     String viewerName = playerName(viewer).orElse(null);
     List<String> tabs =
-        questLog.getTabsOrderedByLastEntry().stream()
+        orderedTabs(questLog).stream()
             .filter(tab -> !visibleEntriesFor(questLog, tab, viewerName).isEmpty())
             .toList();
     Optional<String> selectedTab = selectTab(tabs, requestedTab);
@@ -511,6 +518,34 @@ public final class QuestLogUI {
         selectedTab.map(tab -> visibleEntriesFor(questLog, tab, viewerName)).orElseGet(List::of);
 
     return new QuestLogSelection(tabs, selectedTab, selectedEntries);
+  }
+
+  private static List<String> orderedTabs(QuestLogComponent questLog) {
+    List<String> tabsByRecency = questLog.getTabsOrderedByLastEntry();
+    if (tabsByRecency.stream().noneMatch(QuestLogUI::isSystemRecoveryRiddleTab)) {
+      return tabsByRecency;
+    }
+    return tabsByRecency.stream()
+        .sorted(
+            Comparator.comparingInt(
+                    (String tab) ->
+                        systemRecoveryRiddleNumber(tab).orElse(Integer.MAX_VALUE))
+                .thenComparingInt(tabsByRecency::indexOf))
+        .toList();
+  }
+
+  private static boolean isSystemRecoveryRiddleTab(String tab) {
+    return systemRecoveryRiddleNumber(tab).isPresent();
+  }
+
+  private static OptionalInt systemRecoveryRiddleNumber(String tab) {
+    Matcher matcher = SYSTEM_RECOVERY_RIDDLE_TAB.matcher(tab);
+    if (!matcher.matches()) return OptionalInt.empty();
+    try {
+      return OptionalInt.of(Integer.parseInt(matcher.group(1)));
+    } catch (NumberFormatException ignored) {
+      return OptionalInt.empty();
+    }
   }
 
   private static List<QuestLogEntry> visibleEntriesFor(
@@ -554,7 +589,7 @@ public final class QuestLogUI {
    */
   public static Optional<String> selectNextTab(QuestLogComponent questLog, String currentTab) {
     Objects.requireNonNull(questLog, "questLog");
-    return selectTabWithOffset(questLog.getTabsOrderedByLastEntry(), currentTab, 1);
+    return selectTabWithOffset(orderedTabs(questLog), currentTab, 1);
   }
 
   /**
@@ -566,7 +601,7 @@ public final class QuestLogUI {
    */
   public static Optional<String> selectPreviousTab(QuestLogComponent questLog, String currentTab) {
     Objects.requireNonNull(questLog, "questLog");
-    return selectTabWithOffset(questLog.getTabsOrderedByLastEntry(), currentTab, -1);
+    return selectTabWithOffset(orderedTabs(questLog), currentTab, -1);
   }
 
   /**

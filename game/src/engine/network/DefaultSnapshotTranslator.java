@@ -290,7 +290,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                           InventoryComponent ic =
                               entity
                                   .fetch(InventoryComponent.class)
-                                  .filter(existing -> existing.items().length >= inventorySize)
+                                  .filter(existing -> existing.items().length == inventorySize)
                                   .orElseGet(
                                       () -> {
                                         entity.remove(InventoryComponent.class);

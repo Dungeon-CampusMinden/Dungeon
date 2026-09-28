@@ -347,8 +347,7 @@
         "insert-title": "Insert sort chip",
         "insert": "Insert",
         "cancel": "Cancel",
-        "program-not-in-inventory": "The sort chip is no longer in your inventory.",
-        "complete": "The transport packages are sorted in ascending order. The archive key is now in your inventory."
+        "program-not-in-inventory": "The sort chip is no longer in your inventory."
       },
       "transport": {
         "title": "Transport storage",
@@ -438,7 +437,10 @@
       "display-instructions-heading": "Output values",
       "display-instructions": "display.show(value)\n\nSends a computed value to the display for the current puzzle.",
       "meta-heading": "Transfer the final system state",
-      "meta-instruction": "Transfer the three results from the display. Enter the energy values in ascending order across the five fields.",
+      "meta-instruction": "Transfer the three results from the display. Enter the six energy values in ascending order.",
+      "meta-energy-heading": "ENERGY VALUES / ASCENDING",
+      "meta-count-heading": "SYSTEM COUNTS",
+      "meta-ready": "Ready to transfer",
       "meta-energy-slot": "Energy $1",
       "meta-modules": "Occupied modules",
       "meta-batteries": "Scanned grid modules",
@@ -676,6 +678,7 @@
     "axiom_relax": {"name": "AXIOM, Relax", "description": "Open the system core despite AXIOM's pressure."},
     "not_a_bug": {"name": "That Was Not a Bug", "description": "Continue successfully after a failed attempt."},
     "debug_is_not_gameplay": {"name": "Debug Is Not Gameplay", "description": "Finish System Recovery without a debug skip."},
-    "not_by_plan": {"name": "Not According to Plan", "description": "Type the sorted values directly instead of writing the Bubble Sort program."}
+    "not_by_plan": {"name": "Not According to Plan", "description": "Type the sorted values directly instead of writing the Bubble Sort program."},
+    "who_are_you": {"name": "Who Are You?", "description": "Ignore ECHO's first call until the main objective forces you to answer."}
   }
 }

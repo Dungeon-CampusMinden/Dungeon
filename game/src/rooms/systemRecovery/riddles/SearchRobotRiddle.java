@@ -483,8 +483,6 @@ public final class SearchRobotRiddle {
       }
       runningProgramChip = null;
       runningProgramPlayerId = -1;
-      SystemRecoveryLevel.announceStoryToAllPlayers(
-          SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE);
       callbacks.solved();
       SystemRecoveryLevel.announceSystemCoreAccessModuleDelivered();
     }

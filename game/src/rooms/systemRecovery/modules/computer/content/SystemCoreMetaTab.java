@@ -2,6 +2,7 @@ package rooms.systemRecovery.modules.computer.content;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -31,12 +32,19 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
   private TextField batteryField;
   private Label feedback;
   private Table feedbackBar;
+  private Table centeredContent;
+  private Cell<Table> pageCell;
+  private ScrollPane scroll;
   private String lastSubmittedFingerprint;
   private boolean requestPending;
   private TextButton submitButton;
   private TextButton clearButton;
+  private Cell<TextButton> submitButtonCell;
+  private Cell<TextButton> clearButtonCell;
   private static final Color SUCCESS_COLOR = new Color(0.12f, 0.65f, 0.25f, 1f);
   private static final Color FAILURE_COLOR = new Color(0.85f, 0.12f, 0.12f, 1f);
+  private static final float MAX_CONTENT_WIDTH = 1_080f;
+  private static final float MIN_CONTENT_WIDTH = 320f;
 
   /** Creates the final system-state input mask. */
   public SystemCoreMetaTab() {
@@ -46,17 +54,29 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
 
   @Override
   protected void createActors() {
-    Table content = new Table(skin);
-    content.top().defaults().growX();
-    content.add(createLabel(SystemRecoveryText.text("computer.meta-heading"), 24)).left().row();
-    content
-        .add(createLabel(SystemRecoveryText.text("computer.meta-instruction"), 20))
+    Table page = new Table(skin);
+    page.top().left().defaults().growX();
+
+    Table heading = new Table(skin);
+    heading.setBackground("blue_square_flat");
+    Label headingLabel = createLabel(SystemRecoveryText.text("computer.meta-heading"), 26);
+    headingLabel.setWrap(true);
+    heading
+        .add(headingLabel)
+        .growX()
         .left()
-        .padTop(12)
-        .row();
+        .pad(12, 18, 12, 18);
+    page.add(heading).growX().row();
+
+    Label instruction = createLabel(SystemRecoveryText.text("computer.meta-instruction"), 18);
+    instruction.setWrap(true);
+    Table instructionPanel = new Table(skin);
+    instructionPanel.setBackground("generic-area-depth");
+    instructionPanel.add(instruction).growX().left().pad(12, 16, 12, 16);
+    page.add(instructionPanel).growX().padTop(12).row();
 
     Table energyTable = new Table(skin);
-    energyTable.top().left();
+    energyTable.top().left().defaults().growX();
     for (int index = 0; index < SystemCoreMetaDraft.ENERGY_SLOT_COUNT; index++) {
       int slotIndex = index;
       energyFields[index] =
@@ -66,36 +86,41 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
       Table slot = new Table(skin);
       slot.add(createLabel(SystemRecoveryText.text("computer.meta-energy-slot", index + 1), 18))
           .left()
+          .padBottom(4)
           .row();
-      slot.add(energyFields[index]).growX().height(48).padTop(5);
-      energyTable.add(slot).growX().padRight(12);
+      slot.add(energyFields[index]).growX().height(44);
+      energyTable.add(slot).growX().padRight(12).padBottom(10);
       if (index % 2 == 1) energyTable.row();
     }
-    content.add(energyTable).growX().left().padTop(22).row();
+    Table energyPanel = createSection(
+        SystemRecoveryText.text("computer.meta-energy-heading"), energyTable);
+    page.add(energyPanel).growX().left().padTop(16).row();
 
     Table counts = new Table(skin);
-    counts.left().top();
+    counts.left().top().defaults().growX();
     moduleField =
         createNumberField(SystemCoreMetaDraft.moduleCount(), SystemCoreMetaDraft::moduleCount);
     batteryField =
         createNumberField(
             SystemCoreMetaDraft.scannedModuleCount(), SystemCoreMetaDraft::scannedModuleCount);
     addCountField(counts, "computer.meta-modules", moduleField);
-    counts.row();
     addCountField(counts, "computer.meta-batteries", batteryField);
-    content.add(counts).growX().left().padTop(24).row();
+    Table countPanel = createSection(
+        SystemRecoveryText.text("computer.meta-count-heading"), counts);
+    page.add(countPanel).growX().left().padTop(8).row();
 
     Table feedbackPanel = new Table(skin);
     feedbackBar = new Table(skin);
-    feedbackBar.setBackground("generic-area-depth");
-    feedbackPanel.add(feedbackBar).width(8).growY().padRight(10);
-    feedback = createLabel("", 18);
+    feedbackBar.setBackground("blue_square_depth_flat");
+    feedbackPanel.setBackground("generic-area-depth");
+    feedbackPanel.add(feedbackBar).width(7).height(28).padRight(12);
+    feedback = createLabel(SystemRecoveryText.text("computer.meta-ready"), 17);
     feedback.setWrap(true);
-    feedbackPanel.add(feedback).growX().left();
-    content.add(feedbackPanel).growX().left().padTop(18).row();
+    feedbackPanel.add(feedback).growX().left().padRight(12);
+    page.add(feedbackPanel).growX().height(50).left().padTop(14).row();
 
     Table buttons = new Table(skin);
-    submitButton = createButton(SystemRecoveryText.text("computer.meta-submit"), "green", 24);
+    submitButton = createButton(SystemRecoveryText.text("computer.meta-submit"), "green", 20);
     submitButton.addListener(
         new ChangeListener() {
           @Override
@@ -104,7 +129,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
           }
         });
     clearButton =
-        createButton(SystemRecoveryText.text("computer.meta-clear"), "red-outline", 24);
+        createButton(SystemRecoveryText.text("computer.meta-clear"), "red-outline", 20);
     clearButton.addListener(
         new ChangeListener() {
           @Override
@@ -112,15 +137,48 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
             clearValues();
           }
         });
-    buttons.add(submitButton).growX().height(52).padRight(12);
-    buttons.add(clearButton).growX().height(52);
-    content.add(buttons).growX().padTop(18).row();
+    buttons.left();
+    submitButtonCell = buttons.add(submitButton).height(50).padRight(12);
+    clearButtonCell = buttons.add(clearButton).height(50);
+    page.add(buttons).left().padTop(14).row();
 
-    ScrollPane scroll = new ScrollPane(content, skin);
-    scroll.setScrollingDisabled(true, false);
+    centeredContent = new Table(skin);
+    centeredContent.top().center();
+    pageCell = centeredContent.add(page).top().center().padTop(12);
+    scroll = Scene2dElementFactory.createScrollPane(centeredContent, false, true);
     scroll.setOverscroll(false, false);
-    scroll.setFadeScrollBars(false);
     add(scroll).grow();
+    updatePageWidth();
+  }
+
+  private Table createSection(String title, Table body) {
+    Table section = new Table(skin);
+    section.setBackground("generic-area");
+    section.top().left().defaults().growX();
+    section.add(createLabel(title, 18)).left().pad(12, 14, 8, 14).row();
+    section.add(body).growX().left().pad(0, 14, 4, 4);
+    return section;
+  }
+
+  @Override
+  protected void sizeChanged() {
+    super.sizeChanged();
+    updatePageWidth();
+  }
+
+  private void updatePageWidth() {
+    if (pageCell == null) return;
+    float width = contentWidth(getWidth());
+    pageCell.width(width);
+    float buttonWidth = Math.min(230f, (width - 12f) / 2f);
+    submitButtonCell.width(buttonWidth);
+    clearButtonCell.width(buttonWidth);
+    centeredContent.invalidateHierarchy();
+    if (scroll != null) scroll.invalidateHierarchy();
+  }
+
+  static float contentWidth(float viewportWidth) {
+    return Math.min(MAX_CONTENT_WIDTH, Math.max(MIN_CONTENT_WIDTH, viewportWidth - 96f));
   }
 
   private TextField createNumberField(
@@ -141,8 +199,8 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     group.top().left();
     Label label = createLabel(SystemRecoveryText.text(labelKey), 20);
     label.setWrap(true);
-    group.add(label).growX().left().row();
-    group.add(field).growX().height(48).padTop(5);
+    group.add(label).growX().left().padBottom(4).row();
+    group.add(field).growX().height(44);
     parent.add(group).growX().padRight(12);
   }
 
@@ -168,7 +226,8 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     moduleField.setText("");
     batteryField.setText("");
     lastSubmittedFingerprint = null;
-    applyLocalFeedback("", LABEL_COLOR, "generic-area-depth");
+    applyLocalFeedback(
+        SystemRecoveryText.text("computer.meta-ready"), LABEL_COLOR, "blue_square_depth_flat");
   }
 
   /**

@@ -35,11 +35,7 @@ String[] module = new String[5];
 ```
 
 ```java
-module[0] = "CPU";
-module[1] = "RAM";
-module[2] = "GPU";
-module[3] = "SSD";
-module[4] = "NETWORK";
+git
 ```
 
 Nach der Untersuchung des GPU-Sockels:

@@ -165,6 +165,9 @@ public final class SystemRecoveryLoad {
     }
     boolean systemCoreExitOpen =
         root.containsKey("systemCoreExitOpen") && booleanValue(root.get("systemCoreExitOpen"));
+    boolean systemCoreWarningCallAnswered =
+        root.containsKey("systemCoreWarningCallAnswered")
+            && booleanValue(root.get("systemCoreWarningCallAnswered"));
     SystemRecoveryAchievementTracker.Snapshot achievementProgress =
         version >= 2 && root.containsKey("achievementProgress")
             ? parseAchievementProgress(root.get("achievementProgress"))
@@ -181,7 +184,8 @@ public final class SystemRecoveryLoad {
             terminalHistory,
             memoryWatchEntries,
             inventoryItems,
-            systemCoreExitOpen));
+            systemCoreExitOpen,
+            systemCoreWarningCallAnswered));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
@@ -191,6 +195,7 @@ public final class SystemRecoveryLoad {
     return new SystemRecoveryAchievementTracker.Snapshot(
         booleanValue(map.get("debugRun")),
         booleanValue(map.get("firstTerminalAttemptSeen")),
+        optionalBooleanValue(map.get("phoneAnsweredBeforeMainQuestCall")),
         integer(map.get("wrongTerminalAttempts")),
         integer(map.get("acceptedHints")),
         strings(map.get("hintedPuzzles")),
@@ -326,6 +331,10 @@ public final class SystemRecoveryLoad {
       throw new IllegalArgumentException("Expected boolean");
     }
     return booleanValue;
+  }
+
+  private static boolean optionalBooleanValue(Object value) {
+    return value == null ? false : booleanValue(value);
   }
 
   private static Boolean booleanOrNull(Object value) {

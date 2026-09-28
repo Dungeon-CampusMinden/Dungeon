@@ -1,6 +1,7 @@
 package rooms.systemRecovery.entities;
 
 import engine.Entity;
+import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
@@ -10,7 +11,9 @@ import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.components.InventoryComponent;
+import feature.components.UIComponent;
 import feature.hud.DialogUtils;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
@@ -73,6 +76,7 @@ public final class EnergyEntityFactory {
     inventory.onItemAdded(
         item -> {
           if (!(item instanceof BatteryItem)) return;
+          closeBatteryBoxInventory(entity);
           markBatteryInserted(entity);
           if (onBatteryInserted != null) onBatteryInserted.run();
         });
@@ -90,6 +94,23 @@ public final class EnergyEntityFactory {
     if (entity == null || !entity.isPresent(InventoryComponent.class)) return;
     entity.fetch(DrawComponent.class).ifPresent(draw -> draw.sendSignal("battery_inserted"));
     entity.remove(InventoryComponent.class);
+  }
+
+  private static void closeBatteryBoxInventory(Entity batteryBox) {
+    Game.allPlayers()
+        .forEach(
+            player ->
+                player
+                    .fetch(UIComponent.class)
+                    .filter(
+                        ui ->
+                            ui.dialogContext().dialogType()
+                                    == DialogType.DefaultTypes.DUAL_INVENTORY
+                                && ui.dialogContext()
+                                    .find(DialogContextKeys.SECONDARY_ENTITY, Integer.class)
+                                    .filter(id -> id == batteryBox.id())
+                                    .isPresent())
+                    .ifPresent(ui -> UIUtils.closeDialog(ui, true)));
   }
 
   private static void openDualInventory(Entity container, Entity player) {

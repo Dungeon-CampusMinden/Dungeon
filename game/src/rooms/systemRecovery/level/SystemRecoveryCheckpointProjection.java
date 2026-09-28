@@ -22,6 +22,14 @@ final class SystemRecoveryCheckpointProjection {
 
   static void apply(
       SystemRecoveryLevel level, SystemRecoveryLearningStep checkpoint, boolean systemCoreExitOpen) {
+    apply(level, checkpoint, systemCoreExitOpen, false);
+  }
+
+  static void apply(
+      SystemRecoveryLevel level,
+      SystemRecoveryLearningStep checkpoint,
+      boolean systemCoreExitOpen,
+      boolean systemCoreWarningCallAnswered) {
     switch (checkpoint) {
       case ENERGY_ARRAY -> {}
       case MODULE_ARRAY -> {
@@ -84,7 +92,8 @@ final class SystemRecoveryCheckpointProjection {
       case CORE_SORT, CORE_COUNT, CORE_SEARCH, CORE_SEARCH_ROBOT, CORE_META, COMPLETE -> {
         level.restoreCompletedStorage();
         level.restoreCompletedSearchRobot();
-        level.restoreCoreCheckpoint(checkpoint, systemCoreExitOpen);
+        level.restoreCoreCheckpoint(
+            checkpoint, systemCoreExitOpen, systemCoreWarningCallAnswered);
       }
       default -> throw new IllegalArgumentException("Not a main-riddle checkpoint: " + checkpoint);
     }

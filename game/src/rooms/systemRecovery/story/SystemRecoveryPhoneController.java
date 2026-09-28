@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.sound.Sounds;
 import engine.utils.Point;
-import rooms.systemRecovery.SystemRecovery;
 import engine.utils.components.draw.DepthLayer;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
@@ -15,6 +14,7 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.utils.EntityUtils;
 import rooms.lasthour.util.LastHourSounds;
+import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
@@ -23,11 +23,13 @@ public final class SystemRecoveryPhoneController {
 
   private final Runnable openDataStorage;
   private final Runnable openElevator;
+  private final Runnable saveCheckpoint;
   private Entity phone;
   private Entity ringingPhoneEmote;
   private boolean openingCallTriggered;
   private boolean dataStorageProblemCallTriggered;
   private boolean systemCoreWarningCallTriggered;
+  private boolean systemCoreWarningCallAnswered;
   private boolean finalEchoCallTriggered;
   private boolean finalEchoCallPending;
   private boolean phoneRinging;
@@ -38,8 +40,19 @@ public final class SystemRecoveryPhoneController {
    * @param openElevator action performed after ECHO's final call
    */
   public SystemRecoveryPhoneController(Runnable openDataStorage, Runnable openElevator) {
+    this(openDataStorage, openElevator, () -> {});
+  }
+
+  /**
+   * @param openDataStorage action performed after ECHO's data-storage call
+   * @param openElevator action performed after ECHO's final call
+   * @param saveCheckpoint persists call completion at the current puzzle checkpoint
+   */
+  public SystemRecoveryPhoneController(
+      Runnable openDataStorage, Runnable openElevator, Runnable saveCheckpoint) {
     this.openDataStorage = openDataStorage == null ? () -> {} : openDataStorage;
     this.openElevator = openElevator == null ? () -> {} : openElevator;
+    this.saveCheckpoint = saveCheckpoint == null ? () -> {} : saveCheckpoint;
   }
 
   /**
@@ -53,7 +66,6 @@ public final class SystemRecoveryPhoneController {
     engine.systems.DrawSystem.getInstance()
         .changeEntityDepth(phone, DepthLayer.AbovePlayer.depth());
     Game.add(phone);
-    if (SystemRecovery.levelEditorMode()) return;
     updatePhoneInteraction();
   }
 
@@ -89,9 +101,34 @@ public final class SystemRecoveryPhoneController {
 
   /** Starts ECHO's warning call after AXIOM has obtained system-core access. */
   public void triggerSystemCoreWarningCall() {
-    if (systemCoreWarningCallTriggered || phone == null) return;
+    if (systemCoreWarningCallAnswered || systemCoreWarningCallTriggered || phone == null) return;
     systemCoreWarningCallTriggered = true;
     startRingingCall("system-core-warning");
+  }
+
+  /**
+   * Reconstructs pending system-core calls after loading a core checkpoint.
+   *
+   * @param warningCallAnswered whether the warning call was completed before saving
+   * @param callsPending whether any core call should still be presented
+   * @param finalCallPending whether the final call should follow the warning call
+   */
+  public void restoreSystemCoreCalls(
+      boolean warningCallAnswered, boolean callsPending, boolean finalCallPending) {
+    systemCoreWarningCallAnswered = warningCallAnswered;
+    systemCoreWarningCallTriggered = warningCallAnswered;
+    if (!callsPending) return;
+    if (warningCallAnswered) {
+      if (finalCallPending) triggerFinalEchoCall();
+      return;
+    }
+    this.finalEchoCallPending = finalCallPending;
+    triggerSystemCoreWarningCall();
+  }
+
+  /** @return whether the player has completed ECHO's system-core warning call */
+  public boolean systemCoreWarningCallAnswered() {
+    return systemCoreWarningCallAnswered;
   }
 
   /** Starts ECHO's final call after the system-core routines are complete. */
@@ -106,7 +143,6 @@ public final class SystemRecoveryPhoneController {
   }
 
   private void startRingingCall(String callKey) {
-    if (SystemRecovery.levelEditorMode()) return;
     ringingCallKey = callKey;
     phoneRinging = true;
     Sounds.play(LastHourSounds.PHONE_RINGING);
@@ -120,7 +156,6 @@ public final class SystemRecoveryPhoneController {
   private void updatePhoneInteraction() {
     if (phone == null) return;
     phone.remove(InteractionComponent.class);
-    if (SystemRecovery.levelEditorMode()) return;
     phone.add(
         new InteractionComponent(
             new Interaction(
@@ -153,13 +188,16 @@ public final class SystemRecoveryPhoneController {
       ringingPhoneEmote = null;
     }
     if ("system-core-warning".equals(completedCallKey)) {
+      systemCoreWarningCallAnswered = true;
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle10", "system-core-warning", SystemRecoveryText.echoCall(completedCallKey));
+      saveCheckpoint.run();
       if (finalEchoCallPending) {
         finalEchoCallPending = false;
         startRingingCall("final-call");
       }
     } else if ("data-storage-problem".equals(completedCallKey)) {
+      SystemRecoveryAchievements.phoneCallAnswered(true);
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle5", "data-storage-problem", SystemRecoveryText.echoCall(completedCallKey));
       openDataStorage.run();
@@ -168,9 +206,11 @@ public final class SystemRecoveryPhoneController {
           "riddle10", "final-call", SystemRecoveryText.echoCall(completedCallKey));
       openElevator.run();
     } else if ("opening-call-correct".equals(completedCallKey)) {
+      SystemRecoveryAchievements.phoneCallAnswered(false);
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle1", "opening-call-correct", SystemRecoveryText.echoCall(completedCallKey));
     } else {
+      SystemRecoveryAchievements.phoneCallAnswered(false);
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle1", "opening-call", SystemRecoveryText.echoCall(completedCallKey));
     }

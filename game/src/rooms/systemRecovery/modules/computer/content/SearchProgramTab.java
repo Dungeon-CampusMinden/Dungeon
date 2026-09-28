@@ -23,8 +23,6 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
   public static final String KEY = "search-program";
 
   private final TextField innerBound;
-  private final TextField matchCondition;
-  private final TextField collectCall;
   private ProgramWriteStatus writeStatus;
 
   /**
@@ -36,8 +34,6 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
     super(KEY, SystemRecoveryText.text("computer.search-tab"));
     List<String> fields = UsbProgramDraft.decode(savedDraft, 3);
     innerBound = createCodeField(fields.get(0));
-    matchCondition = createCodeField(fields.get(1));
-    collectCall = createCodeField(fields.get(2));
     createActors();
   }
 
@@ -52,8 +48,8 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
     code.top().left().pad(12);
     addFixedLine(code, "for (int row = 0; row < map.length; row++) {");
     addFillLine(code, "    for (int column = 0; column < ", innerBound, "; column++) {");
-    addFillLine(code, "        if (", matchCondition, ") {");
-    addFillLine(code, "            ", collectCall, ";");
+    addFixedLine(code, "        if (map[row][column] == 1) {");
+    addFixedLine(code, "            roboter.collect();");
     addFixedLine(code, "        }");
     addFixedLine(code, "    }");
     addFixedLine(code, "}");
@@ -92,8 +88,6 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
               innerBound.setText("map[row].length");
-              matchCondition.setText("map[row][column] == 1");
-              collectCall.setText("roboter.collect()");
               sendUpload(source());
             }
           });
@@ -129,16 +123,16 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
   }
 
   private String source() {
+    return buildSource(innerBound.getText());
+  }
+
+  static String buildSource(String innerBound) {
     return "for (int row = 0; row < map.length; row++) {\n"
         + "    for (int column = 0; column < "
-        + innerBound.getText()
+        + innerBound
         + "; column++) {\n"
-        + "        if ("
-        + matchCondition.getText()
-        + ") {\n"
-        + "            "
-        + collectCall.getText()
-        + ";\n"
+        + "        if (map[row][column] == 1) {\n"
+        + "            roboter.collect();\n"
         + "        }\n"
         + "    }\n"
         + "}";
@@ -146,7 +140,7 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
 
   private String draft() {
     return UsbProgramDraft.encode(
-        List.of(innerBound.getText(), matchCondition.getText(), collectCall.getText()));
+        List.of(innerBound.getText(), "map[row][column] == 1", "roboter.collect()"));
   }
 
   private void sendUpload(String source) {

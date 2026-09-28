@@ -62,6 +62,28 @@ class SystemRecoveryAchievementTrackerTest {
   }
 
   @Test
+  void waitingUntilRequiredMainQuestCallUnlocksPhoneAchievementOnce() {
+    tracker.phoneCallAnswered(true);
+    tracker.phoneCallAnswered(true);
+
+    assertEquals(List.of(SystemRecoveryAchievements.WHO_ARE_YOU), unlocked);
+  }
+
+  @Test
+  void answeredEarlierCallDisqualifiesPhoneAchievementAfterCheckpointRestore() {
+    tracker.phoneCallAnswered(false);
+    SystemRecoveryAchievementTracker.Snapshot snapshot = tracker.snapshot();
+    unlocked.clear();
+    tracker = new SystemRecoveryAchievementTracker(unlocked::add);
+    tracker.restore(snapshot);
+
+    tracker.phoneCallAnswered(true);
+
+    assertTrue(snapshot.phoneAnsweredBeforeMainQuestCall());
+    assertTrue(unlocked.isEmpty());
+  }
+
+  @Test
   void solutionHintPreventsNoHintAchievementButTracksHintMilestones() {
     tracker.hintUsed(SystemRecoveryPuzzle.ENERGY, "energy-array:solution");
     tracker.hintUsed(SystemRecoveryPuzzle.MODULE_STORAGE, "module-array:near");

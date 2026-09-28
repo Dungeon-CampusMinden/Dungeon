@@ -133,7 +133,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private final SystemRecoveryStoryDialogs storyDialogs = new SystemRecoveryStoryDialogs();
   private final SystemRecoveryPhoneController phoneController =
       new SystemRecoveryPhoneController(
-          this::openDataStorageAfterEchoCall, this::openElevatorAfterFinalCall);
+          this::openDataStorageAfterEchoCall,
+          this::openElevatorAfterFinalCall,
+          SystemRecoveryLevel::saveCheckpointNow);
   private final Set<Integer> introShownPlayers = new HashSet<>();
   private final Set<Integer> controlsShownPlayers = new HashSet<>();
   private final Set<String> triggeredDialogPoints = new HashSet<>();
@@ -172,6 +174,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
   private String savedPlayerName;
   private Boolean savedTrackingConsent;
+  private boolean savedSystemCoreWarningCallAnswered;
   private int saveRevision;
   private Optional<SystemRecoverySave.SaveData> pendingSave = Optional.empty();
   private UUID runId;
@@ -255,10 +258,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onTick() {
-    if (SystemRecovery.levelEditorMode()) return;
-    enforcePlayerInventorySize();
-    applyPendingPuzzleInventory();
-    saveCheckpointIfNeeded();
+    if (!SystemRecovery.levelEditorMode()) {
+      enforcePlayerInventorySize();
+      applyPendingPuzzleInventory();
+      saveCheckpointIfNeeded();
+    }
     showIntroForNewPlayers();
     triggerDialogPoints();
     storyDialogs.tick();
@@ -290,7 +294,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
                         restoredCheckpoint -> {
                           restorePuzzleInventory(data.inventoryItems(), data.playerName());
                           SystemRecoveryCheckpointProjection.apply(
-                              this, restoredCheckpoint, data.systemCoreExitOpen());
+                              this,
+                              restoredCheckpoint,
+                              data.systemCoreExitOpen(),
+                              data.systemCoreWarningCallAnswered());
                           return restoredCheckpoint;
                         }));
     checkpoint.ifPresent(
@@ -305,6 +312,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedAchievementProgress = restoredSave.achievementProgress();
           savedPlayerName = restoredSave.playerName();
           savedTrackingConsent = restoredSave.trackingConsent();
+          savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
           systemCoreExitOpen = restoredSave.systemCoreExitOpen();
         });
     if (checkpoint.isPresent()) {
@@ -354,7 +362,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
             || !save.memoryWatchEntries().equals(savedMemoryWatchEntries)
             || !Objects.equals(save.achievementProgress(), savedAchievementProgress)
             || !Objects.equals(save.playerName(), savedPlayerName)
-            || !Objects.equals(save.trackingConsent(), savedTrackingConsent);
+            || !Objects.equals(save.trackingConsent(), savedTrackingConsent)
+            || save.systemCoreWarningCallAnswered() != savedSystemCoreWarningCallAnswered;
     if (!force && !changed) return true;
     try {
       SystemRecoverySave.write(save);
@@ -366,6 +375,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       savedAchievementProgress = save.achievementProgress();
       savedPlayerName = save.playerName();
       savedTrackingConsent = save.trackingConsent();
+      savedSystemCoreWarningCallAnswered = save.systemCoreWarningCallAnswered();
       saveRevision++;
       return true;
     } catch (java.io.IOException exception) {
@@ -535,7 +545,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
     };
   }
 
-  void restoreCoreCheckpoint(SystemRecoveryLearningStep checkpoint, boolean exitOpen) {
+  void restoreCoreCheckpoint(
+      SystemRecoveryLearningStep checkpoint,
+      boolean exitOpen,
+      boolean systemCoreWarningCallAnswered) {
     openDoor(SystemRecoveryPointRegistry.DOOR_SYSTEM_CORE);
     systemCoreAccessModuleDelivered = true;
     systemCoreAccessGranted = true;
@@ -557,10 +570,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
     systemCore.restoreStage(restoredStage, exitOpen);
     if (checkpoint == SystemRecoveryLearningStep.CORE_SEARCH_ROBOT) {
       systemCore.startMapSearch(() -> completeSystemCoreRobotSearch(-1));
-    } else if (checkpoint == SystemRecoveryLearningStep.COMPLETE) {
-      if (exitOpen) openElevatorAfterFinalCall();
-      else phoneController.triggerFinalEchoCall();
+    } else if (checkpoint == SystemRecoveryLearningStep.COMPLETE && exitOpen) {
+      openElevatorAfterFinalCall();
     }
+    phoneController.restoreSystemCoreCalls(
+        systemCoreWarningCallAnswered, !exitOpen, checkpoint == SystemRecoveryLearningStep.COMPLETE);
   }
 
   void markSystemCoreAccessModuleDeliveredAfterRestore() {
@@ -700,7 +714,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Starts ECHO's introductory call after the first rejected terminal input. */
   public static void triggerEchoCallForIncorrectInput() {
-    if (SystemRecovery.levelEditorMode()) return;
     currentLevel()
         .ifPresent(
             level -> {
@@ -733,7 +746,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   /** Starts ECHO's successful first-contact call after AXIOM's dialog has closed. */
   public static void triggerEchoCallAfterInitialCorrectInput() {
-    if (SystemRecovery.levelEditorMode()) return;
     currentLevel().ifPresent(SystemRecoveryLevel::triggerCorrectOpeningCall);
   }
 
@@ -1035,7 +1047,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @param step story step to announce
    */
   public static void announceStoryToAllPlayers(SystemRecoveryStoryDialogs.StoryStep step) {
-    if (SystemRecovery.levelEditorMode()) return;
     currentLevel().ifPresent(level -> level.storyDialogs.announceToAllPlayers(step));
   }
 
@@ -1047,11 +1058,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static void announceStoryForPlayer(
       SystemRecoveryStoryDialogs.StoryStep step, int playerId) {
-    if (SystemRecovery.levelEditorMode()) return;
     currentLevel().ifPresent(level -> level.storyDialogs.announceForPlayer(step, playerId));
   }
 
-  /** Announces AXIOM's reaction when the search robot delivers the access module. */
+  /** Announces the search robot's completion, followed by AXIOM's reaction. */
   public static void announceSystemCoreAccessModuleDelivered() {
     currentLevel().ifPresent(SystemRecoveryLevel::handleSystemCoreAccessModuleDelivered);
   }
@@ -1059,7 +1069,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void handleSystemCoreAccessModuleDelivered() {
     if (systemCoreAccessModuleDelivered) return;
     systemCoreAccessModuleDelivered = true;
-    storyDialogs.announceToAllPlayers(SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
+    storyDialogs.announceSequenceToAllPlayers(
+        SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE,
+        SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
   }
 
   private static java.util.Optional<SystemRecoveryLevel> currentLevel() {
@@ -1476,6 +1488,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static boolean systemCoreExitOpen() {
     return currentLevel().map(level -> level.systemCoreExitOpen).orElse(false);
+  }
+
+  /** @return whether ECHO's system-core warning call has been completed */
+  public static boolean systemCoreWarningCallAnswered() {
+    return currentLevel()
+        .map(level -> level.phoneController.systemCoreWarningCallAnswered())
+        .orElse(false);
   }
 
   /**

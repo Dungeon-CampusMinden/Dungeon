@@ -239,10 +239,6 @@ public final class BubbleSortRiddle {
       runningProgramStick = null;
       callbacks.solved();
       SystemRecoveryLevel.announceStoryToAllPlayers(SystemRecoveryStoryDialogs.ARCHIVE_INTRO);
-      DialogUtils.showTextPopup(
-          SystemRecoveryText.key("world.sort.complete"),
-          SystemRecoveryText.key("world.sort.machine-title"),
-          sortMachinePlayerId);
       return;
     }
 

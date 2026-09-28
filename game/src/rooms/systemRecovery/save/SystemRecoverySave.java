@@ -35,7 +35,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievements;
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 6;
+  public static final int FORMAT_VERSION = 8;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -111,7 +111,8 @@ public final class SystemRecoverySave {
         List.of(SystemRecoveryLevel.acceptedTerminalSources()),
         List.of(SystemRecoveryLevel.memoryWatchArrayEntries()),
         currentPuzzleItems(),
-        isSystemCoreExitOpen());
+        isSystemCoreExitOpen(),
+        SystemRecoveryLevel.systemCoreWarningCallAnswered());
   }
 
   private static List<PlayerItemData> currentPuzzleItems() {
@@ -276,6 +277,7 @@ public final class SystemRecoverySave {
         "inventoryItems",
         data.inventoryItems().stream().map(PlayerItemData::toMap).toList());
     root.put("systemCoreExitOpen", data.systemCoreExitOpen());
+    root.put("systemCoreWarningCallAnswered", data.systemCoreWarningCallAnswered());
     if (data.achievementProgress() != null) {
       root.put("achievementProgress", achievementProgressMap(data.achievementProgress()));
     }
@@ -287,6 +289,7 @@ public final class SystemRecoverySave {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("debugRun", progress.debugRun());
     map.put("firstTerminalAttemptSeen", progress.firstTerminalAttemptSeen());
+    map.put("phoneAnsweredBeforeMainQuestCall", progress.phoneAnsweredBeforeMainQuestCall());
     map.put("wrongTerminalAttempts", progress.wrongTerminalAttempts());
     map.put("acceptedHints", progress.acceptedHints());
     map.put("hintedPuzzles", progress.hintedPuzzles());
@@ -313,6 +316,7 @@ public final class SystemRecoverySave {
    * @param memoryWatchEntries array names, types and values shown in Memory Watch
    * @param inventoryItems puzzle items carried by each named player
    * @param systemCoreExitOpen whether ECHO's final call has already opened the elevator
+   * @param systemCoreWarningCallAnswered whether the player has completed ECHO's core warning call
    */
   public record SaveData(
       String checkpointKey,
@@ -325,7 +329,8 @@ public final class SystemRecoverySave {
       List<String> terminalHistory,
       List<String> memoryWatchEntries,
       List<PlayerItemData> inventoryItems,
-      boolean systemCoreExitOpen) {
+      boolean systemCoreExitOpen,
+      boolean systemCoreWarningCallAnswered) {
 
     /**
      * Returns this checkpoint with a replaced run-level tracking decision.
@@ -345,7 +350,8 @@ public final class SystemRecoverySave {
           terminalHistory,
           memoryWatchEntries,
           inventoryItems,
-          systemCoreExitOpen);
+          systemCoreExitOpen,
+          systemCoreWarningCallAnswered);
     }
 
     /**
@@ -366,7 +372,8 @@ public final class SystemRecoverySave {
           terminalHistory,
           memoryWatchEntries,
           items,
-          systemCoreExitOpen);
+          systemCoreExitOpen,
+          systemCoreWarningCallAnswered);
     }
 
     /**
@@ -399,6 +406,7 @@ public final class SystemRecoverySave {
           List.of(),
           List.of(),
           List.of(),
+          false,
           false);
     }
 
@@ -437,6 +445,48 @@ public final class SystemRecoverySave {
           null,
           null,
           achievementProgress);
+    }
+
+    /**
+     * Keeps callers from save format 6 source-compatible.
+     *
+     * @param checkpointKey stable first-step key of the active main riddle
+     * @param acceptedTerminalInputs accepted terminal sources in order
+     * @param questLog shared quest-log entries
+     * @param runId stable ID shared by every loaded continuation of this save
+     * @param playerName authoritative player name stored for the continue flow
+     * @param trackingConsent run-level tracking decision; nullable for legacy saves
+     * @param achievementProgress run-local achievement conditions; nullable for legacy saves
+     * @param terminalHistory accepted source history shown in the terminal UI
+     * @param memoryWatchEntries array names, types and values shown in Memory Watch
+     * @param inventoryItems puzzle items carried by each named player
+     * @param systemCoreExitOpen whether ECHO's final call has opened the elevator
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        String playerName,
+        Boolean trackingConsent,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress,
+        List<String> terminalHistory,
+        List<String> memoryWatchEntries,
+        List<PlayerItemData> inventoryItems,
+        boolean systemCoreExitOpen) {
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          inventoryItems,
+          systemCoreExitOpen,
+          false);
     }
 
     /**
@@ -498,6 +548,7 @@ public final class SystemRecoverySave {
      * @param memoryWatchEntries array names, types and values shown in Memory Watch
      * @param inventoryItems puzzle items carried by each named player
      * @param systemCoreExitOpen whether the final call has opened the elevator
+     * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
      */
     public SaveData {
       if (checkpointKey == null || checkpointKey.isBlank()) {

@@ -40,6 +40,7 @@ public final class SystemRecoveryAchievements {
   public static final String NOT_A_BUG = "not_a_bug";
   public static final String DEBUG_IS_NOT_GAMEPLAY = "debug_is_not_gameplay";
   public static final String NOT_BY_PLAN = "not_by_plan";
+  public static final String WHO_ARE_YOU = "who_are_you";
 
   private static SystemRecoveryAchievementTracker tracker =
       new SystemRecoveryAchievementTracker(SystemRecoveryAchievements::unlock);
@@ -133,6 +134,16 @@ public final class SystemRecoveryAchievements {
    */
   public static synchronized void chipUploadAttempt(String chipType, boolean correct) {
     tracker.chipUploadAttempt(chipType, correct);
+  }
+
+  /**
+   * Records an answered phone call for the "Who are you?" achievement condition.
+   *
+   * @param requiredMainQuestCall whether this is ECHO's mandatory call that unlocks the data
+   *     storage route
+   */
+  public static synchronized void phoneCallAnswered(boolean requiredMainQuestCall) {
+    tracker.phoneCallAnswered(requiredMainQuestCall);
   }
 
   /**

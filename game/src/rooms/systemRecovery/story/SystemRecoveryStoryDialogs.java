@@ -3,15 +3,14 @@ package rooms.systemRecovery.story;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.utils.IVoidFunction;
-import rooms.systemRecovery.SystemRecovery;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogFactory;
-import feature.systems.LevelEditorSystem;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.LongSupplier;
 import rooms.systemRecovery.modules.computer.SystemRecoveryDialogTypes;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
@@ -123,15 +122,20 @@ public final class SystemRecoveryStoryDialogs {
 
   private final Set<String> shownToPlayer = ConcurrentHashMap.newKeySet();
   private final Queue<PendingDialog> pendingDialogs = new ConcurrentLinkedQueue<>();
+  private final LongSupplier clock;
 
   /** Creates the story controller for one authoritative level instance. */
-  public SystemRecoveryStoryDialogs() {}
+  public SystemRecoveryStoryDialogs() {
+    this(System::currentTimeMillis);
+  }
 
-  /** Dispatches delayed dialogs. This is intentionally inert while the level editor is active. */
+  SystemRecoveryStoryDialogs(LongSupplier clock) {
+    this.clock = clock;
+  }
+
+  /** Dispatches queued dialogs, including story messages while the level editor is active. */
   public void tick() {
-    if (SystemRecovery.levelEditorMode() || (!Game.isHeadless() && LevelEditorSystem.active())) return;
-
-    long now = System.currentTimeMillis();
+    long now = clock.getAsLong();
     int pendingCount = pendingDialogs.size();
     for (int index = 0; index < pendingCount; index++) {
       PendingDialog pending = pendingDialogs.poll();
@@ -169,7 +173,6 @@ public final class SystemRecoveryStoryDialogs {
    * @param afterClose action to run after the dialog closes
    */
   public void announceForPlayer(StoryStep step, int playerId, IVoidFunction afterClose) {
-    if (SystemRecovery.levelEditorMode()) return;
     showStepAfterDelay(step, playerId, afterClose);
   }
 
@@ -179,15 +182,41 @@ public final class SystemRecoveryStoryDialogs {
    * @param step story step to announce
    */
   public void announceToAllPlayers(StoryStep step) {
-    if (SystemRecovery.levelEditorMode()) return;
     Game.levelEntities(Set.of(PlayerComponent.class))
         .mapToInt(engine.Entity::id)
         .forEach(playerId -> showStepAfterDelay(step, playerId, () -> {}));
   }
 
+  /**
+   * Announces two shared story steps sequentially to each connected player.
+   *
+   * <p>The second step is queued only after that player's first dialog is closed, preventing
+   * simultaneous overlays from obscuring the intended speaker order.
+   *
+   * @param firstStep story dialog shown first
+   * @param secondStep story dialog shown after the first is closed
+   */
+  public void announceSequenceToAllPlayers(StoryStep firstStep, StoryStep secondStep) {
+    Game.levelEntities(Set.of(PlayerComponent.class))
+        .mapToInt(engine.Entity::id)
+        .forEach(playerId -> announceSequenceForPlayer(firstStep, secondStep, playerId));
+  }
+
+  /**
+   * Announces two story steps sequentially to one player.
+   *
+   * @param firstStep story dialog shown first
+   * @param secondStep story dialog shown after the first is closed
+   * @param playerId player receiving both dialogs
+   */
+  public void announceSequenceForPlayer(
+      StoryStep firstStep, StoryStep secondStep, int playerId) {
+    if (firstStep == null || secondStep == null || playerId < 0) return;
+    announceForPlayer(firstStep, playerId, () -> announceForPlayer(secondStep, playerId));
+  }
+
   /** Queues the final shared story response. */
   public void announceCompletionToAllPlayers() {
-    if (SystemRecovery.levelEditorMode()) return;
     announceToAllPlayers(COMPLETED);
   }
 
@@ -197,7 +226,7 @@ public final class SystemRecoveryStoryDialogs {
     if (!shownToPlayer.add(key)) return;
     pendingDialogs.add(
         new PendingDialog(
-            System.currentTimeMillis() + STORY_DELAY_MS,
+            clock.getAsLong() + STORY_DELAY_MS,
             step,
             playerId,
             afterClose == null ? () -> {} : afterClose));

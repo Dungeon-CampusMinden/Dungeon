@@ -347,8 +347,7 @@
         "insert-title": "Sortierchip einsetzen",
         "insert": "Einsetzen",
         "cancel": "Abbrechen",
-        "program-not-in-inventory": "Der Sortierchip befindet sich nicht mehr in deinem Inventar.",
-        "complete": "Die Transportpakete wurden aufsteigend sortiert. Der Archivschlüssel liegt jetzt in deinem Inventar."
+        "program-not-in-inventory": "Der Sortierchip befindet sich nicht mehr in deinem Inventar."
       },
       "transport": {
         "title": "Transportlager",
@@ -438,7 +437,10 @@
       "display-instructions-heading": "Werte ausgeben",
       "display-instructions": "display.show(wert)\n\nÜbergibt einen berechneten Wert an das Display des aktuellen Rätsels.",
       "meta-heading": "Finalen Systemzustand übertragen",
-      "meta-instruction": "Übertrage die drei Ergebnisse aus der Anzeige. Die Energiewerte gehören in die fünf Felder in aufsteigender Reihenfolge.",
+      "meta-instruction": "Übertrage die drei Ergebnisse aus der Anzeige. Trage die sechs Energiewerte der Größe nach aufsteigend ein.",
+      "meta-energy-heading": "ENERGIEWERTE / AUFSTEIGEND",
+      "meta-count-heading": "SYSTEMZÄHLER",
+      "meta-ready": "Bereit für die Übertragung",
       "meta-energy-slot": "Energie $1",
       "meta-modules": "Belegte Module",
       "meta-batteries": "Erfasste Rastermodule",
@@ -676,6 +678,7 @@
     "axiom_relax": {"name": "AXIOM, entspann dich", "description": "Öffne den Systemkern trotz AXIOMs Drängen."},
     "not_a_bug": {"name": "Das war kein Bug", "description": "Mach nach einem Fehlversuch erfolgreich weiter."},
     "debug_is_not_gameplay": {"name": "Debug ist kein Gameplay", "description": "Beende System Recovery ohne Debug-Skip."},
-    "not_by_plan": {"name": "Nicht nach Plan", "description": "Tippe die sortierten Werte direkt ein, statt das Bubble-Sort-Programm zu schreiben."}
+    "not_by_plan": {"name": "Nicht nach Plan", "description": "Tippe die sortierten Werte direkt ein, statt das Bubble-Sort-Programm zu schreiben."},
+    "who_are_you": {"name": "Wer bist du?", "description": "Ignoriere ECHOs ersten Anruf, bis dich die Hauptaufgabe ans Telefon zwingt."}
   }
 }

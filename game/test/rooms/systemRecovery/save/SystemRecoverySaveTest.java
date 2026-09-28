@@ -109,6 +109,7 @@ class SystemRecoverySaveTest {
             new SystemRecoveryAchievementTracker.Snapshot(
                 false,
                 true,
+                true,
                 2,
                 1,
                 List.of("energy-array"),
@@ -192,7 +193,36 @@ class SystemRecoverySaveTest {
     SystemRecoverySave.write(savePath, expected);
 
     assertEquals(expected, SystemRecoveryLoad.read(savePath).orElseThrow());
-    assertEquals(6, SystemRecoverySave.FORMAT_VERSION);
+    assertEquals(8, SystemRecoverySave.FORMAT_VERSION);
+  }
+
+  @Test
+  void persistsWhetherTheSystemCoreWarningCallWasAnswered() throws Exception {
+    SystemRecoverySave.SaveData base =
+        saveForCheckpoint(
+            SystemRecoveryLearningStep.CORE_SORT,
+            terminalInputsThrough(
+                SystemRecoveryLearningStep.CORE_SORT.acceptedTerminalInputCount()));
+    SystemRecoverySave.SaveData expected =
+        new SystemRecoverySave.SaveData(
+            base.checkpointKey(),
+            base.acceptedTerminalInputs(),
+            base.questLog(),
+            base.runId(),
+            base.playerName(),
+            base.trackingConsent(),
+            base.achievementProgress(),
+            base.terminalHistory(),
+            base.memoryWatchEntries(),
+            base.inventoryItems(),
+            false,
+            true);
+    Path savePath = temporaryDirectory.resolve("answered-core-call.json");
+
+    SystemRecoverySave.write(savePath, expected);
+
+    assertEquals(expected, SystemRecoveryLoad.read(savePath).orElseThrow());
+    assertTrue(SystemRecoveryLoad.read(savePath).orElseThrow().systemCoreWarningCallAnswered());
   }
 
   @Test
@@ -348,6 +378,7 @@ class SystemRecoverySaveTest {
   void restoresRunLocalAchievementProgressWithoutEmittingUnlocks() {
     SystemRecoveryAchievementTracker.Snapshot expected =
         new SystemRecoveryAchievementTracker.Snapshot(
+            true,
             true,
             true,
             5,

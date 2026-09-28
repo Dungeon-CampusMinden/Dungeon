@@ -35,6 +35,7 @@ public final class SystemRecoveryAchievementTracker {
   private final Set<String> emittedAchievements = new HashSet<>();
   private boolean debugRun;
   private boolean firstTerminalAttemptSeen;
+  private boolean phoneAnsweredBeforeMainQuestCall;
   private int wrongTerminalAttempts;
   private int acceptedHints;
 
@@ -63,6 +64,7 @@ public final class SystemRecoveryAchievementTracker {
     acceptedUploads.clear();
     emittedAchievements.clear();
     firstTerminalAttemptSeen = false;
+    phoneAnsweredBeforeMainQuestCall = false;
     wrongTerminalAttempts = 0;
     acceptedHints = 0;
   }
@@ -80,6 +82,7 @@ public final class SystemRecoveryAchievementTracker {
     return new Snapshot(
         debugRun,
         firstTerminalAttemptSeen,
+        phoneAnsweredBeforeMainQuestCall,
         wrongTerminalAttempts,
         acceptedHints,
         hintedPuzzles.stream().map(SystemRecoveryPuzzle::id).toList(),
@@ -100,6 +103,7 @@ public final class SystemRecoveryAchievementTracker {
     if (snapshot == null) return;
     reset(snapshot.debugRun());
     firstTerminalAttemptSeen = snapshot.firstTerminalAttemptSeen();
+    phoneAnsweredBeforeMainQuestCall = snapshot.phoneAnsweredBeforeMainQuestCall();
     wrongTerminalAttempts = snapshot.wrongTerminalAttempts();
     acceptedHints = snapshot.acceptedHints();
     snapshot.hintedPuzzles().stream()
@@ -127,10 +131,25 @@ public final class SystemRecoveryAchievementTracker {
   }
 
   /**
+   * Records an answered phone call and rewards players who waited for the mandatory transition
+   * call before answering any earlier call.
+   *
+   * @param requiredMainQuestCall whether this is ECHO's call that unlocks the data-storage route
+   */
+  public void phoneCallAnswered(boolean requiredMainQuestCall) {
+    if (requiredMainQuestCall && !phoneAnsweredBeforeMainQuestCall) {
+      emit(SystemRecoveryAchievements.WHO_ARE_YOU);
+    }
+    if (!requiredMainQuestCall) phoneAnsweredBeforeMainQuestCall = true;
+  }
+
+  /**
    * Serialized state needed to continue conditional achievements across a checkpoint load.
    *
    * @param debugRun whether the run was started with debug controls
    * @param firstTerminalAttemptSeen whether any terminal attempt has occurred
+   * @param phoneAnsweredBeforeMainQuestCall whether a call was answered before the required
+   *     data-storage transition call
    * @param wrongTerminalAttempts number of rejected terminal submissions
    * @param acceptedHints number of accepted telephone hints
    * @param hintedPuzzles puzzles for which at least one hint was accepted
@@ -144,6 +163,7 @@ public final class SystemRecoveryAchievementTracker {
   public record Snapshot(
       boolean debugRun,
       boolean firstTerminalAttemptSeen,
+      boolean phoneAnsweredBeforeMainQuestCall,
       int wrongTerminalAttempts,
       int acceptedHints,
       List<String> hintedPuzzles,
@@ -159,6 +179,8 @@ public final class SystemRecoveryAchievementTracker {
      *
      * @param debugRun whether the run was started with debug controls
      * @param firstTerminalAttemptSeen whether any terminal attempt has occurred
+     * @param phoneAnsweredBeforeMainQuestCall whether a call was answered before the required
+     *     data-storage transition call
      * @param wrongTerminalAttempts number of rejected terminal submissions
      * @param acceptedHints number of accepted telephone hints
      * @param hintedPuzzles puzzles for which at least one hint was accepted
@@ -187,8 +209,8 @@ public final class SystemRecoveryAchievementTracker {
      */
     public static Snapshot empty() {
       return new Snapshot(
-          false, false, 0, 0, List.of(), List.of(), List.of(), List.of(), List.of(), List.of(),
-          List.of());
+          false, false, false, 0, 0, List.of(), List.of(), List.of(), List.of(), List.of(),
+          List.of(), List.of());
     }
 
     private static List<String> normalizeIds(List<String> ids) {

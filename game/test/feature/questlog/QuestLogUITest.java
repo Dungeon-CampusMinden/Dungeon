@@ -95,6 +95,34 @@ public class QuestLogUITest {
         context.find("questlog.entryTexts", String[].class).orElseThrow());
   }
 
+  /** Saved game ticks may reset, but System Recovery riddle tabs stay in story order. */
+  @Test
+  void systemRecoveryRiddleTabsUseNumericOrderInsteadOfSavedTickOrder() {
+    QuestLogComponent questLog = new QuestLogComponent();
+    questLog.add(
+        "questlog.riddle8.tab", new QuestLogEntry("Riddle 8", 900, false, "AXIOM", false));
+    questLog.add(
+        "questlog.riddle1.tab", new QuestLogEntry("Riddle 1", 100, false, "AXIOM", false));
+    questLog.add(
+        "questlog.riddle9.tab", new QuestLogEntry("Riddle 9", 1, false, "ECHO", false));
+    questLog.add(
+        "questlog.riddle10.tab", new QuestLogEntry("Riddle 10", 500, false, "ECHO", false));
+
+    QuestLogUI.QuestLogSelection selection = QuestLogUI.selectionFor(questLog, null);
+
+    assertEquals(
+        List.of(
+            "questlog.riddle1.tab",
+            "questlog.riddle8.tab",
+            "questlog.riddle9.tab",
+            "questlog.riddle10.tab"),
+        selection.tabs());
+    assertEquals("questlog.riddle1.tab", selection.selectedTab().orElseThrow());
+    assertEquals(
+        "questlog.riddle8.tab",
+        QuestLogUI.selectNextTab(questLog, "questlog.riddle1.tab").orElseThrow());
+  }
+
   /** Quest log open and tab changes use custom requests that can be sent reliably over TCP. */
   @Test
   void requestMessageCarriesTheSelectedTabAsUtf8() {
