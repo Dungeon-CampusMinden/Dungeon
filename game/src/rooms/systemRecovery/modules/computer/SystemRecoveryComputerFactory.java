@@ -54,6 +54,12 @@ public final class SystemRecoveryComputerFactory {
   /** Dialog attribute containing previously accepted terminal sources for the history view. */
   public static final String TERMINAL_HISTORY_ENTRIES = "terminalHistoryEntries";
 
+  /** Context attribute containing the saved sort-stick fill-in draft. */
+  public static final String SORT_PROGRAM_DRAFT = "sortProgramDraft";
+
+  /** Context attribute containing the saved locator-chip fill-in draft. */
+  public static final String SEARCH_PROGRAM_DRAFT = "searchProgramDraft";
+
   private SystemRecoveryComputerFactory() {}
 
   /** Registers the custom System Recovery computer dialog. */
@@ -218,6 +224,12 @@ public final class SystemRecoveryComputerFactory {
                 .put(SYSTEM_CORE_META_AVAILABLE, SystemRecoveryLevel.systemCoreMetaAvailable())
                 .put(MEMORY_ARRAY_ENTRIES, SystemRecoveryLevel.memoryWatchArrayEntries())
                 .put(TERMINAL_HISTORY_ENTRIES, SystemRecoveryLevel.acceptedTerminalSources())
+                .put(
+                    SORT_PROGRAM_DRAFT,
+                    insertedChip instanceof SortProgramStickItem stick ? stick.draft() : "")
+                .put(
+                    SEARCH_PROGRAM_DRAFT,
+                    insertedChip instanceof SearchProgramChipItem chip ? chip.draft() : "")
                 .build(),
             targetEntityId);
     ui.registerCallback(
@@ -263,6 +275,22 @@ public final class SystemRecoveryComputerFactory {
               () -> new SortProgramStickItem(true));
         });
     ui.registerCallback(
+        SystemRecoveryComputerCallbacks.SORT_PROGRAM_EJECT,
+        data -> {
+          if (data instanceof DialogResponseMessage.StringValue(String draft)) {
+            handleProgramEject(
+                ui,
+                targetEntityId,
+                chipSession,
+                programKind,
+                ComputerProgramKind.SORT,
+                SortProgramTab.KEY,
+                draft,
+                1,
+                () -> new SortProgramStickItem(false, draft));
+          }
+        });
+    ui.registerCallback(
         SystemRecoveryComputerCallbacks.SEARCH_PROGRAM_SAVE,
         data -> {
           if (!(data instanceof DialogResponseMessage.StringValue(String source))) return;
@@ -281,6 +309,22 @@ public final class SystemRecoveryComputerFactory {
               SystemRecoveryLearningStep.SEARCH_PROGRAM,
               () -> TerminalInterpreterSetup.matchesSearchRobotProgram(source),
               () -> new SearchProgramChipItem(true));
+        });
+    ui.registerCallback(
+        SystemRecoveryComputerCallbacks.SEARCH_PROGRAM_EJECT,
+        data -> {
+          if (data instanceof DialogResponseMessage.StringValue(String draft)) {
+            handleProgramEject(
+                ui,
+                targetEntityId,
+                chipSession,
+                programKind,
+                ComputerProgramKind.SEARCH,
+                SearchProgramTab.KEY,
+                draft,
+                3,
+                () -> new SearchProgramChipItem(false, draft));
+          }
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.SYSTEM_CORE_SCRIPT_RUN,
@@ -400,6 +444,46 @@ public final class SystemRecoveryComputerFactory {
               dialogId, tabKey, source, targetEntityId, "computer.write-success", true);
           return true;
         });
+  }
+
+  private static void handleProgramEject(
+      UIComponent ui,
+      int targetEntityId,
+      ComputerChipSession chipSession,
+      ComputerProgramKind mountedKind,
+      ComputerProgramKind expectedKind,
+      String tabKey,
+      String draft,
+      int fieldCount,
+      Supplier<Item> draftItemFactory) {
+    String dialogId = ui.dialogContext().dialogId();
+    if (chipSession.resolved()) return;
+    if (mountedKind != expectedKind
+        || !ComputerProgramRules.canSave(
+            mountedKind, SystemRecoveryProgressNet.activeStep().orElse(null))
+        || !UsbProgramDraft.isValid(draft, fieldCount)) {
+      SystemRecoveryComputerFeedback.send(
+          dialogId, tabKey, draft, targetEntityId, "computer.write-unavailable", false);
+      return;
+    }
+
+    boolean ejected =
+        chipSession.resolve(
+            () -> {
+              Item draftItem = draftItemFactory.get();
+              if (!addToInventory(targetEntityId, draftItem)) return false;
+              if (!SystemRecoveryLevel.saveCheckpointNow()) {
+                removeFromInventory(targetEntityId, draftItem);
+                return false;
+              }
+              SystemRecoveryComputerFeedback.send(
+                  dialogId, tabKey, draft, targetEntityId, "computer.eject-success", true);
+              return true;
+            });
+    if (!ejected && !chipSession.resolved()) {
+      SystemRecoveryComputerFeedback.send(
+          dialogId, tabKey, draft, targetEntityId, "computer.write-unavailable", false);
+    }
   }
 
   private static void recordUploadFailure(

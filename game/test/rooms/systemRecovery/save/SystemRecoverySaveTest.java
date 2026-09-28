@@ -10,6 +10,7 @@ import engine.components.PlayerComponent;
 import feature.components.InventoryComponent;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
+import feature.inventory.items.ItemKey;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.items.SearchProgramChipItem;
+import rooms.systemRecovery.modules.computer.UsbProgramDraft;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
@@ -134,6 +136,31 @@ class SystemRecoverySaveTest {
   }
 
   @Test
+  void persistsAnUnprogrammedUsbDraftAcrossLoad() throws Exception {
+    String draft =
+        UsbProgramDraft.encode(List.of("map[row].length", "map[row][column] == 1", ""));
+    SystemRecoverySave.SaveData expected =
+        new SystemRecoverySave.SaveData(
+            SystemRecoveryLearningStep.SEARCH_PROGRAM.hintKey(),
+            terminalInputsThrough(12),
+            List.of(),
+            UUID.randomUUID(),
+            "Ada",
+            true,
+            null,
+            List.of(),
+            List.of(),
+            List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", false, draft)),
+            false);
+    Path savePath = temporaryDirectory.resolve("usb-draft.json");
+
+    SystemRecoverySave.write(savePath, expected);
+
+    assertEquals(expected, SystemRecoveryLoad.read(savePath).orElseThrow());
+    assertEquals(6, SystemRecoverySave.FORMAT_VERSION);
+  }
+
+  @Test
   void capturesTheAuthoritativePlayerNameInsteadOfTheJvmFallback() {
     Entity player = new Entity("authoritative-player");
     player.add(new PlayerComponent(true, "Ada"));
@@ -160,6 +187,63 @@ class SystemRecoverySaveTest {
     assertEquals(
         List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", true)),
         save.inventoryItems());
+  }
+
+  @Test
+  void capturesAnUnprogrammedChipDraftFromThePlayerInventory() {
+    Entity player = new Entity("authoritative-player");
+    player.add(new PlayerComponent(true, "Ada"));
+    String draft = UsbProgramDraft.encode(List.of("map[row].length", "", ""));
+    InventoryComponent inventory = new InventoryComponent(1);
+    inventory.add(new SearchProgramChipItem(false, draft));
+    player.add(inventory);
+    Game.add(player);
+
+    SystemRecoverySave.SaveData save =
+        SystemRecoverySave.capture(SystemRecoveryLearningStep.SEARCH_PROGRAM, UUID.randomUUID());
+
+    assertEquals(
+        List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", false, draft)),
+        save.inventoryItems());
+  }
+
+  @Test
+  void capturesTheArchiveKeyForTheArchiveAccessCheckpoint() {
+    Entity player = new Entity("authoritative-player");
+    player.add(new PlayerComponent(true, "Ada"));
+    InventoryComponent inventory = new InventoryComponent(1);
+    inventory.add(new ItemKey());
+    player.add(inventory);
+    Game.add(player);
+
+    SystemRecoverySave.SaveData save =
+        SystemRecoverySave.capture(SystemRecoveryLearningStep.ARCHIVE_ACCESS, UUID.randomUUID());
+
+    assertEquals(
+        List.of(new SystemRecoverySave.PlayerItemData("Ada", "archive-key", false, "")),
+        save.inventoryItems());
+  }
+
+  @Test
+  void writesAndReadsTheArchiveKeyInTheCheckpointFile() throws Exception {
+    SystemRecoverySave.SaveData save =
+        new SystemRecoverySave.SaveData(
+            SystemRecoveryLearningStep.ARCHIVE_ACCESS.hintKey(),
+            terminalInputsThrough(9),
+            List.of(),
+            UUID.randomUUID(),
+            "Ada",
+            true,
+            null,
+            List.of(),
+            List.of(),
+            List.of(new SystemRecoverySave.PlayerItemData("Ada", "archive-key", false, "")),
+            false);
+    Path savePath = temporaryDirectory.resolve("archive-key-save.json");
+
+    SystemRecoverySave.write(savePath, save);
+
+    assertEquals(save, SystemRecoveryLoad.read(savePath).orElseThrow());
   }
 
   @Test

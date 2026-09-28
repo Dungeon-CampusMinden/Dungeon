@@ -33,6 +33,7 @@ final class ProgramWriteStatus extends Table {
   private DialogFeedbackMessage pendingFeedback;
   private Runnable successAction = () -> {};
   private boolean minimumDisplayElapsed;
+  private boolean playSoundForRequest = true;
 
   ProgramWriteStatus() {
     Skin skin = UIUtils.defaultSkin();
@@ -56,12 +57,21 @@ final class ProgramWriteStatus extends Table {
    * @param source program source submitted to the server
    */
   void begin(String source) {
+    begin(source, "computer.write-in-progress");
+  }
+
+  void begin(String source, String progressMessageKey) {
+    begin(source, progressMessageKey, true);
+  }
+
+  void begin(String source, String progressMessageKey, boolean playSound) {
     submittedFingerprint = DialogFeedbackFingerprint.of(source);
     pendingFeedback = null;
     minimumDisplayElapsed = false;
+    playSoundForRequest = playSound;
     successAction = () -> {};
     feedback.getStyle().fontColor = WRITING_COLOR;
-    feedback.setText(SystemRecoveryText.text("computer.write-in-progress"));
+    feedback.setText(SystemRecoveryText.text(progressMessageKey));
     setProgressFill(normalFill);
     progress.clearActions();
     progress.setValue(0f);
@@ -104,7 +114,9 @@ final class ProgramWriteStatus extends Table {
       setProgressFill(successFill);
       feedback.getStyle().fontColor = SUCCESS_COLOR;
       feedback.setText(SystemRecoveryText.text(result.messageKey()));
-      Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
+      if (playSoundForRequest) {
+        Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
+      }
       // Keep the completed green bar visible for at least one rendered frame before the dialog
       // closes. Calling the close callback immediately hides the value before Scene2D can draw it.
       Runnable closeDialog = successAction;
@@ -117,7 +129,9 @@ final class ProgramWriteStatus extends Table {
     setProgressFill(failureFill);
     feedback.getStyle().fontColor = FAILURE_COLOR;
     feedback.setText(SystemRecoveryText.text(result.messageKey()));
-    Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));
+    if (playSoundForRequest) {
+      Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));
+    }
   }
 
   private void setProgressFill(com.badlogic.gdx.scenes.scene2d.utils.Drawable fill) {

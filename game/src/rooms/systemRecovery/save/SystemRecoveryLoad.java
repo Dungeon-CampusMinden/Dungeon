@@ -157,7 +157,8 @@ public final class SystemRecoveryLoad {
           new SystemRecoverySave.PlayerItemData(
               string(map.get("playerName")),
               stringRequired(map.get("itemKey")),
-              booleanValue(map.get("programmed"))));
+              booleanValue(map.get("programmed")),
+              string(map.get("draft"))));
     }
     if (!hasRequiredCheckpointItem(findCheckpoint(checkpoint).orElseThrow(), inventoryItems)) {
       return Optional.empty();

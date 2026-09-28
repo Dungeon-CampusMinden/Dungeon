@@ -18,6 +18,8 @@ public final class SearchProgramChipItem extends Item {
 
   /** Serialized state key. */
   public static final String DATA_KEY_PROGRAMMED = "programmed";
+  /** Serialized code entered into the editor's fill-in fields. */
+  public static final String DATA_KEY_DRAFT = "draft";
 
   private static final SimpleIPath TEXTURE = new SimpleIPath("items/usb-side-blue.png");
 
@@ -26,6 +28,7 @@ public final class SearchProgramChipItem extends Item {
   }
 
   private final boolean programmed;
+  private final String draft;
 
   /** Ensures registration before the item is synchronized. */
   public static void ensureRegistration() {}
@@ -41,6 +44,16 @@ public final class SearchProgramChipItem extends Item {
    * @param programmed whether the chip already contains the search program
    */
   public SearchProgramChipItem(boolean programmed) {
+    this(programmed, "");
+  }
+
+  /**
+   * Creates a locator chip with its saved fill-in draft.
+   *
+   * @param programmed whether the chip contains a validated program
+   * @param draft saved content of the editor's fill-in fields
+   */
+  public SearchProgramChipItem(boolean programmed, String draft) {
     super(
         SystemRecoveryText.key(
             programmed ? "items.search-programmed-name" : "items.search-empty-name"),
@@ -50,6 +63,7 @@ public final class SearchProgramChipItem extends Item {
         new Animation(TEXTURE),
         new Animation(TEXTURE));
     this.programmed = programmed;
+    this.draft = draft == null ? "" : draft;
   }
 
   /**
@@ -57,6 +71,15 @@ public final class SearchProgramChipItem extends Item {
    */
   public boolean programmed() {
     return programmed;
+  }
+
+  /**
+   * Returns the saved values from the chip editor's fill-in fields.
+   *
+   * @return encoded fill-in field values
+   */
+  public String draft() {
+    return draft;
   }
 
   /**
@@ -71,11 +94,12 @@ public final class SearchProgramChipItem extends Item {
 
   @Override
   public Map<String, String> itemData() {
-    return Map.of(DATA_KEY_PROGRAMMED, Boolean.toString(programmed));
+    return Map.of(DATA_KEY_PROGRAMMED, Boolean.toString(programmed), DATA_KEY_DRAFT, draft);
   }
 
   private static SearchProgramChipItem fromData(Map<String, String> data) {
     return new SearchProgramChipItem(
-        Boolean.parseBoolean(data.getOrDefault(DATA_KEY_PROGRAMMED, "false")));
+        Boolean.parseBoolean(data.getOrDefault(DATA_KEY_PROGRAMMED, "false")),
+        data.getOrDefault(DATA_KEY_DRAFT, ""));
   }
 }

@@ -326,58 +326,67 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (!Game.network().isServer()) return;
     SystemRecoveryProgressNet.activeStep()
         .filter(SystemRecoveryLoad::isAutoSaveCheckpoint)
-        .ifPresent(
-            checkpoint -> {
-              SystemRecoverySave.SaveData save =
-                  SystemRecoverySave.capture(checkpoint, runId, SystemRecovery.trackingConsent());
-              if (save.playerName() == null || save.playerName().isBlank()) return;
-              boolean checkpointChanged = checkpoint != savedCheckpoint;
-              if (!checkpointChanged
-                  && !savedInventoryItems.isEmpty()
-                  && save.inventoryItems().isEmpty()) {
-                save = save.withInventoryItems(savedInventoryItems);
-              }
-              boolean questLogChanged = !save.questLog().equals(savedQuestLog);
-              boolean inventoryChanged = !save.inventoryItems().equals(savedInventoryItems);
-              boolean terminalHistoryChanged =
-                  !save.terminalHistory().equals(savedTerminalHistory);
-              boolean memoryWatchChanged =
-                  !save.memoryWatchEntries().equals(savedMemoryWatchEntries);
-              boolean achievementProgressChanged =
-                  !Objects.equals(save.achievementProgress(), savedAchievementProgress);
-              boolean playerNameChanged = !Objects.equals(save.playerName(), savedPlayerName);
-              boolean trackingConsentChanged =
-                  !Objects.equals(save.trackingConsent(), savedTrackingConsent);
-              if (!checkpointChanged
-                  && !questLogChanged
-                  && !inventoryChanged
-                  && !terminalHistoryChanged
-                  && !memoryWatchChanged
-                  && !achievementProgressChanged
-                  && !playerNameChanged
-                  && !trackingConsentChanged) return;
-              try {
-                SystemRecoverySave.write(save);
-                savedCheckpoint = checkpoint;
-                savedQuestLog = save.questLog();
-                savedInventoryItems = save.inventoryItems();
-                savedTerminalHistory = save.terminalHistory();
-                savedMemoryWatchEntries = save.memoryWatchEntries();
-                savedAchievementProgress = save.achievementProgress();
-                savedPlayerName = save.playerName();
-                savedTrackingConsent = save.trackingConsent();
-                saveRevision++;
-              } catch (java.io.IOException exception) {
-                java.util.logging.Logger.getLogger(SystemRecoveryLevel.class.getName())
-                    .warning(
-                        "Could not write System Recovery checkpoint: " + exception.getMessage());
-              }
-            });
+        .ifPresent(checkpoint -> persistCheckpoint(checkpoint, false));
   }
 
-  /** Immediately commits a newly accepted checkpoint after a transactional computer action. */
-  public static void saveCheckpointNow() {
-    currentLevel().ifPresent(SystemRecoveryLevel::saveCheckpointIfNeeded);
+  /**
+   * Writes current run state when changed or explicitly requested by a transactional action.
+   *
+   * @param checkpoint active main-riddle checkpoint
+   * @param force whether to write even if the snapshot is unchanged
+   * @return whether the checkpoint is safely present on disk
+   */
+  private boolean persistCheckpoint(SystemRecoveryLearningStep checkpoint, boolean force) {
+    if (!Game.network().isServer()) return false;
+    SystemRecoverySave.SaveData save =
+        SystemRecoverySave.capture(checkpoint, runId, SystemRecovery.trackingConsent());
+    if (save.playerName() == null || save.playerName().isBlank()) return false;
+    boolean checkpointChanged = checkpoint != savedCheckpoint;
+    if (!checkpointChanged && !savedInventoryItems.isEmpty() && save.inventoryItems().isEmpty()) {
+      save = save.withInventoryItems(savedInventoryItems);
+    }
+    boolean changed =
+        checkpointChanged
+            || !save.questLog().equals(savedQuestLog)
+            || !save.inventoryItems().equals(savedInventoryItems)
+            || !save.terminalHistory().equals(savedTerminalHistory)
+            || !save.memoryWatchEntries().equals(savedMemoryWatchEntries)
+            || !Objects.equals(save.achievementProgress(), savedAchievementProgress)
+            || !Objects.equals(save.playerName(), savedPlayerName)
+            || !Objects.equals(save.trackingConsent(), savedTrackingConsent);
+    if (!force && !changed) return true;
+    try {
+      SystemRecoverySave.write(save);
+      savedCheckpoint = checkpoint;
+      savedQuestLog = save.questLog();
+      savedInventoryItems = save.inventoryItems();
+      savedTerminalHistory = save.terminalHistory();
+      savedMemoryWatchEntries = save.memoryWatchEntries();
+      savedAchievementProgress = save.achievementProgress();
+      savedPlayerName = save.playerName();
+      savedTrackingConsent = save.trackingConsent();
+      saveRevision++;
+      return true;
+    } catch (java.io.IOException exception) {
+      java.util.logging.Logger.getLogger(SystemRecoveryLevel.class.getName())
+          .warning("Could not write System Recovery checkpoint: " + exception.getMessage());
+      return false;
+    }
+  }
+
+  /**
+   * Immediately persists the current checkpoint and inventory after a transactional action.
+   *
+   * @return whether the current run state was written successfully
+   */
+  public static boolean saveCheckpointNow() {
+    return currentLevel()
+        .flatMap(
+            level ->
+                SystemRecoveryProgressNet.activeStep()
+                    .filter(SystemRecoveryLoad::isAutoSaveCheckpoint)
+                    .map(checkpoint -> level.persistCheckpoint(checkpoint, true)))
+        .orElse(false);
   }
 
   /** Restores the completed energy state without firing puzzle callbacks. */
@@ -457,6 +466,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       case "sort-program-stick" -> item instanceof SortProgramStickItem;
       case "search-program-chip" -> item instanceof SearchProgramChipItem;
       case "system-core-access" -> item instanceof SystemCoreAccessChipItem;
+      case "archive-key" -> item instanceof ItemKey;
       default -> false;
     };
   }
@@ -470,11 +480,19 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   private void applyPendingPuzzleInventory() {
     if (pendingInventoryItems.isEmpty()) return;
-    List<Entity> players = Game.allPlayers().toList();
+    pendingInventoryItems =
+        restorePuzzleItems(
+            Game.allPlayers().toList(), pendingInventoryItems, pendingInventoryPlayerName);
+  }
+
+  static List<SystemRecoverySave.PlayerItemData> restorePuzzleItems(
+      List<Entity> players,
+      List<SystemRecoverySave.PlayerItemData> items,
+      String fallbackPlayerName) {
     List<SystemRecoverySave.PlayerItemData> unresolved = new ArrayList<>();
-    for (SystemRecoverySave.PlayerItemData itemData : pendingInventoryItems) {
+    for (SystemRecoverySave.PlayerItemData itemData : items) {
       String ownerName =
-          itemData.playerName() == null ? pendingInventoryPlayerName : itemData.playerName();
+          itemData.playerName() == null ? fallbackPlayerName : itemData.playerName();
       Entity owner =
           players.stream()
               .filter(
@@ -485,10 +503,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                           .filter(name -> Objects.equals(name, ownerName))
                           .isPresent())
               .findFirst()
-              .orElse(
-                  players.size() == 1 && pendingInventoryItems.size() == 1
-                      ? players.get(0)
-                      : null);
+              .orElse(ownerName == null && players.size() == 1 ? players.get(0) : null);
       if (owner == null) {
         unresolved.add(itemData);
         continue;
@@ -506,14 +521,15 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   });
       inventory.set(0, item);
     }
-    pendingInventoryItems = List.copyOf(unresolved);
+    return List.copyOf(unresolved);
   }
 
-  private static feature.inventory.Item createPuzzleItem(SystemRecoverySave.PlayerItemData data) {
+  static feature.inventory.Item createPuzzleItem(SystemRecoverySave.PlayerItemData data) {
     return switch (data.itemKey()) {
-      case "sort-program-stick" -> new SortProgramStickItem(data.programmed());
-      case "search-program-chip" -> new SearchProgramChipItem(data.programmed());
+      case "sort-program-stick" -> new SortProgramStickItem(data.programmed(), data.draft());
+      case "search-program-chip" -> new SearchProgramChipItem(data.programmed(), data.draft());
       case "system-core-access" -> new SystemCoreAccessChipItem();
+      case "archive-key" -> new ItemKey();
       default -> null;
     };
   }

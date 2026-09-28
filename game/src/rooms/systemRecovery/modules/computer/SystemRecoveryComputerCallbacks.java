@@ -15,8 +15,14 @@ public final class SystemRecoveryComputerCallbacks {
   /** Stores the edited bubble-sort condition on the inserted sort-program stick. */
   public static final String SORT_PROGRAM_SAVE = "sortProgramSave";
 
+  /** Saves the fill-in draft to the inserted sort stick and safely ejects it. */
+  public static final String SORT_PROGRAM_EJECT = "sortProgramEject";
+
   /** Stores the edited search loop on the inserted locator chip. */
   public static final String SEARCH_PROGRAM_SAVE = "searchProgramSave";
+
+  /** Saves the fill-in draft to the inserted locator chip and safely ejects it. */
+  public static final String SEARCH_PROGRAM_EJECT = "searchProgramEject";
 
   /** Executes the access script on the inserted system-core module. */
   public static final String SYSTEM_CORE_SCRIPT_RUN = "systemCoreScriptRun";

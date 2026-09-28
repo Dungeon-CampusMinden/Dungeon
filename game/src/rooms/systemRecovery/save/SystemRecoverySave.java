@@ -6,6 +6,7 @@ import engine.game.PreRunConfiguration;
 import engine.utils.JsonHandler;
 import feature.components.InventoryComponent;
 import feature.inventory.Item;
+import feature.inventory.items.ItemKey;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.io.IOException;
@@ -33,7 +34,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievements;
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 5;
+  public static final int FORMAT_VERSION = 6;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -130,13 +131,18 @@ public final class SystemRecoverySave {
     String playerName =
         player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
     if (item instanceof SortProgramStickItem stick) {
-      return Optional.of(new PlayerItemData(playerName, "sort-program-stick", stick.programmed()));
+      return Optional.of(
+          new PlayerItemData(playerName, "sort-program-stick", stick.programmed(), stick.draft()));
     }
     if (item instanceof SearchProgramChipItem chip) {
-      return Optional.of(new PlayerItemData(playerName, "search-program-chip", chip.programmed()));
+      return Optional.of(
+          new PlayerItemData(playerName, "search-program-chip", chip.programmed(), chip.draft()));
     }
     if (item instanceof SystemCoreAccessChipItem) {
-      return Optional.of(new PlayerItemData(playerName, "system-core-access", false));
+      return Optional.of(new PlayerItemData(playerName, "system-core-access", false, ""));
+    }
+    if (item instanceof ItemKey) {
+      return Optional.of(new PlayerItemData(playerName, "archive-key", false, ""));
     }
     return Optional.empty();
   }
@@ -487,13 +493,40 @@ public final class SystemRecoverySave {
    * @param playerName inventory owner
    * @param itemKey stable item kind key
    * @param programmed whether the item contains its uploaded program
+   * @param draft values currently entered into the program editor's blanks
    */
-  public record PlayerItemData(String playerName, String itemKey, boolean programmed) {
+  public record PlayerItemData(
+      String playerName, String itemKey, boolean programmed, String draft) {
+
+    /**
+     * Keeps callers and save fixtures from earlier formats source-compatible.
+     *
+     * @param playerName inventory owner
+     * @param itemKey stable item kind key
+     * @param programmed whether the item contains its uploaded program
+     */
+    public PlayerItemData(String playerName, String itemKey, boolean programmed) {
+      this(playerName, itemKey, programmed, "");
+    }
+
+    /**
+     * Normalizes missing draft data from older save formats.
+     *
+     * @param playerName inventory owner
+     * @param itemKey stable item kind key
+     * @param programmed whether the item contains its uploaded program
+     * @param draft values currently entered into the program editor's blanks
+     */
+    public PlayerItemData {
+      draft = draft == null ? "" : draft;
+    }
+
     Map<String, Object> toMap() {
       Map<String, Object> map = new LinkedHashMap<>();
       if (playerName != null && !playerName.isBlank()) map.put("playerName", playerName);
       map.put("itemKey", itemKey);
       map.put("programmed", programmed);
+      map.put("draft", draft);
       return map;
     }
   }

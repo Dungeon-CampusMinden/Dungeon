@@ -62,7 +62,12 @@ class SystemRecoveryLearningStepTest {
     assertEquals(0, SystemRecoveryLearningStep.ENERGY_ARRAY.acceptedTerminalInputCount());
     assertEquals(2, SystemRecoveryLearningStep.MODULE_ARRAY.acceptedTerminalInputCount());
     assertEquals(12, SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS.acceptedTerminalInputCount());
+    assertEquals(12, SystemRecoveryLearningStep.CORE_SORT.acceptedTerminalInputCount());
+    assertEquals(13, SystemRecoveryLearningStep.CORE_COUNT.acceptedTerminalInputCount());
+    assertEquals(14, SystemRecoveryLearningStep.CORE_SEARCH.acceptedTerminalInputCount());
+    assertEquals(15, SystemRecoveryLearningStep.CORE_META.acceptedTerminalInputCount());
+    assertEquals(15, SystemRecoveryLearningStep.COMPLETE.acceptedTerminalInputCount());
+    assertEquals(17, SystemRecoveryLearningStep.COMPLETE.terminalState());
     assertEquals(-1, SystemRecoveryLearningStep.ENERGY_VALUES.acceptedTerminalInputCount());
-    assertEquals(-1, SystemRecoveryLearningStep.COMPLETE.acceptedTerminalInputCount());
   }
 }

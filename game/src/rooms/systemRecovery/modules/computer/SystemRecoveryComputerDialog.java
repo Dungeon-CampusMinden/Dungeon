@@ -90,12 +90,20 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     if (context
         .find(SystemRecoveryComputerFactory.SORT_PROGRAM_INSERTED, Boolean.class)
         .orElse(false)) {
-      addTab(new SortProgramTab());
+      addTab(
+          new SortProgramTab(
+              context
+                  .find(SystemRecoveryComputerFactory.SORT_PROGRAM_DRAFT, String.class)
+                  .orElse("")));
     }
     if (context
         .find(SystemRecoveryComputerFactory.SEARCH_PROGRAM_INSERTED, Boolean.class)
         .orElse(false)) {
-      addTab(new SearchProgramTab());
+      addTab(
+          new SearchProgramTab(
+              context
+                  .find(SystemRecoveryComputerFactory.SEARCH_PROGRAM_DRAFT, String.class)
+                  .orElse("")));
     }
     if (context
         .find(SystemRecoveryComputerFactory.ACCESS_MODULE_INSERTED, Boolean.class)
@@ -152,6 +160,13 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     computerArea.pad(5);
 
     Button exit = Scene2dElementFactory.createExitButton();
+    boolean usbInserted =
+        context.find(SystemRecoveryComputerFactory.SORT_PROGRAM_INSERTED, Boolean.class).orElse(false)
+            || context
+                .find(SystemRecoveryComputerFactory.SEARCH_PROGRAM_INSERTED, Boolean.class)
+                .orElse(false);
+    exit.setVisible(!usbInserted);
+    exit.setTouchable(usbInserted ? Touchable.disabled : Touchable.enabled);
     exit.addListener(
         new ChangeListener() {
           @Override

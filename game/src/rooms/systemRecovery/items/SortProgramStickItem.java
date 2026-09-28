@@ -13,6 +13,8 @@ public final class SortProgramStickItem extends Item {
 
   /** Serialized state key. */
   public static final String DATA_KEY_PROGRAMMED = "programmed";
+  /** Serialized code entered into the editor's fill-in field. */
+  public static final String DATA_KEY_DRAFT = "draft";
 
   // The repository currently ships the red USB sprite; keep the sort chip independent from the
   // Last Hour color variants, whose blue asset is not part of this checkout.
@@ -23,6 +25,7 @@ public final class SortProgramStickItem extends Item {
   }
 
   private final boolean programmed;
+  private final String draft;
 
   /** Ensures registration before an item crosses the network. */
   public static void ensureRegistration() {}
@@ -38,6 +41,16 @@ public final class SortProgramStickItem extends Item {
    * @param programmed whether the stick already contains the sort program
    */
   public SortProgramStickItem(boolean programmed) {
+    this(programmed, "");
+  }
+
+  /**
+   * Creates a sort-program stick with its saved fill-in draft.
+   *
+   * @param programmed whether the stick contains a validated program
+   * @param draft saved content of the editor's fill-in field
+   */
+  public SortProgramStickItem(boolean programmed, String draft) {
     super(
         SystemRecoveryText.key(programmed ? "items.sort-programmed-name" : "items.sort-empty-name"),
         programmed
@@ -46,6 +59,7 @@ public final class SortProgramStickItem extends Item {
         new Animation(TEXTURE),
         new Animation(TEXTURE));
     this.programmed = programmed;
+    this.draft = draft == null ? "" : draft;
   }
 
   /**
@@ -53,6 +67,15 @@ public final class SortProgramStickItem extends Item {
    */
   public boolean programmed() {
     return programmed;
+  }
+
+  /**
+   * Returns the saved values from the stick editor's fill-in fields.
+   *
+   * @return encoded fill-in field value
+   */
+  public String draft() {
+    return draft;
   }
 
   /**
@@ -67,11 +90,12 @@ public final class SortProgramStickItem extends Item {
 
   @Override
   public Map<String, String> itemData() {
-    return Map.of(DATA_KEY_PROGRAMMED, Boolean.toString(programmed));
+    return Map.of(DATA_KEY_PROGRAMMED, Boolean.toString(programmed), DATA_KEY_DRAFT, draft);
   }
 
   private static SortProgramStickItem fromData(Map<String, String> data) {
     return new SortProgramStickItem(
-        Boolean.parseBoolean(data.getOrDefault(DATA_KEY_PROGRAMMED, "false")));
+        Boolean.parseBoolean(data.getOrDefault(DATA_KEY_PROGRAMMED, "false")),
+        data.getOrDefault(DATA_KEY_DRAFT, ""));
   }
 }

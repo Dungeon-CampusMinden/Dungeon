@@ -50,7 +50,9 @@ final class SystemRecoveryCheckpointProjection {
       case BUBBLE_SORT_MACHINE -> level.restoreAtBubbleSortMachine();
       case ARCHIVE_ACCESS -> {
         level.restoreCompletedBubbleSort();
-        level.spawnWorldItemIfMissing(new ItemKey(), SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN);
+        if (!level.playerHasPuzzleItem("archive-key")) {
+          level.spawnWorldItemIfMissing(new ItemKey(), SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN);
+        }
       }
       case ARCHIVE_ARRAYS -> {
         level.restoreCompletedBubbleSort();
