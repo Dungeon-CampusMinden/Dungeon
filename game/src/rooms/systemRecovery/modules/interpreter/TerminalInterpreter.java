@@ -17,6 +17,8 @@ public final class TerminalInterpreter {
       Pattern.compile("(for|if)\\s*\\(.*\\{", Pattern.DOTALL);
 
   private final Map<Integer, TerminalCodeRequirement> states = new HashMap<>();
+  private final Map<Integer, boolean[]> partialMatches = new HashMap<>();
+  private final Map<Integer, List<String>> partialSources = new HashMap<>();
   private final TerminalMatchContext successfulContext = new TerminalMatchContext();
   private final List<AcceptedInput> acceptedInputs = new ArrayList<>();
   private int currentState;
@@ -45,6 +47,8 @@ public final class TerminalInterpreter {
   /** Resets the interpreter to the first puzzle state. */
   public void reset() {
     currentState = 0;
+    partialMatches.clear();
+    partialSources.clear();
     successfulContext.clear();
     acceptedInputs.clear();
   }
@@ -106,14 +110,19 @@ public final class TerminalInterpreter {
    * @param state synchronized interpreter state
    */
   public void synchronizeState(int state) {
-    currentState = Math.max(0, state);
+    int synchronizedState = Math.max(0, state);
+    if (currentState != synchronizedState) {
+      partialMatches.clear();
+      partialSources.clear();
+    }
+    currentState = synchronizedState;
   }
 
   /**
    * Checks the source, invokes the matching callback, and advances after success.
    *
    * @param source source text entered in the terminal
-   * @return true if the complete current state is correct
+   * @return true if the current state is complete or a valid partial input was accepted
    */
   public boolean interpret(String source) {
     return interpret(source, -1);
@@ -124,7 +133,7 @@ public final class TerminalInterpreter {
    *
    * @param source source text entered in the terminal
    * @param playerId authoritative player ID, or {@code -1} for a non-player call
-   * @return whether the complete current state is correct
+   * @return whether the source was accepted, including a valid partial input
    */
   public boolean interpret(String source, int playerId) {
     return interpret(source, playerId, null);
@@ -136,28 +145,64 @@ public final class TerminalInterpreter {
    * @param source source text entered in the terminal
    * @param playerId authoritative player ID, or {@code -1} for a non-player call
    * @param dialogId dialog that submitted the source, or {@code null}
-   * @return whether the complete current state is correct
+   * @return whether the source was accepted, including a valid partial input
    */
   public boolean interpret(String source, int playerId, String dialogId) {
-    TerminalCodeRequirement puzzleState = states.get(currentState);
-    if (puzzleState == null) {
+    if (!states.containsKey(currentState)) {
       return false;
     }
 
-    TerminalAttempt attempt = new TerminalAttempt(currentState, source, playerId, dialogId);
-    AnalysisResult result = analysis(source, successfulContext.copy());
-    boolean successful = result.successful();
-    if (successful) {
-      // Apply the room effect before committing the shared interpreter state. If the room-side
-      // effect fails, the step remains retryable instead of looking accepted to the player.
-      puzzleState.onSuccess().accept(attempt);
-      successfulContext.replaceWith(result.context());
-      acceptedInputs.add(new AcceptedInput(currentState, source));
-      currentState++;
-    } else {
-      puzzleState.onFailure().accept(attempt);
+    boolean accepted = false;
+    boolean combinedSubmission = false;
+    while (true) {
+      int state = currentState;
+      TerminalCodeRequirement requirement = states.get(state);
+      if (requirement == null) return accepted;
+
+      int maxKnownState = state;
+      if (requirement.acceptsFollowingStepInSameSubmission()) maxKnownState++;
+      StateEvaluation evaluation =
+          evaluateState(state, source, successfulContext.copy(), maxKnownState);
+
+      if (evaluation.status() == EvaluationStatus.COMPLETE) {
+        boolean completesFollowingStep =
+            requirement.acceptsFollowingStepInSameSubmission()
+                && evaluateState(
+                        state + 1, source, evaluation.context().copy(), state + 1)
+                    .status()
+                    == EvaluationStatus.COMPLETE;
+        combinedSubmission |= completesFollowingStep;
+        TerminalAttempt attempt =
+            new TerminalAttempt(state, source, playerId, dialogId, combinedSubmission);
+
+        // Apply room effects before committing this state so a failed callback stays retryable.
+        requirement.onSuccess().accept(attempt);
+        successfulContext.replaceWith(evaluation.context());
+        acceptedInputs.add(new AcceptedInput(state, acceptedSourceForRestore(state, source)));
+        partialMatches.remove(state);
+        partialSources.remove(state);
+        currentState++;
+        accepted = true;
+
+        if (!requirement.acceptsFollowingStepInSameSubmission()) return true;
+        continue;
+      }
+
+      if (evaluation.status() == EvaluationStatus.PARTIAL) {
+        partialMatches.put(state, evaluation.matchedLines());
+        partialSources.computeIfAbsent(state, ignored -> new ArrayList<>()).add(source);
+        successfulContext.replaceWith(evaluation.context());
+        requirement
+            .onPartialInput()
+            .accept(new TerminalAttempt(state, source, playerId, dialogId, false));
+        return true;
+      }
+
+      if (evaluation.status() == EvaluationStatus.NO_PROGRESS && accepted) return true;
+
+      requirement.onFailure().accept(new TerminalAttempt(state, source, playerId, dialogId));
+      return false;
     }
-    return successful;
   }
 
   /**
@@ -215,12 +260,97 @@ public final class TerminalInterpreter {
     if (puzzleState == null) {
       return new AnalysisResult(false, context);
     }
+    int maxKnownState =
+        puzzleState.acceptsFollowingStepInSameSubmission() ? state + 1 : state;
+    return analysis(state, source, context, maxKnownState);
+  }
+
+  private AnalysisResult analysis(
+      int state, String source, TerminalMatchContext context, int maxKnownState) {
+    TerminalCodeRequirement puzzleState = states.get(state);
+    if (puzzleState == null) return new AnalysisResult(false, context);
     List<TerminalStatement> statements = parsedStatements(source);
     boolean successful =
         !statements.isEmpty()
             && matchesRequiredCodeLines(statements, puzzleState, context)
-            && containsOnlyKnownStatements(statements, state, context);
+            && containsOnlyKnownStatements(statements, maxKnownState, context);
     return new AnalysisResult(successful, context);
+  }
+
+  private StateEvaluation evaluateState(
+      int state, String source, TerminalMatchContext context, int maxKnownState) {
+    TerminalCodeRequirement requirement = states.get(state);
+    if (requirement == null) {
+      return new StateEvaluation(EvaluationStatus.INVALID, context, new boolean[0]);
+    }
+
+    if (!requirement.acceptsPartialInput()) {
+      AnalysisResult result = analysis(state, source, context, maxKnownState);
+      return new StateEvaluation(
+          result.successful() ? EvaluationStatus.COMPLETE : EvaluationStatus.INVALID,
+          result.context(),
+          new boolean[0]);
+    }
+
+    return evaluatePartialState(state, source, context, maxKnownState, requirement);
+  }
+
+  private StateEvaluation evaluatePartialState(
+      int state,
+      String source,
+      TerminalMatchContext context,
+      int maxKnownState,
+      TerminalCodeRequirement requirement) {
+    List<TerminalStatement> statements = parsedStatements(source);
+    CodeLine[] requiredLines = requirement.codeLines();
+    boolean[] matchedLines =
+        Arrays.copyOf(
+            partialMatches.getOrDefault(state, new boolean[requiredLines.length]),
+            requiredLines.length);
+    boolean matchedCurrentStep = false;
+
+    for (TerminalStatement statement : statements) {
+      boolean matchedStatement = false;
+      for (int lineIndex = 0; lineIndex < requiredLines.length; lineIndex++) {
+        TerminalMatchContext candidate = context.copy();
+        if (requiredLines[lineIndex].check(statement.source(), candidate)) {
+          matchedLines[lineIndex] = true;
+          matchedCurrentStep = true;
+          matchedStatement = true;
+          context.replaceWith(candidate);
+        }
+      }
+      if (!matchedStatement && !matchesStateUpTo(statement.source(), maxKnownState, context)) {
+        return new StateEvaluation(EvaluationStatus.INVALID, context, matchedLines);
+      }
+    }
+
+    if (statements.isEmpty()) {
+      return new StateEvaluation(EvaluationStatus.NO_PROGRESS, context, matchedLines);
+    }
+    if (allMatched(matchedLines)) {
+      return new StateEvaluation(EvaluationStatus.COMPLETE, context, matchedLines);
+    }
+    return new StateEvaluation(
+        matchedCurrentStep ? EvaluationStatus.PARTIAL : EvaluationStatus.NO_PROGRESS,
+        context,
+        matchedLines);
+  }
+
+  private static boolean allMatched(boolean[] matches) {
+    for (boolean matched : matches) {
+      if (!matched) return false;
+    }
+    return matches.length > 0;
+  }
+
+  private String acceptedSourceForRestore(int state, String completingSource) {
+    List<String> acceptedParts = partialSources.get(state);
+    if (acceptedParts == null || acceptedParts.isEmpty()) return completingSource;
+
+    List<String> completeSource = new ArrayList<>(acceptedParts);
+    completeSource.add(completingSource);
+    return String.join("\n", completeSource);
   }
 
   private static boolean matchesRequiredCodeLines(
@@ -449,6 +579,16 @@ public final class TerminalInterpreter {
   private record TerminalStatement(String source, int blockDepth) {}
 
   private record AnalysisResult(boolean successful, TerminalMatchContext context) {}
+
+  private record StateEvaluation(
+      EvaluationStatus status, TerminalMatchContext context, boolean[] matchedLines) {}
+
+  private enum EvaluationStatus {
+    COMPLETE,
+    PARTIAL,
+    NO_PROGRESS,
+    INVALID
+  }
 
   /**
    * One source accepted by the shared interpreter at a stable state ID.

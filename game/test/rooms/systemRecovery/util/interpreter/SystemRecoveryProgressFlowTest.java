@@ -181,6 +181,53 @@ class SystemRecoveryProgressFlowTest {
     submit(moduleArray(), 202, SystemRecoveryLearningStep.MODULE_VALUES, 3);
   }
 
+  @Test
+  void oneSubmissionCanAdvanceArrayAndValuesPlacesInOrder() {
+    submit(energyArray(), 101, SystemRecoveryLearningStep.ENERGY_VALUES, 1);
+    submit(energyValues(), 101, SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY, 2);
+    complete(
+        SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY,
+        101,
+        SystemRecoveryLearningStep.MODULE_ARRAY,
+        2);
+
+    String combinedSource = moduleArray() + "\n" + moduleValues();
+    assertTrue(terminalController.interpret(combinedSource, 202));
+
+    assertState(SystemRecoveryLearningStep.MODULE_REMOVE_GPU, 4);
+  }
+
+  @Test
+  void separatelySubmittedModuleValuesDoNotMovePetriPlaceUntilTheLastValue() {
+    submit(energyArray(), 101, SystemRecoveryLearningStep.ENERGY_VALUES, 1);
+    submit(energyValues(), 101, SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY, 2);
+    complete(
+        SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY,
+        101,
+        SystemRecoveryLearningStep.MODULE_ARRAY,
+        2);
+
+    assertTrue(terminalController.interpret(moduleArray(), 202));
+    assertState(SystemRecoveryLearningStep.MODULE_VALUES, 3);
+
+    List<String> assignments =
+        List.of(
+            "module[3] = \"SSD\";",
+            "module[0] = \"CPU\";",
+            "module[4] = \"NETWORK\";",
+            "module[1] = \"RAM\";",
+            "module[2] = \"GPU\";");
+    for (int index = 0; index < assignments.size(); index++) {
+      assertTrue(terminalController.interpret(assignments.get(index), 101));
+      SystemRecoveryLearningStep expectedStep =
+          index == assignments.size() - 1
+              ? SystemRecoveryLearningStep.MODULE_REMOVE_GPU
+              : SystemRecoveryLearningStep.MODULE_VALUES;
+      int expectedTerminalState = index == assignments.size() - 1 ? 4 : 3;
+      assertState(expectedStep, expectedTerminalState);
+    }
+  }
+
   private void submit(
       String source, int playerId, SystemRecoveryLearningStep nextStep, int nextTerminalState) {
     SystemRecoveryLearningStep current = SystemRecoveryProgressNet.activeStep().orElseThrow();

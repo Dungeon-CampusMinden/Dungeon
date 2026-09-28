@@ -309,7 +309,20 @@ public final class TerminalInterpreterSetup {
       java.util.function.Consumer<TerminalAttempt> onFailure) {
     register(
         RIDDLE_TWO_STEP_ONE,
-        unordered(onSuccess, onFailure, arrayCreation("String", MODULE_ARRAY, 5, true)));
+        unordered(
+                onSuccess,
+                onFailure,
+                combine(
+                    arrayCreation("String", MODULE_ARRAY, 5, true),
+                    capturedArrayLiteral(
+                        MODULE_ARRAY,
+                        "String",
+                        "\"CPU\"",
+                        "\"RAM\"",
+                        "\"GPU\"",
+                        "\"SSD\"",
+                        "\"NETWORK\"")))
+            .allowingFollowingStepInSameSubmission());
   }
 
   private static void setupRiddleTwoStepTwoSetModules(
@@ -320,11 +333,14 @@ public final class TerminalInterpreterSetup {
         unordered(
             onSuccess,
             onFailure,
-            capturedAssignment(MODULE_ARRAY, 0, "\"CPU\""),
-            capturedAssignment(MODULE_ARRAY, 1, "\"RAM\""),
-            capturedAssignment(MODULE_ARRAY, 2, "\"GPU\""),
-            capturedAssignment(MODULE_ARRAY, 3, "\"SSD\""),
-            capturedAssignment(MODULE_ARRAY, 4, "\"NETWORK\"")));
+            assignmentOrModuleLiteral(0, "\"CPU\""),
+            assignmentOrModuleLiteral(1, "\"RAM\""),
+            assignmentOrModuleLiteral(2, "\"GPU\""),
+            assignmentOrModuleLiteral(3, "\"SSD\""),
+            assignmentOrModuleLiteral(4, "\"NETWORK\""))
+            .withPartialSubmissions(
+                successOrPreview(
+                    onSuccess, InterpretationCallbacks::onPartialModuleValueAccepted)));
   }
 
   private static void setupRiddleTwoStepThreeRemoveGpuModule(
@@ -723,6 +739,26 @@ public final class TerminalInterpreterSetup {
             + "\\s*]\\s*=\\s*"
             + value
             + "\\s*;");
+  }
+
+  private static CodeLine assignmentOrModuleLiteral(int index, String value) {
+    return combine(
+        capturedAssignment(MODULE_ARRAY, index, value),
+        capturedArrayLiteral(
+            MODULE_ARRAY,
+            "String",
+            "\"CPU\"",
+            "\"RAM\"",
+            "\"GPU\"",
+            "\"SSD\"",
+            "\"NETWORK\""));
+  }
+
+  private static CodeLine combine(CodeLine... codeLines) {
+    return new CodeLine(
+        Arrays.stream(codeLines)
+            .flatMap(codeLine -> Arrays.stream(codeLine.patterns()))
+            .toArray(Pattern[]::new));
   }
 
   private static CodeLine twoDimensionalAssignment(

@@ -43,7 +43,7 @@ class SystemRecoveryTerminalControllerTest {
             new CodeLine[] {
               new CodeLine(
                   Pattern.compile(
-                      "String\\s*\\[\\s*]\\s*module\\s*=\\s*new\\s+String\\s*\\[\\s*5\\s*]"))
+                      "String\\s*\\[\\s*]\\s*module\\s*=\\s*new\\s+String\\s*\\[\\s*5\\s*]\\s*;"))
             },
             false,
             ignored -> successCallbacks.incrementAndGet(),

@@ -76,7 +76,9 @@ final class SystemRecoveryRiddleRegistry {
       }
       case MODULE_ARRAY -> {
         moduleStorage.activateModuleSockets();
-        tellPlayer(SystemRecoveryStoryDialogs.MODULE_VALUES, attempt);
+        if (!attempt.combinedSubmission()) {
+          tellPlayer(SystemRecoveryStoryDialogs.MODULE_VALUES, attempt);
+        }
       }
       case MODULE_VALUES -> {
         moduleStorage.spawnModuleChips();

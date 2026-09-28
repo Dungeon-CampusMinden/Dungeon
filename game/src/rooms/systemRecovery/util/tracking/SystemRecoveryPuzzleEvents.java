@@ -136,6 +136,19 @@ public final class SystemRecoveryPuzzleEvents {
   }
 
   /**
+   * Records a valid partial terminal submission without completing its learning step.
+   *
+   * @param state terminal state that received the source
+   * @param source submitted source text
+   * @param playerId authoritative player ID, or negative when unavailable
+   */
+  public static void partialTerminalAttempt(int state, String source, int playerId) {
+    SystemRecoveryAchievements.terminalAttempt(
+        new TerminalAttempt(state, source, playerId, null), true);
+    SystemRecoveryTracking.terminalAttempt(state, source, true, playerId);
+  }
+
+  /**
    * Records a puzzle completion without inferring any progress transition.
    *
    * @param puzzle completed puzzle
