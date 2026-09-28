@@ -11,7 +11,9 @@ public class ModuleStorageScenarioTest extends TerminalScenarioTestSupport {
   @Test
   public void moduleStorageScenarioIsSupported_riddle2() {
     interpreter.register(
-        0, requirement("String\\s*\\[\\s*]\\s*module\\s*=\\s*new\\s+String\\s*\\[\\s*5\\s*]"));
+        0,
+        requirement(
+            "String\\s*\\[\\s*]\\s*module\\s*=\\s*new\\s+String\\s*\\[\\s*5\\s*]\\s*;"));
     interpreter.register(
         1,
         requirement(
@@ -21,7 +23,7 @@ public class ModuleStorageScenarioTest extends TerminalScenarioTestSupport {
             assignment("module", 3, "\"SSD\""),
             assignment("module", 4, "\"NETWORK\"")));
     interpreter.register(2, requirement(assignment("module", 2, "null")));
-    interpreter.register(3, requirement("module\\s*\\.\\s*length"));
+    interpreter.register(3, requirement("module\\s*\\.\\s*length\\s*;"));
 
     String source = "String[] module = new String[5];";
     assertTrue(interpreter.interpret(source));

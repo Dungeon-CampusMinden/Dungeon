@@ -14,7 +14,7 @@ public class TwoDimensionalStorageScenarioTest extends TerminalScenarioTestSuppo
         0,
         requirement(
             "int\\s*\\[\\s*]\\s*\\[\\s*]\\s*lager\\s*=\\s*new\\s+int\\s*"
-                + "\\[\\s*3\\s*]\\s*\\[\\s*4\\s*]"));
+                + "\\[\\s*3\\s*]\\s*\\[\\s*4\\s*]\\s*;"));
     interpreter.register(
         1,
         requirement(

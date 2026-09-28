@@ -372,8 +372,10 @@ public final class TerminalInterpreter {
       currentStatement.append(character);
       parenthesesDepth = updatedParenthesesDepth(parenthesesDepth, character);
       if (isStatementEnd(currentStatement, character, parenthesesDepth)) {
+        int previousStatementCount = statements.size();
         addStatement(statements, currentStatement, blockDepth);
-        if (opensControlBlock(statements.get(statements.size() - 1).source())) {
+        if (statements.size() > previousStatementCount
+            && opensControlBlock(statements.get(statements.size() - 1).source())) {
           blockDepth++;
         }
       }
@@ -413,7 +415,7 @@ public final class TerminalInterpreter {
   private static void addStatement(
       List<TerminalStatement> statements, StringBuilder currentStatement, int blockDepth) {
     String statement = normalizedStatement(currentStatement);
-    if (!statement.isBlank()) {
+    if (!statement.isBlank() && !statement.equals(";")) {
       statements.add(new TerminalStatement(statement, blockDepth));
     }
     currentStatement.setLength(0);
@@ -421,9 +423,6 @@ public final class TerminalInterpreter {
 
   private static String normalizedStatement(StringBuilder currentStatement) {
     String statement = currentStatement.toString().trim();
-    while (statement.endsWith(";")) {
-      statement = statement.substring(0, statement.length() - 1).trim();
-    }
     while (statement.startsWith("}")) {
       statement = statement.substring(1).trim();
     }

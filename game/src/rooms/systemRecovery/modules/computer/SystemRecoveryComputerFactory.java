@@ -314,7 +314,7 @@ public final class SystemRecoveryComputerFactory {
         SystemRecoveryComputerCallbacks.DEBUG_GIVE_USB,
         data -> {
           if (SystemRecovery.debugMode()) {
-            addToInventory(targetEntityId, new SortProgramStickItem());
+            giveDebugUsb(targetEntityId);
           }
         });
   }
@@ -437,6 +437,49 @@ public final class SystemRecoveryComputerFactory {
     return Game.findEntityById(entityId)
         .flatMap(entity -> entity.fetch(InventoryComponent.class))
         .map(inventory -> inventory.add(item))
+        .orElse(false);
+  }
+
+  /**
+   * Gives the debug player an empty sort-program USB.
+   *
+   * <p>System Recovery uses a one-slot inventory. If that slot is occupied, the carried item is
+   * dropped at the player's position before the debug USB is inserted. This keeps the debug action
+   * deterministic without silently deleting the item that was already being carried.
+   *
+   * @param entityId player receiving the debug USB
+   * @return whether the USB was inserted into the player's inventory
+   */
+  static boolean giveDebugUsb(int entityId) {
+    if (!SystemRecovery.debugMode()) return false;
+
+    return Game.findEntityById(entityId)
+        .flatMap(
+            player ->
+                player
+                    .fetch(InventoryComponent.class)
+                    .map(inventory -> giveDebugUsb(player, inventory)))
+        .orElse(false);
+  }
+
+  private static boolean giveDebugUsb(Entity player, InventoryComponent inventory) {
+    SortProgramStickItem usb = new SortProgramStickItem();
+    if (inventory.add(usb)) return true;
+
+    Item carriedItem = inventory.itemOfClass(Item.class).orElse(null);
+    if (carriedItem == null) return false;
+
+    return Game.positionOf(player)
+        .flatMap(
+            position -> {
+              if (inventory.remove(carriedItem).isEmpty()) return java.util.Optional.empty();
+              if (!inventory.add(usb)) {
+                inventory.add(carriedItem);
+                return java.util.Optional.empty();
+              }
+              Game.add(WorldItemBuilder.buildWorldItem(carriedItem, position));
+              return java.util.Optional.of(true);
+            })
         .orElse(false);
   }
 

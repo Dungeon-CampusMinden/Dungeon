@@ -35,7 +35,12 @@ abstract class TerminalScenarioTestSupport {
   }
 
   protected static String assignment(String variable, int index, String value) {
-    return variable + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value;
+    return variable
+        + "\\s*\\[\\s*"
+        + index
+        + "\\s*]\\s*=\\s*"
+        + value
+        + "\\s*;";
   }
 
   protected static String twoDimensionalAssignment(
@@ -46,7 +51,8 @@ abstract class TerminalScenarioTestSupport {
         + "\\s*]\\s*\\[\\s*"
         + secondIndex
         + "\\s*]\\s*=\\s*"
-        + value;
+        + value
+        + "\\s*;";
   }
 
   protected static String indexedForLoop(String variable, String upperBound) {

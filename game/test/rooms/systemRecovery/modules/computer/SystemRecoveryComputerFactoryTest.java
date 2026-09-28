@@ -13,6 +13,7 @@ import feature.components.ItemComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
@@ -33,6 +34,7 @@ class SystemRecoveryComputerFactoryTest {
   @AfterEach
   void tearDown() {
     Game.removeAllEntities();
+    SystemRecovery.configureDebugMode();
   }
 
   @Test
@@ -132,6 +134,32 @@ class SystemRecoveryComputerFactoryTest {
             .filter(entity -> entity.name().startsWith("worldItem_"))
             .filter(
                 entity -> entity.fetch(ItemComponent.class).orElseThrow().item() == insertedStick)
+            .count());
+  }
+
+  @Test
+  void debugUsbReplacesTheCarriedItemAndDropsItAtThePlayerPosition() {
+    SystemRecovery.configureDebugMode("--debug");
+    Entity playerWithItem = new Entity("debug-usb-player");
+    InventoryComponent inventory = new InventoryComponent(1);
+    SearchProgramChipItem carriedChip = new SearchProgramChipItem();
+    assertTrue(inventory.add(carriedChip));
+    playerWithItem.add(inventory);
+    playerWithItem.add(new PositionComponent(new Point(4, 5)));
+    Game.add(playerWithItem);
+
+    assertTrue(SystemRecoveryComputerFactory.giveDebugUsb(playerWithItem.id()));
+    assertEquals(1, inventory.count(SortProgramStickItem.class));
+    assertEquals(
+        1,
+        Game.entities()
+            .filter(entity -> entity.name().startsWith("worldItem_"))
+            .filter(
+                entity ->
+                    entity
+                        .fetch(ItemComponent.class)
+                        .map(component -> component.item() == carriedChip)
+                        .orElse(false))
             .count());
   }
 

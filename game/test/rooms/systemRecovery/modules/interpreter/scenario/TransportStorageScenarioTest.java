@@ -23,7 +23,7 @@ public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             "for\\s*\\(\\s*int\\s+i\\s*=\\s*0\\s*;\\s*i\\s*<\\s*pakete\\s*"
                 + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{",
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)\\s*;"));
 
     String source = "int[] pakete = {15, 40, 20, 60, 30};";
     assertTrue(interpreter.interpret(source));
@@ -78,7 +78,7 @@ public class TransportStorageScenarioTest extends TerminalScenarioTestSupport {
         orderedRequirement(
             "for\\s*\\(\\s*int\\s+i\\s*=\\s*0\\s*;\\s*i\\s*<\\s*pakete\\s*"
                 + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{",
-            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)"));
+            "roboter\\s*\\.\\s*collect\\s*\\(\\s*\\)\\s*;"));
 
     String source =
         """

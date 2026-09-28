@@ -587,7 +587,7 @@ public final class TerminalInterpreterSetup {
                 + type
                 + "\\s*\\[\\s*"
                 + size
-                + "\\s*]"),
+                + "\\s*]\\s*;"),
         Pattern.compile(
             type
                 + "\\s+"
@@ -596,7 +596,7 @@ public final class TerminalInterpreterSetup {
                 + type
                 + "\\s*\\[\\s*"
                 + size
-                + "\\s*]"));
+                + "\\s*]\\s*;"));
   }
 
   private static CodeLine twoDimensionalArrayCreation(
@@ -618,7 +618,7 @@ public final class TerminalInterpreterSetup {
                 + rows
                 + "\\s*]\\s*\\[\\s*"
                 + columns
-                + "\\s*]"),
+                + "\\s*]\\s*;"),
         Pattern.compile(
             type
                 + "\\s+"
@@ -629,7 +629,7 @@ public final class TerminalInterpreterSetup {
                 + rows
                 + "\\s*]\\s*\\[\\s*"
                 + columns
-                + "\\s*]"));
+                + "\\s*]\\s*;"));
   }
 
   private static CodeLine capturedArrayLiteral(
@@ -674,10 +674,24 @@ public final class TerminalInterpreterSetup {
     String literal = "\\{\\s*" + valuesPattern + "\\s*}";
     String explicitLiteral = "new\\s+" + type + "\\s*\\[\\s*]\\s*" + literal;
     return new Pattern[] {
-      Pattern.compile(type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + literal),
-      Pattern.compile(type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + literal),
-      Pattern.compile(type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + explicitLiteral),
-      Pattern.compile(type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + explicitLiteral)
+      Pattern.compile(
+          type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + literal + "\\s*;"),
+      Pattern.compile(
+          type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + literal + "\\s*;"),
+      Pattern.compile(
+          type
+              + "\\s*\\[\\s*]\\s*"
+              + variablePattern
+              + "\\s*=\\s*"
+              + explicitLiteral
+              + "\\s*;"),
+      Pattern.compile(
+          type
+              + "\\s+"
+              + variablePattern
+              + "\\s*\\[\\s*]\\s*=\\s*"
+              + explicitLiteral
+              + "\\s*;")
     };
   }
 
@@ -697,12 +711,18 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine assignment(String variable, int index, String value) {
-    return codeLine(variable + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value);
+    return codeLine(
+        variable + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value + "\\s*;");
   }
 
   private static CodeLine capturedAssignment(String variableCapture, int index, String value) {
     return codeLine(
-        capturedIdentifier(variableCapture) + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value);
+        capturedIdentifier(variableCapture)
+            + "\\s*\\[\\s*"
+            + index
+            + "\\s*]\\s*=\\s*"
+            + value
+            + "\\s*;");
   }
 
   private static CodeLine twoDimensionalAssignment(
@@ -714,7 +734,8 @@ public final class TerminalInterpreterSetup {
             + "\\s*]\\s*\\[\\s*"
             + secondIndex
             + "\\s*]\\s*=\\s*"
-            + value);
+            + value
+            + "\\s*;");
   }
 
   private static CodeLine capturedTwoDimensionalAssignment(
@@ -726,12 +747,18 @@ public final class TerminalInterpreterSetup {
             + "\\s*]\\s*\\[\\s*"
             + secondIndex
             + "\\s*]\\s*=\\s*"
-            + value);
+            + value
+            + "\\s*;");
   }
 
   private static CodeLine twoDimensionalAccess(String variable, int firstIndex, int secondIndex) {
     return codeLine(
-        variable + "\\s*\\[\\s*" + firstIndex + "\\s*]\\s*\\[\\s*" + secondIndex + "\\s*]");
+        variable
+            + "\\s*\\[\\s*"
+            + firstIndex
+            + "\\s*]\\s*\\[\\s*"
+            + secondIndex
+            + "\\s*]\\s*;");
   }
 
   private static CodeLine capturedTwoDimensionalAccess(
@@ -742,24 +769,30 @@ public final class TerminalInterpreterSetup {
             + firstIndex
             + "\\s*]\\s*\\[\\s*"
             + secondIndex
-            + "\\s*]");
+            + "\\s*]\\s*;");
   }
 
   private static CodeLine lengthAccess(String variable) {
-    return codeLine(variable + "\\s*\\.\\s*length");
+    return codeLine(variable + "\\s*\\.\\s*length\\s*;");
   }
 
   private static CodeLine capturedLengthAccess(String variableCapture) {
-    return codeLine(capturedIdentifier(variableCapture) + "\\s*\\.\\s*length");
+    return codeLine(capturedIdentifier(variableCapture) + "\\s*\\.\\s*length\\s*;");
   }
 
   private static CodeLine declaration(String type, String variable, String value) {
-    return codeLine(type + "\\s+" + variable + "\\s*=\\s*" + value);
+    return codeLine(type + "\\s+" + variable + "\\s*=\\s*" + value + "\\s*;");
   }
 
   private static CodeLine declarationWithCapturedVariable(
       String type, String variableCapture, String value) {
-    return codeLine(type + "\\s+" + capture(variableCapture) + "\\s*=\\s*" + value);
+    return codeLine(
+        type
+            + "\\s+"
+            + capture(variableCapture)
+            + "\\s*=\\s*"
+            + value
+            + "\\s*;");
   }
 
   private static CodeLine enhancedForLoop(String type, String sourceArray, String itemCapture) {
@@ -780,10 +813,10 @@ public final class TerminalInterpreterSetup {
 
   private static CodeLine increment(String variable) {
     return new CodeLine(
-        Pattern.compile(variable + "\\s*\\+\\+"),
-        Pattern.compile("\\+\\+" + variable),
-        Pattern.compile(variable + "\\s*\\+=\\s*1"),
-        Pattern.compile(variable + "\\s*=\\s*" + variable + "\\s*\\+\\s*1"));
+        Pattern.compile(variable + "\\s*\\+\\+\\s*;"),
+        Pattern.compile("\\+\\+" + variable + "\\s*;"),
+        Pattern.compile(variable + "\\s*\\+=\\s*1\\s*;"),
+        Pattern.compile(variable + "\\s*=\\s*" + variable + "\\s*\\+\\s*1\\s*;"));
   }
 
   private static CodeLine capturedIndexedForLoop(String arrayCapture, String indexCapture) {
@@ -854,11 +887,12 @@ public final class TerminalInterpreterSetup {
             + arrayVariable
             + "\\s*\\[\\s*"
             + capturedIdentifier(indexCapture)
-            + "\\s*]\\s*\\)");
+            + "\\s*]\\s*\\)\\s*;");
   }
 
   private static CodeLine methodCall(String receiver, String method) {
-    return codeLine(receiver + "\\s*\\.\\s*" + method + "\\s*\\(\\s*\\)");
+    return codeLine(
+        receiver + "\\s*\\.\\s*" + method + "\\s*\\(\\s*\\)\\s*;");
   }
 
   private static CodeLine outerTwoDimensionalLoop(String arrayVariable, String rowCapture) {
@@ -922,7 +956,7 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine assignment(String leftSide, String rightSide) {
-    return codeLine(leftSide + "\\s*=\\s*" + rightSide);
+    return codeLine(leftSide + "\\s*=\\s*" + rightSide + "\\s*;");
   }
 
   private static String capture(String name) {

@@ -12,24 +12,27 @@ public class TerminalInterpreterTest {
 
   private static final CodeLine INITIALIZE =
       new CodeLine(
-          Pattern.compile("int\\s*\\[\\s*]\\s*energie\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]"),
-          Pattern.compile("int\\s+energie\\s*\\[\\s*]\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]"));
+          Pattern.compile(
+              "int\\s*\\[\\s*]\\s*energie\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"),
+          Pattern.compile(
+              "int\\s+energie\\s*\\[\\s*]\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"));
   private static final CodeLine FIRST_ASSIGNMENT =
-      new CodeLine(Pattern.compile("energie\\s*\\[\\s*0\\s*]\\s*=\\s*20"));
+      new CodeLine(Pattern.compile("energie\\s*\\[\\s*0\\s*]\\s*=\\s*20\\s*;"));
   private static final CodeLine SECOND_ASSIGNMENT =
-      new CodeLine(Pattern.compile("energie\\s*\\[\\s*1\\s*]\\s*=\\s*80"));
+      new CodeLine(Pattern.compile("energie\\s*\\[\\s*1\\s*]\\s*=\\s*80\\s*;"));
   private static final CodeLine THIRD_ASSIGNMENT =
-      new CodeLine(Pattern.compile("energie\\s*\\[\\s*2\\s*]\\s*=\\s*50"));
-  private static final CodeLine START = line("start\\s*\\(\\s*\\)");
-  private static final CodeLine STEP = line("step\\s*\\(\\s*\\)");
-  private static final CodeLine FINISH = line("finish\\s*\\(\\s*\\)");
+      new CodeLine(Pattern.compile("energie\\s*\\[\\s*2\\s*]\\s*=\\s*50\\s*;"));
+  private static final CodeLine START = line("start\\s*\\(\\s*\\)\\s*;");
+  private static final CodeLine STEP = line("step\\s*\\(\\s*\\)\\s*;");
+  private static final CodeLine FINISH = line("finish\\s*\\(\\s*\\)\\s*;");
   private static final CodeLine LOOP =
       line(
           "for\\s*\\(\\s*int\\s+i\\s*=\\s*0\\s*;\\s*i\\s*<\\s*items\\s*"
               + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{");
   private static final CodeLine CONDITION =
       line("if\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*!=\\s*null\\s*\\)\\s*\\{");
-  private static final CodeLine ACTION = line("use\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*\\)");
+  private static final CodeLine ACTION =
+      line("use\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*\\)\\s*;");
   private static final String IDENTIFIER = "[a-zA-Z][a-zA-Z0-9]*";
   private static final CodeLine FLEXIBLE_LOOP =
       line(
@@ -44,7 +47,7 @@ public class TerminalInterpreterTest {
               + IDENTIFIER
               + ")\\s*\\[\\s*(?<index>"
               + IDENTIFIER
-              + ")\\s*]\\s*\\)");
+              + ")\\s*]\\s*\\)\\s*;");
 
   /** Resets and registers isolated steps before each test. */
   @BeforeEach
@@ -62,9 +65,10 @@ public class TerminalInterpreterTest {
   /** Regex commands accept flexible whitespace but still validate the complete statement. */
   @Test
   public void regexSyntaxMatchesCompleteStatement() {
-    assertTrue(INITIALIZE.check("int [ ] energie = new int [ 5 ]"));
-    assertTrue(INITIALIZE.check("int energie[] = new int[5]"));
-    assertFalse(INITIALIZE.check("prefix int[] energie = new int[5]"));
+    assertTrue(INITIALIZE.check("int [ ] energie = new int [ 5 ];"));
+    assertTrue(INITIALIZE.check("int energie[] = new int[5];"));
+    assertFalse(INITIALIZE.check("int energie[] = new int[5]"));
+    assertFalse(INITIALIZE.check("prefix int[] energie = new int[5];"));
   }
 
   /** Every permutation of the required code lines completes an unordered requirement. */

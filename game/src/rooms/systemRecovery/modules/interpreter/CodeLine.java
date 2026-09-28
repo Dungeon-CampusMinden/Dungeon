@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * One expected line of terminal code with one or more accepted patterns.
+ * One expected code line with one or more accepted regular-expression patterns.
  *
  * @param patterns alternative patterns accepted for this code line
  */
