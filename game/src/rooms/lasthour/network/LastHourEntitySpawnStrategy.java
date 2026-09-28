@@ -9,7 +9,6 @@ import feature.collision.CollideSync;
 import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
-import feature.interaction.keypad.TextKeyPadComponent;
 import feature.puzzle.PuzzlePieceItem;
 import feature.questlog.QuestLogComponent;
 import feature.timer.WorldTimerComponent;
