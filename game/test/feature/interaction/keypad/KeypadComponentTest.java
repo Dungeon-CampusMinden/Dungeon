@@ -1,6 +1,7 @@
 package feature.interaction.keypad;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -77,11 +78,40 @@ class KeypadComponentTest {
     assertEquals(0, component.wrongCodeAttempts());
 
     receivedCaller.set(null);
+    component.addDigit(1);
     component.addDigit(2);
     component.addDigit(4);
     component.checkUnlock(caller);
 
     assertSame(caller, receivedCaller.get());
     assertEquals(1, component.wrongCodeAttempts());
+  }
+
+  @Test
+  void wrongSubmissionClearsDigitsAfterWrongCodeCallback() {
+    KeypadComponent component = new KeypadComponent(List.of(1, 2, 3), () -> {});
+    Entity caller = new Entity();
+    AtomicReference<List<Integer>> submittedDigits = new AtomicReference<>();
+    component.onWrongCode(player -> submittedDigits.set(List.copyOf(component.enteredDigits())));
+    component.addDigit(3);
+    component.addDigit(2);
+    component.addDigit(1);
+
+    component.checkUnlock(caller);
+
+    assertEquals(List.of(3, 2, 1), submittedDigits.get());
+    assertTrue(component.enteredDigits().isEmpty());
+    assertEquals(1, component.wrongCodeAttempts());
+  }
+
+  @Test
+  void incompleteSubmissionAlsoClearsDigits() {
+    KeypadComponent component = new KeypadComponent(List.of(1, 2, 3), () -> {});
+    component.addDigit(1);
+
+    component.checkUnlock(new Entity());
+
+    assertTrue(component.enteredDigits().isEmpty());
+    assertEquals(0, component.wrongCodeAttempts());
   }
 }

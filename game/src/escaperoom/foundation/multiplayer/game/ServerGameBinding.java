@@ -272,6 +272,7 @@ public final class ServerGameBinding {
               } else if (result.outcome() == CodeOutcome.INCORRECT) {
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
+                component.enteredDigits().clear();
               }
               return false;
             })
