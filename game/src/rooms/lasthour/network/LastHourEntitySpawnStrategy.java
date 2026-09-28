@@ -142,11 +142,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
     entity
-        .fetch(TextKeyPadComponent.class)
-        .ifPresent(
-            textKeyPad ->
-                metadata.putAll(LastHourSnapshotTranslator.textKeypadMetadata(textKeyPad)));
-    entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
     entity
