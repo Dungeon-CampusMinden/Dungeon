@@ -147,9 +147,12 @@ public final class SystemRecoveryPhoneController {
     phoneRinging = true;
     Sounds.play(LastHourSounds.PHONE_RINGING);
     updatePhoneInteraction();
-    ringingPhoneEmote =
-        EmoteFactory.createEmote(EntityUtils.getPosition(phone), Emote.EXCLAMATION, 60 * 60 * 1000);
-    Game.add(ringingPhoneEmote);
+    if (ringingPhoneEmote == null) {
+      ringingPhoneEmote =
+          EmoteFactory.createEmote(
+              EntityUtils.getPosition(phone), Emote.EXCLAMATION, 60 * 60 * 1000);
+      Game.add(ringingPhoneEmote);
+    }
   }
 
   /** Keeps the phone usable for calls, hints, or the dead-line response. */
@@ -161,6 +164,9 @@ public final class SystemRecoveryPhoneController {
             new Interaction(
                 (_, who) -> {
                   if (phoneRinging) {
+                    // The call is now being answered. Remove the visual ringing state immediately
+                    // so a dismissed first call cannot leave an obsolete bubble behind.
+                    clearRingingPhoneEmote();
                     DialogFactory.showDialogDialog(
                         SystemRecoveryText.echoCall(ringingCallKey),
                         SystemRecoveryText.echoSpeakerImage(),
@@ -183,10 +189,7 @@ public final class SystemRecoveryPhoneController {
     phoneRinging = false;
     ringingCallKey = null;
     updatePhoneInteraction();
-    if (ringingPhoneEmote != null) {
-      Game.remove(ringingPhoneEmote);
-      ringingPhoneEmote = null;
-    }
+    clearRingingPhoneEmote();
     if ("system-core-warning".equals(completedCallKey)) {
       systemCoreWarningCallAnswered = true;
       SystemRecoveryQuestLogUtil.addDialogEntry(
@@ -214,5 +217,11 @@ public final class SystemRecoveryPhoneController {
       SystemRecoveryQuestLogUtil.addDialogEntry(
           "riddle1", "opening-call", SystemRecoveryText.echoCall(completedCallKey));
     }
+  }
+
+  private void clearRingingPhoneEmote() {
+    if (ringingPhoneEmote == null) return;
+    Game.remove(ringingPhoneEmote);
+    ringingPhoneEmote = null;
   }
 }

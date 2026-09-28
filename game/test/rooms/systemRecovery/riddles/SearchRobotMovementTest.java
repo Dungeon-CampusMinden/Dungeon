@@ -74,13 +74,14 @@ class SearchRobotMovementTest {
   }
 
   @Test
-  void robotKeepsWalkingPastFirstMatrixCell() {
+  void robotStartsAtFirstMatrixCellAndKeepsWalkingForward() {
     AtomicLong clock = new AtomicLong();
     SearchRobotRiddle riddle = new SearchRobotRiddle(level, RiddleCallbacks.noop(), clock::get);
     riddle.setup();
     riddle.startScan();
     Entity robot =
         Game.levelEntities().filter(e -> "search_robot".equals(e.name())).findFirst().orElseThrow();
+    assertEquals(level.getPoint("roboter_start"), robot.fetch(PositionComponent.class).orElseThrow().position());
 
     for (int tick = 0; tick < 180; tick++) {
       clock.addAndGet(50);
@@ -99,7 +100,7 @@ class SearchRobotMovementTest {
   void sixthSystemCoreCrystalPointIsPresentOnWalkableFloor() {
     Point sixthCrystal = level.getPoint("b5");
 
-    assertEquals(new Point(12, 15), sixthCrystal);
+    assertEquals(new Point(17, 16), sixthCrystal);
     assertEquals(LevelElement.FLOOR, level.tileAt(sixthCrystal).orElseThrow().levelElement());
   }
 

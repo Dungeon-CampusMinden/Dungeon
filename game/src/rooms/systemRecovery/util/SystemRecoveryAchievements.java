@@ -41,6 +41,7 @@ public final class SystemRecoveryAchievements {
   public static final String DEBUG_IS_NOT_GAMEPLAY = "debug_is_not_gameplay";
   public static final String NOT_BY_PLAN = "not_by_plan";
   public static final String WHO_ARE_YOU = "who_are_you";
+  public static final String PLATINUM = "system_recovery_platinum";
 
   private static SystemRecoveryAchievementTracker tracker =
       new SystemRecoveryAchievementTracker(SystemRecoveryAchievements::unlock);

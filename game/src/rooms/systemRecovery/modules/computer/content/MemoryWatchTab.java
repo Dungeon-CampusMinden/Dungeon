@@ -33,6 +33,7 @@ public final class MemoryWatchTab extends SystemRecoveryComputerTab {
   protected void createActors() {
     Table layout = new Table(skin);
     layout.top().left().defaults().growX();
+    layout.pad(0, 18, 14, 18);
 
     Table header = new Table(skin);
     header.setBackground("blue_square_flat");
@@ -96,7 +97,7 @@ public final class MemoryWatchTab extends SystemRecoveryComputerTab {
       Label contents = createLabel(array.contents(), 20);
       contents.setWrap(true);
       row.add(contents).growX().left().colspan(2).pad(2, 14, 12, 14);
-      entries.add(row).growX().left().padBottom(7).row();
+      entries.add(row).growX().left().padBottom(9).row();
     }
   }
 }

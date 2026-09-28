@@ -26,6 +26,7 @@
     {"imagePath":"achievements/system_recovery_24.png","id":"not_a_bug","unlockForAll":true,"hidden":true},
     {"imagePath":"achievements/system_recovery_25.png","id":"debug_is_not_gameplay","unlockForAll":true,"hidden":true},
     {"imagePath":"achievements/system_recovery_26.png","id":"not_by_plan","unlockForAll":true,"hidden":true},
-    {"imagePath":"achievements/system_recovery_20.png","id":"who_are_you","unlockForAll":true,"hidden":true}
+    {"imagePath":"achievements/system_recovery_20.png","id":"who_are_you","unlockForAll":true,"hidden":true},
+    {"imagePath":"achievements/system_recovery_platinum.png","id":"system_recovery_platinum","unlockForAll":true,"hidden":false,"platinum":true}
   ]
 }

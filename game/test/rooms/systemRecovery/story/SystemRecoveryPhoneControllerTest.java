@@ -79,6 +79,7 @@ class SystemRecoveryPhoneControllerTest {
       controller.setup(phonePoint);
       controller.triggerOpeningCall();
       phone.fetch(InteractionComponent.class).orElseThrow().triggerInteraction(phone, player);
+      game.verify(() -> Game.remove(phoneEmote));
       finishDialog.get().execute();
       achievements.verify(() -> SystemRecoveryAchievements.phoneCallAnswered(false));
 

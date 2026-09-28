@@ -115,7 +115,7 @@ public final class SearchRobotRiddle {
 
     robot =
         ScannerEntityFactory.searchRobot(
-            RiddleSupport.point(level, "suchroboter"), this::followCurrentPath);
+            matrix.pointAt(0), this::followCurrentPath);
     Game.add(robot);
 
     Entity controller =

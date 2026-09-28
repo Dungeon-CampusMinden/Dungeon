@@ -13,12 +13,6 @@ public final class SystemRecoveryMemoryWatch {
   private static final Pattern ARRAY_DECLARATION =
       Pattern.compile(
           "^(int|String|boolean)\\s*((?:\\[\\s*]){1,2})\\s+([A-Za-z][A-Za-z0-9_]*)\\s*=\\s*(.+)$");
-  private static final Pattern ARRAY_ACCESS =
-      Pattern.compile("\\b([A-Za-z][A-Za-z0-9_]*)\\s*(?=\\[\\s*[^]]*])");
-  private static final Pattern ARRAY_LENGTH =
-      Pattern.compile("\\b([A-Za-z][A-Za-z0-9_]*)\\s*\\.\\s*length\\b");
-  private static final Pattern ENHANCED_FOR_ARRAY =
-      Pattern.compile(":\\s*([A-Za-z][A-Za-z0-9_]*)\\b");
   private static final Pattern ARRAY_ASSIGNMENT =
       Pattern.compile(
           "^([A-Za-z][A-Za-z0-9_]*)\\s*\\[\\s*(\\d+)\\s*]"
@@ -64,7 +58,6 @@ public final class SystemRecoveryMemoryWatch {
             formatLiteral(assignment.group(4)));
       }
 
-      registerReferences(normalized);
     }
   }
 
@@ -146,21 +139,9 @@ public final class SystemRecoveryMemoryWatch {
   }
 
   private void assign(String name, int rowIndex, int columnIndex, String value) {
-    ArrayData data = arrays.computeIfAbsent(name, ignored -> new ArrayData(name, inferredType(name)));
+    ArrayData data = arrays.get(name);
+    if (data == null) return;
     data.set(rowIndex, columnIndex, value);
-  }
-
-  private void registerReferences(String source) {
-    collect(ARRAY_ACCESS.matcher(source));
-    collect(ARRAY_LENGTH.matcher(source));
-    collect(ENHANCED_FOR_ARRAY.matcher(source));
-  }
-
-  private void collect(Matcher matcher) {
-    while (matcher.find()) {
-      String name = matcher.group(1);
-      arrays.computeIfAbsent(name, ignored -> new ArrayData(name, inferredType(name)));
-    }
   }
 
   private static List<String> splitStatements(String source) {
@@ -348,15 +329,6 @@ public final class SystemRecoveryMemoryWatch {
     if (type.startsWith("int")) return "0";
     if (type.startsWith("boolean")) return "false";
     return "null";
-  }
-
-  private static String inferredType(String name) {
-    return switch (name) {
-      case "map" -> "int[][]";
-      case "modules" -> "String[]";
-      case "array", "sortArray" -> "int[]";
-      default -> "?[]";
-    };
   }
 
   /**

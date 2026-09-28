@@ -27,12 +27,11 @@ class SystemRecoveryMemoryWatchTest {
         """);
 
     assertArrayEquals(
-        new String[] {"energieSpeicher", "modulListe", "map"}, memoryWatch.arrayNames());
+        new String[] {"energieSpeicher", "modulListe"}, memoryWatch.arrayNames());
     assertArrayEquals(
         new String[] {
           "energieSpeicher\tint[]\t[0, 0, 0, 0, 0]",
-          "modulListe\tString[]\t[null, null, null, null, null]",
-          "map\tint[][]\t?"
+          "modulListe\tString[]\t[null, null, null, null, null]"
         },
         memoryWatch.arrayEntries());
   }
@@ -91,7 +90,7 @@ class SystemRecoveryMemoryWatchTest {
     memoryWatch.recordAcceptedSource("");
     memoryWatch.recordAcceptedSource("array[0] = 1; array[0] = 2;");
 
-    assertArrayEquals(new String[] {"array"}, memoryWatch.arrayNames());
+    assertArrayEquals(new String[0], memoryWatch.arrayNames());
     assertEquals("array", SystemRecoveryMemoryWatch.parseEntry("array\tint[]").name());
     assertEquals("int[]", SystemRecoveryMemoryWatch.parseEntry("array\tint[]").type());
     assertEquals("?", SystemRecoveryMemoryWatch.parseEntry("array\tint[]").contents());

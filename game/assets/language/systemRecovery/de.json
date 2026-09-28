@@ -679,6 +679,7 @@
     "not_a_bug": {"name": "Das war kein Bug", "description": "Mach nach einem Fehlversuch erfolgreich weiter."},
     "debug_is_not_gameplay": {"name": "Debug ist kein Gameplay", "description": "Beende System Recovery ohne Debug-Skip."},
     "not_by_plan": {"name": "Nicht nach Plan", "description": "Tippe die sortierten Werte direkt ein, statt das Bubble-Sort-Programm zu schreiben."},
-    "who_are_you": {"name": "Wer bist du?", "description": "Ignoriere ECHOs ersten Anruf, bis dich die Hauptaufgabe ans Telefon zwingt."}
+    "who_are_you": {"name": "Wer bist du?", "description": "Ignoriere ECHOs ersten Anruf, bis dich die Hauptaufgabe ans Telefon zwingt."},
+    "system_recovery_platinum": {"name": "System-Recovery-Platin", "description": "Schalte alle Auszeichnungen von System Recovery frei."}
   }
 }

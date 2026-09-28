@@ -679,6 +679,7 @@
     "not_a_bug": {"name": "That Was Not a Bug", "description": "Continue successfully after a failed attempt."},
     "debug_is_not_gameplay": {"name": "Debug Is Not Gameplay", "description": "Finish System Recovery without a debug skip."},
     "not_by_plan": {"name": "Not According to Plan", "description": "Type the sorted values directly instead of writing the Bubble Sort program."},
-    "who_are_you": {"name": "Who Are You?", "description": "Ignore ECHO's first call until the main objective forces you to answer."}
+    "who_are_you": {"name": "Who Are You?", "description": "Ignore ECHO's first call until the main objective forces you to answer."},
+    "system_recovery_platinum": {"name": "System Recovery Platinum", "description": "Unlock every System Recovery achievement."}
   }
 }

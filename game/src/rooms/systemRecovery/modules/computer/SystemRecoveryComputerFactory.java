@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -59,6 +61,13 @@ public final class SystemRecoveryComputerFactory {
 
   /** Context attribute containing the saved locator-chip fill-in draft. */
   public static final String SEARCH_PROGRAM_DRAFT = "searchProgramDraft";
+
+  private static final Pattern SORT_IF_STATEMENT =
+      Pattern.compile("\\bif\\s*\\(\\s*(.*?)\\s*\\)\\s*\\{", Pattern.DOTALL);
+  private static final Pattern SORT_COMPARISON =
+      Pattern.compile(
+          "array\\s*\\[\\s*j\\s*]\\s*>\\s*array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]"
+              + "|array\\s*\\[\\s*j\\s*\\+\\s*1\\s*]\\s*<\\s*array\\s*\\[\\s*j\\s*]");
 
   private SystemRecoveryComputerFactory() {}
 
@@ -623,7 +632,10 @@ public final class SystemRecoveryComputerFactory {
         playerId);
   }
 
-  private static boolean isBubbleSortCondition(String source) {
-    return source.replaceAll("\\s+", "").contains("array[j]>array[j+1]");
+  static boolean isBubbleSortCondition(String source) {
+    if (source == null) return false;
+    Matcher statement = SORT_IF_STATEMENT.matcher(source);
+    if (!statement.find()) return false;
+    return SORT_COMPARISON.matcher(statement.group(1)).matches() && !statement.find();
   }
 }
