@@ -1,5 +1,6 @@
 package rooms.systemRecovery.entities;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
@@ -8,15 +9,19 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.draw.animation.SpritesheetConfig;
+import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.shader.ShaderComponent;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Builds the conveyor, package and scanner entities used by riddles 4 and 6. */
 public final class TransportEntityFactory {
+
+  private static final String PACKAGE_FILL_SHADER_ID = "transportPackageFill";
 
   private TransportEntityFactory() {}
 
@@ -84,9 +89,9 @@ public final class TransportEntityFactory {
     entity.add(new PositionComponent(point));
     entity.add(new CollideComponent());
     DrawComponent draw =
-        new DrawComponent(new Animation(new SimpleIPath("objects/crate/basic.png")));
+        new DrawComponent(
+            new Animation(new SimpleIPath(EnergyEntityFactory.ENERGY_CRATE_TEXTURE)));
     draw.depth(DepthLayer.ForegroundDeco.depth());
-    draw.tintColor(packageTint(weight));
     entity.add(draw);
     entity.add(
         new InteractionComponent(
@@ -99,14 +104,45 @@ public final class TransportEntityFactory {
     return entity;
   }
 
-  private static int packageTint(int weight) {
-    return switch (weight) {
-      case 15 -> 0xFF6666FF;
-      case 20 -> 0xFFD34DFF;
-      case 30 -> 0x66CC66FF;
-      case 40 -> 0x66AAFFFF;
-      case 60 -> 0xCC66FFFF;
-      default -> 0xFFFFFFFF;
+  /**
+   * Adds the network-authoritative fill shader used by the transport-storage puzzle.
+   *
+   * @param entity package whose fill should be synchronized to clients
+   * @param weight displayed package weight, also used as the fill percentage
+   */
+  public static void addAuthoritativePackageFill(Entity entity, int weight) {
+    entity.add(new ShaderComponent(PACKAGE_FILL_SHADER_ID, 0, packageFillShader(weight)));
+  }
+
+  /**
+   * Creates the shared weight-scaled fill shader used by both conveyor puzzles.
+   *
+   * @param weight package weight
+   * @return fill shader configured for the System Recovery crate gauge
+   */
+  public static EnergyFillShader packageFillShader(int weight) {
+    return new EnergyFillShader(
+            weight / 100f,
+            packageFillColor(weight),
+            EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
+        .animMagnitude(0.015f);
+  }
+
+  private static Color packageFillColor(int value) {
+    Color color = new Color();
+    color.fromHsv(packageHue(value) * 360f, 0.85f, 1f);
+    return color;
+  }
+
+  private static float packageHue(int value) {
+    return switch (value) {
+      case 15 -> 0.00f;
+      case 20 -> 0.14f;
+      case 30 -> 0.33f;
+      case 40 -> 0.60f;
+      case 60 -> 0.85f;
+      default -> 0.08f;
     };
   }
+
 }

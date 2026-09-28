@@ -19,6 +19,7 @@ import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
 import rooms.systemRecovery.SystemRecovery;
+import rooms.systemRecovery.entities.EnergyEntityFactory;
 import rooms.systemRecovery.entities.SortingEntityFactory;
 import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -26,7 +27,6 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
-import rooms.systemRecovery.util.shaders.EnergyGlow;
 
 /**
  * Riddle 5: compare adjacent containers; wrong answers reset the exercise.
@@ -338,9 +338,10 @@ public final class ManualSortingRiddle {
                     .add(
                         "sortComparisonFill",
                         new EnergyFillShader(
-                                sortValue(data), Color.CYAN, "objects/tech/CryoBox.png")
+                                sortValue(data),
+                                Color.CYAN,
+                                EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
                             .animMagnitude(0));
-                EnergyGlow.addTo(draw);
               });
     }
     if (sortCompleted) return;

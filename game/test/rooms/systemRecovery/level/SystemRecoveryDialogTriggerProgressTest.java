@@ -24,7 +24,9 @@ import org.junit.jupiter.api.Test;
 import rooms.systemRecovery.petrinet.ProgressDebugSnapshot;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
+import rooms.systemRecovery.riddles.InventoryScannerRiddle;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
+import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 
 /** Guarantees that moving across story-only room triggers never advances puzzle progress. */
 class SystemRecoveryDialogTriggerProgressTest {
@@ -115,5 +117,28 @@ class SystemRecoveryDialogTriggerProgressTest {
 
     SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.SEARCH_PROGRAM);
     assertFalse((boolean) enabled.invoke(level, archiveTrigger));
+  }
+
+  @Test
+  void scannerInstructionsUseThePhysicalScanResultWithinTheSamePetriPlace()
+      throws ReflectiveOperationException {
+    Method relevant =
+        SystemRecoveryLevel.class.getDeclaredMethod(
+            "isStoryDialogRelevant", SystemRecoveryStoryDialogs.StoryStep.class);
+    relevant.setAccessible(true);
+    SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.ROOM3_DOOR_CODE);
+
+    assertTrue((boolean) relevant.invoke(level, SystemRecoveryStoryDialogs.SCANNER_LEVER));
+    assertFalse((boolean) relevant.invoke(level, SystemRecoveryStoryDialogs.SCANNER_COMPLETE));
+
+    Field scannerField = SystemRecoveryLevel.class.getDeclaredField("inventoryScanner");
+    scannerField.setAccessible(true);
+    InventoryScannerRiddle scanner = (InventoryScannerRiddle) scannerField.get(level);
+    Field completedField = InventoryScannerRiddle.class.getDeclaredField("scannerCompleted");
+    completedField.setAccessible(true);
+    completedField.setBoolean(scanner, true);
+
+    assertFalse((boolean) relevant.invoke(level, SystemRecoveryStoryDialogs.SCANNER_LEVER));
+    assertTrue((boolean) relevant.invoke(level, SystemRecoveryStoryDialogs.SCANNER_COMPLETE));
   }
 }

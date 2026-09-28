@@ -3,14 +3,14 @@ package rooms.systemRecovery.network;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import rooms.systemRecovery.entities.TransportEntityFactory;
 
-/** Reconstructs conveyor package colors and the active scanner comparison on each client. */
+/** Reconstructs conveyor value fills and the active scanner comparison on each client. */
 final class ConveyorSortVisualSync {
 
   private int lastLeftPackage = -1;
@@ -85,6 +85,7 @@ final class ConveyorSortVisualSync {
                           draw.shaders().remove("beltSortRight");
                           draw.shaders().remove("beltSortScanner");
                           draw.shaders().remove("beltPackageColor");
+                          draw.shaders().remove("beltPackageFill");
                         }));
   }
 
@@ -97,10 +98,8 @@ final class ConveyorSortVisualSync {
                     .ifPresent(
                         draw -> {
                           draw.tintColor(0xFFFFFFFF);
-                          draw.shaders()
-                              .add(
-                                  "beltPackageColor",
-                                  new HueRemapShader(0.08f, packageHue(value), 0.12f));
+                          draw.shaders().add(
+                              "beltPackageFill", TransportEntityFactory.packageFillShader(value));
                         }));
   }
 
@@ -113,17 +112,6 @@ final class ConveyorSortVisualSync {
                     .fetch(DrawComponent.class)
                     .ifPresent(
                         draw -> draw.shaders().add(shaderName, new OutlineShader(1, color))));
-  }
-
-  private static float packageHue(int value) {
-    return switch (value) {
-      case 15 -> 0.00f;
-      case 20 -> 0.14f;
-      case 30 -> 0.33f;
-      case 40 -> 0.60f;
-      case 60 -> 0.85f;
-      default -> 0.08f;
-    };
   }
 
   private static Map<Integer, Integer> parsePackageMetadata(String metadata) {

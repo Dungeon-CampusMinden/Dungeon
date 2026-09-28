@@ -3,7 +3,6 @@ package rooms.systemRecovery.riddles;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -48,8 +47,8 @@ class EnergyRiddleTest {
         .when(() -> EnergyEntityFactory.batteryBox(any(Point.class), any(Runnable.class)))
         .thenReturn(new Entity("battery-box"));
     energyEntities
-        .when(() -> EnergyEntityFactory.cryoBox(any(Point.class), anyBoolean()))
-        .thenAnswer(invocation -> new Entity("energy-cryo-box"));
+        .when(() -> EnergyEntityFactory.energyCrate(any(Point.class)))
+        .thenAnswer(invocation -> new Entity("energy-crate"));
     display = new Entity("energy-display");
     displays
         .when(() -> SystemRecoveryDisplayFactory.hintDisplay(any(Point.class), any(), anyString()))

@@ -7,7 +7,7 @@ import engine.components.DrawComponent;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import java.util.Map;
-import rooms.systemRecovery.util.shaders.EnergyGlow;
+import rooms.systemRecovery.entities.EnergyEntityFactory;
 
 /** Reconstructs the current manual-sort comparison visuals from server metadata. */
 final class ManualSortVisualSync {
@@ -93,9 +93,10 @@ final class ManualSortVisualSync {
                   .add(
                       "sortComparisonFill",
                       new EnergyFillShader(
-                              sortValue(entity) / 100f, Color.CYAN, "objects/tech/CryoBox.png")
+                              sortValue(entity) / 100f,
+                              Color.CYAN,
+                              EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
                           .animMagnitude(0));
-              EnergyGlow.addTo(draw);
             });
   }
 

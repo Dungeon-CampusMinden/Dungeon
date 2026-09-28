@@ -20,7 +20,6 @@ import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
-import rooms.systemRecovery.util.shaders.EnergyGlow;
 
 /**
  * Riddle 1: materialize energy containers and unlock the one-shot battery reward.
@@ -151,7 +150,7 @@ public final class EnergyRiddle {
     energyCratesSpawned = true;
     revealEnergyDisplayText();
     for (int index = 0; index < 5; index++) {
-      Game.add(EnergyEntityFactory.cryoBox(level.getPoint("a" + index), false));
+      Game.add(EnergyEntityFactory.energyCrate(level.getPoint("a" + index)));
     }
   }
 
@@ -217,10 +216,11 @@ public final class EnergyRiddle {
                           new ShaderComponent.ShaderEntry(
                               "energieShader",
                               0,
-                              new EnergyFillShader(fill, Color.BLUE, "objects/tech/CryoBox.png")
-                                  .animMagnitude(0)),
-                          new ShaderComponent.ShaderEntry(
-                              EnergyGlow.SHADER_ID, 1, EnergyGlow.create()))));
+                              new EnergyFillShader(
+                                      fill,
+                                      Color.BLUE,
+                                      EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
+                                  .animMagnitude(0)))));
     }
   }
 }

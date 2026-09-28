@@ -24,6 +24,7 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
 
   private final TextField innerBound;
   private ProgramWriteStatus writeStatus;
+  private boolean initialFocusRequested;
 
   /**
    * Creates the search-program editor with values restored from the inserted chip.
@@ -97,6 +98,14 @@ public final class SearchProgramTab extends SystemRecoveryComputerTab {
     actions.add(upload).width(240).height(52);
     layout.add(actions).right().padTop(12);
     add(layout).grow();
+  }
+
+  @Override
+  public void act(float delta) {
+    super.act(delta);
+    if (initialFocusRequested || innerBound.getStage() == null) return;
+    innerBound.getStage().setKeyboardFocus(innerBound);
+    initialFocusRequested = true;
   }
 
   private TextField createCodeField(String value) {

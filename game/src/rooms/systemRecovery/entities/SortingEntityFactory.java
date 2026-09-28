@@ -26,7 +26,7 @@ public final class SortingEntityFactory {
    * @return configured sorting crystal
    */
   public static Entity dataCrystal(Point point, int value) {
-    Entity entity = EnergyEntityFactory.cryoBox(point, false);
+    Entity entity = EnergyEntityFactory.energyCrate(point);
     entity.name("sort_data_" + value);
     entity.add(
         new InteractionComponent(

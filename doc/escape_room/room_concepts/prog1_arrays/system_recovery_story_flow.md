@@ -54,9 +54,12 @@ anschließend fliehen.
 - Ein Story-Schritt wird pro Spieler höchstens einmal angezeigt und zugleich ins gemeinsame
   Questlog geschrieben.
 - Persönliche Terminalfolgen gehen an den handelnden Spieler; gemeinsame Weltfolgen an alle.
-- Ein geöffnetes Computerfenster verzögert den Dialog für den betroffenen Spieler.
-- Positionsbasierte `dialog_trigger_*` starten nur Raumdialoge. Sie verändern weder Rätselzustand
-  noch Petri-Netz.
+- Ein offener blockierender Dialog verzögert weitere Storytexte für denselben Spieler, nicht für
+  andere Spieler. Überholte Texte werden vor der Anzeige gegen den aktuellen Petri-Schritt geprüft
+  und verworfen; erst angezeigte Texte gelangen ins Questlog.
+- Positionsbasierte `dialog_trigger_*` starten Raumdialoge nur im zugeordneten Petri-Schritt.
+  Sie verändern weder Rätselzustand noch Petri-Netz. Beim Inventarscanner entscheidet zusätzlich
+  der tatsächliche Scanabschluss zwischen den beiden Texten desselben Schritts.
 - ECHOs Übergangs- und Abschlussgespräche erfordern eine Interaktion mit dem klingelnden Telefon.
 - Das Petri-Netz folgt akzeptierten Terminal-, Chip- und physischen Erfolgen. Ein Raumdialog
   darf die Markierung nicht verändern.

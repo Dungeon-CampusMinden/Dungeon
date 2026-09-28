@@ -130,7 +130,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private final SearchRobotRiddle systemCoreSearchRobot = new SearchRobotRiddle(this);
   private final SystemCoreRiddle systemCore = new SystemCoreRiddle(this, systemCoreSearchRobot);
   private final List<Entity> doorLabels = new ArrayList<>();
-  private final SystemRecoveryStoryDialogs storyDialogs = new SystemRecoveryStoryDialogs();
+  private final SystemRecoveryStoryDialogs storyDialogs =
+      new SystemRecoveryStoryDialogs(this::isStoryDialogRelevant);
   private final SystemRecoveryPhoneController phoneController =
       new SystemRecoveryPhoneController(
           this::openDataStorageAfterEchoCall,
@@ -786,25 +787,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   }
 
   private boolean isDialogTriggerEnabled(SystemRecoveryDialogTriggers.DialogTrigger trigger) {
-    SystemRecoveryLearningStep requiredStep =
-        switch (trigger.pointName()) {
-          case SystemRecoveryDialogTriggers.MODULE_STORAGE ->
-              SystemRecoveryLearningStep.MODULE_ARRAY;
-          case SystemRecoveryDialogTriggers.INVENTORY_SCANNER ->
-              SystemRecoveryLearningStep.INVENTORY_COUNT;
-          case SystemRecoveryDialogTriggers.TRANSPORT_STORAGE ->
-              SystemRecoveryLearningStep.TRANSPORT_ARRAY;
-          case SystemRecoveryDialogTriggers.MANUAL_SORTING ->
-              SystemRecoveryLearningStep.MANUAL_SORTING;
-          case SystemRecoveryDialogTriggers.DATA_ARCHIVE ->
-              SystemRecoveryLearningStep.ARCHIVE_ARRAYS;
-          case SystemRecoveryDialogTriggers.TWO_DIMENSIONAL_STORAGE ->
-              SystemRecoveryLearningStep.STORAGE_ARRAY;
-          case SystemRecoveryDialogTriggers.SYSTEM_CORE -> SystemRecoveryLearningStep.CORE_SORT;
-          default ->
-              throw new IllegalArgumentException("Unknown dialog trigger: " + trigger.pointName());
-        };
-    if (SystemRecoveryProgressNet.activeStep().orElse(null) != requiredStep) return false;
+    if (!isStoryDialogRelevant(trigger.step())) return false;
     if (SystemRecoveryDialogTriggers.MODULE_STORAGE.equals(trigger.pointName())) {
       return energy.batteryInserted();
     }
@@ -820,6 +803,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (SystemRecoveryDialogTriggers.TWO_DIMENSIONAL_STORAGE.equals(trigger.pointName())) {
       return dataArchive.completed();
     }
+    return true;
+  }
+
+  private boolean isStoryDialogRelevant(SystemRecoveryStoryDialogs.StoryStep step) {
+    if (SystemRecoveryProgressNet.activeStep().orElse(null) != step.validAt()) return false;
+    if (step == SystemRecoveryStoryDialogs.SCANNER_LEVER) return !inventoryScanner.completed();
+    if (step == SystemRecoveryStoryDialogs.SCANNER_COMPLETE) return inventoryScanner.completed();
+    if (step == SystemRecoveryStoryDialogs.COMPLETED) return !systemCoreExitOpen;
     return true;
   }
 
@@ -1467,8 +1458,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     systemCoreAlarmActive = false;
     SystemRecoveryAlarm.deactivate();
     SystemRecoveryPuzzleEvents.solved(SystemRecoveryPuzzle.SYSTEM_CORE);
-    storyDialogs.announceCompletionToAllPlayers();
-    triggerFinalEchoCall();
+    storyDialogs.announceCompletionToAllPlayers(this::triggerFinalEchoCall);
   }
 
   /** Opens the shared elevator exit only after ECHO's final call has been answered. */

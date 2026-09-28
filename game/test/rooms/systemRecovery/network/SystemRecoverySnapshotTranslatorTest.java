@@ -18,7 +18,6 @@ import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.systems.LevelSystem;
 import engine.utils.Point;
 import engine.utils.components.draw.shader.EnergyFillShader;
-import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import feature.interaction.InteractionComponent;
 import feature.questlog.QuestLogComponent;
@@ -55,7 +54,7 @@ public class SystemRecoverySnapshotTranslatorTest {
   /** Custom System Recovery spawn metadata must not discard synchronized entity shaders. */
   @Test
   void entitySpawnMetadataPreservesShaderComponent() {
-    Entity energyCrate = EnergyEntityFactory.cryoBox(new Point(0, 0), false);
+    Entity energyCrate = EnergyEntityFactory.energyCrate(new Point(0, 0));
     energyCrate.add(new InteractionComponent());
     energyCrate.add(
         new ShaderComponent("energieShader", 0, new EnergyFillShader(0.4f, Color.BLUE)));
@@ -88,9 +87,9 @@ public class SystemRecoverySnapshotTranslatorTest {
     assertEquals(0x66FF66FF, module.fetch(DrawComponent.class).orElseThrow().tintColor());
   }
 
-  /** A late join after sorting still applies package colors when no comparison is active. */
+  /** A late join after sorting still restores package value fills when idle. */
   @Test
-  void completedConveyorSnapshotAppliesAndRefreshesPackageColors() {
+  void conveyorSnapshotUsesWeightScaledFillShaderForPackageCrates() {
     Game.removeAllEntities();
     try {
       Entity packageEntity = TransportEntityFactory.packageEntity(new Point(0, 0), 15);
@@ -105,15 +104,18 @@ public class SystemRecoverySnapshotTranslatorTest {
 
       sync.apply(metadata);
 
-      HueRemapShader initial =
-          (HueRemapShader)
+      EnergyFillShader initial =
+          (EnergyFillShader)
               packageEntity
                   .fetch(DrawComponent.class)
                   .orElseThrow()
                   .shaders()
-                  .get("beltPackageColor");
-      assertNotNull(initial, "the no-comparison snapshot must still restore final package colors");
-      assertEquals(0.0f, initial.targetHue());
+                  .get("beltPackageFill");
+      assertNotNull(initial, "the no-comparison snapshot must still render package values");
+      assertEquals(0.15f, initial.fillPercentage());
+      assertEquals(EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE, initial.texturePath());
+      assertEquals(1f, initial.color().r);
+      assertTrue(initial.color().r > initial.color().g);
 
       sync.apply(
           Map.of(
@@ -123,17 +125,17 @@ public class SystemRecoverySnapshotTranslatorTest {
               SystemRecoveryEntitySpawnStrategy.METADATA_BELT_PACKAGES,
                   packageEntity.id() + ":40"));
 
-      HueRemapShader refreshed =
-          (HueRemapShader)
+      EnergyFillShader refreshed =
+          (EnergyFillShader)
               packageEntity
                   .fetch(DrawComponent.class)
                   .orElseThrow()
                   .shaders()
-                  .get("beltPackageColor");
-      assertEquals(0.6f, refreshed.targetHue());
+                  .get("beltPackageFill");
+      assertEquals(0.4f, refreshed.fillPercentage());
       sync.reset();
       assertNull(
-          packageEntity.fetch(DrawComponent.class).orElseThrow().shaders().get("beltPackageColor"));
+          packageEntity.fetch(DrawComponent.class).orElseThrow().shaders().get("beltPackageFill"));
     } finally {
       Game.removeAllEntities();
     }

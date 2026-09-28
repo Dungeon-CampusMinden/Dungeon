@@ -25,25 +25,28 @@ import java.util.Map;
 import rooms.systemRecovery.items.BatteryItem;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
-/** Builds the Cryo-Box and battery insertion entities used by riddle 1. */
+/** Builds the energy crate and battery insertion entities used by riddle 1. */
 public final class EnergyEntityFactory {
+
+  /** Shared texture for System Recovery crates whose values are shown by a fill shader. */
+  public static final String ENERGY_CRATE_TEXTURE = "objects/crate/system_recovery_energy.png";
+  /** Transparent mask that lets the fill shader color only the crate's central energy gauge. */
+  public static final String ENERGY_CRATE_FILL_TEXTURE =
+      "objects/crate/system_recovery_energy_fill.png";
 
   private EnergyEntityFactory() {}
 
   /**
-   * Creates a Cryo-Box with either its active or inactive texture.
+   * Creates an energy crate; its stored value is rendered by the fill shader.
    *
-   * @param point position of the Cryo-Box
-   * @param active whether the filled appearance should be used
-   * @return configured Cryo-Box entity
+   * @param point position of the crate
+   * @return configured energy crate
    */
-  public static Entity cryoBox(Point point, boolean active) {
+  public static Entity energyCrate(Point point) {
     Entity entity = new Entity();
     entity.add(new PositionComponent(point));
     entity.add(new CollideComponent());
-    entity.add(
-        new DrawComponent(
-            new SimpleIPath(active ? "objects/tech/CryoBox.png" : "objects/tech/CryoBoxOFF.png")));
+    entity.add(new DrawComponent(new SimpleIPath(ENERGY_CRATE_TEXTURE)));
     return entity;
   }
 
