@@ -4,36 +4,28 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.utils.Scene2dElementFactory;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerTab;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
-/** Displays the array identifiers and data types found in accepted player code. */
+/** Displays the arrays and values derived from server-accepted player code. */
 public final class MemoryWatchTab extends SystemRecoveryComputerTab {
 
   /** Stable key used by the computer tab bar. */
   public static final String KEY = "memory-watch";
 
-  private final Map<String, String> arrayTypes = new LinkedHashMap<>();
+  private final SystemRecoveryMemoryWatch memoryWatch = new SystemRecoveryMemoryWatch();
   private Table entries;
   private Label status;
 
   /**
-   * Creates a Memory Watch view from the server-provided array entries.
+   * Creates a Memory Watch view from the server-provided array snapshot.
    *
-   * @param arrayEntries accepted name/type entries, or an empty array
+   * @param arrayEntries accepted name/type/value entries, or an empty array
    */
   public MemoryWatchTab(String[] arrayEntries) {
     super(KEY, SystemRecoveryText.text("computer.memory-watch-tab"));
-    if (arrayEntries != null) {
-      Arrays.stream(arrayEntries)
-          .map(SystemRecoveryMemoryWatch::parseEntry)
-          .filter(entry -> !entry.name().isBlank())
-          .forEach(this::mergeEntry);
-    }
+    memoryWatch.restoreEntries(arrayEntries);
     createActors();
   }
 
@@ -68,30 +60,21 @@ public final class MemoryWatchTab extends SystemRecoveryComputerTab {
   }
 
   /**
-   * Merges names and types from a server-confirmed terminal source into the visible list.
+   * Applies a server-confirmed terminal source to the displayed memory snapshot.
    *
    * @param source accepted source whose array names and types should be displayed
    */
   public void mergeAcceptedSource(String source) {
-    Arrays.stream(SystemRecoveryMemoryWatch.extractArrayEntries(source))
-        .map(SystemRecoveryMemoryWatch::parseEntry)
-        .filter(entry -> !entry.name().isBlank())
-        .forEach(this::mergeEntry);
+    memoryWatch.recordAcceptedSource(source);
     renderEntries();
-  }
-
-  private void mergeEntry(SystemRecoveryMemoryWatch.ArrayEntry entry) {
-    arrayTypes.merge(
-        entry.name(),
-        entry.type(),
-        (knownType, incomingType) -> "?[]".equals(incomingType) ? knownType : incomingType);
   }
 
   private void renderEntries() {
     if (entries == null) return;
     entries.clearChildren();
-    status.setText(SystemRecoveryText.text("computer.memory-watch-status", arrayTypes.size()));
-    if (arrayTypes.isEmpty()) {
+    String[] arrays = memoryWatch.arrayEntries();
+    status.setText(SystemRecoveryText.text("computer.memory-watch-status", arrays.length));
+    if (arrays.length == 0) {
       Table emptyState = new Table(skin);
       emptyState.setBackground("generic-area");
       emptyState
@@ -103,19 +86,17 @@ public final class MemoryWatchTab extends SystemRecoveryComputerTab {
       return;
     }
 
-    int index = 0;
-    for (Map.Entry<String, String> array : arrayTypes.entrySet()) {
+    for (String encoded : arrays) {
+      SystemRecoveryMemoryWatch.ArrayEntry array = SystemRecoveryMemoryWatch.parseEntry(encoded);
       Table row = new Table(skin);
-      row.setBackground(index % 2 == 0 ? "generic-area" : "generic-area-depth");
-      row.add(createLabel(String.format("%02d", index + 1), 18))
-          .width(52)
-          .left()
-          .pad(10, 14, 10, 8);
-      row.add(createLabel("[]", 24)).width(54).left().pad(10, 0, 10, 8);
-      row.add(createLabel(array.getKey(), 20)).growX().left().pad(10, 0, 10, 14);
-      row.add(createLabel(array.getValue(), 18)).width(100).right().pad(10, 14, 10, 0);
-      entries.add(row).growX().left().padBottom(5).row();
-      index++;
+      row.setBackground("generic-area");
+      row.defaults().left();
+      row.add(createLabel(array.name(), 22)).growX().left().pad(10, 14, 4, 14);
+      row.add(createLabel(array.type(), 18)).right().pad(10, 14, 4, 0).row();
+      Label contents = createLabel(array.contents(), 20);
+      contents.setWrap(true);
+      row.add(contents).growX().left().colspan(2).pad(2, 14, 12, 14);
+      entries.add(row).growX().left().padBottom(7).row();
     }
   }
 }

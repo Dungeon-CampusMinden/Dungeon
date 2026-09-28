@@ -64,7 +64,11 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
     this.skin = UIUtils.defaultSkin();
     setSize(Game.windowWidth(), Game.windowHeight());
     createActors();
-    addTab(new TerminalTab());
+    addTab(
+        new TerminalTab(
+            context
+                .find(SystemRecoveryComputerFactory.TERMINAL_HISTORY_ENTRIES, String[].class)
+                .orElse(new String[0])));
     addTab(
         new MemoryWatchTab(
             context
@@ -273,9 +277,10 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
       return;
     }
     if (tabs.get(TerminalTab.KEY) instanceof TerminalTab terminal) {
+      var acceptedSource = terminal.sourceForFeedback(feedback);
       terminal.applyServerFeedback(feedback);
       if (tabs.get(MemoryWatchTab.KEY) instanceof MemoryWatchTab memoryWatch) {
-        terminal.sourceForFeedback(feedback).ifPresent(memoryWatch::mergeAcceptedSource);
+        acceptedSource.ifPresent(memoryWatch::mergeAcceptedSource);
       }
     }
   }

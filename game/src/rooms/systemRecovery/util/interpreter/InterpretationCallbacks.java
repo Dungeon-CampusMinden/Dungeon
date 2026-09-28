@@ -67,6 +67,7 @@ public final class InterpretationCallbacks {
    * @param attempt accepted partial terminal input
    */
   public static void onPartialTerminalInputAccepted(TerminalAttempt attempt) {
+    SystemRecoveryLevel.recordAcceptedTerminalSubmission(attempt.source());
     SystemRecoveryPuzzleEvents.partialTerminalAttempt(
         attempt.state(), attempt.source(), attempt.playerId());
     SystemRecoveryTerminalFeedback.send(attempt, true);

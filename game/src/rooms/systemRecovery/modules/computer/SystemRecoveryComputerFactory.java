@@ -48,8 +48,11 @@ public final class SystemRecoveryComputerFactory {
   /** Dialog attribute indicating that the final system-core input mask is available. */
   public static final String SYSTEM_CORE_META_AVAILABLE = "systemCoreMetaAvailable";
 
-  /** Dialog attribute containing accepted array identifiers and data types for Memory Watch. */
+  /** Dialog attribute containing accepted array identifiers, types and values for Memory Watch. */
   public static final String MEMORY_ARRAY_ENTRIES = "memoryArrayEntries";
+
+  /** Dialog attribute containing previously accepted terminal sources for the history view. */
+  public static final String TERMINAL_HISTORY_ENTRIES = "terminalHistoryEntries";
 
   private SystemRecoveryComputerFactory() {}
 
@@ -214,6 +217,7 @@ public final class SystemRecoveryComputerFactory {
                 .put(ACCESS_MODULE_INSERTED, programKind == ComputerProgramKind.ACCESS)
                 .put(SYSTEM_CORE_META_AVAILABLE, SystemRecoveryLevel.systemCoreMetaAvailable())
                 .put(MEMORY_ARRAY_ENTRIES, SystemRecoveryLevel.memoryWatchArrayEntries())
+                .put(TERMINAL_HISTORY_ENTRIES, SystemRecoveryLevel.acceptedTerminalSources())
                 .build(),
             targetEntityId);
     ui.registerCallback(

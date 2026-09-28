@@ -3,6 +3,7 @@ package rooms.systemRecovery.modules.computer.content;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -15,6 +16,8 @@ import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogFeedbackFingerprint;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerCallbacks;
@@ -23,7 +26,7 @@ import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
-/** Terminal/editor tab for recovery code input. */
+/** Terminal/editor tab for recovery code input and accepted-source history. */
 public class TerminalTab extends SystemRecoveryComputerTab {
 
   public static final String KEY = "terminal";
@@ -32,22 +35,56 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   private static final Color FAILURE_COLOR = new Color(0.85f, 0.12f, 0.12f, 1f);
   private static String savedCode = "";
 
+  private final List<String> acceptedSources = new ArrayList<>();
   private TextArea codeEditor;
   private Label lineNumbers;
   private Label feedbackLabel;
   private Table feedbackBar;
+  private Table inputView;
+  private Table historyView;
+  private Table historyEntries;
+  private ScrollPane historyScroll;
   private String lastSubmittedFingerprint;
   private int displayedFirstLine = -1;
   private int displayedLineCount = -1;
 
-  /** Creates the terminal tab. */
+  /** Creates the terminal tab without prior accepted code. */
   public TerminalTab() {
+    this(new String[0]);
+  }
+
+  /**
+   * Creates the terminal tab with the server-confirmed code history for this run.
+   *
+   * @param previousSources previously accepted terminal sources
+   */
+  public TerminalTab(String[] previousSources) {
     super(KEY, SystemRecoveryText.text("computer.terminal"));
+    if (previousSources != null) {
+      for (String source : previousSources) addHistoryEntry(source);
+    }
     createActors();
   }
 
   @Override
   protected void createActors() {
+    Table layout = new Table(skin);
+    layout.top();
+    layout.defaults().growX();
+
+    inputView = createInputView();
+    historyView = createHistoryView();
+    Table split = new Table(skin);
+    split.add(inputView).grow().uniformX().padRight(8);
+    split.add(historyView).grow().uniformX();
+    layout.add(split).grow();
+
+    add(layout).grow();
+    updateLineNumbers();
+    renderHistory();
+  }
+
+  private Table createInputView() {
     Table layout = new Table(skin);
     layout.top();
     layout.defaults().growX();
@@ -91,28 +128,27 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     editorPanel.add(codeEditor).grow();
     layout.add(editorPanel).grow().row();
 
-    feedbackLabel = createLabel("", 18);
+    feedbackLabel = createLabel("", 16);
     feedbackLabel.setWrap(true);
 
-    Table footer = new Table(skin);
     Table feedbackPanel = new Table(skin);
     feedbackBar = new Table(skin);
     feedbackBar.setBackground("generic-area-depth");
-    feedbackPanel.add(feedbackBar).width(8).growY().padRight(10);
+    feedbackPanel.add(feedbackBar).width(8).height(28).padRight(8);
     feedbackPanel.add(feedbackLabel).growX().left();
-    footer.add(feedbackPanel).growX().left().padRight(20);
+    layout.add(feedbackPanel).growX().height(34).padTop(8).row();
 
     Table buttons = new Table(skin);
     buttons.right();
-    TextButton sendButton = createButton(SystemRecoveryText.text("computer.send"), "green", 24);
+    TextButton sendButton = createButton(SystemRecoveryText.text("computer.send"), "green", 20);
     TextButton deleteButton =
-        createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 24);
+        createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 20);
     TextButton nextStepButton =
-        createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 24);
+        createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 18);
     TextButton petriNetButton =
-        createButton(SystemRecoveryText.text("computer.petri-net"), "blue-outline", 24);
+        createButton(SystemRecoveryText.text("computer.petri-net"), "blue-outline", 18);
     TextButton getUsbButton =
-        createButton(SystemRecoveryText.text("computer.get-usb"), "blue-outline", 24);
+        createButton(SystemRecoveryText.text("computer.get-usb"), "blue-outline", 18);
     sendButton.addListener(
         new ChangeListener() {
           @Override
@@ -152,18 +188,38 @@ public class TerminalTab extends SystemRecoveryComputerTab {
                 .accept(new DialogResponseMessage.StringValue(""));
           }
         });
-    buttons.add(sendButton).width(150).height(52).padRight(12);
-    buttons.add(deleteButton).width(150).height(52);
+    buttons.add(sendButton).width(145).height(46).padRight(8);
+    buttons.add(deleteButton).width(145).height(46);
+    layout.add(buttons).growX().right().padTop(8).row();
     if (SystemRecovery.debugMode()) {
-      buttons.add(nextStepButton).width(180).height(52).padLeft(12);
-      buttons.add(petriNetButton).width(180).height(52).padLeft(12);
-      buttons.add(getUsbButton).width(160).height(52).padLeft(12);
+      Table debugButtons = new Table(skin);
+      debugButtons.right();
+      debugButtons.add(nextStepButton).width(150).height(42).padRight(8);
+      debugButtons.add(petriNetButton).width(145).height(42).padRight(8);
+      debugButtons.add(getUsbButton).width(125).height(42);
+      layout.add(debugButtons).growX().right().padTop(6);
     }
-    footer.add(buttons).right();
-    layout.add(footer).growX().height(68).padTop(12);
+    return layout;
+  }
 
-    add(layout).grow();
-    updateLineNumbers();
+  private Table createHistoryView() {
+    Table layout = new Table(skin);
+    layout.top().left().defaults().growX();
+    layout.setBackground("generic-area-depth");
+    layout.pad(12);
+    layout
+        .add(createLabel(SystemRecoveryText.text("computer.terminal-history-heading"), 20))
+        .left()
+        .padBottom(10)
+        .row();
+
+    historyEntries = new Table(skin);
+    historyEntries.top().left().defaults().growX().fillX();
+    historyScroll = Scene2dElementFactory.createScrollPane(historyEntries, false, true);
+    historyScroll.setOverscroll(false, false);
+    historyScroll.setFadeScrollBars(false);
+    layout.add(historyScroll).grow().left();
+    return layout;
   }
 
   @Override
@@ -220,6 +276,13 @@ public class TerminalTab extends SystemRecoveryComputerTab {
         && !feedback.sourceFingerprint().equals(lastSubmittedFingerprint)) {
       return;
     }
+    if (feedback.successful()) {
+      addHistoryEntry(codeText());
+      codeEditor.setText("");
+      savedCode = "";
+      lastSubmittedFingerprint = null;
+      updateLineNumbers();
+    }
     showFeedback(
         SystemRecoveryText.text(feedback.messageKey()),
         feedback.successful() ? SUCCESS_COLOR : FAILURE_COLOR,
@@ -239,6 +302,51 @@ public class TerminalTab extends SystemRecoveryComputerTab {
       return Optional.empty();
     }
     return Optional.of(codeText());
+  }
+
+  private void addHistoryEntry(String source) {
+    if (source == null || source.isBlank()) return;
+    if (!acceptedSources.isEmpty() && acceptedSources.get(acceptedSources.size() - 1).equals(source)) {
+      return;
+    }
+    acceptedSources.add(source);
+    renderHistory();
+  }
+
+  private void renderHistory() {
+    if (historyEntries == null) return;
+    historyEntries.clearChildren();
+    if (acceptedSources.isEmpty()) {
+      Table emptyState = new Table(skin);
+      emptyState.setBackground("generic-area");
+      emptyState
+          .add(createLabel(SystemRecoveryText.text("computer.terminal-history-empty"), 20))
+          .growX()
+          .left()
+          .pad(18);
+      historyEntries.add(emptyState).growX().left().row();
+      return;
+    }
+
+    for (int index = 0; index < acceptedSources.size(); index++) {
+      Table entry = new Table(skin);
+      entry.setBackground(index % 2 == 0 ? "generic-area" : "generic-area-depth");
+      entry.top().left().defaults().growX();
+      entry
+          .add(createLabel(SystemRecoveryText.text("computer.terminal-history-entry", index + 1), 18))
+          .left()
+          .pad(10, 14, 4, 14)
+          .row();
+      Label source =
+          createLabel(
+              acceptedSources.get(index),
+              FontSpec.of(Scene2dElementFactory.FONT_PATH, 18, LABEL_COLOR));
+      source.setWrap(true);
+      entry.add(source).growX().left().pad(4, 14, 12, 14);
+      historyEntries.add(entry).growX().left().padBottom(8).row();
+    }
+    historyScroll.layout();
+    historyScroll.setScrollY(historyScroll.getMaxY());
   }
 
   private String codeText() {

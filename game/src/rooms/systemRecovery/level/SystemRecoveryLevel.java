@@ -134,6 +134,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private final Set<Integer> controlsShownPlayers = new HashSet<>();
   private final Set<String> triggeredDialogPoints = new HashSet<>();
   private final SystemRecoveryMemoryWatch memoryWatch = new SystemRecoveryMemoryWatch();
+  private final List<String> acceptedTerminalHistory = new ArrayList<>();
   private Map<String, Point> resolvedPoints = Map.of();
   private final SystemRecoveryTerminalController terminalController =
       new SystemRecoveryTerminalController();
@@ -288,7 +289,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (checkpoint.isPresent()) {
       save.orElseThrow()
           .acceptedTerminalInputs()
-          .forEach(input -> memoryWatch.recordAcceptedSource(input.source()));
+          .forEach(
+                input -> {
+                  memoryWatch.recordAcceptedSource(input.source());
+                  recordTerminalHistory(input.source());
+                });
     }
     return checkpoint.isPresent();
   }
@@ -673,8 +678,23 @@ public class SystemRecoveryLevel extends DungeonLevel {
     currentLevel()
         .ifPresent(
             level -> {
+              level.recordTerminalHistory(attempt.source());
               level.memoryWatch.recordAcceptedSource(attempt.acceptedSource());
               SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
+            });
+  }
+
+  /**
+   * Records a correct partial terminal submission before its puzzle step is complete.
+   *
+   * @param source accepted partial source
+   */
+  public static void recordAcceptedTerminalSubmission(String source) {
+    currentLevel()
+        .ifPresent(
+            level -> {
+              level.recordTerminalHistory(source);
+              level.memoryWatch.recordAcceptedSource(source);
             });
   }
 
@@ -694,7 +714,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   }
 
   /**
-   * Returns accepted array identifiers and data types for the Memory Watch tab.
+   * Returns accepted array identifiers, types and known cell values for the Memory Watch tab.
    *
    * @return accepted array entries
    */
@@ -702,6 +722,30 @@ public class SystemRecoveryLevel extends DungeonLevel {
     return currentLevel()
         .map(level -> level.memoryWatch.arrayEntries())
         .orElseGet(() -> new String[0]);
+  }
+
+  /**
+   * Returns previously accepted terminal sources in server-confirmed order.
+   *
+   * @return accepted source history for a newly opened terminal dialog
+   */
+  public static String[] acceptedTerminalSources() {
+    return currentLevel()
+        .map(SystemRecoveryLevel::terminalHistorySnapshot)
+        .orElseGet(() -> new String[0]);
+  }
+
+  private synchronized void recordTerminalHistory(String source) {
+    if (source == null || source.isBlank()) return;
+    if (!acceptedTerminalHistory.isEmpty()
+        && acceptedTerminalHistory.get(acceptedTerminalHistory.size() - 1).equals(source)) {
+      return;
+    }
+    acceptedTerminalHistory.add(source);
+  }
+
+  private synchronized String[] terminalHistorySnapshot() {
+    return acceptedTerminalHistory.toArray(String[]::new);
   }
 
   /**
