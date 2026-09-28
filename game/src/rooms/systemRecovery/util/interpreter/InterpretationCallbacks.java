@@ -62,11 +62,11 @@ public final class InterpretationCallbacks {
   }
 
   /**
-   * Gives inline success feedback for one valid module assignment without completing the step.
+   * Gives inline success feedback for valid partial input without completing the step.
    *
    * @param attempt accepted partial terminal input
    */
-  public static void onPartialModuleValueAccepted(TerminalAttempt attempt) {
+  public static void onPartialTerminalInputAccepted(TerminalAttempt attempt) {
     SystemRecoveryPuzzleEvents.partialTerminalAttempt(
         attempt.state(), attempt.source(), attempt.playerId());
     SystemRecoveryTerminalFeedback.send(attempt, true);

@@ -173,12 +173,18 @@ public final class TerminalInterpreter {
                     == EvaluationStatus.COMPLETE;
         combinedSubmission |= completesFollowingStep;
         TerminalAttempt attempt =
-            new TerminalAttempt(state, source, playerId, dialogId, combinedSubmission);
+            new TerminalAttempt(
+                state,
+                source,
+                playerId,
+                dialogId,
+                combinedSubmission,
+                acceptedSourceForStep(state, source));
 
         // Apply room effects before committing this state so a failed callback stays retryable.
         requirement.onSuccess().accept(attempt);
         successfulContext.replaceWith(evaluation.context());
-        acceptedInputs.add(new AcceptedInput(state, acceptedSourceForRestore(state, source)));
+        acceptedInputs.add(new AcceptedInput(state, attempt.acceptedSource()));
         partialMatches.remove(state);
         partialSources.remove(state);
         currentState++;
@@ -312,8 +318,13 @@ public final class TerminalInterpreter {
     for (TerminalStatement statement : statements) {
       boolean matchedStatement = false;
       for (int lineIndex = 0; lineIndex < requiredLines.length; lineIndex++) {
+        if (matchedLines[lineIndex]
+            || !requirement.prerequisitesMet(lineIndex, matchedLines)) {
+          continue;
+        }
         TerminalMatchContext candidate = context.copy();
-        if (requiredLines[lineIndex].check(statement.source(), candidate)) {
+        if (requiredLines[lineIndex].check(statement.source(), candidate)
+            && requirement.captureGroupsAreDistinct(candidate)) {
           matchedLines[lineIndex] = true;
           matchedCurrentStep = true;
           matchedStatement = true;
@@ -344,23 +355,62 @@ public final class TerminalInterpreter {
     return matches.length > 0;
   }
 
-  private String acceptedSourceForRestore(int state, String completingSource) {
+  private String acceptedSourceForStep(int state, String completingSource) {
     List<String> acceptedParts = partialSources.get(state);
     if (acceptedParts == null || acceptedParts.isEmpty()) return completingSource;
+    if (acceptedParts.stream().allMatch(part -> containsStatements(completingSource, part))) {
+      return completingSource;
+    }
 
     List<String> completeSource = new ArrayList<>(acceptedParts);
     completeSource.add(completingSource);
     return String.join("\n", completeSource);
   }
 
+  private static boolean containsStatements(String source, String expectedSource) {
+    List<String> availableStatements =
+        parsedStatements(source).stream().map(TerminalStatement::source).toList();
+    return parsedStatements(expectedSource).stream()
+        .map(TerminalStatement::source)
+        .allMatch(availableStatements::contains);
+  }
+
   private static boolean matchesRequiredCodeLines(
       List<TerminalStatement> statements,
       TerminalCodeRequirement puzzleState,
       TerminalMatchContext context) {
-    if (puzzleState.requiresOrder()) {
-      return containsCodeLinesInOrder(statements, puzzleState.codeLines(), context);
+    boolean matched;
+    if (puzzleState.hasPrerequisites()) {
+      matched = containsLinesWithPrerequisites(statements, puzzleState, context);
+    } else if (puzzleState.requiresOrder()) {
+      matched = containsCodeLinesInOrder(statements, puzzleState.codeLines(), context);
+    } else {
+      matched = containsEveryCodeLine(statements, puzzleState.codeLines(), context);
     }
-    return containsEveryCodeLine(statements, puzzleState.codeLines(), context);
+    return matched && puzzleState.captureGroupsAreDistinct(context);
+  }
+
+  private static boolean containsLinesWithPrerequisites(
+      List<TerminalStatement> statements,
+      TerminalCodeRequirement requirement,
+      TerminalMatchContext context) {
+    boolean[] matchedLines = new boolean[requirement.codeLines().length];
+    CodeLine[] requiredLines = requirement.codeLines();
+    for (TerminalStatement statement : statements) {
+      for (int lineIndex = 0; lineIndex < requiredLines.length; lineIndex++) {
+        if (matchedLines[lineIndex]
+            || !requirement.prerequisitesMet(lineIndex, matchedLines)) {
+          continue;
+        }
+        TerminalMatchContext candidate = context.copy();
+        if (requiredLines[lineIndex].check(statement.source(), candidate)
+            && requirement.captureGroupsAreDistinct(candidate)) {
+          matchedLines[lineIndex] = true;
+          context.replaceWith(candidate);
+        }
+      }
+    }
+    return allMatched(matchedLines);
   }
 
   private static boolean containsEveryCodeLine(

@@ -2,6 +2,7 @@ package rooms.systemRecovery.util.interpreter;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -283,7 +284,10 @@ public final class TerminalInterpreterSetup {
             assignment("energie", 1, ENERGIE_VALUE_1),
             assignment("energie", 2, ENERGIE_VALUE_2),
             assignment("energie", 3, ENERGIE_VALUE_3),
-            assignment("energie", 4, ENERGIE_VALUE_4)));
+            assignment("energie", 4, ENERGIE_VALUE_4))
+            .withPartialSubmissions(
+                successOrPreview(
+                    onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted)));
   }
 
   private static void setupRiddleTwoDefectiveModuleStorage(
@@ -340,7 +344,7 @@ public final class TerminalInterpreterSetup {
             assignmentOrModuleLiteral(4, "\"NETWORK\""))
             .withPartialSubmissions(
                 successOrPreview(
-                    onSuccess, InterpretationCallbacks::onPartialModuleValueAccepted)));
+                    onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted)));
   }
 
   private static void setupRiddleTwoStepThreeRemoveGpuModule(
@@ -424,9 +428,36 @@ public final class TerminalInterpreterSetup {
             successOrPreview(
                 onSuccess, InterpretationCallbacks::onRiddleSevenStepOneDataArchiveLoaded),
             onFailure,
-            unorderedArrayLiteral("int", "energie", "20", "50", "80"),
-            unorderedArrayLiteral("String", "module", "\"CPU\"", "\"GPU\"", "\"RAM\""),
-            unorderedArrayLiteral("boolean", "aktiv", "true", "false", "true")));
+            archiveArrayInitialization("int", "energie", "20", "50", "80"),
+            archiveArrayValue("int", "energie", "20", "archiveEnergy20Index", "20", "50", "80"),
+            archiveArrayValue("int", "energie", "50", "archiveEnergy50Index", "20", "50", "80"),
+            archiveArrayValue("int", "energie", "80", "archiveEnergy80Index", "20", "50", "80"),
+            archiveArrayInitialization("String", "module", "\"CPU\"", "\"GPU\"", "\"RAM\""),
+            archiveArrayValue(
+                "String", "module", "\"CPU\"", "archiveModuleCpuIndex", "\"CPU\"", "\"GPU\"", "\"RAM\""),
+            archiveArrayValue(
+                "String", "module", "\"GPU\"", "archiveModuleGpuIndex", "\"CPU\"", "\"GPU\"", "\"RAM\""),
+            archiveArrayValue(
+                "String", "module", "\"RAM\"", "archiveModuleRamIndex", "\"CPU\"", "\"GPU\"", "\"RAM\""),
+            archiveArrayInitialization("boolean", "aktiv", "true", "false", "true"),
+            archiveArrayValue(
+                "boolean", "aktiv", "true", "archiveActiveTrueFirstIndex", "true", "false", "true"),
+            archiveArrayValue(
+                "boolean", "aktiv", "false", "archiveActiveFalseIndex", "true", "false", "true"),
+            archiveArrayValue(
+                "boolean", "aktiv", "true", "archiveActiveTrueSecondIndex", "true", "false", "true"))
+            .withPartialSubmissions(
+                successOrPreview(
+                    onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted))
+            .requiringPrerequisites(archiveArrayPrerequisites())
+            .requiringDistinctCaptures(
+                List.of(
+                    Set.of("archiveEnergy20Index", "archiveEnergy50Index", "archiveEnergy80Index"),
+                    Set.of("archiveModuleCpuIndex", "archiveModuleGpuIndex", "archiveModuleRamIndex"),
+                    Set.of(
+                        "archiveActiveTrueFirstIndex",
+                        "archiveActiveFalseIndex",
+                        "archiveActiveTrueSecondIndex"))));
   }
 
   private static void setupRiddleEightTwoDimensionalStorage(
@@ -459,7 +490,10 @@ public final class TerminalInterpreterSetup {
             onFailure,
             capturedTwoDimensionalAssignment(STORAGE_ARRAY, 0, 2, "1"),
             capturedTwoDimensionalAssignment(STORAGE_ARRAY, 1, 3, "2"),
-            capturedTwoDimensionalAssignment(STORAGE_ARRAY, 2, 1, "3")));
+            capturedTwoDimensionalAssignment(STORAGE_ARRAY, 2, 1, "3"))
+            .withPartialSubmissions(
+                successOrPreview(
+                    onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted)));
   }
 
   /**
@@ -752,6 +786,40 @@ public final class TerminalInterpreterSetup {
             "\"GPU\"",
             "\"SSD\"",
             "\"NETWORK\""));
+  }
+
+  private static CodeLine archiveArrayInitialization(String type, String variable, String... values) {
+    return combine(
+        arrayCreation(type, variable, values.length),
+        unorderedArrayLiteral(type, variable, values));
+  }
+
+  private static CodeLine archiveArrayValue(
+      String type,
+      String variable,
+      String value,
+      String indexCapture,
+      String... completeValues) {
+    return combine(
+        codeLine(
+            variable
+                + "\\s*\\[\\s*"
+                + "(?<"
+                + indexCapture
+                + ">[0-2])"
+                + "\\s*]\\s*=\\s*"
+                + value
+                + "\\s*;"),
+        unorderedArrayLiteral(type, variable, completeValues));
+  }
+
+  private static int[][] archiveArrayPrerequisites() {
+    int[][] prerequisites = new int[12][];
+    Arrays.setAll(prerequisites, ignored -> new int[0]);
+    for (int line = 1; line <= 3; line++) prerequisites[line] = new int[] {0};
+    for (int line = 5; line <= 7; line++) prerequisites[line] = new int[] {4};
+    for (int line = 9; line <= 11; line++) prerequisites[line] = new int[] {8};
+    return prerequisites;
   }
 
   private static CodeLine combine(CodeLine... codeLines) {

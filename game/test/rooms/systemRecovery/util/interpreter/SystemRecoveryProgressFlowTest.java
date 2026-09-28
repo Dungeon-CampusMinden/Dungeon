@@ -70,7 +70,22 @@ class SystemRecoveryProgressFlowTest {
     submit(energyArray(), 101, SystemRecoveryLearningStep.ENERGY_VALUES, 1);
     assertFalse(interpreter.interpret(energyArray(), 202), "a completed chunk cannot repeat");
     assertState(SystemRecoveryLearningStep.ENERGY_VALUES, 1);
-    submit(energyValues(), 202, SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY, 2);
+    List<String> energyAssignments =
+        List.of(
+            "energie[3] = 30;",
+            "energie[0] = 40;",
+            "energie[4] = 60;",
+            "energie[2] = 80;",
+            "energie[1] = 10;");
+    for (int index = 0; index < energyAssignments.size() - 1; index++) {
+      assertTrue(terminalController.interpret(energyAssignments.get(index), 202));
+      assertState(SystemRecoveryLearningStep.ENERGY_VALUES, 1);
+    }
+    submit(
+        energyAssignments.getLast(),
+        202,
+        SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY,
+        2);
 
     complete(
         SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY,
@@ -125,9 +140,40 @@ class SystemRecoveryProgressFlowTest {
         SystemRecoveryLearningStep.ARCHIVE_ARRAYS,
         9);
 
-    submit(archiveArrays(), 202, SystemRecoveryLearningStep.STORAGE_ARRAY, 10);
+    List<String> archiveInputs =
+        List.of(
+            "String[] module = new String[3];",
+            "module[2] = \"RAM\";",
+            "boolean[] aktiv = new boolean[3];",
+            "aktiv[0] = true;",
+            "int[] energie = new int[3];",
+            "energie[1] = 80;",
+            "module[0] = \"CPU\";",
+            "aktiv[2] = false;",
+            "energie[2] = 20;",
+            "module[1] = \"GPU\";",
+            "aktiv[1] = true;");
+    for (String source : archiveInputs) {
+      assertTrue(terminalController.interpret(source, 202), source);
+      assertState(SystemRecoveryLearningStep.ARCHIVE_ARRAYS, 9);
+    }
+    submit(
+        "energie[0] = 50;",
+        202,
+        SystemRecoveryLearningStep.STORAGE_ARRAY,
+        10);
     submit(storageArray(), 101, SystemRecoveryLearningStep.STORAGE_VALUES, 11);
-    submit(storageValues(), 202, SystemRecoveryLearningStep.SEARCH_PROGRAM, 12);
+    List<String> storageAssignments =
+        List.of("lager[2][1] = 3;", "lager[0][2] = 1;", "lager[1][3] = 2;");
+    for (int index = 0; index < storageAssignments.size() - 1; index++) {
+      assertTrue(terminalController.interpret(storageAssignments.get(index), 202));
+      assertState(SystemRecoveryLearningStep.STORAGE_VALUES, 11);
+    }
+    submit(
+        storageAssignments.getLast(),
+        202,
+        SystemRecoveryLearningStep.SEARCH_PROGRAM,
+        12);
     assertTrue(TerminalInterpreterSetup.matchesSearchRobotProgram(mapSearchLoop()));
     complete(
         SystemRecoveryLearningStep.SEARCH_PROGRAM,

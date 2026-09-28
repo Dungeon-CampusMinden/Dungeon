@@ -1,6 +1,8 @@
 package rooms.systemRecovery.modules.interpreter;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -13,6 +15,8 @@ import java.util.function.Consumer;
  * @param acceptsPartialInput whether correct subsets may be accumulated across submissions
  * @param acceptsFollowingStepInSameSubmission whether this submission may complete the next step
  * @param onPartialInput callback for an accepted but incomplete submission
+ * @param prerequisites code-line indexes that must already be matched for each code line
+ * @param distinctCaptureGroups capture names that must resolve to distinct values
  */
 public record TerminalCodeRequirement(
     CodeLine[] codeLines,
@@ -21,7 +25,9 @@ public record TerminalCodeRequirement(
     Consumer<TerminalAttempt> onFailure,
     boolean acceptsPartialInput,
     boolean acceptsFollowingStepInSameSubmission,
-    Consumer<TerminalAttempt> onPartialInput) {
+    Consumer<TerminalAttempt> onPartialInput,
+    int[][] prerequisites,
+    List<Set<String>> distinctCaptureGroups) {
 
   /**
    * Creates the standard all-or-nothing requirement for one terminal step.
@@ -36,7 +42,28 @@ public record TerminalCodeRequirement(
       boolean requiresOrder,
       Consumer<TerminalAttempt> onSuccess,
       Consumer<TerminalAttempt> onFailure) {
-    this(codeLines, requiresOrder, onSuccess, onFailure, false, false, null);
+    this(codeLines, requiresOrder, onSuccess, onFailure, false, false, null, null, List.of());
+  }
+
+  /** Creates a requirement using the previous extended constructor shape. */
+  public TerminalCodeRequirement(
+      CodeLine[] codeLines,
+      boolean requiresOrder,
+      Consumer<TerminalAttempt> onSuccess,
+      Consumer<TerminalAttempt> onFailure,
+      boolean acceptsPartialInput,
+      boolean acceptsFollowingStepInSameSubmission,
+      Consumer<TerminalAttempt> onPartialInput) {
+    this(
+        codeLines,
+        requiresOrder,
+        onSuccess,
+        onFailure,
+        acceptsPartialInput,
+        acceptsFollowingStepInSameSubmission,
+        onPartialInput,
+        null,
+        List.of());
   }
 
   /**
@@ -58,7 +85,9 @@ public record TerminalCodeRequirement(
         },
         false,
         false,
-        null);
+        null,
+        null,
+        List.of());
   }
 
   /**
@@ -74,6 +103,11 @@ public record TerminalCodeRequirement(
     onSuccess = onSuccess == null ? ignored -> {} : onSuccess;
     onFailure = onFailure == null ? ignored -> {} : onFailure;
     onPartialInput = onPartialInput == null ? ignored -> {} : onPartialInput;
+    prerequisites = copyPrerequisites(prerequisites, codeLines.length);
+    distinctCaptureGroups =
+        distinctCaptureGroups == null
+            ? List.of()
+            : distinctCaptureGroups.stream().map(Set::copyOf).toList();
   }
 
   /**
@@ -91,7 +125,9 @@ public record TerminalCodeRequirement(
         onFailure,
         true,
         acceptsFollowingStepInSameSubmission,
-        callback);
+        callback,
+        prerequisites,
+        distinctCaptureGroups);
   }
 
   /**
@@ -107,7 +143,64 @@ public record TerminalCodeRequirement(
         onFailure,
         acceptsPartialInput,
         true,
-        onPartialInput);
+        onPartialInput,
+        prerequisites,
+        distinctCaptureGroups);
+  }
+
+  /**
+   * Returns a copy whose lines require the specified earlier lines to have matched first.
+   *
+   * @param linePrerequisites prerequisite indexes for each code line
+   * @return configured requirement
+   */
+  public TerminalCodeRequirement requiringPrerequisites(int[][] linePrerequisites) {
+    return new TerminalCodeRequirement(
+        codeLines,
+        requiresOrder,
+        onSuccess,
+        onFailure,
+        acceptsPartialInput,
+        acceptsFollowingStepInSameSubmission,
+        onPartialInput,
+        linePrerequisites,
+        distinctCaptureGroups);
+  }
+
+  /**
+   * Returns a copy whose named captures must be different within each supplied group.
+   *
+   * @param captureGroups capture names that must not have duplicate values
+   * @return configured requirement
+   */
+  public TerminalCodeRequirement requiringDistinctCaptures(List<Set<String>> captureGroups) {
+    return new TerminalCodeRequirement(
+        codeLines,
+        requiresOrder,
+        onSuccess,
+        onFailure,
+        acceptsPartialInput,
+        acceptsFollowingStepInSameSubmission,
+        onPartialInput,
+        prerequisites,
+        captureGroups);
+  }
+
+  boolean prerequisitesMet(int lineIndex, boolean[] matchedLines) {
+    for (int prerequisite : prerequisites[lineIndex]) {
+      if (prerequisite < 0 || prerequisite >= matchedLines.length || !matchedLines[prerequisite]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  boolean hasPrerequisites() {
+    return Arrays.stream(prerequisites).anyMatch(linePrerequisites -> linePrerequisites.length > 0);
+  }
+
+  boolean captureGroupsAreDistinct(TerminalMatchContext context) {
+    return distinctCaptureGroups.stream().allMatch(context::areDistinct);
   }
 
   /**
@@ -118,5 +211,23 @@ public record TerminalCodeRequirement(
   @Override
   public CodeLine[] codeLines() {
     return Arrays.copyOf(codeLines, codeLines.length);
+  }
+
+  /** Returns a defensive copy of the line prerequisites. */
+  @Override
+  public int[][] prerequisites() {
+    return copyPrerequisites(prerequisites, codeLines.length);
+  }
+
+  private static int[][] copyPrerequisites(int[][] source, int lineCount) {
+    if (source == null) {
+      int[][] empty = new int[lineCount][];
+      Arrays.setAll(empty, ignored -> new int[0]);
+      return empty;
+    }
+    if (source.length != lineCount) {
+      throw new IllegalArgumentException("There must be one prerequisite list per code line.");
+    }
+    return Arrays.stream(source).map(int[]::clone).toArray(int[][]::new);
   }
 }

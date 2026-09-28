@@ -1,7 +1,9 @@
 package rooms.systemRecovery.modules.interpreter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Stores regex captures shared across multiple terminal code lines.
@@ -33,6 +35,15 @@ final class TerminalMatchContext {
       return true;
     }
     return capturedValue.equals(value);
+  }
+
+  boolean areDistinct(Set<String> names) {
+    Set<String> values = new HashSet<>();
+    for (String name : names) {
+      String value = captures.get(name);
+      if (value != null && !values.add(value)) return false;
+    }
+    return true;
   }
 
   void clear() {

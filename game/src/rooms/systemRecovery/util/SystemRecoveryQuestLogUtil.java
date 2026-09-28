@@ -93,7 +93,7 @@ public final class SystemRecoveryQuestLogUtil {
     if (attempt == null) return;
     TerminalStep.fromStateId(attempt.state())
         .flatMap(SystemRecoveryLearningStep::fromTerminalStep)
-        .ifPresent(step -> addSolutionEntry(step, attempt.source()));
+        .ifPresent(step -> addSolutionEntry(step, attempt.acceptedSource()));
   }
 
   /**

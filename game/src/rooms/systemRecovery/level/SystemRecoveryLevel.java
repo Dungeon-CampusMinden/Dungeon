@@ -673,7 +673,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     currentLevel()
         .ifPresent(
             level -> {
-              level.memoryWatch.recordAcceptedSource(attempt.source());
+              level.memoryWatch.recordAcceptedSource(attempt.acceptedSource());
               SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
             });
   }
