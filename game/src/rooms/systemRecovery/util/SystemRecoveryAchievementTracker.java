@@ -131,8 +131,8 @@ public final class SystemRecoveryAchievementTracker {
   }
 
   /**
-   * Records an answered phone call and rewards players who waited for the mandatory transition
-   * call before answering any earlier call.
+   * Records an answered phone call and rewards players who waited for the mandatory transition call
+   * before answering any earlier call.
    *
    * @param requiredMainQuestCall whether this is ECHO's call that unlocks the data-storage route
    */

@@ -40,6 +40,7 @@ public class SystemRecoveryRiddleLayoutTest {
     assertEquals(new Point(16, 5), matrix.pointAt(matrix.size() - 1));
   }
 
+  /** The final sort starts with six distinct values in an unsorted order. */
   @Test
   public void systemCoreSortUsesSixValuesAndAnUnsortedInitialOrder() {
     assertEquals(6, SystemCoreMetaDraft.ENERGY_SLOT_COUNT);
@@ -50,5 +51,4 @@ public class SystemRecoveryRiddleLayoutTest {
         java.util.List.of(4, 8, 15, 16, 23, 42),
         java.util.Arrays.stream(initial).sorted().boxed().toList());
   }
-
 }

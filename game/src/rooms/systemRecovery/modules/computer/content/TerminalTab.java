@@ -141,8 +141,7 @@ public class TerminalTab extends SystemRecoveryComputerTab {
     Table buttons = new Table(skin);
     buttons.right();
     sendButton = createButton(SystemRecoveryText.text("computer.send"), "green", 20);
-    deleteButton =
-        createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 20);
+    deleteButton = createButton(SystemRecoveryText.text("computer.delete"), "red-outline", 20);
     nextStepButton =
         createButton(SystemRecoveryText.text("computer.next-step"), "blue-outline", 18);
     TextButton petriNetButton =
@@ -308,7 +307,8 @@ public class TerminalTab extends SystemRecoveryComputerTab {
 
   private void addHistoryEntry(String source) {
     if (source == null || source.isBlank()) return;
-    if (!acceptedSources.isEmpty() && acceptedSources.get(acceptedSources.size() - 1).equals(source)) {
+    if (!acceptedSources.isEmpty()
+        && acceptedSources.get(acceptedSources.size() - 1).equals(source)) {
       return;
     }
     acceptedSources.add(source);
@@ -335,7 +335,9 @@ public class TerminalTab extends SystemRecoveryComputerTab {
       entry.setBackground(index % 2 == 0 ? "generic-area" : "generic-area-depth");
       entry.top().left().defaults().growX();
       entry
-          .add(createLabel(SystemRecoveryText.text("computer.terminal-history-entry", index + 1), 18))
+          .add(
+              createLabel(
+                  SystemRecoveryText.text("computer.terminal-history-entry", index + 1), 18))
           .left()
           .pad(10, 14, 4, 14)
           .row();

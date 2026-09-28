@@ -31,9 +31,9 @@ class UsbProgramDraftTest {
   @Test
   void rejectsWrongFieldCountAndMultilineValues() {
     assertFalse(UsbProgramDraft.isValid("only-one", 3));
-    assertFalse(UsbProgramDraft.isValid(UsbProgramDraft.encode(List.of("first", "second")) + "\nthird", 2));
+    assertFalse(
+        UsbProgramDraft.isValid(UsbProgramDraft.encode(List.of("first", "second")) + "\nthird", 2));
     assertThrows(
-        IllegalArgumentException.class,
-        () -> UsbProgramDraft.encode(List.of("first\nsecond")));
+        IllegalArgumentException.class, () -> UsbProgramDraft.encode(List.of("first\nsecond")));
   }
 }

@@ -46,9 +46,7 @@ class SystemRecoveryInventoryRestoreTest {
 
     assertEquals(List.of(savedChip), unresolved);
     assertFalse(
-        bob.fetch(InventoryComponent.class)
-            .orElseThrow()
-            .hasItem(SearchProgramChipItem.class));
+        bob.fetch(InventoryComponent.class).orElseThrow().hasItem(SearchProgramChipItem.class));
   }
 
   @Test
@@ -81,10 +79,7 @@ class SystemRecoveryInventoryRestoreTest {
 
     assertTrue(unresolved.isEmpty());
     assertTrue(
-        ada.fetch(InventoryComponent.class)
-            .orElseThrow()
-            .itemOfClass(ItemKey.class)
-            .isPresent());
+        ada.fetch(InventoryComponent.class).orElseThrow().itemOfClass(ItemKey.class).isPresent());
   }
 
   private static Entity player(String name) {

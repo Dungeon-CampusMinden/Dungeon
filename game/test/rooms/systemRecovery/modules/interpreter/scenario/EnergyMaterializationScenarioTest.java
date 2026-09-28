@@ -11,9 +11,7 @@ public class EnergyMaterializationScenarioTest extends TerminalScenarioTestSuppo
   @Test
   public void energyMaterializationScenarioIsSupported_riddle1() {
     interpreter.register(
-        0,
-        requirement(
-            "int\\s*\\[\\s*]\\s*energie\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"));
+        0, requirement("int\\s*\\[\\s*]\\s*energie\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"));
     interpreter.register(
         1,
         requirement(

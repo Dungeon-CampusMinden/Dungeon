@@ -23,7 +23,8 @@ class SystemRecoveryCheckpointProjectionTest {
     verify(level).openDoor(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE);
     verify(level, never()).restoreCompletedDataArchive();
     verify(level, never())
-        .spawnWorldItemIfMissing(any(Item.class), eq(SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN));
+        .spawnWorldItemIfMissing(
+            any(Item.class), eq(SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN));
   }
 
   @Test
@@ -44,8 +45,7 @@ class SystemRecoveryCheckpointProjectionTest {
     SystemRecoveryCheckpointProjection.apply(level, SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS);
 
     verify(level).markSystemCoreAccessModuleDeliveredAfterRestore();
-    verify(level, never())
-        .spawnWorldItemIfMissing(any(Item.class), eq("roboter_item_destination"));
+    verify(level, never()).spawnWorldItemIfMissing(any(Item.class), eq("roboter_item_destination"));
   }
 
   @Test

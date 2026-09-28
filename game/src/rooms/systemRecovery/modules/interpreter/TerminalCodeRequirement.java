@@ -155,8 +155,7 @@ public record TerminalCodeRequirement(
    * @param callback callback for a valid but incomplete submission
    * @return configured requirement
    */
-  public TerminalCodeRequirement withPartialSubmissions(
-      Consumer<TerminalAttempt> callback) {
+  public TerminalCodeRequirement withPartialSubmissions(Consumer<TerminalAttempt> callback) {
     return new TerminalCodeRequirement(
         codeLines,
         requiresOrder,

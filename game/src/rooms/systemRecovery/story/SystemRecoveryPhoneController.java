@@ -126,7 +126,9 @@ public final class SystemRecoveryPhoneController {
     triggerSystemCoreWarningCall();
   }
 
-  /** @return whether the player has completed ECHO's system-core warning call */
+  /**
+   * @return whether the player has completed ECHO's system-core warning call
+   */
   public boolean systemCoreWarningCallAnswered() {
     return systemCoreWarningCallAnswered;
   }

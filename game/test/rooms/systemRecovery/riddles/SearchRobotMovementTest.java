@@ -81,7 +81,9 @@ class SearchRobotMovementTest {
     riddle.startScan();
     Entity robot =
         Game.levelEntities().filter(e -> "search_robot".equals(e.name())).findFirst().orElseThrow();
-    assertEquals(level.getPoint("roboter_start"), robot.fetch(PositionComponent.class).orElseThrow().position());
+    assertEquals(
+        level.getPoint("roboter_start"),
+        robot.fetch(PositionComponent.class).orElseThrow().position());
 
     for (int tick = 0; tick < 180; tick++) {
       clock.addAndGet(50);

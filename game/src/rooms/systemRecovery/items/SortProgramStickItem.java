@@ -13,6 +13,7 @@ public final class SortProgramStickItem extends Item {
 
   /** Serialized state key. */
   public static final String DATA_KEY_PROGRAMMED = "programmed";
+
   /** Serialized code entered into the editor's fill-in field. */
   public static final String DATA_KEY_DRAFT = "draft";
 

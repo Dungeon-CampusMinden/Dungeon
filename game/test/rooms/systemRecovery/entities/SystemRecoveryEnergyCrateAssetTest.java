@@ -63,8 +63,8 @@ class SystemRecoveryEnergyCrateAssetTest {
     assertEquals(EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE, fill.texturePath());
   }
 
-  private static void assertLicensedTexture(
-      ClassLoader loader, String path, boolean aiGenerated) throws IOException {
+  private static void assertLicensedTexture(ClassLoader loader, String path, boolean aiGenerated)
+      throws IOException {
     try (InputStream image = loader.getResourceAsStream(path);
         InputStream license = loader.getResourceAsStream(path + ".license.md")) {
       assertNotNull(image, path + " is missing");

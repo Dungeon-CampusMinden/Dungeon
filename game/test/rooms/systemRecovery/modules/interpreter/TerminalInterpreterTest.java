@@ -12,10 +12,8 @@ public class TerminalInterpreterTest {
 
   private static final CodeLine INITIALIZE =
       new CodeLine(
-          Pattern.compile(
-              "int\\s*\\[\\s*]\\s*energie\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"),
-          Pattern.compile(
-              "int\\s+energie\\s*\\[\\s*]\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"));
+          Pattern.compile("int\\s*\\[\\s*]\\s*energie\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"),
+          Pattern.compile("int\\s+energie\\s*\\[\\s*]\\s*=\\s*new\\s+int\\s*\\[\\s*5\\s*]\\s*;"));
   private static final CodeLine FIRST_ASSIGNMENT =
       new CodeLine(Pattern.compile("energie\\s*\\[\\s*0\\s*]\\s*=\\s*20\\s*;"));
   private static final CodeLine SECOND_ASSIGNMENT =
@@ -31,8 +29,7 @@ public class TerminalInterpreterTest {
               + "\\.\\s*length\\s*;\\s*i\\+\\+\\s*\\)\\s*\\{");
   private static final CodeLine CONDITION =
       line("if\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*!=\\s*null\\s*\\)\\s*\\{");
-  private static final CodeLine ACTION =
-      line("use\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*\\)\\s*;");
+  private static final CodeLine ACTION = line("use\\s*\\(\\s*items\\s*\\[\\s*i\\s*]\\s*\\)\\s*;");
   private static final String IDENTIFIER = "[a-zA-Z][a-zA-Z0-9]*";
   private static final CodeLine FLEXIBLE_LOOP =
       line(

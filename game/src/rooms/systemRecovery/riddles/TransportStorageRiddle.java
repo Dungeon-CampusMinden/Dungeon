@@ -118,8 +118,7 @@ public final class TransportStorageRiddle {
     for (int index = 0; index < weights.length; index++) {
       transportPackages[index] =
           TransportEntityFactory.packageEntity(level.getPoint("band" + index), weights[index]);
-      TransportEntityFactory.addAuthoritativePackageFill(
-          transportPackages[index], weights[index]);
+      TransportEntityFactory.addAuthoritativePackageFill(transportPackages[index], weights[index]);
       Game.add(transportPackages[index]);
     }
     transportPackagesSpawned = true;

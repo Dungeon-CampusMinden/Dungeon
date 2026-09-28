@@ -89,8 +89,7 @@ public final class TransportEntityFactory {
     entity.add(new PositionComponent(point));
     entity.add(new CollideComponent());
     DrawComponent draw =
-        new DrawComponent(
-            new Animation(new SimpleIPath(EnergyEntityFactory.ENERGY_CRATE_TEXTURE)));
+        new DrawComponent(new Animation(new SimpleIPath(EnergyEntityFactory.ENERGY_CRATE_TEXTURE)));
     draw.depth(DepthLayer.ForegroundDeco.depth());
     entity.add(draw);
     entity.add(
@@ -122,9 +121,7 @@ public final class TransportEntityFactory {
    */
   public static EnergyFillShader packageFillShader(int weight) {
     return new EnergyFillShader(
-            weight / 100f,
-            packageFillColor(weight),
-            EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
+            weight / 100f, packageFillColor(weight), EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
         .animMagnitude(0.015f);
   }
 
@@ -144,5 +141,4 @@ public final class TransportEntityFactory {
       default -> 0.08f;
     };
   }
-
 }

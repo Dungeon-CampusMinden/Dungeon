@@ -30,6 +30,7 @@ public final class EnergyEntityFactory {
 
   /** Shared texture for System Recovery crates whose values are shown by a fill shader. */
   public static final String ENERGY_CRATE_TEXTURE = "objects/crate/system_recovery_energy.png";
+
   /** Transparent mask that lets the fill shader color only the crate's central energy gauge. */
   public static final String ENERGY_CRATE_FILL_TEXTURE =
       "objects/crate/system_recovery_energy_fill.png";

@@ -18,6 +18,7 @@ public final class SearchProgramChipItem extends Item {
 
   /** Serialized state key. */
   public static final String DATA_KEY_PROGRAMMED = "programmed";
+
   /** Serialized code entered into the editor's fill-in fields. */
   public static final String DATA_KEY_DRAFT = "draft";
 

@@ -72,10 +72,7 @@ public class DefaultSnapshotTranslatorTest {
         new SnapshotMessage(
             1,
             List.of(
-                EntityState.builder()
-                    .entityId(entity.id())
-                    .inventory(new Item[] {key})
-                    .build()),
+                EntityState.builder().entityId(entity.id()).inventory(new Item[] {key}).build()),
             new LevelState(Set.of()));
 
     translator.applySnapshot(snapshot, new MessageDispatcher());

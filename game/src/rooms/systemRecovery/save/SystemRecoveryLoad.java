@@ -254,8 +254,7 @@ public final class SystemRecoveryLoad {
         };
     return requiredItem == null
         || items.stream()
-            .anyMatch(
-                item -> requiredItem.equals(item.itemKey()) && item.programmed());
+            .anyMatch(item -> requiredItem.equals(item.itemKey()) && item.programmed());
   }
 
   private static Optional<SystemRecoveryLearningStep> findCheckpoint(String key) {

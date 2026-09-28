@@ -113,9 +113,7 @@ public final class SearchRobotRiddle {
     searchTarget = ScannerEntityFactory.searchTargetItem(matrix.pointAt(matrix.size() - 1));
     Game.add(searchTarget);
 
-    robot =
-        ScannerEntityFactory.searchRobot(
-            matrix.pointAt(0), this::followCurrentPath);
+    robot = ScannerEntityFactory.searchRobot(matrix.pointAt(0), this::followCurrentPath);
     Game.add(robot);
 
     Entity controller =

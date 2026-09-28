@@ -147,7 +147,8 @@ public final class SystemCoreRiddle {
     return stage;
   }
 
-  /** Restores the completed-area presentation without replaying any puzzle callback.
+  /**
+   * Restores the completed-area presentation without replaying any puzzle callback.
    *
    * @param restoredStage number of completed core areas
    * @param restoredExitOpen whether ECHO has opened the elevator

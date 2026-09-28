@@ -53,7 +53,10 @@ public final class SystemRecoveryStoryDialogs {
   /** AXIOM's instruction to inspect the modules after their assignments were accepted. */
   public static final StoryStep MODULE_ASSIGNMENT =
       axiomStep(
-          "module-assignment", "riddle2", "assignment", SystemRecoveryLearningStep.MODULE_REMOVE_GPU);
+          "module-assignment",
+          "riddle2",
+          "assignment",
+          SystemRecoveryLearningStep.MODULE_REMOVE_GPU);
 
   /** AXIOM's diagnosis shown after the player examines the defective GPU. */
   public static final StoryStep GPU_FAULT =
@@ -121,7 +124,10 @@ public final class SystemRecoveryStoryDialogs {
   /** AXIOM's reaction when the search robot has recovered the system-core access module. */
   public static final StoryStep ACCESS_MODULE_FOUND =
       axiomStep(
-          "access-module-found", "riddle9", "access", SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS);
+          "access-module-found",
+          "riddle9",
+          "access",
+          SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS);
 
   /** The search robot's clumsy announcement when its scan begins. */
   public static final StoryStep SEARCH_ROBOT_START =
@@ -131,7 +137,10 @@ public final class SystemRecoveryStoryDialogs {
   /** The search robot's clumsy announcement after delivering the access module. */
   public static final StoryStep SEARCH_ROBOT_COMPLETE =
       robotStep(
-          "search-robot-complete", "riddle9", "search", SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS);
+          "search-robot-complete",
+          "riddle9",
+          "search",
+          SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS);
 
   /** ECHO's instruction for the first central-computer check. */
   public static final StoryStep CENTRAL_SORT =
@@ -267,8 +276,7 @@ public final class SystemRecoveryStoryDialogs {
    * @param secondStep story dialog shown after the first is closed
    * @param playerId player receiving both dialogs
    */
-  public void announceSequenceForPlayer(
-      StoryStep firstStep, StoryStep secondStep, int playerId) {
+  public void announceSequenceForPlayer(StoryStep firstStep, StoryStep secondStep, int playerId) {
     if (firstStep == null || secondStep == null || playerId < 0) return;
     announceForPlayer(firstStep, playerId, () -> announceForPlayer(secondStep, playerId));
   }

@@ -81,11 +81,7 @@ class SystemRecoveryProgressFlowTest {
       assertTrue(terminalController.interpret(energyAssignments.get(index), 202));
       assertState(SystemRecoveryLearningStep.ENERGY_VALUES, 1);
     }
-    submit(
-        energyAssignments.getLast(),
-        202,
-        SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY,
-        2);
+    submit(energyAssignments.getLast(), 202, SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY, 2);
 
     complete(
         SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY,
@@ -157,11 +153,7 @@ class SystemRecoveryProgressFlowTest {
       assertTrue(terminalController.interpret(source, 202), source);
       assertState(SystemRecoveryLearningStep.ARCHIVE_ARRAYS, 9);
     }
-    submit(
-        "energie[0] = 50;",
-        202,
-        SystemRecoveryLearningStep.STORAGE_ARRAY,
-        10);
+    submit("energie[0] = 50;", 202, SystemRecoveryLearningStep.STORAGE_ARRAY, 10);
     submit(storageArray(), 101, SystemRecoveryLearningStep.STORAGE_VALUES, 11);
     List<String> storageAssignments =
         List.of("lager[2][1] = 3;", "lager[0][2] = 1;", "lager[1][3] = 2;");
@@ -169,11 +161,7 @@ class SystemRecoveryProgressFlowTest {
       assertTrue(terminalController.interpret(storageAssignments.get(index), 202));
       assertState(SystemRecoveryLearningStep.STORAGE_VALUES, 11);
     }
-    submit(
-        storageAssignments.getLast(),
-        202,
-        SystemRecoveryLearningStep.SEARCH_PROGRAM,
-        12);
+    submit(storageAssignments.getLast(), 202, SystemRecoveryLearningStep.SEARCH_PROGRAM, 12);
     assertTrue(TerminalInterpreterSetup.matchesSearchRobotProgram(mapSearchLoop()));
     complete(
         SystemRecoveryLearningStep.SEARCH_PROGRAM,
@@ -281,9 +269,7 @@ class SystemRecoveryProgressFlowTest {
     interpreter.synchronizeState(TerminalInterpreterSetup.CENTRAL_SORT_STATE);
     assertState(SystemRecoveryLearningStep.CORE_SORT, 13);
 
-    assertFalse(
-        terminalController.interpret(
-            "int[] array = {4, 8, 15, 16, 23, 42};", 101));
+    assertFalse(terminalController.interpret("int[] array = {4, 8, 15, 16, 23, 42};", 101));
     assertState(SystemRecoveryLearningStep.CORE_SORT, 13);
     assertTrue(interpreter.acceptedInputs().isEmpty());
 

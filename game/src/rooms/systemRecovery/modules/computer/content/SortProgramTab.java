@@ -67,7 +67,8 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
             sendUpload(source());
           }
         });
-    TextButton eject = createButton(SystemRecoveryText.text("computer.eject-stick"), "blue-outline", 24);
+    TextButton eject =
+        createButton(SystemRecoveryText.text("computer.eject-stick"), "blue-outline", 24);
     eject.addListener(
         new ChangeListener() {
           @Override
@@ -83,7 +84,8 @@ public final class SortProgramTab extends SystemRecoveryComputerTab {
     Table actions = new Table(skin);
     actions.right();
     if (SystemRecovery.debugMode()) {
-      TextButton solve = createButton(SystemRecoveryText.text("computer.solve"), "blue-outline", 24);
+      TextButton solve =
+          createButton(SystemRecoveryText.text("computer.solve"), "blue-outline", 24);
       solve.addListener(
           new ChangeListener() {
             @Override

@@ -99,12 +99,9 @@ public class QuestLogUITest {
   @Test
   void systemRecoveryRiddleTabsUseNumericOrderInsteadOfSavedTickOrder() {
     QuestLogComponent questLog = new QuestLogComponent();
-    questLog.add(
-        "questlog.riddle8.tab", new QuestLogEntry("Riddle 8", 900, false, "AXIOM", false));
-    questLog.add(
-        "questlog.riddle1.tab", new QuestLogEntry("Riddle 1", 100, false, "AXIOM", false));
-    questLog.add(
-        "questlog.riddle9.tab", new QuestLogEntry("Riddle 9", 1, false, "ECHO", false));
+    questLog.add("questlog.riddle8.tab", new QuestLogEntry("Riddle 8", 900, false, "AXIOM", false));
+    questLog.add("questlog.riddle1.tab", new QuestLogEntry("Riddle 1", 100, false, "AXIOM", false));
+    questLog.add("questlog.riddle9.tab", new QuestLogEntry("Riddle 9", 1, false, "ECHO", false));
     questLog.add(
         "questlog.riddle10.tab", new QuestLogEntry("Riddle 10", 500, false, "ECHO", false));
 

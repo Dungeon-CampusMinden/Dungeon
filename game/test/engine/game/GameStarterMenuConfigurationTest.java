@@ -32,7 +32,9 @@ class GameStarterMenuConfigurationTest {
   void editorHookRunsOnlyWhenTheMenuRequestsIt() {
     boolean[] started = {false};
     GameStarter starter =
-        GameStarter.builder("Example", Object.class).beforeLevelEditorStart(() -> started[0] = true).build();
+        GameStarter.builder("Example", Object.class)
+            .beforeLevelEditorStart(() -> started[0] = true)
+            .build();
 
     assertFalse(started[0]);
     starter.beforeLevelEditorStart();

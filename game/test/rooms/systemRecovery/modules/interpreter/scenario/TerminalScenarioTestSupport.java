@@ -35,12 +35,7 @@ abstract class TerminalScenarioTestSupport {
   }
 
   protected static String assignment(String variable, int index, String value) {
-    return variable
-        + "\\s*\\[\\s*"
-        + index
-        + "\\s*]\\s*=\\s*"
-        + value
-        + "\\s*;";
+    return variable + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value + "\\s*;";
   }
 
   protected static String twoDimensionalAssignment(

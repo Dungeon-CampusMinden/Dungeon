@@ -61,7 +61,8 @@ public enum SystemRecoveryLearningStep {
 
   SystemRecoveryLearningStep(
       String hintKey, String riddleKey, String puzzleId, int acceptedTerminalInputCount) {
-    this(hintKey, riddleKey, puzzleId, null, acceptedTerminalInputCount, acceptedTerminalInputCount);
+    this(
+        hintKey, riddleKey, puzzleId, null, acceptedTerminalInputCount, acceptedTerminalInputCount);
   }
 
   SystemRecoveryLearningStep(
@@ -162,8 +163,8 @@ public enum SystemRecoveryLearningStep {
   }
 
   /**
-   * Returns the interpreter state to restore at this checkpoint. This can differ from the number
-   * of accepted terminal entries when a chip editor or a physical task advances the puzzle.
+   * Returns the interpreter state to restore at this checkpoint. This can differ from the number of
+   * accepted terminal entries when a chip editor or a physical task advances the puzzle.
    *
    * @return terminal state, or {@code -1} for non-terminal checkpoints
    */

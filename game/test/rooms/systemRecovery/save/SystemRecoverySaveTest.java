@@ -9,8 +9,8 @@ import engine.Game;
 import engine.components.PlayerComponent;
 import feature.components.InventoryComponent;
 import feature.hints.HintSystem;
-import feature.petrinet.PetriNetSystem;
 import feature.inventory.items.ItemKey;
+import feature.petrinet.PetriNetSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -19,11 +19,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.modules.computer.UsbProgramDraft;
+import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
@@ -74,7 +74,8 @@ class SystemRecoverySaveTest {
             List.of(new SystemRecoverySave.PlayerItemData("Ada", "sort-program-stick", true)),
             MountedPuzzleItems.snapshot());
     SystemRecoverySave.SaveData duringMachineRun =
-        SystemRecoverySave.capture(SystemRecoveryLearningStep.BUBBLE_SORT_MACHINE, UUID.randomUUID());
+        SystemRecoverySave.capture(
+            SystemRecoveryLearningStep.BUBBLE_SORT_MACHINE, UUID.randomUUID());
 
     assertEquals(1, onlyMounted.size());
     assertEquals("sort-program-stick", onlyMounted.getFirst().itemKey());
@@ -173,8 +174,7 @@ class SystemRecoverySaveTest {
 
   @Test
   void persistsAnUnprogrammedUsbDraftAcrossLoad() throws Exception {
-    String draft =
-        UsbProgramDraft.encode(List.of("map[row].length", "map[row][column] == 1", ""));
+    String draft = UsbProgramDraft.encode(List.of("map[row].length", "map[row][column] == 1", ""));
     SystemRecoverySave.SaveData expected =
         new SystemRecoverySave.SaveData(
             SystemRecoveryLearningStep.SEARCH_PROGRAM.hintKey(),
@@ -186,7 +186,8 @@ class SystemRecoverySaveTest {
             null,
             List.of(),
             List.of(),
-            List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", false, draft)),
+            List.of(
+                new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", false, draft)),
             false);
     Path savePath = temporaryDirectory.resolve("usb-draft.json");
 
@@ -333,9 +334,12 @@ class SystemRecoverySaveTest {
 
   @Test
   void savesProgrammedChipsAndEverySystemCoreSubstep() {
-    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.BUBBLE_SORT_MACHINE));
-    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.SEARCH_ROBOT_RUN));
-    assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS));
+    assertTrue(
+        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.BUBBLE_SORT_MACHINE));
+    assertTrue(
+        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.SEARCH_ROBOT_RUN));
+    assertTrue(
+        SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS));
     assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_SORT));
     assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_COUNT));
     assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.CORE_SEARCH));
@@ -347,7 +351,8 @@ class SystemRecoverySaveTest {
 
   @Test
   void savesTheUnlockedArchiveDoorBeforeTheArchiveTerminalPuzzle() {
-    assertTrue(SystemRecoveryLoad.isMainPuzzleCheckpoint(SystemRecoveryLearningStep.ARCHIVE_ARRAYS));
+    assertTrue(
+        SystemRecoveryLoad.isMainPuzzleCheckpoint(SystemRecoveryLearningStep.ARCHIVE_ARRAYS));
     assertTrue(SystemRecoveryLoad.isAutoSaveCheckpoint(SystemRecoveryLearningStep.ARCHIVE_ARRAYS));
     assertEquals(9, SystemRecoveryLearningStep.ARCHIVE_ARRAYS.acceptedTerminalInputCount());
   }
@@ -413,7 +418,8 @@ class SystemRecoverySaveTest {
       SystemRecoverySave.write(path, valid);
       assertEquals(valid, SystemRecoveryLoad.read(path).orElseThrow(), step.name());
       assertEquals(step, SystemRecoveryLoad.restoreRuntime(valid).orElseThrow(), step.name());
-      assertEquals(step.terminalState(), TerminalInterpreter.instance().currentState(), step.name());
+      assertEquals(
+          step.terminalState(), TerminalInterpreter.instance().currentState(), step.name());
 
       List<SystemRecoverySave.AcceptedInput> wrongHistory =
           acceptedCount == 0

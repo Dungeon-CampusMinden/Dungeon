@@ -173,12 +173,16 @@ public final class GameStarter {
     return Optional.ofNullable(trackingSettings.get());
   }
 
-  /** @return the optional localized label for the host/start action */
+  /**
+   * @return the optional localized label for the host/start action
+   */
   public Optional<String> hostActionLabel() {
     return hostActionLabel == null ? Optional.empty() : Optional.ofNullable(hostActionLabel.get());
   }
 
-  /** @return whether the main menu should show its multiplayer join entry */
+  /**
+   * @return whether the main menu should show its multiplayer join entry
+   */
   public boolean showJoinButton() {
     return showJoinButton;
   }

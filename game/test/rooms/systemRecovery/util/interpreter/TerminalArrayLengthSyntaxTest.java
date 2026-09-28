@@ -25,12 +25,10 @@ class TerminalArrayLengthSyntaxTest {
 
     assertTrue(interpreter.analyzeState(state, "display.show(module.length);"));
     assertTrue(
-        interpreter.analyzeState(
-            state, "int capacity = module.length; display.show(capacity);"));
+        interpreter.analyzeState(state, "int capacity = module.length; display.show(capacity);"));
     assertTrue(
         interpreter.analyzeState(
-            state,
-            "int capacity = 0; capacity = module.length; display.show(capacity);"));
+            state, "int capacity = 0; capacity = module.length; display.show(capacity);"));
     assertFalse(interpreter.analyzeState(state, "module.length;"));
   }
 
@@ -47,8 +45,7 @@ class TerminalArrayLengthSyntaxTest {
                 + "module[3]=\"SSD\"; module[4]=\"NETWORK\";"));
     assertTrue(interpreter.interpret("module[2] = null;"));
 
-    assertFalse(
-        interpreter.interpret("int capacity = other.length; display.show(capacity);"));
+    assertFalse(interpreter.interpret("int capacity = other.length; display.show(capacity);"));
     assertFalse(
         interpreter.interpret(
             "int CPU = other.length; module[0] = \"CPU\"; display.show(module.length);"));

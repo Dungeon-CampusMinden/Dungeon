@@ -201,8 +201,8 @@ public final class InterpretationCallbacks {
    */
   public static void onIncorrectTerminalInput(TerminalAttempt attempt) {
     if (attempt.state() == TerminalInterpreterSetup.CENTRAL_SORT_STATE
-        && rooms.systemRecovery.riddles.SystemCoreSortShortcut
-            .isDirectSortedArrayInitialization(attempt.source())) {
+        && rooms.systemRecovery.riddles.SystemCoreSortShortcut.isDirectSortedArrayInitialization(
+            attempt.source())) {
       SystemRecoveryAchievements.directSortShortcutEntered();
     }
     showIncorrectTerminalFeedback(attempt);

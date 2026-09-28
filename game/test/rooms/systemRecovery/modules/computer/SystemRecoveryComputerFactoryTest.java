@@ -195,12 +195,15 @@ class SystemRecoveryComputerFactoryTest {
 
   @Test
   void acceptsBothEquivalentBubbleSortOperandOrders() {
-    assertTrue(SystemRecoveryComputerFactory.isBubbleSortCondition("if (array[j] > array[j + 1]) {"));
-    assertTrue(SystemRecoveryComputerFactory.isBubbleSortCondition("if (array[j + 1] < array[j]) {"));
+    assertTrue(
+        SystemRecoveryComputerFactory.isBubbleSortCondition("if (array[j] > array[j + 1]) {"));
+    assertTrue(
+        SystemRecoveryComputerFactory.isBubbleSortCondition("if (array[j + 1] < array[j]) {"));
     assertTrue(
         SystemRecoveryComputerFactory.isBubbleSortCondition(
             "if (array[ j + 1 ]\n <\t array[ j ]) {"));
-    assertFalse(SystemRecoveryComputerFactory.isBubbleSortCondition("if (array[j] < array[j + 1]) {"));
+    assertFalse(
+        SystemRecoveryComputerFactory.isBubbleSortCondition("if (array[j] < array[j + 1]) {"));
   }
 
   @Test
@@ -212,8 +215,7 @@ class SystemRecoveryComputerFactoryTest {
         SystemRecoveryComputerFactory.isBubbleSortCondition(
             "if (array[j] > array[j + 1] && false) {"));
     assertFalse(
-        SystemRecoveryComputerFactory.isBubbleSortCondition(
-            "if (array[j + 1] <= array[j]) {"));
+        SystemRecoveryComputerFactory.isBubbleSortCondition("if (array[j + 1] <= array[j]) {"));
     assertFalse(
         SystemRecoveryComputerFactory.isBubbleSortCondition(
             "if (array[j] > array[j + 1]) {} if (array[j] > array[j + 1]) {"));

@@ -482,8 +482,8 @@ public final class QuestLogUI {
    *
    * <p>System Recovery riddle tabs are ordered numerically; other tabs remain ordered by recency.
    * The selected tab is the requested tab if it exists, otherwise the first tab in display order.
-   * If the quest log is empty, {@link QuestLogSelection#selectedTab()} is empty and
-   * {@link QuestLogSelection#selectedEntries()} returns an empty list.
+   * If the quest log is empty, {@link QuestLogSelection#selectedTab()} is empty and {@link
+   * QuestLogSelection#selectedEntries()} returns an empty list.
    *
    * @param questLog quest log to read
    * @param requestedTab preferred selected tab; may be {@code null}
@@ -528,8 +528,7 @@ public final class QuestLogUI {
     return tabsByRecency.stream()
         .sorted(
             Comparator.comparingInt(
-                    (String tab) ->
-                        systemRecoveryRiddleNumber(tab).orElse(Integer.MAX_VALUE))
+                    (String tab) -> systemRecoveryRiddleNumber(tab).orElse(Integer.MAX_VALUE))
                 .thenComparingInt(tabsByRecency::indexOf))
         .toList();
   }

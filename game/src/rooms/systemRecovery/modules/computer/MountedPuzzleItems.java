@@ -49,7 +49,9 @@ public final class MountedPuzzleItems {
         && ITEMS_BY_PLAYER.remove(playerId, mounted);
   }
 
-  /** @return a stable snapshot of all currently mounted puzzle items */
+  /**
+   * @return a stable snapshot of all currently mounted puzzle items
+   */
   public static List<MountedItem> snapshot() {
     return List.copyOf(ITEMS_BY_PLAYER.values());
   }

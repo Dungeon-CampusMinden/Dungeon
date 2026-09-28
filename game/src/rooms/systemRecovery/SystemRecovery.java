@@ -150,7 +150,9 @@ public final class SystemRecovery {
     return debugMode;
   }
 
-  /** @return whether this process was explicitly launched into the local level editor */
+  /**
+   * @return whether this process was explicitly launched into the local level editor
+   */
   public static boolean levelEditorMode() {
     return levelEditorMode;
   }

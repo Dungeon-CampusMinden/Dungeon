@@ -26,8 +26,7 @@ class SystemRecoveryMemoryWatchTest {
         }
         """);
 
-    assertArrayEquals(
-        new String[] {"energieSpeicher", "modulListe"}, memoryWatch.arrayNames());
+    assertArrayEquals(new String[] {"energieSpeicher", "modulListe"}, memoryWatch.arrayNames());
     assertArrayEquals(
         new String[] {
           "energieSpeicher\tint[]\t[0, 0, 0, 0, 0]",
@@ -60,13 +59,10 @@ class SystemRecoveryMemoryWatchTest {
     SystemRecoveryMemoryWatch memoryWatch = new SystemRecoveryMemoryWatch();
 
     memoryWatch.recordAcceptedSource("int[][] lager = new int[3][4];");
-    memoryWatch.recordAcceptedSource(
-        "lager[0][2] = 1; lager[1][3] = 2; lager[2][1] = 3;");
+    memoryWatch.recordAcceptedSource("lager[0][2] = 1; lager[1][3] = 2; lager[2][1] = 3;");
 
     assertArrayEquals(
-        new String[] {
-          "lager\tint[][]\t[[0, 0, 1, 0], [0, 0, 0, 2], [0, 3, 0, 0]]"
-        },
+        new String[] {"lager\tint[][]\t[[0, 0, 1, 0], [0, 0, 0, 2], [0, 3, 0, 0]]"},
         memoryWatch.arrayEntries());
   }
 
@@ -79,8 +75,7 @@ class SystemRecoveryMemoryWatchTest {
     client.restoreEntries(server.arrayEntries());
     client.recordAcceptedSource("module[1] = \"RAM\";");
 
-    assertArrayEquals(
-        new String[] {"module\tString[]\t[\"CPU\", \"RAM\"]"}, client.arrayEntries());
+    assertArrayEquals(new String[] {"module\tString[]\t[\"CPU\", \"RAM\"]"}, client.arrayEntries());
   }
 
   @Test

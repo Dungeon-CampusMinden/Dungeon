@@ -98,8 +98,10 @@ final class ConveyorSortVisualSync {
                     .ifPresent(
                         draw -> {
                           draw.tintColor(0xFFFFFFFF);
-                          draw.shaders().add(
-                              "beltPackageFill", TransportEntityFactory.packageFillShader(value));
+                          draw.shaders()
+                              .add(
+                                  "beltPackageFill",
+                                  TransportEntityFactory.packageFillShader(value));
                         }));
   }
 

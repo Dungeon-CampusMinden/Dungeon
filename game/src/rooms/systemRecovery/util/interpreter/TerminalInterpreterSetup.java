@@ -279,13 +279,13 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_ONE_STEP_TWO,
         unordered(
-            onSuccess,
-            onFailure,
-            assignment("energie", 0, ENERGIE_VALUE_0),
-            assignment("energie", 1, ENERGIE_VALUE_1),
-            assignment("energie", 2, ENERGIE_VALUE_2),
-            assignment("energie", 3, ENERGIE_VALUE_3),
-            assignment("energie", 4, ENERGIE_VALUE_4))
+                onSuccess,
+                onFailure,
+                assignment("energie", 0, ENERGIE_VALUE_0),
+                assignment("energie", 1, ENERGIE_VALUE_1),
+                assignment("energie", 2, ENERGIE_VALUE_2),
+                assignment("energie", 3, ENERGIE_VALUE_3),
+                assignment("energie", 4, ENERGIE_VALUE_4))
             .withPartialSubmissions(
                 successOrPreview(
                     onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted)));
@@ -336,13 +336,13 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_TWO_STEP_TWO,
         unordered(
-            onSuccess,
-            onFailure,
-            assignmentOrModuleLiteral(0, "\"CPU\""),
-            assignmentOrModuleLiteral(1, "\"RAM\""),
-            assignmentOrModuleLiteral(2, "\"GPU\""),
-            assignmentOrModuleLiteral(3, "\"SSD\""),
-            assignmentOrModuleLiteral(4, "\"NETWORK\""))
+                onSuccess,
+                onFailure,
+                assignmentOrModuleLiteral(0, "\"CPU\""),
+                assignmentOrModuleLiteral(1, "\"RAM\""),
+                assignmentOrModuleLiteral(2, "\"GPU\""),
+                assignmentOrModuleLiteral(3, "\"SSD\""),
+                assignmentOrModuleLiteral(4, "\"NETWORK\""))
             .withPartialSubmissions(
                 successOrPreview(
                     onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted)));
@@ -373,14 +373,16 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_THREE_STEP_ONE,
         ordered(
-            successOrPreview(
-                onSuccess, InterpretationCallbacks::onRiddleThreeStepOneInventoryScannerCompleted),
-            onFailure,
-            declarationWithCapturedVariable("int", "riddleThreeCounter", "0"),
-            enhancedForLoop("String", capturedIdentifier(MODULE_ARRAY), "riddleThreeModuleItem"),
-            notNullCondition("riddleThreeModuleItem"),
-            increment("riddleThreeCounter"),
-            displayShow(capturedIdentifier("riddleThreeCounter")))
+                successOrPreview(
+                    onSuccess,
+                    InterpretationCallbacks::onRiddleThreeStepOneInventoryScannerCompleted),
+                onFailure,
+                declarationWithCapturedVariable("int", "riddleThreeCounter", "0"),
+                enhancedForLoop(
+                    "String", capturedIdentifier(MODULE_ARRAY), "riddleThreeModuleItem"),
+                notNullCondition("riddleThreeModuleItem"),
+                increment("riddleThreeCounter"),
+                displayShow(capturedIdentifier("riddleThreeCounter")))
             .requiringBlockDepths(0, 0, 1, 2, 0));
   }
 
@@ -432,27 +434,63 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_SEVEN_STEP_ONE,
         unordered(
-            successOrPreview(
-                onSuccess, InterpretationCallbacks::onRiddleSevenStepOneDataArchiveLoaded),
-            onFailure,
-            archiveArrayInitialization("int", "energie", "20", "50", "80"),
-            archiveArrayValue("int", "energie", "20", "archiveEnergy20Index", "20", "50", "80"),
-            archiveArrayValue("int", "energie", "50", "archiveEnergy50Index", "20", "50", "80"),
-            archiveArrayValue("int", "energie", "80", "archiveEnergy80Index", "20", "50", "80"),
-            archiveArrayInitialization("String", "module", "\"CPU\"", "\"GPU\"", "\"RAM\""),
-            archiveArrayValue(
-                "String", "module", "\"CPU\"", "archiveModuleCpuIndex", "\"CPU\"", "\"GPU\"", "\"RAM\""),
-            archiveArrayValue(
-                "String", "module", "\"GPU\"", "archiveModuleGpuIndex", "\"CPU\"", "\"GPU\"", "\"RAM\""),
-            archiveArrayValue(
-                "String", "module", "\"RAM\"", "archiveModuleRamIndex", "\"CPU\"", "\"GPU\"", "\"RAM\""),
-            archiveArrayInitialization("boolean", "aktiv", "true", "false", "true"),
-            archiveArrayValue(
-                "boolean", "aktiv", "true", "archiveActiveTrueFirstIndex", "true", "false", "true"),
-            archiveArrayValue(
-                "boolean", "aktiv", "false", "archiveActiveFalseIndex", "true", "false", "true"),
-            archiveArrayValue(
-                "boolean", "aktiv", "true", "archiveActiveTrueSecondIndex", "true", "false", "true"))
+                successOrPreview(
+                    onSuccess, InterpretationCallbacks::onRiddleSevenStepOneDataArchiveLoaded),
+                onFailure,
+                archiveArrayInitialization("int", "energie", "20", "50", "80"),
+                archiveArrayValue("int", "energie", "20", "archiveEnergy20Index", "20", "50", "80"),
+                archiveArrayValue("int", "energie", "50", "archiveEnergy50Index", "20", "50", "80"),
+                archiveArrayValue("int", "energie", "80", "archiveEnergy80Index", "20", "50", "80"),
+                archiveArrayInitialization("String", "module", "\"CPU\"", "\"GPU\"", "\"RAM\""),
+                archiveArrayValue(
+                    "String",
+                    "module",
+                    "\"CPU\"",
+                    "archiveModuleCpuIndex",
+                    "\"CPU\"",
+                    "\"GPU\"",
+                    "\"RAM\""),
+                archiveArrayValue(
+                    "String",
+                    "module",
+                    "\"GPU\"",
+                    "archiveModuleGpuIndex",
+                    "\"CPU\"",
+                    "\"GPU\"",
+                    "\"RAM\""),
+                archiveArrayValue(
+                    "String",
+                    "module",
+                    "\"RAM\"",
+                    "archiveModuleRamIndex",
+                    "\"CPU\"",
+                    "\"GPU\"",
+                    "\"RAM\""),
+                archiveArrayInitialization("boolean", "aktiv", "true", "false", "true"),
+                archiveArrayValue(
+                    "boolean",
+                    "aktiv",
+                    "true",
+                    "archiveActiveTrueFirstIndex",
+                    "true",
+                    "false",
+                    "true"),
+                archiveArrayValue(
+                    "boolean",
+                    "aktiv",
+                    "false",
+                    "archiveActiveFalseIndex",
+                    "true",
+                    "false",
+                    "true"),
+                archiveArrayValue(
+                    "boolean",
+                    "aktiv",
+                    "true",
+                    "archiveActiveTrueSecondIndex",
+                    "true",
+                    "false",
+                    "true"))
             .withPartialSubmissions(
                 successOrPreview(
                     onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted))
@@ -460,7 +498,8 @@ public final class TerminalInterpreterSetup {
             .requiringDistinctCaptures(
                 List.of(
                     Set.of("archiveEnergy20Index", "archiveEnergy50Index", "archiveEnergy80Index"),
-                    Set.of("archiveModuleCpuIndex", "archiveModuleGpuIndex", "archiveModuleRamIndex"),
+                    Set.of(
+                        "archiveModuleCpuIndex", "archiveModuleGpuIndex", "archiveModuleRamIndex"),
                     Set.of(
                         "archiveActiveTrueFirstIndex",
                         "archiveActiveFalseIndex",
@@ -493,11 +532,11 @@ public final class TerminalInterpreterSetup {
     register(
         RIDDLE_EIGHT_STEP_TWO,
         unordered(
-            onSuccess,
-            onFailure,
-            capturedTwoDimensionalAssignment(STORAGE_ARRAY, 0, 2, "1"),
-            capturedTwoDimensionalAssignment(STORAGE_ARRAY, 1, 3, "2"),
-            capturedTwoDimensionalAssignment(STORAGE_ARRAY, 2, 1, "3"))
+                onSuccess,
+                onFailure,
+                capturedTwoDimensionalAssignment(STORAGE_ARRAY, 0, 2, "1"),
+                capturedTwoDimensionalAssignment(STORAGE_ARRAY, 1, 3, "2"),
+                capturedTwoDimensionalAssignment(STORAGE_ARRAY, 2, 1, "3"))
             .withPartialSubmissions(
                 successOrPreview(
                     onSuccess, InterpretationCallbacks::onPartialTerminalInputAccepted)));
@@ -736,19 +775,9 @@ public final class TerminalInterpreterSetup {
       Pattern.compile(
           type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + literal + "\\s*;"),
       Pattern.compile(
-          type
-              + "\\s*\\[\\s*]\\s*"
-              + variablePattern
-              + "\\s*=\\s*"
-              + explicitLiteral
-              + "\\s*;"),
+          type + "\\s*\\[\\s*]\\s*" + variablePattern + "\\s*=\\s*" + explicitLiteral + "\\s*;"),
       Pattern.compile(
-          type
-              + "\\s+"
-              + variablePattern
-              + "\\s*\\[\\s*]\\s*=\\s*"
-              + explicitLiteral
-              + "\\s*;")
+          type + "\\s+" + variablePattern + "\\s*\\[\\s*]\\s*=\\s*" + explicitLiteral + "\\s*;")
     };
   }
 
@@ -768,8 +797,7 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine assignment(String variable, int index, String value) {
-    return codeLine(
-        variable + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value + "\\s*;");
+    return codeLine(variable + "\\s*\\[\\s*" + index + "\\s*]\\s*=\\s*" + value + "\\s*;");
   }
 
   private static CodeLine capturedAssignment(String variableCapture, int index, String value) {
@@ -786,27 +814,18 @@ public final class TerminalInterpreterSetup {
     return combine(
         capturedAssignment(MODULE_ARRAY, index, value),
         capturedArrayLiteral(
-            MODULE_ARRAY,
-            "String",
-            "\"CPU\"",
-            "\"RAM\"",
-            "\"GPU\"",
-            "\"SSD\"",
-            "\"NETWORK\""));
+            MODULE_ARRAY, "String", "\"CPU\"", "\"RAM\"", "\"GPU\"", "\"SSD\"", "\"NETWORK\""));
   }
 
-  private static CodeLine archiveArrayInitialization(String type, String variable, String... values) {
+  private static CodeLine archiveArrayInitialization(
+      String type, String variable, String... values) {
     return combine(
         arrayCreation(type, variable, values.length),
         unorderedArrayLiteral(type, variable, values));
   }
 
   private static CodeLine archiveArrayValue(
-      String type,
-      String variable,
-      String value,
-      String indexCapture,
-      String... completeValues) {
+      String type, String variable, String value, String indexCapture, String... completeValues) {
     return combine(
         codeLine(
             variable
@@ -864,12 +883,7 @@ public final class TerminalInterpreterSetup {
 
   private static CodeLine twoDimensionalAccess(String variable, int firstIndex, int secondIndex) {
     return codeLine(
-        variable
-            + "\\s*\\[\\s*"
-            + firstIndex
-            + "\\s*]\\s*\\[\\s*"
-            + secondIndex
-            + "\\s*]\\s*;");
+        variable + "\\s*\\[\\s*" + firstIndex + "\\s*]\\s*\\[\\s*" + secondIndex + "\\s*]\\s*;");
   }
 
   private static CodeLine capturedTwoDimensionalAccess(
@@ -884,8 +898,7 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine displayShow(String valueExpression) {
-    return codeLine(
-        "display\\s*\\.\\s*show\\s*\\(\\s*" + valueExpression + "\\s*\\)\\s*;");
+    return codeLine("display\\s*\\.\\s*show\\s*\\(\\s*" + valueExpression + "\\s*\\)\\s*;");
   }
 
   private static CodeLine declaration(String type, String variable, String value) {
@@ -894,13 +907,7 @@ public final class TerminalInterpreterSetup {
 
   private static CodeLine declarationWithCapturedVariable(
       String type, String variableCapture, String value) {
-    return codeLine(
-        type
-            + "\\s+"
-            + capture(variableCapture)
-            + "\\s*=\\s*"
-            + value
-            + "\\s*;");
+    return codeLine(type + "\\s+" + capture(variableCapture) + "\\s*=\\s*" + value + "\\s*;");
   }
 
   private static CodeLine enhancedForLoop(String type, String sourceArray, String itemCapture) {
@@ -917,9 +924,7 @@ public final class TerminalInterpreterSetup {
   private static CodeLine notNullCondition(String itemCapture) {
     return new CodeLine(
         Pattern.compile(
-            "if\\s*\\(\\s*"
-                + capturedIdentifier(itemCapture)
-                + "\\s*!=\\s*null\\s*\\)\\s*\\{"),
+            "if\\s*\\(\\s*" + capturedIdentifier(itemCapture) + "\\s*!=\\s*null\\s*\\)\\s*\\{"),
         Pattern.compile(
             "if\\s*\\(\\s*!\\s*\\(\\s*"
                 + capturedIdentifier(itemCapture)
@@ -1008,8 +1013,7 @@ public final class TerminalInterpreterSetup {
   }
 
   private static CodeLine methodCall(String receiver, String method) {
-    return codeLine(
-        receiver + "\\s*\\.\\s*" + method + "\\s*\\(\\s*\\)\\s*;");
+    return codeLine(receiver + "\\s*\\.\\s*" + method + "\\s*\\(\\s*\\)\\s*;");
   }
 
   private static CodeLine outerTwoDimensionalLoop(String arrayVariable, String rowCapture) {

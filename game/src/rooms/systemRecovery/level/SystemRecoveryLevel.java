@@ -39,8 +39,8 @@ import rooms.systemRecovery.entities.SystemRecoveryRoomFactory;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
-import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
+import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalAttempt;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
@@ -318,13 +318,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
         });
     if (checkpoint.isPresent()) {
       SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
-      if (restoredSave.terminalHistory().isEmpty()
-          && restoredSave.memoryWatchEntries().isEmpty()) {
-        restoredSave.acceptedTerminalInputs().forEach(
-            input -> {
-              memoryWatch.recordAcceptedSource(input.source());
-              recordTerminalHistory(input.source());
-            });
+      if (restoredSave.terminalHistory().isEmpty() && restoredSave.memoryWatchEntries().isEmpty()) {
+        restoredSave
+            .acceptedTerminalInputs()
+            .forEach(
+                input -> {
+                  memoryWatch.recordAcceptedSource(input.source());
+                  recordTerminalHistory(input.source());
+                });
       } else {
         acceptedTerminalHistory.clear();
         acceptedTerminalHistory.addAll(restoredSave.terminalHistory());
@@ -503,8 +504,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       String fallbackPlayerName) {
     List<SystemRecoverySave.PlayerItemData> unresolved = new ArrayList<>();
     for (SystemRecoverySave.PlayerItemData itemData : items) {
-      String ownerName =
-          itemData.playerName() == null ? fallbackPlayerName : itemData.playerName();
+      String ownerName = itemData.playerName() == null ? fallbackPlayerName : itemData.playerName();
       Entity owner =
           players.stream()
               .filter(
@@ -575,7 +575,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
       openElevatorAfterFinalCall();
     }
     phoneController.restoreSystemCoreCalls(
-        systemCoreWarningCallAnswered, !exitOpen, checkpoint == SystemRecoveryLearningStep.COMPLETE);
+        systemCoreWarningCallAnswered,
+        !exitOpen,
+        checkpoint == SystemRecoveryLearningStep.COMPLETE);
   }
 
   void markSystemCoreAccessModuleDeliveredAfterRestore() {
@@ -1082,8 +1084,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Locks the archive door with the shared key-and-lock interaction. */
   private void setupArchiveDoorLock() {
     DoorTile archiveDoor =
-        (DoorTile)
-            tileAt(point(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE)).orElseThrow();
+        (DoorTile) tileAt(point(SystemRecoveryPointRegistry.DOOR_DATA_ARCHIVE)).orElseThrow();
     archiveDoorBlocker =
         MiscFactory.createDoorBlocker(
             archiveDoor,
@@ -1480,7 +1481,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
     return currentLevel().map(level -> level.systemCoreExitOpen).orElse(false);
   }
 
-  /** @return whether ECHO's system-core warning call has been completed */
+  /**
+   * @return whether ECHO's system-core warning call has been completed
+   */
   public static boolean systemCoreWarningCallAnswered() {
     return currentLevel()
         .map(level -> level.phoneController.systemCoreWarningCallAnswered())

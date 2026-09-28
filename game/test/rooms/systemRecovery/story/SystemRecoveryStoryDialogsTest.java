@@ -72,18 +72,14 @@ class SystemRecoveryStoryDialogsTest {
       questLog
           .when(
               () ->
-                  SystemRecoveryQuestLogUtil.addDialogEntry(
-                      anyString(), anyString(), anyString()))
+                  SystemRecoveryQuestLogUtil.addDialogEntry(anyString(), anyString(), anyString()))
           .thenAnswer(
               invocation -> {
                 questLogDialogIds.add(invocation.getArgument(1));
                 return null;
               });
       dialogs
-          .when(
-              () ->
-                  DialogFactory.showDialogDialog(
-                      anyString(), any(IVoidFunction.class), eq(42)))
+          .when(() -> DialogFactory.showDialogDialog(anyString(), any(IVoidFunction.class), eq(42)))
           .thenAnswer(
               invocation -> {
                 shownDialogs.add(invocation.getArgument(0));
@@ -116,10 +112,10 @@ class SystemRecoveryStoryDialogsTest {
               SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE.script(),
               SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND.script()),
           shownDialogs);
-      assertEquals(
-          List.of("search-robot-complete", "access-module-found"), questLogDialogIds);
-      assertTrue(shownDialogs.indexOf(SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE.script())
-          < shownDialogs.indexOf(SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND.script()));
+      assertEquals(List.of("search-robot-complete", "access-module-found"), questLogDialogIds);
+      assertTrue(
+          shownDialogs.indexOf(SystemRecoveryStoryDialogs.SEARCH_ROBOT_COMPLETE.script())
+              < shownDialogs.indexOf(SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND.script()));
     }
   }
 
@@ -147,10 +143,10 @@ class SystemRecoveryStoryDialogsTest {
 
       questLog.verify(
           () ->
-              SystemRecoveryQuestLogUtil.addDialogEntry(
-                  "riddle2", "module-array", expectedScript));
+              SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-array", expectedScript));
       dialogs.verify(
-          () -> DialogFactory.showDialogDialog(eq(expectedScript), any(IVoidFunction.class), eq(42)));
+          () ->
+              DialogFactory.showDialogDialog(eq(expectedScript), any(IVoidFunction.class), eq(42)));
     } finally {
       SystemRecovery.configureDebugMode();
     }

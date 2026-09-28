@@ -22,14 +22,18 @@ public final class TerminalInterpreter {
       IDENTIFIER_PATTERN + "(?:\\s*\\[\\s*" + IDENTIFIER_PATTERN + "\\s*])?";
   private static final Pattern LENGTH_INITIALIZER =
       Pattern.compile(
-          "int\\s+(?<name>" + IDENTIFIER_PATTERN + ")\\s*=\\s*(?<array>"
+          "int\\s+(?<name>"
+              + IDENTIFIER_PATTERN
+              + ")\\s*=\\s*(?<array>"
               + ARRAY_REFERENCE_PATTERN
               + ")\\s*\\.\\s*length\\s*;");
   private static final Pattern ZERO_INITIALIZER =
       Pattern.compile("int\\s+(?<name>" + IDENTIFIER_PATTERN + ")\\s*=\\s*0\\s*;");
   private static final Pattern LENGTH_ASSIGNMENT =
       Pattern.compile(
-          "(?<name>" + IDENTIFIER_PATTERN + ")\\s*=\\s*(?<array>"
+          "(?<name>"
+              + IDENTIFIER_PATTERN
+              + ")\\s*=\\s*(?<array>"
               + ARRAY_REFERENCE_PATTERN
               + ")\\s*\\.\\s*length\\s*;");
   private static final Pattern VARIABLE_ASSIGNMENT =
@@ -229,9 +233,7 @@ public final class TerminalInterpreter {
       if (evaluation.status() == EvaluationStatus.COMPLETE) {
         boolean completesFollowingStep =
             requirement.acceptsFollowingStepInSameSubmission()
-                && evaluateState(
-                        state + 1, source, evaluation.context().copy(), state + 1)
-                    .status()
+                && evaluateState(state + 1, source, evaluation.context().copy(), state + 1).status()
                     == EvaluationStatus.COMPLETE;
         combinedSubmission |= completesFollowingStep;
         TerminalAttempt attempt =
@@ -241,9 +243,7 @@ public final class TerminalInterpreter {
                 playerId,
                 dialogId,
                 combinedSubmission,
-                evaluation.completeSubmission()
-                    ? source
-                    : acceptedSourceForStep(state, source));
+                evaluation.completeSubmission() ? source : acceptedSourceForStep(state, source));
 
         // Apply room effects before committing this state so a failed callback stays retryable.
         requirement.onSuccess().accept(attempt);
@@ -332,8 +332,7 @@ public final class TerminalInterpreter {
     if (puzzleState == null) {
       return new AnalysisResult(false, context);
     }
-    int maxKnownState =
-        puzzleState.acceptsFollowingStepInSameSubmission() ? state + 1 : state;
+    int maxKnownState = puzzleState.acceptsFollowingStepInSameSubmission() ? state + 1 : state;
     return analysis(state, source, context, maxKnownState);
   }
 
@@ -381,16 +380,11 @@ public final class TerminalInterpreter {
             partialMatches.getOrDefault(state, new boolean[requiredLines.length]),
             requiredLines.length);
 
-    TerminalMatchContext baseContext =
-        partialBaseContexts.getOrDefault(state, context).copy();
-    AnalysisResult completeSubmission =
-        analysis(state, source, baseContext, maxKnownState);
+    TerminalMatchContext baseContext = partialBaseContexts.getOrDefault(state, context).copy();
+    AnalysisResult completeSubmission = analysis(state, source, baseContext, maxKnownState);
     if (completeSubmission.successful()) {
       return new StateEvaluation(
-          EvaluationStatus.COMPLETE,
-          completeSubmission.context(),
-          matchedLines,
-          true);
+          EvaluationStatus.COMPLETE, completeSubmission.context(), matchedLines, true);
     }
 
     boolean matchedCurrentStep = false;
@@ -398,8 +392,7 @@ public final class TerminalInterpreter {
     for (TerminalStatement statement : statements) {
       boolean matchedStatement = false;
       for (int lineIndex = 0; lineIndex < requiredLines.length; lineIndex++) {
-        if (matchedLines[lineIndex]
-            || !requirement.prerequisitesMet(lineIndex, matchedLines)) {
+        if (matchedLines[lineIndex] || !requirement.prerequisitesMet(lineIndex, matchedLines)) {
           continue;
         }
         TerminalMatchContext candidate = context.copy();
@@ -479,8 +472,7 @@ public final class TerminalInterpreter {
     CodeLine[] requiredLines = requirement.codeLines();
     for (TerminalStatement statement : statements) {
       for (int lineIndex = 0; lineIndex < requiredLines.length; lineIndex++) {
-        if (matchedLines[lineIndex]
-            || !requirement.prerequisitesMet(lineIndex, matchedLines)) {
+        if (matchedLines[lineIndex] || !requirement.prerequisitesMet(lineIndex, matchedLines)) {
           continue;
         }
         TerminalMatchContext candidate = context.copy();
@@ -626,7 +618,9 @@ public final class TerminalInterpreter {
   }
 
   private static String[] statements(String source) {
-    return matchingStatements(source).stream().map(TerminalStatement::source).toArray(String[]::new);
+    return matchingStatements(source).stream()
+        .map(TerminalStatement::source)
+        .toArray(String[]::new);
   }
 
   /**
@@ -658,8 +652,11 @@ public final class TerminalInterpreter {
     List<TerminalStatement> normalized = new ArrayList<>();
     for (int index = 0; index < statements.size(); index++) {
       TerminalStatement statement = statements.get(index);
-      aliases.values().forEach(
-          bindings -> bindings.removeIf(binding -> binding.blockDepth() > statement.blockDepth()));
+      aliases
+          .values()
+          .forEach(
+              bindings ->
+                  bindings.removeIf(binding -> binding.blockDepth() > statement.blockDepth()));
       aliases.values().removeIf(List::isEmpty);
 
       Matcher initializer = LENGTH_INITIALIZER.matcher(statement.source());
@@ -667,10 +664,7 @@ public final class TerminalInterpreter {
           && aliasIsUsedAfter(
               statements, index + 1, initializer.group("name"), statement.blockDepth())) {
         bindLengthAlias(
-            aliases,
-            initializer.group("name"),
-            initializer.group("array"),
-            statement.blockDepth());
+            aliases, initializer.group("name"), initializer.group("array"), statement.blockDepth());
         continue;
       }
       if (deferredZeroDeclarations.containsKey(index)) {
@@ -724,10 +718,7 @@ public final class TerminalInterpreter {
   }
 
   private static void bindLengthAlias(
-      Map<String, List<LengthAlias>> aliases,
-      String name,
-      String arrayExpression,
-      int blockDepth) {
+      Map<String, List<LengthAlias>> aliases, String name, String arrayExpression, int blockDepth) {
     aliases
         .computeIfAbsent(name, ignored -> new ArrayList<>())
         .add(new LengthAlias(normalizeArrayExpression(arrayExpression) + ".length", blockDepth));

@@ -61,11 +61,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
     heading.setBackground("blue_square_flat");
     Label headingLabel = createLabel(SystemRecoveryText.text("computer.meta-heading"), 26);
     headingLabel.setWrap(true);
-    heading
-        .add(headingLabel)
-        .growX()
-        .left()
-        .pad(12, 18, 12, 18);
+    heading.add(headingLabel).growX().left().pad(12, 18, 12, 18);
     page.add(heading).growX().row();
 
     Label instruction = createLabel(SystemRecoveryText.text("computer.meta-instruction"), 18);
@@ -92,8 +88,8 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
       energyTable.add(slot).growX().padRight(12).padBottom(10);
       if (index % 2 == 1) energyTable.row();
     }
-    Table energyPanel = createSection(
-        SystemRecoveryText.text("computer.meta-energy-heading"), energyTable);
+    Table energyPanel =
+        createSection(SystemRecoveryText.text("computer.meta-energy-heading"), energyTable);
     page.add(energyPanel).growX().left().padTop(16).row();
 
     Table counts = new Table(skin);
@@ -105,8 +101,8 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
             SystemCoreMetaDraft.scannedModuleCount(), SystemCoreMetaDraft::scannedModuleCount);
     addCountField(counts, "computer.meta-modules", moduleField);
     addCountField(counts, "computer.meta-batteries", batteryField);
-    Table countPanel = createSection(
-        SystemRecoveryText.text("computer.meta-count-heading"), counts);
+    Table countPanel =
+        createSection(SystemRecoveryText.text("computer.meta-count-heading"), counts);
     page.add(countPanel).growX().left().padTop(8).row();
 
     Table feedbackPanel = new Table(skin);
@@ -128,8 +124,7 @@ public final class SystemCoreMetaTab extends SystemRecoveryComputerTab {
             submitValues();
           }
         });
-    clearButton =
-        createButton(SystemRecoveryText.text("computer.meta-clear"), "red-outline", 20);
+    clearButton = createButton(SystemRecoveryText.text("computer.meta-clear"), "red-outline", 20);
     clearButton.addListener(
         new ChangeListener() {
           @Override

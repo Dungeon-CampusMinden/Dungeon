@@ -57,7 +57,6 @@ public final class SystemRecoveryMemoryWatch {
             assignment.group(3) == null ? -1 : Integer.parseInt(assignment.group(3)),
             formatLiteral(assignment.group(4)));
       }
-
     }
   }
 
@@ -174,7 +173,9 @@ public final class SystemRecoveryMemoryWatch {
       } else if (character == ')') {
         parenthesesDepth = Math.max(0, parenthesesDepth - 1);
         current.append(character);
-      } else if (character == '/' && index + 1 < source.length() && source.charAt(index + 1) == '/') {
+      } else if (character == '/'
+          && index + 1 < source.length()
+          && source.charAt(index + 1) == '/') {
         while (index < source.length() && source.charAt(index) != '\n') index++;
         current.append(' ');
       } else if (character == ';' && parenthesesDepth == 0) {

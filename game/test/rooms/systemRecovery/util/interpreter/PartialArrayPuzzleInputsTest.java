@@ -71,8 +71,7 @@ class PartialArrayPuzzleInputsTest {
         0,
         new TerminalCodeRequirement(
                 new CodeLine[] {
-                  new CodeLine(Pattern.compile("first;")),
-                  new CodeLine(Pattern.compile("second;"))
+                  new CodeLine(Pattern.compile("first;")), new CodeLine(Pattern.compile("second;"))
                 },
                 false,
                 attempts::add,
@@ -197,8 +196,7 @@ class PartialArrayPuzzleInputsTest {
                 + "boolean[] aktiv = {true, false, true};"));
     assertTrue(interpreter.interpret("int[][] lager = new int[3][4];"));
 
-    List<String> assignments =
-        List.of("lager[2][1] = 3;", "lager[0][2] = 1;", "lager[1][3] = 2;");
+    List<String> assignments = List.of("lager[2][1] = 3;", "lager[0][2] = 1;", "lager[1][3] = 2;");
     for (int index = 0; index < assignments.size(); index++) {
       assertTrue(interpreter.interpret(assignments.get(index)), assignments.get(index));
       assertEquals(index == assignments.size() - 1 ? 12 : 11, interpreter.currentState());
@@ -223,7 +221,6 @@ class PartialArrayPuzzleInputsTest {
             "int count = 0; for (String entry : module) { if (entry != null) { count++; } } display.show(count);"));
     assertTrue(interpreter.interpret("int[] pakete = {15, 40, 20, 60, 30};"));
     assertTrue(
-        interpreter.interpret(
-            "for (int i = 0; i < pakete.length; i++) { roboter.collect(); }"));
+        interpreter.interpret("for (int i = 0; i < pakete.length; i++) { roboter.collect(); }"));
   }
 }

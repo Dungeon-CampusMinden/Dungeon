@@ -7,12 +7,16 @@ public final class TerminalDraftStore {
 
   private TerminalDraftStore() {}
 
-  /** @return the current client-local unsent terminal source */
+  /**
+   * @return the current client-local unsent terminal source
+   */
   public static synchronized String code() {
     return code;
   }
 
-  /** @param source replacement source, or {@code null} to clear it */
+  /**
+   * @param source replacement source, or {@code null} to clear it
+   */
   public static synchronized void code(String source) {
     code = source == null ? "" : source;
   }

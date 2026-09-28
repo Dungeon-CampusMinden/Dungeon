@@ -165,7 +165,9 @@ public class SystemRecoveryComputerDialog extends Group implements DialogFeedbac
 
     Button exit = Scene2dElementFactory.createExitButton();
     boolean usbInserted =
-        context.find(SystemRecoveryComputerFactory.SORT_PROGRAM_INSERTED, Boolean.class).orElse(false)
+        context
+                .find(SystemRecoveryComputerFactory.SORT_PROGRAM_INSERTED, Boolean.class)
+                .orElse(false)
             || context
                 .find(SystemRecoveryComputerFactory.SEARCH_PROGRAM_INSERTED, Boolean.class)
                 .orElse(false);

@@ -25,8 +25,8 @@ import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.items.SystemCoreAccessChipItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
-import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
+import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
@@ -139,9 +139,7 @@ public final class SystemRecoverySave {
     }
     if (mountedItems != null) {
       mountedItems.stream()
-          .map(
-              mounted ->
-                  playerItem(mounted.playerName(), mounted.item()).orElse(null))
+          .map(mounted -> playerItem(mounted.playerName(), mounted.item()).orElse(null))
           .filter(java.util.Objects::nonNull)
           .forEach(item -> result.putIfAbsent(itemIdentity(item), item));
     }
@@ -273,9 +271,7 @@ public final class SystemRecoverySave {
     root.put("questLog", data.questLog().stream().map(QuestLogEntryData::toMap).toList());
     root.put("terminalHistory", data.terminalHistory());
     root.put("memoryWatch", data.memoryWatchEntries());
-    root.put(
-        "inventoryItems",
-        data.inventoryItems().stream().map(PlayerItemData::toMap).toList());
+    root.put("inventoryItems", data.inventoryItems().stream().map(PlayerItemData::toMap).toList());
     root.put("systemCoreExitOpen", data.systemCoreExitOpen());
     root.put("systemCoreWarningCallAnswered", data.systemCoreWarningCallAnswered());
     if (data.achievementProgress() != null) {
@@ -560,8 +556,7 @@ public final class SystemRecoverySave {
           List.copyOf(acceptedTerminalInputs == null ? List.of() : acceptedTerminalInputs);
       questLog = List.copyOf(questLog == null ? List.of() : questLog);
       terminalHistory = List.copyOf(terminalHistory == null ? List.of() : terminalHistory);
-      memoryWatchEntries =
-          List.copyOf(memoryWatchEntries == null ? List.of() : memoryWatchEntries);
+      memoryWatchEntries = List.copyOf(memoryWatchEntries == null ? List.of() : memoryWatchEntries);
       inventoryItems = List.copyOf(inventoryItems == null ? List.of() : inventoryItems);
     }
   }

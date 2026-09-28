@@ -72,8 +72,10 @@ class EnergyEntityFactoryTest {
             DialogType.DefaultTypes.DUAL_INVENTORY,
             true,
             Map.of(
-                DialogContextKeys.ENTITY, otherPlayer.id(),
-                DialogContextKeys.SECONDARY_ENTITY, box.id() + 1));
+                DialogContextKeys.ENTITY,
+                otherPlayer.id(),
+                DialogContextKeys.SECONDARY_ENTITY,
+                box.id() + 1));
     otherContext.owner(otherPlayer.id());
     UIComponent otherInventoryDialog = new UIComponent(otherContext, true, true, otherPlayer.id());
     otherPlayer.add(otherInventoryDialog);
