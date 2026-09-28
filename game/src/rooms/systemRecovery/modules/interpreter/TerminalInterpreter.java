@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 /** Interprets registered terminal puzzle states without knowing room-specific behavior. */
 public final class TerminalInterpreter {
 
   private static final TerminalInterpreter INSTANCE = new TerminalInterpreter();
+  private static final Pattern CONTROL_BLOCK_HEADER =
+      Pattern.compile("(for|if)\\s*\\(.*\\{", Pattern.DOTALL);
 
   private final Map<Integer, TerminalCodeRequirement> states = new HashMap<>();
   private final TerminalMatchContext successfulContext = new TerminalMatchContext();
@@ -409,7 +412,7 @@ public final class TerminalInterpreter {
   }
 
   private static boolean opensControlBlock(String statement) {
-    return statement.matches("(for|if)\\s*\\(.*\\{");
+    return CONTROL_BLOCK_HEADER.matcher(statement).matches();
   }
 
   private static void addStatement(

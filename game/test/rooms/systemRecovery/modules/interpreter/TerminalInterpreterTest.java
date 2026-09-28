@@ -151,6 +151,27 @@ public class TerminalInterpreterTest {
     assertTrue(result);
   }
 
+  /** Newline style, tabs, indentation and a brace on its own line do not affect matching. */
+  @Test
+  public void lineEndingsAndIndentationArePlatformIndependent() {
+    TerminalInterpreter.instance()
+        .register(0, new TerminalCodeRequirement(new CodeLine[] {LOOP, ACTION}, true, null, null));
+
+    String source =
+        "// loop header\n"
+            + "\tfor\t(\tint i = 0;\n"
+            + "\t i < items.length;\n"
+            + "\t i++)\n"
+            + "\t{\n"
+            + "\t\tuse(items[i]);\n"
+            + "\t}";
+    String[] newlineVariants = {source, source.replace("\n", "\r\n"), source.replace("\n", "\r")};
+
+    for (String variant : newlineVariants) {
+      assertTrue(TerminalInterpreter.instance().analyze(variant), "Failed for line ending variant");
+    }
+  }
+
   /** Comments are ignored while checking otherwise valid terminal code. */
   @Test
   public void lineCommentsAreIgnored() {
