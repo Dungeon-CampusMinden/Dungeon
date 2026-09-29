@@ -82,7 +82,8 @@ public class PointSetting extends EditorSetting {
             commitOnFocusLost,
             true);
 
-    ImageButton cursorButton = Scene2dElementFactory.createIconButton("hud/check.png", "default");
+    ImageButton cursorButton =
+        Scene2dElementFactory.createIconButton("cursors/cursor_alias.png", "default");
     cursorButton.addListener(
         new ChangeListener() {
           @Override

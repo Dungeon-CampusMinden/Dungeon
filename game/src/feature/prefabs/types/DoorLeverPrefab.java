@@ -24,8 +24,9 @@ public final class DoorLeverPrefab extends Prefab {
           "leverPosition", "Lever Position", new Point(1, 0), new Point(0.5f, 0.5f));
   private static final PrefabProperty<Point> DOOR_POSITION =
       PrefabProperty.point("doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
-  private static final PrefabProperty<Boolean> CLOSEABLE =
-      PrefabProperty.bool("closeable", "Closeable", true);
+  private static final PrefabProperty<Boolean> OPEN = PrefabProperty.bool("open", "Open", false);
+  private static final PrefabProperty<Boolean> REVERTABLE =
+      PrefabProperty.bool("revertable", "Revertable", true);
 
   /** Creates the door-lever definition. */
   public DoorLeverPrefab() {
@@ -33,7 +34,7 @@ public final class DoorLeverPrefab extends Prefab {
         "door-lever",
         "Door + Lever",
         PrefabSide.SERVER,
-        List.of(LEVER_POSITION, DOOR_POSITION, CLOSEABLE));
+        List.of(LEVER_POSITION, DOOR_POSITION, OPEN, REVERTABLE));
   }
 
   /**
@@ -47,7 +48,7 @@ public final class DoorLeverPrefab extends Prefab {
         "door-lever",
         "Door + Lever",
         PrefabSide.SERVER,
-        List.of(LEVER_POSITION, DOOR_POSITION, CLOSEABLE),
+        List.of(LEVER_POSITION, DOOR_POSITION, OPEN, REVERTABLE),
         level,
         name);
   }
@@ -64,23 +65,24 @@ public final class DoorLeverPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point doorPosition = value(instance, DOOR_POSITION);
-    doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
+    boolean open = value(instance, OPEN);
+    boolean revertable = value(instance, REVERTABLE);
+    setDoor(context.level(), doorPosition, open);
 
-    boolean closeable = value(instance, CLOSEABLE);
     IEntityCommand command =
         new IEntityCommand() {
           @Override
           public void execute(Entity lever) {
-            doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
+            setDoor(context.level(), doorPosition, !open);
           }
 
           @Override
           public void undo(Entity lever) {
-            if (closeable) doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
+            if (revertable) setDoor(context.level(), doorPosition, open);
           }
         };
     Entity lever = context.createEntity(instance.name());
-    LeverFactory.createLever(lever, value(instance, LEVER_POSITION), command);
+    LeverFactory.createLever(lever, value(instance, LEVER_POSITION), command, !revertable);
     return List.of(lever);
   }
 
@@ -101,6 +103,15 @@ public final class DoorLeverPrefab extends Prefab {
     boolean hasDoor = doorAt(level, value(instance, DOOR_POSITION)).isPresent();
     feedback.point(door, hasDoor ? null : "Missing door");
     feedback.line(lever, door, true, hasDoor ? null : Color.RED);
+  }
+
+  private static void setDoor(ILevel level, Point position, boolean open) {
+    doorAt(level, position)
+        .ifPresent(
+            door -> {
+              if (open) door.open();
+              else door.close();
+            });
   }
 
   private static Optional<DoorTile> doorAt(ILevel level, Point position) {

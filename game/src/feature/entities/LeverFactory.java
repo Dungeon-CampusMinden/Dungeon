@@ -65,7 +65,21 @@ public class LeverFactory {
    */
   public static Entity createLever(
       Entity lever, Point pos, ICommand onInteract, IPath texturePath) {
-    return createLever(lever, pos, onInteract, texturePath, false, true);
+    return createLever(lever, pos, onInteract, texturePath, false, true, false);
+  }
+
+  /**
+   * Configures a supplied entity as a lever with the default lever design.
+   *
+   * @param lever the entity to configure
+   * @param pos the position where the lever will be created
+   * @param onInteract the behavior when the lever is interacted with
+   * @param toggleOnce whether the lever stops being interactable after its first toggle
+   * @return the configured lever entity
+   */
+  public static Entity createLever(
+      Entity lever, Point pos, ICommand onInteract, boolean toggleOnce) {
+    return createLever(lever, pos, onInteract, LEVER_PATH, false, true, toggleOnce);
   }
 
   private static Entity createLever(
@@ -74,7 +88,8 @@ public class LeverFactory {
       ICommand onInteract,
       IPath texturePath,
       boolean initiallyOn,
-      boolean toggleable) {
+      boolean toggleable,
+      boolean toggleOnce) {
     lever.add(new PositionComponent(pos));
 
     Map<String, Animation> map = Animation.loadAnimationSpritesheet(texturePath);
@@ -104,6 +119,7 @@ public class LeverFactory {
                         .fetch(DrawComponent.class)
                         .ifPresent(
                             drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
+                    if (toggleOnce) entity.remove(InteractionComponent.class);
                   },
                   DEFAULT_INTERACTION_RADIUS)));
     }
@@ -186,7 +202,22 @@ public class LeverFactory {
    */
   public static Entity createTorch(
       Entity torch, Point pos, ICommand onInteract, boolean initiallyOn, boolean toggleable) {
-    return createLever(torch, pos, onInteract, TORCH_PATH, initiallyOn, toggleable);
+    return createLever(torch, pos, onInteract, TORCH_PATH, initiallyOn, toggleable, false);
+  }
+
+  /**
+   * Configures a supplied entity as a torch with an authored initial state and no-op command.
+   *
+   * @param torch entity to configure
+   * @param pos torch position
+   * @param initiallyOn whether the torch starts lit
+   * @param toggleable whether the torch can be interacted with
+   * @param toggleOnce whether the torch stops being interactable after its first toggle
+   * @return the configured torch entity
+   */
+  public static Entity createTorch(
+      Entity torch, Point pos, boolean initiallyOn, boolean toggleable, boolean toggleOnce) {
+    return createLever(torch, pos, ICommand.NOOP, TORCH_PATH, initiallyOn, toggleable, toggleOnce);
   }
 
   /**

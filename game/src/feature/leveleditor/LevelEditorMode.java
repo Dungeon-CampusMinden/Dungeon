@@ -262,6 +262,23 @@ public abstract class LevelEditorMode {
       return precision() > other.precision();
     }
 
+    /**
+     * Returns whether an offset lies on this mode's snap grid.
+     *
+     * @param offset offset to check
+     * @return true if snapping a position shifted by the offset keeps the offset intact
+     */
+    boolean isAligned(Point offset) {
+      if (this == OffGrid) return true;
+      int precision = precision();
+      return isAligned(offset.x(), precision) && isAligned(offset.y(), precision);
+    }
+
+    private static boolean isAligned(float value, int divisions) {
+      float scaled = value * divisions;
+      return Math.abs(scaled - Math.round(scaled)) < 0.0001f;
+    }
+
     private int precision() {
       return switch (this) {
         case OnGrid, CheckerGridEven, CheckerGridOdd -> 1;

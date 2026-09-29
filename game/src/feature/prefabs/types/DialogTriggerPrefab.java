@@ -29,14 +29,11 @@ public final class DialogTriggerPrefab extends Prefab {
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
   private static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
-  private static final PrefabProperty<Boolean> ONCE_ALL =
-      PrefabProperty.bool("onceAll", "Once for all players", false);
-  private static final PrefabProperty<Boolean> ONCE_PLAYER =
-      PrefabProperty.bool("oncePlayer", "Once per player", false);
+  private static final PrefabProperty<String> REPETITION = DialogRepetition.property();
 
   /** Creates the dialog-trigger definition. */
   public DialogTriggerPrefab() {
-    super(TYPE, "Dialog Trigger", PrefabSide.SERVER, List.of(REGION, TEXT, ONCE_ALL, ONCE_PLAYER));
+    super(TYPE, "Dialog Trigger", PrefabSide.SERVER, List.of(REGION, TEXT, REPETITION));
   }
 
   /**
@@ -47,12 +44,7 @@ public final class DialogTriggerPrefab extends Prefab {
    */
   public DialogTriggerPrefab(ILevel level, String name) {
     super(
-        TYPE,
-        "Dialog Trigger",
-        PrefabSide.SERVER,
-        List.of(REGION, TEXT, ONCE_ALL, ONCE_PLAYER),
-        level,
-        name);
+        TYPE, "Dialog Trigger", PrefabSide.SERVER, List.of(REGION, TEXT, REPETITION), level, name);
   }
 
   /**
@@ -72,8 +64,7 @@ public final class DialogTriggerPrefab extends Prefab {
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();
     String text = value(instance, TEXT);
-    boolean onceAll = value(instance, ONCE_ALL);
-    boolean oncePlayer = value(instance, ONCE_PLAYER);
+    DialogRepetition repetition = DialogRepetition.fromLabel(value(instance, REPETITION));
     TriggerState state = new TriggerState();
 
     Entity trigger = context.createEntity(instance.name());
@@ -84,10 +75,11 @@ public final class DialogTriggerPrefab extends Prefab {
                 Vector2.of(width, height),
                 (self, who, direction) -> {
                   if (!who.isPresent(PlayerComponent.class)) return;
-                  if (onceAll) {
+                  if (repetition == DialogRepetition.ONCE_GLOBALLY) {
                     if (state.triggeredForAll) return;
                     state.triggeredForAll = true;
-                  } else if (oncePlayer && !state.players.add(who)) {
+                  } else if (repetition == DialogRepetition.ONCE_PER_PLAYER
+                      && !state.players.add(who)) {
                     return;
                   }
                   DialogFactory.showDialogDialog(text, () -> {}, who.id());

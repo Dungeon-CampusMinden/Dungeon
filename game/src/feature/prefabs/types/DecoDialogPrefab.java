@@ -19,8 +19,11 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.systems.PositionSync;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /** Client-side decoration that opens a dialog when interacted with. */
 public final class DecoDialogPrefab extends Prefab {
@@ -38,7 +41,7 @@ public final class DecoDialogPrefab extends Prefab {
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
   private static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
-  private static final PrefabProperty<Boolean> ONCE = PrefabProperty.bool("once", "Once", false);
+  private static final PrefabProperty<String> REPETITION = DialogRepetition.property();
 
   /** Creates the decoration-dialog definition. */
   public DecoDialogPrefab() {
@@ -46,7 +49,7 @@ public final class DecoDialogPrefab extends Prefab {
         "deco-dialog",
         "Decoration + Dialog",
         PrefabSide.CLIENT,
-        List.of(POSITION, DECO, SCALE, TEXT, ONCE));
+        List.of(POSITION, DECO, SCALE, TEXT, REPETITION));
   }
 
   /**
@@ -60,7 +63,7 @@ public final class DecoDialogPrefab extends Prefab {
         "deco-dialog",
         "Decoration + Dialog",
         PrefabSide.CLIENT,
-        List.of(POSITION, DECO, SCALE, TEXT, ONCE),
+        List.of(POSITION, DECO, SCALE, TEXT, REPETITION),
         level,
         name);
   }
@@ -93,13 +96,17 @@ public final class DecoDialogPrefab extends Prefab {
     PositionSync.syncPosition(deco);
 
     String dialog = value(instance, TEXT);
-    boolean once = value(instance, ONCE);
+    DialogRepetition repetition = DialogRepetition.fromLabel(value(instance, REPETITION));
+    Set<Entity> players = Collections.newSetFromMap(new IdentityHashMap<>());
     InteractionComponent interaction =
         new InteractionComponent(
             new Interaction(
                 (entity, who) -> {
+                  if (repetition == DialogRepetition.ONCE_PER_PLAYER && !players.add(who)) return;
                   DialogFactory.showDialogDialog(dialog, () -> {}, who.id());
-                  if (once) entity.remove(InteractionComponent.class);
+                  if (repetition == DialogRepetition.ONCE_GLOBALLY) {
+                    entity.remove(InteractionComponent.class);
+                  }
                 },
                 INTERACTION_RADIUS));
     deco.add(interaction);

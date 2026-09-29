@@ -24,6 +24,7 @@ import feature.leveleditor.ui.IntegerSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.NumberSliderSetting;
 import feature.leveleditor.ui.PointSetting;
+import feature.leveleditor.ui.PrefabInstanceList;
 import feature.leveleditor.ui.RegionSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.leveleditor.ui.StringSetting;
@@ -70,7 +71,9 @@ public final class PrefabMode extends LevelEditorMode {
   private SnapMode snapModeBeforeAnchorDrag;
   private Table detailsContent;
   private Table secondaryContent;
-  private Table listContent;
+  private PrefabInstanceList instanceList;
+  private Table listOrderTabs;
+  private ListOrder listOrder = ListOrder.ALPHABETICAL;
   private SelectSetting<Prefab> prefabTypeSetting;
   private boolean rebuildPending;
   // Authored instances are immutable, so their normalized form is reused between frames.
@@ -95,6 +98,7 @@ public final class PrefabMode extends LevelEditorMode {
     cancelAnchorDrag();
     clearPendingPointAssignment();
     if (selectedName != null && selected().isEmpty()) selectedName = null;
+    if (applyGroupedOrder()) levelChanged();
     try {
       respawnAll();
     } catch (RuntimeException exception) {
@@ -132,7 +136,9 @@ public final class PrefabMode extends LevelEditorMode {
       if (pendingPointAssignment != null) {
         PendingPointAssignment assignment = pendingPointAssignment;
         pendingPointAssignment = null;
-        assignment.assignment().accept(snapMode.getPosition(cursor));
+        assignment
+            .assignment()
+            .accept(propertyPositionForCursor(cursor, assignment.feedbackOffset()));
         return;
       }
       Optional<WorldAnchor> anchor = anchorNear(cursor);
@@ -160,7 +166,7 @@ public final class PrefabMode extends LevelEditorMode {
       pendingAnchorDrag = null;
       if (drag.active()) {
         try {
-          commitAnchorDrag(drag, snapMode.getPosition(cursor));
+          commitAnchorDrag(drag, propertyPositionForCursor(cursor, drag.anchor().feedbackOffset()));
         } finally {
           restoreSnapModeAfterAnchorDrag();
         }
@@ -227,13 +233,16 @@ public final class PrefabMode extends LevelEditorMode {
     if (selectedPrefab == null && prefabDefinitions.length > 0) {
       selectedPrefab = prefabDefinitions[0];
     }
-    listContent = new Table();
-    listContent.top().defaults().growX();
-    var list = Scene2dElementFactory.createScrollPane(listContent, false, true);
+    listOrderTabs = new Table();
+    rebuildListOrderTabs();
+    content.add(listOrderTabs).growX().padBottom(4f).row();
+    instanceList = new PrefabInstanceList(new InstanceListListener());
+    var list = Scene2dElementFactory.createScrollPane(instanceList, false, true);
+    list.setFlickScroll(false);
     content.add(list).growX().height(350f).row();
 
     Table actions = new Table();
-    ImageButton add = Scene2dElementFactory.createIconButton("hud/check.png", "blue-outline");
+    ImageButton add = Scene2dElementFactory.createIconButton("hud/plus.png", "blue-outline");
     add.addListener(
         new ChangeListener() {
           @Override
@@ -241,8 +250,7 @@ public final class PrefabMode extends LevelEditorMode {
             addSelectedPrefab();
           }
         });
-    ImageButton duplicate =
-        Scene2dElementFactory.createIconButton("hud/kenney/chess_king.png", "default");
+    ImageButton duplicate = Scene2dElementFactory.createIconButton("hud/copy.png", "default");
     duplicate.addListener(
         new ChangeListener() {
           @Override
@@ -250,7 +258,7 @@ public final class PrefabMode extends LevelEditorMode {
             duplicateSelected();
           }
         });
-    ImageButton delete = Scene2dElementFactory.createIconButton("hud/cross.png", "red-outline");
+    ImageButton delete = Scene2dElementFactory.createIconButton("hud/trash.png", "red-outline");
     delete.addListener(
         new ChangeListener() {
           @Override
@@ -308,8 +316,6 @@ public final class PrefabMode extends LevelEditorMode {
   public String additionalInformation() {
     return "Snap Mode: "
         + snapMode.name()
-        + "\nDrag a prefab point or region corner to move it"
-        + "\nWorld click selects the nearest prefab anchor"
         + (pendingPointAssignment == null ? "" : "\nWaiting for world point assignment");
   }
 
@@ -327,33 +333,8 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void rebuildDetails(boolean rebuildSecondary) {
-    if (listContent == null) return;
-    listContent.clearChildren();
-    for (PrefabInstance instance :
-        getLevel().prefabs().stream()
-            .sorted(
-                Comparator.comparing(PrefabInstance::name, String.CASE_INSENSITIVE_ORDER)
-                    .thenComparing(PrefabInstance::name))
-            .toList()) {
-      TextButton entry =
-          Scene2dElementFactory.createButton(
-              instance.name(),
-              Objects.equals(selectedName, instance.name()) ? "blue-outline" : "default",
-              14);
-      entry.addListener(
-          new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              cancelAnchorDrag();
-              clearPendingPointAssignment();
-              selectedName = Objects.equals(selectedName, instance.name()) ? null : instance.name();
-              rebuildPending = true;
-            }
-          });
-      Table entryContainer = new Table();
-      entryContainer.add(entry).growX().height(30f);
-      listContent.add(entryContainer).growX().pad(1f).padLeft(6f).padRight(6f).row();
-    }
+    if (instanceList == null) return;
+    instanceList.setItems(listItems(), selectedName, listOrder == ListOrder.LOAD_ORDER);
     if (!rebuildSecondary || secondaryContent == null) return;
     secondaryContent.clearChildren();
     selected()
@@ -594,14 +575,16 @@ public final class PrefabMode extends LevelEditorMode {
   private void add(Prefab prefab) {
     cancelAnchorDrag();
     clearPendingPointAssignment();
-    String name = uniqueName(prefab.type());
+    String area = selected().map(i -> PrefabNames.areaPrefix(i.name())).orElse(null);
+    String base = area == null ? prefab.type() : area + "/" + prefab.type();
+    String name = containsName(base) ? PrefabNames.nextName(base, this::containsName) : base;
     PrefabInstance instance = prefab.newInstance(name);
     Point screenCenter =
         new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y);
-    Point spawnPosition = snapMode.getPosition(screenCenter);
     Optional<WorldAnchor> anchor = worldAnchors(instance).stream().findFirst();
     if (anchor.isPresent()) {
-      Point anchorPosition = anchor.get().displayPosition();
+      Point spawnPosition = propertyPositionForCursor(screenCenter, anchor.get().feedbackOffset());
+      Point anchorPosition = anchor.get().authoredPosition();
       instance =
           prefab.translate(
               instance,
@@ -612,6 +595,7 @@ public final class PrefabMode extends LevelEditorMode {
     applyChange(
         () -> {
           getLevel().addPrefab(added);
+          applyGroupedOrder();
           selectedName = name;
         });
   }
@@ -622,10 +606,20 @@ public final class PrefabMode extends LevelEditorMode {
     selected()
         .ifPresent(
             source -> {
-              String name = uniqueName(source.name());
+              String name = PrefabNames.nextName(source.name(), this::containsName);
               applyChange(
                   () -> {
+                    List<PrefabInstance> prefabs = getLevel().prefabs();
+                    String base = PrefabNames.baseName(name);
+                    int index = prefabs.indexOf(source);
+                    for (int i = 0; i < prefabs.size(); i++) {
+                      if (PrefabNames.baseName(prefabs.get(i).name()).equals(base)) index = i;
+                    }
                     getLevel().addPrefab(source.withName(name));
+                    // Place the copy at the end of its group, or right behind its source.
+                    PrefabInstance copy = prefabs.removeLast();
+                    prefabs.add(index + 1, copy);
+                    applyGroupedOrder();
                     selectedName = name;
                   });
             });
@@ -665,16 +659,167 @@ public final class PrefabMode extends LevelEditorMode {
       applyChange(
           () -> {
             getLevel().replacePrefab(index, source.withName(name));
+            applyGroupedOrder();
             selectedName = name;
           });
     }
   }
 
-  private String uniqueName(String base) {
-    String candidate = base;
-    int suffix = 1;
-    while (containsName(candidate)) candidate = base + "_" + suffix++;
-    return candidate;
+  private void rebuildListOrderTabs() {
+    listOrderTabs.clearChildren();
+    listOrderTabs.defaults().minWidth(0).growX().uniformX().height(34f).pad(0f, 2f, 0f, 2f);
+    for (ListOrder order : ListOrder.values()) {
+      TextButton tab =
+          Scene2dElementFactory.createButton(
+              order.label, order == listOrder ? "blue-outline" : "default", 14);
+      tab.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              if (listOrder == order) return;
+              listOrder = order;
+              rebuildListOrderTabs();
+              rebuildDetails(false);
+            }
+          });
+      listOrderTabs.add(tab);
+    }
+  }
+
+  private List<PrefabInstanceList.Item> listItems() {
+    List<PrefabNames.Node> tree = PrefabNames.tree(getLevel().prefabs());
+    if (listOrder == ListOrder.ALPHABETICAL) tree = PrefabNames.alphabetical(tree);
+    return listItems(tree, "");
+  }
+
+  // Inside an area group, the area prefix is omitted from the displayed names.
+  private static List<PrefabInstanceList.Item> listItems(
+      List<PrefabNames.Node> nodes, String hiddenPrefix) {
+    List<PrefabInstanceList.Item> items = new ArrayList<>();
+    for (PrefabNames.Node node : nodes) {
+      switch (node) {
+        case PrefabNames.Leaf leaf -> {
+          String name = leaf.instance().name();
+          items.add(
+              new PrefabInstanceList.Entry(leaf.id(), name, name.substring(hiddenPrefix.length())));
+        }
+        case PrefabNames.Branch branch when branch.kind() == PrefabNames.BranchKind.AREA ->
+            items.add(
+                new PrefabInstanceList.Group(
+                    branch.id(), branch.key(), listItems(branch.children(), branch.key() + "/")));
+        case PrefabNames.Branch branch ->
+            items.add(
+                new PrefabInstanceList.Group(
+                    branch.id(),
+                    branch.key().substring(hiddenPrefix.length()),
+                    listItems(branch.children(), hiddenPrefix)));
+      }
+    }
+    return items;
+  }
+
+  /**
+   * Makes the load order match the list order by keeping every name group contiguous.
+   *
+   * @return whether the order changed
+   */
+  private boolean applyGroupedOrder() {
+    List<PrefabInstance> prefabs = getLevel().prefabs();
+    List<PrefabInstance> ordered = PrefabNames.groupedOrder(prefabs);
+    if (ordered.equals(prefabs)) return false;
+    prefabs.clear();
+    prefabs.addAll(ordered);
+    return true;
+  }
+
+  private void toggleSelection(String name) {
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    selectedName = Objects.equals(selectedName, name) ? null : name;
+    rebuildPending = true;
+  }
+
+  /**
+   * Renames the shared name part of all prefabs in a group.
+   *
+   * @param groupId ID of an area or suffix group
+   * @param label displayed group label, which is a suffix of the shared name part
+   * @param newLabel requested label
+   * @return ID of the renamed group, or {@code null} if the rename was rejected
+   */
+  private String renameGroup(String groupId, String label, String newLabel) {
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    if (!(PrefabNames.find(PrefabNames.tree(getLevel().prefabs()), groupId)
+        instanceof PrefabNames.Branch branch)) {
+      requestRebuild();
+      return null;
+    }
+    boolean area = branch.kind() == PrefabNames.BranchKind.AREA;
+    if (newLabel == null || newLabel.isBlank() || (area && newLabel.contains("/"))) {
+      LevelEditorSystem.showFeedback(
+          area ? "Area name must not be empty or contain '/'." : "Group name must not be empty.",
+          Color.YELLOW);
+      requestRebuild();
+      return null;
+    }
+    // The label omits a hidden area prefix, which is kept when renaming.
+    String oldKey = branch.key();
+    String newKey = oldKey.substring(0, oldKey.length() - label.length()) + newLabel;
+    List<PrefabInstance> members = PrefabNames.instances(branch);
+    List<PrefabInstance> renamed = new ArrayList<>();
+    String renamedSelection = selectedName;
+    for (PrefabInstance instance : getLevel().prefabs()) {
+      if (!members.contains(instance)) {
+        renamed.add(instance);
+        continue;
+      }
+      String name =
+          area
+              ? newKey + instance.name().substring(oldKey.length())
+              : newKey + PrefabNames.groupSuffix(instance.name());
+      if (instance.name().equals(selectedName)) renamedSelection = name;
+      renamed.add(instance.withName(name));
+    }
+    if (renamed.stream().map(PrefabInstance::name).distinct().count() != renamed.size()) {
+      LevelEditorSystem.showFeedback(
+          "Renaming the group would create duplicate prefab names.", Color.YELLOW);
+      requestRebuild();
+      return null;
+    }
+    String selection = renamedSelection;
+    applyChange(
+        () -> {
+          getLevel().prefabs().clear();
+          getLevel().prefabs().addAll(renamed);
+          applyGroupedOrder();
+          selectedName = selection;
+        });
+    return PrefabNames.groupId(branch.kind(), newKey);
+  }
+
+  private void moveItem(String parentId, String itemId, int insertionIndex) {
+    List<PrefabNames.Node> moved =
+        PrefabNames.moveChild(
+            PrefabNames.tree(getLevel().prefabs()), parentId, itemId, insertionIndex);
+    if (moved != null) reorder(PrefabNames.flatten(moved));
+  }
+
+  private void reorder(List<PrefabInstance> order) {
+    if (order.equals(getLevel().prefabs())) return;
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    applyChange(
+        () -> {
+          getLevel().prefabs().clear();
+          getLevel().prefabs().addAll(order);
+        });
+    // Unchanged instances are not respawned by a sync, so respawn everything to apply the order.
+    try {
+      respawnAll();
+    } catch (RuntimeException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+    }
   }
 
   private boolean containsName(String name) {
@@ -791,8 +936,7 @@ public final class PrefabMode extends LevelEditorMode {
             .findFirst()
             .orElse(null);
     if (source == null) return;
-    // Both cursor assignment and dragging store the snapped property coordinate. The feedback
-    // offset only moves its displayed marker, so do not subtract it when committing a drag.
+    // The feedback offset was already accounted for when snapping the property coordinate.
     Point point = snappedPropertyPosition;
     try {
       PrefabInstance replacement;
@@ -825,8 +969,24 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private Point feedbackPositionForCursor(Point cursor, Point feedbackOffset) {
-    Point propertyPosition = snapMode.getPosition(cursor);
+    Point propertyPosition = propertyPositionForCursor(cursor, feedbackOffset);
     return propertyPosition.translate(feedbackOffset.x(), feedbackOffset.y());
+  }
+
+  /**
+   * Snaps the cursor to a property coordinate whose displayed marker sits under the cursor.
+   *
+   * <p>Tile-based snap modes select the tile under the cursor, whose marker is the tile position
+   * plus the offset (e.g. the tile center). Finer snap modes snap the marker itself, so the offset
+   * is removed before snapping.
+   *
+   * @param cursor world cursor position
+   * @param feedbackOffset offset of the displayed marker from the property coordinate
+   * @return snapped property coordinate
+   */
+  private Point propertyPositionForCursor(Point cursor, Point feedbackOffset) {
+    if (!snapMode.isAligned(feedbackOffset)) return snapMode.getPosition(cursor);
+    return snapMode.getPosition(cursor.translate(-feedbackOffset.x(), -feedbackOffset.y()));
   }
 
   private void requestRebuild() {
@@ -891,6 +1051,36 @@ public final class PrefabMode extends LevelEditorMode {
 
   private void despawnAll() {
     for (PrefabSide side : activeSides()) PrefabSpawner.clear(getLevel(), side);
+  }
+
+  /** Order in which the prefab instance list is shown. */
+  private enum ListOrder {
+    ALPHABETICAL("Alphabetical"),
+    LOAD_ORDER("Load Order");
+
+    private final String label;
+
+    ListOrder(String label) {
+      this.label = label;
+    }
+  }
+
+  /** Forwards list interactions to the editor mode. */
+  private final class InstanceListListener implements PrefabInstanceList.Listener {
+    @Override
+    public void select(String name) {
+      toggleSelection(name);
+    }
+
+    @Override
+    public String renameGroup(String groupId, String label, String newLabel) {
+      return PrefabMode.this.renameGroup(groupId, label, newLabel);
+    }
+
+    @Override
+    public void moveItem(String parentId, String itemId, int insertionIndex) {
+      PrefabMode.this.moveItem(parentId, itemId, insertionIndex);
+    }
   }
 
   private PrefabSide[] activeSides() {
