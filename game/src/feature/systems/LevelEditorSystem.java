@@ -316,14 +316,7 @@ public class LevelEditorSystem extends System {
    * @param level level whose prefab entities should be refreshed
    */
   public static void refreshPrefabs(ILevel level) {
-    PrefabSide[] sides;
-    if (Game.isMultiplayerClient()) {
-      sides = new PrefabSide[] {PrefabSide.CLIENT};
-    } else if (Game.isSingleplayer()) {
-      sides = new PrefabSide[] {PrefabSide.SERVER, PrefabSide.CLIENT};
-    } else {
-      sides = new PrefabSide[] {PrefabSide.SERVER};
-    }
+    PrefabSide[] sides = PrefabSide.localSides();
 
     PrefabSpawner.batch(
         () -> {

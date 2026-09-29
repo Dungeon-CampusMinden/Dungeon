@@ -24,8 +24,11 @@ import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
 import feature.entities.deco.Deco;
 import feature.level.ITickable;
+import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabRegistry;
+import feature.prefabs.PrefabRuntime;
+import feature.prefabs.PrefabRuntimeState;
 import feature.prefabs.PrefabSpawner;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +40,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +59,7 @@ public class DungeonLevel implements ILevel, ITickable {
   protected final Map<String, Point> namedPoints = new HashMap<>();
   protected final List<Tuple<Deco, Point>> decorations = new ArrayList<>();
   protected final List<PrefabInstance> prefabs = new ArrayList<>();
+  private final PrefabRuntimeState prefabRuntimeState = new PrefabRuntimeState();
 
   private static int levelNameSuffix = 1;
   private DesignLabel baseDesignLabel;
@@ -450,11 +455,51 @@ public class DungeonLevel implements ILevel, ITickable {
   /**
    * Returns the ordered prefab instances authored for this level.
    *
+   * <p>This is the level file data. To change prefabs while the game runs, use {@link #spawnPrefab}
+   * and the bound views returned by {@link #prefabs(Class)} instead.
+   *
    * @return mutable prefab instance list
    */
   @Override
   public List<PrefabInstance> prefabs() {
     return prefabs;
+  }
+
+  @Override
+  public List<PrefabInstance> activePrefabs() {
+    return prefabRuntimeState.resolve(prefabs);
+  }
+
+  /**
+   * Returns the prefab changes made at runtime in the current game session.
+   *
+   * @return runtime prefab state of this level
+   */
+  public PrefabRuntimeState prefabRuntimeState() {
+    return prefabRuntimeState;
+  }
+
+  /**
+   * Spawns a new prefab instance for the current game session. The level file is not changed.
+   *
+   * <p>Must be called on the server while this level is loaded. Example:
+   *
+   * <pre>{@code
+   * spawnPrefab(WaterPrefab.class, "flood", water -> water
+   *     .with(WaterPrefab.REGION, new Region(new Point(2, 2), new Point(8, 5)))
+   *     .with(WaterPrefab.COLOR, Color.BLUE));
+   * }</pre>
+   *
+   * @param prefabClass prefab type to spawn
+   * @param name level-unique instance name
+   * @param configure sets the instance properties, starting from the type's defaults
+   * @param <P> prefab type
+   * @return bound view of the spawned instance
+   * @see PrefabRuntime#spawn(ILevel, Class, String, UnaryOperator)
+   */
+  public <P extends Prefab> P spawnPrefab(
+      Class<P> prefabClass, String name, UnaryOperator<PrefabInstance> configure) {
+    return PrefabRuntime.spawn(this, prefabClass, name, configure);
   }
 
   /**

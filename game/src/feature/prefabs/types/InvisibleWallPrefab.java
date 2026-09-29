@@ -20,7 +20,7 @@ public final class InvisibleWallPrefab extends Prefab {
 
   private static final String TYPE = "invisible-wall";
   private static final String DISPLAY_NAME = "Invisible Wall";
-  private static final PrefabProperty<Region> REGION =
+  public static final PrefabProperty<Region> REGION =
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
 
   /** Creates the invisible-wall definition. */

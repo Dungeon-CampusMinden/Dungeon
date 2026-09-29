@@ -17,3 +17,27 @@ message LevelChangeEvent {
   // Serialized level data (existing format).
   string level_data = 2;
 }
+
+// Server-to-client: A prefab instance of the current level was changed at runtime.
+// Maps to: engine.network.messages.s2c.PrefabChangeMessage
+message PrefabChangeMessage {
+  enum Action {
+    // Spawns a new instance or replaces the data of an existing one.
+    PUT = 0;
+    // Removes the instance for the rest of the game session.
+    REMOVE = 1;
+    // Respawns the instance from its current data.
+    RESET = 2;
+  }
+
+  Action action = 1;
+
+  // Level-unique name of the prefab instance.
+  string name = 2;
+
+  // Prefab registry type, only set for PUT.
+  string type = 3;
+
+  // Serialized JSON object of the instance properties, only set for PUT.
+  string properties_json = 4;
+}

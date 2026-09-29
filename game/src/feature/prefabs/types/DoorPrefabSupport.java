@@ -18,7 +18,7 @@ final class DoorPrefabSupport {
   private DoorPrefabSupport() {}
 
   /**
-   * Checks whether another authored keypad, lever, or pressure plate also targets the same door.
+   * Checks whether another active keypad, lever, or pressure plate also targets the same door.
    *
    * @param level owning level
    * @param position target door position
@@ -26,7 +26,7 @@ final class DoorPrefabSupport {
    * @return whether another registered door-control prefab targets this position
    */
   static boolean hasOtherTarget(ILevel level, Point position, PrefabInstance removing) {
-    for (PrefabInstance candidate : level.prefabs()) {
+    for (PrefabInstance candidate : level.activePrefabs()) {
       if (candidate.name().equals(removing.name()) && candidate.type().equals(removing.type())) {
         continue;
       }

@@ -17,10 +17,10 @@ import java.util.Optional;
 /** Server-side torch with configurable initial and interaction states. */
 public final class TorchPrefab extends Prefab {
 
-  private static final PrefabProperty<Point> POSITION =
+  public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0));
-  private static final PrefabProperty<Boolean> ON = PrefabProperty.bool("on", "On", true);
-  private static final PrefabProperty<String> TOGGLEABLE =
+  public static final PrefabProperty<Boolean> ON = PrefabProperty.bool("on", "On", true);
+  public static final PrefabProperty<String> TOGGLEABLE =
       PrefabProperty.selection(
           "toggleable",
           "Toggleable",

@@ -34,14 +34,14 @@ public final class ShaderPrefab extends Prefab {
 
   private static final String TYPE = "shader";
   private static final String DISPLAY_NAME = "Shader";
-  private static final PrefabProperty<Boolean> IS_REGION =
+  public static final PrefabProperty<Boolean> IS_REGION =
       PrefabProperty.bool("isRegion", "Is Region", true);
-  private static final PrefabProperty<Boolean> IS_LEVEL =
+  public static final PrefabProperty<Boolean> IS_LEVEL =
       PrefabProperty.bool("isLevel", "Is Level", false);
-  private static final PrefabProperty<Region> REGION =
+  public static final PrefabProperty<Region> REGION =
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)))
           .visibleWhen(IS_REGION::get);
-  private static final PrefabProperty<ShaderParameters> SHADER =
+  public static final PrefabProperty<ShaderParameters> SHADER =
       PrefabProperty.shaderParameters(
           "shader", "Shader", ColorGradeShader.class, HueRemapShader.class);
   private static final List<PrefabProperty<?>> PROPERTIES =

@@ -6,7 +6,6 @@ import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.DecoComponent;
-import feature.components.ShowImageComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.interaction.Interaction;
@@ -14,6 +13,7 @@ import feature.interaction.InteractionComponent;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
+import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
@@ -21,28 +21,32 @@ import feature.systems.PositionSync;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
- * Client-side decoration that opens an image when interacted with.
+ * Server-side decoration that shows an image to the player interacting with it.
  *
- * <p>The image path is resolved through {@link engine.language.Localization#asset(String)} when the
- * image is shown, so a variant for the current language (e.g. {@code image_en.png}) is used if it
+ * <p>The image path is resolved through {@link engine.language.Localization#asset(String)} by the
+ * displaying client, so a variant for its language (e.g. {@code image_en.png}) is used if it
  * exists, falling back to the given path otherwise.
  */
 public final class DecoImagePrefab extends Prefab {
 
+  /** Raised on the server when a player closed the image, with the player as payload. */
+  public static final PrefabEvent<Entity> IMAGE_CLOSED = new PrefabEvent<>("image-closed");
+
   private static final float INTERACTION_RADIUS = 1.5f;
-  private static final PrefabProperty<Point> POSITION =
+  public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0));
-  private static final PrefabProperty<String> DECO =
+  public static final PrefabProperty<String> DECO =
       PrefabProperty.selection(
           "deco",
           "Decoration",
           Deco.BookshelfLarge.name(),
           Arrays.stream(Deco.values()).map(Enum::name).toList());
-  private static final PrefabProperty<Vector2> SCALE =
+  public static final PrefabProperty<Vector2> SCALE =
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
-  private static final PrefabProperty<String> IMAGE =
+  public static final PrefabProperty<String> IMAGE =
       PrefabProperty.string(
           "image", "Image Path", "images/binary_hex.jpg", value -> !value.isBlank());
 
@@ -51,7 +55,7 @@ public final class DecoImagePrefab extends Prefab {
     super(
         "deco-image",
         "Decoration + Image",
-        PrefabSide.CLIENT,
+        PrefabSide.SERVER,
         List.of(POSITION, DECO, SCALE, IMAGE));
   }
 
@@ -65,7 +69,7 @@ public final class DecoImagePrefab extends Prefab {
     super(
         "deco-image",
         "Decoration + Image",
-        PrefabSide.CLIENT,
+        PrefabSide.SERVER,
         List.of(POSITION, DECO, SCALE, IMAGE),
         level,
         name);
@@ -78,6 +82,15 @@ public final class DecoImagePrefab extends Prefab {
    */
   public Optional<Entity> decoEntity() {
     return liveEntities().stream().findFirst();
+  }
+
+  /**
+   * Registers a listener called on the server whenever a player closed the image of this instance.
+   *
+   * @param listener receives the player that closed the image
+   */
+  public void onImageClosed(Consumer<Entity> listener) {
+    listen(IMAGE_CLOSED, listener);
   }
 
   @Override
@@ -102,11 +115,14 @@ public final class DecoImagePrefab extends Prefab {
     position.scale(value(instance, SCALE));
     PositionSync.syncPosition(deco);
 
-    ShowImageComponent showImage = new ShowImageComponent(value(instance, IMAGE));
-    deco.add(showImage);
+    String image = value(instance, IMAGE);
     deco.add(
         new InteractionComponent(
-            new Interaction((entity, who) -> showImage.isUIOpen(true), INTERACTION_RADIUS)));
+            new Interaction(
+                (entity, who) ->
+                    PrefabDialogs.showImage(
+                        image, who, () -> fire(context, instance, IMAGE_CLOSED, who)),
+                INTERACTION_RADIUS)));
     return List.of(deco);
   }
 

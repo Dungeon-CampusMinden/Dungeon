@@ -47,6 +47,7 @@ import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
 import engine.network.messages.s2c.QuestLogStateMessage;
+import engine.network.messages.s2c.PrefabChangeMessage;
 import engine.network.messages.s2c.ShaderTargetStateMessage;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.network.messages.s2c.SoundPlayMessage;
@@ -83,6 +84,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
 import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogUtil;
+import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
 import feature.shader.ShaderSyncSystem;
@@ -791,6 +793,21 @@ public final class GameLoop extends ScreenAdapter {
                 false);
           } catch (Exception e) {
             LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
+          }
+        });
+
+    dispatcher.registerHandler(
+        PrefabChangeMessage.class,
+        (ctx, msg) -> {
+          try {
+            PrefabRuntime.apply(msg);
+          } catch (RuntimeException e) {
+            LOGGER.error(
+                "Failed to apply {} of prefab '{}': {}",
+                msg.action(),
+                msg.name(),
+                e.getMessage(),
+                e);
           }
         });
 

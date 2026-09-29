@@ -38,7 +38,7 @@ public final class PrefabSpawner {
   private PrefabSpawner() {}
 
   /**
-   * Creates and adds all prefabs assigned to the requested side.
+   * Creates and adds all active prefabs assigned to the requested side.
    *
    * @param level owning level
    * @param side side to instantiate
@@ -46,7 +46,7 @@ public final class PrefabSpawner {
   public static void spawn(ILevel level, PrefabSide side) {
     batch(
         () -> {
-          for (PrefabInstance source : level.prefabs()) {
+          for (PrefabInstance source : level.activePrefabs()) {
             Prefab prefab = PrefabRegistry.require(source.type());
             if (prefab.side() != side) continue;
             spawnInstance(level, source, side);
@@ -55,7 +55,7 @@ public final class PrefabSpawner {
   }
 
   /**
-   * Brings the spawned instances of a level side in line with its authored instances.
+   * Brings the spawned instances of a level side in line with its active instances.
    *
    * <p>Only instances that were added, changed, renamed, or removed since they were spawned are
    * respawned or despawned. Unchanged instances keep their entities and runtime state.
@@ -67,7 +67,7 @@ public final class PrefabSpawner {
     batch(
         () -> {
           Map<String, PrefabInstance> authored = new LinkedHashMap<>();
-          for (PrefabInstance source : level.prefabs()) {
+          for (PrefabInstance source : level.activePrefabs()) {
             if (PrefabRegistry.require(source.type()).side() == side) {
               authored.put(source.name(), source);
             }
@@ -185,7 +185,7 @@ public final class PrefabSpawner {
     TrackedPrefab tracked = bySide.get(side).get(name);
     if (tracked == null || !type.equals(tracked.source().type())) return false;
     PrefabInstance authored =
-        level.prefabs().stream()
+        level.activePrefabs().stream()
             .filter(instance -> name.equals(instance.name()))
             .reduce((first, second) -> second)
             .orElse(null);
@@ -220,7 +220,7 @@ public final class PrefabSpawner {
    */
   public static List<Entity> liveEntities(ILevel level, PrefabSide side, String name, String type) {
     PrefabInstance authored = null;
-    for (PrefabInstance candidate : level.prefabs()) {
+    for (PrefabInstance candidate : level.activePrefabs()) {
       if (name.equals(candidate.name())) authored = candidate;
     }
     if (authored == null || !type.equals(authored.type())) return List.of();

@@ -19,7 +19,7 @@ public class LevelParser {
 
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getName());
   private static final String VERSION_PREFIX = "Version: ";
-  private static final LevelFormatParser DEFAULT_PARSER = new V3FormatParser();
+  private static final V3FormatParser DEFAULT_PARSER = new V3FormatParser();
   private static final LevelFormatParser V2_PARSER = new V2FormatParser();
   private static final LevelFormatParser LEGACY_PARSER = new V1FormatParser();
 
@@ -111,6 +111,20 @@ public class LevelParser {
    */
   public static String serializeLevel(DungeonLevel level) {
     return DEFAULT_PARSER.serializeLevel(level);
+  }
+
+  /**
+   * Serialize a DungeonLevel including the runtime prefab changes of the current game session.
+   *
+   * <p>The prefab list of the result is {@link DungeonLevel#activePrefabs()} instead of the
+   * authored instances. This is used to send the current level state to clients, and must not be
+   * used to save level files.
+   *
+   * @param level The DungeonLevel to serialize
+   * @return The serialized level data as a string
+   */
+  public static String serializeActiveLevel(DungeonLevel level) {
+    return DEFAULT_PARSER.serializeLevel(level, level.activePrefabs());
   }
 
   /**

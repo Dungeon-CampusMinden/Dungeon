@@ -21,7 +21,7 @@ import java.util.Optional;
 /** Server-side pushable stone matching the mushroom-level push puzzle. */
 public final class PushableStonePrefab extends Prefab {
 
-  private static final PrefabProperty<Point> POSITION =
+  public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0), new Point(0.5f, 0.5f));
 
   /** Creates the pushable-stone definition. */

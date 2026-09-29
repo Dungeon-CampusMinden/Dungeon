@@ -19,13 +19,13 @@ import java.util.Optional;
 /** Server-side prefab for a lever controlling a door. */
 public final class DoorLeverPrefab extends Prefab {
 
-  private static final PrefabProperty<Point> LEVER_POSITION =
+  public static final PrefabProperty<Point> LEVER_POSITION =
       PrefabProperty.point(
           "leverPosition", "Lever Position", new Point(1, 0), new Point(0.5f, 0.5f));
-  private static final PrefabProperty<Point> DOOR_POSITION =
+  public static final PrefabProperty<Point> DOOR_POSITION =
       PrefabProperty.point("doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
-  private static final PrefabProperty<Boolean> OPEN = PrefabProperty.bool("open", "Open", false);
-  private static final PrefabProperty<Boolean> REVERTABLE =
+  public static final PrefabProperty<Boolean> OPEN = PrefabProperty.bool("open", "Open", false);
+  public static final PrefabProperty<Boolean> REVERTABLE =
       PrefabProperty.bool("revertable", "Revertable", true);
 
   /** Creates the door-lever definition. */

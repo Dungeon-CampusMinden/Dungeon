@@ -18,12 +18,12 @@ import java.util.Optional;
 /** Prefab that closes a door and opens it when the correct keypad code is entered. */
 public final class DoorKeypadPrefab extends Prefab {
 
-  private static final PrefabProperty<Point> DOOR_POSITION =
+  public static final PrefabProperty<Point> DOOR_POSITION =
       PrefabProperty.point("doorPosition", "Door Position", new Point(0, 0), new Point(0.5f, 0.5f));
-  private static final PrefabProperty<Point> KEYPAD_POSITION =
+  public static final PrefabProperty<Point> KEYPAD_POSITION =
       PrefabProperty.point(
           "keypadPosition", "Keypad Position", new Point(1, 0), new Point(0.5f, 0.5f));
-  private static final PrefabProperty<String> CODE =
+  public static final PrefabProperty<String> CODE =
       PrefabProperty.string(
           "code",
           "Code",
@@ -31,7 +31,7 @@ public final class DoorKeypadPrefab extends Prefab {
           value ->
               !value.isBlank()
                   && value.chars().allMatch(character -> character >= '0' && character <= '9'));
-  private static final PrefabProperty<Boolean> SHOW_DIGIT_COUNT =
+  public static final PrefabProperty<Boolean> SHOW_DIGIT_COUNT =
       PrefabProperty.bool("showDigitCount", "Show Digit Count", true);
 
   /** Creates the door-keypad definition. */

@@ -31,9 +31,7 @@ public final class PrefabRegistry {
 
   static {
     register(new DoorKeypadPrefab(), DoorKeypadPrefab::new);
-    register(
-        new BookshelfImagePrefab(),
-        (level, name) -> ((Prefab) new BookshelfImagePrefab()).bind(level, name));
+    register(new BookshelfImagePrefab(), BookshelfImagePrefab::new);
     register(
         new LevelHiderPrefab(),
         (level, name) -> ((Prefab) new LevelHiderPrefab()).bind(level, name));
@@ -99,6 +97,21 @@ public final class PrefabRegistry {
   public static Prefab require(String type) {
     return find(type)
         .orElseThrow(() -> new IllegalArgumentException("Unknown prefab type: '" + type + "'"));
+  }
+
+  /**
+   * Resolves the registered definition of a prefab class.
+   *
+   * @param prefabClass prefab definition class
+   * @param <P> prefab type
+   * @return the registered definition
+   * @throws IllegalArgumentException if no definition of this class is registered
+   */
+  public static <P extends Prefab> P definition(Class<P> prefabClass) {
+    for (Prefab prefab : PREFABS.values()) {
+      if (prefab.getClass() == prefabClass) return prefabClass.cast(prefab);
+    }
+    throw new IllegalArgumentException("Unregistered prefab class: " + prefabClass.getName());
   }
 
   /**

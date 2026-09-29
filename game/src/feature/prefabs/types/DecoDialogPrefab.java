@@ -14,6 +14,7 @@ import feature.interaction.InteractionComponent;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
+import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
@@ -24,33 +25,39 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
-/** Client-side decoration that opens a dialog when interacted with. */
+/** Server-side decoration that shows a dialog to the player interacting with it. */
 public final class DecoDialogPrefab extends Prefab {
 
+  /**
+   * Raised on the server when a player finished or closed the dialog, with the player as payload.
+   */
+  public static final PrefabEvent<Entity> DIALOG_FINISHED = new PrefabEvent<>("dialog-finished");
+
   private static final float INTERACTION_RADIUS = 1.5f;
-  private static final PrefabProperty<Point> POSITION =
+  public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0));
-  private static final PrefabProperty<String> DECO =
+  public static final PrefabProperty<String> DECO =
       PrefabProperty.selection(
           "deco",
           "Decoration",
           Deco.BookshelfLarge.name(),
           Arrays.stream(Deco.values()).map(Enum::name).toList());
-  private static final PrefabProperty<Vector2> SCALE =
+  public static final PrefabProperty<Vector2> SCALE =
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
-  private static final PrefabProperty<String> TEXT =
+  public static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
-  private static final PrefabProperty<Boolean> TRANSLATE =
+  public static final PrefabProperty<Boolean> TRANSLATE =
       PrefabProperty.bool("translate", "Translate", false);
-  private static final PrefabProperty<String> REPETITION = DialogRepetition.property();
+  public static final PrefabProperty<String> REPETITION = DialogRepetition.property();
 
   /** Creates the decoration-dialog definition. */
   public DecoDialogPrefab() {
     super(
         "deco-dialog",
         "Decoration + Dialog",
-        PrefabSide.CLIENT,
+        PrefabSide.SERVER,
         List.of(POSITION, DECO, SCALE, TEXT, TRANSLATE, REPETITION));
   }
 
@@ -64,7 +71,7 @@ public final class DecoDialogPrefab extends Prefab {
     super(
         "deco-dialog",
         "Decoration + Dialog",
-        PrefabSide.CLIENT,
+        PrefabSide.SERVER,
         List.of(POSITION, DECO, SCALE, TEXT, TRANSLATE, REPETITION),
         level,
         name);
@@ -77,6 +84,16 @@ public final class DecoDialogPrefab extends Prefab {
    */
   public Optional<Entity> decoEntity() {
     return liveEntities().stream().findFirst();
+  }
+
+  /**
+   * Registers a listener called on the server whenever a player finished or closed the dialog of
+   * this instance.
+   *
+   * @param listener receives the player that read the dialog
+   */
+  public void onDialogFinished(Consumer<Entity> listener) {
+    listen(DIALOG_FINISHED, listener);
   }
 
   @Override
@@ -106,7 +123,11 @@ public final class DecoDialogPrefab extends Prefab {
             new Interaction(
                 (entity, who) -> {
                   if (repetition == DialogRepetition.ONCE_PER_PLAYER && !players.add(who)) return;
-                  DialogFactory.showDialogDialog(dialog, translate, () -> {}, who.id());
+                  DialogFactory.showDialogDialog(
+                      dialog,
+                      translate,
+                      PrefabDialogs.once(() -> fire(context, instance, DIALOG_FINISHED, who)),
+                      who.id());
                   if (repetition == DialogRepetition.ONCE_GLOBALLY) {
                     entity.remove(InteractionComponent.class);
                   }

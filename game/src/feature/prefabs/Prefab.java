@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -161,16 +163,17 @@ public abstract class Prefab {
   }
 
   /**
-   * Resolves the latest authored data for this view.
+   * Resolves the latest data for this view.
    *
-   * <p>The result becomes empty when the instance is deleted or replaced by another prefab type.
+   * <p>This includes runtime changes made through {@link PrefabRuntime}. The result becomes empty
+   * when the instance is deleted, removed at runtime, or replaced by another prefab type.
    *
-   * @return the current normalized authored instance, if it still exists
+   * @return the current normalized instance, if it is still active
    */
   public final Optional<PrefabInstance> currentInstance() {
     if (!isBound()) return Optional.empty();
     PrefabInstance latest = null;
-    for (PrefabInstance instance : boundLevel.prefabs()) {
+    for (PrefabInstance instance : boundLevel.activePrefabs()) {
       if (boundName.equals(instance.name())) latest = instance;
     }
     return latest == null || !type.equals(latest.type())
@@ -199,6 +202,78 @@ public abstract class Prefab {
   public final List<Entity> liveEntities() {
     if (!isBound()) return List.of();
     return PrefabSpawner.liveEntities(boundLevel, side, boundName, type);
+  }
+
+  /**
+   * Respawns this instance from its current data, discarding the runtime state of its entities.
+   *
+   * <p>Must be called on the server. See {@link PrefabRuntime#reset}.
+   *
+   * @return true if the instance was active and has been reset
+   */
+  public final boolean reset() {
+    requireBound();
+    if (currentInstance().isEmpty()) return false;
+    return PrefabRuntime.reset(boundLevel, boundName);
+  }
+
+  /**
+   * Removes this instance and its entities for the rest of the game session. The level file is not
+   * changed.
+   *
+   * <p>Must be called on the server. See {@link PrefabRuntime#remove}.
+   *
+   * @return true if the instance was active and has been removed
+   */
+  public final boolean remove() {
+    requireBound();
+    if (currentInstance().isEmpty()) return false;
+    return PrefabRuntime.remove(boundLevel, boundName);
+  }
+
+  /**
+   * Changes the data of this instance for the rest of the game session and respawns it. The level
+   * file is not changed.
+   *
+   * <p>Must be called on the server. See {@link PrefabRuntime#update}.
+   *
+   * @param change creates the new data from the current one, e.g. {@code i -> i.with(PROPERTY,
+   *     value)}
+   * @throws IllegalArgumentException if the instance is not active or the new data is invalid
+   */
+  public final void update(UnaryOperator<PrefabInstance> change) {
+    requireBound();
+    if (currentInstance().isEmpty()) {
+      throw new IllegalArgumentException("Prefab instance '" + boundName + "' is not active");
+    }
+    PrefabRuntime.update(boundLevel, boundName, change);
+  }
+
+  /**
+   * Registers a listener for an event of this instance. Used by prefab types to offer typed
+   * listener methods on their bound views.
+   *
+   * @param event event to listen to
+   * @param listener called with the event payload
+   * @param <T> payload type
+   */
+  protected final <T> void listen(PrefabEvent<T> event, Consumer<? super T> listener) {
+    requireBound();
+    PrefabRuntime.listen(boundLevel, boundName, event, listener);
+  }
+
+  /**
+   * Notifies the listeners registered for an instance about an event.
+   *
+   * @param context creation context of the instance
+   * @param instance instance raising the event
+   * @param event raised event
+   * @param payload event payload
+   * @param <T> payload type
+   */
+  protected static <T> void fire(
+      PrefabCreationContext context, PrefabInstance instance, PrefabEvent<T> event, T payload) {
+    PrefabRuntime.fire(context.level(), instance.name(), event, payload);
   }
 
   /**

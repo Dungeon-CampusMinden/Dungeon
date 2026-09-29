@@ -46,6 +46,32 @@ public record PrefabInstance(String name, String type, Map<String, JsonNode> pro
   }
 
   /**
+   * Creates a copy with one typed property value replaced.
+   *
+   * <p>Intended for building instances in code, e.g. {@code instance.with(WaterPrefab.REGION,
+   * region).with(WaterPrefab.COLOR, color)}.
+   *
+   * @param property property descriptor of this instance's prefab type
+   * @param value new typed value
+   * @param <T> property value type
+   * @return updated immutable instance
+   */
+  public <T> PrefabInstance with(PrefabProperty<T> property, T value) {
+    return property.set(this, value);
+  }
+
+  /**
+   * Reads a typed property value.
+   *
+   * @param property property descriptor of this instance's prefab type
+   * @param <T> property value type
+   * @return typed property value, or the property default if the value is missing
+   */
+  public <T> T get(PrefabProperty<T> property) {
+    return property.get(this);
+  }
+
+  /**
    * Creates a copy with a different editor-facing name.
    *
    * @param newName new unique level-local name

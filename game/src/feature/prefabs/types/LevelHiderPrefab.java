@@ -21,9 +21,9 @@ import java.util.List;
  */
 public final class LevelHiderPrefab extends Prefab {
 
-  private static final PrefabProperty<Region> REGION =
+  public static final PrefabProperty<Region> REGION =
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
-  private static final PrefabProperty<Float> TRANSITION_SIZE =
+  public static final PrefabProperty<Float> TRANSITION_SIZE =
       PrefabProperty.floating("transitionSize", "Transition Size", 2f, 0f, Float.MAX_VALUE);
 
   /** Creates the level-hider definition. */

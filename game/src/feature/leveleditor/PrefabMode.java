@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
-import engine.Game;
 import engine.level.DungeonLevel;
 import engine.systems.CameraSystem;
 import engine.systems.input.InputManager;
@@ -45,12 +44,15 @@ import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /** Editor mode for authoring registered prefab instances in a level. */
@@ -655,7 +657,13 @@ public final class PrefabMode extends LevelEditorMode {
             });
   }
 
-  /** Lists the visible properties and shader parameters, which decide the generated controls. */
+  /**
+   * Lists the visible properties and shader parameters, which decide the generated controls.
+   *
+   * @param prefab prefab definition of the instance
+   * @param instance normalized instance
+   * @return keys of the visible properties and shader parameters
+   */
   private static List<String> visibilitySignature(Prefab prefab, PrefabInstance instance) {
     List<String> keys = new ArrayList<>();
     for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
@@ -1134,6 +1142,7 @@ public final class PrefabMode extends LevelEditorMode {
     String previousSelection = selectedName;
     try {
       mutation.run();
+      discardRuntimeChanges(previousPrefabs);
       syncChanged();
       levelChanged();
       if (rebuildDetails) requestRebuild();
@@ -1150,6 +1159,23 @@ public final class PrefabMode extends LevelEditorMode {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       requestRebuild();
     }
+  }
+
+  /**
+   * Drops runtime changes of level handlers for every edited instance, so the edited authored data
+   * is what gets spawned.
+   *
+   * @param previousPrefabs authored instances before the edit
+   */
+  private void discardRuntimeChanges(List<PrefabInstance> previousPrefabs) {
+    Map<String, PrefabInstance> previous = new HashMap<>();
+    for (PrefabInstance instance : previousPrefabs) previous.put(instance.name(), instance);
+    Set<String> changed = new HashSet<>();
+    for (PrefabInstance instance : getLevel().prefabs()) {
+      if (!instance.equals(previous.remove(instance.name()))) changed.add(instance.name());
+    }
+    changed.addAll(previous.keySet());
+    getLevel().prefabRuntimeState().discard(changed);
   }
 
   /** Respawns only the prefab instances that were added, changed, renamed or removed. */
@@ -1195,9 +1221,7 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private PrefabSide[] activeSides() {
-    if (Game.isMultiplayerClient()) return new PrefabSide[] {PrefabSide.CLIENT};
-    if (Game.isSingleplayer()) return new PrefabSide[] {PrefabSide.SERVER, PrefabSide.CLIENT};
-    return new PrefabSide[] {PrefabSide.SERVER};
+    return PrefabSide.localSides();
   }
 
   private void clearPendingPointAssignment() {

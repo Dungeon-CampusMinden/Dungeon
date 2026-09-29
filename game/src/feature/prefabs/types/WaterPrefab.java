@@ -42,21 +42,21 @@ import java.util.WeakHashMap;
 public final class WaterPrefab extends Prefab {
 
   private static final String TYPE = "water";
-  private static final PrefabProperty<Region> REGION =
+  public static final PrefabProperty<Region> REGION =
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
-  private static final PrefabProperty<Color> COLOR =
+  public static final PrefabProperty<Color> COLOR =
       PrefabProperty.color("color", "Color", new Color(0.1f, 0.4f, 0.7f, 1f));
-  private static final PrefabProperty<Float> SPEED =
+  public static final PrefabProperty<Float> SPEED =
       PrefabProperty.numberSlider("speed", "Speed", 0.15f, 0f, 2f, 0.01f);
-  private static final PrefabProperty<Integer> LAYER =
+  public static final PrefabProperty<Integer> LAYER =
       PrefabProperty.integer("layer", "Layer", -50, Integer.MIN_VALUE, Integer.MAX_VALUE);
-  private static final PrefabProperty<Float> REPEAT =
+  public static final PrefabProperty<Float> REPEAT =
       PrefabProperty.floating("repeat", "Repeat", 1f, 0.1f, 64f);
-  private static final PrefabProperty<Integer> FOAM_MIN_WIDTH =
+  public static final PrefabProperty<Integer> FOAM_MIN_WIDTH =
       PrefabProperty.integer("foamMinWidth", "Foam Min", 1, 0, 32);
-  private static final PrefabProperty<Integer> FOAM_MAX_WIDTH =
+  public static final PrefabProperty<Integer> FOAM_MAX_WIDTH =
       PrefabProperty.integer("foamMaxWidth", "Foam Max", 3, 0, 32);
-  private static final PrefabProperty<Float> LINE_INTERVAL =
+  public static final PrefabProperty<Float> LINE_INTERVAL =
       PrefabProperty.floating("lineInterval", "Shore Line Interval (s)", 2.5f, 0f, 60f);
   private static final List<PrefabProperty<?>> PROPERTIES =
       List.of(REGION, COLOR, SPEED, LAYER, REPEAT, FOAM_MIN_WIDTH, FOAM_MAX_WIDTH, LINE_INTERVAL);
@@ -253,7 +253,7 @@ public final class WaterPrefab extends Prefab {
    * @return settings used for the whole layer
    */
   private static WaterSettings primarySettings(ILevel level, LayerWater layerWater) {
-    for (PrefabInstance authored : level.prefabs()) {
+    for (PrefabInstance authored : level.activePrefabs()) {
       WaterSettings settings = layerWater.instances.get(authored.name());
       if (settings != null) return settings;
     }

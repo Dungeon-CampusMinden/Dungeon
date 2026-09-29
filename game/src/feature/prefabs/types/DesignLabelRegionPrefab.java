@@ -35,9 +35,9 @@ import java.util.Set;
 public final class DesignLabelRegionPrefab extends Prefab {
 
   private static final String TYPE = "design-label-region";
-  private static final PrefabProperty<Region> REGION =
+  public static final PrefabProperty<Region> REGION =
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
-  private static final PrefabProperty<String> DESIGN_LABEL =
+  public static final PrefabProperty<String> DESIGN_LABEL =
       PrefabProperty.selection(
           "designLabel",
           "Design Label",
@@ -100,7 +100,7 @@ public final class DesignLabelRegionPrefab extends Prefab {
     DesignLabel[][] targets = new DesignLabel[height][width];
     for (DesignLabel[] row : targets) Arrays.fill(row, base);
 
-    for (PrefabInstance authored : level.prefabs()) {
+    for (PrefabInstance authored : level.activePrefabs()) {
       if (!TYPE.equals(authored.type())
           || !PrefabSpawner.isActive(level, PrefabSide.CLIENT, authored.name(), TYPE)) {
         continue;

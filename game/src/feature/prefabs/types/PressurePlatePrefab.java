@@ -19,9 +19,9 @@ import java.util.Optional;
 /** Server-side pressure plate that opens its target door while pressed. */
 public final class PressurePlatePrefab extends Prefab {
 
-  private static final PrefabProperty<Point> POSITION =
+  public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0), new Point(0.5f, 0.5f));
-  private static final PrefabProperty<Point> DOOR_POSITION =
+  public static final PrefabProperty<Point> DOOR_POSITION =
       PrefabProperty.point("doorPosition", "Door Position", new Point(1, 0), new Point(0.5f, 0.5f));
 
   /** Creates the pressure-plate definition. */

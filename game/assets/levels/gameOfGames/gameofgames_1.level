@@ -459,9 +459,9 @@
       "speed" : 0.17999999,
       "layer" : -120,
       "repeat" : 5.0,
-      "foamMinWidth" : 0,
-      "foamMaxWidth" : 0,
-      "lineInterval" : 20.0
+      "foamMinWidth" : 1,
+      "foamMaxWidth" : 3,
+      "lineInterval" : 0.0
     }
   }, {
     "name" : "outside/lava-2",

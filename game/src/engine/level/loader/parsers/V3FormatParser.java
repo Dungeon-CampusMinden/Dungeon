@@ -92,6 +92,20 @@ public final class V3FormatParser extends LevelFormatParser {
     if (level == null) {
       throw new IllegalArgumentException("Level to serialize cannot be null");
     }
+    return serializeLevel(level, level.prefabs());
+  }
+
+  /**
+   * Serializes a level with an explicit prefab instance list instead of its authored one.
+   *
+   * @param level the level to serialize
+   * @param prefabs prefab instances to write
+   * @return the serialized level as a string
+   */
+  public String serializeLevel(DungeonLevel level, List<PrefabInstance> prefabs) {
+    if (level == null) {
+      throw new IllegalArgumentException("Level to serialize cannot be null");
+    }
 
     ObjectNode root = MAPPER.createObjectNode();
     root.put("version", VERSION);
@@ -101,7 +115,7 @@ public final class V3FormatParser extends LevelFormatParser {
         "startTiles", serializePoints(level.startTiles().stream().map(Tile::position).toList()));
     root.set("namedPoints", serializeNamedPoints(level.namedPoints()));
     root.set("decorations", serializeDecorations(level.decorations()));
-    root.set("prefabs", serializePrefabs(level.prefabs()));
+    root.set("prefabs", serializePrefabs(prefabs));
 
     try {
       return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(root);

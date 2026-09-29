@@ -11,6 +11,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
+import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
@@ -20,18 +21,24 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /** Server-side rectangular trigger that starts a dialog script when a player enters it. */
 public final class DialogTriggerPrefab extends Prefab {
 
+  /**
+   * Raised on the server when a player finished or closed the dialog, with the player as payload.
+   */
+  public static final PrefabEvent<Entity> DIALOG_FINISHED = new PrefabEvent<>("dialog-finished");
+
   private static final String TYPE = "dialog-trigger";
-  private static final PrefabProperty<Region> REGION =
+  public static final PrefabProperty<Region> REGION =
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
-  private static final PrefabProperty<String> TEXT =
+  public static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
-  private static final PrefabProperty<Boolean> TRANSLATE =
+  public static final PrefabProperty<Boolean> TRANSLATE =
       PrefabProperty.bool("translate", "Translate", false);
-  private static final PrefabProperty<String> REPETITION = DialogRepetition.property();
+  public static final PrefabProperty<String> REPETITION = DialogRepetition.property();
 
   /** Creates the dialog-trigger definition. */
   public DialogTriggerPrefab() {
@@ -63,6 +70,16 @@ public final class DialogTriggerPrefab extends Prefab {
     return liveEntities().stream().findFirst();
   }
 
+  /**
+   * Registers a listener called on the server whenever a player finished or closed the dialog of
+   * this instance.
+   *
+   * @param listener receives the player that read the dialog
+   */
+  public void onDialogFinished(Consumer<Entity> listener) {
+    listen(DIALOG_FINISHED, listener);
+  }
+
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Region region = value(instance, REGION);
@@ -90,7 +107,11 @@ public final class DialogTriggerPrefab extends Prefab {
                       && !state.players.add(who)) {
                     return;
                   }
-                  DialogFactory.showDialogDialog(text, translate, () -> {}, who.id());
+                  DialogFactory.showDialogDialog(
+                      text,
+                      translate,
+                      PrefabDialogs.once(() -> fire(context, instance, DIALOG_FINISHED, who)),
+                      who.id());
                 },
                 CollideComponent.DEFAULT_COLLIDER)
             .isSolid(false));
