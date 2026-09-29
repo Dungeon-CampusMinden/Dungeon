@@ -160,12 +160,12 @@ public final class WaterShader extends AbstractShader {
   /**
    * Sets the time between foam lines leaving the shore. Higher values make calmer water.
    *
-   * @param seconds interval in seconds
+   * @param seconds interval in seconds, or 0 to disable the foam lines
    * @return this shader
    */
   public WaterShader lineInterval(float seconds) {
-    if (!Float.isFinite(seconds) || seconds < 0.1f || seconds > 60f) {
-      throw new IllegalArgumentException("Water line interval must be between 0.1 and 60");
+    if (!Float.isFinite(seconds) || seconds < 0f || seconds > 60f) {
+      throw new IllegalArgumentException("Water line interval must be between 0 and 60");
     }
     this.lineInterval = seconds;
     return this;

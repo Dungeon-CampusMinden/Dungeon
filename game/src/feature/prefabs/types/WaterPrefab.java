@@ -57,7 +57,7 @@ public final class WaterPrefab extends Prefab {
   private static final PrefabProperty<Integer> FOAM_MAX_WIDTH =
       PrefabProperty.integer("foamMaxWidth", "Foam Max", 3, 0, 32);
   private static final PrefabProperty<Float> LINE_INTERVAL =
-      PrefabProperty.floating("lineInterval", "Shore Line Interval (s)", 2.5f, 0.1f, 60f);
+      PrefabProperty.floating("lineInterval", "Shore Line Interval (s)", 2.5f, 0f, 60f);
   private static final List<PrefabProperty<?>> PROPERTIES =
       List.of(REGION, COLOR, SPEED, LAYER, REPEAT, FOAM_MIN_WIDTH, FOAM_MAX_WIDTH, LINE_INTERVAL);
 
@@ -427,7 +427,7 @@ public final class WaterPrefab extends Prefab {
    * @param repeat wave pattern scale
    * @param foamMinWidth minimum foam rim width in pixels
    * @param foamMaxWidth maximum foam rim width in pixels
-   * @param lineInterval seconds between shore foam lines
+   * @param lineInterval seconds between shore foam lines, or 0 to disable them
    */
   private record WaterSettings(
       Rectangle region,

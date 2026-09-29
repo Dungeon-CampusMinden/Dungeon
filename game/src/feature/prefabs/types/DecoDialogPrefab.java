@@ -41,6 +41,8 @@ public final class DecoDialogPrefab extends Prefab {
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
   private static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
+  private static final PrefabProperty<Boolean> TRANSLATE =
+      PrefabProperty.bool("translate", "Translate", false);
   private static final PrefabProperty<String> REPETITION = DialogRepetition.property();
 
   /** Creates the decoration-dialog definition. */
@@ -49,7 +51,7 @@ public final class DecoDialogPrefab extends Prefab {
         "deco-dialog",
         "Decoration + Dialog",
         PrefabSide.CLIENT,
-        List.of(POSITION, DECO, SCALE, TEXT, REPETITION));
+        List.of(POSITION, DECO, SCALE, TEXT, TRANSLATE, REPETITION));
   }
 
   /**
@@ -63,7 +65,7 @@ public final class DecoDialogPrefab extends Prefab {
         "deco-dialog",
         "Decoration + Dialog",
         PrefabSide.CLIENT,
-        List.of(POSITION, DECO, SCALE, TEXT, REPETITION),
+        List.of(POSITION, DECO, SCALE, TEXT, TRANSLATE, REPETITION),
         level,
         name);
   }
@@ -96,6 +98,7 @@ public final class DecoDialogPrefab extends Prefab {
     PositionSync.syncPosition(deco);
 
     String dialog = value(instance, TEXT);
+    boolean translate = value(instance, TRANSLATE);
     DialogRepetition repetition = DialogRepetition.fromLabel(value(instance, REPETITION));
     Set<Entity> players = Collections.newSetFromMap(new IdentityHashMap<>());
     InteractionComponent interaction =
@@ -103,7 +106,7 @@ public final class DecoDialogPrefab extends Prefab {
             new Interaction(
                 (entity, who) -> {
                   if (repetition == DialogRepetition.ONCE_PER_PLAYER && !players.add(who)) return;
-                  DialogFactory.showDialogDialog(dialog, () -> {}, who.id());
+                  DialogFactory.showDialogDialog(dialog, translate, () -> {}, who.id());
                   if (repetition == DialogRepetition.ONCE_GLOBALLY) {
                     entity.remove(InteractionComponent.class);
                   }

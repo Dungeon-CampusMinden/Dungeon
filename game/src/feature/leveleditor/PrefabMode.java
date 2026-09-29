@@ -17,6 +17,7 @@ import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
+import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ColorSetting;
 import feature.leveleditor.ui.FloatSetting;
@@ -37,6 +38,8 @@ import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
 import feature.prefabs.Region;
+import feature.prefabs.shaders.PrefabShader;
+import feature.prefabs.shaders.ShaderParameters;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
@@ -76,6 +79,8 @@ public final class PrefabMode extends LevelEditorMode {
   private ListOrder listOrder = ListOrder.ALPHABETICAL;
   private SelectSetting<Prefab> prefabTypeSetting;
   private boolean rebuildPending;
+  // While set, the secondary details show the parameters of one shader property instead.
+  private ShaderEditTarget shaderEditTarget;
   // Authored instances are immutable, so their normalized form is reused between frames.
   private Map<PrefabInstance, PrefabInstance> normalizedRenderInstances = new IdentityHashMap<>();
 
@@ -337,6 +342,9 @@ public final class PrefabMode extends LevelEditorMode {
     instanceList.setItems(listItems(), selectedName, listOrder == ListOrder.LOAD_ORDER);
     if (!rebuildSecondary || secondaryContent == null) return;
     secondaryContent.clearChildren();
+    if (shaderEditTarget != null && !shaderEditTarget.instanceName().equals(selectedName)) {
+      shaderEditTarget = null;
+    }
     selected()
         .ifPresent(
             instance -> {
@@ -376,12 +384,76 @@ public final class PrefabMode extends LevelEditorMode {
                   .padLeft(5f)
                   .row();
               secondaryContent.add(Scene2dElementFactory.createHorizontalDivider()).growX().row();
-              for (PrefabProperty<?> property : prefab.properties())
-                addProperty(property, instance);
+              Optional<PrefabProperty<ShaderParameters>> editedShader =
+                  editedShaderProperty(prefab, instance);
+              if (editedShader.isPresent()) {
+                addShaderParameterEditor(editedShader.get(), instance);
+                return;
+              }
+              PropertyAccess access = new InstancePropertyAccess(instance.name());
+              for (PrefabProperty<?> property : prefab.visibleProperties(instance))
+                addProperty(property, instance.name(), access);
             });
   }
 
-  private void addProperty(PrefabProperty<?> property, PrefabInstance source) {
+  private Optional<PrefabProperty<ShaderParameters>> editedShaderProperty(
+      Prefab prefab, PrefabInstance instance) {
+    if (shaderEditTarget == null) return Optional.empty();
+    Optional<PrefabProperty<ShaderParameters>> property =
+        prefab.visibleProperties(instance).stream()
+            .filter(p -> p.type() == PrefabPropertyType.SHADER_PARAMETERS)
+            .filter(p -> p.key().equals(shaderEditTarget.propertyKey()))
+            .findFirst()
+            .map(PrefabMode::cast);
+    if (property.isEmpty()) shaderEditTarget = null;
+    return property;
+  }
+
+  private void addShaderParameterEditor(
+      PrefabProperty<ShaderParameters> shaderProperty, PrefabInstance instance) {
+    secondaryContent
+        .add(new ActionSetting("Back", () -> editShaderParameters(null), false))
+        .growX()
+        .padTop(SETTINGS_PAD)
+        .row();
+    ShaderParameters parameters = shaderProperty.get(instance);
+    secondaryContent
+        .add(
+            Scene2dElementFactory.createLabel(
+                shaderProperty.displayName() + ": " + parameters.shader().displayName(),
+                18,
+                ModeDetailsPanel.TEXT_COLOR))
+        .left()
+        .padTop(SETTINGS_PAD)
+        .padLeft(5f)
+        .row();
+    PropertyAccess access = new ShaderPropertyAccess(instance.name(), shaderProperty);
+    boolean empty = true;
+    for (PrefabProperty<?> parameter : parameters.shader().parameters()) {
+      if (!parameter.isVisible(parameters.values())) continue;
+      addProperty(parameter, instance.name(), access);
+      empty = false;
+    }
+    if (empty) {
+      secondaryContent
+          .add(
+              Scene2dElementFactory.createLabel(
+                  "This shader has no parameters.",
+                  14,
+                  ModeDetailsPanel.TEXT_COLOR.cpy().mul(1f, 1f, 1f, .65f)))
+          .left()
+          .padTop(SETTINGS_PAD)
+          .padLeft(5f)
+          .row();
+    }
+  }
+
+  private void editShaderParameters(ShaderEditTarget target) {
+    shaderEditTarget = target;
+    requestRebuild();
+  }
+
+  private void addProperty(PrefabProperty<?> property, String instanceName, PropertyAccess access) {
     PrefabPropertyType type = property.type();
     switch (type) {
       case STRING -> {
@@ -389,7 +461,10 @@ public final class PrefabMode extends LevelEditorMode {
         secondaryContent
             .add(
                 new StringSetting(
-                    p.displayName(), () -> p.get(current()), value -> setProperty(p, value), true))
+                    p.displayName(),
+                    () -> access.get(p),
+                    value -> access.set(p, value, true),
+                    true))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -404,8 +479,8 @@ public final class PrefabMode extends LevelEditorMode {
                     p.displayName(),
                     min,
                     max,
-                    () -> p.get(current()),
-                    value -> setProperty(p, value)))
+                    () -> access.get(p),
+                    value -> access.set(p, value, true)))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -420,8 +495,8 @@ public final class PrefabMode extends LevelEditorMode {
                     p.displayName(),
                     min,
                     max,
-                    () -> p.get(current()),
-                    value -> setProperty(p, value)))
+                    () -> access.get(p),
+                    value -> access.set(p, value, true)))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -431,7 +506,6 @@ public final class PrefabMode extends LevelEditorMode {
         float min = p.minimum().orElse(0f).floatValue();
         float max = p.maximum().orElse(1f).floatValue();
         float step = p.step().orElse(0f).floatValue();
-        String instanceName = source.name();
         secondaryContent
             .add(
                 new NumberSliderSetting(
@@ -439,14 +513,8 @@ public final class PrefabMode extends LevelEditorMode {
                     min,
                     max,
                     step,
-                    () ->
-                        selected()
-                            .filter(instance -> instance.name().equals(instanceName))
-                            .map(p::get)
-                            .orElse(p.defaultValue()),
-                    value -> {
-                      if (Objects.equals(selectedName, instanceName)) setProperty(p, value, false);
-                    }))
+                    () -> access.get(p),
+                    value -> access.set(p, value, false)))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -456,7 +524,7 @@ public final class PrefabMode extends LevelEditorMode {
         secondaryContent
             .add(
                 new BooleanSetting(
-                    p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
+                    p.displayName(), () -> access.get(p), value -> access.set(p, value, true)))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -469,8 +537,8 @@ public final class PrefabMode extends LevelEditorMode {
                 new SelectSetting<>(
                     p.displayName(),
                     values,
-                    () -> p.get(current()),
-                    value -> setProperty(p, value),
+                    () -> access.get(p),
+                    value -> access.set(p, value, true),
                     value -> value,
                     true))
             .growX()
@@ -483,8 +551,8 @@ public final class PrefabMode extends LevelEditorMode {
             .add(
                 new PointSetting(
                     p.displayName(),
-                    () -> p.get(current()),
-                    value -> setProperty(p, value),
+                    () -> access.get(p),
+                    value -> access.set(p, value, true),
                     callback ->
                         armPointAssignment(
                             new PendingPointAssignment(callback, p.editorFeedbackOffset())),
@@ -499,8 +567,8 @@ public final class PrefabMode extends LevelEditorMode {
             .add(
                 new RegionSetting(
                     p.displayName(),
-                    () -> p.get(current()),
-                    value -> setProperty(p, value),
+                    () -> access.get(p),
+                    value -> access.set(p, value, true),
                     callback ->
                         armPointAssignment(
                             new PendingPointAssignment(callback, new Point(0f, 0f)))))
@@ -513,7 +581,7 @@ public final class PrefabMode extends LevelEditorMode {
         secondaryContent
             .add(
                 new Vector2Setting(
-                    p.displayName(), () -> p.get(current()), value -> setProperty(p, value)))
+                    p.displayName(), () -> access.get(p), value -> access.set(p, value, true)))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -524,8 +592,8 @@ public final class PrefabMode extends LevelEditorMode {
             .add(
                 new ColorSetting(
                     p.displayName(),
-                    () -> p.get(current()),
-                    value -> setProperty(p, value),
+                    () -> access.get(p),
+                    value -> access.set(p, value, true),
                     message ->
                         LevelEditorSystem.showFeedback(
                             p.displayName() + ": " + message, Color.YELLOW)))
@@ -533,15 +601,35 @@ public final class PrefabMode extends LevelEditorMode {
             .padTop(SETTINGS_PAD)
             .row();
       }
+      case SHADER_PARAMETERS -> {
+        PrefabProperty<ShaderParameters> p = cast(property);
+        PrefabShader<?>[] shaders = p.shaderChoices().toArray(PrefabShader<?>[]::new);
+        secondaryContent
+            .add(
+                new SelectSetting<>(
+                    p.displayName(),
+                    shaders,
+                    () -> access.get(p).shader(),
+                    shader -> {
+                      // Switching shaders starts from the new shader's defaults.
+                      if (access.get(p).shader() != shader) access.set(p, shader.defaults(), true);
+                    },
+                    PrefabShader::displayName,
+                    true))
+            .growX()
+            .padTop(SETTINGS_PAD)
+            .row();
+        secondaryContent
+            .add(
+                new ActionSetting(
+                    "Edit Shader Parameters",
+                    () -> editShaderParameters(new ShaderEditTarget(instanceName, p.key())),
+                    false))
+            .growX()
+            .padTop(SETTINGS_PAD)
+            .row();
+      }
     }
-  }
-
-  private PrefabInstance current() {
-    return selected().orElseThrow(() -> new IllegalStateException("No prefab selected"));
-  }
-
-  private <T> void setProperty(PrefabProperty<T> property, T value) {
-    setProperty(property, value, true);
   }
 
   private <T> void setProperty(
@@ -552,16 +640,36 @@ public final class PrefabMode extends LevelEditorMode {
               try {
                 Prefab prefab = PrefabRegistry.require(source.type());
                 PrefabInstance replacement = prefab.normalize(property.set(source, value));
+                boolean rebuild =
+                    rebuildSecondaryDetails
+                        || !visibilitySignature(prefab, source)
+                            .equals(visibilitySignature(prefab, replacement));
                 int index = getLevel().prefabs().indexOf(source);
                 if (index >= 0) {
-                  applyChange(
-                      () -> getLevel().replacePrefab(index, replacement), rebuildSecondaryDetails);
+                  applyChange(() -> getLevel().replacePrefab(index, replacement), rebuild);
                 }
               } catch (IllegalArgumentException exception) {
                 LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
                 requestRebuild();
               }
             });
+  }
+
+  /** Lists the visible properties and shader parameters, which decide the generated controls. */
+  private static List<String> visibilitySignature(Prefab prefab, PrefabInstance instance) {
+    List<String> keys = new ArrayList<>();
+    for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
+      keys.add(property.key());
+      if (property.type() != PrefabPropertyType.SHADER_PARAMETERS) continue;
+      ShaderParameters parameters = PrefabMode.<ShaderParameters>cast(property).get(instance);
+      keys.add(property.key() + ":" + parameters.shader().id());
+      for (PrefabProperty<?> parameter : parameters.shader().parameters()) {
+        if (parameter.isVisible(parameters.values())) {
+          keys.add(property.key() + "." + parameter.key());
+        }
+      }
+    }
+    return keys;
   }
 
   private void addSelectedPrefab() {
@@ -661,6 +769,9 @@ public final class PrefabMode extends LevelEditorMode {
             getLevel().replacePrefab(index, source.withName(name));
             applyGroupedOrder();
             selectedName = name;
+            if (shaderEditTarget != null && shaderEditTarget.instanceName().equals(source.name())) {
+              shaderEditTarget = new ShaderEditTarget(name, shaderEditTarget.propertyKey());
+            }
           });
     }
   }
@@ -887,7 +998,7 @@ public final class PrefabMode extends LevelEditorMode {
   private List<WorldAnchor> worldAnchors(PrefabInstance instance) {
     Prefab prefab = PrefabRegistry.require(instance.type());
     List<WorldAnchor> anchors = new ArrayList<>();
-    for (PrefabProperty<?> property : prefab.properties()) {
+    for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
       if (property.type() == PrefabPropertyType.POINT) {
         PrefabProperty<Point> pointProperty = cast(property);
         Point point = pointProperty.get(instance);
@@ -1121,6 +1232,90 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private record PendingPointAssignment(Consumer<Point> assignment, Point feedbackOffset) {}
+
+  private record ShaderEditTarget(String instanceName, String propertyKey) {}
+
+  private Optional<PrefabInstance> selectedInstance(String instanceName) {
+    return selected().filter(instance -> instance.name().equals(instanceName));
+  }
+
+  /** Reads and writes the values edited by generated property controls. */
+  private interface PropertyAccess {
+    <T> T get(PrefabProperty<T> property);
+
+    <T> void set(PrefabProperty<T> property, T value, boolean rebuildSecondaryDetails);
+  }
+
+  /**
+   * Accesses the properties of one prefab instance.
+   *
+   * <p>Controls may still fire after the selection changed, so reads and writes only apply while
+   * the instance is still selected.
+   */
+  private final class InstancePropertyAccess implements PropertyAccess {
+    private final String instanceName;
+
+    private InstancePropertyAccess(String instanceName) {
+      this.instanceName = instanceName;
+    }
+
+    @Override
+    public <T> T get(PrefabProperty<T> property) {
+      return selectedInstance(instanceName)
+          .map(instance -> property.get(instance))
+          .orElse(property.defaultValue());
+    }
+
+    @Override
+    public <T> void set(PrefabProperty<T> property, T value, boolean rebuildSecondaryDetails) {
+      if (selectedInstance(instanceName).isPresent()) {
+        setProperty(property, value, rebuildSecondaryDetails);
+      }
+    }
+  }
+
+  /** Accesses the parameters of the shader selected in a shader property of one instance. */
+  private final class ShaderPropertyAccess implements PropertyAccess {
+    private final String instanceName;
+    private final PrefabProperty<ShaderParameters> shaderProperty;
+
+    private ShaderPropertyAccess(
+        String instanceName, PrefabProperty<ShaderParameters> shaderProperty) {
+      this.instanceName = instanceName;
+      this.shaderProperty = shaderProperty;
+    }
+
+    @Override
+    public <T> T get(PrefabProperty<T> parameter) {
+      return parameters(parameter)
+          .map(parameters -> parameters.get(parameter))
+          .orElse(parameter.defaultValue());
+    }
+
+    @Override
+    public <T> void set(PrefabProperty<T> parameter, T value, boolean rebuildSecondaryDetails) {
+      Optional<ShaderParameters> parameters = parameters(parameter);
+      if (parameters.isEmpty()) return;
+      ShaderParameters updated;
+      try {
+        updated = parameters.get().with(parameter, value);
+      } catch (IllegalArgumentException exception) {
+        LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+        requestRebuild();
+        return;
+      }
+      setProperty(shaderProperty, updated, rebuildSecondaryDetails);
+    }
+
+    // Empty if the instance is no longer selected or another shader was selected meanwhile.
+    private Optional<ShaderParameters> parameters(PrefabProperty<?> parameter) {
+      return selectedInstance(instanceName)
+          .map(instance -> shaderProperty.get(instance))
+          .filter(
+              parameters ->
+                  parameters.shader().parameter(parameter.key()).orElse(null) == parameter);
+    }
+  }
 
   private enum AnchorCorner {
     POINT,

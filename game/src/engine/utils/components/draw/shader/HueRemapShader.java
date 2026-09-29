@@ -1,5 +1,6 @@
 package engine.utils.components.draw.shader;
 
+import com.badlogic.gdx.math.Vector4;
 import engine.utils.Rectangle;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ public class HueRemapShader extends AbstractShader {
   private float startingHue;
   private float targetHue;
   private float tolerance;
+  private Rectangle region = null;
 
   /** Creates a HueRemapShader with default parameters. */
   public HueRemapShader() {
@@ -46,10 +48,16 @@ public class HueRemapShader extends AbstractShader {
 
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
+    Vector4 worldRegion =
+        region == null
+            ? new Vector4()
+            : new Vector4(region.x(), region.y(), region.width(), region.height());
     return List.of(
         new FloatUniform("u_startingHue", startingHue),
         new FloatUniform("u_targetHue", targetHue),
-        new FloatUniform("u_tolerance", tolerance));
+        new FloatUniform("u_tolerance", tolerance),
+        new Vector4Uniform("u_worldRegion", worldRegion),
+        new BoolUniform("u_hasRegion", region != null));
   }
 
   @Override
@@ -59,7 +67,27 @@ public class HueRemapShader extends AbstractShader {
 
   @Override
   public Rectangle worldBounds() {
-    return null;
+    return region == null ? null : conservativeBounds(region);
+  }
+
+  /**
+   * Gets the world region the hue remapping is restricted to.
+   *
+   * @return The region, or {@code null} if the remapping applies everywhere
+   */
+  public Rectangle region() {
+    return region;
+  }
+
+  /**
+   * Restricts the hue remapping to a world region.
+   *
+   * @param region The region, or {@code null} to apply the remapping everywhere
+   * @return The HueRemapShader instance for chaining
+   */
+  public HueRemapShader region(Rectangle region) {
+    this.region = region;
+    return this;
   }
 
   /**
@@ -127,6 +155,7 @@ public class HueRemapShader extends AbstractShader {
     properties.put("startingHue", Float.toString(startingHue));
     properties.put("targetHue", Float.toString(targetHue));
     properties.put("tolerance", Float.toString(tolerance));
+    if (region != null) putRectangle(properties, region);
   }
 
   @Override
@@ -134,5 +163,6 @@ public class HueRemapShader extends AbstractShader {
     startingHue = floatProperty(properties, "startingHue");
     targetHue = floatProperty(properties, "targetHue");
     tolerance = floatProperty(properties, "tolerance");
+    region = properties.containsKey("width") ? rectangleProperty(properties) : null;
   }
 }

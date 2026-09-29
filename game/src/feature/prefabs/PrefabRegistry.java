@@ -2,7 +2,6 @@ package feature.prefabs;
 
 import engine.level.elements.ILevel;
 import feature.prefabs.types.BookshelfImagePrefab;
-import feature.prefabs.types.ColorGradeRegionPrefab;
 import feature.prefabs.types.DecoDialogPrefab;
 import feature.prefabs.types.DecoImagePrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
@@ -13,6 +12,7 @@ import feature.prefabs.types.InvisibleWallPrefab;
 import feature.prefabs.types.LevelHiderPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
+import feature.prefabs.types.ShaderPrefab;
 import feature.prefabs.types.TorchPrefab;
 import feature.prefabs.types.WaterPrefab;
 import java.util.Collection;
@@ -40,7 +40,7 @@ public final class PrefabRegistry {
     register(new DesignLabelRegionPrefab(), DesignLabelRegionPrefab::new);
     register(new DoorLeverPrefab(), DoorLeverPrefab::new);
     register(new DecoDialogPrefab(), DecoDialogPrefab::new);
-    register(new ColorGradeRegionPrefab(), ColorGradeRegionPrefab::new);
+    register(new ShaderPrefab(), ShaderPrefab::new);
     register(new WaterPrefab(), WaterPrefab::new);
     register(new DialogTriggerPrefab(), DialogTriggerPrefab::new);
     register(new PushableStonePrefab(), PushableStonePrefab::new);

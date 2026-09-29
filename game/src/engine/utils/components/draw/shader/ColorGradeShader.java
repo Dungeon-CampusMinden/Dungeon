@@ -10,9 +10,8 @@ public class ColorGradeShader extends AbstractShader {
 
   private static final String VERT_PATH = "shaders/passthrough.vert";
   private static final String FRAG_PATH = "shaders/color_grade.frag";
-  private static final float MIN_CULL_PADDING = 1e-6f;
 
-  private Rectangle region = new Rectangle(0, 0, 0, 0);
+  private Rectangle region = null;
   private float hue = -1.0f;
   private float saturationMultiplier = 1.0f;
   private float valueMultiplier = 1.0f;
@@ -40,9 +39,13 @@ public class ColorGradeShader extends AbstractShader {
 
   @Override
   protected List<UniformBinding> getUniforms(int actualUpscale) {
+    Vector4 worldRegion =
+        region == null
+            ? new Vector4()
+            : new Vector4(region.x(), region.y(), region.width(), region.height());
     return List.of(
-        new Vector4Uniform(
-            "u_worldRegion", new Vector4(region.x(), region.y(), region.width(), region.height())),
+        new Vector4Uniform("u_worldRegion", worldRegion),
+        new BoolUniform("u_hasRegion", region != null),
         new FloatUniform("u_hue", hue),
         new FloatUniform("u_saturationMult", saturationMultiplier),
         new FloatUniform("u_valueMult", valueMultiplier),
@@ -59,23 +62,13 @@ public class ColorGradeShader extends AbstractShader {
   public Rectangle worldBounds() {
     if (region == null) return null;
     if (transitionSize != 0.0f) return region.expand(transitionSize);
-
-    // DrawSystem culls with strict rectangle intersection. Keep a zero-transition region
-    // conservatively visible when its edge nearly coincides with an FBO edge due to float
-    // rounding; this affects pass selection only, not the SDF boundary in the fragment shader.
-    float maxCoordinate =
-        Math.max(
-            Math.max(Math.abs(region.x()), Math.abs(region.y())),
-            Math.max(
-                Math.abs(region.x() + region.width()), Math.abs(region.y() + region.height())));
-    float cullPadding = Math.max(MIN_CULL_PADDING, 2.0f * Math.ulp(maxCoordinate));
-    return region.expand(cullPadding);
+    return conservativeBounds(region);
   }
 
   /**
    * Gets the region of the shader effect.
    *
-   * @return The region as a Rectangle
+   * @return The region as a Rectangle, or {@code null} if the effect applies everywhere
    */
   public Rectangle region() {
     return region;
@@ -84,7 +77,9 @@ public class ColorGradeShader extends AbstractShader {
   /**
    * Sets the region of the shader effect.
    *
-   * @param region The region as a Rectangle
+   * <p>Defaults to {@code null}, which applies the effect everywhere.
+   *
+   * @param region The region as a Rectangle, or {@code null} to apply the effect everywhere
    * @return The ColorGradeShader instance for chaining
    */
   public ColorGradeShader region(Rectangle region) {
@@ -175,16 +170,18 @@ public class ColorGradeShader extends AbstractShader {
   /**
    * Gets whether color inversion is enabled.
    *
-   * @return {@code true} if the output colors are inverted (per-channel {@code 1 - rgb}, alpha
-   *     preserved), independent of the hue-remap region.
+   * @return {@code true} if the colors within the region are inverted (per-channel {@code 1 - rgb},
+   *     alpha preserved).
    */
   public boolean invert() {
     return invert;
   }
 
   /**
-   * Enables or disables full-image color inversion. When enabled, every pixel's RGB channels are
-   * replaced by {@code 1 - rgb} before the hue-remap region check, leaving alpha untouched.
+   * Enables or disables color inversion. When enabled, the RGB channels of every pixel within the
+   * region are replaced by {@code 1 - rgb} before the hue, saturation and value adjustments,
+   * leaving alpha untouched. Use a {@code null} {@link #region(Rectangle) region} to invert
+   * everything.
    *
    * @param invert {@code true} to invert, {@code false} to leave colors unchanged.
    * @return The ColorGradeShader instance for chaining.
@@ -196,7 +193,7 @@ public class ColorGradeShader extends AbstractShader {
 
   @Override
   protected void writeProperties(Map<String, String> properties) {
-    putRectangle(properties, region);
+    if (region != null) putRectangle(properties, region);
     properties.put("hue", Float.toString(hue));
     properties.put("saturationMultiplier", Float.toString(saturationMultiplier));
     properties.put("valueMultiplier", Float.toString(valueMultiplier));
@@ -206,7 +203,7 @@ public class ColorGradeShader extends AbstractShader {
 
   @Override
   protected void readProperties(Map<String, String> properties) {
-    region = rectangleProperty(properties);
+    region = properties.containsKey("width") ? rectangleProperty(properties) : null;
     hue = floatProperty(properties, "hue");
     saturationMultiplier = floatProperty(properties, "saturationMultiplier");
     valueMultiplier = floatProperty(properties, "valueMultiplier");

@@ -111,6 +111,20 @@ public abstract class Prefab {
   }
 
   /**
+   * Returns the properties currently shown for an instance, in descriptor order.
+   *
+   * <p>Properties can depend on other property values via {@link PrefabProperty#visibleWhen}.
+   * Hidden properties keep their serialized values but are omitted from generated editor controls
+   * and editor previews.
+   *
+   * @param instance normalized instance
+   * @return visible property descriptors
+   */
+  public final List<PrefabProperty<?>> visibleProperties(PrefabInstance instance) {
+    return properties.stream().filter(property -> property.isVisible(instance)).toList();
+  }
+
+  /**
    * Returns whether this object is a per-instance view rather than a shared definition.
    *
    * @return true when bound to an authored instance

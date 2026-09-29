@@ -22,7 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-/** Client-side decoration that opens an image when interacted with. */
+/**
+ * Client-side decoration that opens an image when interacted with.
+ *
+ * <p>The image path is resolved through {@link engine.language.Localization#asset(String)} when the
+ * image is shown, so a variant for the current language (e.g. {@code image_en.png}) is used if it
+ * exists, falling back to the given path otherwise.
+ */
 public final class DecoImagePrefab extends Prefab {
 
   private static final float INTERACTION_RADIUS = 1.5f;

@@ -3,8 +3,15 @@ package feature.prefabs;
 import com.badlogic.gdx.graphics.Color;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import engine.utils.components.draw.shader.AbstractShader;
+import feature.prefabs.shaders.PrefabShader;
+import feature.prefabs.shaders.PrefabShaders;
+import feature.prefabs.shaders.ShaderParameters;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -26,6 +33,7 @@ public abstract class PrefabProperty<T> {
   private final String displayName;
   private final PrefabPropertyType type;
   private final T defaultValue;
+  private Predicate<Map<String, JsonNode>> visibility = values -> true;
 
   protected PrefabProperty(
       String key, String displayName, PrefabPropertyType type, T defaultValue) {
@@ -104,8 +112,54 @@ public abstract class PrefabProperty<T> {
    * @return decoded value or the property default when omitted
    */
   public final T get(PrefabInstance instance) {
-    JsonNode value = instance.properties().get(key);
+    return get(instance.properties());
+  }
+
+  /**
+   * Reads this property from a serialized property map.
+   *
+   * @param values serialized property values keyed by property key
+   * @return decoded value or the property default when omitted
+   */
+  public final T get(Map<String, JsonNode> values) {
+    JsonNode value = values.get(key);
     return value == null ? defaultValue : decode(value);
+  }
+
+  /**
+   * Makes this property only visible in generated editor controls and previews while the given
+   * condition holds.
+   *
+   * <p>Hidden properties are still serialized and keep their values. The condition receives the
+   * serialized values of the property's siblings, so it can be evaluated with {@link #get(Map)} of
+   * other properties.
+   *
+   * @param condition visibility condition evaluated against the sibling property values
+   * @return this property for chaining
+   */
+  public final PrefabProperty<T> visibleWhen(Predicate<Map<String, JsonNode>> condition) {
+    this.visibility = Objects.requireNonNull(condition, "condition");
+    return this;
+  }
+
+  /**
+   * Returns whether this property is currently shown for the given sibling property values.
+   *
+   * @param values serialized sibling property values
+   * @return true if generated editor controls and previews should include this property
+   */
+  public final boolean isVisible(Map<String, JsonNode> values) {
+    return visibility.test(values);
+  }
+
+  /**
+   * Returns whether this property is currently shown for the given instance.
+   *
+   * @param instance prefab instance
+   * @return true if generated editor controls and previews should include this property
+   */
+  public final boolean isVisible(PrefabInstance instance) {
+    return isVisible(instance.properties());
   }
 
   /**
@@ -613,11 +667,102 @@ public abstract class PrefabProperty<T> {
   }
 
   /**
+   * Creates a shader selection property with per-shader parameters.
+   *
+   * <p>The serialized form is an object containing the selected shader ID under {@code shader} and
+   * the shader's own parameter values under {@code parameters}. Which parameters exist depends on
+   * the selected shader, see {@link PrefabShaders}. Omitted parameters use their defaults.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param allowedShaders shader classes selectable through this property; the first is the
+   *     default. Every class must be registered in {@link PrefabShaders}.
+   * @return shader parameters property descriptor
+   */
+  @SafeVarargs
+  public static PrefabProperty<ShaderParameters> shaderParameters(
+      String key, String displayName, Class<? extends AbstractShader>... allowedShaders) {
+    if (allowedShaders.length == 0) {
+      throw new IllegalArgumentException("at least one shader must be allowed");
+    }
+    List<PrefabShader<?>> shaders =
+        Arrays.stream(allowedShaders).<PrefabShader<?>>map(PrefabShaders::require).toList();
+    if (shaders.stream().distinct().count() != shaders.size()) {
+      throw new IllegalArgumentException("allowed shaders must not contain duplicates");
+    }
+    return new PrefabProperty<>(
+        key, displayName, PrefabPropertyType.SHADER_PARAMETERS, shaders.getFirst().defaults()) {
+      @Override
+      public ShaderParameters decode(JsonNode node) {
+        if (node == null
+            || !node.isObject()
+            || !node.has("shader")
+            || !node.get("shader").isTextual()) {
+          throw invalid(key, "must be an object containing a shader ID");
+        }
+        for (Map.Entry<String, JsonNode> property : node.properties()) {
+          if (!property.getKey().equals("shader") && !property.getKey().equals("parameters")) {
+            throw invalid(key, "contains unknown property '" + property.getKey() + "'");
+          }
+        }
+        PrefabShader<?> shader = validate(PrefabShaders.find(node.get("shader").asText()));
+        JsonNode parametersNode = node.get("parameters");
+        Map<String, JsonNode> parameters = new LinkedHashMap<>();
+        if (parametersNode != null) {
+          if (!parametersNode.isObject()) throw invalid(key, "parameters must be an object");
+          parametersNode
+              .properties()
+              .forEach(entry -> parameters.put(entry.getKey(), entry.getValue()));
+        }
+        try {
+          return new ShaderParameters(shader, parameters);
+        } catch (IllegalArgumentException exception) {
+          throw invalid(key, "has invalid shader parameters: " + exception.getMessage());
+        }
+      }
+
+      @Override
+      public JsonNode encode(ObjectMapper mapper, ShaderParameters value) {
+        if (value == null) throw invalid(key, "must not be null");
+        validate(Optional.of(value.shader()));
+        ObjectNode node = mapper.createObjectNode();
+        node.put("shader", value.shader().id());
+        ObjectNode parameters = mapper.createObjectNode();
+        value.values().forEach(parameters::set);
+        node.set("parameters", parameters);
+        return node;
+      }
+
+      @Override
+      public List<PrefabShader<?>> shaderChoices() {
+        return shaders;
+      }
+
+      private PrefabShader<?> validate(Optional<PrefabShader<?>> shader) {
+        if (shader.isEmpty() || !shaders.contains(shader.get())) {
+          throw invalid(
+              key, "must select one of " + shaders.stream().map(PrefabShader::id).toList());
+        }
+        return shader.get();
+      }
+    };
+  }
+
+  /**
    * Selectable values for enum properties.
    *
    * @return empty for non-enum properties
    */
   public List<String> choices() {
+    return List.of();
+  }
+
+  /**
+   * Selectable shaders for shader parameter properties.
+   *
+   * @return empty for non-shader properties
+   */
+  public List<PrefabShader<?>> shaderChoices() {
     return List.of();
   }
 

@@ -29,11 +29,13 @@ public final class DialogTriggerPrefab extends Prefab {
       PrefabProperty.region("region", "Region", new Region(new Point(0, 0), new Point(1, 1)));
   private static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
+  private static final PrefabProperty<Boolean> TRANSLATE =
+      PrefabProperty.bool("translate", "Translate", false);
   private static final PrefabProperty<String> REPETITION = DialogRepetition.property();
 
   /** Creates the dialog-trigger definition. */
   public DialogTriggerPrefab() {
-    super(TYPE, "Dialog Trigger", PrefabSide.SERVER, List.of(REGION, TEXT, REPETITION));
+    super(TYPE, "Dialog Trigger", PrefabSide.SERVER, List.of(REGION, TEXT, TRANSLATE, REPETITION));
   }
 
   /**
@@ -44,7 +46,12 @@ public final class DialogTriggerPrefab extends Prefab {
    */
   public DialogTriggerPrefab(ILevel level, String name) {
     super(
-        TYPE, "Dialog Trigger", PrefabSide.SERVER, List.of(REGION, TEXT, REPETITION), level, name);
+        TYPE,
+        "Dialog Trigger",
+        PrefabSide.SERVER,
+        List.of(REGION, TEXT, TRANSLATE, REPETITION),
+        level,
+        name);
   }
 
   /**
@@ -64,6 +71,7 @@ public final class DialogTriggerPrefab extends Prefab {
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();
     String text = value(instance, TEXT);
+    boolean translate = value(instance, TRANSLATE);
     DialogRepetition repetition = DialogRepetition.fromLabel(value(instance, REPETITION));
     TriggerState state = new TriggerState();
 
@@ -82,7 +90,7 @@ public final class DialogTriggerPrefab extends Prefab {
                       && !state.players.add(who)) {
                     return;
                   }
-                  DialogFactory.showDialogDialog(text, () -> {}, who.id());
+                  DialogFactory.showDialogDialog(text, translate, () -> {}, who.id());
                 },
                 CollideComponent.DEFAULT_COLLIDER)
             .isSolid(false));

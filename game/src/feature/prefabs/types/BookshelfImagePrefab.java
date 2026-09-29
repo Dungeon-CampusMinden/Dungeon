@@ -17,7 +17,13 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.List;
 
-/** Client-side bookshelf that opens a configured image when interacted with. */
+/**
+ * Client-side bookshelf that opens a configured image when interacted with.
+ *
+ * <p>The image path is resolved through {@link engine.language.Localization#asset(String)} when the
+ * image is shown, so a variant for the current language (e.g. {@code image_en.png}) is used if it
+ * exists, falling back to the given path otherwise.
+ */
 public final class BookshelfImagePrefab extends Prefab {
 
   private static final float INTERACTION_RADIUS = 1.5f;

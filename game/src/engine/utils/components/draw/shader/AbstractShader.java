@@ -24,6 +24,7 @@ import java.util.Objects;
  */
 public abstract class AbstractShader implements Disposable {
   private static final String INCLUDE_DIRECTIVE = "// *****IMPORT: util.glsl*****";
+  private static final float MIN_CULL_PADDING = 1e-6f;
   private static String utilGlslCache = null;
 
   // Map to cache compiled ShaderPrograms (static, shared across all instances)
@@ -463,6 +464,26 @@ public abstract class AbstractShader implements Disposable {
       throw new IllegalStateException("Texture not found: " + texturePath);
     }
     return texture;
+  }
+
+  /**
+   * Returns world bounds for a hard-edged effect region that stay visible to culling.
+   *
+   * <p>DrawSystem culls with strict rectangle intersection. This keeps a region conservatively
+   * visible when its edge nearly coincides with an FBO edge due to float rounding; it affects pass
+   * selection only, not the region boundary evaluated in the fragment shader.
+   *
+   * @param region effect region
+   * @return slightly expanded region
+   */
+  protected static Rectangle conservativeBounds(Rectangle region) {
+    float maxCoordinate =
+        Math.max(
+            Math.max(Math.abs(region.x()), Math.abs(region.y())),
+            Math.max(
+                Math.abs(region.x() + region.width()), Math.abs(region.y() + region.height())));
+    float cullPadding = Math.max(MIN_CULL_PADDING, 2.0f * Math.ulp(maxCoordinate));
+    return region.expand(cullPadding);
   }
 
   /**

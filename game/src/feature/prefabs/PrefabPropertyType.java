@@ -11,5 +11,6 @@ public enum PrefabPropertyType {
   POINT,
   REGION,
   VECTOR2,
-  COLOR
+  COLOR,
+  SHADER_PARAMETERS
 }

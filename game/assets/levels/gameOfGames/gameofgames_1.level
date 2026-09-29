@@ -1,7 +1,7 @@
 {
   "version" : 3,
   "design" : "DEFAULT",
-  "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSSSSSSSSWFWWHHWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
+  "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSSSSSSSSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
     "x" : 15.0,
     "y" : 7.0
@@ -85,6 +85,7 @@
         }
       },
       "text" : "Hello.",
+      "translate" : false,
       "repetition" : "Once globally"
     }
   }, {
@@ -127,6 +128,7 @@
         "y" : 1.0
       },
       "text" : "Hello.",
+      "translate" : false,
       "repetition" : "Once globally"
     }
   }, {
@@ -176,8 +178,10 @@
     }
   }, {
     "name" : "r1/highlight-1",
-    "type" : "shader-region",
+    "type" : "shader",
     "properties" : {
+      "isRegion" : true,
+      "isLevel" : false,
       "region" : {
         "bottomLeft" : {
           "x" : 12.75,
@@ -188,16 +192,23 @@
           "y" : 9.75
         }
       },
-      "hue" : -1.0,
-      "saturationMult" : 0.0,
-      "valueMult" : 1.0,
-      "transitionSize" : 0.0,
-      "scene" : true
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : -1.0,
+          "saturationMultiplier" : 0.0,
+          "valueMultiplier" : 1.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
     }
   }, {
     "name" : "r1/highlight-2",
-    "type" : "shader-region",
+    "type" : "shader",
     "properties" : {
+      "isRegion" : true,
+      "isLevel" : false,
       "region" : {
         "bottomLeft" : {
           "x" : 16.75,
@@ -208,11 +219,41 @@
           "y" : 9.75
         }
       },
-      "hue" : -1.0,
-      "saturationMult" : 1.0,
-      "valueMult" : 2.0,
-      "transitionSize" : 0.0,
-      "scene" : true
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : -1.0,
+          "saturationMultiplier" : 1.0,
+          "valueMultiplier" : 2.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
+    }
+  }, {
+    "name" : "r1/highlight-3",
+    "type" : "shader",
+    "properties" : {
+      "isRegion" : true,
+      "isLevel" : true,
+      "region" : {
+        "bottomLeft" : {
+          "x" : 19.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 22.0,
+          "y" : 6.0
+        }
+      },
+      "shader" : {
+        "shader" : "hue-remap",
+        "parameters" : {
+          "startingHue" : 0.0,
+          "targetHue" : 0.29,
+          "tolerance" : 0.049999997
+        }
+      }
     }
   }, {
     "name" : "r2/stone-3",
@@ -256,8 +297,10 @@
     }
   }, {
     "name" : "r2/shader-green",
-    "type" : "shader-region",
+    "type" : "shader",
     "properties" : {
+      "isRegion" : true,
+      "isLevel" : false,
       "region" : {
         "bottomLeft" : {
           "x" : 24.75,
@@ -268,11 +311,16 @@
           "y" : 10.6875
         }
       },
-      "hue" : 0.32999998,
-      "saturationMult" : 2.4,
-      "valueMult" : 1.0,
-      "transitionSize" : 0.0,
-      "scene" : true
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : 0.32999998,
+          "saturationMultiplier" : 2.4,
+          "valueMultiplier" : 1.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
     }
   }, {
     "name" : "r3/water-1",
@@ -285,15 +333,15 @@
         },
         "topRight" : {
           "x" : 26.0,
-          "y" : 15.0
+          "y" : 17.0
         }
       },
-      "color" : "1A66B3FF",
+      "color" : "4488FF88",
       "speed" : 0.32999998,
       "layer" : -50,
       "repeat" : 8.0,
-      "foamMinWidth" : 2,
-      "foamMaxWidth" : 4,
+      "foamMinWidth" : 1,
+      "foamMaxWidth" : 3,
       "lineInterval" : 4.0
     }
   }, {
@@ -319,7 +367,7 @@
       "lineInterval" : 4.0
     }
   }, {
-    "name" : "r3/dl-oasis",
+    "name" : "r3/dl-oasis-1",
     "type" : "design-label-region",
     "properties" : {
       "region" : {
@@ -333,6 +381,49 @@
         }
       },
       "designLabel" : "TEMPLE"
+    }
+  }, {
+    "name" : "r3/dl-oasis-2",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 24.0,
+          "y" : 15.0
+        },
+        "topRight" : {
+          "x" : 26.0,
+          "y" : 16.0
+        }
+      },
+      "designLabel" : "FIRE"
+    }
+  }, {
+    "name" : "r3/shader",
+    "type" : "shader",
+    "properties" : {
+      "isRegion" : true,
+      "isLevel" : true,
+      "region" : {
+        "bottomLeft" : {
+          "x" : 22.0,
+          "y" : 12.0
+        },
+        "topRight" : {
+          "x" : 28.0,
+          "y" : 18.0
+        }
+      },
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : 0.53,
+          "saturationMultiplier" : 1.0,
+          "valueMultiplier" : 1.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
     }
   }, {
     "name" : "outside/dl-forest",

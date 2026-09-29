@@ -26,7 +26,7 @@ uniform float u_speed;
 uniform float u_repeat;
 uniform float u_foamMinWidth; // pixels
 uniform float u_foamMaxWidth; // pixels
-uniform float u_lineInterval; // seconds between foam lines leaving the shore
+uniform float u_lineInterval; // seconds between foam lines leaving the shore, 0 = no lines
 
 // ----- Tuning -----
 #define WAVE_COUNT 10
@@ -196,6 +196,7 @@ void main() {
   float lineWidth = pixel / lineSpacing * mix(0.6, 1.4, lineFade);
   float broken = smoothstep(-0.3, 0.2, snoise(waterPos * 0.9 + vec2(3.0, -7.0) + t * 0.02));
   float lines = step(linePhase, lineWidth) * step(0.0, lineDist) * lineFade * broken * 0.8;
+  if (u_lineInterval <= 0.0) lines = 0.0;
   water = mix(water, foamColor, clamp(max(foam, lines), 0.0, 1.0));
 
   gl_FragColor = pma(vec4(water, color.a * u_waterColor.a));
