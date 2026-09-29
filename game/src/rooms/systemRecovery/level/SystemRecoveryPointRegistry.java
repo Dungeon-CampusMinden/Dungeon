@@ -24,7 +24,7 @@ public final class SystemRecoveryPointRegistry {
   public static final String DOOR_SYSTEM_CORE = "door_systemcore";
 
   /** World item custom points used by checkpoint restoration. */
-  public static final String ARCHIVE_KEY_SPAWN = "chip_spawn";
+  public static final String ARCHIVE_KEY_SPAWN = "key_backup_spawn";
 
   public static final String SEARCH_PROGRAM_CHIP = "chip";
   public static final String SYSTEM_CORE_ACCESS_MODULE_DESTINATION = "roboter_item_destination";
@@ -134,6 +134,7 @@ public final class SystemRecoveryPointRegistry {
                 "sort_data4",
                 "sort_compare_display",
                 "sort_trigger",
+                "chip_spawn",
                 ARCHIVE_KEY_SPAWN)));
     groups.add(new PointGroup("riddle 6 - bubble sort", List.of("sort_machine")));
     groups.add(

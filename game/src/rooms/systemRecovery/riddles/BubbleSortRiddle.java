@@ -22,6 +22,7 @@ import rooms.systemRecovery.entities.SortingEntityFactory;
 import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
+import rooms.systemRecovery.level.SystemRecoveryPointRegistry;
 import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
@@ -273,14 +274,19 @@ public final class BubbleSortRiddle {
   }
 
   /**
-   * Adds the archive key to the player who started the bubble-sort machine.
+   * Gives the archive key to the starter, or drops it at the backup point if they left.
    *
    * @return whether the key was added to the inventory or dropped into the world
    */
-  private boolean awardArchiveKey() {
+  boolean awardArchiveKey() {
     Entity player = Game.findEntityById(sortMachinePlayerId).orElse(null);
-    if (player == null) return false;
     ItemKey key = new ItemKey();
+    if (player == null) {
+      Game.add(
+          WorldItemBuilder.buildWorldItem(
+              key, level.getPoint(SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN)));
+      return true;
+    }
     if (player.fetch(InventoryComponent.class).map(inventory -> inventory.add(key)).orElse(false)) {
       return true;
     }

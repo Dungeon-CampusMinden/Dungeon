@@ -256,6 +256,62 @@ class SystemRecoverySaveTest {
   }
 
   @Test
+  void captureRetainsTheProgrammedChipOfAnAbsentPlayer() throws Exception {
+    Entity host = new Entity("connected-host");
+    host.add(new PlayerComponent(true, "Ada"));
+    Game.add(host);
+    SystemRecoverySave.PlayerItemData guestChip =
+        new SystemRecoverySave.PlayerItemData("Bob", "search-program-chip", true);
+
+    SystemRecoverySave.SaveData save =
+        SystemRecoverySave.capture(
+            SystemRecoveryLearningStep.ENERGY_ARRAY, UUID.randomUUID(), true, List.of(guestChip));
+    Path savePath = temporaryDirectory.resolve("pending-guest-chip.json");
+    SystemRecoverySave.write(savePath, save);
+
+    assertEquals("Ada", save.playerName());
+    assertEquals(List.of(guestChip), save.inventoryItems());
+    assertEquals(
+        List.of(guestChip), SystemRecoveryLoad.read(savePath).orElseThrow().inventoryItems());
+  }
+
+  @Test
+  void uploadCheckpointRemainsLoadableWithOnlyTheGuestChipSaved() throws Exception {
+    SystemRecoverySave.PlayerItemData guestChip =
+        new SystemRecoverySave.PlayerItemData("Bob", "search-program-chip", true);
+    SystemRecoverySave.SaveData save =
+        saveForCheckpoint(SystemRecoveryLearningStep.SEARCH_ROBOT_RUN, terminalInputsThrough(12))
+            .withInventoryItems(List.of(guestChip));
+    Path savePath = temporaryDirectory.resolve("guest-upload-checkpoint.json");
+
+    SystemRecoverySave.write(savePath, save);
+
+    assertEquals(
+        List.of(guestChip), SystemRecoveryLoad.read(savePath).orElseThrow().inventoryItems());
+  }
+
+  @Test
+  void currentInventoryOverridesAnOutdatedPendingVersion() {
+    Entity player = new Entity("connected-owner");
+    player.add(new PlayerComponent(true, "Ada"));
+    InventoryComponent inventory = new InventoryComponent(1);
+    inventory.add(new SearchProgramChipItem(true));
+    player.add(inventory);
+    Game.add(player);
+
+    SystemRecoverySave.SaveData save =
+        SystemRecoverySave.capture(
+            SystemRecoveryLearningStep.ENERGY_ARRAY,
+            UUID.randomUUID(),
+            true,
+            List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", false)));
+
+    assertEquals(
+        List.of(new SystemRecoverySave.PlayerItemData("Ada", "search-program-chip", true)),
+        save.inventoryItems());
+  }
+
+  @Test
   void capturesAnUnprogrammedChipDraftFromThePlayerInventory() {
     Entity player = new Entity("authoritative-player");
     player.add(new PlayerComponent(true, "Ada"));

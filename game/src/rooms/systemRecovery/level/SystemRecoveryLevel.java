@@ -352,8 +352,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   private boolean persistCheckpoint(SystemRecoveryLearningStep checkpoint, boolean force) {
     if (!Game.network().isServer()) return false;
+    applyPendingPuzzleInventory();
     SystemRecoverySave.SaveData save =
-        SystemRecoverySave.capture(checkpoint, runId, SystemRecovery.trackingConsent());
+        SystemRecoverySave.capture(
+            checkpoint, runId, SystemRecovery.trackingConsent(), pendingInventoryItems);
     if (save.playerName() == null || save.playerName().isBlank()) return false;
     boolean checkpointChanged = checkpoint != savedCheckpoint;
     boolean changed =

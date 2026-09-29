@@ -82,6 +82,23 @@ public final class SystemRecoverySave {
    */
   public static SaveData capture(
       SystemRecoveryLearningStep checkpoint, UUID runId, Boolean trackingConsent) {
+    return capture(checkpoint, runId, trackingConsent, List.of());
+  }
+
+  /**
+   * Captures a checkpoint without dropping items whose owners have not rejoined yet.
+   *
+   * @param checkpoint first learning step of the active main riddle
+   * @param runId stable ID of the complete playthrough
+   * @param trackingConsent nullable consent decision
+   * @param pendingInventoryItems items awaiting their named owner after a load
+   * @return immutable save data
+   */
+  public static SaveData capture(
+      SystemRecoveryLearningStep checkpoint,
+      UUID runId,
+      Boolean trackingConsent,
+      List<PlayerItemData> pendingInventoryItems) {
     if (checkpoint == null || !SystemRecoveryLoad.isMainPuzzleCheckpoint(checkpoint)) {
       throw new IllegalArgumentException("A learning checkpoint is required.");
     }
@@ -110,7 +127,7 @@ public final class SystemRecoverySave {
         SystemRecoveryAchievements.snapshot(),
         List.of(SystemRecoveryLevel.acceptedTerminalSources()),
         List.of(SystemRecoveryLevel.memoryWatchArrayEntries()),
-        currentPuzzleItems(),
+        mergePendingPuzzleItems(currentPuzzleItems(), pendingInventoryItems),
         isSystemCoreExitOpen(),
         SystemRecoveryLevel.systemCoreWarningCallAnswered());
   }
@@ -142,6 +159,18 @@ public final class SystemRecoverySave {
           .map(mounted -> playerItem(mounted.playerName(), mounted.item()).orElse(null))
           .filter(java.util.Objects::nonNull)
           .forEach(item -> result.putIfAbsent(itemIdentity(item), item));
+    }
+    return List.copyOf(result.values());
+  }
+
+  static List<PlayerItemData> mergePendingPuzzleItems(
+      List<PlayerItemData> currentItems, List<PlayerItemData> pendingItems) {
+    Map<String, PlayerItemData> result = new LinkedHashMap<>();
+    if (pendingItems != null) {
+      pendingItems.forEach(item -> result.put(itemIdentity(item), item));
+    }
+    if (currentItems != null) {
+      currentItems.forEach(item -> result.put(itemIdentity(item), item));
     }
     return List.copyOf(result.values());
   }

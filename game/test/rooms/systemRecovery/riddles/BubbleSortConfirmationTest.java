@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -25,9 +26,11 @@ import engine.level.DungeonLevel;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Point;
 import feature.components.InventoryComponent;
+import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
+import feature.inventory.items.ItemKey;
 import feature.skills.SkillTools;
 import feature.systems.EventScheduler;
 import feature.utils.IAction;
@@ -43,9 +46,32 @@ import org.junit.jupiter.params.provider.CsvSource;
 import rooms.systemRecovery.entities.SortingEntityFactory;
 import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.level.SystemRecoveryPointRegistry;
 
 /** Checks Bubble Sort insertion confirmation and synchronized comparison state. */
 class BubbleSortConfirmationTest {
+  @Test
+  void dropsArchiveKeyAtBackupPointWhenStartingPlayerDisconnected() {
+    DungeonLevel level = mock(DungeonLevel.class);
+    Point backupPoint = new Point(49, 35);
+    when(level.getPoint(SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN)).thenReturn(backupPoint);
+    Entity keyEntity = new Entity("archive key");
+
+    try (var game = mockStatic(Game.class);
+        var worldItems = mockStatic(WorldItemBuilder.class)) {
+      game.when(() -> Game.findEntityById(anyInt())).thenReturn(Optional.empty());
+      worldItems
+          .when(() -> WorldItemBuilder.buildWorldItem(any(ItemKey.class), eq(backupPoint)))
+          .thenReturn(keyEntity);
+
+      BubbleSortRiddle riddle = new BubbleSortRiddle(level, new TransportStorageRiddle(level));
+      assertTrue(riddle.awardArchiveKey());
+
+      verify(level).getPoint(SystemRecoveryPointRegistry.ARCHIVE_KEY_SPAWN);
+      game.verify(() -> Game.add(keyEntity));
+    }
+  }
+
   @Test
   void keepsPublishedComparisonAlignedWithScannerUntilNextMovement_riddle6() {
     DungeonLevel level = mock(DungeonLevel.class);

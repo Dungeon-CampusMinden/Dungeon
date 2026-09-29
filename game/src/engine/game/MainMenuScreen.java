@@ -568,6 +568,7 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private void continueGame() {
+    if (launching) return;
     continueGameSelected = true;
     showStartupConsent(() -> startHosting(true));
   }
@@ -673,6 +674,7 @@ public class MainMenuScreen extends ScreenAdapter {
    * @param continueGame whether the child should restore the configured checkpoint
    */
   private void startHosting(boolean continueGame) {
+    if (launching) return;
     launching = true;
     setHostControlsDisabled(true);
     hostStatusLabel.setText(trans.text(T_STARTING_SERVER));
