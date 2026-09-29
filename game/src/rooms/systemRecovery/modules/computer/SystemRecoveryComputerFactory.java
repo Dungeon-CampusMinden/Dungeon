@@ -34,6 +34,7 @@ import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import tracking.core.TrackingInteractionStatus;
 
 /** Factory and registration helpers for the System Recovery computer interaction. */
 public final class SystemRecoveryComputerFactory {
@@ -150,20 +151,23 @@ public final class SystemRecoveryComputerFactory {
               && "insert".equals(choice)) {
             var step = SystemRecoveryProgressNet.activeStep().orElse(null);
             if (!ComputerProgramRules.canMount(programKind, step)) {
-              showActionUnavailable(player.id(), puzzleFor(programKind), "computer.terminal");
+              showActionUnavailable(
+                  player.id(), "computer.terminal", puzzleFor(programKind), "mount");
               return;
             }
             Item insertedChip = removeMountedChip(player.id(), chip).orElse(null);
             if (insertedChip == null) {
-              SystemRecoveryPuzzleEvents.attempt(
-                  puzzleFor(programKind), "computer-chip", "insert", choice, false, player);
+              trackChipInteraction(
+                  programKind, player.id(), TrackingInteractionStatus.BLOCKED, "item-unavailable");
               DialogUtils.showTextPopup(
                   SystemRecoveryText.key("computer.chip-missing"),
                   SystemRecoveryText.key("computer.terminal"),
                   player.id());
               return;
             }
-            if (!recordChipMount(programKind, choice, player)) {
+            if (!recordChipMount(programKind, player)) {
+              trackChipInteraction(
+                  programKind, player.id(), TrackingInteractionStatus.BLOCKED, "mount-rejected");
               returnInsertedChip(player.id(), insertedChip);
               DialogUtils.showTextPopup(
                   SystemRecoveryText.key("computer.action-unavailable"),
@@ -173,8 +177,8 @@ public final class SystemRecoveryComputerFactory {
             }
             showComputerDialog(player.id(), programKind, insertedChip);
           } else {
-            SystemRecoveryPuzzleEvents.attempt(
-                puzzleFor(programKind), "computer-chip", "insert", "cancel", false, player);
+            trackChipInteraction(
+                programKind, player.id(), TrackingInteractionStatus.CANCELLED, "player-cancelled");
             showComputerDialog(player.id(), ComputerProgramKind.NONE, null);
           }
         },
@@ -345,7 +349,7 @@ public final class SystemRecoveryComputerFactory {
         data -> {
           if (programKind != ComputerProgramKind.ACCESS) {
             showActionUnavailable(
-                targetEntityId, SystemRecoveryPuzzle.SYSTEM_CORE, "computer.access-tab");
+                targetEntityId, "computer.access-tab", SystemRecoveryPuzzle.SYSTEM_CORE, "execute");
             return;
           }
           if (chipSession.resolved()) return;
@@ -440,13 +444,13 @@ public final class SystemRecoveryComputerFactory {
           Item programmedItem = programmedItemFactory.get();
           if (!addToInventory(targetEntityId, programmedItem)) {
             recordUploadFailure(
-                puzzle, trackingStep, source, targetEntityId, dialogId, tabKey, false);
+                puzzle, source, targetEntityId, dialogId, tabKey, "inventory-unavailable");
             return false;
           }
           if (!SystemRecoveryProgressNet.complete(completedStep)) {
             removeFromInventory(targetEntityId, programmedItem);
             recordUploadFailure(
-                puzzle, trackingStep, source, targetEntityId, dialogId, tabKey, false);
+                puzzle, source, targetEntityId, dialogId, tabKey, "progress-rejected");
             return false;
           }
           SystemRecoveryPuzzleEvents.attempt(
@@ -502,30 +506,32 @@ public final class SystemRecoveryComputerFactory {
 
   private static void recordUploadFailure(
       SystemRecoveryPuzzle puzzle,
-      String trackingStep,
       String source,
       int targetEntityId,
       String dialogId,
       String tabKey,
-      boolean success) {
-    SystemRecoveryPuzzleEvents.attempt(
-        puzzle, trackingStep, "source", source, success, targetEntityId);
+      String reason) {
+    SystemRecoveryPuzzleEvents.interaction(
+        puzzle,
+        "computer-chip",
+        "upload",
+        TrackingInteractionStatus.BLOCKED,
+        reason,
+        targetEntityId);
     SystemRecoveryComputerFeedback.send(
-        dialogId, tabKey, source, targetEntityId, "computer.write-unavailable", success);
+        dialogId, tabKey, source, targetEntityId, "computer.write-unavailable", false);
   }
 
-  private static boolean recordChipMount(
-      ComputerProgramKind programKind, String rawChoice, Entity player) {
-    String answerKind =
-        switch (programKind) {
-          case SORT -> "resume-programming";
-          case SEARCH -> "mount-for-programming";
-          case ACCESS -> "mount-access-module";
-          case NONE -> "insert";
-        };
-    SystemRecoveryPuzzleEvents.attempt(
-        puzzleFor(programKind), "computer-chip", answerKind, rawChoice, true, player);
-    return programKind != ComputerProgramKind.NONE;
+  private static boolean recordChipMount(ComputerProgramKind programKind, Entity player) {
+    if (programKind == ComputerProgramKind.NONE) return false;
+    trackChipInteraction(programKind, player.id(), TrackingInteractionStatus.COMPLETED, "mounted");
+    return true;
+  }
+
+  private static void trackChipInteraction(
+      ComputerProgramKind kind, int playerId, TrackingInteractionStatus status, String reason) {
+    SystemRecoveryPuzzleEvents.interaction(
+        puzzleFor(kind), "computer-chip", "mount", status, reason, playerId);
   }
 
   private static SystemRecoveryPuzzle puzzleFor(ComputerProgramKind programKind) {
@@ -623,9 +629,14 @@ public final class SystemRecoveryComputerFactory {
   }
 
   private static void showActionUnavailable(
-      int playerId, SystemRecoveryPuzzle puzzle, String titleKey) {
-    SystemRecoveryPuzzleEvents.attempt(
-        puzzle, "computer-action", "phase", "invalid", false, playerId);
+      int playerId, String titleKey, SystemRecoveryPuzzle puzzle, String action) {
+    SystemRecoveryPuzzleEvents.interaction(
+        puzzle,
+        "computer-action",
+        action,
+        TrackingInteractionStatus.BLOCKED,
+        "out-of-order",
+        playerId);
     DialogUtils.showTextPopup(
         SystemRecoveryText.key("computer.action-unavailable"),
         SystemRecoveryText.key(titleKey),

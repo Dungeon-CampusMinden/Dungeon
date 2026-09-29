@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import tracking.core.TrackingEvent;
+import tracking.core.TrackingInteractionStatus;
 import tracking.core.TrackingJson;
 import tracking.core.TrackingSessionStatus;
 
@@ -273,6 +274,41 @@ public final class Tracking {
       try {
         return Optional.of(
             session.attempt(puzzleId, objectId, answerKind, rawAnswer, correct, participantId));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
+   * Records an interaction without treating it as a submitted answer or a puzzle start.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objectId stable interacted object identifier
+   * @param action stable action identifier
+   * @param status authoritative interaction result
+   * @param reason stable reason for the result
+   * @param participantId session-scoped participant identifier
+   * @return recorded event, or empty when tracking or the participant is inactive
+   */
+  public static Optional<TrackingEvent> interaction(
+      String puzzleId,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      String reason,
+      UUID participantId) {
+    synchronized (LOCK) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantActive(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(
+            session.interaction(puzzleId, objectId, action, status, reason, participantId));
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();

@@ -24,6 +24,7 @@ import feature.hud.DialogUtils;
 import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,7 @@ import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.entities.SortingEntityFactory;
 import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 
 /** Exercises the real riddle controller without requiring textures or a graphical client. */
 class ManualSortingRiddleTest {
@@ -42,6 +44,7 @@ class ManualSortingRiddleTest {
   private final BubbleSortRiddle machine = mock(BubbleSortRiddle.class);
   private final Entity player = new Entity("player");
   private final Entity reward = new Entity("reward");
+  private final AtomicInteger failedChoices = new AtomicInteger();
   private MockedStatic<Game> game;
   private MockedStatic<SortingEntityFactory> factory;
   private MockedStatic<SystemRecoveryDisplayFactory> displays;
@@ -87,7 +90,9 @@ class ManualSortingRiddleTest {
     worldItems
         .when(() -> WorldItemBuilder.buildWorldItem(any(SortProgramStickItem.class), any()))
         .thenReturn(reward);
-    riddle = new ManualSortingRiddle(level, machine);
+    riddle =
+        new ManualSortingRiddle(
+            level, machine, new RiddleCallbacks(null, attempt -> failedChoices.incrementAndGet()));
     riddle.setup();
   }
 
@@ -129,6 +134,7 @@ class ManualSortingRiddleTest {
     assertArrayEquals(
         new int[] {containers.get(0).id(), containers.get(1).id()},
         riddle.currentSortComparisonEntityIds());
+    assertEquals(1, failedChoices.get());
   }
 
   @Test
@@ -171,6 +177,7 @@ class ManualSortingRiddleTest {
         new int[] {containers.get(0).id(), containers.get(1).id()},
         riddle.currentSortComparisonEntityIds());
     assertEquals(new Point(0, 0), position(containers.get(0)));
+    assertEquals(0, failedChoices.get());
   }
 
   @Test

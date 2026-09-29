@@ -37,6 +37,7 @@ import feature.utils.IAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -47,6 +48,7 @@ import rooms.systemRecovery.entities.SortingEntityFactory;
 import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.items.SortProgramStickItem;
 import rooms.systemRecovery.level.SystemRecoveryPointRegistry;
+import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 
 /** Checks Bubble Sort insertion confirmation and synchronized comparison state. */
 class BubbleSortConfirmationTest {
@@ -170,6 +172,7 @@ class BubbleSortConfirmationTest {
     when(inventory.remove(stick)).thenReturn(stillPresent ? Optional.of(stick) : Optional.empty());
     AtomicReference<BiConsumer<Entity, Entity>> interact = new AtomicReference<>();
     AtomicReference<Consumer<DialogResponseMessage.Payload>> respond = new AtomicReference<>();
+    AtomicInteger failures = new AtomicInteger();
 
     try (var game = mockStatic(Game.class, RETURNS_DEEP_STUBS);
         var factory = mockStatic(SortingEntityFactory.class);
@@ -202,7 +205,11 @@ class BubbleSortConfirmationTest {
                 return null;
               });
 
-      BubbleSortRiddle riddle = new BubbleSortRiddle(level, new TransportStorageRiddle(level));
+      BubbleSortRiddle riddle =
+          new BubbleSortRiddle(
+              level,
+              new TransportStorageRiddle(level),
+              new RiddleCallbacks(null, attempt -> failures.incrementAndGet()));
       riddle.setup();
       interact.get().accept(new Entity("machine"), player);
       assertNotNull(respond.get());
@@ -216,6 +223,7 @@ class BubbleSortConfirmationTest {
         respond.get().accept(new DialogResponseMessage.StringValue(choice));
         verify(inventory, times(1)).remove(stick);
       }
+      assertEquals(0, failures.get());
     }
   }
 

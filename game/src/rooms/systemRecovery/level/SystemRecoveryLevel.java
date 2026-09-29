@@ -73,6 +73,7 @@ import rooms.systemRecovery.util.interpreter.TerminalStep;
 import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Builds System Recovery in room order and owns one controller per riddle.
@@ -1094,12 +1095,12 @@ public class SystemRecoveryLevel extends DungeonLevel {
             player -> {
               archiveDoorBlocker = null;
               if (!archiveDoor.isOpen()) return;
-              SystemRecoveryPuzzleEvents.attempt(
+              SystemRecoveryPuzzleEvents.interaction(
                   SystemRecoveryPuzzle.BUBBLE_SORT,
                   "archive-door",
                   "use-sort-key",
-                  "key",
-                  true,
+                  TrackingInteractionStatus.COMPLETED,
+                  "door-opened",
                   player);
               SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ARCHIVE_ACCESS);
             });
@@ -1507,22 +1508,37 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (level.systemCoreAccessGranted
         || SystemRecoveryProgressNet.activeStep().orElse(null)
             != SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS) {
-      SystemRecoveryPuzzleEvents.attempt(
-          SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", false, playerId);
+      SystemRecoveryPuzzleEvents.interaction(
+          SystemRecoveryPuzzle.SYSTEM_CORE,
+          "access-script",
+          "execute",
+          TrackingInteractionStatus.BLOCKED,
+          "out-of-order",
+          playerId);
       return false;
     }
     DoorTile systemCoreDoor = (DoorTile) level.tileAt(level.point("door_systemcore")).orElseThrow();
     systemCoreDoor.open();
     if (!systemCoreDoor.isOpen()
         || !SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS)) {
-      SystemRecoveryPuzzleEvents.attempt(
-          SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", false, playerId);
+      SystemRecoveryPuzzleEvents.interaction(
+          SystemRecoveryPuzzle.SYSTEM_CORE,
+          "access-script",
+          "execute",
+          TrackingInteractionStatus.BLOCKED,
+          "progress-rejected",
+          playerId);
       return false;
     }
     level.systemCoreAccessGranted = true;
     level.systemCoreAlarmActive = true;
-    SystemRecoveryPuzzleEvents.attempt(
-        SystemRecoveryPuzzle.SYSTEM_CORE, "access-script", "execute", "run", true, playerId);
+    SystemRecoveryPuzzleEvents.interaction(
+        SystemRecoveryPuzzle.SYSTEM_CORE,
+        "access-script",
+        "execute",
+        TrackingInteractionStatus.COMPLETED,
+        "access-granted",
+        playerId);
     SystemRecoveryAlarm.activate();
     level.triggerSystemCoreWarningCall();
     TerminalInterpreter.instance().synchronizeState(TerminalStep.CENTRAL_SORT.stateId());

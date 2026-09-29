@@ -31,6 +31,9 @@ import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Riddle 9 and the final System Core scan: program the search chip for the first matrix, then run a
@@ -193,7 +196,7 @@ public final class SearchRobotRiddle {
 
   private void onControllerInteract(Entity ignored, Entity player) {
     if (running() || completed()) {
-      callbacks.failure("insert", player.id());
+      trackInsert(player, TrackingInteractionStatus.BLOCKED, "controller-running");
       DialogUtils.showTextPopup(
           SystemRecoveryText.key("world.search.controller-running"),
           SystemRecoveryText.key("world.search.title"),
@@ -203,7 +206,7 @@ public final class SearchRobotRiddle {
 
     SearchProgramChipItem chip = programmedChip(player);
     if (chip == null) {
-      callbacks.failure("missing-program", player.id());
+      trackInsert(player, TrackingInteractionStatus.BLOCKED, "missing-program");
       DialogUtils.showTextPopup(
           SystemRecoveryText.key("world.search.controller-missing"),
           SystemRecoveryText.key("world.search.title"),
@@ -221,11 +224,11 @@ public final class SearchRobotRiddle {
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String choice))
               || !"insert".equals(choice)) {
-            callbacks.failure("cancel", player.id());
+            trackInsert(player, TrackingInteractionStatus.CANCELLED, "player-cancelled");
             return;
           }
           if (running() || completed()) {
-            callbacks.failure("insert", player.id());
+            trackInsert(player, TrackingInteractionStatus.BLOCKED, "controller-running");
             return;
           }
           player
@@ -236,11 +239,11 @@ public final class SearchRobotRiddle {
                     runningProgramChip = chip;
                     runningProgramPlayerId = player.id();
                     MountedPuzzleItems.mount(player, chip);
-                    callbacks.success("insert", player.id());
+                    trackInsert(player, TrackingInteractionStatus.COMPLETED, "inserted");
                     startScan();
                   },
                   () -> {
-                    callbacks.failure("insert", player.id());
+                    trackInsert(player, TrackingInteractionStatus.BLOCKED, "item-unavailable");
                     DialogUtils.showTextPopup(
                         SystemRecoveryText.key("world.search.controller-missing"),
                         SystemRecoveryText.key("world.search.title"),
@@ -249,6 +252,11 @@ public final class SearchRobotRiddle {
         },
         () -> {},
         player.id());
+  }
+
+  private static void trackInsert(Entity player, TrackingInteractionStatus status, String reason) {
+    SystemRecoveryPuzzleEvents.interaction(
+        SystemRecoveryPuzzle.SEARCH_ROBOT, "search-controller", "insert", status, reason, player);
   }
 
   private SearchProgramChipItem programmedChip(Entity player) {

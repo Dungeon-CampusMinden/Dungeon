@@ -2,6 +2,7 @@ package rooms.systemRecovery.util.tracking;
 
 import engine.Entity;
 import engine.tracking.Tracking;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Low-level server-side adapter for the engine tracking API.
@@ -51,6 +52,20 @@ final class SystemRecoveryTracking {
       return;
     }
     attempt(puzzle, objectId, answerKind, rawAnswer, correct, player.id());
+  }
+
+  static void interaction(
+      SystemRecoveryPuzzle puzzle,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      String reason,
+      int playerId) {
+    if (playerId < 0) return;
+    Tracking.participantForEntity(playerId)
+        .ifPresent(
+            participantId ->
+                Tracking.interaction(puzzle.id(), objectId, action, status, reason, participantId));
   }
 
   /**

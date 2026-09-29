@@ -27,6 +27,9 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Riddle 5: compare adjacent containers; wrong answers reset the exercise.
@@ -150,6 +153,7 @@ public final class ManualSortingRiddle {
       return;
     }
     if (!claimSortStation(player.id())) {
+      trackBlockedChoice(player, "station-owned");
       DialogUtils.showTextPopup(
           SystemRecoveryText.key("world.sort.in-use"),
           SystemRecoveryText.key("world.sort.title"),
@@ -225,11 +229,11 @@ public final class ManualSortingRiddle {
       sortOwnerPlayerId = player.id();
     }
     if (sortOwnerPlayerId != player.id()) {
-      callbacks.failure("not-owner", player.id());
+      trackBlockedChoice(player, "station-owned");
       return;
     }
     if (bubbleSort.running()) {
-      callbacks.failure("blocked-machine", player.id());
+      trackBlockedChoice(player, "machine-running");
       return;
     }
     boolean shouldSwap = sortValues[sortInnerIndex] > sortValues[sortInnerIndex + 1];
@@ -266,6 +270,16 @@ public final class ManualSortingRiddle {
       // answer returns above after resetting the station and therefore never opens a follow-up.
       showSortChoice(sortDisplay, player);
     }
+  }
+
+  private static void trackBlockedChoice(Entity player, String reason) {
+    SystemRecoveryPuzzleEvents.interaction(
+        SystemRecoveryPuzzle.MANUAL_SORTING,
+        "sort-display",
+        "choose-comparison",
+        TrackingInteractionStatus.BLOCKED,
+        reason,
+        player);
   }
 
   /** Restores the original values and positions after a wrong comparison decision. */

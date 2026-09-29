@@ -25,6 +25,9 @@ import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Riddle 3: unlock the scanner and visualize counting the remaining modules.
@@ -233,9 +236,15 @@ public final class InventoryScannerRiddle {
                       callbacks.success("0504", player.id());
                       return;
                     }
+                    SystemRecoveryPuzzleEvents.interaction(
+                        SystemRecoveryPuzzle.INVENTORY_SCANNER,
+                        "transport-keypad",
+                        "submit-pin",
+                        TrackingInteractionStatus.BLOCKED,
+                        "out-of-order",
+                        player);
                     component.isUnlocked(false);
                     component.enteredDigits().clear();
-                    callbacks.failure("0504-out-of-order", player.id());
                   });
               component.onWrongCode(
                   player -> callbacks.failure(component.enteredString(), player.id()));

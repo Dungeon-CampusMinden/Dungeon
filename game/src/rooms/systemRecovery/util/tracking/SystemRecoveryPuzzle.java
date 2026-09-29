@@ -5,8 +5,8 @@ import rooms.systemRecovery.util.interpreter.TerminalStep;
 /** Stable identifiers and default event metadata for System Recovery riddles. */
 public enum SystemRecoveryPuzzle {
   ENERGY("energy-array", "energy-lever", "lever"),
-  MODULE_STORAGE("module-storage", "module-room", "interaction"),
-  INVENTORY_SCANNER("inventory-scanner", "scanner-room", "interaction"),
+  MODULE_STORAGE("module-storage", "module-room", "pin"),
+  INVENTORY_SCANNER("inventory-scanner", "scanner-room", "pin"),
   TRANSPORT_STORAGE("transport-storage", "transport-sequence", "sequence"),
   MANUAL_SORTING("manual-sorting", "sort-display", "choice"),
   BUBBLE_SORT("bubble-sort", "sort-machine", "choice"),

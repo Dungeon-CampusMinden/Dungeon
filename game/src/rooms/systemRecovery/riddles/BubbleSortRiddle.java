@@ -27,6 +27,9 @@ import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Riddle 6: consume a programmed USB stick, sort conveyor packages and award the archive key.
@@ -126,7 +129,7 @@ public final class BubbleSortRiddle {
 
   private void onBubbleSortMachineInteract(Entity machine, Entity player) {
     if (sortMachineRunning) {
-      callbacks.failure("insert", player.id());
+      trackInsert(player, TrackingInteractionStatus.BLOCKED, "machine-running");
       DialogUtils.showTextPopup(
           SystemRecoveryText.key("world.sort.machine-running"),
           SystemRecoveryText.key("world.sort.machine-title"),
@@ -145,7 +148,7 @@ public final class BubbleSortRiddle {
                         .findFirst())
             .orElse(null);
     if (programmedStick == null) {
-      callbacks.failure("missing-program", player.id());
+      trackInsert(player, TrackingInteractionStatus.BLOCKED, "missing-program");
       DialogUtils.showTextPopup(
           SystemRecoveryText.key("world.sort.missing-program"),
           SystemRecoveryText.key("world.sort.machine-title"),
@@ -162,12 +165,12 @@ public final class BubbleSortRiddle {
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String choice))
               || !"insert".equals(choice)) {
-            callbacks.failure("cancel", player.id());
+            trackInsert(player, TrackingInteractionStatus.CANCELLED, "player-cancelled");
             return;
           }
           // Another player may have started the machine while this dialog was open.
           if (sortMachineRunning) {
-            callbacks.failure("insert", player.id());
+            trackInsert(player, TrackingInteractionStatus.BLOCKED, "machine-running");
             DialogUtils.showTextPopup(
                 SystemRecoveryText.key("world.sort.machine-running"),
                 SystemRecoveryText.key("world.sort.machine-title"),
@@ -180,7 +183,7 @@ public final class BubbleSortRiddle {
                   .flatMap(inventory -> inventory.remove(programmedStick))
                   .isPresent();
           if (!removed) {
-            callbacks.failure("insert", player.id());
+            trackInsert(player, TrackingInteractionStatus.BLOCKED, "item-unavailable");
             DialogUtils.showTextPopup(
                 SystemRecoveryText.key("world.sort.program-not-in-inventory"),
                 SystemRecoveryText.key("world.sort.insert-title"),
@@ -190,11 +193,16 @@ public final class BubbleSortRiddle {
           sortMachinePlayerId = player.id();
           runningProgramStick = programmedStick;
           MountedPuzzleItems.mount(player, programmedStick);
-          callbacks.success("insert", player.id());
+          trackInsert(player, TrackingInteractionStatus.COMPLETED, "inserted");
           startTransportBubbleSort();
         },
         () -> {},
         player.id());
+  }
+
+  private static void trackInsert(Entity player, TrackingInteractionStatus status, String reason) {
+    SystemRecoveryPuzzleEvents.interaction(
+        SystemRecoveryPuzzle.BUBBLE_SORT, "sort-machine", "insert", status, reason, player);
   }
 
   /** Starts the bubble-sort machine on the transport packages, not on the puzzle Cryo-Boxes. */

@@ -18,6 +18,9 @@ import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoveryText;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
+import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Riddle 2: initialize sockets, populate modules, remove the GPU and read the array length.
@@ -189,8 +192,13 @@ public final class ModuleStorageRiddle {
   }
 
   private void inspectModuleDisplay(Entity display, Entity player) {
-    if (completed) callbacks.success("inspect-length", player.id());
-    else callbacks.failure("inspect-length", player.id());
+    SystemRecoveryPuzzleEvents.interaction(
+        SystemRecoveryPuzzle.MODULE_STORAGE,
+        "module-display",
+        "inspect-length",
+        TrackingInteractionStatus.COMPLETED,
+        completed ? "display-ready" : "display-unready",
+        player);
     DialogUtils.showTextPopup(
         display.fetch(DisplayTextComponent.class).orElseThrow().text(),
         SystemRecoveryText.key("world.module.display-title"),
@@ -235,9 +243,15 @@ public final class ModuleStorageRiddle {
                       callbacks.success("0502", player.id());
                       return;
                     }
+                    SystemRecoveryPuzzleEvents.interaction(
+                        SystemRecoveryPuzzle.MODULE_STORAGE,
+                        "scanner-keypad",
+                        "submit-pin",
+                        TrackingInteractionStatus.BLOCKED,
+                        "out-of-order",
+                        player);
                     component.isUnlocked(false);
                     component.enteredDigits().clear();
-                    callbacks.failure("0502-out-of-order", player.id());
                   });
               component.onWrongCode(
                   player -> callbacks.failure(component.enteredString(), player.id()));

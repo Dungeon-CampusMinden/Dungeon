@@ -7,6 +7,7 @@ import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.interpreter.TerminalStep;
+import tracking.core.TrackingInteractionStatus;
 
 /**
  * Server-side boundary for System Recovery attempt tracking and explicit learning-step callbacks.
@@ -95,6 +96,46 @@ public final class SystemRecoveryPuzzleEvents {
       int playerId) {
     SystemRecoveryAchievements.physicalAttempt(puzzle, rawAnswer, correct, playerId);
     SystemRecoveryTracking.attempt(puzzle, objectId, answerKind, rawAnswer, correct, playerId);
+  }
+
+  /**
+   * Records a neutral interaction without marking an answer or achievement failure.
+   *
+   * @param puzzle owning riddle
+   * @param objectId stable interacted object identifier
+   * @param action stable action identifier
+   * @param status authoritative interaction result
+   * @param reason stable reason for the result
+   * @param playerId authoritative player ID
+   */
+  public static void interaction(
+      SystemRecoveryPuzzle puzzle,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      String reason,
+      int playerId) {
+    SystemRecoveryTracking.interaction(puzzle, objectId, action, status, reason, playerId);
+  }
+
+  /**
+   * Records a neutral interaction made by a player entity.
+   *
+   * @param puzzle owning riddle
+   * @param objectId stable interacted object identifier
+   * @param action stable action identifier
+   * @param status authoritative interaction result
+   * @param reason stable reason for the result
+   * @param player player entity
+   */
+  public static void interaction(
+      SystemRecoveryPuzzle puzzle,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      String reason,
+      Entity player) {
+    if (player != null) interaction(puzzle, objectId, action, status, reason, player.id());
   }
 
   /**
