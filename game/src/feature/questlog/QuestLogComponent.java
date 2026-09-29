@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Component that stores quest log entries grouped by tabs.
@@ -23,6 +25,46 @@ public class QuestLogComponent implements Component {
   private static final int EMPTY_TAB_TIMESTAMP = Integer.MIN_VALUE;
 
   private final Map<String, List<QuestLogEntry>> questlog = new HashMap<>();
+  private Optional<Overview> overview = Optional.empty();
+
+  /**
+   * Returns the optional starting tab and its links to existing entries.
+   *
+   * @return the room's overview configuration, if any
+   */
+  public Optional<Overview> overview() {
+    return overview;
+  }
+
+  /**
+   * Configures a starting tab without copying the linked entries into it.
+   *
+   * @param tab the starting tab, which must contain an entry to be visible
+   * @param references existing entries to link below the starting tab's first entry, in display
+   *     order
+   */
+  public void overview(String tab, List<QuestLogEntry> references) {
+    overview = Optional.of(new Overview(tab, references));
+  }
+
+  /**
+   * Only references to stored entries visible to the current viewer are displayed.
+   *
+   * @param tab the starting tab
+   * @param references links to existing entries, in display order
+   */
+  public record Overview(String tab, List<QuestLogEntry> references) {
+    /**
+     * Creates an immutable overview configuration.
+     *
+     * @param tab the starting tab
+     * @param references links to existing entries, in display order
+     */
+    public Overview {
+      Objects.requireNonNull(tab, "tab");
+      references = List.copyOf(references);
+    }
+  }
 
   /**
    * Adds a quest log entry to the given tab.

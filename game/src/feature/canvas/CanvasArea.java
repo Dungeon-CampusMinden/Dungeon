@@ -92,6 +92,7 @@ public class CanvasArea extends Group {
   private CanvasNode draggedNodeOwner;
   private final Set<CanvasNode> dragTargets = new LinkedHashSet<>();
   private boolean dragMoved;
+  private boolean dragApplied;
   private final Vector2 pressArea = new Vector2();
 
   /** Pointer movement in pixels below which a press is still treated as a click, not a drag. */
@@ -321,7 +322,7 @@ public class CanvasArea extends Group {
       return;
     }
     int max = sameSpaceAs(node).mapToInt(CanvasNode::z).max().orElse(0);
-    if (node.z() < max) {
+    if (node.z() <= max) {
       node.z(max + 1);
     }
   }
@@ -1021,6 +1022,7 @@ public class CanvasArea extends Group {
 
       dragPointerButton = button;
       dragMoved = false;
+      dragApplied = false;
       pressArea.set(x, y);
       lastPointerArea.set(x, y);
       lastPointerWorld.set(areaToWorld(x, y));
@@ -1089,7 +1091,8 @@ public class CanvasArea extends Group {
           lastPointerArea.set(x, y);
         }
         case NODE -> {
-          if (dragMoved && draggedNodeOwner != null) {
+          if (!dragMoved) return;
+          if (draggedNodeOwner != null) {
             CanvasNode released = draggedNodeOwner.releaseOwnedNodeForDrag(draggedNode);
             draggedNodeOwner = null;
             if (released == null) {
@@ -1102,21 +1105,17 @@ public class CanvasArea extends Group {
             draggedGroup = List.of(released);
             select(released);
             bringToFront(released);
-          } else if (draggedNodeOwner != null) {
-            // Owned nodes must not move until their owner has released them for dragging.
-            return;
           }
           Vector2 current = areaToWorld(x, y);
           float worldDx = current.x - lastPointerWorld.x;
           float worldDy = current.y - lastPointerWorld.y;
           float areaDx = x - lastPointerArea.x;
           float areaDy = y - lastPointerArea.y;
+          dragApplied = true;
           for (CanvasNode node : draggedGroup) {
-            if (node.sticky()) {
-              node.onMove(areaDx, areaDy);
-            } else {
-              node.onMove(worldDx, worldDy);
-            }
+            float dx = node.sticky() ? areaDx : worldDx;
+            float dy = node.sticky() ? areaDy : worldDy;
+            node.onMove(dx, dy);
           }
           lastPointerWorld.set(current);
           lastPointerArea.set(x, y);
@@ -1144,17 +1143,17 @@ public class CanvasArea extends Group {
 
       switch (finished) {
         case NODE -> {
-          if (options.snapToGrid()) {
+          if (dragApplied && options.snapToGrid()) {
             draggedGroup.stream()
                 .filter(node -> !node.sticky())
                 .forEach(node -> node.position(snap(node.x()), snap(node.y())));
           }
-          boolean dropConsumed = dragMoved && dispatchDrop(x, y);
+          boolean dropConsumed = dragApplied && dispatchDrop(x, y);
           if (!dragMoved && draggedNode != null) {
             Vector2 stagePointer = localToStageCoordinates(new Vector2(x, y));
             Vector2 localPointer = draggedNode.stageToLocalCoordinates(stagePointer);
             draggedNode.onClick(localPointer.x, localPointer.y, button);
-          } else if (!dropConsumed) {
+          } else if (dragApplied && !dropConsumed) {
             draggedGroup.forEach(
                 node -> {
                   if (node.canvas() != CanvasArea.this) {

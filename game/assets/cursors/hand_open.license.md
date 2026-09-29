@@ -1,0 +1,5 @@
+- Quelle: https://kenney.nl/assets/cursor-pack
+- Author: Kenney
+- License: CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+- Pack: Cursor Pack 1.1, PNG/Outline/Default, unmodified
+- Also applies to: hand_closed, resize_a_vertical, resize_a_diagonal_mirror, cursor_copy, cursor_help, busy_hourglass

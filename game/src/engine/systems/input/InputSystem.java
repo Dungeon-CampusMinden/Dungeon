@@ -2,6 +2,7 @@ package engine.systems.input;
 
 import com.badlogic.gdx.Input;
 import engine.Entity;
+import engine.Game;
 import engine.System;
 import engine.components.InputComponent;
 import engine.utils.components.MissingComponentException;
@@ -69,7 +70,7 @@ public final class InputSystem extends System {
       final Map<Integer, InputComponent.InputData> callbacks, final Entity entity, boolean paused) {
     callbacks.forEach(
         (key, value) -> {
-          if (!paused || value.pauseable()) {
+          if ((!paused && !Game.hud().blocksGameplayInput(entity)) || value.pauseable()) {
             execute(entity, key, value);
           }
         });

@@ -4,6 +4,7 @@ import engine.utils.logging.DungeonLogger;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -107,6 +108,10 @@ public final class ServerProcess {
     boolean windows = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     List<String> command = new ArrayList<>();
     command.add(javaExecutable(javaHome, windows));
+    // Forward heap settings only; debugger and other client JVM options stay with the client.
+    ManagementFactory.getRuntimeMXBean().getInputArguments().stream()
+        .filter(argument -> argument.startsWith("-Xms") || argument.startsWith("-Xmx"))
+        .forEach(command::add);
     command.add("-cp");
     command.add(System.getProperty("java.class.path"));
     command.add("-D" + PORT_PROPERTY + "=" + port);

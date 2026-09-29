@@ -152,10 +152,13 @@ public final class TrackingImportCli {
                 previous.joinedAt(),
                 Optional.of(event.occurredAt())));
       } else if (event.eventType() == TrackingEventType.ANSWER_SUBMITTED
-          || event.eventType() == TrackingEventType.HINT_USED) {
+          || event.eventType() == TrackingEventType.HINT_USED
+          || event.eventType() == TrackingEventType.INTERACTION) {
         UUID participantId = event.participantId().orElseThrow();
         TrackingParticipant participant = participants.get(participantId);
-        if (participant == null || participant.leftAt().isPresent()) {
+        if (participant == null
+            || (participant.leftAt().isPresent()
+                && event.eventType() != TrackingEventType.ANSWER_SUBMITTED)) {
           throw new IllegalArgumentException(
               "Participant-attributed event occurred while inactive at sequence "
                   + event.sessionSequence());

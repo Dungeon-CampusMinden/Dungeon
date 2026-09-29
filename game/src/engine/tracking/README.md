@@ -83,6 +83,7 @@ Tracking.attempt(
     correct,
     participantId);
 Tracking.hintUsed("storage-access", "storage-first-digit", participantId);
+Tracking.interaction("storage-manual", "read", participantId);
 Tracking.puzzleSolved("storage-access");
 Game.complete();
 ```
@@ -99,6 +100,35 @@ Unverarbeitete Antworten werden exakt wie übermittelt gespeichert. Betreiber m�
 als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschregeln festlegen.
 
 Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `active`,
-`outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `participantForClient` und
+`outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `interaction`, `participantForClient` und
 `participantForEntity`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
 und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.
+
+`interaction(objectId, actionId, participantId)` erfasst bedeutende Spieleraktionen mit stabilen
+IDs, zum Beispiel Fundstücke, Öffnen des Questlogs oder Hilfe- und Lösungsanfragen. Es erzeugt
+`INTERACTION` mit `objectId`, Teilnehmer-UUID und `payload.actionId`, ohne Rätsel-ID oder Ergebnis.
+Die API zählt weder Mausbewegungen noch Zeichenanschläge. Persönliche Notiztexte und Spielernamen
+gehören nicht in diese Ereignisse. Interaktionen und Versuche bleiben vollständig und geordnet.
+
+Für verzögerte Auswertungen löst der Raum die Teilnehmer-UUID bei der Annahme der Eingabe auf.
+`attempt` akzeptiert auch zuvor verbundene Teilnehmer derselben Sitzung, damit ein Disconnect
+zwischen Programmstart und Ergebnis keine Antwort verschluckt. Hinweise und Interaktionen setzen
+einen aktiven Teilnehmer voraus.
+
+Programming 1 ergänzt jeden Antwortversuch über `AttemptDetails` um `payload.hintLevel`
+(0–3 beim Start des Versuchs), `payload.automaticSolution` und `payload.failureReasons`.
+Die Fehlergründe enthalten die konkreten Meldungen der Prüfung, bei mehreren unerfüllten
+Bedingungen alle betroffenen Meldungen. Bei einem richtigen Ergebnis ist die Liste leer.
+`automaticSolution = true` bezeichnet einen durch die bestätigte Hilfe eingesetzten Versuch;
+`false` bezeichnet eine normale Spieleraktion, auch wenn vorher Tipps verwendet wurden.
+Für selbstständige Lernerfolge müssen Auswertungen automatisch gelöste Versuche ausschließen.
+Die tatsächliche Ausführung behält ihr Ergebnis `CORRECT` oder `INCORRECT`.
+Hilfestand und Lösungsart werden vor der Ausführung festgehalten, nicht erst beim späteren
+Ergebnis. Andere Räume können weiterhin Versuche ohne diese zusätzlichen Angaben erfassen.
+Diese optionalen JSON-Payload-Felder brauchen keine Änderung des Datenbankschemas.
+
+Neue Sitzungen verwenden Schema-Version 2 für die erweiterte Ereignisvokabel `INTERACTION`.
+Game, Tracking-Core, Importwerkzeug und Backend müssen zusammen aktualisiert werden; alte Leser
+kennen dieses Ereignis nicht. Das Basisschema `V001__tracking.sql` enthält die passenden
+Datenbankbedingungen. Bestehende Datenbanken benötigen diese aktualisierten Bedingungen vor dem
+Empfang neuer Interaktionen. Das Multiplayer-Protokoll bleibt unverändert.

@@ -287,14 +287,13 @@ final class MultipleChoiceDialog {
 
     root.pack();
 
-    // Grab keyboard focus on every frame the stage exists (ensures it works after mouse
-    // interaction)
+    // Visible dialogs reclaim keyboard focus after mouse interaction.
     root.addAction(
         new Action() {
           @Override
           public boolean act(float delta) {
             Stage stage = root.getStage();
-            if (stage != null) {
+            if (stage != null && root.ancestorsVisible()) {
               stage.setKeyboardFocus(root);
             }
             return false; // keep running every frame

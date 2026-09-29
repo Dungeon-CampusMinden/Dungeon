@@ -95,7 +95,7 @@ public class Scene2dElementFactory {
     Button element = new Button(DEFAULT_SKIN, "exit");
     Texture tex = ((TextureRegionDrawable) element.getStyle().up).getRegion().getTexture();
     tex.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-    element.setUserObject(Cursors.CROSS);
+    element.setUserObject(Cursors.INTERACT);
     return element;
   }
 
