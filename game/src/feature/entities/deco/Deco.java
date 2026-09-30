@@ -34,6 +34,13 @@ public enum Deco {
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(0, 16 * 16, 1, 1, 32, 32)).scaleX(2),
       Vector2.of(2, 1)),
+  /** Digital version of the large dungeon bookshelf used by the System Recovery archive. */
+  DigitalArchiveShelf(
+      "objects/tech/digital_archive_shelf_animated.png",
+      new AnimationConfig(new SpritesheetConfig(0, 0, 1, 4, 128, 128))
+          .framesPerSprite(8)
+          .scaleX(2.35f),
+      new Rectangle(2.2f, 1.55f, 0.08f, 0.55f)),
   /** A decoration. */
   Chains0("spritesheets/FD_Dungeon_Free.png", new SpritesheetConfig(17 * 16, 5 * 16)),
   /** A decoration. */

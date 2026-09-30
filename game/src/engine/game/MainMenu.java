@@ -83,6 +83,7 @@ public final class MainMenu {
       Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
       client.apply();
+      game.beforeLevelEditorStart();
       applyLevelEditor(client, server, pathToLevels);
       Game.run();
       return;
@@ -109,7 +110,13 @@ public final class MainMenu {
         server == null
             ? null
             : game.levelEditorLevelPath()
-                .<Runnable>map(path -> () -> applyLevelEditor(client, server, path))
+                .<Runnable>map(
+                    path -> {
+                      return () -> {
+                        game.beforeLevelEditorStart();
+                        applyLevelEditor(client, server, path);
+                      };
+                    })
                 .orElse(null);
     GameLoop.initialScreen(() -> new MainMenuScreen(game, levelEditorLauncher));
     Game.run();

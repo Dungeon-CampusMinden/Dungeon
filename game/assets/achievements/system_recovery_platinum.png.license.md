@@ -1,0 +1,4 @@
+- Quelle: Eigenes System-Recovery-Asset (mit KI-Unterstützung erstellt)
+- Author: amatutat
+- License: CC0 1.0
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.

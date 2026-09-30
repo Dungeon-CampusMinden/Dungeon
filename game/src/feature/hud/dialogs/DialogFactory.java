@@ -195,6 +195,7 @@ public class DialogFactory {
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
       translatedContext = translateText(DialogContextKeys.IMAGE, translatedContext);
       translatedContext = translateText(DialogContextKeys.OPTIONS, translatedContext);
+      translatedContext = translateText(DialogContextKeys.TITLE, translatedContext);
     }
 
     UIComponent ui =
@@ -491,7 +492,8 @@ public class DialogFactory {
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.DIALOG, dialog)
             .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
-            .put(DialogContextKeys.CAN_CANCEL, canCancel);
+            .put(DialogContextKeys.CAN_CANCEL, canCancel)
+            .put(DialogContextKeys.ESCAPE_ADVANCES, true);
 
     UIComponent ui = show(builder.build(), targetEntityIds);
 
@@ -573,7 +575,8 @@ public class DialogFactory {
 
     return DialogContext.builder()
         .type(DialogType.DefaultTypes.DIALOG_DIALOG)
-        .put(DialogContextKeys.DIALOG, dialog);
+        .put(DialogContextKeys.DIALOG, dialog)
+        .put(DialogContextKeys.ESCAPE_ADVANCES, true);
   }
 
   private static UIComponent showDialogDialog(

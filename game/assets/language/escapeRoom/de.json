@@ -1,12 +1,24 @@
 {
-    "menu": {
-        "exit": "Schließen"
-    },
-    "text": {
-        "test": {
-            "title": "Willkommen",
-            "message": "Hallo, ich bin der Held des Spiels!",
-            "fail": "Diesen Text gibt es nur in Deutsch"
-        }
+  "menu": {
+    "exit": "Schließen"
+  },
+  "text": {
+    "test": {
+      "title": "Willkommen",
+      "message": "Hallo, ich bin der Held des Spiels!",
+      "fail": "Diesen Text gibt es nur in Deutsch"
     }
+  },
+  "dialog": {
+    "questlog": {
+      "title": "Aufgabenlogbuch",
+      "empty": "In diesem Tab gibt es noch keine Einträge.",
+      "create": "Notiz",
+      "create_personal": "Private Notiz",
+      "note_prompt": "Schreibe eine Notiz für diesen Tab.",
+      "note_placeholder": "Deine Notiz",
+      "cancel": "Abbrechen",
+      "not_initialized": "Das gemeinsame Aufgabenlogbuch ist noch nicht verfügbar. Versuche es gleich erneut."
+    }
+  }
 }

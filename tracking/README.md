@@ -78,8 +78,8 @@ Der autoritative Spielserver vergibt für jedes Ereignis eine Sequenznummer ab 1
 Ereignis in eine lokale, nur wachsende JSONL-Outbox und kann HTTP-Batches wiederholen, ohne
 doppelte Datenbankzeilen zu erzeugen. PostgreSQL speichert die unveränderte Nutzlast einschließlich
 jeder übermittelten Antwort. Der Sitzungsdeskriptor ist der Startdatensatz. `eventType` ist eines
-von sechs erfassten Ereignissen: `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`,
-`ANSWER_SUBMITTED`, `HINT_USED` oder `PUZZLE_SOLVED`.
+von sieben erfassten Ereignissen: `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`,
+`ANSWER_SUBMITTED`, `INTERACTION_RECORDED`, `HINT_USED` oder `PUZZLE_SOLVED`.
 
 ## Lokal ausführen
 
@@ -184,6 +184,11 @@ Ein Antwortversuch verwendet `eventType: "ANSWER_SUBMITTED"`, setzt `outcome` au
   "attemptNumber": 3
 }
 ```
+
+Geräteaktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
+`action`, `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) und `reason` im Payload gespeichert.
+Sie haben kein `outcome`, verbrauchen keine `attemptNumber` und zählen nicht als Fehlversuch.
+Die Datenbankmigration `V002__interactions.sql` erweitert dafür die Ereignisvalidierung.
 
 Nur ein tatsächlich von den Spielern gelesener Hinweis erzeugt `eventType: "HINT_USED"`. Das bloße
 Verfügbarmachen eines Hinweises zählt nicht. In The Last Hour hat jeder zeitversetzt erscheinende

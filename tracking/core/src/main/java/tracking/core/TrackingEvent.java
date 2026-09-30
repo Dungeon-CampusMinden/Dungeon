@@ -54,7 +54,8 @@ public record TrackingEvent(
     }
     boolean puzzleEvent =
         switch (eventType) {
-          case PUZZLE_STARTED, ANSWER_SUBMITTED, HINT_USED, PUZZLE_SOLVED -> true;
+          case PUZZLE_STARTED, ANSWER_SUBMITTED, INTERACTION_RECORDED, HINT_USED, PUZZLE_SOLVED ->
+              true;
           default -> false;
         };
     if (puzzleEvent != puzzleId.isPresent()) {
@@ -62,7 +63,12 @@ public record TrackingEvent(
     }
     boolean participantEvent =
         switch (eventType) {
-          case PARTICIPANT_JOINED, PARTICIPANT_LEFT, ANSWER_SUBMITTED, HINT_USED -> true;
+          case PARTICIPANT_JOINED,
+              PARTICIPANT_LEFT,
+              ANSWER_SUBMITTED,
+              INTERACTION_RECORDED,
+              HINT_USED ->
+              true;
           default -> false;
         };
     if (participantEvent != participantId.isPresent()) {
@@ -90,6 +96,22 @@ public record TrackingEvent(
     }
     if (eventType == TrackingEventType.HINT_USED && objectId.isEmpty()) {
       throw new IllegalArgumentException("HINT_USED requires the hint ID as objectId");
+    }
+    if (eventType == TrackingEventType.INTERACTION_RECORDED) {
+      if (objectId.isEmpty()) {
+        throw new IllegalArgumentException("INTERACTION_RECORDED requires objectId");
+      }
+      for (String field : new String[] {"action", "status", "reason"}) {
+        JsonNode value = payload.get(field);
+        if (value == null || !value.isString() || value.stringValue().isBlank()) {
+          throw new IllegalArgumentException("INTERACTION_RECORDED requires " + field);
+        }
+      }
+      try {
+        TrackingInteractionStatus.valueOf(payload.get("status").stringValue());
+      } catch (IllegalArgumentException exception) {
+        throw new IllegalArgumentException("INTERACTION_RECORDED has invalid status", exception);
+      }
     }
   }
 

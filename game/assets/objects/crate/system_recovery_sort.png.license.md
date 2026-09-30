@@ -1,0 +1,5 @@
+- Asset: Sci-fi transport crate for System Recovery, derived from `basic.png`
+- Original texture: `basic.png` by 0x72, CC0 1.0 (https://0x72.itch.io/dungeontileset-ii)
+- Author: amatutat
+- Creation: AI-generated edit of the original texture
+- License: CC0 1.0 Universal

@@ -4,6 +4,8 @@ import engine.Game;
 import engine.game.ManagedServerStatus;
 import engine.utils.logging.DungeonLogger;
 import java.awt.GraphicsEnvironment;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -14,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import tracking.core.TrackingEvent;
+import tracking.core.TrackingInteractionStatus;
 import tracking.core.TrackingJson;
 import tracking.core.TrackingSessionStatus;
 
@@ -33,12 +36,17 @@ public final class Tracking {
   private static TrackingConfig explicitConfig;
   private static TrackingSession session;
   private static boolean sessionStartAttempted;
+  private static boolean trackingAllowed = true;
   private static String clientRoomId;
   private static PersistenceFailure persistenceFailure;
 
   private Tracking() {}
 
   private static void configure(TrackingConfig config) {
+    configure(config, true);
+  }
+
+  private static void configure(TrackingConfig config, boolean trackingAllowed) {
     synchronized (LOCK) {
       if (sessionStartAttempted) {
         throw new IllegalStateException("Tracking session start is already closed");
@@ -47,6 +55,7 @@ public final class Tracking {
       PENDING_PUZZLE_STARTS.clear();
       persistenceFailure = null;
       explicitConfig = Objects.requireNonNull(config, "config");
+      Tracking.trackingAllowed = trackingAllowed;
     }
   }
 
@@ -60,6 +69,43 @@ public final class Tracking {
   }
 
   /**
+   * Configures a room with an optional stable playthrough identifier.
+   *
+   * @param roomId stable room identifier
+   * @param runId optional identifier shared by sessions of one playthrough
+   */
+  public static void configureRoom(String roomId, Optional<UUID> runId) {
+    configure(TrackingConfig.forRoom(roomId, runId));
+  }
+
+  /**
+   * Configures a room and explicitly enables or disables tracking for the current run.
+   *
+   * <p>A disabled run does not create a tracking session, local JSONL outbox, or remote upload.
+   * Existing overloads remain enabled by default for rooms that do not use a consent flow.
+   *
+   * @param roomId stable room identifier
+   * @param runId optional stable playthrough identifier
+   * @param trackingAllowed whether the player consented to tracking
+   */
+  public static void configureRoom(String roomId, Optional<UUID> runId, boolean trackingAllowed) {
+    configure(TrackingConfig.forRoom(roomId, runId), trackingAllowed);
+  }
+
+  /**
+   * Configures a consent-gated room with an explicit operator contact.
+   *
+   * @param roomId stable room identifier
+   * @param operatorEmail contact shown when local tracking persistence needs attention
+   * @param runId optional stable playthrough identifier
+   * @param trackingAllowed whether the player consented to tracking
+   */
+  public static void configureRoom(
+      String roomId, String operatorEmail, Optional<UUID> runId, boolean trackingAllowed) {
+    configure(TrackingConfig.forRoom(roomId, operatorEmail, runId), trackingAllowed);
+  }
+
+  /**
    * Configures a room with an operator email while retaining other deployment settings.
    *
    * @param roomId stable room identifier
@@ -67,6 +113,17 @@ public final class Tracking {
    */
   public static void configureRoom(String roomId, String operatorEmail) {
     configure(TrackingConfig.forRoom(roomId, operatorEmail));
+  }
+
+  /**
+   * Configures a room with operator email and an optional playthrough identifier.
+   *
+   * @param roomId stable room identifier
+   * @param operatorEmail operator email shown when tracking persistence remains pending
+   * @param runId optional identifier shared by sessions of one playthrough
+   */
+  public static void configureRoom(String roomId, String operatorEmail, Optional<UUID> runId) {
+    configure(TrackingConfig.forRoom(roomId, operatorEmail, runId));
   }
 
   /**
@@ -90,7 +147,21 @@ public final class Tracking {
    */
   public static boolean active() {
     synchronized (LOCK) {
-      return session != null && !session.finished();
+      return trackingAllowed && session != null && !session.finished();
+    }
+  }
+
+  /**
+   * Returns whether the configured deployment stores tracking data through the HTTP backend.
+   *
+   * <p>Rooms use this value to select privacy text. The default build keeps the backend disabled
+   * and therefore continues to describe the local JSONL outbox truthfully.
+   *
+   * @return {@code true} when the central tracking backend is enabled
+   */
+  public static boolean remoteStorageEnabled() {
+    synchronized (LOCK) {
+      return TrackingConfig.TRACKING_ENABLED && config().isPresent();
     }
   }
 
@@ -109,6 +180,49 @@ public final class Tracking {
   }
 
   /**
+   * Deletes all local JSONL tracking files for the configured outbox.
+   *
+   * <p>This is the local deletion path exposed by a room's privacy settings. It deliberately only
+   * removes regular {@code .jsonl} files and leaves savegames, configuration and unrelated files
+   * untouched.
+   *
+   * @return {@code true} when all local tracking files were removed or none existed
+   */
+  public static boolean deleteLocalData() {
+    synchronized (LOCK) {
+      trackingAllowed = false;
+      PENDING_PUZZLE_STARTS.clear();
+      if (session != null && !session.finished()) {
+        try {
+          session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
+        } catch (TrackingPersistenceException exception) {
+          recordPersistenceFailure(exception);
+          return false;
+        }
+        sessionStartAttempted = true;
+      }
+      session = null;
+
+      Path directory =
+          config().map(TrackingConfig::outboxDirectory).orElse(Path.of("tracking-outbox"));
+      if (!Files.isDirectory(directory)) return true;
+      try (var files = Files.list(directory)) {
+        for (Path file : files.filter(Tracking::isTrackingFile).toList()) {
+          Files.deleteIfExists(file);
+        }
+        return true;
+      } catch (IOException | RuntimeException exception) {
+        LOGGER.warn("Could not delete local tracking data in {}", directory, exception);
+        return false;
+      }
+    }
+  }
+
+  private static boolean isTrackingFile(Path file) {
+    return Files.isRegularFile(file) && file.getFileName().toString().endsWith(".jsonl");
+  }
+
+  /**
    * Records the start of a puzzle and makes it the current puzzle for abort reporting.
    *
    * @param puzzleId stable room-local puzzle identifier
@@ -117,7 +231,7 @@ public final class Tracking {
   public static Optional<TrackingEvent> puzzleStarted(String puzzleId) {
     synchronized (LOCK) {
       String startedPuzzle = requirePuzzleId(puzzleId);
-      if (session == null || session.finished()) {
+      if (!trackingAllowed || session == null || session.finished()) {
         if (!sessionStartAttempted && !Game.isMultiplayerClient() && startConfig().isPresent()) {
           PENDING_PUZZLE_STARTS.add(startedPuzzle);
         }
@@ -140,7 +254,7 @@ public final class Tracking {
    * @param answerKind answer representation
    * @param rawAnswer complete submitted answer
    * @param correct server-evaluated correctness
-   * @param participantId session-scoped anonymous participant
+   * @param participantId session-scoped participant identifier
    * @return newly recorded event, or empty when inactive
    */
   public static Optional<TrackingEvent> attempt(
@@ -151,7 +265,10 @@ public final class Tracking {
       boolean correct,
       UUID participantId) {
     synchronized (LOCK) {
-      if (session == null || session.finished() || !session.participantActive(participantId)) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantActive(participantId)) {
         return Optional.empty();
       }
       try {
@@ -165,17 +282,55 @@ public final class Tracking {
   }
 
   /**
+   * Records an interaction without treating it as a submitted answer or a puzzle start.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objectId stable interacted object identifier
+   * @param action stable action identifier
+   * @param status authoritative interaction result
+   * @param reason stable reason for the result
+   * @param participantId session-scoped participant identifier
+   * @return recorded event, or empty when tracking or the participant is inactive
+   */
+  public static Optional<TrackingEvent> interaction(
+      String puzzleId,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      String reason,
+      UUID participantId) {
+    synchronized (LOCK) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantActive(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(
+            session.interaction(puzzleId, objectId, action, status, reason, participantId));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
    * Records use of one hint.
    *
    * @param puzzleId stable room-local puzzle identifier
    * @param hintId stable room-local hint identifier
-   * @param participantId session-scoped anonymous participant
+   * @param participantId session-scoped participant identifier
    * @return newly recorded event, or empty when inactive or already recorded
    */
   public static Optional<TrackingEvent> hintUsed(
       String puzzleId, String hintId, UUID participantId) {
     synchronized (LOCK) {
-      if (session == null || session.finished() || !session.participantActive(participantId)) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantActive(participantId)) {
         return Optional.empty();
       }
       try {
@@ -195,7 +350,7 @@ public final class Tracking {
    */
   public static Optional<TrackingEvent> puzzleSolved(String puzzleId) {
     synchronized (LOCK) {
-      if (session == null || session.finished()) {
+      if (!trackingAllowed || session == null || session.finished()) {
         return Optional.empty();
       }
       try {
@@ -208,10 +363,10 @@ public final class Tracking {
   }
 
   /**
-   * Returns the anonymous participant mapped to a runtime network client.
+   * Returns the session-scoped participant identifier mapped to a runtime network client.
    *
    * @param clientId transient network client ID
-   * @return session-scoped anonymous participant
+   * @return session-scoped participant identifier
    */
   public static Optional<UUID> participantForClient(short clientId) {
     synchronized (LOCK) {
@@ -220,10 +375,10 @@ public final class Tracking {
   }
 
   /**
-   * Returns the anonymous participant mapped to a runtime player entity.
+   * Returns the session-scoped participant identifier mapped to a runtime player entity.
    *
    * @param entityId transient server entity ID
-   * @return session-scoped anonymous participant
+   * @return session-scoped participant identifier
    */
   public static Optional<UUID> participantForEntity(int entityId) {
     synchronized (LOCK) {
@@ -291,7 +446,7 @@ public final class Tracking {
 
   static Optional<UUID> participantJoined(short clientId, boolean roomPlayedBefore) {
     synchronized (LOCK) {
-      if (Game.isSingleplayer() || !Game.network().isServer()) {
+      if (!trackingAllowed || Game.isSingleplayer() || !Game.network().isServer()) {
         return Optional.empty();
       }
       boolean startingSession = session == null && !sessionStartAttempted;
@@ -345,6 +500,20 @@ public final class Tracking {
           recordPersistenceFailure(exception);
         }
       }
+    }
+  }
+
+  /**
+   * Stops all future tracking events for the current authoritative run.
+   *
+   * <p>This is used when a multiplayer participant refuses consent. Events already written before
+   * the refusal are not retroactively altered; no participant or later event is recorded.
+   */
+  static void disableTrackingForRun() {
+    synchronized (LOCK) {
+      trackingAllowed = false;
+      PENDING_PUZZLE_STARTS.clear();
+      LOGGER.info("Tracking disabled because a multiplayer participant refused consent.");
     }
   }
 
@@ -478,7 +647,7 @@ public final class Tracking {
     synchronized (LOCK) {
       sessionStartAttempted = true;
       PENDING_PUZZLE_STARTS.clear();
-      if (session != null) {
+      if (trackingAllowed && session != null) {
         try {
           session.finish(status, puzzleId);
         } catch (TrackingPersistenceException exception) {
@@ -506,6 +675,7 @@ public final class Tracking {
   }
 
   private static Optional<TrackingConfig> startConfig() {
+    if (!trackingAllowed) return Optional.empty();
     try {
       return config();
     } catch (RuntimeException exception) {

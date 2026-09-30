@@ -10,6 +10,7 @@ import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
+import feature.components.CollideComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -43,6 +44,7 @@ public class KeypadFactory {
   public static Entity createKeypad(
       Point pos, List<Integer> correctDigits, Runnable action, boolean showDigitCount) {
     Entity entity = createBaseKeypad(pos);
+    entity.add(new CollideComponent());
 
     KeypadComponent kc = new KeypadComponent(correctDigits, action, showDigitCount);
     entity.add(kc);

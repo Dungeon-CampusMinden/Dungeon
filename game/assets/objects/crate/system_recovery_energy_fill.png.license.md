@@ -1,0 +1,5 @@
+- Asset: Transparent fill mask for the System Recovery energy crate gauge
+- Derived from: `system_recovery_energy.png`
+- Author: amatutat
+- Creation: Generated from the AI-edited crate texture for shader use
+- License: CC0 1.0 Universal

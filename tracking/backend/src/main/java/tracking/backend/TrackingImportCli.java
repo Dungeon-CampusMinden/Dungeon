@@ -152,6 +152,7 @@ public final class TrackingImportCli {
                 previous.joinedAt(),
                 Optional.of(event.occurredAt())));
       } else if (event.eventType() == TrackingEventType.ANSWER_SUBMITTED
+          || event.eventType() == TrackingEventType.INTERACTION_RECORDED
           || event.eventType() == TrackingEventType.HINT_USED) {
         UUID participantId = event.participantId().orElseThrow();
         TrackingParticipant participant = participants.get(participantId);

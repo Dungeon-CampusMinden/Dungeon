@@ -3,8 +3,11 @@ package feature.hints;
 import engine.Entity;
 import engine.System;
 import feature.petrinet.PlaceComponent;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,6 +52,9 @@ import java.util.Set;
 public class HintSystem extends System {
 
   private final Set<Entity> hintQueue = new LinkedHashSet<>();
+
+  /** Shared hint progress used by the server-authoritative telephone. */
+  private final Map<Integer, Integer> sharedHintIndices = new HashMap<>();
 
   private HintComponent currentHint = null;
 
@@ -120,6 +126,115 @@ public class HintSystem extends System {
   }
 
   /**
+   * Peeks at the next shared hint without consuming it.
+   *
+   * <p>The active Petri-net place is selected from entities that currently carry a token. All
+   * players see and advance the same hint sequence for that place.
+   *
+   * @return the next hint for the active state, if available
+   */
+  public synchronized Optional<Hint> peekSharedHint() {
+    return activeHintEntity().flatMap(entity -> hintAt(entity, sharedHintIndex(entity.id())));
+  }
+
+  /**
+   * Confirms the currently offered shared hint.
+   *
+   * <p>The index advances only after the player accepts the confirmation dialog. Declining a hint
+   * leaves it available for the next phone request.
+   *
+   * @return the accepted hint, or empty if the state changed before confirmation
+   */
+  public Optional<Hint> acceptSharedHint() {
+    return acceptSharedHint(null);
+  }
+
+  /**
+   * Confirms a previously offered shared hint if it is still the current hint.
+   *
+   * <p>The check and index increment happen together so two players confirming the same phone
+   * dialog cannot consume two hint stages. Passing {@code null} preserves the unconditional
+   * behavior of {@link #acceptSharedHint()} for callers that do not keep an offer snapshot.
+   *
+   * @param expectedHint hint that was shown to the player, or {@code null} to accept the current
+   *     hint without comparing it
+   * @return the accepted hint, or empty if the shared hint changed before confirmation
+   */
+  public synchronized Optional<Hint> acceptSharedHint(Hint expectedHint) {
+    Optional<Entity> activeEntity = activeHintEntity();
+    if (activeEntity.isEmpty()) return Optional.empty();
+
+    Entity entity = activeEntity.orElseThrow();
+    int index = sharedHintIndex(entity.id());
+    Optional<Hint> hint = hintAt(entity, index);
+    if (hint.isEmpty()) return Optional.empty();
+    if (expectedHint != null && !expectedHint.equals(hint.orElseThrow())) {
+      return Optional.empty();
+    }
+
+    sharedHintIndices.put(entity.id(), index + 1);
+    return hint;
+  }
+
+  /**
+   * Confirms a hint only if the active place is still the entity that produced the offer.
+   *
+   * @param expectedEntityId entity ID captured when the telephone offered the hint
+   * @param expectedHint exact hint shown in that offer
+   * @return accepted hint, or empty when the place or hint changed
+   */
+  public synchronized Optional<Hint> acceptSharedHint(int expectedEntityId, Hint expectedHint) {
+    Optional<Entity> activeEntity = activeHintEntity();
+    if (activeEntity.isEmpty() || activeEntity.orElseThrow().id() != expectedEntityId) {
+      return Optional.empty();
+    }
+    return acceptSharedHint(expectedHint);
+  }
+
+  /**
+   * Reads the accepted shared-hint count for one hint-bearing entity without advancing it.
+   *
+   * @param entity entity whose active place owns the hint sequence
+   * @return accepted and total hint counts, or {@code 0/0} when the entity has no hint component
+   */
+  public synchronized SharedHintProgress sharedProgress(Entity entity) {
+    if (entity == null) return new SharedHintProgress(0, 0);
+    Optional<HintComponent> component = entity.fetch(HintComponent.class);
+    if (component.isEmpty()) return new SharedHintProgress(0, 0);
+
+    int count = component.orElseThrow().size();
+    int accepted = Math.min(sharedHintIndex(entity.id()), count);
+    return new SharedHintProgress(accepted, count);
+  }
+
+  /** Resets the shared phone hint progress for the room. */
+  public synchronized void resetHintProgress() {
+    sharedHintIndices.clear();
+  }
+
+  private int sharedHintIndex(int entityId) {
+    return sharedHintIndices.getOrDefault(entityId, 0);
+  }
+
+  private Optional<Entity> activeHintEntity() {
+    return filteredEntityStream()
+        .filter(
+            entity ->
+                entity
+                    .fetch(PlaceComponent.class)
+                    .map(place -> place.tokenCount() > 0)
+                    .orElse(false))
+        .min(Comparator.comparingInt(Entity::id));
+  }
+
+  private Optional<Hint> hintAt(Entity entity, int index) {
+    return entity
+        .fetch(HintComponent.class)
+        .filter(component -> index < component.size())
+        .map(component -> component.hint(index));
+  }
+
+  /**
    * Removes the given entity from the hint queue.
    *
    * <p>If the entity being removed is the one currently showing hints, the current hint is cleared.
@@ -150,4 +265,12 @@ public class HintSystem extends System {
     }
     return null;
   }
+
+  /**
+   * Immutable inspection result for the shared telephone-hint sequence.
+   *
+   * @param acceptedCount number of accepted hints in the current shared sequence
+   * @param hintCount number of available hints in that sequence
+   */
+  public record SharedHintProgress(int acceptedCount, int hintCount) {}
 }

@@ -19,6 +19,7 @@ import tools.jackson.databind.node.ObjectNode;
 import tracking.core.TrackingBatch;
 import tracking.core.TrackingEvent;
 import tracking.core.TrackingEventType;
+import tracking.core.TrackingInteractionStatus;
 import tracking.core.TrackingJson;
 import tracking.core.TrackingOutcome;
 import tracking.core.TrackingParticipant;
@@ -52,7 +53,8 @@ final class TrackingSession {
     this.config = config;
     UUID sessionId = UUID.randomUUID();
     this.descriptor =
-        new TrackingSessionDescriptor(SCHEMA_VERSION, sessionId, config.roomId(), Instant.now());
+        new TrackingSessionDescriptor(
+            SCHEMA_VERSION, sessionId, config.roomId(), Instant.now(), config.runId());
     this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
         TrackingConfig.TRACKING_ENABLED ? new TrackingUploader(config, descriptor) : null;
@@ -125,6 +127,27 @@ final class TrackingSession {
     attemptsByPuzzle.put(attemptedPuzzle, attemptNumber);
     touchActivePuzzle(attemptedPuzzle);
     return attemptEvent;
+  }
+
+  TrackingEvent interaction(
+      String puzzleId,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      String reason,
+      UUID participantId) {
+    ObjectNode payload =
+        TrackingJson.object()
+            .put("action", requireText(action, "action"))
+            .put("status", java.util.Objects.requireNonNull(status, "status").name())
+            .put("reason", requireText(reason, "reason"));
+    return event(
+        TrackingEventType.INTERACTION_RECORDED,
+        Optional.of(participantId),
+        Optional.of(requireText(puzzleId, "puzzleId")),
+        Optional.of(requireText(objectId, "objectId")),
+        Optional.empty(),
+        payload);
   }
 
   Optional<TrackingEvent> hintUsed(String puzzleId, String hintId, UUID participantId) {

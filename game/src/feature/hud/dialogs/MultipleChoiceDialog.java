@@ -39,9 +39,9 @@ import java.util.List;
  * <p>Behaviour:
  *
  * <ul>
- *   <li>While the script is still revealing pages, clicks anywhere (and the configured interact
- *       key, see {@link feature.input.configuration.KeyboardConfig#INTERACT_WORLD}) advance the
- *       script view, exactly like a {@link DialogDialog}.
+ *   <li>While the script is still revealing pages, clicks anywhere, {@code ESC}, and the configured
+ *       interact key (see {@link feature.input.configuration.KeyboardConfig#INTERACT_WORLD})
+ *       advance the script view, exactly like a {@link DialogDialog}.
  *   <li>Once the last page's text has been fully revealed, the option rows slide in. After that,
  *       clicks outside the option rows are ignored (they do not confirm anything); option rows are
  *       hover-/click-selectable and confirm immediately on click.
@@ -145,7 +145,8 @@ final class MultipleChoiceDialog {
 
     if (!title.isBlank()) {
       headerBg.setTopHeight(12);
-      RichLabel titleLabel = new RichLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE, true);
+      // Dialog titles are status labels, not dialogue content; reveal them immediately.
+      RichLabel titleLabel = new RichLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE, false);
       header.add(titleLabel).center().padBottom(18).row();
     }
 
@@ -239,6 +240,15 @@ final class MultipleChoiceDialog {
           @Override
           public boolean keyDown(InputEvent event, int keycode) {
             int total = allEntries.size();
+
+            if (keycode == Input.Keys.ESCAPE) {
+              if (!choicesActive[0]) {
+                scriptView.advance();
+              }
+              // ESC behaves like a click outside the options once the choice list is visible: it
+              // must never confirm the currently highlighted option.
+              return true;
+            }
 
             if (keycode == KeyboardConfig.INTERACT_WORLD.value()) {
               if (!choicesActive[0]) {

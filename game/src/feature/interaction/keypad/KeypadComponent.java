@@ -138,6 +138,7 @@ public class KeypadComponent implements Component {
     } else {
       if (completeCodeEntered) wrongCodeAttempts++;
       onWrongCode.accept(caller);
+      enteredDigits.clear();
     }
   }
 

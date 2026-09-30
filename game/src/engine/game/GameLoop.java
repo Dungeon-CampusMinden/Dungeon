@@ -35,6 +35,7 @@ import engine.network.messages.s2c.DebugPong;
 import engine.network.messages.s2c.DebugTelemetrySnapshot;
 import engine.network.messages.s2c.DeltaSnapshotMessage;
 import engine.network.messages.s2c.DialogCloseMessage;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.network.messages.s2c.DialogShowMessage;
 import engine.network.messages.s2c.EntityDelta;
 import engine.network.messages.s2c.EntityDespawnEvent;
@@ -78,6 +79,7 @@ import feature.entities.HeroBuilder;
 import feature.entities.deco.DecoFactory;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogFeedbackRouter;
 import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
 import feature.systems.AttributeBarSystem;
@@ -851,6 +853,13 @@ public final class GameLoop extends ScreenAdapter {
               .flatMap(e -> e.fetch(UIComponent.class))
               .ifPresent(component -> UIUtils.closeDialog(component, true));
         });
+
+    dispatcher.registerHandler(
+        DialogFeedbackMessage.class,
+        (ctx, msg) -> {
+          LOGGER.debug("Received dialog feedback for dialog: {}", msg.dialogId());
+          DialogFeedbackRouter.deliver(msg);
+        });
   }
 
   private void resetInitialWorldHandshake() {
@@ -879,7 +888,11 @@ public final class GameLoop extends ScreenAdapter {
     }
     initialWorldReadySent = true;
     Game.network()
-        .send((short) 0, new InitialWorldReady(TrackingRuntime.clientRoomPlayedBefore()), true)
+        .send(
+            (short) 0,
+            new InitialWorldReady(
+                TrackingRuntime.clientRoomPlayedBefore(), TrackingRuntime.localTrackingConsent()),
+            true)
         .whenComplete(
             (success, error) -> {
               if (error == null && Boolean.TRUE.equals(success)) {
