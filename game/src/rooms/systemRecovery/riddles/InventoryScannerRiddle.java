@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
-import engine.sound.SoundSpec;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.DecoComponent;
@@ -24,6 +23,7 @@ import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -42,7 +42,6 @@ public final class InventoryScannerRiddle {
   private final DungeonLevel level;
   private final RiddleCallbacks callbacks;
 
-  private static final String SCANNER_SOUND = "retro_beep_01";
   private static final Vector2 SCANNER_OFFSET = Vector2.of(-1, 1);
   private boolean scannerPuzzleSolved = false;
   private boolean scannerRunning = false;
@@ -185,7 +184,7 @@ public final class InventoryScannerRiddle {
     scannerEntity
         .fetch(engine.components.PositionComponent.class)
         .ifPresent(position -> position.position(scannerPoint.translate(SCANNER_OFFSET)));
-    Game.audio().playGlobal(SoundSpec.builder(SCANNER_SOUND));
+    SystemRecoverySounds.scannerPulse();
   }
 
   private void completeModuleScan() {
@@ -221,6 +220,7 @@ public final class InventoryScannerRiddle {
               if (!transportDoor.isOpen()) return;
               if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ROOM3_DOOR_CODE)) {
                 openedForExpectedStep[0] = true;
+                SystemRecoverySounds.doorOpened();
               } else {
                 transportDoor.close();
               }
