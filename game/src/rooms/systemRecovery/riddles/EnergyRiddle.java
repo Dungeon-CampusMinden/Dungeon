@@ -18,6 +18,7 @@ import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.TerminalInterpreterSetup;
 
@@ -76,6 +77,7 @@ public final class EnergyRiddle {
 
                 batterySpawned = true;
                 callbacks.success("pull", -1);
+                SystemRecoverySounds.relayActivated();
 
                 Game.add(
                     WorldItemBuilder.buildWorldItem(
@@ -100,13 +102,17 @@ public final class EnergyRiddle {
               if (batteryInserted) return;
               batteryInserted = true;
               callbacks.success("battery-inserted", -1);
+              SystemRecoverySounds.batteryInserted();
               SystemRecoveryLevel.showModuleAssignments();
               DoorTile moduleDoor =
                   (DoorTile) Game.tileAt(level.getPoint("door_modulspeicher")).orElseThrow();
+              boolean doorWasOpen = moduleDoor.isOpen();
               moduleDoor.open();
               if (moduleDoor.isOpen()) {
-                SystemRecoveryProgressNet.complete(
-                    SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY);
+                if (SystemRecoveryProgressNet.complete(
+                    SystemRecoveryLearningStep.ENERGY_INSERT_BATTERY)) {
+                  if (!doorWasOpen) SystemRecoverySounds.doorOpened();
+                }
               }
               SystemRecoveryLevel.announceStoryToAllPlayers(
                   SystemRecoveryStoryDialogs.MODULE_ARRAY);

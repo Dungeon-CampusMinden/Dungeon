@@ -1,15 +1,12 @@
 package rooms.systemRecovery.util.shaders;
 
-import engine.Game;
-import engine.sound.SoundSpec;
 import feature.shader.ShaderSystem;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 
 /** Controls the global System Recovery alarm scene shader. */
 public final class SystemRecoveryAlarm {
   private static final String SHADER_ID = "systemRecoveryAlarm";
   private static final int SHADER_ORDER = 0;
-  private static boolean clientAlarmSoundActive;
-
   private SystemRecoveryAlarm() {}
 
   /**
@@ -19,6 +16,15 @@ public final class SystemRecoveryAlarm {
    * and the same scene shader is synchronized to every connected client.
    */
   public static void activate() {
+    setActive(true);
+  }
+
+  /** Restores the alarm scene state and looped audio without replaying its one-shot trigger sting. */
+  public static void restoreActive() {
+    setActive(false);
+  }
+
+  private static void setActive(boolean playTrigger) {
     ShaderSystem shaderSystem = ShaderSystem.getInstance();
     boolean alreadyActive =
         shaderSystem.sceneShaders().shaders().stream()
@@ -26,35 +32,26 @@ public final class SystemRecoveryAlarm {
     if (alreadyActive) return;
 
     shaderSystem.addSceneShader(SHADER_ID, SHADER_ORDER, new SystemRecoveryAlarmShader());
-    playClientAlarmSoundOnce();
+    if (playTrigger) SystemRecoverySounds.alarmTriggered();
+    SystemRecoverySounds.syncAlarmLayer(true);
   }
 
   /** Removes the global alarm scene shader when the level is reset or completed. */
   public static void deactivate() {
     ShaderSystem.getInstance().removeSceneShader(SHADER_ID);
-    clientAlarmSoundActive = false;
+    SystemRecoverySounds.syncAlarmLayer(false);
   }
 
   /**
-   * Plays the client-side alarm sound when synchronized metadata arrives.
+   * Applies the client-side alarm layer when synchronized metadata arrives.
    *
    * <p>The scene shader itself is already synchronized by {@link ShaderSystem}. Metadata can arrive
-   * independently while a client joins, so it is only used here to keep the one-shot sound feedback
-   * intact without adding the shader a second time locally.
+   * independently while a client joins, so this is also the recovery path for a late join or
+   * reconnect. The loop is local to each client and never rebroadcast through the server.
    *
    * @param active whether the authoritative alarm is active
    */
-  public static void syncClientSound(boolean active) {
-    if (!active) {
-      clientAlarmSoundActive = false;
-      return;
-    }
-    playClientAlarmSoundOnce();
-  }
-
-  private static void playClientAlarmSoundOnce() {
-    if (clientAlarmSoundActive || Game.isHeadless()) return;
-    clientAlarmSoundActive = true;
-    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01"));
+  public static void syncClientAudioLayer(boolean active) {
+    SystemRecoverySounds.syncAlarmLayer(active);
   }
 }

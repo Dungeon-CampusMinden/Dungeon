@@ -3,7 +3,6 @@ package rooms.systemRecovery.riddles;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
-import engine.sound.SoundSpec;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.DecoComponent;
@@ -16,6 +15,7 @@ import rooms.systemRecovery.entities.TransportEntityFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
@@ -28,7 +28,6 @@ public final class TransportStorageRiddle {
   private final DungeonLevel level;
   private final RiddleCallbacks callbacks;
 
-  private static final String SCANNER_SOUND = "retro_beep_01";
   private static final Vector2 TRANSPORT_SCANNER_OFFSET = Vector2.of(-1, 1);
   private final Entity[] transportPackages = new Entity[5];
   private Entity transportScanner;
@@ -130,6 +129,7 @@ public final class TransportStorageRiddle {
   public void startTransportSequence() {
     if (!transportPackagesSpawned || transportRunning || transportScanner == null) return;
     transportRunning = true;
+    SystemRecoverySounds.conveyorStarted();
     transportDisplayText = SystemRecoveryText.key("world.transport.display-running");
     updateTransportDisplay();
     for (int index = 0; index < transportPackages.length; index++) {
@@ -167,7 +167,7 @@ public final class TransportStorageRiddle {
           () -> moveScannerToPackage(packageEntity, target, steps - 1, lastPackage),
           SCANNER_TRAVEL_STEP_MS);
     } else {
-      Game.audio().playGlobal(SoundSpec.builder(SCANNER_SOUND));
+      SystemRecoverySounds.scannerPulse();
       SkillTools.blink(packageEntity, 0x00FFFFFF, SCANNER_COLLECTION_WAIT_MS, 3);
       EventScheduler.scheduleAction(
           () -> {
@@ -183,6 +183,7 @@ public final class TransportStorageRiddle {
   private void completeTransportSequence() {
     if (transportCompleted) return;
     transportCompleted = true;
+    SystemRecoverySounds.conveyorStopped();
     callbacks.success("all-packages-collected", -1);
     callbacks.solved();
     transportDisplayText = SystemRecoveryText.key("world.transport.display-complete");

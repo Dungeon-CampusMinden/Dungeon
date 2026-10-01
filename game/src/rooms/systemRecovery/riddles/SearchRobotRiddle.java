@@ -10,7 +10,6 @@ import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.utils.LevelUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
-import engine.sound.SoundSpec;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.ai.AIUtils;
@@ -30,6 +29,7 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -409,7 +409,7 @@ public final class SearchRobotRiddle {
     if (phase == Phase.WAITING_AT_CELL) return;
     phase = Phase.WAITING_AT_CELL;
     scanResumeAt = clock.getAsLong() + SCAN_INTERVAL_MS;
-    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01"));
+    SystemRecoverySounds.robotScan();
   }
 
   /** Switches the same AI movement from matrix scanning to the delivery route. */
@@ -517,7 +517,7 @@ public final class SearchRobotRiddle {
     if (searchTarget == null) return;
     Game.remove(searchTarget);
     searchTarget = null;
-    Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
+    SystemRecoverySounds.chipRetrieved();
   }
 
   private void highlightCurrentCell() {

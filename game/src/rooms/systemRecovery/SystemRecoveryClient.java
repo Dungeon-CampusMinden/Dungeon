@@ -29,6 +29,7 @@ import rooms.systemRecovery.network.SystemCoreVisualSync;
 import rooms.systemRecovery.network.SystemRecoveryComponentSync;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.save.SystemRecoveryAutoSaveHud;
+import rooms.systemRecovery.util.SystemRecoveryMusic;
 
 /** Client-side setup for System Recovery. */
 public final class SystemRecoveryClient {
@@ -42,6 +43,7 @@ public final class SystemRecoveryClient {
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     registerInputPromptTexture();
+    SystemRecoveryMusic.setup();
 
     if (SystemRecovery.debugMode()) {
       Game.add(new Debugger());
@@ -59,7 +61,9 @@ public final class SystemRecoveryClient {
               }
 
               @Override
-              public void onDisconnected(String reason) {}
+              public void onDisconnected(String reason) {
+                SystemRecoveryMusic.resetClientAudio();
+              }
             });
   }
 

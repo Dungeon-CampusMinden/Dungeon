@@ -17,6 +17,7 @@ import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -228,6 +229,7 @@ public final class ModuleStorageRiddle {
               if (!scannerDoor.isOpen()) return;
               if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
                 openedForExpectedStep[0] = true;
+                SystemRecoverySounds.doorOpened();
               } else {
                 scannerDoor.close();
               }
