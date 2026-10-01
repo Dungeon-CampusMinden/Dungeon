@@ -3,6 +3,7 @@ package feature.questlog;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.network.messages.s2c.QuestLogStateMessage;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import java.util.Optional;
@@ -17,7 +18,7 @@ import java.util.Optional;
  * <h2>Server setup</h2>
  *
  * <p>Create the quest log once during server-side level setup and add the returned entity to the
- * game. This entity is the authoritative quest log and is the one that gets synchronized to
+ * game. This entity is the authoritative quest log; {@link QuestLogSyncSystem} synchronizes it to
  * clients.
  *
  * <pre>{@code
@@ -40,51 +41,10 @@ import java.util.Optional;
  *
  * <h2>Client synchronization</h2>
  *
- * <p>Clients do not create a quest log with {@link #initServerQuestLog()}. That method belongs in
- * the server-side level setup. On the client, write the quest log setup in the code that receives
- * or updates entities from the server, for example in an entity spawn handler or snapshot
- * translator.
- *
- * <p>The client-side synchronization code has three responsibilities:
- *
- * <ol>
- *   <li>Read the quest log data from the server metadata.
- *   <li>Attach the restored {@link QuestLogComponent} to the received server-owned entity.
- *   <li>Register that entity with {@link #setClientQuestLog(Entity)} so local UI code reads the
- *       synchronized quest log.
- * </ol>
- *
- * <pre>{@code
- * YourSnapshotTranslator.questLogFromMetadata(metadata)
- *     .ifPresent(
- *         questLog -> {
- *           synchronizedEntity.add(questLog);
- *           QuestLogUtil.setClientQuestLog(synchronizedEntity);
- *         });
- * }</pre>
- *
- * <p>{@code YourSnapshotTranslator} is a placeholder for the project's actual metadata parser. In
- * The Last Hour, this logic lives in {@code LastHourSnapshotTranslator.questLogFromMetadata(...)}.
- *
- * <p>For later state updates of an already existing synchronized quest log entity, the server sends
- * the current quest log state again. Apply that state to the same synchronized entity. {@link
- * Entity#add(engine.Component)} replaces an existing component of the same class, so an explicit
- * remove is not required here:
- *
- * <pre>{@code
- * synchronizedEntity.add(updatedQuestLog);
- * QuestLogUtil.setClientQuestLog(synchronizedEntity);
- * }</pre>
- *
- * <p>The second {@code setClientQuestLog(...)} call is mostly defensive: if the client already
- * registered this entity during spawn, the shared reference already points to the same entity. It
- * is still useful in update code because it validates that the updated entity contains a {@link
- * QuestLogComponent} and restores the shared reference if the client missed or reset the initial
- * registration.
- *
- * <p>After this registration, client UI code can call {@link #getQuestLogComponent()} or {@link
- * QuestLogUI#requestQuestLog(Entity)} without knowing which synchronized entity contains the quest
- * log.
+ * <p>Clients never create a quest log themselves. In multiplayer, {@link QuestLogSyncSystem} sends
+ * every client the quest log it may see whenever the server-side quest log changes, and the client
+ * applies it through {@link #applyClientState(QuestLogStateMessage)}. Games need no own
+ * synchronization code; client UI code reads the result through {@link #getQuestLogComponent()}.
  *
  * <h2>Client-created notes</h2>
  *
@@ -133,9 +93,9 @@ public final class QuestLogUtil {
   /**
    * Returns the current shared quest log entity.
    *
-   * <p>On the server this is usually the entity created by {@link #initServerQuestLog()}. On a
-   * client it is usually the synchronized server-owned entity registered through {@link
-   * #setClientQuestLog(Entity)}.
+   * <p>On the server this is the entity created by {@link #initServerQuestLog()}. On a network
+   * client it is a local entity holding the state applied by {@link
+   * #applyClientState(QuestLogStateMessage)}.
    *
    * @return an {@link Optional} containing the quest log entity, or {@link Optional#empty()} if the
    *     quest log was not initialized
@@ -145,26 +105,34 @@ public final class QuestLogUtil {
   }
 
   /**
-   * Stores an existing entity as the shared quest log.
+   * Replaces the client-side quest log with state received from the server.
    *
-   * <p>This is the normal client-side synchronization path. When a client receives the server-owned
-   * quest log entity, the network layer restores the {@link QuestLogComponent} from metadata, adds
-   * it to the received entity, and calls this method. The entity must already contain a {@link
-   * QuestLogComponent}; otherwise it cannot be used as the shared quest log.
+   * <p>Called by the network layer for every {@link QuestLogStateMessage}. An unavailable state
+   * removes the client-side quest log.
    *
-   * <pre>{@code
-   * synchronizedEntity.add(restoredQuestLogComponent);
-   * QuestLogUtil.setClientQuestLog(synchronizedEntity);
-   * }</pre>
-   *
-   * @param entity the synchronized quest log entity
-   * @throws IllegalArgumentException if the entity has no {@link QuestLogComponent}
+   * @param state quest log state visible to this client
    */
-  public static void setClientQuestLog(Entity entity) {
-    if (entity == null || entity.fetch(QuestLogComponent.class).isEmpty()) {
-      throw new IllegalArgumentException("Quest log entity must contain a QuestLogComponent.");
+  public static void applyClientState(QuestLogStateMessage state) {
+    if (!state.available()) {
+      questlog = null;
+      return;
     }
-    questlog = entity;
+
+    QuestLogComponent component = new QuestLogComponent();
+    for (QuestLogStateMessage.Entry entry : state.entries()) {
+      component.add(
+          entry.tab(),
+          new QuestLogEntry(
+              entry.text(),
+              entry.timestamp(),
+              entry.userCreated(),
+              entry.owner(),
+              entry.onlyForCreator()));
+    }
+    if (questlog == null) {
+      questlog = Entity.createLocalEntity(QUEST_LOG_ENTITY_NAME);
+    }
+    questlog.add(component);
   }
 
   /**
@@ -182,9 +150,8 @@ public final class QuestLogUtil {
    *
    * <p>The quest log is considered initialized when a shared entity exists and still contains a
    * {@link QuestLogComponent}. This can happen through {@link #initServerQuestLog()} on the server
-   * or through {@link #setClientQuestLog(Entity)} on a client after synchronization. UI code can
-   * use this check to hide quest log controls until the current game or level actually provides a
-   * quest log.
+   * or through {@link #applyClientState(QuestLogStateMessage)} on a client. UI code can use this
+   * check to hide quest log controls until the current game or level actually provides a quest log.
    *
    * @return {@code true} if quest log entries can be read and written, {@code false} otherwise
    */

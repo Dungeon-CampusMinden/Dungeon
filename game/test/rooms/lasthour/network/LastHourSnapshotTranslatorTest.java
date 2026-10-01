@@ -16,11 +16,7 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
 import feature.interaction.keypad.KeypadComponent;
-import feature.questlog.QuestLogComponent;
-import feature.questlog.QuestLogEntry;
 import feature.systems.PositionSync;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,41 +155,5 @@ public class LastHourSnapshotTranslatorTest {
     assertEquals(11f, collideComponent.collider().position().y(), DELTA);
     assertEquals(1.1f, collideComponent.collider().scale().x(), DELTA);
     assertEquals(0.9f, collideComponent.collider().scale().y(), DELTA);
-  }
-
-  /** Verifies quest log metadata preserves whether entries were created by a player. */
-  @Test
-  void questLogMetadataPreservesUserCreatedFlag() {
-    QuestLogComponent questLog = new QuestLogComponent();
-    questLog.add("Notes", new QuestLogEntry("Player note", 42, true, "Ada", false));
-
-    Map<String, String> metadata = LastHourSnapshotTranslator.questLogMetadata(questLog);
-
-    QuestLogEntry restoredEntry =
-        LastHourSnapshotTranslator.questLogFromMetadata(metadata).orElseThrow().get("Notes").get(0);
-    assertTrue(restoredEntry.userCreated());
-    assertEquals("Ada", restoredEntry.owner());
-  }
-
-  /** Verifies old quest log metadata without userCreated is still read as game-created. */
-  @Test
-  void questLogMetadataWithoutUserCreatedDefaultsToFalse() {
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put(
-        LastHourEntitySpawnStrategy.METADATA_TYPE, LastHourEntitySpawnStrategy.TYPE_QUESTLOG);
-    metadata.put(
-        LastHourEntitySpawnStrategy.METADATA_QUESTLOG_ENTRIES,
-        String.join(",", encode("Main"), encode("Door opened"), "17", encode("System"), "false"));
-
-    QuestLogEntry restoredEntry =
-        LastHourSnapshotTranslator.questLogFromMetadata(metadata).orElseThrow().get("Main").get(0);
-    assertFalse(restoredEntry.userCreated());
-    assertEquals("System", restoredEntry.owner());
-  }
-
-  private static String encode(String value) {
-    return Base64.getUrlEncoder()
-        .withoutPadding()
-        .encodeToString(value.getBytes(StandardCharsets.UTF_8));
   }
 }

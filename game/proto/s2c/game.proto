@@ -14,3 +14,34 @@ message GameOverEvent {
   // Reason for game over.
   string reason = 1;
 }
+
+// Server-to-client: Complete quest log as visible to the receiving player.
+// Maps to: engine.network.messages.s2c.QuestLogStateMessage
+message QuestLogStateMessage {
+  // Whether the current level provides a quest log.
+  bool available = 1;
+
+  // Visible quest log entries.
+  repeated QuestLogEntryState entries = 2;
+}
+
+// One quest log entry inside a QuestLogStateMessage.
+message QuestLogEntryState {
+  // Tab containing the entry.
+  string tab = 1;
+
+  // Entry text or translation key.
+  string text = 2;
+
+  // Game tick at which the entry was created.
+  int32 timestamp = 3;
+
+  // Whether a player wrote the entry.
+  bool user_created = 4;
+
+  // Owner or creator of the entry.
+  string owner = 5;
+
+  // Whether only the creator may see the entry.
+  bool only_for_creator = 6;
+}
