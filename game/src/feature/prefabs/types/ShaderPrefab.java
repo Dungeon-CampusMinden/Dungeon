@@ -15,6 +15,7 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
 import feature.prefabs.Region;
 import feature.prefabs.shaders.PrefabShader;
 import feature.prefabs.shaders.ShaderParameters;
@@ -28,7 +29,8 @@ import java.util.WeakHashMap;
  * Client-side shader applied either to a half-open normalized world region or to the whole screen.
  *
  * <p>The shader is added to the level shaders or the scene shaders of the {@link DrawSystem}. Only
- * shaders that can be restricted to a region are selectable.
+ * shaders that can be restricted to a region are selectable. Within each list, prefab shaders
+ * render in active level load order, including after runtime updates and resets.
  */
 public final class ShaderPrefab extends Prefab {
 
@@ -95,9 +97,14 @@ public final class ShaderPrefab extends Prefab {
             ? DrawSystem.getInstance().levelShaders()
             : DrawSystem.getInstance().sceneShaders();
     String key = shaderKey(context.level(), instance.name());
+    int priority =
+        context.level().activePrefabs().stream()
+            .map(PrefabInstance::name)
+            .toList()
+            .indexOf(instance.name());
 
     synchronized (OWNED_SHADERS) {
-      if (!shaders.add(key, shader)) {
+      if (!shaders.add(key, shader, priority)) {
         throw new IllegalStateException(
             "Cannot add shader for prefab '"
                 + instance.name()
@@ -109,6 +116,7 @@ public final class ShaderPrefab extends Prefab {
           .computeIfAbsent(context.level(), ignored -> new HashMap<>())
           .put(instance.name(), new OwnedShader(shaders, key, shader));
     }
+    PrefabSpawner.afterChanges(context.level(), () -> refreshPriorities(context.level()));
     return List.of();
   }
 
@@ -122,6 +130,21 @@ public final class ShaderPrefab extends Prefab {
         owned.shaders().remove(owned.key());
       }
       if (byName.isEmpty()) OWNED_SHADERS.remove(context.level());
+    }
+    PrefabSpawner.afterChanges(context.level(), () -> refreshPriorities(context.level()));
+  }
+
+  private static void refreshPriorities(ILevel level) {
+    synchronized (OWNED_SHADERS) {
+      Map<String, OwnedShader> byName = OWNED_SHADERS.get(level);
+      if (byName == null) return;
+      List<PrefabInstance> instances = level.activePrefabs();
+      for (int index = 0; index < instances.size(); index++) {
+        OwnedShader owned = byName.get(instances.get(index).name());
+        if (owned != null && owned.shaders().get(owned.key()) == owned.shader()) {
+          owned.shaders().changePriority(owned.key(), index);
+        }
+      }
     }
   }
 

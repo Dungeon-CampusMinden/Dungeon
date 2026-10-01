@@ -129,15 +129,11 @@ public final class GameLoop extends ScreenAdapter {
   private static com.badlogic.gdx.Game application;
 
   /**
-   * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
-   * storage.
+   * Initializes the runtime entities and shaders for the newly loaded level.
    *
-   * <p>Will remove all Systems using {@link ECSManagement#removeAllSystems()} from the Game. This
-   * will trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
-   * using {@link ECSManagement#add(System)}, triggering {@link System#onEntityAdd} for the new
-   * level.
-   *
-   * <p>Will re-add the player if they exist.
+   * <p>On the server, removes the old level entities and re-adds the players at the level start. On
+   * clients, removes local entities while preserving server-owned entities for network
+   * reconciliation, then spawns the new client-side prefabs.
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
@@ -171,6 +167,7 @@ public final class GameLoop extends ScreenAdapter {
 
         if (!serverAuthority) { // no authority
           PrefabSpawner.clear(PrefabSide.CLIENT);
+          Game.entities().filter(Entity::isLocal).toList().forEach(Game::remove);
           Game.currentLevel().ifPresent(level -> PrefabSpawner.spawn(level, PrefabSide.CLIENT));
           return;
         }

@@ -770,14 +770,16 @@ public final class PrefabMode extends LevelEditorMode {
       requestRebuild();
       return;
     }
-    int index = getLevel().prefabs().indexOf(source);
+    int index = indexOf(source.name());
     if (index >= 0) {
+      PrefabInstance current = getLevel().prefabs().get(index);
       applyChange(
           () -> {
-            getLevel().replacePrefab(index, source.withName(name));
+            getLevel().replacePrefab(index, current.withName(name));
             applyGroupedOrder();
             selectedName = name;
-            if (shaderEditTarget != null && shaderEditTarget.instanceName().equals(source.name())) {
+            if (shaderEditTarget != null
+                && shaderEditTarget.instanceName().equals(current.name())) {
               shaderEditTarget = new ShaderEditTarget(name, shaderEditTarget.propertyKey());
             }
           });
