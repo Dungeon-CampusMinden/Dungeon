@@ -122,7 +122,8 @@ public class TileTextureFactory {
    */
   private static IPath resolvePrimaryPath(LevelPart levelPart) {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
-    String sharedPortalPrefix = "dungeon/" + DesignLabel.DEFAULT.name().toLowerCase() + "/";
+    String sharedPortalPrefix =
+        levelPart.design() == DesignLabel.SYSTEM_RECOVERY ? prefixPath : "dungeon/default/";
 
     if (levelPart.element == LevelElement.GITTER) {
       IPath path = findGitterElement(levelPart);
