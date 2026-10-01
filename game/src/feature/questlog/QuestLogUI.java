@@ -547,7 +547,7 @@ public final class QuestLogUI {
     }
   }
 
-  private static List<QuestLogEntry> visibleEntriesFor(
+  static List<QuestLogEntry> visibleEntriesFor(
       QuestLogComponent questLog, String tab, String viewerName) {
     return questLog.get(tab).stream().filter(entry -> isVisibleTo(entry, viewerName)).toList();
   }
@@ -851,6 +851,12 @@ public final class QuestLogUI {
       this.rowNormal = skin.newDrawable("generic-area", Color.valueOf("141717EB"));
       this.rowSelected = skin.newDrawable("generic-area", Color.valueOf("4C3A27FA"));
       this.selectedTab = resolveInitialSelectedTab(viewData);
+      viewData
+          .entriesFor(selectedTab)
+          .forEach(
+              entry ->
+                  QuestLogHudSystem.markRead(
+                      entry.tab(), entry.owner(), entry.timestamp(), entry.text()));
 
       buildLayout();
       refresh();
@@ -916,6 +922,10 @@ public final class QuestLogUI {
               selected ? FONT_SELECTED : FONT_ROW,
               false);
       row.add(title).minWidth(0f).growX().padLeft(22f).padRight(22f);
+      int unread = QuestLogHudSystem.unreadCount(tab);
+      if (unread > 0) {
+        row.add(QuestLogHudSystem.badge(unread)).size(QuestLogHudSystem.BADGE_SIZE).padRight(16f);
+      }
 
       row.addListener(
           new ClickListener() {
