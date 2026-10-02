@@ -17,6 +17,7 @@ import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.components.ItemComponent;
+import feature.credits.CreditsFeature;
 import feature.entities.MiscFactory;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
@@ -1124,7 +1125,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
                       true,
                       false,
                       true,
-                      Game::complete,
+                      () ->
+                          CreditsFeature.showAfterGame(
+                              SystemRecovery.CREDITS_ROOM_ID, Game::complete, other.id()),
                       other.id());
                 },
                 null)
