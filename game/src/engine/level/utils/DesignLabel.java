@@ -24,5 +24,8 @@ public enum DesignLabel {
   DARK,
 
   /** A very colorful, whimsical theme featuring a rainbow palette. */
-  RAINBOW;
+  RAINBOW,
+
+  /** A damaged AI research facility with cool metal surfaces and restrained cyan accents. */
+  SYSTEM_RECOVERY;
 }

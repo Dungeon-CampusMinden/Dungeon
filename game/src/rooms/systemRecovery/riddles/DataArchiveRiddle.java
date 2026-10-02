@@ -6,6 +6,7 @@ import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
 import rooms.systemRecovery.entities.ArchiveEntityFactory;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
@@ -61,7 +62,10 @@ public final class DataArchiveRiddle {
     completed = true;
     callbacks.success("arrays-created", -1);
     callbacks.solved();
-    ((DoorTile) Game.tileAt(level.getPoint("door_speicher")).orElseThrow()).open();
+    DoorTile storageDoor = (DoorTile) Game.tileAt(level.getPoint("door_speicher")).orElseThrow();
+    boolean doorWasOpen = storageDoor.isOpen();
+    storageDoor.open();
+    if (!doorWasOpen && storageDoor.isOpen()) SystemRecoverySounds.doorOpened();
   }
 
   /** Restores the accepted archive arrays and opened storage door without gameplay callbacks. */

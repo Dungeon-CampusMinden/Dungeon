@@ -65,6 +65,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
 import rooms.systemRecovery.util.interpreter.SystemRecoveryTerminalController;
@@ -559,7 +560,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     systemCoreExitOpen = exitOpen;
     systemCoreAlarmActive = checkpoint != SystemRecoveryLearningStep.COMPLETE;
     systemCoreRiddleCompleted = checkpoint == SystemRecoveryLearningStep.COMPLETE;
-    if (systemCoreAlarmActive) SystemRecoveryAlarm.activate();
+    if (systemCoreAlarmActive) SystemRecoveryAlarm.restoreActive();
     else SystemRecoveryAlarm.deactivate();
 
     int restoredStage =
@@ -712,9 +713,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
 
     DoorTile storageDoor = (DoorTile) tileAt(point("door_datenspeicher")).orElseThrow();
+    boolean doorWasOpen = storageDoor.isOpen();
     storageDoor.open();
     if (storageDoor.isOpen()) {
-      SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN);
+      if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN)
+          && !doorWasOpen) {
+        SystemRecoverySounds.doorOpened();
+      }
     }
   }
 
@@ -1468,10 +1473,16 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Opens the shared elevator exit only after ECHO's final call has been answered. */
   private void openElevatorAfterFinalCall() {
     DoorTile elevatorDoor = (DoorTile) tileAt(point("door_elevator")).orElseThrow();
+    boolean doorWasOpen = elevatorDoor.isOpen();
+    boolean exitWasOpen = systemCoreExitOpen;
     elevatorDoor.open();
     if (elevatorDoor.isOpen()) {
       systemCoreExitOpen = true;
       systemCore.markExitOpen();
+      if (!doorWasOpen && !exitWasOpen) {
+        SystemRecoverySounds.doorOpened();
+        SystemRecoverySounds.completed();
+      }
     }
   }
 
@@ -1518,6 +1529,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       return false;
     }
     DoorTile systemCoreDoor = (DoorTile) level.tileAt(level.point("door_systemcore")).orElseThrow();
+    boolean doorWasOpen = systemCoreDoor.isOpen();
     systemCoreDoor.open();
     if (!systemCoreDoor.isOpen()
         || !SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS)) {
@@ -1532,6 +1544,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
     level.systemCoreAccessGranted = true;
     level.systemCoreAlarmActive = true;
+    if (!doorWasOpen) SystemRecoverySounds.doorOpened();
     SystemRecoveryPuzzleEvents.interaction(
         SystemRecoveryPuzzle.SYSTEM_CORE,
         "access-script",
