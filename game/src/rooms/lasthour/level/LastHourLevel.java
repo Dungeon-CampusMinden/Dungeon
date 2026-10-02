@@ -32,6 +32,7 @@ import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
+import feature.credits.CreditsFeature;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.CharacterClass;
@@ -72,6 +73,7 @@ import rooms.lasthour.modules.trash.TrashMinigameFactory;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.starter.LastHourClient;
+import rooms.lasthour.starter.TheLastHour;
 import rooms.lasthour.util.LastHourAchievements;
 import rooms.lasthour.util.LastHourPuzzle;
 import rooms.lasthour.util.LastHourQuestLogUtil;
@@ -255,7 +257,13 @@ public class LastHourLevel extends DungeonLevel {
                                     ? LastHourAchievements.ESCAPED_TOO_LATE
                                     : LastHourAchievements.ESCAPED_IN_TIME);
                             BlackFadeCutscene.show(
-                                endingLoreTexts(), true, false, true, Game::complete);
+                                endingLoreTexts(),
+                                true,
+                                false,
+                                true,
+                                () ->
+                                    CreditsFeature.showAfterGame(
+                                        TheLastHour.CREDITS_ROOM_ID, Game::complete));
                           });
                 },
                 null)

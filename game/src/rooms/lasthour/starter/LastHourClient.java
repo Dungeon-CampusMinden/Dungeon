@@ -27,6 +27,7 @@ import engine.utils.settings.DescriptionSetting;
 import engine.utils.settings.SectionDividerSetting;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
+import feature.credits.CreditsFeature;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.hud.dialogs.DialogFactory;
@@ -96,6 +97,7 @@ public final class LastHourClient {
     ComputerFactory.ensureRegistration();
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
     BlackFadeCutscene.register();
+    CreditsFeature.register();
   }
 
   /**

@@ -25,6 +25,7 @@ import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
+import feature.credits.CreditsFeature;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
@@ -57,6 +58,9 @@ import rooms.systemRecovery.util.SystemRecoveryTranslator;
 
 /** Entry point for the System Recovery escape room. */
 public final class SystemRecovery {
+
+  /** Room ID used by the optional credits JSON file. */
+  public static final String CREDITS_ROOM_ID = "system-recovery";
 
   private static final String LEVEL_KEY = "systemrecovery";
   private static final Color MENU_ACCENT_COLOR = new Color(0.43f, 0.78f, 0.72f, 1f);
@@ -134,6 +138,7 @@ public final class SystemRecovery {
             .hostActionLabel(() -> SystemRecoveryText.text("menu.start"))
             .serverArguments(hostedServerArguments())
             .continueGame(SystemRecoverySave::exists, hostedServerArguments(true))
+            .creditsRoomId(CREDITS_ROOM_ID)
             .startupConsent(SystemRecovery::trackingConsentPrompt)
             .trackingSettings(SystemRecovery::trackingSettings)
             .build();
@@ -373,6 +378,7 @@ public final class SystemRecovery {
     initLocalization();
     SystemRecoveryAchievements.register();
     BlackFadeCutscene.register();
+    CreditsFeature.register();
     BatteryItem.ensureRegistration();
     SearchProgramChipItem.ensureRegistration();
     SortProgramStickItem.ensureRegistration();

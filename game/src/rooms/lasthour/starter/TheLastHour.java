@@ -25,6 +25,7 @@ import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
+import feature.credits.CreditsFeature;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
@@ -67,6 +68,9 @@ import rooms.lasthour.util.translation.LastHourTranslator;
  */
 public class TheLastHour {
 
+  /** Room ID used by the optional credits JSON file. */
+  public static final String CREDITS_ROOM_ID = "the-last-hour";
+
   private static final String SERVER_STOP_REASON = "Server stopped from status window";
   private static final String MENU_BACKGROUND_IMAGE = "images/lasthour.png";
   private static final Color MENU_ACCENT_COLOR = new Color(0.56f, 0.87f, 1f, 1f);
@@ -104,6 +108,7 @@ public class TheLastHour {
                 () -> {
                   LastHourAchievements.register();
                   BlackFadeCutscene.register();
+                  CreditsFeature.register();
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })
@@ -130,6 +135,7 @@ public class TheLastHour {
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.EN)
             .levelEditor("levels/lastHour")
+            .creditsRoomId(CREDITS_ROOM_ID)
             .build();
 
     MainMenu.run(args, game, client, server);

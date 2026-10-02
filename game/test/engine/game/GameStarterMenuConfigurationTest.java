@@ -14,6 +14,22 @@ class GameStarterMenuConfigurationTest {
 
     assertTrue(starter.showJoinButton());
     assertTrue(starter.hostActionLabel().isEmpty());
+    assertTrue(starter.creditsRoomId().isEmpty());
+  }
+
+  @Test
+  void creditsRoomIdIsOptionalAndConfiguredByRoom() {
+    GameStarter starter =
+        GameStarter.builder("Example", Object.class).creditsRoomId("sample-room").build();
+
+    assertEquals("sample-room", starter.creditsRoomId().orElseThrow());
+  }
+
+  @Test
+  void creditsRoomIdCannotEscapeTheInternalAssetDirectory() {
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> GameStarter.builder("Example", Object.class).creditsRoomId("../outside"));
   }
 
   @Test
