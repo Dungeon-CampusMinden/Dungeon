@@ -33,10 +33,15 @@ public final class ControlsDialogSystem extends System {
     if (Game.isHeadless() || !InputManager.isKeyJustPressed(KeyboardConfig.SHOW_CONTROLS.value())) {
       return;
     }
-    Game.player().ifPresent(this::showControls);
+    Game.player().ifPresent(this::showControlsFor);
   }
 
-  private void showControls(Entity player) {
+  /**
+   * Shows the active room's controls dialog for the given player.
+   *
+   * @param player player whose controls dialog should be shown
+   */
+  public void showControlsFor(Entity player) {
     int playerId = player.id();
     if (!openDialogPlayers.add(playerId)) return;
     DialogFactory.showDialogDialog(
