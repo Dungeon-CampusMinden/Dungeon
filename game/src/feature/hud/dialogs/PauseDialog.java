@@ -31,6 +31,7 @@ import feature.achievements.AchievementMenuView;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
+import feature.input.systems.ControlsDialogSystem;
 import feature.questlog.QuestLogUI;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class PauseDialog extends Table {
 
   private static final String T_PAUSED = "paused";
   private static final String T_RESUME = "resume";
+  private static final String T_CONTROLS = "controls";
   private static final String T_QUESTLOG = "questlog";
   private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
@@ -158,6 +160,8 @@ public class PauseDialog extends Table {
         Scene2dElementFactory.createLabel(
             trans.text(T_PAUSED), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
     TextButton resumeBtn = Scene2dElementFactory.createButton(trans.text(T_RESUME), "green", 32);
+    TextButton controlsBtn =
+        Scene2dElementFactory.createButton(trans.text(T_CONTROLS), "blue-outline", 32);
     TextButton questlogBtn =
         Scene2dElementFactory.createButton(trans.text(T_QUESTLOG), "blue-outline", 32);
     TextButton achievementsBtn =
@@ -173,6 +177,19 @@ public class PauseDialog extends Table {
           public void changed(ChangeEvent event, Actor actor) {
             Game.player().orElseThrow().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             Sounds.playUi(CoreSounds.INTERFACE_DIALOG_CLOSED);
+          }
+        });
+    controlsBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            Entity player = ctx.ownerEntity();
+            if (!(Game.systems().get(ControlsDialogSystem.class)
+                instanceof ControlsDialogSystem controlsSystem)) return;
+
+            player.fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
+            controlsSystem.showControlsFor(player);
+            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     questlogBtn.addListener(
@@ -217,6 +234,7 @@ public class PauseDialog extends Table {
     if (AchievementManager.isAvailable()) {
       menu.add(achievementsBtn).width(300).align(Align.center).padBottom(10).row();
     }
+    menu.add(controlsBtn).width(300).align(Align.center).padBottom(10).row();
     menu.add(settingsBtn).width(300).align(Align.center).padBottom(70).row();
     menu.add(quitBtn).width(300).align(Align.center).padBottom(15).row();
 
