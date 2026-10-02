@@ -24,7 +24,6 @@ import rooms.lasthour.modules.computer.ComputerStateComponentCodec;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.petrinet.LastHourMilestone;
 import rooms.lasthour.petrinet.LastHourProgressNet;
-import rooms.lasthour.util.LastHourAchievements;
 import rooms.lasthour.util.LastHourQuestLogUtil;
 
 /** Reads and restores The Last Hour save without replaying gameplay callbacks. */
@@ -54,14 +53,13 @@ public final class LastHourLoad {
     return read().isPresent();
   }
 
-  /** Restores the milestone marking, quest log and run achievement progress silently. */
+  /** Restores the milestone marking and quest log silently. */
   public static boolean restoreRuntime(LastHourSave.SaveData data) {
     if (data == null) return false;
     try {
       if (!LastHourProgressNet.restore(data.milestones())) return false;
       restoreQuestLog(data.questLog());
       LastHourQuestLogUtil.restoreAddedEntryKeys(data.questKeys());
-      LastHourAchievements.restoreRunProgress(data.achievements());
       return true;
     } catch (RuntimeException ignored) {
       return false;
@@ -97,11 +95,6 @@ public final class LastHourLoad {
     for (Object value : list(root.get("questKeys"))) questKeys.add(string(value));
     List<LastHourSave.PlayerData> players = new ArrayList<>();
     for (Object value : list(root.get("players"))) players.add(parsePlayer(map(value)));
-    Map<String, List<String>> achievements = new LinkedHashMap<>();
-    map(root.get("achievements"))
-        .forEach(
-            (key, value) ->
-                achievements.put(key, list(value).stream().map(LastHourLoad::string).toList()));
     return new LastHourSave.SaveData(
         UUID.fromString(string(root.get("runId"))),
         milestones,
@@ -119,7 +112,6 @@ public final class LastHourLoad {
         questLog,
         questKeys,
         players,
-        achievements,
         nullableBool(root.get("trackingConsent")));
   }
 

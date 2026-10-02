@@ -27,7 +27,6 @@ import rooms.lasthour.modules.computer.LastHourBlogTime;
 import rooms.lasthour.petrinet.LastHourMilestone;
 import rooms.lasthour.petrinet.LastHourProgressNet;
 import rooms.lasthour.starter.TheLastHour;
-import rooms.lasthour.util.LastHourAchievements;
 import rooms.lasthour.util.LastHourQuestLogUtil;
 
 /** Versioned, atomically written server save for The Last Hour. */
@@ -76,7 +75,6 @@ public final class LastHourSave {
         questLog,
         LastHourQuestLogUtil.addedEntryKeys(),
         context.players(),
-        LastHourAchievements.runProgress(),
         TheLastHour.trackingConsent());
   }
 
@@ -139,7 +137,6 @@ public final class LastHourSave {
     root.put("questLog", data.questLog().stream().map(QuestEntryData::toMap).toList());
     root.put("questKeys", data.questKeys().stream().sorted().toList());
     root.put("players", data.players().stream().map(PlayerData::toMap).toList());
-    root.put("achievements", data.achievements());
     root.put("trackingConsent", data.trackingConsent());
     return JsonHandler.writeJson(root, true);
   }
@@ -161,47 +158,7 @@ public final class LastHourSave {
       List<QuestEntryData> questLog,
       Set<String> questKeys,
       List<PlayerData> players,
-      Map<String, List<String>> achievements,
       Boolean trackingConsent) {
-    public SaveData(
-        UUID runId,
-        Set<LastHourMilestone> milestones,
-        ComputerStateComponent computer,
-        int blogElapsedSeconds,
-        long unknownDeviceShutdownRemainingMs,
-        boolean keypadUnlocked,
-        int wrongCodeAttempts,
-        boolean storageDoorOpen,
-        int remainingSeconds,
-        boolean timerExpired,
-        PhoneData phone,
-        boolean trashNoteAwarded,
-        boolean blueTrashAwarded,
-        List<QuestEntryData> questLog,
-        Set<String> questKeys,
-        List<PlayerData> players,
-        Map<String, List<String>> achievements) {
-      this(
-          runId,
-          milestones,
-          computer,
-          blogElapsedSeconds,
-          unknownDeviceShutdownRemainingMs,
-          keypadUnlocked,
-          wrongCodeAttempts,
-          storageDoorOpen,
-          remainingSeconds,
-          timerExpired,
-          phone,
-          trashNoteAwarded,
-          blueTrashAwarded,
-          questLog,
-          questKeys,
-          players,
-          achievements,
-          null);
-    }
-
     public SaveData withTrackingConsent(Boolean consent) {
       return new SaveData(
           runId,
@@ -220,7 +177,6 @@ public final class LastHourSave {
           questLog,
           questKeys,
           players,
-          achievements,
           consent);
     }
 
@@ -230,19 +186,6 @@ public final class LastHourSave {
       questLog = List.copyOf(questLog);
       questKeys = Set.copyOf(questKeys);
       players = List.copyOf(players);
-      Map<String, List<String>> immutableAchievements = new LinkedHashMap<>();
-      achievements.forEach(
-          (owner, ids) -> {
-            if (owner == null || owner.isBlank()) {
-              throw new IllegalArgumentException("Empty achievement owner in save");
-            }
-            List<String> immutableIds = List.copyOf(ids);
-            if (immutableIds.stream().anyMatch(id -> id.isBlank())) {
-              throw new IllegalArgumentException("Empty achievement ID in save");
-            }
-            immutableAchievements.put(owner, immutableIds);
-          });
-      achievements = Map.copyOf(immutableAchievements);
       if (runId == null || computer == null || phone == null)
         throw new IllegalArgumentException("Missing save state");
       if (blogElapsedSeconds < 0
