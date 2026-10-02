@@ -181,6 +181,7 @@ public class HudSystemTest {
 
     hudSystem.dialogsSuppressed(true);
 
+    assertTrue(hudSystem.dialogsSuppressed());
     assertFalse(normal.isVisible());
     assertFalse(hudSystem.hasOpenUI(player));
 
@@ -195,6 +196,7 @@ public class HudSystemTest {
 
     hudSystem.dialogsSuppressed(false);
 
+    assertFalse(hudSystem.dialogsSuppressed());
     assertTrue(normal.isVisible());
     assertTrue(editorDialog.isVisible());
   }

@@ -47,9 +47,9 @@ public final class AchievementPopup {
   public static Group build(DialogContext ctx) {
     String imagePath = ctx.require(KEY_IMAGE_PATH, String.class);
     String achievementId = ctx.require(KEY_ID, String.class);
-    String name = localized(translationKey(achievementId, "name"), achievementId);
-    String description = localized(translationKey(achievementId, "description"), "");
     if (Game.isHeadless()) {
+      String name = localized(translationKey(achievementId, "name"), achievementId);
+      String description = localized(translationKey(achievementId, "description"), "");
       return new HeadlessDialogGroup("Achievement unlocked", name + "\n" + description);
     }
 
@@ -57,6 +57,17 @@ public final class AchievementPopup {
     if (!newlyUnlocked) {
       return new HeadlessDialogGroup();
     }
+
+    Game.system(AchievementPopupSystem.class, system -> system.enqueue(achievementId, imagePath));
+    // Queue the triggering achievement before checking whether it also unlocked platinum.
+    AchievementManager.onPopupQueued(achievementId);
+    // The UIComponent transports the unlock; the local system owns the visible card.
+    return new HeadlessDialogGroup();
+  }
+
+  static Group buildCard(String imagePath, String achievementId) {
+    String name = localized(translationKey(achievementId, "name"), achievementId);
+    String description = localized(translationKey(achievementId, "description"), "");
 
     Table card = new Table(UIUtils.defaultSkin());
     card.setBackground("window_background_big");

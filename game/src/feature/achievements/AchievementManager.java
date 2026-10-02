@@ -194,11 +194,12 @@ public class AchievementManager {
     if (achievement.isEmpty()) {
       return false;
     }
-    boolean newlyUnlocked = store.unlock(id);
-    if (newlyUnlocked) {
-      unlockPlatinumIfComplete(achievement.get());
-    }
-    return newlyUnlocked;
+    return store.unlock(id);
+  }
+
+  static void onPopupQueued(String id) {
+    AchievementManager manager = instance();
+    manager.store.definition(id).ifPresent(manager::unlockPlatinumIfComplete);
   }
 
   private void unlockPlatinumIfComplete(Achievement unlockedAchievement) {
