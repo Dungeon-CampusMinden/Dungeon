@@ -36,6 +36,7 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
 import feature.hud.elements.CombinableGUI;
 import feature.hud.elements.GUICombination;
+import feature.hud.elements.RichLabel;
 import feature.input.configuration.KeyboardConfig;
 import feature.inventory.Item;
 import java.util.Optional;
@@ -53,6 +54,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
   private static final int BORDER_PADDING = 5;
   private static final int LINE_GAP = 5;
+  private static final float MAX_HOVER_DESCRIPTION_WIDTH = 300f;
   private static final Vector2 HOVER_OFFSET = Vector2.of(10, 10);
   private static final BitmapFont bitmapFont;
   private static final Texture texture;
@@ -85,6 +87,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   private final InventoryComponent inventoryComponent;
   private Texture textureSlots;
   private String title;
+  private String hoverDescriptionText;
+  private RichLabel hoverDescriptionLabel;
   private int slotSize = 0;
   private int slotsPerRow = 0;
 
@@ -321,13 +325,29 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
     Item itemToShow = item.get();
 
     String title = displayText(itemToShow.displayName());
-    String description = UIUtils.formatString(displayText(itemToShow.description()));
+    String description =
+        RichLabel.toRichText(
+            displayText(itemToShow.description())
+                .replace("$1", Integer.toString(KeyboardConfig.USE_ITEM.value())));
+    if (hoverDescriptionLabel == null) {
+      hoverDescriptionLabel = new RichLabel(description, 12, new Color(0x000000b0), false);
+      hoverDescriptionLabel.setMaxPrefWidth(MAX_HOVER_DESCRIPTION_WIDTH);
+      hoverDescriptionText = description;
+    } else if (!description.equals(hoverDescriptionText)) {
+      hoverDescriptionLabel.setText(description);
+      hoverDescriptionText = description;
+    }
+
     GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
-    GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
+    float descriptionWidth = Math.max(1f, hoverDescriptionLabel.getPrefWidth());
+    hoverDescriptionLabel.setWidth(descriptionWidth);
+    hoverDescriptionLabel.setHeight(hoverDescriptionLabel.getPrefHeight());
+    hoverDescriptionLabel.validate();
+    float descriptionHeight = hoverDescriptionLabel.getHeight();
 
     Point hoverPos = mousePos.translate(HOVER_OFFSET);
-    float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x();
-    float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y() + LINE_GAP;
+    float width = Math.max(layoutName.width, descriptionWidth) + (BORDER_PADDING * 2);
+    float height = layoutName.height + descriptionHeight + (BORDER_PADDING * 2) + LINE_GAP;
 
     // if out of bounds, move to the left of cursor
     if (hoverPos.x() + width > Gdx.graphics.getWidth()) {
@@ -335,16 +355,14 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
     }
 
     batch.draw(hoverBackground, hoverPos.x(), hoverPos.y(), width, height);
-    Point textPos = hoverPos.translate(Vector2.of(BORDER_PADDING, layoutDesc.height + LINE_GAP));
+    float textX = hoverPos.x() + BORDER_PADDING;
+    float descriptionY = hoverPos.y() + BORDER_PADDING;
+    hoverDescriptionLabel.setPosition(textX, descriptionY);
+    hoverDescriptionLabel.draw(batch, 1f);
 
     bitmapFont.setColor(Color.BLACK);
     bitmapFont.draw(
-        batch,
-        title,
-        textPos.x(),
-        textPos.y() + layoutName.height + LINE_GAP); // place above description
-    bitmapFont.setColor(new Color(0x000000b0));
-    bitmapFont.draw(batch, description, textPos.x(), textPos.y());
+        batch, title, textX, descriptionY + descriptionHeight + LINE_GAP + layoutName.height);
   }
 
   private static boolean isPlayersInventory(Entity player, InventoryComponent inventoryComponent) {
@@ -594,6 +612,9 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   public void dispose() {
     if (this.textureSlots != null) {
       this.textureSlots.dispose();
+    }
+    if (this.hoverDescriptionLabel != null) {
+      this.hoverDescriptionLabel.dispose();
     }
 
     // clear drag and drop holding item

@@ -31,6 +31,7 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.hud.dialogs.DialogFactory;
 import feature.input.configuration.KeyboardConfig;
+import feature.input.systems.ControlsDialogSystem;
 import feature.interaction.InteractionComponent;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzlePieceItem;
@@ -49,6 +50,7 @@ import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.network.LastHourEntitySpawnStrategy;
 import rooms.lasthour.network.LastHourSnapshotTranslator;
 import rooms.lasthour.util.LastHourAchievements;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
 public final class LastHourClient {
@@ -68,6 +70,7 @@ public final class LastHourClient {
   public static void clientSetup() {
     registerEntitySpawnHandler();
     LastHourLevel.ensureClientPuzzles();
+    Game.add(new ControlsDialogSystem(() -> TranslationKey.PostIntroDialogText2));
     if (TheLastHour.DEBUG_MODE) {
       Game.add(new Debugger());
     }

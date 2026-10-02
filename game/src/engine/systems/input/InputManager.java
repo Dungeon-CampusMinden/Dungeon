@@ -72,7 +72,13 @@ public final class InputManager {
                 previousKeyTapTimesMs,
                 keyDownTimesMs,
                 TimeUtils.millis());
-            return oldProcessor != null && oldProcessor.keyDown(keycode);
+            boolean handledByPreviousProcessor =
+                oldProcessor != null && oldProcessor.keyDown(keycode);
+            if (handledByPreviousProcessor && keycode == Input.Keys.ESCAPE) {
+              // A dialog that handles ESC gets priority over the global close/pause shortcut.
+              justPressedKeys.remove(keycode);
+            }
+            return handledByPreviousProcessor;
           }
 
           @Override

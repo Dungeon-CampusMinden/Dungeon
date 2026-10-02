@@ -78,6 +78,7 @@ import feature.components.UIComponent;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.entities.deco.DecoFactory;
+import feature.hud.PauseMenuHudSystem;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
@@ -1084,6 +1085,7 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());
     ECSManagement.add(new QuestLogHudSystem());
+    ECSManagement.add(new PauseMenuHudSystem());
     ECSManagement.add(new JoystickSystem());
   }
 }
