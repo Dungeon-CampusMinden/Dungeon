@@ -2,6 +2,7 @@ package rooms.lasthour.save;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.network.messages.s2c.ItemState;
@@ -32,7 +33,20 @@ class LastHourSaveTest {
     LastHourSave.write(file, original);
 
     assertEquals(original, LastHourLoad.read(file).orElseThrow());
+    assertEquals("Alex", LastHourLoad.read(file).orElseThrow().playerName());
+    assertEquals(12.5f, LastHourLoad.read(file).orElseThrow().players().getFirst().x());
     assertFalse(Files.readString(file).contains("\"achievements\""));
+  }
+
+  @Test
+  void acceptsSaveFilesWithoutPlayerNameMetadata() throws Exception {
+    Map<String, Object> legacySave =
+        new LinkedHashMap<>(JsonHandler.readJson(LastHourSave.toJson(sampleSaveData())));
+    legacySave.remove("metadata");
+    Path file = tempDir.resolve("legacy-save-without-player-name.json");
+    Files.writeString(file, JsonHandler.writeJson(legacySave, true));
+
+    assertNull(LastHourLoad.read(file).orElseThrow().playerName());
   }
 
   @Test
@@ -81,6 +95,7 @@ class LastHourSaveTest {
         List.of(
             new LastHourSave.PlayerData(
                 "Alex", 12.5f, 3.5f, true, List.of(new LastHourSave.ItemData(2, item)))),
-        true);
+        true,
+        "Alex");
   }
 }

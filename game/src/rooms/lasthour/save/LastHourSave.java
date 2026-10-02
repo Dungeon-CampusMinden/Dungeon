@@ -1,5 +1,8 @@
 package rooms.lasthour.save;
 
+import engine.Game;
+import engine.components.PlayerComponent;
+import engine.game.PreRunConfiguration;
 import engine.network.messages.s2c.ItemState;
 import engine.utils.JsonHandler;
 import feature.questlog.QuestLogEntry;
@@ -80,7 +83,22 @@ public final class LastHourSave {
         questLog,
         LastHourQuestLogUtil.addedEntryKeys(),
         context.players(),
-        TheLastHour.trackingConsent());
+        TheLastHour.trackingConsent(),
+        currentPlayerName());
+  }
+
+  private static String currentPlayerName() {
+    Optional<String> authoritativeName =
+        Game.allPlayers()
+            .flatMap(player -> player.fetch(PlayerComponent.class).stream())
+            .map(PlayerComponent::playerName)
+            .filter(name -> name != null && !name.isBlank())
+            .findFirst();
+    if (authoritativeName.isPresent()) return authoritativeName.orElseThrow();
+
+    // A network server must wait for a connected player instead of persisting its JVM default.
+    if (PreRunConfiguration.multiplayerEnabled()) return null;
+    return PreRunConfiguration.username();
   }
 
   /**
@@ -154,6 +172,11 @@ public final class LastHourSave {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("formatVersion", FORMAT_VERSION);
     root.put("runId", data.runId().toString());
+    Map<String, Object> metadata = new LinkedHashMap<>();
+    if (data.playerName() != null && !data.playerName().isBlank()) {
+      metadata.put("playerName", data.playerName());
+    }
+    root.put("metadata", metadata);
     root.put("milestones", data.milestones().stream().map(Enum::name).sorted().toList());
     root.put(
         "computer", Base64.getEncoder().encodeToString(COMPUTER_CODEC.encode(data.computer())));
@@ -194,6 +217,8 @@ public final class LastHourSave {
    * @param questKeys quest log keys already added by room logic
    * @param players saved player positions, intro state and inventories
    * @param trackingConsent saved tracking decision, or {@code null} while undecided
+   * @param playerName authoritative name used for the continue flow, or {@code null} before a
+   *     network player connects
    */
   public record SaveData(
       UUID runId,
@@ -212,7 +237,8 @@ public final class LastHourSave {
       List<QuestEntryData> questLog,
       Set<String> questKeys,
       List<PlayerData> players,
-      Boolean trackingConsent) {
+      Boolean trackingConsent,
+      String playerName) {
     /**
      * Copies the snapshot with an updated tracking decision.
      *
@@ -237,7 +263,68 @@ public final class LastHourSave {
           questLog,
           questKeys,
           players,
-          consent);
+          consent,
+          playerName);
+    }
+
+    /**
+     * Keeps callers from the original save format source-compatible.
+     *
+     * @param runId identifier shared by this run's saves and tracking events
+     * @param milestones completed irreversible Petri net transitions
+     * @param computer saved computer state
+     * @param blogElapsedSeconds elapsed blog session time
+     * @param unknownDeviceShutdownRemainingMs remaining delay before an unknown-device shutdown
+     * @param keypadUnlocked whether the storage keypad has been unlocked
+     * @param wrongCodeAttempts number of incorrect keypad submissions
+     * @param storageDoorOpen whether the storage door is open
+     * @param remainingSeconds seconds remaining on the run timer
+     * @param timerExpired whether the run timer has expired
+     * @param phone saved phone state
+     * @param trashNoteAwarded whether the trash note has been awarded
+     * @param blueTrashAwarded whether the blue trash item has been awarded
+     * @param questLog saved quest log entries
+     * @param questKeys quest log keys already added by room logic
+     * @param players saved player positions, intro state and inventories
+     * @param trackingConsent saved tracking decision
+     */
+    public SaveData(
+        UUID runId,
+        Set<LastHourMilestone> milestones,
+        ComputerStateComponent computer,
+        int blogElapsedSeconds,
+        long unknownDeviceShutdownRemainingMs,
+        boolean keypadUnlocked,
+        int wrongCodeAttempts,
+        boolean storageDoorOpen,
+        int remainingSeconds,
+        boolean timerExpired,
+        PhoneData phone,
+        boolean trashNoteAwarded,
+        boolean blueTrashAwarded,
+        List<QuestEntryData> questLog,
+        Set<String> questKeys,
+        List<PlayerData> players,
+        Boolean trackingConsent) {
+      this(
+          runId,
+          milestones,
+          computer,
+          blogElapsedSeconds,
+          unknownDeviceShutdownRemainingMs,
+          keypadUnlocked,
+          wrongCodeAttempts,
+          storageDoorOpen,
+          remainingSeconds,
+          timerExpired,
+          phone,
+          trashNoteAwarded,
+          blueTrashAwarded,
+          questLog,
+          questKeys,
+          players,
+          trackingConsent,
+          null);
     }
 
     /**
@@ -260,6 +347,7 @@ public final class LastHourSave {
      * @param questKeys quest log keys already added by room logic
      * @param players saved player positions, intro state and inventories
      * @param trackingConsent saved tracking decision, or {@code null} while undecided
+     * @param playerName authoritative name used for the continue flow
      */
     public SaveData {
       Set<LastHourMilestone> immutableMilestones = Set.copyOf(milestones);
@@ -267,6 +355,7 @@ public final class LastHourSave {
       questLog = List.copyOf(questLog);
       questKeys = Set.copyOf(questKeys);
       players = List.copyOf(players);
+      if (playerName != null && playerName.isBlank()) playerName = null;
       if (runId == null || computer == null || phone == null)
         throw new IllegalArgumentException("Missing save state");
       if (blogElapsedSeconds < 0

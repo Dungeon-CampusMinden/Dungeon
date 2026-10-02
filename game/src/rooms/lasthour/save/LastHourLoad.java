@@ -113,6 +113,11 @@ public final class LastHourLoad {
     for (Object value : list(root.get("questKeys"))) questKeys.add(string(value));
     List<LastHourSave.PlayerData> players = new ArrayList<>();
     for (Object value : list(root.get("players"))) players.add(parsePlayer(map(value)));
+    Object metadataValue = root.get("metadata");
+    String playerName =
+        metadataValue instanceof Map<?, ?> metadata
+            ? nullableString(metadata.get("playerName"))
+            : null;
     return new LastHourSave.SaveData(
         UUID.fromString(string(root.get("runId"))),
         milestones,
@@ -130,7 +135,8 @@ public final class LastHourLoad {
         questLog,
         questKeys,
         players,
-        nullableBool(root.get("trackingConsent")));
+        nullableBool(root.get("trackingConsent")),
+        playerName);
   }
 
   private static LastHourSave.PhoneData parsePhone(Map<String, Object> map) {
@@ -204,6 +210,11 @@ public final class LastHourLoad {
   private static String string(Object value) {
     if (!(value instanceof String result)) throw new IllegalArgumentException("Expected string");
     return result;
+  }
+
+  private static String nullableString(Object value) {
+    if (value == null) return null;
+    return string(value);
   }
 
   private static boolean bool(Object value) {

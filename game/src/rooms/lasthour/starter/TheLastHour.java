@@ -106,6 +106,7 @@ public class TheLastHour {
    */
   public static void main(String[] args) {
     loadFromSave = containsArgument(args, LOAD_SAVE_ARGUMENT);
+    configureManagedServerPlayerName();
     if (containsArgument(args, NEW_GAME_ARGUMENT)) {
       try {
         LastHourSave.delete();
@@ -119,6 +120,7 @@ public class TheLastHour {
             : UUID.randomUUID();
     TRACKING_CONSENT.initialize(
         args, () -> LastHourLoad.read().map(LastHourSave.SaveData::trackingConsent).orElse(null));
+    restoreSavedPlayerNameForMenu();
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
         .enableConsole(true)
@@ -167,6 +169,36 @@ public class TheLastHour {
             .build();
 
     MainMenu.run(args, game, client, server);
+  }
+
+  private static void configureManagedServerPlayerName() {
+    String hostName = System.getProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY);
+    if (hostName == null || hostName.isBlank()) return;
+    try {
+      PreRunConfiguration.username(hostName);
+    } catch (IllegalArgumentException ignored) {
+      // The network handshake remains the authoritative validation path for player names.
+    }
+  }
+
+  private static void restoreSavedPlayerNameForMenu() {
+    LastHourLoad.read()
+        .map(TheLastHour::savedPlayerName)
+        .filter(name -> name != null && !name.isBlank() && !name.contains("_"))
+        .ifPresent(
+            name -> {
+              try {
+                PreRunConfiguration.username(name);
+              } catch (IllegalArgumentException ignored) {
+                // A malformed legacy name must not prevent the room from starting.
+              }
+            });
+  }
+
+  private static String savedPlayerName(LastHourSave.SaveData save) {
+    if (save.playerName() != null) return save.playerName();
+    // An older single-player save has one unambiguous name in its player snapshot.
+    return save.players().size() == 1 ? save.players().getFirst().name() : null;
   }
 
   /**
