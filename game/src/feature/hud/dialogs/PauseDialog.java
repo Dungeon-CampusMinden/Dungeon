@@ -64,27 +64,16 @@ public class PauseDialog extends Table {
   private static final String T_PLAYERS_CAN_CONNECT_VIA = "players_can_connect_via";
   private static final Translation trans = new Translation("dialog.pause_dialog");
 
-  private Skin skin;
-  private DialogContext ctx;
-
-  private Table contentTable;
-  private Table mainMenu;
-  private Table settingsMenu;
-  private Table achievementsMenu;
+  private final Table contentTable;
+  private final Table mainMenu;
+  private final Table settingsMenu;
 
   private PauseDialog(Skin skin, DialogContext ctx) {
-    this.skin = skin;
-    this.ctx = ctx;
-    createActors();
-  }
-
-  private void createActors() {
     contentTable = new Table(skin);
     contentTable.setBackground("window_background_big");
 
     mainMenu = createMainView(ctx);
-    settingsMenu = createSettingsView(ctx);
-    achievementsMenu = createAchievementsView();
+    settingsMenu = createSettingsView();
 
     contentTable.add(mainMenu);
     contentTable.pack();
@@ -335,7 +324,7 @@ public class PauseDialog extends Table {
     return "[color=#555555][size=18]" + text;
   }
 
-  private Table createSettingsView(DialogContext ctx) {
+  private Table createSettingsView() {
     Label label =
         Scene2dElementFactory.createLabel(
             trans.text(T_SETTINGS), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
@@ -377,12 +366,7 @@ public class PauseDialog extends Table {
           settingsTable.add(actor).width(500).align(Align.center).pad(0, 10, 20, 10).row();
         });
 
-    ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(settingsTable, false, true);
-    scrollPane.setFlickScroll(false);
-    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle(scrollPane.getStyle());
-    style.background = null;
-    style.corner = null;
-    scrollPane.setStyle(style);
+    ScrollPane scrollPane = createMenuScrollPane(settingsTable);
     menu.add(scrollPane).width(550).height(400).align(Align.center).row();
 
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(5).row();
@@ -391,15 +375,26 @@ public class PauseDialog extends Table {
   }
 
   private void showMainView() {
-    contentTable.clearChildren();
-    contentTable.add(mainMenu);
-    contentTable.pack();
-    this.pack();
+    showView(mainMenu);
   }
 
   private void showSettings() {
+    showView(settingsMenu);
+  }
+
+  private ScrollPane createMenuScrollPane(Table content) {
+    ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(content, false, true);
+    scrollPane.setFlickScroll(false);
+    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle(scrollPane.getStyle());
+    style.background = null;
+    style.corner = null;
+    scrollPane.setStyle(style);
+    return scrollPane;
+  }
+
+  private void showView(Table view) {
     contentTable.clearChildren();
-    contentTable.add(settingsMenu);
+    contentTable.add(view);
     contentTable.pack();
     this.pack();
   }
@@ -422,13 +417,7 @@ public class PauseDialog extends Table {
     menu.add(label).padBottom(15).align(Align.center).row();
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(5).row();
 
-    ScrollPane scrollPane =
-        Scene2dElementFactory.createScrollPane(createServerStatusSection(), false, true);
-    scrollPane.setFlickScroll(false);
-    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle(scrollPane.getStyle());
-    style.background = null;
-    style.corner = null;
-    scrollPane.setStyle(style);
+    ScrollPane scrollPane = createMenuScrollPane(createServerStatusSection());
     menu.add(scrollPane).width(550).height(400).align(Align.center).row();
 
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(5).row();
@@ -437,17 +426,10 @@ public class PauseDialog extends Table {
   }
 
   private void showClientInfos() {
-    contentTable.clearChildren();
-    contentTable.add(createClientInfosView());
-    contentTable.pack();
-    this.pack();
+    showView(createClientInfosView());
   }
 
   private void showAchievements() {
-    achievementsMenu = createAchievementsView();
-    contentTable.clearChildren();
-    contentTable.add(achievementsMenu);
-    contentTable.pack();
-    this.pack();
+    showView(createAchievementsView());
   }
 }
