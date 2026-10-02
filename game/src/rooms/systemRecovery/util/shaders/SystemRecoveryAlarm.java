@@ -7,6 +7,7 @@ import rooms.systemRecovery.util.SystemRecoverySounds;
 public final class SystemRecoveryAlarm {
   private static final String SHADER_ID = "systemRecoveryAlarm";
   private static final int SHADER_ORDER = 0;
+
   private SystemRecoveryAlarm() {}
 
   /**
@@ -19,7 +20,9 @@ public final class SystemRecoveryAlarm {
     setActive(true);
   }
 
-  /** Restores the alarm scene state and looped audio without replaying its one-shot trigger sting. */
+  /**
+   * Restores the alarm scene state and looped audio without replaying its one-shot trigger sting.
+   */
   public static void restoreActive() {
     setActive(false);
   }

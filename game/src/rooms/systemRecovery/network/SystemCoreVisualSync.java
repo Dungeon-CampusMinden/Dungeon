@@ -28,10 +28,7 @@ public final class SystemCoreVisualSync {
     // This sync runs for every metadata-bearing entity; unrelated entities must not turn it off.
     if (alarm == null && access == null) return Optional.empty();
 
-    boolean active =
-        alarm != null
-            ? Boolean.parseBoolean(alarm)
-            : Boolean.parseBoolean(access);
+    boolean active = alarm != null ? Boolean.parseBoolean(alarm) : Boolean.parseBoolean(access);
     return Optional.of(active);
   }
 

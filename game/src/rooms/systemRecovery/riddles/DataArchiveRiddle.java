@@ -62,8 +62,7 @@ public final class DataArchiveRiddle {
     completed = true;
     callbacks.success("arrays-created", -1);
     callbacks.solved();
-    DoorTile storageDoor =
-        (DoorTile) Game.tileAt(level.getPoint("door_speicher")).orElseThrow();
+    DoorTile storageDoor = (DoorTile) Game.tileAt(level.getPoint("door_speicher")).orElseThrow();
     boolean doorWasOpen = storageDoor.isOpen();
     storageDoor.open();
     if (!doorWasOpen && storageDoor.isOpen()) SystemRecoverySounds.doorOpened();

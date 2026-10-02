@@ -6,9 +6,15 @@ import engine.sound.SoundSpec;
 /** Shared sound cues for authoritative System Recovery gameplay events. */
 public final class SystemRecoverySounds {
   private static final String DOOR_OPEN_SOUND = "enterDoor";
+
   private SystemRecoverySounds() {}
 
-  /** Plays a globally synchronized sound from an authoritative gameplay event. */
+  /**
+   * Plays a globally synchronized sound from an authoritative gameplay event.
+   *
+   * @param asset Sound to play
+   * @param volume volume of the sound
+   */
   public static void play(String asset, float volume) {
     Game.audio().playGlobal(SoundSpec.builder(asset).volume(volume));
   }

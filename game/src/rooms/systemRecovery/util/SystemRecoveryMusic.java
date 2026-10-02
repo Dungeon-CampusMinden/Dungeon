@@ -83,8 +83,7 @@ public final class SystemRecoveryMusic {
   }
 
   private static synchronized void updateVolumes() {
-    float userVolume =
-        ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f;
+    float userVolume = ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f;
     if (backgroundMusic != null) {
       backgroundMusic.setVolume(Math.min(1f, userVolume * BACKGROUND_MUSIC_GAIN));
     }
@@ -105,8 +104,7 @@ public final class SystemRecoveryMusic {
   }
 
   private static float backgroundMusicVolume() {
-    float userVolume =
-        ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f;
+    float userVolume = ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f;
     return Math.min(1f, userVolume * BACKGROUND_MUSIC_GAIN);
   }
 
