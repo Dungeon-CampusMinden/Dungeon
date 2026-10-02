@@ -31,7 +31,7 @@ public class MagicLensItem extends Item {
   public MagicLensItem() {
     super(
         "Eine Magische Lupe",
-        "Schaut in eine andere Welt. Benutze sie mit <V>.",
+        "Schaut in eine andere Welt. Drücke [key code=$1], um durch die Lupe zu schauen.",
         new Animation(new SimpleIPath(PATH)),
         new Animation(new SimpleIPath(PATH)));
   }
