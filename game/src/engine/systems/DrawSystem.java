@@ -28,6 +28,7 @@ import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
 import engine.utils.components.draw.BlendUtils;
 import engine.utils.components.draw.ColorUtils;
+import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.DrawConfig;
 import engine.utils.components.draw.FrameBufferPool;
 import engine.utils.components.draw.TextureMap;
@@ -43,7 +44,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -55,8 +55,8 @@ import java.util.TreeMap;
  * <p>2. **Intermediate Layer Passes:** The level and each entity depth layer are rendered into
  * individual FBOs, applying layer-specific shaders (Level Pass, Depth Pass).
  *
- * <p>3. **Scene Composition Pass:** All intermediate FBOs (Level and Depth layers) are composited
- * into a single screen-sized FBO.
+ * <p>3. **Scene Composition Pass:** Depth layers at or below {@link DepthLayer#Level} are
+ * composited before the level FBO; higher layers are composited afterward.
  *
  * <p>4. **Post-Processing Pass (Optional):** If scene shaders are configured, the scene FBO is
  * ping-ponged through the post-processing shaders.
@@ -264,8 +264,8 @@ public final class DrawSystem extends System implements Disposable {
    * <p>2. Intermediate Layer Passes: Draw level and depth groups into their own FBOs, applying
    * layer-specific shaders.
    *
-   * <p>3. Scene Composition Pass: Composite all intermediate FBOs into a Scene FBO (or directly to
-   * the screen if no scene shaders are applied).
+   * <p>3. Scene Composition Pass: Composite depth layers at or below the level depth, then the
+   * level, then higher entity layers.
    *
    * <p>4. Post-Processing Pass: If enabled, ping-pong the Scene FBO through the scene shaders.
    *
@@ -349,7 +349,7 @@ public final class DrawSystem extends System implements Disposable {
         drawToIntermediateFbo(this::drawLevel, levelShaders, sceneWidth, sceneHeight);
 
     // 2. Render each Entity Depth Group to its FBO and apply depth shaders
-    Map<Integer, FrameBuffer> depthFbos = new HashMap<>();
+    TreeMap<Integer, FrameBuffer> depthFbos = new TreeMap<>();
     for (Integer depth : sortedEntities.keySet()) {
       List<DSData> sortedGroup =
           sortedEntities.get(depth).stream()
@@ -367,7 +367,7 @@ public final class DrawSystem extends System implements Disposable {
       }
     }
 
-    // 3. Scene Composition Pass: Draw all intermediate FBOs into fboA in sorted order
+    // 3. Scene Composition Pass: Draw background layers, the level, then foreground layers
     fboA.begin();
     Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -376,16 +376,15 @@ public final class DrawSystem extends System implements Disposable {
     batch().begin();
     batch().setColor(Color.WHITE);
 
-    // Draw Level FBO first
+    depthFbos
+        .headMap(DepthLayer.Level.depth(), true)
+        .values()
+        .forEach(fbo -> drawFboToBatch(fbo, sceneWidth, sceneHeight));
     drawFboToBatch(levelFbo, sceneWidth, sceneHeight);
-
-    // Draw Depth FBOs in ascending order
-    sortedEntities
-        .keySet()
-        .forEach(
-            depth ->
-                Optional.ofNullable(depthFbos.get(depth))
-                    .ifPresent(fbo -> drawFboToBatch(fbo, sceneWidth, sceneHeight)));
+    depthFbos
+        .tailMap(DepthLayer.Level.depth(), false)
+        .values()
+        .forEach(fbo -> drawFboToBatch(fbo, sceneWidth, sceneHeight));
 
     batch().end();
     fboA.end();
@@ -810,7 +809,6 @@ public final class DrawSystem extends System implements Disposable {
     shader.setUniformf("u_resolution", textureWidth, textureHeight);
     shader.setUniformf("u_texelSize", 1.0f / textureWidth, 1.0f / textureHeight);
     shader.setUniformf("u_aspect", 1.0f, (float) textureWidth / (float) textureHeight);
-
     // Mouse position in screen space
     Point mousePos = CursorUtils.positionInWorld();
     Vector3 unprojected = CameraSystem.camera().project(new Vector3(mousePos.x(), mousePos.y(), 0));
@@ -951,7 +949,8 @@ public final class DrawSystem extends System implements Disposable {
     return Game.currentLevel()
         .map(
             level ->
-                corners.stream().anyMatch(cameraBounds::contains)
+                cameraBounds.intersects(new Rectangle(width, height, pos.x(), pos.y()))
+                    || corners.stream().anyMatch(cameraBounds::contains)
                     || level
                         .tileAt(entityCenter)
                         .filter(tile -> tile.visible() && !TileUtils.isTilePitAndOpen(tile))

@@ -13,12 +13,15 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Tuple;
+import engine.utils.Vector2;
 import feature.hud.elements.RichLabel;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
+import feature.leveleditor.ui.IntegerSetting;
 import feature.leveleditor.ui.ModeDetailsPanel;
-import feature.leveleditor.ui.NumberSetting;
 import feature.leveleditor.ui.StringSetting;
+import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabRegistry;
 import feature.systems.LevelEditorSystem;
 import feature.systems.PositionSync;
 import java.util.List;
@@ -33,8 +36,8 @@ public class SettingsMode extends LevelEditorMode {
   private static final int MAX_LEVEL_SIZE = 1000;
   private static final String EXISTING_FILE_WARNING = "File already exists, will be overwritten";
 
-  private NumberSetting heightSetting;
-  private NumberSetting widthSetting;
+  private IntegerSetting heightSetting;
+  private IntegerSetting widthSetting;
   private StringSetting savePathSetting;
   private RichLabel savePathStatusLabel;
   private BooleanSetting autoSaveSetting;
@@ -54,14 +57,14 @@ public class SettingsMode extends LevelEditorMode {
     content.clearChildren();
     detailsContent = content;
     heightSetting =
-        new NumberSetting(
+        new IntegerSetting(
             "Level Height",
             MIN_LEVEL_SIZE,
             MAX_LEVEL_SIZE,
             () -> getLevel().layout().length,
             height -> resizeLevel(getLevel().layout()[0].length, height));
     widthSetting =
-        new NumberSetting(
+        new IntegerSetting(
             "Level Width",
             MIN_LEVEL_SIZE,
             MAX_LEVEL_SIZE,
@@ -95,13 +98,13 @@ public class SettingsMode extends LevelEditorMode {
     shiftGrid.top();
     shiftGrid.defaults().growX().uniformX().height(40f).pad(2f);
     shiftGrid.add();
-    shiftGrid.add(new ActionSetting("Up", () -> shiftLevel(0, 1)));
+    shiftGrid.add(new ActionSetting("Up", () -> shiftLevel(0, 1), false));
     shiftGrid.add().row();
-    shiftGrid.add(new ActionSetting("Left", () -> shiftLevel(-1, 0)));
+    shiftGrid.add(new ActionSetting("Left", () -> shiftLevel(-1, 0), false));
     shiftGrid.add();
-    shiftGrid.add(new ActionSetting("Right", () -> shiftLevel(1, 0))).row();
+    shiftGrid.add(new ActionSetting("Right", () -> shiftLevel(1, 0), false)).row();
     shiftGrid.add();
-    shiftGrid.add(new ActionSetting("Down", () -> shiftLevel(0, -1)));
+    shiftGrid.add(new ActionSetting("Down", () -> shiftLevel(0, -1), false));
     shiftGrid.add();
     content.add(shiftGrid).growX().row();
 
@@ -187,6 +190,12 @@ public class SettingsMode extends LevelEditorMode {
       return;
     }
 
+    List<PrefabInstance> translatedPrefabs =
+        level.prefabs().stream()
+            .map(
+                instance ->
+                    PrefabRegistry.require(instance.type()).translate(instance, Vector2.of(x, y)))
+            .toList();
     List<Point> startPositions =
         level.startTiles().stream().map(tile -> tile.position().translate(x, y)).toList();
     LevelElement[][] newLayout = new LevelElement[layout.length][layout[0].length];
@@ -212,6 +221,8 @@ public class SettingsMode extends LevelEditorMode {
     level
         .decorations()
         .replaceAll(decoration -> new Tuple<>(decoration.a(), decoration.b().translate(x, y)));
+    level.prefabs().clear();
+    level.prefabs().addAll(translatedPrefabs);
     Game.levelEntities(Set.of(PositionComponent.class))
         .forEach(
             entity -> {
@@ -220,6 +231,7 @@ public class SettingsMode extends LevelEditorMode {
               position.position(oldPosition.translate(x, y));
               PositionSync.syncPosition(entity);
             });
+    LevelEditorSystem.refreshPrefabs(level);
 
     LevelEditorSystem.showFeedback("Shifted level " + directionName, Color.WHITE);
     levelChanged();

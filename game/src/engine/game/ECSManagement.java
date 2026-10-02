@@ -130,7 +130,7 @@ public final class ECSManagement {
     LOGGER.info(entity + " will be added to the Game.");
 
     try {
-      if (Game.network().isServer()) {
+      if (Game.network().isServer() && !entity.isLocal()) {
         if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
           Game.network().broadcast(new EntitySpawnEvent(entity), true);
         }
@@ -159,7 +159,7 @@ public final class ECSManagement {
     }
 
     try {
-      if (Game.network().isServer()) {
+      if (Game.network().isServer() && !entity.isLocal()) {
         Game.network()
             .broadcast(new EntityDespawnEvent(entity.id(), "Entity removed from game"), true);
       }

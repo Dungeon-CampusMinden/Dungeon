@@ -191,6 +191,7 @@ public class DialogFactory {
 
     DialogContext translatedContext = context;
     if (Game.isMultiplayerClient() || Game.isSingleplayer()) {
+      translatedContext = resolveDialogTranslationKey(translatedContext);
       translatedContext = translateText(DialogContextKeys.MESSAGE, translatedContext);
       translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
       translatedContext = translateText(DialogContextKeys.IMAGE, translatedContext);
@@ -541,6 +542,27 @@ public class DialogFactory {
   }
 
   /**
+   * Shows a sequenced speaker dialogue, optionally treating the script as a translation key.
+   *
+   * <p>If {@code isTranslationKey} is true, {@code dialog} is resolved through {@link
+   * Localization#text(String)} on the displaying client, so every client shows the script in its
+   * own language. Otherwise this behaves like {@link #showDialogDialog(String, IVoidFunction,
+   * int...)}.
+   *
+   * @param dialog The non-empty dialog script, or the translation key of the script.
+   * @param isTranslationKey Whether {@code dialog} is a translation key.
+   * @param onFinished Callback executed after the last page has been confirmed.
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed.
+   * @return The {@link UIComponent} containing the dialog.
+   */
+  public static UIComponent showDialogDialog(
+      String dialog, boolean isTranslationKey, IVoidFunction onFinished, int... targetEntityIds) {
+    DialogContext.Builder context = dialogDialogContext(dialog);
+    if (isTranslationKey) context.put(DialogContextKeys.DIALOG_IS_TRANSLATION_KEY, true);
+    return showDialogDialog(context.build(), onFinished, targetEntityIds);
+  }
+
+  /**
    * Shows a sequenced speaker dialogue with a dynamic speaker image.
    *
    * <p>The image path replaces {@code {path}} in the dialog script after client-side translation.
@@ -623,6 +645,18 @@ public class DialogFactory {
   public static UIComponent showCanvas(
       CanvasDefinition definition, int heroId, int... targetEntityIds) {
     return definition.open(heroId, targetEntityIds);
+  }
+
+  /* Replaces a dialog script translation key by the script in the current language. */
+  private static DialogContext resolveDialogTranslationKey(DialogContext context) {
+    boolean isTranslationKey =
+        context.find(DialogContextKeys.DIALOG_IS_TRANSLATION_KEY, Boolean.class).orElse(false);
+    if (!isTranslationKey) return context;
+    String key = context.require(DialogContextKeys.DIALOG, String.class);
+    return new DialogContext.Builder(context)
+        .put(DialogContextKeys.DIALOG, Localization.getInstance().text(key.trim()))
+        .put(DialogContextKeys.DIALOG_IS_TRANSLATION_KEY, null)
+        .build();
   }
 
   private static DialogContext translateText(String type, DialogContext context) {

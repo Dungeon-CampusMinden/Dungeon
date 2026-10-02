@@ -204,6 +204,44 @@ public class HeroController {
   }
 
   /**
+   * Handles a local-only interaction on multiplayer clients, otherwise sends the authoritative
+   * interaction command through the network.
+   *
+   * @param hero local player entity
+   * @param point interaction target
+   */
+  public static void requestInteraction(Entity hero, Point point) {
+    if (Game.isMultiplayerClient() && interactWithLocalEntity(hero, point)) {
+      return;
+    }
+    Game.network().sendInput(InputMessage.interact(point));
+  }
+
+  private static boolean interactWithLocalEntity(Entity hero, Point point) {
+    if (hero.isPresent(UIComponent.class)) return true;
+
+    Point heroPos = EntityUtils.getPosition(hero);
+    Optional<Entity> target =
+        EntityUtils.findEntityAtPoint(
+                point,
+                Game.entities(Set.of(PositionComponent.class, InteractionComponent.class))
+                    .filter(Entity::isLocal))
+            .filter(
+                entity -> {
+                  float range =
+                      entity.fetch(InteractionComponent.class).orElseThrow().interaction().range();
+                  return heroPos.distanceSquared(EntityUtils.getPosition(entity)) <= range * range;
+                });
+    target.ifPresent(
+        entity ->
+            entity
+                .fetch(InteractionComponent.class)
+                .orElseThrow()
+                .triggerInteraction(entity, hero));
+    return target.isPresent();
+  }
+
+  /**
    * Finds the interactable entity under the given point using a cursor-first model. Uses {@link
    * EntityUtils#isPointOverEntity} to determine which entity the point is over, then verifies the
    * entity is within the hero's interaction range. If the entity under the cursor is out of range,

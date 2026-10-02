@@ -31,7 +31,29 @@ public class DecoFactory {
    */
   public static Entity createDeco(
       Point pos, Deco deco, int depth, AnimationConfig config, Rectangle solidCollider) {
-    Entity entity = new Entity(deco.name());
+    return createDeco(new Entity(deco.name()), pos, deco, depth, config, solidCollider);
+  }
+
+  /**
+   * Configures a supplied entity as a decoration.
+   *
+   * <p>This overload allows side-aware callers such as prefabs to provide a local-only entity.
+   *
+   * @param entity entity to configure
+   * @param pos world position
+   * @param deco decoration definition
+   * @param depth rendering depth
+   * @param config animation configuration
+   * @param solidCollider collider, or null for none
+   * @return the supplied configured entity
+   */
+  public static Entity createDeco(
+      Entity entity,
+      Point pos,
+      Deco deco,
+      int depth,
+      AnimationConfig config,
+      Rectangle solidCollider) {
     entity.add(new PositionComponent(pos));
     DrawComponent dc = new DrawComponent(deco.path(), config);
     dc.depth(depth);
@@ -82,6 +104,19 @@ public class DecoFactory {
    */
   public static Entity createDeco(Point pos, Deco deco) {
     return createDeco(pos, deco, deco.defaultDepth(), deco.config(), deco.defaultCollider());
+  }
+
+  /**
+   * Configures a supplied entity using all defaults from the decoration definition.
+   *
+   * @param entity entity to configure
+   * @param pos world position
+   * @param deco decoration definition
+   * @return the supplied configured entity
+   */
+  public static Entity createDeco(Entity entity, Point pos, Deco deco) {
+    return createDeco(
+        entity, pos, deco, deco.defaultDepth(), deco.config(), deco.defaultCollider());
   }
 
   /**

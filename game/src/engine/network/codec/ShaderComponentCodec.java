@@ -10,6 +10,7 @@ import engine.utils.components.draw.shader.LevelHideShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.components.draw.shader.ShineShader;
+import engine.utils.components.draw.shader.WaterShader;
 import feature.shader.ShaderComponent;
 import java.util.List;
 import rooms.systemRecovery.util.shaders.SystemRecoveryAlarmShader;
@@ -24,6 +25,7 @@ public final class ShaderComponentCodec {
   private static final String TYPE_PASSTHROUGH = "passthrough";
   private static final String TYPE_LEVEL_HIDE = "level_hide";
   private static final String TYPE_SYSTEM_RECOVERY_ALARM = "system_recovery_alarm";
+  private static final String TYPE_WATER = "water";
 
   private ShaderComponentCodec() {}
 
@@ -132,6 +134,8 @@ public final class ShaderComponentCodec {
       type = TYPE_LEVEL_HIDE;
     } else if (shader instanceof SystemRecoveryAlarmShader) {
       type = TYPE_SYSTEM_RECOVERY_ALARM;
+    } else if (shader instanceof WaterShader) {
+      type = TYPE_WATER;
     } else {
       throw new IllegalArgumentException(
           "Unsupported synchronized shader type: " + shader.getClass().getName());
@@ -151,6 +155,7 @@ public final class ShaderComponentCodec {
           case TYPE_PASSTHROUGH -> new PassthroughShader();
           case TYPE_LEVEL_HIDE -> new LevelHideShader();
           case TYPE_SYSTEM_RECOVERY_ALARM -> new SystemRecoveryAlarmShader();
+          case TYPE_WATER -> new WaterShader();
           default -> throw new IllegalArgumentException("Unsupported shader type: " + entry.type());
         };
     shader.loadProperties(entry.properties());

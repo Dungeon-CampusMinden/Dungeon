@@ -361,11 +361,11 @@ public final class HeroBuilder {
     // Interact
     inputComp.registerCallback(
         KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-        (caller) -> Game.network().sendInput(InputMessage.interact(CursorUtils.positionInWorld())),
+        (caller) -> HeroController.requestInteraction(caller, CursorUtils.positionInWorld()),
         false);
     inputComp.registerCallback(
         KeyboardConfig.INTERACT_WORLD.value(),
-        (caller) -> Game.network().sendInput(InputMessage.interact(CursorUtils.positionInWorld())),
+        (caller) -> HeroController.requestInteraction(caller, CursorUtils.positionInWorld()),
         false);
 
     // UI controls

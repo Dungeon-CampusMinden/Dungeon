@@ -20,6 +20,16 @@ public class DungeonSaver {
    * @param filePath the path of the file where the level is stored
    */
   public static void saveCurrentDungeon(String filePath) {
+    saveCurrentDungeon(filePath, true);
+  }
+
+  /**
+   * Saves the current dungeon and optionally copies its serialized representation to the clipboard.
+   *
+   * @param filePath the path of the file where the level is stored
+   * @param copyToClipboard whether to copy the serialized level to the clipboard
+   */
+  public static void saveCurrentDungeon(String filePath, boolean copyToClipboard) {
     ILevel currentLevel = Game.currentLevel().orElse(null);
     if (currentLevel == null) {
       System.out.println("No level to save.");
@@ -30,7 +40,7 @@ public class DungeonSaver {
       return;
     }
     String output = LevelParser.serializeLevel(dunLevel);
-    ClipboardUtil.copyToClipboard(output);
+    if (copyToClipboard) ClipboardUtil.copyToClipboard(output);
     if (filePath != null && !filePath.isEmpty()) {
       FileHandle file = Gdx.files.local(normalizeLevelFilePath(filePath));
 
