@@ -35,6 +35,9 @@ import engine.utils.logging.DungeonLogger;
 import engine.utils.settings.ClientSettings;
 import feature.achievements.AchievementManager;
 import feature.achievements.AchievementMenuView;
+import feature.credits.CreditsDefinition;
+import feature.credits.CreditsRepository;
+import feature.credits.CreditsView;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ClientConnectionDialog;
 import feature.hud.dialogs.DialogDesign;
@@ -77,6 +80,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final String T_JOIN = "join";
   private static final String T_LEVEL_EDITOR = "level_editor";
   private static final String T_ACHIEVEMENTS = "achievements";
+  private static final String T_CREDITS = "credits";
   private static final String T_SETTINGS = "settings";
   private static final String T_EXIT = "exit";
   private static final String T_BACK = "back";
@@ -102,6 +106,7 @@ public class MainMenuScreen extends ScreenAdapter {
     MAIN,
     SETTINGS,
     ACHIEVEMENTS,
+    CREDITS,
     HOST_NAME,
     JOIN
   }
@@ -324,6 +329,8 @@ public class MainMenuScreen extends ScreenAdapter {
         menuButton(trans.text(T_SETTINGS), "blue-outline", this::showSettingsView);
     TextButton achievementsButton =
         menuButton(trans.text(T_ACHIEVEMENTS), "blue-outline", this::showAchievementsView);
+    TextButton creditsButton =
+        menuButton(trans.text(T_CREDITS), "blue-outline", this::showCreditsView);
     TextButton exitButton =
         menuButton(trans.text(T_EXIT), "red-outline", () -> Game.exit("Exit from main menu"));
 
@@ -340,6 +347,9 @@ public class MainMenuScreen extends ScreenAdapter {
     }
     if (AchievementManager.isAvailable()) {
       menu.add(achievementsButton).width(BUTTON_WIDTH).padBottom(12).row();
+    }
+    if (starter.creditsRoomId().flatMap(CreditsRepository::load).isPresent()) {
+      menu.add(creditsButton).width(BUTTON_WIDTH).padBottom(12).row();
     }
     menu.add(settingsButton).width(BUTTON_WIDTH).padBottom(12).row();
     menu.add(exitButton).width(BUTTON_WIDTH).row();
@@ -371,6 +381,16 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table buildAchievementsView() {
     TextButton backButton = menuButton(trans.text(T_BACK), "green", this::showMainView);
     return AchievementMenuView.build(backButton);
+  }
+
+  private void showCreditsView() {
+    Optional<CreditsDefinition> definition =
+        starter.creditsRoomId().flatMap(CreditsRepository::load);
+    if (definition.isEmpty()) return;
+
+    activeView = View.CREDITS;
+    swapContent(
+        CreditsView.buildMenuView(definition.get(), skin, trans.text(T_BACK), this::showMainView));
   }
 
   private Table buildJoinView() {
@@ -636,6 +656,8 @@ public class MainMenuScreen extends ScreenAdapter {
       showSettingsView();
     } else if (activeView == View.ACHIEVEMENTS) {
       showAchievementsView();
+    } else if (activeView == View.CREDITS) {
+      showCreditsView();
     } else if (activeView == View.HOST_NAME) {
       showHostNameView();
     } else if (activeView == View.JOIN) {
