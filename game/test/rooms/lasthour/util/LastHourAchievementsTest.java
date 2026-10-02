@@ -13,7 +13,7 @@ import org.mockito.MockedStatic;
 class LastHourAchievementsTest {
 
   @Test
-  void openingTrashcanTriggersAllThreePlayerAchievementsInOrder() {
+  void openingTrashcanTriggersThePlayerAchievement() {
     Entity player = new Entity("trashcan-player");
     AchievementManager manager = mock(AchievementManager.class);
 
@@ -24,8 +24,6 @@ class LastHourAchievementsTest {
 
       InOrder order = inOrder(manager);
       order.verify(manager).popFor(player, LastHourAchievements.TRASH_DIVER);
-      order.verify(manager).popFor(player, LastHourAchievements.TRASH_INSPECTOR);
-      order.verify(manager).popFor(player, LastHourAchievements.TRASH_DETECTIVE);
       order.verifyNoMoreInteractions();
     }
   }

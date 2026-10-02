@@ -184,7 +184,6 @@ public class LastHourLevel extends DungeonLevel {
     lastSaved = null;
     pendingPlayers.clear();
     INTRO_SHOWN_TO.clear();
-    LastHourAchievements.resetRunProgress();
     ComputerCallbacks.resetUnknownDeviceShutdown();
     LastHourProgressNet.reset();
     LastHourProgressNet.initialize();
