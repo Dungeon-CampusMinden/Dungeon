@@ -49,6 +49,7 @@ public class PauseDialog extends Table {
   private static final String T_QUESTLOG = "questlog";
   private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
+  private static final String T_CLIENT_INFOS = "client_infos";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
   private static final String T_YOU = "you";
@@ -168,6 +169,8 @@ public class PauseDialog extends Table {
         Scene2dElementFactory.createButton(trans.text(T_ACHIEVEMENTS), "blue-outline", 32);
     TextButton settingsBtn =
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "blue-outline", 32);
+    TextButton clientInfosBtn =
+        Scene2dElementFactory.createButton(trans.text(T_CLIENT_INFOS), "blue-outline", 32);
     TextButton quitBtn =
         Scene2dElementFactory.createButton(trans.text(T_QUIT_TO_DESKTOP), "red-outline", 32);
 
@@ -218,6 +221,14 @@ public class PauseDialog extends Table {
             Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
+    clientInfosBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showClientInfos();
+            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
     quitBtn.addListener(
         new ChangeListener() {
           @Override
@@ -235,13 +246,15 @@ public class PauseDialog extends Table {
       menu.add(achievementsBtn).width(300).align(Align.center).padBottom(10).row();
     }
     menu.add(controlsBtn).width(300).align(Align.center).padBottom(10).row();
-    menu.add(settingsBtn).width(300).align(Align.center).padBottom(70).row();
-    menu.add(quitBtn).width(300).align(Align.center).padBottom(15).row();
-
+    menu.add(settingsBtn)
+        .width(300)
+        .align(Align.center)
+        .padBottom(PreRunConfiguration.multiplayerEnabled() ? 10 : 70)
+        .row();
     if (PreRunConfiguration.multiplayerEnabled()) {
-      menu.add(Scene2dElementFactory.createHorizontalDivider()).width(300).padBottom(8).row();
-      menu.add(createServerStatusSection()).width(300).align(Align.left).padBottom(5).row();
+      menu.add(clientInfosBtn).width(300).align(Align.center).padBottom(70).row();
     }
+    menu.add(quitBtn).width(300).align(Align.center).padBottom(15).row();
 
     return menu;
   }
@@ -260,9 +273,8 @@ public class PauseDialog extends Table {
   }
 
   /**
-   * Builds the server-status section shown at the bottom of the pause menu: the local player name
-   * and the connection address, plus, when this client is hosting, the live server status and the
-   * addresses other players can use to connect.
+   * Builds the client information section: the local player name and, when this client is hosting,
+   * the live server status and the addresses other players can use to connect.
    *
    * @return the populated server-status section
    */
@@ -314,7 +326,9 @@ public class PauseDialog extends Table {
   }
 
   private RichLabel statusLabel(String text) {
-    return new RichLabel(statusMarkup(text));
+    RichLabel label = new RichLabel(statusMarkup(text));
+    label.setMaxPrefWidth(500);
+    return label;
   }
 
   private String statusMarkup(String text) {
@@ -386,6 +400,45 @@ public class PauseDialog extends Table {
   private void showSettings() {
     contentTable.clearChildren();
     contentTable.add(settingsMenu);
+    contentTable.pack();
+    this.pack();
+  }
+
+  private Table createClientInfosView() {
+    Label label =
+        Scene2dElementFactory.createLabel(
+            trans.text(T_CLIENT_INFOS), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
+    TextButton backBtn = Scene2dElementFactory.createButton(trans.text(T_BACK), "green", 32);
+    backBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showMainView();
+            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
+
+    Table menu = new Table();
+    menu.add(label).padBottom(15).align(Align.center).row();
+    menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(5).row();
+
+    ScrollPane scrollPane =
+        Scene2dElementFactory.createScrollPane(createServerStatusSection(), false, true);
+    scrollPane.setFlickScroll(false);
+    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle(scrollPane.getStyle());
+    style.background = null;
+    style.corner = null;
+    scrollPane.setStyle(style);
+    menu.add(scrollPane).width(550).height(400).align(Align.center).row();
+
+    menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(5).row();
+    menu.add(backBtn).width(300).align(Align.center).padTop(15).padBottom(15).row();
+    return menu;
+  }
+
+  private void showClientInfos() {
+    contentTable.clearChildren();
+    contentTable.add(createClientInfosView());
     contentTable.pack();
     this.pack();
   }
