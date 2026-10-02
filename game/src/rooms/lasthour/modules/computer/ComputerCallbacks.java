@@ -384,7 +384,11 @@ public final class ComputerCallbacks {
     onVirusTriggered.accept(who);
   }
 
-  /** Schedules the unknown-device shutdown and keeps its deadline available to the savegame. */
+  /**
+   * Schedules the unknown-device shutdown and keeps its deadline available to the savegame.
+   *
+   * @param delayMs delay before the PC shuts down
+   */
   public static void scheduleUnknownDeviceShutdown(long delayMs) {
     unknownDeviceShutdownAt = System.currentTimeMillis() + Math.max(0, delayMs);
     if (PreRunConfiguration.multiplayerEnabled()) {
@@ -393,13 +397,22 @@ public final class ComputerCallbacks {
     }
   }
 
-  /** Returns the remaining delay, or -1 if no unknown-device shutdown is pending. */
+  /**
+   * Returns the remaining delay, or -1 if no unknown-device shutdown is pending.
+   *
+   * @return remaining shutdown delay in milliseconds, or -1 when none is pending
+   */
   public static long unknownDeviceShutdownRemainingMs() {
     return unknownDeviceShutdownAt < 0
         ? -1
         : Math.max(0, unknownDeviceShutdownAt - System.currentTimeMillis());
   }
 
+  /**
+   * Returns the default delay before an unknown-device shutdown.
+   *
+   * @return default shutdown delay in milliseconds
+   */
   public static long unknownDeviceShutdownDefaultDelayMs() {
     return UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS;
   }

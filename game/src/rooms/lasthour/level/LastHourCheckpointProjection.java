@@ -31,7 +31,12 @@ final class LastHourCheckpointProjection {
 
   private LastHourCheckpointProjection() {}
 
-  /** Restores physical room and player state without replaying gameplay callbacks. */
+  /**
+   * Restores physical room and player state without replaying gameplay callbacks.
+   *
+   * @param level level whose entities are being restored
+   * @param data validated saved state to project into the level
+   */
   static void apply(LastHourLevel level, LastHourSave.SaveData data) {
     ComputerStateComponent restoredComputer = data.computer();
     if (restoredComputer.timestampOfLogin() > 0) {

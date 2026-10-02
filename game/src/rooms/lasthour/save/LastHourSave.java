@@ -38,7 +38,12 @@ public final class LastHourSave {
 
   private LastHourSave() {}
 
-  /** Captures all persistent run state after the level has gathered its room-local values. */
+  /**
+   * Captures all persistent run state after the level has gathered its room-local values.
+   *
+   * @param context room-local values captured by the level
+   * @return validated snapshot of the current run
+   */
   public static SaveData capture(CaptureContext context) {
     List<QuestEntryData> questLog = new ArrayList<>();
     QuestLogUtil.getQuestLogComponent()
@@ -78,24 +83,52 @@ public final class LastHourSave {
         TheLastHour.trackingConsent());
   }
 
+  /**
+   * Returns whether a readable save exists at the default path.
+   *
+   * @return true if a valid save is available
+   */
   public static boolean exists() {
     return LastHourLoad.exists();
   }
 
+  /**
+   * Deletes the save at the default path.
+   *
+   * @throws IOException if the save cannot be deleted
+   */
   public static void delete() throws IOException {
     Files.deleteIfExists(DEFAULT_PATH);
   }
 
-  /** Updates the consent decision in an existing run save, if one has been written. */
+  /**
+   * Updates the consent decision in an existing run save, if one has been written.
+   *
+   * @param consent tracking decision to persist
+   * @throws IOException if the updated save cannot be written
+   */
   public static void updateTrackingConsent(Boolean consent) throws IOException {
     Optional<SaveData> existing = LastHourLoad.read();
     if (existing.isPresent()) write(existing.get().withTrackingConsent(consent));
   }
 
+  /**
+   * Writes a save to the default path.
+   *
+   * @param data validated state to write
+   * @throws IOException if the save cannot be written
+   */
   public static void write(SaveData data) throws IOException {
     write(DEFAULT_PATH, data);
   }
 
+  /**
+   * Writes a save atomically to the given path.
+   *
+   * @param path destination file
+   * @param data validated state to write
+   * @throws IOException if the save cannot be written
+   */
   public static void write(Path path, SaveData data) throws IOException {
     Path absolute = path.toAbsolutePath();
     Path parent = absolute.getParent();
@@ -141,6 +174,27 @@ public final class LastHourSave {
     return JsonHandler.writeJson(root, true);
   }
 
+  /**
+   * Immutable snapshot of run state required to resume The Last Hour.
+   *
+   * @param runId identifier shared by this run's saves and tracking events
+   * @param milestones completed irreversible Petri net transitions
+   * @param computer saved computer state
+   * @param blogElapsedSeconds elapsed blog session time
+   * @param unknownDeviceShutdownRemainingMs remaining delay before an unknown-device shutdown
+   * @param keypadUnlocked whether the storage keypad has been unlocked
+   * @param wrongCodeAttempts number of incorrect keypad submissions
+   * @param storageDoorOpen whether the storage door is open
+   * @param remainingSeconds seconds remaining on the run timer
+   * @param timerExpired whether the run timer has expired
+   * @param phone saved phone state
+   * @param trashNoteAwarded whether the trash note has been awarded
+   * @param blueTrashAwarded whether the blue trash item has been awarded
+   * @param questLog saved quest log entries
+   * @param questKeys quest log keys already added by room logic
+   * @param players saved player positions, intro state and inventories
+   * @param trackingConsent saved tracking decision, or {@code null} while undecided
+   */
   public record SaveData(
       UUID runId,
       Set<LastHourMilestone> milestones,
@@ -159,6 +213,12 @@ public final class LastHourSave {
       Set<String> questKeys,
       List<PlayerData> players,
       Boolean trackingConsent) {
+    /**
+     * Copies the snapshot with an updated tracking decision.
+     *
+     * @param consent tracking decision to store
+     * @return a copy of this snapshot with the supplied decision
+     */
     public SaveData withTrackingConsent(Boolean consent) {
       return new SaveData(
           runId,
@@ -180,6 +240,27 @@ public final class LastHourSave {
           consent);
     }
 
+    /**
+     * Creates a validated immutable save snapshot.
+     *
+     * @param runId identifier shared by this run's saves and tracking events
+     * @param milestones completed irreversible Petri net transitions
+     * @param computer saved computer state
+     * @param blogElapsedSeconds elapsed blog session time
+     * @param unknownDeviceShutdownRemainingMs remaining delay before an unknown-device shutdown
+     * @param keypadUnlocked whether the storage keypad has been unlocked
+     * @param wrongCodeAttempts number of incorrect keypad submissions
+     * @param storageDoorOpen whether the storage door is open
+     * @param remainingSeconds seconds remaining on the run timer
+     * @param timerExpired whether the run timer has expired
+     * @param phone saved phone state
+     * @param trashNoteAwarded whether the trash note has been awarded
+     * @param blueTrashAwarded whether the blue trash item has been awarded
+     * @param questLog saved quest log entries
+     * @param questKeys quest log keys already added by room logic
+     * @param players saved player positions, intro state and inventories
+     * @param trackingConsent saved tracking decision, or {@code null} while undecided
+     */
     public SaveData {
       Set<LastHourMilestone> immutableMilestones = Set.copyOf(milestones);
       milestones = immutableMilestones;
@@ -222,7 +303,19 @@ public final class LastHourSave {
     }
   }
 
-  /** Values owned by the level while the save layer captures shared run state. */
+  /**
+   * Values owned by the level while the save layer captures shared run state.
+   *
+   * @param keypadUnlocked whether the storage keypad has been unlocked
+   * @param wrongCodeAttempts number of incorrect keypad submissions
+   * @param storageDoorOpen whether the storage door is open
+   * @param remainingSeconds seconds remaining on the run timer
+   * @param timerExpired whether the run timer has expired
+   * @param phone saved phone state
+   * @param trashNoteAwarded whether the trash note has been awarded
+   * @param blueTrashAwarded whether the blue trash item has been awarded
+   * @param players saved player positions, intro state and inventories
+   */
   public record CaptureContext(
       boolean keypadUnlocked,
       int wrongCodeAttempts,
@@ -233,6 +326,19 @@ public final class LastHourSave {
       boolean trashNoteAwarded,
       boolean blueTrashAwarded,
       List<PlayerData> players) {
+    /**
+     * Copies the supplied player state.
+     *
+     * @param keypadUnlocked whether the storage keypad has been unlocked
+     * @param wrongCodeAttempts number of incorrect keypad submissions
+     * @param storageDoorOpen whether the storage door is open
+     * @param remainingSeconds seconds remaining on the run timer
+     * @param timerExpired whether the run timer has expired
+     * @param phone saved phone state
+     * @param trashNoteAwarded whether the trash note has been awarded
+     * @param blueTrashAwarded whether the blue trash item has been awarded
+     * @param players saved player positions, intro state and inventories
+     */
     public CaptureContext {
       players = List.copyOf(players);
     }
@@ -247,6 +353,16 @@ public final class LastHourSave {
         || type.equals("HintItem");
   }
 
+  /**
+   * Saved timing and dialog state for the phone.
+   *
+   * @param firstTriggered whether the first call has been triggered
+   * @param secondScheduled whether a second call is scheduled
+   * @param ringing whether the phone is currently ringing
+   * @param dialog dialog text for the active call
+   * @param firstDelayMs remaining delay before the first call
+   * @param secondDelayMs remaining delay before the second call
+   */
   public record PhoneData(
       boolean firstTriggered,
       boolean secondScheduled,
@@ -254,6 +370,16 @@ public final class LastHourSave {
       String dialog,
       long firstDelayMs,
       long secondDelayMs) {
+    /**
+     * Validates the saved phone state.
+     *
+     * @param firstTriggered whether the first call has been triggered
+     * @param secondScheduled whether a second call is scheduled
+     * @param ringing whether the phone is currently ringing
+     * @param dialog dialog text for the active call
+     * @param firstDelayMs remaining delay before the first call
+     * @param secondDelayMs remaining delay before the second call
+     */
     public PhoneData {
       if (dialog == null || firstDelayMs < -1 || secondDelayMs < -1) {
         throw new IllegalArgumentException("Invalid saved phone state");
@@ -280,6 +406,12 @@ public final class LastHourSave {
     }
   }
 
+  /**
+   * Quest log entry paired with its tab name.
+   *
+   * @param tab quest log tab containing the entry
+   * @param entry quest log entry to save
+   */
   public record QuestEntryData(String tab, QuestLogEntry entry) {
     Map<String, Object> toMap() {
       Map<String, Object> result = new LinkedHashMap<>();
@@ -293,8 +425,26 @@ public final class LastHourSave {
     }
   }
 
+  /**
+   * Saved position, intro state and inventory for a named player.
+   *
+   * @param name player name used to match the player on restore
+   * @param x saved horizontal position
+   * @param y saved vertical position
+   * @param introShown whether the player's introduction was shown
+   * @param items saved inventory items
+   */
   public record PlayerData(
       String name, float x, float y, boolean introShown, List<ItemData> items) {
+    /**
+     * Validates the player state and copies its inventory.
+     *
+     * @param name player name used to match the player on restore
+     * @param x saved horizontal position
+     * @param y saved vertical position
+     * @param introShown whether the player's introduction was shown
+     * @param items saved inventory items
+     */
     public PlayerData {
       if (name == null || name.isBlank() || !Float.isFinite(x) || !Float.isFinite(y)) {
         throw new IllegalArgumentException("Invalid saved player state");
@@ -317,7 +467,19 @@ public final class LastHourSave {
     }
   }
 
+  /**
+   * Saved item and its inventory slot.
+   *
+   * @param slot inventory slot containing the item
+   * @param state serialized item state
+   */
   public record ItemData(int slot, ItemState state) {
+    /**
+     * Validates the saved slot and item stack.
+     *
+     * @param slot inventory slot containing the item
+     * @param state serialized item state
+     */
     public ItemData {
       if (slot < 0
           || state == null

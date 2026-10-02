@@ -18,7 +18,14 @@ public final class TrackingConsentFeature {
   private final Consumer<Boolean> persistDecision;
   private Boolean decision;
 
-  /** Creates the shared consent flow for one tracked room. */
+  /**
+   * Creates the shared consent flow for one tracked room.
+   *
+   * @param roomId identifier used to scope tracking events
+   * @param operatorEmail recipient of submitted tracking reports
+   * @param runId supplier for the current run identifier
+   * @param persistDecision callback that stores a consent decision
+   */
   public TrackingConsentFeature(
       String roomId,
       String operatorEmail,
@@ -32,6 +39,9 @@ public final class TrackingConsentFeature {
 
   /**
    * Resolves this process's decision, configures tracking, and publishes it to a managed server.
+   *
+   * @param arguments process startup arguments
+   * @param savedDecision supplier for a previously saved decision
    */
   public void initialize(String[] arguments, Supplier<Boolean> savedDecision) {
     java.util.Objects.requireNonNull(savedDecision, "savedDecision");
@@ -41,12 +51,20 @@ public final class TrackingConsentFeature {
     configureRoom();
   }
 
-  /** Returns the current process's consent decision, or {@code null} while undecided. */
+  /**
+   * Returns the current process's consent decision, or {@code null} while undecided.
+   *
+   * @return current consent decision, or {@code null} if undecided
+   */
   public Boolean decision() {
     return decision;
   }
 
-  /** Builds the mandatory main-menu prompt when no decision is known. */
+  /**
+   * Builds the mandatory main-menu prompt when no decision is known.
+   *
+   * @return startup prompt, or {@code null} when the decision is already known
+   */
   public GameStarter.StartupConsent startupPrompt() {
     if (decision != null) return null;
     Translation translation = new Translation(TRANSLATION_KEY);
@@ -60,7 +78,11 @@ public final class TrackingConsentFeature {
         this::choose);
   }
 
-  /** Builds the main-menu tracking controls for reviewing consent and deleting local data. */
+  /**
+   * Builds the main-menu tracking controls for reviewing consent and deleting local data.
+   *
+   * @return tracking settings for this room
+   */
   public GameStarter.TrackingSettings settings() {
     Translation translation = new Translation(TRANSLATION_KEY);
     String variant = storageVariant();
