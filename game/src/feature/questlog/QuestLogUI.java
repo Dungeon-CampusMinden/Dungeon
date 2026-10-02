@@ -53,20 +53,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Placeholder UI for displaying the shared quest log and creating player notes.
+ * Default quest log dialog for displaying the shared quest log and creating player notes.
  *
- * <p>This class is intentionally small and plain. It uses existing text/input dialogs and a simple
- * formatted string so the quest log can be tested through the current multiplayer UI pipeline. It
- * is not meant to be the final frontend. A production UI should replace the dialog construction and
- * formatting parts with a dedicated view for tabs, entries, filtering, and visibility.
+ * <p>The dialog shows the tabs in a sidebar and the entries of the selected tab next to it. It
+ * always uses the same fixed size, limited by the window, so every game presents the quest log
+ * identically.
  *
- * <p>The server-backed flow is the important part to keep:
+ * <p>The dialog is server-backed:
  *
  * <ol>
  *   <li>A client calls {@link #requestQuestLog(Entity)}.
  *   <li>The server receives {@link #COMMAND_SHOW_QUESTLOG}.
  *   <li>The server reads the authoritative {@link QuestLogComponent}.
- *   <li>The server shows this placeholder dialog for the requesting player.
+ *   <li>The server shows this dialog for the requesting player.
  *   <li>If the player creates a note, the input response returns to the server.
  *   <li>The server stores the note through {@link QuestLogUtil#addPlayerNote(Entity, String,
  *       String, boolean)}.
@@ -101,10 +100,12 @@ public final class QuestLogUI {
   private static final String T_CANCEL = "cancel";
   private static final float UI_WIDTH = 980f;
   private static final float UI_HEIGHT = 850f;
+  private static final float SCREEN_MARGIN = 32f;
   private static final float SIDEBAR_WIDTH = 290f;
   private static final float ROW_HEIGHT = 62f;
-  private static final float CONTENT_WIDTH = UI_WIDTH - SIDEBAR_WIDTH - 76f;
   private static final float SPEAKER_IMAGE_SIZE = 86f;
+  // Horizontal space next to entry text: dialog padding, sidebar gap, scroll pane and entry insets.
+  private static final float ENTRY_TEXT_INSET = 156f;
   private static final FontSpec FONT_TITLE =
       FontSpec.of("fonts/Roboto-SemiBold.ttf", 28, Color.valueOf("C7A882FF"));
   private static final FontSpec FONT_SECTION =
@@ -130,7 +131,7 @@ public final class QuestLogUI {
    * Requests that the quest log is shown for the given player.
    *
    * <p>On a network client this sends {@link #COMMAND_SHOW_QUESTLOG} to the server. In local or
-   * server-side contexts this opens the placeholder quest log dialog directly for the given player.
+   * server-side contexts this opens the quest log dialog directly for the given player.
    *
    * @param player player entity requesting the quest log
    */
@@ -169,10 +170,9 @@ public final class QuestLogUI {
   /**
    * Shows the shared quest log for the requested players.
    *
-   * <p>This placeholder method creates a text dialog containing the formatted quest log and a
-   * create button. The create button opens a text input dialog for the requesting player. When the
-   * player submits a non-blank note, the server adds it to the shared quest log with the player
-   * name as creator.
+   * <p>This method creates the quest log dialog with note buttons. A note button opens a text input
+   * dialog for the requesting player. When the player submits a non-blank note, the server adds it
+   * to the shared quest log with the player name as creator.
    *
    * <p>When called on a headless multiplayer server, the {@link feature.systems.HudSystem} sends
    * that dialog to the selected clients. If no target entity IDs are provided, all connected
@@ -194,9 +194,8 @@ public final class QuestLogUI {
    * Shows the shared quest log for the requested players with a preferred selected tab.
    *
    * <p>The selected tab is resolved defensively: if the requested tab is missing or blank, the
-   * newest tab is selected. This keeps the future dedicated quest log UI independent from the
-   * storage order and gives callers a stable entry point for restoring or changing the sidebar
-   * selection.
+   * newest tab is selected. This keeps the quest log dialog independent from the storage order and
+   * gives callers a stable entry point for restoring or changing the sidebar selection.
    *
    * @param selectedTab preferred tab to show in the detail area; may be {@code null}
    * @param targetEntityIds optional player entity IDs that should receive the quest log
@@ -547,7 +546,7 @@ public final class QuestLogUI {
     }
   }
 
-  private static List<QuestLogEntry> visibleEntriesFor(
+  static List<QuestLogEntry> visibleEntriesFor(
       QuestLogComponent questLog, String tab, String viewerName) {
     return questLog.get(tab).stream().filter(entry -> isVisibleTo(entry, viewerName)).toList();
   }
@@ -839,6 +838,7 @@ public final class QuestLogUI {
     private final Container<Table> detailContainer;
     private final Drawable rowNormal;
     private final Drawable rowSelected;
+    private final List<RichLabel> pageLabels = new ArrayList<>();
     private String selectedTab;
 
     private QuestLogDialog(String dialogId, QuestLogViewData viewData, boolean unavailable) {
@@ -851,13 +851,18 @@ public final class QuestLogUI {
       this.rowNormal = skin.newDrawable("generic-area", Color.valueOf("141717EB"));
       this.rowSelected = skin.newDrawable("generic-area", Color.valueOf("4C3A27FA"));
       this.selectedTab = resolveInitialSelectedTab(viewData);
+      viewData
+          .entriesFor(selectedTab)
+          .forEach(
+              entry ->
+                  QuestLogHudSystem.markRead(
+                      entry.tab(), entry.owner(), entry.timestamp(), entry.text()));
 
       buildLayout();
       refresh();
     }
 
     private void buildLayout() {
-      setSize(UI_WIDTH, UI_HEIGHT);
       setBackground(skin.newDrawable("generic-area", Color.valueOf("333333FF")));
       pad(18f);
 
@@ -868,12 +873,36 @@ public final class QuestLogUI {
       sidebarScroll.setStyle(sidebarScrollStyle);
 
       detailContainer.background(skin.newDrawable("generic-area", Color.valueOf("171717BB")));
+      detailContainer.fill();
 
-      add(sidebarScroll).width(SIDEBAR_WIDTH).maxHeight(UI_HEIGHT).growY();
-      add(detailContainer).maxHeight(UI_HEIGHT).growY();
+      add(sidebarScroll).width(SIDEBAR_WIDTH).growY();
+      add(detailContainer).grow();
+    }
+
+    /** The dialog always uses its full size, limited by the window so it never overflows. */
+    @Override
+    public float getPrefWidth() {
+      return Math.min(UI_WIDTH, Game.windowWidth() - 2 * SCREEN_MARGIN);
+    }
+
+    @Override
+    public float getPrefHeight() {
+      return Math.min(UI_HEIGHT, Game.windowHeight() - 2 * SCREEN_MARGIN);
+    }
+
+    /** Re-wraps entry text after a window resize without resetting the scroll position. */
+    @Override
+    protected void sizeChanged() {
+      super.sizeChanged();
+      pageLabels.forEach(label -> label.setMaxPrefWidth(pageLabelWidth()));
+    }
+
+    private float pageLabelWidth() {
+      return getPrefWidth() - SIDEBAR_WIDTH - ENTRY_TEXT_INSET;
     }
 
     private void refresh() {
+      pageLabels.clear();
       rebuildSidebar();
       detailContainer.setActor(buildDetail());
       invalidateHierarchy();
@@ -916,6 +945,10 @@ public final class QuestLogUI {
               selected ? FONT_SELECTED : FONT_ROW,
               false);
       row.add(title).minWidth(0f).growX().padLeft(22f).padRight(22f);
+      int unread = QuestLogHudSystem.unreadCount(tab);
+      if (unread > 0) {
+        row.add(QuestLogHudSystem.badge(unread)).size(QuestLogHudSystem.BADGE_SIZE).padRight(16f);
+      }
 
       row.addListener(
           new ClickListener() {
@@ -1000,7 +1033,8 @@ public final class QuestLogUI {
           }
           previousSpeakerImage = page.hasSpeaker() ? page.imagePath() : null;
           RichLabel pageLabel = label(page.text(), FONT_BODY, true);
-          pageLabel.setMaxPrefWidth(CONTENT_WIDTH - 80f);
+          pageLabel.setMaxPrefWidth(pageLabelWidth());
+          pageLabels.add(pageLabel);
           detail.add(pageLabel).left().top().growX().padBottom(10).padRight(10).row();
         }
         Optional<String> metadata = metadataFor(entry.owner());

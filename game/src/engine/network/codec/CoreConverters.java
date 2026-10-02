@@ -25,6 +25,7 @@ import engine.network.codec.converters.s2c.EntityStateConverter;
 import engine.network.codec.converters.s2c.GameOverConverter;
 import engine.network.codec.converters.s2c.InitialWorldCompleteConverter;
 import engine.network.codec.converters.s2c.LevelChangeConverter;
+import engine.network.codec.converters.s2c.QuestLogStateConverter;
 import engine.network.codec.converters.s2c.RegisterAckConverter;
 import engine.network.codec.converters.s2c.ShaderTargetStateConverter;
 import engine.network.codec.converters.s2c.SnapshotConverter;
@@ -69,6 +70,7 @@ public final class CoreConverters {
     registry.register(new SoundPlayConverter());
     registry.register(new SoundStopConverter());
     registry.register(new ShaderTargetStateConverter());
+    registry.register(new QuestLogStateConverter());
     registry.register(new DebugTelemetrySnapshotConverter());
     registry.register(new DebugPongConverter());
     registry.register(new InitialWorldCompleteConverter());

@@ -10,7 +10,6 @@ import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.puzzle.PuzzlePieceItem;
-import feature.questlog.QuestLogComponent;
 import feature.timer.WorldTimerComponent;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +36,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Type value for world-timer entities. */
   public static final String TYPE_WORLD_TIMER = "world-timer";
-
-  /** Type value for quest log entities. */
-  public static final String TYPE_QUESTLOG = "questlog";
 
   /** Metadata key for the computer progress state. */
   public static final String METADATA_PROGRESS = "progress";
@@ -98,9 +94,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key for the world timer's total duration. */
   public static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
 
-  /** Metadata key for serialized quest log entries. */
-  public static final String METADATA_QUESTLOG_ENTRIES = "questlog.entries";
-
   /** Metadata key indicating whether the entity is interactable. */
   public static final String METADATA_INTERACTABLE = "interactable";
 
@@ -143,10 +136,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
-    entity
-        .fetch(QuestLogComponent.class)
-        .ifPresent(
-            questLog -> metadata.putAll(LastHourSnapshotTranslator.questLogMetadata(questLog)));
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));

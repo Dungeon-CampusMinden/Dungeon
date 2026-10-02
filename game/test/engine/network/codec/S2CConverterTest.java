@@ -24,6 +24,7 @@ import engine.network.codec.converters.s2c.EntityStateConverter;
 import engine.network.codec.converters.s2c.GameOverConverter;
 import engine.network.codec.converters.s2c.InitialWorldCompleteConverter;
 import engine.network.codec.converters.s2c.LevelChangeConverter;
+import engine.network.codec.converters.s2c.QuestLogStateConverter;
 import engine.network.codec.converters.s2c.RegisterAckConverter;
 import engine.network.codec.converters.s2c.SnapshotConverter;
 import engine.network.codec.converters.s2c.SoundPlayConverter;
@@ -48,6 +49,7 @@ import engine.network.messages.s2c.InventorySlotState;
 import engine.network.messages.s2c.ItemState;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
+import engine.network.messages.s2c.QuestLogStateMessage;
 import engine.network.messages.s2c.RegisterAck;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.network.messages.s2c.SoundPlayMessage;
@@ -90,6 +92,8 @@ public class S2CConverterTest {
   private static final DeltaSnapshotConverter DELTA_SNAPSHOT_CONVERTER =
       new DeltaSnapshotConverter();
   private static final GameOverConverter GAME_OVER_CONVERTER = new GameOverConverter();
+  private static final QuestLogStateConverter QUEST_LOG_STATE_CONVERTER =
+      new QuestLogStateConverter();
   private static final LevelChangeConverter LEVEL_CHANGE_CONVERTER = new LevelChangeConverter();
   private static final RegisterAckConverter REGISTER_ACK_CONVERTER = new RegisterAckConverter();
   private static final SoundPlayConverter SOUND_PLAY_CONVERTER = new SoundPlayConverter();
@@ -495,6 +499,19 @@ public class S2CConverterTest {
 
     GameOverEvent roundTrip = GAME_OVER_CONVERTER.fromProto(proto);
     assertEquals("all_levels_completed", roundTrip.reason());
+  }
+
+  /** Verifies quest log state conversion roundtrip, including player-created entries. */
+  @Test
+  public void testQuestLogStateRoundTrip() {
+    QuestLogStateMessage message =
+        new QuestLogStateMessage(
+            true,
+            List.of(new QuestLogStateMessage.Entry("Notes", "Player note", 42, true, "Ada", true)));
+
+    QuestLogStateMessage roundTrip =
+        QUEST_LOG_STATE_CONVERTER.fromProto(QUEST_LOG_STATE_CONVERTER.toProto(message));
+    assertEquals(message, roundTrip);
   }
 
   /** Verifies level change conversion roundtrip. */

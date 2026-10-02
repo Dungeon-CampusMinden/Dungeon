@@ -12,13 +12,8 @@ import engine.utils.logging.DungeonLogger;
 import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.interaction.keypad.KeypadComponent;
-import feature.questlog.QuestLogComponent;
-import feature.questlog.QuestLogEntry;
-import feature.questlog.QuestLogUtil;
 import feature.timer.WorldTimerComponent;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,10 +105,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
                 entity.add(computerState);
               });
       entityState.metadata().ifPresent(metadata -> applyCollideMetadata(entity, metadata));
-      entityState
-          .metadata()
-          .flatMap(LastHourSnapshotTranslator::questLogFromMetadata)
-          .ifPresent(questLog -> applyQuestLogState(entity, questLog));
     }
   }
 
@@ -177,9 +168,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
-    entity
-        .fetch(QuestLogComponent.class)
-        .ifPresent(questLog -> metadata.putAll(questLogMetadata(questLog)));
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
   }
@@ -238,24 +226,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         String.valueOf(worldTimer.timestamp()),
         LastHourEntitySpawnStrategy.METADATA_WORLD_TIMER_DURATION,
         String.valueOf(worldTimer.duration()));
-  }
-
-  /**
-   * Serializes the quest log into snapshot metadata.
-   *
-   * <p>Quest log entities are data-only entities. Their component state is synchronized through
-   * metadata so clients can discover that a quest log exists without creating their own local
-   * placeholder.
-   *
-   * @param questLog the quest log component to serialize
-   * @return metadata containing the quest log type and serialized entries
-   */
-  public static Map<String, String> questLogMetadata(QuestLogComponent questLog) {
-    return Map.of(
-        LastHourEntitySpawnStrategy.METADATA_TYPE,
-        LastHourEntitySpawnStrategy.TYPE_QUESTLOG,
-        LastHourEntitySpawnStrategy.METADATA_QUESTLOG_ENTRIES,
-        serializeQuestLog(questLog));
   }
 
   /**
@@ -440,47 +410,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     }
   }
 
-  /**
-   * Creates a {@link QuestLogComponent} from metadata if the type matches.
-   *
-   * @param metadata the metadata to parse the quest log from
-   * @return an Optional containing the quest log component if metadata describes a quest log
-   */
-  public static Optional<QuestLogComponent> questLogFromMetadata(Map<String, String> metadata) {
-    if (!LastHourEntitySpawnStrategy.TYPE_QUESTLOG.equals(
-        metadata.get(LastHourEntitySpawnStrategy.METADATA_TYPE))) {
-      return Optional.empty();
-    }
-
-    QuestLogComponent questLog = new QuestLogComponent();
-    String serialized =
-        metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_QUESTLOG_ENTRIES, "");
-    if (serialized.isBlank()) {
-      return Optional.of(questLog);
-    }
-
-    for (String serializedEntry : serialized.split(";")) {
-      String[] fields = serializedEntry.split(",", -1);
-      if (fields.length != 5 && fields.length != 6) {
-        LOGGER.warn("Invalid quest log entry metadata '{}'", serializedEntry);
-        continue;
-      }
-      try {
-        String tab = decode(fields[0]);
-        String text = decode(fields[1]);
-        int timestamp = Integer.parseInt(fields[2]);
-        boolean userCreated = fields.length == 6 && Boolean.parseBoolean(fields[3]);
-        String owner = decode(fields[fields.length - 2]);
-        boolean onlyForCreator = Boolean.parseBoolean(fields[fields.length - 1]);
-        questLog.add(tab, new QuestLogEntry(text, timestamp, userCreated, owner, onlyForCreator));
-      } catch (IllegalArgumentException ex) {
-        LOGGER.warn("Invalid quest log entry metadata '{}'", serializedEntry);
-      }
-    }
-
-    return Optional.of(questLog);
-  }
-
   private void applyKeypadState(Entity entity, KeypadComponent keypadComponent) {
     KeypadComponent component =
         entity
@@ -499,12 +428,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     component.enteredDigits().addAll(keypadComponent.enteredDigits());
     component.isUnlocked(keypadComponent.isUnlocked());
     component.showDigitCount(keypadComponent.showDigitCount());
-  }
-
-  private void applyQuestLogState(Entity entity, QuestLogComponent questLog) {
-    entity.remove(QuestLogComponent.class);
-    entity.add(questLog);
-    QuestLogUtil.setClientQuestLog(entity);
   }
 
   /**
@@ -532,34 +455,5 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
 
   private String digitsToString(List<Integer> digits) {
     return digits.stream().map(String::valueOf).collect(Collectors.joining(","));
-  }
-
-  private static String serializeQuestLog(QuestLogComponent questLog) {
-    return questLog.getEntries().entrySet().stream()
-        .flatMap(
-            tab ->
-                tab.getValue().stream().map(entry -> serializeQuestLogEntry(tab.getKey(), entry)))
-        .collect(Collectors.joining(";"));
-  }
-
-  private static String serializeQuestLogEntry(String tab, QuestLogEntry entry) {
-    return String.join(
-        ",",
-        encode(tab),
-        encode(entry.text()),
-        String.valueOf(entry.timestamp()),
-        String.valueOf(entry.userCreated()),
-        encode(entry.owner()),
-        String.valueOf(entry.onlyForCreator()));
-  }
-
-  private static String encode(String value) {
-    return Base64.getUrlEncoder()
-        .withoutPadding()
-        .encodeToString(value.getBytes(StandardCharsets.UTF_8));
-  }
-
-  private static String decode(String value) {
-    return new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8);
   }
 }

@@ -23,6 +23,7 @@ public class QuestLogComponent implements Component {
   private static final int EMPTY_TAB_TIMESTAMP = Integer.MIN_VALUE;
 
   private final Map<String, List<QuestLogEntry>> questlog = new HashMap<>();
+  private int revision;
 
   /**
    * Adds a quest log entry to the given tab.
@@ -38,6 +39,7 @@ public class QuestLogComponent implements Component {
     List<QuestLogEntry> entries = questlog.computeIfAbsent(tab, ignored -> new ArrayList<>());
     boolean added = entries.add(entry);
     entries.sort(Comparator.comparingInt(QuestLogEntry::timestamp));
+    revision++;
     return added;
   }
 
@@ -50,7 +52,20 @@ public class QuestLogComponent implements Component {
    */
   public boolean remove(String tab, QuestLogEntry entry) {
     List<QuestLogEntry> entries = questlog.get(tab);
-    return entries != null && entries.remove(entry);
+    boolean removed = entries != null && entries.remove(entry);
+    if (removed) revision++;
+    return removed;
+  }
+
+  /**
+   * Returns a counter that changes whenever an entry is added or removed.
+   *
+   * <p>{@link QuestLogSyncSystem} uses it to detect changes without comparing entries.
+   *
+   * @return the current revision
+   */
+  public int revision() {
+    return revision;
   }
 
   /**

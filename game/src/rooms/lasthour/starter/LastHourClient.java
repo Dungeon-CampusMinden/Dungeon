@@ -35,7 +35,6 @@ import feature.interaction.InteractionComponent;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzlePieceItem;
 import feature.puzzle.PuzzleTextureGenerator;
-import feature.questlog.QuestLogUtil;
 import feature.systems.AttributeBarSystem;
 import feature.systems.PositionSync;
 import java.util.List;
@@ -140,12 +139,6 @@ public final class LastHourClient {
                   .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.worldTimerStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
-              LastHourSnapshotTranslator.questLogFromMetadata(event.metadata())
-                  .ifPresent(
-                      questLog -> {
-                        newEntity.add(questLog);
-                        QuestLogUtil.setClientQuestLog(newEntity);
-                      });
               LastHourSnapshotTranslator.applyCollideMetadata(newEntity, event.metadata());
               Game.add(newEntity);
               if (ctx != null) {
