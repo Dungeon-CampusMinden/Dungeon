@@ -73,8 +73,10 @@ public class ComputerStateSyncSystem extends System {
       return;
     }
     if (unknownDeviceShutdownAt == NO_SHUTDOWN_SCHEDULED) {
+      long remaining = ComputerCallbacks.unknownDeviceShutdownRemainingMs();
       unknownDeviceShutdownAt =
-          TimeUtils.millis() + ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS;
+          TimeUtils.millis()
+              + (remaining >= 0 ? remaining : ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
       return;
     }
     if (TimeUtils.millis() >= unknownDeviceShutdownAt) {

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 
 /**
@@ -27,6 +28,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Metadata key identifying the custom entity type. */
   public static final String METADATA_TYPE = "lh.type";
+
+  /** Metadata key for the last autosaved server revision. */
+  public static final String METADATA_SAVE_REVISION = "lastHour.save.revision";
 
   /** Type value for computer-state entities. */
   public static final String TYPE_COMPUTER = "computer-state";
@@ -129,7 +133,11 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
     entity
         .fetch(ComputerStateComponent.class)
-        .ifPresent(state -> metadata.putAll(computerStateMetadata(state)));
+        .ifPresent(
+            state -> {
+              metadata.putAll(computerStateMetadata(state));
+              metadata.put(METADATA_SAVE_REVISION, String.valueOf(LastHourLevel.saveRevision()));
+            });
     entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));

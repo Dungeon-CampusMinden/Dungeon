@@ -29,6 +29,7 @@ import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
+import feature.hud.AutoSaveIndicator;
 import feature.hud.dialogs.DialogFactory;
 import feature.input.configuration.KeyboardConfig;
 import feature.interaction.InteractionComponent;
@@ -66,6 +67,7 @@ public final class LastHourClient {
 
   /** In-loop client setup (entity spawn handler, systems, connection listener). */
   public static void clientSetup() {
+    AutoSaveIndicator.reset();
     registerEntitySpawnHandler();
     LastHourLevel.ensureClientPuzzles();
     if (TheLastHour.DEBUG_MODE) {
@@ -127,6 +129,8 @@ public final class LastHourClient {
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
+              AutoSaveIndicator.acceptRevision(
+                  event.metadata().get(LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION));
               if (event.shaderComponent() != null) {
                 newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
               }

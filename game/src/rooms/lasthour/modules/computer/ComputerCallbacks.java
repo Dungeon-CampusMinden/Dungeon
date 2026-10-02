@@ -10,6 +10,7 @@ import engine.sound.Sounds;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
+import feature.systems.EventScheduler;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -69,6 +70,8 @@ public final class ComputerCallbacks {
 
   /** Delay between triggering the unknown-device virus and the forced shutdown. */
   static final long UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS = 10_000L;
+
+  private static long unknownDeviceShutdownAt = -1;
 
   private static final int MIN_HEATER_CELSIUS = 10;
   private static final int MAX_HEATER_CELSIUS = 30;
@@ -373,6 +376,7 @@ public final class ComputerCallbacks {
       return;
     }
     replaceState(stateEntity, current.withInfection(false).withVirusType(null));
+    resetUnknownDeviceShutdown();
     LastHourTracking.solved(LastHourPuzzle.VIRUS_NEUTRALIZATION);
   }
 
@@ -380,9 +384,52 @@ public final class ComputerCallbacks {
     onVirusTriggered.accept(who);
   }
 
+  /**
+   * Schedules the unknown-device shutdown and keeps its deadline available to the savegame.
+   *
+   * @param delayMs delay before the PC shuts down
+   */
+  public static void scheduleUnknownDeviceShutdown(long delayMs) {
+    unknownDeviceShutdownAt = System.currentTimeMillis() + Math.max(0, delayMs);
+    if (PreRunConfiguration.multiplayerEnabled()) {
+      EventScheduler.scheduleAction(
+          ComputerCallbacks::shutdownPcAfterUnknownDevice, Math.max(0, delayMs));
+    }
+  }
+
+  /**
+   * Returns the remaining delay, or -1 if no unknown-device shutdown is pending.
+   *
+   * @return remaining shutdown delay in milliseconds, or -1 when none is pending
+   */
+  public static long unknownDeviceShutdownRemainingMs() {
+    return unknownDeviceShutdownAt < 0
+        ? -1
+        : Math.max(0, unknownDeviceShutdownAt - System.currentTimeMillis());
+  }
+
+  /**
+   * Returns the default delay before an unknown-device shutdown.
+   *
+   * @return default shutdown delay in milliseconds
+   */
+  public static long unknownDeviceShutdownDefaultDelayMs() {
+    return UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS;
+  }
+
+  /** Clears a deadline when a new room starts or the infection is cured. */
+  public static void resetUnknownDeviceShutdown() {
+    unknownDeviceShutdownAt = -1;
+  }
+
   /** Resets the PC after an unknown-device infection reaches its shutdown deadline. */
   static void shutdownPcAfterUnknownDevice() {
-    if (ComputerStateComponent.getState().isEmpty()) return;
+    ComputerStateComponent current = ComputerStateComponent.getState().orElse(null);
+    if (current == null
+        || !current.isInfected()
+        || !Lore.UnknownDeviceVirusType.equals(current.virusType())) return;
+    if (unknownDeviceShutdownAt < 0 || unknownDeviceShutdownAt > System.currentTimeMillis()) return;
+    resetUnknownDeviceShutdown();
     ComputerStateComponent.setInfection(false);
     ComputerStateComponent.setVirusType(null);
     ComputerStateComponent.setState(ComputerProgress.ON);

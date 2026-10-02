@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.components.PositionComponent;
+import engine.utils.Point;
 import feature.components.InventoryComponent;
 import feature.hints.HintSystem;
 import feature.inventory.items.ItemKey;
@@ -173,6 +175,41 @@ class SystemRecoverySaveTest {
   }
 
   @Test
+  void persistsNamedPlayerPositions() throws Exception {
+    SystemRecoverySave.PlayerPositionData position =
+        new SystemRecoverySave.PlayerPositionData("Ada", 12.5f, 3.5f);
+    SystemRecoverySave.SaveData expected =
+        saveForCheckpoint(SystemRecoveryLearningStep.ENERGY_ARRAY, List.of())
+            .withPlayerPositions(List.of(position));
+    Path savePath = temporaryDirectory.resolve("player-position.json");
+
+    SystemRecoverySave.write(savePath, expected);
+
+    assertEquals(
+        List.of(position), SystemRecoveryLoad.read(savePath).orElseThrow().playerPositions());
+  }
+
+  @Test
+  void restoresPositionToThePlayerWithTheMatchingNameAndKeepsUnjoinedPlayersPending() {
+    Entity ada = new Entity("ada");
+    ada.add(new PlayerComponent(true, "Ada"));
+    PositionComponent position = new PositionComponent(new Point(1f, 1f));
+    ada.add(position);
+    List<SystemRecoverySave.PlayerPositionData> bobPosition =
+        List.of(new SystemRecoverySave.PlayerPositionData("Bob", 8f, 9f));
+
+    List<SystemRecoverySave.PlayerPositionData> pending =
+        SystemRecoveryLoad.restorePlayerPositions(
+            List.of(ada),
+            List.of(
+                new SystemRecoverySave.PlayerPositionData("Ada", 12.5f, 3.5f),
+                bobPosition.getFirst()));
+
+    assertEquals(new Point(12.5f, 3.5f), position.position());
+    assertEquals(bobPosition, pending);
+  }
+
+  @Test
   void persistsAnUnprogrammedUsbDraftAcrossLoad() throws Exception {
     String draft = UsbProgramDraft.encode(List.of("map[row].length", "map[row][column] == 1", ""));
     SystemRecoverySave.SaveData expected =
@@ -230,12 +267,16 @@ class SystemRecoverySaveTest {
   void capturesTheAuthoritativePlayerNameInsteadOfTheJvmFallback() {
     Entity player = new Entity("authoritative-player");
     player.add(new PlayerComponent(true, "Ada"));
+    player.add(new PositionComponent(new Point(12.5f, 3.5f)));
     Game.add(player);
 
     SystemRecoverySave.SaveData save =
         SystemRecoverySave.capture(SystemRecoveryLearningStep.ENERGY_ARRAY, UUID.randomUUID());
 
     assertEquals("Ada", save.playerName());
+    assertEquals(
+        List.of(new SystemRecoverySave.PlayerPositionData("Ada", 12.5f, 3.5f)),
+        save.playerPositions());
   }
 
   @Test
