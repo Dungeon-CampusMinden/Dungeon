@@ -19,6 +19,7 @@ import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
+import feature.hud.AutoSaveIndicator;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
@@ -28,7 +29,6 @@ import java.util.Objects;
 import rooms.systemRecovery.network.SystemCoreVisualSync;
 import rooms.systemRecovery.network.SystemRecoveryComponentSync;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
-import rooms.systemRecovery.save.SystemRecoveryAutoSaveHud;
 
 /** Client-side setup for System Recovery. */
 public final class SystemRecoveryClient {
@@ -37,7 +37,7 @@ public final class SystemRecoveryClient {
 
   /** Registers client-side handlers and systems for System Recovery. */
   public static void clientSetup() {
-    SystemRecoveryAutoSaveHud.reset();
+    AutoSaveIndicator.reset();
     registerEntitySpawnHandler();
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
@@ -105,7 +105,7 @@ public final class SystemRecoveryClient {
                 newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
               }
               SystemRecoveryComponentSync.applyEntityMetadata(newEntity, event.metadata());
-              SystemRecoveryAutoSaveHud.acceptRevision(
+              AutoSaveIndicator.acceptRevision(
                   event.metadata().get(SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION));
               SystemCoreVisualSync.applyAlarm(event.metadata());
               SystemCoreVisualSync.applyCompletionMetadata(newEntity, event.metadata());

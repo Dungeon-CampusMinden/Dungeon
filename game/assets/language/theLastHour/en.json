@@ -74,6 +74,14 @@
             "name": "Trash Diver",
             "description": "Search through a trashcan."
         },
+        "trash_inspector": {
+            "name": "Trash Inspector",
+            "description": "Look into a trashcan."
+        },
+        "trash_detective": {
+            "name": "Trash Detective",
+            "description": "Inspect a trashcan."
+        },
         "pc_unlocked": {
             "name": "PC Unlocked",
             "description": "Log in to the office computer."

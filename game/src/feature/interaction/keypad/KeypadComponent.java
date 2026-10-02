@@ -283,6 +283,13 @@ public class KeypadComponent implements Component {
     return wrongCodeAttempts;
   }
 
+  /** Restores the number of complete wrong submissions without firing callbacks. */
+  public void restoreWrongCodeAttempts(int wrongCodeAttempts) {
+    if (wrongCodeAttempts < 0)
+      throw new IllegalArgumentException("wrongCodeAttempts must be nonnegative");
+    this.wrongCodeAttempts = wrongCodeAttempts;
+  }
+
   /**
    * Gets the entity associated with the keypad overlay.
    *

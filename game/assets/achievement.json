@@ -15,6 +15,20 @@
       "hidden": true
     },
     {
+      "imagePath": "images/crumbled-paper.png",
+      "id": "trash_inspector",
+      "developerNote": "Look into a trashcan.",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
+      "imagePath": "images/crumbled-paper.png",
+      "id": "trash_detective",
+      "developerNote": "Inspect a trashcan.",
+      "unlockForAll": false,
+      "hidden": true
+    },
+    {
       "imagePath": "images/company_logo.png",
       "id": "pc_unlocked",
       "developerNote": "Log in to the office computer.",

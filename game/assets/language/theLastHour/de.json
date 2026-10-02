@@ -74,6 +74,14 @@
             "name": "Mülltaucher",
             "description": "Durchsuche einen Papierkorb."
         },
+        "trash_inspector": {
+            "name": "Müllinspektor",
+            "description": "Schau in einen Papierkorb."
+        },
+        "trash_detective": {
+            "name": "Mülldetektiv",
+            "description": "Untersuche einen Papierkorb."
+        },
         "pc_unlocked": {
             "name": "PC entsperrt",
             "description": "Melde dich am Bürocomputer an."

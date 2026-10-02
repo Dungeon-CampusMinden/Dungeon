@@ -55,6 +55,17 @@ public final class LastHourQuestLogUtil {
     addQuestLogEntryOnce(T_MAIN_TAB, T_MAIN_LOCKED_IN);
   }
 
+  /** Returns the keys already added by room logic, so reloads do not duplicate entries. */
+  public static Set<String> addedEntryKeys() {
+    return Set.copyOf(ENTRY_KEYS_ADDED);
+  }
+
+  /** Restores the deduplication keys after the quest log has been loaded. */
+  public static void restoreAddedEntryKeys(Set<String> keys) {
+    ENTRY_KEYS_ADDED.clear();
+    ENTRY_KEYS_ADDED.addAll(keys);
+  }
+
   /** Adds the storage door code observation after it has been entered successfully. */
   public static void addDoorCodeQuestLogEntry() {
     addQuestLogEntryOnce(T_CLUES_TAB, T_CLUES_DOOR_CODE);
