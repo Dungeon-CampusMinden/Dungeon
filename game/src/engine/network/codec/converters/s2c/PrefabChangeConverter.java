@@ -7,7 +7,7 @@ import engine.network.messages.s2c.PrefabChangeMessage;
 /** Converter for server-to-client runtime prefab change messages. */
 public final class PrefabChangeConverter
     implements MessageConverter<PrefabChangeMessage, engine.network.proto.s2c.PrefabChangeMessage> {
-  private static final byte WIRE_TYPE_ID = 31;
+  private static final byte WIRE_TYPE_ID = 32;
 
   @Override
   public engine.network.proto.s2c.PrefabChangeMessage toProto(PrefabChangeMessage message) {
