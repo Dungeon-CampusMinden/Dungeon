@@ -25,8 +25,6 @@ public final class LastHourAchievements {
 
   public static final String LIGHTS_ON = "lights_on";
   public static final String TRASH_DIVER = "trash_diver";
-  public static final String TRASH_INSPECTOR = "trash_inspector";
-  public static final String TRASH_DETECTIVE = "trash_detective";
   public static final String PC_UNLOCKED = "pc_unlocked";
   public static final String VIRUS = "virus";
   public static final String KEYPAD_CODE = "keypad_code";
@@ -93,8 +91,6 @@ public final class LastHourAchievements {
   /** Awards the three trashcan discoveries to the player who opened one. */
   public static void onTrashcanOpened(Entity player) {
     trigger(player, TRASH_DIVER);
-    trigger(player, TRASH_INSPECTOR);
-    trigger(player, TRASH_DETECTIVE);
   }
 
   /** Clears run-local popup history for a new game. */
