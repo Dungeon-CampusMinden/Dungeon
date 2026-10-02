@@ -67,7 +67,11 @@ public final class LastHourAchievements {
     AchievementManager.instance().popFor(player, id);
   }
 
-  /** Awards the trashcan discovery to the player who opened one. */
+  /**
+   * Awards the trashcan discovery to the player who opened one.
+   *
+   * @param player player who opened the trashcan
+   */
   public static void onTrashcanOpened(Entity player) {
     trigger(player, TRASH_DIVER);
   }

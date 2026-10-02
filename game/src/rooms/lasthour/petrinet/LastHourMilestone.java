@@ -15,7 +15,11 @@ public enum LastHourMilestone {
   EXIT_OPENED,
   ESCAPED;
 
-  /** Returns the milestones that must already be completed before this transition can fire. */
+  /**
+   * Returns the milestones that must already be completed before this transition can fire.
+   *
+   * @return the prerequisite milestones for this transition
+   */
   public Set<LastHourMilestone> prerequisites() {
     return switch (this) {
       case LOGIN_SUCCEEDED -> EnumSet.of(POWER_ON);

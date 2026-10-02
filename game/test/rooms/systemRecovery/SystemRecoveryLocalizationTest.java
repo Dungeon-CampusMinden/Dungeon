@@ -32,22 +32,27 @@ class SystemRecoveryLocalizationTest {
     SystemRecovery.initLocalization();
     Game.localization().currentLanguage(Language.DE);
 
-    String message = new Translation("systemRecovery.trackingConsent").text("local.message");
+    String message = new Translation("trackingConsent").text("local.message");
 
     assertTrue(message.contains("amatutat@hsbi.de"));
-    assertTrue(message.contains("vollständige Terminaleingaben"));
+    assertTrue(
+        message.contains("Alle abgesendeten Freitexteingaben werden vollständig gespeichert."));
     assertTrue(message.contains("lokal"));
     assertTrue(message.contains("Host-Computer"));
     assertTrue(message.contains("Einstellungen > Datenschutz"));
     assertFalse(message.contains("anonymisierte Spieldaten"));
 
-    Translation consent = new Translation("systemRecovery.trackingConsent");
+    Translation consent = new Translation("trackingConsent");
     assertTrue(consent.text("local.summary").contains("ohne Tracking"));
     assertEquals("Datenschutz", consent.text("local.settingsTitle"));
     assertTrue(consent.text("local.deleteMessage").contains("Savegame"));
 
     Game.localization().currentLanguage(Language.EN);
     assertTrue(consent.text("local.message").contains("computer hosting the game"));
+    assertTrue(
+        consent
+            .text("local.message")
+            .contains("All free-text input you submit is stored in full."));
     assertTrue(consent.text("local.message").contains("Settings > Privacy"));
   }
 
@@ -55,17 +60,22 @@ class SystemRecoveryLocalizationTest {
   void centralTrackingNoticeDescribesThePlannedGermanServerDeployment() {
     SystemRecovery.initLocalization();
     Game.localization().currentLanguage(Language.DE);
-    Translation consent = new Translation("systemRecovery.trackingConsent");
+    Translation consent = new Translation("trackingConsent");
 
     String message = consent.text("central.message");
     assertTrue(message.contains("Server in Deutschland"));
     assertTrue(message.contains("90 Tage"));
-    assertTrue(message.contains("vollständige Terminaleingaben"));
+    assertTrue(
+        message.contains("Alle abgesendeten Freitexteingaben werden vollständig gespeichert."));
     assertTrue(message.contains("pseudonym"));
     assertTrue(message.contains("amatutat@hsbi.de"));
 
     Game.localization().currentLanguage(Language.EN);
     assertTrue(consent.text("central.message").contains("server in Germany"));
+    assertTrue(
+        consent
+            .text("central.message")
+            .contains("All free-text input you submit is stored in full."));
     assertTrue(consent.text("central.message").contains("90 days"));
   }
 }

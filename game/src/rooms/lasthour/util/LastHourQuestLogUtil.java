@@ -55,12 +55,20 @@ public final class LastHourQuestLogUtil {
     addQuestLogEntryOnce(T_MAIN_TAB, T_MAIN_LOCKED_IN);
   }
 
-  /** Returns the keys already added by room logic, so reloads do not duplicate entries. */
+  /**
+   * Returns the keys already added by room logic, so reloads do not duplicate entries.
+   *
+   * @return an immutable copy of the added entry keys
+   */
   public static Set<String> addedEntryKeys() {
     return Set.copyOf(ENTRY_KEYS_ADDED);
   }
 
-  /** Restores the deduplication keys after the quest log has been loaded. */
+  /**
+   * Restores the deduplication keys after the quest log has been loaded.
+   *
+   * @param keys entry keys already represented in the loaded quest log
+   */
   public static void restoreAddedEntryKeys(Set<String> keys) {
     ENTRY_KEYS_ADDED.clear();
     ENTRY_KEYS_ADDED.addAll(keys);

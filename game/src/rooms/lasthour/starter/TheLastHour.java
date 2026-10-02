@@ -169,21 +169,39 @@ public class TheLastHour {
     MainMenu.run(args, game, client, server);
   }
 
+  /**
+   * Returns whether startup was requested to continue an existing save.
+   *
+   * @return true if this process is loading a saved run
+   */
   public static boolean loadFromSave() {
     return loadFromSave;
   }
 
-  /** Returns whether this process was explicitly started in the level editor. */
+  /**
+   * Returns whether this process was explicitly started in the level editor.
+   *
+   * @return true if this process is running the level editor
+   */
   public static boolean levelEditorMode() {
     return levelEditorMode;
   }
 
+  /**
+   * Returns the identifier shared by all saves and tracking events for this run.
+   *
+   * @return the current run identifier
+   */
   public static UUID runId() {
     if (runId == null) runId = UUID.randomUUID();
     return runId;
   }
 
-  /** Returns the current run's tracking decision, or {@code null} while undecided. */
+  /**
+   * Returns the current run's tracking decision, or {@code null} while undecided.
+   *
+   * @return the decision, or {@code null} if the user has not decided
+   */
   public static Boolean trackingConsent() {
     return TRACKING_CONSENT.decision();
   }

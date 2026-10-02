@@ -66,7 +66,12 @@ public final class LastHourProgressNet {
     instance = null;
   }
 
-  /** Fires a validated, irreversible milestone exactly once. */
+  /**
+   * Fires a validated, irreversible milestone exactly once.
+   *
+   * @param milestone milestone transition to fire
+   * @return whether the milestone was completed
+   */
   public static synchronized boolean complete(LastHourMilestone milestone) {
     if (instance == null || milestone == null) return false;
     Places pair = instance.places.get(milestone);
@@ -79,12 +84,21 @@ public final class LastHourProgressNet {
     return false;
   }
 
-  /** Returns the stable marking. */
+  /**
+   * Returns the stable marking.
+   *
+   * @return the set of completed milestones
+   */
   public static synchronized Set<LastHourMilestone> completedMilestones() {
     return instance == null ? Set.of() : Set.copyOf(instance.completed());
   }
 
-  /** Restores a validated marking without firing gameplay callbacks. */
+  /**
+   * Restores a validated marking without firing gameplay callbacks.
+   *
+   * @param completed milestones to restore as completed
+   * @return whether the marking was valid and restored
+   */
   public static synchronized boolean restore(Set<LastHourMilestone> completed) {
     if (instance == null || completed == null) return false;
     for (LastHourMilestone milestone : completed) {

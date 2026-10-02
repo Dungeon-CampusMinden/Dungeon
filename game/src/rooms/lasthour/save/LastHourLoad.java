@@ -33,7 +33,12 @@ public final class LastHourLoad {
 
   private LastHourLoad() {}
 
-  /** Reads and validates a save file. */
+  /**
+   * Reads and validates a save file.
+   *
+   * @param path save file to read
+   * @return validated save data, or empty if the file is missing or invalid
+   */
   public static Optional<LastHourSave.SaveData> read(Path path) {
     if (path == null || !Files.isRegularFile(path)) return Optional.empty();
     try {
@@ -43,17 +48,30 @@ public final class LastHourLoad {
     }
   }
 
-  /** Reads the default save file selected by the main menu. */
+  /**
+   * Reads the default save file selected by the main menu.
+   *
+   * @return validated save data, or empty if the file is missing or invalid
+   */
   public static Optional<LastHourSave.SaveData> read() {
     return read(LastHourSave.DEFAULT_PATH);
   }
 
-  /** Returns whether a readable save exists at the default menu location. */
+  /**
+   * Returns whether a readable save exists at the default menu location.
+   *
+   * @return true if a valid save can be read
+   */
   public static boolean exists() {
     return read().isPresent();
   }
 
-  /** Restores the milestone marking and quest log silently. */
+  /**
+   * Restores the milestone marking and quest log silently.
+   *
+   * @param data validated save data to restore
+   * @return true if the runtime state was restored successfully
+   */
   public static boolean restoreRuntime(LastHourSave.SaveData data) {
     if (data == null) return false;
     try {

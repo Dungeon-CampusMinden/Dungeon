@@ -166,7 +166,11 @@ public class LastHourLevel extends DungeonLevel {
     return Instance;
   }
 
-  /** Returns the revision last written by the authoritative server for client save feedback. */
+  /**
+   * Returns the revision last written by the authoritative server for client save feedback.
+   *
+   * @return the latest save revision, or zero before the level is initialized
+   */
   public static int saveRevision() {
     return Instance == null ? 0 : Instance.saveRevision;
   }

@@ -283,7 +283,11 @@ public class KeypadComponent implements Component {
     return wrongCodeAttempts;
   }
 
-  /** Restores the number of complete wrong submissions without firing callbacks. */
+  /**
+   * Restores the number of complete wrong submissions without firing callbacks.
+   *
+   * @param wrongCodeAttempts number of complete wrong submissions
+   */
   public void restoreWrongCodeAttempts(int wrongCodeAttempts) {
     if (wrongCodeAttempts < 0)
       throw new IllegalArgumentException("wrongCodeAttempts must be nonnegative");

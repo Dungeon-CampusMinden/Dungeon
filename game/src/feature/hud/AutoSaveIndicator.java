@@ -31,7 +31,11 @@ public final class AutoSaveIndicator {
     lastRevision = 0;
   }
 
-  /** Shows one confirmation when a newer server-written revision arrives. */
+  /**
+   * Shows one confirmation when a newer server-written revision arrives.
+   *
+   * @param encodedRevision server revision encoded as text
+   */
   public static void acceptRevision(String encodedRevision) {
     if (encodedRevision == null || Game.isHeadless()) return;
     final int revision;
