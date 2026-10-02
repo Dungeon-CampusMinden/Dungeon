@@ -26,6 +26,7 @@
             "questlog": "Questlog",
             "achievements": "Achievements",
             "settings": "Settings",
+            "client_infos": "Client Info",
             "quit_to_desktop": "Quit to Desktop",
             "back": "Back",
             "you": "Your name: $1",

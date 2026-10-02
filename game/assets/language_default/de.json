@@ -26,6 +26,7 @@
             "questlog": "Questlog",
             "achievements": "Achievements",
             "settings": "Einstellungen",
+            "client_infos": "Client Infos",
             "quit_to_desktop": "Spiel beenden",
             "back": "Zurück",
             "you": "Dein Name: $1",
