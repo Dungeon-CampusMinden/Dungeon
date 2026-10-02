@@ -2,10 +2,16 @@ package rooms.lasthour.util;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
+import feature.achievements.Achievement;
 import feature.achievements.AchievementManager;
 import feature.components.InventoryComponent;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
@@ -19,6 +25,8 @@ public final class LastHourAchievements {
 
   public static final String LIGHTS_ON = "lights_on";
   public static final String TRASH_DIVER = "trash_diver";
+  public static final String TRASH_INSPECTOR = "trash_inspector";
+  public static final String TRASH_DETECTIVE = "trash_detective";
   public static final String PC_UNLOCKED = "pc_unlocked";
   public static final String VIRUS = "virus";
   public static final String KEYPAD_CODE = "keypad_code";
@@ -29,6 +37,8 @@ public final class LastHourAchievements {
   public static final String ESCAPED_TOO_LATE = "escaped_too_late";
 
   private static final int BRUTEFORCE_ATTEMPTS = 10;
+  private static final String ALL_PLAYERS = "*";
+  private static final Map<String, Set<String>> EMITTED_THIS_RUN = new LinkedHashMap<>();
 
   private LastHourAchievements() {}
 
@@ -51,6 +61,7 @@ public final class LastHourAchievements {
    * @param id achievement id
    */
   public static void trigger(String id) {
+    if (!record(ALL_PLAYERS, id)) return;
     AchievementManager.instance().pop(id);
   }
 
@@ -64,7 +75,48 @@ public final class LastHourAchievements {
    * @param id achievement id
    */
   public static void trigger(Entity player, String id) {
+    String owner =
+        player == null
+            ? null
+            : player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
+    boolean global =
+        AchievementManager.menuAchievements().stream()
+            .filter(achievement -> achievement.id().equals(id))
+            .findFirst()
+            .map(Achievement::unlocksForAll)
+            .orElse(false);
+    String scope = global ? ALL_PLAYERS : owner;
+    if (scope != null && !record(scope, id)) return;
     AchievementManager.instance().popFor(player, id);
+  }
+
+  /** Awards the three trashcan discoveries to the player who opened one. */
+  public static void onTrashcanOpened(Entity player) {
+    trigger(player, TRASH_DIVER);
+    trigger(player, TRASH_INSPECTOR);
+    trigger(player, TRASH_DETECTIVE);
+  }
+
+  /** Clears run-local popup history for a new game. */
+  public static void resetRunProgress() {
+    EMITTED_THIS_RUN.clear();
+  }
+
+  /** Captures achievement events that have already been emitted in this run. */
+  public static Map<String, List<String>> runProgress() {
+    Map<String, List<String>> result = new LinkedHashMap<>();
+    EMITTED_THIS_RUN.forEach((owner, ids) -> result.put(owner, List.copyOf(ids)));
+    return result;
+  }
+
+  /** Restores run-local history without sending popup messages. */
+  public static void restoreRunProgress(Map<String, List<String>> progress) {
+    EMITTED_THIS_RUN.clear();
+    progress.forEach((owner, ids) -> EMITTED_THIS_RUN.put(owner, new LinkedHashSet<>(ids)));
+  }
+
+  private static boolean record(String owner, String id) {
+    return EMITTED_THIS_RUN.computeIfAbsent(owner, ignored -> new LinkedHashSet<>()).add(id);
   }
 
   /**

@@ -5,6 +5,7 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.InputComponent;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.language.Language;
@@ -13,6 +14,7 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.network.messages.s2c.ItemState;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
@@ -54,15 +56,20 @@ import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzlePieceItem;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
+import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
 import feature.utils.EntityUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import rooms.lasthour.modules.computer.ComputerCallbacks;
 import rooms.lasthour.modules.computer.ComputerDialog;
 import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerProgress;
@@ -71,6 +78,10 @@ import rooms.lasthour.modules.computer.content.BlogTab;
 import rooms.lasthour.modules.trash.TrashMinigameFactory;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
+import rooms.lasthour.petrinet.LastHourMilestone;
+import rooms.lasthour.petrinet.LastHourProgressNet;
+import rooms.lasthour.save.LastHourLoad;
+import rooms.lasthour.save.LastHourSave;
 import rooms.lasthour.starter.LastHourClient;
 import rooms.lasthour.starter.TheLastHour;
 import rooms.lasthour.util.LastHourAchievements;
@@ -88,19 +99,30 @@ public class LastHourLevel extends DungeonLevel {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
   private static LastHourLevel Instance = null;
 
-  private DoorTile storageDoor;
-  private DoorTile exitDoor;
-  private Entity pc;
-  private Entity r2Phone;
-  private Entity ringingPhoneEmote;
-  private boolean isPhoneRinging = false;
-  private String ringingPhoneDialog = "";
-  private Runnable onCurrentPhoneCallResolved;
-  private boolean firstPhoneCallTriggered = false;
-  private boolean secondPhoneCallScheduled = false;
-  private ComputerStateComponent cscLastTick;
-  private Entity keypad;
-  private int lastKnownVisibleCommentCount = 0;
+  DoorTile storageDoor;
+  DoorTile exitDoor;
+  Entity pc;
+  Entity r2Phone;
+  Entity ringingPhoneEmote;
+  boolean isPhoneRinging = false;
+  String ringingPhoneDialog = "";
+  Runnable onCurrentPhoneCallResolved;
+  boolean firstPhoneCallTriggered = false;
+  boolean secondPhoneCallScheduled = false;
+  long firstPhoneRingAt = -1;
+  long secondPhoneRingAt = -1;
+  boolean trashNoteAwarded = false;
+  boolean blueTrashAwarded = false;
+  boolean codeAssembled = false;
+  boolean escaped = false;
+  Entity worldTimer;
+  private Optional<LastHourSave.SaveData> pendingSave = Optional.empty();
+  final List<LastHourSave.PlayerData> pendingPlayers = new ArrayList<>();
+  LastHourSave.SaveData lastSaved;
+  ComputerStateComponent cscLastTick;
+  Entity keypad;
+  int lastKnownVisibleCommentCount = 0;
+  private int saveRevision;
   private final Set<Integer> usbCollectorWatchedPlayers = new HashSet<>();
   private boolean introSuppressed;
 
@@ -109,19 +131,19 @@ public class LastHourLevel extends DungeonLevel {
 
   private static final String PC_STATE_ON = "on";
   private static final String PC_STATE_VIRUS = "virus";
-  private static final String PC_SIGNAL_ON = "on";
-  private static final String PC_SIGNAL_INFECT = "infect";
+  static final String PC_SIGNAL_ON = "on";
+  static final String PC_SIGNAL_INFECT = "infect";
   private static final String PC_SIGNAL_CLEAR = "clear";
   private static final int PHONE_RINGING_EMOTE_DURATION_MS = 60 * 60 * 1000;
   private static final long FIRST_PHONE_RING_DELAY_MS = 30_000L;
   private static final long SECOND_PHONE_RING_DELAY_MS = 45_000L;
 
-  private static Puzzle puzzle;
+  static Puzzle puzzle;
   public static Puzzle puzzleDE;
   public static Puzzle puzzleEN;
 
-  private static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
-  private static boolean timerExpired = false;
+  static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
+  static boolean timerExpired = false;
 
   /**
    * Creates a new Demo Level.
@@ -145,9 +167,28 @@ public class LastHourLevel extends DungeonLevel {
     return Instance;
   }
 
+  /** Returns the revision last written by the authoritative server for client save feedback. */
+  public static int saveRevision() {
+    return Instance == null ? 0 : Instance.saveRevision;
+  }
+
+  Point worldPoint(String name) {
+    return getPoint(name);
+  }
+
   @Override
   protected void onFirstTick() {
     timerExpired = false;
+    puzzle = null;
+    saveRevision = 0;
+    lastSaved = null;
+    pendingPlayers.clear();
+    INTRO_SHOWN_TO.clear();
+    LastHourAchievements.resetRunProgress();
+    ComputerCallbacks.resetUnknownDeviceShutdown();
+    LastHourProgressNet.reset();
+    LastHourProgressNet.initialize();
+    pendingSave = TheLastHour.loadFromSave() ? LastHourLoad.read() : Optional.empty();
     LastHourQuestLogUtil.initializeQuestLog();
     if (TheLastHour.levelEditorMode() || (!Game.isHeadless() && LevelEditorSystem.active())) {
       introSuppressed = true;
@@ -168,7 +209,7 @@ public class LastHourLevel extends DungeonLevel {
               storageDoor.open();
               LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
               LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
-              EventScheduler.scheduleAction(this::triggerFirstPhoneCall, FIRST_PHONE_RING_DELAY_MS);
+              scheduleFirstPhoneCall(FIRST_PHONE_RING_DELAY_MS);
             },
             true);
     keypad
@@ -219,6 +260,15 @@ public class LastHourLevel extends DungeonLevel {
     setupR2DecoyContainers();
     setupUsbSticks();
 
+    pendingSave.ifPresent(
+        data -> {
+          if (!LastHourLoad.restoreRuntime(data)) {
+            LOGGER.warn("Ignoring invalid The Last Hour Petri marking");
+            return;
+          }
+          LastHourCheckpointProjection.apply(this, data);
+        });
+
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 
@@ -253,6 +303,12 @@ public class LastHourLevel extends DungeonLevel {
                       .fetch(InputComponent.class)
                       .ifPresent(
                           pc -> {
+                            if (escaped) return;
+                            reconcileMilestones();
+                            if (!LastHourProgressNet.completedMilestones()
+                                .contains(LastHourMilestone.EXIT_OPENED)) return;
+                            escaped = true;
+                            LastHourProgressNet.complete(LastHourMilestone.ESCAPED);
                             LastHourQuestLogUtil.addEscapeQuestLogEntries();
                             LastHourAchievements.trigger(
                                 other,
@@ -285,7 +341,9 @@ public class LastHourLevel extends DungeonLevel {
 
   private void setupTimer() {
     int unixTime = (int) (System.currentTimeMillis() / 1000L);
-    Game.add(WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, 60 * 60));
+    int seconds = pendingSave.map(LastHourSave.SaveData::remainingSeconds).orElse(60 * 60);
+    worldTimer = WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, seconds);
+    Game.add(worldTimer);
   }
 
   /**
@@ -482,7 +540,7 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   private static final Deco[] trashcans = {Deco.TrashCanBlue, Deco.TrashCanGreen, Deco.TrashCanRed};
-  private static final String trashNote = "images/note-password-2.png";
+  static final String trashNote = "images/note-password-2.png";
   private static final List<Integer> PaperCounts = List.of(50, 10, 50, 50, 5, 15, 3);
   private static final int trashIndex = 3;
 
@@ -498,12 +556,11 @@ public class LastHourLevel extends DungeonLevel {
               int paperCount = PaperCounts.get(index % PaperCounts.size());
               boolean hasReward = index == trashIndex;
 
-              final boolean[] awarded = {false};
               trashcan.add(
                   new InteractionComponent(
                       new Interaction(
                           (eInteract, who) -> {
-                            if (!hasReward || awarded[0]) {
+                            if (!hasReward || trashNoteAwarded) {
                               showTrashMinigame(who, null, paperCount, null);
                               return;
                             }
@@ -512,9 +569,10 @@ public class LastHourLevel extends DungeonLevel {
                                 who,
                                 reward,
                                 paperCount,
+                                () -> !trashNoteAwarded,
                                 () -> {
-                                  if (awarded[0]) return;
-                                  awarded[0] = true;
+                                  if (trashNoteAwarded) return;
+                                  trashNoteAwarded = true;
                                   LastHourQuestLogUtil.addTrashNoteQuestLogEntry();
                                 });
                           })));
@@ -562,7 +620,7 @@ public class LastHourLevel extends DungeonLevel {
   // Puzzle definition for the r2-papers puzzle. Shared between the server (which spawns the
   // world items in r2SpawnPapers) and the client (which pre-generates the matching textures
   // in ensureClientPuzzles) so both derive the same deterministic puzzle id.
-  private static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code-en.png");
+  static final SimpleIPath R2_PUZZLE_IMAGE_EN = new SimpleIPath("images/final-code-en.png");
   private static final SimpleIPath R2_PUZZLE_IMAGE_DE = new SimpleIPath("images/final-code-de.png");
   private static final int R2_PUZZLE_PIECE_COUNT = 4;
   private static final long R2_PUZZLE_SEED = 1586791695537379744L;
@@ -635,12 +693,19 @@ public class LastHourLevel extends DungeonLevel {
    * so they spread out.
    */
   public void r2SpawnPapers() {
-    LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
+    createPaperPuzzle(true);
+  }
+
+  void createPaperPuzzle(boolean trackStart) {
+    if (puzzle != null) return;
+    if (trackStart) LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     puzzle =
         PuzzleMaker.makePuzzle(
             R2_PUZZLE_IMAGE_EN,
             R2_PUZZLE_PIECE_COUNT,
             (solvedPuzzle, solver) -> {
+              codeAssembled = true;
+              LastHourProgressNet.complete(LastHourMilestone.CODE_ASSEMBLED);
               LastHourTracking.solved(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
               LastHourTracking.started(LastHourPuzzle.EXIT);
               LastHourQuestLogUtil.addFinalCodeQuestLogEntry();
@@ -767,15 +832,26 @@ public class LastHourLevel extends DungeonLevel {
 
   private void triggerFirstPhoneCall() {
     if (firstPhoneCallTriggered) return;
+    firstPhoneRingAt = -1;
     firstPhoneCallTriggered = true;
     ringPhone(TranslationKey.Ringing1, this::scheduleSecondPhoneCall);
   }
 
-  private void scheduleSecondPhoneCall() {
+  void scheduleFirstPhoneCall(long delayMs) {
+    firstPhoneRingAt = System.currentTimeMillis() + delayMs;
+    EventScheduler.scheduleAction(this::triggerFirstPhoneCall, delayMs);
+  }
+
+  void scheduleSecondPhoneCall() {
     if (secondPhoneCallScheduled) return;
     secondPhoneCallScheduled = true;
+    secondPhoneRingAt = System.currentTimeMillis() + SECOND_PHONE_RING_DELAY_MS;
     EventScheduler.scheduleAction(
-        () -> ringPhone(TranslationKey.Ringing2), SECOND_PHONE_RING_DELAY_MS);
+        () -> {
+          secondPhoneRingAt = -1;
+          ringPhone(TranslationKey.Ringing2);
+        },
+        SECOND_PHONE_RING_DELAY_MS);
   }
 
   /**
@@ -793,7 +869,10 @@ public class LastHourLevel extends DungeonLevel {
     onCurrentPhoneCallResolved = onResolved;
     Sounds.play(LastHourSounds.PHONE_RINGING);
     updatePhoneInteraction();
+    showRingingPhoneEmote();
+  }
 
+  void showRingingPhoneEmote() {
     if (ringingPhoneEmote == null) {
       ringingPhoneEmote =
           EmoteFactory.createEmote(
@@ -817,7 +896,7 @@ public class LastHourLevel extends DungeonLevel {
     }
   }
 
-  private void updatePhoneInteraction() {
+  void updatePhoneInteraction() {
     if (r2Phone == null) return;
 
     r2Phone.remove(InteractionComponent.class);
@@ -879,12 +958,11 @@ public class LastHourLevel extends DungeonLevel {
 
     Entity blueTrash = DecoFactory.createDeco(getPoint("r2-trash"), Deco.TrashCanBlue);
     blueTrash.remove(DecoComponent.class);
-    final boolean[] awarded = {false};
     blueTrash.add(
         new InteractionComponent(
             new Interaction(
                 (eInteract, who) -> {
-                  if (awarded[0]) {
+                  if (blueTrashAwarded) {
                     showTrashMinigame(who, null, 30, null);
                     return;
                   }
@@ -893,9 +971,10 @@ public class LastHourLevel extends DungeonLevel {
                       who,
                       reward,
                       30,
+                      () -> !blueTrashAwarded,
                       () -> {
-                        if (awarded[0]) return;
-                        awarded[0] = true;
+                        if (blueTrashAwarded) return;
+                        blueTrashAwarded = true;
                         LastHourQuestLogUtil.addUsbSearchQuestLogEntry();
                       });
                 })));
@@ -903,13 +982,21 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   private void showTrashMinigame(Entity who, Item reward, int paperCount, Runnable afterAward) {
-    LastHourAchievements.trigger(who, LastHourAchievements.TRASH_DIVER);
-    TrashMinigameFactory.show(who, reward, paperCount, afterAward);
+    showTrashMinigame(who, reward, paperCount, () -> true, afterAward);
+  }
+
+  private void showTrashMinigame(
+      Entity who, Item reward, int paperCount, BooleanSupplier canAward, Runnable afterAward) {
+    LastHourAchievements.onTrashcanOpened(who);
+    TrashMinigameFactory.show(who, reward, paperCount, canAward, afterAward);
   }
 
   @Override
   protected void onTick() {
     checkPCStateUpdate();
+    reconcileMilestones();
+    applyPendingPlayers();
+    persistAtPetriMilestone();
     showIntroForNewPlayers();
     registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
@@ -922,6 +1009,152 @@ public class LastHourLevel extends DungeonLevel {
     Game.allPlayers()
         .filter(player -> !INTRO_SHOWN_TO.contains(player.id()))
         .forEach(player -> showIntro(player.id()));
+  }
+
+  private void reconcileMilestones() {
+    ComputerStateComponent state = ComputerStateComponent.getState().orElse(null);
+    if (state == null) return;
+    if (state.state() != ComputerProgress.OFF || state.timestampOfLogin() != 0) {
+      LastHourProgressNet.complete(LastHourMilestone.POWER_ON);
+    }
+    if (state.timestampOfLogin() != 0) {
+      LastHourProgressNet.complete(LastHourMilestone.LOGIN_SUCCEEDED);
+    }
+    boolean keypadUnlocked =
+        keypad.fetch(KeypadComponent.class).map(KeypadComponent::isUnlocked).orElse(false);
+    if (keypadUnlocked || storageDoor.isOpen()) {
+      LastHourProgressNet.complete(LastHourMilestone.STORAGE_OPENED);
+    }
+    if (state.usbInserted()) LastHourProgressNet.complete(LastHourMilestone.BLUE_USB_INSERTED);
+    if (puzzle != null) LastHourProgressNet.complete(LastHourMilestone.PAPERS_SPAWNED);
+    if (codeAssembled) LastHourProgressNet.complete(LastHourMilestone.CODE_ASSEMBLED);
+    if (state.door2Unlocked()) LastHourProgressNet.complete(LastHourMilestone.EXIT_UNLOCKED);
+    if (exitDoor.isOpen()) LastHourProgressNet.complete(LastHourMilestone.EXIT_OPENED);
+    if (escaped) LastHourProgressNet.complete(LastHourMilestone.ESCAPED);
+    if (remainingSeconds() == 0) timerExpired = true;
+  }
+
+  private int remainingSeconds() {
+    WorldTimerComponent timer = worldTimer.fetch(WorldTimerComponent.class).orElseThrow();
+    int now = (int) (System.currentTimeMillis() / 1000L);
+    return Math.max(0, timer.duration() - (now - timer.timestamp()));
+  }
+
+  private LastHourSave.PhoneData capturePhone() {
+    long now = System.currentTimeMillis();
+    return new LastHourSave.PhoneData(
+        firstPhoneCallTriggered,
+        secondPhoneCallScheduled,
+        isPhoneRinging,
+        ringingPhoneDialog,
+        firstPhoneRingAt < 0 ? -1 : Math.max(0, firstPhoneRingAt - now),
+        secondPhoneRingAt < 0 ? -1 : Math.max(0, secondPhoneRingAt - now));
+  }
+
+  private void applyPendingPlayers() {
+    if (pendingPlayers.isEmpty()) return;
+    List<Entity> players = Game.allPlayers().toList();
+    pendingPlayers.removeIf(
+        saved -> {
+          Entity player =
+              players.stream()
+                  .filter(
+                      entity ->
+                          entity
+                              .fetch(PlayerComponent.class)
+                              .map(PlayerComponent::playerName)
+                              .filter(saved.name()::equals)
+                              .isPresent())
+                  .findFirst()
+                  .orElse(null);
+          if (player == null) return false;
+          InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
+          if (inventory == null
+              || saved.items().stream().anyMatch(item -> item.slot() >= inventory.items().length))
+            return false;
+          player
+              .fetch(PositionComponent.class)
+              .ifPresent(position -> position.position(new Point(saved.x(), saved.y())));
+          for (int slot = 0; slot < inventory.items().length; slot++) inventory.set(slot, null);
+          saved.items().forEach(item -> inventory.set(item.slot(), item.state().toItem()));
+          if (saved.introShown()) INTRO_SHOWN_TO.add(player.id());
+          return true;
+        });
+  }
+
+  private List<LastHourSave.PlayerData> capturePlayers() {
+    Map<String, LastHourSave.PlayerData> result = new LinkedHashMap<>();
+    if (lastSaved != null) lastSaved.players().forEach(player -> result.put(player.name(), player));
+    pendingPlayers.forEach(player -> result.put(player.name(), player));
+    Game.allPlayers()
+        .forEach(
+            player ->
+                player
+                    .fetch(PlayerComponent.class)
+                    .ifPresent(
+                        identity -> {
+                          Point position =
+                              player
+                                  .fetch(PositionComponent.class)
+                                  .map(PositionComponent::position)
+                                  .orElse(new Point(0, 0));
+                          List<LastHourSave.ItemData> items = new ArrayList<>();
+                          player
+                              .fetch(InventoryComponent.class)
+                              .ifPresent(
+                                  inventory -> {
+                                    Item[] slots = inventory.items();
+                                    for (int index = 0; index < slots.length; index++) {
+                                      if (slots[index] != null) {
+                                        items.add(
+                                            new LastHourSave.ItemData(
+                                                index, ItemState.fromItem(slots[index])));
+                                      }
+                                    }
+                                  });
+                          result.put(
+                              identity.playerName(),
+                              new LastHourSave.PlayerData(
+                                  identity.playerName(),
+                                  position.x(),
+                                  position.y(),
+                                  INTRO_SHOWN_TO.contains(player.id()),
+                                  items));
+                        }));
+    return result.values().stream()
+        .sorted(java.util.Comparator.comparing(LastHourSave.PlayerData::name))
+        .toList();
+  }
+
+  private LastHourSave.SaveData captureSave() {
+    KeypadComponent keypadState = keypad.fetch(KeypadComponent.class).orElseThrow();
+    return LastHourSave.capture(
+        new LastHourSave.CaptureContext(
+            keypadState.isUnlocked(),
+            keypadState.wrongCodeAttempts(),
+            storageDoor.isOpen(),
+            remainingSeconds(),
+            timerExpired,
+            capturePhone(),
+            trashNoteAwarded,
+            blueTrashAwarded,
+            capturePlayers()));
+  }
+
+  /** Persists the full run state only when the Petri marking advances. */
+  private void persistAtPetriMilestone() {
+    if (!Game.network().isServer() || TheLastHour.levelEditorMode()) return;
+    Set<LastHourMilestone> milestones = LastHourProgressNet.completedMilestones();
+    if (milestones.isEmpty() || (lastSaved != null && milestones.equals(lastSaved.milestones())))
+      return;
+    LastHourSave.SaveData current = captureSave();
+    try {
+      LastHourSave.write(current);
+      lastSaved = current;
+      saveRevision++;
+    } catch (java.io.IOException exception) {
+      LOGGER.warn("Could not write The Last Hour savegame", exception);
+    }
   }
 
   private void registerUsbCollectorHooks() {

@@ -11,6 +11,7 @@ import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.logging.DungeonLogger;
 import feature.collision.CollideSync;
 import feature.components.CollideComponent;
+import feature.hud.AutoSaveIndicator;
 import feature.interaction.keypad.KeypadComponent;
 import feature.timer.WorldTimerComponent;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.modules.computer.ComputerProgress;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 
@@ -105,6 +107,12 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
                 entity.add(computerState);
               });
       entityState.metadata().ifPresent(metadata -> applyCollideMetadata(entity, metadata));
+      entityState
+          .metadata()
+          .ifPresent(
+              metadata ->
+                  AutoSaveIndicator.acceptRevision(
+                      metadata.get(LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION)));
     }
   }
 
@@ -161,7 +169,13 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     Map<String, String> metadata = new HashMap<>();
     entity
         .fetch(ComputerStateComponent.class)
-        .ifPresent(state -> metadata.putAll(computerStateMetadata(state)));
+        .ifPresent(
+            state -> {
+              metadata.putAll(computerStateMetadata(state));
+              metadata.put(
+                  LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION,
+                  String.valueOf(LastHourLevel.saveRevision()));
+            });
     entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
