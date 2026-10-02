@@ -70,6 +70,7 @@ public class TheLastHour {
   private static final String SERVER_STOP_REASON = "Server stopped from status window";
   private static final String MENU_BACKGROUND_IMAGE = "images/lasthour.png";
   private static final Color MENU_ACCENT_COLOR = new Color(0.56f, 0.87f, 1f, 1f);
+  private static boolean levelEditorMode;
 
   /** Enable or disable debug mode, which adds extra systems for debugging and level editing. */
   public static final boolean DEBUG_MODE = false;
@@ -130,6 +131,7 @@ public class TheLastHour {
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.EN)
             .levelEditor("levels/lastHour")
+            .beforeLevelEditorStart(() -> levelEditorMode = true)
             .build();
 
     MainMenu.run(args, game, client, server);
@@ -141,6 +143,15 @@ public class TheLastHour {
     localization.registerTranslationFile(Language.DE, "language/theLastHour/de.json");
     localization.registerTranslationFile(Language.EN, "language/theLastHour/en.json");
     localization.setCurrentTranslator(new LastHourTranslator());
+  }
+
+  /**
+   * Returns whether this process was explicitly started in the level editor.
+   *
+   * @return true while running the level editor
+   */
+  public static boolean levelEditorMode() {
+    return levelEditorMode;
   }
 
   /**

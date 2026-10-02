@@ -72,6 +72,7 @@ import rooms.lasthour.modules.trash.TrashMinigameFactory;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.starter.LastHourClient;
+import rooms.lasthour.starter.TheLastHour;
 import rooms.lasthour.util.LastHourAchievements;
 import rooms.lasthour.util.LastHourPuzzle;
 import rooms.lasthour.util.LastHourQuestLogUtil;
@@ -101,6 +102,7 @@ public class LastHourLevel extends DungeonLevel {
   private Entity keypad;
   private int lastKnownVisibleCommentCount = 0;
   private final Set<Integer> usbCollectorWatchedPlayers = new HashSet<>();
+  private boolean introSuppressed;
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
@@ -147,6 +149,9 @@ public class LastHourLevel extends DungeonLevel {
   protected void onFirstTick() {
     timerExpired = false;
     LastHourQuestLogUtil.initializeQuestLog();
+    if (TheLastHour.levelEditorMode() || (!Game.isHeadless() && LevelEditorSystem.active())) {
+      introSuppressed = true;
+    }
 
     storageDoor = (DoorTile) tileAt(getPoint("door-storage")).orElseThrow();
     storageDoor.close();
@@ -905,11 +910,18 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     checkPCStateUpdate();
-    Game.allPlayers().filter(p -> !INTRO_SHOWN_TO.contains(p.id())).forEach(p -> showIntro(p.id()));
+    showIntroForNewPlayers();
     registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
     }
+  }
+
+  private void showIntroForNewPlayers() {
+    if (introSuppressed || (!Game.isHeadless() && LevelEditorSystem.active())) return;
+    Game.allPlayers()
+        .filter(player -> !INTRO_SHOWN_TO.contains(player.id()))
+        .forEach(player -> showIntro(player.id()));
   }
 
   private void registerUsbCollectorHooks() {
