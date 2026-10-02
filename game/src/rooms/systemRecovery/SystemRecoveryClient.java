@@ -19,6 +19,7 @@ import feature.components.CollideComponent;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
+import feature.input.systems.ControlsDialogSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
@@ -29,6 +30,7 @@ import rooms.systemRecovery.network.SystemCoreVisualSync;
 import rooms.systemRecovery.network.SystemRecoveryComponentSync;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.save.SystemRecoveryAutoSaveHud;
+import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Client-side setup for System Recovery. */
 public final class SystemRecoveryClient {
@@ -42,6 +44,7 @@ public final class SystemRecoveryClient {
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     registerInputPromptTexture();
+    Game.add(new ControlsDialogSystem(SystemRecoveryText::controls));
 
     if (SystemRecovery.debugMode()) {
       Game.add(new Debugger());
