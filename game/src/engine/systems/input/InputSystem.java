@@ -2,6 +2,7 @@ package engine.systems.input;
 
 import com.badlogic.gdx.Input;
 import engine.Entity;
+import engine.Game;
 import engine.System;
 import engine.components.InputComponent;
 import engine.utils.components.MissingComponentException;
@@ -35,7 +36,8 @@ public final class InputSystem extends System {
             .fetch(InputComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, InputComponent.class));
     if (pc.deactivateControls()) return;
-    execute(pc.callbacks(), entity, !this.paused);
+    boolean controlsPaused = !this.paused || Game.hud().hasOpenPausingUI(entity);
+    execute(pc.callbacks(), entity, controlsPaused);
   }
 
   /** This method only marks the game as paused, it does not stop the system. */
