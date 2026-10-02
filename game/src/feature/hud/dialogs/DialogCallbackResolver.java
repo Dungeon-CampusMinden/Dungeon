@@ -1,19 +1,23 @@
 package feature.hud.dialogs;
 
+import engine.Entity;
 import engine.Game;
 import engine.network.NetworkUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.server.DialogTracker;
 import engine.utils.logging.DungeonLogger;
+import feature.components.UIComponent;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * Resolves dialog callbacks and handles network communication for dialog responses.
  *
- * <p>This class acts as a bridge between dialogs and their callbacks, supporting both local
- * (single-player) and network (multiplayer) scenarios. When running as a network client, it sends
- * dialog responses to the server. When running locally, it directly executes the registered
- * callbacks.
+ * <p>This class acts as a bridge between dialogs and their callbacks, supporting local and network
+ * scenarios. Network clients send responses for server-owned dialogs and directly execute callbacks
+ * for dialogs owned by local-only entities.
  */
 public final class DialogCallbackResolver {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(DialogCallbackResolver.class);
@@ -25,9 +29,9 @@ public final class DialogCallbackResolver {
    * Creates a callback consumer for a dialog button.
    *
    * <p>This method creates a consumer that handles button callbacks appropriately based on the
-   * network context. If running as a network client, the callback will send a {@link
-   * DialogResponseMessage} to the server. If running locally or on the server, the callback will
-   * execute the registered callback directly.
+   * network context. Network clients send a {@link DialogResponseMessage} for server-owned dialogs
+   * and execute callbacks directly for local-only dialogs. If running locally or on the server, the
+   * callback will execute the registered callback directly.
    *
    * @param dialogId the unique identifier of the dialog
    * @param callbackKey the key identifying the specific callback for the button
@@ -37,6 +41,13 @@ public final class DialogCallbackResolver {
       String dialogId, String callbackKey) {
     if (NetworkUtils.isNetworkClient()) {
       return (payload) -> {
+        Optional<Consumer<DialogResponseMessage.Payload>> localCallback =
+            findLocalCallback(Game.entities(), dialogId, callbackKey);
+        if (localCallback.isPresent()) {
+          localCallback.get().accept(payload);
+          return;
+        }
+
         DialogResponseMessage msg = new DialogResponseMessage(dialogId, callbackKey, payload);
         Game.network().send((short) 0, msg, true);
       };
@@ -52,5 +63,17 @@ public final class DialogCallbackResolver {
                           dialogId,
                           callbackKey));
     }
+  }
+
+  static Optional<Consumer<DialogResponseMessage.Payload>> findLocalCallback(
+      Stream<Entity> entities, String dialogId, String callbackKey) {
+    Objects.requireNonNull(entities, "entities");
+    return entities
+        .filter(Entity::isLocal)
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(component -> component.dialogContext().dialogId().equals(dialogId))
+        .map(component -> component.callbacks().get(callbackKey))
+        .filter(Objects::nonNull)
+        .findFirst();
   }
 }
