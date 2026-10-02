@@ -171,6 +171,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private List<SystemRecoverySave.PlayerItemData> savedInventoryItems = List.of();
   private List<SystemRecoverySave.PlayerItemData> pendingInventoryItems = List.of();
   private String pendingInventoryPlayerName;
+  private List<SystemRecoverySave.PlayerPositionData> pendingPlayerPositions = List.of();
   private List<String> savedTerminalHistory = List.of();
   private List<String> savedMemoryWatchEntries = List.of();
   private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
@@ -263,6 +264,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (!SystemRecovery.levelEditorMode()) {
       enforcePlayerInventorySize();
       applyPendingPuzzleInventory();
+      applyPendingPlayerPositions();
       saveCheckpointIfNeeded();
     }
     showIntroForNewPlayers();
@@ -295,6 +297,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                     .map(
                         restoredCheckpoint -> {
                           restorePuzzleInventory(data.inventoryItems(), data.playerName());
+                          restorePlayerPositions(data.playerPositions());
                           SystemRecoveryCheckpointProjection.apply(
                               this,
                               restoredCheckpoint,
@@ -356,7 +359,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
     applyPendingPuzzleInventory();
     SystemRecoverySave.SaveData save =
         SystemRecoverySave.capture(
-            checkpoint, runId, SystemRecovery.trackingConsent(), pendingInventoryItems);
+            checkpoint,
+            runId,
+            SystemRecovery.trackingConsent(),
+            pendingInventoryItems,
+            pendingPlayerPositions);
     if (save.playerName() == null || save.playerName().isBlank()) return false;
     boolean checkpointChanged = checkpoint != savedCheckpoint;
     boolean changed =
@@ -499,6 +506,18 @@ public class SystemRecoveryLevel extends DungeonLevel {
     pendingInventoryItems =
         restorePuzzleItems(
             Game.allPlayers().toList(), pendingInventoryItems, pendingInventoryPlayerName);
+  }
+
+  private void restorePlayerPositions(List<SystemRecoverySave.PlayerPositionData> positions) {
+    pendingPlayerPositions = List.copyOf(positions);
+    applyPendingPlayerPositions();
+  }
+
+  private void applyPendingPlayerPositions() {
+    if (pendingPlayerPositions.isEmpty()) return;
+    pendingPlayerPositions =
+        SystemRecoveryLoad.restorePlayerPositions(
+            Game.allPlayers().toList(), pendingPlayerPositions);
   }
 
   static List<SystemRecoverySave.PlayerItemData> restorePuzzleItems(

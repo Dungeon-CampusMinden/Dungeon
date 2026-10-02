@@ -1085,11 +1085,11 @@ public class LastHourLevel extends DungeonLevel {
                     .fetch(PlayerComponent.class)
                     .ifPresent(
                         identity -> {
-                          Point position =
-                              player
-                                  .fetch(PositionComponent.class)
-                                  .map(PositionComponent::position)
-                                  .orElse(new Point(0, 0));
+                          PositionComponent positionComponent =
+                              player.fetch(PositionComponent.class).orElse(null);
+                          if (positionComponent == null) return;
+                          Point position = positionComponent.position();
+                          if (PositionComponent.ILLEGAL_POSITION.equals(position)) return;
                           List<LastHourSave.ItemData> items = new ArrayList<>();
                           player
                               .fetch(InventoryComponent.class)
