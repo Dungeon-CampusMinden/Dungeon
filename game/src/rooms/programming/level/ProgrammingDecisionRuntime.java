@@ -31,7 +31,7 @@ final class ProgrammingDecisionRuntime {
     this.golem = golem;
     this.motion = motion;
     ProgrammingDecisions.reset();
-    ending = new ProgrammingEnding(ProgrammingDecisionWorld.spawn(), () -> completed);
+    ending = new ProgrammingEnding(ProgrammingDecisionWorld.spawn(level), () -> completed);
     publish();
   }
 

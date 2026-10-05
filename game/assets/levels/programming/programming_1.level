@@ -319,14 +319,6 @@
       "x" : 47.0,
       "y" : 112.0
     },
-    "archive-instructions" : {
-      "x" : 35.0,
-      "y" : 20.4
-    },
-    "decisions-heart" : {
-      "x" : 41.0,
-      "y" : 120.0
-    },
     "decisions-start" : {
       "x" : 34.0,
       "y" : 55.0
@@ -339,33 +331,13 @@
       "x" : 38.0,
       "y" : 7.0
     },
-    "forge-maintenance-note" : {
-      "x" : 14.0,
-      "y" : 18.4
-    },
-    "intro-tablet" : {
-      "x" : 6.0,
-      "y" : 6.4
-    },
     "loop-departure" : {
       "x" : 43.0,
       "y" : 8.0
     },
-    "loop-monitor" : {
-      "x" : 35.0,
-      "y" : 16.4
-    },
-    "loop-terminal" : {
-      "x" : 35.0,
-      "y" : 14.4
-    },
     "maze-origin" : {
       "x" : 100.0,
       "y" : 40.0
-    },
-    "methods-console" : {
-      "x" : 28.0,
-      "y" : 26.4
     },
     "methods-entry" : {
       "x" : 30.0,
@@ -407,102 +379,6 @@
       "x" : 0.0,
       "y" : 22.0
     },
-    "rune-archive-attack" : {
-      "x" : 35.65,
-      "y" : 18.4
-    },
-    "rune-archive-backtrack" : {
-      "x" : 23.2,
-      "y" : 18.4
-    },
-    "rune-archive-jump" : {
-      "x" : 34.7,
-      "y" : 18.4
-    },
-    "rune-archive-long" : {
-      "x" : 26.2,
-      "y" : 18.4
-    },
-    "rune-archive-patrol" : {
-      "x" : 36.2,
-      "y" : 5.4
-    },
-    "rune-archive-short" : {
-      "x" : 24.15,
-      "y" : 18.4
-    },
-    "rune-archive-spin" : {
-      "x" : 27.15,
-      "y" : 18.4
-    },
-    "rune-archive-turn-left" : {
-      "x" : 27.15,
-      "y" : 20.4
-    },
-    "rune-archive-turn-right" : {
-      "x" : 26.15,
-      "y" : 20.4
-    },
-    "rune-bellows-do-while" : {
-      "x" : 26.2,
-      "y" : 5.4
-    },
-    "rune-bellows-for" : {
-      "x" : 27.15,
-      "y" : 5.4
-    },
-    "rune-bellows-while" : {
-      "x" : 24.15,
-      "y" : 5.4
-    },
-    "rune-chain-lift-do-while" : {
-      "x" : 30.15,
-      "y" : 5.4
-    },
-    "rune-chain-lift-for" : {
-      "x" : 32.2,
-      "y" : 5.4
-    },
-    "rune-chain-lift-while" : {
-      "x" : 29.2,
-      "y" : 5.4
-    },
-    "rune-cooling-channel-do-while" : {
-      "x" : 23.2,
-      "y" : 14.4
-    },
-    "rune-cooling-channel-for" : {
-      "x" : 24.15,
-      "y" : 14.4
-    },
-    "rune-cooling-channel-while" : {
-      "x" : 33.15,
-      "y" : 5.4
-    },
-    "rune-forge-press-do-while" : {
-      "x" : 8.0,
-      "y" : 10.4
-    },
-    "rune-forge-press-for" : {
-      "x" : 23.2,
-      "y" : 5.4
-    },
-    "rune-forge-press-while" : {
-      "x" : 7.6,
-      "y" : 19.1
-    },
-    "rune-heart-gate-do-while" : {
-      "x" : 27.15,
-      "y" : 14.4
-    },
-    "rune-heart-gate-for" : {
-      "x" : 35.2,
-      "y" : 5.4
-    },
-    "rune-heart-gate-while" : {
-      "x" : 26.2,
-      "y" : 14.4
-    },
     "variables-golem" : {
       "x" : 10.0,
       "y" : 7.0
@@ -511,32 +387,12 @@
       "x" : 4.0,
       "y" : 18.0
     },
-    "variables-translation" : {
-      "x" : 18.8,
-      "y" : 11.4
-    },
     "variables-vessels" : {
       "x" : 18.0,
       "y" : 16.0
-    },
-    "workshop-experiments" : {
-      "x" : 29.1,
-      "y" : 26.4
     }
   },
   "decorations" : [ {
-    "type" : "ProgrammingTablet",
-    "position" : {
-      "x" : 40.1,
-      "y" : 88.3
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 5.0,
-      "y" : 6.0
-    }
-  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 31.0,
@@ -549,34 +405,10 @@
       "y" : 67.1
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 32.0,
-      "y" : 5.0
-    }
-  }, {
     "type" : "ProgrammingWorkMarkerEast",
     "position" : {
       "x" : 110.1,
       "y" : 67.1
-    }
-  }, {
-    "type" : "ProgrammingSealGem",
-    "position" : {
-      "x" : 33.1,
-      "y" : 116.5
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 34.5,
-      "y" : 16.0
-    }
-  }, {
-    "type" : "ProgrammingSourceCrystal",
-    "position" : {
-      "x" : 32.1,
-      "y" : 78.3
     }
   }, {
     "type" : "ProgrammingSmallCrate",
@@ -597,22 +429,10 @@
       "y" : 30.0
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 23.0,
-      "y" : 18.0
-    }
-  }, {
     "type" : "ProgrammingCrate",
     "position" : {
       "x" : 116.0,
       "y" : 36.175
-    }
-  }, {
-    "type" : "ProgrammingSourceCrystal",
-    "position" : {
-      "x" : 32.8,
-      "y" : 78.3
     }
   }, {
     "type" : "ProgrammingKettle",
@@ -627,58 +447,10 @@
       "y" : 19.0
     }
   }, {
-    "type" : "ProgrammingDrainedVase",
-    "position" : {
-      "x" : 32.1,
-      "y" : 69.4
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 26.0,
-      "y" : 5.0
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 17.0,
-      "y" : 18.0
-    }
-  }, {
     "type" : "BookshelfLarge",
     "position" : {
       "x" : 7.0,
       "y" : 20.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 39.0,
-      "y" : 78.0
-    }
-  }, {
-    "type" : "ProgrammingRunePlinth",
-    "position" : {
-      "x" : 38.5,
-      "y" : 41.0
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 35.0,
-      "y" : 5.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 39.0,
-      "y" : 69.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 39.0,
-      "y" : 116.0
     }
   }, {
     "type" : "BookshelfLarge",
@@ -693,34 +465,10 @@
       "y" : 30.0
     }
   }, {
-    "type" : "ProgrammingSourcePlinth",
-    "position" : {
-      "x" : 32.0,
-      "y" : 78.0
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 34.5,
-      "y" : 20.0
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 8.0,
-      "y" : 10.0
-    }
-  }, {
     "type" : "ProgrammingSmallCrate",
     "position" : {
       "x" : 107.05,
       "y" : 49.2075
-    }
-  }, {
-    "type" : "ProgrammingSealBook",
-    "position" : {
-      "x" : 32.2,
-      "y" : 116.5
     }
   }, {
     "type" : "ProgrammingGateHeader",
@@ -729,40 +477,10 @@
       "y" : 50.0
     }
   }, {
-    "type" : "ProgrammingCauldron",
-    "position" : {
-      "x" : 32.2,
-      "y" : 107.2
-    }
-  }, {
     "type" : "ProgrammingWorkMarkerNorth",
     "position" : {
       "x" : 115.1,
       "y" : 40.1
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 28.0,
-      "y" : 26.0
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 26.0,
-      "y" : 20.0
-    }
-  }, {
-    "type" : "ProgrammingTablet",
-    "position" : {
-      "x" : 40.1,
-      "y" : 69.3
-    }
-  }, {
-    "type" : "ProgrammingAltarPlinth",
-    "position" : {
-      "x" : 32.0,
-      "y" : 43.2
     }
   }, {
     "type" : "ProgrammingWallThreshold",
@@ -789,24 +507,6 @@
       "y" : 22.0
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 23.0,
-      "y" : 14.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 39.0,
-      "y" : 107.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 40.0,
-      "y" : 69.0
-    }
-  }, {
     "type" : "ProgrammingCrate",
     "position" : {
       "x" : 108.0,
@@ -819,34 +519,10 @@
       "y" : 17.0
     }
   }, {
-    "type" : "ProgrammingTablet",
-    "position" : {
-      "x" : 40.1,
-      "y" : 97.3
-    }
-  }, {
-    "type" : "ProgrammingTabletopVase",
-    "position" : {
-      "x" : 18.0,
-      "y" : 18.4
-    }
-  }, {
-    "type" : "ProgrammingTablet",
-    "position" : {
-      "x" : 40.1,
-      "y" : 78.3
-    }
-  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 34.0,
       "y" : 34.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 39.0,
-      "y" : 88.0
     }
   }, {
     "type" : "ProgrammingWallThreshold",
@@ -861,22 +537,10 @@
       "y" : 50.0
     }
   }, {
-    "type" : "ProgrammingAltarPlinth",
-    "position" : {
-      "x" : 33.0,
-      "y" : 43.2
-    }
-  }, {
     "type" : "ProgrammingWallThreshold",
     "position" : {
       "x" : 29.0,
       "y" : 22.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 40.0,
-      "y" : 116.0
     }
   }, {
     "type" : "ProgrammingVase",
@@ -909,28 +573,10 @@
       "y" : 22.0
     }
   }, {
-    "type" : "ProgrammingAltarPlinth",
-    "position" : {
-      "x" : 31.0,
-      "y" : 45.2
-    }
-  }, {
-    "type" : "ProgrammingSourcePlinth",
-    "position" : {
-      "x" : 32.0,
-      "y" : 107.0
-    }
-  }, {
     "type" : "ProgrammingWorkMarkerNorth",
     "position" : {
       "x" : 100.1,
       "y" : 52.1
-    }
-  }, {
-    "type" : "ProgrammingAltarPlinth",
-    "position" : {
-      "x" : 32.0,
-      "y" : 45.2
     }
   }, {
     "type" : "ProgrammingCrate",
@@ -943,24 +589,6 @@
     "position" : {
       "x" : 30.0,
       "y" : 34.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 39.0,
-      "y" : 97.0
-    }
-  }, {
-    "type" : "ProgrammingStrengthStone",
-    "position" : {
-      "x" : 32.1,
-      "y" : 88.3
-    }
-  }, {
-    "type" : "ProgrammingSourceCrystal",
-    "position" : {
-      "x" : 32.8,
-      "y" : 78.8
     }
   }, {
     "type" : "ProgrammingGateHeader",
@@ -981,28 +609,10 @@
       "y" : 61.3
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 26.0,
-      "y" : 14.0
-    }
-  }, {
     "type" : "ProgrammingCrate",
     "position" : {
       "x" : 117.0,
       "y" : 36.175
-    }
-  }, {
-    "type" : "ProgrammingSourceTools",
-    "position" : {
-      "x" : 33.1,
-      "y" : 97.5
-    }
-  }, {
-    "type" : "ProgrammingNote",
-    "position" : {
-      "x" : 33.0,
-      "y" : 69.5
     }
   }, {
     "type" : "ProgrammingVase",
@@ -1011,58 +621,16 @@
       "y" : 15.0
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 13.0,
-      "y" : 18.0
-    }
-  }, {
-    "type" : "ProgrammingSourceBench",
-    "position" : {
-      "x" : 32.0,
-      "y" : 116.0
-    }
-  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 33.0,
       "y" : 34.0
     }
   }, {
-    "type" : "ProgrammingSourceBench",
-    "position" : {
-      "x" : 32.0,
-      "y" : 97.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 40.0,
-      "y" : 107.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 40.0,
-      "y" : 88.0
-    }
-  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 30.0,
       "y" : 30.0
-    }
-  }, {
-    "type" : "ProgrammingHeartPlinth",
-    "position" : {
-      "x" : 40.0,
-      "y" : 119.0
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 18.0,
-      "y" : 11.0
     }
   }, {
     "type" : "ProgrammingVase",
@@ -1077,34 +645,16 @@
       "y" : 22.0
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 29.0,
-      "y" : 5.0
-    }
-  }, {
     "type" : "ProgrammingWorkMarkerWest",
     "position" : {
       "x" : 115.1,
       "y" : 52.1
     }
   }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 40.0,
-      "y" : 78.0
-    }
-  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 34.0,
       "y" : 30.0
-    }
-  }, {
-    "type" : "ProgrammingSmallPlinth",
-    "position" : {
-      "x" : 40.0,
-      "y" : 97.0
     }
   }, {
     "type" : "ProgrammingGateHeader",
@@ -1119,40 +669,16 @@
       "y" : 30.0
     }
   }, {
-    "type" : "ProgrammingSourceCrystal",
-    "position" : {
-      "x" : 32.1,
-      "y" : 78.8
-    }
-  }, {
     "type" : "ProgrammingPump",
     "position" : {
       "x" : 96.0,
       "y" : 58.2
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 34.5,
-      "y" : 14.0
-    }
-  }, {
-    "type" : "ProgrammingAltarPlinth",
-    "position" : {
-      "x" : 31.0,
-      "y" : 43.2
-    }
-  }, {
     "type" : "ProgrammingWallThreshold",
     "position" : {
       "x" : 34.0,
       "y" : 22.0
-    }
-  }, {
-    "type" : "ProgrammingTablet",
-    "position" : {
-      "x" : 40.1,
-      "y" : 116.3
     }
   }, {
     "type" : "BookshelfLarge",
@@ -1167,46 +693,16 @@
       "y" : 44.0
     }
   }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 23.0,
-      "y" : 5.0
-    }
-  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 36.0,
       "y" : 50.0
     }
   }, {
-    "type" : "ProgrammingSourceKettle",
-    "position" : {
-      "x" : 32.1,
-      "y" : 97.4
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 7.0,
-      "y" : 18.7
-    }
-  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 38.0,
       "y" : 50.0
-    }
-  }, {
-    "type" : "ProgrammingRunePlinth",
-    "position" : {
-      "x" : 38.5,
-      "y" : 35.5
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 26.0,
-      "y" : 18.0
     }
   }, {
     "type" : "ProgrammingSmallCrate",
@@ -1219,48 +715,6 @@
     "position" : {
       "x" : 100.1,
       "y" : 61.1
-    }
-  }, {
-    "type" : "ProgrammingSourceBench",
-    "position" : {
-      "x" : 32.0,
-      "y" : 69.0
-    }
-  }, {
-    "type" : "ProgrammingWorkbench",
-    "position" : {
-      "x" : 34.5,
-      "y" : 18.0
-    }
-  }, {
-    "type" : "ProgrammingSourcePlinth",
-    "position" : {
-      "x" : 32.0,
-      "y" : 88.0
-    }
-  }, {
-    "type" : "ProgrammingSourceTools",
-    "position" : {
-      "x" : 33.1,
-      "y" : 88.4
-    }
-  }, {
-    "type" : "ProgrammingAltarPlinth",
-    "position" : {
-      "x" : 33.0,
-      "y" : 45.2
-    }
-  }, {
-    "type" : "ProgrammingTablet",
-    "position" : {
-      "x" : 40.1,
-      "y" : 107.3
-    }
-  }, {
-    "type" : "ProgrammingTabletopTools",
-    "position" : {
-      "x" : 8.8,
-      "y" : 10.4
     }
   } ],
   "prefabs" : [ {
@@ -1921,6 +1375,1206 @@
       "scale" : {
         "x" : 2.0,
         "y" : 2.0
+      }
+    }
+  }, {
+    "name" : "table-forge-intro",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 5.0,
+        "y" : 6.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-forge-rune-1",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 7.0,
+        "y" : 18.7
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-forge-rune-2",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 8.0,
+        "y" : 10.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "ProgrammingTabletopTools",
+      "offset-1" : {
+        "x" : 0.8000002,
+        "y" : 0.39999962
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-forge-maintenance",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 13.0,
+        "y" : 18.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-forge-vase",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 17.0,
+        "y" : 18.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "ProgrammingTabletopVase",
+      "offset-1" : {
+        "x" : 1.0,
+        "y" : 0.39999962
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-forge-translation",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 18.0,
+        "y" : 11.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-1",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 23.0,
+        "y" : 5.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-2",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 26.0,
+        "y" : 5.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-3",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 29.0,
+        "y" : 5.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-4",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 5.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-5",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 35.0,
+        "y" : 5.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-6",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 23.0,
+        "y" : 14.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-7",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 26.0,
+        "y" : 14.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-8",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 23.0,
+        "y" : 18.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-9",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 26.0,
+        "y" : 18.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-10",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 26.0,
+        "y" : 20.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-rune-11",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 34.5,
+        "y" : 18.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-terminal",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 34.5,
+        "y" : 14.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-monitor",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 34.5,
+        "y" : 16.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-archive-instructions",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 34.5,
+        "y" : 20.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-workshop-console",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 28.0,
+        "y" : 26.0
+      },
+      "furniture" : "ProgrammingWorkbench",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-1",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 69.0
+      },
+      "furniture" : "ProgrammingSourceBench",
+      "item-1" : "ProgrammingDrainedVase",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.40000153
+      },
+      "item-2" : "ProgrammingNote",
+      "offset-2" : {
+        "x" : 1.0,
+        "y" : 0.5
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-1",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 69.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-rune-1",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 39.0,
+        "y" : 69.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-2",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 78.0
+      },
+      "furniture" : "ProgrammingSourcePlinth",
+      "item-1" : "ProgrammingSourceCrystal",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "ProgrammingSourceCrystal",
+      "offset-2" : {
+        "x" : 0.79999924,
+        "y" : 0.30000305
+      },
+      "item-3" : "ProgrammingSourceCrystal",
+      "offset-3" : {
+        "x" : 0.79999924,
+        "y" : 0.80000305
+      },
+      "item-4" : "ProgrammingSourceCrystal",
+      "offset-4" : {
+        "x" : 0.099998474,
+        "y" : 0.80000305
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-2",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 78.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-rune-2",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 39.0,
+        "y" : 78.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-3",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 88.0
+      },
+      "furniture" : "ProgrammingSourcePlinth",
+      "item-1" : "ProgrammingStrengthStone",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "ProgrammingSourceTools",
+      "offset-2" : {
+        "x" : 1.0999985,
+        "y" : 0.40000153
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-3",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 88.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-rune-3",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 39.0,
+        "y" : 88.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-4",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 97.0
+      },
+      "furniture" : "ProgrammingSourceBench",
+      "item-1" : "ProgrammingSourceTools",
+      "offset-1" : {
+        "x" : 1.0999985,
+        "y" : 0.5
+      },
+      "item-2" : "ProgrammingSourceKettle",
+      "offset-2" : {
+        "x" : 0.099998474,
+        "y" : 0.40000153
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-4",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 97.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-rune-4",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 39.0,
+        "y" : 97.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-5",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 107.0
+      },
+      "furniture" : "ProgrammingSourcePlinth",
+      "item-1" : "ProgrammingCauldron",
+      "offset-1" : {
+        "x" : 0.20000076,
+        "y" : 0.19999695
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-5",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 107.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-rune-5",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 39.0,
+        "y" : 107.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-6",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 116.0
+      },
+      "furniture" : "ProgrammingSourceBench",
+      "item-1" : "ProgrammingSealGem",
+      "offset-1" : {
+        "x" : 1.0999985,
+        "y" : 0.5
+      },
+      "item-2" : "ProgrammingSealBook",
+      "offset-2" : {
+        "x" : 0.20000076,
+        "y" : 0.5
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-6",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 116.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-rune-6",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 39.0,
+        "y" : 116.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-heart",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 119.0
+      },
+      "furniture" : "ProgrammingHeartPlinth",
+      "item-1" : "none",
+      "offset-1" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
       }
     }
   } ]

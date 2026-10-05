@@ -14,6 +14,9 @@ import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.shader.SlotShader;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
+import feature.components.DecoComponent;
+import feature.entities.deco.Deco;
+import feature.entities.deco.DecoFactory;
 import feature.shader.ShaderComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -127,13 +130,11 @@ final class ProgrammingWorkshopWorld {
     // The final altar leaves Nox beside the exit, which opens for the players.
     for (int x = 31; x <= 41; x++)
       result[49][x] = x >= 34 && x <= 38 ? LevelElement.DOOR : LevelElement.WALL;
-    points.put("methods-console", new Point(28, 26.4f));
     points.put("methods-entry", new Point(30, 24));
     points.put("methods-home", start(0));
     points.put("methods-exit", EXIT);
     points.put("act3-gate-start", new Point(34, 49));
     points.put("act3-gate-end", new Point(38, 49));
-    points.put("workshop-experiments", new Point(29.1f, 26.4f));
     points.remove("workshop-calibration");
     points.remove("workshop-power");
     return result;
@@ -151,11 +152,12 @@ final class ProgrammingWorkshopWorld {
       switch (station.kind()) {
         case GATE -> gate(station.index());
         case RUNE -> {
-          // Place stones beside Nox's hands so his large north-facing sprite cannot hide them.
+          // Furniture and contents share the fixed route's action point.
           Point stone =
               at.translate(
                   endFacing(station.index()) == Direction.UP ? 4.5f : 5.5f,
                   endFacing(station.index()) == Direction.UP ? 3 : .5f);
+          furniture(stone, Deco.ProgrammingRunePlinth);
           Entity rune = new Entity("programming-methods-rune-" + station.index());
           PositionComponent position = new PositionComponent(stone.translate(.5f, .65f));
           position.scale(.5f);
@@ -180,13 +182,15 @@ final class ProgrammingWorkshopWorld {
                 false);
         }
         case ALTAR -> {
+          Point altar = at.translate(-3, .2f);
+          for (int i = 0; i < 3; i++) furniture(altar.translate(i, 0), Deco.ProgrammingAltarPlinth);
           float socketSize = .45f;
           float socketSpacing = .55f;
           float firstSocket = (3 - socketSize - (station.amount() - 1) * socketSpacing) / 2;
           for (int i = 0; i < station.amount(); i++)
             prop(
                 "socket-" + station.index() + "-" + i,
-                altarPosition(station.index()).translate(firstSocket + i * socketSpacing, .5f),
+                altar.translate(firstSocket + i * socketSpacing, .5f),
                 "items/rpg/item_gem_amethyst.png",
                 socketSize,
                 socketSize,
@@ -196,6 +200,13 @@ final class ProgrammingWorkshopWorld {
     }
     ironBars("exit-door", new Point(34, 49), false);
     resetAll();
+  }
+
+  private static void furniture(Point position, Deco deco) {
+    Entity entity = DecoFactory.createDeco(position, deco);
+    // These route-bound stations are recreated by code, not saved as editor decorations.
+    entity.remove(DecoComponent.class);
+    Game.add(entity);
   }
 
   static Point actionPoint(int station) {
@@ -352,10 +363,6 @@ final class ProgrammingWorkshopWorld {
 
   static void openExit() {
     tint("exit-door", 0xFFFFFF00);
-  }
-
-  private static Point altarPosition(int station) {
-    return actionPoint(station).translate(-3, .2f);
   }
 
   // Replacing the declaration synchronizes empty/filled sockets with every client.

@@ -54,6 +54,7 @@ public class ProgrammingLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    ProgrammingTableAnchors.initialize(this);
     ProgrammingProgress.initialize();
     runtime = ProgrammingRoomElements.spawn(this);
     var checkpoint = Programming.checkpoint();

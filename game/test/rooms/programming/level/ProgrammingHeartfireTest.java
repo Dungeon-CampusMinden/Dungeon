@@ -77,6 +77,7 @@ class ProgrammingHeartfireTest {
                 spawned.add(invocation.getArgument(0));
                 return null;
               });
+      ProgrammingTablePrefab.register();
       DungeonLevel level =
           LevelParser.parseLevel(
               Gdx.files.internal("levels/programming/programming_1.level").readString(),
@@ -89,6 +90,7 @@ class ProgrammingHeartfireTest {
                       .filter(entity -> entity.id() == (int) invocation.getArgument(0))
                       .findFirst());
       PrefabSpawner.spawn(level, PrefabSide.SERVER);
+      ProgrammingTableAnchors.initialize(level);
       ProgrammingProps.installTorches(level);
       level.decorations().forEach(deco -> spawned.add(DecoFactory.createDeco(deco.b(), deco.a())));
       Entity fire = named(spawned, "torch-decisions-heart");

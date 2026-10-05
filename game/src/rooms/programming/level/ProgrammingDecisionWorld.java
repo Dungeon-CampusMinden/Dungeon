@@ -81,7 +81,6 @@ final class ProgrammingDecisionWorld {
               if (result[y + dy][x + dx] == LevelElement.SKIP)
                 result[y + dy][x + dx] = LevelElement.WALL;
     points.put("decisions-start", START);
-    points.put("decisions-heart", new Point(41, 120));
     return result;
   }
 
@@ -165,14 +164,13 @@ final class ProgrammingDecisionWorld {
                 });
   }
 
-  static Entity spawn() {
+  static Entity spawn(DungeonLevel level) {
     for (int i = 0; i < 6; i++) {
       int n = i;
-      float y = junction(i).y();
       Entity rune =
           prop(
               "rune-" + i,
-              new Point(39.1f, y + 8.3f),
+              level.getPoint("decisions-rune-" + i),
               "items/rpg/item_gem_amethyst.png",
               .5f,
               .5f,
@@ -191,13 +189,18 @@ final class ProgrammingDecisionWorld {
     for (float x : new float[] {39.2f, 42f})
       prop(
           "heart-offering-" + x,
-          new Point(x, 119.4f),
+          level.getPoint("decisions-heart-offering-" + x),
           "items/rpg/item_gem_amethyst.png",
           .8f,
           .8f,
           false);
     return prop(
-        "heart-inscription", new Point(40.6f, 118), "items/rpg/item_scroll.png", .8f, .8f, false);
+        "heart-inscription",
+        level.getPoint("decisions-heart-inscription"),
+        "items/rpg/item_scroll.png",
+        .8f,
+        .8f,
+        false);
   }
 
   private static Entity prop(

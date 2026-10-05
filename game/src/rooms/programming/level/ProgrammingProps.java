@@ -29,9 +29,31 @@ final class ProgrammingProps {
   }
 
   static void installTorches(DungeonLevel level) {
+    moveHeartTorch(level);
     level
         .prefabs(TorchPrefab.class)
         .forEach(prefab -> switchableTorch(prefab.torchEntity().orElseThrow()));
+  }
+
+  /** Moves the dependent prefab while preserving its flame state and room interaction. */
+  static void moveHeartTorch(DungeonLevel level) {
+    var target = level.namedPoints().get("decisions-heart-fire");
+    if (target == null) return;
+    level
+        .prefab(TorchPrefab.class, HEART_TORCH)
+        .ifPresent(
+            torch -> {
+              var live = torch.torchEntity();
+              if (live.isEmpty()) return;
+              var entity = live.orElseThrow();
+              if (!entity.fetch(PositionComponent.class).orElseThrow().position().equals(target)) {
+                boolean on = entity.fetch(LeverComponent.class).orElseThrow().isOn();
+                torch.update(
+                    instance ->
+                        instance.with(TorchPrefab.POSITION, target).with(TorchPrefab.ON, on));
+              }
+              torch.torchEntity().ifPresent(ProgrammingProps::switchableTorch);
+            });
   }
 
   static CollideComponent chestCollider() {

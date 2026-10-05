@@ -6,11 +6,14 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import feature.entities.deco.Deco;
+import feature.prefabs.PrefabInstance;
 import java.util.List;
 import java.util.Map;
 
 /** Client-side level handler for the Programming 1 escape room. */
 public class ProgrammingClientLevel extends DungeonLevel {
+
+  private List<PrefabInstance> anchorSources = List.of();
 
   private static final String LEVEL_NAME = "programming-1";
 
@@ -44,6 +47,16 @@ public class ProgrammingClientLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    ProgrammingTableAnchors.initialize(this);
+    anchorSources = List.copyOf(activePrefabs());
     ProgrammingAtmosphere.install();
+  }
+
+  @Override
+  protected void onTick() {
+    var sources = activePrefabs();
+    if (sources.equals(anchorSources)) return;
+    ProgrammingTableAnchors.refresh(this);
+    anchorSources = List.copyOf(sources);
   }
 }

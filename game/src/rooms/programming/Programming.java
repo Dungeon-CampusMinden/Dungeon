@@ -34,6 +34,7 @@ import rooms.programming.level.ProgrammingClientLevel;
 import rooms.programming.level.ProgrammingDecisions;
 import rooms.programming.level.ProgrammingLevel;
 import rooms.programming.level.ProgrammingMethods;
+import rooms.programming.level.ProgrammingTablePrefab;
 import rooms.programming.level.ProgrammingTerminal;
 import rooms.programming.network.ProgrammingSnapshotTranslator;
 import rooms.programming.save.ProgrammingSave;
@@ -65,6 +66,7 @@ public final class Programming {
    * @param args command-line arguments passed to the game starter
    */
   public static void main(String[] args) {
+    ProgrammingTablePrefab.register();
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
         .enableConsole(true)
