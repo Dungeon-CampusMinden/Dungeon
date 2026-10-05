@@ -16,6 +16,7 @@ import engine.systems.SoundSystem;
 import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.logging.DungeonLogger;
+import feature.achievements.AchievementPopupSystem;
 import feature.interaction.InteractionFeedbackSystem;
 import feature.questlog.QuestLogSyncSystem;
 import feature.shader.ShaderSyncSystem;
@@ -71,6 +72,7 @@ public final class ECSManagement {
     new LevelTickSystem(),
     new InteractionFeedbackSystem(),
     new QuestLogSyncSystem(),
+    new AchievementPopupSystem(),
     HudSystem.getInstance()
   };
 

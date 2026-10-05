@@ -120,6 +120,15 @@ public final class HudSystem extends System {
     dialogsVisibleBeforeSuppression.clear();
   }
 
+  /**
+   * Returns whether temporary HUD suppression is active.
+   *
+   * @return true while suppressible dialogs should be hidden
+   */
+  public boolean dialogsSuppressed() {
+    return dialogsSuppressed;
+  }
+
   private void suppressDialog(UIComponent component) {
     if (!component.suppressible()) return;
     if (!component.isVisible()) return;

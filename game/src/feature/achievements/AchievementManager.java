@@ -23,7 +23,6 @@ import java.util.Optional;
  */
 public class AchievementManager {
 
-  private static final long POPUP_DURATION_MS = 4500L;
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementManager.class);
   private static AchievementManager instance;
 
@@ -194,11 +193,12 @@ public class AchievementManager {
     if (achievement.isEmpty()) {
       return false;
     }
-    boolean newlyUnlocked = store.unlock(id);
-    if (newlyUnlocked) {
-      unlockPlatinumIfComplete(achievement.get());
-    }
-    return newlyUnlocked;
+    return store.unlock(id);
+  }
+
+  static void onPopupQueued(String id) {
+    AchievementManager manager = instance();
+    manager.store.definition(id).ifPresent(manager::unlockPlatinumIfComplete);
   }
 
   private void unlockPlatinumIfComplete(Achievement unlockedAchievement) {
@@ -225,6 +225,7 @@ public class AchievementManager {
             .build();
 
     UIComponent ui = DialogFactory.show(context, false, false, targetEntityIds);
-    EventScheduler.scheduleAction(() -> UIUtils.closeDialog(ui, true), POPUP_DURATION_MS);
+    EventScheduler.scheduleAction(
+        () -> UIUtils.closeDialog(ui, true), AchievementPopupQueue.DISPLAY_DURATION_MS);
   }
 }
