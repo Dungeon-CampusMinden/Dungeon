@@ -11,9 +11,7 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
-import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.Arrays;
@@ -167,20 +165,10 @@ final class ProgrammingDecisionWorld {
                 });
   }
 
-  static Entity spawn(DungeonLevel level) {
+  static Entity spawn() {
     for (int i = 0; i < 6; i++) {
       int n = i;
       float y = junction(i).y();
-      torch(level, "gallery-" + i, new Point(i % 2 == 0 ? 18.5f : 53.5f, y + 2));
-      torch(
-          level,
-          "gallery-source-" + i,
-          new Point(i % 2 == 0 ? 53.5f : 18.5f, y + (i == 5 ? 2 : 8)));
-      // Workbenches repeat the archive's furniture; each source has its own tools and vessels.
-      if (i == 0 || i == 3 || i == 5) bench("source-bench-" + i, new Point(32, y + 8));
-      else plinth("source-base-" + i, new Point(32, y + 8), 1.6f);
-      plinth("rune-base-" + i, new Point(39, y + 8), .8f);
-      plinth("tablet-base-" + i, new Point(40, y + 8), .8f);
       Entity rune =
           prop(
               "rune-" + i,
@@ -199,66 +187,7 @@ final class ProgrammingDecisionWorld {
           .tintColor(
               new int[] {0x87B5DFFF, 0xADA1F7FF, 0xEFA26BFF, 0xDAC283FF, 0xEE9565FF, 0xFFC666FF}
                   [i]);
-      prop(
-          "decision-tablet-" + i,
-          new Point(40.1f, y + 8.3f),
-          "items/rpg/item_scroll.png",
-          .55f,
-          .55f,
-          false);
-      switch (i) {
-        case 0 -> {
-          prop("drained-vessel", new Point(32.1f, y + 8.4f), "objects/vase", .8f, .8f, false);
-          prop("note", new Point(33, y + 8.5f), "items/rpg/item_scroll.png", .5f, .5f, false);
-        }
-        case 1 -> {
-          for (int c = 0; c < 4; c++)
-            prop(
-                "source-crystal-" + c,
-                new Point(32.1f + c % 2 * .7f, y + 8.3f + c / 2 * .5f),
-                "items/rpg/item_gem_amethyst.png",
-                .6f,
-                .6f,
-                false);
-        }
-        case 2 -> {
-          prop("strength-stone", new Point(32.1f, y + 8.3f), "objects/stone", 1.1f, 1.1f, false);
-          prop("pick", new Point(33.1f, y + 8.4f), "items/rpg/pickaxe_crusty.png", .6f, .6f, false);
-        }
-        case 3 -> {
-          Entity kettle =
-              prop("forge", new Point(32.1f, y + 8.4f), "objects/magic_kettle", 1, 1, false);
-          kettle.name("programming-prop-forge-kettle-decisions");
-          prop(
-              "forge-tools",
-              new Point(33.1f, y + 8.5f),
-              "items/rpg/pickaxe_crusty.png",
-              .6f,
-              .6f,
-              false);
-        }
-        case 4 ->
-            prop(
-                "vessel",
-                new Point(32.2f, y + 8.2f),
-                "objects/cauldron/cauldron.png",
-                1.2f,
-                1.2f,
-                false);
-        default -> {
-          prop(
-              "seal", new Point(32.2f, y + 8.5f), "items/rpg/item_book_brown.png", .8f, .8f, false);
-          prop(
-              "seal-gem",
-              new Point(33.1f, y + 8.5f),
-              "items/rpg/item_gem_amethyst.png",
-              .5f,
-              .5f,
-              false);
-        }
-      }
     }
-    plinth("heart-plinth", new Point(40, 119), 2);
     for (float x : new float[] {39.2f, 42f})
       prop(
           "heart-offering-" + x,
@@ -267,38 +196,8 @@ final class ProgrammingDecisionWorld {
           .8f,
           .8f,
           false);
-    ProgrammingProps.spawnTorch(level, "decisions-heart", new Point(40, 119.5f), 2);
     return prop(
         "heart-inscription", new Point(40.6f, 118), "items/rpg/item_scroll.png", .8f, .8f, false);
-  }
-
-  private static void torch(DungeonLevel level, String name, Point at) {
-    ProgrammingProps.spawnTorch(level, "decisions-" + name, at, 1);
-  }
-
-  private static void bench(String name, Point at) {
-    Entity bench = atlas(name, at, 192, 352, 32, 16, 1, DepthLayer.Ground.depth() + 1);
-    bench.add(new CollideComponent(Vector2.of(.05f, .05f), Vector2.of(1.9f, .65f)));
-  }
-
-  private static void plinth(String name, Point at, float scale) {
-    atlas(name, at, 272, 144, 16, 16, scale, DepthLayer.Ground.depth());
-  }
-
-  private static Entity atlas(
-      String name, Point at, int x, int y, int w, int h, float scale, int depth) {
-    Entity entity = new Entity("programming-decisions-" + name);
-    PositionComponent position = new PositionComponent(at);
-    position.scale(scale);
-    entity.add(position);
-    DrawComponent draw =
-        new DrawComponent(
-            new SimpleIPath("spritesheets/FD_Dungeon_Free.png"),
-            new SpritesheetConfig(x, y, 1, 1, w, h));
-    draw.depth(depth);
-    entity.add(draw);
-    Game.add(entity);
-    return entity;
   }
 
   private static Entity prop(

@@ -34,9 +34,8 @@ final class ProgrammingRoomElements {
 
   static ProgrammingGolemRuntime spawn(DungeonLevel level) {
     ProgrammingProps.installTorches(level);
-    ProgrammingProps.spawn(level);
     ProgrammingMazeWorld.spawn(level);
-    ProgrammingWorkshopWorld.spawn(level);
+    ProgrammingWorkshopWorld.spawn();
     Entity golem = createEntity(level, "variables-golem", Visual.GOLEM, 0);
     ProgrammingGolemRuntime runtime = new ProgrammingGolemRuntime(level, golem);
     golem.add(

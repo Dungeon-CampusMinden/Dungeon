@@ -12,7 +12,6 @@ import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import java.util.ArrayList;
@@ -52,9 +51,6 @@ final class ProgrammingCellarMachinery {
     }
 
     Point end = LoopMaze.world(origin, LoopMaze.checkpoints().getLast().goal());
-    Entity frame = art("winch-frame", end.translate(5.15f, .1f), "winch-frame", 48, 40, 3.75f);
-    // Collider units follow the 40px shorter edge, including both feet of the 48px-wide frame.
-    frame.add(new CollideComponent(Vector2.of(.05f, .08f), Vector2.of(1.1f, .13f)));
     bracket =
         art("winch-bracket", end.translate(6.725f, 2.3825f), "winch-bracket-intact", 16, 8, .45f);
     bracket.add(
@@ -79,14 +75,13 @@ final class ProgrammingCellarMachinery {
     var wallTexture = level.tileAt(gate.translate(-1, 0)).orElseThrow().texturePath();
     for (int x = (int) gate.x(); x <= level.getPoint("act2-gate-end").x(); x++) {
       Point at = new Point(x, gate.y());
-      prop("wall-threshold", at, "rooms/programming/sluice.png", 1, 1, DepthLayer.Ground);
       wall.add(prop("sliding-wall", at, wallTexture.pathString(), 1, 1));
     }
     focus = prop("sequence-focus", end.translate(4, 1), "objects/stone", 1, 1);
     focus.fetch(DrawComponent.class).orElseThrow().tintColor(0xFFFFFF00);
   }
 
-  static Entity prop(String name, Point at, String path, float width, float height) {
+  private static Entity prop(String name, Point at, String path, float width, float height) {
     return prop(name, at, path, width, height, DepthLayer.Player);
   }
 
@@ -116,7 +111,8 @@ final class ProgrammingCellarMachinery {
    * @param scale world size of the shorter frame edge
    * @return the spawned prop
    */
-  static Entity art(String name, Point at, String file, int width, int height, float scale) {
+  private static Entity art(
+      String name, Point at, String file, int width, int height, float scale) {
     Entity entity = new Entity("programming-cellar-" + name);
     PositionComponent position = new PositionComponent(at);
     position.scale(scale);

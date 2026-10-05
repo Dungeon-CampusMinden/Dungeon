@@ -5,11 +5,8 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
-import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
-import engine.utils.components.draw.animation.AnimationConfig;
-import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.components.LeverComponent;
@@ -20,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import rooms.programming.ProgrammingAchievements;
 
-/** Existing art placed by prop markers, with floor footprints for solid furniture. */
+/** Room torch interactions, chest footprints, and breakable wall debris. */
 final class ProgrammingProps {
   static final String TORCH_PREFIX = "torch-";
   static final String HEART_TORCH = TORCH_PREFIX + "decisions-heart";
@@ -31,19 +28,6 @@ final class ProgrammingProps {
     return entity.name().startsWith(TORCH_PREFIX);
   }
 
-  static void spawnTorch(DungeonLevel level, String name, Point at, float scale) {
-    Entity torch =
-        level
-            .spawnPrefab(
-                TorchPrefab.class,
-                TORCH_PREFIX + name,
-                instance -> instance.with(TorchPrefab.POSITION, at))
-            .torchEntity()
-            .orElseThrow();
-    torch.fetch(PositionComponent.class).orElseThrow().scale(scale);
-    switchableTorch(torch);
-  }
-
   static void installTorches(DungeonLevel level) {
     level
         .prefabs(TorchPrefab.class)
@@ -52,10 +36,6 @@ final class ProgrammingProps {
 
   static CollideComponent chestCollider() {
     return new CollideComponent(Vector2.of(0.1f, 0.05f), Vector2.of(0.8f, 0.55f));
-  }
-
-  static CollideComponent vaseCollider() {
-    return new CollideComponent(Vector2.of(0.2f, 0.05f), Vector2.of(0.6f, 0.4f));
   }
 
   /**
@@ -81,44 +61,6 @@ final class ProgrammingProps {
       stones.add(draw);
     }
     return stones;
-  }
-
-  static void spawn(DungeonLevel level) {
-    level
-        .namedPoints()
-        .forEach(
-            (name, point) -> {
-              if (!name.startsWith("prop-")) return;
-              DrawComponent draw;
-              if (name.startsWith("prop-workbench"))
-                draw =
-                    new DrawComponent(
-                        new SimpleIPath("spritesheets/FD_Dungeon_Free.png"),
-                        new AnimationConfig(new SpritesheetConfig(192, 352, 1, 1, 32, 16)));
-              else if (name.startsWith("prop-forge-kettle"))
-                draw = new DrawComponent(new SimpleIPath("objects/magic_kettle"));
-              else if (name.startsWith("prop-forge-vase") || name.equals("prop-tabletop-vase"))
-                draw = new DrawComponent(new SimpleIPath("objects/vase"));
-              else if (name.equals("prop-tabletop-tools"))
-                draw = new DrawComponent(new SimpleIPath("items/rpg/pickaxe_crusty.png"));
-              else if (name.startsWith("prop-forge-crate"))
-                draw = new DrawComponent(new SimpleIPath("objects/crate/basic.png"));
-              else return;
-              draw.depth(DepthLayer.Player.depth());
-              if (name.startsWith("prop-tabletop-")) draw.depth(DepthLayer.Player.depth() + 1);
-              Entity prop = new Entity("programming-" + name);
-              PositionComponent position = new PositionComponent(point);
-              if (name.equals("prop-tabletop-tools")) position.scale(0.6f);
-              prop.add(position);
-              prop.add(draw);
-              if (name.startsWith("prop-workbench"))
-                prop.add(new CollideComponent(Vector2.of(0.05f, 0.05f), Vector2.of(1.9f, 0.65f)));
-              else if (name.startsWith("prop-forge-crate") || name.startsWith("prop-forge-kettle"))
-                prop.add(chestCollider());
-              else if (name.startsWith("prop-forge-vase") || name.equals("prop-tabletop-vase"))
-                prop.add(vaseCollider());
-              Game.add(prop);
-            });
   }
 
   /**

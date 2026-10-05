@@ -83,126 +83,6 @@
       "x" : 30.0,
       "y" : 27.0
     },
-    "prop-forge-crate-0" : {
-      "x" : 3.0,
-      "y" : 17.0
-    },
-    "prop-forge-crate-1" : {
-      "x" : 9.0,
-      "y" : 19.0
-    },
-    "prop-forge-kettle-0" : {
-      "x" : 16.0,
-      "y" : 17.0
-    },
-    "prop-forge-kettle-1" : {
-      "x" : 19.0,
-      "y" : 18.0
-    },
-    "prop-forge-vase-0" : {
-      "x" : 17.0,
-      "y" : 15.0
-    },
-    "prop-forge-vase-1" : {
-      "x" : 16.0,
-      "y" : 18.0
-    },
-    "prop-forge-vase-2" : {
-      "x" : 14.0,
-      "y" : 19.0
-    },
-    "prop-tabletop-tools" : {
-      "x" : 8.8,
-      "y" : 10.4
-    },
-    "prop-tabletop-vase" : {
-      "x" : 18.0,
-      "y" : 18.4
-    },
-    "prop-workbench-0" : {
-      "x" : 13.0,
-      "y" : 18.0
-    },
-    "prop-workbench-1" : {
-      "x" : 17.0,
-      "y" : 18.0
-    },
-    "prop-workbench-14" : {
-      "x" : 7.0,
-      "y" : 18.7
-    },
-    "prop-workbench-15" : {
-      "x" : 8.0,
-      "y" : 10.0
-    },
-    "prop-workbench-16" : {
-      "x" : 5.0,
-      "y" : 6.0
-    },
-    "prop-workbench-archive-23-14" : {
-      "x" : 23.0,
-      "y" : 14.0
-    },
-    "prop-workbench-archive-23-18" : {
-      "x" : 23.0,
-      "y" : 18.0
-    },
-    "prop-workbench-archive-23-5" : {
-      "x" : 23.0,
-      "y" : 5.0
-    },
-    "prop-workbench-archive-26-14" : {
-      "x" : 26.0,
-      "y" : 14.0
-    },
-    "prop-workbench-archive-26-18" : {
-      "x" : 26.0,
-      "y" : 18.0
-    },
-    "prop-workbench-archive-26-5" : {
-      "x" : 26.0,
-      "y" : 5.0
-    },
-    "prop-workbench-archive-29-14" : {
-      "x" : 35.0,
-      "y" : 5.0
-    },
-    "prop-workbench-archive-29-18" : {
-      "x" : 34.5,
-      "y" : 18.0
-    },
-    "prop-workbench-archive-29-5" : {
-      "x" : 29.0,
-      "y" : 5.0
-    },
-    "prop-workbench-archive-32-14" : {
-      "x" : 26.0,
-      "y" : 20.0
-    },
-    "prop-workbench-archive-32-18" : {
-      "x" : 34.5,
-      "y" : 20.0
-    },
-    "prop-workbench-archive-32-5" : {
-      "x" : 32.0,
-      "y" : 5.0
-    },
-    "prop-workbench-monitor" : {
-      "x" : 34.5,
-      "y" : 16.0
-    },
-    "prop-workbench-reserve" : {
-      "x" : 28.0,
-      "y" : 26.0
-    },
-    "prop-workbench-terminal" : {
-      "x" : 34.5,
-      "y" : 14.0
-    },
-    "prop-workbench-translation" : {
-      "x" : 18.0,
-      "y" : 11.0
-    },
     "reserve-notice" : {
       "x" : 35.0,
       "y" : 27.4
@@ -366,6 +246,720 @@
       "x" : 7.0,
       "y" : 20.0
     }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 34.5,
+      "y" : 18.0
+    }
+  }, {
+    "type" : "ProgrammingTabletopVase",
+    "position" : {
+      "x" : 18.0,
+      "y" : 18.4
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 35.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "ProgrammingTabletopTools",
+    "position" : {
+      "x" : 8.8,
+      "y" : 10.4
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 34.5,
+      "y" : 20.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 26.0,
+      "y" : 18.0
+    }
+  }, {
+    "type" : "ProgrammingVase",
+    "position" : {
+      "x" : 14.0,
+      "y" : 19.0
+    }
+  }, {
+    "type" : "ProgrammingVase",
+    "position" : {
+      "x" : 16.0,
+      "y" : 18.0
+    }
+  }, {
+    "type" : "ProgrammingVase",
+    "position" : {
+      "x" : 17.0,
+      "y" : 15.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 26.0,
+      "y" : 14.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 26.0,
+      "y" : 20.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 34.5,
+      "y" : 14.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 18.0,
+      "y" : 11.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 3.0,
+      "y" : 17.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 9.0,
+      "y" : 19.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 23.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 13.0,
+      "y" : 18.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 28.0,
+      "y" : 26.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 17.0,
+      "y" : 18.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 26.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 32.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 23.0,
+      "y" : 14.0
+    }
+  }, {
+    "type" : "ProgrammingKettle",
+    "position" : {
+      "x" : 16.0,
+      "y" : 17.0
+    }
+  }, {
+    "type" : "ProgrammingKettle",
+    "position" : {
+      "x" : 19.0,
+      "y" : 18.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 23.0,
+      "y" : 18.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 29.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 34.5,
+      "y" : 16.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 8.0,
+      "y" : 10.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 5.0,
+      "y" : 6.0
+    }
+  }, {
+    "type" : "ProgrammingWorkbench",
+    "position" : {
+      "x" : 7.0,
+      "y" : 18.7
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerNorth",
+    "position" : {
+      "x" : 115.1,
+      "y" : 40.1
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerWest",
+    "position" : {
+      "x" : 115.1,
+      "y" : 52.1
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerNorth",
+    "position" : {
+      "x" : 100.1,
+      "y" : 52.1
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerEast",
+    "position" : {
+      "x" : 100.1,
+      "y" : 61.1
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerEast",
+    "position" : {
+      "x" : 110.1,
+      "y" : 67.1
+    }
+  }, {
+    "type" : "ProgrammingPit",
+    "position" : {
+      "x" : 100.0,
+      "y" : 55.0
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 127.0,
+      "y" : 49.3
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 128.0,
+      "y" : 49.3
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 107.0,
+      "y" : 49.3
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 108.0,
+      "y" : 49.3
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 122.0,
+      "y" : 61.3
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 123.0,
+      "y" : 61.3
+    }
+  }, {
+    "type" : "ProgrammingPump",
+    "position" : {
+      "x" : 96.0,
+      "y" : 58.2
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 116.0,
+      "y" : 36.2
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 117.1,
+      "y" : 36.2
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 100.5,
+      "y" : 48.2
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 101.6,
+      "y" : 48.2
+    }
+  }, {
+    "type" : "ProgrammingPipe",
+    "position" : {
+      "x" : 96.0,
+      "y" : 59.0
+    }
+  }, {
+    "type" : "ProgrammingPipe",
+    "position" : {
+      "x" : 119.3,
+      "y" : 53.0
+    }
+  }, {
+    "type" : "ProgrammingPipe",
+    "position" : {
+      "x" : 119.3,
+      "y" : 44.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 30.0,
+      "y" : 30.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 31.0,
+      "y" : 30.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 32.0,
+      "y" : 30.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 33.0,
+      "y" : 30.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 34.0,
+      "y" : 30.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 30.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 31.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 32.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 33.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 34.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingRunePlinth",
+    "position" : {
+      "x" : 38.5,
+      "y" : 35.5
+    }
+  }, {
+    "type" : "ProgrammingRunePlinth",
+    "position" : {
+      "x" : 38.5,
+      "y" : 41.0
+    }
+  }, {
+    "type" : "ProgrammingAltarPlinth",
+    "position" : {
+      "x" : 31.0,
+      "y" : 43.2
+    }
+  }, {
+    "type" : "ProgrammingAltarPlinth",
+    "position" : {
+      "x" : 32.0,
+      "y" : 43.2
+    }
+  }, {
+    "type" : "ProgrammingAltarPlinth",
+    "position" : {
+      "x" : 33.0,
+      "y" : 43.2
+    }
+  }, {
+    "type" : "ProgrammingAltarPlinth",
+    "position" : {
+      "x" : 31.0,
+      "y" : 45.2
+    }
+  }, {
+    "type" : "ProgrammingAltarPlinth",
+    "position" : {
+      "x" : 32.0,
+      "y" : 45.2
+    }
+  }, {
+    "type" : "ProgrammingAltarPlinth",
+    "position" : {
+      "x" : 33.0,
+      "y" : 45.2
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 34.0,
+      "y" : 50.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 35.0,
+      "y" : 50.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 36.0,
+      "y" : 50.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 37.0,
+      "y" : 50.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 38.0,
+      "y" : 50.0
+    }
+  }, {
+    "type" : "ProgrammingSourceBench",
+    "position" : {
+      "x" : 32.0,
+      "y" : 69.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 39.0,
+      "y" : 69.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 40.0,
+      "y" : 69.0
+    }
+  }, {
+    "type" : "ProgrammingTablet",
+    "position" : {
+      "x" : 40.1,
+      "y" : 69.3
+    }
+  }, {
+    "type" : "ProgrammingDrainedVase",
+    "position" : {
+      "x" : 32.1,
+      "y" : 69.4
+    }
+  }, {
+    "type" : "ProgrammingNote",
+    "position" : {
+      "x" : 33.0,
+      "y" : 69.5
+    }
+  }, {
+    "type" : "ProgrammingSourcePlinth",
+    "position" : {
+      "x" : 32.0,
+      "y" : 78.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 39.0,
+      "y" : 78.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 40.0,
+      "y" : 78.0
+    }
+  }, {
+    "type" : "ProgrammingTablet",
+    "position" : {
+      "x" : 40.1,
+      "y" : 78.3
+    }
+  }, {
+    "type" : "ProgrammingSourceCrystal",
+    "position" : {
+      "x" : 32.1,
+      "y" : 78.3
+    }
+  }, {
+    "type" : "ProgrammingSourceCrystal",
+    "position" : {
+      "x" : 32.8,
+      "y" : 78.3
+    }
+  }, {
+    "type" : "ProgrammingSourceCrystal",
+    "position" : {
+      "x" : 32.1,
+      "y" : 78.8
+    }
+  }, {
+    "type" : "ProgrammingSourceCrystal",
+    "position" : {
+      "x" : 32.8,
+      "y" : 78.8
+    }
+  }, {
+    "type" : "ProgrammingSourcePlinth",
+    "position" : {
+      "x" : 32.0,
+      "y" : 88.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 39.0,
+      "y" : 88.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 40.0,
+      "y" : 88.0
+    }
+  }, {
+    "type" : "ProgrammingTablet",
+    "position" : {
+      "x" : 40.1,
+      "y" : 88.3
+    }
+  }, {
+    "type" : "ProgrammingStrengthStone",
+    "position" : {
+      "x" : 32.1,
+      "y" : 88.3
+    }
+  }, {
+    "type" : "ProgrammingSourceTools",
+    "position" : {
+      "x" : 33.1,
+      "y" : 88.4
+    }
+  }, {
+    "type" : "ProgrammingSourceBench",
+    "position" : {
+      "x" : 32.0,
+      "y" : 97.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 39.0,
+      "y" : 97.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 40.0,
+      "y" : 97.0
+    }
+  }, {
+    "type" : "ProgrammingTablet",
+    "position" : {
+      "x" : 40.1,
+      "y" : 97.3
+    }
+  }, {
+    "type" : "ProgrammingSourceKettle",
+    "position" : {
+      "x" : 32.1,
+      "y" : 97.4
+    }
+  }, {
+    "type" : "ProgrammingSourceTools",
+    "position" : {
+      "x" : 33.1,
+      "y" : 97.5
+    }
+  }, {
+    "type" : "ProgrammingSourcePlinth",
+    "position" : {
+      "x" : 32.0,
+      "y" : 107.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 39.0,
+      "y" : 107.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 40.0,
+      "y" : 107.0
+    }
+  }, {
+    "type" : "ProgrammingTablet",
+    "position" : {
+      "x" : 40.1,
+      "y" : 107.3
+    }
+  }, {
+    "type" : "ProgrammingCauldron",
+    "position" : {
+      "x" : 32.2,
+      "y" : 107.2
+    }
+  }, {
+    "type" : "ProgrammingSourceBench",
+    "position" : {
+      "x" : 32.0,
+      "y" : 116.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 39.0,
+      "y" : 116.0
+    }
+  }, {
+    "type" : "ProgrammingSmallPlinth",
+    "position" : {
+      "x" : 40.0,
+      "y" : 116.0
+    }
+  }, {
+    "type" : "ProgrammingTablet",
+    "position" : {
+      "x" : 40.1,
+      "y" : 116.3
+    }
+  }, {
+    "type" : "ProgrammingSealBook",
+    "position" : {
+      "x" : 32.2,
+      "y" : 116.5
+    }
+  }, {
+    "type" : "ProgrammingSealGem",
+    "position" : {
+      "x" : 33.1,
+      "y" : 116.5
+    }
+  }, {
+    "type" : "ProgrammingHeartPlinth",
+    "position" : {
+      "x" : 40.0,
+      "y" : 119.0
+    }
+  }, {
+    "type" : "ProgrammingWinchFrame",
+    "position" : {
+      "x" : 115.15,
+      "y" : 67.1
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 29.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 30.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 31.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 32.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 33.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 34.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 35.0,
+      "y" : 22.0
+    }
   } ],
   "prefabs" : [ {
     "name" : "torch-forge-1",
@@ -376,7 +970,11 @@
         "y" : 5.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-forge-2",
@@ -387,7 +985,11 @@
         "y" : 19.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-forge-3",
@@ -398,7 +1000,11 @@
         "y" : 14.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-forge-0",
@@ -409,7 +1015,11 @@
         "y" : 5.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-archive-1",
@@ -420,7 +1030,11 @@
         "y" : 21.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-archive-0",
@@ -431,7 +1045,11 @@
         "y" : 21.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-archive-5",
@@ -442,7 +1060,11 @@
         "y" : 11.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-archive-4",
@@ -453,7 +1075,11 @@
         "y" : 6.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-archive-3",
@@ -464,7 +1090,11 @@
         "y" : 12.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "torch-archive-2",
@@ -475,7 +1105,371 @@
         "y" : 21.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-cellar-0-0",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 100.1,
+        "y" : 42.6
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 0.8,
+        "y" : 0.8
+      }
+    }
+  }, {
+    "name" : "torch-cellar-3-4",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 115.1,
+        "y" : 54.6
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 0.8,
+        "y" : 0.8
+      }
+    }
+  }, {
+    "name" : "torch-cellar-0-7",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 100.1,
+        "y" : 63.6
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 0.8,
+        "y" : 0.8
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-0",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 28.5,
+        "y" : 28.5
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-1",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 28.5,
+        "y" : 32.5
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-2",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 30.5,
+        "y" : 36.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-3",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 31.5,
+        "y" : 39.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-4",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 40.5,
+        "y" : 39.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-5",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 40.5,
+        "y" : 41.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-6",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 40.5,
+        "y" : 43.5
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-workshop-station-7",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 40.5,
+        "y" : 45.5
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-0",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 18.5,
+        "y" : 63.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-source-0",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 53.5,
+        "y" : 69.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-1",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 53.5,
+        "y" : 72.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-source-1",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 18.5,
+        "y" : 78.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-2",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 18.5,
+        "y" : 82.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-source-2",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 53.5,
+        "y" : 88.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-3",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 53.5,
+        "y" : 91.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-source-3",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 18.5,
+        "y" : 97.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-4",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 18.5,
+        "y" : 101.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-source-4",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 53.5,
+        "y" : 107.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-5",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 53.5,
+        "y" : 110.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-gallery-source-5",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 18.5,
+        "y" : 110.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "torch-decisions-heart",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 119.5
+      },
+      "on" : true,
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 2.0,
+        "y" : 2.0
+      }
     }
   } ]
 }

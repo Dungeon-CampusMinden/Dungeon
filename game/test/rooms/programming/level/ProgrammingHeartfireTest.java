@@ -10,21 +10,22 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.badlogic.gdx.Gdx;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
-import engine.level.utils.DesignLabel;
-import engine.level.utils.LevelElement;
+import engine.level.loader.LevelParser;
 import engine.utils.Point;
 import feature.achievements.AchievementManager;
 import feature.components.LeverComponent;
 import feature.entities.LeverFactory;
+import feature.entities.deco.Deco;
+import feature.entities.deco.DecoFactory;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -77,16 +78,9 @@ class ProgrammingHeartfireTest {
                 return null;
               });
       DungeonLevel level =
-          new DungeonLevel(
-              new LevelElement[][] {{LevelElement.FLOOR}},
-              DesignLabel.DEFAULT,
-              new HashMap<>(),
-              new ArrayList<>()) {
-            @Override
-            protected void onFirstTick() {
-              ProgrammingDecisionWorld.spawn(this);
-            }
-          };
+          LevelParser.parseLevel(
+              Gdx.files.internal("levels/programming/programming_1.level").readString(),
+              "heartfire-test");
       game.when(Game::currentLevel).thenReturn(Optional.of(level));
       game.when(() -> Game.findEntityById(org.mockito.Mockito.anyInt()))
           .thenAnswer(
@@ -94,9 +88,11 @@ class ProgrammingHeartfireTest {
                   spawned.stream()
                       .filter(entity -> entity.id() == (int) invocation.getArgument(0))
                       .findFirst());
-      level.onTick(true);
+      PrefabSpawner.spawn(level, PrefabSide.SERVER);
+      ProgrammingProps.installTorches(level);
+      level.decorations().forEach(deco -> spawned.add(DecoFactory.createDeco(deco.b(), deco.a())));
       Entity fire = named(spawned, "torch-decisions-heart");
-      Entity plinth = named(spawned, "programming-decisions-heart-plinth");
+      Entity plinth = named(spawned, Deco.ProgrammingHeartPlinth.name());
       assertEquals(centerX(plinth), centerX(fire), .001f);
       PrefabSpawner.clear(PrefabSide.SERVER);
     }

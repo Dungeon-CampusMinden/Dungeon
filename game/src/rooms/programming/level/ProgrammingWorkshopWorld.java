@@ -5,7 +5,6 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
-import engine.level.DungeonLevel;
 import engine.level.utils.LevelElement;
 import engine.utils.Direction;
 import engine.utils.Point;
@@ -129,7 +128,6 @@ final class ProgrammingWorkshopWorld {
     for (int x = 31; x <= 41; x++)
       result[49][x] = x >= 34 && x <= 38 ? LevelElement.DOOR : LevelElement.WALL;
     points.put("methods-console", new Point(28, 26.4f));
-    points.put("prop-workbench-reserve", new Point(28, 26));
     points.put("methods-entry", new Point(30, 24));
     points.put("methods-home", start(0));
     points.put("methods-exit", EXIT);
@@ -138,9 +136,6 @@ final class ProgrammingWorkshopWorld {
     points.put("workshop-experiments", new Point(29.1f, 26.4f));
     points.remove("workshop-calibration");
     points.remove("workshop-power");
-    points.remove("prop-workbench-experiments");
-    points.remove("prop-workbench-calibration");
-    points.remove("prop-workbench-power");
     return result;
   }
 
@@ -149,16 +144,10 @@ final class ProgrammingWorkshopWorld {
       for (int x = minX; x <= maxX; x++) layout[y][x] = LevelElement.FLOOR;
   }
 
-  /**
-   * Places existing workshop art, with all solid furniture outside the movement lanes.
-   *
-   * @param level shared room containing the workshop
-   */
-  static void spawn(DungeonLevel level) {
+  /** Creates the workshop objects whose state changes during a run. */
+  static void spawn() {
     for (var station : MethodsRoute.STATIONS) {
       Point at = actionPoint(station.index());
-      ProgrammingProps.spawnTorch(
-          level, "workshop-station-" + station.index(), lampPosition(station.index()), 1);
       switch (station.kind()) {
         case GATE -> gate(station.index());
         case RUNE -> {
@@ -167,7 +156,6 @@ final class ProgrammingWorkshopWorld {
               at.translate(
                   endFacing(station.index()) == Direction.UP ? 4.5f : 5.5f,
                   endFacing(station.index()) == Direction.UP ? 3 : .5f);
-          stone("rune-base-" + station.index(), stone, 1.5f);
           Entity rune = new Entity("programming-methods-rune-" + station.index());
           PositionComponent position = new PositionComponent(stone.translate(.5f, .65f));
           position.scale(.5f);
@@ -192,11 +180,6 @@ final class ProgrammingWorkshopWorld {
                 false);
         }
         case ALTAR -> {
-          for (int i = 0; i < 3; i++)
-            stone(
-                "altar-" + station.index() + "-" + i,
-                altarPosition(station.index()).translate(i, 0),
-                1);
           float socketSize = .45f;
           float socketSpacing = .55f;
           float firstSocket = (3 - socketSize - (station.amount() - 1) * socketSpacing) / 2;
@@ -237,27 +220,6 @@ final class ProgrammingWorkshopWorld {
     entity.add(draw);
     Game.add(entity);
     return entity;
-  }
-
-  /**
-   * Places the atlas's low stone plinth without stretching its pixel proportions.
-   *
-   * @param name local name used to identify the plinth entity
-   * @param at world position of the plinth
-   * @param scale uniform sprite scale
-   */
-  private static void stone(String name, Point at, float scale) {
-    Entity entity = new Entity("programming-methods-" + name);
-    PositionComponent position = new PositionComponent(at);
-    position.scale(scale);
-    entity.add(position);
-    DrawComponent draw =
-        new DrawComponent(
-            new SimpleIPath("spritesheets/FD_Dungeon_Free.png"),
-            new SpritesheetConfig(272, 144, 1, 1, 16, 16));
-    draw.depth(DepthLayer.Ground.depth());
-    entity.add(draw);
-    Game.add(entity);
   }
 
   /**
@@ -411,18 +373,6 @@ final class ProgrammingWorkshopWorld {
                             .enabled(!filled))));
   }
 
-  private static Point lampPosition(int station) {
-    return switch (station) {
-      case 0, 1 -> actionPoint(station).translate(-1.5f, 2.5f);
-      case 2 -> new Point(30.5f, 36);
-      case 3 -> new Point(31.5f, 39);
-      case 4 -> new Point(40.5f, 39);
-      case 5 -> new Point(40.5f, 41);
-      case 6, 7 -> new Point(40.5f, actionPoint(station).y() + .5f);
-      default -> throw new IllegalArgumentException("Unknown workshop station " + station);
-    };
-  }
-
   private static Point gatePosition(int station) {
     if (station != 0 && station != 1)
       throw new IllegalArgumentException("Not a gate station " + station);
@@ -459,10 +409,6 @@ final class ProgrammingWorkshopWorld {
             !side && row == 0 ? 344 : 336,
             16,
             side ? 16 : 8);
-    // The metal header remains on the masonry when the portcullis lifts.
-    for (int column = 0; column < columns; column++)
-      ironPanel(
-          name + "-frame-" + column, base.translate(column, rows * rowHeight), 392, 326, 16, 4);
     return entity;
   }
 

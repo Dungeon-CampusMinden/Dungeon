@@ -8,6 +8,7 @@ import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.components.draw.shader.AbstractShader;
+import feature.entities.deco.Deco;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,7 +55,7 @@ final class ProgrammingLightingShader extends AbstractShader {
             entity -> {
               PositionComponent position = entity.fetch(PositionComponent.class).orElseThrow();
               boolean golem = entity.name().equals("programming-variables-golem");
-              boolean kettle = entity.name().startsWith("programming-prop-forge-kettle-");
+              boolean kettle = kettle(entity);
               Point at = position.position();
               // z controls the radius; the flame sits above the wooden torch holder.
               positions.add(
@@ -91,10 +92,16 @@ final class ProgrammingLightingShader extends AbstractShader {
                 .orElse(List.of())));
   }
 
+  // Decorations are spawned on the server; snapshots retain their enum names on clients.
+  private static boolean kettle(Entity entity) {
+    return entity.name().equals(Deco.ProgrammingKettle.name())
+        || entity.name().equals(Deco.ProgrammingSourceKettle.name());
+  }
+
   private static boolean lightSource(Entity entity) {
     String name = entity.name();
     return name.equals("programming-variables-golem")
-        || name.startsWith("programming-prop-forge-kettle-")
+        || kettle(entity)
         || ProgrammingProps.torch(entity);
   }
 
@@ -105,7 +112,7 @@ final class ProgrammingLightingShader extends AbstractShader {
         && draw.isVisible()
         && (draw.tintColor() & 0xFF) != 0
         && (entity.name().equals("programming-variables-golem")
-            || entity.name().startsWith("programming-prop-forge-kettle-")
+            || kettle(entity)
             || draw.stateMachine().getCurrentStateName().equals("on"));
   }
 
