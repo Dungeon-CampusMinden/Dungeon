@@ -14,9 +14,7 @@ import java.util.regex.Pattern;
 
 final class MigrationRunner {
   private static final List<Migration> MIGRATIONS =
-      List.of(
-          new Migration("001", "/tracking/backend/migrations/V001__tracking.sql"),
-          new Migration("002", "/tracking/backend/migrations/V002__interactions.sql"));
+      List.of(new Migration("001", "/tracking/backend/migrations/V001__tracking.sql"));
   private static final Pattern SQL_IDENTIFIER = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*");
 
   private MigrationRunner() {}

@@ -303,7 +303,10 @@ public final class Tracking {
       UUID participantId,
       Optional<AttemptDetails> details) {
     synchronized (LOCK) {
-      if (session == null || session.finished() || !session.participantKnown(participantId)) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantKnown(participantId)) {
         return Optional.empty();
       }
       try {
@@ -318,15 +321,16 @@ public final class Tracking {
   }
 
   /**
-   * Records a meaningful player interaction, such as discovering an object or requesting help.
+   * Records a completed player interaction that belongs to no single puzzle, such as discovering an
+   * object, opening the quest log, or requesting help.
    *
    * @param objectId stable room-local object identifier
-   * @param actionId stable action identifier, never display text or mouse coordinates
+   * @param action stable action identifier, never display text or mouse coordinates
    * @param participantId session-scoped anonymous participant
    * @return newly recorded event, or empty when inactive
    */
   public static Optional<TrackingEvent> interaction(
-      String objectId, String actionId, UUID participantId) {
+      String objectId, String action, UUID participantId) {
     synchronized (LOCK) {
       if (!trackingAllowed
           || session == null
@@ -335,7 +339,7 @@ public final class Tracking {
         return Optional.empty();
       }
       try {
-        return Optional.of(session.interaction(objectId, actionId, participantId));
+        return Optional.of(session.interaction(objectId, action, participantId));
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();
@@ -344,7 +348,8 @@ public final class Tracking {
   }
 
   /**
-   * Records an interaction without treating it as a submitted answer or a puzzle start.
+   * Records a puzzle interaction with an explicit result, without treating it as a submitted answer
+   * or a puzzle start.
    *
    * @param puzzleId stable room-local puzzle identifier
    * @param objectId stable interacted object identifier
@@ -555,7 +560,7 @@ public final class Tracking {
 
   static void participantLeft(short clientId) {
     synchronized (LOCK) {
-      if (session != null && !session.finished()) {
+      if (trackingAllowed && session != null && !session.finished()) {
         try {
           session.participantLeft(clientId);
         } catch (TrackingPersistenceException exception) {
@@ -596,7 +601,7 @@ public final class Tracking {
     synchronized (LOCK) {
       sessionStartAttempted = true;
       PENDING_PUZZLE_STARTS.clear();
-      if (session != null) {
+      if (trackingAllowed && session != null) {
         try {
           session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
         } catch (TrackingPersistenceException exception) {

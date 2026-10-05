@@ -30,7 +30,7 @@ import tracking.core.TrackingSessionStatus;
 /** Mutable state of one authoritative tracking session. Guarded by the facade lock. */
 final class TrackingSession {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TrackingSession.class);
-  private static final int SCHEMA_VERSION = 2;
+  private static final int SCHEMA_VERSION = 1;
   private static final Duration FINAL_UPLOAD_TIMEOUT = Duration.ofMillis(2500);
 
   private final TrackingConfig config;
@@ -144,28 +144,44 @@ final class TrackingSession {
       TrackingInteractionStatus status,
       String reason,
       UUID participantId) {
+    return interaction(
+        Optional.of(requireText(puzzleId, "puzzleId")),
+        objectId,
+        action,
+        status,
+        Optional.of(requireText(reason, "reason")),
+        participantId);
+  }
+
+  TrackingEvent interaction(String objectId, String action, UUID participantId) {
+    return interaction(
+        Optional.empty(),
+        objectId,
+        action,
+        TrackingInteractionStatus.COMPLETED,
+        Optional.empty(),
+        participantId);
+  }
+
+  private TrackingEvent interaction(
+      Optional<String> puzzleId,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      Optional<String> reason,
+      UUID participantId) {
     ObjectNode payload =
         TrackingJson.object()
             .put("action", requireText(action, "action"))
-            .put("status", java.util.Objects.requireNonNull(status, "status").name())
-            .put("reason", requireText(reason, "reason"));
+            .put("status", java.util.Objects.requireNonNull(status, "status").name());
+    reason.ifPresent(value -> payload.put("reason", value));
     return event(
         TrackingEventType.INTERACTION_RECORDED,
         Optional.of(participantId),
-        Optional.of(requireText(puzzleId, "puzzleId")),
+        puzzleId,
         Optional.of(requireText(objectId, "objectId")),
         Optional.empty(),
         payload);
-  }
-
-  TrackingEvent interaction(String objectId, String actionId, UUID participantId) {
-    return event(
-        TrackingEventType.INTERACTION,
-        Optional.of(participantId),
-        Optional.empty(),
-        Optional.of(requireText(objectId, "objectId")),
-        Optional.empty(),
-        TrackingJson.object().put("actionId", requireText(actionId, "actionId")));
   }
 
   boolean participantKnown(UUID participantId) {

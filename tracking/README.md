@@ -20,12 +20,6 @@ Spielclients erhalten nie Datenbankzugangsdaten. Die HTTP-Grenze akzeptiert Type
 `tracking:core`; nur das Backend erreicht PostgreSQL. Compose veröffentlicht den Datenbankport
 nicht. Der auf dem Host veröffentlichte Backend-Port lauscht nur auf Loopback.
 
-Neue Sitzungen verwenden Schema-Version 2 mit dem Ereignis `INTERACTION`. Aktualisiere Game,
-Tracking-Core, Importwerkzeug und Backend gemeinsam. `V001__tracking.sql` enthält die erweiterten
-Ereignis- und Nutzlastbedingungen für neue Datenbanken. Eine bereits als Version 001 registrierte
-Datenbank führt dieses Skript beim Neustart nicht erneut aus; ihre Bedingungen müssen beim
-Deployment ausdrücklich aktualisiert werden, bevor sie diese Ereignisse annehmen kann.
-
 ## Schnellstart mit Docker Compose
 
 Setze vor dem ersten Start drei voneinander unabhängige Zufallswerte in der Hostumgebung.
@@ -191,10 +185,12 @@ Ein Antwortversuch verwendet `eventType: "ANSWER_SUBMITTED"`, setzt `outcome` au
 }
 ```
 
-Geräteaktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
-`action`, `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) und `reason` im Payload gespeichert.
-Sie haben kein `outcome`, verbrauchen keine `attemptNumber` und zählen nicht als Fehlversuch.
-Die Datenbankmigration `V002__interactions.sql` erweitert dafür die Ereignisvalidierung.
+Spieleraktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
+`action` und `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) im Payload gespeichert. Gehört die
+Aktion zu einem Rätsel, enthält sie dessen `puzzleId` und einen `reason` für das Ergebnis.
+Allgemeine Aktionen wie das Öffnen des Questlogs haben weder `puzzleId` noch `reason`.
+Interaktionen haben kein `outcome`, verbrauchen keine `attemptNumber` und zählen nicht als
+Fehlversuch.
 
 Nur ein tatsächlich von den Spielern gelesener Hinweis erzeugt `eventType: "HINT_USED"`. Das bloße
 Verfügbarmachen eines Hinweises zählt nicht. In The Last Hour hat jeder zeitversetzt erscheinende

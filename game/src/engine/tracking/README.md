@@ -129,9 +129,13 @@ Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`,
 `participantForEntity`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
 und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.
 
-`interaction(objectId, actionId, participantId)` erfasst bedeutende Spieleraktionen mit stabilen
+`interaction(objectId, action, participantId)` erfasst bedeutende Spieleraktionen mit stabilen
 IDs, zum Beispiel Fundstücke, Öffnen des Questlogs oder Hilfe- und Lösungsanfragen. Es erzeugt
-`INTERACTION` mit `objectId`, Teilnehmer-UUID und `payload.actionId`, ohne Rätsel-ID oder Ergebnis.
+`INTERACTION_RECORDED` mit `objectId`, Teilnehmer-UUID, `payload.action` und dem Status
+`COMPLETED`, ohne Rätsel-ID und ohne `reason`. Die Überladung
+`interaction(puzzleId, objectId, action, status, reason, participantId)` ordnet eine Interaktion
+einem Rätsel zu und hält ihr Ergebnis (`COMPLETED`, `BLOCKED` oder `CANCELLED`) samt stabilem
+Grund fest.
 Die API zählt weder Mausbewegungen noch Zeichenanschläge. Persönliche Notiztexte und Spielernamen
 gehören nicht in diese Ereignisse. Interaktionen und Versuche bleiben vollständig und geordnet.
 
@@ -151,9 +155,3 @@ Die tatsächliche Ausführung behält ihr Ergebnis `CORRECT` oder `INCORRECT`.
 Hilfestand und Lösungsart werden vor der Ausführung festgehalten, nicht erst beim späteren
 Ergebnis. Andere Räume können weiterhin Versuche ohne diese zusätzlichen Angaben erfassen.
 Diese optionalen JSON-Payload-Felder brauchen keine Änderung des Datenbankschemas.
-
-Neue Sitzungen verwenden Schema-Version 2 für die erweiterte Ereignisvokabel `INTERACTION`.
-Game, Tracking-Core, Importwerkzeug und Backend müssen zusammen aktualisiert werden; alte Leser
-kennen dieses Ereignis nicht. Das Basisschema `V001__tracking.sql` enthält die passenden
-Datenbankbedingungen. Bestehende Datenbanken benötigen diese aktualisierten Bedingungen vor dem
-Empfang neuer Interaktionen. Das Multiplayer-Protokoll bleibt unverändert.

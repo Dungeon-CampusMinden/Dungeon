@@ -34,9 +34,10 @@ CREATE TABLE IF NOT EXISTS tracking_events (
     schema_version INTEGER NOT NULL CHECK (schema_version >= 1),
     participant_id UUID,
     room_id TEXT NOT NULL,
-    event_type TEXT NOT NULL CHECK (event_type IN (
+    event_type TEXT NOT NULL
+        CONSTRAINT tracking_events_event_type_check CHECK (event_type IN (
         'PARTICIPANT_JOINED', 'PARTICIPANT_LEFT', 'PUZZLE_STARTED', 'ANSWER_SUBMITTED',
-        'HINT_USED', 'PUZZLE_SOLVED', 'INTERACTION')),
+        'INTERACTION_RECORDED', 'HINT_USED', 'PUZZLE_SOLVED')),
     puzzle_id TEXT,
     object_id TEXT,
     outcome TEXT,
@@ -48,23 +49,34 @@ CREATE TABLE IF NOT EXISTS tracking_events (
     PRIMARY KEY (session_id, session_sequence),
     FOREIGN KEY (session_id, participant_id)
         REFERENCES tracking_participants(session_id, participant_id),
-    CHECK ((event_type = 'ANSWER_SUBMITTED' AND outcome IN ('CORRECT', 'INCORRECT')
+    -- COALESCE turns missing values into a violation instead of an accepted NULL check.
+    CONSTRAINT tracking_events_answer_check
+    CHECK (COALESCE((event_type = 'ANSWER_SUBMITTED' AND outcome IN ('CORRECT', 'INCORRECT')
         AND object_id IS NOT NULL
         AND payload ? 'answer' AND payload -> 'answer' <> 'null'::jsonb
         AND jsonb_typeof(payload -> 'answerKind') = 'string'
         AND btrim(payload ->> 'answerKind') <> ''
         AND jsonb_typeof(payload -> 'attemptNumber') = 'number'
         AND payload ->> 'attemptNumber' ~ '^[1-9][0-9]*$')
-        OR (event_type <> 'ANSWER_SUBMITTED' AND outcome IS NULL)),
+        OR (event_type <> 'ANSWER_SUBMITTED' AND outcome IS NULL), false)),
+    CONSTRAINT tracking_events_hint_object_check
     CHECK (event_type <> 'HINT_USED' OR object_id IS NOT NULL),
-    CHECK (event_type <> 'INTERACTION' OR (object_id IS NOT NULL
-        AND payload ? 'actionId'
-        AND jsonb_typeof(payload -> 'actionId') = 'string'
-        AND btrim(payload ->> 'actionId') <> '')),
-    CHECK ((event_type IN ('PUZZLE_STARTED', 'ANSWER_SUBMITTED', 'HINT_USED', 'PUZZLE_SOLVED'))
-        = (puzzle_id IS NOT NULL)),
+    CONSTRAINT tracking_events_interaction_payload_check
+    CHECK (event_type <> 'INTERACTION_RECORDED' OR (
+        object_id IS NOT NULL
+        AND COALESCE(jsonb_typeof(payload -> 'action') = 'string'
+            AND btrim(payload ->> 'action') <> '', false)
+        AND COALESCE((payload ->> 'status') IN ('COMPLETED', 'BLOCKED', 'CANCELLED'), false)
+        AND (NOT payload ? 'reason' OR COALESCE(jsonb_typeof(payload -> 'reason') = 'string'
+            AND btrim(payload ->> 'reason') <> '', false)))),
+    -- Interactions name their puzzle only when they belong to one.
+    CONSTRAINT tracking_events_puzzle_presence_check
+    CHECK (event_type = 'INTERACTION_RECORDED'
+        OR (event_type IN ('PUZZLE_STARTED', 'ANSWER_SUBMITTED', 'HINT_USED', 'PUZZLE_SOLVED'))
+            = (puzzle_id IS NOT NULL)),
+    CONSTRAINT tracking_events_participant_presence_check
     CHECK ((event_type IN ('PARTICIPANT_JOINED', 'PARTICIPANT_LEFT', 'ANSWER_SUBMITTED',
-        'HINT_USED', 'INTERACTION')) = (participant_id IS NOT NULL))
+        'INTERACTION_RECORDED', 'HINT_USED')) = (participant_id IS NOT NULL))
 );
 
 CREATE INDEX IF NOT EXISTS tracking_events_session_puzzle_sequence_idx
@@ -97,8 +109,9 @@ WITH session_ends AS (
     SELECT
         session_id,
         puzzle_id,
-        COALESCE(min(elapsed_monotonic_ms) FILTER (WHERE event_type = 'PUZZLE_STARTED'),
-            min(elapsed_monotonic_ms)) AS first_event_elapsed_ms,
+        min(elapsed_monotonic_ms) FILTER (
+            WHERE event_type IN ('PUZZLE_STARTED', 'PUZZLE_SOLVED'))
+            AS first_event_elapsed_ms,
         min(elapsed_monotonic_ms) FILTER (WHERE event_type = 'PUZZLE_SOLVED')
             AS solved_elapsed_ms,
         count(*) FILTER (WHERE event_type = 'ANSWER_SUBMITTED') AS attempt_count,
@@ -118,7 +131,8 @@ SELECT
     p.attempt_count,
     p.hint_count
 FROM puzzle_events p
-JOIN session_ends s ON s.session_id = p.session_id;
+JOIN session_ends s ON s.session_id = p.session_id
+WHERE p.first_event_elapsed_ms IS NOT NULL;
 
 CREATE OR REPLACE VIEW v_attempts_answers AS
 SELECT
