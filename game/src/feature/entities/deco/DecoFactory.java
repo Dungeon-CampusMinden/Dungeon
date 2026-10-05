@@ -6,6 +6,7 @@ import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.components.draw.DepthLayer;
+import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
@@ -55,7 +56,11 @@ public class DecoFactory {
       AnimationConfig config,
       Rectangle solidCollider) {
     entity.add(new PositionComponent(pos));
-    DrawComponent dc = new DrawComponent(deco.path(), config);
+    // Explicit sprite regions and scales take precedence over an asset's animation JSON.
+    DrawComponent dc =
+        config.config().isPresent()
+            ? new DrawComponent(new Animation(deco.path(), config))
+            : new DrawComponent(deco.path(), config);
     dc.depth(depth);
     entity.add(dc);
     entity.add(new DecoComponent(deco));

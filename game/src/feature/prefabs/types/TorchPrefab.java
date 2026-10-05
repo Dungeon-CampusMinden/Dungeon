@@ -1,8 +1,10 @@
 package feature.prefabs.types;
 
 import engine.Entity;
+import engine.components.PositionComponent;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
+import engine.utils.Vector2;
 import feature.entities.LeverFactory;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
@@ -20,6 +22,8 @@ public final class TorchPrefab extends Prefab {
   public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0));
   public static final PrefabProperty<Boolean> ON = PrefabProperty.bool("on", "On", true);
+  public static final PrefabProperty<Vector2> SCALE =
+      PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
   public static final PrefabProperty<String> TOGGLEABLE =
       PrefabProperty.selection(
           "toggleable",
@@ -29,7 +33,7 @@ public final class TorchPrefab extends Prefab {
 
   /** Creates the torch definition. */
   public TorchPrefab() {
-    super("torch", "Torch", PrefabSide.SERVER, List.of(POSITION, ON, TOGGLEABLE));
+    super("torch", "Torch", PrefabSide.SERVER, List.of(POSITION, ON, TOGGLEABLE, SCALE));
   }
 
   /**
@@ -39,7 +43,8 @@ public final class TorchPrefab extends Prefab {
    * @param name authored instance name
    */
   public TorchPrefab(ILevel level, String name) {
-    super("torch", "Torch", PrefabSide.SERVER, List.of(POSITION, ON, TOGGLEABLE), level, name);
+    super(
+        "torch", "Torch", PrefabSide.SERVER, List.of(POSITION, ON, TOGGLEABLE, SCALE), level, name);
   }
 
   /**
@@ -52,6 +57,18 @@ public final class TorchPrefab extends Prefab {
   }
 
   @Override
+  protected void validate(PrefabInstance instance) {
+    Vector2 scale = value(instance, SCALE);
+    if (!Float.isFinite(scale.x())
+        || !Float.isFinite(scale.y())
+        || scale.x() <= 0
+        || scale.y() <= 0) {
+      throw new IllegalArgumentException(
+          "Prefab property 'scale' must contain positive finite components");
+    }
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity torch = context.createEntity(instance.name());
     Toggleable toggleable = Toggleable.fromLabel(value(instance, TOGGLEABLE));
@@ -61,6 +78,7 @@ public final class TorchPrefab extends Prefab {
         value(instance, ON),
         toggleable != Toggleable.NOT_TOGGLEABLE,
         toggleable == Toggleable.TOGGLEABLE_ONCE);
+    torch.fetch(PositionComponent.class).orElseThrow().scale(value(instance, SCALE));
     return List.of(torch);
   }
 
