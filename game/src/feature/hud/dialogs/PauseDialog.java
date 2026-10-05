@@ -93,24 +93,31 @@ public class PauseDialog extends Table {
     boolean isInInput = Game.stage().map(s -> s.getKeyboardFocus() != null).orElse(false);
     if (isInInput) return null;
 
-    // Find if the player has any open pause menu dialog already:
-    boolean hasClosed =
-        caller
-            .fetch(UIComponent.class)
-            .map(
-                uic -> {
-                  if (uic.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU) {
-                    UIUtils.closeDialog(uic);
-                    return true;
-                  }
-                  return false;
-                })
-            .orElse(false);
+    var openMenu =
+        Game.entities()
+            .filter(Entity::isLocal)
+            .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+            .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU)
+            .filter(
+                ui ->
+                    ui.dialogContext()
+                        .find(DialogContextKeys.ENTITY, Integer.class)
+                        .filter(id -> id == caller.id())
+                        .isPresent())
+            .findFirst();
+    if (openMenu.isPresent()) {
+      UIUtils.closeDialog(openMenu.orElseThrow());
+      return null;
+    }
 
-    if (hasClosed) return null;
-
-    DialogContext ctx = DialogContext.builder().type(DialogType.DefaultTypes.PAUSE_MENU).build();
-    ctx.owner(caller.id());
+    Entity owner = Entity.createLocalEntity("pause-menu");
+    Game.add(owner);
+    DialogContext ctx =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.PAUSE_MENU)
+            .put(DialogContextKeys.ENTITY, caller.id())
+            .build();
+    ctx.owner(owner.id());
 
     UIComponent ui = DialogFactory.show(ctx, caller.id());
 
@@ -120,6 +127,7 @@ public class PauseDialog extends Table {
         data -> {
           UIUtils.closeDialog(ui);
         });
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> UIUtils.closeDialog(ui));
     ui.registerCallback(
         DialogContextKeys.ON_QUIT,
         data -> {
@@ -167,7 +175,7 @@ public class PauseDialog extends Table {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            Game.player().orElseThrow().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
+            ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             Sounds.playUi(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
@@ -175,11 +183,13 @@ public class PauseDialog extends Table {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            Entity player = ctx.ownerEntity();
+            Entity player =
+                Game.findEntityById(ctx.require(DialogContextKeys.ENTITY, Integer.class))
+                    .orElseThrow();
             if (!(Game.systems().get(ControlsDialogSystem.class)
                 instanceof ControlsDialogSystem controlsSystem)) return;
 
-            player.fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
+            ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             controlsSystem.showControlsFor(player);
             Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
@@ -188,8 +198,10 @@ public class PauseDialog extends Table {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            Entity player = Game.player().orElseThrow();
-            player.fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
+            Entity player =
+                Game.findEntityById(ctx.require(DialogContextKeys.ENTITY, Integer.class))
+                    .orElseThrow();
+            ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             QuestLogUI.requestQuestLog(player);
             Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }

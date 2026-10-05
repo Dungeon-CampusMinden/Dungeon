@@ -29,13 +29,9 @@ import feature.components.ManaComponent;
 import feature.components.SkillComponent;
 import feature.components.SpikyComponent;
 import feature.components.StaminaComponent;
-import feature.components.UIComponent;
 import feature.health.Damage;
 import feature.hud.DialogUtils;
 import feature.hud.UIUtils;
-import feature.hud.dialogs.DialogCallbackResolver;
-import feature.hud.dialogs.DialogContextKeys;
-import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.PauseDialog;
 import feature.input.configuration.KeyboardConfig;
 import feature.questlog.QuestLogUI;
@@ -376,40 +372,12 @@ public final class HeroBuilder {
         false);
     inputComp.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
-        (caller) -> {
-          var topmostUI = Game.hud().topmostCloseableUI();
-          if (topmostUI.isEmpty()) {
-            PauseDialog.showPauseDialog(caller);
-            return;
-          }
-
-          var firstUI = topmostUI.orElseThrow();
-          UIComponent uiComp = firstUI.b();
-
-          if (uiComp.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU) {
-            UIUtils.closeDialog(uiComp);
-            return;
-          }
-
-          // Sequenced dialogs consume ESC themselves so it advances one page instead of closing
-          // the complete tree through the global UI close handler.
-          if (uiComp
-              .dialogContext()
-              .find(DialogContextKeys.ESCAPE_ADVANCES, Boolean.class)
-              .orElse(false)) {
-            return;
-          }
-
-          String dialogId = uiComp.dialogContext().dialogId();
-          DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CLOSE)
-              .accept(null);
-
-          // UI is not networked, just close locally
-          Entity uiEntity = firstUI.a();
-          if (uiEntity.isLocal()) {
-            UIUtils.closeDialog(uiComp);
-          }
-        },
+        caller ->
+            Game.hud()
+                .topmostUI()
+                .ifPresentOrElse(
+                    ui -> UIUtils.requestCloseDialog(ui.b()),
+                    () -> PauseDialog.showPauseDialog(caller)),
         false,
         true);
     inputComp.registerCallback(

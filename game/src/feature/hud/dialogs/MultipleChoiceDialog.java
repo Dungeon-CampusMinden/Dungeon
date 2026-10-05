@@ -241,15 +241,6 @@ final class MultipleChoiceDialog {
           public boolean keyDown(InputEvent event, int keycode) {
             int total = allEntries.size();
 
-            if (keycode == Input.Keys.ESCAPE) {
-              if (!choicesActive[0]) {
-                scriptView.advance();
-              }
-              // ESC behaves like a click outside the options once the choice list is visible: it
-              // must never confirm the currently highlighted option.
-              return true;
-            }
-
             if (keycode == KeyboardConfig.INTERACT_WORLD.value()) {
               if (!choicesActive[0]) {
                 scriptView.advance();
@@ -311,15 +302,22 @@ final class MultipleChoiceDialog {
           }
         });
 
-    return new BaseContainerUI(root) {
-      @Override
-      protected void setStage(Stage stage) {
-        super.setStage(stage);
-        if (stage == null) {
-          scriptView.disposeCache();
-        }
-      }
-    };
+    BaseContainerUI container =
+        new BaseContainerUI(root) {
+          @Override
+          protected void setStage(Stage stage) {
+            super.setStage(stage);
+            if (stage == null) {
+              scriptView.disposeCache();
+            }
+          }
+        };
+    UIUtils.onCloseRequest(
+        container,
+        () -> {
+          if (!choicesActive[0]) scriptView.advance();
+        });
+    return container;
   }
 
   /**

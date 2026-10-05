@@ -492,8 +492,7 @@ public class DialogFactory {
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.DIALOG, dialog)
             .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
-            .put(DialogContextKeys.CAN_CANCEL, canCancel)
-            .put(DialogContextKeys.ESCAPE_ADVANCES, true);
+            .put(DialogContextKeys.CAN_CANCEL, canCancel);
 
     UIComponent ui = show(builder.build(), targetEntityIds);
 
@@ -575,8 +574,7 @@ public class DialogFactory {
 
     return DialogContext.builder()
         .type(DialogType.DefaultTypes.DIALOG_DIALOG)
-        .put(DialogContextKeys.DIALOG, dialog)
-        .put(DialogContextKeys.ESCAPE_ADVANCES, true);
+        .put(DialogContextKeys.DIALOG, dialog);
   }
 
   private static UIComponent showDialogDialog(

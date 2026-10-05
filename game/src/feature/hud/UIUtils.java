@@ -11,6 +11,9 @@ import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
+import feature.hud.dialogs.DialogCallbackResolver;
+import feature.hud.dialogs.DialogCloseEvent;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
 import feature.hud.elements.GUICombination;
 import feature.inventory.ui.InventoryGUI;
@@ -251,6 +254,41 @@ public final class UIUtils {
       }
     }
     return results.build();
+  }
+
+  /**
+   * Registers local behavior for the configured dialog close shortcut.
+   *
+   * @param actor the dialog's outermost actor
+   * @param handler behavior that consumes the close request
+   */
+  public static void onCloseRequest(Actor actor, Runnable handler) {
+    actor.addListener(
+        event -> {
+          if (!(event instanceof DialogCloseEvent)) return false;
+          handler.run();
+          return true;
+        });
+  }
+
+  /**
+   * Requests closing a dialog, allowing it to handle the request locally first.
+   *
+   * <p>Server-owned dialogs send their regular close callback to the server. Local dialogs close
+   * immediately. Non-closeable dialogs may handle requests, but cannot be closed by the fallback.
+   *
+   * @param uiComponent the dialog receiving the request
+   */
+  public static void requestCloseDialog(UIComponent uiComponent) {
+    DialogCloseEvent event = new DialogCloseEvent();
+    uiComponent.dialog().fire(event);
+    if (event.isHandled() || !uiComponent.canBeClosed()) return;
+
+    boolean local = uiComponent.dialogContext().ownerEntity().isLocal();
+    DialogCallbackResolver.createButtonCallback(
+            uiComponent.dialogContext().dialogId(), DialogContextKeys.ON_CLOSE)
+        .accept(null);
+    if (local) closeDialog(uiComponent);
   }
 
   /**

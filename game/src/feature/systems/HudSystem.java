@@ -68,6 +68,18 @@ public final class HudSystem extends System {
   }
 
   /**
+   * Returns the topmost visible UI, including dialogs that cannot be closed.
+   *
+   * @return a tuple of the entity and its UIComponent
+   */
+  public Optional<Tuple<Entity, UIComponent>> topmostUI() {
+    return entityUIComponentMap.entrySet().stream()
+        .filter(entry -> entry.getValue().isVisible())
+        .max(Comparator.comparingInt(entry -> entry.getValue().dialog().getZIndex()))
+        .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
+  }
+
+  /**
    * Returns whether there is any open pausing UI for a given entity.
    *
    * @param entity the entity to check for
