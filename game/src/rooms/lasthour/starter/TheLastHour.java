@@ -104,7 +104,7 @@ public class TheLastHour {
    *
    * @param args command-line arguments (a {@code --server} flag starts the dedicated server)
    */
-  public static void main(String[] args) {
+  static void main(String[] args) {
     loadFromSave = containsArgument(args, LOAD_SAVE_ARGUMENT);
     configureManagedServerPlayerName();
     if (containsArgument(args, NEW_GAME_ARGUMENT)) {
@@ -261,15 +261,6 @@ public class TheLastHour {
     localization.registerTranslationFile(Language.DE, "language/theLastHour/de.json");
     localization.registerTranslationFile(Language.EN, "language/theLastHour/en.json");
     localization.setCurrentTranslator(new LastHourTranslator());
-  }
-
-  /**
-   * Returns whether this process was explicitly started in the level editor.
-   *
-   * @return true while running the level editor
-   */
-  public static boolean levelEditorMode() {
-    return levelEditorMode;
   }
 
   /**
