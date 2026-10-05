@@ -52,6 +52,7 @@ class DialogCloseRenderingTest {
   private final AtomicInteger confirmations = new AtomicInteger();
   private final AtomicInteger selections = new AtomicInteger();
   private final AtomicInteger resumes = new AtomicInteger();
+  private final AtomicInteger closes = new AtomicInteger();
 
   @BeforeEach
   void setUp() {
@@ -106,6 +107,7 @@ class DialogCloseRenderingTest {
                     if (DialogContextKeys.ON_OPTION_SELECTED.equals(key))
                       selections.incrementAndGet();
                     if (DialogContextKeys.ON_RESUME.equals(key)) resumes.incrementAndGet();
+                    if (DialogContextKeys.ON_CLOSE.equals(key)) closes.incrementAndGet();
                   };
             });
   }
@@ -120,7 +122,32 @@ class DialogCloseRenderingTest {
   }
 
   @Test
-  void closeRequestSkipsTypewriterThenAdvancesOnlyOnePage() {
+  void interactionAdvancesPagesButEscapeDoesNotUseTheAdvanceListener() {
+    DialogContext context =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.DIALOG_DIALOG)
+            .put(DialogContextKeys.DIALOG, "First page[p]Second page")
+            .build();
+    Group dialog = DialogDialog.build(context);
+    Group content = (Group) ((BaseContainerUI) dialog).getContent();
+    DialogScriptView script = UIUtils.findTypeInGroup(dialog, DialogScriptView.class).orElseThrow();
+
+    sendKey(content, Input.Keys.ESCAPE);
+    assertFalse(script.isCurrentTypewriterFinished());
+    assertFalse(script.isOnLastPage());
+    assertEquals(0, confirmations.get());
+
+    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    assertTrue(script.isCurrentTypewriterFinished());
+    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    assertTrue(script.isOnLastPage());
+    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    assertEquals(1, confirmations.get());
+  }
+
+  @Test
+  void closeRequestsAdvanceDialogueWithoutSkippingPagesOrClosingItEarly() {
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.DIALOG_DIALOG)
@@ -128,10 +155,10 @@ class DialogCloseRenderingTest {
             .build();
     Group dialog = DialogDialog.build(context);
     UIComponent component = component(dialog);
+    Group content = (Group) ((BaseContainerUI) dialog).getContent();
     DialogScriptView script = UIUtils.findTypeInGroup(dialog, DialogScriptView.class).orElseThrow();
 
-    assertFalse(script.isCurrentTypewriterFinished());
-    sendKey((Group) ((BaseContainerUI) dialog).getContent(), Input.Keys.ESCAPE);
+    sendKey(content, Input.Keys.ESCAPE);
     assertFalse(script.isCurrentTypewriterFinished());
     UIUtils.requestCloseDialog(component);
     assertTrue(script.isCurrentTypewriterFinished());
@@ -141,15 +168,15 @@ class DialogCloseRenderingTest {
     UIUtils.requestCloseDialog(component);
     assertTrue(script.isOnLastPage());
     assertEquals(0, confirmations.get());
-
     UIUtils.requestCloseDialog(component);
     assertEquals(0, confirmations.get());
     UIUtils.requestCloseDialog(component);
     assertEquals(1, confirmations.get());
+    assertEquals(0, closes.get());
   }
 
   @Test
-  void closeRequestDoesNotConfirmAnActiveMultipleChoiceSelection() {
+  void escapeDoesNotConfirmTheSelectedMultipleChoiceOption() {
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.MULTIPLE_CHOICE)
@@ -158,21 +185,21 @@ class DialogCloseRenderingTest {
             .build();
     Group dialog = MultipleChoiceDialog.build(context);
     UIComponent component = component(dialog);
-    UIUtils.requestCloseDialog(component);
     Group content = (Group) ((BaseContainerUI) dialog).getContent();
+    UIUtils.requestCloseDialog(component);
     sendKey(content, Input.Keys.DOWN);
     sendKey(content, Input.Keys.ESCAPE);
-
     UIUtils.requestCloseDialog(component);
     UIUtils.requestCloseDialog(component);
 
     assertEquals(0, selections.get());
+    assertEquals(0, closes.get());
     sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
     assertEquals(1, selections.get());
   }
 
   @Test
-  void nonCloseableCutsceneAdvancesWithoutSkippingTheRemainingPages() {
+  void nonCloseableCutsceneAdvancesWithoutSkippingPagesAndIgnoresEscapeDuringFades() {
     BitmapFont font = FontHelper.getFont(FontSpec.of(32));
     try (MockedStatic<Scene2dElementFactory> elements = mockStatic(Scene2dElementFactory.class)) {
       elements
@@ -193,9 +220,9 @@ class DialogCloseRenderingTest {
       Group dialog = BlackFadeCutscene.build(context);
       UIComponent component = component(dialog);
       Label message = UIUtils.findTypeInGroup(dialog, Label.class).orElseThrow();
-      finishFade(dialog);
 
-      sendKey((Group) ((BaseContainerUI) dialog).getContent(), Input.Keys.ESCAPE);
+      UIUtils.requestCloseDialog(component);
+      finishFade(dialog);
       assertEquals("First", message.getText().toString());
       UIUtils.requestCloseDialog(component);
       UIUtils.requestCloseDialog(component);
@@ -206,6 +233,7 @@ class DialogCloseRenderingTest {
 
       UIUtils.requestCloseDialog(component);
       assertEquals(1, resumes.get());
+      assertEquals(0, closes.get());
     }
   }
 

@@ -2,6 +2,8 @@ package feature.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import engine.Entity;
@@ -263,19 +265,27 @@ public final class UIUtils {
    * @param handler behavior that consumes the close request
    */
   public static void onCloseRequest(Actor actor, Runnable handler) {
-    actor.addListener(
-        event -> {
-          if (!(event instanceof DialogCloseEvent)) return false;
-          handler.run();
-          return true;
-        });
+    actor.addListener(new CloseRequestListener(handler));
+  }
+
+  /**
+   * Checks whether an actor has registered local behavior for the close shortcut.
+   *
+   * @param actor the dialog's outermost actor
+   * @return true if the actor handles close requests locally
+   */
+  public static boolean hasCloseRequestHandler(Actor actor) {
+    for (EventListener listener : actor.getListeners()) {
+      if (listener instanceof CloseRequestListener) return true;
+    }
+    return false;
   }
 
   /**
    * Requests closing a dialog, allowing it to handle the request locally first.
    *
-   * <p>Server-owned dialogs send their regular close callback to the server. Local dialogs close
-   * immediately. Non-closeable dialogs may handle requests, but cannot be closed by the fallback.
+   * <p>Unhandled requests use the callback resolver. Server-owned dialogs remain open on clients
+   * until the server confirms their removal; local callbacks handle local cleanup.
    *
    * @param uiComponent the dialog receiving the request
    */
@@ -284,11 +294,24 @@ public final class UIUtils {
     uiComponent.dialog().fire(event);
     if (event.isHandled() || !uiComponent.canBeClosed()) return;
 
-    boolean local = uiComponent.dialogContext().ownerEntity().isLocal();
     DialogCallbackResolver.createButtonCallback(
             uiComponent.dialogContext().dialogId(), DialogContextKeys.ON_CLOSE)
         .accept(null);
-    if (local) closeDialog(uiComponent);
+  }
+
+  private static final class CloseRequestListener implements EventListener {
+    private final Runnable handler;
+
+    private CloseRequestListener(Runnable handler) {
+      this.handler = handler;
+    }
+
+    @Override
+    public boolean handle(Event event) {
+      if (!(event instanceof DialogCloseEvent)) return false;
+      handler.run();
+      return true;
+    }
   }
 
   /**

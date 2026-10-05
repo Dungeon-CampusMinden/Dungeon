@@ -374,7 +374,7 @@ public final class HeroBuilder {
         KeyboardConfig.CLOSE_UI.value(),
         caller ->
             Game.hud()
-                .topmostUI()
+                .topmostCloseRequestUI()
                 .ifPresentOrElse(
                     ui -> UIUtils.requestCloseDialog(ui.b()),
                     () -> PauseDialog.showPauseDialog(caller)),

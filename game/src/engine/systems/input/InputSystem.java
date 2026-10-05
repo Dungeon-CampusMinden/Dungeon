@@ -36,7 +36,7 @@ public final class InputSystem extends System {
             .fetch(InputComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, InputComponent.class));
     // Cutscenes may disable gameplay input, but their UI shortcuts must remain usable.
-    if (pc.deactivateControls() && !Game.hud().hasOpenUI(entity)) return;
+    if (pc.deactivateControls() && !Game.hud().hasOpenPausingUI(entity)) return;
     boolean controlsPaused =
         pc.deactivateControls() || !this.paused || Game.hud().hasOpenPausingUI(entity);
     execute(pc.callbacks(), entity, controlsPaused);

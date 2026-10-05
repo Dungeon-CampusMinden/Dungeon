@@ -12,6 +12,7 @@ import engine.utils.Tuple;
 import engine.utils.components.MissingComponentException;
 import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
+import feature.hud.UIUtils;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -56,25 +57,20 @@ public final class HudSystem extends System {
   }
 
   /**
-   * Returns the topmost closeable UI.
+   * Returns the topmost visible UI that can be closed or handles close requests locally.
+   *
+   * <p>Passive HUD elements such as attribute bars are excluded. Non-closeable cutscenes with a
+   * local close-request handler still receive the shortcut.
    *
    * @return a Tuple of the Entity and its UIComponent
    */
-  public Optional<Tuple<Entity, UIComponent>> topmostCloseableUI() {
+  public Optional<Tuple<Entity, UIComponent>> topmostCloseRequestUI() {
     return entityUIComponentMap.entrySet().stream()
-        .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
-        .max(Comparator.comparingInt(entry -> entry.getValue().dialog().getZIndex()))
-        .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
-  }
-
-  /**
-   * Returns the topmost visible UI, including dialogs that cannot be closed.
-   *
-   * @return a tuple of the entity and its UIComponent
-   */
-  public Optional<Tuple<Entity, UIComponent>> topmostUI() {
-    return entityUIComponentMap.entrySet().stream()
-        .filter(entry -> entry.getValue().isVisible())
+        .filter(
+            entry ->
+                entry.getValue().isVisible()
+                    && (entry.getValue().canBeClosed()
+                        || UIUtils.hasCloseRequestHandler(entry.getValue().dialog())))
         .max(Comparator.comparingInt(entry -> entry.getValue().dialog().getZIndex()))
         .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
   }

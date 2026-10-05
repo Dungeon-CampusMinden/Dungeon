@@ -124,7 +124,7 @@ class HeroDialogControlsTest {
     pressEscape();
 
     assertEquals(1, closes.get());
-    assertTrue(Game.hud().topmostUI().isEmpty());
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
   }
 
   @Test
@@ -133,14 +133,14 @@ class HeroDialogControlsTest {
 
     pressEscape();
 
-    var pause = Game.hud().topmostUI().orElseThrow();
+    var pause = Game.hud().topmostCloseRequestUI().orElseThrow();
     assertTrue(pause.a().isLocal());
     assertEquals(DialogType.DefaultTypes.PAUSE_MENU, pause.b().dialogContext().dialogType());
     assertFalse(player.isPresent(UIComponent.class));
 
     pressEscape();
 
-    assertTrue(Game.hud().topmostUI().isEmpty());
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
     verify(network, never()).send(anyShort(), any(), anyBoolean());
   }
 
@@ -169,7 +169,7 @@ class HeroDialogControlsTest {
             .find(DialogContextKeys.OWNER_ENTITY, Integer.class)
             .flatMap(Game::findEntityById)
             .isPresent());
-    assertTrue(Game.hud().topmostUI().isEmpty());
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
   }
 
   @Test
@@ -186,41 +186,127 @@ class HeroDialogControlsTest {
                 new DialogResponseMessage(
                     dialog.dialogContext().dialogId(), DialogContextKeys.ON_CLOSE, null)),
             eq(true));
-    assertSame(dialog, Game.hud().topmostUI().orElseThrow().b());
+    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
   }
 
   @Test
-  void localCloseHandlerConsumesEscapeExactlyOnce() {
+  void escapeOpensPauseWhenOnlyAttributeBarsAreVisible() {
+    UIComponent bar = showAttributeBar();
+    assertTrue(Game.hud().hasOpenUI(player));
+    assertFalse(Game.hud().hasOpenPausingUI(player));
+
+    pressEscape();
+
+    assertEquals(
+        DialogType.DefaultTypes.PAUSE_MENU,
+        Game.hud().topmostCloseRequestUI().orElseThrow().b().dialogContext().dialogType());
+    assertTrue(bar.isVisible());
+    pressEscape();
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertTrue(bar.isVisible());
+  }
+
+  @Test
+  void attributeBarsAddedAboveADialogDoNotInterceptEscape() {
     UIComponent dialog = showDialog(true, true);
-    AtomicInteger advances = new AtomicInteger();
+    UIComponent bar = showAttributeBar();
+    Group stage = new Group();
+    stage.addActor(dialog.dialog());
+    stage.addActor(bar.dialog());
     AtomicInteger closes = new AtomicInteger();
-    UIUtils.onCloseRequest(dialog.dialog(), advances::incrementAndGet);
     dialog.registerCallback(DialogContextKeys.ON_CLOSE, ignored -> closes.incrementAndGet());
 
     pressEscape();
 
-    assertEquals(1, advances.get());
-    assertEquals(0, closes.get());
-    assertSame(dialog, Game.hud().topmostUI().orElseThrow().b());
+    assertEquals(1, closes.get());
+    assertTrue(bar.isVisible());
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
   }
 
   @Test
-  void nonCloseableDialogBlocksPauseButCanHandleEscape() {
-    UIComponent dialog = showDialog(true, false);
-    pressEscape();
-    assertSame(dialog, Game.hud().topmostUI().orElseThrow().b());
+  void serverDialogWithALocalProxyWaitsForTheServerToCloseIt() {
+    INetworkHandler network = useNetworkClient();
+    DialogContext context = DialogContext.builder().type(TestDialogType.TEST).build();
+    context.owner(Integer.MAX_VALUE);
+    UIComponent dialog = DialogFactory.show(context, false, true, player.id());
+    assertTrue(dialog.dialogContext().ownerEntity().isLocal());
+    assertTrue(dialog.callbacks().isEmpty());
 
+    pressEscape();
+
+    verify(network)
+        .send(
+            eq((short) 0),
+            eq(new DialogResponseMessage(context.dialogId(), DialogContextKeys.ON_CLOSE, null)),
+            eq(true));
+    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+  }
+
+  @Test
+  void disabledGameplayControlsAllowClosingAPausingDialogWithoutSendingMovement() {
+    INetworkHandler network = useNetworkClient();
+    player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
+    UIComponent dialog = showDialog(true, true);
+    AtomicInteger closes = new AtomicInteger();
+    dialog.registerCallback(DialogContextKeys.ON_CLOSE, ignored -> closes.incrementAndGet());
+
+    processor.get().keyDown(Input.Keys.W);
+    pressEscape();
+
+    assertEquals(1, closes.get());
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    verify(network, never()).sendInput(any());
+  }
+
+  @Test
+  void disabledControlsWithOnlyAttributeBarsDoNotOpenMenus() {
+    INetworkHandler network = useNetworkClient();
+    player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
+    showAttributeBar();
+
+    pressEscape();
+
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    verify(network, never()).sendInput(any());
+  }
+
+  @Test
+  void localCloseHandlerConsumesEscapeExactlyOnceWithoutSendingAServerResponse() {
+    INetworkHandler network = useNetworkClient();
+    UIComponent dialog = showDialog(false, true);
     AtomicInteger advances = new AtomicInteger();
     UIUtils.onCloseRequest(dialog.dialog(), advances::incrementAndGet);
+
     pressEscape();
 
     assertEquals(1, advances.get());
-    assertSame(dialog, Game.hud().topmostUI().orElseThrow().b());
-    assertEquals(1, Game.entities().filter(entity -> entity.isPresent(UIComponent.class)).count());
+    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+    verify(network, never()).send(anyShort(), any(), anyBoolean());
   }
 
   @Test
-  void disabledGameplayControlsStillAllowDialogInputWithoutSendingMovement() {
+  void nonCloseableDialogueReceivesEscapeEvenWithAnAttributeBarAboveIt() {
+    UIComponent dialog = showDialog(true, false);
+    AtomicInteger advances = new AtomicInteger();
+    UIUtils.onCloseRequest(dialog.dialog(), advances::incrementAndGet);
+    UIComponent bar = showAttributeBar();
+    Group stage = new Group();
+    stage.addActor(dialog.dialog());
+    stage.addActor(bar.dialog());
+
+    pressEscape();
+
+    assertEquals(1, advances.get());
+    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+    assertTrue(bar.isVisible());
+    assertFalse(
+        Game.entities()
+            .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+            .anyMatch(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU));
+  }
+
+  @Test
+  void disabledGameplayControlsStillAllowTheNonCloseableDialogHandler() {
     INetworkHandler network = useNetworkClient();
     player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
     UIComponent dialog = showDialog(true, false);
@@ -231,17 +317,22 @@ class HeroDialogControlsTest {
     pressEscape();
 
     assertEquals(1, advances.get());
-    assertSame(dialog, Game.hud().topmostUI().orElseThrow().b());
+    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
     verify(network, never()).sendInput(any());
   }
 
   @Test
-  void disabledControlsDoNotOpenPauseWithoutAnExistingDialog() {
-    player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
+  void escapeRejectsYesNoInsteadOfConfirming() {
+    AtomicInteger yes = new AtomicInteger();
+    AtomicInteger no = new AtomicInteger();
+    DialogFactory.showYesNoDialog(
+        "Insert USB stick?", "", yes::incrementAndGet, no::incrementAndGet, player.id());
 
     pressEscape();
 
-    assertTrue(Game.hud().topmostUI().isEmpty());
+    assertEquals(0, yes.get());
+    assertEquals(1, no.get());
+    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
   }
 
   @Test
@@ -264,6 +355,17 @@ class HeroDialogControlsTest {
         Game.entities()
             .flatMap(entity -> entity.fetch(UIComponent.class).stream())
             .anyMatch(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU));
+  }
+
+  private UIComponent showAttributeBar() {
+    Entity owner = Entity.createLocalEntity("health-bar");
+    DialogContext context =
+        DialogContext.builder().type(DialogType.DefaultTypes.PROGRESS_BAR).build();
+    context.owner(owner.id());
+    UIComponent bar = new UIComponent(context, false, false);
+    owner.add(bar);
+    Game.add(owner);
+    return bar;
   }
 
   private UIComponent showDialog(boolean local, boolean closeable) {

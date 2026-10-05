@@ -127,7 +127,6 @@ public class PauseDialog extends Table {
         data -> {
           UIUtils.closeDialog(ui);
         });
-    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> UIUtils.closeDialog(ui));
     ui.registerCallback(
         DialogContextKeys.ON_QUIT,
         data -> {

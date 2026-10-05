@@ -10,8 +10,8 @@ public final class DialogAdvanceInput {
   /**
    * Returns whether a key should advance a sequenced dialog.
    *
-   * <p>The close shortcut is routed separately as a {@link DialogCloseEvent}, avoiding a second
-   * advance through the keyboard listener.
+   * <p>The close shortcut is routed separately as a {@link DialogCloseEvent}; it must not also
+   * advance a page through the keyboard listener.
    *
    * @param keycode the pressed key code
    * @return {@code true} for the interaction key

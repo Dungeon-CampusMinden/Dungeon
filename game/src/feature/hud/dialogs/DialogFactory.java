@@ -510,6 +510,7 @@ public class DialogFactory {
             onCancel.execute();
             UIUtils.closeDialog(ui);
           });
+      ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onCancel.execute());
     }
     return ui;
   }
