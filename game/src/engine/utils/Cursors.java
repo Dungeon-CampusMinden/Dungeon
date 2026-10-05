@@ -39,8 +39,14 @@ public enum Cursors {
   /** Changes an element's height. */
   RESIZE_VERTICAL("cursors/resize_a_vertical.png", 16, 16),
 
+  /** Changes an element's width. */
+  RESIZE_HORIZONTAL("cursors/resize_a_horizontal.png", 16, 16),
+
   /** Changes width and height along the bottom-right diagonal. */
   RESIZE_DIAGONAL("cursors/resize_a_diagonal_mirror.png", 16, 16),
+
+  /** Changes width and height along the top-right diagonal. */
+  RESIZE_DIAGONAL_REVERSE("cursors/resize_a_diagonal.png", 16, 16),
   ;
 
   private final String path;

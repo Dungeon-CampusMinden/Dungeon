@@ -18,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
+import com.badlogic.gdx.utils.Align;
+import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
@@ -45,7 +47,7 @@ import rooms.programming.modules.methods.MethodsWorkshop.State;
 import tools.jackson.databind.json.JsonMapper;
 
 /** Code windows and frameless loose groups share the same instruction rows and editors. */
-final class ProgrammingMethodsNode extends CanvasNode {
+final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.CursorOverride {
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final List<Block> ORIGINAL_PROGRAM = MethodsWorkshop.originalProgram();
 
@@ -85,6 +87,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
   private String buildFailure = "";
   private Definition failedDraft;
   private int resizingPointer = -1;
+  private int resizingButton = -1;
+  private int resizingEdges;
   private boolean moving;
 
   ProgrammingMethodsNode(String container, String title, float width, float height) {
@@ -97,18 +101,34 @@ final class ProgrammingMethodsNode extends CanvasNode {
         new InputListener() {
           private final Vector2 press = new Vector2();
           private final Vector2 current = new Vector2();
-          private float initialWidth;
-          private float initialHeight;
+          private float left;
+          private float right;
+          private float bottom;
           private float top;
 
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            if (loose() || button != Input.Buttons.RIGHT || resizingPointer >= 0) return false;
+            if (loose()) return false;
+            if (resizingPointer >= 0) {
+              event.stop();
+              return false;
+            }
+            int edges =
+                button == Input.Buttons.RIGHT
+                    ? Align.bottom | (container.equals("draft") ? Align.right : 0)
+                    : button == Input.Buttons.LEFT && !Gdx.input.isKeyPressed(Input.Keys.SPACE)
+                        ? resizeEdges(x, y)
+                        : 0;
+            if (edges == 0) return false;
             resizingPointer = pointer;
+            resizingButton = button;
+            resizingEdges = edges;
             getParent().stageToLocalCoordinates(press.set(event.getStageX(), event.getStageY()));
-            initialWidth = width();
-            initialHeight = height();
+            left = x();
+            right = x() + width();
+            bottom = y();
             top = y() + height();
+            if (canvas() != null) canvas().bringToFront(ProgrammingMethodsNode.this);
             event.stop();
             return true;
           }
@@ -117,27 +137,78 @@ final class ProgrammingMethodsNode extends CanvasNode {
           public void touchDragged(InputEvent event, float x, float y, int pointer) {
             if (pointer != resizingPointer) return;
             getParent().stageToLocalCoordinates(current.set(event.getStageX(), event.getStageY()));
-            float nextWidth =
-                container.equals("draft")
-                    ? Math.max(410, initialWidth + current.x - press.x)
-                    : initialWidth;
-            nextWidth = Math.min(nextWidth, ProgrammingMethodsUI.BOARD_RIGHT - x());
-            float nextHeight =
-                Math.min(
-                    Math.max(180, initialHeight - current.y + press.y),
-                    top - ProgrammingMethodsUI.BOARD_BOTTOM);
-            size(nextWidth, nextHeight);
-            position(x(), top - height());
+            float dx = current.x - press.x;
+            float dy = current.y - press.y;
+            float nextLeft =
+                (resizingEdges & Align.left) != 0
+                    ? Math.clamp(left + dx, ProgrammingMethodsUI.BOARD_LEFT, right - minimumWidth())
+                    : left;
+            float nextRight =
+                (resizingEdges & Align.right) != 0
+                    ? Math.clamp(
+                        right + dx, left + minimumWidth(), ProgrammingMethodsUI.BOARD_RIGHT)
+                    : right;
+            float nextBottom =
+                (resizingEdges & Align.bottom) != 0
+                    ? Math.clamp(bottom + dy, ProgrammingMethodsUI.BOARD_BOTTOM, top - 180)
+                    : bottom;
+            float nextTop =
+                (resizingEdges & Align.top) != 0
+                    ? Math.clamp(top + dy, bottom + 180, ProgrammingMethodsUI.BOARD_TOP)
+                    : top;
+            size(nextRight - nextLeft, nextTop - nextBottom);
+            position(nextLeft, nextBottom);
             event.stop();
           }
 
           @Override
           public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-            if (pointer != resizingPointer || button != Input.Buttons.RIGHT) return;
+            if (pointer != resizingPointer || button != resizingButton) return;
             resizingPointer = -1;
+            resizingButton = -1;
+            resizingEdges = 0;
             event.stop();
           }
         });
+  }
+
+  private float minimumWidth() {
+    return container.equals("palette") ? 300 : 410;
+  }
+
+  /**
+   * The invisible resize band stays six screen pixels wide at every canvas zoom.
+   *
+   * @param x pointer position relative to the window's left edge
+   * @param y pointer position relative to the window's bottom edge
+   * @return resize edges as {@link Align} flags, or zero outside the border
+   */
+  private int resizeEdges(float x, float y) {
+    if (loose() || x < 0 || y < 0 || x >= width() || y >= height()) return 0;
+    float margin = 6 / (canvas() == null ? 1 : canvas().zoom());
+    int edges = x < margin ? Align.left : x >= width() - margin ? Align.right : 0;
+    return edges | (y < margin ? Align.bottom : y >= height() - margin ? Align.top : 0);
+  }
+
+  private static Cursors resizeCursor(int edges) {
+    boolean horizontal = (edges & (Align.left | Align.right)) != 0;
+    boolean vertical = (edges & (Align.top | Align.bottom)) != 0;
+    if (!horizontal) return Cursors.RESIZE_VERTICAL;
+    if (!vertical) return Cursors.RESIZE_HORIZONTAL;
+    return (edges & (Align.top | Align.left)) == (Align.top | Align.left)
+            || (edges & (Align.bottom | Align.right)) == (Align.bottom | Align.right)
+        ? Cursors.RESIZE_DIAGONAL
+        : Cursors.RESIZE_DIAGONAL_REVERSE;
+  }
+
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    Optional<Cursors> active = owner == null ? manipulationCursor() : owner.cursorOverride();
+    if (active.isPresent() || getStage() == null || Gdx.input.isKeyPressed(Input.Keys.SPACE))
+      return active;
+    Vector2 pointer = screenToLocalCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    int edges = resizeEdges(pointer.x, pointer.y);
+    return edges == 0 ? Optional.empty() : Optional.of(resizeCursor(edges));
   }
 
   /** Keeps moved and restored windows, including loose code groups, inside the board. */
@@ -159,9 +230,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
   }
 
   Optional<Cursors> manipulationCursor() {
-    if (resizingPointer >= 0)
-      return Optional.of(
-          container.equals("draft") ? Cursors.RESIZE_DIAGONAL : Cursors.RESIZE_VERTICAL);
+    if (resizingPointer >= 0) return Optional.of(resizeCursor(resizingEdges));
     return moving ? Optional.of(Cursors.GRABBING) : Optional.empty();
   }
 
@@ -190,9 +259,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
       refresh();
       return;
     }
-    size(
-        container.equals("palette") ? 300 : container.equals("main") ? 410 : Math.max(410, width()),
-        Math.max(180, height()));
+    size(Math.max(minimumWidth(), width()), Math.max(180, height()));
     refresh();
   }
 

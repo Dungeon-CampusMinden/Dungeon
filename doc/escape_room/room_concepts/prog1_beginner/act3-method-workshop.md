@@ -44,7 +44,8 @@ verschieben und wieder in ein Programm ziehen. Lange lose Gruppen scrollen inner
 einer begrenzten Höhe. Ihre Position und Gruppierung bleiben
 beim Schließen und Öffnen erhalten. Die Reihenfolge ist ausführbare Logik, keine Dekoration.
 Eine kleine Befehlsauswahl liefert zusätzliche Anweisungen zum Experimentieren.
-Die Fenster bleiben innerhalb der Arbeitsfläche. Ziehen mit gedrückter rechter
+Die Fenster bleiben innerhalb der Arbeitsfläche. Ihre Ränder und Ecken lassen sich
+mit gedrückter linker Maustaste ziehen, um Breite und Höhe zu ändern. Ziehen mit gedrückter rechter
 Maustaste ändert ihre Größe: Hauptprogramm und Bausteinauswahl nur in der Höhe,
 der Methodenentwurf auch in der Breite. Fenster werden am Titel verschoben.
 Das Mausrad scrollt das Fenster unter dem Zeiger. Auch an den Scrollgrenzen bleibt der

@@ -160,7 +160,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
                 + "Methode bauen: Namen und Eingaben festlegen, Code hineinziehen, Methode bauen wählen. Die neue Rune ins Hauptprogramm ziehen.\n"
                 + "Werte ändern: ... an einer Zeile öffnen. Enter oder Verlassen des Felds speichert.\n"
                 + "Arbeitsfläche: Mittlere Maustaste oder Leertaste + Ziehen. Mausrad über Hintergrund zoomt, über Code scrollt es.\n"
-                + "Fenster: Titel ziehen; rechte Maustaste halten und ziehen zum Vergrößern.\n"
+                + "Fenster: Titel ziehen; Ränder und Ecken mit links ziehen zum Vergrößern. Auch mit gedrückter rechter Maustaste möglich.\n"
                 + "Ausdrücke: Zahlen, Variablen, +, -, Klammern und eigene Methoden. Eine Methode hat höchstens "
                 + MethodsWorkshop.MAX_METHOD_BLOCKS
                 + " Zeilen.",
