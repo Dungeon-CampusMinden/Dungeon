@@ -206,6 +206,16 @@ final class ProgrammingCellarMachinery {
     }
   }
 
+  /** Applies the final station's machinery state without running its camera sequence. */
+  void restoreCleared() {
+    debris.forEach(pile -> pile.forEach(Game::remove));
+    bracket.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("broken", null);
+    weight.fetch(PositionComponent.class).orElseThrow().position(weightStart.translate(0, -1));
+    updateChain(1);
+    wall.forEach(Game::remove);
+    ProgrammingGates.open(level, 2);
+  }
+
   private boolean crossed(float before, float event) {
     return before < event && time >= event;
   }

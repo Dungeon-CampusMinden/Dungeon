@@ -133,6 +133,18 @@ public final class ProgrammingRoomController {
     if (phase == ProgrammingPhase.DECISIONS) phase = ProgrammingPhase.COMPLETE;
   }
 
+  /**
+   * Restores progression at the beginning of a saved act, without replaying submissions.
+   *
+   * @param checkpoint Act II, III or IV
+   */
+  public void restore(ProgrammingPhase checkpoint) {
+    requireAuthority();
+    phase = checkpoint;
+    variableStage = VariablePuzzleStage.COMPLETE;
+    completedLoops = checkpoint == ProgrammingPhase.LOOPS ? 0 : LoopPuzzle.challenges().size();
+  }
+
   private boolean variableStageActive(VariablePuzzleStage expected) {
     return phase == ProgrammingPhase.VARIABLES && variableStage == expected;
   }

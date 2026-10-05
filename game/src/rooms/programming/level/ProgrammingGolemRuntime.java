@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import rooms.programming.Programming;
 import rooms.programming.ProgrammingAchievements;
 import rooms.programming.ProgrammingRoomController;
 import rooms.programming.PuzzleSubmissionResult;
@@ -114,7 +115,6 @@ final class ProgrammingGolemRuntime {
     workshop = new ProgrammingWorkshopRuntime(level, golem, this);
     decisions = new ProgrammingDecisionRuntime(level, golem, this);
     help = new ProgrammingHelp(this);
-    ProgrammingProgress.started("vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
   }
 
   void show(Entity who) {
@@ -336,20 +336,24 @@ final class ProgrammingGolemRuntime {
                               }));
           ProgrammingGates.departure(level, false);
           breakingGate = false;
-          position.position(
-              LoopMaze.world(
-                  level.getPoint("maze-origin"), LoopMaze.checkpoints().getFirst().start()));
-          PositionSync.syncPosition(golem);
-          mazeReady = true;
-          ProgrammingProgress.started(
-              "cellar-0", "Bringe Nox zur ersten Zielmarke und richte ihn aus.");
-          Game.levelEntities()
-              .filter(entity -> entity.name().equals("programming-loop-monitor"))
-              .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
-              .forEach(draw -> draw.stateMachine().setState("active", null));
-          face(LoopMaze.checkpoints().getFirst().facing());
-          status = "Keller erreicht. Räumauftrag bereit.";
+          enterCellar();
         });
+  }
+
+  /** Begins Act II at the first cellar checkpoint, after activation or from a savegame. */
+  private void enterCellar() {
+    position.position(
+        LoopMaze.world(level.getPoint("maze-origin"), LoopMaze.checkpoints().getFirst().start()));
+    PositionSync.syncPosition(golem);
+    mazeReady = true;
+    ProgrammingProgress.started("cellar-0", "Bringe Nox zur ersten Zielmarke und richte ihn aus.");
+    Game.levelEntities()
+        .filter(entity -> entity.name().equals("programming-loop-monitor"))
+        .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
+        .forEach(draw -> draw.stateMachine().setState("active", null));
+    face(LoopMaze.checkpoints().getFirst().facing());
+    status = "Keller erreicht. Räumauftrag bereit.";
+    Programming.saveCheckpoint(ProgrammingPhase.LOOPS);
   }
 
   TerminalState terminalState() {
@@ -411,6 +415,56 @@ final class ProgrammingGolemRuntime {
     controller.completeMethods();
     velocity.maxSpeed(DECISION_SPEED);
     decisions.start();
+    Programming.saveCheckpoint(ProgrammingPhase.DECISIONS);
+  }
+
+  /**
+   * Rebuilds the beginning of a saved act without replaying earlier acts.
+   *
+   * @param phase Act II, III or IV
+   */
+  void restore(ProgrammingPhase phase) {
+    controller.restore(phase);
+    ProgrammingProgress.restore(phase);
+    vessels.putAll(VariablePuzzle.vesselSolution());
+    essences.putAll(VariablePuzzle.essenceSolution());
+    propertiesCollected = true;
+    vesselsCollected = true;
+    Game.levelEntities()
+        .filter(
+            entity ->
+                entity.name().equals("programming-variables-properties")
+                    || entity.name().equals("programming-variables-vessels"))
+        .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
+        .forEach(draw -> draw.stateMachine().setState("open_empty", null));
+    ProgrammingGates.open(level, 1);
+    wallBroken = true;
+    wall.forEach(
+        draw -> {
+          draw.tintColor(-1);
+          draw.stateMachine().setState("broken", null);
+        });
+    if (phase == ProgrammingPhase.LOOPS) {
+      enterCellar();
+      return;
+    }
+    machinery.restoreCleared();
+    monsterAlive = false;
+    Game.levelEntities()
+        .filter(entity -> entity.name().equals("programming-maze-monster"))
+        .toList()
+        .forEach(Game::remove);
+    if (phase == ProgrammingPhase.METHODS) {
+      position.position(level.getPoint("methods-home"));
+      PositionSync.syncPosition(golem);
+      workshop.arrive();
+      return;
+    }
+    ProgrammingWorkshopWorld.restoreCompleted();
+    ProgrammingGates.open(level, 3);
+    position.position(ProgrammingDecisionWorld.START);
+    PositionSync.syncPosition(golem);
+    beginDecisions();
   }
 
   void completeDecisions() {
@@ -499,6 +553,7 @@ final class ProgrammingGolemRuntime {
         () -> {
           workshopTransit = false;
           workshop.arrive();
+          Programming.saveCheckpoint(ProgrammingPhase.METHODS);
         },
         ignored -> awaitingWorkshopRoute = true);
   }

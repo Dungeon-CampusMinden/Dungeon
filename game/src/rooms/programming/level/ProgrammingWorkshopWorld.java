@@ -373,6 +373,21 @@ final class ProgrammingWorkshopWorld {
         .allMatch(station -> supplied[station.index()] == station.amount());
   }
 
+  /** Restores completed stations, including the two gates on the players' route upstairs. */
+  static void restoreCompleted() {
+    for (var station : MethodsRoute.STATIONS) {
+      var action =
+          switch (station.kind()) {
+            case GATE -> MethodsRoute.Action.OPEN_GATE;
+            case RUNE -> MethodsRoute.Action.ACTIVATE_RUNE;
+            case COLLECT -> MethodsRoute.Action.COLLECT;
+            case ALTAR -> MethodsRoute.Action.PLACE;
+          };
+      perform(action, actionPoint(station.index()), station.amount());
+    }
+    openExit();
+  }
+
   static void openExit() {
     tint("exit-door", 0xFFFFFF00);
   }

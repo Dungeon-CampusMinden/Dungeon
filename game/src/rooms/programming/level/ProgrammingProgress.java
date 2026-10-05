@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import rooms.programming.modules.loops.LoopPuzzle;
 import rooms.programming.modules.loops.LoopRune;
+import rooms.programming.state.ProgrammingPhase;
 
 /**
  * Authoritative journal and tracking for the room's discoveries and learning progress. Each act has
@@ -40,6 +41,21 @@ public final class ProgrammingProgress {
     currentObjective = "";
     Game.add(QuestLogUtil.initServerQuestLog());
     updateTasks("Erkunde Valerius' Werkstatt und finde heraus, wie du Nox wieder erwecken kannst.");
+  }
+
+  /**
+   * Marks the puzzles of earlier acts as completed without reporting them again. The saved act's
+   * own entry sets the current objective.
+   *
+   * @param phase Act II, III or IV
+   */
+  static void restore(ProgrammingPhase phase) {
+    COMPLETED.addAll(List.of("vessels", "essences"));
+    if (phase != ProgrammingPhase.LOOPS) {
+      for (int i = 0; i < LoopPuzzle.challenges().size(); i++) COMPLETED.add("cellar-" + i);
+    }
+    if (phase == ProgrammingPhase.DECISIONS) COMPLETED.add("methods");
+    record("continued", "Aufgaben", "Spiel ab Akt " + (phase.ordinal() + 1) + " fortgesetzt.");
   }
 
   /**

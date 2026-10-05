@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import rooms.programming.save.ProgrammingSave;
 
 /**
  * One authoritative offering ends tracking; every connected player can finish reading the outro.
@@ -59,6 +60,7 @@ final class ProgrammingEnding {
 
   private void finish(Entity who) {
     if (Game.isMultiplayerClient() || started || !ready.getAsBoolean()) return;
+    ProgrammingSave.delete();
     started = true;
     ProgrammingProgress.interaction("heartfire", "offering", who);
     Tracking.completed();
