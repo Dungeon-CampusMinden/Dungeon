@@ -321,7 +321,7 @@
     },
     "archive-instructions" : {
       "x" : 35.0,
-      "y" : 20.4
+      "y" : 18.9
     },
     "decisions-heart" : {
       "x" : 41.0,
@@ -393,11 +393,11 @@
     },
     "loop-monitor" : {
       "x" : 35.0,
-      "y" : 16.4
+      "y" : 16.9
     },
     "loop-terminal" : {
       "x" : 35.0,
-      "y" : 14.4
+      "y" : 14.9
     },
     "maze-origin" : {
       "x" : 100.0,
@@ -565,46 +565,82 @@
     }
   },
   "decorations" : [ {
-    "type" : "ProgrammingGateHeader",
+    "type" : "ProgrammingPipe",
+    "position" : {
+      "x" : 96.0,
+      "y" : 59.0
+    }
+  }, {
+    "type" : "ProgrammingTabletopVase",
+    "position" : {
+      "x" : 98.0,
+      "y" : 59.25
+    }
+  }, {
+    "type" : "ProgrammingTabletopVase",
+    "position" : {
+      "x" : 124.0,
+      "y" : 62.25
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
     "position" : {
       "x" : 31.0,
-      "y" : 34.0
+      "y" : 22.0
     }
   }, {
-    "type" : "ProgrammingWinchFrame",
+    "type" : "ProgrammingGateHeader",
     "position" : {
-      "x" : 115.15,
-      "y" : 67.1
+      "x" : 32.0,
+      "y" : 30.0
     }
   }, {
-    "type" : "ProgrammingWorkMarkerEast",
+    "type" : "ProgrammingTabletopVase",
     "position" : {
-      "x" : 110.1,
-      "y" : 67.1
+      "x" : 129.0,
+      "y" : 49.25
     }
   }, {
-    "type" : "ProgrammingSmallCrate",
+    "type" : "FloorBarsSquare",
     "position" : {
-      "x" : 106.05,
-      "y" : 49.2075
+      "x" : 120.0,
+      "y" : 62.0
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerWest",
+    "position" : {
+      "x" : 115.1,
+      "y" : 52.1
+    }
+  }, {
+    "type" : "BookshelfLarge",
+    "position" : {
+      "x" : 23.0,
+      "y" : 20.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 34.0,
+      "y" : 22.0
     }
   }, {
     "type" : "ProgrammingCrate",
     "position" : {
-      "x" : 118.0,
-      "y" : 36.175
+      "x" : 106.0,
+      "y" : 50.175
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 30.0,
+      "y" : 22.0
     }
   }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 33.0,
-      "y" : 30.0
-    }
-  }, {
-    "type" : "ProgrammingCrate",
-    "position" : {
-      "x" : 116.0,
-      "y" : 36.175
+      "y" : 34.0
     }
   }, {
     "type" : "ProgrammingKettle",
@@ -615,134 +651,8 @@
   }, {
     "type" : "ProgrammingCrate",
     "position" : {
-      "x" : 9.0,
-      "y" : 19.0
-    }
-  }, {
-    "type" : "BookshelfLarge",
-    "position" : {
-      "x" : 7.0,
-      "y" : 20.0
-    }
-  }, {
-    "type" : "BookshelfLarge",
-    "position" : {
-      "x" : 3.0,
-      "y" : 20.0
-    }
-  }, {
-    "type" : "ProgrammingGateHeader",
-    "position" : {
-      "x" : 31.0,
-      "y" : 30.0
-    }
-  }, {
-    "type" : "ProgrammingSmallCrate",
-    "position" : {
-      "x" : 107.05,
-      "y" : 49.2075
-    }
-  }, {
-    "type" : "ProgrammingGateHeader",
-    "position" : {
-      "x" : 35.0,
-      "y" : 50.0
-    }
-  }, {
-    "type" : "ProgrammingWorkMarkerNorth",
-    "position" : {
-      "x" : 115.1,
-      "y" : 40.1
-    }
-  }, {
-    "type" : "ProgrammingWallThreshold",
-    "position" : {
-      "x" : 31.0,
-      "y" : 22.0
-    }
-  }, {
-    "type" : "ProgrammingPit",
-    "position" : {
-      "x" : 100.0,
-      "y" : 55.0
-    }
-  }, {
-    "type" : "ProgrammingCrate",
-    "position" : {
-      "x" : 100.5,
-      "y" : 48.2
-    }
-  }, {
-    "type" : "ProgrammingWallThreshold",
-    "position" : {
-      "x" : 32.0,
-      "y" : 22.0
-    }
-  }, {
-    "type" : "ProgrammingCrate",
-    "position" : {
-      "x" : 108.0,
-      "y" : 49.175
-    }
-  }, {
-    "type" : "ProgrammingCrate",
-    "position" : {
-      "x" : 3.0,
-      "y" : 17.0
-    }
-  }, {
-    "type" : "ProgrammingGateHeader",
-    "position" : {
-      "x" : 34.0,
-      "y" : 34.0
-    }
-  }, {
-    "type" : "ProgrammingWallThreshold",
-    "position" : {
-      "x" : 35.0,
-      "y" : 22.0
-    }
-  }, {
-    "type" : "ProgrammingGateHeader",
-    "position" : {
-      "x" : 34.0,
-      "y" : 50.0
-    }
-  }, {
-    "type" : "ProgrammingWallThreshold",
-    "position" : {
-      "x" : 29.0,
-      "y" : 22.0
-    }
-  }, {
-    "type" : "ProgrammingVase",
-    "position" : {
-      "x" : 14.0,
-      "y" : 19.0
-    }
-  }, {
-    "type" : "ProgrammingSmallCrate",
-    "position" : {
-      "x" : 123.0,
-      "y" : 61.3
-    }
-  }, {
-    "type" : "ProgrammingPipe",
-    "position" : {
-      "x" : 96.0,
-      "y" : 59.0
-    }
-  }, {
-    "type" : "ProgrammingSmallCrate",
-    "position" : {
-      "x" : 127.05,
-      "y" : 49.2075
-    }
-  }, {
-    "type" : "ProgrammingWallThreshold",
-    "position" : {
-      "x" : 33.0,
-      "y" : 22.0
+      "x" : 107.0,
+      "y" : 50.175
     }
   }, {
     "type" : "ProgrammingWorkMarkerNorth",
@@ -751,40 +661,22 @@
       "y" : 52.1
     }
   }, {
-    "type" : "ProgrammingCrate",
+    "type" : "ProgrammingVase",
     "position" : {
-      "x" : 101.6,
-      "y" : 48.2
+      "x" : 14.0,
+      "y" : 19.0
     }
   }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
-      "x" : 30.0,
-      "y" : 34.0
+      "x" : 36.0,
+      "y" : 50.0
     }
   }, {
-    "type" : "ProgrammingGateHeader",
+    "type" : "FloorBarsSquare",
     "position" : {
-      "x" : 32.0,
-      "y" : 34.0
-    }
-  }, {
-    "type" : "ProgrammingPipe",
-    "position" : {
-      "x" : 119.3,
-      "y" : 53.0
-    }
-  }, {
-    "type" : "ProgrammingSmallCrate",
-    "position" : {
-      "x" : 122.0,
-      "y" : 61.3
-    }
-  }, {
-    "type" : "ProgrammingCrate",
-    "position" : {
-      "x" : 117.0,
-      "y" : 36.175
+      "x" : 111.0,
+      "y" : 44.0
     }
   }, {
     "type" : "ProgrammingVase",
@@ -795,38 +687,68 @@
   }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
-      "x" : 33.0,
-      "y" : 34.0
-    }
-  }, {
-    "type" : "ProgrammingGateHeader",
-    "position" : {
-      "x" : 30.0,
-      "y" : 30.0
-    }
-  }, {
-    "type" : "ProgrammingVase",
-    "position" : {
-      "x" : 16.0,
-      "y" : 18.0
+      "x" : 38.0,
+      "y" : 50.0
     }
   }, {
     "type" : "ProgrammingWallThreshold",
     "position" : {
-      "x" : 30.0,
+      "x" : 33.0,
       "y" : 22.0
     }
   }, {
-    "type" : "ProgrammingWorkMarkerWest",
+    "type" : "FloorBarsSquare",
     "position" : {
-      "x" : 115.1,
-      "y" : 52.1
+      "x" : 108.0,
+      "y" : 65.0
     }
   }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
-      "x" : 34.0,
+      "x" : 31.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 117.0,
+      "y" : 36.175
+    }
+  }, {
+    "type" : "FloorBarsSquare",
+    "position" : {
+      "x" : 106.0,
+      "y" : 65.0
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerNorth",
+    "position" : {
+      "x" : 115.1,
+      "y" : 40.1
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 30.0,
       "y" : 30.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 32.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingPipe",
+    "position" : {
+      "x" : 119.3,
+      "y" : 53.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 108.0,
+      "y" : 50.175
     }
   }, {
     "type" : "ProgrammingGateHeader",
@@ -835,27 +757,111 @@
       "y" : 50.0
     }
   }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 105.05,
+      "y" : 50.2075
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 101.0,
+      "y" : 50.175
+    }
+  }, {
     "type" : "ProgrammingGateHeader",
     "position" : {
-      "x" : 32.0,
+      "x" : 35.0,
+      "y" : 50.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 102.0,
+      "y" : 50.175
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 122.05,
+      "y" : 61.2075
+    }
+  }, {
+    "type" : "FloorBarsSquare",
+    "position" : {
+      "x" : 113.0,
+      "y" : 44.0
+    }
+  }, {
+    "type" : "ProgrammingPit",
+    "position" : {
+      "x" : 100.0,
+      "y" : 55.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 100.0,
+      "y" : 50.175
+    }
+  }, {
+    "type" : "ProgrammingTabletopVase",
+    "position" : {
+      "x" : 124.0,
+      "y" : 61.25
+    }
+  }, {
+    "type" : "FloorBarsSquare",
+    "position" : {
+      "x" : 112.0,
+      "y" : 44.0
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerEast",
+    "position" : {
+      "x" : 100.1,
+      "y" : 61.1
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 30.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 33.0,
       "y" : 30.0
     }
   }, {
-    "type" : "ProgrammingPump",
+    "type" : "ProgrammingSmallCrate",
     "position" : {
-      "x" : 96.0,
-      "y" : 58.2
+      "x" : 105.05,
+      "y" : 49.2075
     }
   }, {
-    "type" : "ProgrammingWallThreshold",
+    "type" : "ProgrammingGateHeader",
     "position" : {
       "x" : 34.0,
-      "y" : 22.0
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingTabletopVase",
+    "position" : {
+      "x" : 115.0,
+      "y" : 37.25
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 116.0,
+      "y" : 36.175
     }
   }, {
     "type" : "BookshelfLarge",
     "position" : {
-      "x" : 23.0,
+      "x" : 26.0,
       "y" : 20.0
     }
   }, {
@@ -865,16 +871,64 @@
       "y" : 44.0
     }
   }, {
-    "type" : "ProgrammingGateHeader",
+    "type" : "ProgrammingVase",
     "position" : {
-      "x" : 36.0,
-      "y" : 50.0
+      "x" : 16.0,
+      "y" : 18.0
     }
   }, {
-    "type" : "ProgrammingGateHeader",
+    "type" : "ProgrammingCrate",
     "position" : {
-      "x" : 38.0,
-      "y" : 50.0
+      "x" : 101.0,
+      "y" : 49.175
+    }
+  }, {
+    "type" : "ProgrammingTabletopVase",
+    "position" : {
+      "x" : 124.0,
+      "y" : 63.25
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 127.05,
+      "y" : 49.2075
+    }
+  }, {
+    "type" : "ProgrammingWorkMarkerEast",
+    "position" : {
+      "x" : 110.1,
+      "y" : 67.1
+    }
+  }, {
+    "type" : "FloorBarsSquare",
+    "position" : {
+      "x" : 122.0,
+      "y" : 62.0
+    }
+  }, {
+    "type" : "BookshelfLarge",
+    "position" : {
+      "x" : 7.0,
+      "y" : 20.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 100.0,
+      "y" : 49.175
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 9.0,
+      "y" : 19.0
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 106.05,
+      "y" : 49.2075
     }
   }, {
     "type" : "ProgrammingSmallCrate",
@@ -883,10 +937,112 @@
       "y" : 49.2075
     }
   }, {
-    "type" : "ProgrammingWorkMarkerEast",
+    "type" : "ProgrammingGateHeader",
     "position" : {
-      "x" : 100.1,
-      "y" : 61.1
+      "x" : 32.0,
+      "y" : 34.0
+    }
+  }, {
+    "type" : "ProgrammingWinchFrame",
+    "position" : {
+      "x" : 115.15,
+      "y" : 67.1
+    }
+  }, {
+    "type" : "ProgrammingTabletopVase",
+    "position" : {
+      "x" : 119.0,
+      "y" : 68.25
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 34.0,
+      "y" : 30.0
+    }
+  }, {
+    "type" : "ProgrammingSmallCrate",
+    "position" : {
+      "x" : 123.05,
+      "y" : 61.2075
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 29.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingWallThreshold",
+    "position" : {
+      "x" : 35.0,
+      "y" : 22.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 3.0,
+      "y" : 17.0
+    }
+  }, {
+    "type" : "FloorBarsSquare",
+    "position" : {
+      "x" : 107.0,
+      "y" : 65.0
+    }
+  }, {
+    "type" : "ProgrammingPipe",
+    "position" : {
+      "x" : 124.22085,
+      "y" : 40.051437
+    }
+  }, {
+    "type" : "BookshelfLarge",
+    "position" : {
+      "x" : 3.0,
+      "y" : 20.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 118.0,
+      "y" : 36.175
+    }
+  }, {
+    "type" : "FloorBarsSquare",
+    "position" : {
+      "x" : 121.0,
+      "y" : 62.0
+    }
+  }, {
+    "type" : "ProgrammingPipe",
+    "position" : {
+      "x" : 129.12398,
+      "y" : 50.16657
+    }
+  }, {
+    "type" : "ProgrammingPump",
+    "position" : {
+      "x" : 96.0,
+      "y" : 58.2
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 34.0,
+      "y" : 50.0
+    }
+  }, {
+    "type" : "ProgrammingCrate",
+    "position" : {
+      "x" : 103.0,
+      "y" : 50.175
+    }
+  }, {
+    "type" : "ProgrammingGateHeader",
+    "position" : {
+      "x" : 31.0,
+      "y" : 30.0
     }
   } ],
   "prefabs" : [ {
@@ -2065,7 +2221,7 @@
     "properties" : {
       "position" : {
         "x" : 34.5,
-        "y" : 14.0
+        "y" : 14.5
       },
       "furniture" : "ProgrammingWorkbench",
       "item-1" : "none",
@@ -2095,7 +2251,7 @@
     "properties" : {
       "position" : {
         "x" : 34.5,
-        "y" : 16.0
+        "y" : 16.5
       },
       "furniture" : "ProgrammingWorkbench",
       "item-1" : "none",
@@ -2125,7 +2281,7 @@
     "properties" : {
       "position" : {
         "x" : 34.5,
-        "y" : 20.0
+        "y" : 18.5
       },
       "furniture" : "ProgrammingWorkbench",
       "item-1" : "none",
