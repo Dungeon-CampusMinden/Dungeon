@@ -92,8 +92,7 @@ final class ProgrammingWorkshopRuntime {
         && !state.completed()
         && workshop.apply(
             player.id(),
-            new MethodsWorkshop.Intent(
-                state.revision(), state.stage(), MethodsWorkshop.Operation.CLAIM, ""));
+            new MethodsWorkshop.Intent(state.revision(), MethodsWorkshop.Operation.CLAIM, ""));
   }
 
   private void accept(Entity player, MethodsWorkshop.Intent intent) {
@@ -319,8 +318,7 @@ final class ProgrammingWorkshopRuntime {
     var state = workshop.state();
     accept(
         player,
-        new MethodsWorkshop.Intent(
-            state.revision(), state.stage(), MethodsWorkshop.Operation.EXECUTE, ""),
+        new MethodsWorkshop.Intent(state.revision(), MethodsWorkshop.Operation.EXECUTE, ""),
         true);
   }
 

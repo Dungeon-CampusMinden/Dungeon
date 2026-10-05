@@ -89,6 +89,13 @@ public final class ProgrammingSave {
    * @param trackingConsent nullable decision, null while undecided
    */
   public record SaveData(ProgrammingPhase phase, UUID runId, Boolean trackingConsent) {
+    /**
+     * Validates that the checkpoint identifies a resumable act and an existing run.
+     *
+     * @param phase act to restart
+     * @param runId playthrough identifier
+     * @param trackingConsent nullable consent decision
+     */
     public SaveData {
       if (phase == null
           || phase == ProgrammingPhase.VARIABLES

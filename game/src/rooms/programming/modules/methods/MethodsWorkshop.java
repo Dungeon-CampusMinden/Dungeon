@@ -38,14 +38,13 @@ public final class MethodsWorkshop {
   }
 
   /**
-   * Revision and room phase identify the exact authoritative snapshot being edited.
+   * The revision identifies the exact authoritative snapshot being edited.
    *
    * @param revision authoritative snapshot revision
-   * @param stage room phase of the snapshot
    * @param operation requested editor operation
    * @param value operation-specific payload
    */
-  public record Intent(long revision, int stage, Operation operation, String value) {}
+  public record Intent(long revision, Operation operation, String value) {}
 
   /** Controls how a returned or assigned value is written to its target variable. */
   public enum ResultMode {
@@ -178,12 +177,10 @@ public final class MethodsWorkshop {
   /**
    * Immutable editor snapshot, interpreter observations and visible control-rune criteria.
    *
-   * @param stage room phase of the snapshot
    * @param revision authoritative snapshot revision
    * @param editorId owning player entity ID, or -1 when unclaimed
    * @param crystals current value of the kristalle variable
    * @param errors number of execution failures
-   * @param busy whether the interpreter is running
    * @param completed whether every completion condition passed
    * @param main connected main-program blocks
    * @param scrap detached statement blocks
@@ -191,8 +188,7 @@ public final class MethodsWorkshop {
    * @param definitions built methods indexed by name
    * @param feedback latest editor or execution feedback
    * @param blockErrors feedback indexed by block identifier
-   * @param trace physical actions produced by the interpreter
-   * @param activeStep index of the current physical action in the trace
+   * @param currentStep latest action produced by the interpreter
    * @param variables variables visible in the current interpreter frame
    * @param compact whether the main program satisfies the block limit
    * @param parameterReuse whether a parameterized method was called repeatedly
@@ -202,12 +198,10 @@ public final class MethodsWorkshop {
    * @param remainingCrystals crystals still carried by Nox
    */
   public record State(
-      int stage,
       long revision,
       int editorId,
       int crystals,
       int errors,
-      boolean busy,
       boolean completed,
       List<Block> main,
       List<Block> scrap,
@@ -215,8 +209,7 @@ public final class MethodsWorkshop {
       Map<String, Definition> definitions,
       String feedback,
       Map<String, String> blockErrors,
-      List<Step> trace,
-      int activeStep,
+      Optional<Step> currentStep,
       Map<String, String> variables,
       boolean compact,
       boolean parameterReuse,
@@ -227,12 +220,10 @@ public final class MethodsWorkshop {
     /**
      * Copies editor collections and interpreter observations into an immutable snapshot.
      *
-     * @param stage room phase of the snapshot
      * @param revision authoritative snapshot revision
      * @param editorId owning player entity ID, or -1 when unclaimed
      * @param crystals current value of the kristalle variable
      * @param errors number of execution failures
-     * @param busy whether the interpreter is running
      * @param completed whether every completion condition passed
      * @param main connected main-program blocks
      * @param scrap detached statement blocks
@@ -240,8 +231,7 @@ public final class MethodsWorkshop {
      * @param definitions built methods indexed by name
      * @param feedback latest editor or execution feedback
      * @param blockErrors feedback indexed by block identifier
-     * @param trace physical actions produced by the interpreter
-     * @param activeStep index of the current physical action in the trace
+     * @param currentStep latest action produced by the interpreter
      * @param variables variables visible in the current interpreter frame
      * @param compact whether the main program satisfies the block limit
      * @param parameterReuse whether a parameterized method was called repeatedly
@@ -255,8 +245,14 @@ public final class MethodsWorkshop {
       scrap = List.copyOf(scrap);
       definitions = Map.copyOf(definitions);
       blockErrors = Map.copyOf(blockErrors);
-      trace = List.copyOf(trace);
       variables = Map.copyOf(variables);
+    }
+
+    /**
+     * @return whether the interpreter is running
+     */
+    public boolean busy() {
+      return runState == RunState.RUNNING;
     }
 
     /**
@@ -332,6 +328,24 @@ public final class MethodsWorkshop {
       };
     }
 
+    /**
+     * Keeps the completed evaluation available after subsequent draft edits.
+     *
+     * @return completion details, or empty before normal program termination
+     */
+    public String resultFeedback() {
+      if (runState != RunState.FINISHED) return "";
+      return completed
+          ? "Alle Bedingungen erfüllt. Der Nebenausgang ist offen."
+          : (worldSolved
+                  ? "Alle Arbeitsstellen sind erledigt. Für den Ausgang fehlt noch:\n"
+                  : "Für den Ausgang fehlt noch:\n")
+              + checks().stream()
+                  .filter(check -> check.status() == CheckStatus.FAILED)
+                  .map(check -> "- " + check.message())
+                  .collect(java.util.stream.Collectors.joining("\n"));
+    }
+
     private static Check check(boolean evaluated, boolean passed, String message) {
       return new Check(
           !evaluated ? CheckStatus.PENDING : passed ? CheckStatus.PASSED : CheckStatus.FAILED,
@@ -348,12 +362,12 @@ public final class MethodsWorkshop {
   private long nextBlockId;
   private long executionRevision;
   private int editorId = -1, errors, instructions;
-  private boolean busy, completed, parameterReuse, returnedValueUsed, worldSolved;
+  private boolean completed, parameterReuse, returnedValueUsed, worldSolved;
   private RunState runState = RunState.NOT_RUN;
   private int remainingCrystals;
   private String feedback =
       "Verbinde dein Hauptprogramm. Jeder Start setzt Nox und alle Arbeitsstellen zurück.";
-  private final List<Step> trace = new ArrayList<>();
+  private Step currentStep;
   private final Deque<Frame> stack = new ArrayDeque<>();
   private final Map<String, Integer> calls = new HashMap<>();
   private final Map<String, String> mainVariables = new LinkedHashMap<>();
@@ -435,10 +449,10 @@ public final class MethodsWorkshop {
    * @return whether the example was built and loaded successfully
    */
   public boolean loadHelpSolution(int actor) {
-    if (editorId != actor || busy || completed) return false;
+    if (editorId != actor || busy() || completed) return false;
     MethodsWorkshop example = new MethodsWorkshop();
     example.nextBlockId = nextBlockId;
-    example.apply(actor, new Intent(0, 0, Operation.CLAIM, ""));
+    example.apply(actor, new Intent(0, Operation.CLAIM, ""));
     if (!example.buildHelpSolution(actor)) return false;
     main.clear();
     main.addAll(example.main);
@@ -459,13 +473,7 @@ public final class MethodsWorkshop {
       for (Block block : List.copyOf(body(container)))
         if (!helpEdit(actor, Operation.DELETE_BLOCK, block.id())) return false;
     for (MethodsRoute.Kind kind : MethodsRoute.Kind.values()) {
-      String name =
-          switch (kind) {
-            case GATE -> "hilfeTor";
-            case RUNE -> "hilfeRune";
-            case COLLECT -> "hilfeSammeln";
-            case ALTAR -> "hilfeAltar";
-          };
+      String name = helpMethodName(kind);
       if (!helpEdit(actor, Operation.NEW_METHOD, "")
           || !helpEdit(actor, Operation.NAME, name)
           || !helpEdit(
@@ -489,10 +497,7 @@ public final class MethodsWorkshop {
                 "",
                 List.of(),
                 ResultMode.REPLACE);
-        if (!helpEdit(
-            actor,
-            Operation.ADD_BLOCK,
-            JSON.writeValueAsString(new Edit("", "draft", index++, block)))) return false;
+        if (!helpAdd(actor, "draft", index++, block)) return false;
       }
       if (kind == MethodsRoute.Kind.COLLECT || kind == MethodsRoute.Kind.ALTAR) {
         Block result =
@@ -504,22 +509,13 @@ public final class MethodsWorkshop {
                 "",
                 List.of(),
                 ResultMode.REPLACE);
-        if (!helpEdit(
-            actor,
-            Operation.ADD_BLOCK,
-            JSON.writeValueAsString(new Edit("", "draft", index, result)))) return false;
+        if (!helpAdd(actor, "draft", index, result)) return false;
       }
       if (!helpEdit(actor, Operation.BUILD, "") || !definitions.containsKey(name)) return false;
     }
     int index = 0;
     for (var station : MethodsRoute.STATIONS) {
-      String name =
-          switch (station.kind()) {
-            case GATE -> "hilfeTor";
-            case RUNE -> "hilfeRune";
-            case COLLECT -> "hilfeSammeln";
-            case ALTAR -> "hilfeAltar";
-          };
+      String name = helpMethodName(station.kind());
       boolean returns =
           station.kind() == MethodsRoute.Kind.COLLECT || station.kind() == MethodsRoute.Kind.ALTAR;
       List<String> arguments =
@@ -539,15 +535,27 @@ public final class MethodsWorkshop {
               station.kind() == MethodsRoute.Kind.ALTAR
                   ? ResultMode.SUBTRACT
                   : returns ? ResultMode.ADD : ResultMode.REPLACE);
-      if (!helpEdit(
-          actor, Operation.ADD_BLOCK, JSON.writeValueAsString(new Edit("", "main", index++, call))))
-        return false;
+      if (!helpAdd(actor, "main", index++, call)) return false;
     }
     return true;
   }
 
+  private static String helpMethodName(MethodsRoute.Kind kind) {
+    return switch (kind) {
+      case GATE -> "hilfeTor";
+      case RUNE -> "hilfeRune";
+      case COLLECT -> "hilfeSammeln";
+      case ALTAR -> "hilfeAltar";
+    };
+  }
+
+  private boolean helpAdd(int actor, String container, int index, Block block) {
+    if (editorId != actor || busy()) return false;
+    return applyBlockEdit(Operation.ADD_BLOCK, new Edit("", container, index, block));
+  }
+
   private boolean helpEdit(int actor, Operation operation, String value) {
-    return apply(actor, new Intent(revision, 0, operation, value));
+    return apply(actor, new Intent(revision, operation, value));
   }
 
   /**
@@ -557,12 +565,10 @@ public final class MethodsWorkshop {
    */
   public State state() {
     return new State(
-        0,
         revision,
         editorId,
         Integer.parseInt(mainVariables.getOrDefault("kristalle", "0")),
         errors,
-        busy,
         completed,
         main,
         scrap,
@@ -570,8 +576,7 @@ public final class MethodsWorkshop {
         definitions,
         feedback,
         blockErrors,
-        trace,
-        trace.size() - 1,
+        Optional.ofNullable(currentStep),
         stack.isEmpty() ? mainVariables : stack.peek().variables,
         main.size() <= 8,
         parameterReuse,
@@ -581,12 +586,12 @@ public final class MethodsWorkshop {
         remainingCrystals);
   }
 
+  private boolean busy() {
+    return runState == RunState.RUNNING;
+  }
+
   private boolean current(Intent i) {
-    return i != null
-        && i.revision() == revision
-        && i.stage() == 0
-        && i.operation() != null
-        && i.value() != null;
+    return i != null && i.revision() == revision && i.operation() != null && i.value() != null;
   }
 
   /**
@@ -605,7 +610,7 @@ public final class MethodsWorkshop {
       return true;
     }
     if (intent.operation() == Operation.RELEASE) return releaseEditor(actor);
-    if (editorId != actor || busy) return false;
+    if (editorId != actor || busy()) return false;
     try {
       switch (intent.operation()) {
         case NAME -> {
@@ -694,76 +699,94 @@ public final class MethodsWorkshop {
           feedback = "Methode " + draft.name() + " gebaut. Die Rune kann jetzt aufgerufen werden.";
         }
         case ADD_BLOCK, MOVE_BLOCK, EDIT_BLOCK -> {
-          Edit edit = JSON.readValue(intent.value(), Edit.class);
-          if (intent.operation() == Operation.EDIT_BLOCK) {
-            if (!valid(edit.block()) || edit.id() == null) return rejectEdit("Ungültiger Block.");
-            boolean found = false;
-            for (String container : List.of("main", "scrap", "draft")) {
-              var body = new ArrayList<>(body(container));
-              for (int n = 0; n < body.size(); n++)
-                if (body.get(n).id().equals(edit.id())) {
-                  Block b = edit.block();
-                  body.set(
-                      n,
-                      new Block(
-                          edit.id(),
-                          b.action(),
-                          b.operand(),
-                          b.target(),
-                          b.method(),
-                          b.arguments(),
-                          b.mode()));
-                  found = true;
-                }
-              setBody(container, body);
-            }
-            if (!found) return rejectEdit("Block nicht mehr vorhanden.");
-          } else {
-            var destination = body(edit.container());
-            if (edit.index() < 0 || edit.index() > destination.size())
-              return rejectEdit("Einfügeposition nicht mehr vorhanden.");
-            Block block = edit.block();
-            String origin = null;
-            int sourceIndex = -1;
-            if (intent.operation() == Operation.MOVE_BLOCK) {
-              for (String c : List.of("main", "draft", "scrap"))
-                for (int n = 0; n < body(c).size(); n++)
-                  if (body(c).get(n).id().equals(edit.id())) {
-                    origin = c;
-                    sourceIndex = n;
-                    block = body(c).get(n);
-                  }
-              if (origin == null) return rejectEdit("Block nicht mehr vorhanden.");
-            } else {
-              if (!valid(block)) return rejectEdit("Ungültiger Block.");
-              if (totalBlocks() >= 256)
-                return rejectEdit("Die Arbeitsfläche enthält höchstens 256 Blöcke.");
-              block =
-                  new Block(
-                      "n" + nextBlockId++,
-                      block.action(),
-                      block.operand(),
-                      block.target(),
-                      block.method(),
-                      block.arguments(),
-                      block.mode());
-            }
-            int index = edit.index();
-            if (origin != null) {
-              var from = new ArrayList<>(body(origin));
-              from.remove(sourceIndex);
-              setBody(origin, from);
-              if (origin.equals(edit.container()) && sourceIndex < index) index--;
-            }
-            var to = new ArrayList<>(body(edit.container()));
-            to.add(index, block);
-            setBody(edit.container(), to);
-          }
+          return applyBlockEdit(intent.operation(), JSON.readValue(intent.value(), Edit.class));
         }
         default -> {
           return false;
         }
       }
+      if (intent.operation() != Operation.BUILD) feedback = "";
+      revision++;
+      return true;
+    } catch (RuntimeException invalid) {
+      return rejectEdit("Ungültige Bearbeitung. Bitte erneut versuchen.");
+    }
+  }
+
+  /**
+   * Applies typed block edits shared by network submissions and the local help solution.
+   *
+   * @param operation block operation to apply
+   * @param edit typed block change
+   * @return whether the edit was handled, including rejection with feedback
+   */
+  private boolean applyBlockEdit(Operation operation, Edit edit) {
+    try {
+      if (operation == Operation.EDIT_BLOCK) {
+        if (!valid(edit.block()) || edit.id() == null) return rejectEdit("Ungültiger Block.");
+        boolean found = false;
+        for (String container : List.of("main", "scrap", "draft")) {
+          var body = new ArrayList<>(body(container));
+          for (int n = 0; n < body.size(); n++)
+            if (body.get(n).id().equals(edit.id())) {
+              Block b = edit.block();
+              body.set(
+                  n,
+                  new Block(
+                      edit.id(),
+                      b.action(),
+                      b.operand(),
+                      b.target(),
+                      b.method(),
+                      b.arguments(),
+                      b.mode()));
+              found = true;
+            }
+          setBody(container, body);
+        }
+        if (!found) return rejectEdit("Block nicht mehr vorhanden.");
+      } else {
+        var destination = body(edit.container());
+        if (edit.index() < 0 || edit.index() > destination.size())
+          return rejectEdit("Einfügeposition nicht mehr vorhanden.");
+        Block block = edit.block();
+        String origin = null;
+        int sourceIndex = -1;
+        if (operation == Operation.MOVE_BLOCK) {
+          for (String c : List.of("main", "draft", "scrap"))
+            for (int n = 0; n < body(c).size(); n++)
+              if (body(c).get(n).id().equals(edit.id())) {
+                origin = c;
+                sourceIndex = n;
+                block = body(c).get(n);
+              }
+          if (origin == null) return rejectEdit("Block nicht mehr vorhanden.");
+        } else {
+          if (!valid(block)) return rejectEdit("Ungültiger Block.");
+          if (totalBlocks() >= 256)
+            return rejectEdit("Die Arbeitsfläche enthält höchstens 256 Blöcke.");
+          block =
+              new Block(
+                  "n" + nextBlockId++,
+                  block.action(),
+                  block.operand(),
+                  block.target(),
+                  block.method(),
+                  block.arguments(),
+                  block.mode());
+        }
+        int index = edit.index();
+        if (origin != null) {
+          var from = new ArrayList<>(body(origin));
+          from.remove(sourceIndex);
+          setBody(origin, from);
+          if (origin.equals(edit.container()) && sourceIndex < index) index--;
+        }
+        var to = new ArrayList<>(body(edit.container()));
+        to.add(index, block);
+        setBody(edit.container(), to);
+      }
+      feedback = "";
       revision++;
       return true;
     } catch (RuntimeException invalid) {
@@ -873,14 +896,14 @@ public final class MethodsWorkshop {
    * @return whether a fresh execution was started
    */
   public boolean execute(int actor, Intent intent) {
-    if (!current(intent) || editorId != actor || busy || intent.operation() != Operation.EXECUTE)
+    if (!current(intent) || editorId != actor || busy() || intent.operation() != Operation.EXECUTE)
       return false;
     mainVariables.clear();
     mainVariables.put("kristalle", "0");
     stack.clear();
     stack.push(new Frame(List.copyOf(main), mainVariables, null));
     calls.clear();
-    trace.clear();
+    currentStep = null;
     blockErrors.clear();
     activeMainBlockId = "";
     pending = null;
@@ -889,7 +912,6 @@ public final class MethodsWorkshop {
     returnedValueUsed = false;
     worldSolved = false;
     completed = false;
-    busy = true;
     runState = RunState.RUNNING;
     feedback = "Nox führt das Hauptprogramm aus.";
     revision++;
@@ -903,7 +925,7 @@ public final class MethodsWorkshop {
    * @return next physical action, or empty when none is ready
    */
   public Optional<Step> next() {
-    if (!busy || pending != null) return Optional.empty();
+    if (!busy() || pending != null) return Optional.empty();
     try {
       while (!stack.isEmpty()) {
         Frame frame = stack.peek();
@@ -946,13 +968,13 @@ public final class MethodsWorkshop {
           case RETURN -> {
             String value = frame.values.pop();
             returnFrom(value);
-            trace.add(Step.action(Action.RETURN, numeric(value)));
+            currentStep = Step.action(Action.RETURN, numeric(value));
             revision++;
           }
           case ASSIGN -> {
             String value = frame.values.pop();
             assign(frame.variables, block.target(), value, block.mode());
-            trace.add(Step.action(Action.ASSIGN, numeric(value)));
+            currentStep = Step.action(Action.ASSIGN, numeric(value));
             revision++;
           }
           default -> {
@@ -965,7 +987,7 @@ public final class MethodsWorkshop {
             if (step.action() == Action.MOVE && (step.amount() < 1 || step.amount() > 32))
               throw new IllegalArgumentException("GEHE braucht eine Entfernung von 1 bis 32.");
             pending = block;
-            trace.add(step);
+            currentStep = step;
             revision++;
             return Optional.of(step);
           }
@@ -985,7 +1007,7 @@ public final class MethodsWorkshop {
    * @param reason failure message shown to the player
    */
   public void actionResult(boolean success, int value, String reason) {
-    if (!busy || pending == null) return;
+    if (!busy() || pending == null) return;
     if (!success) {
       fail(reason);
       return;
@@ -1037,7 +1059,7 @@ public final class MethodsWorkshop {
    * @return whether execution is awaiting final world evaluation
    */
   public boolean exhausted() {
-    return busy && pending == null && stack.isEmpty();
+    return busy() && pending == null && stack.isEmpty();
   }
 
   /**
@@ -1052,27 +1074,16 @@ public final class MethodsWorkshop {
     remainingCrystals = inventory;
     runState = RunState.FINISHED;
     completed = state().checks().stream().allMatch(check -> check.status() == CheckStatus.PASSED);
-    busy = false;
-    feedback =
-        completed
-            ? "Alle Bedingungen erfüllt. Der Nebenausgang ist offen."
-            : (solved
-                    ? "Alle Arbeitsstellen sind erledigt. Für den Ausgang fehlt noch:\n"
-                    : "Für den Ausgang fehlt noch:\n")
-                + state().checks().stream()
-                    .filter(check -> check.status() == CheckStatus.FAILED)
-                    .map(check -> "- " + check.message())
-                    .collect(java.util.stream.Collectors.joining("\n"));
+    feedback = state().resultFeedback();
     revision++;
   }
 
   /**
-   * Keeps the last trace and physical effects visible after a runtime error.
+   * Keeps the last action and physical effects visible after a runtime error.
    *
    * @param reason failure message shown to the player
    */
   public void fail(String reason) {
-    busy = false;
     runState = RunState.FAILED;
     pending = null;
     errors++;
@@ -1091,9 +1102,8 @@ public final class MethodsWorkshop {
   public boolean stop(int actor, Intent intent) {
     if (intent == null
         || editorId != actor
-        || !busy
+        || !busy()
         || intent.operation() != Operation.STOP
-        || intent.stage() != 0
         || intent.value() == null
         || intent.revision() < executionRevision
         || intent.revision() > revision) return false;

@@ -121,7 +121,11 @@ final class ProgrammingMethodsNode extends CanvasNode {
                 container.equals("draft")
                     ? Math.max(410, initialWidth + current.x - press.x)
                     : initialWidth;
-            float nextHeight = Math.max(180, initialHeight - current.y + press.y);
+            nextWidth = Math.min(nextWidth, ProgrammingMethodsUI.BOARD_RIGHT - x());
+            float nextHeight =
+                Math.min(
+                    Math.max(180, initialHeight - current.y + press.y),
+                    top - ProgrammingMethodsUI.BOARD_BOTTOM);
             size(nextWidth, nextHeight);
             position(x(), top - height());
             event.stop();
@@ -134,6 +138,24 @@ final class ProgrammingMethodsNode extends CanvasNode {
             event.stop();
           }
         });
+  }
+
+  /** Keeps moved and restored windows, including loose code groups, inside the board. */
+  @Override
+  public CanvasNode position(float x, float y) {
+    return super.position(
+        Math.clamp(x, ProgrammingMethodsUI.BOARD_LEFT, ProgrammingMethodsUI.BOARD_RIGHT - width()),
+        Math.clamp(
+            y, ProgrammingMethodsUI.BOARD_BOTTOM, ProgrammingMethodsUI.BOARD_TOP - height()));
+  }
+
+  @Override
+  public CanvasNode size(float width, float height) {
+    super.size(
+        Math.clamp(width, 1, ProgrammingMethodsUI.BOARD_RIGHT - ProgrammingMethodsUI.BOARD_LEFT),
+        Math.clamp(height, 1, ProgrammingMethodsUI.BOARD_TOP - ProgrammingMethodsUI.BOARD_BOTTOM));
+    position(x(), y());
+    return this;
   }
 
   Optional<Cursors> manipulationCursor() {
@@ -169,20 +191,8 @@ final class ProgrammingMethodsNode extends CanvasNode {
       return;
     }
     size(
-        container.equals("palette")
-            ? 300
-            : container.equals("main")
-                ? 410
-                : Math.max(
-                    410,
-                    Math.min(
-                        width(),
-                        ProgrammingMethodsUI.BOARD_RIGHT - ProgrammingMethodsUI.BOARD_LEFT)),
-        Math.max(
-            180,
-            Math.min(
-                height(), ProgrammingMethodsUI.BOARD_TOP - ProgrammingMethodsUI.BOARD_BOTTOM)));
-    position(x(), y());
+        container.equals("palette") ? 300 : container.equals("main") ? 410 : Math.max(410, width()),
+        Math.max(180, height()));
     refresh();
   }
 
@@ -210,6 +220,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
   protected void readProps(NodeState state) {
     String ids = state.prop("looseIds", "");
     looseIds = ids.isEmpty() ? List.of() : List.of(ids.split(","));
+    size(width(), height());
   }
 
   private List<Block> panelBlocks(State state) {
@@ -651,11 +662,10 @@ final class ProgrammingMethodsNode extends CanvasNode {
   /**
    * Marks recurring adjacent actions without changing code or the user's selection.
    *
-   * @param block statement being displayed
    * @param index block position in the current panel
    * @return whether the adjacent action pair appears elsewhere in the panel
    */
-  private boolean repeatedSequence(Block block, int index) {
+  private boolean repeatedSequence(int index) {
     List<Block> blocks = showOriginal ? ORIGINAL_PROGRAM : panelBlocks(owner.state());
     for (int start = Math.max(0, index - 1); start <= index && start + 1 < blocks.size(); start++) {
       for (int other = 0; other + 1 < blocks.size(); other++) {
@@ -669,7 +679,7 @@ final class ProgrammingMethodsNode extends CanvasNode {
 
   private void blockRow(Table table, Block block, int index, String staticError) {
     CodeRow row = new CodeRow(block.action() == Action.CALL);
-    row.aided = owner.simplified() && repeatedSequence(block, index);
+    row.aided = owner.simplified() && repeatedSequence(index);
     if (owner.simplified()) {
       String note =
           switch (block.action()) {

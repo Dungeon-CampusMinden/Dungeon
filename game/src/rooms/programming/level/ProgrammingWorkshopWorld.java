@@ -135,8 +135,6 @@ final class ProgrammingWorkshopWorld {
     points.put("methods-exit", EXIT);
     points.put("act3-gate-start", new Point(34, 49));
     points.put("act3-gate-end", new Point(38, 49));
-    points.remove("workshop-calibration");
-    points.remove("workshop-power");
     return result;
   }
 
@@ -178,8 +176,7 @@ final class ProgrammingWorkshopWorld {
                 at.translate(.5f + i * .7f, -1),
                 "items/rpg/item_gem_amethyst.png",
                 .8f,
-                .8f,
-                false);
+                .8f);
         }
         case ALTAR -> {
           Point altar = at.translate(-3, .2f);
@@ -193,12 +190,11 @@ final class ProgrammingWorkshopWorld {
                 altar.translate(firstSocket + i * socketSpacing, .5f),
                 "items/rpg/item_gem_amethyst.png",
                 socketSize,
-                socketSize,
-                false);
+                socketSize);
         }
       }
     }
-    ironBars("exit-door", new Point(34, 49), false);
+    ironBars("exit-door", new Point(34, 49));
     resetAll();
   }
 
@@ -220,14 +216,13 @@ final class ProgrammingWorkshopWorld {
     return positions.getLast();
   }
 
-  private static Entity prop(
-      String name, Point at, String asset, float width, float height, boolean ground) {
+  private static Entity prop(String name, Point at, String asset, float width, float height) {
     Entity entity = new Entity("programming-methods-" + name);
     PositionComponent position = new PositionComponent(at);
     position.scale(Vector2.of(width, height));
     entity.add(position);
     DrawComponent draw = new DrawComponent(new SimpleIPath(asset));
-    draw.depth(ground ? DepthLayer.Ground.depth() : DepthLayer.Player.depth());
+    draw.depth(DepthLayer.Player.depth());
     entity.add(draw);
     Game.add(entity);
     return entity;
@@ -325,7 +320,7 @@ final class ProgrammingWorkshopWorld {
           tint("gate-" + index, 0xFFFFFFFF);
           Game.levelEntities()
               .filter(entity -> entity.name().equals("programming-methods-gate-" + index))
-              .forEach(entity -> entity.add(gateCollider(index)));
+              .forEach(entity -> entity.add(gateCollider()));
         }
         case RUNE -> tint("rune-" + index, 0x667D8FFF);
         case COLLECT -> {
@@ -387,8 +382,8 @@ final class ProgrammingWorkshopWorld {
   }
 
   private static void gate(int station) {
-    Entity entity = ironBars("gate-" + station, gatePosition(station), false);
-    entity.add(gateCollider(station));
+    Entity entity = ironBars("gate-" + station, gatePosition(station));
+    entity.add(gateCollider());
   }
 
   /**
@@ -396,26 +391,22 @@ final class ProgrammingWorkshopWorld {
    *
    * @param name entity name suffix
    * @param at lower-left gate anchor
-   * @param side whether the gate fills a vertical passage
    * @return gate entity to receive the collider
    */
-  private static Entity ironBars(String name, Point at, boolean side) {
+  private static Entity ironBars(String name, Point at) {
     Entity entity = new Entity("programming-methods-" + name);
     entity.add(new PositionComponent(at));
     Game.add(entity);
-    int columns = side ? 1 : 5;
-    int rows = side ? 4 : 3;
-    float rowHeight = side ? 1 : .5f;
-    Point base = side ? at : at.translate(0, -.5f);
-    for (int row = 0; row < rows; row++)
-      for (int column = 0; column < columns; column++)
+    Point base = at.translate(0, -.5f);
+    for (int row = 0; row < 3; row++)
+      for (int column = 0; column < 5; column++)
         ironPanel(
             name + "-bars-" + row + "-" + column,
-            base.translate(column, row * rowHeight),
+            base.translate(column, row * .5f),
             392,
-            !side && row == 0 ? 344 : 336,
+            row == 0 ? 344 : 336,
             16,
-            side ? 16 : 8);
+            8);
     return entity;
   }
 
@@ -433,7 +424,7 @@ final class ProgrammingWorkshopWorld {
     Game.add(entity);
   }
 
-  private static CollideComponent gateCollider(int station) {
+  private static CollideComponent gateCollider() {
     return new CollideComponent(Vector2.of(0, 0), Vector2.of(5, 1));
   }
 

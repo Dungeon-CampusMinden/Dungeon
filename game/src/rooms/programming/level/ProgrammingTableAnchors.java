@@ -72,13 +72,21 @@ final class ProgrammingTableAnchors {
     refresh(level, true);
   }
 
-  /** Runs after editor respawns, even while normal gameplay ticks are paused. */
+  /**
+   * Runs after editor respawns, even while normal gameplay ticks are paused.
+   *
+   * @param level level whose prefabs changed
+   */
   static void changed(ILevel level) {
     if (level instanceof ProgrammingLevel programming)
       PrefabSpawner.afterChanges(level, () -> refresh(programming));
   }
 
-  /** Updates client markers without changing server-owned entities. */
+  /**
+   * Updates client markers without changing server-owned entities.
+   *
+   * @param level room whose table markers are refreshed
+   */
   static void refresh(DungeonLevel level) {
     refresh(level, false);
   }

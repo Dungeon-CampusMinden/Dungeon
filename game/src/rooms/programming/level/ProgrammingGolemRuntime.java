@@ -744,6 +744,7 @@ final class ProgrammingGolemRuntime {
     returning = false;
     status = returnFeedback + " Nox ist zurück an der Arbeitsposition.";
     if (activeRune.equals("archive-spin")) ProgrammingAchievements.SPIN.unlock();
+    activeRune = "";
   }
 
   private void face(LoopMaze.Direction direction) {

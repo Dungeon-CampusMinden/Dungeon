@@ -35,7 +35,11 @@ final class ProgrammingProps {
         .forEach(prefab -> switchableTorch(prefab.torchEntity().orElseThrow()));
   }
 
-  /** Moves the dependent prefab while preserving its flame state and room interaction. */
+  /**
+   * Moves the dependent prefab while preserving its flame state and room interaction.
+   *
+   * @param level room containing the heartfire prefab and its target marker
+   */
   static void moveHeartTorch(DungeonLevel level) {
     var target = level.namedPoints().get("decisions-heart-fire");
     if (target == null) return;

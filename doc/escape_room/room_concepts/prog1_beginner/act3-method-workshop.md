@@ -159,7 +159,9 @@ Leere Kristallfassungen an den Altären verwenden den Slot-Shader. Beim Ablegen 
 der Amethyst sichtbar; ein neuer Versuch stellt die leeren Fassungen wieder her.
 
 Der Keller und das Archiv behalten ihren bestehenden Ablauf. Nach dem letzten
-Kellerauftrag kehrt Nox über den normalen kollisionsgeprüften Weg zur Werkbank zurück.
+Kellerauftrag wechselt Nox während der Winden-Zwischensequenz vom räumlich getrennten
+Keller zur oberen Schleuse. Von dort kehrt er über den normalen kollisionsgeprüften Weg
+zur Werkbank zurück.
 Der Übergang ist getrennt von den frei programmierten Testläufen: Seine Ankunft ist
 der feste Ausgangspunkt jedes Versuchs.
 
@@ -171,7 +173,9 @@ der feste Ausgangspunkt jedes Versuchs.
 - Unverbundene Blöcke, veränderte Methoden und lokale Variablen verhalten sich nachvollziehbar.
 - Stopp während Bewegung, erneuter Start und Schließen/Öffnen des Editors.
 - Darstellung bei kleiner und maximierter Fenstergröße sowie Nativeingaben mit `cua-driver`.
-- Letzter Kellerauftrag und tatsächlicher Lauf in Akt III; keine Teleport-Abkürzung für diesen Check.
+- Letzter Kellerauftrag, Etagenwechsel während der Winden-Zwischensequenz und tatsächlicher
+  kollisionsgeprüfter Lauf von der oberen Schleuse zur Werkbank. Auf diesem Lauf keine
+  Teleport-Abkürzung; der Wechsel zwischen den getrennten Etagen bleibt erhalten.
 
 Die Zielzeit bleibt vorläufig 20–25 Minuten. Verständlichkeit, Spaß und tatsächliche
 Dauer müssen mit Lernenden getestet werden; technische Abnahme ersetzt diesen Playtest nicht.

@@ -39,7 +39,7 @@ float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
-float noise(vec2 p) {
+float ballNoise(vec2 p) {
   vec2 cell = floor(p);
   vec2 local = fract(p);
   local = local * local * (3.0 - 2.0 * local);
@@ -94,8 +94,8 @@ void main() {
   float angle = atan(ballPosition.y, ballPosition.x) - u_time * glowRevolveSpeed;
   vec2 ringPosition = vec2(cos(angle), sin(angle)) * 4.0;
   vec2 noiseMovement = vec2(u_time, -u_time * 0.73) * glowSpeed;
-  float coarseNoise = noise(ringPosition + noiseMovement);
-  float fineNoise = noise(ringPosition * 2.3 - noiseMovement * 1.7);
+  float coarseNoise = ballNoise(ringPosition + noiseMovement);
+  float fineNoise = ballNoise(ringPosition * 2.3 - noiseMovement * 1.7);
   float fogNoise = coarseNoise * 0.7 + fineNoise * 0.3;
 
   float pixelSize = 1.0 / shortSide;

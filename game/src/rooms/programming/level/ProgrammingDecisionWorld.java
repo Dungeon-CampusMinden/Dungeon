@@ -173,8 +173,7 @@ final class ProgrammingDecisionWorld {
               level.getPoint("decisions-rune-" + i),
               "items/rpg/item_gem_amethyst.png",
               .5f,
-              .5f,
-              false);
+              .5f);
       rune.add(
           new InteractionComponent(
               new Interaction(
@@ -192,25 +191,22 @@ final class ProgrammingDecisionWorld {
           level.getPoint("decisions-heart-offering-" + x),
           "items/rpg/item_gem_amethyst.png",
           .8f,
-          .8f,
-          false);
+          .8f);
     return prop(
         "heart-inscription",
         level.getPoint("decisions-heart-inscription"),
         "items/rpg/item_scroll.png",
         .8f,
-        .8f,
-        false);
+        .8f);
   }
 
-  private static Entity prop(
-      String name, Point at, String asset, float w, float h, boolean ground) {
+  private static Entity prop(String name, Point at, String asset, float w, float h) {
     Entity entity = new Entity("programming-decisions-" + name);
     PositionComponent position = new PositionComponent(at);
     position.scale(Vector2.of(w, h));
     entity.add(position);
     DrawComponent draw = new DrawComponent(new SimpleIPath(asset));
-    draw.depth(ground ? DepthLayer.Ground.depth() : DepthLayer.Ground.depth() + 2);
+    draw.depth(DepthLayer.Ground.depth() + 2);
     entity.add(draw);
     Game.add(entity);
     return entity;

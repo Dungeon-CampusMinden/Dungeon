@@ -1,6 +1,7 @@
 package rooms.programming.level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -50,21 +51,23 @@ class ProgrammingStateCodecTest {
   void workshopLayoutAndExecutionRoundTripWithoutRepeatedFieldNames() {
     var workshop = new MethodsWorkshop();
     assertWorkshopRoundTrip(workshop.state());
-    assertTrue(workshop.apply(1, new Intent(0, 0, Operation.CLAIM, "")));
+    assertTrue(workshop.apply(1, new Intent(0, Operation.CLAIM, "")));
     assertTrue(workshop.loadHelpSolution(1));
     assertWorkshopRoundTrip(workshop.state());
-    assertTrue(
-        workshop.execute(1, new Intent(workshop.state().revision(), 0, Operation.EXECUTE, "")));
+    assertTrue(workshop.execute(1, new Intent(workshop.state().revision(), Operation.EXECUTE, "")));
     int collected = 0;
     while (true) {
       var step = workshop.next();
       if (step.isEmpty()) break;
+      assertEquals(step, workshop.state().currentStep());
+      assertTrue(workshop.state().busy());
       int value = step.orElseThrow().action() == Action.COLLECT ? (collected++ == 0 ? 3 : 5) : 0;
       workshop.actionResult(true, value, "");
       assertWorkshopRoundTrip(workshop.state());
     }
     workshop.finish(true, 0);
     assertTrue(workshop.state().completed());
+    assertFalse(workshop.state().busy());
     assertWorkshopRoundTrip(workshop.state());
   }
 

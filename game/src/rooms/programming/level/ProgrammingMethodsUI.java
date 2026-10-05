@@ -15,12 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import engine.Entity;
 import engine.Game;
-import engine.components.CameraComponent;
 import engine.game.ECSManagement;
 import engine.network.messages.c2s.DialogResponseMessage;
-import engine.systems.CameraSystem;
 import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
@@ -33,7 +30,6 @@ import feature.canvas.NodeOrigin;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,13 +56,14 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private final Table shell = new Table();
   private final Table workspace = new Table();
   private final Table evaluation = new Table();
-  private final Label feedback = ProgrammingUI.label("", 17, ProgrammingUI.GOLD);
+  private Label feedback;
+  private String editFeedback = "";
   private final Label observation = ProgrammingUI.label("", 20, ProgrammingUI.TEXT);
   private final DragAndDrop dragging = immediateDragAndDrop();
   private boolean dropAllowed;
   private ProgrammingMethodsNode.Drag activeDrag;
   private final ArrayDeque<Edit> edits = new ArrayDeque<>();
-  private final Map<Entity, CameraComponent> previousCameras = new LinkedHashMap<>();
+  private final ProgrammingCamera camera = new ProgrammingCamera();
   private final TextButton run;
   private final TextButton watch;
   private final TextButton helpButton;
@@ -81,15 +78,13 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private boolean closing;
   private boolean simplified;
   private ProgrammingHelpUI helpView;
-  private Entity followed;
-  private float previousZoom;
 
   private record Edit(
       Operation operation, Function<State, String> value, Consumer<State> acknowledged) {}
 
   ProgrammingMethodsUI(String dialogId, State initial, int viewer) {
     super(
-        ProgrammingMethods.ID + "-blocks",
+        ProgrammingMethods.CANVAS_ID,
         new CanvasLayout(
             "",
             1,
@@ -214,7 +209,11 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     update(initial);
   }
 
-  /** Starts dragging code blocks on the first pointer movement and accepts drops immediately. */
+  /**
+   * Starts dragging code blocks on the first pointer movement and accepts drops immediately.
+   *
+   * @return configured block drag handler
+   */
   private static DragAndDrop immediateDragAndDrop() {
     DragAndDrop dragAndDrop = new DragAndDrop();
     dragAndDrop.setDragTime(0);
@@ -314,8 +313,12 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     boolean changed = state == null || next.revision() != state.revision();
     state = next;
     if (changed) {
-      if (pendingEdit != null && state.editorId() == viewer)
+      if (pendingEdit != null && state.editorId() == viewer) {
         pendingEdit.acknowledged().accept(state);
+        if (pendingEdit.operation() == Operation.EXECUTE
+            || pendingEdit.operation() == Operation.STOP) editFeedback = "";
+        else editFeedback = state.feedback();
+      } else editFeedback = "";
       pendingEdit = null;
       pending = -1;
       if (state.editorId() != viewer) {
@@ -328,7 +331,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     run.setText(state.busy() ? "Stoppen" : "Ausführen");
     run.setDisabled(state.editorId() != viewer);
     feedback.setText(
-        state.feedback()
+        (editFeedback.isEmpty() || state.busy() ? state.resultTitle() : editFeedback)
             + (state.editorId() != viewer ? " · Ein anderer Spieler bearbeitet den Code." : ""));
     observation.setText(observationText());
     observation.setColor(resultColor());
@@ -351,7 +354,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private String observationText() {
     String title = state.resultTitle();
     return switch (state.runState()) {
-      case FINISHED -> state.completed() ? title : title + "\n\n" + state.feedback();
+      case FINISHED -> state.completed() ? title : title + "\n\n" + state.resultFeedback();
       case FAILED ->
           title
               + "\n\n"
@@ -361,9 +364,10 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
       case NOT_RUN, CHANGED -> title + "\n\nStarte das Hauptprogramm mit Ausführen.";
       case RUNNING ->
           title
-              + (state.activeStep() >= 0 && state.activeStep() < state.trace().size()
-                  ? "\nAktuell: " + MethodsRoute.source(state.trace().get(state.activeStep()))
-                  : "")
+              + state
+                  .currentStep()
+                  .map(step -> "\nAktuell: " + MethodsRoute.source(step))
+                  .orElse("")
               + "\n\nAktuelle Variablen:\n"
               + state.variables().entrySet().stream()
                   .map(entry -> entry.getKey() + " = " + entry.getValue())
@@ -380,12 +384,8 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     }
     evaluation.top().left().pad(12);
     evaluation.setBackground(ProgrammingUI.background(ProgrammingUI.SURFACE, false));
-    evaluation
-        .add(ProgrammingUI.label(state.resultTitle(), 21, resultColor()))
-        .colspan(2)
-        .growX()
-        .padBottom(8)
-        .row();
+    feedback = ProgrammingUI.label(state.resultTitle(), 21, resultColor());
+    evaluation.add(feedback).colspan(2).growX().padBottom(8).row();
     if (state.runState() == RunState.FAILED)
       evaluation
           .add(ProgrammingUI.label(failureLocation(), 17, ProgrammingUI.ERROR))
@@ -671,7 +671,9 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
       refreshPanels();
     }
     if (pending >= 0 && (pendingSeconds += delta) > 2) {
-      feedback.setText("Warte auf Bestätigung. Deine Änderungen bleiben vorgemerkt.");
+      String waiting = "Warte auf Bestätigung. Deine Änderungen bleiben vorgemerkt.";
+      feedback.setText(waiting);
+      if (observing) observation.setText(waiting + "\n\n" + observationText());
     }
     // A queued control may be obsolete after the preceding control or the run finishes.
     while (pending < 0
@@ -695,10 +697,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
               new DialogResponseMessage.StringValue(
                   ProgrammingMethods.encodeIntent(
                       new MethodsWorkshop.Intent(
-                          state.revision(),
-                          state.stage(),
-                          edit.operation(),
-                          edit.value().apply(state)))));
+                          state.revision(), edit.operation(), edit.value().apply(state)))));
     }
     if (observing) followNox();
     else restoreCamera();
@@ -747,33 +746,14 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   }
 
   private void followNox() {
-    if (followed != null || getStage() == null) return;
+    if (camera.target().isPresent() || getStage() == null) return;
     ProgrammingTerminal.state()
         .flatMap(t -> Game.findEntityById(t.golemId()))
-        .ifPresent(
-            golem -> {
-              ECSManagement.entities()
-                  .filter(e -> e.isPresent(CameraComponent.class))
-                  .toList()
-                  .forEach(
-                      e -> {
-                        previousCameras.put(e, e.fetch(CameraComponent.class).orElseThrow());
-                        e.remove(CameraComponent.class);
-                      });
-              followed = golem;
-              previousZoom = CameraSystem.camera().zoom;
-              CameraSystem.camera().zoom = previousZoom * 1.2f;
-              golem.add(new CameraComponent());
-            });
+        .ifPresent(golem -> camera.follow(golem, ECSManagement.entities()));
   }
 
   private void restoreCamera() {
-    if (followed == null) return;
-    followed.remove(CameraComponent.class);
-    followed = null;
-    CameraSystem.camera().zoom = previousZoom;
-    previousCameras.forEach(Entity::add);
-    previousCameras.clear();
+    camera.restore();
   }
 
   @Override

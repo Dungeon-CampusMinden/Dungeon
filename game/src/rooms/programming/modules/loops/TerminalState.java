@@ -12,7 +12,7 @@ import java.util.List;
  * @param cellY continuous grid row of the physical golem
  * @param busy whether an attempt or return is running
  * @param observationReady whether the golem has entered the remote maze
- * @param activeRune inserted rune ID, retained after execution until removed or replaced
+ * @param activeRune inserted rune ID; cleared after a failed attempt returns to its start
  * @param status current runtime feedback
  */
 public record TerminalState(

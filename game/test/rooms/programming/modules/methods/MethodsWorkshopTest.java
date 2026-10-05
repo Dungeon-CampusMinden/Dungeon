@@ -36,7 +36,6 @@ class MethodsWorkshopTest {
       add(workshop, "main", block(Action.ASSIGN, Integer.toString(stock), "kristalle"));
     List<Block> original = workshop.state().main();
     assertEquals("\u00d6FFNE()", MethodsWorkshop.blockSource(original.getFirst()));
-    assertTrue(workshop.state().feedback().contains("zur\u00fcck"));
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
     run(workshop, 3, 5);
     workshop.finish(true, carried);
@@ -60,6 +59,10 @@ class MethodsWorkshopTest {
     }
     if (carried != 0)
       assertTrue(workshop.state().feedback().contains("Nox trägt 3 Kristalle. Erwartet: 0."));
+    String evaluation = workshop.state().resultFeedback();
+    edit(workshop, Operation.NAME, "neuerEntwurf");
+    assertEquals("", workshop.state().feedback());
+    assertEquals(evaluation, workshop.state().resultFeedback());
   }
 
   @ParameterizedTest
@@ -133,8 +136,11 @@ class MethodsWorkshopTest {
     var workshop = canonical();
     List<Block> code = workshop.state().main();
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
-    assertEquals(Action.OPEN_GATE, workshop.next().orElseThrow().action());
+    assertTrue(workshop.state().currentStep().isEmpty());
+    var firstStep = workshop.next().orElseThrow();
+    assertEquals(Action.OPEN_GATE, firstStep.action());
     workshop.actionResult(false, 0, "Kein Tor an dieser Position.");
+    assertEquals(firstStep, workshop.state().currentStep().orElseThrow());
     assertFalse(workshop.state().busy());
     assertEquals(1, workshop.state().errors());
     var errors = Map.of(code.getFirst().id(), "Kein Tor an dieser Position.");
@@ -143,11 +149,14 @@ class MethodsWorkshopTest {
     assertEquals(CheckStatus.PENDING, workshop.state().checks().get(0).status());
     assertTrue(workshop.releaseEditor(1));
     edit(workshop, Operation.CLAIM, "");
+    edit(workshop, Operation.NAME, "neuerEntwurf");
+    assertEquals("", workshop.state().feedback());
     assertEquals(errors, workshop.state().blockErrors());
     var failed = workshop.state();
     assertEquals(
         failed, JSON.readValue(JSON.writeValueAsString(failed), MethodsWorkshop.State.class));
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
+    assertTrue(workshop.state().currentStep().isEmpty());
     assertTrue(workshop.state().blockErrors().isEmpty());
     assertEquals(RunState.RUNNING, workshop.state().runState());
     assertEquals(0, workshop.state().crystals());
@@ -178,8 +187,7 @@ class MethodsWorkshopTest {
     Intent currentRunStop = intent(workshop, Operation.STOP, "");
     workshop.next();
     assertFalse(workshop.stop(1, stopAtGate));
-    assertFalse(
-        workshop.stop(1, new Intent(workshop.state().revision() + 1, 0, Operation.STOP, "")));
+    assertFalse(workshop.stop(1, new Intent(workshop.state().revision() + 1, Operation.STOP, "")));
     assertFalse(workshop.stop(2, currentRunStop));
     assertTrue(workshop.state().busy());
     assertTrue(workshop.stop(1, currentRunStop));
@@ -353,7 +361,7 @@ class MethodsWorkshopTest {
     var workshop = claimed();
     var before = workshop.state();
     assertFalse(workshop.apply(2, intent(workshop, Operation.NAME, "fremd")));
-    assertFalse(workshop.apply(1, new Intent(before.revision() - 1, 0, Operation.NEW_METHOD, "")));
+    assertFalse(workshop.apply(1, new Intent(before.revision() - 1, Operation.NEW_METHOD, "")));
     assertTrue(workshop.apply(1, intent(workshop, Operation.MOVE_BLOCK, "not json")));
     assertTrue(
         workshop.apply(
@@ -362,8 +370,24 @@ class MethodsWorkshopTest {
                 workshop,
                 Operation.MOVE_BLOCK,
                 JSON.writeValueAsString(new Edit("b0", "unknown", 0, null)))));
+    edit(workshop, Operation.ADD_BLOCK, new Edit("", "main", 0, block(Action.MOVE, null, "")));
+    assertEquals("Ungültiger Block.", workshop.state().feedback());
     assertEquals(before.main(), workshop.state().main());
     assertEquals(before.draft(), workshop.state().draft());
+    edit(workshop, Operation.NAME, "n".repeat(41));
+    String nameError = workshop.state().feedback();
+    assertTrue(nameError.contains("Name zu lang"));
+    assertEquals(before.draft(), workshop.state().draft());
+    edit(workshop, Operation.NAME, "gültigerName");
+    assertEquals("gültigerName", workshop.state().draft().name());
+    assertEquals("", workshop.state().feedback());
+    for (int attempt = 0; attempt < 2; attempt++) {
+      long revision = workshop.state().revision();
+      edit(workshop, Operation.NAME, "n".repeat(41));
+      assertEquals(nameError, workshop.state().feedback());
+      assertEquals("gültigerName", workshop.state().draft().name());
+      assertEquals(revision + 1, workshop.state().revision());
+    }
     var current = workshop.state();
     assertEquals(
         current, JSON.readValue(JSON.writeValueAsString(current), MethodsWorkshop.State.class));
@@ -481,7 +505,7 @@ class MethodsWorkshopTest {
   }
 
   private static Intent intent(MethodsWorkshop w, Operation op, String value) {
-    return new Intent(w.state().revision(), 0, op, value);
+    return new Intent(w.state().revision(), op, value);
   }
 
   private static void edit(MethodsWorkshop w, Operation op, Object value) {

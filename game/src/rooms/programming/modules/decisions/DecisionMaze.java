@@ -34,8 +34,8 @@ public final class DecisionMaze {
     }
   }
 
-  // Each attempt starts from its own set, so a retry needs recalculation, not memory. Every set
-  // decides all six runes inside their outer condition and splits evenly between LEFT and RIGHT.
+  // Each attempt starts from its own values, so a retry needs recalculation. Each resulting route
+  // contains three LEFT and three RIGHT choices.
   private static final Values[] START_VALUES = {
     new Values(45, 70, 22), // RRLLRL
     new Values(50, 90, 21), // RLRRLL

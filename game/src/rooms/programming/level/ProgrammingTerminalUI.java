@@ -56,7 +56,7 @@ final class ProgrammingTerminalUI extends ProgrammingWorkbenchUI
     footer.clearChildren();
     footer.add(status).growX().padTop(8);
     help(
-        "Starten: Rune in den Executor ziehen.\nCode lesen: Maus über eine Rune halten.\nWechseln: Nach dem Lauf Rune herausziehen oder ersetzen.\nBeobachten: Die Karte zeigt Nox und das nächste Wegzeichen.");
+        "Starten: Rune in den Executor ziehen.\nCode lesen: Maus über eine Rune halten.\nWechseln: Nach einem Fehlversuch ist der Executor wieder frei. Sonst Rune herausziehen oder ersetzen.\nBeobachten: Die Karte zeigt Nox und das nächste Wegzeichen.");
     update(initial);
     tooltip.setTransform(false);
     tooltip.setTouchable(Touchable.disabled);

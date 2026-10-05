@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Entity;
 import engine.Game;
-import engine.components.CameraComponent;
 import engine.components.DrawComponent;
 import engine.components.InputComponent;
 import engine.components.PositionComponent;
@@ -110,10 +109,8 @@ public final class ProgrammingObservation {
   static final class View extends Group {
     private final int golemId;
     private final boolean cinematic;
-    private final Map<Entity, CameraComponent> previous = new LinkedHashMap<>();
+    private final ProgrammingCamera camera = new ProgrammingCamera();
     private final Map<InputComponent, Boolean> inputs = new LinkedHashMap<>();
-    private Entity followed;
-    private float previousZoom;
     private final Label label;
     private final Actor torches;
     private final com.badlogic.gdx.scenes.scene2d.ui.Table header;
@@ -183,7 +180,7 @@ public final class ProgrammingObservation {
       header.setBounds(20, getHeight() - headerHeight - 20, getWidth() - 40, headerHeight);
       label.setBounds(36, 32, Math.min(660, getWidth() - 72), 56);
       if (!cinematic) ProgrammingTerminal.state().ifPresent(state -> label.setText(state.status()));
-      if (followed == null && getStage() != null) {
+      if (camera.target().isEmpty() && getStage() != null) {
         Game.findEntityById(golemId)
             .ifPresent(
                 golem -> {
@@ -198,43 +195,35 @@ public final class ProgrammingObservation {
                                           input.deactivateControls(true);
                                         }));
                   }
-                  ECSManagement.entities()
-                      .filter(e -> e.isPresent(CameraComponent.class))
-                      .toList()
-                      .forEach(
-                          e -> {
-                            previous.put(e, e.fetch(CameraComponent.class).orElseThrow());
-                            e.remove(CameraComponent.class);
-                          });
-                  followed = golem;
+                  camera.follow(golem, ECSManagement.entities());
                   if (!cinematic
                       && Game.systems().get(DrawSystem.class) instanceof DrawSystem draw) {
                     drawSystem = draw;
                     draw.sceneShaders().add(shaderKey, shader, 100);
                   }
-                  previousZoom = CameraSystem.camera().zoom;
-                  CameraSystem.camera().zoom = previousZoom * 1.2f;
-                  golem.add(new CameraComponent());
                 });
       }
-      if (followed != null)
-        followed
-            .fetch(PositionComponent.class)
-            .ifPresent(
-                position -> {
-                  var camera = CameraSystem.camera();
-                  var focus = EntityUtils.getPosition(followed);
-                  if (cinematic
-                      && (Math.abs(camera.position.x - focus.x()) > 20
-                          || Math.abs(camera.position.y - focus.y()) > 20)) {
-                    curtain = 1;
-                    camera.position.set(focus.x(), focus.y(), 0);
-                    camera.update();
-                  }
-                  if (Math.abs(camera.position.x - focus.x()) < 1
-                      && Math.abs(camera.position.y - focus.y()) < 1)
-                    curtain = Math.max(0, curtain - delta * 4);
-                });
+      camera
+          .target()
+          .ifPresent(
+              followed ->
+                  followed
+                      .fetch(PositionComponent.class)
+                      .ifPresent(
+                          position -> {
+                            var camera = CameraSystem.camera();
+                            var focus = EntityUtils.getPosition(followed);
+                            if (cinematic
+                                && (Math.abs(camera.position.x - focus.x()) > 20
+                                    || Math.abs(camera.position.y - focus.y()) > 20)) {
+                              curtain = 1;
+                              camera.position.set(focus.x(), focus.y(), 0);
+                              camera.update();
+                            }
+                            if (Math.abs(camera.position.x - focus.x()) < 1
+                                && Math.abs(camera.position.y - focus.y()) < 1)
+                              curtain = Math.max(0, curtain - delta * 4);
+                          }));
       if (!cinematic) {
         float width = Math.min(1, getHeight() / getWidth());
         float height = Math.min(1, getWidth() / getHeight());
@@ -258,7 +247,7 @@ public final class ProgrammingObservation {
      * @return torch at the displayed position, or empty when none can be picked
      */
     private Optional<Entity> torchAt(float x, float y) {
-      if (followed == null || curtain > 0 || getWidth() <= 0 || getHeight() <= 0)
+      if (camera.target().isEmpty() || curtain > 0 || getWidth() <= 0 || getHeight() <= 0)
         return Optional.empty();
       float shortSide = Math.min(getWidth(), getHeight());
       var offset = shader.ballOffset();
@@ -289,6 +278,7 @@ public final class ProgrammingObservation {
 
     /** Keeps Nox's complete sprite and four surrounding tiles inside the flat view. */
     private void updateCurvedEdge() {
+      var followed = camera.target().orElse(null);
       if (followed == null) return;
       var position = followed.fetch(PositionComponent.class).orElseThrow();
       var draw = followed.fetch(DrawComponent.class).orElseThrow();
@@ -321,15 +311,9 @@ public final class ProgrammingObservation {
           drawSystem.sceneShaders().remove(shaderKey);
           drawSystem = null;
         }
-        if (followed != null) {
-          followed.remove(CameraComponent.class);
-          CameraSystem.camera().zoom = previousZoom;
-        }
-        previous.forEach(Entity::add);
-        previous.clear();
+        camera.restore();
         inputs.forEach(InputComponent::deactivateControls);
         inputs.clear();
-        followed = null;
       }
       super.setStage(stage);
     }

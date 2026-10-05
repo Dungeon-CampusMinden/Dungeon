@@ -1,6 +1,5 @@
 package rooms.programming.modules.methods;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** The workshop's original program. Both execution and the physical workshop use these blocks. */
@@ -84,32 +83,10 @@ public final class MethodsRoute {
    */
   public record Station(int index, Kind kind, Direction direction, int amount) {
     /**
-     * @return the worksite's displayed name and inputs
-     */
-    public String label() {
-      return switch (kind) {
-        case GATE -> "Tor";
-        case RUNE -> "Runenstein · " + direction.label();
-        case COLLECT -> "Kristallfeld · " + amount + " Kristalle";
-        case ALTAR -> "Altar · benötigt " + amount;
-      };
-    }
-
-    /**
      * @return the original physical instructions before extraction
      */
     public List<Step> body() {
       return MethodsRoute.body(kind, direction, amount);
-    }
-
-    /**
-     * @return original source including the caller's crystal assignment
-     */
-    public List<String> source() {
-      var result = new ArrayList<>(body().stream().map(MethodsRoute::source).toList());
-      if (kind == Kind.COLLECT) result.add("kristalle = kristalle + gesammelt;");
-      if (kind == Kind.ALTAR) result.add("kristalle = kristalle - " + amount + ";");
-      return List.copyOf(result);
     }
   }
 

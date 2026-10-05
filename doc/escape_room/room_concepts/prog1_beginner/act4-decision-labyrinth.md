@@ -37,10 +37,9 @@ wiederholen sie sich:
 | 3 | 35 / 70 / 15 | LINKS, LINKS, RECHTS, RECHTS, RECHTS, LINKS |
 | 4 | 40 / 75 / 27 | RECHTS, RECHTS, LINKS, LINKS, LINKS, RECHTS |
 
-Die Runen am Weg verändern die Werte wie oben. Bei jedem Satz erfüllt Nox an allen sechs
-Kreuzungen die äußerste Bedingung, sodass nie das äußerste SONST entscheidet. Dieselbe
-Kreuzung kann deshalb in einem neuen Versuch einen anderen Zweig verlangen, ohne dass
-sich die Runen auf einen trivialen Zweig reduzieren.
+Die Runen am Weg verändern die Werte wie oben. Neue Startwerte können deshalb an derselben
+Kreuzung einen anderen Zweig verlangen. Auch das äußere SONST der zweiten Rune enthält eine
+weitere Bedingung.
 
 Eine falsche Tür führt durch den äußeren Rückgang bis zum START. Erst dort erhält Nox
 die neuen Startwerte. Mit Weiter beginnt der nächste Versuch. Bei einem tatsächlichen

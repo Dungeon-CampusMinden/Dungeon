@@ -100,7 +100,12 @@ final class ProgrammingRiderSystem extends System {
     changeDepth(origin.viewDirection() == Direction.UP ? mountDepth + 1 : mountDepth);
   }
 
-  /** Walkable point inside Nox's floor footprint, used as the rider's base and dismount point. */
+  /**
+   * Walkable point inside Nox's floor footprint, used as the rider's base and dismount point.
+   *
+   * @param mount Nox entity carrying the rider
+   * @return walkable base and dismount point
+   */
   private static Point footprint(Entity mount) {
     return mount.fetch(PositionComponent.class).orElseThrow().position().translate(2, 1);
   }

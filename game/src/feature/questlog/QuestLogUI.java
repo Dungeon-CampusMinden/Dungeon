@@ -1210,6 +1210,7 @@ public final class QuestLogUI {
       detail.add(body).growX().padRight(10).row();
       Runnable update =
           () -> {
+            pageLabels.removeIf(label -> label.getParent() == body);
             body.clearChildren();
             marker.setText(toggle.isChecked() ? "-" : "+");
             if (toggle.isChecked()) {

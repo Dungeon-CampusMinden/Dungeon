@@ -22,7 +22,6 @@ uniform vec4 u_color;
 uniform vec4 u_textureColor;
 
 const float textureColorInfluence = 0.65;
-const float textureAlpha = 0.75;
 
 // ----- Custom functions -----
 bool isInOutline(vec2 uv, vec2 stepSize, int width) {

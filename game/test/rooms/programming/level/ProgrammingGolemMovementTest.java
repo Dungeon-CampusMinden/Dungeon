@@ -162,6 +162,8 @@ class ProgrammingGolemMovementTest {
     }
     assertFalse(runtime.terminalState().busy());
     assertEquals(ORIGIN, position.position());
+    assertTrue(runtime.terminalState().activeRune().isEmpty());
+    assertTrue(runtime.terminalState().collectedRunes().contains("archive-long"));
   }
 
   @ParameterizedTest
@@ -237,6 +239,8 @@ class ProgrammingGolemMovementTest {
     }
     assertFalse(runtime.terminalState().busy());
     assertEquals(ORIGIN, position.position());
+    assertTrue(runtime.terminalState().activeRune().isEmpty());
+    assertTrue(runtime.terminalState().collectedRunes().contains("forge-press-for"));
   }
 
   private void tick() {

@@ -20,6 +20,7 @@ import tools.jackson.databind.json.JsonMapper;
 /** Typed room dialog bridge. Only the server callback applies a learner's intent. */
 public final class ProgrammingMethods {
   public static final String ID = "programming.methods";
+  static final String CANVAS_ID = ID + "-blocks";
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static MethodsWorkshop.State received;
 
@@ -93,10 +94,7 @@ public final class ProgrammingMethods {
                   current ->
                       callback.accept(
                           new MethodsWorkshop.Intent(
-                              current.revision(),
-                              current.stage(),
-                              MethodsWorkshop.Operation.RELEASE,
-                              "")));
+                              current.revision(), MethodsWorkshop.Operation.RELEASE, "")));
           UIUtils.closeDialog(ui, true);
         });
   }
@@ -149,6 +147,6 @@ public final class ProgrammingMethods {
   /** Clears the preceding room's snapshot and local canvas state. */
   static void reset() {
     received = null;
-    CanvasStore.clear(ID);
+    CanvasStore.clear(CANVAS_ID);
   }
 }
