@@ -10,6 +10,7 @@ import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
 import feature.collision.CollideSync;
+import feature.hud.AutoSaveIndicator;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
 import rooms.systemRecovery.modules.display.DoorLabelComponent;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
-import rooms.systemRecovery.save.SystemRecoveryAutoSaveHud;
 
 /** Snapshot translator for metadata-backed System Recovery components. */
 public final class SystemRecoverySnapshotTranslator implements SnapshotTranslator {
@@ -104,7 +104,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
                 if (terminalState != null) {
                   TerminalInterpreter.instance().synchronizeState(Integer.parseInt(terminalState));
                 }
-                SystemRecoveryAutoSaveHud.acceptRevision(
+                AutoSaveIndicator.acceptRevision(
                     metadata
                         .orElseThrow()
                         .get(SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION));

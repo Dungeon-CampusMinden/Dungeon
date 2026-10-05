@@ -1,4 +1,4 @@
-package rooms.systemRecovery.save;
+package feature.hud;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,8 +11,8 @@ import engine.Game;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 
-/** Brief client HUD confirmation for checkpoints that the authoritative server has written. */
-public final class SystemRecoveryAutoSaveHud {
+/** Shared client HUD confirmation for server-written save revisions. */
+public final class AutoSaveIndicator {
   private static final String CHECK_ICON = "hud/check.png";
   private static final float ICON_SIZE = 20f;
   private static final float VISIBLE_SECONDS = 2.5f;
@@ -21,9 +21,9 @@ public final class SystemRecoveryAutoSaveHud {
   private static Table badge;
   private static int lastRevision;
 
-  private SystemRecoveryAutoSaveHud() {}
+  private AutoSaveIndicator() {}
 
-  /** Clears the previous run's revision and HUD actor before a new client session. */
+  /** Clears the current revision and HUD actor before a new client session. */
   public static void reset() {
     if (badge != null) badge.remove();
     badge = null;
@@ -32,9 +32,9 @@ public final class SystemRecoveryAutoSaveHud {
   }
 
   /**
-   * Shows one confirmation when a newer server-written revision arrives in a snapshot.
+   * Shows one confirmation when a newer server-written revision arrives.
    *
-   * @param encodedRevision revision supplied by the authoritative server
+   * @param encodedRevision server revision encoded as text
    */
   public static void acceptRevision(String encodedRevision) {
     if (encodedRevision == null || Game.isHeadless()) return;

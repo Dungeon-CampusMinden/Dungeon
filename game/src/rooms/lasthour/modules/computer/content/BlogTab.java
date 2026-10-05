@@ -10,6 +10,7 @@ import engine.utils.Scene2dElementFactory;
 import java.util.List;
 import java.util.Optional;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
+import rooms.lasthour.modules.computer.LastHourBlogTime;
 import rooms.lasthour.util.Lore;
 import rooms.lasthour.util.translation.TranslationKey;
 
@@ -57,7 +58,8 @@ public class BlogTab extends ComputerTab {
     int timestampOfLogin =
         ComputerStateComponent.getState().map(ComputerStateComponent::timestampOfLogin).orElse(0);
     if (timestampOfLogin == 0) return 0;
-    return (int) (System.currentTimeMillis() / 1000L) - timestampOfLogin;
+    return LastHourBlogTime.elapsedSeconds(
+        timestampOfLogin, (int) (System.currentTimeMillis() / 1000L));
   }
 
   /**
@@ -124,7 +126,9 @@ public class BlogTab extends ComputerTab {
     if (timestampOfLogin <= 0) {
       return false;
     }
-    long secondsSinceLogin = System.currentTimeMillis() / 1000L - timestampOfLogin;
+    long secondsSinceLogin =
+        LastHourBlogTime.elapsedSeconds(
+            timestampOfLogin, (int) (System.currentTimeMillis() / 1000L));
     return secondsSinceLogin >= comment.timeBeforeDisplay();
   }
 

@@ -29,8 +29,10 @@ import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
+import feature.hud.AutoSaveIndicator;
 import feature.hud.dialogs.DialogFactory;
 import feature.input.configuration.KeyboardConfig;
+import feature.input.systems.ControlsDialogSystem;
 import feature.interaction.InteractionComponent;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzlePieceItem;
@@ -49,6 +51,7 @@ import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.network.LastHourEntitySpawnStrategy;
 import rooms.lasthour.network.LastHourSnapshotTranslator;
 import rooms.lasthour.util.LastHourAchievements;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /** The main class for the Multiplayer Client for development and testing purposes. */
 public final class LastHourClient {
@@ -66,8 +69,10 @@ public final class LastHourClient {
 
   /** In-loop client setup (entity spawn handler, systems, connection listener). */
   public static void clientSetup() {
+    AutoSaveIndicator.reset();
     registerEntitySpawnHandler();
     LastHourLevel.ensureClientPuzzles();
+    Game.add(new ControlsDialogSystem(() -> TranslationKey.PostIntroDialogText2));
     if (TheLastHour.DEBUG_MODE) {
       Game.add(new Debugger());
     }
@@ -127,6 +132,8 @@ public final class LastHourClient {
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }
+              AutoSaveIndicator.acceptRevision(
+                  event.metadata().get(LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION));
               if (event.shaderComponent() != null) {
                 newEntity.add(ShaderComponentCodec.fromState(event.shaderComponent()));
               }

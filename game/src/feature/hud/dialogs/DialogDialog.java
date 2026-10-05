@@ -110,7 +110,7 @@ final class DialogDialog {
           }
         });
 
-    // Key listener on the dialog itself: both interaction and ESC advance one sequence step.
+    // ESC is routed through the close request; only interaction advances here.
     dialog.addListener(
         new InputListener() {
           @Override
@@ -139,14 +139,17 @@ final class DialogDialog {
     // Wrap in an actor that clears the local texture cache on stage removal. Textures themselves
     // are owned by the TextureMap and must not be disposed here.
     dialog.pack();
-    return new BaseContainerUI(dialog, Align.top, 0f, TOP_OFFSET, false, true) {
-      @Override
-      protected void setStage(Stage stage) {
-        super.setStage(stage);
-        if (stage == null) {
-          scriptView.disposeCache();
-        }
-      }
-    };
+    BaseContainerUI container =
+        new BaseContainerUI(dialog, Align.top, 0f, TOP_OFFSET, false, true) {
+          @Override
+          protected void setStage(Stage stage) {
+            super.setStage(stage);
+            if (stage == null) {
+              scriptView.disposeCache();
+            }
+          }
+        };
+    UIUtils.onCloseRequest(container, advance);
+    return container;
   }
 }

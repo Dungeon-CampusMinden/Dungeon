@@ -18,7 +18,7 @@ import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
-import engine.tracking.Tracking;
+import engine.tracking.TrackingConsentFeature;
 import engine.utils.NetworkUtils;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
@@ -28,6 +28,7 @@ import feature.components.Debugger;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
+import feature.petrinet.PetriNetSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
@@ -38,6 +39,8 @@ import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.UUID;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -49,10 +52,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.level.LastHourLevelClient;
+import rooms.lasthour.level.LastHourPlayerStateSystem;
 import rooms.lasthour.modules.computer.ComputerStateSyncSystem;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.network.LastHourEntitySpawnStrategy;
 import rooms.lasthour.network.LastHourSnapshotTranslator;
+import rooms.lasthour.save.LastHourLoad;
+import rooms.lasthour.save.LastHourSave;
 import rooms.lasthour.util.LastHourAchievements;
 import rooms.lasthour.util.translation.LastHourTranslator;
 
@@ -68,6 +74,18 @@ import rooms.lasthour.util.translation.LastHourTranslator;
 public class TheLastHour {
 
   private static final String SERVER_STOP_REASON = "Server stopped from status window";
+  private static final String LOAD_SAVE_ARGUMENT = "--load-save";
+  private static final String NEW_GAME_ARGUMENT = "--new-game";
+  private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
+  private static boolean loadFromSave;
+  private static boolean levelEditorMode;
+  private static UUID runId;
+  private static final TrackingConsentFeature TRACKING_CONSENT =
+      new TrackingConsentFeature(
+          "the-last-hour",
+          TRACKING_OPERATOR_EMAIL,
+          TheLastHour::runId,
+          TheLastHour::persistTrackingConsent);
   private static final String MENU_BACKGROUND_IMAGE = "images/lasthour.png";
   private static final Color MENU_ACCENT_COLOR = new Color(0.56f, 0.87f, 1f, 1f);
 
@@ -87,14 +105,28 @@ public class TheLastHour {
    *
    * @param args command-line arguments (a {@code --server} flag starts the dedicated server)
    */
-  public static void main(String[] args) {
+  static void main(String[] args) {
+    loadFromSave = containsArgument(args, LOAD_SAVE_ARGUMENT);
+    configureManagedServerPlayerName();
+    if (containsArgument(args, NEW_GAME_ARGUMENT)) {
+      try {
+        LastHourSave.delete();
+      } catch (IOException exception) {
+        throw new IllegalStateException("Could not replace The Last Hour savegame", exception);
+      }
+    }
+    runId =
+        loadFromSave
+            ? LastHourLoad.read().map(LastHourSave.SaveData::runId).orElseGet(UUID::randomUUID)
+            : UUID.randomUUID();
+    TRACKING_CONSENT.initialize(
+        args, () -> LastHourLoad.read().map(LastHourSave.SaveData::trackingConsent).orElse(null));
+    restoreSavedPlayerNameForMenu();
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
         .enableConsole(true)
         .enableFile(false)
         .build();
-
-    Tracking.configureRoom("the-last-hour");
 
     ServerStarter server =
         ServerStarter.builder(TheLastHour::serverSetup)
@@ -130,14 +162,103 @@ public class TheLastHour {
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.EN)
             .levelEditor("levels/lastHour")
+            .beforeLevelEditorStart(() -> levelEditorMode = true)
+            .serverArguments(ServerProcess.SERVER_ARGUMENT, NEW_GAME_ARGUMENT)
+            .continueGame(LastHourSave::exists, ServerProcess.SERVER_ARGUMENT, LOAD_SAVE_ARGUMENT)
+            .startupConsent(TRACKING_CONSENT::startupPrompt)
+            .trackingSettings(TRACKING_CONSENT::settings)
             .build();
 
     MainMenu.run(args, game, client, server);
   }
 
+  private static void configureManagedServerPlayerName() {
+    String hostName = System.getProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY);
+    if (hostName == null || hostName.isBlank()) return;
+    try {
+      PreRunConfiguration.username(hostName);
+    } catch (IllegalArgumentException ignored) {
+      // The network handshake remains the authoritative validation path for player names.
+    }
+  }
+
+  private static void restoreSavedPlayerNameForMenu() {
+    LastHourLoad.read()
+        .map(TheLastHour::savedPlayerName)
+        .filter(name -> name != null && !name.isBlank() && !name.contains("_"))
+        .ifPresent(
+            name -> {
+              try {
+                PreRunConfiguration.username(name);
+              } catch (IllegalArgumentException ignored) {
+                // A malformed legacy name must not prevent the room from starting.
+              }
+            });
+  }
+
+  private static String savedPlayerName(LastHourSave.SaveData save) {
+    if (save.playerName() != null) return save.playerName();
+    // An older single-player save has one unambiguous name in its player snapshot.
+    return save.players().size() == 1 ? save.players().getFirst().name() : null;
+  }
+
+  /**
+   * Returns whether startup was requested to continue an existing save.
+   *
+   * @return true if this process is loading a saved run
+   */
+  public static boolean loadFromSave() {
+    return loadFromSave;
+  }
+
+  /**
+   * Returns whether this process was explicitly started in the level editor.
+   *
+   * @return true if this process is running the level editor
+   */
+  public static boolean levelEditorMode() {
+    return levelEditorMode;
+  }
+
+  /**
+   * Returns the identifier shared by all saves and tracking events for this run.
+   *
+   * @return the current run identifier
+   */
+  public static UUID runId() {
+    if (runId == null) runId = UUID.randomUUID();
+    return runId;
+  }
+
+  /**
+   * Returns the current run's tracking decision, or {@code null} while undecided.
+   *
+   * @return the decision, or {@code null} if the user has not decided
+   */
+  public static Boolean trackingConsent() {
+    return TRACKING_CONSENT.decision();
+  }
+
+  private static void persistTrackingConsent(Boolean consent) {
+    try {
+      LastHourSave.updateTrackingConsent(consent);
+    } catch (IOException exception) {
+      throw new IllegalStateException(
+          "Could not update The Last Hour tracking consent.", exception);
+    }
+  }
+
+  private static boolean containsArgument(String[] args, String expected) {
+    if (args == null) return false;
+    for (String arg : args) if (expected.equals(arg)) return true;
+    return false;
+  }
+
   /** Registers the translation files for the supported languages. */
   static void initLocalization() {
     Localization localization = Game.localization();
+    localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
+    localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
     localization.registerTranslationFile(Language.DE, "language/theLastHour/de.json");
     localization.registerTranslationFile(Language.EN, "language/theLastHour/en.json");
     localization.setCurrentTranslator(new LastHourTranslator());
@@ -160,6 +281,8 @@ public class TheLastHour {
 
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
+    ECSManagement.add(new PetriNetSystem());
+    ECSManagement.add(new LastHourPlayerStateSystem());
     ECSManagement.add(new ComputerStateSyncSystem());
     ECSManagement.add(new ItemDropSystem());
 

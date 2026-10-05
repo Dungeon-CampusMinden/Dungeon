@@ -4,7 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.game.PreRunConfiguration;
 import engine.network.codec.DialogValueCodecRegistry;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.logging.DungeonLogger;
@@ -15,7 +14,6 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -193,6 +191,8 @@ public class ComputerFactory {
       ComputerCallbacks.notifyVirusTriggered(who);
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
+      ComputerCallbacks.scheduleUnknownDeviceShutdown(
+          ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
       openComputerDialog(pcEntity, who);
       // Multiplayer: the server's EventScheduler keeps ticking (it does not pause when a player
       // opens a dialog) and authoritatively triggers the shutdown, which is then broadcast to
@@ -201,11 +201,6 @@ public class ComputerFactory {
       // queued action would either never fire or, worse, fire late on dialog close and clobber
       // any newly logged-in state. Instead the non-pausable ComputerStateSyncSystem drives the
       // shutdown locally and authoritatively.
-      if (PreRunConfiguration.multiplayerEnabled()) {
-        EventScheduler.scheduleAction(
-            ComputerCallbacks::shutdownPcAfterUnknownDevice,
-            ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
-      }
     }
   }
 
