@@ -5,7 +5,6 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.InputComponent;
-import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.language.Language;
@@ -14,7 +13,6 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.network.messages.s2c.ItemState;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
@@ -59,10 +57,10 @@ import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
 import feature.utils.EntityUtils;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -117,7 +115,7 @@ public class LastHourLevel extends DungeonLevel {
   boolean escaped = false;
   Entity worldTimer;
   private Optional<LastHourSave.SaveData> pendingSave = Optional.empty();
-  final List<LastHourSave.PlayerData> pendingPlayers = new ArrayList<>();
+  LastHourPlayerStateSystem playerStates = new LastHourPlayerStateSystem();
   LastHourSave.SaveData lastSaved;
   ComputerStateComponent cscLastTick;
   Entity keypad;
@@ -186,7 +184,8 @@ public class LastHourLevel extends DungeonLevel {
     puzzle = null;
     saveRevision = 0;
     lastSaved = null;
-    pendingPlayers.clear();
+    playerStates = new LastHourPlayerStateSystem();
+    Game.add(playerStates);
     INTRO_SHOWN_TO.clear();
     ComputerCallbacks.resetUnknownDeviceShutdown();
     LastHourProgressNet.reset();
@@ -998,8 +997,8 @@ public class LastHourLevel extends DungeonLevel {
   protected void onTick() {
     checkPCStateUpdate();
     reconcileMilestones();
-    applyPendingPlayers();
-    persistAtPetriMilestone();
+    playerStates.update();
+    persistAtPetriMilestone(LastHourSave.DEFAULT_PATH);
     showIntroForNewPlayers();
     registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
@@ -1054,81 +1053,6 @@ public class LastHourLevel extends DungeonLevel {
         secondPhoneRingAt < 0 ? -1 : Math.max(0, secondPhoneRingAt - now));
   }
 
-  private void applyPendingPlayers() {
-    if (pendingPlayers.isEmpty()) return;
-    List<Entity> players = Game.allPlayers().toList();
-    pendingPlayers.removeIf(
-        saved -> {
-          Entity player =
-              players.stream()
-                  .filter(
-                      entity ->
-                          entity
-                              .fetch(PlayerComponent.class)
-                              .map(PlayerComponent::playerName)
-                              .filter(saved.name()::equals)
-                              .isPresent())
-                  .findFirst()
-                  .orElse(null);
-          if (player == null) return false;
-          InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
-          if (inventory == null
-              || saved.items().stream().anyMatch(item -> item.slot() >= inventory.items().length))
-            return false;
-          player
-              .fetch(PositionComponent.class)
-              .ifPresent(position -> position.position(new Point(saved.x(), saved.y())));
-          for (int slot = 0; slot < inventory.items().length; slot++) inventory.set(slot, null);
-          saved.items().forEach(item -> inventory.set(item.slot(), item.state().toItem()));
-          if (saved.introShown()) INTRO_SHOWN_TO.add(player.id());
-          return true;
-        });
-  }
-
-  private List<LastHourSave.PlayerData> capturePlayers() {
-    Map<String, LastHourSave.PlayerData> result = new LinkedHashMap<>();
-    if (lastSaved != null) lastSaved.players().forEach(player -> result.put(player.name(), player));
-    pendingPlayers.forEach(player -> result.put(player.name(), player));
-    Game.allPlayers()
-        .forEach(
-            player ->
-                player
-                    .fetch(PlayerComponent.class)
-                    .ifPresent(
-                        identity -> {
-                          PositionComponent positionComponent =
-                              player.fetch(PositionComponent.class).orElse(null);
-                          if (positionComponent == null) return;
-                          Point position = positionComponent.position();
-                          if (PositionComponent.ILLEGAL_POSITION.equals(position)) return;
-                          List<LastHourSave.ItemData> items = new ArrayList<>();
-                          player
-                              .fetch(InventoryComponent.class)
-                              .ifPresent(
-                                  inventory -> {
-                                    Item[] slots = inventory.items();
-                                    for (int index = 0; index < slots.length; index++) {
-                                      if (slots[index] != null) {
-                                        items.add(
-                                            new LastHourSave.ItemData(
-                                                index, ItemState.fromItem(slots[index])));
-                                      }
-                                    }
-                                  });
-                          result.put(
-                              identity.playerName(),
-                              new LastHourSave.PlayerData(
-                                  identity.playerName(),
-                                  position.x(),
-                                  position.y(),
-                                  INTRO_SHOWN_TO.contains(player.id()),
-                                  items));
-                        }));
-    return result.values().stream()
-        .sorted(java.util.Comparator.comparing(LastHourSave.PlayerData::name))
-        .toList();
-  }
-
   private LastHourSave.SaveData captureSave() {
     KeypadComponent keypadState = keypad.fetch(KeypadComponent.class).orElseThrow();
     return LastHourSave.capture(
@@ -1141,21 +1065,26 @@ public class LastHourLevel extends DungeonLevel {
             capturePhone(),
             trashNoteAwarded,
             blueTrashAwarded,
-            capturePlayers()));
+            playerStates.capture()));
   }
 
-  /** Persists the full run state only when the Petri marking advances. */
-  private void persistAtPetriMilestone() {
-    if (!Game.network().isServer() || TheLastHour.levelEditorMode()) return;
+  /**
+   * Persists the full run state only when the Petri marking advances.
+   *
+   * @param path checkpoint file to update
+   */
+  void persistAtPetriMilestone(Path path) {
+    if (!Game.network().isServer() || TheLastHour.levelEditorMode() || !playerStates.isUpdated())
+      return;
     Set<LastHourMilestone> milestones = LastHourProgressNet.completedMilestones();
     if (milestones.isEmpty() || (lastSaved != null && milestones.equals(lastSaved.milestones())))
       return;
-    LastHourSave.SaveData current = captureSave();
     try {
-      LastHourSave.write(current);
+      LastHourSave.SaveData current = captureSave();
+      LastHourSave.write(path, current);
       lastSaved = current;
       saveRevision++;
-    } catch (java.io.IOException exception) {
+    } catch (java.io.IOException | IllegalArgumentException | IllegalStateException exception) {
       LOGGER.warn("Could not write The Last Hour savegame", exception);
     }
   }

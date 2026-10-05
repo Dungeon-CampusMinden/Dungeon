@@ -83,7 +83,7 @@ final class LastHourCheckpointProjection {
               level.worldPoint("r2-vent")));
     }
 
-    level.pendingPlayers.addAll(data.players());
+    level.playerStates.restore(data.players());
     restorePhone(level, data.phone());
     removeItemsAlreadyHeld(data.players());
     level.trashNoteAwarded =
