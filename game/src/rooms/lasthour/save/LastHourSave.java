@@ -1,8 +1,7 @@
 package rooms.lasthour.save;
 
-import engine.Game;
-import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
+import engine.game.ServerProcess;
 import engine.network.messages.s2c.ItemState;
 import engine.utils.JsonHandler;
 import feature.questlog.QuestLogEntry;
@@ -84,19 +83,17 @@ public final class LastHourSave {
         LastHourQuestLogUtil.addedEntryKeys(),
         context.players(),
         TheLastHour.trackingConsent(),
-        currentPlayerName());
+        resolvePlayerName(context));
   }
 
-  private static String currentPlayerName() {
-    Optional<String> authoritativeName =
-        Game.allPlayers()
-            .flatMap(player -> player.fetch(PlayerComponent.class).stream())
-            .map(PlayerComponent::playerName)
-            .filter(name -> name != null && !name.isBlank())
-            .findFirst();
-    if (authoritativeName.isPresent()) return authoritativeName.orElseThrow();
+  private static String resolvePlayerName(CaptureContext context) {
+    if (context.playerName() != null && !context.playerName().isBlank())
+      return context.playerName();
+    String hostName = System.getProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY);
+    if (hostName != null && !hostName.isBlank()) return hostName;
+    if (!context.players().isEmpty()) return context.players().getFirst().name();
 
-    // A network server must wait for a connected player instead of persisting its JVM default.
+    // Dedicated servers without a known player must not persist their JVM default name.
     if (PreRunConfiguration.multiplayerEnabled()) return null;
     return PreRunConfiguration.username();
   }
@@ -344,6 +341,7 @@ public final class LastHourSave {
    * @param trashNoteAwarded whether the trash note has been awarded
    * @param blueTrashAwarded whether the blue trash item has been awarded
    * @param players saved player positions, intro state and inventories
+   * @param playerName existing save owner, or {@code null} before the first named checkpoint
    */
   public record CaptureContext(
       boolean keypadUnlocked,
@@ -354,7 +352,8 @@ public final class LastHourSave {
       PhoneData phone,
       boolean trashNoteAwarded,
       boolean blueTrashAwarded,
-      List<PlayerData> players) {
+      List<PlayerData> players,
+      String playerName) {
     /**
      * Copies the supplied player state.
      *
@@ -367,6 +366,7 @@ public final class LastHourSave {
      * @param trashNoteAwarded whether the trash note has been awarded
      * @param blueTrashAwarded whether the blue trash item has been awarded
      * @param players saved player positions, intro state and inventories
+     * @param playerName existing save owner, or {@code null} before the first named checkpoint
      */
     public CaptureContext {
       players = List.copyOf(players);

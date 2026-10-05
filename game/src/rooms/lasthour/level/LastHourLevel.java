@@ -1003,7 +1003,7 @@ public class LastHourLevel extends DungeonLevel {
     checkPCStateUpdate();
     reconcileMilestones();
     persistAtPetriMilestone(LastHourSave.DEFAULT_PATH);
-    if (playerStates.isUpdated()) showIntroForNewPlayers();
+    showIntroForNewPlayers();
     registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
@@ -1013,6 +1013,7 @@ public class LastHourLevel extends DungeonLevel {
   private void showIntroForNewPlayers() {
     if (introSuppressed || (!Game.isHeadless() && LevelEditorSystem.active())) return;
     Game.allPlayers()
+        .filter(playerStates::isReadyForIntro)
         .filter(player -> !INTRO_SHOWN_TO.contains(player.id()))
         .forEach(player -> showIntro(player.id()));
   }
@@ -1069,7 +1070,8 @@ public class LastHourLevel extends DungeonLevel {
             capturePhone(),
             trashNoteAwarded,
             blueTrashAwarded,
-            playerStates.capture()));
+            playerStates.capture(),
+            lastSaved == null ? null : lastSaved.playerName()));
   }
 
   /**

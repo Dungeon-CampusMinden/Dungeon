@@ -7,18 +7,23 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.game.ECSManagement;
+import engine.game.ServerProcess;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.network.handler.INetworkHandler;
 import engine.network.server.ClientState;
+import engine.utils.EntityIdProvider;
+import engine.utils.EntitySystemMapper;
 import engine.utils.Point;
+import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.InventoryComponent;
 import feature.entities.CharacterClass;
 import feature.interaction.keypad.KeypadComponent;
@@ -29,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
@@ -95,6 +101,161 @@ class LastHourPlayerCheckpointTest {
     instance.setAccessible(true);
     instance.set(null, previousLevel);
     MockNetworkHandler.useNetworkHandler(previousNetwork);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void checkpointKeepsOwnerNameAfterDisconnect(boolean allDisconnected) throws Exception {
+    Entity first = player("A", new Point(1, 2));
+    Entity second = player("B", new Point(3, 4));
+    assertTrue(LastHourProgressNet.complete(LastHourMilestone.POWER_ON));
+    Path saveFile = tempDir.resolve("checkpoint.json");
+    LastHourSave.SaveData previous = writeCheckpoint(saveFile);
+    String owner = previous.playerName();
+
+    Game.remove(owner.equals("A") ? first : second);
+    if (allDisconnected) Game.remove(owner.equals("A") ? second : first);
+    completeLogin();
+    LastHourSave.SaveData next = writeCheckpoint(saveFile);
+
+    assertEquals(owner, next.playerName());
+    assertEquals(owner, LastHourLoad.read(saveFile).orElseThrow().playerName());
+  }
+
+  @Test
+  void firstCheckpointUsesManagedHostNameInsteadOfFirstPlayer() throws Exception {
+    String previousHost = System.getProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY);
+    try {
+      System.setProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY, "Z-Host");
+      player("A-Guest", new Point(1, 2));
+      player("Z-Host", new Point(3, 4));
+      assertTrue(LastHourProgressNet.complete(LastHourMilestone.POWER_ON));
+
+      LastHourSave.SaveData saved = writeCheckpoint(tempDir.resolve("checkpoint.json"));
+
+      assertEquals("Z-Host", saved.playerName());
+    } finally {
+      if (previousHost == null) System.clearProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY);
+      else System.setProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY, previousHost);
+    }
+  }
+
+  @Test
+  void checkpointCapturesLatestPlayerBeforeDisconnectCallbackIsQueued() throws Exception {
+    Entity sender = player("A", new Point(1, 2));
+    player("B", new Point(3, 4));
+    assertTrue(LastHourProgressNet.complete(LastHourMilestone.POWER_ON));
+    Path saveFile = tempDir.resolve("checkpoint.json");
+    writeCheckpoint(saveFile);
+    int revision = LastHourLevel.saveRevision();
+    assertTrue(inventory(sender).add(new UsbStickItem.RedUsbStick()));
+    sender.fetch(PositionComponent.class).orElseThrow().position(new Point(9, 8));
+    LastHourLevel.INTRO_SHOWN_TO.add(sender.id());
+
+    Set<EntitySystemMapper> filters = beginEntityRemoval(sender);
+    try {
+      completeLogin();
+      level.persistAtPetriMilestone(saveFile);
+      assertEquals(revision + 1, LastHourLevel.saveRevision());
+      LastHourSave.PlayerData saved = savedPlayer(LastHourLoad.read(saveFile).orElseThrow(), "A");
+      assertEquals(9, saved.x());
+      assertEquals(8, saved.y());
+      assertTrue(saved.introShown());
+      assertEquals("RedUsbStick", saved.items().getFirst().state().itemType());
+    } finally {
+      finishEntityRemoval(sender, filters);
+    }
+
+    level.playerStates.execute();
+    level.persistAtPetriMilestone(saveFile);
+    assertEquals(revision + 1, LastHourLevel.saveRevision());
+    assertEquals(level.lastSaved, LastHourLoad.read(saveFile).orElseThrow());
+  }
+
+  @Test
+  void transferredUsbIsNotDuplicatedBeforeDisconnectCallbackIsQueued() throws Exception {
+    Entity sender = player("A", new Point(1, 2));
+    Entity recipient = player("B", new Point(3, 4));
+    UsbStickItem.BlueUsbStick stick = new UsbStickItem.BlueUsbStick();
+    assertTrue(inventory(sender).add(stick));
+    assertTrue(LastHourProgressNet.complete(LastHourMilestone.POWER_ON));
+    Path saveFile = tempDir.resolve("checkpoint.json");
+    writeCheckpoint(saveFile);
+    int revision = LastHourLevel.saveRevision();
+    assertTrue(inventory(sender).transfer(stick, inventory(recipient)));
+
+    Set<EntitySystemMapper> filters = beginEntityRemoval(sender);
+    try {
+      completeLogin();
+      level.persistAtPetriMilestone(saveFile);
+
+      assertEquals(revision + 1, LastHourLevel.saveRevision());
+      LastHourSave.SaveData saved = LastHourLoad.read(saveFile).orElseThrow();
+      assertEquals(List.of("B"), usbOwners(saved));
+      assertTrue(savedPlayer(saved, "A").items().isEmpty());
+    } finally {
+      finishEntityRemoval(sender, filters);
+    }
+  }
+
+  @Test
+  void introWaitsForConnectedPlayersRestoreWithoutBlockingOtherPlayers() throws Exception {
+    level.playerStates.restore(List.of(new LastHourSave.PlayerData("A", 5, 6, true, List.of())));
+    Entity reconnected = new Entity("A");
+    reconnected.add(new PlayerComponent(false, "A"));
+    reconnected.add(new PositionComponent(new Point(0, 0)));
+    Game.add(reconnected);
+    Entity otherPlayer = player("B", new Point(3, 4));
+    level.playerStates.execute();
+
+    assertTrue(level.playerStates.isUpdated());
+    assertFalse(level.playerStates.isReadyForIntro(reconnected));
+    assertTrue(level.playerStates.isReadyForIntro(otherPlayer));
+    Game.remove(otherPlayer);
+    level.playerStates.execute();
+    var showIntros = LastHourLevel.class.getDeclaredMethod("showIntroForNewPlayers");
+    showIntros.setAccessible(true);
+    try (var cutscene = mockStatic(BlackFadeCutscene.class)) {
+      showIntros.invoke(level);
+      cutscene.verifyNoInteractions();
+      reconnected.add(new InventoryComponent(2));
+      level.playerStates.execute();
+      assertTrue(level.playerStates.isReadyForIntro(reconnected));
+      assertTrue(LastHourLevel.INTRO_SHOWN_TO.contains(reconnected.id()));
+      showIntros.invoke(level);
+      cutscene.verifyNoInteractions();
+    }
+  }
+
+  @Test
+  void sameEntityReconnectBeforeInitialRestorePreservesSavedInventory() throws Exception {
+    UsbStickItem.BlueUsbStick stick = new UsbStickItem.BlueUsbStick();
+    level.playerStates.restore(
+        List.of(
+            new LastHourSave.PlayerData(
+                "A",
+                5,
+                6,
+                true,
+                List.of(
+                    new LastHourSave.ItemData(
+                        0, engine.network.messages.s2c.ItemState.fromItem(stick))))));
+    Entity reconnected = new Entity("A");
+    reconnected.add(new PlayerComponent(false, "A"));
+    reconnected.add(new PositionComponent(new Point(0, 0)));
+    Game.add(reconnected);
+    level.playerStates.execute();
+    Game.remove(reconnected);
+    level.playerStates.execute();
+    reconnected.add(new InventoryComponent(2));
+    Game.add(reconnected);
+
+    level.playerStates.execute();
+
+    assertTrue(inventory(reconnected).get(0).orElseThrow() instanceof UsbStickItem.BlueUsbStick);
+    assertEquals(
+        new Point(5, 6), reconnected.fetch(PositionComponent.class).orElseThrow().position());
+    assertTrue(LastHourLevel.INTRO_SHOWN_TO.contains(reconnected.id()));
   }
 
   @Test
@@ -514,6 +675,31 @@ class LastHourPlayerCheckpointTest {
     player.add(new InventoryComponent(2));
     Game.add(player);
     return player;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Set<EntitySystemMapper> beginEntityRemoval(Entity player)
+      throws ReflectiveOperationException {
+    // Simulate the gap in ECSManagement.remove before the player mapper queues the disconnect.
+    Field entitiesField = ECSManagement.class.getDeclaredField("allEntities");
+    entitiesField.setAccessible(true);
+    Map<Integer, Entity> entities = (Map<Integer, Entity>) entitiesField.get(null);
+    assertTrue(entities.remove(player.id(), player));
+    Field filtersField = ECSManagement.class.getDeclaredField("entityFilters");
+    filtersField.setAccessible(true);
+    Set<EntitySystemMapper> filters = (Set<EntitySystemMapper>) filtersField.get(null);
+    filters.stream()
+        .filter(mapper -> mapper.equals(Set.of()))
+        .findFirst()
+        .orElseThrow()
+        .remove(player);
+    assertTrue(Game.allPlayers().noneMatch(entity -> entity == player));
+    return filters;
+  }
+
+  private void finishEntityRemoval(Entity player, Set<EntitySystemMapper> filters) {
+    filters.forEach(mapper -> mapper.remove(player));
+    EntityIdProvider.unregister(player.id());
   }
 
   private LastHourSave.SaveData writeCheckpoint(Path file) {
