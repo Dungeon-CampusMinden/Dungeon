@@ -319,6 +319,54 @@
       "x" : 47.0,
       "y" : 112.0
     },
+    "archive-instructions" : {
+      "x" : 35.0,
+      "y" : 20.4
+    },
+    "decisions-heart" : {
+      "x" : 41.0,
+      "y" : 120.0
+    },
+    "decisions-heart-fire" : {
+      "x" : 40.0,
+      "y" : 119.5
+    },
+    "decisions-heart-inscription" : {
+      "x" : 40.6,
+      "y" : 118.0
+    },
+    "decisions-heart-offering-39.2" : {
+      "x" : 39.2,
+      "y" : 119.4
+    },
+    "decisions-heart-offering-42.0" : {
+      "x" : 42.0,
+      "y" : 119.4
+    },
+    "decisions-rune-0" : {
+      "x" : 39.1,
+      "y" : 69.3
+    },
+    "decisions-rune-1" : {
+      "x" : 39.1,
+      "y" : 78.3
+    },
+    "decisions-rune-2" : {
+      "x" : 39.1,
+      "y" : 88.3
+    },
+    "decisions-rune-3" : {
+      "x" : 39.1,
+      "y" : 97.3
+    },
+    "decisions-rune-4" : {
+      "x" : 39.1,
+      "y" : 107.3
+    },
+    "decisions-rune-5" : {
+      "x" : 39.1,
+      "y" : 116.3
+    },
     "decisions-start" : {
       "x" : 34.0,
       "y" : 55.0
@@ -331,13 +379,33 @@
       "x" : 38.0,
       "y" : 7.0
     },
+    "forge-maintenance-note" : {
+      "x" : 14.0,
+      "y" : 18.4
+    },
+    "intro-tablet" : {
+      "x" : 6.0,
+      "y" : 6.4
+    },
     "loop-departure" : {
       "x" : 43.0,
       "y" : 8.0
     },
+    "loop-monitor" : {
+      "x" : 35.0,
+      "y" : 16.4
+    },
+    "loop-terminal" : {
+      "x" : 35.0,
+      "y" : 14.4
+    },
     "maze-origin" : {
       "x" : 100.0,
       "y" : 40.0
+    },
+    "methods-console" : {
+      "x" : 28.0,
+      "y" : 26.4
     },
     "methods-entry" : {
       "x" : 30.0,
@@ -379,6 +447,102 @@
       "x" : 0.0,
       "y" : 22.0
     },
+    "rune-archive-attack" : {
+      "x" : 24.15,
+      "y" : 16.4
+    },
+    "rune-archive-backtrack" : {
+      "x" : 23.2,
+      "y" : 18.4
+    },
+    "rune-archive-jump" : {
+      "x" : 23.2,
+      "y" : 16.4
+    },
+    "rune-archive-long" : {
+      "x" : 26.2,
+      "y" : 18.4
+    },
+    "rune-archive-patrol" : {
+      "x" : 36.2,
+      "y" : 5.4
+    },
+    "rune-archive-short" : {
+      "x" : 24.15,
+      "y" : 18.4
+    },
+    "rune-archive-spin" : {
+      "x" : 27.15,
+      "y" : 18.4
+    },
+    "rune-archive-turn-left" : {
+      "x" : 27.15,
+      "y" : 16.4
+    },
+    "rune-archive-turn-right" : {
+      "x" : 26.15,
+      "y" : 16.4
+    },
+    "rune-bellows-do-while" : {
+      "x" : 26.2,
+      "y" : 5.4
+    },
+    "rune-bellows-for" : {
+      "x" : 27.15,
+      "y" : 5.4
+    },
+    "rune-bellows-while" : {
+      "x" : 24.15,
+      "y" : 5.4
+    },
+    "rune-chain-lift-do-while" : {
+      "x" : 30.15,
+      "y" : 5.4
+    },
+    "rune-chain-lift-for" : {
+      "x" : 32.2,
+      "y" : 5.4
+    },
+    "rune-chain-lift-while" : {
+      "x" : 29.2,
+      "y" : 5.4
+    },
+    "rune-cooling-channel-do-while" : {
+      "x" : 23.2,
+      "y" : 14.4
+    },
+    "rune-cooling-channel-for" : {
+      "x" : 24.15,
+      "y" : 14.4
+    },
+    "rune-cooling-channel-while" : {
+      "x" : 33.15,
+      "y" : 5.4
+    },
+    "rune-forge-press-do-while" : {
+      "x" : 8.0,
+      "y" : 10.4
+    },
+    "rune-forge-press-for" : {
+      "x" : 23.2,
+      "y" : 5.4
+    },
+    "rune-forge-press-while" : {
+      "x" : 7.6,
+      "y" : 19.1
+    },
+    "rune-heart-gate-do-while" : {
+      "x" : 27.15,
+      "y" : 14.4
+    },
+    "rune-heart-gate-for" : {
+      "x" : 35.2,
+      "y" : 5.4
+    },
+    "rune-heart-gate-while" : {
+      "x" : 26.2,
+      "y" : 14.4
+    },
     "variables-golem" : {
       "x" : 10.0,
       "y" : 7.0
@@ -387,9 +551,17 @@
       "x" : 4.0,
       "y" : 18.0
     },
+    "variables-translation" : {
+      "x" : 18.8,
+      "y" : 11.4
+    },
     "variables-vessels" : {
       "x" : 18.0,
       "y" : 16.0
+    },
+    "workshop-experiments" : {
+      "x" : 29.1,
+      "y" : 26.4
     }
   },
   "decorations" : [ {
@@ -1506,10 +1678,10 @@
         "y" : 18.0
       },
       "furniture" : "ProgrammingWorkbench",
-      "item-1" : "ProgrammingTabletopVase",
+      "item-1" : "ProgrammingTabletopTools",
       "offset-1" : {
         "x" : 1.0,
-        "y" : 0.39999962
+        "y" : 0.4
       },
       "item-2" : "none",
       "offset-2" : {
@@ -1833,7 +2005,7 @@
     "properties" : {
       "position" : {
         "x" : 26.0,
-        "y" : 20.0
+        "y" : 16.0
       },
       "furniture" : "ProgrammingWorkbench",
       "item-1" : "none",
@@ -1862,8 +2034,8 @@
     "type" : "programming-table",
     "properties" : {
       "position" : {
-        "x" : 34.5,
-        "y" : 18.0
+        "x" : 23.0,
+        "y" : 16.0
       },
       "furniture" : "ProgrammingWorkbench",
       "item-1" : "none",
@@ -2038,12 +2210,312 @@
       }
     }
   }, {
+    "name" : "table-decisions-source-2",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 78.0
+      },
+      "furniture" : "ProgrammingSourcePlinth",
+      "item-1" : "ProgrammingSourceCrystal",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "ProgrammingSourceCrystal",
+      "offset-2" : {
+        "x" : 0.79999924,
+        "y" : 0.30000305
+      },
+      "item-3" : "ProgrammingSourceCrystal",
+      "offset-3" : {
+        "x" : 0.79999924,
+        "y" : 0.80000305
+      },
+      "item-4" : "ProgrammingSourceCrystal",
+      "offset-4" : {
+        "x" : 0.099998474,
+        "y" : 0.80000305
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-3",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 88.0
+      },
+      "furniture" : "ProgrammingSourcePlinth",
+      "item-1" : "ProgrammingStrengthStone",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "ProgrammingSourceTools",
+      "offset-2" : {
+        "x" : 1.0999985,
+        "y" : 0.40000153
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-4",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 97.0
+      },
+      "furniture" : "ProgrammingSourceBench",
+      "item-1" : "ProgrammingSourceTools",
+      "offset-1" : {
+        "x" : 1.0999985,
+        "y" : 0.5
+      },
+      "item-2" : "ProgrammingSourceKettle",
+      "offset-2" : {
+        "x" : 0.099998474,
+        "y" : 0.40000153
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-5",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 107.0
+      },
+      "furniture" : "ProgrammingSourcePlinth",
+      "item-1" : "ProgrammingCauldron",
+      "offset-1" : {
+        "x" : 0.20000076,
+        "y" : 0.19999695
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-source-6",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 116.0
+      },
+      "furniture" : "ProgrammingSourceBench",
+      "item-1" : "ProgrammingSealGem",
+      "offset-1" : {
+        "x" : 1.0999985,
+        "y" : 0.5
+      },
+      "item-2" : "ProgrammingSealBook",
+      "offset-2" : {
+        "x" : 0.20000076,
+        "y" : 0.5
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
     "name" : "table-decisions-tablet-1",
     "type" : "programming-table",
     "properties" : {
       "position" : {
         "x" : 40.0,
         "y" : 69.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-2",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 78.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-3",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 88.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-4",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 97.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-5",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 107.0
+      },
+      "furniture" : "ProgrammingSmallPlinth",
+      "item-1" : "ProgrammingTablet",
+      "offset-1" : {
+        "x" : 0.099998474,
+        "y" : 0.30000305
+      },
+      "item-2" : "none",
+      "offset-2" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-3" : "none",
+      "offset-3" : {
+        "x" : 0.0,
+        "y" : 0.0
+      },
+      "item-4" : "none",
+      "offset-4" : {
+        "x" : 0.0,
+        "y" : 0.0
+      }
+    }
+  }, {
+    "name" : "table-decisions-tablet-6",
+    "type" : "programming-table",
+    "properties" : {
+      "position" : {
+        "x" : 40.0,
+        "y" : 116.0
       },
       "furniture" : "ProgrammingSmallPlinth",
       "item-1" : "ProgrammingTablet",
@@ -2098,66 +2570,6 @@
       }
     }
   }, {
-    "name" : "table-decisions-source-2",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 32.0,
-        "y" : 78.0
-      },
-      "furniture" : "ProgrammingSourcePlinth",
-      "item-1" : "ProgrammingSourceCrystal",
-      "offset-1" : {
-        "x" : 0.099998474,
-        "y" : 0.30000305
-      },
-      "item-2" : "ProgrammingSourceCrystal",
-      "offset-2" : {
-        "x" : 0.79999924,
-        "y" : 0.30000305
-      },
-      "item-3" : "ProgrammingSourceCrystal",
-      "offset-3" : {
-        "x" : 0.79999924,
-        "y" : 0.80000305
-      },
-      "item-4" : "ProgrammingSourceCrystal",
-      "offset-4" : {
-        "x" : 0.099998474,
-        "y" : 0.80000305
-      }
-    }
-  }, {
-    "name" : "table-decisions-tablet-2",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 40.0,
-        "y" : 78.0
-      },
-      "furniture" : "ProgrammingSmallPlinth",
-      "item-1" : "ProgrammingTablet",
-      "offset-1" : {
-        "x" : 0.099998474,
-        "y" : 0.30000305
-      },
-      "item-2" : "none",
-      "offset-2" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
     "name" : "table-decisions-rune-2",
     "type" : "programming-table",
     "properties" : {
@@ -2170,66 +2582,6 @@
       "offset-1" : {
         "x" : 0.0,
         "y" : 0.0
-      },
-      "item-2" : "none",
-      "offset-2" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
-    "name" : "table-decisions-source-3",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 32.0,
-        "y" : 88.0
-      },
-      "furniture" : "ProgrammingSourcePlinth",
-      "item-1" : "ProgrammingStrengthStone",
-      "offset-1" : {
-        "x" : 0.099998474,
-        "y" : 0.30000305
-      },
-      "item-2" : "ProgrammingSourceTools",
-      "offset-2" : {
-        "x" : 1.0999985,
-        "y" : 0.40000153
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
-    "name" : "table-decisions-tablet-3",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 40.0,
-        "y" : 88.0
-      },
-      "furniture" : "ProgrammingSmallPlinth",
-      "item-1" : "ProgrammingTablet",
-      "offset-1" : {
-        "x" : 0.099998474,
-        "y" : 0.30000305
       },
       "item-2" : "none",
       "offset-2" : {
@@ -2278,66 +2630,6 @@
       }
     }
   }, {
-    "name" : "table-decisions-source-4",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 32.0,
-        "y" : 97.0
-      },
-      "furniture" : "ProgrammingSourceBench",
-      "item-1" : "ProgrammingSourceTools",
-      "offset-1" : {
-        "x" : 1.0999985,
-        "y" : 0.5
-      },
-      "item-2" : "ProgrammingSourceKettle",
-      "offset-2" : {
-        "x" : 0.099998474,
-        "y" : 0.40000153
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
-    "name" : "table-decisions-tablet-4",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 40.0,
-        "y" : 97.0
-      },
-      "furniture" : "ProgrammingSmallPlinth",
-      "item-1" : "ProgrammingTablet",
-      "offset-1" : {
-        "x" : 0.099998474,
-        "y" : 0.30000305
-      },
-      "item-2" : "none",
-      "offset-2" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
     "name" : "table-decisions-rune-4",
     "type" : "programming-table",
     "properties" : {
@@ -2368,66 +2660,6 @@
       }
     }
   }, {
-    "name" : "table-decisions-source-5",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 32.0,
-        "y" : 107.0
-      },
-      "furniture" : "ProgrammingSourcePlinth",
-      "item-1" : "ProgrammingCauldron",
-      "offset-1" : {
-        "x" : 0.20000076,
-        "y" : 0.19999695
-      },
-      "item-2" : "none",
-      "offset-2" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
-    "name" : "table-decisions-tablet-5",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 40.0,
-        "y" : 107.0
-      },
-      "furniture" : "ProgrammingSmallPlinth",
-      "item-1" : "ProgrammingTablet",
-      "offset-1" : {
-        "x" : 0.099998474,
-        "y" : 0.30000305
-      },
-      "item-2" : "none",
-      "offset-2" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
     "name" : "table-decisions-rune-5",
     "type" : "programming-table",
     "properties" : {
@@ -2440,66 +2672,6 @@
       "offset-1" : {
         "x" : 0.0,
         "y" : 0.0
-      },
-      "item-2" : "none",
-      "offset-2" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
-    "name" : "table-decisions-source-6",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 32.0,
-        "y" : 116.0
-      },
-      "furniture" : "ProgrammingSourceBench",
-      "item-1" : "ProgrammingSealGem",
-      "offset-1" : {
-        "x" : 1.0999985,
-        "y" : 0.5
-      },
-      "item-2" : "ProgrammingSealBook",
-      "offset-2" : {
-        "x" : 0.20000076,
-        "y" : 0.5
-      },
-      "item-3" : "none",
-      "offset-3" : {
-        "x" : 0.0,
-        "y" : 0.0
-      },
-      "item-4" : "none",
-      "offset-4" : {
-        "x" : 0.0,
-        "y" : 0.0
-      }
-    }
-  }, {
-    "name" : "table-decisions-tablet-6",
-    "type" : "programming-table",
-    "properties" : {
-      "position" : {
-        "x" : 40.0,
-        "y" : 116.0
-      },
-      "furniture" : "ProgrammingSmallPlinth",
-      "item-1" : "ProgrammingTablet",
-      "offset-1" : {
-        "x" : 0.099998474,
-        "y" : 0.30000305
       },
       "item-2" : "none",
       "offset-2" : {
