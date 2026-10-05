@@ -26,7 +26,11 @@ import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
 import feature.entities.deco.Deco;
+import feature.prefabs.Prefab;
+import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabRegistry;
 import feature.utils.EntityUtils;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -421,4 +425,59 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return A list of tuples containing decorations and their positions.
    */
   List<Tuple<Deco, Point>> decorations();
+
+  /**
+   * Returns the authored prefab instances belonging to this level.
+   *
+   * <p>These are the instances saved in the level file. Runtime changes of the current game session
+   * are not included, see {@link #activePrefabs()}.
+   *
+   * @return ordered prefab instances
+   */
+  List<PrefabInstance> prefabs();
+
+  /**
+   * Returns the prefab instances active in the current game session.
+   *
+   * <p>These are the authored instances with the runtime changes made through {@link
+   * feature.prefabs.PrefabRuntime} applied: removed instances are missing, updated ones have their
+   * new data and instances spawned at runtime are appended.
+   *
+   * @return ordered, unmodifiable active prefab instances
+   */
+  default List<PrefabInstance> activePrefabs() {
+    return Collections.unmodifiableList(prefabs());
+  }
+
+  /**
+   * Returns ordered, per-authored-instance views of the requested prefab subtype.
+   *
+   * <p>Unlike {@link #prefabs()}, these views are not the mutable serialized data. Each lookup
+   * constructs a distinct bound view through the explicit factory registered for its prefab type.
+   * Bound views resolve current properties by level/name/type; their live entity accessors are
+   * empty before spawn and when the prefab is inactive on the current runtime side. Only instances
+   * active in the current game session are returned, see {@link #activePrefabs()}.
+   *
+   * @param prefabClass requested prefab definition/view subtype
+   * @param <P> prefab subtype
+   * @return views in active level order
+   */
+  default <P extends Prefab> List<P> prefabs(Class<P> prefabClass) {
+    return activePrefabs().stream()
+        .filter(instance -> prefabClass.isInstance(PrefabRegistry.require(instance.type())))
+        .map(instance -> prefabClass.cast(PrefabRegistry.createView(this, instance)))
+        .toList();
+  }
+
+  /**
+   * Returns a view of the active prefab instance with the given name and type.
+   *
+   * @param prefabClass requested prefab definition/view subtype
+   * @param name instance name
+   * @param <P> prefab subtype
+   * @return the bound view, or empty if no active instance of this type has the name
+   */
+  default <P extends Prefab> Optional<P> prefab(Class<P> prefabClass, String name) {
+    return prefabs(prefabClass).stream().filter(view -> view.name().equals(name)).findFirst();
+  }
 }

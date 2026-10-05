@@ -46,6 +46,7 @@ import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
+import engine.network.messages.s2c.PrefabChangeMessage;
 import engine.network.messages.s2c.QuestLogStateMessage;
 import engine.network.messages.s2c.ShaderTargetStateMessage;
 import engine.network.messages.s2c.SnapshotMessage;
@@ -82,6 +83,9 @@ import feature.hud.PauseMenuHudSystem;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
+import feature.prefabs.PrefabRuntime;
+import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
 import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogUtil;
 import feature.shader.ShaderSyncSystem;
@@ -126,15 +130,11 @@ public final class GameLoop extends ScreenAdapter {
   private static com.badlogic.gdx.Game application;
 
   /**
-   * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
-   * storage.
+   * Initializes the runtime entities and shaders for the newly loaded level.
    *
-   * <p>Will remove all Systems using {@link ECSManagement#removeAllSystems()} from the Game. This
-   * will trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
-   * using {@link ECSManagement#add(System)}, triggering {@link System#onEntityAdd} for the new
-   * level.
-   *
-   * <p>Will re-add the player if they exist.
+   * <p>On the server, removes the old level entities and re-adds the players at the level start. On
+   * clients, removes local entities while preserving server-owned entities for network
+   * reconciliation, then spawns the new client-side prefabs.
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
@@ -159,11 +159,17 @@ public final class GameLoop extends ScreenAdapter {
 
         List<Entity> allPlayers = serverAuthority ? ECSManagement.allPlayers().toList() : List.of();
         if (serverAuthority) {
+          PrefabSpawner.clear(PrefabSide.SERVER);
           allPlayers.forEach(ECSManagement::remove);
+          if (Game.isSingleplayer()) {
+            PrefabSpawner.clear(PrefabSide.CLIENT);
+          }
         }
 
         if (!serverAuthority) { // no authority
+          PrefabSpawner.clear(PrefabSide.CLIENT);
           Game.entities().filter(Entity::isLocal).toList().forEach(Game::remove);
+          Game.currentLevel().ifPresent(level -> PrefabSpawner.spawn(level, PrefabSide.CLIENT));
           return;
         }
 
@@ -180,10 +186,15 @@ public final class GameLoop extends ScreenAdapter {
 
         Game.currentLevel()
             .ifPresent(
-                level ->
-                    level
-                        .decorations()
-                        .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
+                level -> {
+                  PrefabSpawner.spawn(level, PrefabSide.SERVER);
+                  level
+                      .decorations()
+                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+                  if (Game.isSingleplayer()) {
+                    PrefabSpawner.spawn(level, PrefabSide.CLIENT);
+                  }
+                });
 
         PreRunConfiguration.userOnLevelLoad().accept(true);
       };
@@ -780,6 +791,21 @@ public final class GameLoop extends ScreenAdapter {
                 false);
           } catch (Exception e) {
             LOGGER.warn("Error while applying delta snapshot message: {}", e.getMessage(), e);
+          }
+        });
+
+    dispatcher.registerHandler(
+        PrefabChangeMessage.class,
+        (ctx, msg) -> {
+          try {
+            PrefabRuntime.apply(msg);
+          } catch (RuntimeException e) {
+            LOGGER.error(
+                "Failed to apply {} of prefab '{}': {}",
+                msg.action(),
+                msg.name(),
+                e.getMessage(),
+                e);
           }
         });
 

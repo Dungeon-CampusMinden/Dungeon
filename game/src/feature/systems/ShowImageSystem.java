@@ -22,7 +22,12 @@ public class ShowImageSystem extends System {
    * and PositionComponent.
    */
   public ShowImageSystem() {
-    super(ShowImageComponent.class, DrawComponent.class, PositionComponent.class);
+    super(
+        AuthoritativeSide.BOTH,
+        ShowImageComponent.class,
+        DrawComponent.class,
+        PositionComponent.class);
+    onEntityRemove = this::removeOverlay;
   }
 
   @Override
@@ -42,7 +47,10 @@ public class ShowImageSystem extends System {
 
     if (overlay == null && d.sic.isUIOpen()) {
       // Dialog is closed but should be open
-      Entity newOverlay = new Entity("show-image-overlay");
+      Entity newOverlay =
+          d.e.isLocal()
+              ? Entity.createLocalEntity("show-image-overlay")
+              : new Entity("show-image-overlay");
       DialogContext context =
           DialogContext.builder()
               .type(DialogType.DefaultTypes.IMAGE)
@@ -75,6 +83,17 @@ public class ShowImageSystem extends System {
         e.fetch(ShowImageComponent.class).orElseThrow(),
         e.fetch(DrawComponent.class).orElseThrow(),
         e.fetch(PositionComponent.class).orElseThrow());
+  }
+
+  private void removeOverlay(Entity entity) {
+    entity
+        .fetch(ShowImageComponent.class)
+        .map(ShowImageComponent::overlay)
+        .filter(
+            overlay ->
+                Game.findEntityById(overlay.id()).filter(current -> current == overlay).isPresent())
+        .ifPresent(Game::remove);
+    entity.fetch(ShowImageComponent.class).ifPresent(component -> component.overlay(null));
   }
 
   private record SIData(Entity e, ShowImageComponent sic, DrawComponent dc, PositionComponent pc) {}

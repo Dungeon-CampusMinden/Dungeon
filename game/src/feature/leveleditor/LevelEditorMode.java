@@ -115,6 +115,29 @@ public abstract class LevelEditorMode {
   }
 
   /**
+   * Builds the optional secondary details panel shown on the right side of the editor.
+   *
+   * @param content panel content table
+   */
+  public void buildSecondaryDetailsUI(Table content) {
+    // Default: no secondary content
+  }
+
+  /** Refreshes the optional secondary details panel. */
+  public void updateSecondaryDetailsUI() {
+    // Default: nothing to refresh
+  }
+
+  /**
+   * Returns whether the secondary details panel should be visible.
+   *
+   * @return whether this mode has secondary content
+   */
+  public boolean hasSecondaryDetailsUI() {
+    return false;
+  }
+
+  /**
    * Gets additional information this mode wants to display to the user in the details panel.
    *
    * <p>Called every frame, so the returned text may be dynamic. If the returned text is {@code
@@ -233,6 +256,36 @@ public abstract class LevelEditorMode {
 
     SnapMode nextMode() {
       return values()[(this.ordinal() + 1) % values().length];
+    }
+
+    boolean isMorePreciseThan(SnapMode other) {
+      return precision() > other.precision();
+    }
+
+    /**
+     * Returns whether an offset lies on this mode's snap grid.
+     *
+     * @param offset offset to check
+     * @return true if snapping a position shifted by the offset keeps the offset intact
+     */
+    boolean isAligned(Point offset) {
+      if (this == OffGrid) return true;
+      int precision = precision();
+      return isAligned(offset.x(), precision) && isAligned(offset.y(), precision);
+    }
+
+    private static boolean isAligned(float value, int divisions) {
+      float scaled = value * divisions;
+      return Math.abs(scaled - Math.round(scaled)) < 0.0001f;
+    }
+
+    private int precision() {
+      return switch (this) {
+        case OnGrid, CheckerGridEven, CheckerGridOdd -> 1;
+        case QuarterGrid -> 4;
+        case PixelGrid -> 16;
+        case OffGrid -> Integer.MAX_VALUE;
+      };
     }
 
     Point getPosition(Point position) {

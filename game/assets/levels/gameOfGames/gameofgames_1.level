@@ -1,19 +1,599 @@
-Version: 2
-DEFAULT
-10.0,7.0
-bookshelf:10.0,11.0
-
-WWWWWWWWWWWWWWWWWWWW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFFFW
-WWWWWWWWWWWWWWWWWWWW
+{
+  "version" : 3,
+  "design" : "DEFAULT",
+  "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSSSSSSSSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
+  "startTiles" : [ {
+    "x" : 15.0,
+    "y" : 7.0
+  } ],
+  "namedPoints" : {
+    "bookshelf" : {
+      "x" : 15.0,
+      "y" : 11.0
+    }
+  },
+  "decorations" : [ ],
+  "prefabs" : [ {
+    "name" : "r1/keypad-1",
+    "type" : "door-keypad",
+    "properties" : {
+      "keypadPosition" : {
+        "x" : 18.0,
+        "y" : 13.0
+      },
+      "doorPosition" : {
+        "x" : 7.0,
+        "y" : 10.0
+      },
+      "code" : "1234",
+      "showDigitCount" : true
+    }
+  }, {
+    "name" : "r1/keypad-2",
+    "type" : "door-keypad",
+    "properties" : {
+      "keypadPosition" : {
+        "x" : 11.0,
+        "y" : 13.0
+      },
+      "doorPosition" : {
+        "x" : 7.0,
+        "y" : 10.0
+      },
+      "code" : "123",
+      "showDigitCount" : true
+    }
+  }, {
+    "name" : "r1/torch",
+    "type" : "torch",
+    "properties" : {
+      "position" : {
+        "x" : 11.0,
+        "y" : 8.0
+      },
+      "on" : true,
+      "toggleable" : "Toggleable"
+    }
+  }, {
+    "name" : "r1/dl-forest",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 9.0,
+          "y" : 3.0
+        },
+        "topRight" : {
+          "x" : 23.0,
+          "y" : 5.0
+        }
+      },
+      "designLabel" : "FOREST"
+    }
+  }, {
+    "name" : "r1/dialog-trigger",
+    "type" : "dialog-trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 24.0,
+          "y" : 6.0
+        },
+        "topRight" : {
+          "x" : 25.0,
+          "y" : 8.0
+        }
+      },
+      "text" : "Hello.",
+      "translate" : false,
+      "repetition" : "Once globally"
+    }
+  }, {
+    "name" : "r1/dl-fire",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 16.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 22.0,
+          "y" : 6.0
+        }
+      },
+      "designLabel" : "FIRE"
+    }
+  }, {
+    "name" : "r1/bookshelf-image",
+    "type" : "bookshelf-image",
+    "properties" : {
+      "position" : {
+        "x" : 17.0,
+        "y" : 8.0
+      },
+      "image" : "images/binary_hex.jpg"
+    }
+  }, {
+    "name" : "r1/deco-dialog",
+    "type" : "deco-dialog",
+    "properties" : {
+      "position" : {
+        "x" : 13.0,
+        "y" : 8.0
+      },
+      "deco" : "BookshelfLarge",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      },
+      "text" : "Hello.",
+      "translate" : false,
+      "repetition" : "Once globally"
+    }
+  }, {
+    "name" : "r1/deco-image",
+    "type" : "deco-image",
+    "properties" : {
+      "position" : {
+        "x" : 10.0,
+        "y" : 6.0
+      },
+      "deco" : "Printer1",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      },
+      "image" : "images/binary_hex.jpg"
+    }
+  }, {
+    "name" : "r1/door-lever-1",
+    "type" : "door-lever",
+    "properties" : {
+      "leverPosition" : {
+        "x" : 18.0,
+        "y" : 11.0
+      },
+      "doorPosition" : {
+        "x" : 22.0,
+        "y" : 10.0
+      },
+      "open" : false,
+      "revertable" : true
+    }
+  }, {
+    "name" : "r1/door-lever-2",
+    "type" : "door-lever",
+    "properties" : {
+      "leverPosition" : {
+        "x" : 11.0,
+        "y" : 10.0
+      },
+      "doorPosition" : {
+        "x" : 7.0,
+        "y" : 10.0
+      },
+      "open" : false,
+      "revertable" : true
+    }
+  }, {
+    "name" : "r1/highlight-1",
+    "type" : "shader",
+    "properties" : {
+      "isRegion" : true,
+      "isLevel" : false,
+      "region" : {
+        "bottomLeft" : {
+          "x" : 12.75,
+          "y" : 7.75
+        },
+        "topRight" : {
+          "x" : 15.25,
+          "y" : 9.75
+        }
+      },
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : -1.0,
+          "saturationMultiplier" : 0.0,
+          "valueMultiplier" : 1.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
+    }
+  }, {
+    "name" : "r1/highlight-2",
+    "type" : "shader",
+    "properties" : {
+      "isRegion" : true,
+      "isLevel" : false,
+      "region" : {
+        "bottomLeft" : {
+          "x" : 16.75,
+          "y" : 7.75
+        },
+        "topRight" : {
+          "x" : 19.25,
+          "y" : 9.75
+        }
+      },
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : -1.0,
+          "saturationMultiplier" : 1.0,
+          "valueMultiplier" : 2.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
+    }
+  }, {
+    "name" : "r1/highlight-3",
+    "type" : "shader",
+    "properties" : {
+      "isRegion" : true,
+      "isLevel" : true,
+      "region" : {
+        "bottomLeft" : {
+          "x" : 19.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 22.0,
+          "y" : 6.0
+        }
+      },
+      "shader" : {
+        "shader" : "hue-remap",
+        "parameters" : {
+          "startingHue" : 0.0,
+          "targetHue" : 0.29,
+          "tolerance" : 0.049999997
+        }
+      }
+    }
+  }, {
+    "name" : "r2/stone-3",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 30.0,
+        "y" : 8.0
+      }
+    }
+  }, {
+    "name" : "r2/stone-1",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 26.0,
+        "y" : 3.0
+      }
+    }
+  }, {
+    "name" : "r2/stone-2",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 28.0,
+        "y" : 7.0
+      }
+    }
+  }, {
+    "name" : "r2/pressure-plate",
+    "type" : "pressure-plate",
+    "properties" : {
+      "position" : {
+        "x" : 25.0,
+        "y" : 9.0
+      },
+      "doorPosition" : {
+        "x" : 22.0,
+        "y" : 10.0
+      }
+    }
+  }, {
+    "name" : "r2/shader-green",
+    "type" : "shader",
+    "properties" : {
+      "isRegion" : true,
+      "isLevel" : false,
+      "region" : {
+        "bottomLeft" : {
+          "x" : 24.75,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 32.25,
+          "y" : 10.6875
+        }
+      },
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : 0.32999998,
+          "saturationMultiplier" : 2.4,
+          "valueMultiplier" : 1.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
+    }
+  }, {
+    "name" : "r3/water-1",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 24.0,
+          "y" : 14.0
+        },
+        "topRight" : {
+          "x" : 26.0,
+          "y" : 17.0
+        }
+      },
+      "color" : "4488FF88",
+      "speed" : 0.32999998,
+      "layer" : -50,
+      "repeat" : 8.0,
+      "foamMinWidth" : 1,
+      "foamMaxWidth" : 3,
+      "lineInterval" : 4.0
+    }
+  }, {
+    "name" : "r3/water-2",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 23.0,
+          "y" : 15.0
+        },
+        "topRight" : {
+          "x" : 27.0,
+          "y" : 16.0
+        }
+      },
+      "color" : "1A66B3FF",
+      "speed" : 0.32999998,
+      "layer" : -50,
+      "repeat" : 3.0,
+      "foamMinWidth" : 2,
+      "foamMaxWidth" : 4,
+      "lineInterval" : 4.0
+    }
+  }, {
+    "name" : "r3/dl-oasis-1",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 22.0,
+          "y" : 12.0
+        },
+        "topRight" : {
+          "x" : 28.0,
+          "y" : 18.0
+        }
+      },
+      "designLabel" : "TEMPLE"
+    }
+  }, {
+    "name" : "r3/dl-oasis-2",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 24.0,
+          "y" : 15.0
+        },
+        "topRight" : {
+          "x" : 26.0,
+          "y" : 16.0
+        }
+      },
+      "designLabel" : "FIRE"
+    }
+  }, {
+    "name" : "r3/shader",
+    "type" : "shader",
+    "properties" : {
+      "isRegion" : true,
+      "isLevel" : true,
+      "region" : {
+        "bottomLeft" : {
+          "x" : 22.0,
+          "y" : 12.0
+        },
+        "topRight" : {
+          "x" : 28.0,
+          "y" : 18.0
+        }
+      },
+      "shader" : {
+        "shader" : "color-grade",
+        "parameters" : {
+          "hue" : 0.53,
+          "saturationMultiplier" : 1.0,
+          "valueMultiplier" : 1.0,
+          "transitionSize" : 0.0,
+          "invert" : false
+        }
+      }
+    }
+  }, {
+    "name" : "outside/dl-forest",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : 0.0
+        },
+        "topRight" : {
+          "x" : 5.0,
+          "y" : 16.0
+        }
+      },
+      "designLabel" : "FOREST"
+    }
+  }, {
+    "name" : "outside/lava-1",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : -25.0,
+          "y" : -12.0
+        },
+        "topRight" : {
+          "x" : 2.0,
+          "y" : 39.25
+        }
+      },
+      "color" : "FF4001FF",
+      "speed" : 0.17999999,
+      "layer" : -120,
+      "repeat" : 5.0,
+      "foamMinWidth" : 0,
+      "foamMaxWidth" : 0,
+      "lineInterval" : 0.0
+    }
+  }, {
+    "name" : "outside/lava-2",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : 16.0
+        },
+        "topRight" : {
+          "x" : 5.0,
+          "y" : 35.0
+        }
+      },
+      "color" : "A01021FF",
+      "speed" : 0.35999998,
+      "layer" : -120,
+      "repeat" : 5.0,
+      "foamMinWidth" : 3,
+      "foamMaxWidth" : 8,
+      "lineInterval" : 1.5
+    }
+  }, {
+    "name" : "outside/lava-3",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : -12.0
+        },
+        "topRight" : {
+          "x" : 5.0,
+          "y" : 1.0
+        }
+      },
+      "color" : "A01021FF",
+      "speed" : 0.35999998,
+      "layer" : -120,
+      "repeat" : 5.0,
+      "foamMinWidth" : 3,
+      "foamMaxWidth" : 8,
+      "lineInterval" : 1.5
+    }
+  }, {
+    "name" : "outside/lava-4",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 4.0,
+          "y" : 2.0
+        }
+      },
+      "color" : "A01021FF",
+      "speed" : 0.35999998,
+      "layer" : -120,
+      "repeat" : 5.0,
+      "foamMinWidth" : 3,
+      "foamMaxWidth" : 8,
+      "lineInterval" : 1.5
+    }
+  }, {
+    "name" : "outside/lava-5",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 3.0,
+          "y" : 3.0
+        }
+      },
+      "color" : "A01021FF",
+      "speed" : 0.35999998,
+      "layer" : -120,
+      "repeat" : 5.0,
+      "foamMinWidth" : 3,
+      "foamMaxWidth" : 8,
+      "lineInterval" : 1.5
+    }
+  }, {
+    "name" : "outside/lava-6",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : 14.0
+        },
+        "topRight" : {
+          "x" : 3.0,
+          "y" : 16.0
+        }
+      },
+      "color" : "A01021FF",
+      "speed" : 0.35999998,
+      "layer" : -120,
+      "repeat" : 5.0,
+      "foamMinWidth" : 3,
+      "foamMaxWidth" : 8,
+      "lineInterval" : 1.5
+    }
+  }, {
+    "name" : "outside/lava-7",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 2.0,
+          "y" : 15.0
+        },
+        "topRight" : {
+          "x" : 4.0,
+          "y" : 16.0
+        }
+      },
+      "color" : "A01021FF",
+      "speed" : 0.35999998,
+      "layer" : -120,
+      "repeat" : 5.0,
+      "foamMinWidth" : 3,
+      "foamMaxWidth" : 8,
+      "lineInterval" : 1.5
+    }
+  } ]
+}

@@ -11,8 +11,8 @@ import engine.level.utils.TileTextureFactory;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import feature.leveleditor.ui.IntegerSetting;
 import feature.leveleditor.ui.LevelElementGrid;
-import feature.leveleditor.ui.NumberSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
@@ -47,7 +47,7 @@ public class TilesMode extends LevelEditorMode {
           LevelElement.GITTER, "dungeon/default/portal/gutter/gutter_horizontal.png");
 
   private LevelElementGrid grid = null;
-  private NumberSetting brushSizeSetting = null;
+  private IntegerSetting brushSizeSetting = null;
   private SelectSetting<DesignLabel> designSetting = null;
   private DesignLabel previewDesign = null;
   private boolean mouseLevelChangePending = false;
@@ -114,9 +114,10 @@ public class TilesMode extends LevelEditorMode {
             DesignLabel.values(),
             this::designLabel,
             this::designLabel,
-            DesignLabel::name);
+            DesignLabel::name,
+            true);
     brushSizeSetting =
-        new NumberSetting(
+        new IntegerSetting(
             "Brush Size", 1, MAX_BRUSH_SIZE, () -> brushSize, size -> brushSize = size);
 
     content.add(designSetting).growX().padBottom(10f).row();

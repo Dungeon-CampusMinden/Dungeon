@@ -104,6 +104,14 @@ public class DialogContextKeys {
   /** The image path substituted for {@code {path}} in a translated dialog script. */
   public static final String SPEAKER_IMAGE = "speakerImage";
 
+  /**
+   * The key for whether the {@link #DIALOG} script is a translation key (Boolean).
+   *
+   * <p>If true, the displaying client resolves the script through {@link
+   * engine.language.Localization#text(String)} in its current language.
+   */
+  public static final String DIALOG_IS_TRANSLATION_KEY = "dialogIsTranslationKey";
+
   /** The key for the puzzle complete callback */
   public static final String ON_COMPLETE = "onComplete";
 

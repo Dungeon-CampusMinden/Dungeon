@@ -6,7 +6,7 @@ precision mediump float;
 
 // ----- From vertex shader -----
 varying vec2 uv;
-//varying vec2 worldPos; //Comment out if not needed for performance
+varying vec2 worldPos;
 
 // ----- From LibGDX -----
 uniform sampler2D u_texture;
@@ -22,6 +22,8 @@ uniform vec2 u_aspect;
 uniform float u_startingHue;
 uniform float u_targetHue;
 uniform float u_tolerance;
+uniform vec4 u_worldRegion; // x,y = bottom-left corner, z,w = size
+uniform bool u_hasRegion; // false = apply everywhere
 
 // ----- Custom functions -----
 float hueDistance(float a, float b) {
@@ -32,6 +34,14 @@ float hueDistance(float a, float b) {
 // ----- Main -----
 void main() {
     vec4 tex = unPma(texture2D(u_texture, uv));
+    if (u_hasRegion) {
+        vec2 halfSize = u_worldRegion.zw * 0.5;
+        if (sdBox(worldPos - (u_worldRegion.xy + halfSize), halfSize) > 0.0) {
+            gl_FragColor = pma(tex);
+            return;
+        }
+    }
+
     vec3 hsv = rgb2hsv(tex.rgb);
 
     // Optional hue remap

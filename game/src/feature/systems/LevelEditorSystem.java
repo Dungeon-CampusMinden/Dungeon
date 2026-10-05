@@ -17,6 +17,7 @@ import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
+import engine.level.elements.ILevel;
 import engine.level.loader.DungeonLoader;
 import engine.level.loader.DungeonSaver;
 import engine.systems.CameraSystem;
@@ -33,10 +34,13 @@ import feature.leveleditor.DecoMode;
 import feature.leveleditor.LevelEditorMode;
 import feature.leveleditor.LevelEditorSettings;
 import feature.leveleditor.PointMode;
+import feature.leveleditor.PrefabMode;
 import feature.leveleditor.SettingsMode;
 import feature.leveleditor.StartTilesMode;
 import feature.leveleditor.TilesMode;
 import feature.leveleditor.ui.LevelEditorUI;
+import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
 import java.io.File;
 import java.util.Objects;
 
@@ -75,6 +79,7 @@ public class LevelEditorSystem extends System {
   private static final int MODE_3 = Input.Keys.NUM_3;
   private static final int MODE_4 = Input.Keys.NUM_4;
   private static final int MODE_5 = Input.Keys.NUM_5;
+  private static final int MODE_6 = Input.Keys.NUM_6;
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
@@ -302,7 +307,22 @@ public class LevelEditorSystem extends System {
 
   /** Saves the current level when auto-save is enabled. */
   public static void levelChanged() {
-    if (autoSave) saveLevel();
+    if (autoSave) DungeonSaver.saveCurrentDungeon(pathToLevels, false);
+  }
+
+  /**
+   * Refreshes the runtime prefab entities for the given level from its authored instances.
+   *
+   * @param level level whose prefab entities should be refreshed
+   */
+  public static void refreshPrefabs(ILevel level) {
+    PrefabSide[] sides = PrefabSide.localSides();
+
+    PrefabSpawner.batch(
+        () -> {
+          for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
+          for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
+        });
   }
 
   /**
@@ -322,6 +342,7 @@ public class LevelEditorSystem extends System {
     if (ui != null) {
       ui.modePanel().selected(mode);
       ui.detailsPanel().mode(currentModeInstance);
+      ui.secondaryDetailsPanel().mode(currentModeInstance);
     }
   }
 
@@ -346,6 +367,7 @@ public class LevelEditorSystem extends System {
                 ui.setSize(stage.getWidth(), stage.getHeight());
                 stage.addActor(ui);
                 ui.detailsPanel().mode(currentModeInstance);
+                ui.secondaryDetailsPanel().mode(currentModeInstance);
               });
     }
     if (ui != null) {
@@ -439,6 +461,8 @@ public class LevelEditorSystem extends System {
       currentMode(Mode.getMode(3));
     } else if (InputManager.isKeyPressed(MODE_5)) {
       currentMode(Mode.getMode(4));
+    } else if (InputManager.isKeyPressed(MODE_6)) {
+      currentMode(Mode.getMode(5));
     }
 
     if (!internalStopped || previousMode != currentMode) {
@@ -582,6 +606,8 @@ public class LevelEditorSystem extends System {
     Decos,
     /** Mode to place and remove named points. */
     Points,
+    /** Mode to author registered prefab instances. */
+    Prefabs,
     /** Mode to define the start (spawn) tiles. */
     StartTiles,
     /** Mode to resize, shift, and save the current level. */
@@ -611,6 +637,7 @@ public class LevelEditorSystem extends System {
         case Tiles -> new TilesMode(onLevelChanged);
         case Decos -> new DecoMode(onLevelChanged);
         case Points -> new PointMode(onLevelChanged);
+        case Prefabs -> new PrefabMode(onLevelChanged);
         case StartTiles -> new StartTilesMode(onLevelChanged);
         case Settings -> new SettingsMode(onLevelChanged);
       };

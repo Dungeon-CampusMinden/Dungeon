@@ -29,6 +29,7 @@ public class ShowImageUI extends Group {
 
   private Image background;
   private String currentImagePath = null;
+  private String currentSourcePath = null;
   private float animation;
 
   /**
@@ -48,7 +49,8 @@ public class ShowImageUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    currentImagePath = Game.localization().asset(component.imagePath());
+    currentSourcePath = component.imagePath();
+    currentImagePath = Game.localization().asset(currentSourcePath);
     background = new Image(TextureMap.instance().textureAt(new SimpleIPath(currentImagePath)));
     background.setOrigin(Align.center);
     this.addActor(background);
@@ -90,8 +92,10 @@ public class ShowImageUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    if (!currentImagePath.equals(component.imagePath())) {
-      currentImagePath = Game.localization().asset(component.imagePath());
+    // Compare the unlocalized path, since the shown path may be a localized variant of it.
+    if (!currentSourcePath.equals(component.imagePath())) {
+      currentSourcePath = component.imagePath();
+      currentImagePath = Game.localization().asset(currentSourcePath);
       background.setDrawable(
           new TextureRegionDrawable(
               TextureMap.instance().textureAt(new SimpleIPath(currentImagePath))));

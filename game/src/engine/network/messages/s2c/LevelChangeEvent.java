@@ -22,6 +22,10 @@ public record LevelChangeEvent(String levelName, String levelData) implements Ne
   /**
    * Creates a LevelChangeEvent for the current level in the game.
    *
+   * <p>The level data contains the prefab instances that are active in the current game session,
+   * including runtime changes made through {@link feature.prefabs.PrefabRuntime}, so clients
+   * joining late see the same prefabs as everyone else.
+   *
    * @return A LevelChangeEvent containing the current level's name and data.
    * @throws IllegalStateException if there is no current level or if the current level is not a
    *     DungeonLevel.
@@ -36,7 +40,7 @@ public record LevelChangeEvent(String levelName, String levelData) implements Ne
             .orElseThrow(() -> new IllegalStateException("No current level to serialize."));
 
     if (currentLevel instanceof DungeonLevel dungeonLevel) {
-      return LevelParser.serializeLevel(dungeonLevel);
+      return LevelParser.serializeActiveLevel(dungeonLevel);
     }
 
     throw new IllegalStateException("Current level is not a DungeonLevel.");

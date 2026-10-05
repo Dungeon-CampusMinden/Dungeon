@@ -43,7 +43,26 @@ public class KeypadFactory {
    */
   public static Entity createKeypad(
       Point pos, List<Integer> correctDigits, Runnable action, boolean showDigitCount) {
-    Entity entity = createBaseKeypad(pos);
+    return createKeypad(new Entity("keypad"), pos, correctDigits, action, showDigitCount);
+  }
+
+  /**
+   * Configures a supplied entity as a keypad.
+   *
+   * @param entity entity to configure
+   * @param pos position where the keypad is created
+   * @param correctDigits correct digits that trigger the action
+   * @param action action executed for a correct code
+   * @param showDigitCount whether the required digit count is shown
+   * @return the supplied configured entity
+   */
+  public static Entity createKeypad(
+      Entity entity,
+      Point pos,
+      List<Integer> correctDigits,
+      Runnable action,
+      boolean showDigitCount) {
+    setupBaseKeypad(entity, pos);
     entity.add(new CollideComponent());
 
     KeypadComponent kc = new KeypadComponent(correctDigits, action, showDigitCount);
@@ -82,7 +101,8 @@ public class KeypadFactory {
    * @return The created keypad entity.
    */
   public static Entity createTextKeypad(Point pos, List<String> correctTexts, Runnable action) {
-    Entity entity = createBaseKeypad(pos);
+    Entity entity = new Entity("keypad");
+    setupBaseKeypad(entity, pos);
     boolean valid = correctTexts.stream().allMatch(s -> s != null && s.matches("[A-Za-z ]+"));
     if (!valid) {
       throw new TextKeyPadException(
@@ -117,9 +137,7 @@ public class KeypadFactory {
     return entity;
   }
 
-  private static Entity createBaseKeypad(Point pos) {
-    Entity entity = new Entity("keypad");
-
+  private static void setupBaseKeypad(Entity entity, Point pos) {
     entity.add(new PositionComponent(pos));
 
     State stClosed = new State("closed", TEXTURE_OFF);
@@ -129,6 +147,5 @@ public class KeypadFactory {
     sm.addTransition(stOpen, "close", stClosed);
     DrawComponent dc = new DrawComponent(sm);
     entity.add(dc);
-    return entity;
   }
 }

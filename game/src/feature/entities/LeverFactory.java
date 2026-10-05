@@ -48,36 +48,94 @@ public class LeverFactory {
    * @see feature.systems.LeverSystem LeverSystem
    */
   public static Entity createLever(Point pos, ICommand onInteract, IPath texturePath) {
-    Entity lever = new Entity("lever");
+    return createLever(new Entity("lever"), pos, onInteract, texturePath);
+  }
+
+  /**
+   * Configures a supplied entity as a lever.
+   *
+   * <p>This overload is useful for callers that need to control entity identity or locality while
+   * retaining the standard lever interaction and rendering behavior.
+   *
+   * @param lever the entity to configure
+   * @param pos the position where the lever will be created
+   * @param onInteract the behavior when the lever is interacted with
+   * @param texturePath defines the texture(s) to use for the lever
+   * @return the configured lever entity
+   */
+  public static Entity createLever(
+      Entity lever, Point pos, ICommand onInteract, IPath texturePath) {
+    return createLever(lever, pos, onInteract, texturePath, false, true, false);
+  }
+
+  /**
+   * Configures a supplied entity as a lever with the default lever design.
+   *
+   * @param lever the entity to configure
+   * @param pos the position where the lever will be created
+   * @param onInteract the behavior when the lever is interacted with
+   * @param toggleOnce whether the lever stops being interactable after its first toggle
+   * @return the configured lever entity
+   */
+  public static Entity createLever(
+      Entity lever, Point pos, ICommand onInteract, boolean toggleOnce) {
+    return createLever(lever, pos, onInteract, LEVER_PATH, false, true, toggleOnce);
+  }
+
+  private static Entity createLever(
+      Entity lever,
+      Point pos,
+      ICommand onInteract,
+      IPath texturePath,
+      boolean initiallyOn,
+      boolean toggleable,
+      boolean toggleOnce) {
     lever.add(new PositionComponent(pos));
 
     Map<String, Animation> map = Animation.loadAnimationSpritesheet(texturePath);
     State stOff = State.fromMap(map, "off");
     State stOn = State.fromMap(map, "on");
-    StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
+    StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn), initiallyOn ? stOn : stOff);
     sm.addTransition(stOff, "on", stOn);
     sm.addTransition(stOn, "off", stOff);
     DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.Player.depth());
     lever.add(dc);
 
-    lever.add(new LeverComponent(false, onInteract));
-    lever.add(
-        new InteractionComponent(
-            new Interaction(
-                (entity, who) -> {
-                  LeverComponent lc =
-                      entity
-                          .fetch(LeverComponent.class)
-                          .orElseThrow(
-                              () -> MissingComponentException.build(entity, LeverComponent.class));
-                  lc.toggle();
-                  entity
-                      .fetch(DrawComponent.class)
-                      .ifPresent(
-                          drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
-                },
-                DEFAULT_INTERACTION_RADIUS)));
+    lever.add(new LeverComponent(initiallyOn, onInteract));
+    if (toggleable) {
+      lever.add(
+          new InteractionComponent(
+              new Interaction(
+                  (entity, who) -> {
+                    LeverComponent lc =
+                        entity
+                            .fetch(LeverComponent.class)
+                            .orElseThrow(
+                                () ->
+                                    MissingComponentException.build(entity, LeverComponent.class));
+                    lc.toggle();
+                    entity
+                        .fetch(DrawComponent.class)
+                        .ifPresent(
+                            drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
+                    if (toggleOnce) entity.remove(InteractionComponent.class);
+                  },
+                  DEFAULT_INTERACTION_RADIUS)));
+    }
     return lever;
+  }
+
+  /**
+   * Configures a supplied entity as a lever with the default lever design.
+   *
+   * @param lever the entity to configure
+   * @param pos the position where the lever will be created
+   * @param onInteract the behavior when the lever is interacted with
+   * @return the configured lever entity
+   */
+  public static Entity createLever(Entity lever, Point pos, ICommand onInteract) {
+    return createLever(lever, pos, onInteract, LEVER_PATH);
   }
 
   /**
@@ -130,6 +188,50 @@ public class LeverFactory {
    */
   public static Entity createTorch(Point pos, ICommand onInteract) {
     return createLever(pos, onInteract, TORCH_PATH);
+  }
+
+  /**
+   * Configures a supplied entity as a torch with an authored initial state.
+   *
+   * @param torch entity to configure
+   * @param pos torch position
+   * @param onInteract command to execute when the torch is toggled
+   * @param initiallyOn whether the torch starts lit
+   * @param toggleable whether the torch can be interacted with
+   * @return the configured torch entity
+   */
+  public static Entity createTorch(
+      Entity torch, Point pos, ICommand onInteract, boolean initiallyOn, boolean toggleable) {
+    return createLever(torch, pos, onInteract, TORCH_PATH, initiallyOn, toggleable, false);
+  }
+
+  /**
+   * Configures a supplied entity as a torch with an authored initial state and no-op command.
+   *
+   * @param torch entity to configure
+   * @param pos torch position
+   * @param initiallyOn whether the torch starts lit
+   * @param toggleable whether the torch can be interacted with
+   * @param toggleOnce whether the torch stops being interactable after its first toggle
+   * @return the configured torch entity
+   */
+  public static Entity createTorch(
+      Entity torch, Point pos, boolean initiallyOn, boolean toggleable, boolean toggleOnce) {
+    return createLever(torch, pos, ICommand.NOOP, TORCH_PATH, initiallyOn, toggleable, toggleOnce);
+  }
+
+  /**
+   * Configures a supplied entity as a torch with an authored initial state and no-op command.
+   *
+   * @param torch entity to configure
+   * @param pos torch position
+   * @param initiallyOn whether the torch starts lit
+   * @param toggleable whether the torch can be interacted with
+   * @return the configured torch entity
+   */
+  public static Entity createTorch(
+      Entity torch, Point pos, boolean initiallyOn, boolean toggleable) {
+    return createTorch(torch, pos, ICommand.NOOP, initiallyOn, toggleable);
   }
 
   /**
@@ -186,7 +288,20 @@ public class LeverFactory {
    * @return the newly created pressure plate entity
    */
   public static Entity pressurePlate(Point position, float massTrigger, ICommand command) {
-    Entity pressurePlate = new Entity("pressureplate");
+    return pressurePlate(new Entity("pressureplate"), position, massTrigger, command);
+  }
+
+  /**
+   * Configures a supplied entity as a pressure plate.
+   *
+   * @param pressurePlate entity to configure
+   * @param position pressure plate position
+   * @param massTrigger mass threshold at which the plate becomes triggered
+   * @param command command to execute when the plate is triggered or released
+   * @return the configured pressure plate entity
+   */
+  public static Entity pressurePlate(
+      Entity pressurePlate, Point position, float massTrigger, ICommand command) {
     pressurePlate.add(new PositionComponent(position));
 
     Map<String, Animation> map =
