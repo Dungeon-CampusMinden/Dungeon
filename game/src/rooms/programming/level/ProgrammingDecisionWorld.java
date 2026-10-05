@@ -171,8 +171,11 @@ final class ProgrammingDecisionWorld {
     for (int i = 0; i < 6; i++) {
       int n = i;
       float y = junction(i).y();
-      torch("gallery-" + i, new Point(i % 2 == 0 ? 18.5f : 53.5f, y + 2));
-      torch("gallery-source-" + i, new Point(i % 2 == 0 ? 53.5f : 18.5f, y + (i == 5 ? 2 : 8)));
+      torch(level, "gallery-" + i, new Point(i % 2 == 0 ? 18.5f : 53.5f, y + 2));
+      torch(
+          level,
+          "gallery-source-" + i,
+          new Point(i % 2 == 0 ? 53.5f : 18.5f, y + (i == 5 ? 2 : 8)));
       // Workbenches repeat the archive's furniture; each source has its own tools and vessels.
       if (i == 0 || i == 3 || i == 5) bench("source-bench-" + i, new Point(32, y + 8));
       else plinth("source-base-" + i, new Point(32, y + 8), 1.6f);
@@ -264,18 +267,13 @@ final class ProgrammingDecisionWorld {
           .8f,
           .8f,
           false);
-    Entity fire = torch("heart", new Point(40, 119.5f));
-    fire.fetch(PositionComponent.class).orElseThrow().scale(2);
+    ProgrammingProps.spawnTorch(level, "decisions-heart", new Point(40, 119.5f), 2);
     return prop(
         "heart-inscription", new Point(40.6f, 118), "items/rpg/item_scroll.png", .8f, .8f, false);
   }
 
-  private static Entity torch(String name, Point at) {
-    Entity torch = prop("torch-" + name, at, "objects/torch", 1, 1, false);
-    torch.name("programming-prop-torch-decisions-" + name);
-    torch.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
-    ProgrammingProps.switchableTorch(torch);
-    return torch;
+  private static void torch(DungeonLevel level, String name, Point at) {
+    ProgrammingProps.spawnTorch(level, "decisions-" + name, at, 1);
   }
 
   private static void bench(String name, Point at) {

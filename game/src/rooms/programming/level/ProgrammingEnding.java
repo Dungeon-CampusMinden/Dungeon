@@ -6,6 +6,7 @@ import engine.components.DrawComponent;
 import engine.tracking.Tracking;
 import engine.utils.Tuple;
 import escaperoom.foundation.ui.BlackFadeCutscene;
+import feature.components.LeverComponent;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
@@ -66,9 +67,13 @@ final class ProgrammingEnding {
         .toList()
         .forEach(Game::remove);
     Game.levelEntities()
-        .filter(entity -> entity.name().equals("programming-prop-torch-decisions-heart"))
-        .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
-        .forEach(draw -> draw.stateMachine().setState("on", null));
+        .filter(entity -> entity.name().equals(ProgrammingProps.HEART_TORCH))
+        .forEach(
+            entity -> {
+              var lever = entity.fetch(LeverComponent.class).orElseThrow();
+              if (!lever.isOn()) lever.toggle();
+              entity.fetch(DrawComponent.class).orElseThrow().sendSignal("on");
+            });
     Game.levelEntities()
         .flatMap(entity -> entity.fetch(UIComponent.class).stream())
         .toList()

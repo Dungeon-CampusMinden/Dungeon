@@ -95,7 +95,7 @@ final class ProgrammingLightingShader extends AbstractShader {
     String name = entity.name();
     return name.equals("programming-variables-golem")
         || name.startsWith("programming-prop-forge-kettle-")
-        || name.startsWith("programming-prop-torch-");
+        || ProgrammingProps.torch(entity);
   }
 
   private static boolean illuminated(Entity entity) {

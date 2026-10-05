@@ -84,7 +84,7 @@ public final class ProgrammingObservation {
   }
 
   private static boolean cellarTorch(Entity entity) {
-    return entity.name().startsWith("programming-prop-torch-cellar-");
+    return entity.name().startsWith(ProgrammingProps.TORCH_PREFIX + "cellar-");
   }
 
   /**

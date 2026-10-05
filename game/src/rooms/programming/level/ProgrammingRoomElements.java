@@ -33,6 +33,7 @@ final class ProgrammingRoomElements {
   private ProgrammingRoomElements() {}
 
   static ProgrammingGolemRuntime spawn(DungeonLevel level) {
+    ProgrammingProps.installTorches(level);
     ProgrammingProps.spawn(level);
     ProgrammingMazeWorld.spawn(level);
     ProgrammingWorkshopWorld.spawn(level);

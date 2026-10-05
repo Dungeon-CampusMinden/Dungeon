@@ -108,10 +108,10 @@ public final class ProgrammingMazeWorld {
     pitDraw.depth(DepthLayer.Ground.depth());
     abyss.add(pitDraw);
     Game.add(abyss);
-    storage(origin);
+    storage(level, origin);
   }
 
-  private static void storage(Point origin) {
+  private static void storage(DungeonLevel level, Point origin) {
     for (var cell :
         java.util.List.of(
             new LoopMaze.Cell(5, 3), new LoopMaze.Cell(1, 3), new LoopMaze.Cell(4, 7))) {
@@ -144,10 +144,7 @@ public final class ProgrammingMazeWorld {
             new LoopMaze.Cell(0, 0), new LoopMaze.Cell(3, 4), new LoopMaze.Cell(0, 7))) {
       // Mount lamps above the route so checkpoint arrows remain unobstructed.
       Point at = LoopMaze.world(origin, cell).translate(.1f, LoopMaze.CELL_HEIGHT - .4f);
-      Entity torch = ProgrammingCellarMachinery.prop("lamp", at, "objects/torch", .8f, .8f);
-      torch.name("programming-prop-torch-cellar-" + cell.x() + "-" + cell.y());
-      torch.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
-      ProgrammingProps.switchableTorch(torch);
+      ProgrammingProps.spawnTorch(level, "cellar-" + cell.x() + "-" + cell.y(), at, .8f);
     }
   }
 

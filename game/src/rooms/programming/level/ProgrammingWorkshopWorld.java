@@ -157,17 +157,8 @@ final class ProgrammingWorkshopWorld {
   static void spawn(DungeonLevel level) {
     for (var station : MethodsRoute.STATIONS) {
       Point at = actionPoint(station.index());
-      Entity lamp =
-          prop(
-              "station-lamp-" + station.index(),
-              lampPosition(station.index()),
-              "objects/torch",
-              1,
-              1,
-              false);
-      lamp.name("programming-prop-torch-workshop-station-" + station.index());
-      lamp.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("on", null);
-      ProgrammingProps.switchableTorch(lamp);
+      ProgrammingProps.spawnTorch(
+          level, "workshop-station-" + station.index(), lampPosition(station.index()), 1);
       switch (station.kind()) {
         case GATE -> gate(station.index());
         case RUNE -> {
