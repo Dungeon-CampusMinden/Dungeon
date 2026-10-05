@@ -11,12 +11,15 @@ public final class AchievementPopupSystem extends System {
 
   private final AchievementPopupQueue queue = new AchievementPopupQueue();
   private Group visibleCard;
-  private Stage visibleStage;
 
   /** Creates the client-side achievement popup system. */
   public AchievementPopupSystem() {
     super(AuthoritativeSide.CLIENT);
   }
+
+  /** Achievement popups keep running while a pausing dialog is open. */
+  @Override
+  public void stop() {}
 
   void enqueue(String id, String imagePath) {
     queue.enqueue(id, imagePath);
@@ -31,11 +34,6 @@ public final class AchievementPopupSystem extends System {
     if (stage == null) {
       return;
     }
-    if (visibleStage != null && visibleStage != stage) {
-      removeCard();
-      queue.restartActive();
-    }
-
     AchievementPopupQueue.Transition transition = queue.advance(TimeUtils.millis());
     transition.finished().ifPresent(ignored -> removeCard());
     transition.started().ifPresent(entry -> showCard(entry, stage));
@@ -46,7 +44,6 @@ public final class AchievementPopupSystem extends System {
 
   private void showCard(AchievementPopupQueue.Entry entry, Stage stage) {
     visibleCard = AchievementPopup.buildCard(entry.imagePath(), entry.id());
-    visibleStage = stage;
     stage.addActor(visibleCard);
   }
 
@@ -55,6 +52,5 @@ public final class AchievementPopupSystem extends System {
       visibleCard.remove();
       visibleCard = null;
     }
-    visibleStage = null;
   }
 }

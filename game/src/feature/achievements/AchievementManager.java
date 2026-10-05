@@ -23,7 +23,6 @@ import java.util.Optional;
  */
 public class AchievementManager {
 
-  private static final long POPUP_DURATION_MS = 4500L;
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AchievementManager.class);
   private static AchievementManager instance;
 
@@ -226,6 +225,7 @@ public class AchievementManager {
             .build();
 
     UIComponent ui = DialogFactory.show(context, false, false, targetEntityIds);
-    EventScheduler.scheduleAction(() -> UIUtils.closeDialog(ui, true), POPUP_DURATION_MS);
+    EventScheduler.scheduleAction(
+        () -> UIUtils.closeDialog(ui, true), AchievementPopupQueue.DISPLAY_DURATION_MS);
   }
 }

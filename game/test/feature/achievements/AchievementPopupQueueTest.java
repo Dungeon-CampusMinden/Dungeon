@@ -16,8 +16,9 @@ class AchievementPopupQueueTest {
 
     assertEquals("first", queue.advance(100).started().orElseThrow().id());
     assertTrue(queue.advance(200).started().isEmpty());
-    assertEquals("second", queue.advance(4600).started().orElseThrow().id());
-    assertEquals("third", queue.advance(9100).started().orElseThrow().id());
+    long duration = AchievementPopupQueue.DISPLAY_DURATION_MS;
+    assertEquals("second", queue.advance(100 + duration).started().orElseThrow().id());
+    assertEquals("third", queue.advance(100 + 2 * duration).started().orElseThrow().id());
   }
 
   @Test
@@ -26,39 +27,14 @@ class AchievementPopupQueueTest {
     queue.enqueue("first", "first.png");
     queue.enqueue("second", "second.png");
 
+    long duration = AchievementPopupQueue.DISPLAY_DURATION_MS;
     queue.advance(100);
-    assertTrue(queue.advance(4599).finished().isEmpty());
-    AchievementPopupQueue.Transition switchToSecond = queue.advance(4600);
+    assertTrue(queue.advance(100 + duration - 1).finished().isEmpty());
+    AchievementPopupQueue.Transition switchToSecond = queue.advance(100 + duration);
     assertEquals("first", switchToSecond.finished().orElseThrow().id());
     assertEquals("second", switchToSecond.started().orElseThrow().id());
-    assertTrue(queue.advance(9099).finished().isEmpty());
-    assertEquals("second", queue.advance(9100).finished().orElseThrow().id());
-    assertTrue(queue.advance(9100).started().isEmpty());
-  }
-
-  @Test
-  void ignoresDuplicateIdsWhileQueuedOrVisible() {
-    AchievementPopupQueue queue = new AchievementPopupQueue();
-    queue.enqueue("first", "first.png");
-    queue.enqueue("first", "duplicate.png");
-    queue.enqueue("second", "second.png");
-
-    assertEquals("first.png", queue.advance(0).started().orElseThrow().imagePath());
-    queue.enqueue("first", "duplicate.png");
-    assertEquals("second", queue.advance(4500).started().orElseThrow().id());
-    assertTrue(queue.advance(9000).started().isEmpty());
-  }
-
-  @Test
-  void requeuesVisiblePopupBeforeWaitingOnesAfterStageChange() {
-    AchievementPopupQueue queue = new AchievementPopupQueue();
-    queue.enqueue("first", "first.png");
-    queue.enqueue("second", "second.png");
-
-    queue.advance(0);
-    queue.restartActive();
-
-    assertEquals("first", queue.advance(1000).started().orElseThrow().id());
-    assertEquals("second", queue.advance(5500).started().orElseThrow().id());
+    assertTrue(queue.advance(100 + 2 * duration - 1).finished().isEmpty());
+    assertEquals("second", queue.advance(100 + 2 * duration).finished().orElseThrow().id());
+    assertTrue(queue.advance(100 + 2 * duration).started().isEmpty());
   }
 }

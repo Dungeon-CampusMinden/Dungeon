@@ -28,6 +28,7 @@ public final class AchievementPopup {
   public static final String KEY_IMAGE_PATH = "achievement.imagePath";
   public static final String KEY_ID = "achievement.id";
   private static final float CORNER_MARGIN = 40f;
+  private static final float FADE_OUT_DURATION_SECONDS = 0.7f;
   private static final String TITLE_FONT = "fonts/Roboto-Bold.ttf";
   private static final String BODY_FONT = "fonts/Roboto-Regular.ttf";
   private static final String T_UNLOCKED = "unlocked";
@@ -93,7 +94,11 @@ public final class AchievementPopup {
     card.add(icon).size(64f).padRight(12f);
     card.add(text).width(310f).left();
     card.pack();
-    card.addAction(Actions.sequence(Actions.delay(3.7f), Actions.fadeOut(0.7f)));
+    float displaySeconds = AchievementPopupQueue.DISPLAY_DURATION_MS / 1000f;
+    card.addAction(
+        Actions.sequence(
+            Actions.delay(displaySeconds - FADE_OUT_DURATION_SECONDS),
+            Actions.fadeOut(FADE_OUT_DURATION_SECONDS)));
     Sounds.playUi(CoreSounds.INTERFACE_ACHIEVEMENT_UNLOCKED);
 
     return new AlwaysOnTopContainer(card);
