@@ -268,66 +268,6 @@ public final class LastHourSave {
     }
 
     /**
-     * Keeps callers from the original save format source-compatible.
-     *
-     * @param runId identifier shared by this run's saves and tracking events
-     * @param milestones completed irreversible Petri net transitions
-     * @param computer saved computer state
-     * @param blogElapsedSeconds elapsed blog session time
-     * @param unknownDeviceShutdownRemainingMs remaining delay before an unknown-device shutdown
-     * @param keypadUnlocked whether the storage keypad has been unlocked
-     * @param wrongCodeAttempts number of incorrect keypad submissions
-     * @param storageDoorOpen whether the storage door is open
-     * @param remainingSeconds seconds remaining on the run timer
-     * @param timerExpired whether the run timer has expired
-     * @param phone saved phone state
-     * @param trashNoteAwarded whether the trash note has been awarded
-     * @param blueTrashAwarded whether the blue trash item has been awarded
-     * @param questLog saved quest log entries
-     * @param questKeys quest log keys already added by room logic
-     * @param players saved player positions, intro state and inventories
-     * @param trackingConsent saved tracking decision
-     */
-    public SaveData(
-        UUID runId,
-        Set<LastHourMilestone> milestones,
-        ComputerStateComponent computer,
-        int blogElapsedSeconds,
-        long unknownDeviceShutdownRemainingMs,
-        boolean keypadUnlocked,
-        int wrongCodeAttempts,
-        boolean storageDoorOpen,
-        int remainingSeconds,
-        boolean timerExpired,
-        PhoneData phone,
-        boolean trashNoteAwarded,
-        boolean blueTrashAwarded,
-        List<QuestEntryData> questLog,
-        Set<String> questKeys,
-        List<PlayerData> players,
-        Boolean trackingConsent) {
-      this(
-          runId,
-          milestones,
-          computer,
-          blogElapsedSeconds,
-          unknownDeviceShutdownRemainingMs,
-          keypadUnlocked,
-          wrongCodeAttempts,
-          storageDoorOpen,
-          remainingSeconds,
-          timerExpired,
-          phone,
-          trashNoteAwarded,
-          blueTrashAwarded,
-          questLog,
-          questKeys,
-          players,
-          trackingConsent,
-          null);
-    }
-
-    /**
      * Creates a validated immutable save snapshot.
      *
      * @param runId identifier shared by this run's saves and tracking events
