@@ -1,6 +1,7 @@
 package rooms.programming.level;
 
 import engine.Entity;
+import engine.components.DrawComponent;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
@@ -95,11 +96,17 @@ public final class ProgrammingTablePrefab extends Prefab {
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point position = value(instance, POSITION);
     List<Entity> entities = new ArrayList<>();
-    entities.add(deco(context, position, value(instance, FURNITURE)));
+    Entity furniture = deco(context, position, value(instance, FURNITURE));
+    entities.add(furniture);
+    int itemDepth = furniture.fetch(DrawComponent.class).orElseThrow().depth() + 1;
     for (int i = 0; i < ITEM.size(); i++) {
       String item = value(instance, ITEM.get(i));
-      if (!item.equals("none"))
-        entities.add(deco(context, position.translate(value(instance, OFFSET.get(i))), item));
+      if (!item.equals("none")) {
+        Entity entity = deco(context, position.translate(value(instance, OFFSET.get(i))), item);
+        DrawComponent draw = entity.fetch(DrawComponent.class).orElseThrow();
+        draw.depth(Math.max(draw.depth(), itemDepth));
+        entities.add(entity);
+      }
     }
     ProgrammingTableAnchors.changed(context.level());
     return entities;
