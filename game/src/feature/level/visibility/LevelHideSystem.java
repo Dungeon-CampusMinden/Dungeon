@@ -67,6 +67,7 @@ public class LevelHideSystem extends System {
   @Override
   public void execute() {
     Point currentPos = EntityUtils.getPlayerPosition();
+    if (currentPos == null) return; // e.g. a joining client before its hero arrived
     getDrawSystem()
         .ifPresent(
             ds -> {

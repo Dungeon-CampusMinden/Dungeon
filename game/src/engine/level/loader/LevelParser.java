@@ -8,7 +8,9 @@ import engine.level.loader.parsers.V3FormatParser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * The LevelParser class is responsible for parsing dungeon level data from various formats and
@@ -45,14 +47,8 @@ public class LevelParser {
   public static DungeonLevel parseLevel(BufferedReader reader, String levelHandlerName) {
     String levelData;
     try {
-      StringBuilder data = new StringBuilder();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        if (!data.isEmpty()) data.append('\n');
-        data.append(line);
-      }
-      levelData = data.toString();
-    } catch (IOException e) {
+      levelData = reader.lines().collect(Collectors.joining("\n"));
+    } catch (UncheckedIOException e) {
       LOGGER.severe("Error reading level data: " + e.getMessage());
       throw new IllegalArgumentException("Error reading level data", e);
     }
