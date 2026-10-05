@@ -9,11 +9,12 @@ import engine.game.MainMenu;
 import engine.game.ServerLifecycle;
 import engine.game.ServerStarter;
 import engine.language.Language;
+import engine.language.Localization;
 import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
-import engine.tracking.Tracking;
+import engine.tracking.TrackingConsentFeature;
 import engine.utils.CursorUtil;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
@@ -37,6 +38,11 @@ public final class Programming {
 
   private static final String LEVEL_KEY = "programming";
   private static final CharacterClass[] CHARACTER_CLASSES = {CharacterClass.THE_LAST_HOUR_CHAR03};
+  private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
+  // The room has no savegame, so a decision lasts for one launch and is asked again on the next.
+  private static final TrackingConsentFeature TRACKING_CONSENT =
+      new TrackingConsentFeature(
+          "programming-1", TRACKING_OPERATOR_EMAIL, () -> null, consent -> {});
 
   private Programming() {}
 
@@ -52,7 +58,7 @@ public final class Programming {
         .enableFile(false)
         .build();
 
-    Tracking.configureRoom("programming-1");
+    TRACKING_CONSENT.initialize(args, () -> null);
 
     ServerStarter server =
         ServerStarter.builder(Programming::serverSetup)
@@ -72,15 +78,25 @@ public final class Programming {
         ClientStarter.builder(server, Programming::clientSetup)
             .onConfigure(ProgrammingAchievements::register)
             .levels(Tuple.of(LEVEL_KEY, ProgrammingClientLevel.class))
+            .initLocalization(Programming::initLocalization)
             .build();
 
     GameStarter game =
         GameStarter.builder("Das Erbe der Seelenweber", Programming.class)
             .language(Language.DE)
             .levelEditor("levels/programming")
+            .startupConsent(TRACKING_CONSENT::startupPrompt)
+            .trackingSettings(TRACKING_CONSENT::settings)
             .build();
 
     MainMenu.run(args, game, client, server);
+  }
+
+  /** Registers the shared escape-room translations used by the menu and its consent dialogs. */
+  private static void initLocalization() {
+    Localization localization = Game.localization();
+    localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
+    localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
   }
 
   private static void serverSetup() {
