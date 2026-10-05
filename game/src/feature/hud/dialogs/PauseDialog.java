@@ -234,7 +234,9 @@ public class PauseDialog extends Table {
     if (AchievementManager.isAvailable()) {
       menu.add(achievementsBtn).width(300).align(Align.center).padBottom(10).row();
     }
-    menu.add(controlsBtn).width(300).align(Align.center).padBottom(10).row();
+    if (Game.systems().containsKey(ControlsDialogSystem.class)) {
+      menu.add(controlsBtn).width(300).align(Align.center).padBottom(10).row();
+    }
     menu.add(settingsBtn)
         .width(300)
         .align(Align.center)
