@@ -504,17 +504,6 @@ final class ProgrammingGolemRuntime {
     velocity.currentVelocity(Vector2.ZERO);
   }
 
-  void travelWorkshop(List<Point> points, Runnable success) {
-    workshopTransit = true;
-    moveWorkshop(
-        points,
-        () -> {
-          workshopTransit = false;
-          success.run();
-        },
-        reason -> {});
-  }
-
   List<Point> workshopPath(Point destination) {
     return path(position.position(), destination);
   }

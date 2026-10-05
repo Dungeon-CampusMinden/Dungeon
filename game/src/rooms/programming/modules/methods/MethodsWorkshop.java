@@ -1318,18 +1318,4 @@ public final class MethodsWorkshop {
               + ")";
     };
   }
-
-  /**
-   * Renders a method signature and its stored body.
-   *
-   * @param d method definition to render
-   * @return method signature and body as source lines
-   */
-  public static List<String> definitionSource(Definition d) {
-    var lines = new ArrayList<String>();
-    lines.add(d.name() + "(" + String.join(", ", d.parameters()) + ") {");
-    d.body().forEach(b -> lines.add("  " + blockSource(b)));
-    lines.add("}");
-    return List.copyOf(lines);
-  }
 }
