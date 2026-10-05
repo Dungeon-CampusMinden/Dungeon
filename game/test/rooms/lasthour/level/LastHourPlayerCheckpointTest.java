@@ -12,6 +12,7 @@ import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
+import engine.game.ECSManagement;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
@@ -70,6 +71,7 @@ class LastHourPlayerCheckpointTest {
     level =
         new LastHourLevel(
             new LevelElement[][] {{LevelElement.FLOOR}}, DesignLabel.DEFAULT, Map.of());
+    level.playerStates = new LastHourPlayerStateSystem();
     Game.add(level.playerStates);
     LastHourLevel.INTRO_SHOWN_TO.clear();
     level.storageDoor = mock(DoorTile.class);
@@ -118,7 +120,7 @@ class LastHourPlayerCheckpointTest {
     player.fetch(PositionComponent.class).orElseThrow().position(new Point(5, 6));
     LastHourLevel.INTRO_SHOWN_TO.add(player.id());
     Game.remove(player);
-    level.playerStates.update();
+    level.playerStates.execute();
     level.persistAtPetriMilestone(saveFile);
 
     assertSame(previous, level.lastSaved);
@@ -144,7 +146,7 @@ class LastHourPlayerCheckpointTest {
 
     Game.remove(original);
     Entity reconnected = player("A", new Point(0, 0));
-    level.playerStates.update();
+    level.playerStates.execute();
 
     assertEquals(
         new Point(5, 6), reconnected.fetch(PositionComponent.class).orElseThrow().position());
@@ -152,7 +154,7 @@ class LastHourPlayerCheckpointTest {
     assertTrue(LastHourLevel.INTRO_SHOWN_TO.contains(reconnected.id()));
     inventory(reconnected).set(0, null);
     reconnected.fetch(PositionComponent.class).orElseThrow().position(new Point(7, 8));
-    level.playerStates.update();
+    level.playerStates.execute();
     assertEquals(
         new Point(7, 8), reconnected.fetch(PositionComponent.class).orElseThrow().position());
     assertTrue(level.playerStates.capture().getFirst().items().isEmpty());
@@ -171,7 +173,7 @@ class LastHourPlayerCheckpointTest {
     assertTrue(inventory(sender).transfer(usb, inventory(recipient)));
     Game.remove(sender);
     Entity reconnected = player("A", new Point(0, 0));
-    level.playerStates.update();
+    level.playerStates.execute();
     assertFalse(inventory(reconnected).items()[0] instanceof UsbStickItem.BlueUsbStick);
 
     completeLogin();
@@ -223,7 +225,7 @@ class LastHourPlayerCheckpointTest {
     assertTrue(usbOwners(next).isEmpty());
     assertTrue(next.computer().usbInserted());
     Entity reconnected = player("A", new Point(0, 0));
-    level.playerStates.update();
+    level.playerStates.execute();
     assertFalse(inventory(reconnected).items()[0] instanceof UsbStickItem.BlueUsbStick);
   }
 
@@ -248,13 +250,13 @@ class LastHourPlayerCheckpointTest {
     Entity reconnected = new Entity("reconnected-A");
     reconnected.add(new PlayerComponent(false, "A"));
     Game.add(reconnected);
-    level.playerStates.update();
+    level.playerStates.execute();
     assertEquals(savedPlayer(saved, "A"), level.playerStates.capture().getFirst());
     reconnected.add(new InventoryComponent(2));
-    level.playerStates.update();
+    level.playerStates.execute();
     assertTrue(inventory(reconnected).items()[0] == null);
     reconnected.add(new PositionComponent(new Point(0, 0)));
-    level.playerStates.update();
+    level.playerStates.execute();
     assertTrue(inventory(reconnected).items()[0] instanceof UsbStickItem.BlueUsbStick);
     assertEquals(
         new Point(5, 6), reconnected.fetch(PositionComponent.class).orElseThrow().position());
@@ -271,7 +273,7 @@ class LastHourPlayerCheckpointTest {
     Game.remove(LastHourPlayerStateSystem.class);
     inventory(player).set(0, null);
     Game.add(level.playerStates);
-    level.playerStates.update();
+    level.playerStates.execute();
 
     assertTrue(level.playerStates.capture().getFirst().items().isEmpty());
   }
@@ -289,7 +291,7 @@ class LastHourPlayerCheckpointTest {
     Entity recipient = player("B", new Point(3, 4));
     assertTrue(inventory(recipient).add(new UsbStickItem.BlueUsbStick()));
     completeLogin();
-    level.playerStates.update();
+    level.playerStates.execute();
     assertDoesNotThrow(() -> level.persistAtPetriMilestone(saveFile));
 
     assertSame(previous, level.lastSaved);
@@ -341,10 +343,10 @@ class LastHourPlayerCheckpointTest {
     Game.remove(sender);
     completeLogin();
 
-    assertDoesNotThrow(() -> level.playerStates.update());
+    assertDoesNotThrow(() -> level.playerStates.execute());
     assertFalse(level.playerStates.isUpdated());
     assertThrows(IllegalStateException.class, () -> level.playerStates.capture());
-    assertDoesNotThrow(() -> level.playerStates.update());
+    assertDoesNotThrow(() -> level.playerStates.execute());
     assertFalse(level.playerStates.isUpdated());
     assertDoesNotThrow(() -> level.persistAtPetriMilestone(saveFile));
     assertSame(previous, level.lastSaved);
@@ -352,7 +354,7 @@ class LastHourPlayerCheckpointTest {
     assertEquals(previousJson, Files.readString(saveFile));
 
     red.stackSize(1);
-    level.playerStates.update();
+    level.playerStates.execute();
     assertTrue(level.playerStates.isUpdated());
     LastHourSave.SaveData next = writeCheckpoint(saveFile);
     assertEquals(List.of("B"), usbOwners(next));
@@ -361,7 +363,49 @@ class LastHourPlayerCheckpointTest {
   }
 
   @Test
-  void ecsExecutionAndCaptureDoNotProcessQueuedRestores() throws Exception {
+  void ecsTicksRestorePlayersBeforePendingCheckpointIsWritten() throws Exception {
+    Entity original = player("A", new Point(1, 2));
+    assertTrue(inventory(original).add(new UsbStickItem.BlueUsbStick()));
+    LastHourLevel.INTRO_SHOWN_TO.add(original.id());
+    assertTrue(LastHourProgressNet.complete(LastHourMilestone.POWER_ON));
+    Path saveFile = tempDir.resolve("checkpoint.json");
+    LastHourSave.SaveData previous = writeCheckpoint(saveFile);
+    int revision = LastHourLevel.saveRevision();
+
+    Game.remove(original);
+    Entity replacement = player("A", new Point(0, 0));
+    completeLogin();
+    level.persistAtPetriMilestone(saveFile);
+    assertSame(previous, level.lastSaved);
+    assertEquals(revision, LastHourLevel.saveRevision());
+    assertEquals(previous, LastHourLoad.read(saveFile).orElseThrow());
+
+    ECSManagement.executeOneTick(engine.System.AuthoritativeSide.SERVER);
+
+    assertTrue(level.playerStates.isUpdated());
+    assertTrue(inventory(replacement).get(0).orElseThrow() instanceof UsbStickItem.BlueUsbStick);
+    assertEquals(
+        new Point(1, 2), replacement.fetch(PositionComponent.class).orElseThrow().position());
+    assertTrue(LastHourLevel.INTRO_SHOWN_TO.contains(replacement.id()));
+    level.persistAtPetriMilestone(saveFile);
+    assertEquals(revision + 1, LastHourLevel.saveRevision());
+    assertEquals(List.of("A"), usbOwners(LastHourLoad.read(saveFile).orElseThrow()));
+
+    inventory(replacement).set(0, null);
+    replacement.fetch(PositionComponent.class).orElseThrow().position(new Point(5, 6));
+    Game.remove(replacement);
+    Entity reconnected = player("A", new Point(0, 0));
+
+    ECSManagement.executeOneTick(engine.System.AuthoritativeSide.SERVER);
+
+    assertTrue(inventory(reconnected).get(0).isEmpty());
+    assertEquals(
+        new Point(5, 6), reconnected.fetch(PositionComponent.class).orElseThrow().position());
+    assertTrue(LastHourLevel.INTRO_SHOWN_TO.contains(reconnected.id()));
+  }
+
+  @Test
+  void captureDoesNotProcessQueuedRestores() throws Exception {
     Entity original = player("A", new Point(1, 2));
     assertTrue(inventory(original).add(new UsbStickItem.BlueUsbStick()));
     assertTrue(LastHourProgressNet.complete(LastHourMilestone.POWER_ON));
@@ -369,14 +413,13 @@ class LastHourPlayerCheckpointTest {
     Game.remove(original);
     Entity replacement = player("A", new Point(0, 0));
 
-    level.playerStates.execute();
     assertTrue(inventory(replacement).get(0).isEmpty());
     assertThrows(IllegalStateException.class, () -> level.playerStates.capture());
     assertEquals(
         new Point(0, 0), replacement.fetch(PositionComponent.class).orElseThrow().position());
     assertTrue(inventory(replacement).get(0).isEmpty());
 
-    level.playerStates.update();
+    level.playerStates.execute();
     assertTrue(inventory(replacement).get(0).orElseThrow() instanceof UsbStickItem.BlueUsbStick);
     assertEquals(
         "BlueUsbStick",
@@ -404,9 +447,9 @@ class LastHourPlayerCheckpointTest {
     client.playerEntity(original);
 
     Game.remove(original);
-    if (tickWhileDisconnected) level.playerStates.update();
+    if (tickWhileDisconnected) level.playerStates.execute();
     client.resetForReconnect(2, new byte[] {4, 5, 6}, true);
-    level.playerStates.update();
+    level.playerStates.execute();
 
     assertSame(original, client.playerEntity().orElseThrow());
     assertSame(original, Game.findEntityById(original.id()).orElseThrow());
@@ -475,7 +518,7 @@ class LastHourPlayerCheckpointTest {
 
   private LastHourSave.SaveData writeCheckpoint(Path file) {
     int revision = LastHourLevel.saveRevision();
-    level.playerStates.update();
+    level.playerStates.execute();
     level.persistAtPetriMilestone(file);
     assertEquals(
         revision + 1, LastHourLevel.saveRevision(), "Checkpoint must actually be written.");

@@ -115,7 +115,7 @@ public class LastHourLevel extends DungeonLevel {
   boolean escaped = false;
   Entity worldTimer;
   private Optional<LastHourSave.SaveData> pendingSave = Optional.empty();
-  LastHourPlayerStateSystem playerStates = new LastHourPlayerStateSystem();
+  LastHourPlayerStateSystem playerStates;
   LastHourSave.SaveData lastSaved;
   ComputerStateComponent cscLastTick;
   Entity keypad;
@@ -184,8 +184,13 @@ public class LastHourLevel extends DungeonLevel {
     puzzle = null;
     saveRevision = 0;
     lastSaved = null;
-    playerStates = new LastHourPlayerStateSystem();
-    Game.add(playerStates);
+    playerStates =
+        Optional.ofNullable(Game.systems().get(LastHourPlayerStateSystem.class))
+            .map(LastHourPlayerStateSystem.class::cast)
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "The Last Hour player state system was not registered during setup"));
     INTRO_SHOWN_TO.clear();
     ComputerCallbacks.resetUnknownDeviceShutdown();
     LastHourProgressNet.reset();
@@ -997,9 +1002,8 @@ public class LastHourLevel extends DungeonLevel {
   protected void onTick() {
     checkPCStateUpdate();
     reconcileMilestones();
-    playerStates.update();
     persistAtPetriMilestone(LastHourSave.DEFAULT_PATH);
-    showIntroForNewPlayers();
+    if (playerStates.isUpdated()) showIntroForNewPlayers();
     registerUsbCollectorHooks();
     if (!Game.isHeadless()) {
       updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);

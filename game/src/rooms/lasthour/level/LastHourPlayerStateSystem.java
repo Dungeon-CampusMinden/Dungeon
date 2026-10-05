@@ -22,8 +22,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import rooms.lasthour.save.LastHourSave;
 
-/** Observes player lifecycle events; the room tick advances the state before saving. */
-final class LastHourPlayerStateSystem extends engine.System {
+/** Processes player lifecycle events and restores cached player state on each server ECS tick. */
+public final class LastHourPlayerStateSystem extends engine.System {
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(LastHourPlayerStateSystem.class);
   private final Map<String, LastHourSave.PlayerData> snapshots = new LinkedHashMap<>();
@@ -33,7 +33,8 @@ final class LastHourPlayerStateSystem extends engine.System {
   private final Queue<PlayerEvent> events = new ConcurrentLinkedQueue<>();
   private RuntimeException updateFailure;
 
-  LastHourPlayerStateSystem() {
+  /** Creates the server-side observer for player joins and disconnects. */
+  public LastHourPlayerStateSystem() {
     super(PlayerComponent.class);
     onEntityAdd = entity -> enqueue(entity, true);
     onEntityRemove =
@@ -55,16 +56,12 @@ final class LastHourPlayerStateSystem extends engine.System {
 
   @Override
   public void execute() {
-    // Lifecycle-only observer; LastHourLevel calls update() before saving.
-  }
-
-  void update() {
     // Network callbacks only enqueue entities; snapshot/restore happens on the server tick.
     try {
       PlayerEvent event;
       while ((event = events.peek()) != null) {
         process(event);
-        // Keep a failed event at the head so the next room tick can retry it.
+        // Keep a failed event at the head so the next ECS tick can retry it.
         events.poll();
       }
       Game.allPlayers()

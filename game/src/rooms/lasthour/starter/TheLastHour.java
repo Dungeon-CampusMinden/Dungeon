@@ -52,6 +52,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.level.LastHourLevelClient;
+import rooms.lasthour.level.LastHourPlayerStateSystem;
 import rooms.lasthour.modules.computer.ComputerStateSyncSystem;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.network.LastHourEntitySpawnStrategy;
@@ -281,6 +282,7 @@ public class TheLastHour {
     ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
     ECSManagement.add(new PetriNetSystem());
+    ECSManagement.add(new LastHourPlayerStateSystem());
     ECSManagement.add(new ComputerStateSyncSystem());
     ECSManagement.add(new ItemDropSystem());
 
