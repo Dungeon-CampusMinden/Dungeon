@@ -84,6 +84,7 @@ jobs:
               run: |
                   TAG="soulweaver-v1.0.${{ github.run_number }}"
                   gh release create "$TAG" *.jar *.zip *.tar.gz \
+                    --target "${{ github.sha }}" \
                     --title "Das Erbe der Seelenweber (Programming Escape Room)" \
                     --notes-file ".github/workflows/releaseInstructionsSoulweaver.md" \
                     --draft=true \
