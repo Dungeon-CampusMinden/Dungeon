@@ -278,7 +278,11 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
             : Cursors.DISABLED);
   }
 
-  /** A completed workshop stays read-only; the server no longer accepts its intents. */
+  /**
+   * A completed workshop stays read-only; the server no longer accepts its intents.
+   *
+   * @return whether this viewer may edit the program now
+   */
   boolean editable() {
     return state.editorId() == viewer && !state.busy() && !state.completed();
   }

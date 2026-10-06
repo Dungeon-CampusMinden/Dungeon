@@ -158,7 +158,11 @@ final class SoulweaverDecisionWorld {
         .forEach(SoulweaverDecisionWorld::returnToStart);
   }
 
-  /** Moves a player to the first unoccupied floor slot of the corridor behind START. */
+  /**
+   * Moves a player to the first unoccupied floor slot of the corridor behind START.
+   *
+   * @param player player to move
+   */
   private static void returnToStart(Entity player) {
     Point slot = START.translate(1, -2);
     for (int i = 0; i < 12; i++) {

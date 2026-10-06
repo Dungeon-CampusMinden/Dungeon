@@ -1126,6 +1126,12 @@ final class SoulweaverGolemRuntime {
   /**
    * Records one manual assignment. Essences placed while vessels are still being assigned are not
    * attempts, because the essence puzzle has not started yet.
+   *
+   * @param who assigning player
+   * @param property assigned golem property
+   * @param selected selected vessel or essence name
+   * @param vessel whether a vessel rather than an essence was assigned
+   * @param failureReasons failed conditions of this assignment
    */
   private void recordBinding(
       Entity who,
@@ -1148,7 +1154,13 @@ final class SoulweaverGolemRuntime {
                         help.level(vessel ? "vessels" : "essences"), false, failureReasons)));
   }
 
-  /** Records a confirmed automatic binding solution as one attempt and one journal line. */
+  /**
+   * Records a confirmed automatic binding solution as one attempt and one journal line.
+   *
+   * @param who player who confirmed the solution
+   * @param vessel whether the vessel stage was solved
+   * @param solution assigned value per property
+   */
   private void recordBindingSolution(
       Entity who, boolean vessel, Map<GolemProperty, ? extends Enum<?>> solution) {
     String puzzle = vessel ? "vessels" : "essences";
