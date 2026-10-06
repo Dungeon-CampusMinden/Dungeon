@@ -320,6 +320,26 @@ tasks.register('buildSystemRecoveryServerJar', Jar) {
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
+tasks.register('buildSoulweaverJar', Jar) {
+    group = 'jar'
+    dependsOn configurations.runtimeClasspath
+    archiveBaseName.set('Soulweaver')
+    archiveFileName.set('Soulweaver.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'rooms.soulweaver.Soulweaver'
+    }
+
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
 tasks.register('buildTheLastHourServerJar', Jar) {
     group = 'jar'
     dependsOn configurations.runtimeClasspath
@@ -358,6 +378,15 @@ tasks.register('installSystemRecoveryDist', Sync) {
 
     into layout.buildDirectory.dir('installSystemRecovery/systemRecovery/lib')
     from tasks.named('buildSystemRecoveryJar')
+    from configurations.runtimeClasspath
+}
+
+tasks.register('installSoulweaverDist', Sync) {
+    group = 'build'
+    dependsOn tasks.named('buildSoulweaverJar')
+
+    into layout.buildDirectory.dir('installSoulweaver/soulweaver/lib')
+    from tasks.named('buildSoulweaverJar')
     from configurations.runtimeClasspath
 }
 
@@ -448,6 +477,17 @@ tasks.register('jpackageImageSystemRecovery', Exec) {
         'SystemRecovery',
         'SystemRecovery.jar',
         'rooms.systemRecovery.SystemRecovery'
+    )
+}
+
+tasks.register('jpackageImageSoulweaver', Exec) {
+    configureRoomJpackageImage(
+        it,
+        tasks.named('installSoulweaverDist'),
+        'installSoulweaver/soulweaver/lib',
+        'Soulweaver',
+        'Soulweaver.jar',
+        'rooms.soulweaver.Soulweaver'
     )
 }
 
