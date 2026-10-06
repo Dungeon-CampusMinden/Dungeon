@@ -97,8 +97,9 @@ laufen weiter. Andere Spieler bleiben steuerbar; Schließen gibt die Eingaben wi
 
 Über dem Canvas bleibt eine Prüfleiste unabhängig von Zoom und Verschiebung sichtbar.
 Sie unterscheidet sechs Bedingungen: Arbeitsstellen erledigt, Nox trägt keine Kristalle,
-Variable `kristalle = 0`, höchstens acht Hauptblöcke, dieselbe parametrisierte Methode
-mehrfach aufgerufen und einen Rückgabewert verwendet. Jede Bedingung zeigt ausdrücklich
+die Variable `kristalle` hat im Lauf alle gesammelten Kristalle gezählt und ist am Ende 0,
+höchstens acht Hauptblöcke, dieselbe parametrisierte Methode mehrfach aufgerufen und einen
+Rückgabewert verwendet. Jede Bedingung zeigt ausdrücklich
 „Erfüllt“, „Offen“ oder „Ungeprüft“. Die Blockanzahl ist sofort prüfbar; die übrigen
 Bedingungen werden erst nach einem vollständig ausgeführten Programm bewertet.
 Die Abschlussmeldung nennt nur die fehlenden Bedingungen mit konkreten Ist- und Sollwerten.
@@ -203,7 +204,8 @@ kristalle -= hilfeAltar(5);
 ```
 
 Nach dem erfolgreichen Lauf öffnet sich der Nebenausgang. Ohne Fehlversuch gibt es den
-Erfolg "Aus einem Guss", sonst "Übung macht den Meister".
+Erfolg "Aus einem Guss", sonst "Übung macht den Meister". Die geöffnete Werkstatt ist danach
+schreibgeschützt und lässt sich sofort schließen.
 
 ## Lernziel
 

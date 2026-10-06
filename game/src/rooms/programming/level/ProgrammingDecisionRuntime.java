@@ -42,11 +42,7 @@ final class ProgrammingDecisionRuntime {
         "decisions", "Verfolge die sechs Runen und führe Nox zum Herzfeuer.");
     feedback = "Nox betritt das Labyrinth. Steige mit E auf Nox auf.";
     var approach = motion.workshopPath(ProgrammingDecisionWorld.START);
-    if (approach.isEmpty()
-        && Point.calculateDistance(
-                golem.fetch(PositionComponent.class).orElseThrow().position(),
-                ProgrammingDecisionWorld.START)
-            > .1f) {
+    if (approachBlocked(approach)) {
       blocked = true;
       feedback = "Der Zugang ist blockiert. Räume den Weg frei und wähle Weiter.";
       publish();
@@ -62,13 +58,28 @@ final class ProgrammingDecisionRuntime {
         });
   }
 
+  /**
+   * @param approach planned route to START
+   * @return whether Nox cannot reach START although it is not already there
+   */
+  private boolean approachBlocked(List<Point> approach) {
+    return approach.isEmpty()
+        && Point.calculateDistance(
+                golem.fetch(PositionComponent.class).orElseThrow().position(),
+                ProgrammingDecisionWorld.START)
+            > .1f;
+  }
+
   void show(Entity who) {
     if (!active || !authorized(who) || Game.hud().blocksGameplayInput(who)) return;
     if (completed) {
       ProgrammingGolemRuntime.showText(who, feedback);
       return;
     }
-    if (driver >= 0 && driver != who.id()) return;
+    if (driver >= 0 && driver != who.id()) {
+      ProgrammingGolemRuntime.showText(who, "Ein anderer Spieler reitet Nox.");
+      return;
+    }
     driver = who.id();
     publish();
     ProgrammingDecisions.open(who, state(), intent -> accept(who, intent));
@@ -113,11 +124,7 @@ final class ProgrammingDecisionRuntime {
       blocked = false;
       if (route.isEmpty()) {
         var approach = motion.workshopPath(ProgrammingDecisionWorld.START);
-        if (approach.isEmpty()
-            && Point.calculateDistance(
-                    golem.fetch(PositionComponent.class).orElseThrow().position(),
-                    ProgrammingDecisionWorld.START)
-                > .1f) {
+        if (approachBlocked(approach)) {
           blocked = true;
           publish();
           return;

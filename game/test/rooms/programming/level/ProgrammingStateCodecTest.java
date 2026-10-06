@@ -59,7 +59,6 @@ class ProgrammingStateCodecTest {
     while (true) {
       var step = workshop.next();
       if (step.isEmpty()) break;
-      assertEquals(step, workshop.state().currentStep());
       assertTrue(workshop.state().busy());
       int value = step.orElseThrow().action() == Action.COLLECT ? (collected++ == 0 ? 3 : 5) : 0;
       workshop.actionResult(true, value, "");

@@ -321,7 +321,9 @@ public class CanvasArea extends Group {
     if (node == null || nodesById.get(node.id()) != node) {
       return;
     }
-    int max = sameSpaceAs(node).mapToInt(CanvasNode::z).max().orElse(0);
+    // Equal z values still draw in an arbitrary order, so they must be overtaken as well.
+    int max =
+        sameSpaceAs(node).filter(other -> other != node).mapToInt(CanvasNode::z).max().orElse(0);
     if (node.z() <= max) {
       node.z(max + 1);
     }

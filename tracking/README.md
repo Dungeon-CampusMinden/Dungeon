@@ -102,7 +102,10 @@ Remove-Item Env:DUNGEON_TRACKING_RUNTIME_DATABASE_USER
 
 Das Backend bindet standardmäßig an `127.0.0.1:8088`. Beim Start führt es kein DDL aus. Der
 getrennte Migrationsbefehl wendet die enthaltenen Migrationen der Reihe nach an und vermerkt ihre
-Versionen in `tracking_schema_migrations`.
+Versionen in `tracking_schema_migrations`. `V001__tracking.sql` enthält das vollständige Schema
+einschließlich der früheren `V002__interactions.sql`. Datenbanken, die bereits `V002` angewendet
+haben, müssen neu angelegt werden, weil der Migrationsbefehl das geänderte `V001` nicht erneut
+anwendet.
 
 Jede Einstellung kann als Umgebungsvariable oder Java-Systemeigenschaft gesetzt werden. Die
 Systemeigenschaft hat Vorrang.

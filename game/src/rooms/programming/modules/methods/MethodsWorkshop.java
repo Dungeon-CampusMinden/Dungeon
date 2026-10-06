@@ -201,6 +201,8 @@ public final class MethodsWorkshop {
    * @param revision authoritative snapshot revision
    * @param editorId owning player entity ID, or -1 when unclaimed
    * @param crystals current value of the kristalle variable
+   * @param countedCrystals total increase of the main program's kristalle variable during the run
+   * @param collectedCrystals crystals Nox collected during the run
    * @param errors number of execution failures
    * @param completed whether every completion condition passed
    * @param main connected main-program blocks
@@ -209,7 +211,6 @@ public final class MethodsWorkshop {
    * @param definitions built methods indexed by name
    * @param feedback latest editor or execution feedback
    * @param blockErrors feedback indexed by block identifier
-   * @param currentStep latest action produced by the interpreter
    * @param currentInstruction source of the block producing the latest physical action
    * @param variables variables visible in the current interpreter frame
    * @param compact whether the main program satisfies the block limit
@@ -223,6 +224,8 @@ public final class MethodsWorkshop {
       long revision,
       int editorId,
       int crystals,
+      int countedCrystals,
+      int collectedCrystals,
       int errors,
       boolean completed,
       List<Block> main,
@@ -231,7 +234,6 @@ public final class MethodsWorkshop {
       Map<String, Definition> definitions,
       String feedback,
       Map<String, String> blockErrors,
-      Optional<Step> currentStep,
       String currentInstruction,
       Map<String, String> variables,
       boolean compact,
@@ -246,6 +248,8 @@ public final class MethodsWorkshop {
      * @param revision authoritative snapshot revision
      * @param editorId owning player entity ID, or -1 when unclaimed
      * @param crystals current value of the kristalle variable
+     * @param countedCrystals total increase of the main program's kristalle variable during the run
+     * @param collectedCrystals crystals Nox collected during the run
      * @param errors number of execution failures
      * @param completed whether every completion condition passed
      * @param main connected main-program blocks
@@ -254,7 +258,6 @@ public final class MethodsWorkshop {
      * @param definitions built methods indexed by name
      * @param feedback latest editor or execution feedback
      * @param blockErrors feedback indexed by block identifier
-     * @param currentStep latest action produced by the interpreter
      * @param currentInstruction source of the block producing the latest physical action
      * @param variables variables visible in the current interpreter frame
      * @param compact whether the main program satisfies the block limit
@@ -299,15 +302,20 @@ public final class MethodsWorkshop {
               evaluated
                   ? "Nox trägt " + remainingCrystals + " Kristalle. Erwartet: 0."
                   : "Nox soll am Ende keine Kristalle mehr tragen."),
+          // Starting at 0 proves nothing; the counter must have held every collected crystal.
           check(
               evaluated,
-              crystals == 0,
+              counted(),
               evaluated
-                  ? "Variable kristalle: "
+                  ? "Variable kristalle: gezählt "
+                      + countedCrystals
+                      + ", Endwert "
                       + crystals
-                      + ". Erwartet: 0."
-                      + (crystals == 0 ? "" : " Prüfe die Rechnung beim Sammeln und Ablegen.")
-                  : "Die Variable kristalle muss am Ende 0 sein."),
+                      + ". Erwartet: "
+                      + collectedCrystals
+                      + " gesammelte Kristalle, dann 0."
+                      + (counted() ? "" : " Prüfe die Rechnung beim Sammeln und Ablegen.")
+                  : "Die Variable kristalle muss alle gesammelten Kristalle zählen und am Ende 0 sein."),
           check(
               true,
               compact,
@@ -370,6 +378,10 @@ public final class MethodsWorkshop {
                   .collect(java.util.stream.Collectors.joining("\n"));
     }
 
+    private boolean counted() {
+      return countedCrystals == collectedCrystals && crystals == 0;
+    }
+
     private static Check check(boolean evaluated, boolean passed, String message) {
       return new Check(
           !evaluated ? CheckStatus.PENDING : passed ? CheckStatus.PASSED : CheckStatus.FAILED,
@@ -390,10 +402,9 @@ public final class MethodsWorkshop {
   private int editorId = -1, errors, instructions;
   private boolean completed, parameterReuse, returnedValueUsed, worldSolved;
   private RunState runState = RunState.NOT_RUN;
-  private int remainingCrystals;
+  private int remainingCrystals, countedCrystals, collectedCrystals;
   private String feedback =
       "Verbinde dein Hauptprogramm. Jeder Start setzt Nox und alle Arbeitsstellen zurück.";
-  private Step currentStep;
   private String currentInstruction = "";
   private final Deque<Frame> stack = new ArrayDeque<>();
   private final Map<String, Integer> calls = new HashMap<>();
@@ -575,6 +586,8 @@ public final class MethodsWorkshop {
         revision,
         editorId,
         Integer.parseInt(mainVariables.getOrDefault("kristalle", "0")),
+        countedCrystals,
+        collectedCrystals,
         errors,
         completed,
         main,
@@ -583,7 +596,6 @@ public final class MethodsWorkshop {
         definitions,
         feedback,
         blockErrors,
-        Optional.ofNullable(currentStep),
         currentInstruction,
         stack.isEmpty() ? mainVariables : stack.peek().variables,
         main.size() <= 8,
@@ -925,6 +937,13 @@ public final class MethodsWorkshop {
   }
 
   /**
+   * Confirms an editor intent that changed nothing, because its sender waits for a new revision.
+   */
+  public void acknowledge() {
+    revision++;
+  }
+
+  /**
    * Starts a fresh interpreter; the runtime must reset all physical objects before asking next().
    *
    * @param actor acting player entity ID
@@ -939,7 +958,8 @@ public final class MethodsWorkshop {
     stack.clear();
     stack.push(new Frame(List.copyOf(main), mainVariables, null));
     calls.clear();
-    currentStep = null;
+    countedCrystals = 0;
+    collectedCrystals = 0;
     currentInstruction = "";
     blockErrors.clear();
     activeMainBlockId = "";
@@ -1020,7 +1040,6 @@ public final class MethodsWorkshop {
             if (step.action() == Action.MOVE && (step.amount() < 1 || step.amount() > 32))
               throw new IllegalArgumentException("GEHE braucht eine Entfernung von 1 bis 32.");
             pending = block;
-            currentStep = step;
             currentInstruction = blockSource(block);
             revision++;
             return Optional.of(step);
@@ -1047,9 +1066,11 @@ public final class MethodsWorkshop {
       return;
     }
     try {
-      if (pending.action() == Action.COLLECT)
+      if (pending.action() == Action.COLLECT) {
+        collectedCrystals += value;
         assign(
             stack.peek().variables, pending.target(), Integer.toString(value), ResultMode.REPLACE);
+      }
       pending = null;
       revision++;
     } catch (IllegalArgumentException ex) {
@@ -1156,8 +1177,7 @@ public final class MethodsWorkshop {
         && value.matches("[\\p{L}_][\\p{L}\\p{N}_]{0,39}");
   }
 
-  private static void assign(
-      Map<String, String> vars, String target, String value, ResultMode mode) {
+  private void assign(Map<String, String> vars, String target, String value, ResultMode mode) {
     if (!identifier(target))
       throw new IllegalArgumentException("Ungültiger Variablenname: " + target);
     int amount = numeric(value);
@@ -1171,7 +1191,10 @@ public final class MethodsWorkshop {
                   ? Math.addExact(current, amount)
                   : Math.subtractExact(current, amount));
     }
-    vars.put(target, value);
+    String previous = vars.put(target, value);
+    // Every increase counts, so collecting and placing may interleave in any order.
+    if (vars == mainVariables && target.equals("kristalle"))
+      countedCrystals += Math.max(0, numeric(value) - (previous == null ? 0 : numeric(previous)));
   }
 
   private static int numeric(String value) {

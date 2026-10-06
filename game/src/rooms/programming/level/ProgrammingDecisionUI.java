@@ -222,11 +222,7 @@ final class ProgrammingDecisionUI extends Group {
     revision = next.revision();
     if (arrived) showRune = true;
     values.setText(next.values().label() + "     Versuch " + (next.failures() + 1));
-    feedback.setText(
-        next.driver() == viewer
-            ? next.feedback()
-            : (next.feedback().isEmpty() ? "" : next.feedback() + " · ")
-                + "Ein anderer Spieler reitet Nox.");
+    feedback.setText(next.feedback());
     // The completed state may arrive just before the server closes this dialog.
     int rune = Math.min(5, next.junction());
     title = "Kreuzung " + (rune + 1) + " / 6 · " + DecisionMaze.TITLES[rune];

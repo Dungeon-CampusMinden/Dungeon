@@ -278,8 +278,9 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
             : Cursors.DISABLED);
   }
 
+  /** A completed workshop stays read-only; the server no longer accepts its intents. */
   boolean editable() {
-    return state.editorId() == viewer && !state.busy();
+    return state.editorId() == viewer && !state.busy() && !state.completed();
   }
 
   void send(Operation operation, String value) {
@@ -287,7 +288,9 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   }
 
   void send(Operation operation, Function<State, String> value, Consumer<State> acknowledged) {
-    if (state.editorId() != viewer || (state.busy() && operation != Operation.STOP)) return;
+    if (state.editorId() != viewer
+        || state.completed()
+        || (state.busy() && operation != Operation.STOP)) return;
     flushFields();
     edits.add(new Edit(operation, value, acknowledged));
   }
@@ -334,7 +337,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
           || !previous.blockErrors().equals(state.blockErrors())) refreshEvaluation();
     }
     run.setText(state.busy() ? "Stoppen" : "Ausführen");
-    run.setDisabled(state.editorId() != viewer);
+    run.setDisabled(state.editorId() != viewer || state.completed());
     feedback.setText(
         (editFeedback.isEmpty() || state.busy() ? state.resultTitle() : editFeedback)
             + (state.editorId() != viewer ? " · Ein anderer Spieler bearbeitet den Code." : ""));

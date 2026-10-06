@@ -27,8 +27,7 @@ public enum ProgrammingAchievements {
   CELLAR_CLEAR,
   CLEAN_RUN,
   METHODS_FLAWLESS,
-  METHODS_PERSISTENT,
-  PLATINUM;
+  METHODS_PERSISTENT;
 
   /** Registers room definitions for the menu, client and server. */
   public static void register() {

@@ -99,7 +99,23 @@ final class ProgrammingWorkshopRuntime {
     accept(player, intent, false);
   }
 
+  /**
+   * Handles an intent; the editor's client waits for a new revision, so a rejection still gets one.
+   *
+   * @param player player that sent the intent
+   * @param intent requested operation and its snapshot version
+   * @param automaticSolution whether the help loaded the executed program
+   */
   private void accept(Entity player, MethodsWorkshop.Intent intent, boolean automaticSolution) {
+    var before = workshop.state();
+    handle(player, intent, automaticSolution);
+    if (before.editorId() == player.id() && workshop.state().revision() == before.revision()) {
+      workshop.acknowledge();
+      publish();
+    }
+  }
+
+  private void handle(Entity player, MethodsWorkshop.Intent intent, boolean automaticSolution) {
     if (intent == null || !arrived || !motion.methodsActive() || !authorized(player)) return;
     if (intent.operation() == MethodsWorkshop.Operation.STOP) {
       if (workshop.stop(player.id(), intent)) {

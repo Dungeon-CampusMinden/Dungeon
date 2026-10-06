@@ -1470,14 +1470,11 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
       var method = owner.state().definitions().get(drag.block().method());
       return method != null && method.parameters().size() == drag.block().arguments().size();
     }
-    List<Block> source =
-        switch (drag.container()) {
-          case "main" -> owner.state().main();
-          case "draft" -> owner.state().draft().body();
-          case "scrap" -> owner.state().scrap();
-          default -> List.of();
-        };
-    return !drag.ids().isEmpty() && source.stream().map(Block::id).toList().containsAll(drag.ids());
+    return !drag.ids().isEmpty()
+        && blocks(owner.state(), drag.container()).stream()
+            .map(Block::id)
+            .toList()
+            .containsAll(drag.ids());
   }
 
   private void refreshAll() {

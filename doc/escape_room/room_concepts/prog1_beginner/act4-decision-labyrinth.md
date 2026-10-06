@@ -6,7 +6,8 @@ Nach dem vollständig ausgeführten Werkstattprogramm öffnet sich der Ausgang a
 Nox geht durch die Tür zum Start des Labyrinths und wartet auf einen Reiter.
 Mit E an Nox steigt ein Spieler auf. Die Steuerung öffnet sich automatisch und bleibt
 bis zum Ende der Fahrt offen. Nur dieser Spieler entscheidet; weitere Spieler bewegen
-sich weiterhin frei im Raum. Nach einem Verbindungsabbruch wird der Sitz wieder frei.
+sich weiterhin frei im Raum. Wer Nox währenddessen anspricht, erfährt, dass bereits jemand
+reitet. Nach einem Verbindungsabbruch wird der Sitz wieder frei.
 Ein anderer Spieler kann dann direkt an Nox aufsteigen und den laufenden Versuch fortsetzen.
 Am Herzfeuer endet die Fahrt: Der Reiter steigt automatisch ab und die Steuerung schließt sich.
 
@@ -68,6 +69,8 @@ Eine geschlossene Wandreihe trennt die Arbeitsnischen von den Zweigausgängen.
 Vor der Wahl sind beide Ausgänge geschlossen. Bei Erfolg öffnet sich der innere Ausgang,
 bei einem Fehler der äußere. Der jeweils andere bleibt physisch gesperrt. Erst wenn Nox
 wieder START erreicht, schließen alle Entscheidungstore für den nächsten Versuch.
+Spieler, die Nox hinter die erste Tür gefolgt sind, kehren dabei in den Gang hinter START
+zurück, damit niemand in einem Abschnitt eingeschlossen wird.
 So sind geänderte Zweige bei neuen Werten sichtbar, ohne die Lösung vorwegzunehmen.
 Nox wird weder bei einer Fehlentscheidung noch bei einer Unterbrechung versetzt.
 Die vorhandene kollisionsgeprüfte Bewegung arbeitet die Wegpunkte mit fünf Tiles pro Sekunde ab.

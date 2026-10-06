@@ -12,9 +12,6 @@ public enum Cursors {
   /** A cursor indicating an action or interaction is possible. */
   INTERACT("cursors/pointer_l.png", 8, 7),
 
-  /** A cursor indicating an action to close something. */
-  CROSS("cursors/cross_small.png", 16, 16),
-
   /** A cursor indicating a text input field. */
   TEXT("cursors/bracket_a_vertical.png", 16, 16),
 

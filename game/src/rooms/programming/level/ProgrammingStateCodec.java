@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
-import rooms.programming.modules.methods.MethodsRoute;
 import rooms.programming.modules.methods.MethodsWorkshop;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -20,7 +19,6 @@ final class ProgrammingStateCodec {
           .addMixIn(MethodsWorkshop.State.class, ArrayRecord.class)
           .addMixIn(MethodsWorkshop.Block.class, ArrayRecord.class)
           .addMixIn(MethodsWorkshop.Definition.class, ArrayRecord.class)
-          .addMixIn(MethodsRoute.Step.class, ArrayRecord.class)
           .build();
   private static final String COMPRESSED = "z:";
   private static final int MAX_JSON_BYTES = 1 << 20;

@@ -32,7 +32,6 @@ import java.util.Set;
 import rooms.programming.Programming;
 import rooms.programming.ProgrammingAchievements;
 import rooms.programming.ProgrammingRoomController;
-import rooms.programming.PuzzleSubmissionResult;
 import rooms.programming.modules.loops.LoopExecution;
 import rooms.programming.modules.loops.LoopMaze;
 import rooms.programming.modules.loops.LoopProgram;
@@ -65,6 +64,7 @@ final class ProgrammingGolemRuntime {
   private final ProgrammingHelp help;
   private boolean assistedLoops;
   private boolean assistedRuneCollection;
+  private boolean manualRuneCollected;
   private boolean solvingBinding;
   private java.util.UUID attemptParticipant;
   private String attemptCode = "";
@@ -311,7 +311,7 @@ final class ProgrammingGolemRuntime {
       text(who, "Aktivierung unterbrochen. Laufweg blockiert.");
       return;
     }
-    if (controller.activateGolem() != PuzzleSubmissionResult.ACCEPTED) {
+    if (!controller.activateGolem()) {
       breakingGate = false;
       return;
     }
@@ -391,7 +391,7 @@ final class ProgrammingGolemRuntime {
   }
 
   private boolean collectRune(String runeId, Entity who, boolean assisted) {
-    if (controller.collectLoopRune(runeId) != PuzzleSubmissionResult.ACCEPTED) return false;
+    if (!controller.collectLoopRune(runeId)) return false;
     assistedRuneCollection |= assisted;
     if (assisted) {
       ProgrammingProgress.discoverRune(LoopPuzzle.rune(runeId).orElseThrow(), who);
@@ -400,9 +400,12 @@ final class ProgrammingGolemRuntime {
           .toList()
           .forEach(Game::remove);
     }
-    int collected = controller.collectedLoopRunes().size();
-    if (!assisted && collected == 1) ProgrammingAchievements.FIRST_RUNE.unlock();
-    if (!assistedRuneCollection && collected == LoopPuzzle.runes().size())
+    if (!assisted && !manualRuneCollected) {
+      manualRuneCollected = true;
+      ProgrammingAchievements.FIRST_RUNE.unlock();
+    }
+    if (!assistedRuneCollection
+        && controller.collectedLoopRunes().size() == LoopPuzzle.runes().size())
       ProgrammingAchievements.ARCHIVIST.unlock();
     return true;
   }
@@ -655,16 +658,7 @@ final class ProgrammingGolemRuntime {
     attacking = false;
     position.rotation(0);
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
-    if (!success)
-      recordLoopOutcome(
-          List.of(
-              reason.isEmpty()
-                  ? finished
-                          .cell()
-                          .equals(LoopMaze.checkpoints().get(controller.completedLoops()).goal())
-                      ? "Blickrichtung falsch."
-                      : "Zielmarke nicht erreicht."
-                  : reason));
+    if (!success) recordLoopOutcome(List.of(reason.isEmpty() ? missedGoal(finished) : reason));
     if (success) {
       String challenge = currentChallenge();
       busy = true;
@@ -705,12 +699,7 @@ final class ProgrammingGolemRuntime {
       checkpointFailures++;
       returnFeedback =
           reason.isEmpty()
-              ? "Programm beendet. "
-                  + (finished
-                          .cell()
-                          .equals(LoopMaze.checkpoints().get(controller.completedLoops()).goal())
-                      ? "Blickrichtung falsch."
-                      : "Zielmarke nicht erreicht.")
+              ? "Programm beendet. " + missedGoal(finished)
               : "Programm gestoppt. " + reason;
       status = returnFeedback + " Nox kehrt zurück.";
       returning = true;
@@ -723,6 +712,16 @@ final class ProgrammingGolemRuntime {
         retrace.add(LoopMaze.world(level.getPoint("maze-origin"), history.get(i)));
       arrived = () -> move(retrace, this::resetAttempt);
     }
+  }
+
+  /**
+   * @param finished attempt that ended without an explicit failure
+   * @return why the program missed the current checkpoint
+   */
+  private String missedGoal(LoopExecution finished) {
+    return finished.cell().equals(LoopMaze.checkpoints().get(controller.completedLoops()).goal())
+        ? "Blickrichtung falsch."
+        : "Zielmarke nicht erreicht.";
   }
 
   private void resetAttempt() {
@@ -865,12 +864,7 @@ final class ProgrammingGolemRuntime {
     lastPosition = from;
     if (stalled > 2f) {
       if (breakingGate || workshopTransit || returning) {
-        status =
-            returning
-                ? returnFeedback + " Nox wartet auf einen freien Rückweg."
-                : workshopTransit
-                    ? "Nox wartet auf einen freien Weg in der Werkstatt."
-                    : "Nox wartet auf einen freien Weg zur Schleuse.";
+        status = waitingStatus();
         stalled = 0;
         pause = .5f;
         return;
@@ -887,8 +881,9 @@ final class ProgrammingGolemRuntime {
     float fraction = distance <= speed * delta ? 1 : speed * delta / distance;
     Point next =
         from.translate((target.x() - from.x()) * fraction, (target.y() - from.y()) * fraction);
-    if (breakingGate && touchesDeparture(next)) ProgrammingGates.departure(level, true);
-    if (breakingGate && !wallBroken && touchesWorkshopGate(next)) {
+    if (breakingGate && touchesGate("departure-gate", next))
+      ProgrammingGates.departure(level, true);
+    if (breakingGate && !wallBroken && touchesGate("act1-gate", next)) {
       ProgrammingGates.open(level, 1);
       wallBroken = true;
       wallBreakTime = 0.6f;
@@ -900,12 +895,7 @@ final class ProgrammingGolemRuntime {
     }
     if (!fits(from, next, breakingGate) || CollisionUtils.isCollidingWithOtherSolids(golem, next)) {
       if (breakingGate || workshopTransit || returning) {
-        status =
-            returning
-                ? returnFeedback + " Nox wartet auf einen freien Rückweg."
-                : workshopTransit
-                    ? "Nox wartet auf einen freien Weg in der Werkstatt."
-                    : "Nox wartet auf einen freien Weg zur Schleuse.";
+        status = waitingStatus();
         pause = .5f;
         return;
       }
@@ -927,6 +917,17 @@ final class ProgrammingGolemRuntime {
       return;
     }
     velocity.currentVelocity(from.vectorTo(next).scale(1f / delta));
+  }
+
+  /**
+   * @return status while a movement that must not fail waits for a blocked path
+   */
+  private String waitingStatus() {
+    return returning
+        ? returnFeedback + " Nox wartet auf einen freien Rückweg."
+        : workshopTransit
+            ? "Nox wartet auf einen freien Weg in der Werkstatt."
+            : "Nox wartet auf einen freien Weg zur Schleuse.";
   }
 
   /**
@@ -982,7 +983,7 @@ final class ProgrammingGolemRuntime {
     float maxY = minY + footprint.height() - 0.001f;
     for (int y = (int) Math.floor(minY); y <= Math.floor(maxY); y++) {
       for (int x = (int) Math.floor(minX); x <= Math.floor(maxX); x++) {
-        if (allowGate && (inWorkshopGate(x, y) || inDeparture(x, y))) continue;
+        if (allowGate && (inGate("act1-gate", x, y) || inGate("departure-gate", x, y))) continue;
         if (!level.tileAt(new Coordinate(x, y)).map(Tile::isAccessible).orElse(false)) return false;
       }
     }
@@ -1021,39 +1022,25 @@ final class ProgrammingGolemRuntime {
         Math.min(from.y(), to.y()) + body.bottom() * scale.y());
   }
 
-  private boolean touchesWorkshopGate(Point p) {
-    Rectangle bounds = footprint(p, p);
+  /**
+   * @param gate named-point prefix of a breakable gate
+   * @param point golem position to test
+   * @return whether the golem footprint at that position overlaps the gate tiles
+   */
+  private boolean touchesGate(String gate, Point point) {
+    Rectangle bounds = footprint(point, point);
     for (int y = (int) Math.floor(bounds.y());
         y <= Math.floor(bounds.y() + bounds.height() - 0.001f);
         y++)
       for (int x = (int) Math.floor(bounds.x());
           x <= Math.floor(bounds.x() + bounds.width() - 0.001f);
-          x++) if (inWorkshopGate(x, y)) return true;
+          x++) if (inGate(gate, x, y)) return true;
     return false;
   }
 
-  private boolean touchesDeparture(Point point) {
-    Rectangle bounds = footprint(point, point);
-    for (int y = (int) Math.floor(bounds.y()); y <= Math.floor(bounds.y() + bounds.height()); y++)
-      for (int x = (int) Math.floor(bounds.x()); x <= Math.floor(bounds.x() + bounds.width()); x++)
-        if (inDeparture(x, y)) return true;
-    return false;
-  }
-
-  private boolean inDeparture(int x, int y) {
-    Point a = level.namedPoints().get("departure-gate-start");
-    Point b = level.namedPoints().get("departure-gate-end");
-    return a != null
-        && b != null
-        && x >= Math.min(a.x(), b.x())
-        && x <= Math.max(a.x(), b.x())
-        && y >= Math.min(a.y(), b.y())
-        && y <= Math.max(a.y(), b.y());
-  }
-
-  private boolean inWorkshopGate(int x, int y) {
-    Point a = level.namedPoints().get("act1-gate-start");
-    Point b = level.namedPoints().get("act1-gate-end");
+  private boolean inGate(String gate, int x, int y) {
+    Point a = level.namedPoints().get(gate + "-start");
+    Point b = level.namedPoints().get(gate + "-end");
     return a != null
         && b != null
         && x >= Math.min(a.x(), b.x())
@@ -1113,16 +1100,15 @@ final class ProgrammingGolemRuntime {
     if (!helpSolveAuthorized(who) || !helpSolvable()) return;
     switch (controller.phase()) {
       case VARIABLES -> {
+        boolean vessel = controller.variableStage() == VariablePuzzleStage.VESSELS;
+        Map<GolemProperty, ? extends Enum<?>> solution =
+            vessel ? VariablePuzzle.vesselSolution() : VariablePuzzle.essenceSolution();
+        // The attempt precedes the assignments, which already solve the puzzle.
+        recordBindingSolution(who, vessel, solution);
         solvingBinding = true;
         try {
-          if (controller.variableStage() == VariablePuzzleStage.VESSELS)
-            VariablePuzzle.vesselSolution()
-                .forEach(
-                    (property, value) -> assignBinding(who, property.name(), value.name(), true));
-          else
-            VariablePuzzle.essenceSolution()
-                .forEach(
-                    (property, value) -> assignBinding(who, property.name(), value.name(), false));
+          solution.forEach(
+              (property, value) -> assignBinding(who, property.name(), value.name(), vessel));
         } finally {
           solvingBinding = false;
         }
@@ -1140,12 +1126,18 @@ final class ProgrammingGolemRuntime {
     }
   }
 
+  /**
+   * Records one manual assignment. Essences placed while vessels are still being assigned are not
+   * attempts, because the essence puzzle has not started yet.
+   */
   private void recordBinding(
       Entity who,
       GolemProperty property,
       String selected,
       boolean vessel,
       List<String> failureReasons) {
+    if (solvingBinding || !vessel && controller.variableStage() == VariablePuzzleStage.VESSELS)
+      return;
     ProgrammingProgress.participant(who)
         .ifPresent(
             participant ->
@@ -1156,16 +1148,36 @@ final class ProgrammingGolemRuntime {
                     property.name() + "=" + selected,
                     participant,
                     new engine.tracking.AttemptDetails(
-                        help.level(vessel ? "vessels" : "essences"),
-                        solvingBinding,
-                        failureReasons)));
+                        help.level(vessel ? "vessels" : "essences"), false, failureReasons)));
+  }
+
+  /** Records a confirmed automatic binding solution as one attempt and one journal line. */
+  private void recordBindingSolution(
+      Entity who, boolean vessel, Map<GolemProperty, ? extends Enum<?>> solution) {
+    String puzzle = vessel ? "vessels" : "essences";
+    String answer =
+        solution.entrySet().stream()
+            .map(entry -> entry.getKey().name() + "=" + entry.getValue().name())
+            .collect(java.util.stream.Collectors.joining(","));
+    ProgrammingProgress.participant(who)
+        .ifPresent(
+            participant ->
+                ProgrammingProgress.attempt(
+                    puzzle,
+                    "solution",
+                    vessel ? "vessel" : "essence",
+                    answer,
+                    participant,
+                    new engine.tracking.AttemptDetails(help.level(puzzle), true, List.of())));
+    logBinding(vessel, "Lösung eingesetzt", "Hilfe");
   }
 
   private void logBinding(boolean vessel, String entry, String outcome) {
+    if (solvingBinding) return;
     ProgrammingProgress.log(
         vessel ? "vessels" : "essences",
         vessel ? "Gefäße zuordnen" : "Essenzen einsetzen",
-        entry + " · " + outcome + (solvingBinding ? " (Hilfe)" : ""));
+        entry + " · " + outcome);
   }
 
   private void recordLoopOutcome(List<String> failureReasons) {

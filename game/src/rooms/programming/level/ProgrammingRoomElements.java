@@ -151,7 +151,6 @@ final class ProgrammingRoomElements {
     Entity entity =
         createEntity(level, "rune-" + rune.id(), Visual.RUNE, LoopPuzzle.runes().indexOf(rune));
     entity.fetch(PositionComponent.class).orElseThrow().scale(0.65f);
-    entity.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Player.depth() + 1);
     entity
         .fetch(DrawComponent.class)
         .orElseThrow()
@@ -243,9 +242,8 @@ final class ProgrammingRoomElements {
           };
       drawComponent.depth(
           switch (this) {
-            case RUNE -> DepthLayer.Ground.depth();
-            // Tabletop items must render above the furniture supporting them.
-            case BOOK, SCROLL, SEHSTEIN -> DepthLayer.Player.depth() + 1;
+            // Runes and tabletop items must render above the furniture supporting them.
+            case RUNE, BOOK, SCROLL, SEHSTEIN -> DepthLayer.Player.depth() + 1;
             // Share the player's layer so Y sorting places characters behind standing objects.
             case GOLEM, CHEST -> DepthLayer.Player.depth();
           });

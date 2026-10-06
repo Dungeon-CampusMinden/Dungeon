@@ -53,72 +53,69 @@ public final class ProgrammingRoomController {
    * Records the complete vessel binding before the final value assignment can be revealed.
    *
    * @param vessels the submitted assignment
-   * @return whether it was accepted, incorrect, or submitted outside the vessel stage
+   * @return whether it was correct and submitted during the vessel stage
    */
-  public PuzzleSubmissionResult submitVessels(Map<GolemProperty, SoulVessel> vessels) {
+  public boolean submitVessels(Map<GolemProperty, SoulVessel> vessels) {
     requireAuthority();
-    if (!variableStageActive(VariablePuzzleStage.VESSELS)) return PuzzleSubmissionResult.INACTIVE;
-    if (!VariablePuzzle.vesselsCorrect(vessels)) return PuzzleSubmissionResult.INCORRECT;
+    if (!variableStageActive(VariablePuzzleStage.VESSELS)
+        || !VariablePuzzle.vesselsCorrect(vessels)) return false;
     variableStage = VariablePuzzleStage.ESSENCES;
-    return PuzzleSubmissionResult.ACCEPTED;
+    return true;
   }
 
   /**
    * Validates the essence assignment and unlocks the data-type reveal.
    *
    * @param essences the submitted assignment
-   * @return whether it was accepted, incorrect, or submitted outside the essence stage
+   * @return whether it was correct and submitted during the essence stage
    */
-  public PuzzleSubmissionResult submitEssences(Map<GolemProperty, MagicalEssence> essences) {
+  public boolean submitEssences(Map<GolemProperty, MagicalEssence> essences) {
     requireAuthority();
-    if (!variableStageActive(VariablePuzzleStage.ESSENCES)) return PuzzleSubmissionResult.INACTIVE;
-    if (!VariablePuzzle.essencesCorrect(essences)) return PuzzleSubmissionResult.INCORRECT;
+    if (!variableStageActive(VariablePuzzleStage.ESSENCES)
+        || !VariablePuzzle.essencesCorrect(essences)) return false;
     variableStage = VariablePuzzleStage.REVEAL;
-    return PuzzleSubmissionResult.ACCEPTED;
+    return true;
   }
 
   /**
    * Completes the data-type reveal and activates the golem.
    *
-   * @return accepted if the reveal was active, otherwise inactive
+   * @return whether the reveal was active
    */
-  public PuzzleSubmissionResult activateGolem() {
+  public boolean activateGolem() {
     requireAuthority();
-    if (!variableStageActive(VariablePuzzleStage.REVEAL)) return PuzzleSubmissionResult.INACTIVE;
+    if (!variableStageActive(VariablePuzzleStage.REVEAL)) return false;
     variableStage = VariablePuzzleStage.COMPLETE;
     phase = ProgrammingPhase.LOOPS;
-    return PuzzleSubmissionResult.ACCEPTED;
+    return true;
   }
 
   /**
    * Collects a canonical rune once while either playable act is active.
    *
    * @param runeId the rune to collect
-   * @return whether collection was accepted, invalid or duplicate, or outside a playable act
+   * @return whether a known, not yet collected rune was collected during a playable act
    */
-  public PuzzleSubmissionResult collectLoopRune(String runeId) {
+  public boolean collectLoopRune(String runeId) {
     requireAuthority();
-    if (phase != ProgrammingPhase.VARIABLES && phase != ProgrammingPhase.LOOPS)
-      return PuzzleSubmissionResult.INACTIVE;
-    if (LoopPuzzle.rune(runeId).isEmpty() || !collectedRunes.add(runeId))
-      return PuzzleSubmissionResult.INCORRECT;
-    return PuzzleSubmissionResult.ACCEPTED;
+    return (phase == ProgrammingPhase.VARIABLES || phase == ProgrammingPhase.LOOPS)
+        && LoopPuzzle.rune(runeId).isPresent()
+        && collectedRunes.add(runeId);
   }
 
   /**
    * Records a physically completed situation, not a preselected loop type.
    *
    * @param challengeId the completed station
-   * @return accepted for the current station, incorrect for another, or inactive outside act two
+   * @return whether it was the current station during act two
    */
-  public PuzzleSubmissionResult completeExecutedLoop(String challengeId) {
+  public boolean completeExecutedLoop(String challengeId) {
     requireAuthority();
-    if (phase != ProgrammingPhase.LOOPS) return PuzzleSubmissionResult.INACTIVE;
-    if (!LoopPuzzle.challenges().get(completedLoops).equals(challengeId))
-      return PuzzleSubmissionResult.INCORRECT;
+    if (phase != ProgrammingPhase.LOOPS
+        || !LoopPuzzle.challenges().get(completedLoops).equals(challengeId)) return false;
     completedLoops++;
     if (completedLoops == LoopPuzzle.challenges().size()) phase = ProgrammingPhase.METHODS;
-    return PuzzleSubmissionResult.ACCEPTED;
+    return true;
   }
 
   /** Advances only after the authoritative workshop has completed its physical program. */

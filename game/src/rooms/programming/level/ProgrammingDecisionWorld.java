@@ -12,8 +12,10 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.path.SimpleIPath;
+import feature.collision.CollisionUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.systems.PositionSync;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +136,8 @@ final class ProgrammingDecisionWorld {
   }
 
   /**
-   * Closes previous choices after Nox has returned to START.
+   * Closes previous choices after Nox has returned to START. Players beyond the first doors would
+   * be locked into a section, so they rejoin Nox in the entrance corridor.
    *
    * @param level shared labyrinth
    */
@@ -144,6 +147,29 @@ final class ProgrammingDecisionWorld {
       for (int x : new int[] {LEFT_X[i], RIGHT_X[i]}) doors(level, x, y + 3, x + 4, y + 3, false);
       for (int x : outlets(i)) doors(level, x, y + 4, x, y + 6, false);
     }
+    Game.allPlayers()
+        .filter(
+            player ->
+                player
+                    .fetch(PositionComponent.class)
+                    .map(at -> at.position().y() > JUNCTION_Y[0] + 2)
+                    .orElse(false))
+        .toList()
+        .forEach(ProgrammingDecisionWorld::returnToStart);
+  }
+
+  /** Moves a player to the first unoccupied floor slot of the corridor behind START. */
+  private static void returnToStart(Entity player) {
+    Point slot = START.translate(1, -2);
+    for (int i = 0; i < 12; i++) {
+      Point candidate = START.translate(1 + i % 4, -2 - i / 4);
+      if (!CollisionUtils.isCollidingWithOtherSolids(player, candidate)) {
+        slot = candidate;
+        break;
+      }
+    }
+    player.fetch(PositionComponent.class).orElseThrow().position(slot);
+    PositionSync.syncPosition(player);
   }
 
   private static int[] outlets(int index) {

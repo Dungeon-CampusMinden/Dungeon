@@ -56,7 +56,12 @@ class MethodsWorkshopTest {
     assertTrue(
         workshop.state().feedback().contains(original.size() + " Blöcke, höchstens 8 erlaubt"));
     if (stock != 0) {
-      assertTrue(workshop.state().feedback().contains("Variable kristalle: 16. Erwartet: 0."));
+      assertTrue(
+          workshop
+              .state()
+              .feedback()
+              .contains(
+                  "Variable kristalle: gezählt 24, Endwert 16. Erwartet: 8 gesammelte Kristalle, dann 0."));
     }
     if (carried != 0)
       assertTrue(workshop.state().feedback().contains("Nox trägt 3 Kristalle. Erwartet: 0."));
@@ -137,11 +142,9 @@ class MethodsWorkshopTest {
     var workshop = canonical();
     List<Block> code = workshop.state().main();
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
-    assertTrue(workshop.state().currentStep().isEmpty());
     var firstStep = workshop.next().orElseThrow();
     assertEquals(Action.OPEN_GATE, firstStep.action());
     workshop.actionResult(false, 0, "Kein Tor an dieser Position.");
-    assertEquals(firstStep, workshop.state().currentStep().orElseThrow());
     assertFalse(workshop.state().busy());
     assertEquals(1, workshop.state().errors());
     var errors = Map.of(code.getFirst().id(), "Kein Tor an dieser Position.");
@@ -157,7 +160,6 @@ class MethodsWorkshopTest {
     assertEquals(
         failed, JSON.readValue(JSON.writeValueAsString(failed), MethodsWorkshop.State.class));
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
-    assertTrue(workshop.state().currentStep().isEmpty());
     assertTrue(workshop.state().blockErrors().isEmpty());
     assertEquals(RunState.RUNNING, workshop.state().runState());
     assertEquals(0, workshop.state().crystals());
