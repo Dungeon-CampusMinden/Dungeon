@@ -127,7 +127,8 @@ public final class QuestLogUtil {
               entry.timestamp(),
               entry.userCreated(),
               entry.owner(),
-              entry.onlyForCreator()));
+              entry.onlyForCreator(),
+              entry.title()));
     }
     if (questlog == null) {
       questlog = Entity.createLocalEntity(QUEST_LOG_ENTITY_NAME);

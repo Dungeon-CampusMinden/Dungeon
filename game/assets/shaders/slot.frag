@@ -24,22 +24,6 @@ uniform vec4 u_textureColor;
 const float textureColorInfluence = 0.65;
 
 // ----- Custom functions -----
-bool isInOutline(vec2 uv, vec2 stepSize, int width) {
-  for(int ix = -10; ix <= 10; ix++){
-    if(abs(float(ix)) > float(width)) continue;
-    for(int iy = -10; iy <= 10; iy++){
-      if(abs(float(iy)) > float(width)) continue;
-      float sampleX = uv.x + float(ix) * stepSize.x;
-      float sampleY = uv.y + float(iy) * stepSize.y;
-      vec4 neighbor = texture2D(u_texture, vec2(sampleX, sampleY));
-      if(neighbor.a >= 0.01){
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 // ----- Main -----
 void main(){
   vec4 color = unPma(texture2D(u_texture, vec2(uv.x, uv.y)));
@@ -50,7 +34,7 @@ void main(){
   if(color.a > 0.0){
     color.rgb = mix(color.rgb, u_textureColor.rgb, textureColorInfluence);
     color.a = u_textureColor.a;
-  } else if(width > 0 && isInOutline(uv, stepSize, width)){
+  } else if(width > 0 && isInOutline(u_texture, uv, stepSize, width)){
     color = u_color;
   }
 

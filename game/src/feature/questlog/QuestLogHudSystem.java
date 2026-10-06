@@ -20,6 +20,7 @@ import engine.utils.components.path.SimpleIPath;
 import feature.hud.UIUtils;
 import feature.input.configuration.KeyboardConfig;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -133,9 +134,11 @@ public final class QuestLogHudSystem extends System {
    * @param owner owner of the entry
    * @param timestamp timestamp of the entry
    * @param text display text of the entry, see {@link QuestLogUI#entryText(QuestLogEntry)}
+   * @param title optional title of the entry
    */
-  static void markRead(String tab, String owner, int timestamp, String text) {
-    READ_ENTRIES.add(new ReadKey(tab, owner, timestamp, text));
+  static void markRead(
+      String tab, String owner, int timestamp, String text, Optional<String> title) {
+    READ_ENTRIES.add(new ReadKey(tab, owner, timestamp, text, title));
   }
 
   /**
@@ -177,9 +180,11 @@ public final class QuestLogHudSystem extends System {
         .orElse(null);
   }
 
-  private record ReadKey(String tab, String owner, int timestamp, String text) {
+  private record ReadKey(
+      String tab, String owner, int timestamp, String text, Optional<String> title) {
     private static ReadKey of(String tab, QuestLogEntry entry) {
-      return new ReadKey(tab, entry.owner(), entry.timestamp(), QuestLogUI.entryText(entry));
+      return new ReadKey(
+          tab, entry.owner(), entry.timestamp(), QuestLogUI.entryText(entry), entry.title());
     }
   }
 }

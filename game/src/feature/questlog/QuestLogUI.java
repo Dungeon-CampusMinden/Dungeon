@@ -90,6 +90,7 @@ public final class QuestLogUI {
   private static final String CTX_SELECTED_TAB = "questlog.selectedTab";
   private static final String CTX_ENTRY_TABS = "questlog.entryTabs";
   private static final String CTX_ENTRY_TEXTS = "questlog.entryTexts";
+  private static final String CTX_ENTRY_TITLES = "questlog.entryTitles";
   private static final String CTX_ENTRY_OWNERS = "questlog.entryOwners";
   private static final String CTX_ENTRY_TIMESTAMPS = "questlog.entryTimestamps";
   private static final String CTX_VIEWER_ID = "questlog.viewerId";
@@ -353,6 +354,7 @@ public final class QuestLogUI {
         .put(CTX_SELECTED_TAB, viewData.selectedTab())
         .put(CTX_ENTRY_TABS, viewData.entryTabs().toArray(new String[0]))
         .put(CTX_ENTRY_TEXTS, viewData.entryTexts().toArray(new String[0]))
+        .put(CTX_ENTRY_TITLES, viewData.entryTitles().toArray(new String[0]))
         .put(CTX_ENTRY_OWNERS, viewData.entryOwners().toArray(new String[0]))
         .put(CTX_ENTRY_TIMESTAMPS, viewData.entryTimestamps())
         .put(CTX_OVERVIEW_TAB, viewData.overviewTab())
@@ -366,6 +368,7 @@ public final class QuestLogUI {
         ctx.find(CTX_SELECTED_TAB, String.class).orElse(""),
         List.of(ctx.find(CTX_ENTRY_TABS, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_TEXTS, String[].class).orElse(new String[0])),
+        List.of(ctx.find(CTX_ENTRY_TITLES, String[].class).orElse(new String[0])),
         List.of(ctx.find(CTX_ENTRY_OWNERS, String[].class).orElse(new String[0])),
         ctx.find(CTX_ENTRY_TIMESTAMPS, int[].class).orElse(new int[0]),
         ctx.find(CTX_VIEWER_ID, Integer.class).orElse(-1),
@@ -422,6 +425,7 @@ public final class QuestLogUI {
         selectedTab,
         entryTabs,
         entries.stream().map(QuestLogUI::entryText).toList(),
+        entries.stream().map(entry -> entry.title().orElse("")).toList(),
         entries.stream().map(QuestLogEntry::owner).toList(),
         entries.stream().mapToInt(QuestLogEntry::timestamp).toArray(),
         viewer == null ? -1 : viewer.id(),
@@ -775,7 +779,9 @@ public final class QuestLogUI {
     builder.append(detailTitle(selectedTab));
 
     for (QuestLogEntry entry : selection.selectedEntries()) {
-      builder.append(System.lineSeparator()).append("- ").append(entryText(entry));
+      builder.append(System.lineSeparator()).append("- ");
+      entry.title().ifPresent(title -> builder.append(title).append(System.lineSeparator()));
+      builder.append(entryText(entry));
     }
   }
 
@@ -787,7 +793,9 @@ public final class QuestLogUI {
 
     builder.append("[").append(tab).append("]");
     for (QuestLogEntry entry : entries) {
-      builder.append(System.lineSeparator()).append("- ").append(entry.text());
+      builder.append(System.lineSeparator()).append("- ");
+      entry.title().ifPresent(title -> builder.append(title).append(System.lineSeparator()));
+      builder.append(entry.text());
 
       metadataFor(entry.owner())
           .ifPresent(metadata -> builder.append(" (").append(metadata).append(")"));
@@ -799,23 +807,6 @@ public final class QuestLogUI {
       return Optional.empty();
     }
     return Optional.of(owner);
-  }
-
-  /**
-   * Splits a single-line title followed by a blank line and details into collapsible parts.
-   *
-   * @param text displayed entry text
-   * @return title and details, or empty when the entry is displayed as plain text
-   */
-  private static Optional<String[]> collapsibleParts(String text) {
-    String[] parts = text.split("\\R\\h*\\R", 2);
-    if (parts.length != 2
-        || parts[0].isBlank()
-        || parts[0].lines().count() != 1
-        || parts[1].isBlank()) {
-      return Optional.empty();
-    }
-    return Optional.of(parts);
   }
 
   private static void logMissingQuestLog() {
@@ -855,13 +846,15 @@ public final class QuestLogUI {
     }
   }
 
-  private record QuestLogEntryView(String tab, String text, String owner, int timestamp) {}
+  private record QuestLogEntryView(
+      String tab, String text, String owner, int timestamp, Optional<String> title) {}
 
   private record QuestLogViewData(
       List<String> tabs,
       String selectedTab,
       List<String> entryTabs,
       List<String> entryTexts,
+      List<String> entryTitles,
       List<String> entryOwners,
       int[] entryTimestamps,
       int viewerId,
@@ -873,6 +866,7 @@ public final class QuestLogUI {
       selectedTab = Objects.requireNonNull(selectedTab, "selectedTab");
       entryTabs = List.copyOf(Objects.requireNonNull(entryTabs, "entryTabs"));
       entryTexts = List.copyOf(Objects.requireNonNull(entryTexts, "entryTexts"));
+      entryTitles = List.copyOf(Objects.requireNonNull(entryTitles, "entryTitles"));
       entryOwners = List.copyOf(Objects.requireNonNull(entryOwners, "entryOwners"));
       entryTimestamps = Objects.requireNonNull(entryTimestamps, "entryTimestamps").clone();
       overviewTab = Objects.requireNonNull(overviewTab, "overviewTab");
@@ -887,13 +881,14 @@ public final class QuestLogUI {
     private List<QuestLogEntryView> references() {
       List<QuestLogEntryView> references = new ArrayList<>();
       for (int index : overviewReferences) {
-        if (index >= 0 && index < entryTexts.size()) {
+        if (index >= 0 && index < entryCount()) {
           references.add(
               new QuestLogEntryView(
                   entryTabs.get(index),
                   entryTexts.get(index),
                   entryOwners.get(index),
-                  entryTimestamps[index]));
+                  entryTimestamps[index],
+                  titleAt(index)));
         }
       }
       return references;
@@ -904,19 +899,35 @@ public final class QuestLogUI {
         return List.of();
       }
 
-      int entryCount =
-          Collections.min(List.of(entryTabs.size(), entryTexts.size(), entryOwners.size()));
-      entryCount = Math.min(entryCount, entryTimestamps.length);
+      int entryCount = entryCount();
       List<QuestLogEntryView> entries = new ArrayList<>();
 
       for (int i = 0; i < entryCount; i++) {
         if (tab.equals(entryTabs.get(i))) {
           entries.add(
               new QuestLogEntryView(
-                  entryTabs.get(i), entryTexts.get(i), entryOwners.get(i), entryTimestamps[i]));
+                  entryTabs.get(i),
+                  entryTexts.get(i),
+                  entryOwners.get(i),
+                  entryTimestamps[i],
+                  titleAt(i)));
         }
       }
       return entries;
+    }
+
+    private int entryCount() {
+      return Collections.min(
+          List.of(
+              entryTabs.size(),
+              entryTexts.size(),
+              entryTitles.size(),
+              entryOwners.size(),
+              entryTimestamps.length));
+    }
+
+    private Optional<String> titleAt(int index) {
+      return Optional.of(entryTitles.get(index)).filter(title -> !title.isEmpty());
     }
 
     private String toHeadlessText() {
@@ -930,7 +941,12 @@ public final class QuestLogUI {
         }
         builder.append(displayText(tab));
         for (QuestLogEntryView entry : entriesFor(tab)) {
-          builder.append(System.lineSeparator()).append("- ").append(displayText(entry.text()));
+          builder.append(System.lineSeparator()).append("- ");
+          entry
+              .title()
+              .ifPresent(
+                  title -> builder.append(displayText(title)).append(System.lineSeparator()));
+          builder.append(displayText(entry.text()));
         }
       }
       return builder.toString();
@@ -963,11 +979,11 @@ public final class QuestLogUI {
       this.selectedTab = resolveInitialSelectedTab(viewData);
       // Collapsed details count as read once they are expanded.
       viewData.entriesFor(selectedTab).stream()
-          .filter(entry -> collapsibleParts(displayText(entry.text())).isEmpty())
+          .filter(entry -> entry.title().isEmpty())
           .forEach(
               entry ->
                   QuestLogHudSystem.markRead(
-                      entry.tab(), entry.owner(), entry.timestamp(), entry.text()));
+                      entry.tab(), entry.owner(), entry.timestamp(), entry.text(), entry.title()));
 
       buildLayout();
       refresh();
@@ -1178,19 +1194,17 @@ public final class QuestLogUI {
     }
 
     /**
-     * A title followed by a blank line introduces locally collapsible details.
+     * An explicit title introduces locally collapsible details.
      *
      * @param detail the table receiving the entry
      * @param entry the entry to display
      */
     private void addEntry(Table detail, QuestLogEntryView entry) {
       String text = displayText(entry.text());
-      Optional<String[]> collapsible = collapsibleParts(text);
-      if (collapsible.isEmpty()) {
+      if (entry.title().isEmpty()) {
         addPages(detail, text, pageLabelWidth());
         return;
       }
-      String[] parts = collapsible.get();
 
       Button.ButtonStyle style = new Button.ButtonStyle();
       style.up = rowNormal;
@@ -1202,7 +1216,10 @@ public final class QuestLogUI {
       toggle.setChecked(expandedEntries.contains(entry));
       RichLabel marker = label(toggle.isChecked() ? "-" : "+", FONT_SELECTED, false);
       toggle.add(marker).width(24f).top();
-      toggle.add(label(parts[0], FONT_SELECTED, true)).growX().left();
+      toggle
+          .add(label(displayText(entry.title().orElseThrow()), FONT_SELECTED, true))
+          .growX()
+          .left();
       toggle.pad(10f);
       detail.add(toggle).growX().minHeight(44f).padBottom(10).padRight(10).row();
       Table body = new Table();
@@ -1216,8 +1233,8 @@ public final class QuestLogUI {
             if (toggle.isChecked()) {
               expandedEntries.add(entry);
               QuestLogHudSystem.markRead(
-                  entry.tab(), entry.owner(), entry.timestamp(), entry.text());
-              addPages(body, parts[1].strip(), pageLabelWidth() - 24f);
+                  entry.tab(), entry.owner(), entry.timestamp(), entry.text(), entry.title());
+              addPages(body, text, pageLabelWidth() - 24f);
             } else expandedEntries.remove(entry);
             invalidateHierarchy();
           };
@@ -1254,7 +1271,11 @@ public final class QuestLogUI {
      */
     private void addOverviewReferences(Table detail) {
       for (QuestLogEntryView entry : viewData.references()) {
-        String title = displayText(entry.text()).lines().findFirst().orElse(entry.tab());
+        String title =
+            entry
+                .title()
+                .map(QuestLogUI::displayText)
+                .orElseGet(() -> displayText(entry.text()).lines().findFirst().orElse(entry.tab()));
         detail
             .add(
                 navigationButton(
@@ -1264,7 +1285,11 @@ public final class QuestLogUI {
                       focusedEntry = Optional.of(entry);
                       expandedEntries.add(entry);
                       QuestLogHudSystem.markRead(
-                          entry.tab(), entry.owner(), entry.timestamp(), entry.text());
+                          entry.tab(),
+                          entry.owner(),
+                          entry.timestamp(),
+                          entry.text(),
+                          entry.title());
                       refresh();
                     }))
             .growX()

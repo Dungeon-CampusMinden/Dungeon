@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import rooms.programming.modules.methods.MethodsRoute;
 import rooms.programming.modules.methods.MethodsWorkshop;
 import rooms.programming.modules.methods.MethodsWorkshop.Block;
 import rooms.programming.modules.methods.MethodsWorkshop.Operation;
@@ -61,6 +60,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
   private final Label observation = ProgrammingUI.label("", 20, ProgrammingUI.TEXT);
   private final DragAndDrop dragging = immediateDragAndDrop();
   private boolean dropAllowed;
+  private DragAndDrop.Target backgroundTarget;
   private ProgrammingMethodsNode.Drag activeDrag;
   private final ArrayDeque<Edit> edits = new ArrayDeque<>();
   private final ProgrammingCamera camera = new ProgrammingCamera();
@@ -311,6 +311,7 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
 
   private void update(State next) {
     boolean changed = state == null || next.revision() != state.revision();
+    State previous = state;
     state = next;
     if (changed) {
       if (pendingEdit != null && state.editorId() == viewer) {
@@ -325,8 +326,12 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
         edits.clear();
         closing = false;
       }
-      if (!dragging.isDragging()) refreshPanels();
-      refreshEvaluation();
+      if (!dragging.isDragging()) refreshPanels(false);
+      if (previous == null
+          || previous.runState() != state.runState()
+          || previous.completed() != state.completed()
+          || !previous.checks().equals(state.checks())
+          || !previous.blockErrors().equals(state.blockErrors())) refreshEvaluation();
     }
     run.setText(state.busy() ? "Stoppen" : "Ausführen");
     run.setDisabled(state.editorId() != viewer);
@@ -364,10 +369,9 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
       case NOT_RUN, CHANGED -> title + "\n\nStarte das Hauptprogramm mit Ausführen.";
       case RUNNING ->
           title
-              + state
-                  .currentStep()
-                  .map(step -> "\nAktuell: " + MethodsRoute.source(step))
-                  .orElse("")
+              + (state.currentInstruction().isEmpty()
+                  ? ""
+                  : "\nAktuell: " + state.currentInstruction())
               + "\n\nAktuelle Variablen:\n"
               + state.variables().entrySet().stream()
                   .map(entry -> entry.getKey() + " = " + entry.getValue())
@@ -425,44 +429,53 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
 
   /** Rebuild targets together so the background remains behind every instruction target. */
   void refreshPanels() {
+    refreshPanels(true);
+  }
+
+  private void refreshPanels(boolean force) {
     reconcileLooseGroups();
-    dragging.clear();
     for (CanvasNode node : area().nodes())
-      if (node instanceof ProgrammingMethodsNode panel) panel.refresh();
-    dragging.addTarget(
-        new DragAndDrop.Target(area()) {
-          @Override
-          public boolean drag(
-              DragAndDrop.Source source,
-              DragAndDrop.Payload payload,
-              float x,
-              float y,
-              int pointer) {
-            boolean valid =
-                payload.getObject() instanceof ProgrammingMethodsNode.Drag drag
-                    && drag.source().validDrag(drag)
-                    && freeCanvas(x, y);
-            dropAllowed(valid);
-            return valid;
-          }
+      if (node instanceof ProgrammingMethodsNode panel) {
+        if (force) panel.refresh();
+        else panel.update();
+      }
+    if (backgroundTarget != null) dragging.removeTarget(backgroundTarget);
+    if (backgroundTarget == null)
+      backgroundTarget =
+          new DragAndDrop.Target(area()) {
+            @Override
+            public boolean drag(
+                DragAndDrop.Source source,
+                DragAndDrop.Payload payload,
+                float x,
+                float y,
+                int pointer) {
+              boolean valid =
+                  payload.getObject() instanceof ProgrammingMethodsNode.Drag drag
+                      && drag.source().validDrag(drag)
+                      && freeCanvas(x, y);
+              dropAllowed(valid);
+              return valid;
+            }
 
-          @Override
-          public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
-            dropAllowed(false);
-          }
+            @Override
+            public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
+              dropAllowed(false);
+            }
 
-          @Override
-          public void drop(
-              DragAndDrop.Source source,
-              DragAndDrop.Payload payload,
-              float x,
-              float y,
-              int pointer) {
-            if (payload.getObject() instanceof ProgrammingMethodsNode.Drag drag
-                && drag.source().validDrag(drag)
-                && freeCanvas(x, y)) dropLoose(drag, area().areaToWorld(x, y));
-          }
-        });
+            @Override
+            public void drop(
+                DragAndDrop.Source source,
+                DragAndDrop.Payload payload,
+                float x,
+                float y,
+                int pointer) {
+              if (payload.getObject() instanceof ProgrammingMethodsNode.Drag drag
+                  && drag.source().validDrag(drag)
+                  && freeCanvas(x, y)) dropLoose(drag, area().areaToWorld(x, y));
+            }
+          };
+    dragging.addTarget(backgroundTarget);
   }
 
   private boolean freeCanvas(float x, float y) {
@@ -481,8 +494,10 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     for (CanvasNode node : List.copyOf(area().nodes())) {
       if (!(node instanceof ProgrammingMethodsNode panel) || !panel.loose()) continue;
       List<String> ids = panel.looseIds().stream().filter(available::remove).toList();
-      if (ids.isEmpty()) area().removeNode(panel);
-      else panel.looseIds(ids);
+      if (ids.isEmpty()) {
+        panel.releaseDragTargets();
+        area().removeNode(panel);
+      } else panel.looseIds(ids);
     }
     int index =
         (int)
@@ -549,13 +564,10 @@ final class ProgrammingMethodsUI extends CanvasUI implements CursorUtil.CursorOv
     } else if (drag.container().equals("scrap")) {
       for (String id : drag.ids()) placeLoose(group, id, position);
     } else {
-      for (String id : drag.ids())
-        send(
-            Operation.MOVE_BLOCK,
-            current ->
-                JSON.writeValueAsString(
-                    Map.of("container", "scrap", "index", current.scrap().size(), "id", id)),
-            next -> placeLoose(group, id, position));
+      send(
+          Operation.MOVE_BLOCKS,
+          ignored -> JSON.writeValueAsString(new MethodsWorkshop.Move(drag.ids(), "scrap", "")),
+          next -> drag.ids().forEach(id -> placeLoose(group, id, position)));
     }
   }
 

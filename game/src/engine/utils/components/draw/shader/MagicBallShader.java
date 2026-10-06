@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import engine.utils.Rectangle;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** Projects the rendered scene onto a glowing sphere over a configurable background texture. */
 public class MagicBallShader extends AbstractShader {
@@ -45,7 +46,7 @@ public class MagicBallShader extends AbstractShader {
       Color ballColor,
       float glowStrength,
       Color glowColor) {
-    this(bgTexture, ballSize, ballOffset, ballColor, glowStrength, glowColor, null);
+    this(bgTexture, ballSize, ballOffset, ballColor, glowStrength, glowColor, FULL_TEXTURE_REGION);
   }
 
   /**
@@ -57,8 +58,7 @@ public class MagicBallShader extends AbstractShader {
    * @param ballColor color used for transparent areas on the ball
    * @param glowStrength multiplier applied to the default glow
    * @param glowColor color of the animated edge glow
-   * @param textureRegion normalized region of the rendered texture to project, or null for the
-   *     whole texture
+   * @param textureRegion normalized region of the rendered texture to project
    */
   public MagicBallShader(
       String bgTexture,
@@ -72,7 +72,7 @@ public class MagicBallShader extends AbstractShader {
     this.bgTexture = validateTexturePath(bgTexture);
     this.ballSize = validateBallSize(ballSize);
     this.ballOffset = new Vector2(validateBallOffset(ballOffset));
-    this.textureRegion = textureRegion;
+    textureRegion(textureRegion);
     this.ballColor = validateColor(ballColor, "Ball");
     this.glowStrength = validateGlowStrength(glowStrength);
     this.glowColor = validateColor(glowColor, "Glow");
@@ -85,8 +85,7 @@ public class MagicBallShader extends AbstractShader {
         new FloatUniform("u_ballSize", ballSize),
         new FloatUniform("u_curvedEdgeWidth", curvedEdgeWidth * actualUpscale),
         new Vector2Uniform("u_ballOffset", ballOffset),
-        new Vector4Uniform(
-            "u_textureRegion", textureRegion == null ? FULL_TEXTURE_REGION : textureRegion),
+        new Vector4Uniform("u_textureRegion", textureRegion),
         new ColorUniform("u_ballColor", ballColor),
         new FloatUniform("u_glowStrength", glowStrength),
         new ColorUniform("u_glowColor", glowColor));
@@ -187,7 +186,7 @@ public class MagicBallShader extends AbstractShader {
   /**
    * Returns the normalized region of the rendered texture projected onto the ball.
    *
-   * @return the texture region, or null when the whole texture is projected
+   * @return the texture region; the full unit rectangle projects the whole texture
    */
   public Rectangle textureRegion() {
     return textureRegion;
@@ -196,11 +195,11 @@ public class MagicBallShader extends AbstractShader {
   /**
    * Sets the normalized region of the rendered texture projected onto the ball.
    *
-   * @param textureRegion the texture region, or null to project the whole texture
+   * @param textureRegion the normalized texture region
    * @return this shader for chaining
    */
   public MagicBallShader textureRegion(Rectangle textureRegion) {
-    this.textureRegion = textureRegion;
+    this.textureRegion = Objects.requireNonNull(textureRegion, "textureRegion");
     return this;
   }
 
@@ -272,9 +271,7 @@ public class MagicBallShader extends AbstractShader {
     properties.put("ballOffsetX", Float.toString(ballOffset.x));
     properties.put("ballOffsetY", Float.toString(ballOffset.y));
     properties.put("glowStrength", Float.toString(glowStrength));
-    if (textureRegion != null) {
-      putRectangle(properties, textureRegion);
-    }
+    putRectangle(properties, textureRegion);
     putColor(properties, "ballColor", ballColor);
     putColor(properties, "glowColor", glowColor);
   }
@@ -287,7 +284,7 @@ public class MagicBallShader extends AbstractShader {
     ballOffset(
         new Vector2(
             floatProperty(properties, "ballOffsetX"), floatProperty(properties, "ballOffsetY")));
-    textureRegion(properties.containsKey("width") ? rectangleProperty(properties) : null);
+    textureRegion(rectangleProperty(properties));
     ballColor(colorProperty(properties, "ballColor"));
     glowStrength(floatProperty(properties, "glowStrength"));
     glowColor(colorProperty(properties, "glowColor"));

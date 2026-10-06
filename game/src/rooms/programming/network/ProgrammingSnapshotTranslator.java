@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.level.elements.ILevel;
 import engine.network.DefaultSnapshotTranslator;
 import engine.network.MessageDispatcher;
 import engine.network.SnapshotTranslator;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import rooms.programming.level.ProgrammingBinding;
 import rooms.programming.level.ProgrammingDecisions;
 import rooms.programming.level.ProgrammingHelp;
@@ -28,9 +30,35 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
   private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("programming.collider");
   private static final String RANGE_KEY = "programming.interactionRange";
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
+  private final Map<String, EncodedState> roomStates = new HashMap<>();
+  private ILevel cachedLevel;
+
+  private record EncodedState(Object state, String value) {}
+
+  /**
+   * Keeps only the most recent immutable value for each room-state channel.
+   *
+   * @param <T> immutable state type
+   * @param key room-state channel
+   * @param state current authoritative state
+   * @param encoder state serialization
+   * @return cached or newly encoded state
+   */
+  private <T> String encode(String key, T state, Function<T, String> encoder) {
+    EncodedState previous = roomStates.get(key);
+    if (previous != null && previous.state().equals(state)) return previous.value();
+    String value = encoder.apply(state);
+    roomStates.put(key, new EncodedState(state, value));
+    return value;
+  }
 
   @Override
   public Optional<SnapshotMessage> translateToSnapshot(int serverTick) {
+    ILevel level = Game.currentLevel().orElse(null);
+    if (level != cachedLevel) {
+      roomStates.clear();
+      cachedLevel = level;
+    }
     return delegate
         .translateToSnapshot(serverTick)
         .map(
@@ -58,12 +86,18 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                       .filter(s -> s.golemId() == state.entityId())
                       .ifPresent(
                           s -> {
-                            metadata.put("programming.terminal", ProgrammingTerminal.encode(s));
+                            metadata.put(
+                                "programming.terminal",
+                                encode("programming.terminal", s, ProgrammingTerminal::encode));
                             ProgrammingHelp.state()
                                 .ifPresent(
                                     help ->
                                         metadata.put(
-                                            ProgrammingHelp.ID, ProgrammingHelp.encode(help)));
+                                            ProgrammingHelp.ID,
+                                            encode(
+                                                ProgrammingHelp.ID,
+                                                help,
+                                                ProgrammingHelp::encode)));
                             if (s.finished())
                               ProgrammingMethods.state()
                                   // The opening dialog carries the untouched starting program.
@@ -72,19 +106,28 @@ public final class ProgrammingSnapshotTranslator implements SnapshotTranslator {
                                       methods ->
                                           metadata.put(
                                               "programming.methods",
-                                              ProgrammingMethods.encode(methods)));
+                                              encode(
+                                                  "programming.methods",
+                                                  methods,
+                                                  ProgrammingMethods::encode)));
                             ProgrammingDecisions.state()
                                 .ifPresent(
                                     decisions ->
                                         metadata.put(
                                             ProgrammingDecisions.ID,
-                                            ProgrammingDecisions.encode(decisions)));
+                                            encode(
+                                                ProgrammingDecisions.ID,
+                                                decisions,
+                                                ProgrammingDecisions::encode)));
                             ProgrammingBinding.state()
                                 .ifPresent(
                                     binding ->
                                         metadata.put(
                                             "programming.binding",
-                                            ProgrammingBinding.encode(binding)));
+                                            encode(
+                                                "programming.binding",
+                                                binding,
+                                                ProgrammingBinding::encode)));
                           });
                   entities.add(withMergedMetadata(state, metadata));
                 } else entities.add(state);

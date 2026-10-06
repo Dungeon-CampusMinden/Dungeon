@@ -31,22 +31,6 @@ float smoothPulse(float t) {
   return smoothstep(0.0, 1.0, 1.0 - tri);
 }
 
-bool isInOutline(vec2 uv, vec2 stepSize, int width) {
-  for(int ix = -10; ix <= 10; ix++){
-    if(abs(float(ix)) > float(width)) continue;
-    for(int iy = -10; iy <= 10; iy++){
-      if(abs(float(iy)) > float(width)) continue;
-      float sampleX = uv.x + float(ix) * stepSize.x;
-      float sampleY = uv.y + float(iy) * stepSize.y;
-      vec4 neighbor = texture2D(u_texture, vec2(sampleX, sampleY));
-      if(neighbor.a >= 0.01){
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 // ----- Main -----
 void main(){
   vec4 color = unPma(texture2D(u_texture, vec2(uv.x, uv.y)));
@@ -58,7 +42,7 @@ void main(){
   int width = int(u_width + beat);
 
   if(color.a == 0.0 && width > 0){
-    bool foundOutline = isInOutline(uv, stepSize, width);
+    bool foundOutline = isInOutline(u_texture, uv, stepSize, width);
     if(foundOutline){
       if(u_isRainbow){
         vec2 center = vec2(0.5, 0.5);

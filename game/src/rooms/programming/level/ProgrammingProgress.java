@@ -211,14 +211,7 @@ public final class ProgrammingProgress {
       UUID participantId,
       AttemptDetails details) {
     if (Game.isMultiplayerClient()) return;
-    Tracking.attempt(
-        puzzleId,
-        objectId,
-        answerKind,
-        rawAnswer,
-        details.failureReasons().isEmpty(),
-        participantId,
-        details);
+    Tracking.attempt(puzzleId, objectId, answerKind, rawAnswer, participantId, details);
   }
 
   /**
@@ -226,13 +219,15 @@ public final class ProgrammingProgress {
    *
    * @param puzzleId stable room-local puzzle identifier
    * @param hintId released hint identifier
+   * @param title title of the collapsed hint
    * @param text displayed text
    * @param who acting player, or null when no player is available
    */
-  public static void hint(String puzzleId, String hintId, String text, Entity who) {
+  public static void hint(String puzzleId, String hintId, String title, String text, Entity who) {
     if (Game.isMultiplayerClient()) return;
     participant(who).ifPresent(id -> Tracking.hintUsed(puzzleId, hintId, id));
-    record("hint:" + puzzleId + ":" + hintId, tab(puzzleId), text);
+    record(
+        "hint:" + puzzleId + ":" + hintId, tab(puzzleId), QuestLogEntry.collapsible(title, text));
   }
 
   /**
@@ -268,7 +263,7 @@ public final class ProgrammingProgress {
   public static void discover(String objectId, String title, String text, Entity who) {
     if (Game.isMultiplayerClient()) return;
     interaction(objectId, "discover", who);
-    record("discovery:" + objectId, "Fundstücke", title + "\n\n" + text);
+    record("discovery:" + objectId, "Fundstücke", QuestLogEntry.collapsible(title, text));
   }
 
   /**
@@ -291,8 +286,11 @@ public final class ProgrammingProgress {
   }
 
   private static void record(String key, String tab, String text) {
+    record(key, tab, new QuestLogEntry(text, false));
+  }
+
+  private static void record(String key, String tab, QuestLogEntry entry) {
     if (RECORDED.containsKey(key)) return;
-    QuestLogEntry entry = new QuestLogEntry(text, false);
     if (QuestLogUtil.add(tab, entry)) {
       RECORDED.put(key, entry);
       updateReferences();

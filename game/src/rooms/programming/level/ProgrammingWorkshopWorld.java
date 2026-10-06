@@ -246,7 +246,8 @@ final class ProgrammingWorkshopWorld {
         tint("gate-" + station, 0xFFFFFF00);
         Game.levelEntities()
             .filter(entity -> entity.name().equals("programming-methods-gate-" + station))
-            .forEach(entity -> entity.remove(CollideComponent.class));
+            .flatMap(entity -> entity.fetch(CollideComponent.class).stream())
+            .forEach(collider -> collider.isSolid(false));
       }
       case ACTIVATE_RUNE -> {
         activated[station] = true;
@@ -394,12 +395,11 @@ final class ProgrammingWorkshopWorld {
    * @return gate entity to receive the collider
    */
   private static Entity ironBars(String name, Point at) {
-    Entity entity = new Entity("programming-methods-" + name);
-    entity.add(new PositionComponent(at));
-    Game.add(entity);
     Point base = at.translate(0, -.5f);
+    Entity entity = ironPanel(name, base, 392, 344, 16, 8);
     for (int row = 0; row < 3; row++)
-      for (int column = 0; column < 5; column++)
+      for (int column = 0; column < 5; column++) {
+        if (row == 0 && column == 0) continue;
         ironPanel(
             name + "-bars-" + row + "-" + column,
             base.translate(column, row * .5f),
@@ -407,10 +407,11 @@ final class ProgrammingWorkshopWorld {
             row == 0 ? 344 : 336,
             16,
             8);
+      }
     return entity;
   }
 
-  private static void ironPanel(String name, Point at, int x, int y, int width, int height) {
+  private static Entity ironPanel(String name, Point at, int x, int y, int width, int height) {
     Entity entity = new Entity("programming-methods-" + name);
     PositionComponent position = new PositionComponent(at);
     position.scale(Math.min(width, height) / 16f);
@@ -422,10 +423,12 @@ final class ProgrammingWorkshopWorld {
     draw.depth(DepthLayer.Player.depth());
     entity.add(draw);
     Game.add(entity);
+    return entity;
   }
 
   private static CollideComponent gateCollider() {
-    return new CollideComponent(Vector2.of(0, 0), Vector2.of(5, 1));
+    // The first visible panel is half-scale and sits half a tile below the gate anchor.
+    return new CollideComponent(Vector2.of(0, 1), Vector2.of(10, 2));
   }
 
   private static void tint(String suffix, int color) {

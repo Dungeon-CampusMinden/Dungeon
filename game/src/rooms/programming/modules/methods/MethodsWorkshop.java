@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import rooms.programming.modules.methods.MethodsRoute.Action;
 import rooms.programming.modules.methods.MethodsRoute.Direction;
@@ -24,7 +25,7 @@ public final class MethodsWorkshop {
   public enum Operation {
     CLAIM,
     RELEASE,
-    MOVE_BLOCK,
+    MOVE_BLOCKS,
     ADD_BLOCK,
     EDIT_BLOCK,
     DELETE_BLOCK,
@@ -140,7 +141,7 @@ public final class MethodsWorkshop {
   }
 
   /**
-   * JSON payload for block moves, insertion and replacement; containers are main, draft or scrap.
+   * JSON payload for block insertion and replacement; containers are main, draft or scrap.
    *
    * @param id stable block identifier
    * @param container destination container: main, draft or scrap
@@ -148,6 +149,26 @@ public final class MethodsWorkshop {
    * @param block statement inserted or used as replacement
    */
   public record Edit(String id, String container, int index, Block block) {}
+
+  /**
+   * One atomic drag; IDs retain their order and the anchor identifies the following block.
+   *
+   * @param ids blocks to move from one source container, in displayed order
+   * @param container destination container
+   * @param anchor following destination block, or empty to append
+   */
+  public record Move(List<String> ids, String container, String anchor) {
+    /**
+     * Copies the selection so a submitted drag cannot change afterward.
+     *
+     * @param ids selected blocks in displayed order
+     * @param container destination container
+     * @param anchor following block, or empty to append
+     */
+    public Move {
+      ids = List.copyOf(ids);
+    }
+  }
 
   /** Distinguishes a completed evaluation from an interrupted run or changed code. */
   public enum RunState {
@@ -189,6 +210,7 @@ public final class MethodsWorkshop {
    * @param feedback latest editor or execution feedback
    * @param blockErrors feedback indexed by block identifier
    * @param currentStep latest action produced by the interpreter
+   * @param currentInstruction source of the block producing the latest physical action
    * @param variables variables visible in the current interpreter frame
    * @param compact whether the main program satisfies the block limit
    * @param parameterReuse whether a parameterized method was called repeatedly
@@ -210,6 +232,7 @@ public final class MethodsWorkshop {
       String feedback,
       Map<String, String> blockErrors,
       Optional<Step> currentStep,
+      String currentInstruction,
       Map<String, String> variables,
       boolean compact,
       boolean parameterReuse,
@@ -232,6 +255,7 @@ public final class MethodsWorkshop {
      * @param feedback latest editor or execution feedback
      * @param blockErrors feedback indexed by block identifier
      * @param currentStep latest action produced by the interpreter
+     * @param currentInstruction source of the block producing the latest physical action
      * @param variables variables visible in the current interpreter frame
      * @param compact whether the main program satisfies the block limit
      * @param parameterReuse whether a parameterized method was called repeatedly
@@ -354,6 +378,8 @@ public final class MethodsWorkshop {
   }
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
+  private static final Set<String> DIRECTIONS =
+      Set.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN");
   private final List<Block> main = new ArrayList<>(), scrap = new ArrayList<>();
   private final Map<String, Definition> definitions = new LinkedHashMap<>();
   private Definition draft = new Definition("", List.of(), List.of());
@@ -368,6 +394,7 @@ public final class MethodsWorkshop {
   private String feedback =
       "Verbinde dein Hauptprogramm. Jeder Start setzt Nox und alle Arbeitsstellen zurück.";
   private Step currentStep;
+  private String currentInstruction = "";
   private final Deque<Frame> stack = new ArrayDeque<>();
   private final Map<String, Integer> calls = new HashMap<>();
   private final Map<String, String> mainVariables = new LinkedHashMap<>();
@@ -443,79 +470,58 @@ public final class MethodsWorkshop {
   }
 
   /**
-   * Loads the offered example through the same validated edits and builds as the workbench.
+   * Replaces the editable program with the validated example offered in the help.
    *
    * @param actor acting player entity ID
    * @return whether the example was built and loaded successfully
    */
   public boolean loadHelpSolution(int actor) {
     if (editorId != actor || busy() || completed) return false;
-    MethodsWorkshop example = new MethodsWorkshop();
-    example.nextBlockId = nextBlockId;
-    example.apply(actor, new Intent(0, Operation.CLAIM, ""));
-    if (!example.buildHelpSolution(actor)) return false;
-    main.clear();
-    main.addAll(example.main);
-    scrap.clear();
-    definitions.clear();
-    definitions.putAll(example.definitions);
-    nextBlockId = example.nextBlockId;
-    draft = new Definition("", List.of(), List.of());
-    editingName = "";
-    invalidateResult();
-    revision++;
-    return true;
-  }
-
-  private boolean buildHelpSolution(int actor) {
-    // Construct the example with the normal block, parameter and method validators.
-    for (String container : List.of("main", "scrap", "draft"))
-      for (Block block : List.copyOf(body(container)))
-        if (!helpEdit(actor, Operation.DELETE_BLOCK, block.id())) return false;
+    Map<String, Definition> methods = new LinkedHashMap<>();
     for (MethodsRoute.Kind kind : MethodsRoute.Kind.values()) {
       String name = helpMethodName(kind);
-      if (!helpEdit(actor, Operation.NEW_METHOD, "")
-          || !helpEdit(actor, Operation.NAME, name)
-          || !helpEdit(
-              actor,
-              Operation.PARAMETER,
-              kind == MethodsRoute.Kind.RUNE
-                  ? "richtung"
-                  : kind == MethodsRoute.Kind.ALTAR ? "menge" : "")) return false;
-      int index = 0;
+      List<String> parameters =
+          switch (kind) {
+            case RUNE -> List.of("richtung");
+            case ALTAR -> List.of("menge");
+            default -> List.of();
+          };
+      List<Block> body = new ArrayList<>();
       for (Step step : MethodsRoute.body(kind, Direction.RIGHT, 3)) {
         String operand =
-            step.action() == Action.TURN
-                ? "richtung"
-                : step.action() == Action.PLACE ? "menge" : Integer.toString(step.amount());
-        Block block =
-            new Block(
-                "",
-                step.action(),
-                operand,
-                step.action() == Action.COLLECT ? "gesammelt" : "",
-                "",
-                List.of(),
-                ResultMode.REPLACE);
-        if (!helpAdd(actor, "draft", index++, block)) return false;
+            switch (step.action()) {
+              case TURN -> "richtung";
+              case PLACE -> "menge";
+              default -> Integer.toString(step.amount());
+            };
+        body.add(
+            freshBlock(
+                new Block(
+                    "",
+                    step.action(),
+                    operand,
+                    step.action() == Action.COLLECT ? "gesammelt" : "",
+                    "",
+                    List.of(),
+                    ResultMode.REPLACE)));
       }
-      if (kind == MethodsRoute.Kind.COLLECT || kind == MethodsRoute.Kind.ALTAR) {
-        Block result =
-            new Block(
-                "",
-                Action.RETURN,
-                kind == MethodsRoute.Kind.COLLECT ? "gesammelt" : "menge",
-                "",
-                "",
-                List.of(),
-                ResultMode.REPLACE);
-        if (!helpAdd(actor, "draft", index, result)) return false;
-      }
-      if (!helpEdit(actor, Operation.BUILD, "") || !definitions.containsKey(name)) return false;
+      if (kind == MethodsRoute.Kind.COLLECT || kind == MethodsRoute.Kind.ALTAR)
+        body.add(
+            freshBlock(
+                new Block(
+                    "",
+                    Action.RETURN,
+                    kind == MethodsRoute.Kind.COLLECT ? "gesammelt" : "menge",
+                    "",
+                    "",
+                    List.of(),
+                    ResultMode.REPLACE)));
+      Definition method = new Definition(name, parameters, body);
+      if (definitionError(method).isPresent()) return false;
+      methods.put(name, method);
     }
-    int index = 0;
+    List<Block> program = new ArrayList<>();
     for (var station : MethodsRoute.STATIONS) {
-      String name = helpMethodName(station.kind());
       boolean returns =
           station.kind() == MethodsRoute.Kind.COLLECT || station.kind() == MethodsRoute.Kind.ALTAR;
       List<String> arguments =
@@ -524,19 +530,29 @@ public final class MethodsWorkshop {
             case ALTAR -> List.of(Integer.toString(station.amount()));
             default -> List.of();
           };
-      Block call =
-          new Block(
-              "",
-              Action.CALL,
-              "",
-              returns ? "kristalle" : "",
-              name,
-              arguments,
-              station.kind() == MethodsRoute.Kind.ALTAR
-                  ? ResultMode.SUBTRACT
-                  : returns ? ResultMode.ADD : ResultMode.REPLACE);
-      if (!helpAdd(actor, "main", index++, call)) return false;
+      program.add(
+          freshBlock(
+              new Block(
+                  "",
+                  Action.CALL,
+                  "",
+                  returns ? "kristalle" : "",
+                  helpMethodName(station.kind()),
+                  arguments,
+                  station.kind() == MethodsRoute.Kind.ALTAR
+                      ? ResultMode.SUBTRACT
+                      : returns ? ResultMode.ADD : ResultMode.REPLACE)));
     }
+    if (program.stream().anyMatch(block -> !valid(block))) return false;
+    main.clear();
+    main.addAll(program);
+    scrap.clear();
+    definitions.clear();
+    definitions.putAll(methods);
+    draft = new Definition("", List.of(), List.of());
+    editingName = "";
+    invalidateResult();
+    revision++;
     return true;
   }
 
@@ -547,15 +563,6 @@ public final class MethodsWorkshop {
       case COLLECT -> "hilfeSammeln";
       case ALTAR -> "hilfeAltar";
     };
-  }
-
-  private boolean helpAdd(int actor, String container, int index, Block block) {
-    if (editorId != actor || busy()) return false;
-    return applyBlockEdit(Operation.ADD_BLOCK, new Edit("", container, index, block));
-  }
-
-  private boolean helpEdit(int actor, Operation operation, String value) {
-    return apply(actor, new Intent(revision, operation, value));
   }
 
   /**
@@ -577,6 +584,7 @@ public final class MethodsWorkshop {
         feedback,
         blockErrors,
         Optional.ofNullable(currentStep),
+        currentInstruction,
         stack.isEmpty() ? mainVariables : stack.peek().variables,
         main.size() <= 8,
         parameterReuse,
@@ -656,35 +664,12 @@ public final class MethodsWorkshop {
               new Definition(
                   found.name(),
                   found.parameters(),
-                  found.body().stream()
-                      .map(
-                          b ->
-                              new Block(
-                                  "n" + nextBlockId++,
-                                  b.action(),
-                                  b.operand(),
-                                  b.target(),
-                                  b.method(),
-                                  b.arguments(),
-                                  b.mode()))
-                      .toList());
+                  found.body().stream().map(this::freshBlock).toList());
           editingName = found.name();
         }
         case BUILD -> {
-          if (draft.body().size() > MAX_METHOD_BLOCKS)
-            return rejectEdit(
-                "Methode zu lang: "
-                    + draft.body().size()
-                    + " Zeilen, höchstens "
-                    + MAX_METHOD_BLOCKS
-                    + " erlaubt.");
-          var unreachable = draft.unreachableBlocks();
-          if (!unreachable.isEmpty()) return rejectEdit(unreachable.values().iterator().next());
-          if (!identifier(draft.name()) || draft.body().isEmpty())
-            return rejectEdit("Methode braucht einen gültigen Namen und einen Methodenrumpf.");
-          if (draft.parameters().stream().anyMatch(n -> !identifier(n))
-              || draft.parameters().stream().distinct().count() != draft.parameters().size())
-            return rejectEdit("Parameter brauchen gültige, unterschiedliche Namen.");
+          var invalid = definitionError(draft);
+          if (invalid.isPresent()) return rejectEdit(invalid.orElseThrow());
           if (!editingName.isEmpty() && !editingName.equals(draft.name())) {
             feedback =
                 "Für eine vorhandene Methode bleibt der Name gleich. Neue Methode erstellt eine eigene Rune.";
@@ -698,7 +683,10 @@ public final class MethodsWorkshop {
           editingName = draft.name();
           feedback = "Methode " + draft.name() + " gebaut. Die Rune kann jetzt aufgerufen werden.";
         }
-        case ADD_BLOCK, MOVE_BLOCK, EDIT_BLOCK -> {
+        case MOVE_BLOCKS -> {
+          return moveBlocks(JSON.readValue(intent.value(), Move.class));
+        }
+        case ADD_BLOCK, EDIT_BLOCK -> {
           return applyBlockEdit(intent.operation(), JSON.readValue(intent.value(), Edit.class));
         }
         default -> {
@@ -714,7 +702,7 @@ public final class MethodsWorkshop {
   }
 
   /**
-   * Applies typed block edits shared by network submissions and the local help solution.
+   * Validates and applies a submitted block insertion or replacement.
    *
    * @param operation block operation to apply
    * @param edit typed block change
@@ -749,39 +737,11 @@ public final class MethodsWorkshop {
         var destination = body(edit.container());
         if (edit.index() < 0 || edit.index() > destination.size())
           return rejectEdit("Einfügeposition nicht mehr vorhanden.");
-        Block block = edit.block();
-        String origin = null;
-        int sourceIndex = -1;
-        if (operation == Operation.MOVE_BLOCK) {
-          for (String c : List.of("main", "draft", "scrap"))
-            for (int n = 0; n < body(c).size(); n++)
-              if (body(c).get(n).id().equals(edit.id())) {
-                origin = c;
-                sourceIndex = n;
-                block = body(c).get(n);
-              }
-          if (origin == null) return rejectEdit("Block nicht mehr vorhanden.");
-        } else {
-          if (!valid(block)) return rejectEdit("Ungültiger Block.");
-          if (totalBlocks() >= 256)
-            return rejectEdit("Die Arbeitsfläche enthält höchstens 256 Blöcke.");
-          block =
-              new Block(
-                  "n" + nextBlockId++,
-                  block.action(),
-                  block.operand(),
-                  block.target(),
-                  block.method(),
-                  block.arguments(),
-                  block.mode());
-        }
+        if (!valid(edit.block())) return rejectEdit("Ungültiger Block.");
+        if (totalBlocks() >= 256)
+          return rejectEdit("Die Arbeitsfläche enthält höchstens 256 Blöcke.");
+        Block block = freshBlock(edit.block());
         int index = edit.index();
-        if (origin != null) {
-          var from = new ArrayList<>(body(origin));
-          from.remove(sourceIndex);
-          setBody(origin, from);
-          if (origin.equals(edit.container()) && sourceIndex < index) index--;
-        }
         var to = new ArrayList<>(body(edit.container()));
         to.add(index, block);
         setBody(edit.container(), to);
@@ -792,6 +752,82 @@ public final class MethodsWorkshop {
     } catch (RuntimeException invalid) {
       return rejectEdit("Ungültige Bearbeitung. Bitte erneut versuchen.");
     }
+  }
+
+  private Block freshBlock(Block block) {
+    return new Block(
+        "n" + nextBlockId++,
+        block.action(),
+        block.operand(),
+        block.target(),
+        block.method(),
+        block.arguments(),
+        block.mode());
+  }
+
+  /**
+   * Validates the entire drag before replacing either container.
+   *
+   * @param move selected blocks and destination anchor
+   * @return whether the complete drag was accepted
+   */
+  private boolean moveBlocks(Move move) {
+    if (move.ids().isEmpty()
+        || move.ids().stream().distinct().count() != move.ids().size()
+        || move.anchor() == null) return rejectEdit("Ungültige Blockauswahl.");
+    List<Block> destination = body(move.container());
+    String source = null;
+    for (String container : List.of("main", "draft", "scrap")) {
+      if (body(container).stream().map(Block::id).toList().containsAll(move.ids())) {
+        source = container;
+        break;
+      }
+    }
+    if (source == null) return rejectEdit("Blöcke nicht mehr im selben Fenster vorhanden.");
+    if (!move.anchor().isEmpty()
+        && (move.ids().contains(move.anchor())
+            || destination.stream().noneMatch(block -> block.id().equals(move.anchor()))))
+      return rejectEdit("Einfügeposition nicht mehr vorhanden.");
+    Map<String, Block> byId = new HashMap<>();
+    body(source).forEach(block -> byId.put(block.id(), block));
+    List<Block> moved = move.ids().stream().map(byId::get).toList();
+    List<Block> from =
+        body(source).stream().filter(block -> !move.ids().contains(block.id())).toList();
+    List<Block> to = new ArrayList<>(source.equals(move.container()) ? from : destination);
+    int index = to.size();
+    for (int i = 0; i < to.size(); i++)
+      if (to.get(i).id().equals(move.anchor())) {
+        index = i;
+        break;
+      }
+    to.addAll(index, moved);
+    if (!source.equals(move.container())) setBody(source, from);
+    setBody(move.container(), to);
+    feedback = "";
+    revision++;
+    return true;
+  }
+
+  private static Optional<String> definitionError(Definition definition) {
+    if (definition.body().size() > MAX_METHOD_BLOCKS)
+      return Optional.of(
+          "Methode zu lang: "
+              + definition.body().size()
+              + " Zeilen, höchstens "
+              + MAX_METHOD_BLOCKS
+              + " erlaubt.");
+    var unreachable = definition.unreachableBlocks();
+    if (!unreachable.isEmpty()) return Optional.of(unreachable.values().iterator().next());
+    if (!identifier(definition.name()) || definition.body().isEmpty())
+      return Optional.of("Methode braucht einen gültigen Namen und einen Methodenrumpf.");
+    if (definition.parameters().size() > 8
+        || definition.parameters().stream().anyMatch(name -> !identifier(name))
+        || definition.parameters().stream().distinct().count() != definition.parameters().size())
+      return Optional.of(
+          "Parameter brauchen gültige, unterschiedliche Namen. Richtungsnamen sind reserviert.");
+    if (definition.body().stream().anyMatch(block -> !valid(block)))
+      return Optional.of("Ungültiger Block.");
+    return Optional.empty();
   }
 
   // Built definitions already preserve unchanged drafts; only unsaved edits need a scrap copy.
@@ -904,6 +940,7 @@ public final class MethodsWorkshop {
     stack.push(new Frame(List.copyOf(main), mainVariables, null));
     calls.clear();
     currentStep = null;
+    currentInstruction = "";
     blockErrors.clear();
     activeMainBlockId = "";
     pending = null;
@@ -968,14 +1005,10 @@ public final class MethodsWorkshop {
           case RETURN -> {
             String value = frame.values.pop();
             returnFrom(value);
-            currentStep = Step.action(Action.RETURN, numeric(value));
-            revision++;
           }
           case ASSIGN -> {
             String value = frame.values.pop();
             assign(frame.variables, block.target(), value, block.mode());
-            currentStep = Step.action(Action.ASSIGN, numeric(value));
-            revision++;
           }
           default -> {
             Step step =
@@ -988,6 +1021,7 @@ public final class MethodsWorkshop {
               throw new IllegalArgumentException("GEHE braucht eine Entfernung von 1 bis 32.");
             pending = block;
             currentStep = step;
+            currentInstruction = blockSource(block);
             revision++;
             return Optional.of(step);
           }
@@ -1107,14 +1141,19 @@ public final class MethodsWorkshop {
         || intent.value() == null
         || intent.revision() < executionRevision
         || intent.revision() > revision) return false;
-    fail("Programm angehalten. Der nächste Start setzt die Welt zurück.");
     runState = RunState.STOPPED;
+    pending = null;
+    stack.clear();
+    feedback = "Programm angehalten. Der nächste Start setzt die Welt zurück.";
     blockErrors.clear();
+    revision++;
     return true;
   }
 
   private static boolean identifier(String value) {
-    return value != null && value.matches("[\\p{L}_][\\p{L}\\p{N}_]{0,39}");
+    return value != null
+        && !DIRECTIONS.contains(value)
+        && value.matches("[\\p{L}_][\\p{L}\\p{N}_]{0,39}");
   }
 
   private static void assign(
@@ -1172,7 +1211,7 @@ public final class MethodsWorkshop {
         if (input.matches("-?[0-9]+")) {
           numeric(input);
           frame.values.push(input);
-        } else if (List.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN").contains(input)) {
+        } else if (DIRECTIONS.contains(input)) {
           frame.values.push(input);
         } else {
           String result = frame.variables.get(input);
@@ -1267,7 +1306,7 @@ public final class MethodsWorkshop {
         position += Character.charCount(character);
       }
       String name = input.substring(start, position);
-      if (!identifier(name)) throw invalid();
+      if (!identifier(name) && !DIRECTIONS.contains(name)) throw invalid();
       if (!take('(')) {
         output.addLast(new Value(name));
         return;

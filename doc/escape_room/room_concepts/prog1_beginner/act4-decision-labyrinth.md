@@ -82,7 +82,7 @@ lässt sich der Bereich horizontal und vertikal scrollen.
 
 ## Hilfe und Questlog
 
-Neben Weiter stehen Hilfe und Quest-Log. Die Hilfe nutzt dieselbe Petri-Netz-Stufung wie
+Neben Weiter stehen Hilfe und Quest-Log. Die Hilfe nutzt dieselben drei Hinweisstufen wie
 Akt I bis III. Sie ersetzt das Runenbuch, reicht bis zum oberen Bildrand und blendet LINKS
 und RECHTS aus, bis der Spieler zur Rune zurückkehrt. Nur der Reiter kann sie verwenden,
 und nur solange Nox an einer Kreuzung wartet, werden Tipps freigegeben; sonst nennt die
@@ -121,7 +121,9 @@ Der Abspann:
 
 ## Zuständigkeit
 
-`DecisionMaze` enthält Programme, Auswertung und feste Zustandsänderungen.
+`DecisionMaze` definiert die Programme einmal als Bedingungsbäume und erzeugt daraus
+Runentext und Auswertung. Ereignistext und feste Zustandsänderungen stammen ebenfalls
+aus denselben Ereignisdaten.
 `ProgrammingDecisionWorld` erzeugt identische Tiles und Türmarker für Server und Client.
 `ProgrammingDecisionRuntime` besitzt Fortschritt, Werte, Wegpunkte und Steuerungsrecht.
 `ProgrammingRiderSystem` bindet den echten Spieler an Nox und setzt die lokale Sitzpose.

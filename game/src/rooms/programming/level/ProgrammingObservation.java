@@ -264,7 +264,6 @@ public final class ProgrammingObservation {
       u += (sx * .5 + .5 - u) * flatWeight;
       v += (sy * .5 + .5 - v) * flatWeight;
       var region = shader.textureRegion();
-      if (region == null) return Optional.empty();
       u = region.x() + u * region.width();
       v = region.y() + v * region.height();
       var camera = CameraSystem.camera();

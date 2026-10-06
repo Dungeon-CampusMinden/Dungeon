@@ -45,7 +45,6 @@ public final class CollisionSystem extends System {
   public static final float COLLIDE_SET_DISTANCE = 0.0001f;
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
-  private final Map<Entity, Point> lastClearPositions = new HashMap<>();
 
   /** Create a new CollisionSystem. */
   public CollisionSystem() {
@@ -56,11 +55,9 @@ public final class CollisionSystem extends System {
 
   private void onAddEntity(Entity e) {
     PositionSync.syncPosition(e);
-    rememberClearPosition(e);
   }
 
   private void onRemoveEntity(Entity e) {
-    lastClearPositions.remove(e);
     // Check if this entity is colliding, if yes trigger onLeave
     // Remove all collisions where this id is part of
     collisions.keySet().stream()
@@ -99,38 +96,6 @@ public final class CollisionSystem extends System {
     filteredEntityStream(CollideComponent.class)
         .flatMap(this::createDataPairs)
         .forEach(this::onEnterLeaveCheck);
-    filteredEntityStream().forEach(this::rememberClearPosition);
-  }
-
-  private void rememberClearPosition(Entity entity) {
-    CollideComponent cc = entity.fetch(CollideComponent.class).orElseThrow();
-    if (!cc.isSolid() || cc.isStatic(entity)) return;
-    entity
-        .fetch(PositionComponent.class)
-        .ifPresent(
-            pc -> {
-              if (!CollisionUtils.isCollidingWithOtherSolids(entity, pc.position())) {
-                lastClearPositions.put(entity, pc.position());
-              }
-            });
-  }
-
-  /**
-   * Cancels a blocked movement without pushing a heavier entity out of the way.
-   *
-   * @param entity the moving entity
-   * @param collider its current collision shape
-   * @return whether a previously clear position could be restored
-   */
-  private boolean restoreClearPosition(Entity entity, Collider collider) {
-    Point previous = lastClearPositions.get(entity);
-    VelocityComponent vc = entity.fetch(VelocityComponent.class).orElse(null);
-    if (previous == null
-        || CollisionUtils.isCollidingWithLevel(collider, previous, vc)
-        || CollisionUtils.isCollidingWithOtherSolids(entity, previous)) return false;
-    entity.fetch(PositionComponent.class).orElseThrow().position(previous);
-    PositionSync.syncPosition(entity);
-    return true;
   }
 
   /**
@@ -244,17 +209,18 @@ public final class CollisionSystem extends System {
     }
 
     if (aStationary) {
-      solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d, true);
+      solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d, true, true);
     } else if (bStationary) {
-      solidCollide(cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite(), true);
+      solidCollide(
+          cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite(), true, true);
     } else {
       // Determine which entity moves based on their weight. The heavier entity
       // moves the lighter one.
       if (vca.mass() > vcb.mass()) {
-        solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d, false);
+        solidCollide(cdata.ea, cdata.a.collider(), cdata.eb, cdata.b.collider(), d, true, false);
       } else {
         solidCollide(
-            cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite(), false);
+            cdata.eb, cdata.b.collider(), cdata.ea, cdata.a.collider(), d.opposite(), true, false);
       }
     }
   }
@@ -316,18 +282,24 @@ public final class CollisionSystem extends System {
    * direction.
    *
    * <p>Will try to move entity b first. If the new position for entity b collides with the level or
-   * other solids, the blocked movement is rolled back to a previously clear position instead of
-   * displacing the heavier entity. Stationary entities are never rolled back.
+   * other solids, entity a will be moved instead unless it is stationary.
    *
    * @param ea The primary entity a.
    * @param a Collider of the primary entity a.
    * @param eb The secondary entity b.
    * @param b Collider of the secondary entity b.
    * @param direction The direction of the collision, as seen from entity a.
+   * @param firstCollision Whether this is the first attempt to resolve the collision.
    * @param aStationary Whether entity a is stationary. If yes, ensures that entity a is not moved.
    */
   private void solidCollide(
-      Entity ea, Collider a, Entity eb, Collider b, Direction direction, boolean aStationary) {
+      Entity ea,
+      Collider a,
+      Entity eb,
+      Collider b,
+      Direction direction,
+      boolean firstCollision,
+      boolean aStationary) {
     Point c1Pos = a.absolutePosition();
     Vector2 c1Size = a.absoluteSize();
     Point c2Pos = b.absolutePosition();
@@ -353,10 +325,7 @@ public final class CollisionSystem extends System {
     if (!aStationary
         && (CollisionUtils.isCollidingWithLevel(b, newPos, vcb)
             || CollisionUtils.isCollidingWithOtherSolids(eb, newPos))) {
-      if (!restoreClearPosition(eb, b)) {
-        // A moving heavy body can be blocked too, but may only undo its own movement.
-        restoreClearPosition(ea, a);
-      }
+      if (firstCollision) solidCollide(eb, b, ea, a, direction.opposite(), false, false);
       return;
     }
 

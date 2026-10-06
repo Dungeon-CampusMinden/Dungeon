@@ -9,12 +9,12 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Align;
 import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
+import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
@@ -69,11 +70,15 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
   private final String title;
   private List<String> looseIds = List.of();
   private final Table content = new Table();
-  private final Map<String, String> drafts = new HashMap<>();
-  private final Map<String, String> draftBases = new HashMap<>();
-  private final Map<String, Integer> submissions = new HashMap<>();
+  private final Map<String, EditorField> fields = new HashMap<>();
+  private State renderedState;
+  private List<Block> renderedBlocks = List.of();
+  private boolean renderedSimplified;
+  private String renderedBuildFailure = "";
   private final Set<String> selected = new HashSet<>();
   private final Map<String, CodeRow> rows = new HashMap<>();
+  private final List<DragAndDrop.Source> dragSources = new ArrayList<>();
+  private final List<DragAndDrop.Target> dragTargets = new ArrayList<>();
   private String selectionAnchor = "";
   private int draftEditor = Integer.MIN_VALUE;
   private ProgrammingMethodsUI owner;
@@ -298,13 +303,10 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
   }
 
   void forgetMethodFields() {
+    if (container.equals("draft")) renderedState = null;
     buildFailure = "";
-    drafts.remove("method-name");
-    drafts.remove("method-parameters");
-    draftBases.remove("method-name");
-    draftBases.remove("method-parameters");
-    submissions.remove("method-name");
-    submissions.remove("method-parameters");
+    fields.remove("method-name");
+    fields.remove("method-parameters");
   }
 
   void scroll(float amount) {
@@ -313,26 +315,65 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
     scroll.setScrollY(scroll.getScrollY() + amount * 42);
   }
 
+  /** Updates field values in place; only structural changes rebuild this window. */
+  void update() {
+    State state = owner.state();
+    if (!state.draft().equals(failedDraft)) buildFailure = "";
+    reconcileFields();
+    List<Block> blocks = panelBlocks(state);
+    boolean rebuild =
+        renderedState == null
+            || renderedState.editorId() != state.editorId()
+            || renderedState.busy() != state.busy()
+            || renderedSimplified != owner.simplified()
+            || !renderedBuildFailure.equals(buildFailure)
+            || !sameRows(renderedBlocks, blocks)
+            || (loose() && !renderedBlocks.equals(blocks))
+            || !renderedState.blockErrors().equals(state.blockErrors())
+            || (container.equals("palette")
+                && !renderedState.definitions().equals(state.definitions()));
+    if (rebuild) {
+      refresh();
+      return;
+    }
+    for (int i = 0; i < blocks.size(); i++) {
+      CodeRow row = rows.get(blocks.get(i).id());
+      if (row != null) row.source.setText(lineSource(blocks.get(i), i));
+    }
+    renderedState = state;
+    renderedBlocks = blocks;
+  }
+
+  private static boolean sameRows(List<Block> previous, List<Block> next) {
+    if (previous.size() != next.size()) return false;
+    for (int i = 0; i < previous.size(); i++) {
+      Block a = previous.get(i), b = next.get(i);
+      if (!a.id().equals(b.id())
+          || a.action() != b.action()
+          || !a.method().equals(b.method())
+          || a.mode() != b.mode()) return false;
+    }
+    return true;
+  }
+
   void refresh() {
     if (!owner.state().draft().equals(failedDraft)) buildFailure = "";
-    reconcileDrafts();
+    reconcileFields();
     if (scroll != null) scrollY = scroll.getScrollY();
     Actor focus = getStage() == null ? null : getStage().getKeyboardFocus();
-    String focusKey =
-        focus instanceof TextField && focus.isDescendantOf(this) ? focus.getName() : null;
-    int cursor = focusKey == null ? 0 : ((TextField) focus).getCursorPosition();
     rebuilding = true;
+    releaseDragTargets();
     rebuildContent();
     ensureContentBuilt();
     revealError();
-    if (focusKey != null && getStage() != null) {
-      Actor replacement = findActor(focusKey);
-      if (replacement instanceof TextField field) {
-        getStage().setKeyboardFocus(field);
-        field.setCursorPosition(cursor);
-      }
-    }
+    // Structural edits can reparent a surviving field; keep the actor and its selection intact.
+    if (focus instanceof EditorField && focus.isDescendantOf(this) && getStage() != null)
+      getStage().setKeyboardFocus(focus);
     rebuilding = false;
+    renderedState = owner.state();
+    renderedBlocks = panelBlocks(renderedState);
+    renderedSimplified = owner.simplified();
+    renderedBuildFailure = buildFailure;
   }
 
   private void revealError() {
@@ -352,33 +393,20 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
     revealedError = failed;
   }
 
-  // Keep local typing only until its server value changes or its block leaves this panel.
-  private void reconcileDrafts() {
+  private void reconcileFields() {
     int editor = owner.state().editorId();
     if (draftEditor != editor) {
       selected.clear();
       selectionAnchor = "";
-      drafts.clear();
-      draftBases.clear();
-      submissions.clear();
+      fields.clear();
       draftEditor = editor;
     }
-    selected.retainAll(panelBlocks(owner.state()).stream().map(Block::id).toList());
-    if (panelBlocks(owner.state()).stream().noneMatch(b -> b.id().equals(selectionAnchor)))
-      selectionAnchor = "";
+    List<String> ids = panelBlocks(owner.state()).stream().map(Block::id).toList();
+    selected.retainAll(ids);
+    if (!ids.contains(selectionAnchor)) selectionAnchor = "";
     Map<String, String> current = fieldValues(owner.state());
-    submissions.keySet().retainAll(current.keySet());
-    drafts
-        .entrySet()
-        .removeIf(
-            entry -> {
-              String server = current.get(entry.getKey());
-              return server == null
-                  || (server.equals(normalized(entry.getKey(), entry.getValue()))
-                      && !submissions.containsKey(entry.getKey()))
-                  || !server.equals(draftBases.get(entry.getKey()));
-            });
-    draftBases.keySet().retainAll(drafts.keySet());
+    fields.keySet().retainAll(current.keySet());
+    fields.forEach((key, field) -> field.receive(current.get(key)));
   }
 
   private Map<String, String> fieldValues(State state) {
@@ -400,26 +428,6 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
     return key.equals("method-parameters") || key.endsWith(":arguments")
         ? String.join(", ", arguments(value))
         : value;
-  }
-
-  // Each queued edit acknowledges its own field before the panel consumes the new snapshot.
-  private void acknowledgeField(String key, State state) {
-    if (!submissions.containsKey(key)) return;
-    int remaining = submissions.get(key) - 1;
-    if (remaining == 0) submissions.remove(key);
-    else submissions.put(key, remaining);
-    String server = fieldValues(state).get(key);
-    if (server == null) {
-      drafts.remove(key);
-      draftBases.remove(key);
-      submissions.remove(key);
-    } else if (drafts.containsKey(key)) {
-      draftBases.put(key, server);
-      if (remaining == 0 && server.equals(normalized(key, drafts.get(key)))) {
-        drafts.remove(key);
-        draftBases.remove(key);
-      }
-    }
   }
 
   @Override
@@ -807,14 +815,8 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
     source(row, block, false);
     if (!loose()) target(row, index, true);
     paintSelection();
-    String line =
-        container.equals("main") || container.equals("draft")
-            ? "[#a6aeaa]" + (index + 1) + ".  "
-            : "";
-    row.add(ProgrammingUI.zoomSyntaxLabel(line + syntax(block), 18))
-        .growX()
-        .minWidth(0)
-        .padRight(8);
+    row.source = ProgrammingUI.zoomSyntaxLabel(lineSource(block, index), 18);
+    row.add(row.source).growX().minWidth(0).padRight(8);
     TextButton options =
         ProgrammingUI.zoomButton(
             "...",
@@ -892,6 +894,14 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
     }
   }
 
+  private String lineSource(Block block, int index) {
+    String line =
+        container.equals("main") || container.equals("draft")
+            ? "[#a6aeaa]" + (index + 1) + ".  "
+            : "";
+    return line + syntax(block);
+  }
+
   /**
    * Keep the canonical statement intact; only its argument/expression changes ink.
    *
@@ -936,6 +946,7 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
     private static final Color SHADOW = Color.valueOf("101719");
     private static final Color ERROR = Color.valueOf("ffb0a3");
     private static final Color ERROR_FILL = Color.valueOf("503438");
+    private Label source;
     private final boolean method;
     private final ClickListener pointer = new ClickListener();
     private boolean selected;
@@ -1070,64 +1081,91 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
   }
 
   private TextField field(String key, String initial, BiConsumer<String, Consumer<State>> commit) {
-    TextField field = new CanvasTextField(drafts.getOrDefault(key, initial));
-    var style = new TextField.TextFieldStyle(field.getStyle());
-    style.font =
-        FontHelper.getFont(Scene2dElementFactory.FONT_PATH, 18, ProgrammingUI.TEXT, 0, Color.BLACK);
-    style.fontColor = ProgrammingUI.TEXT;
-    style.background = ProgrammingUI.background(ProgrammingUI.SURFACE, true);
-    style.focusedBackground = ProgrammingUI.background(Color.valueOf("35403f"), true);
-    style.disabledBackground = ProgrammingUI.background(ProgrammingUI.INK, true);
-    style.disabledFontColor = ProgrammingUI.MUTED;
-    for (var background :
-        List.of(style.background, style.focusedBackground, style.disabledBackground)) {
-      background.setLeftWidth(8);
-      background.setRightWidth(8);
-    }
-    field.setStyle(style);
-    field.setName(key);
-    field.setUserObject(Cursors.TEXT);
+    EditorField field = fields.computeIfAbsent(key, ignored -> new EditorField(key, initial));
+    field.commit = commit;
+    field.receive(initial);
     field.setDisabled(!owner.editable());
-    final String[] saved = {initial};
-    Runnable save =
-        () -> {
-          if (!rebuilding && !field.getText().equals(saved[0])) {
-            saved[0] = field.getText();
-            draftBases.putIfAbsent(key, initial);
-            drafts.put(key, saved[0]);
-            submissions.merge(key, 1, Integer::sum);
-            commit.accept(saved[0], state -> acknowledgeField(key, state));
-          }
-        };
-    field.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            if (field.getText().equals(initial) && !submissions.containsKey(key)) {
-              drafts.remove(key);
-              draftBases.remove(key);
-            } else {
-              draftBases.putIfAbsent(key, initial);
-              drafts.put(key, field.getText());
-            }
-          }
-        });
-    field.addListener(
-        new FocusListener() {
-          @Override
-          public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused) {
-            if (!focused) save.run();
-          }
-        });
-    field.setTextFieldListener(
-        (textField, character) -> {
-          if (character == '\r' || character == '\n') save.run();
-        });
     return field;
   }
 
+  /** A retained field owns its unsent text and pending saves, independently of snapshots. */
+  private final class EditorField extends CanvasTextField {
+    private String server;
+    private String submitted;
+    private int pending;
+    private BiConsumer<String, Consumer<State>> commit;
+
+    private EditorField(String key, String initial) {
+      super(initial);
+      server = initial;
+      submitted = initial;
+      var style = new TextFieldStyle(getStyle());
+      style.font = fieldFont(18);
+      style.fontColor = ProgrammingUI.TEXT;
+      style.background = ProgrammingUI.background(ProgrammingUI.SURFACE, true);
+      style.focusedBackground = ProgrammingUI.background(Color.valueOf("35403f"), true);
+      style.disabledBackground = ProgrammingUI.background(ProgrammingUI.INK, true);
+      style.disabledFontColor = ProgrammingUI.MUTED;
+      for (var background :
+          List.of(style.background, style.focusedBackground, style.disabledBackground)) {
+        background.setLeftWidth(8);
+        background.setRightWidth(8);
+      }
+      setStyle(style);
+      setName(key);
+      setUserObject(Cursors.TEXT);
+      addListener(
+          new FocusListener() {
+            @Override
+            public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused) {
+              if (!focused && !rebuilding) save();
+            }
+          });
+      setTextFieldListener(
+          (field, character) -> {
+            if (character == '\r' || character == '\n') save();
+          });
+    }
+
+    private void receive(String value) {
+      if (pending == 0 && !server.equals(value)) {
+        setText(value);
+        submitted = value;
+      }
+      server = value;
+    }
+
+    private void save() {
+      if (getText().equals(submitted) || !owner.editable()) return;
+      submitted = getText();
+      pending++;
+      commit.accept(
+          submitted,
+          state -> {
+            pending--;
+            String value = fieldValues(state).get(getName());
+            if (value == null) return;
+            server = value;
+            if (pending == 0 && normalized(getName(), getText()).equals(value)) {
+              setText(value);
+              submitted = value;
+            }
+          });
+    }
+  }
+
+  private static com.badlogic.gdx.graphics.g2d.BitmapFont fieldFont(int raster) {
+    var font =
+        FontHelper.getFont(
+            FontSpec.of(Scene2dElementFactory.FONT_PATH, raster, ProgrammingUI.TEXT),
+            FontHelper.FontRole.TEXT_FIELD);
+    font.getData().setScale(18f / raster);
+    font.setUseIntegerPositions(false);
+    return font;
+  }
+
   /** Keeps field glyphs at the display resolution while preserving logical input coordinates. */
-  private static final class CanvasTextField extends TextField {
+  private static class CanvasTextField extends TextField {
     private final Vector2 origin = new Vector2();
     private final Vector2 axis = new Vector2();
     private int raster;
@@ -1149,12 +1187,7 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
       if (raster != required) {
         raster = required;
         var style = new TextFieldStyle(getStyle());
-        // A distinct cache key keeps field font scaling separate from label fonts.
-        style.font =
-            FontHelper.getFont(
-                Scene2dElementFactory.FONT_PATH, raster, ProgrammingUI.TEXT, 0, Color.CLEAR);
-        style.font.getData().setScale(18f / raster);
-        style.font.setUseIntegerPositions(false);
+        style.font = fieldFont(raster);
         setStyle(style);
       }
       super.draw(batch, alpha);
@@ -1208,6 +1241,23 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
     }
   }
 
+  void releaseDragTargets() {
+    dragSources.forEach(owner.dragging()::removeSource);
+    dragTargets.forEach(owner.dragging()::removeTarget);
+    dragSources.clear();
+    dragTargets.clear();
+  }
+
+  private void addSource(DragAndDrop.Source source) {
+    dragSources.add(source);
+    owner.dragging().addSource(source);
+  }
+
+  private void addTarget(DragAndDrop.Target target) {
+    dragTargets.add(target);
+    owner.dragging().addTarget(target);
+  }
+
   private void source(Actor actor, Block block, boolean copy) {
     actor.setUserObject(owner.editable() ? copy ? Cursors.COPY : Cursors.GRAB : Cursors.DISABLED);
     boolean[] pressedEditor = {false};
@@ -1219,94 +1269,91 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
             return false;
           }
         });
-    owner
-        .dragging()
-        .addSource(
-            new DragAndDrop.Source(actor) {
-              @Override
-              public DragAndDrop.Payload dragStart(
-                  InputEvent event, float x, float y, int pointer) {
-                if (!owner.editable() || pressedEditor[0]) return null;
-                if (!copy && !selected.contains(block.id())) {
-                  if (loose()) {
-                    selected.clear();
-                    selected.addAll(looseIds);
-                    paintSelection();
-                  } else select(block.id(), false, false);
-                }
-                owner.flushFields();
-                List<Block> draggedBlocks =
-                    copy
-                        ? List.of(block)
-                        : panelBlocks(owner.state()).stream()
-                            .filter(selectedBlock -> selected.contains(selectedBlock.id()))
-                            .toList();
-                Table preview = new Table();
-                preview.top().left();
-                float grabFromTop = actor.getHeight() - y;
-                boolean beforeGrabbed = true;
-                for (Block draggedBlock : draggedBlocks) {
-                  CodeRow original = rows.get(draggedBlock.id());
-                  float rowHeight = original == null ? actor.getHeight() : original.getHeight();
-                  if (draggedBlock.id().equals(block.id())) beforeGrabbed = false;
-                  if (beforeGrabbed) grabFromTop += rowHeight;
-                  CodeRow ghost = new CodeRow(draggedBlock.action() == Action.CALL);
-                  ghost.selected = true;
-                  ghost
-                      .add(ProgrammingUI.zoomSyntaxLabel(syntax(draggedBlock), 18))
-                      .growX()
-                      .minWidth(0);
-                  preview.add(ghost).width(actor.getWidth()).height(rowHeight).row();
-                }
-                preview.pack();
-                Vector2 origin = actor.localToStageCoordinates(new Vector2());
-                Vector2 extent =
-                    actor.localToStageCoordinates(new Vector2(actor.getWidth(), actor.getHeight()));
-                float scaleX = (extent.x - origin.x) / actor.getWidth();
-                float scaleY = (extent.y - origin.y) / actor.getHeight();
-                preview.setTransform(true);
-                preview.setScale(scaleX, scaleY);
-                Group ghost = new Group();
-                ghost.setSize(preview.getWidth() * scaleX, preview.getHeight() * scaleY);
-                ghost.addActor(preview);
-                owner
-                    .dragging()
-                    .setDragActorPosition(
-                        ghost.getWidth() - x * scaleX, grabFromTop * scaleY - ghost.getHeight());
-                // Moving a whole loose group preserves its current scroll position as well.
-                float dropGrabFromTop =
-                    !copy && loose() && draggedBlocks.size() == looseIds.size()
-                        ? height()
-                            - actor.localToAscendantCoordinates(
-                                    ProgrammingMethodsNode.this, new Vector2(x, y))
-                                .y
-                        : grabFromTop;
-                var payload = new DragAndDrop.Payload();
-                payload.setObject(
-                    new Drag(
-                        ProgrammingMethodsNode.this,
-                        container,
-                        block,
-                        copy,
-                        copy ? List.of() : draggedBlocks.stream().map(Block::id).toList(),
-                        x,
-                        dropGrabFromTop));
-                owner.dragStarted((Drag) payload.getObject());
-                payload.setDragActor(ghost);
-                return payload;
-              }
+    addSource(
+        new DragAndDrop.Source(actor) {
+          @Override
+          public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+            if (!owner.editable() || pressedEditor[0]) return null;
+            if (!copy && !selected.contains(block.id())) {
+              if (loose()) {
+                selected.clear();
+                selected.addAll(looseIds);
+                paintSelection();
+              } else select(block.id(), false, false);
+            }
+            owner.flushFields();
+            List<Block> draggedBlocks =
+                copy
+                    ? List.of(block)
+                    : panelBlocks(owner.state()).stream()
+                        .filter(selectedBlock -> selected.contains(selectedBlock.id()))
+                        .toList();
+            Table preview = new Table();
+            preview.top().left();
+            float grabFromTop = actor.getHeight() - y;
+            boolean beforeGrabbed = true;
+            for (Block draggedBlock : draggedBlocks) {
+              CodeRow original = rows.get(draggedBlock.id());
+              float rowHeight = original == null ? actor.getHeight() : original.getHeight();
+              if (draggedBlock.id().equals(block.id())) beforeGrabbed = false;
+              if (beforeGrabbed) grabFromTop += rowHeight;
+              CodeRow ghost = new CodeRow(draggedBlock.action() == Action.CALL);
+              ghost.selected = true;
+              ghost
+                  .add(ProgrammingUI.zoomSyntaxLabel(syntax(draggedBlock), 18))
+                  .growX()
+                  .minWidth(0);
+              preview.add(ghost).width(actor.getWidth()).height(rowHeight).row();
+            }
+            preview.pack();
+            Vector2 origin = actor.localToStageCoordinates(new Vector2());
+            Vector2 extent =
+                actor.localToStageCoordinates(new Vector2(actor.getWidth(), actor.getHeight()));
+            float scaleX = (extent.x - origin.x) / actor.getWidth();
+            float scaleY = (extent.y - origin.y) / actor.getHeight();
+            preview.setTransform(true);
+            preview.setScale(scaleX, scaleY);
+            Group ghost = new Group();
+            ghost.setSize(preview.getWidth() * scaleX, preview.getHeight() * scaleY);
+            ghost.addActor(preview);
+            owner
+                .dragging()
+                .setDragActorPosition(
+                    ghost.getWidth() - x * scaleX, grabFromTop * scaleY - ghost.getHeight());
+            // Moving a whole loose group preserves its current scroll position as well.
+            float dropGrabFromTop =
+                !copy && loose() && draggedBlocks.size() == looseIds.size()
+                    ? height()
+                        - actor.localToAscendantCoordinates(
+                                ProgrammingMethodsNode.this, new Vector2(x, y))
+                            .y
+                    : grabFromTop;
+            var payload = new DragAndDrop.Payload();
+            payload.setObject(
+                new Drag(
+                    ProgrammingMethodsNode.this,
+                    container,
+                    block,
+                    copy,
+                    copy ? List.of() : draggedBlocks.stream().map(Block::id).toList(),
+                    x,
+                    dropGrabFromTop));
+            owner.dragStarted((Drag) payload.getObject());
+            payload.setDragActor(ghost);
+            return payload;
+          }
 
-              @Override
-              public void dragStop(
-                  InputEvent event,
-                  float x,
-                  float y,
-                  int pointer,
-                  DragAndDrop.Payload payload,
-                  DragAndDrop.Target target) {
-                com.badlogic.gdx.Gdx.app.postRunnable(() -> refreshAll());
-              }
-            });
+          @Override
+          public void dragStop(
+              InputEvent event,
+              float x,
+              float y,
+              int pointer,
+              DragAndDrop.Payload payload,
+              DragAndDrop.Target target) {
+            com.badlogic.gdx.Gdx.app.postRunnable(() -> refreshAll());
+          }
+        });
   }
 
   private void insertion(Table table, int index, boolean empty) {
@@ -1323,59 +1370,57 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
 
   private void target(Actor gap, int index, boolean row) {
     List<String> destinationIds = panelBlocks(owner.state()).stream().map(Block::id).toList();
-    owner
-        .dragging()
-        .addTarget(
-            new DragAndDrop.Target(gap) {
-              @Override
-              public boolean drag(
-                  DragAndDrop.Source source,
-                  DragAndDrop.Payload payload,
-                  float x,
-                  float y,
-                  int pointer) {
-                boolean valid = payload.getObject() instanceof Drag d && validDrag(d);
-                owner.dropAllowed(valid);
-                if (row && gap instanceof CodeRow codeRow) {
-                  codeRow.insertion = valid ? (y >= gap.getHeight() / 2 ? 1 : -1) : 0;
-                } else if (gap instanceof Table table) {
-                  table.setBackground(
-                      ProgrammingUI.background(
-                          valid ? ProgrammingUI.GOLD : Color.valueOf("20282b"), false));
-                }
-                return valid;
-              }
+    addTarget(
+        new DragAndDrop.Target(gap) {
+          @Override
+          public boolean drag(
+              DragAndDrop.Source source,
+              DragAndDrop.Payload payload,
+              float x,
+              float y,
+              int pointer) {
+            boolean valid = payload.getObject() instanceof Drag d && validDrag(d);
+            owner.dropAllowed(valid);
+            if (row && gap instanceof CodeRow codeRow) {
+              codeRow.insertion = valid ? (y >= gap.getHeight() / 2 ? 1 : -1) : 0;
+            } else if (gap instanceof Table table) {
+              table.setBackground(
+                  ProgrammingUI.background(
+                      valid ? ProgrammingUI.GOLD : Color.valueOf("20282b"), false));
+            }
+            return valid;
+          }
 
-              @Override
-              public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
-                owner.dropAllowed(false);
-                if (row && gap instanceof CodeRow codeRow) codeRow.insertion = 0;
-                else if (gap instanceof Table table)
-                  table.setBackground(ProgrammingUI.background(Color.valueOf("20282b"), false));
-              }
+          @Override
+          public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
+            owner.dropAllowed(false);
+            if (row && gap instanceof CodeRow codeRow) codeRow.insertion = 0;
+            else if (gap instanceof Table table)
+              table.setBackground(ProgrammingUI.background(Color.valueOf("20282b"), false));
+          }
 
-              @Override
-              public void drop(
-                  DragAndDrop.Source source,
-                  DragAndDrop.Payload payload,
-                  float x,
-                  float y,
-                  int pointer) {
-                if (!(payload.getObject() instanceof Drag d) || !validDrag(d)) return;
-                // The visible rows can outlive a snapshot received during this drag.
-                String anchor =
-                    destinationIds.stream()
-                        .skip(index + (row && y < gap.getHeight() / 2 ? 1 : 0))
-                        .filter(id -> d.copy() || !d.ids().contains(id))
-                        .findFirst()
-                        .orElse("");
-                queueDrop(d, insertionIndex(owner.state(), anchor));
-              }
-            });
+          @Override
+          public void drop(
+              DragAndDrop.Source source,
+              DragAndDrop.Payload payload,
+              float x,
+              float y,
+              int pointer) {
+            if (!(payload.getObject() instanceof Drag d) || !validDrag(d)) return;
+            // The visible rows can outlive a snapshot received during this drag.
+            String anchor =
+                destinationIds.stream()
+                    .skip(index + (row && y < gap.getHeight() / 2 ? 1 : 0))
+                    .filter(id -> d.copy() || !d.ids().contains(id))
+                    .findFirst()
+                    .orElse("");
+            queueDrop(d, insertionIndex(owner.state(), anchor));
+          }
+        });
   }
 
   /**
-   * Each queued move resolves its index after earlier moves and field edits are acknowledged.
+   * Moves an entire selection atomically, using a stable destination anchor.
    *
    * @param drag dragged blocks and destination container
    * @param index block position in the current panel
@@ -1402,15 +1447,11 @@ final class ProgrammingMethodsNode extends CanvasNode implements CursorUtil.Curs
                       drag.block())),
           ignored -> {});
     } else {
-      for (String id : drag.ids()) {
-        owner.send(
-            Operation.MOVE_BLOCK,
-            state ->
-                JSON.writeValueAsString(
-                    Map.of(
-                        "container", container, "index", insertionIndex(state, anchor), "id", id)),
-            ignored -> {});
-      }
+      owner.send(
+          Operation.MOVE_BLOCKS,
+          ignored ->
+              JSON.writeValueAsString(new MethodsWorkshop.Move(drag.ids(), container, anchor)),
+          ignored -> {});
     }
   }
 

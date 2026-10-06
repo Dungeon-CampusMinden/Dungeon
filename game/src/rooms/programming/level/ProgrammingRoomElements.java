@@ -189,7 +189,10 @@ final class ProgrammingRoomElements {
     if (visual == Visual.GOLEM) {
       position.scale(GOLEM_SCALE);
       entity.add(new VelocityComponent(2.5f, 8f));
-      entity.add(new CollideComponent(GOLEM_HITBOX_OFFSET, GOLEM_HITBOX_SIZE));
+      CollideComponent collision = new CollideComponent(GOLEM_HITBOX_OFFSET, GOLEM_HITBOX_SIZE);
+      // Nox follows its program; collisions must not push it off the commanded route.
+      collision.staticCallback(ignored -> true);
+      entity.add(collision);
     } else if (visual == Visual.CHEST) {
       entity.add(ProgrammingProps.chestCollider());
     } else if (visual == Visual.SEHSTEIN) {

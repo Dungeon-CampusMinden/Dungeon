@@ -168,3 +168,20 @@ float sdBox(vec2 p, vec2 b) {
     return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
 
+// Tests the shared square outline neighborhood around a transparent pixel.
+bool isInOutline(sampler2D textureSampler, vec2 uv, vec2 stepSize, int width) {
+  for(int ix = -10; ix <= 10; ix++){
+    if(abs(float(ix)) > float(width)) continue;
+    for(int iy = -10; iy <= 10; iy++){
+      if(abs(float(iy)) > float(width)) continue;
+      float sampleX = uv.x + float(ix) * stepSize.x;
+      float sampleY = uv.y + float(iy) * stepSize.y;
+      vec4 neighbor = texture2D(textureSampler, vec2(sampleX, sampleY));
+      if(neighbor.a >= 0.01){
+        return true;
+      }
+    }
+  }
+  return false;
+}
+

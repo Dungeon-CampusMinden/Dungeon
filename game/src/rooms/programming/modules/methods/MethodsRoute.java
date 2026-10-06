@@ -32,7 +32,7 @@ public final class MethodsRoute {
     }
   }
 
-  /** Physical instructions and the return/assignment steps shown during execution. */
+  /** Operations used by program blocks and physical instructions. */
   public enum Action {
     TURN,
     MOVE,
@@ -130,24 +130,6 @@ public final class MethodsRoute {
               Step.action(Action.MOVE, 1),
               Step.action(Action.PLACE, amount),
               Step.action(Action.MOVE, 1));
-    };
-  }
-
-  /**
-   * @param step instruction to display
-   * @return its spelling in the workshop pseudocode
-   */
-  public static String source(Step step) {
-    return switch (step.action()) {
-      case TURN -> "DREHE(" + step.direction().label() + ");";
-      case MOVE -> "GEHE(" + step.amount() + ");";
-      case OPEN_GATE -> "ÖFFNE();";
-      case ACTIVATE_RUNE -> "AKTIVIERE();";
-      case COLLECT -> "gesammelt = SAMMLE_ALLE();";
-      case PLACE -> "LEGE_AB(" + step.amount() + ");";
-      case RETURN -> "GIB_ZURÜCK " + step.amount() + ";";
-      case CALL -> "AUFRUF();";
-      case ASSIGN -> "kristalle = " + step.amount() + ";";
     };
   }
 }

@@ -275,7 +275,6 @@ public final class Tracking {
    * @param objectId stable interacted-object identifier
    * @param answerKind answer representation
    * @param rawAnswer complete submitted answer
-   * @param correct server-evaluated correctness
    * @param participantId session-scoped anonymous participant
    * @param details help state and final failure reasons
    * @return newly recorded event, or empty when tracking is inactive or recording fails
@@ -285,13 +284,16 @@ public final class Tracking {
       String objectId,
       String answerKind,
       String rawAnswer,
-      boolean correct,
       UUID participantId,
       AttemptDetails details) {
-    if (correct != details.failureReasons().isEmpty())
-      throw new IllegalArgumentException("Failure reasons must agree with the answer outcome");
     return attempt(
-        puzzleId, objectId, answerKind, rawAnswer, correct, participantId, Optional.of(details));
+        puzzleId,
+        objectId,
+        answerKind,
+        rawAnswer,
+        details.failureReasons().isEmpty(),
+        participantId,
+        Optional.of(details));
   }
 
   private static Optional<TrackingEvent> attempt(

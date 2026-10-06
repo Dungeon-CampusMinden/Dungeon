@@ -4,9 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import feature.components.UIComponent;
-import feature.petrinet.PetriNetSystem;
-import feature.petrinet.PlaceComponent;
-import feature.petrinet.TransitionComponent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,12 +12,12 @@ import java.util.Optional;
 import rooms.programming.modules.loops.LoopExecution;
 import rooms.programming.modules.loops.LoopPuzzle;
 
-/** Room-owned, requested Petri-net transitions release hints without publishing future answers. */
+/** Server-owned hint stages release requested tips without publishing future answers. */
 public final class ProgrammingHelp {
   public static final String ID = "programming.help";
   private static State received;
   private final ProgrammingGolemRuntime runtime;
-  private final Map<String, Progress> puzzles = new LinkedHashMap<>();
+  private final Map<String, Integer> puzzles = new LinkedHashMap<>();
   private final List<ReleasedHint> history = new ArrayList<>();
 
   /**
@@ -71,33 +68,6 @@ public final class ProgrammingHelp {
     }
   }
 
-  private static final class Progress {
-    final PetriNetSystem net = new PetriNetSystem();
-    final PlaceComponent request = new PlaceComponent();
-    final List<PlaceComponent> steps = new ArrayList<>();
-
-    Progress() {
-      for (int i = 0; i <= 3; i++) steps.add(new PlaceComponent());
-      steps.getFirst().produce();
-      for (int i = 0; i < 3; i++) {
-        var transition = new TransitionComponent();
-        net.addInputArc(transition, steps.get(i));
-        net.addInputArc(transition, request);
-        net.addOutputArc(transition, steps.get(i + 1));
-      }
-    }
-
-    int level() {
-      for (int i = 3; i >= 0; i--) if (steps.get(i).tokenCount() > 0) return i;
-      throw new IllegalStateException("Missing help progression token");
-    }
-
-    void next() {
-      request.produce();
-      net.execute();
-    }
-  }
-
   ProgrammingHelp(ProgrammingGolemRuntime runtime) {
     this.runtime = runtime;
     for (String id :
@@ -110,12 +80,12 @@ public final class ProgrammingHelp {
             "cellar-3",
             "cellar-4",
             "methods",
-            "decisions")) puzzles.put(id, new Progress());
+            "decisions")) puzzles.put(id, 0);
   }
 
   State snapshot() {
     String id = runtime.helpPuzzle();
-    int level = puzzles.get(id).level();
+    int level = puzzles.get(id);
     boolean ready = runtime.helpReady();
     String status = runtime.helpStatus();
     if (id.startsWith("cellar-") && level == 3 && ready) {
@@ -150,7 +120,7 @@ public final class ProgrammingHelp {
   }
 
   int level(String puzzleId) {
-    return puzzles.get(puzzleId).level();
+    return puzzles.get(puzzleId);
   }
 
   void accept(Entity who, String event, String expected) {
@@ -158,13 +128,12 @@ public final class ProgrammingHelp {
     if (!state.puzzleId().equals(expected) || !runtime.helpAuthorized(who)) return;
     if (event.equals("help.next")) {
       if (!state.canRequest()) return;
-      Progress progress = puzzles.get(expected);
-      progress.next();
-      int step = progress.level();
+      int step = Math.min(3, puzzles.get(expected) + 1);
+      puzzles.put(expected, step);
       String hint = hints(expected).get(step - 1);
       history.add(new ReleasedHint(expected, state.title(), step, hint));
       ProgrammingProgress.hint(
-          expected, "step-" + step, state.title() + " · Tipp " + step + "\n\n" + hint, who);
+          expected, "step-" + step, state.title() + " · Tipp " + step, hint, who);
       if (step == 3) ProgrammingProgress.interaction(expected, "simplification", who);
     } else if (event.equals("help.solve")) {
       if (!state.canSolve() || !runtime.helpSolveAuthorized(who)) return;

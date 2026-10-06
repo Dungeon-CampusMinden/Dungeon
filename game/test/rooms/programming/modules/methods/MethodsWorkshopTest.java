@@ -19,6 +19,7 @@ import rooms.programming.modules.methods.MethodsWorkshop.Block;
 import rooms.programming.modules.methods.MethodsWorkshop.CheckStatus;
 import rooms.programming.modules.methods.MethodsWorkshop.Edit;
 import rooms.programming.modules.methods.MethodsWorkshop.Intent;
+import rooms.programming.modules.methods.MethodsWorkshop.Move;
 import rooms.programming.modules.methods.MethodsWorkshop.Operation;
 import rooms.programming.modules.methods.MethodsWorkshop.ResultMode;
 import rooms.programming.modules.methods.MethodsWorkshop.RunState;
@@ -232,15 +233,12 @@ class MethodsWorkshopTest {
     var original = MethodsWorkshop.originalProgram();
     assertEquals(original, workshop.state().main());
     Block first = workshop.state().main().getFirst();
-    edit(workshop, Operation.MOVE_BLOCK, new Edit(first.id(), "draft", 0, null));
+    move(workshop, List.of(first.id()), "draft", 0);
     assertEquals(first, workshop.state().draft().body().getFirst());
     assertFalse(workshop.state().main().contains(first));
     Block second = workshop.state().main().getFirst();
-    edit(workshop, Operation.MOVE_BLOCK, new Edit(second.id(), "scrap", 0, null));
-    edit(
-        workshop,
-        Operation.MOVE_BLOCK,
-        new Edit(first.id(), "main", workshop.state().main().size(), null));
+    move(workshop, List.of(second.id()), "scrap", 0);
+    move(workshop, List.of(first.id()), "main", workshop.state().main().size());
     assertEquals(first, workshop.state().main().getLast());
     assertEquals(second, workshop.state().scrap().getFirst());
     assertEquals(original, MethodsWorkshop.originalProgram());
@@ -282,7 +280,7 @@ class MethodsWorkshopTest {
     assertEquals(workshop.state().draft(), workshop.state().definitions().get("tor"));
     var built = workshop.state().definitions().get("tor");
     String returnId = workshop.state().draft().body().getLast().id();
-    edit(workshop, Operation.MOVE_BLOCK, new Edit(returnId, "draft", 2, null));
+    move(workshop, List.of(returnId), "draft", 2);
     var draft = workshop.state().draft();
     assertEquals(3, draft.unreachableBlocks().size());
     for (Block unreachable : draft.body().subList(3, 6))
@@ -293,7 +291,7 @@ class MethodsWorkshopTest {
     assertEquals(built, workshop.state().definitions().get("tor"));
     assertEquals(
         "Nicht erreichbar: Die Methode endet bereits in Zeile 3.", workshop.state().feedback());
-    edit(workshop, Operation.MOVE_BLOCK, new Edit(returnId, "draft", 6, null));
+    move(workshop, List.of(returnId), "draft", 6);
     assertTrue(workshop.state().draft().unreachableBlocks().isEmpty());
     edit(workshop, Operation.BUILD, "");
     assertEquals(workshop.state().draft(), workshop.state().definitions().get("tor"));
@@ -362,14 +360,14 @@ class MethodsWorkshopTest {
     var before = workshop.state();
     assertFalse(workshop.apply(2, intent(workshop, Operation.NAME, "fremd")));
     assertFalse(workshop.apply(1, new Intent(before.revision() - 1, Operation.NEW_METHOD, "")));
-    assertTrue(workshop.apply(1, intent(workshop, Operation.MOVE_BLOCK, "not json")));
+    assertTrue(workshop.apply(1, intent(workshop, Operation.MOVE_BLOCKS, "not json")));
     assertTrue(
         workshop.apply(
             1,
             intent(
                 workshop,
-                Operation.MOVE_BLOCK,
-                JSON.writeValueAsString(new Edit("b0", "unknown", 0, null)))));
+                Operation.MOVE_BLOCKS,
+                JSON.writeValueAsString(new Move(List.of("b0"), "unknown", "")))));
     edit(workshop, Operation.ADD_BLOCK, new Edit("", "main", 0, block(Action.MOVE, null, "")));
     assertEquals("Ungültiger Block.", workshop.state().feedback());
     assertEquals(before.main(), workshop.state().main());
@@ -473,8 +471,25 @@ class MethodsWorkshopTest {
   }
 
   private static void clearMain(MethodsWorkshop w) {
-    for (Block b : List.copyOf(w.state().main()))
-      edit(w, Operation.MOVE_BLOCK, new Edit(b.id(), "scrap", w.state().scrap().size(), null));
+    move(w, w.state().main().stream().map(Block::id).toList(), "scrap", w.state().scrap().size());
+  }
+
+  private static void move(
+      MethodsWorkshop workshop, List<String> ids, String container, int index) {
+    List<Block> destination =
+        switch (container) {
+          case "main" -> workshop.state().main();
+          case "draft" -> workshop.state().draft().body();
+          default -> workshop.state().scrap();
+        };
+    String anchor =
+        destination.stream()
+            .skip(index)
+            .map(Block::id)
+            .filter(id -> !ids.contains(id))
+            .findFirst()
+            .orElse("");
+    edit(workshop, Operation.MOVE_BLOCKS, new Move(ids, container, anchor));
   }
 
   private static void build(MethodsWorkshop w, String name, String parameters, List<Block> body) {

@@ -845,7 +845,8 @@ final class ProgrammingGolemRuntime {
               jumpStart.y()
                   + (target.y() - jumpStart.y()) * progress
                   + (float) Math.sin(progress * Math.PI) * 1.2f);
-      if (!fits(from, airborne, false)) {
+      if (!fits(from, airborne, false)
+          || CollisionUtils.isCollidingWithOtherSolids(golem, airborne)) {
         if (returning) {
           actionTime -= delta;
           status = returnFeedback + " Nox wartet auf einen freien Rückweg.";
@@ -897,7 +898,7 @@ final class ProgrammingGolemRuntime {
             draw.stateMachine().setState("breaking", null);
           });
     }
-    if (!fits(from, next, breakingGate)) {
+    if (!fits(from, next, breakingGate) || CollisionUtils.isCollidingWithOtherSolids(golem, next)) {
       if (breakingGate || workshopTransit || returning) {
         status =
             returning
@@ -989,6 +990,7 @@ final class ProgrammingGolemRuntime {
     return Game.levelEntities(Set.of(CollideComponent.class, PositionComponent.class))
         .noneMatch(
             entity -> {
+              if (entity == golem) return false;
               CollideComponent solid = entity.fetch(CollideComponent.class).orElseThrow();
               if (!solid.isSolid() || !solid.isStatic(entity)) return false;
               PositionComponent at = entity.fetch(PositionComponent.class).orElseThrow();

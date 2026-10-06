@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
+import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
 
@@ -84,7 +85,7 @@ final class ProgrammingUI {
     }
 
     private ZoomLabel(String text, int size, Color ink, String path, boolean markup) {
-      super(text, new LabelStyle(FontHelper.getFont(path, size, ink, 0, Color.BLACK), null));
+      super(text, new LabelStyle(font(path, size, ink, markup), null));
       this.markup = markup;
       this.size = size;
       this.ink = ink.cpy();
@@ -93,40 +94,14 @@ final class ProgrammingUI {
       getBitmapFontCache().setUseIntegerPositions(false);
     }
 
-    @Override
-    public float getPrefWidth() {
-      var data = getStyle().font.getData();
-      boolean previous = data.markupEnabled;
-      data.markupEnabled = markup;
-      try {
-        return super.getPrefWidth();
-      } finally {
-        data.markupEnabled = previous;
-      }
-    }
-
-    @Override
-    public float getPrefHeight() {
-      var data = getStyle().font.getData();
-      boolean previous = data.markupEnabled;
-      data.markupEnabled = markup;
-      try {
-        return super.getPrefHeight();
-      } finally {
-        data.markupEnabled = previous;
-      }
-    }
-
-    @Override
-    public void layout() {
-      var data = getStyle().font.getData();
-      boolean previous = data.markupEnabled;
-      data.markupEnabled = markup;
-      try {
-        super.layout();
-      } finally {
-        data.markupEnabled = previous;
-      }
+    private static com.badlogic.gdx.graphics.g2d.BitmapFont font(
+        String path, int raster, Color ink, boolean markup) {
+      var font =
+          FontHelper.getFont(
+              FontSpec.of(path, raster, ink),
+              markup ? FontHelper.FontRole.MARKUP : FontHelper.FontRole.DEFAULT);
+      font.getData().markupEnabled = markup;
+      return font;
     }
 
     @Override
@@ -140,7 +115,7 @@ final class ProgrammingUI {
       if (raster != required) {
         raster = required;
         LabelStyle style = new LabelStyle(getStyle());
-        style.font = FontHelper.getFont(path, raster, ink, 0, Color.BLACK);
+        style.font = font(path, raster, ink, markup);
         setStyle(style);
         setFontScale((float) size / raster);
         getBitmapFontCache().setUseIntegerPositions(false);
