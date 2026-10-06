@@ -145,7 +145,11 @@ public final class UIComponent implements Component {
     return willPauseGame;
   }
 
-  /** Whether this is an explicit pause screen rather than a task or input dialog. */
+  /**
+   * Whether this is an explicit pause screen rather than a task or input dialog.
+   *
+   * @return true if the dialog pauses the play clock
+   */
   public boolean pausesPlayClock() {
     return dialogContext.find(DialogContextKeys.PAUSES_PLAY_CLOCK, Boolean.class).orElse(false);
   }

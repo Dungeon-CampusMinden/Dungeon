@@ -29,6 +29,7 @@ public final class PlayClockRuntime {
             });
   }
 
+  /** Forgets the reported pause state so the next connection reports it again. */
   public static void resetClient() {
     reportedPause = null;
   }

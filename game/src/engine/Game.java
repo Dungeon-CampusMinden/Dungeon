@@ -82,7 +82,11 @@ public final class Game {
     PLAY_CLOCK.onTransition(TrackingRuntime::playClockChanged);
   }
 
-  /** Returns the authoritative play clock, or its latest server sample on clients. */
+  /**
+   * Returns the authoritative play clock, or its synchronized copy on clients.
+   *
+   * @return shared play clock
+   */
   public static PlayClock playClock() {
     return PLAY_CLOCK;
   }

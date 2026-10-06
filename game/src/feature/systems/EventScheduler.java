@@ -59,6 +59,10 @@ public class EventScheduler extends System {
   /**
    * Schedules an authoritative gameplay action on active play time, including while reading. It
    * only fires once the room has started the play clock with {@code Game.playClock().ready()}.
+   *
+   * @param action action to execute
+   * @param delayMillis delay in active play milliseconds
+   * @return the scheduled action, cancelable via {@link #cancelAction}
    */
   public static ScheduledAction schedulePlayAction(IAction action, long delayMillis) {
     if (delayMillis < 0) throw new IllegalArgumentException("delayMillis must be non-negative");

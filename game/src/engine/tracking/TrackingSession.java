@@ -88,7 +88,11 @@ final class TrackingSession {
     return finished;
   }
 
-  /** Retains puzzle facts when an empty, still-running room starts another tracking session. */
+  /**
+   * Retains puzzle facts when an empty, still-running room starts another tracking session.
+   *
+   * @param previous finished session of the same run
+   */
   void continuePuzzleState(TrackingSession previous) {
     startedPuzzles.addAll(previous.startedPuzzles);
     solvedPuzzles.addAll(previous.solvedPuzzles);

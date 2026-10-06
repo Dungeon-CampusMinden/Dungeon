@@ -88,7 +88,11 @@ public final class TrackingRuntime {
     if (before > 0 && Game.playClock().participantCount() == 0) Tracking.noParticipants();
   }
 
-  /** Records authoritative clock transitions independently of room event callers. */
+  /**
+   * Records authoritative clock transitions independently of room event callers.
+   *
+   * @param transition clock transition
+   */
   public static void playClockChanged(PlayClock.Transition transition) {
     Tracking.playClockChanged(transition);
   }

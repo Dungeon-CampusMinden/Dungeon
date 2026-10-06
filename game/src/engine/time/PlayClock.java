@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 /** Server-owned active play time, independent of simulation pauses and tracking consent. */
 public final class PlayClock {
+  /** Clock transition recorded by tracking. */
   public enum Event {
     STARTED,
     PAUSED,
@@ -19,11 +20,19 @@ public final class PlayClock {
     ENDED
   }
 
+  /** Why the clock stands still while play has started. */
   public enum PauseReason {
     PAUSE_DIALOG,
     PLAYERS_MISSING
   }
 
+  /**
+   * One clock transition.
+   *
+   * @param event transition kind
+   * @param reason pause reason for {@link Event#PAUSED}
+   * @param activeMs active play time at the transition
+   */
   public record Transition(Event event, Optional<PauseReason> reason, long activeMs) {}
 
   private final LongSupplier monotonicMs;
@@ -40,16 +49,25 @@ public final class PlayClock {
   private boolean stopped;
   private Optional<PauseReason> pauseReason = Optional.empty();
 
+  /** Creates a clock on the system's monotonic time. */
   public PlayClock() {
     this(() -> java.lang.System.nanoTime() / 1_000_000L);
   }
 
-  /** Creates a clock with an injectable monotonic millisecond source. */
+  /**
+   * Creates a clock with an injectable monotonic millisecond source.
+   *
+   * @param monotonicMs monotonic time in milliseconds
+   */
   public PlayClock(LongSupplier monotonicMs) {
     this.monotonicMs = Objects.requireNonNull(monotonicMs, "monotonicMs");
   }
 
-  /** Resets for a new room before participants connect or a save is restored. */
+  /**
+   * Resets for a new room before participants connect or a save is restored.
+   *
+   * @param minimumPlayers playing participants required for the clock to run
+   */
   public synchronized void configure(int minimumPlayers) {
     if (minimumPlayers < 1) throw new IllegalArgumentException("minimumPlayers must be positive");
     this.minimumPlayers = minimumPlayers;
@@ -70,7 +88,12 @@ public final class PlayClock {
         });
   }
 
-  /** Adds a connected participant after initial-world readiness. */
+  /**
+   * Adds a connected participant after initial-world readiness.
+   *
+   * @param clientId network client ID
+   * @param entityId player entity ID
+   */
   public void participantJoined(short clientId, int entityId) {
     mutate(
         () -> {
@@ -79,6 +102,11 @@ public final class PlayClock {
         });
   }
 
+  /**
+   * Removes a disconnected participant.
+   *
+   * @param clientId network client ID
+   */
   public void participantLeft(short clientId) {
     mutate(
         () -> {
@@ -88,7 +116,11 @@ public final class PlayClock {
         });
   }
 
-  /** Restricts playing participants to those who passed a room-specific intro gate. */
+  /**
+   * Restricts playing participants to those who passed a room-specific intro gate.
+   *
+   * @param entityIds player entity IDs that finished the intro
+   */
   public void playingParticipants(Set<Integer> entityIds) {
     mutate(
         () -> {
@@ -97,7 +129,12 @@ public final class PlayClock {
         });
   }
 
-  /** Records only explicit pause screens, never task or input dialogs. */
+  /**
+   * Records only explicit pause screens, never task or input dialogs.
+   *
+   * @param clientId network client ID
+   * @param paused whether the participant has the pause menu open
+   */
   public void paused(short clientId, boolean paused) {
     mutate(
         () -> {
@@ -108,18 +145,32 @@ public final class PlayClock {
         });
   }
 
+  /**
+   * Returns the active play time.
+   *
+   * @return active play time in milliseconds
+   */
   public synchronized long activeMs() {
     return accumulatedMs + (running ? Math.max(0, monotonicMs.getAsLong() - runningSinceMs) : 0);
   }
 
-  /** Restores a save before play starts; elapsed real-world time is discarded. */
+  /**
+   * Restores a save before play starts; elapsed real-world time is discarded.
+   *
+   * @param activeMs saved active play time
+   */
   public synchronized void restore(long activeMs) {
     if (activeMs < 0) throw new IllegalArgumentException("activeMs must be non-negative");
     if (started) throw new IllegalStateException("Cannot restore after play started");
     accumulatedMs = activeMs;
   }
 
-  /** Applies server clock state to a client clock, which advances locally while running. */
+  /**
+   * Applies server clock state to a client clock, which advances locally while running.
+   *
+   * @param activeMs server active play time
+   * @param running whether the server clock runs
+   */
   public synchronized void synchronize(long activeMs, boolean running) {
     if (activeMs < 0) throw new IllegalArgumentException("activeMs must be non-negative");
     accumulatedMs = activeMs;
@@ -140,14 +191,29 @@ public final class PlayClock {
         });
   }
 
+  /**
+   * Returns whether the clock currently advances.
+   *
+   * @return true while running
+   */
   public synchronized boolean running() {
     return running;
   }
 
+  /**
+   * Returns the number of connected participants.
+   *
+   * @return connected participants
+   */
   public synchronized int participantCount() {
     return participants.size();
   }
 
+  /**
+   * Sets the single transition listener, called outside the clock's lock.
+   *
+   * @param listener transition listener
+   */
   public synchronized void onTransition(Consumer<Transition> listener) {
     onTransition = Objects.requireNonNull(listener, "listener");
   }
