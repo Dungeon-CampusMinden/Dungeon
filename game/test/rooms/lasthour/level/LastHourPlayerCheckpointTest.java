@@ -84,7 +84,7 @@ class LastHourPlayerCheckpointTest {
     level.keypad = new Entity("checkpoint-test-keypad");
     level.keypad.add(new KeypadComponent(List.of(1, 2, 3), () -> {}, true));
     level.worldTimer = new Entity("checkpoint-test-timer");
-    level.worldTimer.add(new WorldTimerComponent((int) (System.currentTimeMillis() / 1000L), 3600));
+    level.worldTimer.add(new WorldTimerComponent(Game.playClock().activeMs(), 3600));
 
     Entity computer = new Entity("checkpoint-test-computer");
     computer.add(ComputerStateComponent.of(ComputerProgress.ON, false, null, 0));
@@ -714,7 +714,7 @@ class LastHourPlayerCheckpointTest {
 
   private void completeLogin() {
     ComputerStateComponent.setState(ComputerProgress.LOGGED_IN);
-    ComputerStateComponent.setTimestampOfLogin((int) (System.currentTimeMillis() / 1000L));
+    ComputerStateComponent.setTimestampOfLogin((int) (Game.playClock().activeMs() / 1000L) + 1);
     assertTrue(LastHourProgressNet.complete(LastHourMilestone.LOGIN_SUCCEEDED));
   }
 

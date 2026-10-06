@@ -45,10 +45,17 @@ public final class ControlsDialogSystem extends System {
    * @param player player whose controls dialog should be shown
    */
   public void showControlsFor(Entity player) {
+    showControlsFor(player, false);
+  }
+
+  /** Opens controls as part of the pause menu when explicitly requested by that menu. */
+  public void showControlsFor(Entity player, boolean pausesPlayClock) {
     discardClosedDialogs();
     int playerId = player.id();
     if (openDialogs.containsKey(playerId)) return;
     UIComponent dialog = DialogFactory.showDialogDialog(controlsDialog.get(), () -> {}, playerId);
+    if (pausesPlayClock)
+      dialog.dialogContext().attributes().put(DialogContextKeys.PAUSES_PLAY_CLOCK, true);
     openDialogs.put(playerId, dialog);
   }
 

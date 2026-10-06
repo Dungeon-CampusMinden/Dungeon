@@ -20,6 +20,7 @@ public class SoulweaverLevel extends DungeonLevel {
   private SoulweaverGolemRuntime runtime;
   private boolean continued;
   private final Set<Integer> introducedPlayers = new HashSet<>();
+  private final Set<Integer> playingPlayers = new HashSet<>();
 
   private static final String LEVEL_NAME = "soulweaver";
 
@@ -54,26 +55,44 @@ public class SoulweaverLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.playClock().playingParticipants(Set.of());
     SoulweaverTableAnchors.initialize(this);
     SoulweaverProgress.initialize();
     runtime = SoulweaverRoomElements.spawn(this);
     var checkpoint = Soulweaver.checkpoint();
     continued = checkpoint.isPresent();
-    if (continued) runtime.restore(checkpoint.orElseThrow());
-    else SoulweaverProgress.started("vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
+    if (continued) {
+      runtime.restore(checkpoint.orElseThrow());
+    }
     SoulweaverAtmosphere.install();
+  }
+
+  private void playReady(int playerId) {
+    if (!playingPlayers.add(playerId)) return;
+    Game.playClock().playingParticipants(playingPlayers);
+    Game.playClock().ready();
   }
 
   @Override
   protected void onTick() {
     if (runtime != null && runtime.tickEnding()) return;
+    if (continued) Game.allPlayers().forEach(player -> playReady(player.id()));
     if (!continued)
       Game.allPlayers()
           .filter(player -> introducedPlayers.add(player.id()))
           .forEach(
               player ->
                   BlackFadeCutscene.show(
-                      SoulweaverStory.intro(), false, true, true, () -> {}, player.id()));
+                      SoulweaverStory.intro(),
+                      false,
+                      true,
+                      true,
+                      () -> {
+                        playReady(player.id());
+                        SoulweaverProgress.started(
+                            "vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
+                      },
+                      player.id()));
     if (runtime != null) runtime.tick();
   }
 }

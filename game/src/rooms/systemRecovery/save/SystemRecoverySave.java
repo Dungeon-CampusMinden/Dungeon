@@ -36,7 +36,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievements;
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 8;
+  public static final int FORMAT_VERSION = 9;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -150,7 +150,8 @@ public final class SystemRecoverySave {
         mergePendingPuzzleItems(currentPuzzleItems(), pendingInventoryItems),
         isSystemCoreExitOpen(),
         SystemRecoveryLevel.systemCoreWarningCallAnswered(),
-        mergePendingPlayerPositions(currentPlayerPositions(), pendingPlayerPositions));
+        mergePendingPlayerPositions(currentPlayerPositions(), pendingPlayerPositions),
+        Game.playClock().activeMs());
   }
 
   private static List<PlayerPositionData> currentPlayerPositions() {
@@ -337,6 +338,7 @@ public final class SystemRecoverySave {
   static String toJson(SaveData data) {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("formatVersion", FORMAT_VERSION);
+    root.put("activeMs", data.activeMs());
     root.put("checkpoint", data.checkpointKey());
     Map<String, Object> metadata = new LinkedHashMap<>();
     metadata.put("runId", data.runId().toString());
@@ -399,6 +401,7 @@ public final class SystemRecoverySave {
    * @param systemCoreExitOpen whether ECHO's final call has already opened the elevator
    * @param systemCoreWarningCallAnswered whether the player has completed ECHO's core warning call
    * @param playerPositions saved world position for each named player
+   * @param activeMs active play time captured with this checkpoint
    */
   public record SaveData(
       String checkpointKey,
@@ -413,7 +416,8 @@ public final class SystemRecoverySave {
       List<PlayerItemData> inventoryItems,
       boolean systemCoreExitOpen,
       boolean systemCoreWarningCallAnswered,
-      List<PlayerPositionData> playerPositions) {
+      List<PlayerPositionData> playerPositions,
+      long activeMs) {
 
     /**
      * Returns this checkpoint with a replaced run-level tracking decision.
@@ -435,7 +439,8 @@ public final class SystemRecoverySave {
           inventoryItems,
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
-          playerPositions);
+          playerPositions,
+          activeMs);
     }
 
     /**
@@ -458,7 +463,8 @@ public final class SystemRecoverySave {
           items,
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
-          playerPositions);
+          playerPositions,
+          activeMs);
     }
 
     /**
@@ -481,7 +487,8 @@ public final class SystemRecoverySave {
           inventoryItems,
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
-          positions);
+          positions,
+          activeMs);
     }
 
     /**
@@ -526,7 +533,8 @@ public final class SystemRecoverySave {
           inventoryItems,
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
-          List.of());
+          List.of(),
+          Game.playClock().activeMs());
     }
 
     /**
@@ -703,8 +711,10 @@ public final class SystemRecoverySave {
      * @param systemCoreExitOpen whether the final call has opened the elevator
      * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
      * @param playerPositions saved world position for each named player
+     * @param activeMs active play time captured with this checkpoint
      */
     public SaveData {
+      if (activeMs < 0) throw new IllegalArgumentException("activeMs must not be negative");
       if (checkpointKey == null || checkpointKey.isBlank()) {
         throw new IllegalArgumentException("checkpointKey must not be blank");
       }

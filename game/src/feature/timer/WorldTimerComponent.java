@@ -1,11 +1,18 @@
 package feature.timer;
 
 import engine.Component;
+import engine.Game;
 
 /**
- * Component that stores a timestamp (UNIX) for a timer.
+ * Countdown measured against the server's active play clock. It stands still until the room starts
+ * the clock with {@code Game.playClock().ready()}.
  *
- * @param timestamp the timestamp (UNIX) for the timer
+ * @param startedAtActiveMs active play time when the countdown began
  * @param duration the duration of the timer in seconds
  */
-public record WorldTimerComponent(int timestamp, int duration) implements Component {}
+public record WorldTimerComponent(long startedAtActiveMs, int duration) implements Component {
+  /** Returns the countdown's remaining milliseconds on the current play clock. */
+  public long remainingMs() {
+    return Math.max(0, duration * 1000L - (Game.playClock().activeMs() - startedAtActiveMs));
+  }
+}

@@ -25,6 +25,9 @@ public class DialogContextKeys {
   /** Blocks the targeted players' gameplay input while keeping the world simulation running. */
   public static final String BLOCKS_GAMEPLAY_INPUT = "blocksGameplayInput";
 
+  /** Marks an explicit pause screen for active play time, independently of simulation freezing. */
+  public static final String PAUSES_PLAY_CLOCK = "pausesPlayClock";
+
   /** The key for the associated entity in the dialog context. */
   public static final String ENTITY = "entity";
 

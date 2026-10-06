@@ -61,8 +61,8 @@ final class MigrationRunner {
           "GRANT SELECT, INSERT ON tracking_sessions, tracking_participants, tracking_events TO "
               + quotedRole);
       statement.execute(
-          "GRANT UPDATE (status, ended_at, finish_elapsed_ms, final_sequence, "
-              + "aborted_at_puzzle_id) ON tracking_sessions TO "
+          "GRANT UPDATE (status, ended_at, finish_active_ms, final_sequence, "
+              + "interrupted_at_puzzle_id) ON tracking_sessions TO "
               + quotedRole);
       statement.execute(
           "GRANT UPDATE (room_played_before) ON tracking_participants TO " + quotedRole);

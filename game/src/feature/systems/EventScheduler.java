@@ -1,6 +1,7 @@
 package feature.systems;
 
 import com.badlogic.gdx.utils.TimeUtils;
+import engine.Game;
 import engine.System;
 import feature.utils.IAction;
 import java.util.PriorityQueue;
@@ -16,6 +17,7 @@ import java.util.PriorityQueue;
 public class EventScheduler extends System {
 
   private static final PriorityQueue<ScheduledAction> scheduledActions = new PriorityQueue<>();
+  private static final PriorityQueue<ScheduledAction> playActions = new PriorityQueue<>();
 
   /**
    * Defines whether the {@code EventScheduler} is pausable.
@@ -55,6 +57,28 @@ public class EventScheduler extends System {
   }
 
   /**
+   * Schedules an authoritative gameplay action on active play time, including while reading. It
+   * only fires once the room has started the play clock with {@code Game.playClock().ready()}.
+   */
+  public static ScheduledAction schedulePlayAction(IAction action, long delayMillis) {
+    if (delayMillis < 0) throw new IllegalArgumentException("delayMillis must be non-negative");
+    ScheduledAction scheduled =
+        new ScheduledAction(action, Game.playClock().activeMs() + delayMillis);
+    playActions.add(scheduled);
+    return scheduled;
+  }
+
+  /** Drained by the engine independently of simulation-pausing dialogs. */
+  public static void executePlayActions() {
+    if (Game.isMultiplayerClient() || !Game.playClock().running()) return;
+    long now = Game.playClock().activeMs();
+    while (!playActions.isEmpty() && now >= playActions.peek().executeAt()) {
+      playActions.poll().action().execute();
+      if (!Game.playClock().running()) return;
+    }
+  }
+
+  /**
    * Clears all scheduled actions.
    *
    * <p>This method removes all actions from the list of scheduled actions. After this method is
@@ -62,6 +86,7 @@ public class EventScheduler extends System {
    */
   public static void clear() {
     scheduledActions.clear();
+    playActions.clear();
   }
 
   /**
@@ -76,6 +101,7 @@ public class EventScheduler extends System {
   public static ScheduledAction[] cancelAction(ScheduledAction... scheduledAction) {
     for (ScheduledAction action : scheduledAction) {
       scheduledActions.remove(action);
+      playActions.remove(action);
     }
     return scheduledAction;
   }
@@ -87,7 +113,7 @@ public class EventScheduler extends System {
    * @return true if the action is scheduled, false if not.
    */
   public static boolean isScheduled(ScheduledAction action) {
-    return scheduledActions.contains(action);
+    return scheduledActions.contains(action) || playActions.contains(action);
   }
 
   /**

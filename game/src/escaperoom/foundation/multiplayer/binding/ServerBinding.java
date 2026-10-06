@@ -9,7 +9,6 @@ import escaperoom.foundation.runtime.CodeAttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.Projection;
 import escaperoom.foundation.runtime.ReleasedHint;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,16 +33,8 @@ public final class ServerBinding {
     this.readyClients = Objects.requireNonNull(readyClients, "readyClients");
   }
 
-  /**
-   * Reconciles ready players and advances authoritative room time.
-   *
-   * @param elapsed nonnegative time since the previous tick
-   */
-  public synchronized void tick(final Duration elapsed) {
-    Objects.requireNonNull(elapsed, "elapsed");
-    if (elapsed.isNegative()) {
-      throw new IllegalArgumentException("Foundation elapsed duration must be nonnegative");
-    }
+  /** Reconciles ready players and advances authoritative room time. */
+  public synchronized void tick() {
     List<ClientObservation> observations =
         Set.copyOf(Objects.requireNonNull(readyClients.get(), "ready clients")).stream()
             .map(
@@ -52,7 +43,6 @@ public final class ServerBinding {
                         client.clientId(), client.playerEntity().orElseThrow().id()))
             .toList();
     session.reconcileClients(observations);
-    session.advance(elapsed);
   }
 
   /**

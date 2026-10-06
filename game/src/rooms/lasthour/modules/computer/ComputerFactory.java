@@ -57,7 +57,6 @@ public class ComputerFactory {
         new InteractionComponent(
             new Interaction(
                 (eInteract, who) -> {
-                  LastHourTracking.started(LastHourPuzzle.POWER);
                   DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
                   if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
                     LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
@@ -181,6 +180,8 @@ public class ComputerFactory {
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
       ComputerStateComponent.setUsbInserted(true);
+      // The control panel accepts the exit code from now on; ventilation is the next main step.
+      LastHourTracking.started(LastHourPuzzle.EXIT);
       LastHourTracking.started(LastHourPuzzle.VENTILATION);
       openComputerDialog(pcEntity, who);
     } else {

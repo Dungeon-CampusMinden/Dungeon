@@ -181,6 +181,7 @@ public final class AuthoritativeServerLoop {
 
   private void executeGameTick() {
     PreRunConfiguration.userOnFrame().execute();
+    engine.time.PlayClockRuntime.tick();
     ECSManagement.executeOneTick(engine.System.AuthoritativeSide.SERVER);
   }
 

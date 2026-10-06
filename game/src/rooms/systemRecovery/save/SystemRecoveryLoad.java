@@ -149,7 +149,7 @@ public final class SystemRecoveryLoad {
   private static Optional<SystemRecoverySave.SaveData> parse(String json) {
     Map<String, Object> root = JsonHandler.readJson(json);
     int version = integer(root.get("formatVersion"));
-    if (version < 1 || version > SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
+    if (version != SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
     String checkpoint = string(root.get("checkpoint"));
     if (checkpoint == null || findCheckpoint(checkpoint).isEmpty()) return Optional.empty();
     Map<?, ?> metadata = metadataMap(root.get("metadata"));
@@ -233,7 +233,8 @@ public final class SystemRecoveryLoad {
             inventoryItems,
             systemCoreExitOpen,
             systemCoreWarningCallAnswered,
-            playerPositions));
+            playerPositions,
+            ((Number) root.get("activeMs")).longValue()));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {

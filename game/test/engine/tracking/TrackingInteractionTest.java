@@ -30,7 +30,7 @@ class TrackingInteractionTest {
                 Optional.empty(),
                 directory,
                 "tracking@example.com",
-                Optional.empty()));
+                UUID.randomUUID()));
     UUID participant = UUID.randomUUID();
 
     TrackingEvent interaction =
@@ -72,7 +72,7 @@ class TrackingInteractionTest {
                 Optional.empty(),
                 directory,
                 "tracking@example.com",
-                Optional.empty()));
+                UUID.randomUUID()));
     assertThrows(
         IllegalArgumentException.class,
         () ->

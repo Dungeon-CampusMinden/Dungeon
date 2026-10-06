@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import engine.Game;
 import engine.language.Localization;
 import engine.utils.Scene2dElementFactory;
 import java.util.List;
@@ -59,7 +60,7 @@ public class BlogTab extends ComputerTab {
         ComputerStateComponent.getState().map(ComputerStateComponent::timestampOfLogin).orElse(0);
     if (timestampOfLogin == 0) return 0;
     return LastHourBlogTime.elapsedSeconds(
-        timestampOfLogin, (int) (System.currentTimeMillis() / 1000L));
+        timestampOfLogin, (int) (Game.playClock().activeMs() / 1000L));
   }
 
   /**
@@ -119,7 +120,7 @@ public class BlogTab extends ComputerTab {
    * Returns whether the server-side login timestamp makes a comment visible.
    *
    * @param comment comment with its display delay
-   * @param timestampOfLogin server-side login timestamp in epoch seconds
+   * @param timestampOfLogin server-side login play seconds plus one
    * @return whether the comment can currently be viewed
    */
   public static boolean isCommentVisible(BlogComment comment, int timestampOfLogin) {
@@ -128,7 +129,7 @@ public class BlogTab extends ComputerTab {
     }
     long secondsSinceLogin =
         LastHourBlogTime.elapsedSeconds(
-            timestampOfLogin, (int) (System.currentTimeMillis() / 1000L));
+            timestampOfLogin, (int) (Game.playClock().activeMs() / 1000L));
     return secondsSinceLogin >= comment.timeBeforeDisplay();
   }
 

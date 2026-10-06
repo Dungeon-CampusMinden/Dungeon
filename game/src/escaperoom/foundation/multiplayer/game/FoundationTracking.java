@@ -6,6 +6,7 @@ import escaperoom.foundation.runtime.CodeAttemptResult;
 import escaperoom.foundation.runtime.CodeOutcome;
 import escaperoom.foundation.runtime.Projection;
 import escaperoom.foundation.runtime.ReleasedHint;
+import escaperoom.foundation.runtime.TerminalResult;
 
 /** Small server-authoritative tracking adapter for every Foundation room. */
 final class FoundationTracking {
@@ -21,6 +22,10 @@ final class FoundationTracking {
                 Tracking.puzzleSolved(riddle.id());
               }
             });
+    projection
+        .terminal()
+        .filter(outcome -> outcome != TerminalResult.ABORTED)
+        .ifPresent(outcome -> Tracking.completed());
   }
 
   synchronized void attempt(
@@ -32,7 +37,6 @@ final class FoundationTracking {
     if (result.outcome() == CodeOutcome.NOT_EVALUATED) {
       return;
     }
-    Tracking.puzzleStarted(riddleId);
     Tracking.participantForEntity(player.id())
         .ifPresent(
             participantId ->
@@ -46,7 +50,6 @@ final class FoundationTracking {
   }
 
   void hintUsed(final String riddleId, final ReleasedHint hint, final Entity player) {
-    Tracking.puzzleStarted(riddleId);
     Tracking.participantForEntity(player.id())
         .ifPresent(participantId -> Tracking.hintUsed(riddleId, hint.id(), participantId));
   }

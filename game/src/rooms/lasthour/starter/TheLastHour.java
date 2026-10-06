@@ -76,6 +76,7 @@ public class TheLastHour {
   private static final String SERVER_STOP_REASON = "Server stopped from status window";
   private static final String LOAD_SAVE_ARGUMENT = "--load-save";
   private static final String NEW_GAME_ARGUMENT = "--new-game";
+  private static final int MINIMUM_PLAYERS = 1;
   private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
   private static boolean loadFromSave;
   private static boolean levelEditorMode;
@@ -119,6 +120,9 @@ public class TheLastHour {
         loadFromSave
             ? LastHourLoad.read().map(LastHourSave.SaveData::runId).orElseGet(UUID::randomUUID)
             : UUID.randomUUID();
+    Game.playClock().configure(MINIMUM_PLAYERS);
+    if (loadFromSave)
+      LastHourLoad.read().ifPresent(save -> Game.playClock().restore(save.activeMs()));
     TRACKING_CONSENT.initialize(
         args, () -> LastHourLoad.read().map(LastHourSave.SaveData::trackingConsent).orElse(null));
     restoreSavedPlayerNameForMenu();

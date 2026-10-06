@@ -93,7 +93,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   public static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
 
   /** Metadata key for the world timer's start timestamp. */
-  public static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
+  public static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.startedAtActiveMs";
 
   /** Metadata key for the world timer's total duration. */
   public static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
@@ -214,7 +214,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
     Map<String, String> metadata = new HashMap<>();
     metadata.put(METADATA_TYPE, TYPE_WORLD_TIMER);
-    metadata.put(METADATA_WORLD_TIMER_TIMESTAMP, String.valueOf(worldTimer.timestamp()));
+    metadata.put(METADATA_WORLD_TIMER_TIMESTAMP, String.valueOf(worldTimer.startedAtActiveMs()));
     metadata.put(METADATA_WORLD_TIMER_DURATION, String.valueOf(worldTimer.duration()));
     return metadata;
   }

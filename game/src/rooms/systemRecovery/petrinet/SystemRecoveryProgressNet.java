@@ -53,41 +53,17 @@ public final class SystemRecoveryProgressNet {
   }
 
   /**
-   * Initializes the authoritative room net at a validated checkpoint.
+   * Initializes the authoritative room net at a validated checkpoint. The level records the active
+   * puzzle start once play can begin.
    *
    * @param initialStep step that receives the initial token
    */
   public static synchronized void initializeAt(SystemRecoveryLearningStep initialStep) {
-    initializeAt(initialStep, true);
-  }
-
-  /**
-   * Initializes a checkpoint without emitting a new puzzle-start tracking event.
-   *
-   * @param initialStep step that receives the initial token
-   */
-  public static synchronized void initializeAtSilently(SystemRecoveryLearningStep initialStep) {
-    initializeAt(initialStep, false);
-  }
-
-  /**
-   * Initializes a checkpoint and optionally emits its puzzle-start event.
-   *
-   * @param initialStep step that receives the initial token
-   * @param trackPuzzleStart whether to emit the puzzle-start event
-   */
-  private static synchronized void initializeAt(
-      SystemRecoveryLearningStep initialStep, boolean trackPuzzleStart) {
     if (instance != null) return;
     if (initialStep == null) throw new IllegalArgumentException("initialStep must not be null");
     Game.system(
         PetriNetSystem.class,
-        system -> {
-          instance = new SystemRecoveryProgressNet(system, initialStep);
-          if (trackPuzzleStart) {
-            initialStep.puzzle().ifPresent(puzzle -> SystemRecoveryPuzzleEvents.started(puzzle));
-          }
-        });
+        system -> instance = new SystemRecoveryProgressNet(system, initialStep));
   }
 
   /** Removes this room's places and transition bindings before a fresh level is created. */
@@ -234,11 +210,7 @@ public final class SystemRecoveryProgressNet {
   private void trackPuzzleStartIfChanged(
       SystemRecoveryLearningStep completed, SystemRecoveryLearningStep activated) {
     if (completed.puzzle().equals(activated.puzzle()) || activated.puzzle().isEmpty()) return;
-    activated
-        .puzzle()
-        .ifPresent(
-            puzzle ->
-                rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents.started(puzzle));
+    activated.puzzle().ifPresent(SystemRecoveryPuzzleEvents::started);
   }
 
   private ProgressDebugSnapshot createDebugSnapshot() {

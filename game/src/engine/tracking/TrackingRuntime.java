@@ -1,5 +1,7 @@
 package engine.tracking;
 
+import engine.Game;
+import engine.time.PlayClock;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,12 +75,22 @@ public final class TrackingRuntime {
   }
 
   /**
-   * Records a participant disconnect if tracking is still active.
+   * Records a participant disconnect and removes the participant from the play clock. When the last
+   * participant leaves, the session closes as interrupted; a later join starts a new session of the
+   * same run.
    *
    * @param clientId transient network client ID
    */
   public static void participantLeft(short clientId) {
     Tracking.participantLeft(clientId);
+    int before = Game.playClock().participantCount();
+    Game.playClock().participantLeft(clientId);
+    if (before > 0 && Game.playClock().participantCount() == 0) Tracking.noParticipants();
+  }
+
+  /** Records authoritative clock transitions independently of room event callers. */
+  public static void playClockChanged(PlayClock.Transition transition) {
+    Tracking.playClockChanged(transition);
   }
 
   /** Disables tracking for the whole authoritative run after a participant refuses consent. */
@@ -105,12 +117,12 @@ public final class TrackingRuntime {
     Tracking.associateEntity(clientId, entityId);
   }
 
-  /** Aborts the active session at its current puzzle, if any. */
-  public static void abortAtCurrentPuzzle() {
-    Tracking.abortAtCurrentPuzzle();
+  /** Finishes with the recorded outcome, or as interrupted at the current puzzle. */
+  public static void finishSession() {
+    Tracking.finishSession();
   }
 
-  /** Completes the active session normally. */
+  /** Records the final room outcome while leaving the session open for post-outcome activity. */
   public static void completed() {
     Tracking.completed();
   }

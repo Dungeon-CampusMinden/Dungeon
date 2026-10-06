@@ -26,6 +26,7 @@ import rooms.soulweaver.state.SoulweaverPhase;
 public final class SoulweaverProgress {
   private static final Map<String, QuestLogEntry> RECORDED = new LinkedHashMap<>();
   private static final Set<String> COMPLETED = new HashSet<>();
+  private static final Set<String> STARTED = new HashSet<>();
   private static final Map<String, QuestLogEntry> HISTORY = new HashMap<>();
   private static Optional<QuestLogEntry> taskOverview = Optional.empty();
   private static String currentObjective = "";
@@ -36,6 +37,7 @@ public final class SoulweaverProgress {
   static void initialize() {
     RECORDED.clear();
     COMPLETED.clear();
+    STARTED.clear();
     HISTORY.clear();
     taskOverview = Optional.empty();
     currentObjective = "";
@@ -67,6 +69,7 @@ public final class SoulweaverProgress {
   public static void started(String puzzleId, String objective) {
     if (Game.isMultiplayerClient()) return;
     Tracking.puzzleStarted(puzzleId);
+    STARTED.add(puzzleId);
     if (COMPLETED.contains(puzzleId)) return;
     currentObjective = puzzleId;
     updateTasks(objective);
@@ -242,14 +245,19 @@ public final class SoulweaverProgress {
   }
 
   /**
-   * Records a meaningful action using an actor captured before asynchronous execution.
+   * Records a meaningful action using an actor captured before asynchronous execution. An object id
+   * naming a started, unsolved puzzle also scopes the event to that puzzle, so analysis can find
+   * the first contact.
    *
    * @param objectId stable interacted-object identifier
    * @param actionId tracked action identifier
    * @param participantId session-scoped anonymous participant
    */
   public static void interaction(String objectId, String actionId, UUID participantId) {
-    if (!Game.isMultiplayerClient()) Tracking.interaction(objectId, actionId, participantId);
+    if (Game.isMultiplayerClient()) return;
+    if (STARTED.contains(objectId) && !COMPLETED.contains(objectId))
+      Tracking.interaction(objectId, objectId, actionId, participantId);
+    else Tracking.interaction(objectId, actionId, participantId);
   }
 
   /**

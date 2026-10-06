@@ -60,6 +60,14 @@ final class TrackingRepository {
             upsertParticipant(connection, participant);
           }
         }
+        if (batch.events().stream()
+            .anyMatch(
+                event ->
+                    event.sessionSequence() > persistedBefore
+                        && event.activeMs() < state.activeMs())) {
+          throw new RepositoryConflictException(
+              "Event active time precedes persisted session time");
+        }
         int accepted = 0;
         for (TrackingEvent event : batch.events()) {
           accepted += insertEvent(connection, event);
@@ -115,19 +123,24 @@ final class TrackingRepository {
         int updated;
         try (PreparedStatement statement =
             connection.prepareStatement(
-                "UPDATE tracking_sessions SET status = ?, ended_at = ?, finish_elapsed_ms = ?, "
-                    + "final_sequence = ?, aborted_at_puzzle_id = ? "
+                "UPDATE tracking_sessions SET status = ?, ended_at = ?, finish_active_ms = ?, "
+                    + "final_sequence = ?, interrupted_at_puzzle_id = ? "
                     + "WHERE session_id = ? AND schema_version = ? AND status = ? "
-                    + "AND started_at <= ?")) {
+                    + "AND started_at <= ? AND resumed_at_active_ms <= ? "
+                    + "AND NOT EXISTS (SELECT 1 FROM tracking_events WHERE session_id = ? "
+                    + "AND active_ms > ?)")) {
           statement.setString(1, finish.status().name());
           statement.setTimestamp(2, Timestamp.from(finish.endedAt()));
-          statement.setLong(3, finish.elapsedMonotonicMs());
+          statement.setLong(3, finish.activeMs());
           statement.setLong(4, finish.finalSequence());
-          optionalText(statement, 5, finish.abortedAtPuzzleId());
+          optionalText(statement, 5, finish.interruptedAtPuzzleId());
           statement.setObject(6, finish.sessionId());
           statement.setInt(7, finish.schemaVersion());
           statement.setString(8, RUNNING_STATUS);
           statement.setTimestamp(9, Timestamp.from(finish.endedAt()));
+          statement.setLong(10, finish.activeMs());
+          statement.setObject(11, finish.sessionId());
+          statement.setLong(12, finish.activeMs());
           updated = statement.executeUpdate();
         }
         if (updated != 1) {
@@ -149,11 +162,14 @@ final class TrackingRepository {
     try (PreparedStatement statement =
         connection.prepareStatement(
             "INSERT INTO tracking_sessions(session_id, schema_version, room_id, "
-                + "started_at) VALUES (?, ?, ?, ?) ON CONFLICT (session_id) DO NOTHING")) {
+                + "started_at, run_id, resumed_at_active_ms) VALUES (?, ?, ?, ?, ?, ?) "
+                + "ON CONFLICT (session_id) DO NOTHING")) {
       statement.setObject(1, session.sessionId());
       statement.setInt(2, session.schemaVersion());
       statement.setString(3, session.roomId());
       statement.setTimestamp(4, Timestamp.from(session.startedAt()));
+      statement.setObject(5, session.runId());
+      statement.setLong(6, session.resumedAtActiveMs());
       inserted = statement.executeUpdate();
     }
     if (inserted == 0 && !sameSession(connection, session)) {
@@ -166,11 +182,14 @@ final class TrackingRepository {
     try (PreparedStatement statement =
         connection.prepareStatement(
             "SELECT schema_version = ? AND room_id = ? AND started_at = ? "
+                + "AND run_id = ? AND resumed_at_active_ms = ? "
                 + "FROM tracking_sessions WHERE session_id = ?")) {
       statement.setInt(1, session.schemaVersion());
       statement.setString(2, session.roomId());
       statement.setTimestamp(3, Timestamp.from(session.startedAt()));
-      statement.setObject(4, session.sessionId());
+      statement.setObject(4, session.runId());
+      statement.setLong(5, session.resumedAtActiveMs());
+      statement.setObject(6, session.sessionId());
       try (ResultSet result = statement.executeQuery()) {
         return result.next() && result.getBoolean(1);
       }
@@ -222,7 +241,7 @@ final class TrackingRepository {
         connection.prepareStatement(
             "INSERT INTO tracking_events(session_id, session_sequence, schema_version, "
                 + "participant_id, room_id, event_type, puzzle_id, object_id, outcome, "
-                + "elapsed_monotonic_ms, occurred_at, payload, event_json) "
+                + "active_ms, occurred_at, payload, event_json) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb) "
                 + "ON CONFLICT DO NOTHING")) {
       statement.setObject(1, event.sessionId());
@@ -238,7 +257,7 @@ final class TrackingRepository {
       } else {
         statement.setNull(9, Types.VARCHAR);
       }
-      statement.setLong(10, event.elapsedMonotonicMs());
+      statement.setLong(10, event.activeMs());
       statement.setTimestamp(11, Timestamp.from(event.occurredAt()));
       statement.setString(12, event.payload().toString());
       statement.setString(13, eventJson);
@@ -270,14 +289,17 @@ final class TrackingRepository {
       throws SQLException {
     try (PreparedStatement lock =
         connection.prepareStatement(
-            "SELECT status FROM tracking_sessions WHERE session_id = ? FOR UPDATE")) {
+            "SELECT status, resumed_at_active_ms FROM tracking_sessions WHERE session_id = ? FOR UPDATE")) {
       lock.setObject(1, sessionId);
       try (ResultSet result = lock.executeQuery()) {
         if (!result.next()) {
           throw new NoSuchElementException("Unknown tracking session");
         }
+        SequenceState sequences = sequenceState(connection, sessionId);
         return new SessionState(
-            !RUNNING_STATUS.equals(result.getString(1)), lastSequence(connection, sessionId));
+            !RUNNING_STATUS.equals(result.getString(1)),
+            sequences.lastSequence(),
+            Math.max(result.getLong(2), sequences.activeMs()));
       }
     }
   }
@@ -286,12 +308,12 @@ final class TrackingRepository {
       throws SQLException {
     try (PreparedStatement statement =
         connection.prepareStatement(
-            "SELECT count(*), COALESCE(max(session_sequence), 0) "
+            "SELECT count(*), COALESCE(max(session_sequence), 0), COALESCE(max(active_ms), 0) "
                 + "FROM tracking_events WHERE session_id = ?")) {
       statement.setObject(1, sessionId);
       try (ResultSet result = statement.executeQuery()) {
         result.next();
-        return new SequenceState(result.getLong(1), result.getLong(2));
+        return new SequenceState(result.getLong(1), result.getLong(2), result.getLong(3));
       }
     }
   }
@@ -314,15 +336,15 @@ final class TrackingRepository {
     try (PreparedStatement statement =
         connection.prepareStatement(
             "SELECT schema_version = ? AND status = ? AND ended_at = ? "
-                + "AND finish_elapsed_ms = ? AND final_sequence = ? "
-                + "AND aborted_at_puzzle_id IS NOT DISTINCT FROM ? "
+                + "AND finish_active_ms = ? AND final_sequence = ? "
+                + "AND interrupted_at_puzzle_id IS NOT DISTINCT FROM ? "
                 + "FROM tracking_sessions WHERE session_id = ?")) {
       statement.setInt(1, finish.schemaVersion());
       statement.setString(2, finish.status().name());
       statement.setTimestamp(3, Timestamp.from(finish.endedAt()));
-      statement.setLong(4, finish.elapsedMonotonicMs());
+      statement.setLong(4, finish.activeMs());
       statement.setLong(5, finish.finalSequence());
-      optionalText(statement, 6, finish.abortedAtPuzzleId());
+      optionalText(statement, 6, finish.interruptedAtPuzzleId());
       statement.setObject(7, finish.sessionId());
       try (ResultSet result = statement.executeQuery()) {
         return result.next() && result.getBoolean(1);
@@ -356,7 +378,7 @@ final class TrackingRepository {
     }
   }
 
-  private record SessionState(boolean finished, long lastSequence) {}
+  private record SessionState(boolean finished, long lastSequence, long activeMs) {}
 
-  private record SequenceState(long eventCount, long lastSequence) {}
+  private record SequenceState(long eventCount, long lastSequence, long activeMs) {}
 }

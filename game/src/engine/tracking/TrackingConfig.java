@@ -16,7 +16,7 @@ import java.util.UUID;
  * @param apiKey optional bearer credential
  * @param outboxDirectory directory for local append-only tracking files
  * @param operatorEmail operator email shown when remote upload remains pending
- * @param runId optional stable playthrough identifier
+ * @param runId stable playthrough identifier
  */
 record TrackingConfig(
     String roomId,
@@ -24,7 +24,7 @@ record TrackingConfig(
     Optional<String> apiKey,
     Path outboxDirectory,
     String operatorEmail,
-    Optional<UUID> runId) {
+    UUID runId) {
 
   // Controls HTTP upload and backend health checks. JSONL tracking remains active.
   static final boolean TRACKING_ENABLED = false;
@@ -238,7 +238,12 @@ record TrackingConfig(
      */
     private TrackingConfig build() {
       return new TrackingConfig(
-          roomId, endpoint, Optional.ofNullable(apiKey), outboxDirectory, operatorEmail, runId);
+          roomId,
+          endpoint,
+          Optional.ofNullable(apiKey),
+          outboxDirectory,
+          operatorEmail,
+          runId.orElseGet(UUID::randomUUID));
     }
   }
 }

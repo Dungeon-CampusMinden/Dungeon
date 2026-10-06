@@ -9,8 +9,8 @@ final class TrackingChecks {
   private TrackingChecks() {}
 
   static int schemaVersion(final int value) {
-    if (value < 1) {
-      throw new IllegalArgumentException("schemaVersion must be at least 1");
+    if (value != 1) {
+      throw new IllegalArgumentException("Unsupported schemaVersion: " + value);
     }
     return value;
   }

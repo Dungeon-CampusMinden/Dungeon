@@ -120,6 +120,7 @@ public final class LastHourLoad {
             : null;
     return new LastHourSave.SaveData(
         UUID.fromString(string(root.get("runId"))),
+        longValue(root.get("activeMs")),
         milestones,
         computer,
         integer(root.get("blogElapsedSeconds")),
@@ -127,7 +128,7 @@ public final class LastHourLoad {
         bool(root.get("keypadUnlocked")),
         integer(root.get("wrongCodeAttempts")),
         bool(root.get("storageDoorOpen")),
-        integer(root.get("remainingSeconds")),
+        longValue(root.get("remainingMs")),
         bool(root.get("timerExpired")),
         parsePhone(map(root.get("phone"))),
         bool(root.get("trashNoteAwarded")),
