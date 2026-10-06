@@ -20,7 +20,7 @@ Der ursprüngliche Entwurf steht im Pitch-Dokument
 | Dauer | Zielwert 60 bis 65 Minuten, im Playtest zu prüfen |
 | Spieler | 1 bis 2, allein oder im Multiplayer |
 | Setting | Fantasy, verlassene magische Schmiede |
-| Start | `rooms.programming.Programming`, Tracking-Raum `programming-1` |
+| Start | `rooms.soulweaver.Soulweaver`, Tracking-Raum `soulweaver` |
 
 Der Raum behandelt vier Grundlagen in fester Reihenfolge:
 

@@ -19,195 +19,195 @@ import engine.utils.components.path.SimpleIPath;
  * feature.entities.deco.DecoFactory} to instantiate corresponding decorative entities.
  */
 public enum Deco {
-  /** Workbench in the Programming room. */
-  ProgrammingWorkbench(
+  /** Workbench in the Soulweaver room. */
+  SoulweaverWorkbench(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(192, 352, 1, 1, 32, 16)),
       new Rectangle(1.9f, 0.65f, 0.05f, 0.05f),
       DepthLayer.Player.depth()),
-  /** Tabletop vase in the Programming room. */
-  ProgrammingTabletopVase(
+  /** Tabletop vase in the Soulweaver room. */
+  SoulweaverTabletopVase(
       "objects/vase/vase.png",
       new AnimationConfig(new SpritesheetConfig(0, 32, 1, 1, 16, 16)),
       new Rectangle(0.6f, 0.4f, 0.2f, 0.05f),
       DepthLayer.Player.depth() + 1),
-  /** Tabletop tools in the Programming room. */
-  ProgrammingTabletopTools(
+  /** Tabletop tools in the Soulweaver room. */
+  SoulweaverTabletopTools(
       "items/rpg/pickaxe_crusty.png",
       new AnimationConfig().scaleX(0.6f),
       null,
       DepthLayer.Player.depth() + 1),
-  /** Vase in the Programming room. */
-  ProgrammingVase(
+  /** Vase in the Soulweaver room. */
+  SoulweaverVase(
       "objects/vase/vase.png",
       new AnimationConfig(new SpritesheetConfig(0, 32, 1, 1, 16, 16)),
       new Rectangle(0.6f, 0.4f, 0.2f, 0.05f),
       DepthLayer.Player.depth()),
-  /** Crate in the Programming room. */
-  ProgrammingCrate(
+  /** Crate in the Soulweaver room. */
+  SoulweaverCrate(
       "objects/crate/basic.png",
       new AnimationConfig(),
       new Rectangle(0.8f, 0.55f, 0.1f, 0.05f),
       DepthLayer.Player.depth()),
-  /** Kettle in the Programming room. */
-  ProgrammingKettle(
+  /** Kettle in the Soulweaver room. */
+  SoulweaverKettle(
       "objects/magic_kettle/magic_kettle.png",
       new AnimationConfig(new SpritesheetConfig(0, 0, 1, 6, 20, 20)),
       new Rectangle(0.8f, 0.55f, 0.1f, 0.05f),
       DepthLayer.Player.depth()),
-  /** Work marker north in the Programming room. */
-  ProgrammingWorkMarkerNorth(
-      "rooms/programming/art/work-marker-north.png",
+  /** Work marker north in the Soulweaver room. */
+  SoulweaverWorkMarkerNorth(
+      "rooms/soulweaver/art/work-marker-north.png",
       new AnimationConfig().scaleX(0.8f),
       null,
       DepthLayer.Ground.depth()),
-  /** Work marker west in the Programming room. */
-  ProgrammingWorkMarkerWest(
-      "rooms/programming/art/work-marker-west.png",
+  /** Work marker west in the Soulweaver room. */
+  SoulweaverWorkMarkerWest(
+      "rooms/soulweaver/art/work-marker-west.png",
       new AnimationConfig().scaleX(0.8f),
       null,
       DepthLayer.Ground.depth()),
-  /** Work marker east in the Programming room. */
-  ProgrammingWorkMarkerEast(
-      "rooms/programming/art/work-marker-east.png",
+  /** Work marker east in the Soulweaver room. */
+  SoulweaverWorkMarkerEast(
+      "rooms/soulweaver/art/work-marker-east.png",
       new AnimationConfig().scaleX(0.8f),
       null,
       DepthLayer.Ground.depth()),
-  /** Pit in the Programming room. */
-  ProgrammingPit(
+  /** Pit in the Soulweaver room. */
+  SoulweaverPit(
       "dungeon/default/floor/pit_open.png",
       new AnimationConfig().scaleX(5.0f).scaleY(3.0f),
       null,
       DepthLayer.Ground.depth()),
-  /** Small crate in the Programming room. */
-  ProgrammingSmallCrate(
+  /** Small crate in the Soulweaver room. */
+  SoulweaverSmallCrate(
       "objects/crate/basic.png",
       new AnimationConfig().scaleX(0.9f),
       new Rectangle(.8f * .9f, .55f * .9f, .1f * .9f, .05f * .9f),
       DepthLayer.Player.depth()),
-  /** Pump in the Programming room. */
-  ProgrammingPump(
-      "rooms/programming/art/pump.png",
+  /** Pump in the Soulweaver room. */
+  SoulweaverPump(
+      "rooms/soulweaver/art/pump.png",
       new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, 16, 32)).scaleX(1.5f),
       new Rectangle(.4f * 1.5f, .3f * 1.5f, .3f * 1.5f, .04f * 1.5f),
       DepthLayer.Player.depth()),
-  /** Pipe in the Programming room. */
-  ProgrammingPipe(
-      "rooms/programming/art/broken-pipe.png",
+  /** Pipe in the Soulweaver room. */
+  SoulweaverPipe(
+      "rooms/soulweaver/art/broken-pipe.png",
       new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, 8, 24)).scaleX(0.65f),
       null,
       DepthLayer.Player.depth()),
-  /** Gate header in the Programming room. */
-  ProgrammingGateHeader(
+  /** Gate header in the Soulweaver room. */
+  SoulweaverGateHeader(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(392, 326, 1, 1, 16, 4)).scaleX(0.25f),
       null,
       DepthLayer.Player.depth()),
-  /** Rune plinth in the Programming room. */
-  ProgrammingRunePlinth(
+  /** Rune plinth in the Soulweaver room. */
+  SoulweaverRunePlinth(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(272, 144, 1, 1, 16, 16)).scaleX(1.5f),
       null,
       DepthLayer.Ground.depth()),
-  /** Altar plinth in the Programming room. */
-  ProgrammingAltarPlinth(
+  /** Altar plinth in the Soulweaver room. */
+  SoulweaverAltarPlinth(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(272, 144, 1, 1, 16, 16)),
       null,
       DepthLayer.Ground.depth()),
-  /** Source bench in the Programming room. */
-  ProgrammingSourceBench(
+  /** Source bench in the Soulweaver room. */
+  SoulweaverSourceBench(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(192, 352, 1, 1, 32, 16)),
       new Rectangle(1.9f, 0.65f, 0.05f, 0.05f),
       DepthLayer.Ground.depth() + 1),
-  /** Small plinth in the Programming room. */
-  ProgrammingSmallPlinth(
+  /** Small plinth in the Soulweaver room. */
+  SoulweaverSmallPlinth(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(272, 144, 1, 1, 16, 16)).scaleX(0.8f),
       null,
       DepthLayer.Ground.depth()),
-  /** Tablet in the Programming room. */
-  ProgrammingTablet(
+  /** Tablet in the Soulweaver room. */
+  SoulweaverTablet(
       "items/rpg/item_scroll.png",
       new AnimationConfig().scaleX(0.55f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Drained vase in the Programming room. */
-  ProgrammingDrainedVase(
+  /** Drained vase in the Soulweaver room. */
+  SoulweaverDrainedVase(
       "objects/vase/vase.png",
       new AnimationConfig(new SpritesheetConfig(0, 32, 1, 1, 16, 16)).scaleX(0.8f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Note in the Programming room. */
-  ProgrammingNote(
+  /** Note in the Soulweaver room. */
+  SoulweaverNote(
       "items/rpg/item_scroll.png",
       new AnimationConfig().scaleX(0.5f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Source plinth in the Programming room. */
-  ProgrammingSourcePlinth(
+  /** Source plinth in the Soulweaver room. */
+  SoulweaverSourcePlinth(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(272, 144, 1, 1, 16, 16)).scaleX(1.6f),
       null,
       DepthLayer.Ground.depth()),
-  /** Source crystal in the Programming room. */
-  ProgrammingSourceCrystal(
+  /** Source crystal in the Soulweaver room. */
+  SoulweaverSourceCrystal(
       "items/rpg/item_gem_amethyst.png",
       new AnimationConfig().scaleX(0.6f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Strength stone in the Programming room. */
-  ProgrammingStrengthStone(
+  /** Strength stone in the Soulweaver room. */
+  SoulweaverStrengthStone(
       "objects/stone/stone.png",
       new AnimationConfig(new SpritesheetConfig(0, 32, 1, 1, 16, 16)).scaleX(1.1f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Source tools in the Programming room. */
-  ProgrammingSourceTools(
+  /** Source tools in the Soulweaver room. */
+  SoulweaverSourceTools(
       "items/rpg/pickaxe_crusty.png",
       new AnimationConfig().scaleX(0.6f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Source kettle in the Programming room. */
-  ProgrammingSourceKettle(
+  /** Source kettle in the Soulweaver room. */
+  SoulweaverSourceKettle(
       "objects/magic_kettle/magic_kettle.png",
       new AnimationConfig(new SpritesheetConfig(0, 0, 1, 6, 20, 20)),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Cauldron in the Programming room. */
-  ProgrammingCauldron(
+  /** Cauldron in the Soulweaver room. */
+  SoulweaverCauldron(
       "objects/cauldron/cauldron.png",
       new AnimationConfig().scaleX(1.2f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Seal book in the Programming room. */
-  ProgrammingSealBook(
+  /** Seal book in the Soulweaver room. */
+  SoulweaverSealBook(
       "items/rpg/item_book_brown.png",
       new AnimationConfig().scaleX(0.8f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Seal gem in the Programming room. */
-  ProgrammingSealGem(
+  /** Seal gem in the Soulweaver room. */
+  SoulweaverSealGem(
       "items/rpg/item_gem_amethyst.png",
       new AnimationConfig().scaleX(0.5f),
       null,
       DepthLayer.Ground.depth() + 2),
-  /** Heart plinth in the Programming room. */
-  ProgrammingHeartPlinth(
+  /** Heart plinth in the Soulweaver room. */
+  SoulweaverHeartPlinth(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(272, 144, 1, 1, 16, 16)).scaleX(2.0f),
       null,
       DepthLayer.Ground.depth()),
-  /** Winch frame in the Programming room. */
-  ProgrammingWinchFrame(
-      "rooms/programming/art/winch-frame.png",
+  /** Winch frame in the Soulweaver room. */
+  SoulweaverWinchFrame(
+      "rooms/soulweaver/art/winch-frame.png",
       new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, 48, 40)).scaleX(3.75f),
       new Rectangle(1.1f * 3.75f, .13f * 3.75f, .05f * 3.75f, .08f * 3.75f),
       DepthLayer.Player.depth()),
-  /** Wall threshold in the Programming room. */
-  ProgrammingWallThreshold(
-      "rooms/programming/sluice.png", new AnimationConfig(), null, DepthLayer.Ground.depth()),
+  /** Wall threshold in the Soulweaver room. */
+  SoulweaverWallThreshold(
+      "rooms/soulweaver/sluice.png", new AnimationConfig(), null, DepthLayer.Ground.depth()),
 
   /** A decoration. */
   Tileset1(

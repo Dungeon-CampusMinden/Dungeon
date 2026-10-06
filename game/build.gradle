@@ -179,15 +179,15 @@ tasks.register('runSystemRecoveryServer', JavaExec) {
     args '--server'
 }
 
-tasks.register('runProgramming', JavaExec) {
+tasks.register('runSoulweaver', JavaExec) {
     group 'starter'
-    mainClass = 'rooms.programming.Programming'
+    mainClass = 'rooms.soulweaver.Soulweaver'
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('runProgrammingLevelEditor', JavaExec) {
+tasks.register('runSoulweaverLevelEditor', JavaExec) {
     group 'starter'
-    mainClass = 'rooms.programming.Programming'
+    mainClass = 'rooms.soulweaver.Soulweaver'
     classpath = sourceSets.main.runtimeClasspath
     args '--leveleditor'
 }

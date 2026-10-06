@@ -107,7 +107,7 @@ auf die Schriftrolle vor dem Herzfeuer:
 Der Button „Opfergabe darbringen“ verbraucht die beiden dekorativen Kristalle und
 entzündet das Herzfeuer. Das Schließen des Dialogs bricht die Auswahl ab.
 
-`ProgrammingEnding` nimmt die Opfergabe nur nach Abschluss des Labyrinths und nur einmal
+`SoulweaverEnding` nimmt die Opfergabe nur nach Abschluss des Labyrinths und nur einmal
 auf dem Server an. Dabei beendet `Tracking.completed()` die Sitzung erfolgreich, bevor
 der Abspann beginnt. Alle verbundenen Spieler sehen den Erfolgstext. Wer ihn bestätigt,
 wartet auf die übrigen Spieler; getrennte Spieler halten den Abschluss nicht auf.
@@ -127,11 +127,11 @@ Der Abspann:
 `DecisionMaze` definiert die Programme einmal als Bedingungsbäume und erzeugt daraus
 Runentext und Auswertung. Ereignistext und feste Zustandsänderungen stammen ebenfalls
 aus denselben Ereignisdaten.
-`ProgrammingDecisionWorld` erzeugt identische Tiles und Türmarker für Server und Client.
-`ProgrammingDecisionRuntime` besitzt Fortschritt, Werte, Wegpunkte und Steuerungsrecht.
-`ProgrammingRiderSystem` bindet den echten Spieler an Nox und setzt die lokale Sitzpose.
-`ProgrammingRiderCamera` folgt dem Reittier nur auf dem Bildschirm seines Reiters.
-`ProgrammingDecisions` überträgt typisierte Dialogdaten und öffentliche Snapshots.
+`SoulweaverDecisionWorld` erzeugt identische Tiles und Türmarker für Server und Client.
+`SoulweaverDecisionRuntime` besitzt Fortschritt, Werte, Wegpunkte und Steuerungsrecht.
+`SoulweaverRiderSystem` bindet den echten Spieler an Nox und setzt die lokale Sitzpose.
+`SoulweaverRiderCamera` folgt dem Reittier nur auf dem Bildschirm seines Reiters.
+`SoulweaverDecisions` überträgt typisierte Dialogdaten und öffentliche Snapshots.
 Jede Auswahl enthält die erwartete Revision; nur der berechtigte steuernde Spieler
 kann eine Entscheidung auslösen. Veraltete Auswahlen und Auswahlen während der Bewegung
 werden verworfen. Der Client übermittelt keine Werte oder Ergebnisse.
