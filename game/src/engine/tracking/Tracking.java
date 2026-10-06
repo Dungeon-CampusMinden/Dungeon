@@ -562,7 +562,7 @@ public final class Tracking {
 
   static void participantLeft(short clientId) {
     synchronized (LOCK) {
-      if (trackingAllowed && session != null && !session.finished()) {
+      if (session != null && !session.finished()) {
         try {
           session.participantLeft(clientId);
         } catch (TrackingPersistenceException exception) {
@@ -576,10 +576,18 @@ public final class Tracking {
    * Stops all future tracking events for the current authoritative run.
    *
    * <p>This is used when a multiplayer participant refuses consent. Events already written before
-   * the refusal are not retroactively altered; no participant or later event is recorded.
+   * the refusal are not retroactively altered. A running session ends as aborted, so its final
+   * batch is still uploaded; no participant or later event is recorded.
    */
   static void disableTrackingForRun() {
     synchronized (LOCK) {
+      if (session != null && !session.finished()) {
+        try {
+          session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
+        } catch (TrackingPersistenceException exception) {
+          recordPersistenceFailure(exception);
+        }
+      }
       trackingAllowed = false;
       PENDING_PUZZLE_STARTS.clear();
       LOGGER.info("Tracking disabled because a multiplayer participant refused consent.");
@@ -603,7 +611,7 @@ public final class Tracking {
     synchronized (LOCK) {
       sessionStartAttempted = true;
       PENDING_PUZZLE_STARTS.clear();
-      if (trackingAllowed && session != null) {
+      if (session != null) {
         try {
           session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
         } catch (TrackingPersistenceException exception) {
