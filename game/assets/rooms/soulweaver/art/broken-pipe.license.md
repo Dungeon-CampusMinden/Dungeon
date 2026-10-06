@@ -1,6 +1,6 @@
 - Source: https://karsiori.itch.io/pixel-art-pipes-and-cables-modular
 - Author: KARSIORI STUDIO
-- Modified by: Dungeon contributors, cropped/assembled for Programming 1
+- Modified by: Dungeon contributors, cropped/assembled for Soulweaver
 - License: CC0 1.0 Universal
 - Note: Extracted from Big Pipes SILVER - Spritesheet 16x16.png in Pixel Art - Pipes - FREE.zip, provided by the user on 2026-09-10. The pipe rupture rearranges two original pipe segments; the valve assembly is an unchanged crop.
 

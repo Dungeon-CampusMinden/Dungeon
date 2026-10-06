@@ -1,6 +1,6 @@
 - Source: https://zandylion.itch.io/futhark
 - Author: Author requests no public credit
-- Modified by: Dungeon contributors, cropped/assembled for Programming 1
+- Modified by: Dungeon contributors, cropped/assembled for Soulweaver
 - License: CC0 1.0 Universal
 - Note: Unchanged 16x16 crop from spritesheets/runes.png.
 

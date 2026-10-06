@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import rooms.soulweaver.Soulweaver;
 
-/** Level handler for the Programming 1 escape room. */
+/** Level handler for the Soulweaver escape room. */
 public class SoulweaverLevel extends DungeonLevel {
 
   private SoulweaverGolemRuntime runtime;
@@ -24,7 +24,7 @@ public class SoulweaverLevel extends DungeonLevel {
   private static final String LEVEL_NAME = "soulweaver";
 
   /**
-   * Creates the Programming 1 level.
+   * Creates the Soulweaver level.
    *
    * @param layout tile layout loaded from the level asset
    * @param designLabel visual tile design

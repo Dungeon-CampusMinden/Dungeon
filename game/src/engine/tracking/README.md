@@ -144,7 +144,7 @@ Für verzögerte Auswertungen löst der Raum die Teilnehmer-UUID bei der Annahme
 zwischen Programmstart und Ergebnis keine Antwort verschluckt. Hinweise und Interaktionen setzen
 einen aktiven Teilnehmer voraus.
 
-Programming 1 ergänzt jeden Antwortversuch über `AttemptDetails` um `payload.hintLevel`
+Soulweaver ergänzt jeden Antwortversuch über `AttemptDetails` um `payload.hintLevel`
 (0–3 beim Start des Versuchs), `payload.automaticSolution` und `payload.failureReasons`.
 Die Fehlergründe enthalten die konkreten Meldungen der Prüfung, bei mehreren unerfüllten
 Bedingungen alle betroffenen Meldungen. Bei einem richtigen Ergebnis ist die Liste leer.

@@ -1,6 +1,6 @@
 # Akt III: Valerius' Werkstatt
 
-Teil des Raums [Programmieren 1: Das Erbe der Seelenweber](prog1_beginner_concept.md).
+Teil des Raums [Das Erbe der Seelenweber](prog1_beginner_concept.md).
 
 ## Auftrag und Geschichte
 

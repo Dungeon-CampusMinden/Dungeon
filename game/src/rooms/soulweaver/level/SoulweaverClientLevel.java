@@ -10,7 +10,7 @@ import feature.prefabs.PrefabInstance;
 import java.util.List;
 import java.util.Map;
 
-/** Client-side level handler for the Programming 1 escape room. */
+/** Client-side level handler for the Soulweaver escape room. */
 public class SoulweaverClientLevel extends DungeonLevel {
 
   private List<PrefabInstance> anchorSources = List.of();
@@ -18,7 +18,7 @@ public class SoulweaverClientLevel extends DungeonLevel {
   private static final String LEVEL_NAME = "soulweaver";
 
   /**
-   * Creates the client representation of the Programming 1 level.
+   * Creates the client representation of the Soulweaver level.
    *
    * @param layout the level's tile grid
    * @param designLabel the base tile theme

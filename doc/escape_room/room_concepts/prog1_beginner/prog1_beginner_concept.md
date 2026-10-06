@@ -1,4 +1,4 @@
-# Programmieren 1: Das Erbe der Seelenweber
+# Das Erbe der Seelenweber
 
 Dieses Dokument gibt einen Überblick über den umgesetzten Escape Room für Programmieren 1.
 Die Akte sind in eigenen Dokumenten beschrieben:

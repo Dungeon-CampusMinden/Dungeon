@@ -1,6 +1,6 @@
 - Source: https://elvgames.itch.io/cellar-tileset-16x16-pixelart
 - Author: ElvGames
-- Modified by: Dungeon contributors, cropped/assembled for Programming 1
+- Modified by: Dungeon contributors, cropped/assembled for Soulweaver
 - License: ElvGames custom terms
 - Note: Original sheet: spritesheets/FG_Cellar.png. The source sheet's existing license record states that the author explicitly allowed redistribution of free assets in open-source projects. This crop retains that permission record; it is not relicensed as CC0.
 

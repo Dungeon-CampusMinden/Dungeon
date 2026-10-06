@@ -1,6 +1,6 @@
 - Source: https://elvgames.itch.io/free-fantasy-dreamland-dungeon
 - Author: ElvGames
-- Modified by: Dungeon contributors, cropped/assembled for Programming 1
+- Modified by: Dungeon contributors, cropped/assembled for Soulweaver
 - License: ElvGames custom terms
 - Note: Original sheet: spritesheets/FD_Dungeon_Free.png. The source sheet's existing license record states that the author explicitly allowed redistribution of free assets in open-source projects. This crop retains that permission record; it is not relicensed as CC0.
 

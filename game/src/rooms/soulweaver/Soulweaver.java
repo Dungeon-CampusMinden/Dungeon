@@ -40,7 +40,7 @@ import rooms.soulweaver.network.SoulweaverSnapshotTranslator;
 import rooms.soulweaver.save.SoulweaverSave;
 import rooms.soulweaver.state.SoulweaverPhase;
 
-/** Entry point for the Programming 1 escape room. */
+/** Entry point for the Soulweaver escape room. */
 public final class Soulweaver {
 
   private static final String LEVEL_KEY = "soulweaver";
@@ -61,7 +61,7 @@ public final class Soulweaver {
   private Soulweaver() {}
 
   /**
-   * Starts the Programming 1 escape room or its level editor.
+   * Starts the Soulweaver escape room or its level editor.
    *
    * @param args command-line arguments passed to the game starter
    */
