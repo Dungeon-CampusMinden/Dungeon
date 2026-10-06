@@ -108,7 +108,8 @@ final class TrackingSession {
       String answerKind,
       String rawAnswer,
       boolean correct,
-      UUID participantId) {
+      UUID participantId,
+      Optional<AttemptDetails> details) {
     String attemptedPuzzle = requireText(puzzleId, "puzzleId");
     int attemptNumber = attemptsByPuzzle.getOrDefault(attemptedPuzzle, 0) + 1;
     ObjectNode payload =
@@ -116,6 +117,13 @@ final class TrackingSession {
             .put("answerKind", requireText(answerKind, "answerKind"))
             .put("attemptNumber", attemptNumber)
             .put("answer", java.util.Objects.requireNonNull(rawAnswer, "rawAnswer"));
+    details.ifPresent(
+        value -> {
+          payload.put("hintLevel", value.hintLevel());
+          payload.put("automaticSolution", value.automaticSolution());
+          var reasons = payload.putArray("failureReasons");
+          value.failureReasons().forEach(reasons::add);
+        });
     TrackingEvent attemptEvent =
         event(
             TrackingEventType.ANSWER_SUBMITTED,
@@ -136,18 +144,49 @@ final class TrackingSession {
       TrackingInteractionStatus status,
       String reason,
       UUID participantId) {
+    return interaction(
+        Optional.of(requireText(puzzleId, "puzzleId")),
+        objectId,
+        action,
+        status,
+        Optional.of(requireText(reason, "reason")),
+        participantId);
+  }
+
+  TrackingEvent interaction(String objectId, String action, UUID participantId) {
+    return interaction(
+        Optional.empty(),
+        objectId,
+        action,
+        TrackingInteractionStatus.COMPLETED,
+        Optional.empty(),
+        participantId);
+  }
+
+  private TrackingEvent interaction(
+      Optional<String> puzzleId,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      Optional<String> reason,
+      UUID participantId) {
     ObjectNode payload =
         TrackingJson.object()
             .put("action", requireText(action, "action"))
-            .put("status", java.util.Objects.requireNonNull(status, "status").name())
-            .put("reason", requireText(reason, "reason"));
+            .put("status", java.util.Objects.requireNonNull(status, "status").name());
+    reason.ifPresent(value -> payload.put("reason", value));
     return event(
         TrackingEventType.INTERACTION_RECORDED,
         Optional.of(participantId),
-        Optional.of(requireText(puzzleId, "puzzleId")),
+        puzzleId,
         Optional.of(requireText(objectId, "objectId")),
         Optional.empty(),
         payload);
+  }
+
+  boolean participantKnown(UUID participantId) {
+    return participantsByClient.values().stream()
+        .anyMatch(state -> state.participant.participantId().equals(participantId));
   }
 
   Optional<TrackingEvent> hintUsed(String puzzleId, String hintId, UUID participantId) {

@@ -127,7 +127,8 @@ public final class QuestLogUtil {
               entry.timestamp(),
               entry.userCreated(),
               entry.owner(),
-              entry.onlyForCreator()));
+              entry.onlyForCreator(),
+              entry.title()));
     }
     if (questlog == null) {
       questlog = Entity.createLocalEntity(QUEST_LOG_ENTITY_NAME);
@@ -267,8 +268,16 @@ public final class QuestLogUtil {
             .map(PlayerComponent::playerName)
             .orElse(QuestLogEntry.DEFAULT_OWNER);
 
-    return add(
-        tab, new QuestLogEntry(trimmedText, Game.currentTick(), true, creator, onlyForCreator));
+    boolean added =
+        add(tab, new QuestLogEntry(trimmedText, Game.currentTick(), true, creator, onlyForCreator));
+    if (added && player != null && !Game.isMultiplayerClient()) {
+      engine.tracking.Tracking.participantForEntity(player.id())
+          .ifPresent(
+              id ->
+                  engine.tracking.Tracking.interaction(
+                      "quest-log", onlyForCreator ? "private-note-added" : "note-added", id));
+    }
+    return added;
   }
 
   /**

@@ -1,0 +1,76 @@
+{
+  "achievements": {
+    "soulweaver_first_rune": {
+      "name": "Im Rhythmus",
+      "description": "Sammelt eure erste Rhythmusrune."
+    },
+    "soulweaver_archivist": {
+      "name": "Das ganze Archiv",
+      "description": "Sammelt alle 24 Rhythmusrunen in einem Durchlauf."
+    },
+    "soulweaver_bound": {
+      "name": "Seelenweber",
+      "description": "Vervollständigt Nox' Seelenbindung."
+    },
+    "soulweaver_wrong_type": {
+      "name": "Passt doch fast",
+      "description": "Versuche, eine Essenz in ein Gefäß des falschen Typs zu füllen."
+    },
+    "soulweaver_overwrite": {
+      "name": "Neu befüllt",
+      "description": "Ersetze einen gespeicherten Wert durch einen anderen, ohne das Gefäß zu leeren."
+    },
+    "soulweaver_sleepy": {
+      "name": "Noch fünf Minuten",
+      "description": "Setze Nox' Eigenschaft Aktiviert auf false."
+    },
+    "soulweaver_lights_out": {
+      "name": "Licht aus",
+      "description": "Lösche eine brennende Fackel."
+    },
+    "soulweaver_heartfire_out": {
+      "name": "Ähm...?",
+      "description": "Lösche das Herzfeuer. Dafür sind wir den ganzen Weg hierhergekommen?"
+    },
+    "soulweaver_observer": {
+      "name": "Auf Sicht",
+      "description": "Beobachte Nox durch den Sehstein im Keller."
+    },
+    "soulweaver_blackout": {
+      "name": "Blackout",
+      "description": "Sorgt dafür, dass alle Fackeln im Escape Room gleichzeitig aus sind. Wer braucht schon Licht?"
+    },
+    "soulweaver_first_route": {
+      "name": "Läuft",
+      "description": "Schließt den ersten Räumauftrag im Keller ab."
+    },
+    "soulweaver_second_try": {
+      "name": "Fehler gefunden",
+      "description": "Schließt einen Keller-Auftrag nach mindestens einem Fehlversuch an derselben Arbeitsposition ab."
+    },
+    "soulweaver_spin": {
+      "name": "Dreht sich im Kreis",
+      "description": "Lasst die endlose Drehrune bis zum Sicherheitsstopp laufen und Nox zurückkehren."
+    },
+    "soulweaver_cellar_clear": {
+      "name": "Mit Nebenwirkungen",
+      "description": "Schließt alle fünf Räumaufträge ab und öffnet den Weg aus der Werkstatt."
+    },
+    "soulweaver_clean_run": {
+      "name": "Auf Anhieb",
+      "description": "Schließt alle fünf Keller-Aufträge in einem Durchlauf ohne fehlgeschlagenes Steuerprogramm ab."
+    },
+    "soulweaver_platinum": {
+      "name": "Valerius wäre stolz",
+      "description": "Schalte alle anderen Achievements dieses Raums frei, auch über mehrere Durchläufe."
+    },
+    "soulweaver_methods_flawless": {
+      "name": "Aus einem Guss",
+      "description": "Schließt Valerius' Methodenprüfung ohne fehlgeschlagene Ausführung ab."
+    },
+    "soulweaver_methods_persistent": {
+      "name": "Übung macht den Meister",
+      "description": "Schließt Valerius' Methodenprüfung nach mindestens einer fehlgeschlagenen Ausführung ab."
+    }
+  }
+}

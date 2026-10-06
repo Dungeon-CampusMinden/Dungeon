@@ -21,8 +21,8 @@ public final class AchievementPopupSystem extends System {
   @Override
   public void stop() {}
 
-  void enqueue(String id, String imagePath) {
-    queue.enqueue(id, imagePath);
+  void enqueue(String id, String imagePath, boolean withSound) {
+    queue.enqueue(id, imagePath, withSound);
   }
 
   @Override
@@ -43,7 +43,7 @@ public final class AchievementPopupSystem extends System {
   }
 
   private void showCard(AchievementPopupQueue.Entry entry, Stage stage) {
-    visibleCard = AchievementPopup.buildCard(entry.imagePath(), entry.id());
+    visibleCard = AchievementPopup.buildCard(entry.imagePath(), entry.id(), entry.withSound());
     stage.addActor(visibleCard);
   }
 

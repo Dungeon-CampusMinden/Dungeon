@@ -4,6 +4,7 @@ import com.google.protobuf.Parser;
 import engine.network.codec.MessageConverter;
 import engine.network.messages.s2c.QuestLogStateMessage;
 import engine.network.proto.s2c.QuestLogEntryState;
+import java.util.Optional;
 
 /** Converter for server-to-client quest log state messages. */
 public final class QuestLogStateConverter
@@ -17,14 +18,16 @@ public final class QuestLogStateConverter
         engine.network.proto.s2c.QuestLogStateMessage.newBuilder()
             .setAvailable(message.available());
     for (QuestLogStateMessage.Entry entry : message.entries()) {
-      builder.addEntries(
+      QuestLogEntryState.Builder entryBuilder =
           QuestLogEntryState.newBuilder()
               .setTab(entry.tab())
               .setText(entry.text())
               .setTimestamp(entry.timestamp())
               .setUserCreated(entry.userCreated())
               .setOwner(entry.owner())
-              .setOnlyForCreator(entry.onlyForCreator()));
+              .setOnlyForCreator(entry.onlyForCreator());
+      entry.title().ifPresent(entryBuilder::setTitle);
+      builder.addEntries(entryBuilder);
     }
     return builder.build();
   }
@@ -42,7 +45,8 @@ public final class QuestLogStateConverter
                         entry.getTimestamp(),
                         entry.getUserCreated(),
                         entry.getOwner(),
-                        entry.getOnlyForCreator()))
+                        entry.getOnlyForCreator(),
+                        entry.hasTitle() ? Optional.of(entry.getTitle()) : Optional.empty()))
             .toList());
   }
 

@@ -156,7 +156,9 @@ public final class TrackingImportCli {
           || event.eventType() == TrackingEventType.HINT_USED) {
         UUID participantId = event.participantId().orElseThrow();
         TrackingParticipant participant = participants.get(participantId);
-        if (participant == null || participant.leftAt().isPresent()) {
+        if (participant == null
+            || (participant.leftAt().isPresent()
+                && event.eventType() != TrackingEventType.ANSWER_SUBMITTED)) {
           throw new IllegalArgumentException(
               "Participant-attributed event occurred while inactive at sequence "
                   + event.sessionSequence());

@@ -3,6 +3,7 @@ package engine.network.messages.s2c;
 import engine.network.messages.NetworkMessage;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Server-to-client: the complete quest log as visible to the receiving player.
@@ -30,6 +31,7 @@ public record QuestLogStateMessage(boolean available, List<Entry> entries)
    * @param userCreated whether a player wrote the entry
    * @param owner owner or creator of the entry
    * @param onlyForCreator whether only the creator may see the entry
+   * @param title optional title whose presence makes the entry collapsible
    */
   public record Entry(
       String tab,
@@ -37,5 +39,6 @@ public record QuestLogStateMessage(boolean available, List<Entry> entries)
       int timestamp,
       boolean userCreated,
       String owner,
-      boolean onlyForCreator) {}
+      boolean onlyForCreator,
+      Optional<String> title) {}
 }

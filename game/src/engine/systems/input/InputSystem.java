@@ -73,7 +73,7 @@ public final class InputSystem extends System {
       final Map<Integer, InputComponent.InputData> callbacks, final Entity entity, boolean paused) {
     callbacks.forEach(
         (key, value) -> {
-          if (!paused || value.pauseable()) {
+          if ((!paused && !Game.hud().blocksGameplayInput(entity)) || value.pauseable()) {
             execute(entity, key, value);
           }
         });

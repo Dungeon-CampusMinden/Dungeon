@@ -11,7 +11,7 @@ final class AchievementPopupQueue {
 
   static final long DISPLAY_DURATION_MS = 4500L;
 
-  record Entry(String id, String imagePath) {}
+  record Entry(String id, String imagePath, boolean withSound) {}
 
   record Transition(Optional<Entry> finished, Optional<Entry> started) {}
 
@@ -19,8 +19,8 @@ final class AchievementPopupQueue {
   private Entry active;
   private long activeSince;
 
-  void enqueue(String id, String imagePath) {
-    pending.addLast(new Entry(id, imagePath));
+  void enqueue(String id, String imagePath, boolean withSound) {
+    pending.addLast(new Entry(id, imagePath, withSound));
   }
 
   Transition advance(long now) {

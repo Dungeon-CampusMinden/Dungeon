@@ -48,7 +48,14 @@ class TrackingInteractionTest {
         interaction, TrackingJson.read(TrackingJson.write(interaction), TrackingEvent.class));
 
     TrackingEvent answer =
-        session.attempt("bubble-sort", "sort-program", "source", "wrong code", false, participant);
+        session.attempt(
+            "bubble-sort",
+            "sort-program",
+            "source",
+            "wrong code",
+            false,
+            participant,
+            Optional.empty());
     assertEquals(1, answer.payload().get("attemptNumber").intValue());
     var records = Files.readAllLines(session.outboxPath());
     assertEquals(3, records.size());

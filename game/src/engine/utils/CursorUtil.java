@@ -3,16 +3,26 @@ package engine.utils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
+import engine.Game;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 /** Utility class for managing custom mouse cursors in LibGDX. */
 public class CursorUtil {
+
+  /** A UI region can override child cursors during an operation such as drag-and-drop. */
+  public interface CursorOverride {
+    /**
+     * @return an active operation's cursor, or empty to use the hovered actor's cursor
+     */
+    Optional<Cursors> cursorOverride();
+  }
 
   private static Cursors currentCursor;
 
@@ -20,10 +30,8 @@ public class CursorUtil {
   private static final Map<Cursors, Cursor> cursorCache = new EnumMap<>(Cursors.class);
 
   /**
-   * Optional world-cursor override. When set, the Stage input listener uses this instead of {@link
-   * Cursors#DEFAULT} as its fallback when no UI element requests a specific cursor. This prevents
-   * the Stage listener from flickering back to DEFAULT every frame while the game wants a different
-   * cursor (e.g., INTERACT).
+   * Optional world-cursor override. When set, it replaces {@link Cursors#DEFAULT} while the pointer
+   * is over the world instead of a UI element, for example INTERACT above an interactable entity.
    */
   private static Cursors worldCursorOverride = null;
 
@@ -63,66 +71,75 @@ public class CursorUtil {
   }
 
   /**
-   * Set a world-cursor override. While active, the Stage input listener will fall back to this
-   * cursor instead of {@link Cursors#DEFAULT} when no UI element overrides the cursor. If the
-   * current cursor is DEFAULT or the previous world override, it is immediately switched to the new
-   * override.
+   * Set a world-cursor override. While active, this cursor replaces {@link Cursors#DEFAULT} when
+   * the pointer is over the world. The UI under the pointer keeps priority.
    *
    * @param cursor the world cursor to use as the fallback
    */
   public static void setWorldCursor(Cursors cursor) {
     worldCursorOverride = cursor;
-    // Apply immediately if no UI element is overriding the cursor
-    if (currentCursor == Cursors.DEFAULT || currentCursor == cursor) {
-      setCursor(cursor);
-    }
+    refreshCursor();
   }
 
   /**
-   * Clear the world-cursor override. The Stage listener will fall back to {@link Cursors#DEFAULT}
-   * again. If the current cursor equals the old override it is reset to DEFAULT.
+   * Clear the world-cursor override. The world falls back to {@link Cursors#DEFAULT} again; the UI
+   * under the pointer keeps its own cursor.
    */
   public static void clearWorldCursor() {
-    Cursors old = worldCursorOverride;
     worldCursorOverride = null;
-    if (currentCursor == old) {
-      resetCursor();
-    }
+    refreshCursor();
+  }
+
+  private static void refreshCursor() {
+    Actor hit =
+        Game.stage()
+            .map(
+                stage -> {
+                  Vector2 pointer =
+                      stage.screenToStageCoordinates(
+                          new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+                  return stage.hit(pointer.x, pointer.y, true);
+                })
+            .orElse(null);
+    setCursor(cursorFor(hit));
   }
 
   /**
-   * Initialize the cursor management system by adding an input listener to the specified stage.
+   * Initialize cursor management for the game stage. The cursor is resolved every frame, so UI that
+   * opens or closes under a resting pointer updates it as well.
    *
-   * @param stage the stage to which the input listener will be added
+   * @param stage the game stage
    */
   public static void initListener(Stage stage) {
     resetCursor();
-    stage.addListener(
-        new InputListener() {
+    stage.addAction(
+        new Action() {
           @Override
-          public boolean mouseMoved(InputEvent event, float x, float y) {
-            Actor hit = stage.hit(x, y, true);
-            // Fall back to the world override (if any) instead of hard-coding DEFAULT
-            Cursors fallback = worldCursorOverride != null ? worldCursorOverride : Cursors.DEFAULT;
-            Cursors target = fallback;
-
-            while (hit != null) {
-              if (hit.getUserObject() instanceof Cursors c) {
-                if (hit instanceof Disableable d && d.isDisabled()) {
-                  target = Cursors.DISABLED;
-                  break;
-                }
-                target = c;
-                break;
-              }
-              hit = hit.getParent();
-            }
-
-            if (getCurrentCursor() != target) {
-              setCursor(target);
-            }
+          public boolean act(float delta) {
+            refreshCursor();
             return false;
           }
         });
+  }
+
+  /**
+   * Resolves the nearest cursor tag, with active UI operations taking priority over child controls.
+   *
+   * @param hit actor under the pointer, or null for the world
+   * @return the cursor for the current UI and world state
+   */
+  private static Cursors cursorFor(Actor hit) {
+    Cursors target = null;
+    for (Actor actor = hit; actor != null; actor = actor.getParent()) {
+      if (actor instanceof CursorOverride override) {
+        var cursor = override.cursorOverride();
+        if (cursor.isPresent()) return cursor.get();
+      }
+      if (target == null && actor.getUserObject() instanceof Cursors cursor)
+        target = actor instanceof Disableable d && d.isDisabled() ? Cursors.DISABLED : cursor;
+    }
+    return target != null
+        ? target
+        : hit == null && worldCursorOverride != null ? worldCursorOverride : Cursors.DEFAULT;
   }
 }

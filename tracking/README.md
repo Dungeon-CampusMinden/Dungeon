@@ -102,7 +102,10 @@ Remove-Item Env:DUNGEON_TRACKING_RUNTIME_DATABASE_USER
 
 Das Backend bindet standardmäßig an `127.0.0.1:8088`. Beim Start führt es kein DDL aus. Der
 getrennte Migrationsbefehl wendet die enthaltenen Migrationen der Reihe nach an und vermerkt ihre
-Versionen in `tracking_schema_migrations`.
+Versionen in `tracking_schema_migrations`. `V001__tracking.sql` enthält das vollständige Schema
+einschließlich der früheren `V002__interactions.sql`. Datenbanken, die bereits `V002` angewendet
+haben, müssen neu angelegt werden, weil der Migrationsbefehl das geänderte `V001` nicht erneut
+anwendet.
 
 Jede Einstellung kann als Umgebungsvariable oder Java-Systemeigenschaft gesetzt werden. Die
 Systemeigenschaft hat Vorrang.
@@ -185,10 +188,12 @@ Ein Antwortversuch verwendet `eventType: "ANSWER_SUBMITTED"`, setzt `outcome` au
 }
 ```
 
-Geräteaktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
-`action`, `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) und `reason` im Payload gespeichert.
-Sie haben kein `outcome`, verbrauchen keine `attemptNumber` und zählen nicht als Fehlversuch.
-Die Datenbankmigration `V002__interactions.sql` erweitert dafür die Ereignisvalidierung.
+Spieleraktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
+`action` und `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) im Payload gespeichert. Gehört die
+Aktion zu einem Rätsel, enthält sie dessen `puzzleId` und einen `reason` für das Ergebnis.
+Allgemeine Aktionen wie das Öffnen des Questlogs haben weder `puzzleId` noch `reason`.
+Interaktionen haben kein `outcome`, verbrauchen keine `attemptNumber` und zählen nicht als
+Fehlversuch.
 
 Nur ein tatsächlich von den Spielern gelesener Hinweis erzeugt `eventType: "HINT_USED"`. Das bloße
 Verfügbarmachen eines Hinweises zählt nicht. In The Last Hour hat jeder zeitversetzt erscheinende

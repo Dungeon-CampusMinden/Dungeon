@@ -44,4 +44,7 @@ message QuestLogEntryState {
 
   // Whether only the creator may see the entry.
   bool only_for_creator = 6;
+
+  // Optional title; titled entries start collapsed.
+  optional string title = 7;
 }

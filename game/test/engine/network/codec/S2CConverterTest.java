@@ -507,7 +507,9 @@ public class S2CConverterTest {
     QuestLogStateMessage message =
         new QuestLogStateMessage(
             true,
-            List.of(new QuestLogStateMessage.Entry("Notes", "Player note", 42, true, "Ada", true)));
+            List.of(
+                new QuestLogStateMessage.Entry(
+                    "Notes", "Player note", 42, true, "Ada", true, java.util.Optional.empty())));
 
     QuestLogStateMessage roundTrip =
         QUEST_LOG_STATE_CONVERTER.fromProto(QUEST_LOG_STATE_CONVERTER.toProto(message));

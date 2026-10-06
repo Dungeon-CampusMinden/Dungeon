@@ -76,8 +76,10 @@ class AchievementPopupSystemTest {
     clock = mockStatic(TimeUtils.class, Mockito.CALLS_REAL_METHODS);
     clock.when(TimeUtils::millis).thenAnswer(ignored -> now.get());
     cards = mockStatic(AchievementPopup.class);
-    cards.when(() -> AchievementPopup.buildCard("first.png", "first")).thenReturn(firstCard);
-    cards.when(() -> AchievementPopup.buildCard("second.png", "second")).thenReturn(secondCard);
+    cards.when(() -> AchievementPopup.buildCard("first.png", "first", true)).thenReturn(firstCard);
+    cards
+        .when(() -> AchievementPopup.buildCard("second.png", "second", true))
+        .thenReturn(secondCard);
 
     Game.add(Game.hud());
     Game.hud().dialogsSuppressed(false);
@@ -110,8 +112,8 @@ class AchievementPopupSystemTest {
     UIComponent dialog = new UIComponent(context, true, false);
     owner.add(dialog);
     Game.add(owner);
-    popups.enqueue("first", "first.png");
-    popups.enqueue("second", "second.png");
+    popups.enqueue("first", "first.png", true);
+    popups.enqueue("second", "second.png", true);
 
     ECSManagement.executeOneTick(System.AuthoritativeSide.BOTH);
 
@@ -136,8 +138,8 @@ class AchievementPopupSystemTest {
     now.set(2 * AchievementPopupQueue.DISPLAY_DURATION_MS);
     ECSManagement.executeOneTick(System.AuthoritativeSide.BOTH);
     assertNull(secondCard.getParent());
-    cards.verify(() -> AchievementPopup.buildCard("first.png", "first"), times(1));
-    cards.verify(() -> AchievementPopup.buildCard("second.png", "second"), times(1));
+    cards.verify(() -> AchievementPopup.buildCard("first.png", "first", true), times(1));
+    cards.verify(() -> AchievementPopup.buildCard("second.png", "second", true), times(1));
   }
 
   private static final class PausableSystem extends System {

@@ -17,6 +17,7 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,38 +36,27 @@ public class ServerRuntimeTests {
   private static final ThreadLocal<ServerRuntime> currentRuntime = new ThreadLocal<>();
 
   /**
-   * Generates a unique port that can be bound by both TCP and UDP before returning it.
+   * Finds a port that can be bound by TCP and UDP simultaneously. Random candidates avoid walking
+   * through contiguous OS port exclusions that differ between TCP and UDP.
    *
-   * @return a unique, available port number for testing
+   * @return an available port number for testing
    */
   private static synchronized int uniquePort() {
     final int maxAttempts = 100;
-    int attempts = 0;
-    while (attempts++ < maxAttempts) {
-      int candidate = availableTcpPort();
-      if (isUdpPortAvailable(candidate)) {
+    IOException lastFailure = null;
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      int candidate = ThreadLocalRandom.current().nextInt(1024, 65536);
+      try (ServerSocket tcp = new ServerSocket();
+          DatagramSocket udp = new DatagramSocket(null)) {
+        tcp.bind(new InetSocketAddress(candidate));
+        udp.bind(new InetSocketAddress(candidate));
         return candidate;
+      } catch (IOException exception) {
+        lastFailure = exception;
       }
     }
     throw new IllegalStateException(
-        "Unable to find an available port after " + maxAttempts + " attempts");
-  }
-
-  private static int availableTcpPort() {
-    try (ServerSocket serverSocket = new ServerSocket(0)) {
-      return serverSocket.getLocalPort();
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to reserve an available TCP port", e);
-    }
-  }
-
-  private static boolean isUdpPortAvailable(int port) {
-    try (DatagramSocket socket = new DatagramSocket(null)) {
-      socket.bind(new InetSocketAddress(port));
-      return true;
-    } catch (IOException e) {
-      return false;
-    }
+        "Unable to find an available port after " + maxAttempts + " attempts", lastFailure);
   }
 
   /**

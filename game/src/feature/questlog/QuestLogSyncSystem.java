@@ -65,7 +65,8 @@ public final class QuestLogSyncSystem extends System {
                 entry.timestamp(),
                 entry.userCreated(),
                 entry.owner(),
-                entry.onlyForCreator()));
+                entry.onlyForCreator(),
+                entry.title()));
       }
     }
     return new QuestLogStateMessage(true, entries);

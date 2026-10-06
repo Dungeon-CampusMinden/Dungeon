@@ -264,16 +264,57 @@ public final class Tracking {
       String rawAnswer,
       boolean correct,
       UUID participantId) {
+    return attempt(
+        puzzleId, objectId, answerKind, rawAnswer, correct, participantId, Optional.empty());
+  }
+
+  /**
+   * Records an answer with the help state at submission and concrete outcome details.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objectId stable interacted-object identifier
+   * @param answerKind answer representation
+   * @param rawAnswer complete submitted answer
+   * @param participantId session-scoped anonymous participant
+   * @param details help state and final failure reasons
+   * @return newly recorded event, or empty when tracking is inactive or recording fails
+   */
+  public static Optional<TrackingEvent> attempt(
+      String puzzleId,
+      String objectId,
+      String answerKind,
+      String rawAnswer,
+      UUID participantId,
+      AttemptDetails details) {
+    return attempt(
+        puzzleId,
+        objectId,
+        answerKind,
+        rawAnswer,
+        details.failureReasons().isEmpty(),
+        participantId,
+        Optional.of(details));
+  }
+
+  private static Optional<TrackingEvent> attempt(
+      String puzzleId,
+      String objectId,
+      String answerKind,
+      String rawAnswer,
+      boolean correct,
+      UUID participantId,
+      Optional<AttemptDetails> details) {
     synchronized (LOCK) {
       if (!trackingAllowed
           || session == null
           || session.finished()
-          || !session.participantActive(participantId)) {
+          || !session.participantKnown(participantId)) {
         return Optional.empty();
       }
       try {
         return Optional.of(
-            session.attempt(puzzleId, objectId, answerKind, rawAnswer, correct, participantId));
+            session.attempt(
+                puzzleId, objectId, answerKind, rawAnswer, correct, participantId, details));
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();
@@ -282,7 +323,35 @@ public final class Tracking {
   }
 
   /**
-   * Records an interaction without treating it as a submitted answer or a puzzle start.
+   * Records a completed player interaction that belongs to no single puzzle, such as discovering an
+   * object, opening the quest log, or requesting help.
+   *
+   * @param objectId stable room-local object identifier
+   * @param action stable action identifier, never display text or mouse coordinates
+   * @param participantId session-scoped anonymous participant
+   * @return newly recorded event, or empty when inactive
+   */
+  public static Optional<TrackingEvent> interaction(
+      String objectId, String action, UUID participantId) {
+    synchronized (LOCK) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantActive(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(session.interaction(objectId, action, participantId));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
+   * Records a puzzle interaction with an explicit result, without treating it as a submitted answer
+   * or a puzzle start.
    *
    * @param puzzleId stable room-local puzzle identifier
    * @param objectId stable interacted object identifier
@@ -386,8 +455,8 @@ public final class Tracking {
     }
   }
 
-  /** Internal lifecycle hook that ends the session normally. Repeated calls do nothing. */
-  static void completed() {
+  /** Ends the session successfully before an outro or shutdown. Repeated calls do nothing. */
+  public static void completed() {
     finish(TrackingSessionStatus.COMPLETED, Optional.empty());
   }
 
@@ -507,10 +576,18 @@ public final class Tracking {
    * Stops all future tracking events for the current authoritative run.
    *
    * <p>This is used when a multiplayer participant refuses consent. Events already written before
-   * the refusal are not retroactively altered; no participant or later event is recorded.
+   * the refusal are not retroactively altered. A running session ends as aborted, so its final
+   * batch is still uploaded; no participant or later event is recorded.
    */
   static void disableTrackingForRun() {
     synchronized (LOCK) {
+      if (session != null && !session.finished()) {
+        try {
+          session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
+        } catch (TrackingPersistenceException exception) {
+          recordPersistenceFailure(exception);
+        }
+      }
       trackingAllowed = false;
       PENDING_PUZZLE_STARTS.clear();
       LOGGER.info("Tracking disabled because a multiplayer participant refused consent.");

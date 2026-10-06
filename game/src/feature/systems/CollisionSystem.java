@@ -248,8 +248,8 @@ public final class CollisionSystem extends System {
    * @return Direction of the collision between the entities
    */
   Direction checkDirectionOfCollision(Collider a, Collider b) {
-    Vector2 c1HalfSize = a.halfSize();
-    Vector2 c2HalfSize = b.halfSize();
+    Vector2 c1HalfSize = a.absoluteSize().scale(0.5f);
+    Vector2 c2HalfSize = b.absoluteSize().scale(0.5f);
 
     Point c1Center = a.absoluteCenter();
     Point c2Center = b.absoluteCenter();
@@ -282,7 +282,7 @@ public final class CollisionSystem extends System {
    * direction.
    *
    * <p>Will try to move entity b first. If the new position for entity b collides with the level or
-   * other solids, entity a will be moved instead (unless entity a is stationary).
+   * other solids, entity a will be moved instead unless it is stationary.
    *
    * @param ea The primary entity a.
    * @param a Collider of the primary entity a.
@@ -301,9 +301,9 @@ public final class CollisionSystem extends System {
       boolean firstCollision,
       boolean aStationary) {
     Point c1Pos = a.absolutePosition();
-    Vector2 c1Size = a.size();
+    Vector2 c1Size = a.absoluteSize();
     Point c2Pos = b.absolutePosition();
-    Vector2 c2Size = b.size();
+    Vector2 c2Size = b.absoluteSize();
 
     Point newColliderPos =
         switch (direction) {
@@ -319,18 +319,13 @@ public final class CollisionSystem extends System {
       return;
     }
 
-    Point newPos = newColliderPos.translate(b.offset().inverse());
+    Point newPos = newColliderPos.translate(b.offset().scale(b.scale()).inverse());
     VelocityComponent vcb = eb.fetch(VelocityComponent.class).orElse(null);
 
     if (!aStationary
         && (CollisionUtils.isCollidingWithLevel(b, newPos, vcb)
-            || CollisionUtils.isCollidingWithOtherSolids(b, newPos))) {
-      if (firstCollision) {
-        // If the new position collides with the level, block the other entity instead.
-        solidCollide(eb, b, ea, a, direction.opposite(), false, false);
-      }
-      // If we aren't in the first iteration, the other entity is also blocked, so just don't do
-      // anything
+            || CollisionUtils.isCollidingWithOtherSolids(eb, newPos))) {
+      if (firstCollision) solidCollide(eb, b, ea, a, direction.opposite(), false, false);
       return;
     }
 

@@ -6,6 +6,9 @@ import java.util.Set;
 /**
  * Delta for one entity against a full snapshot baseline.
  *
+ * <p>Metadata contains only changed entries, merged into the baseline. Clearing {@code METADATA}
+ * removes all baseline entries before applying the changed state.
+ *
  * @param entityId entity identifier
  * @param changedState state containing only changed fields
  * @param clearedFields fields that must be removed from the baseline state

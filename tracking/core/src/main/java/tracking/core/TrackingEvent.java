@@ -54,11 +54,12 @@ public record TrackingEvent(
     }
     boolean puzzleEvent =
         switch (eventType) {
-          case PUZZLE_STARTED, ANSWER_SUBMITTED, INTERACTION_RECORDED, HINT_USED, PUZZLE_SOLVED ->
-              true;
+          case PUZZLE_STARTED, ANSWER_SUBMITTED, HINT_USED, PUZZLE_SOLVED -> true;
           default -> false;
         };
-    if (puzzleEvent != puzzleId.isPresent()) {
+    // An interaction names its puzzle only when it belongs to one.
+    if (eventType != TrackingEventType.INTERACTION_RECORDED
+        && puzzleEvent != puzzleId.isPresent()) {
       throw new IllegalArgumentException("puzzleId is required only for puzzle events");
     }
     boolean participantEvent =
@@ -103,7 +104,8 @@ public record TrackingEvent(
       }
       for (String field : new String[] {"action", "status", "reason"}) {
         JsonNode value = payload.get(field);
-        if (value == null || !value.isString() || value.stringValue().isBlank()) {
+        boolean optional = field.equals("reason") && value == null;
+        if (!optional && (value == null || !value.isString() || value.stringValue().isBlank())) {
           throw new IllegalArgumentException("INTERACTION_RECORDED requires " + field);
         }
       }
