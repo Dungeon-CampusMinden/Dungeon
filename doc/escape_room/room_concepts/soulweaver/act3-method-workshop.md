@@ -1,6 +1,6 @@
 # Akt III: Valerius' Werkstatt
 
-Teil des Raums [Das Erbe der Seelenweber](prog1_beginner_concept.md).
+Teil des Raums [Das Erbe der Seelenweber](soulweaver_concept.md).
 
 ## Auftrag und Geschichte
 

@@ -1,6 +1,6 @@
 # Das Erbe der Seelenweber
 
-Dieses Dokument gibt einen Überblick über den umgesetzten Escape Room für Programmieren 1.
+Dieses Dokument gibt einen Überblick über den umgesetzten Escape Room.
 Die Akte sind in eigenen Dokumenten beschrieben:
 
 - [Akt I: Die Schmiede des Golems](act1-golem-forge.md)
@@ -15,7 +15,7 @@ Der ursprüngliche Entwurf steht im Pitch-Dokument
 
 | | |
 | --- | --- |
-| Fach | Programmieren 1, Informatik, 1. Semester |
+| Fach | Informatik, 1. Semester, Einstieg in die Programmierung |
 | Einsatz | Nach der ersten Vorlesung, als Selbststudium oder Vertiefung |
 | Dauer | Zielwert 60 bis 65 Minuten, im Playtest zu prüfen |
 | Spieler | 1 bis 2, allein oder im Multiplayer |

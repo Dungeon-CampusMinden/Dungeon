@@ -1,6 +1,6 @@
 # Akt IV: Das Labyrinth der Entscheidungen
 
-Teil des Raums [Das Erbe der Seelenweber](prog1_beginner_concept.md).
+Teil des Raums [Das Erbe der Seelenweber](soulweaver_concept.md).
 
 Nach dem vollständig ausgeführten Werkstattprogramm öffnet sich der Ausgang aus Akt III.
 Nox geht durch die Tür zum Start des Labyrinths und wartet auf einen Reiter.
@@ -120,7 +120,7 @@ Der Abspann:
 >
 > Du hast es geschafft! Du hast Nox zum Leben erweckt und bis zum Herzfeuer geführt.
 > Variablen, Schleifen, Methoden und Bedingungen waren deine Werkzeuge.
-> Programmieren 1 ist abgeschlossen.
+> Das Erbe der Seelenweber ist abgeschlossen.
 
 ## Zuständigkeit
 

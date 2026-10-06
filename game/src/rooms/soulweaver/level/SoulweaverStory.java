@@ -21,7 +21,7 @@ final class SoulweaverStory {
             "Du hast es geschafft!\n\n"
                 + "Du hast Nox zum Leben erweckt und bis zum Herzfeuer geführt.\n"
                 + "Variablen, Schleifen, Methoden und Bedingungen waren deine Werkzeuge.\n\n"
-                + "Programmieren 1 ist abgeschlossen.\nKlicke, um deine Reise zu beenden.",
+                + "Das Erbe der Seelenweber ist abgeschlossen.\nKlicke, um deine Reise zu beenden.",
             30));
   }
 
