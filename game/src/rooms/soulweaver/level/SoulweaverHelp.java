@@ -322,12 +322,12 @@ public final class SoulweaverHelp {
     return switch (id) {
       case "vessels" ->
           List.of(
-              "Öffne beide Vorratskisten beim Golem. Lies dann Valerius' Bindungsplan und ordne die Gefäße an der Bindungsfläche zu.",
+              "Öffne die Gefäß-Kiste. Lies dann Valerius' Bindungsplan und ordne die Gefäße an der Bindungsfläche zu.",
               "Achte auf die Art des Wertes: Text, ganze Zahl, Bruchzahl, Wahrheitswert oder einzelnes Zeichen. Die Gefäße tragen passende Prägungen.",
               "Die nächste offene Fassung ist markiert. Nur passende Gefäße bleiben sichtbar. Ordne ein passendes Gefäß zu.");
       case "essences" ->
           List.of(
-              "Die Gefäße stehen bereit. Lies die gewünschten Werte in Valerius' Bindungsplan und setze Essenzen in die Fassungen.",
+              "Öffne die Essenz-Kiste, falls das Essenzfach noch leer ist. Lies dann die gewünschten Werte in Valerius' Bindungsplan und setze Essenzen in die Fassungen.",
               "Ein passender Datentyp allein reicht nicht. Jeder Wert muss auch dem Bindungsplan entsprechen. Eine neue Essenz überschreibt den alten Wert.",
               "Die nächste offene Fassung ist markiert. Nur passende Essenzen bleiben sichtbar. Setze den Wert aus dem Bindungsplan ein.");
       case "methods" ->
