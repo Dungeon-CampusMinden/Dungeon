@@ -54,7 +54,17 @@ public final class SystemRecoveryTimeLimit implements Component {
    * @return whether the deletion deadline has passed
    */
   public boolean expired() {
-    return finishedAt.isEmpty() && !SystemRecovery.levelEditorMode() && remainingSeconds() == 0;
+    return expiredAt(clock.get().activeMs());
+  }
+
+  /**
+   * Returns whether the budget is exhausted at the given play time, for example a save's.
+   *
+   * @param activeMs play time to check
+   * @return whether an unfinished run outside the level editor has used up its hour
+   */
+  public boolean expiredAt(long activeMs) {
+    return finishedAt.isEmpty() && !SystemRecovery.levelEditorMode() && activeMs >= TOTAL_MS;
   }
 
   /**

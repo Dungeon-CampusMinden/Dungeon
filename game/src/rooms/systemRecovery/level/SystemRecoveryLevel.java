@@ -368,8 +368,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @return whether the checkpoint is safely present on disk
    */
   private boolean persistCheckpoint(SystemRecoveryLearningStep checkpoint, boolean force) {
-    // An expired run keeps its last usable checkpoint, also against forced saves.
-    if (!Game.network().isServer() || timeLimit.expired()) return false;
+    if (!Game.network().isServer()) return false;
     applyPendingPuzzleInventory();
     SystemRecoverySave.SaveData save =
         SystemRecoverySave.capture(
@@ -378,6 +377,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
             SystemRecovery.trackingConsent(),
             pendingInventoryItems,
             pendingPlayerPositions);
+    // An expired run keeps its last usable checkpoint, also against forced saves; the snapshot's
+    // own play time decides, because it is read after any earlier check.
+    if (timeLimit.expiredAt(save.activeMs())) return false;
     if (save.playerName() == null || save.playerName().isBlank()) return false;
     boolean checkpointChanged = checkpoint != savedCheckpoint;
     boolean changed =
