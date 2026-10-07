@@ -112,15 +112,18 @@ final class SystemRecoveryTracking {
   }
 
   /**
-   * Records one accepted use of a shared telephone hint.
+   * Records one shown hint of the shared hint sequence.
    *
-   * @param puzzle puzzle whose hint was requested
+   * @param puzzle puzzle whose hint was shown
    * @param hintId stable hint identifier
-   * @param player player who accepted the hint
+   * @param player player who accepted the hint, or the attributed player of an automatic hint
+   * @param automatic whether the hint was shown without a player request
    */
-  static void hintUsed(SystemRecoveryPuzzle puzzle, String hintId, Entity player) {
+  static void hintUsed(
+      SystemRecoveryPuzzle puzzle, String hintId, Entity player, boolean automatic) {
     if (player == null) return;
     Tracking.participantForEntity(player.id())
-        .ifPresent(participantId -> Tracking.hintUsed(puzzle.id(), hintId, participantId));
+        .ifPresent(
+            participantId -> Tracking.hintUsed(puzzle.id(), hintId, participantId, automatic));
   }
 }

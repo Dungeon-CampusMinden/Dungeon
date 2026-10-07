@@ -153,6 +153,58 @@ class SystemRecoverySaveTest {
   }
 
   @Test
+  void remainingTimeSurvivesSerializationAndOtherSnapshotUpdates() throws Exception {
+    SystemRecoverySave.SaveData save =
+        new SystemRecoverySave.SaveData(
+                SystemRecoveryLearningStep.ENERGY_ARRAY.hintKey(),
+                List.of(),
+                List.of(),
+                UUID.randomUUID(),
+                "Ada",
+                true,
+                null,
+                List.of(),
+                List.of(),
+                List.of(),
+                false,
+                false,
+                List.of(),
+                1234)
+            .withTrackingConsent(false)
+            .withInventoryItems(List.of())
+            .withPlayerPositions(List.of());
+    Path path = temporaryDirectory.resolve("remaining-time.json");
+
+    SystemRecoverySave.write(path, save);
+
+    assertEquals(save, SystemRecoveryLoad.read(path).orElseThrow());
+    assertEquals(1234, SystemRecoveryLoad.read(path).orElseThrow().remainingSeconds());
+  }
+
+  @Test
+  void saveWithoutOrWithInvalidTimerIsRejected() throws Exception {
+    SystemRecoverySave.SaveData save =
+        new SystemRecoverySave.SaveData("energy-array", List.of(), List.of());
+    java.util.Map<String, Object> json =
+        engine.utils.JsonHandler.readJson(SystemRecoverySave.toJson(save));
+    Path path = temporaryDirectory.resolve("timer.json");
+    json.remove("remainingSeconds");
+    for (int version : List.of(8, 9)) {
+      json.put("formatVersion", version);
+      Files.writeString(path, engine.utils.JsonHandler.writeJson(json, false));
+      assertTrue(SystemRecoveryLoad.read(path).isEmpty(), "format " + version);
+    }
+    for (Object invalid : List.of(-1, 3601, 1.5, "600")) {
+      json.put("remainingSeconds", invalid);
+      Files.writeString(path, engine.utils.JsonHandler.writeJson(json, false));
+      assertTrue(SystemRecoveryLoad.read(path).isEmpty(), invalid.toString());
+    }
+    json.put("remainingSeconds", 0);
+    Files.writeString(path, engine.utils.JsonHandler.writeJson(json, false));
+    assertEquals(0, SystemRecoveryLoad.read(path).orElseThrow().remainingSeconds());
+  }
+
+  @Test
   void persistsTerminalHistoryMemoryWatchAndProgrammedInventory() throws Exception {
     SystemRecoverySave.SaveData expected =
         new SystemRecoverySave.SaveData(

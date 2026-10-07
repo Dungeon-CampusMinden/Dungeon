@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.logging.Logger;
+import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -120,6 +121,9 @@ public final class SystemRecoveryProgressNet {
    */
   public static synchronized boolean complete(SystemRecoveryLearningStep expectedCurrentStep) {
     if (instance == null) return false;
+    if (SystemRecoveryLevel.timeLimitExpired()) {
+      return instance.reject(expectedCurrentStep, "time-limit-expired");
+    }
     if (expectedCurrentStep == null || !expectedCurrentStep.isLearningStep()) {
       return instance.reject(expectedCurrentStep, "invalid-request");
     }

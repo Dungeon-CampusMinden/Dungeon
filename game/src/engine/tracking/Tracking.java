@@ -430,6 +430,23 @@ public final class Tracking {
    */
   public static Optional<TrackingEvent> hintUsed(
       String puzzleId, String hintId, UUID participantId) {
+    return hintUsed(puzzleId, hintId, participantId, false);
+  }
+
+  /**
+   * Records use of one hint and marks hints shown without a player request.
+   *
+   * <p>An automatic hint is still attributed to {@code participantId} because every hint event
+   * requires a participant; its payload contains {@code "trigger": "automatic"}.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param hintId stable room-local hint identifier
+   * @param participantId session-scoped participant identifier
+   * @param automatic whether the game showed the hint without a player request
+   * @return newly recorded event, or empty when inactive or already recorded
+   */
+  public static Optional<TrackingEvent> hintUsed(
+      String puzzleId, String hintId, UUID participantId, boolean automatic) {
     synchronized (LOCK) {
       if (!trackingAllowed
           || session == null
@@ -438,7 +455,7 @@ public final class Tracking {
         return Optional.empty();
       }
       try {
-        return session.hintUsed(puzzleId, hintId, participantId);
+        return session.hintUsed(puzzleId, hintId, participantId, automatic);
       } catch (TrackingPersistenceException exception) {
         recordPersistenceFailure(exception);
         return Optional.empty();

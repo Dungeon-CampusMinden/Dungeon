@@ -90,6 +90,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     }
     appendModuleScanMetadata(entity, metadata);
     appendSearchRobotMetadata(entity, metadata);
+    SystemRecoveryTimerSync.append(entity, metadata);
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     DoorLabelComponent.appendMetadata(entity, metadata);
 

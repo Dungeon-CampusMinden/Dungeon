@@ -223,12 +223,19 @@ final class TrackingSession {
   }
 
   Optional<TrackingEvent> hintUsed(String puzzleId, String hintId, UUID participantId) {
+    return hintUsed(puzzleId, hintId, participantId, false);
+  }
+
+  Optional<TrackingEvent> hintUsed(
+      String puzzleId, String hintId, UUID participantId, boolean automatic) {
     String trackedPuzzle = requireText(puzzleId, "puzzleId");
     String trackedHint = requireText(hintId, "hintId");
     HintUse hintUse = new HintUse(participantId, trackedPuzzle, trackedHint);
     if (usedHints.contains(hintUse)) {
       return Optional.empty();
     }
+    ObjectNode payload = TrackingJson.object().put("hintId", trackedHint);
+    if (automatic) payload.put("trigger", "automatic");
     TrackingEvent hintEvent =
         event(
             TrackingEventType.HINT_USED,
@@ -236,7 +243,7 @@ final class TrackingSession {
             Optional.of(trackedPuzzle),
             Optional.of(trackedHint),
             Optional.empty(),
-            TrackingJson.object().put("hintId", trackedHint));
+            payload);
     usedHints.add(hintUse);
     touchActivePuzzle(trackedPuzzle);
     return Optional.of(hintEvent);

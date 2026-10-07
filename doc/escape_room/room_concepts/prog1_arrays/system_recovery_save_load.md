@@ -7,8 +7,8 @@ Es gibt keinen frei wählbaren Spielstand und kein nachträgliches Replay der Di
 autoritative Server schreibt `system-recovery-save.json` ins Arbeitsverzeichnis; das Hauptmenü
 bietet `Fortsetzen` an, wenn die Datei gültig ist.
 
-Das aktuelle JSON-Format ist Version 6. Reine Laufzeit- und Layoutänderungen am R10 haben das
-Schema nicht verändert.
+Das aktuelle JSON-Format ist Version 9. Es enthält zusätzlich die verbleibende Zeit des
+gemeinsamen 60-Minuten-Countdowns als `remainingSeconds`.
 
 | Bereich | Checkpoints |
 | --- | --- |
@@ -48,6 +48,7 @@ Chip nicht wiederhergestellt.
   Rechner oder Maschine eingesetzte Sticks werden als gemountete Items aufgenommen.
 - Aktive Spielzeit `activeMs`, Run-ID, Spielername, Tracking-Einwilligung, Achievement-Fortschritt und Zustand der
   Systemkern-Ausgangstür.
+- Verbleibende Zeit in ganzen Sekunden zum Zeitpunkt des Saves.
 
 Achievement-Unlocks liegen zusätzlich in `system-recovery-achievement-unlock.json`.
 
@@ -66,6 +67,10 @@ Achievement-Unlocks liegen zusätzlich in `system-recovery-achievement-unlock.js
    gespawnt.
 5. Ein gespeicherter laufender Suchroboter beginnt seinen Scan kontrolliert von vorn. Der
    jeweilige programmierte Chip bleibt dafür im Inventar.
+6. Der Countdown läuft mit `remainingSeconds` weiter. Zeit außerhalb des laufenden Spiels wird
+   nicht abgezogen. `remainingSeconds` muss ein ganzzahliger Wert zwischen 0 und 3600 sein;
+   fehlt er oder ist er ungültig, ist der Save ungültig. Saves aus der Zeit vor dem Zeitlimit
+   werden daher nicht mehr geladen.
 
 Ungesendeter Terminalcode und unvollständige Werte in der R10-Maske sind client-lokale Entwürfe.
 Sie bleiben beim bloßen Schließen und erneuten Öffnen des jeweiligen Fensters erhalten, werden
@@ -75,6 +80,19 @@ anderen Client.
 
 Bei alten Save-Formatversionen werden History und Memory Watch, soweit möglich, aus den
 akzeptierten Terminaleingaben rekonstruiert. Neue Saves speichern beide Ansichten direkt.
+
+## Restzeit
+
+Wie der Countdown läuft und was bei seinem Ablauf passiert, beschreibt der
+[Storyablauf](system_recovery_story_flow.md#zeitlimit-und-hilfe). Für Save und Load gilt:
+
+- Die Restzeit wird nur zusammen mit den normalen Checkpoint-Saves geschrieben. Der Countdown
+  selbst schreibt keine Datei, und eine Änderung der Restzeit allein löst keinen Save aus.
+  `Fortsetzen` beginnt daher mit der Restzeit des letzten Saves.
+- Der Zeitablauf verändert den Save nicht. `Fortsetzen` startet danach erneut am letzten
+  Checkpoint mit der dort gespeicherten Restzeit. Ein gespeicherter Stand mit null Sekunden bleibt
+  abgelaufen.
+- Die Wartezeit für automatische Hilfen startet beim Laden neu.
 
 ## Grenzen
 
@@ -92,3 +110,4 @@ Zuordnung nicht eindeutig.
 - `level/SystemRecoveryCheckpointProjection.java`: rekonstruiert den Raum für den Checkpoint.
 - `petrinet/SystemRecoveryProgressNet.java`: aktiver Token; siehe
   [Petri-Netz](petri_net_system_recovery_concept.md).
+- `time/SystemRecoveryTimeLimit.java`: Restzeit, die gespeichert und beim Laden fortgesetzt wird.

@@ -29,6 +29,7 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
+import rooms.systemRecovery.time.SystemRecoveryTimeLimit;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 
@@ -151,7 +152,8 @@ public final class SystemRecoverySave {
         isSystemCoreExitOpen(),
         SystemRecoveryLevel.systemCoreWarningCallAnswered(),
         mergePendingPlayerPositions(currentPlayerPositions(), pendingPlayerPositions),
-        Game.playClock().activeMs());
+        Game.playClock().activeMs(),
+        SystemRecoveryLevel.remainingSeconds());
   }
 
   private static List<PlayerPositionData> currentPlayerPositions() {
@@ -361,6 +363,7 @@ public final class SystemRecoverySave {
     root.put("players", data.playerPositions().stream().map(PlayerPositionData::toMap).toList());
     root.put("systemCoreExitOpen", data.systemCoreExitOpen());
     root.put("systemCoreWarningCallAnswered", data.systemCoreWarningCallAnswered());
+    root.put("remainingSeconds", data.remainingSeconds());
     if (data.achievementProgress() != null) {
       root.put("achievementProgress", achievementProgressMap(data.achievementProgress()));
     }
@@ -402,6 +405,7 @@ public final class SystemRecoverySave {
    * @param systemCoreWarningCallAnswered whether the player has completed ECHO's core warning call
    * @param playerPositions saved world position for each named player
    * @param activeMs active play time captured with this checkpoint
+   * @param remainingSeconds remaining shared countdown, excluding time outside the running game
    */
   public record SaveData(
       String checkpointKey,
@@ -417,7 +421,8 @@ public final class SystemRecoverySave {
       boolean systemCoreExitOpen,
       boolean systemCoreWarningCallAnswered,
       List<PlayerPositionData> playerPositions,
-      long activeMs) {
+      long activeMs,
+      int remainingSeconds) {
 
     /**
      * Returns this checkpoint with a replaced run-level tracking decision.
@@ -440,7 +445,8 @@ public final class SystemRecoverySave {
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
           playerPositions,
-          activeMs);
+          activeMs,
+          remainingSeconds);
     }
 
     /**
@@ -464,7 +470,8 @@ public final class SystemRecoverySave {
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
           playerPositions,
-          activeMs);
+          activeMs,
+          remainingSeconds);
     }
 
     /**
@@ -488,11 +495,13 @@ public final class SystemRecoverySave {
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
           positions,
-          activeMs);
+          activeMs,
+          remainingSeconds);
     }
 
     /**
-     * Keeps callers that predate saved player positions source-compatible.
+     * Keeps callers that predate saved player positions source-compatible; the checkpoint starts
+     * with the full time limit.
      *
      * @param checkpointKey stable first-step key of the active riddle
      * @param acceptedTerminalInputs accepted terminal inputs
@@ -534,7 +543,8 @@ public final class SystemRecoverySave {
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
           List.of(),
-          Game.playClock().activeMs());
+          Game.playClock().activeMs(),
+          SystemRecoveryTimeLimit.TOTAL_SECONDS);
     }
 
     /**
@@ -712,6 +722,7 @@ public final class SystemRecoverySave {
      * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
      * @param playerPositions saved world position for each named player
      * @param activeMs active play time captured with this checkpoint
+     * @param remainingSeconds remaining time in seconds, between zero and one hour
      */
     public SaveData {
       if (activeMs < 0) throw new IllegalArgumentException("activeMs must not be negative");
@@ -719,6 +730,9 @@ public final class SystemRecoverySave {
         throw new IllegalArgumentException("checkpointKey must not be blank");
       }
       if (runId == null) throw new IllegalArgumentException("runId must not be null");
+      if (remainingSeconds < 0 || remainingSeconds > SystemRecoveryTimeLimit.TOTAL_SECONDS) {
+        throw new IllegalArgumentException("Invalid remaining time");
+      }
       if (playerName != null && playerName.isBlank()) playerName = null;
       acceptedTerminalInputs =
           List.copyOf(acceptedTerminalInputs == null ? List.of() : acceptedTerminalInputs);

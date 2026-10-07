@@ -35,6 +35,7 @@ public final class SystemRecoveryComponentSync {
     applyInteractableMetadata(entity, metadata);
     keypadFromMetadata(metadata).ifPresent(keypad -> applyKeypadState(entity, keypad));
     applyDisplayMetadata(entity, metadata);
+    SystemRecoveryTimerSync.apply(entity, metadata);
     collideComponentFromMetadata(metadata)
         .ifPresent(collideState -> COLLIDE_SYNC.apply(entity, collideState));
   }

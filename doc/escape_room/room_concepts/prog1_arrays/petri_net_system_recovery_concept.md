@@ -58,6 +58,18 @@ anbieten. Erst nach Bestätigung wird der Hinweis verbraucht, im passenden Quest
 und über `SystemRecoveryPuzzleEvents.hintUsed(...)` getrackt. Das Lesen eines Hinweises verändert
 keinen Progress-Token.
 
+Die zeitgesteuerte Hilfe verwendet dieselbe gemeinsame Hinweisfolge. Im Standardmodus wird nach
+vier Minuten ohne Fortschritt die nächste Stufe ohne Bestätigung eingeblendet, ins Questlog
+geschrieben und einmal über `SystemRecoveryPuzzleEvents.automaticHintUsed(...)` getrackt. Das
+`HINT_USED`-Ereignis wird dem ersten verbundenen Spieler zugeordnet und trägt im Payload
+`"trigger": "automatic"`. Der optionale Telefon-Erinnerungsmodus verbraucht noch keinen
+Hinweis. Einstellungen stehen in [Storyablauf](system_recovery_story_flow.md#zeitlimit-und-hilfe).
+
+Das 60-Minuten-Zeitlimit ist kein zusätzlicher Lern-Place. `complete(expectedStep)` lehnt nach
+seinem Ablauf alle Übergänge ab und lässt die letzte Markierung unverändert. Nur ein rechtzeitig
+erreichter Place `COMPLETE` stoppt den Countdown; eine Niederlage wird nicht als `COMPLETE`
+markiert.
+
 `SystemRecoveryPuzzleEvents` ist die gemeinsame Grenze für Tracking und Fortschritt:
 
 - Versuche werden als richtig oder falsch getrackt.
@@ -82,11 +94,12 @@ darf nicht durch einen zweiten Zustandswert kaschiert werden.
 
 ## Checkpoints
 
-Save/Load speichert **nicht** jede Markierung. Gespeichert wird nur der Anfangs-Place eines
-Haupträtsels. Beim Laden wird dieser Place als einzig aktiver Token wiederhergestellt; die
+Save/Load speichert **nicht** jede Markierung. Gespeichert werden die konfigurierten sicheren
+Checkpoints: Haupträtsel-Anfänge, erfolgreiche USB-Uploads und jeder Teilabschnitt im Systemkern.
+Beim Laden wird der gespeicherte Place als einzig aktiver Token wiederhergestellt; die
 bereits abgeschlossenen Räume werden ohne Rätsel-Callbacks in ihren fertigen Zustand gesetzt.
-Ein abgebrochener Teilschritt des aktuellen Rätsels wird erneut gespielt. Insbesondere gibt es
-keinen eigenen Checkpoint innerhalb des Systemkerns. Details stehen in
+Ein abgebrochener Teilschritt nach dem letzten Checkpoint wird erneut gespielt, die inzwischen
+verbrauchte Zeit aber nicht zurückgegeben. Details stehen in
 [Save/Load](system_recovery_save_load.md).
 
 ## Wichtige Dateien

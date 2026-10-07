@@ -62,6 +62,9 @@ import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
 import rooms.systemRecovery.story.SystemRecoveryPhoneController;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.time.SystemRecoveryTimeLimit;
+import rooms.systemRecovery.time.SystemRecoveryTimeoutEnding;
+import rooms.systemRecovery.time.SystemRecoveryTimerFactory;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
@@ -185,6 +188,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private UUID runId;
   private boolean initialTerminalAttemptRecorded;
   private boolean initialTerminalAttemptWasCorrect;
+  private final SystemRecoveryTimeLimit timeLimit = new SystemRecoveryTimeLimit();
 
   /**
    * Creates the System Recovery level.
@@ -236,6 +240,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
     setupTerminal();
     setupPhone();
+    setupTimer();
     setupRoomLabel();
     closeDoors();
     setupArchiveDoorLock();
@@ -260,6 +265,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onTick() {
+    // Stop autosave, intros and story dialogs once time is up, even before the failure outro
+    // starts. The successful ending keeps ticking so the last state is still saved.
+    if (timeLimit.expired()) return;
     if (!SystemRecovery.levelEditorMode()) {
       enforcePlayerInventorySize();
       applyPendingPuzzleInventory();
@@ -318,6 +326,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedTrackingConsent = restoredSave.trackingConsent();
           savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
           systemCoreExitOpen = restoredSave.systemCoreExitOpen();
+          timeLimit.restore(restoredSave.remainingSeconds());
         });
     if (checkpoint.isPresent()) {
       SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
@@ -703,6 +712,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   private void finishIntroForPlayer(int playerId) {
     if (!controlsShownPlayers.add(playerId)) return;
+    timeLimit.start();
     DialogFactory.showDialogDialog(
         SystemRecoveryText.controls(),
         () -> {
@@ -715,6 +725,69 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Spawns the phone and keeps it interactable after every call. */
   private void setupPhone() {
     phoneController.setup(point("phone"));
+  }
+
+  private void setupTimer() {
+    Game.add(
+        SystemRecoveryTimerFactory.create(point(SystemRecoveryPointRegistry.TIMER), timeLimit));
+  }
+
+  /** Starts the failure ending once the timer system reports an exhausted budget. */
+  public void expireTimeLimit() {
+    if (endingTriggered || !timeLimit.expired()) return;
+    endingTriggered = true;
+    phoneController.cancelHintReminder();
+    SystemRecoveryTimeoutEnding.show();
+  }
+
+  /**
+   * @return current server countdown, or the initial budget before a level exists
+   */
+  public static int remainingSeconds() {
+    return currentLevel()
+        .map(level -> level.timeLimit.remainingSeconds())
+        .orElse(SystemRecoveryTimeLimit.TOTAL_SECONDS);
+  }
+
+  /**
+   * @return whether the active run has reached its authoritative deletion deadline
+   */
+  public static boolean timeLimitExpired() {
+    return currentLevel().map(level -> level.timeLimit.expired()).orElse(false);
+  }
+
+  /**
+   * Restarts the inactivity interval after progress or a used hint and removes an obsolete optional
+   * call.
+   */
+  public void resetTimedHintDelay() {
+    timeLimit.postponeHint();
+    phoneController.cancelHintReminder();
+  }
+
+  /**
+   * Offers optional telephone assistance without replacing a main-quest call.
+   *
+   * @return whether a reminder or first-contact call was started
+   */
+  public boolean triggerTimedHintReminder() {
+    return phoneController.triggerHintReminder();
+  }
+
+  /**
+   * @return whether any first energy-terminal input has been submitted in this run
+   */
+  public boolean initialTerminalAttemptRecorded() {
+    return initialTerminalAttemptRecorded;
+  }
+
+  /**
+   * Starts ECHO's first contact for players who have not yet tried the terminal.
+   *
+   * @return whether a call was started
+   */
+  public boolean triggerIdleOpeningCall() {
+    return phoneController.triggerIdleOpeningCall();
   }
 
   /** Starts ECHO's one introductory call after the first rejected terminal attempt. */
@@ -862,7 +935,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @return whether terminals are available
    */
   public static boolean terminalsUnlocked() {
-    return currentLevel().map(level -> level.terminalsUnlocked).orElse(false);
+    return currentLevel()
+        .map(level -> level.terminalsUnlocked && !level.timeLimit.expired())
+        .orElse(false);
   }
 
   /** Materializes the energy array for riddle 1, terminal step 1. */
@@ -936,6 +1011,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
             level -> {
               level.memoryWatch.recordAcceptedSource(source);
               SystemRecoveryQuestLogUtil.addSolutionEntry(step, source);
+              level.resetTimedHintDelay();
             });
   }
 
@@ -968,6 +1044,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       return;
     }
     acceptedTerminalHistory.add(source);
+    resetTimedHintDelay();
   }
 
   private synchronized String[] terminalHistorySnapshot() {
@@ -1103,7 +1180,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
         SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
   }
 
-  private static java.util.Optional<SystemRecoveryLevel> currentLevel() {
+  /**
+   * @return the running System Recovery level, if one is loaded
+   */
+  public static java.util.Optional<SystemRecoveryLevel> currentLevel() {
     return Game.currentLevel()
         .filter(SystemRecoveryLevel.class::isInstance)
         .map(SystemRecoveryLevel.class::cast);

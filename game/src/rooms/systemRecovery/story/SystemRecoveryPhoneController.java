@@ -32,8 +32,7 @@ public final class SystemRecoveryPhoneController {
   private boolean systemCoreWarningCallAnswered;
   private boolean finalEchoCallTriggered;
   private boolean finalEchoCallPending;
-  private boolean phoneRinging;
-  private String ringingCallKey;
+  private Call ringingCall;
 
   /**
    * @param openDataStorage action performed after ECHO's data-storage call
@@ -80,16 +79,50 @@ public final class SystemRecoveryPhoneController {
 
   /** Starts ECHO's introductory call after the first rejected terminal attempt. */
   public void triggerOpeningCall() {
-    if (openingCallTriggered || phone == null) return;
-    openingCallTriggered = true;
-    startRingingCall("opening-call");
+    startOpeningCall("opening-call");
   }
 
   /** Starts ECHO's successful first-contact call after AXIOM's dialog has closed. */
   public void triggerCorrectOpeningCall() {
-    if (openingCallTriggered || phone == null) return;
+    startOpeningCall("opening-call-correct");
+  }
+
+  /**
+   * Introduces ECHO after inactivity before the player has submitted any terminal input.
+   *
+   * @return whether the first-contact call was started
+   */
+  public boolean triggerIdleOpeningCall() {
+    return startOpeningCall("opening-call-idle");
+  }
+
+  private boolean startOpeningCall(String key) {
+    if (openingCallTriggered || ringingCall != null || phone == null) return false;
     openingCallTriggered = true;
-    startRingingCall("opening-call-correct");
+    startRingingCall(key);
+    return true;
+  }
+
+  /**
+   * Offers help after inactivity without replacing an unanswered main-quest call.
+   *
+   * @return whether a reminder call was started
+   */
+  public boolean triggerHintReminder() {
+    if (phone == null || ringingCall != null) return false;
+    if (!openingCallTriggered) {
+      return triggerIdleOpeningCall();
+    }
+    startRingingCall("hint-reminder");
+    return true;
+  }
+
+  /** Removes an obsolete optional reminder after progress, but never cancels a story call. */
+  public void cancelHintReminder() {
+    if (ringingCall == null || !"hint-reminder".equals(ringingCall.key())) return;
+    ringingCall = null;
+    clearRingingPhoneEmote();
+    updatePhoneInteraction();
   }
 
   /** Starts ECHO's transition call before the data-storage room opens. */
@@ -137,7 +170,8 @@ public final class SystemRecoveryPhoneController {
   public void triggerFinalEchoCall() {
     if (finalEchoCallTriggered || phone == null) return;
     finalEchoCallTriggered = true;
-    if (phoneRinging) {
+    cancelHintReminder();
+    if (ringingCall != null) {
       finalEchoCallPending = true;
       return;
     }
@@ -145,8 +179,7 @@ public final class SystemRecoveryPhoneController {
   }
 
   private void startRingingCall(String callKey) {
-    ringingCallKey = callKey;
-    phoneRinging = true;
+    ringingCall = new Call(callKey);
     Sounds.play(LastHourSounds.PHONE_RINGING);
     updatePhoneInteraction();
     if (ringingPhoneEmote == null) {
@@ -165,14 +198,15 @@ public final class SystemRecoveryPhoneController {
         new InteractionComponent(
             new Interaction(
                 (_, who) -> {
-                  if (phoneRinging) {
+                  if (ringingCall != null) {
                     // The call is now being answered. Remove the visual ringing state immediately
                     // so a dismissed first call cannot leave an obsolete bubble behind.
                     clearRingingPhoneEmote();
+                    Call call = ringingCall;
                     DialogFactory.showDialogDialog(
-                        SystemRecoveryText.echoCall(ringingCallKey),
+                        SystemRecoveryText.echoCall(call.key()),
                         SystemRecoveryText.echoSpeakerImage(),
-                        this::finishEchoCall,
+                        () -> finishEchoCall(call),
                         who.id());
                     return;
                   }
@@ -185,39 +219,42 @@ public final class SystemRecoveryPhoneController {
                 })));
   }
 
-  private void finishEchoCall() {
-    String completedCallKey = ringingCallKey;
-    if (completedCallKey == null) return;
-    phoneRinging = false;
-    ringingCallKey = null;
+  private void finishEchoCall(Call completedCall) {
+    // Identity matters: an old callback must not finish a later call with the same script.
+    if (completedCall != ringingCall) return;
+    String completedCallKey = completedCall.key();
+    ringingCall = null;
     updatePhoneInteraction();
     clearRingingPhoneEmote();
-    if ("system-core-warning".equals(completedCallKey)) {
-      systemCoreWarningCallAnswered = true;
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle10", "system-core-warning", SystemRecoveryText.echoCall(completedCallKey));
-      saveCheckpoint.run();
-      if (finalEchoCallPending) {
-        finalEchoCallPending = false;
-        startRingingCall("final-call");
+    switch (completedCallKey) {
+      case "hint-reminder" -> {}
+      case "system-core-warning" -> {
+        systemCoreWarningCallAnswered = true;
+        SystemRecoveryQuestLogUtil.addDialogEntry(
+            "riddle10", completedCallKey, SystemRecoveryText.echoCall(completedCallKey));
+        saveCheckpoint.run();
       }
-    } else if ("data-storage-problem".equals(completedCallKey)) {
-      SystemRecoveryAchievements.phoneCallAnswered(true);
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle5", "data-storage-problem", SystemRecoveryText.echoCall(completedCallKey));
-      openDataStorage.run();
-    } else if ("final-call".equals(completedCallKey)) {
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle10", "final-call", SystemRecoveryText.echoCall(completedCallKey));
-      openElevator.run();
-    } else if ("opening-call-correct".equals(completedCallKey)) {
-      SystemRecoveryAchievements.phoneCallAnswered(false);
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle1", "opening-call-correct", SystemRecoveryText.echoCall(completedCallKey));
-    } else {
-      SystemRecoveryAchievements.phoneCallAnswered(false);
-      SystemRecoveryQuestLogUtil.addDialogEntry(
-          "riddle1", "opening-call", SystemRecoveryText.echoCall(completedCallKey));
+      case "data-storage-problem" -> {
+        SystemRecoveryAchievements.phoneCallAnswered(true);
+        SystemRecoveryQuestLogUtil.addDialogEntry(
+            "riddle5", completedCallKey, SystemRecoveryText.echoCall(completedCallKey));
+        openDataStorage.run();
+      }
+      case "final-call" -> {
+        SystemRecoveryQuestLogUtil.addDialogEntry(
+            "riddle10", completedCallKey, SystemRecoveryText.echoCall(completedCallKey));
+        openElevator.run();
+      }
+      default -> {
+        SystemRecoveryAchievements.phoneCallAnswered(false);
+        SystemRecoveryQuestLogUtil.addDialogEntry(
+            "riddle1", completedCallKey, SystemRecoveryText.echoCall(completedCallKey));
+      }
+    }
+    if (finalEchoCallPending) {
+      finalEchoCallPending = false;
+      finalEchoCallTriggered = true;
+      startRingingCall("final-call");
     }
   }
 
@@ -226,4 +263,6 @@ public final class SystemRecoveryPhoneController {
     Game.remove(ringingPhoneEmote);
     ringingPhoneEmote = null;
   }
+
+  private record Call(String key) {}
 }

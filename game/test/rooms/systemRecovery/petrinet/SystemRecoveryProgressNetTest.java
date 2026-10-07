@@ -58,6 +58,19 @@ class SystemRecoveryProgressNetTest {
   }
 
   @Test
+  void expiredRunCannotAdvanceThePetriMarking() {
+    try (MockedStatic<rooms.systemRecovery.level.SystemRecoveryLevel> level =
+        Mockito.mockStatic(rooms.systemRecovery.level.SystemRecoveryLevel.class)) {
+      level.when(rooms.systemRecovery.level.SystemRecoveryLevel::timeLimitExpired).thenReturn(true);
+
+      assertFalse(SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ENERGY_ARRAY));
+
+      assertActive(SystemRecoveryLearningStep.ENERGY_ARRAY);
+      assertTokenInvariant();
+    }
+  }
+
+  @Test
   void wrongOrderAndDuplicateCompletionLeaveEveryTokenUnchanged() {
     assertFalse(SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.MODULE_ARRAY));
     assertEquals(1, SystemRecoveryProgressNet.tokenCount(SystemRecoveryLearningStep.ENERGY_ARRAY));

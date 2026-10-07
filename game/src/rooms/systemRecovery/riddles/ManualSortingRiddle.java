@@ -247,6 +247,7 @@ public final class ManualSortingRiddle {
       return;
     }
     callbacks.success(swap ? "swap" : "keep", player.id());
+    SystemRecoveryLevel.currentLevel().ifPresent(SystemRecoveryLevel::resetTimedHintDelay);
     if (shouldSwap) {
       int value = sortValues[sortInnerIndex];
       sortValues[sortInnerIndex] = sortValues[sortInnerIndex + 1];

@@ -14,6 +14,9 @@ public final class SystemRecoveryPointRegistry {
   /** Main terminal custom point. */
   public static final String TERMINAL = "terminal";
 
+  /** World countdown custom point; the editor stores names in lowercase. */
+  public static final String TIMER = "timer";
+
   /** Door custom points used by checkpoint restoration. */
   public static final String DOOR_MODULE_STORAGE = "door_modulspeicher";
 
@@ -74,6 +77,7 @@ public final class SystemRecoveryPointRegistry {
             List.of(
                 "phone",
                 TERMINAL,
+                TIMER,
                 "end",
                 DOOR_MODULE_STORAGE,
                 DOOR_INVENTORY_SCANNER,
