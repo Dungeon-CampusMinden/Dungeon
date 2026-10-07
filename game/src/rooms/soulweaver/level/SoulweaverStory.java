@@ -30,7 +30,7 @@ final class SoulweaverStory {
         + "Der zweite Ausgang klemmt. Schutt blockiert die Torwinde im Keller, "
         + "und aus den alten Leitungen tritt heißer Dampf aus. Geht nicht selbst hinunter.\n\n"
         + "Ich habe Nox für solche Arbeiten gebaut. Er trägt Lasten und hält die Maschinen frei. "
-        + "Seine Seelenbindung ist allerdings erloschen. Runen und Gefäße liegen in den Werkstattkisten.\n\n"
+        + "Seine Seelenbindung ist allerdings erloschen. Gefäße und Essenzen liegen in den Werkstattkisten.\n\n"
         + "Stellt seine Seelenbindung wieder her. Er soll die Torwinde freiräumen, "
         + "damit sich der Ausgang wieder öffnen lässt.\n\nValerius";
   }

@@ -90,31 +90,31 @@ final class SoulweaverRoomElements {
   }
 
   private static void spawnBindingChest(
-      DungeonLevel level, SoulweaverGolemRuntime runtime, boolean properties) {
+      DungeonLevel level, SoulweaverGolemRuntime runtime, boolean essenceChest) {
     Entity chest =
         createEntity(
-            level, properties ? "variables-properties" : "variables-vessels", Visual.CHEST, 0);
+            level, essenceChest ? "variables-essences" : "variables-vessels", Visual.CHEST, 0);
     chest.add(
         new InteractionComponent(
             new Interaction(
                 (interacted, who) -> {
                   if (Game.isMultiplayerClient()) return;
                   boolean collectedBefore =
-                      properties
-                          ? runtime.bindingState().propertiesCollected()
+                      essenceChest
+                          ? runtime.bindingState().essencesCollected()
                           : runtime.bindingState().vesselsCollected();
-                  runtime.collectBindingSupply(properties, who);
+                  runtime.collectBindingSupply(essenceChest, who);
                   boolean collectedAfter =
-                      properties
-                          ? runtime.bindingState().propertiesCollected()
+                      essenceChest
+                          ? runtime.bindingState().essencesCollected()
                           : runtime.bindingState().vesselsCollected();
                   if (!collectedAfter) return;
                   if (!collectedBefore)
                     SoulweaverProgress.discover(
-                        properties ? "variables-properties" : "variables-vessels",
-                        properties ? "Eigenschaften gefunden" : "Gefäße gefunden",
-                        properties
-                            ? "Die Eigenschaften für Nox liegen jetzt am Bindungstisch bereit."
+                        essenceChest ? "variables-essences" : "variables-vessels",
+                        essenceChest ? "Essenzen gefunden" : "Gefäße gefunden",
+                        essenceChest
+                            ? "Die Essenzen liegen jetzt am Bindungstisch bereit."
                             : "Die Typgefäße liegen jetzt am Bindungstisch bereit.",
                         who);
                   interacted

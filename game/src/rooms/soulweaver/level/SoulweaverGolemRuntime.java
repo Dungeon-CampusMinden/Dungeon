@@ -97,12 +97,11 @@ final class SoulweaverGolemRuntime {
   private float pause;
   private String status = "Seelenbindung unvollständig.";
   private String returnFeedback = "";
-  private boolean propertiesCollected;
+  private boolean essencesCollected;
   private boolean vesselsCollected;
   private int loopFailures;
   private int checkpointFailures;
-  private String bindingFeedback =
-      "Eigenschaftsrunen und Gefäße fehlen. Öffne die beiden Werkstattkisten.";
+  private String bindingFeedback = "Gefäße und Essenzen fehlen. Öffne die beiden Werkstattkisten.";
 
   SoulweaverGolemRuntime(DungeonLevel level, Entity golem) {
     this.level = level;
@@ -135,39 +134,38 @@ final class SoulweaverGolemRuntime {
   BindingState bindingState() {
     return new BindingState(
         controller.variableStage(),
-        propertiesCollected,
+        essencesCollected,
         vesselsCollected,
         vessels,
         essences,
         bindingFeedback);
   }
 
-  void collectBindingSupply(boolean properties, Entity who) {
-    String marker = properties ? "variables-properties" : "variables-vessels";
+  void collectBindingSupply(boolean essenceChest, Entity who) {
+    String marker = essenceChest ? "variables-essences" : "variables-vessels";
     if (!authorized(who, marker, 3f)) return;
-    if (properties ? propertiesCollected : vesselsCollected) {
+    if (essenceChest ? essencesCollected : vesselsCollected) {
       showText(who, "Die Kiste ist leer.");
       return;
     }
-    if (properties) propertiesCollected = true;
+    if (essenceChest) essencesCollected = true;
     else vesselsCollected = true;
     bindingFeedback =
-        propertiesCollected && vesselsCollected
+        essencesCollected && vesselsCollected
             ? "Gefäße zuordnen und Essenzen einsetzen. Valerius' Bindungsplan liegt beim Golem."
-            : propertiesCollected ? "Gefäßvorrat fehlt." : "Eigenschaftsrunen fehlen.";
+            : essencesCollected ? "Gefäßvorrat fehlt." : "Essenzfach fehlt.";
     showText(
         who,
-        properties
-            ? "Eigenschaftsrunen eingepackt. Valerius' Bindungsplan liegt beim Golem."
-            : "Seelengefäße und Essenzen eingepackt. Jedes Gefäß trägt eine Prägung für seinen Inhalt. Der Vorrat reicht für mehrere Fassungen.");
+        essenceChest
+            ? "Essenzen eingepackt. Valerius' Bindungsplan nennt den Wert für jede Fassung. Der Vorrat reicht für mehrere Fassungen."
+            : "Seelengefäße eingepackt. Jedes Gefäß trägt eine Prägung für seinen Inhalt. Der Vorrat reicht für mehrere Fassungen.");
   }
 
   void assignBinding(Entity who, String propertyName, String value, boolean vessel) {
     if (!authorized(who, "variables-golem", 4.5f)
         || busy
         || controller.phase() != SoulweaverPhase.VARIABLES
-        || !propertiesCollected
-        || !vesselsCollected) return;
+        || !(vessel ? vesselsCollected : essencesCollected)) return;
     if (bindingState().revealed()
         || vessel && controller.variableStage() != VariablePuzzleStage.VESSELS) return;
     try {
@@ -431,12 +429,12 @@ final class SoulweaverGolemRuntime {
     SoulweaverProgress.restore(phase);
     vessels.putAll(VariablePuzzle.vesselSolution());
     essences.putAll(VariablePuzzle.essenceSolution());
-    propertiesCollected = true;
+    essencesCollected = true;
     vesselsCollected = true;
     Game.levelEntities()
         .filter(
             entity ->
-                entity.name().equals("soulweaver-variables-properties")
+                entity.name().equals("soulweaver-variables-essences")
                     || entity.name().equals("soulweaver-variables-vessels"))
         .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
         .forEach(draw -> draw.stateMachine().setState("open_empty", null));
@@ -1067,7 +1065,9 @@ final class SoulweaverGolemRuntime {
 
   boolean helpSolvable() {
     return controller.phase() != SoulweaverPhase.VARIABLES
-        || propertiesCollected && vesselsCollected;
+        || (controller.variableStage() == VariablePuzzleStage.VESSELS
+            ? vesselsCollected
+            : essencesCollected);
   }
 
   String helpStatus() {
