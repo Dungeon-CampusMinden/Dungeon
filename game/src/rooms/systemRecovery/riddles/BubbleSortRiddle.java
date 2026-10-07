@@ -7,7 +7,6 @@ import engine.Game;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.network.messages.c2s.DialogResponseMessage;
-import engine.sound.SoundSpec;
 import engine.utils.Point;
 import feature.components.InventoryComponent;
 import feature.entities.WorldItemBuilder;
@@ -26,6 +25,7 @@ import rooms.systemRecovery.level.SystemRecoveryPointRegistry;
 import rooms.systemRecovery.modules.computer.MountedPuzzleItems;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
 import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
@@ -41,7 +41,6 @@ public final class BubbleSortRiddle {
   private final DungeonLevel level;
   private final TransportStorageRiddle transport;
   private final RiddleCallbacks callbacks;
-  private static final String SCANNER_SOUND = "retro_beep_01";
   private boolean sortMachineRunning;
   private boolean completed;
 
@@ -258,7 +257,7 @@ public final class BubbleSortRiddle {
     activeSortLeftPackageId = leftEntity.id();
     activeSortRightPackageId = rightEntity.id();
     moveSortEntity(transport.scanner(), leftPoint.translate(0, 1));
-    Game.audio().playGlobal(SoundSpec.builder(SCANNER_SOUND));
+    SystemRecoverySounds.scannerPulse();
 
     EventScheduler.scheduleAction(
         () -> {

@@ -65,7 +65,8 @@ public class TilesMode extends LevelEditorMode {
   /**
    * Gets the preview texture for an element in the selected level design.
    *
-   * <p>Portal, glass-wall, and grate textures currently exist only in the shared default design.
+   * <p>Portal, glass-wall, and grate textures are shared from the default design, except for the
+   * dedicated System Recovery theme.
    *
    * @param element the level element
    * @param designLabel the selected level design
@@ -73,11 +74,15 @@ public class TilesMode extends LevelEditorMode {
    */
   public static String texturePath(LevelElement element, DesignLabel designLabel) {
     String defaultPath = texturePath(element);
-    if (element == LevelElement.SKIP
-        || element == LevelElement.PORTAL
+    if (element == LevelElement.SKIP) {
+      return defaultPath;
+    }
+    if (element == LevelElement.PORTAL
         || element == LevelElement.GLASSWALL
         || element == LevelElement.GITTER) {
-      return defaultPath;
+      if (designLabel != DesignLabel.SYSTEM_RECOVERY) return defaultPath;
+      String themedAsset = defaultPath.substring("dungeon/default/".length());
+      return "dungeon/" + designLabel.name().toLowerCase() + "/" + themedAsset;
     }
     return TileTextureFactory.findTexturePath(element, designLabel).pathString();
   }

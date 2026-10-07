@@ -5,7 +5,8 @@ import engine.Entity;
 import engine.components.DrawComponent;
 import engine.utils.components.draw.shader.OutlineShader;
 import java.util.Map;
-import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
+import java.util.Optional;
+import rooms.systemRecovery.util.SystemRecoveryMusic;
 
 /** Reconstructs the system-core alarm and per-area completion visuals on clients. */
 public final class SystemCoreVisualSync {
@@ -18,17 +19,17 @@ public final class SystemCoreVisualSync {
    * @param metadata synchronized system-core metadata
    */
   public static void applyAlarm(Map<String, String> metadata) {
-    String alarm = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM);
-    boolean active =
-        alarm != null
-            ? Boolean.parseBoolean(alarm)
-            : Boolean.parseBoolean(
-                metadata.getOrDefault(
-                    SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS, "false"));
+    alarmState(metadata).ifPresent(SystemRecoveryMusic::syncAlarmLayer);
+  }
 
-    // The red filter is a managed scene shader and arrives through ShaderSyncSystem. Metadata is
-    // deliberately used only for the one-shot audio feedback and late-join compatibility.
-    SystemRecoveryAlarm.syncClientSound(active);
+  static Optional<Boolean> alarmState(Map<String, String> metadata) {
+    String alarm = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM);
+    String access = metadata.get(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS);
+    // This sync runs for every metadata-bearing entity; unrelated entities must not turn it off.
+    if (alarm == null && access == null) return Optional.empty();
+
+    boolean active = alarm != null ? Boolean.parseBoolean(alarm) : Boolean.parseBoolean(access);
+    return Optional.of(active);
   }
 
   /**

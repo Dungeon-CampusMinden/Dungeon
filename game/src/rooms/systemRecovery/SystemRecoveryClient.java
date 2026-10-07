@@ -31,6 +31,7 @@ import java.util.Objects;
 import rooms.systemRecovery.network.SystemCoreVisualSync;
 import rooms.systemRecovery.network.SystemRecoveryComponentSync;
 import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
+import rooms.systemRecovery.util.SystemRecoveryMusic;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Client-side setup for System Recovery. */
@@ -47,6 +48,7 @@ public final class SystemRecoveryClient {
     if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
     registerInputPromptTexture();
     Game.add(new ControlsDialogSystem(SystemRecoveryText::controls));
+    SystemRecoveryMusic.setup();
 
     if (SystemRecovery.debugMode()) {
       Game.add(new Debugger());
@@ -64,7 +66,9 @@ public final class SystemRecoveryClient {
               }
 
               @Override
-              public void onDisconnected(String reason) {}
+              public void onDisconnected(String reason) {
+                SystemRecoveryMusic.resetClientAudio();
+              }
             });
   }
 

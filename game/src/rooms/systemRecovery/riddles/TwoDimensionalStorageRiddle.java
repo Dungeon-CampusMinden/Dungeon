@@ -3,7 +3,6 @@ package rooms.systemRecovery.riddles;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
-import engine.sound.SoundSpec;
 import engine.utils.Point;
 import feature.components.DecoComponent;
 import feature.entities.WorldItemBuilder;
@@ -18,6 +17,7 @@ import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.util.StorageCellColors;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /**
@@ -226,7 +226,6 @@ public final class TwoDimensionalStorageRiddle {
     if (chipDelivered || chipGrabArm != null) return;
     chipGrabArm = ScannerEntityFactory.chipGrabArm(cellPoint(1, 3));
     Game.add(chipGrabArm);
-    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01"));
     moveChipGrabArm(0);
   }
 
@@ -247,6 +246,7 @@ public final class TwoDimensionalStorageRiddle {
     if (!chipDelivered) {
       chipDelivered = true;
       Game.add(WorldItemBuilder.buildWorldItem(new SearchProgramChipItem(), destination));
+      SystemRecoverySounds.chipRetrieved();
     }
   }
 }
