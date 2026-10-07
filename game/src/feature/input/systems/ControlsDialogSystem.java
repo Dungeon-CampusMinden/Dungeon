@@ -6,6 +6,7 @@ import engine.System;
 import engine.System.AuthoritativeSide;
 import engine.systems.input.InputManager;
 import feature.components.UIComponent;
+import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.input.configuration.KeyboardConfig;
@@ -58,9 +59,9 @@ public final class ControlsDialogSystem extends System {
     discardClosedDialogs();
     int playerId = player.id();
     if (openDialogs.containsKey(playerId)) return;
-    UIComponent dialog = DialogFactory.showDialogDialog(controlsDialog.get(), () -> {}, playerId);
-    if (pausesPlayClock)
-      dialog.dialogContext().attributes().put(DialogContextKeys.PAUSES_PLAY_CLOCK, true);
+    DialogContext.Builder context = DialogFactory.dialogDialogContext(controlsDialog.get());
+    if (pausesPlayClock) context.put(DialogContextKeys.PAUSES_PLAY_CLOCK, true);
+    UIComponent dialog = DialogFactory.showDialogDialog(context.build(), () -> {}, playerId);
     openDialogs.put(playerId, dialog);
   }
 

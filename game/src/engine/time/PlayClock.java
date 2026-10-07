@@ -31,9 +31,8 @@ public final class PlayClock {
    *
    * @param event transition kind
    * @param reason pause reason for {@link Event#PAUSED}
-   * @param activeMs active play time at the transition
    */
-  public record Transition(Event event, Optional<PauseReason> reason, long activeMs) {}
+  public record Transition(Event event, Optional<PauseReason> reason) {}
 
   private final LongSupplier monotonicMs;
   private final Map<Short, Integer> participants = new HashMap<>();
@@ -254,7 +253,7 @@ public final class PlayClock {
   }
 
   private Optional<Transition> transition(Event event) {
-    return Optional.of(new Transition(event, pauseReason, activeMs()));
+    return Optional.of(new Transition(event, pauseReason));
   }
 
   private void mutate(Supplier<Optional<Transition>> mutation) {

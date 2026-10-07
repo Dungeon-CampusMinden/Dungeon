@@ -180,8 +180,10 @@ public class ComputerFactory {
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
       ComputerStateComponent.setUsbInserted(true);
-      // The control panel accepts the exit code from now on; ventilation is the next main step.
+      // The control panel accepts the exit code and the USB hint file describes its assembly from
+      // now on; ventilation is the next main step.
       LastHourTracking.started(LastHourPuzzle.EXIT);
+      LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
       LastHourTracking.started(LastHourPuzzle.VENTILATION);
       openComputerDialog(pcEntity, who);
     } else {

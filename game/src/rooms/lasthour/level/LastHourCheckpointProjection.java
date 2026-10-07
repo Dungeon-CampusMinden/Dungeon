@@ -71,7 +71,7 @@ final class LastHourCheckpointProjection {
     level.escaped = data.milestones().contains(LastHourMilestone.ESCAPED);
 
     if (data.milestones().contains(LastHourMilestone.PAPERS_SPAWNED) && !level.codeAssembled) {
-      level.createPaperPuzzle(false);
+      level.createPaperPuzzle();
     } else if (level.codeAssembled
         && !containsPlayerItem(
             data.players(),

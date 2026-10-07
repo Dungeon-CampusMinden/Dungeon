@@ -301,12 +301,12 @@ public class LastHourLevel extends DungeonLevel {
       LastHourTracking.started(LastHourPuzzle.BLUE_USB);
     if (computer.usbInserted() && !computer.door2Open())
       LastHourTracking.started(LastHourPuzzle.EXIT);
+    if (computer.usbInserted() && !codeAssembled)
+      LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     // Switching the AC on spawns the papers once, which is what solves the ventilation puzzle.
     if (computer.usbInserted()
         && !LastHourProgressNet.completedMilestones().contains(LastHourMilestone.PAPERS_SPAWNED))
       LastHourTracking.started(LastHourPuzzle.VENTILATION);
-    if (puzzle != null && !codeAssembled)
-      LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     if (computer.isInfected()) LastHourTracking.started(LastHourPuzzle.VIRUS_NEUTRALIZATION);
   }
 
@@ -731,12 +731,11 @@ public class LastHourLevel extends DungeonLevel {
    * so they spread out.
    */
   public void r2SpawnPapers() {
-    createPaperPuzzle(true);
+    createPaperPuzzle();
   }
 
-  void createPaperPuzzle(boolean trackStart) {
+  void createPaperPuzzle() {
     if (puzzle != null) return;
-    if (trackStart) LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     puzzle =
         PuzzleMaker.makePuzzle(
             R2_PUZZLE_IMAGE_EN,

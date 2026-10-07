@@ -652,9 +652,6 @@ public final class Tracking {
 
   private static void startMultiplayerSession(TrackingConfig configured) {
     try {
-      // Environment configs are rebuilt with a new runId on every lookup; pin the first one so a
-      // session started after an empty server continues the same run.
-      if (explicitConfig == null) explicitConfig = configured;
       TrackingSession previous = session;
       session = new TrackingSession(configured);
       if (previous != null) session.continuePuzzleState(previous);
