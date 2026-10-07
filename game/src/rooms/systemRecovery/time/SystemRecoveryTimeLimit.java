@@ -48,12 +48,13 @@ public final class SystemRecoveryTimeLimit implements Component {
   }
 
   /**
-   * Returns whether the budget ran out before the final puzzle was completed.
+   * Returns whether the budget ran out before the final puzzle was completed. The level editor has
+   * no time limit.
    *
    * @return whether the deletion deadline has passed
    */
   public boolean expired() {
-    return remainingSeconds() == 0;
+    return finishedAt.isEmpty() && !SystemRecovery.levelEditorMode() && remainingSeconds() == 0;
   }
 
   /**
@@ -74,7 +75,8 @@ public final class SystemRecoveryTimeLimit implements Component {
   }
 
   /**
-   * Freezes the remaining budget once the final puzzle has been completed.
+   * Freezes the remaining budget once the final puzzle has been completed; a completed run never
+   * expires, even when a later save restores a play time beyond the hour.
    *
    * @return active play time at which the budget froze
    */

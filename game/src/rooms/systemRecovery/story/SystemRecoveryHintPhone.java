@@ -6,9 +6,12 @@ import feature.components.UIComponent;
 import feature.hints.Hint;
 import feature.hints.HintSystem;
 import feature.hud.dialogs.DialogFactory;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
+import java.util.stream.Collectors;
 import rooms.systemRecovery.modules.computer.SystemRecoveryDialogTypes;
 import rooms.systemRecovery.petrinet.SystemRecoveryHintCatalog;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
@@ -76,13 +79,17 @@ public final class SystemRecoveryHintPhone {
   public static boolean deliverAutomaticHint() {
     List<Entity> players = Game.allPlayers().toList();
     if (players.isEmpty()) return false;
+    // Only dialogs of connected players block; a disconnected player's dialog stays behind.
+    Set<Integer> playerIds = players.stream().map(Entity::id).collect(Collectors.toSet());
     boolean blockingDialog =
         Game.entities()
             .flatMap(entity -> entity.fetch(UIComponent.class).stream())
             .anyMatch(
                 ui ->
                     ui.willPauseGame()
-                        && ui.dialogContext().dialogType() != SystemRecoveryDialogTypes.COMPUTER);
+                        && ui.dialogContext().dialogType() != SystemRecoveryDialogTypes.COMPUTER
+                        && (ui.targetEntityIds().length == 0
+                            || Arrays.stream(ui.targetEntityIds()).anyMatch(playerIds::contains)));
     if (blockingDialog) return false;
 
     boolean[] delivered = {false};

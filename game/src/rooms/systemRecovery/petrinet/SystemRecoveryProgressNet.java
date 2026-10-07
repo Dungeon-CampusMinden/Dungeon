@@ -161,6 +161,10 @@ public final class SystemRecoveryProgressNet {
       lastAcceptedStepKey = expected.hintKey();
       SystemRecoveryAchievements.learningStepCompleted(expected);
       trackPuzzleStartIfChanged(expected, successor);
+      // The countdown stops at the accepting transition, not at the next timer tick.
+      if (successor == SystemRecoveryLearningStep.COMPLETE) {
+        SystemRecoveryLevel.currentLevel().ifPresent(SystemRecoveryLevel::finishTimeLimit);
+      }
       return true;
     }
 

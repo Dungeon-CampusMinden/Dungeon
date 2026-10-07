@@ -98,8 +98,8 @@ Save/Load speichert **nicht** jede Markierung. Gespeichert werden die konfigurie
 Checkpoints: Haupträtsel-Anfänge, erfolgreiche USB-Uploads und jeder Teilabschnitt im Systemkern.
 Beim Laden wird der gespeicherte Place als einzig aktiver Token wiederhergestellt; die
 bereits abgeschlossenen Räume werden ohne Rätsel-Callbacks in ihren fertigen Zustand gesetzt.
-Ein abgebrochener Teilschritt nach dem letzten Checkpoint wird erneut gespielt, die inzwischen
-verbrauchte Zeit aber nicht zurückgegeben. Details stehen in
+Ein abgebrochener Teilschritt nach dem letzten Checkpoint wird erneut gespielt; der Countdown
+setzt mit der Spielzeit dieses Checkpoints fort. Details stehen in
 [Save/Load](system_recovery_save_load.md).
 
 ## Wichtige Dateien

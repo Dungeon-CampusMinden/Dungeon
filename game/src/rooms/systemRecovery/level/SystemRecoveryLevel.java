@@ -266,8 +266,12 @@ public class SystemRecoveryLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     // Stop autosave, intros and story dialogs once time is up, even before the failure outro
-    // starts. The successful ending keeps ticking so the last state is still saved.
-    if (timeLimit.expired()) return;
+    // starts; players joining afterwards only get the failure outro. The successful ending keeps
+    // ticking so the last state is still saved.
+    if (timeLimit.expired()) {
+      if (endingTriggered) SystemRecoveryTimeoutEnding.showToNewPlayers();
+      return;
+    }
     if (!SystemRecovery.levelEditorMode()) {
       enforcePlayerInventorySize();
       applyPendingPuzzleInventory();
@@ -730,6 +734,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void setupTimer() {
     Game.add(
         SystemRecoveryTimerFactory.create(point(SystemRecoveryPointRegistry.TIMER), timeLimit));
+  }
+
+  /** Freezes the countdown once the final puzzle has been completed. */
+  public void finishTimeLimit() {
+    timeLimit.finish();
   }
 
   /** Starts the failure ending once the timer system reports an exhausted budget. */
