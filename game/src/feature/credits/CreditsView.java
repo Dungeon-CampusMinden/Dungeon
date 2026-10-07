@@ -1,11 +1,13 @@
 package feature.credits;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.language.Language;
@@ -45,9 +47,9 @@ public final class CreditsView {
 
     TextButton backButton = new TextButton(backLabel, skin, "green");
     backButton.addListener(
-        new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
+        new ChangeListener() {
           @Override
-          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+          public void changed(ChangeEvent event, Actor actor) {
             onBack.run();
           }
         });
@@ -72,7 +74,7 @@ public final class CreditsView {
     Label title = label(definition.title().text(language), 30, true);
     title.setWrap(true);
     title.setAlignment(Align.center);
-    content.add(title).width(CONTENT_WIDTH - 40).padBottom(18).center().row();
+    content.add(title).growX().padBottom(18).row();
 
     for (CreditsDefinition.Section section : definition.sections()) {
       Label headline = label(section.headline().text(language), 23, true);

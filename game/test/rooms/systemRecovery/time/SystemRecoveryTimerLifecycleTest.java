@@ -25,6 +25,7 @@ import engine.utils.IVoidFunction;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import escaperoom.foundation.ui.BlackFadeCutscene;
+import feature.credits.CreditsFeature;
 import feature.hints.HintSystem;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
@@ -213,8 +214,22 @@ class SystemRecoveryTimerLifecycleTest {
                 any(),
                 eq(new int[] {player.id()})),
         times(1));
-    try (MockedStatic<Game> game = mockStatic(Game.class)) {
+    AtomicReference<Runnable> finishCredits = new AtomicReference<>();
+    try (MockedStatic<CreditsFeature> credits = mockStatic(CreditsFeature.class);
+        MockedStatic<Game> game = mockStatic(Game.class)) {
+      credits
+          .when(
+              () ->
+                  CreditsFeature.showAfterGame(
+                      eq(SystemRecovery.CREDITS_ROOM_ID), any(), eq(new int[] {player.id()})))
+          .thenAnswer(
+              invocation -> {
+                finishCredits.set(invocation.getArgument(1));
+                return null;
+              });
       finishCutscene.get().run();
+      game.verify(() -> Game.exit(anyString()), never());
+      finishCredits.get().run();
       game.verify(() -> Game.exit("System Recovery time limit expired"));
       game.verify(Game::complete, never());
     }

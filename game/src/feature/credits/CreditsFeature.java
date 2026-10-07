@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
+import engine.language.Localization;
 import engine.utils.BaseContainerUI;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -14,6 +15,7 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.HandledDialog;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.Objects;
 
@@ -39,13 +41,12 @@ public final class CreditsFeature {
    * @param roomId room identifier used in {@code credits/<roomId>.json}
    * @param onComplete action to run after credits close, or immediately when the file is absent
    * @param targetEntityIds optional player IDs that should see the credits
-   * @return true if a credits file was found and a dialog was queued
    */
-  public static boolean showAfterGame(String roomId, Runnable onComplete, int... targetEntityIds) {
+  public static void showAfterGame(String roomId, Runnable onComplete, int... targetEntityIds) {
     Objects.requireNonNull(onComplete, "onComplete");
     if (CreditsRepository.load(roomId).isEmpty()) {
       onComplete.run();
-      return false;
+      return;
     }
 
     DialogContext context =
@@ -57,7 +58,6 @@ public final class CreditsFeature {
           UIUtils.closeDialog(ui, true);
           onComplete.run();
         });
-    return true;
   }
 
   private static Group buildDialog(DialogContext context) {
@@ -70,7 +70,7 @@ public final class CreditsFeature {
                     new IllegalStateException("Credits definition disappeared for room " + roomId));
     Skin skin = UIUtils.defaultSkin();
     Dialog dialog =
-        new feature.hud.dialogs.HandledDialog(
+        new HandledDialog(
             "",
             skin,
             (ignored, button) -> {
@@ -90,8 +90,7 @@ public final class CreditsFeature {
         .padBottom(12)
         .row();
     dialog.button(
-        new TextButton(
-            engine.language.Localization.getInstance().text("main_menu.confirm"), skin, "green"),
+        new TextButton(Localization.getInstance().text("main_menu.confirm"), skin, "green"),
         CLOSE_BUTTON);
     dialog.pack();
     return new BaseContainerUI(dialog);

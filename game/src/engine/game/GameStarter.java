@@ -3,6 +3,7 @@ package engine.game;
 import com.badlogic.gdx.graphics.Color;
 import engine.language.Language;
 import engine.language.Localization;
+import feature.credits.CreditsDefinition;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -420,10 +421,7 @@ public final class GameStarter {
      * @return this builder
      */
     public Builder creditsRoomId(String roomId) {
-      if (roomId == null || !roomId.matches("[A-Za-z0-9_-]+")) {
-        throw new IllegalArgumentException(
-            "credits room ID must contain only letters, digits, '_' or '-'");
-      }
+      CreditsDefinition.validateRoomId(roomId);
       this.creditsRoomId = roomId;
       return this;
     }

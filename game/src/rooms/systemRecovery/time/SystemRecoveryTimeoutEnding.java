@@ -6,10 +6,12 @@ import engine.components.InputComponent;
 import engine.time.PlayClock;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.UIComponent;
+import feature.credits.CreditsFeature;
 import feature.hud.UIUtils;
 import feature.interaction.InteractionComponent;
 import java.util.HashSet;
 import java.util.Set;
+import rooms.systemRecovery.SystemRecovery;
 import rooms.systemRecovery.util.SystemRecoveryText;
 
 /** Failure ending once the countdown has deleted the system core. */
@@ -49,7 +51,11 @@ public final class SystemRecoveryTimeoutEnding {
         true,
         false,
         false,
-        () -> Game.exit("System Recovery time limit expired"),
+        () ->
+            CreditsFeature.showAfterGame(
+                SystemRecovery.CREDITS_ROOM_ID,
+                () -> Game.exit("System Recovery time limit expired"),
+                newPlayers),
         newPlayers);
   }
 }
