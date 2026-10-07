@@ -80,7 +80,7 @@ class SoulweaverHeartfireTest {
       SoulweaverTablePrefab.register();
       DungeonLevel level =
           LevelParser.parseLevel(
-              Gdx.files.internal("levels/soulweaver/soulweaver.level").readString(),
+              Gdx.files.internal("levels/soulweaver/soulweaver_1.level").readString(),
               "heartfire-test");
       game.when(Game::currentLevel).thenReturn(Optional.of(level));
       game.when(() -> Game.findEntityById(org.mockito.Mockito.anyInt()))
