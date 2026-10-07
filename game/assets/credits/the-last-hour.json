@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "roomId": "the-last-hour",
+  "title": {
+    "de": "The Last Hour",
+    "en": "The Last Hour"
+  },
+  "sections": [
+    {
+      "id": "development",
+      "headline": {
+        "de": "Entwicklung",
+        "en": "Development"
+      },
+      "entries": [
+        {
+          "name": "Andre Matutat",
+          "role": {
+            "de": "Entwickler",
+            "en": "Developer"
+          }
+        },
+        {
+          "name": "Benjamin Franke",
+          "role": {
+            "de": "Entwickler",
+            "en": "Developer"
+          }
+        },
+        {
+          "name": "Hannes Rüffer",
+          "role": {
+            "de": "Entwickler",
+            "en": "Developer"
+          }
+        },
+        {
+          "name": "Niklas Schumann",
+          "role": {
+            "de": "Entwickler",
+            "en": "Developer"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai-notice",
+      "headline": {
+        "de": "KI-Hinweis",
+        "en": "AI Notice"
+      },
+      "entries": [
+        {
+          "description": {
+            "de": "Teile der Texturen und Sounds wurden mithilfe von KI generiert oder verändert.",
+            "en": "Some textures and sounds were generated or modified with the help of AI."
+          }
+        }
+      ]
+    },
+    {
+      "id": "funding",
+      "headline": {
+        "de": "Förderung",
+        "en": "Funding"
+      },
+      "entries": [
+        {
+          "name": "Stiftung Innovation in der Hochschullehre",
+          "role": {
+            "de": "Freiraum 2025",
+            "en": "Freiraum 2025"
+          },
+          "description": {
+            "de": "Lehr-Escape-Rooms mit LowCode im Dungeon (L<ESC>ROD), Förderkennzeichen 3003-1271, Laufzeit 04/2025-03/2027.",
+            "en": "Teaching Escape Rooms with LowCode in the Dungeon (L<ESC>ROD), grant number 3003-1271, project period 04/2025-03/2027."
+          }
+        }
+      ]
+    },
+    {
+      "id": "thanks",
+      "headline": {
+        "de": "Danke",
+        "en": "Thanks"
+      },
+      "entries": [
+        {
+          "description": {
+            "de": "Danke fürs Spielen!",
+            "en": "Thanks for playing!"
+          }
+        }
+      ]
+    }
+  ]
+}

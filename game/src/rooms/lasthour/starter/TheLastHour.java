@@ -25,6 +25,7 @@ import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
+import feature.credits.CreditsFeature;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
@@ -72,6 +73,9 @@ import rooms.lasthour.util.translation.LastHourTranslator;
  * <p>Usage: run with the Gradle task {@code runTheLastHour}.
  */
 public class TheLastHour {
+
+  /** Room ID used by the optional credits JSON file. */
+  public static final String CREDITS_ROOM_ID = "the-last-hour";
 
   private static final String SERVER_STOP_REASON = "Server stopped from status window";
   private static final String LOAD_SAVE_ARGUMENT = "--load-save";
@@ -140,6 +144,7 @@ public class TheLastHour {
                 () -> {
                   LastHourAchievements.register();
                   BlackFadeCutscene.register();
+                  CreditsFeature.register();
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })
@@ -169,6 +174,7 @@ public class TheLastHour {
             .beforeLevelEditorStart(() -> levelEditorMode = true)
             .serverArguments(ServerProcess.SERVER_ARGUMENT, NEW_GAME_ARGUMENT)
             .continueGame(LastHourSave::exists, ServerProcess.SERVER_ARGUMENT, LOAD_SAVE_ARGUMENT)
+            .creditsRoomId(CREDITS_ROOM_ID)
             .startupConsent(TRACKING_CONSENT::startupPrompt)
             .trackingSettings(TRACKING_CONSENT::settings)
             .build();

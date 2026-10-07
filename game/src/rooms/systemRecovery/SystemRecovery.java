@@ -23,6 +23,7 @@ import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
+import feature.credits.CreditsFeature;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
@@ -62,6 +63,9 @@ public final class SystemRecovery {
 
   /** Minutes without accepted puzzle progress before the next automatic hint or reminder. */
   public static final int HINT_DELAY_MINUTES = 4;
+
+  /** Room ID used by the optional credits JSON file. */
+  public static final String CREDITS_ROOM_ID = "system-recovery";
 
   private static final String LEVEL_KEY = "systemrecovery";
   private static final Color MENU_ACCENT_COLOR = new Color(0.43f, 0.78f, 0.72f, 1f);
@@ -146,6 +150,7 @@ public final class SystemRecovery {
             .hostActionLabel(() -> SystemRecoveryText.text("menu.start"))
             .serverArguments(hostedServerArguments())
             .continueGame(SystemRecoverySave::exists, hostedServerArguments(true))
+            .creditsRoomId(CREDITS_ROOM_ID)
             .startupConsent(TRACKING_CONSENT::startupPrompt)
             .trackingSettings(TRACKING_CONSENT::settings)
             .build();
@@ -308,6 +313,7 @@ public final class SystemRecovery {
     initLocalization();
     SystemRecoveryAchievements.register();
     BlackFadeCutscene.register();
+    CreditsFeature.register();
     BatteryItem.ensureRegistration();
     SearchProgramChipItem.ensureRegistration();
     SortProgramStickItem.ensureRegistration();
