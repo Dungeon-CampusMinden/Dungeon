@@ -16,7 +16,7 @@ ext {
     beryxRuntimeVersion = '2.0.1'
     jacksonVersion = '3.2.3'
     postgresVersion = '42.7.13'
-    jsonSchemaValidatorVersion = '3.0.7'
+    jsonSchemaValidatorVersion = '3.0.8'
     jsonCanonicalizationVersion = '1.1'
 
 
