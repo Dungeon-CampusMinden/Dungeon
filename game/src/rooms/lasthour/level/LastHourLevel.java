@@ -16,7 +16,7 @@ import engine.level.utils.LevelElement;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
-import engine.tracking.Tracking;
+import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Tuple;
@@ -346,7 +346,7 @@ public class LastHourLevel extends DungeonLevel {
                             if (!LastHourProgressNet.completedMilestones()
                                 .contains(LastHourMilestone.EXIT_OPENED)) return;
                             escaped = true;
-                            Tracking.completed();
+                            Game.playClock().end(PlayClock.Outcome.SUCCESS);
                             LastHourProgressNet.complete(LastHourMilestone.ESCAPED);
                             LastHourQuestLogUtil.addEscapeQuestLogEntries();
                             LastHourAchievements.trigger(

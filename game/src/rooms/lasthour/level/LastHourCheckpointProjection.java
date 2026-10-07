@@ -5,7 +5,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PlayerComponent;
 import engine.network.messages.s2c.ItemState;
-import engine.tracking.Tracking;
+import engine.time.PlayClock;
 import feature.components.InventoryComponent;
 import feature.components.ItemComponent;
 import feature.entities.WorldItemBuilder;
@@ -93,7 +93,7 @@ final class LastHourCheckpointProjection {
         data.milestones().contains(LastHourMilestone.BLUE_USB_INSERTED)
             || containsPlayerItem(data.players(), "BlueUsbStick", "", "");
     level.lastSaved = data;
-    if (level.escaped) Tracking.completed();
+    if (level.escaped) Game.playClock().end(PlayClock.Outcome.SUCCESS);
   }
 
   private static void restoreComputerPresentation(

@@ -3,7 +3,7 @@ package rooms.soulweaver.level;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.tracking.Tracking;
+import engine.time.PlayClock;
 import engine.utils.Tuple;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.LeverComponent;
@@ -63,7 +63,7 @@ final class SoulweaverEnding {
     SoulweaverSave.delete();
     started = true;
     SoulweaverProgress.interaction("heartfire", "offering", who);
-    Tracking.completed();
+    Game.playClock().end(PlayClock.Outcome.SUCCESS);
     Game.levelEntities()
         .filter(entity -> entity.name().startsWith("soulweaver-decisions-heart-offering-"))
         .toList()

@@ -236,7 +236,7 @@ public final class MultiplayerSession {
         authority.enterExit(slotId);
       }
     }
-    stopClockAtOutcome();
+    endClockAtOutcome();
   }
 
   /**
@@ -249,7 +249,7 @@ public final class MultiplayerSession {
     OperationResult result =
         authority.advance(Duration.ofMillis(Math.max(0, activeMs - lastActiveMs)));
     lastActiveMs = activeMs;
-    stopClockAtOutcome();
+    endClockAtOutcome();
     return result;
   }
 
@@ -258,13 +258,21 @@ public final class MultiplayerSession {
     if (authority.projection().timer().started()) {
       playClock.ready();
     }
-    stopClockAtOutcome();
+    endClockAtOutcome();
   }
 
-  private void stopClockAtOutcome() {
-    if (authority.projection().terminal().isPresent()) {
-      playClock.stop();
-    }
+  private void endClockAtOutcome() {
+    authority
+        .projection()
+        .terminal()
+        .ifPresent(
+            result -> {
+              switch (result) {
+                case SUCCESS -> playClock.end(PlayClock.Outcome.SUCCESS);
+                case HARD_TIMEOUT -> playClock.end(PlayClock.Outcome.FAILURE);
+                case ABORTED -> {}
+              }
+            });
   }
 
   /**

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS tracking_sessions (
     resumed_at_active_ms BIGINT NOT NULL CHECK (resumed_at_active_ms >= 0),
     status TEXT NOT NULL DEFAULT 'RUNNING'
         CONSTRAINT tracking_sessions_status_check
-        CHECK (status IN ('RUNNING', 'COMPLETED', 'INTERRUPTED')),
+        CHECK (status IN ('RUNNING', 'COMPLETED', 'FAILED', 'INTERRUPTED')),
     ended_at TIMESTAMPTZ,
     finish_active_ms BIGINT CHECK (finish_active_ms >= resumed_at_active_ms),
     final_sequence BIGINT CHECK (final_sequence >= 0),
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS tracking_sessions (
     CONSTRAINT tracking_sessions_lifecycle_check
     CHECK ((status = 'RUNNING' AND ended_at IS NULL AND finish_active_ms IS NULL
         AND final_sequence IS NULL AND interrupted_at_puzzle_id IS NULL)
-        OR (status IN ('COMPLETED', 'INTERRUPTED') AND ended_at IS NOT NULL
+        OR (status IN ('COMPLETED', 'FAILED', 'INTERRUPTED') AND ended_at IS NOT NULL
             AND finish_active_ms IS NOT NULL AND final_sequence IS NOT NULL)),
     CONSTRAINT tracking_sessions_end_time_check
     CHECK (ended_at IS NULL OR ended_at >= started_at),

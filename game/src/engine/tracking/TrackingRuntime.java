@@ -126,11 +126,6 @@ public final class TrackingRuntime {
     Tracking.finishSession();
   }
 
-  /** Records the final room outcome while leaving the session open for post-outcome activity. */
-  public static void completed() {
-    Tracking.completed();
-  }
-
   /**
    * Returns whether a configured remote still lacks events or finish acknowledgement.
    *

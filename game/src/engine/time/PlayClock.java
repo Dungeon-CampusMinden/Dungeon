@@ -26,13 +26,22 @@ public final class PlayClock {
     PLAYERS_MISSING
   }
 
+  /** Final room result that ends the clock. */
+  public enum Outcome {
+    /** The room was solved. */
+    SUCCESS,
+    /** The room was lost for good, for example by a hard time limit. */
+    FAILURE
+  }
+
   /**
    * One clock transition.
    *
    * @param event transition kind
    * @param reason pause reason for {@link Event#PAUSED}
+   * @param outcome room result for {@link Event#ENDED}
    */
-  public record Transition(Event event, Optional<PauseReason> reason) {}
+  public record Transition(Event event, Optional<PauseReason> reason, Optional<Outcome> outcome) {}
 
   private final LongSupplier monotonicMs;
   private final Map<Short, Integer> participants = new HashMap<>();
@@ -177,8 +186,13 @@ public final class PlayClock {
     runningSinceMs = monotonicMs.getAsLong();
   }
 
-  /** Freezes permanently at the final room outcome or session shutdown. */
-  public void stop() {
+  /**
+   * Ends play for good at the final room result; later calls are ignored.
+   *
+   * @param outcome room result reported with {@link Event#ENDED}
+   */
+  public void end(Outcome outcome) {
+    Objects.requireNonNull(outcome, "outcome");
     mutate(
         () -> {
           if (stopped) return Optional.empty();
@@ -186,7 +200,7 @@ public final class PlayClock {
           running = false;
           stopped = true;
           pauseReason = Optional.empty();
-          return transition(Event.ENDED);
+          return Optional.of(new Transition(Event.ENDED, Optional.empty(), Optional.of(outcome)));
         });
   }
 
@@ -253,7 +267,7 @@ public final class PlayClock {
   }
 
   private Optional<Transition> transition(Event event) {
-    return Optional.of(new Transition(event, pauseReason));
+    return Optional.of(new Transition(event, pauseReason, Optional.empty()));
   }
 
   private void mutate(Supplier<Optional<Transition>> mutation) {

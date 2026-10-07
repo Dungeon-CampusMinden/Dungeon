@@ -9,7 +9,7 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.tracking.Tracking;
+import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
@@ -1152,7 +1152,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   if (!systemCoreRiddleCompleted || endingTriggered) return;
                   if (other.fetch(InputComponent.class).isEmpty()) return;
                   endingTriggered = true;
-                  Tracking.completed();
+                  Game.playClock().end(PlayClock.Outcome.SUCCESS);
                   BlackFadeCutscene.show(
                       SystemRecoveryText.endingPages(),
                       true,

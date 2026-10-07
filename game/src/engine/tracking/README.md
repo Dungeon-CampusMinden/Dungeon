@@ -24,14 +24,15 @@ Tracking-Sitzungen nach einem Savegame-Laden derselben Partie zuordnen.
 setzt mit `configure(...)` seine Mindestspielerzahl, stellt beim Laden mit `restore(...)` den
 gespeicherten Wert wieder her und meldet mit `ready()` das Ende des Intros. Die Uhr läuft, solange
 genug spielbereite Teilnehmer da sind und nicht alle das Pausenmenü offen haben
-(`DialogContextKeys.PAUSES_PLAY_CLOCK`). Aufgaben- und Hinweisdialoge halten sie nicht an.
-`Tracking.completed()` stoppt sie beim Raumergebnis.
+(`DialogContextKeys.PAUSES_PLAY_CLOCK`). Aufgaben- und Hinweisdialoge halten sie nicht an. Beim
+endgültigen Raumergebnis beendet der Raum sie mit `end(Outcome.SUCCESS)` oder
+`end(Outcome.FAILURE)`; `Game.complete()` meldet `SUCCESS`, falls der Raum es nicht schon getan hat.
 
 Jedes Ereignis enthält `activeMs` und `occurredAt` in UTC, der Deskriptor `resumedAtActiveMs`. Die
 Uhr schreibt `PLAY_STARTED`, `PLAY_PAUSED` (`PAUSE_DIALOG` oder `PLAYERS_MISSING`),
-`PLAY_RESUMED` und `PLAY_ENDED`. Nach dem Ergebnis bleibt die Sitzung offen; `Game.exit` oder
-`Game.complete` schreibt den Abschluss `COMPLETED` oder `INTERRUPTED` mit dem zuletzt berührten
-offenen Rätsel. Verlassen alle Teilnehmer den Server, endet die Sitzung als `INTERRUPTED`; ein
+`PLAY_RESUMED` und `PLAY_ENDED` mit `outcome`. Nach dem Ergebnis bleibt die Sitzung offen;
+`Game.exit` oder `Game.complete` schreibt den Abschluss `COMPLETED` (gelöst), `FAILED` (endgültig
+gescheitert) oder ohne Ergebnis `INTERRUPTED` mit dem zuletzt berührten offenen Rätsel. Verlassen alle Teilnehmer den Server, endet die Sitzung als `INTERRUPTED`; ein
 erneuter Beitritt startet eine neue Sitzung desselben Runs.
 
 `configureRoom` trennt die Deployment-Einstellungen vom Raumcode. Das Deployment kann Folgendes

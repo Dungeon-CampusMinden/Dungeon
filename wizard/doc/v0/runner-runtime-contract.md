@@ -192,7 +192,8 @@ Der headless Host ist kein Spieler.
 Raumtimer und Tracking verwenden dieselbe serverautoritative Spieluhr. Sie
 läuft ab der initialen Intro-Freigabe und pausiert, solange weniger als `min`
 Teilnehmer spielbereit sind oder alle das Pausenmenü geöffnet haben.
-Hard-Timeout und erfolgreicher Ausgang stoppen sie vor den Ergebnis-Seiten.
+Hard-Timeout und erfolgreicher Ausgang stoppen sie vor den Ergebnis-Seiten; das
+Tracking schließt den Lauf dann als `FAILED` beziehungsweise `COMPLETED` ab.
 
 Beim terminalen Ergebnis zeigt jeder technisch spielbereite Client die
 authorierten `successText`- beziehungsweise `failureText`-Seiten in

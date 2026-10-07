@@ -6,7 +6,6 @@ import escaperoom.foundation.runtime.CodeAttemptResult;
 import escaperoom.foundation.runtime.CodeOutcome;
 import escaperoom.foundation.runtime.Projection;
 import escaperoom.foundation.runtime.ReleasedHint;
-import escaperoom.foundation.runtime.TerminalResult;
 
 /** Small server-authoritative tracking adapter for every Foundation room. */
 final class FoundationTracking {
@@ -22,10 +21,6 @@ final class FoundationTracking {
                 Tracking.puzzleSolved(riddle.id());
               }
             });
-    projection
-        .terminal()
-        .filter(outcome -> outcome != TerminalResult.ABORTED)
-        .ifPresent(outcome -> Tracking.completed());
   }
 
   synchronized void attempt(

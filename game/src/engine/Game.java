@@ -924,11 +924,12 @@ public final class Game {
   }
 
   /**
-   * Completes tracking, then warns about pending remote events, shuts down the network with the
-   * reason {@code Game completed}, and exits the GDX application.
+   * Ends play as solved unless the room already reported its result, then finishes tracking, warns
+   * about pending remote events, shuts down the network with the reason {@code Game completed}, and
+   * exits the GDX application.
    */
   public static void complete() {
-    TrackingRuntime.completed();
+    if (!isMultiplayerClient()) PLAY_CLOCK.end(PlayClock.Outcome.SUCCESS);
     shutdown("Game completed");
   }
 

@@ -91,11 +91,13 @@ eine verpflichtende `runId`, die Speichern und Laden überdauert; jede Sitzung n
 ihren Startwert `resumedAtActiveMs`. Lädt jemand einen älteren Spielstand, liegt dieser Startwert
 unter dem letzten Wert der vorigen Sitzung.
 
-`PLAY_PAUSED` trägt `reason` mit `PAUSE_DIALOG` oder `PLAYERS_MISSING`. `SURVEY_ANSWERED` trägt eine
+`PLAY_PAUSED` trägt `reason` mit `PAUSE_DIALOG` oder `PLAYERS_MISSING`, `PLAY_ENDED` trägt `outcome`
+mit `SUCCESS` oder `FAILURE`. `SURVEY_ANSWERED` trägt eine
 `participantId` und den Payload `questionnaireId`, `questionId` und `answer`; es ist möglich,
 solange die Sitzung offen ist, auch nach dem Raumergebnis. Der Finish-Datensatz enthält den
-letzten `activeMs`-Wert und den Status `COMPLETED` (Raumergebnis erreicht) oder `INTERRUPTED`,
-optional mit `interruptedAtPuzzleId`. Ein Absturz hinterlässt keinen Finish-Datensatz.
+letzten `activeMs`-Wert und den Status `COMPLETED` (gelöst), `FAILED` (endgültig gescheitert, etwa
+durch ein hartes Zeitlimit) oder `INTERRUPTED` (ohne Ergebnis beendet), optional mit
+`interruptedAtPuzzleId`. Ein Absturz hinterlässt keinen Finish-Datensatz.
 
 ## Lokal ausführen
 
@@ -161,7 +163,7 @@ Alle Anfrage- und Antwort-Bodys verwenden `application/json`.
 - `GET /tracking/sessions/{sessionId}/ack` gibt die höchste gespeicherte Sequenz zurück. Eine Sitzung
   ohne Ereignisse gibt 0 zurück.
 - `POST /tracking/sessions/{sessionId}/finish` akzeptiert `TrackingSessionFinish`. Der Status ist
-  `COMPLETED` oder `INTERRUPTED`. `finalSequence` ist das letzte Ereignis, das dem Backend bereits
+  `COMPLETED`, `FAILED` oder `INTERRUPTED`. `finalSequence` ist das letzte Ereignis, das dem Backend bereits
   vorliegen muss. Null bedeutet, dass die Sitzung keine Ereignisse hat. Der Abschluss gelingt nur,
   wenn die Datenbank jede Sequenz von 1 bis zu diesem Wert enthält. Eine unterbrochene Sitzung kann
   ihr zuletzt aktives Rätsel als `interruptedAtPuzzleId` nennen. Das Wiederholen eines identischen
@@ -175,7 +177,7 @@ Sitzungszeile. Ein laufender Batch wird daher entweder vor der Vollständigkeits
 oder wartet, bis der Endzustand sichtbar ist.
 
 Eine laufende Datenbankzeile hat `status = RUNNING` und `ended_at = NULL`. Nach einer erfolgreichen
-Abschlussanfrage wechselt der Status einmalig zu `COMPLETED` oder `INTERRUPTED`. Nur diese beiden
+Abschlussanfrage wechselt der Status einmalig zu `COMPLETED`, `FAILED` oder `INTERRUPTED`. Nur diese
 terminalen Werte sind in einem `TrackingSessionFinish` zulässig.
 
 So sieht ein minimaler erster Batch ohne Ereignisse aus:
