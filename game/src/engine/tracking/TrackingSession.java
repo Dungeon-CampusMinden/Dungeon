@@ -1,5 +1,7 @@
 package engine.tracking;
 
+import engine.Game;
+import engine.time.PlayClock;
 import engine.utils.logging.DungeonLogger;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -13,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 import tracking.core.TrackingBatch;
@@ -35,7 +36,7 @@ final class TrackingSession {
 
   private final TrackingConfig config;
   private final TrackingSessionDescriptor descriptor;
-  private final long startedNanos = System.nanoTime();
+  private final PlayClock playClock;
   private final TrackingOutbox outbox;
   private final TrackingUploader uploader;
   private final Map<Short, ParticipantState> participantsByClient = new LinkedHashMap<>();
@@ -50,11 +51,21 @@ final class TrackingSession {
   private boolean finished;
 
   TrackingSession(TrackingConfig config) {
+    this(config, Game.playClock());
+  }
+
+  TrackingSession(TrackingConfig config, PlayClock playClock) {
     this.config = config;
+    this.playClock = playClock;
     UUID sessionId = UUID.randomUUID();
     this.descriptor =
         new TrackingSessionDescriptor(
-            SCHEMA_VERSION, sessionId, config.roomId(), Instant.now(), config.runId());
+            SCHEMA_VERSION,
+            sessionId,
+            config.roomId(),
+            Instant.now(),
+            config.runId(),
+            playClock.activeMs());
     this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
         TrackingConfig.TRACKING_ENABLED ? new TrackingUploader(config, descriptor) : null;
@@ -75,6 +86,18 @@ final class TrackingSession {
 
   boolean finished() {
     return finished;
+  }
+
+  /**
+   * Retains puzzle facts when an empty, still-running room starts another tracking session.
+   *
+   * @param previous finished session of the same run
+   */
+  void continuePuzzleState(TrackingSession previous) {
+    startedPuzzles.addAll(previous.startedPuzzles);
+    solvedPuzzles.addAll(previous.solvedPuzzles);
+    activePuzzles.addAll(previous.activePuzzles);
+    attemptsByPuzzle.putAll(previous.attemptsByPuzzle);
   }
 
   Optional<String> currentPuzzleId() {
@@ -150,6 +173,16 @@ final class TrackingSession {
         action,
         status,
         Optional.of(requireText(reason, "reason")),
+        participantId);
+  }
+
+  TrackingEvent interaction(String puzzleId, String objectId, String action, UUID participantId) {
+    return interaction(
+        Optional.of(requireText(puzzleId, "puzzleId")),
+        objectId,
+        action,
+        TrackingInteractionStatus.COMPLETED,
+        Optional.empty(),
         participantId);
   }
 
@@ -261,7 +294,7 @@ final class TrackingSession {
             puzzleId,
             objectId,
             outcome,
-            elapsedMs(),
+            playClock.activeMs(),
             occurredAt,
             payload);
     outbox.append(event);
@@ -379,7 +412,7 @@ final class TrackingSession {
                     && participant.leftAt().isEmpty());
   }
 
-  void finish(TrackingSessionStatus status, Optional<String> abortedAtPuzzleId) {
+  void finish(TrackingSessionStatus status, Optional<String> interruptedAtPuzzleId) {
     if (finished) {
       return;
     }
@@ -390,8 +423,8 @@ final class TrackingSession {
             sequence,
             status,
             Instant.now(),
-            elapsedMs(),
-            abortedAtPuzzleId);
+            playClock.activeMs(),
+            interruptedAtPuzzleId);
     TrackingPersistenceException persistenceFailure = null;
     try {
       outbox.append(finish);
@@ -427,10 +460,6 @@ final class TrackingSession {
 
   private List<TrackingParticipant> participants() {
     return participantsByClient.values().stream().map(state -> state.participant).toList();
-  }
-
-  private long elapsedMs() {
-    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
   }
 
   private void touchActivePuzzle(String puzzleId) {

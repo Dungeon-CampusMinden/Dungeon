@@ -172,7 +172,8 @@ ein Skin erneut vergeben. Ein Reconnect verwendet denselben `ClientState` und
 dieselbe `CharacterClass`. Auch während einer vorübergehenden Trennung bleibt
 der Skin einer reconnect-fähigen reservierten Identität zugeordnet.
 
-`session.playerCount.min` ist ausschließlich die technische Startschwelle.
+`session.playerCount.min` ist die technische Startschwelle und die Mindestzahl
+spielbereiter Teilnehmer für die gemeinsame Spieluhr.
 Sobald mindestens so viele angenommene Clients ihre normale initiale Welt
 bestätigt haben, sehen alle aktuell technisch spielbereiten Clients zuerst die
 Seiten aus `scenario.introText` in Array-Reihenfolge und danach
@@ -185,8 +186,14 @@ Lobbyzustand und keine benutzergesteuerte Startfreigabe.
 
 Verbindung, Spielererzeugung, Snapshot-Synchronisation und Best-Effort-Reconnect
 verwenden die normalen Dungeon-Verträge. Foundation führt keine zweite
-Mitgliedschaft, Slotreservierung, Disconnect-Pause oder eigene
-Reconnect-Zustandsmaschine ein. Der headless Host ist kein Spieler.
+Mitgliedschaft, Slotreservierung oder eigene Reconnect-Zustandsmaschine ein.
+Der headless Host ist kein Spieler.
+
+Raumtimer und Tracking verwenden dieselbe serverautoritative Spieluhr. Sie
+läuft ab der initialen Intro-Freigabe und pausiert, solange weniger als `min`
+Teilnehmer spielbereit sind oder alle das Pausenmenü geöffnet haben.
+Hard-Timeout und erfolgreicher Ausgang stoppen sie vor den Ergebnis-Seiten; das
+Tracking schließt den Lauf dann als `FAILED` beziehungsweise `COMPLETED` ab.
 
 Beim terminalen Ergebnis zeigt jeder technisch spielbereite Client die
 authorierten `successText`- beziehungsweise `failureText`-Seiten in
@@ -227,6 +234,8 @@ angenommen. Vorzeitige oder wiederholte Aktionen erzeugen keinen
 Teilfortschritt. Sind alle Inputs eines Rätsels erfüllt, wechselt es atomar und
 genau einmal zu `SOLVED`; dieser implizite Abschluss aktiviert gegebenenfalls
 Graphnachfolger.
+
+Tracking zeichnet `PUZZLE_STARTED` beim Wechsel zu `ACTIVE` auf.
 
 Informationsquellen mit Informationen oder Aufgabeninhalten bleiben unabhängig
 davon lesbar und dürfen deshalb schon vor der Rätselaktivierung erreichbar

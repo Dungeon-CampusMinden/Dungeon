@@ -60,8 +60,8 @@ Eigene Bilder liegen innerhalb der Spieler-JAR inhaltsadressiert unter
 über ihren internen Pfad referenziert.
 
 Mit Java 25 öffnet `java -jar WizardRoom.jar` das Host-/Join-Menü. Der
-Foundation-Vertrag ist DEER `0.5` mit mandatory AND-DAG. Der
-Multiplayer-Vertrag und `PROTOCOL_VERSION` bleiben unverändert.
+Foundation-Vertrag ist DEER `0.5` mit mandatory AND-DAG. Raumtimer und Tracking
+verwenden die gemeinsame Spieluhr (siehe Runner-Runtime-Contract).
 
 `wizard/start_wizard_dev.cmd` unter Windows und `wizard/start_wizard_dev.sh`
 unter Linux sind Entwicklungslauncher. Aktuell benötigen Wizard und

@@ -51,6 +51,7 @@ public record TrackingBatch(
       final Set<UUID> participantIds,
       final List<TrackingEvent> events) {
     long previous = -1;
+    long previousActiveMs = session.resumedAtActiveMs();
     for (TrackingEvent event : events) {
       if (!event.sessionId().equals(session.sessionId())
           || !event.roomId().equals(session.roomId())
@@ -63,6 +64,10 @@ public record TrackingBatch(
       if (previous != -1 && event.sessionSequence() != previous + 1) {
         throw new IllegalArgumentException("events must be a contiguous ascending sequence");
       }
+      if (event.activeMs() < previousActiveMs) {
+        throw new IllegalArgumentException("event active time must not regress within a session");
+      }
+      previousActiveMs = event.activeMs();
       previous = event.sessionSequence();
     }
   }

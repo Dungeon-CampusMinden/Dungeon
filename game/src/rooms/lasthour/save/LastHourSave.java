@@ -1,5 +1,6 @@
 package rooms.lasthour.save;
 
+import engine.Game;
 import engine.game.PreRunConfiguration;
 import engine.game.ServerProcess;
 import engine.network.messages.s2c.ItemState;
@@ -34,7 +35,7 @@ import rooms.lasthour.util.LastHourQuestLogUtil;
 /** Versioned, atomically written server save for The Last Hour. */
 public final class LastHourSave {
   public static final Path DEFAULT_PATH = Path.of("the-last-hour-save.json");
-  static final int FORMAT_VERSION = 1;
+  static final int FORMAT_VERSION = 2;
   private static final ComputerStateComponentCodec COMPUTER_CODEC =
       new ComputerStateComponentCodec();
 
@@ -64,9 +65,10 @@ public final class LastHourSave {
     ComputerStateComponent computer = ComputerStateComponent.getState().orElseThrow();
     int blogElapsed =
         LastHourBlogTime.elapsedSeconds(
-            computer.timestampOfLogin(), (int) (System.currentTimeMillis() / 1000L));
+            computer.timestampOfLogin(), (int) (Game.playClock().activeMs() / 1000L));
     return new SaveData(
         TheLastHour.runId(),
+        Game.playClock().activeMs(),
         LastHourProgressNet.completedMilestones(),
         computer,
         blogElapsed,
@@ -74,7 +76,7 @@ public final class LastHourSave {
         context.keypadUnlocked(),
         context.wrongCodeAttempts(),
         context.storageDoorOpen(),
-        context.remainingSeconds(),
+        context.remainingMs(),
         context.timerExpired(),
         context.phone(),
         context.trashNoteAwarded(),
@@ -169,6 +171,7 @@ public final class LastHourSave {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("formatVersion", FORMAT_VERSION);
     root.put("runId", data.runId().toString());
+    root.put("activeMs", data.activeMs());
     Map<String, Object> metadata = new LinkedHashMap<>();
     if (data.playerName() != null && !data.playerName().isBlank()) {
       metadata.put("playerName", data.playerName());
@@ -182,7 +185,7 @@ public final class LastHourSave {
     root.put("keypadUnlocked", data.keypadUnlocked());
     root.put("wrongCodeAttempts", data.wrongCodeAttempts());
     root.put("storageDoorOpen", data.storageDoorOpen());
-    root.put("remainingSeconds", data.remainingSeconds());
+    root.put("remainingMs", data.remainingMs());
     root.put("timerExpired", data.timerExpired());
     root.put("phone", data.phone().toMap());
     root.put("trashNoteAwarded", data.trashNoteAwarded());
@@ -198,6 +201,7 @@ public final class LastHourSave {
    * Immutable snapshot of run state required to resume The Last Hour.
    *
    * @param runId identifier shared by this run's saves and tracking events
+   * @param activeMs active play time captured with this checkpoint
    * @param milestones completed irreversible Petri net transitions
    * @param computer saved computer state
    * @param blogElapsedSeconds elapsed blog session time
@@ -205,7 +209,7 @@ public final class LastHourSave {
    * @param keypadUnlocked whether the storage keypad has been unlocked
    * @param wrongCodeAttempts number of incorrect keypad submissions
    * @param storageDoorOpen whether the storage door is open
-   * @param remainingSeconds seconds remaining on the run timer
+   * @param remainingMs milliseconds remaining on the run timer
    * @param timerExpired whether the run timer has expired
    * @param phone saved phone state
    * @param trashNoteAwarded whether the trash note has been awarded
@@ -219,6 +223,7 @@ public final class LastHourSave {
    */
   public record SaveData(
       UUID runId,
+      long activeMs,
       Set<LastHourMilestone> milestones,
       ComputerStateComponent computer,
       int blogElapsedSeconds,
@@ -226,7 +231,7 @@ public final class LastHourSave {
       boolean keypadUnlocked,
       int wrongCodeAttempts,
       boolean storageDoorOpen,
-      int remainingSeconds,
+      long remainingMs,
       boolean timerExpired,
       PhoneData phone,
       boolean trashNoteAwarded,
@@ -245,6 +250,7 @@ public final class LastHourSave {
     public SaveData withTrackingConsent(Boolean consent) {
       return new SaveData(
           runId,
+          activeMs,
           milestones,
           computer,
           blogElapsedSeconds,
@@ -252,7 +258,7 @@ public final class LastHourSave {
           keypadUnlocked,
           wrongCodeAttempts,
           storageDoorOpen,
-          remainingSeconds,
+          remainingMs,
           timerExpired,
           phone,
           trashNoteAwarded,
@@ -268,6 +274,7 @@ public final class LastHourSave {
      * Creates a validated immutable save snapshot.
      *
      * @param runId identifier shared by this run's saves and tracking events
+     * @param activeMs active play time captured with this checkpoint
      * @param milestones completed irreversible Petri net transitions
      * @param computer saved computer state
      * @param blogElapsedSeconds elapsed blog session time
@@ -275,7 +282,7 @@ public final class LastHourSave {
      * @param keypadUnlocked whether the storage keypad has been unlocked
      * @param wrongCodeAttempts number of incorrect keypad submissions
      * @param storageDoorOpen whether the storage door is open
-     * @param remainingSeconds seconds remaining on the run timer
+     * @param remainingMs milliseconds remaining on the run timer
      * @param timerExpired whether the run timer has expired
      * @param phone saved phone state
      * @param trashNoteAwarded whether the trash note has been awarded
@@ -295,10 +302,11 @@ public final class LastHourSave {
       if (playerName != null && playerName.isBlank()) playerName = null;
       if (runId == null || computer == null || phone == null)
         throw new IllegalArgumentException("Missing save state");
-      if (blogElapsedSeconds < 0
+      if (activeMs < 0
+          || blogElapsedSeconds < 0
           || unknownDeviceShutdownRemainingMs < -1
           || wrongCodeAttempts < 0
-          || remainingSeconds < 0) {
+          || remainingMs < 0) {
         throw new IllegalArgumentException("Invalid saved time or counter");
       }
       if (immutableMilestones.stream()
@@ -335,7 +343,7 @@ public final class LastHourSave {
    * @param keypadUnlocked whether the storage keypad has been unlocked
    * @param wrongCodeAttempts number of incorrect keypad submissions
    * @param storageDoorOpen whether the storage door is open
-   * @param remainingSeconds seconds remaining on the run timer
+   * @param remainingMs milliseconds remaining on the run timer
    * @param timerExpired whether the run timer has expired
    * @param phone saved phone state
    * @param trashNoteAwarded whether the trash note has been awarded
@@ -347,7 +355,7 @@ public final class LastHourSave {
       boolean keypadUnlocked,
       int wrongCodeAttempts,
       boolean storageDoorOpen,
-      int remainingSeconds,
+      long remainingMs,
       boolean timerExpired,
       PhoneData phone,
       boolean trashNoteAwarded,
@@ -360,7 +368,7 @@ public final class LastHourSave {
      * @param keypadUnlocked whether the storage keypad has been unlocked
      * @param wrongCodeAttempts number of incorrect keypad submissions
      * @param storageDoorOpen whether the storage door is open
-     * @param remainingSeconds seconds remaining on the run timer
+     * @param remainingMs milliseconds remaining on the run timer
      * @param timerExpired whether the run timer has expired
      * @param phone saved phone state
      * @param trashNoteAwarded whether the trash note has been awarded

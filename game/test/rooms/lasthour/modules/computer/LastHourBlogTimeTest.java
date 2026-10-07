@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class LastHourBlogTimeTest {
   @Test
   void offlineTimeDoesNotUnlockMoreBlogComments() {
-    int login = 1_000;
+    int login = 1_001;
     int saveAt = 1_090;
     int loadAt = 10_000;
 

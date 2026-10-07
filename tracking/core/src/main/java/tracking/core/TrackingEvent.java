@@ -18,7 +18,7 @@ import tools.jackson.databind.JsonNode;
  * @param puzzleId optional stable puzzle identifier
  * @param objectId optional stable object identifier
  * @param outcome optional attempt result
- * @param elapsedMonotonicMs monotonic milliseconds since the session began
+ * @param activeMs authoritative accumulated play time for the run in milliseconds
  * @param occurredAt UTC wall-clock instant
  * @param payload structured event-specific data, including full submitted answers
  */
@@ -32,7 +32,7 @@ public record TrackingEvent(
     Optional<String> puzzleId,
     Optional<String> objectId,
     Optional<TrackingOutcome> outcome,
-    long elapsedMonotonicMs,
+    long activeMs,
     Instant occurredAt,
     JsonNode payload) {
   /** Validates event identity, time, and structured data. */
@@ -46,7 +46,7 @@ public record TrackingEvent(
     puzzleId = optionalText(puzzleId, "puzzleId");
     objectId = optionalText(objectId, "objectId");
     outcome = Objects.requireNonNull(outcome, "outcome");
-    elapsedMonotonicMs = TrackingChecks.nonNegative(elapsedMonotonicMs, "elapsedMonotonicMs");
+    activeMs = TrackingChecks.nonNegative(activeMs, "activeMs");
     occurredAt = TrackingChecks.utc(occurredAt, "occurredAt");
     payload = TrackingChecks.object(payload, "payload");
     if ((eventType == TrackingEventType.ANSWER_SUBMITTED) != outcome.isPresent()) {
@@ -68,7 +68,8 @@ public record TrackingEvent(
               PARTICIPANT_LEFT,
               ANSWER_SUBMITTED,
               INTERACTION_RECORDED,
-              HINT_USED ->
+              HINT_USED,
+              SURVEY_ANSWERED ->
               true;
           default -> false;
         };
@@ -93,6 +94,27 @@ public record TrackingEvent(
           || !attemptNumber.canConvertToInt()
           || attemptNumber.intValue() < 1) {
         throw new IllegalArgumentException("ANSWER_SUBMITTED requires a positive attemptNumber");
+      }
+    }
+    if (eventType == TrackingEventType.PLAY_PAUSED) {
+      JsonNode reason = payload.get("reason");
+      if (reason == null
+          || !reason.isString()
+          || !(reason.stringValue().equals("PAUSE_DIALOG")
+              || reason.stringValue().equals("PLAYERS_MISSING"))) {
+        throw new IllegalArgumentException(
+            "PLAY_PAUSED requires PAUSE_DIALOG or PLAYERS_MISSING reason");
+      }
+    }
+    if (eventType == TrackingEventType.SURVEY_ANSWERED) {
+      for (String field : new String[] {"questionnaireId", "questionId"}) {
+        JsonNode value = payload.get(field);
+        if (value == null || !value.isString() || value.stringValue().isBlank()) {
+          throw new IllegalArgumentException("SURVEY_ANSWERED requires " + field);
+        }
+      }
+      if (payload.get("answer") == null || payload.get("answer").isNull()) {
+        throw new IllegalArgumentException("SURVEY_ANSWERED requires the full answer");
       }
     }
     if (eventType == TrackingEventType.HINT_USED && objectId.isEmpty()) {

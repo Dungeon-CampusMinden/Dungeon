@@ -5,6 +5,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PlayerComponent;
 import engine.network.messages.s2c.ItemState;
+import engine.time.PlayClock;
 import feature.components.InventoryComponent;
 import feature.components.ItemComponent;
 import feature.entities.WorldItemBuilder;
@@ -40,7 +41,7 @@ final class LastHourCheckpointProjection {
   static void apply(LastHourLevel level, LastHourSave.SaveData data) {
     ComputerStateComponent restoredComputer = data.computer();
     if (restoredComputer.timestampOfLogin() > 0) {
-      int nowSeconds = (int) (System.currentTimeMillis() / 1000L);
+      int nowSeconds = (int) (Game.playClock().activeMs() / 1000L);
       restoredComputer =
           restoredComputer.withTimestampOfLogin(
               LastHourBlogTime.rebasedLoginTimestamp(data.blogElapsedSeconds(), nowSeconds));
@@ -70,7 +71,7 @@ final class LastHourCheckpointProjection {
     level.escaped = data.milestones().contains(LastHourMilestone.ESCAPED);
 
     if (data.milestones().contains(LastHourMilestone.PAPERS_SPAWNED) && !level.codeAssembled) {
-      level.createPaperPuzzle(false);
+      level.createPaperPuzzle();
     } else if (level.codeAssembled
         && !containsPlayerItem(
             data.players(),
@@ -92,6 +93,7 @@ final class LastHourCheckpointProjection {
         data.milestones().contains(LastHourMilestone.BLUE_USB_INSERTED)
             || containsPlayerItem(data.players(), "BlueUsbStick", "", "");
     level.lastSaved = data;
+    if (level.escaped) Game.playClock().end(PlayClock.Outcome.SUCCESS);
   }
 
   private static void restoreComputerPresentation(
@@ -129,8 +131,8 @@ final class LastHourCheckpointProjection {
       level.scheduleFirstPhoneCall(data.firstDelayMs());
     }
     if (data.secondDelayMs() >= 0 && level.secondPhoneCallScheduled && !level.isPhoneRinging) {
-      level.secondPhoneRingAt = System.currentTimeMillis() + data.secondDelayMs();
-      EventScheduler.scheduleAction(
+      level.secondPhoneRingAt = Game.playClock().activeMs() + data.secondDelayMs();
+      EventScheduler.schedulePlayAction(
           () -> {
             level.secondPhoneRingAt = -1;
             level.ringPhone(TranslationKey.Ringing2);

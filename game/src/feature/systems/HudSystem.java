@@ -88,6 +88,17 @@ public final class HudSystem extends System {
   }
 
   /**
+   * Returns whether the player has an explicit pause screen open.
+   *
+   * @param entity player entity
+   * @return true if a visible dialog pauses the play clock for the player
+   */
+  public boolean hasOpenPlayPauseUI(Entity entity) {
+    return entityUIComponentMap.values().stream()
+        .anyMatch(component -> component.pausesPlayClock() && isVisibleFor(component, entity));
+  }
+
+  /**
    * Checks whether a visible dialog captures a player's gameplay controls without requiring a
    * simulation pause. Dialog-close controls remain available.
    *

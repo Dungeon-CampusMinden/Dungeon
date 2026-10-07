@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Component;
 import engine.network.messages.c2s.DialogResponseMessage;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,6 +143,15 @@ public final class UIComponent implements Component {
    */
   public boolean willPauseGame() {
     return willPauseGame;
+  }
+
+  /**
+   * Whether this is an explicit pause screen rather than a task or input dialog.
+   *
+   * @return true if the dialog pauses the play clock
+   */
+  public boolean pausesPlayClock() {
+    return dialogContext.find(DialogContextKeys.PAUSES_PLAY_CLOCK, Boolean.class).orElse(false);
   }
 
   /**

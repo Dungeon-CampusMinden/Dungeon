@@ -26,6 +26,7 @@ import engine.network.handler.SlowNettyNetworkHandler;
 import engine.sound.AudioApi;
 import engine.sound.player.ISoundPlayer;
 import engine.systems.LevelSystem;
+import engine.time.PlayClock;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
@@ -75,6 +76,20 @@ public final class Game {
   private static INetworkHandler networkHandler;
   private static final AudioApi AudioAPI = new AudioApi();
   private static final Localization localization = Localization.getInstance();
+  private static final PlayClock PLAY_CLOCK = new PlayClock();
+
+  static {
+    PLAY_CLOCK.onTransition(TrackingRuntime::playClockChanged);
+  }
+
+  /**
+   * Returns the authoritative play clock, or its synchronized copy on clients.
+   *
+   * @return shared play clock
+   */
+  public static PlayClock playClock() {
+    return PLAY_CLOCK;
+  }
 
   private static final boolean SLOW_NETWORK = false;
 
@@ -899,27 +914,28 @@ public final class Game {
   }
 
   /**
-   * Aborts tracking at the current puzzle, then warns about pending remote events, shuts down the
-   * network, and exits the GDX application.
+   * Finishes tracking, then warns about pending remote events, shuts down the network, and exits
+   * the GDX application.
    *
    * @param reason reason logged by the shared shutdown path and passed to the network
    */
   public static void exit(String reason) {
-    TrackingRuntime.abortAtCurrentPuzzle();
     shutdown(reason);
   }
 
   /**
-   * Completes tracking, then warns about pending remote events, shuts down the network with the
-   * reason {@code Game completed}, and exits the GDX application.
+   * Ends play as solved unless the room already reported its result, then finishes tracking, warns
+   * about pending remote events, shuts down the network with the reason {@code Game completed}, and
+   * exits the GDX application.
    */
   public static void complete() {
-    TrackingRuntime.completed();
+    if (!isMultiplayerClient()) PLAY_CLOCK.end(PlayClock.Outcome.SUCCESS);
     shutdown("Game completed");
   }
 
   private static void shutdown(String reason) {
     LOGGER.info("Exiting game: " + reason);
+    TrackingRuntime.finishSession();
     TrackingRuntime.warnIfRemotePending();
     if (networkHandler != null) {
       try {

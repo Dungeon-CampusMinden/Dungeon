@@ -46,7 +46,7 @@ Chip nicht wiederhergestellt.
 - Rätselrelevante Inventargegenstände pro Spielername: Sortierstick und Ortungschip mit
   Programmierstatus und Entwurf, Systemkern-Zugangsmodul sowie Archivschlüssel. Kurzzeitig in
   Rechner oder Maschine eingesetzte Sticks werden als gemountete Items aufgenommen.
-- Run-ID, Spielername, Tracking-Einwilligung, Achievement-Fortschritt und Zustand der
+- Aktive Spielzeit `activeMs`, Run-ID, Spielername, Tracking-Einwilligung, Achievement-Fortschritt und Zustand der
   Systemkern-Ausgangstür.
 
 Achievement-Unlocks liegen zusätzlich in `system-recovery-achievement-unlock.json`.
@@ -86,7 +86,7 @@ Zuordnung nicht eindeutig.
 
 ## Zuständigkeiten
 
-- `save/SystemRecoverySave.java`: Snapshot, Formatversion 6 und atomisches JSON-Schreiben.
+- `save/SystemRecoverySave.java`: Snapshot, Formatversion 9 und atomisches JSON-Schreiben.
 - `save/SystemRecoveryLoad.java`: Validierung und stille Runtime-Wiederherstellung.
 - `level/SystemRecoveryLevel.java`: Autosave-Auslöser, Item-Recovery und Weltenprojektion.
 - `level/SystemRecoveryCheckpointProjection.java`: rekonstruiert den Raum für den Checkpoint.

@@ -76,6 +76,7 @@ class LastHourSaveTest {
         new ItemState("HintItem", 1, 1, Map.of("imagePath", "images/note-password-1.png"));
     return new LastHourSave.SaveData(
         UUID.randomUUID(),
+        2_366_789L,
         Set.of(LastHourMilestone.POWER_ON, LastHourMilestone.STORAGE_OPENED),
         ComputerStateComponent.of(ComputerProgress.ON, false, null, 0),
         45,
@@ -83,7 +84,7 @@ class LastHourSaveTest {
         true,
         7,
         true,
-        1234,
+        1_233_211L,
         false,
         new LastHourSave.PhoneData(false, false, false, "", 12_000, -1),
         false,

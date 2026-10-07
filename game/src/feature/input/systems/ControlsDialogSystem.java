@@ -6,6 +6,7 @@ import engine.System;
 import engine.System.AuthoritativeSide;
 import engine.systems.input.InputManager;
 import feature.components.UIComponent;
+import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.input.configuration.KeyboardConfig;
@@ -45,10 +46,22 @@ public final class ControlsDialogSystem extends System {
    * @param player player whose controls dialog should be shown
    */
   public void showControlsFor(Entity player) {
+    showControlsFor(player, false);
+  }
+
+  /**
+   * Opens controls, optionally as part of the pause menu.
+   *
+   * @param player player whose controls dialog should be shown
+   * @param pausesPlayClock whether the dialog keeps the play clock paused like the pause menu
+   */
+  public void showControlsFor(Entity player, boolean pausesPlayClock) {
     discardClosedDialogs();
     int playerId = player.id();
     if (openDialogs.containsKey(playerId)) return;
-    UIComponent dialog = DialogFactory.showDialogDialog(controlsDialog.get(), () -> {}, playerId);
+    DialogContext.Builder context = DialogFactory.dialogDialogContext(controlsDialog.get());
+    if (pausesPlayClock) context.put(DialogContextKeys.PAUSES_PLAY_CLOCK, true);
+    UIComponent dialog = DialogFactory.showDialogDialog(context.build(), () -> {}, playerId);
     openDialogs.put(playerId, dialog);
   }
 

@@ -46,6 +46,7 @@ import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
+import engine.network.messages.s2c.PlayClockMessage;
 import engine.network.messages.s2c.PrefabChangeMessage;
 import engine.network.messages.s2c.QuestLogStateMessage;
 import engine.network.messages.s2c.ShaderTargetStateMessage;
@@ -69,6 +70,7 @@ import engine.systems.VelocitySystem;
 import engine.systems.input.InputManager;
 import engine.systems.input.InputSystem;
 import engine.systems.input.JoystickSystem;
+import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
@@ -368,7 +370,9 @@ public final class GameLoop extends ScreenAdapter {
           java.lang.System.nanoTime() - networkDispatchStartNanos);
     }
     tryCompleteInitialWorldHandshake();
+    PlayClockRuntime.updateLocalPause();
     frame(delta);
+    PlayClockRuntime.tick();
     clearScreen();
 
     // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
@@ -421,7 +425,13 @@ public final class GameLoop extends ScreenAdapter {
                 }
 
                 @Override
+                public void onInitialWorldReady() {
+                  PlayClockRuntime.resetClient();
+                }
+
+                @Override
                 public void onDisconnected(String reason) {
+                  PlayClockRuntime.resetClient();
                   boolean wasInGameplay = initialWorldClientReady;
                   resetInitialWorldHandshake();
                   InputMessage.resetSequence();
@@ -485,7 +495,12 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     if (Game.isSingleplayer() && Game.currentLevel().isPresent()) {
-      Game.player().ifPresent(player -> TrackingRuntime.startSingleplayerSession(player.id()));
+      Game.player()
+          .ifPresent(
+              player -> {
+                TrackingRuntime.startSingleplayerSession(player.id());
+                Game.playClock().participantJoined((short) 0, player.id());
+              });
     }
   }
 
@@ -522,6 +537,9 @@ public final class GameLoop extends ScreenAdapter {
 
   private void setupMessageHandlers() {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
+    dispatcher.registerHandler(
+        PlayClockMessage.class,
+        (ctx, message) -> Game.playClock().synchronize(message.activeMs(), message.running()));
 
     dispatcher.registerHandler(
         EntitySpawnEvent.class,

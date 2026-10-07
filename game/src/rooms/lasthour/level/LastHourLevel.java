@@ -16,6 +16,7 @@ import engine.level.utils.LevelElement;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
+import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Tuple;
@@ -123,6 +124,7 @@ public class LastHourLevel extends DungeonLevel {
   private int saveRevision;
   private final Set<Integer> usbCollectorWatchedPlayers = new HashSet<>();
   private boolean introSuppressed;
+  private final Set<Integer> playingPlayers = new HashSet<>();
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
@@ -180,6 +182,7 @@ public class LastHourLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.playClock().playingParticipants(Set.of());
     timerExpired = false;
     puzzle = null;
     saveRevision = 0;
@@ -279,6 +282,34 @@ public class LastHourLevel extends DungeonLevel {
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
 
+  private void playReady(int playerId) {
+    if (escaped || !playingPlayers.add(playerId)) return;
+    Game.playClock().playingParticipants(playingPlayers);
+    Game.playClock().ready();
+    ComputerStateComponent computer = ComputerStateComponent.getState().orElseThrow();
+    // Starts every accessible, unsolved puzzle; the latest start is the one reported on
+    // interruption, so each line follows the room's main path. Saves do not record the solved
+    // recovery code, so a resumed run may start it again while the storage door is closed.
+    boolean loggedIn = computer.state().hasReached(ComputerProgress.LOGGED_IN);
+    if (loggedIn && !storageDoor.isOpen())
+      LastHourTracking.started(LastHourPuzzle.STORAGE_RECOVERY);
+    // The storage keypad is in the room from the start; the recovery code only reveals its code.
+    if (!storageDoor.isOpen()) LastHourTracking.started(LastHourPuzzle.STORAGE_ACCESS);
+    if (computer.state() == ComputerProgress.OFF) LastHourTracking.started(LastHourPuzzle.POWER);
+    if (computer.state() == ComputerProgress.ON) LastHourTracking.started(LastHourPuzzle.LOGIN);
+    if (storageDoor.isOpen() && !computer.usbInserted())
+      LastHourTracking.started(LastHourPuzzle.BLUE_USB);
+    if (computer.usbInserted() && !computer.door2Open())
+      LastHourTracking.started(LastHourPuzzle.EXIT);
+    if (computer.usbInserted() && !codeAssembled)
+      LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
+    // Switching the AC on spawns the papers once, which is what solves the ventilation puzzle.
+    if (computer.usbInserted()
+        && !LastHourProgressNet.completedMilestones().contains(LastHourMilestone.PAPERS_SPAWNED))
+      LastHourTracking.started(LastHourPuzzle.VENTILATION);
+    if (computer.isInfected()) LastHourTracking.started(LastHourPuzzle.VIRUS_NEUTRALIZATION);
+  }
+
   private void showIntro(int targetId) {
     LastHourQuestLogUtil.addIntroInvestigationQuestLogEntries();
     BlackFadeCutscene.show(
@@ -292,7 +323,7 @@ public class LastHourLevel extends DungeonLevel {
                     + TranslationKey.PostIntroDialogText1
                     + "[p]"
                     + TranslationKey.PostIntroDialogText2,
-                () -> {},
+                () -> playReady(targetId),
                 targetId),
         targetId);
     INTRO_SHOWN_TO.add(targetId);
@@ -315,6 +346,7 @@ public class LastHourLevel extends DungeonLevel {
                             if (!LastHourProgressNet.completedMilestones()
                                 .contains(LastHourMilestone.EXIT_OPENED)) return;
                             escaped = true;
+                            Game.playClock().end(PlayClock.Outcome.SUCCESS);
                             LastHourProgressNet.complete(LastHourMilestone.ESCAPED);
                             LastHourQuestLogUtil.addEscapeQuestLogEntries();
                             LastHourAchievements.trigger(
@@ -347,9 +379,9 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   private void setupTimer() {
-    int unixTime = (int) (System.currentTimeMillis() / 1000L);
-    int seconds = pendingSave.map(LastHourSave.SaveData::remainingSeconds).orElse(60 * 60);
-    worldTimer = WorldTimerFactory.createWorldTimer(getPoint("timer"), unixTime, seconds);
+    long remainingMs = pendingSave.map(LastHourSave.SaveData::remainingMs).orElse(3_600_000L);
+    long startedAtActiveMs = Game.playClock().activeMs() + remainingMs - 3_600_000L;
+    worldTimer = WorldTimerFactory.createWorldTimer(getPoint("timer"), startedAtActiveMs, 3600);
     Game.add(worldTimer);
   }
 
@@ -499,7 +531,6 @@ public class LastHourLevel extends DungeonLevel {
         new InteractionComponent(
             new Interaction(
                 (e, who) -> {
-                  LastHourTracking.started(LastHourPuzzle.POWER);
                   if (!dc.currentStateName().equals(PC_STATE_OFF)) return;
                   DialogFactory.showYesNoDialog(
                       TranslationKey.LightSwitch_1,
@@ -700,12 +731,11 @@ public class LastHourLevel extends DungeonLevel {
    * so they spread out.
    */
   public void r2SpawnPapers() {
-    createPaperPuzzle(true);
+    createPaperPuzzle();
   }
 
-  void createPaperPuzzle(boolean trackStart) {
+  void createPaperPuzzle() {
     if (puzzle != null) return;
-    if (trackStart) LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
     puzzle =
         PuzzleMaker.makePuzzle(
             R2_PUZZLE_IMAGE_EN,
@@ -714,7 +744,6 @@ public class LastHourLevel extends DungeonLevel {
               codeAssembled = true;
               LastHourProgressNet.complete(LastHourMilestone.CODE_ASSEMBLED);
               LastHourTracking.solved(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
-              LastHourTracking.started(LastHourPuzzle.EXIT);
               LastHourQuestLogUtil.addFinalCodeQuestLogEntry();
               solvedPuzzle.removeItems(solver);
               if (solver != null) {
@@ -845,15 +874,15 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   void scheduleFirstPhoneCall(long delayMs) {
-    firstPhoneRingAt = System.currentTimeMillis() + delayMs;
-    EventScheduler.scheduleAction(this::triggerFirstPhoneCall, delayMs);
+    firstPhoneRingAt = Game.playClock().activeMs() + delayMs;
+    EventScheduler.schedulePlayAction(this::triggerFirstPhoneCall, delayMs);
   }
 
   void scheduleSecondPhoneCall() {
     if (secondPhoneCallScheduled) return;
     secondPhoneCallScheduled = true;
-    secondPhoneRingAt = System.currentTimeMillis() + SECOND_PHONE_RING_DELAY_MS;
-    EventScheduler.scheduleAction(
+    secondPhoneRingAt = Game.playClock().activeMs() + SECOND_PHONE_RING_DELAY_MS;
+    EventScheduler.schedulePlayAction(
         () -> {
           secondPhoneRingAt = -1;
           ringPhone(TranslationKey.Ringing2);
@@ -1011,6 +1040,10 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   private void showIntroForNewPlayers() {
+    if (escaped) return;
+    // Without an intro, play starts as soon as a player is ready; otherwise the intro's close does.
+    if (introSuppressed)
+      Game.allPlayers().filter(playerStates::isReadyForIntro).forEach(p -> playReady(p.id()));
     if (introSuppressed || (!Game.isHeadless() && LevelEditorSystem.active())) return;
     Game.allPlayers()
         .filter(playerStates::isReadyForIntro)
@@ -1038,17 +1071,16 @@ public class LastHourLevel extends DungeonLevel {
     if (state.door2Unlocked()) LastHourProgressNet.complete(LastHourMilestone.EXIT_UNLOCKED);
     if (exitDoor.isOpen()) LastHourProgressNet.complete(LastHourMilestone.EXIT_OPENED);
     if (escaped) LastHourProgressNet.complete(LastHourMilestone.ESCAPED);
-    if (remainingSeconds() == 0) timerExpired = true;
+    if (remainingMs() == 0) timerExpired = true;
   }
 
-  private int remainingSeconds() {
+  private long remainingMs() {
     WorldTimerComponent timer = worldTimer.fetch(WorldTimerComponent.class).orElseThrow();
-    int now = (int) (System.currentTimeMillis() / 1000L);
-    return Math.max(0, timer.duration() - (now - timer.timestamp()));
+    return timer.remainingMs();
   }
 
   private LastHourSave.PhoneData capturePhone() {
-    long now = System.currentTimeMillis();
+    long now = Game.playClock().activeMs();
     return new LastHourSave.PhoneData(
         firstPhoneCallTriggered,
         secondPhoneCallScheduled,
@@ -1065,7 +1097,7 @@ public class LastHourLevel extends DungeonLevel {
             keypadState.isUnlocked(),
             keypadState.wrongCodeAttempts(),
             storageDoor.isOpen(),
-            remainingSeconds(),
+            remainingMs(),
             timerExpired,
             capturePhone(),
             trashNoteAwarded,

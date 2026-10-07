@@ -259,7 +259,7 @@ final class AuthorityTest {
   }
 
   @Test
-  void hardTimerContinuesAcrossDisconnectsAndTerminatesExactlyAtLimit() {
+  void hardTimerConsumesSuppliedActiveTimeAndTerminatesExactlyAtLimit() {
     Authority authority = authority(TimerMode.HARD);
     ready(authority);
     Projection.TimerView initialTimer = authority.projection().timer();

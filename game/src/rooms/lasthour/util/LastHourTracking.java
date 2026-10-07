@@ -8,7 +8,7 @@ public final class LastHourTracking {
   private LastHourTracking() {}
 
   /**
-   * Records a puzzle start once per running room session.
+   * Records that a puzzle became accessible in the room.
    *
    * @param puzzle room-local puzzle
    */
@@ -22,7 +22,6 @@ public final class LastHourTracking {
    * @param puzzle room-local puzzle
    */
   public static void solved(LastHourPuzzle puzzle) {
-    started(puzzle);
     Tracking.puzzleSolved(puzzle.id());
   }
 
@@ -43,7 +42,6 @@ public final class LastHourTracking {
       String rawAnswer,
       boolean correct,
       Entity player) {
-    started(puzzle);
     Tracking.participantForEntity(player.id())
         .ifPresent(
             participantId ->

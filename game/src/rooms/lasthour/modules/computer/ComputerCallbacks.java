@@ -229,7 +229,6 @@ public final class ComputerCallbacks {
                           || !BlogTab.isCommentVisible(comment, current.timestampOfLogin())) {
                         return;
                       }
-                      LastHourTracking.started(LastHourPuzzle.STORAGE_RECOVERY);
                       LastHourTracking.hintUsed(LastHourPuzzle.STORAGE_RECOVERY, comment.id(), who);
                     }));
     dialog.registerCallback(
@@ -238,7 +237,6 @@ public final class ComputerCallbacks {
           if (!controlPanelAvailable(currentState(stateEntity).orElse(null))) {
             return;
           }
-          LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
           LastHourTracking.hintUsed(LastHourPuzzle.EXIT_CODE_ASSEMBLY, "usb-hint-file", who);
         });
   }
@@ -268,7 +266,7 @@ public final class ComputerCallbacks {
           stateEntity,
           currentState
               .withState(ComputerProgress.LOGGED_IN)
-              .withTimestampOfLogin((int) (System.currentTimeMillis() / 1000L)));
+              .withTimestampOfLogin((int) (Game.playClock().activeMs() / 1000L) + 1));
       LastHourTracking.started(LastHourPuzzle.STORAGE_RECOVERY);
       LastHourQuestLogUtil.addMailReviewQuestLogEntry();
       onPcUnlocked.accept(who);
@@ -390,11 +388,9 @@ public final class ComputerCallbacks {
    * @param delayMs delay before the PC shuts down
    */
   public static void scheduleUnknownDeviceShutdown(long delayMs) {
-    unknownDeviceShutdownAt = System.currentTimeMillis() + Math.max(0, delayMs);
-    if (PreRunConfiguration.multiplayerEnabled()) {
-      EventScheduler.scheduleAction(
-          ComputerCallbacks::shutdownPcAfterUnknownDevice, Math.max(0, delayMs));
-    }
+    unknownDeviceShutdownAt = Game.playClock().activeMs() + Math.max(0, delayMs);
+    EventScheduler.schedulePlayAction(
+        ComputerCallbacks::shutdownPcAfterUnknownDevice, Math.max(0, delayMs));
   }
 
   /**
@@ -405,7 +401,7 @@ public final class ComputerCallbacks {
   public static long unknownDeviceShutdownRemainingMs() {
     return unknownDeviceShutdownAt < 0
         ? -1
-        : Math.max(0, unknownDeviceShutdownAt - System.currentTimeMillis());
+        : Math.max(0, unknownDeviceShutdownAt - Game.playClock().activeMs());
   }
 
   /**
@@ -428,7 +424,8 @@ public final class ComputerCallbacks {
     if (current == null
         || !current.isInfected()
         || !Lore.UnknownDeviceVirusType.equals(current.virusType())) return;
-    if (unknownDeviceShutdownAt < 0 || unknownDeviceShutdownAt > System.currentTimeMillis()) return;
+    if (unknownDeviceShutdownAt < 0 || unknownDeviceShutdownAt > Game.playClock().activeMs())
+      return;
     resetUnknownDeviceShutdown();
     ComputerStateComponent.setInfection(false);
     ComputerStateComponent.setVirusType(null);

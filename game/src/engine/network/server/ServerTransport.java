@@ -25,6 +25,7 @@ import engine.network.messages.c2s.DebugTelemetryRequest;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InitialWorldReady;
 import engine.network.messages.c2s.InputMessage;
+import engine.network.messages.c2s.PauseStateMessage;
 import engine.network.messages.c2s.RegisterUdp;
 import engine.network.messages.c2s.RequestEntitySpawn;
 import engine.network.messages.c2s.SnapshotAck;
@@ -37,6 +38,7 @@ import engine.network.messages.s2c.EntitySpawnBatch;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
+import engine.network.messages.s2c.PlayClockMessage;
 import engine.network.messages.s2c.RegisterAck;
 import engine.tracking.Tracking;
 import engine.tracking.TrackingRuntime;
@@ -120,6 +122,7 @@ public final class ServerTransport {
   private static final float DEBUG_RTT_EWMA_ALPHA = 0.2f;
 
   private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final Queue<Runnable> disconnectEvents = new ConcurrentLinkedQueue<>();
   private final AtomicInteger inboundQueueDepth = new AtomicInteger();
 
   // Transport/session mappings
@@ -461,8 +464,13 @@ public final class ServerTransport {
                         state.clientId(),
                         (clientId, currentSession) -> {
                           if (currentSession == session) {
-                            TrackingRuntime.participantLeft(clientId);
-                            state.playerEntity().ifPresent(Game::remove);
+                            // Netty thread: tracking, play clock and ECS change on the game thread.
+                            disconnectEvents.add(
+                                () -> {
+                                  if (clientIdToSession.get(clientId) != session) return;
+                                  TrackingRuntime.participantLeft(clientId);
+                                  state.playerEntity().ifPresent(Game::remove);
+                                });
                           }
                           return currentSession;
                         }));
@@ -552,6 +560,8 @@ public final class ServerTransport {
    * @see MessageDispatcher
    */
   public void pollAndDispatch() {
+    Runnable disconnected;
+    while ((disconnected = disconnectEvents.poll()) != null) disconnected.run();
     QueuedNetworkMessage msg;
     NetworkTelemetry.recordInboundQueueDepth(inboundQueueDepth.get());
     int drainedMessages = 0;
@@ -583,6 +593,7 @@ public final class ServerTransport {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
     dispatcher.registerHandler(InitialWorldReady.class, this::onInitialWorldReady);
+    dispatcher.registerHandler(PauseStateMessage.class, this::onPauseState);
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
     dispatcher.registerHandler(SnapshotAck.class, this::onSnapshotAck);
@@ -1072,10 +1083,22 @@ public final class ServerTransport {
                     .playerEntity()
                     .ifPresent(
                         player -> TrackingRuntime.associateEntity(state.clientId(), player.id())));
+    state
+        .playerEntity()
+        .ifPresent(player -> Game.playClock().participantJoined(state.clientId(), player.id()));
+    session.sendMessage(
+        new PlayClockMessage(Game.playClock().activeMs(), Game.playClock().running()), true);
     DialogTracker.instance().resyncDialogsToClient(state.clientId());
     SoundTracker.instance().resyncSoundsToClient(state.clientId());
     Game.system(ShaderSystem.class, shaderSystem -> shaderSystem.resyncToClient(state.clientId()));
     LOGGER.info("Client id={} completed initial world sync", state.clientId());
+  }
+
+  private void onPauseState(Session session, PauseStateMessage message) {
+    if (!isSessionValid(session)) return;
+    ClientState state = session.clientState().orElseThrow();
+    if (!state.initialWorldReady()) return;
+    Game.playClock().paused(state.clientId(), message.paused());
   }
 
   private void onInputMessage(Session session, InputMessage msg) {

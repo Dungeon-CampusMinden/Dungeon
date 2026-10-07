@@ -5,15 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Game;
-import engine.tracking.Tracking;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
 import java.util.Arrays;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 /** Tests the linear, token-backed progress model without depending on world positions. */
 class SystemRecoveryProgressNetTest {
@@ -48,18 +45,6 @@ class SystemRecoveryProgressNetTest {
 
     assertActive(SystemRecoveryLearningStep.ENERGY_ARRAY);
     assertTokenInvariant();
-  }
-
-  @Test
-  void initialLearningPuzzleIsTrackedExactlyOnce() {
-    SystemRecoveryProgressNet.reset();
-
-    try (MockedStatic<Tracking> tracking = Mockito.mockStatic(Tracking.class)) {
-      SystemRecoveryProgressNet.initialize();
-      SystemRecoveryProgressNet.initialize();
-
-      tracking.verify(() -> Tracking.puzzleStarted("energy-array"), Mockito.times(1));
-    }
   }
 
   @Test

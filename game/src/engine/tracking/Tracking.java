@@ -2,6 +2,7 @@ package engine.tracking;
 
 import engine.Game;
 import engine.game.ManagedServerStatus;
+import engine.time.PlayClock;
 import engine.utils.logging.DungeonLogger;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
@@ -15,7 +16,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import tracking.core.TrackingEvent;
+import tracking.core.TrackingEventType;
 import tracking.core.TrackingInteractionStatus;
 import tracking.core.TrackingJson;
 import tracking.core.TrackingSessionStatus;
@@ -25,7 +29,7 @@ import tracking.core.TrackingSessionStatus;
  *
  * <p>Configure tracking before {@link Game#run()}. Only the authoritative server or singleplayer
  * process starts a session. Room code submits facts through this class; the engine assigns
- * sequence, wall-clock time, and monotonic elapsed time.
+ * sequence, UTC wall-clock time, and shared active play time.
  */
 public final class Tracking {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Tracking.class);
@@ -37,6 +41,7 @@ public final class Tracking {
   private static TrackingSession session;
   private static boolean sessionStartAttempted;
   private static boolean trackingAllowed = true;
+  private static Optional<PlayClock.Outcome> outcome = Optional.empty();
   private static String clientRoomId;
   private static PersistenceFailure persistenceFailure;
 
@@ -52,6 +57,7 @@ public final class Tracking {
         throw new IllegalStateException("Tracking session start is already closed");
       }
       session = null;
+      outcome = Optional.empty();
       PENDING_PUZZLE_STARTS.clear();
       persistenceFailure = null;
       explicitConfig = Objects.requireNonNull(config, "config");
@@ -194,7 +200,7 @@ public final class Tracking {
       PENDING_PUZZLE_STARTS.clear();
       if (session != null && !session.finished()) {
         try {
-          session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
+          finishWithOutcome();
         } catch (TrackingPersistenceException exception) {
           recordPersistenceFailure(exception);
           return false;
@@ -223,7 +229,7 @@ public final class Tracking {
   }
 
   /**
-   * Records the start of a puzzle and makes it the current puzzle for abort reporting.
+   * Records when a puzzle becomes accessible or unlocked.
    *
    * @param puzzleId stable room-local puzzle identifier
    * @return newly recorded event, or empty when inactive or already recorded
@@ -350,6 +356,35 @@ public final class Tracking {
   }
 
   /**
+   * Records a completed interaction with one puzzle, such as editing or running it, without
+   * treating it as a submitted answer. Its first such event marks the first contact with the
+   * puzzle.
+   *
+   * @param puzzleId stable room-local puzzle identifier
+   * @param objectId stable interacted object identifier
+   * @param action stable action identifier
+   * @param participantId session-scoped participant identifier
+   * @return recorded event, or empty when tracking or the participant is inactive
+   */
+  public static Optional<TrackingEvent> interaction(
+      String puzzleId, String objectId, String action, UUID participantId) {
+    synchronized (LOCK) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantActive(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(session.interaction(puzzleId, objectId, action, participantId));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
    * Records a puzzle interaction with an explicit result, without treating it as a submitted answer
    * or a puzzle start.
    *
@@ -455,9 +490,68 @@ public final class Tracking {
     }
   }
 
-  /** Ends the session successfully before an outro or shutdown. Repeated calls do nothing. */
-  public static void completed() {
-    finish(TrackingSessionStatus.COMPLETED, Optional.empty());
+  /**
+   * Records a survey answer before play starts or after the outcome while the session remains open,
+   * without changing play time or puzzle state.
+   *
+   * @param questionnaireId stable questionnaire identifier
+   * @param questionId stable question identifier
+   * @param answer full answer as text or structured JSON value
+   * @param participantId session-scoped participant identifier
+   * @return recorded event, or empty when tracking or the participant is inactive
+   */
+  public static Optional<TrackingEvent> surveyAnswered(
+      String questionnaireId, String questionId, JsonNode answer, UUID participantId) {
+    synchronized (LOCK) {
+      if (!trackingAllowed
+          || session == null
+          || session.finished()
+          || !session.participantKnown(participantId)) {
+        return Optional.empty();
+      }
+      ObjectNode payload =
+          TrackingJson.object()
+              .put("questionnaireId", questionnaireId)
+              .put("questionId", questionId);
+      payload.set("answer", Objects.requireNonNull(answer, "answer"));
+      try {
+        return Optional.of(
+            session.event(
+                TrackingEventType.SURVEY_ANSWERED,
+                Optional.of(participantId),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                payload));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  static void playClockChanged(PlayClock.Transition transition) {
+    synchronized (LOCK) {
+      // The room's result decides the finish status; the session stays open for surveys.
+      transition.outcome().ifPresent(result -> outcome = Optional.of(result));
+      if (!trackingAllowed || session == null || session.finished()) return;
+      ObjectNode payload = TrackingJson.object();
+      transition.reason().ifPresent(reason -> payload.put("reason", reason.name()));
+      transition.outcome().ifPresent(result -> payload.put("outcome", result.name()));
+      TrackingEventType type =
+          switch (transition.event()) {
+            case STARTED -> TrackingEventType.PLAY_STARTED;
+            case PAUSED -> TrackingEventType.PLAY_PAUSED;
+            case RESUMED -> TrackingEventType.PLAY_RESUMED;
+            case ENDED -> TrackingEventType.PLAY_ENDED;
+          };
+      try {
+        session.event(
+            type, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), payload);
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+      }
+    }
   }
 
   static void startSingleplayerSession(int entityId) {
@@ -518,7 +612,7 @@ public final class Tracking {
       if (!trackingAllowed || Game.isSingleplayer() || !Game.network().isServer()) {
         return Optional.empty();
       }
-      boolean startingSession = session == null && !sessionStartAttempted;
+      boolean startingSession = (session == null || session.finished()) && !sessionStartAttempted;
       if (startingSession) {
         sessionStartAttempted = true;
         startConfig().ifPresent(Tracking::startMultiplayerSession);
@@ -552,7 +646,9 @@ public final class Tracking {
 
   private static void startMultiplayerSession(TrackingConfig configured) {
     try {
+      TrackingSession previous = session;
       session = new TrackingSession(configured);
+      if (previous != null) session.continuePuzzleState(previous);
     } catch (TrackingPersistenceException exception) {
       recordPersistenceFailure(exception, configured.operatorEmail());
     } catch (RuntimeException exception) {
@@ -576,14 +672,14 @@ public final class Tracking {
    * Stops all future tracking events for the current authoritative run.
    *
    * <p>This is used when a multiplayer participant refuses consent. Events already written before
-   * the refusal are not retroactively altered. A running session ends as aborted, so its final
-   * batch is still uploaded; no participant or later event is recorded.
+   * the refusal are not retroactively altered. The session closes with its outcome or interruption,
+   * and its final batch is still uploaded; no participant or later event is recorded.
    */
   static void disableTrackingForRun() {
     synchronized (LOCK) {
       if (session != null && !session.finished()) {
         try {
-          session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
+          finishWithOutcome();
         } catch (TrackingPersistenceException exception) {
           recordPersistenceFailure(exception);
         }
@@ -602,21 +698,29 @@ public final class Tracking {
     }
   }
 
-  /** Internal lifecycle hook that aborts a running session at its current puzzle. */
-  static void abort() {
-    abortAtCurrentPuzzle();
+  /** Records the session's final facts after all post-outcome activity. */
+  static void finishSession() {
+    synchronized (LOCK) {
+      finishOpenSession();
+    }
   }
 
-  static void abortAtCurrentPuzzle() {
+  /** Closes an empty session while retaining the paused room for a later reconnect. */
+  static void noParticipants() {
     synchronized (LOCK) {
-      sessionStartAttempted = true;
-      PENDING_PUZZLE_STARTS.clear();
-      if (session != null) {
-        try {
-          session.finish(TrackingSessionStatus.ABORTED, session.currentPuzzleId());
-        } catch (TrackingPersistenceException exception) {
-          recordPersistenceFailure(exception);
-        }
+      finishOpenSession();
+      if (outcome.isEmpty() && trackingAllowed) sessionStartAttempted = false;
+    }
+  }
+
+  private static void finishOpenSession() {
+    sessionStartAttempted = true;
+    PENDING_PUZZLE_STARTS.clear();
+    if (session != null) {
+      try {
+        finishWithOutcome();
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
       }
     }
   }
@@ -720,18 +824,17 @@ public final class Tracking {
     }
   }
 
-  private static void finish(TrackingSessionStatus status, Optional<String> puzzleId) {
-    synchronized (LOCK) {
-      sessionStartAttempted = true;
-      PENDING_PUZZLE_STARTS.clear();
-      if (trackingAllowed && session != null) {
-        try {
-          session.finish(status, puzzleId);
-        } catch (TrackingPersistenceException exception) {
-          recordPersistenceFailure(exception);
-        }
-      }
-    }
+  /** Finishes the open session as completed after the outcome, otherwise as interrupted. */
+  private static void finishWithOutcome() {
+    session.finish(
+        outcome
+            .map(
+                result ->
+                    result == PlayClock.Outcome.SUCCESS
+                        ? TrackingSessionStatus.COMPLETED
+                        : TrackingSessionStatus.FAILED)
+            .orElse(TrackingSessionStatus.INTERRUPTED),
+        outcome.isPresent() ? Optional.empty() : session.currentPuzzleId());
   }
 
   private static void recordPersistenceFailure(TrackingPersistenceException exception) {

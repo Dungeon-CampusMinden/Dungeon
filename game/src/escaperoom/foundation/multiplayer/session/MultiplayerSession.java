@@ -1,5 +1,6 @@
 package escaperoom.foundation.multiplayer.session;
 
+import engine.time.PlayClock;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
@@ -36,6 +37,8 @@ import java.util.Set;
  */
 public final class MultiplayerSession {
   private final Authority authority;
+  private final PlayClock playClock;
+  private long lastActiveMs;
   private final List<RosterSlotDefinition> slots;
   private final int minimumPlayers;
   private final Map<Short, ClientObservation> observations = new LinkedHashMap<>();
@@ -50,13 +53,21 @@ public final class MultiplayerSession {
    *
    * @param definition complete room definition including minimum and maximum player counts
    * @param presentation complete locally derived presentation
+   * @param playClock shared server-authoritative play clock
    */
-  public MultiplayerSession(final RoomDefinition definition, final GamePresentation presentation) {
+  public MultiplayerSession(
+      final RoomDefinition definition,
+      final GamePresentation presentation,
+      final PlayClock playClock) {
     Objects.requireNonNull(definition, "definition");
     validatePresentation(definition, presentation);
     authority = new Authority(definition);
     slots = definition.roster().slots();
     minimumPlayers = definition.minimumPlayers();
+    this.playClock = Objects.requireNonNull(playClock, "playClock");
+    playClock.configure(minimumPlayers);
+    playClock.playingParticipants(Set.of());
+    lastActiveMs = playClock.activeMs();
     Map<String, InformationSourcePresentation> sources = new LinkedHashMap<>();
     presentation.riddles().stream()
         .flatMap(riddle -> riddle.informationSources().stream())
@@ -87,6 +98,7 @@ public final class MultiplayerSession {
               }
             });
 
+    advance();
     for (RosterSlotDefinition slot : slots) {
       short clientId = (short) slot.number();
       ClientObservation previous = observations.get(clientId);
@@ -107,6 +119,7 @@ public final class MultiplayerSession {
       introPresentationReleased = true;
     }
     startInitialGameplayIfReady();
+    reconcilePlayClock();
   }
 
   /**
@@ -116,6 +129,7 @@ public final class MultiplayerSession {
    * @return whether this confirmation changed the session
    */
   public synchronized boolean completeIntro(final short clientId) {
+    advance();
     ClientObservation observation = observations.get(clientId);
     if (!introPresentationReleased || observation == null || !introCompletedClients.add(clientId)) {
       return false;
@@ -125,6 +139,7 @@ public final class MultiplayerSession {
     } else {
       startInitialGameplayIfReady();
     }
+    reconcilePlayClock();
     return true;
   }
 
@@ -138,6 +153,7 @@ public final class MultiplayerSession {
    */
   public synchronized Optional<SourceInspection> inspectSource(
       final short clientId, final String riddleId, final String informationSourceId) {
+    advance();
     if (!ready(clientId)) {
       return Optional.empty();
     }
@@ -161,6 +177,7 @@ public final class MultiplayerSession {
    */
   public synchronized Optional<CodeAttemptResult> enterNumericCode(
       final short clientId, final String riddleId, final String inputId, final String attempt) {
+    advance();
     return ready(clientId)
         ? Optional.of(authority.attemptCode(riddleId, inputId, attempt))
         : Optional.empty();
@@ -175,6 +192,7 @@ public final class MultiplayerSession {
    */
   public synchronized Optional<HintPreview> previewNextHint(
       final short clientId, final String riddleId) {
+    advance();
     return ready(clientId) ? authority.previewHint(riddleId) : Optional.empty();
   }
 
@@ -188,6 +206,7 @@ public final class MultiplayerSession {
    */
   public synchronized Optional<ReleasedHint> confirmNextHint(
       final short clientId, final String riddleId, final String expectedHintId) {
+    advance();
     if (!ready(clientId)) {
       return Optional.empty();
     }
@@ -205,6 +224,7 @@ public final class MultiplayerSession {
     if (desired.stream().anyMatch(slotId -> !ready(slotId))) {
       throw new IllegalArgumentException("exit presence requires a ready Foundation slot");
     }
+    advance();
     for (String slotId : List.copyOf(exitSlots)) {
       if (!desired.contains(slotId)) {
         authority.leaveExit(slotId);
@@ -216,16 +236,43 @@ public final class MultiplayerSession {
         authority.enterExit(slotId);
       }
     }
+    endClockAtOutcome();
   }
 
   /**
-   * Advances authoritative room time.
+   * Advances the room timer by the shared clock's active play time since the previous tick.
    *
-   * @param elapsed nonnegative elapsed duration
    * @return delegated authority result
    */
-  public synchronized OperationResult advance(final Duration elapsed) {
-    return authority.advance(elapsed);
+  public synchronized OperationResult advance() {
+    long activeMs = playClock.activeMs();
+    OperationResult result =
+        authority.advance(Duration.ofMillis(Math.max(0, activeMs - lastActiveMs)));
+    lastActiveMs = activeMs;
+    endClockAtOutcome();
+    return result;
+  }
+
+  private void reconcilePlayClock() {
+    playClock.playingParticipants(Set.copyOf(readyPlayerEntities().values()));
+    if (authority.projection().timer().started()) {
+      playClock.ready();
+    }
+    endClockAtOutcome();
+  }
+
+  private void endClockAtOutcome() {
+    authority
+        .projection()
+        .terminal()
+        .ifPresent(
+            result -> {
+              switch (result) {
+                case SUCCESS -> playClock.end(PlayClock.Outcome.SUCCESS);
+                case HARD_TIMEOUT -> playClock.end(PlayClock.Outcome.FAILURE);
+                case ABORTED -> {}
+              }
+            });
   }
 
   /**

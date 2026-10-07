@@ -114,9 +114,9 @@ beide Abschlusserfolge.
 
 Das Tracking erfasst pro Rätsel Start, Lösung, Versuche mit Fehlergründen, genutzte
 Hinweise und wichtige Interaktionen. Die Rätsel heißen `vessels`, `essences`,
-`cellar-0` bis `cellar-4`, `methods` und `decisions`. Die Opfergabe am Herzfeuer beendet
-die Sitzung als erfolgreich abgeschlossen. Die Lesezeit des Abspanns zählt damit nicht
-mehr zur Spielzeit.
+`cellar-0` bis `cellar-4`, `methods` und `decisions`. Die Opfergabe am Herzfeuer ist das
+Raumergebnis und stoppt die Spielzeit. Die Lesezeit des Abspanns zählt damit nicht mehr zur
+Spielzeit; die Sitzung endet beim Spielende als erfolgreich abgeschlossen.
 
 # 4. Abschluss am Herzfeuer
 

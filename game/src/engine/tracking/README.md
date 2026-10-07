@@ -7,15 +7,33 @@ Tracking läuft nur im autoritativen Serverprozess oder im Einzelspielermodus. K
 Tracking.configureRoom("my-room");
 ```
 
-Ein Raum kann optional eine stabile `runId` für einen zusammenhängenden Spieldurchlauf setzen:
+Jede Sitzung hat eine verpflichtende `runId` für den zusammenhängenden Spieldurchlauf.
+Ohne Vorgabe erzeugt die Konfiguration eine neue UUID. Beim Laden verwendet der Raum die ID
+aus dem Savegame:
 
 ```java
 Tracking.configureRoom("system-recovery", Optional.of(runId));
 ```
 
 Die ID wird im Sitzungsdeskriptor der JSONL-Outbox gespeichert. Dadurch lassen sich mehrere
-Tracking-Sitzungen nach einem Savegame-Laden derselben Partie zuordnen. Ohne `runId` bleibt das
-bisherige Verhalten unverändert.
+Tracking-Sitzungen nach einem Savegame-Laden derselben Partie zuordnen.
+
+## Aktive Spielzeit
+
+`Game.playClock()` ist die gemeinsame, servergesteuerte Uhr für Tracking und Spieltimer. Der Raum
+setzt mit `configure(...)` seine Mindestspielerzahl, stellt beim Laden mit `restore(...)` den
+gespeicherten Wert wieder her und meldet mit `ready()` das Ende des Intros. Die Uhr läuft, solange
+genug spielbereite Teilnehmer da sind und nicht alle das Pausenmenü offen haben
+(`DialogContextKeys.PAUSES_PLAY_CLOCK`). Aufgaben- und Hinweisdialoge halten sie nicht an. Beim
+endgültigen Raumergebnis beendet der Raum sie mit `end(Outcome.SUCCESS)` oder
+`end(Outcome.FAILURE)`; `Game.complete()` meldet `SUCCESS`, falls der Raum es nicht schon getan hat.
+
+Jedes Ereignis enthält `activeMs` und `occurredAt` in UTC, der Deskriptor `resumedAtActiveMs`. Die
+Uhr schreibt `PLAY_STARTED`, `PLAY_PAUSED` (`PAUSE_DIALOG` oder `PLAYERS_MISSING`),
+`PLAY_RESUMED` und `PLAY_ENDED` mit `outcome`. Nach dem Ergebnis bleibt die Sitzung offen;
+`Game.exit` oder `Game.complete` schreibt den Abschluss `COMPLETED` (gelöst), `FAILED` (endgültig
+gescheitert) oder ohne Ergebnis `INTERRUPTED` mit dem zuletzt berührten offenen Rätsel. Verlassen alle Teilnehmer den Server, endet die Sitzung als `INTERRUPTED`; ein
+erneuter Beitritt startet eine neue Sitzung desselben Runs.
 
 `configureRoom` trennt die Deployment-Einstellungen vom Raumcode. Das Deployment kann Folgendes
 festlegen:
@@ -66,23 +84,24 @@ Im Einzelspielermodus beginnt das Tracking, nachdem das erste Level geladen wurd
 `Game.player()` den lokalen Spieler enthält. Die Engine erzeugt und verknüpft diesen Teilnehmer
 vor dem nächsten Gameplay-Tick.
 
-Die Bereitschaftsgrenze bestimmt die Startzeit der Sitzung. Dungeon erzeugt an diesem Punkt den
+Die Weltbereitschaft bestimmt die UTC-Startzeit der Sitzung. Dungeon erzeugt an diesem Punkt den
 Deskriptor und die Outbox und fügt den ersten Teilnehmer hinzu. Der Deskriptor ist der
 Startdatensatz der Sitzung. Bootstrap, Wartezeit in der Mehrspieler-Lobby und die erste
-Weltübertragung zählen nicht zur erfassten Dauer. Dungeon versucht den Start einmal pro
-konfiguriertem Lauf. Nach einem fehlgeschlagenen Start oder dem Ende der Sitzung startet es das
+Weltübertragung zählen nicht zur aktiven Spielzeit. Der aktive Start folgt separat dem
+Raum-Intro und der Mindestspielerzahl. Dungeon versucht den Sitzungsstart einmal pro
+konfiguriertem Lauf. Nach einem fehlgeschlagenen Start oder dem Raumergebnis startet es das
 Tracking nicht neu.
 
 Die Raumlogik kann ein Rätsel schon vor dieser Grenze verfügbar machen. Der autoritative Prozess
 merkt sich solche Rätselstarts, ohne eine Sitzung oder Outbox anzulegen. Bei Bereitschaft zeichnet
 er sie einmalig in ihrer ursprünglichen Reihenfolge direkt nach dem ersten
-`PARTICIPANT_JOINED`-Ereignis auf. Ereigniszeit und verstrichene Dauer beginnen deshalb mit der
-Bereitschaft, nicht schon während Bootstrap oder Weltübertragung.
+`PARTICIPANT_JOINED`-Ereignis auf. Ihr `activeMs` ist der zu diesem Zeitpunkt noch eingefrorene
+Wert der Spieluhr.
 
 Jede konfigurierte Sitzung erzeugt eine neue Datei `<session UUID>.jsonl`. Eine vorhandene Datei
 wird nie wiederverwendet. Die erste Zeile enthält den Sitzungsdeskriptor einschließlich der
-optionalen `runId`, danach folgen geordnete Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung
-schließt mit einem Abschlussdatensatz. Fehlt dieser, gilt die Sitzung als unterbrochen. Diese eine
+verpflichtenden `runId`, danach folgen geordnete Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung
+schließt mit einem Abschlussdatensatz. Fehlt dieser, bleibt die Sitzung unvollständig. Diese eine
 Datei enthält alles für den Offline-Import.
 Lösche sie erst, wenn das Backend die Sitzung bestätigt oder ein Betreiber sie importiert hat.
 
@@ -96,7 +115,7 @@ Dungeon protokolliert den fehlgeschlagenen absoluten Pfad und lässt die Wiederh
 offen. Bewahre die gemeldete Outbox zur Prüfung auf, auch wenn der HTTP-Upload deaktiviert war.
 
 Der Raumcode zeichnet nur stabile Rätsel- und Objekt-IDs auf. Die Engine ergänzt Sequenz,
-Uhrzeit und monoton verstrichene Zeit:
+UTC-Uhrzeit und aktive Spielzeit:
 
 ```java
 Tracking.puzzleStarted("storage-access");
@@ -126,7 +145,7 @@ als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschrege
 
 Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `active`,
 `outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `interaction`, `participantForClient` und
-`participantForEntity`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
+`participantForEntity`, `completed` und `surveyAnswered`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
 und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.
 
 `interaction(objectId, action, participantId)` erfasst bedeutende Spieleraktionen mit stabilen
@@ -155,3 +174,10 @@ Die tatsächliche Ausführung behält ihr Ergebnis `CORRECT` oder `INCORRECT`.
 Hilfestand und Lösungsart werden vor der Ausführung festgehalten, nicht erst beim späteren
 Ergebnis. Andere Räume können weiterhin Versuche ohne diese zusätzlichen Angaben erfassen.
 Diese optionalen JSON-Payload-Felder brauchen keine Änderung des Datenbankschemas.
+
+## Rätselzeiten und Surveys
+
+`PUZZLE_STARTED` heißt, dass ein Rätsel zugänglich ist. Der erste Kontakt ist das erste andere
+Ereignis mit derselben `puzzleId`. `Tracking.surveyAnswered(...)` zeichnet `SURVEY_ANSWERED` auf,
+solange die Sitzung offen ist: im Raum vor dem Intro und nach dem Raumergebnis bis
+`Game.complete()`.

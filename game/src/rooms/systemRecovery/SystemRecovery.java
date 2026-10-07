@@ -57,6 +57,7 @@ public final class SystemRecovery {
 
   private static final String LEVEL_KEY = "systemrecovery";
   private static final Color MENU_ACCENT_COLOR = new Color(0.43f, 0.78f, 0.72f, 1f);
+  private static final int MINIMUM_PLAYERS = 1;
   private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
   private static final boolean SHOW_JOIN_IN_MENU = false;
   private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
@@ -90,6 +91,9 @@ public final class SystemRecovery {
     configureManagedServerPlayerName();
     deleteSaveForNewGame(args);
     runId = resolveRunIdForLaunch();
+    Game.playClock().configure(MINIMUM_PLAYERS);
+    if (loadFromSave)
+      SystemRecoveryLoad.read().ifPresent(save -> Game.playClock().restore(save.activeMs()));
     TRACKING_CONSENT.initialize(
         args,
         () ->

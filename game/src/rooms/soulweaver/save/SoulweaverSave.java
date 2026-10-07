@@ -12,12 +12,15 @@ import rooms.soulweaver.state.SoulweaverPhase;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Stores only the act checkpoint and the run's tracking decision. */
+/** Stores the act checkpoint, active play time, run identity and tracking decision. */
 public final class SoulweaverSave {
   private static final Path PATH = Path.of("soulweaver-save.json");
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(SoulweaverSave.class);
   private static final JsonMapper JSON =
-      JsonMapper.builder().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).build();
+      JsonMapper.builder()
+          .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+          .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
+          .build();
 
   private SoulweaverSave() {}
 
@@ -80,23 +83,29 @@ public final class SoulweaverSave {
    * @param consent nullable run-level tracking decision
    */
   public static void updateTrackingConsent(Boolean consent) {
-    read().ifPresent(data -> write(new SaveData(data.phase(), data.runId(), consent)));
+    read()
+        .ifPresent(
+            data -> write(new SaveData(data.phase(), data.runId(), data.activeMs(), consent)));
   }
 
   /**
    * @param phase Act II, III or IV, restarted from its beginning
    * @param runId stable playthrough identifier
+   * @param activeMs active play time captured with this checkpoint
    * @param trackingConsent nullable decision, null while undecided
    */
-  public record SaveData(SoulweaverPhase phase, UUID runId, Boolean trackingConsent) {
+  public record SaveData(
+      SoulweaverPhase phase, UUID runId, long activeMs, Boolean trackingConsent) {
     /**
      * Validates that the checkpoint identifies a resumable act and an existing run.
      *
      * @param phase act to restart
      * @param runId playthrough identifier
+     * @param activeMs active play time captured with this checkpoint
      * @param trackingConsent nullable consent decision
      */
     public SaveData {
+      if (activeMs < 0) throw new IllegalArgumentException("Negative active play time");
       if (phase == null
           || phase == SoulweaverPhase.VARIABLES
           || phase == SoulweaverPhase.COMPLETE

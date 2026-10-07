@@ -368,7 +368,7 @@ public final class Authority {
   /**
    * Advances explicit authoritative time after the session has started.
    *
-   * @param duration nonnegative elapsed duration supplied by the local/server adapter
+   * @param duration nonnegative active play duration supplied by the shared server play clock
    * @return explicit command result
    */
   public synchronized OperationResult advance(final Duration duration) {

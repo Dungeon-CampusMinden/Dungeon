@@ -231,7 +231,7 @@ class SystemRecoverySaveTest {
     SystemRecoverySave.write(savePath, expected);
 
     assertEquals(expected, SystemRecoveryLoad.read(savePath).orElseThrow());
-    assertEquals(8, SystemRecoverySave.FORMAT_VERSION);
+    assertEquals(9, SystemRecoverySave.FORMAT_VERSION);
   }
 
   @Test

@@ -9,6 +9,7 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
@@ -166,6 +167,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private boolean systemCoreExitOpen;
   private boolean endingTriggered;
   private boolean introSuppressed;
+  private final Set<Integer> playingPlayers = new HashSet<>();
   private SystemRecoveryLearningStep savedCheckpoint;
   private List<SystemRecoverySave.QuestLogEntryData> savedQuestLog = List.of();
   private List<SystemRecoverySave.PlayerItemData> savedInventoryItems = List.of();
@@ -214,6 +216,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.playClock().playingParticipants(Set.of());
     MountedPuzzleItems.clear();
     resolvedPoints = SystemRecoveryPointRegistry.resolve(this);
     SystemRecoveryAchievements.resetRun(SystemRecovery.debugMode());
@@ -224,13 +227,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
     pendingSave = SystemRecovery.loadFromSave() ? SystemRecoveryLoad.read() : Optional.empty();
     runId = SystemRecovery.runId();
     SystemRecoveryProgressNet.reset();
-    if (pendingSave.isPresent()) {
-      // Start from a safe fresh marking. A syntactically valid but semantically corrupt history
-      // must not leave the net stranded at a checkpoint when runtime restoration fails.
-      SystemRecoveryProgressNet.initializeAtSilently(SystemRecoveryLearningStep.ENERGY_ARRAY);
-    } else {
-      SystemRecoveryProgressNet.initialize();
-    }
+    // Saves also start from a safe fresh marking. A syntactically valid but semantically corrupt
+    // history must not leave the net stranded at a checkpoint when runtime restoration fails.
+    SystemRecoveryProgressNet.initialize();
     if (SystemRecovery.levelEditorMode() || (!Game.isHeadless() && LevelEditorSystem.active())) {
       terminalsUnlocked = true;
       introSuppressed = true;
@@ -670,8 +669,18 @@ public class SystemRecoveryLevel extends DungeonLevel {
                         }));
   }
 
+  private void playReady(int playerId) {
+    if (!playingPlayers.add(playerId)) return;
+    Game.playClock().playingParticipants(playingPlayers);
+    Game.playClock().ready();
+    SystemRecoveryProgressNet.activeStep()
+        .flatMap(SystemRecoveryLearningStep::puzzle)
+        .ifPresent(SystemRecoveryPuzzleEvents::started);
+  }
+
   /** Sends the room's lore to each player once through the networked dialog system. */
   private void showIntroForNewPlayers() {
+    if (introSuppressed) Game.allPlayers().forEach(player -> playReady(player.id()));
     // Do not initialize the graphical level-editor class on the headless authoritative server.
     if (introSuppressed || (!Game.isHeadless() && LevelEditorSystem.active())) return;
     Game.allPlayers()
@@ -695,7 +704,12 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void finishIntroForPlayer(int playerId) {
     if (!controlsShownPlayers.add(playerId)) return;
     DialogFactory.showDialogDialog(
-        SystemRecoveryText.controls(), () -> terminalsUnlocked = true, playerId);
+        SystemRecoveryText.controls(),
+        () -> {
+          terminalsUnlocked = true;
+          playReady(playerId);
+        },
+        playerId);
   }
 
   /** Spawns the phone and keeps it interactable after every call. */
@@ -1138,6 +1152,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   if (!systemCoreRiddleCompleted || endingTriggered) return;
                   if (other.fetch(InputComponent.class).isEmpty()) return;
                   endingTriggered = true;
+                  Game.playClock().end(PlayClock.Outcome.SUCCESS);
                   BlackFadeCutscene.show(
                       SystemRecoveryText.endingPages(),
                       true,

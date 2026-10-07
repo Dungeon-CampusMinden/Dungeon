@@ -589,7 +589,13 @@ public class DialogFactory {
         targetEntityIds);
   }
 
-  private static DialogContext.Builder dialogDialogContext(String dialog) {
+  /**
+   * Creates the context of a sequenced speaker dialogue, so callers can add keys before showing it.
+   *
+   * @param dialog dialogue script
+   * @return context builder for {@link #showDialogDialog(DialogContext, IVoidFunction, int...)}
+   */
+  public static DialogContext.Builder dialogDialogContext(String dialog) {
     Objects.requireNonNull(dialog, "dialog string cannot be null");
     if (dialog.isBlank()) {
       throw new IllegalArgumentException("dialog string cannot be blank");
@@ -600,7 +606,15 @@ public class DialogFactory {
         .put(DialogContextKeys.DIALOG, dialog);
   }
 
-  private static UIComponent showDialogDialog(
+  /**
+   * Shows a sequenced speaker dialogue from a prepared context.
+   *
+   * @param context context from {@link #dialogDialogContext(String)}
+   * @param onFinished callback when the dialogue is confirmed or closed
+   * @param targetEntityIds player entities that see the dialogue
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showDialogDialog(
       DialogContext context, IVoidFunction onFinished, int... targetEntityIds) {
     Objects.requireNonNull(onFinished, "onFinished callback cannot be null");
 

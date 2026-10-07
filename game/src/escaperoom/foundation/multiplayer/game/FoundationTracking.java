@@ -32,7 +32,6 @@ final class FoundationTracking {
     if (result.outcome() == CodeOutcome.NOT_EVALUATED) {
       return;
     }
-    Tracking.puzzleStarted(riddleId);
     Tracking.participantForEntity(player.id())
         .ifPresent(
             participantId ->
@@ -46,7 +45,6 @@ final class FoundationTracking {
   }
 
   void hintUsed(final String riddleId, final ReleasedHint hint, final Entity player) {
-    Tracking.puzzleStarted(riddleId);
     Tracking.participantForEntity(player.id())
         .ifPresent(participantId -> Tracking.hintUsed(riddleId, hint.id(), participantId));
   }

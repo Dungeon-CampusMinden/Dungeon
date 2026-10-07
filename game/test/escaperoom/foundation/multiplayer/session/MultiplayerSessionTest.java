@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import engine.time.PlayClock;
 import escaperoom.foundation.definition.CollectionInputDefinition;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.DoorDefinition;
@@ -36,13 +37,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 
 /** Room-first multiplayer adapter contracts. */
 final class MultiplayerSessionTest {
+  private final AtomicLong monotonicMs = new AtomicLong();
+  private final PlayClock playClock = new PlayClock(monotonicMs::get);
+
   @Test
-  void startsAtMinimumAndDoesNotPauseAcrossDisconnectOrLateJoin() {
+  void pausesBelowMinimumUntilLateJoinerCompletesIntro() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -62,16 +67,25 @@ final class MultiplayerSessionTest {
     assertEquals(TimerState.WAITING_FOR_READY, session.projection().timer().state());
     session.completeIntro((short) 1);
     assertEquals(TimerState.RUNNING, session.projection().timer().state());
-    session.advance(Duration.ofSeconds(5));
+    monotonicMs.addAndGet(5_000);
+    session.advance();
     session.reconcileClients(List.of(observation(1)));
-    session.advance(Duration.ofSeconds(5));
+    monotonicMs.addAndGet(5_000);
+    session.advance();
 
-    assertEquals(Duration.ofSeconds(10), session.projection().timer().elapsed());
+    assertEquals(Duration.ofSeconds(5), session.projection().timer().elapsed());
     assertEquals(Map.of("slot_1", 100), session.readyPlayerEntities());
     session.reconcileClients(List.of(observation(1), observation(3)));
     assertTrue(session.readyClientId(300).isEmpty());
+    monotonicMs.addAndGet(5_000);
+    session.advance();
+    assertEquals(Duration.ofSeconds(5), session.projection().timer().elapsed());
     session.completeIntro((short) 3);
     assertEquals(Map.of("slot_1", 100, "slot_3", 300), session.readyPlayerEntities());
+    monotonicMs.addAndGet(5_000);
+    session.advance();
+    assertEquals(Duration.ofSeconds(10), session.projection().timer().elapsed());
+    assertEquals(10_000, playClock.activeMs());
   }
 
   @Test
@@ -80,7 +94,7 @@ final class MultiplayerSessionTest {
     assertEquals(
         "Source title", presentation.riddles().getFirst().informationSources().getFirst().title());
     assertEquals("First code title", presentation.riddles().getFirst().inputs().getFirst().title());
-    MultiplayerSession session = new MultiplayerSession(definition(1, 2), presentation);
+    MultiplayerSession session = session(1, 2);
     session.reconcileClients(List.of(observation(1)));
     session.completeIntro((short) 1);
     session.reconcileClients(List.of(observation(1), observation(2)));
@@ -169,7 +183,7 @@ final class MultiplayerSessionTest {
   void rejectsPresentationWithDifferentAuthoredSurfaceIdentity() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new MultiplayerSession(definition(1, 1), presentation("wrong_surface")));
+        () -> new MultiplayerSession(definition(1, 1), presentation("wrong_surface"), playClock));
   }
 
   @Test
@@ -180,18 +194,23 @@ final class MultiplayerSessionTest {
             new MultiplayerSession(
                 definition(1, 1),
                 presentation(
-                    "surface_source", List.of(resource("resource_b"), resource("resource_a")))));
+                    "surface_source", List.of(resource("resource_b"), resource("resource_a"))),
+                playClock));
   }
 
-  private static MultiplayerSession startedSession() {
+  private MultiplayerSession startedSession() {
     MultiplayerSession session = session(1, 2);
     session.reconcileClients(List.of(observation(1)));
     session.completeIntro((short) 1);
     return session;
   }
 
-  private static MultiplayerSession session(final int minimum, final int maximum) {
-    return new MultiplayerSession(definition(minimum, maximum), presentation());
+  private MultiplayerSession session(final int minimum, final int maximum) {
+    MultiplayerSession session =
+        new MultiplayerSession(definition(minimum, maximum), presentation(), playClock);
+    IntStream.rangeClosed(1, maximum)
+        .forEach(clientId -> playClock.participantJoined((short) clientId, clientId * 100));
+    return session;
   }
 
   private static ClientObservation observation(final int clientId) {

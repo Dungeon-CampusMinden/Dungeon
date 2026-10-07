@@ -115,6 +115,7 @@ public class PauseDialog extends Table {
     DialogContext ctx =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.PAUSE_MENU)
+            .put(DialogContextKeys.PAUSES_PLAY_CLOCK, true)
             .put(DialogContextKeys.ENTITY, caller.id())
             .build();
     ctx.owner(owner.id());
@@ -189,7 +190,7 @@ public class PauseDialog extends Table {
                 instanceof ControlsDialogSystem controlsSystem)) return;
 
             ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
-            controlsSystem.showControlsFor(player);
+            controlsSystem.showControlsFor(player, true);
             Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });

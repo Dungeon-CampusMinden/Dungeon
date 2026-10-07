@@ -45,6 +45,7 @@ public final class Soulweaver {
 
   private static final String LEVEL_KEY = "soulweaver";
   private static final CharacterClass[] CHARACTER_CLASSES = {CharacterClass.THE_LAST_HOUR_CHAR03};
+  private static final int MINIMUM_PLAYERS = 1;
   private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
   private static final String NEW_GAME_ARGUMENT = "--new-soulweaver";
   private static final String LOAD_SAVE_ARGUMENT = "--load-soulweaver";
@@ -78,6 +79,8 @@ public final class Soulweaver {
     continuation =
         arguments.contains(LOAD_SAVE_ARGUMENT) ? SoulweaverSave.read() : Optional.empty();
     runId = continuation.map(SoulweaverSave.SaveData::runId).orElseGet(UUID::randomUUID);
+    Game.playClock().configure(MINIMUM_PLAYERS);
+    continuation.ifPresent(save -> Game.playClock().restore(save.activeMs()));
     TRACKING_CONSENT.initialize(
         args, () -> continuation.map(SoulweaverSave.SaveData::trackingConsent).orElse(null));
 
@@ -129,7 +132,9 @@ public final class Soulweaver {
    */
   public static void saveCheckpoint(SoulweaverPhase phase) {
     if (Game.isMultiplayerClient()) return;
-    SoulweaverSave.write(new SoulweaverSave.SaveData(phase, runId, TRACKING_CONSENT.decision()));
+    SoulweaverSave.write(
+        new SoulweaverSave.SaveData(
+            phase, runId, Game.playClock().activeMs(), TRACKING_CONSENT.decision()));
   }
 
   /** Registers the shared escape-room translations used by the menu and its consent dialogs. */

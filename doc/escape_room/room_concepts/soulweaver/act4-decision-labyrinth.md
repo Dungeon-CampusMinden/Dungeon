@@ -108,8 +108,8 @@ Der Button „Opfergabe darbringen“ verbraucht die beiden dekorativen Kristall
 entzündet das Herzfeuer. Das Schließen des Dialogs bricht die Auswahl ab.
 
 `SoulweaverEnding` nimmt die Opfergabe nur nach Abschluss des Labyrinths und nur einmal
-auf dem Server an. Dabei beendet `Tracking.completed()` die Sitzung erfolgreich, bevor
-der Abspann beginnt. Alle verbundenen Spieler sehen den Erfolgstext. Wer ihn bestätigt,
+auf dem Server an. Dabei beendet `Game.playClock().end(Outcome.SUCCESS)` die Spielzeit, bevor der Abspann
+beginnt; die Sitzung endet beim Spielende als erfolgreich abgeschlossen. Alle verbundenen Spieler sehen den Erfolgstext. Wer ihn bestätigt,
 wartet auf die übrigen Spieler; getrennte Spieler halten den Abschluss nicht auf.
 Anschließend beendet `Game.complete()` das Spiel über den regulären Shutdown.
 

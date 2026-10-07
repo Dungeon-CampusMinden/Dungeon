@@ -237,7 +237,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         LastHourEntitySpawnStrategy.METADATA_TYPE,
         LastHourEntitySpawnStrategy.TYPE_WORLD_TIMER,
         LastHourEntitySpawnStrategy.METADATA_WORLD_TIMER_TIMESTAMP,
-        String.valueOf(worldTimer.timestamp()),
+        String.valueOf(worldTimer.startedAtActiveMs()),
         LastHourEntitySpawnStrategy.METADATA_WORLD_TIMER_DURATION,
         String.valueOf(worldTimer.duration()));
   }
@@ -416,7 +416,7 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
 
     try {
       return Optional.of(
-          new WorldTimerComponent(Integer.parseInt(timestampRaw), Integer.parseInt(durationRaw)));
+          new WorldTimerComponent(Long.parseLong(timestampRaw), Integer.parseInt(durationRaw)));
     } catch (NumberFormatException ex) {
       LOGGER.warn(
           "Invalid world timer metadata timestamp='{}' duration='{}'", timestampRaw, durationRaw);
