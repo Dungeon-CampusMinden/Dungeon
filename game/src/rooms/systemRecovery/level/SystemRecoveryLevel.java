@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
@@ -330,6 +331,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedTrackingConsent = restoredSave.trackingConsent();
           savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
           systemCoreExitOpen = restoredSave.systemCoreExitOpen();
+          timeLimit.restoreFinish(restoredSave.timeLimitFinishedAtMs());
         });
     if (checkpoint.isPresent()) {
       SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
@@ -366,7 +368,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @return whether the checkpoint is safely present on disk
    */
   private boolean persistCheckpoint(SystemRecoveryLearningStep checkpoint, boolean force) {
-    if (!Game.network().isServer()) return false;
+    // An expired run keeps its last usable checkpoint, also against forced saves.
+    if (!Game.network().isServer() || timeLimit.expired()) return false;
     applyPendingPuzzleInventory();
     SystemRecoverySave.SaveData save =
         SystemRecoverySave.capture(
@@ -739,6 +742,15 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Freezes the countdown once the final puzzle has been completed. */
   public void finishTimeLimit() {
     timeLimit.finish();
+  }
+
+  /**
+   * Returns the play time at which the running level froze its countdown, for saves.
+   *
+   * @return freeze point, empty while the countdown runs or without a level
+   */
+  public static OptionalLong timeLimitFinishedAt() {
+    return currentLevel().map(level -> level.timeLimit.finishedAt()).orElse(OptionalLong.empty());
   }
 
   /** Starts the failure ending once the timer system reports an exhausted budget. */

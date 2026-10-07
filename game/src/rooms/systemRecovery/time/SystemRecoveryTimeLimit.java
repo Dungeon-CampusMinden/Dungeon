@@ -75,6 +75,24 @@ public final class SystemRecoveryTimeLimit implements Component {
   }
 
   /**
+   * Restores the freeze point of a completed run from a save.
+   *
+   * @param finishedAtMs saved freeze point, empty while the run is unfinished
+   */
+  public void restoreFinish(OptionalLong finishedAtMs) {
+    finishedAt = finishedAtMs;
+  }
+
+  /**
+   * Returns the play time at which the countdown froze.
+   *
+   * @return freeze point, empty while the countdown runs
+   */
+  public OptionalLong finishedAt() {
+    return finishedAt;
+  }
+
+  /**
    * Freezes the remaining budget once the final puzzle has been completed; a completed run never
    * expires, even when a later save restores a play time beyond the hour.
    *

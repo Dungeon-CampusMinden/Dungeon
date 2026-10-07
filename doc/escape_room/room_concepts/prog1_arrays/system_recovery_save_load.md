@@ -85,8 +85,11 @@ Wie der Countdown läuft und was bei seinem Ablauf passiert, beschreibt der
 - Die Restzeit ist die Stunde abzüglich der gespeicherten Spielzeit `activeMs`; ein eigenes Feld
   gibt es nicht. Der Countdown selbst schreibt keine Datei. `Fortsetzen` beginnt daher mit der
   Restzeit des letzten Saves.
-- Der Zeitablauf verändert den Save nicht. `Fortsetzen` startet danach erneut am letzten
-  Checkpoint mit der dort gespeicherten Spielzeit.
+- Nach dem Zeitablauf schreibt das Spiel keinen Checkpoint mehr. `Fortsetzen` startet danach
+  erneut am letzten Checkpoint mit der dort gespeicherten Spielzeit.
+- Nach `COMPLETE` speichert der Save zusätzlich `timeLimitFinishedAtMs`, die Spielzeit beim
+  Einfrieren des Countdowns. Ein geladener abgeschlossener Lauf zeigt damit dieselbe Restzeit und
+  läuft nicht mehr ab.
 - Die Wartezeit für automatische Hilfen startet beim Laden neu.
 
 ## Grenzen

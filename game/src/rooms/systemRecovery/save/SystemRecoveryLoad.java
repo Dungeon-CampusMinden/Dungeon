@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
@@ -234,7 +235,10 @@ public final class SystemRecoveryLoad {
             systemCoreExitOpen,
             systemCoreWarningCallAnswered,
             playerPositions,
-            ((Number) root.get("activeMs")).longValue()));
+            ((Number) root.get("activeMs")).longValue(),
+            root.get("timeLimitFinishedAtMs") instanceof Number finishedAt
+                ? OptionalLong.of(finishedAt.longValue())
+                : OptionalLong.empty()));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
