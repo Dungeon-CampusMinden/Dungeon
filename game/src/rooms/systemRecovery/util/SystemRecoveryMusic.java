@@ -40,8 +40,8 @@ public final class SystemRecoveryMusic {
 
     backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
-    backgroundMusic.play();
     updateVolumes();
+    backgroundMusic.play();
     if (alarmActive) syncAlarmLayer(true);
 
     ClientSettings.setOnVolumeChange((key, value) -> updateVolumes());

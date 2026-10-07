@@ -15,7 +15,7 @@ public final class SystemRecoverySounds {
    * @param asset Sound to play
    * @param volume volume of the sound
    */
-  public static void play(String asset, float volume) {
+  private static void play(String asset, float volume) {
     Game.audio().playGlobal(SoundSpec.builder(asset).volume(volume));
   }
 
@@ -67,23 +67,5 @@ public final class SystemRecoverySounds {
   /** Plays the final level completion cue. */
   public static void completed() {
     play("system_recovery_complete", 0.72f);
-  }
-
-  /**
-   * Starts or stops the locally mixed alarm layer and siren from the synchronized alarm state.
-   *
-   * <p>The looping audio is intentionally local on each client. One-shot gameplay sounds use the
-   * server's global sound broadcast, but state-based alarm audio must also begin for clients who
-   * join after the alarm has started or load a checkpoint with the alarm active.
-   *
-   * @param active whether the authoritative system-core alarm is active
-   */
-  public static synchronized void syncAlarmLayer(boolean active) {
-    SystemRecoveryMusic.syncAlarmLayer(active);
-  }
-
-  /** Stops alarm audio after disconnect so a reconnected client can resync from metadata. */
-  public static synchronized void resetClientAudio() {
-    SystemRecoveryMusic.resetClientAudio();
   }
 }

@@ -6,27 +6,20 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
-import engine.level.Tile;
-import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.systems.DrawSystem;
 import engine.utils.Point;
 import engine.utils.Tuple;
-import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.shader.OutlineShader;
-import engine.utils.components.path.IPath;
-import engine.utils.components.path.SimpleIPath;
 import feature.entities.deco.Deco;
 import feature.interaction.keypad.KeypadComponent;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerComponent;
 import feature.utils.EntityUtils;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import rooms.lasthour.util.shaders.LightingShader;
 import rooms.systemRecovery.modules.computer.content.SystemCoreMetaDraft;
 import rooms.systemRecovery.modules.computer.content.TerminalDraftStore;
@@ -75,38 +68,9 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    preloadTileTextures();
     SystemCoreMetaDraft.clear();
     TerminalDraftStore.clear();
     setupLightingShader();
-  }
-
-  /** Loads the map's tile textures before drawing to avoid first-use decode hitches during play. */
-  private void preloadTileTextures() {
-    if (Game.isHeadless()) return;
-
-    Set<String> loadedPaths = new HashSet<>();
-    for (Tile[] row : layout) {
-      for (Tile tile : row) {
-        IPath path = tile.texturePath();
-        preloadTexture(path, loadedPaths);
-
-        // A door can switch between open and closed art after the level starts.
-        if (tile instanceof DoorTile && path != null) {
-          String pathString = path.pathString();
-          String openPath = pathString.replace("_closed.png", ".png");
-          String closedPath = openPath.replace(".png", "_closed.png");
-          preloadTexture(new SimpleIPath(openPath), loadedPaths);
-          preloadTexture(new SimpleIPath(closedPath), loadedPaths);
-        }
-      }
-    }
-  }
-
-  private static void preloadTexture(IPath path, Set<String> loadedPaths) {
-    if (path != null && loadedPaths.add(path.pathString())) {
-      TextureMap.instance().textureAt(path);
-    }
   }
 
   @Override

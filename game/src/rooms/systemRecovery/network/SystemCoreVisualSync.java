@@ -6,7 +6,7 @@ import engine.components.DrawComponent;
 import engine.utils.components.draw.shader.OutlineShader;
 import java.util.Map;
 import java.util.Optional;
-import rooms.systemRecovery.util.shaders.SystemRecoveryAlarm;
+import rooms.systemRecovery.util.SystemRecoveryMusic;
 
 /** Reconstructs the system-core alarm and per-area completion visuals on clients. */
 public final class SystemCoreVisualSync {
@@ -19,7 +19,7 @@ public final class SystemCoreVisualSync {
    * @param metadata synchronized system-core metadata
    */
   public static void applyAlarm(Map<String, String> metadata) {
-    alarmState(metadata).ifPresent(SystemRecoveryAlarm::syncClientAudioLayer);
+    alarmState(metadata).ifPresent(SystemRecoveryMusic::syncAlarmLayer);
   }
 
   static Optional<Boolean> alarmState(Map<String, String> metadata) {
