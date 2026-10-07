@@ -25,7 +25,7 @@ class TrackingHintTest {
                 Optional.empty(),
                 directory,
                 "tracking@example.com",
-                Optional.empty()));
+                UUID.randomUUID()));
     UUID participant = UUID.randomUUID();
 
     TrackingEvent requested =

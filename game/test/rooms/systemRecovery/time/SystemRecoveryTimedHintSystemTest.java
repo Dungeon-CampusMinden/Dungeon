@@ -16,6 +16,7 @@ import engine.System;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
 import engine.systems.LevelSystem;
+import engine.time.PlayClock;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
 import java.time.Duration;
@@ -38,8 +39,9 @@ class SystemRecoveryTimedHintSystemTest {
 
   private final AtomicLong clock = new AtomicLong();
   private final AtomicBoolean initialInput = new AtomicBoolean();
+  private final PlayClock playClock = new PlayClock(clock::get);
   private final SystemRecoveryTimeLimit timer =
-      new SystemRecoveryTimeLimit(Duration.ofMinutes(4), clock::get);
+      new SystemRecoveryTimeLimit(Duration.ofMinutes(4), () -> playClock);
   private final SystemRecoveryLevel level = mock(SystemRecoveryLevel.class);
   private final SystemRecoveryTimedHintSystem timedHints = new SystemRecoveryTimedHintSystem(true);
   private final HintSystem hints = new HintSystem();
@@ -92,7 +94,7 @@ class SystemRecoveryTimedHintSystemTest {
   void initialInactivityRingsInBothModesWithoutConsumingAHint(boolean forceHints) {
     when(level.triggerIdleOpeningCall()).thenReturn(true, false);
     SystemRecoveryTimedHintSystem assistance = new SystemRecoveryTimedHintSystem(forceHints);
-    timer.start();
+    startPlay(0);
     assistance.execute();
     advanceToMinute(4);
     clock.decrementAndGet();
@@ -112,7 +114,7 @@ class SystemRecoveryTimedHintSystemTest {
 
   @Test
   void firstObservationDoesNotResetAnAlreadyDueOpeningCall() {
-    timer.start();
+    startPlay(0);
     advanceToMinute(4);
     timedHints.execute();
     verify(level).triggerIdleOpeningCall();
@@ -121,7 +123,7 @@ class SystemRecoveryTimedHintSystemTest {
   @Test
   void initialCallDoesNotDependOnTheHintSystem() {
     Game.remove(HintSystem.class);
-    timer.start();
+    startPlay(0);
     advanceToMinute(4);
     timedHints.execute();
     verify(level).triggerIdleOpeningCall();
@@ -130,7 +132,7 @@ class SystemRecoveryTimedHintSystemTest {
   @Test
   void firstInputReenablesTheConfiguredAutomaticHints() {
     when(level.triggerIdleOpeningCall()).thenReturn(true);
-    timer.start();
+    startPlay(0);
     timedHints.execute();
     advanceToMinute(4);
     timedHints.execute();
@@ -145,7 +147,7 @@ class SystemRecoveryTimedHintSystemTest {
   @Test
   void acceptedPartialProgressAndManualHintsPostponeAutomaticHelp() {
     initialInput.set(true);
-    timer.start();
+    startPlay(0);
     timedHints.execute();
     advanceToMinute(3);
     level.resetTimedHintDelay();
@@ -175,7 +177,7 @@ class SystemRecoveryTimedHintSystemTest {
     initialInput.set(true);
     when(level.triggerTimedHintReminder()).thenReturn(true);
     SystemRecoveryTimedHintSystem reminders = new SystemRecoveryTimedHintSystem(false);
-    timer.start();
+    startPlay(0);
     reminders.execute();
     advanceToMinute(4);
     reminders.execute();
@@ -190,7 +192,7 @@ class SystemRecoveryTimedHintSystemTest {
 
   @Test
   void stepChangesRestartTheHintInterval() {
-    timer.start();
+    startPlay(0);
     timedHints.execute();
     advanceToMinute(3);
     SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.MODULE_ARRAY);
@@ -208,9 +210,9 @@ class SystemRecoveryTimedHintSystemTest {
   void introductionExpiryAndCompletionDoNotRingThePhone() {
     advanceToMinute(4);
     timedHints.execute();
-    timer.restore(0);
+    startPlay(Duration.ofHours(1).toMillis());
     timedHints.execute();
-    timer.restore(3600);
+    startPlay(0);
     SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.COMPLETE);
     timedHints.execute();
     advanceToMinute(8);
@@ -224,7 +226,7 @@ class SystemRecoveryTimedHintSystemTest {
   void exhaustedHintsDoNotTriggerOptionalReminders() {
     initialInput.set(true);
     SystemRecoveryTimedHintSystem reminders = new SystemRecoveryTimedHintSystem(false);
-    timer.start();
+    startPlay(0);
     reminders.execute();
     int accepted = 0;
     while (hints.acceptSharedHint().isPresent()) accepted++;
@@ -247,7 +249,7 @@ class SystemRecoveryTimedHintSystemTest {
     assertTrue(countdown.filterRules().contains(SystemRecoveryTimeLimit.class));
     assertTrue(timedHints.filterRules().contains(SystemRecoveryTimeLimit.class));
     Game.remove(timerEntity);
-    timer.start();
+    startPlay(0);
     advanceToMinute(4);
     timedHints.execute();
     verify(level, never()).triggerIdleOpeningCall();
@@ -255,13 +257,26 @@ class SystemRecoveryTimedHintSystemTest {
 
   @Test
   void levelEditorCannotTriggerCalls() {
-    timer.start();
+    startPlay(0);
     advanceToMinute(4);
     SystemRecovery.configureDebugMode("--leveleditor");
     timedHints.execute();
     SystemRecovery.configureDebugMode();
     verify(level, never()).triggerIdleOpeningCall();
     verify(level, never()).triggerTimedHintReminder();
+  }
+
+  /**
+   * Starts play after the intro, optionally from a loaded play time.
+   *
+   * @param restoredActiveMs play time restored from a save, zero for a new run
+   */
+  private void startPlay(long restoredActiveMs) {
+    playClock.configure(1);
+    playClock.restore(restoredActiveMs);
+    playClock.participantJoined((short) 0, 1);
+    playClock.ready();
+    timer.postponeHint();
   }
 
   private void advanceToMinute(int minute) {

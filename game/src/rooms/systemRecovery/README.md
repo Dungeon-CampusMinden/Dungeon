@@ -51,10 +51,11 @@ Die ausführliche, aktuelle Beschreibung steht in:
 
 ## Zeitlimit
 
-`SystemRecoveryTimerFactory` erzeugt am Custom Point `timer` die Timer-Entity. Sie trägt den
-serverseitigen Zustand als `SystemRecoveryTimeLimit`, den `SystemRecoveryTimerSystem` auf dem
-Server fortschreibt. `SystemRecoveryTimerSync` überträgt die Restzeit, und `WorldTimerSystem`
-zeichnet sie auf den Clients. Läuft die Zeit vor `COMPLETE` ab, zeigt `SystemRecoveryTimeoutEnding`
+`SystemRecoveryTimerFactory` erzeugt am Custom Point `timer` die Timer-Entity. Ihre Restzeit
+rechnet `SystemRecoveryTimeLimit` aus der gemeinsamen Spieluhr; `SystemRecoveryTimerSystem`
+friert sie bei `COMPLETE` ein und erkennt den Ablauf. `SystemRecoveryTimerSync` überträgt Start,
+Dauer und Einfrierzeitpunkt, und `WorldTimerSystem` zeichnet die Restzeit mit der synchronisierten
+Spieluhr auf den Clients. Läuft die Zeit vor `COMPLETE` ab, zeigt `SystemRecoveryTimeoutEnding`
 das Fehler-Outro. Unabhängig davon löst `SystemRecoveryTimedHintSystem` die zeitgesteuerte Hilfe
 aus (`SystemRecovery.FORCE_HINTS`, `SystemRecovery.HINT_DELAY_MINUTES`).
 
@@ -76,8 +77,8 @@ Der Server speichert automatisch am Anfang jedes Haupträtsels. Beim Laden werde
 Petri-Place, abgeschlossene Räume, akzeptierte Terminaleingaben, Questlog und
 Achievement-Fortschritt sowie die Tracking-Einwilligung wiederhergestellt; Dialoge werden nicht
 erneut abgespielt. Erfolgreiche USB-Uploads und die Teilschritte im Systemkern besitzen ebenfalls
-Checkpoints. Die verbleibende Zeit wird mit jedem dieser Saves geschrieben, aber nicht separat;
-vor dem Einsetzen der Batterie entsteht weiterhin kein Savegame. Offline-Zeit wird nicht
+Checkpoints. Die verbleibende Zeit ergibt sich aus der mitgespeicherten Spielzeit; vor dem
+Einsetzen der Batterie entsteht weiterhin kein Savegame. Offline-Zeit wird nicht
 abgezogen. Details und Grenzen stehen in der
 [Save/Load-Dokumentation](../../../../doc/escape_room/room_concepts/prog1_arrays/system_recovery_save_load.md).
 

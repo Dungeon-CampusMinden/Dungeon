@@ -14,8 +14,8 @@ anschließend fliehen.
 ## Ablauf
 
 1. **Start:** Eine Lore-Sequenz erklärt Identität und Auftrag, danach zeigt ein Popup Steuerung und
-   Questlog. Nach der Lore-Sequenz startet der gemeinsame 60-Minuten-Countdown; erst nach dem
-   Steuerungsdialog sind die Terminals freigegeben.
+   Questlog. Nach dem Steuerungsdialog startet der gemeinsame 60-Minuten-Countdown mit der
+   Spieluhr, und die Terminals sind freigegeben.
 2. **Erster Kontakt:** Vor dem ersten Anruf meldet das Telefon nur eine tote Leitung. Nach der
    ersten falschen Energie-Terminaleingabe klingelt es; ECHO stellt sich vor und erklärt den
    fehlenden Datenspeicher. Ist bereits die erste Eingabe richtig, stellt sich zunächst AXIOM vor;
@@ -56,7 +56,9 @@ anschließend fliehen.
 
 Am Custom Point `timer` steht ein interaktiver Countdown wie in The Last Hour. Beim Anklicken
 nennt er die verbleibenden Minuten bis zur Systemlöschung. Alle Spieler sehen dieselbe
-serverseitig bestimmte Zeit; spätere Multiplayer-Beitritte starten keine neue Stunde.
+serverseitig bestimmte Zeit; spätere Multiplayer-Beitritte starten keine neue Stunde. Der
+Countdown ist die gemeinsame Spieluhr: Lese- und Rätseldialoge halten ihn nicht an, das
+Pausenmenü aller Spieler oder fehlende Spieler schon.
 
 Nach **vier Minuten ohne akzeptierten Fortschritt** greift die automatische Hilfe. Dieser Wert
 ist ein Ausgangspunkt für Playtests, keine Garantie für einen Abschluss in 60 Minuten.
@@ -66,7 +68,7 @@ abgerufene Hinweise setzen sie zurück.
 
 Die Prüfung und das Auslösen übernimmt `SystemRecoveryTimedHintSystem`, ein eigenständiges
 serverseitiges ECS-System. Es wird beim Server-Setup registriert und bleibt bei Dialogen aktiv.
-Das Countdown-System ist ausschließlich für Restzeit, Speicherung und das Zeitablauf-Ende zuständig.
+Das Countdown-System friert den Countdown bei `COMPLETE` ein und startet das Zeitablauf-Ende.
 
 Vor der ersten Terminaleingabe gilt in **beiden** Hilfsmodi eine Ausnahme: Nach Ablauf der
 Wartezeit klingelt nur der einmalige ECHO-Erstanruf `opening-call-idle`. Es erscheint kein
@@ -91,10 +93,9 @@ Manuelle Telefonhinweise bleiben in beiden Modi verfügbar. Bei null Sekunden vo
 endet das Spiel sofort: Steuerung und Interaktionen sind gesperrt, weitere Rätselerfolge werden
 abgelehnt. Ein eigenes Outro erklärt, dass der Spieler zu langsam war, der Systemkern gelöscht
 wurde und die Verbindungen zu AXIOM und ECHO abgebrochen sind. Nach dem Titel
-`SYSTEM RECOVERY GESCHEITERT` wird das Spiel beendet, nicht als Erfolg abgeschlossen. Die
-Tracking-Session endet dabei wie bei einem Abbruch als `ABORTED`; den Zeitablauf kennzeichnet
-vorher für jeden Spieler ein `INTERACTION_RECORDED` am aktiven Rätsel (`timer` / `time-limit` /
-`BLOCKED` / `expired`). Nach `COMPLETE` stoppt die Zeit, sodass das letzte Telefonat und der Weg
+`SYSTEM RECOVERY GESCHEITERT` wird das Spiel beendet, nicht als Erfolg abgeschlossen. Der
+Zeitablauf beendet die Spieluhr mit `FAILURE`, die Tracking-Session endet deshalb als `FAILED`.
+Nach `COMPLETE` stoppt der Countdown, sodass das letzte Telefonat und der Weg
 zum Aufzug nicht mehr unter Zeitdruck stehen. Wie die Restzeit gespeichert wird, beschreibt
 [Save und Load](system_recovery_save_load.md#restzeit).
 

@@ -1,23 +1,28 @@
 package rooms.systemRecovery.network;
 
-import engine.Component;
 import engine.Entity;
 import feature.timer.WorldTimerComponent;
 import java.util.Map;
 
-/** Carries the shared countdown through both initial spawns and ongoing snapshots. */
+/**
+ * Carries the countdown's fixed values through spawns and snapshots. Clients compute the remaining
+ * time from their synchronized play clock, so only a start, a duration and a freeze point travel.
+ */
 public final class SystemRecoveryTimerSync {
 
-  /** Server wall-clock second of the last countdown update; clients only use it to detect one. */
-  public static final String TIMESTAMP = "systemRecovery.timer.timestamp";
+  /** Active play time at which the countdown began. */
+  public static final String STARTED_AT = "systemRecovery.timer.startedAt";
 
-  /** Authoritative remaining budget at the transmitted timestamp. */
+  /** Countdown length in seconds. */
   public static final String DURATION = "systemRecovery.timer.duration";
+
+  /** Active play time at which the countdown froze, absent while it runs. */
+  public static final String STOPPED_AT = "systemRecovery.timer.stoppedAt";
 
   private SystemRecoveryTimerSync() {}
 
   /**
-   * Appends timer presentation state without depending on a graphical server.
+   * Appends the countdown state.
    *
    * @param entity timer entity
    * @param metadata target spawn or snapshot metadata
@@ -27,48 +32,37 @@ public final class SystemRecoveryTimerSync {
         .fetch(WorldTimerComponent.class)
         .ifPresent(
             timer -> {
-              metadata.put(TIMESTAMP, String.valueOf(timer.timestamp()));
+              metadata.put(STARTED_AT, String.valueOf(timer.startedAtActiveMs()));
               metadata.put(DURATION, String.valueOf(timer.duration()));
+              if (timer.stoppedAtActiveMs() != Long.MAX_VALUE) {
+                metadata.put(STOPPED_AT, String.valueOf(timer.stoppedAtActiveMs()));
+              }
             });
   }
 
   /**
-   * Updates the client renderer; incomplete or malformed packets leave valid state intact.
-   *
-   * <p>The renderer counts down from the component's timestamp with the local wall clock. Each new
-   * server update is therefore anchored to the local receive time, so a skewed client clock cannot
-   * shift the display. While the countdown is frozen, the server still advances its timestamp every
-   * second, which re-anchors the client and keeps the display frozen.
+   * Updates the client countdown; incomplete or malformed packets leave valid state intact.
    *
    * @param entity client-side timer entity
    * @param metadata server metadata
    */
   public static void apply(Entity entity, Map<String, String> metadata) {
-    apply(entity, metadata, (int) (System.currentTimeMillis() / 1000L));
-  }
-
-  static void apply(Entity entity, Map<String, String> metadata, int localNowSeconds) {
-    String timestamp = metadata.get(TIMESTAMP);
+    String startedAt = metadata.get(STARTED_AT);
     String duration = metadata.get(DURATION);
-    if (timestamp == null || duration == null) return;
+    if (startedAt == null || duration == null) return;
     try {
-      ServerTimerState received =
-          new ServerTimerState(Integer.parseInt(timestamp), Integer.parseInt(duration));
+      String stoppedAt = metadata.get(STOPPED_AT);
+      WorldTimerComponent received =
+          new WorldTimerComponent(
+              Long.parseLong(startedAt),
+              Integer.parseInt(duration),
+              stoppedAt == null ? Long.MAX_VALUE : Long.parseLong(stoppedAt));
       if (received.duration() < 0) return;
-      // Snapshots can repeat an unchanged state; re-anchoring it would hold the display back.
-      if (entity.fetch(ServerTimerState.class).filter(received::equals).isPresent()) return;
-      entity.add(received);
-      entity.add(new WorldTimerComponent(localNowSeconds, received.duration()));
+      if (entity.fetch(WorldTimerComponent.class).filter(received::equals).isEmpty()) {
+        entity.add(received);
+      }
     } catch (NumberFormatException ignored) {
       // A malformed packet must not remove the last valid countdown.
     }
   }
-
-  /**
-   * Client-only record of the last applied server update.
-   *
-   * @param timestamp server wall-clock second of the update
-   * @param duration remaining seconds at that update
-   */
-  record ServerTimerState(int timestamp, int duration) implements Component {}
 }

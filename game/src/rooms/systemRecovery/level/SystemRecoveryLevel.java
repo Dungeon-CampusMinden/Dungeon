@@ -326,7 +326,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedTrackingConsent = restoredSave.trackingConsent();
           savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
           systemCoreExitOpen = restoredSave.systemCoreExitOpen();
-          timeLimit.restore(restoredSave.remainingSeconds());
         });
     if (checkpoint.isPresent()) {
       SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
@@ -680,6 +679,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   private void playReady(int playerId) {
     if (!playingPlayers.add(playerId)) return;
+    // The first player to start (again) opens the inactivity interval for timed hints.
+    if (!Game.playClock().running()) timeLimit.postponeHint();
     Game.playClock().playingParticipants(playingPlayers);
     Game.playClock().ready();
     SystemRecoveryProgressNet.activeStep()
@@ -712,7 +713,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   private void finishIntroForPlayer(int playerId) {
     if (!controlsShownPlayers.add(playerId)) return;
-    timeLimit.start();
     DialogFactory.showDialogDialog(
         SystemRecoveryText.controls(),
         () -> {
@@ -738,15 +738,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
     endingTriggered = true;
     phoneController.cancelHintReminder();
     SystemRecoveryTimeoutEnding.show();
-  }
-
-  /**
-   * @return current server countdown, or the initial budget before a level exists
-   */
-  public static int remainingSeconds() {
-    return currentLevel()
-        .map(level -> level.timeLimit.remainingSeconds())
-        .orElse(SystemRecoveryTimeLimit.TOTAL_SECONDS);
   }
 
   /**

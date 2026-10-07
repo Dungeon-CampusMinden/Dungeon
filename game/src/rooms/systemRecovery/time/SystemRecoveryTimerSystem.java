@@ -8,10 +8,13 @@ import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 
-/** Drives the authoritative countdown even while dialogs or the pause menu are open. */
+/**
+ * Freezes the countdown at the final puzzle and starts the failure ending when the budget expires.
+ * Runs while dialogs pause the simulation, because the play clock keeps running during them.
+ */
 public final class SystemRecoveryTimerSystem extends System {
 
-  /** Creates the server-only, non-pausable clock system. */
+  /** Creates the server-only, non-pausable timer system. */
   public SystemRecoveryTimerSystem() {
     super(AuthoritativeSide.SERVER, SystemRecoveryTimeLimit.class, WorldTimerComponent.class);
   }
@@ -24,23 +27,18 @@ public final class SystemRecoveryTimerSystem extends System {
   }
 
   private void update(Entity entity, SystemRecoveryLevel level) {
-    SystemRecoveryTimeLimit clock = entity.fetch(SystemRecoveryTimeLimit.class).orElseThrow();
-    boolean complete =
-        SystemRecoveryProgressNet.activeStep().orElse(null) == SystemRecoveryLearningStep.COMPLETE;
-    if (complete) clock.finish();
-
-    int remaining = clock.remainingSeconds();
-    int now = (int) (java.lang.System.currentTimeMillis() / 1000L);
-    WorldTimerComponent display = entity.fetch(WorldTimerComponent.class).orElseThrow();
-    if (display.duration() != remaining
-        || ((!clock.started() || complete) && display.timestamp() != now)) {
-      entity.add(new WorldTimerComponent(now, remaining));
+    SystemRecoveryTimeLimit timeLimit = entity.fetch(SystemRecoveryTimeLimit.class).orElseThrow();
+    if (SystemRecoveryProgressNet.activeStep().orElse(null)
+        == SystemRecoveryLearningStep.COMPLETE) {
+      long finishedAt = timeLimit.finish();
+      WorldTimerComponent display = entity.fetch(WorldTimerComponent.class).orElseThrow();
+      if (display.stoppedAtActiveMs() != finishedAt) entity.add(display.stoppedAt(finishedAt));
     }
-    if (clock.expired()) level.expireTimeLimit();
+    if (timeLimit.expired()) level.expireTimeLimit();
   }
 
   @Override
   public void stop() {
-    // The deletion deadline continues during dialogs and pauses.
+    // The deadline follows the play clock, which keeps running while dialogs are open.
   }
 }

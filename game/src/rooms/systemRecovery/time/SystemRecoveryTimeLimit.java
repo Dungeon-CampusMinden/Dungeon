@@ -1,95 +1,85 @@
 package rooms.systemRecovery.time;
 
 import engine.Component;
+import engine.Game;
+import engine.time.PlayClock;
 import java.time.Duration;
 import java.util.Objects;
-import java.util.function.LongSupplier;
+import java.util.OptionalLong;
+import java.util.function.Supplier;
 import rooms.systemRecovery.SystemRecovery;
 
-/** Server-only runtime component for one run's countdown and inactivity deadline. */
+/**
+ * Server-only one-hour budget and inactivity deadline of a run, both on the shared play clock. The
+ * budget starts with the clock after the intro, survives saves through the clock's saved value and
+ * stands still while the whole group pauses.
+ */
 public final class SystemRecoveryTimeLimit implements Component {
 
   /** One hour, in seconds. */
   public static final int TOTAL_SECONDS = 60 * 60;
 
-  private final LongSupplier clock;
-  private final long hintDelayMillis;
-  private long expiresAt;
-  private long nextHintAt;
-  private boolean started;
-  private boolean finished;
-  private int frozenSeconds = TOTAL_SECONDS;
+  private static final long TOTAL_MS = TOTAL_SECONDS * 1000L;
 
-  /** Creates a clock that is independent of system-clock corrections. */
+  private final Supplier<PlayClock> clock;
+  private final long hintDelayMillis;
+  private long nextHintAt;
+  private OptionalLong finishedAt = OptionalLong.empty();
+
+  /** Creates the budget on the game's play clock. */
   public SystemRecoveryTimeLimit() {
-    this(
-        Duration.ofMinutes(SystemRecovery.HINT_DELAY_MINUTES),
-        () -> System.nanoTime() / 1_000_000L);
+    this(Duration.ofMinutes(SystemRecovery.HINT_DELAY_MINUTES), Game::playClock);
   }
 
-  SystemRecoveryTimeLimit(Duration hintDelay, LongSupplier clock) {
+  SystemRecoveryTimeLimit(Duration hintDelay, Supplier<PlayClock> clock) {
     this.clock = Objects.requireNonNull(clock, "clock");
     hintDelayMillis = hintDelay.toMillis();
     if (hintDelayMillis <= 0) throw new IllegalArgumentException("Hint delay must be positive");
   }
 
-  /** Starts once after the opening cutscene; another player's intro cannot reset the budget. */
-  public void start() {
-    if (!started) restore(TOTAL_SECONDS);
-  }
-
   /**
-   * Resumes a stored budget without charging time spent outside the running game.
+   * Returns the remaining budget.
    *
-   * @param remainingSeconds validated save budget
-   */
-  public void restore(int remainingSeconds) {
-    if (remainingSeconds < 0 || remainingSeconds > TOTAL_SECONDS) {
-      throw new IllegalArgumentException("Remaining time must be between zero and one hour");
-    }
-    started = true;
-    finished = false;
-    expiresAt = clock.getAsLong() + remainingSeconds * 1000L;
-    postponeHint();
-  }
-
-  /**
    * @return whole remaining seconds, rounded up and clamped at zero
    */
   public int remainingSeconds() {
-    if (!started || finished) return frozenSeconds;
-    return (int) ((Math.max(0L, expiresAt - clock.getAsLong()) + 999L) / 1000L);
+    long usedMs = Math.min(clock.get().activeMs(), finishedAt.orElse(Long.MAX_VALUE));
+    return (int) ((Math.max(0L, TOTAL_MS - usedMs) + 999L) / 1000L);
   }
 
   /**
-   * @return whether the opening cutscene has started the countdown
-   */
-  public boolean started() {
-    return started;
-  }
-
-  /**
-   * @return whether the active countdown has exhausted its budget
+   * Returns whether the budget ran out before the final puzzle was completed.
+   *
+   * @return whether the deletion deadline has passed
    */
   public boolean expired() {
-    return started && !finished && remainingSeconds() == 0;
+    return remainingSeconds() == 0;
   }
 
   /**
-   * @return whether a hint may be delivered after inactivity
+   * Returns whether a hint may be delivered after inactivity.
+   *
+   * @return whether play runs and the inactivity interval has passed
    */
   public boolean hintDue() {
-    return started && !finished && !expired() && clock.getAsLong() >= nextHintAt;
+    return clock.get().running()
+        && finishedAt.isEmpty()
+        && !expired()
+        && clock.get().activeMs() >= nextHintAt;
   }
 
-  /** Restarts the inactivity interval after progress or a delivered/offered hint. */
+  /** Restarts the inactivity interval after play starts, progress or a delivered/offered hint. */
   public void postponeHint() {
-    nextHintAt = clock.getAsLong() + hintDelayMillis;
+    nextHintAt = clock.get().activeMs() + hintDelayMillis;
   }
 
-  /** Freezes the remaining budget after the final puzzle has been completed. */
-  public void finish() {
-    frozenSeconds = remainingSeconds();
-    finished = true;
+  /**
+   * Freezes the remaining budget once the final puzzle has been completed.
+   *
+   * @return active play time at which the budget froze
+   */
+  public long finish() {
+    if (finishedAt.isEmpty()) finishedAt = OptionalLong.of(clock.get().activeMs());
+    return finishedAt.getAsLong();
   }
 }

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -21,6 +20,7 @@ import engine.game.PreRunConfiguration;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.systems.LevelSystem;
+import engine.time.PlayClock;
 import engine.utils.IVoidFunction;
 import engine.utils.Point;
 import engine.utils.Tuple;
@@ -52,17 +52,15 @@ import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
 import rooms.systemRecovery.util.SystemRecoveryText;
-import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzle;
-import rooms.systemRecovery.util.tracking.SystemRecoveryPuzzleEvents;
 import testingUtils.MockNetworkHandler;
-import tracking.core.TrackingInteractionStatus;
 
 /** Exercises the level callbacks with a virtual clock and no real save file or graphics. */
 class SystemRecoveryTimerLifecycleTest {
 
   private final AtomicLong clock = new AtomicLong();
+  private final PlayClock playClock = new PlayClock(clock::get);
   private final SystemRecoveryTimeLimit timer =
-      new SystemRecoveryTimeLimit(Duration.ofMinutes(4), clock::get);
+      new SystemRecoveryTimeLimit(Duration.ofMinutes(4), () -> playClock);
   private final UUID runId = UUID.randomUUID();
   private final SystemRecoveryTimerSystem countdown = new SystemRecoveryTimerSystem();
   private final AtomicReference<Runnable> finishCutscene = new AtomicReference<>();
@@ -145,30 +143,6 @@ class SystemRecoveryTimerLifecycleTest {
   }
 
   @Test
-  void countdownStartsOnIntroCompletionBeforeControlsAndOnlyOnce()
-      throws ReflectiveOperationException {
-    invoke("showIntroForNewPlayers");
-    clock.set(Duration.ofMinutes(10).toMillis());
-    countdown.execute();
-    assertFalse(timer.started());
-    assertEquals(3600, SystemRecoveryLevel.remainingSeconds());
-    finishCutscene.get().run();
-    assertTrue(timer.started());
-    assertFalse(SystemRecoveryLevel.terminalsUnlocked());
-    clock.addAndGet(1000);
-    assertEquals(3599, SystemRecoveryLevel.remainingSeconds());
-    finishControls.get().execute();
-    assertTrue(SystemRecoveryLevel.terminalsUnlocked());
-
-    Entity laterPlayer = new Entity("Grace");
-    laterPlayer.add(new PlayerComponent(true, "Grace"));
-    Game.add(laterPlayer);
-    invoke("showIntroForNewPlayers");
-    finishCutscene.get().run();
-    assertEquals(3599, SystemRecoveryLevel.remainingSeconds());
-  }
-
-  @Test
   void timerIsSpawnedAtCustomPointAndHasAnInteraction() {
     Entity display = timerEntity();
     assertEquals(new Point(1, 1), display.fetch(PositionComponent.class).orElseThrow().position());
@@ -189,9 +163,9 @@ class SystemRecoveryTimerLifecycleTest {
   void timerNamesTheLastStartedMinuteInTheSingular() {
     Entity display = timerEntity();
     InteractionComponent interaction = display.fetch(InteractionComponent.class).orElseThrow();
-    timer.restore(61);
+    playWithRemaining(61);
     interaction.triggerInteraction(display, player);
-    timer.restore(60);
+    playWithRemaining(60);
     interaction.triggerInteraction(display, player);
 
     for (String text :
@@ -209,40 +183,12 @@ class SystemRecoveryTimerLifecycleTest {
   }
 
   @Test
-  void countdownTicksDoNotTouchTheSaveFile() {
-    timer.restore(1234);
-    countdown.execute();
-    clock.addAndGet(1000);
-    countdown.execute();
-    countdown.execute();
-    saves.verifyNoInteractions();
-    assertEquals(
-        SystemRecoveryLearningStep.ENERGY_ARRAY,
-        SystemRecoveryProgressNet.activeStep().orElseThrow());
-    assertEquals(1233, timerEntity().fetch(WorldTimerComponent.class).orElseThrow().duration());
-  }
-
-  @Test
-  void checkpointSaveCarriesTheCurrentBudget() {
-    saves
-        .when(() -> SystemRecoverySave.capture(any(), any(), any(), any(), any()))
-        .thenCallRealMethod();
-    timer.restore(1234);
-    clock.addAndGet(5000);
-    SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.MODULE_ARRAY);
-
-    assertTrue(SystemRecoveryLevel.saveCheckpointNow());
-    saves.verify(
-        () -> SystemRecoverySave.write(argThat(save -> save.remainingSeconds() == 1229)), times(1));
-  }
-
-  @Test
   void zeroBudgetRejectsLateProgressAndShowsOneFailureCutscene() throws Exception {
     Entity module = new Entity("module");
     module.add(new InteractionComponent(new Interaction((_, _) -> {})));
     Game.add(module);
     setField("terminalsUnlocked", true);
-    timer.restore(1);
+    playWithRemaining(1);
     clock.set(1000);
 
     assertTrue(SystemRecoveryLevel.timeLimitExpired());
@@ -277,33 +223,6 @@ class SystemRecoveryTimerLifecycleTest {
   }
 
   @Test
-  void timeoutIsTrackedForEveryPlayerAtTheActivePuzzle() {
-    Entity guest = new Entity("Grace");
-    guest.add(new PlayerComponent(true, "Grace"));
-    Game.add(guest);
-    timer.restore(1);
-    clock.set(1000);
-
-    try (MockedStatic<SystemRecoveryPuzzleEvents> events =
-        mockStatic(SystemRecoveryPuzzleEvents.class)) {
-      countdown.execute();
-      countdown.execute();
-      for (Entity each : List.of(player, guest)) {
-        events.verify(
-            () ->
-                SystemRecoveryPuzzleEvents.interaction(
-                    SystemRecoveryPuzzle.ENERGY,
-                    "timer",
-                    "time-limit",
-                    TrackingInteractionStatus.BLOCKED,
-                    "expired",
-                    each),
-            times(1));
-      }
-    }
-  }
-
-  @Test
   void autosaveStopsAsSoonAsTimeIsUpButContinuesDuringTheSuccessfulEnding() throws Exception {
     saves
         .when(() -> SystemRecoverySave.capture(any(), any(), any(), any(), any()))
@@ -312,32 +231,39 @@ class SystemRecoveryTimerLifecycleTest {
     setField("introSuppressed", true);
     SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.MODULE_ARRAY);
 
-    timer.restore(1);
+    playWithRemaining(1);
     clock.addAndGet(1000);
     invoke("onTick");
     saves.verify(() -> SystemRecoverySave.write(any(SystemRecoverySave.SaveData.class)), never());
 
-    timer.restore(100);
+    playWithRemaining(100);
     setField("endingTriggered", true);
     invoke("onTick");
     saves.verify(() -> SystemRecoverySave.write(any(SystemRecoverySave.SaveData.class)), times(1));
   }
 
   @Test
-  void completedRunKeepsItsRemainingTimeAndEditorDoesNotExpire() {
-    timer.restore(10);
+  void completedRunKeepsItsRemainingTime() {
+    playWithRemaining(10);
     SystemRecoveryProgressNet.restoreActiveStep(SystemRecoveryLearningStep.COMPLETE);
     countdown.execute();
     clock.set(Duration.ofHours(1).toMillis());
     countdown.execute();
-    assertEquals(10, SystemRecoveryLevel.remainingSeconds());
+    assertEquals(10, timer.remainingSeconds());
     assertFalse(SystemRecoveryLevel.timeLimitExpired());
     cutscenes.verifyNoInteractions();
+  }
 
-    SystemRecovery.configureDebugMode("--leveleditor");
-    timer.restore(0);
-    countdown.execute();
-    cutscenes.verifyNoInteractions();
+  /**
+   * Runs play with the given budget left, as after loading a save.
+   *
+   * @param seconds remaining budget
+   */
+  private void playWithRemaining(int seconds) {
+    playClock.configure(1);
+    playClock.restore((SystemRecoveryTimeLimit.TOTAL_SECONDS - seconds) * 1000L);
+    playClock.participantJoined((short) 0, player.id());
+    playClock.ready();
   }
 
   private Entity timerEntity() {

@@ -21,7 +21,6 @@ import java.util.UUID;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
-import rooms.systemRecovery.time.SystemRecoveryTimeLimit;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.interpreter.TerminalStep;
@@ -216,7 +215,6 @@ public final class SystemRecoveryLoad {
     boolean systemCoreWarningCallAnswered =
         root.containsKey("systemCoreWarningCallAnswered")
             && booleanValue(root.get("systemCoreWarningCallAnswered"));
-    int remainingSeconds = remainingSeconds(root.get("remainingSeconds"));
     SystemRecoveryAchievementTracker.Snapshot achievementProgress =
         version >= 2 && root.containsKey("achievementProgress")
             ? parseAchievementProgress(root.get("achievementProgress"))
@@ -236,18 +234,7 @@ public final class SystemRecoveryLoad {
             systemCoreExitOpen,
             systemCoreWarningCallAnswered,
             playerPositions,
-            ((Number) root.get("activeMs")).longValue(),
-            remainingSeconds));
-  }
-
-  private static int remainingSeconds(Object value) {
-    if (!(value instanceof Number number)
-        || number.doubleValue() < 0
-        || number.doubleValue() > SystemRecoveryTimeLimit.TOTAL_SECONDS
-        || number.doubleValue() != number.intValue()) {
-      throw new IllegalArgumentException("Expected a whole time budget between zero and one hour");
-    }
-    return number.intValue();
+            ((Number) root.get("activeMs")).longValue()));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {

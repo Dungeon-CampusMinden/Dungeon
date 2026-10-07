@@ -24,10 +24,9 @@ public final class SystemRecoveryTimerFactory {
    * @return countdown entity, not yet added to the game
    */
   public static Entity create(Point position, SystemRecoveryTimeLimit timeLimit) {
-    int timestamp = (int) (System.currentTimeMillis() / 1000L);
+    // The budget counts from the play clock's start after the intro.
     Entity timer =
-        WorldTimerFactory.createWorldTimer(
-            position, timestamp, SystemRecoveryTimeLimit.TOTAL_SECONDS);
+        WorldTimerFactory.createWorldTimer(position, 0L, SystemRecoveryTimeLimit.TOTAL_SECONDS);
     timer.name(NAME);
     timer.add(timeLimit);
     timer.add(
