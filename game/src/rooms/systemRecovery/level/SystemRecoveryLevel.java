@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
@@ -62,6 +63,9 @@ import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
 import rooms.systemRecovery.story.SystemRecoveryPhoneController;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.time.SystemRecoveryTimeLimit;
+import rooms.systemRecovery.time.SystemRecoveryTimeoutEnding;
+import rooms.systemRecovery.time.SystemRecoveryTimerFactory;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
@@ -185,6 +189,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private UUID runId;
   private boolean initialTerminalAttemptRecorded;
   private boolean initialTerminalAttemptWasCorrect;
+  private final SystemRecoveryTimeLimit timeLimit = new SystemRecoveryTimeLimit();
 
   /**
    * Creates the System Recovery level.
@@ -236,6 +241,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
     setupTerminal();
     setupPhone();
+    setupTimer();
     setupRoomLabel();
     closeDoors();
     setupArchiveDoorLock();
@@ -260,6 +266,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onTick() {
+    // Stop autosave, intros and story dialogs once time is up, even before the failure outro
+    // starts; players joining afterwards only get the failure outro. The successful ending keeps
+    // ticking so the last state is still saved.
+    if (timeLimit.expired()) {
+      if (endingTriggered) SystemRecoveryTimeoutEnding.showToNewPlayers();
+      return;
+    }
     if (!SystemRecovery.levelEditorMode()) {
       enforcePlayerInventorySize();
       applyPendingPuzzleInventory();
@@ -318,6 +331,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedTrackingConsent = restoredSave.trackingConsent();
           savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
           systemCoreExitOpen = restoredSave.systemCoreExitOpen();
+          timeLimit.restoreFinish(restoredSave.timeLimitFinishedAtMs());
         });
     if (checkpoint.isPresent()) {
       SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
@@ -363,6 +377,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
             SystemRecovery.trackingConsent(),
             pendingInventoryItems,
             pendingPlayerPositions);
+    // An expired run keeps its last usable checkpoint, also against forced saves; the snapshot's
+    // own play time decides, because it is read after any earlier check.
+    if (timeLimit.expiredAt(save.activeMs())) return false;
     if (save.playerName() == null || save.playerName().isBlank()) return false;
     boolean checkpointChanged = checkpoint != savedCheckpoint;
     boolean changed =
@@ -671,6 +688,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   private void playReady(int playerId) {
     if (!playingPlayers.add(playerId)) return;
+    // The first player to start (again) opens the inactivity interval for timed hints.
+    if (!Game.playClock().running()) timeLimit.postponeHint();
     Game.playClock().playingParticipants(playingPlayers);
     Game.playClock().ready();
     SystemRecoveryProgressNet.activeStep()
@@ -715,6 +734,74 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Spawns the phone and keeps it interactable after every call. */
   private void setupPhone() {
     phoneController.setup(point("phone"));
+  }
+
+  private void setupTimer() {
+    Game.add(
+        SystemRecoveryTimerFactory.create(point(SystemRecoveryPointRegistry.TIMER), timeLimit));
+  }
+
+  /** Freezes the countdown once the final puzzle has been completed. */
+  public void finishTimeLimit() {
+    timeLimit.finish();
+  }
+
+  /**
+   * Returns the play time at which the running level froze its countdown, for saves.
+   *
+   * @return freeze point, empty while the countdown runs or without a level
+   */
+  public static OptionalLong timeLimitFinishedAt() {
+    return currentLevel().map(level -> level.timeLimit.finishedAt()).orElse(OptionalLong.empty());
+  }
+
+  /** Starts the failure ending once the timer system reports an exhausted budget. */
+  public void expireTimeLimit() {
+    if (endingTriggered || !timeLimit.expired()) return;
+    endingTriggered = true;
+    phoneController.cancelHintReminder();
+    SystemRecoveryTimeoutEnding.show();
+  }
+
+  /**
+   * @return whether the active run has reached its authoritative deletion deadline
+   */
+  public static boolean timeLimitExpired() {
+    return currentLevel().map(level -> level.timeLimit.expired()).orElse(false);
+  }
+
+  /**
+   * Restarts the inactivity interval after progress or a used hint and removes an obsolete optional
+   * call.
+   */
+  public void resetTimedHintDelay() {
+    timeLimit.postponeHint();
+    phoneController.cancelHintReminder();
+  }
+
+  /**
+   * Offers optional telephone assistance without replacing a main-quest call.
+   *
+   * @return whether a reminder or first-contact call was started
+   */
+  public boolean triggerTimedHintReminder() {
+    return phoneController.triggerHintReminder();
+  }
+
+  /**
+   * @return whether any first energy-terminal input has been submitted in this run
+   */
+  public boolean initialTerminalAttemptRecorded() {
+    return initialTerminalAttemptRecorded;
+  }
+
+  /**
+   * Starts ECHO's first contact for players who have not yet tried the terminal.
+   *
+   * @return whether a call was started
+   */
+  public boolean triggerIdleOpeningCall() {
+    return phoneController.triggerIdleOpeningCall();
   }
 
   /** Starts ECHO's one introductory call after the first rejected terminal attempt. */
@@ -862,7 +949,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @return whether terminals are available
    */
   public static boolean terminalsUnlocked() {
-    return currentLevel().map(level -> level.terminalsUnlocked).orElse(false);
+    return currentLevel()
+        .map(level -> level.terminalsUnlocked && !level.timeLimit.expired())
+        .orElse(false);
   }
 
   /** Materializes the energy array for riddle 1, terminal step 1. */
@@ -936,6 +1025,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
             level -> {
               level.memoryWatch.recordAcceptedSource(source);
               SystemRecoveryQuestLogUtil.addSolutionEntry(step, source);
+              level.resetTimedHintDelay();
             });
   }
 
@@ -968,6 +1058,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       return;
     }
     acceptedTerminalHistory.add(source);
+    resetTimedHintDelay();
   }
 
   private synchronized String[] terminalHistorySnapshot() {
@@ -1103,7 +1194,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
         SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
   }
 
-  private static java.util.Optional<SystemRecoveryLevel> currentLevel() {
+  /**
+   * @return the running System Recovery level, if one is loaded
+   */
+  public static java.util.Optional<SystemRecoveryLevel> currentLevel() {
     return Game.currentLevel()
         .filter(SystemRecoveryLevel.class::isInstance)
         .map(SystemRecoveryLevel.class::cast);

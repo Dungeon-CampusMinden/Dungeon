@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -151,7 +152,8 @@ public final class SystemRecoverySave {
         isSystemCoreExitOpen(),
         SystemRecoveryLevel.systemCoreWarningCallAnswered(),
         mergePendingPlayerPositions(currentPlayerPositions(), pendingPlayerPositions),
-        Game.playClock().activeMs());
+        Game.playClock().activeMs(),
+        SystemRecoveryLevel.timeLimitFinishedAt());
   }
 
   private static List<PlayerPositionData> currentPlayerPositions() {
@@ -339,6 +341,8 @@ public final class SystemRecoverySave {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("formatVersion", FORMAT_VERSION);
     root.put("activeMs", data.activeMs());
+    data.timeLimitFinishedAtMs()
+        .ifPresent(finishedAt -> root.put("timeLimitFinishedAtMs", finishedAt));
     root.put("checkpoint", data.checkpointKey());
     Map<String, Object> metadata = new LinkedHashMap<>();
     metadata.put("runId", data.runId().toString());
@@ -402,6 +406,7 @@ public final class SystemRecoverySave {
    * @param systemCoreWarningCallAnswered whether the player has completed ECHO's core warning call
    * @param playerPositions saved world position for each named player
    * @param activeMs active play time captured with this checkpoint
+   * @param timeLimitFinishedAtMs play time at which the completed run froze its countdown
    */
   public record SaveData(
       String checkpointKey,
@@ -417,7 +422,59 @@ public final class SystemRecoverySave {
       boolean systemCoreExitOpen,
       boolean systemCoreWarningCallAnswered,
       List<PlayerPositionData> playerPositions,
-      long activeMs) {
+      long activeMs,
+      OptionalLong timeLimitFinishedAtMs) {
+
+    /**
+     * Creates a checkpoint of a run whose countdown is still running.
+     *
+     * @param checkpointKey stable first-step key of the active riddle
+     * @param acceptedTerminalInputs accepted terminal inputs
+     * @param questLog shared quest-log entries
+     * @param runId stable playthrough ID
+     * @param playerName saved player name
+     * @param trackingConsent run-level tracking decision
+     * @param achievementProgress run-local achievement state
+     * @param terminalHistory terminal history lines
+     * @param memoryWatchEntries Memory Watch entries
+     * @param inventoryItems puzzle items carried by each named player
+     * @param systemCoreExitOpen whether the final call has opened the elevator
+     * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
+     * @param playerPositions saved world position for each named player
+     * @param activeMs active play time captured with this checkpoint
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        String playerName,
+        Boolean trackingConsent,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress,
+        List<String> terminalHistory,
+        List<String> memoryWatchEntries,
+        List<PlayerItemData> inventoryItems,
+        boolean systemCoreExitOpen,
+        boolean systemCoreWarningCallAnswered,
+        List<PlayerPositionData> playerPositions,
+        long activeMs) {
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          inventoryItems,
+          systemCoreExitOpen,
+          systemCoreWarningCallAnswered,
+          playerPositions,
+          activeMs,
+          OptionalLong.empty());
+    }
 
     /**
      * Returns this checkpoint with a replaced run-level tracking decision.
@@ -440,7 +497,8 @@ public final class SystemRecoverySave {
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
           playerPositions,
-          activeMs);
+          activeMs,
+          timeLimitFinishedAtMs);
     }
 
     /**
@@ -464,7 +522,8 @@ public final class SystemRecoverySave {
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
           playerPositions,
-          activeMs);
+          activeMs,
+          timeLimitFinishedAtMs);
     }
 
     /**
@@ -488,7 +547,8 @@ public final class SystemRecoverySave {
           systemCoreExitOpen,
           systemCoreWarningCallAnswered,
           positions,
-          activeMs);
+          activeMs,
+          timeLimitFinishedAtMs);
     }
 
     /**
@@ -712,9 +772,12 @@ public final class SystemRecoverySave {
      * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
      * @param playerPositions saved world position for each named player
      * @param activeMs active play time captured with this checkpoint
+     * @param timeLimitFinishedAtMs play time at which the completed run froze its countdown
      */
     public SaveData {
       if (activeMs < 0) throw new IllegalArgumentException("activeMs must not be negative");
+      timeLimitFinishedAtMs =
+          timeLimitFinishedAtMs == null ? OptionalLong.empty() : timeLimitFinishedAtMs;
       if (checkpointKey == null || checkpointKey.isBlank()) {
         throw new IllegalArgumentException("checkpointKey must not be blank");
       }

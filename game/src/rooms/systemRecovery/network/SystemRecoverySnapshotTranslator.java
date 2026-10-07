@@ -122,6 +122,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     appendSearchRobotMetadata(entity, metadata);
     appendStorageMetadata(entity, metadata);
     appendSystemCoreMetadata(entity, metadata);
+    SystemRecoveryTimerSync.append(entity, metadata);
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
   }

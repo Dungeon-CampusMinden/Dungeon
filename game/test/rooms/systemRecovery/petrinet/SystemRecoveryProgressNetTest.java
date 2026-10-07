@@ -11,6 +11,8 @@ import java.util.Arrays;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 /** Tests the linear, token-backed progress model without depending on world positions. */
 class SystemRecoveryProgressNetTest {
@@ -55,6 +57,19 @@ class SystemRecoveryProgressNetTest {
     assertEquals(1, SystemRecoveryProgressNet.tokenCount(SystemRecoveryLearningStep.ENERGY_VALUES));
     assertActive(SystemRecoveryLearningStep.ENERGY_VALUES);
     assertTokenInvariant();
+  }
+
+  @Test
+  void expiredRunCannotAdvanceThePetriMarking() {
+    try (MockedStatic<rooms.systemRecovery.level.SystemRecoveryLevel> level =
+        Mockito.mockStatic(rooms.systemRecovery.level.SystemRecoveryLevel.class)) {
+      level.when(rooms.systemRecovery.level.SystemRecoveryLevel::timeLimitExpired).thenReturn(true);
+
+      assertFalse(SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ENERGY_ARRAY));
+
+      assertActive(SystemRecoveryLearningStep.ENERGY_ARRAY);
+      assertTokenInvariant();
+    }
   }
 
   @Test

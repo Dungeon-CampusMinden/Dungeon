@@ -7,8 +7,7 @@ Es gibt keinen frei wählbaren Spielstand und kein nachträgliches Replay der Di
 autoritative Server schreibt `system-recovery-save.json` ins Arbeitsverzeichnis; das Hauptmenü
 bietet `Fortsetzen` an, wenn die Datei gültig ist.
 
-Das aktuelle JSON-Format ist Version 6. Reine Laufzeit- und Layoutänderungen am R10 haben das
-Schema nicht verändert.
+Das aktuelle JSON-Format ist Version 9.
 
 | Bereich | Checkpoints |
 | --- | --- |
@@ -66,6 +65,8 @@ Achievement-Unlocks liegen zusätzlich in `system-recovery-achievement-unlock.js
    gespawnt.
 5. Ein gespeicherter laufender Suchroboter beginnt seinen Scan kontrolliert von vorn. Der
    jeweilige programmierte Chip bleibt dafür im Inventar.
+6. Der Countdown läuft mit der gespeicherten Spielzeit `activeMs` weiter. Zeit außerhalb des
+   laufenden Spiels wird nicht abgezogen.
 
 Ungesendeter Terminalcode und unvollständige Werte in der R10-Maske sind client-lokale Entwürfe.
 Sie bleiben beim bloßen Schließen und erneuten Öffnen des jeweiligen Fensters erhalten, werden
@@ -75,6 +76,21 @@ anderen Client.
 
 Bei alten Save-Formatversionen werden History und Memory Watch, soweit möglich, aus den
 akzeptierten Terminaleingaben rekonstruiert. Neue Saves speichern beide Ansichten direkt.
+
+## Restzeit
+
+Wie der Countdown läuft und was bei seinem Ablauf passiert, beschreibt der
+[Storyablauf](system_recovery_story_flow.md#zeitlimit-und-hilfe). Für Save und Load gilt:
+
+- Die Restzeit ist die Stunde abzüglich der gespeicherten Spielzeit `activeMs`; ein eigenes Feld
+  gibt es nicht. Der Countdown selbst schreibt keine Datei. `Fortsetzen` beginnt daher mit der
+  Restzeit des letzten Saves.
+- Nach dem Zeitablauf schreibt das Spiel keinen Checkpoint mehr. `Fortsetzen` startet danach
+  erneut am letzten Checkpoint mit der dort gespeicherten Spielzeit.
+- Nach `COMPLETE` speichert der Save zusätzlich `timeLimitFinishedAtMs`, die Spielzeit beim
+  Einfrieren des Countdowns. Ein geladener abgeschlossener Lauf zeigt damit dieselbe Restzeit und
+  läuft nicht mehr ab.
+- Die Wartezeit für automatische Hilfen startet beim Laden neu.
 
 ## Grenzen
 
@@ -92,3 +108,4 @@ Zuordnung nicht eindeutig.
 - `level/SystemRecoveryCheckpointProjection.java`: rekonstruiert den Raum für den Checkpoint.
 - `petrinet/SystemRecoveryProgressNet.java`: aktiver Token; siehe
   [Petri-Netz](petri_net_system_recovery_concept.md).
+- `time/SystemRecoveryTimeLimit.java`: Restzeit und Hilfefrist auf der gemeinsamen Spieluhr.

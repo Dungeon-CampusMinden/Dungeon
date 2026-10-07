@@ -28,6 +28,19 @@ class SystemRecoveryLocalizationTest {
   }
 
   @Test
+  void lastTimerMinuteIsSingularInBothLanguages() {
+    SystemRecovery.initLocalization();
+    Game.localization().currentLanguage(Language.DE);
+    assertEquals(
+        "Noch 1 Minute bis zur Systemlöschung.", SystemRecoveryText.text("timer.remaining-one"));
+
+    Game.localization().currentLanguage(Language.EN);
+    assertEquals(
+        "1 minute remaining until system deletion.",
+        SystemRecoveryText.text("timer.remaining-one"));
+  }
+
+  @Test
   void trackingConsentNamesTheLocalDataProcessingAndContact() {
     SystemRecovery.initLocalization();
     Game.localization().currentLanguage(Language.DE);

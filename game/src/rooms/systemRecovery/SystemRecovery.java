@@ -48,12 +48,20 @@ import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
 import rooms.systemRecovery.save.SystemRecoveryLoad;
 import rooms.systemRecovery.save.SystemRecoverySave;
+import rooms.systemRecovery.time.SystemRecoveryTimedHintSystem;
+import rooms.systemRecovery.time.SystemRecoveryTimerSystem;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.SystemRecoveryTranslator;
 
 /** Entry point for the System Recovery escape room. */
 public final class SystemRecovery {
+
+  /** True delivers the next hint automatically; false rings the phone with an ECHO reminder. */
+  public static final boolean FORCE_HINTS = true;
+
+  /** Minutes without accepted puzzle progress before the next automatic hint or reminder. */
+  public static final int HINT_DELAY_MINUTES = 4;
 
   private static final String LEVEL_KEY = "systemrecovery";
   private static final Color MENU_ACCENT_COLOR = new Color(0.43f, 0.78f, 0.72f, 1f);
@@ -319,6 +327,8 @@ public final class SystemRecovery {
     ECSManagement.add(new LeverSystem());
     ECSManagement.add(new PetriNetSystem());
     ECSManagement.add(new HintSystem());
+    ECSManagement.add(new SystemRecoveryTimerSystem());
+    ECSManagement.add(new SystemRecoveryTimedHintSystem());
 
     if (debugMode() && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());

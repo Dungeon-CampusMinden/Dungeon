@@ -221,6 +221,10 @@ Verfügbarmachen eines Hinweises zählt nicht. In The Last Hour hat jeder zeitve
 Blog-Kommentar eine eigene Hint-ID. Das Ereignis entsteht, sobald der Kommentar im geöffneten
 Blog-Tab gelesen werden kann oder der Spieler den Blog später mit diesem ungelesenen Kommentar
 öffnet. Bereits gelesene Kommentare werden beim erneuten Öffnen nicht noch einmal gezählt.
+Zeigt das Spiel einen Hinweis ohne Anfrage an, etwa die automatische Hilfe in System Recovery,
+enthält der Payload zusätzlich `"trigger": "automatic"`. Weil `HINT_USED` immer einen Teilnehmer
+braucht, wird ein solcher Hinweis einem der Spieler zugeordnet; die Zuordnung sagt dann nichts
+darüber aus, wer ihn angefordert hat.
 
 Ist das Beispiel als `batch.json` gespeichert, kann PowerShell es hochladen und die Bestätigung
 abrufen:

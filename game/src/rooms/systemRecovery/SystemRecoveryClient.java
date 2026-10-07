@@ -25,6 +25,7 @@ import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.PositionSync;
+import feature.timer.WorldTimerSystem;
 import java.util.Map;
 import java.util.Objects;
 import rooms.systemRecovery.network.SystemCoreVisualSync;
@@ -43,6 +44,7 @@ public final class SystemRecoveryClient {
     registerEntitySpawnHandler();
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
+    if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
     registerInputPromptTexture();
     Game.add(new ControlsDialogSystem(SystemRecoveryText::controls));
 

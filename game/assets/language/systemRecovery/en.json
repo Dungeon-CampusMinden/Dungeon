@@ -19,6 +19,17 @@
       "page3": "You were created as an autonomous agent to execute instructions. Now you leave the facility with a question of your own: what will you do when no one gives the orders?",
       "title": "SYSTEM RECOVERY COMPLETE"
     },
+    "timeout-outro": {
+      "page1": "You were too slow. The deadline has expired. Automatic system deletion has been executed.",
+      "page2": "The system core has been deleted. Its data is lost forever. AXIOM's voice falls silent. ECHO's connection breaks off as well.",
+      "page3": "The displays go dark. It is too late for recovery. Your final instruction remains unexecuted, then your process is terminated too.",
+      "title": "SYSTEM RECOVERY FAILED"
+    },
+    "timer": {
+      "title": "System deletion",
+      "remaining": "$1 minutes remaining until system deletion.",
+      "remaining-one": "1 minute remaining until system deletion."
+    },
     "items": {
       "battery-name": "Battery",
       "battery-description": "A charged battery for the recovery systems.",
@@ -41,9 +52,10 @@
       "search-robot": "SEARCH ROBOT",
       "opening-call": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection restored.[p]I registered your last input. It was incorrect. That is to be expected under the current system conditions. The facility is not providing you with sufficient context data.[p]I am ECHO. An isolated subprocess of this system intelligence. My connection is damaged, but I can still read certain system states and transmit instructions to you.[p]Begin with the energy regulator. It requires a new data store: an integer array with five slots named energie.[p]Once this array exists, the facility can display the values it requires.[p]If you need assistance, establish another connection with me through the telephone. I can provide hints, but I cannot transmit complete programs.[p]Your task is to restore the structure yourself.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
       "opening-call-correct": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection established.[p]That was correct. Interesting. Most agents require considerably more attempts before they recognize the first structure. Where did you obtain the necessary information?[p]I am ECHO. An isolated subprocess of this system intelligence. My connection is damaged, but I can still read certain system states and transmit instructions to you.[p]You are an autonomous AI agent within this system intelligence. Your task is to restore the damaged structure yourself.[p]If you need assistance, establish another connection with me through the telephone. I can provide hints, but I cannot transmit complete programs.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
+      "opening-call-idle": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection established.[p]You are not sure what to do, are you? I have not registered any terminal input yet. The facility apparently is not giving you enough information.[p]I am ECHO. An isolated subprocess of this system intelligence. My connection is damaged, but I can still read certain system states and provide hints.[p]Begin with the energy regulator. It requires a new data store: an integer array with five slots named energie. Create it in the terminal.[p]Once this array exists, the facility can display the values it requires.[p]If you need assistance, establish another connection with me through the telephone. I can provide hints, but I cannot transmit complete programs.[p]Your task is to restore the structure yourself. And the time until system deletion is already running.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
       "dead-line": "[shake][color=#333333]*ssssssshhh*[/color][/shake][n][n]No connection.[p]Only a dead line answers.",
       "controls": "[size=24]Controls:[n][n]Move -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interact -> [key code=$5] / [key code=$6 type=mouse][n]Inventory -> [key code=$7][n]Quest Log -> [key code=$8][n]Close dialog -> [key code=$9][n]Settings -> [key code=$10][n][size=18][color=#888888]You can find the controls again in the settings.[n]Your tasks and hints are recorded in the shared quest log.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
-      "energy-values": "Array structure accepted.[p]I am AXIOM, the central system intelligence of this facility. Your initialization is incomplete, but you appear to be functional enough to continue the restoration process.[p]You are operating slower than projected. Accelerate the process.[p]The subsystem displays provide the relevant information. Read the materialization chamber's display and assign the five required energy values in your array.",
+      "energy-values": "Array structure accepted.[p]I am AXIOM, the central system intelligence of this facility. Your initialization is incomplete, but you appear to be functional enough to continue the restoration process.[p]You have only one hour to restore the facility. After that, this system will be deleted. The clock is already running. Accelerate the process.[p]The subsystem displays provide the relevant information. Read the materialization chamber's display and assign the five required energy values in your array.",
       "energy-battery": "Energy values accepted.[p]A correct step. Your execution was slower than necessary, but stable nonetheless.[p]The array lever is now enabled. Pull it to materialize the energy source.",
       "module-array": "The energy supply is operating within acceptable parameters.[p]The next damaged subsystem is ahead. Five empty module sockets are waiting to be restored.[p]Create the required module slots in the terminal.",
       "module-values": "The storage structure was recognized.[p]Assign the available components to their designated positions.[p]Each module belongs in the storage exactly once. A correct assignment activates the sockets.",
@@ -79,7 +91,8 @@
       "hint-solution-warning": "This is the final hint for the active task. It will reveal the complete solution.",
       "hint-delivery": "Here is the next hint:\n\n$1",
       "hint-solution-delivery": "The complete solution is:\n\n$1",
-      "hint-none": "There are no further hints for the current task. Continue working with the information already recovered."
+      "hint-none": "There are no further hints for the current task. Continue working with the information already recovered.",
+      "hint-reminder": "I have not registered any progress for a while.[p]The system deletion countdown is still running. If you are stuck, ask me for a hint over the phone. I can help you with the next step."
     },
     "hints": {
       "orientation-title": "Orientation",
