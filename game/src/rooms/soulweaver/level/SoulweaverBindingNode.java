@@ -119,13 +119,10 @@ final class SoulweaverBindingNode extends CanvasNode {
     state = next;
     if (changed) pulse = 1;
     if (kind == Kind.VESSEL) {
-      movable(
-          next.propertiesCollected()
-              && next.vesselsCollected()
-              && next.stage() == VariablePuzzleStage.VESSELS);
+      movable(next.vesselsCollected() && next.stage() == VariablePuzzleStage.VESSELS);
     }
     if (kind == Kind.ESSENCE) {
-      movable(next.propertiesCollected() && next.vesselsCollected() && !next.revealed());
+      movable(next.essencesCollected() && !next.revealed());
     }
     if (title != null) refreshText();
     updateCursor();
@@ -255,7 +252,8 @@ final class SoulweaverBindingNode extends CanvasNode {
   }
 
   private boolean emptySupply() {
-    return (kind == Kind.VESSEL || kind == Kind.ESSENCE) && !state.vesselsCollected();
+    return kind == Kind.VESSEL && !state.vesselsCollected()
+        || kind == Kind.ESSENCE && !state.essencesCollected();
   }
 
   private boolean clearable() {

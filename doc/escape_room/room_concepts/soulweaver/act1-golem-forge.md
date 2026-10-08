@@ -7,7 +7,7 @@ Teil des Raums [Das Erbe der Seelenweber](soulweaver_concept.md).
 ## Story
 
 In der Schmiede steht Nox, ein fünf Tiles hoher Steingolem mit leerem Seelenkern. Zwei
-Werkstattkisten enthalten die Eigenschaftsrunen und die Seelengefäße mit den Essenzen.
+Werkstattkisten enthalten die Seelengefäße und die Essenzen.
 Neben dem Golem liegt Valerius' Bindungsplan: ein Buch mit einer Seite pro Eigenschaft,
 einem Bild, dem gewünschten Wert und einer kurzen Notiz. Zum Beispiel: "O wie Osten.
 Dorthin soll er sich nach dem Erwachen wenden."

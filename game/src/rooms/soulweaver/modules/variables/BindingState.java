@@ -7,7 +7,7 @@ import rooms.soulweaver.state.VariablePuzzleStage;
  * Shared workbench state. Canvas positions are deliberately client-local.
  *
  * @param stage assembly stage
- * @param propertiesCollected whether the property chest has been opened
+ * @param essencesCollected whether the essence chest has been opened
  * @param vesselsCollected whether the vessel chest has been opened
  * @param vessels fixed storage kinds already assigned
  * @param essences current stored values, including compatible but unwanted values
@@ -15,7 +15,7 @@ import rooms.soulweaver.state.VariablePuzzleStage;
  */
 public record BindingState(
     VariablePuzzleStage stage,
-    boolean propertiesCollected,
+    boolean essencesCollected,
     boolean vesselsCollected,
     Map<GolemProperty, SoulVessel> vessels,
     Map<GolemProperty, MagicalEssence> essences,
