@@ -1268,7 +1268,12 @@ public class SystemRecoveryLevel extends DungeonLevel {
     Game.add(trigger);
   }
 
-  /** Credits go to the player who ended the room, or to everyone left when that player is gone. */
+  /**
+   * Shows the credits to the player who ended the room, or to everyone left when that player quit
+   * during the survey. Completes the game directly when nobody is left to close the credits.
+   *
+   * @param trigger player entity that ended the room
+   */
   private static void showCredits(int trigger) {
     if (Game.allPlayers().findAny().isEmpty()) {
       Game.complete();

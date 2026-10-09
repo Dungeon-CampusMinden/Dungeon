@@ -13,9 +13,11 @@ import feature.hud.dialogs.DialogType;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import tools.jackson.databind.JsonNode;
@@ -100,92 +102,80 @@ public final class SurveyFeature {
   }
 
   private static void ask(SurveyDefinition survey, int player, UUID participant, Round round) {
-    DialogContext context =
-        DialogContext.builder()
-            .type(Type.SURVEY)
-            .put(ROOM_ID_KEY, survey.roomId())
-            .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
-            .build();
-    UIComponent ui = DialogFactory.show(context, true, false, player);
-    round.dialog(player, ui);
-    boolean[] submitted = {false};
+    UIComponent ui =
+        round.show(
+            player,
+            DialogContext.builder()
+                .type(Type.SURVEY)
+                .put(ROOM_ID_KEY, survey.roomId())
+                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
+                .build());
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
         data -> {
-          if (submitted[0] || !round.asking(player)) return;
-          submitted[0] = true;
-          record(
-              survey,
-              participant,
-              data,
-              result -> {
-                if (!round.asking(player)) return;
-                UIUtils.closeDialog(ui, true);
-                showResult(survey.roomId(), result, player, round);
-              },
-              () -> round.finish(player));
+          if (!round.answer(player)) return;
+          Optional<TrackingEvent> last;
+          try {
+            last = record(survey, participant, data);
+          } catch (RuntimeException exception) {
+            LOGGER.warn(
+                "Survey submission for {} failed: {}", survey.roomId(), exception.getMessage());
+            showResult(Result.FAILED, player, round);
+            return;
+          }
+          if (last.isEmpty()) {
+            round.finish(player);
+          } else if (!Tracking.remoteStorageEnabled()) {
+            showResult(Result.SAVED_LOCALLY, player, round);
+          } else {
+            SurveySystem.instance().await(last.get(), result -> showResult(result, player, round));
+          }
         });
     if (survey.skippable()) {
       ui.registerCallback(
           DialogContextKeys.ON_CANCEL,
           data -> {
-            if (submitted[0] || !round.asking(player)) return;
-            submitted[0] = true;
-            round.finish(player);
+            if (round.answer(player)) round.finish(player);
           });
     }
   }
 
   /**
-   * Validates and records one submission, then reports how it was stored.
+   * Validates one submission and records each answered question.
    *
-   * @param onResult receives the storage state, possibly several ticks later
-   * @param onEmpty runs instead when the submission contained no answers
+   * @param survey survey the player answered
+   * @param participant tracking participant of the player
+   * @param data client response carrying the answers as a JSON object
+   * @return the last recorded event, or empty when the submission answered nothing
+   * @throws RuntimeException if the answers are invalid or tracking stopped recording
    */
-  private static void record(
-      SurveyDefinition survey,
-      UUID participant,
-      DialogResponseMessage.Payload data,
-      Consumer<Result> onResult,
-      Runnable onEmpty) {
+  private static Optional<TrackingEvent> record(
+      SurveyDefinition survey, UUID participant, DialogResponseMessage.Payload data) {
+    JsonNode answers = TrackingJson.object(((DialogResponseMessage.StringValue) data).value());
+    if (!survey.valid(answers)) throw new IllegalArgumentException("invalid survey answers");
     Optional<TrackingEvent> last = Optional.empty();
-    try {
-      String json = ((DialogResponseMessage.StringValue) data).value();
-      JsonNode answers = TrackingJson.object(json);
-      if (!survey.valid(answers)) throw new IllegalArgumentException("invalid survey answers");
-      for (SurveyDefinition.Question question : survey.questions()) {
-        JsonNode answer = answers.get(question.id());
-        if (answer == null || answer.isNull()) continue;
-        last =
-            Optional.of(
-                Tracking.surveyAnswered(
-                        survey.questionnaireId(), question.id(), answer, participant)
-                    .orElseThrow(() -> new IllegalStateException("tracking stopped recording")));
-      }
-    } catch (RuntimeException exception) {
-      LOGGER.warn("Survey submission for {} failed: {}", survey.roomId(), exception.getMessage());
-      onResult.accept(Result.FAILED);
-      return;
+    for (SurveyDefinition.Question question : survey.questions()) {
+      JsonNode answer = answers.get(question.id());
+      if (answer == null || answer.isNull()) continue;
+      last =
+          Optional.of(
+              Tracking.surveyAnswered(survey.questionnaireId(), question.id(), answer, participant)
+                  .orElseThrow(() -> new IllegalStateException("tracking stopped recording")));
     }
-    if (last.isEmpty()) {
-      onEmpty.run();
-    } else if (!Tracking.remoteStorageEnabled()) {
-      onResult.accept(Result.SAVED_LOCALLY);
-    } else {
-      SurveySystem.instance().await(last.get(), onResult);
-    }
+    return last;
   }
 
-  private static void showResult(String roomId, Result result, int player, Round round) {
-    DialogContext context =
-        DialogContext.builder()
-            .type(Type.SURVEY)
-            .put(ROOM_ID_KEY, roomId)
-            .put(RESULT_KEY, result.name())
-            .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
-            .build();
-    UIComponent ui = DialogFactory.show(context, true, false, player);
-    round.dialog(player, ui);
+  private static void showResult(Result result, int player, Round round) {
+    // The player may have left while the backend acknowledgement was pending.
+    if (!round.asking(player)) return;
+    UIComponent ui =
+        round.show(
+            player,
+            DialogContext.builder()
+                .type(Type.SURVEY)
+                .put(RESULT_KEY, result.name())
+                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
+                .build());
     ui.registerCallback(DialogContextKeys.ON_CONFIRM, data -> round.finish(player));
   }
 
@@ -195,6 +185,7 @@ public final class SurveyFeature {
    */
   private static final class Round {
     private final Map<Integer, UIComponent> dialogs = new HashMap<>();
+    private final Set<Integer> answered = new HashSet<>();
     private final Runnable onComplete;
     private boolean completed;
 
@@ -202,13 +193,33 @@ public final class SurveyFeature {
       this.onComplete = onComplete;
     }
 
-    void dialog(int player, UIComponent ui) {
+    /**
+     * Shows a dialog to one player and closes that player's previous survey dialog.
+     *
+     * @param player player entity ID
+     * @param context dialog to show
+     * @return the shown dialog
+     */
+    UIComponent show(int player, DialogContext context) {
+      UIComponent previous = dialogs.remove(player);
+      if (previous != null) UIUtils.closeDialog(previous, true);
+      UIComponent ui = DialogFactory.show(context, true, false, player);
       dialogs.put(player, ui);
+      return ui;
     }
 
-    /** Callbacks arriving after a player finished or left must not reopen anything. */
     boolean asking(int player) {
       return dialogs.containsKey(player);
+    }
+
+    /**
+     * Accepts a player's first submit or skip; the server ignores repeated or late responses.
+     *
+     * @param player player entity ID
+     * @return whether this response is the player's answer
+     */
+    boolean answer(int player) {
+      return asking(player) && answered.add(player);
     }
 
     void finish(int player) {
