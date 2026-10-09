@@ -393,8 +393,13 @@ final class SurveyDialog {
 
     private Supplier<JsonNode> number(Table card, NumberInput question) {
       TextField field = textField(false);
+      // Only characters the question accepts: a minus below zero, a separator with decimals.
+      boolean negative = question.min().map(min -> min.signum() < 0).orElse(true);
       field.setTextFieldFilter(
-          (ignored, c) -> Character.isDigit(c) || c == '-' || c == ',' || c == '.');
+          (ignored, c) ->
+              Character.isDigit(c)
+                  || (negative && c == '-')
+                  || (question.decimals() && (c == ',' || c == '.')));
       field.setMaxLength(20);
       Table row = new Table();
       row.add(field).width(180).height(INPUT_HEIGHT);

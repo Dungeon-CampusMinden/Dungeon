@@ -122,7 +122,8 @@ Mehrzeiliges Feld für freie Rückmeldungen. Zeilenumbrüche bleiben erhalten.
 ![Zahl](./img/survey/number.png)
 
 Zahlenfeld, zum Beispiel für das Alter. Rechts daneben erklärt das Spiel den erlaubten Bereich.
-Buchstaben lassen sich nicht eingeben; Komma und Punkt sind beide als Dezimaltrennzeichen erlaubt.
+Buchstaben lassen sich nicht eingeben. Ein Minus lässt sich nur tippen, wenn `min` fehlt oder negativ
+ist; Komma und Punkt nur mit `decimals: true`, beide als Dezimaltrennzeichen.
 
 | Feld | Bedeutung |
 | --- | --- |
