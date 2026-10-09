@@ -92,7 +92,7 @@ Einzeiliges Textfeld für kurze Antworten wie einen Namen oder ein Stichwort.
 
 | Feld | Bedeutung |
 | --- | --- |
-| `maxLength` | Höchstzahl an Zeichen, Standard 50. Rechts neben der Frage zählt das Spiel mit, etwa `12/50`. |
+| `maxLength` | Höchstzahl an Zeichen, Standard 50, höchstens 10.000. Rechts neben der Frage zählt das Spiel mit, etwa `12/50`. |
 
 ```json
 { "id": "favorite-puzzle", "type": "shortText",
@@ -109,7 +109,7 @@ Mehrzeiliges Feld für freie Rückmeldungen. Zeilenumbrüche bleiben erhalten.
 
 | Feld | Bedeutung |
 | --- | --- |
-| `maxLength` | Optionale Höchstzahl an Zeichen mit Zähler wie beim kurzen Text. Ohne Angabe ist die Länge unbegrenzt. |
+| `maxLength` | Höchstzahl an Zeichen mit Zähler wie beim kurzen Text, Standard und höchstens 10.000. |
 
 ```json
 { "id": "improvements", "type": "longText", "maxLength": 2000,

@@ -339,8 +339,8 @@ final class SurveyDialog {
       if (question.required()) title += " [#" + ERROR + "]*[]";
       Table header = new Table();
       header.add(markupLabel(title)).growX().top().left();
-      if (question instanceof Text text && text.maxLength().isPresent()) {
-        header.add(counter(card, text.maxLength().get())).top().right().padLeft(12);
+      if (question instanceof Text text) {
+        header.add(counter(card, text.maxLength())).top().right().padLeft(12);
       }
       card.add(header).width(content).row();
       // An info card's description is its body; on questions it is a smaller hint.
@@ -414,7 +414,7 @@ final class SurveyDialog {
 
     private Supplier<JsonNode> text(Table card, Text question) {
       TextField field = textField(question.multiline());
-      field.setMaxLength(question.maxLength().orElse(0)); // 0 means no limit
+      field.setMaxLength(question.maxLength());
       field.setMessageText(T.text("placeholder"));
       card.add(field)
           .width(content)
