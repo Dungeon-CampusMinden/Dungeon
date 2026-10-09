@@ -651,15 +651,9 @@ record SurveyDefinition(
 
   private static void allowOnly(
       JsonNode node, String where, List<String> common, String... specific) {
-    List<String> fields = new ArrayList<>(common);
-    fields.addAll(List.of(specific));
-    allowOnly(node, where, fields);
-  }
-
-  private static void allowOnly(JsonNode node, String where, List<String> fields) {
     if (!node.isObject()) throw new IllegalArgumentException(where + " must be an object");
     for (String property : node.propertyNames()) {
-      if (!fields.contains(property)) {
+      if (!common.contains(property) && !List.of(specific).contains(property)) {
         throw new IllegalArgumentException(where + ": unknown field '" + property + "'");
       }
     }

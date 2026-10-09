@@ -442,11 +442,8 @@ final class SurveyDialog {
         String raw = field.getText().trim();
         if (raw.isEmpty()) return null;
         try {
-          BigDecimal value = new BigDecimal(raw.replace(',', '.')).stripTrailingZeros();
-          return value.scale() <= 0
-              ? JSON.numberNode(value.toBigIntegerExact())
-              : JSON.numberNode(value);
-        } catch (NumberFormatException | ArithmeticException exception) {
+          return JSON.numberNode(new BigDecimal(raw.replace(',', '.')));
+        } catch (NumberFormatException exception) {
           return JSON.stringNode(raw);
         }
       };
