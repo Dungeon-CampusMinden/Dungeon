@@ -180,6 +180,6 @@ Diese optionalen JSON-Payload-Felder brauchen keine Änderung des Datenbankschem
 `PUZZLE_STARTED` heißt, dass ein Rätsel zugänglich ist. Der erste Kontakt ist das erste andere
 Ereignis mit derselben `puzzleId`. `Tracking.surveyAnswered(...)` zeichnet `SURVEY_ANSWERED` auf,
 solange die Sitzung offen ist: im Raum vor dem Intro und nach dem Raumergebnis bis
-`Game.complete()`. Den Fragebogen nach dem Raum zeigt `feature.survey.SurveyFeature`; sein
-`README.md` beschreibt das JSON-Format. `Tracking.remoteAcknowledged(event)` meldet, ob das Backend
+`Game.complete()`. Den Fragebogen nach dem Raum zeigt `feature.survey.SurveyFeature`;
+`game/doc/survey.md` beschreibt das JSON-Format. `Tracking.remoteAcknowledged(event)` meldet, ob das Backend
 ein Ereignis samt aller früheren bestätigt hat; die Umfrage zeigt damit den Speicherstatus an.

@@ -104,10 +104,6 @@ final class TrackingUploader {
     }
   }
 
-  boolean acknowledged(long sequence) {
-    return acknowledgedSequence.get() >= sequence;
-  }
-
   boolean pending(long latestSequence, boolean sessionFinished) {
     return acknowledgedSequence.get() < latestSequence
         || (sessionFinished && !finishAcknowledged.get());

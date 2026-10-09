@@ -454,7 +454,7 @@ final class TrackingSession {
   boolean remoteAcknowledged(TrackingEvent event) {
     return uploader != null
         && descriptor.sessionId().equals(event.sessionId())
-        && uploader.acknowledged(event.sessionSequence());
+        && !uploader.pending(event.sessionSequence(), false);
   }
 
   private void participantEvent(

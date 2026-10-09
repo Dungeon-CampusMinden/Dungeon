@@ -21,7 +21,7 @@ import tracking.core.TrackingJson;
  * Immutable, validated survey loaded from {@code surveys/<roomId>.json}.
  *
  * <p>The same definition renders the client form and validates the submitted answers on the
- * authoritative server. See {@code README.md} in this package for the file format.
+ * authoritative server. {@code game/doc/survey.md} describes the file format.
  *
  * @param roomId tracking room ID matching the file name
  * @param questionnaireId stable ID stored with every recorded answer
@@ -29,7 +29,7 @@ import tracking.core.TrackingJson;
  * @param skippable whether players may leave without submitting
  * @param pages ordered pages of questions
  */
-public record SurveyDefinition(
+record SurveyDefinition(
     String roomId,
     String questionnaireId,
     LocalizedText title,
@@ -37,13 +37,13 @@ public record SurveyDefinition(
     List<Page> pages) {
 
   /** Current JSON schema version. */
-  public static final int SCHEMA_VERSION = 1;
+  private static final int SCHEMA_VERSION = 1;
 
   /** Reserved option ID of the free-text "other" choice. */
-  public static final String OTHER_ID = "other";
+  static final String OTHER_ID = "other";
 
   /** Maximum length of the free text attached to the "other" choice. */
-  public static final int OTHER_MAX_LENGTH = 200;
+  static final int OTHER_MAX_LENGTH = 200;
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(SurveyDefinition.class);
   private static final String ID_PATTERN = "[A-Za-z0-9_-]+";
@@ -57,7 +57,7 @@ public record SurveyDefinition(
    * @param skippable whether players may leave without submitting
    * @param pages ordered pages of questions
    */
-  public SurveyDefinition {
+  SurveyDefinition {
     requireId(roomId, "roomId");
     requireId(questionnaireId, "questionnaireId");
     Objects.requireNonNull(title, "title");
@@ -79,7 +79,7 @@ public record SurveyDefinition(
    * @param roomId tracking room ID used in {@code surveys/<roomId>.json}
    * @return the parsed survey, or empty if the asset is absent or invalid
    */
-  public static Optional<SurveyDefinition> load(String roomId) {
+  static Optional<SurveyDefinition> load(String roomId) {
     requireId(roomId, "roomId");
     String path = "surveys/" + roomId + ".json";
     if (Gdx.files == null) return Optional.empty();
@@ -105,7 +105,7 @@ public record SurveyDefinition(
    * @return parsed survey
    * @throws IllegalArgumentException if the document violates the format
    */
-  public static SurveyDefinition parse(String json) {
+  private static SurveyDefinition parse(String json) {
     JsonNode root = TrackingJson.object(json);
     allowOnly(
         root,
@@ -144,32 +144,25 @@ public record SurveyDefinition(
    *
    * @return flattened questions of every page
    */
-  public List<Question> questions() {
+  List<Question> questions() {
     return pages.stream().flatMap(page -> page.questions().stream()).toList();
   }
 
   /**
-   * Checks a complete submission keyed by question ID.
+   * Checks a complete submission keyed by question ID, including unknown question IDs.
    *
    * @param answers JSON object mapping question IDs to answers; missing or {@code null} values
    *     count as unanswered
-   * @return problems by question ID in display order, empty when the submission is valid
+   * @return whether every answer can be recorded
    */
-  public Map<String, Problem> problems(JsonNode answers) {
-    Map<String, Problem> problems = new LinkedHashMap<>();
-    if (answers == null || !answers.isObject()) {
-      problems.put("", Problem.INVALID);
-      return problems;
-    }
+  boolean valid(JsonNode answers) {
+    if (answers == null || !answers.isObject()) return false;
     Set<String> known = new HashSet<>();
     for (Question question : questions()) {
       known.add(question.id());
-      question.problem(answers.get(question.id())).ifPresent(p -> problems.put(question.id(), p));
+      if (question.problem(answers.get(question.id())).isPresent()) return false;
     }
-    for (String id : answers.propertyNames()) {
-      if (!known.contains(id)) problems.put(id, Problem.INVALID);
-    }
-    return problems;
+    return known.containsAll(answers.propertyNames());
   }
 
   /** Reason why an answer cannot be submitted. */

@@ -273,17 +273,9 @@ final class SurveyDialog {
       if (validate(page)) showPage(page + 1);
     }
 
+    /** Earlier pages passed their check on "Weiter"; only the last page is still unchecked. */
     private void submit() {
-      for (int index = 0; index < pages.size(); index++) {
-        boolean valid =
-            fields.get(index).stream()
-                .allMatch(field -> field.question.problem(field.value.get()).isEmpty());
-        if (!valid) {
-          if (index != page) showPage(index);
-          validate(index);
-          return;
-        }
-      }
+      if (!validate(page)) return;
       ObjectNode answers = JSON.objectNode();
       for (List<Field> pageFields : fields) {
         for (Field field : pageFields) {

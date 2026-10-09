@@ -152,10 +152,7 @@ public final class SurveyFeature {
     try {
       String json = ((DialogResponseMessage.StringValue) data).value();
       JsonNode answers = TrackingJson.object(json);
-      var problems = survey.problems(answers);
-      if (!problems.isEmpty()) {
-        throw new IllegalArgumentException("invalid answers " + problems);
-      }
+      if (!survey.valid(answers)) throw new IllegalArgumentException("invalid survey answers");
       for (SurveyDefinition.Question question : survey.questions()) {
         JsonNode answer = answers.get(question.id());
         if (answer == null || answer.isNull()) continue;
