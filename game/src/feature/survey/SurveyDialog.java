@@ -724,7 +724,7 @@ final class SurveyDialog {
         switch (result) {
           case CONFIRMED -> Color.valueOf("1e8449");
           case SAVED_LOCALLY -> ACCENT;
-          case PENDING -> Color.valueOf("9a6409");
+          case UNREACHABLE, PENDING -> Color.valueOf("9a6409");
           case FAILED -> ERROR;
         };
     Label message = wrappedLabel(T.text(key + ".message"), 20, statusColor, FONT);

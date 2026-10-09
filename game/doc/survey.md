@@ -14,8 +14,8 @@ Die Datei heißt `game/assets/surveys/<roomId>.json`. `<roomId>` ist die Raum-ID
 getrackt wird, zum Beispiel `system-recovery` oder `soulweaver`. Gibt es die Datei nicht, zeigt der
 Raum keine Umfrage. Ist sie fehlerhaft, entfällt die Umfrage ebenfalls und das Log nennt den Fehler.
 
-Die Umfrage erscheint nach dem Raumergebnis und vor dem Abspann. Jeder Spieler beantwortet sie für
-sich. Ohne Tracking-Zustimmung erscheint sie nicht, weil die Antworten dann nicht gespeichert werden
+Die Umfrage ist der letzte Schritt nach dem Raumergebnis und dem Abspann. Jeder Spieler beantwortet
+sie für sich; sobald alle fertig sind, endet das Spiel. Ohne Tracking-Zustimmung erscheint sie nicht, weil die Antworten dann nicht gespeichert werden
 dürfen.
 
 ## Grundgerüst
@@ -270,9 +270,17 @@ Antworten werden dabei nicht gespeichert.
 
 ![Bestätigung](./img/survey/result.png)
 
-Nach dem Absenden zeigt das Spiel, wo die Antworten gelandet sind: beim Tracking-Server
-angekommen, nur auf diesem Rechner gespeichert, noch nicht bestätigt (sie werden später
-nachgereicht) oder nicht gespeichert.
+Nach dem Absenden zeigt das Spiel, wo die Antworten gelandet sind:
+
+- beim Tracking-Server angekommen,
+- lokal gespeichert, weil kein Tracking-Server eingerichtet ist,
+- lokal gespeichert, weil der Tracking-Server nicht erreichbar ist,
+- lokal gespeichert, weil der Tracking-Server den Empfang nicht innerhalb von zehn Sekunden bestätigt
+  hat,
+- nicht gespeichert.
+
+Lokal heißt in der Outbox-Datei des Rechners, der das Spiel hostet. Schließt der Spieler diese
+Anzeige, ist er mit der Umfrage fertig.
 
 Für die Auswertung wird jede beantwortete Frage als eigenes Tracking-Ereignis `SURVEY_ANSWERED` mit
 `questionnaireId`, `questionId` und `answer` gespeichert. Es gehört zur Sitzung des Raums und zur

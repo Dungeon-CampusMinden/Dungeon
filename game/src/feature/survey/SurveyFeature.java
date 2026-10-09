@@ -3,6 +3,7 @@ package feature.survey;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.tracking.Tracking;
+import engine.tracking.TrackingRuntime;
 import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import tools.jackson.databind.JsonNode;
 import tracking.core.TrackingEvent;
@@ -29,7 +31,8 @@ import tracking.core.TrackingJson;
  * SURVEY_ANSWERED} tracking events.
  *
  * <p>Register the dialog in every runtime with {@link #register()}, then call {@link #show} on the
- * authoritative side after the room outcome and before the tracking session finishes.
+ * authoritative side as the last step after the room outcome, with the action that ends the game as
+ * {@code onComplete}.
  */
 public final class SurveyFeature {
 
@@ -57,7 +60,9 @@ public final class SurveyFeature {
     CONFIRMED,
     /** The deployment stores tracking data only in the local outbox. */
     SAVED_LOCALLY,
-    /** The backend did not acknowledge in time; the outbox keeps the answers for a later upload. */
+    /** The backend failed its health check; the answers are only in the local outbox. */
+    UNREACHABLE,
+    /** The backend is healthy but did not acknowledge in time; the outbox keeps the answers. */
     PENDING,
     /** The answers were rejected or could not be recorded. */
     FAILED
@@ -125,11 +130,16 @@ public final class SurveyFeature {
           }
           if (last.isEmpty()) {
             round.finish(player);
-          } else if (!Tracking.remoteStorageEnabled()) {
-            showResult(Result.SAVED_LOCALLY, player, round);
-          } else {
-            SurveySystem.instance().await(last.get(), result -> showResult(result, player, round));
+            return;
           }
+          // Without a configured backend the outbox is the only storage.
+          TrackingRuntime.backendHealth()
+              .ifPresentOrElse(
+                  reachable ->
+                      SurveySystem.instance()
+                          .await(
+                              last.get(), reachable, result -> showResult(result, player, round)),
+                  () -> showResult(Result.SAVED_LOCALLY, player, round));
         });
     if (survey.skippable()) {
       ui.registerCallback(
@@ -245,14 +255,33 @@ public final class SurveyFeature {
 
   /**
    * Runs survey bookkeeping on the game thread: notices players who left mid-survey and polls
-   * backend acknowledgements, because the uploader thread must not touch dialogs and a headless
-   * server has no libGDX runnable queue.
+   * backend health checks and acknowledgements, because the uploader thread must not touch dialogs
+   * and a headless server has no libGDX runnable queue.
    */
   private static final class SurveySystem extends engine.System {
     private final List<Round> rounds = new ArrayList<>();
     private final List<Waiter> waiters = new ArrayList<>();
 
-    private record Waiter(TrackingEvent event, long deadlineNanos, Consumer<Result> onResult) {}
+    /**
+     * Waits for the backend to store a submission.
+     *
+     * @param event last recorded answer of the submission
+     * @param reachable result of the backend health check started on submit
+     * @param deadlineNanos time after which a healthy backend counts as {@link Result#PENDING}
+     * @param onResult receives the storage state once known
+     */
+    private record Waiter(
+        TrackingEvent event,
+        CompletableFuture<Boolean> reachable,
+        long deadlineNanos,
+        Consumer<Result> onResult) {
+      Optional<Result> result() {
+        if (Tracking.remoteAcknowledged(event)) return Optional.of(Result.CONFIRMED);
+        if (!reachable.getNow(true)) return Optional.of(Result.UNREACHABLE);
+        if (java.lang.System.nanoTime() >= deadlineNanos) return Optional.of(Result.PENDING);
+        return Optional.empty();
+      }
+    }
 
     private SurveySystem() {
       super(AuthoritativeSide.SERVER);
@@ -265,9 +294,10 @@ public final class SurveyFeature {
       return system;
     }
 
-    void await(TrackingEvent event, Consumer<Result> onResult) {
+    void await(
+        TrackingEvent event, CompletableFuture<Boolean> reachable, Consumer<Result> onResult) {
       long deadline = java.lang.System.nanoTime() + ACKNOWLEDGEMENT_TIMEOUT.toNanos();
-      waiters.add(new Waiter(event, deadline, onResult));
+      waiters.add(new Waiter(event, reachable, deadline, onResult));
     }
 
     @Override
@@ -275,10 +305,13 @@ public final class SurveyFeature {
       for (Round round : List.copyOf(rounds)) round.dropDeparted();
       rounds.removeIf(round -> round.completed);
       for (Waiter waiter : List.copyOf(waiters)) {
-        boolean confirmed = Tracking.remoteAcknowledged(waiter.event());
-        if (!confirmed && java.lang.System.nanoTime() < waiter.deadlineNanos()) continue;
-        waiters.remove(waiter);
-        waiter.onResult().accept(confirmed ? Result.CONFIRMED : Result.PENDING);
+        waiter
+            .result()
+            .ifPresent(
+                result -> {
+                  waiters.remove(waiter);
+                  waiter.onResult().accept(result);
+                });
       }
     }
 

@@ -53,15 +53,19 @@
             "result": {
                 "confirmed": {
                     "title": "Thank you!",
-                    "message": "Your answers reached the server."
+                    "message": "Your answers reached the tracking server."
                 },
                 "saved_locally": {
                     "title": "Thank you!",
-                    "message": "Your answers were saved on this computer."
+                    "message": "Your answers were saved locally."
+                },
+                "unreachable": {
+                    "title": "Thank you!",
+                    "message": "The tracking server could not be reached. Your answers were saved locally."
                 },
                 "pending": {
                     "title": "Thank you!",
-                    "message": "The server has not answered yet. Your answers are saved and will be sent later."
+                    "message": "The tracking server did not confirm receipt in time. Your answers were saved locally."
                 },
                 "failed": {
                     "title": "That did not work",

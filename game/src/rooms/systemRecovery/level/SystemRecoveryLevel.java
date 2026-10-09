@@ -1259,28 +1259,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
                       true,
                       false,
                       true,
-                      // Every participant answers before the credits end the game for all.
-                      () -> SurveyFeature.show(() -> showCredits(other.id())),
+                      () ->
+                          CreditsFeature.showAfterGame(
+                              SystemRecovery.CREDITS_ROOM_ID,
+                              // Every participant answers last; the survey ends the game for all.
+                              () -> SurveyFeature.show(Game::complete),
+                              other.id()),
                       other.id());
                 },
                 null)
             .isSolid(false));
     Game.add(trigger);
-  }
-
-  /**
-   * Shows the credits to the player who ended the room, or to everyone left when that player quit
-   * during the survey. Completes the game directly when nobody is left to close the credits.
-   *
-   * @param trigger player entity that ended the room
-   */
-  private static void showCredits(int trigger) {
-    if (Game.allPlayers().findAny().isEmpty()) {
-      Game.complete();
-      return;
-    }
-    int[] targets = Game.findEntityById(trigger).isPresent() ? new int[] {trigger} : new int[0];
-    CreditsFeature.showAfterGame(SystemRecovery.CREDITS_ROOM_ID, Game::complete, targets);
   }
 
   private void setupRoomLabel() {

@@ -94,26 +94,22 @@ final class SoulweaverEnding {
           SoulweaverStory.ending(),
           true,
           false,
-          () ->
-              SurveyFeature.show(
-                  () -> {
-                    confirmed.add(player.id());
-                    BlackFadeCutscene.show(
-                            List.of(
-                                Tuple.of(
-                                    "Geschafft!\nWarte, bis alle ihre Reise beendet haben.", 30)),
-                            false,
-                            false,
-                            () -> {},
-                            player.id())
-                        .registerCallback(DialogContextKeys.ON_RESUME, data -> {});
-                  },
-                  player.id()),
+          () -> {
+            confirmed.add(player.id());
+            BlackFadeCutscene.show(
+                    List.of(Tuple.of("Geschafft!\nWarte, bis alle ihre Reise beendet haben.", 30)),
+                    false,
+                    false,
+                    () -> {},
+                    player.id())
+                .registerCallback(DialogContextKeys.ON_RESUME, data -> {});
+          },
           player.id());
     }
     if (players.stream().allMatch(player -> confirmed.contains(player.id()))) {
       stopped = true;
-      Game.complete();
+      // The survey comes last; closing it ends the game.
+      SurveyFeature.show(Game::complete);
     }
   }
 

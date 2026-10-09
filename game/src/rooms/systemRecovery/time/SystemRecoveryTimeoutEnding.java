@@ -53,12 +53,12 @@ public final class SystemRecoveryTimeoutEnding {
         false,
         false,
         () ->
-            SurveyFeature.show(
+            CreditsFeature.showAfterGame(
+                SystemRecovery.CREDITS_ROOM_ID,
+                // The survey comes last and ends the game.
                 () ->
-                    CreditsFeature.showAfterGame(
-                        SystemRecovery.CREDITS_ROOM_ID,
-                        () -> Game.exit("System Recovery time limit expired"),
-                        newPlayers),
+                    SurveyFeature.show(
+                        () -> Game.exit("System Recovery time limit expired"), newPlayers),
                 newPlayers),
         newPlayers);
   }

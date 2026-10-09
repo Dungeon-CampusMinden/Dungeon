@@ -53,15 +53,19 @@
             "result": {
                 "confirmed": {
                     "title": "Vielen Dank!",
-                    "message": "Deine Antworten sind beim Server angekommen."
+                    "message": "Deine Antworten sind beim Tracking-Server angekommen."
                 },
                 "saved_locally": {
                     "title": "Vielen Dank!",
-                    "message": "Deine Antworten wurden auf diesem Rechner gespeichert."
+                    "message": "Deine Antworten wurden lokal gespeichert."
+                },
+                "unreachable": {
+                    "title": "Vielen Dank!",
+                    "message": "Der Tracking-Server konnte nicht erreicht werden. Deine Antworten wurden lokal gespeichert."
                 },
                 "pending": {
                     "title": "Vielen Dank!",
-                    "message": "Der Server hat noch nicht geantwortet. Deine Antworten sind gespeichert und werden nachgereicht."
+                    "message": "Der Tracking-Server hat den Empfang nicht rechtzeitig bestätigt. Deine Antworten wurden lokal gespeichert."
                 },
                 "failed": {
                     "title": "Das hat nicht geklappt",
