@@ -16,7 +16,9 @@ SurveyFeature.show(() -> CreditsFeature.showAfterGame(ROOM_ID, Game::complete));
 ```
 
 Jeder Spieler bekommt einen eigenen Dialog. Ohne Spieler-IDs werden alle Spieler gefragt.
-`onComplete` läuft, sobald alle abgesendet oder übersprungen haben oder nicht mehr verbunden sind.
+`onComplete` läuft, sobald jeder Spieler fertig ist: Er hat übersprungen, nichts beantwortet, nach dem
+Absenden die Bestätigung geschlossen oder das Spiel verlassen. Die Dialoge ausgeschiedener Spieler
+schließt der Server.
 
 ## Speicherung
 

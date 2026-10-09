@@ -117,24 +117,18 @@ final class SurveyDialog {
     return resizable(form.window, form.pages);
   }
 
-  /**
-   * Wraps the window so it re-measures itself and its hidden pages on resize and holds keyboard
-   * focus while open; the engine ignores game hotkeys such as the pause menu while any actor has
-   * focus.
-   */
+  /** Wraps the window so it re-measures itself and its hidden pages on resize. */
   private static BaseContainerUI resizable(Table window, List<Table> pages) {
     return new BaseContainerUI(window) {
       @Override
-      protected void setStage(Stage stage) {
-        super.setStage(stage);
-        if (stage != null) stage.setKeyboardFocus(window);
-      }
-
-      @Override
       public void onResize(int width, int height) {
+        Stage stage = getStage();
+        Actor focus = stage == null ? null : stage.getKeyboardFocus();
         invalidateTree(window);
         pages.forEach(SurveyDialog::invalidateTree);
         super.onResize(width, height);
+        // Re-adding the window drops the focus; a text field keeps it across the resize.
+        if (focus != null && focus.isDescendantOf(window)) stage.setKeyboardFocus(focus);
       }
     };
   }
@@ -205,13 +199,13 @@ final class SurveyDialog {
           .row();
       window.add(footer).width(column).padTop(14).padLeft(SCROLL_PAD_LEFT).left().row();
       // A click on any non-text control ends typing, so keys no longer go into a hidden field.
-      // The window keeps the focus, which still blocks game hotkeys.
+      // Without text focus the pause menu stays reachable, e.g. to change the volume.
       window.addCaptureListener(
           new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
               if (!(event.getTarget() instanceof TextField) && event.getStage() != null) {
-                event.getStage().setKeyboardFocus(window);
+                event.getStage().setKeyboardFocus(null);
               }
               return false;
             }

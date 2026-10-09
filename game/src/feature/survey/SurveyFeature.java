@@ -12,10 +12,10 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import tools.jackson.databind.JsonNode;
@@ -68,7 +68,8 @@ public final class SurveyFeature {
 
   /**
    * Shows the survey of the tracked room to each player and runs {@code onComplete} once each of
-   * them submitted it, skipped it, or left the game.
+   * them is done: they skipped it, sent no answers, closed the storage result after submitting, or
+   * left the game.
    *
    * <p>The survey is {@code surveys/<roomId>.json} for the room configured through {@link
    * Tracking#configureRoom(String)}. Runs {@code onComplete} immediately when that file is absent
@@ -91,18 +92,14 @@ public final class SurveyFeature {
       onComplete.run();
       return;
     }
-    Round round = new Round(players, onComplete);
+    Round round = new Round(onComplete);
     SurveySystem.instance().rounds.add(round);
     for (int player : players) {
-      ask(
-          survey.get(),
-          player,
-          Tracking.participantForEntity(player).orElseThrow(),
-          () -> round.finish(player));
+      ask(survey.get(), player, Tracking.participantForEntity(player).orElseThrow(), round);
     }
   }
 
-  private static void ask(SurveyDefinition survey, int player, UUID participant, Runnable done) {
+  private static void ask(SurveyDefinition survey, int player, UUID participant, Round round) {
     DialogContext context =
         DialogContext.builder()
             .type(Type.SURVEY)
@@ -110,33 +107,31 @@ public final class SurveyFeature {
             .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
             .build();
     UIComponent ui = DialogFactory.show(context, true, false, player);
+    round.dialog(player, ui);
     boolean[] submitted = {false};
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
         data -> {
-          if (submitted[0]) return;
+          if (submitted[0] || !round.asking(player)) return;
           submitted[0] = true;
           record(
               survey,
               participant,
               data,
               result -> {
+                if (!round.asking(player)) return;
                 UIUtils.closeDialog(ui, true);
-                showResult(survey.roomId(), result, player, done);
+                showResult(survey.roomId(), result, player, round);
               },
-              () -> {
-                UIUtils.closeDialog(ui, true);
-                done.run();
-              });
+              () -> round.finish(player));
         });
     if (survey.skippable()) {
       ui.registerCallback(
           DialogContextKeys.ON_CANCEL,
           data -> {
-            if (submitted[0]) return;
+            if (submitted[0] || !round.asking(player)) return;
             submitted[0] = true;
-            UIUtils.closeDialog(ui, true);
-            done.run();
+            round.finish(player);
           });
     }
   }
@@ -184,7 +179,7 @@ public final class SurveyFeature {
     }
   }
 
-  private static void showResult(String roomId, Result result, int player, Runnable done) {
+  private static void showResult(String roomId, Result result, int player, Round round) {
     DialogContext context =
         DialogContext.builder()
             .type(Type.SURVEY)
@@ -193,37 +188,48 @@ public final class SurveyFeature {
             .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
             .build();
     UIComponent ui = DialogFactory.show(context, true, false, player);
-    ui.registerCallback(
-        DialogContextKeys.ON_CONFIRM,
-        data -> {
-          UIUtils.closeDialog(ui, true);
-          done.run();
-        });
+    round.dialog(player, ui);
+    ui.registerCallback(DialogContextKeys.ON_CONFIRM, data -> round.finish(player));
   }
 
-  /** Players still answering one {@link #show} call; completes once when none remain. */
+  /**
+   * Players still busy with one {@link #show} call and their open survey or result dialog;
+   * completes once when none remain.
+   */
   private static final class Round {
-    private final Set<Integer> outstanding;
+    private final Map<Integer, UIComponent> dialogs = new HashMap<>();
     private final Runnable onComplete;
     private boolean completed;
 
-    private Round(List<Integer> players, Runnable onComplete) {
-      this.outstanding = new HashSet<>(players);
+    private Round(Runnable onComplete) {
       this.onComplete = onComplete;
     }
 
+    void dialog(int player, UIComponent ui) {
+      dialogs.put(player, ui);
+    }
+
+    /** Callbacks arriving after a player finished or left must not reopen anything. */
+    boolean asking(int player) {
+      return dialogs.containsKey(player);
+    }
+
     void finish(int player) {
-      outstanding.remove(player);
+      UIComponent ui = dialogs.remove(player);
+      if (ui != null) UIUtils.closeDialog(ui, true);
       completeIfDone();
     }
 
+    /** Closes the dialogs of players whose entity is gone, so a reconnect does not restore them. */
     void dropDeparted() {
-      outstanding.removeIf(player -> Game.findEntityById(player).isEmpty());
+      List.copyOf(dialogs.keySet()).stream()
+          .filter(player -> Game.findEntityById(player).isEmpty())
+          .forEach(this::finish);
       completeIfDone();
     }
 
     private void completeIfDone() {
-      if (completed || !outstanding.isEmpty()) return;
+      if (completed || !dialogs.isEmpty()) return;
       completed = true;
       onComplete.run();
     }
