@@ -334,16 +334,46 @@ final class SurveyDialog {
       card.defaults().left();
       String title = "[#" + INK + "]" + escape(question.text().text(language)) + "[]";
       if (question.required()) title += " [#" + ERROR + "]*[]";
-      card.add(markupLabel(title)).width(content).row();
+      Table header = new Table();
+      header.add(markupLabel(title)).growX().top().left();
+      if (question instanceof Text text && text.maxLength().isPresent()) {
+        header.add(counter(card, text.maxLength().get())).top().right().padLeft(12);
+      }
+      card.add(header).width(content).row();
+      // An info card's description is its body; on questions it is a smaller hint.
+      int descriptionSize = question instanceof Info ? 16 : 14;
       question
           .description()
           .ifPresent(
               description ->
-                  card.add(wrappedLabel(description.text(language), 16, MUTED, FONT_REGULAR))
+                  card.add(
+                          wrappedLabel(
+                              description.text(language), descriptionSize, MUTED, FONT_REGULAR))
                       .width(content)
                       .padTop(4)
                       .row());
       return card;
+    }
+
+    /**
+     * Shows how many of the allowed characters a text answer uses, such as "12/50".
+     *
+     * @param card card whose text field reports its edits
+     * @param max allowed characters
+     * @return counter label
+     */
+    private Label counter(Table card, int max) {
+      Label counter = label("0/" + max, 15, MUTED, FONT_REGULAR);
+      card.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              if (actor instanceof TextField field) {
+                counter.setText(field.getText().length() + "/" + max);
+              }
+            }
+          });
+      return counter;
     }
 
     /**
@@ -381,7 +411,7 @@ final class SurveyDialog {
 
     private Supplier<JsonNode> text(Table card, Text question) {
       TextField field = textField(question.multiline());
-      field.setMaxLength(question.maxLength());
+      field.setMaxLength(question.maxLength().orElse(0)); // 0 means no limit
       field.setMessageText(T.text("placeholder"));
       card.add(field)
           .width(content)

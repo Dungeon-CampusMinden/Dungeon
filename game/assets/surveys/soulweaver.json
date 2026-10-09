@@ -268,8 +268,7 @@
           "text": {
             "de": "Welches Rätsel hat dir am besten gefallen?",
             "en": "Which puzzle did you like best?"
-          },
-          "maxLength": 120
+          }
         },
         {
           "id": "improvements",

@@ -42,6 +42,9 @@ record SurveyDefinition(
   /** Reserved option ID of the free-text "other" choice. */
   static final String OTHER_ID = "other";
 
+  /** Default maximum length of a short text answer; long text answers have none. */
+  private static final int SHORT_TEXT_MAX_LENGTH = 50;
+
   /** Maximum length of the free text attached to the "other" choice. */
   static final int OTHER_MAX_LENGTH = 200;
 
@@ -280,7 +283,7 @@ record SurveyDefinition(
    * @param description optional help text
    * @param required whether an answer is required
    * @param multiline whether the answer is a paragraph rather than one line
-   * @param maxLength maximum answer length
+   * @param maxLength maximum answer length; empty for no limit
    */
   public record Text(
       String id,
@@ -288,13 +291,15 @@ record SurveyDefinition(
       Optional<LocalizedText> description,
       boolean required,
       boolean multiline,
-      int maxLength)
+      Optional<Integer> maxLength)
       implements Question {
     @Override
     public Optional<Problem> answeredProblem(JsonNode answer) {
       if (!answer.isString() || answer.stringValue().isBlank()) return Optional.of(Problem.INVALID);
       if (!multiline && answer.stringValue().contains("\n")) return Optional.of(Problem.INVALID);
-      if (answer.stringValue().length() > maxLength) return Optional.of(Problem.TOO_LONG);
+      if (maxLength.filter(max -> answer.stringValue().length() > max).isPresent()) {
+        return Optional.of(Problem.TOO_LONG);
+      }
       return Optional.empty();
     }
   }
@@ -537,8 +542,12 @@ record SurveyDefinition(
       case "shortText", "longText" -> {
         allowOnly(node, where, common, "maxLength");
         boolean multiline = type.equals("longText");
-        int maxLength = optionalInt(node, "maxLength", where).orElse(multiline ? 2000 : 200);
-        if (maxLength < 1) throw new IllegalArgumentException(where + ": maxLength must be > 0");
+        Optional<Integer> maxLength =
+            optionalInt(node, "maxLength", where)
+                .or(() -> multiline ? Optional.empty() : Optional.of(SHORT_TEXT_MAX_LENGTH));
+        if (maxLength.filter(max -> max < 1).isPresent()) {
+          throw new IllegalArgumentException(where + ": maxLength must be > 0");
+        }
         yield new Text(id, text, description, required, multiline, maxLength);
       }
       case "number" -> {
