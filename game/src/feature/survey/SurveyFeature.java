@@ -38,6 +38,8 @@ public final class SurveyFeature {
 
   static final String ROOM_ID_KEY = "surveyRoomId";
   static final String RESULT_KEY = "surveyResult";
+  static final String OUTBOX_KEY = "surveyOutbox";
+  static final String OPERATOR_EMAIL_KEY = "surveyOperatorEmail";
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(SurveyFeature.class);
   private static final Duration ACKNOWLEDGEMENT_TIMEOUT = Duration.ofSeconds(10);
@@ -178,14 +180,18 @@ public final class SurveyFeature {
   private static void showResult(Result result, int player, Round round) {
     // The player may have left while the backend acknowledgement was pending.
     if (!round.asking(player)) return;
-    UIComponent ui =
-        round.show(
-            player,
-            DialogContext.builder()
-                .type(Type.SURVEY)
-                .put(RESULT_KEY, result.name())
-                .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
-                .build());
+    DialogContext.Builder context =
+        DialogContext.builder()
+            .type(Type.SURVEY)
+            .put(RESULT_KEY, result.name())
+            .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true);
+    // Unconfirmed answers reach the operator only as the outbox file.
+    if (result == Result.UNREACHABLE || result == Result.PENDING) {
+      Tracking.outboxPath()
+          .ifPresent(path -> context.put(OUTBOX_KEY, path.toAbsolutePath().toString()));
+      Tracking.operatorEmail().ifPresent(email -> context.put(OPERATOR_EMAIL_KEY, email));
+    }
+    UIComponent ui = round.show(player, context.build());
     ui.registerCallback(DialogContextKeys.ON_CONFIRM, data -> round.finish(player));
   }
 

@@ -32,6 +32,7 @@ import engine.language.Language;
 import engine.language.LocalizedText;
 import engine.language.Translation;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.tracking.Tracking;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
@@ -54,6 +55,8 @@ import feature.survey.SurveyDefinition.Question;
 import feature.survey.SurveyDefinition.Scale;
 import feature.survey.SurveyDefinition.Text;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -731,10 +734,35 @@ final class SurveyDialog {
     message.setAlignment(Align.center);
     window.add(message).width(value(() -> dialogWidth(620) - 100)).padBottom(30).row();
 
+    // Only the machine hosting the game has the outbox, so only its player gets the instructions.
+    Optional<Path> outbox =
+        context.find(SurveyFeature.OUTBOX_KEY, String.class).map(Path::of).filter(Files::exists);
+    Optional<String> email = context.find(SurveyFeature.OPERATOR_EMAIL_KEY, String.class);
+    if (outbox.isPresent() && email.isPresent()) {
+      Value inner = value(() -> dialogWidth(620) - 2 * WINDOW_PAD_X - 2 * CARD_PAD);
+      Table recovery = new Table();
+      recovery.setBackground(tint(CARD));
+      recovery.pad(12, CARD_PAD, 12, CARD_PAD);
+      recovery
+          .add(wrappedLabel(T.text("result.recovery", email.get()), 16, INK, FONT_REGULAR))
+          .width(inner)
+          .row();
+      recovery
+          .add(wrappedLabel(outbox.get().toString(), 14, MUTED, FONT_REGULAR))
+          .width(inner)
+          .padTop(4);
+      window
+          .add(recovery)
+          .width(value(() -> dialogWidth(620) - 2 * WINDOW_PAD_X))
+          .padBottom(26)
+          .row();
+      Tracking.persistenceWarningShown(outbox.get());
+    }
+
     window
         .add(
             button(
-                T.text("continue"),
+                T.text("quit"),
                 "green",
                 20,
                 () ->

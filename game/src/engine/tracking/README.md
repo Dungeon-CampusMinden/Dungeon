@@ -107,8 +107,9 @@ Lösche sie erst, wenn das Backend die Sitzung bestätigt oder ein Betreiber sie
 
 Beendet sich ein über "Spiel hosten" gestarteter Server ohne bestätigte Speicherung, übermittelt
 sein Statuskanal den absoluten Outbox-Pfad und die konfigurierte Betreiber-E-Mail an den hostenden
-Client. Der Client zeigt die Warnung an. Eigenständige Headless-Server schreiben dieselben
-Wiederherstellungsangaben in ihr Log.
+Client. Der Client zeigt die Warnung an, außer das Spielfenster hat dieselbe Datei schon genannt und
+das mit `Tracking.persistenceWarningShown(path)` gemeldet; dann steht sie nur im Log. Eigenständige
+Headless-Server schreiben dieselben Wiederherstellungsangaben in ihr Log.
 
 Lokale Outbox-Fehler stoppen weder das Spiel noch Netzwerk, Abschlussanzeige oder Herunterfahren.
 Dungeon protokolliert den fehlgeschlagenen absoluten Pfad und lässt die Wiederherstellungswarnung
@@ -145,7 +146,8 @@ als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschrege
 
 Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `active`,
 `outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `interaction`, `participantForClient` und
-`participantForEntity`, `completed`, `surveyAnswered` und `remoteAcknowledged`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
+`participantForEntity`, `completed`, `surveyAnswered`, `remoteAcknowledged`, `operatorEmail` und
+`persistenceWarningShown`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
 und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.
 
 `interaction(objectId, action, participantId)` erfasst bedeutende Spieleraktionen mit stabilen

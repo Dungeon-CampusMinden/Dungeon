@@ -33,7 +33,7 @@
             "other": "Other:",
             "other_placeholder": "Please describe",
             "sending": "Sending answers",
-            "continue": "Continue",
+            "quit": "Quit",
             "number_hint": {
                 "integer": "Whole number",
                 "decimal": "Number",
@@ -70,7 +70,8 @@
                 "failed": {
                     "title": "That did not work",
                     "message": "Your answers could not be saved."
-                }
+                },
+                "recovery": "Please send this file to $1:"
             }
         },
         "pause_dialog": {

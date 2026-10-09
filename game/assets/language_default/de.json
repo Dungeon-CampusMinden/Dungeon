@@ -33,7 +33,7 @@
             "other": "Sonstiges:",
             "other_placeholder": "Bitte beschreiben",
             "sending": "Antworten werden gesendet",
-            "continue": "Weiter",
+            "quit": "Beenden",
             "number_hint": {
                 "integer": "Ganze Zahl",
                 "decimal": "Zahl",
@@ -70,7 +70,8 @@
                 "failed": {
                     "title": "Das hat nicht geklappt",
                     "message": "Deine Antworten konnten nicht gespeichert werden."
-                }
+                },
+                "recovery": "Bitte schicke diese Datei an $1:"
             }
         },
         "pause_dialog": {

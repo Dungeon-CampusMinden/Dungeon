@@ -279,8 +279,10 @@ Nach dem Absenden zeigt das Spiel, wo die Antworten gelandet sind:
   hat,
 - nicht gespeichert.
 
-Lokal heißt in der Outbox-Datei des Rechners, der das Spiel hostet. Schließt der Spieler diese
-Anzeige, ist er mit der Umfrage fertig.
+Lokal heißt in der Outbox-Datei des Rechners, der das Spiel hostet. Hat der Tracking-Server die
+Antworten nicht bestätigt, nennt die Anzeige auf diesem Rechner die Datei und die Betreiber-E-Mail,
+an die sie geschickt werden soll. „Beenden“ schließt die Anzeige; sobald alle Spieler fertig sind,
+endet das Spiel.
 
 Für die Auswertung wird jede beantwortete Frage als eigenes Tracking-Ereignis `SURVEY_ANSWERED` mit
 `questionnaireId`, `questionId` und `answer` gespeichert. Es gehört zur Sitzung des Raums und zur

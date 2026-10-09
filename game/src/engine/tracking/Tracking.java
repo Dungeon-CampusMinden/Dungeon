@@ -44,6 +44,7 @@ public final class Tracking {
   private static Optional<PlayClock.Outcome> outcome = Optional.empty();
   private static String clientRoomId;
   private static PersistenceFailure persistenceFailure;
+  private static Path warningShownFor;
 
   private Tracking() {}
 
@@ -182,6 +183,32 @@ public final class Tracking {
         return Optional.of(session.outboxPath());
       }
       return Optional.ofNullable(persistenceFailure).map(PersistenceFailure::path);
+    }
+  }
+
+  /**
+   * Returns who receives the outbox when the backend has not confirmed its events.
+   *
+   * @return operator email of the current session
+   */
+  public static Optional<String> operatorEmail() {
+    synchronized (LOCK) {
+      if (session != null) {
+        return Optional.of(session.operatorEmail());
+      }
+      return Optional.ofNullable(persistenceFailure).map(PersistenceFailure::operatorEmail);
+    }
+  }
+
+  /**
+   * Records that the game window already told the player where to send this outbox. The warning
+   * after the game then only logs the instructions instead of opening another window.
+   *
+   * @param outboxPath outbox path shown to the player
+   */
+  public static void persistenceWarningShown(Path outboxPath) {
+    synchronized (LOCK) {
+      warningShownFor = outboxPath.toAbsolutePath();
     }
   }
 
@@ -836,6 +863,9 @@ public final class Tracking {
   }
 
   private static void showPersistencePending(Path outboxPath, String operatorEmail) {
+    synchronized (LOCK) {
+      if (outboxPath.toAbsolutePath().equals(warningShownFor)) return;
+    }
     String message =
         "Tracking persistence is not confirmed.\nSend the JSONL file at:\n"
             + outboxPath
