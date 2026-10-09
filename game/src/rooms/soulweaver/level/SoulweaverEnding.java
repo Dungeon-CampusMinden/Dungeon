@@ -15,6 +15,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.survey.SurveyFeature;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -93,16 +94,21 @@ final class SoulweaverEnding {
           SoulweaverStory.ending(),
           true,
           false,
-          () -> {
-            confirmed.add(player.id());
-            BlackFadeCutscene.show(
-                    List.of(Tuple.of("Geschafft!\nWarte, bis alle ihre Reise beendet haben.", 30)),
-                    false,
-                    false,
-                    () -> {},
-                    player.id())
-                .registerCallback(DialogContextKeys.ON_RESUME, data -> {});
-          },
+          () ->
+              SurveyFeature.show(
+                  () -> {
+                    confirmed.add(player.id());
+                    BlackFadeCutscene.show(
+                            List.of(
+                                Tuple.of(
+                                    "Geschafft!\nWarte, bis alle ihre Reise beendet haben.", 30)),
+                            false,
+                            false,
+                            () -> {},
+                            player.id())
+                        .registerCallback(DialogContextKeys.ON_RESUME, data -> {});
+                  },
+                  player.id()),
           player.id());
     }
     if (players.stream().allMatch(player -> confirmed.contains(player.id()))) {

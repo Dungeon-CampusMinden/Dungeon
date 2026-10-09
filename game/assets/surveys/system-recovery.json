@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "roomId": "system-recovery",
+  "questionnaireId": "escape-room-feedback-v1",
+  "title": {
+    "de": "Kurze Umfrage zum Escape-Room",
+    "en": "Short survey about the escape room"
+  },
+  "skippable": true,
+  "pages": [
+    {
+      "title": {
+        "de": "Zu dir",
+        "en": "About you"
+      },
+      "questions": [
+        {
+          "id": "intro",
+          "type": "info",
+          "text": {
+            "de": "Danke fürs Spielen!",
+            "en": "Thanks for playing!"
+          },
+          "description": {
+            "de": "Die Umfrage dauert etwa drei Minuten. Fragen mit * sind Pflichtfragen.",
+            "en": "The survey takes about three minutes. Questions marked * are required."
+          }
+        },
+        {
+          "id": "age",
+          "type": "number",
+          "required": true,
+          "text": {
+            "de": "Wie alt bist du?",
+            "en": "How old are you?"
+          },
+          "min": 10,
+          "max": 99
+        },
+        {
+          "id": "study-program",
+          "type": "dropdown",
+          "text": {
+            "de": "Was studierst du?",
+            "en": "What do you study?"
+          },
+          "options": [
+            {
+              "id": "computer-science",
+              "text": {
+                "de": "Informatik",
+                "en": "Computer science"
+              }
+            },
+            {
+              "id": "business-informatics",
+              "text": {
+                "de": "Wirtschaftsinformatik",
+                "en": "Business informatics"
+              }
+            },
+            {
+              "id": "media-informatics",
+              "text": {
+                "de": "Medieninformatik",
+                "en": "Media informatics"
+              }
+            },
+            {
+              "id": "electrical-engineering",
+              "text": {
+                "de": "Elektrotechnik",
+                "en": "Electrical engineering"
+              }
+            },
+            {
+              "id": "none",
+              "text": {
+                "de": "Ich studiere nicht",
+                "en": "I am not a student"
+              }
+            }
+          ]
+        },
+        {
+          "id": "escape-room-experience",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Wie oft hast du schon Escape-Rooms gespielt?",
+            "en": "How often have you played escape rooms?"
+          },
+          "options": [
+            {
+              "id": "never",
+              "text": {
+                "de": "Noch nie",
+                "en": "Never"
+              }
+            },
+            {
+              "id": "once",
+              "text": {
+                "de": "Ein- oder zweimal",
+                "en": "Once or twice"
+              }
+            },
+            {
+              "id": "often",
+              "text": {
+                "de": "Öfter",
+                "en": "More often"
+              }
+            }
+          ],
+          "other": true
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Dein Spielerlebnis",
+        "en": "Your experience"
+      },
+      "questions": [
+        {
+          "id": "fun",
+          "type": "scale",
+          "required": true,
+          "text": {
+            "de": "Wie viel Spaß hat dir der Raum gemacht?",
+            "en": "How much did you enjoy the room?"
+          },
+          "min": 1,
+          "max": 5,
+          "minLabel": {
+            "de": "Gar keinen",
+            "en": "Not at all"
+          },
+          "maxLabel": {
+            "de": "Sehr viel",
+            "en": "Very much"
+          }
+        },
+        {
+          "id": "statements",
+          "type": "matrix",
+          "required": true,
+          "text": {
+            "de": "Wie sehr stimmst du diesen Aussagen zu?",
+            "en": "How much do you agree with these statements?"
+          },
+          "rows": [
+            {
+              "id": "puzzles-clear",
+              "text": {
+                "de": "Die Rätsel waren verständlich.",
+                "en": "The puzzles were understandable."
+              }
+            },
+            {
+              "id": "next-step-clear",
+              "text": {
+                "de": "Ich wusste meist, was als Nächstes zu tun war.",
+                "en": "I usually knew what to do next."
+              }
+            },
+            {
+              "id": "hints-helpful",
+              "text": {
+                "de": "Die Hinweise haben mir geholfen.",
+                "en": "The hints helped me."
+              }
+            }
+          ],
+          "columns": [
+            {
+              "id": "1",
+              "text": {
+                "de": "Stimme gar nicht zu",
+                "en": "Strongly disagree"
+              }
+            },
+            {
+              "id": "2",
+              "text": {
+                "de": "Stimme eher nicht zu",
+                "en": "Disagree"
+              }
+            },
+            {
+              "id": "3",
+              "text": {
+                "de": "Teils, teils",
+                "en": "Neutral"
+              }
+            },
+            {
+              "id": "4",
+              "text": {
+                "de": "Stimme eher zu",
+                "en": "Agree"
+              }
+            },
+            {
+              "id": "5",
+              "text": {
+                "de": "Stimme voll zu",
+                "en": "Strongly agree"
+              }
+            }
+          ]
+        },
+        {
+          "id": "liked",
+          "type": "multiChoice",
+          "text": {
+            "de": "Was hat dir gefallen?",
+            "en": "What did you like?"
+          },
+          "description": {
+            "de": "Mehrere Antworten möglich.",
+            "en": "Choose all that apply."
+          },
+          "options": [
+            {
+              "id": "puzzles",
+              "text": {
+                "de": "Die Rätsel",
+                "en": "The puzzles"
+              }
+            },
+            {
+              "id": "story",
+              "text": {
+                "de": "Die Geschichte",
+                "en": "The story"
+              }
+            },
+            {
+              "id": "graphics",
+              "text": {
+                "de": "Grafik und Sound",
+                "en": "Graphics and sound"
+              }
+            },
+            {
+              "id": "teamwork",
+              "text": {
+                "de": "Das Zusammenspiel im Team",
+                "en": "Playing as a team"
+              }
+            }
+          ],
+          "other": true
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Zum Schluss",
+        "en": "Finally"
+      },
+      "questions": [
+        {
+          "id": "favorite-puzzle",
+          "type": "shortText",
+          "text": {
+            "de": "Welches Rätsel hat dir am besten gefallen?",
+            "en": "Which puzzle did you like best?"
+          },
+          "maxLength": 120
+        },
+        {
+          "id": "improvements",
+          "type": "longText",
+          "text": {
+            "de": "Was sollten wir verbessern?",
+            "en": "What should we improve?"
+          },
+          "description": {
+            "de": "Optional. Jede Anmerkung hilft uns.",
+            "en": "Optional. Every note helps us."
+          },
+          "maxLength": 2000
+        }
+      ]
+    }
+  ]
+}

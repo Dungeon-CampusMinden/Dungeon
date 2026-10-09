@@ -19,6 +19,59 @@
         "multiple_choice_dialog": {
             "cancel": "Abbrechen"
         },
+        "survey": {
+            "page": "Seite $1 von $2",
+            "next": "Weiter",
+            "back": "Zurück",
+            "submit": "Absenden",
+            "skip": "Überspringen",
+            "skip_confirm": "Umfrage wirklich überspringen?",
+            "skip_cancel": "Zur Umfrage",
+            "placeholder": "Deine Antwort",
+            "select": "Bitte auswählen",
+            "other": "Sonstiges:",
+            "other_placeholder": "Bitte beschreiben",
+            "sending": "Antworten werden gesendet",
+            "continue": "Weiter",
+            "number_hint": {
+                "integer": "Ganze Zahl",
+                "decimal": "Zahl",
+                "between": "$1 von $2 bis $3",
+                "min": "$1 ab $2",
+                "max": "$1 bis $2"
+            },
+            "problem": {
+                "required": "Bitte beantworte diese Frage.",
+                "required_rows": "Bitte wähle in jeder Zeile eine Antwort.",
+                "number_format": "Bitte gib eine Zahl ein.",
+                "number_range": "Die Zahl liegt nicht im erlaubten Bereich.",
+                "too_long": "Die Antwort ist zu lang.",
+                "other_text": "Bitte fülle das Feld bei Sonstiges aus.",
+                "invalid": "Diese Antwort ist ungültig."
+            },
+            "result": {
+                "confirmed": {
+                    "title": "Vielen Dank!",
+                    "status": "Vom Server bestätigt",
+                    "message": "Deine Antworten sind beim Server angekommen."
+                },
+                "saved_locally": {
+                    "title": "Vielen Dank!",
+                    "status": "Lokal gespeichert",
+                    "message": "Deine Antworten wurden auf diesem Rechner gespeichert."
+                },
+                "pending": {
+                    "title": "Vielen Dank!",
+                    "status": "Übertragung ausstehend",
+                    "message": "Der Server hat noch nicht geantwortet. Deine Antworten sind lokal gespeichert und werden nachgereicht."
+                },
+                "failed": {
+                    "title": "Das hat nicht geklappt",
+                    "status": "Nicht gespeichert",
+                    "message": "Deine Antworten konnten nicht gespeichert werden."
+                }
+            }
+        },
         "pause_dialog": {
             "paused": "PAUSIERT",
             "resume": "Fortsetzen",

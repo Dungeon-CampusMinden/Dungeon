@@ -547,6 +547,22 @@ public final class Tracking {
     }
   }
 
+  /**
+   * Returns whether the HTTP backend has persisted an event and every earlier event of its session.
+   *
+   * <p>Callers poll this after recording player-facing data, for example to confirm that survey
+   * answers arrived. It stays {@code false} when the deployment uploads nothing; check {@link
+   * #remoteStorageEnabled()} to distinguish that case.
+   *
+   * @param event event returned by a recording method of this class
+   * @return {@code true} once the backend acknowledged the event's sequence
+   */
+  public static boolean remoteAcknowledged(TrackingEvent event) {
+    synchronized (LOCK) {
+      return session != null && session.remoteAcknowledged(event);
+    }
+  }
+
   static void playClockChanged(PlayClock.Transition transition) {
     synchronized (LOCK) {
       // The room's result decides the finish status; the session stays open for surveys.

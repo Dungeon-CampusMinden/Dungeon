@@ -26,6 +26,7 @@ import feature.entities.deco.DecoFactory;
 import feature.hints.HintSystem;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
+import feature.survey.SurveyFeature;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -1259,8 +1260,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                       false,
                       true,
                       () ->
-                          CreditsFeature.showAfterGame(
-                              SystemRecovery.CREDITS_ROOM_ID, Game::complete, other.id()),
+                          SurveyFeature.show(
+                              () ->
+                                  CreditsFeature.showAfterGame(
+                                      SystemRecovery.CREDITS_ROOM_ID, Game::complete, other.id()),
+                              other.id()),
                       other.id());
                 },
                 null)

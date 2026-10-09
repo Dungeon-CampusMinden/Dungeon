@@ -145,7 +145,7 @@ als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschrege
 
 Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `active`,
 `outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `interaction`, `participantForClient` und
-`participantForEntity`, `completed` und `surveyAnswered`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
+`participantForEntity`, `completed`, `surveyAnswered` und `remoteAcknowledged`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
 und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.
 
 `interaction(objectId, action, participantId)` erfasst bedeutende Spieleraktionen mit stabilen
@@ -180,4 +180,6 @@ Diese optionalen JSON-Payload-Felder brauchen keine Änderung des Datenbankschem
 `PUZZLE_STARTED` heißt, dass ein Rätsel zugänglich ist. Der erste Kontakt ist das erste andere
 Ereignis mit derselben `puzzleId`. `Tracking.surveyAnswered(...)` zeichnet `SURVEY_ANSWERED` auf,
 solange die Sitzung offen ist: im Raum vor dem Intro und nach dem Raumergebnis bis
-`Game.complete()`.
+`Game.complete()`. Den Fragebogen nach dem Raum zeigt `feature.survey.SurveyFeature`; sein
+`README.md` beschreibt das JSON-Format. `Tracking.remoteAcknowledged(event)` meldet, ob das Backend
+ein Ereignis samt aller früheren bestätigt hat; die Umfrage zeigt damit den Speicherstatus an.

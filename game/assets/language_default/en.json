@@ -19,6 +19,59 @@
         "multiple_choice_dialog": {
             "cancel": "Cancel"
         },
+        "survey": {
+            "page": "Page $1 of $2",
+            "next": "Next",
+            "back": "Back",
+            "submit": "Submit",
+            "skip": "Skip",
+            "skip_confirm": "Really skip the survey?",
+            "skip_cancel": "Keep answering",
+            "placeholder": "Your answer",
+            "select": "Please choose",
+            "other": "Other:",
+            "other_placeholder": "Please describe",
+            "sending": "Sending answers",
+            "continue": "Continue",
+            "number_hint": {
+                "integer": "Whole number",
+                "decimal": "Number",
+                "between": "$1 from $2 to $3",
+                "min": "$1 from $2",
+                "max": "$1 up to $2"
+            },
+            "problem": {
+                "required": "Please answer this question.",
+                "required_rows": "Please choose an answer in every row.",
+                "number_format": "Please enter a number.",
+                "number_range": "The number is outside the allowed range.",
+                "too_long": "The answer is too long.",
+                "other_text": "Please fill in the field next to Other.",
+                "invalid": "This answer is invalid."
+            },
+            "result": {
+                "confirmed": {
+                    "title": "Thank you!",
+                    "status": "Confirmed by the server",
+                    "message": "Your answers reached the server."
+                },
+                "saved_locally": {
+                    "title": "Thank you!",
+                    "status": "Saved locally",
+                    "message": "Your answers were saved on this computer."
+                },
+                "pending": {
+                    "title": "Thank you!",
+                    "status": "Upload pending",
+                    "message": "The server has not answered yet. Your answers are saved locally and will be sent later."
+                },
+                "failed": {
+                    "title": "That did not work",
+                    "status": "Not saved",
+                    "message": "Your answers could not be saved."
+                }
+            }
+        },
         "pause_dialog": {
             "paused": "PAUSED",
             "resume": "Resume",
