@@ -89,6 +89,7 @@ final class SurveyDialog {
   private static final Color ROW_MISSING = Color.valueOf("f6cdc7");
   private static final Color INFO = Color.valueOf("dcefff");
   private static final Color STRIPE = new Color(0.86f, 0.88f, 0.92f, 0.6f);
+  private static final float WINDOW_MARGIN = 24;
   private static final float WINDOW_PAD_X = 26;
   private static final float CARD_PAD = 18;
   private static final float SCROLL_PAD_LEFT = 2;
@@ -140,7 +141,7 @@ final class SurveyDialog {
 
   /** Dialog width for the current window, leaving a margin on both sides. */
   private static float dialogWidth(float max) {
-    return Math.max(320f, Math.min(max, Game.windowWidth() - 40f));
+    return Math.max(320f, Math.min(max, Game.windowWidth() - 2 * WINDOW_MARGIN));
   }
 
   /** Paged form state; answers live in the input widgets until submission. */
@@ -194,7 +195,9 @@ final class SurveyDialog {
       window
           .add(scroll)
           .width(inner)
-          .height(value(() -> Math.max(140f, Math.min(700f, Game.windowHeight() - 250f))))
+          // Title band, page header and footer take about 204 px; the rest of the window height,
+          // minus a margin above and below, is for the questions.
+          .height(value(() -> Math.max(140f, Game.windowHeight() - 204f - 2 * WINDOW_MARGIN)))
           .padTop(10)
           .row();
       window.add(footer).width(column).padTop(14).padLeft(SCROLL_PAD_LEFT).left().row();
