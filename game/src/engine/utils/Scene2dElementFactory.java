@@ -169,10 +169,12 @@ public class Scene2dElementFactory {
    * @return a new TextButton instance
    */
   public static TextButton createButton(String text, String styleName, int fontSize) {
-    TextButton element = new TextButton(text, DEFAULT_SKIN, styleName);
-    TextButton.TextButtonStyle style = element.getStyle();
+    // A copy keeps the font size on this button instead of changing the shared skin style.
+    TextButton.TextButtonStyle style =
+        new TextButton.TextButtonStyle(
+            DEFAULT_SKIN.get(styleName, TextButton.TextButtonStyle.class));
     style.font = FontHelper.getFont(FONT_PATH_BOLD, fontSize, Color.WHITE, 0, Color.BLACK);
-    element.setStyle(style);
+    TextButton element = new TextButton(text, style);
     element.setUserObject(Cursors.INTERACT);
     if (element.getStyle().up != null) {
       var up = element.getStyle().up;

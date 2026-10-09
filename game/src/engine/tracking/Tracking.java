@@ -44,6 +44,7 @@ public final class Tracking {
   private static Optional<PlayClock.Outcome> outcome = Optional.empty();
   private static String clientRoomId;
   private static PersistenceFailure persistenceFailure;
+  private static Path warningShownFor;
 
   private Tracking() {}
 
@@ -182,6 +183,32 @@ public final class Tracking {
         return Optional.of(session.outboxPath());
       }
       return Optional.ofNullable(persistenceFailure).map(PersistenceFailure::path);
+    }
+  }
+
+  /**
+   * Returns who receives the outbox when the backend has not confirmed its events.
+   *
+   * @return operator email of the current session
+   */
+  public static Optional<String> operatorEmail() {
+    synchronized (LOCK) {
+      if (session != null) {
+        return Optional.of(session.operatorEmail());
+      }
+      return Optional.ofNullable(persistenceFailure).map(PersistenceFailure::operatorEmail);
+    }
+  }
+
+  /**
+   * Records that the game window already told the player where to send this outbox. The warning
+   * after the game then only logs the instructions instead of opening another window.
+   *
+   * @param outboxPath outbox path shown to the player
+   */
+  public static void persistenceWarningShown(Path outboxPath) {
+    synchronized (LOCK) {
+      warningShownFor = outboxPath.toAbsolutePath();
     }
   }
 
@@ -547,6 +574,22 @@ public final class Tracking {
     }
   }
 
+  /**
+   * Returns whether the HTTP backend has persisted an event and every earlier event of its session.
+   *
+   * <p>Callers poll this after recording player-facing data, for example to confirm that survey
+   * answers arrived. It stays {@code false} when the deployment uploads nothing; check {@link
+   * #remoteStorageEnabled()} to distinguish that case.
+   *
+   * @param event event returned by a recording method of this class
+   * @return {@code true} once the backend acknowledged the event's sequence
+   */
+  public static boolean remoteAcknowledged(TrackingEvent event) {
+    synchronized (LOCK) {
+      return session != null && session.remoteAcknowledged(event);
+    }
+  }
+
   static void playClockChanged(PlayClock.Transition transition) {
     synchronized (LOCK) {
       // The room's result decides the finish status; the session stays open for surveys.
@@ -820,6 +863,9 @@ public final class Tracking {
   }
 
   private static void showPersistencePending(Path outboxPath, String operatorEmail) {
+    synchronized (LOCK) {
+      if (outboxPath.toAbsolutePath().equals(warningShownFor)) return;
+    }
     String message =
         "Tracking persistence is not confirmed.\nSend the JSONL file at:\n"
             + outboxPath

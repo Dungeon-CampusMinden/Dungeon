@@ -451,6 +451,12 @@ final class TrackingSession {
     return outbox.failed() || (uploader != null && uploader.pending(sequence, finished));
   }
 
+  boolean remoteAcknowledged(TrackingEvent event) {
+    return uploader != null
+        && descriptor.sessionId().equals(event.sessionId())
+        && !uploader.pending(event.sessionSequence(), false);
+  }
+
   private void participantEvent(
       TrackingParticipant participant, TrackingEventType eventType, Instant occurredAt) {
     ObjectNode payload =

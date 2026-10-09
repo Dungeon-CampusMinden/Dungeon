@@ -9,6 +9,7 @@ import feature.components.UIComponent;
 import feature.credits.CreditsFeature;
 import feature.hud.UIUtils;
 import feature.interaction.InteractionComponent;
+import feature.survey.SurveyFeature;
 import java.util.HashSet;
 import java.util.Set;
 import rooms.systemRecovery.SystemRecovery;
@@ -54,7 +55,10 @@ public final class SystemRecoveryTimeoutEnding {
         () ->
             CreditsFeature.showAfterGame(
                 SystemRecovery.CREDITS_ROOM_ID,
-                () -> Game.exit("System Recovery time limit expired"),
+                // The survey comes last and ends the game.
+                () ->
+                    SurveyFeature.show(
+                        () -> Game.exit("System Recovery time limit expired"), newPlayers),
                 newPlayers),
         newPlayers);
   }

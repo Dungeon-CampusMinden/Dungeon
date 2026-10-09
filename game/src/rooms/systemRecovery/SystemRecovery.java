@@ -29,6 +29,7 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
+import feature.survey.SurveyFeature;
 import feature.systems.AISystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
@@ -314,6 +315,7 @@ public final class SystemRecovery {
     SystemRecoveryAchievements.register();
     BlackFadeCutscene.register();
     CreditsFeature.register();
+    SurveyFeature.register();
     BatteryItem.ensureRegistration();
     SearchProgramChipItem.ensureRegistration();
     SortProgramStickItem.ensureRegistration();

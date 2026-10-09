@@ -24,6 +24,7 @@ import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.questlog.QuestLogUI;
+import feature.survey.SurveyFeature;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import java.util.Arrays;
@@ -151,6 +152,7 @@ public final class Soulweaver {
     SoulweaverTerminal.register();
     SoulweaverMethods.register();
     SoulweaverDecisions.register();
+    SurveyFeature.register();
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
@@ -166,5 +168,6 @@ public final class Soulweaver {
     SoulweaverTerminal.register();
     SoulweaverMethods.register();
     SoulweaverDecisions.register();
+    SurveyFeature.register();
   }
 }

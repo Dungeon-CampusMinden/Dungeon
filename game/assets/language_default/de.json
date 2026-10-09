@@ -19,6 +19,61 @@
         "multiple_choice_dialog": {
             "cancel": "Abbrechen"
         },
+        "survey": {
+            "page": "Seite $1 von $2",
+            "next": "Weiter",
+            "back": "Zurück",
+            "submit": "Absenden",
+            "skip": "Überspringen",
+            "skip_yes": "Ja, überspringen",
+            "skip_cancel": "Zur Umfrage",
+            "skip_hint": "Deine Antworten werden dann nicht gespeichert.",
+            "placeholder": "Deine Antwort",
+            "select": "Bitte auswählen",
+            "other": "Sonstiges:",
+            "other_placeholder": "Bitte beschreiben",
+            "sending": "Antworten werden gesendet",
+            "quit": "Beenden",
+            "number_hint": {
+                "integer": "Ganze Zahl",
+                "decimal": "Zahl",
+                "between": "$1 von $2 bis $3",
+                "min": "$1 ab $2",
+                "max": "$1 bis $2"
+            },
+            "problem": {
+                "required": "Bitte beantworte diese Frage.",
+                "required_rows": "Bitte wähle in jeder Zeile eine Antwort.",
+                "number_format": "Bitte gib eine Zahl ein.",
+                "number_range": "Bitte gib eine Zahl im erlaubten Bereich ein.",
+                "too_long": "Die Antwort ist zu lang.",
+                "other_text": "Bitte fülle das Feld bei Sonstiges aus.",
+                "invalid": "Diese Antwort ist ungültig."
+            },
+            "result": {
+                "confirmed": {
+                    "title": "Vielen Dank!",
+                    "message": "Deine Antworten sind beim Tracking-Server angekommen."
+                },
+                "saved_locally": {
+                    "title": "Vielen Dank!",
+                    "message": "Deine Antworten wurden lokal gespeichert."
+                },
+                "unreachable": {
+                    "title": "Vielen Dank!",
+                    "message": "Der Tracking-Server konnte nicht erreicht werden. Deine Antworten wurden lokal gespeichert."
+                },
+                "pending": {
+                    "title": "Vielen Dank!",
+                    "message": "Der Tracking-Server hat den Empfang nicht rechtzeitig bestätigt. Deine Antworten wurden lokal gespeichert."
+                },
+                "failed": {
+                    "title": "Das hat nicht geklappt",
+                    "message": "Deine Antworten konnten nicht gespeichert werden."
+                },
+                "recovery": "Bitte schicke diese Datei an $1:"
+            }
+        },
         "pause_dialog": {
             "paused": "PAUSIERT",
             "resume": "Fortsetzen",

@@ -15,6 +15,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.survey.SurveyFeature;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -107,7 +108,8 @@ final class SoulweaverEnding {
     }
     if (players.stream().allMatch(player -> confirmed.contains(player.id()))) {
       stopped = true;
-      Game.complete();
+      // The survey comes last; closing it ends the game.
+      SurveyFeature.show(Game::complete);
     }
   }
 
