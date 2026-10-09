@@ -371,7 +371,10 @@ public record SurveyDefinition(
 
     @Override
     public Optional<Problem> answeredProblem(JsonNode answer) {
-      if (!answer.isIntegralNumber() || answer.intValue() < min || answer.intValue() > max) {
+      if (!answer.isIntegralNumber()
+          || !answer.canConvertToInt()
+          || answer.intValue() < min
+          || answer.intValue() > max) {
         return Optional.of(Problem.INVALID);
       }
       return Optional.empty();

@@ -1,13 +1,19 @@
 package feature.survey;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
@@ -16,11 +22,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.Layout;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.language.Language;
+import engine.language.LocalizedText;
 import engine.language.Translation;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.BaseContainerUI;
@@ -48,6 +58,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
@@ -58,7 +70,8 @@ import tools.jackson.databind.node.ObjectNode;
  * Client view of a survey dialog: the paged form, or the storage result after submitting.
  *
  * <p>The form validates each page with the same rules the server applies and sends all answers as
- * one JSON object keyed by question ID.
+ * one JSON object keyed by question ID. Sizes derive from the current window on every layout, so
+ * the dialog fits again after the window is resized.
  */
 final class SurveyDialog {
 
@@ -70,11 +83,17 @@ final class SurveyDialog {
   private static final Color MUTED = Color.valueOf("5b6270");
   private static final Color ERROR = Color.valueOf("c0392b");
   private static final Color ACCENT = Color.valueOf("1b8fc4");
+  private static final Color ACCENT_LIGHT = Color.valueOf("d6ecf8");
   private static final Color CARD = new Color(1, 1, 1, 0.8f);
   private static final Color CARD_ERROR = Color.valueOf("fbe9e7");
+  private static final Color ROW_MISSING = Color.valueOf("f6cdc7");
   private static final Color INFO = Color.valueOf("dcefff");
   private static final Color STRIPE = new Color(0.86f, 0.88f, 0.92f, 0.6f);
+  private static final float WINDOW_PAD_X = 26;
   private static final float CARD_PAD = 18;
+  private static final float SCROLL_PAD_LEFT = 2;
+  private static final float GAP = 6;
+  private static final float INPUT_HEIGHT = 42;
 
   private SurveyDialog() {}
 
@@ -86,16 +105,48 @@ final class SurveyDialog {
    */
   static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
+    Optional<String> result = context.find(SurveyFeature.RESULT_KEY, String.class);
+    if (result.isPresent()) {
+      return resizable(resultView(SurveyFeature.Result.valueOf(result.get()), context), List.of());
+    }
     String roomId = context.require(SurveyFeature.ROOM_ID_KEY, String.class);
     SurveyDefinition survey =
         SurveyDefinition.load(roomId)
             .orElseThrow(() -> new DialogCreationException("No valid survey for room " + roomId));
-    Optional<String> result = context.find(SurveyFeature.RESULT_KEY, String.class);
-    Table window =
-        result.isPresent()
-            ? resultView(survey, SurveyFeature.Result.valueOf(result.get()), context)
-            : new Form(survey, context).window;
-    return new BaseContainerUI(window);
+    Form form = new Form(survey, context);
+    return resizable(form.window, form.pages);
+  }
+
+  /**
+   * Wraps the window so it re-measures itself and its hidden pages on resize and holds keyboard
+   * focus while open; the engine ignores game hotkeys such as the pause menu while any actor has
+   * focus.
+   */
+  private static BaseContainerUI resizable(Table window, List<Table> pages) {
+    return new BaseContainerUI(window) {
+      @Override
+      protected void setStage(Stage stage) {
+        super.setStage(stage);
+        if (stage != null) stage.setKeyboardFocus(window);
+      }
+
+      @Override
+      public void onResize(int width, int height) {
+        invalidateTree(window);
+        pages.forEach(SurveyDialog::invalidateTree);
+        super.onResize(width, height);
+      }
+    };
+  }
+
+  private static void invalidateTree(Actor actor) {
+    if (actor instanceof Layout layout) layout.invalidate();
+    if (actor instanceof Group group) group.getChildren().forEach(SurveyDialog::invalidateTree);
+  }
+
+  /** Dialog width for the current window, leaving a margin on both sides. */
+  private static float dialogWidth(float max) {
+    return Math.max(320f, Math.min(max, Game.windowWidth() - 40f));
   }
 
   /** Paged form state; answers live in the input widgets until submission. */
@@ -103,11 +154,15 @@ final class SurveyDialog {
     private final SurveyDefinition survey;
     private final DialogContext context;
     private final Language language = Game.localization().currentLanguage();
-    private final float width = Math.min(860f, Game.windowWidth() - 60f);
-    // Window padding, scroll content padding, and card padding.
-    private final float contentWidth = width - 52f - 16f - 2 * CARD_PAD;
-    private final Table window = window(width);
-    private final Label pageTitle = label("", 22, INK, FONT);
+    // The scroll bar sits in this gutter to the right of the cards; header and footer keep it too,
+    // so every right edge lines up with the cards.
+    private final float gutter =
+        UIUtils.defaultSkin().get(ScrollPane.ScrollPaneStyle.class).vScrollKnob.getMinWidth() + 12;
+    private final Value inner = value(() -> dialogWidth(860) - 2 * WINDOW_PAD_X);
+    private final Value column = value(this::cardWidth);
+    private final Value content = value(this::contentWidth);
+    private final Table window;
+    private final Label pageTitle = label("", 24, INK, FONT);
     private final Label pageCounter = label("", 16, MUTED, FONT_REGULAR);
     private final ScrollPane scroll;
     private final Table footer = new Table();
@@ -119,23 +174,24 @@ final class SurveyDialog {
       this.survey = survey;
       this.context = context;
       for (SurveyDefinition.Page definition : survey.pages()) {
-        Table content = new Table();
-        content.top().left().pad(4, 2, 12, 14);
+        Table pageContent = new Table();
+        pageContent.top().left().pad(4, SCROLL_PAD_LEFT, 12, gutter);
         List<Field> pageFields = new ArrayList<>();
         for (Question question : definition.questions()) {
           Field field = field(question);
           pageFields.add(field);
-          content.add(field.card()).growX().padBottom(12).row();
+          pageContent.add(field.card).width(column).padBottom(12).row();
         }
-        pages.add(content);
+        pages.add(pageContent);
         fields.add(pageFields);
       }
 
-      window.add(title(survey.title().text(language))).width(width - 52).padBottom(22).row();
+      window = window(value(() -> dialogWidth(860)));
+      window.add(title(survey.title().text(language))).width(inner).padBottom(22).row();
       Table pageHeader = new Table();
       pageHeader.add(pageTitle).growX().left();
       pageHeader.add(pageCounter).right().bottom();
-      window.add(pageHeader).growX().padBottom(10).row();
+      window.add(pageHeader).width(column).padLeft(SCROLL_PAD_LEFT).left().row();
       scroll = Scene2dElementFactory.createScrollPane(pages.getFirst(), false, true);
       scroll.setStyle(new ScrollPane.ScrollPaneStyle(scroll.getStyle()));
       scroll.getStyle().background = null;
@@ -143,11 +199,32 @@ final class SurveyDialog {
       scroll.setScrollbarsOnTop(false);
       window
           .add(scroll)
-          .width(width - 52)
-          .height(Math.max(240f, Math.min(460f, Game.windowHeight() - 250f)))
+          .width(inner)
+          .height(value(() -> Math.max(140f, Math.min(700f, Game.windowHeight() - 250f))))
+          .padTop(10)
           .row();
-      window.add(footer).growX().padTop(14).row();
+      window.add(footer).width(column).padTop(14).padLeft(SCROLL_PAD_LEFT).left().row();
+      // A click on any non-text control ends typing, so keys no longer go into a hidden field.
+      // The window keeps the focus, which still blocks game hotkeys.
+      window.addCaptureListener(
+          new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              if (!(event.getTarget() instanceof TextField) && event.getStage() != null) {
+                event.getStage().setKeyboardFocus(window);
+              }
+              return false;
+            }
+          });
       showPage(0);
+    }
+
+    private float cardWidth() {
+      return dialogWidth(860) - 2 * WINDOW_PAD_X - SCROLL_PAD_LEFT - gutter;
+    }
+
+    private float contentWidth() {
+      return cardWidth() - 2 * CARD_PAD;
     }
 
     private void showPage(int index) {
@@ -163,29 +240,39 @@ final class SurveyDialog {
     private void showNavigation() {
       footer.clearChildren();
       if (survey.skippable()) {
-        footer.add(button(T.text("skip"), "red-outline", this::confirmSkip)).left();
+        footer.add(button(T.text("skip"), "default", 18, this::confirmSkip)).left();
       }
       footer.add().growX();
       if (page > 0) {
-        footer.add(button(T.text("back"), "blue-outline", () -> showPage(page - 1))).padRight(10);
+        footer.add(button(T.text("back"), "blue-outline", 20, () -> showPage(page - 1)));
       }
       boolean last = page == survey.pages().size() - 1;
-      footer.add(
-          button(T.text(last ? "submit" : "next"), "green", last ? this::submit : this::next));
+      footer
+          .add(
+              button(
+                  T.text(last ? "submit" : "next"), "green", 20, last ? this::submit : this::next))
+          .padLeft(10);
     }
 
+    /**
+     * Replaces the footer in place. The harmless "back to survey" lands where the player just
+     * clicked, so a double click cannot skip by accident.
+     */
     private void confirmSkip() {
       footer.clearChildren();
-      footer.add(label(T.text("skip_confirm"), 18, INK, FONT)).growX().left();
-      footer.add(button(T.text("skip_cancel"), "blue-outline", this::showNavigation)).padRight(10);
-      footer.add(
-          button(
-              T.text("skip"),
-              "red-outline",
-              () ->
-                  DialogCallbackResolver.createButtonCallback(
-                          context.dialogId(), DialogContextKeys.ON_CANCEL)
-                      .accept(null)));
+      footer.add(button(T.text("skip_cancel"), "blue-outline", 18, this::showNavigation));
+      footer
+          .add(
+              button(
+                  T.text("skip_yes"),
+                  "red-outline",
+                  18,
+                  () ->
+                      DialogCallbackResolver.createButtonCallback(
+                              context.dialogId(), DialogContextKeys.ON_CANCEL)
+                          .accept(null)))
+          .padLeft(10);
+      footer.add(label(T.text("skip_hint"), 16, MUTED, FONT_REGULAR)).padLeft(14).growX().left();
     }
 
     private void next() {
@@ -196,7 +283,7 @@ final class SurveyDialog {
       for (int index = 0; index < pages.size(); index++) {
         boolean valid =
             fields.get(index).stream()
-                .allMatch(field -> field.question().problem(field.value().get()).isEmpty());
+                .allMatch(field -> field.question.problem(field.value.get()).isEmpty());
         if (!valid) {
           if (index != page) showPage(index);
           validate(index);
@@ -206,8 +293,8 @@ final class SurveyDialog {
       ObjectNode answers = JSON.objectNode();
       for (List<Field> pageFields : fields) {
         for (Field field : pageFields) {
-          JsonNode value = field.value().get();
-          if (value != null) answers.set(field.question().id(), value);
+          JsonNode value = field.value.get();
+          if (value != null) answers.set(field.question.id(), value);
         }
       }
       showSending();
@@ -215,20 +302,17 @@ final class SurveyDialog {
           .accept(new DialogResponseMessage.StringValue(answers.toString()));
     }
 
-    /** Marks invalid questions of one page and scrolls to the first one. */
+    /** Marks invalid questions of one page and scrolls the first one to the top. */
     private boolean validate(int index) {
       Field first = null;
       for (Field field : fields.get(index)) {
-        Optional<Problem> problem = field.question().problem(field.value().get());
-        field.show(problem.map(p -> message(field.question(), p)));
-        if (problem.isPresent() && first == null) first = field;
+        if (!field.check(true) && first == null) first = field;
       }
       if (first == null) return true;
       // Error lines changed the card heights; lay out again before measuring.
       scroll.invalidate();
       scroll.validate();
-      Table card = first.card();
-      float top = pages.get(index).getHeight() - card.getY() - card.getHeight();
+      float top = pages.get(index).getHeight() - first.card.getY() - first.card.getHeight();
       scroll.setScrollY(Math.max(0, top - 4));
       return false;
     }
@@ -237,9 +321,9 @@ final class SurveyDialog {
       Label sending = label(T.text("sending"), 22, INK, FONT);
       sending.setAlignment(Align.center);
       sending.addAction(dots(sending, T.text("sending")));
-      Table content = new Table();
-      content.add(sending).expand().center();
-      scroll.setActor(content);
+      Table sendingContent = new Table();
+      sendingContent.add(sending).expand().center();
+      scroll.setActor(sendingContent);
       pageTitle.setText("");
       pageCounter.setText("");
       footer.clearChildren();
@@ -253,16 +337,17 @@ final class SurveyDialog {
       card.defaults().left();
       String title = "[#" + INK + "]" + escape(question.text().text(language)) + "[]";
       if (question.required()) title += " [#" + ERROR + "]*[]";
-      card.add(markupLabel(title)).width(contentWidth).row();
+      card.add(markupLabel(title)).width(content).row();
       question
           .description()
           .ifPresent(
               description ->
                   card.add(wrappedLabel(description.text(language), 16, MUTED, FONT_REGULAR))
-                      .width(contentWidth)
+                      .width(content)
                       .padTop(4)
                       .row());
-      Supplier<JsonNode> value =
+      Field field = new Field(question, card);
+      field.value =
           switch (question) {
             case Text text -> text(card, text);
             case NumberInput number -> number(card, number);
@@ -271,31 +356,41 @@ final class SurveyDialog {
                 choice.kind() == ChoiceKind.DROPDOWN
                     ? dropdown(card, choice)
                     : choice(card, choice);
-            case Matrix matrix -> matrix(card, matrix);
+            case Matrix matrix -> matrix(card, matrix, field);
             case Info ignored -> () -> null;
           };
-      Label error = wrappedLabel("", 16, ERROR, FONT);
-      Cell<Label> errorCell = card.add((Label) null).width(contentWidth);
-      Field field = new Field(question, card, value, error, errorCell);
-      // Input widgets fire bubbling change events; a shown error disappears once it is fixed.
+      field.error = wrappedLabel("", 16, ERROR, FONT);
+      field.errorCell = card.add((Label) null).width(content);
+      // Input widgets fire bubbling change events; once checked, the card follows every edit.
       card.addListener(
           new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-              if (errorCell.hasActor()) {
-                field.show(question.problem(value.get()).map(p -> message(question, p)));
-              }
+              if (field.checked) field.check(false);
             }
           });
       return field;
     }
 
     private Supplier<JsonNode> text(Table card, Text question) {
-      TextField field = question.multiline() ? new TextArea("", textStyle()) : textField();
+      TextField field;
+      if (question.multiline()) {
+        TextField.TextFieldStyle style = textStyle();
+        // The skin's padding puts the first line against the top border of a text area.
+        style.background = withTopPadding(style.background, 6);
+        style.focusedBackground = withTopPadding(style.focusedBackground, 6);
+        field = new TextArea("", style);
+        field.setUserObject(Cursors.TEXT);
+      } else {
+        field = textField();
+      }
       field.setMaxLength(question.maxLength());
       field.setMessageText(T.text("placeholder"));
-      field.setUserObject(Cursors.TEXT);
-      card.add(field).width(contentWidth).height(question.multiline() ? 118 : 42).padTop(10).row();
+      card.add(field)
+          .width(content)
+          .height(question.multiline() ? 118 : INPUT_HEIGHT)
+          .padTop(10)
+          .row();
       return () -> field.getText().isBlank() ? null : JSON.stringNode(field.getText().trim());
     }
 
@@ -305,7 +400,7 @@ final class SurveyDialog {
           (ignored, c) -> Character.isDigit(c) || c == '-' || c == ',' || c == '.');
       field.setMaxLength(20);
       Table row = new Table();
-      row.add(field).width(180).height(42);
+      row.add(field).width(180).height(INPUT_HEIGHT);
       row.add(label(numberHint(question), 16, MUTED, FONT_REGULAR)).padLeft(14);
       card.add(row).padTop(10).row();
       return () -> {
@@ -322,30 +417,36 @@ final class SurveyDialog {
       };
     }
 
+    /** Number buttons in one row, shrinking to fit; the end labels sit below the outer buttons. */
     private Supplier<JsonNode> scale(Table card, Scale question) {
+      int count = question.max() - question.min() + 1;
+      Value buttonWidth = value(() -> Math.min(48f, (contentWidth() - (count - 1) * GAP) / count));
       ButtonGroup<TextButton> group = group();
-      Table row = new Table();
-      question
-          .minLabel()
-          .ifPresent(
-              text -> {
-                Label label = wrappedLabel(text.text(language), 15, MUTED, FONT_REGULAR);
-                label.setAlignment(Align.right);
-                row.add(label).width(130).padRight(12);
-              });
+      Table buttons = new Table();
       for (int value = question.min(); value <= question.max(); value++) {
         TextButton button = new TextButton(String.valueOf(value), toggleStyle());
         button.pad(4);
         button.setUserObject(Cursors.INTERACT);
         group.add(button);
-        row.add(button).size(48, 44).padRight(6);
+        buttons
+            .add(button)
+            .width(buttonWidth)
+            .height(44)
+            .padRight(value < question.max() ? GAP : 0);
       }
-      question
-          .maxLabel()
-          .ifPresent(
-              text ->
-                  row.add(wrappedLabel(text.text(language), 15, MUTED, FONT_REGULAR)).width(130));
-      card.add(row).padTop(12).row();
+      Table scale = new Table();
+      scale.add(buttons).left().row();
+      if (question.minLabel().isPresent() || question.maxLabel().isPresent()) {
+        Value half = value(() -> (count * buttonWidth.get(null) + (count - 1) * GAP) / 2);
+        Label min = wrappedLabel(localized(question.minLabel()), 15, MUTED, FONT_REGULAR);
+        Label max = wrappedLabel(localized(question.maxLabel()), 15, MUTED, FONT_REGULAR);
+        max.setAlignment(Align.right);
+        Table ends = new Table();
+        ends.add(min).width(half).top();
+        ends.add(max).width(half).top();
+        scale.add(ends).left().padTop(6);
+      }
+      card.add(scale).padTop(12).row();
       return () ->
           group.getCheckedIndex() < 0
               ? null
@@ -361,7 +462,7 @@ final class SurveyDialog {
         CheckBox box = checkBox(option.text().text(language), multi);
         boxes.add(box);
         ids.add(option.id());
-        card.add(box).width(contentWidth).padTop(8).row();
+        card.add(box).width(content).padTop(8).row();
       }
       TextField otherText = textField();
       if (question.other()) {
@@ -380,8 +481,8 @@ final class SurveyDialog {
             });
         Table row = new Table();
         row.add(other).padRight(12);
-        row.add(otherText).growX().height(40);
-        card.add(row).width(contentWidth).padTop(8).row();
+        row.add(otherText).growX().height(INPUT_HEIGHT);
+        card.add(row).width(content).padTop(8).row();
       }
       if (group != null) boxes.forEach(group::add);
       return () -> {
@@ -392,9 +493,7 @@ final class SurveyDialog {
         if (selected.isEmpty()) return null;
         ObjectNode answer = JSON.objectNode();
         answer.set("selected", multi ? selected : selected.get(0));
-        if (ids.size() > question.options().size()
-            && boxes.getLast().isChecked()
-            && !otherText.getText().isBlank()) {
+        if (question.other() && boxes.getLast().isChecked() && !otherText.getText().isBlank()) {
           answer.put("otherText", otherText.getText().trim());
         }
         return answer;
@@ -406,18 +505,35 @@ final class SurveyDialog {
       SelectBox.SelectBoxStyle style =
           new SelectBox.SelectBoxStyle(skin.get("small", SelectBox.SelectBoxStyle.class));
       style.font = font(FONT_REGULAR, 18);
-      style.fontColor = INK;
+      style.fontColor = MUTED;
+      style.overFontColor = MUTED;
       style.listStyle = new com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle(style.listStyle);
       style.listStyle.font = style.font;
       style.listStyle.fontColorUnselected = INK;
       style.listStyle.fontColorSelected = Color.WHITE;
+      style.listStyle.selection = padded(tint(ACCENT));
+      style.listStyle.over = padded(tint(ACCENT_LIGHT));
       SelectBox<String> box = new SelectBox<>(style);
       List<String> items = new ArrayList<>();
       items.add(T.text("select"));
       question.options().forEach(option -> items.add(option.text().text(language)));
       box.setItems(items.toArray(String[]::new));
       box.setUserObject(Cursors.INTERACT);
-      card.add(box).width(Math.min(420f, contentWidth)).height(44).padTop(10).row();
+      // The placeholder stays muted until a real option is chosen.
+      box.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              Color color = box.getSelectedIndex() <= 0 ? MUTED : INK;
+              style.fontColor = color;
+              style.overFontColor = color;
+            }
+          });
+      card.add(box)
+          .width(value(() -> Math.min(420f, contentWidth())))
+          .height(INPUT_HEIGHT)
+          .padTop(10)
+          .row();
       return () -> {
         int index = box.getSelectedIndex();
         if (index <= 0) return null;
@@ -425,35 +541,47 @@ final class SurveyDialog {
       };
     }
 
-    private Supplier<JsonNode> matrix(Table card, Matrix question) {
-      float rowLabelWidth = contentWidth * 0.36f;
-      float columnWidth = (contentWidth - rowLabelWidth) / question.columns().size();
+    private Supplier<JsonNode> matrix(Table card, Matrix question, Field field) {
+      int columns = question.columns().size();
+      Value rowLabelWidth = value(() -> contentWidth() * 0.36f);
+      Value columnWidth = value(() -> contentWidth() * 0.64f / columns);
       Table header = new Table();
       header.add().width(rowLabelWidth);
       for (Option column : question.columns()) {
         Label label = wrappedLabel(column.text().text(language), 14, MUTED, FONT_REGULAR);
         label.setAlignment(Align.center);
-        header.add(label).width(columnWidth - 6).pad(0, 3, 0, 3).bottom();
+        header.add(label).width(value(() -> columnWidth.get(null) - 6)).pad(0, 3, 0, 3).bottom();
       }
       card.add(header).padTop(10).padBottom(4).row();
+      List<Table> rows = new ArrayList<>();
       List<ButtonGroup<CheckBox>> groups = new ArrayList<>();
-      for (int index = 0; index < question.rows().size(); index++) {
-        Option rowOption = question.rows().get(index);
+      for (Option rowOption : question.rows()) {
         Table row = new Table();
-        if (index % 2 == 0) row.setBackground(tint(STRIPE));
         row.add(wrappedLabel(rowOption.text().text(language), 17, INK, FONT_REGULAR))
-            .width(rowLabelWidth - 10)
+            .width(value(() -> rowLabelWidth.get(null) - 14))
             .padLeft(10)
+            .padRight(4)
             .left();
         ButtonGroup<CheckBox> group = group();
-        for (int column = 0; column < question.columns().size(); column++) {
+        for (int column = 0; column < columns; column++) {
           CheckBox box = checkBox("", false);
           group.add(box);
-          row.add(box).width(columnWidth).center();
+          row.add(new Container<>(box)).width(columnWidth);
         }
+        rows.add(row);
         groups.add(group);
-        card.add(row).width(contentWidth).height(44).row();
+        card.add(row).width(content).minHeight(44).row();
       }
+      // Stripes aid reading; after a failed check, unanswered rows turn red.
+      field.marker =
+          invalid -> {
+            for (int index = 0; index < rows.size(); index++) {
+              boolean missing = invalid && groups.get(index).getCheckedIndex() < 0;
+              Color color = missing ? ROW_MISSING : index % 2 == 0 ? STRIPE : null;
+              rows.get(index).setBackground(color == null ? null : tint(color));
+            }
+          };
+      field.marker.accept(false);
       return () -> {
         ObjectNode answer = JSON.objectNode();
         for (int index = 0; index < groups.size(); index++) {
@@ -478,6 +606,10 @@ final class SurveyDialog {
       };
     }
 
+    private String localized(Optional<LocalizedText> text) {
+      return text.map(value -> value.text(language)).orElse("");
+    }
+
     /** Question titles use markup to color the required marker; the font itself stays white. */
     private Label markupLabel(String text) {
       Label.LabelStyle style = new Label.LabelStyle();
@@ -489,67 +621,75 @@ final class SurveyDialog {
       return label;
     }
 
-    private TextField textField() {
-      TextField field = new TextField("", textStyle());
-      field.setUserObject(Cursors.TEXT);
-      return field;
+    /**
+     * Input of one question with its card and error line.
+     *
+     * <p>The first page check collapses fixed errors and opens new ones. Later edits keep a fixed
+     * error's line reserved, so the content below does not jump under the cursor.
+     */
+    private final class Field {
+      private final Question question;
+      private final Table card;
+      private Supplier<JsonNode> value;
+      private Label error;
+      private Cell<Label> errorCell;
+      private Consumer<Boolean> marker = invalid -> {};
+      private boolean checked;
+
+      private Field(Question question, Table card) {
+        this.question = question;
+        this.card = card;
+      }
+
+      boolean check(boolean pageCheck) {
+        checked = true;
+        if (question instanceof Info) return true;
+        Optional<Problem> problem = question.problem(value.get());
+        if (problem.isPresent()) {
+          error.setText(message(question, problem.get()));
+          error.setVisible(true);
+          errorCell.setActor(error).padTop(8);
+        } else if (pageCheck) {
+          errorCell.setActor(null).padTop(0);
+        } else {
+          error.setVisible(false);
+        }
+        marker.accept(problem.isPresent());
+        card.setBackground(tint(problem.isPresent() ? CARD_ERROR : CARD));
+        card.invalidateHierarchy();
+        return problem.isEmpty();
+      }
     }
   }
 
-  /**
-   * Input of one question with its card and error line.
-   *
-   * @param question displayed question
-   * @param card container of the question
-   * @param value current answer, {@code null} when unanswered
-   * @param error label showing the current problem
-   * @param errorCell cell that holds the error label only while a problem exists
-   */
-  private record Field(
-      Question question, Table card, Supplier<JsonNode> value, Label error, Cell<Label> errorCell) {
-    void show(Optional<String> problem) {
-      if (question instanceof Info) return;
-      error.setText(problem.orElse(""));
-      errorCell.setActor(problem.isPresent() ? error : null).padTop(problem.isPresent() ? 8 : 0);
-      card.setBackground(tint(problem.isPresent() ? CARD_ERROR : CARD));
-      card.invalidateHierarchy();
-    }
-  }
-
-  private static Table resultView(
-      SurveyDefinition survey, SurveyFeature.Result result, DialogContext context) {
+  /** Shows where the answers ended up; the status color carries the outcome. */
+  private static Table resultView(SurveyFeature.Result result, DialogContext context) {
     String key = "result." + result.name().toLowerCase();
-    float width = Math.min(620f, Game.windowWidth() - 60f);
+    Value width = value(() -> dialogWidth(620));
     Table window = window(width);
-    window.add(title(T.text(key + ".title"))).width(width - 52).padBottom(30).row();
+    window
+        .add(title(T.text(key + ".title")))
+        .width(value(() -> dialogWidth(620) - 2 * WINDOW_PAD_X))
+        .padBottom(34)
+        .row();
 
     Color statusColor =
         switch (result) {
           case CONFIRMED -> Color.valueOf("1e8449");
           case SAVED_LOCALLY -> ACCENT;
-          case PENDING -> Color.valueOf("b9770e");
+          case PENDING -> Color.valueOf("9a6409");
           case FAILED -> ERROR;
         };
-    Table status = new Table();
-    status.setBackground(tint(statusColor));
-    status.pad(6, 14, 6, 14);
-    status.add(label(T.text(key + ".status"), 17, Color.WHITE, FONT));
-    window.add(status).padBottom(16).row();
-
-    Label message = wrappedLabel(T.text(key + ".message"), 19, INK, FONT_REGULAR);
+    Label message = wrappedLabel(T.text(key + ".message"), 20, statusColor, FONT);
     message.setAlignment(Align.center);
-    window.add(message).width(width - 80).padBottom(10).row();
-    Label questionnaire =
-        wrappedLabel(
-            survey.title().text(Game.localization().currentLanguage()), 15, MUTED, FONT_REGULAR);
-    questionnaire.setAlignment(Align.center);
-    window.add(questionnaire).width(width - 80).padBottom(24).row();
+    window.add(message).width(value(() -> dialogWidth(620) - 100)).padBottom(30).row();
 
     window
         .add(
             button(
                 T.text("continue"),
                 "green",
+                20,
                 () ->
                     DialogCallbackResolver.createButtonCallback(
                             context.dialogId(), DialogContextKeys.ON_CONFIRM)
@@ -558,13 +698,13 @@ final class SurveyDialog {
     return window;
   }
 
-  private static Table window(float width) {
+  private static Table window(Value width) {
     Table window = new Table();
     window.setBackground(UIUtils.defaultSkin().getDrawable("window_background_big_blue"));
-    window.pad(14, 26, 22, 26);
+    window.pad(14, WINDOW_PAD_X, 22, WINDOW_PAD_X);
     window.top();
-    window.setWidth(width);
     window.defaults().center();
+    window.add().width(value(() -> width.get(null) - 2 * WINDOW_PAD_X)).height(0).row();
     return window;
   }
 
@@ -575,18 +715,24 @@ final class SurveyDialog {
     return title;
   }
 
-  private static TextButton button(String text, String style, Runnable action) {
-    TextButton button = Scene2dElementFactory.createButton(text, style, 20);
+  /** Button with its own style copy; the shared skin styles stay untouched for other dialogs. */
+  private static TextButton button(String text, String styleName, int size, Runnable action) {
+    TextButton.TextButtonStyle style =
+        new TextButton.TextButtonStyle(
+            UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class));
+    style.font = font(Scene2dElementFactory.FONT_PATH_BOLD, size);
+    TextButton button = new TextButton(text, style);
+    Drawable up = style.up;
+    button.pad(up.getTopHeight(), up.getLeftWidth(), up.getBottomHeight(), up.getRightWidth());
     button.getLabelCell().pad(0, 12, 0, 12);
-    if (action != null) {
-      button.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              action.run();
-            }
-          });
-    }
+    button.setUserObject(Cursors.INTERACT);
+    button.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            action.run();
+          }
+        });
     return button;
   }
 
@@ -621,14 +767,60 @@ final class SurveyDialog {
     return style;
   }
 
+  /** Thin border at rest and the stronger border while typing, so focus is clearly visible. */
   private static TextField.TextFieldStyle textStyle() {
+    Skin skin = UIUtils.defaultSkin();
     TextField.TextFieldStyle style =
-        new TextField.TextFieldStyle(UIUtils.defaultSkin().get(TextField.TextFieldStyle.class));
+        new TextField.TextFieldStyle(skin.get(TextField.TextFieldStyle.class));
     style.font = font(FONT_REGULAR, 18);
     style.messageFont = style.font;
     style.fontColor = INK;
     style.messageFontColor = MUTED;
+    style.background = skin.getDrawable("input_square");
+    style.focusedBackground = outlined(skin.getDrawable("input_square"), ACCENT);
     return style;
+  }
+
+  /** Draws a two-pixel border over a drawable while keeping its padding. */
+  private static Drawable outlined(Drawable base, Color color) {
+    Drawable line = tint(color);
+    return new BaseDrawable(base) {
+      @Override
+      public void draw(Batch batch, float x, float y, float width, float height) {
+        base.draw(batch, x, y, width, height);
+        line.draw(batch, x, y, width, 2);
+        line.draw(batch, x, y + height - 2, width, 2);
+        line.draw(batch, x, y, 2, height);
+        line.draw(batch, x + width - 2, y, 2, height);
+      }
+    };
+  }
+
+  /** List rows get room around their text, like the other inputs. */
+  private static Drawable padded(Drawable drawable) {
+    drawable.setTopHeight(8);
+    drawable.setBottomHeight(8);
+    drawable.setLeftWidth(10);
+    drawable.setRightWidth(10);
+    return drawable;
+  }
+
+  private static TextField textField() {
+    TextField field = new TextField("", textStyle());
+    field.setUserObject(Cursors.TEXT);
+    return field;
+  }
+
+  private static Drawable withTopPadding(Drawable drawable, float extra) {
+    Drawable copy =
+        new BaseDrawable(drawable) {
+          @Override
+          public void draw(Batch batch, float x, float y, float width, float height) {
+            drawable.draw(batch, x, y, width, height);
+          }
+        };
+    copy.setTopHeight(drawable.getTopHeight() + extra);
+    return copy;
   }
 
   private static <T extends Button> ButtonGroup<T> group() {
@@ -670,12 +862,22 @@ final class SurveyDialog {
     return label;
   }
 
-  private static com.badlogic.gdx.graphics.g2d.BitmapFont font(String path, int size) {
+  private static BitmapFont font(String path, int size) {
     return FontHelper.getFont(FontSpec.of(path, size, Color.WHITE));
   }
 
   private static Drawable tint(Color color) {
     return UIUtils.defaultSkin().newDrawable("white", color);
+  }
+
+  /** Width or height that follows the current window; evaluated on every layout. */
+  private static Value value(DoubleSupplier supplier) {
+    return new Value() {
+      @Override
+      public float get(Actor context) {
+        return (float) supplier.getAsDouble();
+      }
+    };
   }
 
   /** Escapes LibGDX color markup in authored text. */

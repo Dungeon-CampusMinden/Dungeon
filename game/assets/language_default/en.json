@@ -25,8 +25,9 @@
             "back": "Back",
             "submit": "Submit",
             "skip": "Skip",
-            "skip_confirm": "Really skip the survey?",
-            "skip_cancel": "Keep answering",
+            "skip_yes": "Yes, skip",
+            "skip_cancel": "Back to survey",
+            "skip_hint": "Your answers will not be saved.",
             "placeholder": "Your answer",
             "select": "Please choose",
             "other": "Other:",
@@ -44,7 +45,7 @@
                 "required": "Please answer this question.",
                 "required_rows": "Please choose an answer in every row.",
                 "number_format": "Please enter a number.",
-                "number_range": "The number is outside the allowed range.",
+                "number_range": "Please enter a number in the allowed range.",
                 "too_long": "The answer is too long.",
                 "other_text": "Please fill in the field next to Other.",
                 "invalid": "This answer is invalid."
@@ -52,22 +53,18 @@
             "result": {
                 "confirmed": {
                     "title": "Thank you!",
-                    "status": "Confirmed by the server",
                     "message": "Your answers reached the server."
                 },
                 "saved_locally": {
                     "title": "Thank you!",
-                    "status": "Saved locally",
                     "message": "Your answers were saved on this computer."
                 },
                 "pending": {
                     "title": "Thank you!",
-                    "status": "Upload pending",
-                    "message": "The server has not answered yet. Your answers are saved locally and will be sent later."
+                    "message": "The server has not answered yet. Your answers are saved and will be sent later."
                 },
                 "failed": {
                     "title": "That did not work",
-                    "status": "Not saved",
                     "message": "Your answers could not be saved."
                 }
             }

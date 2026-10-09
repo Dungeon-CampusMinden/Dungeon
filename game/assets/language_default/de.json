@@ -25,8 +25,9 @@
             "back": "Zurück",
             "submit": "Absenden",
             "skip": "Überspringen",
-            "skip_confirm": "Umfrage wirklich überspringen?",
+            "skip_yes": "Ja, überspringen",
             "skip_cancel": "Zur Umfrage",
+            "skip_hint": "Deine Antworten werden dann nicht gespeichert.",
             "placeholder": "Deine Antwort",
             "select": "Bitte auswählen",
             "other": "Sonstiges:",
@@ -44,7 +45,7 @@
                 "required": "Bitte beantworte diese Frage.",
                 "required_rows": "Bitte wähle in jeder Zeile eine Antwort.",
                 "number_format": "Bitte gib eine Zahl ein.",
-                "number_range": "Die Zahl liegt nicht im erlaubten Bereich.",
+                "number_range": "Bitte gib eine Zahl im erlaubten Bereich ein.",
                 "too_long": "Die Antwort ist zu lang.",
                 "other_text": "Bitte fülle das Feld bei Sonstiges aus.",
                 "invalid": "Diese Antwort ist ungültig."
@@ -52,22 +53,18 @@
             "result": {
                 "confirmed": {
                     "title": "Vielen Dank!",
-                    "status": "Vom Server bestätigt",
                     "message": "Deine Antworten sind beim Server angekommen."
                 },
                 "saved_locally": {
                     "title": "Vielen Dank!",
-                    "status": "Lokal gespeichert",
                     "message": "Deine Antworten wurden auf diesem Rechner gespeichert."
                 },
                 "pending": {
                     "title": "Vielen Dank!",
-                    "status": "Übertragung ausstehend",
-                    "message": "Der Server hat noch nicht geantwortet. Deine Antworten sind lokal gespeichert und werden nachgereicht."
+                    "message": "Der Server hat noch nicht geantwortet. Deine Antworten sind gespeichert und werden nachgereicht."
                 },
                 "failed": {
                     "title": "Das hat nicht geklappt",
-                    "status": "Nicht gespeichert",
                     "message": "Deine Antworten konnten nicht gespeichert werden."
                 }
             }

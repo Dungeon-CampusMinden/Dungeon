@@ -1260,11 +1260,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
                       false,
                       true,
                       () ->
+                          // Every participant answers before the credits end the game for all.
                           SurveyFeature.show(
                               () ->
                                   CreditsFeature.showAfterGame(
-                                      SystemRecovery.CREDITS_ROOM_ID, Game::complete, other.id()),
-                              other.id()),
+                                      SystemRecovery.CREDITS_ROOM_ID, Game::complete, other.id())),
                       other.id());
                 },
                 null)

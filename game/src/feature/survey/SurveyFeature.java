@@ -12,8 +12,10 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import tools.jackson.databind.JsonNode;
@@ -65,8 +67,8 @@ public final class SurveyFeature {
   }
 
   /**
-   * Shows the survey of the tracked room to each player and runs {@code onComplete} once all of
-   * them submitted or skipped it.
+   * Shows the survey of the tracked room to each player and runs {@code onComplete} once each of
+   * them submitted it, skipped it, or left the game.
    *
    * <p>The survey is {@code surveys/<roomId>.json} for the room configured through {@link
    * Tracking#configureRoom(String)}. Runs {@code onComplete} immediately when that file is absent
@@ -89,13 +91,14 @@ public final class SurveyFeature {
       onComplete.run();
       return;
     }
-    int[] remaining = {players.size()};
-    Runnable playerDone =
-        () -> {
-          if (--remaining[0] == 0) onComplete.run();
-        };
+    Round round = new Round(players, onComplete);
+    SurveySystem.instance().rounds.add(round);
     for (int player : players) {
-      ask(survey.get(), player, Tracking.participantForEntity(player).orElseThrow(), playerDone);
+      ask(
+          survey.get(),
+          player,
+          Tracking.participantForEntity(player).orElseThrow(),
+          () -> round.finish(player));
     }
   }
 
@@ -177,7 +180,7 @@ public final class SurveyFeature {
     } else if (!Tracking.remoteStorageEnabled()) {
       onResult.accept(Result.SAVED_LOCALLY);
     } else {
-      AcknowledgementSystem.instance().await(last.get(), onResult);
+      SurveySystem.instance().await(last.get(), onResult);
     }
   }
 
@@ -198,24 +201,52 @@ public final class SurveyFeature {
         });
   }
 
+  /** Players still answering one {@link #show} call; completes once when none remain. */
+  private static final class Round {
+    private final Set<Integer> outstanding;
+    private final Runnable onComplete;
+    private boolean completed;
+
+    private Round(List<Integer> players, Runnable onComplete) {
+      this.outstanding = new HashSet<>(players);
+      this.onComplete = onComplete;
+    }
+
+    void finish(int player) {
+      outstanding.remove(player);
+      completeIfDone();
+    }
+
+    void dropDeparted() {
+      outstanding.removeIf(player -> Game.findEntityById(player).isEmpty());
+      completeIfDone();
+    }
+
+    private void completeIfDone() {
+      if (completed || !outstanding.isEmpty()) return;
+      completed = true;
+      onComplete.run();
+    }
+  }
+
   /**
-   * Polls backend acknowledgements on the game thread, because the uploader thread must not touch
-   * dialogs and a headless server has no libGDX runnable queue.
+   * Runs survey bookkeeping on the game thread: notices players who left mid-survey and polls
+   * backend acknowledgements, because the uploader thread must not touch dialogs and a headless
+   * server has no libGDX runnable queue.
    */
-  private static final class AcknowledgementSystem extends engine.System {
+  private static final class SurveySystem extends engine.System {
+    private final List<Round> rounds = new ArrayList<>();
     private final List<Waiter> waiters = new ArrayList<>();
 
     private record Waiter(TrackingEvent event, long deadlineNanos, Consumer<Result> onResult) {}
 
-    private AcknowledgementSystem() {
+    private SurveySystem() {
       super(AuthoritativeSide.SERVER);
     }
 
-    static AcknowledgementSystem instance() {
-      if (Game.systems().get(AcknowledgementSystem.class) instanceof AcknowledgementSystem system) {
-        return system;
-      }
-      AcknowledgementSystem system = new AcknowledgementSystem();
+    static SurveySystem instance() {
+      if (Game.systems().get(SurveySystem.class) instanceof SurveySystem system) return system;
+      SurveySystem system = new SurveySystem();
       Game.add(system);
       return system;
     }
@@ -227,6 +258,8 @@ public final class SurveyFeature {
 
     @Override
     public void execute() {
+      for (Round round : List.copyOf(rounds)) round.dropDeparted();
+      rounds.removeIf(round -> round.completed);
       for (Waiter waiter : List.copyOf(waiters)) {
         boolean confirmed = Tracking.remoteAcknowledged(waiter.event());
         if (!confirmed && java.lang.System.nanoTime() < waiter.deadlineNanos()) continue;
@@ -235,7 +268,7 @@ public final class SurveyFeature {
       }
     }
 
-    /** Survey dialogs pause singleplayer systems, but this poll must keep running. */
+    /** Survey dialogs pause singleplayer systems, but this bookkeeping must keep running. */
     @Override
     public void stop() {}
   }
