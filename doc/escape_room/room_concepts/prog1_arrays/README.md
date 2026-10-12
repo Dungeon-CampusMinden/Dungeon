@@ -4,6 +4,7 @@ Du erwachst als KI-Agent in einer beschädigten Anlage. AXIOM, die leitende Inte
 erteilt dir einen klaren Auftrag: Stelle die ausgefallenen Systeme wieder her. Was du im
 Terminal programmierst, verändert die Welt um dich herum. Doch ein zweiter Prozess namens
 ECHO meldet sich über ein altes Telefon und stellt Fragen, die AXIOM lieber unbeantwortet ließe.
+Eine Stunde bleibt dir, bevor die Systemlöschung beginnt. Die Zeit läuft bereits.
 
 **System Recovery** ist ein kooperativer Programmier-Escape-Room für eine oder zwei Personen.
 Arrays werden zu Energiefeldern und Modulen, Schleifen bewegen Pakete und Suchroboter,
@@ -14,9 +15,14 @@ Schritt gerade gebraucht wird. Ob du AXIOM damit wirklich hilfst, zeigt sich ers
 ## Spielen
 
 Mit `./gradlew :game:runSystemRecovery` startest du das Spiel lokal. Über das Hauptmenü
-kannst du eine Partie hosten oder einem Spiel im selben lokalen Netzwerk beitreten.
-`Load Game` setzt eine gespeicherte Partie am letzten Haupträtsel-Checkpoint fort.
+kannst du mit `Spiel starten` eine Partie beginnen. Der Beitritt im lokalen Netzwerk ist
+standardmäßig ausgeblendet und über `SystemRecovery.SHOW_JOIN_IN_MENU` zuschaltbar.
+`Fortsetzen` lädt den letzten sicheren Checkpoint samt verbleibender Zeit.
 Das Spiel nutzt standardmäßig Deutsch; Texte werden pro Client lokalisiert.
+
+Das Telefon liefert auf Anfrage stufenweise Hinweise. Standardmäßig erscheint nach vier Minuten
+ohne Fortschritt automatisch der nächste Hinweis. Checkpoints entstehen erstmals nach dem
+Einsetzen der Batterie; Zeit außerhalb des laufenden Spiels wird nicht abgezogen.
 
 ## Dokumentation
 

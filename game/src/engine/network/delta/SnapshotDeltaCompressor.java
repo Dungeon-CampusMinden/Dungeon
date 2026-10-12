@@ -219,13 +219,7 @@ public final class SnapshotDeltaCompressor {
             clearedFields,
             EntityStateField.INVENTORY,
             Objects::equals);
-    hasChangedFields |=
-        diffOptional(
-            baseline.metadata(),
-            current.metadata(),
-            builder::metadata,
-            clearedFields,
-            EntityStateField.METADATA);
+    hasChangedFields |= diffMetadata(baseline, current, builder, clearedFields);
     hasChangedFields |=
         diffOptional(
             baseline.shaderComponent(),
@@ -238,6 +232,29 @@ public final class SnapshotDeltaCompressor {
       return Optional.empty();
     }
     return Optional.of(new EntityDelta(current.entityId(), builder.build(), clearedFields));
+  }
+
+  private static boolean diffMetadata(
+      EntityState baseline,
+      EntityState current,
+      EntityState.Builder builder,
+      Set<EntityStateField> clearedFields) {
+    Map<String, String> before = baseline.metadata().orElse(Map.of());
+    Map<String, String> after = current.metadata().orElse(Map.of());
+    if (before.equals(after)) return false;
+    if (!after.keySet().containsAll(before.keySet())) {
+      // Reset before applying replacements when keys disappeared from the baseline.
+      clearedFields.add(EntityStateField.METADATA);
+      builder.metadata(after);
+    } else {
+      Map<String, String> changed = new LinkedHashMap<>();
+      after.forEach(
+          (key, value) -> {
+            if (!Objects.equals(before.get(key), value)) changed.put(key, value);
+          });
+      builder.metadata(changed);
+    }
+    return true;
   }
 
   private static <T> boolean diffOptional(
@@ -359,7 +376,15 @@ public final class SnapshotDeltaCompressor {
       state.stateName().ifPresent(value -> stateName = value);
       state.tintColor().ifPresent(value -> tintColor = value);
       state.inventory().ifPresent(items -> inventory = List.copyOf(items));
-      state.metadata().ifPresent(value -> metadata = Map.copyOf(value));
+      state
+          .metadata()
+          .ifPresent(
+              value -> {
+                Map<String, String> merged = new LinkedHashMap<>();
+                if (metadata != null) merged.putAll(metadata);
+                merged.putAll(value);
+                metadata = Map.copyOf(merged);
+              });
       state.shaderComponent().ifPresent(value -> shaderComponent = value);
     }
 

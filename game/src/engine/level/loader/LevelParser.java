@@ -4,9 +4,13 @@ import engine.level.DungeonLevel;
 import engine.level.loader.parsers.LevelFormatParser;
 import engine.level.loader.parsers.V1FormatParser;
 import engine.level.loader.parsers.V2FormatParser;
+import engine.level.loader.parsers.V3FormatParser;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * The LevelParser class is responsible for parsing dungeon level data from various formats and
@@ -17,7 +21,8 @@ public class LevelParser {
 
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getName());
   private static final String VERSION_PREFIX = "Version: ";
-  private static final LevelFormatParser DEFAULT_PARSER = new V2FormatParser();
+  private static final V3FormatParser DEFAULT_PARSER = new V3FormatParser();
+  private static final LevelFormatParser V2_PARSER = new V2FormatParser();
   private static final LevelFormatParser LEGACY_PARSER = new V1FormatParser();
 
   /**
@@ -40,17 +45,31 @@ public class LevelParser {
    * @return The parsed DungeonLevel
    */
   public static DungeonLevel parseLevel(BufferedReader reader, String levelHandlerName) {
-    // Make a buffered reader for easier parsing:
-    String versionLine;
-
+    String levelData;
     try {
-      reader.mark(8192); // Mark the current position, since we need to reset for v1
-      versionLine = LevelFormatParser.readLine(reader);
-    } catch (IOException e) {
+      levelData = reader.lines().collect(Collectors.joining("\n"));
+    } catch (UncheckedIOException e) {
       LOGGER.severe("Error reading level data: " + e.getMessage());
-      return null;
+      throw new IllegalArgumentException("Error reading level data", e);
     }
 
+    String trimmed = levelData.stripLeading();
+    if (trimmed.startsWith("{")) {
+      try {
+        return DEFAULT_PARSER.parseLevel(
+            new BufferedReader(new StringReader(levelData)), levelHandlerName);
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Error parsing V3 level data", e);
+      }
+    }
+
+    BufferedReader versionReader = new BufferedReader(new StringReader(levelData));
+    String versionLine;
+    try {
+      versionLine = LevelFormatParser.readLine(versionReader);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Error reading level version", e);
+    }
     // Line 1 should be the version, in the format 'Version: X'
     // Actual version numbers start at 2. If the first line doesnt match this format, it is version
     // 1.
@@ -65,10 +84,10 @@ public class LevelParser {
     try {
       return switch (version) {
         case 1 -> {
-          reader.reset();
-          yield LEGACY_PARSER.parseLevel(reader, levelHandlerName);
+          yield LEGACY_PARSER.parseLevel(
+              new BufferedReader(new StringReader(levelData)), levelHandlerName);
         }
-        case 2 -> DEFAULT_PARSER.parseLevel(reader, levelHandlerName);
+        case 2 -> V2_PARSER.parseLevel(versionReader, levelHandlerName);
         default -> {
           LOGGER.severe("Unsupported level version: " + version);
           throw new IllegalArgumentException("Unsupported level version: " + version);
@@ -88,6 +107,20 @@ public class LevelParser {
    */
   public static String serializeLevel(DungeonLevel level) {
     return DEFAULT_PARSER.serializeLevel(level);
+  }
+
+  /**
+   * Serialize a DungeonLevel including the runtime prefab changes of the current game session.
+   *
+   * <p>The prefab list of the result is {@link DungeonLevel#activePrefabs()} instead of the
+   * authored instances. This is used to send the current level state to clients, and must not be
+   * used to save level files.
+   *
+   * @param level The DungeonLevel to serialize
+   * @return The serialized level data as a string
+   */
+  public static String serializeActiveLevel(DungeonLevel level) {
+    return DEFAULT_PARSER.serializeLevel(level, level.activePrefabs());
   }
 
   /**

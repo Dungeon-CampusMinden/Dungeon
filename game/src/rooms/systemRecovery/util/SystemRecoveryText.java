@@ -223,6 +223,19 @@ public final class SystemRecoveryText {
         Tuple.of(key("outro.title"), 120));
   }
 
+  /**
+   * Returns the failure outro after system deletion, distinct from the successful ending.
+   *
+   * @return localized page keys and font sizes
+   */
+  public static List<Tuple<String, Integer>> timeoutEndingPages() {
+    return List.of(
+        Tuple.of(key("timeout-outro.page1"), 32),
+        Tuple.of(key("timeout-outro.page2"), 32),
+        Tuple.of(key("timeout-outro.page3"), 32),
+        Tuple.of(key("timeout-outro.title"), 64));
+  }
+
   private static String encode(String value) {
     return Base64.getUrlEncoder()
         .withoutPadding()

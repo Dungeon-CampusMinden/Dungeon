@@ -19,7 +19,21 @@ public class LevelHideFactory {
    */
   public static Entity createLevelHide(
       Point bottomLeft, float width, float height, float transitionSize) {
-    Entity entity = new Entity("hider");
+    return createLevelHide(new Entity("hider"), bottomLeft, width, height, transitionSize);
+  }
+
+  /**
+   * Configures a supplied entity as a level-hide region.
+   *
+   * @param entity entity to configure
+   * @param bottomLeft bottom-left point of the hide region
+   * @param width width of the hide region
+   * @param height height of the hide region
+   * @param transitionSize size of the transition area
+   * @return the supplied configured entity
+   */
+  public static Entity createLevelHide(
+      Entity entity, Point bottomLeft, float width, float height, float transitionSize) {
     entity.add(new PositionComponent(bottomLeft));
     entity.add(new LevelHideComponent(new Rectangle(width, height), transitionSize));
     return entity;

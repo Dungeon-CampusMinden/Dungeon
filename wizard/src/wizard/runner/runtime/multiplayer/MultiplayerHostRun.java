@@ -63,7 +63,8 @@ public final class MultiplayerHostRun {
     definition = room.definition();
     level = RoomLevel.fromLayout(room.layout());
     snapshotTranslator = new FoundationSnapshotTranslator(room);
-    MultiplayerSession session = new MultiplayerSession(definition, room.presentation());
+    MultiplayerSession session =
+        new MultiplayerSession(definition, room.presentation(), Game.playClock());
     serverBinding = new ServerBinding(session, MultiplayerHostRun::readyClients);
     bootstrapMarker = new Entity("foundation-bootstrap-marker");
   }
@@ -156,7 +157,6 @@ public final class MultiplayerHostRun {
         requiredLevelSystem(),
         componentStations(),
         hintStations(),
-        System::nanoTime,
         onTerminalComplete);
   }
 

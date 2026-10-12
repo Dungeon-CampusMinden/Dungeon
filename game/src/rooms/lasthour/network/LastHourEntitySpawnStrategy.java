@@ -10,12 +10,12 @@ import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.puzzle.PuzzlePieceItem;
-import feature.questlog.QuestLogComponent;
 import feature.timer.WorldTimerComponent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 
 /**
@@ -29,6 +29,9 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   /** Metadata key identifying the custom entity type. */
   public static final String METADATA_TYPE = "lh.type";
 
+  /** Metadata key for the last autosaved server revision. */
+  public static final String METADATA_SAVE_REVISION = "lastHour.save.revision";
+
   /** Type value for computer-state entities. */
   public static final String TYPE_COMPUTER = "computer-state";
 
@@ -37,9 +40,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Type value for world-timer entities. */
   public static final String TYPE_WORLD_TIMER = "world-timer";
-
-  /** Type value for quest log entities. */
-  public static final String TYPE_QUESTLOG = "questlog";
 
   /** Metadata key for the computer progress state. */
   public static final String METADATA_PROGRESS = "progress";
@@ -93,13 +93,10 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   public static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
 
   /** Metadata key for the world timer's start timestamp. */
-  public static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.timestamp";
+  public static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.startedAtActiveMs";
 
   /** Metadata key for the world timer's total duration. */
   public static final String METADATA_WORLD_TIMER_DURATION = "worldTimer.duration";
-
-  /** Metadata key for serialized quest log entries. */
-  public static final String METADATA_QUESTLOG_ENTRIES = "questlog.entries";
 
   /** Metadata key indicating whether the entity is interactable. */
   public static final String METADATA_INTERACTABLE = "interactable";
@@ -136,17 +133,17 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
     entity
         .fetch(ComputerStateComponent.class)
-        .ifPresent(state -> metadata.putAll(computerStateMetadata(state)));
+        .ifPresent(
+            state -> {
+              metadata.putAll(computerStateMetadata(state));
+              metadata.put(METADATA_SAVE_REVISION, String.valueOf(LastHourLevel.saveRevision()));
+            });
     entity
         .fetch(KeypadComponent.class)
         .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
-    entity
-        .fetch(QuestLogComponent.class)
-        .ifPresent(
-            questLog -> metadata.putAll(LastHourSnapshotTranslator.questLogMetadata(questLog)));
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
@@ -217,7 +214,7 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
     Map<String, String> metadata = new HashMap<>();
     metadata.put(METADATA_TYPE, TYPE_WORLD_TIMER);
-    metadata.put(METADATA_WORLD_TIMER_TIMESTAMP, String.valueOf(worldTimer.timestamp()));
+    metadata.put(METADATA_WORLD_TIMER_TIMESTAMP, String.valueOf(worldTimer.startedAtActiveMs()));
     metadata.put(METADATA_WORLD_TIMER_DURATION, String.valueOf(worldTimer.duration()));
     return metadata;
   }

@@ -15,6 +15,7 @@ import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.deco.Deco;
 import feature.interaction.keypad.KeypadComponent;
 import feature.systems.LevelEditorSystem;
+import feature.timer.WorldTimerComponent;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
@@ -174,6 +175,9 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
    * @param lighting client-side lighting shader receiving the light sources
    */
   private void addSystemRecoveryLights(LightingShader lighting) {
+    Game.entities()
+        .filter(entity -> entity.isPresent(WorldTimerComponent.class))
+        .forEach(entity -> addLight(lighting, entity, 0.5f, Color.RED));
     Game.levelEntities()
         .filter(this::isTerminal)
         .forEach(entity -> addLight(lighting, entity, 0.45f, Color.CYAN));

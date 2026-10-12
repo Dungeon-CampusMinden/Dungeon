@@ -2,11 +2,17 @@ package rooms.systemRecovery.story;
 
 import engine.Entity;
 import engine.Game;
+import feature.components.UIComponent;
 import feature.hints.Hint;
 import feature.hints.HintSystem;
 import feature.hud.dialogs.DialogFactory;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
+import java.util.stream.Collectors;
+import rooms.systemRecovery.modules.computer.SystemRecoveryDialogTypes;
 import rooms.systemRecovery.petrinet.SystemRecoveryHintCatalog;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
 import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
@@ -62,6 +68,51 @@ public final class SystemRecoveryHintPhone {
         });
   }
 
+  /**
+   * Delivers the next shared hint without confirmation after the inactivity deadline.
+   *
+   * <p>Story dialogs and choices are not interrupted. An open computer may remain underneath the
+   * hint, so its draft survives and the inactivity assistance also works while typing code.
+   *
+   * @return whether a hint was consumed and shown to the connected players
+   */
+  public static boolean deliverAutomaticHint() {
+    List<Entity> players = Game.allPlayers().toList();
+    if (players.isEmpty()) return false;
+    // Only dialogs of connected players block; a disconnected player's dialog stays behind.
+    Set<Integer> playerIds = players.stream().map(Entity::id).collect(Collectors.toSet());
+    boolean blockingDialog =
+        Game.entities()
+            .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+            .anyMatch(
+                ui ->
+                    ui.willPauseGame()
+                        && ui.dialogContext().dialogType() != SystemRecoveryDialogTypes.COMPUTER
+                        && (ui.targetEntityIds().length == 0
+                            || Arrays.stream(ui.targetEntityIds()).anyMatch(playerIds::contains)));
+    if (blockingDialog) return false;
+
+    boolean[] delivered = {false};
+    Game.system(
+        HintSystem.class,
+        hints -> {
+          Optional<SystemRecoveryLearningStep> step = SystemRecoveryProgressNet.activeStep();
+          Optional<Hint> nextHint = hints.peekSharedHint();
+          if (step.isEmpty() || nextHint.isEmpty()) return;
+          OptionalInt place = SystemRecoveryProgressNet.hintEntityId(step.orElseThrow());
+          if (place.isEmpty()) return;
+          hints
+              .acceptSharedHint(place.orElseThrow(), nextHint.orElseThrow())
+              .ifPresent(
+                  accepted -> {
+                    // Tracking needs a participant; the first player stands in for the room.
+                    deliver(step.orElseThrow(), accepted, players.getFirst(), true, players);
+                    delivered[0] = true;
+                  });
+        });
+    return delivered[0];
+  }
+
   private static void showConfirmation(HintSystem hintSystem, Entity player, HintOffer offer) {
     boolean solution = offer.hint().solution();
     String message =
@@ -81,22 +132,43 @@ public final class SystemRecoveryHintPhone {
                 .flatMap(
                     ignored -> hintSystem.acceptSharedHint(offer.placeEntityId(), offer.hint()))
                 .ifPresentOrElse(
-                    accepted -> {
-                      String hintId = SystemRecoveryHintCatalog.hintId(offer.step(), accepted);
-                      offer
-                          .step()
-                          .puzzle()
-                          .ifPresent(
-                              puzzle ->
-                                  SystemRecoveryPuzzleEvents.hintUsed(puzzle, hintId, player));
-                      SystemRecoveryQuestLogUtil.addHintEntry(offer.step().riddleKey(), accepted);
-                      String key = accepted.solution() ? "hint-solution-delivery" : "hint-delivery";
-                      DialogFactory.showDialogDialog(
-                          SystemRecoveryText.echoCall(key, accepted.text()), () -> {}, player.id());
-                    },
+                    accepted -> deliver(offer.step(), accepted, player, false, List.of(player)),
                     () -> request(player)),
         () -> {},
         player.id());
+  }
+
+  /**
+   * Tracks a consumed hint, writes it to the matching quest log and shows it.
+   *
+   * @param step learning step whose hint sequence was consumed
+   * @param accepted consumed hint
+   * @param trackedPlayer participant the hint event is attributed to
+   * @param automatic whether the hint was shown without a player request
+   * @param recipients players who see the hint dialog
+   */
+  private static void deliver(
+      SystemRecoveryLearningStep step,
+      Hint accepted,
+      Entity trackedPlayer,
+      boolean automatic,
+      List<Entity> recipients) {
+    String hintId = SystemRecoveryHintCatalog.hintId(step, accepted);
+    step.puzzle()
+        .ifPresent(
+            puzzle -> {
+              if (automatic) {
+                SystemRecoveryPuzzleEvents.automaticHintUsed(puzzle, hintId, trackedPlayer);
+              } else {
+                SystemRecoveryPuzzleEvents.hintUsed(puzzle, hintId, trackedPlayer);
+              }
+            });
+    SystemRecoveryQuestLogUtil.addHintEntry(step.riddleKey(), accepted);
+    String key = accepted.solution() ? "hint-solution-delivery" : "hint-delivery";
+    recipients.forEach(
+        player ->
+            DialogFactory.showDialogDialog(
+                SystemRecoveryText.echoCall(key, accepted.text()), () -> {}, player.id()));
   }
 
   /**

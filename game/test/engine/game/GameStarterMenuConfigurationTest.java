@@ -2,6 +2,7 @@ package engine.game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,22 @@ class GameStarterMenuConfigurationTest {
 
     assertTrue(starter.showJoinButton());
     assertTrue(starter.hostActionLabel().isEmpty());
+    assertTrue(starter.creditsRoomId().isEmpty());
+  }
+
+  @Test
+  void creditsRoomIdIsOptionalAndConfiguredByRoom() {
+    GameStarter starter =
+        GameStarter.builder("Example", Object.class).creditsRoomId("sample-room").build();
+
+    assertEquals("sample-room", starter.creditsRoomId().orElseThrow());
+  }
+
+  @Test
+  void creditsRoomIdCannotEscapeTheInternalAssetDirectory() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GameStarter.builder("Example", Object.class).creditsRoomId("../outside"));
   }
 
   @Test

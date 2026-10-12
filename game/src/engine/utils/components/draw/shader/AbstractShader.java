@@ -24,6 +24,7 @@ import java.util.Objects;
  */
 public abstract class AbstractShader implements Disposable {
   private static final String INCLUDE_DIRECTIVE = "// *****IMPORT: util.glsl*****";
+  private static final float MIN_CULL_PADDING = 1e-6f;
   private static String utilGlslCache = null;
 
   // Map to cache compiled ShaderPrograms (static, shared across all instances)
@@ -376,7 +377,7 @@ public abstract class AbstractShader implements Disposable {
       Texture texture = resolveTexture(texturePath);
 
       // Activate this texture in OpenGL
-      Gdx.gl.glActiveTexture(unit);
+      Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0 + unit);
       texture.bind(unit);
       program.setUniformi(name, unit);
 
@@ -466,19 +467,50 @@ public abstract class AbstractShader implements Disposable {
   }
 
   /**
+   * Returns world bounds for a hard-edged effect region that stay visible to culling.
+   *
+   * <p>DrawSystem culls with strict rectangle intersection. This keeps a region conservatively
+   * visible when its edge nearly coincides with an FBO edge due to float rounding; it affects pass
+   * selection only, not the region boundary evaluated in the fragment shader.
+   *
+   * @param region effect region
+   * @return slightly expanded region
+   */
+  protected static Rectangle conservativeBounds(Rectangle region) {
+    float maxCoordinate =
+        Math.max(
+            Math.max(Math.abs(region.x()), Math.abs(region.y())),
+            Math.max(
+                Math.abs(region.x() + region.width()), Math.abs(region.y() + region.height())));
+    float cullPadding = Math.max(MIN_CULL_PADDING, 2.0f * Math.ulp(maxCoordinate));
+    return region.expand(cullPadding);
+  }
+
+  /**
    * Writes a color using the property names used by synchronized shaders.
    *
    * @param properties destination property map
    * @param color color to write
    */
   protected static void putColor(Map<String, String> properties, Color color) {
+    putColor(properties, "", color);
+  }
+
+  /**
+   * Writes a color using a prefix and the property names used by synchronized shaders.
+   *
+   * @param properties destination property map
+   * @param prefix prefix to prepend to each color component property
+   * @param color color to write
+   */
+  protected static void putColor(Map<String, String> properties, String prefix, Color color) {
     if (color == null) {
       throw new IllegalArgumentException("Shader color must not be null.");
     }
-    properties.put("red", Float.toString(color.r));
-    properties.put("green", Float.toString(color.g));
-    properties.put("blue", Float.toString(color.b));
-    properties.put("alpha", Float.toString(color.a));
+    properties.put(colorComponentKey(prefix, "red"), Float.toString(color.r));
+    properties.put(colorComponentKey(prefix, "green"), Float.toString(color.g));
+    properties.put(colorComponentKey(prefix, "blue"), Float.toString(color.b));
+    properties.put(colorComponentKey(prefix, "alpha"), Float.toString(color.a));
   }
 
   /**
@@ -488,11 +520,29 @@ public abstract class AbstractShader implements Disposable {
    * @return the color represented by the properties
    */
   protected static Color colorProperty(Map<String, String> properties) {
+    return colorProperty(properties, "");
+  }
+
+  /**
+   * Reads a color using a prefix and the property names used by synchronized shaders.
+   *
+   * @param properties source property map
+   * @param prefix prefix prepended to each color component property
+   * @return the color represented by the properties
+   */
+  protected static Color colorProperty(Map<String, String> properties, String prefix) {
     return new Color(
-        floatProperty(properties, "red"),
-        floatProperty(properties, "green"),
-        floatProperty(properties, "blue"),
-        floatProperty(properties, "alpha"));
+        floatProperty(properties, colorComponentKey(prefix, "red")),
+        floatProperty(properties, colorComponentKey(prefix, "green")),
+        floatProperty(properties, colorComponentKey(prefix, "blue")),
+        floatProperty(properties, colorComponentKey(prefix, "alpha")));
+  }
+
+  private static String colorComponentKey(String prefix, String component) {
+    if (prefix.isEmpty()) {
+      return component;
+    }
+    return prefix + Character.toUpperCase(component.charAt(0)) + component.substring(1);
   }
 
   /**

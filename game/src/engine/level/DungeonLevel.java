@@ -24,6 +24,12 @@ import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
 import feature.entities.deco.Deco;
 import feature.level.ITickable;
+import feature.prefabs.Prefab;
+import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabRegistry;
+import feature.prefabs.PrefabRuntime;
+import feature.prefabs.PrefabRuntimeState;
+import feature.prefabs.PrefabSpawner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +40,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 /**
@@ -51,8 +58,11 @@ public class DungeonLevel implements ILevel, ITickable {
 
   protected final Map<String, Point> namedPoints = new HashMap<>();
   protected final List<Tuple<Deco, Point>> decorations = new ArrayList<>();
+  protected final List<PrefabInstance> prefabs = new ArrayList<>();
+  private final PrefabRuntimeState prefabRuntimeState = new PrefabRuntimeState();
 
   private static int levelNameSuffix = 1;
+  private DesignLabel baseDesignLabel;
   protected String levelName;
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
@@ -79,8 +89,18 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public DungeonLevel(Tile[][] layout) {
     this.layout = layout;
+    this.baseDesignLabel = findInitialDesignLabel(layout);
     putTilesInLists();
     levelName = "level_" + levelNameSuffix++;
+  }
+
+  private static DesignLabel findInitialDesignLabel(Tile[][] layout) {
+    for (Tile[] row : layout) {
+      for (Tile tile : row) {
+        if (tile != null) return tile.designLabel();
+      }
+    }
+    return DesignLabel.DEFAULT;
   }
 
   /**
@@ -343,18 +363,22 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public void designLabel(DesignLabel designLabel) {
     Objects.requireNonNull(designLabel);
-    for (Tile[] row : layout) {
-      for (Tile tile : row) {
-        tile.designLabel(designLabel);
-      }
-    }
-    LevelElement[][] elementLayout = TileTextureFactory.levelElementLayout(layout);
-    for (Tile[] row : layout) {
-      for (Tile tile : row) {
-        tile.texturePath(
-            TileTextureFactory.findTexturePath(tile, layout, elementLayout, tile.levelElement()));
-      }
-    }
+    baseDesignLabel = designLabel;
+    PrefabSpawner.refreshDesignLabelRegions(this);
+  }
+
+  /**
+   * Returns the level's authored design independently of temporary prefab overrides on tiles.
+   *
+   * @return base level design
+   */
+  public DesignLabel baseDesignLabel() {
+    return baseDesignLabel;
+  }
+
+  @Override
+  public Optional<DesignLabel> designLabel() {
+    return Optional.ofNullable(baseDesignLabel);
   }
 
   @Override
@@ -373,6 +397,7 @@ public class DungeonLevel implements ILevel, ITickable {
     gitterTiles.clear();
     glassWallTiles.clear();
     putTilesInLists();
+    PrefabSpawner.refreshDesignLabelRegions(this);
   }
 
   @Override
@@ -425,6 +450,94 @@ public class DungeonLevel implements ILevel, ITickable {
   @Override
   public List<Tuple<Deco, Point>> decorations() {
     return decorations;
+  }
+
+  /**
+   * Returns the ordered prefab instances authored for this level.
+   *
+   * <p>This is the level file data. To change prefabs while the game runs, use {@link #spawnPrefab}
+   * and the bound views returned by {@link #prefabs(Class)} instead.
+   *
+   * @return mutable prefab instance list
+   */
+  @Override
+  public List<PrefabInstance> prefabs() {
+    return prefabs;
+  }
+
+  @Override
+  public List<PrefabInstance> activePrefabs() {
+    return prefabRuntimeState.resolve(prefabs);
+  }
+
+  /**
+   * Returns the prefab changes made at runtime in the current game session.
+   *
+   * @return runtime prefab state of this level
+   */
+  public PrefabRuntimeState prefabRuntimeState() {
+    return prefabRuntimeState;
+  }
+
+  /**
+   * Spawns a new prefab instance for the current game session. The level file is not changed.
+   *
+   * <p>Must be called on the server while this level is loaded. Example:
+   *
+   * <pre>{@code
+   * spawnPrefab(WaterPrefab.class, "flood", water -> water
+   *     .with(WaterPrefab.REGION, new Region(new Point(2, 2), new Point(8, 5)))
+   *     .with(WaterPrefab.COLOR, Color.BLUE));
+   * }</pre>
+   *
+   * @param prefabClass prefab type to spawn
+   * @param name level-unique instance name
+   * @param configure sets the instance properties, starting from the type's defaults
+   * @param <P> prefab type
+   * @return bound view of the spawned instance
+   * @see PrefabRuntime#spawn(ILevel, Class, String, UnaryOperator)
+   */
+  public <P extends Prefab> P spawnPrefab(
+      Class<P> prefabClass, String name, UnaryOperator<PrefabInstance> configure) {
+    return PrefabRuntime.spawn(this, prefabClass, name, configure);
+  }
+
+  /**
+   * Adds a validated prefab instance.
+   *
+   * @param instance prefab instance to add
+   * @throws IllegalArgumentException if its name is already used in this level
+   */
+  public void addPrefab(PrefabInstance instance) {
+    if (prefabs.stream().anyMatch(existing -> existing.name().equals(instance.name()))) {
+      throw new IllegalArgumentException("Duplicate prefab instance name: " + instance.name());
+    }
+    prefabs.add(PrefabRegistry.require(instance.type()).normalize(instance));
+  }
+
+  /**
+   * Replaces a prefab instance while preserving level-local name uniqueness.
+   *
+   * @param index index of the instance to replace
+   * @param instance replacement instance
+   */
+  public void replacePrefab(int index, PrefabInstance instance) {
+    for (int current = 0; current < prefabs.size(); current++) {
+      if (current != index && prefabs.get(current).name().equals(instance.name())) {
+        throw new IllegalArgumentException("Duplicate prefab instance name: " + instance.name());
+      }
+    }
+    prefabs.set(index, PrefabRegistry.require(instance.type()).normalize(instance));
+  }
+
+  /**
+   * Removes a prefab by its editor-facing name.
+   *
+   * @param name prefab instance name
+   * @return true if an instance was removed
+   */
+  public boolean removePrefab(String name) {
+    return prefabs.removeIf(instance -> instance.name().equals(name));
   }
 
   /**

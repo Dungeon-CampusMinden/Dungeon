@@ -9,6 +9,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 import rooms.lasthour.modules.computer.LastHourDialogTypes;
 
 /**
@@ -49,7 +50,22 @@ public final class TrashMinigameFactory {
    *     be {@code null}
    */
   public static void show(Entity who, Item reward, int paperCount, Runnable afterAward) {
+    show(who, reward, paperCount, () -> true, afterAward);
+  }
+
+  /**
+   * Opens the minigame with a server-side guard for a one-time reward.
+   *
+   * @param who the interacting player
+   * @param reward the item awarded on win, or {@code null}
+   * @param paperCount number of crumpled papers
+   * @param canAward checked when the player wins, before the reward is added
+   * @param afterAward action run after a permitted reward is added
+   */
+  public static void show(
+      Entity who, Item reward, int paperCount, BooleanSupplier canAward, Runnable afterAward) {
     Objects.requireNonNull(who, "who");
+    Objects.requireNonNull(canAward, "canAward");
     ensureRegistered();
 
     DialogContext.Builder builder =
@@ -73,6 +89,7 @@ public final class TrashMinigameFactory {
       ui.registerCallback(
           TrashMinigameUI.DEFAULT_CALLBACK_KEY,
           payload -> {
+            if (!canAward.getAsBoolean()) return;
             who.fetch(InventoryComponent.class).ifPresent(inv -> inv.add(reward));
             if (afterAward != null) afterAward.run();
           });

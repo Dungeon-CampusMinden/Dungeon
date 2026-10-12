@@ -29,7 +29,6 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
-import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,7 +38,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
-import java.util.function.LongSupplier;
 
 /** Dungeon world bridge for one already materialized Foundation room. */
 public final class ServerGameBinding {
@@ -55,14 +53,12 @@ public final class ServerGameBinding {
   private final GamePresentation presentation;
   private final DoorTile doorTile;
   private final ExitTile exitTile;
-  private final LongSupplier monotonicNanos;
   private final Runnable onTerminalComplete;
   private final FoundationTracking tracking = new FoundationTracking();
   private final Map<String, ComposedPresentation> riddles;
   private final Map<String, NumericInputDefinition> numericDefinitions;
   private final Map<String, Integer> shownIntros = new LinkedHashMap<>();
   private final Set<String> terminalPresentedSlots = new LinkedHashSet<>();
-  private long lastTickNanos;
 
   /**
    * Creates the bridge and immediately binds it to the derived room.
@@ -76,7 +72,6 @@ public final class ServerGameBinding {
    * @param levelSystem level system whose default exit callback is disabled
    * @param componentStations authoritative source and input-device positions
    * @param hintStations authoritative optional hint interaction positions
-   * @param monotonicNanos monotonic server-loop time source
    * @param onTerminalComplete callback after the first client completes the terminal pages
    */
   public ServerGameBinding(
@@ -89,7 +84,6 @@ public final class ServerGameBinding {
       final LevelSystem levelSystem,
       final Map<String, Point> componentStations,
       final Map<String, Point> hintStations,
-      final LongSupplier monotonicNanos,
       final Runnable onTerminalComplete) {
     this.serverBinding = Objects.requireNonNull(serverBinding, "serverBinding");
     numericDefinitions = indexNumericDefinitions(Objects.requireNonNull(definition, "definition"));
@@ -98,20 +92,16 @@ public final class ServerGameBinding {
     FoundationDialogs.register();
     this.doorTile = Objects.requireNonNull(doorTile, "doorTile");
     this.exitTile = Objects.requireNonNull(exitTile, "exitTile");
-    this.monotonicNanos = Objects.requireNonNull(monotonicNanos, "monotonicNanos");
     this.onTerminalComplete = Objects.requireNonNull(onTerminalComplete, "onTerminalComplete");
     Objects.requireNonNull(levelSystem, "levelSystem").onEndTile(() -> {});
     riddles = index(presentation.riddles());
     addStations(componentStations, hintStations);
     this.doorTile.close();
-    lastTickNanos = monotonicNanos.getAsLong();
   }
 
   /** Advances the authority and mirrors exit presence and door state. */
   public synchronized void tick() {
-    long now = monotonicNanos.getAsLong();
-    serverBinding.tick(Duration.ofNanos(Math.max(0, now - lastTickNanos)));
-    lastTickNanos = now;
+    serverBinding.tick();
     reconcileIntros();
 
     Set<String> present = new LinkedHashSet<>();

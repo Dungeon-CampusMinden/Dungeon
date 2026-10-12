@@ -2,6 +2,8 @@ package feature.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import engine.Entity;
@@ -11,6 +13,9 @@ import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
+import feature.hud.dialogs.DialogCallbackResolver;
+import feature.hud.dialogs.DialogCloseEvent;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
 import feature.hud.elements.GUICombination;
 import feature.inventory.ui.InventoryGUI;
@@ -251,6 +256,62 @@ public final class UIUtils {
       }
     }
     return results.build();
+  }
+
+  /**
+   * Registers local behavior for the configured dialog close shortcut.
+   *
+   * @param actor the dialog's outermost actor
+   * @param handler behavior that consumes the close request
+   */
+  public static void onCloseRequest(Actor actor, Runnable handler) {
+    actor.addListener(new CloseRequestListener(handler));
+  }
+
+  /**
+   * Checks whether an actor has registered local behavior for the close shortcut.
+   *
+   * @param actor the dialog's outermost actor
+   * @return true if the actor handles close requests locally
+   */
+  public static boolean hasCloseRequestHandler(Actor actor) {
+    for (EventListener listener : actor.getListeners()) {
+      if (listener instanceof CloseRequestListener) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Requests closing a dialog, allowing it to handle the request locally first.
+   *
+   * <p>Unhandled requests use the callback resolver. Server-owned dialogs remain open on clients
+   * until the server confirms their removal; local callbacks handle local cleanup.
+   *
+   * @param uiComponent the dialog receiving the request
+   */
+  public static void requestCloseDialog(UIComponent uiComponent) {
+    DialogCloseEvent event = new DialogCloseEvent();
+    uiComponent.dialog().fire(event);
+    if (event.isHandled() || !uiComponent.canBeClosed()) return;
+
+    DialogCallbackResolver.createButtonCallback(
+            uiComponent.dialogContext().dialogId(), DialogContextKeys.ON_CLOSE)
+        .accept(null);
+  }
+
+  private static final class CloseRequestListener implements EventListener {
+    private final Runnable handler;
+
+    private CloseRequestListener(Runnable handler) {
+      this.handler = handler;
+    }
+
+    @Override
+    public boolean handle(Event event) {
+      if (!(event instanceof DialogCloseEvent)) return false;
+      handler.run();
+      return true;
+    }
   }
 
   /**

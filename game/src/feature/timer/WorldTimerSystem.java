@@ -36,8 +36,6 @@ public class WorldTimerSystem extends System {
   private static BitmapFont FONT;
   private static SpriteBatch BATCH = new SpriteBatch();
 
-  private int currentUnixTime;
-
   /** Callback fired once locally when the timer reaches zero, or {@code null} if unset. */
   private Runnable onTimerExpired;
 
@@ -67,13 +65,11 @@ public class WorldTimerSystem extends System {
 
   @Override
   public void execute() {
-    currentUnixTime = (int) (java.lang.System.currentTimeMillis() / 1000L);
     filteredEntityStream().map(Data::of).forEach(this::update);
   }
 
   private void update(Data data) {
-    int secondsSinceStart = currentUnixTime - data.tc.timestamp();
-    int secondsLeft = data.tc.duration() - secondsSinceStart;
+    int secondsLeft = (int) ((data.tc.remainingMs() + 999) / 1000);
 
     if (secondsLeft <= 0 && !expiredFired) {
       expiredFired = true;

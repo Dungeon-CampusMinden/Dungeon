@@ -20,6 +20,10 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> PAUSE_MENU =
       new ConfigKey<>(new String[] {"ui", "open_pause_menu"}, new ConfigIntValue(Input.Keys.P));
 
+  /** Reopens the current room's controls dialog. */
+  public static final ConfigKey<Integer> SHOW_CONTROLS =
+      new ConfigKey<>(new String[] {"ui", "show_controls"}, new ConfigIntValue(Input.Keys.F1));
+
   /** Opens the quest log UI. */
   public static final ConfigKey<Integer> QUESTLOG_OPEN =
       new ConfigKey<>(new String[] {"contrib/questlog", "open"}, new ConfigIntValue(Input.Keys.B));

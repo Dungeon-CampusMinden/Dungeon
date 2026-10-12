@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Game;
-import engine.tracking.Tracking;
 import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
 import java.util.Arrays;
@@ -51,18 +50,6 @@ class SystemRecoveryProgressNetTest {
   }
 
   @Test
-  void initialLearningPuzzleIsTrackedExactlyOnce() {
-    SystemRecoveryProgressNet.reset();
-
-    try (MockedStatic<Tracking> tracking = Mockito.mockStatic(Tracking.class)) {
-      SystemRecoveryProgressNet.initialize();
-      SystemRecoveryProgressNet.initialize();
-
-      tracking.verify(() -> Tracking.puzzleStarted("energy-array"), Mockito.times(1));
-    }
-  }
-
-  @Test
   void completionConsumesTwoTokensAndProducesOneTokenInTheDirectSuccessor() {
     assertTrue(SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ENERGY_ARRAY));
 
@@ -70,6 +57,19 @@ class SystemRecoveryProgressNetTest {
     assertEquals(1, SystemRecoveryProgressNet.tokenCount(SystemRecoveryLearningStep.ENERGY_VALUES));
     assertActive(SystemRecoveryLearningStep.ENERGY_VALUES);
     assertTokenInvariant();
+  }
+
+  @Test
+  void expiredRunCannotAdvanceThePetriMarking() {
+    try (MockedStatic<rooms.systemRecovery.level.SystemRecoveryLevel> level =
+        Mockito.mockStatic(rooms.systemRecovery.level.SystemRecoveryLevel.class)) {
+      level.when(rooms.systemRecovery.level.SystemRecoveryLevel::timeLimitExpired).thenReturn(true);
+
+      assertFalse(SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ENERGY_ARRAY));
+
+      assertActive(SystemRecoveryLearningStep.ENERGY_ARRAY);
+      assertTokenInvariant();
+    }
   }
 
   @Test

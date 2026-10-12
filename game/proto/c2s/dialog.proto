@@ -32,3 +32,8 @@ message DialogResponseMessage {
     dungeon.common.CustomValue custom_value = 18;
   }
 }
+
+// Explicit local pause screen state, separate from simulation-pausing task dialogs.
+message PauseStateMessage {
+  bool paused = 1;
+}

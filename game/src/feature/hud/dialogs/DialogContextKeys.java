@@ -22,6 +22,12 @@ public class DialogContextKeys {
   /** The key for the owner entity ID (the entity holding the UIComponent). */
   public static final String OWNER_ENTITY = "ownerEntity";
 
+  /** Blocks the targeted players' gameplay input while keeping the world simulation running. */
+  public static final String BLOCKS_GAMEPLAY_INPUT = "blocksGameplayInput";
+
+  /** Marks an explicit pause screen for active play time, independently of simulation freezing. */
+  public static final String PAUSES_PLAY_CLOCK = "pausesPlayClock";
+
   /** The key for the associated entity in the dialog context. */
   public static final String ENTITY = "entity";
 
@@ -104,11 +110,16 @@ public class DialogContextKeys {
   /** The key for the dialog script (String) used by {@link DialogDialog}. */
   public static final String DIALOG = "dialog";
 
-  /** The key for dialogs where {@code ESC} advances instead of closing the dialog (Boolean). */
-  public static final String ESCAPE_ADVANCES = "escapeAdvances";
-
   /** The image path substituted for {@code {path}} in a translated dialog script. */
   public static final String SPEAKER_IMAGE = "speakerImage";
+
+  /**
+   * The key for whether the {@link #DIALOG} script is a translation key (Boolean).
+   *
+   * <p>If true, the displaying client resolves the script through {@link
+   * engine.language.Localization#text(String)} in its current language.
+   */
+  public static final String DIALOG_IS_TRANSLATION_KEY = "dialogIsTranslationKey";
 
   /** The key for the puzzle complete callback */
   public static final String ON_COMPLETE = "onComplete";

@@ -285,15 +285,6 @@ final class MultipleChoiceDialog {
           public boolean keyDown(InputEvent event, int keycode) {
             int total = allEntries.size();
 
-            if (keycode == Input.Keys.ESCAPE) {
-              if (!choicesActive[0]) {
-                scriptView.advance();
-              }
-              // ESC behaves like a click outside the options once the choice list is visible: it
-              // must never confirm the currently highlighted option.
-              return true;
-            }
-
             if (keycode == KeyboardConfig.INTERACT_WORLD.value()) {
               if (!choicesActive[0]) {
                 scriptView.advance();
@@ -341,29 +332,35 @@ final class MultipleChoiceDialog {
 
     root.pack();
 
-    // Grab keyboard focus on every frame the stage exists (ensures it works after mouse
-    // interaction)
+    // Visible dialogs reclaim keyboard focus after mouse interaction.
     root.addAction(
         new Action() {
           @Override
           public boolean act(float delta) {
             Stage stage = root.getStage();
-            if (stage != null) {
+            if (stage != null && root.ancestorsVisible()) {
               stage.setKeyboardFocus(root);
             }
             return false; // keep running every frame
           }
         });
 
-    return new BaseContainerUI(root) {
-      @Override
-      protected void setStage(Stage stage) {
-        super.setStage(stage);
-        if (stage == null) {
-          scriptView.disposeCache();
-        }
-      }
-    };
+    BaseContainerUI container =
+        new BaseContainerUI(root) {
+          @Override
+          protected void setStage(Stage stage) {
+            super.setStage(stage);
+            if (stage == null) {
+              scriptView.disposeCache();
+            }
+          }
+        };
+    UIUtils.onCloseRequest(
+        container,
+        () -> {
+          if (!choicesActive[0]) scriptView.advance();
+        });
+    return container;
   }
 
   /**

@@ -216,8 +216,28 @@ public final class SystemRecoveryPuzzleEvents {
    * @param player participant who requested the hint
    */
   public static void hintUsed(SystemRecoveryPuzzle puzzle, String hintId, Entity player) {
+    hintUsed(puzzle, hintId, player, false);
+  }
+
+  /**
+   * Records one hint shown to all players after the inactivity deadline without a request.
+   *
+   * <p>Tracking needs a participant for every hint, so the hint is attributed to {@code
+   * attributedPlayer} and marked as automatic.
+   *
+   * @param puzzle puzzle for which the hint was shown
+   * @param hintId stable identifier of the shown hint stage
+   * @param attributedPlayer participant the hint event is attributed to
+   */
+  public static void automaticHintUsed(
+      SystemRecoveryPuzzle puzzle, String hintId, Entity attributedPlayer) {
+    hintUsed(puzzle, hintId, attributedPlayer, true);
+  }
+
+  private static void hintUsed(
+      SystemRecoveryPuzzle puzzle, String hintId, Entity player, boolean automatic) {
     if (puzzle == null || hintId == null || player == null) return;
     SystemRecoveryAchievements.hintUsed(puzzle, hintId);
-    SystemRecoveryTracking.hintUsed(puzzle, hintId, player);
+    SystemRecoveryTracking.hintUsed(puzzle, hintId, player, automatic);
   }
 }

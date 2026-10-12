@@ -30,7 +30,7 @@ public class LevelHideSystem extends System {
 
   /** Constructs new LevelHideSystem. */
   public LevelHideSystem() {
-    super(LevelHideComponent.class, PositionComponent.class);
+    super(AuthoritativeSide.BOTH, LevelHideComponent.class, PositionComponent.class);
     onEntityAdd = this::onEntityAdd;
     onEntityRemove = this::onEntityRemove;
   }
@@ -57,15 +57,17 @@ public class LevelHideSystem extends System {
         .ifPresent(
             ds -> {
               Data data = Data.of(entity);
-              trackedEntities.remove(data);
-              String shaderIdentifier = getShaderIdentifier(data);
-              ds.sceneShaders().remove(shaderIdentifier);
+              Integer identifier = trackedEntities.remove(data);
+              if (identifier != null) {
+                ds.sceneShaders().remove(getShaderIdentifier(identifier));
+              }
             });
   }
 
   @Override
   public void execute() {
     Point currentPos = EntityUtils.getPlayerPosition();
+    if (currentPos == null) return; // e.g. a joining client before its hero arrived
     getDrawSystem()
         .ifPresent(
             ds -> {
@@ -104,7 +106,11 @@ public class LevelHideSystem extends System {
   }
 
   private String getShaderIdentifier(Data d) {
-    return "LevelHiderSystem#" + trackedEntities.get(d);
+    return getShaderIdentifier(trackedEntities.get(d));
+  }
+
+  private String getShaderIdentifier(int identifier) {
+    return "LevelHiderSystem#" + identifier;
   }
 
   private record Data(Entity e, PositionComponent pc, LevelHideComponent lhc) {

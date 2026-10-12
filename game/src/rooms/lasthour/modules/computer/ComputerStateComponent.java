@@ -16,7 +16,7 @@ import java.util.function.UnaryOperator;
  * @param isInfected whether the computer is currently infected with a virus
  * @param virusType the type of virus currently infecting the computer, or an empty string if not
  *     infected
- * @param timestampOfLogin the timestamp of the last login to the computer, or 0 if never logged in
+ * @param timestampOfLogin active play seconds at the last login plus one, or 0 if never logged in
  * @param usbInserted whether the correct USB stick has been plugged into the computer
  * @param lightsOn whether room lights are switched on from the control panel
  * @param heaterCelsius the heater temperature set on the control panel, in degrees Celsius
@@ -53,7 +53,8 @@ public record ComputerStateComponent(
    * @param state the current computer progress state
    * @param isInfected whether the computer is infected
    * @param virusType the virus type, or {@code null}
-   * @param timestampOfLogin the unix timestamp of the last login
+   * @param timestampOfLogin active play seconds at the last login plus one; zero means not logged
+   *     in
    * @return a new ComputerStateComponent
    */
   public static ComputerStateComponent of(

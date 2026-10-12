@@ -9,6 +9,7 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
@@ -17,6 +18,7 @@ import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.components.ItemComponent;
+import feature.credits.CreditsFeature;
 import feature.entities.MiscFactory;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
@@ -61,10 +64,14 @@ import rooms.systemRecovery.save.SystemRecoverySave;
 import rooms.systemRecovery.story.SystemRecoveryDialogTriggers;
 import rooms.systemRecovery.story.SystemRecoveryPhoneController;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
+import rooms.systemRecovery.time.SystemRecoveryTimeLimit;
+import rooms.systemRecovery.time.SystemRecoveryTimeoutEnding;
+import rooms.systemRecovery.time.SystemRecoveryTimerFactory;
 import rooms.systemRecovery.util.SystemRecoveryAchievementTracker;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryMemoryWatch;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
+import rooms.systemRecovery.util.SystemRecoverySounds;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.interpreter.InterpretationCallbacks;
 import rooms.systemRecovery.util.interpreter.SystemRecoveryTerminalController;
@@ -166,11 +173,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private boolean systemCoreExitOpen;
   private boolean endingTriggered;
   private boolean introSuppressed;
+  private final Set<Integer> playingPlayers = new HashSet<>();
   private SystemRecoveryLearningStep savedCheckpoint;
   private List<SystemRecoverySave.QuestLogEntryData> savedQuestLog = List.of();
   private List<SystemRecoverySave.PlayerItemData> savedInventoryItems = List.of();
   private List<SystemRecoverySave.PlayerItemData> pendingInventoryItems = List.of();
   private String pendingInventoryPlayerName;
+  private List<SystemRecoverySave.PlayerPositionData> pendingPlayerPositions = List.of();
   private List<String> savedTerminalHistory = List.of();
   private List<String> savedMemoryWatchEntries = List.of();
   private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
@@ -182,6 +191,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private UUID runId;
   private boolean initialTerminalAttemptRecorded;
   private boolean initialTerminalAttemptWasCorrect;
+  private final SystemRecoveryTimeLimit timeLimit = new SystemRecoveryTimeLimit();
 
   /**
    * Creates the System Recovery level.
@@ -213,6 +223,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.playClock().playingParticipants(Set.of());
     MountedPuzzleItems.clear();
     resolvedPoints = SystemRecoveryPointRegistry.resolve(this);
     SystemRecoveryAchievements.resetRun(SystemRecovery.debugMode());
@@ -223,19 +234,16 @@ public class SystemRecoveryLevel extends DungeonLevel {
     pendingSave = SystemRecovery.loadFromSave() ? SystemRecoveryLoad.read() : Optional.empty();
     runId = SystemRecovery.runId();
     SystemRecoveryProgressNet.reset();
-    if (pendingSave.isPresent()) {
-      // Start from a safe fresh marking. A syntactically valid but semantically corrupt history
-      // must not leave the net stranded at a checkpoint when runtime restoration fails.
-      SystemRecoveryProgressNet.initializeAtSilently(SystemRecoveryLearningStep.ENERGY_ARRAY);
-    } else {
-      SystemRecoveryProgressNet.initialize();
-    }
+    // Saves also start from a safe fresh marking. A syntactically valid but semantically corrupt
+    // history must not leave the net stranded at a checkpoint when runtime restoration fails.
+    SystemRecoveryProgressNet.initialize();
     if (SystemRecovery.levelEditorMode() || (!Game.isHeadless() && LevelEditorSystem.active())) {
       terminalsUnlocked = true;
       introSuppressed = true;
     }
     setupTerminal();
     setupPhone();
+    setupTimer();
     setupRoomLabel();
     closeDoors();
     setupArchiveDoorLock();
@@ -260,9 +268,17 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   protected void onTick() {
+    // Stop autosave, intros and story dialogs once time is up, even before the failure outro
+    // starts; players joining afterwards only get the failure outro. The successful ending keeps
+    // ticking so the last state is still saved.
+    if (timeLimit.expired()) {
+      if (endingTriggered) SystemRecoveryTimeoutEnding.showToNewPlayers();
+      return;
+    }
     if (!SystemRecovery.levelEditorMode()) {
       enforcePlayerInventorySize();
       applyPendingPuzzleInventory();
+      applyPendingPlayerPositions();
       saveCheckpointIfNeeded();
     }
     showIntroForNewPlayers();
@@ -295,6 +311,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                     .map(
                         restoredCheckpoint -> {
                           restorePuzzleInventory(data.inventoryItems(), data.playerName());
+                          restorePlayerPositions(data.playerPositions());
                           SystemRecoveryCheckpointProjection.apply(
                               this,
                               restoredCheckpoint,
@@ -316,6 +333,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedTrackingConsent = restoredSave.trackingConsent();
           savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
           systemCoreExitOpen = restoredSave.systemCoreExitOpen();
+          timeLimit.restoreFinish(restoredSave.timeLimitFinishedAtMs());
         });
     if (checkpoint.isPresent()) {
       SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
@@ -356,7 +374,14 @@ public class SystemRecoveryLevel extends DungeonLevel {
     applyPendingPuzzleInventory();
     SystemRecoverySave.SaveData save =
         SystemRecoverySave.capture(
-            checkpoint, runId, SystemRecovery.trackingConsent(), pendingInventoryItems);
+            checkpoint,
+            runId,
+            SystemRecovery.trackingConsent(),
+            pendingInventoryItems,
+            pendingPlayerPositions);
+    // An expired run keeps its last usable checkpoint, also against forced saves; the snapshot's
+    // own play time decides, because it is read after any earlier check.
+    if (timeLimit.expiredAt(save.activeMs())) return false;
     if (save.playerName() == null || save.playerName().isBlank()) return false;
     boolean checkpointChanged = checkpoint != savedCheckpoint;
     boolean changed =
@@ -501,6 +526,18 @@ public class SystemRecoveryLevel extends DungeonLevel {
             Game.allPlayers().toList(), pendingInventoryItems, pendingInventoryPlayerName);
   }
 
+  private void restorePlayerPositions(List<SystemRecoverySave.PlayerPositionData> positions) {
+    pendingPlayerPositions = List.copyOf(positions);
+    applyPendingPlayerPositions();
+  }
+
+  private void applyPendingPlayerPositions() {
+    if (pendingPlayerPositions.isEmpty()) return;
+    pendingPlayerPositions =
+        SystemRecoveryLoad.restorePlayerPositions(
+            Game.allPlayers().toList(), pendingPlayerPositions);
+  }
+
   static List<SystemRecoverySave.PlayerItemData> restorePuzzleItems(
       List<Entity> players,
       List<SystemRecoverySave.PlayerItemData> items,
@@ -559,7 +596,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     systemCoreExitOpen = exitOpen;
     systemCoreAlarmActive = checkpoint != SystemRecoveryLearningStep.COMPLETE;
     systemCoreRiddleCompleted = checkpoint == SystemRecoveryLearningStep.COMPLETE;
-    if (systemCoreAlarmActive) SystemRecoveryAlarm.activate();
+    if (systemCoreAlarmActive) SystemRecoveryAlarm.restoreActive();
     else SystemRecoveryAlarm.deactivate();
 
     int restoredStage =
@@ -651,8 +688,20 @@ public class SystemRecoveryLevel extends DungeonLevel {
                         }));
   }
 
+  private void playReady(int playerId) {
+    if (!playingPlayers.add(playerId)) return;
+    // The first player to start (again) opens the inactivity interval for timed hints.
+    if (!Game.playClock().running()) timeLimit.postponeHint();
+    Game.playClock().playingParticipants(playingPlayers);
+    Game.playClock().ready();
+    SystemRecoveryProgressNet.activeStep()
+        .flatMap(SystemRecoveryLearningStep::puzzle)
+        .ifPresent(SystemRecoveryPuzzleEvents::started);
+  }
+
   /** Sends the room's lore to each player once through the networked dialog system. */
   private void showIntroForNewPlayers() {
+    if (introSuppressed) Game.allPlayers().forEach(player -> playReady(player.id()));
     // Do not initialize the graphical level-editor class on the headless authoritative server.
     if (introSuppressed || (!Game.isHeadless() && LevelEditorSystem.active())) return;
     Game.allPlayers()
@@ -676,12 +725,85 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void finishIntroForPlayer(int playerId) {
     if (!controlsShownPlayers.add(playerId)) return;
     DialogFactory.showDialogDialog(
-        SystemRecoveryText.controls(), () -> terminalsUnlocked = true, playerId);
+        SystemRecoveryText.controls(),
+        () -> {
+          terminalsUnlocked = true;
+          playReady(playerId);
+        },
+        playerId);
   }
 
   /** Spawns the phone and keeps it interactable after every call. */
   private void setupPhone() {
     phoneController.setup(point("phone"));
+  }
+
+  private void setupTimer() {
+    Game.add(
+        SystemRecoveryTimerFactory.create(point(SystemRecoveryPointRegistry.TIMER), timeLimit));
+  }
+
+  /** Freezes the countdown once the final puzzle has been completed. */
+  public void finishTimeLimit() {
+    timeLimit.finish();
+  }
+
+  /**
+   * Returns the play time at which the running level froze its countdown, for saves.
+   *
+   * @return freeze point, empty while the countdown runs or without a level
+   */
+  public static OptionalLong timeLimitFinishedAt() {
+    return currentLevel().map(level -> level.timeLimit.finishedAt()).orElse(OptionalLong.empty());
+  }
+
+  /** Starts the failure ending once the timer system reports an exhausted budget. */
+  public void expireTimeLimit() {
+    if (endingTriggered || !timeLimit.expired()) return;
+    endingTriggered = true;
+    phoneController.cancelHintReminder();
+    SystemRecoveryTimeoutEnding.show();
+  }
+
+  /**
+   * @return whether the active run has reached its authoritative deletion deadline
+   */
+  public static boolean timeLimitExpired() {
+    return currentLevel().map(level -> level.timeLimit.expired()).orElse(false);
+  }
+
+  /**
+   * Restarts the inactivity interval after progress or a used hint and removes an obsolete optional
+   * call.
+   */
+  public void resetTimedHintDelay() {
+    timeLimit.postponeHint();
+    phoneController.cancelHintReminder();
+  }
+
+  /**
+   * Offers optional telephone assistance without replacing a main-quest call.
+   *
+   * @return whether a reminder or first-contact call was started
+   */
+  public boolean triggerTimedHintReminder() {
+    return phoneController.triggerHintReminder();
+  }
+
+  /**
+   * @return whether any first energy-terminal input has been submitted in this run
+   */
+  public boolean initialTerminalAttemptRecorded() {
+    return initialTerminalAttemptRecorded;
+  }
+
+  /**
+   * Starts ECHO's first contact for players who have not yet tried the terminal.
+   *
+   * @return whether a call was started
+   */
+  public boolean triggerIdleOpeningCall() {
+    return phoneController.triggerIdleOpeningCall();
   }
 
   /** Starts ECHO's one introductory call after the first rejected terminal attempt. */
@@ -712,9 +834,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
 
     DoorTile storageDoor = (DoorTile) tileAt(point("door_datenspeicher")).orElseThrow();
+    boolean doorWasOpen = storageDoor.isOpen();
     storageDoor.open();
     if (storageDoor.isOpen()) {
-      SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN);
+      if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.DATA_STORAGE_DOOR_OPEN)
+          && !doorWasOpen) {
+        SystemRecoverySounds.doorOpened();
+      }
     }
   }
 
@@ -829,7 +955,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
    * @return whether terminals are available
    */
   public static boolean terminalsUnlocked() {
-    return currentLevel().map(level -> level.terminalsUnlocked).orElse(false);
+    return currentLevel()
+        .map(level -> level.terminalsUnlocked && !level.timeLimit.expired())
+        .orElse(false);
   }
 
   /** Materializes the energy array for riddle 1, terminal step 1. */
@@ -903,6 +1031,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
             level -> {
               level.memoryWatch.recordAcceptedSource(source);
               SystemRecoveryQuestLogUtil.addSolutionEntry(step, source);
+              level.resetTimedHintDelay();
             });
   }
 
@@ -935,6 +1064,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       return;
     }
     acceptedTerminalHistory.add(source);
+    resetTimedHintDelay();
   }
 
   private synchronized String[] terminalHistorySnapshot() {
@@ -1070,7 +1200,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
         SystemRecoveryStoryDialogs.ACCESS_MODULE_FOUND);
   }
 
-  private static java.util.Optional<SystemRecoveryLevel> currentLevel() {
+  /**
+   * @return the running System Recovery level, if one is loaded
+   */
+  public static java.util.Optional<SystemRecoveryLevel> currentLevel() {
     return Game.currentLevel()
         .filter(SystemRecoveryLevel.class::isInstance)
         .map(SystemRecoveryLevel.class::cast);
@@ -1119,12 +1252,15 @@ public class SystemRecoveryLevel extends DungeonLevel {
                   if (!systemCoreRiddleCompleted || endingTriggered) return;
                   if (other.fetch(InputComponent.class).isEmpty()) return;
                   endingTriggered = true;
+                  Game.playClock().end(PlayClock.Outcome.SUCCESS);
                   BlackFadeCutscene.show(
                       SystemRecoveryText.endingPages(),
                       true,
                       false,
                       true,
-                      Game::complete,
+                      () ->
+                          CreditsFeature.showAfterGame(
+                              SystemRecovery.CREDITS_ROOM_ID, Game::complete, other.id()),
                       other.id());
                 },
                 null)
@@ -1468,10 +1604,16 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Opens the shared elevator exit only after ECHO's final call has been answered. */
   private void openElevatorAfterFinalCall() {
     DoorTile elevatorDoor = (DoorTile) tileAt(point("door_elevator")).orElseThrow();
+    boolean doorWasOpen = elevatorDoor.isOpen();
+    boolean exitWasOpen = systemCoreExitOpen;
     elevatorDoor.open();
     if (elevatorDoor.isOpen()) {
       systemCoreExitOpen = true;
       systemCore.markExitOpen();
+      if (!doorWasOpen && !exitWasOpen) {
+        SystemRecoverySounds.doorOpened();
+        SystemRecoverySounds.completed();
+      }
     }
   }
 
@@ -1518,6 +1660,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       return false;
     }
     DoorTile systemCoreDoor = (DoorTile) level.tileAt(level.point("door_systemcore")).orElseThrow();
+    boolean doorWasOpen = systemCoreDoor.isOpen();
     systemCoreDoor.open();
     if (!systemCoreDoor.isOpen()
         || !SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.SYSTEM_CORE_ACCESS)) {
@@ -1532,6 +1675,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
     }
     level.systemCoreAccessGranted = true;
     level.systemCoreAlarmActive = true;
+    if (!doorWasOpen) SystemRecoverySounds.doorOpened();
     SystemRecoveryPuzzleEvents.interaction(
         SystemRecoveryPuzzle.SYSTEM_CORE,
         "access-script",

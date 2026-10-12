@@ -68,6 +68,15 @@ public final class LastHourAchievements {
   }
 
   /**
+   * Awards the trashcan discovery to the player who opened one.
+   *
+   * @param player player who opened the trashcan
+   */
+  public static void onTrashcanOpened(Entity player) {
+    trigger(player, TRASH_DIVER);
+  }
+
+  /**
    * Unlocks Bruteforce after enough wrong keypad submissions.
    *
    * @param player player who submitted the wrong code

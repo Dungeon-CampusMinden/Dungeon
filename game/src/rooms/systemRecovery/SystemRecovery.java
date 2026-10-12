@@ -13,18 +13,17 @@ import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
-import engine.language.Translation;
 import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
-import engine.tracking.Tracking;
-import engine.tracking.TrackingRuntime;
+import engine.tracking.TrackingConsentFeature;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
+import feature.credits.CreditsFeature;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
@@ -37,7 +36,6 @@ import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LeverSystem;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import rooms.systemRecovery.items.BatteryItem;
@@ -51,6 +49,8 @@ import rooms.systemRecovery.network.SystemRecoveryEntitySpawnStrategy;
 import rooms.systemRecovery.network.SystemRecoverySnapshotTranslator;
 import rooms.systemRecovery.save.SystemRecoveryLoad;
 import rooms.systemRecovery.save.SystemRecoverySave;
+import rooms.systemRecovery.time.SystemRecoveryTimedHintSystem;
+import rooms.systemRecovery.time.SystemRecoveryTimerSystem;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryText;
 import rooms.systemRecovery.util.SystemRecoveryTranslator;
@@ -58,8 +58,18 @@ import rooms.systemRecovery.util.SystemRecoveryTranslator;
 /** Entry point for the System Recovery escape room. */
 public final class SystemRecovery {
 
+  /** True delivers the next hint automatically; false rings the phone with an ECHO reminder. */
+  public static final boolean FORCE_HINTS = true;
+
+  /** Minutes without accepted puzzle progress before the next automatic hint or reminder. */
+  public static final int HINT_DELAY_MINUTES = 4;
+
+  /** Room ID used by the optional credits JSON file. */
+  public static final String CREDITS_ROOM_ID = "system-recovery";
+
   private static final String LEVEL_KEY = "systemrecovery";
   private static final Color MENU_ACCENT_COLOR = new Color(0.43f, 0.78f, 0.72f, 1f);
+  private static final int MINIMUM_PLAYERS = 1;
   private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
   private static final boolean SHOW_JOIN_IN_MENU = false;
   private static final CharacterClass[] MULTIPLAYER_CHARACTER_CLASSES = {
@@ -70,7 +80,12 @@ public final class SystemRecovery {
   private static boolean levelEditorMode;
   private static boolean loadFromSave;
   private static UUID runId;
-  private static Boolean trackingConsent;
+  private static final TrackingConsentFeature TRACKING_CONSENT =
+      new TrackingConsentFeature(
+          "system-recovery",
+          TRACKING_OPERATOR_EMAIL,
+          SystemRecovery::runId,
+          SystemRecovery::persistTrackingConsent);
   private static final String LOAD_SAVE_ARGUMENT = "--load-system-recovery";
   private static final String NEW_GAME_ARGUMENT = "--new-system-recovery";
 
@@ -87,16 +102,17 @@ public final class SystemRecovery {
     configureLoadFromSave(args);
     configureManagedServerPlayerName();
     deleteSaveForNewGame(args);
-    trackingConsent = resolveTrackingConsentForLaunch(args);
-    TrackingRuntime.localTrackingConsent(trackingConsent);
-    publishTrackingConsentProperty();
     runId = resolveRunIdForLaunch();
+    Game.playClock().configure(MINIMUM_PLAYERS);
+    if (loadFromSave)
+      SystemRecoveryLoad.read().ifPresent(save -> Game.playClock().restore(save.activeMs()));
+    TRACKING_CONSENT.initialize(
+        args,
+        () ->
+            SystemRecoveryLoad.read()
+                .map(SystemRecoverySave.SaveData::trackingConsent)
+                .orElse(null));
     restoreSavedPlayerNameForMenu();
-    Tracking.configureRoom(
-        "system-recovery",
-        TRACKING_OPERATOR_EMAIL,
-        Optional.of(runId),
-        Boolean.TRUE.equals(trackingConsent));
     DungeonLoggerConfig.builder()
         .consoleLevel(Level.WARNING)
         .enableConsole(true)
@@ -134,8 +150,9 @@ public final class SystemRecovery {
             .hostActionLabel(() -> SystemRecoveryText.text("menu.start"))
             .serverArguments(hostedServerArguments())
             .continueGame(SystemRecoverySave::exists, hostedServerArguments(true))
-            .startupConsent(SystemRecovery::trackingConsentPrompt)
-            .trackingSettings(SystemRecovery::trackingSettings)
+            .creditsRoomId(CREDITS_ROOM_ID)
+            .startupConsent(TRACKING_CONSENT::startupPrompt)
+            .trackingSettings(TRACKING_CONSENT::settings)
             .build();
 
     MainMenu.run(args, game, client, server);
@@ -197,70 +214,12 @@ public final class SystemRecovery {
    * @return the saved or explicitly selected tracking decision for this run
    */
   public static Boolean trackingConsent() {
-    return trackingConsent;
+    return TRACKING_CONSENT.decision();
   }
 
-  private static GameStarter.StartupConsent trackingConsentPrompt() {
-    if (trackingConsent != null) return null;
-    Translation translation = new Translation("systemRecovery.trackingConsent");
-    return new GameStarter.StartupConsent(
-        trackingText(translation, "title"),
-        trackingText(translation, "summary"),
-        trackingText(translation, "message"),
-        trackingText(translation, "accept"),
-        trackingText(translation, "decline"),
-        SystemRecovery::chooseTrackingConsent);
-  }
-
-  private static GameStarter.TrackingSettings trackingSettings() {
-    Translation translation = new Translation("systemRecovery.trackingConsent");
-    Boolean decision = trackingConsent;
-    String status =
-        decision == null
-            ? translation.text("status.undecided")
-            : decision ? translation.text("status.enabled") : translation.text("status.disabled");
-    return new GameStarter.TrackingSettings(
-        trackingText(translation, "settingsTitle"),
-        trackingText(translation, "settingsSummary"),
-        trackingText(translation, "message"),
-        status,
-        trackingText(translation, "enable"),
-        trackingText(translation, "disable"),
-        trackingText(translation, "delete"),
-        trackingText(translation, "deleteTitle"),
-        trackingText(translation, "deleteMessage"),
-        trackingText(translation, "deleted"),
-        trackingText(translation, "deleteFailed"),
-        decision,
-        SystemRecovery::chooseTrackingConsent,
-        SystemRecovery::deleteLocalTrackingData);
-  }
-
-  /**
-   * Resolves the privacy copy that matches the active tracking storage deployment.
-   *
-   * @param translation translation source for the tracking consent text
-   * @param key localization key within the selected storage deployment
-   * @return the localized tracking consent text
-   */
-  private static String trackingText(Translation translation, String key) {
-    String variant = Tracking.remoteStorageEnabled() ? "central" : "local";
-    return translation.text(variant + "." + key);
-  }
-
-  private static boolean deleteLocalTrackingData() {
-    chooseTrackingConsent(false);
-    return TrackingRuntime.deleteLocalData();
-  }
-
-  private static void chooseTrackingConsent(boolean consentGiven) {
-    trackingConsent = consentGiven;
-    TrackingRuntime.localTrackingConsent(consentGiven);
-    publishTrackingConsentProperty();
-    Tracking.configureRoom(
-        "system-recovery", TRACKING_OPERATOR_EMAIL, Optional.of(runId()), consentGiven);
+  private static void persistTrackingConsent(Boolean consent) {
     try {
-      SystemRecoverySave.updateTrackingConsent(consentGiven);
+      SystemRecoverySave.updateTrackingConsent(consent);
     } catch (IOException exception) {
       throw new IllegalStateException(
           "Could not update tracking consent in the savegame.", exception);
@@ -281,25 +240,6 @@ public final class SystemRecovery {
       PreRunConfiguration.username(hostName);
     } catch (IllegalArgumentException ignored) {
       // The network handshake remains the authoritative validation path for player names.
-    }
-  }
-
-  private static Boolean resolveTrackingConsentForLaunch(String[] args) {
-    String property = System.getProperty(ServerProcess.TRACKING_CONSENT_PROPERTY);
-    if ("true".equalsIgnoreCase(property)) return true;
-    if ("false".equalsIgnoreCase(property)) return false;
-    // The client asks again after every application restart. A managed server has no UI and must
-    // restore the decision supplied by its client or the existing savegame.
-    if (!containsArgument(args, ServerProcess.SERVER_ARGUMENT)) return null;
-    return SystemRecoveryLoad.read().map(SystemRecoverySave.SaveData::trackingConsent).orElse(null);
-  }
-
-  private static void publishTrackingConsentProperty() {
-    if (trackingConsent == null) {
-      System.clearProperty(ServerProcess.TRACKING_CONSENT_PROPERTY);
-    } else {
-      System.setProperty(
-          ServerProcess.TRACKING_CONSENT_PROPERTY, Boolean.toString(trackingConsent));
     }
   }
 
@@ -373,6 +313,7 @@ public final class SystemRecovery {
     initLocalization();
     SystemRecoveryAchievements.register();
     BlackFadeCutscene.register();
+    CreditsFeature.register();
     BatteryItem.ensureRegistration();
     SearchProgramChipItem.ensureRegistration();
     SortProgramStickItem.ensureRegistration();
@@ -392,6 +333,8 @@ public final class SystemRecovery {
     ECSManagement.add(new LeverSystem());
     ECSManagement.add(new PetriNetSystem());
     ECSManagement.add(new HintSystem());
+    ECSManagement.add(new SystemRecoveryTimerSystem());
+    ECSManagement.add(new SystemRecoveryTimedHintSystem());
 
     if (debugMode() && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());

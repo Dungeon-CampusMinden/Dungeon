@@ -29,6 +29,7 @@ import rooms.systemRecovery.util.SystemRecoveryText;
  */
 public final class SystemRecoveryStoryDialogs {
 
+  // Story instructions wait in active play time; intro and credits use their own cutscenes.
   private static final long STORY_DELAY_MS = 900L;
 
   /** The values required after the energy array exists, announced by AXIOM. */
@@ -169,7 +170,7 @@ public final class SystemRecoveryStoryDialogs {
 
   /** Creates the story controller for one authoritative level instance. */
   public SystemRecoveryStoryDialogs() {
-    this(System::currentTimeMillis, SystemRecoveryStoryDialogs::matchesActiveStep);
+    this(() -> Game.playClock().activeMs(), SystemRecoveryStoryDialogs::matchesActiveStep);
   }
 
   SystemRecoveryStoryDialogs(LongSupplier clock) {
@@ -182,7 +183,7 @@ public final class SystemRecoveryStoryDialogs {
    * @param isRelevant current Petri and physical-state predicate for one story step
    */
   public SystemRecoveryStoryDialogs(Predicate<StoryStep> isRelevant) {
-    this(System::currentTimeMillis, isRelevant);
+    this(() -> Game.playClock().activeMs(), isRelevant);
   }
 
   SystemRecoveryStoryDialogs(LongSupplier clock, Predicate<StoryStep> isRelevant) {

@@ -144,7 +144,7 @@ public class JoystickSystem extends System {
       Game.network().sendInput(InputMessage.castSkill(target, true));
     }
     if (isJustPressed(controller, JoystickConfig.BUTTON_INTERACT)) {
-      Game.network().sendInput(InputMessage.interact(target));
+      Game.player().ifPresent(player -> HeroController.requestInteraction(player, target));
     }
     if (isJustPressed(controller, JoystickConfig.BUTTON_NEXT_SKILL)) {
       Game.network().sendInput(InputMessage.nextSkill(true));

@@ -1,0 +1,3 @@
+- Quelle: https://github.com/Dungeon-CampusMinden (a Dungeon original)
+- Author: Hannes Rüffer
+- License: CC0 1.0

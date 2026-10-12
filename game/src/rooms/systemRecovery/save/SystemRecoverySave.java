@@ -2,6 +2,7 @@ package rooms.systemRecovery.save;
 
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
 import engine.utils.JsonHandler;
 import feature.components.InventoryComponent;
@@ -20,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -35,7 +37,7 @@ import rooms.systemRecovery.util.SystemRecoveryAchievements;
 public final class SystemRecoverySave {
 
   /** Current JSON schema version. */
-  public static final int FORMAT_VERSION = 8;
+  public static final int FORMAT_VERSION = 9;
 
   /** Default save location used by the System Recovery main menu. */
   public static final Path DEFAULT_PATH = Path.of("system-recovery-save.json");
@@ -99,6 +101,25 @@ public final class SystemRecoverySave {
       UUID runId,
       Boolean trackingConsent,
       List<PlayerItemData> pendingInventoryItems) {
+    return capture(checkpoint, runId, trackingConsent, pendingInventoryItems, List.of());
+  }
+
+  /**
+   * Captures a checkpoint while retaining state owned by players who have not rejoined yet.
+   *
+   * @param checkpoint first learning step of the active main riddle
+   * @param runId stable ID of the complete playthrough
+   * @param trackingConsent nullable consent decision
+   * @param pendingInventoryItems items awaiting their named owner after a load
+   * @param pendingPlayerPositions positions awaiting their named owner after a load
+   * @return immutable save data
+   */
+  public static SaveData capture(
+      SystemRecoveryLearningStep checkpoint,
+      UUID runId,
+      Boolean trackingConsent,
+      List<PlayerItemData> pendingInventoryItems,
+      List<PlayerPositionData> pendingPlayerPositions) {
     if (checkpoint == null || !SystemRecoveryLoad.isMainPuzzleCheckpoint(checkpoint)) {
       throw new IllegalArgumentException("A learning checkpoint is required.");
     }
@@ -129,7 +150,44 @@ public final class SystemRecoverySave {
         List.of(SystemRecoveryLevel.memoryWatchArrayEntries()),
         mergePendingPuzzleItems(currentPuzzleItems(), pendingInventoryItems),
         isSystemCoreExitOpen(),
-        SystemRecoveryLevel.systemCoreWarningCallAnswered());
+        SystemRecoveryLevel.systemCoreWarningCallAnswered(),
+        mergePendingPlayerPositions(currentPlayerPositions(), pendingPlayerPositions),
+        Game.playClock().activeMs(),
+        SystemRecoveryLevel.timeLimitFinishedAt());
+  }
+
+  private static List<PlayerPositionData> currentPlayerPositions() {
+    return Game.allPlayers()
+        .flatMap(
+            player ->
+                player.fetch(PlayerComponent.class).stream()
+                    .map(PlayerComponent::playerName)
+                    .filter(name -> name != null && !name.isBlank())
+                    .flatMap(
+                        name ->
+                            player
+                                .fetch(PositionComponent.class)
+                                .map(PositionComponent::position)
+                                .filter(
+                                    position ->
+                                        !PositionComponent.ILLEGAL_POSITION.equals(position))
+                                .map(
+                                    position ->
+                                        new PlayerPositionData(name, position.x(), position.y()))
+                                .stream()))
+        .toList();
+  }
+
+  static List<PlayerPositionData> mergePendingPlayerPositions(
+      List<PlayerPositionData> currentPositions, List<PlayerPositionData> pendingPositions) {
+    Map<String, PlayerPositionData> result = new LinkedHashMap<>();
+    if (pendingPositions != null) {
+      pendingPositions.forEach(position -> result.put(position.playerName(), position));
+    }
+    if (currentPositions != null) {
+      currentPositions.forEach(position -> result.put(position.playerName(), position));
+    }
+    return List.copyOf(result.values());
   }
 
   private static List<PlayerItemData> currentPuzzleItems() {
@@ -282,6 +340,9 @@ public final class SystemRecoverySave {
   static String toJson(SaveData data) {
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("formatVersion", FORMAT_VERSION);
+    root.put("activeMs", data.activeMs());
+    data.timeLimitFinishedAtMs()
+        .ifPresent(finishedAt -> root.put("timeLimitFinishedAtMs", finishedAt));
     root.put("checkpoint", data.checkpointKey());
     Map<String, Object> metadata = new LinkedHashMap<>();
     metadata.put("runId", data.runId().toString());
@@ -301,6 +362,7 @@ public final class SystemRecoverySave {
     root.put("terminalHistory", data.terminalHistory());
     root.put("memoryWatch", data.memoryWatchEntries());
     root.put("inventoryItems", data.inventoryItems().stream().map(PlayerItemData::toMap).toList());
+    root.put("players", data.playerPositions().stream().map(PlayerPositionData::toMap).toList());
     root.put("systemCoreExitOpen", data.systemCoreExitOpen());
     root.put("systemCoreWarningCallAnswered", data.systemCoreWarningCallAnswered());
     if (data.achievementProgress() != null) {
@@ -342,6 +404,9 @@ public final class SystemRecoverySave {
    * @param inventoryItems puzzle items carried by each named player
    * @param systemCoreExitOpen whether ECHO's final call has already opened the elevator
    * @param systemCoreWarningCallAnswered whether the player has completed ECHO's core warning call
+   * @param playerPositions saved world position for each named player
+   * @param activeMs active play time captured with this checkpoint
+   * @param timeLimitFinishedAtMs play time at which the completed run froze its countdown
    */
   public record SaveData(
       String checkpointKey,
@@ -355,7 +420,61 @@ public final class SystemRecoverySave {
       List<String> memoryWatchEntries,
       List<PlayerItemData> inventoryItems,
       boolean systemCoreExitOpen,
-      boolean systemCoreWarningCallAnswered) {
+      boolean systemCoreWarningCallAnswered,
+      List<PlayerPositionData> playerPositions,
+      long activeMs,
+      OptionalLong timeLimitFinishedAtMs) {
+
+    /**
+     * Creates a checkpoint of a run whose countdown is still running.
+     *
+     * @param checkpointKey stable first-step key of the active riddle
+     * @param acceptedTerminalInputs accepted terminal inputs
+     * @param questLog shared quest-log entries
+     * @param runId stable playthrough ID
+     * @param playerName saved player name
+     * @param trackingConsent run-level tracking decision
+     * @param achievementProgress run-local achievement state
+     * @param terminalHistory terminal history lines
+     * @param memoryWatchEntries Memory Watch entries
+     * @param inventoryItems puzzle items carried by each named player
+     * @param systemCoreExitOpen whether the final call has opened the elevator
+     * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
+     * @param playerPositions saved world position for each named player
+     * @param activeMs active play time captured with this checkpoint
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        String playerName,
+        Boolean trackingConsent,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress,
+        List<String> terminalHistory,
+        List<String> memoryWatchEntries,
+        List<PlayerItemData> inventoryItems,
+        boolean systemCoreExitOpen,
+        boolean systemCoreWarningCallAnswered,
+        List<PlayerPositionData> playerPositions,
+        long activeMs) {
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          inventoryItems,
+          systemCoreExitOpen,
+          systemCoreWarningCallAnswered,
+          playerPositions,
+          activeMs,
+          OptionalLong.empty());
+    }
 
     /**
      * Returns this checkpoint with a replaced run-level tracking decision.
@@ -376,7 +495,10 @@ public final class SystemRecoverySave {
           memoryWatchEntries,
           inventoryItems,
           systemCoreExitOpen,
-          systemCoreWarningCallAnswered);
+          systemCoreWarningCallAnswered,
+          playerPositions,
+          activeMs,
+          timeLimitFinishedAtMs);
     }
 
     /**
@@ -398,7 +520,81 @@ public final class SystemRecoverySave {
           memoryWatchEntries,
           items,
           systemCoreExitOpen,
-          systemCoreWarningCallAnswered);
+          systemCoreWarningCallAnswered,
+          playerPositions,
+          activeMs,
+          timeLimitFinishedAtMs);
+    }
+
+    /**
+     * Returns this checkpoint with the current named player positions.
+     *
+     * @param positions saved positions
+     * @return copied checkpoint with the supplied positions
+     */
+    public SaveData withPlayerPositions(List<PlayerPositionData> positions) {
+      return new SaveData(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          inventoryItems,
+          systemCoreExitOpen,
+          systemCoreWarningCallAnswered,
+          positions,
+          activeMs,
+          timeLimitFinishedAtMs);
+    }
+
+    /**
+     * Keeps callers that predate saved player positions source-compatible.
+     *
+     * @param checkpointKey stable first-step key of the active riddle
+     * @param acceptedTerminalInputs accepted terminal inputs
+     * @param questLog shared quest-log entries
+     * @param runId stable playthrough ID
+     * @param playerName saved player name
+     * @param trackingConsent run-level tracking decision
+     * @param achievementProgress run-local achievement state
+     * @param terminalHistory accepted source history shown in the terminal UI
+     * @param memoryWatchEntries array entries shown in Memory Watch
+     * @param inventoryItems puzzle items carried by each named player
+     * @param systemCoreExitOpen whether ECHO's final call has opened the elevator
+     * @param systemCoreWarningCallAnswered whether the core warning call was completed
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        String playerName,
+        Boolean trackingConsent,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress,
+        List<String> terminalHistory,
+        List<String> memoryWatchEntries,
+        List<PlayerItemData> inventoryItems,
+        boolean systemCoreExitOpen,
+        boolean systemCoreWarningCallAnswered) {
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          inventoryItems,
+          systemCoreExitOpen,
+          systemCoreWarningCallAnswered,
+          List.of(),
+          Game.playClock().activeMs());
     }
 
     /**
@@ -574,8 +770,14 @@ public final class SystemRecoverySave {
      * @param inventoryItems puzzle items carried by each named player
      * @param systemCoreExitOpen whether the final call has opened the elevator
      * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
+     * @param playerPositions saved world position for each named player
+     * @param activeMs active play time captured with this checkpoint
+     * @param timeLimitFinishedAtMs play time at which the completed run froze its countdown
      */
     public SaveData {
+      if (activeMs < 0) throw new IllegalArgumentException("activeMs must not be negative");
+      timeLimitFinishedAtMs =
+          timeLimitFinishedAtMs == null ? OptionalLong.empty() : timeLimitFinishedAtMs;
       if (checkpointKey == null || checkpointKey.isBlank()) {
         throw new IllegalArgumentException("checkpointKey must not be blank");
       }
@@ -587,6 +789,33 @@ public final class SystemRecoverySave {
       terminalHistory = List.copyOf(terminalHistory == null ? List.of() : terminalHistory);
       memoryWatchEntries = List.copyOf(memoryWatchEntries == null ? List.of() : memoryWatchEntries);
       inventoryItems = List.copyOf(inventoryItems == null ? List.of() : inventoryItems);
+      playerPositions = List.copyOf(playerPositions == null ? List.of() : playerPositions);
+    }
+  }
+
+  /**
+   * The last saved world position of one player.
+   *
+   * @param playerName player identity used to find the entity after joining
+   * @param x horizontal world coordinate
+   * @param y vertical world coordinate
+   */
+  public record PlayerPositionData(String playerName, float x, float y) {
+    /**
+     * Validates the player identity and coordinates.
+     *
+     * @param playerName player identity used to find the entity after joining
+     * @param x horizontal world coordinate
+     * @param y vertical world coordinate
+     */
+    public PlayerPositionData {
+      if (playerName == null || playerName.isBlank() || !Float.isFinite(x) || !Float.isFinite(y)) {
+        throw new IllegalArgumentException("Invalid saved player position");
+      }
+    }
+
+    Map<String, Object> toMap() {
+      return Map.of("playerName", playerName, "x", x, "y", y);
     }
   }
 

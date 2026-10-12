@@ -19,6 +19,8 @@ import feature.systems.LevelEditorSystem;
  *   <li>{@link ModePanel} at the top of the screen, used to select the active editor mode.
  *   <li>{@link ModeDetailsPanel} at the left side of the screen, holding the controls of the
  *       currently selected mode.
+ *   <li>an optional right-side {@link ModeDetailsPanel}, holding secondary details for the active
+ *       mode.
  * </ul>
  *
  * <p>The group removes itself from the stage as soon as the {@link LevelEditorSystem} is no longer
@@ -32,12 +34,14 @@ public class LevelEditorUI extends Group {
 
   private final ModePanel modePanel = new ModePanel();
   private final ModeDetailsPanel detailsPanel = new ModeDetailsPanel();
+  private final ModeDetailsPanel secondaryDetailsPanel = new ModeDetailsPanel(true);
 
   /** Creates a new level editor UI group. */
   public LevelEditorUI() {
     setTouchable(Touchable.childrenOnly);
     addActor(modePanel);
     addActor(detailsPanel);
+    addActor(secondaryDetailsPanel);
   }
 
   /**
@@ -58,6 +62,15 @@ public class LevelEditorUI extends Group {
     return detailsPanel;
   }
 
+  /**
+   * Gets the optional right-side details panel.
+   *
+   * @return the secondary details panel
+   */
+  public ModeDetailsPanel secondaryDetailsPanel() {
+    return secondaryDetailsPanel;
+  }
+
   @Override
   public void act(float delta) {
     if (!Game.systems().containsKey(LevelEditorSystem.class)) {
@@ -66,6 +79,10 @@ public class LevelEditorUI extends Group {
       return;
     }
     layoutPanels();
+    secondaryDetailsPanel.setVisible(
+        LevelEditorSystem.active()
+            && secondaryDetailsPanel.mode() != null
+            && secondaryDetailsPanel.mode().hasSecondaryDetailsUI());
     super.act(delta);
   }
 
@@ -113,5 +130,15 @@ public class LevelEditorUI extends Group {
             detailsPanel.getPrefHeight(), stageHeight - DETAILS_PANEL_TOP_GAP - SCREEN_PADDING);
     detailsPanel.setHeight(detailsHeight);
     detailsPanel.setPosition(SCREEN_PADDING, stageHeight - DETAILS_PANEL_TOP_GAP - detailsHeight);
+    secondaryDetailsPanel.setWidth(DETAILS_PANEL_WIDTH);
+    secondaryDetailsPanel.validate();
+    float secondaryHeight =
+        Math.min(
+            secondaryDetailsPanel.getPrefHeight(),
+            stageHeight - DETAILS_PANEL_TOP_GAP - SCREEN_PADDING);
+    secondaryDetailsPanel.setHeight(secondaryHeight);
+    secondaryDetailsPanel.setPosition(
+        stageWidth - SCREEN_PADDING - DETAILS_PANEL_WIDTH,
+        stageHeight - DETAILS_PANEL_TOP_GAP - secondaryHeight);
   }
 }

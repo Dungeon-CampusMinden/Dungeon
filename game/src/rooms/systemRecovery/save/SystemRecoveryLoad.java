@@ -1,6 +1,10 @@
 package rooms.systemRecovery.save;
 
+import engine.Entity;
+import engine.components.PlayerComponent;
+import engine.components.PositionComponent;
 import engine.utils.JsonHandler;
+import engine.utils.Point;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.io.IOException;
@@ -8,9 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.Set;
 import java.util.UUID;
 import rooms.systemRecovery.modules.interpreter.TerminalInterpreter;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
@@ -90,6 +97,38 @@ public final class SystemRecoveryLoad {
     }
   }
 
+  /**
+   * Applies each saved position to its named player, preserving positions until players join.
+   *
+   * @param players currently connected player entities
+   * @param pendingPositions saved positions awaiting restoration
+   * @return positions whose player has not joined yet
+   */
+  public static List<SystemRecoverySave.PlayerPositionData> restorePlayerPositions(
+      List<Entity> players, List<SystemRecoverySave.PlayerPositionData> pendingPositions) {
+    Set<String> restoredNames = new HashSet<>();
+    for (SystemRecoverySave.PlayerPositionData saved : pendingPositions) {
+      players.stream()
+          .filter(
+              player ->
+                  player
+                      .fetch(PlayerComponent.class)
+                      .map(PlayerComponent::playerName)
+                      .filter(saved.playerName()::equals)
+                      .isPresent())
+          .findFirst()
+          .flatMap(player -> player.fetch(PositionComponent.class))
+          .ifPresent(
+              position -> {
+                position.position(new Point(saved.x(), saved.y()));
+                restoredNames.add(saved.playerName());
+              });
+    }
+    return pendingPositions.stream()
+        .filter(position -> !restoredNames.contains(position.playerName()))
+        .toList();
+  }
+
   private static void restoreQuestLog(List<SystemRecoverySave.QuestLogEntryData> entries) {
     QuestLogUtil.getQuestLogComponent()
         .ifPresent(
@@ -111,7 +150,7 @@ public final class SystemRecoveryLoad {
   private static Optional<SystemRecoverySave.SaveData> parse(String json) {
     Map<String, Object> root = JsonHandler.readJson(json);
     int version = integer(root.get("formatVersion"));
-    if (version < 1 || version > SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
+    if (version != SystemRecoverySave.FORMAT_VERSION) return Optional.empty();
     String checkpoint = string(root.get("checkpoint"));
     if (checkpoint == null || findCheckpoint(checkpoint).isEmpty()) return Optional.empty();
     Map<?, ?> metadata = metadataMap(root.get("metadata"));
@@ -160,6 +199,15 @@ public final class SystemRecoveryLoad {
               booleanValue(map.get("programmed")),
               string(map.get("draft"))));
     }
+    List<SystemRecoverySave.PlayerPositionData> playerPositions = new ArrayList<>();
+    for (Object value : list(root.get("players"))) {
+      if (!(value instanceof Map<?, ?> map)) return Optional.empty();
+      playerPositions.add(
+          new SystemRecoverySave.PlayerPositionData(
+              stringRequired(map.get("playerName")),
+              floatValue(map.get("x")),
+              floatValue(map.get("y"))));
+    }
     if (!hasRequiredCheckpointItem(findCheckpoint(checkpoint).orElseThrow(), inventoryItems)) {
       return Optional.empty();
     }
@@ -185,7 +233,12 @@ public final class SystemRecoveryLoad {
             memoryWatchEntries,
             inventoryItems,
             systemCoreExitOpen,
-            systemCoreWarningCallAnswered));
+            systemCoreWarningCallAnswered,
+            playerPositions,
+            ((Number) root.get("activeMs")).longValue(),
+            root.get("timeLimitFinishedAtMs") instanceof Number finishedAt
+                ? OptionalLong.of(finishedAt.longValue())
+                : OptionalLong.empty()));
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {
@@ -323,6 +376,11 @@ public final class SystemRecoveryLoad {
   private static int integer(Object value) {
     if (!(value instanceof Number number)) throw new IllegalArgumentException("Expected number");
     return number.intValue();
+  }
+
+  private static float floatValue(Object value) {
+    if (!(value instanceof Number number)) throw new IllegalArgumentException("Expected number");
+    return number.floatValue();
   }
 
   private static boolean booleanValue(Object value) {

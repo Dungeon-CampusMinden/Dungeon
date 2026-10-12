@@ -1,0 +1,138 @@
+package feature.leveleditor.ui;
+
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import engine.utils.Point;
+import engine.utils.Scene2dElementFactory;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+/**
+ * A labeled finite world-point setting with editable coordinates and a cursor assignment action.
+ */
+public class PointSetting extends EditorSetting {
+
+  private static final int FONT_SIZE = 16;
+
+  private final Supplier<Point> getter;
+  private final Consumer<Point> setter;
+  private final FloatSetting xSetting;
+  private final FloatSetting ySetting;
+
+  /**
+   * Creates a point setting.
+   *
+   * <p>Activating the cursor button passes this setting's value consumer to {@code
+   * cursorAssignmentRequester}. A mode can retain that consumer and invoke it with the next world
+   * cursor click.
+   *
+   * @param label the setting label
+   * @param getter supplies the current point
+   * @param setter applies a new point
+   * @param cursorAssignmentRequester starts assignment from the world cursor
+   */
+  public PointSetting(
+      String label,
+      Supplier<Point> getter,
+      Consumer<Point> setter,
+      Consumer<Consumer<Point>> cursorAssignmentRequester) {
+    this(label, getter, setter, cursorAssignmentRequester, false);
+  }
+
+  /**
+   * Creates a point setting with optional commit-on-submit behavior for its coordinate fields.
+   *
+   * @param label the setting label
+   * @param getter supplies the current point
+   * @param setter applies a new point
+   * @param cursorAssignmentRequester starts assignment from the world cursor
+   * @param commitOnFocusLost whether coordinate fields commit only on Enter or focus loss
+   */
+  public PointSetting(
+      String label,
+      Supplier<Point> getter,
+      Consumer<Point> setter,
+      Consumer<Consumer<Point>> cursorAssignmentRequester,
+      boolean commitOnFocusLost) {
+    super(label);
+    this.getter = Objects.requireNonNull(getter, "getter");
+    this.setter = Objects.requireNonNull(setter, "setter");
+    Objects.requireNonNull(cursorAssignmentRequester, "cursorAssignmentRequester");
+
+    checked(getter.get());
+    xSetting =
+        new FloatSetting(
+            "X",
+            -Float.MAX_VALUE,
+            Float.MAX_VALUE,
+            () -> checked(getter.get()).x(),
+            x -> value(new Point(x, checked(getter.get()).y())),
+            commitOnFocusLost,
+            true);
+    ySetting =
+        new FloatSetting(
+            "Y",
+            -Float.MAX_VALUE,
+            Float.MAX_VALUE,
+            () -> checked(getter.get()).y(),
+            y -> value(new Point(checked(getter.get()).x(), y)),
+            commitOnFocusLost,
+            true);
+
+    ImageButton cursorButton =
+        Scene2dElementFactory.createIconButton("cursors/cursor_alias.png", "default");
+    cursorButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            cursorAssignmentRequester.accept(PointSetting.this::value);
+          }
+        });
+
+    row();
+    Table coordinates = new Table();
+    coordinates.defaults().height(FONT_SIZE + 40);
+    coordinates.add(xSetting).colspan(2);
+    coordinates.add().width(10f);
+    coordinates.add(ySetting).colspan(2);
+    coordinates.add().width(10f);
+    coordinates.add(cursorButton);
+    add(coordinates).grow();
+  }
+
+  /**
+   * Returns the current point.
+   *
+   * @return current point
+   */
+  public Point value() {
+    return checked(getter.get());
+  }
+
+  /**
+   * Applies a finite point and refreshes both coordinate fields.
+   *
+   * @param point new point
+   */
+  public void value(Point point) {
+    setter.accept(checked(point));
+    refresh();
+  }
+
+  /** Synchronizes both displayed coordinates with the current point. */
+  public void refresh() {
+    xSetting.refresh();
+    ySetting.refresh();
+  }
+
+  private static Point checked(Point point) {
+    Objects.requireNonNull(point, "point");
+    if (!Float.isFinite(point.x()) || !Float.isFinite(point.y())) {
+      throw new IllegalArgumentException("point coordinates must be finite");
+    }
+    return point;
+  }
+}

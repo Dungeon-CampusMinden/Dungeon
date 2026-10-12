@@ -181,8 +181,8 @@ public final class TrackingJson {
     root.put("finalSequence", finish.finalSequence());
     root.put("status", finish.status().name());
     root.put("endedAt", finish.endedAt().toString());
-    root.put("elapsedMonotonicMs", finish.elapsedMonotonicMs());
-    finish.abortedAtPuzzleId().ifPresent(value -> root.put("abortedAtPuzzleId", value));
+    root.put("activeMs", finish.activeMs());
+    finish.interruptedAtPuzzleId().ifPresent(value -> root.put("interruptedAtPuzzleId", value));
     return encode(root);
   }
 
@@ -194,8 +194,8 @@ public final class TrackingJson {
         requiredLong(root, "finalSequence"),
         requiredEnum(root, "status", TrackingSessionStatus.class),
         requiredInstant(root, "endedAt"),
-        requiredLong(root, "elapsedMonotonicMs"),
-        optionalText(root, "abortedAtPuzzleId"));
+        requiredLong(root, "activeMs"),
+        optionalText(root, "interruptedAtPuzzleId"));
   }
 
   /**
@@ -416,7 +416,8 @@ public final class TrackingJson {
     root.put("sessionId", session.sessionId().toString());
     root.put("roomId", session.roomId());
     root.put("startedAt", session.startedAt().toString());
-    session.runId().ifPresent(value -> root.put("runId", value.toString()));
+    root.put("runId", session.runId().toString());
+    root.put("resumedAtActiveMs", session.resumedAtActiveMs());
     return root;
   }
 
@@ -426,7 +427,8 @@ public final class TrackingJson {
         requiredUuid(root, "sessionId"),
         requiredText(root, "roomId"),
         requiredInstant(root, "startedAt"),
-        optionalUuid(root, "runId"));
+        requiredUuid(root, "runId"),
+        requiredLong(root, "resumedAtActiveMs"));
   }
 
   private static ObjectNode participantNode(final TrackingParticipant participant) {
@@ -459,7 +461,7 @@ public final class TrackingJson {
     event.puzzleId().ifPresent(value -> root.put("puzzleId", value));
     event.objectId().ifPresent(value -> root.put("objectId", value));
     event.outcome().ifPresent(value -> root.put("outcome", value.name()));
-    root.put("elapsedMonotonicMs", event.elapsedMonotonicMs());
+    root.put("activeMs", event.activeMs());
     root.put("occurredAt", event.occurredAt().toString());
     root.set("payload", event.payload());
     return root;
@@ -476,7 +478,7 @@ public final class TrackingJson {
         optionalText(root, "puzzleId"),
         optionalText(root, "objectId"),
         optionalEnum(root, "outcome", TrackingOutcome.class),
-        requiredLong(root, "elapsedMonotonicMs"),
+        requiredLong(root, "activeMs"),
         requiredInstant(root, "occurredAt"),
         requireObject(required(root, "payload"), "payload"));
   }

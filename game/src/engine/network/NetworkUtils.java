@@ -8,6 +8,7 @@ import engine.network.server.ServerRuntime;
 import engine.network.server.ServerTransport;
 import engine.network.server.Session;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,12 +80,20 @@ public final class NetworkUtils {
    * @return client IDs eligible to receive live world presentation
    */
   public static Set<Short> readyClientIds() {
+    return readyClients().stream().map(ClientState::clientId).collect(Collectors.toSet());
+  }
+
+  /**
+   * Returns the states of connected clients that have finished applying the initial world.
+   *
+   * @return client states eligible to receive live world presentation
+   */
+  public static List<ClientState> readyClients() {
     return getServerSessions().values().stream()
         .filter(session -> !session.isClosed())
         .flatMap(session -> session.clientState().stream())
         .filter(ClientState::initialWorldReady)
-        .map(ClientState::clientId)
-        .collect(Collectors.toSet());
+        .toList();
   }
 
   /**

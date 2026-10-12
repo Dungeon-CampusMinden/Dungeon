@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Component;
 import engine.network.messages.c2s.DialogResponseMessage;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +14,9 @@ import java.util.function.Consumer;
  * A UI Component which stores dialog configuration and callbacks.
  *
  * <p>Contains the {@link DialogContext} for creating the visual dialog and a map of callbacks that
- * are executed when the user interacts with the dialog. Callbacks are stored server-side only and
- * are not serialized.
+ * are executed when the user interacts with the dialog. Callbacks are not serialized. They are
+ * stored on the authoritative server for server-owned dialogs and on the client for local-only
+ * dialogs.
  *
  * <p>Also allows to define whether the Elements are pausing the Game or not.
  */
@@ -26,7 +28,7 @@ public final class UIComponent implements Component {
   private final int[] targetEntityIds;
   private final DialogContext dialogContext;
 
-  /** Server-side callbacks map. Keys match callback keys sent by clients. */
+  /** Callbacks keyed by the response key used by the dialog UI. */
   private final Map<String, Consumer<DialogResponseMessage.Payload>> callbacks = new HashMap<>();
 
   private Group dialog = null;
@@ -98,9 +100,10 @@ public final class UIComponent implements Component {
   /**
    * Registers a callback for the given key.
    *
-   * <p>Callbacks are stored server-side only. When a client sends a {@link
-   * engine.network.messages.c2s.DialogResponseMessage}, the server looks up the callback by key and
-   * executes it with the provided data.
+   * <p>Callbacks are stored on the owning side and are not serialized. For server-owned dialogs,
+   * the server looks up this callback when a client sends a {@link
+   * engine.network.messages.c2s.DialogResponseMessage}. Local-only dialogs execute their callback
+   * on the client.
    *
    * @param key the callback key (e.g., "onConfirm", "craft", "cancel")
    * @param callback the callback to execute, receives optional custom payload
@@ -140,6 +143,15 @@ public final class UIComponent implements Component {
    */
   public boolean willPauseGame() {
     return willPauseGame;
+  }
+
+  /**
+   * Whether this is an explicit pause screen rather than a task or input dialog.
+   *
+   * @return true if the dialog pauses the play clock
+   */
+  public boolean pausesPlayClock() {
+    return dialogContext.find(DialogContextKeys.PAUSES_PLAY_CLOCK, Boolean.class).orElse(false);
   }
 
   /**

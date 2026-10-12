@@ -22,7 +22,9 @@ public final class DefaultEntitySpawnStrategy implements EntitySpawnStrategy {
    */
   @Override
   public Optional<EntitySpawnEvent> buildSpawnEvent(Entity entity) {
-    if (!entity.isPresent(PositionComponent.class) || !entity.isPresent(DrawComponent.class)) {
+    if (entity.isLocal()
+        || !entity.isPresent(PositionComponent.class)
+        || !entity.isPresent(DrawComponent.class)) {
       return Optional.empty();
     }
     return Optional.of(new EntitySpawnEvent(entity));

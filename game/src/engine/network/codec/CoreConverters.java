@@ -6,6 +6,7 @@ import engine.network.codec.converters.c2s.DebugTelemetryRequestConverter;
 import engine.network.codec.converters.c2s.DialogResponseConverter;
 import engine.network.codec.converters.c2s.InitialWorldReadyConverter;
 import engine.network.codec.converters.c2s.InputMessageConverter;
+import engine.network.codec.converters.c2s.PauseStateMessageConverter;
 import engine.network.codec.converters.c2s.RegisterUdpConverter;
 import engine.network.codec.converters.c2s.RequestEntitySpawnConverter;
 import engine.network.codec.converters.c2s.SnapshotAckConverter;
@@ -25,6 +26,9 @@ import engine.network.codec.converters.s2c.EntityStateConverter;
 import engine.network.codec.converters.s2c.GameOverConverter;
 import engine.network.codec.converters.s2c.InitialWorldCompleteConverter;
 import engine.network.codec.converters.s2c.LevelChangeConverter;
+import engine.network.codec.converters.s2c.PlayClockMessageConverter;
+import engine.network.codec.converters.s2c.PrefabChangeConverter;
+import engine.network.codec.converters.s2c.QuestLogStateConverter;
 import engine.network.codec.converters.s2c.RegisterAckConverter;
 import engine.network.codec.converters.s2c.ShaderTargetStateConverter;
 import engine.network.codec.converters.s2c.SnapshotConverter;
@@ -52,6 +56,8 @@ public final class CoreConverters {
     registry.register(new DebugTelemetryRequestConverter());
     registry.register(new DebugPingConverter());
     registry.register(new InitialWorldReadyConverter());
+    registry.register(new PauseStateMessageConverter());
+    registry.register(new PlayClockMessageConverter());
     registry.register(new ConnectAckConverter());
     registry.register(new ConnectRejectConverter());
     registry.register(new DialogShowConverter());
@@ -69,8 +75,10 @@ public final class CoreConverters {
     registry.register(new SoundPlayConverter());
     registry.register(new SoundStopConverter());
     registry.register(new ShaderTargetStateConverter());
+    registry.register(new QuestLogStateConverter());
     registry.register(new DebugTelemetrySnapshotConverter());
     registry.register(new DebugPongConverter());
     registry.register(new InitialWorldCompleteConverter());
+    registry.register(new PrefabChangeConverter());
   }
 }

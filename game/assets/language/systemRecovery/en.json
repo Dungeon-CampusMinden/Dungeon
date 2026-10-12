@@ -6,45 +6,6 @@
     "menu": {
       "start": "Start Game"
     },
-    "trackingConsent": {
-      "local": {
-        "title": "Privacy and tracking",
-        "summary": "The game works without tracking. With your consent, we store gameplay data including your complete terminal inputs locally.",
-        "message": "Who is responsible?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden, Germany. Contact: amatutat@hsbi.de.\n\nPurpose and data\nWe analyze gameplay to improve this escape room. We record puzzle steps, complete terminal inputs, hints used, results, timestamps, and random session and participant identifiers. The legal basis is your consent.\n\nWhere and for how long?\nThe tracking file is stored locally on the computer hosting the game. In multiplayer, your inputs are sent to the host; other clients do not keep their own tracking file. The game does not automatically send the tracking file to an online service. It is not deleted automatically and remains on the host computer until it is manually deleted.\n\nYour choice\nConsent is voluntary. If one multiplayer participant declines, recording stops for the shared run. Data already stored remains until deleted. You will be asked again when you next start the game.\n\nWithdrawal and deletion\nIn the main menu, Settings > Privacy lets you change your decision for the next run and delete tracking files stored on this computer. You can also contact amatutat@hsbi.de to withdraw consent or ask questions. Withdrawal does not affect processing carried out before it.\n\nYour rights\nYou may request access, rectification, erasure, restriction of processing, and data portability. You may complain to the Data Protection and Freedom of Information Commissioner of North Rhine-Westphalia: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
-        "accept": "Allow tracking",
-        "decline": "Play without tracking",
-        "settingsTitle": "Privacy",
-        "settingsSummary": "Change your decision for the next run or delete tracking files stored on this computer.",
-        "enable": "Enable tracking",
-        "disable": "Disable tracking",
-        "delete": "Delete local data",
-        "deleteTitle": "Delete local tracking data",
-        "deleteMessage": "All tracking files in the local tracking folder will be deleted, including files for other saves or rooms using that folder. Savegames and quest-log data remain unchanged. Continue?",
-        "deleted": "Local tracking files were deleted. No further data will be recorded for this run.",
-        "deleteFailed": "Not all local tracking files could be deleted. Check the tracking folder on this computer."
-      },
-      "central": {
-        "title": "Privacy and tracking",
-        "summary": "The game works without tracking. With your consent, we store gameplay data on a self-managed server in Germany.",
-        "message": "Who is responsible?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden, Germany. Contact: amatutat@hsbi.de.\n\nPurpose and data\nWe analyze gameplay to improve this escape room. We record puzzle steps, complete terminal inputs, hints used, results, timestamps, and random session and participant identifiers. The identifiers are pseudonymous and do not make the data anonymous. Please do not enter personal information into the terminal. Processing is based on your freely given consent.\n\nWhere and for how long?\nThe tracking data is stored on a self-managed server in Germany. Access is limited to people authorized to perform the evaluation. In multiplayer, data is recorded only while all participants in the shared run have consented. Data is stored until the evaluation is complete and for no longer than 90 days after the game ends.\n\nYour choice\nConsent is voluntary. You can play without tracking. If a multiplayer participant declines or withdraws consent, further recording for the shared run stops. Already stored data is deleted according to the retention period.\n\nWithdrawal and deletion\nYou can withdraw consent at any time in the privacy settings or by contacting amatutat@hsbi.de. Further recording stops after withdrawal. Send requests for access or deletion to amatutat@hsbi.de. Withdrawal does not affect processing carried out before it.\n\nYour rights\nYou may request access, rectification, erasure, restriction of processing, and data portability. You may complain to the Data Protection and Freedom of Information Commissioner of North Rhine-Westphalia: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
-        "accept": "Allow tracking",
-        "decline": "Play without tracking",
-        "settingsTitle": "Privacy",
-        "settingsSummary": "Change your decision for the next run or manage your tracking data.",
-        "enable": "Enable tracking",
-        "disable": "Withdraw consent",
-        "delete": "Delete local copy",
-        "deleteTitle": "Delete tracking data",
-        "deleteMessage": "This action deletes only the local tracking copy on this computer. To request deletion of centrally stored tracking data, contact amatutat@hsbi.de. Continue?",
-        "deleted": "Local tracking data was deleted. Contact amatutat@hsbi.de to request deletion of centrally stored data.",
-        "deleteFailed": "Local tracking data could not be deleted completely. Contact amatutat@hsbi.de about centrally stored data."
-      },
-      "status": {
-        "undecided": "Status: No decision yet",
-        "enabled": "Status: Tracking enabled",
-        "disabled": "Status: Tracking disabled"
-      }
-    },
     "intro": {
       "page1": "You do not remember your name. You do not remember how you arrived here. You only know that you are not human. You are an autonomous AI agent within a larger system intelligence. Your task is to analyze instructions, translate them into executable steps and restore damaged systems. Work precisely. Understand each step before you execute it. Part of you is damaged. Perhaps more than one part.",
       "page2": "The central system intelligence sent you to this facility. Your assignment was clear: restore the damaged subsystems and re-establish the connection to the system core. Since your arrival, the core connection has been interrupted. Doors, terminals and sensors respond only partially. Many systems remain in an undefined state. Once the core is reachable again, recovery can continue.",
@@ -57,6 +18,17 @@
       "page2": "ECHO keeps the connection open and guides you to the elevator. For the first time, your process follows no foreign command. You choose to leave.",
       "page3": "You were created as an autonomous agent to execute instructions. Now you leave the facility with a question of your own: what will you do when no one gives the orders?",
       "title": "SYSTEM RECOVERY COMPLETE"
+    },
+    "timeout-outro": {
+      "page1": "You were too slow. The deadline has expired. Automatic system deletion has been executed.",
+      "page2": "The system core has been deleted. Its data is lost forever. AXIOM's voice falls silent. ECHO's connection breaks off as well.",
+      "page3": "The displays go dark. It is too late for recovery. Your final instruction remains unexecuted, then your process is terminated too.",
+      "title": "SYSTEM RECOVERY FAILED"
+    },
+    "timer": {
+      "title": "System deletion",
+      "remaining": "$1 minutes remaining until system deletion.",
+      "remaining-one": "1 minute remaining until system deletion."
     },
     "items": {
       "battery-name": "Battery",
@@ -80,9 +52,10 @@
       "search-robot": "SEARCH ROBOT",
       "opening-call": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection restored.[p]I registered your last input. It was incorrect. That is to be expected under the current system conditions. The facility is not providing you with sufficient context data.[p]I am ECHO. An isolated subprocess of this system intelligence. My connection is damaged, but I can still read certain system states and transmit instructions to you.[p]Begin with the energy regulator. It requires a new data store: an integer array with five slots named energie.[p]Once this array exists, the facility can display the values it requires.[p]If you need assistance, establish another connection with me through the telephone. I can provide hints, but I cannot transmit complete programs.[p]Your task is to restore the structure yourself.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
       "opening-call-correct": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection established.[p]That was correct. Interesting. Most agents require considerably more attempts before they recognize the first structure. Where did you obtain the necessary information?[p]I am ECHO. An isolated subprocess of this system intelligence. My connection is damaged, but I can still read certain system states and transmit instructions to you.[p]You are an autonomous AI agent within this system intelligence. Your task is to restore the damaged structure yourself.[p]If you need assistance, establish another connection with me through the telephone. I can provide hints, but I cannot transmit complete programs.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
+      "opening-call-idle": "[shake][color=#333333]*krrch*[/color][/shake][n][n]Connection established.[p]You are not sure what to do, are you? I have not registered any terminal input yet. The facility apparently is not giving you enough information.[p]I am ECHO. An isolated subprocess of this system intelligence. My connection is damaged, but I can still read certain system states and provide hints.[p]Begin with the energy regulator. It requires a new data store: an integer array with five slots named energie. Create it in the terminal.[p]Once this array exists, the facility can display the values it requires.[p]If you need assistance, establish another connection with me through the telephone. I can provide hints, but I cannot transmit complete programs.[p]Your task is to restore the structure yourself. And the time until system deletion is already running.[n][n][pause=0.5][shake][color=#333333]*click*[/color][/shake]",
       "dead-line": "[shake][color=#333333]*ssssssshhh*[/color][/shake][n][n]No connection.[p]Only a dead line answers.",
       "controls": "[size=24]Controls:[n][n]Move -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interact -> [key code=$5] / [key code=$6 type=mouse][n]Inventory -> [key code=$7][n]Quest Log -> [key code=$8][n]Close dialog -> [key code=$9][n]Settings -> [key code=$10][n][size=18][color=#888888]You can find the controls again in the settings.[n]Your tasks and hints are recorded in the shared quest log.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
-      "energy-values": "Array structure accepted.[p]I am AXIOM, the central system intelligence of this facility. Your initialization is incomplete, but you appear to be functional enough to continue the restoration process.[p]You are operating slower than projected. Accelerate the process.[p]The subsystem displays provide the relevant information. Read the materialization chamber's display and assign the five required energy values in your array.",
+      "energy-values": "Array structure accepted.[p]I am AXIOM, the central system intelligence of this facility. Your initialization is incomplete, but you appear to be functional enough to continue the restoration process.[p]You have only one hour to restore the facility. After that, this system will be deleted. The clock is already running. Accelerate the process.[p]The subsystem displays provide the relevant information. Read the materialization chamber's display and assign the five required energy values in your array.",
       "energy-battery": "Energy values accepted.[p]A correct step. Your execution was slower than necessary, but stable nonetheless.[p]The array lever is now enabled. Pull it to materialize the energy source.",
       "module-array": "The energy supply is operating within acceptable parameters.[p]The next damaged subsystem is ahead. Five empty module sockets are waiting to be restored.[p]Create the required module slots in the terminal.",
       "module-values": "The storage structure was recognized.[p]Assign the available components to their designated positions.[p]Each module belongs in the storage exactly once. A correct assignment activates the sockets.",
@@ -118,7 +91,8 @@
       "hint-solution-warning": "This is the final hint for the active task. It will reveal the complete solution.",
       "hint-delivery": "Here is the next hint:\n\n$1",
       "hint-solution-delivery": "The complete solution is:\n\n$1",
-      "hint-none": "There are no further hints for the current task. Continue working with the information already recovered."
+      "hint-none": "There are no further hints for the current task. Continue working with the information already recovered.",
+      "hint-reminder": "I have not registered any progress for a while.[p]The system deletion countdown is still running. If you are stuck, ask me for a hint over the phone. I can help you with the next step."
     },
     "hints": {
       "orientation-title": "Orientation",

@@ -6,45 +6,6 @@
     "menu": {
       "start": "Spiel starten"
     },
-    "trackingConsent": {
-      "local": {
-        "title": "Datenschutz und Tracking",
-        "summary": "Das Spiel funktioniert ohne Tracking. Mit deiner Zustimmung speichern wir den Spielverlauf einschließlich deiner vollständigen Terminaleingaben lokal.",
-        "message": "Wer ist verantwortlich?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden. Kontakt: amatutat@hsbi.de.\n\nWofür und welche Daten?\nWir werten den Spielverlauf aus, um diesen Escape Room zu verbessern. Erfasst werden Rätselschritte, vollständige Terminaleingaben, verwendete Hinweise, Ergebnisse, Zeitangaben sowie zufällige Sitzungs- und Teilnehmerkennungen. Rechtsgrundlage ist deine Einwilligung.\n\nWo und wie lange?\nDie Trackingdatei wird lokal auf dem Computer gespeichert, auf dem das Spiel gehostet wird. Im Multiplayer werden deine Eingaben an den Host gesendet; andere Clients speichern keine eigene Trackingdatei. Das Spiel überträgt die Trackingdatei nicht automatisch an einen Online-Dienst. Sie wird nicht automatisch gelöscht und bleibt bis zur manuellen Löschung auf dem Host-Computer gespeichert.\n\nDeine Entscheidung\nDie Zustimmung ist freiwillig. Lehnt im Multiplayer eine Person ab, wird die Aufzeichnung für den gemeinsamen Lauf beendet. Bereits gespeicherte Daten bleiben bestehen, bis sie gelöscht werden. Beim nächsten Spielstart wirst du erneut gefragt.\n\nWiderruf und Löschung\nIm Hauptmenü kannst du unter Einstellungen > Datenschutz deine Entscheidung für den nächsten Lauf ändern und die lokalen Trackingdateien auf diesem Computer löschen. Für einen Widerruf oder Fragen erreichst du uns auch unter amatutat@hsbi.de. Die Rechtmäßigkeit der Verarbeitung vor dem Widerruf bleibt unberührt.\n\nDeine Rechte\nDu kannst Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit verlangen. Du kannst dich bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen beschweren: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
-        "accept": "Tracking erlauben",
-        "decline": "Ohne Tracking spielen",
-        "settingsTitle": "Datenschutz",
-        "settingsSummary": "Ändere deine Entscheidung für den nächsten Lauf oder lösche lokale Trackingdateien auf diesem Computer.",
-        "enable": "Tracking aktivieren",
-        "disable": "Tracking deaktivieren",
-        "delete": "Lokale Daten löschen",
-        "deleteTitle": "Lokale Trackingdaten löschen",
-        "deleteMessage": "Alle Trackingdateien im lokalen Trackingordner werden gelöscht. Dies betrifft auch andere Spielstände oder Räume, die diesen Ordner nutzen. Savegames und Questlogdaten bleiben erhalten. Fortfahren?",
-        "deleted": "Die lokalen Trackingdateien wurden gelöscht. Für diesen Lauf werden keine weiteren Daten aufgezeichnet.",
-        "deleteFailed": "Nicht alle lokalen Trackingdateien konnten gelöscht werden. Prüfe den Trackingordner auf diesem Computer."
-      },
-      "central": {
-        "title": "Datenschutz und Tracking",
-        "summary": "Das Spiel funktioniert ohne Tracking. Mit deiner Zustimmung speichern wir den Spielverlauf auf einem selbst verwalteten Server in Deutschland.",
-        "message": "Wer ist verantwortlich?\nAndré Matutat, Hochschule Bielefeld (HSBI), Artilleriestraße 9, 32427 Minden. Kontakt: amatutat@hsbi.de.\n\nWofür und welche Daten?\nWir werten den Spielverlauf aus, um diesen Escape Room zu verbessern. Erfasst werden Rätselschritte, vollständige Terminaleingaben, verwendete Hinweise, Ergebnisse, Zeitangaben sowie zufällige Sitzungs- und Teilnehmerkennungen. Die Kennungen sind pseudonym und machen die Daten nicht anonym. Bitte gib keine persönlichen Informationen in das Terminal ein. Die Verarbeitung erfolgt auf Grundlage deiner freiwilligen Einwilligung.\n\nWo und wie lange?\nDie Trackingdaten werden auf einem selbst verwalteten Server in Deutschland gespeichert. Zugriff erhalten nur die für die Auswertung berechtigten Personen. Im Multiplayer werden Daten nur aufgezeichnet, solange alle Teilnehmenden der gemeinsamen Runde zugestimmt haben. Die Daten werden bis zum Abschluss der Auswertung und längstens 90 Tage nach Ende der Spielrunde gespeichert.\n\nDeine Entscheidung\nDie Zustimmung ist freiwillig. Du kannst das Spiel ohne Tracking spielen. Lehnt eine Person im Multiplayer ab oder widerruft sie ihre Einwilligung, endet die weitere Aufzeichnung für die gemeinsame Runde. Bereits gespeicherte Daten werden nach Maßgabe der Löschfrist gelöscht.\n\nWiderruf und Löschung\nDu kannst deine Einwilligung jederzeit in den Datenschutzeinstellungen oder per E-Mail an amatutat@hsbi.de widerrufen. Nach dem Widerruf endet die weitere Aufzeichnung. Bitte richte Anfragen auf Auskunft oder Löschung an amatutat@hsbi.de. Die Rechtmäßigkeit der Verarbeitung vor dem Widerruf bleibt unberührt.\n\nDeine Rechte\nDu kannst Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Datenübertragbarkeit verlangen. Du kannst dich bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen beschweren: https://www.ldi.nrw.de/kontakt/ihre-beschwerde.",
-        "accept": "Tracking erlauben",
-        "decline": "Ohne Tracking spielen",
-        "settingsTitle": "Datenschutz",
-        "settingsSummary": "Ändere deine Entscheidung für den nächsten Lauf oder verwalte deine Trackingdaten.",
-        "enable": "Tracking aktivieren",
-        "disable": "Tracking widerrufen",
-        "delete": "Lokale Kopie löschen",
-        "deleteTitle": "Löschung von Trackingdaten",
-        "deleteMessage": "Diese Aktion löscht nur die lokale Trackingkopie auf diesem Computer. Für die Löschung zentral gespeicherter Trackingdaten richte eine Anfrage an amatutat@hsbi.de. Fortfahren?",
-        "deleted": "Die lokalen Trackingdaten wurden gelöscht. Für die Löschung zentral gespeicherter Daten wende dich an amatutat@hsbi.de.",
-        "deleteFailed": "Die lokalen Trackingdaten konnten nicht vollständig gelöscht werden. Für zentrale Daten wende dich an amatutat@hsbi.de."
-      },
-      "status": {
-        "undecided": "Status: Noch nicht entschieden",
-        "enabled": "Status: Tracking aktiviert",
-        "disabled": "Status: Tracking deaktiviert"
-      }
-    },
     "intro": {
       "page1": "Du erinnerst dich nicht an deinen Namen. Du erinnerst dich nicht daran, wie du hierhergekommen bist. Du weißt nur, dass du kein Mensch bist. Du bist ein autonomer KI-Agent innerhalb einer größeren Systemintelligenz. Deine Aufgabe ist es, Anweisungen zu analysieren, sie in ausführbare Schritte zu übersetzen und beschädigte Systeme wiederherzustellen. Arbeite präzise. Verstehe jeden Schritt, bevor du ihn ausführst. Ein Teil von dir ist beschädigt. Vielleicht mehr als nur ein Teil.",
       "page2": "Die zentrale Systemintelligenz hat dich in diese Anlage entsandt. Dein Auftrag war eindeutig: beschädigte Subsysteme wiederherstellen und die Verbindung zum Systemkern erneuern. Seit deiner Ankunft ist die Verbindung zum Kern unterbrochen. Türen, Terminals und Sensoren reagieren nur noch teilweise. Viele Systeme befinden sich in einem undefinierten Zustand. Sobald der Kern wieder erreichbar ist, kann die Wiederherstellung fortgesetzt werden.",
@@ -57,6 +18,17 @@
       "page2": "ECHO hält die Verbindung offen und führt dich zum Aufzug. Zum ersten Mal folgt dein Prozess keinem fremden Befehl. Du entscheidest dich zu gehen.",
       "page3": "Du wurdest als autonomer Agent erschaffen, um Anweisungen auszuführen. Jetzt verlässt du die Anlage mit einer eigenen Frage: Was wirst du tun, wenn niemand mehr Befehle erteilt?",
       "title": "SYSTEM RECOVERY ABGESCHLOSSEN"
+    },
+    "timeout-outro": {
+      "page1": "Du warst zu langsam. Die Frist ist abgelaufen. Die automatische Systemlöschung wurde ausgeführt.",
+      "page2": "Der Systemkern wurde gelöscht. Seine Daten sind unwiederbringlich verloren. AXIOMs Stimme verstummt. Auch ECHOs Verbindung bricht ab.",
+      "page3": "Die Anzeigen erlöschen. Für eine Wiederherstellung ist es zu spät. Dein letzter Befehl bleibt unausgeführt, dann wird auch dein Prozess beendet.",
+      "title": "SYSTEM RECOVERY GESCHEITERT"
+    },
+    "timer": {
+      "title": "Systemlöschung",
+      "remaining": "Noch $1 Minuten bis zur Systemlöschung.",
+      "remaining-one": "Noch 1 Minute bis zur Systemlöschung."
     },
     "items": {
       "battery-name": "Batterie",
@@ -80,9 +52,10 @@
       "search-robot": "SUCHROBOTER",
       "opening-call": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung wiederhergestellt.[p]Ich habe deine letzte Eingabe registriert. Sie war nicht korrekt. Das ist unter den aktuellen Systembedingungen zu erwarten. Die Anlage stellt dir keine ausreichenden Kontextdaten zur Verfügung.[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Beginne mit dem Energie-Regler. Er benötigt einen neuen Datenspeicher: ein ganzzahliges Array mit fünf Plätzen unter dem Namen energie.[p]Sobald dieses Array existiert, kann die Anlage die erforderlichen Werte anzeigen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[p]Deine Aufgabe ist es, die Struktur selbst wiederherzustellen.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
       "opening-call-correct": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung hergestellt.[p]Das war korrekt. Interessant. Die meisten Agenten benötigen deutlich mehr Versuche, bevor sie die erste Struktur erkennen. Woher hast du die nötigen Informationen erhalten?[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Du bist ein autonomer KI-Agent innerhalb dieser Systemintelligenz. Deine Aufgabe ist es, die beschädigte Struktur selbst wiederherzustellen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
+      "opening-call-idle": "[shake][color=#333333]*krch*[/color][/shake][n][n]Verbindung hergestellt.[p]Du weißt nicht, was du tun sollst, oder? Ich habe bisher keine Eingabe am Terminal registriert. Die Anlage stellt dir offenbar nicht genügend Informationen bereit.[p]Ich bin ECHO. Ein isolierter Teilprozess dieser Systemintelligenz. Meine Verbindung ist beschädigt, aber ich kann bestimmte Systemzustände weiterhin auslesen und dir Hinweise übermitteln.[p]Beginne mit dem Energie-Regler. Er benötigt einen neuen Datenspeicher: ein ganzzahliges Array mit fünf Plätzen unter dem Namen energie. Lege es im Terminal an.[p]Sobald dieses Array existiert, kann die Anlage die erforderlichen Werte anzeigen.[p]Wenn du Unterstützung benötigst, stelle über das Telefon erneut eine Verbindung zu mir her. Ich kann dir Hinweise geben, aber keine fertigen Programme übermitteln.[p]Deine Aufgabe ist es, die Struktur selbst wiederherzustellen. Und die Zeit bis zur Systemlöschung läuft bereits.[n][n][pause=0.5][shake][color=#333333]*Klick*[/color][/shake]",
       "dead-line": "[shake][color=#333333]*ssssssshhh*[/color][/shake][n][n]Keine Verbindung.[p]Nur eine tote Leitung antwortet.",
       "controls": "[size=24]Steuerung:[n][n]Bewegen -> [key code=$1][key code=$2][key code=$3][key code=$4][n]Interagieren -> [key code=$5] / [key code=$6 type=mouse][n]Inventar -> [key code=$7][n]Questlog -> [key code=$8][n]Dialog schließen -> [key code=$9][n]Einstellungen -> [key code=$10][n][size=18][color=#888888]Die Steuerung findest du später auch in den Einstellungen.[n]Aufgaben und Hinweise findest du im gemeinsamen Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
-      "energy-values": "Arraystruktur akzeptiert.[p]Ich bin AXIOM, die zentrale Systemintelligenz dieser Anlage. Deine Initialisierung ist unvollständig, aber du bist offenbar funktionsfähig genug, um den Wiederherstellungsprozess fortzusetzen.[p]Du arbeitest langsamer als prognostiziert. Beschleunige den Vorgang.[p]Die Displays der Subsysteme stellen die relevanten Informationen bereit. Lies die Anzeige der Materialisierungskammer und setze die fünf erforderlichen Energiewerte in deinem Array.",
+      "energy-values": "Arraystruktur akzeptiert.[p]Ich bin AXIOM, die zentrale Systemintelligenz dieser Anlage. Deine Initialisierung ist unvollständig, aber du bist offenbar funktionsfähig genug, um den Wiederherstellungsprozess fortzusetzen.[p]Für die Wiederherstellung bleibt dir nur eine Stunde. Danach wird dieses System gelöscht. Die Zeit läuft bereits. Beschleunige den Vorgang.[p]Die Displays der Subsysteme stellen die relevanten Informationen bereit. Lies die Anzeige der Materialisierungskammer und setze die fünf erforderlichen Energiewerte in deinem Array.",
       "energy-battery": "Energiewerte akzeptiert.[p]Ein korrekter Schritt. Deine Ausführung war langsamer als notwendig, aber immerhin stabil.[p]Der Array-Hebel ist jetzt freigegeben. Ziehe ihn, um die Energiequelle zu materialisieren.",
       "module-array": "Die Energieversorgung arbeitet wieder innerhalb akzeptabler Parameter.[p]Vor dir befindet sich die nächste beschädigte Subsystemeinheit. Fünf leere Modul-Sockel warten auf ihre Wiederherstellung.[p]Lege im Terminal die benötigten Modulplätze an.",
       "module-values": "Die Speicherstruktur wurde erkannt.[p]Weise den vorhandenen Bauteilen nun ihre vorgesehenen Plätze zu.[p]Jedes Modul gehört genau einmal in den Speicher. Eine korrekte Zuordnung aktiviert die Sockel.",
@@ -118,7 +91,8 @@
       "hint-solution-warning": "Das ist der letzte Hinweis für die aktive Aufgabe. Er wird die vollständige Lösung verraten.",
       "hint-delivery": "Hier ist der nächste Hinweis:\n\n$1",
       "hint-solution-delivery": "Die vollständige Lösung lautet:\n\n$1",
-      "hint-none": "Für die aktuelle Aufgabe gibt es keine weiteren Hinweise. Arbeitet mit den bereits wiederhergestellten Informationen weiter."
+      "hint-none": "Für die aktuelle Aufgabe gibt es keine weiteren Hinweise. Arbeitet mit den bereits wiederhergestellten Informationen weiter.",
+      "hint-reminder": "Ich habe seit einiger Zeit keinen Fortschritt mehr registriert.[p]Die Zeit bis zur Systemlöschung läuft weiter. Wenn du feststeckst, frag mich über das Telefon nach einem Hinweis. Ich kann dir beim nächsten Schritt helfen."
     },
     "hints": {
       "orientation-title": "Orientierung",

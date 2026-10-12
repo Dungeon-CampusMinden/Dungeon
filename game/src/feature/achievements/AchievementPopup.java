@@ -28,6 +28,7 @@ public final class AchievementPopup {
   public static final String KEY_IMAGE_PATH = "achievement.imagePath";
   public static final String KEY_ID = "achievement.id";
   private static final float CORNER_MARGIN = 40f;
+  private static final float FADE_OUT_DURATION_SECONDS = 0.7f;
   private static final String TITLE_FONT = "fonts/Roboto-Bold.ttf";
   private static final String BODY_FONT = "fonts/Roboto-Regular.ttf";
   private static final String T_UNLOCKED = "unlocked";
@@ -45,11 +46,22 @@ public final class AchievementPopup {
    * @return popup group
    */
   public static Group build(DialogContext ctx) {
+    return build(ctx, true);
+  }
+
+  /**
+   * Builds the standard popup with the room's sound policy.
+   *
+   * @param ctx dialog context
+   * @param withSound whether a newly unlocked achievement plays its confirmation sound
+   * @return popup group
+   */
+  public static Group build(DialogContext ctx, boolean withSound) {
     String imagePath = ctx.require(KEY_IMAGE_PATH, String.class);
     String achievementId = ctx.require(KEY_ID, String.class);
-    String name = localized(translationKey(achievementId, "name"), achievementId);
-    String description = localized(translationKey(achievementId, "description"), "");
     if (Game.isHeadless()) {
+      String name = localized(translationKey(achievementId, "name"), achievementId);
+      String description = localized(translationKey(achievementId, "description"), "");
       return new HeadlessDialogGroup("Achievement unlocked", name + "\n" + description);
     }
 
@@ -57,6 +69,19 @@ public final class AchievementPopup {
     if (!newlyUnlocked) {
       return new HeadlessDialogGroup();
     }
+
+    Game.system(
+        AchievementPopupSystem.class,
+        system -> system.enqueue(achievementId, imagePath, withSound));
+    // Queue the triggering achievement before checking whether it also unlocked platinum.
+    AchievementManager.onPopupQueued(achievementId);
+    // The UIComponent transports the unlock; the local system owns the visible card.
+    return new HeadlessDialogGroup();
+  }
+
+  static Group buildCard(String imagePath, String achievementId, boolean withSound) {
+    String name = localized(translationKey(achievementId, "name"), achievementId);
+    String description = localized(translationKey(achievementId, "description"), "");
 
     Table card = new Table(UIUtils.defaultSkin());
     card.setBackground("window_background_big");
@@ -82,8 +107,12 @@ public final class AchievementPopup {
     card.add(icon).size(64f).padRight(12f);
     card.add(text).width(310f).left();
     card.pack();
-    card.addAction(Actions.sequence(Actions.delay(3.7f), Actions.fadeOut(0.7f)));
-    Sounds.playUi(CoreSounds.INTERFACE_ACHIEVEMENT_UNLOCKED);
+    float displaySeconds = AchievementPopupQueue.DISPLAY_DURATION_MS / 1000f;
+    card.addAction(
+        Actions.sequence(
+            Actions.delay(displaySeconds - FADE_OUT_DURATION_SECONDS),
+            Actions.fadeOut(FADE_OUT_DURATION_SECONDS)));
+    if (withSound) Sounds.playUi(CoreSounds.INTERFACE_ACHIEVEMENT_UNLOCKED);
 
     return new AlwaysOnTopContainer(card);
   }
@@ -109,7 +138,6 @@ public final class AchievementPopup {
   }
 
   private static final class AlwaysOnTopContainer extends BaseContainerUI {
-
     private AlwaysOnTopContainer(Table card) {
       super(card, Align.topRight, CORNER_MARGIN, CORNER_MARGIN, false, false);
     }

@@ -3,6 +3,7 @@ package engine.game;
 import com.badlogic.gdx.graphics.Color;
 import engine.language.Language;
 import engine.language.Localization;
+import feature.credits.CreditsDefinition;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public final class GameStarter {
   private final int localServerPort;
   private final Language language;
   private final String levelEditorLevelPath;
+  private final String creditsRoomId;
   private final BooleanSupplier continueAvailable;
   private final String[] continueServerArguments;
   private final Supplier<StartupConsent> startupConsent;
@@ -52,6 +54,7 @@ public final class GameStarter {
     this.localServerPort = builder.localServerPort;
     this.language = builder.language;
     this.levelEditorLevelPath = builder.levelEditorLevelPath;
+    this.creditsRoomId = builder.creditsRoomId;
     this.continueAvailable = builder.continueAvailable;
     this.continueServerArguments =
         builder.continueServerArguments == null ? null : builder.continueServerArguments.clone();
@@ -133,6 +136,15 @@ public final class GameStarter {
    */
   public Optional<String> levelEditorLevelPath() {
     return Optional.ofNullable(levelEditorLevelPath);
+  }
+
+  /**
+   * Returns the room ID whose optional credits definition is used by the main menu.
+   *
+   * @return the configured credits room ID, or empty when this application has no credits
+   */
+  public Optional<String> creditsRoomId() {
+    return Optional.ofNullable(creditsRoomId);
   }
 
   /**
@@ -308,6 +320,7 @@ public final class GameStarter {
     private int localServerPort = PreRunConfiguration.networkPort();
     private Language language = Localization.getInstance().currentLanguage();
     private String levelEditorLevelPath;
+    private String creditsRoomId;
     private BooleanSupplier continueAvailable;
     private String[] continueServerArguments;
     private Supplier<StartupConsent> startupConsent = () -> null;
@@ -397,6 +410,19 @@ public final class GameStarter {
      */
     public Builder levelEditor(String pathToLevels) {
       this.levelEditorLevelPath = Objects.requireNonNull(pathToLevels, "pathToLevels");
+      return this;
+    }
+
+    /**
+     * Configures the room ID used to load the optional credits file at {@code
+     * credits/<roomId>.json}. The menu entry is only shown when that file is valid.
+     *
+     * @param roomId the room ID matching the credits JSON file name
+     * @return this builder
+     */
+    public Builder creditsRoomId(String roomId) {
+      CreditsDefinition.validateRoomId(roomId);
+      this.creditsRoomId = roomId;
       return this;
     }
 

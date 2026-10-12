@@ -30,7 +30,7 @@ class TrackingInteractionTest {
                 Optional.empty(),
                 directory,
                 "tracking@example.com",
-                Optional.empty()));
+                UUID.randomUUID()));
     UUID participant = UUID.randomUUID();
 
     TrackingEvent interaction =
@@ -48,7 +48,14 @@ class TrackingInteractionTest {
         interaction, TrackingJson.read(TrackingJson.write(interaction), TrackingEvent.class));
 
     TrackingEvent answer =
-        session.attempt("bubble-sort", "sort-program", "source", "wrong code", false, participant);
+        session.attempt(
+            "bubble-sort",
+            "sort-program",
+            "source",
+            "wrong code",
+            false,
+            participant,
+            Optional.empty());
     assertEquals(1, answer.payload().get("attemptNumber").intValue());
     var records = Files.readAllLines(session.outboxPath());
     assertEquals(3, records.size());
@@ -65,7 +72,7 @@ class TrackingInteractionTest {
                 Optional.empty(),
                 directory,
                 "tracking@example.com",
-                Optional.empty()));
+                UUID.randomUUID()));
     assertThrows(
         IllegalArgumentException.class,
         () ->

@@ -17,7 +17,19 @@ public class FontHelper {
   /** Internal path to default font file. */
   public static final String DEFAULT_FONT_PATH = "fonts/Roboto-SemiBold.ttf";
 
-  private static final Map<FontSpec, BitmapFont> fontStorage = new HashMap<>();
+  /** Separates fonts whose consumers configure different mutable font data. */
+  public enum FontRole {
+    /** Shared ordinary labels and rich labels. */
+    DEFAULT,
+    /** Editable text whose glyph availability may be extended. */
+    TEXT_FIELD,
+    /** Labels that explicitly enable LibGDX markup. */
+    MARKUP
+  }
+
+  private record FontKey(FontSpec spec, FontRole role) {}
+
+  private static final Map<FontKey, BitmapFont> fontStorage = new HashMap<>();
 
   /**
    * Loads or retrieves the default font: Roboto-SemiBold at size 16.
@@ -96,7 +108,19 @@ public class FontHelper {
    * @return the generated or cached {@link BitmapFont}
    */
   public static BitmapFont getFont(FontSpec entry) {
-    if (!fontStorage.containsKey(entry)) {
+    return getFont(entry, FontRole.DEFAULT);
+  }
+
+  /**
+   * Loads a font with its own mutable font data for the given UI role.
+   *
+   * @param entry font appearance
+   * @param role consumers that may share font data
+   * @return the generated or cached font for this appearance and role
+   */
+  public static BitmapFont getFont(FontSpec entry, FontRole role) {
+    FontKey key = new FontKey(entry, role);
+    if (!fontStorage.containsKey(key)) {
       FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(entry.path()));
       FreeTypeFontGenerator.FreeTypeFontParameter params =
           new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -110,11 +134,11 @@ public class FontHelper {
       params.magFilter = Texture.TextureFilter.Linear;
 
       BitmapFont font = generator.generateFont(params);
-      fontStorage.put(entry, font);
+      fontStorage.put(key, font);
       generator.dispose();
     }
 
-    return fontStorage.get(entry);
+    return fontStorage.get(key);
   }
 
   /**

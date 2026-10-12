@@ -109,15 +109,36 @@ class SystemRecoveryPuzzleEventsTest {
       for (String stage : stages) {
         String hintId = "energy-array:" + stage;
         SystemRecoveryPuzzleEvents.hintUsed(SystemRecoveryPuzzle.ENERGY, hintId, host);
-        tracking.verify(() -> Tracking.hintUsed("energy-array", hintId, hostParticipant));
+        tracking.verify(() -> Tracking.hintUsed("energy-array", hintId, hostParticipant, false));
       }
       SystemRecoveryPuzzleEvents.hintUsed(
           SystemRecoveryPuzzle.ENERGY, "energy-array:orientation", joiner);
 
       tracking.verify(
-          () -> Tracking.hintUsed("energy-array", "energy-array:orientation", joinerParticipant));
+          () ->
+              Tracking.hintUsed(
+                  "energy-array", "energy-array:orientation", joinerParticipant, false));
       tracking.verify(() -> Tracking.participantForEntity(host.id()), Mockito.times(stages.length));
       tracking.verify(() -> Tracking.participantForEntity(joiner.id()));
+    }
+  }
+
+  @Test
+  void automaticHintIsAttributedButMarkedAsAutomatic() {
+    Entity host = new Entity("host");
+    UUID hostParticipant = UUID.randomUUID();
+
+    try (MockedStatic<Tracking> tracking = Mockito.mockStatic(Tracking.class)) {
+      tracking
+          .when(() -> Tracking.participantForEntity(host.id()))
+          .thenReturn(Optional.of(hostParticipant));
+
+      SystemRecoveryPuzzleEvents.automaticHintUsed(
+          SystemRecoveryPuzzle.ENERGY, "energy-array:orientation", host);
+
+      tracking.verify(
+          () ->
+              Tracking.hintUsed("energy-array", "energy-array:orientation", hostParticipant, true));
     }
   }
 

@@ -12,6 +12,8 @@ import engine.utils.Tuple;
 import engine.utils.components.MissingComponentException;
 import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
+import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogContextKeys;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -56,13 +58,20 @@ public final class HudSystem extends System {
   }
 
   /**
-   * Returns the topmost closeable UI.
+   * Returns the topmost visible UI that can be closed or handles close requests locally.
+   *
+   * <p>Passive HUD elements such as attribute bars are excluded. Non-closeable cutscenes with a
+   * local close-request handler still receive the shortcut.
    *
    * @return a Tuple of the Entity and its UIComponent
    */
-  public Optional<Tuple<Entity, UIComponent>> topmostCloseableUI() {
+  public Optional<Tuple<Entity, UIComponent>> topmostCloseRequestUI() {
     return entityUIComponentMap.entrySet().stream()
-        .filter(entry -> entry.getValue().isVisible() && entry.getValue().canBeClosed())
+        .filter(
+            entry ->
+                entry.getValue().isVisible()
+                    && (entry.getValue().canBeClosed()
+                        || UIUtils.hasCloseRequestHandler(entry.getValue().dialog())))
         .max(Comparator.comparingInt(entry -> entry.getValue().dialog().getZIndex()))
         .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
   }
@@ -76,6 +85,36 @@ public final class HudSystem extends System {
   public boolean hasOpenPausingUI(Entity entity) {
     return entityUIComponentMap.values().stream()
         .anyMatch(component -> component.willPauseGame() && isVisibleFor(component, entity));
+  }
+
+  /**
+   * Returns whether the player has an explicit pause screen open.
+   *
+   * @param entity player entity
+   * @return true if a visible dialog pauses the play clock for the player
+   */
+  public boolean hasOpenPlayPauseUI(Entity entity) {
+    return entityUIComponentMap.values().stream()
+        .anyMatch(component -> component.pausesPlayClock() && isVisibleFor(component, entity));
+  }
+
+  /**
+   * Checks whether a visible dialog captures a player's gameplay controls without requiring a
+   * simulation pause. Dialog-close controls remain available.
+   *
+   * @param entity player whose controls are checked
+   * @return true for a pausing dialog or a dialog explicitly blocking gameplay input
+   */
+  public boolean blocksGameplayInput(Entity entity) {
+    return entityUIComponentMap.values().stream()
+        .anyMatch(
+            component ->
+                (component.willPauseGame()
+                        || component
+                            .dialogContext()
+                            .find(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, Boolean.class)
+                            .orElse(false))
+                    && isVisibleFor(component, entity));
   }
 
   /**
@@ -110,6 +149,15 @@ public final class HudSystem extends System {
         .filter(entityUIComponentMap::containsValue)
         .forEach(component -> component.dialog().setVisible(true));
     dialogsVisibleBeforeSuppression.clear();
+  }
+
+  /**
+   * Returns whether temporary HUD suppression is active.
+   *
+   * @return true while suppressible dialogs should be hidden
+   */
+  public boolean dialogsSuppressed() {
+    return dialogsSuppressed;
   }
 
   private void suppressDialog(UIComponent component) {

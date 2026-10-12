@@ -24,6 +24,7 @@ import feature.questlog.QuestLogComponent;
 import feature.questlog.QuestLogEntry;
 import feature.shader.ShaderComponent;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import rooms.systemRecovery.entities.EnergyEntityFactory;
 import rooms.systemRecovery.entities.ModuleEntityFactory;
@@ -85,6 +86,24 @@ public class SystemRecoverySnapshotTranslatorTest {
         module.fetch(DrawComponent.class).orElseThrow().shaders().get("systemCoreComplete")
             instanceof OutlineShader);
     assertEquals(0x66FF66FF, module.fetch(DrawComponent.class).orElseThrow().tintColor());
+  }
+
+  /** Ordinary entity metadata must not be interpreted as an inactive system-core alarm. */
+  @Test
+  void alarmSyncIgnoresMetadataThatDoesNotDescribeTheSystemCore() {
+    assertEquals(Optional.empty(), SystemCoreVisualSync.alarmState(Map.of("unrelated", "value")));
+    assertEquals(
+        Optional.of(true),
+        SystemCoreVisualSync.alarmState(
+            Map.of(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM, "true")));
+    assertEquals(
+        Optional.of(false),
+        SystemCoreVisualSync.alarmState(
+            Map.of(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ALARM, "false")));
+    assertEquals(
+        Optional.of(true),
+        SystemCoreVisualSync.alarmState(
+            Map.of(SystemRecoveryEntitySpawnStrategy.METADATA_SYSTEM_CORE_ACCESS, "true")));
   }
 
   /** A late join after sorting still restores package value fills when idle. */

@@ -1,5 +1,7 @@
 package engine.tracking;
 
+import engine.Game;
+import engine.time.PlayClock;
 import engine.utils.logging.DungeonLogger;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -13,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 import tracking.core.TrackingBatch;
@@ -35,7 +36,7 @@ final class TrackingSession {
 
   private final TrackingConfig config;
   private final TrackingSessionDescriptor descriptor;
-  private final long startedNanos = System.nanoTime();
+  private final PlayClock playClock;
   private final TrackingOutbox outbox;
   private final TrackingUploader uploader;
   private final Map<Short, ParticipantState> participantsByClient = new LinkedHashMap<>();
@@ -50,11 +51,21 @@ final class TrackingSession {
   private boolean finished;
 
   TrackingSession(TrackingConfig config) {
+    this(config, Game.playClock());
+  }
+
+  TrackingSession(TrackingConfig config, PlayClock playClock) {
     this.config = config;
+    this.playClock = playClock;
     UUID sessionId = UUID.randomUUID();
     this.descriptor =
         new TrackingSessionDescriptor(
-            SCHEMA_VERSION, sessionId, config.roomId(), Instant.now(), config.runId());
+            SCHEMA_VERSION,
+            sessionId,
+            config.roomId(),
+            Instant.now(),
+            config.runId(),
+            playClock.activeMs());
     this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
         TrackingConfig.TRACKING_ENABLED ? new TrackingUploader(config, descriptor) : null;
@@ -75,6 +86,18 @@ final class TrackingSession {
 
   boolean finished() {
     return finished;
+  }
+
+  /**
+   * Retains puzzle facts when an empty, still-running room starts another tracking session.
+   *
+   * @param previous finished session of the same run
+   */
+  void continuePuzzleState(TrackingSession previous) {
+    startedPuzzles.addAll(previous.startedPuzzles);
+    solvedPuzzles.addAll(previous.solvedPuzzles);
+    activePuzzles.addAll(previous.activePuzzles);
+    attemptsByPuzzle.putAll(previous.attemptsByPuzzle);
   }
 
   Optional<String> currentPuzzleId() {
@@ -108,7 +131,8 @@ final class TrackingSession {
       String answerKind,
       String rawAnswer,
       boolean correct,
-      UUID participantId) {
+      UUID participantId,
+      Optional<AttemptDetails> details) {
     String attemptedPuzzle = requireText(puzzleId, "puzzleId");
     int attemptNumber = attemptsByPuzzle.getOrDefault(attemptedPuzzle, 0) + 1;
     ObjectNode payload =
@@ -116,6 +140,13 @@ final class TrackingSession {
             .put("answerKind", requireText(answerKind, "answerKind"))
             .put("attemptNumber", attemptNumber)
             .put("answer", java.util.Objects.requireNonNull(rawAnswer, "rawAnswer"));
+    details.ifPresent(
+        value -> {
+          payload.put("hintLevel", value.hintLevel());
+          payload.put("automaticSolution", value.automaticSolution());
+          var reasons = payload.putArray("failureReasons");
+          value.failureReasons().forEach(reasons::add);
+        });
     TrackingEvent attemptEvent =
         event(
             TrackingEventType.ANSWER_SUBMITTED,
@@ -136,27 +167,75 @@ final class TrackingSession {
       TrackingInteractionStatus status,
       String reason,
       UUID participantId) {
+    return interaction(
+        Optional.of(requireText(puzzleId, "puzzleId")),
+        objectId,
+        action,
+        status,
+        Optional.of(requireText(reason, "reason")),
+        participantId);
+  }
+
+  TrackingEvent interaction(String puzzleId, String objectId, String action, UUID participantId) {
+    return interaction(
+        Optional.of(requireText(puzzleId, "puzzleId")),
+        objectId,
+        action,
+        TrackingInteractionStatus.COMPLETED,
+        Optional.empty(),
+        participantId);
+  }
+
+  TrackingEvent interaction(String objectId, String action, UUID participantId) {
+    return interaction(
+        Optional.empty(),
+        objectId,
+        action,
+        TrackingInteractionStatus.COMPLETED,
+        Optional.empty(),
+        participantId);
+  }
+
+  private TrackingEvent interaction(
+      Optional<String> puzzleId,
+      String objectId,
+      String action,
+      TrackingInteractionStatus status,
+      Optional<String> reason,
+      UUID participantId) {
     ObjectNode payload =
         TrackingJson.object()
             .put("action", requireText(action, "action"))
-            .put("status", java.util.Objects.requireNonNull(status, "status").name())
-            .put("reason", requireText(reason, "reason"));
+            .put("status", java.util.Objects.requireNonNull(status, "status").name());
+    reason.ifPresent(value -> payload.put("reason", value));
     return event(
         TrackingEventType.INTERACTION_RECORDED,
         Optional.of(participantId),
-        Optional.of(requireText(puzzleId, "puzzleId")),
+        puzzleId,
         Optional.of(requireText(objectId, "objectId")),
         Optional.empty(),
         payload);
   }
 
+  boolean participantKnown(UUID participantId) {
+    return participantsByClient.values().stream()
+        .anyMatch(state -> state.participant.participantId().equals(participantId));
+  }
+
   Optional<TrackingEvent> hintUsed(String puzzleId, String hintId, UUID participantId) {
+    return hintUsed(puzzleId, hintId, participantId, false);
+  }
+
+  Optional<TrackingEvent> hintUsed(
+      String puzzleId, String hintId, UUID participantId, boolean automatic) {
     String trackedPuzzle = requireText(puzzleId, "puzzleId");
     String trackedHint = requireText(hintId, "hintId");
     HintUse hintUse = new HintUse(participantId, trackedPuzzle, trackedHint);
     if (usedHints.contains(hintUse)) {
       return Optional.empty();
     }
+    ObjectNode payload = TrackingJson.object().put("hintId", trackedHint);
+    if (automatic) payload.put("trigger", "automatic");
     TrackingEvent hintEvent =
         event(
             TrackingEventType.HINT_USED,
@@ -164,7 +243,7 @@ final class TrackingSession {
             Optional.of(trackedPuzzle),
             Optional.of(trackedHint),
             Optional.empty(),
-            TrackingJson.object().put("hintId", trackedHint));
+            payload);
     usedHints.add(hintUse);
     touchActivePuzzle(trackedPuzzle);
     return Optional.of(hintEvent);
@@ -222,7 +301,7 @@ final class TrackingSession {
             puzzleId,
             objectId,
             outcome,
-            elapsedMs(),
+            playClock.activeMs(),
             occurredAt,
             payload);
     outbox.append(event);
@@ -340,7 +419,7 @@ final class TrackingSession {
                     && participant.leftAt().isEmpty());
   }
 
-  void finish(TrackingSessionStatus status, Optional<String> abortedAtPuzzleId) {
+  void finish(TrackingSessionStatus status, Optional<String> interruptedAtPuzzleId) {
     if (finished) {
       return;
     }
@@ -351,8 +430,8 @@ final class TrackingSession {
             sequence,
             status,
             Instant.now(),
-            elapsedMs(),
-            abortedAtPuzzleId);
+            playClock.activeMs(),
+            interruptedAtPuzzleId);
     TrackingPersistenceException persistenceFailure = null;
     try {
       outbox.append(finish);
@@ -388,10 +467,6 @@ final class TrackingSession {
 
   private List<TrackingParticipant> participants() {
     return participantsByClient.values().stream().map(state -> state.participant).toList();
-  }
-
-  private long elapsedMs() {
-    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
   }
 
   private void touchActivePuzzle(String puzzleId) {

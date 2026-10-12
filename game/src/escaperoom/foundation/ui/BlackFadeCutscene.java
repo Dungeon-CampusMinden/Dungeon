@@ -2,11 +2,8 @@ package escaperoom.foundation.ui;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -15,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.utils.BaseContainerUI;
+import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
@@ -129,7 +127,6 @@ public final class BlackFadeCutscene extends Table {
             .put(FONT_SIZES_KEY, fontSizes)
             .put(FADE_IN_KEY, fadeIn)
             .put(FADE_OUT_KEY, fadeOut)
-            .put(DialogContextKeys.ESCAPE_ADVANCES, true)
             .build();
 
     UIComponent ui = DialogFactory.show(ctx, true, canBeClosed, targetIds);
@@ -179,8 +176,14 @@ public final class BlackFadeCutscene extends Table {
       return new HeadlessDialogGroup();
     }
 
-    return new BaseContainerUI(
-        new BlackFadeCutscene(messages, fontSizes, fadeIn, fadeOut, ctx), true, false);
+    BlackFadeCutscene cutscene = new BlackFadeCutscene(messages, fontSizes, fadeIn, fadeOut, ctx);
+    BaseContainerUI container = new BaseContainerUI(cutscene, true, false);
+    UIUtils.onCloseRequest(
+        container,
+        () -> {
+          if (!cutscene.isAnimating) cutscene.advanceMessage();
+        });
+    return container;
   }
 
   private void createActors() {
@@ -202,30 +205,6 @@ public final class BlackFadeCutscene extends Table {
             if (!isAnimating) {
               advanceMessage();
             }
-          }
-        });
-
-    // ESC is part of the sequence controls. It must not close the complete cutscene through the
-    // global UI close handler.
-    this.addListener(
-        new InputListener() {
-          @Override
-          public boolean keyDown(InputEvent event, int keycode) {
-            if (keycode != Input.Keys.ESCAPE) return false;
-            if (!isAnimating) advanceMessage();
-            event.stop();
-            return true;
-          }
-        });
-
-    // Keep receiving ESC after focus moved to another stage actor, just like DialogDialog does.
-    this.addAction(
-        new Action() {
-          @Override
-          public boolean act(float delta) {
-            Stage stage = getStage();
-            if (stage != null) stage.setKeyboardFocus(BlackFadeCutscene.this);
-            return false;
           }
         });
 
@@ -295,6 +274,7 @@ public final class BlackFadeCutscene extends Table {
   @Override
   public void act(float delta) {
     super.act(delta);
+    setUserObject(isAnimating ? Cursors.WAIT : Cursors.INTERACT);
     // Update label width on resize
     if (this.getCell(messageLabel) != null) {
       this.getCell(messageLabel).width(Game.windowWidth() * 0.5f);

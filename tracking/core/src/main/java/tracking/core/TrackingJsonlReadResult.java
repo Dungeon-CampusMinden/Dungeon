@@ -26,7 +26,7 @@ public record TrackingJsonlReadResult(
       throw new IllegalArgumentException("First outbox event must not precede its session");
     }
     long expectedSequence = 1;
-    long previousElapsedMs = -1;
+    long previousActiveMs = session.resumedAtActiveMs();
     for (TrackingEvent event : events) {
       if (!event.sessionId().equals(session.sessionId())
           || !event.roomId().equals(session.roomId())
@@ -36,10 +36,10 @@ public record TrackingJsonlReadResult(
       if (event.sessionSequence() != expectedSequence) {
         throw new IllegalArgumentException("Outbox event sequence must start at one without gaps");
       }
-      if (event.elapsedMonotonicMs() < previousElapsedMs) {
-        throw new IllegalArgumentException("Outbox event elapsed time must not regress");
+      if (event.activeMs() < previousActiveMs) {
+        throw new IllegalArgumentException("Outbox event active time must not regress");
       }
-      previousElapsedMs = event.elapsedMonotonicMs();
+      previousActiveMs = event.activeMs();
       expectedSequence++;
     }
     if (finish.isPresent()) {
@@ -52,8 +52,8 @@ public record TrackingJsonlReadResult(
       if (value.endedAt().isBefore(session.startedAt())) {
         throw new IllegalArgumentException("Outbox finish must not precede its session");
       }
-      if (value.elapsedMonotonicMs() < previousElapsedMs) {
-        throw new IllegalArgumentException("Outbox finish elapsed time precedes its final event");
+      if (value.activeMs() < previousActiveMs) {
+        throw new IllegalArgumentException("Outbox finish active time precedes its final event");
       }
     }
   }

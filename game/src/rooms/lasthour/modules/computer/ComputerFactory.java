@@ -4,7 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.game.PreRunConfiguration;
 import engine.network.codec.DialogValueCodecRegistry;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.logging.DungeonLogger;
@@ -15,7 +14,6 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +57,6 @@ public class ComputerFactory {
         new InteractionComponent(
             new Interaction(
                 (eInteract, who) -> {
-                  LastHourTracking.started(LastHourPuzzle.POWER);
                   DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
                   if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
                     LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
@@ -183,6 +180,10 @@ public class ComputerFactory {
       // Remove the stick from inventory and mark as inserted
       who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
       ComputerStateComponent.setUsbInserted(true);
+      // The control panel accepts the exit code and the USB hint file describes its assembly from
+      // now on; ventilation is the next main step.
+      LastHourTracking.started(LastHourPuzzle.EXIT);
+      LastHourTracking.started(LastHourPuzzle.EXIT_CODE_ASSEMBLY);
       LastHourTracking.started(LastHourPuzzle.VENTILATION);
       openComputerDialog(pcEntity, who);
     } else {
@@ -193,6 +194,8 @@ public class ComputerFactory {
       ComputerCallbacks.notifyVirusTriggered(who);
       ComputerStateComponent.setInfection(true);
       ComputerStateComponent.setVirusType(Lore.UnknownDeviceVirusType);
+      ComputerCallbacks.scheduleUnknownDeviceShutdown(
+          ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
       openComputerDialog(pcEntity, who);
       // Multiplayer: the server's EventScheduler keeps ticking (it does not pause when a player
       // opens a dialog) and authoritatively triggers the shutdown, which is then broadcast to
@@ -201,11 +204,6 @@ public class ComputerFactory {
       // queued action would either never fire or, worse, fire late on dialog close and clobber
       // any newly logged-in state. Instead the non-pausable ComputerStateSyncSystem drives the
       // shutdown locally and authoritatively.
-      if (PreRunConfiguration.multiplayerEnabled()) {
-        EventScheduler.scheduleAction(
-            ComputerCallbacks::shutdownPcAfterUnknownDevice,
-            ComputerCallbacks.UNKNOWN_DEVICE_SHUTDOWN_DELAY_MS);
-      }
     }
   }
 

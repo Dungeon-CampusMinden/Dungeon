@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 class DialogAdvanceInputTest {
 
   @Test
-  void escapeAdvancesLikeTheConfiguredInteractionKey() {
-    assertTrue(DialogAdvanceInput.isAdvanceKey(Input.Keys.ESCAPE));
+  void interactionAdvancesButEscapeUsesTheCloseRequest() {
+    assertFalse(DialogAdvanceInput.isAdvanceKey(Input.Keys.ESCAPE));
     assertTrue(DialogAdvanceInput.isAdvanceKey(KeyboardConfig.INTERACT_WORLD.value()));
   }
 

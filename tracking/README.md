@@ -78,8 +78,26 @@ Der autoritative Spielserver vergibt für jedes Ereignis eine Sequenznummer ab 1
 Ereignis in eine lokale, nur wachsende JSONL-Outbox und kann HTTP-Batches wiederholen, ohne
 doppelte Datenbankzeilen zu erzeugen. PostgreSQL speichert die unveränderte Nutzlast einschließlich
 jeder übermittelten Antwort. Der Sitzungsdeskriptor ist der Startdatensatz. `eventType` ist eines
-von sieben erfassten Ereignissen: `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`,
-`ANSWER_SUBMITTED`, `INTERACTION_RECORDED`, `HINT_USED` oder `PUZZLE_SOLVED`.
+von zwölf erfassten Ereignissen: `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`,
+`ANSWER_SUBMITTED`, `INTERACTION_RECORDED`, `HINT_USED`, `PUZZLE_SOLVED`, `PLAY_STARTED`,
+`PLAY_PAUSED`, `PLAY_RESUMED`, `PLAY_ENDED` oder `SURVEY_ANSWERED`.
+
+## Aktive Spielzeit und Sitzungen
+
+`activeMs` ist der Stand der gemeinsamen, servergesteuerten Spieluhr. Sie zählt nur spielbare
+Zeit: ab dem Ende von Laden und Intro bis zum endgültigen Raumergebnis, ohne Pausen im Pausenmenü
+und ohne Phasen mit zu wenigen Spielern. `occurredAt` bleibt der UTC-Zeitpunkt. Ein Durchlauf hat
+eine verpflichtende `runId`, die Speichern und Laden überdauert; jede Sitzung nennt im Deskriptor
+ihren Startwert `resumedAtActiveMs`. Lädt jemand einen älteren Spielstand, liegt dieser Startwert
+unter dem letzten Wert der vorigen Sitzung.
+
+`PLAY_PAUSED` trägt `reason` mit `PAUSE_DIALOG` oder `PLAYERS_MISSING`, `PLAY_ENDED` trägt `outcome`
+mit `SUCCESS` oder `FAILURE`. `SURVEY_ANSWERED` trägt eine
+`participantId` und den Payload `questionnaireId`, `questionId` und `answer`; es ist möglich,
+solange die Sitzung offen ist, auch nach dem Raumergebnis. Der Finish-Datensatz enthält den
+letzten `activeMs`-Wert und den Status `COMPLETED` (gelöst), `FAILED` (endgültig gescheitert, etwa
+durch ein hartes Zeitlimit) oder `INTERRUPTED` (ohne Ergebnis beendet), optional mit
+`interruptedAtPuzzleId`. Ein Absturz hinterlässt keinen Finish-Datensatz.
 
 ## Lokal ausführen
 
@@ -102,7 +120,10 @@ Remove-Item Env:DUNGEON_TRACKING_RUNTIME_DATABASE_USER
 
 Das Backend bindet standardmäßig an `127.0.0.1:8088`. Beim Start führt es kein DDL aus. Der
 getrennte Migrationsbefehl wendet die enthaltenen Migrationen der Reihe nach an und vermerkt ihre
-Versionen in `tracking_schema_migrations`.
+Versionen in `tracking_schema_migrations`. `V001__tracking.sql` enthält das vollständige Schema
+einschließlich der früheren `V002__interactions.sql`. Solange kein produktives Deployment existiert,
+wird V001 direkt geändert. Vorhandene lokale Datenbanken müssen neu angelegt werden, weil der
+Migrationsbefehl das geänderte `V001` nicht erneut anwendet.
 
 Jede Einstellung kann als Umgebungsvariable oder Java-Systemeigenschaft gesetzt werden. Die
 Systemeigenschaft hat Vorrang.
@@ -142,10 +163,11 @@ Alle Anfrage- und Antwort-Bodys verwenden `application/json`.
 - `GET /tracking/sessions/{sessionId}/ack` gibt die höchste gespeicherte Sequenz zurück. Eine Sitzung
   ohne Ereignisse gibt 0 zurück.
 - `POST /tracking/sessions/{sessionId}/finish` akzeptiert `TrackingSessionFinish`. Der Status ist
-  `COMPLETED` oder `ABORTED`. `finalSequence` ist das letzte Ereignis, das dem Backend bereits
+  `COMPLETED`, `FAILED` oder `INTERRUPTED`. `finalSequence` ist das letzte Ereignis, das dem Backend bereits
   vorliegen muss. Null bedeutet, dass die Sitzung keine Ereignisse hat. Der Abschluss gelingt nur,
-  wenn die Datenbank jede Sequenz von 1 bis zu diesem Wert enthält. Eine abgebrochene Sitzung kann
-  ihr zuletzt aktives Rätsel nennen. Das Wiederholen eines identischen Abschlusses gelingt; ein
+  wenn die Datenbank jede Sequenz von 1 bis zu diesem Wert enthält. Eine unterbrochene Sitzung kann
+  ihr zuletzt aktives Rätsel als `interruptedAtPuzzleId` nennen. Das Wiederholen eines identischen
+  Abschlusses gelingt; ein
   abweichender Abschluss ergibt `409`.
 
 Nach einem erfolgreichen Abschluss akzeptiert der Ereignis-Upload nur noch identische
@@ -155,7 +177,7 @@ Sitzungszeile. Ein laufender Batch wird daher entweder vor der Vollständigkeits
 oder wartet, bis der Endzustand sichtbar ist.
 
 Eine laufende Datenbankzeile hat `status = RUNNING` und `ended_at = NULL`. Nach einer erfolgreichen
-Abschlussanfrage wechselt der Status einmalig zu `COMPLETED` oder `ABORTED`. Nur diese beiden
+Abschlussanfrage wechselt der Status einmalig zu `COMPLETED`, `FAILED` oder `INTERRUPTED`. Nur diese
 terminalen Werte sind in einem `TrackingSessionFinish` zulässig.
 
 So sieht ein minimaler erster Batch ohne Ereignisse aus:
@@ -167,7 +189,9 @@ So sieht ein minimaler erster Batch ohne Ereignisse aus:
     "schemaVersion": 1,
     "sessionId": "25aac31d-bfc4-47f7-90b9-ad449a9e595a",
     "roomId": "the-last-hour",
-    "startedAt": "2026-08-29T12:00:00Z"
+    "startedAt": "2026-08-29T12:00:00Z",
+    "runId": "85fdab8f-4e23-4c01-84bf-72e8d84a817d",
+    "resumedAtActiveMs": 0
   },
   "participants": [],
   "events": []
@@ -185,16 +209,22 @@ Ein Antwortversuch verwendet `eventType: "ANSWER_SUBMITTED"`, setzt `outcome` au
 }
 ```
 
-Geräteaktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
-`action`, `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) und `reason` im Payload gespeichert.
-Sie haben kein `outcome`, verbrauchen keine `attemptNumber` und zählen nicht als Fehlversuch.
-Die Datenbankmigration `V002__interactions.sql` erweitert dafür die Ereignisvalidierung.
+Spieleraktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
+`action` und `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) im Payload gespeichert. Gehört die
+Aktion zu einem Rätsel, enthält sie dessen `puzzleId` und einen `reason` für das Ergebnis.
+Allgemeine Aktionen wie das Öffnen des Questlogs haben weder `puzzleId` noch `reason`.
+Interaktionen haben kein `outcome`, verbrauchen keine `attemptNumber` und zählen nicht als
+Fehlversuch.
 
 Nur ein tatsächlich von den Spielern gelesener Hinweis erzeugt `eventType: "HINT_USED"`. Das bloße
 Verfügbarmachen eines Hinweises zählt nicht. In The Last Hour hat jeder zeitversetzt erscheinende
 Blog-Kommentar eine eigene Hint-ID. Das Ereignis entsteht, sobald der Kommentar im geöffneten
 Blog-Tab gelesen werden kann oder der Spieler den Blog später mit diesem ungelesenen Kommentar
 öffnet. Bereits gelesene Kommentare werden beim erneuten Öffnen nicht noch einmal gezählt.
+Zeigt das Spiel einen Hinweis ohne Anfrage an, etwa die automatische Hilfe in System Recovery,
+enthält der Payload zusätzlich `"trigger": "automatic"`. Weil `HINT_USED` immer einen Teilnehmer
+braucht, wird ein solcher Hinweis einem der Spieler zugeordnet; die Zuordnung sagt dann nichts
+darüber aus, wer ihn angefordert hat.
 
 Ist das Beispiel als `batch.json` gespeichert, kann PowerShell es hochladen und die Bestätigung
 abrufen:
@@ -218,7 +248,7 @@ den Pfad `/finish` derselben Sitzung. Für den ereignislosen Batch oben:
   "finalSequence": 0,
   "status": "COMPLETED",
   "endedAt": "2026-08-29T12:30:00Z",
-  "elapsedMonotonicMs": 1800000
+  "activeMs": 1800000
 }
 ```
 
@@ -239,12 +269,17 @@ könnten.
 
 Die Migration erzeugt folgende schreibgeschützte Analyse-Views:
 
-- `v_session_summary` leitet Spielerzahl, Gesamtdauer, Status und die ID des beim Abbruch aktiven
-  Rätsels ab. Hat die Sitzung keines, bleibt der Wert `NULL`.
-- `v_puzzle_summary` leitet ab, ob und wann ein Rätsel gelöst wurde, wie lange es dauerte, wie viele
-  Antwortversuche es gab und wie viele `HINT_USED`-Ereignisse auftraten.
-- `v_attempts_answers` stellt jeden Antwortversuch mit Antwortart, Versuchsnummer, Ergebnis,
-  vollständiger Antwort und ursprünglicher Nutzlast bereit.
+- `v_session_summary` leitet Spielerzahl, Status, `run_id`, Spielzeit der Sitzung und das bei der
+  Unterbrechung aktive Rätsel ab.
+- `v_run_events` enthält die Ereignisse eines Runs ohne den Fortschritt, den das Laden eines
+  älteren Spielstands verworfen hat.
+- `v_run_summary` leitet je Run Gesamtspielzeit, Sitzungsanzahl, Spielerzahl, Abschluss und das
+  zuletzt unterbrochene Rätsel ab.
+- `v_puzzle_summary` leitet je Run und Rätsel die Zeit von der Freischaltung (`PUZZLE_STARTED`)
+  und vom ersten Kontakt (erstes anderes Ereignis mit dieser `puzzleId`) bis zur Lösung ab, dazu
+  Antwortversuche und genutzte Hinweise.
+- `v_attempts_answers` stellt jeden Antwortversuch eines Runs mit Antwortart, Versuchsnummer,
+  Ergebnis, vollständiger Antwort und ursprünglicher Nutzlast bereit.
 
 Die Laufzeitrolle des Backends kann diese Views nicht abfragen. Benötigt ein Analyst Zugriff, lege
 eine eigene Betreiberrolle an und gewähre als Schema-Eigentümer nur die Verbindung zur Datenbank,
@@ -254,7 +289,7 @@ die Schemanutzung und Lesezugriff auf die Views:
 CREATE ROLE dungeon_tracking_analyst LOGIN;
 GRANT CONNECT ON DATABASE dungeon_tracking TO dungeon_tracking_analyst;
 GRANT USAGE ON SCHEMA public TO dungeon_tracking_analyst;
-GRANT SELECT ON v_session_summary, v_puzzle_summary, v_attempts_answers
+GRANT SELECT ON v_session_summary, v_run_events, v_run_summary, v_puzzle_summary, v_attempts_answers
     TO dungeon_tracking_analyst;
 ```
 

@@ -111,6 +111,44 @@ class SystemRecoveryTranslatorTest {
   }
 
   @Test
+  void timeoutOutroDescribesCoreDeletionInsteadOfSuccessfulRecovery() {
+    var pages = SystemRecoveryText.timeoutEndingPages();
+    assertEquals(4, pages.size());
+    for (Language language : List.of(Language.DE, Language.EN)) {
+      localization.currentLanguage(language);
+      for (var page : pages) {
+        String translated = translator.translate(page.a());
+        assertFalse(translated.isBlank());
+        assertFalse(translated.contains(SystemRecoveryText.KEY_PREFIX));
+      }
+      String title = translator.translate(pages.getLast().a());
+      assertEquals(
+          language == Language.DE ? "SYSTEM RECOVERY GESCHEITERT" : "SYSTEM RECOVERY FAILED",
+          title);
+    }
+    localization.currentLanguage(Language.DE);
+    assertTrue(translator.translate(pages.getFirst().a()).contains("Du warst zu langsam"));
+    assertTrue(translator.translate(pages.get(1).a()).contains("Systemkern wurde gelöscht"));
+    assertNotEquals(pages, SystemRecoveryText.endingPages());
+  }
+
+  @Test
+  void idleOpeningCallExplainsTheTaskWithoutClaimingAnIncorrectSubmission() {
+    localization.currentLanguage(Language.DE);
+    String german = translator.translate(SystemRecoveryText.echoCall("opening-call-idle"));
+    assertTrue(german.contains("Du weißt nicht, was du tun sollst, oder?"));
+    assertTrue(german.contains("Ich bin ECHO"));
+    assertTrue(german.contains("Terminal"));
+    assertFalse(german.contains("Sie war nicht korrekt"));
+
+    localization.currentLanguage(Language.EN);
+    String english = translator.translate(SystemRecoveryText.echoCall("opening-call-idle"));
+    assertTrue(english.contains("You are not sure what to do, are you?"));
+    assertTrue(english.contains("I am ECHO"));
+    assertFalse(english.contains("It was incorrect"));
+  }
+
+  @Test
   void everyLearningStepHasFourDedicatedHintsAndNoGenericFallback() throws IOException {
     Map<String, Object> german = languageFile(Language.DE);
     Map<String, Object> english = languageFile(Language.EN);

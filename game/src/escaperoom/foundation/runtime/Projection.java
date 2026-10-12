@@ -97,7 +97,7 @@ public record Projection(
   public enum TimerState {
     /** The configured minimum number of players is not technically ready yet. */
     WAITING_FOR_READY,
-    /** The timer has started and continues independently of later disconnects. */
+    /** The timer has started and consumes active play time supplied by the server play clock. */
     RUNNING,
     /** Authority has an immutable terminal result and no more time can advance. */
     TERMINAL

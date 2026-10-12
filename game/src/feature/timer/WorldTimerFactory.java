@@ -10,17 +10,17 @@ import engine.utils.components.path.SimpleIPath;
 public class WorldTimerFactory {
 
   /**
-   * Create a world timer entity with the given position, timestamp, and duration.
+   * Create a world timer entity with the given position, play-clock start, and duration.
    *
    * @param pos the position of the world timer entity
-   * @param timestamp the timestamp (UNIX) for the timer
+   * @param startedAtActiveMs active play time when the countdown began
    * @param duration the duration of the timer in seconds
    * @return a new world timer entity with the specified position, timestamp, and duration
    */
-  public static Entity createWorldTimer(Point pos, int timestamp, int duration) {
+  public static Entity createWorldTimer(Point pos, long startedAtActiveMs, int duration) {
     Entity e = new Entity();
     e.add(new PositionComponent(pos));
-    e.add(new WorldTimerComponent(timestamp, duration));
+    e.add(new WorldTimerComponent(startedAtActiveMs, duration));
     e.add(new DrawComponent(new SimpleIPath("animation/missing_texture.png")));
     return e;
   }

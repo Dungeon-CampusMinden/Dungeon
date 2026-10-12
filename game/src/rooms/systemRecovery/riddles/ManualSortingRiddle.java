@@ -240,6 +240,7 @@ public final class ManualSortingRiddle {
     if (swap != shouldSwap) {
       callbacks.failure(swap ? "swap" : "keep", player.id());
       resetSortStation();
+      releaseSortStation(player.id());
       // Keep the failure feedback non-modal. A blocking popup would freeze the player after the
       // station has already been reset and would require a second, unrelated interaction before
       // the next comparison can be selected.
@@ -247,6 +248,7 @@ public final class ManualSortingRiddle {
       return;
     }
     callbacks.success(swap ? "swap" : "keep", player.id());
+    SystemRecoveryLevel.currentLevel().ifPresent(SystemRecoveryLevel::resetTimedHintDelay);
     if (shouldSwap) {
       int value = sortValues[sortInnerIndex];
       sortValues[sortInnerIndex] = sortValues[sortInnerIndex + 1];

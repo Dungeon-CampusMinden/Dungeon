@@ -155,7 +155,9 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   }
 
   private boolean isClientRelevant(Entity entity) {
-    if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
+    if (!entity.isLocal()
+        && entity.isPresent(PositionComponent.class)
+        && entity.isPresent(DrawComponent.class)) {
       // Normal Entity
       return true;
     }

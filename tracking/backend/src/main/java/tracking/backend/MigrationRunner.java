@@ -14,9 +14,7 @@ import java.util.regex.Pattern;
 
 final class MigrationRunner {
   private static final List<Migration> MIGRATIONS =
-      List.of(
-          new Migration("001", "/tracking/backend/migrations/V001__tracking.sql"),
-          new Migration("002", "/tracking/backend/migrations/V002__interactions.sql"));
+      List.of(new Migration("001", "/tracking/backend/migrations/V001__tracking.sql"));
   private static final Pattern SQL_IDENTIFIER = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*");
 
   private MigrationRunner() {}
@@ -63,8 +61,8 @@ final class MigrationRunner {
           "GRANT SELECT, INSERT ON tracking_sessions, tracking_participants, tracking_events TO "
               + quotedRole);
       statement.execute(
-          "GRANT UPDATE (status, ended_at, finish_elapsed_ms, final_sequence, "
-              + "aborted_at_puzzle_id) ON tracking_sessions TO "
+          "GRANT UPDATE (status, ended_at, finish_active_ms, final_sequence, "
+              + "interrupted_at_puzzle_id) ON tracking_sessions TO "
               + quotedRole);
       statement.execute(
           "GRANT UPDATE (room_played_before) ON tracking_participants TO " + quotedRole);

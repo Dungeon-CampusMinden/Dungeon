@@ -46,6 +46,9 @@ import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
+import engine.network.messages.s2c.PlayClockMessage;
+import engine.network.messages.s2c.PrefabChangeMessage;
+import engine.network.messages.s2c.QuestLogStateMessage;
 import engine.network.messages.s2c.ShaderTargetStateMessage;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.network.messages.s2c.SoundPlayMessage;
@@ -67,6 +70,7 @@ import engine.systems.VelocitySystem;
 import engine.systems.input.InputManager;
 import engine.systems.input.InputSystem;
 import engine.systems.input.JoystickSystem;
+import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
@@ -77,9 +81,15 @@ import feature.components.UIComponent;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.entities.deco.DecoFactory;
+import feature.hud.PauseMenuHudSystem;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
+import feature.prefabs.PrefabRuntime;
+import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabSpawner;
+import feature.questlog.QuestLogHudSystem;
+import feature.questlog.QuestLogUtil;
 import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
 import feature.systems.AttributeBarSystem;
@@ -122,15 +132,11 @@ public final class GameLoop extends ScreenAdapter {
   private static com.badlogic.gdx.Game application;
 
   /**
-   * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
-   * storage.
+   * Initializes the runtime entities and shaders for the newly loaded level.
    *
-   * <p>Will remove all Systems using {@link ECSManagement#removeAllSystems()} from the Game. This
-   * will trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
-   * using {@link ECSManagement#add(System)}, triggering {@link System#onEntityAdd} for the new
-   * level.
-   *
-   * <p>Will re-add the player if they exist.
+   * <p>On the server, removes the old level entities and re-adds the players at the level start. On
+   * clients, removes local entities while preserving server-owned entities for network
+   * reconciliation, then spawns the new client-side prefabs.
    */
   public static final IVoidFunction onLevelLoad =
       () -> {
@@ -155,11 +161,17 @@ public final class GameLoop extends ScreenAdapter {
 
         List<Entity> allPlayers = serverAuthority ? ECSManagement.allPlayers().toList() : List.of();
         if (serverAuthority) {
+          PrefabSpawner.clear(PrefabSide.SERVER);
           allPlayers.forEach(ECSManagement::remove);
+          if (Game.isSingleplayer()) {
+            PrefabSpawner.clear(PrefabSide.CLIENT);
+          }
         }
 
         if (!serverAuthority) { // no authority
+          PrefabSpawner.clear(PrefabSide.CLIENT);
           Game.entities().filter(Entity::isLocal).toList().forEach(Game::remove);
+          Game.currentLevel().ifPresent(level -> PrefabSpawner.spawn(level, PrefabSide.CLIENT));
           return;
         }
 
@@ -176,10 +188,15 @@ public final class GameLoop extends ScreenAdapter {
 
         Game.currentLevel()
             .ifPresent(
-                level ->
-                    level
-                        .decorations()
-                        .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a()))));
+                level -> {
+                  PrefabSpawner.spawn(level, PrefabSide.SERVER);
+                  level
+                      .decorations()
+                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+                  if (Game.isSingleplayer()) {
+                    PrefabSpawner.spawn(level, PrefabSide.CLIENT);
+                  }
+                });
 
         PreRunConfiguration.userOnLevelLoad().accept(true);
       };
@@ -353,7 +370,9 @@ public final class GameLoop extends ScreenAdapter {
           java.lang.System.nanoTime() - networkDispatchStartNanos);
     }
     tryCompleteInitialWorldHandshake();
+    PlayClockRuntime.updateLocalPause();
     frame(delta);
+    PlayClockRuntime.tick();
     clearScreen();
 
     // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
@@ -406,7 +425,13 @@ public final class GameLoop extends ScreenAdapter {
                 }
 
                 @Override
+                public void onInitialWorldReady() {
+                  PlayClockRuntime.resetClient();
+                }
+
+                @Override
                 public void onDisconnected(String reason) {
+                  PlayClockRuntime.resetClient();
                   boolean wasInGameplay = initialWorldClientReady;
                   resetInitialWorldHandshake();
                   InputMessage.resetSequence();
@@ -470,7 +495,12 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     if (Game.isSingleplayer() && Game.currentLevel().isPresent()) {
-      Game.player().ifPresent(player -> TrackingRuntime.startSingleplayerSession(player.id()));
+      Game.player()
+          .ifPresent(
+              player -> {
+                TrackingRuntime.startSingleplayerSession(player.id());
+                Game.playClock().participantJoined((short) 0, player.id());
+              });
     }
   }
 
@@ -507,6 +537,9 @@ public final class GameLoop extends ScreenAdapter {
 
   private void setupMessageHandlers() {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
+    dispatcher.registerHandler(
+        PlayClockMessage.class,
+        (ctx, message) -> Game.playClock().synchronize(message.activeMs(), message.running()));
 
     dispatcher.registerHandler(
         EntitySpawnEvent.class,
@@ -780,9 +813,27 @@ public final class GameLoop extends ScreenAdapter {
         });
 
     dispatcher.registerHandler(
+        PrefabChangeMessage.class,
+        (ctx, msg) -> {
+          try {
+            PrefabRuntime.apply(msg);
+          } catch (RuntimeException e) {
+            LOGGER.error(
+                "Failed to apply {} of prefab '{}': {}",
+                msg.action(),
+                msg.name(),
+                e.getMessage(),
+                e);
+          }
+        });
+
+    dispatcher.registerHandler(
         ShaderTargetStateMessage.class,
         (ctx, msg) ->
             Game.system(ShaderSyncSystem.class, shaderSync -> shaderSync.applyTargetState(msg)));
+
+    dispatcher.registerHandler(
+        QuestLogStateMessage.class, (ctx, msg) -> QuestLogUtil.applyClientState(msg));
 
     dispatcher.registerHandler(
         SoundPlayMessage.class,
@@ -1077,6 +1128,8 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new InputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());
+    ECSManagement.add(new QuestLogHudSystem());
+    ECSManagement.add(new PauseMenuHudSystem());
     ECSManagement.add(new JoystickSystem());
   }
 }
