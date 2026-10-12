@@ -8,14 +8,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * A task that asks players to pick the correct options of a question.
+ * A question whose answer is correct when it selects exactly the correct option values.
  *
- * <p>Options are identified by their {@link ChoiceOption#value()}, so labels may repeat or be
- * translated without changing the evaluation. A submitted selection is correct only when it
- * contains exactly the correct option values. With single selection, exactly one option is correct.
- *
- * <p>Show the task with {@link DialogFactory#showMultipleChoiceDialog} and submit the confirmed
- * option values as a set to the {@link TaskComponent} that owns the task.
+ * <p>Show it with {@link DialogFactory#showMultipleChoiceDialog} and submit the confirmed {@link
+ * ChoiceOption#value()}s as a set to the {@link TaskComponent} that owns the task.
  */
 public class ChoiceTask extends Task<Set<String>> {
 
@@ -56,12 +52,6 @@ public class ChoiceTask extends Task<Set<String>> {
     }
   }
 
-  /**
-   * Determines whether the selection contains exactly the correct options.
-   *
-   * @param answer the selected option values
-   * @return {@code true} if the selection is correct; {@code false} otherwise
-   */
   @Override
   public boolean isCorrect(Set<String> answer) {
     return correctValues.equals(answer);

@@ -1,10 +1,4 @@
-import type {
-  AnyRiddleInput,
-  ChoiceInput,
-  DeerProject,
-  InformationSource,
-  Riddle,
-} from "@/data/DeerSchema";
+import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "@/data/DeerSchema";
 import { CheckIcon } from "lucide-react";
 import { ResourceCarousel } from "./ResourceCarousel";
 import { getInputType, InputTypeIcon } from "./riddleTypes";
@@ -56,7 +50,28 @@ function InputView({
           deerSchema={deerSchema}
         />
       ) : input.type === "choice" ? (
-        <ChoiceInputView input={input} />
+        <>
+          <ParameterRow label="Frage">
+            <span>{input.question || "—"}</span>
+          </ParameterRow>
+          <ParameterRow label="Auswahl">
+            <span>{input.multipleSelection ? "Mehrere richtige Antworten" : "Eine richtige Antwort"}</span>
+          </ParameterRow>
+          <ParameterRow label="Antworten">
+            <ul className="flex flex-col gap-1">
+              {input.options.map((option) => (
+                <li key={option.id} className="flex items-center gap-1">
+                  {input.correctOptionIds.includes(option.id) ? (
+                    <CheckIcon size={14} aria-label="Richtig" className="text-green-600" />
+                  ) : (
+                    <span className="inline-block w-3.5" />
+                  )}
+                  <span>{option.text || "—"}</span>
+                </li>
+              ))}
+            </ul>
+          </ParameterRow>
+        </>
       ) : (
         <>
           <ParameterRow label="Lösung">
@@ -91,33 +106,6 @@ function CollectionInputView({
         <span className="text-sm text-muted-foreground">Material</span>
         <ResourceCarousel resources={informationSource.resources} assets={deerSchema.assets} />
       </div>
-    </>
-  );
-}
-
-function ChoiceInputView({ input }: { input: ChoiceInput }) {
-  return (
-    <>
-      <ParameterRow label="Frage">
-        <span>{input.question || "—"}</span>
-      </ParameterRow>
-      <ParameterRow label="Auswahl">
-        <span>{input.multipleSelection ? "Mehrere richtige Antworten" : "Eine richtige Antwort"}</span>
-      </ParameterRow>
-      <ParameterRow label="Antworten">
-        <ul className="flex flex-col gap-1">
-          {input.options.map((option) => (
-            <li key={option.id} className="flex items-center gap-1">
-              {input.correctOptionIds.includes(option.id) ? (
-                <CheckIcon size={14} aria-label="Richtig" className="text-green-600" />
-              ) : (
-                <span className="inline-block w-3.5" />
-              )}
-              <span>{option.text || "—"}</span>
-            </li>
-          ))}
-        </ul>
-      </ParameterRow>
     </>
   );
 }

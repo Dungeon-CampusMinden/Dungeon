@@ -19,7 +19,6 @@ import escaperoom.foundation.definition.TimerDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ChoiceInputPresentation;
-import escaperoom.foundation.presentation.GamePresentation.ChoiceOptionPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
@@ -28,6 +27,7 @@ import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import escaperoom.foundation.room.model.FoundationRoom;
 import escaperoom.foundation.room.model.RoomLayout;
 import escaperoom.foundation.room.model.VerifiedAsset;
+import feature.hud.dialogs.ChoiceOption;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -254,10 +254,7 @@ public final class RoomDeriver {
                                 requireSurface(surfaces, choice.surfaceId()).title(),
                                 choice.question(),
                                 choice.options().stream()
-                                    .map(
-                                        option ->
-                                            new ChoiceOptionPresentation(
-                                                option.id(), option.text()))
+                                    .map(option -> ChoiceOption.of(option.text(), option.id()))
                                     .toList(),
                                 choice.multipleSelection()));
                   }

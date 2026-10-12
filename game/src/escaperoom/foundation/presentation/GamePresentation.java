@@ -5,12 +5,12 @@ import escaperoom.foundation.definition.InputDefinition;
 import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.runtime.TerminalResult;
+import feature.hud.dialogs.ChoiceOption;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Immutable player-facing content for one Foundation room.
@@ -194,7 +194,7 @@ public record GamePresentation(
    * @param surfaceId authored terminal surface identifier
    * @param title player-facing terminal title
    * @param question player-facing question
-   * @param options selectable options in display order
+   * @param options selectable options in display order; their values are the option identifiers
    * @param multipleSelection whether players may select more than one option
    */
   public record ChoiceInputPresentation(
@@ -202,7 +202,7 @@ public record GamePresentation(
       String surfaceId,
       String title,
       String question,
-      List<ChoiceOptionPresentation> options,
+      List<ChoiceOption> options,
       boolean multipleSelection)
       implements InputPresentation {
     /** Creates immutable choice input presentation. */
@@ -220,24 +220,10 @@ public record GamePresentation(
           && choice.id().equals(id)
           && choice.surfaceId().equals(surfaceId)
           && options.stream()
-              .map(ChoiceOptionPresentation::id)
-              .collect(Collectors.toSet())
+              .map(ChoiceOption::value)
+              .toList()
               .containsAll(choice.correctOptionIds())
           && (multipleSelection || choice.correctOptionIds().size() == 1);
-    }
-  }
-
-  /**
-   * One selectable option of a choice question.
-   *
-   * @param id stable option identifier
-   * @param text player-facing option text
-   */
-  public record ChoiceOptionPresentation(String id, String text) {
-    /** Creates immutable option content. */
-    public ChoiceOptionPresentation {
-      id = required(id, "choice option id");
-      text = required(text, "choice option text");
     }
   }
 

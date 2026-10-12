@@ -1,13 +1,4 @@
-import type {
-  Asset,
-  AssetMediaType,
-  ChoiceInput,
-  DeerProject,
-  Riddle,
-  RiddleGraph,
-  Surface,
-  SurfaceRiddleInput,
-} from "./DeerSchema";
+import type { Asset, AssetMediaType, ChoiceInput, DeerProject, Riddle, RiddleGraph, Surface, SurfaceRiddleInput } from "./DeerSchema";
 import { getBundledAssetPaths, isBundledAssetPath } from "@/components/assets/assetPaths";
 import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
@@ -92,7 +83,6 @@ const DEVICE_INPUTS = {
   numeric: { kind: "keypad", label: "Zahleneingabe" },
   choice: { kind: "terminal", label: "Auswahlfrage" },
 } as const satisfies Record<SurfaceRiddleInput["type"], { kind: Surface["kind"]; label: string }>;
-const CHOICE_OPTION_LIMITS = { min: 2, max: 6 };
 const TIME_LIMIT_MODES = ["hard", "soft"];
 const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
 const OPERATOR_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -791,47 +781,15 @@ export class ErrorChecker {
     if (isBlank(input.question)) {
       this.error("riddles", `${inputField}:question`, `Für eine Auswahlfrage von "${riddleName}" fehlt die Frage.`);
     }
-
     const optionsField = `${inputField}:options`;
-    const { min, max } = CHOICE_OPTION_LIMITS;
-    if (input.options.length < min || input.options.length > max) {
-      this.error(
-        "riddles",
-        optionsField,
-        `Eine Auswahlfrage von "${riddleName}" braucht ${min} bis ${max} Antworten.`,
-        `Aktuell: ${input.options.length}.`,
-      );
-    }
     if (input.options.some((option) => isBlank(option.text))) {
       this.error("riddles", optionsField, `Eine Antwort einer Auswahlfrage von "${riddleName}" ist leer.`);
     }
-
-    const optionIds = new Set(input.options.map((option) => option.id));
-    if (optionIds.size !== input.options.length) {
-      this.error("riddles", optionsField, `Eine Auswahlfrage von "${riddleName}" enthält doppelte Antworten.`);
-    }
-    if (
-      input.correctOptionIds.some((id) => !optionIds.has(id))
-      || ErrorChecker.findDuplicates(input.correctOptionIds).length > 0
-    ) {
-      this.error(
-        "riddles",
-        optionsField,
-        `Eine als richtig markierte Antwort einer Auswahlfrage von "${riddleName}" ist ungültig.`,
-      );
-    }
-    const correct = input.correctOptionIds.filter((id) => optionIds.has(id));
-    if (correct.length === 0) {
+    if (input.correctOptionIds.length === 0) {
       this.error(
         "riddles",
         optionsField,
         `Für eine Auswahlfrage von "${riddleName}" ist keine richtige Antwort markiert.`,
-      );
-    } else if (!input.multipleSelection && correct.length > 1) {
-      this.error(
-        "riddles",
-        optionsField,
-        `Eine Auswahlfrage von "${riddleName}" mit nur einer Wahl darf genau eine richtige Antwort haben.`,
       );
     }
   }

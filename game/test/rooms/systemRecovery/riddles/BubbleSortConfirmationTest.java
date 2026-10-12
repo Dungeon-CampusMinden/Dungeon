@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -87,6 +86,7 @@ class BubbleSortConfirmationTest {
               return new Point(0, 0);
             });
     Entity player = new Entity("player");
+    int id = player.id();
     InventoryComponent inventory = mock(InventoryComponent.class);
     player.add(inventory);
     SortProgramStickItem stick = mock(SortProgramStickItem.class);
@@ -119,14 +119,7 @@ class BubbleSortConfirmationTest {
           .when(
               () ->
                   DialogFactory.showMultipleChoiceDialog(
-                      anyString(),
-                      anyString(),
-                      any(),
-                      anyBoolean(),
-                      anyBoolean(),
-                      any(),
-                      any(),
-                      eq(player.id())))
+                      anyString(), anyString(), any(), eq(false), eq(false), any(), any(), eq(id)))
           .thenAnswer(
               call -> {
                 respond.set(call.getArgument(5));
@@ -171,6 +164,7 @@ class BubbleSortConfirmationTest {
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.getPoint(anyString())).thenReturn(new Point(0, 0));
     Entity player = new Entity("player");
+    int id = player.id();
     InventoryComponent inventory = mock(InventoryComponent.class);
     player.add(inventory);
     SortProgramStickItem stick = mock(SortProgramStickItem.class);
@@ -205,14 +199,7 @@ class BubbleSortConfirmationTest {
           .when(
               () ->
                   DialogFactory.showMultipleChoiceDialog(
-                      anyString(),
-                      anyString(),
-                      any(),
-                      anyBoolean(),
-                      anyBoolean(),
-                      any(),
-                      any(),
-                      eq(player.id())))
+                      anyString(), anyString(), any(), eq(false), eq(false), any(), any(), eq(id)))
           .thenAnswer(
               call -> {
                 respond.set(call.getArgument(5));

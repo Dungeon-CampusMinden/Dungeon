@@ -1,11 +1,4 @@
-import type {
-  AnyRiddleInput,
-  ChoiceInput,
-  CollectionInput,
-  DeerProject,
-  NumericInput,
-  Riddle,
-} from "@/data/DeerSchema";
+import type { AnyRiddleInput, ChoiceInput, CollectionInput, DeerProject, NumericInput, Riddle } from "@/data/DeerSchema";
 import { CheckIcon, PlusIcon, TrashIcon } from "lucide-react";
 import {
   addRiddleInput,
@@ -223,33 +216,6 @@ function ChoiceInputFields({
     onChange({ ...input, correctOptionIds });
   };
 
-  const updateOption = (optionId: string, text: string) => {
-    onChange({
-      ...input,
-      options: input.options.map((option) => (option.id === optionId ? { ...option, text } : option)),
-    });
-  };
-
-  const addOption = () => {
-    onChange({ ...input, options: [...input.options, { id: Util.generateUniqueId("opt"), text: "" }] });
-  };
-
-  const removeOption = (optionId: string) => {
-    onChange({
-      ...input,
-      options: input.options.filter((option) => option.id !== optionId),
-      correctOptionIds: input.correctOptionIds.filter((id) => id !== optionId),
-    });
-  };
-
-  const setMultipleSelection = (multipleSelection: boolean) => {
-    onChange({
-      ...input,
-      multipleSelection,
-      correctOptionIds: multipleSelection ? input.correctOptionIds : input.correctOptionIds.slice(0, 1),
-    });
-  };
-
   return (
     <>
       <Field>
@@ -269,7 +235,11 @@ function ChoiceInputFields({
           accessibleLabel={`Mehrere richtige Antworten für Eingabe ${inputIndex + 1}`}
           options={YES_NO}
           value={input.multipleSelection ? "true" : "false"}
-          onChange={(newValue) => setMultipleSelection(newValue === "true")}
+          onChange={(newValue) => onChange({
+            ...input,
+            multipleSelection: newValue === "true",
+            correctOptionIds: newValue === "true" ? input.correctOptionIds : input.correctOptionIds.slice(0, 1),
+          })}
         />
       </Field>
       <Field>
@@ -292,14 +262,22 @@ function ChoiceInputFields({
                 <Input
                   aria-label={`Antwort ${optionIndex + 1} für Eingabe ${inputIndex + 1}`}
                   value={option.text}
-                  onChange={(e) => updateOption(option.id, e.target.value)}
+                  onChange={(e) => onChange({
+                    ...input,
+                    options: input.options.map((entry) =>
+                      entry.id === option.id ? { ...entry, text: e.target.value } : entry),
+                  })}
                 />
                 <Button
                   aria-label={`Antwort ${optionIndex + 1} löschen`}
                   variant="ghost"
                   size="icon"
                   disabled={input.options.length <= MIN_CHOICE_OPTIONS}
-                  onClick={() => removeOption(option.id)}
+                  onClick={() => onChange({
+                    ...input,
+                    options: input.options.filter((entry) => entry.id !== option.id),
+                    correctOptionIds: input.correctOptionIds.filter((id) => id !== option.id),
+                  })}
                 >
                   <TrashIcon />
                 </Button>
@@ -311,7 +289,10 @@ function ChoiceInputFields({
           variant="outline"
           className="lg:max-w-40"
           disabled={input.options.length >= MAX_CHOICE_OPTIONS}
-          onClick={addOption}
+          onClick={() => onChange({
+            ...input,
+            options: [...input.options, { id: Util.generateUniqueId("opt"), text: "" }],
+          })}
         >
           <PlusIcon />
           Antwort

@@ -30,7 +30,6 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -287,7 +286,7 @@ public final class ServerGameBinding {
       final String riddleId, final ChoiceInputPresentation presentation, final Point position) {
     List<ChoiceOption> options =
         presentation.options().stream()
-            .map(option -> ChoiceOption.of(RichLabel.toRichText(option.text()), option.id()))
+            .map(option -> ChoiceOption.of(RichLabel.toRichText(option.label()), option.value()))
             .toList();
     return station(
         presentation.title(),
@@ -311,7 +310,7 @@ public final class ServerGameBinding {
   private static Set<String> selection(final DialogResponseMessage.Payload payload) {
     return switch (payload) {
       case DialogResponseMessage.StringValue(String value) -> Set.of(value);
-      case DialogResponseMessage.StringList(String[] values) -> Set.copyOf(Arrays.asList(values));
+      case DialogResponseMessage.StringList(String[] values) -> Set.copyOf(List.of(values));
       default -> Set.of();
     };
   }
@@ -325,13 +324,8 @@ public final class ServerGameBinding {
         .enterChoice(player, riddleId, inputId, selection)
         .ifPresent(
             result -> {
-              tracking.attempt(
-                  riddleId,
-                  inputId,
-                  "choice",
-                  String.join(",", new TreeSet<>(selection)),
-                  result,
-                  player);
+              String rawAnswer = String.join(",", new TreeSet<>(selection));
+              tracking.attempt(riddleId, inputId, "choice", rawAnswer, result, player);
               if (result.outcome() == CodeOutcome.CORRECT) {
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
