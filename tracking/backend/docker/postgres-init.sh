@@ -11,11 +11,12 @@ require_non_blank() {
 require_non_blank DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD "${DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD-}"
 require_non_blank DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD "${DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD-}"
 
+# psql reads the passwords from its environment, so they never appear in process arguments.
 psql --set=ON_ERROR_STOP=1 \
   --username "$POSTGRES_USER" \
-  --dbname "$POSTGRES_DB" \
-  --set=owner_password="$DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD" \
-  --set=runtime_password="$DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD" <<'SQL'
+  --dbname "$POSTGRES_DB" <<'SQL'
+\getenv owner_password DUNGEON_TRACKING_OWNER_DATABASE_PASSWORD
+\getenv runtime_password DUNGEON_TRACKING_RUNTIME_DATABASE_PASSWORD
 CREATE ROLE dungeon_tracking_owner
     LOGIN PASSWORD :'owner_password'
     NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
