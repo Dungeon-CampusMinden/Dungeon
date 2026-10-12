@@ -34,7 +34,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ich bin damit einverstanden, dass meine Daten anonym erfasst und verarbeitet werden für die Auswertung des Spiels. Sie können die Erklärung jederzeit widerrufen."
+            "de": "Ich bin damit einverstanden, dass meine Daten für die Auswertung des Spiels pseudonym erfasst und verarbeitet werden. Du kannst diese Einwilligung jederzeit widerrufen."
           },
           "options": [
             {
