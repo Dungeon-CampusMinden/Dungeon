@@ -19,6 +19,8 @@ jobs:
               run: chmod +x gradlew
             - name: Build System Recovery JAR
               run: ./gradlew :game:buildSystemRecoveryJar
+              env:
+                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
             - name: Upload JAR
               uses: actions/upload-artifact@v7
               with:
@@ -48,6 +50,8 @@ jobs:
               run: chmod +x gradlew
             - name: Build System Recovery app image
               run: ./gradlew :game:jpackageImageSystemRecovery
+              env:
+                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
             - name: Archive System Recovery
               shell: bash
               run: |

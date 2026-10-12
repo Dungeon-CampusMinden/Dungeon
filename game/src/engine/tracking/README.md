@@ -46,14 +46,14 @@ gesamten gemeinsamen Lauf. Die Entscheidung muss vor dem Start der autoritativen
 
 | Systemeigenschaft | Umgebungsvariable | Standardwert |
 | --- | --- | --- |
-| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | `http://127.0.0.1:8088` |
+| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | eingebetteter Build-Endpunkt oder `http://127.0.0.1:8088` |
 | `dungeon.tracking.apiKey` | `DUNGEON_TRACKING_API_KEY` | keiner |
 | `dungeon.tracking.outbox` | `DUNGEON_TRACKING_OUTBOX` | `tracking-outbox` |
 
-`TrackingConfig.TRACKING_ENABLED` steuert die HTTP-Verbindung und ist im Quellcode standardmäßig
-`false`. JSONL-Tracking bleibt dabei aktiv. Mit dem Wert `true` verwendet Dungeon den
-konfigurierten Endpunkt oder ohne Override das lokale Backend. Das Pause-Menü zeigt bei `false`
-"Deaktiviert" statt einen Verbindungsstatus.
+Die HTTP-Verbindung ist nur aktiv, wenn beim Gradle-Build `DUNGEON_TRACKING_ENDPOINT` gesetzt war.
+Laufzeit-Eigenschaft und Umgebungsvariable überschreiben nur den Endpunkt; einen Build ohne
+eingebetteten Endpunkt schalten sie nicht ein. JSONL-Tracking bleibt aktiv. Das Pause-Menü zeigt
+ohne Upload "Deaktiviert" statt einen Verbindungsstatus.
 
 System Recovery besitzt passend dazu zwei lokalisierte Datenschutzvarianten. Bei deaktiviertem
 HTTP-Backend wird die lokale JSONL-Speicherung beschrieben. Sobald das zentrale Backend aktiviert

@@ -109,6 +109,14 @@ tasks.named('compileJava') {
     dependsOn 'generateProto'
 }
 
+// Builds with DUNGEON_TRACKING_ENDPOINT upload tracking data there; TrackingConfig reads the
+// generated tracking.properties. Without the variable the endpoint stays empty and upload is off.
+def generateTrackingProperties = tasks.register('generateTrackingProperties', WriteProperties) {
+    destinationFile = layout.buildDirectory.file('generated/tracking/tracking.properties')
+    property 'endpoint', providers.environmentVariable('DUNGEON_TRACKING_ENDPOINT').orElse('')
+}
+sourceSets.main.resources.srcDir(generateTrackingProperties.map { it.destinationFile.get().asFile.parentFile })
+
 tasks.register('runBasicStarter', JavaExec) {
     group 'starter'
     mainClass = 'engine.starter.BasicStarter'
@@ -550,6 +558,7 @@ runtime {
         'java.logging',
         'java.management',
         'java.naming',
+        'java.net.http',
         'jdk.unsupported',
         'jdk.zipfs'
     ]
