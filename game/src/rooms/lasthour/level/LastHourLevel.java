@@ -54,6 +54,7 @@ import feature.inventory.items.HintItem;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzlePieceItem;
+import feature.survey.SurveyFeature;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerComponent;
@@ -144,6 +145,7 @@ public class LastHourLevel extends DungeonLevel {
   public static Puzzle puzzleEN;
 
   static final Set<Integer> INTRO_SHOWN_TO = new HashSet<>();
+  private final Set<Integer> introStarted = new HashSet<>();
   static boolean timerExpired = false;
 
   /**
@@ -362,7 +364,11 @@ public class LastHourLevel extends DungeonLevel {
                                 true,
                                 () ->
                                     CreditsFeature.showAfterGame(
-                                        TheLastHour.CREDITS_ROOM_ID, Game::complete));
+                                        TheLastHour.CREDITS_ROOM_ID,
+                                        // The survey comes last; closing it ends the game.
+                                        () ->
+                                            SurveyFeature.show(
+                                                SurveyFeature.Phase.POST, Game::complete)));
                           });
                 },
                 null)
@@ -1046,6 +1052,7 @@ public class LastHourLevel extends DungeonLevel {
     }
   }
 
+  /** Shows the intro to each new player; a new run asks the pre-game survey first. */
   private void showIntroForNewPlayers() {
     if (escaped) return;
     // Without an intro, play starts as soon as a player is ready; otherwise the intro's close does.
@@ -1055,7 +1062,16 @@ public class LastHourLevel extends DungeonLevel {
     Game.allPlayers()
         .filter(playerStates::isReadyForIntro)
         .filter(player -> !INTRO_SHOWN_TO.contains(player.id()))
-        .forEach(player -> showIntro(player.id()));
+        .filter(player -> introStarted.add(player.id()))
+        .forEach(
+            player -> {
+              if (pendingSave.isPresent()) {
+                showIntro(player.id());
+              } else {
+                SurveyFeature.show(
+                    SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id());
+              }
+            });
   }
 
   private void reconcileMilestones() {

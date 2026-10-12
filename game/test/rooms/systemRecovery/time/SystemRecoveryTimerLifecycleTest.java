@@ -31,6 +31,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.petrinet.PetriNetSystem;
+import feature.survey.SurveyFeature;
 import feature.timer.WorldTimerComponent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -215,7 +216,9 @@ class SystemRecoveryTimerLifecycleTest {
                 eq(new int[] {player.id()})),
         times(1));
     AtomicReference<Runnable> finishCredits = new AtomicReference<>();
+    AtomicReference<Runnable> finishSurvey = new AtomicReference<>();
     try (MockedStatic<CreditsFeature> credits = mockStatic(CreditsFeature.class);
+        MockedStatic<SurveyFeature> surveys = mockStatic(SurveyFeature.class);
         MockedStatic<Game> game = mockStatic(Game.class)) {
       credits
           .when(
@@ -227,9 +230,20 @@ class SystemRecoveryTimerLifecycleTest {
                 finishCredits.set(invocation.getArgument(1));
                 return null;
               });
+      surveys
+          .when(
+              () ->
+                  SurveyFeature.show(
+                      eq(SurveyFeature.Phase.POST), any(), eq(new int[] {player.id()})))
+          .thenAnswer(
+              invocation -> {
+                finishSurvey.set(invocation.getArgument(1));
+                return null;
+              });
       finishCutscene.get().run();
-      game.verify(() -> Game.exit(anyString()), never());
       finishCredits.get().run();
+      game.verify(() -> Game.exit(anyString()), never());
+      finishSurvey.get().run();
       game.verify(() -> Game.exit("System Recovery time limit expired"));
       game.verify(Game::complete, never());
     }

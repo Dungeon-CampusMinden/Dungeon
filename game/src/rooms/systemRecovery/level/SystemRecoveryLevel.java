@@ -26,6 +26,7 @@ import feature.entities.deco.DecoFactory;
 import feature.hints.HintSystem;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.items.ItemKey;
+import feature.survey.SurveyFeature;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -699,7 +700,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
         .ifPresent(SystemRecoveryPuzzleEvents::started);
   }
 
-  /** Sends the room's lore to each player once through the networked dialog system. */
+  /**
+   * Sends the room's lore to each player once through the networked dialog system. A new run asks
+   * the pre-game survey first; a loaded run already did.
+   */
   private void showIntroForNewPlayers() {
     if (introSuppressed) Game.allPlayers().forEach(player -> playReady(player.id()));
     // Do not initialize the graphical level-editor class on the headless authoritative server.
@@ -707,14 +711,24 @@ public class SystemRecoveryLevel extends DungeonLevel {
     Game.allPlayers()
         .filter(player -> introShownPlayers.add(player.id()))
         .forEach(
-            player ->
-                BlackFadeCutscene.show(
-                    rooms.systemRecovery.util.SystemRecoveryText.introPages(),
-                    false,
-                    true,
-                    true,
-                    () -> finishIntroForPlayer(player.id()),
-                    player.id()));
+            player -> {
+              if (pendingSave.isPresent()) {
+                showIntro(player.id());
+              } else {
+                SurveyFeature.show(
+                    SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id());
+              }
+            });
+  }
+
+  private void showIntro(int playerId) {
+    BlackFadeCutscene.show(
+        rooms.systemRecovery.util.SystemRecoveryText.introPages(),
+        false,
+        true,
+        true,
+        () -> finishIntroForPlayer(playerId),
+        playerId);
   }
 
   /**
@@ -1260,7 +1274,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
                       true,
                       () ->
                           CreditsFeature.showAfterGame(
-                              SystemRecovery.CREDITS_ROOM_ID, Game::complete, other.id()),
+                              SystemRecovery.CREDITS_ROOM_ID,
+                              // Every participant answers last; the survey ends the game for all.
+                              () -> SurveyFeature.show(SurveyFeature.Phase.POST, Game::complete),
+                              other.id()),
                       other.id());
                 },
                 null)
