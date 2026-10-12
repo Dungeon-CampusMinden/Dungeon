@@ -1,11 +1,16 @@
 package escaperoom.foundation.presentation;
 
+import escaperoom.foundation.definition.ChoiceInputDefinition;
+import escaperoom.foundation.definition.InputDefinition;
+import escaperoom.foundation.definition.NumericInputDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.runtime.TerminalResult;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Immutable player-facing content for one Foundation room.
@@ -137,6 +142,39 @@ public record GamePresentation(
      * @return device title
      */
     String title();
+
+    /**
+     * Reports whether this presentation shows exactly the given host definition.
+     *
+     * @param definition host-owned input definition
+     * @return {@code true} when identity, device variant, and answer shape match
+     */
+    boolean presents(SurfaceInputDefinition definition);
+
+    /**
+     * Reports whether the presentations show the surface-bound definitions one by one in order.
+     *
+     * @param definitions riddle input definitions, including collection inputs
+     * @param presentations riddle input presentations
+     * @return {@code true} when every surface-bound definition has its matching presentation
+     */
+    static boolean presentsAll(
+        final List<InputDefinition> definitions, final List<InputPresentation> presentations) {
+      List<SurfaceInputDefinition> surfaceInputs =
+          definitions.stream()
+              .filter(SurfaceInputDefinition.class::isInstance)
+              .map(SurfaceInputDefinition.class::cast)
+              .toList();
+      if (surfaceInputs.size() != presentations.size()) {
+        return false;
+      }
+      for (int index = 0; index < surfaceInputs.size(); index++) {
+        if (!presentations.get(index).presents(surfaceInputs.get(index))) {
+          return false;
+        }
+      }
+      return true;
+    }
   }
 
   /**
@@ -153,6 +191,13 @@ public record GamePresentation(
       id = required(id, "numeric input presentation id");
       surfaceId = required(surfaceId, "numeric input presentation surface id");
       title = required(title, "numeric input presentation title");
+    }
+
+    @Override
+    public boolean presents(final SurfaceInputDefinition definition) {
+      return definition instanceof NumericInputDefinition numeric
+          && numeric.id().equals(id)
+          && numeric.surfaceId().equals(surfaceId);
     }
   }
 
@@ -187,6 +232,18 @@ public record GamePresentation(
       if (options.stream().map(ChoiceOptionPresentation::id).distinct().count() != options.size()) {
         throw new IllegalArgumentException("choice option ids must be unique");
       }
+    }
+
+    @Override
+    public boolean presents(final SurfaceInputDefinition definition) {
+      return definition instanceof ChoiceInputDefinition choice
+          && choice.id().equals(id)
+          && choice.surfaceId().equals(surfaceId)
+          && options.stream()
+              .map(ChoiceOptionPresentation::id)
+              .collect(Collectors.toSet())
+              .containsAll(choice.correctOptionIds())
+          && (multipleSelection || choice.correctOptionIds().size() == 1);
     }
   }
 

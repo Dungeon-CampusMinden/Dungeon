@@ -6,6 +6,7 @@ import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
+import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import feature.entities.CharacterClass;
 import java.util.Comparator;
@@ -214,15 +215,7 @@ public final class FoundationRoom {
                         source ->
                             source.resources().stream().map(ResourcePresentation::id).toList())
                     .toList())
-        || !definition.inputs().stream()
-            .filter(SurfaceInputDefinition.class::isInstance)
-            .map(SurfaceInputDefinition.class::cast)
-            .map(input -> componentKey(input.id(), input.surfaceId()))
-            .toList()
-            .equals(
-                presentation.inputs().stream()
-                    .map(input -> componentKey(input.id(), input.surfaceId()))
-                    .toList())) {
+        || !InputPresentation.presentsAll(definition.inputs(), presentation.inputs())) {
       throw new IllegalArgumentException(
           "composed presentation components must match the room definition");
     }

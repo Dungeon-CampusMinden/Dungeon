@@ -4,10 +4,10 @@ import engine.time.PlayClock;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.RosterSlotDefinition;
-import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
+import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import escaperoom.foundation.runtime.Authority;
 import escaperoom.foundation.runtime.CodeAttemptResult;
@@ -433,15 +433,7 @@ public final class MultiplayerSession {
                           source ->
                               source.resources().stream().map(ResourcePresentation::id).toList())
                       .toList())
-          || !definitionRiddle.inputs().stream()
-              .filter(SurfaceInputDefinition.class::isInstance)
-              .map(SurfaceInputDefinition.class::cast)
-              .map(input -> input.id() + "\u0000" + input.surfaceId())
-              .toList()
-              .equals(
-                  presented.inputs().stream()
-                      .map(input -> input.id() + "\u0000" + input.surfaceId())
-                      .toList())) {
+          || !InputPresentation.presentsAll(definitionRiddle.inputs(), presented.inputs())) {
         throw new IllegalArgumentException(
             "composed presentation must match Foundation definition");
       }

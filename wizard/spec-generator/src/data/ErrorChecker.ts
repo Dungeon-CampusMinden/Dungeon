@@ -807,6 +807,19 @@ export class ErrorChecker {
     }
 
     const optionIds = new Set(input.options.map((option) => option.id));
+    if (optionIds.size !== input.options.length) {
+      this.error("riddles", optionsField, `Eine Auswahlfrage von "${riddleName}" enthält doppelte Antworten.`);
+    }
+    if (
+      input.correctOptionIds.some((id) => !optionIds.has(id))
+      || ErrorChecker.findDuplicates(input.correctOptionIds).length > 0
+    ) {
+      this.error(
+        "riddles",
+        optionsField,
+        `Eine als richtig markierte Antwort einer Auswahlfrage von "${riddleName}" ist ungültig.`,
+      );
+    }
     const correct = input.correctOptionIds.filter((id) => optionIds.has(id));
     if (correct.length === 0) {
       this.error(
