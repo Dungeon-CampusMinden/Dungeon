@@ -330,11 +330,18 @@ Zeilentrenner bleibt ein harter Fehler.
 
 ## Das Spiel konfigurieren
 
-JSONL-Tracking ist unabhängig vom HTTP-Upload aktiv. Die Konstante
-`TrackingConfig.TRACKING_ENABLED` ist standardmäßig `false`. Setze sie im Quellcode auf `true`, um
-die Verbindung zum Backend für den Build einzuschalten. Ohne weitere Konfiguration verwendet das
-Spiel `http://127.0.0.1:8088`. Ein anderer Endpunkt, ein optionaler API-Schlüssel und ein anderes
-Outbox-Verzeichnis lassen sich vor dem Start des autoritativen Servers festlegen:
+JSONL-Tracking ist unabhängig vom HTTP-Upload aktiv. Den HTTP-Upload schaltet der Build ein: Ist
+beim Gradle-Build `DUNGEON_TRACKING_ENDPOINT` gesetzt, bettet `game` diesen Endpunkt als
+`tracking.properties` ein und lädt dorthin hoch. Ohne die Variable bleibt der Upload aus. Die
+Release-Workflows übergeben dafür das Repository-Secret `DUNGEON_TRACKING_ENDPOINT`, sodass der
+Endpunkt nur in den gebauten Artefakten steht. Lokal genügt etwa:
+
+```bash
+DUNGEON_TRACKING_ENDPOINT=http://127.0.0.1:8088 ./gradlew :game:runSystemRecovery
+```
+
+Ein anderer Endpunkt, ein optionaler API-Schlüssel und ein anderes Outbox-Verzeichnis lassen sich
+vor dem Start des autoritativen Servers festlegen:
 
 ```powershell
 $env:DUNGEON_TRACKING_ENDPOINT = 'https://tracking.example.org'
