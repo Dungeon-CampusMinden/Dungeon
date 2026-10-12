@@ -18,12 +18,12 @@ import tools.jackson.databind.JsonNode;
 import tracking.core.TrackingJson;
 
 /**
- * Immutable, validated survey loaded from {@code surveys/<roomId>.json}.
+ * Immutable, validated survey loaded from {@code surveys/<phase>-<roomId>.json}.
  *
  * <p>The same definition renders the client form and validates the submitted answers on the
  * authoritative server. {@code game/doc/survey.md} describes the file format.
  *
- * @param roomId tracking room ID matching the file name
+ * @param roomId tracking room ID in the file name
  * @param questionnaireId stable ID stored with every recorded answer
  * @param title localized survey title
  * @param skippable whether players may leave without submitting
@@ -60,7 +60,7 @@ record SurveyDefinition(
   /**
    * Creates and validates a survey definition.
    *
-   * @param roomId tracking room ID matching the file name
+   * @param roomId tracking room ID in the file name
    * @param questionnaireId stable ID stored with every recorded answer
    * @param title localized survey title
    * @param skippable whether players may leave without submitting
@@ -83,14 +83,15 @@ record SurveyDefinition(
   }
 
   /**
-   * Loads one room's survey when the asset exists and is valid.
+   * Loads one room's survey of a phase when the asset exists and is valid.
    *
-   * @param roomId tracking room ID used in {@code surveys/<roomId>.json}
+   * @param phase phase whose file to load
+   * @param roomId tracking room ID used in {@code surveys/<phase>-<roomId>.json}
    * @return the parsed survey, or empty if the asset is absent or invalid
    */
-  static Optional<SurveyDefinition> load(String roomId) {
+  static Optional<SurveyDefinition> load(SurveyFeature.Phase phase, String roomId) {
     requireId(roomId, "roomId");
-    String path = "surveys/" + roomId + ".json";
+    String path = phase.path(roomId);
     if (Gdx.files == null) return Optional.empty();
     FileHandle file = Gdx.files.internal(path);
     if (!file.exists()) return Optional.empty();
@@ -98,7 +99,7 @@ record SurveyDefinition(
       SurveyDefinition survey = parse(file.readString(StandardCharsets.UTF_8.name()));
       if (!roomId.equals(survey.roomId())) {
         throw new IllegalArgumentException(
-            "roomId '" + survey.roomId() + "' does not match file name '" + roomId + "'");
+            "roomId '" + survey.roomId() + "' does not match file name '" + path + "'");
       }
       return Optional.of(survey);
     } catch (RuntimeException exception) {

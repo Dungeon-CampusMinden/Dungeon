@@ -2,21 +2,28 @@
 title: "Umfragen erstellen"
 ---
 
-Nach einem Escape-Room kann das Spiel jedem Spieler eine kurze Umfrage zeigen. Die Fragen stehen in
-einer JSON-Datei pro Raum. Dieses Dokument beschreibt, welche Fragetypen es gibt und wie man sie
-aufschreibt. Programmieren muss man dafür nicht.
+Vor und nach einem Escape-Room kann das Spiel jedem Spieler eine kurze Umfrage zeigen. Die Fragen
+stehen in JSON-Dateien pro Raum. Dieses Dokument beschreibt, welche Fragetypen es gibt und wie man
+sie aufschreibt. Programmieren muss man dafür nicht.
 
 ![Umfrage im Spiel](./img/survey/overview.png)
 
-## Wo die Datei liegt
+## Wo die Dateien liegen
 
-Die Datei heißt `game/assets/surveys/<roomId>.json`. `<roomId>` ist die Raum-ID, unter der der Raum
-getrackt wird, zum Beispiel `system-recovery` oder `soulweaver`. Gibt es die Datei nicht, zeigt der
-Raum keine Umfrage. Ist sie fehlerhaft, entfällt die Umfrage ebenfalls und das Log nennt den Fehler.
+Jeder Raum hat bis zu zwei Umfragen:
 
-Die Umfrage ist der letzte Schritt nach dem Raumergebnis und dem Abspann. Jeder Spieler beantwortet
-sie für sich; sobald alle fertig sind, endet das Spiel. Ohne Tracking-Zustimmung erscheint sie nicht, weil die Antworten dann nicht gespeichert werden
-dürfen.
+| Datei | Wann sie erscheint |
+| --- | --- |
+| `game/assets/surveys/pre-<roomId>.json` | Bei einem neuen Spiel vor dem Intro. „Weiter“ nach dem Absenden startet das Intro. Ein geladener Spielstand fragt nicht erneut. |
+| `game/assets/surveys/post-<roomId>.json` | Als letzter Schritt nach dem Raumergebnis und dem Abspann. „Beenden“ nach dem Absenden schließt die Umfrage; sobald alle Spieler fertig sind, endet das Spiel. |
+
+`<roomId>` ist die Raum-ID, unter der der Raum getrackt wird: `system-recovery`, `soulweaver` oder
+`the-last-hour`. Gibt es eine Datei nicht, entfällt diese Umfrage. Ist sie fehlerhaft, entfällt sie
+ebenfalls und das Log nennt den Fehler.
+
+Jeder Spieler beantwortet die Umfrage für sich. Ohne Tracking-Zustimmung im Hauptmenü erscheint
+keine Umfrage, weil die Antworten dann nicht gespeichert werden dürfen. Spielzeit und
+Rätselereignisse beginnen erst nach dem Intro; die Vorher-Umfrage zählt also nicht zur Spielzeit.
 
 ## Grundgerüst
 
@@ -24,7 +31,7 @@ dürfen.
 {
   "schemaVersion": 1,
   "roomId": "system-recovery",
-  "questionnaireId": "escape-room-feedback-v1",
+  "questionnaireId": "escape-room-post-v1",
   "title": { "de": "Kurze Umfrage zum Escape-Room", "en": "Short survey about the escape room" },
   "skippable": true,
   "pages": [
@@ -39,8 +46,8 @@ dürfen.
 | Feld | Bedeutung |
 | --- | --- |
 | `schemaVersion` | Immer `1`. |
-| `roomId` | Muss dem Dateinamen entsprechen. |
-| `questionnaireId` | Kennung des Fragebogens; sie wird mit jeder Antwort gespeichert. Ändern sich Fragen so, dass alte und neue Antworten nicht mehr vergleichbar sind, bekommt der Fragebogen eine neue Kennung, etwa `-v2`. |
+| `roomId` | Muss dem Dateinamen ohne `pre-` oder `post-` entsprechen. |
+| `questionnaireId` | Kennung des Fragebogens; sie wird mit jeder Antwort gespeichert. Vorher- und Nachher-Umfrage brauchen verschiedene Kennungen, damit ihre Antworten unterscheidbar bleiben. Ändern sich Fragen so, dass alte und neue Antworten nicht mehr vergleichbar sind, bekommt der Fragebogen eine neue Kennung, etwa `-v2`. |
 | `title` | Überschrift im blauen Kopf des Dialogs. |
 | `skippable` | `true` zeigt einen Knopf „Überspringen“ mit Rückfrage, `false` verlangt das Absenden. |
 | `pages` | Seiten in Anzeigereihenfolge. Jede Seite hat optional einen `title` und mindestens eine Frage. Die Spieler blättern mit „Weiter“ und „Zurück“. |
@@ -280,9 +287,9 @@ Nach dem Absenden zeigt das Spiel, wo die Antworten gelandet sind:
 - nicht gespeichert.
 
 Lokal heißt in der Outbox-Datei des Rechners, der das Spiel hostet. Hat der Tracking-Server die
-Antworten nicht bestätigt, nennt die Anzeige auf diesem Rechner die Datei und die Betreiber-E-Mail,
-an die sie geschickt werden soll. „Beenden“ schließt die Anzeige; sobald alle Spieler fertig sind,
-endet das Spiel.
+Antworten der Nachher-Umfrage nicht bestätigt, nennt die Anzeige auf diesem Rechner die Datei und
+die Betreiber-E-Mail, an die sie geschickt werden soll. Nach der Vorher-Umfrage fehlt dieser
+Hinweis, weil die Datei erst nach dem Spiel vollständig ist.
 
 Für die Auswertung wird jede beantwortete Frage als eigenes Tracking-Ereignis `SURVEY_ANSWERED` mit
 `questionnaireId`, `questionId` und `answer` gespeichert. Es gehört zur Sitzung des Raums und zur

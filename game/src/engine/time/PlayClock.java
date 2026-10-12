@@ -223,6 +223,17 @@ public final class PlayClock {
   }
 
   /**
+   * Returns whether a player's client finished joining the run. From then on, tracking knows the
+   * player's participant or has settled that the run is not tracked.
+   *
+   * @param entityId player entity ID
+   * @return whether the player is a connected participant
+   */
+  public synchronized boolean joined(int entityId) {
+    return participants.containsValue(entityId);
+  }
+
+  /**
    * Sets the single transition listener, called outside the clock's lock.
    *
    * @param listener transition listener

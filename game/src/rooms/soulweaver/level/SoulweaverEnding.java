@@ -109,7 +109,7 @@ final class SoulweaverEnding {
     if (players.stream().allMatch(player -> confirmed.contains(player.id()))) {
       stopped = true;
       // The survey comes last; closing it ends the game.
-      SurveyFeature.show(Game::complete);
+      SurveyFeature.show(SurveyFeature.Phase.POST, Game::complete);
     }
   }
 

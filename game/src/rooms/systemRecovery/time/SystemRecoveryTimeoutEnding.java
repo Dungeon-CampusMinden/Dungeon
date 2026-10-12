@@ -58,7 +58,9 @@ public final class SystemRecoveryTimeoutEnding {
                 // The survey comes last and ends the game.
                 () ->
                     SurveyFeature.show(
-                        () -> Game.exit("System Recovery time limit expired"), newPlayers),
+                        SurveyFeature.Phase.POST,
+                        () -> Game.exit("System Recovery time limit expired"),
+                        newPlayers),
                 newPlayers),
         newPlayers);
   }

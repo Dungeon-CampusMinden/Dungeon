@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roomId": "soulweaver",
-  "questionnaireId": "escape-room-feedback-v1",
+  "questionnaireId": "escape-room-post-v1",
   "title": {
     "de": "Kurze Umfrage zum Escape-Room",
     "en": "Short survey about the escape room"

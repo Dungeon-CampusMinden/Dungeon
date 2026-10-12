@@ -33,6 +33,7 @@
             "other": "Sonstiges:",
             "other_placeholder": "Bitte beschreiben",
             "sending": "Antworten werden gesendet",
+            "continue": "Weiter",
             "quit": "Beenden",
             "number_hint": {
                 "integer": "Ganze Zahl",

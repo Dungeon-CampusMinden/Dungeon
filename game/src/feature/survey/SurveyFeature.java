@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,16 +28,18 @@ import tracking.core.TrackingEvent;
 import tracking.core.TrackingJson;
 
 /**
- * Asks each player the room's survey after the game and records the answers as {@code
- * SURVEY_ANSWERED} tracking events.
+ * Asks each player one of the room's surveys before or after the game and records the answers as
+ * {@code SURVEY_ANSWERED} tracking events.
  *
  * <p>Register the dialog in every runtime with {@link #register()}, then call {@link #show} on the
- * authoritative side as the last step after the room outcome, with the action that ends the game as
- * {@code onComplete}.
+ * authoritative side: with {@link Phase#PRE} before the intro of a new run and the intro as {@code
+ * onComplete}, with {@link Phase#POST} as the last step after the room outcome and the action that
+ * ends the game as {@code onComplete}.
  */
 public final class SurveyFeature {
 
   static final String ROOM_ID_KEY = "surveyRoomId";
+  static final String PHASE_KEY = "surveyPhase";
   static final String RESULT_KEY = "surveyResult";
   static final String OUTBOX_KEY = "surveyOutbox";
   static final String OPERATOR_EMAIL_KEY = "surveyOperatorEmail";
@@ -53,6 +56,24 @@ public final class SurveyFeature {
     @Override
     public String type() {
       return name();
+    }
+  }
+
+  /** When a survey runs; {@code surveys/<phase>-<roomId>.json} holds its questions. */
+  public enum Phase {
+    /** Before the intro of a new run; closing it starts the game. */
+    PRE,
+    /** As the last step after the room outcome; closing it ends the game. */
+    POST;
+
+    /**
+     * Returns the asset path of a room's survey in this phase.
+     *
+     * @param roomId tracking room ID
+     * @return path such as {@code surveys/pre-system-recovery.json}
+     */
+    String path(String roomId) {
+      return "surveys/" + name().toLowerCase(Locale.ROOT) + "-" + roomId + ".json";
     }
   }
 
@@ -76,36 +97,32 @@ public final class SurveyFeature {
   }
 
   /**
-   * Shows the survey of the tracked room to each player and runs {@code onComplete} once each of
-   * them is done: they skipped it, sent no answers, closed the storage result after submitting, or
-   * left the game.
+   * Shows the tracked room's survey of one phase to each player and runs {@code onComplete} once
+   * each of them is done: they skipped it, sent no answers, closed the storage result after
+   * submitting, or left the game.
    *
-   * <p>The survey is {@code surveys/<roomId>.json} for the room configured through {@link
-   * Tracking#configureRoom(String)}. Runs {@code onComplete} immediately when that file is absent
-   * or invalid, or tracking is inactive, because answers could not be recorded.
+   * <p>The survey is {@code surveys/<phase>-<roomId>.json} for the room configured through {@link
+   * Tracking#configureRoom(String)}. Each player gets it once their client finished joining,
+   * because the tracking session and their participant start only then. A player is done right away
+   * when that file is absent or invalid, or tracking does not record them, because answers could
+   * not be recorded.
    *
+   * @param phase whether the survey comes before or after the game
    * @param onComplete action after every player finished the survey
    * @param playerIds players to ask; all players when empty
    */
-  public static void show(Runnable onComplete, int... playerIds) {
-    Optional<SurveyDefinition> survey =
-        Tracking.active() ? Tracking.roomId().flatMap(SurveyDefinition::load) : Optional.empty();
-    List<Integer> players = new ArrayList<>();
+  public static void show(Phase phase, Runnable onComplete, int... playerIds) {
+    Round round =
+        new Round(
+            phase,
+            Tracking.roomId().flatMap(roomId -> SurveyDefinition.load(phase, roomId)),
+            onComplete);
     if (playerIds.length == 0) {
-      Game.allPlayers().forEach(player -> players.add(player.id()));
+      Game.allPlayers().forEach(player -> round.joining.add(player.id()));
     } else {
-      for (int id : playerIds) players.add(id);
+      for (int id : playerIds) round.joining.add(id);
     }
-    players.removeIf(id -> Tracking.participantForEntity(id).isEmpty());
-    if (survey.isEmpty() || players.isEmpty()) {
-      onComplete.run();
-      return;
-    }
-    Round round = new Round(onComplete);
     SurveySystem.instance().rounds.add(round);
-    for (int player : players) {
-      ask(survey.get(), player, Tracking.participantForEntity(player).orElseThrow(), round);
-    }
   }
 
   private static void ask(SurveyDefinition survey, int player, UUID participant, Round round) {
@@ -115,6 +132,7 @@ public final class SurveyFeature {
             DialogContext.builder()
                 .type(Type.SURVEY)
                 .put(ROOM_ID_KEY, survey.roomId())
+                .put(PHASE_KEY, round.phase.name())
                 .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .build());
     ui.registerCallback(
@@ -184,9 +202,11 @@ public final class SurveyFeature {
         DialogContext.builder()
             .type(Type.SURVEY)
             .put(RESULT_KEY, result.name())
+            .put(PHASE_KEY, round.phase.name())
             .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true);
-    // Unconfirmed answers reach the operator only as the outbox file.
-    if (result == Result.UNREACHABLE || result == Result.PENDING) {
+    // Unconfirmed answers reach the operator only as the outbox file, which is complete only after
+    // the game.
+    if (round.phase == Phase.POST && (result == Result.UNREACHABLE || result == Result.PENDING)) {
       Tracking.outboxPath()
           .ifPresent(path -> context.put(OUTBOX_KEY, path.toAbsolutePath().toString()));
       Tracking.operatorEmail().ifPresent(email -> context.put(OPERATOR_EMAIL_KEY, email));
@@ -196,16 +216,21 @@ public final class SurveyFeature {
   }
 
   /**
-   * Players still busy with one {@link #show} call and their open survey or result dialog;
-   * completes once when none remain.
+   * Players still busy with one {@link #show} call: those whose client is still joining and those
+   * with an open survey or result dialog; completes once when none remain.
    */
   private static final class Round {
+    private final Phase phase;
+    private final Optional<SurveyDefinition> survey;
+    private final Runnable onComplete;
+    private final Set<Integer> joining = new HashSet<>();
     private final Map<Integer, UIComponent> dialogs = new HashMap<>();
     private final Set<Integer> answered = new HashSet<>();
-    private final Runnable onComplete;
     private boolean completed;
 
-    private Round(Runnable onComplete) {
+    private Round(Phase phase, Optional<SurveyDefinition> survey, Runnable onComplete) {
+      this.phase = phase;
+      this.survey = survey;
       this.onComplete = onComplete;
     }
 
@@ -244,8 +269,23 @@ public final class SurveyFeature {
       completeIfDone();
     }
 
-    /** Closes the dialogs of players whose entity is gone, so a reconnect does not restore them. */
-    void dropDeparted() {
+    /**
+     * Asks players whose client finished joining and drops players who left. Closing the dialogs of
+     * departed players keeps a reconnect from restoring them.
+     */
+    void update() {
+      for (int player : List.copyOf(joining)) {
+        if (Game.findEntityById(player).isEmpty()) {
+          joining.remove(player);
+        } else if (Game.playClock().joined(player)) {
+          joining.remove(player);
+          Optional<UUID> participant =
+              Tracking.active() ? Tracking.participantForEntity(player) : Optional.empty();
+          if (survey.isPresent() && participant.isPresent()) {
+            ask(survey.get(), player, participant.get(), this);
+          }
+        }
+      }
       List.copyOf(dialogs.keySet()).stream()
           .filter(player -> Game.findEntityById(player).isEmpty())
           .forEach(this::finish);
@@ -253,16 +293,16 @@ public final class SurveyFeature {
     }
 
     private void completeIfDone() {
-      if (completed || !dialogs.isEmpty()) return;
+      if (completed || !joining.isEmpty() || !dialogs.isEmpty()) return;
       completed = true;
       onComplete.run();
     }
   }
 
   /**
-   * Runs survey bookkeeping on the game thread: notices players who left mid-survey and polls
-   * backend health checks and acknowledgements, because the uploader thread must not touch dialogs
-   * and a headless server has no libGDX runnable queue.
+   * Runs survey bookkeeping on the game thread: asks players once they joined, notices players who
+   * left mid-survey, and polls backend health checks and acknowledgements, because the uploader
+   * thread must not touch dialogs and a headless server has no libGDX runnable queue.
    */
   private static final class SurveySystem extends engine.System {
     private final List<Round> rounds = new ArrayList<>();
@@ -308,7 +348,7 @@ public final class SurveyFeature {
 
     @Override
     public void execute() {
-      for (Round round : List.copyOf(rounds)) round.dropDeparted();
+      for (Round round : List.copyOf(rounds)) round.update();
       rounds.removeIf(round -> round.completed);
       for (Waiter waiter : List.copyOf(waiters)) {
         waiter

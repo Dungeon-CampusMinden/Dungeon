@@ -103,19 +103,22 @@ final class SurveyDialog {
   /**
    * Builds the survey form or, when the context carries a result, the result view.
    *
-   * @param context dialog context with the room ID and an optional result
+   * @param context dialog context with the phase, the room ID and an optional result
    * @return dialog actor
    */
   static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
+    SurveyFeature.Phase phase =
+        SurveyFeature.Phase.valueOf(context.require(SurveyFeature.PHASE_KEY, String.class));
     Optional<String> result = context.find(SurveyFeature.RESULT_KEY, String.class);
     if (result.isPresent()) {
-      return resizable(resultView(SurveyFeature.Result.valueOf(result.get()), context));
+      return resizable(resultView(SurveyFeature.Result.valueOf(result.get()), phase, context));
     }
     String roomId = context.require(SurveyFeature.ROOM_ID_KEY, String.class);
     SurveyDefinition survey =
-        SurveyDefinition.load(roomId)
-            .orElseThrow(() -> new DialogCreationException("No valid survey for room " + roomId));
+        SurveyDefinition.load(phase, roomId)
+            .orElseThrow(
+                () -> new DialogCreationException("No valid " + phase + " survey for " + roomId));
     return resizable(new Form(survey, context).frame);
   }
 
@@ -708,10 +711,12 @@ final class SurveyDialog {
    * Shows where the answers ended up; the status color carries the outcome.
    *
    * @param result storage state of the answers
+   * @param phase survey phase; its button starts or ends the game
    * @param context dialog context for the confirm callback
    * @return result window
    */
-  private static Table resultView(SurveyFeature.Result result, DialogContext context) {
+  private static Table resultView(
+      SurveyFeature.Result result, SurveyFeature.Phase phase, DialogContext context) {
     String key = "result." + result.name().toLowerCase();
     Table window = window();
     window
@@ -759,7 +764,7 @@ final class SurveyDialog {
     window
         .add(
             button(
-                T.text("quit"),
+                T.text(phase == SurveyFeature.Phase.PRE ? "continue" : "quit"),
                 "green",
                 20,
                 () ->

@@ -33,6 +33,7 @@
             "other": "Other:",
             "other_placeholder": "Please describe",
             "sending": "Sending answers",
+            "continue": "Continue",
             "quit": "Quit",
             "number_hint": {
                 "integer": "Whole number",
