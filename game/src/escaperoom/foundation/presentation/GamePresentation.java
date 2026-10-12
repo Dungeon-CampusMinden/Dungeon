@@ -130,20 +130,6 @@ public record GamePresentation(
     String id();
 
     /**
-     * Returns the authored device surface identifier.
-     *
-     * @return stable surface identifier
-     */
-    String surfaceId();
-
-    /**
-     * Returns the player-facing device title.
-     *
-     * @return device title
-     */
-    String title();
-
-    /**
      * Reports whether this presentation shows exactly the given host definition.
      *
      * @param definition host-owned input definition
@@ -219,19 +205,13 @@ public record GamePresentation(
       List<ChoiceOptionPresentation> options,
       boolean multipleSelection)
       implements InputPresentation {
-    /** Creates immutable choice input presentation with unique option identifiers. */
+    /** Creates immutable choice input presentation. */
     public ChoiceInputPresentation {
       id = required(id, "choice input presentation id");
       surfaceId = required(surfaceId, "choice input presentation surface id");
       title = required(title, "choice input presentation title");
       question = required(question, "choice input presentation question");
       options = List.copyOf(Objects.requireNonNull(options, "options"));
-      if (options.size() < 2) {
-        throw new IllegalArgumentException("choice input presentation requires two options");
-      }
-      if (options.stream().map(ChoiceOptionPresentation::id).distinct().count() != options.size()) {
-        throw new IllegalArgumentException("choice option ids must be unique");
-      }
     }
 
     @Override

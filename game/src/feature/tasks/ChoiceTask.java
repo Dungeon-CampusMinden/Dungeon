@@ -14,8 +14,8 @@ import java.util.Set;
  * translated without changing the evaluation. A submitted selection is correct only when it
  * contains exactly the correct option values. With single selection, exactly one option is correct.
  *
- * <p>Show the task with {@link DialogFactory#showChoiceDialog} and submit the returned selection to
- * the {@link TaskComponent} that owns the task.
+ * <p>Show the task with {@link DialogFactory#showMultipleChoiceDialog} and submit the confirmed
+ * option values as a set to the {@link TaskComponent} that owns the task.
  */
 public class ChoiceTask extends Task<Set<String>> {
 

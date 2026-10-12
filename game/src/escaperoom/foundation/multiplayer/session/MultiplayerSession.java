@@ -197,6 +197,7 @@ public final class MultiplayerSession {
       final String riddleId,
       final String inputId,
       final Set<String> selection) {
+    advance();
     return ready(clientId)
         ? Optional.of(authority.attemptChoice(riddleId, inputId, selection))
         : Optional.empty();

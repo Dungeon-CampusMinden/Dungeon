@@ -119,10 +119,17 @@ class BubbleSortConfirmationTest {
           .when(
               () ->
                   DialogFactory.showMultipleChoiceDialog(
-                      anyString(), anyString(), any(), anyBoolean(), any(), any(), eq(player.id())))
+                      anyString(),
+                      anyString(),
+                      any(),
+                      anyBoolean(),
+                      anyBoolean(),
+                      any(),
+                      any(),
+                      eq(player.id())))
           .thenAnswer(
               call -> {
-                respond.set(call.getArgument(4));
+                respond.set(call.getArgument(5));
                 return null;
               });
       scheduler
@@ -198,10 +205,17 @@ class BubbleSortConfirmationTest {
           .when(
               () ->
                   DialogFactory.showMultipleChoiceDialog(
-                      anyString(), anyString(), any(), anyBoolean(), any(), any(), eq(player.id())))
+                      anyString(),
+                      anyString(),
+                      any(),
+                      anyBoolean(),
+                      anyBoolean(),
+                      any(),
+                      any(),
+                      eq(player.id())))
           .thenAnswer(
               call -> {
-                respond.set(call.getArgument(4));
+                respond.set(call.getArgument(5));
                 return null;
               });
 

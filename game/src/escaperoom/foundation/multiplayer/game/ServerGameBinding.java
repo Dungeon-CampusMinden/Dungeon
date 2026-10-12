@@ -6,6 +6,7 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import engine.systems.LevelSystem;
 import engine.utils.Point;
@@ -29,6 +30,7 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -293,15 +295,25 @@ public final class ServerGameBinding {
         position,
         (ignored, player) -> {
           if (serverBinding.inputActive(player, riddleId, presentation.id())) {
-            DialogFactory.showChoiceDialog(
+            DialogFactory.showMultipleChoiceDialog(
                 RichLabel.toRichText(presentation.question()),
                 presentation.title(),
                 options,
                 presentation.multipleSelection(),
-                selection -> submitChoice(player, riddleId, presentation.id(), selection),
+                true,
+                payload -> submitChoice(player, riddleId, presentation.id(), selection(payload)),
+                () -> {},
                 player.id());
           }
         });
+  }
+
+  private static Set<String> selection(final DialogResponseMessage.Payload payload) {
+    return switch (payload) {
+      case DialogResponseMessage.StringValue(String value) -> Set.of(value);
+      case DialogResponseMessage.StringList(String[] values) -> Set.copyOf(Arrays.asList(values));
+      default -> Set.of();
+    };
   }
 
   private void submitChoice(
