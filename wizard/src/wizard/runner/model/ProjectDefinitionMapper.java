@@ -8,6 +8,8 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import tools.jackson.databind.JsonNode;
 import wizard.runner.model.ProjectDefinition.Asset;
+import wizard.runner.model.ProjectDefinition.ChoiceInput;
+import wizard.runner.model.ProjectDefinition.ChoiceOption;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
 import wizard.runner.model.ProjectDefinition.GraphEdge;
 import wizard.runner.model.ProjectDefinition.GraphNode;
@@ -112,6 +114,16 @@ public final class ProjectDefinitionMapper {
               text(node, "surfaceId"),
               text(node, "answer"),
               node.get("showDigitCount").booleanValue());
+      case "choice" ->
+          new ChoiceInput(
+              text(node, "id"),
+              text(node, "surfaceId"),
+              text(node, "question"),
+              array(
+                  node.get("options"),
+                  option -> new ChoiceOption(text(option, "id"), text(option, "text"))),
+              textArray(node.get("correctOptionIds")),
+              node.get("multipleSelection").booleanValue());
       default -> throw new IllegalArgumentException("unsupported schema-valid input type");
     };
   }

@@ -17,7 +17,8 @@
             "placeholder": "Your answer..."
         },
         "multiple_choice_dialog": {
-            "cancel": "Cancel"
+            "cancel": "Cancel",
+            "confirm": "Confirm"
         },
         "pause_dialog": {
             "paused": "PAUSED",

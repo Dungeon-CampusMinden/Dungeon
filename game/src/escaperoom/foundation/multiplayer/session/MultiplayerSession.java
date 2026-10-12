@@ -1,9 +1,9 @@
 package escaperoom.foundation.multiplayer.session;
 
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
-import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.RosterSlotDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
@@ -163,6 +163,25 @@ public final class MultiplayerSession {
       final short clientId, final String riddleId, final String inputId, final String attempt) {
     return ready(clientId)
         ? Optional.of(authority.attemptCode(riddleId, inputId, attempt))
+        : Optional.empty();
+  }
+
+  /**
+   * Routes one choice selection for a ready player.
+   *
+   * @param clientId stable Dungeon client identifier
+   * @param riddleId owning riddle identifier
+   * @param inputId choice input identifier
+   * @param selection selected option identifiers
+   * @return delegated result, or empty when the player is not ready
+   */
+  public synchronized Optional<CodeAttemptResult> enterChoice(
+      final short clientId,
+      final String riddleId,
+      final String inputId,
+      final Set<String> selection) {
+    return ready(clientId)
+        ? Optional.of(authority.attemptChoice(riddleId, inputId, selection))
         : Optional.empty();
   }
 
@@ -368,8 +387,8 @@ public final class MultiplayerSession {
                               source.resources().stream().map(ResourcePresentation::id).toList())
                       .toList())
           || !definitionRiddle.inputs().stream()
-              .filter(NumericInputDefinition.class::isInstance)
-              .map(NumericInputDefinition.class::cast)
+              .filter(SurfaceInputDefinition.class::isInstance)
+              .map(SurfaceInputDefinition.class::cast)
               .map(input -> input.id() + "\u0000" + input.surfaceId())
               .toList()
               .equals(

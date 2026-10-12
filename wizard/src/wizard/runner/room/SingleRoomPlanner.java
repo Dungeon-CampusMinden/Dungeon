@@ -16,8 +16,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import wizard.runner.model.ProjectDefinition;
+import wizard.runner.model.ProjectDefinition.ChoiceInput;
+import wizard.runner.model.ProjectDefinition.CollectionInput;
 import wizard.runner.model.ProjectDefinition.GraphNode;
 import wizard.runner.model.ProjectDefinition.GraphNodeKind;
+import wizard.runner.model.ProjectDefinition.Input;
 import wizard.runner.model.ProjectDefinition.NumericInput;
 import wizard.runner.model.ProjectDefinition.Riddle;
 
@@ -156,10 +159,15 @@ final class SingleRoomPlanner {
     riddle
         .informationSources()
         .forEach(source -> components.add(new ComponentSpec(source.id(), source.surfaceId())));
-    riddle.inputs().stream()
-        .filter(NumericInput.class::isInstance)
-        .map(NumericInput.class::cast)
-        .forEach(input -> components.add(new ComponentSpec(input.id(), input.surfaceId())));
+    for (Input input : riddle.inputs()) {
+      switch (input) {
+        case CollectionInput ignored -> {}
+        case NumericInput numeric ->
+            components.add(new ComponentSpec(numeric.id(), numeric.surfaceId()));
+        case ChoiceInput choice ->
+            components.add(new ComponentSpec(choice.id(), choice.surfaceId()));
+      }
+    }
     return List.copyOf(components);
   }
 

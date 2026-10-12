@@ -151,6 +151,8 @@ public record ProjectDefinition(
     CONTAINER,
     /** Numeric input keypad. */
     KEYPAD,
+    /** Choice question terminal. */
+    TERMINAL,
     /** Common exit door. */
     DOOR
   }
@@ -261,7 +263,7 @@ public record ProjectDefinition(
   }
 
   /** Closed active-profile input variants. */
-  public sealed interface Input permits CollectionInput, NumericInput {
+  public sealed interface Input permits ChoiceInput, CollectionInput, NumericInput {
     /**
      * Returns the stable input identifier.
      *
@@ -299,6 +301,49 @@ public record ProjectDefinition(
       id = requireText(id, "input.id");
       surfaceId = requireText(surfaceId, "input.surfaceId");
       answer = requireText(answer, "input.answer");
+    }
+  }
+
+  /**
+   * One single- or multiple-choice question at a terminal.
+   *
+   * @param id stable input identifier
+   * @param surfaceId terminal surface identifier
+   * @param question authored question
+   * @param options selectable options in display order
+   * @param correctOptionIds identifiers of all correct options
+   * @param multipleSelection whether players may select more than one option
+   */
+  public record ChoiceInput(
+      String id,
+      String surfaceId,
+      String question,
+      List<ChoiceOption> options,
+      List<String> correctOptionIds,
+      boolean multipleSelection)
+      implements Input {
+    /** Creates a choice input. */
+    public ChoiceInput {
+      id = requireText(id, "input.id");
+      surfaceId = requireText(surfaceId, "input.surfaceId");
+      question = requireText(question, "input.question");
+      options = List.copyOf(Objects.requireNonNull(options, "input.options"));
+      correctOptionIds =
+          List.copyOf(Objects.requireNonNull(correctOptionIds, "input.correctOptionIds"));
+    }
+  }
+
+  /**
+   * One selectable option of a choice input.
+   *
+   * @param id stable option identifier
+   * @param text authored option text
+   */
+  public record ChoiceOption(String id, String text) {
+    /** Creates a choice option. */
+    public ChoiceOption {
+      id = requireText(id, "option.id");
+      text = requireText(text, "option.text");
     }
   }
 

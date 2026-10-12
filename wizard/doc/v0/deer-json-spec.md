@@ -202,10 +202,12 @@ ausschließlich:
 - `world`: der gemeinsame Raum, genau einmal;
 - `container`: Fund in einem Behälter;
 - `keypad`: numerische Eingabe;
+- `terminal`: Fragestation für eine Auswahlfrage;
 - `door`: gemeinsamer Ausgang, genau einmal.
 
 Jede `container`-Surface gehört im Foundation-Profil genau einer
-Informationsquelle und jede `keypad`-Surface genau einem Input. Die
+Informationsquelle und jede `keypad`- oder `terminal`-Surface genau einem
+Input. Die
 `world`-Surface beschreibt den gemeinsamen Raum und ist keine Fundstation. Der
 Endknoten referenziert die `door`-Surface. Diese Surface-IDs bleiben vom
 DEER-Projekt über Layoutplatzierung bis zur Foundation-Runtime identisch.
@@ -213,8 +215,9 @@ DEER-Projekt über Layoutplatzierung bis zur Foundation-Runtime identisch.
 Diese technischen Datensätze sind in der Authoring-UI verborgen. Lehrende
 bearbeiten Rätsel, Informationsquellen und Eingaben, aber keine Orte oder
 Geräte. Die UI verwaltet genau eine World- und Door-Surface sowie je eine
-private Container-Surface pro Quelle und Keypad-Surface pro Numeric-Input. Die
-Titel dieser Container- und Keypad-Surfaces erzeugt die Projektion intern.
+private Container-Surface pro Quelle, Keypad-Surface pro Numeric-Input und
+Terminal-Surface pro Choice-Input. Die Titel dieser Geräte-Surfaces erzeugt die
+Projektion intern.
 Collection-Inputs verwenden die Surface der gewählten Quelle und besitzen
 keine eigene. Erzeugen, Löschen und Typwechsel ändern Surfacebestand und
 Besitzer atomar; Umbenennen oder Umordnen ändert keine stabile ID. Eine
@@ -335,6 +338,34 @@ Ziffern und den expliziten Boolean `showDigitCount`. Falsche Versuche bleiben
 unbegrenzt möglich. Die Lösung liegt bei jedem Teilnehmer in der vollständigen
 lokalen Definition; ausgewertet und als Fortschritt übernommen wird sie
 ausschließlich hostautoritativ.
+
+Die Auswahlfrage ist die Variante `type=choice`:
+
+```json
+{
+  "id": "input_safety_question",
+  "type": "choice",
+  "surfaceId": "s_safety_terminal",
+  "question": "Welche Maßnahmen schützen das Passwort?",
+  "options": [
+    { "id": "opt_length", "text": "Ein langes Passwort" },
+    { "id": "opt_sticky_note", "text": "Ein Zettel am Monitor" },
+    { "id": "opt_two_factor", "text": "Zwei-Faktor-Anmeldung" }
+  ],
+  "correctOptionIds": ["opt_length", "opt_two_factor"],
+  "multipleSelection": true
+}
+```
+
+Sie enthält `surfaceId` auf eine Terminal-Surface, eine nicht leere `question`,
+zwei bis sechs `options` mit stabiler `id` und nicht leerem `text`, die
+nicht leere, eindeutige Menge `correctOptionIds` und den expliziten Boolean
+`multipleSelection`. Ohne Mehrfachauswahl ist genau eine Option richtig, und
+die Spieler bestätigen eine Option mit einem Klick. Mit Mehrfachauswahl
+markieren sie beliebig viele Optionen und bestätigen sie gemeinsam. Ein Versuch
+ist genau dann richtig, wenn er exakt die Menge `correctOptionIds` auswählt.
+Falsche Versuche bleiben wie beim Zahlencode unbegrenzt möglich und werden
+ausschließlich hostautoritativ ausgewertet.
 
 Die Variante `type=collection` enthält eine `informationSourceId` und verwendet
 dieselbe Surface wie diese Quelle; sie erzeugt keinen eigenen Placementpunkt.
@@ -532,12 +563,15 @@ Werte. Dazu gehören insbesondere:
 - mindestens einen Input in jedem Rätsel;
 - vollständige Lernziel-, Debriefing-, Zielgruppen-, Schätzungs- und
   Provenienzfelder;
-- geschlossene Informationsquellen-, Numeric- und Collection-Varianten.
+- geschlossene Informationsquellen-, Numeric-, Choice- und Collection-Varianten;
+- zwei bis sechs Optionen je Choice-Input und genau eine richtige Option ohne
+  Mehrfachauswahl.
 
 Die semantische Prüfung ist auf dokumentübergreifende Regeln begrenzt:
 
 - global eindeutige aktuell interpretierte Laufzeit-IDs einschließlich
-  Informationsquellen und Inputs sowie existierende Referenzen auf Surfaces,
+  Informationsquellen, Inputs und Choice-Optionen sowie existierende Referenzen
+  auf Surfaces,
   Graphknoten, Rätsel und Assets;
 - `session.playerCount.min <= session.playerCount.max`;
 - Graphreichweite, Azyklizität, Rätsel-Bijektion und die mandatory
@@ -545,8 +579,9 @@ Die semantische Prüfung ist auf dokumentübergreifende Regeln begrenzt:
 - unbekannte oder inkompatible Surface-Referenzen;
 - genau eine World- und Door-Surface;
 - genau eine Informationsquelle je Container-Surface und genau ein Input je
-  Keypad-Surface;
+  Keypad- oder Terminal-Surface;
 - existierende rätseleigene `informationSourceId` jedes Collection-Inputs;
+- `correctOptionIds` jedes Choice-Inputs referenzieren eigene Optionen;
 - eine Door-Surface am Endknoten.
 
 Damit kann kein Input vor Aktivierung seines Rätsels wirksamen Teilfortschritt

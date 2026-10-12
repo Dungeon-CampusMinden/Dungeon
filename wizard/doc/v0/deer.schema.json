@@ -331,6 +331,7 @@
             "world",
             "container",
             "keypad",
+            "terminal",
             "door"
           ]
         },
@@ -558,6 +559,9 @@
         },
         {
           "$ref": "#/$defs/numericInput"
+        },
+        {
+          "$ref": "#/$defs/choiceInput"
         }
       ]
     },
@@ -607,6 +611,77 @@
         },
         "showDigitCount": {
           "type": "boolean"
+        }
+      }
+    },
+    "choiceInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "surfaceId",
+        "question",
+        "options",
+        "correctOptionIds",
+        "multipleSelection"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "choice"
+        },
+        "surfaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "question": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/choiceOption"
+          }
+        },
+        "correctOptionIds": {
+          "$ref": "#/$defs/nonEmptyIdArray"
+        },
+        "multipleSelection": {
+          "type": "boolean"
+        }
+      },
+      "if": {
+        "properties": {
+          "multipleSelection": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "correctOptionIds": {
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    "choiceOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "$ref": "#/$defs/nonBlankString"
         }
       }
     },

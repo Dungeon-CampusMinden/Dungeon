@@ -43,7 +43,7 @@ public record GamePresentation(
           register(identifiers, resource.id(), "information source resource");
         }
       }
-      for (NumericInputPresentation input : riddle.inputs()) {
+      for (InputPresentation input : riddle.inputs()) {
         register(identifiers, input.id(), "input");
       }
     }
@@ -71,12 +71,12 @@ public record GamePresentation(
    *
    * @param id stable riddle identifier
    * @param informationSources readable source presentations
-   * @param inputs numeric input-device presentations
+   * @param inputs surface-bound input-device presentations
    */
   public record ComposedPresentation(
       String id,
       List<InformationSourcePresentation> informationSources,
-      List<NumericInputPresentation> inputs) {
+      List<InputPresentation> inputs) {
     /** Creates immutable composed presentation content. */
     public ComposedPresentation {
       id = required(id, "composed presentation id");
@@ -114,6 +114,31 @@ public record GamePresentation(
     }
   }
 
+  /** Presentation for one surface-bound input device without its answer. */
+  public sealed interface InputPresentation
+      permits ChoiceInputPresentation, NumericInputPresentation {
+    /**
+     * Returns the stable input identifier.
+     *
+     * @return stable identifier
+     */
+    String id();
+
+    /**
+     * Returns the authored device surface identifier.
+     *
+     * @return stable surface identifier
+     */
+    String surfaceId();
+
+    /**
+     * Returns the player-facing device title.
+     *
+     * @return device title
+     */
+    String title();
+  }
+
   /**
    * Presentation for one numeric keypad without its answer.
    *
@@ -121,12 +146,61 @@ public record GamePresentation(
    * @param surfaceId authored keypad surface identifier
    * @param title player-facing keypad title
    */
-  public record NumericInputPresentation(String id, String surfaceId, String title) {
+  public record NumericInputPresentation(String id, String surfaceId, String title)
+      implements InputPresentation {
     /** Creates immutable numeric input presentation. */
     public NumericInputPresentation {
       id = required(id, "numeric input presentation id");
       surfaceId = required(surfaceId, "numeric input presentation surface id");
       title = required(title, "numeric input presentation title");
+    }
+  }
+
+  /**
+   * Presentation for one choice question terminal without its correct options.
+   *
+   * @param id stable input identifier
+   * @param surfaceId authored terminal surface identifier
+   * @param title player-facing terminal title
+   * @param question player-facing question
+   * @param options selectable options in display order
+   * @param multipleSelection whether players may select more than one option
+   */
+  public record ChoiceInputPresentation(
+      String id,
+      String surfaceId,
+      String title,
+      String question,
+      List<ChoiceOptionPresentation> options,
+      boolean multipleSelection)
+      implements InputPresentation {
+    /** Creates immutable choice input presentation with unique option identifiers. */
+    public ChoiceInputPresentation {
+      id = required(id, "choice input presentation id");
+      surfaceId = required(surfaceId, "choice input presentation surface id");
+      title = required(title, "choice input presentation title");
+      question = required(question, "choice input presentation question");
+      options = List.copyOf(Objects.requireNonNull(options, "options"));
+      if (options.size() < 2) {
+        throw new IllegalArgumentException("choice input presentation requires two options");
+      }
+      if (options.stream().map(ChoiceOptionPresentation::id).distinct().count() != options.size()) {
+        throw new IllegalArgumentException("choice option ids must be unique");
+      }
+    }
+  }
+
+  /**
+   * One selectable option of a choice question.
+   *
+   * @param id stable option identifier
+   * @param text player-facing option text
+   */
+  public record ChoiceOptionPresentation(String id, String text) {
+    /** Creates immutable option content. */
+    public ChoiceOptionPresentation {
+      id = required(id, "choice option id");
+      text = required(text, "choice option text");
     }
   }
 

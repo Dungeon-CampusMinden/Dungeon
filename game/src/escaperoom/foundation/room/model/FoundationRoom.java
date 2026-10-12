@@ -1,8 +1,8 @@
 package escaperoom.foundation.room.model;
 
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
-import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
@@ -215,8 +215,8 @@ public final class FoundationRoom {
                             source.resources().stream().map(ResourcePresentation::id).toList())
                     .toList())
         || !definition.inputs().stream()
-            .filter(NumericInputDefinition.class::isInstance)
-            .map(NumericInputDefinition.class::cast)
+            .filter(SurfaceInputDefinition.class::isInstance)
+            .map(SurfaceInputDefinition.class::cast)
             .map(input -> componentKey(input.id(), input.surfaceId()))
             .toList()
             .equals(
@@ -235,8 +235,8 @@ public final class FoundationRoom {
                 definition.informationSources().stream()
                     .map(source -> componentKey(source.id(), source.surfaceId())),
                 definition.inputs().stream()
-                    .filter(NumericInputDefinition.class::isInstance)
-                    .map(NumericInputDefinition.class::cast)
+                    .filter(SurfaceInputDefinition.class::isInstance)
+                    .map(SurfaceInputDefinition.class::cast)
                     .map(input -> componentKey(input.id(), input.surfaceId())))
             .toList();
     if (!expectedComponents.equals(placedComponents)) {

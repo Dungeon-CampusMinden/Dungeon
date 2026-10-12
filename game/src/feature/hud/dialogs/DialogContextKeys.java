@@ -95,6 +95,9 @@ public class DialogContextKeys {
   /** The key for whether a cancel option should be appended (Boolean). */
   public static final String CAN_CANCEL = "canCancel";
 
+  /** The key for whether a multiple choice dialog lets players toggle several options (Boolean). */
+  public static final String MULTIPLE_SELECTION = "multipleSelection";
+
   /** The key for the callback function to execute when an option is selected. */
   public static final String ON_OPTION_SELECTED = "onOptionSelected";
 

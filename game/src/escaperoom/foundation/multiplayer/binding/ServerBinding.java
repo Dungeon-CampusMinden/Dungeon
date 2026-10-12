@@ -97,6 +97,24 @@ public final class ServerBinding {
   }
 
   /**
+   * Applies one authoritative choice selection for a ready server player.
+   *
+   * @param playerEntity authenticated server player
+   * @param riddleId owning riddle identifier
+   * @param inputId choice input identifier
+   * @param selection selected option identifiers
+   * @return evaluated result when the player remains ready
+   */
+  public synchronized Optional<CodeAttemptResult> enterChoice(
+      final Entity playerEntity,
+      final String riddleId,
+      final String inputId,
+      final Set<String> selection) {
+    return clientId(playerEntity)
+        .flatMap(clientId -> session.enterChoice(clientId, riddleId, inputId, selection));
+  }
+
+  /**
    * Reports whether one input currently accepts actions.
    *
    * @param playerEntity authenticated server player

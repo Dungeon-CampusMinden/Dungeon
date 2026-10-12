@@ -1,5 +1,12 @@
-import type { AnyRiddleInput, CollectionInput, DeerProject, NumericInput, Riddle } from "@/data/DeerSchema";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import type {
+  AnyRiddleInput,
+  ChoiceInput,
+  CollectionInput,
+  DeerProject,
+  NumericInput,
+  Riddle,
+} from "@/data/DeerSchema";
+import { CheckIcon, PlusIcon, TrashIcon } from "lucide-react";
 import {
   addRiddleInput,
   convertRiddleInput,
@@ -8,6 +15,8 @@ import {
 import { Button } from "../ui/button";
 import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Util } from "@/data/Util";
 import { INPUT_TYPES } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
 import type { Issue, TabIssues } from "@/data/ErrorChecker";
@@ -94,11 +103,19 @@ export function RiddleInputsEditor({
               riddle={riddle}
               onChange={(updated) => updateInput(index, updated)}
             />
-          ) : (
+          ) : input.type === "numeric" ? (
             <NumericInputFields
               input={input}
               inputIndex={index}
               issues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:answer`)}
+              onChange={(updated) => updateInput(index, updated)}
+            />
+          ) : (
+            <ChoiceInputFields
+              input={input}
+              inputIndex={index}
+              questionIssues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:question`)}
+              optionIssues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:options`)}
               onChange={(updated) => updateInput(index, updated)}
             />
           )}
@@ -175,6 +192,131 @@ function NumericInputFields({
           value={input.showDigitCount ? "true" : "false"}
           onChange={(newValue) => onChange({ ...input, showDigitCount: newValue === "true" })}
         />
+      </Field>
+    </>
+  );
+}
+
+const MAX_CHOICE_OPTIONS = 6;
+const MIN_CHOICE_OPTIONS = 2;
+
+function ChoiceInputFields({
+  input,
+  inputIndex,
+  onChange,
+  questionIssues,
+  optionIssues,
+}: {
+  input: ChoiceInput;
+  inputIndex: number;
+  onChange: (updated: ChoiceInput) => void;
+  questionIssues: Issue[];
+  optionIssues: Issue[];
+}) {
+  const toggleCorrect = (optionId: string) => {
+    const isCorrect = input.correctOptionIds.includes(optionId);
+    const correctOptionIds = input.multipleSelection
+      ? isCorrect
+        ? input.correctOptionIds.filter((id) => id !== optionId)
+        : [...input.correctOptionIds, optionId]
+      : [optionId];
+    onChange({ ...input, correctOptionIds });
+  };
+
+  const updateOption = (optionId: string, text: string) => {
+    onChange({
+      ...input,
+      options: input.options.map((option) => (option.id === optionId ? { ...option, text } : option)),
+    });
+  };
+
+  const addOption = () => {
+    onChange({ ...input, options: [...input.options, { id: Util.generateUniqueId("opt"), text: "" }] });
+  };
+
+  const removeOption = (optionId: string) => {
+    onChange({
+      ...input,
+      options: input.options.filter((option) => option.id !== optionId),
+      correctOptionIds: input.correctOptionIds.filter((id) => id !== optionId),
+    });
+  };
+
+  const setMultipleSelection = (multipleSelection: boolean) => {
+    onChange({
+      ...input,
+      multipleSelection,
+      correctOptionIds: multipleSelection ? input.correctOptionIds : input.correctOptionIds.slice(0, 1),
+    });
+  };
+
+  return (
+    <>
+      <Field>
+        <FieldLabel>Frage</FieldLabel>
+        <Textarea
+          aria-label={`Frage für Eingabe ${inputIndex + 1}`}
+          aria-invalid={questionIssues.some((issue) => issue.severity === "error")}
+          value={input.question}
+          onChange={(e) => onChange({ ...input, question: e.target.value })}
+        />
+        <ValidationFeedback issues={questionIssues} />
+      </Field>
+      <Field>
+        <FieldLabel>Mehrere richtige Antworten</FieldLabel>
+        <FieldDescription>Bei „Ja“ müssen die Spieler alle richtigen Antworten auswählen.</FieldDescription>
+        <ResponsiveChoice
+          accessibleLabel={`Mehrere richtige Antworten für Eingabe ${inputIndex + 1}`}
+          options={YES_NO}
+          value={input.multipleSelection ? "true" : "false"}
+          onChange={(newValue) => setMultipleSelection(newValue === "true")}
+        />
+      </Field>
+      <Field>
+        <FieldLabel>Antworten</FieldLabel>
+        <FieldDescription>Markiere {input.multipleSelection ? "alle richtigen Antworten" : "die richtige Antwort"} mit dem Haken.</FieldDescription>
+        <div className="flex flex-col gap-2">
+          {input.options.map((option, optionIndex) => {
+            const isCorrect = input.correctOptionIds.includes(option.id);
+            return (
+              <div key={option.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                <Button
+                  aria-label={`Antwort ${optionIndex + 1} als richtig markieren`}
+                  aria-pressed={isCorrect}
+                  variant={isCorrect ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => toggleCorrect(option.id)}
+                >
+                  <CheckIcon />
+                </Button>
+                <Input
+                  aria-label={`Antwort ${optionIndex + 1} für Eingabe ${inputIndex + 1}`}
+                  value={option.text}
+                  onChange={(e) => updateOption(option.id, e.target.value)}
+                />
+                <Button
+                  aria-label={`Antwort ${optionIndex + 1} löschen`}
+                  variant="ghost"
+                  size="icon"
+                  disabled={input.options.length <= MIN_CHOICE_OPTIONS}
+                  onClick={() => removeOption(option.id)}
+                >
+                  <TrashIcon />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+        <Button
+          variant="outline"
+          className="lg:max-w-40"
+          disabled={input.options.length >= MAX_CHOICE_OPTIONS}
+          onClick={addOption}
+        >
+          <PlusIcon />
+          Antwort
+        </Button>
+        <ValidationFeedback issues={optionIssues} />
       </Field>
     </>
   );

@@ -14,6 +14,7 @@ import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.multiplayer.binding.ServerBinding;
 import escaperoom.foundation.presentation.GamePresentation;
+import escaperoom.foundation.presentation.GamePresentation.ChoiceInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
@@ -21,6 +22,9 @@ import escaperoom.foundation.runtime.CodeOutcome;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
+import feature.hud.dialogs.ChoiceOption;
+import feature.hud.dialogs.DialogFactory;
+import feature.hud.elements.RichLabel;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
@@ -33,12 +37,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.LongSupplier;
 
 /** Dungeon world bridge for one already materialized Foundation room. */
 public final class ServerGameBinding {
   private static final String HINT_ASSET = "items/book/wisdom_scroll.png";
+  private static final String TERMINAL_ASSET = "objects/tech/Computer_1.png";
   private static final String KEYPAD_BACK = "Back";
   private static final String KEYPAD_SUBMIT = "Submit";
   private static final int HIDDEN_DIGIT_LIMIT = 8;
@@ -68,7 +74,7 @@ public final class ServerGameBinding {
    * @param doorTile authoritative common-exit door
    * @param exitTile authoritative common-exit tile
    * @param levelSystem level system whose default exit callback is disabled
-   * @param componentStations authoritative source and numeric-input positions
+   * @param componentStations authoritative source and input-device positions
    * @param hintStations authoritative optional hint interaction positions
    * @param monotonicNanos monotonic server-loop time source
    * @param onTerminalComplete callback after the first client completes the terminal pages
@@ -171,11 +177,17 @@ public final class ServerGameBinding {
                   .forEach(
                       input ->
                           Game.add(
-                              keypad(
-                                  riddle.id(),
-                                  input,
-                                  requireNumericDefinition(input.id()),
-                                  requireStation(stations, input.id()))));
+                              switch (input) {
+                                case NumericInputPresentation numeric ->
+                                    keypad(
+                                        riddle.id(),
+                                        numeric,
+                                        requireNumericDefinition(numeric.id()),
+                                        requireStation(stations, numeric.id()));
+                                case ChoiceInputPresentation choice ->
+                                    choiceTerminal(
+                                        riddle.id(), choice, requireStation(stations, choice.id()));
+                              }));
             });
     Objects.requireNonNull(hintStations, "hintStations")
         .forEach(
@@ -262,7 +274,7 @@ public final class ServerGameBinding {
         .enterNumericCode(player, riddleId, inputId, attempt)
         .map(
             result -> {
-              tracking.attempt(riddleId, inputId, attempt, result, player);
+              tracking.attempt(riddleId, inputId, "numeric-code", attempt, result, player);
               if (result.outcome() == CodeOutcome.CORRECT) {
                 component.isUnlocked(true);
                 keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
@@ -277,6 +289,55 @@ public final class ServerGameBinding {
               return false;
             })
         .orElse(false);
+  }
+
+  private Entity choiceTerminal(
+      final String riddleId, final ChoiceInputPresentation presentation, final Point position) {
+    List<ChoiceOption> options =
+        presentation.options().stream()
+            .map(option -> ChoiceOption.of(RichLabel.toRichText(option.text()), option.id()))
+            .toList();
+    return station(
+        presentation.title(),
+        TERMINAL_ASSET,
+        position,
+        (ignored, player) -> {
+          if (serverBinding.inputActive(player, riddleId, presentation.id())) {
+            DialogFactory.showChoiceDialog(
+                RichLabel.toRichText(presentation.question()),
+                presentation.title(),
+                options,
+                presentation.multipleSelection(),
+                selection -> submitChoice(player, riddleId, presentation.id(), selection),
+                player.id());
+          }
+        });
+  }
+
+  private void submitChoice(
+      final Entity player,
+      final String riddleId,
+      final String inputId,
+      final Set<String> selection) {
+    serverBinding
+        .enterChoice(player, riddleId, inputId, selection)
+        .ifPresent(
+            result -> {
+              tracking.attempt(
+                  riddleId,
+                  inputId,
+                  "choice",
+                  String.join(",", new TreeSet<>(selection)),
+                  result,
+                  player);
+              if (result.outcome() == CodeOutcome.CORRECT) {
+                Game.audio()
+                    .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
+              } else if (result.outcome() == CodeOutcome.INCORRECT) {
+                Game.audio()
+                    .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
+              }
+            });
   }
 
   private static void playKeypadButtonSound(final int digit, final int targetEntityId) {

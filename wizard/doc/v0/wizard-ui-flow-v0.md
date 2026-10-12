@@ -156,10 +156,13 @@ Bild aus der Spielbibliothek speichert nur seinen internen Pfad und die
 Metadaten. Technische Pfade, Hashes, Asset-IDs und Orte bleiben in der UI
 verborgen.
 
-V0.5 bietet Zahlencode und verpflichtendes Entdecken einer Informationsquelle.
-Ein Zahlencode besteht aus einer bis acht Ziffern. Falsche Eingaben können im
-Spiel wiederholt werden. Die UI erzeugt für jede Informationsquelle und jede
-Zahleneingabe einen eigenen internen Spielbestandteil. Lehrende wählen keine
+V0.5 bietet Zahlencode, Auswahlfrage und verpflichtendes Entdecken einer
+Informationsquelle. Ein Zahlencode besteht aus einer bis acht Ziffern. Eine
+Auswahlfrage hat eine Frage, zwei bis sechs Antworten und entweder genau eine
+oder mehrere richtige Antworten, die die Lehrkraft mit einem Haken markiert.
+Falsche Eingaben können im Spiel wiederholt werden. Die UI erzeugt für jede
+Informationsquelle, jede Zahleneingabe und jede Auswahlfrage einen eigenen
+internen Spielbestandteil. Lehrende wählen keine
 gemeinsam verwendeten Orte oder Geräte aus.
 
 Hinweise sind geordnet. Die Lehrkraft wählt für jeden Hinweis eine der

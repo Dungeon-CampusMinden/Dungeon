@@ -479,6 +479,60 @@ public class DialogFactory {
       Consumer<DialogResponseMessage.Payload> onSelected,
       IVoidFunction onCancel,
       int... targetEntityIds) {
+    return showMultipleChoiceDialog(
+        dialog, title, options, false, canCancel, onSelected, onCancel, targetEntityIds);
+  }
+
+  /**
+   * Shows a question and passes the confirmed option values to {@code onConfirm}.
+   *
+   * <p>With single selection, clicking an option confirms it. With multiple selection, clicks
+   * toggle options and a confirm row submits every checked option. A cancel row closes the dialog
+   * without an answer.
+   *
+   * @param question The question script (non-blank), see {@link DialogScript}
+   * @param title The dialog window title (may be blank for no title)
+   * @param options The selectable options; their values identify the selection
+   * @param multipleSelection Whether players may select more than one option
+   * @param onConfirm Callback receiving the confirmed option values
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed
+   * @return The {@link UIComponent} containing the dialog
+   */
+  public static UIComponent showChoiceDialog(
+      String question,
+      String title,
+      List<ChoiceOption> options,
+      boolean multipleSelection,
+      Consumer<Set<String>> onConfirm,
+      int... targetEntityIds) {
+    Objects.requireNonNull(onConfirm, "onConfirm callback cannot be null");
+    return showMultipleChoiceDialog(
+        question,
+        title,
+        options,
+        multipleSelection,
+        true,
+        payload -> {
+          switch (payload) {
+            case DialogResponseMessage.StringValue(String value) -> onConfirm.accept(Set.of(value));
+            case DialogResponseMessage.StringList(String[] values) ->
+                onConfirm.accept(Set.copyOf(Arrays.asList(values)));
+            default -> LOGGER.warn("Ignoring unsupported choice payload {}", payload);
+          }
+        },
+        () -> {},
+        targetEntityIds);
+  }
+
+  private static UIComponent showMultipleChoiceDialog(
+      String dialog,
+      String title,
+      List<ChoiceOption> options,
+      boolean multipleSelection,
+      boolean canCancel,
+      Consumer<DialogResponseMessage.Payload> onSelected,
+      IVoidFunction onCancel,
+      int... targetEntityIds) {
     Objects.requireNonNull(dialog, "dialog string cannot be null");
     if (dialog.isBlank()) {
       throw new IllegalArgumentException("dialog string cannot be blank");
@@ -492,6 +546,7 @@ public class DialogFactory {
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.DIALOG, dialog)
             .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
+            .put(DialogContextKeys.MULTIPLE_SELECTION, multipleSelection)
             .put(DialogContextKeys.CAN_CANCEL, canCancel)
             .put(DialogContextKeys.ESCAPE_ADVANCES, true);
 

@@ -58,7 +58,7 @@ export interface Scenario {
 
 export interface Surface {
   id: string;
-  kind: "world" | "container" | "keypad" | "door";
+  kind: "world" | "container" | "keypad" | "terminal" | "door";
   title: string;
 }
 
@@ -124,7 +124,7 @@ export interface InformationSource {
 
 export interface RiddleInput {
   id: string;
-  type: "collection" | "numeric";
+  type: "collection" | "numeric" | "choice";
 }
 export interface CollectionInput extends RiddleInput {
   type: "collection";
@@ -136,7 +136,22 @@ export interface NumericInput extends RiddleInput {
   answer: string;
   showDigitCount: boolean;
 }
-export type AnyRiddleInput = CollectionInput | NumericInput;
+export interface ChoiceOption {
+  id: string;
+  text: string;
+}
+export interface ChoiceInput extends RiddleInput {
+  type: "choice";
+  surfaceId: string;
+  question: string;
+  options: ChoiceOption[];
+  correctOptionIds: string[];
+  multipleSelection: boolean;
+}
+export type AnyRiddleInput = CollectionInput | NumericInput | ChoiceInput;
+
+/** Inputs answered at their own placed device surface. */
+export type SurfaceRiddleInput = NumericInput | ChoiceInput;
 
 export type RiddleDifficulty = "easy" | "medium" | "hard";
 

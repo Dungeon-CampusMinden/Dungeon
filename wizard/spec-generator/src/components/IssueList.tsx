@@ -40,7 +40,7 @@ function teacherDescription(description: string): string {
 function teacherDetails(details: string | undefined): string | undefined {
   if (!details) return undefined;
   if (/\b(ids?|json|java|deer|hash|enum)\b/i.test(details)
-    || /\([^)]*(world|container|keypad|door)[^)]*\)/i.test(details)
+    || /\([^)]*(world|container|keypad|terminal|door)[^)]*\)/i.test(details)
     || /(?:^|\s)\/(?:[^\s/]+\/)+/.test(details)) return undefined;
   return details;
 }
