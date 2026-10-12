@@ -103,22 +103,21 @@ final class SurveyDialog {
   /**
    * Builds the survey form or, when the context carries a result, the result view.
    *
-   * @param context dialog context with the phase, the room ID and an optional result
+   * @param context dialog context with the survey file, or with a result and the phase
    * @return dialog actor
    */
   static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
-    SurveyFeature.Phase phase =
-        SurveyFeature.Phase.valueOf(context.require(SurveyFeature.PHASE_KEY, String.class));
     Optional<String> result = context.find(SurveyFeature.RESULT_KEY, String.class);
     if (result.isPresent()) {
+      SurveyFeature.Phase phase =
+          SurveyFeature.Phase.valueOf(context.require(SurveyFeature.PHASE_KEY, String.class));
       return resizable(resultView(SurveyFeature.Result.valueOf(result.get()), phase, context));
     }
-    String roomId = context.require(SurveyFeature.ROOM_ID_KEY, String.class);
+    String file = context.require(SurveyFeature.FILE_KEY, String.class);
     SurveyDefinition survey =
-        SurveyDefinition.load(phase, roomId)
-            .orElseThrow(
-                () -> new DialogCreationException("No valid " + phase + " survey for " + roomId));
+        SurveyDefinition.load(file)
+            .orElseThrow(() -> new DialogCreationException("No valid survey in " + file));
     return resizable(new Form(survey, context).frame);
   }
 

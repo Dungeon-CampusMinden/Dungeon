@@ -144,7 +144,7 @@ schreibt weder Benutzernamen, Adressen, Client-IDs noch Entity-IDs in Tracking-D
 Unverarbeitete Antworten werden exakt wie übermittelt gespeichert. Betreiber müssen Outboxes daher
 als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschregeln festlegen.
 
-Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `active`,
+Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `runId`, `active`,
 `outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `interaction`, `participantForClient` und
 `participantForEntity`, `completed`, `surveyAnswered`, `remoteAcknowledged`, `operatorEmail` und
 `persistenceWarningShown`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften

@@ -1,5 +1,6 @@
 package feature.survey;
 
+import com.badlogic.gdx.Gdx;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.tracking.Tracking;
@@ -38,7 +39,7 @@ import tracking.core.TrackingJson;
  */
 public final class SurveyFeature {
 
-  static final String ROOM_ID_KEY = "surveyRoomId";
+  static final String FILE_KEY = "surveyFile";
   static final String PHASE_KEY = "surveyPhase";
   static final String RESULT_KEY = "surveyResult";
   static final String OUTBOX_KEY = "surveyOutbox";
@@ -59,7 +60,11 @@ public final class SurveyFeature {
     }
   }
 
-  /** When a survey runs; {@code surveys/<phase>-<roomId>.json} holds its questions. */
+  /**
+   * When a survey runs. {@code surveys/<phase>-<roomId>.json} holds a room's questions for the
+   * phase; for A/B tests, {@code surveys/<phase>-a-<roomId>.json} and {@code
+   * surveys/<phase>-b-<roomId>.json} replace it in the runs of their variant.
+   */
   public enum Phase {
     /** Before the intro of a new run; closing it starts the game. */
     PRE,
@@ -67,13 +72,20 @@ public final class SurveyFeature {
     POST;
 
     /**
-     * Returns the asset path of a room's survey in this phase.
+     * Returns the asset path of a room's survey in this phase for one run: the file of the run's
+     * variant when it exists, otherwise the room's file for the phase.
      *
      * @param roomId tracking room ID
-     * @return path such as {@code surveys/pre-system-recovery.json}
+     * @param runId run identifier; it assigns half of the runs to variant a and the other half to
+     *     b, and a loaded run keeps its variant
+     * @return path such as {@code surveys/pre-a-system-recovery.json}
      */
-    String path(String roomId) {
-      return "surveys/" + name().toLowerCase(Locale.ROOT) + "-" + roomId + ".json";
+    String file(String roomId, UUID runId) {
+      String prefix = "surveys/" + name().toLowerCase(Locale.ROOT) + "-";
+      String variant = (runId.getLeastSignificantBits() & 1) == 0 ? "a" : "b";
+      String variantFile = prefix + variant + "-" + roomId + ".json";
+      if (Gdx.files != null && Gdx.files.internal(variantFile).exists()) return variantFile;
+      return prefix + roomId + ".json";
     }
   }
 
@@ -101,7 +113,7 @@ public final class SurveyFeature {
    * each of them is done: they skipped it, sent no answers, closed the storage result after
    * submitting, or left the game.
    *
-   * <p>The survey is {@code surveys/<phase>-<roomId>.json} for the room configured through {@link
+   * <p>The survey is the {@link Phase#file} of the room configured through {@link
    * Tracking#configureRoom(String)}. Each player gets it once their client finished joining,
    * because the tracking session and their participant start only then. A player is done right away
    * when that file is absent or invalid, or tracking does not record them, because answers could
@@ -112,11 +124,9 @@ public final class SurveyFeature {
    * @param playerIds players to ask; all players when empty
    */
   public static void show(Phase phase, Runnable onComplete, int... playerIds) {
-    Round round =
-        new Round(
-            phase,
-            Tracking.roomId().flatMap(roomId -> SurveyDefinition.load(phase, roomId)),
-            onComplete);
+    Optional<String> file =
+        Tracking.roomId().flatMap(roomId -> Tracking.runId().map(run -> phase.file(roomId, run)));
+    Round round = new Round(phase, file, file.flatMap(SurveyDefinition::load), onComplete);
     if (playerIds.length == 0) {
       Game.allPlayers().forEach(player -> round.joining.add(player.id()));
     } else {
@@ -131,8 +141,7 @@ public final class SurveyFeature {
             player,
             DialogContext.builder()
                 .type(Type.SURVEY)
-                .put(ROOM_ID_KEY, survey.roomId())
-                .put(PHASE_KEY, round.phase.name())
+                .put(FILE_KEY, round.file.orElseThrow())
                 .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
                 .build());
     ui.registerCallback(
@@ -221,6 +230,7 @@ public final class SurveyFeature {
    */
   private static final class Round {
     private final Phase phase;
+    private final Optional<String> file;
     private final Optional<SurveyDefinition> survey;
     private final Runnable onComplete;
     private final Set<Integer> joining = new HashSet<>();
@@ -228,8 +238,13 @@ public final class SurveyFeature {
     private final Set<Integer> answered = new HashSet<>();
     private boolean completed;
 
-    private Round(Phase phase, Optional<SurveyDefinition> survey, Runnable onComplete) {
+    private Round(
+        Phase phase,
+        Optional<String> file,
+        Optional<SurveyDefinition> survey,
+        Runnable onComplete) {
       this.phase = phase;
+      this.file = file;
       this.survey = survey;
       this.onComplete = onComplete;
     }

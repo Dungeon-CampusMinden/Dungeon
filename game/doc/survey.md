@@ -25,6 +25,19 @@ Jeder Spieler beantwortet die Umfrage für sich. Ohne Tracking-Zustimmung im Hau
 keine Umfrage, weil die Antworten dann nicht gespeichert werden dürfen. Spielzeit und
 Rätselereignisse beginnen erst nach dem Intro; die Vorher-Umfrage zählt also nicht zur Spielzeit.
 
+### Varianten für A/B-Tests
+
+Jeder Durchlauf gehört zufällig zu Variante `a` oder `b`, etwa die Hälfte der Durchläufe zu jeder.
+Die Variante hängt an der Run-ID des Spielstands; ein geladener Spielstand behält sie, und im
+Mehrspielermodus haben alle Spieler eines Durchlaufs dieselbe. Gibt es für eine Phase
+`<phase>-a-<roomId>.json` und `<phase>-b-<roomId>.json`, zeigt jeder Durchlauf die Datei seiner
+Variante statt `<phase>-<roomId>.json`. Fehlt die Datei der Variante, gilt die gemeinsame Datei.
+
+Sollen zwei Wissenstests vorher und nachher wechseln, enthält `pre-a-<roomId>.json` Test A und
+`post-a-<roomId>.json` Test B, `pre-b-<roomId>.json` Test B und `post-b-<roomId>.json` Test A. Jede
+Datei bekommt ihre eigene `questionnaireId`, etwa `wissenstest-pre-a-v1`; daran erkennt die
+Auswertung Phase und Variante jeder Antwort.
+
 ## Grundgerüst
 
 ```json
@@ -46,8 +59,8 @@ Rätselereignisse beginnen erst nach dem Intro; die Vorher-Umfrage zählt also n
 | Feld | Bedeutung |
 | --- | --- |
 | `schemaVersion` | Immer `1`. |
-| `roomId` | Muss dem Dateinamen ohne `pre-` oder `post-` entsprechen. |
-| `questionnaireId` | Kennung des Fragebogens; sie wird mit jeder Antwort gespeichert. Vorher- und Nachher-Umfrage brauchen verschiedene Kennungen, damit ihre Antworten unterscheidbar bleiben. Ändern sich Fragen so, dass alte und neue Antworten nicht mehr vergleichbar sind, bekommt der Fragebogen eine neue Kennung, etwa `-v2`. |
+| `roomId` | Muss am Ende des Dateinamens stehen, etwa `system-recovery` in `pre-a-system-recovery.json`. |
+| `questionnaireId` | Kennung des Fragebogens; sie wird mit jeder Antwort gespeichert. Jede Datei braucht ihre eigene Kennung, damit Antworten aus Vorher- und Nachher-Umfrage und aus beiden Varianten unterscheidbar bleiben. Ändern sich Fragen so, dass alte und neue Antworten nicht mehr vergleichbar sind, bekommt der Fragebogen eine neue Kennung, etwa `-v2`. |
 | `title` | Überschrift im blauen Kopf des Dialogs. |
 | `skippable` | `true` zeigt einen Knopf „Überspringen“ mit Rückfrage, `false` verlangt das Absenden. |
 | `pages` | Seiten in Anzeigereihenfolge. Jede Seite hat optional einen `title` und mindestens eine Frage. Die Spieler blättern mit „Weiter“ und „Zurück“. |

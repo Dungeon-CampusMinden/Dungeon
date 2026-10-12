@@ -134,6 +134,18 @@ public final class Tracking {
   }
 
   /**
+   * Returns the configured run ID shared by all sessions of one playthrough, also after loading a
+   * save.
+   *
+   * @return configured run ID
+   */
+  public static Optional<UUID> runId() {
+    synchronized (LOCK) {
+      return config().map(TrackingConfig::runId);
+    }
+  }
+
+  /**
    * Returns the configured room ID, if tracking is configured.
    *
    * @return configured room ID

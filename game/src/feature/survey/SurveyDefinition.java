@@ -18,7 +18,7 @@ import tools.jackson.databind.JsonNode;
 import tracking.core.TrackingJson;
 
 /**
- * Immutable, validated survey loaded from {@code surveys/<phase>-<roomId>.json}.
+ * Immutable, validated survey loaded from a {@link SurveyFeature.Phase#file}.
  *
  * <p>The same definition renders the client form and validates the submitted answers on the
  * authoritative server. {@code game/doc/survey.md} describes the file format.
@@ -83,21 +83,18 @@ record SurveyDefinition(
   }
 
   /**
-   * Loads one room's survey of a phase when the asset exists and is valid.
+   * Loads a survey when the asset exists and is valid.
    *
-   * @param phase phase whose file to load
-   * @param roomId tracking room ID used in {@code surveys/<phase>-<roomId>.json}
+   * @param path asset path ending in {@code -<roomId>.json}
    * @return the parsed survey, or empty if the asset is absent or invalid
    */
-  static Optional<SurveyDefinition> load(SurveyFeature.Phase phase, String roomId) {
-    requireId(roomId, "roomId");
-    String path = phase.path(roomId);
+  static Optional<SurveyDefinition> load(String path) {
     if (Gdx.files == null) return Optional.empty();
     FileHandle file = Gdx.files.internal(path);
     if (!file.exists()) return Optional.empty();
     try {
       SurveyDefinition survey = parse(file.readString(StandardCharsets.UTF_8.name()));
-      if (!roomId.equals(survey.roomId())) {
+      if (!file.name().endsWith("-" + survey.roomId() + ".json")) {
         throw new IllegalArgumentException(
             "roomId '" + survey.roomId() + "' does not match file name '" + path + "'");
       }
