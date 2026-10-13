@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
   "roomId": "soulweaver",
-  "questionnaireId": "soulweaver-evaluation-pre-test-a",
+  "questionnaireId": "soulweaver-evaluation-pre-a-v1",
   "title": {
-    "de": "Soulweaver Vorher-Fragebogen"
+    "de": "Soulweaver - Vorher-Fragebogen"
   },
   "skippable": false,
   "pages": [
     {
       "title": {
-        "de": "Vor dem Spiel"
+        "de": "Vor Soulweaver"
       },
       "questions": [
         {
           "id": "pre_survey_intro",
           "type": "info",
           "text": {
-            "de": "Vor dem Spiel"
+            "de": "Vor dem Escape Room"
           },
           "description": {
-            "de": "Dieser Fragebogen enthält Fragen zu deinen bisherigen Erfahrungen mit Escape Rooms, einige Angaben zu deiner Person und einen Wissenstest. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
+            "de": "Dieser Fragebogen enthält Angaben zu deinen bisherigen Erfahrungen, einen Wissenstest und Fragen zu Java-Programmierung. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
           }
         }
       ]
@@ -34,7 +34,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ich bin damit einverstanden, dass meine Daten für die Auswertung des Spiels pseudonym erfasst und verarbeitet werden. Du kannst diese Einwilligung jederzeit widerrufen."
+            "de": "Ich bin damit einverstanden, dass meine Antworten und zugehörigen Spieldaten für die Auswertung des Spiels erfasst und verarbeitet werden. Ich gebe in Freitextfeldern keine Namen oder Kontaktdaten an."
           },
           "options": [
             {
@@ -84,6 +84,12 @@
               "id": "diverse",
               "text": {
                 "de": "Divers"
+              }
+            },
+            {
+              "id": "prefer_not_to_say",
+              "text": {
+                "de": "Keine Angabe"
               }
             }
           ]
@@ -347,25 +353,25 @@
             {
               "id": "a",
               "text": {
-                "de": "int"
+                "de": "`int`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "boolean"
+                "de": "`boolean`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "double"
+                "de": "`double`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char"
+                "de": "`char`"
               }
             }
           ]
@@ -381,25 +387,25 @@
             {
               "id": "a",
               "text": {
-                "de": "String zeichen = 'K';"
+                "de": "`String zeichen = 'K';`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "char zeichen = \"K\";"
+                "de": "`char zeichen = \"K\";`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "boolean zeichen = 'K';"
+                "de": "`boolean zeichen = 'K';`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char zeichen = 'K';"
+                "de": "`char zeichen = 'K';`"
               }
             }
           ]
@@ -443,7 +449,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Du möchtest den Namen \"Mira\" als Text speichern. Welche Zeile passt dazu?"
+            "de": "Du möchtest den Namen „Mira“ als Text speichern. Welche Zeile passt dazu?"
           },
           "options": [
             {
@@ -695,7 +701,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Eine Methode namens \"summe\" erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?"
+            "de": "Eine Methode namens `summe` erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?"
           },
           "options": [
             {
@@ -729,7 +735,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet eine Zahl, die danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text \"Fertig!\" an. Welche Aussage passt?"
+            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet eine Zahl, die danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text „Fertig!“ an. Welche Aussage passt?"
           },
           "options": [
             {

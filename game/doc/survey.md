@@ -70,6 +70,10 @@ Auswertung Phase und Variante jeder Antwort.
 Jeder angezeigte Text ist ein Objekt mit `de` und/oder `en`, wie bei den Credits. Fehlt die
 Spielsprache, zeigt das Spiel `de`, danach `en`. Eine rein deutsche Umfrage braucht also nur `de`.
 
+Code steht wie in Markdown zwischen zwei Backticks, etwa `` "Welchen Wert hat `energie[2]`?" ``.
+Fragetitel und Optionen von Einfach- und Mehrfachauswahl zeigen ihn farbig. Eine Auswahlliste zeigt nur den Code ohne die Backticks, alle anderen Texte zeigen die
+Backticks unverändert. `[n]` im Code bricht die Zeile um; schreibe dafür etwa `[ n ]`.
+
 ### Kennungen
 
 `id`-Werte bestehen aus Buchstaben, Ziffern, `_` und `-`. Frage-IDs sind in der ganzen Datei

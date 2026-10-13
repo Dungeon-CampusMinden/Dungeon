@@ -1,42 +1,59 @@
 {
   "schemaVersion": 1,
   "roomId": "soulweaver",
-  "questionnaireId": "soulweaver-evaluation-post-test-a",
+  "questionnaireId": "soulweaver-evaluation-post-b-v1",
   "title": {
-    "de": "Soulweaver Nachher-Fragebogen"
+    "de": "Soulweaver - Nachher-Fragebogen"
   },
   "skippable": false,
   "pages": [
     {
       "title": {
-        "de": "Nach dem Spiel"
+        "de": "Nach Soulweaver"
       },
       "questions": [
         {
           "id": "post_survey_intro",
           "type": "info",
           "text": {
-            "de": "Nach dem Spiel"
+            "de": "Nach dem Escape Room"
           },
           "description": {
-            "de": "Dieser Fragebogen besteht aus mehreren Teilen: einer Selbsteinschätzung, einem Wissenstest und Fragen zu deiner Spielerfahrung. Bitte beantworte die Fragen so ehrlich wie möglich. Es gibt keine Rückmeldung zu einzelnen Antworten im Wissenstest."
+            "de": "Dieser Fragebogen besteht aus einer aktuellen und einer rückblickenden Selbsteinschätzung, einem Wissenstest und Fragen zu deiner Spielerfahrung. Bitte beantworte die Fragen so ehrlich wie möglich. Es gibt keine Rückmeldung zu einzelnen Antworten im Wissenstest."
           }
         }
       ]
     },
     {
       "title": {
-        "de": "Aktuelle Selbsteinschätzung (Post)"
+        "de": "Hinweise zur Selbsteinschätzung"
+      },
+      "questions": [
+        {
+          "id": "selbsteinschaetzung_hinweise",
+          "type": "info",
+          "text": {
+            "de": "So gehst du vor"
+          },
+          "description": {
+            "de": "Du schätzt dich auf den nächsten beiden Seiten zweimal ein. Auf der ersten Seite bewertest du, wie gut du die Aussagen jetzt, unmittelbar nach dem Escape Room, bewältigen kannst. Auf der darauffolgenden Seite denkst du an die Zeit unmittelbar vor dem Escape Room zurück und schätzt ein, wie gut du die gleichen Aussagen damals bewältigen konntest. Verwende beide Male dieselbe Antwortskala. Es geht um deine persönliche Einschätzung; es gibt keine richtigen oder falschen Antworten. Antworte für die rückblickende Einschätzung nach deiner bestmöglichen Erinnerung."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Selbsteinschätzung: Dein Können jetzt"
       },
       "questions": [
         {
           "id": "post_intro",
           "type": "info",
           "text": {
-            "de": "Bitte schätze dein Können ein."
+            "de": "Bitte schätze dein Können ein. (direkt nach dem Escape Room)"
           },
           "description": {
-            "de": "Bewerte, wie gut du die folgenden Dinge direkt nach dem Escape Room jetzt kannst. Nutze für jede Aussage dieselbe Skala. Wenn du unsicher bist, wähle die Antwort, die dein Können am besten beschreibt."
+            "de": "Schätze bitte ein, wie gut du die folgenden Handlungen und Erklärungen direkt nach dem Escape Room bewältigen kannst. Es geht um deine eigene Einschätzung, nicht um die richtigen Antworten im Wissenstest."
           }
         },
         {
@@ -157,17 +174,17 @@
     },
     {
       "title": {
-        "de": "Rückblickende Selbsteinschätzung (Then)"
+        "de": "Rückblickende Selbsteinschätzung: Dein Können vorher"
       },
       "questions": [
         {
           "id": "then_intro",
           "type": "info",
           "text": {
-            "de": "Bitte schätze dein Können ein."
+            "de": "Bitte schätze dein Können ein. (direkt vor dem Escape Room)"
           },
           "description": {
-            "de": "Denke jetzt bitte an den Zeitpunkt unmittelbar vor Beginn des Escape Rooms zurück. Bewerte, wie gut du die folgenden Dinge damals konntest. Die Aussagen und Antwortskala sind dieselben wie auf der vorherigen Seite."
+            "de": "Denke an den Zeitpunkt unmittelbar vor Beginn des Escape Rooms zurück. Schätze ein, wie gut du die folgenden Dinge damals konntest. Die Aussagen und Antwortskala sind dieselben wie auf der vorherigen Seite. Antworte nach deiner bestmöglichen Erinnerung."
           }
         },
         {
@@ -312,25 +329,25 @@
             {
               "id": "a",
               "text": {
-                "de": "int"
+                "de": "`int`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "boolean"
+                "de": "`boolean`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "double"
+                "de": "`double`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char"
+                "de": "`char`"
               }
             }
           ]
@@ -346,25 +363,25 @@
             {
               "id": "a",
               "text": {
-                "de": "String zeichen = 'K';"
+                "de": "`String zeichen = 'K';`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "char zeichen = \"K\";"
+                "de": "`char zeichen = \"K\";`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "boolean zeichen = 'K';"
+                "de": "`boolean zeichen = 'K';`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char zeichen = 'K';"
+                "de": "`char zeichen = 'K';`"
               }
             }
           ]
@@ -408,7 +425,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Du möchtest den Namen \"Mira\" als Text speichern. Welche Zeile passt dazu?"
+            "de": "Du möchtest den Namen „Mira“ als Text speichern. Welche Zeile passt dazu?"
           },
           "options": [
             {
@@ -660,7 +677,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Eine Methode namens \"summe\" erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?"
+            "de": "Eine Methode namens `summe` erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?"
           },
           "options": [
             {
@@ -694,7 +711,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet eine Zahl, die danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text \"Fertig!\" an. Welche Aussage passt?"
+            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet eine Zahl, die danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text „Fertig!“ an. Welche Aussage passt?"
           },
           "options": [
             {
@@ -1041,7 +1058,7 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich fühlte mich während des gesamten Spiels im \"Flow\" (weder unter- noch überfordert)."
+            "de": "Ich fühlte mich während des gesamten Spiels im „Flow“ (weder unter- noch überfordert)."
           },
           "minLabel": {
             "de": "Stimme überhaupt nicht zu"
