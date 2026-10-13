@@ -218,7 +218,7 @@ public class MainMenuScreen extends ScreenAdapter {
             afterDecision.run();
           }
         };
-    DialogDesign.setDialogDefaults(dialog, consent.title());
+    DialogDesign.setDialogDefaults(dialog, consent.title(), PANEL_TEXT_COLOR);
     float width = privacyDialogWidth();
     addPrivacySummary(dialog, consent.summary(), width);
     addPrivacyDetails(dialog, consent.message(), width);
@@ -507,13 +507,15 @@ public class MainMenuScreen extends ScreenAdapter {
           protected void result(Object object) {
             if (object instanceof Boolean decision) {
               settings.decision().accept(decision);
-              showTrackingSettings();
+              showMessageDialog(
+                  settings.title(),
+                  decision ? settings.enabledMessage() : settings.disabledMessage());
             } else if (object == DELETE_TRACKING_DATA) {
               showTrackingDeleteConfirmation(settings);
             }
           }
         };
-    DialogDesign.setDialogDefaults(dialog, settings.title());
+    DialogDesign.setDialogDefaults(dialog, settings.title(), PANEL_TEXT_COLOR);
     float width = privacyDialogWidth();
     addPrivacySummary(dialog, settings.summary(), width);
     Label status =
@@ -523,7 +525,7 @@ public class MainMenuScreen extends ScreenAdapter {
     status.setAlignment(Align.topLeft);
     dialog.getContentTable().add(status).width(width - 32).padBottom(12).left().row();
     addPrivacyDetails(dialog, settings.message(), width);
-    dialog.getButtonTable().defaults().minWidth(220).height(46).space(8);
+    dialog.getButtonTable().defaults().width(BUTTON_WIDTH).space(8);
     dialog.button(new TextButton(settings.disableLabel(), skin, "blue-outline"), Boolean.FALSE);
     dialog.button(new TextButton(settings.enableLabel(), skin, "green"), Boolean.TRUE);
     dialog.getButtonTable().row();
@@ -545,7 +547,8 @@ public class MainMenuScreen extends ScreenAdapter {
                 deleted ? settings.deletedMessage() : settings.deleteFailedMessage());
           }
         };
-    DialogDesign.setDialogDefaults(confirmation, settings.deleteConfirmationTitle());
+    DialogDesign.setDialogDefaults(
+        confirmation, settings.deleteConfirmationTitle(), PANEL_TEXT_COLOR);
     addWrappedDialogText(confirmation, settings.deleteConfirmationMessage());
     confirmation.button(trans.text(T_CONFIRM), Boolean.TRUE);
     confirmation.button(trans.text(T_CANCEL), Boolean.FALSE);
@@ -554,7 +557,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private void showMessageDialog(String title, String message) {
     Dialog dialog = new Dialog("", skin, "no-title");
-    DialogDesign.setDialogDefaults(dialog, title);
+    DialogDesign.setDialogDefaults(dialog, title, PANEL_TEXT_COLOR);
     addWrappedDialogText(dialog, message);
     dialog.button(trans.text(T_CONFIRM), Boolean.TRUE);
     dialog.show(stage);
