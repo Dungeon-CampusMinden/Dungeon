@@ -43,14 +43,14 @@
     },
     {
       "title": {
-        "de": "Selbsteinschätzung: Dein Können jetzt (direkt nach dem Escape Room)"
+        "de": "Selbsteinschätzung: Dein Können jetzt"
       },
       "questions": [
         {
           "id": "post_intro",
           "type": "info",
           "text": {
-            "de": "Bitte schätze dein Können ein."
+            "de": "Bitte schätze dein Können ein. (direkt nach dem Escape Room)"
           },
           "description": {
             "de": "Schätze bitte ein, wie gut du die folgenden Handlungen und Erklärungen direkt nach dem Escape Room bewältigen kannst. Es geht um deine eigene Einschätzung, nicht um die richtigen Antworten im Wissenstest."
@@ -174,14 +174,14 @@
     },
     {
       "title": {
-        "de": "Rückblickende Selbsteinschätzung: Dein Können vorher (direkt vor dem Escape Room)"
+        "de": "Rückblickende Selbsteinschätzung: Dein Können vorher"
       },
       "questions": [
         {
           "id": "then_intro",
           "type": "info",
           "text": {
-            "de": "Bitte schätze dein Können ein."
+            "de": "Bitte schätze dein Können ein. (direkt vor dem Escape Room)"
           },
           "description": {
             "de": "Denke an den Zeitpunkt unmittelbar vor Beginn des Escape Rooms zurück. Schätze ein, wie gut du die folgenden Dinge damals konntest. Die Aussagen und Antwortskala sind dieselben wie auf der vorherigen Seite. Antworte nach deiner bestmöglichen Erinnerung."
