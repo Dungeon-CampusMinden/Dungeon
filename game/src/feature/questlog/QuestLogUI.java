@@ -306,10 +306,10 @@ public final class QuestLogUI {
 
   private static boolean canOpenQuestLogFor(int playerId) {
     Entity player = Game.findEntityById(playerId).orElse(null);
-    boolean available = player != null && !HudSystem.getInstance().hasOpenUI(player);
+    boolean available = player != null && !HudSystem.getInstance().hasOpenPausingUI(player);
     if (!available) {
       LOGGER.info(
-          "Declined quest log for player {} because another dialog is already open.", playerId);
+          "Declined quest log for player {} because a pausing dialog is already open.", playerId);
     }
     return available;
   }

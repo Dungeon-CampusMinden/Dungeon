@@ -188,7 +188,7 @@ zusätzlich „Sonstiges“ mit einem Textfeld. Wer dort tippt, wählt „Sonsti
 
 | Feld | Bedeutung |
 | --- | --- |
-| `options` | Liste aus `{ "id": "...", "text": { ... } }`. |
+| `options` | Liste aus `{ "id": "...", "text": { ... } }`. Eine Option kann zusätzlich `"declinesConsent": true` tragen, siehe [Einwilligung ablehnen](#einwilligung-ablehnen). |
 | `other` | `true` ergänzt „Sonstiges“ mit Freitext. |
 
 ```json
@@ -285,6 +285,30 @@ neutral.
 Mit `"skippable": true` gibt es links unten „Überspringen“. Ein Klick ersetzt die Knöpfe durch „Zur
 Umfrage“ und „Ja, überspringen“; erst die Bestätigung beendet die Umfrage. Bis dahin eingegebene
 Antworten werden dabei nicht gespeichert.
+
+## Einwilligung ablehnen
+
+Fragt eine Umfrage nach der Einwilligung in die Datenerfassung, markiert `"declinesConsent": true`
+die ablehnende Option. Das geht bei `singleChoice` und `dropdown`, nicht bei `multiChoice`.
+
+```json
+{ "id": "consent", "type": "singleChoice", "required": true,
+  "text": { "de": "Bist du einverstanden, dass deine Daten pseudonym erfasst werden?" },
+  "options": [
+    { "id": "yes", "text": { "de": "Ja" } },
+    { "id": "no", "text": { "de": "Nein" }, "declinesConsent": true } ] }
+```
+
+Wählt ein Spieler diese Option, steht unten „Absenden“ mit dem Hinweis „Deine Antworten werden dann
+nicht gespeichert.“, auch wenn noch Pflichtfragen offen sind. Nach dem Absenden schließt sich die
+Umfrage ohne Bestätigung und das Spiel geht weiter wie nach einer beantworteten Umfrage. Keine
+Antwort dieser Umfrage wird gespeichert.
+
+Wie eine abgelehnte Tracking-Zustimmung im Hauptmenü beendet die Ablehnung das Tracking für den
+ganzen Durchlauf, im Mehrspielermodus also für alle Spieler. Danach entstehen keine Ereignisse mehr
+und die Nachher-Umfrage entfällt. Wer die Umfrage gerade noch ausfüllt, sieht nach dem Absenden
+„nicht gespeichert“. Bereits gespeicherte Ereignisse, etwa der Beitritt der Spieler, bleiben
+erhalten. Nach dem Laden eines Spielstands gilt wieder die Tracking-Zustimmung aus dem Hauptmenü.
 
 ## Nach dem Absenden
 

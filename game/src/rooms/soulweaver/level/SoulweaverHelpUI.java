@@ -2,7 +2,7 @@ package rooms.soulweaver.level;
 
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import feature.hud.UIUtils;
+import engine.utils.Scene2dElementFactory;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -32,11 +32,10 @@ final class SoulweaverHelpUI extends Table {
     this.send = send;
     this.back = back;
     content.top().left().pad(20);
-    scroll = new ScrollPane(content, UIUtils.defaultSkin());
+    scroll = Scene2dElementFactory.createScrollPane(content, false, true);
     var style = new ScrollPane.ScrollPaneStyle(scroll.getStyle());
     style.background = null;
     scroll.setStyle(style);
-    scroll.setScrollingDisabled(true, false);
     scroll.setFlickScroll(false);
     scroll.setFadeScrollBars(false);
     add(scroll).grow().minSize(0);

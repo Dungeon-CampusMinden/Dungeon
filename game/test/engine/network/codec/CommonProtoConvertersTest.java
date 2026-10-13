@@ -185,6 +185,7 @@ public class CommonProtoConvertersTest {
             "idle",
             7,
             15,
+            -0.25f,
             new DrawInfoData.AnimationConfigData(6, false, true, true),
             new DrawInfoData.SpritesheetConfigData(32, 48, 4, 8, 3, 5),
             List.of(
@@ -200,6 +201,7 @@ public class CommonProtoConvertersTest {
     assertEquals(drawInfo.animationName(), roundTrip.animationName());
     assertEquals(drawInfo.currentFrame(), roundTrip.currentFrame());
     assertEquals(drawInfo.depth(), roundTrip.depth());
+    assertEquals(drawInfo.sortOffset(), roundTrip.sortOffset());
     assertEquals(
         drawInfo.animationConfig().framesPerSprite(),
         roundTrip.animationConfig().framesPerSprite());
@@ -230,6 +232,7 @@ public class CommonProtoConvertersTest {
             null,
             null,
             0,
+            0f,
             new DrawInfoData.AnimationConfigData(10, true, false, false),
             null,
             null);

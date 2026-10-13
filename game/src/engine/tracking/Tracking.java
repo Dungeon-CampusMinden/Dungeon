@@ -743,9 +743,10 @@ public final class Tracking {
   /**
    * Stops all future tracking events for the current authoritative run.
    *
-   * <p>This is used when a multiplayer participant refuses consent. Events already written before
-   * the refusal are not retroactively altered. The session closes with its outcome or interruption,
-   * and its final batch is still uploaded; no participant or later event is recorded.
+   * <p>This is used when a participant refuses consent, either when joining a multiplayer run or in
+   * a survey. Events already written before the refusal are not retroactively altered. The session
+   * closes with its outcome or interruption, and its final batch is still uploaded; no participant
+   * or later event is recorded.
    */
   static void disableTrackingForRun() {
     synchronized (LOCK) {
@@ -758,7 +759,7 @@ public final class Tracking {
       }
       trackingAllowed = false;
       PENDING_PUZZLE_STARTS.clear();
-      LOGGER.info("Tracking disabled because a multiplayer participant refused consent.");
+      LOGGER.info("Tracking disabled because a participant refused consent.");
     }
   }
 

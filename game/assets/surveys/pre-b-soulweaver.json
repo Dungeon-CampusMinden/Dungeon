@@ -5,7 +5,7 @@
   "title": {
     "de": "Soulweaver Vorher-Fragebogen"
   },
-  "skippable": true,
+  "skippable": false,
   "pages": [
     {
       "title": {
@@ -47,7 +47,8 @@
               "id": "no",
               "text": {
                 "de": "Nein"
-              }
+              },
+              "declinesConsent": true
             }
           ]
         },

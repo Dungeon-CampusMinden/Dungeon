@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
+import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.UIUtils;
@@ -104,22 +104,13 @@ final class SoulweaverBindingBook extends Group {
         .padBottom(16)
         .row();
     pageLayout.add(pageViewport);
-    scroll = new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane(pageLayout, UIUtils.defaultSkin());
+    scroll = Scene2dElementFactory.createScrollPane(pageLayout, false, true);
     var style =
         new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane.ScrollPaneStyle(scroll.getStyle());
     style.background = null;
     scroll.setStyle(style);
-    scroll.setScrollingDisabled(true, false);
     scroll.setFadeScrollBars(false);
     scroll.setFlickScroll(false);
-    scroll.addListener(
-        new com.badlogic.gdx.scenes.scene2d.InputListener() {
-          @Override
-          public boolean mouseMoved(InputEvent event, float x, float y) {
-            if (getStage() != null) getStage().setScrollFocus(scroll);
-            return false;
-          }
-        });
     shell.add(scroll).grow().minSize(0).row();
     previous = SoulweaverUI.button("Zurück", false, () -> turn(-1));
     next = SoulweaverUI.button("Weiter", true, () -> turn(1));
