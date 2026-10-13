@@ -61,7 +61,7 @@
           "type": "matrix",
           "required": true,
           "text": {
-            "de": "Wie gut kannst du die folgenden Dinge?"
+            "de": "Wie sehr treffen die folgenden Aussagen auf dich zu?"
           },
           "rows": [
             {
@@ -192,7 +192,7 @@
           "type": "matrix",
           "required": true,
           "text": {
-            "de": "Wie gut kannst du die folgenden Dinge?"
+            "de": "Wie sehr treffen die folgenden Aussagen auf dich zu?"
           },
           "rows": [
             {
