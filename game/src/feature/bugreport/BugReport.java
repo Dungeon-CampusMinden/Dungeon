@@ -61,7 +61,6 @@ public final class BugReport {
         Scene2dElementFactory.createLabel(
             trans.text("title"), FontSpec.of("fonts/Roboto-Bold.ttf", 48, Color.BLACK));
     RichLabel hint = new RichLabel("[color=#555555][size=18]" + trans.text("hint"));
-    hint.setWrap(true);
     hint.setMaxPrefWidth(500);
 
     TextField.TextFieldStyle style =
@@ -90,7 +89,6 @@ public final class BugReport {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            if (input.getText().isBlank()) return;
             submit(player, input.getText());
             Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
             onSent.run();
@@ -133,7 +131,7 @@ public final class BugReport {
   private static void record(Entity player, String text) {
     // PostgreSQL cannot store NUL in JSON, so such a report would block the session's upload.
     boolean valid = !text.isBlank() && text.length() <= MAX_LENGTH && text.indexOf('\u0000') < 0;
-    String result;
+    String result = "failed";
     if (Tracking.declined()) {
       result = "declined";
     } else if (!Tracking.active()) {
@@ -143,8 +141,6 @@ public final class BugReport {
             .flatMap(participant -> Tracking.bugReported(text, participant))
             .isPresent()) {
       result = "received";
-    } else {
-      result = "failed";
     }
     DialogUtils.showTextPopup(trans.text(result), trans.text("title"), player.id());
   }
