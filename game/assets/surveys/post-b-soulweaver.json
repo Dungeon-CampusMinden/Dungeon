@@ -329,25 +329,25 @@
             {
               "id": "a",
               "text": {
-                "de": "int"
+                "de": "`int`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "boolean"
+                "de": "`boolean`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "double"
+                "de": "`double`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char"
+                "de": "`char`"
               }
             }
           ]
@@ -363,25 +363,25 @@
             {
               "id": "a",
               "text": {
-                "de": "String zeichen = 'K';"
+                "de": "`String zeichen = 'K';`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "char zeichen = \"K\";"
+                "de": "`char zeichen = \"K\";`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "boolean zeichen = 'K';"
+                "de": "`boolean zeichen = 'K';`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char zeichen = 'K';"
+                "de": "`char zeichen = 'K';`"
               }
             }
           ]
@@ -677,7 +677,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Eine Methode namens „summe“ erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?"
+            "de": "Eine Methode namens `summe` erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?"
           },
           "options": [
             {

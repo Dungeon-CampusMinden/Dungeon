@@ -353,25 +353,25 @@
             {
               "id": "a",
               "text": {
-                "de": "int"
+                "de": "`int`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "boolean"
+                "de": "`boolean`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "double"
+                "de": "`double`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char"
+                "de": "`char`"
               }
             }
           ]
@@ -387,25 +387,25 @@
             {
               "id": "a",
               "text": {
-                "de": "String initial = 'M';"
+                "de": "`String initial = 'M';`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "char initial = \"M\";"
+                "de": "`char initial = \"M\";`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "boolean initial = 'M';"
+                "de": "`boolean initial = 'M';`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "char initial = 'M';"
+                "de": "`char initial = 'M';`"
               }
             }
           ]
@@ -449,7 +449,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Du möchtest den Ortsnamen \"Bonn\" als Text speichern. Welche Zeile passt dazu?"
+            "de": "Du möchtest den Ortsnamen „Bonn“ als Text speichern. Welche Zeile passt dazu?"
           },
           "options": [
             {
@@ -667,7 +667,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Eine Methode soll immer den Text \"Bereit!\" anzeigen. Eine zweite soll beim Aufruf einen Text erhalten und diesen anzeigen. Welche Aussage passt?"
+            "de": "Eine Methode soll immer den Text „Bereit!“ anzeigen. Eine zweite soll beim Aufruf einen Text erhalten und diesen anzeigen. Welche Aussage passt?"
           },
           "options": [
             {
@@ -701,7 +701,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Eine Methode namens \"differenz\" erhält zwei Zahlen und liefert die erste Zahl minus die zweite als Ergebnis. Was liefert sie für 17 und 9?"
+            "de": "Eine Methode namens `differenz` erhält zwei Zahlen und liefert die erste Zahl minus die zweite als Ergebnis. Was liefert sie für 17 und 9?"
           },
           "options": [
             {
@@ -735,7 +735,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet einen Endpreis, der danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text \"Willkommen!\" an. Welche Aussage passt?"
+            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet einen Endpreis, der danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text „Willkommen!“ an. Welche Aussage passt?"
           },
           "options": [
             {
