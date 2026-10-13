@@ -15,7 +15,7 @@ ext {
     gdxControllersVersion = '2.2.4'
     beryxRuntimeVersion = '2.0.1'
     jacksonVersion = '3.2.3'
-    postgresVersion = '42.7.13'
+    postgresVersion = '42.7.14'
     jsonSchemaValidatorVersion = '3.0.8'
     jsonCanonicalizationVersion = '1.1'
 
