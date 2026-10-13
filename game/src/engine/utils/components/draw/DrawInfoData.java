@@ -13,6 +13,7 @@ import java.util.List;
  * @param animationName optional current animation state name
  * @param currentFrame optional current animation frame index
  * @param depth rendering depth
+ * @param sortOffset y offset used to order this entity within its depth layer
  * @param animationConfig animation timing/behavior configuration
  * @param spritesheetConfig optional spritesheet geometry configuration
  * @param states optional explicit state machine definition for reconstructing custom states
@@ -24,6 +25,7 @@ public record DrawInfoData(
     String animationName,
     Integer currentFrame,
     int depth,
+    float sortOffset,
     AnimationConfigData animationConfig,
     SpritesheetConfigData spritesheetConfig,
     List<StateData> states) {

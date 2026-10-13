@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.components.DrawComponent;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
+import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
@@ -15,6 +16,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
+import feature.utils.EntityUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -61,6 +63,8 @@ public final class SoulweaverTablePrefab extends Prefab {
               i -> PrefabProperty.vector2("offset-" + i, "Item " + i + " offset", Vector2.ZERO))
           .toList();
   private static final List<PrefabProperty<?>> PROPERTIES = propertiesList();
+  // Sorts a tabletop item just in front of its furniture, but not in front of anyone else.
+  private static final float RESTING_GAP = 0.01f;
 
   private static List<PrefabProperty<?>> propertiesList() {
     List<PrefabProperty<?>> properties = new ArrayList<>(List.of(POSITION, FURNITURE));
@@ -96,15 +100,13 @@ public final class SoulweaverTablePrefab extends Prefab {
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point position = value(instance, POSITION);
     List<Entity> entities = new ArrayList<>();
-    Entity furniture = deco(context, position, value(instance, FURNITURE));
-    entities.add(furniture);
-    int itemDepth = furniture.fetch(DrawComponent.class).orElseThrow().depth() + 1;
+    String furniture = value(instance, FURNITURE);
+    entities.add(deco(context, position, furniture));
     for (int i = 0; i < ITEM.size(); i++) {
       String item = value(instance, ITEM.get(i));
       if (!item.equals("none")) {
         Entity entity = deco(context, position.translate(value(instance, OFFSET.get(i))), item);
-        DrawComponent draw = entity.fetch(DrawComponent.class).orElseThrow();
-        draw.depth(Math.max(draw.depth(), itemDepth));
+        restOn(entity, position, Deco.valueOf(furniture));
         entities.add(entity);
       }
     }
@@ -115,6 +117,23 @@ public final class SoulweaverTablePrefab extends Prefab {
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     SoulweaverTableAnchors.changed(context.level());
+  }
+
+  /**
+   * Draws an item resting on furniture in the furniture's depth layer, sorted just in front of it:
+   * characters in front of the furniture cover both, characters behind it are covered by both.
+   *
+   * @param item entity on the furniture, already at its final position and scale
+   * @param position furniture position
+   * @param furniture furniture decoration
+   */
+  static void restOn(Entity item, Point position, Deco furniture) {
+    // Furniture sorts by its collider centre; without a collider the item sorts before its base.
+    Rectangle collider = furniture.defaultCollider();
+    float furnitureY = position.y() + (collider == null ? 0 : collider.y() + collider.height() / 2);
+    DrawComponent draw = item.fetch(DrawComponent.class).orElseThrow();
+    draw.depth(furniture.defaultDepth());
+    draw.sortOffset(furnitureY - RESTING_GAP - EntityUtils.getPosition(item).y());
   }
 
   private static Entity deco(PrefabCreationContext context, Point position, String name) {

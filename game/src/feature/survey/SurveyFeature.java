@@ -110,14 +110,15 @@ public final class SurveyFeature {
 
   /**
    * Shows the tracked room's survey of one phase to each player and runs {@code onComplete} once
-   * each of them is done: they skipped it, sent no answers, closed the storage result after
-   * submitting, or left the game.
+   * each of them is done: they skipped it, sent no answers, declined consent, closed the storage
+   * result after submitting, or left the game.
    *
    * <p>The survey is the {@link Phase#file} of the room configured through {@link
    * Tracking#configureRoom(String)}. Each player gets it once their client finished joining,
    * because the tracking session and their participant start only then. A player is done right away
    * when that file is absent or invalid, or tracking does not record them, because answers could
-   * not be recorded.
+   * not be recorded. Declining consent stops tracking for the run, so later surveys of the run are
+   * done right away as well.
    *
    * @param phase whether the survey comes before or after the game
    * @param onComplete action after every player finished the survey
@@ -180,17 +181,24 @@ public final class SurveyFeature {
   }
 
   /**
-   * Validates one submission and records each answered question.
+   * Validates one submission and records each answered question. A submission that declines consent
+   * records nothing and withdraws consent for the run instead.
    *
    * @param survey survey the player answered
    * @param participant tracking participant of the player
    * @param data client response carrying the answers as a JSON object
-   * @return the last recorded event, or empty when the submission answered nothing
+   * @return the last recorded event, or empty when the submission answered nothing or declined
+   *     consent
    * @throws RuntimeException if the answers are invalid or tracking stopped recording
    */
   private static Optional<TrackingEvent> record(
       SurveyDefinition survey, UUID participant, DialogResponseMessage.Payload data) {
     JsonNode answers = TrackingJson.object(((DialogResponseMessage.StringValue) data).value());
+    if (survey.declined(answers)) {
+      // All players share one session, so this stops tracking for the run like a refusal on join.
+      TrackingRuntime.disableTrackingForRun();
+      return Optional.empty();
+    }
     if (!survey.valid(answers)) throw new IllegalArgumentException("invalid survey answers");
     Optional<TrackingEvent> last = Optional.empty();
     for (SurveyDefinition.Question question : survey.questions()) {

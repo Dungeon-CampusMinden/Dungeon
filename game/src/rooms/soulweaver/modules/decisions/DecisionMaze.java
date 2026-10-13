@@ -163,25 +163,22 @@ public final class DecisionMaze {
     }
   }
 
-  private record Rune(String title, Program program, List<Event> events) {}
+  private record Rune(Program program, List<Event> events) {}
 
   private static final Program LEFT = new Leaf(Side.LEFT);
   private static final Program RIGHT = new Leaf(Side.RIGHT);
   private static final List<Rune> PROGRAMS =
       List.of(
           new Rune(
-              "Das Tor der Energie",
               branch(gt(Attribute.ENERGIE, 50), branch(ge(Attribute.KRAFT, 40), RIGHT, LEFT), LEFT),
               List.of(new Event("Schwellenrune", new Values(0, -30, 0)))),
           new Rune(
-              "Das Tor der Temperatur",
               branch(
                   ge(Attribute.ENERGIE, 60),
                   branch(lt(Attribute.TEMPERATUR, 25), LEFT, RIGHT),
                   branch(ge(Attribute.KRAFT, 40), RIGHT, LEFT)),
               List.of(new Event("Kristallquelle", new Values(0, 30, 0)))),
           new Rune(
-              "Das Tor der drei Runen",
               branch(
                   ge(Attribute.ENERGIE, 50),
                   branch(
@@ -193,7 +190,6 @@ public final class DecisionMaze {
                   new Event("Kraftquelle", new Values(10, 0, 0)),
                   new Event("Feuerrune", new Values(0, 0, 5)))),
           new Rune(
-              "Das Tor der zwei Pfade",
               branch(
                   ge(Attribute.ENERGIE, 50),
                   branch(
@@ -203,7 +199,6 @@ public final class DecisionMaze {
                   LEFT),
               List.of(new Event("Schmiederune", new Values(13, -15, 0)))),
           new Rune(
-              "Das Tor der verbundenen Kräfte",
               branch(
                   ge(Attribute.ENERGIE, 50),
                   branch(
@@ -214,7 +209,6 @@ public final class DecisionMaze {
                   LEFT),
               List.of(new Event("Herzglut", new Values(0, -13, 4)))),
           new Rune(
-              "Das Herzfeuer-Siegel",
               branch(
                   ge(Attribute.ENERGIE, 40),
                   branch(
@@ -238,7 +232,6 @@ public final class DecisionMaze {
     new Values(40, 75, 27) // RRLLLR
   };
 
-  public static final String[] TITLES = PROGRAMS.stream().map(Rune::title).toArray(String[]::new);
   public static final String[] RUNES =
       PROGRAMS.stream().map(rune -> rune.program().text("")).toArray(String[]::new);
 

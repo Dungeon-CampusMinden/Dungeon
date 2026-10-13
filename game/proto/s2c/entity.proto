@@ -111,6 +111,9 @@ message DrawInfo {
 
   // Explicit state definitions used to reconstruct custom state machines.
   repeated DrawStateInfo states = 8;
+
+  // Y offset used to order the entity within its depth layer (default 0).
+  float sort_offset = 9;
 }
 
 // Animation state information.

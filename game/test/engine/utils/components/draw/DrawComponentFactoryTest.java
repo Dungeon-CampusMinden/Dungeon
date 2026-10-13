@@ -28,6 +28,7 @@ public class DrawComponentFactoryTest {
             "idle",
             3,
             123,
+            -0.25f,
             new DrawInfoData.AnimationConfigData(5, true, false, false),
             null,
             null);
@@ -45,6 +46,7 @@ public class DrawComponentFactoryTest {
     assertEquals(2.0f, animation.getScaleY(), DELTA);
     assertEquals(15, animation.frameCount());
     assertEquals(123, drawComponent.depth());
+    assertEquals(-0.25f, drawComponent.sortOffset(), DELTA);
   }
 
   /** Verifies reconstruction with explicit spritesheet payloads. */
@@ -58,6 +60,7 @@ public class DrawComponentFactoryTest {
             "idle",
             1,
             -8,
+            0f,
             new DrawInfoData.AnimationConfigData(2, false, true, true),
             new DrawInfoData.SpritesheetConfigData(8, 12, 1, 2, 3, 4),
             null);
@@ -93,6 +96,7 @@ public class DrawComponentFactoryTest {
             "idle",
             4,
             77,
+            0f,
             new DrawInfoData.AnimationConfigData(0, true, false, false),
             null,
             null);
@@ -130,6 +134,7 @@ public class DrawComponentFactoryTest {
             "closed",
             0,
             2048,
+            0f,
             new DrawInfoData.AnimationConfigData(1, true, false, false),
             null,
             List.of(

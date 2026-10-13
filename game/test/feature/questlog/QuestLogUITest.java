@@ -183,14 +183,14 @@ public class QuestLogUITest {
             Mockito.eq(true));
   }
 
-  /** An existing targeted dialog makes the server decline a second QuestLog overlay. */
+  /** An open pausing dialog makes the server decline a second QuestLog overlay. */
   @Test
   void questLogRequestDoesNotStackOverAnAlreadyOpenDialog() {
     QuestLogUtil.initServerQuestLog();
     Entity requester = player("Requester");
     Game.add(requester);
     HudSystem hud = Mockito.mock(HudSystem.class);
-    Mockito.when(hud.hasOpenUI(requester)).thenReturn(true);
+    Mockito.when(hud.hasOpenPausingUI(requester)).thenReturn(true);
 
     try (MockedStatic<HudSystem> hudSystem = Mockito.mockStatic(HudSystem.class);
         MockedStatic<DialogFactory> dialogs = Mockito.mockStatic(DialogFactory.class)) {

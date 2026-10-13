@@ -79,14 +79,6 @@ final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorU
     if (state != null && state.stage() != next.stage()) selectedSupply = "";
     state = next;
     feedback.setText(next.feedback());
-    status.setText(
-        next.revealed()
-            ? "Gefäß · Name · Wert · Seelenbindung vollständig"
-            : "Gefäße "
-                + next.vessels().size()
-                + " / 6 · Essenzen "
-                + next.essences().size()
-                + " / 6 · Gemeinsam bearbeiten");
     boolean vessels = next.stage() == rooms.soulweaver.state.VariablePuzzleStage.VESSELS;
     boolean aided = SoulweaverHelpUI.simplified(vessels ? "vessels" : "essences");
     GolemProperty focus =
@@ -102,8 +94,11 @@ final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorU
                                 .get(property))
             .findFirst()
             .orElse(null);
-    if (aided && focus != null)
-      status.setText("Markierte Fassung: " + focus.label() + " · Passende Vorräte sind sichtbar.");
+    // Like the other stations, the status line only carries the strongest help hint.
+    status.setText(
+        aided && focus != null
+            ? "Markierte Fassung: " + focus.label() + " · Passende Vorräte sind sichtbar."
+            : "");
     for (var node : area().nodes())
       if (node instanceof SoulweaverBindingNode binding) {
         binding.selection(selectedSupply, this::select);

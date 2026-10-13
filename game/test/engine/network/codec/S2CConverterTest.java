@@ -119,6 +119,7 @@ public class S2CConverterTest {
         "idle",
         20,
         512,
+        0f,
         animationConfig,
         spritesheetConfig,
         List.of(

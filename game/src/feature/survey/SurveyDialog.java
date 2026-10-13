@@ -72,8 +72,9 @@ import tools.jackson.databind.node.ObjectNode;
  * Client view of a survey dialog: the paged form, or the storage result after submitting.
  *
  * <p>The form validates each page with the same rules the server applies and sends all answers as
- * one JSON object keyed by question ID. Sizes derive from the current window on every layout, so
- * the dialog fits again after the window is resized.
+ * one JSON object keyed by question ID. An answer that declines consent lets the player send it
+ * alone right away. Sizes derive from the current window on every layout, so the dialog fits again
+ * after the window is resized.
  */
 final class SurveyDialog {
 
@@ -244,19 +245,37 @@ final class SurveyDialog {
 
     private void showNavigation() {
       footer.clearChildren();
-      if (survey.skippable()) {
-        footer.add(button(T.text("skip"), "default", 18, this::confirmSkip)).left();
+      // After declining consent, sending ends the survey at once and nothing is stored.
+      boolean declined = declined();
+      if (declined) {
+        footer.add(label(T.text("skip_hint"), 16, MUTED, FONT_REGULAR)).growX().left();
+      } else {
+        if (survey.skippable()) {
+          footer.add(button(T.text("skip"), "default", 18, this::confirmSkip)).left();
+        }
+        footer.add().growX();
       }
-      footer.add().growX();
       if (page > 0) {
         footer.add(button(T.text("back"), "blue-outline", 20, () -> showPage(page - 1)));
       }
-      boolean last = page == survey.pages().size() - 1;
+      boolean finish = declined || page == survey.pages().size() - 1;
       footer
           .add(
               button(
-                  T.text(last ? "submit" : "next"), "green", 20, last ? this::submit : this::next))
+                  T.text(finish ? "submit" : "next"),
+                  "green",
+                  20,
+                  finish ? this::submit : this::next))
           .padLeft(10);
+    }
+
+    /**
+     * Checks whether a selected option declines consent.
+     *
+     * @return whether the survey ends without the other answers
+     */
+    private boolean declined() {
+      return fields.stream().flatMap(List::stream).anyMatch(Field::declines);
     }
 
     /**
@@ -284,14 +303,20 @@ final class SurveyDialog {
       if (validate(page)) showPage(page + 1);
     }
 
-    /** Earlier pages passed their check on "Weiter"; only the last page is still unchecked. */
+    /**
+     * Earlier pages passed their check on "Weiter"; only the last page is still unchecked. After
+     * declining consent only the declining answer is sent, because the server records nothing.
+     */
     private void submit() {
-      if (!validate(page)) return;
+      boolean declined = declined();
+      if (!declined && !validate(page)) return;
       ObjectNode answers = JSON.objectNode();
       for (List<Field> pageFields : fields) {
         for (Field field : pageFields) {
           JsonNode value = field.value.get();
-          if (value != null) answers.set(field.question.id(), value);
+          if (value != null && (!declined || field.declines())) {
+            answers.set(field.question.id(), value);
+          }
         }
       }
       showSending();
@@ -403,12 +428,17 @@ final class SurveyDialog {
             case Info info -> throw new IllegalArgumentException(info.id() + " takes no answer");
           };
       field.errorCell = card.add((Label) null).width(content);
+      boolean consent =
+          question instanceof Choice choice
+              && choice.options().stream().anyMatch(Option::declinesConsent);
       // Input widgets fire bubbling change events; once checked, the card follows every edit.
+      // Choosing or leaving an option that declines consent changes how the survey ends.
       card.addListener(
           new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
               if (field.checked) field.check(false);
+              if (consent) showNavigation();
             }
           });
       return field;
@@ -702,6 +732,10 @@ final class SurveyDialog {
         card.setBackground(tint(problem.isPresent() ? CARD_ERROR : CARD));
         card.invalidateHierarchy();
         return problem.isEmpty();
+      }
+
+      boolean declines() {
+        return question instanceof Choice choice && choice.declined(value.get());
       }
     }
   }

@@ -211,7 +211,8 @@ public final class CommonProtoConverters {
     engine.network.proto.s2c.DrawInfo.Builder builder =
         engine.network.proto.s2c.DrawInfo.newBuilder()
             .setTexturePath(texturePath)
-            .setDepth(drawInfo.depth());
+            .setDepth(drawInfo.depth())
+            .setSortOffset(drawInfo.sortOffset());
     if (drawInfo.scaleX() != null) {
       builder.setScaleX(drawInfo.scaleX());
     }
@@ -330,6 +331,7 @@ public final class CommonProtoConverters {
         animationName,
         currentFrame,
         depth,
+        proto.getSortOffset(),
         animationConfig,
         spritesheetConfig,
         states);

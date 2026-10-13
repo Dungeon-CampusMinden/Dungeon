@@ -121,6 +121,11 @@ public final class CameraSystem extends System {
     CAMERA.update();
   }
 
+  /** Jumps to the current focus on the next execution instead of panning toward it. */
+  public void snapToFocus() {
+    actualPosition = null;
+  }
+
   private static boolean hasLegalPosition(Entity entity) {
     return entity
         .fetch(PositionComponent.class)

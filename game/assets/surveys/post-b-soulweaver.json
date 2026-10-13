@@ -5,7 +5,7 @@
   "title": {
     "de": "Soulweaver Nachher-Fragebogen"
   },
-  "skippable": true,
+  "skippable": false,
   "pages": [
     {
       "title": {

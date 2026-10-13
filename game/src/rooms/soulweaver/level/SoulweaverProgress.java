@@ -275,18 +275,18 @@ public final class SoulweaverProgress {
   }
 
   /**
-   * Gives collected runes distinct titles even while their source is collapsed.
+   * Tracks a collected rune without a journal entry; its card on the loop terminal shows the code.
    *
    * @param rune collected loop rune
    * @param who acting player, or null when no player is available
    */
   static void discoverRune(LoopRune rune, Entity who) {
-    discover("rune-" + rune.id(), runeTitle(rune), rune.code(), who);
+    interaction("rune-" + rune.id(), "discover", who);
   }
 
   /**
    * @param rune loop rune
-   * @return journal name shared by its discovery and its executions
+   * @return journal name of the rune in the cellar run history
    */
   static String runeTitle(LoopRune rune) {
     String type = rune.program().type().name().toLowerCase(java.util.Locale.ROOT).replace('_', '-');

@@ -172,6 +172,22 @@ record SurveyDefinition(
     return known.containsAll(answers.propertyNames());
   }
 
+  /**
+   * Checks whether a submission declines consent: a valid answer selects an option marked with
+   * {@code declinesConsent}. Nothing of such a submission is recorded, so its other answers need no
+   * check.
+   *
+   * @param answers JSON object mapping question IDs to answers
+   * @return whether the player declined consent
+   */
+  boolean declined(JsonNode answers) {
+    if (answers == null || !answers.isObject()) return false;
+    return questions().stream()
+        .anyMatch(
+            question ->
+                question instanceof Choice choice && choice.declined(answers.get(question.id())));
+  }
+
   /** Reason why an answer cannot be submitted. */
   public enum Problem {
     /** A required question has no answer. */
@@ -213,13 +229,16 @@ record SurveyDefinition(
    *
    * @param id stable ID stored in answers
    * @param text localized label
+   * @param declinesConsent whether choosing this option declines consent to recording; only options
+   *     of single-selection choices set it
    */
-  public record Option(String id, LocalizedText text) {
+  public record Option(String id, LocalizedText text, boolean declinesConsent) {
     /**
      * Creates an option.
      *
      * @param id stable ID stored in answers
      * @param text localized label
+     * @param declinesConsent whether choosing this option declines consent to recording
      */
     public Option {
       requireId(id, "option id");
@@ -418,6 +437,24 @@ record SurveyDefinition(
       if (other && kind == ChoiceKind.DROPDOWN) {
         throw new IllegalArgumentException("dropdown " + id + " cannot offer 'other'");
       }
+      if (kind == ChoiceKind.MULTI && options.stream().anyMatch(Option::declinesConsent)) {
+        throw new IllegalArgumentException("multiChoice " + id + " cannot decline consent");
+      }
+    }
+
+    /**
+     * Checks whether an answer is valid and selects an option that declines consent.
+     *
+     * @param answer submitted answer, or {@code null} when unanswered
+     * @return whether the answer declines consent
+     */
+    boolean declined(JsonNode answer) {
+      if (answer == null || answeredProblem(answer).isPresent()) return false;
+      JsonNode selected = answer.get("selected");
+      return selected.isString()
+          && options.stream()
+              .anyMatch(
+                  option -> option.declinesConsent() && option.id().equals(selected.stringValue()));
     }
 
     @Override
@@ -597,7 +634,7 @@ record SurveyDefinition(
             description,
             required,
             kind,
-            options(node, "options", where),
+            options(node, "options", where, true),
             other != null && other.booleanValue());
       }
       case "matrix" -> {
@@ -607,8 +644,8 @@ record SurveyDefinition(
             text,
             description,
             required,
-            options(node, "rows", where),
-            options(node, "columns", where));
+            options(node, "rows", where, false),
+            options(node, "columns", where, false));
       }
       case "info" -> {
         allowOnly(node, where, List.of("id", "type", "text", "description"));
@@ -633,12 +670,26 @@ record SurveyDefinition(
     return options;
   }
 
-  private static List<Option> options(JsonNode node, String field, String where) {
+  // Only choice options are declinable, so only they may carry declinesConsent.
+  private static List<Option> options(
+      JsonNode node, String field, String where, boolean declinable) {
     List<Option> options = new ArrayList<>();
+    String entry = where + "." + field;
     for (JsonNode option : array(node, field, where)) {
-      allowOnly(option, where + "." + field, "id", "text");
+      if (declinable) {
+        allowOnly(option, entry, "id", "text", "declinesConsent");
+      } else {
+        allowOnly(option, entry, "id", "text");
+      }
+      JsonNode declines = option.get("declinesConsent");
+      if (declines != null && !declines.isBoolean()) {
+        throw new IllegalArgumentException(entry + ": declinesConsent must be a boolean");
+      }
       options.add(
-          new Option(string(option, "id", where + "." + field), text(option, "text", where)));
+          new Option(
+              string(option, "id", entry),
+              text(option, "text", where),
+              declines != null && declines.booleanValue()));
     }
     return options;
   }

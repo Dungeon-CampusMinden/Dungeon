@@ -38,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
 import rooms.soulweaver.modules.methods.MethodsWorkshop;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Block;
@@ -394,6 +395,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
   private void reconcileFields() {
     int editor = owner.state().editorId();
     if (draftEditor != editor) {
+      // Own selection only; a newly attached loose group must not clear the shared one.
       selected.clear();
       selectionAnchor = "";
       fields.clear();
@@ -803,10 +805,10 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
           public void clicked(InputEvent event, float x, float y) {
             if (!owner.editable()) return;
             if (loose() && !toggle && !range) {
-              selected.clear();
-              selected.addAll(looseIds);
+              selection().clear();
+              selection().addAll(looseIds);
               selectionAnchor = block.id();
-              paintSelection();
+              owner.paintLooseSelection();
             } else select(block.id(), toggle, range);
           }
         });
@@ -1218,24 +1220,35 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     return false;
   }
 
+  /**
+   * Main, draft and palette select on their own; loose groups share the UI's loose selection, which
+   * the UI also prunes and resets.
+   *
+   * @return mutable selection used by this panel
+   */
+  private Set<String> selection() {
+    return loose() ? owner.looseSelection() : selected;
+  }
+
   private void select(String id, boolean toggle, boolean range) {
     List<String> ids = panelBlocks(owner.state()).stream().map(Block::id).toList();
     if (range && ids.contains(selectionAnchor)) {
       int a = ids.indexOf(selectionAnchor), b = ids.indexOf(id);
-      if (!toggle) selected.clear();
-      selected.addAll(ids.subList(Math.min(a, b), Math.max(a, b) + 1));
+      if (!toggle) selection().clear();
+      selection().addAll(ids.subList(Math.min(a, b), Math.max(a, b) + 1));
     } else {
-      if (!toggle) selected.clear();
-      if (!selected.add(id)) selected.remove(id);
+      if (!toggle) selection().clear();
+      if (!selection().add(id)) selection().remove(id);
       selectionAnchor = id;
     }
-    paintSelection();
+    if (loose()) owner.paintLooseSelection();
+    else paintSelection();
   }
 
-  private void paintSelection() {
+  void paintSelection() {
     for (Block block : panelBlocks(owner.state())) {
       CodeRow row = rows.get(block.id());
-      if (row != null) row.selected = selected.contains(block.id());
+      if (row != null) row.selected = selection().contains(block.id());
     }
   }
 
@@ -1272,20 +1285,31 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
           @Override
           public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
             if (!owner.editable() || pressedEditor[0]) return null;
-            if (!copy && !selected.contains(block.id())) {
+            if (!copy && !selection().contains(block.id())) {
               if (loose()) {
-                selected.clear();
-                selected.addAll(looseIds);
-                paintSelection();
+                selection().clear();
+                selection().addAll(looseIds);
+                owner.paintLooseSelection();
               } else select(block.id(), false, false);
             }
             owner.flushFields();
+            // A loose selection can span several groups: this group in its displayed order first,
+            // then the other selected scrap blocks.
+            List<Block> selectable =
+                loose()
+                    ? Stream.concat(
+                            panelBlocks(owner.state()).stream(),
+                            owner.state().scrap().stream()
+                                .filter(other -> !looseIds.contains(other.id())))
+                        .toList()
+                    : panelBlocks(owner.state());
             List<Block> draggedBlocks =
                 copy
                     ? List.of(block)
-                    : panelBlocks(owner.state()).stream()
-                        .filter(selectedBlock -> selected.contains(selectedBlock.id()))
+                    : selectable.stream()
+                        .filter(selectedBlock -> selection().contains(selectedBlock.id()))
                         .toList();
+            List<String> ids = copy ? List.of() : draggedBlocks.stream().map(Block::id).toList();
             Table preview = new Table();
             preview.top().left();
             float grabFromTop = actor.getHeight() - y;
@@ -1317,7 +1341,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
                     ghost.getWidth() - x * scaleX, grabFromTop * scaleY - ghost.getHeight());
             // Moving a whole loose group preserves its current scroll position as well.
             float dropGrabFromTop =
-                !copy && loose() && draggedBlocks.size() == looseIds.size()
+                !copy && loose() && ids.equals(looseIds)
                     ? height()
                         - actor.localToAscendantCoordinates(
                                 SoulweaverMethodsNode.this, new Vector2(x, y))
@@ -1326,13 +1350,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
             var payload = new DragAndDrop.Payload();
             payload.setObject(
                 new Drag(
-                    SoulweaverMethodsNode.this,
-                    container,
-                    block,
-                    copy,
-                    copy ? List.of() : draggedBlocks.stream().map(Block::id).toList(),
-                    x,
-                    dropGrabFromTop));
+                    SoulweaverMethodsNode.this, container, block, copy, ids, x, dropGrabFromTop));
             owner.dragStarted((Drag) payload.getObject());
             payload.setDragActor(ghost);
             return payload;

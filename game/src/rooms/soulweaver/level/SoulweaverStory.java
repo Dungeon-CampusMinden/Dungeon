@@ -77,10 +77,4 @@ final class SoulweaverStory {
         + "bis der nächste Versuch beginnt. Die Hilfe im Buch erklärt Parameter und Rückgaben."
         + "\n\nValerius";
   }
-
-  static String workshopArrival() {
-    return "Das Steuerbuch enthält meinen vollständigen Arbeitsablauf. Er funktioniert, "
-        + "aber die Ausgangssteuerung fasst nur acht Befehle. Fasse Wiederholungen in eigenen "
-        + "Methoden zusammen. Bei jedem Start setzt der Prüfstand alles zurück.";
-  }
 }

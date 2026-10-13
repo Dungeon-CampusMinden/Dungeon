@@ -354,7 +354,9 @@ public final class DrawSystem extends System implements Disposable {
       List<DSData> sortedGroup =
           sortedEntities.get(depth).stream()
               .map(DSData::build)
-              .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
+              .sorted(
+                  Comparator.comparingDouble(
+                      (DSData d) -> -(EntityUtils.getPosition(d.e).y() + d.dc.sortOffset())))
               .filter(this::shouldDraw)
               .toList();
 

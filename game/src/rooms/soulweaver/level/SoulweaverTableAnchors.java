@@ -1,11 +1,14 @@
 package rooms.soulweaver.level;
 
+import engine.Entity;
 import engine.Game;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import feature.entities.deco.Deco;
+import feature.prefabs.Prefab;
 import feature.prefabs.PrefabSpawner;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +83,31 @@ final class SoulweaverTableAnchors {
   static void changed(ILevel level) {
     if (level instanceof SoulweaverLevel soulweaver)
       PrefabSpawner.afterChanges(level, () -> refresh(soulweaver));
+  }
+
+  /**
+   * Draws a code-owned tabletop item with the table its marker is anchored to.
+   *
+   * @param level room level
+   * @param point marker name
+   * @param item entity at that marker, already at its final position and scale
+   */
+  static void restOnTable(DungeonLevel level, String point, Entity item) {
+    ANCHORS.stream()
+        .filter(anchor -> anchor.point().equals(point))
+        .findFirst()
+        .flatMap(
+            anchor ->
+                level.prefabs(SoulweaverTablePrefab.class).stream()
+                    .filter(table -> table.name().equals(anchor.table()))
+                    .findFirst())
+        .flatMap(Prefab::currentInstance)
+        .ifPresent(
+            table ->
+                SoulweaverTablePrefab.restOn(
+                    item,
+                    SoulweaverTablePrefab.POSITION.get(table),
+                    Deco.valueOf(SoulweaverTablePrefab.FURNITURE.get(table))));
   }
 
   /**

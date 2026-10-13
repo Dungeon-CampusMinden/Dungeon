@@ -1,7 +1,5 @@
 package rooms.soulweaver.level;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
@@ -27,6 +25,7 @@ import feature.canvas.CanvasOptions;
 import feature.canvas.CanvasSnapshot;
 import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
+import feature.hud.UIUtils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -62,6 +61,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
   private boolean dropAllowed;
   private DragAndDrop.Target backgroundTarget;
   private SoulweaverMethodsNode.Drag activeDrag;
+  private final Set<String> looseSelection = new HashSet<>();
   private final ArrayDeque<Edit> edits = new ArrayDeque<>();
   private final SoulweaverCamera camera = new SoulweaverCamera();
   private final TextButton run;
@@ -104,6 +104,8 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
         nodes());
     this.viewer = viewer;
     state = initial;
+    // ESC uses the shared close shortcut, so a quest log opened on top closes first.
+    UIUtils.onCloseRequest(this, this::requestClose);
     // CanvasArea owns scroll focus; route window wheels before either native listener runs.
     area()
         .addCaptureListener(
@@ -263,6 +265,22 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
     dropAllowed = allowed;
   }
 
+  /**
+   * Loose groups share one selection, so a multi-selection can span groups. Only scrap IDs stay in
+   * it, and a new editor starts with an empty selection.
+   *
+   * @return mutable selection of scrap block IDs
+   */
+  Set<String> looseSelection() {
+    return looseSelection;
+  }
+
+  /** Repaints the shared selection in every loose group after it changed. */
+  void paintLooseSelection() {
+    for (CanvasNode node : area().nodes())
+      if (node instanceof SoulweaverMethodsNode panel && panel.loose()) panel.paintSelection();
+  }
+
   @Override
   public Optional<Cursors> cursorOverride() {
     for (CanvasNode node : area().nodes()) {
@@ -333,6 +351,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
         edits.clear();
         closing = false;
       }
+      if (previous != null && previous.editorId() != state.editorId()) looseSelection.clear();
       if (!dragging.isDragging()) refreshPanels(false);
       if (previous == null
           || previous.runState() != state.runState()
@@ -498,6 +517,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
 
   private void reconcileLooseGroups() {
     Set<String> available = new HashSet<>(state.scrap().stream().map(Block::id).toList());
+    looseSelection.retainAll(available);
     for (CanvasNode node : List.copyOf(area().nodes())) {
       if (!(node instanceof SoulweaverMethodsNode panel) || !panel.loose()) continue;
       List<String> ids = panel.looseIds().stream().filter(available::remove).toList();
@@ -681,7 +701,6 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
       restoreCamera();
       return;
     }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) requestClose();
     SoulweaverMethods.state().ifPresent(this::update);
     boolean aid = SoulweaverHelpUI.simplified("methods");
     if (aid != simplified && !dragging.isDragging()) {
