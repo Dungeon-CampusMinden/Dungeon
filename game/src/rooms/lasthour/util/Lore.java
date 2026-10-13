@@ -141,8 +141,8 @@ public class Lore {
               TranslationKey.Email_5_Content,
               List.of()),
           new EmailsTab.Email(
-              "Telekom",
-              "contact@local-connections-now.net",
+              "BTC Giveaway Team",
+              "giveaway@free-btc-giveaway.net",
               TranslationKey.Email_6_Subject,
               TranslationKey.Email_6_Content,
               List.of()),
@@ -177,7 +177,7 @@ public class Lore {
     // Direct virus links from emails
     sites.add("https://illegal-music-downloader.com/download/12345");
     sites.add("https://adq.mmcaok.com/pl10fonmxdm1asmokxx0");
-    sites.add("https://local-connections-now.net/start");
+    sites.add("https://free-btc-giveaway.net/claim");
     sites.add("https://royal-transferdesk.org/secure");
     sites.add("https://cryptogrowth-daily.biz/start?si=1ujg0h1ju8mnc980mumsdnuz0");
     // Phishing code URLs (all EmailCodeUrls except the real one at index 0)
