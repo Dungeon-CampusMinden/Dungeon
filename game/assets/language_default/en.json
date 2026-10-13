@@ -101,7 +101,7 @@
             "title": "Report a Bug",
             "hint": "Describe what happened and what you expected. The report is stored with your tracking data.",
             "send": "Send",
-            "saved": "Thank you! Your bug report has been saved.",
+            "saved": "Thanks, we have received your bug report.",
             "failed": "Your bug report could not be saved."
         },
         "questlog": {

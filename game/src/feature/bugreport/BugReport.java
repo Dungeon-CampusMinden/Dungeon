@@ -93,10 +93,20 @@ public final class BugReport {
     input.setMaxLength(MAX_LENGTH);
     input.setUserObject(Cursors.TEXT);
 
+    // Shows how many of the allowed characters the report uses, such as "12/2000".
+    Label counter =
+        Scene2dElementFactory.createLabel(
+            "0/" + MAX_LENGTH,
+            FontSpec.of("fonts/Roboto-Regular.ttf", 16, Color.valueOf("555555")));
+
     TextButton sendButton = Scene2dElementFactory.createButton(trans.text("send"), "green", 32);
     sendButton.setDisabled(true);
     Scene2dElementFactory.addTextFieldChangeListener(
-        input, text -> sendButton.setDisabled(text.isBlank()));
+        input,
+        text -> {
+          sendButton.setDisabled(text.isBlank());
+          counter.setText(text.length() + "/" + MAX_LENGTH);
+        });
     sendButton.addListener(
         new ChangeListener() {
           @Override
@@ -113,7 +123,8 @@ public final class BugReport {
     page.add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(10).row();
     page.add(hint).width(500).padBottom(10).row();
     page.add(input).width(500).height(250).row();
-    page.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(10).row();
+    page.add(counter).right().padTop(4).row();
+    page.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(6).row();
     page.add(sendButton).width(300).align(Align.center).padTop(15).padBottom(10).row();
     page.add(backButton).width(300).align(Align.center).padBottom(15).row();
     Game.stage().ifPresent(stage -> stage.setKeyboardFocus(input));
