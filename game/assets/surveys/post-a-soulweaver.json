@@ -3,7 +3,7 @@
   "roomId": "soulweaver",
   "questionnaireId": "soulweaver-evaluation-post-a-v1",
   "title": {
-    "de": "Soulweaver – Nachher-Fragebogen"
+    "de": "Soulweaver - Nachher-Fragebogen"
   },
   "skippable": false,
   "pages": [
@@ -141,31 +141,31 @@
             {
               "id": "1",
               "text": {
-                "de": "Kann ich gar nicht"
+                "de": "Stimme überhaupt nicht zu"
               }
             },
             {
               "id": "2",
               "text": {
-                "de": "Kann ich eher nicht"
+                "de": "Stimme eher nicht zu"
               }
             },
             {
               "id": "3",
               "text": {
-                "de": "Teils / teilweise"
+                "de": "Teils, teils"
               }
             },
             {
               "id": "4",
               "text": {
-                "de": "Kann ich gut"
+                "de": "Stimme eher zu"
               }
             },
             {
               "id": "5",
               "text": {
-                "de": "Kann ich sehr gut"
+                "de": "Stimme voll und ganz zu"
               }
             }
           ]
@@ -272,31 +272,31 @@
             {
               "id": "1",
               "text": {
-                "de": "Kann ich gar nicht"
+                "de": "Stimme überhaupt nicht zu"
               }
             },
             {
               "id": "2",
               "text": {
-                "de": "Kann ich eher nicht"
+                "de": "Stimme eher nicht zu"
               }
             },
             {
               "id": "3",
               "text": {
-                "de": "Teils / teilweise"
+                "de": "Teils, teils"
               }
             },
             {
               "id": "4",
               "text": {
-                "de": "Kann ich gut"
+                "de": "Stimme eher zu"
               }
             },
             {
               "id": "5",
               "text": {
-                "de": "Kann ich sehr gut"
+                "de": "Stimme voll und ganz zu"
               }
             }
           ]
@@ -315,7 +315,7 @@
             "de": "Hinweise zum Wissenstest"
           },
           "description": {
-            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8-12 Minuten. Die Teilnahme ist freiwillig."
           }
         },
         {

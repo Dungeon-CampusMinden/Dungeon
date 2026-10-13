@@ -3,7 +3,7 @@
   "roomId": "the-last-hour",
   "questionnaireId": "the-last-hour-evaluation-pre-a-v1",
   "title": {
-    "de": "The Last Hour – Vorher-Fragebogen"
+    "de": "The Last Hour - Vorher-Fragebogen"
   },
   "skippable": false,
   "pages": [
@@ -339,7 +339,7 @@
             "de": "Hinweise zum Wissenstest"
           },
           "description": {
-            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8-12 Minuten. Die Teilnahme ist freiwillig."
           }
         },
         {

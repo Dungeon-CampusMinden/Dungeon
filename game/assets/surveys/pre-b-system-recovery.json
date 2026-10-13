@@ -3,7 +3,7 @@
   "roomId": "system-recovery",
   "questionnaireId": "system-recovery-evaluation-pre-b-v1",
   "title": {
-    "de": "System Recovery – Vorher-Fragebogen"
+    "de": "System Recovery - Vorher-Fragebogen"
   },
   "skippable": false,
   "pages": [
@@ -339,7 +339,7 @@
             "de": "Hinweise zum Wissenstest"
           },
           "description": {
-            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8-12 Minuten. Die Teilnahme ist freiwillig."
           }
         },
         {
