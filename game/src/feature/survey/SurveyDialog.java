@@ -428,25 +428,19 @@ final class SurveyDialog {
             case Info info -> throw new IllegalArgumentException(info.id() + " takes no answer");
           };
       field.errorCell = card.add((Label) null).width(content);
+      boolean consent =
+          question instanceof Choice choice
+              && choice.options().stream().anyMatch(Option::declinesConsent);
       // Input widgets fire bubbling change events; once checked, the card follows every edit.
+      // Choosing or leaving an option that declines consent changes how the survey ends.
       card.addListener(
           new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
               if (field.checked) field.check(false);
+              if (consent) showNavigation();
             }
           });
-      // Choosing or leaving an option that declines consent changes how the survey ends.
-      if (question instanceof Choice choice
-          && choice.options().stream().anyMatch(Option::declinesConsent)) {
-        card.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, Actor actor) {
-                showNavigation();
-              }
-            });
-      }
       return field;
     }
 

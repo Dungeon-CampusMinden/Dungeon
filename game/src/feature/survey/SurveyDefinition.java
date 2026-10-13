@@ -449,12 +449,7 @@ record SurveyDefinition(
      * @return whether the answer declines consent
      */
     boolean declined(JsonNode answer) {
-      if (answer == null
-          || answer.isNull()
-          || answer.isMissingNode()
-          || answeredProblem(answer).isPresent()) {
-        return false;
-      }
+      if (answer == null || answeredProblem(answer).isPresent()) return false;
       JsonNode selected = answer.get("selected");
       return selected.isString()
           && options.stream()
