@@ -255,6 +255,8 @@ public final class GameStarter {
    * @param deleteConfirmationMessage confirmation dialog message
    * @param deletedMessage feedback shown after successful deletion
    * @param deleteFailedMessage feedback shown when deletion fails
+   * @param enabledMessage feedback shown after tracking was enabled
+   * @param disabledMessage feedback shown after consent was withdrawn
    * @param currentDecision current decision, or {@code null} when undecided
    * @param decision callback receiving the new decision
    * @param deleteLocalData deletes local tracking data and returns whether it succeeded
@@ -271,6 +273,8 @@ public final class GameStarter {
       String deleteConfirmationMessage,
       String deletedMessage,
       String deleteFailedMessage,
+      String enabledMessage,
+      String disabledMessage,
       Boolean currentDecision,
       Consumer<Boolean> decision,
       BooleanSupplier deleteLocalData) {
@@ -288,6 +292,8 @@ public final class GameStarter {
      * @param deleteConfirmationMessage confirmation dialog message
      * @param deletedMessage success feedback
      * @param deleteFailedMessage failure feedback
+     * @param enabledMessage feedback after enabling tracking
+     * @param disabledMessage feedback after withdrawing consent
      * @param currentDecision current decision, or {@code null}
      * @param decision callback receiving the new decision
      * @param deleteLocalData callback deleting local tracking data
@@ -304,6 +310,8 @@ public final class GameStarter {
       Objects.requireNonNull(deleteConfirmationMessage, "deleteConfirmationMessage");
       Objects.requireNonNull(deletedMessage, "deletedMessage");
       Objects.requireNonNull(deleteFailedMessage, "deleteFailedMessage");
+      Objects.requireNonNull(enabledMessage, "enabledMessage");
+      Objects.requireNonNull(disabledMessage, "disabledMessage");
       Objects.requireNonNull(decision, "decision");
       Objects.requireNonNull(deleteLocalData, "deleteLocalData");
     }

@@ -507,7 +507,9 @@ public class MainMenuScreen extends ScreenAdapter {
           protected void result(Object object) {
             if (object instanceof Boolean decision) {
               settings.decision().accept(decision);
-              showTrackingSettings();
+              showMessageDialog(
+                  settings.title(),
+                  decision ? settings.enabledMessage() : settings.disabledMessage());
             } else if (object == DELETE_TRACKING_DATA) {
               showTrackingDeleteConfirmation(settings);
             }

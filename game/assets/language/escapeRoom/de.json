@@ -34,9 +34,11 @@
       "disable": "Tracking deaktivieren",
       "delete": "Lokale Daten löschen",
       "deleteTitle": "Lokale Trackingdaten löschen",
-      "deleteMessage": "Alle Trackingdateien im lokalen Trackingordner werden gelöscht. Dies betrifft auch andere Spielstände oder Räume, die diesen Ordner nutzen. Savegames und Questlogdaten bleiben erhalten. Fortfahren?",
-      "deleted": "Die lokalen Trackingdateien wurden gelöscht. Für diesen Lauf werden keine weiteren Daten aufgezeichnet.",
-      "deleteFailed": "Nicht alle lokalen Trackingdateien konnten gelöscht werden. Prüfe den Trackingordner auf diesem Computer."
+      "deleteMessage": "Alle Trackingdateien im lokalen Trackingordner werden gelöscht und das Tracking wird deaktiviert. Dies betrifft auch andere Spielstände oder Räume, die diesen Ordner nutzen. Savegames und Questlogdaten bleiben erhalten. Fortfahren?",
+      "deleted": "Die lokalen Trackingdateien wurden gelöscht und das Tracking wurde deaktiviert. Es werden keine weiteren Daten aufgezeichnet.",
+      "deleteFailed": "Nicht alle lokalen Trackingdateien konnten gelöscht werden. Prüfe den Trackingordner auf diesem Computer. Das Tracking wurde trotzdem deaktiviert.",
+      "enabledFeedback": "Tracking ist jetzt aktiviert. Ab dem nächsten Lauf wird dein Spielverlauf aufgezeichnet.",
+      "disabledFeedback": "Tracking ist jetzt deaktiviert. Es werden keine weiteren Daten aufgezeichnet. Bereits gespeicherte lokale Trackingdateien bleiben erhalten, bis du sie löschst."
     },
     "central": {
       "title": "Datenschutz und Tracking",
@@ -50,9 +52,11 @@
       "disable": "Tracking widerrufen",
       "delete": "Lokale Kopie löschen",
       "deleteTitle": "Löschung von Trackingdaten",
-      "deleteMessage": "Diese Aktion löscht nur die lokale Trackingkopie auf diesem Computer. Für die Löschung zentral gespeicherter Trackingdaten richte eine Anfrage an amatutat@hsbi.de. Fortfahren?",
-      "deleted": "Die lokalen Trackingdaten wurden gelöscht. Für die Löschung zentral gespeicherter Daten wende dich an amatutat@hsbi.de.",
-      "deleteFailed": "Die lokalen Trackingdaten konnten nicht vollständig gelöscht werden. Für zentrale Daten wende dich an amatutat@hsbi.de."
+      "deleteMessage": "Diese Aktion löscht nur die lokale Trackingkopie auf diesem Computer und widerruft deine Einwilligung. Für die Löschung zentral gespeicherter Trackingdaten richte eine Anfrage an amatutat@hsbi.de. Fortfahren?",
+      "deleted": "Die lokalen Trackingdaten wurden gelöscht und deine Einwilligung wurde widerrufen. Für die Löschung zentral gespeicherter Daten wende dich an amatutat@hsbi.de.",
+      "deleteFailed": "Die lokalen Trackingdaten konnten nicht vollständig gelöscht werden. Deine Einwilligung wurde trotzdem widerrufen. Für zentrale Daten wende dich an amatutat@hsbi.de.",
+      "enabledFeedback": "Tracking ist jetzt aktiviert. Ab dem nächsten Lauf wird dein Spielverlauf aufgezeichnet und auf dem Server gespeichert.",
+      "disabledFeedback": "Deine Einwilligung wurde widerrufen. Es werden keine weiteren Daten aufgezeichnet. Für eine vorzeitige Löschung bereits gespeicherter Daten wende dich an amatutat@hsbi.de."
     },
     "status": {
       "undecided": "Status: Noch nicht entschieden",

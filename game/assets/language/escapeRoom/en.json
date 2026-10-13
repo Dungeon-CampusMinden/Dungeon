@@ -33,9 +33,11 @@
       "disable": "Disable tracking",
       "delete": "Delete local data",
       "deleteTitle": "Delete local tracking data",
-      "deleteMessage": "All tracking files in the local tracking folder will be deleted, including files for other saves or rooms using that folder. Savegames and quest-log data remain unchanged. Continue?",
-      "deleted": "Local tracking files were deleted. No further data will be recorded for this run.",
-      "deleteFailed": "Not all local tracking files could be deleted. Check the tracking folder on this computer."
+      "deleteMessage": "All tracking files in the local tracking folder will be deleted and tracking will be disabled. This includes files for other saves or rooms using that folder. Savegames and quest-log data remain unchanged. Continue?",
+      "deleted": "Local tracking files were deleted and tracking was disabled. No further data will be recorded.",
+      "deleteFailed": "Not all local tracking files could be deleted. Check the tracking folder on this computer. Tracking was disabled anyway.",
+      "enabledFeedback": "Tracking is now enabled. Your gameplay will be recorded starting with the next run.",
+      "disabledFeedback": "Tracking is now disabled. No further data will be recorded. Tracking files already stored locally remain until you delete them."
     },
     "central": {
       "title": "Privacy and tracking",
@@ -49,9 +51,11 @@
       "disable": "Withdraw consent",
       "delete": "Delete local copy",
       "deleteTitle": "Delete tracking data",
-      "deleteMessage": "This action deletes only the local tracking copy on this computer. To request deletion of centrally stored tracking data, contact amatutat@hsbi.de. Continue?",
-      "deleted": "Local tracking data was deleted. Contact amatutat@hsbi.de to request deletion of centrally stored data.",
-      "deleteFailed": "Local tracking data could not be deleted completely. Contact amatutat@hsbi.de about centrally stored data."
+      "deleteMessage": "This action deletes only the local tracking copy on this computer and withdraws your consent. To request deletion of centrally stored tracking data, contact amatutat@hsbi.de. Continue?",
+      "deleted": "Local tracking data was deleted and your consent was withdrawn. Contact amatutat@hsbi.de to request deletion of centrally stored data.",
+      "deleteFailed": "Local tracking data could not be deleted completely. Your consent was withdrawn anyway. Contact amatutat@hsbi.de about centrally stored data.",
+      "enabledFeedback": "Tracking is now enabled. Starting with the next run, your gameplay will be recorded and stored on the server.",
+      "disabledFeedback": "Your consent has been withdrawn. No further data will be recorded. To request earlier deletion of data already stored, contact amatutat@hsbi.de."
     },
     "status": {
       "undecided": "Status: No decision yet",
