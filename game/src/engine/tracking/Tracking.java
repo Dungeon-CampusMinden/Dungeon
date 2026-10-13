@@ -171,6 +171,17 @@ public final class Tracking {
   }
 
   /**
+   * Returns whether a player declined tracking, so nothing more of this run is recorded.
+   *
+   * @return whether tracking is disabled by a refusal
+   */
+  public static boolean declined() {
+    synchronized (LOCK) {
+      return !trackingAllowed;
+    }
+  }
+
+  /**
    * Returns whether the configured deployment stores tracking data through the HTTP backend.
    *
    * <p>Rooms use this value to select privacy text. The default build keeps the backend disabled
@@ -595,10 +606,7 @@ public final class Tracking {
    */
   public static Optional<TrackingEvent> bugReported(String text, UUID participantId) {
     synchronized (LOCK) {
-      if (!trackingAllowed
-          || session == null
-          || session.finished()
-          || !session.participantKnown(participantId)) {
+      if (!active() || !session.participantKnown(participantId)) {
         return Optional.empty();
       }
       try {

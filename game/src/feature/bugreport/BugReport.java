@@ -18,12 +18,10 @@ import engine.network.messages.c2s.InputMessage;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.tracking.Tracking;
-import engine.tracking.TrackingRuntime;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
-import engine.utils.logging.DungeonLogger;
 import feature.hud.DialogUtils;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
@@ -32,11 +30,11 @@ import java.nio.charset.StandardCharsets;
 /**
  * Lets players report bugs from the pause menu. The authoritative side records each report as a
  * {@code BUG_REPORTED} tracking event of the reporting participant and answers with a popup that
- * says whether it was saved.
+ * says whether the report was received, or why it could not be sent.
  *
- * <p>The pause menu offers the {@link #view} only while {@link #available()}. Network clients send
- * the text as the {@link #COMMAND} custom input, which the hero controller routes to {@link
- * #handle}.
+ * <p>The pause menu offers the {@link #view} only while {@link
+ * engine.tracking.TrackingRuntime#recordsLocalPlayer()}. Network clients send the text as the
+ * {@link #COMMAND} custom input, which the hero controller routes to {@link #handle}.
  */
 public final class BugReport {
 
@@ -46,28 +44,9 @@ public final class BugReport {
   /** Maximum report length; its UTF-8 form stays within the custom input payload limit. */
   public static final int MAX_LENGTH = 2_000;
 
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BugReport.class);
   private static final Translation trans = new Translation("dialog.bug_report");
 
   private BugReport() {}
-
-  /**
-   * Returns whether tracking records this process's player, so a report can be saved.
-   *
-   * @return whether the pause menu offers bug reports
-   */
-  public static boolean available() {
-    return TrackingRuntime.recordsLocalPlayer();
-  }
-
-  /**
-   * Returns the pause menu label of the report button.
-   *
-   * @return localized button label
-   */
-  public static String buttonLabel() {
-    return trans.text("button");
-  }
 
   /**
    * Builds the pause menu page for writing a report.
@@ -153,15 +132,20 @@ public final class BugReport {
 
   private static void record(Entity player, String text) {
     // PostgreSQL cannot store NUL in JSON, so such a report would block the session's upload.
-    boolean saved =
-        !text.isBlank()
-            && text.length() <= MAX_LENGTH
-            && text.indexOf('\u0000') < 0
-            && Tracking.participantForEntity(player.id())
-                .flatMap(participant -> Tracking.bugReported(text, participant))
-                .isPresent();
-    if (!saved) LOGGER.warn("Bug report of entity {} was not recorded", player.id());
-    DialogUtils.showTextPopup(
-        trans.text(saved ? "saved" : "failed"), trans.text("title"), player.id());
+    boolean valid = !text.isBlank() && text.length() <= MAX_LENGTH && text.indexOf('\u0000') < 0;
+    String result;
+    if (Tracking.declined()) {
+      result = "declined";
+    } else if (!Tracking.active()) {
+      result = "not_running";
+    } else if (valid
+        && Tracking.participantForEntity(player.id())
+            .flatMap(participant -> Tracking.bugReported(text, participant))
+            .isPresent()) {
+      result = "received";
+    } else {
+      result = "failed";
+    }
+    DialogUtils.showTextPopup(trans.text(result), trans.text("title"), player.id());
   }
 }

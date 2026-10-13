@@ -146,7 +146,7 @@ als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschrege
 
 Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `runId`, `active`,
 `outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `interaction`, `participantForClient` und
-`participantForEntity`, `completed`, `surveyAnswered`, `bugReported`, `remoteAcknowledged`, `operatorEmail` und
+`participantForEntity`, `completed`, `surveyAnswered`, `bugReported`, `declined`, `remoteAcknowledged`, `operatorEmail` und
 `persistenceWarningShown`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
 und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.
 
@@ -193,6 +193,7 @@ Das Pausenmenü bietet "Bug melden" an, solange Tracking den eigenen Spieler erf
 Einzelspielermodus bei laufender Sitzung, auf einem Client bei einem vom Server gemeldeten
 Tracking-Raum ohne abgelehnte Einwilligung. Der Client schickt den Text als Custom-Input
 `core:bug_report`; der autoritative Prozess zeichnet ihn mit `Tracking.bugReported(text,
-participantId)` als `BUG_REPORTED` auf und meldet dem Spieler, ob der Bericht gespeichert wurde.
-Hat ein anderer Spieler die Einwilligung abgelehnt, weiß das nur der Server; der Spieler erfährt
-es dann aus dieser Rückmeldung.
+participantId)` als `BUG_REPORTED` auf. Der Spieler erfährt, ob der Bericht angekommen ist, und
+sonst den Grund: Ein Spieler hat das Tracking abgelehnt (`Tracking.declined()`), die Sitzung läuft
+gerade nicht, oder das Tracking konnte den Bericht nicht aufzeichnen. Eine Ablehnung durch einen
+anderen Spieler kennt nur der Server; der Button bleibt deshalb sichtbar.

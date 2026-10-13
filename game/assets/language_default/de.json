@@ -83,6 +83,7 @@
             "achievements": "Achievements",
             "settings": "Einstellungen",
             "client_infos": "Client Infos",
+            "bug_report": "Bug melden",
             "quit_to_desktop": "Spiel beenden",
             "back": "Zurück",
             "you": "Dein Name: $1",
@@ -97,12 +98,13 @@
             "players_can_connect_via": "Spieler können sich[n]verbinden über (Port: $1):"
         },
         "bug_report": {
-            "button": "Bug melden",
             "title": "Bug melden",
-            "hint": "Beschreibe, was passiert ist und was du erwartet hast. Der Bericht wird mit deinen Tracking-Daten gespeichert.",
+            "hint": "Beschreibe, was passiert ist und was du erwartet hast. Wir erhalten den Bericht zusammen mit deinen Tracking-Daten.",
             "send": "Senden",
-            "saved": "Danke, wir haben deinen Bug-Report erhalten.",
-            "failed": "Dein Bug-Report konnte nicht gespeichert werden."
+            "received": "Danke, wir haben deinen Bug-Report erhalten.",
+            "declined": "Dein Bug-Report konnte nicht gesendet werden, weil nicht alle Spieler dem Tracking zugestimmt haben.",
+            "not_running": "Dein Bug-Report konnte nicht gesendet werden, weil das Tracking gerade nicht läuft.",
+            "failed": "Dein Bug-Report konnte nicht gesendet werden, weil das Tracking ihn nicht aufzeichnen konnte."
         },
         "questlog": {
             "title": "Questlog",

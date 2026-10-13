@@ -51,6 +51,7 @@ public class PauseDialog extends Table {
   private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
   private static final String T_CLIENT_INFOS = "client_infos";
+  private static final String T_BUG_REPORT = "bug_report";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
   private static final String T_YOU = "you";
@@ -170,7 +171,7 @@ public class PauseDialog extends Table {
     TextButton clientInfosBtn =
         Scene2dElementFactory.createButton(trans.text(T_CLIENT_INFOS), "blue-outline", 32);
     TextButton bugReportBtn =
-        Scene2dElementFactory.createButton(BugReport.buttonLabel(), "blue-outline", 20);
+        Scene2dElementFactory.createButton(trans.text(T_BUG_REPORT), "blue-outline", 20);
     TextButton quitBtn =
         Scene2dElementFactory.createButton(trans.text(T_QUIT_TO_DESKTOP), "red-outline", 32);
 
@@ -262,7 +263,7 @@ public class PauseDialog extends Table {
     }
     // The small bug report button sits in the gap above the quit button, so the menu keeps its
     // height.
-    boolean bugReports = BugReport.available();
+    boolean bugReports = TrackingRuntime.recordsLocalPlayer();
     int quitGap = bugReports ? 15 : 70;
     menu.add(settingsBtn)
         .width(300)
