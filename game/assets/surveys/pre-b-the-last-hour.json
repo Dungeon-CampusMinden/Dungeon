@@ -1,0 +1,913 @@
+{
+  "schemaVersion": 1,
+  "roomId": "the-last-hour",
+  "questionnaireId": "the-last-hour-evaluation-pre-b-v1",
+  "title": {
+    "de": "The Last Hour – Vorher-Fragebogen"
+  },
+  "skippable": false,
+  "pages": [
+    {
+      "title": {
+        "de": "Vor The Last Hour"
+      },
+      "questions": [
+        {
+          "id": "pre_survey_intro",
+          "type": "info",
+          "text": {
+            "de": "Vor dem Escape Room"
+          },
+          "description": {
+            "de": "Dieser Fragebogen enthält Angaben zu deinen bisherigen Erfahrungen, einen Wissenstest und Fragen zu Cybersecurity / IT-Sicherheit. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Datenerfassung"
+      },
+      "questions": [
+        {
+          "id": "q01_dateneinwilligung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ich bin damit einverstanden, dass meine Antworten und zugehörigen Spieldaten für die Auswertung des Spiels erfasst und verarbeitet werden. Ich gebe in Freitextfeldern keine Namen oder Kontaktdaten an."
+          },
+          "options": [
+            {
+              "id": "yes",
+              "text": {
+                "de": "Ja"
+              }
+            },
+            {
+              "id": "no",
+              "text": {
+                "de": "Nein"
+              },
+              "declinesConsent": true
+            }
+          ]
+        },
+        {
+          "id": "q02_alter",
+          "type": "number",
+          "required": true,
+          "text": {
+            "de": "Alter"
+          }
+        },
+        {
+          "id": "q03_geschlecht",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Geschlecht"
+          },
+          "options": [
+            {
+              "id": "male",
+              "text": {
+                "de": "Männlich"
+              }
+            },
+            {
+              "id": "female",
+              "text": {
+                "de": "Weiblich"
+              }
+            },
+            {
+              "id": "diverse",
+              "text": {
+                "de": "Divers"
+              }
+            },
+            {
+              "id": "prefer_not_to_say",
+              "text": {
+                "de": "Keine Angabe"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Erfahrungen und Vorkenntnisse"
+      },
+      "questions": [
+        {
+          "id": "erfahrung_intro",
+          "type": "info",
+          "text": {
+            "de": "Noch ein paar Fragen zu deinen Erfahrungen und Vorkenntnissen"
+          },
+          "description": {
+            "de": "Im nächsten Abschnitt geht es um deine bisherigen Erfahrungen mit Escape Rooms und deine Vorkenntnisse im Bereich Cybersecurity/IT-Sicherheit. Es gibt keine richtigen oder falschen Antworten. Bewerte bitte deine Erfahrungen möglichst ehrlich. Gib keine Namen oder Kontaktdaten an."
+          }
+        },
+        {
+          "id": "q04_physische_escape_rooms",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe bereits Erfahrung mit realen (physischen) Escape Rooms."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q05_digitale_escape_rooms",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe bereits digitale Escape Rooms (im Browser oder als App) gespielt."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q06_escape_rooms_haeufigkeit",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie oft hast du vor diesem Spiel bereits einen Escape Room (vor Ort oder digital) gespielt?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "never",
+              "text": {
+                "de": "Noch nie"
+              }
+            },
+            {
+              "id": "once_or_twice",
+              "text": {
+                "de": "Ein- oder zweimal"
+              }
+            },
+            {
+              "id": "several",
+              "text": {
+                "de": "Drei- bis fünfmal"
+              }
+            },
+            {
+              "id": "many",
+              "text": {
+                "de": "Öfter als fünfmal"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q07_cybersecurity_vorkenntnisse",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie schätzt du deine bisherigen Vorkenntnisse im Bereich Cybersecurity / IT-Sicherheit ein?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "none",
+              "text": {
+                "de": "Keine Vorkenntnisse"
+              }
+            },
+            {
+              "id": "basic",
+              "text": {
+                "de": "Geringe Vorkenntnisse"
+              }
+            },
+            {
+              "id": "intermediate",
+              "text": {
+                "de": "Grundlegende Kenntnisse"
+              }
+            },
+            {
+              "id": "advanced",
+              "text": {
+                "de": "Gute bis sehr gute Kenntnisse"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q08_cybersecurity_beschaeftigung",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie häufig hast du dich bisher bewusst mit Cybersecurity / IT-Sicherheit beschäftigt (z. B. in Schule, Studium, Beruf, Kursen oder selbstständigem Lernen)?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "never",
+              "text": {
+                "de": "Noch nie"
+              }
+            },
+            {
+              "id": "rarely",
+              "text": {
+                "de": "Ein- oder zweimal"
+              }
+            },
+            {
+              "id": "sometimes",
+              "text": {
+                "de": "Gelegentlich"
+              }
+            },
+            {
+              "id": "often",
+              "text": {
+                "de": "Regelmäßig"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q09_raetselmechaniken",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich bin mit den typischen Mechaniken von Rätselspielen (z. B. Codes finden, Kombinieren von Gegenständen) vertraut."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q10_logische_raetsel",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich löse gerne komplexe logische Probleme und Rätsel."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q11_spielerisches_lernen",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich lerne lieber spielerisch als durch klassische Texte oder Vorträge."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q12_zeitdruck",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich arbeite gerne unter Zeitdruck."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q13_storytelling",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich finde es motivierend, wenn Lerninhalte in eine Geschichte (Storytelling) verpackt sind."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Phishing und Social Engineering"
+      },
+      "questions": [
+        {
+          "id": "b_intro_pre_b",
+          "type": "info",
+          "text": {
+            "de": "Hinweise zum Wissenstest"
+          },
+          "description": {
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
+          }
+        },
+        {
+          "id": "b01",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welches Ziel verfolgt Phishing typischerweise?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Ein Filter sortiert unerwünschte Massen-E-Mails automatisch aus."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Ein Verfahren schützt Nachrichteninhalte beim Versand vor Mitlesen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Menschen zu täuschen, damit sie Informationen preisgeben oder schädliche Inhalte öffnen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Ein Schutzprogramm prüft Geräte auf bekannte Schadsoftware."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b02",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Warum arbeiten Angreifende in Nachrichten manchmal mit Drohungen oder angeblichen Belohnungen?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Emotionaler Druck kann dazu führen, dass Personen reagieren, bevor sie Echtheit und Kontext prüfen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Eine Belohnung ist ein technisches Merkmal verifizierter Kommunikation."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Drohungen sorgen dafür, dass eine Nachricht serverseitig authentifiziert wird."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Nachrichten mit Belohnungen werden von Spamfiltern grundsätzlich zugelassen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b03",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Du erhältst eine unerwartete Nachricht über eine angeblich fehlgeschlagene Paketzustellung. Zum Nachzahlen sollst du ein Online-Formular öffnen. Was tust du zuerst?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Das Formular öffnen und prüfen, ob das Logo des Paketdienstes angezeigt wird."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Den Link nicht verwenden und die Sendung über die offizielle Website/App oder über bekannte Bestellinformationen prüfen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Die Nachricht an deine private E-Mail-Adresse weiterleiten und den Link dort öffnen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Testweise falsche Daten eintragen, um die Seite zu überprüfen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b04",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Nachricht nutzt den Namen und das Erscheinungsbild eines Unternehmens, stammt aber von einer leicht abweichenden Domain. Sie fordert über einen eingebetteten Link zum Zurücksetzen des Passworts auf und droht mit Kontosperrung. Welche Bewertung ist am besten begründet?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Das bekannte Erscheinungsbild reicht als Echtheitsnachweis aus."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Eine abweichende Domain ist nur dann relevant, wenn auch ein Rechtschreibfehler vorkommt."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein Link zum Zurücksetzen des Passworts ist grundsätzlich sicher, wenn er in einer E-Mail steht."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Abweichende Domain, Handlungsdruck und eingebetteter Link sind zusammen Warnzeichen; die Meldung sollte über einen bekannten Kanal geprüft werden."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Schadsoftware und sicherer Umgang mit Dateien/Datenträgern"
+      },
+      "questions": [
+        {
+          "id": "b05",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Aussage beschreibt Ransomware?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Schadsoftware, die Daten oder Systeme blockieren bzw. Daten verschlüsseln kann und häufig eine Lösegeldforderung stellt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Schadsoftware, die vor allem unerwünschte Werbeinhalte einblendet."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Schadsoftware, die sich als legitime Anwendung tarnt und unbefugten Zugriff ermöglicht."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Schadsoftware, die sich selbstständig über Netzwerke verbreitet."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b06",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Datei trägt den Namen `foto.jpg.exe`. Warum sollte dieser Name vorsichtig machen?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Bei zwei Endungen ist die erste immer entscheidend für den tatsächlichen Dateityp."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Die Endung `.jpg` garantiert, dass die Datei keine ausführbaren Inhalte enthalten kann."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Die letzte Endung deutet auf eine ausführbare Datei hin; ein davorstehender, vertraut wirkender Teil kann irreführen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Eine ausführbare Datei ist unproblematisch, wenn ihr Name ein Foto beschreibt."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b07",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine unbekannte Person bietet dir einen USB-Stick mit angeblich wichtigen Präsentationen an. Was ist auf einem verwalteten Arbeitsgerät am sichersten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Den Stick kurz anschließen und sofort wieder entfernen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Ihn nicht anschließen; die Herkunft über einen vertrauenswürdigen Weg klären und die zuständige IT-/Sicherheitsstelle einbeziehen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Den Stick nutzen, wenn die Dateien in einem Ordner mit dem Namen „Präsentationen“ liegen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Den Stick an ein anderes privates Gerät anschließen, bevor du entscheidest."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b08",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Installationsprogramm aus einem Forum hat keinen nachvollziehbaren Herausgeber und fordert, den Geräteschutz auszuschalten. Welche Reaktion passt am besten zu den Hinweisen?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Den Schutz ausschalten, damit die Installation vollständig abgeschlossen wird."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Die Installation fortsetzen, wenn andere Personen den Dateinamen kennen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Administratorrechte als Beweis dafür ansehen, dass die Software geprüft wurde."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Ausführung abbrechen, den Schutz nicht deaktivieren und eine freigegebene Bezugsquelle bzw. die IT kontaktieren."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Authentifizierung und Zugriffsschutz"
+      },
+      "questions": [
+        {
+          "id": "b09",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Beschreibung trifft auf Multi-Faktor-Authentifizierung (MFA) zu?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Ein einziges Passwort wird auf mehreren Webseiten eingesetzt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Mehrere Konten werden unter demselben Benutzernamen zusammengelegt."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein Passwort wird nur bei jedem zweiten Login abgefragt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Für die Anmeldung werden mindestens zwei unterschiedliche Faktorarten kombiniert, z. B. ein Passwort und ein Besitznachweis."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b10",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Sicherheitsvorteil haben unterschiedliche Passwörter für verschiedene Dienste?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Einzigartige Passwörter machen Phishing unmöglich."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Wird ein Passwort bei einem Dienst bekannt, lässt es sich nicht einfach als dasselbe Passwort bei anderen Konten ausprobieren."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Dienste können dann keine zusätzlichen Anmeldeschritte verwenden."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Passwortwiederverwendung ist sicher, solange die Passwörter lang sind."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b11",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Kollegin hat Zugriff auf einen vertraulichen Ordner, du selbst noch nicht. Wie erhältst du den Zugriff angemessen?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die Kollegin bitten, dir ihr Passwort kurzfristig zu schicken."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Den Ordner in einen privaten Cloudspeicher kopieren lassen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Mit deinem eigenen Konto den Zugriff über den vorgesehenen Genehmigungsweg beantragen und bis dahin nicht das Konto der Kollegin verwenden."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Sitzung der Kollegin verwenden, solange du keine Änderungen machst."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b12",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Chat-Nachricht mit dem Namen einer Führungskraft verlangt unter Zeitdruck einen Einmalcode, um angeblich einen Vorfall zu beheben. Welche Bewertung ist am besten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die Bitte um einen Einmalcode ist kritisch; die Identität über einen bekannten Kanal prüfen und den Code nicht weitergeben."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Der Name im Chat ist ein ausreichender Identitätsnachweis."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Einmalcodes sind intern grundsätzlich teilbar."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Anfrage ist vertrauenswürdig, wenn sie in einem Unternehmenschat steht."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Datenschutz, Codierung und Datensicherung"
+      },
+      "questions": [
+        {
+          "id": "b13",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Aussage beschreibt eine Datensicherung am besten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Eine Synchronisierung, bei der Löschungen und Änderungen automatisch auf alle Geräte übertragen werden."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Eine zusätzliche Kopie, aus der Daten bei Verlust oder Beschädigung wiederhergestellt werden können."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Eine Verschlüsselung, die den Zugriff auf eine Datei begrenzt, aber keine Kopie erstellt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Eine Liste von Dateinamen, aus der sich die eigentlichen Inhalte nicht wiederherstellen lassen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b14",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Aussage beschreibt den Unterschied zwischen Codierung und Verschlüsselung am treffendsten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Codierung verändert die Darstellung von Informationen; Verschlüsselung soll Inhalte mithilfe eines kryptografischen Verfahrens vor unbefugtem Lesen schützen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Verschlüsselung bedeutet nur, eine Datei umzubenennen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Codierung schützt immer vor unbefugtem Mitlesen, auch ohne Schlüssel."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die beiden Begriffe sind immer austauschbar."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b15",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein wichtiges Dokument lässt sich nach einem technischen Fehler nicht mehr öffnen. Dein Unternehmen besitzt ein geprüftes Sicherungsverfahren. Was ist der beste nächste Schritt?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Eine zufällige Reparatursoftware aus einem Werbebanner laden."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Die Datei vielfach kopieren und hoffen, dass eine Kopie wieder lesbar wird."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Den Vorfall nach dem vorgesehenen Ablauf melden und eine Wiederherstellung aus einer geprüften Sicherung veranlassen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Anmeldedaten an einen unbekannten Online-Dienst übermitteln."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b16",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Ordner mit personenbezogenen Informationen ist für alle Mitarbeitenden freigegeben. Die einzige Sicherung befindet sich auf demselben Computer. Welche Beurteilung ist am treffendsten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Interne Beschäftigte gelten automatisch als berechtigt, daher besteht kein Vertraulichkeitsrisiko."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Die Sicherung auf demselben Gerät reicht aus, weil Kopien den Verlust des Geräts überstehen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Berechtigungen sind für die Vertraulichkeit unerheblich, solange das Gerät passwortgeschützt ist."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Der zu breite Zugriff gefährdet die Vertraulichkeit; eine Sicherung am selben Ort ist bei manchen Vorfällen möglicherweise ebenfalls betroffen."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

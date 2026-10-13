@@ -1,0 +1,913 @@
+{
+  "schemaVersion": 1,
+  "roomId": "system-recovery",
+  "questionnaireId": "system-recovery-evaluation-pre-a-v1",
+  "title": {
+    "de": "System Recovery – Vorher-Fragebogen"
+  },
+  "skippable": false,
+  "pages": [
+    {
+      "title": {
+        "de": "Vor System Recovery"
+      },
+      "questions": [
+        {
+          "id": "pre_survey_intro",
+          "type": "info",
+          "text": {
+            "de": "Vor dem Escape Room"
+          },
+          "description": {
+            "de": "Dieser Fragebogen enthält Angaben zu deinen bisherigen Erfahrungen, einen Wissenstest und Fragen zu Java-Programmierung und Arrays. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Datenerfassung"
+      },
+      "questions": [
+        {
+          "id": "q01_dateneinwilligung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ich bin damit einverstanden, dass meine Antworten und zugehörigen Spieldaten für die Auswertung des Spiels erfasst und verarbeitet werden. Ich gebe in Freitextfeldern keine Namen oder Kontaktdaten an."
+          },
+          "options": [
+            {
+              "id": "yes",
+              "text": {
+                "de": "Ja"
+              }
+            },
+            {
+              "id": "no",
+              "text": {
+                "de": "Nein"
+              },
+              "declinesConsent": true
+            }
+          ]
+        },
+        {
+          "id": "q02_alter",
+          "type": "number",
+          "required": true,
+          "text": {
+            "de": "Alter"
+          }
+        },
+        {
+          "id": "q03_geschlecht",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Geschlecht"
+          },
+          "options": [
+            {
+              "id": "male",
+              "text": {
+                "de": "Männlich"
+              }
+            },
+            {
+              "id": "female",
+              "text": {
+                "de": "Weiblich"
+              }
+            },
+            {
+              "id": "diverse",
+              "text": {
+                "de": "Divers"
+              }
+            },
+            {
+              "id": "prefer_not_to_say",
+              "text": {
+                "de": "Keine Angabe"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Erfahrungen und Vorkenntnisse"
+      },
+      "questions": [
+        {
+          "id": "erfahrung_intro",
+          "type": "info",
+          "text": {
+            "de": "Noch ein paar Fragen zu deinen Erfahrungen und Vorkenntnissen"
+          },
+          "description": {
+            "de": "Im nächsten Abschnitt geht es um deine bisherigen Erfahrungen mit Programmieren, Java und Arrays. Es gibt keine richtigen oder falschen Antworten. Bewerte bitte dein eigenes Können und antworte möglichst ehrlich. Gib keine Namen oder Kontaktdaten an."
+          }
+        },
+        {
+          "id": "q04_physische_escape_rooms",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe bereits Erfahrung mit realen (physischen) Escape Rooms."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q05_digitale_escape_rooms",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe bereits digitale Escape Rooms (im Browser oder als App) gespielt."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q06_escape_rooms_haeufigkeit",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie oft hast du vor diesem Spiel bereits einen Escape Room (vor Ort oder digital) gespielt?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "never",
+              "text": {
+                "de": "Noch nie"
+              }
+            },
+            {
+              "id": "once_or_twice",
+              "text": {
+                "de": "Ein- oder zweimal"
+              }
+            },
+            {
+              "id": "several",
+              "text": {
+                "de": "Drei- bis fünfmal"
+              }
+            },
+            {
+              "id": "many",
+              "text": {
+                "de": "Öfter als fünfmal"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q07_programmiererfahrung",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie viel Erfahrung hast du insgesamt mit Programmieren?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "none",
+              "text": {
+                "de": "Keine"
+              }
+            },
+            {
+              "id": "little",
+              "text": {
+                "de": "Wenig"
+              }
+            },
+            {
+              "id": "some",
+              "text": {
+                "de": "Etwas Erfahrung"
+              }
+            },
+            {
+              "id": "extensive",
+              "text": {
+                "de": "Viel Erfahrung"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q08_javaerfahrung",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie viel Erfahrung hast du mit Java?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "none",
+              "text": {
+                "de": "Keine"
+              }
+            },
+            {
+              "id": "beginner",
+              "text": {
+                "de": "Grundkenntnisse"
+              }
+            },
+            {
+              "id": "intermediate",
+              "text": {
+                "de": "Mittlere Kenntnisse"
+              }
+            },
+            {
+              "id": "advanced",
+              "text": {
+                "de": "Fortgeschrittene Kenntnisse"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q09_raetselmechaniken",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich bin mit den typischen Mechaniken von Rätselspielen (z. B. Codes finden, Kombinieren von Gegenständen) vertraut."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q10_logische_raetsel",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich löse gerne komplexe logische Probleme und Rätsel."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q11_spielerisches_lernen",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich lerne lieber spielerisch als durch klassische Texte oder Vorträge."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q12_zeitdruck",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich arbeite gerne unter Zeitdruck."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q13_storytelling",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich finde es motivierend, wenn Lerninhalte in eine Geschichte (Storytelling) verpackt sind."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Arrays anlegen und verwenden"
+      },
+      "questions": [
+        {
+          "id": "a_intro",
+          "type": "info",
+          "text": {
+            "de": "Hinweise zum Wissenstest"
+          },
+          "description": {
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
+          }
+        },
+        {
+          "id": "a01_array_anlegen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Zeile legt in Java ein Array an, das Platz für 5 ganze Zahlen bietet?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`int energie = new int[5];`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`int[] energie = int[5];`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`int[] energie = new int[5];`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`int energie[5];`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a02_gueltige_indizes",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Array wird mit `new int[5]` angelegt. Welche Indizes kannst du verwenden?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "0 bis 5"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "1 bis 5"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Beliebige Indizes, das Array wächst bei Bedarf automatisch."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "0 bis 4"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a03_wert_nach_zuweisung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert hat `energie[2]` nach diesen Zeilen?\n`int[] energie = {40, 10, 80, 30, 60}; energie[2] = energie[1] + energie[3];`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "120"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "40"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "80"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "4"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a04_laenge_und_belegung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was gilt nach diesen Zeilen?\n`String[] module = new String[4]; module[0] = \"CPU\"; module[1] = \"GPU\"; module[1] = null;`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`module.length` ist 4; davon ist nur ein Eintrag belegt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`module.length` ist 1, weil nur ein Eintrag belegt ist."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`module.length` ist 3, weil `null` den Eintrag entfernt und das Array verkürzt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`module.length` ist 2, weil zwei Werte zugewiesen wurden."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Arrays durchlaufen"
+      },
+      "questions": [
+        {
+          "id": "a05_for_each_schleife",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Schleife durchläuft jedes Element des Arrays `module`, ohne dass du einen Index verwaltest?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`for (int i = 0; i < module.length; i++) { ... }`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`for (String m : module) { ... }`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`while (module.length > 0) { ... }`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`if (module != null) { ... }`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a06_schleifengrenze",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Warum lautet die Bedingung in `for (int i = 0; i < werte.length; i++)` nicht `i <= werte.length`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Weil `<=` in Schleifenbedingungen in Java nicht erlaubt ist."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Weil sonst das erste Element übersprungen würde."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Weil der letzte gültige Index `werte.length - 1` ist; mit `<=` würde auf einen Index außerhalb des Arrays zugegriffen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Weil die Schleife sonst endlos laufen würde."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a07_summe_mit_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert hat `summe` nach diesen Zeilen?\n`int[] pakete = {15, 40, 20, 60, 30}; int summe = 0; for (int i = 0; i < pakete.length; i++) { if (pakete[i] > 25) { summe = summe + pakete[i]; } }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "165"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "3"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "35"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "130"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a08_belegte_eintraege_zaehlen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Das Array `module` enthält `{\"CPU\", null, \"RAM\", null, \"SSD\"}`, und `int anzahl = 0;` ist bereits angelegt. Welcher Code speichert danach in `anzahl` die Zahl der belegten Einträge?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`anzahl = module.length;`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`for (String m : module) { anzahl++; }`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`for (String m : module) { if (m != null) { anzahl++; } }`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`for (String m : module) { if (m == null) { anzahl++; } }`"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Sortieren mit Bubble Sort"
+      },
+      "questions": [
+        {
+          "id": "a09_bubble_sort_schritt",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was macht Bubble Sort in einem einzelnen Schritt?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Es sucht den kleinsten Wert im ganzen Array und setzt ihn an den Anfang."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Es vergleicht zwei direkt benachbarte Werte und tauscht sie, wenn sie in der falschen Reihenfolge stehen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Es teilt das Array in zwei Hälften und sortiert beide getrennt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Es vergleicht jeden Wert mit dem Durchschnitt aller Werte."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a10_bubble_sort_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "In einem Bubble Sort steht `if (zahlen[j] > zahlen[j + 1]) { /* tauschen */ }`. Was bewirkt diese Bedingung?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Es wird getauscht, wenn der linke Wert größer ist; das Array wird aufsteigend sortiert."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Es wird getauscht, wenn der linke Wert größer ist; das Array wird absteigend sortiert."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Es wird geprüft, ob das gesamte Array bereits sortiert ist."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Es wird getauscht, wenn beide Werte gleich groß sind."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a11_bubble_sort_durchlauf",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Bubble Sort sortiert `{50, 20, 40, 10, 30}` aufsteigend. Wie sieht das Array nach dem ersten Durchlauf aus? Im ersten Durchlauf wird jedes benachbarte Paar einmal von links nach rechts verglichen."
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`{10, 20, 30, 40, 50}`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`{20, 50, 40, 10, 30}`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`{20, 50, 10, 40, 30}`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`{20, 40, 10, 30, 50}`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a12_tausch_ohne_hilfsvariable",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Tausch in einem Sortierprogramm lautet:\n`zahlen[j] = zahlen[j + 1]; zahlen[j + 1] = zahlen[j];`\nVorher gilt `zahlen[j] = 8` und `zahlen[j + 1] = 5`. Welche Aussage trifft zu?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Der Tausch funktioniert: Danach steht 5 vor 8."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Beide Stellen enthalten danach 8, weil der rechte Wert zuerst überschrieben wird."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Beide Stellen enthalten danach 5, weil die 8 überschrieben wird, bevor sie gesichert ist."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Das Programm bricht ab, weil `j + 1` kein gültiger Index-Ausdruck ist."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Zweidimensionale Arrays"
+      },
+      "questions": [
+        {
+          "id": "a13_2d_array_anlegen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Zeile legt ein zweidimensionales `int`-Array mit 3 Zeilen und 4 Spalten an?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`int[][] lager = new int[3][4];`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`int[] lager = new int[3][4];`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`int[][] lager = new int[3, 4];`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`int[][] lager = new int[12];`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a14_zeilen_und_spalten",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Es gilt `int[][] lager = new int[3][4];`. Was liefern `lager.length` und `lager[0].length`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`lager.length` ist 12, `lager[0].length` ist 4."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`lager.length` ist 3 (Zeilen), `lager[0].length` ist 4 (Spalten)."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`lager.length` ist 4 (Spalten), `lager[0].length` ist 3 (Zeilen)."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Beide liefern 3."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a15_2d_zugriff",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert liefert `werte[2][1]`?\n`int[][] werte = {{4, 0, 7}, {2, 9, 1}, {5, 3, 8}};`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "3"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "1"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "2"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "0"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a16_verschachtelte_schleife",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Das Programm soll alle Einsen in `map` zählen:\n`int[][] map = {{1, 0, 1, 0}, {0, 1, 0, 0}, {1, 1, 0, 1}};`\n`int treffer = 0; for (int i = 0; i < map.length; i++) { for (int j = 0; j < map.length; j++) { if (map[i][j] == 1) { treffer++; } } }`\nWelche Aussage trifft zu?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Es werden alle Felder geprüft; `treffer` ist am Ende 6."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Das Programm bricht mit einem Indexfehler ab."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Es wird nur die erste Zeile geprüft; `treffer` ist am Ende 2."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "In jeder Zeile werden nur die ersten drei Spalten geprüft; `treffer` ist am Ende 5."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

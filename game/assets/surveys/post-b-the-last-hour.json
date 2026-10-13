@@ -1,0 +1,1313 @@
+{
+  "schemaVersion": 1,
+  "roomId": "the-last-hour",
+  "questionnaireId": "the-last-hour-evaluation-post-b-v1",
+  "title": {
+    "de": "The Last Hour – Nachher-Fragebogen"
+  },
+  "skippable": false,
+  "pages": [
+    {
+      "title": {
+        "de": "Nach The Last Hour"
+      },
+      "questions": [
+        {
+          "id": "post_survey_intro",
+          "type": "info",
+          "text": {
+            "de": "Nach dem Escape Room"
+          },
+          "description": {
+            "de": "Dieser Fragebogen besteht aus einer aktuellen und einer rückblickenden Selbsteinschätzung, einem Wissenstest und Fragen zu deiner Spielerfahrung. Bitte beantworte die Fragen so ehrlich wie möglich. Es gibt keine Rückmeldung zu einzelnen Antworten im Wissenstest."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Hinweise zur Selbsteinschätzung"
+      },
+      "questions": [
+        {
+          "id": "selbsteinschaetzung_hinweise",
+          "type": "info",
+          "text": {
+            "de": "So gehst du vor"
+          },
+          "description": {
+            "de": "Du schätzt dich auf den nächsten beiden Seiten zweimal ein. Auf der ersten Seite bewertest du, wie gut du die Aussagen jetzt, unmittelbar nach dem Escape Room, bewältigen kannst. Auf der darauffolgenden Seite denkst du an die Zeit unmittelbar vor dem Escape Room zurück und schätzt ein, wie gut du die gleichen Aussagen damals bewältigen konntest. Verwende beide Male dieselbe Antwortskala. Es geht um deine persönliche Einschätzung; es gibt keine richtigen oder falschen Antworten. Antworte für die rückblickende Einschätzung nach deiner bestmöglichen Erinnerung."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Selbsteinschätzung: Dein Können jetzt (direkt nach dem Escape Room)"
+      },
+      "questions": [
+        {
+          "id": "post_intro",
+          "type": "info",
+          "text": {
+            "de": "Bitte schätze dein Können ein."
+          },
+          "description": {
+            "de": "Schätze bitte ein, wie gut du die folgenden Handlungen und Erklärungen direkt nach dem Escape Room bewältigen kannst. Es geht um deine eigene Einschätzung, nicht um die richtigen Antworten im Wissenstest."
+          }
+        },
+        {
+          "id": "post_01_kompetenzmatrix",
+          "type": "matrix",
+          "required": true,
+          "text": {
+            "de": "Wie gut kannst du die folgenden Dinge?"
+          },
+          "rows": [
+            {
+              "id": "post_01_phishing_warnzeichen",
+              "text": {
+                "de": "Ich kann bei einer unerwarteten digitalen Nachricht mehrere Anzeichen erkennen, die auf einen Täuschungsversuch hindeuten."
+              }
+            },
+            {
+              "id": "post_02_nachricht_unabhaengig_pruefen",
+              "text": {
+                "de": "Ich kann eine verdächtige Nachricht über einen unabhängigen, bekannten Kontaktweg prüfen, bevor ich Links öffne oder Anhänge nutze."
+              }
+            },
+            {
+              "id": "post_03_social_engineering_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, wie Zeitdruck, Drohungen oder Gewinnversprechen Menschen zu unsicheren Entscheidungen verleiten können."
+              }
+            },
+            {
+              "id": "post_04_dateien_downloads_bewerten",
+              "text": {
+                "de": "Ich kann Risiken von Anhängen und Downloads aus unbekannten Quellen einschätzen und entsprechend vorsichtig handeln."
+              }
+            },
+            {
+              "id": "post_05_usb_datentraeger_bewerten",
+              "text": {
+                "de": "Ich kann erklären, warum unbekannte USB-Datenträger nicht ungeprüft an Geräte angeschlossen werden sollten."
+              }
+            },
+            {
+              "id": "post_06_ransomware_backup",
+              "text": {
+                "de": "Ich kann beschreiben, wie Schadsoftware wie Ransomware Daten beeinträchtigen kann und welche Rolle Datensicherungen bei der Wiederherstellung spielen."
+              }
+            },
+            {
+              "id": "post_07_mfa_passwortstrategie",
+              "text": {
+                "de": "Ich kann erklären, wie Multi-Faktor-Authentifizierung funktioniert und warum unterschiedliche Passwörter für verschiedene Dienste sinnvoll sind."
+              }
+            },
+            {
+              "id": "post_08_berechtigten_zugriff",
+              "text": {
+                "de": "Ich kann einschätzen, wie ich Zugriff auf geschützte Informationen über mein eigenes Konto und vorgesehene Freigabeprozesse beantrage."
+              }
+            },
+            {
+              "id": "post_09_codes_identitaet_pruefen",
+              "text": {
+                "de": "Ich kann verdächtige Anfragen nach Passwörtern oder Einmal-/MFA-Codes erkennen und die Identität unabhängig überprüfen."
+              }
+            },
+            {
+              "id": "post_10_codierung_verschluesselung",
+              "text": {
+                "de": "Ich kann Codierung und Verschlüsselung unterscheiden und erklären, welchem Zweck Verschlüsselung dient."
+              }
+            },
+            {
+              "id": "post_11_vertraulichkeit_berechtigungen",
+              "text": {
+                "de": "Ich kann beurteilen, warum vertrauliche Informationen nur für berechtigte Personen zugänglich sein sollten."
+              }
+            },
+            {
+              "id": "post_12_vorfall_handeln",
+              "text": {
+                "de": "Ich kann bei einem vermuteten Sicherheitsvorfall einen angemessenen nächsten Schritt wählen, etwa eine Meldung über den vorgesehenen Weg oder eine Wiederherstellung aus einer geprüften Sicherung."
+              }
+            }
+          ],
+          "columns": [
+            {
+              "id": "1",
+              "text": {
+                "de": "Kann ich gar nicht"
+              }
+            },
+            {
+              "id": "2",
+              "text": {
+                "de": "Kann ich eher nicht"
+              }
+            },
+            {
+              "id": "3",
+              "text": {
+                "de": "Teils / teilweise"
+              }
+            },
+            {
+              "id": "4",
+              "text": {
+                "de": "Kann ich gut"
+              }
+            },
+            {
+              "id": "5",
+              "text": {
+                "de": "Kann ich sehr gut"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Rückblickende Selbsteinschätzung: Dein Können vorher (direkt vor dem Escape Room)"
+      },
+      "questions": [
+        {
+          "id": "then_intro",
+          "type": "info",
+          "text": {
+            "de": "Bitte schätze dein Können ein."
+          },
+          "description": {
+            "de": "Denke an den Zeitpunkt unmittelbar vor Beginn des Escape Rooms zurück. Schätze ein, wie gut du die folgenden Dinge damals konntest. Die Aussagen und Antwortskala sind dieselben wie auf der vorherigen Seite. Antworte nach deiner bestmöglichen Erinnerung."
+          }
+        },
+        {
+          "id": "then_01_kompetenzmatrix",
+          "type": "matrix",
+          "required": true,
+          "text": {
+            "de": "Wie gut kannst du die folgenden Dinge?"
+          },
+          "rows": [
+            {
+              "id": "then_01_phishing_warnzeichen",
+              "text": {
+                "de": "Ich kann bei einer unerwarteten digitalen Nachricht mehrere Anzeichen erkennen, die auf einen Täuschungsversuch hindeuten."
+              }
+            },
+            {
+              "id": "then_02_nachricht_unabhaengig_pruefen",
+              "text": {
+                "de": "Ich kann eine verdächtige Nachricht über einen unabhängigen, bekannten Kontaktweg prüfen, bevor ich Links öffne oder Anhänge nutze."
+              }
+            },
+            {
+              "id": "then_03_social_engineering_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, wie Zeitdruck, Drohungen oder Gewinnversprechen Menschen zu unsicheren Entscheidungen verleiten können."
+              }
+            },
+            {
+              "id": "then_04_dateien_downloads_bewerten",
+              "text": {
+                "de": "Ich kann Risiken von Anhängen und Downloads aus unbekannten Quellen einschätzen und entsprechend vorsichtig handeln."
+              }
+            },
+            {
+              "id": "then_05_usb_datentraeger_bewerten",
+              "text": {
+                "de": "Ich kann erklären, warum unbekannte USB-Datenträger nicht ungeprüft an Geräte angeschlossen werden sollten."
+              }
+            },
+            {
+              "id": "then_06_ransomware_backup",
+              "text": {
+                "de": "Ich kann beschreiben, wie Schadsoftware wie Ransomware Daten beeinträchtigen kann und welche Rolle Datensicherungen bei der Wiederherstellung spielen."
+              }
+            },
+            {
+              "id": "then_07_mfa_passwortstrategie",
+              "text": {
+                "de": "Ich kann erklären, wie Multi-Faktor-Authentifizierung funktioniert und warum unterschiedliche Passwörter für verschiedene Dienste sinnvoll sind."
+              }
+            },
+            {
+              "id": "then_08_berechtigten_zugriff",
+              "text": {
+                "de": "Ich kann einschätzen, wie ich Zugriff auf geschützte Informationen über mein eigenes Konto und vorgesehene Freigabeprozesse beantrage."
+              }
+            },
+            {
+              "id": "then_09_codes_identitaet_pruefen",
+              "text": {
+                "de": "Ich kann verdächtige Anfragen nach Passwörtern oder Einmal-/MFA-Codes erkennen und die Identität unabhängig überprüfen."
+              }
+            },
+            {
+              "id": "then_10_codierung_verschluesselung",
+              "text": {
+                "de": "Ich kann Codierung und Verschlüsselung unterscheiden und erklären, welchem Zweck Verschlüsselung dient."
+              }
+            },
+            {
+              "id": "then_11_vertraulichkeit_berechtigungen",
+              "text": {
+                "de": "Ich kann beurteilen, warum vertrauliche Informationen nur für berechtigte Personen zugänglich sein sollten."
+              }
+            },
+            {
+              "id": "then_12_vorfall_handeln",
+              "text": {
+                "de": "Ich kann bei einem vermuteten Sicherheitsvorfall einen angemessenen nächsten Schritt wählen, etwa eine Meldung über den vorgesehenen Weg oder eine Wiederherstellung aus einer geprüften Sicherung."
+              }
+            }
+          ],
+          "columns": [
+            {
+              "id": "1",
+              "text": {
+                "de": "Kann ich gar nicht"
+              }
+            },
+            {
+              "id": "2",
+              "text": {
+                "de": "Kann ich eher nicht"
+              }
+            },
+            {
+              "id": "3",
+              "text": {
+                "de": "Teils / teilweise"
+              }
+            },
+            {
+              "id": "4",
+              "text": {
+                "de": "Kann ich gut"
+              }
+            },
+            {
+              "id": "5",
+              "text": {
+                "de": "Kann ich sehr gut"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Phishing und Social Engineering"
+      },
+      "questions": [
+        {
+          "id": "a_intro_pre_a",
+          "type": "info",
+          "text": {
+            "de": "Hinweise zum Wissenstest"
+          },
+          "description": {
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
+          }
+        },
+        {
+          "id": "a01",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was versteht man unter Phishing?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Ein Filter sortiert unerwünschte Massen-E-Mails automatisch aus."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Ein Täuschungsversuch, mit dem Personen z. B. zur Preisgabe von Zugangsdaten oder zum Öffnen schädlicher Inhalte gebracht werden."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein Verfahren verschlüsselt Nachrichten, damit nur Berechtigte sie lesen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Ein Schutzprogramm prüft Dateien auf bekannte Schadsoftware."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a02",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Warum enthalten betrügerische Nachrichten oft Formulierungen wie „sofort handeln“ oder „letzte Warnung“?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Sie belegen, dass die Nachricht von einer echten Organisation stammt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Sie verkürzen die technische Übertragungszeit einer Nachricht."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Weil Zeitdruck dazu bringen kann, Sicherheitsprüfungen zu überspringen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Sie sind ein vorgeschriebenes Merkmal authentischer Sicherheitsmeldungen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a03",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Du erhältst eine unerwartete Nachricht: „Dein Konto wird in 10 Minuten gesperrt. Melde dich über diesen Link an.“ Was ist der sicherste nächste Schritt?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Den Link öffnen, sofern die Seite ein professionelles Layout hat."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Auf die Nachricht antworten und um einen Identitätsnachweis bitten."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Den Link auf dem Smartphone öffnen, weil das grundsätzlich sicherer ist."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die bekannte offizielle Website oder App selbst aufrufen und die Meldung dort oder über einen bekannten Support-Kanal prüfen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a04",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Nachricht zeigt das Unternehmenslogo. Die Absenderdomain weicht von der bekannten Domain ab, und der Text verlangt unter Zeitdruck einen Einmalcode. Welche Bewertung ist am besten begründet?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die abweichende Domain und die Forderung nach einem Einmalcode unter Zeitdruck sind zusammen deutliche Warnzeichen; die Anfrage sollte unabhängig geprüft werden."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Das Logo beweist, dass die Nachricht echt ist."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Nur Rechtschreibfehler wären ein relevantes Warnzeichen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Einmalcodes können bedenkenlos geteilt werden, wenn die Anfrage intern klingt."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Schadsoftware und sicherer Umgang mit Dateien/Datenträgern"
+      },
+      "questions": [
+        {
+          "id": "a05",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Beschreibung passt am besten zu Ransomware?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Schadsoftware, die unerwünschte Werbung einblendet."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Schadsoftware, die sich als legitime Anwendung tarnt, um unbefugten Zugriff zu ermöglichen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Schadsoftware, die Daten z. B. verschlüsselt oder blockiert und für die Freigabe Geld verlangen kann."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Schadsoftware, die sich selbstständig über Netzwerke verbreitet."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a06",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Warum ist ein Anhang mit dem Dateinamen `bericht.pdf.exe` auffällig?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "PDF-Dateien nutzen auf Windows normalerweise die Endung `.pdf.exe`."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Die Endung `.exe` weist auf eine ausführbare Datei hin; der davorstehende Teil kann die Datei harmloser erscheinen lassen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Die Endung `.exe` bedeutet, dass die Datei aus einer vertrauenswürdigen Quelle stammt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die `.pdf`-Angabe am Anfang reicht aus, um den Inhalt als Dokument einzustufen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a07",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Du findest einen unbekannten USB-Stick in einem Seminarraum. Was ist die sicherste Handlung?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Ihn an den eigenen Computer anschließen, um den Eigentümer herauszufinden."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Ihn nur dann anschließen, wenn ein Virenschutz installiert ist."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Eine andere teilnehmende Person bitten, ihn zuerst zu testen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Ihn nicht anschließen und an die zuständige IT- oder Sicherheitsstelle übergeben."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a08",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein kostenloses Programm stammt von einer unbekannten Website. Beim Start verlangt es Administratorrechte und fordert dazu auf, den Virenschutz vorübergehend auszuschalten. Was ist die beste Einschätzung?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die Kombination aus unbekannter Quelle und Aufforderung, Schutzmaßnahmen abzuschalten, ist stark verdächtig; das Programm sollte nicht ausgeführt werden."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Administratorrechte zeigen, dass das Programm geprüft wurde."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Virenschutz sollte immer deaktiviert werden, wenn ein Programm danach fragt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Der Download ist sicher, sobald der Dateiname vertraut klingt."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Authentifizierung und Zugriffsschutz"
+      },
+      "questions": [
+        {
+          "id": "a09",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was bedeutet Multi-Faktor-Authentifizierung (MFA)?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Dasselbe Passwort wird bei zwei Diensten verwendet."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Eine Person nutzt mehrere Benutzernamen für ein Konto."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Die Anmeldung kombiniert mindestens zwei unterschiedliche Arten von Faktoren, z. B. Wissen und Besitz."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Das Passwort wird bei jeder Anmeldung automatisch geändert."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a10",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Warum sollte man nicht dasselbe Passwort bei mehreren Diensten verwenden?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Wiederverwendete Passwörter verhindern die Nutzung von MFA."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Webdienste gleichen ihre Passwörter grundsätzlich untereinander ab."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein Passwort kann nur dann gestohlen werden, wenn es auf Papier notiert ist."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Nach einem Datenleck bei einem Dienst könnten Angreifende dasselbe Passwort bei weiteren Konten ausprobieren."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a11",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Du musst auf eine interne Datei zugreifen, aber am Arbeitsplatz ist das Konto einer anderen Person noch angemeldet. Wie gehst du angemessen vor?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die fremde Sitzung nicht verwenden; sie sperren bzw. die Person darauf hinweisen und mit dem eigenen berechtigten Konto arbeiten oder Zugriff beantragen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Die Datei über das fremde Konto öffnen, solange du nichts veränderst."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Die andere Person bitten, ihr Passwort mit dir zu teilen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Datei in einen privaten Cloudspeicher kopieren, um leichter darauf zuzugreifen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a12",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine anrufende Person behauptet, aus dem IT-Team zu sein, und bittet wegen eines angeblichen Systemfehlers um den gerade empfangenen MFA-Code. Sie kennt deinen Namen und spricht dringend. Welche Schlussfolgerung ist am besten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die Kenntnis des Namens bestätigt die Identität der anrufenden Person."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Der Code ist vertraulich; Zeitdruck und einige persönliche Angaben beweisen die Identität nicht. Teile ihn nicht und prüfe die Anfrage über einen bekannten internen Kanal."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein MFA-Code kann an IT-Mitarbeitende weitergegeben werden, wenn sie danach fragen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Das Teilen des Codes fügt dem Konto eine weitere Schutzebene hinzu."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Datenschutz, Codierung und Datensicherung"
+      },
+      "questions": [
+        {
+          "id": "a13",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was ist eine Datensicherung (Backup)?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Eine Synchronisierung, die jede Änderung sofort auf alle Geräte überträgt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Eine Verschlüsselung der Originaldatei, die keine separate Kopie erstellt."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein Verlaufsprotokoll, das nur speichert, wann eine Datei geöffnet wurde."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Eine zusätzliche, wiederherstellbare Kopie von Daten, die nach Verlust oder Beschädigung genutzt werden kann."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a14",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Aussage unterscheidet Codierung und Verschlüsselung am besten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Codierung erfordert immer ein geheimes Passwort, Verschlüsselung nie."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Verschlüsselung ändert nur die Dateiendung, Codierung schützt grundsätzlich alle Inhalte."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Codierung stellt Informationen in einer anderen Form dar und schützt für sich allein nicht vor Mitlesen; Verschlüsselung soll Vertraulichkeit mithilfe eines kryptografischen Verfahrens sichern."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Codierung und Verschlüsselung sind zwei Bezeichnungen für exakt denselben Vorgang."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a15",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine wichtige Datei wurde versehentlich überschrieben. Es gibt im Unternehmen ein freigegebenes Backup-Verfahren. Was ist sinnvoll?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Den Vorfall nach dem vorgesehenen Verfahren melden und die Datei aus einer geprüften Sicherung wiederherstellen lassen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Ein beliebiges Wiederherstellungsprogramm von einer Werbeseite installieren."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Die überschriebenen Daten durch wiederholtes Speichern derselben Datei zurückholen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Das Passwort des eigenen Kontos per E-Mail an einen unbekannten Anbieter senden."
+              }
+            }
+          ]
+        },
+        {
+          "id": "a16",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Team speichert vertrauliche Projektdateien in einem Ordner, auf den alle Beschäftigten zugreifen können. Die einzige Sicherung liegt auf demselben Gerät. Welche Bewertung trifft die Risiken am besten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Da alle Nutzenden Beschäftigte sind, ist die Vertraulichkeit nicht betroffen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Der breite Zugriff gefährdet die Vertraulichkeit; die Sicherung auf demselben Gerät könnte bei einem gemeinsamen Vorfall ebenfalls verloren gehen und damit die Verfügbarkeit gefährden."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Die breite Freigabe gefährdet nur die Integrität; die Sicherung am selben Ort ist davon unabhängig."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Eine Sicherung garantiert die Verfügbarkeit selbst bei Verlust des gesamten Geräts."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Deine Erfahrung mit dem Spiel"
+      },
+      "questions": [
+        {
+          "id": "game_experience_intro",
+          "type": "info",
+          "text": {
+            "de": "Deine Erfahrung mit dem Spiel"
+          },
+          "description": {
+            "de": "Im folgenden Abschnitt geht es um deine persönliche Erfahrung mit dem Escape Room. Bewerte unter anderem die Spielmechanik, die Schwierigkeit und den Spielspaß. Beziehe dich dabei auf deine eigene Spielerfahrung."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Deine Einschätzung des Escape Rooms"
+      },
+      "questions": [
+        {
+          "id": "q14_cybersecurity_lernhilfe",
+          "type": "scale",
+          "text": {
+            "de": "Wie hilfreich war der Escape Room für dein Verständnis von Cybersecurity / IT-Sicherheit?"
+          },
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "minLabel": {
+            "de": "Gar nicht hilfreich"
+          },
+          "maxLabel": {
+            "de": "Sehr hilfreich"
+          }
+        },
+        {
+          "id": "q15_aktive_beteiligung",
+          "type": "scale",
+          "text": {
+            "de": "Wie gut konntest du dich aktiv an der Lösung der Rätsel beteiligen?"
+          },
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "minLabel": {
+            "de": "Gar nicht gut"
+          },
+          "maxLabel": {
+            "de": "Sehr gut"
+          }
+        },
+        {
+          "id": "q16_hilfreichster_aspekt",
+          "type": "longText",
+          "maxLength": 1200,
+          "text": {
+            "de": "Was hat dir beim Lernen oder Verstehen besonders geholfen?"
+          },
+          "required": true
+        },
+        {
+          "id": "q17_offene_cybersecurity_fragen",
+          "type": "longText",
+          "maxLength": 1200,
+          "text": {
+            "de": "Welche Aspekte der Cybersecurity / IT-Sicherheit oder welche Aufgaben sind für dich noch unklar geblieben?"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Spielmechanik und Strategie"
+      },
+      "questions": [
+        {
+          "id": "q18_benutzeroberflaeche",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Benutzeroberfläche war intuitiv und leicht verständlich."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q19_hinweissystem",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Hinweissystem hat mir genau das richtige Maß an Unterstützung geboten (nicht zu viel, nicht zu wenig)."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q20_informationen_verknuepfen",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Der Spielverlauf erforderte ein strategisches Verknüpfen von Informationen aus verschiedenen Quellen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Herausforderung und Balance"
+      },
+      "questions": [
+        {
+          "id": "q21_schwierigkeit",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Schwierigkeit des Spiels war angemessen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q22_raetselverstaendlichkeit",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Rätsel waren verständlich und die dafür geforderten Aufgaben leicht ersichtlich."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q23_flow_erleben",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich fühlte mich während des gesamten Spiels im „Flow“ (weder unter- noch überfordert)."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q24_timer_zeitdruck",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Der Timer hat mich unter Zeitdruck gesetzt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Spaß und Wiederspielwert"
+      },
+      "questions": [
+        {
+          "id": "q25_spielspass",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Spiel hat Spaß gemacht."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q26_rahmengeschichte",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Rahmengeschichte war packend und hat mich in das Szenario hineingezogen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q27_loesungserfolg",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Es war befriedigend, wenn ich ein Rätsel erfolgreich gelöst hatte."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q28_wiederspielwert",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich würde das Spiel noch einmal spielen, um meine Leistung zu verbessern oder Details zu entdecken."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Gameplay-Feedback"
+      },
+      "questions": [
+        {
+          "id": "q29_steuerung",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Steuerung war intuitiv und präzise."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q30_mechaniken_erklaert",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Mechaniken des Spiels waren gut erklärt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q31_fluessiges_spiel",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Spiel hat sich responsiv und flüssig angefühlt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Allgemeine Erfahrung"
+      },
+      "questions": [
+        {
+          "id": "q32_spielziel_verstanden",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe das Ziel des Spieles eindeutig verstanden."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q33_technische_fehler",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Mir sind viele technische Fehler im Spiel aufgefallen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q34_gesamtbewertung",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Wie würdest du das Spiel insgesamt bewerten?"
+          },
+          "minLabel": {
+            "de": "Sehr schlecht"
+          },
+          "maxLabel": {
+            "de": "Sehr gut"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Offenes Feedback"
+      },
+      "questions": [
+        {
+          "id": "q35_spass_highlight",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Was hat dir am meisten Spaß gemacht?"
+          }
+        },
+        {
+          "id": "q36_frustration",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Gab es etwas, das dich frustriert hat?"
+          }
+        },
+        {
+          "id": "q37_verbesserungswuensche",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Welche weiteren Funktionen oder Inhalte würdest du dir in diesem Spiel wünschen?"
+          }
+        },
+        {
+          "id": "q38_weitere_kommentare",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Weitere Kommentare oder Anmerkungen"
+          }
+        }
+      ]
+    }
+  ]
+}

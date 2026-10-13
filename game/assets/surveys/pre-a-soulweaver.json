@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
   "roomId": "soulweaver",
-  "questionnaireId": "soulweaver-evaluation-pre-test-a",
+  "questionnaireId": "soulweaver-evaluation-pre-a-v1",
   "title": {
-    "de": "Soulweaver Vorher-Fragebogen"
+    "de": "Soulweaver – Vorher-Fragebogen"
   },
   "skippable": false,
   "pages": [
     {
       "title": {
-        "de": "Vor dem Spiel"
+        "de": "Vor Soulweaver"
       },
       "questions": [
         {
           "id": "pre_survey_intro",
           "type": "info",
           "text": {
-            "de": "Vor dem Spiel"
+            "de": "Vor dem Escape Room"
           },
           "description": {
-            "de": "Dieser Fragebogen enthält Fragen zu deinen bisherigen Erfahrungen mit Escape Rooms, einige Angaben zu deiner Person und einen Wissenstest. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
+            "de": "Dieser Fragebogen enthält Angaben zu deinen bisherigen Erfahrungen, einen Wissenstest und Fragen zu Java-Programmierung. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
           }
         }
       ]
@@ -34,7 +34,7 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ich bin damit einverstanden, dass meine Daten für die Auswertung des Spiels pseudonym erfasst und verarbeitet werden. Du kannst diese Einwilligung jederzeit widerrufen."
+            "de": "Ich bin damit einverstanden, dass meine Antworten und zugehörigen Spieldaten für die Auswertung des Spiels erfasst und verarbeitet werden. Ich gebe in Freitextfeldern keine Namen oder Kontaktdaten an."
           },
           "options": [
             {
@@ -84,6 +84,12 @@
               "id": "diverse",
               "text": {
                 "de": "Divers"
+              }
+            },
+            {
+              "id": "prefer_not_to_say",
+              "text": {
+                "de": "Keine Angabe"
               }
             }
           ]
@@ -333,7 +339,7 @@
             "de": "Hinweise zum Wissenstest"
           },
           "description": {
-            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten."
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
           }
         },
         {

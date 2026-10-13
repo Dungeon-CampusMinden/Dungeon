@@ -1,0 +1,1313 @@
+{
+  "schemaVersion": 1,
+  "roomId": "system-recovery",
+  "questionnaireId": "system-recovery-evaluation-post-a-v1",
+  "title": {
+    "de": "System Recovery – Nachher-Fragebogen"
+  },
+  "skippable": false,
+  "pages": [
+    {
+      "title": {
+        "de": "Nach System Recovery"
+      },
+      "questions": [
+        {
+          "id": "post_survey_intro",
+          "type": "info",
+          "text": {
+            "de": "Nach dem Escape Room"
+          },
+          "description": {
+            "de": "Dieser Fragebogen besteht aus einer aktuellen und einer rückblickenden Selbsteinschätzung, einem Wissenstest und Fragen zu deiner Spielerfahrung. Bitte beantworte die Fragen so ehrlich wie möglich. Es gibt keine Rückmeldung zu einzelnen Antworten im Wissenstest."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Hinweise zur Selbsteinschätzung"
+      },
+      "questions": [
+        {
+          "id": "selbsteinschaetzung_hinweise",
+          "type": "info",
+          "text": {
+            "de": "So gehst du vor"
+          },
+          "description": {
+            "de": "Du schätzt dich auf den nächsten beiden Seiten zweimal ein. Auf der ersten Seite bewertest du, wie gut du die Aussagen jetzt, unmittelbar nach dem Escape Room, bewältigen kannst. Auf der darauffolgenden Seite denkst du an die Zeit unmittelbar vor dem Escape Room zurück und schätzt ein, wie gut du die gleichen Aussagen damals bewältigen konntest. Verwende beide Male dieselbe Antwortskala. Es geht um deine persönliche Einschätzung; es gibt keine richtigen oder falschen Antworten. Antworte für die rückblickende Einschätzung nach deiner bestmöglichen Erinnerung."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Selbsteinschätzung: Dein Können jetzt (direkt nach dem Escape Room)"
+      },
+      "questions": [
+        {
+          "id": "post_intro",
+          "type": "info",
+          "text": {
+            "de": "Bitte schätze dein Können ein."
+          },
+          "description": {
+            "de": "Schätze bitte ein, wie gut du die folgenden Handlungen und Erklärungen direkt nach dem Escape Room bewältigen kannst. Es geht um deine eigene Einschätzung, nicht um die richtigen Antworten im Wissenstest."
+          }
+        },
+        {
+          "id": "post_01_kompetenzmatrix",
+          "type": "matrix",
+          "required": true,
+          "text": {
+            "de": "Wie gut kannst du die folgenden Dinge?"
+          },
+          "rows": [
+            {
+              "id": "post_02_array_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, was ein Array ist und wie Index und Länge zusammenhängen."
+              }
+            },
+            {
+              "id": "post_03_array_anlegen_befuellen",
+              "text": {
+                "de": "Ich kann ein Array anlegen und einzelnen Positionen gezielt Werte zuweisen."
+              }
+            },
+            {
+              "id": "post_04_kapazitaet_belegung_unterscheiden",
+              "text": {
+                "de": "Ich kann unterscheiden, wie viele Plätze ein Array hat und wie viele davon tatsächlich belegt sind."
+              }
+            },
+            {
+              "id": "post_05_schleifengrenzen_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, warum eine Schleife über ein Array bei Index 0 beginnt und vor der Länge des Arrays endet."
+              }
+            },
+            {
+              "id": "post_06_schleifenform_begruenden",
+              "text": {
+                "de": "Ich kann begründen, wann eine indexbasierte for-Schleife und wann eine for-each-Schleife besser geeignet ist."
+              }
+            },
+            {
+              "id": "post_07_zaehlschleife_entwerfen",
+              "text": {
+                "de": "Ich kann eine Schleife entwerfen, die Elemente eines Arrays nach einer Bedingung zählt oder aufsummiert."
+              }
+            },
+            {
+              "id": "post_08_bubble_sort_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, wie Bubble Sort ein Array durch Vergleichen und Tauschen benachbarter Werte sortiert."
+              }
+            },
+            {
+              "id": "post_09_bubble_sort_durchfuehren",
+              "text": {
+                "de": "Ich kann einen Durchlauf von Bubble Sort für eine gegebene Zahlenfolge Schritt für Schritt durchführen."
+              }
+            },
+            {
+              "id": "post_10_sortierfehler_finden",
+              "text": {
+                "de": "Ich kann in einem Sortierprogramm die Ursache eines Fehlers finden, z. B. einen falschen Tausch oder eine falsche Schleifengrenze."
+              }
+            },
+            {
+              "id": "post_11_zeilen_spalten_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, wie Zeilen und Spalten in einem zweidimensionalen Array über zwei Indizes angesprochen werden."
+              }
+            },
+            {
+              "id": "post_12_zweidim_array_verwenden",
+              "text": {
+                "de": "Ich kann ein zweidimensionales Array anlegen und gezielt einzelne Felder lesen oder beschreiben."
+              }
+            },
+            {
+              "id": "post_13_verschachtelte_schleifen_entwerfen",
+              "text": {
+                "de": "Ich kann verschachtelte Schleifen schreiben, die jedes Feld eines zweidimensionalen Arrays durchlaufen oder durchsuchen."
+              }
+            }
+          ],
+          "columns": [
+            {
+              "id": "1",
+              "text": {
+                "de": "Kann ich gar nicht"
+              }
+            },
+            {
+              "id": "2",
+              "text": {
+                "de": "Kann ich eher nicht"
+              }
+            },
+            {
+              "id": "3",
+              "text": {
+                "de": "Teils / teilweise"
+              }
+            },
+            {
+              "id": "4",
+              "text": {
+                "de": "Kann ich gut"
+              }
+            },
+            {
+              "id": "5",
+              "text": {
+                "de": "Kann ich sehr gut"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Rückblickende Selbsteinschätzung: Dein Können vorher (direkt vor dem Escape Room)"
+      },
+      "questions": [
+        {
+          "id": "then_intro",
+          "type": "info",
+          "text": {
+            "de": "Bitte schätze dein Können ein."
+          },
+          "description": {
+            "de": "Denke an den Zeitpunkt unmittelbar vor Beginn des Escape Rooms zurück. Schätze ein, wie gut du die folgenden Dinge damals konntest. Die Aussagen und Antwortskala sind dieselben wie auf der vorherigen Seite. Antworte nach deiner bestmöglichen Erinnerung."
+          }
+        },
+        {
+          "id": "then_01_kompetenzmatrix",
+          "type": "matrix",
+          "required": true,
+          "text": {
+            "de": "Wie gut kannst du die folgenden Dinge?"
+          },
+          "rows": [
+            {
+              "id": "then_02_array_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, was ein Array ist und wie Index und Länge zusammenhängen."
+              }
+            },
+            {
+              "id": "then_03_array_anlegen_befuellen",
+              "text": {
+                "de": "Ich kann ein Array anlegen und einzelnen Positionen gezielt Werte zuweisen."
+              }
+            },
+            {
+              "id": "then_04_kapazitaet_belegung_unterscheiden",
+              "text": {
+                "de": "Ich kann unterscheiden, wie viele Plätze ein Array hat und wie viele davon tatsächlich belegt sind."
+              }
+            },
+            {
+              "id": "then_05_schleifengrenzen_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, warum eine Schleife über ein Array bei Index 0 beginnt und vor der Länge des Arrays endet."
+              }
+            },
+            {
+              "id": "then_06_schleifenform_begruenden",
+              "text": {
+                "de": "Ich kann begründen, wann eine indexbasierte for-Schleife und wann eine for-each-Schleife besser geeignet ist."
+              }
+            },
+            {
+              "id": "then_07_zaehlschleife_entwerfen",
+              "text": {
+                "de": "Ich kann eine Schleife entwerfen, die Elemente eines Arrays nach einer Bedingung zählt oder aufsummiert."
+              }
+            },
+            {
+              "id": "then_08_bubble_sort_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, wie Bubble Sort ein Array durch Vergleichen und Tauschen benachbarter Werte sortiert."
+              }
+            },
+            {
+              "id": "then_09_bubble_sort_durchfuehren",
+              "text": {
+                "de": "Ich kann einen Durchlauf von Bubble Sort für eine gegebene Zahlenfolge Schritt für Schritt durchführen."
+              }
+            },
+            {
+              "id": "then_10_sortierfehler_finden",
+              "text": {
+                "de": "Ich kann in einem Sortierprogramm die Ursache eines Fehlers finden, z. B. einen falschen Tausch oder eine falsche Schleifengrenze."
+              }
+            },
+            {
+              "id": "then_11_zeilen_spalten_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, wie Zeilen und Spalten in einem zweidimensionalen Array über zwei Indizes angesprochen werden."
+              }
+            },
+            {
+              "id": "then_12_zweidim_array_verwenden",
+              "text": {
+                "de": "Ich kann ein zweidimensionales Array anlegen und gezielt einzelne Felder lesen oder beschreiben."
+              }
+            },
+            {
+              "id": "then_13_verschachtelte_schleifen_entwerfen",
+              "text": {
+                "de": "Ich kann verschachtelte Schleifen schreiben, die jedes Feld eines zweidimensionalen Arrays durchlaufen oder durchsuchen."
+              }
+            }
+          ],
+          "columns": [
+            {
+              "id": "1",
+              "text": {
+                "de": "Kann ich gar nicht"
+              }
+            },
+            {
+              "id": "2",
+              "text": {
+                "de": "Kann ich eher nicht"
+              }
+            },
+            {
+              "id": "3",
+              "text": {
+                "de": "Teils / teilweise"
+              }
+            },
+            {
+              "id": "4",
+              "text": {
+                "de": "Kann ich gut"
+              }
+            },
+            {
+              "id": "5",
+              "text": {
+                "de": "Kann ich sehr gut"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Arrays anlegen und verwenden"
+      },
+      "questions": [
+        {
+          "id": "b_intro",
+          "type": "info",
+          "text": {
+            "de": "Hinweise zum Wissenstest"
+          },
+          "description": {
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten. Bearbeitungszeit: ungefähr 8–12 Minuten. Die Teilnahme ist freiwillig."
+          }
+        },
+        {
+          "id": "b01_array_anlegen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Zeile legt in Java ein Array an, das Platz für 4 Texte bietet?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`String[] module = new String[4];`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`String module = new String[4];`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`String[] module = String[4];`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`String module[4];`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b02_gueltige_indizes",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Array wird mit `new String[8]` angelegt. Welche Indizes kannst du verwenden?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "1 bis 8"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "0 bis 7"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "0 bis 8"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Beliebige Indizes, das Array wächst bei Bedarf automatisch."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b03_wert_nach_zuweisung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert hat `pakete[3]` nach diesen Zeilen?\n`int[] pakete = {15, 40, 20, 60, 30}; pakete[3] = pakete[2] + pakete[4];`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "6"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "100"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "50"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "60"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b04_laenge_und_belegung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was gilt nach diesen Zeilen?\n`String[] plaetze = new String[6]; plaetze[0] = \"SSD\"; plaetze[2] = \"RAM\"; plaetze[0] = null;`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`plaetze.length` ist 1, weil nur ein Eintrag belegt ist."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`plaetze.length` ist 6; davon ist nur ein Eintrag belegt."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`plaetze.length` ist 5, weil `null` den Eintrag entfernt und das Array verkürzt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`plaetze.length` ist 2, weil zwei Werte zugewiesen wurden."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Arrays durchlaufen"
+      },
+      "questions": [
+        {
+          "id": "b05_for_each_schleife",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Schleifenform liefert dir in jedem Durchlauf direkt das nächste Element von `pakete`, ohne dass du einen Index verwendest?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`while (pakete.length > 0) { ... }`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`if (pakete.length > 0) { ... }`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`for (int i = 0; i < pakete.length; i++) { ... }`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`for (int p : pakete) { ... }`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b06_schleifengrenze",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was passiert bei `for (int i = 0; i <= werte.length; i++) { System.out.println(werte[i]); }`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Im letzten Durchlauf wird auf einen Index außerhalb des Arrays zugegriffen; das Programm bricht mit einem Fehler ab."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Das letzte Element wird zweimal ausgegeben."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Das erste Element wird übersprungen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Schleife läuft endlos."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b07_summe_mit_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert hat `summe` nach diesen Zeilen?\n`int[] energie = {40, 10, 80, 30, 60}; int summe = 0; for (int i = 0; i < energie.length; i++) { if (energie[i] < 50) { summe = summe + energie[i]; } }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "220"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "140"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "80"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "3"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b08_leere_eintraege_zaehlen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Das Array `plaetze` enthält `{\"GPU\", null, null, \"CPU\", null}`, und `int frei = 0;` ist bereits angelegt. Welcher Code speichert danach in `frei` die Zahl der leeren Einträge?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`for (String p : plaetze) { if (p == null) { frei++; } }`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`frei = plaetze.length;`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`for (String p : plaetze) { if (p != null) { frei++; } }`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`for (String p : plaetze) { frei++; }`"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Sortieren mit Bubble Sort"
+      },
+      "questions": [
+        {
+          "id": "b09_bubble_sort_schritt",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Beschreibung passt zu einem einzelnen Schritt von Bubble Sort?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Der größte Wert wird gesucht und sofort ans Ende gesetzt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Das Array wird halbiert, und beide Hälften werden getrennt sortiert."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Jeder Wert wird mit dem Durchschnitt aller Werte verglichen."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Zwei direkt nebeneinanderliegende Werte werden verglichen und getauscht, falls sie falsch herum stehen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b10_bubble_sort_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "In einem Bubble Sort steht `if (zahlen[j] < zahlen[j + 1]) { /* tauschen */ }`. Was bewirkt diese Bedingung?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Es wird getauscht, wenn der linke Wert kleiner ist; das Array wird aufsteigend sortiert."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Es wird geprüft, ob das gesamte Array bereits sortiert ist."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Es wird getauscht, wenn der linke Wert kleiner ist; das Array wird absteigend sortiert."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Es wird getauscht, wenn beide Werte gleich groß sind."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b11_bubble_sort_durchlauf",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Bubble Sort sortiert `{40, 10, 50, 20, 30}` aufsteigend. Wie sieht das Array nach dem ersten Durchlauf aus? Im ersten Durchlauf wird jedes benachbarte Paar einmal von links nach rechts verglichen."
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`{10, 40, 20, 30, 50}`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`{10, 20, 30, 40, 50}`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`{10, 40, 50, 20, 30}`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`{10, 40, 20, 50, 30}`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b12_tausch_ohne_hilfsvariable",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Tausch in einem Sortierprogramm lautet:\n`werte[j + 1] = werte[j]; werte[j] = werte[j + 1];`\nVorher gilt `werte[j] = 9` und `werte[j + 1] = 4`. Welche Aussage trifft zu?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Der Tausch funktioniert: Danach steht 4 vor 9."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Beide Stellen enthalten danach 4, weil der linke Wert zuerst überschrieben wird."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Das Programm bricht ab, weil `j + 1` kein gültiger Index-Ausdruck ist."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Beide Stellen enthalten danach 9, weil die 4 überschrieben wird, bevor sie gesichert ist."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Zweidimensionale Arrays"
+      },
+      "questions": [
+        {
+          "id": "b13_2d_array_anlegen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Zeile legt ein zweidimensionales `int`-Array mit 2 Zeilen und 5 Spalten an?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`int[][] karte = new int[10];`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`int[] karte = new int[2][5];`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`int[][] karte = new int[2][5];`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`int[][] karte = new int[2, 5];`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b14_zeilen_und_spalten",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Es gilt `int[][] karte = new int[2][5];`. Was liefern `karte.length` und `karte[1].length`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`karte.length` ist 5 (Spalten), `karte[1].length` ist 2 (Zeilen)."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Beide liefern 2."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`karte.length` ist 10, `karte[1].length` ist 5."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`karte.length` ist 2 (Zeilen), `karte[1].length` ist 5 (Spalten)."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b15_2d_zugriff",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert liefert `felder[1][2]`?\n`int[][] felder = {{6, 1, 4}, {8, 2, 7}, {3, 5, 9}};`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "5"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "7"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "1"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "8"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b16_verschachtelte_schleife",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Das Programm soll alle Einsen in `map` zählen:\n`int[][] map = {{0, 1, 1, 0, 1}, {1, 0, 0, 1, 1}};`\n`int treffer = 0; for (int i = 0; i < map.length; i++) { for (int j = 0; j < map.length; j++) { if (map[i][j] == 1) { treffer++; } } }`\nWelche Aussage trifft zu?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Es werden alle Felder geprüft; `treffer` ist am Ende 6."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "In jeder Zeile werden nur die ersten zwei Spalten geprüft; `treffer` ist am Ende 2."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Es wird nur die erste Zeile geprüft; `treffer` ist am Ende 3."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Das Programm bricht mit einem Indexfehler ab."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Deine Erfahrung mit dem Spiel"
+      },
+      "questions": [
+        {
+          "id": "game_experience_intro",
+          "type": "info",
+          "text": {
+            "de": "Deine Erfahrung mit dem Spiel"
+          },
+          "description": {
+            "de": "Im folgenden Abschnitt geht es um deine persönliche Erfahrung mit dem Escape Room. Bewerte unter anderem die Spielmechanik, die Schwierigkeit und den Spielspaß. Beziehe dich dabei auf deine eigene Spielerfahrung."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Deine Einschätzung des Escape Rooms"
+      },
+      "questions": [
+        {
+          "id": "q14_lernhilfe",
+          "type": "scale",
+          "text": {
+            "de": "Wie hilfreich war der Escape Room für dein Verständnis von Arrays und den behandelten Programmierkonzepten?"
+          },
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "minLabel": {
+            "de": "Gar nicht hilfreich"
+          },
+          "maxLabel": {
+            "de": "Sehr hilfreich"
+          }
+        },
+        {
+          "id": "q15_aktive_beteiligung",
+          "type": "scale",
+          "text": {
+            "de": "Wie gut konntest du dich aktiv an der Lösung der Rätsel beteiligen?"
+          },
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "minLabel": {
+            "de": "Gar nicht gut"
+          },
+          "maxLabel": {
+            "de": "Sehr gut"
+          }
+        },
+        {
+          "id": "q16_hilfreichster_aspekt",
+          "type": "longText",
+          "maxLength": 1200,
+          "text": {
+            "de": "Was hat dir beim Lernen oder Verstehen besonders geholfen?"
+          },
+          "required": true
+        },
+        {
+          "id": "q17_offene_lernfragen",
+          "type": "longText",
+          "maxLength": 1200,
+          "text": {
+            "de": "Welche Aspekte zu Arrays, Schleifen, Sortieren oder den behandelten Aufgaben sind für dich noch unklar geblieben?"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Spielmechanik und Strategie"
+      },
+      "questions": [
+        {
+          "id": "q18_benutzeroberflaeche",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Benutzeroberfläche war intuitiv und leicht verständlich."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q19_hinweissystem",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Hinweissystem hat mir genau das richtige Maß an Unterstützung geboten (nicht zu viel, nicht zu wenig)."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q20_informationen_verknuepfen",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Der Spielverlauf erforderte ein strategisches Verknüpfen von Informationen aus verschiedenen Quellen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Herausforderung und Balance"
+      },
+      "questions": [
+        {
+          "id": "q21_schwierigkeit",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Schwierigkeit des Spiels war angemessen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q22_raetselverstaendlichkeit",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Rätsel waren verständlich und die dafür geforderten Aufgaben leicht ersichtlich."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q23_flow_erleben",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich fühlte mich während des gesamten Spiels im \"Flow\" (weder unter- noch überfordert)."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q24_timer_zeitdruck",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Der Timer hat mich unter Zeitdruck gesetzt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Spaß und Wiederspielwert"
+      },
+      "questions": [
+        {
+          "id": "q25_spielspass",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Spiel hat Spaß gemacht."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q26_rahmengeschichte",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Rahmengeschichte war packend und hat mich in das Szenario hineingezogen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q27_loesungserfolg",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Es war befriedigend, wenn ich ein Rätsel erfolgreich gelöst hatte."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q28_wiederspielwert",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich würde das Spiel noch einmal spielen, um meine Leistung zu verbessern oder Details zu entdecken."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Gameplay-Feedback"
+      },
+      "questions": [
+        {
+          "id": "q29_steuerung",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Steuerung war intuitiv und präzise."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q30_mechaniken_erklaert",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Mechaniken des Spiels waren gut erklärt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q31_fluessiges_spiel",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Spiel hat sich responsiv und flüssig angefühlt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Allgemeine Erfahrung"
+      },
+      "questions": [
+        {
+          "id": "q32_spielziel_verstanden",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe das Ziel des Spieles eindeutig verstanden."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q33_technische_fehler",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Mir sind viele technische Fehler im Spiel aufgefallen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q34_gesamtbewertung",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Wie würdest du das Spiel insgesamt bewerten?"
+          },
+          "minLabel": {
+            "de": "Sehr schlecht"
+          },
+          "maxLabel": {
+            "de": "Sehr gut"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Offenes Feedback"
+      },
+      "questions": [
+        {
+          "id": "q35_spass_highlight",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Was hat dir am meisten Spaß gemacht?"
+          }
+        },
+        {
+          "id": "q36_frustration",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Gab es etwas, das dich frustriert hat?"
+          }
+        },
+        {
+          "id": "q37_verbesserungswuensche",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Welche weiteren Funktionen oder Inhalte würdest du dir in diesem Spiel wünschen?"
+          }
+        },
+        {
+          "id": "q38_weitere_kommentare",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Weitere Kommentare oder Anmerkungen"
+          }
+        }
+      ]
+    }
+  ]
+}
