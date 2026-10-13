@@ -44,6 +44,7 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.hud.elements.RichLabel;
 import feature.survey.SurveyDefinition.Choice;
 import feature.survey.SurveyDefinition.ChoiceKind;
 import feature.survey.SurveyDefinition.Info;
@@ -63,6 +64,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -82,11 +84,13 @@ final class SurveyDialog {
   private static final JsonNodeFactory JSON = JsonNodeFactory.instance;
   private static final String FONT = "fonts/Roboto-SemiBold.ttf";
   private static final String FONT_REGULAR = "fonts/Roboto-Regular.ttf";
+  private static final Pattern INLINE_CODE = Pattern.compile("`([^`\\n]+)`");
   private static final Color INK = Color.valueOf("1f2430");
   private static final Color MUTED = Color.valueOf("5b6270");
   private static final Color ERROR = Color.valueOf("c0392b");
   private static final Color ACCENT = Color.valueOf("1b8fc4");
   private static final Color ACCENT_LIGHT = Color.valueOf("d6ecf8");
+  private static final Color CODE = Color.valueOf("0b5f8f");
   private static final Color CARD = new Color(1, 1, 1, 0.8f);
   private static final Color CARD_ERROR = Color.valueOf("fbe9e7");
   private static final Color ROW_MISSING = Color.valueOf("f6cdc7");
@@ -362,10 +366,10 @@ final class SurveyDialog {
       card.setBackground(tint(question instanceof Info ? INFO : CARD));
       card.pad(14, CARD_PAD, 14, CARD_PAD);
       card.defaults().left();
-      String title = "[#" + INK + "]" + escape(question.text().text(language)) + "[]";
-      if (question.required()) title += " [#" + ERROR + "]*[]";
+      String title = richText(question.text().text(language));
+      if (question.required()) title += " [color=#" + ERROR + "]*[/color]";
       Table header = new Table();
-      header.add(markupLabel(title)).growX().top().left();
+      header.add(richLabel(title, FONT, 20)).growX().top().left();
       if (question instanceof Text text) {
         header.add(counter(card, text.maxLength())).top().right().padLeft(12);
       }
@@ -529,7 +533,7 @@ final class SurveyDialog {
       List<CheckBox> boxes = new ArrayList<>();
       List<String> ids = new ArrayList<>();
       for (Option option : question.options()) {
-        CheckBox box = checkBox(option.text().text(language), multi);
+        CheckBox box = richCheckBox(option.text().text(language), multi);
         boxes.add(box);
         ids.add(option.id());
         card.add(box).width(content).padTop(8).row();
@@ -586,7 +590,7 @@ final class SurveyDialog {
       SelectBox<String> box = new SelectBox<>(style);
       List<String> items = new ArrayList<>();
       items.add(T.text("select"));
-      question.options().forEach(option -> items.add(option.text().text(language)));
+      question.options().forEach(option -> items.add(plainText(option.text().text(language))));
       box.setItems(items.toArray(String[]::new));
       box.setUserObject(Cursors.INTERACT);
       // The placeholder stays muted until a real option is chosen.
@@ -678,22 +682,6 @@ final class SurveyDialog {
 
     private String localized(Optional<LocalizedText> text) {
       return text.map(value -> value.text(language)).orElse("");
-    }
-
-    /**
-     * Question titles use markup to color the required marker; the font itself stays white.
-     *
-     * @param text title with color markup
-     * @return wrapping title label
-     */
-    private Label markupLabel(String text) {
-      Label.LabelStyle style = new Label.LabelStyle();
-      style.font =
-          FontHelper.getFont(FontSpec.of(FONT, 20, Color.WHITE), FontHelper.FontRole.MARKUP);
-      style.font.getData().markupEnabled = true;
-      Label label = new Label(text, style);
-      label.setWrap(true);
-      return label;
     }
 
     /**
@@ -852,6 +840,21 @@ final class SurveyDialog {
     return box;
   }
 
+  /**
+   * Choice box whose text may contain inline code. The text sits inside the box, so clicking it
+   * still toggles the box.
+   *
+   * @param text authored option text
+   * @param square whether the box is square (multiple choice) instead of round
+   * @return check box with a rich-text label
+   */
+  private static CheckBox richCheckBox(String text, boolean square) {
+    CheckBox box = checkBox("", square);
+    box.getImageCell().padRight(10);
+    box.getLabelCell().setActor(richLabel(richText(text), FONT_REGULAR, 18));
+    return box;
+  }
+
   private static TextButton.TextButtonStyle toggleStyle() {
     Skin skin = UIUtils.defaultSkin();
     TextButton.TextButtonStyle style =
@@ -993,13 +996,64 @@ final class SurveyDialog {
   }
 
   /**
-   * Escapes LibGDX color markup in authored text.
+   * Wrapping rich-text label; its cell must set or grow its width.
+   *
+   * @param markup RichLabel markup
+   * @param font font path
+   * @param size font size
+   * @return wrapping label
+   */
+  private static RichLabel richLabel(String markup, String font, int size) {
+    return new WrappingRichLabel(markup, FontSpec.of(font, size, INK));
+  }
+
+  /**
+   * Turns authored text into RichLabel markup. Text between two backticks renders as inline code,
+   * line breaks stay line breaks.
    *
    * @param text authored text
-   * @return text that renders literally in a markup label
+   * @return RichLabel markup
    */
-  private static String escape(String text) {
-    return text.replace("[", "[[");
+  private static String richText(String text) {
+    String code = "[color=#" + CODE + "]$1[/color]";
+    return RichLabel.toRichText(INLINE_CODE.matcher(text).replaceAll(code));
+  }
+
+  /**
+   * Removes the backticks around inline code for widgets that cannot show rich text.
+   *
+   * @param text authored text
+   * @return text without code markers
+   */
+  private static String plainText(String text) {
+    return INLINE_CODE.matcher(text).replaceAll("$1");
+  }
+
+  /**
+   * RichLabel that wraps in a table cell like a wrapping {@link Label}: it may shrink to its cell,
+   * and once the cell width is known it asks the table again for its wrapped height.
+   */
+  private static final class WrappingRichLabel extends RichLabel {
+    private float laidOutHeight = -1;
+
+    WrappingRichLabel(String markup, FontSpec font) {
+      super(markup, font, false);
+    }
+
+    @Override
+    public float getMinWidth() {
+      return 0;
+    }
+
+    @Override
+    public void layout() {
+      super.layout();
+      float height = getPrefHeight();
+      if (height != laidOutHeight) {
+        laidOutHeight = height;
+        invalidateHierarchy();
+      }
+    }
   }
 
   /**
