@@ -96,9 +96,20 @@ public class DialogDesign {
    * @param title the text of the title to display
    */
   public static void addTitleTable(Table parent, String title) {
+    addTitleTable(parent, title, DIALOG_FONT_SPEC_TITLE.color());
+  }
+
+  /**
+   * Adds a title in the given color to the given parent table with consistent styling and spacing.
+   *
+   * @param parent the Table to which the title should be added
+   * @param title the text of the title to display
+   * @param titleColor the color of the title text
+   */
+  public static void addTitleTable(Table parent, String title, Color titleColor) {
     Table titleTable = new Table();
     titleTable
-        .add(Scene2dElementFactory.createLabel(title, DialogDesign.DIALOG_FONT_SPEC_TITLE))
+        .add(Scene2dElementFactory.createLabel(title, DIALOG_FONT_SPEC_TITLE.withColor(titleColor)))
         .center()
         .row();
     parent.add(titleTable).growX().height(48).padBottom(10).row();
@@ -114,6 +125,19 @@ public class DialogDesign {
    *     no title
    */
   public static void setDialogDefaults(Dialog dialog, String title) {
+    setDialogDefaults(dialog, title, DIALOG_FONT_SPEC_TITLE.color());
+  }
+
+  /**
+   * Configures a Dialog like {@link #setDialogDefaults(Dialog, String)} with a title in the given
+   * color.
+   *
+   * @param dialog the Dialog to configure with default layout settings
+   * @param title the text of the title to display at the top of the dialog, or an empty string for
+   *     no title
+   * @param titleColor the color of the title text
+   */
+  public static void setDialogDefaults(Dialog dialog, String title, Color titleColor) {
     dialog.getButtonTable().defaults().minWidth(150).space(10);
 
     dialog.getTitleTable().remove();
@@ -121,7 +145,7 @@ public class DialogDesign {
     content.pad(0, 10, 0, 10);
 
     if (!title.isBlank()) {
-      DialogDesign.addTitleTable(content, title);
+      DialogDesign.addTitleTable(content, title, titleColor);
     }
   }
 }
