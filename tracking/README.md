@@ -78,9 +78,9 @@ Der autoritative Spielserver vergibt für jedes Ereignis eine Sequenznummer ab 1
 Ereignis in eine lokale, nur wachsende JSONL-Outbox und kann HTTP-Batches wiederholen, ohne
 doppelte Datenbankzeilen zu erzeugen. PostgreSQL speichert die unveränderte Nutzlast einschließlich
 jeder übermittelten Antwort. Der Sitzungsdeskriptor ist der Startdatensatz. `eventType` ist eines
-von zwölf erfassten Ereignissen: `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`,
+von dreizehn erfassten Ereignissen: `PARTICIPANT_JOINED`, `PARTICIPANT_LEFT`, `PUZZLE_STARTED`,
 `ANSWER_SUBMITTED`, `INTERACTION_RECORDED`, `HINT_USED`, `PUZZLE_SOLVED`, `PLAY_STARTED`,
-`PLAY_PAUSED`, `PLAY_RESUMED`, `PLAY_ENDED` oder `SURVEY_ANSWERED`.
+`PLAY_PAUSED`, `PLAY_RESUMED`, `PLAY_ENDED`, `SURVEY_ANSWERED` oder `BUG_REPORTED`.
 
 ## Aktive Spielzeit und Sitzungen
 
@@ -94,7 +94,9 @@ unter dem letzten Wert der vorigen Sitzung.
 `PLAY_PAUSED` trägt `reason` mit `PAUSE_DIALOG` oder `PLAYERS_MISSING`, `PLAY_ENDED` trägt `outcome`
 mit `SUCCESS` oder `FAILURE`. `SURVEY_ANSWERED` trägt eine
 `participantId` und den Payload `questionnaireId`, `questionId` und `answer`; es ist möglich,
-solange die Sitzung offen ist, auch nach dem Raumergebnis. Der Finish-Datensatz enthält den
+solange die Sitzung offen ist, auch nach dem Raumergebnis. `BUG_REPORTED` trägt ebenfalls eine
+`participantId` und im Payload den Text `text`, den ein Spieler im Pausenmenü gemeldet hat. Der
+Finish-Datensatz enthält den
 letzten `activeMs`-Wert und den Status `COMPLETED` (gelöst), `FAILED` (endgültig gescheitert, etwa
 durch ein hartes Zeitlimit) oder `INTERRUPTED` (ohne Ergebnis beendet), optional mit
 `interruptedAtPuzzleId`. Ein Absturz hinterlässt keinen Finish-Datensatz.
@@ -120,10 +122,10 @@ Remove-Item Env:DUNGEON_TRACKING_RUNTIME_DATABASE_USER
 
 Das Backend bindet standardmäßig an `127.0.0.1:8088`. Beim Start führt es kein DDL aus. Der
 getrennte Migrationsbefehl wendet die enthaltenen Migrationen der Reihe nach an und vermerkt ihre
-Versionen in `tracking_schema_migrations`. `V001__tracking.sql` enthält das vollständige Schema
-einschließlich der früheren `V002__interactions.sql`. Solange kein produktives Deployment existiert,
-wird V001 direkt geändert. Vorhandene lokale Datenbanken müssen neu angelegt werden, weil der
-Migrationsbefehl das geänderte `V001` nicht erneut anwendet.
+Versionen in `tracking_schema_migrations`. `V001__tracking.sql` enthält das Ausgangsschema,
+`V002__bug_reports.sql` ergänzt `BUG_REPORTED`. Weil ein produktives Deployment existiert, kommt
+jede Schemaänderung in eine neue Migration; angewendete Migrationen bleiben unverändert. Ein
+Backend mit neuem Ereignistyp muss vor den Spiel-Builds ausgerollt werden, die ihn senden.
 
 Jede Einstellung kann als Umgebungsvariable oder Java-Systemeigenschaft gesetzt werden. Die
 Systemeigenschaft hat Vorrang.

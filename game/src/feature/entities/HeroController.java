@@ -16,6 +16,7 @@ import engine.utils.Tuple;
 import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
 import engine.utils.logging.DungeonLogger;
+import feature.bugreport.BugReport;
 import feature.components.CharacterClassComponent;
 import feature.components.InventoryComponent;
 import feature.components.SkillComponent;
@@ -427,6 +428,7 @@ public class HeroController {
         QuestLogUI.COMMAND_SHOW_QUESTLOG, true, HeroController::handleShowQuestLog);
     registerDefaultHandler(
         QuestLogUI.COMMAND_SELECT_QUESTLOG_TAB, true, HeroController::handleSelectQuestLogTab);
+    registerDefaultHandler(BugReport.COMMAND, true, BugReport::handle);
   }
 
   private static void registerDefaultHandler(

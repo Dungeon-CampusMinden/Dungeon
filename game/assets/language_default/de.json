@@ -96,6 +96,14 @@
             "tracking_backend_disabled": "Deaktiviert",
             "players_can_connect_via": "Spieler können sich[n]verbinden über (Port: $1):"
         },
+        "bug_report": {
+            "button": "Bug melden",
+            "title": "Bug melden",
+            "hint": "Beschreibe, was passiert ist und was du erwartet hast. Der Bericht wird mit deinen Tracking-Daten gespeichert.",
+            "send": "Senden",
+            "saved": "Danke! Dein Bug-Report wurde gespeichert.",
+            "failed": "Dein Bug-Report konnte nicht gespeichert werden."
+        },
         "questlog": {
             "title": "Questlog",
             "empty": "Questlog ist leer.",
