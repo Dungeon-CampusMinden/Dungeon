@@ -171,6 +171,17 @@ public final class Tracking {
   }
 
   /**
+   * Returns whether a player declined tracking, so nothing more of this run is recorded.
+   *
+   * @return whether tracking is disabled by a refusal
+   */
+  public static boolean declined() {
+    synchronized (LOCK) {
+      return !trackingAllowed;
+    }
+  }
+
+  /**
    * Returns whether the configured deployment stores tracking data through the HTTP backend.
    *
    * <p>Rooms use this value to select privacy text. The default build keeps the backend disabled
@@ -587,6 +598,34 @@ public final class Tracking {
   }
 
   /**
+   * Records a player's bug report while the session remains open.
+   *
+   * @param text report text as written by the player
+   * @param participantId session-scoped participant identifier
+   * @return recorded event, or empty when tracking or the participant is inactive
+   */
+  public static Optional<TrackingEvent> bugReported(String text, UUID participantId) {
+    synchronized (LOCK) {
+      if (!active() || !session.participantKnown(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(
+            session.event(
+                TrackingEventType.BUG_REPORTED,
+                Optional.of(participantId),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                TrackingJson.object().put("text", text)));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
    * Returns whether the HTTP backend has persisted an event and every earlier event of its session.
    *
    * <p>Callers poll this after recording player-facing data, for example to confirm that survey
@@ -662,6 +701,13 @@ public final class Tracking {
   static void clientRoomContext(String roomId) {
     synchronized (LOCK) {
       clientRoomId = roomId == null || roomId.isBlank() ? null : roomId.strip();
+    }
+  }
+
+  static boolean recordsLocalPlayer() {
+    synchronized (LOCK) {
+      if (!Game.isMultiplayerClient()) return active();
+      return clientRoomId != null && TrackingRuntime.localTrackingConsent().orElse(true);
     }
   }
 

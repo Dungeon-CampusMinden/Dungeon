@@ -83,6 +83,7 @@
             "achievements": "Achievements",
             "settings": "Settings",
             "client_infos": "Client Info",
+            "bug_report": "Report a Bug",
             "quit_to_desktop": "Quit to Desktop",
             "back": "Back",
             "you": "Your name: $1",
@@ -95,6 +96,15 @@
             "tracking_backend_unreachable": "Not reachable",
             "tracking_backend_disabled": "Disabled",
             "players_can_connect_via": "Players can connect via (port: $1):"
+        },
+        "bug_report": {
+            "title": "Report a Bug",
+            "hint": "Describe what happened and what you expected. We receive the report together with your tracking data.",
+            "send": "Send",
+            "received": "Thanks, we have received your bug report.",
+            "declined": "Your bug report could not be sent because not all players agreed to tracking.",
+            "not_running": "Your bug report could not be sent because tracking is not running right now.",
+            "failed": "Your bug report could not be sent because tracking could not record it."
         },
         "questlog": {
             "title": "Questlog",

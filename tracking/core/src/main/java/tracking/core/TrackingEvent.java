@@ -69,7 +69,8 @@ public record TrackingEvent(
               ANSWER_SUBMITTED,
               INTERACTION_RECORDED,
               HINT_USED,
-              SURVEY_ANSWERED ->
+              SURVEY_ANSWERED,
+              BUG_REPORTED ->
               true;
           default -> false;
         };
@@ -115,6 +116,12 @@ public record TrackingEvent(
       }
       if (payload.get("answer") == null || payload.get("answer").isNull()) {
         throw new IllegalArgumentException("SURVEY_ANSWERED requires the full answer");
+      }
+    }
+    if (eventType == TrackingEventType.BUG_REPORTED) {
+      JsonNode text = payload.get("text");
+      if (text == null || !text.isString() || text.stringValue().isBlank()) {
+        throw new IllegalArgumentException("BUG_REPORTED requires a non-blank text");
       }
     }
     if (eventType == TrackingEventType.HINT_USED && objectId.isEmpty()) {

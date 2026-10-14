@@ -28,6 +28,7 @@ import engine.utils.Scene2dElementFactory;
 import engine.utils.settings.ClientSettings;
 import feature.achievements.AchievementManager;
 import feature.achievements.AchievementMenuView;
+import feature.bugreport.BugReport;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
@@ -50,6 +51,7 @@ public class PauseDialog extends Table {
   private static final String T_ACHIEVEMENTS = "achievements";
   private static final String T_SETTINGS = "settings";
   private static final String T_CLIENT_INFOS = "client_infos";
+  private static final String T_BUG_REPORT = "bug_report";
   private static final String T_QUIT_TO_DESKTOP = "quit_to_desktop";
   private static final String T_BACK = "back";
   private static final String T_YOU = "you";
@@ -168,6 +170,8 @@ public class PauseDialog extends Table {
         Scene2dElementFactory.createButton(trans.text(T_SETTINGS), "blue-outline", 32);
     TextButton clientInfosBtn =
         Scene2dElementFactory.createButton(trans.text(T_CLIENT_INFOS), "blue-outline", 32);
+    TextButton bugReportBtn =
+        Scene2dElementFactory.createButton(trans.text(T_BUG_REPORT), "blue-outline", 20);
     TextButton quitBtn =
         Scene2dElementFactory.createButton(trans.text(T_QUIT_TO_DESKTOP), "red-outline", 32);
 
@@ -230,6 +234,14 @@ public class PauseDialog extends Table {
             Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
+    bugReportBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showBugReport(ctx);
+            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
     quitBtn.addListener(
         new ChangeListener() {
           @Override
@@ -249,13 +261,20 @@ public class PauseDialog extends Table {
     if (Game.systems().containsKey(ControlsDialogSystem.class)) {
       menu.add(controlsBtn).width(300).align(Align.center).padBottom(10).row();
     }
+    // The small bug report button sits in the gap above the quit button, so the menu keeps its
+    // height.
+    boolean bugReports = TrackingRuntime.recordsLocalPlayer();
+    int quitGap = bugReports ? 15 : 70;
     menu.add(settingsBtn)
         .width(300)
         .align(Align.center)
-        .padBottom(PreRunConfiguration.multiplayerEnabled() ? 10 : 70)
+        .padBottom(PreRunConfiguration.multiplayerEnabled() ? 10 : quitGap)
         .row();
     if (PreRunConfiguration.multiplayerEnabled()) {
-      menu.add(clientInfosBtn).width(300).align(Align.center).padBottom(70).row();
+      menu.add(clientInfosBtn).width(300).align(Align.center).padBottom(quitGap).row();
+    }
+    if (bugReports) {
+      menu.add(bugReportBtn).width(200).height(40).align(Align.center).padBottom(15).row();
     }
     menu.add(quitBtn).width(300).align(Align.center).padBottom(15).row();
 
@@ -445,5 +464,20 @@ public class PauseDialog extends Table {
 
   private void showAchievements() {
     showView(createAchievementsView());
+  }
+
+  private void showBugReport(DialogContext ctx) {
+    Entity player =
+        Game.findEntityById(ctx.require(DialogContextKeys.ENTITY, Integer.class)).orElseThrow();
+    TextButton backBtn = Scene2dElementFactory.createButton(trans.text(T_BACK), "blue-outline", 32);
+    backBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showMainView();
+            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
+          }
+        });
+    showView(BugReport.view(player, backBtn, this::showMainView));
   }
 }
