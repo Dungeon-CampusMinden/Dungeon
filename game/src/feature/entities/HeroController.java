@@ -7,6 +7,7 @@ import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.configuration.KeyboardConfig;
+import engine.level.utils.LevelUtils;
 import engine.network.input.InputCommandRouter;
 import engine.network.messages.c2s.InputMessage;
 import engine.network.server.ClientState;
@@ -31,6 +32,7 @@ import feature.inventory.Item;
 import feature.questlog.QuestLogUI;
 import feature.skills.cursor.CursorSkill;
 import feature.skills.projectile.ProjectileSkill;
+import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -58,6 +60,9 @@ public class HeroController {
 
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
+
+  /** Delay after a disconnect before the hero inventory drops, matching the reconnect grace. */
+  public static final long DISCONNECT_ITEM_DROP_DELAY_MS = 30_000;
 
   static {
     registerDefaultInputHandlers();
@@ -546,6 +551,39 @@ public class HeroController {
       LOGGER.warn("Failed to drop item {} from slot {} for entity {}", item, itemSlot, entity.id());
       returnItemToInventory(sourceInv, item, itemSlot, entity);
     }
+  }
+
+  /**
+   * Drops the inventory of a disconnected hero around its last position, unless the hero rejoins
+   * within {@link #DISCONNECT_ITEM_DROP_DELAY_MS}. This keeps items, such as task items, in the
+   * game for the remaining players.
+   *
+   * <p>Edge case: if the player rejoins and disconnects again within the delay, the items may drop
+   * earlier than the delay after the second disconnect.
+   *
+   * @param hero the hero entity removed after its client disconnected
+   */
+  public static void dropInventoryAfterDisconnect(Entity hero) {
+    EventScheduler.scheduleAction(
+        () -> {
+          if (Game.allPlayers().anyMatch(hero::equals)) {
+            return;
+          }
+          InventoryComponent inventory = hero.fetch(InventoryComponent.class).orElse(null);
+          PositionComponent position = hero.fetch(PositionComponent.class).orElse(null);
+          if (inventory == null || position == null) {
+            return;
+          }
+          for (Item item : inventory.items()) {
+            if (item != null) {
+              item.drop(
+                  LevelUtils.randomAccessibleTileInRangeAsPoint(position.position(), 1)
+                      .orElse(position.position()));
+            }
+          }
+          inventory.clear();
+        },
+        DISCONNECT_ITEM_DROP_DELAY_MS);
   }
 
   /**

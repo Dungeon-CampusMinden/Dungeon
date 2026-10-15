@@ -49,6 +49,17 @@ function InputView({
           )}
           deerSchema={deerSchema}
         />
+      ) : input.type === "assignment" ? (
+        <ParameterRow label="Zuordnung">
+          <ul className="flex flex-col gap-1">
+            {input.items.map((item) => (
+              <li key={item.id}>
+                {item.name || "—"} → {input.containers.find((container) => container.id === item.containerId)?.name
+                  || "keine Kiste"}
+              </li>
+            ))}
+          </ul>
+        </ParameterRow>
       ) : input.type === "choice" ? (
         <>
           <ParameterRow label="Frage">

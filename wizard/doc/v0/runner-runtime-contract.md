@@ -207,8 +207,9 @@ Reconnect-Protokoll.
 
 Die `RoomLevel` materialisiert die Raumgeometrie mit gemeinsamer Tür, Ausgang
 und gemeinsamem Startpunkt sowie benannten Punkten für Informationsquellen-,
-Zahlencode-, Auswahlfrage- und Hinweisinteraktionen. Jede surface-gebundene
-Informationsquelle und jeder Numeric- oder Choice-Input verwendet in Placement,
+Zahlencode-, Auswahlfrage-, Zuordnungs- und Hinweisinteraktionen. Jede
+surface-gebundene Informationsquelle und jeder Numeric-, Choice- oder
+Assignment-Input verwendet in Placement,
 Präsentation und Authority dieselbe authorierte `surfaceId`; ein
 Collection-Input verwendet die Surface seiner Quelle. Hinweispositionen werden
 intern aus der `riddleId` abgeleitet und sind keine authorierten Surfaces. Die
@@ -254,8 +255,8 @@ Vorgängerrätsel gelöst sind, wird das Ende erreicht und genau diese Tür
 serverautoritativ geöffnet. Es gibt weder eine zweite globale
 „alle Rätsel gelöst“-Türregel noch frei konfigurierbare Rätseloutputs.
 
-Der aktive Vertrag kennt nur `world`, `container`, `keypad`, `terminal` und
-`door`. Weitere Surface-Arten oder mehrere Rätselbindungen an eine Surface
+Der aktive Vertrag kennt nur `world`, `container`, `keypad`, `terminal`,
+`assignment` und `door`. Weitere Surface-Arten oder mehrere Rätselbindungen an eine Surface
 erfordern eine explizite Profilerweiterung; die Runtime erfindet dafür keinen
 generischen Device-Typ.
 
@@ -270,7 +271,13 @@ Frühere Interaktionen werden weder angerechnet noch bei Aktivierung automatisch
 als vollständige Dialogantwort übertragen und ausschließlich serverseitig
 geprüft. Auswahlfragen öffnen an ihrer Terminal-Station den vorhandenen
 Multiple-Choice-Dialog. Der Client überträgt nur die IDs der bestätigten
-Optionen; der Host vergleicht sie mit `correctOptionIds`.
+Optionen; der Host vergleicht sie mit `correctOptionIds`. Zuordnungen bestehen
+aus gewöhnlichen Truhen und aufhebbaren Antwort-Items, die ihre Item-ID in den
+Item-Daten tragen. Spieler verschieben sie über den vorhandenen
+Inventardialog. Der Host prüft nach jeder Änderung der Kisteninhalte und beim
+Aktivwerden des Rätsels und wertet die Zuordnung des zuletzt verschiebenden
+Spielers aus. Verlässt ein Spieler die Sitzung, legt der Server sein Inventar
+nach 30 Sekunden ohne Wiederverbindung im Raum ab.
 
 ## Fehler und Abnahme
 

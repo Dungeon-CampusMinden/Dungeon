@@ -35,6 +35,20 @@ function projectInput(input: AnyRiddleInput): AnyRiddleInput {
       showDigitCount: input.showDigitCount,
     };
   }
+  if (input.type === "assignment") {
+    return {
+      id: input.id,
+      type: "assignment",
+      surfaceId: input.surfaceId,
+      containers: input.containers.map((container) => ({ id: container.id, name: container.name })),
+      items: input.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        sprite: item.sprite,
+        ...(item.containerId ? { containerId: item.containerId } : {}),
+      })),
+    };
+  }
   return {
     id: input.id,
     type: "choice",
@@ -87,7 +101,9 @@ function projectSurface(surface: Surface): Surface {
       ? "Zahlengerät"
       : surface.kind === "terminal"
         ? "Fragestation"
-        : surface.title;
+        : surface.kind === "assignment"
+          ? "Zuordnung"
+          : surface.title;
   return { id: surface.id, kind: surface.kind, title };
 }
 

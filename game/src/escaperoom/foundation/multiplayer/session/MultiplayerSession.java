@@ -204,6 +204,26 @@ public final class MultiplayerSession {
   }
 
   /**
+   * Routes one item placement for a ready player.
+   *
+   * @param clientId stable Dungeon client identifier
+   * @param riddleId owning riddle identifier
+   * @param inputId assignment input identifier
+   * @param placement container identifier of every task item that lies in a task container
+   * @return delegated result, or empty when the player is not ready
+   */
+  public synchronized Optional<CodeAttemptResult> enterAssignment(
+      final short clientId,
+      final String riddleId,
+      final String inputId,
+      final Map<String, String> placement) {
+    advance();
+    return ready(clientId)
+        ? Optional.of(authority.attemptAssignment(riddleId, inputId, placement))
+        : Optional.empty();
+  }
+
+  /**
    * Previews the next hint category for a ready player without releasing content.
    *
    * @param clientId stable Dungeon client identifier

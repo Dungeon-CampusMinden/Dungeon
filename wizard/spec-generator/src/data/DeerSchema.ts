@@ -58,7 +58,7 @@ export interface Scenario {
 
 export interface Surface {
   id: string;
-  kind: "world" | "container" | "keypad" | "terminal" | "door";
+  kind: "world" | "container" | "keypad" | "terminal" | "assignment" | "door";
   title: string;
 }
 
@@ -124,7 +124,7 @@ export interface InformationSource {
 
 export interface RiddleInput {
   id: string;
-  type: "collection" | "numeric" | "choice";
+  type: "collection" | "numeric" | "choice" | "assignment";
 }
 export interface CollectionInput extends RiddleInput {
   type: "collection";
@@ -148,10 +148,44 @@ export interface ChoiceInput extends RiddleInput {
   correctOptionIds: string[];
   multipleSelection: boolean;
 }
-export type AnyRiddleInput = CollectionInput | NumericInput | ChoiceInput;
+export interface AssignmentContainer {
+  id: string;
+  name: string;
+}
+export interface AssignmentItem {
+  id: string;
+  name: string;
+  /** Bundled sprite path from {@link ASSIGNMENT_SPRITES}. */
+  sprite: string;
+  /** Target container; absent when the item belongs into none. */
+  containerId?: string;
+}
+export interface AssignmentInput extends RiddleInput {
+  type: "assignment";
+  surfaceId: string;
+  containers: AssignmentContainer[];
+  items: AssignmentItem[];
+}
+export type AnyRiddleInput = CollectionInput | NumericInput | ChoiceInput | AssignmentInput;
 
 /** Inputs answered at their own placed device surface. */
-export type SurfaceRiddleInput = NumericInput | ChoiceInput;
+export type SurfaceRiddleInput = NumericInput | ChoiceInput | AssignmentInput;
+
+/** Item sprites teachers can pick for assignment items; mirrors the DEER schema enum. */
+export const ASSIGNMENT_SPRITES = [
+  { path: "items/book/letter.png", label: "Brief" },
+  { path: "items/book/magic_scroll.png", label: "Schriftrolle" },
+  { path: "items/rpg/item_book_blue.png", label: "Buch" },
+  { path: "items/potion/health_potion.png", label: "Trank" },
+  { path: "items/rpg/food_bread.png", label: "Brot" },
+  { path: "items/rpg/food_apple.png", label: "Apfel" },
+  { path: "items/key/gold_key.png", label: "Schlüssel" },
+  { path: "items/resource/gold.png", label: "Gold" },
+  { path: "items/resource/emerald.png", label: "Edelstein" },
+  { path: "items/resource/wood.png", label: "Holz" },
+  { path: "items/resource/flower_red.png", label: "Blume" },
+  { path: "items/resource/stone.png", label: "Stein" },
+] as const;
 
 export type RiddleDifficulty = "easy" | "medium" | "hard";
 

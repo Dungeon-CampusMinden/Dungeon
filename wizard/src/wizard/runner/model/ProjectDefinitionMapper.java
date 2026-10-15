@@ -8,6 +8,9 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import tools.jackson.databind.JsonNode;
 import wizard.runner.model.ProjectDefinition.Asset;
+import wizard.runner.model.ProjectDefinition.AssignmentContainer;
+import wizard.runner.model.ProjectDefinition.AssignmentInput;
+import wizard.runner.model.ProjectDefinition.AssignmentItem;
 import wizard.runner.model.ProjectDefinition.ChoiceInput;
 import wizard.runner.model.ProjectDefinition.ChoiceOption;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
@@ -124,6 +127,22 @@ public final class ProjectDefinitionMapper {
                   option -> new ChoiceOption(text(option, "id"), text(option, "text"))),
               textArray(node.get("correctOptionIds")),
               node.get("multipleSelection").booleanValue());
+      case "assignment" ->
+          new AssignmentInput(
+              text(node, "id"),
+              text(node, "surfaceId"),
+              array(
+                  node.get("containers"),
+                  container ->
+                      new AssignmentContainer(text(container, "id"), text(container, "name"))),
+              array(
+                  node.get("items"),
+                  item ->
+                      new AssignmentItem(
+                          text(item, "id"),
+                          text(item, "name"),
+                          text(item, "sprite"),
+                          optionalText(item, "containerId"))));
       default -> throw new IllegalArgumentException("unsupported schema-valid input type");
     };
   }

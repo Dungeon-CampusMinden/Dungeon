@@ -1,5 +1,6 @@
 package escaperoom.foundation.runtime;
 
+import escaperoom.foundation.definition.AssignmentInputDefinition;
 import escaperoom.foundation.definition.ChoiceInputDefinition;
 import escaperoom.foundation.definition.CollectionInputDefinition;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
@@ -17,6 +18,7 @@ import escaperoom.foundation.runtime.Projection.ProgressStatus;
 import escaperoom.foundation.runtime.Projection.RiddleView;
 import escaperoom.foundation.runtime.Projection.TimerState;
 import escaperoom.foundation.runtime.Projection.TimerView;
+import feature.tasks.FreeTextTask;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -215,7 +217,7 @@ public final class Authority {
         riddleId,
         inputId,
         NumericInputDefinition.class,
-        numeric -> numeric.answer().equals(attempt));
+        numeric -> new FreeTextTask("", List.of(numeric.answer()), true).isCorrect(attempt));
   }
 
   /**
@@ -223,7 +225,7 @@ public final class Authority {
    *
    * @param riddleId owning riddle identifier
    * @param inputId stable choice input identifier
-   * @param selection selected option identifiers, correct only when equal to the correct set
+   * @param selection selected option identifiers
    * @return explicit command and non-secret correctness result
    */
   public synchronized CodeAttemptResult attemptChoice(
@@ -233,7 +235,25 @@ public final class Authority {
         riddleId,
         inputId,
         ChoiceInputDefinition.class,
-        choice -> choice.correctOptionIds().equals(selection));
+        choice -> choice.task().isCorrect(selection));
+  }
+
+  /**
+   * Evaluates one item placement inside authority without retaining attempt counts.
+   *
+   * @param riddleId owning riddle identifier
+   * @param inputId stable assignment input identifier
+   * @param placement container identifier of every task item that lies in a task container
+   * @return explicit command and non-secret correctness result
+   */
+  public synchronized CodeAttemptResult attemptAssignment(
+      final String riddleId, final String inputId, final Map<String, String> placement) {
+    Objects.requireNonNull(placement, "placement");
+    return attempt(
+        riddleId,
+        inputId,
+        AssignmentInputDefinition.class,
+        assignment -> assignment.task().isCorrect(placement));
   }
 
   private <T extends InputDefinition> CodeAttemptResult attempt(

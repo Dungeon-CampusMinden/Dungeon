@@ -1,4 +1,5 @@
-import type { AnyRiddleInput, ChoiceInput, CollectionInput, DeerProject, NumericInput, Riddle } from "@/data/DeerSchema";
+import type { AnyRiddleInput, AssignmentInput, ChoiceInput, CollectionInput, DeerProject, NumericInput, Riddle } from "@/data/DeerSchema";
+import { ASSIGNMENT_SPRITES } from "@/data/DeerSchema";
 import { CheckIcon, PlusIcon, TrashIcon } from "lucide-react";
 import {
   addRiddleInput,
@@ -15,6 +16,7 @@ import { SimpleSelect } from "./SimpleSelect";
 import type { Issue, TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
 import { ResponsiveChoice } from "../ui/responsive-choice";
+import { getBundledAssetUrl } from "../assets/assetPaths";
 
 const YES_NO = [
   { value: "true", label: "Ja" },
@@ -101,6 +103,14 @@ export function RiddleInputsEditor({
               input={input}
               inputIndex={index}
               issues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:answer`)}
+              onChange={(updated) => updateInput(index, updated)}
+            />
+          ) : input.type === "assignment" ? (
+            <AssignmentInputFields
+              input={input}
+              inputIndex={index}
+              containerIssues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:containers`)}
+              itemIssues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:items`)}
               onChange={(updated) => updateInput(index, updated)}
             />
           ) : (
@@ -298,6 +308,154 @@ function ChoiceInputFields({
           Antwort
         </Button>
         <ValidationFeedback issues={optionIssues} />
+      </Field>
+    </>
+  );
+}
+
+const MIN_CONTAINERS = 1;
+const MAX_CONTAINERS = 4;
+const MIN_ITEMS = 2;
+const MAX_ITEMS = 8;
+const NO_CONTAINER = "none";
+
+function AssignmentInputFields({
+  input,
+  inputIndex,
+  onChange,
+  containerIssues,
+  itemIssues,
+}: {
+  input: AssignmentInput;
+  inputIndex: number;
+  onChange: (updated: AssignmentInput) => void;
+  containerIssues: Issue[];
+  itemIssues: Issue[];
+}) {
+  const targetOptions = [
+    ...input.containers.map((container, index) => ({
+      value: container.id,
+      label: container.name || `Kiste ${index + 1}`,
+    })),
+    { value: NO_CONTAINER, label: "Keine Kiste" },
+  ];
+  const spriteOptions = ASSIGNMENT_SPRITES.map((sprite) => ({ value: sprite.path, label: sprite.label }));
+
+  return (
+    <>
+      <Field>
+        <FieldLabel>Kisten</FieldLabel>
+        <FieldDescription>In diese Kisten sortieren die Spieler die Gegenstände.</FieldDescription>
+        <div className="flex flex-col gap-2">
+          {input.containers.map((container, containerIndex) => (
+            <div key={container.id} className="grid grid-cols-[1fr_auto] items-center gap-2">
+              <Input
+                aria-label={`Name von Kiste ${containerIndex + 1} für Eingabe ${inputIndex + 1}`}
+                value={container.name}
+                onChange={(e) => onChange({
+                  ...input,
+                  containers: input.containers.map((entry) =>
+                    entry.id === container.id ? { ...entry, name: e.target.value } : entry),
+                })}
+              />
+              <Button
+                aria-label={`Kiste ${containerIndex + 1} löschen`}
+                variant="ghost"
+                size="icon"
+                disabled={input.containers.length <= MIN_CONTAINERS}
+                onClick={() => onChange({
+                  ...input,
+                  containers: input.containers.filter((entry) => entry.id !== container.id),
+                  items: input.items.map((item) =>
+                    item.containerId === container.id ? { ...item, containerId: undefined } : item),
+                })}
+              >
+                <TrashIcon />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          className="lg:max-w-40"
+          disabled={input.containers.length >= MAX_CONTAINERS}
+          onClick={() => onChange({
+            ...input,
+            containers: [...input.containers, { id: Util.generateUniqueId("box"), name: "" }],
+          })}
+        >
+          <PlusIcon />
+          Kiste
+        </Button>
+        <ValidationFeedback issues={containerIssues} />
+      </Field>
+      <Field>
+        <FieldLabel>Gegenstände</FieldLabel>
+        <FieldDescription>Wähle für jeden Gegenstand ein Bild und die Kiste, in die er gehört.</FieldDescription>
+        <div className="flex flex-col gap-2">
+          {input.items.map((item, itemIndex) => (
+            <div key={item.id} className="grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2">
+              <img
+                src={getBundledAssetUrl(item.sprite)}
+                alt=""
+                className="size-8 object-contain [image-rendering:pixelated]"
+              />
+              <SimpleSelect
+                accessibleLabel={`Bild von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
+                options={spriteOptions}
+                value={item.sprite}
+                onChange={(newValue) => onChange({
+                  ...input,
+                  items: input.items.map((entry) => entry.id === item.id ? { ...entry, sprite: newValue } : entry),
+                })}
+              />
+              <Input
+                aria-label={`Name von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
+                value={item.name}
+                onChange={(e) => onChange({
+                  ...input,
+                  items: input.items.map((entry) => entry.id === item.id ? { ...entry, name: e.target.value } : entry),
+                })}
+              />
+              <SimpleSelect
+                accessibleLabel={`Kiste von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
+                options={targetOptions}
+                value={item.containerId ?? NO_CONTAINER}
+                onChange={(newValue) => onChange({
+                  ...input,
+                  items: input.items.map((entry) => entry.id === item.id
+                    ? { ...entry, containerId: newValue === NO_CONTAINER ? undefined : newValue }
+                    : entry),
+                })}
+              />
+              <Button
+                aria-label={`Gegenstand ${itemIndex + 1} löschen`}
+                variant="ghost"
+                size="icon"
+                disabled={input.items.length <= MIN_ITEMS}
+                onClick={() => onChange({ ...input, items: input.items.filter((entry) => entry.id !== item.id) })}
+              >
+                <TrashIcon />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          className="lg:max-w-40"
+          disabled={input.items.length >= MAX_ITEMS}
+          onClick={() => onChange({
+            ...input,
+            items: [
+              ...input.items,
+              { id: Util.generateUniqueId("item"), name: "", sprite: ASSIGNMENT_SPRITES[0].path },
+            ],
+          })}
+        >
+          <PlusIcon />
+          Gegenstand
+        </Button>
+        <ValidationFeedback issues={itemIssues} />
       </Field>
     </>
   );

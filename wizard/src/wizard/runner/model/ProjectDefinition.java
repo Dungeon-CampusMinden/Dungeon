@@ -153,6 +153,8 @@ public record ProjectDefinition(
     KEYPAD,
     /** Choice question terminal. */
     TERMINAL,
+    /** Containers and answer items of one assignment. */
+    ASSIGNMENT,
     /** Common exit door. */
     DOOR
   }
@@ -263,7 +265,8 @@ public record ProjectDefinition(
   }
 
   /** Closed active-profile input variants. */
-  public sealed interface Input permits ChoiceInput, CollectionInput, NumericInput {
+  public sealed interface Input
+      permits AssignmentInput, ChoiceInput, CollectionInput, NumericInput {
     /**
      * Returns the stable input identifier.
      *
@@ -344,6 +347,59 @@ public record ProjectDefinition(
     public ChoiceOption {
       id = requireText(id, "option.id");
       text = requireText(text, "option.text");
+    }
+  }
+
+  /**
+   * One assignment that sorts answer items into containers.
+   *
+   * @param id stable input identifier
+   * @param surfaceId assignment surface identifier shared by its containers and items
+   * @param containers containers in placement order
+   * @param items answer items in placement order
+   */
+  public record AssignmentInput(
+      String id, String surfaceId, List<AssignmentContainer> containers, List<AssignmentItem> items)
+      implements Input {
+    /** Creates an assignment input. */
+    public AssignmentInput {
+      id = requireText(id, "input.id");
+      surfaceId = requireText(surfaceId, "input.surfaceId");
+      containers = List.copyOf(Objects.requireNonNull(containers, "input.containers"));
+      items = List.copyOf(Objects.requireNonNull(items, "input.items"));
+    }
+  }
+
+  /**
+   * One container of an assignment.
+   *
+   * @param id stable container identifier
+   * @param name authored container name
+   */
+  public record AssignmentContainer(String id, String name) {
+    /** Creates an assignment container. */
+    public AssignmentContainer {
+      id = requireText(id, "container.id");
+      name = requireText(name, "container.name");
+    }
+  }
+
+  /**
+   * One answer item of an assignment.
+   *
+   * @param id stable item identifier
+   * @param name authored item name
+   * @param sprite bundled sprite path from the item catalog
+   * @param containerId target container, or empty when the item belongs nowhere
+   */
+  public record AssignmentItem(
+      String id, String name, String sprite, Optional<String> containerId) {
+    /** Creates an assignment item. */
+    public AssignmentItem {
+      id = requireText(id, "item.id");
+      name = requireText(name, "item.name");
+      sprite = requireText(sprite, "item.sprite");
+      Objects.requireNonNull(containerId, "item.containerId");
     }
   }
 

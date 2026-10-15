@@ -1,21 +1,20 @@
 package feature.tasks;
 
-import feature.hud.dialogs.ChoiceOption;
-import feature.hud.dialogs.DialogFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 /**
- * A question whose answer is correct when it selects exactly the correct option values.
+ * A single- or multiple-choice question whose answer is correct when it selects exactly the correct
+ * option values.
  *
- * <p>Show it with {@link DialogFactory#showMultipleChoiceDialog} and submit the confirmed {@link
- * ChoiceOption#value()}s as a set to the {@link TaskComponent} that owns the task.
+ * <p>The task only describes the question. {@link TaskFactory#showChoice} presents it as a dialog
+ * and {@link TaskFactory#choiceTerminal} places it in the dungeon.
  */
 public class ChoiceTask extends Task<Set<String>> {
 
-  private final List<ChoiceOption> options;
+  private final List<Option> options;
   private final Set<String> correctValues;
   private final boolean multipleSelection;
 
@@ -30,7 +29,7 @@ public class ChoiceTask extends Task<Set<String>> {
    */
   public ChoiceTask(
       String taskDescription,
-      List<ChoiceOption> options,
+      List<Option> options,
       Set<String> correctValues,
       boolean multipleSelection) {
     this.taskDescription = Objects.requireNonNull(taskDescription, "taskDescription");
@@ -39,7 +38,7 @@ public class ChoiceTask extends Task<Set<String>> {
     this.multipleSelection = multipleSelection;
 
     Set<String> values = new HashSet<>();
-    for (ChoiceOption option : this.options) {
+    for (Option option : this.options) {
       if (!values.add(option.value())) {
         throw new IllegalArgumentException("duplicate option value: " + option.value());
       }
@@ -71,7 +70,7 @@ public class ChoiceTask extends Task<Set<String>> {
    *
    * @return the options
    */
-  public List<ChoiceOption> options() {
+  public List<Option> options() {
     return options;
   }
 
@@ -82,5 +81,24 @@ public class ChoiceTask extends Task<Set<String>> {
    */
   public boolean multipleSelection() {
     return multipleSelection;
+  }
+
+  /**
+   * One selectable answer.
+   *
+   * @param value stable value submitted when the option is selected
+   * @param text text shown to players
+   */
+  public record Option(String value, String text) {
+    /**
+     * Creates an option.
+     *
+     * @param value stable value submitted when the option is selected
+     * @param text text shown to players
+     */
+    public Option {
+      Objects.requireNonNull(value, "value");
+      Objects.requireNonNull(text, "text");
+    }
   }
 }

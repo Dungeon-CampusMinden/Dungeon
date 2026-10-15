@@ -21,6 +21,8 @@ import wizard.runner.contract.ValidationPhase;
 import wizard.runner.contract.ValidationSeverity;
 import wizard.runner.model.ProjectDefinition;
 import wizard.runner.model.ProjectDefinition.Asset;
+import wizard.runner.model.ProjectDefinition.AssignmentContainer;
+import wizard.runner.model.ProjectDefinition.AssignmentInput;
 import wizard.runner.model.ProjectDefinition.ChoiceInput;
 import wizard.runner.model.ProjectDefinition.ChoiceOption;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
@@ -126,6 +128,24 @@ final class SemanticValidator {
                 choice.options().get(optionIndex).id(),
                 "choice_option",
                 inputPath + "/options/" + optionIndex,
+                seen,
+                issues);
+          }
+        }
+        if (input instanceof AssignmentInput assignment) {
+          for (int index = 0; index < assignment.containers().size(); index++) {
+            addId(
+                assignment.containers().get(index).id(),
+                "assignment_container",
+                inputPath + "/containers/" + index,
+                seen,
+                issues);
+          }
+          for (int index = 0; index < assignment.items().size(); index++) {
+            addId(
+                assignment.items().get(index).id(),
+                "assignment_item",
+                inputPath + "/items/" + index,
                 seen,
                 issues);
           }
@@ -350,6 +370,37 @@ final class SemanticValidator {
                       input.id()));
             }
           }
+        } else if (input instanceof AssignmentInput assignment) {
+          Surface surface =
+              validateSurface(
+                  riddle,
+                  assignment.surfaceId(),
+                  SurfaceKind.ASSIGNMENT,
+                  inputPath,
+                  surfaces,
+                  issues);
+          if (surface != null && surface.kind() == SurfaceKind.ASSIGNMENT) {
+            owned.merge(surface.id(), 1, Integer::sum);
+          }
+          Set<String> containerIds =
+              assignment.containers().stream()
+                  .map(AssignmentContainer::id)
+                  .collect(Collectors.toSet());
+          for (int itemIndex = 0; itemIndex < assignment.items().size(); itemIndex++) {
+            Optional<String> containerId = assignment.items().get(itemIndex).containerId();
+            if (containerId.isPresent() && !containerIds.contains(containerId.orElseThrow())) {
+              issues.add(
+                  entityIssue(
+                      ValidationSeverity.ERROR,
+                      ValidationPhase.REFERENCES,
+                      IssueCode.REFERENCE_UNKNOWN,
+                      "validation.references.assignment_container_unknown",
+                      Map.of("id", containerId.orElseThrow()),
+                      inputPath + "/items/" + itemIndex + "/containerId",
+                      "input",
+                      input.id()));
+            }
+          }
         }
       }
     }
@@ -372,7 +423,8 @@ final class SemanticValidator {
       Surface surface = project.surfaces().get(index);
       if ((surface.kind() == SurfaceKind.CONTAINER
               || surface.kind() == SurfaceKind.KEYPAD
-              || surface.kind() == SurfaceKind.TERMINAL)
+              || surface.kind() == SurfaceKind.TERMINAL
+              || surface.kind() == SurfaceKind.ASSIGNMENT)
           && owned.getOrDefault(surface.id(), 0) != 1) {
         issues.add(
             entityIssue(

@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import wizard.runner.model.ProjectDefinition;
+import wizard.runner.model.ProjectDefinition.AssignmentInput;
 import wizard.runner.model.ProjectDefinition.ChoiceInput;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
 import wizard.runner.model.ProjectDefinition.GraphNode;
@@ -166,6 +167,17 @@ final class SingleRoomPlanner {
             components.add(new ComponentSpec(numeric.id(), numeric.surfaceId()));
         case ChoiceInput choice ->
             components.add(new ComponentSpec(choice.id(), choice.surfaceId()));
+        case AssignmentInput assignment -> {
+          assignment
+              .containers()
+              .forEach(
+                  container ->
+                      components.add(new ComponentSpec(container.id(), assignment.surfaceId())));
+          assignment
+              .items()
+              .forEach(
+                  item -> components.add(new ComponentSpec(item.id(), assignment.surfaceId())));
+        }
       }
     }
     return List.copyOf(components);

@@ -105,6 +105,24 @@ public final class ServerBinding {
   }
 
   /**
+   * Applies one authoritative item placement for a ready server player.
+   *
+   * @param playerEntity authenticated server player who completed the placement
+   * @param riddleId owning riddle identifier
+   * @param inputId assignment input identifier
+   * @param placement container identifier of every task item that lies in a task container
+   * @return evaluated result when the player remains ready
+   */
+  public synchronized Optional<CodeAttemptResult> enterAssignment(
+      final Entity playerEntity,
+      final String riddleId,
+      final String inputId,
+      final Map<String, String> placement) {
+    return clientId(playerEntity)
+        .flatMap(clientId -> session.enterAssignment(clientId, riddleId, inputId, placement));
+  }
+
+  /**
    * Reports whether one input currently accepts actions.
    *
    * @param playerEntity authenticated server player

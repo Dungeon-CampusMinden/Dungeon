@@ -469,7 +469,13 @@ public final class ServerTransport {
                                 () -> {
                                   if (clientIdToSession.get(clientId) != session) return;
                                   TrackingRuntime.participantLeft(clientId);
-                                  state.playerEntity().ifPresent(Game::remove);
+                                  state
+                                      .playerEntity()
+                                      .ifPresent(
+                                          player -> {
+                                            Game.remove(player);
+                                            HeroController.dropInventoryAfterDisconnect(player);
+                                          });
                                 });
                           }
                           return currentSession;

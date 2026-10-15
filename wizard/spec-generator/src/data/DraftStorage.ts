@@ -71,6 +71,14 @@ function isRiddleInput(value: unknown): boolean {
     return isString(value.surfaceId) && isString(value.answer)
       && typeof value.showDigitCount === "boolean";
   }
+  if (value.type === "assignment") {
+    return isString(value.surfaceId)
+      && Array.isArray(value.containers)
+      && value.containers.every((container) => isRecord(container) && isString(container.id) && isString(container.name))
+      && Array.isArray(value.items)
+      && value.items.every((item) => isRecord(item) && isString(item.id) && isString(item.name)
+        && isString(item.sprite) && isOptionalString(item.containerId));
+  }
   return value.type === "choice" && isString(value.surfaceId) && isString(value.question)
     && Array.isArray(value.options)
     && value.options.every((option) => isRecord(option) && isString(option.id) && isString(option.text))
@@ -104,7 +112,7 @@ function isDeerProject(value: unknown): boolean {
     && (scenario.failureText === undefined || isStringArray(scenario.failureText))
     && Array.isArray(value.surfaces) && value.surfaces.every((item) =>
       isRecord(item) && isString(item.id) && isString(item.title)
-      && ["world", "container", "keypad", "terminal", "door"].includes(String(item.kind)))
+      && ["world", "container", "keypad", "terminal", "assignment", "door"].includes(String(item.kind)))
     && isRecord(graph) && Array.isArray(graph.nodes) && graph.nodes.every((item) =>
       isRecord(item) && isString(item.id)
       && (item.kind === "start" || (item.kind === "end" && isString(item.surfaceId))

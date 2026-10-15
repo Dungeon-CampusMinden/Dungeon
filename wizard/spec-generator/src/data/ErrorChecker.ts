@@ -1,4 +1,4 @@
-import type { Asset, AssetMediaType, ChoiceInput, DeerProject, Riddle, RiddleGraph, Surface, SurfaceRiddleInput } from "./DeerSchema";
+import type { Asset, AssetMediaType, AssignmentInput, ChoiceInput, DeerProject, Riddle, RiddleGraph, Surface, SurfaceRiddleInput } from "./DeerSchema";
 import { getBundledAssetPaths, isBundledAssetPath } from "@/components/assets/assetPaths";
 import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
@@ -73,15 +73,16 @@ function collectReachable(startId: string, adjacency: ReadonlyMap<string, string
 }
 
 const THEME_IDS = ["default"];
-const SURFACE_KINDS: Surface["kind"][] = ["world", "container", "keypad", "terminal", "door"];
+const SURFACE_KINDS: Surface["kind"][] = ["world", "container", "keypad", "terminal", "assignment", "door"];
 const RIDDLE_DIFFICULTIES = ["easy", "medium", "hard"];
 const RESOURCE_KINDS = ["inline_text", "asset"];
 const HINT_SEVERITIES = ["orientation", "approach", "solution"];
-const INPUT_TYPES = ["collection", "numeric", "choice"];
+const INPUT_TYPES = ["collection", "numeric", "choice", "assignment"];
 /** Device surface and teacher-facing name per surface-bound input type. */
 const DEVICE_INPUTS = {
   numeric: { kind: "keypad", label: "Zahleneingabe" },
   choice: { kind: "terminal", label: "Auswahlfrage" },
+  assignment: { kind: "assignment", label: "Zuordnung" },
 } as const satisfies Record<SurfaceRiddleInput["type"], { kind: Surface["kind"]; label: string }>;
 const TIME_LIMIT_MODES = ["hard", "soft"];
 const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
@@ -772,6 +773,9 @@ export class ErrorChecker {
       } else if (input.type === "choice") {
         this.checkSurfaceReference("riddles", field, input.surfaceId, surfaceIds, name);
         this.checkChoiceInput(field, input, name);
+      } else if (input.type === "assignment") {
+        this.checkSurfaceReference("riddles", field, input.surfaceId, surfaceIds, name);
+        this.checkAssignmentInput(field, input, name);
       }
     }
   }
@@ -790,6 +794,24 @@ export class ErrorChecker {
         "riddles",
         optionsField,
         `Für eine Auswahlfrage von "${riddleName}" ist keine richtige Antwort markiert.`,
+      );
+    }
+  }
+
+  private checkAssignmentInput(field: string, input: AssignmentInput, riddleName: string) {
+    const inputField = `${field}:input:${input.id}`;
+    if (input.containers.some((container) => isBlank(container.name))) {
+      this.error("riddles", `${inputField}:containers`, `Eine Kiste einer Zuordnung von "${riddleName}" hat keinen Namen.`);
+    }
+    const itemsField = `${inputField}:items`;
+    if (input.items.some((item) => isBlank(item.name))) {
+      this.error("riddles", itemsField, `Ein Gegenstand einer Zuordnung von "${riddleName}" hat keinen Namen.`);
+    }
+    if (!input.items.some((item) => item.containerId)) {
+      this.error(
+        "riddles",
+        itemsField,
+        `In einer Zuordnung von "${riddleName}" gehört kein Gegenstand in eine Kiste.`,
       );
     }
   }

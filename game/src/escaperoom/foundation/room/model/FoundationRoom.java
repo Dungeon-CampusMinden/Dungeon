@@ -2,11 +2,13 @@ package escaperoom.foundation.room.model;
 
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
-import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.presentation.GamePresentation;
+import escaperoom.foundation.presentation.GamePresentation.AssignmentInputPresentation;
+import escaperoom.foundation.presentation.GamePresentation.ChoiceInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
+import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import feature.entities.CharacterClass;
 import java.util.Comparator;
@@ -227,15 +229,27 @@ public final class FoundationRoom {
         Stream.concat(
                 definition.informationSources().stream()
                     .map(source -> componentKey(source.id(), source.surfaceId())),
-                definition.inputs().stream()
-                    .filter(SurfaceInputDefinition.class::isInstance)
-                    .map(SurfaceInputDefinition.class::cast)
-                    .map(input -> componentKey(input.id(), input.surfaceId())))
+                presentation.inputs().stream().flatMap(FoundationRoom::componentKeys))
             .toList();
     if (!expectedComponents.equals(placedComponents)) {
       throw new IllegalArgumentException(
           "surface-bound riddle components must match their placements");
     }
+  }
+
+  private static Stream<String> componentKeys(final InputPresentation input) {
+    return switch (input) {
+      case NumericInputPresentation numeric ->
+          Stream.of(componentKey(numeric.id(), numeric.surfaceId()));
+      case ChoiceInputPresentation choice ->
+          Stream.of(componentKey(choice.id(), choice.surfaceId()));
+      case AssignmentInputPresentation assignment ->
+          Stream.concat(
+              assignment.containers().stream()
+                  .map(container -> componentKey(container.id(), assignment.surfaceId())),
+              assignment.items().stream()
+                  .map(item -> componentKey(item.id(), assignment.surfaceId())));
+    };
   }
 
   private static String componentKey(final String componentId, final String surfaceId) {
