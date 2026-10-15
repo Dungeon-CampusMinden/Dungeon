@@ -58,6 +58,17 @@ public final class TrackingRuntime {
     return Tracking.clientRoomPlayedBefore();
   }
 
+  /**
+   * Returns whether tracking records the player of this process: in singleplayer while the session
+   * runs, on a network client while the server announced a tracked room and this client did not
+   * decline consent. Another player's refusal disables tracking only on the server.
+   *
+   * @return whether this player's reports can be recorded
+   */
+  public static boolean recordsLocalPlayer() {
+    return Tracking.recordsLocalPlayer();
+  }
+
   /** Marks the announced room played after InitialWorldReady was sent successfully. */
   public static void markClientRoomPlayed() {
     Tracking.markClientRoomPlayed();

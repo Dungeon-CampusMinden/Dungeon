@@ -1,6 +1,7 @@
 package rooms.soulweaver.level;
 
 import engine.Entity;
+import engine.Game;
 import engine.components.CameraComponent;
 import engine.systems.CameraSystem;
 import java.util.LinkedHashMap;
@@ -40,6 +41,8 @@ final class SoulweaverCamera {
     previous.forEach(Entity::add);
     previous.clear();
     CameraSystem.camera().zoom = zoom;
+    // Return at once: panning back from a distant target sweeps across the whole level.
+    if (Game.systems().get(CameraSystem.class) instanceof CameraSystem camera) camera.snapToFocus();
     target = null;
   }
 }

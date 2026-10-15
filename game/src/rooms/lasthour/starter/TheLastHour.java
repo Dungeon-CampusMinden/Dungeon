@@ -30,6 +30,7 @@ import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.petrinet.PetriNetSystem;
+import feature.survey.SurveyFeature;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
@@ -145,6 +146,7 @@ public class TheLastHour {
                   LastHourAchievements.register();
                   BlackFadeCutscene.register();
                   CreditsFeature.register();
+                  SurveyFeature.register();
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })

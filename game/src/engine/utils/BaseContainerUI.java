@@ -101,8 +101,8 @@ public class BaseContainerUI extends Table implements IResizable {
    */
   @Override
   public void onResize(int width, int height) {
+    // The content keeps its cell, so a focused text field inside it keeps the keyboard focus.
     setSize(width, height);
-    positionContent();
   }
 
   /**

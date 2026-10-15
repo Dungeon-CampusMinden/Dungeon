@@ -13,7 +13,7 @@ import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.systems.CameraSystem;
 import engine.utils.Cursors;
-import feature.hud.UIUtils;
+import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.soulweaver.modules.decisions.DecisionMaze;
 
@@ -58,11 +58,10 @@ final class SoulweaverDecisionUI extends Group {
               arrangePanel();
             });
     code.setWrap(false);
-    scroll = new ScrollPane(code, UIUtils.defaultSkin());
+    scroll = Scene2dElementFactory.createScrollPane(code, true, true);
     var style = new ScrollPane.ScrollPaneStyle(scroll.getStyle());
     style.background = null;
     scroll.setStyle(style);
-    scroll.setScrollingDisabled(false, false);
     scroll.setFlickScroll(false);
     scroll.setFadeScrollBars(false);
     addActor(panel);
@@ -225,7 +224,7 @@ final class SoulweaverDecisionUI extends Group {
     feedback.setText(next.feedback());
     // The completed state may arrive just before the server closes this dialog.
     int rune = Math.min(5, next.junction());
-    title = "Kreuzung " + (rune + 1) + " / 6 · " + DecisionMaze.TITLES[rune];
+    title = "Kreuzung " + (rune + 1) + " / 6";
     if (newCode) {
       code.setText(runeText(next));
       scroll.setScrollX(0);

@@ -20,6 +20,62 @@
             "cancel": "Abbrechen",
             "confirm": "Bestätigen"
         },
+        "survey": {
+            "page": "Seite $1 von $2",
+            "next": "Weiter",
+            "back": "Zurück",
+            "submit": "Absenden",
+            "skip": "Überspringen",
+            "skip_yes": "Ja, überspringen",
+            "skip_cancel": "Zur Umfrage",
+            "skip_hint": "Deine Antworten werden dann nicht gespeichert.",
+            "placeholder": "Deine Antwort",
+            "select": "Bitte auswählen",
+            "other": "Sonstiges:",
+            "other_placeholder": "Bitte beschreiben",
+            "sending": "Antworten werden gesendet",
+            "continue": "Weiter",
+            "quit": "Beenden",
+            "number_hint": {
+                "integer": "Ganze Zahl",
+                "decimal": "Zahl",
+                "between": "$1 von $2 bis $3",
+                "min": "$1 ab $2",
+                "max": "$1 bis $2"
+            },
+            "problem": {
+                "required": "Bitte beantworte diese Frage.",
+                "required_rows": "Bitte wähle in jeder Zeile eine Antwort.",
+                "number_format": "Bitte gib eine Zahl ein.",
+                "number_range": "Bitte gib eine Zahl im erlaubten Bereich ein.",
+                "too_long": "Die Antwort ist zu lang.",
+                "other_text": "Bitte fülle das Feld bei Sonstiges aus.",
+                "invalid": "Diese Antwort ist ungültig."
+            },
+            "result": {
+                "confirmed": {
+                    "title": "Vielen Dank!",
+                    "message": "Deine Antworten sind beim Tracking-Server angekommen."
+                },
+                "saved_locally": {
+                    "title": "Vielen Dank!",
+                    "message": "Deine Antworten wurden lokal gespeichert."
+                },
+                "unreachable": {
+                    "title": "Vielen Dank!",
+                    "message": "Der Tracking-Server konnte nicht erreicht werden. Deine Antworten wurden lokal gespeichert."
+                },
+                "pending": {
+                    "title": "Vielen Dank!",
+                    "message": "Der Tracking-Server hat den Empfang nicht rechtzeitig bestätigt. Deine Antworten wurden lokal gespeichert."
+                },
+                "failed": {
+                    "title": "Das hat nicht geklappt",
+                    "message": "Deine Antworten konnten nicht gespeichert werden."
+                },
+                "recovery": "Bitte schicke diese Datei an $1:"
+            }
+        },
         "pause_dialog": {
             "paused": "PAUSIERT",
             "resume": "Fortsetzen",
@@ -28,6 +84,7 @@
             "achievements": "Achievements",
             "settings": "Einstellungen",
             "client_infos": "Client Infos",
+            "bug_report": "Bug melden",
             "quit_to_desktop": "Spiel beenden",
             "back": "Zurück",
             "you": "Dein Name: $1",
@@ -40,6 +97,15 @@
             "tracking_backend_unreachable": "Nicht erreichbar",
             "tracking_backend_disabled": "Deaktiviert",
             "players_can_connect_via": "Spieler können sich[n]verbinden über (Port: $1):"
+        },
+        "bug_report": {
+            "title": "Bug melden",
+            "hint": "Beschreibe, was passiert ist und was du erwartet hast. Wir erhalten den Bericht zusammen mit deinen Tracking-Daten.",
+            "send": "Senden",
+            "received": "Danke, wir haben deinen Bug-Report erhalten.",
+            "declined": "Dein Bug-Report konnte nicht gesendet werden, weil nicht alle Spieler dem Tracking zugestimmt haben.",
+            "not_running": "Dein Bug-Report konnte nicht gesendet werden, weil das Tracking gerade nicht läuft.",
+            "failed": "Dein Bug-Report konnte nicht gesendet werden, weil das Tracking ihn nicht aufzeichnen konnte."
         },
         "questlog": {
             "title": "Questlog",

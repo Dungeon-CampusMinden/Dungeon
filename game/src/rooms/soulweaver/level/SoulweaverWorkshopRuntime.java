@@ -194,13 +194,7 @@ final class SoulweaverWorkshopRuntime {
                       .map(at -> at.position().y() >= level.getPoint("methods-entry").y())
                       .orElse(false))
           .filter(p -> introduced.add(p.id()))
-          .forEach(
-              p ->
-                  SoulweaverGolemRuntime.showText(
-                      p,
-                      SoulweaverStory.workshop()
-                          + "\n\nNox: "
-                          + SoulweaverStory.workshopArrival()));
+          .forEach(p -> SoulweaverGolemRuntime.showText(p, SoulweaverStory.workshop()));
     }
     if (!arrived) return;
     if (!sluiceClosed) {

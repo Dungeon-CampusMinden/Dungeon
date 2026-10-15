@@ -112,12 +112,13 @@ final class SoulweaverWorkshopWorld {
     // The archive entrance and cellar below this boundary retain their original geometry.
     for (int y = 23; y < result.length; y++)
       for (int x = 0; x < Math.min(90, result[y].length); x++) result[y][x] = LevelElement.SKIP;
-    floor(result, 27, 23, 38, 33);
+    // The lower chamber lines up with the archive wall at x 38.
+    floor(result, 27, 23, 37, 33);
     floor(result, 30, 34, 40, 38);
     floor(result, 31, 39, 41, 52);
     // Each five-tile threshold exactly spans its chamber's only opening.
     for (int y : List.of(29, 33))
-      for (int x = 27; x <= 38; x++)
+      for (int x = 27; x <= 37; x++)
         result[y][x] = x >= 30 && x <= 34 ? LevelElement.FLOOR : LevelElement.WALL;
     for (int y = 23; y < result.length - 1; y++)
       for (int x = 1; x < Math.min(89, result[y].length - 1); x++)
@@ -150,10 +151,11 @@ final class SoulweaverWorkshopWorld {
       switch (station.kind()) {
         case GATE -> gate(station.index());
         case RUNE -> {
-          // Furniture and contents share the fixed route's action point.
+          // Furniture and contents share the fixed route's action point. The solid stone stays
+          // just outside Nox's five-tile path.
           Point stone =
               at.translate(
-                  endFacing(station.index()) == Direction.UP ? 4.5f : 5.5f,
+                  endFacing(station.index()) == Direction.UP ? 5f : 6f,
                   endFacing(station.index()) == Direction.UP ? 3 : .5f);
           furniture(stone, Deco.SoulweaverRunePlinth);
           Entity rune = new Entity("soulweaver-methods-rune-" + station.index());
@@ -164,19 +166,20 @@ final class SoulweaverWorkshopWorld {
               new DrawComponent(
                   new SimpleIPath("spritesheets/runes.png"),
                   new SpritesheetConfig(16, 0, 1, 1, 16, 16));
-          draw.depth(DepthLayer.Ground.depth() + 1);
           draw.tintColor(0x667D8FFF);
           rune.add(draw);
+          SoulweaverTablePrefab.restOn(rune, stone, Deco.SoulweaverRunePlinth);
           Game.add(rune);
         }
         case COLLECT -> {
           for (int i = 0; i < station.amount(); i++)
-            prop(
-                "crystal-" + station.index() + "-" + i,
-                at.translate(.5f + i * .7f, -1),
-                "items/rpg/item_gem_amethyst.png",
-                .8f,
-                .8f);
+            Game.add(
+                prop(
+                    "crystal-" + station.index() + "-" + i,
+                    at.translate(.5f + i * .7f, -1),
+                    "items/rpg/item_gem_amethyst.png",
+                    .8f,
+                    .8f));
         }
         case ALTAR -> {
           Point altar = at.translate(-3, .2f);
@@ -184,13 +187,17 @@ final class SoulweaverWorkshopWorld {
           float socketSize = .45f;
           float socketSpacing = .55f;
           float firstSocket = (3 - socketSize - (station.amount() - 1) * socketSpacing) / 2;
-          for (int i = 0; i < station.amount(); i++)
-            prop(
-                "socket-" + station.index() + "-" + i,
-                altar.translate(firstSocket + i * socketSpacing, .5f),
-                "items/rpg/item_gem_amethyst.png",
-                socketSize,
-                socketSize);
+          for (int i = 0; i < station.amount(); i++) {
+            Entity socket =
+                prop(
+                    "socket-" + station.index() + "-" + i,
+                    altar.translate(firstSocket + i * socketSpacing, .5f),
+                    "items/rpg/item_gem_amethyst.png",
+                    socketSize,
+                    socketSize);
+            SoulweaverTablePrefab.restOn(socket, altar, Deco.SoulweaverAltarPlinth);
+            Game.add(socket);
+          }
         }
       }
     }
@@ -224,7 +231,6 @@ final class SoulweaverWorkshopWorld {
     DrawComponent draw = new DrawComponent(new SimpleIPath(asset));
     draw.depth(DepthLayer.Player.depth());
     entity.add(draw);
-    Game.add(entity);
     return entity;
   }
 

@@ -49,6 +49,7 @@ public final class DrawComponent implements Component {
 
   private final StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();
+  private float sortOffset = 0f;
 
   private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
@@ -389,6 +390,28 @@ public final class DrawComponent implements Component {
    */
   public void depth(int depth) {
     this.depth = depth;
+  }
+
+  /**
+   * Get the offset added to this entity's y position when sorting within its depth layer.
+   *
+   * <p>Entities of one depth layer are drawn from high to low y. A negative offset sorts the entity
+   * as if it stood further in front, e.g. an item drawn just in front of the table it rests on.
+   *
+   * @return The sort offset in world units.
+   */
+  public float sortOffset() {
+    return sortOffset;
+  }
+
+  /**
+   * Set the offset added to this entity's y position when sorting within its depth layer.
+   *
+   * @param sortOffset The new sort offset in world units.
+   * @see #sortOffset()
+   */
+  public void sortOffset(float sortOffset) {
+    this.sortOffset = sortOffset;
   }
 
   /**

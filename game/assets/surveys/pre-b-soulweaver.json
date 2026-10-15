@@ -1,0 +1,913 @@
+{
+  "schemaVersion": 1,
+  "roomId": "soulweaver",
+  "questionnaireId": "soulweaver-evaluation-pre-b-v1",
+  "title": {
+    "de": "Soulweaver - Vorher-Fragebogen"
+  },
+  "skippable": false,
+  "pages": [
+    {
+      "title": {
+        "de": "Vor Soulweaver"
+      },
+      "questions": [
+        {
+          "id": "pre_survey_intro",
+          "type": "info",
+          "text": {
+            "de": "Vor dem Escape Room"
+          },
+          "description": {
+            "de": "Dieser Fragebogen enthält Angaben zu deinen bisherigen Erfahrungen, einen Wissenstest und Fragen zu Java-Programmierung. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Datenerfassung"
+      },
+      "questions": [
+        {
+          "id": "q01_dateneinwilligung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ich bin damit einverstanden, dass meine Antworten und zugehörigen Spieldaten für die Auswertung des Spiels erfasst und verarbeitet werden. Ich gebe in Freitextfeldern keine Namen oder Kontaktdaten an."
+          },
+          "options": [
+            {
+              "id": "yes",
+              "text": {
+                "de": "Ja"
+              }
+            },
+            {
+              "id": "no",
+              "text": {
+                "de": "Nein"
+              },
+              "declinesConsent": true
+            }
+          ]
+        },
+        {
+          "id": "q02_alter",
+          "type": "number",
+          "required": true,
+          "text": {
+            "de": "Alter"
+          }
+        },
+        {
+          "id": "q03_geschlecht",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Geschlecht"
+          },
+          "options": [
+            {
+              "id": "male",
+              "text": {
+                "de": "Männlich"
+              }
+            },
+            {
+              "id": "female",
+              "text": {
+                "de": "Weiblich"
+              }
+            },
+            {
+              "id": "diverse",
+              "text": {
+                "de": "Divers"
+              }
+            },
+            {
+              "id": "prefer_not_to_say",
+              "text": {
+                "de": "Keine Angabe"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Erfahrungen und Vorkenntnisse"
+      },
+      "questions": [
+        {
+          "id": "erfahrung_intro",
+          "type": "info",
+          "text": {
+            "de": "Noch ein paar Fragen zu deinen Erfahrungen und Vorkenntnissen"
+          },
+          "description": {
+            "de": "Im nächsten Abschnitt geht es um deine bisherigen Erfahrungen mit Programmieren, Java und Escape Rooms. Es gibt keine richtigen oder falschen Antworten. Bewerte bitte dein eigenes Können und antworte möglichst ehrlich. Gib keine Namen oder Kontaktdaten an."
+          }
+        },
+        {
+          "id": "q04_physische_escape_rooms",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe bereits Erfahrung mit realen (physischen) Escape Rooms."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q05_digitale_escape_rooms",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe bereits digitale Escape Rooms (im Browser oder als App) gespielt."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q06_escape_rooms_haeufigkeit",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie oft hast du vor diesem Spiel bereits einen Escape Room (vor Ort oder digital) gespielt?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "never",
+              "text": {
+                "de": "Noch nie"
+              }
+            },
+            {
+              "id": "once_or_twice",
+              "text": {
+                "de": "Ein- oder zweimal"
+              }
+            },
+            {
+              "id": "several",
+              "text": {
+                "de": "Drei- bis fünfmal"
+              }
+            },
+            {
+              "id": "many",
+              "text": {
+                "de": "Öfter als fünfmal"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q07_programmiererfahrung",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie viel Erfahrung hast du insgesamt mit Programmieren?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "none",
+              "text": {
+                "de": "Keine"
+              }
+            },
+            {
+              "id": "little",
+              "text": {
+                "de": "Wenig"
+              }
+            },
+            {
+              "id": "some",
+              "text": {
+                "de": "Etwas Erfahrung"
+              }
+            },
+            {
+              "id": "extensive",
+              "text": {
+                "de": "Viel Erfahrung"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q08_javaerfahrung",
+          "type": "singleChoice",
+          "text": {
+            "de": "Wie viel Erfahrung hast du mit Java?"
+          },
+          "required": true,
+          "options": [
+            {
+              "id": "none",
+              "text": {
+                "de": "Keine"
+              }
+            },
+            {
+              "id": "beginner",
+              "text": {
+                "de": "Grundkenntnisse"
+              }
+            },
+            {
+              "id": "intermediate",
+              "text": {
+                "de": "Mittlere Kenntnisse"
+              }
+            },
+            {
+              "id": "advanced",
+              "text": {
+                "de": "Fortgeschrittene Kenntnisse"
+              }
+            }
+          ]
+        },
+        {
+          "id": "q09_raetselmechaniken",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich bin mit den typischen Mechaniken von Rätselspielen (z. B. Codes finden, Kombinieren von Gegenständen) vertraut."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q10_logische_raetsel",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich löse gerne komplexe logische Probleme und Rätsel."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q11_spielerisches_lernen",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich lerne lieber spielerisch als durch klassische Texte oder Vorträge."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q12_zeitdruck",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich arbeite gerne unter Zeitdruck."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        },
+        {
+          "id": "q13_storytelling",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich finde es motivierend, wenn Lerninhalte in eine Geschichte (Storytelling) verpackt sind."
+          },
+          "minLabel": {
+            "de": "Trifft gar nicht zu"
+          },
+          "maxLabel": {
+            "de": "Trifft voll zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Variablen und Datentypen"
+      },
+      "questions": [
+        {
+          "id": "b_intro",
+          "type": "info",
+          "text": {
+            "de": "Hinweise zum Wissenstest"
+          },
+          "description": {
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten."
+          }
+        },
+        {
+          "id": "b01_boolean_vergleich",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welcher Java-Datentyp eignet sich für das Ergebnis eines Vergleichs wie `5 == 5`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`int`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`boolean`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`double`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`char`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b02_char_initial",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Zeile speichert genau ein Zeichen in einer Variable namens `initial`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`String initial = 'M';`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`char initial = \"M\";`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`boolean initial = 'M';`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`char initial = 'M';`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b03_subtraktion_rest",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert hat `rest` nach diesen Zeilen?\n`int minuten = 42; int pause = 12; int rest = minuten - pause;`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "30"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "54"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "12"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "42"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b04_string_ortsname",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Du möchtest den Ortsnamen „Bonn“ als Text speichern. Welche Zeile passt dazu?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`int ort = \"Bonn\";`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`char ort = 'B';`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`String ort = \"Bonn\";`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`boolean ort = \"Bonn\";`"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Schleifen"
+      },
+      "questions": [
+        {
+          "id": "b05_do_while_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Java-Schleife prüft die Bedingung erst nach dem ersten Durchlauf?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`while`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`for`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`do-while`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`if`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b06_while_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Der Wert von `x` ist am Anfang 10. Die Schleife lautet `while (x < 5) { x++; }`. Welche Aussage ist richtig?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Der Inhalt der Schleife wird kein einziges Mal ausgeführt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Der Inhalt der Schleife wird genau einmal ausgeführt."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Der Inhalt der Schleife wird fünfmal ausgeführt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Schleife wird immer mindestens einmal ausgeführt."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b07_for_durchlaeufe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Wie oft wird der Inhalt der Schleife ausgeführt? `for (int i = 2; i < 7; i++) { ... }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "4-mal"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "6-mal"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "2-mal"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "5-mal"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b08_while_durchlaeufe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Wie oft wird der Inhalt der Schleife ausgeführt?\n`int i = 3; while (i < 20) { i = i + 4; }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "4-mal"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "5-mal"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "6-mal"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "20-mal"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Methoden"
+      },
+      "questions": [
+        {
+          "id": "b09_methoden_definition",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Aussage beschreibt eine Methode am besten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Sie legt fest, welche Farbe ein Programm hat."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Sie bündelt zusammengehörige Arbeitsschritte unter einem Namen, sodass man sie bei Bedarf aufrufen kann."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Sie sorgt dafür, dass alle Variablen denselben Wert haben."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Sie startet das gesamte Programm nach jedem Schritt neu."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b10_methoden_ausgabe_parameter",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Methode soll immer den Text „Bereit!“ anzeigen. Eine zweite soll beim Aufruf einen Text erhalten und diesen anzeigen. Welche Aussage passt?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Für die zweite Methode kann der Text als Parameter übergeben werden; für die erste ist keiner nötig."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Beide Methoden müssen immer genau zwei Parameter erhalten."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein Parameter speichert einen Text dauerhaft für alle späteren Aufrufe."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die erste Methode muss ihre Nachricht als Ergebnis bereitstellen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b11_rueckgabewert_differenz",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Methode namens `differenz` erhält zwei Zahlen und liefert die erste Zahl minus die zweite als Ergebnis. Was liefert sie für 17 und 9?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "26"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "8"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "9"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "17"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b12_methodenergebnis_verknuepfen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet einen Endpreis, der danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text „Willkommen!“ an. Welche Aussage passt?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Beide Methoden müssen immer einen Zahlenwert als Ergebnis bereitstellen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Nur die Methode, die eine Nachricht anzeigt, muss ihr Ergebnis für eine weitere Rechnung bereitstellen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Keine Methode kann ohne Eingabewerte ausgeführt werden."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Methode für den Endpreis sollte das Ergebnis bereitstellen; die Begrüßungsmethode kann die Nachricht anzeigen, ohne ein Ergebnis zu liefern."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Bedingungen: if / else"
+      },
+      "questions": [
+        {
+          "id": "b13_else_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welches Wort in Java beschreibt den anderen Fall, wenn die Bedingung bei `if` falsch ist?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`for`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`while`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`if`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`else`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b14_verschachtelte_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was passiert bei diesem Code, wenn `temperatur` den Wert `18` hat?\n`if (temperatur >= 20) { if (regen > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die innere Bedingung wird immer zuerst geprüft."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Der äußere `else`-Zweig wird ausgeführt; die innere Bedingung wird nicht geprüft."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Beide Ausgaben werden ausgeführt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die `if`-Anweisung wiederholt sich, bis die Bedingung wahr ist."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b15_if_else_ausgabe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Ausgabe entsteht?\n`int punkte = 38; if (punkte >= 40) { System.out.println(\"Grenze erreicht\"); } else { System.out.println(\"Unter der Grenze\"); }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`Grenze erreicht`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Beide Texte"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`Unter der Grenze`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Keine Ausgabe"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b16_verschachtelte_ausgabe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Ausgabe entsteht?\n`int punkte = 65; if (punkte >= 50) { if (punkte <= 60) { System.out.println(\"X\"); } else { System.out.println(\"Y\"); } } else { System.out.println(\"Z\"); }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`Y`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`X`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`Z`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Keine Ausgabe"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

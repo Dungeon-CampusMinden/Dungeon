@@ -1,11 +1,15 @@
 package engine.tracking;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -26,13 +30,17 @@ record TrackingConfig(
     String operatorEmail,
     UUID runId) {
 
+  // Builds embed their backend endpoint from DUNGEON_TRACKING_ENDPOINT at build time.
+  private static final Optional<URI> BUILD_ENDPOINT = buildEndpoint();
+
   // Controls HTTP upload and backend health checks. JSONL tracking remains active.
-  static final boolean TRACKING_ENABLED = false;
+  static final boolean TRACKING_ENABLED = BUILD_ENDPOINT.isPresent();
 
   // Environment configs are rebuilt on every lookup; all sessions of this process share one run.
   private static final UUID ENVIRONMENT_RUN_ID = UUID.randomUUID();
   static final String DEFAULT_OPERATOR_EMAIL = "tracking@example.com";
-  private static final URI DEFAULT_ENDPOINT = URI.create("http://127.0.0.1:8088");
+  private static final URI DEFAULT_ENDPOINT =
+      BUILD_ENDPOINT.orElseGet(() -> URI.create("http://127.0.0.1:8088"));
 
   static final String ROOM_ID_PROPERTY = "dungeon.tracking.roomId";
   static final String ENDPOINT_PROPERTY = "dungeon.tracking.endpoint";
@@ -134,6 +142,21 @@ record TrackingConfig(
     value(ENDPOINT_PROPERTY, ENDPOINT_ENV).map(URI::create).ifPresent(builder::endpoint);
     value(API_KEY_PROPERTY, API_KEY_ENV).ifPresent(builder::apiKey);
     value(OUTBOX_PROPERTY, OUTBOX_ENV).map(Path::of).ifPresent(builder::outboxDirectory);
+  }
+
+  /** Reads the endpoint that game/build.gradle writes into tracking.properties. */
+  private static Optional<URI> buildEndpoint() {
+    try (InputStream input = TrackingConfig.class.getResourceAsStream("/tracking.properties")) {
+      if (input == null) {
+        return Optional.empty();
+      }
+      Properties properties = new Properties();
+      properties.load(input);
+      String endpoint = properties.getProperty("endpoint", "").strip();
+      return endpoint.isEmpty() ? Optional.empty() : Optional.of(URI.create(endpoint));
+    } catch (IOException exception) {
+      throw new UncheckedIOException(exception);
+    }
   }
 
   private static Optional<String> value(String property, String environment) {

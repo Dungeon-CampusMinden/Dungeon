@@ -102,6 +102,8 @@ public final class TrackingConsentFeature {
         translation.text(variant + ".deleteMessage"),
         translation.text(variant + ".deleted"),
         translation.text(variant + ".deleteFailed"),
+        translation.text(variant + ".enabledFeedback"),
+        translation.text(variant + ".disabledFeedback"),
         decision,
         this::choose,
         this::deleteLocalData);

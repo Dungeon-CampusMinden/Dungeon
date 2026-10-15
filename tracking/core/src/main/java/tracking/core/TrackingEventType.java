@@ -13,5 +13,6 @@ public enum TrackingEventType {
   PLAY_RESUMED,
   PLAY_ENDED,
   SURVEY_ANSWERED,
-  PUZZLE_SOLVED
+  PUZZLE_SOLVED,
+  BUG_REPORTED
 }

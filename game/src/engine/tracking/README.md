@@ -46,14 +46,14 @@ gesamten gemeinsamen Lauf. Die Entscheidung muss vor dem Start der autoritativen
 
 | Systemeigenschaft | Umgebungsvariable | Standardwert |
 | --- | --- | --- |
-| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | `http://127.0.0.1:8088` |
+| `dungeon.tracking.endpoint` | `DUNGEON_TRACKING_ENDPOINT` | eingebetteter Build-Endpunkt oder `http://127.0.0.1:8088` |
 | `dungeon.tracking.apiKey` | `DUNGEON_TRACKING_API_KEY` | keiner |
 | `dungeon.tracking.outbox` | `DUNGEON_TRACKING_OUTBOX` | `tracking-outbox` |
 
-`TrackingConfig.TRACKING_ENABLED` steuert die HTTP-Verbindung und ist im Quellcode standardmäßig
-`false`. JSONL-Tracking bleibt dabei aktiv. Mit dem Wert `true` verwendet Dungeon den
-konfigurierten Endpunkt oder ohne Override das lokale Backend. Das Pause-Menü zeigt bei `false`
-"Deaktiviert" statt einen Verbindungsstatus.
+Die HTTP-Verbindung ist nur aktiv, wenn beim Gradle-Build `DUNGEON_TRACKING_ENDPOINT` gesetzt war.
+Laufzeit-Eigenschaft und Umgebungsvariable überschreiben nur den Endpunkt; einen Build ohne
+eingebetteten Endpunkt schalten sie nicht ein. JSONL-Tracking bleibt aktiv. Das Pause-Menü zeigt
+ohne Upload "Deaktiviert" statt einen Verbindungsstatus.
 
 System Recovery besitzt passend dazu zwei lokalisierte Datenschutzvarianten. Bei deaktiviertem
 HTTP-Backend wird die lokale JSONL-Speicherung beschrieben. Sobald das zentrale Backend aktiviert
@@ -107,8 +107,9 @@ Lösche sie erst, wenn das Backend die Sitzung bestätigt oder ein Betreiber sie
 
 Beendet sich ein über "Spiel hosten" gestarteter Server ohne bestätigte Speicherung, übermittelt
 sein Statuskanal den absoluten Outbox-Pfad und die konfigurierte Betreiber-E-Mail an den hostenden
-Client. Der Client zeigt die Warnung an. Eigenständige Headless-Server schreiben dieselben
-Wiederherstellungsangaben in ihr Log.
+Client. Der Client zeigt die Warnung an, außer das Spielfenster hat dieselbe Datei schon genannt und
+das mit `Tracking.persistenceWarningShown(path)` gemeldet; dann steht sie nur im Log. Eigenständige
+Headless-Server schreiben dieselben Wiederherstellungsangaben in ihr Log.
 
 Lokale Outbox-Fehler stoppen weder das Spiel noch Netzwerk, Abschlussanzeige oder Herunterfahren.
 Dungeon protokolliert den fehlgeschlagenen absoluten Pfad und lässt die Wiederherstellungswarnung
@@ -143,9 +144,10 @@ schreibt weder Benutzernamen, Adressen, Client-IDs noch Entity-IDs in Tracking-D
 Unverarbeitete Antworten werden exakt wie übermittelt gespeichert. Betreiber müssen Outboxes daher
 als potenziell sensible Daten behandeln und eigene Aufbewahrungs- und Löschregeln festlegen.
 
-Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `active`,
+Die öffentliche API für Räume besteht aus `Tracking.configureRoom`, `roomId`, `runId`, `active`,
 `outboxPath`, `puzzleStarted`, `attempt`, `hintUsed`, `puzzleSolved`, `interaction`, `participantForClient` und
-`participantForEntity`, `completed` und `surveyAnswered`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
+`participantForEntity`, `completed`, `surveyAnswered`, `bugReported`, `declined`, `remoteAcknowledged`, `operatorEmail` und
+`persistenceWarningShown`. Die Deployment-Konfiguration stammt aus den aufgeführten Eigenschaften
 und Umgebungsvariablen. `TrackingConfig` und sein Builder sind intern im Tracking-Paket.
 
 `interaction(objectId, action, participantId)` erfasst bedeutende Spieleraktionen mit stabilen
@@ -180,4 +182,18 @@ Diese optionalen JSON-Payload-Felder brauchen keine Änderung des Datenbankschem
 `PUZZLE_STARTED` heißt, dass ein Rätsel zugänglich ist. Der erste Kontakt ist das erste andere
 Ereignis mit derselben `puzzleId`. `Tracking.surveyAnswered(...)` zeichnet `SURVEY_ANSWERED` auf,
 solange die Sitzung offen ist: im Raum vor dem Intro und nach dem Raumergebnis bis
-`Game.complete()`.
+`Game.complete()`. Die Fragebögen vor dem Intro und nach dem Raum zeigt
+`feature.survey.SurveyFeature`; `game/doc/survey.md` beschreibt das JSON-Format.
+`Tracking.remoteAcknowledged(event)` meldet, ob das Backend ein Ereignis samt aller früheren
+bestätigt hat; die Umfrage zeigt damit den Speicherstatus an.
+
+## Bug-Reports
+
+Das Pausenmenü bietet "Bug melden" an, solange Tracking den eigenen Spieler erfasst: im
+Einzelspielermodus bei laufender Sitzung, auf einem Client bei einem vom Server gemeldeten
+Tracking-Raum ohne abgelehnte Einwilligung. Der Client schickt den Text als Custom-Input
+`core:bug_report`; der autoritative Prozess zeichnet ihn mit `Tracking.bugReported(text,
+participantId)` als `BUG_REPORTED` auf. Der Spieler erfährt, ob der Bericht angekommen ist, und
+sonst den Grund: Ein Spieler hat das Tracking abgelehnt (`Tracking.declined()`), die Sitzung läuft
+gerade nicht, oder das Tracking konnte den Bericht nicht aufzeichnen. Eine Ablehnung durch einen
+anderen Spieler kennt nur der Server; der Button bleibt deshalb sichtbar.

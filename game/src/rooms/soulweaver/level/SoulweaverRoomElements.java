@@ -150,7 +150,6 @@ final class SoulweaverRoomElements {
       DungeonLevel level, LoopRune rune, SoulweaverGolemRuntime runtime) {
     Entity entity =
         createEntity(level, "rune-" + rune.id(), Visual.RUNE, LoopPuzzle.runes().indexOf(rune));
-    entity.fetch(PositionComponent.class).orElseThrow().scale(0.65f);
     entity
         .fetch(DrawComponent.class)
         .orElseThrow()
@@ -199,9 +198,13 @@ final class SoulweaverRoomElements {
       position.scale(.8f);
     } else if (visual == Visual.BOOK || visual == Visual.SCROLL) {
       position.scale(0.6f);
+    } else if (visual == Visual.RUNE) {
+      position.scale(0.65f);
     }
     entity.add(position);
     entity.add(visual.drawComponent(runeIndex));
+    if (visual != Visual.GOLEM && visual != Visual.CHEST)
+      SoulweaverTableAnchors.restOnTable(level, pointName, entity);
     return entity;
   }
 
@@ -242,7 +245,7 @@ final class SoulweaverRoomElements {
           };
       drawComponent.depth(
           switch (this) {
-            // Runes and tabletop items must render above the furniture supporting them.
+            // Tabletop items render above their furniture; anchored ones then sort with it.
             case RUNE, BOOK, SCROLL, SEHSTEIN -> DepthLayer.Player.depth() + 1;
             // Share the player's layer so Y sorting places characters behind standing objects.
             case GOLEM, CHEST -> DepthLayer.Player.depth();

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import engine.language.Language;
+import engine.language.LocalizedText;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -29,8 +30,7 @@ class CreditsDefinitionTest {
 
   @Test
   void localizedTextFallsBackToAvailableLanguage() {
-    CreditsDefinition.LocalizedText text =
-        new CreditsDefinition.LocalizedText(Map.of("de", "Danke"));
+    LocalizedText text = new LocalizedText(Map.of("de", "Danke"));
 
     assertEquals("Danke", text.text(Language.EN));
   }

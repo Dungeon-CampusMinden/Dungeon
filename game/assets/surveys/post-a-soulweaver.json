@@ -1,0 +1,1313 @@
+{
+  "schemaVersion": 1,
+  "roomId": "soulweaver",
+  "questionnaireId": "soulweaver-evaluation-post-a-v1",
+  "title": {
+    "de": "Soulweaver - Nachher-Fragebogen"
+  },
+  "skippable": false,
+  "pages": [
+    {
+      "title": {
+        "de": "Nach Soulweaver"
+      },
+      "questions": [
+        {
+          "id": "post_survey_intro",
+          "type": "info",
+          "text": {
+            "de": "Nach dem Escape Room"
+          },
+          "description": {
+            "de": "Dieser Fragebogen besteht aus einer aktuellen und einer rückblickenden Selbsteinschätzung, einem Wissenstest und Fragen zu deiner Spielerfahrung. Bitte beantworte die Fragen so ehrlich wie möglich. Es gibt keine Rückmeldung zu einzelnen Antworten im Wissenstest."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Hinweise zur Selbsteinschätzung"
+      },
+      "questions": [
+        {
+          "id": "selbsteinschaetzung_hinweise",
+          "type": "info",
+          "text": {
+            "de": "So gehst du vor"
+          },
+          "description": {
+            "de": "Du schätzt dich auf den nächsten beiden Seiten zweimal ein. Auf der ersten Seite bewertest du, wie gut du die Aussagen jetzt, unmittelbar nach dem Escape Room, bewältigen kannst. Auf der darauffolgenden Seite denkst du an die Zeit unmittelbar vor dem Escape Room zurück und schätzt ein, wie gut du die gleichen Aussagen damals bewältigen konntest. Verwende beide Male dieselbe Antwortskala. Es geht um deine persönliche Einschätzung; es gibt keine richtigen oder falschen Antworten. Antworte für die rückblickende Einschätzung nach deiner bestmöglichen Erinnerung."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Selbsteinschätzung: Dein Können jetzt"
+      },
+      "questions": [
+        {
+          "id": "post_intro",
+          "type": "info",
+          "text": {
+            "de": "Bitte schätze dein Können ein. (direkt nach dem Escape Room)"
+          },
+          "description": {
+            "de": "Schätze bitte ein, wie gut du die folgenden Handlungen und Erklärungen direkt nach dem Escape Room bewältigen kannst. Es geht um deine eigene Einschätzung, nicht um die richtigen Antworten im Wissenstest."
+          }
+        },
+        {
+          "id": "post_01_kompetenzmatrix",
+          "type": "matrix",
+          "required": true,
+          "text": {
+            "de": "Wie sehr treffen die folgenden Aussagen auf dich zu?"
+          },
+          "rows": [
+            {
+              "id": "post_02_variable_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, was eine Variable in einem Programm ist und wozu sie dient."
+              }
+            },
+            {
+              "id": "post_03_java_datentyp_waehlen",
+              "text": {
+                "de": "Ich kann für einen gegebenen Wert einen passenden Java-Datentyp (int, double, String, char oder boolean) auswählen."
+              }
+            },
+            {
+              "id": "post_04_datentypen_unterscheiden",
+              "text": {
+                "de": "Ich kann ganzzahlige, dezimale, Text-, Einzelzeichen- und Wahrheitswerte in Java unterscheiden."
+              }
+            },
+            {
+              "id": "post_05_schleifentyp_waehlen",
+              "text": {
+                "de": "Ich kann begründen, wann while, do-while oder for für eine Wiederholung geeignet ist."
+              }
+            },
+            {
+              "id": "post_06_schleifendurchlaeufe_nachvollziehen",
+              "text": {
+                "de": "Ich kann nachvollziehen, wie oft eine Schleife anhand ihrer Bedingung ausgeführt wird."
+              }
+            },
+            {
+              "id": "post_07_schleife_planen",
+              "text": {
+                "de": "Ich kann eine Schleife für eine vorgegebene Wiederholung oder Abbruchbedingung planen."
+              }
+            },
+            {
+              "id": "post_08_methoden_erkennen",
+              "text": {
+                "de": "Ich kann wiederkehrende Anweisungsblöcke erkennen, die sich als Methode zusammenfassen lassen."
+              }
+            },
+            {
+              "id": "post_09_parameter_rueckgabewerte",
+              "text": {
+                "de": "Ich kann erklären, welche Rolle Eingabeparameter und Rückgabewerte einer Methode haben."
+              }
+            },
+            {
+              "id": "post_10_methodenergebnis_nutzen",
+              "text": {
+                "de": "Ich kann einen Methodenaufruf verwenden und seinen Rückgabewert in einer weiteren Berechnung nutzen."
+              }
+            },
+            {
+              "id": "post_11_bedingung_auswerten",
+              "text": {
+                "de": "Ich kann eine if/else-Bedingung anhand gegebener Variablenwerte korrekt auswerten."
+              }
+            },
+            {
+              "id": "post_12_verschachtelte_bedingungen",
+              "text": {
+                "de": "Ich kann den Ablauf verschachtelter if/else-Bedingungen Schritt für Schritt nachvollziehen."
+              }
+            },
+            {
+              "id": "post_13_programmzweig_vorhersagen",
+              "text": {
+                "de": "Ich kann vorhersagen, welcher Programmzweig bei mehreren Bedingungen ausgeführt wird."
+              }
+            }
+          ],
+          "columns": [
+            {
+              "id": "1",
+              "text": {
+                "de": "Stimme überhaupt nicht zu"
+              }
+            },
+            {
+              "id": "2",
+              "text": {
+                "de": "Stimme eher nicht zu"
+              }
+            },
+            {
+              "id": "3",
+              "text": {
+                "de": "Teils, teils"
+              }
+            },
+            {
+              "id": "4",
+              "text": {
+                "de": "Stimme eher zu"
+              }
+            },
+            {
+              "id": "5",
+              "text": {
+                "de": "Stimme voll und ganz zu"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Rückblickende Selbsteinschätzung: Dein Können vorher"
+      },
+      "questions": [
+        {
+          "id": "then_intro",
+          "type": "info",
+          "text": {
+            "de": "Bitte schätze dein Können ein. (direkt vor dem Escape Room)"
+          },
+          "description": {
+            "de": "Denke an den Zeitpunkt unmittelbar vor Beginn des Escape Rooms zurück. Schätze ein, wie gut du die folgenden Dinge damals konntest. Die Aussagen und Antwortskala sind dieselben wie auf der vorherigen Seite. Antworte nach deiner bestmöglichen Erinnerung."
+          }
+        },
+        {
+          "id": "then_01_kompetenzmatrix",
+          "type": "matrix",
+          "required": true,
+          "text": {
+            "de": "Wie sehr treffen die folgenden Aussagen auf dich zu?"
+          },
+          "rows": [
+            {
+              "id": "then_02_variable_erklaeren",
+              "text": {
+                "de": "Ich kann erklären, was eine Variable in einem Programm ist und wozu sie dient."
+              }
+            },
+            {
+              "id": "then_03_java_datentyp_waehlen",
+              "text": {
+                "de": "Ich kann für einen gegebenen Wert einen passenden Java-Datentyp (int, double, String, char oder boolean) auswählen."
+              }
+            },
+            {
+              "id": "then_04_datentypen_unterscheiden",
+              "text": {
+                "de": "Ich kann ganzzahlige, dezimale, Text-, Einzelzeichen- und Wahrheitswerte in Java unterscheiden."
+              }
+            },
+            {
+              "id": "then_05_schleifentyp_waehlen",
+              "text": {
+                "de": "Ich kann begründen, wann while, do-while oder for für eine Wiederholung geeignet ist."
+              }
+            },
+            {
+              "id": "then_06_schleifendurchlaeufe_nachvollziehen",
+              "text": {
+                "de": "Ich kann nachvollziehen, wie oft eine Schleife anhand ihrer Bedingung ausgeführt wird."
+              }
+            },
+            {
+              "id": "then_07_schleife_planen",
+              "text": {
+                "de": "Ich kann eine Schleife für eine vorgegebene Wiederholung oder Abbruchbedingung planen."
+              }
+            },
+            {
+              "id": "then_08_methoden_erkennen",
+              "text": {
+                "de": "Ich kann wiederkehrende Anweisungsblöcke erkennen, die sich als Methode zusammenfassen lassen."
+              }
+            },
+            {
+              "id": "then_09_parameter_rueckgabewerte",
+              "text": {
+                "de": "Ich kann erklären, welche Rolle Eingabeparameter und Rückgabewerte einer Methode haben."
+              }
+            },
+            {
+              "id": "then_10_methodenergebnis_nutzen",
+              "text": {
+                "de": "Ich kann einen Methodenaufruf verwenden und seinen Rückgabewert in einer weiteren Berechnung nutzen."
+              }
+            },
+            {
+              "id": "then_11_bedingung_auswerten",
+              "text": {
+                "de": "Ich kann eine if/else-Bedingung anhand gegebener Variablenwerte korrekt auswerten."
+              }
+            },
+            {
+              "id": "then_12_verschachtelte_bedingungen",
+              "text": {
+                "de": "Ich kann den Ablauf verschachtelter if/else-Bedingungen Schritt für Schritt nachvollziehen."
+              }
+            },
+            {
+              "id": "then_13_programmzweig_vorhersagen",
+              "text": {
+                "de": "Ich kann vorhersagen, welcher Programmzweig bei mehreren Bedingungen ausgeführt wird."
+              }
+            }
+          ],
+          "columns": [
+            {
+              "id": "1",
+              "text": {
+                "de": "Stimme überhaupt nicht zu"
+              }
+            },
+            {
+              "id": "2",
+              "text": {
+                "de": "Stimme eher nicht zu"
+              }
+            },
+            {
+              "id": "3",
+              "text": {
+                "de": "Teils, teils"
+              }
+            },
+            {
+              "id": "4",
+              "text": {
+                "de": "Stimme eher zu"
+              }
+            },
+            {
+              "id": "5",
+              "text": {
+                "de": "Stimme voll und ganz zu"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Variablen und Datentypen"
+      },
+      "questions": [
+        {
+          "id": "b_intro",
+          "type": "info",
+          "text": {
+            "de": "Hinweise zum Wissenstest"
+          },
+          "description": {
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten."
+          }
+        },
+        {
+          "id": "b01_boolean_vergleich",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welcher Java-Datentyp eignet sich für das Ergebnis eines Vergleichs wie `5 == 5`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`int`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`boolean`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`double`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`char`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b02_char_initial",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Zeile speichert genau ein Zeichen in einer Variable namens `initial`?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`String initial = 'M';`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`char initial = \"M\";`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`boolean initial = 'M';`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`char initial = 'M';`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b03_subtraktion_rest",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welchen Wert hat `rest` nach diesen Zeilen?\n`int minuten = 42; int pause = 12; int rest = minuten - pause;`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "30"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "54"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "12"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "42"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b04_string_ortsname",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Du möchtest den Ortsnamen „Bonn“ als Text speichern. Welche Zeile passt dazu?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`int ort = \"Bonn\";`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`char ort = 'B';`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`String ort = \"Bonn\";`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`boolean ort = \"Bonn\";`"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Schleifen"
+      },
+      "questions": [
+        {
+          "id": "b05_do_while_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Java-Schleife prüft die Bedingung erst nach dem ersten Durchlauf?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`while`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`for`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`do-while`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`if`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b06_while_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Der Wert von `x` ist am Anfang 10. Die Schleife lautet `while (x < 5) { x++; }`. Welche Aussage ist richtig?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Der Inhalt der Schleife wird kein einziges Mal ausgeführt."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Der Inhalt der Schleife wird genau einmal ausgeführt."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Der Inhalt der Schleife wird fünfmal ausgeführt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Schleife wird immer mindestens einmal ausgeführt."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b07_for_durchlaeufe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Wie oft wird der Inhalt der Schleife ausgeführt? `for (int i = 2; i < 7; i++) { ... }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "4-mal"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "6-mal"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "2-mal"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "5-mal"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b08_while_durchlaeufe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Wie oft wird der Inhalt der Schleife ausgeführt?\n`int i = 3; while (i < 20) { i = i + 4; }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "4-mal"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "5-mal"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "6-mal"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "20-mal"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Methoden"
+      },
+      "questions": [
+        {
+          "id": "b09_methoden_definition",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Aussage beschreibt eine Methode am besten?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Sie legt fest, welche Farbe ein Programm hat."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Sie bündelt zusammengehörige Arbeitsschritte unter einem Namen, sodass man sie bei Bedarf aufrufen kann."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Sie sorgt dafür, dass alle Variablen denselben Wert haben."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Sie startet das gesamte Programm nach jedem Schritt neu."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b10_methoden_ausgabe_parameter",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Methode soll immer den Text „Bereit!“ anzeigen. Eine zweite soll beim Aufruf einen Text erhalten und diesen anzeigen. Welche Aussage passt?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Für die zweite Methode kann der Text als Parameter übergeben werden; für die erste ist keiner nötig."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Beide Methoden müssen immer genau zwei Parameter erhalten."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Ein Parameter speichert einen Text dauerhaft für alle späteren Aufrufe."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die erste Methode muss ihre Nachricht als Ergebnis bereitstellen."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b11_rueckgabewert_differenz",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Eine Methode namens `differenz` erhält zwei Zahlen und liefert die erste Zahl minus die zweite als Ergebnis. Was liefert sie für 17 und 9?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "26"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "8"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "9"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "17"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b12_methodenergebnis_verknuepfen",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet einen Endpreis, der danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text „Willkommen!“ an. Welche Aussage passt?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Beide Methoden müssen immer einen Zahlenwert als Ergebnis bereitstellen."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Nur die Methode, die eine Nachricht anzeigt, muss ihr Ergebnis für eine weitere Rechnung bereitstellen."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Keine Methode kann ohne Eingabewerte ausgeführt werden."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die Methode für den Endpreis sollte das Ergebnis bereitstellen; die Begrüßungsmethode kann die Nachricht anzeigen, ohne ein Ergebnis zu liefern."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Bedingungen: if / else"
+      },
+      "questions": [
+        {
+          "id": "b13_else_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welches Wort in Java beschreibt den anderen Fall, wenn die Bedingung bei `if` falsch ist?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`for`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`while`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`if`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "`else`"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b14_verschachtelte_bedingung",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Was passiert bei diesem Code, wenn `temperatur` den Wert `18` hat?\n`if (temperatur >= 20) { if (regen > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "Die innere Bedingung wird immer zuerst geprüft."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Der äußere `else`-Zweig wird ausgeführt; die innere Bedingung wird nicht geprüft."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "Beide Ausgaben werden ausgeführt."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Die `if`-Anweisung wiederholt sich, bis die Bedingung wahr ist."
+              }
+            }
+          ]
+        },
+        {
+          "id": "b15_if_else_ausgabe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Ausgabe entsteht?\n`int punkte = 38; if (punkte >= 40) { System.out.println(\"Grenze erreicht\"); } else { System.out.println(\"Unter der Grenze\"); }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`Grenze erreicht`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "Beide Texte"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`Unter der Grenze`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Keine Ausgabe"
+              }
+            }
+          ]
+        },
+        {
+          "id": "b16_verschachtelte_ausgabe",
+          "type": "singleChoice",
+          "required": true,
+          "text": {
+            "de": "Welche Ausgabe entsteht?\n`int punkte = 65; if (punkte >= 50) { if (punkte <= 60) { System.out.println(\"X\"); } else { System.out.println(\"Y\"); } } else { System.out.println(\"Z\"); }`"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "de": "`Y`"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "de": "`X`"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "de": "`Z`"
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "de": "Keine Ausgabe"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Deine Erfahrung mit dem Spiel"
+      },
+      "questions": [
+        {
+          "id": "game_experience_intro",
+          "type": "info",
+          "text": {
+            "de": "Deine Erfahrung mit dem Spiel"
+          },
+          "description": {
+            "de": "Im folgenden Abschnitt geht es um deine persönliche Erfahrung mit dem Escape Room. Bewerte unter anderem die Spielmechanik, die Schwierigkeit und den Spielspaß. Beziehe dich dabei auf deine eigene Spielerfahrung."
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Deine Einschätzung des Escape Rooms"
+      },
+      "questions": [
+        {
+          "id": "q14_lernhilfe",
+          "type": "scale",
+          "text": {
+            "de": "Wie hilfreich war der Escape Room für dein Verständnis der behandelten Programmierkonzepte?"
+          },
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "minLabel": {
+            "de": "Gar nicht hilfreich"
+          },
+          "maxLabel": {
+            "de": "Sehr hilfreich"
+          }
+        },
+        {
+          "id": "q15_aktive_beteiligung",
+          "type": "scale",
+          "text": {
+            "de": "Wie gut konntest du dich aktiv an der Lösung der Rätsel beteiligen?"
+          },
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "minLabel": {
+            "de": "Gar nicht gut"
+          },
+          "maxLabel": {
+            "de": "Sehr gut"
+          }
+        },
+        {
+          "id": "q16_hilfreichster_aspekt",
+          "type": "longText",
+          "maxLength": 1200,
+          "text": {
+            "de": "Was hat dir beim Lernen oder Verstehen besonders geholfen?"
+          },
+          "required": true
+        },
+        {
+          "id": "q17_offene_lernfragen",
+          "type": "longText",
+          "maxLength": 1200,
+          "text": {
+            "de": "Welche Programmierkonzepte oder Aufgaben sind für dich noch unklar geblieben?"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Spielmechanik und Strategie"
+      },
+      "questions": [
+        {
+          "id": "q18_benutzeroberflaeche",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Benutzeroberfläche war intuitiv und leicht verständlich."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q19_hinweissystem",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Hinweissystem hat mir genau das richtige Maß an Unterstützung geboten (nicht zu viel, nicht zu wenig)."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q20_informationen_verknuepfen",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Der Spielverlauf erforderte ein strategisches Verknüpfen von Informationen aus verschiedenen Quellen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Herausforderung und Balance"
+      },
+      "questions": [
+        {
+          "id": "q21_schwierigkeit",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Schwierigkeit des Spiels war angemessen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q22_raetselverstaendlichkeit",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Rätsel waren verständlich und die dafür geforderten Aufgaben leicht ersichtlich."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q23_flow_erleben",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich fühlte mich während des gesamten Spiels im „Flow“ (weder unter- noch überfordert)."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q24_timer_zeitdruck",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Der Timer hat mich unter Zeitdruck gesetzt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Spaß und Wiederspielwert"
+      },
+      "questions": [
+        {
+          "id": "q25_spielspass",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Spiel hat Spaß gemacht."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q26_rahmengeschichte",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Rahmengeschichte war packend und hat mich in das Szenario hineingezogen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q27_loesungserfolg",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Es war befriedigend, wenn ich ein Rätsel erfolgreich gelöst hatte."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q28_wiederspielwert",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich würde das Spiel noch einmal spielen, um meine Leistung zu verbessern oder Details zu entdecken."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Gameplay-Feedback"
+      },
+      "questions": [
+        {
+          "id": "q29_steuerung",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Steuerung war intuitiv und präzise."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q30_mechaniken_erklaert",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Die Mechaniken des Spiels waren gut erklärt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q31_fluessiges_spiel",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Das Spiel hat sich responsiv und flüssig angefühlt."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Allgemeine Erfahrung"
+      },
+      "questions": [
+        {
+          "id": "q32_spielziel_verstanden",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Ich habe das Ziel des Spieles eindeutig verstanden."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q33_technische_fehler",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Mir sind viele technische Fehler im Spiel aufgefallen."
+          },
+          "minLabel": {
+            "de": "Stimme überhaupt nicht zu"
+          },
+          "maxLabel": {
+            "de": "Stimme voll und ganz zu"
+          }
+        },
+        {
+          "id": "q34_gesamtbewertung",
+          "type": "scale",
+          "required": true,
+          "min": 1,
+          "max": 5,
+          "text": {
+            "de": "Wie würdest du das Spiel insgesamt bewerten?"
+          },
+          "minLabel": {
+            "de": "Sehr schlecht"
+          },
+          "maxLabel": {
+            "de": "Sehr gut"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Offenes Feedback"
+      },
+      "questions": [
+        {
+          "id": "q35_spass_highlight",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Was hat dir am meisten Spaß gemacht?"
+          }
+        },
+        {
+          "id": "q36_frustration",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Gab es etwas, das dich frustriert hat?"
+          }
+        },
+        {
+          "id": "q37_verbesserungswuensche",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Welche weiteren Funktionen oder Inhalte würdest du dir in diesem Spiel wünschen?"
+          }
+        },
+        {
+          "id": "q38_weitere_kommentare",
+          "type": "longText",
+          "required": false,
+          "maxLength": 2000,
+          "text": {
+            "de": "Weitere Kommentare oder Anmerkungen"
+          }
+        }
+      ]
+    }
+  ]
+}

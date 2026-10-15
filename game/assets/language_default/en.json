@@ -20,6 +20,62 @@
             "cancel": "Cancel",
             "confirm": "Confirm"
         },
+        "survey": {
+            "page": "Page $1 of $2",
+            "next": "Next",
+            "back": "Back",
+            "submit": "Submit",
+            "skip": "Skip",
+            "skip_yes": "Yes, skip",
+            "skip_cancel": "Back to survey",
+            "skip_hint": "Your answers will not be saved.",
+            "placeholder": "Your answer",
+            "select": "Please choose",
+            "other": "Other:",
+            "other_placeholder": "Please describe",
+            "sending": "Sending answers",
+            "continue": "Continue",
+            "quit": "Quit",
+            "number_hint": {
+                "integer": "Whole number",
+                "decimal": "Number",
+                "between": "$1 from $2 to $3",
+                "min": "$1 from $2",
+                "max": "$1 up to $2"
+            },
+            "problem": {
+                "required": "Please answer this question.",
+                "required_rows": "Please choose an answer in every row.",
+                "number_format": "Please enter a number.",
+                "number_range": "Please enter a number in the allowed range.",
+                "too_long": "The answer is too long.",
+                "other_text": "Please fill in the field next to Other.",
+                "invalid": "This answer is invalid."
+            },
+            "result": {
+                "confirmed": {
+                    "title": "Thank you!",
+                    "message": "Your answers reached the tracking server."
+                },
+                "saved_locally": {
+                    "title": "Thank you!",
+                    "message": "Your answers were saved locally."
+                },
+                "unreachable": {
+                    "title": "Thank you!",
+                    "message": "The tracking server could not be reached. Your answers were saved locally."
+                },
+                "pending": {
+                    "title": "Thank you!",
+                    "message": "The tracking server did not confirm receipt in time. Your answers were saved locally."
+                },
+                "failed": {
+                    "title": "That did not work",
+                    "message": "Your answers could not be saved."
+                },
+                "recovery": "Please send this file to $1:"
+            }
+        },
         "pause_dialog": {
             "paused": "PAUSED",
             "resume": "Resume",
@@ -28,6 +84,7 @@
             "achievements": "Achievements",
             "settings": "Settings",
             "client_infos": "Client Info",
+            "bug_report": "Report a Bug",
             "quit_to_desktop": "Quit to Desktop",
             "back": "Back",
             "you": "Your name: $1",
@@ -40,6 +97,15 @@
             "tracking_backend_unreachable": "Not reachable",
             "tracking_backend_disabled": "Disabled",
             "players_can_connect_via": "Players can connect via (port: $1):"
+        },
+        "bug_report": {
+            "title": "Report a Bug",
+            "hint": "Describe what happened and what you expected. We receive the report together with your tracking data.",
+            "send": "Send",
+            "received": "Thanks, we have received your bug report.",
+            "declined": "Your bug report could not be sent because not all players agreed to tracking.",
+            "not_running": "Your bug report could not be sent because tracking is not running right now.",
+            "failed": "Your bug report could not be sent because tracking could not record it."
         },
         "questlog": {
             "title": "Questlog",

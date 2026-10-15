@@ -66,6 +66,7 @@ public final class DrawComponentFactory {
         stateName,
         frameIndex,
         component.depth(),
+        component.sortOffset(),
         animationConfig,
         spritesheetConfig,
         states);
@@ -289,6 +290,7 @@ public final class DrawComponentFactory {
 
   private static void applyDepth(DrawInfoData info, DrawComponent drawComponent) {
     drawComponent.depth(info.depth());
+    drawComponent.sortOffset(info.sortOffset());
   }
 
   private static int currentFrameIndex(Animation animation) {

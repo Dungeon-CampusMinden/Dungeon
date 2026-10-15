@@ -8,6 +8,7 @@ import engine.utils.Point;
 import engine.utils.Tuple;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.entities.deco.Deco;
+import feature.survey.SurveyFeature;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -77,22 +78,27 @@ public class SoulweaverLevel extends DungeonLevel {
   protected void onTick() {
     if (runtime != null && runtime.tickEnding()) return;
     if (continued) Game.allPlayers().forEach(player -> playReady(player.id()));
+    // Only a new run asks the pre-game survey and shows the intro.
     if (!continued)
       Game.allPlayers()
           .filter(player -> introducedPlayers.add(player.id()))
           .forEach(
               player ->
-                  BlackFadeCutscene.show(
-                      SoulweaverStory.intro(),
-                      false,
-                      true,
-                      true,
-                      () -> {
-                        playReady(player.id());
-                        SoulweaverProgress.started(
-                            "vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
-                      },
-                      player.id()));
+                  SurveyFeature.show(
+                      SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id()));
     if (runtime != null) runtime.tick();
+  }
+
+  private void showIntro(int playerId) {
+    BlackFadeCutscene.show(
+        SoulweaverStory.intro(),
+        false,
+        true,
+        true,
+        () -> {
+          playReady(playerId);
+          SoulweaverProgress.started("vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
+        },
+        playerId);
   }
 }

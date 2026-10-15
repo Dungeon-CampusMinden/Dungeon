@@ -107,20 +107,20 @@ public enum Deco {
   SoulweaverRunePlinth(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(272, 144, 1, 1, 16, 16)).scaleX(1.5f),
-      null,
-      DepthLayer.Ground.depth()),
+      new Rectangle(1.4f, 1.1f, 0.05f, 0.05f),
+      DepthLayer.Player.depth()),
   /** Altar plinth in the Soulweaver room. */
   SoulweaverAltarPlinth(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(272, 144, 1, 1, 16, 16)),
-      null,
-      DepthLayer.Ground.depth()),
+      new Rectangle(1f, 0.65f, 0f, 0.05f),
+      DepthLayer.Player.depth()),
   /** Source bench in the Soulweaver room. */
   SoulweaverSourceBench(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(192, 352, 1, 1, 32, 16)),
       new Rectangle(1.9f, 0.65f, 0.05f, 0.05f),
-      DepthLayer.Ground.depth() + 1),
+      DepthLayer.Player.depth()),
   /** Small plinth in the Soulweaver room. */
   SoulweaverSmallPlinth(
       "spritesheets/FD_Dungeon_Free.png",

@@ -44,6 +44,7 @@ public final class Tracking {
   private static Optional<PlayClock.Outcome> outcome = Optional.empty();
   private static String clientRoomId;
   private static PersistenceFailure persistenceFailure;
+  private static Path warningShownFor;
 
   private Tracking() {}
 
@@ -133,6 +134,18 @@ public final class Tracking {
   }
 
   /**
+   * Returns the configured run ID shared by all sessions of one playthrough, also after loading a
+   * save.
+   *
+   * @return configured run ID
+   */
+  public static Optional<UUID> runId() {
+    synchronized (LOCK) {
+      return config().map(TrackingConfig::runId);
+    }
+  }
+
+  /**
    * Returns the configured room ID, if tracking is configured.
    *
    * @return configured room ID
@@ -154,6 +167,17 @@ public final class Tracking {
   public static boolean active() {
     synchronized (LOCK) {
       return trackingAllowed && session != null && !session.finished();
+    }
+  }
+
+  /**
+   * Returns whether a player declined tracking, so nothing more of this run is recorded.
+   *
+   * @return whether tracking is disabled by a refusal
+   */
+  public static boolean declined() {
+    synchronized (LOCK) {
+      return !trackingAllowed;
     }
   }
 
@@ -182,6 +206,32 @@ public final class Tracking {
         return Optional.of(session.outboxPath());
       }
       return Optional.ofNullable(persistenceFailure).map(PersistenceFailure::path);
+    }
+  }
+
+  /**
+   * Returns who receives the outbox when the backend has not confirmed its events.
+   *
+   * @return operator email of the current session
+   */
+  public static Optional<String> operatorEmail() {
+    synchronized (LOCK) {
+      if (session != null) {
+        return Optional.of(session.operatorEmail());
+      }
+      return Optional.ofNullable(persistenceFailure).map(PersistenceFailure::operatorEmail);
+    }
+  }
+
+  /**
+   * Records that the game window already told the player where to send this outbox. The warning
+   * after the game then only logs the instructions instead of opening another window.
+   *
+   * @param outboxPath outbox path shown to the player
+   */
+  public static void persistenceWarningShown(Path outboxPath) {
+    synchronized (LOCK) {
+      warningShownFor = outboxPath.toAbsolutePath();
     }
   }
 
@@ -547,6 +597,50 @@ public final class Tracking {
     }
   }
 
+  /**
+   * Records a player's bug report while the session remains open.
+   *
+   * @param text report text as written by the player
+   * @param participantId session-scoped participant identifier
+   * @return recorded event, or empty when tracking or the participant is inactive
+   */
+  public static Optional<TrackingEvent> bugReported(String text, UUID participantId) {
+    synchronized (LOCK) {
+      if (!active() || !session.participantKnown(participantId)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(
+            session.event(
+                TrackingEventType.BUG_REPORTED,
+                Optional.of(participantId),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                TrackingJson.object().put("text", text)));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
+   * Returns whether the HTTP backend has persisted an event and every earlier event of its session.
+   *
+   * <p>Callers poll this after recording player-facing data, for example to confirm that survey
+   * answers arrived. It stays {@code false} when the deployment uploads nothing; check {@link
+   * #remoteStorageEnabled()} to distinguish that case.
+   *
+   * @param event event returned by a recording method of this class
+   * @return {@code true} once the backend acknowledged the event's sequence
+   */
+  public static boolean remoteAcknowledged(TrackingEvent event) {
+    synchronized (LOCK) {
+      return session != null && session.remoteAcknowledged(event);
+    }
+  }
+
   static void playClockChanged(PlayClock.Transition transition) {
     synchronized (LOCK) {
       // The room's result decides the finish status; the session stays open for surveys.
@@ -607,6 +701,13 @@ public final class Tracking {
   static void clientRoomContext(String roomId) {
     synchronized (LOCK) {
       clientRoomId = roomId == null || roomId.isBlank() ? null : roomId.strip();
+    }
+  }
+
+  static boolean recordsLocalPlayer() {
+    synchronized (LOCK) {
+      if (!Game.isMultiplayerClient()) return active();
+      return clientRoomId != null && TrackingRuntime.localTrackingConsent().orElse(true);
     }
   }
 
@@ -688,9 +789,10 @@ public final class Tracking {
   /**
    * Stops all future tracking events for the current authoritative run.
    *
-   * <p>This is used when a multiplayer participant refuses consent. Events already written before
-   * the refusal are not retroactively altered. The session closes with its outcome or interruption,
-   * and its final batch is still uploaded; no participant or later event is recorded.
+   * <p>This is used when a participant refuses consent, either when joining a multiplayer run or in
+   * a survey. Events already written before the refusal are not retroactively altered. The session
+   * closes with its outcome or interruption, and its final batch is still uploaded; no participant
+   * or later event is recorded.
    */
   static void disableTrackingForRun() {
     synchronized (LOCK) {
@@ -703,7 +805,7 @@ public final class Tracking {
       }
       trackingAllowed = false;
       PENDING_PUZZLE_STARTS.clear();
-      LOGGER.info("Tracking disabled because a multiplayer participant refused consent.");
+      LOGGER.info("Tracking disabled because a participant refused consent.");
     }
   }
 
@@ -820,6 +922,9 @@ public final class Tracking {
   }
 
   private static void showPersistencePending(Path outboxPath, String operatorEmail) {
+    synchronized (LOCK) {
+      if (outboxPath.toAbsolutePath().equals(warningShownFor)) return;
+    }
     String message =
         "Tracking persistence is not confirmed.\nSend the JSONL file at:\n"
             + outboxPath

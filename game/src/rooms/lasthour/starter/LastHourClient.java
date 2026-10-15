@@ -38,6 +38,7 @@ import feature.interaction.InteractionComponent;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzlePieceItem;
 import feature.puzzle.PuzzleTextureGenerator;
+import feature.survey.SurveyFeature;
 import feature.systems.AttributeBarSystem;
 import feature.systems.PositionSync;
 import java.util.List;
@@ -103,6 +104,7 @@ public final class LastHourClient {
     DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
     BlackFadeCutscene.register();
     CreditsFeature.register();
+    SurveyFeature.register();
   }
 
   /**

@@ -19,6 +19,8 @@ jobs:
               run: chmod +x gradlew
             - name: Build Soulweaver JAR
               run: ./gradlew :game:buildSoulweaverJar
+              env:
+                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
             - name: Upload JAR
               uses: actions/upload-artifact@v7
               with:
@@ -48,6 +50,8 @@ jobs:
               run: chmod +x gradlew
             - name: Build Soulweaver app image
               run: ./gradlew :game:jpackageImageSoulweaver
+              env:
+                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
             - name: Archive Soulweaver
               shell: bash
               run: |
