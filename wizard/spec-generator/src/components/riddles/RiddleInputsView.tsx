@@ -50,7 +50,7 @@ function InputView({
           deerSchema={deerSchema}
         />
       ) : input.type === "assignment" ? (
-        <ParameterRow label="Zuordnung">
+        <ParameterRow label="Gegenstände">
           <ul className="flex flex-col gap-1">
             {input.items.map((item) => (
               <li key={item.id}>

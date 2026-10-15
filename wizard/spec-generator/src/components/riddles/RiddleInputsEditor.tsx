@@ -402,6 +402,7 @@ function AssignmentInputFields({
               />
               <SimpleSelect
                 accessibleLabel={`Bild von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
+                className="w-36"
                 options={spriteOptions}
                 value={item.sprite}
                 onChange={(newValue) => onChange({
@@ -419,6 +420,7 @@ function AssignmentInputFields({
               />
               <SimpleSelect
                 accessibleLabel={`Kiste von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
+                className="w-40"
                 options={targetOptions}
                 value={item.containerId ?? NO_CONTAINER}
                 onChange={(newValue) => onChange({
