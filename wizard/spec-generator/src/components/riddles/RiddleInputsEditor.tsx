@@ -394,7 +394,7 @@ function AssignmentInputFields({
         <FieldDescription>Wähle für jeden Gegenstand ein Bild und die Kiste, in die er gehört.</FieldDescription>
         <div className="flex flex-col gap-2">
           {input.items.map((item, itemIndex) => (
-            <div key={item.id} className="grid grid-cols-[auto_auto_1fr_auto_auto] items-center gap-2">
+            <div key={item.id} className="flex flex-wrap items-center gap-2">
               <img
                 src={getBundledAssetUrl(item.sprite)}
                 alt=""
@@ -412,6 +412,7 @@ function AssignmentInputFields({
               />
               <Input
                 aria-label={`Name von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
+                className="min-w-40 flex-1"
                 value={item.name}
                 onChange={(e) => onChange({
                   ...input,
