@@ -26,3 +26,7 @@ java -jar Soulweaver.jar
 Both players need their own computer on the same local network. Start the game on both computers. One player selects **Spiel hosten**; the other selects **Spiel beitreten** and enters the host's displayed IP address. Internet play and local split-screen are not supported.
 
 The host saves a checkpoint at the start of acts II to IV. Use **Fortsetzen** in the main menu to resume at the start of the saved act.
+
+### Single Player
+
+Press **Spiel hosten**, enter a name and start the game, everything is setup.
