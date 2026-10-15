@@ -18,7 +18,6 @@ public final class AssignmentComponent implements Component {
   private final Map<String, Entity> containers;
   private final AssignmentChecker checker;
   private Optional<Map<String, String>> placement = Optional.empty();
-  private boolean recheck = true;
   private Entity actor;
 
   /**
@@ -88,23 +87,12 @@ public final class AssignmentComponent implements Component {
     return Optional.ofNullable(actor);
   }
 
-  /** Runs the check again on the next system tick even if the placement did not change. */
-  public void recheck() {
-    recheck = true;
-  }
-
   Optional<Map<String, String>> placement() {
     return placement;
   }
 
   void placement(final Optional<Map<String, String>> placement) {
     this.placement = placement;
-  }
-
-  boolean consumeRecheck() {
-    boolean requested = recheck;
-    recheck = false;
-    return requested;
   }
 
   void actor(final Entity actor) {

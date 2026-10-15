@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
  * Checks registered {@link AssignmentComponent}s on the server whenever the placement of their
  * items changes.
  *
- * <p>A changed placement, or a requested {@link AssignmentComponent#recheck()}, runs the
- * assignment's {@link AssignmentChecker}. When it reports a solution, the placement is submitted to
- * the task component, which invokes its correct callback with the player who last changed a
- * container through its inventory dialog. Wrong placements are ignored because players may still be
- * sorting.
+ * <p>A changed placement runs the assignment's {@link AssignmentChecker}; a correct placement runs
+ * it again on every tick until it reports a solution, e.g. once a required lever is pulled. When it
+ * reports a solution, the placement is submitted to the task component, which invokes its correct
+ * callback with the player who last changed a container through its inventory dialog. Wrong
+ * placements are ignored because players may still be sorting.
  */
 public final class AssignmentSystem extends System {
 
@@ -47,7 +47,8 @@ public final class AssignmentSystem extends System {
       viewer(changedContainers(assignment, placement)).ifPresent(assignment::actor);
       assignment.placement(placement);
     }
-    if ((assignment.consumeRecheck() || changed) && assignment.checker().check(assignment)) {
+    boolean correct = placement.map(assignment.task()::isCorrect).orElse(false);
+    if ((changed || correct) && assignment.checker().check(assignment)) {
       taskComponent.submit(placement.orElse(Map.of()), assignment.actor().orElse(entity));
     }
   }

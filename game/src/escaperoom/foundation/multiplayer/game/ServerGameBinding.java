@@ -35,7 +35,6 @@ import feature.tasks.AnswerItem;
 import feature.tasks.AssignmentChecker;
 import feature.tasks.AssignmentComponent;
 import feature.tasks.TaskFactory;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,7 +64,6 @@ public final class ServerGameBinding {
   private final FoundationTracking tracking = new FoundationTracking();
   private final Map<String, ComposedPresentation> riddles;
   private final Map<String, InputDefinition> inputDefinitions;
-  private final List<AssignmentComponent> assignments = new ArrayList<>();
   private final Map<String, Integer> shownIntros = new LinkedHashMap<>();
   private final Set<String> terminalPresentedSlots = new LinkedHashSet<>();
 
@@ -112,7 +110,6 @@ public final class ServerGameBinding {
   public synchronized void tick() {
     serverBinding.tick();
     reconcileIntros();
-    assignments.forEach(AssignmentComponent::recheck);
 
     Set<String> present = new LinkedHashSet<>();
     for (Map.Entry<String, Integer> player : serverBinding.readyPlayerEntities().entrySet()) {
@@ -367,7 +364,6 @@ public final class ServerGameBinding {
                 AssignmentChecker.CONTENTS.check(component)
                     && submitAssignment(component, riddleId, presentation.id()));
     Game.add(assignment);
-    assignments.add(assignment.fetch(AssignmentComponent.class).orElseThrow());
   }
 
   private boolean submitAssignment(

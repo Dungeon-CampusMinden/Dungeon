@@ -5,7 +5,6 @@ import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,11 +60,7 @@ public final class AnswerItem extends Item {
 
   @Override
   public Map<String, String> itemData() {
-    Map<String, String> data = new LinkedHashMap<>();
-    data.put(DATA_KEY_ANSWER_ID, answerId);
-    data.put(DATA_KEY_NAME, name);
-    data.put(DATA_KEY_SPRITE, sprite);
-    return data;
+    return Map.of(DATA_KEY_ANSWER_ID, answerId, DATA_KEY_NAME, name, DATA_KEY_SPRITE, sprite);
   }
 
   private static AnswerItem fromData(final Map<String, String> data) {

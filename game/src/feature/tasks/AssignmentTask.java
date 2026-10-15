@@ -57,15 +57,6 @@ public class AssignmentTask extends Task<Map<String, String>> {
   }
 
   /**
-   * Returns the instructions shown to players.
-   *
-   * @return the task description
-   */
-  public String taskDescription() {
-    return taskDescription;
-  }
-
-  /**
    * Returns the identifiers of all containers.
    *
    * @return the container identifiers
@@ -81,14 +72,5 @@ public class AssignmentTask extends Task<Map<String, String>> {
    */
   public Set<String> itemIds() {
     return itemIds;
-  }
-
-  /**
-   * Returns the target container of every item that belongs into one.
-   *
-   * @return item identifier to container identifier
-   */
-  public Map<String, String> targets() {
-    return targets;
   }
 }
