@@ -24,7 +24,6 @@ import escaperoom.foundation.presentation.GamePresentation.InformationSourcePres
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.runtime.CodeOutcome;
 import escaperoom.foundation.runtime.HintPreview;
-import escaperoom.foundation.runtime.Projection;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.MiscFactory;
@@ -36,6 +35,7 @@ import feature.tasks.AnswerItem;
 import feature.tasks.AssignmentChecker;
 import feature.tasks.AssignmentComponent;
 import feature.tasks.TaskFactory;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,7 +65,7 @@ public final class ServerGameBinding {
   private final FoundationTracking tracking = new FoundationTracking();
   private final Map<String, ComposedPresentation> riddles;
   private final Map<String, InputDefinition> inputDefinitions;
-  private final Map<String, PendingAssignment> pendingAssignments = new LinkedHashMap<>();
+  private final List<AssignmentComponent> assignments = new ArrayList<>();
   private final Map<String, Integer> shownIntros = new LinkedHashMap<>();
   private final Set<String> terminalPresentedSlots = new LinkedHashSet<>();
 
@@ -112,7 +112,7 @@ public final class ServerGameBinding {
   public synchronized void tick() {
     serverBinding.tick();
     reconcileIntros();
-    checkActivatedAssignments();
+    assignments.forEach(AssignmentComponent::recheck);
 
     Set<String> present = new LinkedHashSet<>();
     for (Map.Entry<String, Integer> player : serverBinding.readyPlayerEntities().entrySet()) {
@@ -326,8 +326,9 @@ public final class ServerGameBinding {
   /**
    * Places the chests and answer items of one assignment and registers it for checking.
    *
-   * <p>Players can sort before the riddle is active; the placement is checked again when it becomes
-   * active.
+   * <p>The assignment counts only once the authority accepts it. Until then it is checked on every
+   * tick, so a placement sorted before the riddle became active or while no player was ready still
+   * completes it.
    *
    * @param riddleId owning riddle identifier
    * @param presentation chest and item presentation
@@ -361,70 +362,51 @@ public final class ServerGameBinding {
         TaskFactory.buildItemAssignment(
             definition.task(),
             containers,
-            actor -> submitAssignment(actor, riddleId, presentation.id(), containers, definition),
-            (task, boxes) ->
-                riddleActive(riddleId) && AssignmentChecker.CONTENTS.check(task, boxes));
+            ignored -> {},
+            component ->
+                AssignmentChecker.CONTENTS.check(component)
+                    && submitAssignment(component, riddleId, presentation.id()));
     Game.add(assignment);
-    pendingAssignments.put(
-        presentation.id(),
-        new PendingAssignment(riddleId, assignment.fetch(AssignmentComponent.class).orElseThrow()));
+    assignments.add(assignment.fetch(AssignmentComponent.class).orElseThrow());
   }
 
-  private void submitAssignment(
-      final Entity actor,
-      final String riddleId,
-      final String inputId,
-      final Map<String, Entity> containers,
-      final AssignmentInputDefinition definition) {
+  private boolean submitAssignment(
+      final AssignmentComponent assignment, final String riddleId, final String inputId) {
     Optional<Entity> player =
-        serverBinding.gameplayReady(actor)
-            ? Optional.of(actor)
-            : serverBinding.readyPlayerEntities().values().stream()
-                .flatMap(entityId -> Game.findEntityById(entityId).stream())
-                .findFirst();
+        assignment
+            .actor()
+            .filter(serverBinding::gameplayReady)
+            .or(
+                () ->
+                    serverBinding.readyPlayerEntities().values().stream()
+                        .flatMap(entityId -> Game.findEntityById(entityId).stream())
+                        .filter(serverBinding::gameplayReady)
+                        .findFirst());
+    if (player.isEmpty()) {
+      return false;
+    }
+    Entity solver = player.orElseThrow();
     Map<String, String> placement =
-        AssignmentChecker.placement(definition.task(), containers).orElse(Map.of());
-    player.ifPresent(
-        solver ->
-            serverBinding
-                .enterAssignment(solver, riddleId, inputId, placement)
-                .ifPresent(
-                    result -> {
-                      tracking.attempt(
-                          riddleId,
-                          inputId,
-                          "assignment",
-                          new TreeMap<>(placement).toString(),
-                          result,
-                          solver);
-                      if (result.outcome() == CodeOutcome.CORRECT) {
-                        Game.audio()
-                            .playGlobal(
-                                SoundSpec.builder("retro_event_correct").targets(solver.id()));
-                      }
-                    }));
-  }
-
-  private boolean riddleActive(final String riddleId) {
-    return serverBinding.projection().riddles().stream()
-        .anyMatch(
-            riddle ->
-                riddle.id().equals(riddleId)
-                    && riddle.status() == Projection.ProgressStatus.ACTIVE);
-  }
-
-  /** Checks sorted assignments once when their riddle becomes active. */
-  private void checkActivatedAssignments() {
-    pendingAssignments
-        .values()
-        .removeIf(
-            pending -> {
-              if (!riddleActive(pending.riddleId())) {
-                return false;
-              }
-              pending.component().recheck();
-              return true;
-            });
+        AssignmentChecker.placement(assignment.task(), assignment.containers()).orElseThrow();
+    boolean correct =
+        serverBinding
+            .enterAssignment(solver, riddleId, inputId, placement)
+            .filter(result -> result.outcome() == CodeOutcome.CORRECT)
+            .map(
+                result -> {
+                  tracking.attempt(
+                      riddleId,
+                      inputId,
+                      "assignment",
+                      new TreeMap<>(placement).toString(),
+                      result,
+                      solver);
+                  Game.audio()
+                      .playGlobal(SoundSpec.builder("retro_event_correct").targets(solver.id()));
+                  return true;
+                })
+            .orElse(false);
+    return correct;
   }
 
   private void submitChoice(
@@ -553,8 +535,6 @@ public final class ServerGameBinding {
         .forEach(input -> indexed.put(input.id(), input));
     return Map.copyOf(indexed);
   }
-
-  private record PendingAssignment(String riddleId, AssignmentComponent component) {}
 
   private static Point requireStation(final Map<String, Point> stations, final String componentId) {
     Point point = stations.get(componentId);

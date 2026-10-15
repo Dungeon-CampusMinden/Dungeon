@@ -23,15 +23,18 @@ final class AssignmentCheckerTest {
   private final Entity food = container();
   private final Entity magic = container();
   private final Map<String, Entity> containers = Map.of("food", food, "magic", magic);
+  private final AssignmentComponent assignment =
+      new AssignmentComponent(
+          new TaskComponent<>(task), task, containers, AssignmentChecker.CONTENTS);
 
   @Test
   void itemsWithoutTargetMustStayOutOfAllContainers() {
     add(food, "bread");
     add(magic, "scroll");
-    assertTrue(AssignmentChecker.CONTENTS.check(task, containers));
+    assertTrue(AssignmentChecker.CONTENTS.check(assignment));
 
     add(food, "cat");
-    assertFalse(AssignmentChecker.CONTENTS.check(task, containers));
+    assertFalse(AssignmentChecker.CONTENTS.check(assignment));
   }
 
   @Test

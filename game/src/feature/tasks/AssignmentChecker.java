@@ -19,16 +19,18 @@ public interface AssignmentChecker {
 
   /** Checks the current container contents with {@link AssignmentTask#isCorrect}. */
   AssignmentChecker CONTENTS =
-      (task, containers) -> placement(task, containers).map(task::isCorrect).orElse(false);
+      assignment ->
+          placement(assignment.task(), assignment.containers())
+              .map(assignment.task()::isCorrect)
+              .orElse(false);
 
   /**
    * Checks the assignment.
    *
-   * @param task the assignment task
-   * @param containers the task containers by container identifier
+   * @param assignment the registered task, its containers, and the last acting player
    * @return {@code true} if the assignment is solved
    */
-  boolean check(AssignmentTask task, Map<String, Entity> containers);
+  boolean check(AssignmentComponent assignment);
 
   /**
    * Collects which task container holds each task item.

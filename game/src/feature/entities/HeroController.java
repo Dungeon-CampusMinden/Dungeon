@@ -7,6 +7,8 @@ import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.configuration.KeyboardConfig;
+import engine.level.Tile;
+import engine.level.elements.tile.FloorTile;
 import engine.level.utils.LevelUtils;
 import engine.network.input.InputCommandRouter;
 import engine.network.messages.c2s.InputMessage;
@@ -62,7 +64,7 @@ public class HeroController {
   public static final String MOVEMENT_ID = "Movement";
 
   /** Delay after a disconnect before the hero inventory drops, matching the reconnect grace. */
-  public static final long DISCONNECT_ITEM_DROP_DELAY_MS = 30_000;
+  private static final long DISCONNECT_ITEM_DROP_DELAY_MS = 30_000;
 
   static {
     registerDefaultInputHandlers();
@@ -555,8 +557,7 @@ public class HeroController {
 
   /**
    * Drops the inventory of a disconnected hero around its last position, unless the hero rejoins
-   * within {@link #DISCONNECT_ITEM_DROP_DELAY_MS}. This keeps items, such as task items, in the
-   * game for the remaining players.
+   * within 30 seconds. This keeps items, such as task items, in the game for the remaining players.
    *
    * <p>Edge case: if the player rejoins and disconnects again within the delay, the items may drop
    * earlier than the delay after the second disconnect.
@@ -574,14 +575,21 @@ public class HeroController {
           if (inventory == null || position == null) {
             return;
           }
-          for (Item item : inventory.items()) {
-            if (item != null) {
-              item.drop(
-                  LevelUtils.randomAccessibleTileInRangeAsPoint(position.position(), 1)
-                      .orElse(position.position()));
+          List<Point> floor =
+              LevelUtils.accessibleTilesInRange(position.position(), 2).stream()
+                  .filter(FloorTile.class::isInstance)
+                  .map(Tile::position)
+                  .toList();
+          Item[] items = inventory.items();
+          for (int slot = 0; slot < items.length; slot++) {
+            Point target =
+                floor.isEmpty()
+                    ? position.position()
+                    : floor.get(Item.RANDOM.nextInt(floor.size()));
+            if (items[slot] != null && items[slot].drop(target).isPresent()) {
+              inventory.remove(slot);
             }
           }
-          inventory.clear();
         },
         DISCONNECT_ITEM_DROP_DELAY_MS);
   }
