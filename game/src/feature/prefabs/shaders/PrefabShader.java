@@ -29,7 +29,8 @@ public final class PrefabShader<S extends AbstractShader> {
       Set.of(
           PrefabPropertyType.POINT,
           PrefabPropertyType.REGION,
-          PrefabPropertyType.SHADER_PARAMETERS);
+          PrefabPropertyType.SHADER_PARAMETERS,
+          PrefabPropertyType.IMAGE_PUZZLE_SETTINGS);
 
   private final String id;
   private final String displayName;

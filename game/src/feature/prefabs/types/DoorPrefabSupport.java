@@ -12,7 +12,7 @@ import java.util.Set;
 final class DoorPrefabSupport {
 
   private static final Set<String> DOOR_CONTROLLER_TYPES =
-      Set.of("door-keypad", "door-lever", "pressure-plate");
+      Set.of("door-keypad", "door-text-keypad", "door-lever", "pressure-plate");
   private static final String DOOR_POSITION_PROPERTY = "doorPosition";
 
   private DoorPrefabSupport() {}

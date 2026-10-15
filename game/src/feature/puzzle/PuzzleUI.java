@@ -28,11 +28,11 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.elements.RichLabel;
+import feature.inventory.Item;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import rooms.lasthour.level.LastHourLevel;
 
 /**
  * Scene2D UI for a {@link Puzzle}.
@@ -166,64 +166,36 @@ public class PuzzleUI extends Group {
     // -- Pass 1: collect every visible (= owned) piece together with its geometry.
     List<VisiblePiece> visible = new ArrayList<>();
     List<float[]> polys = puzzle.polygons();
-    if (puzzle.id().equals(LastHourLevel.puzzleDE.id())
-        || puzzle.id().equals(LastHourLevel.puzzleEN.id())) {
-
-      for (PuzzlePieceItem piece : LastHourLevel.puzzleDE.pieces()) {
-        if (inv == null || !inv.hasItem(piece)) {
-          puzzle.unmarkPlaced(piece.pieceIndex());
+    PuzzlePieceItem[] ownedPieces = new PuzzlePieceItem[puzzle.pieceCount()];
+    if (inv != null) {
+      for (Item item : inv.items()) {
+        if (!(item instanceof PuzzlePieceItem piece)
+            || !piece.pieceFamilyId().equals(puzzle.pieceFamilyId())) {
           continue;
         }
-        int idx = piece.pieceIndex();
-        float[] poly = polys.get(idx);
-        int[] bb = PuzzleSlicer.boundingBox(poly, imageW, imageH);
-        int bbX = bb[0], bbY = bb[1];
-        int bbW = Math.max(1, bb[2] - bb[0]);
-        int bbH = Math.max(1, bb[3] - bb[1]);
-
-        Texture pieceTex =
-            TextureMap.instance()
-                .textureAt(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzle.id(), idx)));
-
-        visible.add(new VisiblePiece(idx, pieceTex, bbX, bbY, bbW, bbH));
-      }
-      for (PuzzlePieceItem piece : LastHourLevel.puzzleEN.pieces()) {
-        if (inv == null || !inv.hasItem(piece)) {
-          puzzle.unmarkPlaced(piece.pieceIndex());
-          continue;
+        int index = piece.pieceIndex();
+        if (index >= 0 && index < ownedPieces.length && ownedPieces[index] == null) {
+          ownedPieces[index] = piece;
         }
-        int idx = piece.pieceIndex();
-        float[] poly = polys.get(idx);
-        int[] bb = PuzzleSlicer.boundingBox(poly, imageW, imageH);
-        int bbX = bb[0], bbY = bb[1];
-        int bbW = Math.max(1, bb[2] - bb[0]);
-        int bbH = Math.max(1, bb[3] - bb[1]);
-
-        Texture pieceTex =
-            TextureMap.instance()
-                .textureAt(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzle.id(), idx)));
-
-        visible.add(new VisiblePiece(idx, pieceTex, bbX, bbY, bbW, bbH));
       }
-    } else {
-      for (PuzzlePieceItem piece : puzzle.pieces()) {
-        if (inv == null || !inv.hasItem(piece)) {
-          puzzle.unmarkPlaced(piece.pieceIndex());
-          continue;
-        }
-        int idx = piece.pieceIndex();
-        float[] poly = polys.get(idx);
-        int[] bb = PuzzleSlicer.boundingBox(poly, imageW, imageH);
-        int bbX = bb[0], bbY = bb[1];
-        int bbW = Math.max(1, bb[2] - bb[0]);
-        int bbH = Math.max(1, bb[3] - bb[1]);
-
-        Texture pieceTex =
-            TextureMap.instance()
-                .textureAt(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzle.id(), idx)));
-
-        visible.add(new VisiblePiece(idx, pieceTex, bbX, bbY, bbW, bbH));
+    }
+    for (int idx = 0; idx < ownedPieces.length; idx++) {
+      PuzzlePieceItem piece = ownedPieces[idx];
+      if (piece == null) {
+        puzzle.unmarkPlaced(idx);
+        continue;
       }
+      float[] poly = polys.get(idx);
+      int[] bb = PuzzleSlicer.boundingBox(poly, imageW, imageH);
+      int bbX = bb[0], bbY = bb[1];
+      int bbW = Math.max(1, bb[2] - bb[0]);
+      int bbH = Math.max(1, bb[3] - bb[1]);
+
+      Texture pieceTex =
+          TextureMap.instance()
+              .textureAt(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzle.id(), idx)));
+
+      visible.add(new VisiblePiece(idx, pieceTex, bbX, bbY, bbW, bbH));
     }
 
     int totalPresent = visible.size();

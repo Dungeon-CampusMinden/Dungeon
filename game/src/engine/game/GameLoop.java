@@ -28,6 +28,7 @@ import engine.network.MessageDispatcher;
 import engine.network.NetworkTelemetry;
 import engine.network.client.ClientNetwork;
 import engine.network.codec.ShaderComponentCodec;
+import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.delta.SnapshotDeltaCompressor;
 import engine.network.messages.c2s.InitialWorldReady;
 import engine.network.messages.c2s.InputMessage;
@@ -85,9 +86,12 @@ import feature.hud.PauseMenuHudSystem;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
+import feature.interaction.InteractionComponent;
+import feature.interaction.keypad.TextKeypadSync;
 import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
+import feature.puzzle.PuzzleNetworkSync;
 import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogUtil;
 import feature.shader.ShaderSyncSystem;
@@ -596,6 +600,12 @@ public final class GameLoop extends ScreenAdapter {
           if (event.positionComponent() != null) {
             newEntity.add(event.positionComponent());
           }
+          PuzzleNetworkSync.ensureTextures(event.metadata());
+          if ("true"
+              .equals(event.metadata().get(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE))) {
+            newEntity.add(new InteractionComponent());
+          }
+          TextKeypadSync.apply(newEntity, event.metadata());
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
           }

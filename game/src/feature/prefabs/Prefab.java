@@ -302,7 +302,7 @@ public abstract class Prefab {
       throw new IllegalArgumentException("Prefab instance name must not be blank");
     }
     for (String key : instance.properties().keySet()) {
-      if (!propertiesByKey.containsKey(key)) {
+      if (!propertiesByKey.containsKey(key) && !isLegacyProperty(key)) {
         throw new IllegalArgumentException(
             "Unknown property '" + key + "' for prefab type '" + type + "'");
       }
@@ -317,6 +317,17 @@ public abstract class Prefab {
     PrefabInstance result = new PrefabInstance(instance.name(), type, normalized);
     validate(result);
     return result;
+  }
+
+  /**
+   * Identifies retired properties that are accepted when loading older instances but discarded
+   * during normalization. Other unknown properties remain invalid.
+   *
+   * @param key serialized property key
+   * @return whether this retired property can be discarded
+   */
+  protected boolean isLegacyProperty(String key) {
+    return false;
   }
 
   /**
@@ -347,6 +358,15 @@ public abstract class Prefab {
         translated =
             translated.withProperty(
                 regionProperty.key(), regionProperty.encode(PROPERTY_MAPPER, shifted));
+      } else if (property.type() == PrefabPropertyType.IMAGE_PUZZLE_SETTINGS) {
+        @SuppressWarnings("unchecked")
+        PrefabProperty<ImagePuzzleSettings> settingsProperty =
+            (PrefabProperty<ImagePuzzleSettings>) property;
+        ImagePuzzleSettings settings = settingsProperty.get(translated);
+        translated =
+            translated.withProperty(
+                settingsProperty.key(),
+                settingsProperty.encode(PROPERTY_MAPPER, settings.translated(translation)));
       }
     }
     return normalize(translated);
