@@ -53,6 +53,9 @@ public class PuzzleUI extends Group {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(PuzzleUI.class);
 
+  /** Minimum displayed length of the longer image dimension in pixels. */
+  private static final float MIN_PLAYFIELD_SIZE = 300f;
+
   /** Maximum displayed playfield width in pixels (image is scaled down to fit). */
   private static final float MAX_PLAYFIELD_W = 600f;
 
@@ -137,12 +140,10 @@ public class PuzzleUI extends Group {
 
     PuzzleTextureGenerator.ensureRegistered(puzzle);
 
-    pfW = imageW;
-    pfH = imageH;
-    scale = Math.min(MAX_PLAYFIELD_W / pfW, MAX_PLAYFIELD_H / pfH);
-    if (scale > 1f) scale = 1f;
-    pfW *= scale;
-    pfH *= scale;
+    scale = Math.max(1f, MIN_PLAYFIELD_SIZE / Math.max(imageW, imageH));
+    scale = Math.min(scale, Math.min(MAX_PLAYFIELD_W / imageW, MAX_PLAYFIELD_H / imageH));
+    pfW = imageW * scale;
+    pfH = imageH * scale;
 
     sideTrayW = pfW * SIDE_TRAY_W_FACTOR;
     float totalW = pfW + 2f * sideTrayW;
