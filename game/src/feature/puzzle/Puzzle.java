@@ -21,7 +21,7 @@ import java.util.function.BiConsumer;
  * <p>Holds the puzzle configuration (image, total piece count, compatible-piece family, completion
  * callback, and debug flag) and the mutable per-puzzle state (current RNG seed, polygon shape of
  * every piece in image-pixel coordinates, current playfield positions of pieces, which pieces are
- * currently snapped to their correct slot, and whether the completion callback has already been
+ * currently connected to the largest assembly, and whether the completion callback has already been
  * fired).
  *
  * <p>The pieces are obtained by repeatedly splitting the largest current polygon along a chord
@@ -56,7 +56,7 @@ public class Puzzle {
   /** Local (playfield) position of each piece (key = piece index). */
   private final Map<Integer, Vector2> piecePositions = new HashMap<>();
 
-  /** Indices of pieces that are currently snapped onto their correct slot. */
+  /** Indices of pieces that are currently connected to the largest assembly. */
   private final Set<Integer> placedCorrectly = new HashSet<>();
 
   private boolean callbackFired = false;
@@ -223,7 +223,7 @@ public class Puzzle {
   }
 
   /**
-   * Marks a piece as snapped to its correct slot.
+   * Marks a piece as connected to the largest assembly.
    *
    * @param pieceIndex piece index
    */
@@ -232,7 +232,7 @@ public class Puzzle {
   }
 
   /**
-   * Marks a piece as no longer snapped to its correct slot.
+   * Marks a piece as no longer connected to the largest assembly.
    *
    * @param pieceIndex piece index
    */
@@ -264,7 +264,7 @@ public class Puzzle {
   }
 
   /**
-   * Marks every piece of this puzzle as snapped to its correct slot.
+   * Marks every piece of this puzzle as connected to the completed assembly.
    *
    * <p>Piece placement happens in {@link PuzzleUI}, which (in multiplayer) only runs on the client.
    * The server's copy of this puzzle therefore never sees the individual {@link #markPlaced(int)}
@@ -280,14 +280,14 @@ public class Puzzle {
 
   /**
    * @param pieceIndex piece index
-   * @return whether the given piece is currently snapped to its correct slot
+   * @return whether the given piece is currently connected to the largest assembly
    */
   public boolean isPlaced(int pieceIndex) {
     return placedCorrectly.contains(pieceIndex);
   }
 
   /**
-   * @return whether every single piece is snapped to its correct slot
+   * @return whether every single piece belongs to the same connected assembly
    */
   public boolean isFullySolved() {
     return placedCorrectly.size() == pieceCount();

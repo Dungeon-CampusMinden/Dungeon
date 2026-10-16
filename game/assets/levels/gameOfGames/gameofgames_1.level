@@ -631,39 +631,39 @@
     "name" : "image-puzzle",
     "type" : "image-puzzle",
     "properties" : {
-      "image" : "images/binary_hex.jpg",
-      "pieceItemName" : "Puzzle Piece",
-      "pieceItemDescription" : "A fragment of an image puzzle.",
-      "hintItemName" : "Puzzle Hint",
-      "hintItemDescription" : "A picture revealed after completing the puzzle.",
+      "image" : "items/rpg/item_gem_sapphire.png",
+      "pieceItemName" : "Saphir-Stück",
+      "pieceItemDescription" : "Ein Stück von einem Saphir",
+      "hintItemName" : "Saphir",
+      "hintItemDescription" : "Ein waschechter Saphir!",
       "settings" : {
         "pieceCount" : 4,
         "seed" : 1337,
         "pieces" : [ {
           "position" : {
-            "x" : 21.0,
-            "y" : 8.0
+            "x" : 8.9375,
+            "y" : 1.5
           },
           "destination" : "deco-inventory",
           "deco" : "FolderRed"
         }, {
           "position" : {
-            "x" : 14.25,
-            "y" : 6.0
+            "x" : 10.0,
+            "y" : 1.0
           },
           "destination" : "world-item",
           "deco" : "BookshelfLarge"
         }, {
           "position" : {
-            "x" : 13.0,
-            "y" : 5.0
+            "x" : 11.1875,
+            "y" : 1.1875
           },
           "destination" : "world-item",
           "deco" : "BookshelfLarge"
         }, {
           "position" : {
-            "x" : 22.5,
-            "y" : 6.25
+            "x" : 9.9375,
+            "y" : 1.6875
           },
           "destination" : "world-item",
           "deco" : "BookshelfLarge"

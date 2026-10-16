@@ -40,10 +40,11 @@ import java.util.Random;
  * <p>Loads the puzzle image, slices it into {@link Puzzle#pieceCount()} convex polygonal pieces via
  * {@link PuzzleSlicer}, draws an outline of the assembled image area as a placement guide, and
  * creates one drag-and-drop {@link Group} per piece. Only pieces whose corresponding {@link
- * PuzzlePieceItem} is currently in the interacting hero's inventory are shown. Dropping a piece
- * within {@link #SNAP_THRESHOLD_FACTOR} of its correct slot snaps it into place; piece positions
- * are written back to the {@link Puzzle} so progress survives closing/reopening the dialog. The
- * completion callback is fired exactly once as soon as every piece is snapped to its slot.
+ * PuzzlePieceItem} is currently in the interacting hero's inventory are shown. Neighboring pieces
+ * snap together when their relative positions match, and connected pieces can be dragged as a
+ * group. Piece positions are written back to the {@link Puzzle} so progress survives
+ * closing/reopening the dialog. The completion callback is fired once every piece belongs to the
+ * same connected assembly, regardless of its position relative to the outline.
  *
  * <p>If {@link Puzzle#debug()} is true, a small panel below the playfield shows the current seed
  * and exposes "Apply" / "Random" buttons to re-slice the puzzle on the fly. Re-slicing resets all
@@ -66,10 +67,13 @@ public class PuzzleUI extends Group {
   private static final float SIDE_TRAY_W_FACTOR = 1.2f;
 
   /**
-   * Snap radius as a fraction of the smaller piece-bounding-box dimension. A piece released within
-   * this distance of its correct slot anchor snaps into place.
+   * Snap radius as a fraction of the smaller piece-bounding-box dimension of two neighboring
+   * pieces.
    */
   private static final float SNAP_THRESHOLD_FACTOR = 0.05f;
+
+  private static final float MIN_SNAP_DISTANCE = 8f;
+  private static final float CONNECTION_EPSILON = 0.01f;
 
   private final Puzzle puzzle;
   private final int heroId;
@@ -87,6 +91,10 @@ public class PuzzleUI extends Group {
   private int imageH;
   private float sideTrayW;
   private RichLabel statusLabel;
+  private int dragPointer = -1;
+  private boolean completionNotified;
+
+  private final List<PieceActor> pieceActors = new ArrayList<>();
 
   /** Textures created by this UI for piece pixmaps; disposed on rebuild. */
   private final List<Texture> ownedTextures = new ArrayList<>();
@@ -116,6 +124,9 @@ public class PuzzleUI extends Group {
     disposeOwnedTextures();
     root.clear();
     statusLabel = null;
+    pieceActors.clear();
+    dragPointer = -1;
+    completionNotified = puzzle.isFullySolved();
 
     Skin skin = UIUtils.defaultSkin();
     window = new Window("Puzzle", skin, "no-title");
@@ -183,7 +194,6 @@ public class PuzzleUI extends Group {
     for (int idx = 0; idx < ownedPieces.length; idx++) {
       PuzzlePieceItem piece = ownedPieces[idx];
       if (piece == null) {
-        puzzle.unmarkPlaced(idx);
         continue;
       }
       float[] poly = polys.get(idx);
@@ -217,12 +227,12 @@ public class PuzzleUI extends Group {
       float actorH = vp.bbH * scale;
       img.setSize(actorW, actorH);
 
-      // Slot position (scene Y = playfield bottom-up, image Y = top-down). The whole image
-      // area is shifted right by sideTrayW to make room for the left tray.
-      float slotX = sideTrayW + vp.bbX * scale;
-      float slotY = (imageH - (vp.bbY + vp.bbH)) * scale;
+      // Reference positions determine relative alignment, not a fixed target on the playfield.
+      // Scene Y is bottom-up; image Y is top-down.
+      float imageX = sideTrayW + vp.bbX * scale;
+      float imageY = (imageH - (vp.bbY + vp.bbH)) * scale;
 
-      PieceActor actor = new PieceActor(vp.idx, img, slotX, slotY, actorW, actorH);
+      PieceActor actor = new PieceActor(vp.idx, img, imageX, imageY, actorW, actorH);
 
       Optional<Vector2> stored = puzzle.getPiecePosition(vp.idx);
       Vector2 startPos;
@@ -237,14 +247,12 @@ public class PuzzleUI extends Group {
       }
       actor.setPosition(startPos.x, startPos.y);
 
-      if (actor.isAtSlot(startPos)) {
-        puzzle.markPlaced(vp.idx);
-      } else {
-        puzzle.unmarkPlaced(vp.idx);
-      }
-
+      pieceActors.add(actor);
       playfield.addActor(actor);
     }
+
+    restoreConnections();
+    updatePlacedState();
 
     TextButton close = new TextButton("Close", skin, "green");
     close.addListener(
@@ -258,6 +266,7 @@ public class PuzzleUI extends Group {
 
     Table content = new Table(skin);
     content.add(playfield).size(pfW + 2f * sideTrayW, pfH).row();
+    content.add(new RichLabel("Snap matching pieces together in the image area.")).padTop(8).row();
     if (totalPresent == 0) {
       statusLabel = new RichLabel("You don't own any pieces of this puzzle yet.");
     } else {
@@ -278,6 +287,52 @@ public class PuzzleUI extends Group {
     window.pack();
 
     root.add(window).center();
+  }
+
+  private void restoreConnections() {
+    for (int i = 0; i < pieceActors.size(); i++) {
+      PieceActor piece = pieceActors.get(i);
+      for (int j = 0; j < i; j++) {
+        PieceActor other = pieceActors.get(j);
+        if (!PuzzleSlicer.shareEdge(
+            puzzle.polygons().get(piece.idx), puzzle.polygons().get(other.idx))) {
+          continue;
+        }
+        piece.neighbors.add(other);
+        other.neighbors.add(piece);
+        if (piece.offsetDistance2(other) <= CONNECTION_EPSILON * CONNECTION_EPSILON) {
+          piece.connectTo(other);
+        }
+      }
+    }
+  }
+
+  private void updatePlacedState() {
+    for (int i = 0; i < puzzle.pieceCount(); i++) {
+      puzzle.unmarkPlaced(i);
+    }
+    List<PieceActor> largest = List.of();
+    for (PieceActor piece : pieceActors) {
+      if (piece.cluster.size() > largest.size()) {
+        largest = piece.cluster;
+      }
+    }
+    if (largest.size() > 1) {
+      for (PieceActor piece : largest) {
+        puzzle.markPlaced(piece.idx);
+      }
+    }
+  }
+
+  private void notifyCompletion() {
+    if (completionNotified || !puzzle.isFullySolved()) return;
+    completionNotified = true;
+    if (statusLabel != null) {
+      statusLabel.setText("[size=28][color=green]SOLVED");
+      Sounds.playUi(CoreSounds.INTERFACE_BUTTON_FORWARD);
+    }
+    DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_COMPLETE)
+        .accept(null);
   }
 
   /**
@@ -366,6 +421,8 @@ public class PuzzleUI extends Group {
   public void act(float delta) {
     super.act(delta);
     setSize(Game.windowWidth(), Game.windowHeight());
+    // Restored connections can complete the puzzle; wait until dialog callbacks are registered.
+    notifyCompletion();
   }
 
   /**
@@ -416,21 +473,24 @@ public class PuzzleUI extends Group {
     }
   }
 
-  /** A single draggable puzzle piece. */
+  /** A draggable puzzle piece that moves together with its connected neighbors. */
   private class PieceActor extends Group {
     private final int idx;
-    private final float slotX;
-    private final float slotY;
+    private final float imageX;
+    private final float imageY;
     private final float w;
     private final float h;
-    private final Vector2 dragOffsetStage = new Vector2();
+    private final Vector2 dragOffset = new Vector2();
+    private final List<PieceActor> neighbors = new ArrayList<>();
+    private List<PieceActor> cluster = new ArrayList<>();
 
-    PieceActor(int idx, Image img, float slotX, float slotY, float w, float h) {
+    PieceActor(int idx, Image img, float imageX, float imageY, float w, float h) {
       this.idx = idx;
-      this.slotX = slotX;
-      this.slotY = slotY;
+      this.imageX = imageX;
+      this.imageY = imageY;
       this.w = w;
       this.h = h;
+      cluster.add(this);
       addActor(img);
       setSize(w, h);
       setTouchable(Touchable.enabled);
@@ -439,48 +499,121 @@ public class PuzzleUI extends Group {
           new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-              // Solved puzzles are read-only: do not allow dragging pieces back out.
-              if (puzzle.isFullySolved()) return false;
-              toFront();
-              Vector2 stage = localToStageCoordinates(new Vector2(x, y));
-              dragOffsetStage.set(stage.x - getX(), stage.y - getY());
+              if (puzzle.isFullySolved() || dragPointer != -1) return false;
+              dragPointer = pointer;
+              for (PieceActor piece : cluster) {
+                piece.toFront();
+              }
+              dragOffset.set(x, y);
               return true;
             }
 
             @Override
             public void touchDragged(InputEvent event, float x, float y, int pointer) {
-              Vector2 stage = localToStageCoordinates(new Vector2(x, y));
-              setPosition(stage.x - dragOffsetStage.x, stage.y - dragOffsetStage.y);
+              if (pointer != dragPointer) return;
+              Vector2 position = localToParentCoordinates(new Vector2(x, y));
+              setClusterOffset(
+                  position.x - dragOffset.x - imageX, position.y - dragOffset.y - imageY);
             }
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-              if (isAtSlot(new Vector2(getX(), getY()))) {
-                setPosition(slotX, slotY);
-                puzzle.setPiecePosition(idx, new Vector2(slotX, slotY));
-                puzzle.markPlaced(idx);
-              } else {
-                puzzle.setPiecePosition(idx, new Vector2(getX(), getY()));
-                puzzle.unmarkPlaced(idx);
-              }
+              if (pointer != dragPointer) return;
+              dragPointer = -1;
+              if (event.isTouchFocusCancel()) return;
 
-              if (puzzle.isFullySolved()) {
-                if (statusLabel != null) {
-                  statusLabel.setText("[size=28][color=green]SOLVED");
-                  Sounds.playUi(CoreSounds.INTERFACE_BUTTON_FORWARD);
-                }
-                DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_COMPLETE)
-                    .accept(null);
-              }
+              snapToNeighbors();
+              updatePlacedState();
+              notifyCompletion();
             }
           });
     }
 
-    boolean isAtSlot(Vector2 pos) {
-      float dx = pos.x - slotX;
-      float dy = pos.y - slotY;
-      float thr = Math.min(w, h) * SNAP_THRESHOLD_FACTOR;
-      return Math.sqrt(dx * dx + dy * dy) <= thr;
+    @Override
+    public Actor hit(float x, float y, boolean touchable) {
+      if (!isVisible()
+          || (touchable && getTouchable() != Touchable.enabled)
+          || x < 0f
+          || x >= w
+          || y < 0f
+          || y >= h) {
+        return null;
+      }
+      float sourceX = (imageX - sideTrayW + x) / scale;
+      float sourceY = imageH - (imageY + y) / scale;
+      return PuzzleSlicer.contains(puzzle.polygons().get(idx), sourceX, sourceY) ? this : null;
+    }
+
+    private float offsetDistance2(PieceActor other) {
+      float dx = (getX() - imageX) - (other.getX() - other.imageX);
+      float dy = (getY() - imageY) - (other.getY() - other.imageY);
+      return dx * dx + dy * dy;
+    }
+
+    private void setClusterOffset(float offsetX, float offsetY) {
+      for (PieceActor piece : cluster) {
+        piece.setPosition(piece.imageX + offsetX, piece.imageY + offsetY);
+        puzzle.setPiecePosition(piece.idx, new Vector2(piece.getX(), piece.getY()));
+      }
+    }
+
+    private void connectTo(PieceActor other) {
+      if (cluster == other.cluster) return;
+      float offsetX = other.getX() - other.imageX;
+      float offsetY = other.getY() - other.imageY;
+      cluster.addAll(other.cluster);
+      for (PieceActor piece : cluster) {
+        piece.cluster = cluster;
+      }
+      setClusterOffset(offsetX, offsetY);
+    }
+
+    private boolean overlapsImageArea() {
+      // Requiring full containment would force the assembly back onto the original fixed target.
+      for (PieceActor piece : cluster) {
+        if (piece.getX() < sideTrayW + pfW
+            && piece.getX() + piece.w > sideTrayW
+            && piece.getY() < pfH
+            && piece.getY() + piece.h > 0f) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private void snapToNeighbors() {
+      if (!overlapsImageArea()) return;
+      PieceActor closest = null;
+      float closestDistance2 = Float.POSITIVE_INFINITY;
+      for (PieceActor piece : cluster) {
+        for (PieceActor neighbor : piece.neighbors) {
+          if (cluster == neighbor.cluster || !neighbor.overlapsImageArea()) continue;
+          float threshold =
+              Math.max(
+                  MIN_SNAP_DISTANCE,
+                  Math.min(Math.min(piece.w, piece.h), Math.min(neighbor.w, neighbor.h))
+                      * SNAP_THRESHOLD_FACTOR);
+          float distance2 = piece.offsetDistance2(neighbor);
+          if (distance2 <= threshold * threshold && distance2 < closestDistance2) {
+            closest = neighbor;
+            closestDistance2 = distance2;
+          }
+        }
+      }
+      if (closest == null) return;
+      connectTo(closest);
+
+      // Join any other neighbors already aligned by this snap without shifting the assembly again.
+      for (int i = 0; i < cluster.size(); i++) {
+        PieceActor piece = cluster.get(i);
+        for (PieceActor neighbor : piece.neighbors) {
+          if (cluster != neighbor.cluster
+              && neighbor.overlapsImageArea()
+              && piece.offsetDistance2(neighbor) <= CONNECTION_EPSILON * CONNECTION_EPSILON) {
+            connectTo(neighbor);
+          }
+        }
+      }
     }
   }
 }

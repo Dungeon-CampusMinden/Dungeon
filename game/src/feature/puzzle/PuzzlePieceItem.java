@@ -34,7 +34,7 @@ import rooms.lasthour.util.translation.TranslationKey;
  *
  * <p>Unlike most items, {@link #use(Entity)} does <b>not</b> consume the item. Instead it opens the
  * {@link PuzzleDialog} for the calling hero, so the piece stays in the inventory and can still be
- * dragged onto its slot inside the puzzle UI.
+ * joined to neighboring pieces inside the puzzle UI.
  */
 public class PuzzlePieceItem extends Item {
 
