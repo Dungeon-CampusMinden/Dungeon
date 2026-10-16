@@ -43,6 +43,7 @@ import feature.inventory.items.ItemHeart;
 import feature.inventory.items.ItemKey;
 import feature.inventory.items.ItemWoodenArrow;
 import feature.skills.SkillTools;
+import feature.systems.PositionSync;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -218,6 +219,8 @@ public final class MiscFactory {
                               interactor.add(ui);
                             }))));
 
+    // Place the hitbox now; runtimes without CollisionSystem never move it to the chest otherwise.
+    PositionSync.syncPosition(chest);
     return chest;
   }
 
