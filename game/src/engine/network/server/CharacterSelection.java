@@ -209,13 +209,14 @@ public final class CharacterSelection {
   }
 
   /**
-   * Atomically validates and reserves the requested class, or chooses a configured fallback.
+   * Atomically validates and reserves the requested class, or chooses a fallback.
    *
-   * <p>{@code fallbackStartIndex} preserves the existing server round-robin order when no class is
-   * explicitly requested. The caller runs this from the authoritative inbound-message queue.
+   * <p>A single catalog entry is used directly. Otherwise, {@code fallbackStartIndex} preserves the
+   * configured server round-robin order when no class is explicitly requested. The caller runs this
+   * from the authoritative inbound-message queue.
    *
    * @param playerName player identity
-   * @param requested selected class, or empty to use the configured fallback
+   * @param requested selected class, or empty to use a fallback
    * @param fallbackStartIndex first configured fallback index to consider
    * @return admission status and accepted character, if any
    */
@@ -249,7 +250,10 @@ public final class CharacterSelection {
       return new Admission(Status.ACCEPTED, characterClass);
     }
 
-    List<CharacterClass> fallbackClasses = PreRunConfiguration.multiplayerCharacterClasses();
+    List<CharacterClass> fallbackClasses =
+        limits.size() == 1
+            ? List.copyOf(limits.keySet())
+            : PreRunConfiguration.multiplayerCharacterClasses();
     boolean foundConfiguredClass = false;
     int start = Math.floorMod(fallbackStartIndex, fallbackClasses.size());
     for (int offset = 0; offset < fallbackClasses.size(); offset++) {
@@ -276,8 +280,8 @@ public final class CharacterSelection {
   }
 
   /**
-   * Builds the current level catalog, using the configured legacy fallback only when that level has
-   * no available-character markers.
+   * Builds the current level catalog, defaulting to an unlimited Wizard when that level has no
+   * available-character markers.
    *
    * @return class limits in catalog order
    */
@@ -300,9 +304,7 @@ public final class CharacterSelection {
     }
 
     if (!foundMarker) {
-      for (CharacterClass characterClass : PreRunConfiguration.multiplayerCharacterClasses()) {
-        limits.putIfAbsent(characterClass, -1);
-      }
+      limits.put(CharacterClass.WIZARD, -1);
     }
     return limits;
   }

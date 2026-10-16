@@ -132,6 +132,7 @@ public class MainMenuScreen extends ScreenAdapter {
     CREDITS,
     HOST_NAME,
     JOIN,
+    CONNECTING,
     CHARACTER_SELECT
   }
 
@@ -743,6 +744,20 @@ public class MainMenuScreen extends ScreenAdapter {
     stage.setKeyboardFocus(null);
   }
 
+  private void showConnectingView() {
+    activeView = View.CONNECTING;
+    Table connecting = new Table();
+    connecting
+        .add(label(trans.text("connecting_to_server"), 28, PANEL_TEXT_COLOR))
+        .padBottom(16)
+        .row();
+    connecting
+        .add(menuButton(trans.text(T_BACK), "red-outline", this::backFromCharacterSelect))
+        .width(BUTTON_WIDTH);
+    swapContent(connecting);
+    stage.setKeyboardFocus(null);
+  }
+
   private void beginCharacterDiscovery(
       String host, int port, String playerName, View returnView, boolean hosted) {
     if (stage == null || handingOffToGame) {
@@ -763,7 +778,7 @@ public class MainMenuScreen extends ScreenAdapter {
     characterCarousel.setOptions(List.of(), null);
     boolean validateJoin = !hosted && returnView == View.JOIN;
     if (!validateJoin) {
-      showCharacterSelectionView();
+      showConnectingView();
     }
     requestCharacterOptions(validateJoin);
   }
@@ -824,19 +839,26 @@ public class MainMenuScreen extends ScreenAdapter {
                         if (validateJoin || recoveringDiscovery) {
                           selectionStatusMessage = "";
                         }
-                        if (validateJoin) {
-                          showCharacterSelectionView();
-                          return;
-                        }
                       }
                       characterCarousel.setOptions(currentCharacterOptions, selectedCharacter);
                       characterSelectionStatusLabel.setText(selectionStatusMessage);
                       updateCharacterConfirmButton();
+                      if (validateJoin || requestView == View.CONNECTING) {
+                        if (error == null
+                            && currentCharacterOptions.size() == 1
+                            && currentCharacterOptions.getFirst().selectable()) {
+                          showConnectingView();
+                          beginAdmission();
+                        } else {
+                          showCharacterSelectionView();
+                        }
+                      }
                     }));
   }
 
   private boolean isCurrentPregameOperation(long operation) {
-    return operation == pregameGeneration && activeView == View.CHARACTER_SELECT;
+    return operation == pregameGeneration
+        && (activeView == View.CHARACTER_SELECT || activeView == View.CONNECTING);
   }
 
   private void cancelOptionsRequest() {
@@ -1001,17 +1023,19 @@ public class MainMenuScreen extends ScreenAdapter {
     admissionRejection = null;
     selectionStatusMessage = message;
     characterSelectionStatusLabel.setText(message);
+    admissionCleanupPending = true;
     if (!selectionHosted && rejection != ConnectReject.Reason.CHARACTER_UNAVAILABLE) {
       showJoinView();
       joinStatusLabel.setText(message);
       setJoinControlsDisabled(true);
+    } else if (activeView == View.CONNECTING) {
+      showCharacterSelectionView();
     }
     ConnectionListener listener = admissionListener;
     admissionListener = null;
     if (listener != null) {
       Game.network().removeConnectionListener(listener);
     }
-    admissionCleanupPending = true;
     long cleanupGeneration = ++pregameGeneration;
     Thread cleanup =
         new Thread(
@@ -1101,7 +1125,7 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private void backFromCharacterSelect() {
-    if (activeView != View.CHARACTER_SELECT) {
+    if (activeView != View.CHARACTER_SELECT && activeView != View.CONNECTING) {
       return;
     }
     cancelPregameConnection();
@@ -1206,6 +1230,8 @@ public class MainMenuScreen extends ScreenAdapter {
       showHostNameViewInternal();
     } else if (activeView == View.JOIN) {
       showJoinView();
+    } else if (activeView == View.CONNECTING) {
+      showConnectingView();
     } else if (activeView == View.CHARACTER_SELECT) {
       showCharacterSelectionView();
     } else {

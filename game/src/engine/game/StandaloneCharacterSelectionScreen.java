@@ -41,6 +41,21 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
 
   @Override
   public void show() {
+    localHeroes =
+        Game.allPlayers()
+            .filter(
+                entity ->
+                    entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false))
+            .toList();
+    localHeroes.forEach(Game::remove);
+    List<CharacterOptions.Option> options =
+        CharacterSelection.options(PreRunConfiguration.username());
+    if (options.size() == 1
+        && options.getFirst().selectable()
+        && selectCharacter(options.getFirst().characterClass())) {
+      return;
+    }
+
     int width = Game.windowWidth() > 0 ? Game.windowWidth() : PreRunConfiguration.windowWidth();
     int height = Game.windowHeight() > 0 ? Game.windowHeight() : PreRunConfiguration.windowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
@@ -88,13 +103,6 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
     root.add(content);
     stage.addActor(root);
     Gdx.input.setInputProcessor(stage);
-    localHeroes =
-        Game.allPlayers()
-            .filter(
-                entity ->
-                    entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false))
-            .toList();
-    localHeroes.forEach(Game::remove);
     refreshOptions();
   }
 
@@ -117,16 +125,21 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
         .filter(CharacterOptions.Option::selectable)
         .ifPresent(
             option -> {
-              String playerName = PreRunConfiguration.username();
-              if (!CharacterSelection.assign(playerName, option.characterClass())) {
+              if (!selectCharacter(option.characterClass())) {
                 refreshOptions();
                 status.setText(trans.text("character_changed"));
-                return;
               }
-              PreRunConfiguration.multiplayerCharacterClass(option.characterClass());
-              materializeSelectedHeroes(option.characterClass());
-              GameLoop.finishStandaloneCharacterSelection();
             });
+  }
+
+  private boolean selectCharacter(CharacterClass characterClass) {
+    if (!CharacterSelection.assign(PreRunConfiguration.username(), characterClass)) {
+      return false;
+    }
+    PreRunConfiguration.multiplayerCharacterClass(characterClass);
+    materializeSelectedHeroes(characterClass);
+    GameLoop.finishStandaloneCharacterSelection();
+    return true;
   }
 
   private void materializeSelectedHeroes(CharacterClass characterClass) {
