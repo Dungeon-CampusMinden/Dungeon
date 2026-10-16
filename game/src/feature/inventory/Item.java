@@ -23,6 +23,7 @@ import feature.inventory.items.ItemResourceEgg;
 import feature.inventory.items.ItemResourceMushroomRed;
 import feature.inventory.items.ItemWoodenArrow;
 import feature.inventory.items.ItemWoodenBow;
+import feature.tasks.AnswerItem;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -75,6 +76,7 @@ public class Item {
     ItemRegistry.register(ItemHeart.class, Item::createHeartFromData);
     ItemRegistry.register(ItemKey.class);
     HintItem.ensureRegistration();
+    AnswerItem.ensureRegistration();
   }
 
   private String displayName;

@@ -1,6 +1,6 @@
 package escaperoom.foundation.runtime;
 
-/** Non-secret evaluation outcome of one numeric-code command. */
+/** Non-secret evaluation outcome of one numeric-code or choice command. */
 public enum CodeOutcome {
   /** The supplied attempt exactly matched and completed the active riddle. */
   CORRECT,

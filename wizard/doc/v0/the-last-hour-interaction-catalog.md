@@ -46,7 +46,7 @@ Der implementierte Foundation-Slice deckt damit die Kette von UI-Eingabe über
 In-Memory-Ableitung ab. Die vollständige Parametersemantik steht
 ausschließlich in der DEER-Spezifikation. Der Soll-Slice erhält eine geteilte
 Surface-Identität über Authoring, Placement und Runtime und kennt nur `world`,
-`container`, `keypad` und `door`. Rätsel selbst besitzen mindestens einen
+`container`, `keypad`, `terminal`, `assignment` und `door`. Rätsel selbst besitzen mindestens einen
 Input und erzeugen ausschließlich ihren impliziten Abschluss für den Graphen.
 
 Der vorhandene The-Last-Hour-Computer wird nicht als `device` oder als

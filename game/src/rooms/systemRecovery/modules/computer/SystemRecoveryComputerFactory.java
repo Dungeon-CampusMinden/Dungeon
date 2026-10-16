@@ -146,6 +146,7 @@ public final class SystemRecoveryComputerFactory {
             ChoiceOption.of(insertLabel, "insert"),
             ChoiceOption.of(SystemRecoveryText.key("computer.without-chip"), "cancel")),
         false,
+        false,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String choice)
               && "insert".equals(choice)) {

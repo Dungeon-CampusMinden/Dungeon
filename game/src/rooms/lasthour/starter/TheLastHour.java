@@ -36,7 +36,6 @@ import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerSystem;
-import feature.utils.ItemDropSystem;
 import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
@@ -296,7 +295,6 @@ public class TheLastHour {
     ECSManagement.add(new PetriNetSystem());
     ECSManagement.add(new LastHourPlayerStateSystem());
     ECSManagement.add(new ComputerStateSyncSystem());
-    ECSManagement.add(new ItemDropSystem());
 
     registerLocalWorldTimerSystem();
 

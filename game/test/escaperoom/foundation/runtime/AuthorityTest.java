@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import escaperoom.foundation.definition.AssignmentInputDefinition;
+import escaperoom.foundation.definition.ChoiceInputDefinition;
 import escaperoom.foundation.definition.CollectionInputDefinition;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.DoorDefinition;
@@ -23,9 +25,13 @@ import escaperoom.foundation.definition.TimerDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.runtime.Projection.ProgressStatus;
 import escaperoom.foundation.runtime.Projection.TimerState;
+import feature.tasks.AssignmentTask;
+import feature.tasks.ChoiceTask;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /** Production-semantics tests for deterministic composed Foundation authority. */
@@ -78,6 +84,56 @@ final class AuthorityTest {
         authority.attemptCode("parallel_code", "parallel_input", "24").outcome());
     assertEquals(ProgressStatus.SOLVED, riddle(authority, "parallel_code").status());
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "final_code").status());
+  }
+
+  @Test
+  void choiceAndAssignmentInputsAreEvaluatedByTheirTasks() {
+    ChoiceTask question =
+        new ChoiceTask(
+            "Welche?",
+            List.of(new ChoiceTask.Option("a", "A"), new ChoiceTask.Option("b", "B")),
+            Set.of("a", "b"),
+            true);
+    AssignmentTask sorting =
+        new AssignmentTask("", Set.of("food"), Set.of("bread", "cat"), Map.of("bread", "food"));
+    ComposedRiddleDefinition riddle =
+        new ComposedRiddleDefinition(
+            "sort",
+            List.of(),
+            List.of(
+                new ChoiceInputDefinition("question", "terminal", question),
+                new AssignmentInputDefinition("boxes", "boxes_surface", sorting)),
+            List.of());
+    Authority authority =
+        new Authority(
+            new RoomDefinition(
+                "task_room",
+                1,
+                new RosterDefinition(List.of(new RosterSlotDefinition("slot_1", 1))),
+                new ProgressionDefinition(
+                    "start",
+                    "exit",
+                    List.of(new RiddleNode("n_sort", riddle)),
+                    List.of(new Edge("start", "n_sort"), new Edge("n_sort", "exit"))),
+                new TimerDefinition(10, TimerMode.HARD),
+                new DoorDefinition("door"),
+                new ExitDefinition("exit", "door")));
+    ready(authority);
+
+    assertEquals(
+        CodeOutcome.INCORRECT, authority.attemptChoice("sort", "question", Set.of("a")).outcome());
+    assertEquals(
+        CodeOutcome.CORRECT,
+        authority.attemptChoice("sort", "question", Set.of("a", "b")).outcome());
+    assertEquals(
+        CodeOutcome.INCORRECT,
+        authority
+            .attemptAssignment("sort", "boxes", Map.of("bread", "food", "cat", "food"))
+            .outcome());
+    assertEquals(
+        CodeOutcome.CORRECT,
+        authority.attemptAssignment("sort", "boxes", Map.of("bread", "food")).outcome());
+    assertEquals(ProgressStatus.SOLVED, riddle(authority, "sort").status());
   }
 
   @Test

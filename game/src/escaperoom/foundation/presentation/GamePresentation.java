@@ -1,11 +1,17 @@
 package escaperoom.foundation.presentation;
 
+import escaperoom.foundation.definition.AssignmentInputDefinition;
+import escaperoom.foundation.definition.ChoiceInputDefinition;
+import escaperoom.foundation.definition.InputDefinition;
+import escaperoom.foundation.definition.NumericInputDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.runtime.TerminalResult;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Immutable player-facing content for one Foundation room.
@@ -43,7 +49,7 @@ public record GamePresentation(
           register(identifiers, resource.id(), "information source resource");
         }
       }
-      for (NumericInputPresentation input : riddle.inputs()) {
+      for (InputPresentation input : riddle.inputs()) {
         register(identifiers, input.id(), "input");
       }
     }
@@ -71,12 +77,12 @@ public record GamePresentation(
    *
    * @param id stable riddle identifier
    * @param informationSources readable source presentations
-   * @param inputs numeric input-device presentations
+   * @param inputs surface-bound input-device presentations
    */
   public record ComposedPresentation(
       String id,
       List<InformationSourcePresentation> informationSources,
-      List<NumericInputPresentation> inputs) {
+      List<InputPresentation> inputs) {
     /** Creates immutable composed presentation content. */
     public ComposedPresentation {
       id = required(id, "composed presentation id");
@@ -114,6 +120,50 @@ public record GamePresentation(
     }
   }
 
+  /** Presentation for one surface-bound input device without its answer. */
+  public sealed interface InputPresentation
+      permits AssignmentInputPresentation, ChoiceInputPresentation, NumericInputPresentation {
+    /**
+     * Returns the stable input identifier.
+     *
+     * @return stable identifier
+     */
+    String id();
+
+    /**
+     * Reports whether this presentation shows exactly the given host definition.
+     *
+     * @param definition host-owned input definition
+     * @return {@code true} when identity, device variant, and answer shape match
+     */
+    boolean presents(SurfaceInputDefinition definition);
+
+    /**
+     * Reports whether the presentations show the surface-bound definitions one by one in order.
+     *
+     * @param definitions riddle input definitions, including collection inputs
+     * @param presentations riddle input presentations
+     * @return {@code true} when every surface-bound definition has its matching presentation
+     */
+    static boolean presentsAll(
+        final List<InputDefinition> definitions, final List<InputPresentation> presentations) {
+      List<SurfaceInputDefinition> surfaceInputs =
+          definitions.stream()
+              .filter(SurfaceInputDefinition.class::isInstance)
+              .map(SurfaceInputDefinition.class::cast)
+              .toList();
+      if (surfaceInputs.size() != presentations.size()) {
+        return false;
+      }
+      for (int index = 0; index < surfaceInputs.size(); index++) {
+        if (!presentations.get(index).presents(surfaceInputs.get(index))) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
   /**
    * Presentation for one numeric keypad without its answer.
    *
@@ -121,12 +171,116 @@ public record GamePresentation(
    * @param surfaceId authored keypad surface identifier
    * @param title player-facing keypad title
    */
-  public record NumericInputPresentation(String id, String surfaceId, String title) {
+  public record NumericInputPresentation(String id, String surfaceId, String title)
+      implements InputPresentation {
     /** Creates immutable numeric input presentation. */
     public NumericInputPresentation {
       id = required(id, "numeric input presentation id");
       surfaceId = required(surfaceId, "numeric input presentation surface id");
       title = required(title, "numeric input presentation title");
+    }
+
+    @Override
+    public boolean presents(final SurfaceInputDefinition definition) {
+      return definition instanceof NumericInputDefinition numeric
+          && numeric.id().equals(id)
+          && numeric.surfaceId().equals(surfaceId);
+    }
+  }
+
+  /**
+   * Presentation for one choice question terminal; the question itself is part of the definition.
+   *
+   * @param id stable input identifier
+   * @param surfaceId authored terminal surface identifier
+   * @param title player-facing terminal title
+   */
+  public record ChoiceInputPresentation(String id, String surfaceId, String title)
+      implements InputPresentation {
+    /** Creates immutable choice input presentation. */
+    public ChoiceInputPresentation {
+      id = required(id, "choice input presentation id");
+      surfaceId = required(surfaceId, "choice input presentation surface id");
+      title = required(title, "choice input presentation title");
+    }
+
+    @Override
+    public boolean presents(final SurfaceInputDefinition definition) {
+      return definition instanceof ChoiceInputDefinition choice
+          && choice.id().equals(id)
+          && choice.surfaceId().equals(surfaceId);
+    }
+  }
+
+  /**
+   * Presentation for the containers and answer items of one assignment.
+   *
+   * @param id stable input identifier
+   * @param surfaceId authored assignment surface identifier
+   * @param containers containers in placement order
+   * @param items answer items in placement order
+   */
+  public record AssignmentInputPresentation(
+      String id,
+      String surfaceId,
+      List<AssignmentContainerPresentation> containers,
+      List<AssignmentItemPresentation> items)
+      implements InputPresentation {
+    /** Creates immutable assignment input presentation. */
+    public AssignmentInputPresentation {
+      id = required(id, "assignment input presentation id");
+      surfaceId = required(surfaceId, "assignment input presentation surface id");
+      containers = List.copyOf(Objects.requireNonNull(containers, "containers"));
+      items = List.copyOf(Objects.requireNonNull(items, "items"));
+    }
+
+    @Override
+    public boolean presents(final SurfaceInputDefinition definition) {
+      return definition instanceof AssignmentInputDefinition assignment
+          && assignment.id().equals(id)
+          && assignment.surfaceId().equals(surfaceId)
+          && assignment
+              .task()
+              .containerIds()
+              .equals(
+                  containers.stream()
+                      .map(AssignmentContainerPresentation::id)
+                      .collect(Collectors.toSet()))
+          && assignment
+              .task()
+              .itemIds()
+              .equals(
+                  items.stream().map(AssignmentItemPresentation::id).collect(Collectors.toSet()));
+    }
+  }
+
+  /**
+   * One assignment container.
+   *
+   * @param id stable container identifier
+   * @param title player-facing container title
+   */
+  public record AssignmentContainerPresentation(String id, String title) {
+    /** Creates immutable container presentation. */
+    public AssignmentContainerPresentation {
+      id = required(id, "assignment container id");
+      title = required(title, "assignment container title");
+    }
+  }
+
+  /**
+   * One assignment answer item.
+   *
+   * @param id stable item identifier
+   * @param name player-facing item name
+   * @param sprite bundled sprite asset path
+   */
+  public record AssignmentItemPresentation(String id, String name, String sprite) {
+    /** Creates immutable item presentation. */
+    public AssignmentItemPresentation {
+      id = required(id, "assignment item id");
+      name = required(name, "assignment item name");
+      sprite = required(sprite, "assignment item sprite");
     }
   }
 

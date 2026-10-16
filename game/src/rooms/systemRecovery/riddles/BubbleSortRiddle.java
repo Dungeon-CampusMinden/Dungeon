@@ -161,6 +161,7 @@ public final class BubbleSortRiddle {
             ChoiceOption.of(SystemRecoveryText.key("world.sort.insert"), "insert"),
             ChoiceOption.of(SystemRecoveryText.key("world.sort.cancel"), "cancel")),
         false,
+        false,
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String choice))
               || !"insert".equals(choice)) {

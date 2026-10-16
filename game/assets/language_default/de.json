@@ -17,7 +17,8 @@
             "placeholder": "Deine Antwort..."
         },
         "multiple_choice_dialog": {
-            "cancel": "Abbrechen"
+            "cancel": "Abbrechen",
+            "confirm": "Bestätigen"
         },
         "survey": {
             "page": "Seite $1 von $2",

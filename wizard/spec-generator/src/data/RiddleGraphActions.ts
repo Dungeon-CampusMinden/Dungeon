@@ -3,7 +3,10 @@ import type {
   DeerProject,
   InformationSource,
   Riddle,
+  Surface,
+  SurfaceRiddleInput,
 } from "./DeerSchema";
+import { ASSIGNMENT_SPRITES } from "./DeerSchema";
 import { Util } from "./Util";
 
 export function addRiddle(project: DeerProject, riddle: Riddle): void {
@@ -20,9 +23,7 @@ export function removeRiddle(project: DeerProject, riddleId: string): string[] {
   if (riddle) {
     const ownedSurfaceIds = new Set([
       ...riddle.informationSources.map((source) => source.surfaceId),
-      ...riddle.inputs
-        .filter((input) => input.type === "numeric")
-        .map((input) => input.surfaceId),
+      ...riddle.inputs.flatMap((input) => (input.type === "collection" ? [] : [input.surfaceId])),
     ]);
     project.surfaces = project.surfaces.filter((surface) => !ownedSurfaceIds.has(surface.id));
   }
@@ -61,24 +62,67 @@ export function removeInformationSource(project: DeerProject, riddle: Riddle, so
   }
 }
 
-export function addRiddleInput(project: DeerProject, riddle: Riddle): void {
+const DEVICE_SURFACES = {
+  numeric: { kind: "keypad", title: "Zahlengerät" },
+  choice: { kind: "terminal", title: "Fragestation" },
+  assignment: { kind: "assignment", title: "Zuordnung" },
+} as const satisfies Record<SurfaceRiddleInput["type"], Pick<Surface, "kind" | "title">>;
+
+/** Creates an input of the given type and the device surface it needs. */
+function createRiddleInput(
+  project: DeerProject,
+  riddle: Riddle,
+  id: string,
+  type: AnyRiddleInput["type"],
+): AnyRiddleInput {
+  if (type === "collection") {
+    return { id, type, informationSourceId: riddle.informationSources[0]?.id ?? "" };
+  }
   const surfaceId = Util.generateUniqueId("s");
-  project.surfaces.push({ id: surfaceId, kind: "keypad", title: "Zahlengerät" });
-  riddle.inputs.push({
-    id: Util.generateUniqueId("input"),
-    type: "numeric",
+  project.surfaces.push({ id: surfaceId, ...DEVICE_SURFACES[type] });
+  if (type === "numeric") {
+    return { id, type, surfaceId, answer: "", showDigitCount: true };
+  }
+  if (type === "assignment") {
+    const containerId = Util.generateUniqueId("box");
+    return {
+      id,
+      type,
+      surfaceId,
+      containers: [{ id: containerId, name: "" }],
+      items: [
+        { id: Util.generateUniqueId("item"), name: "", sprite: ASSIGNMENT_SPRITES[0].path, containerId },
+        { id: Util.generateUniqueId("item"), name: "", sprite: ASSIGNMENT_SPRITES[1].path },
+      ],
+    };
+  }
+  return {
+    id,
+    type,
     surfaceId,
-    answer: "",
-    showDigitCount: true,
-  });
+    question: "",
+    options: [
+      { id: Util.generateUniqueId("opt"), text: "" },
+      { id: Util.generateUniqueId("opt"), text: "" },
+    ],
+    correctOptionIds: [],
+    multipleSelection: false,
+  };
+}
+
+function removeInputSurface(project: DeerProject, input: AnyRiddleInput): void {
+  if (input.type === "collection") return;
+  project.surfaces = project.surfaces.filter((surface) => surface.id !== input.surfaceId);
+}
+
+export function addRiddleInput(project: DeerProject, riddle: Riddle): void {
+  riddle.inputs.push(createRiddleInput(project, riddle, Util.generateUniqueId("input"), "numeric"));
 }
 
 export function removeRiddleInput(project: DeerProject, riddle: Riddle, inputId: string): void {
   const input = riddle.inputs.find((candidate) => candidate.id === inputId);
   if (!input) return;
-  if (input.type === "numeric") {
-    project.surfaces = project.surfaces.filter((surface) => surface.id !== input.surfaceId);
-  }
+  removeInputSurface(project, input);
   riddle.inputs = riddle.inputs.filter((candidate) => candidate.id !== inputId);
 }
 
@@ -90,23 +134,6 @@ export function convertRiddleInput(
 ): void {
   const index = riddle.inputs.findIndex((candidate) => candidate.id === inputId);
   if (index === -1 || riddle.inputs[index].type === type) return;
-  const input = riddle.inputs[index];
-  if (input.type === "numeric") {
-    project.surfaces = project.surfaces.filter((surface) => surface.id !== input.surfaceId);
-    riddle.inputs[index] = {
-      id: input.id,
-      type: "collection",
-      informationSourceId: riddle.informationSources[0]?.id ?? "",
-    };
-    return;
-  }
-  const surfaceId = Util.generateUniqueId("s");
-  project.surfaces.push({ id: surfaceId, kind: "keypad", title: "Zahlengerät" });
-  riddle.inputs[index] = {
-    id: input.id,
-    type: "numeric",
-    surfaceId,
-    answer: "",
-    showDigitCount: true,
-  };
+  removeInputSurface(project, riddle.inputs[index]);
+  riddle.inputs[index] = createRiddleInput(project, riddle, inputId, type);
 }

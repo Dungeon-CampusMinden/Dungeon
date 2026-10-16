@@ -63,8 +63,8 @@ public class TaskComponent<T> implements Component {
     this.attempts.add(answer);
 
     if (task.isCorrect(answer)) {
-      onCorrect.accept(source);
       this.solved = true;
+      onCorrect.accept(source);
     } else {
       onWrong.accept(source);
     }

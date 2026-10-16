@@ -331,6 +331,8 @@
             "world",
             "container",
             "keypad",
+            "terminal",
+            "assignment",
             "door"
           ]
         },
@@ -558,6 +560,12 @@
         },
         {
           "$ref": "#/$defs/numericInput"
+        },
+        {
+          "$ref": "#/$defs/choiceInput"
+        },
+        {
+          "$ref": "#/$defs/assignmentInput"
         }
       ]
     },
@@ -607,6 +615,172 @@
         },
         "showDigitCount": {
           "type": "boolean"
+        }
+      }
+    },
+    "choiceInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "surfaceId",
+        "question",
+        "options",
+        "correctOptionIds",
+        "multipleSelection"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "choice"
+        },
+        "surfaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "question": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/choiceOption"
+          }
+        },
+        "correctOptionIds": {
+          "$ref": "#/$defs/nonEmptyIdArray"
+        },
+        "multipleSelection": {
+          "type": "boolean"
+        }
+      },
+      "if": {
+        "properties": {
+          "multipleSelection": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "correctOptionIds": {
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    "choiceOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "$ref": "#/$defs/nonBlankString"
+        }
+      }
+    },
+    "assignmentInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "surfaceId",
+        "containers",
+        "items"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "assignment"
+        },
+        "surfaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "containers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/assignmentContainer"
+          }
+        },
+        "items": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/assignmentItem"
+          },
+          "contains": {
+            "required": [
+              "containerId"
+            ]
+          }
+        }
+      }
+    },
+    "assignmentContainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "$ref": "#/$defs/nonBlankString"
+        }
+      }
+    },
+    "assignmentItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "sprite"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "sprite": {
+          "enum": [
+            "items/book/letter.png",
+            "items/book/magic_scroll.png",
+            "items/rpg/item_book_blue.png",
+            "items/potion/health_potion.png",
+            "items/rpg/food_bread.png",
+            "items/rpg/food_apple.png",
+            "items/key/gold_key.png",
+            "items/resource/gold.png",
+            "items/resource/emerald.png",
+            "items/resource/wood.png",
+            "items/resource/flower_red.png",
+            "items/resource/stone.png"
+          ]
+        },
+        "containerId": {
+          "$ref": "#/$defs/id"
         }
       }
     },

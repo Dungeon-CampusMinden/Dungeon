@@ -26,6 +26,7 @@ final class FoundationTracking {
   synchronized void attempt(
       final String riddleId,
       final String inputId,
+      final String answerKind,
       final String rawAnswer,
       final CodeAttemptResult result,
       final Entity player) {
@@ -38,7 +39,7 @@ final class FoundationTracking {
                 Tracking.attempt(
                     riddleId,
                     inputId,
-                    "numeric-code",
+                    answerKind,
                     rawAnswer,
                     result.outcome() == CodeOutcome.CORRECT,
                     participantId));

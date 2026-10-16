@@ -202,10 +202,13 @@ ausschließlich:
 - `world`: der gemeinsame Raum, genau einmal;
 - `container`: Fund in einem Behälter;
 - `keypad`: numerische Eingabe;
+- `terminal`: Fragestation für eine Auswahlfrage;
+- `assignment`: Kisten und Gegenstände einer Zuordnung;
 - `door`: gemeinsamer Ausgang, genau einmal.
 
 Jede `container`-Surface gehört im Foundation-Profil genau einer
-Informationsquelle und jede `keypad`-Surface genau einem Input. Die
+Informationsquelle und jede `keypad`-, `terminal`- oder `assignment`-Surface
+genau einem Input. Die
 `world`-Surface beschreibt den gemeinsamen Raum und ist keine Fundstation. Der
 Endknoten referenziert die `door`-Surface. Diese Surface-IDs bleiben vom
 DEER-Projekt über Layoutplatzierung bis zur Foundation-Runtime identisch.
@@ -213,8 +216,10 @@ DEER-Projekt über Layoutplatzierung bis zur Foundation-Runtime identisch.
 Diese technischen Datensätze sind in der Authoring-UI verborgen. Lehrende
 bearbeiten Rätsel, Informationsquellen und Eingaben, aber keine Orte oder
 Geräte. Die UI verwaltet genau eine World- und Door-Surface sowie je eine
-private Container-Surface pro Quelle und Keypad-Surface pro Numeric-Input. Die
-Titel dieser Container- und Keypad-Surfaces erzeugt die Projektion intern.
+private Container-Surface pro Quelle, Keypad-Surface pro Numeric-Input und
+Terminal-Surface pro Choice-Input und Assignment-Surface pro Assignment-Input.
+Die Titel dieser Geräte-Surfaces erzeugt die
+Projektion intern.
 Collection-Inputs verwenden die Surface der gewählten Quelle und besitzen
 keine eigene. Erzeugen, Löschen und Typwechsel ändern Surfacebestand und
 Besitzer atomar; Umbenennen oder Umordnen ändert keine stabile ID. Eine
@@ -335,6 +340,65 @@ Ziffern und den expliziten Boolean `showDigitCount`. Falsche Versuche bleiben
 unbegrenzt möglich. Die Lösung liegt bei jedem Teilnehmer in der vollständigen
 lokalen Definition; ausgewertet und als Fortschritt übernommen wird sie
 ausschließlich hostautoritativ.
+
+Die Auswahlfrage ist die Variante `type=choice`:
+
+```json
+{
+  "id": "input_safety_question",
+  "type": "choice",
+  "surfaceId": "s_safety_terminal",
+  "question": "Welche Maßnahmen schützen das Passwort?",
+  "options": [
+    { "id": "opt_length", "text": "Ein langes Passwort" },
+    { "id": "opt_sticky_note", "text": "Ein Zettel am Monitor" },
+    { "id": "opt_two_factor", "text": "Zwei-Faktor-Anmeldung" }
+  ],
+  "correctOptionIds": ["opt_length", "opt_two_factor"],
+  "multipleSelection": true
+}
+```
+
+Sie enthält `surfaceId` auf eine Terminal-Surface, eine nicht leere `question`,
+zwei bis sechs `options` mit stabiler `id` und nicht leerem `text`, die
+nicht leere, eindeutige Menge `correctOptionIds` und den expliziten Boolean
+`multipleSelection`. Ohne Mehrfachauswahl ist genau eine Option richtig, und
+die Spieler bestätigen eine Option mit einem Klick. Mit Mehrfachauswahl
+markieren sie beliebig viele Optionen und bestätigen sie gemeinsam. Ein Versuch
+ist genau dann richtig, wenn er exakt die Menge `correctOptionIds` auswählt.
+Falsche Versuche bleiben wie beim Zahlencode unbegrenzt möglich und werden
+ausschließlich hostautoritativ ausgewertet.
+
+Die Zuordnung ist die Variante `type=assignment`:
+
+```json
+{
+  "id": "input_sort_supplies",
+  "type": "assignment",
+  "surfaceId": "s_sort_supplies",
+  "containers": [
+    { "id": "box_food", "name": "Essens-Kiste" },
+    { "id": "box_magic", "name": "Zauber-Kiste" }
+  ],
+  "items": [
+    { "id": "item_bread", "name": "Brot", "sprite": "items/rpg/food_bread.png", "containerId": "box_food" },
+    { "id": "item_scroll", "name": "Spruchrolle", "sprite": "items/book/magic_scroll.png", "containerId": "box_magic" },
+    { "id": "item_stone", "name": "Stein", "sprite": "items/resource/stone.png" }
+  ]
+}
+```
+
+Sie enthält `surfaceId` auf eine Assignment-Surface, ein bis vier `containers`
+mit stabiler `id` und nicht leerem `name` sowie zwei bis acht `items` mit
+stabiler `id`, nicht leerem `name`, einem `sprite` aus dem festen Katalog
+gebündelter Item-Sprites und optional `containerId`. Ein Item ohne
+`containerId` gehört in keine Kiste; mindestens ein Item hat ein Ziel. Jede
+Kiste und jedes Item erhält einen eigenen Placementpunkt. Die Kisten tragen ihren
+Namen als Inventartitel, die Items liegen zu Beginn im Raum. Die Zuordnung ist
+genau dann gelöst, wenn jedes Item mit Ziel in seiner Kiste und jedes Item ohne
+Ziel in keiner der Kisten liegt; andere Gegenstände in den Kisten zählen nicht.
+Der Host prüft nach jeder Änderung der Kisteninhalte und einmal, sobald das
+Rätsel aktiv wird. Falsche Zwischenstände sind keine Versuche.
 
 Die Variante `type=collection` enthält eine `informationSourceId` und verwendet
 dieselbe Surface wie diese Quelle; sie erzeugt keinen eigenen Placementpunkt.
@@ -532,12 +596,18 @@ Werte. Dazu gehören insbesondere:
 - mindestens einen Input in jedem Rätsel;
 - vollständige Lernziel-, Debriefing-, Zielgruppen-, Schätzungs- und
   Provenienzfelder;
-- geschlossene Informationsquellen-, Numeric- und Collection-Varianten.
+- geschlossene Informationsquellen-, Numeric-, Choice-, Assignment- und
+  Collection-Varianten;
+- zwei bis sechs Optionen je Choice-Input und genau eine richtige Option ohne
+  Mehrfachauswahl;
+- ein bis vier Kisten und zwei bis acht Items je Assignment-Input, mindestens
+  ein Item mit Ziel und Sprites aus dem Katalog.
 
 Die semantische Prüfung ist auf dokumentübergreifende Regeln begrenzt:
 
 - global eindeutige aktuell interpretierte Laufzeit-IDs einschließlich
-  Informationsquellen und Inputs sowie existierende Referenzen auf Surfaces,
+  Informationsquellen, Inputs, Choice-Optionen, Kisten und Items sowie existierende Referenzen
+  auf Surfaces,
   Graphknoten, Rätsel und Assets;
 - `session.playerCount.min <= session.playerCount.max`;
 - Graphreichweite, Azyklizität, Rätsel-Bijektion und die mandatory
@@ -545,8 +615,10 @@ Die semantische Prüfung ist auf dokumentübergreifende Regeln begrenzt:
 - unbekannte oder inkompatible Surface-Referenzen;
 - genau eine World- und Door-Surface;
 - genau eine Informationsquelle je Container-Surface und genau ein Input je
-  Keypad-Surface;
+  Keypad-, Terminal- oder Assignment-Surface;
 - existierende rätseleigene `informationSourceId` jedes Collection-Inputs;
+- `correctOptionIds` jedes Choice-Inputs referenzieren eigene Optionen;
+- `containerId` jedes Assignment-Items referenziert eine eigene Kiste;
 - eine Door-Surface am Endknoten.
 
 Damit kann kein Input vor Aktivierung seines Rätsels wirksamen Teilfortschritt

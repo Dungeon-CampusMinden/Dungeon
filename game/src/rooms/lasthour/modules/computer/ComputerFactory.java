@@ -129,6 +129,7 @@ public class ComputerFactory {
         null,
         options,
         false,
+        false,
         data -> {
           String choice = (data instanceof DialogResponseMessage.StringValue(String s)) ? s : null;
           if (choice == null || TranslationKey.ComputerAccessText.equals(choice)) {

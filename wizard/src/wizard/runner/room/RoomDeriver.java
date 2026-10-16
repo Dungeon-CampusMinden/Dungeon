@@ -1,5 +1,7 @@
 package wizard.runner.room;
 
+import escaperoom.foundation.definition.AssignmentInputDefinition;
+import escaperoom.foundation.definition.ChoiceInputDefinition;
 import escaperoom.foundation.definition.CollectionInputDefinition;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.DoorDefinition;
@@ -17,23 +19,36 @@ import escaperoom.foundation.definition.RosterSlotDefinition;
 import escaperoom.foundation.definition.TimerDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.presentation.GamePresentation;
+import escaperoom.foundation.presentation.GamePresentation.AssignmentContainerPresentation;
+import escaperoom.foundation.presentation.GamePresentation.AssignmentInputPresentation;
+import escaperoom.foundation.presentation.GamePresentation.AssignmentItemPresentation;
+import escaperoom.foundation.presentation.GamePresentation.ChoiceInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
+import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import escaperoom.foundation.room.model.FoundationRoom;
 import escaperoom.foundation.room.model.RoomLayout;
 import escaperoom.foundation.room.model.VerifiedAsset;
+import feature.tasks.AssignmentTask;
+import feature.tasks.ChoiceTask;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import wizard.runner.model.ProjectDefinition;
 import wizard.runner.model.ProjectDefinition.Asset;
+import wizard.runner.model.ProjectDefinition.AssignmentContainer;
+import wizard.runner.model.ProjectDefinition.AssignmentInput;
+import wizard.runner.model.ProjectDefinition.AssignmentItem;
+import wizard.runner.model.ProjectDefinition.ChoiceInput;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
 import wizard.runner.model.ProjectDefinition.GraphNode;
 import wizard.runner.model.ProjectDefinition.GraphNodeKind;
@@ -151,15 +166,45 @@ public final class RoomDeriver {
             .toList();
     List<InputDefinition> inputs =
         riddle.inputs().stream()
-            .map(
+            .<InputDefinition>map(
                 input ->
-                    input instanceof CollectionInput collection
-                        ? (InputDefinition)
-                            new CollectionInputDefinition(
-                                collection.id(), collection.informationSourceId())
-                        : (InputDefinition) numericDefinition((NumericInput) input))
+                    switch (input) {
+                      case CollectionInput collection ->
+                          new CollectionInputDefinition(
+                              collection.id(), collection.informationSourceId());
+                      case NumericInput numeric -> numericDefinition(numeric);
+                      case ChoiceInput choice ->
+                          new ChoiceInputDefinition(
+                              choice.id(),
+                              choice.surfaceId(),
+                              new ChoiceTask(
+                                  choice.question(),
+                                  choice.options().stream()
+                                      .map(
+                                          option ->
+                                              new ChoiceTask.Option(option.id(), option.text()))
+                                      .toList(),
+                                  Set.copyOf(choice.correctOptionIds()),
+                                  choice.multipleSelection()));
+                      case AssignmentInput assignment -> assignmentDefinition(assignment);
+                    })
             .toList();
     return new ComposedRiddleDefinition(riddle.id(), sources, inputs, hints);
+  }
+
+  private static AssignmentInputDefinition assignmentDefinition(final AssignmentInput input) {
+    Map<String, String> targets = new LinkedHashMap<>();
+    input
+        .items()
+        .forEach(item -> item.containerId().ifPresent(target -> targets.put(item.id(), target)));
+    return new AssignmentInputDefinition(
+        input.id(),
+        input.surfaceId(),
+        new AssignmentTask(
+            "",
+            input.containers().stream().map(AssignmentContainer::id).collect(Collectors.toSet()),
+            input.items().stream().map(AssignmentItem::id).collect(Collectors.toSet()),
+            targets));
   }
 
   private static NumericInputDefinition numericDefinition(final NumericInput input) {
@@ -222,16 +267,43 @@ public final class RoomDeriver {
                             .map(resource -> resourcePresentation(resource, assets))
                             .toList()))
             .toList();
-    List<NumericInputPresentation> inputs =
+    List<InputPresentation> inputs =
         riddle.inputs().stream()
-            .filter(NumericInput.class::isInstance)
-            .map(NumericInput.class::cast)
-            .map(
-                input ->
-                    new NumericInputPresentation(
-                        input.id(),
-                        input.surfaceId(),
-                        requireSurface(surfaces, input.surfaceId()).title()))
+            .<InputPresentation>mapMulti(
+                (input, presentations) -> {
+                  switch (input) {
+                    case CollectionInput ignored -> {}
+                    case NumericInput numeric ->
+                        presentations.accept(
+                            new NumericInputPresentation(
+                                numeric.id(),
+                                numeric.surfaceId(),
+                                requireSurface(surfaces, numeric.surfaceId()).title()));
+                    case ChoiceInput choice ->
+                        presentations.accept(
+                            new ChoiceInputPresentation(
+                                choice.id(),
+                                choice.surfaceId(),
+                                requireSurface(surfaces, choice.surfaceId()).title()));
+                    case AssignmentInput assignment ->
+                        presentations.accept(
+                            new AssignmentInputPresentation(
+                                assignment.id(),
+                                assignment.surfaceId(),
+                                assignment.containers().stream()
+                                    .map(
+                                        container ->
+                                            new AssignmentContainerPresentation(
+                                                container.id(), container.name()))
+                                    .toList(),
+                                assignment.items().stream()
+                                    .map(
+                                        item ->
+                                            new AssignmentItemPresentation(
+                                                item.id(), item.name(), item.sprite()))
+                                    .toList()));
+                  }
+                })
             .toList();
     return new ComposedPresentation(riddle.id(), sources, inputs);
   }

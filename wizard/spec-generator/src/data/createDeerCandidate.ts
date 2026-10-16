@@ -26,12 +26,37 @@ function projectInput(input: AnyRiddleInput): AnyRiddleInput {
   if (input.type === "collection") {
     return { id: input.id, type: "collection", informationSourceId: input.informationSourceId };
   }
+  if (input.type === "numeric") {
+    return {
+      id: input.id,
+      type: "numeric",
+      surfaceId: input.surfaceId,
+      answer: input.answer,
+      showDigitCount: input.showDigitCount,
+    };
+  }
+  if (input.type === "assignment") {
+    return {
+      id: input.id,
+      type: "assignment",
+      surfaceId: input.surfaceId,
+      containers: input.containers.map((container) => ({ id: container.id, name: container.name })),
+      items: input.items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        sprite: item.sprite,
+        ...(item.containerId ? { containerId: item.containerId } : {}),
+      })),
+    };
+  }
   return {
     id: input.id,
-    type: "numeric",
+    type: "choice",
     surfaceId: input.surfaceId,
-    answer: input.answer,
-    showDigitCount: input.showDigitCount,
+    question: input.question,
+    options: input.options.map((option) => ({ id: option.id, text: option.text })),
+    correctOptionIds: [...input.correctOptionIds],
+    multipleSelection: input.multipleSelection,
   };
 }
 
@@ -74,7 +99,11 @@ function projectSurface(surface: Surface): Surface {
     ? "Versteck"
     : surface.kind === "keypad"
       ? "Zahlengerät"
-      : surface.title;
+      : surface.kind === "terminal"
+        ? "Fragestation"
+        : surface.kind === "assignment"
+          ? "Zuordnung"
+          : surface.title;
   return { id: surface.id, kind: surface.kind, title };
 }
 

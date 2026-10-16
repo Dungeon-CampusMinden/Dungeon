@@ -93,7 +93,9 @@ final class MultiplayerSessionTest {
     GamePresentation presentation = presentation();
     assertEquals(
         "Source title", presentation.riddles().getFirst().informationSources().getFirst().title());
-    assertEquals("First code title", presentation.riddles().getFirst().inputs().getFirst().title());
+    assertEquals(
+        "First code title",
+        ((NumericInputPresentation) presentation.riddles().getFirst().inputs().getFirst()).title());
     MultiplayerSession session = session(1, 2);
     session.reconcileClients(List.of(observation(1)));
     session.completeIntro((short) 1);

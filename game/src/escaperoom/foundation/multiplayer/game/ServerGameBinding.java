@@ -10,10 +10,15 @@ import engine.sound.SoundSpec;
 import engine.systems.LevelSystem;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
+import escaperoom.foundation.definition.AssignmentInputDefinition;
+import escaperoom.foundation.definition.ChoiceInputDefinition;
+import escaperoom.foundation.definition.InputDefinition;
 import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.multiplayer.binding.ServerBinding;
 import escaperoom.foundation.presentation.GamePresentation;
+import escaperoom.foundation.presentation.GamePresentation.AssignmentInputPresentation;
+import escaperoom.foundation.presentation.GamePresentation.ChoiceInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
@@ -21,10 +26,15 @@ import escaperoom.foundation.runtime.CodeOutcome;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
+import feature.entities.MiscFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
+import feature.tasks.AnswerItem;
+import feature.tasks.AssignmentChecker;
+import feature.tasks.AssignmentComponent;
+import feature.tasks.TaskFactory;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,11 +42,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
 /** Dungeon world bridge for one already materialized Foundation room. */
 public final class ServerGameBinding {
   private static final String HINT_ASSET = "items/book/wisdom_scroll.png";
+  private static final String TERMINAL_ASSET = "objects/tech/Computer_1.png";
   private static final String KEYPAD_BACK = "Back";
   private static final String KEYPAD_SUBMIT = "Submit";
   private static final int HIDDEN_DIGIT_LIMIT = 8;
@@ -50,7 +63,7 @@ public final class ServerGameBinding {
   private final Runnable onTerminalComplete;
   private final FoundationTracking tracking = new FoundationTracking();
   private final Map<String, ComposedPresentation> riddles;
-  private final Map<String, NumericInputDefinition> numericDefinitions;
+  private final Map<String, InputDefinition> inputDefinitions;
   private final Map<String, Integer> shownIntros = new LinkedHashMap<>();
   private final Set<String> terminalPresentedSlots = new LinkedHashSet<>();
 
@@ -64,7 +77,7 @@ public final class ServerGameBinding {
    * @param doorTile authoritative common-exit door
    * @param exitTile authoritative common-exit tile
    * @param levelSystem level system whose default exit callback is disabled
-   * @param componentStations authoritative source and numeric-input positions
+   * @param componentStations authoritative source and input-device positions
    * @param hintStations authoritative optional hint interaction positions
    * @param onTerminalComplete callback after the first client completes the terminal pages
    */
@@ -80,7 +93,7 @@ public final class ServerGameBinding {
       final Map<String, Point> hintStations,
       final Runnable onTerminalComplete) {
     this.serverBinding = Objects.requireNonNull(serverBinding, "serverBinding");
-    numericDefinitions = indexNumericDefinitions(Objects.requireNonNull(definition, "definition"));
+    inputDefinitions = indexInputDefinitions(Objects.requireNonNull(definition, "definition"));
     this.presentation = Objects.requireNonNull(presentation, "presentation");
     this.snapshotTranslator = Objects.requireNonNull(snapshotTranslator, "snapshotTranslator");
     FoundationDialogs.register();
@@ -159,13 +172,31 @@ public final class ServerGameBinding {
                                       inspectSource(riddle.id(), source, player))));
               riddle.inputs().stream()
                   .forEach(
-                      input ->
-                          Game.add(
-                              keypad(
+                      input -> {
+                        switch (input) {
+                          case NumericInputPresentation numeric ->
+                              Game.add(
+                                  keypad(
+                                      riddle.id(),
+                                      numeric,
+                                      requireDefinition(numeric.id(), NumericInputDefinition.class),
+                                      requireStation(stations, numeric.id())));
+                          case ChoiceInputPresentation choice ->
+                              Game.add(
+                                  choiceTerminal(
+                                      riddle.id(),
+                                      choice,
+                                      requireDefinition(choice.id(), ChoiceInputDefinition.class),
+                                      requireStation(stations, choice.id())));
+                          case AssignmentInputPresentation assignment ->
+                              addAssignment(
                                   riddle.id(),
-                                  input,
-                                  requireNumericDefinition(input.id()),
-                                  requireStation(stations, input.id()))));
+                                  assignment,
+                                  requireDefinition(
+                                      assignment.id(), AssignmentInputDefinition.class),
+                                  stations);
+                        }
+                      });
             });
     Objects.requireNonNull(hintStations, "hintStations")
         .forEach(
@@ -252,7 +283,7 @@ public final class ServerGameBinding {
         .enterNumericCode(player, riddleId, inputId, attempt)
         .map(
             result -> {
-              tracking.attempt(riddleId, inputId, attempt, result, player);
+              tracking.attempt(riddleId, inputId, "numeric-code", attempt, result, player);
               if (result.outcome() == CodeOutcome.CORRECT) {
                 component.isUnlocked(true);
                 keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
@@ -267,6 +298,132 @@ public final class ServerGameBinding {
               return false;
             })
         .orElse(false);
+  }
+
+  private Entity choiceTerminal(
+      final String riddleId,
+      final ChoiceInputPresentation presentation,
+      final ChoiceInputDefinition definition,
+      final Point position) {
+    return station(
+        presentation.title(),
+        TERMINAL_ASSET,
+        position,
+        (ignored, player) -> {
+          if (serverBinding.inputActive(player, riddleId, presentation.id())) {
+            TaskFactory.showChoice(
+                definition.task(),
+                presentation.title(),
+                player,
+                (who, selection) -> submitChoice(who, riddleId, presentation.id(), selection));
+          }
+        });
+  }
+
+  /**
+   * Places the chests and answer items of one assignment and registers it for checking.
+   *
+   * <p>The assignment counts only once the authority accepts it. Until then it is checked on every
+   * tick, so a placement sorted before the riddle became active or while no player was ready still
+   * completes it.
+   *
+   * @param riddleId owning riddle identifier
+   * @param presentation chest and item presentation
+   * @param definition host-owned assignment task
+   * @param stations placement points by component identifier
+   */
+  private void addAssignment(
+      final String riddleId,
+      final AssignmentInputPresentation presentation,
+      final AssignmentInputDefinition definition,
+      final Map<String, Point> stations) {
+    Map<String, Entity> containers = new LinkedHashMap<>();
+    presentation
+        .containers()
+        .forEach(
+            container -> {
+              Entity chest =
+                  MiscFactory.newChest(
+                      Set.of(), new Point(requireStation(stations, container.id())));
+              chest.name(container.title());
+              containers.put(container.id(), chest);
+              Game.add(chest);
+            });
+    presentation
+        .items()
+        .forEach(
+            item ->
+                new AnswerItem(item.id(), item.name(), item.sprite())
+                    .drop(new Point(requireStation(stations, item.id()))));
+    Entity assignment =
+        TaskFactory.buildItemAssignment(
+            definition.task(),
+            containers,
+            ignored -> {},
+            component ->
+                AssignmentChecker.CONTENTS.check(component)
+                    && submitAssignment(component, riddleId, presentation.id()));
+    Game.add(assignment);
+  }
+
+  private boolean submitAssignment(
+      final AssignmentComponent assignment, final String riddleId, final String inputId) {
+    Optional<Entity> player =
+        assignment
+            .actor()
+            .filter(serverBinding::gameplayReady)
+            .or(
+                () ->
+                    serverBinding.readyPlayerEntities().values().stream()
+                        .flatMap(entityId -> Game.findEntityById(entityId).stream())
+                        .filter(serverBinding::gameplayReady)
+                        .findFirst());
+    if (player.isEmpty()) {
+      return false;
+    }
+    Entity solver = player.orElseThrow();
+    Map<String, String> placement =
+        AssignmentChecker.placement(assignment.task(), assignment.containers()).orElseThrow();
+    boolean correct =
+        serverBinding
+            .enterAssignment(solver, riddleId, inputId, placement)
+            .filter(result -> result.outcome() == CodeOutcome.CORRECT)
+            .map(
+                result -> {
+                  tracking.attempt(
+                      riddleId,
+                      inputId,
+                      "assignment",
+                      new TreeMap<>(placement).toString(),
+                      result,
+                      solver);
+                  Game.audio()
+                      .playGlobal(SoundSpec.builder("retro_event_correct").targets(solver.id()));
+                  return true;
+                })
+            .orElse(false);
+    return correct;
+  }
+
+  private void submitChoice(
+      final Entity player,
+      final String riddleId,
+      final String inputId,
+      final Set<String> selection) {
+    serverBinding
+        .enterChoice(player, riddleId, inputId, selection)
+        .ifPresent(
+            result -> {
+              String rawAnswer = String.join(",", new TreeSet<>(selection));
+              tracking.attempt(riddleId, inputId, "choice", rawAnswer, result, player);
+              if (result.outcome() == CodeOutcome.CORRECT) {
+                Game.audio()
+                    .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
+              } else if (result.outcome() == CodeOutcome.INCORRECT) {
+                Game.audio()
+                    .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
+              }
+            });
   }
 
   private static void playKeypadButtonSound(final int digit, final int targetEntityId) {
@@ -349,12 +506,14 @@ public final class ServerGameBinding {
             });
   }
 
-  private NumericInputDefinition requireNumericDefinition(final String inputId) {
-    NumericInputDefinition definition = numericDefinitions.get(inputId);
-    if (definition == null) {
-      throw new IllegalArgumentException("unknown Foundation numeric input definition " + inputId);
+  private <T extends InputDefinition> T requireDefinition(
+      final String inputId, final Class<T> type) {
+    InputDefinition definition = inputDefinitions.get(inputId);
+    if (!type.isInstance(definition)) {
+      throw new IllegalArgumentException(
+          "unknown Foundation " + type.getSimpleName() + " " + inputId);
     }
-    return definition;
+    return type.cast(definition);
   }
 
   private static Map<String, ComposedPresentation> index(final List<ComposedPresentation> riddles) {
@@ -363,15 +522,13 @@ public final class ServerGameBinding {
     return Map.copyOf(indexed);
   }
 
-  private static Map<String, NumericInputDefinition> indexNumericDefinitions(
+  private static Map<String, InputDefinition> indexInputDefinitions(
       final RoomDefinition definition) {
-    Map<String, NumericInputDefinition> indexed = new LinkedHashMap<>();
+    Map<String, InputDefinition> indexed = new LinkedHashMap<>();
     definition.progression().riddleNodes().stream()
         .map(node -> node.riddle())
         .flatMap(riddle -> riddle.inputs().stream())
-        .filter(NumericInputDefinition.class::isInstance)
-        .map(NumericInputDefinition.class::cast)
-        .forEach(numeric -> indexed.put(numeric.id(), numeric));
+        .forEach(input -> indexed.put(input.id(), input));
     return Map.copyOf(indexed);
   }
 

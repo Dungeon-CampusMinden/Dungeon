@@ -3,7 +3,7 @@ package escaperoom.foundation.runtime;
 import java.util.Objects;
 
 /**
- * Stable numeric attempt result that never returns the authored answer.
+ * Stable numeric-code or choice attempt result that never returns the authored answer.
  *
  * @param operation command classification and reason
  * @param outcome correct, incorrect, or not evaluated

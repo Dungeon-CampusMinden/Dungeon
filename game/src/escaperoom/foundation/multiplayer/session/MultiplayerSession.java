@@ -2,12 +2,12 @@ package escaperoom.foundation.multiplayer.session;
 
 import engine.time.PlayClock;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
-import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.RosterSlotDefinition;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
+import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import escaperoom.foundation.runtime.Authority;
 import escaperoom.foundation.runtime.CodeAttemptResult;
@@ -180,6 +180,46 @@ public final class MultiplayerSession {
     advance();
     return ready(clientId)
         ? Optional.of(authority.attemptCode(riddleId, inputId, attempt))
+        : Optional.empty();
+  }
+
+  /**
+   * Routes one choice selection for a ready player.
+   *
+   * @param clientId stable Dungeon client identifier
+   * @param riddleId owning riddle identifier
+   * @param inputId choice input identifier
+   * @param selection selected option identifiers
+   * @return delegated result, or empty when the player is not ready
+   */
+  public synchronized Optional<CodeAttemptResult> enterChoice(
+      final short clientId,
+      final String riddleId,
+      final String inputId,
+      final Set<String> selection) {
+    advance();
+    return ready(clientId)
+        ? Optional.of(authority.attemptChoice(riddleId, inputId, selection))
+        : Optional.empty();
+  }
+
+  /**
+   * Routes one item placement for a ready player.
+   *
+   * @param clientId stable Dungeon client identifier
+   * @param riddleId owning riddle identifier
+   * @param inputId assignment input identifier
+   * @param placement container identifier of every task item that lies in a task container
+   * @return delegated result, or empty when the player is not ready
+   */
+  public synchronized Optional<CodeAttemptResult> enterAssignment(
+      final short clientId,
+      final String riddleId,
+      final String inputId,
+      final Map<String, String> placement) {
+    advance();
+    return ready(clientId)
+        ? Optional.of(authority.attemptAssignment(riddleId, inputId, placement))
         : Optional.empty();
   }
 
@@ -414,15 +454,7 @@ public final class MultiplayerSession {
                           source ->
                               source.resources().stream().map(ResourcePresentation::id).toList())
                       .toList())
-          || !definitionRiddle.inputs().stream()
-              .filter(NumericInputDefinition.class::isInstance)
-              .map(NumericInputDefinition.class::cast)
-              .map(input -> input.id() + "\u0000" + input.surfaceId())
-              .toList()
-              .equals(
-                  presented.inputs().stream()
-                      .map(input -> input.id() + "\u0000" + input.surfaceId())
-                      .toList())) {
+          || !InputPresentation.presentsAll(definitionRiddle.inputs(), presented.inputs())) {
         throw new IllegalArgumentException(
             "composed presentation must match Foundation definition");
       }

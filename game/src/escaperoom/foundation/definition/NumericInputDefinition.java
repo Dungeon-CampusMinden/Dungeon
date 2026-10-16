@@ -11,7 +11,8 @@ import java.util.Objects;
  * @param showDigitCount whether clients may see the answer length
  */
 public record NumericInputDefinition(
-    String id, String surfaceId, String answer, boolean showDigitCount) implements InputDefinition {
+    String id, String surfaceId, String answer, boolean showDigitCount)
+    implements SurfaceInputDefinition {
   /** Creates an immutable numeric input. */
   public NumericInputDefinition {
     id = DefinitionChecks.requireId(id, "numeric input id");
