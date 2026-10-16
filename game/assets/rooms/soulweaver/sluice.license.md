@@ -1,4 +1,4 @@
-- Source: Existing `rooms/soulweaver/gate.png`, copied without modification.
+- Source: https://github.com/Dungeon-CampusMinden (a Dungeon original)
 - Author: Diana Kirzhner
 - License: CC0 1.0
 

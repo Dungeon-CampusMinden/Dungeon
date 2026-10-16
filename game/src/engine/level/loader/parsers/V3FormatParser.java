@@ -1,9 +1,11 @@
 package engine.level.loader.parsers;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import feature.entities.deco.Deco;
@@ -19,6 +21,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.StreamReadFeature;
@@ -35,7 +38,17 @@ public final class V3FormatParser extends LevelFormatParser {
 
   private static final int VERSION = 3;
   private static final Set<String> ROOT_PROPERTIES =
-      Set.of("version", "design", "layout", "startTiles", "namedPoints", "decorations", "prefabs");
+      Set.of(
+          "version",
+          "design",
+          "atmosphere",
+          "layout",
+          "startTiles",
+          "namedPoints",
+          "decorations",
+          "prefabs");
+  // Optional; a missing atmosphere is the neutral preset with its own ambient light.
+  private static final Set<String> ATMOSPHERE_PROPERTIES = Set.of("preset", "ambient");
   private static final Set<String> POINT_PROPERTIES = Set.of("x", "y");
   private static final Set<String> DECORATION_PROPERTIES = Set.of("type", "position");
   private static final Set<String> PREFAB_PROPERTIES = Set.of("name", "type", "properties");
@@ -71,6 +84,7 @@ public final class V3FormatParser extends LevelFormatParser {
       List<PrefabInstance> prefabs = parsePrefabs(root);
 
       DungeonLevel level = getLevel(levelName, layout, design, namedPoints, decorations);
+      parseAtmosphere(root, level);
       for (Point start : startTiles) {
         Tile tile =
             level
@@ -110,6 +124,7 @@ public final class V3FormatParser extends LevelFormatParser {
     ObjectNode root = MAPPER.createObjectNode();
     root.put("version", VERSION);
     root.put("design", level.designLabel().orElse(DesignLabel.DEFAULT).name());
+    serializeAtmosphere(level).ifPresent(atmosphere -> root.set("atmosphere", atmosphere));
     root.set("layout", serializeLayout(level.layout()));
     root.set(
         "startTiles", serializePoints(level.startTiles().stream().map(Tile::position).toList()));
@@ -122,6 +137,45 @@ public final class V3FormatParser extends LevelFormatParser {
     } catch (JacksonException e) {
       throw new IllegalArgumentException("Could not serialize V3 level JSON", e);
     }
+  }
+
+  private static void parseAtmosphere(ObjectNode root, DungeonLevel level) {
+    JsonNode value = root.get("atmosphere");
+    if (value == null || value.isNull()) return;
+    if (!(value instanceof ObjectNode atmosphere)) {
+      throw new IllegalArgumentException("'atmosphere' must be an object");
+    }
+    rejectUnknown(atmosphere, ATMOSPHERE_PROPERTIES, "atmosphere");
+    String preset = requireText(atmosphere, "preset");
+    Atmosphere.Preset parsed;
+    try {
+      parsed = Atmosphere.Preset.valueOf(preset);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid atmosphere preset: '" + preset + "'", e);
+    }
+    Color ambient = null;
+    if (atmosphere.has("ambient")) {
+      String hex = requireText(atmosphere, "ambient");
+      if (!hex.matches("[0-9a-fA-F]{6}")) {
+        throw new IllegalArgumentException("'atmosphere.ambient' must be a colour like 'a0b0c0'");
+      }
+      ambient = Color.valueOf(hex);
+    }
+    level.atmosphere(parsed, ambient);
+  }
+
+  // Levels with the default atmosphere leave it out, so their files stay unchanged.
+  private static Optional<ObjectNode> serializeAtmosphere(DungeonLevel level) {
+    if (level.atmospherePreset() == Atmosphere.Preset.NEUTRAL
+        && level.ambientOverride().isEmpty()) {
+      return Optional.empty();
+    }
+    ObjectNode node = MAPPER.createObjectNode();
+    node.put("preset", level.atmospherePreset().name());
+    level
+        .ambientOverride()
+        .ifPresent(ambient -> node.put("ambient", ambient.toString().substring(0, 6)));
+    return Optional.of(node);
   }
 
   private static DesignLabel parseDesign(ObjectNode root) {

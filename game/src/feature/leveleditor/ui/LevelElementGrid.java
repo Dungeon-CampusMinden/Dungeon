@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
+import engine.rendering.TileTextures;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
@@ -186,8 +186,10 @@ public class LevelElementGrid extends Table {
   // Wall autotile atlases show their straight horizontal wall piece.
   private static TextureRegionDrawable texture(String texturePath) {
     Texture texture = TextureMap.instance().textureAt(new SimpleIPath(texturePath));
-    if (texturePath.endsWith(TileTextureFactory.WALL_ATLAS)) {
-      return new TextureRegionDrawable(new TextureRegion(texture, 32, 48, 16, 16));
+    if (texturePath.endsWith(TileTextures.WALL_ATLAS)) {
+      return new TextureRegionDrawable(
+          new TextureRegion(
+              texture, TileTextures.STRAIGHT_WALL_X, TileTextures.STRAIGHT_WALL_Y, 16, 16));
     }
     return new TextureRegionDrawable(new TextureRegion(texture));
   }

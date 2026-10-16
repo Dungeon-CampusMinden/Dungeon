@@ -7,12 +7,12 @@ import engine.level.elements.astar.TileConnection;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A Tile is a field of the level.
@@ -31,7 +31,7 @@ public abstract class Tile {
   protected final Coordinate globalPosition;
   private final float friction;
   protected DesignLabel designLabel;
-  protected IPath texturePath;
+  private IPath customTexture;
   protected ILevel level;
   protected LevelElement levelElement;
   protected transient Array<Connection<Tile>> connections = new Array<>();
@@ -42,17 +42,11 @@ public abstract class Tile {
   /**
    * Create a new Tile.
    *
-   * @param texturePath Path to the texture of the tile.
    * @param globalPosition Position of the tile in the global system.
    * @param designLabel Design of the Tile.
    * @param friction The friction of this Tile.
    */
-  public Tile(
-      final IPath texturePath,
-      final Coordinate globalPosition,
-      final DesignLabel designLabel,
-      float friction) {
-    this.texturePath = texturePath;
+  public Tile(final Coordinate globalPosition, final DesignLabel designLabel, float friction) {
     this.globalPosition = globalPosition;
     this.designLabel = designLabel;
     this.friction = friction;
@@ -61,31 +55,31 @@ public abstract class Tile {
   /**
    * Create a new Tile.
    *
-   * @param texturePath Path to the texture of the tile.
    * @param globalPosition Position of the tile in the global system.
    * @param designLabel Design of the Tile.
    */
-  public Tile(
-      final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
-    this(texturePath, globalPosition, designLabel, DEFAULT_FRICTION);
+  public Tile(final Coordinate globalPosition, final DesignLabel designLabel) {
+    this(globalPosition, designLabel, DEFAULT_FRICTION);
   }
 
   /**
-   * Get the texture of this tile.
+   * Returns the texture that replaces the look of this tile's design, if one is set. Without it,
+   * {@link engine.rendering.LevelRenderer} draws the tile from its element, design and neighbours.
+   * A closed door with a custom texture {@code name.png} shows {@code name_closed.png}.
    *
-   * @return Path to the texture of this tile.
+   * @return the custom texture, or empty for the design's look
    */
-  public IPath texturePath() {
-    return texturePath;
+  public Optional<IPath> customTexture() {
+    return Optional.ofNullable(customTexture);
   }
 
   /**
-   * Change the texture of the tile.
+   * Replaces the look of this tile's design with a texture of its own.
    *
-   * @param texture New texture of the tile.
+   * @param texture the custom texture, or null to show the design's look again
    */
-  public void texturePath(final IPath texture) {
-    this.texturePath = texture;
+  public void customTexture(final IPath texture) {
+    this.customTexture = texture;
   }
 
   /**
@@ -287,11 +281,6 @@ public abstract class Tile {
     return this.tintColor;
   }
 
-  /** Refreshes the texture of this tile. */
-  public void refreshTexture() {
-    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
-  }
-
   @Override
   public String toString() {
     return "Tile{"
@@ -301,8 +290,8 @@ public abstract class Tile {
         + this.friction()
         + ", designLabel="
         + this.designLabel()
-        + ", texturePath="
-        + this.texturePath().pathString()
+        + ", customTexture="
+        + this.customTexture().map(IPath::pathString).orElse("none")
         + ", levelElement="
         + this.levelElement()
         + ", visible="

@@ -4,10 +4,7 @@ import engine.Entity;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.elements.ILevel;
-import engine.level.elements.tile.PitTile;
 import engine.level.utils.DesignLabel;
-import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
 import engine.utils.Point;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
@@ -18,12 +15,8 @@ import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
 import feature.prefabs.Region;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Client-side design override for tiles inside a half-open world region.
@@ -118,36 +111,11 @@ public final class DesignLabelRegionPrefab extends Prefab {
       }
     }
 
-    List<Tile> changed = new ArrayList<>();
     for (Tile[] row : layout) {
       for (Tile tile : row) {
         if (tile == null) continue;
-        DesignLabel target = targets[tile.coordinate().y()][tile.coordinate().x()];
-        if (tile.designLabel() != target) {
-          tile.designLabel(target);
-          changed.add(tile);
-        }
+        tile.designLabel(targets[tile.coordinate().y()][tile.coordinate().x()]);
       }
     }
-    if (changed.isEmpty()) return;
-
-    // The element layout is the same for every tile, so derive it only once.
-    LevelElement[][] elements = TileTextureFactory.levelElementLayout(layout);
-    Set<Tile> refreshed = Collections.newSetFromMap(new IdentityHashMap<>());
-    for (Tile tile : changed) {
-      refreshTexture(tile, layout, elements, refreshed);
-      // Open pits resolve their texture from the tile above them.
-      int x = tile.coordinate().x();
-      for (int y = tile.coordinate().y() - 1; y >= 0 && layout[y][x] instanceof PitTile; y--) {
-        refreshTexture(layout[y][x], layout, elements, refreshed);
-      }
-    }
-  }
-
-  private static void refreshTexture(
-      Tile tile, Tile[][] layout, LevelElement[][] elements, Set<Tile> refreshed) {
-    if (!refreshed.add(tile)) return;
-    tile.texturePath(
-        TileTextureFactory.findTexturePath(tile, layout, elements, tile.levelElement()));
   }
 }

@@ -4,57 +4,35 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import engine.level.Tile;
-import engine.level.utils.DesignLabel;
+import engine.level.elements.tile.DoorTile;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
 import engine.utils.Point;
 import engine.utils.components.draw.ColorUtils;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.IPath;
-import engine.utils.components.path.SimpleIPath;
 import java.util.List;
 
 /**
  * Draws the level layer in two passes, so that entity shadows drawn in between lie on the floor and
  * walls cover them.
  *
- * <p>Walls of every design are autotiled from the design's atlas {@link
- * TileTextureFactory#WALL_ATLAS}: the cell follows the wall's eight neighbours (Godot "3x3 minimal"
- * blob layout), where walls, doors and the void connect. Floors receive the ambient occlusion of
- * adjacent walls.
- *
- * <p>The {@link DesignLabel#DEFAULT} design adds to that: floors and open doorways pick a stable
- * random floor variant, floor edges above the void break off, and if the level's {@link
- * Atmosphere#wallDecor()} asks for it, wall faces get banners, cracks, torches and fountains. Its
- * doors with room-specific art, such as gates, look like wall while closed and like floor while
- * open. Every other tile, including closed or locked doors and walls with a custom texture, is
- * drawn from its own texture.
+ * <p>Walls are autotiled from their design's atlas, see {@link DesignTileset}: the cell follows the
+ * wall's eight neighbours (Godot "3x3 minimal" blob layout), where walls, doors and the void
+ * connect. Hidden doors look like wall while closed and like floor while open. Floors receive the
+ * ambient occlusion of adjacent walls. Designs with floor variants also vary their floors and open
+ * doorways, break off floor edges above the void and, if the level's {@link Atmosphere#wallDecor()}
+ * asks for it, decorate wall faces with banners, cracks, torches and fountains. Every other tile is
+ * drawn from the texture {@link TileTextures} resolves for it.
  *
  * <p>All decoration is derived from the tile coordinates, so every client renders the same level
  * without any synchronised state.
  */
 public final class LevelRenderer {
 
-  private static final String DUNGEON_PREFIX = "dungeon/";
-  private static final String DEFAULT_FLOOR = "dungeon/default/floor/floor_1.png";
-  // The default design uses the doors of the old default design; open ones show its floor.
-  private static final java.util.Set<String> OPEN_DOORS =
-      java.util.Set.of(
-          "dungeon/old_default/door/top.png",
-          "dungeon/old_default/door/bottom.png",
-          "dungeon/old_default/door/left.png",
-          "dungeon/old_default/door/right.png");
-  private static final IPath DEFAULT_WALLS =
-      new SimpleIPath("dungeon/default/" + TileTextureFactory.WALL_ATLAS);
-  private static final IPath FLOORS = new SimpleIPath("dungeon/default/floor/variants.png");
-  private static final IPath DECOR = new SimpleIPath("dungeon/default/wall/decor.png");
-  private static final IPath TORCH = new SimpleIPath("dungeon/default/wall/torch.png");
-  private static final IPath FOUNTAIN = new SimpleIPath("dungeon/default/wall/fountain.png");
-
   // Neighbour bits; north is +y in world space.
   private static final int N = 1, NE = 2, E = 4, SE = 8, S = 16, SW = 32, W = 64, NW = 128;
 
-  // Neighbour mask of each 16x16 cell of walls.png, row-major 12x4; -1 marks the unused cell.
+  // Neighbour mask of each 16x16 cell of a wall atlas, row-major 12x4; -1 marks the unused cell.
   private static final int[] ATLAS_MASKS = {
     16, 20, 84, 80, 213, 92, 116, 87, 28, 125, 124, 112, //
     17, 21, 85, 81, 29, 127, 253, 113, 31, 119, -1, 245, //
@@ -79,8 +57,6 @@ public final class LevelRenderer {
   private static final int SKULL = 8;
   private static final int LEDGE = 12;
   private static final int BANNERS = 4;
-  // Floor visible on each side of a pillar of the wall atlas, in tiles.
-  private static final float PILLAR_INSET = 5 / 16f;
 
   /**
    * Draws the floor pass inside the given tile bounds: floors, everything under walls, broken floor
@@ -101,19 +77,19 @@ public final class LevelRenderer {
         if (!drawable(t)) {
           if (isLedge(layout, x, y)) {
             batch.setColor(Color.WHITE);
-            drawCell(batch, FLOORS, LEDGE, x, y);
+            drawCell(batch, variants(layout[y + 1][x]), LEDGE, x, y);
           }
           continue;
         }
         batch.setColor(tint(t));
         if (isAutoWall(t)) {
-          // Default walls stand on floor; the walls of the other designs on the void.
-          if (isDefault(t)) drawCell(batch, FLOORS, floorVariant(x, y), x, y);
+          // Walls of designs with floor variants stand on floor, the others on the void.
+          if (hasVariants(t)) drawCell(batch, variants(t), floorVariant(x, y), x, y);
         } else if (isAutoFloor(t)) {
-          drawCell(batch, FLOORS, floorVariant(x, y), x, y);
-          if (hash(x, y, 3) % 90 == 0) drawCell(batch, FLOORS, SKULL, x, y);
+          drawCell(batch, variants(t), floorVariant(x, y), x, y);
+          if (hash(x, y, 3) % 90 == 0) drawCell(batch, variants(t), SKULL, x, y);
         } else if (!isUpright(t)) {
-          batch.draw(TextureMap.instance().textureAt(t.texturePath()), x, y, 1, 1);
+          batch.draw(TextureMap.instance().textureAt(TileTextures.texture(t, layout)), x, y, 1, 1);
         }
       }
     }
@@ -160,15 +136,15 @@ public final class LevelRenderer {
           Tile corner = wallCorner(layout, x, y);
           if (corner != null) {
             batch.setColor(Color.WHITE);
-            drawCell(batch, wallAtlas(corner), CELL_BY_MASK[wallMask(layout, x, y)], x, y);
+            drawCell(batch, tileset(corner).walls(), wallCell(layout, x, y), x, y);
           }
           continue;
         }
         batch.setColor(tint(t));
         if (isAutoWall(t)) {
-          drawCell(batch, wallAtlas(t), CELL_BY_MASK[wallMask(layout, x, y)], x, y);
+          drawCell(batch, tileset(t).walls(), wallCell(layout, x, y), x, y);
         } else if (!isAutoFloor(t) && isUpright(t)) {
-          batch.draw(TextureMap.instance().textureAt(t.texturePath()), x, y, 1, 1);
+          batch.draw(TextureMap.instance().textureAt(TileTextures.texture(t, layout)), x, y, 1, 1);
         }
       }
     }
@@ -233,27 +209,46 @@ public final class LevelRenderer {
     }
   }
 
+  // The shadows of adjacent walls start where each wall's art does.
   private void drawFloorShadows(SpriteBatch batch, Tile[][] layout, int x, int y) {
-    if (solid(layout, x, y + 1)) batch.draw(RenderTextures.wallShadowTop(), x, y, 1, 1);
+    if (solid(layout, x, y + 1)) {
+      float inset = wallInset(layout, x, y + 1, Side.BOTTOM);
+      batch.draw(RenderTextures.wallShadowTop(), x, y + inset, 1, 1);
+    }
     Texture side = RenderTextures.wallShadowSide();
-    if (solid(layout, x - 1, y)) batch.draw(side, x - pillarInset(layout, x - 1, y), y, 1, 1);
+    if (solid(layout, x - 1, y)) {
+      batch.draw(side, x - wallInset(layout, x - 1, y, Side.RIGHT), y, 1, 1);
+    }
     if (solid(layout, x + 1, y)) {
-      batch.draw(side, x + pillarInset(layout, x + 1, y), y, 1, 1, 0, 0, 16, 16, true, false);
+      float inset = wallInset(layout, x + 1, y, Side.LEFT);
+      batch.draw(side, x + inset, y, 1, 1, 0, 0, 16, 16, true, false);
     }
   }
 
-  // A one tile wide vertical default wall is a pillar in the middle of its tile with floor on both
-  // sides; its shadow starts at the pillar, this far inside the wall tile.
-  private static float pillarInset(Tile[][] layout, int x, int y) {
+  private enum Side {
+    LEFT,
+    RIGHT,
+    BOTTOM
+  }
+
+  // How far the art of the wall at (x, y) stays away from the given edge of its tile.
+  private static float wallInset(Tile[][] layout, int x, int y, Side side) {
     Tile t = at(layout, x, y);
-    if (t == null || !isAutoWall(t) || !isDefault(t)) return 0;
-    int mask = wallMask(layout, x, y);
-    return (mask & (E | W)) == 0 && (mask & (N | S)) != 0 ? PILLAR_INSET : 0;
+    if (t == null || !isAutoWall(t)) return 0;
+    DesignTileset tileset = tileset(t);
+    int cell = wallCell(layout, x, y);
+    return switch (side) {
+      case LEFT -> tileset.leftInset(cell);
+      case RIGHT -> tileset.rightInset(cell);
+      case BOTTOM -> tileset.bottomInset(cell);
+    };
   }
 
   private void drawWallDecor(SpriteBatch batch, Tile[][] layout, int x, int y, float time) {
+    Tile t = layout[y][x];
     if (isTorch(layout, x, y)) {
-      Texture torch = TextureMap.instance().textureAt(TORCH);
+      Texture torch =
+          TextureMap.instance().textureAt(TileTextures.path(t.designLabel(), "wall/torch.png"));
       // Sconce: 8x10 texels, bottom one texel above the tile's bottom edge.
       batch.draw(torch, x + 4 / 16f, y + 1 / 16f, 0.5f, 10 / 16f, 0, 26, 8, 10, false, false);
       int frame = (int) (time * 9 + hash(x, y, 7) % 4) % 4;
@@ -263,15 +258,17 @@ public final class LevelRenderer {
     }
     if (isFountain(layout, x, y)) {
       int frame = (int) (time * 6 + hash(x, y, 7) % 3) % 3;
-      drawCell(batch, FOUNTAIN, (isLava(x, y) ? 0 : 3) + frame, x, y);
+      IPath fountain = TileTextures.path(t.designLabel(), "wall/fountain.png");
+      drawCell(batch, fountain, (isLava(x, y) ? 0 : 3) + frame, x, y);
       return;
     }
     int roll = hash(x, y, 11) % 100;
+    IPath decor = TileTextures.path(t.designLabel(), "wall/decor.png");
     if (roll < 10) {
       // One banner colour per stretch of wall, so neighbouring banners match.
-      drawCell(batch, DECOR, hash(x / 8, y, 13) % BANNERS, x, y);
+      drawCell(batch, decor, hash(x / 8, y, 13) % BANNERS, x, y);
     } else if (roll < 15) {
-      drawCell(batch, DECOR, BANNERS + roll % 3, x, y);
+      drawCell(batch, decor, BANNERS + roll % 3, x, y);
     }
   }
 
@@ -285,11 +282,24 @@ public final class LevelRenderer {
     return t != null && t.levelElement() != LevelElement.SKIP && t.visible();
   }
 
-  // Autotiled default tiles fade their tint to a third of its strength: their floor already shows
-  // its tile seams, so the engine's checker pattern only needs to hint at the grid.
+  private static DesignTileset tileset(Tile t) {
+    return DesignTileset.of(t.designLabel());
+  }
+
+  private static boolean hasVariants(Tile t) {
+    return tileset(t).floorVariants().isPresent();
+  }
+
+  private static IPath variants(Tile t) {
+    return tileset(t).floorVariants().orElseThrow();
+  }
+
+  // Autotiled tiles of designs with floor variants fade their tint to a third of its strength:
+  // their floor already shows its tile seams, so the engine's checker pattern only needs to hint
+  // at the grid.
   private static Color tint(Tile t) {
     if (t.tintColor() == -1) return Color.WHITE;
-    if (!isDefault(t) || (!isAutoWall(t) && !isAutoFloor(t))) {
+    if (!hasVariants(t) || (!isAutoWall(t) && !isAutoFloor(t))) {
       return ColorUtils.pmaColor(t.tintColor());
     }
     Color c = new Color(t.tintColor());
@@ -302,37 +312,24 @@ public final class LevelRenderer {
     return roll < 80 ? 0 : 1 + roll % (FLOOR_VARIANTS - 1);
   }
 
-  // A wall that shows its design's atlas rather than a custom texture, or a closed gate.
+  // A wall without a custom texture, or a closed hidden door.
   private static boolean isAutoWall(Tile t) {
-    if (isGate(t)) return !t.isAccessible();
-    String path = t.texturePath().pathString();
-    return t.levelElement() == LevelElement.WALL
-        && path.startsWith(DUNGEON_PREFIX)
-        && path.endsWith(TileTextureFactory.WALL_ATLAS);
+    if (t instanceof DoorTile door && door.hidden()) return !door.isOpen();
+    return t.levelElement() == LevelElement.WALL && t.customTexture().isEmpty();
   }
 
-  private static IPath wallAtlas(Tile t) {
-    return isGate(t) ? DEFAULT_WALLS : t.texturePath();
-  }
-
-  private static boolean isDefault(Tile t) {
-    return t.designLabel() == DesignLabel.DEFAULT;
-  }
-
-  // A floor or open doorway of the default design, drawn from its floor variants.
+  // A floor, open doorway or open hidden door of a design with floor variants.
   private static boolean isAutoFloor(Tile t) {
-    if (isGate(t)) return t.isAccessible();
-    if (!isDefault(t)) return false;
-    String path = t.texturePath().pathString();
-    return (t.levelElement() == LevelElement.FLOOR && path.equals(DEFAULT_FLOOR))
-        || (t.levelElement() == LevelElement.DOOR && OPEN_DOORS.contains(path));
+    if (!hasVariants(t) || t.customTexture().isPresent()) return false;
+    return switch (t.levelElement()) {
+      case FLOOR -> true;
+      case DOOR -> t.isAccessible();
+      default -> false;
+    };
   }
 
-  // A door of the default design with room-specific art, such as a gate or sluice.
-  private static boolean isGate(Tile t) {
-    return t.levelElement() == LevelElement.DOOR
-        && t.designLabel() == DesignLabel.DEFAULT
-        && !t.texturePath().pathString().startsWith(DUNGEON_PREFIX);
+  private static boolean isHiddenDoor(Tile t) {
+    return t instanceof DoorTile door && door.hidden();
   }
 
   // Walls and doors stand upright; entity shadows end at them.
@@ -349,8 +346,8 @@ public final class LevelRenderer {
         // A fully transparent tint hides the tile, for example while fog of war covers it.
         && (t.tintColor() & 0xff) != 0
         && t.levelElement() == LevelElement.WALL
-        && isDefault(t)
         && isAutoWall(t)
+        && tileset(t).decor()
         && below != null
         && below.isAccessible()
         && solid(layout, x - 1, y)
@@ -366,7 +363,7 @@ public final class LevelRenderer {
     return hash(x, y, 19) % 2 == 0;
   }
 
-  // Void right below an autotiled floor shows the floor's broken-off edge.
+  // Void right below a varied floor shows the floor's broken-off edge.
   private static boolean isLedge(Tile[][] layout, int x, int y) {
     Tile t = at(layout, x, y);
     Tile above = at(layout, x, y + 1);
@@ -401,14 +398,14 @@ public final class LevelRenderer {
     return t != null && t.visible() && isAutoWall(t);
   }
 
-  // Walls, closed gates and void count as solid rock, so outer walls blend into the surrounding
-  // dark.
+  // Walls, closed hidden doors and void count as solid rock, so outer walls blend into the
+  // surrounding dark.
   private static boolean solid(Tile[][] layout, int x, int y) {
     Tile t = at(layout, x, y);
     return t == null
         || t.levelElement() == LevelElement.WALL
         || t.levelElement() == LevelElement.SKIP
-        || (isGate(t) && !t.isAccessible());
+        || (isHiddenDoor(t) && !t.isAccessible());
   }
 
   // Walls run on through doors, which sit inside the wall line.
@@ -417,7 +414,7 @@ public final class LevelRenderer {
     return solid(layout, x, y) || t.levelElement() == LevelElement.DOOR;
   }
 
-  private static int wallMask(Tile[][] layout, int x, int y) {
+  private static int wallCell(Tile[][] layout, int x, int y) {
     boolean n = connects(layout, x, y + 1);
     boolean e = connects(layout, x + 1, y);
     boolean s = connects(layout, x, y - 1);
@@ -428,7 +425,7 @@ public final class LevelRenderer {
     if (s && e && connects(layout, x + 1, y - 1)) mask |= SE;
     if (s && w && connects(layout, x - 1, y - 1)) mask |= SW;
     if (n && w && connects(layout, x - 1, y + 1)) mask |= NW;
-    return mask;
+    return CELL_BY_MASK[mask];
   }
 
   private static Tile at(Tile[][] layout, int x, int y) {

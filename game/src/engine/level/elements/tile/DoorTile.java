@@ -4,8 +4,6 @@ import engine.level.Tile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.utils.components.path.IPath;
-import engine.utils.components.path.SimpleIPath;
 
 /**
  * Represents a Door in the game.
@@ -15,19 +13,18 @@ import engine.utils.components.path.SimpleIPath;
 public class DoorTile extends Tile {
 
   private boolean open;
+  private boolean hidden;
 
   /**
    * Creates a new Tile.
    *
    * <p>The door will be open.
    *
-   * @param texturePath Path to the texture of the tile.
    * @param globalPosition Position of the tile in the global system.
    * @param designLabel Design of the Tile
    */
-  public DoorTile(
-      final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
-    super(texturePath, globalPosition, designLabel);
+  public DoorTile(final Coordinate globalPosition, final DesignLabel designLabel) {
+    super(globalPosition, designLabel);
     levelElement = LevelElement.DOOR;
     open = true;
   }
@@ -69,27 +66,29 @@ public class DoorTile extends Tile {
     return open;
   }
 
-  @Override
-  public IPath texturePath() {
-    if (open) return texturePath;
-    else return closedTexturePath();
+  /**
+   * Whether this is a hidden door: it looks like the surrounding wall while closed and like floor
+   * while open, like a gate that opens a passage.
+   *
+   * @return true if the door is hidden
+   */
+  public boolean hidden() {
+    return hidden;
+  }
+
+  /**
+   * Makes this a hidden door, see {@link #hidden()}.
+   *
+   * @param hidden whether the door is hidden
+   */
+  public void hidden(boolean hidden) {
+    this.hidden = hidden;
   }
 
   @Override
   public String toString() {
     String tileStr = super.toString();
     tileStr = tileStr.replace("Tile", "DoorTile").replace("}", "");
-    String closedTexturePathStr =
-        closedTexturePath() == null ? "null" : closedTexturePath().pathString();
-    return tileStr + ", closedTexturePath=" + closedTexturePathStr + ", open=" + this.open + "}";
-  }
-
-  private IPath closedTexturePath() {
-    if (texturePath != null) {
-      String[] splitPath = texturePath.pathString().split("\\.");
-      return new SimpleIPath(splitPath[0] + "_closed." + splitPath[1]);
-    } else {
-      return null;
-    }
+    return tileStr + ", open=" + this.open + "}";
   }
 }

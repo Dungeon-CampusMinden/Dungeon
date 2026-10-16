@@ -7,7 +7,6 @@ import engine.level.Tile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.utils.components.path.SimpleIPath;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link TileFactory} class. */
@@ -16,9 +15,7 @@ public class TileFactoryTest {
   /** Checks if Tile of type SKIP can be generated. */
   @Test
   public void createSKIPTile() {
-    Tile t =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(0, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+    Tile t = TileFactory.createTile(new Coordinate(0, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
     assertEquals(SkipTile.class, t.getClass());
     assertEquals(0, t.coordinate().x());
     assertEquals(0, t.coordinate().y());
@@ -30,9 +27,7 @@ public class TileFactoryTest {
   /** Checks if Tile of type FLOOR can be generated. */
   @Test
   public void createFLOORTile() {
-    Tile t =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(0, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
+    Tile t = TileFactory.createTile(new Coordinate(0, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
     assertEquals(FloorTile.class, t.getClass());
     assertEquals(0, t.coordinate().x());
     assertEquals(0, t.coordinate().y());
@@ -44,9 +39,7 @@ public class TileFactoryTest {
   /** Checks if Tile of type WALL can be generated. */
   @Test
   public void createWALLTile() {
-    Tile t =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(0, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+    Tile t = TileFactory.createTile(new Coordinate(0, 0), LevelElement.WALL, DesignLabel.DEFAULT);
     assertEquals(WallTile.class, t.getClass());
     assertEquals(0, t.coordinate().x());
     assertEquals(0, t.coordinate().y());
@@ -58,9 +51,7 @@ public class TileFactoryTest {
   /** Checks if Tile of type HOLE can be generated. */
   @Test
   public void createHOLETile() {
-    Tile t =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(0, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+    Tile t = TileFactory.createTile(new Coordinate(0, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
     assertEquals(HoleTile.class, t.getClass());
     assertEquals(0, t.coordinate().x());
     assertEquals(0, t.coordinate().y());
@@ -72,9 +63,7 @@ public class TileFactoryTest {
   /** Checks if Tile of type EXIT can be generated. */
   @Test
   public void createEXITTile() {
-    Tile t =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(0, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+    Tile t = TileFactory.createTile(new Coordinate(0, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
     assertEquals(ExitTile.class, t.getClass());
     assertEquals(0, t.coordinate().x());
     assertEquals(0, t.coordinate().y());
@@ -86,9 +75,7 @@ public class TileFactoryTest {
   /** Checks if Tile of type DOOR can be generated. */
   @Test
   public void createDOORTile() {
-    Tile t =
-        TileFactory.createTile(
-            new SimpleIPath(".png"), new Coordinate(0, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+    Tile t = TileFactory.createTile(new Coordinate(0, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
     assertEquals(DoorTile.class, t.getClass());
     assertEquals(0, t.coordinate().x());
     assertEquals(0, t.coordinate().y());

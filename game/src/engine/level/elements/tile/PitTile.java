@@ -6,33 +6,26 @@ import engine.level.Tile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
-import engine.utils.components.path.IPath;
 
 /**
  * Represents an empty void in the dungeon, where the player can fall into. A Pit can be open or
  * closed. If it is open, the player can fall into it. If it is closed, the player can walk over it.
  */
 public class PitTile extends Tile {
-  private IPath stillStableTexturePath;
   private boolean open;
   private long timeToOpen;
 
   /**
    * Creates a new Pit.
    *
-   * @param texturePath Path to the texture of the tile.
    * @param globalPosition Position of the tile in the global system.
    * @param designLabel Design of the Tile
    */
-  public PitTile(
-      final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
-    super(texturePath, globalPosition, designLabel);
+  public PitTile(final Coordinate globalPosition, final DesignLabel designLabel) {
+    super(globalPosition, designLabel);
     this.levelElement = LevelElement.PIT;
     this.open = false;
     this.timeToOpen = 0;
-    this.stillStableTexturePath =
-        TileTextureFactory.findTexturePath(LevelElement.FLOOR, this.designLabel());
   }
 
   @Override
@@ -47,7 +40,6 @@ public class PitTile extends Tile {
   public void open() {
     if (!open) {
       this.open = true;
-      refreshTexture();
       ((DungeonLevel) Game.currentLevel().orElse(null)).removeFromPathfinding(this);
     }
   }
@@ -64,7 +56,6 @@ public class PitTile extends Tile {
       }
 
       this.open = false;
-      refreshTexture();
       ((DungeonLevel) Game.currentLevel().orElse(null)).addToPathfinding(this);
     }
   }
@@ -103,16 +94,14 @@ public class PitTile extends Tile {
     return this.timeToOpen;
   }
 
-  @Override
-  public void designLabel(DesignLabel designLabel) {
-    super.designLabel(designLabel);
-    stillStableTexturePath = TileTextureFactory.findTexturePath(LevelElement.FLOOR, designLabel);
-  }
-
-  @Override
-  public IPath texturePath() {
-    if (!this.isOpen() && this.timeToOpen > 60 * 1000) return this.stillStableTexturePath;
-    return super.texturePath();
+  /**
+   * Whether the closed pit looks like plain floor: pits that take longer than a minute to open give
+   * no hint of their danger.
+   *
+   * @return true if the pit is closed and opens only after more than a minute
+   */
+  public boolean looksLikeFloor() {
+    return !open && timeToOpen > 60 * 1000;
   }
 
   @Override
@@ -120,15 +109,5 @@ public class PitTile extends Tile {
     String tileStr = super.toString();
     tileStr = tileStr.replace("Tile", "PitTile").replace("}", "");
     return tileStr + ", open: " + this.open + ", timeToOpen: " + this.timeToOpen + "}";
-  }
-
-  /** Refreshes the texture of this pit and the pit below (if there is one). */
-  @Override
-  public void refreshTexture() {
-    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
-    if (coordinate().y() == 0) return;
-    if (level.layout()[coordinate().y() - 1][coordinate().x()] instanceof PitTile pitTile) {
-      pitTile.refreshTexture();
-    }
   }
 }

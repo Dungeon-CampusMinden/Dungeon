@@ -7,14 +7,17 @@ import engine.level.DungeonLevel;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
+import engine.rendering.Atmosphere;
+import engine.rendering.TileTextures;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import feature.leveleditor.ui.ColorSetting;
 import feature.leveleditor.ui.IntegerSetting;
 import feature.leveleditor.ui.LevelElementGrid;
 import feature.leveleditor.ui.SelectSetting;
 import feature.systems.DebugDrawSystem;
+import feature.systems.LevelEditorSystem;
 import feature.utils.CheckPatternPainter;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,62 +32,27 @@ public class TilesMode extends LevelEditorMode {
   private static final int MAX_BRUSH_SIZE = 7;
   private static final int GRID_COLUMNS = 4;
 
-  /** Texture used for level elements that have no dedicated preview texture. */
-  public static final String FALLBACK_TEXTURE = "dungeon/default/floor/floor_1.png";
-
-  /** Preview textures shown on the tile buttons of the details panel. */
-  private static final Map<LevelElement, String> TILE_TEXTURES =
-      Map.of(
-          LevelElement.SKIP, "hud/cross.png",
-          LevelElement.FLOOR, "dungeon/default/floor/floor_1.png",
-          LevelElement.WALL, "dungeon/default/wall/walls.png",
-          LevelElement.HOLE, "dungeon/default/floor/floor_hole.png",
-          LevelElement.EXIT, "dungeon/default/floor/floor_ladder.png",
-          LevelElement.PIT, "dungeon/default/floor/pit_open.png",
-          LevelElement.DOOR, "dungeon/old_default/door/top.png",
-          LevelElement.PORTAL, "dungeon/old_default/portal/portal_block.png",
-          LevelElement.GLASSWALL, "dungeon/old_default/portal/glasswall/glasswall_horizontal.png",
-          LevelElement.GITTER, "dungeon/old_default/portal/gutter/gutter_horizontal.png");
+  /** Preview of the void, which has no texture of its own. */
+  private static final String SKIP_TEXTURE = "hud/cross.png";
 
   private LevelElementGrid grid = null;
   private IntegerSetting brushSizeSetting = null;
   private SelectSetting<DesignLabel> designSetting = null;
+  private SelectSetting<Atmosphere.Preset> atmosphereSetting = null;
+  private ColorSetting ambientSetting = null;
   private DesignLabel previewDesign = null;
   private boolean mouseLevelChangePending = false;
 
   /**
-   * Gets the path of the preview texture used for the given level element.
-   *
-   * @param element the level element.
-   * @return the texture path, or {@link #FALLBACK_TEXTURE} if the element has no dedicated texture.
-   */
-  public static String texturePath(LevelElement element) {
-    return TILE_TEXTURES.getOrDefault(element, FALLBACK_TEXTURE);
-  }
-
-  /**
    * Gets the preview texture for an element in the selected level design.
-   *
-   * <p>Portal, glass-wall, and grate textures are shared from the old default design, except for
-   * the dedicated System Recovery theme.
    *
    * @param element the level element
    * @param designLabel the selected level design
    * @return the texture path used by the element button
    */
   public static String texturePath(LevelElement element, DesignLabel designLabel) {
-    String defaultPath = texturePath(element);
-    if (element == LevelElement.SKIP) {
-      return defaultPath;
-    }
-    if (element == LevelElement.PORTAL
-        || element == LevelElement.GLASSWALL
-        || element == LevelElement.GITTER) {
-      if (designLabel != DesignLabel.SYSTEM_RECOVERY) return defaultPath;
-      String themedAsset = defaultPath.substring("dungeon/old_default/".length());
-      return "dungeon/" + designLabel.name().toLowerCase() + "/" + themedAsset;
-    }
-    return TileTextureFactory.findTexturePath(element, designLabel).pathString();
+    if (element == LevelElement.SKIP) return SKIP_TEXTURE;
+    return TileTextures.preview(element, designLabel).pathString();
   }
 
   /**
@@ -121,11 +89,27 @@ public class TilesMode extends LevelEditorMode {
             this::designLabel,
             DesignLabel::name,
             true);
+    atmosphereSetting =
+        new SelectSetting<>(
+            "Atmosphere",
+            Atmosphere.Preset.values(),
+            () -> getLevel().atmospherePreset(),
+            this::atmospherePreset,
+            Atmosphere.Preset::name,
+            true);
+    ambientSetting =
+        new ColorSetting(
+            "Ambient Light",
+            () -> getLevel().atmosphere().ambient(),
+            this::ambient,
+            message -> LevelEditorSystem.showFeedback("Ambient Light: " + message, Color.YELLOW));
     brushSizeSetting =
         new IntegerSetting(
             "Brush Size", 1, MAX_BRUSH_SIZE, () -> brushSize, size -> brushSize = size);
 
     content.add(designSetting).growX().padBottom(10f).row();
+    content.add(atmosphereSetting).growX().padBottom(10f).row();
+    content.add(ambientSetting).growX().padBottom(10f).row();
     content.add(grid).growX().row();
     content.add(brushSizeSetting).growX().padTop(10f).row();
   }
@@ -133,6 +117,8 @@ public class TilesMode extends LevelEditorMode {
   @Override
   public void updateDetailsUI() {
     if (designSetting != null) designSetting.refresh();
+    if (atmosphereSetting != null) atmosphereSetting.refresh();
+    if (ambientSetting != null) ambientSetting.refresh();
     DesignLabel currentDesign = designLabel();
     if (grid != null && currentDesign != previewDesign) {
       grid.refreshTextures();
@@ -292,7 +278,7 @@ public class TilesMode extends LevelEditorMode {
                   .append("\n")
                   .append(tile.levelElement().name())
                   .append("  |  ")
-                  .append(tile.texturePath().pathString());
+                  .append(TileTextures.texture(tile, tile.level().layout()).pathString());
               if (tile.tintColor() == -1) {
                 status.append("\nTint: (---)");
               } else {
@@ -326,6 +312,22 @@ public class TilesMode extends LevelEditorMode {
     DungeonLevel level = getLevel();
     if (level.designLabel().filter(designLabel::equals).isPresent()) return;
     level.designLabel(designLabel);
+    levelChanged();
+  }
+
+  // Choosing a preset also brings back its own ambient light.
+  private void atmospherePreset(Atmosphere.Preset preset) {
+    DungeonLevel level = getLevel();
+    if (level.atmospherePreset() == preset) return;
+    level.atmosphere(preset, null);
+    levelChanged();
+  }
+
+  private void ambient(Color ambient) {
+    DungeonLevel level = getLevel();
+    Color opaque = new Color(ambient.r, ambient.g, ambient.b, 1f);
+    if (opaque.equals(level.atmosphere().ambient())) return;
+    level.atmosphere(level.atmospherePreset(), opaque);
     levelChanged();
   }
 }

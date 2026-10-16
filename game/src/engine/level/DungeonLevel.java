@@ -1,5 +1,6 @@
 package engine.level;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.level.elements.ILevel;
 import engine.level.elements.astar.TileConnection;
 import engine.level.elements.astar.TileHeuristic;
@@ -17,11 +18,10 @@ import engine.level.elements.tile.WallTile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
+import engine.rendering.Atmosphere;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
-import engine.utils.components.path.IPath;
 import feature.entities.deco.Deco;
 import feature.level.ITickable;
 import feature.prefabs.Prefab;
@@ -64,6 +64,9 @@ public class DungeonLevel implements ILevel, ITickable {
   private static int levelNameSuffix = 1;
   private DesignLabel baseDesignLabel;
   protected String levelName;
+  private Atmosphere.Preset atmospherePreset = Atmosphere.Preset.NEUTRAL;
+  private Color ambientOverride;
+  private Atmosphere atmosphere = Atmosphere.NEUTRAL;
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
   };
@@ -180,12 +183,7 @@ public class DungeonLevel implements ILevel, ITickable {
     Tile[][] tileLayout = new Tile[layout.length][layout[0].length];
     for (int y = 0; y < layout.length; y++) {
       for (int x = 0; x < layout[0].length; x++) {
-        Coordinate coordinate = new Coordinate(x, y);
-        IPath texturePath =
-            TileTextureFactory.findTexturePath(
-                new TileTextureFactory.LevelPart(layout[y][x], designLabel, layout, coordinate));
-        tileLayout[y][x] =
-            TileFactory.createTile(texturePath, coordinate, layout[y][x], designLabel);
+        tileLayout[y][x] = TileFactory.createTile(new Coordinate(x, y), layout[y][x], designLabel);
       }
     }
     return tileLayout;
@@ -658,5 +656,47 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public Point removeNamedPoint(String name) {
     return namedPoints.remove(name);
+  }
+
+  /**
+   * Returns the atmosphere chosen for this level, a preset with its ambient light possibly
+   * replaced. Rooms with changing light override this method.
+   *
+   * @return the atmosphere
+   */
+  @Override
+  public Atmosphere atmosphere() {
+    return atmosphere;
+  }
+
+  /**
+   * The preset this level's atmosphere starts from.
+   *
+   * @return the preset, {@link Atmosphere.Preset#NEUTRAL} unless the level chose another
+   */
+  public Atmosphere.Preset atmospherePreset() {
+    return atmospherePreset;
+  }
+
+  /**
+   * The ambient light that replaces the one of the atmosphere preset, if the level sets one.
+   *
+   * @return the ambient light, or empty for the preset's own
+   */
+  public Optional<Color> ambientOverride() {
+    return Optional.ofNullable(ambientOverride);
+  }
+
+  /**
+   * Sets this level's atmosphere.
+   *
+   * @param preset the preset to start from
+   * @param ambient the ambient light replacing the preset's, or null to keep the preset's
+   */
+  public void atmosphere(Atmosphere.Preset preset, Color ambient) {
+    this.atmospherePreset = preset;
+    this.ambientOverride = ambient == null ? null : new Color(ambient);
+    this.atmosphere =
+        ambient == null ? preset.atmosphere() : preset.atmosphere().withAmbient(ambientOverride);
   }
 }

@@ -4,9 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
 import engine.level.loader.DungeonLoader;
-import engine.level.utils.DesignLabel;
-import engine.level.utils.LevelElement;
-import engine.rendering.Atmosphere;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.components.path.SimpleIPath;
@@ -21,12 +18,12 @@ import feature.systems.ManaRestoreSystem;
 import feature.systems.PathSystem;
 import feature.systems.ProjectileSystem;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Starter for a small dungeon that shows the atmosphere renderer: a pillared hall, a library, a
- * crypt and an east chamber with torches, wall fountains and wandering monsters.
+ * crypt and an east chamber with torches, wall fountains and wandering monsters. The level file
+ * chooses the dungeon atmosphere.
  *
  * <p>Usage: run with the Gradle task {@code runDungeonShowcase}.
  */
@@ -47,7 +44,7 @@ public class DungeonShowcase {
     Game.frameRate(60);
     Game.userOnSetup(
         () -> {
-          DungeonLoader.addLevel(Tuple.of("showcase", ShowcaseLevel.class));
+          DungeonLoader.addLevel(Tuple.of("showcase", DungeonLevel.class));
           Game.add(new CollisionSystem());
           Game.add(new AISystem());
           Game.add(new PathSystem());
@@ -80,26 +77,5 @@ public class DungeonShowcase {
 
   private static void spawn(DungeonMonster monster, float x, float y) {
     Game.add(monster.builder().build(new Point(x, y)));
-  }
-
-  /** The showcase dungeon, torch-lit and foggy. */
-  public static final class ShowcaseLevel extends DungeonLevel {
-
-    /**
-     * Creates the level.
-     *
-     * @param layout the level's tile grid
-     * @param designLabel the tile theme
-     * @param namedPoints named points of the level
-     */
-    public ShowcaseLevel(
-        LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
-      super(layout, designLabel, namedPoints, "showcase");
-    }
-
-    @Override
-    public Atmosphere atmosphere() {
-      return Atmosphere.DUNGEON;
-    }
   }
 }
