@@ -22,6 +22,8 @@ import engine.level.elements.tile.WallTile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
@@ -480,4 +482,22 @@ public interface ILevel extends IndexedGraph<Tile> {
   default <P extends Prefab> Optional<P> prefab(Class<P> prefabClass, String name) {
     return prefabs(prefabClass).stream().filter(view -> view.name().equals(name)).findFirst();
   }
+
+  /**
+   * Returns the lighting mood of this level. The renderer reads it every frame on the client.
+   *
+   * @return the atmosphere, {@link Atmosphere#NEUTRAL} unless the level chooses another
+   */
+  default Atmosphere atmosphere() {
+    return Atmosphere.NEUTRAL;
+  }
+
+  /**
+   * Adds the level's own point lights of the current frame, such as screens or status lamps. The
+   * renderer calls it every frame on the client and adds the lights of torches, lamps and players
+   * itself. Derive the lights from synchronized state, so every client lights the scene alike.
+   *
+   * @param out receives the lights
+   */
+  default void lights(List<Light> out) {}
 }

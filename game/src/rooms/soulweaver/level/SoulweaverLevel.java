@@ -4,6 +4,8 @@ import engine.Game;
 import engine.level.DungeonLevel;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import escaperoom.foundation.ui.BlackFadeCutscene;
@@ -52,6 +54,16 @@ public class SoulweaverLevel extends DungeonLevel {
 
   SoulweaverGolemRuntime runtime() {
     return runtime;
+  }
+
+  @Override
+  public Atmosphere atmosphere() {
+    return SoulweaverAtmosphere.current();
+  }
+
+  @Override
+  public void lights(List<Light> out) {
+    SoulweaverAtmosphere.lights(out);
   }
 
   @Override

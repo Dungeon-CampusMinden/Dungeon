@@ -11,7 +11,11 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
+import java.util.BitSet;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Maps Paths to libGDX {@link Texture}s, to reduce unnecessary loading of textures.
@@ -22,6 +26,10 @@ import java.util.HashMap;
 public final class TextureMap extends HashMap<String, Texture> {
   private static final TextureMap INSTANCE = new TextureMap();
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TextureMap.class);
+  private static final int OPAQUE_ALPHA = 128;
+
+  // Opaque pixels of every texture this map built from pixels, recorded while converting to PMA.
+  private final Map<Texture, BitSet> opaquePixels = new IdentityHashMap<>();
 
   /**
    * Get the instance of the TextureMap.
@@ -61,10 +69,30 @@ public final class TextureMap extends HashMap<String, Texture> {
     if (containsKey(path.pathString())) {
       Texture oldTexture = get(path.pathString());
       if (oldTexture != null) {
+        opaquePixels.remove(oldTexture);
         oldTexture.dispose();
       }
     }
     put(path.pathString(), texture);
+  }
+
+  @Override
+  public Texture remove(Object path) {
+    Texture removed = super.remove(path);
+    if (removed != null) opaquePixels.remove(removed);
+    return removed;
+  }
+
+  /**
+   * Returns which pixels of a texture are at least half opaque. Only textures this map created from
+   * an image file or pixmap have this information; textures handed in through {@link
+   * #putTexture(IPath, Texture)} do not.
+   *
+   * @param texture a texture stored in this map
+   * @return the opaque pixels, row-major from the image's top row with one bit per pixel, or empty
+   */
+  public Optional<BitSet> opaquePixels(Texture texture) {
+    return Optional.ofNullable(opaquePixels.get(texture));
   }
 
   /**
@@ -128,7 +156,7 @@ public final class TextureMap extends HashMap<String, Texture> {
    * @param internalPath The internal path to the texture file.
    * @return The loaded Texture with premultiplied alpha, or null if the file was not found.
    */
-  private static Texture loadPMA(String internalPath) {
+  private Texture loadPMA(String internalPath) {
     FileHandle file = Gdx.files.internal(internalPath);
     if (!file.exists()) {
       LOGGER.error("File not found: " + internalPath);
@@ -149,13 +177,15 @@ public final class TextureMap extends HashMap<String, Texture> {
    * @param pixmap The pixmap to convert.
    * @return The converted texture.
    */
-  private static Texture loadPMA(Pixmap pixmap) {
+  private Texture loadPMA(Pixmap pixmap) {
     Pixmap corrected = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), pixmap.getFormat());
+    BitSet opaque = new BitSet(pixmap.getWidth() * pixmap.getHeight());
     Color c = new Color();
     try {
       for (int y = 0; y < pixmap.getHeight(); y++) {
         for (int x = 0; x < pixmap.getWidth(); x++) {
           int colorInt = pixmap.getPixel(x, y);
+          if ((colorInt & 0xff) >= OPAQUE_ALPHA) opaque.set(y * pixmap.getWidth() + x);
 
           Color.rgba8888ToColor(c, colorInt);
 
@@ -168,7 +198,9 @@ public final class TextureMap extends HashMap<String, Texture> {
         }
       }
 
-      return new Texture(corrected);
+      Texture texture = new Texture(corrected);
+      opaquePixels.put(texture, opaque);
+      return texture;
     } finally {
       corrected.dispose();
     }

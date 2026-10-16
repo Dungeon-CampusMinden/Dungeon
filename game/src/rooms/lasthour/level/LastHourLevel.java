@@ -13,6 +13,8 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
@@ -91,12 +93,15 @@ import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
-import rooms.lasthour.util.shaders.LightingShader;
 import rooms.lasthour.util.translation.LastHourTranslator;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
+
+  private static final Atmosphere DARK = Atmosphere.NEUTRAL.withBrightness(0f).withLantern(1f);
+  private static final Atmosphere LIGHTS_ON =
+      Atmosphere.NEUTRAL.withBrightness(0.2f).withLantern(1f);
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
   private static LastHourLevel Instance = null;
 
@@ -265,7 +270,6 @@ public class LastHourLevel extends DungeonLevel {
     setupDecoderShelfs();
     setupPapers();
     setupInteractables();
-    if (!Game.isHeadless()) setupLightingShader();
     setupTimer();
     setupEndTrigger();
     setupR2Decorations();
@@ -418,8 +422,15 @@ public class LastHourLevel extends DungeonLevel {
     return timerExpired ? Lore.BadOutroTexts : Lore.OutroTexts;
   }
 
-  static void setupLightingShader() {
-    DrawSystem.getInstance().sceneShaders().add("lighting", new LightingShader().ambientLight(0));
+  @Override
+  public Atmosphere atmosphere() {
+    return lighting();
+  }
+
+  @Override
+  public void lights(List<Light> out) {
+    if (pc != null && keypad != null)
+      addLights(EntityUtils.getPosition(pc), getPoint("timer"), keypad, out);
   }
 
   private static final String cabinetImagePath = "images/virus-phrases-en.png";
@@ -1047,9 +1058,6 @@ public class LastHourLevel extends DungeonLevel {
     persistAtPetriMilestone(LastHourSave.DEFAULT_PATH);
     showIntroForNewPlayers();
     registerUsbCollectorHooks();
-    if (!Game.isHeadless()) {
-      updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
-    }
   }
 
   /** Shows the intro to each new player; a new run asks the pre-game survey first. */
@@ -1174,41 +1182,46 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  static void updateLightingShader(Point pcPos, Point timerPos, Entity keypad) {
-    if (!(DrawSystem.getInstance().sceneShaders().get("lighting") instanceof LightingShader ls))
-      return;
+  /**
+   * The office stays dark, lit only by the players' lanterns, until the room lights come back on
+   * with the computer.
+   *
+   * @return the current atmosphere of the room
+   */
+  static Atmosphere lighting() {
+    boolean lightsOn =
+        ComputerStateComponent.getState()
+            .filter(state -> state.state().hasReached(ComputerProgress.ON))
+            .map(ComputerStateComponent::lightsOn)
+            .orElse(false);
+    return lightsOn ? LIGHTS_ON : DARK;
+  }
 
-    ls.clearLightSources();
-
-    if (LevelEditorSystem.active()) {
-      ls.ambientLight(1.0f);
-      return;
-    } else {
-      ls.ambientLight(0.0f);
-    }
-
-    if (ComputerStateComponent.getState().isPresent()) {
-      var state = ComputerStateComponent.getState().get();
-      if (state.state().hasReached(ComputerProgress.ON)) {
-        if (state.lightsOn()) {
-          ls.ambientLight(0.2f);
-        }
-        Color color = state.isInfected() ? Color.RED : Color.BLUE;
-        float intensity = state.isInfected() ? 0.8f : 0.5f;
-        ls.addLightSource(pcPos, intensity, color);
-
-        ls.addLightSource(timerPos.translate(0.75f, 0), 0.5f, Color.RED);
-
-        var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
-        Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
-        ls.addLightSource(
+  /**
+   * Adds the status lights of the running computer: its screen, the timer and the keypad.
+   *
+   * @param pcPos position of the computer
+   * @param timerPos position of the timer
+   * @param keypad the keypad entity
+   * @param out receives the lights
+   */
+  static void addLights(Point pcPos, Point timerPos, Entity keypad, List<Light> out) {
+    var state = ComputerStateComponent.getState().orElse(null);
+    if (state == null || !state.state().hasReached(ComputerProgress.ON)) return;
+    if (state.isInfected()) out.add(statusLight(pcPos, 0.8f, Color.RED));
+    else out.add(statusLight(pcPos, 0.5f, Color.BLUE));
+    out.add(statusLight(timerPos.translate(0.75f, 0), 0.5f, Color.RED));
+    boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();
+    out.add(
+        statusLight(
             Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),
             0.3f,
-            keypadColor);
-      }
-    }
+            unlocked ? Color.GREEN : Color.RED));
+  }
 
-    Game.allPlayers().forEach(e -> ls.addLightSource(EntityUtils.getPosition(e), 1f));
+  // A steady light whose reach grows with its strength.
+  private static Light statusLight(Point position, float intensity, Color color) {
+    return new Light(position, color, 5 * intensity, intensity, 0f);
   }
 
   private void checkPCStateUpdate() {

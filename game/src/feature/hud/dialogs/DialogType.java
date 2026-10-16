@@ -51,9 +51,6 @@ public interface DialogType {
     /** Text keypad input dialog. */
     TEXT_KEYPAD("TEXT_KEYPAD"),
 
-    /** Progress bar display dialog. */
-    PROGRESS_BAR("PROGRESS_BAR"),
-
     /** Pause menu dialog. */
     PAUSE_MENU("PAUSE_MENU"),
 

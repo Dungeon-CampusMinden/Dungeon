@@ -190,8 +190,8 @@ class HeroDialogControlsTest {
   }
 
   @Test
-  void escapeOpensPauseWhenOnlyAttributeBarsAreVisible() {
-    UIComponent bar = showAttributeBar();
+  void escapeOpensPauseWhenOnlyPassiveUIIsVisible() {
+    UIComponent bar = showPassiveUI();
     assertTrue(Game.hud().hasOpenUI(player));
     assertFalse(Game.hud().hasOpenPausingUI(player));
 
@@ -207,9 +207,9 @@ class HeroDialogControlsTest {
   }
 
   @Test
-  void attributeBarsAddedAboveADialogDoNotInterceptEscape() {
+  void passiveUIAddedAboveADialogDoesNotInterceptEscape() {
     UIComponent dialog = showDialog(true, true);
-    UIComponent bar = showAttributeBar();
+    UIComponent bar = showPassiveUI();
     Group stage = new Group();
     stage.addActor(dialog.dialog());
     stage.addActor(bar.dialog());
@@ -259,10 +259,10 @@ class HeroDialogControlsTest {
   }
 
   @Test
-  void disabledControlsWithOnlyAttributeBarsDoNotOpenMenus() {
+  void disabledControlsWithOnlyPassiveUIDoNotOpenMenus() {
     INetworkHandler network = useNetworkClient();
     player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
-    showAttributeBar();
+    showPassiveUI();
 
     pressEscape();
 
@@ -285,11 +285,11 @@ class HeroDialogControlsTest {
   }
 
   @Test
-  void nonCloseableDialogueReceivesEscapeEvenWithAnAttributeBarAboveIt() {
+  void nonCloseableDialogueReceivesEscapeEvenWithPassiveUIAboveIt() {
     UIComponent dialog = showDialog(true, false);
     AtomicInteger advances = new AtomicInteger();
     UIUtils.onCloseRequest(dialog.dialog(), advances::incrementAndGet);
-    UIComponent bar = showAttributeBar();
+    UIComponent bar = showPassiveUI();
     Group stage = new Group();
     stage.addActor(dialog.dialog());
     stage.addActor(bar.dialog());
@@ -357,10 +357,9 @@ class HeroDialogControlsTest {
             .anyMatch(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU));
   }
 
-  private UIComponent showAttributeBar() {
-    Entity owner = Entity.createLocalEntity("health-bar");
-    DialogContext context =
-        DialogContext.builder().type(DialogType.DefaultTypes.PROGRESS_BAR).build();
+  private UIComponent showPassiveUI() {
+    Entity owner = Entity.createLocalEntity("passive-ui");
+    DialogContext context = DialogContext.builder().type(TestDialogType.TEST).build();
     context.owner(owner.id());
     UIComponent bar = new UIComponent(context, false, false);
     owner.add(bar);

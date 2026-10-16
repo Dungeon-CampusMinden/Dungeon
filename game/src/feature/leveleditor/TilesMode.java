@@ -37,14 +37,14 @@ public class TilesMode extends LevelEditorMode {
       Map.of(
           LevelElement.SKIP, "hud/cross.png",
           LevelElement.FLOOR, "dungeon/default/floor/floor_1.png",
-          LevelElement.WALL, "dungeon/default/wall/t_inner_top_empty.png",
+          LevelElement.WALL, "dungeon/default/wall/walls.png",
           LevelElement.HOLE, "dungeon/default/floor/floor_hole.png",
           LevelElement.EXIT, "dungeon/default/floor/floor_ladder.png",
           LevelElement.PIT, "dungeon/default/floor/pit_open.png",
-          LevelElement.DOOR, "dungeon/default/door/top.png",
-          LevelElement.PORTAL, "dungeon/default/portal/portal_block.png",
-          LevelElement.GLASSWALL, "dungeon/default/portal/glasswall/glasswall_horizontal.png",
-          LevelElement.GITTER, "dungeon/default/portal/gutter/gutter_horizontal.png");
+          LevelElement.DOOR, "dungeon/old_default/door/top.png",
+          LevelElement.PORTAL, "dungeon/old_default/portal/portal_block.png",
+          LevelElement.GLASSWALL, "dungeon/old_default/portal/glasswall/glasswall_horizontal.png",
+          LevelElement.GITTER, "dungeon/old_default/portal/gutter/gutter_horizontal.png");
 
   private LevelElementGrid grid = null;
   private IntegerSetting brushSizeSetting = null;
@@ -65,8 +65,8 @@ public class TilesMode extends LevelEditorMode {
   /**
    * Gets the preview texture for an element in the selected level design.
    *
-   * <p>Portal, glass-wall, and grate textures are shared from the default design, except for the
-   * dedicated System Recovery theme.
+   * <p>Portal, glass-wall, and grate textures are shared from the old default design, except for
+   * the dedicated System Recovery theme.
    *
    * @param element the level element
    * @param designLabel the selected level design
@@ -81,7 +81,7 @@ public class TilesMode extends LevelEditorMode {
         || element == LevelElement.GLASSWALL
         || element == LevelElement.GITTER) {
       if (designLabel != DesignLabel.SYSTEM_RECOVERY) return defaultPath;
-      String themedAsset = defaultPath.substring("dungeon/default/".length());
+      String themedAsset = defaultPath.substring("dungeon/old_default/".length());
       return "dungeon/" + designLabel.name().toLowerCase() + "/" + themedAsset;
     }
     return TileTextureFactory.findTexturePath(element, designLabel).pathString();

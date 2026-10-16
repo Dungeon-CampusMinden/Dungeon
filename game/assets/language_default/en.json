@@ -136,9 +136,6 @@
         },
         "inventory_dialog": {
             "title": "INVENTORY"
-        },
-        "progress_bar_dialog": {
-            "title": "Progress Bar"
         }
     },
     "achievement": {

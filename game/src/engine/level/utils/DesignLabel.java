@@ -5,8 +5,14 @@ package engine.level.utils;
  * can be used to define the aesthetic style of the dungeon.
  */
 public enum DesignLabel {
-  /** The default dungeon-like design with a classic stone and brick appearance. */
+  /**
+   * The default dungeon design: brown brick walls and stone floors with random cracks, plus wall
+   * decoration in levels whose atmosphere asks for it.
+   */
   DEFAULT,
+
+  /** The former default design with thin grey stone walls and a purple tiled floor. */
+  OLD_DEFAULT,
 
   /** A fiery theme featuring lava, heat, and volcanic visuals. */
   FIRE,

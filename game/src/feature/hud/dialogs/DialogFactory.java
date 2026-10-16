@@ -19,7 +19,6 @@ import feature.interaction.keypad.TextKeypadUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
 import feature.puzzle.PuzzleDialog;
-import feature.utils.AttributeBarUtil;
 import feature.utils.Translator;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,7 +65,6 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.DUAL_INVENTORY, InventoryGUI::buildDual);
     register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
     register(DialogType.DefaultTypes.TEXT_KEYPAD, TextKeypadUI::build);
-    register(DialogType.DefaultTypes.PROGRESS_BAR, AttributeBarUtil::buildProgressBar);
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
     register(DialogType.DefaultTypes.ACHIEVEMENT_POPUP, AchievementPopup::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);

@@ -1,5 +1,5 @@
 - Quelle: https://github.com/Dungeon-CampusMinden (a Dungeon original)
-- Author: Diana Kirzhner 
+- Author: Dungeon-CampusMinden
 - License: CC0 1.0
 
 <details>

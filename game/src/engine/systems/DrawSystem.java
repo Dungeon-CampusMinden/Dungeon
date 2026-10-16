@@ -19,9 +19,10 @@ import engine.Game;
 import engine.System;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.game.ECSManagement;
 import engine.input.CursorUtils;
-import engine.level.Tile;
-import engine.level.utils.LevelElement;
+import engine.rendering.AtmosphereRenderer;
+import engine.rendering.WorldOverlay;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
@@ -61,7 +62,11 @@ import java.util.TreeMap;
  * <p>4. **Post-Processing Pass (Optional):** If scene shaders are configured, the scene FBO is
  * ping-ponged through the post-processing shaders.
  *
- * <p>5. **Screen Final Draw:** The final output is presented on the screen.
+ * <p>5. **Atmosphere and Screen Final Draw:** The {@link AtmosphereRenderer} lights and grades the
+ * scene and presents it on the screen.
+ *
+ * <p>All scene buffers are rendered at a fixed resolution of two texels per sprite pixel around a
+ * texel-snapped camera; see {@link AtmosphereRenderer}.
  *
  * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
  * screen.
@@ -105,6 +110,12 @@ public final class DrawSystem extends System implements Disposable {
   private int unstableWidth = -1;
   private int unstableHeight = -1;
   private int stableResizeFrames = -1;
+
+  // Entities on these layers stand on the floor: they get a contact shadow and raise dust.
+  private static final int[] GROUNDED_DEPTHS = {
+    DepthLayer.Normal.depth(), DepthLayer.Player.depth()
+  };
+  private final AtmosphereRenderer atmosphere = new AtmosphereRenderer();
 
   /**
    * Gets the singleton instance of the DrawSystem, creating it if it does not exist.
@@ -189,6 +200,7 @@ public final class DrawSystem extends System implements Disposable {
   @Override
   public void dispose() {
     fboBatch().dispose();
+    atmosphere.dispose();
     entityFboCache.values().forEach(FBO_POOL::free);
     entityFboCache.clear();
     // The static batch() is expected to be disposed externally (e.g., in the main game class)
@@ -269,7 +281,7 @@ public final class DrawSystem extends System implements Disposable {
    *
    * <p>4. Post-Processing Pass: If enabled, ping-pong the Scene FBO through the scene shaders.
    *
-   * <p>5. Screen Final Draw: Present the final texture.
+   * <p>5. Atmosphere and Screen Final Draw: Light, grade and present the final texture.
    */
   @Override
   public void execute() {
@@ -332,11 +344,34 @@ public final class DrawSystem extends System implements Disposable {
 
     shadersActiveLastFrame = 0;
 
+    try {
+      atmosphere.beginFrame(stableWidth, stableHeight, delta, secondsElapsed);
+      renderScene();
+    } finally {
+      atmosphere.endFrame();
+    }
+
+    FBO_POOL.update();
+    secondsElapsed += delta;
+  }
+
+  /** Renders the scene through all passes; runs between the atmosphere's frame start and end. */
+  private void renderScene() {
+    sortedEntities
+        .values()
+        .forEach(
+            group ->
+                group.forEach(
+                    e -> {
+                      DSData d = DSData.build(e);
+                      atmosphere.addEntity(e, d.dc, d.pc, isGrounded(d.dc));
+                    }));
+
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
 
-    int sceneWidth = stableWidth;
-    int sceneHeight = stableHeight;
+    int sceneWidth = atmosphere.width();
+    int sceneHeight = atmosphere.height();
 
     // Get FBOs for scene composition/post-processing
     FrameBuffer fboA = FBO_POOL.obtain(sceneWidth, sceneHeight);
@@ -388,34 +423,26 @@ public final class DrawSystem extends System implements Disposable {
         .values()
         .forEach(fbo -> drawFboToBatch(fbo, sceneWidth, sceneHeight));
 
+    batch().setProjectionMatrix(CameraSystem.camera().combined);
+    atmosphere.drawParticles(batch());
+
     batch().end();
     fboA.end();
 
     FBO_POOL.free(levelFbo);
     depthFbos.values().forEach(FBO_POOL::free);
 
-    // 4. Post-Processing Pass (Scene Shaders) & 5. Screen Final Draw
+    // 4. Post-Processing Pass (Scene Shaders) & 5. Atmosphere and Screen Final Draw
     FrameBuffer finalSourceFbo =
         applyShadersAndCompose(fboA, fboB, sceneShaders, sceneWidth, sceneHeight);
+    FrameBuffer graded = atmosphere.grade(finalSourceFbo, batch());
+    drawOverlays(graded);
 
-    // Draw final result to screen
     Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-    Texture finalTexture = finalSourceFbo.getColorBufferTexture();
-    fboRegion.setRegion(finalTexture);
-    fboRegion.flip(false, true);
-
-    batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, stableWidth, stableHeight));
-    batch().begin();
-    BlendUtils.setBlending(batch());
-    batch().setColor(Color.WHITE);
-    batch().draw(fboRegion, 0, 0, stableWidth, stableHeight);
-    batch().end();
+    atmosphere.present(graded, batch());
 
     FBO_POOL.free(fboA);
     FBO_POOL.free(fboB);
-
-    FBO_POOL.update();
-    secondsElapsed += delta;
   }
 
   /**
@@ -868,55 +895,50 @@ public final class DrawSystem extends System implements Disposable {
     t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
   }
 
+  // Draws the world overlays of the registered systems onto the graded scene. Like rendering
+  // itself, they keep drawing while a pausing dialog has stopped the systems.
+  private void drawOverlays(FrameBuffer graded) {
+    List<WorldOverlay> overlays =
+        ECSManagement.systems().values().stream()
+            .filter(s -> s instanceof WorldOverlay)
+            .map(WorldOverlay.class::cast)
+            .toList();
+    if (overlays.isEmpty()) return;
+    graded.begin();
+    batch().setProjectionMatrix(CameraSystem.camera().combined);
+    BlendUtils.setBlending(batch());
+    batch().begin();
+    overlays.forEach(o -> o.drawOverlay(batch()));
+    batch().setColor(Color.WHITE);
+    batch().end();
+    graded.end();
+  }
+
+  /**
+   * Draws the floor, the contact shadows of the entities standing on it and the dust their feet
+   * kick up, then the walls, which cover shadows and dust behind them.
+   */
   private void drawLevel() {
-    Game.currentLevel()
-        .ifPresent(
-            currentLevel -> {
-              Tile[][] layout = currentLevel.layout();
-              if (layout.length == 0 || layout[0].length == 0) {
-                return;
-              }
+    atmosphere.drawFloor(batch());
 
-              TileBounds bounds = getCameraTileBounds(layout);
-              if (bounds.minX() > bounds.maxX() || bounds.minY() > bounds.maxY()) {
-                return;
-              }
-
-              for (int y = bounds.minY(); y <= bounds.maxY(); y++) {
-                Tile[] row = layout[y];
-                for (int x = bounds.minX(); x <= bounds.maxX(); x++) {
-                  Tile t = row[x];
-                  if (shouldDrawTile(t)) {
-                    IPath texturePath = t.texturePath();
-                    int tintColor =
-                        t.tintColor() == -1 ? Color.rgba8888(Color.WHITE) : t.tintColor();
-                    draw(t.position(), texturePath, new DrawConfig().withTintColor(tintColor));
-                  }
-                }
-              }
-            });
+    for (int depth : GROUNDED_DEPTHS) {
+      List<Entity> group = sortedEntities.get(depth);
+      if (group == null) continue;
+      group.stream()
+          .map(DSData::build)
+          .filter(this::shouldDraw)
+          .forEach(d -> atmosphere.drawShadow(batch(), d.dc, d.pc));
+    }
+    atmosphere.drawGroundParticles(batch());
+    atmosphere.drawWalls(batch(), secondsElapsed);
   }
 
-  private boolean shouldDrawTile(Tile tile) {
-    return tile != null && tile.levelElement() != LevelElement.SKIP && tile.visible();
+  private static boolean isGrounded(DrawComponent dc) {
+    for (int depth : GROUNDED_DEPTHS) {
+      if (dc.depth() == depth) return true;
+    }
+    return false;
   }
-
-  private TileBounds getCameraTileBounds(Tile[][] layout) {
-    Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
-    float minWorldX = cameraBounds.x();
-    float maxWorldX = cameraBounds.x() + cameraBounds.width();
-    float minWorldY = cameraBounds.y();
-    float maxWorldY = cameraBounds.y() + cameraBounds.height();
-
-    int minX = Math.max(0, (int) Math.floor(minWorldX));
-    int maxX = Math.min(layout[0].length - 1, (int) Math.ceil(maxWorldX));
-    int minY = Math.max(0, (int) Math.floor(minWorldY));
-    int maxY = Math.min(layout.length - 1, (int) Math.ceil(maxWorldY));
-
-    return new TileBounds(minX, maxX, minY, maxY);
-  }
-
-  private record TileBounds(int minX, int maxX, int minY, int maxY) {}
 
   /**
    * Checks if an entity should be drawn. By checking:

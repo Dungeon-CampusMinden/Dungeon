@@ -71,6 +71,8 @@ public class FrameBufferPool implements Disposable {
       return pooledFbo.fbo;
     }
 
+    // Buffers of sizes that are no longer requested (zoom, resize) make room for new sizes.
+    if (currentFboCount >= HARD_LIMIT) evictLeastRecentlyUsed();
     if (currentFboCount >= HARD_LIMIT) {
       throw new IllegalStateException(
           "FBO Pool HARD_LIMIT (" + HARD_LIMIT + ") reached. Cannot allocate new FBOs.");
@@ -137,6 +139,23 @@ public class FrameBufferPool implements Disposable {
         }
       }
     }
+  }
+
+  private void evictLeastRecentlyUsed() {
+    LinkedList<PooledFbo> oldestList = null;
+    PooledFbo oldest = null;
+    for (LinkedList<PooledFbo> fbos : availablePool.values()) {
+      for (PooledFbo pooledFbo : fbos) {
+        if (oldest == null || pooledFbo.lastUsedTime < oldest.lastUsedTime) {
+          oldest = pooledFbo;
+          oldestList = fbos;
+        }
+      }
+    }
+    if (oldest == null) return;
+    oldestList.remove(oldest);
+    oldest.fbo.dispose();
+    currentFboCount--;
   }
 
   /** Disposes all FBOs (in use and available) when the pool is destroyed. */
