@@ -27,7 +27,11 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Game;
 import engine.language.Language;
 import engine.language.Translation;
+import engine.network.ConnectionListener;
+import engine.network.client.CharacterOptionsClient;
 import engine.network.client.ClientConnectionConfig;
+import engine.network.messages.s2c.CharacterOptions;
+import engine.network.messages.s2c.ConnectReject;
 import engine.tracking.TrackingRuntime;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
@@ -38,13 +42,20 @@ import feature.achievements.AchievementMenuView;
 import feature.credits.CreditsDefinition;
 import feature.credits.CreditsRepository;
 import feature.credits.CreditsView;
+import feature.entities.CharacterClass;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ClientConnectionDialog;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.RichLabel;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -91,11 +102,23 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final String T_INVALID_NAME = "invalid_name";
   private static final String T_INVALID_CONNECTION = "invalid_connection";
   private static final String T_STARTING_SERVER = "starting_server";
+  private static final String T_STOPPING_SERVER = "stopping_server";
+  private static final String T_SERVER_STOP_FAILED = "server_stop_failed";
   private static final String T_SERVER_START_FAILED = "server_start_failed";
   private static final String T_SERVER_TIMEOUT = "server_timeout";
   private static final String T_NEW_GAME_OVERWRITE_TITLE = "new_game_overwrite_title";
   private static final String T_NEW_GAME_OVERWRITE_MESSAGE = "new_game_overwrite_message";
   private static final String T_CANCEL = "cancel";
+  private static final String T_CHARACTER_SELECTION_TITLE = "character_selection_title";
+  private static final String T_REFRESHING_CHARACTERS = "refreshing_characters";
+  private static final String T_CONNECTION_REFUSED = "connection_refused";
+  private static final String T_CONNECTION_TIMEOUT = "connection_timeout";
+  private static final String T_CONNECTION_FAILED = "connection_failed";
+  private static final String T_NAME_IN_USE = "name_in_use";
+  private static final String T_INCOMPATIBLE_VERSION = "incompatible_version";
+  private static final String T_SERVER_FULL = "server_full";
+  private static final String T_CHARACTER_UNAVAILABLE = "character_unavailable";
+  private static final String T_CONNECTION_REJECTED = "connection_rejected";
   private static final Translation trans = new Translation("main_menu");
 
   private final GameStarter starter;
@@ -108,7 +131,8 @@ public class MainMenuScreen extends ScreenAdapter {
     ACHIEVEMENTS,
     CREDITS,
     HOST_NAME,
-    JOIN
+    JOIN,
+    CHARACTER_SELECT
   }
 
   private Stage stage;
@@ -120,10 +144,13 @@ public class MainMenuScreen extends ScreenAdapter {
   private Table achievementsView;
   private Table hostNameView;
   private Table joinView;
+  private Table characterSelectionView;
+  private CharacterCarousel characterCarousel;
   private View activeView = View.MAIN;
   private boolean showLevelEditorOption;
 
   private TextField hostNameField;
+  private Label hostTitleLabel;
   private Label hostStatusLabel;
   private TextButton hostConfirmButton;
   private TextButton hostBackButton;
@@ -134,9 +161,34 @@ public class MainMenuScreen extends ScreenAdapter {
   private Label joinStatusLabel;
   private TextButton joinConfirmButton;
   private TextButton joinBackButton;
+  private Label characterSelectionStatusLabel;
+  private TextButton characterConfirmButton;
+  private TextButton characterBackButton;
 
   private volatile boolean launching = false;
   private boolean continueGameSelected;
+  private volatile long pregameGeneration;
+  private volatile long hostGeneration;
+  private volatile boolean handingOffToGame;
+  private volatile boolean admissionStarting;
+  private volatile boolean admissionCleanupPending;
+  private boolean discoveryInProgress;
+  private float characterRefreshElapsed;
+  private boolean hostCleanupPending;
+  private boolean selectionHosted;
+  private boolean disposed;
+  private String selectionPlayerName;
+  private String selectionHost;
+  private int selectionPort;
+  private View selectionBackView = View.JOIN;
+  private String selectionStatusMessage = "";
+  private List<CharacterOptions.Option> currentCharacterOptions = List.of();
+  private CharacterClass selectedCharacter;
+  private CharacterOptionsClient optionsClient;
+  private volatile ConnectionListener admissionListener;
+  private ConnectReject.Reason admissionRejection;
+  private volatile ServerProcess pendingServer;
+  private final Object networkStartLock = new Object();
 
   /**
    * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
@@ -185,6 +237,7 @@ public class MainMenuScreen extends ScreenAdapter {
     achievementsView = buildAchievementsView();
     hostNameView = buildHostNameView();
     joinView = buildJoinView();
+    characterSelectionView = buildCharacterSelectionView();
 
     Stack root = new Stack();
     root.setFillParent(true);
@@ -357,20 +410,20 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   private Table buildHostNameView() {
-    Label title =
+    hostTitleLabel =
         label(starter.hostActionLabel().orElseGet(() -> trans.text(T_HOST)), 36, PANEL_TEXT_COLOR);
     Label nameLabel = label(trans.text(T_PLAYER_NAME), 22, PANEL_TEXT_COLOR);
     hostNameField = Scene2dElementFactory.createTextField(ClientConnectionDialog.defaultUsername());
     hostStatusLabel = label("", 18, ERROR_COLOR);
     hostConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmHostName);
-    hostBackButton = menuButton(trans.text(T_BACK), "red-outline", this::showMainView);
+    hostBackButton = menuButton(trans.text(T_BACK), "red-outline", this::cancelHostSetup);
 
     Table buttons = new Table();
     buttons.add(hostBackButton).width(175).padRight(10);
     buttons.add(hostConfirmButton).width(175);
 
     Table menu = new Table();
-    menu.add(title).padBottom(20).align(Align.center).row();
+    menu.add(hostTitleLabel).padBottom(20).align(Align.center).row();
     menu.add(nameLabel).align(Align.left).padBottom(5).row();
     menu.add(hostNameField).width(BUTTON_WIDTH).padBottom(8).row();
     menu.add(hostStatusLabel).width(BUTTON_WIDTH).minHeight(24).padBottom(8).row();
@@ -405,7 +458,7 @@ public class MainMenuScreen extends ScreenAdapter {
         Scene2dElementFactory.createTextField(Integer.toString(PreRunConfiguration.networkPort()));
     joinStatusLabel = label("", 18, ERROR_COLOR);
     joinConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmJoin);
-    joinBackButton = menuButton(trans.text(T_BACK), "red-outline", this::showMainView);
+    joinBackButton = menuButton(trans.text(T_BACK), "red-outline", this::cancelJoinSetup);
 
     Table buttons = new Table();
     buttons.add(joinBackButton).width(175).padRight(10);
@@ -420,6 +473,33 @@ public class MainMenuScreen extends ScreenAdapter {
     menu.add(portLabel).align(Align.left).padBottom(5).row();
     menu.add(joinPortField).width(BUTTON_WIDTH).padBottom(8).row();
     menu.add(joinStatusLabel).width(BUTTON_WIDTH).minHeight(24).padBottom(8).row();
+    menu.add(buttons).align(Align.center).row();
+    return menu;
+  }
+
+  private Table buildCharacterSelectionView() {
+    Label title = label(trans.text(T_CHARACTER_SELECTION_TITLE), 36, PANEL_TEXT_COLOR);
+    characterCarousel = new CharacterCarousel(skin);
+    characterCarousel.onSelectionChanged(this::updateCharacterConfirmButton);
+    characterSelectionStatusLabel = label("", 18, ERROR_COLOR);
+    characterSelectionStatusLabel.setWrap(true);
+    characterSelectionStatusLabel.setAlignment(Align.center);
+    characterConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::beginAdmission);
+    characterBackButton =
+        menuButton(trans.text(T_BACK), "red-outline", this::backFromCharacterSelect);
+
+    Table buttons = new Table();
+    buttons.add(characterBackButton).width(175).padRight(10);
+    buttons.add(characterConfirmButton).width(175);
+
+    Table menu = new Table();
+    menu.add(title).padBottom(8).align(Align.center).row();
+    menu.add(characterCarousel).padBottom(6).row();
+    menu.add(characterSelectionStatusLabel)
+        .width(BUTTON_WIDTH + 80)
+        .minHeight(24)
+        .padBottom(8)
+        .row();
     menu.add(buttons).align(Align.center).row();
     return menu;
   }
@@ -593,7 +673,11 @@ public class MainMenuScreen extends ScreenAdapter {
   private void continueGame() {
     if (launching) return;
     continueGameSelected = true;
-    showStartupConsent(() -> startHosting(true));
+    showStartupConsent(
+        () -> {
+          hostNameField.setText(PreRunConfiguration.username());
+          showHostNameViewInternal();
+        });
   }
 
   private void showNewGameOverwriteConfirmation() {
@@ -629,8 +713,15 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private void showHostNameViewInternal() {
     activeView = View.HOST_NAME;
-    hostStatusLabel.setText("");
-    setHostControlsDisabled(false);
+    hostTitleLabel.setText(
+        continueGameSelected
+            ? trans.text(T_CONTINUE)
+            : starter.hostActionLabel().orElseGet(() -> trans.text(T_HOST)));
+    hostStatusLabel.setText(
+        hostCleanupPending
+            ? trans.text(T_STOPPING_SERVER)
+            : launching ? trans.text(T_STARTING_SERVER) : "");
+    setHostControlsDisabled(launching);
     swapContent(hostNameView);
     stage.setKeyboardFocus(hostNameField);
   }
@@ -638,8 +729,457 @@ public class MainMenuScreen extends ScreenAdapter {
   private void showJoinView() {
     activeView = View.JOIN;
     joinStatusLabel.setText("");
+    setJoinControlsDisabled(discoveryInProgress || admissionCleanupPending);
     swapContent(joinView);
     stage.setKeyboardFocus(joinNameField);
+  }
+
+  private void showCharacterSelectionView() {
+    activeView = View.CHARACTER_SELECT;
+    characterCarousel.setOptions(currentCharacterOptions, selectedCharacter);
+    characterSelectionStatusLabel.setText(selectionStatusMessage);
+    updateCharacterConfirmButton();
+    swapContent(characterSelectionView);
+    stage.setKeyboardFocus(null);
+  }
+
+  private void beginCharacterDiscovery(
+      String host, int port, String playerName, View returnView, boolean hosted) {
+    if (stage == null || handingOffToGame) {
+      return;
+    }
+    cancelOptionsRequest();
+    selectionHost = host;
+    selectionPort = port;
+    selectionPlayerName = playerName;
+    selectionBackView = returnView;
+    selectionHosted = hosted;
+    currentCharacterOptions = List.of();
+    selectedCharacter = null;
+    selectionStatusMessage = trans.text(T_REFRESHING_CHARACTERS);
+    launching = false;
+    admissionStarting = false;
+    admissionRejection = null;
+    characterCarousel.setOptions(List.of(), null);
+    boolean validateJoin = !hosted && returnView == View.JOIN;
+    if (!validateJoin) {
+      showCharacterSelectionView();
+    }
+    requestCharacterOptions(validateJoin);
+  }
+
+  private void requestCharacterOptions(boolean validateJoin) {
+    if (selectionHost == null || selectionPlayerName == null || stage == null) {
+      return;
+    }
+    cancelOptionsRequest();
+    long operation = ++pregameGeneration;
+    View requestView = activeView;
+    characterRefreshElapsed = 0;
+    boolean recoveringDiscovery = currentCharacterOptions.isEmpty();
+    discoveryInProgress = true;
+    if (validateJoin) {
+      setJoinControlsDisabled(true);
+      joinStatusLabel.setText(trans.text("connecting_to_server"));
+    } else {
+      updateCharacterConfirmButton();
+      characterSelectionStatusLabel.setText(selectionStatusMessage);
+    }
+
+    CharacterOptionsClient request =
+        new CharacterOptionsClient(selectionHost, selectionPort, selectionPlayerName);
+    optionsClient = request;
+    request
+        .request()
+        .whenComplete(
+            (response, error) ->
+                postToRenderThread(
+                    () -> {
+                      if (operation != pregameGeneration
+                          || activeView != requestView
+                          || stage == null) {
+                        request.close();
+                        return;
+                      }
+                      optionsClient = null;
+                      discoveryInProgress = false;
+                      if (validateJoin) {
+                        setJoinControlsDisabled(admissionCleanupPending);
+                      }
+                      if (error != null) {
+                        currentCharacterOptions = List.of();
+                        selectionStatusMessage = connectionError(error);
+                        if (!selectionHosted) {
+                          showJoinView();
+                          joinStatusLabel.setText(selectionStatusMessage);
+                          return;
+                        }
+                      } else {
+                        currentCharacterOptions = response.characters();
+                        selectedCharacter =
+                            characterCarousel
+                                .selectedOption()
+                                .map(CharacterOptions.Option::characterClass)
+                                .orElse(selectedCharacter);
+                        if (validateJoin || recoveringDiscovery) {
+                          selectionStatusMessage = "";
+                        }
+                        if (validateJoin) {
+                          showCharacterSelectionView();
+                          return;
+                        }
+                      }
+                      characterCarousel.setOptions(currentCharacterOptions, selectedCharacter);
+                      characterSelectionStatusLabel.setText(selectionStatusMessage);
+                      updateCharacterConfirmButton();
+                    }));
+  }
+
+  private boolean isCurrentPregameOperation(long operation) {
+    return operation == pregameGeneration && activeView == View.CHARACTER_SELECT;
+  }
+
+  private void cancelOptionsRequest() {
+    CharacterOptionsClient request = optionsClient;
+    optionsClient = null;
+    if (request != null) {
+      request.close();
+    }
+    discoveryInProgress = false;
+  }
+
+  private void updateCharacterConfirmButton() {
+    if (characterConfirmButton == null) {
+      return;
+    }
+    selectedCharacter =
+        characterCarousel == null
+            ? null
+            : characterCarousel
+                .selectedOption()
+                .map(CharacterOptions.Option::characterClass)
+                .orElse(null);
+    boolean selectable =
+        characterCarousel != null
+            && characterCarousel
+                .selectedOption()
+                .map(CharacterOptions.Option::selectable)
+                .orElse(false);
+    characterConfirmButton.setDisabled(!selectable || admissionStarting || admissionCleanupPending);
+  }
+
+  private void beginAdmission() {
+    if (admissionStarting || admissionCleanupPending) {
+      return;
+    }
+    Optional<CharacterOptions.Option> selected =
+        characterCarousel == null ? Optional.empty() : characterCarousel.selectedOption();
+    if (selected.isEmpty() || !selected.orElseThrow().selectable()) {
+      return;
+    }
+    cancelOptionsRequest();
+    try {
+      PreRunConfiguration.username(selectionPlayerName);
+    } catch (IllegalArgumentException e) {
+      selectionStatusMessage = trans.text(T_INVALID_NAME);
+      characterSelectionStatusLabel.setText(selectionStatusMessage);
+      return;
+    }
+
+    CharacterClass characterClass = selected.orElseThrow().characterClass();
+    selectedCharacter = characterClass;
+    PreRunConfiguration.multiplayerCharacterClass(characterClass);
+    PreRunConfiguration.networkServerAddress(selectionHost);
+    PreRunConfiguration.networkPort(selectionPort);
+    admissionStarting = true;
+    admissionRejection = null;
+    selectionStatusMessage = trans.text("connecting_to_server");
+    characterSelectionStatusLabel.setText(selectionStatusMessage);
+    updateCharacterConfirmButton();
+    long operation = ++pregameGeneration;
+    ConnectionListener listener = createAdmissionListener(operation);
+    admissionListener = listener;
+    Thread connector =
+        new Thread(() -> startAdmissionClient(operation, listener), "menu-client-connection");
+    connector.setDaemon(true);
+    connector.start();
+    CompletableFuture.delayedExecutor(15, TimeUnit.SECONDS)
+        .execute(
+            () ->
+                postToRenderThread(
+                    () -> {
+                      if (isCurrentPregameOperation(operation) && admissionStarting) {
+                        handleAdmissionFailure(operation, trans.text(T_CONNECTION_TIMEOUT), null);
+                      }
+                    }));
+  }
+
+  private void startAdmissionClient(long operation, ConnectionListener listener) {
+    try {
+      synchronized (networkStartLock) {
+        if (operation != pregameGeneration) {
+          return;
+        }
+        Game.initializeNetwork();
+        if (operation != pregameGeneration) {
+          Game.network().shutdown("Main-menu connection cancelled");
+          return;
+        }
+        Game.network().addConnectionListener(listener);
+        if (operation != pregameGeneration) {
+          Game.network().removeConnectionListener(listener);
+          Game.network().shutdown("Main-menu connection cancelled");
+          return;
+        }
+        Game.network().start();
+        if (operation != pregameGeneration) {
+          Game.network().removeConnectionListener(listener);
+          Game.network().shutdown("Main-menu connection cancelled");
+        }
+      }
+    } catch (RuntimeException e) {
+      LOGGER.warn("Could not start the menu connection.", e);
+      postToRenderThread(
+          () -> {
+            if (isCurrentPregameOperation(operation) && admissionStarting) {
+              handleAdmissionFailure(operation, connectionError(e), null);
+            }
+          });
+    }
+  }
+
+  private ConnectionListener createAdmissionListener(long operation) {
+    return new ConnectionListener() {
+      @Override
+      public void onConnected() {
+        if (!isCurrentPregameOperation(operation) || stage == null || !admissionStarting) {
+          return;
+        }
+        admissionStarting = false;
+        Game.network().removeConnectionListener(this);
+        admissionListener = null;
+        try {
+          GameLoop.prepareForMenuConnection();
+          handingOffToGame = true;
+          GameLoop.startGame();
+        } catch (RuntimeException e) {
+          LOGGER.error("Could not prepare gameplay after menu connection.", e);
+          handingOffToGame = false;
+          handleAdmissionFailure(
+              operation, trans.text(T_CONNECTION_FAILED, rootCauseMessage(e)), null);
+        }
+      }
+
+      @Override
+      public void onDisconnected(String reason) {
+        if (handingOffToGame || !isCurrentPregameOperation(operation) || !admissionStarting) {
+          return;
+        }
+        handleAdmissionFailure(
+            operation,
+            admissionRejection == null
+                ? connectionError(reason)
+                : rejectionMessage(admissionRejection),
+            admissionRejection);
+      }
+
+      @Override
+      public void onRejected(ConnectReject.Reason reason) {
+        if (isCurrentPregameOperation(operation)) {
+          admissionRejection = reason;
+        }
+      }
+    };
+  }
+
+  private void handleAdmissionFailure(
+      long operation, String message, ConnectReject.Reason rejection) {
+    if (!isCurrentPregameOperation(operation)) {
+      return;
+    }
+    admissionStarting = false;
+    admissionRejection = null;
+    selectionStatusMessage = message;
+    characterSelectionStatusLabel.setText(message);
+    if (!selectionHosted && rejection != ConnectReject.Reason.CHARACTER_UNAVAILABLE) {
+      showJoinView();
+      joinStatusLabel.setText(message);
+      setJoinControlsDisabled(true);
+    }
+    ConnectionListener listener = admissionListener;
+    admissionListener = null;
+    if (listener != null) {
+      Game.network().removeConnectionListener(listener);
+    }
+    admissionCleanupPending = true;
+    long cleanupGeneration = ++pregameGeneration;
+    Thread cleanup =
+        new Thread(
+            () -> {
+              synchronized (networkStartLock) {
+                Game.network().shutdown("Main-menu admission failed");
+              }
+              admissionCleanupPending = false;
+              postToRenderThread(
+                  () -> {
+                    if (stage == null) {
+                      return;
+                    }
+                    if (activeView == View.JOIN) {
+                      setJoinControlsDisabled(discoveryInProgress);
+                      return;
+                    }
+                    if (activeView != View.CHARACTER_SELECT) return;
+                    updateCharacterConfirmButton();
+                    if (cleanupGeneration == pregameGeneration
+                        && rejection == ConnectReject.Reason.CHARACTER_UNAVAILABLE) {
+                      requestCharacterOptions(false);
+                    }
+                  });
+            },
+            "menu-client-cleanup");
+    cleanup.setDaemon(true);
+    cleanup.start();
+  }
+
+  private String rejectionMessage(ConnectReject.Reason reason) {
+    return switch (reason) {
+      case INVALID_NAME -> trans.text(T_INVALID_NAME);
+      case NAME_IN_USE -> trans.text(T_NAME_IN_USE);
+      case INCOMPATIBLE_VERSION -> trans.text(T_INCOMPATIBLE_VERSION);
+      case SERVER_FULL -> trans.text(T_SERVER_FULL);
+      case CHARACTER_UNAVAILABLE -> trans.text(T_CHARACTER_UNAVAILABLE);
+      default -> trans.text(T_CONNECTION_REJECTED);
+    };
+  }
+
+  private String connectionError(Throwable error) {
+    Throwable cause = error;
+    while (cause != null && cause.getCause() != null) {
+      cause = cause.getCause();
+    }
+    if (cause instanceof ConnectException
+        || (cause != null
+            && cause.getMessage() != null
+            && cause.getMessage().toLowerCase(java.util.Locale.ROOT).contains("refused"))) {
+      return trans.text(T_CONNECTION_REFUSED);
+    }
+    if (cause instanceof UnknownHostException) {
+      return trans.text(T_INVALID_CONNECTION);
+    }
+    if (cause instanceof SocketTimeoutException) {
+      return trans.text(T_CONNECTION_TIMEOUT);
+    }
+    if (cause instanceof CharacterOptionsClient.CharacterOptionsRejectedException rejected) {
+      return rejectionMessage(rejected.reason());
+    }
+    return trans.text(T_CONNECTION_FAILED, cause == null ? "" : cause.getMessage());
+  }
+
+  private String connectionError(String reason) {
+    if (reason == null || reason.isBlank()) {
+      return trans.text(T_CONNECTION_FAILED, "");
+    }
+    if (reason.toLowerCase(java.util.Locale.ROOT).contains("refused")) {
+      return trans.text(T_CONNECTION_REFUSED);
+    }
+    return trans.text(T_CONNECTION_FAILED, reason);
+  }
+
+  private String rootCauseMessage(Throwable error) {
+    Throwable cause = error;
+    while (cause.getCause() != null) {
+      cause = cause.getCause();
+    }
+    return cause.getMessage() == null ? cause.getClass().getSimpleName() : cause.getMessage();
+  }
+
+  private void postToRenderThread(Runnable action) {
+    if (Gdx.app != null) {
+      Gdx.app.postRunnable(action);
+    }
+  }
+
+  private void backFromCharacterSelect() {
+    if (activeView != View.CHARACTER_SELECT) {
+      return;
+    }
+    cancelPregameConnection();
+    cancelOptionsRequest();
+    if (selectionHosted) {
+      selectionHosted = false;
+      launching = false;
+      showHostNameViewInternal();
+      stopHostingInBackground();
+    } else if (selectionBackView == View.JOIN) {
+      showJoinView();
+    } else {
+      showMainView();
+    }
+  }
+
+  private void stopHostingInBackground() {
+    if (hostCleanupPending) {
+      return;
+    }
+    hostCleanupPending = true;
+    ServerProcess server = pendingServer;
+    pendingServer = null;
+    CompletableFuture<Void> shutdown = HostSession.stopHostingAsync();
+    if (server != null) {
+      shutdown = shutdown.thenRunAsync(server::stop);
+    }
+    setHostControlsDisabled(launching);
+    hostStatusLabel.setText(trans.text(T_STOPPING_SERVER));
+    shutdown.whenComplete(
+        (ignored, error) -> {
+          if (error != null) {
+            LOGGER.error("Could not stop the hosted server.", error);
+          }
+          postToRenderThread(
+              () -> {
+                hostCleanupPending = false;
+                if (stage == null) {
+                  return;
+                }
+                setHostControlsDisabled(launching);
+                hostStatusLabel.setText(
+                    error == null ? "" : trans.text(T_SERVER_STOP_FAILED, rootCauseMessage(error)));
+              });
+        });
+  }
+
+  private void cancelPregameConnection() {
+    pregameGeneration++;
+    admissionStarting = false;
+    ConnectionListener listener = admissionListener;
+    admissionListener = null;
+    if (listener != null) {
+      Game.network().removeConnectionListener(listener);
+    }
+    if (listener == null) {
+      return;
+    }
+    admissionCleanupPending = true;
+    Thread cleanup =
+        new Thread(
+            () -> {
+              synchronized (networkStartLock) {
+                Game.network().shutdown("Main-menu admission cancelled");
+              }
+              admissionCleanupPending = false;
+              postToRenderThread(
+                  () -> {
+                    if (stage != null && activeView == View.CHARACTER_SELECT) {
+                      updateCharacterConfirmButton();
+                    } else if (stage != null && activeView == View.JOIN) {
+                      setJoinControlsDisabled(discoveryInProgress);
+                    }
+                  });
+            },
+            "menu-client-cancel");
+    cleanup.setDaemon(true);
+    cleanup.start();
   }
 
   /**
@@ -655,6 +1195,7 @@ public class MainMenuScreen extends ScreenAdapter {
     achievementsView = buildAchievementsView();
     hostNameView = buildHostNameView();
     joinView = buildJoinView();
+    characterSelectionView = buildCharacterSelectionView();
     if (activeView == View.SETTINGS) {
       showSettingsView();
     } else if (activeView == View.ACHIEVEMENTS) {
@@ -662,9 +1203,11 @@ public class MainMenuScreen extends ScreenAdapter {
     } else if (activeView == View.CREDITS) {
       showCreditsView();
     } else if (activeView == View.HOST_NAME) {
-      showHostNameView();
+      showHostNameViewInternal();
     } else if (activeView == View.JOIN) {
       showJoinView();
+    } else if (activeView == View.CHARACTER_SELECT) {
+      showCharacterSelectionView();
     } else {
       showMainView();
     }
@@ -699,19 +1242,24 @@ public class MainMenuScreen extends ScreenAdapter {
    * @param continueGame whether the child should restore the configured checkpoint
    */
   private void startHosting(boolean continueGame) {
-    if (launching) return;
+    if (launching || hostCleanupPending) return;
     launching = true;
     setHostControlsDisabled(true);
     hostStatusLabel.setText(trans.text(T_STARTING_SERVER));
 
     int port = starter.localServerPort();
+    long operation = ++hostGeneration;
+    String playerName = PreRunConfiguration.username();
     Thread launcher =
-        new Thread(() -> launchHostedServer(port, continueGame), "hosted-server-launcher");
+        new Thread(
+            () -> launchHostedServer(port, continueGame, operation, playerName),
+            "hosted-server-launcher");
     launcher.setDaemon(true);
     launcher.start();
   }
 
-  private void launchHostedServer(int port, boolean continueGame) {
+  private void launchHostedServer(
+      int port, boolean continueGame, long operation, String playerName) {
     ServerProcess server;
     try {
       server =
@@ -723,18 +1271,47 @@ public class MainMenuScreen extends ScreenAdapter {
               continueGame ? starter.continueServerArguments() : starter.serverArguments());
     } catch (IOException e) {
       LOGGER.error("Failed to start server process.", e);
-      Gdx.app.postRunnable(() -> onHostFailed(trans.text(T_SERVER_START_FAILED, e.getMessage())));
+      postToRenderThread(
+          () -> {
+            if (operation == hostGeneration && stage != null) {
+              onHostFailed(trans.text(T_SERVER_START_FAILED, e.getMessage()));
+            }
+          });
       return;
     }
 
-    if (!server.awaitReady(port, SERVER_START_TIMEOUT)) {
+    if (operation != hostGeneration) {
       server.stop();
-      Gdx.app.postRunnable(() -> onHostFailed(trans.text(T_SERVER_TIMEOUT)));
+      return;
+    }
+    pendingServer = server;
+    if (!server.awaitReady(port, SERVER_START_TIMEOUT)) {
+      if (pendingServer == server) pendingServer = null;
+      server.stop();
+      postToRenderThread(
+          () -> {
+            if (operation == hostGeneration && stage != null) {
+              onHostFailed(trans.text(T_SERVER_TIMEOUT));
+            }
+          });
       return;
     }
 
-    HostSession.hosting(server);
-    Gdx.app.postRunnable(() -> enterClient(LOCAL_SERVER_HOST, port));
+    if (operation != hostGeneration) {
+      if (pendingServer == server) pendingServer = null;
+      server.stop();
+      return;
+    }
+    postToRenderThread(
+        () -> {
+          if (operation != hostGeneration || stage == null) {
+            CompletableFuture.runAsync(server::stop);
+            return;
+          }
+          pendingServer = null;
+          HostSession.hosting(server);
+          beginCharacterDiscovery(LOCAL_SERVER_HOST, port, playerName, View.HOST_NAME, true);
+        });
   }
 
   private void onHostFailed(String message) {
@@ -743,10 +1320,19 @@ public class MainMenuScreen extends ScreenAdapter {
     hostStatusLabel.setText(message);
   }
 
-  private void enterClient(String host, int port) {
-    PreRunConfiguration.networkServerAddress(host);
-    PreRunConfiguration.networkPort(port);
-    GameLoop.startGame();
+  private void cancelHostSetup() {
+    if (launching && activeView == View.HOST_NAME) {
+      hostGeneration++;
+      launching = false;
+      stopHostingInBackground();
+      showMainView();
+      return;
+    }
+    if (activeView == View.CHARACTER_SELECT && selectionHosted) {
+      backFromCharacterSelect();
+      return;
+    }
+    showMainView();
   }
 
   /**
@@ -761,12 +1347,11 @@ public class MainMenuScreen extends ScreenAdapter {
   }
 
   /**
-   * Validates the Join Game form, stores the connection data in {@link PreRunConfiguration} and
-   * starts the client. Because the server address is now configured, the client connects directly
-   * and skips the built-in connection dialog.
+   * Validates the Join Game form and asks the server to confirm the connection and player name
+   * before opening character selection.
    */
   private void confirmJoin() {
-    if (launching) {
+    if (launching || discoveryInProgress || admissionCleanupPending) {
       return;
     }
     joinStatusLabel.setText("");
@@ -793,21 +1378,56 @@ public class MainMenuScreen extends ScreenAdapter {
       return;
     }
 
-    showStartupConsent(() -> enterClient(config.host(), config.port()));
+    showStartupConsent(
+        () -> beginCharacterDiscovery(config.host(), config.port(), username, View.JOIN, false));
+  }
+
+  private void cancelJoinSetup() {
+    pregameGeneration++;
+    cancelOptionsRequest();
+    setJoinControlsDisabled(false);
+    showMainView();
+  }
+
+  private void setJoinControlsDisabled(boolean disabled) {
+    joinConfirmButton.setDisabled(disabled);
+    joinNameField.setDisabled(disabled);
+    joinHostField.setDisabled(disabled);
+    joinPortField.setDisabled(disabled);
+    joinBackButton.setDisabled(false);
   }
 
   private void setHostControlsDisabled(boolean disabled) {
-    hostConfirmButton.setDisabled(disabled);
-    hostBackButton.setDisabled(disabled);
+    hostConfirmButton.setDisabled(disabled || hostCleanupPending);
+    hostBackButton.setDisabled(false);
     hostNameField.setDisabled(disabled);
   }
 
   @Override
   public void render(float delta) {
+    if (stage == null) {
+      return;
+    }
     Gdx.gl.glClearColor(0.08f, 0.08f, 0.1f, 1f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     stage.act(delta);
     stage.draw();
+    if (activeView == View.CHARACTER_SELECT) {
+      characterRefreshElapsed += delta;
+      if (characterRefreshElapsed >= CharacterCarousel.AVAILABILITY_REFRESH_SECONDS
+          && !discoveryInProgress
+          && !admissionStarting
+          && !admissionCleanupPending) {
+        requestCharacterOptions(false);
+      }
+    }
+    if (!handingOffToGame && Game.isMultiplayerClient()) {
+      try {
+        Game.network().pollAndDispatch();
+      } catch (RuntimeException e) {
+        LOGGER.warn("Error while polling the menu connection: {}", e.getMessage(), e);
+      }
+    }
   }
 
   @Override
@@ -826,7 +1446,17 @@ public class MainMenuScreen extends ScreenAdapter {
 
   @Override
   public void dispose() {
+    if (disposed) {
+      return;
+    }
+    disposed = true;
     Game.localization().removeLanguageChangeListener(languageChangeListener);
+    cancelOptionsRequest();
+    if (!handingOffToGame) {
+      hostGeneration++;
+      cancelPregameConnection();
+      stopHostingInBackground();
+    }
     if (stage != null) {
       stage.dispose();
       stage = null;

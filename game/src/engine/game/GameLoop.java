@@ -134,6 +134,10 @@ public final class GameLoop extends ScreenAdapter {
   private static String windowTitle = "Dungeon";
   private static Supplier<? extends Screen> initialScreenSupplier;
   private static com.badlogic.gdx.Game application;
+  private static GameLoop preparedMenuGameLoop;
+  private static GameLoop preparedStandaloneGameLoop;
+  private static boolean standaloneSelectionSkipped;
+  private boolean showStandaloneCharacterSelection;
 
   /**
    * Initializes the runtime entities and shaders for the newly loaded level.
@@ -296,10 +300,55 @@ public final class GameLoop extends ScreenAdapter {
    */
   public static void startGame() {
     if (application != null) {
-      application.setScreen(new GameLoop());
+      GameLoop prepared = preparedMenuGameLoop;
+      preparedMenuGameLoop = null;
+      if (prepared == null) {
+        prepared = preparedStandaloneGameLoop;
+        preparedStandaloneGameLoop = null;
+      }
+      application.setScreen(prepared == null ? new GameLoop() : prepared);
     } else {
       LOGGER.warn("Cannot start the game screen: no active libGDX application.");
     }
+  }
+
+  /** Skips the standalone character prompt for special local modes such as the level editor. */
+  public static void skipStandaloneCharacterSelection() {
+    standaloneSelectionSkipped = true;
+  }
+
+  /** Starts the local runtime after the standalone player has committed a character choice. */
+  public static void finishStandaloneCharacterSelection() {
+    if (!Game.isSingleplayer() || preparedStandaloneGameLoop == null) {
+      return;
+    }
+    Game.network().start();
+    Game.player()
+        .ifPresent(
+            player -> {
+              TrackingRuntime.startSingleplayerSession(player.id());
+              Game.playClock().participantJoined((short) 0, player.id());
+            });
+    startGame();
+  }
+
+  /**
+   * Prepares gameplay handlers and project setup after a menu-owned connection is accepted.
+   *
+   * <p>The menu polls the client transport until {@code ConnectAck}. This method is called from
+   * that render-thread lifecycle callback, before {@link ClientNetwork#pollAndDispatch()} drains
+   * queued initial-world messages. It deliberately does not initialize or start networking again.
+   */
+  public static void prepareForMenuConnection() {
+    if (!Game.isMultiplayerClient()) {
+      throw new IllegalStateException("Menu connection setup requires a multiplayer client.");
+    }
+    if (preparedMenuGameLoop != null) {
+      return;
+    }
+    GameLoop loop = new GameLoop();
+    loop.setup(false);
+    preparedMenuGameLoop = loop;
   }
 
   /**
@@ -314,6 +363,14 @@ public final class GameLoop extends ScreenAdapter {
   private static void updateStage(final Stage stage) {
     stage.act(Gdx.graphics.getDeltaTime());
     stage.draw();
+  }
+
+  @Override
+  public void show() {
+    if (stage != null) {
+      Gdx.input.setInputProcessor(stage);
+      InputManager.init();
+    }
   }
 
   private static void setupStage() {
@@ -358,7 +415,15 @@ public final class GameLoop extends ScreenAdapter {
    */
   @Override
   public void render(float delta) {
-    if (doSetup) setup();
+    if (doSetup) {
+      setup();
+      if (showStandaloneCharacterSelection) {
+        showStandaloneCharacterSelection = false;
+        preparedStandaloneGameLoop = this;
+        application.setScreen(new StandaloneCharacterSelectionScreen());
+        return;
+      }
+    }
     ECSManagement.system(
         DrawSystem.class,
         drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
@@ -463,6 +528,10 @@ public final class GameLoop extends ScreenAdapter {
    * @see PreRunConfiguration#userOnSetup()
    */
   private void setup() {
+    setup(true);
+  }
+
+  private void setup(boolean startNetwork) {
     LOGGER.info("Setting up game...");
     doSetup = false;
     // Only multiplayer servers skip client setup and run headless.
@@ -473,15 +542,20 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     ECSManagement.system(LevelSystem.class, ls -> ls.onLevelLoad(onLevelLoad));
+    if (Game.isSingleplayer() && !standaloneSelectionSkipped && initialScreenSupplier == null) {
+      showStandaloneCharacterSelection = true;
+    }
     PreRunConfiguration.userOnSetup().execute();
-    // Clients without a configured address wait for the connection dialog to start networking.
-    if (!Game.isMultiplayerClient()) {
-      Game.network().start();
-    } else if (PreRunConfiguration.hasNetworkServerAddress()) {
-      Game.initializeNetwork();
-      Game.network().start();
-    } else {
-      DialogFactory.showClientConnectionDialog();
+    if (startNetwork && !showStandaloneCharacterSelection) {
+      // Clients without a configured address wait for the connection dialog to start networking.
+      if (!Game.isMultiplayerClient()) {
+        Game.network().start();
+      } else if (PreRunConfiguration.hasNetworkServerAddress()) {
+        Game.initializeNetwork();
+        Game.network().start();
+      } else {
+        DialogFactory.showClientConnectionDialog();
+      }
     }
 
     if (!Game.isHeadless()) InputManager.init();
@@ -498,7 +572,9 @@ public final class GameLoop extends ScreenAdapter {
       }
     }
 
-    if (Game.isSingleplayer() && Game.currentLevel().isPresent()) {
+    if (Game.isSingleplayer()
+        && !showStandaloneCharacterSelection
+        && Game.currentLevel().isPresent()) {
       Game.player()
           .ifPresent(
               player -> {

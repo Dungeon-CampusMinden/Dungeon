@@ -1150,7 +1150,10 @@ public class LastHourLevel extends DungeonLevel {
     if (!Game.network().isServer() || TheLastHour.levelEditorMode() || !playerStates.isUpdated())
       return;
     Set<LastHourMilestone> milestones = LastHourProgressNet.completedMilestones();
-    if (milestones.isEmpty() || (lastSaved != null && milestones.equals(lastSaved.milestones())))
+    if (milestones.isEmpty()) return;
+    if (lastSaved != null
+        && milestones.equals(lastSaved.milestones())
+        && lastSaved.characterAssignments().equals(LastHourSave.currentCharacterAssignments()))
       return;
     try {
       LastHourSave.SaveData current = captureSave();

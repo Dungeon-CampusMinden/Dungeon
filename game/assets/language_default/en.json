@@ -182,7 +182,31 @@
         "invalid_name": "Invalid name (must not be empty or contain '_').",
         "invalid_connection": "Invalid server address or port.",
         "starting_server": "Starting server...",
+        "stopping_server": "Stopping server...",
+        "server_stop_failed": "Could not stop server: $1",
         "server_start_failed": "Could not start server: $1",
-        "server_timeout": "Server did not start in time."
+        "server_timeout": "Server did not start in time.",
+        "character_selection_title": "Choose your character",
+        "refreshing_characters": "Checking server character availability...",
+        "connecting_to_server": "Connecting to server...",
+        "connection_refused": "Connection refused. Check the server address and try again.",
+        "connection_timeout": "The server did not respond in time. Try again.",
+        "connection_failed": "Could not connect to server: $1",
+        "name_in_use": "That player name is already in use.",
+        "incompatible_version": "This game version is not compatible with the server.",
+        "server_full": "The server has reached its player capacity.",
+        "character_unavailable": "That character is no longer available. Choose another character.",
+        "connection_rejected": "The server rejected the connection. Check the details and try again.",
+        "character_changed": "Character availability changed. Choose again.",
+        "no_characters": "No characters are available on this server.",
+        "character_count_limited": "$1/$2 slots taken",
+        "character_forbidden": "Unavailable for this player",
+        "characters": {
+            "wizard": "Wizard",
+            "hunter": "Hunter",
+            "mushroom_wizard": "Mushroom Wizard",
+            "the_last_hour_rogue": "Rogue",
+            "the_last_hour_char03": "Char03"
+        }
     }
 }

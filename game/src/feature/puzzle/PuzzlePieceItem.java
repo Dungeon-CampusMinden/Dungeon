@@ -1,7 +1,9 @@
 package feature.puzzle;
 
 import engine.Entity;
+import engine.Game;
 import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.UIComponent;
@@ -154,6 +156,29 @@ public class PuzzlePieceItem extends Item {
         validateOptionalText(completionHintName, DATA_KEY_COMPLETION_HINT_NAME);
     this.completionHintDescription =
         validateOptionalText(completionHintDescription, DATA_KEY_COMPLETION_HINT_DESCRIPTION);
+  }
+
+  @Override
+  public Animation worldAnimation() {
+    Animation animation = super.worldAnimation();
+    if (Game.isHeadless()
+        && animation.getConfig().config().isEmpty()
+        && animation
+            .sourcePath()
+            .filter(
+                texturePath ->
+                    texturePath
+                        .pathString()
+                        .equals(PuzzleTextureGenerator.texturePath(puzzleId, pieceIndex)))
+            .isPresent()) {
+      AnimationConfig config = animation.clone().getConfig();
+      config.config(
+          PuzzleTextureGenerator.pieceSpritesheetConfig(imagePath, pieceCount, seed, pieceIndex));
+      animation =
+          new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
+      super.worldAnimation(animation);
+    }
+    return animation;
   }
 
   /**

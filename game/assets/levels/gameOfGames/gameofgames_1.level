@@ -600,10 +600,18 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "available-character",
+    "name" : "meta/char-wizard",
     "type" : "available-character",
     "properties" : {
-      "characterClass" : "WIZARD"
+      "characterClass" : "WIZARD",
+      "maxCount" : 1
+    }
+  }, {
+    "name" : "meta/char-hunter",
+    "type" : "available-character",
+    "properties" : {
+      "characterClass" : "HUNTER",
+      "maxCount" : 1
     }
   }, {
     "name" : "door-text-keypad",

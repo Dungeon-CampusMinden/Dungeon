@@ -25,9 +25,15 @@ public final class AvailableCharacterPrefab extends Prefab {
           CharacterClass.WIZARD.name(),
           CHARACTER_CLASS_CHOICES);
 
+  /** Maximum number of players using this character; {@code -1} allows unlimited players. */
+  public static final PrefabProperty<Integer> MAX_COUNT =
+      PrefabProperty.integer("maxCount", "Max Count", -1, -1, Integer.MAX_VALUE);
+
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(CHARACTER_CLASS, MAX_COUNT);
+
   /** Creates the available-character marker definition. */
   public AvailableCharacterPrefab() {
-    super(TYPE, "Available Character", PrefabSide.SERVER, List.of(CHARACTER_CLASS));
+    super(TYPE, "Available Character", PrefabSide.SERVER, PROPERTIES);
   }
 
   /**
@@ -37,7 +43,7 @@ public final class AvailableCharacterPrefab extends Prefab {
    * @param name authored instance name
    */
   public AvailableCharacterPrefab(ILevel level, String name) {
-    super(TYPE, "Available Character", PrefabSide.SERVER, List.of(CHARACTER_CLASS), level, name);
+    super(TYPE, "Available Character", PrefabSide.SERVER, PROPERTIES, level, name);
   }
 
   /**
@@ -48,6 +54,16 @@ public final class AvailableCharacterPrefab extends Prefab {
    */
   public CharacterClass characterClass() {
     return CharacterClass.valueOf(CHARACTER_CLASS.get(activeInstance()));
+  }
+
+  /**
+   * Returns the maximum number of players allowed to select this character.
+   *
+   * @return maximum count, or {@code -1} for unlimited players
+   * @throws IllegalStateException if the marker is no longer active
+   */
+  public int maxCount() {
+    return MAX_COUNT.get(activeInstance());
   }
 
   @Override

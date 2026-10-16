@@ -13,12 +13,14 @@ import static engine.network.config.NetworkConfig.UDP_STALE_AFTER_MS;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
 import engine.network.FullSnapshotSendReason;
 import engine.network.MessageDispatcher;
 import engine.network.NetworkTelemetry;
 import engine.network.config.NetworkConfig;
 import engine.network.messages.NetworkMessage;
+import engine.network.messages.c2s.CharacterOptionsRequest;
 import engine.network.messages.c2s.ConnectRequest;
 import engine.network.messages.c2s.DebugPing;
 import engine.network.messages.c2s.DebugTelemetryRequest;
@@ -30,6 +32,7 @@ import engine.network.messages.c2s.RegisterUdp;
 import engine.network.messages.c2s.RequestEntitySpawn;
 import engine.network.messages.c2s.SnapshotAck;
 import engine.network.messages.c2s.SoundFinishedMessage;
+import engine.network.messages.s2c.CharacterOptions;
 import engine.network.messages.s2c.ConnectAck;
 import engine.network.messages.s2c.ConnectReject;
 import engine.network.messages.s2c.DebugPong;
@@ -475,6 +478,9 @@ public final class ServerTransport {
                           return currentSession;
                         }));
 
+        if (session.clientState().isEmpty()) {
+          sessions.remove(ctx.channel().id(), session);
+        }
         LOGGER.info("TCP Session closed for {}", session);
       }
     }
@@ -591,6 +597,7 @@ public final class ServerTransport {
 
   private void setupDispatchers() {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
+    dispatcher.registerHandler(CharacterOptionsRequest.class, this::onCharacterOptionsRequest);
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
     dispatcher.registerHandler(InitialWorldReady.class, this::onInitialWorldReady);
     dispatcher.registerHandler(PauseStateMessage.class, this::onPauseState);
@@ -766,12 +773,22 @@ public final class ServerTransport {
   }
 
   private void onConnectRequest(Session session, ConnectRequest req) {
+    if (session.isClosed()) {
+      LOGGER.debug("Discarding ConnectRequest from a closed session");
+      return;
+    }
     LOGGER.info(
         "Received ConnectRequest protocolVersion={} username='{}' sessionId={} from {}",
         req.protocolVersion(),
         req.playerName(),
         req.sessionId(),
         session);
+    if (session.clientState().isPresent()) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.NAME_IN_USE), true);
+      LOGGER.info("Rejected repeated ConnectRequest on authenticated channel {}", session);
+      return;
+    }
+
     if (req.protocolVersion() != PROTOCOL_VERSION) {
       session.sendMessage(new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION), true);
       LOGGER.info(
@@ -788,14 +805,37 @@ public final class ServerTransport {
       return;
     }
 
+    retainSessionAssignments();
+    if (isNameConnected(playerName, session)) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.NAME_IN_USE), true);
+      LOGGER.info("Rejected ConnectRequest because name is already connected: '{}'", playerName);
+      return;
+    }
+
     if (req.sessionToken() != null && req.sessionToken().length > 0) {
       handleRestoringSession(session, req);
       return;
     }
 
-    if (clientIdToSession.size() >= maximumPlayers) {
+    boolean existingIdentity = CharacterSelection.hasAssignment(playerName);
+    if (!existingIdentity && playerIdentityCount() >= maximumPlayers) {
       session.sendMessage(new ConnectReject(ConnectReject.Reason.SERVER_FULL), true);
       LOGGER.info("Rejected fresh ConnectRequest for name='{}': server is full", playerName);
+      return;
+    }
+
+    int fallbackStart = nextFallbackCharacterClassIndex;
+    if (req.characterClass().isEmpty()) {
+      nextFallbackCharacterClassIndex++;
+    }
+    CharacterSelection.Admission admission =
+        CharacterSelection.reserve(playerName, req.characterClass(), fallbackStart);
+    if (admission.status() != CharacterSelection.Status.ACCEPTED) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.CHARACTER_UNAVAILABLE), true);
+      LOGGER.info(
+          "Rejected ConnectRequest for name='{}': character selection status={}",
+          playerName,
+          admission.status());
       return;
     }
 
@@ -807,7 +847,7 @@ public final class ServerTransport {
             playerName,
             ServerRuntime.SESSION_ID,
             sessionToken,
-            selectedCharacterClass(req));
+            admission.characterClass());
     session.udpReady(false);
 
     session.sendMessage(
@@ -824,6 +864,45 @@ public final class ServerTransport {
     sendInitialWorldComplete(session, newClientId);
 
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
+  }
+
+  private void onCharacterOptionsRequest(Session session, CharacterOptionsRequest request) {
+    if (session.isClosed()) {
+      LOGGER.debug("Discarding CharacterOptionsRequest from a closed session");
+      return;
+    }
+    LOGGER.info(
+        "Received CharacterOptionsRequest protocolVersion={} username='{}' from {}",
+        request.protocolVersion(),
+        request.playerName(),
+        session);
+
+    if (session.clientState().isPresent()) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.NAME_IN_USE), true);
+      return;
+    }
+    if (request.protocolVersion() != PROTOCOL_VERSION) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.INCOMPATIBLE_VERSION), true);
+      return;
+    }
+    if (!isValidPlayerName(request.playerName())) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.INVALID_NAME), true);
+      return;
+    }
+
+    retainSessionAssignments();
+    if (isNameConnected(request.playerName(), session)) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.NAME_IN_USE), true);
+      return;
+    }
+    if (!CharacterSelection.hasAssignment(request.playerName())
+        && playerIdentityCount() >= maximumPlayers) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.SERVER_FULL), true);
+      return;
+    }
+
+    session.sendMessage(
+        new CharacterOptions(CharacterSelection.options(request.playerName())), true);
   }
 
   private void handleRestoringSession(Session session, ConnectRequest req) {
@@ -879,6 +958,17 @@ public final class ServerTransport {
     byte[] newSessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
     ClientState oldClientState = oldSession.clientState().orElseThrow();
+    if (req.characterClass().isPresent()
+        && req.characterClass().orElseThrow() != oldClientState.characterClass()) {
+      session.sendMessage(new ConnectReject(ConnectReject.Reason.CHARACTER_UNAVAILABLE), true);
+      LOGGER.warn(
+          "Rejected restore for name='{}' with requested character {}, existing assignment is {}",
+          playerName,
+          req.characterClass().orElseThrow(),
+          oldClientState.characterClass());
+      return;
+    }
+    CharacterSelection.retainAssignment(playerName, oldClientState.characterClass());
     session.udpReady(false);
 
     // remove old mappings
@@ -1006,40 +1096,55 @@ public final class ServerTransport {
   }
 
   /**
-   * Validates a proposed player name.
+   * Validates the syntax of a proposed player name.
    *
    * <p>Rules:
    *
    * <ul>
-   *   <li>We allow reusing names of disconnected players.
    *   <li>Not null
    *   <li>Not blank
    *   <li>No underscores
-   *   <li>Unique among connected players
    * </ul>
    *
    * @param name The player name to validate.
    * @return True if valid, false otherwise.
    */
   private boolean isValidPlayerName(String name) {
-    // if we already have this name, check if the session is closed
-    Short clientId =
-        clientIdToName.entrySet().stream()
-            .filter(e -> e.getValue().equals(name))
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .orElse(null);
-    if (clientId != null) {
-      // name is taken, check if session is closed
-      Session sess = clientIdToSession.get(clientId);
-      return sess != null
-          && sess.isClosed(); // previously had to validate, so we can skip other checks
-    }
+    return name != null && !name.isBlank() && !name.contains("_");
+  }
 
-    return name != null
-        && !name.isBlank()
-        && !name.contains("_")
-        && !clientIdToName.containsValue(name);
+  private boolean isNameConnected(String name, Session exceptSession) {
+    boolean authenticatedNetworkPlayer =
+        clientIdToSession.values().stream()
+            .filter(candidate -> candidate != exceptSession && !candidate.isClosed())
+            .map(candidate -> candidate.clientState().orElse(null))
+            .filter(Objects::nonNull)
+            .anyMatch(state -> state.username().equals(name));
+    if (authenticatedNetworkPlayer) {
+      return true;
+    }
+    return Game.allPlayers()
+        .map(entity -> entity.fetch(PlayerComponent.class).orElse(null))
+        .filter(Objects::nonNull)
+        .anyMatch(player -> Objects.equals(player.playerName(), name));
+  }
+
+  private void retainSessionAssignments() {
+    for (Session candidate : clientIdToSession.values()) {
+      candidate
+          .clientState()
+          .ifPresent(
+              state ->
+                  CharacterSelection.retainAssignment(state.username(), state.characterClass()));
+    }
+  }
+
+  private int playerIdentityCount() {
+    Set<String> sessionNames = new HashSet<>();
+    for (Session candidate : clientIdToSession.values()) {
+      candidate.clientState().map(ClientState::username).ifPresent(sessionNames::add);
+    }
+    return CharacterSelection.identityCount(sessionNames);
   }
 
   private void onRequestEntitySpawn(Session session, RequestEntitySpawn req) {

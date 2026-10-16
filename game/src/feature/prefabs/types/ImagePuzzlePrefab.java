@@ -186,7 +186,6 @@ public final class ImagePuzzlePrefab extends Prefab {
                     placement.deco(),
                     piece));
       }
-      ;
     }
     return entities;
   }
@@ -210,7 +209,7 @@ public final class ImagePuzzlePrefab extends Prefab {
       Item piece) {
     Entity container = context.createEntity(instanceName + " piece container " + (pieceIndex + 1));
     DecoFactory.createDeco(container, position, deco);
-    InventoryComponent inventory = new InventoryComponent(1);
+    InventoryComponent inventory = new InventoryComponent(4);
     inventory.add(piece);
     container.add(inventory);
     container.add(

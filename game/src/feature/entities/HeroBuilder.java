@@ -20,6 +20,7 @@ import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.state.DirectionalState;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
+import feature.collision.Hitbox;
 import feature.components.CatapultableComponent;
 import feature.components.CharacterClassComponent;
 import feature.components.CollideComponent;
@@ -39,6 +40,7 @@ import feature.skills.Skill;
 import feature.systems.HealthSystem;
 import feature.utils.EntityUtils;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -103,7 +105,8 @@ public final class HeroBuilder {
               });
 
   private int entityId = -1;
-  private CharacterClass characterClass = DEFAULT_HERO_CLASS;
+  private CharacterClass characterClass =
+      PreRunConfiguration.multiplayerCharacterClass().orElse(DEFAULT_HERO_CLASS);
   private Consumer<Entity> deathCallback = DEFAULT_DEATH;
   private boolean isLocalPlayer = true;
   private String playerName = PreRunConfiguration.username();
@@ -211,30 +214,7 @@ public final class HeroBuilder {
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
 
-    Map<String, Animation> animationMap =
-        Animation.loadAnimationSpritesheet(characterClass.textures());
-    State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
-    State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
-
-    State stDead;
-    if (animationMap.containsKey("die_down")) {
-      stDead = new DirectionalState(HealthSystem.DEATH_STATE, animationMap, "die");
-    } else if (animationMap.containsKey("die")) {
-      stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
-    } else {
-      stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("idle_down"));
-    }
-
-    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
-    sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
-    sm.addTransition(stIdle, VelocitySystem.IDLE_SIGNAL, stIdle);
-    sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
-    sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
-    sm.addTransition(stIdle, HealthSystem.DEATH_SIGNAL, stDead);
-    sm.addTransition(stMove, HealthSystem.DEATH_SIGNAL, stDead);
-    DrawComponent dc = new DrawComponent(sm);
-    dc.depth(DepthLayer.Player.depth());
-    hero.add(dc);
+    hero.add(createCharacterDrawComponent(characterClass));
 
     hero.add(
         new VelocityComponent(
@@ -307,6 +287,158 @@ public final class HeroBuilder {
     }
 
     return hero;
+  }
+
+  /**
+   * Applies a selected character class to an existing hero without replacing the entity.
+   *
+   * <p>Identity-bearing and callback-bearing components are retained. In particular, health,
+   * collision, velocity, inventory, skills, input, position, camera, and project-specific
+   * components remain attached to the same entity. Only class-dependent configuration is updated.
+   *
+   * @param hero the existing hero entity to configure
+   * @param characterClass the selected class
+   */
+  public static void applyCharacterClass(Entity hero, CharacterClass characterClass) {
+    CharacterClass previousClass =
+        hero.fetch(CharacterClassComponent.class)
+            .map(CharacterClassComponent::characterClass)
+            .orElse(null);
+    hero.add(new CharacterClassComponent(characterClass));
+
+    hero.fetch(DrawComponent.class)
+        .ifPresentOrElse(
+            draw -> draw.replaceStateMachine(createCharacterStateMachine(characterClass)),
+            () -> hero.add(createCharacterDrawComponent(characterClass)));
+
+    hero.fetch(VelocityComponent.class)
+        .ifPresent(
+            velocity -> {
+              velocity.maxSpeed(Math.max(characterClass.speed().x(), characterClass.speed().y()));
+              velocity.mass(characterClass.mass());
+            });
+
+    hero.fetch(HealthComponent.class)
+        .ifPresent(
+            health -> {
+              health.maximalHealthpoints(characterClass.hp());
+              health.currentHealthpoints(characterClass.hp());
+              health.clearDamage();
+              health.alreadyDead(false);
+            });
+
+    hero.fetch(CollideComponent.class)
+        .ifPresent(
+            collide ->
+                collide.collider(
+                    new Hitbox(characterClass.hitbox().size(), characterClass.hitbox().offset())));
+
+    SkillComponent skills = hero.fetch(SkillComponent.class).orElseGet(() -> new SkillComponent());
+    List<Skill> retainedSkills =
+        skills.getSkills().stream()
+            .filter(
+                skill ->
+                    previousClass == null
+                        || previousClass.startSkills().stream().noneMatch(start -> start == skill))
+            .toList();
+    skills.removeAll();
+    characterClass.startSkills().forEach(skills::addSkill);
+    retainedSkills.forEach(skills::addSkill);
+    if (!hero.isPresent(SkillComponent.class)) {
+      hero.add(skills);
+    }
+
+    hero.fetch(InventoryComponent.class)
+        .ifPresentOrElse(
+            inventory ->
+                inventory.reconfigureForCharacterClass(
+                    characterClass.inventorySize(),
+                    previousClass == null ? List.of() : previousClass.startItems(),
+                    characterClass.startItems()),
+            () -> {
+              InventoryComponent inventory = new InventoryComponent(characterClass.inventorySize());
+              characterClass.startItems().forEach(inventory::add);
+              hero.add(inventory);
+            });
+
+    configureMana(hero, characterClass);
+    configureStamina(hero, characterClass);
+  }
+
+  private static void configureMana(Entity hero, CharacterClass characterClass) {
+    if (characterClass.mana() <= 0) {
+      hero.remove(ManaComponent.class);
+      return;
+    }
+    ManaComponent mana =
+        hero.fetch(ManaComponent.class)
+            .orElseGet(
+                () -> {
+                  ManaComponent component =
+                      new ManaComponent(
+                          characterClass.mana(),
+                          characterClass.mana(),
+                          characterClass.manaRestore());
+                  hero.add(component);
+                  return component;
+                });
+    mana.maxAmount(characterClass.mana());
+    mana.currentAmount(characterClass.mana());
+    mana.restorePerSecond(characterClass.manaRestore());
+  }
+
+  private static void configureStamina(Entity hero, CharacterClass characterClass) {
+    if (characterClass.stamina() <= 0) {
+      hero.remove(StaminaComponent.class);
+      return;
+    }
+    StaminaComponent stamina =
+        hero.fetch(StaminaComponent.class)
+            .orElseGet(
+                () -> {
+                  StaminaComponent component =
+                      new StaminaComponent(
+                          characterClass.stamina(),
+                          characterClass.stamina(),
+                          characterClass.staminaRestore());
+                  hero.add(component);
+                  return component;
+                });
+    stamina.maxAmount(characterClass.stamina());
+    stamina.currentAmount(characterClass.stamina());
+    stamina.restorePerSecond(characterClass.staminaRestore());
+  }
+
+  private static DrawComponent createCharacterDrawComponent(CharacterClass characterClass) {
+    DrawComponent draw = new DrawComponent(createCharacterStateMachine(characterClass));
+    draw.depth(DepthLayer.Player.depth());
+    return draw;
+  }
+
+  private static StateMachine createCharacterStateMachine(CharacterClass characterClass) {
+    Map<String, Animation> animationMap =
+        Animation.loadAnimationSpritesheet(characterClass.textures());
+    State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
+    State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
+
+    State stDead;
+    if (animationMap.containsKey("die_down")) {
+      stDead = new DirectionalState(HealthSystem.DEATH_STATE, animationMap, "die");
+    } else if (animationMap.containsKey("die")) {
+      stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
+    } else {
+      stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("idle_down"));
+    }
+
+    StateMachine stateMachine = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
+    stateMachine.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
+    stateMachine.addTransition(stIdle, VelocitySystem.IDLE_SIGNAL, stIdle);
+    stateMachine.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
+    stateMachine.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
+    stateMachine.addTransition(stIdle, HealthSystem.DEATH_SIGNAL, stDead);
+    stateMachine.addTransition(stMove, HealthSystem.DEATH_SIGNAL, stDead);
+
+    return stateMachine;
   }
 
   // region Bind Controls
