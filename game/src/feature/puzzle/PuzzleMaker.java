@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import rooms.lasthour.util.translation.TranslationKey;
 
 /**
  * Factory and runtime registry for {@link Puzzle} instances.
@@ -44,6 +45,8 @@ import java.util.function.BiConsumer;
 public final class PuzzleMaker {
 
   private static final Map<String, Puzzle> REGISTRY = new ConcurrentHashMap<>();
+  private static final Map<String, BiConsumer<Puzzle, Entity>> FAMILY_COMPLETION_CALLBACKS =
+      new ConcurrentHashMap<>();
 
   private PuzzleMaker() {}
 
@@ -100,6 +103,31 @@ public final class PuzzleMaker {
       BiConsumer<Puzzle, Entity> onComplete,
       long seed,
       boolean debug) {
+    return makePuzzle(imagePath, pieceCount, onComplete, seed, debug, null);
+  }
+
+  /**
+   * Creates a puzzle with an optional shared piece family identifier.
+   *
+   * <p>Puzzles with the same family identifier may contribute pieces to one another's UI. This
+   * supports alternate presentations of the same puzzle, such as language-specific variants.
+   *
+   * @param imagePath path to the source image
+   * @param pieceCount total number of puzzle pieces (must be {@code >= 2})
+   * @param onComplete callback fired exactly once when all pieces are placed correctly
+   * @param seed RNG seed used for deterministic slicing and scatter
+   * @param debug whether the puzzle UI should expose seed-tweaking controls
+   * @param pieceFamilyId stable identifier shared by puzzle variants, or null to use this puzzle's
+   *     deterministic ID
+   * @return the created puzzle
+   */
+  public static Puzzle makePuzzle(
+      IPath imagePath,
+      int pieceCount,
+      BiConsumer<Puzzle, Entity> onComplete,
+      long seed,
+      boolean debug,
+      String pieceFamilyId) {
     Objects.requireNonNull(imagePath, "imagePath");
     if (pieceCount < 2) {
       throw new IllegalArgumentException("pieceCount must be >= 2");
@@ -107,17 +135,36 @@ public final class PuzzleMaker {
 
     PuzzlePieceItem.ensureRegistration();
 
-    BiConsumer<Puzzle, Entity> effectiveOnComplete =
-        onComplete == null ? defaultOnComplete() : onComplete;
-
     String id = deterministicId(imagePath, pieceCount, seed);
+    String effectivePieceFamilyId =
+        pieceFamilyId == null ? id : requirePieceFamilyId(pieceFamilyId);
+    BiConsumer<Puzzle, Entity> effectiveOnComplete;
+    if (onComplete == null) {
+      effectiveOnComplete =
+          FAMILY_COMPLETION_CALLBACKS.getOrDefault(effectivePieceFamilyId, defaultOnComplete());
+    } else {
+      effectiveOnComplete = onComplete;
+      FAMILY_COMPLETION_CALLBACKS.put(effectivePieceFamilyId, onComplete);
+      REGISTRY.values().stream()
+          .filter(puzzle -> puzzle.pieceFamilyId().equals(effectivePieceFamilyId))
+          .forEach(puzzle -> puzzle.onComplete(onComplete));
+    }
     return REGISTRY.computeIfAbsent(
         id,
         unused -> {
-          Puzzle p = new Puzzle(id, imagePath, pieceCount, seed, debug, effectiveOnComplete);
+          Puzzle p =
+              new Puzzle(
+                  id,
+                  effectivePieceFamilyId,
+                  imagePath,
+                  pieceCount,
+                  seed,
+                  debug,
+                  effectiveOnComplete);
           PuzzleTextureGenerator.ensureRegistered(p);
           for (int i = 0; i < pieceCount; i++) {
-            p.addPiece(new PuzzlePieceItem(id, i, imagePath, pieceCount, seed));
+            p.addPiece(
+                new PuzzlePieceItem(id, i, imagePath, pieceCount, seed, effectivePieceFamilyId));
           }
           return p;
         });
@@ -139,20 +186,46 @@ public final class PuzzleMaker {
    * @return the existing or freshly created puzzle
    */
   public static Puzzle ensurePuzzle(String id, IPath imagePath, int pieceCount, long seed) {
+    return ensurePuzzle(id, imagePath, pieceCount, seed, id);
+  }
+
+  /**
+   * Looks up or reconstructs a puzzle with an explicit compatible-piece family.
+   *
+   * @param id runtime puzzle identifier
+   * @param imagePath source image path
+   * @param pieceCount total number of pieces
+   * @param seed deterministic slicing seed
+   * @param pieceFamilyId stable identifier shared by compatible variants
+   * @return existing or freshly reconstructed puzzle
+   */
+  public static Puzzle ensurePuzzle(
+      String id, IPath imagePath, int pieceCount, long seed, String pieceFamilyId) {
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(imagePath, "imagePath");
     if (pieceCount < 2) {
       throw new IllegalArgumentException("pieceCount must be >= 2");
     }
+    String effectivePieceFamilyId = requirePieceFamilyId(pieceFamilyId);
     PuzzlePieceItem.ensureRegistration();
     return REGISTRY.computeIfAbsent(
         id,
         unused -> {
-          Puzzle p = new Puzzle(id, imagePath, pieceCount, seed, false, defaultOnComplete());
+          Puzzle p =
+              new Puzzle(
+                  id,
+                  effectivePieceFamilyId,
+                  imagePath,
+                  pieceCount,
+                  seed,
+                  false,
+                  FAMILY_COMPLETION_CALLBACKS.getOrDefault(
+                      effectivePieceFamilyId, defaultOnComplete()));
           // Register the @gen piece textures before constructing the items (see makePuzzle).
           PuzzleTextureGenerator.ensureRegistered(p);
           for (int i = 0; i < pieceCount; i++) {
-            p.addPiece(new PuzzlePieceItem(id, i, imagePath, pieceCount, seed));
+            p.addPiece(
+                new PuzzlePieceItem(id, i, imagePath, pieceCount, seed, effectivePieceFamilyId));
           }
           return p;
         });
@@ -178,12 +251,38 @@ public final class PuzzleMaker {
    */
   private static BiConsumer<Puzzle, Entity> defaultOnComplete() {
     return (puzzle, solver) -> {
+      HintItem hintItem = completionHint(puzzle, solver);
       puzzle.removeItems(solver);
       if (solver == null) return;
-      solver
-          .fetch(InventoryComponent.class)
-          .ifPresent(inv -> inv.add(new HintItem(puzzle.imagePath())));
+      solver.fetch(InventoryComponent.class).ifPresent(inv -> inv.add(hintItem));
     };
+  }
+
+  private static HintItem completionHint(Puzzle puzzle, Entity solver) {
+    String name = null;
+    String description = null;
+    if (solver != null) {
+      Optional<InventoryComponent> inventory = solver.fetch(InventoryComponent.class);
+      if (inventory.isPresent()) {
+        for (var item : inventory.get().items()) {
+          if (item instanceof PuzzlePieceItem piece
+              && piece.pieceFamilyId().equals(puzzle.pieceFamilyId())
+              && (piece.completionHintName() != null
+                  || piece.completionHintDescription() != null)) {
+            name = piece.completionHintName();
+            description = piece.completionHintDescription();
+            break;
+          }
+        }
+      }
+    }
+    if (name == null && description == null) {
+      return new HintItem(puzzle.imagePath());
+    }
+    return new HintItem(
+        puzzle.imagePath(),
+        name == null ? TranslationKey.HintItemName : name,
+        description == null ? TranslationKey.HintItemDescription : description);
   }
 
   /**
@@ -200,6 +299,14 @@ public final class PuzzleMaker {
     String raw = imagePath.pathString() + "|" + pieceCount + "|" + seed;
     UUID uuid = UUID.nameUUIDFromBytes(raw.getBytes(StandardCharsets.UTF_8));
     return "puzzle-" + uuid;
+  }
+
+  private static String requirePieceFamilyId(String pieceFamilyId) {
+    Objects.requireNonNull(pieceFamilyId, "pieceFamilyId");
+    if (pieceFamilyId.isBlank()) {
+      throw new IllegalArgumentException("pieceFamilyId must not be blank");
+    }
+    return pieceFamilyId;
   }
 
   /**
@@ -222,6 +329,12 @@ public final class PuzzleMaker {
     Puzzle removed = REGISTRY.remove(id);
     if (removed != null) {
       PuzzleTextureGenerator.unregister(id, removed.pieceCount());
+      boolean familyStillRegistered =
+          REGISTRY.values().stream()
+              .anyMatch(puzzle -> puzzle.pieceFamilyId().equals(removed.pieceFamilyId()));
+      if (!familyStillRegistered) {
+        FAMILY_COMPLETION_CALLBACKS.remove(removed.pieceFamilyId());
+      }
     }
   }
 }

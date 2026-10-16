@@ -13,6 +13,7 @@ import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
+import engine.network.server.CharacterSelection;
 import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
@@ -103,6 +104,15 @@ public final class SystemRecovery {
     configureLoadFromSave(args);
     configureManagedServerPlayerName();
     deleteSaveForNewGame(args);
+    if (loadFromSave) {
+      CharacterSelection.restoreAssignments(
+          SystemRecoveryLoad.read()
+              .map(SystemRecoverySave.SaveData::characterAssignments)
+              .orElse(java.util.Map.of()));
+    } else if (containsArgument(args, NEW_GAME_ARGUMENT)
+        || containsArgument(args, ServerProcess.SERVER_ARGUMENT)) {
+      CharacterSelection.clear();
+    }
     runId = resolveRunIdForLaunch();
     Game.playClock().configure(MINIMUM_PLAYERS);
     if (loadFromSave)

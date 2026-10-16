@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -16,6 +17,7 @@ import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
+import feature.entities.deco.Deco;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ColorSetting;
@@ -29,6 +31,7 @@ import feature.leveleditor.ui.RegionSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.leveleditor.ui.StringSetting;
 import feature.leveleditor.ui.Vector2Setting;
+import feature.prefabs.ImagePuzzleSettings;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProperty;
@@ -36,6 +39,7 @@ import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
+import feature.prefabs.PuzzlePiecePlacement;
 import feature.prefabs.Region;
 import feature.prefabs.shaders.PrefabShader;
 import feature.prefabs.shaders.ShaderParameters;
@@ -76,6 +80,9 @@ public final class PrefabMode extends LevelEditorMode {
   private SnapMode snapModeBeforeAnchorDrag;
   private Table detailsContent;
   private Table secondaryContent;
+  private Table secondaryHeader;
+  private ScrollPane secondaryScrollPane;
+  private String secondaryScrollInstanceName;
   private PrefabInstanceList instanceList;
   private Table listOrderTabs;
   private ListOrder listOrder = ListOrder.ALPHABETICAL;
@@ -297,8 +304,24 @@ public final class PrefabMode extends LevelEditorMode {
 
   @Override
   public void buildSecondaryDetailsUI(Table content) {
-    secondaryContent = content;
     content.clearChildren();
+    secondaryHeader = new Table();
+    secondaryHeader.defaults().growX().minWidth(0f);
+    secondaryContent = new Table();
+    secondaryContent.top().left();
+    secondaryContent.defaults().growX().minWidth(0f);
+    secondaryScrollPane = Scene2dElementFactory.createScrollPane(secondaryContent, false, true);
+    ScrollPane.ScrollPaneStyle scrollStyle =
+        new ScrollPane.ScrollPaneStyle(secondaryScrollPane.getStyle());
+    scrollStyle.background = null;
+    scrollStyle.corner = null;
+    secondaryScrollPane.setStyle(scrollStyle);
+    secondaryScrollPane.setFlickScroll(false);
+    secondaryScrollPane.setFadeScrollBars(false);
+    secondaryScrollPane.setScrollbarsOnTop(false);
+    content.add(secondaryHeader).growX().minWidth(0f).row();
+    content.add(secondaryScrollPane).grow().minWidth(0f).minHeight(0f);
+    secondaryScrollInstanceName = null;
     rebuildDetails();
   }
 
@@ -342,7 +365,11 @@ public final class PrefabMode extends LevelEditorMode {
   private void rebuildDetails(boolean rebuildSecondary) {
     if (instanceList == null) return;
     instanceList.setItems(listItems(), selectedName, listOrder == ListOrder.LOAD_ORDER);
-    if (!rebuildSecondary || secondaryContent == null) return;
+    if (!rebuildSecondary || secondaryContent == null || secondaryHeader == null) return;
+    boolean preserveScroll =
+        Objects.equals(secondaryScrollInstanceName, selectedName) && secondaryScrollPane != null;
+    float scrollY = preserveScroll ? secondaryScrollPane.getScrollY() : 0f;
+    secondaryHeader.clearChildren();
     secondaryContent.clearChildren();
     if (shaderEditTarget != null && !shaderEditTarget.instanceName().equals(selectedName)) {
       shaderEditTarget = null;
@@ -374,8 +401,8 @@ public final class PrefabMode extends LevelEditorMode {
                       if (!focused) commitName.accept(name.getText());
                     }
                   });
-              secondaryContent.add(name).growX().height(40f).row();
-              secondaryContent
+              secondaryHeader.add(name).growX().height(40f).row();
+              secondaryHeader
                   .add(
                       Scene2dElementFactory.createLabel(
                           prefab.displayName(),
@@ -385,7 +412,7 @@ public final class PrefabMode extends LevelEditorMode {
                   .padBottom(5f)
                   .padLeft(5f)
                   .row();
-              secondaryContent.add(Scene2dElementFactory.createHorizontalDivider()).growX().row();
+              secondaryHeader.add(Scene2dElementFactory.createHorizontalDivider()).growX().row();
               Optional<PrefabProperty<ShaderParameters>> editedShader =
                   editedShaderProperty(prefab, instance);
               if (editedShader.isPresent()) {
@@ -396,6 +423,8 @@ public final class PrefabMode extends LevelEditorMode {
               for (PrefabProperty<?> property : prefab.visibleProperties(instance))
                 addProperty(property, instance.name(), access);
             });
+    secondaryScrollInstanceName = selectedName;
+    secondaryScrollPane.setScrollY(scrollY);
   }
 
   private Optional<PrefabProperty<ShaderParameters>> editedShaderProperty(
@@ -419,16 +448,13 @@ public final class PrefabMode extends LevelEditorMode {
         .padTop(SETTINGS_PAD)
         .row();
     ShaderParameters parameters = shaderProperty.get(instance);
-    secondaryContent
-        .add(
-            Scene2dElementFactory.createLabel(
-                shaderProperty.displayName() + ": " + parameters.shader().displayName(),
-                18,
-                ModeDetailsPanel.TEXT_COLOR))
-        .left()
-        .padTop(SETTINGS_PAD)
-        .padLeft(5f)
-        .row();
+    var shaderLabel =
+        Scene2dElementFactory.createLabel(
+            shaderProperty.displayName() + ": " + parameters.shader().displayName(),
+            18,
+            ModeDetailsPanel.TEXT_COLOR);
+    shaderLabel.setWrap(true);
+    secondaryContent.add(shaderLabel).growX().padTop(SETTINGS_PAD).padLeft(5f).row();
     PropertyAccess access = new ShaderPropertyAccess(instance.name(), shaderProperty);
     boolean empty = true;
     for (PrefabProperty<?> parameter : parameters.shader().parameters()) {
@@ -631,7 +657,135 @@ public final class PrefabMode extends LevelEditorMode {
             .padTop(SETTINGS_PAD)
             .row();
       }
+      case IMAGE_PUZZLE_SETTINGS -> {
+        addImagePuzzleSettings(cast(property), access);
+      }
     }
+  }
+
+  private void addImagePuzzleSettings(
+      PrefabProperty<ImagePuzzleSettings> property, PropertyAccess access) {
+    secondaryContent
+        .add(
+            new IntegerSetting(
+                "Piece Count",
+                2,
+                Integer.MAX_VALUE,
+                () -> access.get(property).pieceCount(),
+                count -> access.set(property, access.get(property).withPieceCount(count), true)))
+        .growX()
+        .padTop(SETTINGS_PAD)
+        .row();
+    secondaryContent
+        .add(
+            new StringSetting(
+                "Seed",
+                () -> Long.toString(access.get(property).seed()),
+                value -> {
+                  try {
+                    access.set(
+                        property, access.get(property).withSeed(Long.parseLong(value)), true);
+                  } catch (NumberFormatException exception) {
+                    LevelEditorSystem.showFeedback("Seed must be a 64-bit integer.", Color.YELLOW);
+                    requestRebuild();
+                  }
+                },
+                true))
+        .growX()
+        .padTop(SETTINGS_PAD)
+        .row();
+
+    for (int pieceIndex = 0; pieceIndex < access.get(property).pieceCount(); pieceIndex++) {
+      final int index = pieceIndex;
+      Table pieceControls = new Table();
+      pieceControls.defaults().growX().minWidth(0f);
+      pieceControls
+          .add(
+              new PointSetting(
+                  "Piece " + (index + 1) + " Position",
+                  () -> access.get(property).pieces().get(index).position(),
+                  position -> {
+                    ImagePuzzleSettings settings = access.get(property);
+                    PuzzlePiecePlacement placement = settings.pieces().get(index);
+                    access.set(
+                        property,
+                        settings.withPiece(index, placement.withPosition(position)),
+                        true);
+                  },
+                  callback ->
+                      armPointAssignment(new PendingPointAssignment(callback, new Point(0f, 0f))),
+                  true))
+          .row();
+      pieceControls
+          .add(
+              new SelectSetting<>(
+                  "Placement",
+                  new PuzzlePiecePlacement.Destination[] {
+                    PuzzlePiecePlacement.Destination.WORLD_ITEM,
+                    PuzzlePiecePlacement.Destination.CHEST,
+                    PuzzlePiecePlacement.Destination.DECO_INVENTORY
+                  },
+                  () -> access.get(property).pieces().get(index).destination(),
+                  destination -> {
+                    ImagePuzzleSettings settings = access.get(property);
+                    PuzzlePiecePlacement placement = settings.pieces().get(index);
+                    access.set(
+                        property,
+                        settings.withPiece(index, placement.withDestination(destination)),
+                        true);
+                  },
+                  destination ->
+                      switch (destination) {
+                        case WORLD_ITEM -> "World Item";
+                        case CHEST -> "Chest";
+                        case DECO_INVENTORY -> "Deco Inventory";
+                      },
+                  true))
+          .row();
+      if (access.get(property).pieces().get(index).destination()
+          == PuzzlePiecePlacement.Destination.DECO_INVENTORY) {
+        pieceControls
+            .add(
+                new SelectSetting<>(
+                    "Deco",
+                    Deco.values(),
+                    () -> access.get(property).pieces().get(index).deco(),
+                    deco -> {
+                      ImagePuzzleSettings settings = access.get(property);
+                      PuzzlePiecePlacement placement = settings.pieces().get(index);
+                      access.set(
+                          property, settings.withPiece(index, placement.withDeco(deco)), true);
+                    },
+                    PrefabMode::decoDisplayName,
+                    true))
+            .row();
+      }
+      secondaryContent.add(pieceControls).growX().padTop(SETTINGS_PAD).row();
+    }
+  }
+
+  private static String decoDisplayName(Deco deco) {
+    String name = deco.name();
+    StringBuilder displayName = new StringBuilder(name.length() + 8);
+    for (int index = 0; index < name.length(); index++) {
+      char current = name.charAt(index);
+      if (index > 0) {
+        char previous = name.charAt(index - 1);
+        boolean caseBoundary =
+            Character.isUpperCase(current)
+                && (Character.isLowerCase(previous)
+                    || (Character.isUpperCase(previous)
+                        && index + 1 < name.length()
+                        && Character.isLowerCase(name.charAt(index + 1))));
+        boolean numberBoundary =
+            (Character.isDigit(current) && Character.isLetter(previous))
+                || (Character.isLetter(current) && Character.isDigit(previous));
+        boolean wordBoundary = caseBoundary || numberBoundary;
+        if (wordBoundary) displayName.append(' ');
+      }
+      displayName.append(current);
+    }
+    return displayName.toString();
   }
 
   private <T> void setProperty(
@@ -1020,7 +1174,8 @@ public final class PrefabMode extends LevelEditorMode {
                 point,
                 point.translate(offset.x(), offset.y()),
                 offset,
-                AnchorCorner.POINT));
+                AnchorCorner.POINT,
+                -1));
       } else if (property.type() == PrefabPropertyType.REGION) {
         PrefabProperty<Region> regionProperty = cast(property);
         Region region = regionProperty.get(instance);
@@ -1031,7 +1186,8 @@ public final class PrefabMode extends LevelEditorMode {
                 region.bottomLeft(),
                 region.bottomLeft(),
                 new Point(0f, 0f),
-                AnchorCorner.BOTTOM_LEFT));
+                AnchorCorner.BOTTOM_LEFT,
+                -1));
         anchors.add(
             new WorldAnchor(
                 instance.name(),
@@ -1039,7 +1195,23 @@ public final class PrefabMode extends LevelEditorMode {
                 region.topRight(),
                 region.topRight(),
                 new Point(0f, 0f),
-                AnchorCorner.TOP_RIGHT));
+                AnchorCorner.TOP_RIGHT,
+                -1));
+      } else if (property.type() == PrefabPropertyType.IMAGE_PUZZLE_SETTINGS) {
+        PrefabProperty<ImagePuzzleSettings> settingsProperty = cast(property);
+        ImagePuzzleSettings settings = settingsProperty.get(instance);
+        for (int pieceIndex = 0; pieceIndex < settings.pieceCount(); pieceIndex++) {
+          Point position = settings.piecePosition(pieceIndex);
+          anchors.add(
+              new WorldAnchor(
+                  instance.name(),
+                  settingsProperty,
+                  position,
+                  position,
+                  new Point(0f, 0f),
+                  AnchorCorner.POINT,
+                  pieceIndex));
+        }
       }
     }
     return anchors;
@@ -1061,7 +1233,18 @@ public final class PrefabMode extends LevelEditorMode {
     Point point = snappedPropertyPosition;
     try {
       PrefabInstance replacement;
-      if (anchor.corner() == AnchorCorner.POINT) {
+      if (anchor.corner() == AnchorCorner.POINT && anchor.pieceIndex() >= 0) {
+        PrefabProperty<ImagePuzzleSettings> settingsProperty = cast(anchor.property());
+        ImagePuzzleSettings settings = settingsProperty.get(source);
+        if (anchor.pieceIndex() >= settings.pieceCount()) {
+          requestRebuild();
+          return;
+        }
+        PuzzlePiecePlacement piece = settings.pieces().get(anchor.pieceIndex());
+        replacement =
+            settingsProperty.set(
+                source, settings.withPiece(anchor.pieceIndex(), piece.withPosition(point)));
+      } else if (anchor.corner() == AnchorCorner.POINT) {
         replacement = cast(anchor.property()).set(source, point);
       } else {
         PrefabProperty<Region> regionProperty = cast(anchor.property());
@@ -1355,7 +1538,8 @@ public final class PrefabMode extends LevelEditorMode {
       Point authoredPosition,
       Point displayPosition,
       Point feedbackOffset,
-      AnchorCorner corner) {}
+      AnchorCorner corner,
+      int pieceIndex) {}
 
   private record PendingAnchorDrag(WorldAnchor anchor, Point startPosition, boolean active) {
 

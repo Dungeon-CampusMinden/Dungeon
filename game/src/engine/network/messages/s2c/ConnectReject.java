@@ -31,7 +31,11 @@ public record ConnectReject(byte reason) implements NetworkMessage {
     /** Unspecified connection rejection reason. */
     OTHER,
     /** The server has reached its configured player capacity. */
-    SERVER_FULL;
+    SERVER_FULL,
+    /** Another connected player is already using the requested name. */
+    NAME_IN_USE,
+    /** The requested character is unavailable or has reached its configured capacity. */
+    CHARACTER_UNAVAILABLE;
 
     /**
      * Get the code corresponding to this Reason.
@@ -71,6 +75,8 @@ public record ConnectReject(byte reason) implements NetworkMessage {
         case INVALID_SESSION_TOKEN -> "Invalid Session Token";
         case OTHER -> "Other";
         case SERVER_FULL -> "Server Full";
+        case NAME_IN_USE -> "Name In Use";
+        case CHARACTER_UNAVAILABLE -> "Character Unavailable";
       };
     }
   }

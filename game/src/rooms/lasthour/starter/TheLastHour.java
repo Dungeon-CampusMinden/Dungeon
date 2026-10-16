@@ -14,6 +14,7 @@ import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
+import engine.network.server.CharacterSelection;
 import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
@@ -120,6 +121,15 @@ public class TheLastHour {
       } catch (IOException exception) {
         throw new IllegalStateException("Could not replace The Last Hour savegame", exception);
       }
+    }
+    if (loadFromSave) {
+      CharacterSelection.restoreAssignments(
+          LastHourLoad.read()
+              .map(LastHourSave.SaveData::characterAssignments)
+              .orElse(java.util.Map.of()));
+    } else if (containsArgument(args, NEW_GAME_ARGUMENT)
+        || containsArgument(args, ServerProcess.SERVER_ARGUMENT)) {
+      CharacterSelection.clear();
     }
     runId =
         loadFromSave

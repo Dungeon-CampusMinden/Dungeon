@@ -52,7 +52,11 @@
         "y" : 8.0
       },
       "on" : true,
-      "toggleable" : "Toggleable"
+      "toggleable" : "Toggleable",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
     "name" : "r1/dl-forest",
@@ -594,6 +598,77 @@
       "foamMinWidth" : 3,
       "foamMaxWidth" : 8,
       "lineInterval" : 1.5
+    }
+  }, {
+    "name" : "meta/char-wizard",
+    "type" : "available-character",
+    "properties" : {
+      "characterClass" : "WIZARD",
+      "maxCount" : 1
+    }
+  }, {
+    "name" : "meta/char-hunter",
+    "type" : "available-character",
+    "properties" : {
+      "characterClass" : "HUNTER",
+      "maxCount" : 1
+    }
+  }, {
+    "name" : "door-text-keypad",
+    "type" : "door-text-keypad",
+    "properties" : {
+      "keypadPosition" : {
+        "x" : 9.0,
+        "y" : 13.0
+      },
+      "doorPosition" : {
+        "x" : 7.0,
+        "y" : 10.0
+      },
+      "acceptedAnswers" : "OPEN"
+    }
+  }, {
+    "name" : "image-puzzle",
+    "type" : "image-puzzle",
+    "properties" : {
+      "image" : "items/rpg/item_gem_sapphire.png",
+      "pieceItemName" : "Saphir-Stück",
+      "pieceItemDescription" : "Ein Stück von einem Saphir",
+      "hintItemName" : "Saphir",
+      "hintItemDescription" : "Ein waschechter Saphir!",
+      "settings" : {
+        "pieceCount" : 4,
+        "seed" : 1337,
+        "pieces" : [ {
+          "position" : {
+            "x" : 8.9375,
+            "y" : 1.5
+          },
+          "destination" : "deco-inventory",
+          "deco" : "FolderRed"
+        }, {
+          "position" : {
+            "x" : 10.0,
+            "y" : 1.0
+          },
+          "destination" : "world-item",
+          "deco" : "BookshelfLarge"
+        }, {
+          "position" : {
+            "x" : 11.1875,
+            "y" : 1.1875
+          },
+          "destination" : "world-item",
+          "deco" : "BookshelfLarge"
+        }, {
+          "position" : {
+            "x" : 9.9375,
+            "y" : 1.6875
+          },
+          "destination" : "world-item",
+          "deco" : "BookshelfLarge"
+        } ]
+      }
     }
   } ]
 }
