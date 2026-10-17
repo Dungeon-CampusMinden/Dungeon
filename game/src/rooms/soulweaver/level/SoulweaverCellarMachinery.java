@@ -102,9 +102,9 @@ final class SoulweaverCellarMachinery {
     return entity;
   }
 
-  // A slab of the sliding wall: the straight wall piece of the room's wall atlas. As part of a
-  // wall it stays on the ground layer, which casts no contact shadows.
   private static Entity slab(Point at, IPath walls) {
+    // The straight wall piece of the wall atlas; as part of a wall it stays on the ground layer,
+    // which casts no contact shadows.
     Entity entity = new Entity("soulweaver-cellar-sliding-wall");
     entity.add(new PositionComponent(at));
     DrawComponent draw =

@@ -61,39 +61,42 @@ final class SoulweaverAtmosphere {
     if (!awake) return;
     Game.levelEntities()
         .filter(entity -> entity.name().equals(GOLEM))
+        .filter(
+            golem ->
+                golem
+                    .fetch(DrawComponent.class)
+                    .filter(draw -> draw.isVisible() && (draw.tintColor() & 0xFF) != 0)
+                    .isPresent())
         .forEach(
-            golem -> {
-              DrawComponent draw = golem.fetch(DrawComponent.class).orElse(null);
-              if (draw == null || !draw.isVisible() || (draw.tintColor() & 0xFF) == 0) return;
-              Game.positionOf(golem)
-                  // The heart sits in the middle of the chest.
-                  .map(at -> at.translate(2.5f, 3.3f))
-                  .ifPresent(at -> out.add(new Light(at, HEART_LIGHT, 6f, 0.9f, 0.08f)));
-            });
+            golem ->
+                Game.positionOf(golem)
+                    // The heart sits in the middle of the chest.
+                    .map(at -> at.translate(2.5f, 3.3f))
+                    .ifPresent(at -> out.add(new Light(at, HEART_LIGHT, 6f, 0.9f, 0.08f))));
   }
 
-  // The stone switches to its glowing crystal when Nox reaches the cellar.
   private static void seeingStone(List<Light> out) {
+    // The stone switches to its glowing crystal when Nox reaches the cellar.
     Game.levelEntities()
         .filter(entity -> entity.name().equals(SEEING_STONE))
         .forEach(
-            stone -> {
-              DrawComponent draw = stone.fetch(DrawComponent.class).orElse(null);
-              if (draw == null || !draw.isVisible() || !"active".equals(draw.currentStateName())) {
-                return;
-              }
-              stone
-                  .fetch(PositionComponent.class)
-                  // The crystal sits on top of the stand, three quarters up the sprite.
-                  .map(
-                      pc ->
-                          pc.position()
-                              .translate(
-                                  draw.getWidth() * pc.scale().x() / 2f,
-                                  draw.getHeight() * pc.scale().y() * 0.75f))
-                  .ifPresent(
-                      at -> out.add(new Light(at, SEEING_STONE_LIGHT, 3.5f, 0.9f, 0.05f, true)));
-            });
+            stone ->
+                stone
+                    .fetch(DrawComponent.class)
+                    .filter(draw -> draw.isVisible() && "active".equals(draw.currentStateName()))
+                    .flatMap(
+                        draw ->
+                            stone
+                                .fetch(PositionComponent.class)
+                                // The crystal sits on top of the stand, three quarters up.
+                                .map(
+                                    pc ->
+                                        pc.position()
+                                            .translate(
+                                                draw.getWidth() * pc.scale().x() / 2f,
+                                                draw.getHeight() * pc.scale().y() * 0.75f)))
+                    .ifPresent(
+                        at -> out.add(new Light(at, SEEING_STONE_LIGHT, 3.5f, 0.9f, 0.05f, true))));
   }
 
   static void install() {

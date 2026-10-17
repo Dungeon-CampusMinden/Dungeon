@@ -167,8 +167,8 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
         .forEach(
             entity ->
                 lighting.add(
-                    statusLight(
-                        lightSourcePosition(entity).translate(1.15f, 0.8f), 0.6f, Color.CYAN)));
+                    Light.steady(
+                        lightSourcePosition(entity).translate(1.15f, 0.8f), Color.CYAN, 0.6f)));
 
     Game.levelEntities()
         .filter(entity -> entity.isPresent(KeypadComponent.class))
@@ -220,12 +220,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
   }
 
   private void addLight(List<Light> lighting, Entity entity, float intensity, Color color) {
-    lighting.add(statusLight(lightSourcePosition(entity), intensity, color));
-  }
-
-  // A steady light whose reach grows with its strength.
-  private static Light statusLight(Point position, float intensity, Color color) {
-    return new Light(position, color, 5 * intensity, intensity, 0f);
+    lighting.add(Light.steady(lightSourcePosition(entity), color, intensity));
   }
 
   static Point lightSourcePosition(Entity entity) {

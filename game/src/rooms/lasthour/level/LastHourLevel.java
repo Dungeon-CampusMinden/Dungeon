@@ -1206,22 +1206,18 @@ public class LastHourLevel extends DungeonLevel {
    * @param out receives the lights
    */
   static void addLights(Point pcPos, Point timerPos, Entity keypad, List<Light> out) {
-    var state = ComputerStateComponent.getState().orElse(null);
-    if (state == null || !state.state().hasReached(ComputerProgress.ON)) return;
-    if (state.isInfected()) out.add(statusLight(pcPos, 0.8f, Color.RED));
-    else out.add(statusLight(pcPos, 0.5f, Color.BLUE));
-    out.add(statusLight(timerPos.translate(0.75f, 0), 0.5f, Color.RED));
+    Optional<ComputerStateComponent> state =
+        ComputerStateComponent.getState().filter(s -> s.state().hasReached(ComputerProgress.ON));
+    if (state.isEmpty()) return;
+    if (state.get().isInfected()) out.add(Light.steady(pcPos, Color.RED, 0.8f));
+    else out.add(Light.steady(pcPos, Color.BLUE, 0.5f));
+    out.add(Light.steady(timerPos.translate(0.75f, 0), Color.RED, 0.5f));
     boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();
     out.add(
-        statusLight(
+        Light.steady(
             Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),
-            0.3f,
-            unlocked ? Color.GREEN : Color.RED));
-  }
-
-  // A steady light whose reach grows with its strength.
-  private static Light statusLight(Point position, float intensity, Color color) {
-    return new Light(position, color, 5 * intensity, intensity, 0f);
+            unlocked ? Color.GREEN : Color.RED,
+            0.3f));
   }
 
   private void checkPCStateUpdate() {

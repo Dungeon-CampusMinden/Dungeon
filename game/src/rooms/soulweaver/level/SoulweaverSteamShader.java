@@ -13,6 +13,7 @@ import java.util.Map;
 /** Steam plumes rising from the leaking maze pipes and the sluice, the same on every client. */
 final class SoulweaverSteamShader extends AbstractShader {
 
+  /** Creates the steam shader; its sources are the named points of the current level. */
   SoulweaverSteamShader() {
     super("shaders/passthrough.vert", "shaders/soulweaver-steam.frag");
   }

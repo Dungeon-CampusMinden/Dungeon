@@ -34,6 +34,18 @@ public record Light(
   }
 
   /**
+   * A steady light whose reach grows with its strength, for status lamps and screens.
+   *
+   * @param position light centre in world units
+   * @param color light colour
+   * @param intensity brightness multiplier; the light reaches five tiles per unit of intensity
+   * @return the light
+   */
+  public static Light steady(Point position, Color color, float intensity) {
+    return new Light(position, color, 5 * intensity, intensity, 0f);
+  }
+
+  /**
    * The fire-like wobble of a flame at the given point: two slow waves, about once and twice a
    * second, so flames breathe rather than vibrate. Nearby flames are out of phase.
    *
