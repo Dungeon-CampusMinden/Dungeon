@@ -21,7 +21,7 @@ final class AmbientParticles {
   private static final int DUST = 110;
   private static final float EMBERS_PER_FLAME_PER_SECOND = 5f;
   private static final float PUFFS_PER_SECOND = 9f;
-  private static final float MOTES_PER_LIGHT_PER_SECOND = 12f;
+  private static final float MOTES_PER_LIGHT_PER_SECOND = 5f;
   private static final float PIXEL = 1 / 16f;
   private static final Color MOTE_COLOR = new Color();
 
