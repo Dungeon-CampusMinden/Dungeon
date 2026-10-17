@@ -3,6 +3,7 @@ package rooms.soulweaver.level;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
 import engine.components.DrawComponent;
+import engine.components.PositionComponent;
 import engine.rendering.Atmosphere;
 import engine.rendering.Light;
 import engine.systems.DrawSystem;
@@ -14,7 +15,8 @@ import rooms.soulweaver.state.VariablePuzzleStage;
 /**
  * Lighting, colour grading and steam of the room. Torches and kettles light up through the shared
  * renderer; when every torch is out, the room falls into near darkness. Once awakened, Nox glows
- * violet from the heart in its chest.
+ * violet from the heart in its chest, and while Nox works in the cellar, the seeing stone that
+ * shows it glows blue.
  */
 final class SoulweaverAtmosphere {
   // A dim, cool stone hall; the light grade cools the torchlight a little.
@@ -30,6 +32,8 @@ final class SoulweaverAtmosphere {
   private static final Atmosphere BLACKOUT = LIT.withBrightness(0.06f);
   private static final String GOLEM = "soulweaver-variables-golem";
   private static final Color HEART_LIGHT = new Color(0.62f, 0.28f, 1f, 1f);
+  private static final String SEEING_STONE = "soulweaver-loop-monitor";
+  private static final Color SEEING_STONE_LIGHT = new Color(0.3f, 0.62f, 1f, 1f);
 
   private SoulweaverAtmosphere() {}
 
@@ -43,11 +47,13 @@ final class SoulweaverAtmosphere {
   }
 
   /**
-   * Adds the violet glow of Nox's heart once the binding has awakened it.
+   * Adds the violet glow of Nox's heart once the binding has awakened it and the blue glow of the
+   * seeing stone while it shows Nox in the cellar.
    *
    * @param out receives the lights
    */
   static void lights(List<Light> out) {
+    seeingStone(out);
     boolean awake =
         SoulweaverBinding.state()
             .map(state -> state.stage() == VariablePuzzleStage.COMPLETE)
@@ -63,6 +69,29 @@ final class SoulweaverAtmosphere {
                   // The heart sits in the middle of the chest.
                   .map(at -> at.translate(2.5f, 3.3f))
                   .ifPresent(at -> out.add(new Light(at, HEART_LIGHT, 6f, 0.9f, 0.08f)));
+            });
+  }
+
+  // The stone switches to its glowing crystal when Nox reaches the cellar.
+  private static void seeingStone(List<Light> out) {
+    Game.levelEntities()
+        .filter(entity -> entity.name().equals(SEEING_STONE))
+        .forEach(
+            stone -> {
+              DrawComponent draw = stone.fetch(DrawComponent.class).orElse(null);
+              if (draw == null || !draw.isVisible() || !"active".equals(draw.currentStateName())) {
+                return;
+              }
+              stone
+                  .fetch(PositionComponent.class)
+                  // The crystal sits on top of the stand, three quarters up the sprite.
+                  .map(
+                      pc ->
+                          pc.position()
+                              .translate(
+                                  draw.getWidth() * pc.scale().x() / 2f,
+                                  draw.getHeight() * pc.scale().y() * 0.75f))
+                  .ifPresent(at -> out.add(new Light(at, SEEING_STONE_LIGHT, 3.5f, 0.9f, 0.05f)));
             });
   }
 
