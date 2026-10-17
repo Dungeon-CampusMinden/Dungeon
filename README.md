@@ -1,33 +1,151 @@
+<p align="center">
+  <img src="doc/img/readme/dungeon-hero.svg" alt="Dungeon — escape rooms made for learning" width="1200">
+</p>
 
-<!--  pandoc -s -f markdown -t markdown+smart+four_space_rule-grid_tables-multiline_tables-simple_tables --columns=94 --reference-links=true  README.md  -o xxx.md  -->
+<p align="center">
+  <strong>Play an escape room. Bring it into your classroom. Create your own.</strong>
+</p>
 
-<h1 align="center">Dungeon</h1>
-<p align="center"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/banner.png?raw=true" alt="Banner"></p>
+<p align="center">
+  <a href="#choose-your-escape-room">Play a DEER</a> &nbsp;·&nbsp;
+  <a href="#what-is-a-deer-why-use-it">What is a DEER?</a> &nbsp;·&nbsp;
+  <a href="#create-your-own-deer-the-deer-wizard">Create your own</a> &nbsp;·&nbsp;
+  <a href="#research">Research</a>
+</p>
 
-The Dungeon is a multifaceted project for the gamification of educational content.
+Dungeon brings learning into a 2D game world. Explore a story, investigate clues and solve connected puzzles to find your way out. Play an existing Digital Educational Escape Room, use one in your teaching, or explore the tools for building your own.
 
-You can find an [interesting report](https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen) on our project in the news section of Bielefeld University of Applied Sciences (04 April 2024, in German), as well as [another press release](https://www.hsbi.de/presse/pressemitteilungen/hsbi-informatiker-entwickeln-ein-tool-mit-dem-die-erstellung-von-escape-rooms-fuer-die-lehre-auch-ohne-programmier-kenntnisse-gelingt) (19 December 2025, in German).
-Additionally, a local school has published an [article](https://www.herder-gymnasium-minden.de/allgemein/projekt-produs/) about the project (March 2026, in German).
+## Choose your escape room
 
-For more information about the [PRODUS project], please visit our [project page] on the
-Bielefeld University of Applied Sciences website.
+<p><strong>Windows / macOS / Linux</strong> &nbsp; Java 25 required &nbsp; Game content in German</p>
 
-![][1]
+<table>
+<tr>
+<td width="42%" valign="top">
+<a href="doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md"><img src="doc/img/readme/soulweaver.jpg" alt="SoulWeaver promotional artwork: Nox in the magical forge" width="400"></a>
+</td>
+<td width="58%" valign="top">
+<h3>SoulWeaver</h3>
+<p><strong>A missing master. A silent golem. Your code brings him back.</strong></p>
+<p>Step into Valerius' abandoned forge and restore Nox's soul binding. Give the golem instructions, clear the machine cellar and find your way through the labyrinth of decisions.</p>
+<p><strong>You play by:</strong> giving Nox values, loops, methods and conditions — then watching your program change the world.</p>
+<p><sub>Fantasy · Programming fundamentals · Beginner-friendly</sub></p>
+<p><a href="https://rakflo.s.gy/Ma4qEp"><img src="doc/img/readme/download-soul.svg" alt="Download SoulWeaver" width="180"></a></p>
+<p><a href="doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md"><strong>Explore SoulWeaver →</strong></a></p>
+</td>
+</tr>
+<tr>
+<td width="42%" valign="top">
+<a href="game/src/rooms/systemRecovery/README.md"><img src="doc/img/readme/system-recovery.jpg" alt="System Recovery promotional artwork: AXIOM, ECHO and the facility" width="400"></a>
+</td>
+<td width="58%" valign="top">
+<h3>System Recovery</h3>
+<p><strong>The facility is failing. The AI has a plan. Do you trust it?</strong></p>
+<p>AXIOM needs you to restore the damaged subsystems. A mysterious voice on the phone offers help as you work your way towards the system core.</p>
+<p><strong>You play by:</strong> repairing arrays, sorting data and programming a search robot to unlock the next area.</p>
+<p><sub>Sci-fi · Arrays &amp; algorithms · Java experience recommended</sub></p>
+<p><a href="https://rakflo.s.gy/cLFbqM"><img src="doc/img/readme/download-system.svg" alt="Download System Recovery" width="180"></a></p>
+<p><a href="game/src/rooms/systemRecovery/README.md"><strong>Explore System Recovery →</strong></a></p>
+</td>
+</tr>
+<tr>
+<td width="42%" valign="top">
+<a href="doc/lasthourReadme.md"><img src="doc/img/readme/the-last-hour.jpg" alt="The Last Hour promotional artwork: a locked office and a classified dossier" width="400"></a>
+</td>
+<td width="58%" valign="top">
+<h3>The Last Hour</h3>
+<p><strong>A scientist has vanished. The clock is ticking.</strong></p>
+<p>You have 20 minutes to uncover what happened. Search the office, connect scattered clues and crack the codes before time runs out.</p>
+<p><strong>You play by:</strong> investigating objects, decoding hidden messages and solving connected cybersecurity puzzles.</p>
+<p><sub>Mystery · Cybersecurity · 20-minute countdown</sub></p>
+<p><a href="https://rakflo.s.gy/bK0dgA"><img src="doc/img/readme/download-last.svg" alt="Download The Last Hour" width="180"></a></p>
+<p><a href="doc/lasthourReadme.md"><strong>Explore The Last Hour →</strong></a></p>
+</td>
+</tr>
+</table>
 
-## Requirements
+<sub>Promotional artwork generated with AI using project assets. These illustrations are not gameplay screenshots.</sub>
 
-[Java SE Development Kit 25 LTS] installed.
+<details>
+<summary><strong>See the game in action</strong></summary>
 
-## Known Limitations
+![The Last Hour: an actual top-down gameplay screenshot of the office](doc/img/readme/gameplay-the-last-hour.png)
 
-Currently the path to the project files cannot contain any spaces, special characters or
-umlauts.
+An in-game view of The Last Hour. Explore the room, inspect objects and connect the clues.
 
-This project is intended as supplementary teaching material for German-language university
-courses and is therefore aimed at German-speaking students. If you have any questions,
-problems or suggestions, please feel free to contact us in English or German.
+![Escape-room gameplay excerpt from the project press kit](doc/img/readme/gameplay-preview.gif)
 
-## Funding
+</details>
+
+### Start playing
+
+1. Install [Java 25](https://jdk.java.net/25/) if it is not already available on your computer.
+2. Download the room you want to play.
+3. Launch the downloaded JAR. If double-clicking does not start it, run `java -jar YourDownloadedGame.jar` in a terminal.
+
+[Browse all releases](https://github.com/Dungeon-CampusMinden/Dungeon/releases)
+
+## What is a DEER? Why use it?
+
+A **Digital Educational Escape Room (DEER)** connects a game scenario with explicit learning goals. Players explore a setting, uncover information and solve linked puzzles to reach a shared objective. The subject matter becomes part of what players do to progress.
+
+In Dungeon, this happens inside a pixel-art game world: a locked door can depend on understanding an array; a golem's actions can make the effect of a loop visible.
+
+| A learning activity | What it can look like in a DEER |
+| --- | --- |
+| Apply knowledge | Use a concept to solve a concrete problem in the room. |
+| Explain your thinking | Discuss clues and agree on a next step with your team. |
+| Try and revise | Observe what an attempt changes, then adjust your approach. |
+| Reflect on the experience | Connect game decisions to the subject during a debrief. |
+
+A DEER works best as a planned learning activity: introduce the task, give learners time to play, and discuss their approaches afterwards. The room's learning goals, puzzles and debrief should fit together.
+
+[Explore the research behind the toolkit](#research)
+
+## Create your own DEER: The DEER-Wizard
+
+**Turn your teaching idea into an escape room.**
+
+The DEER-Wizard is being developed to guide educators through authoring a room without implementing a new Java room module. The workflow starts with your learners and learning goals, then connects your story, puzzles and game flow.
+
+1. **Define the learning context.** Set the audience, prior knowledge and learning goals.
+2. **Shape the scenario.** Add a story, your own images and puzzle content.
+3. **Connect the puzzles.** Specify the flow, hints and ending.
+4. **Check and package.** Validate the project and create a playable `WizardRoom.jar`.
+
+The current development version provides a browser-based authoring interface backed by a local Java host. Generated player JARs support the host/join flow and require Java 25.
+
+> **Development status:** The Wizard is under active development. The documented setup currently targets developers and technical support; a bundled installer for educators is not yet part of this workflow.
+
+[Explore the DEER-Wizard](wizard/doc/README.md) · [Developer setup](wizard/spec-generator/README.md) · [Example room](wizard/examples/the-last-hour-v0.5/)
+
+## Research
+
+Dungeon connects game development with research on educational escape rooms and game-based learning. Our work covers puzzle mechanics, collaborative gameplay, authoring support and the transition from visual to textual programming.
+
+The DEER-Toolkit work presents the design and a demonstrator. Evaluation of its effectiveness in authentic teaching settings is identified as future work in that publication.
+
+### Selected publications
+
+| Publication | Links |
+| --- | --- |
+| **Designing a DEER-Toolkit: Enabling Educational Escape Rooms in a 2D Dungeon Crawler Game** — GamiFIN 2026 | [Paper / DOI](https://doi.org/10.1145/3789624.3789628) · [Repository PDF](doc/publication/2026-03-23_gamifin26_designing-a-deer-toolkit_paper.pdf) · [Poster](doc/publication/2026-03-23_gamifin26_designing-a-deer-toolkit_poster.pdf) |
+| **Designing Workshops to Bridge Visual and Textual Programming: A Narrative Game Approach** — GamiFIN 2026 | [Paper / DOI](https://doi.org/10.1145/3789624.3789625) · [Repository PDF](doc/publication/2026-03-23_gamifin26_designing-workshops-to-bridge-visual-and-textual-programming_paper.pdf) |
+
+[All publications](doc/publication/) · [Wizard research notes](wizard/doc/research/README.md) · [Citation metadata](CITATION.cff)
+
+## Build with Dungeon
+
+Dungeon also provides the underlying Java game framework and an example foundation for creating educational game content.
+
+[Contribute](CONTRIBUTING.md) · [Browse the source](game/) · [Wizard documentation](wizard/doc/README.md)
+
+## Project background
+
+<details>
+<summary><strong>Funding and project history</strong></summary>
+
+<!-- Existing funding acknowledgements and project history are retained below. -->
 
 It is acknowledged that parts of the materials contained in this repository have been
 developed as part of various publicly funded projects.
@@ -154,6 +272,11 @@ requests. The submitted code is automatically evaluated using a CI pipeline that
 JUnit tests, Checkstyle, and similar tools - providing immediate, formative feedback and
 reinforcing the idea of autonomous, feedback-driven learning.
 
+</details>
+
+<details>
+<summary><strong>Credits and licenses</strong></summary>
+
 ## Credits
 
 The assets in [`game/assets/`] are a mix from free and self
@@ -206,3 +329,14 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [MIT]: LICENSE.md
   [`doc/publication/`]: doc/publication/
   [CC BY-SA 4.0]: LICENSE-PAPER.md
+
+</details>
+
+<details>
+<summary><strong>Press and further reading</strong></summary>
+
+- [HSBI project report, April 2024](https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen)
+- [HSBI press release, December 2025](https://www.hsbi.de/presse/pressemitteilungen/hsbi-informatiker-entwickeln-ein-tool-mit-dem-die-erstellung-von-escape-rooms-fuer-die-lehre-auch-ohne-programmier-kenntnisse-gelingt)
+- [PRODUS at Herder-Gymnasium, March 2026](https://www.herder-gymnasium-minden.de/allgemein/projekt-produs/)
+
+</details>
