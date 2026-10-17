@@ -17,10 +17,9 @@ import java.util.Optional;
  * <ul>
  *   <li>{@code wall/walls.png}, the wall autotile atlas: 12x4 cells of 16x16 pixels in the Godot
  *       "3x3 minimal" blob layout. Every design has one.
- *   <li>{@code floor/variants.png}, optional floor variants: cells 0 to 7 are floors, cell 8 a
- *       skull on the floor and cell 12 the broken edge of a floor above the void. With them, floors
- *       pick a stable random variant, walls stand on floor and the engine's tint fades, since the
- *       floor already shows its seams.
+ *   <li>{@code floor/variants.png}, optional floor variants: cells 0 to 7 are floors and cell 8 a
+ *       skull on the floor. With them, floors pick a stable random variant, walls stand on floor
+ *       and the engine's tint fades, since the floor already shows its seams.
  *   <li>{@code wall/decor.png}, {@code wall/torch.png} and {@code wall/fountain.png}, optional wall
  *       decoration for levels whose atmosphere asks for it.
  * </ul>

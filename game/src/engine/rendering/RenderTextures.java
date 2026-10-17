@@ -14,6 +14,7 @@ final class RenderTextures {
   private static Texture wallShadowTop;
   private static Texture wallShadowSide;
   private static Texture glow;
+  private static Texture abyssFade;
 
   private RenderTextures() {}
 
@@ -117,6 +118,25 @@ final class RenderTextures {
       glow.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
     return glow;
+  }
+
+  /**
+   * Darkness over the side of a floor that drops into the void: already shaded at its top edge, so
+   * the side reads apart from the floor above, and black at its bottom.
+   *
+   * @return the texture, 16x16 texels
+   */
+  static Texture abyssFade() {
+    if (abyssFade == null) {
+      Pixmap p = newPixmap(16, 16);
+      for (int y = 0; y < 16; y++) {
+        float depth = y / 15f;
+        p.setColor(0, 0, 0, Math.min(1f, 0.45f + 0.75f * (float) Math.pow(depth, 0.8)));
+        p.drawLine(0, y, 15, y);
+      }
+      abyssFade = toTexture(p);
+    }
+    return abyssFade;
   }
 
   private static Pixmap newPixmap(int width, int height) {

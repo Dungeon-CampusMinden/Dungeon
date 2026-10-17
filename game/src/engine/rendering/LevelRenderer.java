@@ -41,9 +41,11 @@ public final class LevelRenderer {
   };
 
   private static final int[] CELL_BY_MASK = new int[256];
+  // A wall with walls or void all around shows the void, whatever the design's art for it.
+  private static final int INSIDE = 9 + 2 * 12;
 
   static {
-    java.util.Arrays.fill(CELL_BY_MASK, 9 + 2 * 12); // solid block as fallback
+    java.util.Arrays.fill(CELL_BY_MASK, INSIDE);
     for (int i = 0; i < ATLAS_MASKS.length; i++) {
       if (ATLAS_MASKS[i] >= 0) CELL_BY_MASK[ATLAS_MASKS[i]] = i;
     }
@@ -55,12 +57,11 @@ public final class LevelRenderer {
   private static final int TORCH_SPACING = 4;
   private static final int FLOOR_VARIANTS = 8;
   private static final int SKULL = 8;
-  private static final int LEDGE = 12;
   private static final int BANNERS = 4;
 
   /**
-   * Draws the floor pass inside the given tile bounds: floors, everything under walls, broken floor
-   * edges and the ambient occlusion walls cast onto the floor.
+   * Draws the floor pass inside the given tile bounds: floors, everything under walls, the edges of
+   * floors above the void and the ambient occlusion walls cast onto the floor.
    *
    * @param batch the batch, already begun with the world projection
    * @param layout the level layout, indexed [y][x]
@@ -75,10 +76,8 @@ public final class LevelRenderer {
       for (int x = minX; x <= maxX; x++) {
         Tile t = layout[y][x];
         if (!drawable(t)) {
-          if (isLedge(layout, x, y)) {
-            batch.setColor(Color.WHITE);
-            drawCell(batch, variants(layout[y + 1][x]), LEDGE, x, y);
-          }
+          Tile above = at(layout, x, y + 1);
+          if (isAbyssEdge(above)) drawAbyssEdge(batch, layout, above, x, y);
           continue;
         }
         batch.setColor(tint(t));
@@ -142,7 +141,8 @@ public final class LevelRenderer {
         }
         batch.setColor(tint(t));
         if (isAutoWall(t)) {
-          drawCell(batch, tileset(t).walls(), wallCell(layout, x, y), x, y);
+          int cell = wallCell(layout, x, y);
+          if (cell != INSIDE) drawCell(batch, tileset(t).walls(), cell, x, y);
         } else if (!isAutoFloor(t) && isUpright(t)) {
           batch.draw(TextureMap.instance().textureAt(TileTextures.texture(t, layout)), x, y, 1, 1);
         }
@@ -363,14 +363,24 @@ public final class LevelRenderer {
     return hash(x, y, 19) % 2 == 0;
   }
 
-  // Void right below a varied floor shows the floor's broken-off edge.
-  private static boolean isLedge(Tile[][] layout, int x, int y) {
-    Tile t = at(layout, x, y);
-    Tile above = at(layout, x, y + 1);
-    return (t == null || t.levelElement() == LevelElement.SKIP)
-        && above != null
-        && above.visible()
-        && isAutoFloor(above);
+  // Walkable ground right above the void: its edge drops into the abyss.
+  private static boolean isAbyssEdge(Tile above) {
+    return drawable(above)
+        && above.isAccessible()
+        && (above.tintColor() == -1 || (above.tintColor() & 0xff) != 0);
+  }
+
+  // The side of the floor above, seen in the void tile below it, fading into the dark.
+  private static void drawAbyssEdge(SpriteBatch batch, Tile[][] layout, Tile above, int x, int y) {
+    batch.setColor(tint(above));
+    if (isAutoFloor(above)) {
+      drawCell(batch, variants(above), floorVariant(x, y + 1), x, y);
+    } else {
+      IPath side =
+          above.customTexture().orElse(TileTextures.path(above.designLabel(), "floor/floor_1.png"));
+      batch.draw(TextureMap.instance().textureAt(side), x, y, 1, 1);
+    }
+    batch.draw(RenderTextures.abyssFade(), x, y, 1, 1);
   }
 
   private static boolean isTorch(Tile[][] layout, int x, int y) {

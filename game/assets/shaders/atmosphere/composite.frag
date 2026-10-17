@@ -58,10 +58,10 @@ void main() {
     vec2 world = u_view.xy + v_uv * u_view.zw;
     vec2 wp = floor(world * 16.0) / 16.0;
     float n = fbm(wp * 0.42 + vec2(u_time * 0.07, u_time * 0.03));
-    // Thinner over the void, so the darkness around the level stays calm. Pure black counts as
-    // void, so the black inside of walls merges with the darkness around them.
+    // Only over the drawn level: the void stays black. Pure black counts as void, so the black
+    // inside of walls merges with the darkness around them.
     float solid = scene.a * step(1.0 / 255.0, max(scene.r, max(scene.g, scene.b)));
-    float fog = smoothstep(0.38, 0.9, n) * mix(0.3, 1.0, solid);
+    float fog = smoothstep(0.38, 0.9, n) * solid;
     vec3 col = scene.rgb * shoulder(u_ambient + raw);
     col += fog * (u_ambient * 1.3 + raw * 0.7) * 0.18 * u_fog;
 
