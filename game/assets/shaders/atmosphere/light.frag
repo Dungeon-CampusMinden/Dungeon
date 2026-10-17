@@ -43,9 +43,7 @@ float inset(float channel) {
 }
 
 // 1 if the ray from the light to the target crosses no blocking tile before the target's tile.
-// The tile of the wall a pixel belongs to never shadows it when ownWall is set, so walls are lit
-// as a whole and the light does not cut diagonal wedges into the brickwork.
-float visible(vec2 target, vec2 targetTile, bool ownWall, vec2 wallTile) {
+float visible(vec2 target, vec2 targetTile) {
     vec2 toTarget = target - u_lightPos;
     vec2 cell = floor(u_lightPos);
     vec2 stepDir = vec2(toTarget.x >= 0.0 ? 1.0 : -1.0, toTarget.y >= 0.0 ? 1.0 : -1.0);
@@ -64,17 +62,34 @@ float visible(vec2 target, vec2 targetTile, bool ownWall, vec2 wallTile) {
             tMax.y += tDelta.y;
         }
         if (cell == targetTile) break;
-        vec2 gap = abs(cell - wallTile);
-        if (ownWall && max(gap.x, gap.y) <= 1.0) continue;
         if (blocked(cell)) return 0.0;
     }
     return 1.0;
 }
 
+// How far a light on this side of the tile reaches a wall: 1 beyond the tile, fading to 0 half a
+// tile inside it.
+float facing(float lightCoord, float tileCoord, float dir) {
+    if (dir > 0.0) return clamp((lightCoord - tileCoord + 0.5) / 1.5, 0.0, 1.0);
+    if (dir < 0.0) return clamp((tileCoord + 1.5 - lightCoord) / 1.5, 0.0, 1.0);
+    return 1.0;
+}
+
+// Light a wall pixel takes through the side of its tile in direction dir (a side or a diagonal):
+// where the light reaches the ground right outside that side.
+float side(vec2 p, vec2 tile, vec2 dir) {
+    float f = facing(u_lightPos.x, tile.x, dir.x) * facing(u_lightPos.y, tile.y, dir.y);
+    if (f <= 0.0) return 0.0;
+    vec2 target = vec2(
+        dir.x > 0.0 ? tile.x + 1.0 + EDGE : dir.x < 0.0 ? tile.x - EDGE : p.x,
+        dir.y > 0.0 ? tile.y + 1.0 + EDGE : dir.y < 0.0 ? tile.y - EDGE : p.y);
+    return f * visible(target, tile + dir);
+}
+
 float lightAt(vec2 p) {
     vec2 tile = floor(p);
     vec4 occ = occlusion(tile);
-    if (occ.r < 0.5) return visible(p, tile, false, tile);
+    if (occ.r < 0.5) return visible(p, tile);
 
     vec2 below = tile - vec2(0.0, 1.0);
     vec2 east = tile + vec2(1.0, 0.0);
@@ -91,38 +106,33 @@ float lightAt(vec2 p) {
     // only from that side of the art.
     if (openW && f.x < left) {
         if (u_lightPos.x > tile.x + left) return 0.0;
-        return visible(vec2(tile.x - EDGE, p.y), west, false, tile);
+        return visible(vec2(tile.x - EDGE, p.y), west);
     }
     if (openE && f.x > 1.0 - right) {
         if (u_lightPos.x < tile.x + 1.0 - right) return 0.0;
-        return visible(vec2(tile.x + 1.0 + EDGE, p.y), east, false, tile);
+        return visible(vec2(tile.x + 1.0 + EDGE, p.y), east);
     }
     if (openS && f.y < bottom) {
         if (u_lightPos.y > tile.y + bottom) return 0.0;
-        return visible(vec2(p.x, tile.y - EDGE), below, false, tile);
+        return visible(vec2(p.x, tile.y - EDGE), below);
     }
 
     // The art takes light through each side that looks onto open ground, where light reaches the
-    // ground right in front of it. Each side fades out over a tile and a half as the light passes
-    // behind it, so walking past a wall does not switch its light on and off.
-    if (openS || openE || openW) {
-        float lit = 0.0;
-        if (openS) {
-            float facing = clamp((tile.y + 1.5 - u_lightPos.y) / 1.5, 0.0, 1.0);
-            if (facing > 0.0) lit = max(lit, facing * visible(vec2(p.x, tile.y - EDGE), below, false, tile));
-        }
-        if (openE) {
-            float facing = clamp((u_lightPos.x - tile.x + 0.5) / 1.5, 0.0, 1.0);
-            if (facing > 0.0) lit = max(lit, facing * visible(vec2(tile.x + 1.0 + EDGE, p.y), east, false, tile));
-        }
-        if (openW) {
-            float facing = clamp((tile.x + 1.5 - u_lightPos.x) / 1.5, 0.0, 1.0);
-            if (facing > 0.0) lit = max(lit, facing * visible(vec2(tile.x - EDGE, p.y), west, false, tile));
-        }
-        return lit;
+    // ground right in front of it; a wall without such a side, like the corner of a room, through
+    // the ground touching it diagonally. Each side fades out over a tile and a half as the light
+    // passes behind it, so walking past a wall does not switch its light on and off.
+    bool openN = ground(tile + vec2(0.0, 1.0));
+    float lit = 0.0;
+    if (openS) lit = max(lit, side(p, tile, vec2(0.0, -1.0)));
+    if (openN) lit = max(lit, side(p, tile, vec2(0.0, 1.0)));
+    if (openE) lit = max(lit, side(p, tile, vec2(1.0, 0.0)));
+    if (openW) lit = max(lit, side(p, tile, vec2(-1.0, 0.0)));
+    if (openS || openN || openE || openW) return lit;
+    for (int i = 0; i < 4; i++) {
+        vec2 dir = vec2(i < 2 ? 1.0 : -1.0, mod(float(i), 2.0) < 0.5 ? 1.0 : -1.0);
+        if (ground(tile + dir)) lit = max(lit, side(p, tile, dir));
     }
-    // Inside a wall run: lit where the light reaches it past its own wall.
-    return visible(p, tile, true, tile);
+    return lit;
 }
 
 void main() {
