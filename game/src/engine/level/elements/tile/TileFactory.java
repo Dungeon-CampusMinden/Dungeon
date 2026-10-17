@@ -21,14 +21,9 @@ public class TileFactory {
     return switch (elementType) {
       case FLOOR -> new FloorTile(coordinate, designLabel);
       case WALL -> new WallTile(coordinate, designLabel);
-      case HOLE -> new HoleTile(coordinate, designLabel);
       case DOOR -> new DoorTile(coordinate, designLabel);
       case EXIT -> new ExitTile(coordinate, designLabel);
       case SKIP -> new SkipTile(coordinate, designLabel);
-      case PIT -> new PitTile(coordinate, designLabel);
-      case PORTAL -> new PortalTile(coordinate, designLabel);
-      case GITTER -> new GitterTile(coordinate, designLabel);
-      case GLASSWALL -> new GlasswandTile(coordinate, designLabel);
     };
   }
 }

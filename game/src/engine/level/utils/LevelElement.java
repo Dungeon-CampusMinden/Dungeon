@@ -8,20 +8,10 @@ public enum LevelElement {
   FLOOR(true, true),
   /** This field is a wall-field. */
   WALL(false, false),
-  /** This field is a hole-field. */
-  HOLE(false, false),
   /** This field is the exit-field to the next level. */
   EXIT(true, false),
-  /** This field is a pit-field. */
-  PIT(false, true),
   /** This field is a door-field. */
-  DOOR(true, true),
-  /** This field is a portal-field. */
-  PORTAL(false, false),
-  /** This field is a glasswall-field. */
-  GLASSWALL(false, true),
-  /** This field is a gitter-field. */
-  GITTER(false, true);
+  DOOR(true, true);
 
   private final boolean accessible;
   private final boolean canSeeThrough;

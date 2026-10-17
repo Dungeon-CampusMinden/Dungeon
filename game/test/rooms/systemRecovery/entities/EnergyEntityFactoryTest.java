@@ -54,7 +54,7 @@ class EnergyEntityFactoryTest {
     boxReference[0] = box;
     box.add(draw);
 
-    Entity player = new Entity(101);
+    Entity player = new Entity("player");
     DialogContext context =
         new DialogContext(
             DialogType.DefaultTypes.DUAL_INVENTORY,
@@ -66,7 +66,8 @@ class EnergyEntityFactoryTest {
     UIComponent inventoryDialog = new UIComponent(context, true, true, player.id());
     player.add(inventoryDialog);
 
-    Entity otherPlayer = new Entity(102);
+    Entity otherPlayer = new Entity("other-player");
+    Entity otherBox = new Entity("other-battery-box");
     DialogContext otherContext =
         new DialogContext(
             DialogType.DefaultTypes.DUAL_INVENTORY,
@@ -75,7 +76,7 @@ class EnergyEntityFactoryTest {
                 DialogContextKeys.ENTITY,
                 otherPlayer.id(),
                 DialogContextKeys.SECONDARY_ENTITY,
-                box.id() + 1));
+                otherBox.id()));
     otherContext.owner(otherPlayer.id());
     UIComponent otherInventoryDialog = new UIComponent(otherContext, true, true, otherPlayer.id());
     otherPlayer.add(otherInventoryDialog);

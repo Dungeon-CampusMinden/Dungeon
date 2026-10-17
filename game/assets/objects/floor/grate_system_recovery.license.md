@@ -1,4 +1,4 @@
-- Quelle: https://github.com/Dungeon-CampusMinden (Dungeon-Original; Default-Tile: `game/assets/dungeon/default/floor/floor_hole1.png`)
+- Quelle: https://github.com/Dungeon-CampusMinden (Dungeon-Original; Default-Tile: `game/assets/objects/floor/grate.png`)
 - Original author: Diana Kirzhner
 - Author: AMatutat
 - License: CC0 1.0

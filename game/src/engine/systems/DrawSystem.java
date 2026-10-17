@@ -33,7 +33,6 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.DrawConfig;
 import engine.utils.components.draw.FrameBufferPool;
 import engine.utils.components.draw.TextureMap;
-import engine.utils.components.draw.TileUtils;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.shader.AbstractShader;
 import engine.utils.components.draw.shader.ShaderList;
@@ -975,10 +974,7 @@ public final class DrawSystem extends System implements Disposable {
             level ->
                 cameraBounds.intersects(new Rectangle(width, height, pos.x(), pos.y()))
                     || corners.stream().anyMatch(cameraBounds::contains)
-                    || level
-                        .tileAt(entityCenter)
-                        .filter(tile -> tile.visible() && !TileUtils.isTilePitAndOpen(tile))
-                        .isPresent())
+                    || level.tileAt(entityCenter).filter(tile -> tile.visible()).isPresent())
         .orElse(false);
   }
 

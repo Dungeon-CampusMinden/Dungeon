@@ -85,14 +85,13 @@ public class DungeonLevelTest {
         new LevelElement[][] {
           {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT, LevelElement.SKIP},
           {LevelElement.WALL, LevelElement.WALL, LevelElement.SKIP, LevelElement.SKIP},
-          {LevelElement.DOOR, LevelElement.DOOR, LevelElement.HOLE, LevelElement.HOLE},
+          {LevelElement.DOOR, LevelElement.DOOR, LevelElement.SKIP, LevelElement.SKIP},
         };
     DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     assertEquals(2, tileLevel.floorTiles().size());
     assertEquals(2, tileLevel.doorTiles().size());
-    assertEquals(2, tileLevel.holeTiles().size());
     assertEquals(2, tileLevel.wallTiles().size());
-    assertEquals(3, tileLevel.skipTiles().size());
+    assertEquals(5, tileLevel.skipTiles().size());
   }
 
   /** WTF? . */
@@ -520,33 +519,6 @@ public class DungeonLevelTest {
     level.layout()[0][1] = tile;
     level.addTile(tile);
     assertTrue(level.wallTiles().contains(tile));
-    assertEquals(0, tile.index());
-    assertTrue(
-        level.floorTiles().stream()
-            .filter(x -> !(x == tile))
-            .allMatch(x -> x.connections().size == 0));
-    assertSame(level, tile.level());
-    assertEquals(
-        2,
-        Arrays.stream(level.layout())
-            .flatMap(x -> Arrays.stream(x).filter(Tile::isAccessible).map(Tile::index))
-            .distinct()
-            .count());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_addTile_HoleTile() {
-    DungeonLevel level =
-        new DungeonLevel(
-            new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
-            DesignLabel.DEFAULT);
-    Tile tile =
-        TileFactory.createTile(new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
-    level.removeTile(level.layout()[0][1]);
-    level.layout()[0][1] = tile;
-    level.addTile(tile);
-    assertTrue(level.holeTiles().contains(tile));
     assertEquals(0, tile.index());
     assertTrue(
         level.floorTiles().stream()

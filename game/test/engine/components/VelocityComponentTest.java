@@ -22,7 +22,7 @@ class VelocityComponentTest {
   /** Initializes the test object before each test. */
   @BeforeEach
   void setUp() {
-    component = new VelocityComponent(5.0f, e -> {}, true);
+    component = new VelocityComponent(5.0f, e -> {});
   }
 
   /** Verifies that the default constructor sets all fields to their default values. */
@@ -31,7 +31,6 @@ class VelocityComponentTest {
     VelocityComponent vc = new VelocityComponent();
     assertEquals(0f, vc.maxSpeed());
     assertEquals(Vector2.ZERO, vc.currentVelocity());
-    assertFalse(vc.canEnterOpenPits());
     assertNotNull(vc.onWallHit());
     assertEquals(vc.mass(), 1);
   }
@@ -42,7 +41,6 @@ class VelocityComponentTest {
     VelocityComponent vc = new VelocityComponent(3.5f);
     assertEquals(3.5f, vc.maxSpeed());
     assertEquals(Vector2.ZERO, vc.currentVelocity());
-    assertFalse(vc.canEnterOpenPits());
     assertNotNull(vc.onWallHit());
     assertEquals(1, vc.mass());
   }
@@ -51,9 +49,8 @@ class VelocityComponentTest {
   @Test
   void testConstructorWithoutMass() {
     Consumer<Entity> callback = e -> {};
-    VelocityComponent vc = new VelocityComponent(4.2f, callback, true);
+    VelocityComponent vc = new VelocityComponent(4.2f, callback);
     assertEquals(4.2f, vc.maxSpeed());
-    assertTrue(vc.canEnterOpenPits());
     assertEquals(callback, vc.onWallHit());
     assertEquals(1f, vc.mass());
   }
@@ -62,9 +59,8 @@ class VelocityComponentTest {
   @Test
   void testConstructorWithFullArguments() {
     Consumer<Entity> callback = e -> {};
-    VelocityComponent vc = new VelocityComponent(4.2f, 2f, callback, true);
+    VelocityComponent vc = new VelocityComponent(4.2f, 2f, callback);
     assertEquals(4.2f, vc.maxSpeed());
-    assertTrue(vc.canEnterOpenPits());
     assertEquals(callback, vc.onWallHit());
     assertEquals(2f, vc.mass());
   }
@@ -83,7 +79,7 @@ class VelocityComponentTest {
         assertThrows(
             IllegalArgumentException.class,
             () -> {
-              new VelocityComponent(4.2f, -1, callback, true);
+              new VelocityComponent(4.2f, -1, callback);
             });
 
     assertEquals("Mass cannot be 0 or less", thrown.getMessage());
@@ -103,7 +99,7 @@ class VelocityComponentTest {
         assertThrows(
             IllegalArgumentException.class,
             () -> {
-              new VelocityComponent(4.2f, 0, callback, true);
+              new VelocityComponent(4.2f, 0, callback);
             });
 
     assertEquals("Mass cannot be 0 or less", thrown.getMessage());
@@ -155,16 +151,6 @@ class VelocityComponentTest {
             });
 
     assertEquals("Mass cannot be 0 or less", thrown.getMessage());
-  }
-
-  /** Tests enabling and disabling the canEnterOpenPits flag. */
-  @Test
-  void testCanEnterOpenPitsSetterAndGetter() {
-    component.canEnterOpenPits(false);
-    assertFalse(component.canEnterOpenPits());
-
-    component.canEnterOpenPits(true);
-    assertTrue(component.canEnterOpenPits());
   }
 
   /** Tests that the wall hit callback can be set and is correctly invoked. */

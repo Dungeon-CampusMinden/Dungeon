@@ -77,7 +77,6 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   // Movement
   private float speed = 1.0f;
   private float mass = 1.0f;
-  private boolean canEnterOpenPits = false;
   private Consumer<Entity> onWallHit = e -> {};
 
   // Combat
@@ -248,17 +247,6 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    */
   public T mass(float mass) {
     this.mass = mass;
-    return self();
-  }
-
-  /**
-   * Whether this monster can enter open pits.
-   *
-   * @param can true if can enter open pits
-   * @return this builder
-   */
-  public T canEnterOpenPits(boolean can) {
-    this.canEnterOpenPits = can;
     return self();
   }
 
@@ -508,15 +496,6 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   }
 
   /**
-   * Whether the monster can enter open pits.
-   *
-   * @return true if can enter open pits
-   */
-  public boolean canEnterOpenPits() {
-    return canEnterOpenPits;
-  }
-
-  /**
    * Get the on-wall-hit consumer.
    *
    * @return onWallHit consumer
@@ -590,7 +569,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
 
     monster.add(new PositionComponent(spawnPoint));
     monster.add(new DrawComponent(CharacterStateFactory.createStateMachine(texture())));
-    monster.add(new VelocityComponent(speed(), mass(), onWallHit(), canEnterOpenPits()));
+    monster.add(new VelocityComponent(speed(), mass(), onWallHit()));
     monster.add(new CollideComponent());
     if (collideDamage() > 0)
       monster.add(new SpikyComponent(collideDamage(), damageType(), collideCooldown()));

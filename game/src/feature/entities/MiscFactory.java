@@ -344,7 +344,7 @@ public final class MiscFactory {
   public static Entity crate(Point position, float mass, SimpleIPath texture) {
     Entity crate = new Entity("crate");
     crate.add(new PositionComponent(position));
-    crate.add(new VelocityComponent(10, mass, entity -> {}, false));
+    crate.add(new VelocityComponent(10, mass, entity -> {}));
     crate.add(new DrawComponent(new Animation(texture)));
     crate.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return crate;
@@ -497,7 +497,7 @@ public final class MiscFactory {
     VelocityComponent entityVc = other.fetch(VelocityComponent.class).orElse(null);
     other.remove(VelocityComponent.class);
     VelocityComponent vc =
-        new VelocityComponent(speed, entity -> resetCatapultedEntity(entity, entityVc), true);
+        new VelocityComponent(speed, entity -> resetCatapultedEntity(entity, entityVc));
     other.add(vc);
 
     other.add(

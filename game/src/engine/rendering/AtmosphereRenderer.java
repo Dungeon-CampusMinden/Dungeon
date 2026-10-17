@@ -476,10 +476,10 @@ public final class AtmosphereRenderer implements Disposable {
       Tile[] row = layout[b[2] + y];
       for (int x = 0; x < w; x++) {
         Tile t = row[b[0] + x];
+        // Light passes over the void, so holes in a room cast no shadow.
         boolean blocks =
             t == null
                 || t.levelElement() == LevelElement.WALL
-                || t.levelElement() == LevelElement.SKIP
                 || (t.levelElement() == LevelElement.DOOR && !t.canSeeThrough());
         occlusion.drawPixel(x, y, blocks ? 0xff0000ff : 0x000000ff);
       }
