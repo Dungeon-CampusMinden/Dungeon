@@ -12,9 +12,9 @@ import java.util.List;
 
 /**
  * Purely visual particles, one art pixel each: dust motes hanging in the air and dust kicked up by
- * walking feet, both lit by the lighting pass, and embers rising from flames and magic motes rising
- * from lights with {@link Light#motes}, which glow on their own. Kicked-up dust is drawn with the
- * floor, the rest over the scene.
+ * walking feet, both lit by the lighting pass, and embers rising from flames, sparks trailing
+ * behind flying fire and magic motes rising from lights with {@link Light#motes}, which glow on
+ * their own. Kicked-up dust is drawn with the floor, the rest over the scene.
  */
 final class AmbientParticles {
 
@@ -22,8 +22,13 @@ final class AmbientParticles {
   private static final float EMBERS_PER_FLAME_PER_SECOND = 5f;
   private static final float PUFFS_PER_SECOND = 9f;
   private static final float MOTES_PER_LIGHT_PER_SECOND = 5f;
+  private static final float SPARKS_PER_TRAIL_PER_SECOND = 70f;
   private static final float PIXEL = 1 / 16f;
   private static final Color MOTE_COLOR = new Color();
+  private static final Color SPARK_HOT = new Color(1f, 0.95f, 0.7f, 1f);
+  private static final Color SPARK_WARM = new Color(1f, 0.5f, 0.12f, 1f);
+  private static final Color SPARK_COOL = new Color(0.6f, 0.1f, 0.03f, 1f);
+  private static final Color SPARK_COLOR = new Color();
 
   private final float[] dustX = new float[DUST];
   private final float[] dustY = new float[DUST];
@@ -33,26 +38,37 @@ final class AmbientParticles {
   private final Pool embers = new Pool(320);
   private final Pool puffs = new Pool(240);
   private final Pool motes = new Pool(160);
+  private final Pool sparks = new Pool(400);
   private float emberBudget = 0f;
   private float moteBudget = 0f;
+  private float sparkBudget = 0f;
 
   /**
-   * Advances all particles, spawns embers at the given flames and motes at lights with {@link
-   * Light#motes}.
+   * Advances all particles, spawns embers at the given flames, sparks at the trails and motes at
+   * lights with {@link Light#motes}.
    *
    * @param delta seconds since the last frame
    * @param time seconds since start
    * @param view visible world rectangle
    * @param flames flame tips that emit embers
+   * @param trails centres of flying fire that leave sparks behind
    * @param lights lights of the frame
    */
-  void update(float delta, float time, Rectangle view, List<Point> flames, List<Light> lights) {
+  void update(
+      float delta,
+      float time,
+      Rectangle view,
+      List<Point> flames,
+      List<Point> trails,
+      List<Light> lights) {
     delta = Math.min(delta, 0.1f);
     updateDust(delta, time, view);
     embers.update(delta, time, 0.9f);
     puffs.update(delta, time, 0f);
     motes.update(delta, time, 0.35f);
+    sparks.update(delta, time, 0.6f);
     spawnMotes(delta, lights);
+    spawnSparks(delta, trails);
 
     if (flames.isEmpty()) return;
     emberBudget += flames.size() * EMBERS_PER_FLAME_PER_SECOND * delta;
@@ -63,7 +79,8 @@ final class AmbientParticles {
           f.y(),
           MathUtils.random(-0.25f, 0.25f),
           MathUtils.random(0.5f, 1.2f),
-          MathUtils.random(0.5f, 1.4f));
+          MathUtils.random(0.5f, 1.4f),
+          0f);
     }
   }
 
@@ -81,7 +98,8 @@ final class AmbientParticles {
           feet.y() + MathUtils.random(0, 1) * PIXEL,
           MathUtils.random(-0.3f, 0.3f),
           MathUtils.random(0.15f, 0.4f),
-          MathUtils.random(0.3f, 0.6f));
+          MathUtils.random(0.3f, 0.6f),
+          0f);
     }
   }
 
@@ -170,8 +188,53 @@ final class AmbientParticles {
     }
   }
 
-  // Motes leave the light from a small area around it and drift up, swaying.
+  /**
+   * Draws a hot glow around each piece of flying fire and its sparks, both additively. Sparks cool
+   * from white-hot over orange to a dark red; fresh ones are two art pixels wide.
+   *
+   * @param batch batch with the world projection and additive blending, already begun
+   * @param trails centres of flying fire of this frame
+   * @param time seconds since start
+   */
+  void drawSparks(SpriteBatch batch, List<Point> trails, float time) {
+    Texture glow = RenderTextures.glow();
+    for (Point p : trails) {
+      float a = 0.35f + 0.08f * Light.wobble(p, time);
+      batch.setColor(a, a * 0.5f, a * 0.15f, 1f);
+      batch.draw(glow, p.x() - 1.1f, p.y() - 1.1f, 2.2f, 2.2f);
+    }
+    Texture px = RenderTextures.pixel();
+    for (int i = 0; i < sparks.count; i++) {
+      float t = sparks.life[i] / sparks.maxLife[i];
+      if (t > 0.5f) SPARK_COLOR.set(SPARK_WARM).lerp(SPARK_HOT, (t - 0.5f) * 2f);
+      else SPARK_COLOR.set(SPARK_COOL).lerp(SPARK_WARM, t * 2f);
+      float fade = Math.min(1f, t * 4f);
+      batch.setColor(SPARK_COLOR.r * fade, SPARK_COLOR.g * fade, SPARK_COLOR.b * fade, 1f);
+      float size = t > 0.7f ? 2 * PIXEL : PIXEL;
+      batch.draw(px, snap(sparks.x[i]), snap(sparks.y[i]), size, size);
+    }
+  }
+
+  private void spawnSparks(float delta, List<Point> trails) {
+    // Sparks stay where they leave the fire, so a moving fireball draws a trail behind it.
+    if (trails.isEmpty()) return;
+    sparkBudget += trails.size() * SPARKS_PER_TRAIL_PER_SECOND * delta;
+    for (; sparkBudget >= 1f; sparkBudget--) {
+      Point p = trails.get(MathUtils.random(trails.size() - 1));
+      float angle = MathUtils.random(MathUtils.PI2);
+      float speed = MathUtils.random(0.2f, 0.9f);
+      sparks.add(
+          p.x() + MathUtils.random(-3, 3) * PIXEL,
+          p.y() + MathUtils.random(-3, 3) * PIXEL,
+          MathUtils.cos(angle) * speed,
+          MathUtils.sin(angle) * speed + 0.3f,
+          MathUtils.random(0.25f, 0.6f),
+          0f);
+    }
+  }
+
   private void spawnMotes(float delta, List<Light> lights) {
+    // Motes leave a small area around the light in its colour, lightened towards white.
     int sources = 0;
     for (Light l : lights) if (l.motes()) sources++;
     if (sources == 0) return;
@@ -182,23 +245,21 @@ final class AmbientParticles {
         if (!l.motes() || pick-- > 0) continue;
         Color c = l.color();
         float white = MathUtils.random(0.1f, 0.6f);
-        int i =
-            motes.add(
-                l.position().x() + MathUtils.random(-0.35f, 0.35f),
-                l.position().y() + MathUtils.random(-0.3f, 0.1f),
-                MathUtils.random(-0.1f, 0.1f),
-                MathUtils.random(0.25f, 0.55f),
-                MathUtils.random(1.4f, 2.6f));
-        if (i < 0) break;
-        motes.color[i] =
+        motes.add(
+            l.position().x() + MathUtils.random(-0.35f, 0.35f),
+            l.position().y() + MathUtils.random(-0.3f, 0.1f),
+            MathUtils.random(-0.1f, 0.1f),
+            MathUtils.random(0.25f, 0.55f),
+            MathUtils.random(1.4f, 2.6f),
             Color.toFloatBits(
-                c.r + (1 - c.r) * white, c.g + (1 - c.g) * white, c.b + (1 - c.b) * white, 1f);
+                c.r + (1 - c.r) * white, c.g + (1 - c.g) * white, c.b + (1 - c.b) * white, 1f));
         break;
       }
     }
   }
 
   private void updateDust(float delta, float time, Rectangle view) {
+    // Motes that leave the view, and all of them at first, move to a random place inside it.
     for (int i = 0; i < DUST; i++) {
       boolean outside =
           dustX[i] < view.x() - 1
@@ -228,7 +289,7 @@ final class AmbientParticles {
     return MathUtils.floor(v * 16f) / 16f;
   }
 
-  // Fixed-size particle storage; particles move linearly and sway sideways while they live.
+  /** Fixed-size particle storage; particles move linearly and sway sideways while they live. */
   private static final class Pool {
     final float[] x;
     final float[] y;
@@ -249,16 +310,16 @@ final class AmbientParticles {
       color = new float[capacity];
     }
 
-    // Returns the new particle's index, or -1 if the pool is full.
-    int add(float px, float py, float pvx, float pvy, float lifetime) {
-      if (count == x.length) return -1;
+    void add(float px, float py, float pvx, float pvy, float lifetime, float packedColor) {
+      // The colour is used only by particles drawn in their own colour.
+      if (count == x.length) return;
       int i = count++;
       x[i] = px;
       y[i] = py;
       vx[i] = pvx;
       vy[i] = pvy;
       life[i] = maxLife[i] = lifetime;
-      return i;
+      color[i] = packedColor;
     }
 
     void update(float delta, float time, float sway) {

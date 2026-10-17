@@ -9,10 +9,8 @@ import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Direction;
 import engine.utils.Point;
-import engine.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A Tile is a field of the level.
@@ -31,7 +29,6 @@ public abstract class Tile {
   protected final Coordinate globalPosition;
   private final float friction;
   protected DesignLabel designLabel;
-  private IPath customTexture;
   protected ILevel level;
   protected LevelElement levelElement;
   protected transient Array<Connection<Tile>> connections = new Array<>();
@@ -60,26 +57,6 @@ public abstract class Tile {
    */
   public Tile(final Coordinate globalPosition, final DesignLabel designLabel) {
     this(globalPosition, designLabel, DEFAULT_FRICTION);
-  }
-
-  /**
-   * Returns the texture that replaces the look of this tile's design, if one is set. Without it,
-   * {@link engine.rendering.LevelRenderer} draws the tile from its element, design and neighbours.
-   * A closed door with a custom texture {@code name.png} shows {@code name_closed.png}.
-   *
-   * @return the custom texture, or empty for the design's look
-   */
-  public Optional<IPath> customTexture() {
-    return Optional.ofNullable(customTexture);
-  }
-
-  /**
-   * Replaces the look of this tile's design with a texture of its own.
-   *
-   * @param texture the custom texture, or null to show the design's look again
-   */
-  public void customTexture(final IPath texture) {
-    this.customTexture = texture;
   }
 
   /**
@@ -290,8 +267,6 @@ public abstract class Tile {
         + this.friction()
         + ", designLabel="
         + this.designLabel()
-        + ", customTexture="
-        + this.customTexture().map(IPath::pathString).orElse("none")
         + ", levelElement="
         + this.levelElement()
         + ", visible="

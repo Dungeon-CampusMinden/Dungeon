@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * The frame-level part of the render pipeline in {@link engine.systems.DrawSystem}.
@@ -41,12 +43,13 @@ import java.util.Map;
  *       stay uniform at that integer ratio, while detail finer than an art pixel (text, dot-matrix
  *       displays) survives. The level's {@link Atmosphere} and lights are collected.
  *   <li>The draw system renders level and entities into those buffers; this class contributes
- *       {@link #drawLevel the level}, {@link #drawShadow contact shadows}, {@link
- *       #drawGroundParticles kicked-up dust}, {@link #addEntity entity lights} and {@link
- *       #drawParticles particles}.
- *   <li>{@link #grade}: ambient and point lights with wall shadows, fog, grading and bloom.
- *   <li>{@link #present}: the scene is scaled to the screen with sharp bilinear filtering, bloom,
- *       vignette and grain.
+ *       {@link #drawFloor the floor}, {@link #drawWalls walls}, {@link #drawShadow contact
+ *       shadows}, {@link #drawGroundParticles kicked-up dust}, {@link #addEntity entity lights} and
+ *       {@link #drawParticles particles}.
+ *   <li>{@link #grade}: ambient and point lights with wall shadows, fog, grading and bloom. The
+ *       draw system then adds world overlays and runs the scene shaders on the lit scene.
+ *   <li>{@link #present}: the scene is scaled to the screen with sharp bilinear filtering, vignette
+ *       and grain.
  *   <li>{@link #endFrame}: the camera is restored and the frame's buffers are freed.
  * </ol>
  */
@@ -56,6 +59,9 @@ public final class AtmosphereRenderer implements Disposable {
   // Buffer sizes snap to this many texels, so zooming reuses pooled buffers of a few sizes.
   private static final int SIZE_STEP = 32;
   private static final float MAX_LIGHT_RADIUS = 8f;
+  // Walking speeds in tiles per second; standing still, teleports and thrown objects raise no dust.
+  private static final float MIN_WALK_SPEED = 0.8f;
+  private static final float MAX_WALK_SPEED = 12f;
   private static final String SHADER_DIR = "shaders/atmosphere/";
   // Base assumed for frames without a readable image: most of the box, at its bottom edge.
   private static final SpriteFootprints.Footprint BOX_BASE =
@@ -67,6 +73,7 @@ public final class AtmosphereRenderer implements Disposable {
   private final Matrix4 pixelProjection = new Matrix4();
   private final List<Light> lights = new ArrayList<>();
   private final List<Point> flames = new ArrayList<>();
+  private final List<Point> trails = new ArrayList<>();
   private final List<FrameBuffer> frameBuffers = new ArrayList<>();
   private Map<Entity, Point> lastPositions = new HashMap<>();
   private Map<Entity, Point> positions = new HashMap<>();
@@ -115,11 +122,11 @@ public final class AtmosphereRenderer implements Disposable {
    * @param time seconds since start
    */
   public void beginFrame(int screenWidth, int screenHeight, float delta, float time) {
-    ILevel current = Game.currentLevel().orElse(null);
+    Optional<ILevel> current = Game.currentLevel();
     this.screenWidth = screenWidth;
     this.screenHeight = screenHeight;
-    this.layout = current == null ? NO_LAYOUT : current.layout();
-    atmosphere = current == null ? Atmosphere.NEUTRAL : current.atmosphere();
+    layout = current.map(ILevel::layout).orElse(NO_LAYOUT);
+    atmosphere = current.map(ILevel::atmosphere).orElse(Atmosphere.NEUTRAL);
     if (LevelEditorSystem.active()) {
       // The level editor shows the level fully lit and ungraded.
       atmosphere =
@@ -141,11 +148,14 @@ public final class AtmosphereRenderer implements Disposable {
     float viewHeight = cam.viewportHeight * cam.zoom;
     // Two texels per art pixel, but never more texels than screen pixels.
     float texelsPerUnit = Math.min(TEXELS_PER_TILE, screenWidth / viewWidth);
-    width = roundUp(MathUtils.ceil(viewWidth * texelsPerUnit) + 2, SIZE_STEP);
-    height = roundUp(MathUtils.ceil(viewHeight * texelsPerUnit) + 2, SIZE_STEP);
+    width = roundUp(MathUtils.ceil(viewWidth * texelsPerUnit) + 4, SIZE_STEP);
+    height = roundUp(MathUtils.ceil(viewHeight * texelsPerUnit) + 4, SIZE_STEP);
 
-    float snappedX = Math.round(savedX * texelsPerUnit) / texelsPerUnit;
-    float snappedY = Math.round(savedY * texelsPerUnit) / texelsPerUnit;
+    // Snapped to the texels of the half-resolution light buffer, so its texels stay on the
+    // art-pixel grid the light shader samples; present shifts the rest for smooth scrolling.
+    float snap = 2f / texelsPerUnit;
+    float snappedX = Math.round(savedX / snap) * snap;
+    float snappedY = Math.round(savedY / snap) * snap;
     float left = snappedX - width / (2f * texelsPerUnit);
     float bottom = snappedY - height / (2f * texelsPerUnit);
     view = new Rectangle(width / texelsPerUnit, height / texelsPerUnit, left, bottom);
@@ -162,12 +172,13 @@ public final class AtmosphereRenderer implements Disposable {
 
     lights.clear();
     flames.clear();
+    trails.clear();
     if (layout.length > 0 && layout[0].length > 0 && atmosphere.wallDecor()) {
       int[] b = tileBounds(layout, MAX_LIGHT_RADIUS);
       level.collectLights(layout, b[0], b[1], b[2], b[3], lights);
       level.collectFlames(layout, b[0], b[1], b[2], b[3], flames);
     }
-    if (current != null) current.lights(lights);
+    current.ifPresent(l -> l.lights(lights));
   }
 
   /**
@@ -223,6 +234,9 @@ public final class AtmosphereRenderer implements Disposable {
    * @param pc the entity's position component
    */
   public void drawShadow(SpriteBatch batch, DrawComponent dc, PositionComponent pc) {
+    // The shadow fades with the entity's tint, so invisible entities cast none.
+    float alpha = (dc.tintColor() & 0xFF) / 255f;
+    if (alpha == 0) return;
     float spriteWidth = dc.getWidth() * Math.abs(pc.scale().x());
     float spriteHeight = dc.getHeight() * Math.abs(pc.scale().y());
     SpriteFootprints.Footprint base = SpriteFootprints.of(dc.getSprite()).orElse(BOX_BASE);
@@ -237,7 +251,7 @@ public final class AtmosphereRenderer implements Disposable {
     float h = Math.min(w * 10f / 24f, 0.45f);
     float centerX = pc.position().x() + (left + right) / 2f * spriteWidth;
     float feetY = pc.position().y() + base.bottom() * spriteHeight;
-    batch.setColor(Color.WHITE);
+    batch.setColor(alpha, alpha, alpha, alpha);
     batch.setBlendFunctionSeparate(
         GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ZERO, GL20.GL_ONE);
     // Mostly below the base row, so the sprite hides only its upper part.
@@ -275,14 +289,21 @@ public final class AtmosphereRenderer implements Disposable {
         || p.y() > v.y() + v.height() + MAX_LIGHT_RADIUS) {
       return;
     }
-    boolean glows = SceneLights.collect(entity, dc, pc, atmosphere.lantern(), lights, flames);
+    boolean glows =
+        SceneLights.collect(entity, dc, pc, atmosphere.lantern(), lights, flames, trails);
 
     positions.put(entity, p);
     Point last = lastPositions.get(entity);
-    if (!grounded || glows || last == null || delta <= 0 || !dc.isVisible()) return;
+    if (!grounded
+        || glows
+        || last == null
+        || delta <= 0
+        || !dc.isVisible()
+        || (dc.tintColor() & 0xFF) == 0) {
+      return;
+    }
     float speed = (float) last.distance(p) / delta;
-    // Walking speeds only: standing still, teleports and thrown objects raise no dust.
-    if (speed > 0.8f && speed < 12f) {
+    if (speed > MIN_WALK_SPEED && speed < MAX_WALK_SPEED) {
       float w = dc.getWidth() * Math.abs(pc.scale().x());
       particles.step(p.translate(w / 2f, 1 / 16f), delta);
     }
@@ -291,17 +312,18 @@ public final class AtmosphereRenderer implements Disposable {
   /**
    * Advances the particles and draws the airborne ones into the composed scene, after all entities
    * are registered and before the lighting and scene shaders: dust motes over the scene, flame
-   * glow, embers and magic motes added on top. Running before the scene shaders lets their masks
-   * hide particles too.
+   * glow, embers, spark trails and magic motes added on top. Running before the scene shaders lets
+   * their masks hide particles too.
    *
    * @param batch batch with the world projection, already begun
    */
   public void drawParticles(SpriteBatch batch) {
-    particles.update(delta, time, view, flames, lights);
+    particles.update(delta, time, view, flames, trails, lights);
     particles.drawDust(batch, layout, time);
     // Additive light that keeps the scene's coverage alpha, which the fog reads.
     batch.setBlendFunctionSeparate(GL20.GL_ONE, GL20.GL_ONE, GL20.GL_ZERO, GL20.GL_ONE);
     particles.drawEmbers(batch, flames, time);
+    particles.drawSparks(batch, trails, time);
     particles.drawMotes(batch, time);
     batch.setColor(Color.WHITE);
     BlendUtils.setBlending(batch);
@@ -402,7 +424,6 @@ public final class AtmosphereRenderer implements Disposable {
     frameBuffers.clear();
   }
 
-  // Clears the light buffer and adds every light near the view.
   private void renderLights(FrameBuffer target, SpriteBatch batch) {
     updateOcclusion();
     target.begin();
@@ -448,17 +469,19 @@ public final class AtmosphereRenderer implements Disposable {
     target.end();
   }
 
-  // In bright rooms point lights add a glow instead of washing the scene out: above half
-  // brightness, their strength falls to 30 % at full ambient light.
   private static float lightScale(Color ambient) {
+    // In bright rooms point lights add a glow instead of washing the scene out: above half
+    // brightness, their strength falls to 30 % at full ambient light.
     float luma = 0.299f * ambient.r + 0.587f * ambient.g + 0.114f * ambient.b;
     return 1f - 0.7f * MathUtils.clamp((luma - 0.5f) / 0.5f, 0f, 1f);
   }
 
-  // Rebuilds the occlusion map (one texel per tile) around the view: red marks tiles that block
-  // light; green, blue and alpha hold how much floor shows left of, right of and below the art of
-  // an autotiled wall, in sixteenths of a tile, so the light shader lights that floor as floor. On
-  // other tiles green marks open ground, as opposed to the void.
+  /**
+   * Rebuilds the occlusion map (one texel per tile) around the view: red marks tiles that block
+   * light; green, blue and alpha hold how much floor shows left of, right of and below the art of
+   * an autotiled wall, in sixteenths of a tile, so the light shader lights that floor as floor. On
+   * other tiles green marks open ground, as opposed to the void.
+   */
   private void updateOcclusion() {
     if (layout.length == 0 || layout[0].length == 0) return;
     int[] b = tileBounds(layout, MAX_LIGHT_RADIUS + 1);
@@ -500,8 +523,8 @@ public final class AtmosphereRenderer implements Disposable {
     occlusionTexture.draw(occlusion, 0, 0);
   }
 
-  // An inset in tiles as a channel value: sixteenths of a tile, times 16.
   private static int sixteenths(float tiles) {
+    // An inset as an occlusion map channel value: sixteenths of a tile, times 16.
     return Math.round(tiles * 16) * 16;
   }
 
@@ -533,13 +556,12 @@ public final class AtmosphereRenderer implements Disposable {
     pass(batch, blurShader, farTmp, bloomFar, s -> s.setUniformf("u_dir", 0, 1f / qh));
   }
 
-  // Draws source over the whole target with the given shader, or the default one if null.
   private void pass(
       SpriteBatch batch,
       ShaderProgram shader,
       FrameBuffer source,
       FrameBuffer target,
-      java.util.function.Consumer<ShaderProgram> uniforms) {
+      Consumer<ShaderProgram> uniforms) {
     linear(source);
     target.begin();
     batch.setShader(shader);
@@ -558,6 +580,7 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   private FrameBuffer obtain(int w, int h) {
+    // Freed at endFrame.
     FrameBuffer fbo = pool.obtain(w, h);
     frameBuffers.add(fbo);
     return fbo;
@@ -576,8 +599,8 @@ public final class AtmosphereRenderer implements Disposable {
         .setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
   }
 
-  // Tile bounds of the scene view grown by margin tiles: minX, maxX, minY, maxY.
   private int[] tileBounds(Tile[][] layout, float margin) {
+    // minX, maxX, minY, maxY of the view grown by the margin, clamped to the layout.
     Rectangle v = view;
     return new int[] {
       Math.max(0, MathUtils.floor(v.x() - margin)),

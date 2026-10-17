@@ -12,8 +12,7 @@ import java.util.Map;
 
 /**
  * Resolves the textures of level tiles while the level is drawn, from each tile's element, design
- * and direct neighbours. Tiles store no texture of their own unless a room gives them a {@link
- * Tile#customTexture() custom one}.
+ * and direct neighbours. Tiles store no texture of their own.
  *
  * <p>All textures of a design lie below {@code dungeon/<design>/}. Walls use the design's autotile
  * atlas {@link #WALL_ATLAS}, see {@link LevelRenderer}; floors, exits and doors use single
@@ -33,7 +32,6 @@ public final class TileTextures {
   // Paths are built once per design and name, so drawing a frame allocates none.
   private static final Map<DesignLabel, Map<String, IPath>> PATHS =
       new EnumMap<>(DesignLabel.class);
-  private static final Map<IPath, IPath> CLOSED_CUSTOM = new HashMap<>();
 
   private TileTextures() {}
 
@@ -45,10 +43,6 @@ public final class TileTextures {
    * @return the texture
    */
   public static IPath texture(Tile tile, Tile[][] layout) {
-    if (tile.customTexture().isPresent()) {
-      IPath custom = tile.customTexture().get();
-      return tile instanceof DoorTile door && !door.isOpen() ? closed(custom) : custom;
-    }
     DesignLabel design = tile.designLabel();
     return switch (tile.levelElement()) {
       case WALL -> wallAtlas(design);
@@ -72,7 +66,7 @@ public final class TileTextures {
     return switch (element) {
       case FLOOR -> path(design, "floor/floor_1.png");
       case EXIT -> path(design, "floor/floor_ladder.png");
-      case DOOR -> path(doorDesign(design), "door/top.png");
+      case DOOR -> path(design, "door/top.png");
       case WALL -> wallAtlas(design);
       case SKIP -> path(design, "floor/empty.png");
     };
@@ -105,22 +99,6 @@ public final class TileTextures {
     return path;
   }
 
-  private static IPath closed(IPath custom) {
-    IPath closed = CLOSED_CUSTOM.get(custom);
-    if (closed == null) {
-      String path = custom.pathString();
-      int dot = path.lastIndexOf('.');
-      closed = new SimpleIPath(path.substring(0, dot) + "_closed" + path.substring(dot));
-      CLOSED_CUSTOM.put(custom, closed);
-    }
-    return closed;
-  }
-
-  // The default design has no doors of its own yet and keeps those of the old default design.
-  private static DesignLabel doorDesign(DesignLabel design) {
-    return design == DesignLabel.DEFAULT ? DesignLabel.OLD_DEFAULT : design;
-  }
-
   private static final String[] DOOR_OPEN = {
     "door/top.png", "door/right.png", "door/left.png", "door/bottom.png"
   };
@@ -128,9 +106,9 @@ public final class TileTextures {
     "door/top_closed.png", "door/right_closed.png", "door/left_closed.png", "door/bottom_closed.png"
   };
 
-  // A door shows its frame on the side that faces the room. A hidden door is wall while closed
-  // and floor while open.
   private static IPath door(DoorTile door, Tile[][] layout) {
+    // A door shows its frame on the side that faces the room; a hidden door is wall while closed
+    // and floor while open.
     if (door.hidden()) {
       return door.isOpen()
           ? path(door.designLabel(), "floor/floor_1.png")
@@ -144,17 +122,11 @@ public final class TileTextures {
     else if (isInside(layout, x + 1, y)) side = 2;
     else if (isInside(layout, x, y + 1)) side = 3;
     else side = 0;
-    return path(doorDesign(door.designLabel()), (door.isOpen() ? DOOR_OPEN : DOOR_CLOSED)[side]);
+    return path(door.designLabel(), (door.isOpen() ? DOOR_OPEN : DOOR_CLOSED)[side]);
   }
 
-  private static Tile at(Tile[][] layout, int x, int y) {
-    if (y < 0 || y >= layout.length || x < 0 || x >= layout[y].length) return null;
-    return layout[y][x];
-  }
-
-  // An accessible tile: the side of a door that faces the room.
   private static boolean isInside(Tile[][] layout, int x, int y) {
-    Tile t = at(layout, x, y);
+    Tile t = LevelRenderer.at(layout, x, y);
     return t != null && t.levelElement().value();
   }
 }

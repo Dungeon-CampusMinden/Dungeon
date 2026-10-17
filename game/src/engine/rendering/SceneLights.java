@@ -18,16 +18,16 @@ import java.util.List;
 final class SceneLights {
 
   private record Preset(
-      String pathPart, Color color, float radius, float intensity, float flicker) {}
+      String pathPart, Color color, float radius, float intensity, float flicker, boolean trail) {}
 
   private static final List<Preset> EMISSIVE =
       List.of(
-          new Preset("objects/torch", new Color(1f, 0.56f, 0.24f, 1f), 6.5f, 0.9f, 0.14f),
-          new Preset("fireball", new Color(1f, 0.5f, 0.16f, 1f), 4.5f, 1.4f, 0.3f),
-          new Preset("magic_kettle", new Color(0.62f, 0.35f, 1f, 1f), 4f, 1f, 0.08f),
-          new Preset("cauldron", new Color(0.35f, 1f, 0.45f, 1f), 3.5f, 0.9f, 0.08f),
-          new Preset("lamp", new Color(1f, 0.9f, 0.72f, 1f), 5.5f, 1f, 0f),
-          new Preset("lava", new Color(1f, 0.42f, 0.12f, 1f), 3f, 0.9f, 0.15f));
+          new Preset("objects/torch", new Color(1f, 0.56f, 0.24f, 1f), 6.5f, 0.9f, 0.14f, false),
+          new Preset("fireball", new Color(1f, 0.5f, 0.16f, 1f), 4.5f, 1.4f, 0.3f, true),
+          new Preset("magic_kettle", new Color(0.62f, 0.35f, 1f, 1f), 4f, 1f, 0.08f, false),
+          new Preset("cauldron", new Color(0.35f, 1f, 0.45f, 1f), 3.5f, 0.9f, 0.08f, false),
+          new Preset("lamp", new Color(1f, 0.9f, 0.72f, 1f), 5.5f, 1f, 0f, false),
+          new Preset("lava", new Color(1f, 0.42f, 0.12f, 1f), 3f, 0.9f, 0.15f, false));
 
   private static final Color LANTERN = new Color(1f, 0.84f, 0.62f, 1f);
 
@@ -42,6 +42,7 @@ final class SceneLights {
    * @param lantern intensity of the players' lantern, 0 for none
    * @param out receives the light
    * @param flames receives the flame tips of fire lights, for ember particles
+   * @param trails receives the centres of flying fire, which leaves a trail of sparks
    * @return true if the entity is a glowing object (fire, magic, lamp); false for players and
    *     entities without light
    */
@@ -51,7 +52,8 @@ final class SceneLights {
       PositionComponent pc,
       float lantern,
       List<Light> out,
-      List<Point> flames) {
+      List<Point> flames,
+      List<Point> trails) {
     // A fully transparent tint hides the entity, for example while fog of war covers it.
     if (!dc.isVisible() || (dc.tintColor() & 0xff) == 0) return false;
     float w = dc.getWidth() * pc.scale().x();
@@ -74,7 +76,8 @@ final class SceneLights {
         out.add(
             new Light(
                 center, preset.color(), preset.radius(), preset.intensity(), preset.flicker()));
-        if (preset.flicker() > 0.1f) flames.add(origin.translate(w / 2f, h * 0.85f));
+        if (preset.trail()) trails.add(origin.translate(w / 2f, h / 2f));
+        else if (preset.flicker() > 0.1f) flames.add(origin.translate(w / 2f, h * 0.85f));
         return true;
       }
     }

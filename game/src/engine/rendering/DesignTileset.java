@@ -48,6 +48,12 @@ record DesignTileset(
     float[][] insets,
     int[][] floorRects) {
 
+  /** Pixels per side of an atlas cell, one tile. */
+  static final int CELL = 16;
+
+  /** Cells per row of a wall atlas. */
+  static final int ATLAS_COLUMNS = 12;
+
   private static final int CELLS = 48;
   private static final Map<DesignLabel, DesignTileset> TILESETS = new EnumMap<>(DesignLabel.class);
 
@@ -132,13 +138,13 @@ record DesignTileset(
   private static float[][] measureInsets(BitSet opaque, int width) {
     float[][] insets = new float[CELLS][3];
     for (int cell = 0; cell < CELLS; cell++) {
-      int x0 = (cell % 12) * 16;
-      int y0 = (cell / 12) * 16;
-      int left = 16;
+      int x0 = (cell % ATLAS_COLUMNS) * CELL;
+      int y0 = (cell / ATLAS_COLUMNS) * CELL;
+      int left = CELL;
       int right = -1;
       int bottom = -1;
-      for (int y = 0; y < 16; y++) {
-        for (int x = 0; x < 16; x++) {
+      for (int y = 0; y < CELL; y++) {
+        for (int x = 0; x < CELL; x++) {
           if (!opaque.get((y0 + y) * width + x0 + x)) continue;
           left = Math.min(left, x);
           right = Math.max(right, x);
@@ -146,62 +152,62 @@ record DesignTileset(
         }
       }
       if (right < 0) continue; // an empty cell casts no shadow
-      insets[cell][0] = left / 16f;
-      insets[cell][1] = (15 - right) / 16f;
-      insets[cell][2] = (15 - bottom) / 16f;
+      insets[cell][0] = left / (float) CELL;
+      insets[cell][1] = (CELL - 1 - right) / (float) CELL;
+      insets[cell][2] = (CELL - 1 - bottom) / (float) CELL;
     }
     return insets;
   }
 
-  // Fills the transparent pixels of each cell from the border pixels whose side or corner the cell
-  // leaves open, then splits the filled area into rectangles.
   private static int[][] measureFloors(BitSet opaque, int width) {
+    // Fills the transparent pixels of each cell from the border pixels whose side or corner the
+    // cell leaves open.
     int[][] rects = new int[CELLS][];
     for (int cell = 0; cell < CELLS; cell++) {
       int mask = Math.max(LevelRenderer.ATLAS_MASKS[cell], 0);
-      int x0 = (cell % 12) * 16;
-      int y0 = (cell / 12) * 16;
-      boolean[] ground = new boolean[256];
+      int x0 = (cell % ATLAS_COLUMNS) * CELL;
+      int y0 = (cell / ATLAS_COLUMNS) * CELL;
+      boolean[] ground = new boolean[CELL * CELL];
       ArrayDeque<Integer> open = new ArrayDeque<>();
-      for (int i = 0; i < 16; i++) {
+      for (int i = 0; i < CELL; i++) {
         if ((mask & LevelRenderer.N) == 0) open.add(i);
-        if ((mask & LevelRenderer.S) == 0) open.add(15 * 16 + i);
-        if ((mask & LevelRenderer.W) == 0) open.add(i * 16);
-        if ((mask & LevelRenderer.E) == 0) open.add(i * 16 + 15);
+        if ((mask & LevelRenderer.S) == 0) open.add((CELL - 1) * CELL + i);
+        if ((mask & LevelRenderer.W) == 0) open.add(i * CELL);
+        if ((mask & LevelRenderer.E) == 0) open.add(i * CELL + CELL - 1);
       }
       if ((mask & LevelRenderer.NW) == 0) open.add(0);
-      if ((mask & LevelRenderer.NE) == 0) open.add(15);
-      if ((mask & LevelRenderer.SW) == 0) open.add(15 * 16);
-      if ((mask & LevelRenderer.SE) == 0) open.add(255);
+      if ((mask & LevelRenderer.NE) == 0) open.add(CELL - 1);
+      if ((mask & LevelRenderer.SW) == 0) open.add((CELL - 1) * CELL);
+      if ((mask & LevelRenderer.SE) == 0) open.add(CELL * CELL - 1);
       while (!open.isEmpty()) {
         int p = open.poll();
-        int x = p % 16;
-        int y = p / 16;
+        int x = p % CELL;
+        int y = p / CELL;
         if (ground[p] || opaque.get((y0 + y) * width + x0 + x)) continue;
         ground[p] = true;
         if (x > 0) open.add(p - 1);
-        if (x < 15) open.add(p + 1);
-        if (y > 0) open.add(p - 16);
-        if (y < 15) open.add(p + 16);
+        if (x < CELL - 1) open.add(p + 1);
+        if (y > 0) open.add(p - CELL);
+        if (y < CELL - 1) open.add(p + CELL);
       }
       rects[cell] = rectangles(ground);
     }
     return rects;
   }
 
-  // Runs of ground in each row, merged with the same run in the rows below.
   private static int[] rectangles(boolean[] ground) {
-    boolean[] taken = new boolean[256];
+    // Each run of ground in a row, merged with the same run in the rows below.
+    boolean[] taken = new boolean[CELL * CELL];
     List<Integer> out = new ArrayList<>();
-    for (int y = 0; y < 16; y++) {
-      for (int x = 0; x < 16; x++) {
-        if (!ground[y * 16 + x] || taken[y * 16 + x]) continue;
+    for (int y = 0; y < CELL; y++) {
+      for (int x = 0; x < CELL; x++) {
+        if (!ground[y * CELL + x] || taken[y * CELL + x]) continue;
         int w = 1;
-        while (x + w < 16 && ground[y * 16 + x + w] && !taken[y * 16 + x + w]) w++;
+        while (x + w < CELL && ground[y * CELL + x + w] && !taken[y * CELL + x + w]) w++;
         int h = 1;
-        while (y + h < 16 && run(ground, taken, x, y + h, w)) h++;
+        while (y + h < CELL && run(ground, taken, x, y + h, w)) h++;
         for (int dy = 0; dy < h; dy++) {
-          for (int dx = 0; dx < w; dx++) taken[(y + dy) * 16 + x + dx] = true;
+          for (int dx = 0; dx < w; dx++) taken[(y + dy) * CELL + x + dx] = true;
         }
         out.addAll(List.of(x, y, w, h));
       }
@@ -211,7 +217,7 @@ record DesignTileset(
 
   private static boolean run(boolean[] ground, boolean[] taken, int x, int y, int w) {
     for (int dx = 0; dx < w; dx++) {
-      if (!ground[y * 16 + x + dx] || taken[y * 16 + x + dx]) return false;
+      if (!ground[y * CELL + x + dx] || taken[y * CELL + x + dx]) return false;
     }
     return true;
   }
