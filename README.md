@@ -1,87 +1,80 @@
 <p align="center">
   <picture>
-    <source media="(max-width: 600px)" srcset="doc/img/readme/dungeon-hero-mobile.jpg">
-    <img src="doc/img/readme/dungeon-hero.jpg" alt="Dungeon — Think. Solve. Escape. Three educational escape rooms in three different worlds." width="1440">
+    <source media="(max-width: 480px)" srcset="doc/img/readme/dungeon-hero-mobile.jpg">
+    <img src="doc/img/readme/dungeon-hero.jpg" alt="Dungeon — Think. Solve. Escape. Story-driven educational escape rooms and tools to create your own." width="1440">
   </picture>
 </p>
 
-<h1 align="center">A way out. A reason to think.</h1>
-
 <p align="center">
-  Story-driven escape rooms where the next breakthrough is yours.<br>
-  <strong>Play a room. Bring it into your teaching. Build a world of your own.</strong>
+  <strong>Story-driven escape rooms. A toolkit to create your own.</strong><br>
+  Explore programming, algorithms and cybersecurity in a 2D pixel-art world.
 </p>
 
-<p align="center">
-  <a href="#choose-your-escape-room"><img src="doc/img/readme/nav-play.svg" alt="Play a room — choose your next challenge" width="280"></a>
-  <a href="#create-your-own-deer-the-deer-wizard"><img src="doc/img/readme/nav-create.svg" alt="Create a room — meet the DEER-Wizard" width="280"></a>
-  <a href="#research"><img src="doc/img/readme/nav-research.svg" alt="The research — explore the work behind it" width="280"></a>
-</p>
-
-<p align="center">
-  <a href="#what-is-a-deer-why-use-it">What is a DEER?</a> &nbsp; / &nbsp;
-  <a href="#see-the-world-youll-play-in">Gameplay</a> &nbsp; / &nbsp;
-  <a href="#start-playing">Quick start</a> &nbsp; / &nbsp;
-  <a href="#build-with-dungeon">For developers</a>
-</p>
+<table align="center">
+<tr>
+<td align="center" valign="top" width="33%"><a href="#choose-your-escape-room"><strong>Play</strong></a><br><sub>Escape rooms</sub></td>
+<td align="center" valign="top" width="33%"><a href="#create-your-own-deer-the-deer-wizard"><strong>Create</strong></a><br><sub>DEER-Wizard</sub></td>
+<td align="center" valign="top" width="33%"><a href="#research"><strong>Research</strong></a><br><sub>Papers &amp; insights</sub></td>
+</tr>
+</table>
 
 ## Choose your escape room
 
-A forgotten forge. A failing facility. A scientist's empty office. Pick your setting, follow the clues and use what you know to move forward.
+Pick a story. Follow the clues. Find your way out.
 
 <p>
-  <picture>
-    <source media="(max-width: 600px)" srcset="doc/img/readme/platforms-mobile.svg">
-    <img src="doc/img/readme/platforms.svg" alt="Playable on Windows, macOS and Linux. Java 25 required. Game content in German." width="1440">
-  </picture>
+  <strong>Windows · macOS · Linux</strong><br>
+  <sub>Java 25 required · Game content in German</sub>
 </p>
 
-[SoulWeaver](#soulweaver) &nbsp; / &nbsp; [System Recovery](#system-recovery) &nbsp; / &nbsp; [The Last Hour](#the-last-hour)
+[SoulWeaver](#soulweaver) &nbsp; / &nbsp; [System&nbsp;Recovery](#system-recovery) &nbsp; / &nbsp; [The&nbsp;Last&nbsp;Hour](#the-last-hour)
+
+<sub>New here? [Quick start](#start-playing) · [What is a DEER?](#what-is-a-deer-why-use-it)</sub>
 
 ### SoulWeaver
 
-<a href="doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md"><img src="doc/img/readme/feature-soul.jpg" alt="SoulWeaver — bring a golem back to life. Fantasy meets programming." width="1440"></a>
+<a href="doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md"><picture><source media="(max-width: 480px)" srcset="doc/img/readme/feature-soul-mobile.jpg"><img src="doc/img/readme/feature-soul.jpg" alt="SoulWeaver — bring a golem back to life. Fantasy meets programming." width="1440"></picture></a>
 
-**A missing master. A silent golem. Your code brings him back.**
+Bring Nox the golem back to life in Valerius' abandoned forge. Write instructions to clear the machine cellar and navigate the labyrinth of decisions — then watch your program change the world.
 
-Step into Valerius' abandoned forge and restore Nox's soul binding. Give him instructions, clear the machine cellar and find your way through the labyrinth of decisions. Your program runs; Nox shows you what it does.
+**Programming fundamentals** · Variables, loops, methods and conditions · For beginners
 
-**Your challenge:** variables, loops, methods and conditions. **Your starting point:** programming beginner.
-
-<p>
-  <a href="https://rakflo.s.gy/Ma4qEp"><img src="doc/img/readme/download-soul.svg" alt="Download SoulWeaver" width="196"></a>
-  <a href="doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md"><img src="doc/img/readme/explore-soul.svg" alt="Explore SoulWeaver →" width="196"></a>
-</p>
+<table>
+<tr>
+<td align="center"><a href="https://rakflo.s.gy/Ma4qEp"><strong>↓ Download</strong></a></td>
+<td align="center"><a href="doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md"><strong>Room details →</strong></a></td>
+</tr>
+</table>
 
 ### System Recovery
 
-<a href="game/src/rooms/systemRecovery/README.md"><img src="doc/img/readme/feature-system.jpg" alt="System Recovery — repair the system, question the AI. A sci-fi escape room about arrays and algorithms." width="1440"></a>
+<a href="game/src/rooms/systemRecovery/README.md"><picture><source media="(max-width: 480px)" srcset="doc/img/readme/feature-system-mobile.jpg"><img src="doc/img/readme/feature-system.jpg" alt="System Recovery — repair the system, question the AI. A sci-fi escape room about arrays and algorithms." width="1440"></picture></a>
 
-**The facility is failing. The AI has a plan. Do you trust it?**
+Restore a failing facility under AXIOM's instructions while a mysterious caller offers help. Repair arrays, sort data and program a search robot. The closer you get to the system core, the more you question whom to trust.
 
-AXIOM needs you to restore the damaged subsystems. A mysterious voice on the phone offers help as you work your way towards the system core. Repair arrays, sort data and program a search robot to unlock the next area.
+**Arrays & algorithms** · Java experience recommended
 
-**Your challenge:** arrays and algorithms. **Your starting point:** some Java experience.
-
-<p>
-  <a href="https://rakflo.s.gy/cLFbqM"><img src="doc/img/readme/download-system.svg" alt="Download System Recovery" width="196"></a>
-  <a href="game/src/rooms/systemRecovery/README.md"><img src="doc/img/readme/explore-system.svg" alt="Explore System Recovery →" width="196"></a>
-</p>
+<table>
+<tr>
+<td align="center"><a href="https://rakflo.s.gy/cLFbqM"><strong>↓ Download</strong></a></td>
+<td align="center"><a href="game/src/rooms/systemRecovery/README.md"><strong>Room details →</strong></a></td>
+</tr>
+</table>
 
 ### The Last Hour
 
-<a href="doc/lasthourReadme.md"><img src="doc/img/readme/feature-last.jpg" alt="The Last Hour — a missing scientist, a ticking clock. A cybersecurity mystery." width="1440"></a>
+<a href="doc/lasthourReadme.md"><picture><source media="(max-width: 480px)" srcset="doc/img/readme/feature-last-mobile.jpg"><img src="doc/img/readme/feature-last.jpg" alt="The Last Hour — a missing scientist, a ticking clock. A cybersecurity mystery." width="1440"></picture></a>
 
-**A scientist has vanished. You have 20 minutes to uncover what happened.**
+A scientist has vanished. Search the office, decode hidden messages and connect the clues to uncover what happened. You have 20 minutes to work through the cybersecurity puzzles and find a way out.
 
-Search the office, connect scattered clues and crack the codes before time runs out. Inspect objects, decode hidden messages and work through a web of connected cybersecurity puzzles.
+**Cybersecurity & deduction** · 20-minute countdown
 
-**Your challenge:** cybersecurity and deduction. **The pressure:** a 20-minute countdown.
-
-<p>
-  <a href="https://rakflo.s.gy/bK0dgA"><img src="doc/img/readme/download-last.svg" alt="Download The Last Hour" width="196"></a>
-  <a href="doc/lasthourReadme.md"><img src="doc/img/readme/explore-last.svg" alt="Explore The Last Hour →" width="196"></a>
-</p>
+<table>
+<tr>
+<td align="center"><a href="https://rakflo.s.gy/bK0dgA"><strong>↓ Download</strong></a></td>
+<td align="center"><a href="doc/lasthourReadme.md"><strong>Room details →</strong></a></td>
+</tr>
+</table>
 
 <sub>The header and room banners use AI-generated promotional artwork based on project assets. They are illustrations; actual gameplay is shown below.</sub>
 
@@ -103,10 +96,10 @@ Search the office, connect scattered clues and crack the codes before time runs 
 ### Start playing
 
 1. **Get Java 25.** Install a [Java 25 runtime or JDK](https://jdk.java.net/25/) if needed.
-2. **Choose your room.** Use its download button above, or [browse all releases](https://github.com/Dungeon-CampusMinden/Dungeon/releases).
+2. **Choose your room.** Use its download link above, or [browse all releases](https://github.com/Dungeon-CampusMinden/Dungeon/releases).
 3. **Launch the JAR.** Double-click the downloaded file. If it does not open, run `java -jar YourDownloadedGame.jar` in a terminal.
 
-For room-specific setup and multiplayer instructions, follow **Explore the room** above.
+For room-specific setup and multiplayer instructions, follow **Room details** above.
 
 ---
 
@@ -116,15 +109,19 @@ For room-specific setup and multiplayer instructions, follow **Explore the room*
 
 A **Digital Educational Escape Room (DEER)** connects a game scenario with explicit learning goals. Players explore a setting, uncover information and solve linked puzzles to reach a shared objective. Subject knowledge becomes a tool they use to progress.
 
-<img src="doc/img/readme/learning-loop.svg" alt="Explore: read the room and connect clues. Experiment: try an idea and observe the result. Understand: connect the solution to the subject." width="1440">
+<blockquote>
+<strong>Explore.</strong> Read the room and connect the clues.<br>
+<strong>Experiment.</strong> Try an idea and observe what changes.<br>
+<strong>Understand.</strong> Connect the solution to the subject.
+</blockquote>
 
 In Dungeon, a locked door can depend on understanding an array. A golem can make the effect of a loop visible. A hidden message can turn a cybersecurity concept into something players need to solve.
 
 **Bring a room into your teaching**
 
-| Before the game | During the game | After the game |
-| --- | --- | --- |
-| Choose a room that fits your learners and learning goals. Introduce the scenario. | Let learners investigate, test ideas and explain their reasoning. Provide support when needed. | Debrief the decisions, compare approaches and connect the puzzles to the subject. |
+1. **Prepare.** Match a room to your learners and learning goals. Introduce the scenario.
+2. **Play.** Let learners investigate, test ideas and explain their reasoning. Provide support when needed.
+3. **Reflect.** Compare approaches and connect the puzzles to the subject in a debrief.
 
 [Read the toolkit paper](https://doi.org/10.1145/3789624.3789628) · [Explore the research](#research)
 
@@ -132,11 +129,13 @@ In Dungeon, a locked door can depend on understanding an array. A golem can make
 
 ### Your subject deserves its own adventure.
 
-<a href="wizard/doc/README.md"><img src="doc/img/readme/wizard-workflow.svg" alt="DEER-Wizard authoring workflow: define learning goals, connect your story and puzzles, then package a playable room." width="1440"></a>
-
 The DEER-Wizard is being developed to guide educators from a teaching idea to a playable escape room, without implementing a new Java room module.
 
-**Start with your learners.** Define prior knowledge and learning goals. **Make it your story.** Add images, puzzle content, hints and a connected game flow. **Bring it together.** Validate the project and package a playable `WizardRoom.jar`.
+<table>
+<tr><td align="center"><strong>01</strong></td><td><strong>Start with your learners.</strong><br>Define prior knowledge and learning goals.</td></tr>
+<tr><td align="center"><strong>02</strong></td><td><strong>Make it your story.</strong><br>Add images, puzzles, hints and a connected game flow.</td></tr>
+<tr><td align="center"><strong>03</strong></td><td><strong>Bring it together.</strong><br>Validate the project and package a playable <code>WizardRoom.jar</code>.</td></tr>
+</table>
 
 > **In development.** The current setup is intended for developers and technical support. It uses a browser-based authoring interface and a local Java host. Player JARs require Java 25 and support the host/join flow; a bundled educator installer is not yet part of this workflow.
 
