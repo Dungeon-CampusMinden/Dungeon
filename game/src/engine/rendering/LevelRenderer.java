@@ -30,10 +30,10 @@ import java.util.List;
 public final class LevelRenderer {
 
   // Neighbour bits; north is +y in world space.
-  private static final int N = 1, NE = 2, E = 4, SE = 8, S = 16, SW = 32, W = 64, NW = 128;
+  static final int N = 1, NE = 2, E = 4, SE = 8, S = 16, SW = 32, W = 64, NW = 128;
 
   // Neighbour mask of each 16x16 cell of a wall atlas, row-major 12x4; -1 marks the unused cell.
-  private static final int[] ATLAS_MASKS = {
+  static final int[] ATLAS_MASKS = {
     16, 20, 84, 80, 213, 92, 116, 87, 28, 125, 124, 112, //
     17, 21, 85, 81, 29, 127, 253, 113, 31, 119, -1, 245, //
     1, 5, 69, 65, 23, 223, 247, 209, 95, 255, 221, 241, //
@@ -80,8 +80,9 @@ public final class LevelRenderer {
         }
         batch.setColor(tint(t));
         if (isAutoWall(t)) {
-          // Walls of designs with floor variants stand on floor, the others on the void.
-          if (hasVariants(t)) drawCell(batch, variants(t), floorVariant(x, y), x, y);
+          // Walls of designs with floor variants stand on floor where their art leaves room for the
+          // ground beside them, the others on the void.
+          if (hasVariants(t)) drawFloorBeside(batch, t, wallCell(layout, x, y), x, y);
         } else if (isAutoFloor(t)) {
           drawCell(batch, variants(t), floorVariant(x, y), x, y);
           if (hash(x, y, 3) % 90 == 0) drawCell(batch, variants(t), SKULL, x, y);
@@ -273,6 +274,31 @@ public final class LevelRenderer {
     Texture t = TextureMap.instance().textureAt(atlas);
     int columns = t.getWidth() / 16;
     batch.draw(t, x, y, 1, 1, (cell % columns) * 16, (cell / columns) * 16, 16, 16, false, false);
+  }
+
+  private static void drawFloorBeside(SpriteBatch batch, Tile wall, int cell, int x, int y) {
+    Texture t = TextureMap.instance().textureAt(variants(wall));
+    int columns = t.getWidth() / 16;
+    int variant = floorVariant(x, y);
+    int[] rects = tileset(wall).floorRects(cell);
+    for (int i = 0; i < rects.length; i += 4) {
+      int rx = rects[i];
+      int ry = rects[i + 1];
+      int w = rects[i + 2];
+      int h = rects[i + 3];
+      batch.draw(
+          t,
+          x + rx / 16f,
+          y + (16 - ry - h) / 16f,
+          w / 16f,
+          h / 16f,
+          (variant % columns) * 16 + rx,
+          (variant / columns) * 16 + ry,
+          w,
+          h,
+          false,
+          false);
+    }
   }
 
   private static boolean drawable(Tile t) {
