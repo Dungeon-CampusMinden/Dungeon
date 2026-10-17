@@ -41,11 +41,9 @@ public final class LevelRenderer {
   };
 
   private static final int[] CELL_BY_MASK = new int[256];
-  // A wall with walls or void all around shows the void, whatever the design's art for it.
-  private static final int INSIDE = 9 + 2 * 12;
 
   static {
-    java.util.Arrays.fill(CELL_BY_MASK, INSIDE);
+    java.util.Arrays.fill(CELL_BY_MASK, 9 + 2 * 12); // solid block as fallback
     for (int i = 0; i < ATLAS_MASKS.length; i++) {
       if (ATLAS_MASKS[i] >= 0) CELL_BY_MASK[ATLAS_MASKS[i]] = i;
     }
@@ -141,8 +139,7 @@ public final class LevelRenderer {
         }
         batch.setColor(tint(t));
         if (isAutoWall(t)) {
-          int cell = wallCell(layout, x, y);
-          if (cell != INSIDE) drawCell(batch, tileset(t).walls(), cell, x, y);
+          drawCell(batch, tileset(t).walls(), wallCell(layout, x, y), x, y);
         } else if (!isAutoFloor(t) && isUpright(t)) {
           batch.draw(TextureMap.instance().textureAt(TileTextures.texture(t, layout)), x, y, 1, 1);
         }
