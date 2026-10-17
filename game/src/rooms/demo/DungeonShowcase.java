@@ -61,18 +61,18 @@ public class DungeonShowcase {
 
   private static void populate() {
     for (Point p :
-        new Point[] {new Point(14, 19), new Point(33, 19), new Point(14, 8), new Point(33, 8)}) {
+        new Point[] {new Point(14, 14), new Point(33, 14), new Point(14, 25), new Point(33, 25)}) {
       Game.add(LeverFactory.createTorch(new Entity("torch"), p, true, false));
     }
-    Game.add(MiscFactory.newChest(Set.of(), new Point(29, 30)));
-    Game.add(MiscFactory.newChest(Set.of(), new Point(46, 16)));
+    Game.add(MiscFactory.newChest(Set.of(), new Point(29, 3)));
+    Game.add(MiscFactory.newChest(Set.of(), new Point(46, 17)));
 
-    spawn(DungeonMonster.GOBLIN, 16, 14);
-    spawn(DungeonMonster.IMP, 31, 13);
-    spawn(DungeonMonster.ORC_SHAMAN, 24, 18);
-    spawn(DungeonMonster.OGRE, 44, 12);
-    spawn(DungeonMonster.ZOMBIE, 4, 12);
-    spawn(DungeonMonster.ICE_ZOMBIE, 7, 16);
+    spawn(DungeonMonster.GOBLIN, 16, 19);
+    spawn(DungeonMonster.IMP, 31, 20);
+    spawn(DungeonMonster.ORC_SHAMAN, 24, 15);
+    spawn(DungeonMonster.OGRE, 44, 21);
+    spawn(DungeonMonster.ZOMBIE, 4, 21);
+    spawn(DungeonMonster.ICE_ZOMBIE, 7, 17);
   }
 
   private static void spawn(DungeonMonster monster, float x, float y) {
