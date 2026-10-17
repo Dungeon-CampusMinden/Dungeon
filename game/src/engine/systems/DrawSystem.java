@@ -43,6 +43,7 @@ import feature.utils.EntityUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -59,11 +60,13 @@ import java.util.TreeMap;
  * <p>3. **Scene Composition Pass:** Depth layers at or below {@link DepthLayer#Level} are
  * composited before the level FBO; higher layers are composited afterward.
  *
- * <p>4. **Post-Processing Pass (Optional):** If scene shaders are configured, the scene FBO is
- * ping-ponged through the post-processing shaders.
+ * <p>4. **Atmosphere Pass:** The {@link AtmosphereRenderer} lights and grades the scene; outlines
+ * and world overlays are drawn over the lit scene.
  *
- * <p>5. **Atmosphere and Screen Final Draw:** The {@link AtmosphereRenderer} lights and grades the
- * scene and presents it on the screen.
+ * <p>5. **Post-Processing Pass (Optional):** If scene shaders are configured, the lit scene is
+ * ping-ponged through them.
+ *
+ * <p>6. **Screen Final Draw:** The {@link AtmosphereRenderer} presents the scene on the screen.
  *
  * <p>All scene buffers are rendered at a fixed resolution of two texels per sprite pixel around a
  * texel-snapped camera; see {@link AtmosphereRenderer}.
@@ -94,8 +97,9 @@ public final class DrawSystem extends System implements Disposable {
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
-  // Entities with an outline this frame; their outlines are drawn again over the lit scene.
-  private final List<DSData> outlined = new ArrayList<>();
+  // Entities with an outline this frame and their sprites without it; the outlines are drawn over
+  // the lit scene.
+  private final Map<DSData, FrameBuffer> outlined = new LinkedHashMap<>();
 
   // Shaders applied to the level layer
   private final ShaderList levelShaders = new ShaderList();
@@ -283,9 +287,12 @@ public final class DrawSystem extends System implements Disposable {
    * <p>3. Scene Composition Pass: Composite depth layers at or below the level depth, then the
    * level, then higher entity layers.
    *
-   * <p>4. Post-Processing Pass: If enabled, ping-pong the Scene FBO through the scene shaders.
+   * <p>4. Atmosphere Pass: Light and grade the scene, then draw outlines and world overlays over
+   * it.
    *
-   * <p>5. Atmosphere and Screen Final Draw: Light, grade and present the final texture.
+   * <p>5. Post-Processing Pass: If enabled, ping-pong the lit scene through the scene shaders.
+   *
+   * <p>6. Screen Final Draw: Present the final texture.
    */
   @Override
   public void execute() {
@@ -564,7 +571,10 @@ public final class DrawSystem extends System implements Disposable {
    * @param dsd the data record of the entity to process
    */
   private void processShaderPassesSingleEntity(final DSData dsd) {
+    // The outline is drawn over the lit scene, see drawOverlays.
+    drawOutlines(dsd.dc.shaders(), false);
     FrameBuffer generated = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
+    drawOutlines(dsd.dc.shaders(), true);
     FrameBuffer oldFbo = entityFboCache.put(dsd.e, generated);
     if (oldFbo != null) {
       LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
@@ -726,11 +736,12 @@ public final class DrawSystem extends System implements Disposable {
    */
   private void drawFinal(final DSData dsd) {
     FrameBuffer finalFbo = entityFboCache.get(dsd.e);
-    if (finalFbo != null && hasOutline(dsd.dc.shaders())) outlined.add(dsd);
 
     if (finalFbo != null) {
       drawShaded(dsd, finalFbo);
-      FBO_POOL.free(finalFbo);
+      // An outlined sprite is kept to cut it out of its outline, see drawOverlays.
+      if (hasOutline(dsd.dc.shaders())) outlined.put(dsd, finalFbo);
+      else FBO_POOL.free(finalFbo);
       entityFboCache.remove(dsd.e);
     } else {
       draw(dsd);
@@ -908,22 +919,29 @@ public final class DrawSystem extends System implements Disposable {
     t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
   }
 
-  // Draws the world overlays of the registered systems onto the graded scene. Like rendering
-  // itself, they keep drawing while a pausing dialog has stopped the systems.
+  /**
+   * Draws the outlines of the frame and the world overlays of the registered systems onto the lit
+   * scene. Like rendering itself, overlays keep drawing while a pausing dialog has stopped the
+   * systems.
+   *
+   * @param graded the lit scene
+   */
   private void drawOverlays(FrameBuffer graded) {
     List<WorldOverlay> overlays =
         ECSManagement.systems().values().stream()
             .filter(s -> s instanceof WorldOverlay)
             .map(WorldOverlay.class::cast)
             .toList();
-    // Outlines mark what the player can use, so they keep their colour in the dark: render them
-    // alone and draw them over the lit scene.
-    Map<DSData, FrameBuffer> outlines = new HashMap<>();
-    for (DSData dsd : outlined) {
-      setOutlineOnly(dsd.dc.shaders(), true);
-      outlines.put(dsd, processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc));
-      setOutlineOnly(dsd.dc.shaders(), false);
-    }
+    // Outlines mark what the player can use, so they keep their colour in the dark: render the
+    // sprite with its outlines, cut the sprite out and draw the rest over the lit scene.
+    Map<DSData, FrameBuffer> outlines = new LinkedHashMap<>();
+    outlined.forEach(
+        (dsd, sprite) -> {
+          FrameBuffer outline = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
+          cutOut(outline, sprite);
+          FBO_POOL.free(sprite);
+          outlines.put(dsd, outline);
+        });
     outlined.clear();
     if (overlays.isEmpty() && outlines.isEmpty()) return;
     graded.begin();
@@ -945,10 +963,35 @@ public final class DrawSystem extends System implements Disposable {
     return false;
   }
 
-  private static void setOutlineOnly(ShaderList shaders, boolean outlineOnly) {
+  private static void drawOutlines(ShaderList shaders, boolean draw) {
     for (AbstractShader shader : shaders.getEnabledSorted()) {
-      if (shader instanceof OutlineShader outline) outline.outlineOnly(outlineOnly);
+      if (shader instanceof OutlineShader outline) outline.drawsOutline(draw);
     }
+  }
+
+  /**
+   * Subtracts a sprite from its outlined version, which leaves only the outlines. Both must come
+   * from {@link #processShaders} with the same shaders, so they match in size and, as outline
+   * shaders pass the sprite through unchanged, in every sprite pixel.
+   *
+   * @param target the sprite with its outlines
+   * @param sprite the sprite without them
+   */
+  private void cutOut(FrameBuffer target, FrameBuffer sprite) {
+    int width = target.getWidth();
+    int height = target.getHeight();
+    fboProjectionMatrix.setToOrtho2D(0, 0, width, height);
+    target.begin();
+    fboBatch().setProjectionMatrix(fboProjectionMatrix);
+    fboBatch().begin();
+    fboBatch().setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
+    Gdx.gl.glBlendEquation(GL20.GL_FUNC_REVERSE_SUBTRACT);
+    fboRegion.setRegion(sprite.getColorBufferTexture());
+    fboRegion.flip(false, true);
+    fboBatch().draw(fboRegion, 0, 0, width, height);
+    fboBatch().end();
+    Gdx.gl.glBlendEquation(GL20.GL_FUNC_ADD);
+    target.end();
   }
 
   /**

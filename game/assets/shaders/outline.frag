@@ -24,7 +24,7 @@ uniform vec4 u_color;
 uniform bool u_isRainbow;
 uniform float u_beatSpeed;
 uniform float u_beatIntensity;
-uniform bool u_outlineOnly;     // draw only the outline, without the sprite inside it
+uniform bool u_drawOutline;     // draw the outline, or only pass the sprite through
 
 // ----- Custom functions -----
 float smoothPulse(float t) {
@@ -43,7 +43,7 @@ void main(){
   int width = int(u_width + beat);
 
   bool inside = color.a > 0.0;
-  if(!inside && width > 0){
+  if(!inside && width > 0 && u_drawOutline){
     bool foundOutline = isInOutline(u_texture, uv, stepSize, width);
     if(foundOutline){
       if(u_isRainbow){
@@ -59,10 +59,6 @@ void main(){
         color = u_color;
       }
     }
-  }
-
-  if(u_outlineOnly && inside){
-    color = vec4(0.0);
   }
 
   gl_FragColor = pma(color);
