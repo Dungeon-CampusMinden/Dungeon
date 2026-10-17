@@ -76,17 +76,15 @@ void main() {
       float curvedWeight = 1.0 - smoothstep(0.0, u_curvedEdgeWidth, distanceToEdgePixels);
       sceneUv = mix(spherePosition * 0.5 + 0.5, sceneUv, curvedWeight);
     }
-    vec4 sphericalColor = u_ballColor;
+    vec4 ballLayer = pma(u_ballColor);
 
     if (u_curvedEdgeWidth > 0.0 || abs(spherePosition.y) <= textureLimit) {
       vec2 mappedSceneUv = u_textureRegion.xy + sceneUv * u_textureRegion.zw;
-      vec4 sceneColor = unPma(texture2D(u_texture, mappedSceneUv));
-      if (sceneColor.a > 0.0) {
-        sphericalColor = sceneColor;
-      }
+      // The scene over the ball colour, which shows where the scene is transparent.
+      vec4 sceneColor = texture2D(u_texture, mappedSceneUv);
+      ballLayer = sceneColor + ballLayer * (1.0 - sceneColor.a);
     }
 
-    vec4 ballLayer = pma(sphericalColor);
     result = ballLayer + result * (1.0 - ballLayer.a);
   }
 

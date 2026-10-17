@@ -240,7 +240,9 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
-   * Gets the ShaderList applied to the entire scene (post-processing).
+   * Gets the ShaderList applied to the entire scene (post-processing). These shaders run on the lit
+   * scene, after the light, fog, bloom and world overlays, so they can move, mask or tint what the
+   * player sees; effects that should be lit themselves belong to the level or a depth layer.
    *
    * @return The scene ShaderList
    */
@@ -434,14 +436,14 @@ public final class DrawSystem extends System implements Disposable {
     FBO_POOL.free(levelFbo);
     depthFbos.values().forEach(FBO_POOL::free);
 
-    // 4. Post-Processing Pass (Scene Shaders) & 5. Atmosphere and Screen Final Draw
-    FrameBuffer finalSourceFbo =
-        applyShadersAndCompose(fboA, fboB, sceneShaders, sceneWidth, sceneHeight);
-    FrameBuffer graded = atmosphere.grade(finalSourceFbo, batch());
+    // 4. Atmosphere, 5. Post-Processing Pass (Scene Shaders) on the lit scene & Screen Final Draw
+    FrameBuffer graded = atmosphere.grade(fboA, batch());
     drawOverlays(graded);
+    FrameBuffer finalFbo =
+        applyShadersAndCompose(graded, fboB, sceneShaders, sceneWidth, sceneHeight);
 
     Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-    atmosphere.present(graded, batch());
+    atmosphere.present(finalFbo, batch());
 
     FBO_POOL.free(fboA);
     FBO_POOL.free(fboB);

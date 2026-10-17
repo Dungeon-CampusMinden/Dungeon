@@ -107,7 +107,8 @@ final class SoulweaverAtmosphere {
                               .region(
                                   new Rectangle(
                                       level.layout()[0].length, level.layout().length, 0, 0))));
-      draw.sceneShaders().add("soulweaver-steam", new SoulweaverSteamShader());
+      // On the level, so the light reaches the steam.
+      draw.levelShaders().add("soulweaver-steam", new SoulweaverSteamShader());
       Game.currentLevel()
           .ifPresent(
               level -> {

@@ -1,5 +1,7 @@
-// Lights the composed scene with the ambient and point lights, adds drifting fog and grades the
-// result. With white ambient and tints, no fog and no lights the scene passes through unchanged.
+// Lights the composed scene with the ambient and point lights, adds drifting fog, grades the
+// result and adds the bloom. With white ambient and tints, no fog and no lights the scene passes
+// through unchanged. The result stays premultiplied with the scene's coverage, widened where bloom
+// glows over the void, so shaders running on the lit scene still see the void.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -12,6 +14,8 @@ varying vec2 v_uv;
 
 uniform sampler2D u_texture;   // composed scene, premultiplied
 uniform sampler2D u_light;     // light buffer (half intensity)
+uniform sampler2D u_bloomNear;
+uniform sampler2D u_bloomFar;
 uniform vec3 u_ambient;
 uniform vec3 u_shadowTint;     // grade of dark areas
 uniform vec3 u_lightTint;      // grade of bright areas
@@ -69,5 +73,9 @@ void main() {
     float luma = dot(col, vec3(0.299, 0.587, 0.114));
     col *= mix(u_shadowTint, u_lightTint, smoothstep(0.05, 0.7, luma));
 
-    gl_FragColor = vec4(max(col, 0.0), 1.0);
+    col = max(col, 0.0);
+    col += texture2D(u_bloomNear, v_uv).rgb * 0.4;
+    col += texture2D(u_bloomFar, v_uv).rgb * 0.5;
+    float alpha = max(scene.a, min(max(col.r, max(col.g, col.b)), 1.0));
+    gl_FragColor = vec4(min(col, vec3(alpha)), alpha);
 }

@@ -306,12 +306,12 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   /**
-   * Lights, fogs and grades the composed scene and prepares the bloom from the light that exceeds
-   * full brightness.
+   * Lights, fogs and grades the composed scene and adds the bloom of the light that exceeds full
+   * brightness.
    *
    * @param scene the composed scene, {@link #width()} x {@link #height()}
    * @param batch the batch to render with, not begun
-   * @return the graded scene; owned by this renderer until {@link #endFrame}
+   * @return the lit scene, premultiplied; owned by this renderer until {@link #endFrame}
    */
   public FrameBuffer grade(FrameBuffer scene, SpriteBatch batch) {
     ensureShaders();
@@ -319,6 +319,7 @@ public final class AtmosphereRenderer implements Disposable {
     FrameBuffer light = obtain(width / 2, height / 2);
     linear(light);
     renderLights(light, batch);
+    renderBloom(scene, light, batch);
 
     FrameBuffer graded = obtain(width, height);
     linear(scene);
@@ -328,9 +329,13 @@ public final class AtmosphereRenderer implements Disposable {
     batch.disableBlending();
     batch.begin();
     light.getColorBufferTexture().bind(1);
+    bloomNear.getColorBufferTexture().bind(2);
+    bloomFar.getColorBufferTexture().bind(3);
     Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
     Atmosphere a = atmosphere;
     compositeShader.setUniformi("u_light", 1);
+    compositeShader.setUniformi("u_bloomNear", 2);
+    compositeShader.setUniformi("u_bloomFar", 3);
     setColor(compositeShader, "u_ambient", a.ambient());
     setColor(compositeShader, "u_shadowTint", a.shadowTint());
     setColor(compositeShader, "u_lightTint", a.lightTint());
@@ -344,15 +349,13 @@ public final class AtmosphereRenderer implements Disposable {
     batch.setShader(null);
     batch.enableBlending();
     graded.end();
-
-    renderBloom(scene, light, batch);
     return graded;
   }
 
   /**
-   * Presents the graded scene on the screen.
+   * Presents the lit scene on the screen.
    *
-   * @param graded the result of {@link #grade}
+   * @param graded the result of {@link #grade}, or of the scene shaders run on it
    * @param batch the batch to render with, not begun
    */
   public void present(FrameBuffer graded, SpriteBatch batch) {
@@ -361,11 +364,6 @@ public final class AtmosphereRenderer implements Disposable {
     batch.setProjectionMatrix(pixelProjection.setToOrtho2D(0, 0, screenWidth, screenHeight));
     batch.disableBlending();
     batch.begin();
-    bloomNear.getColorBufferTexture().bind(1);
-    bloomFar.getColorBufferTexture().bind(2);
-    Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
-    presentShader.setUniformi("u_bloomNear", 1);
-    presentShader.setUniformi("u_bloomFar", 2);
     presentShader.setUniformf("u_texSize", width, height);
     presentShader.setUniformf(
         "u_scale",

@@ -1,6 +1,6 @@
 // Scales the low-resolution scene to the screen. Sharp bilinear filtering keeps art pixels crisp
 // at any scale while blending only their one-screen-pixel border, which also lets the camera move
-// smoothly between art pixels. Adds bloom, vignette and film grain at screen resolution.
+// smoothly between art pixels. Adds vignette and film grain at screen resolution.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -11,9 +11,7 @@ precision mediump float;
 
 varying vec2 v_uv;
 
-uniform sampler2D u_texture;   // graded scene, linear filtering
-uniform sampler2D u_bloomNear;
-uniform sampler2D u_bloomFar;
+uniform sampler2D u_texture;   // lit scene, linear filtering
 uniform vec2 u_texSize;        // scene texture size in texels
 uniform vec2 u_scale;          // screen pixels per scene texel
 uniform vec2 u_screen;         // screen size in pixels
@@ -27,9 +25,6 @@ void main() {
     vec2 range = 0.5 - 0.5 / max(u_scale, vec2(1.0));
     vec2 f = (center - clamp(center, -range, range)) * max(u_scale, vec2(1.0)) + 0.5;
     vec3 col = texture2D(u_texture, (base + f) / u_texSize).rgb;
-
-    col += texture2D(u_bloomNear, v_uv).rgb * 0.4;
-    col += texture2D(u_bloomFar, v_uv).rgb * 0.5;
 
     vec2 s = gl_FragCoord.xy / u_screen;
     vec2 q = (s - 0.5) * vec2(u_screen.x / u_screen.y, 1.0);
