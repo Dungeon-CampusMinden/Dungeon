@@ -153,19 +153,19 @@ public final class V3FormatParser extends LevelFormatParser {
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Invalid atmosphere preset: '" + preset + "'", e);
     }
-    Color ambient = null;
+    Optional<Color> ambient = Optional.empty();
     if (atmosphere.has("ambient")) {
       String hex = requireText(atmosphere, "ambient");
       if (!hex.matches("[0-9a-fA-F]{6}")) {
         throw new IllegalArgumentException("'atmosphere.ambient' must be a colour like 'a0b0c0'");
       }
-      ambient = Color.valueOf(hex);
+      ambient = Optional.of(Color.valueOf(hex));
     }
     level.atmosphere(parsed, ambient);
   }
 
-  // Levels with the default atmosphere leave it out, so their files stay unchanged.
   private static Optional<ObjectNode> serializeAtmosphere(DungeonLevel level) {
+    // Levels with the default atmosphere leave it out, so their files stay unchanged.
     if (level.atmospherePreset() == Atmosphere.Preset.NEUTRAL
         && level.ambientOverride().isEmpty()) {
       return Optional.empty();

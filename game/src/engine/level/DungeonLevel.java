@@ -60,7 +60,7 @@ public class DungeonLevel implements ILevel, ITickable {
   private DesignLabel baseDesignLabel;
   protected String levelName;
   private Atmosphere.Preset atmospherePreset = Atmosphere.Preset.NEUTRAL;
-  private Color ambientOverride;
+  private Optional<Color> ambientOverride = Optional.empty();
   private Atmosphere atmosphere = Atmosphere.NEUTRAL;
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
@@ -649,19 +649,19 @@ public class DungeonLevel implements ILevel, ITickable {
    * @return the ambient light, or empty for the preset's own
    */
   public Optional<Color> ambientOverride() {
-    return Optional.ofNullable(ambientOverride);
+    return ambientOverride;
   }
 
   /**
    * Sets this level's atmosphere.
    *
    * @param preset the preset to start from
-   * @param ambient the ambient light replacing the preset's, or null to keep the preset's
+   * @param ambient the ambient light replacing the preset's, or empty to keep the preset's
    */
-  public void atmosphere(Atmosphere.Preset preset, Color ambient) {
+  public void atmosphere(Atmosphere.Preset preset, Optional<Color> ambient) {
     this.atmospherePreset = preset;
-    this.ambientOverride = ambient == null ? null : new Color(ambient);
+    this.ambientOverride = ambient.map(Color::new);
     this.atmosphere =
-        ambient == null ? preset.atmosphere() : preset.atmosphere().withAmbient(ambientOverride);
+        ambientOverride.map(preset.atmosphere()::withAmbient).orElse(preset.atmosphere());
   }
 }

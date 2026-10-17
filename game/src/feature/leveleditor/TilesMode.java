@@ -315,11 +315,11 @@ public class TilesMode extends LevelEditorMode {
     levelChanged();
   }
 
-  // Choosing a preset also brings back its own ambient light.
   private void atmospherePreset(Atmosphere.Preset preset) {
+    // Choosing a preset also brings back its own ambient light.
     DungeonLevel level = getLevel();
     if (level.atmospherePreset() == preset) return;
-    level.atmosphere(preset, null);
+    level.atmosphere(preset, Optional.empty());
     levelChanged();
   }
 
@@ -327,7 +327,7 @@ public class TilesMode extends LevelEditorMode {
     DungeonLevel level = getLevel();
     Color opaque = new Color(ambient.r, ambient.g, ambient.b, 1f);
     if (opaque.equals(level.atmosphere().ambient())) return;
-    level.atmosphere(level.atmospherePreset(), opaque);
+    level.atmosphere(level.atmospherePreset(), Optional.of(opaque));
     levelChanged();
   }
 }
