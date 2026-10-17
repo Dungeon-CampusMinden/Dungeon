@@ -1,5 +1,6 @@
 package engine.rendering;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -11,15 +12,18 @@ import java.util.List;
 
 /**
  * Purely visual particles, one art pixel each: dust motes hanging in the air and dust kicked up by
- * walking feet, both lit by the lighting pass, and embers rising from flames, which glow on their
- * own. Kicked-up dust is drawn with the floor, the rest over the scene.
+ * walking feet, both lit by the lighting pass, and embers rising from flames and magic motes rising
+ * from lights with {@link Light#motes}, which glow on their own. Kicked-up dust is drawn with the
+ * floor, the rest over the scene.
  */
 final class AmbientParticles {
 
   private static final int DUST = 110;
   private static final float EMBERS_PER_FLAME_PER_SECOND = 5f;
   private static final float PUFFS_PER_SECOND = 9f;
+  private static final float MOTES_PER_LIGHT_PER_SECOND = 12f;
   private static final float PIXEL = 1 / 16f;
+  private static final Color MOTE_COLOR = new Color();
 
   private final float[] dustX = new float[DUST];
   private final float[] dustY = new float[DUST];
@@ -28,21 +32,27 @@ final class AmbientParticles {
 
   private final Pool embers = new Pool(320);
   private final Pool puffs = new Pool(240);
+  private final Pool motes = new Pool(160);
   private float emberBudget = 0f;
+  private float moteBudget = 0f;
 
   /**
-   * Advances all particles and spawns embers at the given flames.
+   * Advances all particles, spawns embers at the given flames and motes at lights with {@link
+   * Light#motes}.
    *
    * @param delta seconds since the last frame
    * @param time seconds since start
    * @param view visible world rectangle
    * @param flames flame tips that emit embers
+   * @param lights lights of the frame
    */
-  void update(float delta, float time, Rectangle view, List<Point> flames) {
+  void update(float delta, float time, Rectangle view, List<Point> flames, List<Light> lights) {
     delta = Math.min(delta, 0.1f);
     updateDust(delta, time, view);
     embers.update(delta, time, 0.9f);
     puffs.update(delta, time, 0f);
+    motes.update(delta, time, 0.35f);
+    spawnMotes(delta, lights);
 
     if (flames.isEmpty()) return;
     emberBudget += flames.size() * EMBERS_PER_FLAME_PER_SECOND * delta;
@@ -135,6 +145,59 @@ final class AmbientParticles {
     }
   }
 
+  /**
+   * Draws the magic motes additively, each with a faint halo. They twinkle and fade in and out;
+   * some are white-hot.
+   *
+   * @param batch batch with the world projection and additive blending, already begun
+   * @param time seconds since start
+   */
+  void drawMotes(SpriteBatch batch, float time) {
+    Texture px = RenderTextures.pixel();
+    Texture glow = RenderTextures.glow();
+    for (int i = 0; i < motes.count; i++) {
+      float t = motes.life[i] / motes.maxLife[i];
+      float fade = Math.min(1f, t * 3f) * Math.min(1f, (1f - t) * 8f);
+      float a = fade * (0.7f + 0.3f * MathUtils.sin(time * 9f + i * 2.3f));
+      Color.abgr8888ToColor(MOTE_COLOR, motes.color[i]);
+      float x = snap(motes.x[i]);
+      float y = snap(motes.y[i]);
+      float h = 0.3f * a;
+      batch.setColor(MOTE_COLOR.r * h, MOTE_COLOR.g * h, MOTE_COLOR.b * h, 1f);
+      batch.draw(glow, x - 2 * PIXEL, y - 2 * PIXEL, 5 * PIXEL, 5 * PIXEL);
+      batch.setColor(MOTE_COLOR.r * a, MOTE_COLOR.g * a, MOTE_COLOR.b * a, 1f);
+      batch.draw(px, x, y, PIXEL, PIXEL);
+    }
+  }
+
+  // Motes leave the light from a small area around it and drift up, swaying.
+  private void spawnMotes(float delta, List<Light> lights) {
+    int sources = 0;
+    for (Light l : lights) if (l.motes()) sources++;
+    if (sources == 0) return;
+    moteBudget += sources * MOTES_PER_LIGHT_PER_SECOND * delta;
+    for (; moteBudget >= 1f; moteBudget--) {
+      int pick = MathUtils.random(sources - 1);
+      for (Light l : lights) {
+        if (!l.motes() || pick-- > 0) continue;
+        Color c = l.color();
+        float white = MathUtils.random(0.1f, 0.6f);
+        int i =
+            motes.add(
+                l.position().x() + MathUtils.random(-0.35f, 0.35f),
+                l.position().y() + MathUtils.random(-0.3f, 0.1f),
+                MathUtils.random(-0.1f, 0.1f),
+                MathUtils.random(0.25f, 0.55f),
+                MathUtils.random(1.4f, 2.6f));
+        if (i < 0) break;
+        motes.color[i] =
+            Color.toFloatBits(
+                c.r + (1 - c.r) * white, c.g + (1 - c.g) * white, c.b + (1 - c.b) * white, 1f);
+        break;
+      }
+    }
+  }
+
   private void updateDust(float delta, float time, Rectangle view) {
     for (int i = 0; i < DUST; i++) {
       boolean outside =
@@ -173,6 +236,7 @@ final class AmbientParticles {
     final float[] vy;
     final float[] life;
     final float[] maxLife;
+    final float[] color;
     int count = 0;
 
     Pool(int capacity) {
@@ -182,16 +246,19 @@ final class AmbientParticles {
       vy = new float[capacity];
       life = new float[capacity];
       maxLife = new float[capacity];
+      color = new float[capacity];
     }
 
-    void add(float px, float py, float pvx, float pvy, float lifetime) {
-      if (count == x.length) return;
+    // Returns the new particle's index, or -1 if the pool is full.
+    int add(float px, float py, float pvx, float pvy, float lifetime) {
+      if (count == x.length) return -1;
       int i = count++;
       x[i] = px;
       y[i] = py;
       vx[i] = pvx;
       vy[i] = pvy;
       life[i] = maxLife[i] = lifetime;
+      return i;
     }
 
     void update(float delta, float time, float sway) {
@@ -215,6 +282,7 @@ final class AmbientParticles {
       vy[i] = vy[last];
       life[i] = life[last];
       maxLife[i] = maxLife[last];
+      color[i] = color[last];
     }
   }
 }

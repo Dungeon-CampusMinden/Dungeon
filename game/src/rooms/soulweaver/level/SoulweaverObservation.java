@@ -123,7 +123,8 @@ public final class SoulweaverObservation {
                 Color.valueOf("95b8f0"),
                 .6f,
                 Color.valueOf("BCDFFFFF"))
-            .curvedEdgeWidth(1);
+            .curvedEdgeWidth(1)
+            .motes(1);
     private final String shaderKey;
     private DrawSystem drawSystem;
 

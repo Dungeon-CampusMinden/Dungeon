@@ -23,6 +23,7 @@ public class MagicBallShader extends AbstractShader {
   private Color ballColor;
   private float glowStrength;
   private Color glowColor;
+  private float motes;
 
   /** Creates a MagicBallShader with defaults suitable for deserialization. */
   public MagicBallShader() {
@@ -88,7 +89,8 @@ public class MagicBallShader extends AbstractShader {
         new Vector4Uniform("u_textureRegion", textureRegion),
         new ColorUniform("u_ballColor", ballColor),
         new FloatUniform("u_glowStrength", glowStrength),
-        new ColorUniform("u_glowColor", glowColor));
+        new ColorUniform("u_glowColor", glowColor),
+        new FloatUniform("u_motes", motes));
   }
 
   @Override
@@ -263,6 +265,28 @@ public class MagicBallShader extends AbstractShader {
     return this;
   }
 
+  /**
+   * Returns the share of magic motes rising around the ball.
+   *
+   * @return the share, from 0 for none to 1 for all
+   */
+  public float motes() {
+    return motes;
+  }
+
+  /**
+   * Sets the share of magic motes that rise around the ball in the glow colour.
+   *
+   * @param motes the share, from 0 for none (the default) to 1 for all
+   * @return this shader for chaining
+   */
+  public MagicBallShader motes(float motes) {
+    if (!(motes >= 0 && motes <= 1))
+      throw new IllegalArgumentException("Motes must be between 0 and 1.");
+    this.motes = motes;
+    return this;
+  }
+
   @Override
   protected void writeProperties(Map<String, String> properties) {
     properties.put("bgTexture", bgTexture);
@@ -274,6 +298,7 @@ public class MagicBallShader extends AbstractShader {
     putRectangle(properties, textureRegion);
     putColor(properties, "ballColor", ballColor);
     putColor(properties, "glowColor", glowColor);
+    properties.put("motes", Float.toString(motes));
   }
 
   @Override
@@ -288,6 +313,7 @@ public class MagicBallShader extends AbstractShader {
     ballColor(colorProperty(properties, "ballColor"));
     glowStrength(floatProperty(properties, "glowStrength"));
     glowColor(colorProperty(properties, "glowColor"));
+    motes(floatProperty(properties, "motes"));
   }
 
   private static String validateTexturePath(String texturePath) {

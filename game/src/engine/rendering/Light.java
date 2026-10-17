@@ -15,8 +15,23 @@ import engine.utils.Point;
  * @param radius reach in tiles; the light fades to zero at this distance
  * @param intensity brightness multiplier; 1 lights a surface to its full texture colour
  * @param flicker strength of the fire-like brightness wobble, 0 for a steady light
+ * @param motes whether magic motes in the light's colour rise from it
  */
-public record Light(Point position, Color color, float radius, float intensity, float flicker) {
+public record Light(
+    Point position, Color color, float radius, float intensity, float flicker, boolean motes) {
+
+  /**
+   * A point light without motes.
+   *
+   * @param position light centre in world units
+   * @param color light colour (alpha ignored)
+   * @param radius reach in tiles; the light fades to zero at this distance
+   * @param intensity brightness multiplier; 1 lights a surface to its full texture colour
+   * @param flicker strength of the fire-like brightness wobble, 0 for a steady light
+   */
+  public Light(Point position, Color color, float radius, float intensity, float flicker) {
+    this(position, color, radius, intensity, flicker, false);
+  }
 
   /**
    * The fire-like wobble of a flame at the given point: two slow waves, about once and twice a

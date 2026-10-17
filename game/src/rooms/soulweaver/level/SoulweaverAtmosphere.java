@@ -91,7 +91,8 @@ final class SoulweaverAtmosphere {
                               .translate(
                                   draw.getWidth() * pc.scale().x() / 2f,
                                   draw.getHeight() * pc.scale().y() * 0.75f))
-                  .ifPresent(at -> out.add(new Light(at, SEEING_STONE_LIGHT, 3.5f, 0.9f, 0.05f)));
+                  .ifPresent(
+                      at -> out.add(new Light(at, SEEING_STONE_LIGHT, 3.5f, 0.9f, 0.05f, true)));
             });
   }
 

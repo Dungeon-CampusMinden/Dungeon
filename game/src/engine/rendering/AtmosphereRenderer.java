@@ -290,17 +290,19 @@ public final class AtmosphereRenderer implements Disposable {
 
   /**
    * Advances the particles and draws the airborne ones into the composed scene, after all entities
-   * are registered and before the scene shaders and lighting: dust motes over the scene, flame glow
-   * and embers added on top. Running before the scene shaders lets their masks hide particles too.
+   * are registered and before the lighting and scene shaders: dust motes over the scene, flame
+   * glow, embers and magic motes added on top. Running before the scene shaders lets their masks
+   * hide particles too.
    *
    * @param batch batch with the world projection, already begun
    */
   public void drawParticles(SpriteBatch batch) {
-    particles.update(delta, time, view, flames);
+    particles.update(delta, time, view, flames, lights);
     particles.drawDust(batch, layout, time);
     // Additive light that keeps the scene's coverage alpha, which the fog reads.
     batch.setBlendFunctionSeparate(GL20.GL_ONE, GL20.GL_ONE, GL20.GL_ZERO, GL20.GL_ONE);
     particles.drawEmbers(batch, flames, time);
+    particles.drawMotes(batch, time);
     batch.setColor(Color.WHITE);
     BlendUtils.setBlending(batch);
   }
