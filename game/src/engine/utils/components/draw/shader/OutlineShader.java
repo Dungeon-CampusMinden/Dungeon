@@ -19,6 +19,7 @@ public class OutlineShader extends AbstractShader {
   private float beatSpeed;
   private float beatIntensity;
   private boolean isRainbow;
+  private boolean outlineOnly;
 
   /** Creates an OutlineShader with default parameters. */
   public OutlineShader() {
@@ -68,7 +69,8 @@ public class OutlineShader extends AbstractShader {
         new ColorUniform("u_color", color),
         new FloatUniform("u_beatSpeed", beatSpeed),
         new FloatUniform("u_beatIntensity", beatIntensity),
-        new BoolUniform("u_isRainbow", isRainbow));
+        new BoolUniform("u_isRainbow", isRainbow),
+        new BoolUniform("u_outlineOnly", outlineOnly));
   }
 
   @Override
@@ -180,6 +182,18 @@ public class OutlineShader extends AbstractShader {
    */
   public OutlineShader isRainbow(boolean isRainbow) {
     this.isRainbow = isRainbow;
+    return this;
+  }
+
+  /**
+   * Whether this shader draws only the outline, without the sprite inside it. The draw system uses
+   * it to draw outlines a second time over the lit scene, so they stay bright in the dark.
+   *
+   * @param outlineOnly true to draw only the outline
+   * @return this shader for chaining
+   */
+  public OutlineShader outlineOnly(boolean outlineOnly) {
+    this.outlineOnly = outlineOnly;
     return this;
   }
 

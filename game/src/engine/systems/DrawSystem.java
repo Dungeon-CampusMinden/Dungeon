@@ -35,6 +35,7 @@ import engine.utils.components.draw.FrameBufferPool;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.shader.AbstractShader;
+import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.IPath;
 import engine.utils.logging.DungeonLogger;
@@ -93,6 +94,8 @@ public final class DrawSystem extends System implements Disposable {
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
+  // Entities with an outline this frame; their outlines are drawn again over the lit scene.
+  private final List<DSData> outlined = new ArrayList<>();
 
   // Shaders applied to the level layer
   private final ShaderList levelShaders = new ShaderList();
@@ -721,41 +724,50 @@ public final class DrawSystem extends System implements Disposable {
    */
   private void drawFinal(final DSData dsd) {
     FrameBuffer finalFbo = entityFboCache.get(dsd.e);
+    if (finalFbo != null && hasOutline(dsd.dc.shaders())) outlined.add(dsd);
 
     if (finalFbo != null) {
-      // --- Draw FBO Texture (Shader Result) ---
-      Texture fboTexture = finalFbo.getColorBufferTexture();
-
-      float worldWidth = dsd.dc.getWidth();
-      float worldHeight = dsd.dc.getHeight();
-
-      float padding = dsd.dc.shaders().getTotalPadding();
-      float paddingX = padding / dsd.dc.getSpriteWidth();
-      float paddingY = padding / dsd.dc.getSpriteHeight();
-
-      // Final world size includes padding on all sides
-      Vector2 finalWorldSize =
-          Vector2.of(
-              worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
-
-      // Scale is being factored into the transformation everywhere except the position, since it is
-      // passed directly to the draw method. Thus, we need to factor it in here to offset the
-      // padding.
-      Point offsetPosition =
-          dsd.pc
-              .position()
-              .translate(
-                  -paddingX * dsd.pc.scale().x() * worldWidth,
-                  -paddingY * dsd.pc.scale().y() * worldHeight);
-
-      DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
-      draw(offsetPosition, fboTexture, conf);
-
+      drawShaded(dsd, finalFbo);
       FBO_POOL.free(finalFbo);
       entityFboCache.remove(dsd.e);
     } else {
       draw(dsd);
     }
+  }
+
+  /**
+   * Draws an entity's shader result at the entity, with the shaders' padding around the sprite.
+   *
+   * @param dsd the data record of the entity
+   * @param shaded the shader result, rendered by {@link #processShaders}
+   */
+  private void drawShaded(final DSData dsd, final FrameBuffer shaded) {
+    Texture fboTexture = shaded.getColorBufferTexture();
+
+    float worldWidth = dsd.dc.getWidth();
+    float worldHeight = dsd.dc.getHeight();
+
+    float padding = dsd.dc.shaders().getTotalPadding();
+    float paddingX = padding / dsd.dc.getSpriteWidth();
+    float paddingY = padding / dsd.dc.getSpriteHeight();
+
+    // Final world size includes padding on all sides
+    Vector2 finalWorldSize =
+        Vector2.of(
+            worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
+
+    // Scale is being factored into the transformation everywhere except the position, since it is
+    // passed directly to the draw method. Thus, we need to factor it in here to offset the
+    // padding.
+    Point offsetPosition =
+        dsd.pc
+            .position()
+            .translate(
+                -paddingX * dsd.pc.scale().x() * worldWidth,
+                -paddingY * dsd.pc.scale().y() * worldHeight);
+
+    DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
+    draw(offsetPosition, fboTexture, conf);
   }
 
   /**
@@ -902,15 +914,39 @@ public final class DrawSystem extends System implements Disposable {
             .filter(s -> s instanceof WorldOverlay)
             .map(WorldOverlay.class::cast)
             .toList();
-    if (overlays.isEmpty()) return;
+    // Outlines mark what the player can use, so they keep their colour in the dark: render them
+    // alone and draw them over the lit scene.
+    Map<DSData, FrameBuffer> outlines = new HashMap<>();
+    for (DSData dsd : outlined) {
+      setOutlineOnly(dsd.dc.shaders(), true);
+      outlines.put(dsd, processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc));
+      setOutlineOnly(dsd.dc.shaders(), false);
+    }
+    outlined.clear();
+    if (overlays.isEmpty() && outlines.isEmpty()) return;
     graded.begin();
     batch().setProjectionMatrix(CameraSystem.camera().combined);
     BlendUtils.setBlending(batch());
     batch().begin();
+    outlines.forEach(this::drawShaded);
     overlays.forEach(o -> o.drawOverlay(batch()));
     batch().setColor(Color.WHITE);
     batch().end();
     graded.end();
+    outlines.values().forEach(FBO_POOL::free);
+  }
+
+  private static boolean hasOutline(ShaderList shaders) {
+    for (AbstractShader shader : shaders.getEnabledSorted()) {
+      if (shader instanceof OutlineShader) return true;
+    }
+    return false;
+  }
+
+  private static void setOutlineOnly(ShaderList shaders, boolean outlineOnly) {
+    for (AbstractShader shader : shaders.getEnabledSorted()) {
+      if (shader instanceof OutlineShader outline) outline.outlineOnly(outlineOnly);
+    }
   }
 
   /**
