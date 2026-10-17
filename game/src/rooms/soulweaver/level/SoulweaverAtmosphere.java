@@ -82,7 +82,8 @@ final class SoulweaverAtmosphere {
       Game.currentLevel()
           .ifPresent(
               level -> {
-                // The exit mask starts at the top of the north wall, so the wall shows whole.
+                // The north and exit masks start at the top of the north wall, so the wall shows
+                // whole.
                 for (String area : new String[] {"east", "north", "exit"}) {
                   draw.sceneShaders()
                       .add(
