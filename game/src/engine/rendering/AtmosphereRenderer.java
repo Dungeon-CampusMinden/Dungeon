@@ -455,7 +455,9 @@ public final class AtmosphereRenderer implements Disposable {
     return 1f - 0.7f * MathUtils.clamp((luma - 0.5f) / 0.5f, 0f, 1f);
   }
 
-  // Rebuilds the occlusion map (one texel per tile) around the view.
+  // Rebuilds the occlusion map (one texel per tile) around the view: red marks tiles that block
+  // light; green, blue and alpha hold how much floor shows left of, right of and below the art of
+  // an autotiled wall, in sixteenths of a tile, so the light shader lights that floor as floor.
   private void updateOcclusion() {
     if (layout.length == 0 || layout[0].length == 0) return;
     int[] b = tileBounds(layout, MAX_LIGHT_RADIUS + 1);
@@ -481,10 +483,24 @@ public final class AtmosphereRenderer implements Disposable {
             t == null
                 || t.levelElement() == LevelElement.WALL
                 || (t.levelElement() == LevelElement.DOOR && !t.canSeeThrough());
-        occlusion.drawPixel(x, y, blocks ? 0xff0000ff : 0x000000ff);
+        int texel = blocks ? 0xff000000 : 0;
+        if (blocks && t != null && LevelRenderer.isAutoWall(t)) {
+          DesignTileset tileset = DesignTileset.of(t.designLabel());
+          int cell = LevelRenderer.wallCell(layout, b[0] + x, b[2] + y);
+          texel |=
+              sixteenths(tileset.leftInset(cell)) << 16
+                  | sixteenths(tileset.rightInset(cell)) << 8
+                  | sixteenths(tileset.bottomInset(cell));
+        }
+        occlusion.drawPixel(x, y, texel);
       }
     }
     occlusionTexture.draw(occlusion, 0, 0);
+  }
+
+  // An inset in tiles as a channel value: sixteenths of a tile, times 16.
+  private static int sixteenths(float tiles) {
+    return Math.round(tiles * 16) * 16;
   }
 
   private void renderBloom(FrameBuffer scene, FrameBuffer light, SpriteBatch batch) {

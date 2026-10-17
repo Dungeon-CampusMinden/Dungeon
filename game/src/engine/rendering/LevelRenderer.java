@@ -310,7 +310,7 @@ public final class LevelRenderer {
   }
 
   // A wall without a custom texture, or a closed hidden door.
-  private static boolean isAutoWall(Tile t) {
+  static boolean isAutoWall(Tile t) {
     if (t instanceof DoorTile door && door.hidden()) return !door.isOpen();
     return t.levelElement() == LevelElement.WALL && t.customTexture().isEmpty();
   }
@@ -421,7 +421,15 @@ public final class LevelRenderer {
     return solid(layout, x, y) || t.levelElement() == LevelElement.DOOR;
   }
 
-  private static int wallCell(Tile[][] layout, int x, int y) {
+  /**
+   * The atlas cell of the wall at the given position, chosen from its eight neighbours.
+   *
+   * @param layout the level layout, indexed [y][x]
+   * @param x the wall's column
+   * @param y the wall's row
+   * @return the cell index in the design's wall atlas
+   */
+  static int wallCell(Tile[][] layout, int x, int y) {
     boolean n = connects(layout, x, y + 1);
     boolean e = connects(layout, x + 1, y);
     boolean s = connects(layout, x, y - 1);

@@ -102,7 +102,8 @@ final class SoulweaverCellarMachinery {
     return entity;
   }
 
-  // A slab of the sliding wall: the straight wall piece of the room's wall atlas.
+  // A slab of the sliding wall: the straight wall piece of the room's wall atlas. As part of a
+  // wall it stays on the ground layer, which casts no contact shadows.
   private static Entity slab(Point at, IPath walls) {
     Entity entity = new Entity("soulweaver-cellar-sliding-wall");
     entity.add(new PositionComponent(at));
@@ -111,7 +112,7 @@ final class SoulweaverCellarMachinery {
             walls,
             new SpritesheetConfig(
                 TileTextures.STRAIGHT_WALL_X, TileTextures.STRAIGHT_WALL_Y, 1, 1, 16, 16));
-    draw.depth(DepthLayer.Player.depth());
+    draw.depth(DepthLayer.Ground.depth());
     entity.add(draw);
     Game.add(entity);
     return entity;
