@@ -205,9 +205,6 @@ public enum Deco {
       new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, 48, 40)).scaleX(3.75f),
       new Rectangle(1.1f * 3.75f, .13f * 3.75f, .05f * 3.75f, .08f * 3.75f),
       DepthLayer.Player.depth()),
-  /** Wall threshold in the Soulweaver room. */
-  SoulweaverWallThreshold(
-      "rooms/soulweaver/sluice.png", new AnimationConfig(), null, DepthLayer.Ground.depth()),
 
   /** A decoration. */
   Tileset1(

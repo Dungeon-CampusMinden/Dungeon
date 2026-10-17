@@ -1,8 +1,9 @@
 // One point light, drawn as a quad around the light into the additive light buffer. Walls cast
 // hard, tile-aligned shadows: the ray from the light to each art pixel is traced through the
 // occlusion map, one texel per tile: red = blocks light; for walls green, blue and alpha hold the
-// floor visible left of, right of and below the wall's art, in sixteenths of a tile. The buffer
-// stores half the light so values up to 2 survive the 8-bit target.
+// floor visible left of, right of and below the wall's art, in sixteenths of a tile; for other
+// tiles green marks open ground, as opposed to the void. The buffer stores half the light so values
+// up to 2 survive the 8-bit target.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -29,6 +30,12 @@ vec4 occlusion(vec2 tile) {
 
 bool blocked(vec2 tile) {
     return occlusion(tile).r > 0.5;
+}
+
+// Ground a wall side can look onto; light passes over the void, but walls do not face it.
+bool ground(vec2 tile) {
+    vec4 occ = occlusion(tile);
+    return occ.r < 0.5 && occ.g > 0.5;
 }
 
 float inset(float channel) {
@@ -72,9 +79,9 @@ float lightAt(vec2 p) {
     vec2 below = tile - vec2(0.0, 1.0);
     vec2 east = tile + vec2(1.0, 0.0);
     vec2 west = tile - vec2(1.0, 0.0);
-    bool openS = !blocked(below);
-    bool openE = !blocked(east);
-    bool openW = !blocked(west);
+    bool openS = ground(below);
+    bool openE = ground(east);
+    bool openW = ground(west);
     vec2 f = p - tile;
     float left = inset(occ.g);
     float right = inset(occ.b);

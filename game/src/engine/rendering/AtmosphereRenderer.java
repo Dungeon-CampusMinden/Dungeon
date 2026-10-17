@@ -457,7 +457,8 @@ public final class AtmosphereRenderer implements Disposable {
 
   // Rebuilds the occlusion map (one texel per tile) around the view: red marks tiles that block
   // light; green, blue and alpha hold how much floor shows left of, right of and below the art of
-  // an autotiled wall, in sixteenths of a tile, so the light shader lights that floor as floor.
+  // an autotiled wall, in sixteenths of a tile, so the light shader lights that floor as floor. On
+  // other tiles green marks open ground, as opposed to the void.
   private void updateOcclusion() {
     if (layout.length == 0 || layout[0].length == 0) return;
     int[] b = tileBounds(layout, MAX_LIGHT_RADIUS + 1);
@@ -483,7 +484,8 @@ public final class AtmosphereRenderer implements Disposable {
             t == null
                 || t.levelElement() == LevelElement.WALL
                 || (t.levelElement() == LevelElement.DOOR && !t.canSeeThrough());
-        int texel = blocks ? 0xff000000 : 0;
+        boolean ground = !blocks && t.levelElement() != LevelElement.SKIP;
+        int texel = blocks ? 0xff000000 : ground ? 0x00ff0000 : 0;
         if (blocks && t != null && LevelRenderer.isAutoWall(t)) {
           DesignTileset tileset = DesignTileset.of(t.designLabel());
           int cell = LevelRenderer.wallCell(layout, b[0] + x, b[2] + y);
