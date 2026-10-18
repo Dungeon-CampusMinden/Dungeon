@@ -88,8 +88,7 @@ public class ClientSettings {
 
     registerSetting(new SectionDividerSetting(KEY_GRAPHICS_HEADER));
     registerSetting(new IntSliderSetting(KEY_BRIGHTNESS, 100, 50, 150, 10, v -> v + " %"));
-    registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false));
-    registerSetting(new DescriptionSetting(KEY_REDUCE_EFFECTS_DESCRIPTION));
+    registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
   }
 
   /**

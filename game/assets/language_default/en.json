@@ -161,7 +161,7 @@
         "graphics": "Graphics",
         "brightness": "Brightness",
         "reduce_effects": "Reduce effects",
-        "reduce_effects_description": "Less glow, fog and particles, steady light.[n]Helps on slow computers and tablets."
+        "reduce_effects_description": "Less glow, fog and[n]particles, steady light"
     },
     "main_menu": {
         "continue": "Continue",

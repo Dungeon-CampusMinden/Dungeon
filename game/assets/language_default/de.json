@@ -161,7 +161,7 @@
         "graphics": "Grafik",
         "brightness": "Helligkeit",
         "reduce_effects": "Effekte reduzieren",
-        "reduce_effects_description": "Weniger Leuchten, Nebel und Partikel, ruhiges Licht.[n]Hilft auf langsamen Computern und Tablets."
+        "reduce_effects_description": "Weniger Leuchten, Nebel[n]und Partikel, ruhiges Licht"
     },
     "main_menu": {
         "continue": "Fortsetzen",
