@@ -125,8 +125,8 @@ public class WorldTimerSystem extends System {
   }
 
   private static void drawDigit(Pixmap pixmap, int digit, int x) {
-    // Every pixel of an 8 belongs to the display; those the digit leaves off glow faintly.
-    int display = DIGITS[8];
+    // The pixels of an 8 that the digit leaves off glow faintly.
+    int display = DIGITS[8] | digit;
     for (int i = 0; i < PIXELS; i++) {
       int bit = 1 << (PIXELS - 1 - i);
       if ((display & bit) == 0) continue;
