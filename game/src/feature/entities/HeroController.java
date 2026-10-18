@@ -711,6 +711,7 @@ public class HeroController {
                   adjustedToSlot,
                   player.id());
             });
+    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.lastMover(player));
     return true;
   }
 

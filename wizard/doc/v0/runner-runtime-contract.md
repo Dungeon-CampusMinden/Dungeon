@@ -236,7 +236,13 @@ Teilfortschritt. Sind alle Inputs eines Rätsels erfüllt, wechselt es atomar un
 genau einmal zu `SOLVED`; dieser implizite Abschluss aktiviert gegebenenfalls
 Graphnachfolger.
 
-Tracking zeichnet `PUZZLE_STARTED` beim Wechsel zu `ACTIVE` auf.
+Tracking zeichnet `PUZZLE_STARTED` beim Wechsel zu `ACTIVE` auf. Jede
+ausgewertete Eingabe wird als Versuch mit `answerKind` und Antwort
+aufgezeichnet: `numeric-code` mit den eingegebenen Ziffern, `choice` mit den
+gewählten Options-IDs als sortiertem JSON-Array und `assignment` mit der
+Kisten-ID jedes einsortierten Items als JSON-Objekt. Eine Zuordnung erzeugt
+genau einen richtigen Versuch, sobald der Host sie annimmt; Zwischenstände beim
+Sortieren sind keine Versuche.
 
 Informationsquellen mit Informationen oder Aufgabeninhalten bleiben unabhängig
 davon lesbar und dürfen deshalb schon vor der Rätselaktivierung erreichbar
@@ -275,8 +281,10 @@ Optionen; der Host vergleicht sie mit `correctOptionIds`. Zuordnungen bestehen
 aus gewöhnlichen Truhen und aufhebbaren Antwort-Items, die ihre Item-ID in den
 Item-Daten tragen. Spieler verschieben sie über den vorhandenen
 Inventardialog. Der Host prüft nach jeder Änderung der Kisteninhalte und beim
-Aktivwerden des Rätsels und wertet die Zuordnung des zuletzt verschiebenden
-Spielers aus. Verlässt ein Spieler die Sitzung, legt der Server sein Inventar
+Aktivwerden des Rätsels. Eine angenommene Zuordnung zählt für den Spieler, der
+zuletzt ein Item in eine geänderte Kiste gelegt oder daraus genommen hat; ist
+er nicht mehr spielbereit, zählt sie für einen anderen spielbereiten Spieler.
+Verlässt ein Spieler die Sitzung, legt der Server sein Inventar
 nach 30 Sekunden ohne Wiederverbindung im Raum ab.
 
 ## Fehler und Abnahme

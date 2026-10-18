@@ -79,7 +79,7 @@ public final class AssignmentComponent implements Component {
   }
 
   /**
-   * Returns the player who last changed the placement through an open container.
+   * Returns the player who last moved an item into or out of a changed container.
    *
    * @return the last acting player, if known
    */

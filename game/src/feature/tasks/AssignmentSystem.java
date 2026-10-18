@@ -1,10 +1,8 @@
 package feature.tasks;
 
 import engine.Entity;
-import engine.Game;
 import engine.System;
-import feature.components.UIComponent;
-import feature.hud.dialogs.DialogContextKeys;
+import feature.components.InventoryComponent;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
  * <p>A changed placement runs the assignment's {@link AssignmentChecker}; a correct placement runs
  * it again on every tick until it reports a solution, e.g. once a required lever is pulled. When it
  * reports a solution, the placement is submitted to the task component, which invokes its correct
- * callback with the player who last changed a container through its inventory dialog. Wrong
+ * callback with the player who last moved an item into or out of a changed container. Wrong
  * placements are ignored because players may still be sorting.
  */
 public final class AssignmentSystem extends System {
@@ -44,7 +42,7 @@ public final class AssignmentSystem extends System {
         AssignmentChecker.placement(assignment.task(), assignment.containers());
     boolean changed = !placement.equals(assignment.placement());
     if (changed) {
-      viewer(changedContainers(assignment, placement)).ifPresent(assignment::actor);
+      mover(changedContainers(assignment, placement)).ifPresent(assignment::actor);
       assignment.placement(placement);
     }
     boolean correct = placement.map(assignment.task()::isCorrect).orElse(false);
@@ -79,18 +77,10 @@ public final class AssignmentSystem extends System {
     return containerIds.stream().map(assignment.containers()::get).collect(Collectors.toSet());
   }
 
-  private static Optional<Entity> viewer(final Set<Entity> containers) {
-    return Game.allPlayers()
-        .filter(
-            player ->
-                player
-                    .fetch(UIComponent.class)
-                    .flatMap(
-                        ui ->
-                            ui.dialogContext()
-                                .find(DialogContextKeys.SECONDARY_ENTITY, Integer.class))
-                    .filter(id -> containers.stream().anyMatch(container -> container.id() == id))
-                    .isPresent())
+  private static Optional<Entity> mover(final Set<Entity> containers) {
+    return containers.stream()
+        .flatMap(container -> container.fetch(InventoryComponent.class).stream())
+        .flatMap(inventory -> inventory.lastMover().stream())
         .findFirst();
   }
 }

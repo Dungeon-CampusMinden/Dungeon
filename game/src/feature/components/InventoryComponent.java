@@ -1,6 +1,7 @@
 package feature.components;
 
 import engine.Component;
+import engine.Entity;
 import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.inventory.Item;
@@ -39,6 +40,7 @@ public final class InventoryComponent implements Component {
   // added/removed)
   private Consumer<Item> onItemAdded = item -> {};
   private Consumer<Item> onItemRemoved = item -> {};
+  private Entity lastMover;
 
   /**
    * The default {@link InventoryComponent} constructor. Creates an empty inventory with {@link
@@ -491,5 +493,24 @@ public final class InventoryComponent implements Component {
    */
   public Consumer<Item> onItemRemoved() {
     return this.onItemRemoved;
+  }
+
+  /**
+   * Returns the player who last moved an item into or out of this inventory through another
+   * entity's inventory dialog, such as a chest.
+   *
+   * @return the last moving player, if any
+   */
+  public Optional<Entity> lastMover() {
+    return Optional.ofNullable(lastMover);
+  }
+
+  /**
+   * Records the player who moved an item into or out of this inventory.
+   *
+   * @param player the moving player
+   */
+  public void lastMover(final Entity player) {
+    this.lastMover = Objects.requireNonNull(player, "player");
   }
 }

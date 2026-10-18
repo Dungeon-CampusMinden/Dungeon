@@ -394,7 +394,7 @@ public final class ServerGameBinding {
                       riddleId,
                       inputId,
                       "assignment",
-                      new TreeMap<>(placement).toString(),
+                      FoundationTracking.json(new TreeMap<>(placement)),
                       result,
                       solver);
                   Game.audio()
@@ -414,7 +414,7 @@ public final class ServerGameBinding {
         .enterChoice(player, riddleId, inputId, selection)
         .ifPresent(
             result -> {
-              String rawAnswer = String.join(",", new TreeSet<>(selection));
+              String rawAnswer = FoundationTracking.json(new TreeSet<>(selection));
               tracking.attempt(riddleId, inputId, "choice", rawAnswer, result, player);
               if (result.outcome() == CodeOutcome.CORRECT) {
                 Game.audio()
