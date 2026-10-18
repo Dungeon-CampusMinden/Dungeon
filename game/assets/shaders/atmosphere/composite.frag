@@ -48,10 +48,10 @@ float fbm(vec2 p) {
     return v;
 }
 
-// Light above full brightness saturates softly towards 1.6 instead of growing without bound.
+// Light above full brightness saturates softly towards 1.35 instead of growing without bound.
 vec3 shoulder(vec3 light) {
     vec3 over = max(light - 1.0, 0.0);
-    return min(light, vec3(1.0)) + 0.6 * (1.0 - exp(-over / 0.6));
+    return min(light, vec3(1.0)) + 0.35 * (1.0 - exp(-over / 0.35));
 }
 
 void main() {
@@ -76,6 +76,9 @@ void main() {
     col = max(col, 0.0);
     col += texture2D(u_bloomNear, v_uv).rgb * 0.25;
     col += texture2D(u_bloomFar, v_uv).rgb * 0.3;
+    // Colour beyond full brightness keeps its hue: scaling the whole colour down instead of
+    // clipping each channel stops bright textures under several lights from turning white.
+    col /= max(1.0, max(col.r, max(col.g, col.b)));
     float alpha = max(scene.a, min(max(col.r, max(col.g, col.b)), 1.0));
     gl_FragColor = vec4(min(col, vec3(alpha)), alpha);
 }
