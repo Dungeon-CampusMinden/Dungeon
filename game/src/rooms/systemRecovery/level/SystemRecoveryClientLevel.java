@@ -16,7 +16,6 @@ import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.deco.Deco;
 import feature.interaction.keypad.KeypadComponent;
 import feature.timer.WorldTimerAlarm;
-import feature.timer.WorldTimerComponent;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +29,8 @@ import rooms.systemRecovery.modules.scanner.ModuleScannerVisualState;
 public class SystemRecoveryClientLevel extends DungeonLevel {
 
   private static final String LEVEL_NAME = "system-recovery-1";
+  private static final Atmosphere DARK_COLD = Atmosphere.COLD.withBrightness(0.45f);
   private static final String MODULE_SCAN_SHADER_ID = "moduleScannerLocal";
-  private static final String ARCHIVE_SHELF_TEXTURE =
-      "objects/tech/digital_archive_shelf_animated.png";
   private static final String[] MODULE_NAMES = {"cpu", "ram", "gpu", "ssd", "network"};
 
   private int highlightedModuleIndex = -1;
@@ -139,40 +137,41 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
                     .ifPresent(draw -> draw.shaders().remove(MODULE_SCAN_SHADER_ID)));
   }
 
-  /**
-   * A cool, dim facility; terminals, scanners and status lamps glow in their colours. In the last
-   * minute of the countdown the light pulses red.
-   */
   @Override
   public Atmosphere atmosphere() {
-    return WorldTimerAlarm.apply(Atmosphere.COLD);
+    return lighting();
+  }
+
+  @Override
+  public void lights(List<Light> lighting) {
+    addLights(lighting);
   }
 
   /**
-   * Adds the lights of the important interactive objects in the room.
+   * A dark, cool facility lit by its machines: screens, server shelves, terminals, scanners and
+   * status lamps glow in their colours. In the last minute of the countdown the light pulses red.
+   * Shared by the client and the server level, which renders in single player.
+   *
+   * @return the current atmosphere of the room
+   */
+  static Atmosphere lighting() {
+    return WorldTimerAlarm.apply(DARK_COLD);
+  }
+
+  /**
+   * Adds the lights of the important interactive objects in the room. Shared by the client and the
+   * server level, which renders in single player.
    *
    * @param lighting receives the lights
    */
-  @Override
-  public void lights(List<Light> lighting) {
-    Game.entities()
-        .filter(entity -> entity.isPresent(WorldTimerComponent.class))
-        .forEach(entity -> addLight(lighting, entity, 0.5f, Color.RED));
+  static void addLights(List<Light> lighting) {
     Game.levelEntities()
-        .filter(this::isTerminal)
+        .filter(SystemRecoveryClientLevel::isTerminal)
         .forEach(entity -> addLight(lighting, entity, 0.45f, Color.CYAN));
 
     Game.levelEntities()
         .filter(SystemRecoveryClientLevel::isScanner)
         .forEach(entity -> addLight(lighting, entity, 0.55f, Color.CYAN));
-
-    Game.levelEntities()
-        .filter(SystemRecoveryClientLevel::isArchiveShelf)
-        .forEach(
-            entity ->
-                lighting.add(
-                    Light.steady(
-                        lightSourcePosition(entity).translate(1.15f, 0.8f), Color.CYAN, 0.6f)));
 
     Game.levelEntities()
         .filter(entity -> entity.isPresent(KeypadComponent.class))
@@ -184,7 +183,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
             });
 
     Game.levelEntities()
-        .filter(this::isDoorLabel)
+        .filter(SystemRecoveryClientLevel::isDoorLabel)
         .forEach(
             entity -> {
               DisplayTextStatusShader labelShader = doorLabelShader(entity);
@@ -192,7 +191,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
             });
   }
 
-  private boolean isTerminal(Entity entity) {
+  private static boolean isTerminal(Entity entity) {
     String name = entity.name();
     return name != null && (name.equals("terminal") || name.endsWith("_terminal"));
   }
@@ -202,19 +201,11 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
     return name != null && name.endsWith("_scanner");
   }
 
-  static boolean isArchiveShelf(Entity entity) {
-    return entity
-        .fetch(DrawComponent.class)
-        .flatMap(draw -> draw.currentAnimation().sourcePath())
-        .map(path -> ARCHIVE_SHELF_TEXTURE.equals(path.pathString()))
-        .orElse(false);
-  }
-
-  private boolean isDoorLabel(Entity entity) {
+  private static boolean isDoorLabel(Entity entity) {
     return doorLabelShader(entity) != null;
   }
 
-  private DisplayTextStatusShader doorLabelShader(Entity entity) {
+  private static DisplayTextStatusShader doorLabelShader(Entity entity) {
     return entity
         .fetch(DrawComponent.class)
         .map(draw -> draw.shaders().get("doorLabelStatus"))
@@ -223,7 +214,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
         .orElse(null);
   }
 
-  private void addLight(List<Light> lighting, Entity entity, float intensity, Color color) {
+  private static void addLight(List<Light> lighting, Entity entity, float intensity, Color color) {
     lighting.add(Light.steady(lightSourcePosition(entity), color, intensity));
   }
 

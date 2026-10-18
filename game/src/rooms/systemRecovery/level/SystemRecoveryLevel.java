@@ -9,6 +9,8 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Tuple;
@@ -220,6 +222,16 @@ public class SystemRecoveryLevel extends DungeonLevel {
   public SystemRecoveryLevel(
       LevelElement[][] layout, DesignLabel designLabel, Map<String, Point> namedPoints) {
     super(layout, designLabel, namedPoints, LEVEL_NAME);
+  }
+
+  @Override
+  public Atmosphere atmosphere() {
+    return SystemRecoveryClientLevel.lighting();
+  }
+
+  @Override
+  public void lights(List<Light> out) {
+    SystemRecoveryClientLevel.addLights(out);
   }
 
   @Override
