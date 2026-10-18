@@ -21,6 +21,7 @@ public class TileFactory {
     return switch (elementType) {
       case FLOOR -> new FloorTile(coordinate, designLabel);
       case WALL -> new WallTile(coordinate, designLabel);
+      case HOLE -> new HoleTile(coordinate, designLabel);
       case DOOR -> new DoorTile(coordinate, designLabel);
       case EXIT -> new ExitTile(coordinate, designLabel);
       case SKIP -> new SkipTile(coordinate, designLabel);

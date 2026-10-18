@@ -670,16 +670,6 @@ public enum Deco {
 
   /** A decoration. */
   Phone("office/phone.png", new AnimationConfig().scaleX(0.5f), new Rectangle(0.5f, 0.5f, 0, 0)),
-
-  /** An iron grate in the floor, one tile in size. */
-  FloorGrate("objects/floor/grate.png", new AnimationConfig(), (Rectangle) null),
-
-  /** A metal floor grate with status lights, matching the System Recovery design. */
-  FloorGrateSystemRecovery(
-      "objects/floor/grate_system_recovery.png", new AnimationConfig(), (Rectangle) null),
-
-  /** Bones and a skull on the floor, one tile in size. */
-  FloorBones("objects/floor/bones.png", new AnimationConfig(), (Rectangle) null),
   ;
 
   private IPath path;

@@ -14,6 +14,7 @@ import engine.level.elements.astar.TileHeuristic;
 import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
 import engine.level.elements.tile.FloorTile;
+import engine.level.elements.tile.HoleTile;
 import engine.level.elements.tile.SkipTile;
 import engine.level.elements.tile.TileFactory;
 import engine.level.elements.tile.WallTile;
@@ -82,6 +83,13 @@ public interface ILevel extends IndexedGraph<Tile> {
   List<WallTile> wallTiles();
 
   /**
+   * Returns a list of all hole tiles in the level.
+   *
+   * @return List of hole tiles.
+   */
+  List<HoleTile> holeTiles();
+
+  /**
    * Returns a list of all door tiles in the level.
    *
    * @return List of door tiles.
@@ -129,6 +137,7 @@ public interface ILevel extends IndexedGraph<Tile> {
           case SKIP -> skipTiles();
           case FLOOR -> floorTiles();
           case WALL -> wallTiles();
+          case HOLE -> holeTiles();
           case EXIT -> exitTiles();
           case DOOR -> doorTiles();
           default -> throw new NoSuchElementException("No such tile type: '" + elementType + "'");

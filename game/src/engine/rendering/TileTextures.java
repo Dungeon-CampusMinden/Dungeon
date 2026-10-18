@@ -15,7 +15,7 @@ import java.util.Map;
  * and direct neighbours. Tiles store no texture of their own.
  *
  * <p>All textures of a design lie below {@code dungeon/<design>/}. Walls use the design's autotile
- * atlas {@link #WALL_ATLAS}, see {@link LevelRenderer}; floors, exits and doors use single
+ * atlas {@link #WALL_ATLAS}, see {@link LevelRenderer}; floors, holes, exits and doors use single
  * textures, doors facing the room.
  */
 public final class TileTextures {
@@ -59,6 +59,7 @@ public final class TileTextures {
   public static IPath preview(LevelElement element, DesignLabel design) {
     return switch (element) {
       case FLOOR -> path(design, "floor/floor_1.png");
+      case HOLE -> path(design, "floor/floor_hole.png");
       case EXIT -> path(design, "floor/floor_ladder.png");
       case DOOR -> path(design, "door/top.png");
       case WALL -> wallAtlas(design);

@@ -7,6 +7,7 @@ import engine.level.elements.astar.TileHeuristic;
 import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
 import engine.level.elements.tile.FloorTile;
+import engine.level.elements.tile.HoleTile;
 import engine.level.elements.tile.SkipTile;
 import engine.level.elements.tile.TileFactory;
 import engine.level.elements.tile.WallTile;
@@ -71,6 +72,7 @@ public class DungeonLevel implements ILevel, ITickable {
   protected Tile[][] layout;
   protected ArrayList<FloorTile> floorTiles = new ArrayList<>();
   protected ArrayList<WallTile> wallTiles = new ArrayList<>();
+  protected ArrayList<HoleTile> holeTiles = new ArrayList<>();
   protected ArrayList<DoorTile> doorTiles = new ArrayList<>();
   protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
@@ -224,6 +226,11 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   @Override
+  public List<HoleTile> holeTiles() {
+    return holeTiles;
+  }
+
+  @Override
   public List<DoorTile> doorTiles() {
     return doorTiles;
   }
@@ -244,6 +251,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case SKIP -> skipTiles.remove((SkipTile) tile);
       case FLOOR -> floorTiles.remove((FloorTile) tile);
       case WALL -> wallTiles.remove((WallTile) tile);
+      case HOLE -> holeTiles.remove((HoleTile) tile);
       case DOOR -> doorTiles.remove((DoorTile) tile);
       case EXIT -> exitTiles.remove((ExitTile) tile);
     }
@@ -300,6 +308,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case SKIP -> skipTiles.add((SkipTile) tile);
       case FLOOR -> floorTiles.add((FloorTile) tile);
       case WALL -> wallTiles.add((WallTile) tile);
+      case HOLE -> holeTiles.add((HoleTile) tile);
       case EXIT -> exitTiles.add((ExitTile) tile);
       case DOOR -> doorTiles.add((DoorTile) tile);
     }
@@ -356,6 +365,7 @@ public class DungeonLevel implements ILevel, ITickable {
     nodeCount = 0;
     floorTiles.clear();
     wallTiles.clear();
+    holeTiles.clear();
     doorTiles.clear();
     exitTiles.clear();
     skipTiles.clear();

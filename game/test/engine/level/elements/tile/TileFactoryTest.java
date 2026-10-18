@@ -48,6 +48,18 @@ public class TileFactoryTest {
     assertNull(t.level());
   }
 
+  /** Checks if Tile of type HOLE can be generated. */
+  @Test
+  public void createHOLETile() {
+    Tile t = TileFactory.createTile(new Coordinate(0, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+    assertEquals(HoleTile.class, t.getClass());
+    assertEquals(0, t.coordinate().x());
+    assertEquals(0, t.coordinate().y());
+    assertEquals(LevelElement.HOLE, t.levelElement());
+    assertEquals(DesignLabel.DEFAULT, t.designLabel());
+    assertNull(t.level());
+  }
+
   /** Checks if Tile of type EXIT can be generated. */
   @Test
   public void createEXITTile() {

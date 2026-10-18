@@ -8,6 +8,8 @@ public enum LevelElement {
   FLOOR(true, true),
   /** This field is a wall-field. */
   WALL(false, false),
+  /** This field is a hole-field. */
+  HOLE(false, false),
   /** This field is the exit-field to the next level. */
   EXIT(true, false),
   /** This field is a door-field. */

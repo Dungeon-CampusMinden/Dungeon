@@ -128,6 +128,7 @@ public abstract class LevelFormatParser {
     return switch (c) {
       case 'F' -> LevelElement.FLOOR;
       case 'W' -> LevelElement.WALL;
+      case 'H' -> LevelElement.HOLE;
       case 'E' -> LevelElement.EXIT;
       case 'S' -> LevelElement.SKIP;
       case 'D' -> LevelElement.DOOR;
@@ -145,6 +146,7 @@ public abstract class LevelFormatParser {
     return switch (element) {
       case FLOOR -> 'F';
       case WALL -> 'W';
+      case HOLE -> 'H';
       case EXIT -> 'E';
       case SKIP -> 'S';
       case DOOR -> 'D';
