@@ -22,6 +22,7 @@ import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.input.CursorUtils;
 import engine.rendering.AtmosphereRenderer;
+import engine.rendering.EmissiveSprites;
 import engine.rendering.WorldOverlay;
 import engine.utils.Point;
 import engine.utils.Rectangle;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -96,6 +98,7 @@ public final class DrawSystem extends System implements Disposable {
   // Dedicated SpriteBatch for rendering locally to FBOs (Pass 1 & Post-Processing Ping-Pong)
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
+  private final Sprite emissiveSprite = new Sprite();
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
   // Entities with an outline this frame and their sprites without it; the outlines are drawn over
   // the lit scene.
@@ -386,6 +389,7 @@ public final class DrawSystem extends System implements Disposable {
 
     // 2. Render each Entity Depth Group to its FBO and apply depth shaders
     TreeMap<Integer, FrameBuffer> depthFbos = new TreeMap<>();
+    List<DSData> drawn = new ArrayList<>();
     for (Integer depth : sortedEntities.keySet()) {
       List<DSData> sortedGroup =
           sortedEntities.get(depth).stream()
@@ -397,6 +401,7 @@ public final class DrawSystem extends System implements Disposable {
               .toList();
 
       if (!sortedGroup.isEmpty()) {
+        drawn.addAll(sortedGroup);
         ShaderList shaders = entityDepthShaders.get(depth);
         FrameBuffer depthFbo =
             drawToIntermediateFbo(
@@ -434,7 +439,13 @@ public final class DrawSystem extends System implements Disposable {
     depthFbos.values().forEach(FBO_POOL::free);
 
     // 4. Atmosphere, 5. Post-Processing Pass (Scene Shaders) on the lit scene & Screen Final Draw
-    FrameBuffer graded = atmosphere.grade(fboA, batch());
+    Optional<FrameBuffer> emissive =
+        drawn.stream().anyMatch(d -> EmissiveSprites.mask(d.dc).isPresent())
+            ? Optional.of(
+                drawToIntermediateFbo(() -> drawEmissive(drawn), null, sceneWidth, sceneHeight))
+            : Optional.empty();
+    FrameBuffer graded = atmosphere.grade(fboA, emissive, batch());
+    emissive.ifPresent(FBO_POOL::free);
     drawOverlays(graded);
     FrameBuffer finalFbo =
         applyShadersAndCompose(graded, fboB, sceneShaders, sceneWidth, sceneHeight);
@@ -1004,6 +1015,29 @@ public final class DrawSystem extends System implements Disposable {
     }
     atmosphere.drawGroundParticles(batch());
     atmosphere.drawWalls(batch(), secondsElapsed);
+  }
+
+  /**
+   * Draws where the entities glow, see {@link EmissiveSprites}: the masks of glowing sprites in
+   * white, every other sprite in black, in drawing order, so an entity in front of a screen covers
+   * its glow.
+   *
+   * @param drawn the drawn entities, back to front
+   */
+  private void drawEmissive(List<DSData> drawn) {
+    for (DSData d : drawn) {
+      Optional<Texture> mask = EmissiveSprites.mask(d.dc);
+      emissiveSprite.set(d.dc.getSprite());
+      mask.ifPresent(emissiveSprite::setTexture);
+      DrawConfig conf = makeConfig(d, Vector2.of(d.dc.getWidth(), d.dc.getHeight()), d.pc.scale());
+      batch().setColor(mask.isPresent() ? Color.WHITE : Color.BLACK);
+      batch()
+          .draw(
+              emissiveSprite,
+              conf.size().x(),
+              conf.size().y(),
+              makeTransform(d.pc.position(), conf));
+    }
   }
 
   private static boolean isGrounded(DrawComponent dc) {

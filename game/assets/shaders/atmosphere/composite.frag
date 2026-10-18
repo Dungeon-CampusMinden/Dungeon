@@ -16,6 +16,8 @@ uniform sampler2D u_texture;   // composed scene, premultiplied
 uniform sampler2D u_light;     // light buffer (half intensity)
 uniform sampler2D u_bloomNear;
 uniform sampler2D u_bloomFar;
+uniform sampler2D u_emissive;  // white where sprites glow by themselves, premultiplied
+uniform float u_glow;          // 1 uses u_emissive, 0 ignores it
 uniform vec3 u_ambient;
 uniform vec3 u_shadowTint;     // grade of dark areas
 uniform vec3 u_lightTint;      // grade of bright areas
@@ -67,7 +69,9 @@ void main() {
     // inside of walls merges with the darkness around them.
     float solid = scene.a * step(1.0 / 255.0, max(scene.r, max(scene.g, scene.b)));
     float fog = smoothstep(0.38, 0.9, n) * solid;
-    vec3 col = scene.rgb * shoulder(u_ambient + raw);
+    // Glowing pixels, like the content of screens, shine brighter than fully lit surfaces.
+    float glow = texture2D(u_emissive, v_uv).r * u_glow * 1.3;
+    vec3 col = scene.rgb * max(shoulder(u_ambient + raw), vec3(glow));
     col += fog * (u_ambient * 1.3 + raw * 0.7) * 0.18 * u_fog;
 
     // Split toning between the shadow and light tints.

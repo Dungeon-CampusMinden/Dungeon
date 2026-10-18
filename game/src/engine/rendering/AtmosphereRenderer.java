@@ -340,10 +340,12 @@ public final class AtmosphereRenderer implements Disposable {
    * brightness.
    *
    * @param scene the composed scene, {@link #width()} x {@link #height()}
+   * @param emissive where the scene glows by itself, see {@link EmissiveSprites}, at the scene's
+   *     size; these pixels are lit fully. Empty if nothing glows
    * @param batch the batch to render with, not begun
    * @return the lit scene, premultiplied; owned by this renderer until {@link #endFrame}
    */
-  public FrameBuffer grade(FrameBuffer scene, SpriteBatch batch) {
+  public FrameBuffer grade(FrameBuffer scene, Optional<FrameBuffer> emissive, SpriteBatch batch) {
     ensureShaders();
     // Light is smooth, so half resolution is enough.
     FrameBuffer light = obtain(width / 2, height / 2);
@@ -362,11 +364,16 @@ public final class AtmosphereRenderer implements Disposable {
     // Without bloom the light buffer stands in for the bloom textures, which add nothing then.
     (reduced ? light : bloomNear).getColorBufferTexture().bind(2);
     (reduced ? light : bloomFar).getColorBufferTexture().bind(3);
+    // Without glowing sprites the light buffer stands in for the emissive texture, which then adds
+    // nothing.
+    emissive.orElse(light).getColorBufferTexture().bind(4);
     Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
     Atmosphere a = atmosphere;
     compositeShader.setUniformi("u_light", 1);
     compositeShader.setUniformi("u_bloomNear", 2);
     compositeShader.setUniformi("u_bloomFar", 3);
+    compositeShader.setUniformi("u_emissive", 4);
+    compositeShader.setUniformf("u_glow", emissive.isPresent() ? 1f : 0f);
     setColor(compositeShader, "u_ambient", a.ambient());
     setColor(compositeShader, "u_shadowTint", a.shadowTint());
     setColor(compositeShader, "u_lightTint", a.lightTint());
