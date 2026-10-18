@@ -15,6 +15,7 @@ import engine.utils.Tuple;
 import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.deco.Deco;
 import feature.interaction.keypad.KeypadComponent;
+import feature.timer.WorldTimerAlarm;
 import feature.timer.WorldTimerComponent;
 import feature.utils.EntityUtils;
 import java.util.List;
@@ -138,10 +139,13 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
                     .ifPresent(draw -> draw.shaders().remove(MODULE_SCAN_SHADER_ID)));
   }
 
-  /** A cool, dim facility; terminals, scanners and status lamps glow in their colours. */
+  /**
+   * A cool, dim facility; terminals, scanners and status lamps glow in their colours. In the last
+   * minute of the countdown the light pulses red.
+   */
   @Override
   public Atmosphere atmosphere() {
-    return Atmosphere.COLD;
+    return WorldTimerAlarm.apply(Atmosphere.COLD);
   }
 
   /**

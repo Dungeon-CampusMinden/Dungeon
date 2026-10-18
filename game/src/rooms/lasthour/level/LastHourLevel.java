@@ -60,6 +60,7 @@ import feature.puzzle.PuzzlePieceItem;
 import feature.survey.SurveyFeature;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
+import feature.timer.WorldTimerAlarm;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
 import feature.utils.EntityUtils;
@@ -1185,7 +1186,8 @@ public class LastHourLevel extends DungeonLevel {
 
   /**
    * The office stays dark, lit only by the players' lanterns, until the room lights come back on
-   * with the computer and flicker up with the ceiling tubes.
+   * with the computer and flicker up with the ceiling tubes. In the last minute of the countdown
+   * the light pulses red.
    *
    * @return the current atmosphere of the room
    */
@@ -1196,7 +1198,7 @@ public class LastHourLevel extends DungeonLevel {
             .map(ComputerStateComponent::lightsOn)
             .orElse(false);
     OfficeLights.update(lightsOn);
-    return lightsOn && OfficeLights.startup() == 1f ? LIGHTS_ON : DARK;
+    return WorldTimerAlarm.apply(lightsOn && OfficeLights.startup() == 1f ? LIGHTS_ON : DARK);
   }
 
   /**
