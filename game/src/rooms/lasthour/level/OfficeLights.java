@@ -21,8 +21,8 @@ final class OfficeLights {
   private static final float INTENSITY = 0.85f;
   // Seconds after switching on at which a tube toggles between dark and lit; it stays lit after the
   // last toggle.
-  private static final float[] STARTUP = {0.05f, 0.12f, 0.3f, 0.36f, 0.62f, 0.7f, 0.95f};
-  private static final float MAX_DELAY = 0.45f;
+  private static final float[] STARTUP = {0.1f, 0.3f, 0.5f};
+  private static final float MAX_DELAY = 0.2f;
   private static final float MILLIS = 1000f;
 
   private static boolean wasOn;
