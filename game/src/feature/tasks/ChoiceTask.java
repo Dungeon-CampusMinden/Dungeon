@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A single- or multiple-choice question whose answer is correct when it selects exactly the correct
@@ -54,6 +55,22 @@ public class ChoiceTask extends Task<Set<String>> {
   @Override
   public boolean isCorrect(Set<String> answer) {
     return correctValues.equals(answer);
+  }
+
+  @Override
+  public String answerKind() {
+    return "choice";
+  }
+
+  /**
+   * Encodes the selected option values as a sorted JSON array, e.g. {@code ["a","c"]}.
+   *
+   * @param answer the selected option values
+   * @return the JSON array
+   */
+  @Override
+  public String trackedAnswer(Set<String> answer) {
+    return json(new TreeSet<>(answer));
   }
 
   /**

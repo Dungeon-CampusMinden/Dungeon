@@ -70,18 +70,27 @@ final class AuthorityTest {
         authority.interactSource("fund_and_code", "source").reason());
     assertEquals(
         CodeOutcome.INCORRECT,
-        authority.attemptCode("fund_and_code", "fund_code", "0000").outcome());
+        authority
+            .attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "0000")
+            .outcome());
     assertEquals(
-        CodeOutcome.CORRECT, authority.attemptCode("fund_and_code", "fund_code", "3758").outcome());
+        CodeOutcome.CORRECT,
+        authority
+            .attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "3758")
+            .outcome());
     assertEquals(ProgressStatus.SOLVED, riddle(authority, "fund_and_code").status());
     assertEquals(
         CodeOutcome.NOT_EVALUATED,
-        authority.attemptCode("fund_and_code", "fund_code", "3758").outcome());
+        authority
+            .attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "3758")
+            .outcome());
 
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "parallel_code").status());
     assertEquals(
         CodeOutcome.CORRECT,
-        authority.attemptCode("parallel_code", "parallel_input", "24").outcome());
+        authority
+            .attempt("parallel_code", "parallel_input", NumericInputDefinition.class, "24")
+            .outcome());
     assertEquals(ProgressStatus.SOLVED, riddle(authority, "parallel_code").status());
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "final_code").status());
   }
@@ -121,18 +130,27 @@ final class AuthorityTest {
     ready(authority);
 
     assertEquals(
-        CodeOutcome.INCORRECT, authority.attemptChoice("sort", "question", Set.of("a")).outcome());
+        CodeOutcome.INCORRECT,
+        authority.attempt("sort", "question", ChoiceInputDefinition.class, Set.of("a")).outcome());
     assertEquals(
         CodeOutcome.CORRECT,
-        authority.attemptChoice("sort", "question", Set.of("a", "b")).outcome());
+        authority
+            .attempt("sort", "question", ChoiceInputDefinition.class, Set.of("a", "b"))
+            .outcome());
     assertEquals(
         CodeOutcome.INCORRECT,
         authority
-            .attemptAssignment("sort", "boxes", Map.of("bread", "food", "cat", "food"))
+            .attempt(
+                "sort",
+                "boxes",
+                AssignmentInputDefinition.class,
+                Map.of("bread", "food", "cat", "food"))
             .outcome());
     assertEquals(
         CodeOutcome.CORRECT,
-        authority.attemptAssignment("sort", "boxes", Map.of("bread", "food")).outcome());
+        authority
+            .attempt("sort", "boxes", AssignmentInputDefinition.class, Map.of("bread", "food"))
+            .outcome());
     assertEquals(ProgressStatus.SOLVED, riddle(authority, "sort").status());
   }
 
@@ -143,14 +161,17 @@ final class AuthorityTest {
 
     assertEquals(
         OperationReason.RIDDLE_LOCKED,
-        authority.attemptCode("final_code", "final_input", "9").operation().reason());
+        authority
+            .attempt("final_code", "final_input", NumericInputDefinition.class, "9")
+            .operation()
+            .reason());
     assertEquals(
         OperationReason.RIDDLE_LOCKED,
         authority.interactSource("final_code", "later_source").reason());
     authority.interactSource("fund_and_code", "source");
-    authority.attemptCode("fund_and_code", "fund_code", "3758");
+    authority.attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "3758");
     assertEquals(ProgressStatus.LOCKED, riddle(authority, "final_code").status());
-    authority.attemptCode("parallel_code", "parallel_input", "24");
+    authority.attempt("parallel_code", "parallel_input", NumericInputDefinition.class, "24");
 
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "final_code").status());
     assertFalse(input(authority, "final_code", "later_collect").satisfied());
@@ -171,17 +192,17 @@ final class AuthorityTest {
     assertEquals(ProgressStatus.LOCKED, riddle(authority, "storage").status());
     assertEquals(ProgressStatus.LOCKED, riddle(authority, "unlock").status());
 
-    authority.attemptCode("recover", "input_recover", "1");
+    authority.attempt("recover", "input_recover", NumericInputDefinition.class, "1");
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "storage").status());
     assertEquals(ProgressStatus.LOCKED, riddle(authority, "unlock").status());
-    authority.attemptCode("storage", "input_storage", "1");
+    authority.attempt("storage", "input_storage", NumericInputDefinition.class, "1");
     assertEquals(ProgressStatus.LOCKED, riddle(authority, "unlock").status());
     assertFalse(authority.projection().doorOpen());
 
-    authority.attemptCode("ventilation", "input_ventilation", "1");
+    authority.attempt("ventilation", "input_ventilation", NumericInputDefinition.class, "1");
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "unlock").status());
     assertFalse(authority.projection().doorOpen());
-    authority.attemptCode("unlock", "input_unlock", "1");
+    authority.attempt("unlock", "input_unlock", NumericInputDefinition.class, "1");
     assertTrue(authority.projection().doorOpen());
   }
 
@@ -191,10 +212,10 @@ final class AuthorityTest {
     authority.connect("slot_1");
     authority.markSpawned("slot_1");
 
-    authority.attemptCode("left", "input_left", "1");
+    authority.attempt("left", "input_left", NumericInputDefinition.class, "1");
     assertFalse(authority.projection().doorOpen());
 
-    authority.attemptCode("right", "input_right", "1");
+    authority.attempt("right", "input_right", NumericInputDefinition.class, "1");
     assertTrue(authority.projection().doorOpen());
   }
 
@@ -280,7 +301,10 @@ final class AuthorityTest {
         authority.interactSource("fund_and_code", "missing").reason());
     assertEquals(
         OperationReason.UNKNOWN_INPUT,
-        authority.attemptCode("fund_and_code", "missing", "3758").operation().reason());
+        authority
+            .attempt("fund_and_code", "missing", NumericInputDefinition.class, "3758")
+            .operation()
+            .reason());
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "fund_and_code").status());
   }
 
@@ -308,7 +332,7 @@ final class AuthorityTest {
         OperationReason.RIDDLE_LOCKED,
         authority.revealHint("final_code", "final_hint").operation().reason());
     authority.interactSource("fund_and_code", "source");
-    authority.attemptCode("fund_and_code", "fund_code", "3758");
+    authority.attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "3758");
     assertEquals(
         List.of("hint_one", "hint_two"),
         riddle(authority, "fund_and_code").releasedHints().stream().map(ReleasedHint::id).toList());
@@ -521,10 +545,10 @@ final class AuthorityTest {
 
   private static void completeRoom(final Authority authority) {
     authority.interactSource("fund_and_code", "source");
-    authority.attemptCode("fund_and_code", "fund_code", "3758");
-    authority.attemptCode("parallel_code", "parallel_input", "24");
+    authority.attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "3758");
+    authority.attempt("parallel_code", "parallel_input", NumericInputDefinition.class, "24");
     authority.interactSource("final_code", "later_source");
-    authority.attemptCode("final_code", "final_input", "9");
+    authority.attempt("final_code", "final_input", NumericInputDefinition.class, "9");
   }
 
   private static Projection.RiddleView riddle(final Authority authority, final String id) {

@@ -7,6 +7,7 @@ import type {
   Riddle,
   Surface,
 } from "./DeerSchema";
+import { DEVICE_INPUTS } from "./DeerSchema";
 import type { WizardDraft } from "./WizardDraft";
 
 function projectGraphNode(node: AnyGraphNode): AnyGraphNode {
@@ -95,15 +96,8 @@ function projectAsset(asset: Asset): Asset {
 }
 
 function projectSurface(surface: Surface): Surface {
-  const title = surface.kind === "container"
-    ? "Versteck"
-    : surface.kind === "keypad"
-      ? "Zahlengerät"
-      : surface.kind === "terminal"
-        ? "Fragestation"
-        : surface.kind === "assignment"
-          ? "Zuordnung"
-          : surface.title;
+  const device = Object.values(DEVICE_INPUTS).find((entry) => entry.kind === surface.kind);
+  const title = surface.kind === "container" ? "Versteck" : device?.title ?? surface.title;
   return { id: surface.id, kind: surface.kind, title };
 }
 

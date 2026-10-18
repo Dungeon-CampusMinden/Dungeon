@@ -105,7 +105,10 @@ final class MultiplayerSessionTest {
     assertEquals(Map.of("slot_1", 100, "slot_2", 200), session.technicalPlayerEntities());
     assertTrue(session.readyClientId(200).isEmpty());
     assertTrue(session.inspectSource((short) 2, "first", "source").isEmpty());
-    assertTrue(session.enterNumericCode((short) 2, "first", "first_code", "12").isEmpty());
+    assertTrue(
+        session
+            .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "12")
+            .isEmpty());
     assertFalse(inputSatisfied(session, "first", "collect"));
     assertFalse(inputSatisfied(session, "first", "first_code"));
 
@@ -113,7 +116,10 @@ final class MultiplayerSessionTest {
     assertEquals(Optional.of((short) 2), session.readyClientId(200));
     assertEquals(
         CodeOutcome.INCORRECT,
-        session.enterNumericCode((short) 2, "first", "first_code", "1").orElseThrow().outcome());
+        session
+            .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "1")
+            .orElseThrow()
+            .outcome());
   }
 
   @Test
@@ -154,7 +160,7 @@ final class MultiplayerSessionTest {
         "released text",
         session.confirmNextHint((short) 1, "first", preview.id()).orElseThrow().text());
 
-    session.enterNumericCode((short) 1, "first", "first_code", "12");
+    session.enterAnswer((short) 1, "first", "first_code", NumericInputDefinition.class, "12");
     assertFalse(inputSatisfied(session, "second", "later_collect"));
     assertTrue(
         session.inspectSource((short) 1, "second", "later_source").orElseThrow().newlySatisfied());
@@ -169,9 +175,12 @@ final class MultiplayerSessionTest {
     session.inspectSource((short) 1, "first", "source");
     assertEquals(
         CodeOutcome.CORRECT,
-        session.enterNumericCode((short) 2, "first", "first_code", "12").orElseThrow().outcome());
+        session
+            .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "12")
+            .orElseThrow()
+            .outcome());
     session.inspectSource((short) 1, "second", "later_source");
-    session.enterNumericCode((short) 2, "second", "final_code", "2468");
+    session.enterAnswer((short) 2, "second", "final_code", NumericInputDefinition.class, "2468");
     assertFalse(session.projection().toString().contains("2468"));
     assertTrue(session.projection().doorOpen());
 

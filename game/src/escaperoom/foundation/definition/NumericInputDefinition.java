@@ -1,5 +1,6 @@
 package escaperoom.foundation.definition;
 
+import feature.tasks.NumericCodeTask;
 import java.util.Objects;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Objects;
  */
 public record NumericInputDefinition(
     String id, String surfaceId, String answer, boolean showDigitCount)
-    implements SurfaceInputDefinition {
+    implements SurfaceInputDefinition<String> {
   /** Creates an immutable numeric input. */
   public NumericInputDefinition {
     id = DefinitionChecks.requireId(id, "numeric input id");
@@ -21,5 +22,10 @@ public record NumericInputDefinition(
     if (!answer.matches("[0-9]{1,8}")) {
       throw new IllegalArgumentException("numeric answer must contain one to eight digits");
     }
+  }
+
+  @Override
+  public NumericCodeTask task() {
+    return new NumericCodeTask(answer);
   }
 }

@@ -171,6 +171,16 @@ export type AnyRiddleInput = CollectionInput | NumericInput | ChoiceInput | Assi
 /** Inputs answered at their own placed device surface. */
 export type SurfaceRiddleInput = NumericInput | ChoiceInput | AssignmentInput;
 
+/** Device surface of each surface-bound input type, with its fixed surface title and editor label. */
+export const DEVICE_INPUTS = {
+  numeric: { kind: "keypad", title: "Zahlengerät", label: "Zahleneingabe" },
+  choice: { kind: "terminal", title: "Fragestation", label: "Auswahlfrage" },
+  assignment: { kind: "assignment", title: "Zuordnung", label: "Zuordnung" },
+} as const satisfies Record<
+  SurfaceRiddleInput["type"],
+  { kind: Surface["kind"]; title: string; label: string }
+>;
+
 /** Item sprites teachers can pick for assignment items; mirrors the DEER schema enum. */
 export const ASSIGNMENT_SPRITES = [
   { path: "items/book/letter.png", label: "Brief" },

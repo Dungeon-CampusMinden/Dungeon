@@ -20,7 +20,14 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-/** Builds dungeon situations from {@link Task}s. */
+/**
+ * Builds dungeon situations from {@link Task}s.
+ *
+ * <p>The returned entities carry the {@link TaskComponent} of their task. A room records the
+ * answers by setting a {@link TaskTracking} on it, e.g. {@code
+ * terminal.fetch(TaskComponent.class).orElseThrow().tracking(new TaskTracking("quiz",
+ * "terminal"))}.
+ */
 public final class TaskFactory {
 
   private static final String TERMINAL_SPRITE = "objects/tech/Computer_1.png";

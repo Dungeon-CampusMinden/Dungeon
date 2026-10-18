@@ -136,7 +136,7 @@ public record GamePresentation(
      * @param definition host-owned input definition
      * @return {@code true} when identity, device variant, and answer shape match
      */
-    boolean presents(SurfaceInputDefinition definition);
+    boolean presents(SurfaceInputDefinition<?> definition);
 
     /**
      * Reports whether the presentations show the surface-bound definitions one by one in order.
@@ -147,10 +147,14 @@ public record GamePresentation(
      */
     static boolean presentsAll(
         final List<InputDefinition> definitions, final List<InputPresentation> presentations) {
-      List<SurfaceInputDefinition> surfaceInputs =
+      List<SurfaceInputDefinition<?>> surfaceInputs =
           definitions.stream()
-              .filter(SurfaceInputDefinition.class::isInstance)
-              .map(SurfaceInputDefinition.class::cast)
+              .<SurfaceInputDefinition<?>>mapMulti(
+                  (definition, surfaces) -> {
+                    if (definition instanceof SurfaceInputDefinition<?> surface) {
+                      surfaces.accept(surface);
+                    }
+                  })
               .toList();
       if (surfaceInputs.size() != presentations.size()) {
         return false;
@@ -181,7 +185,7 @@ public record GamePresentation(
     }
 
     @Override
-    public boolean presents(final SurfaceInputDefinition definition) {
+    public boolean presents(final SurfaceInputDefinition<?> definition) {
       return definition instanceof NumericInputDefinition numeric
           && numeric.id().equals(id)
           && numeric.surfaceId().equals(surfaceId);
@@ -205,7 +209,7 @@ public record GamePresentation(
     }
 
     @Override
-    public boolean presents(final SurfaceInputDefinition definition) {
+    public boolean presents(final SurfaceInputDefinition<?> definition) {
       return definition instanceof ChoiceInputDefinition choice
           && choice.id().equals(id)
           && choice.surfaceId().equals(surfaceId);
@@ -235,7 +239,7 @@ public record GamePresentation(
     }
 
     @Override
-    public boolean presents(final SurfaceInputDefinition definition) {
+    public boolean presents(final SurfaceInputDefinition<?> definition) {
       return definition instanceof AssignmentInputDefinition assignment
           && assignment.id().equals(id)
           && assignment.surfaceId().equals(surfaceId)

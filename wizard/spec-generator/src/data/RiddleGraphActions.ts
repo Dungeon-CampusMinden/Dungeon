@@ -3,10 +3,8 @@ import type {
   DeerProject,
   InformationSource,
   Riddle,
-  Surface,
-  SurfaceRiddleInput,
 } from "./DeerSchema";
-import { ASSIGNMENT_SPRITES } from "./DeerSchema";
+import { ASSIGNMENT_SPRITES, DEVICE_INPUTS } from "./DeerSchema";
 import { Util } from "./Util";
 
 export function addRiddle(project: DeerProject, riddle: Riddle): void {
@@ -62,12 +60,6 @@ export function removeInformationSource(project: DeerProject, riddle: Riddle, so
   }
 }
 
-const DEVICE_SURFACES = {
-  numeric: { kind: "keypad", title: "Zahlengerät" },
-  choice: { kind: "terminal", title: "Fragestation" },
-  assignment: { kind: "assignment", title: "Zuordnung" },
-} as const satisfies Record<SurfaceRiddleInput["type"], Pick<Surface, "kind" | "title">>;
-
 /** Creates an input of the given type and the device surface it needs. */
 function createRiddleInput(
   project: DeerProject,
@@ -79,7 +71,7 @@ function createRiddleInput(
     return { id, type, informationSourceId: riddle.informationSources[0]?.id ?? "" };
   }
   const surfaceId = Util.generateUniqueId("s");
-  project.surfaces.push({ id: surfaceId, ...DEVICE_SURFACES[type] });
+  project.surfaces.push({ id: surfaceId, kind: DEVICE_INPUTS[type].kind, title: DEVICE_INPUTS[type].title });
   if (type === "numeric") {
     return { id, type, surfaceId, answer: "", showDigitCount: true };
   }

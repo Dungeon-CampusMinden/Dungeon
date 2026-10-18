@@ -4,6 +4,7 @@ import engine.time.PlayClock;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.RosterSlotDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
@@ -167,59 +168,27 @@ public final class MultiplayerSession {
   }
 
   /**
-   * Routes one numeric input attempt for a ready player.
+   * Routes one surface input answer for a ready player.
    *
    * @param clientId stable Dungeon client identifier
    * @param riddleId owning riddle identifier
-   * @param inputId numeric input identifier
-   * @param attempt raw numeric attempt
+   * @param inputId surface input identifier
+   * @param inputType expected input type
+   * @param answer complete answer
+   * @param <A> answer type
+   * @param <D> input type
    * @return delegated result, or empty when the player is not ready
    */
-  public synchronized Optional<CodeAttemptResult> enterNumericCode(
-      final short clientId, final String riddleId, final String inputId, final String attempt) {
+  public synchronized <A, D extends SurfaceInputDefinition<A>>
+      Optional<CodeAttemptResult> enterAnswer(
+          final short clientId,
+          final String riddleId,
+          final String inputId,
+          final Class<D> inputType,
+          final A answer) {
     advance();
     return ready(clientId)
-        ? Optional.of(authority.attemptCode(riddleId, inputId, attempt))
-        : Optional.empty();
-  }
-
-  /**
-   * Routes one choice selection for a ready player.
-   *
-   * @param clientId stable Dungeon client identifier
-   * @param riddleId owning riddle identifier
-   * @param inputId choice input identifier
-   * @param selection selected option identifiers
-   * @return delegated result, or empty when the player is not ready
-   */
-  public synchronized Optional<CodeAttemptResult> enterChoice(
-      final short clientId,
-      final String riddleId,
-      final String inputId,
-      final Set<String> selection) {
-    advance();
-    return ready(clientId)
-        ? Optional.of(authority.attemptChoice(riddleId, inputId, selection))
-        : Optional.empty();
-  }
-
-  /**
-   * Routes one item placement for a ready player.
-   *
-   * @param clientId stable Dungeon client identifier
-   * @param riddleId owning riddle identifier
-   * @param inputId assignment input identifier
-   * @param placement container identifier of every task item that lies in a task container
-   * @return delegated result, or empty when the player is not ready
-   */
-  public synchronized Optional<CodeAttemptResult> enterAssignment(
-      final short clientId,
-      final String riddleId,
-      final String inputId,
-      final Map<String, String> placement) {
-    advance();
-    return ready(clientId)
-        ? Optional.of(authority.attemptAssignment(riddleId, inputId, placement))
+        ? Optional.of(authority.attempt(riddleId, inputId, inputType, answer))
         : Optional.empty();
   }
 

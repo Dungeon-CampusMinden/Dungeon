@@ -2,6 +2,7 @@ package escaperoom.foundation.multiplayer.binding;
 
 import engine.Entity;
 import engine.network.server.ClientState;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession.ClientObservation;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession.SourceInspection;
@@ -69,57 +70,26 @@ public final class ServerBinding {
   }
 
   /**
-   * Applies one authoritative numeric input attempt for a ready server player.
+   * Applies one authoritative surface input answer for a ready server player.
    *
-   * @param playerEntity authenticated server player
+   * @param playerEntity authenticated server player who gave the answer
    * @param riddleId owning riddle identifier
-   * @param inputId numeric input identifier
-   * @param attempt raw player input
+   * @param inputId surface input identifier
+   * @param inputType expected input type
+   * @param answer complete answer
+   * @param <A> answer type
+   * @param <D> input type
    * @return evaluated result when the player remains ready
    */
-  public synchronized Optional<CodeAttemptResult> enterNumericCode(
-      final Entity playerEntity,
-      final String riddleId,
-      final String inputId,
-      final String attempt) {
+  public synchronized <A, D extends SurfaceInputDefinition<A>>
+      Optional<CodeAttemptResult> enterAnswer(
+          final Entity playerEntity,
+          final String riddleId,
+          final String inputId,
+          final Class<D> inputType,
+          final A answer) {
     return clientId(playerEntity)
-        .flatMap(clientId -> session.enterNumericCode(clientId, riddleId, inputId, attempt));
-  }
-
-  /**
-   * Applies one authoritative choice selection for a ready server player.
-   *
-   * @param playerEntity authenticated server player
-   * @param riddleId owning riddle identifier
-   * @param inputId choice input identifier
-   * @param selection selected option identifiers
-   * @return evaluated result when the player remains ready
-   */
-  public synchronized Optional<CodeAttemptResult> enterChoice(
-      final Entity playerEntity,
-      final String riddleId,
-      final String inputId,
-      final Set<String> selection) {
-    return clientId(playerEntity)
-        .flatMap(clientId -> session.enterChoice(clientId, riddleId, inputId, selection));
-  }
-
-  /**
-   * Applies one authoritative item placement for a ready server player.
-   *
-   * @param playerEntity authenticated server player who completed the placement
-   * @param riddleId owning riddle identifier
-   * @param inputId assignment input identifier
-   * @param placement container identifier of every task item that lies in a task container
-   * @return evaluated result when the player remains ready
-   */
-  public synchronized Optional<CodeAttemptResult> enterAssignment(
-      final Entity playerEntity,
-      final String riddleId,
-      final String inputId,
-      final Map<String, String> placement) {
-    return clientId(playerEntity)
-        .flatMap(clientId -> session.enterAssignment(clientId, riddleId, inputId, placement));
+        .flatMap(clientId -> session.enterAnswer(clientId, riddleId, inputId, inputType, answer));
   }
 
   /**

@@ -1,7 +1,5 @@
 package escaperoom.foundation.runtime;
 
-import escaperoom.foundation.definition.AssignmentInputDefinition;
-import escaperoom.foundation.definition.ChoiceInputDefinition;
 import escaperoom.foundation.definition.CollectionInputDefinition;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
 import escaperoom.foundation.definition.HintDefinition;
@@ -12,13 +10,13 @@ import escaperoom.foundation.definition.ProgressionDefinition;
 import escaperoom.foundation.definition.ProgressionDefinition.RiddleNode;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.RosterSlotDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.runtime.Projection.InputView;
 import escaperoom.foundation.runtime.Projection.ProgressStatus;
 import escaperoom.foundation.runtime.Projection.RiddleView;
 import escaperoom.foundation.runtime.Projection.TimerState;
 import escaperoom.foundation.runtime.Projection.TimerView;
-import feature.tasks.FreeTextTask;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * Thread-safe deterministic authority for one server-hosted room session.
@@ -204,63 +201,22 @@ public final class Authority {
   }
 
   /**
-   * Evaluates one numeric attempt exactly inside authority without retaining attempt counts.
+   * Evaluates one answer by the task of a surface input without retaining attempt counts.
+   *
+   * <p>The input type ties the answer to its task, e.g. {@code NumericInputDefinition.class} with a
+   * code string or {@code ChoiceInputDefinition.class} with the selected option identifiers.
    *
    * @param riddleId owning riddle identifier
-   * @param inputId stable numeric input identifier
-   * @param attempt caller-supplied value evaluated by exact equality
+   * @param inputId stable input identifier
+   * @param inputType expected input type
+   * @param answer complete answer
+   * @param <A> answer type
+   * @param <D> input type
    * @return explicit command and non-secret correctness result
    */
-  public synchronized CodeAttemptResult attemptCode(
-      final String riddleId, final String inputId, final String attempt) {
-    return attempt(
-        riddleId,
-        inputId,
-        NumericInputDefinition.class,
-        numeric -> new FreeTextTask("", List.of(numeric.answer()), true).isCorrect(attempt));
-  }
-
-  /**
-   * Evaluates one choice selection inside authority without retaining attempt counts.
-   *
-   * @param riddleId owning riddle identifier
-   * @param inputId stable choice input identifier
-   * @param selection selected option identifiers
-   * @return explicit command and non-secret correctness result
-   */
-  public synchronized CodeAttemptResult attemptChoice(
-      final String riddleId, final String inputId, final Set<String> selection) {
-    Objects.requireNonNull(selection, "selection");
-    return attempt(
-        riddleId,
-        inputId,
-        ChoiceInputDefinition.class,
-        choice -> choice.task().isCorrect(selection));
-  }
-
-  /**
-   * Evaluates one item placement inside authority without retaining attempt counts.
-   *
-   * @param riddleId owning riddle identifier
-   * @param inputId stable assignment input identifier
-   * @param placement container identifier of every task item that lies in a task container
-   * @return explicit command and non-secret correctness result
-   */
-  public synchronized CodeAttemptResult attemptAssignment(
-      final String riddleId, final String inputId, final Map<String, String> placement) {
-    Objects.requireNonNull(placement, "placement");
-    return attempt(
-        riddleId,
-        inputId,
-        AssignmentInputDefinition.class,
-        assignment -> assignment.task().isCorrect(placement));
-  }
-
-  private <T extends InputDefinition> CodeAttemptResult attempt(
-      final String riddleId,
-      final String inputId,
-      final Class<T> inputType,
-      final Predicate<T> correct) {
+  public synchronized <A, D extends SurfaceInputDefinition<A>> CodeAttemptResult attempt(
+      final String riddleId, final String inputId, final Class<D> inputType, final A answer) {
+    Objects.requireNonNull(answer, "answer");
     OperationResult gate = gameplayGate();
     if (gate != null) {
       return code(gate, CodeOutcome.NOT_EVALUATED);
@@ -279,7 +235,7 @@ public final class Authority {
       return code(
           OperationResult.idempotent(OperationReason.RIDDLE_LOCKED), CodeOutcome.NOT_EVALUATED);
     }
-    Optional<T> input =
+    Optional<D> input =
         state.definition.inputs().stream()
             .filter(candidate -> candidate.id().equals(inputId))
             .filter(inputType::isInstance)
@@ -294,7 +250,7 @@ public final class Authority {
           OperationResult.idempotent(OperationReason.INPUT_ALREADY_SATISFIED),
           CodeOutcome.NOT_EVALUATED);
     }
-    if (!correct.test(input.orElseThrow())) {
+    if (!input.orElseThrow().task().isCorrect(answer)) {
       return code(OperationResult.applied(), CodeOutcome.INCORRECT);
     }
     state.satisfied.add(inputId);

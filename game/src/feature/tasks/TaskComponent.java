@@ -5,6 +5,7 @@ import engine.Entity;
 import engine.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -12,6 +13,9 @@ import java.util.function.Consumer;
  *
  * <p>The component keeps track of all submitted answers and whether the task has been solved.
  * Callbacks can be registered to react to correct and incorrect submissions.
+ *
+ * <p>With a {@link TaskTracking} set, every submission is recorded as a tracking attempt of the
+ * submitting entity.
  *
  * <p>Once a task has been solved, further submissions are rejected with a {@link TaskException}.
  *
@@ -24,6 +28,7 @@ public class TaskComponent<T> implements Component {
   private final Task<T> task;
   private boolean solved;
   private List<T> attempts;
+  private TaskTracking tracking;
   private Consumer<Entity> onCorrect =
       (e) -> {
         LOGGER.info("Task was solved in {} attempts", attempts());
@@ -46,9 +51,9 @@ public class TaskComponent<T> implements Component {
   /**
    * Submits an answer to the task.
    *
-   * <p>The answer is recorded as an attempt and evaluated by the underlying task. If the answer is
-   * correct, the task is marked as solved and the onCorrect callback is invoked. Otherwise, the
-   * onWrong callback is invoked.
+   * <p>The answer is recorded as an attempt, evaluated by the underlying task and, with a {@link
+   * TaskTracking} set, tracked. If the answer is correct, the task is marked as solved and the
+   * onCorrect callback is invoked. Otherwise, the onWrong callback is invoked.
    *
    * @param answer the answer to submit
    * @param source the entity that submitted the answer
@@ -62,7 +67,11 @@ public class TaskComponent<T> implements Component {
 
     this.attempts.add(answer);
 
-    if (task.isCorrect(answer)) {
+    boolean correct = task.isCorrect(answer);
+    if (tracking != null) {
+      tracking.attempt(task, answer, correct, source);
+    }
+    if (correct) {
       this.solved = true;
       onCorrect.accept(source);
     } else {
@@ -142,6 +151,24 @@ public class TaskComponent<T> implements Component {
    */
   public Consumer<Entity> getOnWrong() {
     return onWrong;
+  }
+
+  /**
+   * Returns where submissions are tracked.
+   *
+   * @return the tracking identity, if submissions are tracked
+   */
+  public Optional<TaskTracking> tracking() {
+    return Optional.ofNullable(tracking);
+  }
+
+  /**
+   * Tracks every following submission under the given identity.
+   *
+   * @param tracking the puzzle and object the submissions belong to
+   */
+  public void tracking(TaskTracking tracking) {
+    this.tracking = tracking;
   }
 
   /**

@@ -1,4 +1,5 @@
 import { WIZARD_DRAFT_VERSION, type WizardDraft } from "./WizardDraft";
+import type { AnyRiddleInput } from "./DeerSchema";
 import { isTabId, VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
 export const DB_NAME = "dungeon-wizard-v1";
@@ -64,25 +65,27 @@ function isInformationSource(value: unknown): boolean {
     && Array.isArray(value.resources) && value.resources.every(isResource);
 }
 
-function isRiddleInput(value: unknown): boolean {
-  if (!isRecord(value) || !isString(value.id)) return false;
-  if (value.type === "collection") return isString(value.informationSourceId);
-  if (value.type === "numeric") {
-    return isString(value.surfaceId) && isString(value.answer)
-      && typeof value.showDigitCount === "boolean";
-  }
-  if (value.type === "assignment") {
-    return isString(value.surfaceId)
-      && Array.isArray(value.containers)
-      && value.containers.every((container) => isRecord(container) && isString(container.id) && isString(container.name))
-      && Array.isArray(value.items)
-      && value.items.every((item) => isRecord(item) && isString(item.id) && isString(item.name)
-        && isString(item.sprite) && isOptionalString(item.containerId));
-  }
-  return value.type === "choice" && isString(value.surfaceId) && isString(value.question)
+/** Shape check per input type; the record type requires one for every input type. */
+const RIDDLE_INPUT_GUARDS: Record<AnyRiddleInput["type"], (value: Record<string, unknown>) => boolean> = {
+  collection: (value) => isString(value.informationSourceId),
+  numeric: (value) => isString(value.surfaceId) && isString(value.answer)
+    && typeof value.showDigitCount === "boolean",
+  choice: (value) => isString(value.surfaceId) && isString(value.question)
     && Array.isArray(value.options)
     && value.options.every((option) => isRecord(option) && isString(option.id) && isString(option.text))
-    && isStringArray(value.correctOptionIds) && typeof value.multipleSelection === "boolean";
+    && isStringArray(value.correctOptionIds) && typeof value.multipleSelection === "boolean",
+  assignment: (value) => isString(value.surfaceId)
+    && Array.isArray(value.containers)
+    && value.containers.every((container) => isRecord(container) && isString(container.id) && isString(container.name))
+    && Array.isArray(value.items)
+    && value.items.every((item) => isRecord(item) && isString(item.id) && isString(item.name)
+      && isString(item.sprite) && isOptionalString(item.containerId)),
+};
+
+function isRiddleInput(value: unknown): boolean {
+  if (!isRecord(value) || !isString(value.id) || !isString(value.type)) return false;
+  return Object.hasOwn(RIDDLE_INPUT_GUARDS, value.type)
+    && RIDDLE_INPUT_GUARDS[value.type as AnyRiddleInput["type"]](value);
 }
 
 function isHint(value: unknown): boolean {

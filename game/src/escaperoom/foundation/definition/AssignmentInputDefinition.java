@@ -1,6 +1,7 @@
 package escaperoom.foundation.definition;
 
 import feature.tasks.AssignmentTask;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Objects;
  * @param task container, item, and target identifiers
  */
 public record AssignmentInputDefinition(String id, String surfaceId, AssignmentTask task)
-    implements SurfaceInputDefinition {
+    implements SurfaceInputDefinition<Map<String, String>> {
   /** Creates an immutable assignment input. */
   public AssignmentInputDefinition {
     id = DefinitionChecks.requireId(id, "assignment input id");

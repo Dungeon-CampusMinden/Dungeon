@@ -15,6 +15,7 @@ import escaperoom.foundation.definition.ChoiceInputDefinition;
 import escaperoom.foundation.definition.InputDefinition;
 import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.multiplayer.binding.ServerBinding;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.AssignmentInputPresentation;
@@ -22,6 +23,7 @@ import escaperoom.foundation.presentation.GamePresentation.ChoiceInputPresentati
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
+import escaperoom.foundation.runtime.CodeAttemptResult;
 import escaperoom.foundation.runtime.CodeOutcome;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.ReleasedHint;
@@ -35,6 +37,7 @@ import feature.tasks.AnswerItem;
 import feature.tasks.AssignmentChecker;
 import feature.tasks.AssignmentComponent;
 import feature.tasks.TaskFactory;
+import feature.tasks.TaskTracking;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,8 +45,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
 /** Dungeon world bridge for one already materialized Foundation room. */
@@ -240,8 +241,7 @@ public final class ServerGameBinding {
                             ? definition.answer().length()
                             : HIDDEN_DIGIT_LIMIT,
                         definition.showDigitCount(),
-                        action ->
-                            handleKeypadAction(entity, player, riddleId, presentation.id(), action),
+                        action -> handleKeypadAction(entity, player, riddleId, definition, action),
                         player.id());
                   }
                 },
@@ -253,9 +253,9 @@ public final class ServerGameBinding {
       final Entity keypad,
       final Entity player,
       final String riddleId,
-      final String inputId,
+      final NumericInputDefinition definition,
       final String action) {
-    if (!serverBinding.inputActive(player, riddleId, inputId)) {
+    if (!serverBinding.inputActive(player, riddleId, definition.id())) {
       return false;
     }
     KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
@@ -279,11 +279,9 @@ public final class ServerGameBinding {
             .map(String::valueOf)
             .reduce((left, right) -> left + right)
             .orElse("");
-    return serverBinding
-        .enterNumericCode(player, riddleId, inputId, attempt)
+    return submitAnswer(player, riddleId, NumericInputDefinition.class, definition, attempt)
         .map(
             result -> {
-              tracking.attempt(riddleId, inputId, "numeric-code", attempt, result, player);
               if (result.outcome() == CodeOutcome.CORRECT) {
                 component.isUnlocked(true);
                 keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
@@ -315,7 +313,7 @@ public final class ServerGameBinding {
                 definition.task(),
                 presentation.title(),
                 player,
-                (who, selection) -> submitChoice(who, riddleId, presentation.id(), selection));
+                (who, selection) -> submitChoice(who, riddleId, definition, selection));
           }
         });
   }
@@ -362,12 +360,14 @@ public final class ServerGameBinding {
             ignored -> {},
             component ->
                 AssignmentChecker.CONTENTS.check(component)
-                    && submitAssignment(component, riddleId, presentation.id()));
+                    && submitAssignment(component, riddleId, definition));
     Game.add(assignment);
   }
 
   private boolean submitAssignment(
-      final AssignmentComponent assignment, final String riddleId, final String inputId) {
+      final AssignmentComponent assignment,
+      final String riddleId,
+      final AssignmentInputDefinition definition) {
     Optional<Entity> player =
         assignment
             .actor()
@@ -385,18 +385,10 @@ public final class ServerGameBinding {
     Map<String, String> placement =
         AssignmentChecker.placement(assignment.task(), assignment.containers()).orElseThrow();
     boolean correct =
-        serverBinding
-            .enterAssignment(solver, riddleId, inputId, placement)
+        submitAnswer(solver, riddleId, AssignmentInputDefinition.class, definition, placement)
             .filter(result -> result.outcome() == CodeOutcome.CORRECT)
             .map(
                 result -> {
-                  tracking.attempt(
-                      riddleId,
-                      inputId,
-                      "assignment",
-                      FoundationTracking.json(new TreeMap<>(placement)),
-                      result,
-                      solver);
                   Game.audio()
                       .playGlobal(SoundSpec.builder("retro_event_correct").targets(solver.id()));
                   return true;
@@ -408,14 +400,11 @@ public final class ServerGameBinding {
   private void submitChoice(
       final Entity player,
       final String riddleId,
-      final String inputId,
+      final ChoiceInputDefinition definition,
       final Set<String> selection) {
-    serverBinding
-        .enterChoice(player, riddleId, inputId, selection)
+    submitAnswer(player, riddleId, ChoiceInputDefinition.class, definition, selection)
         .ifPresent(
             result -> {
-              String rawAnswer = FoundationTracking.json(new TreeSet<>(selection));
-              tracking.attempt(riddleId, inputId, "choice", rawAnswer, result, player);
               if (result.outcome() == CodeOutcome.CORRECT) {
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
@@ -424,6 +413,39 @@ public final class ServerGameBinding {
                     .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
               }
             });
+  }
+
+  /**
+   * Lets the authority evaluate one answer and tracks it once evaluated.
+   *
+   * @param player answering player
+   * @param riddleId owning riddle identifier
+   * @param inputType expected input type
+   * @param definition answered input
+   * @param answer complete answer
+   * @param <A> answer type
+   * @param <D> input type
+   * @return evaluated result when the player is ready
+   */
+  private <A, D extends SurfaceInputDefinition<A>> Optional<CodeAttemptResult> submitAnswer(
+      final Entity player,
+      final String riddleId,
+      final Class<D> inputType,
+      final D definition,
+      final A answer) {
+    Optional<CodeAttemptResult> result =
+        serverBinding.enterAnswer(player, riddleId, definition.id(), inputType, answer);
+    result
+        .filter(evaluated -> evaluated.outcome() != CodeOutcome.NOT_EVALUATED)
+        .ifPresent(
+            evaluated ->
+                new TaskTracking(riddleId, definition.id())
+                    .attempt(
+                        definition.task(),
+                        answer,
+                        evaluated.outcome() == CodeOutcome.CORRECT,
+                        player));
+    return result;
   }
 
   private static void playKeypadButtonSound(final int digit, final int targetEntityId) {

@@ -67,6 +67,22 @@ public class FreeTextTask extends Task<String> {
     return acceptedAnswer.contains(answer.toLowerCase());
   }
 
+  @Override
+  public String answerKind() {
+    return "text";
+  }
+
+  /**
+   * Returns the answer unchanged.
+   *
+   * @param answer the entered text
+   * @return the entered text
+   */
+  @Override
+  public String trackedAnswer(String answer) {
+    return answer;
+  }
+
   /**
    * Returns the list of accepted answers.
    *

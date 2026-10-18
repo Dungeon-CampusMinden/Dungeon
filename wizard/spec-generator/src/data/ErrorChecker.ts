@@ -1,4 +1,4 @@
-import type { Asset, AssetMediaType, AssignmentInput, ChoiceInput, DeerProject, Riddle, RiddleGraph, Surface, SurfaceRiddleInput } from "./DeerSchema";
+import { DEVICE_INPUTS, type Asset, type AssetMediaType, type AssignmentInput, type ChoiceInput, type DeerProject, type Riddle, type RiddleGraph, type Surface } from "./DeerSchema";
 import { getBundledAssetPaths, isBundledAssetPath } from "@/components/assets/assetPaths";
 import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
@@ -79,11 +79,6 @@ const RESOURCE_KINDS = ["inline_text", "asset"];
 const HINT_SEVERITIES = ["orientation", "approach", "solution"];
 const INPUT_TYPES = ["collection", "numeric", "choice", "assignment"];
 /** Device surface and teacher-facing name per surface-bound input type. */
-const DEVICE_INPUTS = {
-  numeric: { kind: "keypad", label: "Zahleneingabe" },
-  choice: { kind: "terminal", label: "Auswahlfrage" },
-  assignment: { kind: "assignment", label: "Zuordnung" },
-} as const satisfies Record<SurfaceRiddleInput["type"], { kind: Surface["kind"]; label: string }>;
 const TIME_LIMIT_MODES = ["hard", "soft"];
 const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
 const OPERATOR_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

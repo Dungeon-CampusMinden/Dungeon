@@ -3,6 +3,7 @@ package feature.tasks;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * A task that sorts items (set A) into containers (set B).
@@ -54,6 +55,23 @@ public class AssignmentTask extends Task<Map<String, String>> {
   @Override
   public boolean isCorrect(Map<String, String> answer) {
     return targets.equals(answer);
+  }
+
+  @Override
+  public String answerKind() {
+    return "assignment";
+  }
+
+  /**
+   * Encodes a placement as a JSON object from item to container identifier, sorted by item, e.g.
+   * {@code {"bread":"food"}}.
+   *
+   * @param answer the container identifier of every task item that lies in a task container
+   * @return the JSON object
+   */
+  @Override
+  public String trackedAnswer(Map<String, String> answer) {
+    return json(new TreeMap<>(answer));
   }
 
   /**

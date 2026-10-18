@@ -1,7 +1,13 @@
 package escaperoom.foundation.definition;
 
-/** Input answered at its own placed device surface. */
-public sealed interface SurfaceInputDefinition extends InputDefinition
+import feature.tasks.Task;
+
+/**
+ * Input answered at its own placed device surface and evaluated by its task.
+ *
+ * @param <A> the answer type
+ */
+public sealed interface SurfaceInputDefinition<A> extends InputDefinition
     permits AssignmentInputDefinition, ChoiceInputDefinition, NumericInputDefinition {
   /**
    * Returns the authored device surface identifier.
@@ -9,4 +15,11 @@ public sealed interface SurfaceInputDefinition extends InputDefinition
    * @return stable surface identifier
    */
   String surfaceId();
+
+  /**
+   * Returns the task that evaluates and tracks answers.
+   *
+   * @return host-owned task
+   */
+  Task<A> task();
 }
