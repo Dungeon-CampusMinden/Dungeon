@@ -21,6 +21,7 @@ uniform vec3 u_shadowTint;     // grade of dark areas
 uniform vec3 u_lightTint;      // grade of bright areas
 uniform vec4 u_view;           // world rect of the scene texture: x, y, width, height
 uniform float u_fog;           // fog strength, 0 turns it off
+uniform float u_bloom;         // 1 adds the bloom, 0 leaves it out
 uniform float u_time;
 
 float hash(vec2 p) {
@@ -74,8 +75,8 @@ void main() {
     col *= mix(u_shadowTint, u_lightTint, smoothstep(0.05, 0.7, luma));
 
     col = max(col, 0.0);
-    col += texture2D(u_bloomNear, v_uv).rgb * 0.25;
-    col += texture2D(u_bloomFar, v_uv).rgb * 0.3;
+    col += texture2D(u_bloomNear, v_uv).rgb * 0.25 * u_bloom;
+    col += texture2D(u_bloomFar, v_uv).rgb * 0.3 * u_bloom;
     // Colour beyond full brightness keeps its hue: scaling the whole colour down instead of
     // clipping each channel stops bright textures under several lights from turning white.
     col /= max(1.0, max(col.r, max(col.g, col.b)));

@@ -24,6 +24,7 @@ import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.components.draw.BlendUtils;
 import engine.utils.components.draw.FrameBufferPool;
+import engine.utils.settings.ClientSettings;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,6 +63,7 @@ public final class AtmosphereRenderer implements Disposable {
   // Walking speeds in tiles per second; standing still, teleports and thrown objects raise no dust.
   private static final float MIN_WALK_SPEED = 0.8f;
   private static final float MAX_WALK_SPEED = 12f;
+  private static final float PERCENT = 100f;
   private static final String SHADER_DIR = "shaders/atmosphere/";
   // Base assumed for frames without a readable image: most of the box, at its bottom edge.
   private static final SpriteFootprints.Footprint BOX_BASE =
@@ -100,6 +102,8 @@ public final class AtmosphereRenderer implements Disposable {
   private Atmosphere atmosphere = Atmosphere.NEUTRAL;
   private float delta;
   private float time;
+  // Whether the player turned visual effects off, see ClientSettings#reduceEffects.
+  private boolean reduced;
   private int width;
   private int height;
   private int screenWidth;
@@ -134,6 +138,7 @@ public final class AtmosphereRenderer implements Disposable {
     }
     this.delta = delta;
     this.time = time;
+    reduced = ClientSettings.reduceEffects();
     Map<Entity, Point> swap = lastPositions;
     lastPositions = positions;
     positions = swap;
@@ -266,7 +271,7 @@ public final class AtmosphereRenderer implements Disposable {
    */
   public void drawGroundParticles(SpriteBatch batch) {
     BlendUtils.setBlending(batch);
-    particles.drawPuffs(batch);
+    if (!reduced) particles.drawPuffs(batch);
     batch.setColor(Color.WHITE);
   }
 
@@ -293,7 +298,8 @@ public final class AtmosphereRenderer implements Disposable {
 
     positions.put(entity, p);
     Point last = lastPositions.get(entity);
-    if (!grounded
+    if (reduced
+        || !grounded
         || glows
         || last == null
         || delta <= 0
@@ -317,6 +323,7 @@ public final class AtmosphereRenderer implements Disposable {
    * @param batch batch with the world projection, already begun
    */
   public void drawParticles(SpriteBatch batch) {
+    if (reduced) return;
     particles.update(delta, time, view, flames, trails, lights);
     particles.drawDust(batch, layout, time);
     // Additive light that keeps the scene's coverage alpha, which the fog reads.
@@ -342,7 +349,7 @@ public final class AtmosphereRenderer implements Disposable {
     FrameBuffer light = obtain(width / 2, height / 2);
     linear(light);
     renderLights(light, batch);
-    renderBloom(scene, light, batch);
+    if (!reduced) renderBloom(scene, light, batch);
 
     FrameBuffer graded = obtain(width, height);
     linear(scene);
@@ -352,8 +359,9 @@ public final class AtmosphereRenderer implements Disposable {
     batch.disableBlending();
     batch.begin();
     light.getColorBufferTexture().bind(1);
-    bloomNear.getColorBufferTexture().bind(2);
-    bloomFar.getColorBufferTexture().bind(3);
+    // Without bloom the light buffer stands in for the bloom textures, which add nothing then.
+    (reduced ? light : bloomNear).getColorBufferTexture().bind(2);
+    (reduced ? light : bloomFar).getColorBufferTexture().bind(3);
     Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
     Atmosphere a = atmosphere;
     compositeShader.setUniformi("u_light", 1);
@@ -365,7 +373,8 @@ public final class AtmosphereRenderer implements Disposable {
     Rectangle v = view;
     compositeShader.setUniformf("u_view", v.x(), v.y(), v.width(), v.height());
     compositeShader.setUniformf("u_time", time);
-    compositeShader.setUniformf("u_fog", a.fog());
+    compositeShader.setUniformf("u_fog", reduced ? 0f : a.fog());
+    compositeShader.setUniformf("u_bloom", reduced ? 0f : 1f);
     batch.setColor(Color.WHITE);
     batch.draw(scene.getColorBufferTexture(), 0, 0, width, height, 0, 0, 1, 1);
     batch.end();
@@ -395,6 +404,8 @@ public final class AtmosphereRenderer implements Disposable {
     presentShader.setUniformf("u_screen", screenWidth, screenHeight);
     presentShader.setUniformf("u_time", time);
     presentShader.setUniformf("u_vignette", atmosphere.vignette());
+    presentShader.setUniformf("u_grain", reduced ? 0f : 1f);
+    presentShader.setUniformf("u_brightness", ClientSettings.brightness() / PERCENT);
     batch.setColor(Color.WHITE);
     batch.draw(
         graded.getColorBufferTexture(), 0, 0, screenWidth, screenHeight, srcU, srcV, srcU2, srcV2);
@@ -444,8 +455,8 @@ public final class AtmosphereRenderer implements Disposable {
       for (Light l : lights) {
         // A slow brightness wobble at a fixed reach: a changing radius would shift every
         // falloff step of the art-pixel light and make the whole pool shimmer.
-        float intensity =
-            scale * l.intensity() * (1f + l.flicker() * Light.wobble(l.position(), time));
+        float flicker = reduced ? 0f : l.flicker();
+        float intensity = scale * l.intensity() * (1f + flicker * Light.wobble(l.position(), time));
         float r = l.radius();
         Point p = l.position();
         if (p.x() + r < v.x()

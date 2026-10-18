@@ -4,10 +4,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import engine.Game;
 import engine.rendering.Atmosphere;
+import engine.utils.settings.ClientSettings;
 
 /**
  * The alarm of a world timer's last minute: the ambient light of a room pulses red once a second
- * while a running countdown is about to run out.
+ * while a running countdown is about to run out. With reduced effects it glows steadily instead.
  */
 public final class WorldTimerAlarm {
 
@@ -16,6 +17,7 @@ public final class WorldTimerAlarm {
   private static final float PULSE_MS = 1000f;
   // Share of the alarm colour in the ambient light at the peak of a pulse.
   private static final float MAX_TINT = 0.25f;
+  private static final float STEADY = 0.5f;
 
   private WorldTimerAlarm() {}
 
@@ -41,6 +43,7 @@ public final class WorldTimerAlarm {
             .min()
             .orElse(0);
     if (remaining == 0) return 0;
+    if (ClientSettings.reduceEffects()) return STEADY;
     float phase = (remaining % (long) PULSE_MS) / PULSE_MS;
     return 0.5f - 0.5f * MathUtils.cos(MathUtils.PI2 * phase);
   }

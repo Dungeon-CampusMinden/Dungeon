@@ -157,7 +157,11 @@
         "master_volume": "Master-Lautstärke",
         "effects_volume": "Effekt-Lautstärke",
         "music_volume": "Musik-Lautstärke",
-        "language": "Sprache"
+        "language": "Sprache",
+        "graphics": "Grafik",
+        "brightness": "Helligkeit",
+        "reduce_effects": "Effekte reduzieren",
+        "reduce_effects_description": "Weniger Leuchten, Nebel und Partikel, ruhiges Licht.[n]Hilft auf langsamen Computern und Tablets."
     },
     "main_menu": {
         "continue": "Fortsetzen",

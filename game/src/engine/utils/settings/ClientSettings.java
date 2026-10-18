@@ -22,6 +22,16 @@ public class ClientSettings {
   /** Key for language setting. */
   public static final String KEY_LANGUAGE = "settings.language";
 
+  /** Key for the brightness setting, in percent of the normal brightness. */
+  public static final String KEY_BRIGHTNESS = "settings.brightness";
+
+  /** Key for the setting that turns off visual effects for slow devices and a calmer picture. */
+  public static final String KEY_REDUCE_EFFECTS = "settings.reduce_effects";
+
+  private static final String KEY_GRAPHICS_HEADER = "settings.graphics";
+  private static final String KEY_REDUCE_EFFECTS_DESCRIPTION =
+      "settings.reduce_effects_description";
+
   private static ClientSettings instance = null;
   private final HashMap<String, SettingValue<?>> settings;
   private final HashMap<String, Boolean> onlyIngame;
@@ -75,6 +85,11 @@ public class ClientSettings {
         new EnumSetting<>(KEY_LANGUAGE, localization.currentLanguage());
     language.onChange(localization::currentLanguage);
     registerSetting(language);
+
+    registerSetting(new SectionDividerSetting(KEY_GRAPHICS_HEADER));
+    registerSetting(new IntSliderSetting(KEY_BRIGHTNESS, 100, 50, 150, 10, v -> v + " %"));
+    registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false));
+    registerSetting(new DescriptionSetting(KEY_REDUCE_EFFECTS_DESCRIPTION));
   }
 
   /**
@@ -102,6 +117,25 @@ public class ClientSettings {
    */
   public static int musicVolume() {
     return (int) getSetting(KEY_MUSIC_VOLUME).value();
+  }
+
+  /**
+   * Convenience method for accessing the brightness.
+   *
+   * @return the brightness in percent; 100 is the normal brightness
+   */
+  public static int brightness() {
+    return (int) getSetting(KEY_BRIGHTNESS).value();
+  }
+
+  /**
+   * Convenience method for accessing whether visual effects are reduced: no bloom, fog, film grain
+   * or particles, and steady instead of flickering or pulsing light.
+   *
+   * @return true if the effects are reduced
+   */
+  public static boolean reduceEffects() {
+    return (boolean) getSetting(KEY_REDUCE_EFFECTS).value();
   }
 
   /**

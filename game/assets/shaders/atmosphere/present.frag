@@ -17,6 +17,8 @@ uniform vec2 u_scale;          // screen pixels per scene texel
 uniform vec2 u_screen;         // screen size in pixels
 uniform float u_time;
 uniform float u_vignette;      // vignette strength, 0 for none
+uniform float u_grain;         // 1 adds film grain, 0 leaves it out
+uniform float u_brightness;    // player's brightness, 1 for normal
 
 void main() {
     vec2 texel = v_uv * u_texSize;
@@ -25,6 +27,9 @@ void main() {
     vec2 range = 0.5 - 0.5 / max(u_scale, vec2(1.0));
     vec2 f = (center - clamp(center, -range, range)) * max(u_scale, vec2(1.0)) + 0.5;
     vec3 col = texture2D(u_texture, (base + f) / u_texSize).rgb;
+    // Brightness as a gamma curve: it lifts or lowers the dark and middle tones while black stays
+    // black and full brightness stays full.
+    col = pow(col, vec3(1.0 / u_brightness));
 
     vec2 s = gl_FragCoord.xy / u_screen;
     vec2 q = (s - 0.5) * vec2(u_screen.x / u_screen.y, 1.0);
@@ -34,7 +39,7 @@ void main() {
     // Hash on wrapped coordinates keeps the sine argument small enough for low precision.
     vec2 g = mod(gl_FragCoord.xy, 256.0) + fract(u_time * 7.13) * 91.0;
     float grain = fract(sin(dot(g, vec2(0.12989, 0.78233))) * 437.585453);
-    col += (grain - 0.5) * 0.035;
+    col += (grain - 0.5) * 0.035 * u_grain;
 
     gl_FragColor = vec4(col, 1.0);
 }

@@ -6,11 +6,13 @@ import engine.level.Tile;
 import engine.level.utils.LevelElement;
 import engine.rendering.Light;
 import engine.utils.Point;
+import engine.utils.settings.ClientSettings;
 import java.util.List;
 
 /**
  * The ceiling lights of the office. They come on with the room lights and flicker like fluorescent
- * tubes while they start, each tube a little after the other.
+ * tubes while they start, each tube a little after the other; with reduced effects they come on at
+ * once.
  */
 final class OfficeLights {
 
@@ -65,6 +67,7 @@ final class OfficeLights {
   }
 
   private static boolean lit(float delay) {
+    if (ClientSettings.reduceEffects()) return true;
     float t = (TimeUtils.millis() - onSince) / MILLIS - delay;
     int toggles = 0;
     while (toggles < STARTUP.length && STARTUP[toggles] <= t) toggles++;
