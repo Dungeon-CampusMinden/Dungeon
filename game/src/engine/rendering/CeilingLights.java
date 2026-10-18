@@ -8,19 +8,20 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 /**
- * Lamps hung from the ceiling in a regular grid over a level's floor, for rooms lit like offices or
- * facilities.
+ * Lamps hung from the ceiling over a level's floor, for rooms lit like offices or facilities. The
+ * level is split into blocks of four by four tiles; every block with floor gets one lamp, over its
+ * centre where that is floor, else over the floor tile closest to it, so small rooms and corridors
+ * get lamps too.
  */
 public final class CeilingLights {
 
-  // A lamp hangs over every fourth floor tile in both directions.
-  private static final int SPACING = 4;
-  private static final int OFFSET = 2;
+  private static final int BLOCK = 4;
+  private static final int CENTER = 2;
 
   private CeilingLights() {}
 
   /**
-   * Adds a steady lamp over every fourth floor tile in both directions.
+   * Adds a steady lamp over the floor of every block.
    *
    * @param layout the level layout, indexed [y][x]
    * @param color the lamps' colour
@@ -46,10 +47,25 @@ public final class CeilingLights {
       float intensity,
       BiPredicate<Integer, Integer> on,
       List<Light> out) {
-    for (int y = OFFSET; y < layout.length; y += SPACING) {
-      for (int x = OFFSET; x < layout[y].length; x += SPACING) {
-        if (layout[y][x].levelElement() != LevelElement.FLOOR || !on.test(x, y)) continue;
-        out.add(Light.steady(new Point(x + 0.5f, y + 0.5f), color, intensity));
+    for (int by = 0; by < layout.length; by += BLOCK) {
+      for (int bx = 0; bx < layout[by].length; bx += BLOCK) {
+        int lampX = -1;
+        int lampY = -1;
+        int best = Integer.MAX_VALUE;
+        for (int y = by; y < Math.min(by + BLOCK, layout.length); y++) {
+          for (int x = bx; x < Math.min(bx + BLOCK, layout[y].length); x++) {
+            if (layout[y][x].levelElement() != LevelElement.FLOOR) continue;
+            int dx = x - bx - CENTER;
+            int dy = y - by - CENTER;
+            if (dx * dx + dy * dy < best) {
+              best = dx * dx + dy * dy;
+              lampX = x;
+              lampY = y;
+            }
+          }
+        }
+        if (lampX < 0 || !on.test(lampX, lampY)) continue;
+        out.add(Light.steady(new Point(lampX + 0.5f, lampY + 0.5f), color, intensity));
       }
     }
   }
