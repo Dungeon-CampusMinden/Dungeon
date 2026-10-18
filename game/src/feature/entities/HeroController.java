@@ -549,7 +549,9 @@ public class HeroController {
 
     Point dropPosition = Game.positionOf(entity).orElseThrow();
     boolean success = item.drop(dropPosition).isPresent();
-    if (!success) {
+    if (success) {
+      sourceInv.recordMove(entity);
+    } else {
       LOGGER.warn("Failed to drop item {} from slot {} for entity {}", item, itemSlot, entity.id());
       returnItemToInventory(sourceInv, item, itemSlot, entity);
     }
@@ -711,7 +713,7 @@ public class HeroController {
                   adjustedToSlot,
                   player.id());
             });
-    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.lastMover(player));
+    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
     return true;
   }
 

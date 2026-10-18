@@ -3,6 +3,7 @@ package feature.tasks;
 import engine.Entity;
 import engine.System;
 import feature.components.InventoryComponent;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -80,7 +81,8 @@ public final class AssignmentSystem extends System {
   private static Optional<Entity> mover(final Set<Entity> containers) {
     return containers.stream()
         .flatMap(container -> container.fetch(InventoryComponent.class).stream())
-        .flatMap(inventory -> inventory.lastMover().stream())
-        .findFirst();
+        .flatMap(inventory -> inventory.lastMove().stream())
+        .max(Comparator.comparingLong(InventoryComponent.Move::nanoTime))
+        .map(InventoryComponent.Move::player);
   }
 }

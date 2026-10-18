@@ -40,7 +40,7 @@ public final class InventoryComponent implements Component {
   // added/removed)
   private Consumer<Item> onItemAdded = item -> {};
   private Consumer<Item> onItemRemoved = item -> {};
-  private Entity lastMover;
+  private Move lastMove;
 
   /**
    * The default {@link InventoryComponent} constructor. Creates an empty inventory with {@link
@@ -496,21 +496,29 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Returns the player who last moved an item into or out of this inventory through another
-   * entity's inventory dialog, such as a chest.
+   * Returns the last item move into or out of this inventory by a player, e.g. through a chest's
+   * inventory dialog.
    *
-   * @return the last moving player, if any
+   * @return the last move, if any
    */
-  public Optional<Entity> lastMover() {
-    return Optional.ofNullable(lastMover);
+  public Optional<Move> lastMove() {
+    return Optional.ofNullable(lastMove);
   }
 
   /**
-   * Records the player who moved an item into or out of this inventory.
+   * Records that a player just moved an item into or out of this inventory.
    *
    * @param player the moving player
    */
-  public void lastMover(final Entity player) {
-    this.lastMover = Objects.requireNonNull(player, "player");
+  public void recordMove(final Entity player) {
+    this.lastMove = new Move(Objects.requireNonNull(player, "player"), System.nanoTime());
   }
+
+  /**
+   * One item move by a player.
+   *
+   * @param player the moving player
+   * @param nanoTime {@link System#nanoTime()} of the move, to order moves across inventories
+   */
+  public record Move(Entity player, long nanoTime) {}
 }
