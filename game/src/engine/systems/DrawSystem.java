@@ -368,16 +368,6 @@ public final class DrawSystem extends System implements Disposable {
 
   /** Renders the scene through all passes; runs between the atmosphere's frame start and end. */
   private void renderScene() {
-    sortedEntities
-        .values()
-        .forEach(
-            group ->
-                group.forEach(
-                    e -> {
-                      DSData d = DSData.build(e);
-                      atmosphere.addEntity(e, d.dc, d.pc, isGrounded(d.dc));
-                    }));
-
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
 
@@ -552,16 +542,19 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
-   * Pass 1: Renders entities that require shader processing into pooled FBOs using ping-ponging.
-   * These FBOs use LOCAL transformations (padding, scale) and ignore world position/rotation.
+   * Pass 1: Hands every entity to the atmosphere and renders entities that require shader
+   * processing into pooled FBOs using ping-ponging. These FBOs use LOCAL transformations (padding,
+   * scale) and ignore world position/rotation.
    */
   private void renderEntitiesPass1() {
     for (List<Entity> group : sortedEntities.values()) {
-      group.stream()
-          .map(DSData::build)
-          .filter(this::shouldDraw)
-          .filter(dsd -> dsd.dc.shaders().hasEnabledShaders())
-          .forEach(this::processShaderPassesSingleEntity);
+      for (Entity entity : group) {
+        DSData dsd = DSData.build(entity);
+        atmosphere.addEntity(entity, dsd.dc, dsd.pc, isGrounded(dsd.dc));
+        if (shouldDraw(dsd) && dsd.dc.shaders().hasEnabledShaders()) {
+          processShaderPassesSingleEntity(dsd);
+        }
+      }
     }
   }
 

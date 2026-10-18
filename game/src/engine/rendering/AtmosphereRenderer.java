@@ -175,8 +175,7 @@ public final class AtmosphereRenderer implements Disposable {
     trails.clear();
     if (layout.length > 0 && layout[0].length > 0 && atmosphere.wallDecor()) {
       int[] b = tileBounds(layout, MAX_LIGHT_RADIUS);
-      level.collectLights(layout, b[0], b[1], b[2], b[3], lights);
-      level.collectFlames(layout, b[0], b[1], b[2], b[3], flames);
+      level.collectLights(layout, b[0], b[1], b[2], b[3], lights, flames);
     }
     current.ifPresent(l -> l.lights(lights));
   }

@@ -43,14 +43,8 @@ public final class TileTextures {
    * @return the texture
    */
   public static IPath texture(Tile tile, Tile[][] layout) {
-    DesignLabel design = tile.designLabel();
-    return switch (tile.levelElement()) {
-      case WALL -> wallAtlas(design);
-      case FLOOR -> path(design, "floor/floor_1.png");
-      case EXIT -> path(design, "floor/floor_ladder.png");
-      case DOOR -> door((DoorTile) tile, layout);
-      case SKIP -> path(design, "floor/empty.png");
-    };
+    if (tile instanceof DoorTile door) return door(door, layout);
+    return preview(tile.levelElement(), tile.designLabel());
   }
 
   /**

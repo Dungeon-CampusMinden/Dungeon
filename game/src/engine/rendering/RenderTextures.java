@@ -110,7 +110,8 @@ final class RenderTextures {
           float dx = (x + 0.5f - size / 2f) / (size / 2f);
           float dy = (y + 0.5f - size / 2f) / (size / 2f);
           float falloff = Math.max(0f, 1f - (float) Math.sqrt(dx * dx + dy * dy));
-          p.setColor(1, 1, 1, falloff * falloff);
+          float alpha = falloff * falloff;
+          p.setColor(alpha, alpha, alpha, alpha);
           p.drawPixel(x, y);
         }
       }
@@ -146,15 +147,6 @@ final class RenderTextures {
   }
 
   private static Texture toTexture(Pixmap p) {
-    // Premultiply: generated texels are black or white, so only white ones need scaling.
-    for (int y = 0; y < p.getHeight(); y++) {
-      for (int x = 0; x < p.getWidth(); x++) {
-        int c = p.getPixel(x, y);
-        int a = c & 0xff;
-        int rgb = (c >>> 8) == 0 ? 0 : (((c >>> 24) & 0xff) * a / 255);
-        p.drawPixel(x, y, (rgb << 24) | (rgb << 16) | (rgb << 8) | a);
-      }
-    }
     Texture t = new Texture(p);
     t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     p.dispose();

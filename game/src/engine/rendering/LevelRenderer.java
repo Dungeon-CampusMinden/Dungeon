@@ -185,47 +185,36 @@ public final class LevelRenderer {
   }
 
   /**
-   * Adds the lights of the wall torches and fountains inside the given tile bounds. Call it only
-   * for levels with wall decoration.
+   * Adds the lights of the wall torches and fountains and the flames of the torches inside the
+   * given tile bounds. Call it only for levels with wall decoration.
    *
    * @param layout the level layout, indexed [y][x]
    * @param minX first column
    * @param maxX last column
    * @param minY first row
    * @param maxY last row
-   * @param out receives the lights
+   * @param lights receives the lights
+   * @param flames receives the flame tips, in world units
    */
   public void collectLights(
-      Tile[][] layout, int minX, int maxX, int minY, int maxY, List<Light> out) {
+      Tile[][] layout,
+      int minX,
+      int maxX,
+      int minY,
+      int maxY,
+      List<Light> lights,
+      List<Point> flames) {
     for (int y = minY; y <= maxY; y++) {
       for (int x = minX; x <= maxX; x++) {
         Point front = new Point(x + 0.5f, y - LIGHT_IN_FRONT);
         if (isTorch(layout, x, y)) {
-          out.add(new Light(front, TORCH_LIGHT, 6.5f, 0.9f, 0.14f));
+          lights.add(new Light(front, TORCH_LIGHT, 6.5f, 0.9f, 0.14f));
+          flames.add(new Point(x + 0.5f, y + FLAME_TIP));
         } else if (isFountain(layout, x, y)) {
           boolean lava = isLava(x, y);
-          out.add(new Light(front, lava ? LAVA_LIGHT : WATER_LIGHT, 4.5f, 0.85f, lava ? 0.1f : 0f));
+          lights.add(
+              new Light(front, lava ? LAVA_LIGHT : WATER_LIGHT, 4.5f, 0.85f, lava ? 0.1f : 0f));
         }
-      }
-    }
-  }
-
-  /**
-   * Returns the world positions of the torch flames inside the given tile bounds. Call it only for
-   * levels with wall decoration.
-   *
-   * @param layout the level layout, indexed [y][x]
-   * @param minX first column
-   * @param maxX last column
-   * @param minY first row
-   * @param maxY last row
-   * @param out receives the flame tips, in world units
-   */
-  public void collectFlames(
-      Tile[][] layout, int minX, int maxX, int minY, int maxY, List<Point> out) {
-    for (int y = minY; y <= maxY; y++) {
-      for (int x = minX; x <= maxX; x++) {
-        if (isTorch(layout, x, y)) out.add(new Point(x + 0.5f, y + FLAME_TIP));
       }
     }
   }
