@@ -6,9 +6,11 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
+import engine.level.Tile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.rendering.Atmosphere;
+import engine.rendering.CeilingLights;
 import engine.rendering.Light;
 import engine.utils.Point;
 import engine.utils.Tuple;
@@ -29,7 +31,9 @@ import rooms.systemRecovery.modules.scanner.ModuleScannerVisualState;
 public class SystemRecoveryClientLevel extends DungeonLevel {
 
   private static final String LEVEL_NAME = "system-recovery-1";
-  private static final Atmosphere DARK_COLD = Atmosphere.COLD.withBrightness(0.45f);
+  private static final Atmosphere DARK_COLD = Atmosphere.COLD.withBrightness(0.6f);
+  private static final Color CEILING_LIGHT = new Color(0.8f, 0.92f, 1f, 1f);
+  private static final float CEILING_LIGHT_INTENSITY = 0.7f;
   private static final String MODULE_SCAN_SHADER_ID = "moduleScannerLocal";
   private static final String[] MODULE_NAMES = {"cpu", "ram", "gpu", "ssd", "network"};
 
@@ -144,13 +148,14 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
 
   @Override
   public void lights(List<Light> lighting) {
-    addLights(lighting);
+    addLights(layout(), lighting);
   }
 
   /**
-   * A dark, cool facility lit by its machines: screens, server shelves, terminals, scanners and
-   * status lamps glow in their colours. In the last minute of the countdown the light pulses red.
-   * Shared by the client and the server level, which renders in single player.
+   * AXIOM's facility: dim and cool, lit by cool ceiling lamps and its machines; screens, server
+   * shelves, terminals, scanners and status lamps glow in their colours. In the last minute of the
+   * countdown the light pulses red. Shared by the client and the server level, which renders in
+   * single player.
    *
    * @return the current atmosphere of the room
    */
@@ -159,12 +164,14 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
   }
 
   /**
-   * Adds the lights of the important interactive objects in the room. Shared by the client and the
-   * server level, which renders in single player.
+   * Adds the ceiling lamps and the lights of the important interactive objects in the room. Shared
+   * by the client and the server level, which renders in single player.
    *
+   * @param layout the level layout, indexed [y][x]
    * @param lighting receives the lights
    */
-  static void addLights(List<Light> lighting) {
+  static void addLights(Tile[][] layout, List<Light> lighting) {
+    CeilingLights.add(layout, CEILING_LIGHT, CEILING_LIGHT_INTENSITY, lighting);
     Game.levelEntities()
         .filter(SystemRecoveryClientLevel::isTerminal)
         .forEach(entity -> addLight(lighting, entity, 0.45f, Color.CYAN));

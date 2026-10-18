@@ -3,9 +3,8 @@ package rooms.lasthour.level;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.level.Tile;
-import engine.level.utils.LevelElement;
+import engine.rendering.CeilingLights;
 import engine.rendering.Light;
-import engine.utils.Point;
 import engine.utils.settings.ClientSettings;
 import java.util.List;
 
@@ -16,9 +15,6 @@ import java.util.List;
  */
 final class OfficeLights {
 
-  // A tube hangs over every fourth floor tile in both directions.
-  private static final int SPACING = 4;
-  private static final int OFFSET = 2;
   private static final Color TUBE = new Color(0.86f, 0.93f, 1f, 1f);
   private static final float INTENSITY = 0.85f;
   // Seconds after switching on at which a tube toggles between dark and lit; it stays lit after the
@@ -58,12 +54,7 @@ final class OfficeLights {
    * @param out receives the lights
    */
   static void add(Tile[][] layout, List<Light> out) {
-    for (int y = OFFSET; y < layout.length; y += SPACING) {
-      for (int x = OFFSET; x < layout[y].length; x += SPACING) {
-        if (layout[y][x].levelElement() != LevelElement.FLOOR || !lit(delay(x, y))) continue;
-        out.add(Light.steady(new Point(x + 0.5f, y + 0.5f), TUBE, INTENSITY));
-      }
-    }
+    CeilingLights.add(layout, TUBE, INTENSITY, (x, y) -> lit(delay(x, y)), out);
   }
 
   private static boolean lit(float delay) {

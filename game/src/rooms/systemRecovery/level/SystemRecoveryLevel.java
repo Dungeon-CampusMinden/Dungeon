@@ -231,7 +231,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   @Override
   public void lights(List<Light> out) {
-    SystemRecoveryClientLevel.addLights(out);
+    SystemRecoveryClientLevel.addLights(layout(), out);
   }
 
   @Override
