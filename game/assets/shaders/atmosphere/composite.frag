@@ -74,8 +74,8 @@ void main() {
     col *= mix(u_shadowTint, u_lightTint, smoothstep(0.05, 0.7, luma));
 
     col = max(col, 0.0);
-    col += texture2D(u_bloomNear, v_uv).rgb * 0.4;
-    col += texture2D(u_bloomFar, v_uv).rgb * 0.5;
+    col += texture2D(u_bloomNear, v_uv).rgb * 0.25;
+    col += texture2D(u_bloomFar, v_uv).rgb * 0.3;
     float alpha = max(scene.a, min(max(col.r, max(col.g, col.b)), 1.0));
     gl_FragColor = vec4(min(col, vec3(alpha)), alpha);
 }
