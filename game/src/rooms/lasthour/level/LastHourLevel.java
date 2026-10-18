@@ -1219,7 +1219,7 @@ public class LastHourLevel extends DungeonLevel {
     if (state.get().lightsOn()) OfficeLights.add(layout, out);
     if (state.get().isInfected()) out.add(Light.steady(pcPos, Color.RED, 0.8f));
     else out.add(Light.steady(pcPos, Color.BLUE, 0.5f));
-    out.add(Light.steady(timerPos.translate(0.75f, 0), Color.RED, 0.5f));
+    out.add(Light.steady(timerPos.translate(0.6f, 0), Color.RED, 0.5f));
     boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();
     out.add(
         Light.steady(
