@@ -7,6 +7,7 @@ import engine.Entity;
 import engine.System;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.rendering.EmissiveSprites;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
@@ -94,6 +95,8 @@ public class WorldTimerSystem extends System {
     Pixmap pixmap = display(timerString);
     String path = "@gen/worldTimer/" + data.e.name() + ".png";
     IPath ipath = new SimpleIPath(path);
+    // The display glows by itself and lights the wall and floor in front of it.
+    EmissiveSprites.glow(ipath, pixmap);
     TextureMap.instance().putPixmap(ipath, pixmap, false);
     TextureMap.instance()
         .textureAt(ipath)

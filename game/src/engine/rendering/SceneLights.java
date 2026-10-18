@@ -7,13 +7,15 @@ import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Derives the lights of entities from what the client already renders.
  *
  * <p>Players carry a lantern as bright as the level's {@link Atmosphere#lantern()}; sprites that
- * show fire, magic or lamps glow in a matching colour. Because the lights depend only on
- * synchronised draw state, single player and every multiplayer client light the scene identically.
+ * show fire, magic or lamps glow in a matching colour, and screens (see {@link EmissiveSprites}) in
+ * the colour they show. Because the lights depend only on synchronised draw state, single player
+ * and every multiplayer client light the scene identically.
  */
 final class SceneLights {
 
@@ -30,6 +32,9 @@ final class SceneLights {
           new Preset("lava", new Color(1f, 0.42f, 0.12f, 1f), 3f, 0.9f, 0.15f, false));
 
   private static final Color LANTERN = new Color(1f, 0.84f, 0.62f, 1f);
+  private static final float SCREEN_INTENSITY = 0.5f;
+  // Screens light the ground in front of them, so wall screens do not light the wall as a block.
+  private static final float SCREEN_LIGHT_IN_FRONT = 0.15f;
 
   private SceneLights() {}
 
@@ -43,8 +48,8 @@ final class SceneLights {
    * @param out receives the light
    * @param flames receives the flame tips of fire lights, for ember particles
    * @param trails receives the centres of flying fire, which leaves a trail of sparks
-   * @return true if the entity is a glowing object (fire, magic, lamp); false for players and
-   *     entities without light
+   * @return true if the entity is a glowing object (fire, magic, lamp, screen); false for players
+   *     and entities without light
    */
   static boolean collect(
       Entity entity,
@@ -81,6 +86,12 @@ final class SceneLights {
         return true;
       }
     }
-    return false;
+    Optional<Color> screen = EmissiveSprites.lightColor(dc);
+    screen.ifPresent(
+        color ->
+            out.add(
+                Light.steady(
+                    origin.translate(w / 2f, -SCREEN_LIGHT_IN_FRONT), color, SCREEN_INTENSITY)));
+    return screen.isPresent();
   }
 }

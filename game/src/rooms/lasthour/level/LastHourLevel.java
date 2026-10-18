@@ -431,8 +431,7 @@ public class LastHourLevel extends DungeonLevel {
 
   @Override
   public void lights(List<Light> out) {
-    if (pc != null && keypad != null)
-      addLights(layout(), EntityUtils.getPosition(pc), getPoint("timer"), keypad, out);
+    if (pc != null && keypad != null) addLights(layout(), keypad, out);
   }
 
   private static final String cabinetImagePath = "images/virus-phrases-en.png";
@@ -1202,24 +1201,19 @@ public class LastHourLevel extends DungeonLevel {
   }
 
   /**
-   * Adds the lights of the running computer: its screen, the timer, the keypad and, once the room
-   * lights are on, the ceiling tubes.
+   * Adds the lights of the running computer: the keypad and, once the room lights are on, the
+   * ceiling tubes. The computer's screen and the timer light up by themselves, see {@link
+   * engine.rendering.EmissiveSprites}.
    *
    * @param layout the level layout, indexed [y][x]
-   * @param pcPos position of the computer
-   * @param timerPos position of the timer
    * @param keypad the keypad entity
    * @param out receives the lights
    */
-  static void addLights(
-      Tile[][] layout, Point pcPos, Point timerPos, Entity keypad, List<Light> out) {
+  static void addLights(Tile[][] layout, Entity keypad, List<Light> out) {
     Optional<ComputerStateComponent> state =
         ComputerStateComponent.getState().filter(s -> s.state().hasReached(ComputerProgress.ON));
     if (state.isEmpty()) return;
     if (state.get().lightsOn()) OfficeLights.add(layout, out);
-    if (state.get().isInfected()) out.add(Light.steady(pcPos, Color.RED, 0.8f));
-    else out.add(Light.steady(pcPos, Color.BLUE, 0.5f));
-    out.add(Light.steady(timerPos.translate(0.6f, 0), Color.RED, 0.5f));
     boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();
     out.add(
         Light.steady(

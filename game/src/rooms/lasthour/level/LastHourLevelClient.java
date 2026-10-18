@@ -8,7 +8,6 @@ import engine.level.utils.LevelElement;
 import engine.rendering.Atmosphere;
 import engine.rendering.Light;
 import engine.utils.Point;
-import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
 import rooms.lasthour.modules.computer.ComputerDialog;
@@ -39,9 +38,7 @@ public class LastHourLevelClient extends DungeonLevel {
 
   @Override
   public void lights(List<Light> out) {
-    if (pc != null && keypad != null)
-      LastHourLevel.addLights(
-          layout(), EntityUtils.getPosition(pc), getPoint("timer"), keypad, out);
+    if (pc != null && keypad != null) LastHourLevel.addLights(layout(), keypad, out);
   }
 
   @Override

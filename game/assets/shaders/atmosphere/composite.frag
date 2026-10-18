@@ -69,9 +69,9 @@ void main() {
     // inside of walls merges with the darkness around them.
     float solid = scene.a * step(1.0 / 255.0, max(scene.r, max(scene.g, scene.b)));
     float fog = smoothstep(0.38, 0.9, n) * solid;
-    // Glowing pixels, like the content of screens, shine brighter than fully lit surfaces.
-    float glow = texture2D(u_emissive, v_uv).r * u_glow * 1.3;
-    vec3 col = scene.rgb * max(shoulder(u_ambient + raw), vec3(glow));
+    // Glowing pixels, like the content of screens, show their own colour whatever the light.
+    float glow = texture2D(u_emissive, v_uv).r * u_glow;
+    vec3 col = scene.rgb * mix(shoulder(u_ambient + raw), vec3(1.0), glow);
     col += fog * (u_ambient * 1.3 + raw * 0.7) * 0.18 * u_fog;
 
     // Split toning between the shadow and light tints.
