@@ -10,6 +10,7 @@ import engine.components.VelocityComponent;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.level.DungeonLevel;
+import engine.level.Tile;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
@@ -101,7 +102,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private static final Atmosphere DARK = Atmosphere.NEUTRAL.withBrightness(0f).withLantern(1f);
   private static final Atmosphere LIGHTS_ON =
-      Atmosphere.NEUTRAL.withBrightness(0.2f).withLantern(1f);
+      Atmosphere.NEUTRAL.withBrightness(0.35f).withLantern(1f);
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
   private static LastHourLevel Instance = null;
 
@@ -430,7 +431,7 @@ public class LastHourLevel extends DungeonLevel {
   @Override
   public void lights(List<Light> out) {
     if (pc != null && keypad != null)
-      addLights(EntityUtils.getPosition(pc), getPoint("timer"), keypad, out);
+      addLights(layout(), EntityUtils.getPosition(pc), getPoint("timer"), keypad, out);
   }
 
   private static final String cabinetImagePath = "images/virus-phrases-en.png";
@@ -1184,7 +1185,7 @@ public class LastHourLevel extends DungeonLevel {
 
   /**
    * The office stays dark, lit only by the players' lanterns, until the room lights come back on
-   * with the computer.
+   * with the computer and flicker up with the ceiling tubes.
    *
    * @return the current atmosphere of the room
    */
@@ -1194,21 +1195,26 @@ public class LastHourLevel extends DungeonLevel {
             .filter(state -> state.state().hasReached(ComputerProgress.ON))
             .map(ComputerStateComponent::lightsOn)
             .orElse(false);
-    return lightsOn ? LIGHTS_ON : DARK;
+    OfficeLights.update(lightsOn);
+    return lightsOn && OfficeLights.startup() == 1f ? LIGHTS_ON : DARK;
   }
 
   /**
-   * Adds the status lights of the running computer: its screen, the timer and the keypad.
+   * Adds the lights of the running computer: its screen, the timer, the keypad and, once the room
+   * lights are on, the ceiling tubes.
    *
+   * @param layout the level layout, indexed [y][x]
    * @param pcPos position of the computer
    * @param timerPos position of the timer
    * @param keypad the keypad entity
    * @param out receives the lights
    */
-  static void addLights(Point pcPos, Point timerPos, Entity keypad, List<Light> out) {
+  static void addLights(
+      Tile[][] layout, Point pcPos, Point timerPos, Entity keypad, List<Light> out) {
     Optional<ComputerStateComponent> state =
         ComputerStateComponent.getState().filter(s -> s.state().hasReached(ComputerProgress.ON));
     if (state.isEmpty()) return;
+    if (state.get().lightsOn()) OfficeLights.add(layout, out);
     if (state.get().isInfected()) out.add(Light.steady(pcPos, Color.RED, 0.8f));
     else out.add(Light.steady(pcPos, Color.BLUE, 0.5f));
     out.add(Light.steady(timerPos.translate(0.75f, 0), Color.RED, 0.5f));

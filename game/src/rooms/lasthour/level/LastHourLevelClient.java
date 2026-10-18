@@ -40,7 +40,8 @@ public class LastHourLevelClient extends DungeonLevel {
   @Override
   public void lights(List<Light> out) {
     if (pc != null && keypad != null)
-      LastHourLevel.addLights(EntityUtils.getPosition(pc), getPoint("timer"), keypad, out);
+      LastHourLevel.addLights(
+          layout(), EntityUtils.getPosition(pc), getPoint("timer"), keypad, out);
   }
 
   @Override
