@@ -57,7 +57,6 @@ import feature.puzzle.PuzzlePieceItem;
 import feature.survey.SurveyFeature;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
-import feature.tasks.TaskTracking;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
 import feature.utils.EntityUtils;
@@ -230,17 +229,34 @@ public class LastHourLevel extends DungeonLevel {
         .fetch(KeypadComponent.class)
         .ifPresent(
             component -> {
-              component.tracking(
-                  new TaskTracking(LastHourPuzzle.STORAGE_ACCESS.id(), "storage-keypad"));
               component.onCorrectCode(
                   player -> {
+                    LastHourTracking.attempt(
+                        LastHourPuzzle.STORAGE_ACCESS,
+                        "storage-keypad",
+                        "numeric-code",
+                        component.enteredDigits().stream()
+                            .map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining()),
+                        true,
+                        player);
                     LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
                     LastHourTracking.started(LastHourPuzzle.BLUE_USB);
                     LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
                   });
               component.onWrongCode(
-                  player ->
-                      LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts()));
+                  player -> {
+                    LastHourTracking.attempt(
+                        LastHourPuzzle.STORAGE_ACCESS,
+                        "storage-keypad",
+                        "numeric-code",
+                        component.enteredDigits().stream()
+                            .map(String::valueOf)
+                            .collect(java.util.stream.Collectors.joining()),
+                        false,
+                        player);
+                    LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts());
+                  });
             });
     Game.add(keypad);
 

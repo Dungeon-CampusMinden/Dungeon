@@ -2,21 +2,13 @@ package feature.interaction.keypad;
 
 import engine.Component;
 import engine.Entity;
-import feature.tasks.NumericCodeTask;
-import feature.tasks.TaskTracking;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-/**
- * Component that represents a keypad with a code that can be entered.
- *
- * <p>Submissions are checked as a {@link NumericCodeTask}. With a {@link TaskTracking} set, every
- * submission is recorded as a tracking attempt of the submitting entity.
- */
+/** Component that represents a keypad with a code that can be entered. */
 public class KeypadComponent implements Component {
 
   private final List<Integer> correctDigits;
@@ -29,7 +21,6 @@ public class KeypadComponent implements Component {
   private Consumer<Entity> onWrongCode = caller -> {};
   private int wrongCodeAttempts = 0;
   private Entity overlay;
-  private TaskTracking tracking;
 
   /**
    * Creates a KeypadComponent.
@@ -122,48 +113,33 @@ public class KeypadComponent implements Component {
    * Checks the submitted digits and unlocks the keypad if they match the code.
    *
    * <p>Every failed submission invokes the wrong-code callback. Only complete failed codes count
-   * toward {@link #wrongCodeAttempts()}. With a {@link TaskTracking} set, the submission is tracked
-   * after the action and before the callbacks.
+   * toward {@link #wrongCodeAttempts()}.
    *
    * @param caller entity that submitted the code
    * @throws NullPointerException if caller is null
    */
   public void checkUnlock(Entity caller) {
     Objects.requireNonNull(caller, "caller");
-    NumericCodeTask task = new NumericCodeTask(correctString());
-    String entered = enteredDigits.stream().map(Object::toString).collect(Collectors.joining(""));
     boolean completeCodeEntered = enteredDigits.size() == correctDigits.size();
-    boolean isCorrect = completeCodeEntered && task.isCorrect(entered);
+    boolean isCorrect = completeCodeEntered;
+    if (completeCodeEntered) {
+      for (int i = 0; i < enteredDigits.size(); i++) {
+        if (!Objects.equals(enteredDigits.get(i), correctDigits.get(i))) {
+          isCorrect = false;
+          break;
+        }
+      }
+    }
 
     if (isCorrect) {
       isUnlocked = true;
       if (action != null) action.run();
-      if (tracking != null) tracking.attempt(task, entered, true, caller);
       onCorrectCode.accept(caller);
     } else {
       if (completeCodeEntered) wrongCodeAttempts++;
-      if (tracking != null) tracking.attempt(task, entered, false, caller);
       onWrongCode.accept(caller);
       enteredDigits.clear();
     }
-  }
-
-  /**
-   * Returns where submissions are tracked.
-   *
-   * @return the tracking identity, if submissions are tracked
-   */
-  public Optional<TaskTracking> tracking() {
-    return Optional.ofNullable(tracking);
-  }
-
-  /**
-   * Tracks every following submission under the given identity.
-   *
-   * @param tracking the puzzle and keypad the submissions belong to
-   */
-  public void tracking(TaskTracking tracking) {
-    this.tracking = tracking;
   }
 
   /**
