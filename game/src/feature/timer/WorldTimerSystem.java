@@ -14,6 +14,7 @@ import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -63,6 +64,11 @@ public class WorldTimerSystem extends System {
   /** Create a new WorldTimerSystem. */
   public WorldTimerSystem() {
     super(AuthoritativeSide.CLIENT, 5, WorldTimerComponent.class, PositionComponent.class);
+    onEntityRemove =
+        e -> {
+          shown.remove(e);
+          EmissiveSprites.forget(texture(e));
+        };
   }
 
   /**
@@ -96,12 +102,13 @@ public class WorldTimerSystem extends System {
     }
 
     int displaySeconds = Math.max(0, secondsLeft);
-    String timerString = String.format("%02d:%02d", displaySeconds / 60, displaySeconds % 60);
+    // Root locale: the display only has the digits 0 to 9.
+    String timerString =
+        String.format(Locale.ROOT, "%02d:%02d", displaySeconds / 60, displaySeconds % 60);
     // The display changes once a second; rebuilding it costs a texture and a glow mask.
     if (timerString.equals(shown.put(data.e, timerString))) return;
     Pixmap pixmap = display(timerString);
-    String path = "@gen/worldTimer/" + data.e.name() + ".png";
-    IPath ipath = new SimpleIPath(path);
+    IPath ipath = texture(data.e);
     // The display glows by itself and lights the wall and floor in front of it.
     EmissiveSprites.glow(ipath, pixmap);
     TextureMap.instance().putPixmap(ipath, pixmap, false);
@@ -111,6 +118,10 @@ public class WorldTimerSystem extends System {
 
     data.e.remove(DrawComponent.class);
     data.e.add(new DrawComponent(new Animation(ipath, new AnimationConfig().scaleX(0.5f))));
+  }
+
+  private static IPath texture(Entity e) {
+    return new SimpleIPath("@gen/worldTimer/" + e.name() + ".png");
   }
 
   private static Pixmap display(String text) {

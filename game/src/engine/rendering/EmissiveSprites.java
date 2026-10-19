@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import engine.components.DrawComponent;
+import engine.utils.components.draw.shader.AbstractShader;
+import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.path.IPath;
 import java.util.HashMap;
 import java.util.List;
@@ -62,14 +64,15 @@ public final class EmissiveSprites {
 
   /**
    * Returns the colour of the light an entity's screen casts: the average colour of the glowing
-   * pixels of the frame it shows, at full brightness.
+   * pixels of the frame it shows, at full brightness. A screen whose colours an entity shader
+   * changes, like a status display, casts none; its room lights it in the colour it shows.
    *
    * @param dc the entity's draw component
-   * @return the light colour, or empty if the frame does not glow
+   * @return the light colour, or empty if the frame does not glow or is recoloured
    */
   public static Optional<Color> lightColor(DrawComponent dc) {
     Optional<Glow> glow = glow(dc);
-    if (glow.isEmpty()) return Optional.empty();
+    if (glow.isEmpty() || recoloured(dc)) return Optional.empty();
     Sprite sprite = dc.getSprite();
     long region =
         (long) sprite.getRegionX() << 48
@@ -77,6 +80,14 @@ public final class EmissiveSprites {
             | (long) sprite.getRegionWidth() << 16
             | sprite.getRegionHeight();
     return glow.get().lightColors().computeIfAbsent(region, r -> average(glow.get(), sprite));
+  }
+
+  private static boolean recoloured(DrawComponent dc) {
+    // Outlines draw around the sprite and leave its colours alone.
+    for (AbstractShader shader : dc.shaders().getEnabledSorted()) {
+      if (!(shader instanceof OutlineShader)) return true;
+    }
+    return false;
   }
 
   private static Optional<Glow> glow(DrawComponent dc) {
@@ -116,6 +127,16 @@ public final class EmissiveSprites {
    */
   public static void glow(IPath path, Pixmap pixels) {
     Optional<Glow> old = GLOWS.put(path.pathString(), Optional.of(glow(pixels)));
+    if (old != null) old.ifPresent(g -> g.mask().dispose());
+  }
+
+  /**
+   * Drops the glow of a generated texture that is no longer shown.
+   *
+   * @param path the path the texture is stored under in the texture map
+   */
+  public static void forget(IPath path) {
+    Optional<Glow> old = GLOWS.remove(path.pathString());
     if (old != null) old.ifPresent(g -> g.mask().dispose());
   }
 
