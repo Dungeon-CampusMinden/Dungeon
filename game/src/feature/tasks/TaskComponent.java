@@ -5,7 +5,6 @@ import engine.Entity;
 import engine.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -151,15 +150,6 @@ public class TaskComponent<T> implements Component {
    */
   public Consumer<Entity> getOnWrong() {
     return onWrong;
-  }
-
-  /**
-   * Returns where submissions are tracked.
-   *
-   * @return the tracking identity, if submissions are tracked
-   */
-  public Optional<TaskTracking> tracking() {
-    return Optional.ofNullable(tracking);
   }
 
   /**

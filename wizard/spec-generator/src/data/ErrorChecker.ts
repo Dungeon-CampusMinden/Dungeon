@@ -78,7 +78,6 @@ const RIDDLE_DIFFICULTIES = ["easy", "medium", "hard"];
 const RESOURCE_KINDS = ["inline_text", "asset"];
 const HINT_SEVERITIES = ["orientation", "approach", "solution"];
 const INPUT_TYPES = ["collection", "numeric", "choice", "assignment"];
-/** Device surface and teacher-facing name per surface-bound input type. */
 const TIME_LIMIT_MODES = ["hard", "soft"];
 const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
 const OPERATOR_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
