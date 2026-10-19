@@ -659,6 +659,7 @@ public class LastHourLevel extends DungeonLevel {
   private static final SimpleIPath R2_PUZZLE_IMAGE_DE = new SimpleIPath("images/final-code-de.png");
   private static final int R2_PUZZLE_PIECE_COUNT = 4;
   private static final long R2_PUZZLE_SEED = 1586791695537379744L;
+  private static final String R2_PUZZLE_PIECE_FAMILY = "last-hour-r2-final-code";
 
   /**
    * Pre-creates every {@link Puzzle} this level uses so the {@code @gen/puzzle/<id>/<i>.png}
@@ -668,10 +669,20 @@ public class LastHourLevel extends DungeonLevel {
   public static void ensureClientPuzzles() {
     puzzleEN =
         PuzzleMaker.makePuzzle(
-            R2_PUZZLE_IMAGE_EN, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+            R2_PUZZLE_IMAGE_EN,
+            R2_PUZZLE_PIECE_COUNT,
+            null,
+            R2_PUZZLE_SEED,
+            false,
+            R2_PUZZLE_PIECE_FAMILY);
     puzzleDE =
         PuzzleMaker.makePuzzle(
-            R2_PUZZLE_IMAGE_DE, R2_PUZZLE_PIECE_COUNT, null, R2_PUZZLE_SEED, false);
+            R2_PUZZLE_IMAGE_DE,
+            R2_PUZZLE_PIECE_COUNT,
+            null,
+            R2_PUZZLE_SEED,
+            false,
+            R2_PUZZLE_PIECE_FAMILY);
     if (!Game.isHeadless()) {
       if (Localization.getInstance().currentLanguage().equals(Language.DE)) {
         LastHourTranslator.currentPuzzle = puzzleDE;
@@ -754,7 +765,8 @@ public class LastHourLevel extends DungeonLevel {
               }
             },
             R2_PUZZLE_SEED,
-            false);
+            false,
+            R2_PUZZLE_PIECE_FAMILY);
 
     Point ventPos = getPoint("r2-vent");
     float s = R2_PAPER_SPEED;
@@ -1122,7 +1134,10 @@ public class LastHourLevel extends DungeonLevel {
     if (!Game.network().isServer() || TheLastHour.levelEditorMode() || !playerStates.isUpdated())
       return;
     Set<LastHourMilestone> milestones = LastHourProgressNet.completedMilestones();
-    if (milestones.isEmpty() || (lastSaved != null && milestones.equals(lastSaved.milestones())))
+    if (milestones.isEmpty()) return;
+    if (lastSaved != null
+        && milestones.equals(lastSaved.milestones())
+        && lastSaved.characterAssignments().equals(LastHourSave.currentCharacterAssignments()))
       return;
     try {
       LastHourSave.SaveData current = captureSave();

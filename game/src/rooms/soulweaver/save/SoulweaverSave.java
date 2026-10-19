@@ -1,11 +1,15 @@
 package rooms.soulweaver.save;
 
+import engine.network.server.CharacterSelection;
 import engine.utils.logging.DungeonLogger;
+import feature.entities.CharacterClass;
 import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import rooms.soulweaver.state.SoulweaverPhase;
@@ -30,7 +34,21 @@ public final class SoulweaverSave {
   public static Optional<SaveData> read() {
     if (!Files.isRegularFile(PATH)) return Optional.empty();
     try {
-      return Optional.ofNullable(JSON.readValue(Files.readString(PATH), SaveData.class));
+      Map<?, ?> raw = JSON.readValue(Files.readString(PATH), Map.class);
+      Map<String, Object> normalized = new LinkedHashMap<>();
+      raw.forEach(
+          (key, value) -> {
+            if (!(key instanceof String name)) {
+              throw new IllegalArgumentException("Invalid Soulweaver save field");
+            }
+            normalized.put(name, value);
+          });
+      // Character assignments were added after the original checkpoint format.
+      if (!normalized.containsKey("characterAssignments")) {
+        normalized.put("characterAssignments", Map.of());
+      }
+      return Optional.ofNullable(
+          JSON.readValue(JSON.writeValueAsString(normalized), SaveData.class));
     } catch (IOException | RuntimeException exception) {
       LOGGER.warn("Could not read Soulweaver savegame: {}", exception.getMessage());
       return Optional.empty();
@@ -85,7 +103,23 @@ public final class SoulweaverSave {
   public static void updateTrackingConsent(Boolean consent) {
     read()
         .ifPresent(
-            data -> write(new SaveData(data.phase(), data.runId(), data.activeMs(), consent)));
+            data ->
+                write(
+                    new SaveData(
+                        data.phase(),
+                        data.runId(),
+                        data.activeMs(),
+                        consent,
+                        data.characterAssignments())));
+  }
+
+  /**
+   * Captures selected classes for all reserved and currently connected named players.
+   *
+   * @return immutable snapshot of run character assignments
+   */
+  public static Map<String, CharacterClass> currentCharacterAssignments() {
+    return CharacterSelection.assignments();
   }
 
   /**
@@ -93,9 +127,26 @@ public final class SoulweaverSave {
    * @param runId stable playthrough identifier
    * @param activeMs active play time captured with this checkpoint
    * @param trackingConsent nullable decision, null while undecided
+   * @param characterAssignments named character classes reserved for this run
    */
   public record SaveData(
-      SoulweaverPhase phase, UUID runId, long activeMs, Boolean trackingConsent) {
+      SoulweaverPhase phase,
+      UUID runId,
+      long activeMs,
+      Boolean trackingConsent,
+      Map<String, CharacterClass> characterAssignments) {
+    /**
+     * Keeps callers source-compatible with checkpoints that predate character assignments.
+     *
+     * @param phase act to resume
+     * @param runId stable playthrough identifier
+     * @param activeMs active play time captured with this checkpoint
+     * @param trackingConsent nullable decision, null while undecided
+     */
+    public SaveData(SoulweaverPhase phase, UUID runId, long activeMs, Boolean trackingConsent) {
+      this(phase, runId, activeMs, trackingConsent, Map.of());
+    }
+
     /**
      * Validates that the checkpoint identifies a resumable act and an existing run.
      *
@@ -103,6 +154,7 @@ public final class SoulweaverSave {
      * @param runId playthrough identifier
      * @param activeMs active play time captured with this checkpoint
      * @param trackingConsent nullable consent decision
+     * @param characterAssignments named character classes reserved for this run
      */
     public SaveData {
       if (activeMs < 0) throw new IllegalArgumentException("Negative active play time");
@@ -111,6 +163,18 @@ public final class SoulweaverSave {
           || phase == SoulweaverPhase.COMPLETE
           || runId == null)
         throw new IllegalArgumentException("A checkpoint of Act II, III or IV is required.");
+      Map<String, CharacterClass> immutableAssignments = new LinkedHashMap<>();
+      if (characterAssignments == null) {
+        throw new IllegalArgumentException("Character assignments are required.");
+      }
+      characterAssignments.forEach(
+          (name, characterClass) -> {
+            if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
+              throw new IllegalArgumentException("Invalid saved character assignment.");
+            }
+            immutableAssignments.put(name, characterClass);
+          });
+      characterAssignments = Map.copyOf(immutableAssignments);
     }
   }
 }

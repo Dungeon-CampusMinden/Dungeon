@@ -125,8 +125,7 @@ public class ModeDetailsPanel extends Table {
     if (mode == null) return;
 
     if (secondary) {
-      add(modeContent).growX().fillX().minWidth(0f).row();
-      add().grow().row();
+      add(modeContent).grow().minWidth(0f).minHeight(0f).row();
       return;
     }
 

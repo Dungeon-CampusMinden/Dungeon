@@ -50,6 +50,8 @@ public class HintItem extends Item {
   private final IPath imagePath;
   private final IPath worldSprite;
   private final String translationKey;
+  private final String itemName;
+  private final String itemDescription;
 
   /**
    * Creates a new {@link HintItem} with full control over visuals and texts.
@@ -72,6 +74,8 @@ public class HintItem extends Item {
     this.imagePath = Objects.requireNonNull(imagePath, "imagePath");
     this.worldSprite = worldSprite;
     this.translationKey = translationKey;
+    this.itemName = name;
+    this.itemDescription = description;
   }
 
   /**
@@ -137,8 +141,8 @@ public class HintItem extends Item {
     Map<String, String> data = new LinkedHashMap<>();
     data.put(DATA_KEY_IMAGE_PATH, imagePath.pathString());
     data.put(DATA_KEY_WORLD_SPRITE, worldSprite.pathString());
-    data.put(DATA_KEY_NAME, TranslationKey.HintItemName);
-    data.put(DATA_KEY_DESCRIPTION, TranslationKey.HintItemDescription);
+    data.put(DATA_KEY_NAME, itemName);
+    data.put(DATA_KEY_DESCRIPTION, itemDescription);
     return data;
   }
 

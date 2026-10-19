@@ -19,6 +19,7 @@ import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.components.ItemComponent;
 import feature.credits.CreditsFeature;
+import feature.entities.CharacterClass;
 import feature.entities.MiscFactory;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
@@ -184,6 +185,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private List<String> savedTerminalHistory = List.of();
   private List<String> savedMemoryWatchEntries = List.of();
   private SystemRecoveryAchievementTracker.Snapshot savedAchievementProgress;
+  private Map<String, CharacterClass> savedCharacterAssignments = Map.of();
   private String savedPlayerName;
   private Boolean savedTrackingConsent;
   private boolean savedSystemCoreWarningCallAnswered;
@@ -330,6 +332,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
           savedTerminalHistory = restoredSave.terminalHistory();
           savedMemoryWatchEntries = restoredSave.memoryWatchEntries();
           savedAchievementProgress = restoredSave.achievementProgress();
+          savedCharacterAssignments = restoredSave.characterAssignments();
           savedPlayerName = restoredSave.playerName();
           savedTrackingConsent = restoredSave.trackingConsent();
           savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
@@ -392,6 +395,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
             || !save.terminalHistory().equals(savedTerminalHistory)
             || !save.memoryWatchEntries().equals(savedMemoryWatchEntries)
             || !Objects.equals(save.achievementProgress(), savedAchievementProgress)
+            || !save.characterAssignments().equals(savedCharacterAssignments)
             || !Objects.equals(save.playerName(), savedPlayerName)
             || !Objects.equals(save.trackingConsent(), savedTrackingConsent)
             || save.systemCoreWarningCallAnswered() != savedSystemCoreWarningCallAnswered;
@@ -404,6 +408,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
       savedTerminalHistory = save.terminalHistory();
       savedMemoryWatchEntries = save.memoryWatchEntries();
       savedAchievementProgress = save.achievementProgress();
+      savedCharacterAssignments = save.characterAssignments();
       savedPlayerName = save.playerName();
       savedTrackingConsent = save.trackingConsent();
       savedSystemCoreWarningCallAnswered = save.systemCoreWarningCallAnswered();

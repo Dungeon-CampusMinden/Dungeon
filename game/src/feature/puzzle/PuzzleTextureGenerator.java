@@ -5,9 +5,15 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import engine.Game;
 import engine.utils.components.draw.TextureMap;
+import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
+import java.io.IOException;
+import java.io.InputStream;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 /**
  * Generates the per-piece texture fragments of a {@link Puzzle} and registers them in the {@link
@@ -18,8 +24,8 @@ import engine.utils.logging.DungeonLogger;
  * lets the multiplayer server reference a piece by its generated path while every client lazily
  * materializes the matching texture as soon as it needs to draw the piece.
  *
- * <p>This class is a no-op on a headless application: the server never needs the textures
- * themselves (it only needs the items to carry the {@code @gen/...} paths to the clients).
+ * <p>Headless applications only read image dimensions to size world items; texture generation
+ * remains client-side.
  */
 public final class PuzzleTextureGenerator {
 
@@ -49,6 +55,40 @@ public final class PuzzleTextureGenerator {
     return new SimpleIPath(texturePath(puzzleId, pieceIndex));
   }
 
+  static SpritesheetConfig pieceSpritesheetConfig(
+      IPath imagePath, int pieceCount, long seed, int pieceIndex) {
+    FileHandle source = sourceImage(imagePath);
+    try (InputStream stream = source.read();
+        ImageInputStream input = ImageIO.createImageInputStream(stream)) {
+      if (input == null) {
+        throw new IllegalStateException("Cannot read puzzle image dimensions: " + imagePath);
+      }
+      var readers = ImageIO.getImageReaders(input);
+      if (!readers.hasNext()) {
+        throw new IllegalArgumentException("Unsupported puzzle image: " + imagePath);
+      }
+      ImageReader reader = readers.next();
+      try {
+        reader.setInput(input, true, true);
+        int width = reader.getWidth(0);
+        int height = reader.getHeight(0);
+        float[] polygon = PuzzleSlicer.slice(width, height, pieceCount, seed).get(pieceIndex);
+        int[] bounds = PuzzleSlicer.boundingBox(polygon, width, height);
+        return new SpritesheetConfig(
+            0, 0, 1, 1, Math.max(1, bounds[2] - bounds[0]), Math.max(1, bounds[3] - bounds[1]));
+      } finally {
+        reader.dispose();
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Cannot read puzzle image dimensions: " + imagePath, e);
+    }
+  }
+
+  private static FileHandle sourceImage(IPath imagePath) {
+    FileHandle source = Gdx.files.internal(imagePath.pathString());
+    return source.exists() ? source : Gdx.files.local(imagePath.pathString());
+  }
+
   /**
    * Ensures every piece texture of the given puzzle is registered in the {@link TextureMap}.
    *
@@ -72,8 +112,7 @@ public final class PuzzleTextureGenerator {
       return;
     }
 
-    FileHandle fh = Gdx.files.internal(puzzle.imagePath().pathString());
-    if (!fh.exists()) fh = Gdx.files.local(puzzle.imagePath().pathString());
+    FileHandle fh = sourceImage(puzzle.imagePath());
     if (!fh.exists()) {
       LOGGER.warn(
           "PuzzleTextureGenerator: source image not found for puzzle '{}': {}",

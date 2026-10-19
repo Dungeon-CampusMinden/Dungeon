@@ -4,7 +4,9 @@ import engine.Game;
 import engine.game.PreRunConfiguration;
 import engine.game.ServerProcess;
 import engine.network.messages.s2c.ItemState;
+import engine.network.server.CharacterSelection;
 import engine.utils.JsonHandler;
+import feature.entities.CharacterClass;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.io.IOException;
@@ -35,7 +37,7 @@ import rooms.lasthour.util.LastHourQuestLogUtil;
 /** Versioned, atomically written server save for The Last Hour. */
 public final class LastHourSave {
   public static final Path DEFAULT_PATH = Path.of("the-last-hour-save.json");
-  static final int FORMAT_VERSION = 2;
+  static final int FORMAT_VERSION = 3;
   private static final ComputerStateComponentCodec COMPUTER_CODEC =
       new ComputerStateComponentCodec();
 
@@ -85,7 +87,17 @@ public final class LastHourSave {
         LastHourQuestLogUtil.addedEntryKeys(),
         context.players(),
         TheLastHour.trackingConsent(),
-        resolvePlayerName(context));
+        resolvePlayerName(context),
+        currentCharacterAssignments());
+  }
+
+  /**
+   * Captures reserved named identities and fills any missing assignments from live players.
+   *
+   * @return immutable run assignment snapshot
+   */
+  public static Map<String, CharacterClass> currentCharacterAssignments() {
+    return CharacterSelection.assignments();
   }
 
   private static String resolvePlayerName(CaptureContext context) {
@@ -193,6 +205,10 @@ public final class LastHourSave {
     root.put("questLog", data.questLog().stream().map(QuestEntryData::toMap).toList());
     root.put("questKeys", data.questKeys().stream().sorted().toList());
     root.put("players", data.players().stream().map(PlayerData::toMap).toList());
+    Map<String, Object> characterAssignments = new TreeMap<>();
+    data.characterAssignments()
+        .forEach((name, characterClass) -> characterAssignments.put(name, characterClass.name()));
+    root.put("characterAssignments", characterAssignments);
     root.put("trackingConsent", data.trackingConsent());
     return JsonHandler.writeJson(root, true);
   }
@@ -220,6 +236,7 @@ public final class LastHourSave {
    * @param trackingConsent saved tracking decision, or {@code null} while undecided
    * @param playerName authoritative name used for the continue flow, or {@code null} before a
    *     network player connects
+   * @param characterAssignments named character classes reserved for this run
    */
   public record SaveData(
       UUID runId,
@@ -240,7 +257,74 @@ public final class LastHourSave {
       Set<String> questKeys,
       List<PlayerData> players,
       Boolean trackingConsent,
-      String playerName) {
+      String playerName,
+      Map<String, CharacterClass> characterAssignments) {
+    /**
+     * Keeps existing callers source-compatible with saves that predate character assignments.
+     *
+     * @param runId identifier shared by this run's saves and tracking events
+     * @param activeMs active play time captured with this checkpoint
+     * @param milestones completed irreversible Petri net transitions
+     * @param computer saved computer state
+     * @param blogElapsedSeconds elapsed blog session time
+     * @param unknownDeviceShutdownRemainingMs remaining delay before an unknown-device shutdown
+     * @param keypadUnlocked whether the storage keypad has been unlocked
+     * @param wrongCodeAttempts number of incorrect keypad submissions
+     * @param storageDoorOpen whether the storage door is open
+     * @param remainingMs milliseconds remaining on the run timer
+     * @param timerExpired whether the run timer has expired
+     * @param phone saved phone state
+     * @param trashNoteAwarded whether the trash note has been awarded
+     * @param blueTrashAwarded whether the blue trash item has been awarded
+     * @param questLog saved quest log entries
+     * @param questKeys quest log keys already added by room logic
+     * @param players saved player positions, intro state and inventories
+     * @param trackingConsent saved tracking decision, or {@code null} while undecided
+     * @param playerName authoritative name used for the continue flow
+     */
+    public SaveData(
+        UUID runId,
+        long activeMs,
+        Set<LastHourMilestone> milestones,
+        ComputerStateComponent computer,
+        int blogElapsedSeconds,
+        long unknownDeviceShutdownRemainingMs,
+        boolean keypadUnlocked,
+        int wrongCodeAttempts,
+        boolean storageDoorOpen,
+        long remainingMs,
+        boolean timerExpired,
+        PhoneData phone,
+        boolean trashNoteAwarded,
+        boolean blueTrashAwarded,
+        List<QuestEntryData> questLog,
+        Set<String> questKeys,
+        List<PlayerData> players,
+        Boolean trackingConsent,
+        String playerName) {
+      this(
+          runId,
+          activeMs,
+          milestones,
+          computer,
+          blogElapsedSeconds,
+          unknownDeviceShutdownRemainingMs,
+          keypadUnlocked,
+          wrongCodeAttempts,
+          storageDoorOpen,
+          remainingMs,
+          timerExpired,
+          phone,
+          trashNoteAwarded,
+          blueTrashAwarded,
+          questLog,
+          questKeys,
+          players,
+          trackingConsent,
+          playerName,
+          Map.of());
+    }
+
     /**
      * Copies the snapshot with an updated tracking decision.
      *
@@ -267,7 +351,8 @@ public final class LastHourSave {
           questKeys,
           players,
           consent,
-          playerName);
+          playerName,
+          characterAssignments);
     }
 
     /**
@@ -292,6 +377,7 @@ public final class LastHourSave {
      * @param players saved player positions, intro state and inventories
      * @param trackingConsent saved tracking decision, or {@code null} while undecided
      * @param playerName authoritative name used for the continue flow
+     * @param characterAssignments retained player-name to character-class assignments
      */
     public SaveData {
       Set<LastHourMilestone> immutableMilestones = Set.copyOf(milestones);
@@ -299,6 +385,15 @@ public final class LastHourSave {
       questLog = List.copyOf(questLog);
       questKeys = Set.copyOf(questKeys);
       players = List.copyOf(players);
+      Map<String, CharacterClass> immutableCharacterAssignments = new LinkedHashMap<>();
+      characterAssignments.forEach(
+          (name, characterClass) -> {
+            if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
+              throw new IllegalArgumentException("Invalid saved character assignment");
+            }
+            immutableCharacterAssignments.put(name, characterClass);
+          });
+      characterAssignments = Map.copyOf(immutableCharacterAssignments);
       if (playerName != null && playerName.isBlank()) playerName = null;
       if (runId == null || computer == null || phone == null)
         throw new IllegalArgumentException("Missing save state");

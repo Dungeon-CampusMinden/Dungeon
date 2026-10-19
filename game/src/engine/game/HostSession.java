@@ -1,5 +1,7 @@
 package engine.game;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Tracks whether this client is hosting a local dedicated server (started via the main menu's "Host
  * Game" option) and exposes its live status.
@@ -10,6 +12,7 @@ package engine.game;
 public final class HostSession {
 
   private static volatile ServerProcess serverProcess;
+  private static CompletableFuture<Void> serverShutdown = CompletableFuture.completedFuture(null);
 
   private HostSession() {}
 
@@ -18,7 +21,7 @@ public final class HostSession {
    *
    * @param process the hosted server process
    */
-  static void hosting(ServerProcess process) {
+  static synchronized void hosting(ServerProcess process) {
     serverProcess = process;
   }
 
@@ -37,16 +40,27 @@ public final class HostSession {
    * @return {@code true} if hosting and the server process is still alive
    */
   public static boolean isServerRunning() {
-    return serverProcess != null && serverProcess.isAlive();
+    ServerProcess hostedServer = serverProcess;
+    return hostedServer != null && hostedServer.isAlive();
   }
 
   /** Stops the locally hosted server while the hosting client can still receive final status. */
   static void stopHosting() {
+    stopHostingAsync().join();
+  }
+
+  /**
+   * Stops the locally hosted server without blocking the render thread.
+   *
+   * @return completion of the current or already pending server shutdown
+   */
+  static synchronized CompletableFuture<Void> stopHostingAsync() {
     ServerProcess hostedServer = serverProcess;
     if (hostedServer == null) {
-      return;
+      return serverShutdown;
     }
-    hostedServer.stop();
     serverProcess = null;
+    serverShutdown = CompletableFuture.runAsync(hostedServer::stop);
+    return serverShutdown;
   }
 }

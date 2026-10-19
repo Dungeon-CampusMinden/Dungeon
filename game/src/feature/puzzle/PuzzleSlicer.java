@@ -56,6 +56,8 @@ final class PuzzleSlicer {
   /** Maximum extra jitter (as fraction of chord length) added to / subtracted from each offset. */
   private static final float JAGGED_OFFSET_JITTER = 0.03f;
 
+  private static final float EDGE_EPSILON = 0.001f;
+
   private PuzzleSlicer() {}
 
   /**
@@ -313,6 +315,41 @@ final class PuzzleSlicer {
   // ---------------------------------------------------------------------------
   // Geometry helpers
   // ---------------------------------------------------------------------------
+
+  /**
+   * Checks whether two polygons share a nonzero length of boundary. Later cuts can subdivide an
+   * earlier seam, so overlapping collinear segments count even when their endpoints differ.
+   *
+   * @param first first polygon
+   * @param second second polygon
+   * @return whether the polygons are neighboring puzzle pieces
+   */
+  static boolean shareEdge(float[] first, float[] second) {
+    for (int i = 0; i < first.length; i += 2) {
+      int next = (i + 2) % first.length;
+      double ax = first[i], ay = first[i + 1];
+      double dx = first[next] - ax, dy = first[next + 1] - ay;
+      double length = Math.hypot(dx, dy);
+      if (length <= EDGE_EPSILON) continue;
+      double ux = dx / length, uy = dy / length;
+
+      for (int j = 0; j < second.length; j += 2) {
+        int otherNext = (j + 2) % second.length;
+        double cx = second[j] - ax, cy = second[j + 1] - ay;
+        double ex = second[otherNext] - ax, ey = second[otherNext + 1] - ay;
+        if (Math.abs(cx * uy - cy * ux) > EDGE_EPSILON
+            || Math.abs(ex * uy - ey * ux) > EDGE_EPSILON) {
+          continue;
+        }
+        double start = cx * ux + cy * uy;
+        double end = ex * ux + ey * uy;
+        double overlap =
+            Math.min(length, Math.max(start, end)) - Math.max(0d, Math.min(start, end));
+        if (overlap > EDGE_EPSILON) return true;
+      }
+    }
+    return false;
+  }
 
   /** Result of locating a point on the polygon perimeter. */
   private static final class Hit {

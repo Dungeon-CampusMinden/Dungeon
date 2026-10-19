@@ -54,6 +54,10 @@ public final class ConnectRejectConverter
       case OTHER -> engine.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_OTHER;
       case SERVER_FULL ->
           engine.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_SERVER_FULL;
+      case NAME_IN_USE ->
+          engine.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_NAME_IN_USE;
+      case CHARACTER_UNAVAILABLE ->
+          engine.network.proto.s2c.ConnectReject.RejectReason.REJECT_REASON_CHARACTER_UNAVAILABLE;
     };
   }
 
@@ -65,6 +69,8 @@ public final class ConnectRejectConverter
       case REJECT_REASON_NO_SESSION_FOUND -> ConnectReject.Reason.NO_SESSION_FOUND;
       case REJECT_REASON_INVALID_SESSION_TOKEN -> ConnectReject.Reason.INVALID_SESSION_TOKEN;
       case REJECT_REASON_SERVER_FULL -> ConnectReject.Reason.SERVER_FULL;
+      case REJECT_REASON_NAME_IN_USE -> ConnectReject.Reason.NAME_IN_USE;
+      case REJECT_REASON_CHARACTER_UNAVAILABLE -> ConnectReject.Reason.CHARACTER_UNAVAILABLE;
       case REJECT_REASON_OTHER, REJECT_REASON_UNSPECIFIED, UNRECOGNIZED ->
           ConnectReject.Reason.OTHER;
     };

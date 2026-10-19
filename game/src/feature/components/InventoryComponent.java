@@ -35,7 +35,7 @@ public final class InventoryComponent implements Component {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryComponent.class);
 
   private static final int DEFAULT_MAX_SIZE = 24;
-  private final Item[] inventory;
+  private Item[] inventory;
   // Callbacks, Consumer takes the added/removed Item as parameter (can be null if a null item was
   // added/removed)
   private Consumer<Item> onItemAdded = item -> {};
@@ -276,6 +276,47 @@ public final class InventoryComponent implements Component {
    */
   public Item[] items() {
     return this.inventory.clone();
+  }
+
+  /**
+   * Reconfigures this inventory for a newly selected character class.
+   *
+   * <p>Starting items belonging to the previous class are replaced by the new class's starting
+   * items. Other items are retained, along with this component and its callbacks. If needed, the
+   * inventory grows beyond the class capacity to avoid discarding existing items.
+   *
+   * @param maxSize the new inventory capacity
+   * @param previousStartingItems starting items to remove from the previous class
+   * @param newStartingItems starting items to add for the selected class
+   */
+  public void reconfigureForCharacterClass(
+      int maxSize, List<Item> previousStartingItems, List<Item> newStartingItems) {
+    if (maxSize < 0) {
+      throw new IllegalArgumentException("Inventory size cannot be negative.");
+    }
+
+    List<Item> retainedItems =
+        Arrays.stream(inventory)
+            .filter(Objects::nonNull)
+            .filter(item -> !containsSameInstance(previousStartingItems, item))
+            .toList();
+    inventory = new Item[Math.max(maxSize, newStartingItems.size() + retainedItems.size())];
+
+    for (Item startingItem : newStartingItems) {
+      add(startingItem);
+    }
+
+    for (Item item : retainedItems) {
+      int slot = findNextAvailableSlot();
+      if (slot == -1) {
+        throw new IllegalStateException("Inventory capacity was insufficient to preserve items.");
+      }
+      inventory[slot] = item;
+    }
+  }
+
+  private static boolean containsSameInstance(List<Item> items, Item candidate) {
+    return items.stream().anyMatch(item -> item == candidate);
   }
 
   /**

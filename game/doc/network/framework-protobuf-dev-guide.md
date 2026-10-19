@@ -179,3 +179,34 @@ You only need a new protobuf message when:
 - input payload in `CustomAction` is not enough, or
 - you need a new explicit network message type with dedicated converter/parser/wire id.
 
+## 9. Character discovery and admission
+
+Before authentication, the menu sends `CharacterOptionsRequest` (core wire ID `35`) with the
+protocol version and player name. The server responds with `CharacterOptions` (ID `36`) or
+`ConnectReject`. Discovery does not create a player or reserve a character.
+For joining clients, the menu keeps the Join form visible until this response confirms the
+server connection and player name. Discovery failures stay on that form; Back cancels the
+request. A late admission rejection also returns there unless only the chosen character became
+unavailable.
+
+`CharacterSelection` reads the current level's `available-character` prefabs. Each marker's
+`maxCount` defaults to `-1` (unlimited); `0` disables that class. Duplicate markers for a class
+combine their finite limits, with unlimited taking precedence. Levels without these markers retain
+the starter's configured fallback characters.
+
+The response includes each class's limit, current player count, selectability and saved-assignment
+flag. The menu refreshes this catalog silently every ten seconds while the carousel is open,
+preserving the current selection. Availability is only advisory:
+`ServerTransport` checks it again atomically when processing the final `ConnectRequest`, which
+carries the selected class. `CHARACTER_UNAVAILABLE` and `NAME_IN_USE` are explicit rejection
+reasons alongside the existing protocol, name, session and server-capacity errors.
+
+Named character reservations include disconnected players and are exposed by
+`CharacterSelection.assignments()` for game saves. Loaders call `restoreAssignments(...)` before
+admitting players; a returning name keeps its saved class without consuming another character
+slot. New runs clear the reservations with `CharacterSelection.clear()`.
+
+The client scopes its versioned `last_session.dat` credentials to the server address, port and
+player name. Legacy unscoped credentials are ignored. If a matching server has restarted, a failed
+session restore is an expected recovery step: the client retries fresh admission and the server
+recovers the character from its named reservation.
