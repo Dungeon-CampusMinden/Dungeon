@@ -23,8 +23,8 @@ import escaperoom.foundation.presentation.GamePresentation.ChoiceInputPresentati
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
-import escaperoom.foundation.runtime.CodeAttemptResult;
-import escaperoom.foundation.runtime.CodeOutcome;
+import escaperoom.foundation.runtime.AttemptOutcome;
+import escaperoom.foundation.runtime.AttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
@@ -281,13 +281,13 @@ public final class ServerGameBinding {
     return submitAnswer(player, riddleId, NumericInputDefinition.class, definition, attempt)
         .map(
             result -> {
-              if (result.outcome() == CodeOutcome.CORRECT) {
+              if (result.outcome() == AttemptOutcome.CORRECT) {
                 component.isUnlocked(true);
                 keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
                 return true;
-              } else if (result.outcome() == CodeOutcome.INCORRECT) {
+              } else if (result.outcome() == AttemptOutcome.INCORRECT) {
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
                 component.enteredDigits().clear();
@@ -380,7 +380,7 @@ public final class ServerGameBinding {
     Entity solver = player.orElseThrow();
     boolean correct =
         submitAnswer(solver, riddleId, AssignmentInputDefinition.class, definition, placement)
-            .filter(result -> result.outcome() == CodeOutcome.CORRECT)
+            .filter(result -> result.outcome() == AttemptOutcome.CORRECT)
             .isPresent();
     if (correct) {
       Game.audio().playGlobal(SoundSpec.builder("retro_event_correct").targets(solver.id()));
@@ -396,10 +396,10 @@ public final class ServerGameBinding {
     submitAnswer(player, riddleId, ChoiceInputDefinition.class, definition, selection)
         .ifPresent(
             result -> {
-              if (result.outcome() == CodeOutcome.CORRECT) {
+              if (result.outcome() == AttemptOutcome.CORRECT) {
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
-              } else if (result.outcome() == CodeOutcome.INCORRECT) {
+              } else if (result.outcome() == AttemptOutcome.INCORRECT) {
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
               }
@@ -418,23 +418,23 @@ public final class ServerGameBinding {
    * @param <D> input type
    * @return evaluated result when the player is ready
    */
-  private <A, D extends SurfaceInputDefinition<A>> Optional<CodeAttemptResult> submitAnswer(
+  private <A, D extends SurfaceInputDefinition<A>> Optional<AttemptResult> submitAnswer(
       final Entity player,
       final String riddleId,
       final Class<D> inputType,
       final D definition,
       final A answer) {
-    Optional<CodeAttemptResult> result =
+    Optional<AttemptResult> result =
         serverBinding.enterAnswer(player, riddleId, definition.id(), inputType, answer);
     result
-        .filter(evaluated -> evaluated.outcome() != CodeOutcome.NOT_EVALUATED)
+        .filter(evaluated -> evaluated.outcome() != AttemptOutcome.NOT_EVALUATED)
         .ifPresent(
             evaluated ->
                 new TaskTracking(riddleId, definition.id())
                     .attempt(
                         definition.task(),
                         answer,
-                        evaluated.outcome() == CodeOutcome.CORRECT,
+                        evaluated.outcome() == AttemptOutcome.CORRECT,
                         player));
     return result;
   }

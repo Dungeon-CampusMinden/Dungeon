@@ -28,7 +28,7 @@ import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
-import escaperoom.foundation.runtime.CodeOutcome;
+import escaperoom.foundation.runtime.AttemptOutcome;
 import escaperoom.foundation.runtime.Projection.TimerState;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
@@ -115,7 +115,7 @@ final class MultiplayerSessionTest {
     assertTrue(session.completeIntro((short) 2));
     assertEquals(Optional.of((short) 2), session.readyClientId(200));
     assertEquals(
-        CodeOutcome.INCORRECT,
+        AttemptOutcome.INCORRECT,
         session
             .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "1")
             .orElseThrow()
@@ -174,7 +174,7 @@ final class MultiplayerSessionTest {
     session.completeIntro((short) 2);
     session.inspectSource((short) 1, "first", "source");
     assertEquals(
-        CodeOutcome.CORRECT,
+        AttemptOutcome.CORRECT,
         session
             .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "12")
             .orElseThrow()

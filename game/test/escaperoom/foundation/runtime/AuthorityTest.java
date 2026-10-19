@@ -69,25 +69,25 @@ final class AuthorityTest {
         OperationReason.INPUT_ALREADY_SATISFIED,
         authority.interactSource("fund_and_code", "source").reason());
     assertEquals(
-        CodeOutcome.INCORRECT,
+        AttemptOutcome.INCORRECT,
         authority
             .attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "0000")
             .outcome());
     assertEquals(
-        CodeOutcome.CORRECT,
+        AttemptOutcome.CORRECT,
         authority
             .attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "3758")
             .outcome());
     assertEquals(ProgressStatus.SOLVED, riddle(authority, "fund_and_code").status());
     assertEquals(
-        CodeOutcome.NOT_EVALUATED,
+        AttemptOutcome.NOT_EVALUATED,
         authority
             .attempt("fund_and_code", "fund_code", NumericInputDefinition.class, "3758")
             .outcome());
 
     assertEquals(ProgressStatus.ACTIVE, riddle(authority, "parallel_code").status());
     assertEquals(
-        CodeOutcome.CORRECT,
+        AttemptOutcome.CORRECT,
         authority
             .attempt("parallel_code", "parallel_input", NumericInputDefinition.class, "24")
             .outcome());
@@ -130,15 +130,15 @@ final class AuthorityTest {
     ready(authority);
 
     assertEquals(
-        CodeOutcome.INCORRECT,
+        AttemptOutcome.INCORRECT,
         authority.attempt("sort", "question", ChoiceInputDefinition.class, Set.of("a")).outcome());
     assertEquals(
-        CodeOutcome.CORRECT,
+        AttemptOutcome.CORRECT,
         authority
             .attempt("sort", "question", ChoiceInputDefinition.class, Set.of("a", "b"))
             .outcome());
     assertEquals(
-        CodeOutcome.INCORRECT,
+        AttemptOutcome.INCORRECT,
         authority
             .attempt(
                 "sort",
@@ -147,7 +147,7 @@ final class AuthorityTest {
                 Map.of("bread", "food", "cat", "food"))
             .outcome());
     assertEquals(
-        CodeOutcome.CORRECT,
+        AttemptOutcome.CORRECT,
         authority
             .attempt("sort", "boxes", AssignmentInputDefinition.class, Map.of("bread", "food"))
             .outcome());

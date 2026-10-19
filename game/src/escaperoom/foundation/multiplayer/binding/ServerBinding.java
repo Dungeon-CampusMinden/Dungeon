@@ -6,7 +6,7 @@ import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession.ClientObservation;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession.SourceInspection;
-import escaperoom.foundation.runtime.CodeAttemptResult;
+import escaperoom.foundation.runtime.AttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.Projection;
 import escaperoom.foundation.runtime.ReleasedHint;
@@ -81,13 +81,12 @@ public final class ServerBinding {
    * @param <D> input type
    * @return evaluated result when the player remains ready
    */
-  public synchronized <A, D extends SurfaceInputDefinition<A>>
-      Optional<CodeAttemptResult> enterAnswer(
-          final Entity playerEntity,
-          final String riddleId,
-          final String inputId,
-          final Class<D> inputType,
-          final A answer) {
+  public synchronized <A, D extends SurfaceInputDefinition<A>> Optional<AttemptResult> enterAnswer(
+      final Entity playerEntity,
+      final String riddleId,
+      final String inputId,
+      final Class<D> inputType,
+      final A answer) {
     return clientId(playerEntity)
         .flatMap(clientId -> session.enterAnswer(clientId, riddleId, inputId, inputType, answer));
   }

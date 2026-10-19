@@ -214,26 +214,26 @@ public final class Authority {
    * @param <D> input type
    * @return explicit command and non-secret correctness result
    */
-  public synchronized <A, D extends SurfaceInputDefinition<A>> CodeAttemptResult attempt(
+  public synchronized <A, D extends SurfaceInputDefinition<A>> AttemptResult attempt(
       final String riddleId, final String inputId, final Class<D> inputType, final A answer) {
     Objects.requireNonNull(answer, "answer");
     OperationResult gate = gameplayGate();
     if (gate != null) {
-      return code(gate, CodeOutcome.NOT_EVALUATED);
+      return result(gate, AttemptOutcome.NOT_EVALUATED);
     }
     RiddleState state = riddles.get(riddleId);
     if (state == null) {
-      return code(
-          OperationResult.rejected(OperationReason.UNKNOWN_RIDDLE), CodeOutcome.NOT_EVALUATED);
+      return result(
+          OperationResult.rejected(OperationReason.UNKNOWN_RIDDLE), AttemptOutcome.NOT_EVALUATED);
     }
     if (state.status == ProgressStatus.SOLVED) {
-      return code(
+      return result(
           OperationResult.idempotent(OperationReason.RIDDLE_ALREADY_COMPLETED),
-          CodeOutcome.NOT_EVALUATED);
+          AttemptOutcome.NOT_EVALUATED);
     }
     if (state.status == ProgressStatus.LOCKED) {
-      return code(
-          OperationResult.idempotent(OperationReason.RIDDLE_LOCKED), CodeOutcome.NOT_EVALUATED);
+      return result(
+          OperationResult.idempotent(OperationReason.RIDDLE_LOCKED), AttemptOutcome.NOT_EVALUATED);
     }
     Optional<D> input =
         state.definition.inputs().stream()
@@ -242,20 +242,20 @@ public final class Authority {
             .map(inputType::cast)
             .findFirst();
     if (input.isEmpty()) {
-      return code(
-          OperationResult.rejected(OperationReason.UNKNOWN_INPUT), CodeOutcome.NOT_EVALUATED);
+      return result(
+          OperationResult.rejected(OperationReason.UNKNOWN_INPUT), AttemptOutcome.NOT_EVALUATED);
     }
     if (state.satisfied.contains(inputId)) {
-      return code(
+      return result(
           OperationResult.idempotent(OperationReason.INPUT_ALREADY_SATISFIED),
-          CodeOutcome.NOT_EVALUATED);
+          AttemptOutcome.NOT_EVALUATED);
     }
     if (!input.orElseThrow().task().isCorrect(answer)) {
-      return code(OperationResult.applied(), CodeOutcome.INCORRECT);
+      return result(OperationResult.applied(), AttemptOutcome.INCORRECT);
     }
     state.satisfied.add(inputId);
     completeIfSatisfied(state);
-    return code(OperationResult.applied(), CodeOutcome.CORRECT);
+    return result(OperationResult.applied(), AttemptOutcome.CORRECT);
   }
 
   /**
@@ -558,9 +558,9 @@ public final class Authority {
     return new ReleasedHint(hint.id(), hint.title(), hint.text(), hint.severity());
   }
 
-  private static CodeAttemptResult code(
-      final OperationResult operation, final CodeOutcome outcome) {
-    return new CodeAttemptResult(operation, outcome);
+  private static AttemptResult result(
+      final OperationResult operation, final AttemptOutcome outcome) {
+    return new AttemptResult(operation, outcome);
   }
 
   private static HintRevealResult hint(

@@ -10,8 +10,8 @@ import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
+import escaperoom.foundation.runtime.AttemptResult;
 import escaperoom.foundation.runtime.Authority;
-import escaperoom.foundation.runtime.CodeAttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.HintRevealResult;
 import escaperoom.foundation.runtime.OperationResult;
@@ -179,13 +179,12 @@ public final class MultiplayerSession {
    * @param <D> input type
    * @return delegated result, or empty when the player is not ready
    */
-  public synchronized <A, D extends SurfaceInputDefinition<A>>
-      Optional<CodeAttemptResult> enterAnswer(
-          final short clientId,
-          final String riddleId,
-          final String inputId,
-          final Class<D> inputType,
-          final A answer) {
+  public synchronized <A, D extends SurfaceInputDefinition<A>> Optional<AttemptResult> enterAnswer(
+      final short clientId,
+      final String riddleId,
+      final String inputId,
+      final Class<D> inputType,
+      final A answer) {
     advance();
     return ready(clientId)
         ? Optional.of(authority.attempt(riddleId, inputId, inputType, answer))
