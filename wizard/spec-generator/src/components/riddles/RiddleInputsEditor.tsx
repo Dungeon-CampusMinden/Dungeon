@@ -216,12 +216,14 @@ function ChoiceInputFields({
   questionIssues: Issue[];
   optionIssues: Issue[];
 }) {
+  // Keeps the marked answers in the order the teacher sees them.
+  const inOptionOrder = (ids: string[]) => input.options.map((option) => option.id).filter((id) => ids.includes(id));
   const toggleCorrect = (optionId: string) => {
     const isCorrect = input.correctOptionIds.includes(optionId);
     const correctOptionIds = input.multipleSelection
       ? isCorrect
         ? input.correctOptionIds.filter((id) => id !== optionId)
-        : [...input.correctOptionIds, optionId]
+        : inOptionOrder([...input.correctOptionIds, optionId])
       : [optionId];
     onChange({ ...input, correctOptionIds });
   };
@@ -248,7 +250,7 @@ function ChoiceInputFields({
           onChange={(newValue) => onChange({
             ...input,
             multipleSelection: newValue === "true",
-            correctOptionIds: newValue === "true" ? input.correctOptionIds : input.correctOptionIds.slice(0, 1),
+            correctOptionIds: newValue === "true" ? input.correctOptionIds : inOptionOrder(input.correctOptionIds).slice(0, 1),
           })}
         />
       </Field>
