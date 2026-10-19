@@ -282,7 +282,7 @@ aus gewöhnlichen Truhen und aufhebbaren Antwort-Items, die ihre Item-ID in den
 Item-Daten tragen. Spieler verschieben sie über den vorhandenen
 Inventardialog. Der Host prüft nach jeder Änderung der Kisteninhalte und beim
 Aktivwerden des Rätsels. Eine angenommene Zuordnung zählt für den Spieler, der
-zuletzt ein Item in eine geänderte Kiste gelegt oder daraus genommen hat; ist
+zuletzt ein Item in eine der Kisten gelegt oder daraus genommen hat; ist
 er nicht mehr spielbereit, zählt sie für einen anderen spielbereiten Spieler.
 Verlässt ein Spieler die Sitzung, legt der Server sein Inventar
 nach 30 Sekunden ohne Wiederverbindung im Raum ab.
