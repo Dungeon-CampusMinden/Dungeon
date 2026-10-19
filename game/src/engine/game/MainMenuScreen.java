@@ -53,6 +53,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -118,6 +119,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final String T_INCOMPATIBLE_VERSION = "incompatible_version";
   private static final String T_SERVER_FULL = "server_full";
   private static final String T_CHARACTER_UNAVAILABLE = "character_unavailable";
+  private static final String T_NO_CHARACTERS_AVAILABLE = "no_characters_available";
   private static final String T_CONNECTION_REJECTED = "connection_rejected";
   private static final Translation trans = new Translation("main_menu");
 
@@ -458,6 +460,7 @@ public class MainMenuScreen extends ScreenAdapter {
     joinPortField =
         Scene2dElementFactory.createTextField(Integer.toString(PreRunConfiguration.networkPort()));
     joinStatusLabel = label("", 18, ERROR_COLOR);
+    joinStatusLabel.setWrap(true);
     joinConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmJoin);
     joinBackButton = menuButton(trans.text(T_BACK), "red-outline", this::cancelJoinSetup);
 
@@ -840,13 +843,33 @@ public class MainMenuScreen extends ScreenAdapter {
                           selectionStatusMessage = "";
                         }
                       }
+                      long selectableCount =
+                          currentCharacterOptions.stream()
+                              .filter(CharacterOptions.Option::selectable)
+                              .count();
+                      if (error == null && selectableCount == 0) {
+                        selectionStatusMessage = trans.text(T_NO_CHARACTERS_AVAILABLE);
+                        if (validateJoin && !selectionHosted) {
+                          showJoinView();
+                          joinStatusLabel.setText(selectionStatusMessage);
+                          return;
+                        }
+                      } else if (selectionStatusMessage.equals(
+                          trans.text(T_NO_CHARACTERS_AVAILABLE))) {
+                        selectionStatusMessage = "";
+                      }
                       characterCarousel.setOptions(currentCharacterOptions, selectedCharacter);
                       characterSelectionStatusLabel.setText(selectionStatusMessage);
                       updateCharacterConfirmButton();
                       if (validateJoin || requestView == View.CONNECTING) {
-                        if (error == null
-                            && currentCharacterOptions.size() == 1
-                            && currentCharacterOptions.getFirst().selectable()) {
+                        if (error == null && selectableCount == 1) {
+                          currentCharacterOptions.stream()
+                              .filter(CharacterOptions.Option::selectable)
+                              .findFirst()
+                              .ifPresent(
+                                  option ->
+                                      characterCarousel.setOptions(
+                                          currentCharacterOptions, option.characterClass()));
                           showConnectingView();
                           beginAdmission();
                         } else {
@@ -1085,7 +1108,7 @@ public class MainMenuScreen extends ScreenAdapter {
     if (cause instanceof ConnectException
         || (cause != null
             && cause.getMessage() != null
-            && cause.getMessage().toLowerCase(java.util.Locale.ROOT).contains("refused"))) {
+            && cause.getMessage().toLowerCase(Locale.ROOT).contains("refused"))) {
       return trans.text(T_CONNECTION_REFUSED);
     }
     if (cause instanceof UnknownHostException) {
@@ -1097,14 +1120,14 @@ public class MainMenuScreen extends ScreenAdapter {
     if (cause instanceof CharacterOptionsClient.CharacterOptionsRejectedException rejected) {
       return rejectionMessage(rejected.reason());
     }
-    return trans.text(T_CONNECTION_FAILED, cause == null ? "" : cause.getMessage());
+    return trans.text(T_CONNECTION_FAILED, cause == null ? "" : rootCauseMessage(cause));
   }
 
   private String connectionError(String reason) {
     if (reason == null || reason.isBlank()) {
       return trans.text(T_CONNECTION_FAILED, "");
     }
-    if (reason.toLowerCase(java.util.Locale.ROOT).contains("refused")) {
+    if (reason.toLowerCase(Locale.ROOT).contains("refused")) {
       return trans.text(T_CONNECTION_REFUSED);
     }
     return trans.text(T_CONNECTION_FAILED, reason);

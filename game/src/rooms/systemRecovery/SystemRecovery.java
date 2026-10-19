@@ -38,6 +38,7 @@ import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LeverSystem;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import rooms.systemRecovery.items.BatteryItem;
@@ -108,7 +109,7 @@ public final class SystemRecovery {
       CharacterSelection.restoreAssignments(
           SystemRecoveryLoad.read()
               .map(SystemRecoverySave.SaveData::characterAssignments)
-              .orElse(java.util.Map.of()));
+              .orElse(Map.of()));
     } else if (containsArgument(args, NEW_GAME_ARGUMENT)
         || containsArgument(args, ServerProcess.SERVER_ARGUMENT)) {
       CharacterSelection.clear();

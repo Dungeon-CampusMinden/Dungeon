@@ -29,6 +29,7 @@ import feature.survey.SurveyFeature;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -82,9 +83,7 @@ public final class Soulweaver {
         arguments.contains(LOAD_SAVE_ARGUMENT) ? SoulweaverSave.read() : Optional.empty();
     if (arguments.contains(LOAD_SAVE_ARGUMENT)) {
       CharacterSelection.restoreAssignments(
-          continuation
-              .map(SoulweaverSave.SaveData::characterAssignments)
-              .orElse(java.util.Map.of()));
+          continuation.map(SoulweaverSave.SaveData::characterAssignments).orElse(Map.of()));
     } else if (arguments.contains(NEW_GAME_ARGUMENT)
         || arguments.contains(ServerProcess.SERVER_ARGUMENT)) {
       CharacterSelection.clear();

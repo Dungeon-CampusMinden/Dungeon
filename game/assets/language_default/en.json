@@ -196,6 +196,7 @@
         "incompatible_version": "This game version is not compatible with the server.",
         "server_full": "The server has reached its player capacity.",
         "character_unavailable": "That character is no longer available. Choose another character.",
+        "no_characters_available": "All characters are already taken.",
         "connection_rejected": "The server rejected the connection. Check the details and try again.",
         "character_changed": "Character availability changed. Choose again.",
         "no_characters": "No characters are available on this server.",

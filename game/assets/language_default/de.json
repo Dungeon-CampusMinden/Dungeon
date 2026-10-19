@@ -196,6 +196,7 @@
         "incompatible_version": "Diese Spielversion ist nicht mit dem Server kompatibel.",
         "server_full": "Der Server hat seine maximale Spielerzahl erreicht.",
         "character_unavailable": "Dieser Charakter ist nicht mehr verfügbar. Wähle einen anderen Charakter.",
+        "no_characters_available": "Alle Charaktere sind bereits belegt.",
         "connection_rejected": "Der Server hat die Verbindung abgelehnt. Prüfe die Angaben und versuche es erneut.",
         "character_changed": "Die Verfügbarkeit hat sich geändert. Wähle erneut.",
         "no_characters": "Auf diesem Server sind keine Charaktere verfügbar.",

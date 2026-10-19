@@ -43,6 +43,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
@@ -124,9 +125,7 @@ public class TheLastHour {
     }
     if (loadFromSave) {
       CharacterSelection.restoreAssignments(
-          LastHourLoad.read()
-              .map(LastHourSave.SaveData::characterAssignments)
-              .orElse(java.util.Map.of()));
+          LastHourLoad.read().map(LastHourSave.SaveData::characterAssignments).orElse(Map.of()));
     } else if (containsArgument(args, NEW_GAME_ARGUMENT)
         || containsArgument(args, ServerProcess.SERVER_ARGUMENT)) {
       CharacterSelection.clear();

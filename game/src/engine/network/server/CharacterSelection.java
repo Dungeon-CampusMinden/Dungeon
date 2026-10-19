@@ -280,8 +280,8 @@ public final class CharacterSelection {
   }
 
   /**
-   * Builds the current level catalog, defaulting to an unlimited Wizard when that level has no
-   * available-character markers.
+   * Builds the current level catalog, falling back to the configured multiplayer classes
+   * (unlimited) when that level has no available-character markers.
    *
    * @return class limits in catalog order
    */
@@ -304,7 +304,8 @@ public final class CharacterSelection {
     }
 
     if (!foundMarker) {
-      limits.put(CharacterClass.WIZARD, -1);
+      PreRunConfiguration.multiplayerCharacterClasses()
+          .forEach(characterClass -> limits.put(characterClass, -1));
     }
     return limits;
   }

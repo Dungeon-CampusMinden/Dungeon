@@ -443,8 +443,7 @@ public abstract class PrefabProperty<T> {
    * <p>The JSON object contains {@code pieceCount}, a signed 64-bit {@code seed}, and a {@code
    * pieces} array. Each piece entry contains a world {@code position} point, a {@code destination}
    * of {@code "world-item"}, {@code "chest"}, or {@code "deco-inventory"}, and an optional {@code
-   * deco} enum name used for deco inventories. Legacy {@code "container"} destinations are read as
-   * {@code "deco-inventory"}.
+   * deco} enum name used for deco inventories.
    *
    * @param key serialized key
    * @param displayName editor label

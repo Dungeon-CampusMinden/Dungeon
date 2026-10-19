@@ -44,7 +44,6 @@ public record PuzzlePiecePlacement(Point position, Destination destination, Deco
      * @return matching destination
      */
     public static Destination fromId(String id) {
-      if ("container".equals(id)) return DECO_INVENTORY;
       for (Destination destination : values()) {
         if (destination.id.equals(id)) return destination;
       }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.TreeMap;
 import java.util.UUID;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -366,7 +367,7 @@ public final class SystemRecoverySave {
     root.put("memoryWatch", data.memoryWatchEntries());
     root.put("inventoryItems", data.inventoryItems().stream().map(PlayerItemData::toMap).toList());
     root.put("players", data.playerPositions().stream().map(PlayerPositionData::toMap).toList());
-    Map<String, Object> characterAssignments = new java.util.TreeMap<>();
+    Map<String, Object> characterAssignments = new TreeMap<>();
     data.characterAssignments()
         .forEach((name, characterClass) -> characterAssignments.put(name, characterClass.name()));
     root.put("characterAssignments", characterAssignments);
