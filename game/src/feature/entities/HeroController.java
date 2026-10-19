@@ -580,6 +580,7 @@ public class HeroController {
           List<Point> floor =
               LevelUtils.accessibleTilesInRange(position.position(), 2).stream()
                   .filter(FloorTile.class::isInstance)
+                  .filter(LevelUtils::isFreeTile)
                   .map(Tile::position)
                   .toList();
           Item[] items = inventory.items();
@@ -713,7 +714,12 @@ public class HeroController {
                   adjustedToSlot,
                   player.id());
             });
-    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
+    // Only moves between inventories change what a chest holds; rearranging slots does not.
+    if (source != target) {
+      otherInv
+          .filter(inv -> inv == source || inv == target)
+          .ifPresent(inv -> inv.recordMove(player));
+    }
     return true;
   }
 
