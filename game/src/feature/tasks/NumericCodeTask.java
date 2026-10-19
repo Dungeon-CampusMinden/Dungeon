@@ -37,13 +37,4 @@ public final class NumericCodeTask extends Task<String> {
   public String trackedAnswer(final String answer) {
     return answer;
   }
-
-  /**
-   * Returns the correct code.
-   *
-   * @return the code
-   */
-  public String code() {
-    return code;
-  }
 }
