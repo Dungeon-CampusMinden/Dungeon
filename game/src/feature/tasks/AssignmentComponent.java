@@ -5,50 +5,44 @@ import engine.Entity;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 
 /**
  * Registers an {@link AssignmentTask} and its containers with the {@link AssignmentSystem}.
  *
- * <p>Created by {@link TaskFactory#buildItemAssignment}.
+ * <p>Created by {@link TaskFactory#buildItemAssignment} or {@link TaskFactory#itemAssignment}.
  */
 public final class AssignmentComponent implements Component {
 
-  private final TaskComponent<Map<String, String>> taskComponent;
   private final AssignmentTask task;
   private final Map<String, Entity> containers;
   private final AssignmentChecker checker;
+  private final BiPredicate<Map<String, String>, Entity> submission;
+  private boolean solved;
   private Optional<Map<String, String>> placement = Optional.empty();
   private Entity actor;
 
   /**
    * Creates the registration.
    *
-   * @param taskComponent the component that owns the task and receives the solved placement
    * @param task the assignment task
    * @param containers the task containers by container identifier
    * @param checker the check run after each placement change
+   * @param submission receives each placement the checker accepts and the acting player; returns
+   *     whether the assignment is solved
    */
   public AssignmentComponent(
-      final TaskComponent<Map<String, String>> taskComponent,
       final AssignmentTask task,
       final Map<String, Entity> containers,
-      final AssignmentChecker checker) {
-    this.taskComponent = Objects.requireNonNull(taskComponent, "taskComponent");
+      final AssignmentChecker checker,
+      final BiPredicate<Map<String, String>, Entity> submission) {
     this.task = Objects.requireNonNull(task, "task");
     this.containers = Map.copyOf(containers);
     this.checker = Objects.requireNonNull(checker, "checker");
+    this.submission = Objects.requireNonNull(submission, "submission");
     if (!this.containers.keySet().equals(task.containerIds())) {
       throw new IllegalArgumentException("containers must match the task container identifiers");
     }
-  }
-
-  /**
-   * Returns the component that owns the task.
-   *
-   * @return the task component
-   */
-  public TaskComponent<Map<String, String>> taskComponent() {
-    return taskComponent;
   }
 
   /**
@@ -79,12 +73,26 @@ public final class AssignmentComponent implements Component {
   }
 
   /**
+   * Returns whether a submitted placement solved the assignment.
+   *
+   * @return {@code true} once solved
+   */
+  public boolean solved() {
+    return solved;
+  }
+
+  /**
    * Returns the player who last moved an item into or out of a changed container.
    *
    * @return the last acting player, if known
    */
   public Optional<Entity> actor() {
     return Optional.ofNullable(actor);
+  }
+
+  boolean submit(final Map<String, String> placement, final Entity player) {
+    solved = submission.test(placement, player);
+    return solved;
   }
 
   Optional<Map<String, String>> placement() {

@@ -35,7 +35,6 @@ import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
 import feature.tasks.AnswerItem;
 import feature.tasks.AssignmentChecker;
-import feature.tasks.AssignmentComponent;
 import feature.tasks.TaskFactory;
 import feature.tasks.TaskTracking;
 import java.util.LinkedHashMap;
@@ -353,24 +352,21 @@ public final class ServerGameBinding {
             item ->
                 new AnswerItem(item.id(), item.name(), item.sprite())
                     .drop(new Point(requireStation(stations, item.id()))));
-    Entity assignment =
-        TaskFactory.buildItemAssignment(
+    Game.add(
+        TaskFactory.itemAssignment(
             definition.task(),
             containers,
-            ignored -> {},
-            component ->
-                AssignmentChecker.CONTENTS.check(component)
-                    && submitAssignment(component, riddleId, definition));
-    Game.add(assignment);
+            AssignmentChecker.CONTENTS,
+            (placement, actor) -> submitAssignment(actor, riddleId, definition, placement)));
   }
 
   private boolean submitAssignment(
-      final AssignmentComponent assignment,
+      final Entity actor,
       final String riddleId,
-      final AssignmentInputDefinition definition) {
+      final AssignmentInputDefinition definition,
+      final Map<String, String> placement) {
     Optional<Entity> player =
-        assignment
-            .actor()
+        Optional.of(actor)
             .filter(serverBinding::gameplayReady)
             .or(
                 () ->
@@ -382,18 +378,13 @@ public final class ServerGameBinding {
       return false;
     }
     Entity solver = player.orElseThrow();
-    Map<String, String> placement =
-        AssignmentChecker.placement(assignment.task(), assignment.containers()).orElseThrow();
     boolean correct =
         submitAnswer(solver, riddleId, AssignmentInputDefinition.class, definition, placement)
             .filter(result -> result.outcome() == CodeOutcome.CORRECT)
-            .map(
-                result -> {
-                  Game.audio()
-                      .playGlobal(SoundSpec.builder("retro_event_correct").targets(solver.id()));
-                  return true;
-                })
-            .orElse(false);
+            .isPresent();
+    if (correct) {
+      Game.audio().playGlobal(SoundSpec.builder("retro_event_correct").targets(solver.id()));
+    }
     return correct;
   }
 

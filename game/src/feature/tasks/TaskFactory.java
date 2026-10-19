@@ -14,10 +14,12 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.elements.RichLabel;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.systems.PositionSync;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -103,6 +105,8 @@ public final class TaskFactory {
                         });
                   }
                 })));
+    // Place the hitbox now; without CollisionSystem it would stay at the origin.
+    PositionSync.syncPosition(terminal);
     return terminal;
   }
 
@@ -141,15 +145,36 @@ public final class TaskFactory {
       final Map<String, Entity> containers,
       final Consumer<Entity> onCorrect,
       final AssignmentChecker checker) {
-    if (!Game.systems().containsKey(AssignmentSystem.class)) {
-      Game.add(new AssignmentSystem());
-    }
     TaskComponent<Map<String, String>> taskComponent = new TaskComponent<>(task);
     taskComponent.onCorrect(onCorrect);
     taskComponent.onWrong(ignored -> {});
-    Entity entity = new Entity("assignment");
+    Entity entity = itemAssignment(task, containers, checker, taskComponent::submit);
     entity.add(taskComponent);
-    entity.add(new AssignmentComponent(taskComponent, task, containers, checker));
+    return entity;
+  }
+
+  /**
+   * Registers an assignment of items to containers whose accepted placements go to the given
+   * submission instead of a {@link TaskComponent}, e.g. to a room authority that decides progress.
+   *
+   * @param task the assignment
+   * @param containers the task containers by container identifier; each needs an inventory
+   * @param checker decides after each placement change whether to submit the placement
+   * @param submission receives the placement and the player who completed it, or the returned
+   *     entity if no player changed a container through its inventory dialog; returns whether the
+   *     assignment is solved
+   * @return the assignment entity, to be added with {@link Game#add(Entity)}
+   */
+  public static Entity itemAssignment(
+      final AssignmentTask task,
+      final Map<String, Entity> containers,
+      final AssignmentChecker checker,
+      final BiPredicate<Map<String, String>, Entity> submission) {
+    if (!Game.systems().containsKey(AssignmentSystem.class)) {
+      Game.add(new AssignmentSystem());
+    }
+    Entity entity = new Entity("assignment");
+    entity.add(new AssignmentComponent(task, containers, checker, submission));
     return entity;
   }
 

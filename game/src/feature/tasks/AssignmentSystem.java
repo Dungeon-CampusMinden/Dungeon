@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
  * Checks registered {@link AssignmentComponent}s on the server whenever the placement of their
  * items changes.
  *
- * <p>A changed placement runs the assignment's {@link AssignmentChecker}; a correct placement runs
- * it again on every tick until it reports a solution, e.g. once a required lever is pulled. When it
- * reports a solution, the placement is submitted to the task component, which invokes its correct
- * callback with the player who last moved an item into or out of a changed container. Wrong
- * placements are ignored because players may still be sorting.
+ * <p>A changed placement runs the assignment's {@link AssignmentChecker}. When it reports a
+ * solution, the placement goes to the assignment's submission together with the player who last
+ * moved an item into or out of a changed container. A correct placement is checked and submitted
+ * again on every tick until the submission accepts it, e.g. once a required lever is pulled or the
+ * riddle becomes active. Wrong placements are ignored because players may still be sorting.
  */
 public final class AssignmentSystem extends System {
 
@@ -35,8 +35,7 @@ public final class AssignmentSystem extends System {
 
   private static void check(final Entity entity) {
     AssignmentComponent assignment = entity.fetch(AssignmentComponent.class).orElseThrow();
-    TaskComponent<Map<String, String>> taskComponent = assignment.taskComponent();
-    if (taskComponent.isSolved()) {
+    if (assignment.solved()) {
       return;
     }
     Optional<Map<String, String>> placement =
@@ -48,7 +47,7 @@ public final class AssignmentSystem extends System {
     }
     boolean correct = placement.map(assignment.task()::isCorrect).orElse(false);
     if ((changed || correct) && assignment.checker().check(assignment)) {
-      taskComponent.submit(placement.orElse(Map.of()), assignment.actor().orElse(entity));
+      assignment.submit(placement.orElse(Map.of()), assignment.actor().orElse(entity));
     }
   }
 
