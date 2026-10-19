@@ -3,6 +3,7 @@ package engine.utils.components.draw.shader;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import engine.utils.Rectangle;
+import engine.utils.settings.ClientSettings;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,7 +91,7 @@ public class MagicBallShader extends AbstractShader {
         new ColorUniform("u_ballColor", ballColor),
         new FloatUniform("u_glowStrength", glowStrength),
         new ColorUniform("u_glowColor", glowColor),
-        new FloatUniform("u_motes", motes));
+        new FloatUniform("u_motes", ClientSettings.reduceEffects() ? 0f : motes));
   }
 
   @Override

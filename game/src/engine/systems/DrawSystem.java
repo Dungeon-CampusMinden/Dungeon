@@ -258,6 +258,16 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
+   * Gets the renderer of the scene's light and atmosphere. Scene shaders draw into its scene
+   * buffers, which show a little more than the screen; see {@link AtmosphereRenderer#view()}.
+   *
+   * @return the atmosphere renderer
+   */
+  public AtmosphereRenderer atmosphere() {
+    return atmosphere;
+  }
+
+  /**
    * Gets the ShaderList applied to the level layer.
    *
    * @return The level ShaderList

@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import engine.Entity;
 import engine.Game;
@@ -201,6 +202,27 @@ public final class AtmosphereRenderer implements Disposable {
    */
   public int height() {
     return height;
+  }
+
+  /**
+   * The world area the scene buffers of the last frame show. It is a little larger than the screen,
+   * and scene shaders draw over all of it.
+   *
+   * @return the world area
+   */
+  public Rectangle view() {
+    return view;
+  }
+
+  /**
+   * Converts a position on the screen to the position the last frame's scene buffers show there.
+   *
+   * @param screenU horizontal screen position, from 0 at the left to 1 at the right edge
+   * @param screenV vertical screen position, from 0 at the bottom to 1 at the top edge
+   * @return the position in the scene buffers, from 0 to 1 on each axis
+   */
+  public Vector2 sceneUv(float screenU, float screenV) {
+    return new Vector2(srcU + screenU * (srcU2 - srcU), srcV + screenV * (srcV2 - srcV));
   }
 
   /**
