@@ -1,5 +1,6 @@
 package engine.network.codec;
 
+import engine.network.codec.converters.c2s.CharacterOptionsRequestConverter;
 import engine.network.codec.converters.c2s.ConnectRequestConverter;
 import engine.network.codec.converters.c2s.DebugPingConverter;
 import engine.network.codec.converters.c2s.DebugTelemetryRequestConverter;
@@ -11,6 +12,7 @@ import engine.network.codec.converters.c2s.RegisterUdpConverter;
 import engine.network.codec.converters.c2s.RequestEntitySpawnConverter;
 import engine.network.codec.converters.c2s.SnapshotAckConverter;
 import engine.network.codec.converters.c2s.SoundFinishedConverter;
+import engine.network.codec.converters.s2c.CharacterOptionsConverter;
 import engine.network.codec.converters.s2c.ConnectAckConverter;
 import engine.network.codec.converters.s2c.ConnectRejectConverter;
 import engine.network.codec.converters.s2c.DebugPongConverter;
@@ -47,6 +49,7 @@ public final class CoreConverters {
    */
   public static void registerAll(ConverterRegistry registry) {
     registry.register(new ConnectRequestConverter());
+    registry.register(new CharacterOptionsRequestConverter());
     registry.register(new InputMessageConverter());
     registry.register(new DialogResponseConverter());
     registry.register(new RegisterUdpConverter());
@@ -59,6 +62,7 @@ public final class CoreConverters {
     registry.register(new PauseStateMessageConverter());
     registry.register(new PlayClockMessageConverter());
     registry.register(new ConnectAckConverter());
+    registry.register(new CharacterOptionsConverter());
     registry.register(new ConnectRejectConverter());
     registry.register(new DialogShowConverter());
     registry.register(new DialogCloseConverter());

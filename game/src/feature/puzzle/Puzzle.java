@@ -18,10 +18,11 @@ import java.util.function.BiConsumer;
 /**
  * In-memory state and configuration of a single jigsaw puzzle instance.
  *
- * <p>Holds the immutable parameters (image, total piece count, completion callback, debug flag) and
- * the mutable per-puzzle state (current RNG seed, polygon shape of every piece in image-pixel
- * coordinates, current playfield positions of pieces, which pieces are currently snapped to their
- * correct slot, and whether the completion callback has already been fired).
+ * <p>Holds the puzzle configuration (image, total piece count, compatible-piece family, completion
+ * callback, and debug flag) and the mutable per-puzzle state (current RNG seed, polygon shape of
+ * every piece in image-pixel coordinates, current playfield positions of pieces, which pieces are
+ * currently connected to the largest assembly, and whether the completion callback has already been
+ * fired).
  *
  * <p>The pieces are obtained by repeatedly splitting the largest current polygon along a chord
  * between two random points on its perimeter (see {@link PuzzleSlicer}). Polygons are recomputed
@@ -36,10 +37,11 @@ import java.util.function.BiConsumer;
 public class Puzzle {
 
   private final String id;
+  private final String pieceFamilyId;
   private final IPath imagePath;
   private final int pieceCount;
   private final boolean debug;
-  private final BiConsumer<Puzzle, Entity> onComplete;
+  private BiConsumer<Puzzle, Entity> onComplete;
 
   private long seed;
 
@@ -54,7 +56,7 @@ public class Puzzle {
   /** Local (playfield) position of each piece (key = piece index). */
   private final Map<Integer, Vector2> piecePositions = new HashMap<>();
 
-  /** Indices of pieces that are currently snapped onto their correct slot. */
+  /** Indices of pieces that are currently connected to the largest assembly. */
   private final Set<Integer> placedCorrectly = new HashSet<>();
 
   private boolean callbackFired = false;
@@ -63,6 +65,7 @@ public class Puzzle {
    * Creates a new {@code Puzzle}. Use {@link PuzzleMaker} to obtain instances.
    *
    * @param id unique runtime id for this puzzle (used as the lookup key in {@link PuzzleMaker})
+   * @param pieceFamilyId identifies puzzles whose pieces can fill the same set of slots
    * @param imagePath path to the source image that gets sliced into pieces
    * @param pieceCount total number of pieces ({@code >= 2})
    * @param seed RNG seed used for deterministic slicing and initial scatter
@@ -72,6 +75,7 @@ public class Puzzle {
    */
   Puzzle(
       String id,
+      String pieceFamilyId,
       IPath imagePath,
       int pieceCount,
       long seed,
@@ -81,6 +85,7 @@ public class Puzzle {
       throw new IllegalArgumentException("pieceCount must be >= 2");
     }
     this.id = id;
+    this.pieceFamilyId = pieceFamilyId;
     this.imagePath = imagePath;
     this.pieceCount = pieceCount;
     this.debug = debug;
@@ -93,6 +98,15 @@ public class Puzzle {
    */
   public String id() {
     return id;
+  }
+
+  /**
+   * Returns the stable identifier shared by compatible language or presentation variants.
+   *
+   * @return piece family identifier
+   */
+  public String pieceFamilyId() {
+    return pieceFamilyId;
   }
 
   /**
@@ -150,6 +164,15 @@ public class Puzzle {
   }
 
   /**
+   * Replaces the completion behavior shared by compatible puzzle variants.
+   *
+   * @param callback callback fired when this puzzle is solved
+   */
+  void onComplete(BiConsumer<Puzzle, Entity> callback) {
+    this.onComplete = callback;
+  }
+
+  /**
    * Returns the polygon vertices of the given piece, in image-pixel coordinates ({@code
    * {x0,y0,x1,y1,...}}). The returned list is parallel to {@link #pieces()}.
    *
@@ -200,7 +223,7 @@ public class Puzzle {
   }
 
   /**
-   * Marks a piece as snapped to its correct slot.
+   * Marks a piece as connected to the largest assembly.
    *
    * @param pieceIndex piece index
    */
@@ -209,7 +232,7 @@ public class Puzzle {
   }
 
   /**
-   * Marks a piece as no longer snapped to its correct slot.
+   * Marks a piece as no longer connected to the largest assembly.
    *
    * @param pieceIndex piece index
    */
@@ -228,11 +251,20 @@ public class Puzzle {
     if (entity == null) return;
     entity
         .fetch(InventoryComponent.class)
-        .ifPresent(inv -> pieces.forEach(piece -> inv.remove(piece)));
+        .ifPresent(
+            inv -> {
+              Item[] items = inv.items();
+              for (int i = 0; i < items.length; i++) {
+                if (items[i] instanceof PuzzlePieceItem piece
+                    && piece.pieceFamilyId().equals(pieceFamilyId)) {
+                  inv.remove(i);
+                }
+              }
+            });
   }
 
   /**
-   * Marks every piece of this puzzle as snapped to its correct slot.
+   * Marks every piece of this puzzle as connected to the completed assembly.
    *
    * <p>Piece placement happens in {@link PuzzleUI}, which (in multiplayer) only runs on the client.
    * The server's copy of this puzzle therefore never sees the individual {@link #markPlaced(int)}
@@ -248,14 +280,14 @@ public class Puzzle {
 
   /**
    * @param pieceIndex piece index
-   * @return whether the given piece is currently snapped to its correct slot
+   * @return whether the given piece is currently connected to the largest assembly
    */
   public boolean isPlaced(int pieceIndex) {
     return placedCorrectly.contains(pieceIndex);
   }
 
   /**
-   * @return whether every single piece is snapped to its correct slot
+   * @return whether every single piece belongs to the same connected assembly
    */
   public boolean isFullySolved() {
     return placedCorrectly.size() == pieceCount();

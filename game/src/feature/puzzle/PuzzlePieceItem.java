@@ -1,7 +1,9 @@
 package feature.puzzle;
 
 import engine.Entity;
+import engine.Game;
 import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.UIComponent;
@@ -14,6 +16,7 @@ import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /**
@@ -31,7 +34,7 @@ import rooms.lasthour.util.translation.TranslationKey;
  *
  * <p>Unlike most items, {@link #use(Entity)} does <b>not</b> consume the item. Instead it opens the
  * {@link PuzzleDialog} for the calling hero, so the piece stays in the inventory and can still be
- * dragged onto its slot inside the puzzle UI.
+ * joined to neighboring pieces inside the puzzle UI.
  */
 public class PuzzlePieceItem extends Item {
 
@@ -49,6 +52,21 @@ public class PuzzlePieceItem extends Item {
 
   /** Item-data key carrying the RNG seed of the parent puzzle. */
   public static final String DATA_KEY_SEED = "seed";
+
+  /** Item-data key identifying compatible puzzle variants. */
+  public static final String DATA_KEY_PIECE_FAMILY_ID = "pieceFamilyId";
+
+  /** Item-data key carrying an optional customized item name. */
+  public static final String DATA_KEY_CUSTOM_ITEM_NAME = "pieceItemName";
+
+  /** Item-data key carrying an optional customized item description. */
+  public static final String DATA_KEY_CUSTOM_ITEM_DESCRIPTION = "pieceItemDescription";
+
+  /** Item-data key carrying an optional customized completion-hint name. */
+  public static final String DATA_KEY_COMPLETION_HINT_NAME = "completionHintName";
+
+  /** Item-data key carrying an optional customized completion-hint description. */
+  public static final String DATA_KEY_COMPLETION_HINT_DESCRIPTION = "completionHintDescription";
 
   static {
     ItemRegistry.register(PuzzlePieceItem.class, PuzzlePieceItem::fromData);
@@ -68,6 +86,11 @@ public class PuzzlePieceItem extends Item {
   private final IPath imagePath;
   private final int pieceCount;
   private final long seed;
+  private final String pieceFamilyId;
+  private final String customItemName;
+  private final String customItemDescription;
+  private final String completionHintName;
+  private final String completionHintDescription;
 
   /**
    * Creates a new puzzle piece item.
@@ -80,15 +103,82 @@ public class PuzzlePieceItem extends Item {
    */
   public PuzzlePieceItem(
       String puzzleId, int pieceIndex, IPath imagePath, int pieceCount, long seed) {
+    this(puzzleId, pieceIndex, imagePath, pieceCount, seed, puzzleId);
+  }
+
+  /**
+   * Creates a puzzle piece with a stable family shared by compatible puzzle variants.
+   *
+   * @param puzzleId the runtime id of the parent {@link Puzzle}
+   * @param pieceIndex the index of this piece inside the puzzle
+   * @param imagePath path of the source image the parent puzzle is sliced from
+   * @param pieceCount total number of pieces of the parent puzzle
+   * @param seed RNG seed of the parent puzzle
+   * @param pieceFamilyId identifier shared by variants with compatible piece indexes
+   */
+  PuzzlePieceItem(
+      String puzzleId,
+      int pieceIndex,
+      IPath imagePath,
+      int pieceCount,
+      long seed,
+      String pieceFamilyId) {
+    this(puzzleId, pieceIndex, imagePath, pieceCount, seed, pieceFamilyId, null, null, null, null);
+  }
+
+  private PuzzlePieceItem(
+      String puzzleId,
+      int pieceIndex,
+      IPath imagePath,
+      int pieceCount,
+      long seed,
+      String pieceFamilyId,
+      String customItemName,
+      String customItemDescription,
+      String completionHintName,
+      String completionHintDescription) {
     super(
-        TranslationKey.PuzzleItemName,
-        TranslationKey.PuzzleItemDescription,
+        customItemName == null ? TranslationKey.PuzzleItemName : customItemName,
+        customItemDescription == null
+            ? TranslationKey.PuzzleItemDescription
+            : customItemDescription,
         new Animation(new SimpleIPath(PuzzleTextureGenerator.texturePath(puzzleId, pieceIndex))));
-    this.puzzleId = puzzleId;
+    this.puzzleId = Objects.requireNonNull(puzzleId, "puzzleId");
     this.pieceIndex = pieceIndex;
-    this.imagePath = imagePath;
+    this.imagePath = Objects.requireNonNull(imagePath, "imagePath");
     this.pieceCount = pieceCount;
     this.seed = seed;
+    this.pieceFamilyId = Objects.requireNonNull(pieceFamilyId, "pieceFamilyId");
+    this.customItemName = validateOptionalText(customItemName, DATA_KEY_CUSTOM_ITEM_NAME);
+    this.customItemDescription =
+        validateOptionalText(customItemDescription, DATA_KEY_CUSTOM_ITEM_DESCRIPTION);
+    this.completionHintName =
+        validateOptionalText(completionHintName, DATA_KEY_COMPLETION_HINT_NAME);
+    this.completionHintDescription =
+        validateOptionalText(completionHintDescription, DATA_KEY_COMPLETION_HINT_DESCRIPTION);
+  }
+
+  @Override
+  public Animation worldAnimation() {
+    Animation animation = super.worldAnimation();
+    if (Game.isHeadless()
+        && animation.getConfig().config().isEmpty()
+        && animation
+            .sourcePath()
+            .filter(
+                texturePath ->
+                    texturePath
+                        .pathString()
+                        .equals(PuzzleTextureGenerator.texturePath(puzzleId, pieceIndex)))
+            .isPresent()) {
+      AnimationConfig config = animation.clone().getConfig();
+      config.config(
+          PuzzleTextureGenerator.pieceSpritesheetConfig(imagePath, pieceCount, seed, pieceIndex));
+      animation =
+          new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
+      super.worldAnimation(animation);
+    }
+    return animation;
   }
 
   /**
@@ -126,6 +216,65 @@ public class PuzzlePieceItem extends Item {
     return seed;
   }
 
+  /**
+   * Returns the identifier shared by compatible puzzle variants.
+   *
+   * @return piece family identifier
+   */
+  public String pieceFamilyId() {
+    return pieceFamilyId;
+  }
+
+  /**
+   * Creates an independent copy with a prefab-specific item name and description.
+   *
+   * @param itemName customized display name
+   * @param itemDescription customized description
+   * @return a new puzzle piece; this item and its canonical puzzle piece remain unchanged
+   */
+  public PuzzlePieceItem withDisplayIdentity(String itemName, String itemDescription) {
+    return new PuzzlePieceItem(
+        puzzleId,
+        pieceIndex,
+        imagePath,
+        pieceCount,
+        seed,
+        pieceFamilyId,
+        itemName,
+        itemDescription,
+        completionHintName,
+        completionHintDescription);
+  }
+
+  /**
+   * Creates an independent copy carrying a customized identity for the generic completion reward.
+   *
+   * @param hintName customized completion-hint name
+   * @param hintDescription customized completion-hint description
+   * @return a new puzzle piece; this item and its canonical puzzle piece remain unchanged
+   */
+  public PuzzlePieceItem withCompletionHintIdentity(String hintName, String hintDescription) {
+    return new PuzzlePieceItem(
+        puzzleId,
+        pieceIndex,
+        imagePath,
+        pieceCount,
+        seed,
+        pieceFamilyId,
+        customItemName,
+        customItemDescription,
+        hintName,
+        hintDescription);
+  }
+
+  String completionHintName() {
+    return completionHintName;
+  }
+
+  String completionHintDescription() {
+    return completionHintDescription;
+  }
+
   @Override
   public Map<String, String> itemData() {
     Map<String, String> data = new LinkedHashMap<>();
@@ -134,6 +283,17 @@ public class PuzzlePieceItem extends Item {
     data.put(DATA_KEY_IMAGE_PATH, imagePath.pathString());
     data.put(DATA_KEY_PIECE_COUNT, Integer.toString(pieceCount));
     data.put(DATA_KEY_SEED, Long.toString(seed));
+    data.put(DATA_KEY_PIECE_FAMILY_ID, pieceFamilyId);
+    if (customItemName != null) data.put(DATA_KEY_CUSTOM_ITEM_NAME, customItemName);
+    if (customItemDescription != null) {
+      data.put(DATA_KEY_CUSTOM_ITEM_DESCRIPTION, customItemDescription);
+    }
+    if (completionHintName != null) {
+      data.put(DATA_KEY_COMPLETION_HINT_NAME, completionHintName);
+    }
+    if (completionHintDescription != null) {
+      data.put(DATA_KEY_COMPLETION_HINT_DESCRIPTION, completionHintDescription);
+    }
     return data;
   }
 
@@ -152,16 +312,32 @@ public class PuzzlePieceItem extends Item {
     IPath imagePath = new SimpleIPath(require(data, DATA_KEY_IMAGE_PATH));
     int pieceCount = Integer.parseInt(require(data, DATA_KEY_PIECE_COUNT));
     long seed = Long.parseLong(require(data, DATA_KEY_SEED));
-
-    Puzzle puzzle = PuzzleMaker.ensurePuzzle(puzzleId, imagePath, pieceCount, seed);
+    String pieceFamilyId = data.get(DATA_KEY_PIECE_FAMILY_ID);
+    Puzzle puzzle =
+        pieceFamilyId == null
+            ? PuzzleMaker.ensurePuzzle(puzzleId, imagePath, pieceCount, seed)
+            : PuzzleMaker.ensurePuzzle(puzzleId, imagePath, pieceCount, seed, pieceFamilyId);
+    if (pieceFamilyId == null) pieceFamilyId = puzzle.pieceFamilyId();
     PuzzleTextureGenerator.ensureRegistered(puzzle);
 
-    // Return the canonical piece owned by the Puzzle so reference-equality checks
-    // (e.g. InventoryComponent.hasItem used by PuzzleUI) still match.
-    if (pieceIndex >= 0 && pieceIndex < puzzle.pieces().size()) {
-      return puzzle.pieces().get(pieceIndex);
+    return new PuzzlePieceItem(
+        puzzleId,
+        pieceIndex,
+        imagePath,
+        pieceCount,
+        seed,
+        pieceFamilyId,
+        data.get(DATA_KEY_CUSTOM_ITEM_NAME),
+        data.get(DATA_KEY_CUSTOM_ITEM_DESCRIPTION),
+        data.get(DATA_KEY_COMPLETION_HINT_NAME),
+        data.get(DATA_KEY_COMPLETION_HINT_DESCRIPTION));
+  }
+
+  private static String validateOptionalText(String value, String key) {
+    if (value != null && value.isBlank()) {
+      throw new IllegalArgumentException(key + " must not be blank");
     }
-    return new PuzzlePieceItem(puzzleId, pieceIndex, imagePath, pieceCount, seed);
+    return value;
   }
 
   private static String require(Map<String, String> data, String key) {
@@ -171,6 +347,37 @@ public class PuzzlePieceItem extends Item {
           "PuzzlePieceItem itemData is missing required key '" + key + "'");
     }
     return value;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof PuzzlePieceItem other)) return false;
+    return pieceIndex == other.pieceIndex
+        && pieceCount == other.pieceCount
+        && seed == other.seed
+        && puzzleId.equals(other.puzzleId)
+        && imagePath.pathString().equals(other.imagePath.pathString())
+        && pieceFamilyId.equals(other.pieceFamilyId)
+        && Objects.equals(customItemName, other.customItemName)
+        && Objects.equals(customItemDescription, other.customItemDescription)
+        && Objects.equals(completionHintName, other.completionHintName)
+        && Objects.equals(completionHintDescription, other.completionHintDescription);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        puzzleId,
+        pieceIndex,
+        imagePath.pathString(),
+        pieceCount,
+        seed,
+        pieceFamilyId,
+        customItemName,
+        customItemDescription,
+        completionHintName,
+        completionHintDescription);
   }
 
   /**

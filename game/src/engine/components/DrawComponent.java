@@ -47,7 +47,7 @@ import java.util.List;
  */
 public final class DrawComponent implements Component {
 
-  private final StateMachine stateMachine;
+  private StateMachine stateMachine;
   private int depth = DepthLayer.Normal.depth();
   private float sortOffset = 0f;
 
@@ -366,6 +366,15 @@ public final class DrawComponent implements Component {
    */
   public StateMachine stateMachine() {
     return stateMachine;
+  }
+
+  /**
+   * Replaces the animation state machine while retaining this component's rendering configuration.
+   *
+   * @param stateMachine the new state machine
+   */
+  public void replaceStateMachine(StateMachine stateMachine) {
+    this.stateMachine = stateMachine;
   }
 
   /**

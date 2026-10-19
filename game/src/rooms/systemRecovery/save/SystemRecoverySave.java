@@ -4,8 +4,10 @@ import engine.Game;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
+import engine.network.server.CharacterSelection;
 import engine.utils.JsonHandler;
 import feature.components.InventoryComponent;
+import feature.entities.CharacterClass;
 import feature.inventory.Item;
 import feature.inventory.items.ItemKey;
 import feature.questlog.QuestLogEntry;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.TreeMap;
 import java.util.UUID;
 import rooms.systemRecovery.items.SearchProgramChipItem;
 import rooms.systemRecovery.items.SortProgramStickItem;
@@ -153,7 +156,8 @@ public final class SystemRecoverySave {
         SystemRecoveryLevel.systemCoreWarningCallAnswered(),
         mergePendingPlayerPositions(currentPlayerPositions(), pendingPlayerPositions),
         Game.playClock().activeMs(),
-        SystemRecoveryLevel.timeLimitFinishedAt());
+        SystemRecoveryLevel.timeLimitFinishedAt(),
+        CharacterSelection.assignments());
   }
 
   private static List<PlayerPositionData> currentPlayerPositions() {
@@ -363,6 +367,10 @@ public final class SystemRecoverySave {
     root.put("memoryWatch", data.memoryWatchEntries());
     root.put("inventoryItems", data.inventoryItems().stream().map(PlayerItemData::toMap).toList());
     root.put("players", data.playerPositions().stream().map(PlayerPositionData::toMap).toList());
+    Map<String, Object> characterAssignments = new TreeMap<>();
+    data.characterAssignments()
+        .forEach((name, characterClass) -> characterAssignments.put(name, characterClass.name()));
+    root.put("characterAssignments", characterAssignments);
     root.put("systemCoreExitOpen", data.systemCoreExitOpen());
     root.put("systemCoreWarningCallAnswered", data.systemCoreWarningCallAnswered());
     if (data.achievementProgress() != null) {
@@ -407,6 +415,7 @@ public final class SystemRecoverySave {
    * @param playerPositions saved world position for each named player
    * @param activeMs active play time captured with this checkpoint
    * @param timeLimitFinishedAtMs play time at which the completed run froze its countdown
+   * @param characterAssignments named character classes reserved for this run
    */
   public record SaveData(
       String checkpointKey,
@@ -423,7 +432,61 @@ public final class SystemRecoverySave {
       boolean systemCoreWarningCallAnswered,
       List<PlayerPositionData> playerPositions,
       long activeMs,
-      OptionalLong timeLimitFinishedAtMs) {
+      OptionalLong timeLimitFinishedAtMs,
+      Map<String, CharacterClass> characterAssignments) {
+    /**
+     * Keeps existing callers source-compatible with saves that predate character assignments.
+     *
+     * @param checkpointKey stable first-step key of the active riddle
+     * @param acceptedTerminalInputs accepted terminal inputs
+     * @param questLog shared quest-log entries
+     * @param runId stable playthrough ID
+     * @param playerName saved player name
+     * @param trackingConsent run-level tracking decision
+     * @param achievementProgress run-local achievement state
+     * @param terminalHistory terminal history lines
+     * @param memoryWatchEntries Memory Watch entries
+     * @param inventoryItems puzzle items carried by each named player
+     * @param systemCoreExitOpen whether the final call has opened the elevator
+     * @param systemCoreWarningCallAnswered whether ECHO's core warning call was completed
+     * @param playerPositions saved world positions for named players
+     * @param activeMs active play time captured with this checkpoint
+     * @param timeLimitFinishedAtMs play time at which the completed run froze its countdown
+     */
+    public SaveData(
+        String checkpointKey,
+        List<AcceptedInput> acceptedTerminalInputs,
+        List<QuestLogEntryData> questLog,
+        UUID runId,
+        String playerName,
+        Boolean trackingConsent,
+        SystemRecoveryAchievementTracker.Snapshot achievementProgress,
+        List<String> terminalHistory,
+        List<String> memoryWatchEntries,
+        List<PlayerItemData> inventoryItems,
+        boolean systemCoreExitOpen,
+        boolean systemCoreWarningCallAnswered,
+        List<PlayerPositionData> playerPositions,
+        long activeMs,
+        OptionalLong timeLimitFinishedAtMs) {
+      this(
+          checkpointKey,
+          acceptedTerminalInputs,
+          questLog,
+          runId,
+          playerName,
+          trackingConsent,
+          achievementProgress,
+          terminalHistory,
+          memoryWatchEntries,
+          inventoryItems,
+          systemCoreExitOpen,
+          systemCoreWarningCallAnswered,
+          playerPositions,
+          activeMs,
+          timeLimitFinishedAtMs,
+          Map.of());
+    }
 
     /**
      * Creates a checkpoint of a run whose countdown is still running.
@@ -498,7 +561,8 @@ public final class SystemRecoverySave {
           systemCoreWarningCallAnswered,
           playerPositions,
           activeMs,
-          timeLimitFinishedAtMs);
+          timeLimitFinishedAtMs,
+          characterAssignments);
     }
 
     /**
@@ -523,7 +587,8 @@ public final class SystemRecoverySave {
           systemCoreWarningCallAnswered,
           playerPositions,
           activeMs,
-          timeLimitFinishedAtMs);
+          timeLimitFinishedAtMs,
+          characterAssignments);
     }
 
     /**
@@ -548,7 +613,8 @@ public final class SystemRecoverySave {
           systemCoreWarningCallAnswered,
           positions,
           activeMs,
-          timeLimitFinishedAtMs);
+          timeLimitFinishedAtMs,
+          characterAssignments);
     }
 
     /**
@@ -773,6 +839,7 @@ public final class SystemRecoverySave {
      * @param playerPositions saved world position for each named player
      * @param activeMs active play time captured with this checkpoint
      * @param timeLimitFinishedAtMs play time at which the completed run froze its countdown
+     * @param characterAssignments retained player-name to character-class assignments
      */
     public SaveData {
       if (activeMs < 0) throw new IllegalArgumentException("activeMs must not be negative");
@@ -790,6 +857,18 @@ public final class SystemRecoverySave {
       memoryWatchEntries = List.copyOf(memoryWatchEntries == null ? List.of() : memoryWatchEntries);
       inventoryItems = List.copyOf(inventoryItems == null ? List.of() : inventoryItems);
       playerPositions = List.copyOf(playerPositions == null ? List.of() : playerPositions);
+      Map<String, CharacterClass> immutableCharacterAssignments = new LinkedHashMap<>();
+      if (characterAssignments == null) {
+        throw new IllegalArgumentException("characterAssignments must not be null");
+      }
+      characterAssignments.forEach(
+          (name, characterClass) -> {
+            if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
+              throw new IllegalArgumentException("Invalid saved character assignment");
+            }
+            immutableCharacterAssignments.put(name, characterClass);
+          });
+      characterAssignments = Map.copyOf(immutableCharacterAssignments);
     }
   }
 

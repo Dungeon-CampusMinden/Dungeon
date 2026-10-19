@@ -5,6 +5,7 @@ import static engine.network.codec.NetworkCodec.serialize;
 import static engine.network.config.NetworkConfig.MAX_TCP_OBJECT_SIZE;
 import static engine.network.config.NetworkConfig.PROTOCOL_VERSION;
 import static engine.network.config.NetworkConfig.SAFE_UDP_MTU;
+import static engine.network.config.NetworkConfig.SESSION_TOKEN_LENGTH_BYTES;
 import static engine.network.config.NetworkConfig.SNAPSHOT_ACK_EXPLICIT_DELAY_MS;
 import static engine.network.config.NetworkConfig.TCP_CONNECT_TIMEOUT_MS;
 import static engine.network.config.NetworkConfig.TCP_INITIAL_BYTES_TO_STRIP;
@@ -48,13 +49,16 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
@@ -65,6 +69,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Netty-backed client transport using a single {@link Session} to mirror server-side semantics.
@@ -85,18 +90,20 @@ public final class ClientNetwork {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final String LAST_SESSION_FILE_NAME = "last_session.dat";
+  private static final int LAST_SESSION_FORMAT = 0x44534E31;
   private static final String DEFAULT_DISCONNECT_REASON = "Disconnected.";
   private static final long SNAPSHOT_RESYNC_REQUEST_RETRY_NANOS = TimeUnit.SECONDS.toNanos(1L);
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
   private final Queue<QueuedNetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
   private final AtomicInteger inboundQueueDepth = new AtomicInteger();
-  private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
+  private final Queue<QueuedLifecycleEvent> lifecycleEvents = new ConcurrentLinkedQueue<>();
   private final Object snapshotAckLock = new Object();
 
   private final AtomicBoolean running = new AtomicBoolean(false);
   private final AtomicBoolean connected = new AtomicBoolean(false);
   private final AtomicBoolean initialWorldReady = new AtomicBoolean(false);
+  private final AtomicLong transportGeneration = new AtomicLong();
 
   private volatile Session session;
 
@@ -128,6 +135,8 @@ public final class ClientNetwork {
 
   private record QueuedNetworkMessage(Session session, NetworkMessage message, long receiveNanos) {}
 
+  private record QueuedLifecycleEvent(long generation, Runnable action) {}
+
   private record ExplicitSnapshotAck(int serverTick, long generation) {}
 
   /**
@@ -148,7 +157,11 @@ public final class ClientNetwork {
       LOGGER.warn("ClientNetwork is already running; ignoring re-initialization request.");
       return;
     }
+    transportGeneration.incrementAndGet();
     closeTransportResources();
+    inboundQueue.clear();
+    inboundQueueDepth.set(0);
+    lifecycleEvents.clear();
     resetSnapshotAckState();
     connected.set(false);
     initialWorldReady.set(false);
@@ -184,6 +197,10 @@ public final class ClientNetwork {
    * @param reason human-readable reason used for lifecycle callbacks and logging
    */
   public void shutdown(String reason) {
+    transportGeneration.incrementAndGet();
+    inboundQueue.clear();
+    inboundQueueDepth.set(0);
+    lifecycleEvents.clear();
     if (!running.compareAndSet(true, false)) {
       closeTransportResources();
       connected.set(false);
@@ -523,10 +540,13 @@ public final class ClientNetwork {
    * <p>Call this from the game loop to ensure all message handling runs on the game thread.
    */
   public void pollAndDispatch() {
-    Runnable r;
-    while ((r = lifecycleEvents.poll()) != null) {
+    QueuedLifecycleEvent lifecycleEvent;
+    while ((lifecycleEvent = lifecycleEvents.poll()) != null) {
+      if (lifecycleEvent.generation() != transportGeneration.get()) {
+        continue;
+      }
       try {
-        r.run();
+        lifecycleEvent.action().run();
       } catch (Exception e) {
         LOGGER.warn("Lifecycle runnable error", e);
       }
@@ -537,6 +557,9 @@ public final class ClientNetwork {
     while ((msg = inboundQueue.poll()) != null) {
       inboundQueueDepth.updateAndGet(depth -> Math.max(0, depth - 1));
       drainedMessages++;
+      if (msg.session() != session) {
+        continue;
+      }
       if (dropEarlyStaleSnapshot(msg.session(), msg.message(), true, "dispatch")) {
         continue;
       }
@@ -674,6 +697,7 @@ public final class ClientNetwork {
   // ---- internals ----
 
   private boolean startTcp() {
+    long connectionGeneration = transportGeneration.get();
     Bootstrap cb = new Bootstrap();
     cb.group(group)
         .channel(NioSocketChannel.class)
@@ -695,9 +719,15 @@ public final class ClientNetwork {
                       @Override
                       protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame)
                           throws Exception {
+                        if (connectionGeneration != transportGeneration.get()) {
+                          return;
+                        }
                         int size = frame.readableBytes();
                         long receiveNanos = java.lang.System.nanoTime();
                         NetworkMessage msg = deserialize(frame);
+                        if (connectionGeneration != transportGeneration.get()) {
+                          return;
+                        }
                         NetworkTelemetry.recordInboundTcp(
                             msg, size, java.lang.System.nanoTime() - receiveNanos);
                         if (msg
@@ -719,6 +749,10 @@ public final class ClientNetwork {
 
                       @Override
                       public void channelActive(ChannelHandlerContext ctx) {
+                        if (connectionGeneration != transportGeneration.get()) {
+                          ctx.close();
+                          return;
+                        }
                         updateUdpRemote(ctx.channel());
                         // Create a client-side Session bound to this TCP ctx and using client
                         // senders
@@ -773,6 +807,9 @@ public final class ClientNetwork {
 
                       @Override
                       public void channelInactive(ChannelHandlerContext ctx) {
+                        if (connectionGeneration != transportGeneration.get()) {
+                          return;
+                        }
                         LOGGER.info("TCP connection closed by server");
                         handleTransportClosed(null);
                         // invalidateLastSessionFile(); // TODO: decide if we want this
@@ -780,6 +817,10 @@ public final class ClientNetwork {
 
                       @Override
                       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                        if (connectionGeneration != transportGeneration.get()) {
+                          ctx.close();
+                          return;
+                        }
                         LOGGER.warn("TCP client error", cause);
                         handleTransportClosed(cause.getMessage());
                         ctx.close();
@@ -789,10 +830,17 @@ public final class ClientNetwork {
             });
     try {
       ChannelFuture f = cb.connect(remoteHost, port).syncUninterruptibly();
+      if (connectionGeneration != transportGeneration.get() || !running.get()) {
+        f.channel().close().syncUninterruptibly();
+        return false;
+      }
       tcp = f.channel();
       updateUdpRemote(tcp);
       return true;
     } catch (Exception e) {
+      if (connectionGeneration != transportGeneration.get() || !running.get()) {
+        return false;
+      }
       if (hasCause(e, ConnectException.class)) {
         LOGGER.error(
             "Failed to connect TCP to server at {}:{} - {}", remoteHost, port, e.getMessage());
@@ -914,6 +962,7 @@ public final class ClientNetwork {
   }
 
   private void startUdpIfNeeded() {
+    long connectionGeneration = transportGeneration.get();
     if (udp != null && udp.isActive()) {
       return;
     }
@@ -925,6 +974,9 @@ public final class ClientNetwork {
             new SimpleChannelInboundHandler<DatagramPacket>() {
               @Override
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
+                if (connectionGeneration != transportGeneration.get()) {
+                  return;
+                }
                 int size = pkt.content().readableBytes();
                 long receiveNanos = java.lang.System.nanoTime();
                 try {
@@ -953,6 +1005,9 @@ public final class ClientNetwork {
 
               @Override
               public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                if (connectionGeneration != transportGeneration.get()) {
+                  return;
+                }
                 LOGGER.warn("UDP client error", cause);
                 onUdpUnavailable("UDP unavailable, using TCP fallback");
               }
@@ -1000,14 +1055,15 @@ public final class ClientNetwork {
 
   private void onConnectReject(Session session, ConnectReject.Reason reason) {
     String reasonStr = "Connection rejected by server: " + reason;
-    LOGGER.warn(reasonStr);
     if (reason == ConnectReject.Reason.NO_SESSION_FOUND
         || reason == ConnectReject.Reason.INVALID_SESSION_TOKEN) {
+      LOGGER.info("Saved session cannot be resumed ({}); retrying fresh admission.", reason);
       // Invalidate last session file upon session-related rejections; Try to connect again without
       // session
       invalidateLastSessionFile();
       session.sendMessage(connectRequest(), true);
     } else {
+      LOGGER.warn(reasonStr);
       // Close the connection upon rejection
       enqueueLifecycle(() -> notifyRejected(reason));
       enqueueLifecycle(() -> notifyDisconnected(reasonStr));
@@ -1018,17 +1074,25 @@ public final class ClientNetwork {
   /**
    * Save session token and session id to a file for future reconnects.
    *
-   * <p>This method writes the session id (4 bytes) followed by the session token bytes to a file
-   * `last_session.dat`.
+   * <p>The versioned {@code last_session.dat} record includes the endpoint and player name so
+   * another client or server never receives these credentials by mistake.
    *
    * @param sessionId the session id to save
    * @param sessionToken the session token bytes to save
    */
   private void saveLastSessionToFile(int sessionId, byte[] sessionToken) {
     try {
-      byte[] data =
-          ByteBuffer.allocate(4 + sessionToken.length).putInt(sessionId).put(sessionToken).array();
-      Files.write(Path.of(LAST_SESSION_FILE_NAME), data);
+      ByteArrayOutputStream data = new ByteArrayOutputStream();
+      try (DataOutputStream output = new DataOutputStream(data)) {
+        output.writeInt(LAST_SESSION_FORMAT);
+        output.writeUTF(remoteHost.toLowerCase(Locale.ROOT));
+        output.writeInt(port);
+        output.writeUTF(username);
+        output.writeInt(sessionId);
+        output.writeInt(sessionToken.length);
+        output.write(sessionToken);
+      }
+      Files.write(Path.of(LAST_SESSION_FILE_NAME), data.toByteArray());
     } catch (IOException e) {
       LOGGER.warn("Failed to save last session to file", e);
     }
@@ -1037,8 +1101,8 @@ public final class ClientNetwork {
   /**
    * Load session token and session id from a file for reconnects.
    *
-   * <p>This method reads the session id (4 bytes) followed by the session token bytes from a file
-   * `last_session.dat`.
+   * <p>Only records for this endpoint and player name can be resumed. Legacy unscoped records
+   * cannot safely identify their owner and are ignored.
    *
    * @return a Tuple containing the session id and session token bytes, or null if loading failed
    */
@@ -1049,12 +1113,32 @@ public final class ClientNetwork {
       if (!exists) {
         return null;
       }
-      byte[] data = Files.readAllBytes(filePath);
-      ByteBuffer buffer = ByteBuffer.wrap(data);
-      int sessionId = buffer.getInt();
-      byte[] sessionToken = new byte[buffer.remaining()];
-      buffer.get(sessionToken);
-      return Tuple.of(sessionId, sessionToken);
+      try (DataInputStream input = new DataInputStream(Files.newInputStream(filePath))) {
+        if (input.readInt() != LAST_SESSION_FORMAT) {
+          LOGGER.info("Ignoring legacy saved session without server and player identity.");
+          return null;
+        }
+        String host = input.readUTF();
+        int savedPort = input.readInt();
+        String playerName = input.readUTF();
+        if (!host.equalsIgnoreCase(remoteHost)
+            || savedPort != port
+            || !playerName.equals(username)) {
+          LOGGER.debug("Ignoring saved session for a different server or player.");
+          return null;
+        }
+        int sessionId = input.readInt();
+        int tokenLength = input.readInt();
+        if (tokenLength != SESSION_TOKEN_LENGTH_BYTES) {
+          throw new IOException("Saved session has an invalid token length.");
+        }
+        byte[] sessionToken = new byte[tokenLength];
+        input.readFully(sessionToken);
+        if (input.read() != -1) {
+          throw new IOException("Saved session has unexpected trailing data.");
+        }
+        return Tuple.of(sessionId, sessionToken);
+      }
     } catch (IOException e) {
       LOGGER.warn("Failed to load last session from file", e);
       return null;
@@ -1272,7 +1356,7 @@ public final class ClientNetwork {
   }
 
   private void enqueueLifecycle(Runnable r) {
-    if (r != null) lifecycleEvents.offer(r);
+    if (r != null) lifecycleEvents.offer(new QueuedLifecycleEvent(transportGeneration.get(), r));
   }
 
   private ConnectRequest connectRequest() {

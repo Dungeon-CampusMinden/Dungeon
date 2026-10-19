@@ -136,6 +136,7 @@ public final class MainMenu {
    */
   private static void applyLevelEditor(
       ClientStarter client, ServerStarter server, String pathToLevels) {
+    GameLoop.skipStandaloneCharacterSelection();
     PreRunConfiguration.multiplayerEnabled(false);
     PreRunConfiguration.isNetworkServer(true);
     PreRunConfiguration.networkPort(server.port);

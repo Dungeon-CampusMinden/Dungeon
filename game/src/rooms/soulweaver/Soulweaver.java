@@ -11,6 +11,7 @@ import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
+import engine.network.server.CharacterSelection;
 import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
@@ -28,6 +29,7 @@ import feature.survey.SurveyFeature;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -79,6 +81,13 @@ public final class Soulweaver {
     if (arguments.contains(NEW_GAME_ARGUMENT)) SoulweaverSave.delete();
     continuation =
         arguments.contains(LOAD_SAVE_ARGUMENT) ? SoulweaverSave.read() : Optional.empty();
+    if (arguments.contains(LOAD_SAVE_ARGUMENT)) {
+      CharacterSelection.restoreAssignments(
+          continuation.map(SoulweaverSave.SaveData::characterAssignments).orElse(Map.of()));
+    } else if (arguments.contains(NEW_GAME_ARGUMENT)
+        || arguments.contains(ServerProcess.SERVER_ARGUMENT)) {
+      CharacterSelection.clear();
+    }
     runId = continuation.map(SoulweaverSave.SaveData::runId).orElseGet(UUID::randomUUID);
     Game.playClock().configure(MINIMUM_PLAYERS);
     continuation.ifPresent(save -> Game.playClock().restore(save.activeMs()));
@@ -135,7 +144,11 @@ public final class Soulweaver {
     if (Game.isMultiplayerClient()) return;
     SoulweaverSave.write(
         new SoulweaverSave.SaveData(
-            phase, runId, Game.playClock().activeMs(), TRACKING_CONSENT.decision()));
+            phase,
+            runId,
+            Game.playClock().activeMs(),
+            TRACKING_CONSENT.decision(),
+            SoulweaverSave.currentCharacterAssignments()));
   }
 
   /** Registers the shared escape-room translations used by the menu and its consent dialogs. */
