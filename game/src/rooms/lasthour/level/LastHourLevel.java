@@ -1196,8 +1196,7 @@ public class LastHourLevel extends DungeonLevel {
             .filter(state -> state.state().hasReached(ComputerProgress.ON))
             .map(ComputerStateComponent::lightsOn)
             .orElse(false);
-    OfficeLights.update(lightsOn);
-    return WorldTimerAlarm.apply(lightsOn && OfficeLights.startup() == 1f ? LIGHTS_ON : DARK);
+    return WorldTimerAlarm.apply(lightsOn && OfficeLights.lit() ? LIGHTS_ON : DARK);
   }
 
   /**
@@ -1212,6 +1211,8 @@ public class LastHourLevel extends DungeonLevel {
   static void addLights(Tile[][] layout, Entity keypad, List<Light> out) {
     Optional<ComputerStateComponent> state =
         ComputerStateComponent.getState().filter(s -> s.state().hasReached(ComputerProgress.ON));
+    // Updated with the lights rather than the atmosphere, which the level editor also reads.
+    OfficeLights.update(state.map(ComputerStateComponent::lightsOn).orElse(false));
     if (state.isEmpty()) return;
     if (state.get().lightsOn()) OfficeLights.add(layout, out);
     boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();

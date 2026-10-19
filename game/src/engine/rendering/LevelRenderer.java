@@ -382,7 +382,6 @@ public final class LevelRenderer {
         && t.visible()
         && !hiddenByTint(t)
         && t.levelElement() == LevelElement.WALL
-        && isAutoWall(t)
         && tileset(t).decor()
         && below != null
         && below.isAccessible()

@@ -39,12 +39,12 @@ final class OfficeLights {
   }
 
   /**
-   * How far the room lights are lit while they start: 0 or 1 during the flicker, 1 afterwards.
+   * Whether the room lights are lit now: off and on while they start, on afterwards.
    *
-   * @return the brightness factor of the room lights without delay
+   * @return true if they are lit
    */
-  static float startup() {
-    return lit(0f) ? 1f : 0f;
+  static boolean lit() {
+    return lit(0f);
   }
 
   /**

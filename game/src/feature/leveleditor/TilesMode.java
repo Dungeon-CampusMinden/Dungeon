@@ -32,9 +32,6 @@ public class TilesMode extends LevelEditorMode {
   private static final int MAX_BRUSH_SIZE = 7;
   private static final int GRID_COLUMNS = 4;
 
-  /** Preview of the void, which has no texture of its own. */
-  private static final String SKIP_TEXTURE = "hud/cross.png";
-
   private LevelElementGrid grid = null;
   private IntegerSetting brushSizeSetting = null;
   private SelectSetting<DesignLabel> designSetting = null;
@@ -51,7 +48,6 @@ public class TilesMode extends LevelEditorMode {
    * @return the texture path used by the element button
    */
   public static String texturePath(LevelElement element, DesignLabel designLabel) {
-    if (element == LevelElement.SKIP) return SKIP_TEXTURE;
     return TileTextures.preview(element, designLabel).pathString();
   }
 

@@ -71,13 +71,19 @@ public record Atmosphere(
   /** The atmospheres a level file or the level editor can choose by name. */
   public enum Preset {
     /** See {@link Atmosphere#NEUTRAL}. */
-    NEUTRAL,
+    NEUTRAL(Atmosphere.NEUTRAL),
     /** See {@link Atmosphere#DAYLIGHT}. */
-    DAYLIGHT,
+    DAYLIGHT(Atmosphere.DAYLIGHT),
     /** See {@link Atmosphere#DUNGEON}. */
-    DUNGEON,
+    DUNGEON(Atmosphere.DUNGEON),
     /** See {@link Atmosphere#COLD}. */
-    COLD;
+    COLD(Atmosphere.COLD);
+
+    private final Atmosphere atmosphere;
+
+    Preset(Atmosphere atmosphere) {
+      this.atmosphere = atmosphere;
+    }
 
     /**
      * The atmosphere of this preset.
@@ -85,12 +91,7 @@ public record Atmosphere(
      * @return the atmosphere
      */
     public Atmosphere atmosphere() {
-      return switch (this) {
-        case NEUTRAL -> Atmosphere.NEUTRAL;
-        case DAYLIGHT -> Atmosphere.DAYLIGHT;
-        case DUNGEON -> Atmosphere.DUNGEON;
-        case COLD -> Atmosphere.COLD;
-      };
+      return atmosphere;
     }
   }
 

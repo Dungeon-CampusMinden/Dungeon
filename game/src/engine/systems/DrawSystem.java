@@ -1030,7 +1030,10 @@ public final class DrawSystem extends System implements Disposable {
       emissiveSprite.set(d.dc.getSprite());
       mask.ifPresent(emissiveSprite::setTexture);
       DrawConfig conf = makeConfig(d, Vector2.of(d.dc.getWidth(), d.dc.getHeight()), d.pc.scale());
-      batch().setColor(mask.isPresent() ? Color.WHITE : Color.BLACK);
+      // Premultiplied: a half transparent sprite covers or glows half as much.
+      float alpha = d.dc.tintColor() == -1 ? 1f : (d.dc.tintColor() & 0xFF) / 255f;
+      float glow = mask.isPresent() ? alpha : 0f;
+      batch().setColor(glow, glow, glow, alpha);
       batch()
           .draw(
               emissiveSprite,

@@ -17,7 +17,6 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
 public class LastHourLevelClient extends DungeonLevel {
 
   private static Entity keypad;
-  private static Entity pc;
 
   /**
    * Creates a new Demo Level.
@@ -38,7 +37,7 @@ public class LastHourLevelClient extends DungeonLevel {
 
   @Override
   public void lights(List<Light> out) {
-    if (pc != null && keypad != null) LastHourLevel.addLights(layout(), keypad, out);
+    if (keypad != null) LastHourLevel.addLights(layout(), keypad, out);
   }
 
   @Override
@@ -56,12 +55,6 @@ public class LastHourLevelClient extends DungeonLevel {
   }
 
   private void findEntities() {
-    if (pc == null) {
-      Game.levelEntities()
-          .filter(e -> e.name().equals("pc-main"))
-          .findFirst()
-          .ifPresent(e -> pc = e);
-    }
     if (keypad == null) {
       Game.levelEntities()
           .filter(e -> e.name().equals("keypad"))

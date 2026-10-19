@@ -171,7 +171,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
    * @param lighting receives the lights
    */
   static void addLights(Tile[][] layout, List<Light> lighting) {
-    CeilingLights.add(layout, CEILING_LIGHT, CEILING_LIGHT_INTENSITY, lighting);
+    CeilingLights.add(layout, CEILING_LIGHT, CEILING_LIGHT_INTENSITY, (x, y) -> true, lighting);
     Game.levelEntities()
         .filter(SystemRecoveryClientLevel::isTerminal)
         .forEach(entity -> addLight(lighting, entity, 0.45f, Color.CYAN));

@@ -13,6 +13,8 @@ import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This system is responsible for rendering a timer image to a texture, which will be fed into the
@@ -51,6 +53,9 @@ public class WorldTimerSystem extends System {
 
   /** Callback fired once locally when the timer reaches zero, or {@code null} if unset. */
   private Runnable onTimerExpired;
+
+  // The text each timer shows, so it is only redrawn when it changes.
+  private final Map<Entity, String> shown = new HashMap<>();
 
   /** Whether the local expiry callback has already been fired. */
   private boolean expiredFired = false;
@@ -92,6 +97,8 @@ public class WorldTimerSystem extends System {
 
     int displaySeconds = Math.max(0, secondsLeft);
     String timerString = String.format("%02d:%02d", displaySeconds / 60, displaySeconds % 60);
+    // The display changes once a second; rebuilding it costs a texture and a glow mask.
+    if (timerString.equals(shown.put(data.e, timerString))) return;
     Pixmap pixmap = display(timerString);
     String path = "@gen/worldTimer/" + data.e.name() + ".png";
     IPath ipath = new SimpleIPath(path);

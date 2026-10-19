@@ -21,24 +21,13 @@ public final class CeilingLights {
   private CeilingLights() {}
 
   /**
-   * Adds a steady lamp over the floor of every block.
+   * Adds a steady lamp over the floor of every block, if it is on.
    *
    * @param layout the level layout, indexed [y][x]
    * @param color the lamps' colour
    * @param intensity the lamps' brightness, see {@link Light#steady}
-   * @param out receives the lights
-   */
-  public static void add(Tile[][] layout, Color color, float intensity, List<Light> out) {
-    add(layout, color, intensity, (x, y) -> true, out);
-  }
-
-  /**
-   * Adds the lamps that are on, for lamps that come on one after another.
-   *
-   * @param layout the level layout, indexed [y][x]
-   * @param color the lamps' colour
-   * @param intensity the lamps' brightness, see {@link Light#steady}
-   * @param on whether the lamp over the floor tile at x, y is on
+   * @param on whether the lamp over the floor tile at x, y is on; lamps can come on one after
+   *     another
    * @param out receives the lights
    */
   public static void add(
@@ -54,7 +43,8 @@ public final class CeilingLights {
         int best = Integer.MAX_VALUE;
         for (int y = by; y < Math.min(by + BLOCK, layout.length); y++) {
           for (int x = bx; x < Math.min(bx + BLOCK, layout[y].length); x++) {
-            if (layout[y][x].levelElement() != LevelElement.FLOOR) continue;
+            Tile t = layout[y][x];
+            if (t == null || t.levelElement() != LevelElement.FLOOR) continue;
             int dx = x - bx - CENTER;
             int dy = y - by - CENTER;
             if (dx * dx + dy * dy < best) {

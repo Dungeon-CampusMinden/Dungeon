@@ -29,6 +29,9 @@ public final class TileTextures {
   /** Top edge of the straight horizontal wall piece in a wall atlas, in pixels. */
   public static final int STRAIGHT_WALL_Y = 48;
 
+  // The void has no texture of its own; previews show a cross.
+  private static final IPath VOID_PREVIEW = new SimpleIPath("hud/cross.png");
+
   // Paths are built once per design and name, so drawing a frame allocates none.
   private static final Map<DesignLabel, Map<String, IPath>> PATHS =
       new EnumMap<>(DesignLabel.class);
@@ -63,7 +66,7 @@ public final class TileTextures {
       case EXIT -> path(design, "floor/floor_ladder.png");
       case DOOR -> path(design, "door/top.png");
       case WALL -> wallAtlas(design);
-      case SKIP -> path(design, "floor/empty.png");
+      case SKIP -> VOID_PREVIEW;
     };
   }
 
