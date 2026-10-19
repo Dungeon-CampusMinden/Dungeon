@@ -33,7 +33,7 @@ public class ChoiceTask extends Task<Set<String>> {
       List<Option> options,
       Set<String> correctValues,
       boolean multipleSelection) {
-    this.taskDescription = Objects.requireNonNull(taskDescription, "taskDescription");
+    super(taskDescription);
     this.options = List.copyOf(options);
     this.correctValues = Set.copyOf(correctValues);
     this.multipleSelection = multipleSelection;
@@ -71,15 +71,6 @@ public class ChoiceTask extends Task<Set<String>> {
   @Override
   public String trackedAnswer(Set<String> answer) {
     return json(new TreeSet<>(answer));
-  }
-
-  /**
-   * Returns the question shown above the options.
-   *
-   * @return the task description
-   */
-  public String taskDescription() {
-    return taskDescription;
   }
 
   /**

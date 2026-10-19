@@ -13,8 +13,8 @@ public final class NumericCodeTask extends Task<String> {
    * @param code the correct code
    */
   public NumericCodeTask(final String code) {
+    super("");
     this.code = Objects.requireNonNull(code, "code");
-    this.taskDescription = "";
   }
 
   @Override

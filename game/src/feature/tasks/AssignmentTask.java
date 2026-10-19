@@ -1,7 +1,6 @@
 package feature.tasks;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -36,7 +35,7 @@ public class AssignmentTask extends Task<Map<String, String>> {
       Set<String> containerIds,
       Set<String> itemIds,
       Map<String, String> targets) {
-    this.taskDescription = Objects.requireNonNull(taskDescription, "taskDescription");
+    super(taskDescription);
     this.containerIds = Set.copyOf(containerIds);
     this.itemIds = Set.copyOf(itemIds);
     this.targets = Map.copyOf(targets);

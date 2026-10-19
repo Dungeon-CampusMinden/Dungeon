@@ -1,5 +1,6 @@
 package feature.tasks;
 
+import java.util.Objects;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -14,8 +15,25 @@ public abstract class Task<T> {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
 
-  /** The description or instructions associated with this task. */
-  protected String taskDescription;
+  private final String taskDescription;
+
+  /**
+   * Creates a task.
+   *
+   * @param taskDescription the description or instructions shown to players, possibly empty
+   */
+  protected Task(final String taskDescription) {
+    this.taskDescription = Objects.requireNonNull(taskDescription, "taskDescription");
+  }
+
+  /**
+   * Returns the description or instructions shown to players, e.g. a question.
+   *
+   * @return the task description, possibly empty
+   */
+  public String taskDescription() {
+    return taskDescription;
+  }
 
   /**
    * Determines whether the given answer is correct for this task. Has to be implemented in an
