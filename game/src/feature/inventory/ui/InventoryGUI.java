@@ -438,7 +438,10 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
                 Game.player().orElseThrow(),
                 itemDragPayload.inventoryComponent(),
                 itemDragPayload.slot());
-          } else {
+          } else if (isPlayersInventory(
+              Game.player().orElseThrow(), itemDragPayload.inventoryComponent())) {
+            // The server drops the slot from the player's own inventory, so items from another
+            // inventory, e.g. a chest, have to be moved into the player's inventory first.
             Game.network().send((short) 0, InputMessage.invDrop(itemDragPayload.slot()), true);
           }
         }
