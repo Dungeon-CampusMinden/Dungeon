@@ -40,6 +40,7 @@ public final class InventoryComponent implements Component {
   // added/removed)
   private Consumer<Item> onItemAdded = item -> {};
   private Consumer<Item> onItemRemoved = item -> {};
+  // TODO: Only assignments read this; replace it with an inventory move event (#3299).
   private Move lastMove;
 
   /**
