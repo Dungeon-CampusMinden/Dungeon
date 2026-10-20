@@ -109,7 +109,8 @@ class RoomDeriverTest {
         List.of("r_exit_code"),
         room.layout().riddlePlacements().stream().map(placement -> placement.riddleId()).toList());
     assertEquals(
-        List.of("s_desk", "s_exit_keypad"),
+        List.of(
+            "s_desk", "s_exit_keypad", "s_desk_terminal", "s_archive", "s_archive", "s_archive"),
         room.layout().riddlePlacements().getFirst().components().stream()
             .map(component -> component.surfaceId())
             .toList());

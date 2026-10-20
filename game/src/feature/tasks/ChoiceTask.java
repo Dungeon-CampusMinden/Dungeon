@@ -73,6 +73,20 @@ public class ChoiceTask extends Task<Set<String>> {
     return json(new TreeSet<>(answer));
   }
 
+  @Override
+  public boolean equals(final Object obj) {
+    return obj instanceof ChoiceTask other
+        && taskDescription().equals(other.taskDescription())
+        && options.equals(other.options)
+        && correctValues.equals(other.correctValues)
+        && multipleSelection == other.multipleSelection;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(taskDescription(), options, correctValues, multipleSelection);
+  }
+
   /**
    * Returns the selectable options in display order.
    *

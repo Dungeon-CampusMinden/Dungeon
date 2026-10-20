@@ -1,6 +1,7 @@
 package feature.tasks;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -71,6 +72,20 @@ public class AssignmentTask extends Task<Map<String, String>> {
   @Override
   public String trackedAnswer(Map<String, String> answer) {
     return json(new TreeMap<>(answer));
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return obj instanceof AssignmentTask other
+        && taskDescription().equals(other.taskDescription())
+        && containerIds.equals(other.containerIds)
+        && itemIds.equals(other.itemIds)
+        && targets.equals(other.targets);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(taskDescription(), containerIds, itemIds, targets);
   }
 
   /**
