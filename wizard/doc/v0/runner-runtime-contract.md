@@ -280,10 +280,12 @@ Multiple-Choice-Dialog. Der Client überträgt nur die IDs der bestätigten
 Optionen; der Host vergleicht sie mit `correctOptionIds`. Zuordnungen bestehen
 aus gewöhnlichen Truhen und aufhebbaren Antwort-Items, die ihre Item-ID in den
 Item-Daten tragen. Spieler verschieben sie über den vorhandenen
-Inventardialog. Der Host prüft nach jeder Änderung der Kisteninhalte und beim
-Aktivwerden des Rätsels. Eine angenommene Zuordnung zählt für den Spieler, der
-zuletzt ein Item in eine der Kisten gelegt oder daraus genommen hat; ist
-er nicht mehr spielbereit, zählt sie für einen anderen spielbereiten Spieler.
+Inventardialog. Der Host prüft nach jeder Änderung der Kisteninhalte und reicht
+eine richtige Zuordnung erneut ein, bis die Authority sie annimmt. Getrackt wird
+der Versuch für den Spieler, der zuletzt ein Item in eine der Kisten gelegt oder
+daraus genommen hat. Ist er nicht mehr spielbereit, reicht ein anderer
+spielbereiter Spieler bei der Authority ein; der Versuch bleibt dem Beweger
+zugeordnet.
 Verlässt ein Spieler die Sitzung, legt der Server sein Inventar
 nach 30 Sekunden ohne Wiederverbindung im Raum ab.
 

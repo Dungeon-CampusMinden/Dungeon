@@ -278,7 +278,7 @@ public final class ServerGameBinding {
             .map(String::valueOf)
             .reduce((left, right) -> left + right)
             .orElse("");
-    return submitAnswer(player, riddleId, NumericInputDefinition.class, definition, attempt)
+    return submitAnswer(player, player, riddleId, NumericInputDefinition.class, definition, attempt)
         .map(
             result -> {
               if (result.outcome() == AttemptOutcome.CORRECT) {
@@ -379,7 +379,8 @@ public final class ServerGameBinding {
     }
     Entity solver = player.orElseThrow();
     boolean correct =
-        submitAnswer(solver, riddleId, AssignmentInputDefinition.class, definition, placement)
+        submitAnswer(
+                solver, actor, riddleId, AssignmentInputDefinition.class, definition, placement)
             .filter(result -> result.outcome() == AttemptOutcome.CORRECT)
             .isPresent();
     if (correct) {
@@ -393,7 +394,7 @@ public final class ServerGameBinding {
       final String riddleId,
       final ChoiceInputDefinition definition,
       final Set<String> selection) {
-    submitAnswer(player, riddleId, ChoiceInputDefinition.class, definition, selection)
+    submitAnswer(player, player, riddleId, ChoiceInputDefinition.class, definition, selection)
         .ifPresent(
             result -> {
               if (result.outcome() == AttemptOutcome.CORRECT) {
@@ -409,7 +410,11 @@ public final class ServerGameBinding {
   /**
    * Lets the authority evaluate one answer and tracks it once evaluated.
    *
-   * @param player answering player
+   * <p>An assignment is answered by a ready player but tracked for the player who completed it, so
+   * that a fallback player is never credited; tracking skips players who are no participants.
+   *
+   * @param player answering player, ready for gameplay
+   * @param credited player the evaluated attempt is tracked for
    * @param riddleId owning riddle identifier
    * @param inputType expected input type
    * @param definition answered input
@@ -420,6 +425,7 @@ public final class ServerGameBinding {
    */
   private <A, D extends SurfaceInputDefinition<A>> Optional<AttemptResult> submitAnswer(
       final Entity player,
+      final Entity credited,
       final String riddleId,
       final Class<D> inputType,
       final D definition,
@@ -435,7 +441,7 @@ public final class ServerGameBinding {
                         definition.task(),
                         answer,
                         evaluated.outcome() == AttemptOutcome.CORRECT,
-                        player));
+                        credited));
     return result;
   }
 

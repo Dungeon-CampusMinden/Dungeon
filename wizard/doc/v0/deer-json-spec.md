@@ -397,8 +397,9 @@ Kiste und jedes Item erhält einen eigenen Placementpunkt. Die Kisten tragen ihr
 Namen als Inventartitel, die Items liegen zu Beginn im Raum. Die Zuordnung ist
 genau dann gelöst, wenn jedes Item mit Ziel in seiner Kiste und jedes Item ohne
 Ziel in keiner der Kisten liegt; andere Gegenstände in den Kisten zählen nicht.
-Der Host prüft nach jeder Änderung der Kisteninhalte und einmal, sobald das
-Rätsel aktiv wird. Falsche Zwischenstände sind keine Versuche.
+Der Host prüft nach jeder Änderung der Kisteninhalte; eine richtige Zuordnung
+reicht er so lange erneut ein, bis das Rätsel aktiv ist und die Authority sie
+annimmt. Falsche Zwischenstände sind keine Versuche.
 
 Die Variante `type=collection` enthält eine `informationSourceId` und verwendet
 dieselbe Surface wie diese Quelle; sie erzeugt keinen eigenen Placementpunkt.
