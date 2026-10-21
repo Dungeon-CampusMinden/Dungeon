@@ -121,24 +121,6 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 		minWidth: 1
 		minHeight: 10
 	}
-	progress-bar-fill-health: {
-		name: progress-bar-fill
-		color: health_red
-		minWidth: 1
-		minHeight: 10
-	}
-	progress-bar-fill-mana: {
-		name: progress-bar-fill
-		color: mana_blue
-		minWidth: 1
-		minHeight: 10
-	}
-	progress-bar-fill-stamina: {
-		name: progress-bar-fill
-		color: orange
-		minWidth: 1
-		minHeight: 10
-	}
 }
 com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
 	healthbar: {
@@ -216,18 +198,6 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 	default-vertical: {
 		background: progress_transparent_small
 		knobBefore: progress_blue_small
-	}
-	healthbar: {
-		background: progress-bar-smaller
-		knobBefore: progress-bar-fill-health
-	}
-	manabar: {
-		background: progress-bar-smaller
-		knobBefore: progress-bar-fill-mana
-	}
-	staminabar: {
-		background: progress-bar-smaller
-		knobBefore: progress-bar-fill-stamina
 	}
 	experiencebar: {
 		background: progress-bar-smaller

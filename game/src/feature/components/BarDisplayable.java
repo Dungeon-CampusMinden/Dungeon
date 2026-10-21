@@ -1,9 +1,10 @@
 package feature.components;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Component;
 
 /**
- * Interface for components that can display a progress bar above an entity.
+ * Interface for components that can display an attribute bar above an entity.
  *
  * <p>Components implementing this interface will have their bars automatically managed by the
  * AttributeBarSystem, with stacking based on priority (lower priority = closer to entity).
@@ -25,11 +26,11 @@ public interface BarDisplayable extends Component {
   float max();
 
   /**
-   * Returns the style name for the progress bar.
+   * Returns the fill colour of the bar.
    *
-   * @return the bar style name (e.g., "healthbar", "manabar")
+   * @return the colour; callers must not modify it
    */
-  String barStyleName();
+  Color barColor();
 
   /**
    * Returns the priority for bar stacking order.

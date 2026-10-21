@@ -19,9 +19,11 @@ import engine.Game;
 import engine.System;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.game.ECSManagement;
 import engine.input.CursorUtils;
-import engine.level.Tile;
-import engine.level.utils.LevelElement;
+import engine.rendering.AtmosphereRenderer;
+import engine.rendering.EmissiveSprites;
+import engine.rendering.WorldOverlay;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
@@ -32,9 +34,10 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.DrawConfig;
 import engine.utils.components.draw.FrameBufferPool;
 import engine.utils.components.draw.TextureMap;
-import engine.utils.components.draw.TileUtils;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.shader.AbstractShader;
+import engine.utils.components.draw.shader.LevelHideShader;
+import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.IPath;
 import engine.utils.logging.DungeonLogger;
@@ -42,8 +45,10 @@ import feature.utils.EntityUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 /**
@@ -58,10 +63,16 @@ import java.util.TreeMap;
  * <p>3. **Scene Composition Pass:** Depth layers at or below {@link DepthLayer#Level} are
  * composited before the level FBO; higher layers are composited afterward.
  *
- * <p>4. **Post-Processing Pass (Optional):** If scene shaders are configured, the scene FBO is
- * ping-ponged through the post-processing shaders.
+ * <p>4. **Atmosphere Pass:** The {@link AtmosphereRenderer} lights and grades the scene; outlines
+ * and world overlays are drawn over the lit scene.
  *
- * <p>5. **Screen Final Draw:** The final output is presented on the screen.
+ * <p>5. **Post-Processing Pass (Optional):** If scene shaders are configured, the lit scene is
+ * ping-ponged through them.
+ *
+ * <p>6. **Screen Final Draw:** The {@link AtmosphereRenderer} presents the scene on the screen.
+ *
+ * <p>All scene buffers are rendered at a fixed resolution of two texels per sprite pixel around a
+ * texel-snapped camera; see {@link AtmosphereRenderer}.
  *
  * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
  * screen.
@@ -88,7 +99,11 @@ public final class DrawSystem extends System implements Disposable {
   // Dedicated SpriteBatch for rendering locally to FBOs (Pass 1 & Post-Processing Ping-Pong)
   private final Matrix4 fboProjectionMatrix = new Matrix4();
   private final TextureRegion fboRegion = new TextureRegion();
+  private final Sprite emissiveSprite = new Sprite();
   private final Map<Entity, FrameBuffer> entityFboCache = new HashMap<>();
+  // Entities with an outline this frame and their sprites without it; the outlines are drawn over
+  // the lit scene.
+  private final Map<DSData, FrameBuffer> outlined = new LinkedHashMap<>();
 
   // Shaders applied to the level layer
   private final ShaderList levelShaders = new ShaderList();
@@ -105,6 +120,12 @@ public final class DrawSystem extends System implements Disposable {
   private int unstableWidth = -1;
   private int unstableHeight = -1;
   private int stableResizeFrames = -1;
+
+  // Entities on these layers stand on the floor: they get a contact shadow and raise dust.
+  private static final int[] GROUNDED_DEPTHS = {
+    DepthLayer.Normal.depth(), DepthLayer.Player.depth()
+  };
+  private final AtmosphereRenderer atmosphere = new AtmosphereRenderer();
 
   /**
    * Gets the singleton instance of the DrawSystem, creating it if it does not exist.
@@ -189,6 +210,7 @@ public final class DrawSystem extends System implements Disposable {
   @Override
   public void dispose() {
     fboBatch().dispose();
+    atmosphere.dispose();
     entityFboCache.values().forEach(FBO_POOL::free);
     entityFboCache.clear();
     // The static batch() is expected to be disposed externally (e.g., in the main game class)
@@ -226,12 +248,24 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
-   * Gets the ShaderList applied to the entire scene (post-processing).
+   * Gets the ShaderList applied to the entire scene (post-processing). These shaders run on the lit
+   * scene, after the light, fog, bloom and world overlays, so they can move, mask or tint what the
+   * player sees; effects that should be lit themselves belong to the level or a depth layer.
    *
    * @return The scene ShaderList
    */
   public ShaderList sceneShaders() {
     return sceneShaders;
+  }
+
+  /**
+   * Gets the renderer of the scene's light and atmosphere. Scene shaders draw into its scene
+   * buffers, which show a little more than the screen; see {@link AtmosphereRenderer#view()}.
+   *
+   * @return the atmosphere renderer
+   */
+  public AtmosphereRenderer atmosphere() {
+    return atmosphere;
   }
 
   /**
@@ -267,9 +301,12 @@ public final class DrawSystem extends System implements Disposable {
    * <p>3. Scene Composition Pass: Composite depth layers at or below the level depth, then the
    * level, then higher entity layers.
    *
-   * <p>4. Post-Processing Pass: If enabled, ping-pong the Scene FBO through the scene shaders.
+   * <p>4. Atmosphere Pass: Light and grade the scene, then draw outlines and world overlays over
+   * it.
    *
-   * <p>5. Screen Final Draw: Present the final texture.
+   * <p>5. Post-Processing Pass: If enabled, ping-pong the lit scene through the scene shaders.
+   *
+   * <p>6. Screen Final Draw: Present the final texture.
    */
   @Override
   public void execute() {
@@ -332,11 +369,25 @@ public final class DrawSystem extends System implements Disposable {
 
     shadersActiveLastFrame = 0;
 
+    try {
+      atmosphere.beginFrame(stableWidth, stableHeight, delta, secondsElapsed);
+      renderScene();
+    } finally {
+      atmosphere.endFrame();
+    }
+
+    FBO_POOL.update();
+    secondsElapsed += delta;
+  }
+
+  /** Renders the scene through all passes; runs between the atmosphere's frame start and end. */
+  private void renderScene() {
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
+    atmosphere.hide(hiddenAreas());
 
-    int sceneWidth = stableWidth;
-    int sceneHeight = stableHeight;
+    int sceneWidth = atmosphere.width();
+    int sceneHeight = atmosphere.height();
 
     // Get FBOs for scene composition/post-processing
     FrameBuffer fboA = FBO_POOL.obtain(sceneWidth, sceneHeight);
@@ -350,6 +401,7 @@ public final class DrawSystem extends System implements Disposable {
 
     // 2. Render each Entity Depth Group to its FBO and apply depth shaders
     TreeMap<Integer, FrameBuffer> depthFbos = new TreeMap<>();
+    List<DSData> drawn = new ArrayList<>();
     for (Integer depth : sortedEntities.keySet()) {
       List<DSData> sortedGroup =
           sortedEntities.get(depth).stream()
@@ -361,6 +413,7 @@ public final class DrawSystem extends System implements Disposable {
               .toList();
 
       if (!sortedGroup.isEmpty()) {
+        drawn.addAll(sortedGroup);
         ShaderList shaders = entityDepthShaders.get(depth);
         FrameBuffer depthFbo =
             drawToIntermediateFbo(
@@ -388,34 +441,35 @@ public final class DrawSystem extends System implements Disposable {
         .values()
         .forEach(fbo -> drawFboToBatch(fbo, sceneWidth, sceneHeight));
 
+    batch().setProjectionMatrix(CameraSystem.camera().combined);
+    atmosphere.drawParticles(batch());
+
     batch().end();
     fboA.end();
 
     FBO_POOL.free(levelFbo);
     depthFbos.values().forEach(FBO_POOL::free);
 
-    // 4. Post-Processing Pass (Scene Shaders) & 5. Screen Final Draw
-    FrameBuffer finalSourceFbo =
-        applyShadersAndCompose(fboA, fboB, sceneShaders, sceneWidth, sceneHeight);
+    // 4. Atmosphere, 5. Post-Processing Pass (Scene Shaders) on the lit scene & Screen Final Draw
+    Optional<FrameBuffer> emissive =
+        drawn.stream().anyMatch(d -> EmissiveSprites.mask(d.dc).isPresent())
+            ? Optional.of(
+                drawToIntermediateFbo(() -> drawEmissive(drawn), null, sceneWidth, sceneHeight))
+            : Optional.empty();
+    FrameBuffer bases =
+        drawToIntermediateFbo(() -> drawBases(drawn), null, sceneWidth, sceneHeight);
+    FrameBuffer graded = atmosphere.grade(fboA, emissive, bases, batch());
+    emissive.ifPresent(FBO_POOL::free);
+    FBO_POOL.free(bases);
+    drawOverlays(graded, drawn);
+    FrameBuffer finalFbo =
+        applyShadersAndCompose(graded, fboB, sceneShaders, sceneWidth, sceneHeight);
 
-    // Draw final result to screen
     Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
-    Texture finalTexture = finalSourceFbo.getColorBufferTexture();
-    fboRegion.setRegion(finalTexture);
-    fboRegion.flip(false, true);
-
-    batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, stableWidth, stableHeight));
-    batch().begin();
-    BlendUtils.setBlending(batch());
-    batch().setColor(Color.WHITE);
-    batch().draw(fboRegion, 0, 0, stableWidth, stableHeight);
-    batch().end();
+    atmosphere.present(finalFbo, batch());
 
     FBO_POOL.free(fboA);
     FBO_POOL.free(fboB);
-
-    FBO_POOL.update();
-    secondsElapsed += delta;
   }
 
   /**
@@ -514,16 +568,19 @@ public final class DrawSystem extends System implements Disposable {
   }
 
   /**
-   * Pass 1: Renders entities that require shader processing into pooled FBOs using ping-ponging.
-   * These FBOs use LOCAL transformations (padding, scale) and ignore world position/rotation.
+   * Pass 1: Hands every entity to the atmosphere and renders entities that require shader
+   * processing into pooled FBOs using ping-ponging. These FBOs use LOCAL transformations (padding,
+   * scale) and ignore world position/rotation.
    */
   private void renderEntitiesPass1() {
     for (List<Entity> group : sortedEntities.values()) {
-      group.stream()
-          .map(DSData::build)
-          .filter(this::shouldDraw)
-          .filter(dsd -> dsd.dc.shaders().hasEnabledShaders())
-          .forEach(this::processShaderPassesSingleEntity);
+      for (Entity entity : group) {
+        DSData dsd = DSData.build(entity);
+        atmosphere.addEntity(entity, dsd.dc, dsd.pc, isGrounded(dsd.dc));
+        if (shouldDraw(dsd) && dsd.dc.shaders().hasEnabledShaders()) {
+          processShaderPassesSingleEntity(dsd);
+        }
+      }
     }
   }
 
@@ -533,7 +590,10 @@ public final class DrawSystem extends System implements Disposable {
    * @param dsd the data record of the entity to process
    */
   private void processShaderPassesSingleEntity(final DSData dsd) {
+    // The outline is drawn over the lit scene, see drawOverlays.
+    drawOutlines(dsd.dc.shaders(), false);
     FrameBuffer generated = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
+    drawOutlines(dsd.dc.shaders(), true);
     FrameBuffer oldFbo = entityFboCache.put(dsd.e, generated);
     if (oldFbo != null) {
       LOGGER.warn("Entity FBO cache overwrite for entity: " + dsd.e);
@@ -697,39 +757,49 @@ public final class DrawSystem extends System implements Disposable {
     FrameBuffer finalFbo = entityFboCache.get(dsd.e);
 
     if (finalFbo != null) {
-      // --- Draw FBO Texture (Shader Result) ---
-      Texture fboTexture = finalFbo.getColorBufferTexture();
-
-      float worldWidth = dsd.dc.getWidth();
-      float worldHeight = dsd.dc.getHeight();
-
-      float padding = dsd.dc.shaders().getTotalPadding();
-      float paddingX = padding / dsd.dc.getSpriteWidth();
-      float paddingY = padding / dsd.dc.getSpriteHeight();
-
-      // Final world size includes padding on all sides
-      Vector2 finalWorldSize =
-          Vector2.of(
-              worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
-
-      // Scale is being factored into the transformation everywhere except the position, since it is
-      // passed directly to the draw method. Thus, we need to factor it in here to offset the
-      // padding.
-      Point offsetPosition =
-          dsd.pc
-              .position()
-              .translate(
-                  -paddingX * dsd.pc.scale().x() * worldWidth,
-                  -paddingY * dsd.pc.scale().y() * worldHeight);
-
-      DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
-      draw(offsetPosition, fboTexture, conf);
-
-      FBO_POOL.free(finalFbo);
+      drawShaded(dsd, finalFbo);
+      // An outlined sprite is kept to cut it out of its outline, see drawOverlays.
+      if (hasOutline(dsd.dc.shaders())) outlined.put(dsd, finalFbo);
+      else FBO_POOL.free(finalFbo);
       entityFboCache.remove(dsd.e);
     } else {
       draw(dsd);
     }
+  }
+
+  /**
+   * Draws an entity's shader result at the entity, with the shaders' padding around the sprite.
+   *
+   * @param dsd the data record of the entity
+   * @param shaded the shader result, rendered by {@link #processShaders}
+   */
+  private void drawShaded(final DSData dsd, final FrameBuffer shaded) {
+    Texture fboTexture = shaded.getColorBufferTexture();
+
+    float worldWidth = dsd.dc.getWidth();
+    float worldHeight = dsd.dc.getHeight();
+
+    float padding = dsd.dc.shaders().getTotalPadding();
+    float paddingX = padding / dsd.dc.getSpriteWidth();
+    float paddingY = padding / dsd.dc.getSpriteHeight();
+
+    // Final world size includes padding on all sides
+    Vector2 finalWorldSize =
+        Vector2.of(
+            worldWidth + 2 * paddingX * worldWidth, worldHeight + 2 * paddingY * worldHeight);
+
+    // Scale is being factored into the transformation everywhere except the position, since it is
+    // passed directly to the draw method. Thus, we need to factor it in here to offset the
+    // padding.
+    Point offsetPosition =
+        dsd.pc
+            .position()
+            .translate(
+                -paddingX * dsd.pc.scale().x() * worldWidth,
+                -paddingY * dsd.pc.scale().y() * worldHeight);
+
+    DrawConfig conf = makeConfig(dsd, finalWorldSize, dsd.pc.scale());
+    draw(offsetPosition, fboTexture, conf);
   }
 
   /**
@@ -868,55 +938,217 @@ public final class DrawSystem extends System implements Disposable {
     t.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
   }
 
+  /**
+   * Draws the outlines of the frame and the world overlays of the registered systems onto the lit
+   * scene. Like rendering itself, overlays keep drawing while a pausing dialog has stopped the
+   * systems.
+   *
+   * @param graded the lit scene
+   * @param drawn the drawn entities, back to front
+   */
+  private void drawOverlays(FrameBuffer graded, List<DSData> drawn) {
+    List<WorldOverlay> overlays =
+        ECSManagement.systems().values().stream()
+            .filter(s -> s instanceof WorldOverlay)
+            .map(WorldOverlay.class::cast)
+            .toList();
+    // Outlines mark what the player can use, so they keep their colour in the dark: render the
+    // sprite with its outlines, cut the sprite out and draw the rest over the lit scene.
+    Map<DSData, FrameBuffer> outlines = new LinkedHashMap<>();
+    outlined.forEach(
+        (dsd, sprite) -> {
+          FrameBuffer outline = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
+          cutOut(outline, sprite);
+          FBO_POOL.free(sprite);
+          outlines.put(dsd, outline);
+        });
+    outlined.clear();
+    if (overlays.isEmpty() && outlines.isEmpty()) return;
+    int width = graded.getWidth();
+    int height = graded.getHeight();
+    Optional<FrameBuffer> outlineLayer =
+        outlines.isEmpty()
+            ? Optional.empty()
+            : Optional.of(
+                drawToIntermediateFbo(
+                    () -> drawOutlineLayer(drawn, outlines), null, width, height));
+    outlines.values().forEach(FBO_POOL::free);
+    graded.begin();
+    batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
+    batch().begin();
+    outlineLayer.ifPresent(layer -> drawFboToBatch(layer, width, height));
+    batch().setProjectionMatrix(CameraSystem.camera().combined);
+    BlendUtils.setBlending(batch());
+    overlays.forEach(o -> o.drawOverlay(batch()));
+    batch().setColor(Color.WHITE);
+    batch().end();
+    graded.end();
+    outlineLayer.ifPresent(FBO_POOL::free);
+  }
+
+  /**
+   * Draws the outlines in drawing order and erases them where an entity drawn later covers them, so
+   * an outline stays behind whatever stands in front of its entity.
+   *
+   * @param drawn the drawn entities, back to front
+   * @param outlines the outline of each outlined entity
+   */
+  private void drawOutlineLayer(List<DSData> drawn, Map<DSData, FrameBuffer> outlines) {
+    boolean any = false;
+    for (DSData d : drawn) {
+      FrameBuffer outline = outlines.get(d);
+      if (outline != null) {
+        BlendUtils.setBlending(batch());
+        batch().setColor(Color.WHITE);
+        drawShaded(d, outline);
+        any = true;
+        continue;
+      }
+      float alpha = d.dc.tintColor() == -1 ? 1f : (d.dc.tintColor() & 0xFF) / 255f;
+      if (!any || alpha == 0) continue;
+      batch().setBlendFunction(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
+      batch().setColor(1, 1, 1, alpha);
+      DrawConfig conf = makeConfig(d, Vector2.of(d.dc.getWidth(), d.dc.getHeight()), d.pc.scale());
+      batch()
+          .draw(
+              d.dc.getSprite(),
+              conf.size().x(),
+              conf.size().y(),
+              makeTransform(d.pc.position(), conf));
+    }
+    BlendUtils.setBlending(batch());
+    batch().setColor(Color.WHITE);
+  }
+
+  /**
+   * The areas the scene shaders currently black out, see {@link LevelHideShader}.
+   *
+   * @return the hidden areas
+   */
+  private List<Rectangle> hiddenAreas() {
+    List<Rectangle> areas = new ArrayList<>();
+    for (AbstractShader shader : sceneShaders.getEnabledSorted()) {
+      if (shader instanceof LevelHideShader hide && hide.hiding()) areas.add(hide.region());
+    }
+    return areas;
+  }
+
+  private static boolean hasOutline(ShaderList shaders) {
+    for (AbstractShader shader : shaders.getEnabledSorted()) {
+      if (shader instanceof OutlineShader) return true;
+    }
+    return false;
+  }
+
+  private static void drawOutlines(ShaderList shaders, boolean draw) {
+    for (AbstractShader shader : shaders.getEnabledSorted()) {
+      if (shader instanceof OutlineShader outline) outline.drawsOutline(draw);
+    }
+  }
+
+  /**
+   * Subtracts a sprite from its outlined version, which leaves only the outlines. Both must come
+   * from {@link #processShaders} with the same shaders, so they match in size and, as outline
+   * shaders pass the sprite through unchanged, in every sprite pixel.
+   *
+   * @param target the sprite with its outlines
+   * @param sprite the sprite without them
+   */
+  private void cutOut(FrameBuffer target, FrameBuffer sprite) {
+    int width = target.getWidth();
+    int height = target.getHeight();
+    fboProjectionMatrix.setToOrtho2D(0, 0, width, height);
+    target.begin();
+    fboBatch().setProjectionMatrix(fboProjectionMatrix);
+    fboBatch().begin();
+    fboBatch().setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
+    Gdx.gl.glBlendEquation(GL20.GL_FUNC_REVERSE_SUBTRACT);
+    fboRegion.setRegion(sprite.getColorBufferTexture());
+    fboRegion.flip(false, true);
+    fboBatch().draw(fboRegion, 0, 0, width, height);
+    fboBatch().end();
+    Gdx.gl.glBlendEquation(GL20.GL_FUNC_ADD);
+    target.end();
+  }
+
+  /**
+   * Draws the floor, the contact shadows of the entities standing on it and the dust their feet
+   * kick up, then the walls, which cover shadows and dust behind them.
+   */
   private void drawLevel() {
-    Game.currentLevel()
-        .ifPresent(
-            currentLevel -> {
-              Tile[][] layout = currentLevel.layout();
-              if (layout.length == 0 || layout[0].length == 0) {
-                return;
-              }
+    atmosphere.drawFloor(batch());
 
-              TileBounds bounds = getCameraTileBounds(layout);
-              if (bounds.minX() > bounds.maxX() || bounds.minY() > bounds.maxY()) {
-                return;
-              }
-
-              for (int y = bounds.minY(); y <= bounds.maxY(); y++) {
-                Tile[] row = layout[y];
-                for (int x = bounds.minX(); x <= bounds.maxX(); x++) {
-                  Tile t = row[x];
-                  if (shouldDrawTile(t)) {
-                    IPath texturePath = t.texturePath();
-                    int tintColor =
-                        t.tintColor() == -1 ? Color.rgba8888(Color.WHITE) : t.tintColor();
-                    draw(t.position(), texturePath, new DrawConfig().withTintColor(tintColor));
-                  }
-                }
-              }
-            });
+    for (int depth : GROUNDED_DEPTHS) {
+      List<Entity> group = sortedEntities.get(depth);
+      if (group == null) continue;
+      group.stream()
+          .map(DSData::build)
+          .filter(this::shouldDraw)
+          .forEach(d -> atmosphere.drawShadow(batch(), d.dc, d.pc));
+    }
+    atmosphere.drawGroundParticles(batch());
+    atmosphere.drawWalls(batch(), secondsElapsed);
   }
 
-  private boolean shouldDrawTile(Tile tile) {
-    return tile != null && tile.levelElement() != LevelElement.SKIP && tile.visible();
+  /**
+   * Draws where the entities glow, see {@link EmissiveSprites}: the masks of glowing sprites in
+   * white, every other sprite in black, in drawing order, so an entity in front of a screen covers
+   * its glow.
+   *
+   * @param drawn the drawn entities, back to front
+   */
+  private void drawEmissive(List<DSData> drawn) {
+    for (DSData d : drawn) {
+      Optional<Texture> mask = EmissiveSprites.mask(d.dc);
+      emissiveSprite.set(d.dc.getSprite());
+      mask.ifPresent(emissiveSprite::setTexture);
+      DrawConfig conf = makeConfig(d, Vector2.of(d.dc.getWidth(), d.dc.getHeight()), d.pc.scale());
+      // Premultiplied: a half transparent sprite covers or glows half as much.
+      float alpha = d.dc.tintColor() == -1 ? 1f : (d.dc.tintColor() & 0xFF) / 255f;
+      float glow = mask.isPresent() ? alpha : 0f;
+      batch().setColor(glow, glow, glow, alpha);
+      batch()
+          .draw(
+              emissiveSprite,
+              conf.size().x(),
+              conf.size().y(),
+              makeTransform(d.pc.position(), conf));
+    }
   }
 
-  private TileBounds getCameraTileBounds(Tile[][] layout) {
-    Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
-    float minWorldX = cameraBounds.x();
-    float maxWorldX = cameraBounds.x() + cameraBounds.width();
-    float minWorldY = cameraBounds.y();
-    float maxWorldY = cameraBounds.y() + cameraBounds.height();
-
-    int minX = Math.max(0, (int) Math.floor(minWorldX));
-    int maxX = Math.min(layout[0].length - 1, (int) Math.ceil(maxWorldX));
-    int minY = Math.max(0, (int) Math.floor(minWorldY));
-    int maxY = Math.min(layout.length - 1, (int) Math.ceil(maxWorldY));
-
-    return new TileBounds(minX, maxX, minY, maxY);
+  /**
+   * Draws the bases of the drawn entities for the light pass, see {@link
+   * AtmosphereRenderer#beginBases}. Entities behind the level are hidden by it.
+   *
+   * @param drawn the drawn entities, in drawing order
+   */
+  private void drawBases(List<DSData> drawn) {
+    atmosphere.beginBases(batch());
+    for (DSData d : drawn) {
+      if (d.dc.depth() <= DepthLayer.Level.depth() || (d.dc.tintColor() & 0xFF) == 0) continue;
+      atmosphere.baseColor(batch(), d.dc, d.pc, isUpright(d.dc));
+      DrawConfig conf = makeConfig(d, Vector2.of(d.dc.getWidth(), d.dc.getHeight()), d.pc.scale());
+      batch()
+          .draw(
+              d.dc.getSprite(),
+              conf.size().x(),
+              conf.size().y(),
+              makeTransform(d.pc.position(), conf));
+    }
+    atmosphere.endBases(batch());
   }
 
-  private record TileBounds(int minX, int maxX, int minY, int maxY) {}
+  private static boolean isUpright(DrawComponent dc) {
+    // Floor decals and plates lie flat; overhead effects and flying entities float.
+    return dc.depth() >= DepthLayer.Normal.depth() && dc.depth() < DepthLayer.AbovePlayer.depth();
+  }
+
+  private static boolean isGrounded(DrawComponent dc) {
+    for (int depth : GROUNDED_DEPTHS) {
+      if (dc.depth() == depth) return true;
+    }
+    return false;
+  }
 
   /**
    * Checks if an entity should be drawn. By checking:
@@ -953,10 +1185,7 @@ public final class DrawSystem extends System implements Disposable {
             level ->
                 cameraBounds.intersects(new Rectangle(width, height, pos.x(), pos.y()))
                     || corners.stream().anyMatch(cameraBounds::contains)
-                    || level
-                        .tileAt(entityCenter)
-                        .filter(tile -> tile.visible() && !TileUtils.isTilePitAndOpen(tile))
-                        .isPresent())
+                    || level.tileAt(entityCenter).filter(tile -> tile.visible()).isPresent())
         .orElse(false);
   }
 

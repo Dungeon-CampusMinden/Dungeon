@@ -1,5 +1,6 @@
 package feature.components;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Component;
 
 /**
@@ -10,6 +11,8 @@ import engine.Component;
  * energy.
  */
 public class StaminaComponent implements Component, BarDisplayable {
+
+  private static final Color BAR_COLOR = new Color(0.98f, 0.62f, 0.16f, 1f);
 
   /** The maximum amount of stamina the entity can have. */
   private float maxAmount;
@@ -152,8 +155,8 @@ public class StaminaComponent implements Component, BarDisplayable {
   }
 
   @Override
-  public String barStyleName() {
-    return "staminabar";
+  public Color barColor() {
+    return BAR_COLOR;
   }
 
   @Override

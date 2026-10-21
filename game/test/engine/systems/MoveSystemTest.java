@@ -57,7 +57,6 @@ public class MoveSystemTest {
 
     // Setup initial position and velocity default
     vc.currentVelocity(Vector2.ZERO);
-    vc.canEnterOpenPits(false);
   }
 
   @AfterEach
@@ -215,69 +214,6 @@ public class MoveSystemTest {
     // already maximally against the wall)
     assertTrue(oldPos.x() < pc.position().x());
     verify(onWallHit, times(0)).accept(entity);
-  }
-
-  /**
-   * Tests that the entity can move into a PIT tile if canEnterOpenPits is true, even though the
-   * tile is not normally accessible.
-   */
-  @Test
-  void allowsMovementIntoPitTileWhenAllowed() {
-    vc.currentVelocity(Vector2.of(1, 0));
-    vc.canEnterOpenPits(true);
-
-    Point oldPos = pc.position();
-    Point newPos = oldPos.translate(vc.currentVelocity().scale(1f / Game.frameRate()));
-
-    // Mock PIT tile
-    Tile pitTile = mock(Tile.class);
-    when(pitTile.isAccessible()).thenReturn(false);
-    when(pitTile.levelElement()).thenReturn(LevelElement.PIT);
-
-    // Stub all tile lookups to return the PIT tile (safe fallback)
-    DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(any(Point.class))).thenReturn(Optional.of(pitTile));
-    Game.currentLevel(level);
-
-    system.execute();
-
-    // Should move into PIT tile even if not accessible
-    assertEquals(newPos, pc.position());
-  }
-
-  /**
-   * Tests that the entity does not move into a PIT tile if canEnterOpenPits is false. In this case,
-   * the position should remain unchanged and onWallHit should be triggered.
-   */
-  @Test
-  void blocksMovementIntoPitTileWhenNotAllowed() {
-    vc.currentVelocity(Vector2.of(1, 0));
-    vc.canEnterOpenPits(false);
-
-    Point oldPos = pc.position();
-    Point newPos = oldPos.translate(vc.currentVelocity().scale(1f / Game.frameRate()));
-
-    // Mock PIT tile that is not accessible
-    Tile pitTile = mock(Tile.class);
-    when(pitTile.isAccessible()).thenReturn(false);
-    when(pitTile.levelElement()).thenReturn(LevelElement.PIT);
-
-    // Mock level and inject into Game
-    DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(eq(newPos))).thenReturn(Optional.of(pitTile));
-    Game.currentLevel(level);
-
-    // Setup onWallHit consumer to verify callback
-    Consumer<Entity> onWallHit = mock(Consumer.class);
-    vc.onWallHit(onWallHit);
-
-    // Execute system
-    system.execute();
-
-    // Position should not have changed
-    assertEquals(oldPos, pc.position());
-    // onWallHit should be triggered
-    verify(onWallHit, times(1)).accept(entity);
   }
 
   /** Tests that when velocity is zero, the position does not change. */

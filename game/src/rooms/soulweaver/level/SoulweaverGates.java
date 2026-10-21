@@ -5,7 +5,6 @@ import engine.level.elements.tile.DoorTile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
-import engine.utils.components.path.SimpleIPath;
 import java.util.List;
 
 /** Creates identical gate tiles on host and clients so ordinary door snapshots synchronize them. */
@@ -21,29 +20,6 @@ final class SoulweaverGates {
             .sorted()
             .toList();
     gates.forEach(gate -> visit(level, gate, true));
-    // Neighbour refreshes during tile creation finish before custom door art is installed.
-    for (String gate : gates) {
-      Point start = level.namedPoints().get(gate + "-gate-start");
-      Point end = level.namedPoints().get(gate + "-gate-end");
-      if (start == null || end == null) continue;
-      int minX = (int) Math.min(start.x(), end.x());
-      int maxX = (int) Math.max(start.x(), end.x());
-      int minY = (int) Math.min(start.y(), end.y());
-      int maxY = (int) Math.max(start.y(), end.y());
-      for (int y = minY; y <= maxY; y++) {
-        for (int x = minX; x <= maxX; x++) {
-          level
-              .tileAt(new Coordinate(x, y))
-              .ifPresent(
-                  tile ->
-                      tile.texturePath(
-                          new SimpleIPath(
-                              gate.equals("act1")
-                                  ? "rooms/soulweaver/gate.png"
-                                  : "rooms/soulweaver/sluice.png")));
-        }
-      }
-    }
   }
 
   static void open(DungeonLevel level, int act) {
@@ -92,8 +68,13 @@ final class SoulweaverGates {
             .map(DoorTile.class::cast)
             .ifPresent(
                 door -> {
-                  if (initialize) door.close();
-                  else door.open();
+                  if (initialize) {
+                    // Gates look like wall while closed and like floor once open.
+                    door.hidden(true);
+                    door.close();
+                  } else {
+                    door.open();
+                  }
                 });
       }
     }

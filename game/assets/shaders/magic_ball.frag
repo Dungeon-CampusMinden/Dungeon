@@ -27,6 +27,7 @@ uniform vec4 u_textureRegion;
 uniform vec4 u_ballColor;
 uniform float u_glowStrength;
 uniform vec4 u_glowColor;
+uniform float u_motes;          // share of the magic motes shown around the ball, 0 for none
 
 const float BALL_TEXTURE_VERTICAL_GAP = 0.08;
 const float glowRingWidth = 0.012;
@@ -34,6 +35,8 @@ const float glowExtend = 0.1;
 const float glowDissipation = 1.6;
 const float glowRevolveSpeed = 0.25;
 const float glowSpeed = 0.12;
+const int MOTES = 72;
+const float MOTE_PIXEL = 3.0;   // scene texels per mote pixel
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -48,6 +51,43 @@ float ballNoise(vec2 p) {
       mix(hash(cell), hash(cell + vec2(1.0, 0.0)), local.x),
       mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), local.x),
       local.y);
+}
+
+// Magic motes leave the rim of the ball, drift outward and up and fade; each mote repeats with a
+// new start on the rim. Returns the brightest mote core at the given mote pixel, its white-hot
+// share and the soft halo of all motes around it.
+vec3 motes(vec2 pixel, float radius, float pixelSize) {
+  vec3 result = vec3(0.0);
+  for (int i = 0; i < MOTES; i++) {
+    float fi = float(i);
+    float seed = hash(vec2(fi, 3.7));
+    float period = mix(2.4, 4.4, hash(vec2(fi, 9.1)));
+    float t = u_time / period + seed;
+    float cycle = floor(t);
+    float life = fract(t);
+    if (hash(vec2(fi, cycle)) >= u_motes) continue;
+
+    // Mostly from the upper half of the rim.
+    float angle = (hash(vec2(cycle, fi * 1.3)) * 1.4 - 0.2) * PI;
+    vec2 dir = vec2(cos(angle), sin(angle));
+    float rise = mix(0.08, 0.2, hash(vec2(fi, cycle + 5.0)));
+    vec2 pos = dir * (radius + 0.008 + 0.04 * life)
+        + vec2(0.012 * sin(life * 9.0 + seed * 6.28), rise * life);
+    if (length(pos) < radius) continue;
+
+    vec2 offset = pixel - floor(pos / pixelSize);
+    float d2 = dot(offset, offset);
+    if (d2 > 25.0) continue;
+    float twinkle = 0.65 + 0.35 * sin(u_time * 10.0 + seed * 40.0);
+    float fade = smoothstep(0.0, 0.12, life) * (1.0 - smoothstep(0.55, 1.0, life));
+    // A quarter of the motes are larger sparkles: a cross while they are fresh.
+    bool sparkle = hash(vec2(fi, cycle + 2.0)) < 0.25 && life < 0.5;
+    float shape = d2 == 0.0 ? 1.0 : sparkle && d2 == 1.0 ? 0.55 : 0.0;
+    float b = shape * fade * twinkle;
+    if (b > result.x) result.xy = vec2(b, twinkle * twinkle * (sparkle ? 1.0 : 0.5));
+    result.z += exp(-d2 * 0.22) * fade * twinkle * 0.5;
+  }
+  return result;
 }
 
 void main() {
@@ -76,17 +116,15 @@ void main() {
       float curvedWeight = 1.0 - smoothstep(0.0, u_curvedEdgeWidth, distanceToEdgePixels);
       sceneUv = mix(spherePosition * 0.5 + 0.5, sceneUv, curvedWeight);
     }
-    vec4 sphericalColor = u_ballColor;
+    vec4 ballLayer = pma(u_ballColor);
 
     if (u_curvedEdgeWidth > 0.0 || abs(spherePosition.y) <= textureLimit) {
       vec2 mappedSceneUv = u_textureRegion.xy + sceneUv * u_textureRegion.zw;
-      vec4 sceneColor = unPma(texture2D(u_texture, mappedSceneUv));
-      if (sceneColor.a > 0.0) {
-        sphericalColor = sceneColor;
-      }
+      // The scene over the ball colour, which shows where the scene is transparent.
+      vec4 sceneColor = texture2D(u_texture, mappedSceneUv);
+      ballLayer = sceneColor + ballLayer * (1.0 - sceneColor.a);
     }
 
-    vec4 ballLayer = pma(sphericalColor);
     result = ballLayer + result * (1.0 - ballLayer.a);
   }
 
@@ -122,6 +160,18 @@ void main() {
   float glowAlpha = clamp(glow * u_glowColor.a, 0.0, 1.0);
   vec4 glowLayer = vec4(u_glowColor.rgb * glowAlpha, glowAlpha);
   result = glowLayer + result * (1.0 - glowLayer.a);
+
+  // Motes reach no further than this above the rim.
+  if (u_motes > 0.0 && edgeDistance > -0.01 && edgeDistance < 0.3) {
+    float pixelSize = MOTE_PIXEL / shortSide;
+    vec3 mote = motes(floor(ballPosition / pixelSize), radius, pixelSize);
+    // A deeper shade of the ball colour, so the motes read as magic rather than stars.
+    vec3 deep = u_ballColor.rgb * u_ballColor.rgb;
+    vec3 halo = deep * min(mote.z, 0.8);
+    vec3 core = mix(deep, u_glowColor.rgb, 0.5) * mote.x;
+    result.rgb += halo + mix(core, vec3(mote.x), mote.y);
+    result.a = max(result.a, min(max(mote.x, mote.z), 1.0));
+  }
 
   gl_FragColor = result;
 }

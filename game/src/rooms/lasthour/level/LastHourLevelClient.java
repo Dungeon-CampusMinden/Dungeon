@@ -1,15 +1,14 @@
 package rooms.lasthour.level;
 
-import static rooms.lasthour.level.LastHourLevel.setupLightingShader;
-import static rooms.lasthour.level.LastHourLevel.updateLightingShader;
-
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.utils.Point;
-import feature.utils.EntityUtils;
+import java.util.List;
 import java.util.Map;
 import rooms.lasthour.modules.computer.ComputerDialog;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
@@ -18,7 +17,6 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
 public class LastHourLevelClient extends DungeonLevel {
 
   private static Entity keypad;
-  private static Entity pc;
 
   /**
    * Creates a new Demo Level.
@@ -33,16 +31,18 @@ public class LastHourLevelClient extends DungeonLevel {
   }
 
   @Override
-  protected void onFirstTick() {
-    setupLightingShader();
+  public Atmosphere atmosphere() {
+    return LastHourLevel.lighting();
+  }
+
+  @Override
+  public void lights(List<Light> out) {
+    if (keypad != null) LastHourLevel.addLights(layout(), keypad, out);
   }
 
   @Override
   protected void onTick() {
     findEntities();
-
-    if (pc != null && keypad != null)
-      updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
 
     if (ComputerStateComponent.getState().isPresent())
       ComputerDialog.getInstance()
@@ -55,12 +55,6 @@ public class LastHourLevelClient extends DungeonLevel {
   }
 
   private void findEntities() {
-    if (pc == null) {
-      Game.levelEntities()
-          .filter(e -> e.name().equals("pc-main"))
-          .findFirst()
-          .ifPresent(e -> pc = e);
-    }
     if (keypad == null) {
       Game.levelEntities()
           .filter(e -> e.name().equals("keypad"))

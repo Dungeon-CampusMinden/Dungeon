@@ -1,27 +1,23 @@
 package engine.level;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.level.elements.ILevel;
 import engine.level.elements.astar.TileConnection;
 import engine.level.elements.astar.TileHeuristic;
 import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
 import engine.level.elements.tile.FloorTile;
-import engine.level.elements.tile.GitterTile;
-import engine.level.elements.tile.GlasswandTile;
 import engine.level.elements.tile.HoleTile;
-import engine.level.elements.tile.PitTile;
-import engine.level.elements.tile.PortalTile;
 import engine.level.elements.tile.SkipTile;
 import engine.level.elements.tile.TileFactory;
 import engine.level.elements.tile.WallTile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
+import engine.rendering.Atmosphere;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
-import engine.utils.components.path.IPath;
 import feature.entities.deco.Deco;
 import feature.level.ITickable;
 import feature.prefabs.Prefab;
@@ -64,6 +60,9 @@ public class DungeonLevel implements ILevel, ITickable {
   private static int levelNameSuffix = 1;
   private DesignLabel baseDesignLabel;
   protected String levelName;
+  private Atmosphere.Preset atmospherePreset = Atmosphere.Preset.NEUTRAL;
+  private Optional<Color> ambientOverride = Optional.empty();
+  private Atmosphere atmosphere = Atmosphere.NEUTRAL;
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
   };
@@ -77,10 +76,6 @@ public class DungeonLevel implements ILevel, ITickable {
   protected ArrayList<DoorTile> doorTiles = new ArrayList<>();
   protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
-  protected ArrayList<PitTile> pitTiles = new ArrayList<>();
-  protected ArrayList<PortalTile> portalTiles = new ArrayList<>();
-  protected ArrayList<GitterTile> gitterTiles = new ArrayList<>();
-  protected ArrayList<GlasswandTile> glassWallTiles = new ArrayList<>();
 
   /**
    * Create a new level.
@@ -180,12 +175,7 @@ public class DungeonLevel implements ILevel, ITickable {
     Tile[][] tileLayout = new Tile[layout.length][layout[0].length];
     for (int y = 0; y < layout.length; y++) {
       for (int x = 0; x < layout[0].length; x++) {
-        Coordinate coordinate = new Coordinate(x, y);
-        IPath texturePath =
-            TileTextureFactory.findTexturePath(
-                new TileTextureFactory.LevelPart(layout[y][x], designLabel, layout, coordinate));
-        tileLayout[y][x] =
-            TileFactory.createTile(texturePath, coordinate, layout[y][x], designLabel);
+        tileLayout[y][x] = TileFactory.createTile(new Coordinate(x, y), layout[y][x], designLabel);
       }
     }
     return tileLayout;
@@ -256,11 +246,6 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   @Override
-  public List<PitTile> pitTiles() {
-    return pitTiles;
-  }
-
-  @Override
   public void removeTile(Tile tile) {
     switch (tile.levelElement()) {
       case SKIP -> skipTiles.remove((SkipTile) tile);
@@ -269,10 +254,6 @@ public class DungeonLevel implements ILevel, ITickable {
       case HOLE -> holeTiles.remove((HoleTile) tile);
       case DOOR -> doorTiles.remove((DoorTile) tile);
       case EXIT -> exitTiles.remove((ExitTile) tile);
-      case PIT -> pitTiles.remove((PitTile) tile);
-      case PORTAL -> portalTiles.remove((PortalTile) tile);
-      case GITTER -> gitterTiles.remove((GitterTile) tile);
-      case GLASSWALL -> glassWallTiles.remove((GlasswandTile) tile);
     }
     this.removeFromPathfinding(tile);
     layout[tile.coordinate().y()][tile.coordinate().x()] = null;
@@ -330,10 +311,6 @@ public class DungeonLevel implements ILevel, ITickable {
       case HOLE -> holeTiles.add((HoleTile) tile);
       case EXIT -> exitTiles.add((ExitTile) tile);
       case DOOR -> doorTiles.add((DoorTile) tile);
-      case PIT -> pitTiles.add((PitTile) tile);
-      case PORTAL -> portalTiles.add((PortalTile) tile);
-      case GITTER -> gitterTiles.add((GitterTile) tile);
-      case GLASSWALL -> glassWallTiles.add((GlasswandTile) tile);
     }
     this.addToPathfinding(tile);
     layout[tile.coordinate().y()][tile.coordinate().x()] = tile;
@@ -392,10 +369,6 @@ public class DungeonLevel implements ILevel, ITickable {
     doorTiles.clear();
     exitTiles.clear();
     skipTiles.clear();
-    pitTiles.clear();
-    portalTiles.clear();
-    gitterTiles.clear();
-    glassWallTiles.clear();
     putTilesInLists();
     PrefabSpawner.refreshDesignLabelRegions(this);
   }
@@ -658,5 +631,47 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public Point removeNamedPoint(String name) {
     return namedPoints.remove(name);
+  }
+
+  /**
+   * Returns the atmosphere chosen for this level, a preset with its ambient light possibly
+   * replaced. Rooms with changing light override this method.
+   *
+   * @return the atmosphere
+   */
+  @Override
+  public Atmosphere atmosphere() {
+    return atmosphere;
+  }
+
+  /**
+   * The preset this level's atmosphere starts from.
+   *
+   * @return the preset, {@link Atmosphere.Preset#NEUTRAL} unless the level chose another
+   */
+  public Atmosphere.Preset atmospherePreset() {
+    return atmospherePreset;
+  }
+
+  /**
+   * The ambient light that replaces the one of the atmosphere preset, if the level sets one.
+   *
+   * @return the ambient light, or empty for the preset's own
+   */
+  public Optional<Color> ambientOverride() {
+    return ambientOverride;
+  }
+
+  /**
+   * Sets this level's atmosphere.
+   *
+   * @param preset the preset to start from
+   * @param ambient the ambient light replacing the preset's, or empty to keep the preset's
+   */
+  public void atmosphere(Atmosphere.Preset preset, Optional<Color> ambient) {
+    this.atmospherePreset = preset;
+    this.ambientOverride = ambient.map(Color::new);
+    this.atmosphere =
+        ambientOverride.map(preset.atmosphere()::withAmbient).orElse(preset.atmosphere());
   }
 }

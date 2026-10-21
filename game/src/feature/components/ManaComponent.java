@@ -1,5 +1,6 @@
 package feature.components;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Component;
 
 /**
@@ -10,6 +11,8 @@ import engine.Component;
  * modifying mana.
  */
 public class ManaComponent implements Component, BarDisplayable {
+
+  private static final Color BAR_COLOR = new Color(0.24f, 0.5f, 1f, 1f);
 
   /** The maximum amount of mana the entity can have. */
   private float maxAmount;
@@ -152,8 +155,8 @@ public class ManaComponent implements Component, BarDisplayable {
   }
 
   @Override
-  public String barStyleName() {
-    return "manabar";
+  public Color barColor() {
+    return BAR_COLOR;
   }
 
   @Override

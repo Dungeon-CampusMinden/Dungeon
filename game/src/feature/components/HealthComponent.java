@@ -1,5 +1,6 @@
 package feature.components;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Null;
 import engine.Component;
 import engine.Entity;
@@ -32,6 +33,7 @@ import java.util.function.Consumer;
  */
 public final class HealthComponent implements Component, BarDisplayable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HealthComponent.class);
+  private static final Color BAR_COLOR = new Color(0.86f, 0.18f, 0.22f, 1f);
 
   private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
   private final List<Damage> damageToGet;
@@ -274,8 +276,8 @@ public final class HealthComponent implements Component, BarDisplayable {
   }
 
   @Override
-  public String barStyleName() {
-    return "healthbar";
+  public Color barColor() {
+    return BAR_COLOR;
   }
 
   @Override

@@ -137,9 +137,6 @@
         },
         "inventory_dialog": {
             "title": "INVENTORY"
-        },
-        "progress_bar_dialog": {
-            "title": "Progress Bar"
         }
     },
     "achievement": {
@@ -161,7 +158,11 @@
         "master_volume": "Master Volume",
         "effects_volume": "Effects Volume",
         "music_volume": "Music Volume",
-        "language": "Language"
+        "language": "Language",
+        "graphics": "Graphics",
+        "brightness": "Brightness",
+        "reduce_effects": "Reduce effects",
+        "reduce_effects_description": "Less glow, fog and[n]particles, steady light"
     },
     "main_menu": {
         "continue": "Continue",

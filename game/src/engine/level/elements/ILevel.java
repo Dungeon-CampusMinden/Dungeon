@@ -15,16 +15,16 @@ import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
 import engine.level.elements.tile.FloorTile;
 import engine.level.elements.tile.HoleTile;
-import engine.level.elements.tile.PitTile;
 import engine.level.elements.tile.SkipTile;
 import engine.level.elements.tile.TileFactory;
 import engine.level.elements.tile.WallTile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.utils.Point;
 import engine.utils.Tuple;
-import engine.utils.Vector2;
 import feature.entities.deco.Deco;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
@@ -111,13 +111,6 @@ public interface ILevel extends IndexedGraph<Tile> {
   List<SkipTile> skipTiles();
 
   /**
-   * Returns a list of all pit tiles in the level.
-   *
-   * @return List of pit tiles.
-   */
-  List<PitTile> pitTiles();
-
-  /**
    * Adds connections to neighboring tiles for a specified tile.
    *
    * @param checkTile The tile for which connections to neighbors are added.
@@ -147,7 +140,6 @@ public interface ILevel extends IndexedGraph<Tile> {
           case HOLE -> holeTiles();
           case EXIT -> exitTiles();
           case DOOR -> doorTiles();
-          case PIT -> pitTiles();
           default -> throw new NoSuchElementException("No such tile type: '" + elementType + "'");
         });
   }
@@ -368,9 +360,9 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * <p>The method first checks if the tile is associated with a level. If not, the method returns
    * without making any changes. If the tile is associated with a level, it is removed from the
-   * level, and a new tile is created with the specified level element, texture path, coordinates,
-   * and design label. The new tile is then added back to the level at the same coordinates as the
-   * original tile.
+   * level, and a new tile is created with the specified level element, coordinates and design
+   * label. The new tile is then added back to the level at the same coordinates as the original
+   * tile.
    *
    * @param tile The tile to be changed.
    * @param changeInto The LevelElement to change the tile into.
@@ -381,26 +373,12 @@ public interface ILevel extends IndexedGraph<Tile> {
       return;
     }
     level.removeTile(tile);
-    Tile newTile = TileFactory.createTile(null, tile.coordinate(), changeInto, tile.designLabel());
+    Tile newTile = TileFactory.createTile(tile.coordinate(), changeInto, tile.designLabel());
     level.layout()[tile.coordinate().y()][tile.coordinate().x()] = newTile;
     newTile.index(tile.index());
     newTile.tintColor(tile.tintColor());
     newTile.visible(tile.visible());
     level.addTile(newTile);
-    newTile.refreshTexture();
-    refreshNeighbourTexture(newTile.coordinate());
-  }
-
-  private void refreshNeighbourTexture(Coordinate coordinate) {
-
-    int[][] offsets = {
-      {0, -1}, {0, 1}, {-1, 0}, {1, 0},
-      {1, 1}, {-1, 1}, {-1, -1}, {1, -1}
-    };
-
-    for (int[] o : offsets) {
-      tileAt(coordinate.translate(Vector2.of(o[0], o[1]))).ifPresent(Tile::refreshTexture);
-    }
   }
 
   /**
@@ -480,4 +458,22 @@ public interface ILevel extends IndexedGraph<Tile> {
   default <P extends Prefab> Optional<P> prefab(Class<P> prefabClass, String name) {
     return prefabs(prefabClass).stream().filter(view -> view.name().equals(name)).findFirst();
   }
+
+  /**
+   * Returns the lighting mood of this level. The renderer reads it every frame on the client.
+   *
+   * @return the atmosphere, {@link Atmosphere#NEUTRAL} unless the level chooses another
+   */
+  default Atmosphere atmosphere() {
+    return Atmosphere.NEUTRAL;
+  }
+
+  /**
+   * Adds the level's own point lights of the current frame, such as screens or status lamps. The
+   * renderer calls it every frame on the client and adds the lights of torches, lamps and players
+   * itself. Derive the lights from synchronized state, so every client lights the scene alike.
+   *
+   * @param out receives the lights
+   */
+  default void lights(List<Light> out) {}
 }

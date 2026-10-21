@@ -16,7 +16,6 @@ import engine.level.elements.tile.DoorTile;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.utils.Point;
-import engine.utils.components.path.SimpleIPath;
 import feature.hints.HintSystem;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
@@ -50,8 +49,7 @@ class SystemRecoveryKeypadProgressTest {
     Game.add(new HintSystem());
     SystemRecoveryProgressNet.initialize();
 
-    door =
-        new DoorTile(new SimpleIPath("tiles/door.png"), new Coordinate(2, 2), DesignLabel.DEFAULT);
+    door = new DoorTile(new Coordinate(2, 2), DesignLabel.DEFAULT);
     door.close();
     game = mockStatic(Game.class, CALLS_REAL_METHODS);
     game.when(() -> Game.tileAt(any(Point.class))).thenReturn(Optional.of(door));

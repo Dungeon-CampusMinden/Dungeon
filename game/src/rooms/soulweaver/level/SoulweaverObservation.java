@@ -123,7 +123,8 @@ public final class SoulweaverObservation {
                 Color.valueOf("95b8f0"),
                 .6f,
                 Color.valueOf("BCDFFFFF"))
-            .curvedEdgeWidth(1);
+            .curvedEdgeWidth(1)
+            .motes(1);
     private final String shaderKey;
     private DrawSystem drawSystem;
 
@@ -224,9 +225,10 @@ public final class SoulweaverObservation {
                                 && Math.abs(camera.position.y - focus.y()) < 1)
                               curtain = Math.max(0, curtain - delta * 4);
                           }));
-      if (!cinematic) {
-        float width = Math.min(1, getHeight() / getWidth());
-        float height = Math.min(1, getWidth() / getHeight());
+      if (drawSystem != null) {
+        float aspect = (float) drawSystem.atmosphere().width() / drawSystem.atmosphere().height();
+        float width = Math.min(1, 1 / aspect);
+        float height = Math.min(1, aspect);
         shader.textureRegion(new Rectangle(width, height, (1 - width) / 2, (1 - height) / 2));
         updateCurvedEdge();
       }
@@ -240,19 +242,25 @@ public final class SoulweaverObservation {
 
     /**
      * Repeats magic_ball.frag's sampling transform to pick the displayed torch, including the rim.
+     * The shader draws into the scene buffers, which show a little more than the screen.
      *
      * @param x horizontal position within the observation view
      * @param y vertical position within the observation view
      * @return torch at the displayed position, or empty when none can be picked
      */
     private Optional<Entity> torchAt(float x, float y) {
-      if (camera.target().isEmpty() || curtain > 0 || getWidth() <= 0 || getHeight() <= 0)
-        return Optional.empty();
-      float shortSide = Math.min(getWidth(), getHeight());
+      if (drawSystem == null
+          || camera.target().isEmpty()
+          || curtain > 0
+          || getWidth() <= 0
+          || getHeight() <= 0) return Optional.empty();
+      var scene = drawSystem.atmosphere();
+      var pixel = scene.sceneUv(x / getWidth(), y / getHeight()).scl(scene.width(), scene.height());
+      float shortSide = Math.min(scene.width(), scene.height());
       var offset = shader.ballOffset();
       float radius = shader.ballSize() * shortSide / 2;
-      double sx = (x - (.5f + offset.x) * getWidth()) / radius;
-      double sy = (y - (.5f + offset.y) * getHeight()) / radius;
+      double sx = (pixel.x - (.5f + offset.x) * scene.width()) / radius;
+      double sy = (pixel.y - (.5f + offset.y) * scene.height()) / radius;
       double distance = Math.hypot(sx, sy);
       if (distance >= 1) return Optional.empty();
       double z = Math.sqrt(1 - distance * distance);
@@ -265,11 +273,9 @@ public final class SoulweaverObservation {
       var region = shader.textureRegion();
       u = region.x() + u * region.width();
       v = region.y() + v * region.height();
-      var camera = CameraSystem.camera();
+      var view = scene.view();
       var world =
-          new Point(
-              (float) (camera.position.x + (u - .5) * camera.viewportWidth * camera.zoom),
-              (float) (camera.position.y + (v - .5) * camera.viewportHeight * camera.zoom));
+          new Point((float) (view.x() + u * view.width()), (float) (view.y() + v * view.height()));
       return EntityUtils.findEntityAtPoint(
           world, Game.levelEntities().filter(SoulweaverObservation::cellarTorch));
     }
@@ -277,7 +283,7 @@ public final class SoulweaverObservation {
     /** Keeps Nox's complete sprite and four surrounding tiles inside the flat view. */
     private void updateCurvedEdge() {
       var followed = camera.target().orElse(null);
-      if (followed == null) return;
+      if (followed == null || drawSystem == null) return;
       var position = followed.fetch(PositionComponent.class).orElseThrow();
       var draw = followed.fetch(DrawComponent.class).orElseThrow();
       var camera = CameraSystem.camera();
@@ -287,8 +293,10 @@ public final class SoulweaverObservation {
       float horizontal = Math.max(Math.abs(left), Math.abs(left + size.x()));
       float vertical = Math.max(Math.abs(bottom), Math.abs(bottom + size.y()));
       float flatRadiusTiles = (float) Math.hypot(horizontal, vertical) + 4;
-      float diameterPixels = shader.ballSize() * Math.min(getWidth(), getHeight());
-      float visibleTiles = Math.min(camera.viewportWidth, camera.viewportHeight) * camera.zoom;
+      // In pixels of the scene buffers the shader draws into.
+      var scene = drawSystem.atmosphere();
+      float diameterPixels = shader.ballSize() * Math.min(scene.width(), scene.height());
+      float visibleTiles = Math.min(scene.view().width(), scene.view().height());
       float flatRadiusPixels = flatRadiusTiles * diameterPixels / visibleTiles;
       // A positive width keeps the center flat even when the protected area fills the ball.
       shader.curvedEdgeWidth(Math.max(1, diameterPixels / 2 - flatRadiusPixels));

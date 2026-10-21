@@ -24,6 +24,7 @@ uniform vec4 u_color;
 uniform bool u_isRainbow;
 uniform float u_beatSpeed;
 uniform float u_beatIntensity;
+uniform bool u_drawOutline;     // draw the outline, or only pass the sprite through
 
 // ----- Custom functions -----
 float smoothPulse(float t) {
@@ -41,7 +42,8 @@ void main(){
   float beat = beat_time * u_beatIntensity;
   int width = int(u_width + beat);
 
-  if(color.a == 0.0 && width > 0){
+  bool inside = color.a > 0.0;
+  if(!inside && width > 0 && u_drawOutline){
     bool foundOutline = isInOutline(u_texture, uv, stepSize, width);
     if(foundOutline){
       if(u_isRainbow){

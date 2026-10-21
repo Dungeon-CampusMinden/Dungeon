@@ -6,21 +6,22 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
+import engine.level.Tile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.systems.DrawSystem;
+import engine.rendering.Atmosphere;
+import engine.rendering.CeilingLights;
+import engine.rendering.Light;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.components.draw.shader.OutlineShader;
 import feature.entities.deco.Deco;
 import feature.interaction.keypad.KeypadComponent;
-import feature.systems.LevelEditorSystem;
-import feature.timer.WorldTimerComponent;
+import feature.timer.WorldTimerAlarm;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import rooms.lasthour.util.shaders.LightingShader;
 import rooms.systemRecovery.modules.computer.content.SystemCoreMetaDraft;
 import rooms.systemRecovery.modules.computer.content.TerminalDraftStore;
 import rooms.systemRecovery.modules.display.DisplayTextStatusShader;
@@ -30,10 +31,10 @@ import rooms.systemRecovery.modules.scanner.ModuleScannerVisualState;
 public class SystemRecoveryClientLevel extends DungeonLevel {
 
   private static final String LEVEL_NAME = "system-recovery-1";
-  private static final String LIGHTING_SHADER_ID = "systemRecoveryLighting";
+  private static final Atmosphere DARK_COLD = Atmosphere.COLD.withBrightness(0.6f);
+  private static final Color CEILING_LIGHT = new Color(0.8f, 0.92f, 1f, 1f);
+  private static final float CEILING_LIGHT_INTENSITY = 0.7f;
   private static final String MODULE_SCAN_SHADER_ID = "moduleScannerLocal";
-  private static final String ARCHIVE_SHELF_TEXTURE =
-      "objects/tech/digital_archive_shelf_animated.png";
   private static final String[] MODULE_NAMES = {"cpu", "ram", "gpu", "ssd", "network"};
 
   private int highlightedModuleIndex = -1;
@@ -70,12 +71,10 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
   protected void onFirstTick() {
     SystemCoreMetaDraft.clear();
     TerminalDraftStore.clear();
-    setupLightingShader();
   }
 
   @Override
   protected void onTick() {
-    updateLightingShader();
     updateModuleScanHighlight();
   }
 
@@ -142,56 +141,44 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
                     .ifPresent(draw -> draw.shaders().remove(MODULE_SCAN_SHADER_ID)));
   }
 
-  /** Installs the same global lighting shader used by Last Hour. */
-  private void setupLightingShader() {
-    if (Game.isHeadless()) return;
-    DrawSystem.getInstance()
-        .sceneShaders()
-        .add(LIGHTING_SHADER_ID, new LightingShader().ambientLight(0));
+  @Override
+  public Atmosphere atmosphere() {
+    return lighting();
   }
 
-  /** Updates local light sources without sending shader data through the network. */
-  private void updateLightingShader() {
-    if (Game.isHeadless()) return;
-    if (!(DrawSystem.getInstance().sceneShaders().get(LIGHTING_SHADER_ID)
-        instanceof LightingShader lighting)) return;
-
-    lighting.clearLightSources();
-    if (LevelEditorSystem.active()) {
-      lighting.ambientLight(1.0f);
-      return;
-    }
-
-    // Match Last Hour while its room lights are switched on: objects remain readable while
-    // terminals, keypads, labels and players still provide local light sources.
-    lighting.ambientLight(0.5f);
-    Game.allPlayers().forEach(player -> lighting.addLightSource(lightSourcePosition(player), 1.0f));
-    addSystemRecoveryLights(lighting);
+  @Override
+  public void lights(List<Light> lighting) {
+    addLights(layout(), lighting);
   }
 
   /**
-   * Adds local light sources to the important interactive objects in the room.
+   * AXIOM's facility: dim and cool, lit by cool ceiling lamps and its machines; screens, server
+   * shelves, terminals, scanners and status lamps glow in their colours. In the last minute of the
+   * countdown the light pulses red. Shared by the client and the server level, which renders in
+   * single player.
    *
-   * @param lighting client-side lighting shader receiving the light sources
+   * @return the current atmosphere of the room
    */
-  private void addSystemRecoveryLights(LightingShader lighting) {
-    Game.entities()
-        .filter(entity -> entity.isPresent(WorldTimerComponent.class))
-        .forEach(entity -> addLight(lighting, entity, 0.5f, Color.RED));
+  static Atmosphere lighting() {
+    return WorldTimerAlarm.apply(DARK_COLD);
+  }
+
+  /**
+   * Adds the ceiling lamps and the lights of the important interactive objects in the room. Shared
+   * by the client and the server level, which renders in single player.
+   *
+   * @param layout the level layout, indexed [y][x]
+   * @param lighting receives the lights
+   */
+  static void addLights(Tile[][] layout, List<Light> lighting) {
+    CeilingLights.add(layout, CEILING_LIGHT, CEILING_LIGHT_INTENSITY, (x, y) -> true, lighting);
     Game.levelEntities()
-        .filter(this::isTerminal)
+        .filter(SystemRecoveryClientLevel::isTerminal)
         .forEach(entity -> addLight(lighting, entity, 0.45f, Color.CYAN));
 
     Game.levelEntities()
         .filter(SystemRecoveryClientLevel::isScanner)
         .forEach(entity -> addLight(lighting, entity, 0.55f, Color.CYAN));
-
-    Game.levelEntities()
-        .filter(SystemRecoveryClientLevel::isArchiveShelf)
-        .forEach(
-            entity ->
-                lighting.addLightSource(
-                    lightSourcePosition(entity).translate(1.15f, 0.8f), 0.6f, Color.CYAN));
 
     Game.levelEntities()
         .filter(entity -> entity.isPresent(KeypadComponent.class))
@@ -203,7 +190,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
             });
 
     Game.levelEntities()
-        .filter(this::isDoorLabel)
+        .filter(SystemRecoveryClientLevel::isDoorLabel)
         .forEach(
             entity -> {
               DisplayTextStatusShader labelShader = doorLabelShader(entity);
@@ -211,7 +198,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
             });
   }
 
-  private boolean isTerminal(Entity entity) {
+  private static boolean isTerminal(Entity entity) {
     String name = entity.name();
     return name != null && (name.equals("terminal") || name.endsWith("_terminal"));
   }
@@ -221,19 +208,11 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
     return name != null && name.endsWith("_scanner");
   }
 
-  static boolean isArchiveShelf(Entity entity) {
-    return entity
-        .fetch(DrawComponent.class)
-        .flatMap(draw -> draw.currentAnimation().sourcePath())
-        .map(path -> ARCHIVE_SHELF_TEXTURE.equals(path.pathString()))
-        .orElse(false);
-  }
-
-  private boolean isDoorLabel(Entity entity) {
+  private static boolean isDoorLabel(Entity entity) {
     return doorLabelShader(entity) != null;
   }
 
-  private DisplayTextStatusShader doorLabelShader(Entity entity) {
+  private static DisplayTextStatusShader doorLabelShader(Entity entity) {
     return entity
         .fetch(DrawComponent.class)
         .map(draw -> draw.shaders().get("doorLabelStatus"))
@@ -242,8 +221,8 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
         .orElse(null);
   }
 
-  private void addLight(LightingShader lighting, Entity entity, float intensity, Color color) {
-    lighting.addLightSource(lightSourcePosition(entity), intensity, color);
+  private static void addLight(List<Light> lighting, Entity entity, float intensity, Color color) {
+    lighting.add(Light.steady(lightSourcePosition(entity), color, intensity));
   }
 
   static Point lightSourcePosition(Entity entity) {

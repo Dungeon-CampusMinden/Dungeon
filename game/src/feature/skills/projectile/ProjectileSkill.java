@@ -192,7 +192,7 @@ public abstract class ProjectileSkill extends Skill {
     Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
 
     // Add components
-    VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
+    VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster));
     projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 

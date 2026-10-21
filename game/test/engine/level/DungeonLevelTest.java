@@ -19,7 +19,6 @@ import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
-import engine.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -35,12 +34,12 @@ public class DungeonLevelTest {
     Tile[][] tileLayout =
         new Tile[][] {
           {
-            new WallTile(new SimpleIPath(""), new Coordinate(0, 0), DesignLabel.DEFAULT),
-            new FloorTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT)
+            new WallTile(new Coordinate(0, 0), DesignLabel.DEFAULT),
+            new FloorTile(new Coordinate(1, 0), DesignLabel.DEFAULT)
           },
           {
-            new WallTile(new SimpleIPath(""), new Coordinate(0, 1), DesignLabel.DEFAULT),
-            new ExitTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT)
+            new WallTile(new Coordinate(0, 1), DesignLabel.DEFAULT),
+            new ExitTile(new Coordinate(1, 1), DesignLabel.DEFAULT)
           }
         };
     DungeonLevel tileLevel = new DungeonLevel(tileLayout);
@@ -136,13 +135,12 @@ public class DungeonLevelTest {
     Tile[][] layout = new Tile[3][3];
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
-        layout[y][x] =
-            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+        layout[y][x] = new FloorTile(new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
-    layout[1][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT);
-    layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
-    layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
+    layout[1][1] = new WallTile(new Coordinate(1, 1), DesignLabel.DEFAULT);
+    layout[0][1] = new WallTile(new Coordinate(1, 0), DesignLabel.DEFAULT);
+    layout[0][2] = new ExitTile(new Coordinate(2, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     tileLevel.startTiles().add(layout[0][0]);
 
@@ -165,12 +163,11 @@ public class DungeonLevelTest {
     Tile[][] layout = new Tile[3][3];
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
-        layout[y][x] =
-            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+        layout[y][x] = new FloorTile(new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
-    layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
-    layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
+    layout[0][1] = new WallTile(new Coordinate(1, 0), DesignLabel.DEFAULT);
+    layout[0][2] = new ExitTile(new Coordinate(2, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     tileLevel.startTiles().add(layout[0][0]);
 
@@ -227,11 +224,10 @@ public class DungeonLevelTest {
     Tile[][] layout = new Tile[3][3];
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
-        layout[y][x] =
-            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+        layout[y][x] = new FloorTile(new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
-    layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
+    layout[0][1] = new WallTile(new Coordinate(1, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
     Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
@@ -245,11 +241,10 @@ public class DungeonLevelTest {
     Tile[][] layout = new Tile[3][3];
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
-        layout[y][x] =
-            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+        layout[y][x] = new FloorTile(new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
-    layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
+    layout[2][1] = new WallTile(new Coordinate(1, 2), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
     Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
@@ -263,12 +258,11 @@ public class DungeonLevelTest {
     Tile[][] layout = new Tile[3][3];
     for (int x = 0; x < 3; x++) {
       for (int y = 0; y < 3; y++) {
-        layout[y][x] =
-            new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
+        layout[y][x] = new FloorTile(new Coordinate(x, y), DesignLabel.DEFAULT);
       }
     }
-    layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
-    layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
+    layout[0][1] = new WallTile(new Coordinate(1, 0), DesignLabel.DEFAULT);
+    layout[2][1] = new WallTile(new Coordinate(1, 2), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
     Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
@@ -404,8 +398,7 @@ public class DungeonLevelTest {
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
+        TileFactory.createTile(new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
@@ -435,8 +428,7 @@ public class DungeonLevelTest {
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+        TileFactory.createTile(new Coordinate(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
@@ -466,8 +458,7 @@ public class DungeonLevelTest {
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
-        TileFactory.createTile(
-            new SimpleIPath(".png"), new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+        TileFactory.createTile(new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
@@ -497,8 +488,7 @@ public class DungeonLevelTest {
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+        TileFactory.createTile(new Coordinate(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
@@ -525,8 +515,7 @@ public class DungeonLevelTest {
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+        TileFactory.createTile(new Coordinate(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
@@ -553,8 +542,7 @@ public class DungeonLevelTest {
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+        TileFactory.createTile(new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
@@ -642,8 +630,7 @@ public class DungeonLevelTest {
         };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(
-        TileFactory.createTile(
-            new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),
+        TileFactory.createTile(new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),
         LevelElement.WALL);
     assertEquals(3, level.getNodeCount());
     AtomicInteger counter = new AtomicInteger();

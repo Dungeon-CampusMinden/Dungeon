@@ -130,12 +130,8 @@ public abstract class LevelFormatParser {
       case 'W' -> LevelElement.WALL;
       case 'E' -> LevelElement.EXIT;
       case 'S' -> LevelElement.SKIP;
-      case 'P' -> LevelElement.PIT;
       case 'H' -> LevelElement.HOLE;
       case 'D' -> LevelElement.DOOR;
-      case 'T' -> LevelElement.PORTAL;
-      case 'G' -> LevelElement.GITTER;
-      case 'L' -> LevelElement.GLASSWALL;
       default -> throw new IllegalArgumentException("Invalid character in level layout: " + c);
     };
   }
@@ -152,12 +148,8 @@ public abstract class LevelFormatParser {
       case WALL -> 'W';
       case EXIT -> 'E';
       case SKIP -> 'S';
-      case PIT -> 'P';
       case HOLE -> 'H';
       case DOOR -> 'D';
-      case GITTER -> 'G';
-      case PORTAL -> 'T';
-      case GLASSWALL -> 'L';
     };
   }
 

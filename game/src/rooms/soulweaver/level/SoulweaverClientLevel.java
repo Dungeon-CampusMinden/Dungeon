@@ -3,6 +3,8 @@ package rooms.soulweaver.level;
 import engine.level.DungeonLevel;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import feature.entities.deco.Deco;
@@ -43,6 +45,16 @@ public class SoulweaverClientLevel extends DungeonLevel {
     SoulweaverMethods.reset();
     SoulweaverDecisions.reset();
     SoulweaverGates.initialize(this);
+  }
+
+  @Override
+  public Atmosphere atmosphere() {
+    return SoulweaverAtmosphere.current();
+  }
+
+  @Override
+  public void lights(List<Light> out) {
+    SoulweaverAtmosphere.lights(out);
   }
 
   @Override

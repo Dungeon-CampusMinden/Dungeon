@@ -423,13 +423,29 @@
       "x" : 35.0,
       "y" : 27.4
     },
+    "reveal-east-bottom-end" : {
+      "x" : 22.0,
+      "y" : 4.4375
+    },
+    "reveal-east-bottom-start" : {
+      "x" : 21.0,
+      "y" : 0.0
+    },
     "reveal-east-end" : {
       "x" : 51.0,
       "y" : 31.0
     },
     "reveal-east-start" : {
-      "x" : 21.25,
+      "x" : 21.6875,
       "y" : 0.0
+    },
+    "reveal-east-top-end" : {
+      "x" : 22.0,
+      "y" : 31.0
+    },
+    "reveal-east-top-start" : {
+      "x" : 21.0,
+      "y" : 21.0
     },
     "reveal-exit-end" : {
       "x" : 51.0,
@@ -437,7 +453,7 @@
     },
     "reveal-exit-start" : {
       "x" : 0.0,
-      "y" : 22.6875
+      "y" : 23.0
     },
     "reveal-north-end" : {
       "x" : 22.0,
@@ -445,7 +461,7 @@
     },
     "reveal-north-start" : {
       "x" : 0.0,
-      "y" : 22.0
+      "y" : 23.0
     },
     "rune-archive-attack" : {
       "x" : 24.15,
@@ -583,12 +599,6 @@
       "y" : 62.25
     }
   }, {
-    "type" : "SoulweaverWallThreshold",
-    "position" : {
-      "x" : 31.0,
-      "y" : 22.0
-    }
-  }, {
     "type" : "SoulweaverGateHeader",
     "position" : {
       "x" : 32.0,
@@ -619,22 +629,10 @@
       "y" : 20.0
     }
   }, {
-    "type" : "SoulweaverWallThreshold",
-    "position" : {
-      "x" : 34.0,
-      "y" : 22.0
-    }
-  }, {
     "type" : "SoulweaverCrate",
     "position" : {
       "x" : 106.0,
       "y" : 50.175
-    }
-  }, {
-    "type" : "SoulweaverWallThreshold",
-    "position" : {
-      "x" : 30.0,
-      "y" : 22.0
     }
   }, {
     "type" : "SoulweaverGateHeader",
@@ -691,12 +689,6 @@
       "y" : 50.0
     }
   }, {
-    "type" : "SoulweaverWallThreshold",
-    "position" : {
-      "x" : 33.0,
-      "y" : 22.0
-    }
-  }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 108.0,
@@ -731,12 +723,6 @@
     "position" : {
       "x" : 30.0,
       "y" : 30.0
-    }
-  }, {
-    "type" : "SoulweaverWallThreshold",
-    "position" : {
-      "x" : 32.0,
-      "y" : 22.0
     }
   }, {
     "type" : "SoulweaverPipe",
@@ -965,18 +951,6 @@
     "position" : {
       "x" : 123.05,
       "y" : 61.2075
-    }
-  }, {
-    "type" : "SoulweaverWallThreshold",
-    "position" : {
-      "x" : 29.0,
-      "y" : 22.0
-    }
-  }, {
-    "type" : "SoulweaverWallThreshold",
-    "position" : {
-      "x" : 35.0,
-      "y" : 22.0
     }
   }, {
     "type" : "SoulweaverCrate",

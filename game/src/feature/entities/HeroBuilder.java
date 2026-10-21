@@ -220,8 +220,7 @@ public final class HeroBuilder {
         new VelocityComponent(
             Math.max(characterClass.speed().x(), characterClass.speed().y()),
             characterClass.mass(),
-            (e) -> {},
-            true));
+            (e) -> {}));
     if (characterClass.mana() > 0)
       hero.add(
           new ManaComponent(

@@ -8,7 +8,6 @@ import engine.components.PositionComponent;
 import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.elements.tile.ExitTile;
-import engine.level.elements.tile.PitTile;
 import engine.level.loader.DungeonLoader;
 import engine.utils.IVoidFunction;
 import engine.utils.Tuple;
@@ -122,22 +121,6 @@ public final class LevelSystem extends System {
       onEndTile.execute();
       return;
     }
-    openPits();
-  }
-
-  private void openPits() {
-    level()
-        .ifPresent(
-            level -> {
-              Tile[][] layout = level.layout();
-              for (int y = layout.length - 1; y >= 0; y--) {
-                for (int x = 0; x < layout[0].length; x++) {
-                  if (layout[y][x] instanceof PitTile pit) {
-                    if (pit.timeToOpen() <= 0) pit.open();
-                  }
-                }
-              }
-            });
   }
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */

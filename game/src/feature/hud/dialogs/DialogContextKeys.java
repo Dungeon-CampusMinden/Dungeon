@@ -87,9 +87,6 @@ public class DialogContextKeys {
   /** The key for the image transition speed in the dialog. */
   public static final String IMAGE_TRANSITION_SPEED = "imageTransitionSpeed";
 
-  /** The key for the progress bar component in the dialog. */
-  public static final String PROGRESS_BAR = "progressBar";
-
   /** The key for the description text shown below the main message. */
   public static final String DESCRIPTION = "description";
 

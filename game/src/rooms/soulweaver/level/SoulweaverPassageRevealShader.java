@@ -22,8 +22,14 @@ final class SoulweaverPassageRevealShader extends LevelHideShader {
     return super.enabled() && !LevelEditorSystem.active();
   }
 
+  /**
+   * Whether the gate is still closed; follows the gate as soon as anything asks, even while the
+   * area is off screen, so the light inside it comes on with the opening gate.
+   *
+   * @return whether the area is hidden
+   */
   @Override
-  protected List<UniformBinding> getUniforms(int actualUpscale) {
+  public boolean hiding() {
     boolean closed =
         Game.currentLevel()
             .flatMap(level -> level.tileAt(gate))
@@ -31,7 +37,13 @@ final class SoulweaverPassageRevealShader extends LevelHideShader {
             .map(DoorTile.class::cast)
             .map(door -> !door.isOpen())
             .orElse(true);
-    if (hiding() != closed) hiding(closed);
+    if (super.hiding() != closed) hiding(closed);
+    return closed;
+  }
+
+  @Override
+  protected List<UniformBinding> getUniforms(int actualUpscale) {
+    hiding();
     return super.getUniforms(actualUpscale);
   }
 }

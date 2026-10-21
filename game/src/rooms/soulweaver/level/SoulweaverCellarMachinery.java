@@ -5,12 +5,14 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
+import engine.rendering.TileTextures;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
+import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -72,10 +74,10 @@ final class SoulweaverCellarMachinery {
     updateChain(0);
 
     Point gate = level.getPoint("act2-gate-start");
-    var wallTexture = level.tileAt(gate.translate(-1, 0)).orElseThrow().texturePath();
+    IPath walls =
+        TileTextures.wallAtlas(level.tileAt(gate.translate(-1, 0)).orElseThrow().designLabel());
     for (int x = (int) gate.x(); x <= level.getPoint("act2-gate-end").x(); x++) {
-      Point at = new Point(x, gate.y());
-      wall.add(prop("sliding-wall", at, wallTexture.pathString(), 1, 1));
+      wall.add(slab(new Point(x, gate.y()), walls));
     }
     focus = prop("sequence-focus", end.translate(4, 1), "objects/stone", 1, 1);
     focus.fetch(DrawComponent.class).orElseThrow().tintColor(0xFFFFFF00);
@@ -95,6 +97,22 @@ final class SoulweaverCellarMachinery {
     if (path.equals("objects/stone")) draw.stateMachine().setState("idle", null);
     // Set the layer before Game.add registers the entity in the renderer's depth groups.
     draw.depth(layer.depth());
+    entity.add(draw);
+    Game.add(entity);
+    return entity;
+  }
+
+  private static Entity slab(Point at, IPath walls) {
+    // The straight wall piece of the wall atlas; as part of a wall it stays on the ground layer,
+    // which casts no contact shadows.
+    Entity entity = new Entity("soulweaver-cellar-sliding-wall");
+    entity.add(new PositionComponent(at));
+    DrawComponent draw =
+        new DrawComponent(
+            walls,
+            new SpritesheetConfig(
+                TileTextures.STRAIGHT_WALL_X, TileTextures.STRAIGHT_WALL_Y, 1, 1, 16, 16));
+    draw.depth(DepthLayer.Ground.depth());
     entity.add(draw);
     Game.add(entity);
     return entity;

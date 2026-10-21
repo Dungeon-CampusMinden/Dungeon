@@ -10,9 +10,12 @@ import engine.components.VelocityComponent;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.level.DungeonLevel;
+import engine.level.Tile;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.rendering.Atmosphere;
+import engine.rendering.Light;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
@@ -57,6 +60,7 @@ import feature.puzzle.PuzzlePieceItem;
 import feature.survey.SurveyFeature;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
+import feature.timer.WorldTimerAlarm;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
 import feature.utils.EntityUtils;
@@ -91,12 +95,15 @@ import rooms.lasthour.util.LastHourQuestLogUtil;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.lasthour.util.LastHourTracking;
 import rooms.lasthour.util.Lore;
-import rooms.lasthour.util.shaders.LightingShader;
 import rooms.lasthour.util.translation.LastHourTranslator;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /** The Last Hour Room. */
 public class LastHourLevel extends DungeonLevel {
+
+  private static final Atmosphere DARK = Atmosphere.NEUTRAL.withBrightness(0f).withLantern(1f);
+  private static final Atmosphere LIGHTS_ON =
+      Atmosphere.NEUTRAL.withBrightness(0.35f).withLantern(1f);
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LastHourLevel.class);
   private static LastHourLevel Instance = null;
 
@@ -265,7 +272,6 @@ public class LastHourLevel extends DungeonLevel {
     setupDecoderShelfs();
     setupPapers();
     setupInteractables();
-    if (!Game.isHeadless()) setupLightingShader();
     setupTimer();
     setupEndTrigger();
     setupR2Decorations();
@@ -418,8 +424,14 @@ public class LastHourLevel extends DungeonLevel {
     return timerExpired ? Lore.BadOutroTexts : Lore.OutroTexts;
   }
 
-  static void setupLightingShader() {
-    DrawSystem.getInstance().sceneShaders().add("lighting", new LightingShader().ambientLight(0));
+  @Override
+  public Atmosphere atmosphere() {
+    return lighting();
+  }
+
+  @Override
+  public void lights(List<Light> out) {
+    if (pc != null && keypad != null) addLights(layout(), keypad, out);
   }
 
   private static final String cabinetImagePath = "images/virus-phrases-en.png";
@@ -1059,9 +1071,6 @@ public class LastHourLevel extends DungeonLevel {
     persistAtPetriMilestone(LastHourSave.DEFAULT_PATH);
     showIntroForNewPlayers();
     registerUsbCollectorHooks();
-    if (!Game.isHeadless()) {
-      updateLightingShader(EntityUtils.getPosition(pc), getPoint("timer"), keypad);
-    }
   }
 
   /** Shows the intro to each new player; a new run asks the pre-game survey first. */
@@ -1189,41 +1198,44 @@ public class LastHourLevel extends DungeonLevel {
             });
   }
 
-  static void updateLightingShader(Point pcPos, Point timerPos, Entity keypad) {
-    if (!(DrawSystem.getInstance().sceneShaders().get("lighting") instanceof LightingShader ls))
-      return;
+  /**
+   * The office stays dark, lit only by the players' lanterns, until the room lights come back on
+   * with the computer and flicker up with the ceiling tubes. In the last minute of the countdown
+   * the light pulses red.
+   *
+   * @return the current atmosphere of the room
+   */
+  static Atmosphere lighting() {
+    boolean lightsOn =
+        ComputerStateComponent.getState()
+            .filter(state -> state.state().hasReached(ComputerProgress.ON))
+            .map(ComputerStateComponent::lightsOn)
+            .orElse(false);
+    return WorldTimerAlarm.apply(lightsOn && OfficeLights.lit() ? LIGHTS_ON : DARK);
+  }
 
-    ls.clearLightSources();
-
-    if (LevelEditorSystem.active()) {
-      ls.ambientLight(1.0f);
-      return;
-    } else {
-      ls.ambientLight(0.0f);
-    }
-
-    if (ComputerStateComponent.getState().isPresent()) {
-      var state = ComputerStateComponent.getState().get();
-      if (state.state().hasReached(ComputerProgress.ON)) {
-        if (state.lightsOn()) {
-          ls.ambientLight(0.2f);
-        }
-        Color color = state.isInfected() ? Color.RED : Color.BLUE;
-        float intensity = state.isInfected() ? 0.8f : 0.5f;
-        ls.addLightSource(pcPos, intensity, color);
-
-        ls.addLightSource(timerPos.translate(0.75f, 0), 0.5f, Color.RED);
-
-        var keyComp = keypad.fetch(KeypadComponent.class).orElseThrow();
-        Color keypadColor = keyComp.isUnlocked() ? Color.GREEN : Color.RED;
-        ls.addLightSource(
+  /**
+   * Adds the lights of the running computer: the keypad and, once the room lights are on, the
+   * ceiling tubes. The computer's screen and the timer light up by themselves, see {@link
+   * engine.rendering.EmissiveSprites}.
+   *
+   * @param layout the level layout, indexed [y][x]
+   * @param keypad the keypad entity
+   * @param out receives the lights
+   */
+  static void addLights(Tile[][] layout, Entity keypad, List<Light> out) {
+    Optional<ComputerStateComponent> state =
+        ComputerStateComponent.getState().filter(s -> s.state().hasReached(ComputerProgress.ON));
+    // Updated with the lights rather than the atmosphere, which the level editor also reads.
+    OfficeLights.update(state.map(ComputerStateComponent::lightsOn).orElse(false));
+    if (state.isEmpty()) return;
+    if (state.get().lightsOn()) OfficeLights.add(layout, out);
+    boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();
+    out.add(
+        Light.steady(
             Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),
-            0.3f,
-            keypadColor);
-      }
-    }
-
-    Game.allPlayers().forEach(e -> ls.addLightSource(EntityUtils.getPosition(e), 1f));
+            unlocked ? Color.GREEN : Color.RED,
+            0.3f));
   }
 
   private void checkPCStateUpdate() {

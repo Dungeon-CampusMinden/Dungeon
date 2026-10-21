@@ -7,10 +7,8 @@ import engine.level.elements.astar.TileConnection;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.level.utils.TileTextureFactory;
 import engine.utils.Direction;
 import engine.utils.Point;
-import engine.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +29,6 @@ public abstract class Tile {
   protected final Coordinate globalPosition;
   private final float friction;
   protected DesignLabel designLabel;
-  protected IPath texturePath;
   protected ILevel level;
   protected LevelElement levelElement;
   protected transient Array<Connection<Tile>> connections = new Array<>();
@@ -42,17 +39,11 @@ public abstract class Tile {
   /**
    * Create a new Tile.
    *
-   * @param texturePath Path to the texture of the tile.
    * @param globalPosition Position of the tile in the global system.
    * @param designLabel Design of the Tile.
    * @param friction The friction of this Tile.
    */
-  public Tile(
-      final IPath texturePath,
-      final Coordinate globalPosition,
-      final DesignLabel designLabel,
-      float friction) {
-    this.texturePath = texturePath;
+  public Tile(final Coordinate globalPosition, final DesignLabel designLabel, float friction) {
     this.globalPosition = globalPosition;
     this.designLabel = designLabel;
     this.friction = friction;
@@ -61,31 +52,11 @@ public abstract class Tile {
   /**
    * Create a new Tile.
    *
-   * @param texturePath Path to the texture of the tile.
    * @param globalPosition Position of the tile in the global system.
    * @param designLabel Design of the Tile.
    */
-  public Tile(
-      final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
-    this(texturePath, globalPosition, designLabel, DEFAULT_FRICTION);
-  }
-
-  /**
-   * Get the texture of this tile.
-   *
-   * @return Path to the texture of this tile.
-   */
-  public IPath texturePath() {
-    return texturePath;
-  }
-
-  /**
-   * Change the texture of the tile.
-   *
-   * @param texture New texture of the tile.
-   */
-  public void texturePath(final IPath texture) {
-    this.texturePath = texture;
+  public Tile(final Coordinate globalPosition, final DesignLabel designLabel) {
+    this(globalPosition, designLabel, DEFAULT_FRICTION);
   }
 
   /**
@@ -287,11 +258,6 @@ public abstract class Tile {
     return this.tintColor;
   }
 
-  /** Refreshes the texture of this tile. */
-  public void refreshTexture() {
-    this.texturePath(TileTextureFactory.findTexturePath(this, level.layout(), levelElement));
-  }
-
   @Override
   public String toString() {
     return "Tile{"
@@ -301,8 +267,6 @@ public abstract class Tile {
         + this.friction()
         + ", designLabel="
         + this.designLabel()
-        + ", texturePath="
-        + this.texturePath().pathString()
         + ", levelElement="
         + this.levelElement()
         + ", visible="

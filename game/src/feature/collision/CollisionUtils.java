@@ -78,23 +78,17 @@ public class CollisionUtils {
   /**
    * Helper method to determine if a tile can be entered by the entity.
    *
-   * <p>Considers both whether the tile is accessible and whether the entity is allowed to enter pit
-   * tiles.
+   * <p>Considers both whether the tile is accessible and whether the entity is allowed to enter
+   * walls.
    *
    * @param tile the tile to check for accessibility
    * @param vc the velocity component containing movement capabilities
-   * @return true if tile is accessible or a pit tile that can be entered, false otherwise
+   * @return true if tile is accessible or a wall that can be entered, false otherwise
    */
   private static boolean tileIsAccessible(Tile tile, VelocityComponent vc) {
-    boolean canEnterPitTiles = vc != null && vc.canEnterOpenPits();
-    boolean canEnterGitter = vc != null && vc.canEnterGitter();
-    boolean canEnterGlassWalls = vc != null && vc.canEnterGlasswalls();
     boolean canEnterWalls = vc != null && vc.canEnterWalls();
     return tile != null
         && (tile.isAccessible()
-            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT))
-            || (canEnterGitter && tile.levelElement().equals(LevelElement.GITTER))
-            || (canEnterGlassWalls && tile.levelElement().equals(LevelElement.GLASSWALL))
             || (canEnterWalls && tile.levelElement().equals(LevelElement.WALL)));
   }
 

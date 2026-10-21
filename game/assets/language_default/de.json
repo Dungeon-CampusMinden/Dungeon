@@ -137,9 +137,6 @@
         },
         "inventory_dialog": {
             "title": "INVENTAR"
-        },
-        "progress_bar_dialog": {
-            "title": "Fortschrittsanzeige"
         }
     },
     "achievement": {
@@ -161,7 +158,11 @@
         "master_volume": "Master-Lautstärke",
         "effects_volume": "Effekt-Lautstärke",
         "music_volume": "Musik-Lautstärke",
-        "language": "Sprache"
+        "language": "Sprache",
+        "graphics": "Grafik",
+        "brightness": "Helligkeit",
+        "reduce_effects": "Effekte reduzieren",
+        "reduce_effects_description": "Weniger Leuchten, Nebel[n]und Partikel, ruhiges Licht"
     },
     "main_menu": {
         "continue": "Fortsetzen",

@@ -46,10 +46,6 @@ import java.util.stream.Stream;
  *
  * // Directly set current velocity if needed (overrides forces)
  * vc.currentVelocity(new Vector2(1.0f, 0f)); // move right at speed 1
- *
- * // Check if entity can enter pits
- * boolean canEnterPits = vc.canEnterOpenPits();
- * vc.canEnterOpenPits(true);
  * }</pre>
  */
 public final class VelocityComponent implements Component {
@@ -68,10 +64,7 @@ public final class VelocityComponent implements Component {
   private float mass;
   private float maxSpeed;
 
-  private boolean canEnterOpenPits;
   private boolean canEnterWalls;
-  private boolean canEnterGitter;
-  private boolean canEnterGlasswalls;
 
   /**
    * Create a new VelocityComponent with the given configuration.
@@ -79,16 +72,11 @@ public final class VelocityComponent implements Component {
    * @param maxSpeed The speed with which the entity can maximally move.
    * @param mass The mass of the entity used to calculate acceleration.
    * @param onWallHit Callback that will be executed if the entity runs against a wall.
-   * @param canEnterOpenPits Whether the entity can enter open pit tiles.
    */
-  public VelocityComponent(
-      float maxSpeed, float mass, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
+  public VelocityComponent(float maxSpeed, float mass, Consumer<Entity> onWallHit) {
     this.mass(mass);
     this.onWallHit = onWallHit;
-    this.canEnterOpenPits = canEnterOpenPits;
     this.canEnterWalls = false;
-    this.canEnterGitter = false;
-    this.canEnterGlasswalls = false;
     this.maxSpeed = maxSpeed;
   }
 
@@ -97,38 +85,36 @@ public final class VelocityComponent implements Component {
    *
    * @param maxSpeed The speed with which the entity can maximally move.
    * @param onWallHit Callback that will be executed if the entity runs against a wall.
-   * @param canEnterOpenPits Whether the entity can enter open pit tiles.
    */
-  public VelocityComponent(float maxSpeed, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
-    this(maxSpeed, DEFAULT_MASS, onWallHit, canEnterOpenPits);
+  public VelocityComponent(float maxSpeed, Consumer<Entity> onWallHit) {
+    this(maxSpeed, DEFAULT_MASS, onWallHit);
   }
 
   /**
-   * Create a new VelocityComponent with the given max speed and mass. By default, the entity will
-   * not be able to enter open pit tiles and uses a no-op wall-hit callback.
+   * Create a new VelocityComponent with the given max speed and mass and a no-op wall-hit callback.
    *
    * @param maxSpeed The speed with which the entity can maximally move.
    * @param mass The mass of the entity used to calculate acceleration.
    */
   public VelocityComponent(float maxSpeed, float mass) {
-    this(maxSpeed, mass, DEFAULT_ON_WALL_HIT, false);
+    this(maxSpeed, mass, DEFAULT_ON_WALL_HIT);
   }
 
   /**
-   * Create a new VelocityComponent with the given configuration. By default, the entity will not be
-   * able to enter open pit tiles and has a mass of 1.
+   * Create a new VelocityComponent with the given max speed, a mass of 1 and a no-op wall-hit
+   * callback.
    *
    * @param maxSpeed The speed with which the entity can maximally move.
    */
   public VelocityComponent(float maxSpeed) {
-    this(maxSpeed, DEFAULT_ON_WALL_HIT, false);
+    this(maxSpeed, DEFAULT_ON_WALL_HIT);
   }
 
   /**
    * Create a new VelocityComponent with the default configuration.
    *
    * <p>In the default configuration, the movement speed is set to 0, so the entity will not move.
-   * And the entity will not be able to enter open pit tiles. The entity has a mass of 1.
+   * The entity has a mass of 1.
    */
   public VelocityComponent() {
     this(0f);
@@ -177,24 +163,6 @@ public final class VelocityComponent implements Component {
   }
 
   /**
-   * Set whether the entity can enter open pit tiles.
-   *
-   * @param canEnterOpenPits true if entity can enter pits, false otherwise.
-   */
-  public void canEnterOpenPits(boolean canEnterOpenPits) {
-    this.canEnterOpenPits = canEnterOpenPits;
-  }
-
-  /**
-   * Check if the entity can enter open pit tiles.
-   *
-   * @return true if it can enter pits, false otherwise.
-   */
-  public boolean canEnterOpenPits() {
-    return canEnterOpenPits;
-  }
-
-  /**
    * Set whether the entity can enter wall tiles.
    *
    * @param canEnterWalls true if entity can enter walls, false otherwise.
@@ -210,42 +178,6 @@ public final class VelocityComponent implements Component {
    */
   public boolean canEnterWalls() {
     return canEnterWalls;
-  }
-
-  /**
-   * Set whether the entity can enter gitter tiles.
-   *
-   * @param canEnterGitter true if entity can enter gitters, false otherwise.
-   */
-  public void canEnterGitter(boolean canEnterGitter) {
-    this.canEnterGitter = canEnterGitter;
-  }
-
-  /**
-   * Check if the entity can enter open gitter tiles.
-   *
-   * @return true if it can enter gitter tiles, false otherwise.
-   */
-  public boolean canEnterGitter() {
-    return canEnterGitter;
-  }
-
-  /**
-   * Set whether the entity can enter glasswall tiles.
-   *
-   * @param canEnterGlasswalls true if entity can enter glasswalls, false otherwise.
-   */
-  public void canEnterGlasswalls(boolean canEnterGlasswalls) {
-    this.canEnterGlasswalls = canEnterGlasswalls;
-  }
-
-  /**
-   * Check if the entity can enter glasswall tiles.
-   *
-   * @return true if it can enter glasswall tiles, false otherwise.
-   */
-  public boolean canEnterGlasswalls() {
-    return canEnterGlasswalls;
   }
 
   /**

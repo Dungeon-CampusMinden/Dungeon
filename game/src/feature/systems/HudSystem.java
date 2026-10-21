@@ -60,8 +60,8 @@ public final class HudSystem extends System {
   /**
    * Returns the topmost visible UI that can be closed or handles close requests locally.
    *
-   * <p>Passive HUD elements such as attribute bars are excluded. Non-closeable cutscenes with a
-   * local close-request handler still receive the shortcut.
+   * <p>Passive HUD elements are excluded. Non-closeable cutscenes with a local close-request
+   * handler still receive the shortcut.
    *
    * @return a Tuple of the Entity and its UIComponent
    */
