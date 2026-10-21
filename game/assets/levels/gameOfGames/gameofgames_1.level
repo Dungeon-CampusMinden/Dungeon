@@ -889,5 +889,24 @@
         "port" : "completion-item"
       } ]
     }
+  }, {
+    "name" : "item-spawner",
+    "type" : "item-spawner",
+    "properties" : {
+      "position" : {
+        "x" : 6.0,
+        "y" : 3.0
+      },
+      "container" : "Chest",
+      "deco" : "Cabinet",
+      "title" : "Container",
+      "item-count" : 2,
+      "item-1" : "ItemHammer",
+      "item-2" : "ItemKey",
+      "item-3" : "ItemKey",
+      "item-4" : "ItemKey",
+      "item-5" : "ItemKey",
+      "item-6" : "ItemKey"
+    }
   } ]
 }

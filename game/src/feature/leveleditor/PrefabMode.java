@@ -927,7 +927,11 @@ public final class PrefabMode extends LevelEditorMode {
       }
       case ENUM -> {
         PrefabProperty<String> p = cast(property);
-        String[] values = p.choices().toArray(String[]::new);
+        List<String> choices = new ArrayList<>(p.choices());
+        // Open selections accept values that are currently not offered, which stay selectable.
+        String current = access.get(p);
+        if (!choices.contains(current)) choices.addFirst(current);
+        String[] values = choices.toArray(String[]::new);
         secondaryContent
             .add(
                 new SelectSetting<>(

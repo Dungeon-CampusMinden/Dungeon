@@ -1,20 +1,25 @@
 package feature.prefabs;
 
 import engine.level.elements.ILevel;
+import feature.prefabs.types.AirVentPrefab;
 import feature.prefabs.types.AvailableCharacterPrefab;
 import feature.prefabs.types.DecorationInteractionPrefab;
+import feature.prefabs.types.DelayPrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.prefabs.types.DialogTriggerPrefab;
 import feature.prefabs.types.DoorControlPrefab;
 import feature.prefabs.types.ImagePuzzlePrefab;
 import feature.prefabs.types.InvisibleWallPrefab;
 import feature.prefabs.types.ItemReceptaclePrefab;
+import feature.prefabs.types.ItemSpawnerPrefab;
 import feature.prefabs.types.KeypadPrefab;
 import feature.prefabs.types.LevelHiderPrefab;
 import feature.prefabs.types.LeverPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
+import feature.prefabs.types.RandomBoolPrefab;
 import feature.prefabs.types.RandomCodePrefab;
+import feature.prefabs.types.RandomTextPrefab;
 import feature.prefabs.types.ShaderPrefab;
 import feature.prefabs.types.ShowImagePrefab;
 import feature.prefabs.types.TextKeypadPrefab;
@@ -56,6 +61,11 @@ public final class PrefabRegistry {
     register(new DoorControlPrefab(), DoorControlPrefab::new);
     register(new RandomCodePrefab(), RandomCodePrefab::new);
     register(new ItemReceptaclePrefab(), ItemReceptaclePrefab::new);
+    register(new RandomBoolPrefab(), RandomBoolPrefab::new);
+    register(new RandomTextPrefab(), RandomTextPrefab::new);
+    register(new DelayPrefab(), DelayPrefab::new);
+    register(new ItemSpawnerPrefab(), ItemSpawnerPrefab::new);
+    register(new AirVentPrefab(), AirVentPrefab::new);
   }
 
   private PrefabRegistry() {}

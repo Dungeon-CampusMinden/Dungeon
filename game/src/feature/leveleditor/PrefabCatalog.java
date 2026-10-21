@@ -36,9 +36,14 @@ public final class PrefabCatalog {
               "text-keypad",
               "deco-interaction"),
           new CategoryDefinition(
-              "Puzzles & Items", "image-puzzle", "item-receptacle", "pushable-stone"),
-          new CategoryDefinition(
-              "Effects & Logic", "door-control", "dialog-trigger", "show-image", "random-code"),
+              "Puzzles & Items",
+              "image-puzzle",
+              "item-spawner",
+              "item-receptacle",
+              "air-vent",
+              "pushable-stone"),
+          new CategoryDefinition("Effects", "door-control", "dialog-trigger", "show-image"),
+          new CategoryDefinition("Logic", "random-code", "random-bool", "random-text", "delay"),
           new CategoryDefinition("Visuals", "water", "shader", "level-hider"),
           new CategoryDefinition(
               "Level Setup", "invisible-wall", "available-character", "design-label-region"));
@@ -53,6 +58,8 @@ public final class PrefabCatalog {
           Map.entry("deco-interaction", () -> deco(Deco.BookshelfLarge, "!")),
           Map.entry("image-puzzle", () -> texture("items/puzzle-piece.png", null)),
           Map.entry("item-receptacle", () -> deco(Deco.Cabinet, null)),
+          Map.entry("item-spawner", () -> texture("items/rpg/item_sack.png", null)),
+          Map.entry("air-vent", () -> deco(Deco.FloorBarsSmall, null)),
           Map.entry("pushable-stone", () -> texture("objects/push-stone.png", null)),
           Map.entry("door-control", () -> texture("dungeon/default/door/top_closed.png", null)),
           Map.entry("dialog-trigger", () -> texture("emotes/emote_dots3.png", null)),
@@ -61,6 +68,9 @@ public final class PrefabCatalog {
           Map.entry(
               "available-character", () -> spritesheet("character/knight", "idle_down", null)),
           Map.entry("random-code", () -> text("RNG Number")),
+          Map.entry("random-bool", () -> text("RNG Bool")),
+          Map.entry("random-text", () -> text("RNG Text")),
+          Map.entry("delay", () -> text("Delay")),
           Map.entry("shader", () -> text("Shader")),
           Map.entry("level-hider", () -> text("Level Hider")),
           Map.entry("invisible-wall", () -> text("Invis Wall")),

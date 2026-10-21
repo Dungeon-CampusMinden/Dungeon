@@ -2,6 +2,7 @@ package feature.prefabs;
 
 import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,9 +53,41 @@ public record ItemArtifact(String itemId, Map<String, String> itemData, String d
   /**
    * Creates a new item of this kind.
    *
-   * @return the new item, or empty if the item class has no registered factory
+   * <p>Items without item data are created with the no-argument constructor of their class if it
+   * has one, other items with their registered factory.
+   *
+   * @return the new item, or empty if the item can not be created
    */
   public Optional<Item> create() {
+    if (itemData.isEmpty()) {
+      Optional<Item> item = ItemRegistry.lookup(itemId).flatMap(ItemArtifact::instantiate);
+      if (item.isPresent()) return item;
+    }
     return ItemRegistry.create(itemId, itemData);
+  }
+
+  /**
+   * Returns whether items of a class can be created without item data.
+   *
+   * @param itemClass item class
+   * @return true if the class has a public no-argument constructor
+   */
+  public static boolean isInstantiable(Class<? extends Item> itemClass) {
+    if (Modifier.isAbstract(itemClass.getModifiers())) return false;
+    try {
+      itemClass.getConstructor();
+      return true;
+    } catch (NoSuchMethodException exception) {
+      return false;
+    }
+  }
+
+  private static Optional<Item> instantiate(Class<? extends Item> itemClass) {
+    if (!isInstantiable(itemClass)) return Optional.empty();
+    try {
+      return Optional.of(itemClass.getConstructor().newInstance());
+    } catch (ReflectiveOperationException exception) {
+      return Optional.empty();
+    }
   }
 }
