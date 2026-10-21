@@ -40,25 +40,27 @@ import java.util.function.Consumer;
  * <p>A frame runs in this order:
  *
  * <ol>
- *   <li>{@link #beginFrame}: the camera is snapped to the texel grid and widened by a margin, so
- *       the scene renders into buffers with two texels per art pixel (32 per tile). Sprite pixels
- *       stay uniform at that integer ratio, while detail finer than an art pixel (text, dot-matrix
- *       displays) survives. The level's {@link Atmosphere} and lights are collected.
+ *   <li>{@link #beginFrame}: the camera is snapped to whole screen pixels and widened by a margin,
+ *       so the scene renders into buffers with one texel per screen pixel. Sprites of any scale
+ *       come out as sharp as drawn straight onto the screen. The level's {@link Atmosphere} and
+ *       lights are collected.
  *   <li>The draw system renders level and entities into those buffers; this class contributes
  *       {@link #drawFloor the floor}, {@link #drawWalls walls}, {@link #drawShadow contact
  *       shadows}, {@link #drawGroundParticles kicked-up dust}, {@link #addEntity entity lights} and
  *       {@link #drawParticles particles}, and draws the {@link #beginBases bases} of upright
  *       entities.
  *   <li>{@link #grade}: ambient and point lights with wall shadows, fog, grading and bloom. The
- *       draw system then adds world overlays and runs the scene shaders on the lit scene.
- *   <li>{@link #present}: the scene is scaled to the screen with sharp bilinear filtering, vignette
- *       and grain.
+ *       light is computed once per art pixel, into a buffer on the art-pixel grid. The draw system
+ *       then adds world overlays and runs the scene shaders on the lit scene.
+ *   <li>{@link #present}: the screen's part of the scene is copied to the screen with vignette and
+ *       grain.
  *   <li>{@link #endFrame}: the camera is restored and the frame's buffers are freed.
  * </ol>
  */
 public final class AtmosphereRenderer implements Disposable {
 
-  private static final float TEXELS_PER_TILE = 32f;
+  // Art pixels per tile; the light buffer has one texel per art pixel.
+  private static final int ART_PIXELS = 16;
   // Buffer sizes snap to this many texels, so zooming reuses pooled buffers of a few sizes.
   private static final int SIZE_STEP = 32;
   private static final float MAX_LIGHT_RADIUS = 8f;
@@ -118,6 +120,8 @@ public final class AtmosphereRenderer implements Disposable {
   private int screenWidth;
   private int screenHeight;
   private Rectangle view = new Rectangle(0, 0, 0, 0);
+  // The world area of the light buffer, on the art-pixel grid.
+  private Rectangle lightArea = new Rectangle(0, 0, 0, 0);
   private float srcU;
   private float srcV;
   private float srcU2;
@@ -160,26 +164,27 @@ public final class AtmosphereRenderer implements Disposable {
 
     float viewWidth = cam.viewportWidth * cam.zoom;
     float viewHeight = cam.viewportHeight * cam.zoom;
-    // Two texels per art pixel, but never more texels than screen pixels.
-    float texelsPerUnit = Math.min(TEXELS_PER_TILE, screenWidth / viewWidth);
-    width = roundUp(MathUtils.ceil(viewWidth * texelsPerUnit) + 4, SIZE_STEP);
-    height = roundUp(MathUtils.ceil(viewHeight * texelsPerUnit) + 4, SIZE_STEP);
+    // One texel per screen pixel, so sprites of any scale stay as sharp as on the screen.
+    float texelsPerUnit = screenWidth / viewWidth;
+    width = roundUp(screenWidth + 4, SIZE_STEP);
+    height = roundUp(screenHeight + 4, SIZE_STEP);
 
-    // Snapped to the texels of the half-resolution light buffer, so its texels stay on the
-    // art-pixel grid the light shader samples; present shifts the rest for smooth scrolling.
-    float snap = 2f / texelsPerUnit;
-    float snappedX = Math.round(savedX / snap) * snap;
-    float snappedY = Math.round(savedY / snap) * snap;
-    float left = snappedX - width / (2f * texelsPerUnit);
-    float bottom = snappedY - height / (2f * texelsPerUnit);
+    // Snapped to whole screen pixels, with the screen a whole number of texels into the buffers,
+    // so present copies the texels one to one.
+    int marginX = (width - screenWidth) / 2;
+    int marginY = (height - screenHeight) / 2;
+    float snappedX = Math.round(savedX * texelsPerUnit) / texelsPerUnit;
+    float snappedY = Math.round(savedY * texelsPerUnit) / texelsPerUnit;
+    float left = snappedX - (screenWidth / 2f + marginX) / texelsPerUnit;
+    float bottom = snappedY - (screenHeight / 2f + marginY) / texelsPerUnit;
     view = new Rectangle(width / texelsPerUnit, height / texelsPerUnit, left, bottom);
 
-    srcU = (savedX - viewWidth / 2f - left) * texelsPerUnit / width;
-    srcV = (savedY - viewHeight / 2f - bottom) * texelsPerUnit / height;
-    srcU2 = srcU + viewWidth * texelsPerUnit / width;
-    srcV2 = srcV + viewHeight * texelsPerUnit / height;
+    srcU = marginX / (float) width;
+    srcV = marginY / (float) height;
+    srcU2 = (marginX + screenWidth) / (float) width;
+    srcV2 = (marginY + screenHeight) / (float) height;
 
-    cam.position.set(snappedX, snappedY, 0);
+    cam.position.set(left + view.width() / 2f, bottom + view.height() / 2f, 0);
     cam.viewportWidth = width / texelsPerUnit / cam.zoom;
     cam.viewportHeight = height / texelsPerUnit / cam.zoom;
     cam.update();
@@ -453,8 +458,7 @@ public final class AtmosphereRenderer implements Disposable {
   public FrameBuffer grade(
       FrameBuffer scene, Optional<FrameBuffer> emissive, FrameBuffer bases, SpriteBatch batch) {
     ensureShaders();
-    // Light is smooth, so half resolution is enough.
-    FrameBuffer light = obtain(width / 2, height / 2);
+    FrameBuffer light = obtainLight();
     linear(light);
     renderLights(light, bases, batch);
     if (!reduced) renderBloom(scene, light, batch);
@@ -485,6 +489,7 @@ public final class AtmosphereRenderer implements Disposable {
     setColor(compositeShader, "u_lightTint", a.lightTint());
     Rectangle v = view;
     compositeShader.setUniformf("u_view", v.x(), v.y(), v.width(), v.height());
+    setArea(compositeShader, "u_lightArea", lightArea);
     compositeShader.setUniformf("u_time", time);
     compositeShader.setUniformf("u_fog", reduced ? 0f : a.fog());
     compositeShader.setUniformf("u_bloom", reduced ? 0f : 1f);
@@ -504,16 +509,10 @@ public final class AtmosphereRenderer implements Disposable {
    * @param batch the batch to render with, not begun
    */
   public void present(FrameBuffer graded, SpriteBatch batch) {
-    linear(graded);
     batch.setShader(presentShader);
     batch.setProjectionMatrix(pixelProjection.setToOrtho2D(0, 0, screenWidth, screenHeight));
     batch.disableBlending();
     batch.begin();
-    presentShader.setUniformf("u_texSize", width, height);
-    presentShader.setUniformf(
-        "u_scale",
-        screenWidth / ((srcU2 - srcU) * width),
-        screenHeight / ((srcV2 - srcV) * height));
     presentShader.setUniformf("u_screen", screenWidth, screenHeight);
     presentShader.setUniformf("u_time", time);
     presentShader.setUniformf("u_vignette", atmosphere.vignette());
@@ -554,7 +553,8 @@ public final class AtmosphereRenderer implements Disposable {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     if (!lights.isEmpty() && occlusionTexture != null) {
       batch.setShader(lightShader);
-      batch.setProjectionMatrix(CameraSystem.camera().combined);
+      Rectangle a = lightArea;
+      batch.setProjectionMatrix(pixelProjection.setToOrtho2D(a.x(), a.y(), a.width(), a.height()));
       batch.enableBlending();
       batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
       batch.begin();
@@ -676,6 +676,8 @@ public final class AtmosphereRenderer implements Disposable {
           Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
           s.setUniformi("u_light", 1);
           setColor(s, "u_ambient", atmosphere.ambient());
+          setArea(s, "u_view", view);
+          setArea(s, "u_lightArea", lightArea);
         });
     pass(batch, blurShader, bloomNear, nearTmp, s -> s.setUniformf("u_dir", 1f / hw, 0));
     pass(batch, blurShader, nearTmp, bloomNear, s -> s.setUniformf("u_dir", 0, 1f / hh));
@@ -707,11 +709,36 @@ public final class AtmosphereRenderer implements Disposable {
     target.end();
   }
 
+  /**
+   * Obtains the light buffer of the frame: one texel per art pixel over the view, on the art-pixel
+   * grid the light shader samples, so each texel holds the light of one art pixel.
+   *
+   * @return the light buffer, owned by this renderer until {@link #endFrame}
+   */
+  private FrameBuffer obtainLight() {
+    Rectangle v = view;
+    int x0 = MathUtils.floor(v.x() * ART_PIXELS);
+    int y0 = MathUtils.floor(v.y() * ART_PIXELS);
+    int w = roundUp(MathUtils.ceil((v.x() + v.width()) * ART_PIXELS) - x0, SIZE_STEP);
+    int h = roundUp(MathUtils.ceil((v.y() + v.height()) * ART_PIXELS) - y0, SIZE_STEP);
+    lightArea =
+        new Rectangle(
+            w / (float) ART_PIXELS,
+            h / (float) ART_PIXELS,
+            x0 / (float) ART_PIXELS,
+            y0 / (float) ART_PIXELS);
+    return obtain(w, h);
+  }
+
   private FrameBuffer obtain(int w, int h) {
     // Freed at endFrame.
     FrameBuffer fbo = pool.obtain(w, h);
     frameBuffers.add(fbo);
     return fbo;
+  }
+
+  private static void setArea(ShaderProgram shader, String name, Rectangle area) {
+    shader.setUniformf(name, area.x(), area.y(), area.width(), area.height());
   }
 
   private static void setColor(ShaderProgram shader, String name, Color color) {

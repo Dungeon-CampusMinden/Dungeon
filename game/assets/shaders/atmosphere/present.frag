@@ -1,6 +1,5 @@
-// Scales the low-resolution scene to the screen. Sharp bilinear filtering keeps art pixels crisp
-// at any scale while blending only their one-screen-pixel border, which also lets the camera move
-// smoothly between art pixels. Adds vignette and film grain at screen resolution.
+// Copies the screen's part of the lit scene to the screen, one texel per pixel, and adds vignette and
+// film grain.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -11,9 +10,7 @@ precision mediump float;
 
 varying vec2 v_uv;
 
-uniform sampler2D u_texture;   // lit scene, linear filtering
-uniform vec2 u_texSize;        // scene texture size in texels
-uniform vec2 u_scale;          // screen pixels per scene texel
+uniform sampler2D u_texture;   // lit scene
 uniform vec2 u_screen;         // screen size in pixels
 uniform float u_time;
 uniform float u_vignette;      // vignette strength, 0 for none
@@ -21,12 +18,7 @@ uniform float u_grain;         // 1 adds film grain, 0 leaves it out
 uniform float u_brightness;    // player's brightness, 1 for normal
 
 void main() {
-    vec2 texel = v_uv * u_texSize;
-    vec2 base = floor(texel);
-    vec2 center = fract(texel) - 0.5;
-    vec2 range = 0.5 - 0.5 / max(u_scale, vec2(1.0));
-    vec2 f = (center - clamp(center, -range, range)) * max(u_scale, vec2(1.0)) + 0.5;
-    vec3 col = texture2D(u_texture, (base + f) / u_texSize).rgb;
+    vec3 col = texture2D(u_texture, v_uv).rgb;
     // Brightness as a gamma curve: it lifts or lowers the dark and middle tones while black stays
     // black and full brightness stays full.
     col = pow(col, vec3(1.0 / u_brightness));

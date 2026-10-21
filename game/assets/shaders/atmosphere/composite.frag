@@ -22,6 +22,7 @@ uniform vec3 u_ambient;
 uniform vec3 u_shadowTint;     // grade of dark areas
 uniform vec3 u_lightTint;      // grade of bright areas
 uniform vec4 u_view;           // world rect of the scene texture: x, y, width, height
+uniform vec4 u_lightArea;      // world rect of the light texture: x, y, width, height
 uniform float u_fog;           // fog strength, 0 turns it off
 uniform float u_bloom;         // 1 adds the bloom, 0 leaves it out
 uniform float u_time;
@@ -59,10 +60,10 @@ vec3 shoulder(vec3 light) {
 
 void main() {
     vec4 scene = texture2D(u_texture, v_uv);
-    vec3 raw = texture2D(u_light, v_uv).rgb * 2.0;
+    vec2 world = u_view.xy + v_uv * u_view.zw;
+    vec3 raw = texture2D(u_light, (world - u_lightArea.xy) / u_lightArea.zw).rgb * 2.0;
 
     // Fog in art-pixel steps, drifting slowly; it glows where lights reach it.
-    vec2 world = u_view.xy + v_uv * u_view.zw;
     vec2 wp = floor(world * 16.0) / 16.0;
     float n = fbm(wp * 0.42 + vec2(u_time * 0.07, u_time * 0.03));
     // Only over the drawn level: the void stays black. Pure black counts as void, so the black

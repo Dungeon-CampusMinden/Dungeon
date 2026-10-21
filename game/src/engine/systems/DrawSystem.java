@@ -71,8 +71,8 @@ import java.util.TreeMap;
  *
  * <p>6. **Screen Final Draw:** The {@link AtmosphereRenderer} presents the scene on the screen.
  *
- * <p>All scene buffers are rendered at a fixed resolution of two texels per sprite pixel around a
- * texel-snapped camera; see {@link AtmosphereRenderer}.
+ * <p>All scene buffers are rendered at screen resolution around a pixel-snapped camera; see {@link
+ * AtmosphereRenderer}.
  *
  * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
  * screen.
