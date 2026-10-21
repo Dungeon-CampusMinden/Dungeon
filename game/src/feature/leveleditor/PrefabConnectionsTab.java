@@ -211,7 +211,13 @@ final class PrefabConnectionsTab {
             portTitle(port), PORT_FONT_SIZE, ModeDetailsPanel.TEXT_COLOR);
     name.setEllipsis(true);
     header.add(name).growX().minWidth(0f).left().padLeft(4f);
-    if (port.kind().isSignal()) {
+    List<PrefabWiring.Connection> outgoing =
+        port.kind().isInput()
+            ? List.of()
+            : PrefabWiring.outgoing(host.instances(), instance.name(), port.key());
+    boolean linked = port.kind().isInput() ? !instance.links(port).isEmpty() : !outgoing.isEmpty();
+    // Send and Run are only offered for ports that are part of a connection.
+    if (port.kind().isSignal() && linked) {
       TextButton test =
           button(
               port.kind() == PrefabPort.Kind.EVENT ? "Send" : "Run",
@@ -247,8 +253,7 @@ final class PrefabConnectionsTab {
             p -> block.add(wrapped(p.message(), HINT_FONT_SIZE, severityColor(p))).row());
       }
     } else {
-      for (PrefabWiring.Connection connection :
-          PrefabWiring.outgoing(host.instances(), instance.name(), port.key())) {
+      for (PrefabWiring.Connection connection : outgoing) {
         Optional<PrefabWiring.Problem> problem =
             problemOf(
                 problems,

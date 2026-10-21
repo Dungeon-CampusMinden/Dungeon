@@ -17,12 +17,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
-import engine.systems.CameraSystem;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
 import feature.entities.deco.Deco;
+import feature.hud.UIUtils;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ColorSetting;
@@ -34,6 +34,7 @@ import feature.leveleditor.ui.NumberSliderSetting;
 import feature.leveleditor.ui.PointSetting;
 import feature.leveleditor.ui.PortPickerPopup;
 import feature.leveleditor.ui.PrefabInstanceList;
+import feature.leveleditor.ui.PrefabPalette;
 import feature.leveleditor.ui.RegionSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.leveleditor.ui.StringSetting;
@@ -62,7 +63,6 @@ import feature.prefabs.shaders.ShaderParameters;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,7 +96,6 @@ public final class PrefabMode extends LevelEditorMode {
   private static final float LINK_LABEL_SPACING = 0.32f;
 
   private String selectedName;
-  private Prefab selectedPrefab;
   private PendingPointAssignment pendingPointAssignment;
   private PendingPointAssignment lastPointAssignment;
   private PendingAnchorDrag pendingAnchorDrag;
@@ -110,8 +109,12 @@ public final class PrefabMode extends LevelEditorMode {
   private PrefabInstanceList instanceList;
   private Table listOrderTabs;
   private ListOrder listOrder = ListOrder.ALPHABETICAL;
-  private SelectSetting<Prefab> prefabTypeSetting;
   private boolean rebuildPending;
+  private ImageButton addButton;
+  // While set, the prefab palette is shown below the mode panel.
+  private PrefabPalette palette;
+  // Prefab currently dragged from the palette, previewed at the cursor while over the level.
+  private Prefab paletteDrag;
   // While set, the secondary details show the parameters of one shader property instead.
   private ShaderEditTarget shaderEditTarget;
   private DetailsTab detailsTab = DetailsTab.PROPERTIES;
@@ -163,6 +166,7 @@ public final class PrefabMode extends LevelEditorMode {
     cancelAnchorDrag();
     clearPendingPointAssignment();
     cancelLinkPick();
+    paletteDrag = null;
     try {
       syncChanged();
     } catch (RuntimeException exception) {
@@ -300,6 +304,16 @@ public final class PrefabMode extends LevelEditorMode {
           POINT_ASSIGNMENT_PREVIEW_RADIUS,
           POINT_ASSIGNMENT_PREVIEW_COLOR);
     }
+    if (paletteDrag != null && !isCursorOverUI()) {
+      try {
+        PrefabInstance preview =
+            placedInstance(paletteDrag, newInstanceName(paletteDrag), getCursorPosition());
+        paletteDrag.renderEditorFeedback(
+            level, preview, new DebugDrawPrefabEditorFeedback(true, null), true);
+      } catch (RuntimeException invalidPreview) {
+        // The preview is skipped, dropping the prefab reports the problem.
+      }
+    }
   }
 
   private void renderLinks(DungeonLevel level) {
@@ -406,14 +420,6 @@ public final class PrefabMode extends LevelEditorMode {
   public void buildDetailsUI(Table content) {
     detailsContent = content;
     content.clearChildren();
-    Prefab[] prefabDefinitions = PrefabRegistry.all().toArray(Prefab[]::new);
-    Arrays.sort(
-        prefabDefinitions,
-        Comparator.comparing(Prefab::displayName, String.CASE_INSENSITIVE_ORDER)
-            .thenComparing(Prefab::displayName));
-    if (selectedPrefab == null && prefabDefinitions.length > 0) {
-      selectedPrefab = prefabDefinitions[0];
-    }
     listOrderTabs = new Table();
     rebuildListOrderTabs();
     content.add(listOrderTabs).growX().padBottom(4f).row();
@@ -423,12 +429,13 @@ public final class PrefabMode extends LevelEditorMode {
     content.add(list).growX().height(350f).row();
 
     Table actions = new Table();
-    ImageButton add = Scene2dElementFactory.createIconButton("hud/plus.png", "blue-outline");
-    add.addListener(
+    addButton = Scene2dElementFactory.createIconButton("hud/plus.png", "blue-outline");
+    applyAddButtonStyle();
+    addButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            addSelectedPrefab();
+            togglePalette();
           }
         });
     ImageButton duplicate = Scene2dElementFactory.createIconButton("hud/copy.png", "default");
@@ -448,18 +455,9 @@ public final class PrefabMode extends LevelEditorMode {
           }
         });
     actions.defaults().minWidth(0).growX().uniformX().height(50f).pad(2f);
-    actions.add(add);
+    actions.add(addButton);
     actions.add(duplicate);
     actions.add(delete);
-    prefabTypeSetting =
-        new SelectSetting<>(
-            "Prefab Type",
-            prefabDefinitions,
-            () -> selectedPrefab,
-            prefab -> selectedPrefab = prefab,
-            Prefab::displayName,
-            true);
-    content.add(prefabTypeSetting).growX().padTop(6f).row();
     content.add(actions).growX().padTop(4f).row();
     content
         .add(
@@ -508,11 +506,15 @@ public final class PrefabMode extends LevelEditorMode {
 
   @Override
   public void updateDetailsUI() {
-    if (prefabTypeSetting != null) prefabTypeSetting.refresh();
     if (rebuildPending) {
       rebuildPending = false;
       rebuildDetails();
     }
+  }
+
+  @Override
+  public Table toolbarUI() {
+    return palette;
   }
 
   @Override
@@ -1471,26 +1473,67 @@ public final class PrefabMode extends LevelEditorMode {
     showPicker(end, target.get().name(), ui, position.x + 12f, position.y);
   }
 
-  private void addSelectedPrefab() {
-    if (selectedPrefab == null) {
-      LevelEditorSystem.showFeedback("No prefab definitions are registered.", Color.YELLOW);
-      return;
-    }
-    add(selectedPrefab);
+  private void togglePalette() {
+    palette = palette == null ? new PrefabPalette(new PaletteListener()) : null;
+    paletteDrag = null;
+    applyAddButtonStyle();
   }
 
-  private void add(Prefab prefab) {
+  private void applyAddButtonStyle() {
+    if (addButton == null) return;
+    TextButton.TextButtonStyle base =
+        UIUtils.defaultSkin()
+            .get(palette == null ? "blue-outline" : "green", TextButton.TextButtonStyle.class);
+    ImageButton.ImageButtonStyle style = addButton.getStyle();
+    style.up = base.up;
+    style.down = base.down;
+    style.over = base.over;
+    addButton.setStyle(style);
+  }
+
+  private boolean isCursorOverUI() {
+    LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
+    return ui != null && ui.isCursorOverUI();
+  }
+
+  /**
+   * Adds a new instance of a prefab and selects it.
+   *
+   * @param prefab prefab to add
+   * @param cursor world position the first anchor of the new instance is snapped to
+   */
+  private void add(Prefab prefab, Point cursor) {
     cancelAnchorDrag();
     clearPendingPointAssignment();
+    cancelLinkPick();
+    String name = newInstanceName(prefab);
+    PrefabInstance added;
+    try {
+      added = placedInstance(prefab, name, cursor);
+    } catch (IllegalArgumentException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+      return;
+    }
+    applyChange(
+        () -> {
+          getLevel().addPrefab(added);
+          applyGroupedOrder();
+          selectedName = name;
+        });
+  }
+
+  // New instances join the area of the selected instance.
+  private String newInstanceName(Prefab prefab) {
     String area = selected().map(i -> PrefabNames.areaPrefix(i.name())).orElse(null);
     String base = area == null ? prefab.type() : area + "/" + prefab.type();
-    String name = containsName(base) ? PrefabNames.nextName(base, this::containsName) : base;
+    return containsName(base) ? PrefabNames.nextName(base, this::containsName) : base;
+  }
+
+  private PrefabInstance placedInstance(Prefab prefab, String name, Point cursor) {
     PrefabInstance instance = prefab.newInstance(name);
-    Point screenCenter =
-        new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y);
     Optional<WorldAnchor> anchor = worldAnchors(instance).stream().findFirst();
     if (anchor.isPresent()) {
-      Point spawnPosition = propertyPositionForCursor(screenCenter, anchor.get().feedbackOffset());
+      Point spawnPosition = propertyPositionForCursor(cursor, anchor.get().feedbackOffset());
       Point anchorPosition = anchor.get().authoredPosition();
       instance =
           prefab.translate(
@@ -1498,13 +1541,7 @@ public final class PrefabMode extends LevelEditorMode {
               Vector2.of(
                   spawnPosition.x() - anchorPosition.x(), spawnPosition.y() - anchorPosition.y()));
     }
-    PrefabInstance added = prefab.normalize(instance);
-    applyChange(
-        () -> {
-          getLevel().addPrefab(added);
-          applyGroupedOrder();
-          selectedName = name;
-        });
+    return prefab.normalize(instance);
   }
 
   private void duplicateSelected() {
@@ -2132,6 +2169,31 @@ public final class PrefabMode extends LevelEditorMode {
 
     ListOrder(String label) {
       this.label = label;
+    }
+  }
+
+  /** Places prefabs dragged from the palette into the level. */
+  private final class PaletteListener implements PrefabPalette.Listener {
+    @Override
+    public void dragStarted(Prefab prefab) {
+      cancelAnchorDrag();
+      clearPendingPointAssignment();
+      cancelLinkPick();
+      paletteDrag = prefab;
+    }
+
+    @Override
+    public void dropped(Prefab prefab) {
+      paletteDrag = null;
+      // The palette may have been closed or the mode switched while dragging.
+      if (palette == null || palette.getStage() == null || isCursorOverUI()) return;
+      add(prefab, getCursorPosition());
+    }
+
+    @Override
+    public void clicked(Prefab prefab) {
+      LevelEditorSystem.showFeedback(
+          "Drag '" + prefab.displayName() + "' into the level to place it.", Color.WHITE);
     }
   }
 

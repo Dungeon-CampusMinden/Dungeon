@@ -133,11 +133,11 @@
       "region" : {
         "bottomLeft" : {
           "x" : 20.0,
-          "y" : 17.0
+          "y" : 18.0
         },
         "topRight" : {
           "x" : 20.0,
-          "y" : 17.0
+          "y" : 18.0
         }
       },
       "text" : "You have successfully entered the code! GG",

@@ -138,6 +138,17 @@ public abstract class LevelEditorMode {
   }
 
   /**
+   * Gets the optional toolbar shown below the mode panel at the top of the screen.
+   *
+   * <p>Called every frame, so a mode can show and hide its toolbar by returning a different value.
+   *
+   * @return the toolbar to show, or {@code null} to show none.
+   */
+  public Table toolbarUI() {
+    return null;
+  }
+
+  /**
    * Gets additional information this mode wants to display to the user in the details panel.
    *
    * <p>Called every frame, so the returned text may be dynamic. If the returned text is {@code
