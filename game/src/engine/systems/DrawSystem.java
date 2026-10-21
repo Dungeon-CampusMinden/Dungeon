@@ -36,6 +36,7 @@ import engine.utils.components.draw.FrameBufferPool;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.shader.AbstractShader;
+import engine.utils.components.draw.shader.LevelHideShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.IPath;
@@ -383,6 +384,7 @@ public final class DrawSystem extends System implements Disposable {
   private void renderScene() {
     // Pass 1: Render shaders to FBOs (Entity-local shaders)
     renderEntitiesPass1();
+    atmosphere.hide(hiddenAreas());
 
     int sceneWidth = atmosphere.width();
     int sceneHeight = atmosphere.height();
@@ -1016,6 +1018,19 @@ public final class DrawSystem extends System implements Disposable {
     }
     BlendUtils.setBlending(batch());
     batch().setColor(Color.WHITE);
+  }
+
+  /**
+   * The areas the scene shaders currently black out, see {@link LevelHideShader}.
+   *
+   * @return the hidden areas
+   */
+  private List<Rectangle> hiddenAreas() {
+    List<Rectangle> areas = new ArrayList<>();
+    for (AbstractShader shader : sceneShaders.getEnabledSorted()) {
+      if (shader instanceof LevelHideShader hide && hide.hiding()) areas.add(hide.region());
+    }
+    return areas;
   }
 
   private static boolean hasOutline(ShaderList shaders) {

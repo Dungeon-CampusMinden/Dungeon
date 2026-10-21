@@ -398,6 +398,27 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   /**
+   * Puts out the lights, flames and spark trails inside areas the scene hides, so nothing there
+   * gives itself away by lighting what is still visible, such as the far side of a wall. Call after
+   * the last {@link #addEntity}.
+   *
+   * @param areas the hidden areas, in world units
+   */
+  public void hide(List<Rectangle> areas) {
+    if (areas.isEmpty()) return;
+    lights.removeIf(l -> inside(areas, l.position()));
+    flames.removeIf(p -> inside(areas, p));
+    trails.removeIf(p -> inside(areas, p));
+  }
+
+  private static boolean inside(List<Rectangle> areas, Point p) {
+    for (Rectangle area : areas) {
+      if (area.contains(p)) return true;
+    }
+    return false;
+  }
+
+  /**
    * Advances the particles and draws the airborne ones into the composed scene, after all entities
    * are registered and before the lighting and scene shaders: dust motes over the scene, flame
    * glow, embers, spark trails and magic motes added on top. Running before the scene shaders lets
