@@ -10,6 +10,7 @@ import escaperoom.foundation.definition.ProgressionDefinition;
 import escaperoom.foundation.definition.ProgressionDefinition.RiddleNode;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.RosterSlotDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.runtime.Projection.InputView;
 import escaperoom.foundation.runtime.Projection.ProgressStatus;
@@ -200,54 +201,61 @@ public final class Authority {
   }
 
   /**
-   * Evaluates one numeric attempt exactly inside authority without retaining attempt counts.
+   * Evaluates one answer by the task of a surface input without retaining attempt counts.
+   *
+   * <p>The input type ties the answer to its task, e.g. {@code NumericInputDefinition.class} with a
+   * code string or {@code ChoiceInputDefinition.class} with the selected option identifiers.
    *
    * @param riddleId owning riddle identifier
-   * @param inputId stable numeric input identifier
-   * @param attempt caller-supplied value evaluated by exact equality
+   * @param inputId stable input identifier
+   * @param inputType expected input type
+   * @param answer complete answer
+   * @param <A> answer type
+   * @param <D> input type
    * @return explicit command and non-secret correctness result
    */
-  public synchronized CodeAttemptResult attemptCode(
-      final String riddleId, final String inputId, final String attempt) {
+  public synchronized <A, D extends SurfaceInputDefinition<A>> AttemptResult attempt(
+      final String riddleId, final String inputId, final Class<D> inputType, final A answer) {
+    Objects.requireNonNull(answer, "answer");
     OperationResult gate = gameplayGate();
     if (gate != null) {
-      return code(gate, CodeOutcome.NOT_EVALUATED);
+      return result(gate, AttemptOutcome.NOT_EVALUATED);
     }
     RiddleState state = riddles.get(riddleId);
     if (state == null) {
-      return code(
-          OperationResult.rejected(OperationReason.UNKNOWN_RIDDLE), CodeOutcome.NOT_EVALUATED);
+      return result(
+          OperationResult.rejected(OperationReason.UNKNOWN_RIDDLE), AttemptOutcome.NOT_EVALUATED);
     }
     if (state.status == ProgressStatus.SOLVED) {
-      return code(
+      return result(
           OperationResult.idempotent(OperationReason.RIDDLE_ALREADY_COMPLETED),
-          CodeOutcome.NOT_EVALUATED);
+          AttemptOutcome.NOT_EVALUATED);
     }
     if (state.status == ProgressStatus.LOCKED) {
-      return code(
-          OperationResult.idempotent(OperationReason.RIDDLE_LOCKED), CodeOutcome.NOT_EVALUATED);
+      return result(
+          OperationResult.idempotent(OperationReason.RIDDLE_LOCKED), AttemptOutcome.NOT_EVALUATED);
     }
-    Optional<NumericInputDefinition> numeric =
+    Optional<D> input =
         state.definition.inputs().stream()
-            .filter(input -> input.id().equals(inputId))
-            .filter(NumericInputDefinition.class::isInstance)
-            .map(NumericInputDefinition.class::cast)
+            .filter(candidate -> candidate.id().equals(inputId))
+            .filter(inputType::isInstance)
+            .map(inputType::cast)
             .findFirst();
-    if (numeric.isEmpty()) {
-      return code(
-          OperationResult.rejected(OperationReason.UNKNOWN_INPUT), CodeOutcome.NOT_EVALUATED);
+    if (input.isEmpty()) {
+      return result(
+          OperationResult.rejected(OperationReason.UNKNOWN_INPUT), AttemptOutcome.NOT_EVALUATED);
     }
     if (state.satisfied.contains(inputId)) {
-      return code(
+      return result(
           OperationResult.idempotent(OperationReason.INPUT_ALREADY_SATISFIED),
-          CodeOutcome.NOT_EVALUATED);
+          AttemptOutcome.NOT_EVALUATED);
     }
-    if (!numeric.orElseThrow().answer().equals(attempt)) {
-      return code(OperationResult.applied(), CodeOutcome.INCORRECT);
+    if (!input.orElseThrow().task().isCorrect(answer)) {
+      return result(OperationResult.applied(), AttemptOutcome.INCORRECT);
     }
     state.satisfied.add(inputId);
     completeIfSatisfied(state);
-    return code(OperationResult.applied(), CodeOutcome.CORRECT);
+    return result(OperationResult.applied(), AttemptOutcome.CORRECT);
   }
 
   /**
@@ -550,9 +558,9 @@ public final class Authority {
     return new ReleasedHint(hint.id(), hint.title(), hint.text(), hint.severity());
   }
 
-  private static CodeAttemptResult code(
-      final OperationResult operation, final CodeOutcome outcome) {
-    return new CodeAttemptResult(operation, outcome);
+  private static AttemptResult result(
+      final OperationResult operation, final AttemptOutcome outcome) {
+    return new AttemptResult(operation, outcome);
   }
 
   private static HintRevealResult hint(

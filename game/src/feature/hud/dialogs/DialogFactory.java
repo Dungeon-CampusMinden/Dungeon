@@ -465,9 +465,11 @@ public class DialogFactory {
    * @param dialog The dialog script (non-blank). May contain {@code [speaker]}/{@code [p]} markup.
    * @param title The dialog window title (may be blank for no title)
    * @param options The list of {@link ChoiceOption}s to choose from
+   * @param multipleSelection Whether options toggle and a confirm row submits all checked values
    * @param canCancel Whether to append a cancel option
    * @param onSelected Callback receiving the selected option value as a {@link
-   *     DialogResponseMessage.Payload}
+   *     DialogResponseMessage.StringValue}, or all checked values as a {@link
+   *     DialogResponseMessage.StringList} with multiple selection
    * @param onCancel Callback executed when cancel is pressed (only relevant if canCancel is true)
    * @param targetEntityIds The target entity IDs for which the dialog is displayed
    * @return The {@link UIComponent} containing the dialog
@@ -476,6 +478,7 @@ public class DialogFactory {
       String dialog,
       String title,
       List<ChoiceOption> options,
+      boolean multipleSelection,
       boolean canCancel,
       Consumer<DialogResponseMessage.Payload> onSelected,
       IVoidFunction onCancel,
@@ -493,6 +496,7 @@ public class DialogFactory {
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.DIALOG, dialog)
             .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
+            .put(DialogContextKeys.MULTIPLE_SELECTION, multipleSelection)
             .put(DialogContextKeys.CAN_CANCEL, canCancel);
 
     UIComponent ui = show(builder.build(), targetEntityIds);

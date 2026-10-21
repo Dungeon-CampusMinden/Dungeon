@@ -1,4 +1,4 @@
-import type { Asset, AssetMediaType, DeerProject, Riddle, RiddleGraph, Surface } from "./DeerSchema";
+import { DEVICE_INPUTS, type Asset, type AssetMediaType, type AssignmentInput, type ChoiceInput, type DeerProject, type Riddle, type RiddleGraph, type Surface } from "./DeerSchema";
 import { getBundledAssetPaths, isBundledAssetPath } from "@/components/assets/assetPaths";
 import { VALIDATED_TAB_IDS, type ValidatedTabId } from "./Tabs";
 
@@ -73,11 +73,11 @@ function collectReachable(startId: string, adjacency: ReadonlyMap<string, string
 }
 
 const THEME_IDS = ["default"];
-const SURFACE_KINDS: Surface["kind"][] = ["world", "container", "keypad", "door"];
+const SURFACE_KINDS: Surface["kind"][] = ["world", "container", "keypad", "terminal", "assignment", "door"];
 const RIDDLE_DIFFICULTIES = ["easy", "medium", "hard"];
 const RESOURCE_KINDS = ["inline_text", "asset"];
 const HINT_SEVERITIES = ["orientation", "approach", "solution"];
-const INPUT_TYPES = ["collection", "numeric"];
+const INPUT_TYPES = ["collection", "numeric", "choice", "assignment"];
 const TIME_LIMIT_MODES = ["hard", "soft"];
 const ASSET_MEDIA_TYPES: AssetMediaType[] = ["image/png", "image/jpeg"];
 const OPERATOR_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -500,7 +500,7 @@ export class ErrorChecker {
   private checkSurfaceProfile(deerSchema: DeerProject) {
     const surfacesById = new Map(deerSchema.surfaces.map((surface) => [surface.id, surface]));
     const containerUses = new Map<string, number>();
-    const keypadUses = new Map<string, number>();
+    const deviceUses = new Map<string, number>();
     const count = (uses: Map<string, number>, id: string) => uses.set(id, (uses.get(id) ?? 0) + 1);
 
     for (const riddle of deerSchema.riddles) {
@@ -518,14 +518,15 @@ export class ErrorChecker {
         }
       }
       for (const input of riddle.inputs) {
-        if (input.type !== "numeric") continue;
-        count(keypadUses, input.surfaceId);
+        if (input.type === "collection") continue;
+        const device = DEVICE_INPUTS[input.type];
+        count(deviceUses, input.surfaceId);
         const surface = surfacesById.get(input.surfaceId);
-        if (surface && surface.kind !== "keypad") {
+        if (surface && surface.kind !== device.kind) {
           this.error(
             "riddles",
             field,
-            `Eine Zahleneingabe von "${name}" ist ungültig eingerichtet.`,
+            `Eine ${device.label} von "${name}" ist ungültig eingerichtet.`,
           );
         }
       }
@@ -544,19 +545,19 @@ export class ErrorChecker {
     }
 
     for (const surface of deerSchema.surfaces) {
-      const uses =
-        surface.kind === "container"
-          ? containerUses.get(surface.id)
-          : surface.kind === "keypad"
-            ? keypadUses.get(surface.id)
-            : undefined;
-      if ((surface.kind === "container" || surface.kind === "keypad") && uses !== 1) {
+      const device = Object.values(DEVICE_INPUTS).find((entry) => entry.kind === surface.kind);
+      const uses = surface.kind === "container"
+        ? containerUses.get(surface.id)
+        : device
+          ? deviceUses.get(surface.id)
+          : undefined;
+      if ((surface.kind === "container" || device) && uses !== 1) {
         this.error(
           "riddles",
           "riddles",
-          surface.kind === "container"
-            ? "Jede Informationsquelle muss einen eigenen internen Spielbestandteil besitzen."
-            : "Jede Zahleneingabe muss einen eigenen internen Spielbestandteil besitzen.",
+          device
+            ? `Jede ${device.label} muss einen eigenen internen Spielbestandteil besitzen.`
+            : "Jede Informationsquelle muss einen eigenen internen Spielbestandteil besitzen.",
           `Gefundene Verwendungen: ${uses ?? 0}.`,
         );
       }
@@ -763,7 +764,49 @@ export class ErrorChecker {
             `Aktuelle Lösung: "${input.answer}".`,
           );
         }
+      } else if (input.type === "choice") {
+        this.checkSurfaceReference("riddles", field, input.surfaceId, surfaceIds, name);
+        this.checkChoiceInput(field, input, name);
+      } else if (input.type === "assignment") {
+        this.checkSurfaceReference("riddles", field, input.surfaceId, surfaceIds, name);
+        this.checkAssignmentInput(field, input, name);
       }
+    }
+  }
+
+  private checkChoiceInput(field: string, input: ChoiceInput, riddleName: string) {
+    const inputField = `${field}:input:${input.id}`;
+    if (isBlank(input.question)) {
+      this.error("riddles", `${inputField}:question`, `Für eine Auswahlfrage von "${riddleName}" fehlt die Frage.`);
+    }
+    const optionsField = `${inputField}:options`;
+    if (input.options.some((option) => isBlank(option.text))) {
+      this.error("riddles", optionsField, `Eine Antwort einer Auswahlfrage von "${riddleName}" ist leer.`);
+    }
+    if (input.correctOptionIds.length === 0) {
+      this.error(
+        "riddles",
+        optionsField,
+        `Für eine Auswahlfrage von "${riddleName}" ist keine richtige Antwort markiert.`,
+      );
+    }
+  }
+
+  private checkAssignmentInput(field: string, input: AssignmentInput, riddleName: string) {
+    const inputField = `${field}:input:${input.id}`;
+    if (input.containers.some((container) => isBlank(container.name))) {
+      this.error("riddles", `${inputField}:containers`, `Eine Kiste einer Zuordnung von "${riddleName}" hat keinen Namen.`);
+    }
+    const itemsField = `${inputField}:items`;
+    if (input.items.some((item) => isBlank(item.name))) {
+      this.error("riddles", itemsField, `Ein Gegenstand einer Zuordnung von "${riddleName}" hat keinen Namen.`);
+    }
+    if (!input.items.some((item) => item.containerId)) {
+      this.error(
+        "riddles",
+        itemsField,
+        `In einer Zuordnung von "${riddleName}" gehört kein Gegenstand in eine Kiste.`,
+      );
     }
   }
 

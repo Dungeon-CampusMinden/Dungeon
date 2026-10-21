@@ -172,6 +172,7 @@ public final class ManualSortingRiddle {
         sortDialogText(),
         SystemRecoveryText.key("world.sort.title"),
         choices,
+        false,
         true,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String choice)) {

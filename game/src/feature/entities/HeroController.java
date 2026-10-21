@@ -7,6 +7,9 @@ import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.configuration.KeyboardConfig;
+import engine.level.Tile;
+import engine.level.elements.tile.FloorTile;
+import engine.level.utils.LevelUtils;
 import engine.network.input.InputCommandRouter;
 import engine.network.messages.c2s.InputMessage;
 import engine.network.server.ClientState;
@@ -31,6 +34,7 @@ import feature.inventory.Item;
 import feature.questlog.QuestLogUI;
 import feature.skills.cursor.CursorSkill;
 import feature.skills.projectile.ProjectileSkill;
+import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -58,6 +62,9 @@ public class HeroController {
 
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
+
+  /** Delay after a disconnect before the hero inventory drops, matching the reconnect grace. */
+  private static final long DISCONNECT_ITEM_DROP_DELAY_MS = 30_000;
 
   static {
     registerDefaultInputHandlers();
@@ -542,10 +549,52 @@ public class HeroController {
 
     Point dropPosition = Game.positionOf(entity).orElseThrow();
     boolean success = item.drop(dropPosition).isPresent();
-    if (!success) {
+    if (success) {
+      sourceInv.recordMove(entity);
+    } else {
       LOGGER.warn("Failed to drop item {} from slot {} for entity {}", item, itemSlot, entity.id());
       returnItemToInventory(sourceInv, item, itemSlot, entity);
     }
+  }
+
+  /**
+   * Drops the inventory of a disconnected hero around its last position, unless the hero rejoins
+   * within 30 seconds. This keeps items, such as task items, in the game for the remaining players.
+   *
+   * <p>Edge case: if the player rejoins and disconnects again within the delay, the items may drop
+   * earlier than the delay after the second disconnect.
+   *
+   * @param hero the hero entity removed after its client disconnected
+   */
+  public static void dropInventoryAfterDisconnect(Entity hero) {
+    EventScheduler.scheduleAction(
+        () -> {
+          if (Game.allPlayers().anyMatch(hero::equals)) {
+            return;
+          }
+          InventoryComponent inventory = hero.fetch(InventoryComponent.class).orElse(null);
+          PositionComponent position = hero.fetch(PositionComponent.class).orElse(null);
+          if (inventory == null || position == null) {
+            return;
+          }
+          List<Point> floor =
+              LevelUtils.accessibleTilesInRange(position.position(), 2).stream()
+                  .filter(FloorTile.class::isInstance)
+                  .filter(LevelUtils::isFreeTile)
+                  .map(Tile::position)
+                  .toList();
+          Item[] items = inventory.items();
+          for (int slot = 0; slot < items.length; slot++) {
+            Point target =
+                floor.isEmpty()
+                    ? position.position()
+                    : floor.get(Item.RANDOM.nextInt(floor.size()));
+            if (items[slot] != null && items[slot].drop(target).isPresent()) {
+              inventory.remove(slot);
+            }
+          }
+        },
+        DISCONNECT_ITEM_DROP_DELAY_MS);
   }
 
   /**
@@ -665,6 +714,12 @@ public class HeroController {
                   adjustedToSlot,
                   player.id());
             });
+    // Only moves between inventories change what a chest holds; rearranging slots does not.
+    if (source != target) {
+      otherInv
+          .filter(inv -> inv == source || inv == target)
+          .ifPresent(inv -> inv.recordMove(player));
+    }
     return true;
   }
 

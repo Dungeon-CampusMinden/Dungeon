@@ -4,7 +4,7 @@ import type {
   RiddleDifficulty,
 } from "@/data/DeerSchema";
 import { Util } from "@/data/Util";
-import { CircleQuestionMarkIcon, KeyboardIcon, PackageSearchIcon } from "lucide-react";
+import { BoxesIcon, CircleQuestionMarkIcon, KeyboardIcon, ListChecksIcon, PackageSearchIcon } from "lucide-react";
 
 export const INPUT_TYPES = [
   {
@@ -18,6 +18,18 @@ export const INPUT_TYPES = [
     label: "Zahleneingabe",
     description: "Die Spieler geben einen Zahlencode ein",
     icon: KeyboardIcon,
+  },
+  {
+    value: "choice",
+    label: "Auswahlfrage",
+    description: "Die Spieler wählen die richtigen Antworten auf eine Frage",
+    icon: ListChecksIcon,
+  },
+  {
+    value: "assignment",
+    label: "Zuordnung",
+    description: "Die Spieler sortieren Gegenstände in die richtigen Kisten",
+    icon: BoxesIcon,
   },
 ] as const;
 

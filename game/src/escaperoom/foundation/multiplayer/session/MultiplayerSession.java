@@ -2,15 +2,16 @@ package escaperoom.foundation.multiplayer.session;
 
 import engine.time.PlayClock;
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
-import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.RosterSlotDefinition;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
+import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
+import escaperoom.foundation.runtime.AttemptResult;
 import escaperoom.foundation.runtime.Authority;
-import escaperoom.foundation.runtime.CodeAttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.HintRevealResult;
 import escaperoom.foundation.runtime.OperationResult;
@@ -167,19 +168,26 @@ public final class MultiplayerSession {
   }
 
   /**
-   * Routes one numeric input attempt for a ready player.
+   * Routes one surface input answer for a ready player.
    *
    * @param clientId stable Dungeon client identifier
    * @param riddleId owning riddle identifier
-   * @param inputId numeric input identifier
-   * @param attempt raw numeric attempt
+   * @param inputId surface input identifier
+   * @param inputType expected input type
+   * @param answer complete answer
+   * @param <A> answer type
+   * @param <D> input type
    * @return delegated result, or empty when the player is not ready
    */
-  public synchronized Optional<CodeAttemptResult> enterNumericCode(
-      final short clientId, final String riddleId, final String inputId, final String attempt) {
+  public synchronized <A, D extends SurfaceInputDefinition<A>> Optional<AttemptResult> enterAnswer(
+      final short clientId,
+      final String riddleId,
+      final String inputId,
+      final Class<D> inputType,
+      final A answer) {
     advance();
     return ready(clientId)
-        ? Optional.of(authority.attemptCode(riddleId, inputId, attempt))
+        ? Optional.of(authority.attempt(riddleId, inputId, inputType, answer))
         : Optional.empty();
   }
 
@@ -414,15 +422,7 @@ public final class MultiplayerSession {
                           source ->
                               source.resources().stream().map(ResourcePresentation::id).toList())
                       .toList())
-          || !definitionRiddle.inputs().stream()
-              .filter(NumericInputDefinition.class::isInstance)
-              .map(NumericInputDefinition.class::cast)
-              .map(input -> input.id() + "\u0000" + input.surfaceId())
-              .toList()
-              .equals(
-                  presented.inputs().stream()
-                      .map(input -> input.id() + "\u0000" + input.surfaceId())
-                      .toList())) {
+          || !InputPresentation.presentsAll(definitionRiddle.inputs(), presented.inputs())) {
         throw new IllegalArgumentException(
             "composed presentation must match Foundation definition");
       }

@@ -28,7 +28,7 @@ import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.InformationSourcePresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
-import escaperoom.foundation.runtime.CodeOutcome;
+import escaperoom.foundation.runtime.AttemptOutcome;
 import escaperoom.foundation.runtime.Projection.TimerState;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
@@ -93,7 +93,9 @@ final class MultiplayerSessionTest {
     GamePresentation presentation = presentation();
     assertEquals(
         "Source title", presentation.riddles().getFirst().informationSources().getFirst().title());
-    assertEquals("First code title", presentation.riddles().getFirst().inputs().getFirst().title());
+    assertEquals(
+        "First code title",
+        ((NumericInputPresentation) presentation.riddles().getFirst().inputs().getFirst()).title());
     MultiplayerSession session = session(1, 2);
     session.reconcileClients(List.of(observation(1)));
     session.completeIntro((short) 1);
@@ -103,15 +105,21 @@ final class MultiplayerSessionTest {
     assertEquals(Map.of("slot_1", 100, "slot_2", 200), session.technicalPlayerEntities());
     assertTrue(session.readyClientId(200).isEmpty());
     assertTrue(session.inspectSource((short) 2, "first", "source").isEmpty());
-    assertTrue(session.enterNumericCode((short) 2, "first", "first_code", "12").isEmpty());
+    assertTrue(
+        session
+            .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "12")
+            .isEmpty());
     assertFalse(inputSatisfied(session, "first", "collect"));
     assertFalse(inputSatisfied(session, "first", "first_code"));
 
     assertTrue(session.completeIntro((short) 2));
     assertEquals(Optional.of((short) 2), session.readyClientId(200));
     assertEquals(
-        CodeOutcome.INCORRECT,
-        session.enterNumericCode((short) 2, "first", "first_code", "1").orElseThrow().outcome());
+        AttemptOutcome.INCORRECT,
+        session
+            .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "1")
+            .orElseThrow()
+            .outcome());
   }
 
   @Test
@@ -152,7 +160,7 @@ final class MultiplayerSessionTest {
         "released text",
         session.confirmNextHint((short) 1, "first", preview.id()).orElseThrow().text());
 
-    session.enterNumericCode((short) 1, "first", "first_code", "12");
+    session.enterAnswer((short) 1, "first", "first_code", NumericInputDefinition.class, "12");
     assertFalse(inputSatisfied(session, "second", "later_collect"));
     assertTrue(
         session.inspectSource((short) 1, "second", "later_source").orElseThrow().newlySatisfied());
@@ -166,10 +174,13 @@ final class MultiplayerSessionTest {
     session.completeIntro((short) 2);
     session.inspectSource((short) 1, "first", "source");
     assertEquals(
-        CodeOutcome.CORRECT,
-        session.enterNumericCode((short) 2, "first", "first_code", "12").orElseThrow().outcome());
+        AttemptOutcome.CORRECT,
+        session
+            .enterAnswer((short) 2, "first", "first_code", NumericInputDefinition.class, "12")
+            .orElseThrow()
+            .outcome());
     session.inspectSource((short) 1, "second", "later_source");
-    session.enterNumericCode((short) 2, "second", "final_code", "2468");
+    session.enterAnswer((short) 2, "second", "final_code", NumericInputDefinition.class, "2468");
     assertFalse(session.projection().toString().contains("2468"));
     assertTrue(session.projection().doorOpen());
 

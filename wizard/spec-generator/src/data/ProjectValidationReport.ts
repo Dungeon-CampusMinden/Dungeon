@@ -80,6 +80,8 @@ const MESSAGES = {
   "validation.references.asset_unknown": "Ein Rätsel verweist auf eine unbekannte Datei.",
   "validation.references.graph_node_unknown": "Der Spielablauf verweist auf einen unbekannten Schritt.",
   "validation.references.id_duplicate": "Ein Element ist mehrfach angelegt.",
+  "validation.references.assignment_container_unknown": "Ein Gegenstand einer Zuordnung gehört in eine unbekannte Kiste.",
+  "validation.references.choice_option_unknown": "Eine Auswahlfrage markiert eine unbekannte Antwort als richtig.",
   "validation.references.information_source_unknown": "Eine Eingabe verweist auf unbekanntes Material.",
   "validation.references.riddle_unknown": "Der Spielablauf verweist auf ein unbekanntes Rätsel.",
   "validation.references.surface_unknown": "Eine Verknüpfung zu Material, Eingabe oder Spielende fehlt.",
@@ -170,7 +172,7 @@ function issueTab(issue: ProductionValidationIssue, draft: WizardDraft): Validat
     if (isExitSurface) return "game_end";
     const isRiddleSurface = draft.project.riddles.some((entry) =>
       entry.informationSources.some((source) => source.surfaceId === id)
-      || entry.inputs.some((input) => input.type === "numeric" && input.surfaceId === id),
+      || entry.inputs.some((input) => input.type !== "collection" && input.surfaceId === id),
     );
     if (isRiddleSurface) return "riddles";
   }

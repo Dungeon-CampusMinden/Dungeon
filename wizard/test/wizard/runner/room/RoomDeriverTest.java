@@ -10,6 +10,7 @@ import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
+import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.room.model.FoundationRoom;
 import escaperoom.foundation.room.model.RoomPoint;
 import escaperoom.foundation.runtime.Authority;
@@ -78,8 +79,9 @@ class RoomDeriverTest {
     var source = composed.informationSources().getFirst();
     assertEquals("s_desk", source.surfaceId());
     assertEquals("Schreibtisch", source.title());
-    assertEquals("s_exit_keypad", composed.inputs().getFirst().surfaceId());
-    assertEquals("Tür-Keypad", composed.inputs().getFirst().title());
+    var keypad = (NumericInputPresentation) composed.inputs().getFirst();
+    assertEquals("s_exit_keypad", keypad.surfaceId());
+    assertEquals("Tür-Keypad", keypad.title());
     assertEquals(BUILT_IN_CHEST, source.runtimeAssetPath());
     assertTrue(source.resources().getFirst().runtimeAssetPath().isEmpty());
     assertEquals(CUSTOM_ASSET, source.resources().get(1).runtimeAssetPath().orElseThrow());
@@ -107,7 +109,8 @@ class RoomDeriverTest {
         List.of("r_exit_code"),
         room.layout().riddlePlacements().stream().map(placement -> placement.riddleId()).toList());
     assertEquals(
-        List.of("s_desk", "s_exit_keypad"),
+        List.of(
+            "s_desk", "s_exit_keypad", "s_desk_terminal", "s_archive", "s_archive", "s_archive"),
         room.layout().riddlePlacements().getFirst().components().stream()
             .map(component -> component.surfaceId())
             .toList());

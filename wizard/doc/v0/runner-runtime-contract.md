@@ -207,8 +207,9 @@ Reconnect-Protokoll.
 
 Die `RoomLevel` materialisiert die Raumgeometrie mit gemeinsamer Tür, Ausgang
 und gemeinsamem Startpunkt sowie benannten Punkten für Informationsquellen-,
-Zahlencode- und Hinweisinteraktionen. Jede surface-gebundene
-Informationsquelle und jeder Numeric-Input verwendet in Placement,
+Zahlencode-, Auswahlfrage-, Zuordnungs- und Hinweisinteraktionen. Jede
+surface-gebundene Informationsquelle und jeder Numeric-, Choice- oder
+Assignment-Input verwendet in Placement,
 Präsentation und Authority dieselbe authorierte `surfaceId`; ein
 Collection-Input verwendet die Surface seiner Quelle. Hinweispositionen werden
 intern aus der `riddleId` abgeleitet und sind keine authorierten Surfaces. Die
@@ -218,7 +219,7 @@ Serverstart erzeugt der Host an diesen Punkten normale Entities mit
 `InteractionComponent`. Clients erhalten deren Darstellung über den normalen
 Entity-Stream. Interaktionen verwenden das gewöhnliche Dungeon-`INTERACT`;
 Positionsprüfung und Callback-Ausführung erfolgen im Server-ECS. Resource-,
-Hinweis-, Keypad- und Ergebnisdialoge werden serverseitig erzeugt und über den
+Hinweis-, Keypad-, Auswahl- und Ergebnisdialoge werden serverseitig erzeugt und über den
 vorhandenen Dungeon-Dialogvertrag angezeigt und beantwortet. Rätselzustand,
 Inputfortschritt, Hinweisfreigabe, Timer, Tür und terminales Ergebnis bleiben
 serverautoritativ.
@@ -235,7 +236,13 @@ Teilfortschritt. Sind alle Inputs eines Rätsels erfüllt, wechselt es atomar un
 genau einmal zu `SOLVED`; dieser implizite Abschluss aktiviert gegebenenfalls
 Graphnachfolger.
 
-Tracking zeichnet `PUZZLE_STARTED` beim Wechsel zu `ACTIVE` auf.
+Tracking zeichnet `PUZZLE_STARTED` beim Wechsel zu `ACTIVE` auf. Jede
+ausgewertete Eingabe wird als Versuch mit `answerKind` und Antwort
+aufgezeichnet: `numeric-code` mit den eingegebenen Ziffern, `choice` mit den
+gewählten Options-IDs als sortiertem JSON-Array und `assignment` mit der
+Kisten-ID jedes einsortierten Items als JSON-Objekt. Eine Zuordnung erzeugt
+genau einen richtigen Versuch, sobald der Host sie annimmt; Zwischenstände beim
+Sortieren sind keine Versuche.
 
 Informationsquellen mit Informationen oder Aufgabeninhalten bleiben unabhängig
 davon lesbar und dürfen deshalb schon vor der Rätselaktivierung erreichbar
@@ -254,10 +261,10 @@ Vorgängerrätsel gelöst sind, wird das Ende erreicht und genau diese Tür
 serverautoritativ geöffnet. Es gibt weder eine zweite globale
 „alle Rätsel gelöst“-Türregel noch frei konfigurierbare Rätseloutputs.
 
-Der aktive Vertrag kennt nur `world`, `container`, `keypad` und `door`. Ein
-späterer Computer als neue Surface-Art oder mehrere Rätselbindungen an eine
-Surface erfordern eine explizite Profilerweiterung; die Runtime erfindet dafür
-keinen generischen Device-Typ.
+Der aktive Vertrag kennt nur `world`, `container`, `keypad`, `terminal`,
+`assignment` und `door`. Weitere Surface-Arten oder mehrere Rätselbindungen an eine Surface
+erfordern eine explizite Profilerweiterung; die Runtime erfindet dafür keinen
+generischen Device-Typ.
 
 Ein Client sendet bei einer Informationsquellen-Interaktion nur den normalen
 Zielpunkt. Der Server löst dort die Station anhand seiner ECS-Welt auf,
@@ -268,7 +275,19 @@ Collection-Input aus und erfüllt ihn genau dann, wenn das Rätsel `ACTIVE` ist.
 Frühere Interaktionen werden weder angerechnet noch bei Aktivierung automatisch
 übernommen. Zahlencodes werden über das vorhandene Dungeon-Keypad eingegeben,
 als vollständige Dialogantwort übertragen und ausschließlich serverseitig
-geprüft.
+geprüft. Auswahlfragen öffnen an ihrer Terminal-Station den vorhandenen
+Multiple-Choice-Dialog. Der Client überträgt nur die IDs der bestätigten
+Optionen; der Host vergleicht sie mit `correctOptionIds`. Zuordnungen bestehen
+aus gewöhnlichen Truhen und aufhebbaren Antwort-Items, die ihre Item-ID in den
+Item-Daten tragen. Spieler verschieben sie über den vorhandenen
+Inventardialog. Der Host prüft nach jeder Änderung der Kisteninhalte und reicht
+eine richtige Zuordnung erneut ein, bis die Authority sie annimmt. Getrackt wird
+der Versuch für den Spieler, der zuletzt ein Item in eine der Kisten gelegt oder
+daraus genommen hat. Ist er nicht mehr spielbereit, reicht ein anderer
+spielbereiter Spieler bei der Authority ein; der Versuch bleibt dem Beweger
+zugeordnet.
+Verlässt ein Spieler die Sitzung, legt der Server sein Inventar
+nach 30 Sekunden ohne Wiederverbindung im Raum ab.
 
 ## Fehler und Abnahme
 

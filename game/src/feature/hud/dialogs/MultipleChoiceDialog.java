@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -28,6 +29,7 @@ import feature.hud.elements.RichLabel;
 import feature.input.configuration.KeyboardConfig;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntConsumer;
 
 /**
  * Package-private builder for multiple choice dialogs.
@@ -45,14 +47,22 @@ import java.util.List;
  *   <li>Once the last page's text has been fully revealed, the option rows slide in. After that,
  *       clicks outside the option rows are ignored (they do not confirm anything); option rows are
  *       hover-/click-selectable and confirm immediately on click.
- *   <li>Keyboard W/S (or Up/Down) navigates between options; INTERACT_WORLD confirms while choices
- *       are active, otherwise it advances the script.
+ *   <li>With {@link DialogContextKeys#MULTIPLE_SELECTION}, option rows show a checkbox and toggle
+ *       on click instead. An additional confirm row submits all checked option values as a {@link
+ *       DialogResponseMessage.StringList}; it does nothing while no option is checked.
+ *   <li>Keyboard W/S (or Up/Down) navigates between options; INTERACT_WORLD activates the
+ *       highlighted row while choices are active, otherwise it advances the script.
  * </ul>
  */
 final class MultipleChoiceDialog {
 
   private static final String TITLE_DEFAULT = "";
   private static final String T_CANCEL = "cancel";
+  private static final String T_CONFIRM = "confirm";
+  private static final String CHECKBOX_OFF = "check_square_grey";
+  private static final String CHECKBOX_ON = "check_square_grey_checkmark";
+  private static final float CHECKBOX_SIZE = 24;
+  private static final float CHECKBOX_GAP = 12;
   private static final Translation trans = new Translation("dialog.multiple_choice_dialog");
   private static final float MAIN_BOX_PAD = 20;
   private static final float OPTION_WIDTH = DialogScriptView.FULL_TEXT_WIDTH + MAIN_BOX_PAD * 2;
@@ -85,20 +95,25 @@ final class MultipleChoiceDialog {
     }
     ChoiceOptions choiceOptions = ctx.require(DialogContextKeys.OPTIONS, ChoiceOptions.class);
     List<ChoiceOption> options = choiceOptions.values();
+    boolean multipleSelection =
+        ctx.find(DialogContextKeys.MULTIPLE_SELECTION, Boolean.class).orElse(false);
     boolean canCancel = ctx.find(DialogContextKeys.CAN_CANCEL, Boolean.class).orElse(false);
     String cancelLabel = trans.text(T_CANCEL);
+    String confirmLabel = trans.text(T_CONFIRM);
 
     if (Game.isHeadless()) {
       List<DialogEntry> entries =
           DialogScript.parseNonEmpty(script, () -> "MultipleChoiceDialog script produced no pages");
       List<String> allButtons = new ArrayList<>();
       for (ChoiceOption opt : options) allButtons.add(opt.label());
+      if (multipleSelection) allButtons.add(confirmLabel);
       if (canCancel) allButtons.add(cancelLabel);
       return new HeadlessDialogGroup(
           title, DialogScript.toHeadlessText(entries), allButtons.toArray(new String[0]));
     }
 
-    return buildDialog(title, script, options, canCancel, cancelLabel, ctx);
+    return buildDialog(
+        title, script, options, multipleSelection, confirmLabel, canCancel, cancelLabel, ctx);
   }
 
   /**
@@ -107,6 +122,8 @@ final class MultipleChoiceDialog {
    * @param title The dialog window title (may be blank for no title).
    * @param script Dialog script string consumed by {@link DialogScriptView}.
    * @param options The list of selectable options.
+   * @param multipleSelection Whether options toggle and a confirm row submits them.
+   * @param confirmLabel The label for the confirm row (ignored without multiple selection).
    * @param canCancel Whether to append a cancel option.
    * @param cancelLabel The label for the cancel option (ignored if canCancel is false).
    * @param ctx The dialog context.
@@ -116,18 +133,39 @@ final class MultipleChoiceDialog {
       String title,
       String script,
       List<ChoiceOption> options,
+      boolean multipleSelection,
+      String confirmLabel,
       boolean canCancel,
       String cancelLabel,
       DialogContext ctx) {
 
     Skin skin = UIUtils.defaultSkin();
 
-    // Build the full list of entries (options + optional cancel)
+    // Build the full list of entries (options + optional confirm + optional cancel)
     List<ChoiceOption> allEntries = new ArrayList<>(options);
+    if (multipleSelection) {
+      allEntries.add(ChoiceOption.of(confirmLabel));
+    }
+    int confirmIndex = multipleSelection ? allEntries.size() - 1 : -1;
     if (canCancel) {
       allEntries.add(ChoiceOption.of(cancelLabel));
     }
     int cancelIndex = canCancel ? allEntries.size() - 1 : -1;
+    boolean[] checked = new boolean[options.size()];
+    List<Image> checkboxes = new ArrayList<>();
+    IntConsumer activate =
+        index -> {
+          if (multipleSelection && index < options.size()) {
+            checked[index] = !checked[index];
+            checkboxes
+                .get(index)
+                .setDrawable(skin.getDrawable(checked[index] ? CHECKBOX_ON : CHECKBOX_OFF));
+          } else if (index == confirmIndex) {
+            confirmChecked(options, checked, ctx);
+          } else {
+            confirmSelection(index, allEntries, cancelIndex, ctx);
+          }
+        };
 
     Drawable bgNormal = paddedDrawable(skin.getDrawable("generic-area"), OPTION_PAD);
     Drawable bgSelected = paddedDrawable(skin.getDrawable("blue_square_depth_flat"), OPTION_PAD);
@@ -174,6 +212,12 @@ final class MultipleChoiceDialog {
       RichLabel label = new RichLabel(entry.label(), OPTION_FONT_NORMAL);
 
       float maxLabelWidth = OPTION_WIDTH - OPTION_PAD * 2;
+      if (multipleSelection && i < options.size()) {
+        Image checkbox = new Image(skin.getDrawable(CHECKBOX_OFF));
+        checkboxes.add(checkbox);
+        row.add(checkbox).size(CHECKBOX_SIZE).padRight(CHECKBOX_GAP);
+        maxLabelWidth -= CHECKBOX_SIZE + CHECKBOX_GAP;
+      }
       float naturalLabelWidth = label.getPrefWidth();
 
       if (naturalLabelWidth > maxLabelWidth) {
@@ -193,7 +237,7 @@ final class MultipleChoiceDialog {
           new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-              confirmSelection(idx, allEntries, cancelIndex, ctx);
+              activate.accept(idx);
               return true;
             }
 
@@ -248,7 +292,7 @@ final class MultipleChoiceDialog {
               }
               int current = selectedIndex[0];
               if (current >= 0) {
-                confirmSelection(current, allEntries, cancelIndex, ctx);
+                activate.accept(current);
               }
               return true;
             }
@@ -421,6 +465,26 @@ final class MultipleChoiceDialog {
               ctx.dialogId(), DialogContextKeys.ON_OPTION_SELECTED)
           .accept(new DialogResponseMessage.StringValue(entries.get(index).value()));
     }
+  }
+
+  /**
+   * Submits the values of all checked options in option order. Does nothing while no option is
+   * checked.
+   *
+   * @param options The selectable options.
+   * @param checked The checked state per option.
+   * @param ctx The dialog context.
+   */
+  private static void confirmChecked(
+      List<ChoiceOption> options, boolean[] checked, DialogContext ctx) {
+    List<String> values = new ArrayList<>();
+    for (int i = 0; i < options.size(); i++) {
+      if (checked[i]) values.add(options.get(i).value());
+    }
+    if (values.isEmpty()) return;
+    DialogCallbackResolver.createButtonCallback(
+            ctx.dialogId(), DialogContextKeys.ON_OPTION_SELECTED)
+        .accept(new DialogResponseMessage.StringList(values.toArray(new String[0])));
   }
 
   /**
