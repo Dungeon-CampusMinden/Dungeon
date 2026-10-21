@@ -23,7 +23,7 @@ public class FreeTextTask extends Task<String> {
    * @param caseSensitive whether answer comparison should be case-sensitive
    */
   public FreeTextTask(String taskDescription, List<String> acceptedAnswer, boolean caseSensitive) {
-    this.taskDescription = taskDescription;
+    super(taskDescription);
     this.caseSensitive = caseSensitive;
     if (this.caseSensitive) {
       this.acceptedAnswer = acceptedAnswer;
@@ -67,6 +67,22 @@ public class FreeTextTask extends Task<String> {
     return acceptedAnswer.contains(answer.toLowerCase());
   }
 
+  @Override
+  public String answerKind() {
+    return "text";
+  }
+
+  /**
+   * Returns the answer unchanged.
+   *
+   * @param answer the entered text
+   * @return the entered text
+   */
+  @Override
+  public String trackedAnswer(String answer) {
+    return answer;
+  }
+
   /**
    * Returns the list of accepted answers.
    *
@@ -74,14 +90,5 @@ public class FreeTextTask extends Task<String> {
    */
   public List<String> getAcceptedAnswer() {
     return acceptedAnswer;
-  }
-
-  /**
-   * Returns the description of this task.
-   *
-   * @return the task description
-   */
-  public String getTaskDescription() {
-    return taskDescription;
   }
 }

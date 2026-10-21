@@ -211,6 +211,13 @@ Ein Antwortversuch verwendet `eventType: "ANSWER_SUBMITTED"`, setzt `outcome` au
 }
 ```
 
+Aufgaben aus `feature.tasks` legen `answerKind` und Antwortformat selbst fest: `NumericCodeTask`
+zeichnet `numeric-code` mit den eingegebenen Ziffern auf, `FreeTextTask` `text` mit dem Text,
+`ChoiceTask` `choice` mit den gewählten Werten als sortiertem JSON-Array und `AssignmentTask`
+`assignment` mit der Behälter-ID jedes einsortierten Gegenstands als JSON-Objekt. Ein Raum zeichnet
+diese Antworten mit einer `TaskTracking` aus Rätsel- und Objekt-ID auf. An einer `TaskComponent`
+gesetzt, erfasst sie jede eingereichte Antwort; Rätselstart und -abschluss meldet weiterhin der Raum.
+
 Spieleraktionen ohne Rätselantwort werden als `INTERACTION_RECORDED` mit `objectId` sowie
 `action` und `status` (`COMPLETED`, `BLOCKED` oder `CANCELLED`) im Payload gespeichert. Gehört die
 Aktion zu einem Rätsel, enthält sie dessen `puzzleId` und einen `reason` für das Ergebnis.

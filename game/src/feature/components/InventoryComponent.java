@@ -1,6 +1,7 @@
 package feature.components;
 
 import engine.Component;
+import engine.Entity;
 import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.inventory.Item;
@@ -34,11 +35,13 @@ public final class InventoryComponent implements Component {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryComponent.class);
 
   private static final int DEFAULT_MAX_SIZE = 24;
-  private final Item[] inventory;
+  private Item[] inventory;
   // Callbacks, Consumer takes the added/removed Item as parameter (can be null if a null item was
   // added/removed)
   private Consumer<Item> onItemAdded = item -> {};
   private Consumer<Item> onItemRemoved = item -> {};
+  // TODO: Only assignments read this; replace it with an inventory move event (#3299).
+  private Move lastMove;
 
   /**
    * The default {@link InventoryComponent} constructor. Creates an empty inventory with {@link
@@ -277,6 +280,47 @@ public final class InventoryComponent implements Component {
   }
 
   /**
+   * Reconfigures this inventory for a newly selected character class.
+   *
+   * <p>Starting items belonging to the previous class are replaced by the new class's starting
+   * items. Other items are retained, along with this component and its callbacks. If needed, the
+   * inventory grows beyond the class capacity to avoid discarding existing items.
+   *
+   * @param maxSize the new inventory capacity
+   * @param previousStartingItems starting items to remove from the previous class
+   * @param newStartingItems starting items to add for the selected class
+   */
+  public void reconfigureForCharacterClass(
+      int maxSize, List<Item> previousStartingItems, List<Item> newStartingItems) {
+    if (maxSize < 0) {
+      throw new IllegalArgumentException("Inventory size cannot be negative.");
+    }
+
+    List<Item> retainedItems =
+        Arrays.stream(inventory)
+            .filter(Objects::nonNull)
+            .filter(item -> !containsSameInstance(previousStartingItems, item))
+            .toList();
+    inventory = new Item[Math.max(maxSize, newStartingItems.size() + retainedItems.size())];
+
+    for (Item startingItem : newStartingItems) {
+      add(startingItem);
+    }
+
+    for (Item item : retainedItems) {
+      int slot = findNextAvailableSlot();
+      if (slot == -1) {
+        throw new IllegalStateException("Inventory capacity was insufficient to preserve items.");
+      }
+      inventory[slot] = item;
+    }
+  }
+
+  private static boolean containsSameInstance(List<Item> items, Item candidate) {
+    return items.stream().anyMatch(item -> item == candidate);
+  }
+
+  /**
    * Get a Set of items stored in this component that are an instance of the given class.
    *
    * @param klass Only return items that are an instance of this class.
@@ -492,4 +536,31 @@ public final class InventoryComponent implements Component {
   public Consumer<Item> onItemRemoved() {
     return this.onItemRemoved;
   }
+
+  /**
+   * Returns the last item move into or out of this inventory by a player, e.g. through a chest's
+   * inventory dialog.
+   *
+   * @return the last move, if any
+   */
+  public Optional<Move> lastMove() {
+    return Optional.ofNullable(lastMove);
+  }
+
+  /**
+   * Records that a player just moved an item into or out of this inventory.
+   *
+   * @param player the moving player
+   */
+  public void recordMove(final Entity player) {
+    this.lastMove = new Move(Objects.requireNonNull(player, "player"), System.nanoTime());
+  }
+
+  /**
+   * One item move by a player.
+   *
+   * @param player the moving player
+   * @param nanoTime {@link System#nanoTime()} of the move, to order moves across inventories
+   */
+  public record Move(Entity player, long nanoTime) {}
 }

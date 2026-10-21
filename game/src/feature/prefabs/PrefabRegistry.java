@@ -1,6 +1,7 @@
 package feature.prefabs;
 
 import engine.level.elements.ILevel;
+import feature.prefabs.types.AvailableCharacterPrefab;
 import feature.prefabs.types.BookshelfImagePrefab;
 import feature.prefabs.types.DecoDialogPrefab;
 import feature.prefabs.types.DecoImagePrefab;
@@ -8,6 +9,8 @@ import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.prefabs.types.DialogTriggerPrefab;
 import feature.prefabs.types.DoorKeypadPrefab;
 import feature.prefabs.types.DoorLeverPrefab;
+import feature.prefabs.types.DoorTextKeypadPrefab;
+import feature.prefabs.types.ImagePuzzlePrefab;
 import feature.prefabs.types.InvisibleWallPrefab;
 import feature.prefabs.types.LevelHiderPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
@@ -31,6 +34,9 @@ public final class PrefabRegistry {
 
   static {
     register(new DoorKeypadPrefab(), DoorKeypadPrefab::new);
+    register(new DoorTextKeypadPrefab(), DoorTextKeypadPrefab::new);
+    register(new ImagePuzzlePrefab(), ImagePuzzlePrefab::new);
+    register(new AvailableCharacterPrefab(), AvailableCharacterPrefab::new);
     register(new BookshelfImagePrefab(), BookshelfImagePrefab::new);
     register(
         new LevelHiderPrefab(),

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import wizard.runner.contract.ContractCapabilities;
 import wizard.runner.contract.IssueCode;
 import wizard.runner.contract.IssueCollector;
@@ -20,6 +21,10 @@ import wizard.runner.contract.ValidationPhase;
 import wizard.runner.contract.ValidationSeverity;
 import wizard.runner.model.ProjectDefinition;
 import wizard.runner.model.ProjectDefinition.Asset;
+import wizard.runner.model.ProjectDefinition.AssignmentContainer;
+import wizard.runner.model.ProjectDefinition.AssignmentInput;
+import wizard.runner.model.ProjectDefinition.ChoiceInput;
+import wizard.runner.model.ProjectDefinition.ChoiceOption;
 import wizard.runner.model.ProjectDefinition.CollectionInput;
 import wizard.runner.model.ProjectDefinition.GraphEdge;
 import wizard.runner.model.ProjectDefinition.GraphNode;
@@ -114,12 +119,41 @@ final class SemanticValidator {
         }
       }
       for (int inputIndex = 0; inputIndex < riddle.inputs().size(); inputIndex++) {
-        addId(
-            riddle.inputs().get(inputIndex).id(),
-            "input",
-            riddlePath + "/inputs/" + inputIndex,
-            seen,
-            issues);
+        Input input = riddle.inputs().get(inputIndex);
+        String inputPath = riddlePath + "/inputs/" + inputIndex;
+        addId(input.id(), "input", inputPath, seen, issues);
+        switch (input) {
+          case CollectionInput ignored -> {}
+          case NumericInput ignored -> {}
+          case ChoiceInput choice -> {
+            for (int optionIndex = 0; optionIndex < choice.options().size(); optionIndex++) {
+              addId(
+                  choice.options().get(optionIndex).id(),
+                  "choice_option",
+                  inputPath + "/options/" + optionIndex,
+                  seen,
+                  issues);
+            }
+          }
+          case AssignmentInput assignment -> {
+            for (int index = 0; index < assignment.containers().size(); index++) {
+              addId(
+                  assignment.containers().get(index).id(),
+                  "assignment_container",
+                  inputPath + "/containers/" + index,
+                  seen,
+                  issues);
+            }
+            for (int index = 0; index < assignment.items().size(); index++) {
+              addId(
+                  assignment.items().get(index).id(),
+                  "assignment_item",
+                  inputPath + "/items/" + index,
+                  seen,
+                  issues);
+            }
+          }
+        }
       }
       for (int hintIndex = 0; hintIndex < riddle.hints().size(); hintIndex++) {
         addId(
@@ -294,25 +328,87 @@ final class SemanticValidator {
       for (int inputIndex = 0; inputIndex < riddle.inputs().size(); inputIndex++) {
         Input input = riddle.inputs().get(inputIndex);
         String inputPath = path + "/inputs/" + inputIndex;
-        if (input instanceof CollectionInput collection) {
-          if (!sources.containsKey(collection.informationSourceId())) {
-            issues.add(
-                entityIssue(
-                    ValidationSeverity.ERROR,
-                    ValidationPhase.REFERENCES,
-                    IssueCode.REFERENCE_UNKNOWN,
-                    "validation.references.information_source_unknown",
-                    Map.of("id", collection.informationSourceId()),
-                    inputPath + "/informationSourceId",
-                    "input",
-                    input.id()));
+        switch (input) {
+          case CollectionInput collection -> {
+            if (!sources.containsKey(collection.informationSourceId())) {
+              issues.add(
+                  entityIssue(
+                      ValidationSeverity.ERROR,
+                      ValidationPhase.REFERENCES,
+                      IssueCode.REFERENCE_UNKNOWN,
+                      "validation.references.information_source_unknown",
+                      Map.of("id", collection.informationSourceId()),
+                      inputPath + "/informationSourceId",
+                      "input",
+                      input.id()));
+            }
           }
-        } else if (input instanceof NumericInput numeric) {
-          Surface surface =
-              validateSurface(
-                  riddle, numeric.surfaceId(), SurfaceKind.KEYPAD, inputPath, surfaces, issues);
-          if (surface != null && surface.kind() == SurfaceKind.KEYPAD) {
-            owned.merge(surface.id(), 1, Integer::sum);
+          case NumericInput numeric -> {
+            Surface surface =
+                validateSurface(
+                    riddle, numeric.surfaceId(), SurfaceKind.KEYPAD, inputPath, surfaces, issues);
+            if (surface != null && surface.kind() == SurfaceKind.KEYPAD) {
+              owned.merge(surface.id(), 1, Integer::sum);
+            }
+          }
+          case ChoiceInput choice -> {
+            Surface surface =
+                validateSurface(
+                    riddle, choice.surfaceId(), SurfaceKind.TERMINAL, inputPath, surfaces, issues);
+            if (surface != null && surface.kind() == SurfaceKind.TERMINAL) {
+              owned.merge(surface.id(), 1, Integer::sum);
+            }
+            Set<String> optionIds =
+                choice.options().stream().map(ChoiceOption::id).collect(Collectors.toSet());
+            for (int correctIndex = 0;
+                correctIndex < choice.correctOptionIds().size();
+                correctIndex++) {
+              String optionId = choice.correctOptionIds().get(correctIndex);
+              if (!optionIds.contains(optionId)) {
+                issues.add(
+                    entityIssue(
+                        ValidationSeverity.ERROR,
+                        ValidationPhase.REFERENCES,
+                        IssueCode.REFERENCE_UNKNOWN,
+                        "validation.references.choice_option_unknown",
+                        Map.of("id", optionId),
+                        inputPath + "/correctOptionIds/" + correctIndex,
+                        "input",
+                        input.id()));
+              }
+            }
+          }
+          case AssignmentInput assignment -> {
+            Surface surface =
+                validateSurface(
+                    riddle,
+                    assignment.surfaceId(),
+                    SurfaceKind.ASSIGNMENT,
+                    inputPath,
+                    surfaces,
+                    issues);
+            if (surface != null && surface.kind() == SurfaceKind.ASSIGNMENT) {
+              owned.merge(surface.id(), 1, Integer::sum);
+            }
+            Set<String> containerIds =
+                assignment.containers().stream()
+                    .map(AssignmentContainer::id)
+                    .collect(Collectors.toSet());
+            for (int itemIndex = 0; itemIndex < assignment.items().size(); itemIndex++) {
+              Optional<String> containerId = assignment.items().get(itemIndex).containerId();
+              if (containerId.isPresent() && !containerIds.contains(containerId.orElseThrow())) {
+                issues.add(
+                    entityIssue(
+                        ValidationSeverity.ERROR,
+                        ValidationPhase.REFERENCES,
+                        IssueCode.REFERENCE_UNKNOWN,
+                        "validation.references.assignment_container_unknown",
+                        Map.of("id", containerId.orElseThrow()),
+                        inputPath + "/items/" + itemIndex + "/containerId",
+                        "input",
+                        input.id()));
+              }
+            }
           }
         }
       }
@@ -334,8 +430,7 @@ final class SemanticValidator {
     }
     for (int index = 0; index < project.surfaces().size(); index++) {
       Surface surface = project.surfaces().get(index);
-      if ((surface.kind() == SurfaceKind.CONTAINER || surface.kind() == SurfaceKind.KEYPAD)
-          && owned.getOrDefault(surface.id(), 0) != 1) {
+      if (riddleOwned(surface.kind()) && owned.getOrDefault(surface.id(), 0) != 1) {
         issues.add(
             entityIssue(
                 ValidationSeverity.ERROR,
@@ -349,6 +444,19 @@ final class SemanticValidator {
       }
     }
     validateEndSurface(project, surfaces, issues);
+  }
+
+  /**
+   * Returns whether exactly one riddle element must own a surface of the given kind.
+   *
+   * @param kind surface kind
+   * @return whether a source or input owns such a surface
+   */
+  private static boolean riddleOwned(final SurfaceKind kind) {
+    return switch (kind) {
+      case CONTAINER, KEYPAD, TERMINAL, ASSIGNMENT -> true;
+      case WORLD, DOOR -> false;
+    };
   }
 
   private static Surface validateSurface(

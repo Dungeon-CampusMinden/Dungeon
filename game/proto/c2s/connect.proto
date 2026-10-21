@@ -27,6 +27,16 @@ message ConnectRequest {
   optional int32 character_class_id = 5;
 }
 
+// Client-to-server: requests character availability before authenticating.
+// Maps to: engine.network.messages.c2s.CharacterOptionsRequest
+message CharacterOptionsRequest {
+  // Protocol version the client is using (must match server).
+  int32 protocol_version = 1;
+
+  // Desired player name whose saved assignment and capacity are being queried.
+  string player_name = 2;
+}
+
 // Client-to-server: Confirms the client applied the initial world bootstrap.
 // Maps to: engine.network.messages.c2s.InitialWorldReady
 message InitialWorldReady {

@@ -2,8 +2,6 @@ package escaperoom.foundation.multiplayer.game;
 
 import engine.Entity;
 import engine.tracking.Tracking;
-import escaperoom.foundation.runtime.CodeAttemptResult;
-import escaperoom.foundation.runtime.CodeOutcome;
 import escaperoom.foundation.runtime.Projection;
 import escaperoom.foundation.runtime.ReleasedHint;
 
@@ -21,27 +19,6 @@ final class FoundationTracking {
                 Tracking.puzzleSolved(riddle.id());
               }
             });
-  }
-
-  synchronized void attempt(
-      final String riddleId,
-      final String inputId,
-      final String rawAnswer,
-      final CodeAttemptResult result,
-      final Entity player) {
-    if (result.outcome() == CodeOutcome.NOT_EVALUATED) {
-      return;
-    }
-    Tracking.participantForEntity(player.id())
-        .ifPresent(
-            participantId ->
-                Tracking.attempt(
-                    riddleId,
-                    inputId,
-                    "numeric-code",
-                    rawAnswer,
-                    result.outcome() == CodeOutcome.CORRECT,
-                    participantId));
   }
 
   void hintUsed(final String riddleId, final ReleasedHint hint, final Entity player) {

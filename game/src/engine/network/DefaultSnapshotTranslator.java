@@ -7,6 +7,7 @@ import engine.components.NetworkPositionComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.tile.DoorTile;
 import engine.network.codec.ShaderComponentCodec;
+import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.messages.c2s.RequestEntitySpawn;
 import engine.network.messages.s2c.DoorTileState;
 import engine.network.messages.s2c.EntityState;
@@ -20,10 +21,15 @@ import feature.components.HealthComponent;
 import feature.components.InventoryComponent;
 import feature.components.ManaComponent;
 import feature.components.UIComponent;
+import feature.interaction.InteractionComponent;
+import feature.interaction.keypad.TextKeypadSync;
+import feature.puzzle.PuzzleNetworkSync;
 import feature.shader.ShaderComponent;
 import feature.systems.PositionSync;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -133,6 +139,13 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
               // Inventory
               e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
+              Map<String, String> metadata = new HashMap<>();
+              metadata.putAll(PuzzleNetworkSync.metadata(e));
+              metadata.putAll(TextKeypadSync.metadata(e));
+              if (e.isPresent(InteractionComponent.class)) {
+                metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
+              }
+              if (!metadata.isEmpty()) builder.metadata(metadata);
               e.fetch(ShaderComponent.class)
                   .map(ShaderComponentCodec::toState)
                   .ifPresent(builder::shaderComponent);
@@ -186,6 +199,13 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
                 Entity entity = targetEntity.get();
                 snap.entityName().ifPresent(entity::name);
+                Map<String, String> metadata = snap.metadata().orElse(Map.of());
+                PuzzleNetworkSync.ensureTextures(metadata);
+                if ("true".equals(metadata.get(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE))
+                    && !entity.isPresent(InteractionComponent.class)) {
+                  entity.add(new InteractionComponent());
+                }
+                TextKeypadSync.apply(entity, metadata);
 
                 entity
                     .fetch(PositionComponent.class)

@@ -14,6 +14,7 @@ import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
+import engine.network.server.CharacterSelection;
 import engine.systems.FrictionSystem;
 import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
@@ -36,12 +37,12 @@ import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerSystem;
-import feature.utils.ItemDropSystem;
 import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
@@ -120,6 +121,13 @@ public class TheLastHour {
       } catch (IOException exception) {
         throw new IllegalStateException("Could not replace The Last Hour savegame", exception);
       }
+    }
+    if (loadFromSave) {
+      CharacterSelection.restoreAssignments(
+          LastHourLoad.read().map(LastHourSave.SaveData::characterAssignments).orElse(Map.of()));
+    } else if (containsArgument(args, NEW_GAME_ARGUMENT)
+        || containsArgument(args, ServerProcess.SERVER_ARGUMENT)) {
+      CharacterSelection.clear();
     }
     runId =
         loadFromSave
@@ -296,7 +304,6 @@ public class TheLastHour {
     ECSManagement.add(new PetriNetSystem());
     ECSManagement.add(new LastHourPlayerStateSystem());
     ECSManagement.add(new ComputerStateSyncSystem());
-    ECSManagement.add(new ItemDropSystem());
 
     registerLocalWorldTimerSystem();
 

@@ -5,6 +5,7 @@ import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.utils.JsonHandler;
 import engine.utils.Point;
+import feature.entities.CharacterClass;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -208,6 +210,7 @@ public final class SystemRecoveryLoad {
               floatValue(map.get("x")),
               floatValue(map.get("y"))));
     }
+    Map<String, CharacterClass> characterAssignments = parseCharacterAssignments(root);
     if (!hasRequiredCheckpointItem(findCheckpoint(checkpoint).orElseThrow(), inventoryItems)) {
       return Optional.empty();
     }
@@ -238,7 +241,28 @@ public final class SystemRecoveryLoad {
             ((Number) root.get("activeMs")).longValue(),
             root.get("timeLimitFinishedAtMs") instanceof Number finishedAt
                 ? OptionalLong.of(finishedAt.longValue())
-                : OptionalLong.empty()));
+                : OptionalLong.empty(),
+            characterAssignments));
+  }
+
+  private static Map<String, CharacterClass> parseCharacterAssignments(Map<String, Object> root) {
+    if (!root.containsKey("characterAssignments")) return Map.of();
+    Object value = root.get("characterAssignments");
+    if (!(value instanceof Map<?, ?> raw)) {
+      throw new IllegalArgumentException("Expected character assignments object");
+    }
+    Map<String, CharacterClass> assignments = new LinkedHashMap<>();
+    raw.forEach(
+        (key, assignedClass) -> {
+          if (!(key instanceof String name) || name.isBlank() || name.contains("_")) {
+            throw new IllegalArgumentException("Invalid saved character assignment name");
+          }
+          if (!(assignedClass instanceof String className)) {
+            throw new IllegalArgumentException("Expected saved character class name");
+          }
+          assignments.put(name, CharacterClass.valueOf(className));
+        });
+    return Map.copyOf(assignments);
   }
 
   private static SystemRecoveryAchievementTracker.Snapshot parseAchievementProgress(Object value) {

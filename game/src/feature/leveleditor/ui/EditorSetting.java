@@ -35,11 +35,13 @@ public abstract class EditorSetting extends Table {
   protected EditorSetting(String label, boolean isNested) {
     this.label = Objects.requireNonNull(label, "label");
     this.isNested = isNested;
+    defaults().minWidth(0f);
     labelActor =
         Scene2dElementFactory.createLabel(
             this.label,
             this.isNested ? NESTED_LABEL_FONT_SIZE : LABEL_FONT_SIZE,
             ModeDetailsPanel.TEXT_COLOR);
+    labelActor.setWrap(true);
     add(labelActor).growX().left();
   }
 

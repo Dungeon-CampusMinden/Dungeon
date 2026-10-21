@@ -38,6 +38,27 @@ message ConnectReject {
     REJECT_REASON_INVALID_SESSION_TOKEN = 4;
     REJECT_REASON_OTHER = 5;
     REJECT_REASON_SERVER_FULL = 6;
+    REJECT_REASON_NAME_IN_USE = 7;
+    REJECT_REASON_CHARACTER_UNAVAILABLE = 8;
+  }
+}
+
+// Server-to-client: character availability requested before authentication.
+// Maps to: engine.network.messages.s2c.CharacterOptions
+message CharacterOptions {
+  repeated Option characters = 1;
+
+  message Option {
+    // CharacterClass ordinal used by the existing connect protocol.
+    int32 character_class_id = 1;
+    // Maximum admitted players, or -1 for unlimited.
+    int32 max_count = 2;
+    // Current named reservations for this class.
+    int32 player_count = 3;
+    // Whether the requesting player can select this class.
+    bool selectable = 4;
+    // Whether this is the requesting player's saved assignment.
+    bool assigned = 5;
   }
 }
 

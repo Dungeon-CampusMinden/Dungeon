@@ -14,10 +14,8 @@ import engine.utils.TriConsumer;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
-import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
-import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CatapultableComponent;
 import feature.components.CollideComponent;
@@ -43,6 +41,7 @@ import feature.inventory.items.ItemHeart;
 import feature.inventory.items.ItemKey;
 import feature.inventory.items.ItemWoodenArrow;
 import feature.skills.SkillTools;
+import feature.systems.PositionSync;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -163,6 +162,9 @@ public final class MiscFactory {
    *
    * <p>It will contain the given items.
    *
+   * <p>Opening the inventory animates the chest. Once opened, its state follows the inventory
+   * contents, including item transfers while the inventory dialog is still open.
+   *
    * <p>The Entity is not added to the game yet.
    *
    * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
@@ -189,15 +191,22 @@ public final class MiscFactory {
         Animation.loadAnimationSpritesheet(new SimpleIPath("objects/treasurechest"));
     State stClosed = State.fromMap(animationMap, "closed");
     State stOpening = State.fromMap(animationMap, "opening");
-    State stOpen = FillState.fromMap(animationMap, "open");
-    StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpening, stOpen), stClosed);
+    stOpening.getAnimation().getConfig().isLooping(false);
+    State stOpenFull = State.fromMap(animationMap, "open_full");
+    State stOpenEmpty = State.fromMap(animationMap, "open_empty");
+    StateMachine sm =
+        new StateMachine(Arrays.asList(stClosed, stOpening, stOpenFull, stOpenEmpty), stClosed);
     sm.addTransition(stClosed, "open", stOpening);
-    // Automatically transition to open state when opening animation is finished playing
-    // TODO: Add support for conditional epsilon transitions in multiplayer
-    // sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() ==
-    // 0);
+    sm.addEpsilonTransition(
+        stOpening, state -> state.isAnimationFinished() && ic.count() > 0, stOpenFull);
+    sm.addEpsilonTransition(
+        stOpening, state -> state.isAnimationFinished() && ic.count() == 0, stOpenEmpty);
+    sm.addTransition(stOpenFull, "empty", stOpenEmpty);
+    sm.addTransition(stOpenEmpty, "filled", stOpenFull);
     DrawComponent dc = new DrawComponent(sm);
     chest.add(dc);
+    ic.onItemAdded(ignored -> updateChestContents(chest, ic));
+    ic.onItemRemoved(ignored -> updateChestContents(chest, ic));
 
     chest.add(
         new InteractionComponent(
@@ -207,6 +216,7 @@ public final class MiscFactory {
                         .fetch(InventoryComponent.class)
                         .ifPresent(
                             whoIc -> {
+                              dc.sendSignal("open");
                               DialogContext context =
                                   DialogContext.builder()
                                       .type(DialogType.DefaultTypes.DUAL_INVENTORY)
@@ -215,24 +225,21 @@ public final class MiscFactory {
                                       .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
                                       .build();
                               UIComponent ui = new UIComponent(context, true, interactor.id());
+                              ui.registerCallback(
+                                  DialogContextKeys.ON_CLOSE,
+                                  ignored -> updateChestContents(chest, ic));
                               interactor.add(ui);
                             }))));
 
+    // Place the hitbox now; runtimes without CollisionSystem never move it to the chest otherwise.
+    PositionSync.syncPosition(chest);
     return chest;
   }
 
-  private static void onChestClose(Entity interacted, InventoryComponent ic) {
+  private static void updateChestContents(Entity interacted, InventoryComponent ic) {
     interacted
         .fetch(DrawComponent.class)
-        .ifPresent(
-            interactedDC -> {
-              // only add opening animation when it is not finished.
-              // If we close the GUI before the opening animation finishes,
-              // the epsilon transition will set the data correctly
-              if (!interactedDC.stateMachine().getCurrentStateName().equals("opening")) {
-                interactedDC.sendSignal("open", ic.count() == 0);
-              }
-            });
+        .ifPresent(interactedDC -> interactedDC.sendSignal(ic.count() == 0 ? "empty" : "filled"));
   }
 
   /**
@@ -863,34 +870,5 @@ public final class MiscFactory {
     RANDOM,
     /** Represents an empty chest. */
     EMPTY,
-  }
-
-  private static class FillState extends State {
-    private final Animation empty;
-
-    public FillState(String name, IPath pathFull, IPath pathEmpty, AnimationConfig config) {
-      super(name, pathFull, config);
-      empty = new Animation(pathEmpty, config);
-    }
-
-    public FillState(String name, IPath pathFull, IPath pathEmpty) {
-      this(name, pathFull, pathEmpty, null);
-    }
-
-    public FillState(String name, Animation full, Animation empty) {
-      super(name, full);
-      this.empty = empty;
-    }
-
-    @Override
-    public Animation getAnimation() {
-      boolean isEmpty = (boolean) data;
-      return isEmpty ? empty : super.getAnimation();
-    }
-
-    public static FillState fromMap(Map<String, Animation> animationMap, String name) {
-      return new FillState(
-          name, animationMap.get(name + "_full"), animationMap.get(name + "_empty"));
-    }
   }
 }

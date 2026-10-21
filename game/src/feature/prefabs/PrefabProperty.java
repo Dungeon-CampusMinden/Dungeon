@@ -4,9 +4,11 @@ import com.badlogic.gdx.graphics.Color;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.shader.AbstractShader;
+import feature.entities.deco.Deco;
 import feature.prefabs.shaders.PrefabShader;
 import feature.prefabs.shaders.PrefabShaders;
 import feature.prefabs.shaders.ShaderParameters;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -431,6 +433,108 @@ public abstract class PrefabProperty<T> {
       @Override
       public JsonNode encode(ObjectMapper mapper, Boolean value) {
         return mapper.getNodeFactory().booleanNode(value);
+      }
+    };
+  }
+
+  /**
+   * Creates typed settings for an image puzzle prefab.
+   *
+   * <p>The JSON object contains {@code pieceCount}, a signed 64-bit {@code seed}, and a {@code
+   * pieces} array. Each piece entry contains a world {@code position} point, a {@code destination}
+   * of {@code "world-item"}, {@code "chest"}, or {@code "deco-inventory"}, and an optional {@code
+   * deco} enum name used for deco inventories.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default puzzle settings
+   * @return image puzzle settings property descriptor
+   */
+  public static PrefabProperty<ImagePuzzleSettings> imagePuzzleSettings(
+      String key, String displayName, ImagePuzzleSettings defaultValue) {
+    Objects.requireNonNull(defaultValue, "defaultValue");
+    return new PrefabProperty<>(
+        key, displayName, PrefabPropertyType.IMAGE_PUZZLE_SETTINGS, defaultValue) {
+      @Override
+      public ImagePuzzleSettings decode(JsonNode node) {
+        if (node == null
+            || !node.isObject()
+            || node.size() != 3
+            || !node.has("pieceCount")
+            || !node.has("seed")
+            || !node.has("pieces")) {
+          throw invalid(key, "must contain pieceCount, seed, and pieces");
+        }
+        JsonNode countNode = node.get("pieceCount");
+        JsonNode seedNode = node.get("seed");
+        JsonNode piecesNode = node.get("pieces");
+        if (!countNode.isIntegralNumber() || !countNode.canConvertToInt()) {
+          throw invalid(key, "pieceCount must be a 32-bit integer");
+        }
+        if (!seedNode.isIntegralNumber() || !seedNode.canConvertToLong()) {
+          throw invalid(key, "seed must be a 64-bit integer");
+        }
+        int pieceCount = countNode.intValue();
+        if (pieceCount < 2) throw invalid(key, "pieceCount must be at least 2");
+        if (!piecesNode.isArray() || piecesNode.size() != pieceCount) {
+          throw invalid(key, "pieces must contain exactly pieceCount entries");
+        }
+
+        List<PuzzlePiecePlacement> pieces = new ArrayList<>(piecesNode.size());
+        piecesNode.forEach(piece -> pieces.add(decodePlacement(piece)));
+        try {
+          return new ImagePuzzleSettings(pieceCount, seedNode.longValue(), pieces);
+        } catch (IllegalArgumentException exception) {
+          throw invalid(key, "has invalid puzzle settings: " + exception.getMessage());
+        }
+      }
+
+      @Override
+      public JsonNode encode(ObjectMapper mapper, ImagePuzzleSettings value) {
+        if (value == null) throw invalid(key, "must not be null");
+        ImagePuzzleSettings settings;
+        try {
+          settings = new ImagePuzzleSettings(value.pieceCount(), value.seed(), value.pieces());
+        } catch (IllegalArgumentException exception) {
+          throw invalid(key, "has invalid puzzle settings: " + exception.getMessage());
+        }
+        ObjectNode node = mapper.createObjectNode();
+        node.put("pieceCount", settings.pieceCount());
+        node.put("seed", settings.seed());
+        var pieces = node.putArray("pieces");
+        for (PuzzlePiecePlacement placement : settings.pieces()) {
+          ObjectNode piece = pieces.addObject();
+          piece.set("position", encodePoint(mapper, placement.position()));
+          piece.put("destination", placement.destination().id());
+          piece.put("deco", placement.deco().name());
+        }
+        return node;
+      }
+
+      private PuzzlePiecePlacement decodePlacement(JsonNode node) {
+        if (node == null
+            || !node.isObject()
+            || node.size() < 2
+            || node.size() > 3
+            || !node.has("position")
+            || !node.has("destination")
+            || (node.size() == 3 && !node.has("deco"))
+            || !node.get("destination").isTextual()) {
+          throw invalid(key, "each piece must contain a position and destination");
+        }
+        try {
+          var decoNode = node.get("deco");
+          if (decoNode != null && !decoNode.isTextual()) {
+            throw invalid(key, "piece deco must be a Deco enum name");
+          }
+          Deco deco = decoNode == null ? Deco.BookshelfLarge : Deco.valueOf(decoNode.asText());
+          return new PuzzlePiecePlacement(
+              decodePoint(node.get("position"), key),
+              PuzzlePiecePlacement.Destination.fromId(node.get("destination").asText()),
+              deco);
+        } catch (IllegalArgumentException exception) {
+          throw invalid(key, "contains an invalid piece placement: " + exception.getMessage());
+        }
       }
     };
   }

@@ -1,6 +1,7 @@
 package rooms.lasthour.save;
 
 import engine.utils.JsonHandler;
+import feature.entities.CharacterClass;
 import feature.inventory.ItemRegistry;
 import feature.puzzle.PuzzlePieceItem;
 import feature.questlog.QuestLogEntry;
@@ -98,7 +99,8 @@ public final class LastHourLoad {
 
   private static LastHourSave.SaveData parse(String json) {
     Map<String, Object> root = JsonHandler.readJson(json);
-    if (integer(root.get("formatVersion")) != LastHourSave.FORMAT_VERSION) {
+    int formatVersion = integer(root.get("formatVersion"));
+    if (formatVersion != 2 && formatVersion != LastHourSave.FORMAT_VERSION) {
       throw new IllegalArgumentException("Unsupported save format");
     }
     EnumSet<LastHourMilestone> milestones = EnumSet.noneOf(LastHourMilestone.class);
@@ -113,6 +115,7 @@ public final class LastHourLoad {
     for (Object value : list(root.get("questKeys"))) questKeys.add(string(value));
     List<LastHourSave.PlayerData> players = new ArrayList<>();
     for (Object value : list(root.get("players"))) players.add(parsePlayer(map(value)));
+    Map<String, CharacterClass> characterAssignments = parseCharacterAssignments(root);
     Object metadataValue = root.get("metadata");
     String playerName =
         metadataValue instanceof Map<?, ?> metadata
@@ -137,7 +140,22 @@ public final class LastHourLoad {
         questKeys,
         players,
         nullableBool(root.get("trackingConsent")),
-        playerName);
+        playerName,
+        characterAssignments);
+  }
+
+  private static Map<String, CharacterClass> parseCharacterAssignments(Map<String, Object> root) {
+    if (!root.containsKey("characterAssignments")) return Map.of();
+    Map<String, CharacterClass> assignments = new LinkedHashMap<>();
+    map(root.get("characterAssignments"))
+        .forEach(
+            (name, value) -> {
+              if (name.isBlank() || name.contains("_")) {
+                throw new IllegalArgumentException("Invalid saved character assignment name");
+              }
+              assignments.put(name, CharacterClass.valueOf(string(value)));
+            });
+    return Map.copyOf(assignments);
   }
 
   private static LastHourSave.PhoneData parsePhone(Map<String, Object> map) {

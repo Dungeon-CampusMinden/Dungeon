@@ -17,7 +17,8 @@
             "placeholder": "Deine Antwort..."
         },
         "multiple_choice_dialog": {
-            "cancel": "Abbrechen"
+            "cancel": "Abbrechen",
+            "confirm": "Bestätigen"
         },
         "survey": {
             "page": "Seite $1 von $2",
@@ -183,7 +184,32 @@
         "invalid_name": "Ungültiger Name (darf nicht leer sein oder '_' enthalten).",
         "invalid_connection": "Ungültige Serveradresse oder ungültiger Port.",
         "starting_server": "Server wird gestartet...",
+        "stopping_server": "Server wird beendet...",
+        "server_stop_failed": "Server konnte nicht beendet werden: $1",
         "server_start_failed": "Server konnte nicht gestartet werden: $1",
-        "server_timeout": "Server wurde nicht rechtzeitig gestartet."
+        "server_timeout": "Server wurde nicht rechtzeitig gestartet.",
+        "character_selection_title": "Wähle deinen Charakter",
+        "refreshing_characters": "Verfügbare Charaktere werden geprüft...",
+        "connecting_to_server": "Verbindung zum Server wird aufgebaut...",
+        "connection_refused": "Verbindung abgelehnt. Prüfe die Serveradresse und versuche es erneut.",
+        "connection_timeout": "Der Server hat nicht rechtzeitig geantwortet. Versuche es erneut.",
+        "connection_failed": "Verbindung zum Server fehlgeschlagen: $1",
+        "name_in_use": "Dieser Spielername wird bereits verwendet.",
+        "incompatible_version": "Diese Spielversion ist nicht mit dem Server kompatibel.",
+        "server_full": "Der Server hat seine maximale Spielerzahl erreicht.",
+        "character_unavailable": "Dieser Charakter ist nicht mehr verfügbar. Wähle einen anderen Charakter.",
+        "no_characters_available": "Alle Charaktere sind bereits belegt.",
+        "connection_rejected": "Der Server hat die Verbindung abgelehnt. Prüfe die Angaben und versuche es erneut.",
+        "character_changed": "Die Verfügbarkeit hat sich geändert. Wähle erneut.",
+        "no_characters": "Auf diesem Server sind keine Charaktere verfügbar.",
+        "character_count_limited": "$1/$2 Plätze belegt",
+        "character_forbidden": "Für diesen Spieler nicht verfügbar",
+        "characters": {
+            "wizard": "Zauberer",
+            "hunter": "Jäger",
+            "mushroom_wizard": "Pilz-Zauberer",
+            "the_last_hour_rogue": "Schurke",
+            "the_last_hour_char03": "Char03"
+        }
     }
 }

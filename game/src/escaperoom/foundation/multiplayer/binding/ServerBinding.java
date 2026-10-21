@@ -2,10 +2,11 @@ package escaperoom.foundation.multiplayer.binding;
 
 import engine.Entity;
 import engine.network.server.ClientState;
+import escaperoom.foundation.definition.SurfaceInputDefinition;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession.ClientObservation;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession.SourceInspection;
-import escaperoom.foundation.runtime.CodeAttemptResult;
+import escaperoom.foundation.runtime.AttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
 import escaperoom.foundation.runtime.Projection;
 import escaperoom.foundation.runtime.ReleasedHint;
@@ -69,21 +70,25 @@ public final class ServerBinding {
   }
 
   /**
-   * Applies one authoritative numeric input attempt for a ready server player.
+   * Applies one authoritative surface input answer for a ready server player.
    *
-   * @param playerEntity authenticated server player
+   * @param playerEntity authenticated server player who gave the answer
    * @param riddleId owning riddle identifier
-   * @param inputId numeric input identifier
-   * @param attempt raw player input
+   * @param inputId surface input identifier
+   * @param inputType expected input type
+   * @param answer complete answer
+   * @param <A> answer type
+   * @param <D> input type
    * @return evaluated result when the player remains ready
    */
-  public synchronized Optional<CodeAttemptResult> enterNumericCode(
+  public synchronized <A, D extends SurfaceInputDefinition<A>> Optional<AttemptResult> enterAnswer(
       final Entity playerEntity,
       final String riddleId,
       final String inputId,
-      final String attempt) {
+      final Class<D> inputType,
+      final A answer) {
     return clientId(playerEntity)
-        .flatMap(clientId -> session.enterNumericCode(clientId, riddleId, inputId, attempt));
+        .flatMap(clientId -> session.enterAnswer(clientId, riddleId, inputId, inputType, answer));
   }
 
   /**
