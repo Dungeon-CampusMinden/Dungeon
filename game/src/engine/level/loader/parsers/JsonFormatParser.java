@@ -18,6 +18,7 @@ import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabWiring;
 import feature.prefabs.types.CombinedDoorPrefabMigration;
+import feature.prefabs.types.DecorationPrefabMigration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,15 +43,17 @@ import tools.jackson.databind.node.ObjectNode;
  *
  * <p>Version 4 added the {@code active} flag and the {@code inputs} links of prefab records, see
  * {@link PrefabInstanceCodec}. Version 5 split the combined door prefabs into standalone prefabs
- * and linked door controls, see {@link CombinedDoorPrefabMigration}. Version 3 and 4 files are read
- * as well, migrated, and written as version 5. Older builds reject newer files instead of silently
- * dropping linked prefab records.
+ * and linked door controls, see {@link CombinedDoorPrefabMigration}. Version 6 split the combined
+ * decoration prefabs into decoration interactions and linked dialog or image triggers, see {@link
+ * DecorationPrefabMigration}. Version 3 to 5 files are read as well, migrated, and written as
+ * version 6. Older builds reject newer files instead of silently dropping linked prefab records.
  */
 public final class JsonFormatParser extends LevelFormatParser {
 
-  private static final int VERSION = 5;
-  private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4, 5);
+  private static final int VERSION = 6;
+  private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4, 5, 6);
   private static final int SPLIT_DOOR_PREFABS_VERSION = 5;
+  private static final int SPLIT_DECORATION_PREFABS_VERSION = 6;
   private static final Set<String> ROOT_PROPERTIES =
       Set.of(
           "version",
@@ -266,6 +269,9 @@ public final class JsonFormatParser extends LevelFormatParser {
     ArrayNode nodes = requireArray(root, "prefabs");
     if (version < SPLIT_DOOR_PREFABS_VERSION) {
       nodes = CombinedDoorPrefabMigration.migrate(nodes, LOGGER::info);
+    }
+    if (version < SPLIT_DECORATION_PREFABS_VERSION) {
+      nodes = DecorationPrefabMigration.migrate(nodes, LOGGER::info);
     }
     List<PrefabInstance> result = new ArrayList<>();
     Set<String> names = new HashSet<>();

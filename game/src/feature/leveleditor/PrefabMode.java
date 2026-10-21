@@ -1937,12 +1937,17 @@ public final class PrefabMode extends LevelEditorMode {
       } else {
         PrefabProperty<Region> regionProperty = cast(anchor.property());
         Region region = regionProperty.get(source);
-        replacement =
-            regionProperty.set(
-                source,
-                anchor.corner() == AnchorCorner.BOTTOM_LEFT
-                    ? new Region(point, region.topRight())
-                    : new Region(region.bottomLeft(), point));
+        Region moved;
+        if (region.bottomLeft().equals(region.topRight())) {
+          // A region collapsed to a single point is moved as a whole, it can only be expanded
+          // through the details panel.
+          moved = new Region(point, point);
+        } else if (anchor.corner() == AnchorCorner.BOTTOM_LEFT) {
+          moved = new Region(point, region.topRight());
+        } else {
+          moved = new Region(region.bottomLeft(), point);
+        }
+        replacement = regionProperty.set(source, moved);
       }
       replacement = PrefabRegistry.require(source.type()).normalize(replacement);
       int index = getLevel().prefabs().indexOf(source);

@@ -150,7 +150,7 @@ final class PrefabConnectionsTab {
         actions.stream().filter(port -> !((PrefabAction) port).isLifecycle()).toList(),
         problems,
         "Actions",
-        "Run whenever one of the linked events is sent.");
+        null);
     section(
         content,
         instance,
@@ -172,8 +172,6 @@ final class PrefabConnectionsTab {
         problems,
         "Artifact Inputs",
         null);
-    // Closes the last section, every prefab has at least the lifecycle actions.
-    content.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(12f).row();
   }
 
   /**

@@ -2,9 +2,7 @@ package feature.prefabs;
 
 import engine.level.elements.ILevel;
 import feature.prefabs.types.AvailableCharacterPrefab;
-import feature.prefabs.types.BookshelfImagePrefab;
-import feature.prefabs.types.DecoDialogPrefab;
-import feature.prefabs.types.DecoImagePrefab;
+import feature.prefabs.types.DecorationInteractionPrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.prefabs.types.DialogTriggerPrefab;
 import feature.prefabs.types.DoorControlPrefab;
@@ -18,6 +16,7 @@ import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
 import feature.prefabs.types.RandomCodePrefab;
 import feature.prefabs.types.ShaderPrefab;
+import feature.prefabs.types.ShowImagePrefab;
 import feature.prefabs.types.TextKeypadPrefab;
 import feature.prefabs.types.TorchPrefab;
 import feature.prefabs.types.WaterPrefab;
@@ -40,20 +39,19 @@ public final class PrefabRegistry {
     register(new TextKeypadPrefab(), TextKeypadPrefab::new);
     register(new ImagePuzzlePrefab(), ImagePuzzlePrefab::new);
     register(new AvailableCharacterPrefab(), AvailableCharacterPrefab::new);
-    register(new BookshelfImagePrefab(), BookshelfImagePrefab::new);
     register(
         new LevelHiderPrefab(),
         (level, name) -> ((Prefab) new LevelHiderPrefab()).bind(level, name));
     register(new DesignLabelRegionPrefab(), DesignLabelRegionPrefab::new);
     register(new LeverPrefab(), LeverPrefab::new);
-    register(new DecoDialogPrefab(), DecoDialogPrefab::new);
+    register(new DecorationInteractionPrefab(), DecorationInteractionPrefab::new);
     register(new ShaderPrefab(), ShaderPrefab::new);
     register(new WaterPrefab(), WaterPrefab::new);
     register(new DialogTriggerPrefab(), DialogTriggerPrefab::new);
+    register(new ShowImagePrefab(), ShowImagePrefab::new);
     register(new PushableStonePrefab(), PushableStonePrefab::new);
     register(new PressurePlatePrefab(), PressurePlatePrefab::new);
     register(new TorchPrefab(), TorchPrefab::new);
-    register(new DecoImagePrefab(), DecoImagePrefab::new);
     register(new InvisibleWallPrefab(), InvisibleWallPrefab::new);
     register(new DoorControlPrefab(), DoorControlPrefab::new);
     register(new RandomCodePrefab(), RandomCodePrefab::new);

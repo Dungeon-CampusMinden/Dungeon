@@ -143,14 +143,7 @@ public final class WaterPrefab extends Prefab {
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Region region = value(instance, REGION);
-    feedback.point(region.bottomLeft(), null);
-    feedback.point(region.topRight(), null);
-    feedback.rectangle(region.bottomLeft(), region.topRight());
-    feedback.label(
-        new Point(
-            (region.bottomLeft().x() + region.topRight().x()) * 0.5f,
-            (region.bottomLeft().y() + region.topRight().y()) * 0.5f),
-        instance.name());
+    feedback.region(region, instance.name());
   }
 
   /**

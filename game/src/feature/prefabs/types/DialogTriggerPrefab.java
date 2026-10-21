@@ -20,14 +20,16 @@ import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.Region;
-import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
-/** Server-side rectangular trigger that starts a dialog script when a player enters it. */
+/**
+ * Server-side rectangular trigger that starts a dialog script when a player enters it.
+ *
+ * <p>A region collapsed to a single point is never entered, so the dialog is only shown through
+ * {@link #SHOW_DIALOG}. The repetition applies to both ways of showing the dialog.
+ */
 public final class DialogTriggerPrefab extends Prefab {
 
   /**
@@ -42,8 +44,10 @@ public final class DialogTriggerPrefab extends Prefab {
           "show-dialog",
           "Show Dialog",
           context -> {
-            for (Entity player : context.players()) {
-              showDialog(context.creationContext(), context.instance(), player);
+            for (Entity trigger : context.liveEntities()) {
+              for (Entity player : context.players()) {
+                showDialog(context.creationContext(), context.instance(), trigger, player);
+              }
             }
           });
 
@@ -114,24 +118,19 @@ public final class DialogTriggerPrefab extends Prefab {
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();
     DialogRepetition repetition = DialogRepetition.fromLabel(value(instance, REPETITION));
-    TriggerState state = new TriggerState();
 
     Entity trigger = context.createEntity(instance.name());
     trigger.add(new PositionComponent(bottomLeft));
+    trigger.add(new DialogRepetition.History(repetition));
+    if (bottomLeft.equals(topRight)) return List.of(trigger);
     trigger.add(
         new CollideComponent(
                 Vector2.ZERO,
                 Vector2.of(width, height),
                 (self, who, direction) -> {
-                  if (!who.isPresent(PlayerComponent.class)) return;
-                  if (repetition == DialogRepetition.ONCE_GLOBALLY) {
-                    if (state.triggeredForAll) return;
-                    state.triggeredForAll = true;
-                  } else if (repetition == DialogRepetition.ONCE_PER_PLAYER
-                      && !state.players.add(who)) {
-                    return;
+                  if (who.isPresent(PlayerComponent.class)) {
+                    showDialog(context, instance, self, who);
                   }
-                  showDialog(context, instance, who);
                 },
                 CollideComponent.DEFAULT_COLLIDER)
             .isSolid(false));
@@ -139,7 +138,13 @@ public final class DialogTriggerPrefab extends Prefab {
   }
 
   private static void showDialog(
-      PrefabCreationContext context, PrefabInstance instance, Entity who) {
+      PrefabCreationContext context, PrefabInstance instance, Entity trigger, Entity who) {
+    boolean allowed =
+        trigger
+            .fetch(DialogRepetition.History.class)
+            .map(history -> history.tryShow(who))
+            .orElse(false);
+    if (!allowed) return;
     DialogFactory.showDialogDialog(
         instance.get(TEXT),
         instance.get(TRANSLATE),
@@ -152,19 +157,6 @@ public final class DialogTriggerPrefab extends Prefab {
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Region region = value(instance, REGION);
-    feedback.point(region.bottomLeft(), null);
-    feedback.point(region.topRight(), null);
-    feedback.rectangle(region.bottomLeft(), region.topRight());
-    feedback.label(midpoint(region.bottomLeft(), region.topRight()), instance.name());
-  }
-
-  private static Point midpoint(Point first, Point second) {
-    return new Point(first.x() * 0.5f + second.x() * 0.5f, first.y() * 0.5f + second.y() * 0.5f);
-  }
-
-  /** Mutable, spawn-scoped trigger history captured by the collision callback. */
-  private static final class TriggerState {
-    private boolean triggeredForAll;
-    private final Set<Entity> players = Collections.newSetFromMap(new IdentityHashMap<>());
+    feedback.region(region, instance.name());
   }
 }

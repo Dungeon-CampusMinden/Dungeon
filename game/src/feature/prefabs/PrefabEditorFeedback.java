@@ -55,4 +55,28 @@ public interface PrefabEditorFeedback {
    * @param text label text
    */
   void label(Point position, String text);
+
+  /**
+   * Draws a region with its two corner points and a label in its center.
+   *
+   * <p>A region collapsed to a single point is drawn as a single point marker instead, with the
+   * label above it.
+   *
+   * @param region region to draw
+   * @param label region label
+   */
+  default void region(Region region, String label) {
+    Point bottomLeft = region.bottomLeft();
+    Point topRight = region.topRight();
+    if (bottomLeft.equals(topRight)) {
+      point(bottomLeft, label);
+      return;
+    }
+    point(bottomLeft, null);
+    point(topRight, null);
+    rectangle(bottomLeft, topRight);
+    label(
+        new Point((bottomLeft.x() + topRight.x()) * 0.5f, (bottomLeft.y() + topRight.y()) * 0.5f),
+        label);
+  }
 }

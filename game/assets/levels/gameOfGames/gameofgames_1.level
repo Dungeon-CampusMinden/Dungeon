@@ -1,5 +1,5 @@
 {
-  "version" : 5,
+  "version" : 6,
   "design" : "DEFAULT",
   "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSSSSSSSSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
@@ -127,6 +127,54 @@
       } ]
     }
   }, {
+    "name" : "r1/dialog-trigger-1",
+    "type" : "dialog-trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 20.0,
+          "y" : 17.0
+        },
+        "topRight" : {
+          "x" : 20.0,
+          "y" : 17.0
+        }
+      },
+      "text" : "You have successfully entered the code! GG",
+      "translate" : false,
+      "repetition" : "Once globally"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      } ]
+    }
+  }, {
+    "name" : "r1/dialog-trigger-2",
+    "type" : "dialog-trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 17.0,
+          "y" : 17.0
+        },
+        "topRight" : {
+          "x" : 17.0,
+          "y" : 17.0
+        }
+      },
+      "text" : "That is the wrong code dawg",
+      "translate" : false,
+      "repetition" : "Repeatable"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "wrong-code"
+      } ]
+    }
+  }, {
     "name" : "r1/dl-fire",
     "type" : "design-label-region",
     "properties" : {
@@ -143,18 +191,45 @@
       "designLabel" : "FIRE"
     }
   }, {
-    "name" : "r1/bookshelf-image",
-    "type" : "bookshelf-image",
+    "name" : "r1/bookshelf-image-decoration",
+    "type" : "deco-interaction",
     "properties" : {
       "position" : {
         "x" : 17.0,
         "y" : 8.0
       },
-      "image" : "images/binary_hex.jpg"
+      "deco" : "BookshelfLarge",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
-    "name" : "r1/deco-dialog",
-    "type" : "deco-dialog",
+    "name" : "r1/bookshelf-image",
+    "type" : "show-image",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 17.0,
+          "y" : 15.0
+        },
+        "topRight" : {
+          "x" : 17.0,
+          "y" : 15.0
+        }
+      },
+      "image" : "images/binary_hex.jpg",
+      "repetition" : "Repeatable"
+    },
+    "inputs" : {
+      "show-image" : [ {
+        "source" : "r1/bookshelf-image-decoration",
+        "port" : "interacted"
+      } ]
+    }
+  }, {
+    "name" : "r1/deco-dialog-decoration",
+    "type" : "deco-interaction",
     "properties" : {
       "position" : {
         "x" : 13.0,
@@ -164,14 +239,35 @@
       "scale" : {
         "x" : 1.0,
         "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "r1/deco-dialog",
+    "type" : "dialog-trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 13.0,
+          "y" : 15.0
+        },
+        "topRight" : {
+          "x" : 13.0,
+          "y" : 15.0
+        }
       },
       "text" : "Hello.",
       "translate" : false,
       "repetition" : "Once globally"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/deco-dialog-decoration",
+        "port" : "interacted"
+      } ]
     }
   }, {
-    "name" : "r1/deco-image",
-    "type" : "deco-image",
+    "name" : "r1/deco-image-decoration",
+    "type" : "deco-interaction",
     "properties" : {
       "position" : {
         "x" : 10.0,
@@ -181,8 +277,30 @@
       "scale" : {
         "x" : 1.0,
         "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "r1/deco-image",
+    "type" : "show-image",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 10.0,
+          "y" : 5.0
+        },
+        "topRight" : {
+          "x" : 10.0,
+          "y" : 5.0
+        }
       },
-      "image" : "images/binary_hex.jpg"
+      "image" : "images/binary_hex.jpg",
+      "repetition" : "Repeatable"
+    },
+    "inputs" : {
+      "show-image" : [ {
+        "source" : "r1/deco-image-decoration",
+        "port" : "interacted"
+      } ]
     }
   }, {
     "name" : "r1/door-lever-1",
@@ -197,9 +315,6 @@
     "active" : false,
     "inputs" : {
       "activate" : [ {
-        "source" : "r1/keypad-2",
-        "port" : "correct-code"
-      }, {
         "source" : "r1/keypad-1",
         "port" : "correct-code"
       } ]
@@ -337,8 +452,8 @@
     "type" : "random-code",
     "properties" : {
       "position" : {
-        "x" : 19.0,
-        "y" : 14.0
+        "x" : 19.4375,
+        "y" : 13.9375
       },
       "length" : 4,
       "seed" : ""

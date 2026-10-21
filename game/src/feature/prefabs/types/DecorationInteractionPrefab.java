@@ -11,7 +11,6 @@ import feature.entities.deco.DecoFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.prefabs.Prefab;
-import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
@@ -26,67 +25,52 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Server-side decoration that shows an image to the player interacting with it.
+ * Server-side decoration players can interact with.
  *
- * <p>The image path is resolved through {@link engine.language.Localization#asset(String)} by the
- * displaying client, so a variant for its language (e.g. {@code image_en.png}) is used if it
- * exists, falling back to the given path otherwise.
+ * <p>It only raises {@link #INTERACTED}, link it to e.g. the Show Dialog action of a Dialog Trigger
+ * or the Show Image action of a Show Image prefab.
  */
-public final class DecoImagePrefab extends Prefab {
+public final class DecorationInteractionPrefab extends Prefab {
 
-  /** Raised on the server when a player closed the image, with the player as payload. */
-  public static final PrefabEvent<Entity> IMAGE_CLOSED =
-      PrefabEvent.withPlayer("image-closed", "Image Closed");
+  /**
+   * Raised on the server when a player interacted with the decoration, with the player as payload.
+   */
+  public static final PrefabEvent<Entity> INTERACTED =
+      PrefabEvent.withPlayer("interacted", "Interacted");
 
-  /** Shows the image to the player that caused the triggering event. */
-  public static final PrefabAction SHOW_IMAGE =
-      PrefabAction.forPlayer(
-          "show-image",
-          "Show Image",
-          context -> {
-            for (Entity player : context.players()) {
-              showImage(context.creationContext(), context.instance(), player);
-            }
-          });
-
+  private static final String TYPE = "deco-interaction";
+  private static final String DISPLAY_NAME = "Decoration Interaction";
   private static final float INTERACTION_RADIUS = 1.5f;
+
+  /** Bottom-left position of the decoration. */
   public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0));
+
   public static final PrefabProperty<String> DECO =
       PrefabProperty.selection(
           "deco",
           "Decoration",
           Deco.BookshelfLarge.name(),
           Arrays.stream(Deco.values()).map(Enum::name).toList());
+
   public static final PrefabProperty<Vector2> SCALE =
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
-  public static final PrefabProperty<String> IMAGE =
-      PrefabProperty.string(
-          "image", "Image Path", "images/binary_hex.jpg", value -> !value.isBlank());
 
-  /** Creates the decoration-image definition. */
-  public DecoImagePrefab() {
-    super(
-        "deco-image",
-        "Decoration + Image",
-        PrefabSide.SERVER,
-        List.of(POSITION, DECO, SCALE, IMAGE));
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(POSITION, DECO, SCALE);
+
+  /** Creates the decoration-interaction definition. */
+  public DecorationInteractionPrefab() {
+    super(TYPE, DISPLAY_NAME, PrefabSide.SERVER, PROPERTIES);
   }
 
   /**
-   * Creates a bound view for one authored decoration-image instance.
+   * Creates a bound view for one decoration-interaction instance.
    *
    * @param level owning level
-   * @param name authored instance name
+   * @param name instance name
    */
-  public DecoImagePrefab(ILevel level, String name) {
-    super(
-        "deco-image",
-        "Decoration + Image",
-        PrefabSide.SERVER,
-        List.of(POSITION, DECO, SCALE, IMAGE),
-        level,
-        name);
+  public DecorationInteractionPrefab(ILevel level, String name) {
+    super(TYPE, DISPLAY_NAME, PrefabSide.SERVER, PROPERTIES, level, name);
   }
 
   /**
@@ -99,12 +83,13 @@ public final class DecoImagePrefab extends Prefab {
   }
 
   /**
-   * Registers a listener called on the server whenever a player closed the image of this instance.
+   * Registers a listener called on the server whenever a player interacted with the decoration of
+   * this instance.
    *
-   * @param listener receives the player that closed the image
+   * @param listener receives the interacting player
    */
-  public void onImageClosed(Consumer<Entity> listener) {
-    listen(IMAGE_CLOSED, listener);
+  public void onInteracted(Consumer<Entity> listener) {
+    listen(INTERACTED, listener);
   }
 
   @Override
@@ -121,7 +106,7 @@ public final class DecoImagePrefab extends Prefab {
 
   @Override
   protected List<PrefabPort> declaredPorts() {
-    return List.of(IMAGE_CLOSED, SHOW_IMAGE);
+    return List.of(INTERACTED);
   }
 
   @Override
@@ -137,14 +122,8 @@ public final class DecoImagePrefab extends Prefab {
     deco.add(
         new InteractionComponent(
             new Interaction(
-                (entity, who) -> showImage(context, instance, who), INTERACTION_RADIUS)));
+                (entity, who) -> fire(context, instance, INTERACTED, who), INTERACTION_RADIUS)));
     return List.of(deco);
-  }
-
-  private static void showImage(
-      PrefabCreationContext context, PrefabInstance instance, Entity who) {
-    PrefabDialogs.showImage(
-        instance.get(IMAGE), who, () -> fire(context, instance, IMAGE_CLOSED, who));
   }
 
   @Override
