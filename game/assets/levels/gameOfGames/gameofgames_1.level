@@ -950,5 +950,43 @@
         "port" : "correct-code"
       } ]
     }
+  }, {
+    "name" : "sound-effect",
+    "type" : "sound-effect",
+    "properties" : {
+      "position" : {
+        "x" : 7.0,
+        "y" : 14.0
+      },
+      "sound" : "fireball",
+      "volume" : 0.5,
+      "pitch" : 2.0,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "play" : [ {
+        "source" : "r1/door-lever-2",
+        "port" : "switched-on"
+      } ]
+    }
+  }, {
+    "name" : "door-lock",
+    "type" : "door-lock",
+    "properties" : {
+      "doorPosition" : {
+        "x" : 7.0,
+        "y" : 10.0
+      },
+      "locked-dialog" : "The door is locked with a chain. You need a key to open it.",
+      "key-title" : "Locked Door",
+      "key-question" : "Do you want to use your {key} to open the door?",
+      "consume-key" : true
+    },
+    "inputs" : {
+      "key" : [ {
+        "source" : "item-spawner",
+        "port" : "item-2"
+      } ]
+    }
   } ]
 }

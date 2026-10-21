@@ -8,6 +8,7 @@ import feature.prefabs.types.DelayPrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.prefabs.types.DialogTriggerPrefab;
 import feature.prefabs.types.DoorControlPrefab;
+import feature.prefabs.types.DoorLockPrefab;
 import feature.prefabs.types.ImagePuzzlePrefab;
 import feature.prefabs.types.InvisibleWallPrefab;
 import feature.prefabs.types.ItemReceptaclePrefab;
@@ -22,6 +23,7 @@ import feature.prefabs.types.RandomCodePrefab;
 import feature.prefabs.types.RandomTextPrefab;
 import feature.prefabs.types.ShaderPrefab;
 import feature.prefabs.types.ShowImagePrefab;
+import feature.prefabs.types.SoundEffectPrefab;
 import feature.prefabs.types.TextKeypadPrefab;
 import feature.prefabs.types.TorchPrefab;
 import feature.prefabs.types.WaterPrefab;
@@ -66,6 +68,8 @@ public final class PrefabRegistry {
     register(new DelayPrefab(), DelayPrefab::new);
     register(new ItemSpawnerPrefab(), ItemSpawnerPrefab::new);
     register(new AirVentPrefab(), AirVentPrefab::new);
+    register(new SoundEffectPrefab(), SoundEffectPrefab::new);
+    register(new DoorLockPrefab(), DoorLockPrefab::new);
   }
 
   private PrefabRegistry() {}

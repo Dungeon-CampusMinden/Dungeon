@@ -34,7 +34,8 @@ import java.util.Optional;
  * completed puzzle is placed inside.
  *
  * <p>The item kind it waits for is linked from another prefab, such as {@link
- * ImagePuzzlePrefab#COMPLETION_ITEM}. Linked {@link #CONTENTS} are placed inside when it spawns.
+ * ImagePuzzlePrefab#COMPLETION_ITEM}. The container starts empty, it only reacts to the items
+ * players put inside.
  */
 public final class ItemReceptaclePrefab extends Prefab {
 
@@ -65,10 +66,6 @@ public final class ItemReceptaclePrefab extends Prefab {
   /** Kind of item the container waits for. */
   public static final ArtifactSlot<ItemArtifact> REQUIRED_ITEM =
       ArtifactSlot.single("required-item", "Required Item", ArtifactType.ITEM);
-
-  /** Items placed inside when the container spawns. */
-  public static final ArtifactSlot<ItemArtifact> CONTENTS =
-      ArtifactSlot.multiple("contents", "Contents", ArtifactType.ITEM);
 
   /** Raised when a player placed the required item inside, with the player as payload. */
   public static final PrefabEvent<Entity> REQUIRED_ITEM_PLACED =
@@ -110,8 +107,7 @@ public final class ItemReceptaclePrefab extends Prefab {
 
   @Override
   protected List<PrefabPort> declaredPorts() {
-    return List.of(
-        REQUIRED_ITEM, CONTENTS, REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED, OTHER_ITEM_PLACED);
+    return List.of(REQUIRED_ITEM, REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED, OTHER_ITEM_PLACED);
   }
 
   @Override
@@ -120,9 +116,6 @@ public final class ItemReceptaclePrefab extends Prefab {
     DecoFactory.createDeco(
         container, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
     InventoryComponent inventory = new InventoryComponent(CAPACITY);
-    for (ItemArtifact content : input(context, instance, CONTENTS).values().values()) {
-      content.create().ifPresent(inventory::add);
-    }
     container.add(inventory);
 
     ArtifactInput<ItemArtifact> required = input(context, instance, REQUIRED_ITEM);
@@ -172,6 +165,12 @@ public final class ItemReceptaclePrefab extends Prefab {
                   interactor.add(new UIComponent(dialog, true, interactor.id()));
                 })));
     return List.of(container);
+  }
+
+  // Links of the removed "Contents" slot are dropped from older levels.
+  @Override
+  protected boolean isLegacyPort(String key) {
+    return key.equals("contents");
   }
 
   @Override

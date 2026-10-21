@@ -40,9 +40,11 @@ public final class PrefabCatalog {
               "image-puzzle",
               "item-spawner",
               "item-receptacle",
+              "door-lock",
               "air-vent",
               "pushable-stone"),
-          new CategoryDefinition("Effects", "door-control", "dialog-trigger", "show-image"),
+          new CategoryDefinition(
+              "Effects", "door-control", "dialog-trigger", "show-image", "sound-effect"),
           new CategoryDefinition("Logic", "random-code", "random-bool", "random-text", "delay"),
           new CategoryDefinition("Visuals", "water", "shader", "level-hider"),
           new CategoryDefinition(
@@ -59,10 +61,12 @@ public final class PrefabCatalog {
           Map.entry("image-puzzle", () -> texture("items/puzzle-piece.png", null)),
           Map.entry("item-receptacle", () -> deco(Deco.Cabinet, null)),
           Map.entry("item-spawner", () -> texture("items/rpg/item_sack.png", null)),
+          Map.entry("door-lock", () -> texture("other/chain_lock.png", null)),
           Map.entry("air-vent", () -> deco(Deco.FloorBarsSmall, null)),
           Map.entry("pushable-stone", () -> texture("objects/push-stone.png", null)),
           Map.entry("door-control", () -> texture("dungeon/default/door/top_closed.png", null)),
           Map.entry("dialog-trigger", () -> texture("emotes/emote_dots3.png", null)),
+          Map.entry("sound-effect", () -> texture("emotes/emote_music.png", null)),
           Map.entry("show-image", () -> texture("items/rpg/item_paper_map.png", null)),
           Map.entry("water", () -> texture("items/rpg/item_bucket_wide_water.png", null)),
           Map.entry(
