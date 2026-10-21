@@ -17,11 +17,17 @@ import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
+import feature.inventory.items.HintItem;
+import feature.prefabs.ArtifactOutput;
+import feature.prefabs.ArtifactType;
 import feature.prefabs.ImagePuzzleSettings;
+import feature.prefabs.ItemArtifact;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
+import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PuzzlePiecePlacement;
@@ -32,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 /** Server-side image puzzle with configurable piece destinations and item identities. */
 public final class ImagePuzzlePrefab extends Prefab {
@@ -75,6 +82,14 @@ public final class ImagePuzzlePrefab extends Prefab {
           "Hint Item Description",
           "A picture revealed after completing the puzzle.",
           value -> !value.isBlank());
+
+  /** Raised when a player completed the puzzle, with the player as payload. */
+  public static final PrefabEvent<Entity> COMPLETED =
+      PrefabEvent.withPlayer("completed", "Completed");
+
+  /** The picture item granted for completing the puzzle, e.g. to require it in a receptacle. */
+  public static final ArtifactOutput<ItemArtifact> COMPLETION_ITEM =
+      ArtifactOutput.of("completion-item", "Completion Item", ArtifactType.ITEM);
 
   private static final List<PrefabProperty<?>> PROPERTIES =
       List.of(IMAGE, ITEM_NAME, ITEM_DESCRIPTION, HINT_ITEM_NAME, HINT_ITEM_DESCRIPTION, SETTINGS);
@@ -153,6 +168,11 @@ public final class ImagePuzzlePrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> declaredPorts() {
+    return List.of(COMPLETED, COMPLETION_ITEM);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     String imagePath = value(instance, IMAGE);
     ImagePuzzleSettings settings = value(instance, SETTINGS);
@@ -160,9 +180,20 @@ public final class ImagePuzzlePrefab extends Prefab {
     String itemDescription = value(instance, ITEM_DESCRIPTION);
     String hintItemName = value(instance, HINT_ITEM_NAME);
     String hintItemDescription = value(instance, HINT_ITEM_DESCRIPTION);
+    BiConsumer<Puzzle, Entity> onComplete =
+        (completed, solver) -> {
+          PuzzleMaker.defaultOnComplete().accept(completed, solver);
+          fire(context, instance, COMPLETED, solver);
+        };
     Puzzle puzzle =
         PuzzleMaker.makePuzzle(
-            new SimpleIPath(imagePath), settings.pieceCount(), null, settings.seed());
+            new SimpleIPath(imagePath), settings.pieceCount(), onComplete, settings.seed());
+    publish(
+        context,
+        instance,
+        COMPLETION_ITEM,
+        ItemArtifact.of(
+            new HintItem(new SimpleIPath(imagePath), hintItemName, hintItemDescription)));
 
     List<Entity> entities = new ArrayList<>(settings.pieceCount());
     for (int pieceIndex = 0; pieceIndex < settings.pieceCount(); pieceIndex++) {

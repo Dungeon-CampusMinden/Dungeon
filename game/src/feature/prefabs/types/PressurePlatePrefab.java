@@ -1,36 +1,45 @@
 package feature.prefabs.types;
 
-import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.level.elements.ILevel;
-import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
 import feature.entities.LeverFactory;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
+import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.utils.ICommand;
 import java.util.List;
 import java.util.Optional;
 
-/** Server-side pressure plate that opens its target door while pressed. */
+/**
+ * Server-side pressure plate that raises an event when it is pressed or released. Link {@link
+ * #PRESSED} and {@link #RELEASED} to e.g. {@link DoorControlPrefab#OPEN} and {@link
+ * DoorControlPrefab#CLOSE} to keep a door open while the plate is pressed.
+ */
 public final class PressurePlatePrefab extends Prefab {
+
+  private static final String TYPE = "pressure-plate";
+  private static final String DISPLAY_NAME = "Pressure Plate";
+
+  /** Raised when enough weight is on the plate. */
+  public static final PrefabEvent<Void> PRESSED = PrefabEvent.signal("pressed", "Pressed");
+
+  /** Raised when the weight on the plate dropped below the trigger mass. */
+  public static final PrefabEvent<Void> RELEASED = PrefabEvent.signal("released", "Released");
 
   public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0), new Point(0.5f, 0.5f));
-  public static final PrefabProperty<Point> DOOR_POSITION =
-      PrefabProperty.point("doorPosition", "Door Position", new Point(1, 0), new Point(0.5f, 0.5f));
+
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(POSITION);
 
   /** Creates the pressure-plate definition. */
   public PressurePlatePrefab() {
-    super(
-        "pressure-plate",
-        "Pressure Plate + Door",
-        PrefabSide.SERVER,
-        List.of(POSITION, DOOR_POSITION));
+    super(TYPE, DISPLAY_NAME, PrefabSide.SERVER, PROPERTIES);
   }
 
   /**
@@ -40,13 +49,7 @@ public final class PressurePlatePrefab extends Prefab {
    * @param name authored instance name
    */
   public PressurePlatePrefab(ILevel level, String name) {
-    super(
-        "pressure-plate",
-        "Pressure Plate + Door",
-        PrefabSide.SERVER,
-        List.of(POSITION, DOOR_POSITION),
-        level,
-        name);
+    super(TYPE, DISPLAY_NAME, PrefabSide.SERVER, PROPERTIES, level, name);
   }
 
   /**
@@ -59,10 +62,12 @@ public final class PressurePlatePrefab extends Prefab {
   }
 
   @Override
-  public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
-    Point doorPosition = value(instance, DOOR_POSITION);
-    doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
+  protected List<PrefabPort> declaredPorts() {
+    return List.of(PRESSED, RELEASED);
+  }
 
+  @Override
+  public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity plate = context.createEntity(instance.name());
     LeverFactory.pressurePlate(
         plate,
@@ -71,43 +76,22 @@ public final class PressurePlatePrefab extends Prefab {
         new ICommand() {
           @Override
           public void execute() {
-            doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
+            fire(context, instance, PRESSED, null);
           }
 
           @Override
           public void undo() {
-            doorAt(context.level(), doorPosition).ifPresent(DoorTile::close);
+            fire(context, instance, RELEASED, null);
           }
         });
     return List.of(plate);
   }
 
   @Override
-  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
-    Point doorPosition = value(instance, DOOR_POSITION);
-    if (!DoorPrefabSupport.hasOtherTarget(context.level(), doorPosition, instance)) {
-      doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
-    }
-  }
-
-  @Override
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point position = feedbackPoint(instance, POSITION);
-    Point doorPosition = feedbackPoint(instance, DOOR_POSITION);
-    boolean hasDoor = doorAt(level, value(instance, DOOR_POSITION)).isPresent();
-    feedback.point(position, instance.name());
-    feedback.point(doorPosition, hasDoor ? null : "Missing door");
-    feedback.line(position, doorPosition, true, hasDoor ? null : Color.RED);
-  }
-
-  private static Optional<DoorTile> doorAt(ILevel level, Point position) {
-    return level.tileAt(position).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
-  }
-
-  private Point feedbackPoint(PrefabInstance instance, PrefabProperty<Point> property) {
-    Point point = value(instance, property);
-    Point offset = property.editorFeedbackOffset();
-    return point.translate(offset.x(), offset.y());
+    Point position = value(instance, POSITION);
+    Point offset = POSITION.editorFeedbackOffset();
+    feedback.point(position.translate(offset.x(), offset.y()), instance.name());
   }
 }

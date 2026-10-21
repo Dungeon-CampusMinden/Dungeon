@@ -206,6 +206,27 @@ public class LeverFactory {
   }
 
   /**
+   * Configures a supplied entity as a torch that runs a command when it is lit or extinguished.
+   *
+   * @param torch the entity to configure
+   * @param pos the position where the torch will be created
+   * @param onToggle executed when the torch is lit, undone when it is extinguished
+   * @param initiallyOn whether the torch starts lit
+   * @param toggleable whether players can toggle the torch
+   * @param toggleOnce whether players can toggle the torch only once
+   * @return the configured torch entity
+   */
+  public static Entity createTorch(
+      Entity torch,
+      Point pos,
+      ICommand onToggle,
+      boolean initiallyOn,
+      boolean toggleable,
+      boolean toggleOnce) {
+    return createLever(torch, pos, onToggle, TORCH_PATH, initiallyOn, toggleable, toggleOnce);
+  }
+
+  /**
    * Configures a supplied entity as a torch with an authored initial state and no-op command.
    *
    * @param torch entity to configure

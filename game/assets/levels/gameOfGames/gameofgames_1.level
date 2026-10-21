@@ -1,5 +1,5 @@
 {
-  "version" : 3,
+  "version" : 5,
   "design" : "DEFAULT",
   "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSSSSSSSSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
@@ -15,33 +15,60 @@
   "decorations" : [ ],
   "prefabs" : [ {
     "name" : "r1/keypad-1",
-    "type" : "door-keypad",
+    "type" : "keypad",
     "properties" : {
-      "keypadPosition" : {
+      "position" : {
         "x" : 18.0,
         "y" : 13.0
       },
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
-      },
       "code" : "1234",
       "showDigitCount" : true
+    },
+    "inputs" : {
+      "code" : [ {
+        "source" : "r1/random-code",
+        "port" : "code"
+      } ]
     }
   }, {
     "name" : "r1/keypad-2",
-    "type" : "door-keypad",
+    "type" : "keypad",
     "properties" : {
-      "keypadPosition" : {
+      "position" : {
         "x" : 11.0,
         "y" : 13.0
       },
+      "code" : "123",
+      "showDigitCount" : true
+    }
+  }, {
+    "name" : "r1/door-7-10",
+    "type" : "door-control",
+    "properties" : {
       "doorPosition" : {
         "x" : 7.0,
         "y" : 10.0
       },
-      "code" : "123",
-      "showDigitCount" : true
+      "closedAtStart" : true
+    },
+    "inputs" : {
+      "open" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      }, {
+        "source" : "r1/keypad-2",
+        "port" : "correct-code"
+      }, {
+        "source" : "r1/door-lever-2",
+        "port" : "switched-on"
+      }, {
+        "source" : "door-text-keypad",
+        "port" : "correct-answer"
+      } ],
+      "close" : [ {
+        "source" : "r1/door-lever-2",
+        "port" : "switched-off"
+      } ]
     }
   }, {
     "name" : "r1/torch",
@@ -88,9 +115,16 @@
           "y" : 8.0
         }
       },
-      "text" : "Hello.",
+      "text" : "Hello. The code is {random-code}.",
       "translate" : false,
       "repetition" : "Once globally"
+    },
+    "inputs" : {
+      "values" : [ {
+        "source" : "r1/random-code",
+        "port" : "code",
+        "alias" : "random-code"
+      } ]
     }
   }, {
     "name" : "r1/dl-fire",
@@ -152,33 +186,65 @@
     }
   }, {
     "name" : "r1/door-lever-1",
-    "type" : "door-lever",
+    "type" : "lever",
     "properties" : {
-      "leverPosition" : {
+      "position" : {
         "x" : 18.0,
         "y" : 11.0
       },
+      "revertable" : true
+    },
+    "active" : false,
+    "inputs" : {
+      "activate" : [ {
+        "source" : "r1/keypad-2",
+        "port" : "correct-code"
+      }, {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      } ]
+    }
+  }, {
+    "name" : "r1/door-lever-2",
+    "type" : "lever",
+    "properties" : {
+      "position" : {
+        "x" : 11.0,
+        "y" : 10.0
+      },
+      "revertable" : true
+    }
+  }, {
+    "name" : "r1/door-22-10",
+    "type" : "door-control",
+    "properties" : {
       "doorPosition" : {
         "x" : 22.0,
         "y" : 10.0
       },
-      "open" : false,
-      "revertable" : true
-    }
-  }, {
-    "name" : "r1/door-lever-2",
-    "type" : "door-lever",
-    "properties" : {
-      "leverPosition" : {
-        "x" : 11.0,
-        "y" : 10.0
-      },
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
-      },
-      "open" : false,
-      "revertable" : true
+      "closedAtStart" : true
+    },
+    "inputs" : {
+      "open" : [ {
+        "source" : "r1/door-lever-1",
+        "port" : "switched-on"
+      }, {
+        "source" : "r2/pressure-plate",
+        "port" : "pressed"
+      }, {
+        "source" : "item-receptacle",
+        "port" : "required-item-placed"
+      } ],
+      "close" : [ {
+        "source" : "r1/door-lever-1",
+        "port" : "switched-off"
+      }, {
+        "source" : "r2/pressure-plate",
+        "port" : "released"
+      }, {
+        "source" : "item-receptacle",
+        "port" : "required-item-removed"
+      } ]
     }
   }, {
     "name" : "r1/highlight-1",
@@ -188,12 +254,12 @@
       "isLevel" : false,
       "region" : {
         "bottomLeft" : {
-          "x" : 12.75,
-          "y" : 7.75
+          "x" : 5.75,
+          "y" : 0.0
         },
         "topRight" : {
-          "x" : 15.25,
-          "y" : 9.75
+          "x" : 24.25,
+          "y" : 13.75
         }
       },
       "shader" : {
@@ -206,6 +272,13 @@
           "invert" : false
         }
       }
+    },
+    "active" : false,
+    "inputs" : {
+      "activate" : [ {
+        "source" : "item-receptacle",
+        "port" : "required-item-placed"
+      } ]
     }
   }, {
     "name" : "r1/highlight-2",
@@ -260,6 +333,17 @@
       }
     }
   }, {
+    "name" : "r1/random-code",
+    "type" : "random-code",
+    "properties" : {
+      "position" : {
+        "x" : 19.0,
+        "y" : 14.0
+      },
+      "length" : 4,
+      "seed" : ""
+    }
+  }, {
     "name" : "r2/stone-3",
     "type" : "pushable-stone",
     "properties" : {
@@ -293,10 +377,6 @@
       "position" : {
         "x" : 25.0,
         "y" : 9.0
-      },
-      "doorPosition" : {
-        "x" : 22.0,
-        "y" : 10.0
       }
     }
   }, {
@@ -615,15 +695,11 @@
     }
   }, {
     "name" : "door-text-keypad",
-    "type" : "door-text-keypad",
+    "type" : "text-keypad",
     "properties" : {
-      "keypadPosition" : {
+      "position" : {
         "x" : 9.0,
         "y" : 13.0
-      },
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
       },
       "acceptedAnswers" : "OPEN"
     }
@@ -669,6 +745,34 @@
           "deco" : "BookshelfLarge"
         } ]
       }
+    }
+  }, {
+    "name" : "door-control",
+    "type" : "door-control",
+    "properties" : {
+      "doorPosition" : {
+        "x" : 22.0,
+        "y" : 10.0
+      },
+      "closedAtStart" : true
+    }
+  }, {
+    "name" : "item-receptacle",
+    "type" : "item-receptacle",
+    "properties" : {
+      "position" : {
+        "x" : 20.1875,
+        "y" : 6.1875
+      },
+      "deco" : "Printer",
+      "title" : "Container",
+      "consume" : false
+    },
+    "inputs" : {
+      "required-item" : [ {
+        "source" : "image-puzzle",
+        "port" : "completion-item"
+      } ]
     }
   } ]
 }

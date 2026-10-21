@@ -8,11 +8,15 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
 import feature.hud.dialogs.DialogFactory;
+import feature.prefabs.ArtifactSlot;
+import feature.prefabs.ArtifactType;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.Region;
@@ -29,7 +33,19 @@ public final class DialogTriggerPrefab extends Prefab {
   /**
    * Raised on the server when a player finished or closed the dialog, with the player as payload.
    */
-  public static final PrefabEvent<Entity> DIALOG_FINISHED = new PrefabEvent<>("dialog-finished");
+  public static final PrefabEvent<Entity> DIALOG_FINISHED =
+      PrefabEvent.withPlayer("dialog-finished", "Dialog Finished");
+
+  /** Shows the dialog to the player that caused the triggering event. */
+  public static final PrefabAction SHOW_DIALOG =
+      PrefabAction.forPlayer(
+          "show-dialog",
+          "Show Dialog",
+          context -> {
+            for (Entity player : context.players()) {
+              showDialog(context.creationContext(), context.instance(), player);
+            }
+          });
 
   private static final String TYPE = "dialog-trigger";
   public static final PrefabProperty<Region> REGION =
@@ -39,6 +55,11 @@ public final class DialogTriggerPrefab extends Prefab {
   public static final PrefabProperty<Boolean> TRANSLATE =
       PrefabProperty.bool("translate", "Translate", false);
   public static final PrefabProperty<String> REPETITION = DialogRepetition.property();
+
+  /** Values shown in the dialog script through {@code {alias}} placeholders. */
+  public static final ArtifactSlot<String> VALUES =
+      ArtifactSlot.multiple("values", "Placeholder Values", ArtifactType.TEXT)
+          .withPlaceholdersIn(TEXT);
 
   /** Creates the dialog-trigger definition. */
   public DialogTriggerPrefab() {
@@ -81,14 +102,17 @@ public final class DialogTriggerPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> declaredPorts() {
+    return List.of(DIALOG_FINISHED, SHOW_DIALOG, VALUES);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Region region = value(instance, REGION);
     Point bottomLeft = region.bottomLeft();
     Point topRight = region.topRight();
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();
-    String text = value(instance, TEXT);
-    boolean translate = value(instance, TRANSLATE);
     DialogRepetition repetition = DialogRepetition.fromLabel(value(instance, REPETITION));
     TriggerState state = new TriggerState();
 
@@ -107,15 +131,21 @@ public final class DialogTriggerPrefab extends Prefab {
                       && !state.players.add(who)) {
                     return;
                   }
-                  DialogFactory.showDialogDialog(
-                      text,
-                      translate,
-                      PrefabDialogs.once(() -> fire(context, instance, DIALOG_FINISHED, who)),
-                      who.id());
+                  showDialog(context, instance, who);
                 },
                 CollideComponent.DEFAULT_COLLIDER)
             .isSolid(false));
     return List.of(trigger);
+  }
+
+  private static void showDialog(
+      PrefabCreationContext context, PrefabInstance instance, Entity who) {
+    DialogFactory.showDialogDialog(
+        instance.get(TEXT),
+        instance.get(TRANSLATE),
+        PrefabDialogs.placeholders(input(context, instance, VALUES)),
+        PrefabDialogs.once(() -> fire(context, instance, DIALOG_FINISHED, who)),
+        who.id());
   }
 
   @Override

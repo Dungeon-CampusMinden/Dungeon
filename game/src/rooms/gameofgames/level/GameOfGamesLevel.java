@@ -21,10 +21,13 @@ import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabLink;
+import feature.prefabs.PrefabWiring;
 import feature.prefabs.Region;
-import feature.prefabs.types.DoorKeypadPrefab;
-import feature.prefabs.types.DoorLeverPrefab;
+import feature.prefabs.types.DoorControlPrefab;
 import feature.prefabs.types.InvisibleWallPrefab;
+import feature.prefabs.types.KeypadPrefab;
+import feature.prefabs.types.LeverPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
 import feature.prefabs.types.WaterPrefab;
@@ -32,6 +35,8 @@ import feature.shader.ShaderComponent;
 import feature.shader.ShaderSystem;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import rooms.gameofgames.canvas.GameOfGamesCanvas;
 
 /** Server-side level setup for the Game of Games escape room. */
@@ -45,6 +50,7 @@ public class GameOfGamesLevel extends DungeonLevel {
   private static final Point FLOOD_TRIGGER_TILE = new Point(5, 7);
   private static final String FLOOD_LEVER = "r1/door-lever-2";
   private static final String FLOOD_KEYPAD = "r1/keypad-2";
+  private static final String FLOOD_PLATE = "r1/flood-plate";
   private static final Region FLOOD_REGION = new Region(new Point(2, 1), new Point(5, 6));
 
   private Entity floodTrigger;
@@ -174,22 +180,27 @@ public class GameOfGamesLevel extends DungeonLevel {
     floodDone = true;
     Game.remove(floodTrigger);
 
-    Point doorPosition =
-        prefab(DoorLeverPrefab.class, FLOOD_LEVER)
-            .flatMap(Prefab::currentInstance)
-            .map(lever -> lever.get(DoorLeverPrefab.DOOR_POSITION))
-            .orElse(null);
-    prefab(DoorLeverPrefab.class, FLOOD_LEVER).ifPresent(Prefab::remove);
-    prefab(DoorKeypadPrefab.class, FLOOD_KEYPAD).ifPresent(Prefab::remove);
+    Optional<DoorControlPrefab> door = doorControlledBy(FLOOD_LEVER);
+    prefab(LeverPrefab.class, FLOOD_LEVER).ifPresent(Prefab::remove);
+    prefab(KeypadPrefab.class, FLOOD_KEYPAD).ifPresent(Prefab::remove);
 
-    if (doorPosition != null) {
+    if (door.isPresent()) {
       spawnPrefab(
           PressurePlatePrefab.class,
-          "r1/flood-plate",
-          plate ->
-              plate
-                  .with(PressurePlatePrefab.POSITION, new Point(4, 11))
-                  .with(PressurePlatePrefab.DOOR_POSITION, doorPosition));
+          FLOOD_PLATE,
+          plate -> plate.with(PressurePlatePrefab.POSITION, new Point(4, 11)));
+      // Respawning the door control closes the door until the plate is pressed.
+      door.get()
+          .update(
+              control ->
+                  PrefabWiring.removeLinksTo(List.of(control), Set.of(FLOOD_LEVER, FLOOD_KEYPAD))
+                      .getFirst()
+                      .withLink(
+                          DoorControlPrefab.OPEN.key(),
+                          new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.PRESSED.key()))
+                      .withLink(
+                          DoorControlPrefab.CLOSE.key(),
+                          new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.RELEASED.key())));
     }
     spawnPrefab(
         PushableStonePrefab.class,
@@ -212,5 +223,16 @@ public class GameOfGamesLevel extends DungeonLevel {
         InvisibleWallPrefab.class,
         "r1/flood-wall",
         wall -> wall.with(InvisibleWallPrefab.REGION, FLOOD_REGION));
+  }
+
+  private Optional<DoorControlPrefab> doorControlledBy(String source) {
+    return prefabs(DoorControlPrefab.class).stream()
+        .filter(
+            control ->
+                control.currentInstance().stream()
+                    .flatMap(instance -> instance.inputs().values().stream())
+                    .flatMap(List::stream)
+                    .anyMatch(link -> link.source().equals(source)))
+        .findFirst();
   }
 }

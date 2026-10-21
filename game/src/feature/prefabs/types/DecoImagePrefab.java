@@ -11,10 +11,12 @@ import feature.entities.deco.DecoFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.systems.PositionSync;
@@ -33,7 +35,19 @@ import java.util.function.Consumer;
 public final class DecoImagePrefab extends Prefab {
 
   /** Raised on the server when a player closed the image, with the player as payload. */
-  public static final PrefabEvent<Entity> IMAGE_CLOSED = new PrefabEvent<>("image-closed");
+  public static final PrefabEvent<Entity> IMAGE_CLOSED =
+      PrefabEvent.withPlayer("image-closed", "Image Closed");
+
+  /** Shows the image to the player that caused the triggering event. */
+  public static final PrefabAction SHOW_IMAGE =
+      PrefabAction.forPlayer(
+          "show-image",
+          "Show Image",
+          context -> {
+            for (Entity player : context.players()) {
+              showImage(context.creationContext(), context.instance(), player);
+            }
+          });
 
   private static final float INTERACTION_RADIUS = 1.5f;
   public static final PrefabProperty<Point> POSITION =
@@ -106,6 +120,11 @@ public final class DecoImagePrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> declaredPorts() {
+    return List.of(IMAGE_CLOSED, SHOW_IMAGE);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity deco = context.createEntity(instance.name());
     DecoFactory.createDeco(deco, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
@@ -115,15 +134,17 @@ public final class DecoImagePrefab extends Prefab {
     position.scale(value(instance, SCALE));
     PositionSync.syncPosition(deco);
 
-    String image = value(instance, IMAGE);
     deco.add(
         new InteractionComponent(
             new Interaction(
-                (entity, who) ->
-                    PrefabDialogs.showImage(
-                        image, who, () -> fire(context, instance, IMAGE_CLOSED, who)),
-                INTERACTION_RADIUS)));
+                (entity, who) -> showImage(context, instance, who), INTERACTION_RADIUS)));
     return List.of(deco);
+  }
+
+  private static void showImage(
+      PrefabCreationContext context, PrefabInstance instance, Entity who) {
+    PrefabDialogs.showImage(
+        instance.get(IMAGE), who, () -> fire(context, instance, IMAGE_CLOSED, who));
   }
 
   @Override

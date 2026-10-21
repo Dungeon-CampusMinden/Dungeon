@@ -11,11 +11,15 @@ import feature.entities.deco.DecoFactory;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.prefabs.ArtifactSlot;
+import feature.prefabs.ArtifactType;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.systems.PositionSync;
@@ -33,7 +37,19 @@ public final class DecoDialogPrefab extends Prefab {
   /**
    * Raised on the server when a player finished or closed the dialog, with the player as payload.
    */
-  public static final PrefabEvent<Entity> DIALOG_FINISHED = new PrefabEvent<>("dialog-finished");
+  public static final PrefabEvent<Entity> DIALOG_FINISHED =
+      PrefabEvent.withPlayer("dialog-finished", "Dialog Finished");
+
+  /** Shows the dialog to the player that caused the triggering event. */
+  public static final PrefabAction SHOW_DIALOG =
+      PrefabAction.forPlayer(
+          "show-dialog",
+          "Show Dialog",
+          context -> {
+            for (Entity player : context.players()) {
+              showDialog(context.creationContext(), context.instance(), player);
+            }
+          });
 
   private static final float INTERACTION_RADIUS = 1.5f;
   public static final PrefabProperty<Point> POSITION =
@@ -51,6 +67,11 @@ public final class DecoDialogPrefab extends Prefab {
   public static final PrefabProperty<Boolean> TRANSLATE =
       PrefabProperty.bool("translate", "Translate", false);
   public static final PrefabProperty<String> REPETITION = DialogRepetition.property();
+
+  /** Values shown in the dialog script through {@code {alias}} placeholders. */
+  public static final ArtifactSlot<String> VALUES =
+      ArtifactSlot.multiple("values", "Placeholder Values", ArtifactType.TEXT)
+          .withPlaceholdersIn(TEXT);
 
   /** Creates the decoration-dialog definition. */
   public DecoDialogPrefab() {
@@ -105,6 +126,11 @@ public final class DecoDialogPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> declaredPorts() {
+    return List.of(DIALOG_FINISHED, SHOW_DIALOG, VALUES);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity deco = context.createEntity(instance.name());
     DecoFactory.createDeco(deco, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
@@ -114,8 +140,6 @@ public final class DecoDialogPrefab extends Prefab {
     position.scale(value(instance, SCALE));
     PositionSync.syncPosition(deco);
 
-    String dialog = value(instance, TEXT);
-    boolean translate = value(instance, TRANSLATE);
     DialogRepetition repetition = DialogRepetition.fromLabel(value(instance, REPETITION));
     Set<Entity> players = Collections.newSetFromMap(new IdentityHashMap<>());
     InteractionComponent interaction =
@@ -123,11 +147,7 @@ public final class DecoDialogPrefab extends Prefab {
             new Interaction(
                 (entity, who) -> {
                   if (repetition == DialogRepetition.ONCE_PER_PLAYER && !players.add(who)) return;
-                  DialogFactory.showDialogDialog(
-                      dialog,
-                      translate,
-                      PrefabDialogs.once(() -> fire(context, instance, DIALOG_FINISHED, who)),
-                      who.id());
+                  showDialog(context, instance, who);
                   if (repetition == DialogRepetition.ONCE_GLOBALLY) {
                     entity.remove(InteractionComponent.class);
                   }
@@ -135,6 +155,16 @@ public final class DecoDialogPrefab extends Prefab {
                 INTERACTION_RADIUS));
     deco.add(interaction);
     return List.of(deco);
+  }
+
+  private static void showDialog(
+      PrefabCreationContext context, PrefabInstance instance, Entity who) {
+    DialogFactory.showDialogDialog(
+        instance.get(TEXT),
+        instance.get(TRANSLATE),
+        PrefabDialogs.placeholders(input(context, instance, VALUES)),
+        PrefabDialogs.once(() -> fire(context, instance, DIALOG_FINISHED, who)),
+        who.id());
   }
 
   @Override

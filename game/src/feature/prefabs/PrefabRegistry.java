@@ -7,15 +7,18 @@ import feature.prefabs.types.DecoDialogPrefab;
 import feature.prefabs.types.DecoImagePrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.prefabs.types.DialogTriggerPrefab;
-import feature.prefabs.types.DoorKeypadPrefab;
-import feature.prefabs.types.DoorLeverPrefab;
-import feature.prefabs.types.DoorTextKeypadPrefab;
+import feature.prefabs.types.DoorControlPrefab;
 import feature.prefabs.types.ImagePuzzlePrefab;
 import feature.prefabs.types.InvisibleWallPrefab;
+import feature.prefabs.types.ItemReceptaclePrefab;
+import feature.prefabs.types.KeypadPrefab;
 import feature.prefabs.types.LevelHiderPrefab;
+import feature.prefabs.types.LeverPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
+import feature.prefabs.types.RandomCodePrefab;
 import feature.prefabs.types.ShaderPrefab;
+import feature.prefabs.types.TextKeypadPrefab;
 import feature.prefabs.types.TorchPrefab;
 import feature.prefabs.types.WaterPrefab;
 import java.util.Collection;
@@ -33,8 +36,8 @@ public final class PrefabRegistry {
       new LinkedHashMap<>();
 
   static {
-    register(new DoorKeypadPrefab(), DoorKeypadPrefab::new);
-    register(new DoorTextKeypadPrefab(), DoorTextKeypadPrefab::new);
+    register(new KeypadPrefab(), KeypadPrefab::new);
+    register(new TextKeypadPrefab(), TextKeypadPrefab::new);
     register(new ImagePuzzlePrefab(), ImagePuzzlePrefab::new);
     register(new AvailableCharacterPrefab(), AvailableCharacterPrefab::new);
     register(new BookshelfImagePrefab(), BookshelfImagePrefab::new);
@@ -42,7 +45,7 @@ public final class PrefabRegistry {
         new LevelHiderPrefab(),
         (level, name) -> ((Prefab) new LevelHiderPrefab()).bind(level, name));
     register(new DesignLabelRegionPrefab(), DesignLabelRegionPrefab::new);
-    register(new DoorLeverPrefab(), DoorLeverPrefab::new);
+    register(new LeverPrefab(), LeverPrefab::new);
     register(new DecoDialogPrefab(), DecoDialogPrefab::new);
     register(new ShaderPrefab(), ShaderPrefab::new);
     register(new WaterPrefab(), WaterPrefab::new);
@@ -52,6 +55,9 @@ public final class PrefabRegistry {
     register(new TorchPrefab(), TorchPrefab::new);
     register(new DecoImagePrefab(), DecoImagePrefab::new);
     register(new InvisibleWallPrefab(), InvisibleWallPrefab::new);
+    register(new DoorControlPrefab(), DoorControlPrefab::new);
+    register(new RandomCodePrefab(), RandomCodePrefab::new);
+    register(new ItemReceptaclePrefab(), ItemReceptaclePrefab::new);
   }
 
   private PrefabRegistry() {}

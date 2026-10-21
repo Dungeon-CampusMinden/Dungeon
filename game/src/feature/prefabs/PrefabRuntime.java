@@ -1,15 +1,19 @@
 package feature.prefabs;
 
+import engine.Entity;
 import engine.Game;
 import engine.game.PreRunConfiguration;
 import engine.level.DungeonLevel;
 import engine.level.elements.ILevel;
 import engine.network.messages.s2c.PrefabChangeMessage;
 import engine.utils.logging.DungeonLogger;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import tools.jackson.databind.JsonNode;
@@ -33,6 +37,10 @@ public final class PrefabRuntime {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(PrefabRuntime.class);
   private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final int MAX_CHAIN_LENGTH = 32;
+
+  // Actions currently running, innermost last. Used to stop actions from triggering themselves.
+  private static Deque<String> actionChain = new ArrayDeque<>();
 
   private PrefabRuntime() {}
 
@@ -176,8 +184,12 @@ public final class PrefabRuntime {
   }
 
   /**
-   * Notifies the listeners of an instance about an event. Failing listeners are logged and do not
-   * stop the others.
+   * Raises an event of an instance: notifies its listeners and runs the actions linked to it.
+   *
+   * <p>Failing listeners and actions are logged and do not stop the others. Linked actions only run
+   * where the game has authority, i.e. on the server or in singleplayer. While prefabs are being
+   * spawned, linked actions are delayed until spawning finished, so they can reach instances that
+   * are spawned later.
    *
    * @param level owning level
    * @param name instance name
@@ -194,6 +206,205 @@ public final class PrefabRuntime {
         LOGGER.error("Prefab listener for '" + name + "' (" + event + ") failed", e);
       }
     }
+    if (Game.isMultiplayerClient()) return;
+    Optional<Entity> player = event.player(payload);
+    List<PrefabWiring.Connection> targets =
+        PrefabWiring.outgoing(level.activePrefabs(), name, event.key()).stream()
+            .filter(connection -> connection.input().kind() == PrefabPort.Kind.ACTION)
+            .toList();
+    for (PrefabWiring.Connection target : targets) {
+      dungeonLevel.prefabRuntimeState().recordSignal(signalKey(target));
+      runAction(level, target.receiver().name(), target.input().key(), player);
+    }
+  }
+
+  /**
+   * Runs an action of an instance, as if a linked event was raised.
+   *
+   * <p>Lifecycle actions also run for inactive instances, other actions are ignored while the
+   * instance is inactive. An action that is reached again while it is still running, e.g. through
+   * two prefabs triggering each other, is not run again and the loop is logged.
+   *
+   * @param level current level
+   * @param name name of the receiving instance
+   * @param action key of the action
+   * @param player player that caused the action, if any
+   * @return true if the instance and action exist and the action was run or scheduled
+   */
+  public static boolean runAction(
+      ILevel level, String name, String action, Optional<Entity> player) {
+    if (Game.isMultiplayerClient()) {
+      throw new IllegalStateException("Prefab actions can only be run on the server");
+    }
+    if (find(level, name).isEmpty()) return false;
+    if (level instanceof DungeonLevel dungeonLevel) {
+      dungeonLevel.prefabRuntimeState().recordSignal(name + "#" + action);
+    }
+    if (PrefabSpawner.isBatching()) {
+      Deque<String> chain = new ArrayDeque<>(actionChain);
+      PrefabSpawner.afterChanges(
+          new Object(),
+          () -> {
+            Deque<String> outer = actionChain;
+            actionChain = chain;
+            try {
+              runActionNow(level, name, action, player);
+            } finally {
+              actionChain = outer;
+            }
+          });
+      return true;
+    }
+    return runActionNow(level, name, action, player);
+  }
+
+  private static boolean runActionNow(
+      ILevel level, String name, String actionKey, Optional<Entity> player) {
+    Optional<PrefabInstance> current = find(level, name);
+    if (current.isEmpty()) return false;
+    Prefab prefab = PrefabRegistry.require(current.get().type());
+    if (!(prefab.port(actionKey).orElse(null) instanceof PrefabAction action)) return false;
+    String step = name + "." + actionKey;
+    if (actionChain.contains(step) || actionChain.size() >= MAX_CHAIN_LENGTH) {
+      LOGGER.error(
+          "Stopped prefab action loop: " + String.join(" -> ", actionChain) + " -> " + step);
+      return false;
+    }
+    actionChain.addLast(step);
+    try {
+      PrefabInstance instance = prefab.normalize(current.get());
+      if (action == Prefab.ACTIVATE) {
+        if (!instance.active()) update(level, name, i -> i.withActive(true));
+      } else if (action == Prefab.DEACTIVATE) {
+        if (instance.active()) update(level, name, i -> i.withActive(false));
+      } else if (action == Prefab.RESET) {
+        if (instance.active()) reset(level, name);
+      } else if (instance.active()) {
+        action.run(new ActionContext(level, prefab, instance, player));
+      }
+      return true;
+    } catch (RuntimeException e) {
+      LOGGER.error("Prefab action '" + step + "' failed", e);
+      return false;
+    } finally {
+      actionChain.removeLast();
+    }
+  }
+
+  /**
+   * Returns the identity of a link used for {@link PrefabRuntimeState#recordSignal}.
+   *
+   * @param connection link and its receiver
+   * @return signal key
+   */
+  public static String signalKey(PrefabWiring.Connection connection) {
+    return connection.receiver().name()
+        + "#"
+        + connection.input().key()
+        + "<"
+        + connection.link().source()
+        + "#"
+        + connection.link().port();
+  }
+
+  /**
+   * Publishes the value of an artifact output and notifies the linked consumers.
+   *
+   * @param level owning level
+   * @param name name of the producing instance
+   * @param output artifact output of the producer's type
+   * @param value produced value
+   * @param <T> value type
+   */
+  public static <T> void publish(ILevel level, String name, ArtifactOutput<T> output, T value) {
+    Objects.requireNonNull(value, "value");
+    if (!(level instanceof DungeonLevel dungeonLevel)) return;
+    dungeonLevel.prefabRuntimeState().putArtifact(name, output.key(), value);
+    notifyArtifactConsumers(level, name, output.key());
+  }
+
+  /**
+   * Returns the value an instance currently publishes on an artifact output.
+   *
+   * @param level owning level
+   * @param name name of the producing instance
+   * @param output artifact output of the producer's type
+   * @param <T> value type
+   * @return the value, if published
+   */
+  public static <T> Optional<T> artifact(ILevel level, String name, ArtifactOutput<T> output) {
+    if (!(level instanceof DungeonLevel dungeonLevel)) return Optional.empty();
+    Object value = dungeonLevel.prefabRuntimeState().artifact(name, output.key());
+    return output.type().convert(value, output.type());
+  }
+
+  /**
+   * Resolves the current value of a link into an artifact slot.
+   *
+   * @param level owning level
+   * @param link link stored on the consumer
+   * @param slot slot of the consumer
+   * @param <T> value type
+   * @return the converted value, or empty if it is not available or not accepted
+   */
+  static <T> Optional<T> artifactValue(ILevel level, PrefabLink link, ArtifactSlot<T> slot) {
+    if (!(level instanceof DungeonLevel dungeonLevel)) return Optional.empty();
+    Optional<PrefabPort> port = PrefabWiring.outputPort(level.activePrefabs(), link);
+    if (port.isEmpty() || !(port.get() instanceof ArtifactOutput<?> output)) {
+      return Optional.empty();
+    }
+    Object raw = dungeonLevel.prefabRuntimeState().artifact(link.source(), link.port());
+    Optional<T> value = output.type().convert(raw, slot.type());
+    if (value.isPresent() && !slot.accepts(value.get())) {
+      LOGGER.debug(
+          "Artifact "
+              + link
+              + " is not accepted by slot '"
+              + slot.key()
+              + "': "
+              + slot.validationMessage().orElse("invalid value"));
+      return Optional.empty();
+    }
+    return value;
+  }
+
+  static void listenToArtifacts(ILevel level, String consumer, Runnable listener) {
+    if (level instanceof DungeonLevel dungeonLevel) {
+      dungeonLevel.prefabRuntimeState().addArtifactListener(consumer, listener);
+    }
+  }
+
+  /**
+   * Drops the published values and artifact listeners of a despawned instance.
+   *
+   * @param level owning level
+   * @param name name of the despawned instance
+   */
+  static void despawned(ILevel level, String name) {
+    if (!(level instanceof DungeonLevel dungeonLevel)) return;
+    PrefabRuntimeState state = dungeonLevel.prefabRuntimeState();
+    state.clearArtifactListeners(name);
+    if (state.clearArtifacts(name)) notifyArtifactConsumers(level, name, null);
+  }
+
+  private static void notifyArtifactConsumers(ILevel level, String name, String port) {
+    if (!(level instanceof DungeonLevel dungeonLevel)) return;
+    PrefabRuntimeState state = dungeonLevel.prefabRuntimeState();
+    Set<String> consumers = new LinkedHashSet<>();
+    for (PrefabWiring.Connection connection : PrefabWiring.outgoing(level.activePrefabs(), name)) {
+      if (connection.input().kind() != PrefabPort.Kind.ARTIFACT_SLOT) continue;
+      if (port != null && !connection.link().port().equals(port)) continue;
+      consumers.add(connection.receiver().name());
+    }
+    for (String consumer : consumers) {
+      for (Runnable listener : state.artifactListeners(consumer)) {
+        try {
+          listener.run();
+        } catch (RuntimeException e) {
+          LOGGER.error("Artifact listener of '" + consumer + "' failed", e);
+        }
+      }
+    }
   }
 
   /**
@@ -208,16 +419,13 @@ public final class PrefabRuntime {
     PrefabSide[] sides = PrefabSide.localSides();
     switch (message.action()) {
       case PUT -> {
-        Map<String, JsonNode> properties = new LinkedHashMap<>();
-        if (!message.propertiesJson().isEmpty()) {
-          MAPPER
-              .readTree(message.propertiesJson())
-              .properties()
-              .forEach(entry -> properties.put(entry.getKey(), entry.getValue()));
+        JsonNode record = MAPPER.readTree(message.instanceJson());
+        if (!(record instanceof ObjectNode object)) {
+          throw new IllegalArgumentException("Prefab change record must be a JSON object");
         }
         PrefabInstance instance =
-            PrefabRegistry.require(message.type())
-                .normalize(new PrefabInstance(message.name(), message.type(), properties));
+            PrefabInstanceCodec.decode(
+                object, warning -> LOGGER.warn(message.name() + ": " + warning));
         putLocally(level, instance, sides);
       }
       case REMOVE -> find(level, message.name()).ifPresent(i -> removeLocally(level, i, sides));
@@ -227,14 +435,12 @@ public final class PrefabRuntime {
 
   private static void put(ILevel level, PrefabInstance instance) {
     putLocally(level, instance, PrefabSide.localSides());
-    ObjectNode properties = MAPPER.createObjectNode();
-    instance.properties().forEach(properties::set);
     broadcast(
         new PrefabChangeMessage(
             PrefabChangeMessage.Action.PUT,
             instance.name(),
             instance.type(),
-            MAPPER.writeValueAsString(properties)));
+            MAPPER.writeValueAsString(PrefabInstanceCodec.encode(MAPPER, instance))));
   }
 
   private static void putLocally(ILevel level, PrefabInstance instance, PrefabSide[] sides) {

@@ -59,8 +59,40 @@ public final class PrefabInstanceList extends Table {
    * @param id unique item ID
    * @param name instance name
    * @param label displayed text
+   * @param badges short status texts shown at the end of the entry
    */
-  public record Entry(String id, String name, String label) implements Item {}
+  public record Entry(String id, String name, String label, List<Badge> badges) implements Item {
+    /**
+     * Creates an entry with an immutable badge list.
+     *
+     * @param id unique item ID
+     * @param name instance name
+     * @param label displayed text
+     * @param badges short status texts shown at the end of the entry
+     */
+    public Entry {
+      badges = List.copyOf(badges);
+    }
+
+    /**
+     * Creates an entry without badges.
+     *
+     * @param id unique item ID
+     * @param name instance name
+     * @param label displayed text
+     */
+    public Entry(String id, String name, String label) {
+      this(id, name, label, List.of());
+    }
+  }
+
+  /**
+   * Short status text of an entry, e.g. that the instance is inactive.
+   *
+   * @param text displayed text
+   * @param color text color
+   */
+  public record Badge(String text, Color color) {}
 
   /**
    * A group of items.
@@ -310,6 +342,12 @@ public final class PrefabInstanceList extends Table {
     button.getLabel().setAlignment(Align.left);
     button.getLabel().setEllipsis(true);
     button.getLabelCell().growX().minWidth(0f);
+    for (Badge badge : entry.badges()) {
+      button
+          .add(Scene2dElementFactory.createLabel(badge.text(), FONT_SIZE - 2, badge.color()))
+          .padLeft(4f)
+          .padRight(2f);
+    }
     button.addListener(
         new ChangeListener() {
           @Override

@@ -46,9 +46,9 @@ public final class PrefabSpawner {
   public static void spawn(ILevel level, PrefabSide side) {
     batch(
         () -> {
-          for (PrefabInstance source : level.activePrefabs()) {
+          for (PrefabInstance source : PrefabWiring.spawnOrder(level.activePrefabs())) {
             Prefab prefab = PrefabRegistry.require(source.type());
-            if (prefab.side() != side) continue;
+            if (prefab.side() != side || !source.active()) continue;
             spawnInstance(level, source, side);
           }
         });
@@ -58,7 +58,8 @@ public final class PrefabSpawner {
    * Brings the spawned instances of a level side in line with its active instances.
    *
    * <p>Only instances that were added, changed, renamed, or removed since they were spawned are
-   * respawned or despawned. Unchanged instances keep their entities and runtime state.
+   * respawned or despawned. Unchanged instances keep their entities and runtime state. Inactive
+   * instances are despawned.
    *
    * @param level owning level
    * @param side side to synchronize
@@ -67,8 +68,8 @@ public final class PrefabSpawner {
     batch(
         () -> {
           Map<String, PrefabInstance> authored = new LinkedHashMap<>();
-          for (PrefabInstance source : level.activePrefabs()) {
-            if (PrefabRegistry.require(source.type()).side() == side) {
+          for (PrefabInstance source : PrefabWiring.spawnOrder(level.activePrefabs())) {
+            if (source.active() && PrefabRegistry.require(source.type()).side() == side) {
               authored.put(source.name(), source);
             }
           }
@@ -113,6 +114,15 @@ public final class PrefabSpawner {
   }
 
   /**
+   * Returns whether prefab changes are currently being batched.
+   *
+   * @return true while inside {@link #batch}
+   */
+  public static boolean isBatching() {
+    return batchDepth > 0;
+  }
+
+  /**
    * Registers work that has to happen after prefabs changed, such as rebuilding state shared by
    * several instances. Outside of a batch the action runs immediately. Inside a batch it runs once
    * per key when the batch ends, so shared state is rebuilt once instead of once per instance.
@@ -131,6 +141,8 @@ public final class PrefabSpawner {
   /**
    * Spawns one instance and records its exact entity identity for later cleanup.
    *
+   * <p>Inactive instances are only despawned.
+   *
    * @param level owning level
    * @param source authored instance
    * @param side runtime side
@@ -140,6 +152,7 @@ public final class PrefabSpawner {
     if (prefab.side() != side) return;
     PrefabInstance instance = prefab.normalize(source);
     despawnInstance(level, instance, side);
+    if (!instance.active()) return;
     PrefabCreationContext context = new PrefabCreationContext(level, side);
     List<Entity> added = new ArrayList<>();
     List<Entity> created;
@@ -313,6 +326,7 @@ public final class PrefabSpawner {
     } finally {
       tracked.entities().stream().filter(PrefabSpawner::isPresent).forEach(Game::remove);
       if (side == PrefabSide.CLIENT) CLIENT_ENTITIES.removeAll(tracked.entities());
+      PrefabRuntime.despawned(tracked.level(), tracked.source().name());
     }
   }
 

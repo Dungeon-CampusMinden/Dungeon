@@ -1,10 +1,10 @@
 package engine.level.loader;
 
 import engine.level.DungeonLevel;
+import engine.level.loader.parsers.JsonFormatParser;
 import engine.level.loader.parsers.LevelFormatParser;
 import engine.level.loader.parsers.V1FormatParser;
 import engine.level.loader.parsers.V2FormatParser;
-import engine.level.loader.parsers.V3FormatParser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -21,7 +21,7 @@ public class LevelParser {
 
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getName());
   private static final String VERSION_PREFIX = "Version: ";
-  private static final V3FormatParser DEFAULT_PARSER = new V3FormatParser();
+  private static final JsonFormatParser DEFAULT_PARSER = new JsonFormatParser();
   private static final LevelFormatParser V2_PARSER = new V2FormatParser();
   private static final LevelFormatParser LEGACY_PARSER = new V1FormatParser();
 
@@ -59,7 +59,7 @@ public class LevelParser {
         return DEFAULT_PARSER.parseLevel(
             new BufferedReader(new StringReader(levelData)), levelHandlerName);
       } catch (IOException e) {
-        throw new IllegalArgumentException("Error parsing V3 level data", e);
+        throw new IllegalArgumentException("Error parsing JSON level data", e);
       }
     }
 

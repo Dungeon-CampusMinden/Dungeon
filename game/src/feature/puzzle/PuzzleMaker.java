@@ -249,7 +249,7 @@ public final class PuzzleMaker {
    *
    * @return the default completion callback
    */
-  private static BiConsumer<Puzzle, Entity> defaultOnComplete() {
+  public static BiConsumer<Puzzle, Entity> defaultOnComplete() {
     return (puzzle, solver) -> {
       HintItem hintItem = completionHint(puzzle, solver);
       puzzle.removeItems(solver);

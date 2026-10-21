@@ -7,6 +7,9 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
+import feature.prefabs.ArtifactInput;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /** Shared dialog behavior of prefabs that show images or dialogs to players. */
 final class PrefabDialogs {
@@ -32,6 +35,20 @@ final class PrefabDialogs {
             .build();
     UIComponent ui = DialogFactory.show(context, who.id());
     ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onClosed.run());
+  }
+
+  /**
+   * Returns the placeholder values of a dialog. Linked values that are not available are shown as
+   * {@code ???}.
+   *
+   * @param values linked placeholder values
+   * @return values by alias
+   */
+  static Map<String, String> placeholders(ArtifactInput<String> values) {
+    Map<String, String> available = values.values();
+    Map<String, String> result = new LinkedHashMap<>();
+    for (String alias : values.aliases()) result.put(alias, available.getOrDefault(alias, "???"));
+    return result;
   }
 
   /**
