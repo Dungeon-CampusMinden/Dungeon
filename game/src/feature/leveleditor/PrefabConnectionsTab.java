@@ -142,36 +142,32 @@ final class PrefabConnectionsTab {
    */
   void build(Table content, PrefabInstance instance, List<PrefabWiring.Problem> problems) {
     Prefab prefab = PrefabRegistry.require(instance.type());
-    section(content, instance, prefab.ports(PrefabPort.Kind.EVENT), problems, "Events", null);
+    section(content, instance, prefab.ports(PrefabPort.Kind.EVENT), problems, "Events");
     List<PrefabPort> actions = prefab.ports(PrefabPort.Kind.ACTION);
     section(
         content,
         instance,
         actions.stream().filter(port -> !((PrefabAction) port).isLifecycle()).toList(),
         problems,
-        "Actions",
-        null);
+        "Actions");
     section(
         content,
         instance,
         actions.stream().filter(port -> ((PrefabAction) port).isLifecycle()).toList(),
         problems,
-        "Lifecycle Actions",
-        null);
+        "Lifecycle Actions");
     section(
         content,
         instance,
         prefab.ports(PrefabPort.Kind.ARTIFACT_OUTPUT),
         problems,
-        "Artifact Outputs",
-        "Values this prefab produces. They can be used by any number of other prefabs.");
+        "Artifact Outputs");
     section(
         content,
         instance,
         prefab.ports(PrefabPort.Kind.ARTIFACT_SLOT),
         problems,
-        "Artifact Inputs",
-        null);
+        "Artifact Inputs");
   }
 
   /**
@@ -192,8 +188,7 @@ final class PrefabConnectionsTab {
       PrefabInstance instance,
       List<PrefabPort> ports,
       List<PrefabWiring.Problem> problems,
-      String title,
-      String hint) {
+      String title) {
     if (ports.isEmpty()) return;
     content.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(12f).row();
     content
@@ -202,7 +197,6 @@ final class PrefabConnectionsTab {
         .padTop(4f)
         .padLeft(4f)
         .row();
-    if (hint != null) content.add(wrapped(hint, HINT_FONT_SIZE, MUTED_COLOR)).padLeft(4f).row();
     for (PrefabPort port : ports) content.add(portBlock(instance, port, problems)).padTop(6f).row();
   }
 
