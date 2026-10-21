@@ -255,12 +255,14 @@ public final class SoulweaverObservation {
           || getWidth() <= 0
           || getHeight() <= 0) return Optional.empty();
       var scene = drawSystem.atmosphere();
-      var pixel = scene.sceneUv(x / getWidth(), y / getHeight()).scl(scene.width(), scene.height());
+      // The scene buffers show exactly the screen, in their own pixels.
+      float pixelX = x / getWidth() * scene.width();
+      float pixelY = y / getHeight() * scene.height();
       float shortSide = Math.min(scene.width(), scene.height());
       var offset = shader.ballOffset();
       float radius = shader.ballSize() * shortSide / 2;
-      double sx = (pixel.x - (.5f + offset.x) * scene.width()) / radius;
-      double sy = (pixel.y - (.5f + offset.y) * scene.height()) / radius;
+      double sx = (pixelX - (.5f + offset.x) * scene.width()) / radius;
+      double sy = (pixelY - (.5f + offset.y) * scene.height()) / radius;
       double distance = Math.hypot(sx, sy);
       if (distance >= 1) return Optional.empty();
       double z = Math.sqrt(1 - distance * distance);

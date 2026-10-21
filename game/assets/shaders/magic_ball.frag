@@ -164,8 +164,7 @@ void main() {
   // Motes reach no further than this above the rim.
   if (u_motes > 0.0 && edgeDistance > -0.01 && edgeDistance < 0.3) {
     // u_entityBounds is the world area of the scene buffer here, sixteen art pixels per tile.
-    float texelsPerArtPixel = u_resolution.x / (u_entityBounds.z * 16.0);
-    float pixelSize = MOTE_PIXEL * texelsPerArtPixel / shortSide;
+    float pixelSize = MOTE_PIXEL / (16.0 * min(u_entityBounds.z, u_entityBounds.w));
     vec3 mote = motes(floor(ballPosition / pixelSize), radius, pixelSize);
     // A deeper shade of the ball colour, so the motes read as magic rather than stars.
     vec3 deep = u_ballColor.rgb * u_ballColor.rgb;

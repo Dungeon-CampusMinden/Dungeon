@@ -1,5 +1,4 @@
-// Copies the screen's part of the lit scene to the screen, one texel per pixel, and adds vignette and
-// film grain.
+// Copies the lit scene to the screen, one texel per pixel, and adds vignette and film grain.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;

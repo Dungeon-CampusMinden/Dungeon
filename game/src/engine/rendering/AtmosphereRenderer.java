@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import engine.Entity;
 import engine.Game;
@@ -40,20 +39,19 @@ import java.util.function.Consumer;
  * <p>A frame runs in this order:
  *
  * <ol>
- *   <li>{@link #beginFrame}: the camera is snapped to whole screen pixels and widened by a margin,
- *       so the scene renders into buffers with one texel per screen pixel. Sprites of any scale
- *       come out as sharp as drawn straight onto the screen. The level's {@link Atmosphere} and
- *       lights are collected.
+ *   <li>{@link #beginFrame}: the camera is snapped to whole screen pixels, so the scene renders
+ *       into buffers with one texel per pixel of the screen. Sprites of any scale come out as sharp
+ *       as drawn straight onto the screen. The level's {@link Atmosphere} and lights are collected.
  *   <li>The draw system renders level and entities into those buffers; this class contributes
  *       {@link #drawFloor the floor}, {@link #drawWalls walls}, {@link #drawShadow contact
  *       shadows}, {@link #drawGroundParticles kicked-up dust}, {@link #addEntity entity lights} and
  *       {@link #drawParticles particles}, and draws the {@link #beginBases bases} of upright
  *       entities.
  *   <li>{@link #grade}: ambient and point lights with wall shadows, fog, grading and bloom. The
- *       light is computed once per art pixel, into a buffer on the art-pixel grid. The draw system
- *       then adds world overlays and runs the scene shaders on the lit scene.
- *   <li>{@link #present}: the screen's part of the scene is copied to the screen with vignette and
- *       grain.
+ *       light is computed once per art pixel into a buffer on the art-pixel grid, the bloom at a
+ *       fixed size in the world. The draw system then adds world overlays and runs the scene
+ *       shaders on the lit scene.
+ *   <li>{@link #present}: the scene is copied to the screen with vignette and grain.
  *   <li>{@link #endFrame}: the camera is restored and the frame's buffers are freed.
  * </ol>
  */
@@ -61,7 +59,8 @@ public final class AtmosphereRenderer implements Disposable {
 
   // Art pixels per tile; the light buffer has one texel per art pixel.
   private static final int ART_PIXELS = 16;
-  // Buffer sizes snap to this many texels, so zooming reuses pooled buffers of a few sizes.
+  // Light and bloom buffer sizes snap to this many texels, so zooming reuses pooled buffers of a
+  // few sizes.
   private static final int SIZE_STEP = 32;
   private static final float MAX_LIGHT_RADIUS = 8f;
   // Height above its base, in tiles, up to which an upright entity is lit like the floor it stands
@@ -122,10 +121,6 @@ public final class AtmosphereRenderer implements Disposable {
   private Rectangle view = new Rectangle(0, 0, 0, 0);
   // The world area of the light buffer, on the art-pixel grid.
   private Rectangle lightArea = new Rectangle(0, 0, 0, 0);
-  private float srcU;
-  private float srcV;
-  private float srcU2;
-  private float srcV2;
   private FrameBuffer bloomNear;
   private FrameBuffer bloomFar;
 
@@ -164,29 +159,21 @@ public final class AtmosphereRenderer implements Disposable {
 
     float viewWidth = cam.viewportWidth * cam.zoom;
     float viewHeight = cam.viewportHeight * cam.zoom;
-    // One texel per screen pixel, so sprites of any scale stay as sharp as on the screen.
-    float texelsPerUnit = screenWidth / viewWidth;
-    width = roundUp(screenWidth + 4, SIZE_STEP);
-    height = roundUp(screenHeight + 4, SIZE_STEP);
+    // One texel per pixel of the screen's back buffer, which has more pixels than the window on
+    // HiDPI screens, so sprites of any scale stay as sharp as drawn straight onto the screen. The
+    // height follows the camera, which leads the screen while a resize settles.
+    width = Math.max(1, Math.round(screenWidth * Gdx.graphics.getBackBufferScale()));
+    float texelsPerUnit = width / viewWidth;
+    height = Math.max(1, Math.round(viewHeight * texelsPerUnit));
 
-    // Snapped to whole screen pixels, with the screen a whole number of texels into the buffers,
-    // so present copies the texels one to one.
-    int marginX = (width - screenWidth) / 2;
-    int marginY = (height - screenHeight) / 2;
-    float snappedX = Math.round(savedX * texelsPerUnit) / texelsPerUnit;
-    float snappedY = Math.round(savedY * texelsPerUnit) / texelsPerUnit;
-    float left = snappedX - (screenWidth / 2f + marginX) / texelsPerUnit;
-    float bottom = snappedY - (screenHeight / 2f + marginY) / texelsPerUnit;
+    // Snapped to whole pixels, so present copies the texels one to one.
+    float left = Math.round((savedX - viewWidth / 2f) * texelsPerUnit) / texelsPerUnit;
+    float bottom = Math.round((savedY - viewHeight / 2f) * texelsPerUnit) / texelsPerUnit;
     view = new Rectangle(width / texelsPerUnit, height / texelsPerUnit, left, bottom);
 
-    srcU = marginX / (float) width;
-    srcV = marginY / (float) height;
-    srcU2 = (marginX + screenWidth) / (float) width;
-    srcV2 = (marginY + screenHeight) / (float) height;
-
     cam.position.set(left + view.width() / 2f, bottom + view.height() / 2f, 0);
-    cam.viewportWidth = width / texelsPerUnit / cam.zoom;
-    cam.viewportHeight = height / texelsPerUnit / cam.zoom;
+    cam.viewportWidth = view.width() / cam.zoom;
+    cam.viewportHeight = view.height() / cam.zoom;
     cam.update();
 
     lights.clear();
@@ -218,24 +205,12 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   /**
-   * The world area the scene buffers of the last frame show. It is a little larger than the screen,
-   * and scene shaders draw over all of it.
+   * The world area the scene buffers of the last frame show, the area on the screen.
    *
    * @return the world area
    */
   public Rectangle view() {
     return view;
-  }
-
-  /**
-   * Converts a position on the screen to the position the last frame's scene buffers show there.
-   *
-   * @param screenU horizontal screen position, from 0 at the left to 1 at the right edge
-   * @param screenV vertical screen position, from 0 at the bottom to 1 at the top edge
-   * @return the position in the scene buffers, from 0 to 1 on each axis
-   */
-  public Vector2 sceneUv(float screenU, float screenV) {
-    return new Vector2(srcU + screenU * (srcU2 - srcU), srcV + screenV * (srcV2 - srcV));
   }
 
   /**
@@ -464,7 +439,6 @@ public final class AtmosphereRenderer implements Disposable {
     if (!reduced) renderBloom(scene, light, batch);
 
     FrameBuffer graded = obtain(width, height);
-    linear(scene);
     graded.begin();
     batch.setShader(compositeShader);
     batch.setProjectionMatrix(pixelProjection.setToOrtho2D(0, 0, width, height));
@@ -488,7 +462,7 @@ public final class AtmosphereRenderer implements Disposable {
     setColor(compositeShader, "u_shadowTint", a.shadowTint());
     setColor(compositeShader, "u_lightTint", a.lightTint());
     Rectangle v = view;
-    compositeShader.setUniformf("u_view", v.x(), v.y(), v.width(), v.height());
+    setArea(compositeShader, "u_view", v);
     setArea(compositeShader, "u_lightArea", lightArea);
     compositeShader.setUniformf("u_time", time);
     compositeShader.setUniformf("u_fog", reduced ? 0f : a.fog());
@@ -513,14 +487,15 @@ public final class AtmosphereRenderer implements Disposable {
     batch.setProjectionMatrix(pixelProjection.setToOrtho2D(0, 0, screenWidth, screenHeight));
     batch.disableBlending();
     batch.begin();
-    presentShader.setUniformf("u_screen", screenWidth, screenHeight);
+    // The vignette and grain work in the back buffer's pixels, like gl_FragCoord.
+    presentShader.setUniformf(
+        "u_screen", Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
     presentShader.setUniformf("u_time", time);
     presentShader.setUniformf("u_vignette", atmosphere.vignette());
     presentShader.setUniformf("u_grain", reduced ? 0f : 1f);
     presentShader.setUniformf("u_brightness", ClientSettings.brightness() / PERCENT);
     batch.setColor(Color.WHITE);
-    batch.draw(
-        graded.getColorBufferTexture(), 0, 0, screenWidth, screenHeight, srcU, srcV, srcU2, srcV2);
+    batch.draw(graded.getColorBufferTexture(), 0, 0, screenWidth, screenHeight, 0, 0, 1, 1);
     batch.end();
     batch.setShader(null);
     batch.enableBlending();
@@ -657,10 +632,12 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   private void renderBloom(FrameBuffer scene, FrameBuffer light, SpriteBatch batch) {
-    int hw = Math.max(1, width / 2);
-    int hh = Math.max(1, height / 2);
-    int qw = Math.max(1, width / 4);
-    int qh = Math.max(1, height / 4);
+    // Over the light buffer's area at its density and half of it, so the glow keeps its size in
+    // the world at any window size.
+    int hw = light.getWidth();
+    int hh = light.getHeight();
+    int qw = Math.max(1, hw / 2);
+    int qh = Math.max(1, hh / 2);
     bloomNear = obtain(hw, hh);
     FrameBuffer nearTmp = obtain(hw, hh);
     bloomFar = obtain(qw, qh);
@@ -710,23 +687,20 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   /**
-   * Obtains the light buffer of the frame: one texel per art pixel over the view, on the art-pixel
-   * grid the light shader samples, so each texel holds the light of one art pixel.
+   * Obtains the light buffer of the frame over the view: one texel per art pixel, on the art-pixel
+   * grid the light shader samples, so each texel holds the light of one art pixel. Zoomed out so
+   * far that art pixels are smaller than screen pixels, one texel per screen pixel.
    *
    * @return the light buffer, owned by this renderer until {@link #endFrame}
    */
   private FrameBuffer obtainLight() {
     Rectangle v = view;
-    int x0 = MathUtils.floor(v.x() * ART_PIXELS);
-    int y0 = MathUtils.floor(v.y() * ART_PIXELS);
-    int w = roundUp(MathUtils.ceil((v.x() + v.width()) * ART_PIXELS) - x0, SIZE_STEP);
-    int h = roundUp(MathUtils.ceil((v.y() + v.height()) * ART_PIXELS) - y0, SIZE_STEP);
-    lightArea =
-        new Rectangle(
-            w / (float) ART_PIXELS,
-            h / (float) ART_PIXELS,
-            x0 / (float) ART_PIXELS,
-            y0 / (float) ART_PIXELS);
+    float density = Math.min(ART_PIXELS, width / v.width());
+    int x0 = MathUtils.floor(v.x() * density);
+    int y0 = MathUtils.floor(v.y() * density);
+    int w = roundUp(MathUtils.ceil((v.x() + v.width()) * density) - x0, SIZE_STEP);
+    int h = roundUp(MathUtils.ceil((v.y() + v.height()) * density) - y0, SIZE_STEP);
+    lightArea = new Rectangle(w / density, h / density, x0 / density, y0 / density);
     return obtain(w, h);
   }
 
