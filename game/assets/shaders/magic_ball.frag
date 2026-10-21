@@ -36,7 +36,7 @@ const float glowDissipation = 1.6;
 const float glowRevolveSpeed = 0.25;
 const float glowSpeed = 0.12;
 const int MOTES = 72;
-const float MOTE_PIXEL = 3.0;   // scene texels per mote pixel
+const float MOTE_PIXEL = 1.5;   // art pixels per mote pixel
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -163,7 +163,8 @@ void main() {
 
   // Motes reach no further than this above the rim.
   if (u_motes > 0.0 && edgeDistance > -0.01 && edgeDistance < 0.3) {
-    float pixelSize = MOTE_PIXEL / shortSide;
+    // u_entityBounds is the world area of the scene buffer here, sixteen art pixels per tile.
+    float pixelSize = MOTE_PIXEL / (16.0 * min(u_entityBounds.z, u_entityBounds.w));
     vec3 mote = motes(floor(ballPosition / pixelSize), radius, pixelSize);
     // A deeper shade of the ball colour, so the motes read as magic rather than stars.
     vec3 deep = u_ballColor.rgb * u_ballColor.rgb;
