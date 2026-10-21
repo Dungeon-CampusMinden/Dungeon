@@ -761,7 +761,7 @@ public final class PrefabMode extends LevelEditorMode {
 
   private void addPlaceholderHint(
       Prefab prefab, PrefabInstance instance, PrefabProperty<?> property) {
-    for (PrefabPort port : prefab.ports(PrefabPort.Kind.ARTIFACT_SLOT)) {
+    for (PrefabPort port : prefab.ports(instance, PrefabPort.Kind.ARTIFACT_SLOT)) {
       if (!(port instanceof ArtifactSlot<?> slot)
           || slot.placeholderProperty().filter(p -> p == property).isEmpty()) {
         continue;
@@ -1174,7 +1174,12 @@ public final class PrefabMode extends LevelEditorMode {
                             .equals(visibilitySignature(prefab, replacement));
                 int index = getLevel().prefabs().indexOf(source);
                 if (index >= 0) {
-                  applyChange(() -> getLevel().replacePrefab(index, replacement), rebuild);
+                  applyChange(
+                      () -> {
+                        getLevel().replacePrefab(index, replacement);
+                        dropLinksToUnavailableOutputs(replacement.name());
+                      },
+                      rebuild);
                 }
               } catch (IllegalArgumentException exception) {
                 LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
@@ -1184,14 +1189,39 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
-   * Lists the visible properties and shader parameters, which decide the generated controls.
+   * Removes the links to outputs an instance no longer offers, e.g. after its item list was
+   * shortened.
+   *
+   * @param name name of the changed instance
+   */
+  private void dropLinksToUnavailableOutputs(String name) {
+    int dropped = PrefabWiring.linksToUnavailableOutputs(getLevel().prefabs(), name).size();
+    if (dropped == 0) return;
+    List<PrefabInstance> unlinked =
+        PrefabWiring.withoutLinksToUnavailableOutputs(getLevel().prefabs(), name);
+    getLevel().prefabs().clear();
+    getLevel().prefabs().addAll(unlinked);
+    LevelEditorSystem.showFeedback(
+        "Removed "
+            + dropped
+            + (dropped == 1 ? " link" : " links")
+            + " to outputs "
+            + name
+            + " no longer has.",
+        Color.YELLOW);
+  }
+
+  /**
+   * Lists the visible properties, shader parameters and available ports, which decide the generated
+   * controls.
    *
    * @param prefab prefab definition of the instance
    * @param instance normalized instance
-   * @return keys of the visible properties and shader parameters
+   * @return keys of the visible properties, shader parameters and available ports
    */
   private static List<String> visibilitySignature(Prefab prefab, PrefabInstance instance) {
     List<String> keys = new ArrayList<>();
+    for (PrefabPort port : prefab.ports(instance)) keys.add("port:" + port.key());
     for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
       keys.add(property.key());
       if (property.type() != PrefabPropertyType.SHADER_PARAMETERS) continue;
@@ -1338,7 +1368,7 @@ public final class PrefabMode extends LevelEditorMode {
     for (PrefabInstance candidate : instances) {
       if (onlyInstance != null && !candidate.name().equals(onlyInstance)) continue;
       Prefab prefab = PrefabRegistry.require(candidate.type());
-      for (PrefabPort port : prefab.ports()) {
+      for (PrefabPort port : prefab.ports(candidate)) {
         PrefabPort output = endIsInput ? port : end.port();
         PrefabPort input = endIsInput ? end.port() : port;
         if (port.kind().isInput() == endIsInput || !PrefabWiring.compatible(output, input)) {

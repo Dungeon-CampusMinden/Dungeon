@@ -273,6 +273,7 @@ public final class PrefabRuntime {
     actionChain.addLast(step);
     try {
       PrefabInstance instance = prefab.normalize(current.get());
+      if (prefab.port(instance, actionKey).isEmpty()) return false;
       if (action == Prefab.ACTIVATE) {
         if (!instance.active()) update(level, name, i -> i.withActive(true));
       } else if (action == Prefab.DEACTIVATE) {

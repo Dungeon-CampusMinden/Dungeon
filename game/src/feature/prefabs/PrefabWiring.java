@@ -113,14 +113,14 @@ public final class PrefabWiring {
    *
    * @param instances instances of the level
    * @param link link to resolve
-   * @return the output port, if the source instance and port exist
+   * @return the output port, if the source instance exists and offers the port
    */
   public static Optional<PrefabPort> outputPort(
       Collection<PrefabInstance> instances, PrefabLink link) {
     for (PrefabInstance instance : instances) {
       if (instance.name().equals(link.source())) {
         return PrefabRegistry.find(instance.type())
-            .flatMap(prefab -> prefab.port(link.port()))
+            .flatMap(prefab -> prefab.port(instance, link.port()))
             .filter(port -> !port.kind().isInput());
       }
     }
@@ -158,7 +158,7 @@ public final class PrefabWiring {
   }
 
   /**
-   * Returns every link stored on the instances whose input port is known.
+   * Returns every link stored on the instances whose input port is known and offered.
    *
    * @param instances instances of the level
    * @return all links, in level and port order
@@ -169,7 +169,7 @@ public final class PrefabWiring {
       Optional<Prefab> prefab = PrefabRegistry.find(receiver.type());
       if (prefab.isEmpty()) continue;
       for (Map.Entry<String, List<PrefabLink>> input : receiver.inputs().entrySet()) {
-        Optional<PrefabPort> port = prefab.get().port(input.getKey());
+        Optional<PrefabPort> port = prefab.get().port(receiver, input.getKey());
         if (port.isEmpty() || !port.get().kind().isInput()) continue;
         for (PrefabLink link : input.getValue()) {
           result.add(new Connection(receiver, port.get(), link));
@@ -250,6 +250,63 @@ public final class PrefabWiring {
                     + link.source()
                     + "' is inactive at start, so its value is missing until it is activated"));
       }
+    }
+    return result;
+  }
+
+  /**
+   * Returns the links pointing at outputs of an instance that its type has, but the instance does
+   * not offer, see {@link Prefab#isPortAvailable}.
+   *
+   * @param instances instances of the level
+   * @param source name of the source instance
+   * @return links to unavailable outputs, in level order
+   */
+  public static List<Connection> linksToUnavailableOutputs(
+      List<PrefabInstance> instances, String source) {
+    Optional<PrefabInstance> instance =
+        instances.stream().filter(i -> i.name().equals(source)).findFirst();
+    Optional<Prefab> prefab = instance.flatMap(i -> PrefabRegistry.find(i.type()));
+    if (prefab.isEmpty()) return List.of();
+    return outgoing(instances, source).stream()
+        .filter(
+            connection ->
+                prefab.get().port(connection.link().port()).isPresent()
+                    && prefab.get().port(instance.get(), connection.link().port()).isEmpty())
+        .toList();
+  }
+
+  /**
+   * Removes the links pointing at outputs an instance no longer offers, e.g. after the list the
+   * outputs belong to was shortened.
+   *
+   * @param instances instances of the level
+   * @param source name of the source instance
+   * @return instances without these links, in the same order
+   */
+  public static List<PrefabInstance> withoutLinksToUnavailableOutputs(
+      List<PrefabInstance> instances, String source) {
+    Map<String, Set<PrefabLink>> removed = new HashMap<>();
+    for (Connection connection : linksToUnavailableOutputs(instances, source)) {
+      removed
+          .computeIfAbsent(
+              connection.receiver().name() + "\n" + connection.input().key(),
+              ignored -> new HashSet<>())
+          .add(connection.link());
+    }
+    if (removed.isEmpty()) return instances;
+    List<PrefabInstance> result = new ArrayList<>(instances.size());
+    for (PrefabInstance instance : instances) {
+      Map<String, List<PrefabLink>> inputs = new LinkedHashMap<>();
+      instance
+          .inputs()
+          .forEach(
+              (port, links) -> {
+                Set<PrefabLink> dropped =
+                    removed.getOrDefault(instance.name() + "\n" + port, Set.of());
+                inputs.put(port, links.stream().filter(link -> !dropped.contains(link)).toList());
+              });
+      result.add(instance.withInputs(inputs));
     }
     return result;
   }

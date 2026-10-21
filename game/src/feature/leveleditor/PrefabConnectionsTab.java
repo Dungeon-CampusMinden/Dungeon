@@ -142,8 +142,8 @@ final class PrefabConnectionsTab {
    */
   void build(Table content, PrefabInstance instance, List<PrefabWiring.Problem> problems) {
     Prefab prefab = PrefabRegistry.require(instance.type());
-    section(content, instance, prefab.ports(PrefabPort.Kind.EVENT), problems, "Events");
-    List<PrefabPort> actions = prefab.ports(PrefabPort.Kind.ACTION);
+    section(content, instance, prefab.ports(instance, PrefabPort.Kind.EVENT), problems, "Events");
+    List<PrefabPort> actions = prefab.ports(instance, PrefabPort.Kind.ACTION);
     section(
         content,
         instance,
@@ -159,13 +159,13 @@ final class PrefabConnectionsTab {
     section(
         content,
         instance,
-        prefab.ports(PrefabPort.Kind.ARTIFACT_OUTPUT),
+        prefab.ports(instance, PrefabPort.Kind.ARTIFACT_OUTPUT),
         problems,
         "Artifact Outputs");
     section(
         content,
         instance,
-        prefab.ports(PrefabPort.Kind.ARTIFACT_SLOT),
+        prefab.ports(instance, PrefabPort.Kind.ARTIFACT_SLOT),
         problems,
         "Artifact Inputs");
   }

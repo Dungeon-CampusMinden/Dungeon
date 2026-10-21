@@ -16,6 +16,7 @@ import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactType;
 import feature.prefabs.ItemArtifact;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRuntime;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import tools.jackson.databind.JsonNode;
  *
  * <p>The list has up to {@link #MAX_ITEMS} entries, each chosen from the {@link ItemRegistry}.
  * Every entry is also exposed as an item artifact, so other prefabs can e.g. wait for one of the
- * items.
+ * items. Prefabs only offer the artifacts of the used entries, see {@link #isPortAvailable}.
  */
 final class PrefabItems {
 
@@ -88,6 +89,19 @@ final class PrefabItems {
           level, instance.name(), OUTPUTS.get(index), ItemArtifact.of(item.get()));
     }
     return items;
+  }
+
+  /**
+   * Returns whether an instance offers a port, which is false for the artifacts of entries beyond
+   * its {@link #COUNT}.
+   *
+   * @param instance instance with an item list
+   * @param port port of the prefab type
+   * @return false if the port is the artifact of an unused entry
+   */
+  static boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
+    int index = OUTPUTS.indexOf(port);
+    return index < 0 || index < COUNT.get(instance);
   }
 
   /**

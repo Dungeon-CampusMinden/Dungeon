@@ -198,6 +198,55 @@ public abstract class Prefab {
   }
 
   /**
+   * Returns the ports an instance offers, see {@link #isPortAvailable}.
+   *
+   * @param instance instance of this prefab type
+   * @return available ports in editor order
+   */
+  public final List<PrefabPort> ports(PrefabInstance instance) {
+    return ports().stream().filter(port -> isPortAvailable(instance, port)).toList();
+  }
+
+  /**
+   * Returns the ports of one kind an instance offers, see {@link #isPortAvailable}.
+   *
+   * @param instance instance of this prefab type
+   * @param kind port kind
+   * @return available ports of the kind, in editor order
+   */
+  public final List<PrefabPort> ports(PrefabInstance instance, PrefabPort.Kind kind) {
+    return ports(kind).stream().filter(port -> isPortAvailable(instance, port)).toList();
+  }
+
+  /**
+   * Looks up a port an instance offers, see {@link #isPortAvailable}.
+   *
+   * @param instance instance of this prefab type
+   * @param key port key
+   * @return the port, if this type has one with the key and the instance offers it
+   */
+  public final Optional<PrefabPort> port(PrefabInstance instance, String key) {
+    return port(key).filter(port -> isPortAvailable(instance, port));
+  }
+
+  /**
+   * Decides whether an instance offers one of the ports of this type, e.g. one artifact output per
+   * entry of an authored list.
+   *
+   * <p>Ports that are not available cannot be linked. Links stored on an instance for its
+   * unavailable inputs are dropped by {@link #normalize}, links of other instances to its
+   * unavailable outputs are broken, see {@link PrefabWiring#withoutLinksToUnavailableOutputs}. The
+   * result may only depend on the property values of the instance.
+   *
+   * @param instance instance of this prefab type, possibly not normalized
+   * @param port one of {@link #ports()}
+   * @return true if the instance offers the port; true for every port by default
+   */
+  protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
+    return true;
+  }
+
+  /**
    * Returns the artifact slot replacing a property while it is linked.
    *
    * @param property property of this prefab type
@@ -491,9 +540,11 @@ public abstract class Prefab {
           property.key(),
           property.normalize(PROPERTY_MAPPER, instance.properties().get(property.key())));
     }
+    PrefabInstance withProperties =
+        new PrefabInstance(instance.name(), type, normalized, instance.active(), instance.inputs());
     PrefabInstance result =
         new PrefabInstance(
-            instance.name(), type, normalized, instance.active(), normalizeInputs(instance));
+            instance.name(), type, normalized, instance.active(), normalizeInputs(withProperties));
     validate(result);
     return result;
   }
@@ -514,7 +565,7 @@ public abstract class Prefab {
     Map<String, List<PrefabLink>> result = new LinkedHashMap<>();
     for (PrefabPort port : ports()) {
       List<PrefabLink> links = instance.links(port.key());
-      if (!port.kind().isInput() || links.isEmpty()) continue;
+      if (!port.kind().isInput() || links.isEmpty() || !isPortAvailable(instance, port)) continue;
       boolean aliased = port instanceof ArtifactSlot<?> slot && slot.multiple();
       List<PrefabLink> normalized = new ArrayList<>();
       Set<String> aliases = new HashSet<>();

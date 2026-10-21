@@ -59,11 +59,11 @@
         "source" : "r1/keypad-2",
         "port" : "correct-code"
       }, {
-        "source" : "r1/door-lever-2",
-        "port" : "switched-on"
-      }, {
         "source" : "door-text-keypad",
         "port" : "correct-answer"
+      }, {
+        "source" : "r1/delay",
+        "port" : "finished"
       } ],
       "close" : [ {
         "source" : "r1/door-lever-2",
@@ -457,6 +457,23 @@
       },
       "length" : 4,
       "seed" : ""
+    }
+  }, {
+    "name" : "r1/delay",
+    "type" : "delay",
+    "properties" : {
+      "position" : {
+        "x" : 9.0,
+        "y" : 10.0
+      },
+      "delay" : 1000,
+      "restart" : false
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "r1/door-lever-2",
+        "port" : "switched-on"
+      } ]
     }
   }, {
     "name" : "r2/stone-3",
@@ -885,8 +902,8 @@
     },
     "inputs" : {
       "required-item" : [ {
-        "source" : "image-puzzle",
-        "port" : "completion-item"
+        "source" : "air-vent",
+        "port" : "item-1"
       } ]
     }
   }, {
@@ -907,6 +924,31 @@
       "item-4" : "ItemKey",
       "item-5" : "ItemKey",
       "item-6" : "ItemKey"
+    }
+  }, {
+    "name" : "air-vent",
+    "type" : "air-vent",
+    "properties" : {
+      "position" : {
+        "x" : 13.0,
+        "y" : 12.8125
+      },
+      "deco" : "FloorBarsSmall",
+      "message" : "Warm air is blowing out of the vent.",
+      "direction" : "Down",
+      "item-count" : 1,
+      "item-1" : "ItemKey",
+      "item-2" : "ItemKey",
+      "item-3" : "ItemKey",
+      "item-4" : "ItemKey",
+      "item-5" : "ItemKey",
+      "item-6" : "ItemKey"
+    },
+    "inputs" : {
+      "spew" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      } ]
     }
   } ]
 }

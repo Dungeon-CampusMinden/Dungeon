@@ -114,6 +114,11 @@ public final class AirVentPrefab extends Prefab {
   }
 
   @Override
+  protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
+    return PrefabItems.isPortAvailable(instance, port);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     VENTS.start(
         context.level(),

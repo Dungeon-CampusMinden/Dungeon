@@ -91,6 +91,11 @@ public final class ItemSpawnerPrefab extends Prefab {
   }
 
   @Override
+  protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
+    return PrefabItems.isPortAvailable(instance, port);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     List<Item> items = PrefabItems.create(context.level(), instance);
     Point position = value(instance, POSITION);
