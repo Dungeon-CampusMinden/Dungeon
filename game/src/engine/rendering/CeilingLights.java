@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import engine.level.Tile;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
@@ -11,7 +12,8 @@ import java.util.function.BiPredicate;
  * Lamps hung from the ceiling over a level's floor, for rooms lit like offices or facilities. The
  * level is split into blocks of four by four tiles; every block with floor gets one lamp, over its
  * centre where that is floor, else over the floor tile closest to it, so small rooms and corridors
- * get lamps too.
+ * get lamps too. Such a moved lamp is left out when another lamp hangs closer than a block's width,
+ * since it would light the same floor and cast hard shadows from the wall next to it.
  */
 public final class CeilingLights {
 
@@ -21,7 +23,7 @@ public final class CeilingLights {
   private CeilingLights() {}
 
   /**
-   * Adds a steady lamp over the floor of every block, if it is on.
+   * Adds a steady light for every lamp that is on.
    *
    * @param layout the level layout, indexed [y][x]
    * @param color the lamps' colour
@@ -36,6 +38,8 @@ public final class CeilingLights {
       float intensity,
       BiPredicate<Integer, Integer> on,
       List<Light> out) {
+    List<Point> lamps = new ArrayList<>();
+    List<Point> moved = new ArrayList<>();
     for (int by = 0; by < layout.length; by += BLOCK) {
       for (int bx = 0; bx < layout[by].length; bx += BLOCK) {
         int lampX = -1;
@@ -54,9 +58,17 @@ public final class CeilingLights {
             }
           }
         }
-        if (lampX < 0 || !on.test(lampX, lampY)) continue;
-        out.add(Light.steady(new Point(lampX + 0.5f, lampY + 0.5f), color, intensity));
+        if (lampX < 0) continue;
+        (best == 0 ? lamps : moved).add(new Point(lampX, lampY));
       }
+    }
+    for (Point lamp : moved) {
+      if (lamps.stream().noneMatch(other -> other.distance(lamp) < BLOCK)) lamps.add(lamp);
+    }
+    for (Point lamp : lamps) {
+      int x = (int) lamp.x();
+      int y = (int) lamp.y();
+      if (on.test(x, y)) out.add(Light.steady(lamp.translate(0.5f, 0.5f), color, intensity));
     }
   }
 }
