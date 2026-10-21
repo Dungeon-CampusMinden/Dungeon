@@ -47,7 +47,8 @@ import java.util.function.Consumer;
  *   <li>The draw system renders level and entities into those buffers; this class contributes
  *       {@link #drawFloor the floor}, {@link #drawWalls walls}, {@link #drawShadow contact
  *       shadows}, {@link #drawGroundParticles kicked-up dust}, {@link #addEntity entity lights} and
- *       {@link #drawParticles particles}.
+ *       {@link #drawParticles particles}, and draws the {@link #beginBases bases} of upright
+ *       entities.
  *   <li>{@link #grade}: ambient and point lights with wall shadows, fog, grading and bloom. The
  *       draw system then adds world overlays and runs the scene shaders on the lit scene.
  *   <li>{@link #present}: the scene is scaled to the screen with sharp bilinear filtering, vignette
@@ -61,6 +62,12 @@ public final class AtmosphereRenderer implements Disposable {
   // Buffer sizes snap to this many texels, so zooming reuses pooled buffers of a few sizes.
   private static final int SIZE_STEP = 32;
   private static final float MAX_LIGHT_RADIUS = 8f;
+  // Height above its base, in tiles, up to which an upright entity is lit like the floor it stands
+  // on: lights reach this much further up.
+  private static final float MAX_HEIGHT = 4f;
+  // Lights and walls that can light what the view shows.
+  private static final float LIGHT_MARGIN = MAX_LIGHT_RADIUS + MAX_HEIGHT;
+  private static final int BASE_STEPS = 65535;
   // Walking speeds in tiles per second; standing still, teleports and thrown objects raise no dust.
   private static final float MIN_WALK_SPEED = 0.8f;
   private static final float MAX_WALK_SPEED = 12f;
@@ -81,6 +88,7 @@ public final class AtmosphereRenderer implements Disposable {
   private Map<Entity, Point> lastPositions = new HashMap<>();
   private Map<Entity, Point> positions = new HashMap<>();
 
+  private ShaderProgram baseShader;
   private ShaderProgram lightShader;
   private ShaderProgram compositeShader;
   private ShaderProgram brightShader;
@@ -180,7 +188,7 @@ public final class AtmosphereRenderer implements Disposable {
     flames.clear();
     trails.clear();
     if (layout.length > 0 && layout[0].length > 0 && atmosphere.wallDecor()) {
-      int[] b = tileBounds(layout, MAX_LIGHT_RADIUS);
+      int[] b = tileBounds(layout, LIGHT_MARGIN);
       level.collectLights(layout, b[0], b[1], b[2], b[3], lights, flames);
     }
     current.ifPresent(l -> l.lights(lights));
@@ -264,7 +272,6 @@ public final class AtmosphereRenderer implements Disposable {
     float alpha = (dc.tintColor() & 0xFF) / 255f;
     if (alpha == 0) return;
     float spriteWidth = dc.getWidth() * Math.abs(pc.scale().x());
-    float spriteHeight = dc.getHeight() * Math.abs(pc.scale().y());
     SpriteFootprints.Footprint base = SpriteFootprints.of(dc.getSprite()).orElse(BOX_BASE);
     float left = base.left();
     float right = base.right();
@@ -276,12 +283,66 @@ public final class AtmosphereRenderer implements Disposable {
     float w = MathUtils.clamp((right - left) * spriteWidth + 4 / 16f, 0.4f, 3.5f);
     float h = Math.min(w * 10f / 24f, 0.45f);
     float centerX = pc.position().x() + (left + right) / 2f * spriteWidth;
-    float feetY = pc.position().y() + base.bottom() * spriteHeight;
+    float feetY = feetY(dc, pc, base);
     batch.setColor(alpha, alpha, alpha, alpha);
     batch.setBlendFunctionSeparate(
         GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ZERO, GL20.GL_ONE);
     // Mostly below the base row, so the sprite hides only its upper part.
     batch.draw(RenderTextures.blobShadow(), centerX - w / 2f, feetY - h * 0.55f, w, h);
+  }
+
+  /**
+   * Starts drawing the bases of the frame's entities, into a buffer of the scene's size that {@link
+   * #grade} gets: every pixel of an upright entity holds the entity's base, so the light pass
+   * lights the whole entity like the floor it stands on. Then wall shadows fall on a cabinet or a
+   * player as a whole instead of cutting across their upper part. Draw each sprite after {@link
+   * #baseColor}, in the order of the scene, then call {@link #endBases}.
+   *
+   * @param batch batch with the world projection, already begun
+   */
+  public void beginBases(SpriteBatch batch) {
+    ensureShaders();
+    batch.setShader(baseShader);
+    batch.disableBlending();
+  }
+
+  /**
+   * Sets the batch colour for the next sprite of {@link #beginBases}: red and green hold the
+   * entity's base in 16 bits over the view and the reach of upright entities below and above it,
+   * blue marks it upright. A flat or flying entity holds no base and is lit where it is drawn.
+   *
+   * @param batch the batch the bases are drawn with
+   * @param dc the entity's draw component
+   * @param pc the entity's position component
+   * @param upright whether the entity stands upright on the floor
+   */
+  public void baseColor(
+      SpriteBatch batch, DrawComponent dc, PositionComponent pc, boolean upright) {
+    if (!upright) {
+      batch.setColor(0, 0, 0, 1);
+      return;
+    }
+    float feet = feetY(dc, pc, SpriteFootprints.of(dc.getSprite()).orElse(BOX_BASE));
+    float range = view.height() + 2 * MAX_HEIGHT;
+    int steps =
+        MathUtils.clamp(
+            Math.round((feet - view.y() + MAX_HEIGHT) / range * BASE_STEPS), 0, BASE_STEPS);
+    batch.setColor((steps >> 8) / 255f, (steps & 0xff) / 255f, 1, 1);
+  }
+
+  /**
+   * Ends drawing the bases started by {@link #beginBases}.
+   *
+   * @param batch the batch the bases are drawn with
+   */
+  public void endBases(SpriteBatch batch) {
+    batch.setShader(null);
+    batch.enableBlending();
+    batch.setColor(Color.WHITE);
+  }
+
+  private static float feetY(DrawComponent dc, PositionComponent pc, SpriteFootprints.Footprint b) {
+    return pc.position().y() + b.bottom() * dc.getHeight() * Math.abs(pc.scale().y());
   }
 
   /**
@@ -309,10 +370,10 @@ public final class AtmosphereRenderer implements Disposable {
   public void addEntity(Entity entity, DrawComponent dc, PositionComponent pc, boolean grounded) {
     Rectangle v = view;
     Point p = pc.position();
-    if (p.x() < v.x() - MAX_LIGHT_RADIUS
-        || p.y() < v.y() - MAX_LIGHT_RADIUS
-        || p.x() > v.x() + v.width() + MAX_LIGHT_RADIUS
-        || p.y() > v.y() + v.height() + MAX_LIGHT_RADIUS) {
+    if (p.x() < v.x() - LIGHT_MARGIN
+        || p.y() < v.y() - LIGHT_MARGIN
+        || p.x() > v.x() + v.width() + LIGHT_MARGIN
+        || p.y() > v.y() + v.height() + LIGHT_MARGIN) {
       return;
     }
     boolean glows =
@@ -364,15 +425,17 @@ public final class AtmosphereRenderer implements Disposable {
    * @param scene the composed scene, {@link #width()} x {@link #height()}
    * @param emissive where the scene glows by itself, see {@link EmissiveSprites}, at the scene's
    *     size; these pixels are lit fully. Empty if nothing glows
+   * @param bases the bases of the upright entities, see {@link #beginBases}, at the scene's size
    * @param batch the batch to render with, not begun
    * @return the lit scene, premultiplied; owned by this renderer until {@link #endFrame}
    */
-  public FrameBuffer grade(FrameBuffer scene, Optional<FrameBuffer> emissive, SpriteBatch batch) {
+  public FrameBuffer grade(
+      FrameBuffer scene, Optional<FrameBuffer> emissive, FrameBuffer bases, SpriteBatch batch) {
     ensureShaders();
     // Light is smooth, so half resolution is enough.
     FrameBuffer light = obtain(width / 2, height / 2);
     linear(light);
-    renderLights(light, batch);
+    renderLights(light, bases, batch);
     if (!reduced) renderBloom(scene, light, batch);
 
     FrameBuffer graded = obtain(width, height);
@@ -463,7 +526,7 @@ public final class AtmosphereRenderer implements Disposable {
     frameBuffers.clear();
   }
 
-  private void renderLights(FrameBuffer target, SpriteBatch batch) {
+  private void renderLights(FrameBuffer target, FrameBuffer bases, SpriteBatch batch) {
     updateOcclusion();
     target.begin();
     Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -475,11 +538,15 @@ public final class AtmosphereRenderer implements Disposable {
       batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
       batch.begin();
       occlusionTexture.bind(1);
+      bases.getColorBufferTexture().bind(2);
       Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
       lightShader.setUniformi("u_occlusion", 1);
+      lightShader.setUniformi("u_bases", 2);
       lightShader.setUniformf(
           "u_occRect", occlusionX, occlusionY, occlusion.getWidth(), occlusion.getHeight());
       Rectangle v = view;
+      lightShader.setUniformf("u_view", v.x(), v.y(), v.width(), v.height());
+      lightShader.setUniformf("u_baseRange", v.y() - MAX_HEIGHT, v.height() + 2 * MAX_HEIGHT);
       float scale = lightScale(atmosphere.ambient());
       for (Light l : lights) {
         // A slow brightness wobble at a fixed reach: a changing radius would shift every
@@ -489,7 +556,7 @@ public final class AtmosphereRenderer implements Disposable {
         float r = l.radius();
         Point p = l.position();
         if (p.x() + r < v.x()
-            || p.y() + r < v.y()
+            || p.y() + r + MAX_HEIGHT < v.y()
             || p.x() - r > v.x() + v.width()
             || p.y() - r > v.y() + v.height()) {
           continue;
@@ -498,7 +565,8 @@ public final class AtmosphereRenderer implements Disposable {
         lightShader.setUniformf("u_radius", r);
         lightShader.setUniformf(
             "u_color", l.color().r * intensity, l.color().g * intensity, l.color().b * intensity);
-        batch.draw(RenderTextures.pixel(), p.x() - r, p.y() - r, 2 * r, 2 * r);
+        // Taller by the highest upright entity whose base the light still reaches.
+        batch.draw(RenderTextures.pixel(), p.x() - r, p.y() - r, 2 * r, 2 * r + MAX_HEIGHT);
         batch.flush();
       }
       batch.end();
@@ -523,7 +591,7 @@ public final class AtmosphereRenderer implements Disposable {
    */
   private void updateOcclusion() {
     if (layout.length == 0 || layout[0].length == 0) return;
-    int[] b = tileBounds(layout, MAX_LIGHT_RADIUS + 1);
+    int[] b = tileBounds(layout, LIGHT_MARGIN + 1);
     int w = b[1] - b[0] + 1;
     int h = b[3] - b[2] + 1;
     if (w <= 0 || h <= 0) return;
@@ -653,6 +721,7 @@ public final class AtmosphereRenderer implements Disposable {
     if (lightShader != null) return;
     String vert = Gdx.files.internal(SHADER_DIR + "atmosphere.vert").readString();
     lightShader = compile(vert, "light.frag");
+    baseShader = compile(Gdx.files.internal(SHADER_DIR + "base.vert").readString(), "base.frag");
     compositeShader = compile(vert, "composite.frag");
     brightShader = compile(vert, "bright.frag");
     blurShader = compile(vert, "blur.frag");
@@ -674,7 +743,7 @@ public final class AtmosphereRenderer implements Disposable {
   public void dispose() {
     for (ShaderProgram s :
         new ShaderProgram[] {
-          lightShader, compositeShader, brightShader, blurShader, presentShader
+          baseShader, lightShader, compositeShader, brightShader, blurShader, presentShader
         }) {
       if (s != null) s.dispose();
     }

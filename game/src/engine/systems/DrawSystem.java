@@ -454,8 +454,11 @@ public final class DrawSystem extends System implements Disposable {
             ? Optional.of(
                 drawToIntermediateFbo(() -> drawEmissive(drawn), null, sceneWidth, sceneHeight))
             : Optional.empty();
-    FrameBuffer graded = atmosphere.grade(fboA, emissive, batch());
+    FrameBuffer bases =
+        drawToIntermediateFbo(() -> drawBases(drawn), null, sceneWidth, sceneHeight);
+    FrameBuffer graded = atmosphere.grade(fboA, emissive, bases, batch());
     emissive.ifPresent(FBO_POOL::free);
+    FBO_POOL.free(bases);
     drawOverlays(graded);
     FrameBuffer finalFbo =
         applyShadersAndCompose(graded, fboB, sceneShaders, sceneWidth, sceneHeight);
@@ -1051,6 +1054,33 @@ public final class DrawSystem extends System implements Disposable {
               conf.size().y(),
               makeTransform(d.pc.position(), conf));
     }
+  }
+
+  /**
+   * Draws the bases of the drawn entities for the light pass, see {@link
+   * AtmosphereRenderer#beginBases}. Entities behind the level are hidden by it.
+   *
+   * @param drawn the drawn entities, in drawing order
+   */
+  private void drawBases(List<DSData> drawn) {
+    atmosphere.beginBases(batch());
+    for (DSData d : drawn) {
+      if (d.dc.depth() <= DepthLayer.Level.depth() || (d.dc.tintColor() & 0xFF) == 0) continue;
+      atmosphere.baseColor(batch(), d.dc, d.pc, isUpright(d.dc));
+      DrawConfig conf = makeConfig(d, Vector2.of(d.dc.getWidth(), d.dc.getHeight()), d.pc.scale());
+      batch()
+          .draw(
+              d.dc.getSprite(),
+              conf.size().x(),
+              conf.size().y(),
+              makeTransform(d.pc.position(), conf));
+    }
+    atmosphere.endBases(batch());
+  }
+
+  private static boolean isUpright(DrawComponent dc) {
+    // Floor decals and plates lie flat; overhead effects and flying entities float.
+    return dc.depth() >= DepthLayer.Normal.depth() && dc.depth() < DepthLayer.AbovePlayer.depth();
   }
 
   private static boolean isGrounded(DrawComponent dc) {

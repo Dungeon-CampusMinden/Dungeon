@@ -2,8 +2,9 @@
 // hard, tile-aligned shadows: the ray from the light to each art pixel is traced through the
 // occlusion map, one texel per tile: red = blocks light; for walls green, blue and alpha hold the
 // floor visible left of, right of and below the wall's art, in sixteenths of a tile; for other
-// tiles green marks open ground, as opposed to the void. The buffer stores half the light so values
-// up to 2 survive the 8-bit target.
+// tiles green marks open ground, as opposed to the void. Upright entities are lit like the floor
+// they stand on: u_bases holds the base under each of their pixels. The buffer stores half the
+// light so values up to 2 survive the 8-bit target.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -15,6 +16,9 @@ precision mediump float;
 varying vec2 v_world;
 
 uniform sampler2D u_occlusion;
+uniform sampler2D u_bases;
+uniform vec4 u_view;         // world area of the scene buffers: origin xy, size zw
+uniform vec2 u_baseRange;    // lowest base and the range the 16 bits of u_bases span
 uniform vec4 u_occRect;      // origin tile xy, size in tiles zw
 uniform vec2 u_lightPos;
 uniform float u_radius;
@@ -26,6 +30,15 @@ vec4 occlusion(vec2 tile) {
     vec2 uv = (tile - u_occRect.xy + 0.5) / u_occRect.zw;
     if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return vec4(1.0, 0.0, 0.0, 0.0);
     return texture2D(u_occlusion, uv);
+}
+
+// Where the light falls on the pixel at p: for an upright entity at the centre of its lowest art
+// pixel row, so the whole entity is lit like the floor it stands on; elsewhere at p.
+vec2 litPoint(vec2 p) {
+    vec4 b = texture2D(u_bases, (p - u_view.xy) / u_view.zw);
+    if (b.b < 0.5) return p;
+    float feet = u_baseRange.x + (b.r * 65280.0 + b.g * 255.0) / 65535.0 * u_baseRange.y;
+    return vec2(p.x, min(p.y, (floor(feet * 16.0 + 0.5) + 0.5) / 16.0));
 }
 
 bool blocked(vec2 tile) {
@@ -138,6 +151,8 @@ float lightAt(vec2 p) {
 void main() {
     // Light per art pixel (16 per tile) keeps the falloff as crisp as the sprites.
     vec2 p = (floor(v_world * 16.0) + 0.5) / 16.0;
+    // An upright entity is lit as a whole, so a wall's shadow does not cut across its upper part.
+    p = litPoint(p);
     float d = length(p - u_lightPos);
     if (d >= u_radius) discard;
 
