@@ -459,7 +459,7 @@ public final class DrawSystem extends System implements Disposable {
     FrameBuffer graded = atmosphere.grade(fboA, emissive, bases, batch());
     emissive.ifPresent(FBO_POOL::free);
     FBO_POOL.free(bases);
-    drawOverlays(graded);
+    drawOverlays(graded, drawn);
     FrameBuffer finalFbo =
         applyShadersAndCompose(graded, fboB, sceneShaders, sceneWidth, sceneHeight);
 
@@ -942,8 +942,9 @@ public final class DrawSystem extends System implements Disposable {
    * systems.
    *
    * @param graded the lit scene
+   * @param drawn the drawn entities, back to front
    */
-  private void drawOverlays(FrameBuffer graded) {
+  private void drawOverlays(FrameBuffer graded, List<DSData> drawn) {
     List<WorldOverlay> overlays =
         ECSManagement.systems().values().stream()
             .filter(s -> s instanceof WorldOverlay)
@@ -961,16 +962,60 @@ public final class DrawSystem extends System implements Disposable {
         });
     outlined.clear();
     if (overlays.isEmpty() && outlines.isEmpty()) return;
+    int width = graded.getWidth();
+    int height = graded.getHeight();
+    Optional<FrameBuffer> outlineLayer =
+        outlines.isEmpty()
+            ? Optional.empty()
+            : Optional.of(
+                drawToIntermediateFbo(
+                    () -> drawOutlineLayer(drawn, outlines), null, width, height));
+    outlines.values().forEach(FBO_POOL::free);
     graded.begin();
+    batch().setProjectionMatrix(fboProjectionMatrix.setToOrtho2D(0, 0, width, height));
+    batch().begin();
+    outlineLayer.ifPresent(layer -> drawFboToBatch(layer, width, height));
     batch().setProjectionMatrix(CameraSystem.camera().combined);
     BlendUtils.setBlending(batch());
-    batch().begin();
-    outlines.forEach(this::drawShaded);
     overlays.forEach(o -> o.drawOverlay(batch()));
     batch().setColor(Color.WHITE);
     batch().end();
     graded.end();
-    outlines.values().forEach(FBO_POOL::free);
+    outlineLayer.ifPresent(FBO_POOL::free);
+  }
+
+  /**
+   * Draws the outlines in drawing order and erases them where an entity drawn later covers them, so
+   * an outline stays behind whatever stands in front of its entity.
+   *
+   * @param drawn the drawn entities, back to front
+   * @param outlines the outline of each outlined entity
+   */
+  private void drawOutlineLayer(List<DSData> drawn, Map<DSData, FrameBuffer> outlines) {
+    boolean any = false;
+    for (DSData d : drawn) {
+      FrameBuffer outline = outlines.get(d);
+      if (outline != null) {
+        BlendUtils.setBlending(batch());
+        batch().setColor(Color.WHITE);
+        drawShaded(d, outline);
+        any = true;
+        continue;
+      }
+      float alpha = d.dc.tintColor() == -1 ? 1f : (d.dc.tintColor() & 0xFF) / 255f;
+      if (!any || alpha == 0) continue;
+      batch().setBlendFunction(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
+      batch().setColor(1, 1, 1, alpha);
+      DrawConfig conf = makeConfig(d, Vector2.of(d.dc.getWidth(), d.dc.getHeight()), d.pc.scale());
+      batch()
+          .draw(
+              d.dc.getSprite(),
+              conf.size().x(),
+              conf.size().y(),
+              makeTransform(d.pc.position(), conf));
+    }
+    BlendUtils.setBlending(batch());
+    batch().setColor(Color.WHITE);
   }
 
   private static boolean hasOutline(ShaderList shaders) {
