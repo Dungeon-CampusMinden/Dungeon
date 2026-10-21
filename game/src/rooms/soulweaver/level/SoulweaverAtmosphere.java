@@ -117,8 +117,10 @@ final class SoulweaverAtmosphere {
           .ifPresent(
               level -> {
                 // The north and exit masks start at the top of the north wall, so the wall shows
-                // whole.
-                for (String area : new String[] {"east", "north", "exit"}) {
+                // whole. Above and below the first hall, the east-top and east-bottom masks hide
+                // where the wall between the halls runs on.
+                for (String area :
+                    new String[] {"east", "east-top", "east-bottom", "north", "exit"}) {
                   draw.sceneShaders()
                       .add(
                           "soulweaver-reveal-" + area,

@@ -423,6 +423,14 @@
       "x" : 35.0,
       "y" : 27.4
     },
+    "reveal-east-bottom-end" : {
+      "x" : 22.0,
+      "y" : 4.4375
+    },
+    "reveal-east-bottom-start" : {
+      "x" : 21.0,
+      "y" : 0.0
+    },
     "reveal-east-end" : {
       "x" : 51.0,
       "y" : 31.0
@@ -430,6 +438,14 @@
     "reveal-east-start" : {
       "x" : 21.6875,
       "y" : 0.0
+    },
+    "reveal-east-top-end" : {
+      "x" : 22.0,
+      "y" : 31.0
+    },
+    "reveal-east-top-start" : {
+      "x" : 21.0,
+      "y" : 21.0
     },
     "reveal-exit-end" : {
       "x" : 51.0,
