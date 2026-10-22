@@ -241,6 +241,8 @@ function WizardWorkspace() {
     }
   }, [storage]);
   React.useEffect(() => {
+    // refresh sets state only after the asynchronous storage read.
+    // oxlint-disable-next-line react/set-state-in-effect
     void refresh();
   }, [refresh]);
 
@@ -657,6 +659,8 @@ function DraftEditor({
   const attemptedProductionContentRef = React.useRef<string | null>(null);
   const productionContentRef = React.useRef({
     key: productionContentKey(initialDraft),
+    // Only the initial ref value uses this; the mount time starts the validation delay.
+    // oxlint-disable-next-line react/purity
     changedAt: performance.now(),
   });
   const localReadyRef = React.useRef(false);
@@ -818,9 +822,9 @@ function DraftEditor({
   React.useLayoutEffect(() => {
     localReadyRef.current = localReady;
   }, [localReady]);
-  const updateProject = (updatedProject: DeerProject) =>
+  const updateProject = (transform: (project: DeerProject) => void) =>
     updateDraft((current) => {
-      current.project = structuredClone(updatedProject);
+      transform(current.project);
     });
   const navigateToTab = (activeTab: TabId) => {
     if (wizardWorkRef.current === "uploading") return;

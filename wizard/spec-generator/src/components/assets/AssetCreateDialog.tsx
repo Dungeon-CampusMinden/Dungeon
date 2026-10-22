@@ -57,13 +57,13 @@ export function AssetCreateDialog({
   const [selectedManifestPath, setSelectedManifestPath] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
 
-  React.useEffect(() => {
-    if (open) return;
+  const close = () => {
     setMode("custom");
     setUploadedFile(null);
     setSelectedManifestPath(null);
     setSelectedFolder("/");
-  }, [open]);
+    setOpen(false);
+  };
 
   // The assetManifest plugin generates this folder structure from the bundled assets.
   const assetsManifest = assets as AssetEntry[];
@@ -114,8 +114,10 @@ export function AssetCreateDialog({
       setUploadedFile(null);
       setSelectedManifestPath(manifestPath);
       setSelectedFolder(manifestPath ? getParentPath(manifestPath) : "/");
+      setOpen(true);
+    } else {
+      close();
     }
-    setOpen(nextOpen);
   };
 
   const canConfirm = mode === "custom" ? uploadedFile !== null : selectedManifestPath !== null;
@@ -132,7 +134,7 @@ export function AssetCreateDialog({
     setPending(true);
     try {
       await onSelect(selection);
-      setOpen(false);
+      close();
     } catch {
       // The caller reports the technical error. Keep the selection open for a retry.
     } finally {
@@ -285,19 +287,20 @@ function UploadedFilePreview({ file }: { file: File }) {
   const [objectUrl, setObjectUrl] = React.useState<string | null>(null);
   const [pixelated, setPixelated] = React.useState(false);
 
+  const isImage = file.type.startsWith("image/");
+
   React.useEffect(() => {
-    if (!file.type.startsWith("image/")) {
-      setObjectUrl(null);
-      return;
-    }
+    if (!isImage) return;
     const url = URL.createObjectURL(file);
+    // The object URL is an external resource that this effect creates and revokes.
+    // oxlint-disable-next-line react/set-state-in-effect
     setObjectUrl(url);
     return () => URL.revokeObjectURL(url);
-  }, [file]);
+  }, [file, isImage]);
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2">
-      {objectUrl ? (
+      {isImage && objectUrl ? (
         <img
           src={objectUrl}
           alt=""

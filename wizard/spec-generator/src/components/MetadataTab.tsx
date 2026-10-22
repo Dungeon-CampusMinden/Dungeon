@@ -23,7 +23,7 @@ export function MetadataTab({
   issues,
 }: {
   deerSchema: DeerProject;
-  updateDeerSchema: (updatedSchema: DeerProject) => void;
+  updateDeerSchema: (transform: (project: DeerProject) => void) => void;
   issues: TabIssues;
 }) {
   const emptyTitle = hasFieldErrors(issues, "title");
@@ -41,8 +41,9 @@ export function MetadataTab({
               aria-label="Titel des Spiels"
               value={deerSchema.metadata.title}
               onChange={(e) => {
-                deerSchema.metadata.title = e.target.value;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.metadata.title = e.target.value;
+                });
               }}
               aria-invalid={emptyTitle}
             />
@@ -54,8 +55,9 @@ export function MetadataTab({
               aria-label="Beschreibung des Spiels"
               value={deerSchema.metadata.description ?? ""}
               onChange={(e) => {
-                deerSchema.metadata.description = e.target.value;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.metadata.description = e.target.value;
+                });
               }}
             />
           </Field>
@@ -65,8 +67,9 @@ export function MetadataTab({
               aria-label="Autor des Spiels"
               value={deerSchema.metadata.author ?? ""}
               onChange={(e) => {
-                deerSchema.metadata.author = e.target.value;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.metadata.author = e.target.value;
+                });
               }}
             />
           </Field>
@@ -77,8 +80,9 @@ export function MetadataTab({
               aria-label="E-Mail-Adresse für Tracking-Hinweise"
               value={deerSchema.metadata.operatorEmail ?? ""}
               onChange={(e) => {
-                deerSchema.metadata.operatorEmail = e.target.value;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.metadata.operatorEmail = e.target.value;
+                });
               }}
               aria-invalid={invalidOperatorEmail}
             />
@@ -96,8 +100,9 @@ export function MetadataTab({
               itemNoun="Lernziel"
               value={deerSchema.learningDesign.objectives}
               onChange={(newValue) => {
-                deerSchema.learningDesign.objectives = newValue;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.learningDesign.objectives = newValue;
+                });
               }}
               getItemText={(item) => item.description}
               setItemText={(item, text) => {

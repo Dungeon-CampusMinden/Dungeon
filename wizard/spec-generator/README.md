@@ -8,6 +8,8 @@ turning it into a DEER project through the local Java host.
 - Run `npm install`.
 - Run `npm run dev` for the UI-only Vite development server.
 - Open the URL printed by Vite, usually `http://localhost:5173/`.
+- Run `npm run fmt` to format with Oxfmt and `npm run lint` to lint with Oxlint.
+  CI checks both.
 
 For the complete host flow, run `wizard/start_wizard_dev.cmd` on Windows or
 `./wizard/start_wizard_dev.sh` on Linux from the repository root instead. Both

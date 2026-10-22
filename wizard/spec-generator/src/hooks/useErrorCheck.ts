@@ -16,7 +16,7 @@ export interface ErrorCheckResult {
 interface AssetStorageCheckState {
   checkedKey: string | null;
   status: AssetStorageCheckStatus;
-  storedAssetIds: Set<string> | null;
+  storageKeys: Set<string> | null;
 }
 
 const NO_STORED_ASSETS = new Set<string>();
@@ -28,63 +28,59 @@ export function useErrorCheck(
   uploads: WizardDraft["uploads"],
 ): ErrorCheckResult {
   const storage = useWizardStorage();
-  const customAssets = deerSchema.assets.filter((asset) => !isBundledAssetPath(asset.path));
+  const customAssets = React.useMemo(
+    () => deerSchema.assets.filter((asset) => !isBundledAssetPath(asset.path)),
+    [deerSchema.assets],
+  );
+  const hasCustomAssets = customAssets.length > 0;
   const customAssetKey = customAssets
     .map((asset) => `${asset.id}:${asset.path}:${uploads[asset.id]?.storageKey ?? ""}`)
     .join("|");
   const [storageCheck, setStorageCheck] = React.useState<AssetStorageCheckState>({
     checkedKey: null,
     status: "checking",
-    storedAssetIds: null,
+    storageKeys: null,
   });
 
   React.useEffect(() => {
-    if (customAssets.length === 0) {
-      setStorageCheck({ checkedKey: null, status: "checking", storedAssetIds: null });
-      return;
-    }
+    if (!hasCustomAssets) return;
 
     let cancelled = false;
-    setStorageCheck({ checkedKey: customAssetKey, status: "checking", storedAssetIds: null });
     storage.assets
       .listAssetIds(draftId)
       .then((ids) => {
         if (cancelled) return;
-        const storageKeys = new Set(ids);
-        const availableAssetIds = customAssets
-          .filter((asset) => {
-            const storageKey = uploads[asset.id]?.storageKey;
-            return storageKey !== undefined && storageKeys.has(storageKey);
-          })
-          .map((asset) => asset.id);
-        setStorageCheck({
-          checkedKey: customAssetKey,
-          status: "ready",
-          storedAssetIds: new Set(availableAssetIds),
-        });
+        setStorageCheck({ checkedKey: customAssetKey, status: "ready", storageKeys: new Set(ids) });
       })
       .catch(() => {
         if (!cancelled) {
-          setStorageCheck({ checkedKey: customAssetKey, status: "error", storedAssetIds: null });
+          setStorageCheck({ checkedKey: customAssetKey, status: "error", storageKeys: null });
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [customAssetKey, draftId, storage]);
+  }, [customAssetKey, draftId, hasCustomAssets, storage]);
 
-  const hasCustomAssets = customAssets.length > 0;
   const matchesCurrentProject = storageCheck.checkedKey === customAssetKey;
   const assetStorageStatus: AssetStorageCheckStatus = !hasCustomAssets
     ? "ready"
     : matchesCurrentProject
       ? storageCheck.status
       : "checking";
-  const storedAssetIds = !hasCustomAssets
-    ? NO_STORED_ASSETS
-    : matchesCurrentProject && storageCheck.status === "ready"
-      ? storageCheck.storedAssetIds
-      : null;
+  const checkedStorageKeys = matchesCurrentProject ? storageCheck.storageKeys : null;
+  const storedAssetIds = React.useMemo(() => {
+    if (!hasCustomAssets) return NO_STORED_ASSETS;
+    if (!checkedStorageKeys) return null;
+    return new Set(
+      customAssets
+        .filter((asset) => {
+          const storageKey = uploads[asset.id]?.storageKey;
+          return storageKey !== undefined && checkedStorageKeys.has(storageKey);
+        })
+        .map((asset) => asset.id),
+    );
+  }, [checkedStorageKeys, customAssets, hasCustomAssets, uploads]);
 
   const assetDisplayNames = React.useMemo(
     () =>

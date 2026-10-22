@@ -22,7 +22,7 @@ export function ScenarioTab({
   issues,
 }: {
   deerSchema: DeerProject;
-  updateDeerSchema: (updatedSchema: DeerProject) => void;
+  updateDeerSchema: (transform: (project: DeerProject) => void) => void;
   issues: TabIssues;
 }) {
   const emptyMission = hasFieldErrors(issues, "mission");
@@ -39,8 +39,9 @@ export function ScenarioTab({
                 items={THEMES}
                 value={deerSchema.scenario.themeId}
                 onValueChange={(newValue) => {
-                  deerSchema.scenario.themeId = newValue ?? "";
-                  updateDeerSchema(deerSchema);
+                  updateDeerSchema((project) => {
+                    project.scenario.themeId = newValue ?? "";
+                  });
                 }}
               >
                 <SelectTrigger
@@ -69,8 +70,9 @@ export function ScenarioTab({
               aria-label="Mission der Geschichte"
               value={deerSchema.scenario.mission}
               onChange={(e) => {
-                deerSchema.scenario.mission = e.target.value;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.scenario.mission = e.target.value;
+                });
               }}
               aria-invalid={emptyMission}
             />
@@ -85,8 +87,9 @@ export function ScenarioTab({
               itemNoun="Introtext"
               value={deerSchema.scenario.introText}
               onChange={(newValue) => {
-                deerSchema.scenario.introText = newValue;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.scenario.introText = newValue;
+                });
               }}
               useTextarea
               preventEmpty

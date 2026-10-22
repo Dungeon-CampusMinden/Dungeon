@@ -36,10 +36,9 @@ export function AssetTile({
         <Tooltip>
           <TooltipTrigger
             render={
-              <span
-                role="img"
+              <button
+                type="button"
                 aria-label={warning}
-                tabIndex={0}
                 className="absolute top-2 right-2 inline-flex size-6 items-center justify-center text-status-warning outline-none focus-visible:ring-2 focus-visible:ring-status-warning"
               />
             }

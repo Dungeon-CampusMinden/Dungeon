@@ -49,7 +49,7 @@ export function DeletableEdge({
           className="nodrag nopan pointer-events-auto absolute flex size-5 items-center justify-center rounded-full border border-border bg-card text-muted-foreground opacity-70 transition-opacity hover:bg-destructive/10 hover:text-destructive hover:opacity-100"
           style={{ transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` }}
           aria-label={`Verbindung von ${data.sourceLabel} nach ${data.targetLabel} entfernen`}
-          onClick={() => deleteElements({ edges: [{ id }] })}
+          onClick={() => void deleteElements({ edges: [{ id }] })}
         >
           <XIcon size={12} />
         </button>

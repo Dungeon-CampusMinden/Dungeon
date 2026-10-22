@@ -13,11 +13,8 @@ export function AssetPreviewContent({
   asset: Asset;
   preview: AssetPreview | undefined;
 }) {
-  const [pixelated, setPixelated] = React.useState(false);
-
-  React.useEffect(() => {
-    setPixelated(false);
-  }, [preview?.previewUrl]);
+  const [pixelatedUrl, setPixelatedUrl] = React.useState<string | null>(null);
+  const pixelated = pixelatedUrl !== null && pixelatedUrl === preview?.previewUrl;
 
   if (preview === undefined) {
     return <span className="text-xs text-muted-foreground">Lädt…</span>;
@@ -48,7 +45,8 @@ export function AssetPreviewContent({
         alt=""
         onLoad={(e) => {
           const img = e.currentTarget;
-          setPixelated(img.naturalWidth < USE_NN_BELOW || img.naturalHeight < USE_NN_BELOW);
+          const small = img.naturalWidth < USE_NN_BELOW || img.naturalHeight < USE_NN_BELOW;
+          setPixelatedUrl(small ? (preview.previewUrl ?? null) : null);
         }}
         className={`mt-0 max-h-full min-h-12 max-w-full min-w-12 object-contain ${
           pixelated ? "[image-rendering:pixelated]" : ""

@@ -22,7 +22,7 @@ export function useAssetPreviews(assets: Asset[], storageRevision = 0) {
     let cancelled = false;
     const createdUrls: string[] = [];
 
-    (async () => {
+    void (async () => {
       const nextPreviews: Record<string, AssetPreview> = {};
       for (const asset of assets) {
         // Bundled assets are served directly and do not use the draft's asset storage.

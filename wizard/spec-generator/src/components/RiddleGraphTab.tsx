@@ -346,6 +346,8 @@ function RiddleGraphEditor({
             render={
               <span
                 className="inline-flex"
+                // Keeps the tooltip reachable by keyboard while the button is disabled.
+                // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                 tabIndex={project.riddles.length === 0 ? 0 : undefined}
               />
             }
