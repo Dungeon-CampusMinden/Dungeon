@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "roomId": "audience",
+  "questionnaireId": "audience-pre-placeholder-v1",
+  "title": { "de": "Bevor es losgeht" },
+  "skippable": false,
+  "pages": [
+    {
+      "questions": [
+        { "id": "intro", "type": "info",
+          "text": { "de": "Kurz vorab" },
+          "description": { "de": "Wir erforschen, wie gemeinsames Rätseln in einer Gruppe funktioniert. Die Umfrage dauert eine Minute. Wir speichern keine Namen, nur eine zufällige Kennung für diese Sitzung." } },
+        { "id": "consent", "type": "singleChoice", "required": true,
+          "text": { "de": "Dürfen wir deine Antworten und Stimmen pseudonym speichern?" },
+          "options": [
+            { "id": "yes", "text": { "de": "Ja" } },
+            { "id": "no", "text": { "de": "Nein, ich schaue nur zu" }, "declinesConsent": true } ] }
+      ]
+    },
+    {
+      "questions": [
+        { "id": "escape-room-experience", "type": "singleChoice", "required": true,
+          "text": { "de": "Wie oft hast du schon Escape-Rooms gespielt?" },
+          "options": [
+            { "id": "never", "text": { "de": "Noch nie" } },
+            { "id": "once", "text": { "de": "Ein- oder zweimal" } },
+            { "id": "often", "text": { "de": "Öfter" } } ] },
+        { "id": "confidence", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie sicher fühlst du dich mit Datenstrukturen?" },
+          "minLabel": { "de": "Gar nicht" }, "maxLabel": { "de": "Sehr" } }
+      ]
+    }
+  ]
+}

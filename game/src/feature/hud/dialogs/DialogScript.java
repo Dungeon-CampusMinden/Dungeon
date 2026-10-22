@@ -111,7 +111,7 @@ public final class DialogScript {
    * @param entries parsed dialog entries
    * @return newline-separated headless payload
    */
-  static String toHeadlessText(List<DialogEntry> entries) {
+  public static String toHeadlessText(List<DialogEntry> entries) {
     StringBuilder combined = new StringBuilder();
     for (DialogEntry e : entries) {
       if (!combined.isEmpty()) combined.append('\n');

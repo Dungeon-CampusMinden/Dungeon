@@ -1,0 +1,15 @@
+// Audience-mode messages.
+
+syntax = "proto3";
+
+package dungeon.s2c;
+
+option java_multiple_files = true;
+option java_package = "engine.network.proto.s2c";
+option java_outer_classname = "AudienceProto";
+
+// Server-to-client: state of the audience overlay (join code, voting window, results) as JSON.
+// Maps to: feature.audience.AudienceHudMessage
+message AudienceHud {
+  string json = 1;
+}

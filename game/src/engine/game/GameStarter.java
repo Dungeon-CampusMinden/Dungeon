@@ -43,6 +43,7 @@ public final class GameStarter {
   private final Supplier<TrackingSettings> trackingSettings;
   private final Supplier<String> hostActionLabel;
   private final boolean showJoinButton;
+  private final boolean askPlayerName;
   private final Runnable beforeLevelEditorStart;
 
   private GameStarter(Builder builder) {
@@ -62,6 +63,7 @@ public final class GameStarter {
     this.trackingSettings = builder.trackingSettings;
     this.hostActionLabel = builder.hostActionLabel;
     this.showJoinButton = builder.showJoinButton;
+    this.askPlayerName = builder.askPlayerName;
     this.beforeLevelEditorStart = builder.beforeLevelEditorStart;
   }
 
@@ -197,6 +199,13 @@ public final class GameStarter {
    */
   public boolean showJoinButton() {
     return showJoinButton;
+  }
+
+  /**
+   * @return whether hosting asks for a player name; otherwise it starts with the default name
+   */
+  public boolean askPlayerName() {
+    return askPlayerName;
   }
 
   /** Runs the project hook before the level editor starts creating the level. */
@@ -335,6 +344,7 @@ public final class GameStarter {
     private Supplier<TrackingSettings> trackingSettings = () -> null;
     private Supplier<String> hostActionLabel;
     private boolean showJoinButton = true;
+    private boolean askPlayerName = true;
     private Runnable beforeLevelEditorStart = () -> {};
 
     private Builder(String title, Class<?> serverMainClass) {
@@ -498,6 +508,18 @@ public final class GameStarter {
      */
     public Builder showJoinButton(boolean showJoinButton) {
       this.showJoinButton = showJoinButton;
+      return this;
+    }
+
+    /**
+     * Configures whether hosting asks for a player name (default: {@code true}). Without the
+     * question, the host action starts the server right after the startup consent.
+     *
+     * @param askPlayerName whether to show the player name field before hosting
+     * @return this builder instance
+     */
+    public Builder askPlayerName(boolean askPlayerName) {
+      this.askPlayerName = askPlayerName;
       return this;
     }
 
