@@ -1,8 +1,10 @@
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { CircleAlertIcon, CircleCheckIcon, CircleIcon, CircleXIcon, InfoIcon } from "lucide-react";
+
 import { ErrorChecker, type IssueReport, type IssueSeverity } from "@/data/ErrorChecker";
-import { isTabTouched, type TouchedTabs } from "@/data/TabTouchState";
 import { isTabId, TABS, type TabId } from "@/data/Tabs";
+import { isTabTouched, type TouchedTabs } from "@/data/TabTouchState";
+
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
 /** Review has no authored or locally validated input fields, so it has no tab status of its own. */
 const UNVALIDATED_TABS = ["review"];
@@ -24,7 +26,7 @@ export function SidebarNavigation({
 }) {
   return (
     <div className={`panel ${className ?? ""} flex flex-col gap-2`}>
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 mb-1">
+      <h2 className="mb-1 px-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
         Übersicht
       </h2>
       <Tabs
@@ -35,13 +37,13 @@ export function SidebarNavigation({
         orientation="vertical"
         className="mt-0 w-full"
       >
-        <TabsList className="bg-transparent w-full flex-col gap-1 p-0">
+        <TabsList className="w-full flex-col gap-1 bg-transparent p-0">
           {TABS.map((entry) => (
             <TabsTrigger
               key={entry.value}
               value={entry.value}
               disabled={disabled}
-              className="w-full justify-start gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-muted-foreground hover:bg-muted/70 hover:text-foreground data-active:bg-primary/15 data-active:text-primary data-active:font-semibold"
+              className="w-full justify-start gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground data-active:bg-primary/15 data-active:font-semibold data-active:text-primary"
             >
               <TabStatusIcon severity={getTabSeverity(entry.value, issueReport, touchedTabs)} />
               <span className="truncate">{entry.label}</span>

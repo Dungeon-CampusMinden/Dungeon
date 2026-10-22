@@ -1,15 +1,17 @@
-import type { DeerProject, InformationSource, Riddle, RiddleHint } from "@/data/DeerSchema";
 import { ClockIcon, InfoIcon, PencilIcon } from "lucide-react";
+
+import type { DeerProject, InformationSource, Riddle, RiddleHint } from "@/data/DeerSchema";
+import type { Issue } from "@/data/ErrorChecker";
+
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { ValidationFeedback } from "../ValidationFeedback";
 import { ResourceCarousel } from "./ResourceCarousel";
 import { RiddleInputsView } from "./RiddleInputsView";
 import { getHintSeverity, getHintSeverityOrder, getRiddleDifficulty } from "./riddleTypes";
-import type { Issue } from "@/data/ErrorChecker";
-import { ValidationFeedback } from "../ValidationFeedback";
 
 export function RiddleCard({
   riddle,
@@ -24,9 +26,13 @@ export function RiddleCard({
 }) {
   const difficulty = getRiddleDifficulty(riddle.difficulty);
   const assignedSourceIds = new Set(
-    riddle.inputs.filter((input) => input.type === "collection").map((input) => input.informationSourceId),
+    riddle.inputs
+      .filter((input) => input.type === "collection")
+      .map((input) => input.informationSourceId),
   );
-  const unassignedSources = riddle.informationSources.filter((source) => !assignedSourceIds.has(source.id));
+  const unassignedSources = riddle.informationSources.filter(
+    (source) => !assignedSourceIds.has(source.id),
+  );
 
   return (
     <Card size="sm" className="h-full">
@@ -36,7 +42,7 @@ export function RiddleCard({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-1/2 -translate-y-1/2"
+            className="absolute top-1/2 right-0 -translate-y-1/2"
             aria-label="Rätsel bearbeiten"
             onClick={onEdit}
           >
@@ -101,7 +107,9 @@ function UnassignedSourceList({
 function RiddleSection({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{title}</span>
+      <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        {title}
+      </span>
       {children}
     </div>
   );
@@ -124,7 +132,12 @@ function HintList({ hints }: { hints: RiddleHint[] }) {
             <Tooltip>
               <TooltipTrigger
                 delay={100}
-                render={<button className="text-muted-foreground" aria-label={`Hilfetext: ${hint.title}`} />}
+                render={
+                  <button
+                    className="text-muted-foreground"
+                    aria-label={`Hilfetext: ${hint.title}`}
+                  />
+                }
               >
                 <InfoIcon size={16} />
               </TooltipTrigger>

@@ -1,9 +1,4 @@
-import type {
-  AnyRiddleInput,
-  DeerProject,
-  InformationSource,
-  Riddle,
-} from "./DeerSchema";
+import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "./DeerSchema";
 import { ASSIGNMENT_SPRITES, DEVICE_INPUTS } from "./DeerSchema";
 import { Util } from "./Util";
 
@@ -48,11 +43,17 @@ export function addInformationSource(project: DeerProject, riddle: Riddle): void
   riddle.informationSources.push(source);
 }
 
-export function removeInformationSource(project: DeerProject, riddle: Riddle, sourceId: string): void {
+export function removeInformationSource(
+  project: DeerProject,
+  riddle: Riddle,
+  sourceId: string,
+): void {
   const source = riddle.informationSources.find((candidate) => candidate.id === sourceId);
   if (!source) return;
   project.surfaces = project.surfaces.filter((surface) => surface.id !== source.surfaceId);
-  riddle.informationSources = riddle.informationSources.filter((candidate) => candidate.id !== sourceId);
+  riddle.informationSources = riddle.informationSources.filter(
+    (candidate) => candidate.id !== sourceId,
+  );
   for (const input of riddle.inputs) {
     if (input.type === "collection" && input.informationSourceId === sourceId) {
       input.informationSourceId = "";
@@ -71,7 +72,11 @@ function createRiddleInput(
     return { id, type, informationSourceId: riddle.informationSources[0]?.id ?? "" };
   }
   const surfaceId = Util.generateUniqueId("s");
-  project.surfaces.push({ id: surfaceId, kind: DEVICE_INPUTS[type].kind, title: DEVICE_INPUTS[type].title });
+  project.surfaces.push({
+    id: surfaceId,
+    kind: DEVICE_INPUTS[type].kind,
+    title: DEVICE_INPUTS[type].title,
+  });
   if (type === "numeric") {
     return { id, type, surfaceId, answer: "", showDigitCount: true };
   }
@@ -83,7 +88,12 @@ function createRiddleInput(
       surfaceId,
       containers: [{ id: containerId, name: "" }],
       items: [
-        { id: Util.generateUniqueId("item"), name: "", sprite: ASSIGNMENT_SPRITES[0].path, containerId },
+        {
+          id: Util.generateUniqueId("item"),
+          name: "",
+          sprite: ASSIGNMENT_SPRITES[0].path,
+          containerId,
+        },
         { id: Util.generateUniqueId("item"), name: "", sprite: ASSIGNMENT_SPRITES[1].path },
       ],
     };

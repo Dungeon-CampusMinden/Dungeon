@@ -1,6 +1,3 @@
-import type { AnyGraphNode, DeerProject, Riddle } from "@/data/DeerSchema";
-import type { GraphLayout, UpdateDraft, WizardDraft } from "@/data/WizardDraft";
-import { removeRiddle } from "@/data/RiddleGraphActions";
 import {
   Background,
   ConnectionMode,
@@ -16,11 +13,26 @@ import {
   type OnConnect,
   type OnNodeDrag,
 } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
 import { CircleAlertIcon, LayoutGridIcon, LinkIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import React from "react";
+
+import "@xyflow/react/dist/style.css";
 import { toast } from "sonner";
+
+import type { AnyGraphNode, DeerProject, Riddle } from "@/data/DeerSchema";
+import { analyzeGraphReachability, type Issue, type TabIssues } from "@/data/ErrorChecker";
+import { removeRiddle } from "@/data/RiddleGraphActions";
+import type { GraphLayout, UpdateDraft, WizardDraft } from "@/data/WizardDraft";
+
+import { GRAPH_EDGE_TYPES, type DeletableGraphEdge } from "./graph/DeletableEdge";
+import {
+  computeAutoLayout,
+  hasEdge,
+  withMissingPositions,
+  wouldCreateCycle,
+} from "./graph/graphLayout";
+import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
 import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { Button } from "./ui/button";
 import {
@@ -33,20 +45,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { GRAPH_EDGE_TYPES, type DeletableGraphEdge } from "./graph/DeletableEdge";
-import { GRAPH_NODE_TYPES, type GraphFlowNode } from "./graph/GraphNodes";
-import {
-  analyzeGraphReachability,
-  type Issue,
-  type TabIssues,
-} from "@/data/ErrorChecker";
 import { fieldIssues } from "./ValidationFeedback";
-import {
-  computeAutoLayout,
-  hasEdge,
-  withMissingPositions,
-  wouldCreateCycle,
-} from "./graph/graphLayout";
 
 export function RiddleGraphTab(props: {
   draft: WizardDraft;
@@ -96,97 +95,126 @@ function RiddleGraphEditor({
   );
   const reachability = React.useMemo(() => analyzeGraphReachability(graph), [graph]);
   const storedLayout = useStableValue(draft.graphLayout);
-  const positions = React.useMemo(() => withMissingPositions(graph, storedLayout), [graph, storedLayout]);
+  const positions = React.useMemo(
+    () => withMissingPositions(graph, storedLayout),
+    [graph, storedLayout],
+  );
 
-  const persistLayout = React.useCallback((graphLayout: GraphLayout) => {
-    updateDraft((current) => {
-      current.graphLayout = structuredClone(graphLayout);
-    });
-  }, [updateDraft]);
+  const persistLayout = React.useCallback(
+    (graphLayout: GraphLayout) => {
+      updateDraft((current) => {
+        current.graphLayout = structuredClone(graphLayout);
+      });
+    },
+    [updateDraft],
+  );
 
   React.useEffect(() => {
     if (positions !== storedLayout) persistLayout(positions);
   }, [positions, storedLayout, persistLayout]);
 
   const flowNodes = React.useMemo<GraphFlowNode[]>(
-    () => graph.nodes.map((node) => toFlowNode(
-      node,
-      positions,
-      riddles,
-      riddleLabels,
-      reachability.unreachableFromStartIds.has(node.id),
-      reachability.noPathToEndIds.has(node.id),
-      setEditingRiddleId,
-    )),
+    () =>
+      graph.nodes.map((node) =>
+        toFlowNode(
+          node,
+          positions,
+          riddles,
+          riddleLabels,
+          reachability.unreachableFromStartIds.has(node.id),
+          reachability.noPathToEndIds.has(node.id),
+          setEditingRiddleId,
+        ),
+      ),
     [graph, positions, reachability, riddles, riddleLabels],
   );
   React.useEffect(() => setNodes(flowNodes), [flowNodes, setNodes]);
 
   const flowEdges = React.useMemo<DeletableGraphEdge[]>(
-    () => graph.edges.map((edge) => ({
-      id: `${edge.from}->${edge.to}`,
-      source: edge.from,
-      target: edge.to,
-      type: "deletable",
-      data: {
-        sourceLabel: nodeLabels.get(edge.from) ?? "Nicht mehr vorhandener Schritt",
-        targetLabel: nodeLabels.get(edge.to) ?? "Nicht mehr vorhandener Schritt",
-      },
-      markerEnd: { type: MarkerType.ArrowClosed },
-    })),
+    () =>
+      graph.edges.map((edge) => ({
+        id: `${edge.from}->${edge.to}`,
+        source: edge.from,
+        target: edge.to,
+        type: "deletable",
+        data: {
+          sourceLabel: nodeLabels.get(edge.from) ?? "Nicht mehr vorhandener Schritt",
+          targetLabel: nodeLabels.get(edge.to) ?? "Nicht mehr vorhandener Schritt",
+        },
+        markerEnd: { type: MarkerType.ArrowClosed },
+      })),
     [graph, nodeLabels],
   );
 
-  const connectNodes = React.useCallback((source: string, target: string) => {
-    updateDraft((current) => {
-      const nodes = current.project.riddleGraph.nodes;
-      const edges = current.project.riddleGraph.edges;
-      const sourceNode = nodes.find((node) => node.id === source);
-      const targetNode = nodes.find((node) => node.id === target);
+  const connectNodes = React.useCallback(
+    (source: string, target: string) => {
+      updateDraft((current) => {
+        const nodes = current.project.riddleGraph.nodes;
+        const edges = current.project.riddleGraph.edges;
+        const sourceNode = nodes.find((node) => node.id === source);
+        const targetNode = nodes.find((node) => node.id === target);
+        if (
+          !sourceNode ||
+          !targetNode ||
+          sourceNode.kind === "end" ||
+          targetNode.kind === "start"
+        ) {
+          toast.error("Diese Schritte können nicht in dieser Richtung verbunden werden.");
+          return false;
+        }
+        if (source === target) {
+          toast.error("Ein Schritt kann nicht mit sich selbst verbunden werden.");
+          return false;
+        }
+        if (hasEdge(edges, source, target)) {
+          toast.error("Diese Verbindung gibt es bereits.");
+          return false;
+        }
+        if (wouldCreateCycle(edges, source, target)) {
+          toast.error("Diese Verbindung würde einen Kreis erzeugen und ist deshalb nicht erlaubt.");
+          return false;
+        }
+        current.project.riddleGraph.edges.push({ from: source, to: target });
+      });
+    },
+    [updateDraft],
+  );
+
+  const onConnect = React.useCallback<OnConnect>(
+    (connection: Connection) => {
+      const { source, target } = connection;
+      if (source && target) connectNodes(source, target);
+    },
+    [connectNodes],
+  );
+
+  const isValidConnection = React.useCallback<IsValidConnection>(
+    (connection) => {
+      const { source, target } = connection;
+      if (!source || !target || source === target) return false;
+      const sourceNode = graph.nodes.find((node) => node.id === source);
+      const targetNode = graph.nodes.find((node) => node.id === target);
       if (!sourceNode || !targetNode || sourceNode.kind === "end" || targetNode.kind === "start") {
-        toast.error("Diese Schritte können nicht in dieser Richtung verbunden werden.");
         return false;
       }
-      if (source === target) {
-        toast.error("Ein Schritt kann nicht mit sich selbst verbunden werden.");
-        return false;
-      }
-      if (hasEdge(edges, source, target)) {
-        toast.error("Diese Verbindung gibt es bereits.");
-        return false;
-      }
-      if (wouldCreateCycle(edges, source, target)) {
-        toast.error("Diese Verbindung würde einen Kreis erzeugen und ist deshalb nicht erlaubt.");
-        return false;
-      }
-      current.project.riddleGraph.edges.push({ from: source, to: target });
-    });
-  }, [updateDraft]);
-
-  const onConnect = React.useCallback<OnConnect>((connection: Connection) => {
-    const { source, target } = connection;
-    if (source && target) connectNodes(source, target);
-  }, [connectNodes]);
-
-  const isValidConnection = React.useCallback<IsValidConnection>((connection) => {
-    const { source, target } = connection;
-    if (!source || !target || source === target) return false;
-    const sourceNode = graph.nodes.find((node) => node.id === source);
-    const targetNode = graph.nodes.find((node) => node.id === target);
-    if (!sourceNode || !targetNode || sourceNode.kind === "end" || targetNode.kind === "start") {
-      return false;
-    }
-    return !hasEdge(graph.edges, source, target) && !wouldCreateCycle(graph.edges, source, target);
-  }, [graph]);
-
-  const onEdgesDelete = React.useCallback((deleted: Edge[]) => {
-    const deletedIds = new Set(deleted.map((edge) => edge.id));
-    updateDraft((current) => {
-      current.project.riddleGraph.edges = current.project.riddleGraph.edges.filter(
-        (edge) => !deletedIds.has(`${edge.from}->${edge.to}`),
+      return (
+        !hasEdge(graph.edges, source, target) && !wouldCreateCycle(graph.edges, source, target)
       );
-    });
-  }, [updateDraft]);
+    },
+    [graph],
+  );
+
+  const onEdgesDelete = React.useCallback(
+    (deleted: Edge[]) => {
+      const deletedIds = new Set(deleted.map((edge) => edge.id));
+      updateDraft((current) => {
+        current.project.riddleGraph.edges = current.project.riddleGraph.edges.filter(
+          (edge) => !deletedIds.has(`${edge.from}->${edge.to}`),
+        );
+      });
+    },
+    [updateDraft],
+  );
 
   const onNodeDragStop = React.useCallback<OnNodeDrag<GraphFlowNode>>(
     (_event, _node, draggedNodes) => {
@@ -198,14 +226,19 @@ function RiddleGraphEditor({
     [updateDraft],
   );
 
-  const focusNode = React.useCallback((nodeId: string) => {
-    setNodes((current) => current.map((node) => ({ ...node, selected: node.id === nodeId })));
-    void fitView({ nodes: [{ id: nodeId }], duration: 300, padding: 1.5, maxZoom: 1.2 });
-  }, [fitView, setNodes]);
+  const focusNode = React.useCallback(
+    (nodeId: string) => {
+      setNodes((current) => current.map((node) => ({ ...node, selected: node.id === nodeId })));
+      void fitView({ nodes: [{ id: nodeId }], duration: 300, padding: 1.5, maxZoom: 1.2 });
+    },
+    [fitView, setNodes],
+  );
 
   const otherGraphIssues = React.useMemo(
-    () => [...fieldIssues(issues, "nodes"), ...fieldIssues(issues, "edges")]
-      .filter((issue) => issue.source !== "graph-reachability"),
+    () =>
+      [...fieldIssues(issues, "nodes"), ...fieldIssues(issues, "edges")].filter(
+        (issue) => issue.source !== "graph-reachability",
+      ),
     [issues],
   );
 
@@ -233,76 +266,89 @@ function RiddleGraphEditor({
     setEditingRiddleId(null);
   };
 
-  const autoConnect = React.useCallback((replaceExisting: boolean) => {
-    updateDraft((current) => {
-      const currentProject = current.project;
-      const startNode = currentProject.riddleGraph.nodes.find((node) => node.kind === "start");
-      const endNode = currentProject.riddleGraph.nodes.find((node) => node.kind === "end");
-      const riddleNodeIds: string[] = [];
-      for (const riddle of currentProject.riddles) {
-        const node = currentProject.riddleGraph.nodes.find(
-          (candidate) => candidate.kind === "riddle" && candidate.riddleId === riddle.id,
-        );
-        if (node) riddleNodeIds.push(node.id);
-      }
+  const autoConnect = React.useCallback(
+    (replaceExisting: boolean) => {
+      updateDraft((current) => {
+        const currentProject = current.project;
+        const startNode = currentProject.riddleGraph.nodes.find((node) => node.kind === "start");
+        const endNode = currentProject.riddleGraph.nodes.find((node) => node.kind === "end");
+        const riddleNodeIds: string[] = [];
+        for (const riddle of currentProject.riddles) {
+          const node = currentProject.riddleGraph.nodes.find(
+            (candidate) => candidate.kind === "riddle" && candidate.riddleId === riddle.id,
+          );
+          if (node) riddleNodeIds.push(node.id);
+        }
 
-      if (!startNode || !endNode || riddleNodeIds.length !== currentProject.riddles.length) {
-        toast.error("Der Spielablauf ist unvollständig und kann nicht automatisch verbunden werden.");
-        return false;
-      }
+        if (!startNode || !endNode || riddleNodeIds.length !== currentProject.riddles.length) {
+          toast.error(
+            "Der Spielablauf ist unvollständig und kann nicht automatisch verbunden werden.",
+          );
+          return false;
+        }
 
-      const orderedNodeIds = [
-        startNode.id,
-        ...riddleNodeIds,
-        endNode.id,
-      ];
-      const desiredEdges = orderedNodeIds.slice(0, -1).map((from, index) => ({
-        from,
-        to: orderedNodeIds[index + 1],
-      }));
-      const currentEdges = currentProject.riddleGraph.edges;
-      const alreadyConnected = currentEdges.length === desiredEdges.length
-        && desiredEdges.every((desiredEdge) => currentEdges.some((currentEdge) =>
-          currentEdge.from === desiredEdge.from && currentEdge.to === desiredEdge.to));
+        const orderedNodeIds = [startNode.id, ...riddleNodeIds, endNode.id];
+        const desiredEdges = orderedNodeIds.slice(0, -1).map((from, index) => ({
+          from,
+          to: orderedNodeIds[index + 1],
+        }));
+        const currentEdges = currentProject.riddleGraph.edges;
+        const alreadyConnected =
+          currentEdges.length === desiredEdges.length &&
+          desiredEdges.every((desiredEdge) =>
+            currentEdges.some(
+              (currentEdge) =>
+                currentEdge.from === desiredEdge.from && currentEdge.to === desiredEdge.to,
+            ),
+          );
 
-      if (alreadyConnected) {
-        toast.info("Der Spielablauf ist bereits in Rätselreihenfolge verbunden.");
-        return false;
-      }
-      if (currentEdges.length > 0 && !replaceExisting) {
-        setConfirmAutoConnect(true);
-        return false;
-      }
+        if (alreadyConnected) {
+          toast.info("Der Spielablauf ist bereits in Rätselreihenfolge verbunden.");
+          return false;
+        }
+        if (currentEdges.length > 0 && !replaceExisting) {
+          setConfirmAutoConnect(true);
+          return false;
+        }
 
-      currentProject.riddleGraph.edges = desiredEdges;
-      current.graphLayout = computeAutoLayout(currentProject.riddleGraph);
-      toast.success("Der Spielablauf wurde in Rätselreihenfolge verbunden.");
-    });
-  }, [updateDraft]);
+        currentProject.riddleGraph.edges = desiredEdges;
+        current.graphLayout = computeAutoLayout(currentProject.riddleGraph);
+        toast.success("Der Spielablauf wurde in Rätselreihenfolge verbunden.");
+      });
+    },
+    [updateDraft],
+  );
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <h1 className="wizard-page-title">Spielablauf</h1>
         <p className="text-sm text-muted-foreground">
-          Ziehe vom blauen Verbindungspunkt eines Schritts zum nächsten. Der folgende Schritt wird nach
-          seinem Vorgänger verfügbar. Hat er mehrere Vorgänger, müssen alle davon gelöst sein. Verbindungen
-          entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
+          Ziehe vom blauen Verbindungspunkt eines Schritts zum nächsten. Der folgende Schritt wird
+          nach seinem Vorgänger verfügbar. Hat er mehrere Vorgänger, müssen alle davon gelöst sein.
+          Verbindungen entfernst du über das X in ihrer Mitte oder mit der ENTF-Taste.
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
         <Button
           variant="outline"
-          onClick={() => updateDraft((current) => {
-            current.graphLayout = computeAutoLayout(current.project.riddleGraph);
-          })}
+          onClick={() =>
+            updateDraft((current) => {
+              current.graphLayout = computeAutoLayout(current.project.riddleGraph);
+            })
+          }
         >
           <LayoutGridIcon />
           Automatisch anordnen
         </Button>
         <Tooltip>
           <TooltipTrigger
-            render={<span className="inline-flex" tabIndex={project.riddles.length === 0 ? 0 : undefined} />}
+            render={
+              <span
+                className="inline-flex"
+                tabIndex={project.riddles.length === 0 ? 0 : undefined}
+              />
+            }
           >
             <Button
               variant="outline"
@@ -359,7 +405,9 @@ function RiddleGraphEditor({
           riddle={editingRiddle}
           deerSchema={project}
           open={editingRiddleId !== null}
-          setOpen={(open) => { if (!open) setEditingRiddleId(null); }}
+          setOpen={(open) => {
+            if (!open) setEditingRiddleId(null);
+          }}
           onChange={updateRiddle}
           onDelete={deleteRiddle}
           tabIssues={riddleIssues}
@@ -371,8 +419,9 @@ function RiddleGraphEditor({
           <DialogHeader>
             <DialogTitle>Verbindungen automatisch ersetzen?</DialogTitle>
             <DialogDescription>
-              Alle bisherigen Verbindungen werden ersetzt. Der neue Ablauf führt in Rätselreihenfolge
-              von Start über alle Rätsel bis zum Ende. Diese Änderung kann nicht rückgängig gemacht werden.
+              Alle bisherigen Verbindungen werden ersetzt. Der neue Ablauf führt in
+              Rätselreihenfolge von Start über alle Rätsel bis zum Ende. Diese Änderung kann nicht
+              rückgängig gemacht werden.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -452,8 +501,9 @@ function GraphErrorOverview({
   otherIssues: Issue[];
   onNodeSelect: (nodeId: string) => void;
 }) {
-  const affectedNodes = graph.nodes.filter((node) =>
-    unreachableNodeIds.has(node.id) || noPathToEndNodeIds.has(node.id));
+  const affectedNodes = graph.nodes.filter(
+    (node) => unreachableNodeIds.has(node.id) || noPathToEndNodeIds.has(node.id),
+  );
   if (affectedNodes.length === 0 && otherIssues.length === 0) return null;
 
   return (
@@ -466,16 +516,17 @@ function GraphErrorOverview({
         {affectedNodes.map((node) => {
           const unreachable = unreachableNodeIds.has(node.id);
           const noPathToEnd = noPathToEndNodeIds.has(node.id);
-          const description = unreachable && noPathToEnd
-            ? "ist vom Start nicht erreichbar und führt nicht zum Ende."
-            : unreachable
-              ? "ist vom Start nicht erreichbar."
-              : "führt nicht zum Ende.";
+          const description =
+            unreachable && noPathToEnd
+              ? "ist vom Start nicht erreichbar und führt nicht zum Ende."
+              : unreachable
+                ? "ist vom Start nicht erreichbar."
+                : "führt nicht zum Ende.";
           return (
             <li key={node.id}>
               <button
                 type="button"
-                className="text-left text-destructive underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="text-left text-destructive underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 onClick={() => onNodeSelect(node.id)}
               >
                 {nodeLabels.get(node.id) ?? "Unbekannter Schritt"} {description}
@@ -485,7 +536,8 @@ function GraphErrorOverview({
         })}
         {otherIssues.map((issue, index) => (
           <li key={`${issue.description}-${index}`}>
-            {issue.description}{issue.details ? ` ${issue.details}` : ""}
+            {issue.description}
+            {issue.details ? ` ${issue.details}` : ""}
           </li>
         ))}
       </ul>

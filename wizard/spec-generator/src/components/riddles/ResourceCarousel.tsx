@@ -1,12 +1,26 @@
-import type { AnyResource, Asset } from "@/data/DeerSchema";
 import React from "react";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+
+import type { AnyResource, Asset } from "@/data/DeerSchema";
+
 import { AssetPreviewContent } from "../assets/AssetPreviewContent";
 import { useAssetPreviews } from "../assets/useAssetPreviews";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 /** Horizontally scrollable preview of all resources of a riddle. */
-export function ResourceCarousel({ resources, assets }: { resources: AnyResource[]; assets: Asset[] }) {
+export function ResourceCarousel({
+  resources,
+  assets,
+}: {
+  resources: AnyResource[];
+  assets: Asset[];
+}) {
   const usedAssets = assets.filter((asset) =>
     resources.some((resource) => resource.kind === "asset" && resource.assetId === asset.id),
   );
@@ -57,7 +71,8 @@ function ResourceCard({
   previews: ReturnType<typeof useAssetPreviews>;
   onClick: () => void;
 }) {
-  const asset = resource.kind === "asset" ? assets.find((item) => item.id === resource.assetId) : undefined;
+  const asset =
+    resource.kind === "asset" ? assets.find((item) => item.id === resource.assetId) : undefined;
 
   return (
     <button
@@ -95,7 +110,8 @@ function ResourceDetailDialog({
   previews: ReturnType<typeof useAssetPreviews>;
   onClose: () => void;
 }) {
-  const asset = resource?.kind === "asset" ? assets.find((item) => item.id === resource.assetId) : undefined;
+  const asset =
+    resource?.kind === "asset" ? assets.find((item) => item.id === resource.assetId) : undefined;
 
   return (
     <Dialog open={resource !== null} onOpenChange={(nextOpen) => !nextOpen && onClose()}>

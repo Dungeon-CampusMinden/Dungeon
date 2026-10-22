@@ -1,22 +1,28 @@
-import type { AnyRiddleInput, AssignmentInput, ChoiceInput, CollectionInput, DeerProject, NumericInput, Riddle } from "@/data/DeerSchema";
-import { ASSIGNMENT_SPRITES } from "@/data/DeerSchema";
 import { CheckIcon, PlusIcon, TrashIcon } from "lucide-react";
-import {
-  addRiddleInput,
-  convertRiddleInput,
-  removeRiddleInput,
-} from "@/data/RiddleGraphActions";
+
+import type {
+  AnyRiddleInput,
+  AssignmentInput,
+  ChoiceInput,
+  CollectionInput,
+  DeerProject,
+  NumericInput,
+  Riddle,
+} from "@/data/DeerSchema";
+import { ASSIGNMENT_SPRITES } from "@/data/DeerSchema";
+import type { Issue, TabIssues } from "@/data/ErrorChecker";
+import { addRiddleInput, convertRiddleInput, removeRiddleInput } from "@/data/RiddleGraphActions";
+import { Util } from "@/data/Util";
+
+import { getBundledAssetUrl } from "../assets/assetPaths";
 import { Button } from "../ui/button";
 import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
+import { ResponsiveChoice } from "../ui/responsive-choice";
 import { Textarea } from "../ui/textarea";
-import { Util } from "@/data/Util";
+import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
 import { INPUT_TYPES } from "./riddleTypes";
 import { SimpleSelect } from "./SimpleSelect";
-import type { Issue, TabIssues } from "@/data/ErrorChecker";
-import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
-import { ResponsiveChoice } from "../ui/responsive-choice";
-import { getBundledAssetUrl } from "../assets/assetPaths";
 
 const YES_NO = [
   { value: "true", label: "Ja" },
@@ -69,10 +75,7 @@ export function RiddleInputsEditor({
         <span className="text-sm text-muted-foreground">Noch keine Eingabe hinterlegt.</span>
       )}
       {inputs.map((input, index) => (
-        <div
-          key={input.id}
-          className="flex flex-col gap-3 rounded-md border border-border p-3"
-        >
+        <div key={input.id} className="flex flex-col gap-3 rounded-md border border-border p-3">
           <div className="grid grid-cols-[1fr_auto] items-end gap-2">
             <Field>
               <FieldLabel>Art der Eingabe</FieldLabel>
@@ -82,12 +85,22 @@ export function RiddleInputsEditor({
                 value={input.type}
                 onChange={(newValue) =>
                   updateProject((next, nextRiddle) =>
-                    convertRiddleInput(next, nextRiddle, input.id, newValue as AnyRiddleInput["type"]),
+                    convertRiddleInput(
+                      next,
+                      nextRiddle,
+                      input.id,
+                      newValue as AnyRiddleInput["type"],
+                    ),
                   )
                 }
               />
             </Field>
-            <Button aria-label={`Eingabe ${index + 1} löschen`} variant="destructive" size="icon" onClick={() => removeInput(index)}>
+            <Button
+              aria-label={`Eingabe ${index + 1} löschen`}
+              variant="destructive"
+              size="icon"
+              onClick={() => removeInput(index)}
+            >
               <TrashIcon />
             </Button>
           </div>
@@ -109,7 +122,10 @@ export function RiddleInputsEditor({
             <AssignmentInputFields
               input={input}
               inputIndex={index}
-              containerIssues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:containers`)}
+              containerIssues={fieldIssues(
+                issues,
+                `riddle:${riddle.id}:input:${input.id}:containers`,
+              )}
               itemIssues={fieldIssues(issues, `riddle:${riddle.id}:input:${input.id}:items`)}
               onChange={(updated) => updateInput(index, updated)}
             />
@@ -149,7 +165,9 @@ function CollectionInputFields({
       <FieldLabel>Informationsquelle</FieldLabel>
       <FieldDescription>Welche Materialien müssen die Spieler finden?</FieldDescription>
       {options.length === 0 ? (
-        <span className="text-sm text-muted-foreground">Lege zuerst eine Informationsquelle an.</span>
+        <span className="text-sm text-muted-foreground">
+          Lege zuerst eine Informationsquelle an.
+        </span>
       ) : (
         <SimpleSelect
           accessibleLabel={`Informationsquelle für Eingabe ${inputIndex + 1}`}
@@ -183,7 +201,9 @@ function NumericInputFields({
           aria-invalid={issues.some((issue) => issue.severity === "error")}
           value={input.answer}
           inputMode="numeric"
-          onChange={(e) => onChange({ ...input, answer: e.target.value.replace(/[^0-9]/g, "").slice(0, 8) })}
+          onChange={(e) =>
+            onChange({ ...input, answer: e.target.value.replace(/[^0-9]/g, "").slice(0, 8) })
+          }
         />
         <ValidationFeedback issues={issues} />
       </Field>
@@ -217,7 +237,8 @@ function ChoiceInputFields({
   optionIssues: Issue[];
 }) {
   // Keeps the marked answers in the order the teacher sees them.
-  const inOptionOrder = (ids: string[]) => input.options.map((option) => option.id).filter((id) => ids.includes(id));
+  const inOptionOrder = (ids: string[]) =>
+    input.options.map((option) => option.id).filter((id) => ids.includes(id));
   const toggleCorrect = (optionId: string) => {
     const isCorrect = input.correctOptionIds.includes(optionId);
     const correctOptionIds = input.multipleSelection
@@ -242,21 +263,31 @@ function ChoiceInputFields({
       </Field>
       <Field>
         <FieldLabel>Mehrere richtige Antworten</FieldLabel>
-        <FieldDescription>Bei „Ja“ müssen die Spieler alle richtigen Antworten auswählen.</FieldDescription>
+        <FieldDescription>
+          Bei „Ja“ müssen die Spieler alle richtigen Antworten auswählen.
+        </FieldDescription>
         <ResponsiveChoice
           accessibleLabel={`Mehrere richtige Antworten für Eingabe ${inputIndex + 1}`}
           options={YES_NO}
           value={input.multipleSelection ? "true" : "false"}
-          onChange={(newValue) => onChange({
-            ...input,
-            multipleSelection: newValue === "true",
-            correctOptionIds: newValue === "true" ? input.correctOptionIds : inOptionOrder(input.correctOptionIds).slice(0, 1),
-          })}
+          onChange={(newValue) =>
+            onChange({
+              ...input,
+              multipleSelection: newValue === "true",
+              correctOptionIds:
+                newValue === "true"
+                  ? input.correctOptionIds
+                  : inOptionOrder(input.correctOptionIds).slice(0, 1),
+            })
+          }
         />
       </Field>
       <Field>
         <FieldLabel>Antworten</FieldLabel>
-        <FieldDescription>Markiere {input.multipleSelection ? "alle richtigen Antworten" : "die richtige Antwort"} mit dem Haken.</FieldDescription>
+        <FieldDescription>
+          Markiere {input.multipleSelection ? "alle richtigen Antworten" : "die richtige Antwort"}{" "}
+          mit dem Haken.
+        </FieldDescription>
         <div className="flex flex-col gap-2">
           {input.options.map((option, optionIndex) => {
             const isCorrect = input.correctOptionIds.includes(option.id);
@@ -274,22 +305,27 @@ function ChoiceInputFields({
                 <Input
                   aria-label={`Antwort ${optionIndex + 1} für Eingabe ${inputIndex + 1}`}
                   value={option.text}
-                  onChange={(e) => onChange({
-                    ...input,
-                    options: input.options.map((entry) =>
-                      entry.id === option.id ? { ...entry, text: e.target.value } : entry),
-                  })}
+                  onChange={(e) =>
+                    onChange({
+                      ...input,
+                      options: input.options.map((entry) =>
+                        entry.id === option.id ? { ...entry, text: e.target.value } : entry,
+                      ),
+                    })
+                  }
                 />
                 <Button
                   aria-label={`Antwort ${optionIndex + 1} löschen`}
                   variant="ghost"
                   size="icon"
                   disabled={input.options.length <= MIN_CHOICE_OPTIONS}
-                  onClick={() => onChange({
-                    ...input,
-                    options: input.options.filter((entry) => entry.id !== option.id),
-                    correctOptionIds: input.correctOptionIds.filter((id) => id !== option.id),
-                  })}
+                  onClick={() =>
+                    onChange({
+                      ...input,
+                      options: input.options.filter((entry) => entry.id !== option.id),
+                      correctOptionIds: input.correctOptionIds.filter((id) => id !== option.id),
+                    })
+                  }
                 >
                   <TrashIcon />
                 </Button>
@@ -301,10 +337,12 @@ function ChoiceInputFields({
           variant="outline"
           className="lg:max-w-40"
           disabled={input.options.length >= MAX_CHOICE_OPTIONS}
-          onClick={() => onChange({
-            ...input,
-            options: [...input.options, { id: Util.generateUniqueId("opt"), text: "" }],
-          })}
+          onClick={() =>
+            onChange({
+              ...input,
+              options: [...input.options, { id: Util.generateUniqueId("opt"), text: "" }],
+            })
+          }
         >
           <PlusIcon />
           Antwort
@@ -341,7 +379,10 @@ function AssignmentInputFields({
     })),
     { value: NO_CONTAINER, label: "Keine Kiste" },
   ];
-  const spriteOptions = ASSIGNMENT_SPRITES.map((sprite) => ({ value: sprite.path, label: sprite.label }));
+  const spriteOptions = ASSIGNMENT_SPRITES.map((sprite) => ({
+    value: sprite.path,
+    label: sprite.label,
+  }));
 
   return (
     <>
@@ -354,23 +395,31 @@ function AssignmentInputFields({
               <Input
                 aria-label={`Name von Kiste ${containerIndex + 1} für Eingabe ${inputIndex + 1}`}
                 value={container.name}
-                onChange={(e) => onChange({
-                  ...input,
-                  containers: input.containers.map((entry) =>
-                    entry.id === container.id ? { ...entry, name: e.target.value } : entry),
-                })}
+                onChange={(e) =>
+                  onChange({
+                    ...input,
+                    containers: input.containers.map((entry) =>
+                      entry.id === container.id ? { ...entry, name: e.target.value } : entry,
+                    ),
+                  })
+                }
               />
               <Button
                 aria-label={`Kiste ${containerIndex + 1} löschen`}
                 variant="ghost"
                 size="icon"
                 disabled={input.containers.length <= MIN_CONTAINERS}
-                onClick={() => onChange({
-                  ...input,
-                  containers: input.containers.filter((entry) => entry.id !== container.id),
-                  items: input.items.map((item) =>
-                    item.containerId === container.id ? { ...item, containerId: undefined } : item),
-                })}
+                onClick={() =>
+                  onChange({
+                    ...input,
+                    containers: input.containers.filter((entry) => entry.id !== container.id),
+                    items: input.items.map((item) =>
+                      item.containerId === container.id
+                        ? { ...item, containerId: undefined }
+                        : item,
+                    ),
+                  })
+                }
               >
                 <TrashIcon />
               </Button>
@@ -381,10 +430,12 @@ function AssignmentInputFields({
           variant="outline"
           className="lg:max-w-40"
           disabled={input.containers.length >= MAX_CONTAINERS}
-          onClick={() => onChange({
-            ...input,
-            containers: [...input.containers, { id: Util.generateUniqueId("box"), name: "" }],
-          })}
+          onClick={() =>
+            onChange({
+              ...input,
+              containers: [...input.containers, { id: Util.generateUniqueId("box"), name: "" }],
+            })
+          }
         >
           <PlusIcon />
           Kiste
@@ -393,7 +444,9 @@ function AssignmentInputFields({
       </Field>
       <Field>
         <FieldLabel>Gegenstände</FieldLabel>
-        <FieldDescription>Wähle für jeden Gegenstand ein Bild und die Kiste, in die er gehört.</FieldDescription>
+        <FieldDescription>
+          Wähle für jeden Gegenstand ein Bild und die Kiste, in die er gehört.
+        </FieldDescription>
         <div className="flex flex-col gap-2">
           {input.items.map((item, itemIndex) => (
             <div key={item.id} className="flex flex-wrap items-center gap-2">
@@ -407,38 +460,55 @@ function AssignmentInputFields({
                 className="w-36"
                 options={spriteOptions}
                 value={item.sprite}
-                onChange={(newValue) => onChange({
-                  ...input,
-                  items: input.items.map((entry) => entry.id === item.id ? { ...entry, sprite: newValue } : entry),
-                })}
+                onChange={(newValue) =>
+                  onChange({
+                    ...input,
+                    items: input.items.map((entry) =>
+                      entry.id === item.id ? { ...entry, sprite: newValue } : entry,
+                    ),
+                  })
+                }
               />
               <Input
                 aria-label={`Name von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
                 className="min-w-40 flex-1"
                 value={item.name}
-                onChange={(e) => onChange({
-                  ...input,
-                  items: input.items.map((entry) => entry.id === item.id ? { ...entry, name: e.target.value } : entry),
-                })}
+                onChange={(e) =>
+                  onChange({
+                    ...input,
+                    items: input.items.map((entry) =>
+                      entry.id === item.id ? { ...entry, name: e.target.value } : entry,
+                    ),
+                  })
+                }
               />
               <SimpleSelect
                 accessibleLabel={`Kiste von Gegenstand ${itemIndex + 1} für Eingabe ${inputIndex + 1}`}
                 className="w-40"
                 options={targetOptions}
                 value={item.containerId ?? NO_CONTAINER}
-                onChange={(newValue) => onChange({
-                  ...input,
-                  items: input.items.map((entry) => entry.id === item.id
-                    ? { ...entry, containerId: newValue === NO_CONTAINER ? undefined : newValue }
-                    : entry),
-                })}
+                onChange={(newValue) =>
+                  onChange({
+                    ...input,
+                    items: input.items.map((entry) =>
+                      entry.id === item.id
+                        ? {
+                            ...entry,
+                            containerId: newValue === NO_CONTAINER ? undefined : newValue,
+                          }
+                        : entry,
+                    ),
+                  })
+                }
               />
               <Button
                 aria-label={`Gegenstand ${itemIndex + 1} löschen`}
                 variant="ghost"
                 size="icon"
                 disabled={input.items.length <= MIN_ITEMS}
-                onClick={() => onChange({ ...input, items: input.items.filter((entry) => entry.id !== item.id) })}
+                onClick={() =>
+                  onChange({ ...input, items: input.items.filter((entry) => entry.id !== item.id) })
+                }
               >
                 <TrashIcon />
               </Button>
@@ -449,13 +519,15 @@ function AssignmentInputFields({
           variant="outline"
           className="lg:max-w-40"
           disabled={input.items.length >= MAX_ITEMS}
-          onClick={() => onChange({
-            ...input,
-            items: [
-              ...input.items,
-              { id: Util.generateUniqueId("item"), name: "", sprite: ASSIGNMENT_SPRITES[0].path },
-            ],
-          })}
+          onClick={() =>
+            onChange({
+              ...input,
+              items: [
+                ...input.items,
+                { id: Util.generateUniqueId("item"), name: "", sprite: ASSIGNMENT_SPRITES[0].path },
+              ],
+            })
+          }
         >
           <PlusIcon />
           Gegenstand

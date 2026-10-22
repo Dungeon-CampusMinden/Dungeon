@@ -1,8 +1,17 @@
 import type { DeerSchema } from "./DeerSchema";
-import { parseProjectValidationReport, type ProjectValidationReport } from "./ProjectValidationReport";
+import {
+  parseProjectValidationReport,
+  type ProjectValidationReport,
+} from "./ProjectValidationReport";
 
-export interface CustomAssetPayload { path: string; bytesBase64: string; }
-export interface ProductionRequest { project: DeerSchema; customAssets: CustomAssetPayload[]; }
+export interface CustomAssetPayload {
+  path: string;
+  bytesBase64: string;
+}
+export interface ProductionRequest {
+  project: DeerSchema;
+  customAssets: CustomAssetPayload[];
+}
 export type PackageResult =
   | { kind: "invalid"; report: ProjectValidationReport }
   | { kind: "ready"; jar: Blob };
@@ -23,7 +32,11 @@ function errorMessage(status: number, value: unknown, action: string): string {
 
 async function responseJson(response: Response, action: string): Promise<unknown> {
   let value: unknown;
-  try { value = await response.json(); } catch { value = null; }
+  try {
+    value = await response.json();
+  } catch {
+    value = null;
+  }
   if (!response.ok) throw new Error(errorMessage(response.status, value, action));
   if (!response.headers.get("content-type")?.toLowerCase().includes("application/json")) {
     throw new Error(`${action} hat eine ungültige Antwort geliefert.`);
@@ -32,20 +45,29 @@ async function responseJson(response: Response, action: string): Promise<unknown
 }
 
 async function apiJson(path: string, body: unknown, action: string): Promise<unknown> {
-  return responseJson(await fetch(`/api/v1${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  }), action);
+  return responseJson(
+    await fetch(`/api/v1${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    }),
+    action,
+  );
 }
 
 export async function detectNativeHost(): Promise<boolean> {
   try {
     const response = await fetch("/api/v1/status", { headers: { Accept: "application/json" } });
     const value = await responseJson(response, "Die Host-Erkennung");
-    return isRecord(value) && Object.keys(value).length === 2
-      && value.apiVersion === "1" && value.mode === "native";
-  } catch { return false; }
+    return (
+      isRecord(value) &&
+      Object.keys(value).length === 2 &&
+      value.apiVersion === "1" &&
+      value.mode === "native"
+    );
+  } catch {
+    return false;
+  }
 }
 
 export class NativeWizardHost implements WizardHostPort {
@@ -85,6 +107,10 @@ export class BrowserWizardHost implements WizardHostPort {
   private unavailable(): never {
     throw new Error("Diese Funktion ist nur in der lokal gestarteten Wizard-Anwendung verfügbar.");
   }
-  async validate(): Promise<ProjectValidationReport> { return this.unavailable(); }
-  async package(): Promise<PackageResult> { return this.unavailable(); }
+  async validate(): Promise<ProjectValidationReport> {
+    return this.unavailable();
+  }
+  async package(): Promise<PackageResult> {
+    return this.unavailable();
+  }
 }

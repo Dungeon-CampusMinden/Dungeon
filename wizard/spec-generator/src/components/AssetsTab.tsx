@@ -1,14 +1,16 @@
-import type { Asset } from "@/data/DeerSchema";
-import React from "react";
-import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
+import React from "react";
 import { toast } from "sonner";
+
+import type { Asset } from "@/data/DeerSchema";
+import type { TabIssues } from "@/data/ErrorChecker";
 import { Util } from "@/data/Util";
-import { useWizardStorage } from "@/data/WizardStorage";
 import type { UpdateDraft, UploadReference, WizardDraft } from "@/data/WizardDraft";
+import { useWizardStorage } from "@/data/WizardStorage";
+import type { WizardWork } from "@/data/WizardWork";
+
 import { AssetCard } from "./assets/AssetCard";
 import { AssetCreateDialog } from "./assets/AssetCreateDialog";
-import { useAssetPreviews } from "./assets/useAssetPreviews";
 import {
   ALLOWED_EXTENSIONS,
   createCustomAssetPath,
@@ -17,11 +19,19 @@ import {
   validateCustomAssetFile,
   type AssetSelection,
 } from "./assets/assetPaths";
-import type { WizardWork } from "@/data/WizardWork";
-import type { TabIssues } from "@/data/ErrorChecker";
+import { useAssetPreviews } from "./assets/useAssetPreviews";
+import { Button } from "./ui/button";
 import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
-export function AssetsTab({ draft, updateDraft, flush, work, beginWork, finishWork, issues }: {
+export function AssetsTab({
+  draft,
+  updateDraft,
+  flush,
+  work,
+  beginWork,
+  finishWork,
+  issues,
+}: {
   draft: WizardDraft;
   updateDraft: UpdateDraft;
   flush: () => Promise<WizardDraft>;
@@ -40,7 +50,8 @@ export function AssetsTab({ draft, updateDraft, flush, work, beginWork, finishWo
 
   const rejectBlockedUpload = () => {
     toast.error("Dateien können gerade nicht geändert werden.", {
-      description: "Warte, bis die laufende Prüfung, Spielerstellung oder Dateiübertragung abgeschlossen ist.",
+      description:
+        "Warte, bis die laufende Prüfung, Spielerstellung oder Dateiübertragung abgeschlossen ist.",
     });
     return new Error("Eine andere Wizard-Arbeit läuft bereits.");
   };
@@ -138,7 +149,8 @@ export function AssetsTab({ draft, updateDraft, flush, work, beginWork, finishWo
       <div className="flex flex-col gap-1">
         <h1 className="wizard-page-title">Bilder und Dateien</h1>
         <p className="text-sm text-muted-foreground">
-          Eigene oder mitgelieferte Dateien für den Raum. Erlaubte Formate: {ALLOWED_EXTENSIONS.join(", ")}.
+          Eigene oder mitgelieferte Dateien für den Raum. Erlaubte Formate:{" "}
+          {ALLOWED_EXTENSIONS.join(", ")}.
         </p>
       </div>
       {work === "validating" && (

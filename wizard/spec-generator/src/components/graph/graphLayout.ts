@@ -55,7 +55,9 @@ export function computeAutoLayout(graph: RiddleGraph): GraphLayout {
   for (const node of graph.nodes) row.set(node.id, 0);
 
   // Kahn's algorithm; nodes left over by cycles keep their default column.
-  const queue = graph.nodes.filter((node) => incomingCount.get(node.id) === 0).map((node) => node.id);
+  const queue = graph.nodes
+    .filter((node) => incomingCount.get(node.id) === 0)
+    .map((node) => node.id);
   while (queue.length > 0) {
     const current = queue.shift() as string;
     for (const next of outgoing.get(current) ?? []) {

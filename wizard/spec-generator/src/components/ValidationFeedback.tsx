@@ -1,6 +1,8 @@
-import type { Issue, TabIssues } from "@/data/ErrorChecker";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { CircleAlertIcon, CircleXIcon, InfoIcon } from "lucide-react";
+
+import type { Issue, TabIssues } from "@/data/ErrorChecker";
+
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 export function fieldIssues(tabIssues: TabIssues | undefined, field: string): Issue[] {
   return tabIssues?.[field] ?? [];
@@ -24,9 +26,17 @@ export function ValidationFeedback({ issues, className }: { issues: Issue[]; cla
         <Alert
           key={`${issue.severity}-${issue.description}-${index}`}
           variant={issue.severity === "error" ? "destructive" : "default"}
-          className={issue.severity === "warning" ? "border-amber-500/30 bg-amber-500/10" : undefined}
+          className={
+            issue.severity === "warning" ? "border-amber-500/30 bg-amber-500/10" : undefined
+          }
         >
-          {issue.severity === "error" ? <CircleXIcon /> : issue.severity === "warning" ? <CircleAlertIcon /> : <InfoIcon />}
+          {issue.severity === "error" ? (
+            <CircleXIcon />
+          ) : issue.severity === "warning" ? (
+            <CircleAlertIcon />
+          ) : (
+            <InfoIcon />
+          )}
           <AlertTitle>{issue.description}</AlertTitle>
           {issue.details && <AlertDescription>{issue.details}</AlertDescription>}
         </Alert>

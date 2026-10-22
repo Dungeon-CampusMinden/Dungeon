@@ -1,19 +1,21 @@
-import type { Asset } from "@/data/DeerSchema";
+import { PencilIcon, Trash2Icon } from "lucide-react";
 import React from "react";
+
+import type { Asset } from "@/data/DeerSchema";
+import type { Issue } from "@/data/ErrorChecker";
+
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { PencilIcon, Trash2Icon } from "lucide-react";
-import { AssetPreviewContent } from "./AssetPreviewContent";
+import { ValidationFeedback } from "../ValidationFeedback";
 import { AssetEditDialog } from "./AssetEditDialog";
 import { getAssetDisplayName, type AssetPreview, type AssetSelection } from "./assetPaths";
+import { AssetPreviewContent } from "./AssetPreviewContent";
 import { useUploadReferences } from "./UploadReferencesContext";
-import type { Issue } from "@/data/ErrorChecker";
-import { ValidationFeedback } from "../ValidationFeedback";
 
 export function AssetCard({
   asset,
@@ -48,15 +50,20 @@ export function AssetCard({
   const stateClasses = technicalError
     ? "border-yellow-500/60 bg-yellow-500/5"
     : missing
-    ? "border-destructive bg-destructive/5"
-    : highlighted
-      ? "border-primary bg-primary/5 ring-2 ring-primary"
-      : "border-border bg-muted/30";
+      ? "border-destructive bg-destructive/5"
+      : highlighted
+        ? "border-primary bg-primary/5 ring-2 ring-primary"
+        : "border-border bg-muted/30";
 
   return (
-    <div className="flex min-w-0 flex-col gap-1" aria-invalid={issues.some((issue) => issue.severity === "error")}>
+    <div
+      className="flex min-w-0 flex-col gap-1"
+      aria-invalid={issues.some((issue) => issue.severity === "error")}
+    >
       <div
-        title={technicalError ? "Lokaler Speicher nicht verfügbar" : missing ? "Datei fehlt" : fileName}
+        title={
+          technicalError ? "Lokaler Speicher nicht verfügbar" : missing ? "Datei fehlt" : fileName
+        }
         className={`flex aspect-square items-center justify-center rounded-lg border p-2 transition-colors ${stateClasses}`}
       >
         <AssetPreviewContent asset={asset} preview={preview} />
@@ -68,7 +75,9 @@ export function AssetCard({
         </span>
         {editable && (
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="outline" size="icon-sm" disabled={disabled} />}>
+            <DropdownMenuTrigger
+              render={<Button variant="outline" size="icon-sm" disabled={disabled} />}
+            >
               <PencilIcon />
               <span className="sr-only">Datei bearbeiten</span>
             </DropdownMenuTrigger>
@@ -77,7 +86,11 @@ export function AssetCard({
                 <PencilIcon />
                 Bearbeiten
               </DropdownMenuItem>
-              <DropdownMenuItem disabled={disabled} variant="destructive" onClick={() => onDelete?.(asset)}>
+              <DropdownMenuItem
+                disabled={disabled}
+                variant="destructive"
+                onClick={() => onDelete?.(asset)}
+              >
                 <Trash2Icon />
                 Löschen
               </DropdownMenuItem>

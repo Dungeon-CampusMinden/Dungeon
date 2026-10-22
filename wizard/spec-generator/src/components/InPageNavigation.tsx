@@ -1,9 +1,15 @@
-import { TABS, type TabId } from "@/data/Tabs";
-import { Button } from "./ui/button";
-import { Progress } from "./ui/progress";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 
-export function InPageNavigation({ tab, setTab, disabled = false }: {
+import { TABS, type TabId } from "@/data/Tabs";
+
+import { Button } from "./ui/button";
+import { Progress } from "./ui/progress";
+
+export function InPageNavigation({
+  tab,
+  setTab,
+  disabled = false,
+}: {
   tab: TabId;
   setTab: (tab: TabId) => void;
   disabled?: boolean;
@@ -33,12 +39,7 @@ export function InPageNavigation({ tab, setTab, disabled = false }: {
           <ArrowLeftIcon className="size-4" />
           Zurück
         </Button>
-        <Button
-          type="button"
-          onClick={() => changeTab(1)}
-          disabled={disabled}
-          className="gap-2"
-        >
+        <Button type="button" onClick={() => changeTab(1)} disabled={disabled} className="gap-2">
           Weiter
           <ArrowRightIcon className="size-4" />
         </Button>
@@ -46,7 +47,9 @@ export function InPageNavigation({ tab, setTab, disabled = false }: {
       <div className="mt-4 flex flex-col gap-1.5">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Fortschritt</span>
-          <span>Schritt {currentStep} von {TABS.length}</span>
+          <span>
+            Schritt {currentStep} von {TABS.length}
+          </span>
         </div>
         <Progress
           value={(currentStep / TABS.length) * 100}

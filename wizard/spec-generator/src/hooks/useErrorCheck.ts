@@ -1,9 +1,10 @@
 import React from "react";
+
+import { getAssetDisplayName, isBundledAssetPath } from "@/components/assets/assetPaths";
 import type { DeerProject } from "@/data/DeerSchema";
+import { ErrorChecker, type IssueReport } from "@/data/ErrorChecker";
 import type { WizardDraft } from "@/data/WizardDraft";
 import { useWizardStorage } from "@/data/WizardStorage";
-import { ErrorChecker, type IssueReport } from "@/data/ErrorChecker";
-import { getAssetDisplayName, isBundledAssetPath } from "@/components/assets/assetPaths";
 
 export type AssetStorageCheckStatus = "checking" | "ready" | "error";
 
@@ -45,7 +46,8 @@ export function useErrorCheck(
 
     let cancelled = false;
     setStorageCheck({ checkedKey: customAssetKey, status: "checking", storedAssetIds: null });
-    storage.assets.listAssetIds(draftId)
+    storage.assets
+      .listAssetIds(draftId)
       .then((ids) => {
         if (cancelled) return;
         const storageKeys = new Set(ids);
@@ -85,10 +87,10 @@ export function useErrorCheck(
       : null;
 
   const assetDisplayNames = React.useMemo(
-    () => new Map(deerSchema.assets.map((asset) => [
-      asset.id,
-      getAssetDisplayName(asset, uploads[asset.id]),
-    ])),
+    () =>
+      new Map(
+        deerSchema.assets.map((asset) => [asset.id, getAssetDisplayName(asset, uploads[asset.id])]),
+      ),
     [deerSchema.assets, uploads],
   );
 

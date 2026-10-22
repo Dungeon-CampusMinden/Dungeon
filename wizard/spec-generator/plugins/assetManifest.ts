@@ -36,8 +36,7 @@ async function readAssetSource(licensePath: string | undefined) {
   const license = metadata.get("license") ?? metadata.get("lizenz");
   if (!license) return null;
 
-  const attribution =
-    metadata.get("author") ?? metadata.get("autor") ?? metadata.get("urheber");
+  const attribution = metadata.get("author") ?? metadata.get("autor") ?? metadata.get("urheber");
 
   return {
     license,
@@ -68,7 +67,9 @@ export function assetManifest(assetDir: string) {
         .map((entry) => path.join(dir, entry.name));
       const entries: ManifestEntry[] = [];
 
-      for (const entry of directoryEntries.sort((left, right) => left.name.localeCompare(right.name))) {
+      for (const entry of directoryEntries.sort((left, right) =>
+        left.name.localeCompare(right.name),
+      )) {
         const abs = path.join(dir, entry.name);
 
         if (entry.isDirectory()) {
@@ -108,7 +109,8 @@ export function assetManifest(assetDir: string) {
             })
             .sort((left, right) => {
               const lengthDifference =
-                path.basename(right, ".license.md").length - path.basename(left, ".license.md").length;
+                path.basename(right, ".license.md").length -
+                path.basename(left, ".license.md").length;
 
               return lengthDifference || left.localeCompare(right);
             })[0];

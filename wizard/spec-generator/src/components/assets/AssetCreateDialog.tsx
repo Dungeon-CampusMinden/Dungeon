@@ -1,5 +1,8 @@
+import { ArrowLeft, File, Folder, PackageIcon, UploadIcon } from "lucide-react";
 import React from "react";
 import assets from "virtual:dungeon-assets-manifest";
+
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogClose,
@@ -9,12 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { Field, FieldLabel } from "../ui/field";
-import { ArrowLeft, File, Folder, PackageIcon, UploadIcon } from "lucide-react";
-import { AssetTile } from "./AssetTile";
+import { Input } from "../ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import {
   ALLOWED_EXTENSIONS,
   getAssetName,
@@ -27,8 +27,9 @@ import {
   type AssetEntry,
   type AssetSelection,
 } from "./assetPaths";
-import { FileTypeIcon } from "./FileTypeIcon";
 import { USE_NN_BELOW } from "./assetPaths";
+import { AssetTile } from "./AssetTile";
+import { FileTypeIcon } from "./FileTypeIcon";
 
 /**
  * Dialog to pick the content of an asset: either a file uploaded by the user (custom asset)
@@ -205,7 +206,10 @@ export function AssetCreateDialog({
             <div className="h-full max-h-[55vh] min-h-64 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3">
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                 {showBackOneLevel && (
-                  <AssetTile label="Zurück" onClick={() => setSelectedFolder(getParentPath(selectedFolder))}>
+                  <AssetTile
+                    label="Zurück"
+                    onClick={() => setSelectedFolder(getParentPath(selectedFolder))}
+                  >
                     <ArrowLeft className="size-8" />
                   </AssetTile>
                 )}
@@ -265,7 +269,9 @@ export function AssetCreateDialog({
         </Field>
 
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" disabled={pending} />}>Abbrechen</DialogClose>
+          <DialogClose render={<Button variant="outline" disabled={pending} />}>
+            Abbrechen
+          </DialogClose>
           <Button onClick={() => void handleConfirm()} disabled={!canConfirm || pending}>
             {pending ? "Wird gespeichert…" : "Auswählen"}
           </Button>

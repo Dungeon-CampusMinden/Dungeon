@@ -1,4 +1,5 @@
 import { isCustomAssetPath } from "@/components/assets/assetPaths";
+
 import { createDeerCandidate } from "./createDeerCandidate";
 import type { ProductionRequest } from "./NativeWizardHost";
 import type { WizardDraft } from "./WizardDraft";
@@ -27,7 +28,8 @@ export async function prepareProductionRequest(
     const upload = snapshot.uploads[asset.id];
     if (!upload) throw new Error(`Die eigene Datei "${asset.path}" fehlt im Entwurf.`);
     const stored = await storage.assets.getAssetFile(snapshot.draftId, upload.storageKey);
-    if (!stored) throw new Error(`Die eigene Datei "${upload.originalName}" ist nicht mehr gespeichert.`);
+    if (!stored)
+      throw new Error(`Die eigene Datei "${upload.originalName}" ist nicht mehr gespeichert.`);
     customAssets.push({
       path: asset.path,
       bytesBase64: bytesBase64(new Uint8Array(await stored.blob.arrayBuffer())),

@@ -22,25 +22,15 @@
 }
 
 :root {
-  --shadow-1:
-    0 1px 1px rgb(0 0 0 / 0.20),
-    0 2px 3px rgb(0 0 0 / 0.15);
+  --shadow-1: 0 1px 1px rgb(0 0 0 / 0.2), 0 2px 3px rgb(0 0 0 / 0.15);
 
-  --shadow-2:
-    0 2px 2px rgb(0 0 0 / 0.22),
-    0 4px 6px rgb(0 0 0 / 0.16);
+  --shadow-2: 0 2px 2px rgb(0 0 0 / 0.22), 0 4px 6px rgb(0 0 0 / 0.16);
 
-  --shadow-3:
-    0 3px 3px rgb(0 0 0 / 0.24),
-    0 6px 10px rgb(0 0 0 / 0.18);
+  --shadow-3: 0 3px 3px rgb(0 0 0 / 0.24), 0 6px 10px rgb(0 0 0 / 0.18);
 
-  --shadow-4:
-    0 4px 4px rgb(0 0 0 / 0.26),
-    0 8px 14px rgb(0 0 0 / 0.20);
+  --shadow-4: 0 4px 4px rgb(0 0 0 / 0.26), 0 8px 14px rgb(0 0 0 / 0.2);
 
-  --shadow-5:
-    0 5px 5px rgb(0 0 0 / 0.28),
-    0 12px 20px rgb(0 0 0 / 0.22);
+  --shadow-5: 0 5px 5px rgb(0 0 0 / 0.28), 0 12px 20px rgb(0 0 0 / 0.22);
 }
 
 h1,
@@ -93,7 +83,8 @@ code {
   --launcher-card-hover-bg: oklch(0.992 0.006 80);
   --launcher-card-hover-border: oklch(0.66 0.16 260);
   --launcher-card-shadow: 0 1px 3px 0 rgb(45 35 20 / 0.05), 0 4px 14px -2px rgb(45 35 20 / 0.04);
-  --launcher-card-shadow-hover: 0 4px 14px 0 rgb(45 35 20 / 0.08), 0 12px 24px -4px rgb(45 35 20 / 0.06);
+  --launcher-card-shadow-hover:
+    0 4px 14px 0 rgb(45 35 20 / 0.08), 0 12px 24px -4px rgb(45 35 20 / 0.06);
   --launcher-text-primary: var(--foreground);
   --launcher-text-muted: var(--muted-foreground);
   --launcher-kicker: oklch(0.46 0.18 260);
@@ -104,7 +95,11 @@ code {
   --launcher-banner-border: var(--border);
 
   background-color: var(--launcher-bg);
-  background-image: radial-gradient(ellipse 95% 45% at 50% -5%, var(--launcher-bg-ambient) 0%, transparent 85%);
+  background-image: radial-gradient(
+    ellipse 95% 45% at 50% -5%,
+    var(--launcher-bg-ambient) 0%,
+    transparent 85%
+  );
 }
 
 .dark .wizard-launcher {
@@ -145,7 +140,12 @@ code {
   z-index: 0;
   inset: auto 0 0;
   height: clamp(4rem, 6.5vw, 6rem);
-  background: linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--launcher-bg) 35%, transparent) 40%, var(--launcher-bg) 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in oklab, var(--launcher-bg) 35%, transparent) 40%,
+    var(--launcher-bg) 100%
+  );
   content: "";
   pointer-events: none;
 }
@@ -173,7 +173,9 @@ code {
   background: rgb(22 18 16 / 0.6);
   color: white;
   backdrop-filter: blur(0.6rem);
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
 
 .wizard-launcher-theme-button:hover {
@@ -205,12 +207,27 @@ code {
 .wizard-launcher-hero-shade {
   z-index: -1;
   background:
-linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(0 0 0 / 0%) 32%, rgb(22 18 16 / 0%) 54%, rgb(22 18 16 / 0%) 72%, transparent 88%), linear-gradient(180deg, rgb(22 18 16 / 0.25) 0%, transparent 45%, rgb(22 18 16 / 0.85) 100%)
+    linear-gradient(
+      90deg,
+      rgb(22 18 16 / 0.96) 0%,
+      rgb(0 0 0 / 0%) 32%,
+      rgb(22 18 16 / 0%) 54%,
+      rgb(22 18 16 / 0%) 72%,
+      transparent 88%
+    ),
+    linear-gradient(180deg, rgb(22 18 16 / 0.25) 0%, transparent 45%, rgb(22 18 16 / 0.85) 100%);
 }
 
 .dark .wizard-launcher-hero-shade {
   background:
-    linear-gradient(90deg, rgb(3 6 10 / 0.97) 0%, rgb(3 6 10 / 0.88) 30%, rgb(3 6 10 / 0.2) 47%, rgb(3 6 10 / 0.05) 64%, transparent 78%),
+    linear-gradient(
+      90deg,
+      rgb(3 6 10 / 0.97) 0%,
+      rgb(3 6 10 / 0.88) 30%,
+      rgb(3 6 10 / 0.2) 47%,
+      rgb(3 6 10 / 0.05) 64%,
+      transparent 78%
+    ),
     linear-gradient(180deg, transparent 58%, #03060a 100%);
 }
 
@@ -290,13 +307,20 @@ linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(0 0 0 / 0%) 32%, rgb(22 18 1
   padding-inline: 1.35rem;
   font-weight: 600;
   border-radius: var(--radius-md);
-  box-shadow: 0 0.5rem 2rem rgb(37 99 235 / 0.32), 0 1px 2px rgb(0 0 0 / 0.12);
-  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+  box-shadow:
+    0 0.5rem 2rem rgb(37 99 235 / 0.32),
+    0 1px 2px rgb(0 0 0 / 0.12);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease;
 }
 
 .wizard-launcher-action:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 0.75rem 2.5rem rgb(37 99 235 / 0.45), 0 2px 4px rgb(0 0 0 / 0.15);
+  box-shadow:
+    0 0.75rem 2.5rem rgb(37 99 235 / 0.45),
+    0 2px 4px rgb(0 0 0 / 0.15);
 }
 
 .wizard-launcher-action:active:not(:disabled) {
@@ -376,7 +400,9 @@ linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(0 0 0 / 0%) 32%, rgb(22 18 1
   background: var(--primary);
   opacity: 0;
   transform: scaleY(0.4);
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
   content: "";
   pointer-events: none;
 }
@@ -458,7 +484,7 @@ linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(0 0 0 / 0%) 32%, rgb(22 18 1
 .wizard-draft-badge-unknown {
   background: oklch(0.97 0.035 80);
   color: oklch(0.42 0.12 70);
-  border: 1px solid oklch(0.90 0.06 80);
+  border: 1px solid oklch(0.9 0.06 80);
 }
 
 .dark .wizard-draft-badge-unknown {
@@ -470,7 +496,7 @@ linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(0 0 0 / 0%) 32%, rgb(22 18 1
 .wizard-draft-badge-issues {
   background: oklch(0.96 0.035 25);
   color: oklch(0.42 0.14 25);
-  border: 1px solid oklch(0.90 0.06 25);
+  border: 1px solid oklch(0.9 0.06 25);
 }
 
 .dark .wizard-draft-badge-issues {
@@ -523,13 +549,23 @@ linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(0 0 0 / 0%) 32%, rgb(22 18 1
 
   .wizard-launcher-hero-shade {
     background:
-      linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(22 18 16 / 0.72) 74%, rgb(22 18 16 / 0.38) 100%),
+      linear-gradient(
+        90deg,
+        rgb(22 18 16 / 0.96) 0%,
+        rgb(22 18 16 / 0.72) 74%,
+        rgb(22 18 16 / 0.38) 100%
+      ),
       linear-gradient(180deg, rgb(22 18 16 / 0.25) 30%, rgb(22 18 16 / 0.95) 100%);
   }
 
   .dark .wizard-launcher-hero-shade {
     background:
-      linear-gradient(90deg, rgb(3 6 10 / 0.95) 0%, rgb(3 6 10 / 0.68) 74%, rgb(3 6 10 / 0.35) 100%),
+      linear-gradient(
+        90deg,
+        rgb(3 6 10 / 0.95) 0%,
+        rgb(3 6 10 / 0.68) 74%,
+        rgb(3 6 10 / 0.35) 100%
+      ),
       linear-gradient(180deg, rgb(3 6 10 / 0.22) 40%, #03060a 100%);
   }
 
@@ -585,7 +621,10 @@ linear-gradient(90deg, rgb(22 18 16 / 0.96) 0%, rgb(0 0 0 / 0%) 32%, rgb(22 18 1
   border-radius: 999px;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 45%, transparent);
   transform: translate(-50%, -50%);
-  transition: box-shadow 120ms ease, transform 120ms ease, background-color 120ms ease;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease,
+    background-color 120ms ease;
 }
 
 .wizard-graph-handle:hover::after,

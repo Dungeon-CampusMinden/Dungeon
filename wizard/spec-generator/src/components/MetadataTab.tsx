@@ -1,4 +1,8 @@
 import type { DeerProject } from "@/data/DeerSchema";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { Util } from "@/data/Util";
+
+import { ObjectListStringEditor } from "./StringListEditor";
 import {
   Field,
   FieldDescription,
@@ -11,9 +15,6 @@ import {
 } from "./ui/field";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { Util } from "@/data/Util";
-import { ObjectListStringEditor } from "./StringListEditor";
-import type { TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, hasFieldErrors, ValidationFeedback } from "./ValidationFeedback";
 
 export function MetadataTab({
@@ -84,9 +85,7 @@ export function MetadataTab({
             {invalidOperatorEmail && (
               <FieldError>Die E-Mail-Adresse für Tracking-Hinweise ist ungültig.</FieldError>
             )}
-            <FieldDescription>
-              Leer lassen, um tracking@example.com zu verwenden.
-            </FieldDescription>
+            <FieldDescription>Leer lassen, um tracking@example.com zu verwenden.</FieldDescription>
           </Field>
         </FieldGroup>
         <FieldSeparator />
@@ -112,7 +111,10 @@ export function MetadataTab({
           </Field>
         </FieldGroup>
       </FieldSet>
-      <ValidationFeedback issues={[...fieldIssues(issues, "id"), ...fieldIssues(issues, "locale")]} className="mt-4" />
+      <ValidationFeedback
+        issues={[...fieldIssues(issues, "id"), ...fieldIssues(issues, "locale")]}
+        className="mt-4"
+      />
     </div>
   );
 }

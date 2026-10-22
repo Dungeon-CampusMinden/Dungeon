@@ -1,8 +1,9 @@
 import type { DeerProject } from "@/data/DeerSchema";
+import type { TabIssues } from "@/data/ErrorChecker";
+
+import { StringListEditor } from "./StringListEditor";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "./ui/field";
 import { Input } from "./ui/input";
-import { StringListEditor } from "./StringListEditor";
-import type { TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
 export function GameEndTab({
@@ -15,13 +16,16 @@ export function GameEndTab({
   issues: TabIssues;
 }) {
   const endNode = deerSchema.riddleGraph.nodes.find((node) => node.kind === "end");
-  const exit = endNode?.kind === "end"
-    ? deerSchema.surfaces.find((surface) => surface.id === endNode.surfaceId)
-    : undefined;
+  const exit =
+    endNode?.kind === "end"
+      ? deerSchema.surfaces.find((surface) => surface.id === endNode.surfaceId)
+      : undefined;
   const failureTextRequired = deerSchema.session.time.limitMode === "hard";
   const failureText = deerSchema.scenario.failureText?.length
     ? deerSchema.scenario.failureText
-    : failureTextRequired ? [""] : [];
+    : failureTextRequired
+      ? [""]
+      : [];
 
   return (
     <div className="flex flex-col gap-5">

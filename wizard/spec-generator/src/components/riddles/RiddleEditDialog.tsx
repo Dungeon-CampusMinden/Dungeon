@@ -1,7 +1,17 @@
-import type { DeerProject, Riddle } from "@/data/DeerSchema";
 import { ChevronDownIcon, TrashIcon } from "lucide-react";
+
+import type { DeerProject, Riddle } from "@/data/DeerSchema";
+import type { TabIssues } from "@/data/ErrorChecker";
+
 import { Button } from "../ui/button";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,14 +20,13 @@ import {
 } from "../ui/dropdown-menu";
 import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
+import { ResponsiveChoice } from "../ui/responsive-choice";
 import { Separator } from "../ui/separator";
 import { Slider } from "../ui/slider";
+import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
 import { RiddleInputsEditor } from "./RiddleInputsEditor";
 import { HintListEditor, InformationSourceListEditor } from "./RiddleSubEditors";
 import { RIDDLE_DIFFICULTIES } from "./riddleTypes";
-import type { TabIssues } from "@/data/ErrorChecker";
-import { fieldIssues, ValidationFeedback } from "../ValidationFeedback";
-import { ResponsiveChoice } from "../ui/responsive-choice";
 
 export function RiddleEditDialog({
   riddle,
@@ -63,13 +72,17 @@ export function RiddleEditDialog({
   const selectedObjectivesLabel =
     selectedObjectives.length === 0
       ? "Keine Lernziele ausgewählt"
-      : selectedObjectives.map((objective) => objective.description.trim() || "Unbenanntes Lernziel").join(", ");
+      : selectedObjectives
+          .map((objective) => objective.description.trim() || "Unbenanntes Lernziel")
+          .join(", ");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-2xl lg:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Rätsel „{draft.title.trim() || "Unbenanntes Rätsel"}“ bearbeiten</DialogTitle>
+          <DialogTitle>
+            Rätsel „{draft.title.trim() || "Unbenanntes Rätsel"}“ bearbeiten
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex max-h-[65vh] flex-col gap-4 overflow-y-auto px-1">
@@ -77,16 +90,25 @@ export function RiddleEditDialog({
           <div className="flex flex-col gap-4">
             <Field>
               <FieldLabel>Titel</FieldLabel>
-              <Input aria-label="Titel des Rätsels" value={draft.title} onChange={(e) => updateRiddle({ ...draft, title: e.target.value })} />
+              <Input
+                aria-label="Titel des Rätsels"
+                value={draft.title}
+                onChange={(e) => updateRiddle({ ...draft, title: e.target.value })}
+              />
             </Field>
 
             <Field>
               <FieldLabel>Schwierigkeit</FieldLabel>
               <ResponsiveChoice
                 accessibleLabel="Schwierigkeit des Rätsels"
-                options={RIDDLE_DIFFICULTIES.map((item) => ({ value: item.value, label: item.label }))}
+                options={RIDDLE_DIFFICULTIES.map((item) => ({
+                  value: item.value,
+                  label: item.label,
+                }))}
                 value={draft.difficulty}
-                onChange={(newValue) => updateRiddle({ ...draft, difficulty: newValue as Riddle["difficulty"] })}
+                onChange={(newValue) =>
+                  updateRiddle({ ...draft, difficulty: newValue as Riddle["difficulty"] })
+                }
               />
             </Field>
 
@@ -95,7 +117,9 @@ export function RiddleEditDialog({
               <Slider
                 aria-label="Geschätzte Dauer des Rätsels in Minuten"
                 value={draft.estimatedMinutes}
-                onValueChange={(value) => updateRiddle({ ...draft, estimatedMinutes: value as number })}
+                onValueChange={(value) =>
+                  updateRiddle({ ...draft, estimatedMinutes: value as number })
+                }
                 min={1}
                 max={60}
                 step={1}
@@ -107,18 +131,27 @@ export function RiddleEditDialog({
                 Lernziele <span className="text-xs text-muted-foreground">(Mehrfachauswahl)</span>
               </FieldLabel>
               {objectives.length === 0 ? (
-                <span className="text-sm text-muted-foreground">Es sind noch keine Lernziele definiert.</span>
+                <span className="text-sm text-muted-foreground">
+                  Es sind noch keine Lernziele definiert.
+                </span>
               ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
-                      <Button aria-label="Lernziele des Rätsels auswählen" variant="outline" className="w-full justify-between font-normal">
+                      <Button
+                        aria-label="Lernziele des Rätsels auswählen"
+                        variant="outline"
+                        className="w-full justify-between font-normal"
+                      >
                         <span className="truncate">{selectedObjectivesLabel}</span>
                         <ChevronDownIcon />
                       </Button>
                     }
                   />
-                  <DropdownMenuContent align="start" className="max-w-[min(32rem,var(--available-width))]">
+                  <DropdownMenuContent
+                    align="start"
+                    className="max-w-[min(32rem,var(--available-width))]"
+                  >
                     {objectives.map((objective) => (
                       <DropdownMenuCheckboxItem
                         key={objective.id}
@@ -151,7 +184,12 @@ export function RiddleEditDialog({
 
             <Field>
               <FieldLabel>Eingaben</FieldLabel>
-              <RiddleInputsEditor project={deerSchema} riddle={draft} onChange={onChange} issues={tabIssues} />
+              <RiddleInputsEditor
+                project={deerSchema}
+                riddle={draft}
+                onChange={onChange}
+                issues={tabIssues}
+              />
             </Field>
 
             <Field>
