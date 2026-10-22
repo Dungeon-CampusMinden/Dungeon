@@ -39,7 +39,7 @@ final class TrackingSession {
   private final PlayClock playClock;
   private final TrackingOutbox outbox;
   private final TrackingUploader uploader;
-  private final Map<Short, ParticipantState> participantsByClient = new LinkedHashMap<>();
+  private final Map<ParticipantKey, ParticipantState> participantsByKey = new LinkedHashMap<>();
   private final Map<Integer, UUID> participantsByEntity = new HashMap<>();
   private final Set<String> startedPuzzles = new HashSet<>();
   private final Set<String> solvedPuzzles = new HashSet<>();
@@ -218,7 +218,7 @@ final class TrackingSession {
   }
 
   boolean participantKnown(UUID participantId) {
-    return participantsByClient.values().stream()
+    return participantsByKey.values().stream()
         .anyMatch(state -> state.participant.participantId().equals(participantId));
   }
 
@@ -322,10 +322,24 @@ final class TrackingSession {
   }
 
   Optional<UUID> participantJoined(short clientId, boolean roomPlayedBefore) {
+    return participantJoined(new ParticipantKey.Client(clientId), roomPlayedBefore);
+  }
+
+  /**
+   * Adds or rejoins a participant without a network client, such as a device in audience mode.
+   *
+   * @param key stable key of the participant within this session
+   * @return session-scoped participant identifier, or empty after the session finished
+   */
+  Optional<UUID> remoteParticipantJoined(String key) {
+    return participantJoined(new ParticipantKey.Remote(key), false);
+  }
+
+  private Optional<UUID> participantJoined(ParticipantKey key, boolean roomPlayedBefore) {
     if (finished) {
       return Optional.empty();
     }
-    ParticipantState existing = participantsByClient.get(clientId);
+    ParticipantState existing = participantsByKey.get(key);
     if (existing != null) {
       TrackingParticipant previousParticipant = existing.participant;
       if (previousParticipant.leftAt().isEmpty()) {
@@ -355,11 +369,11 @@ final class TrackingSession {
             roomPlayedBefore,
             joinedAt,
             Optional.empty());
-    participantsByClient.put(clientId, new ParticipantState(participant));
+    participantsByKey.put(key, new ParticipantState(participant));
     try {
       participantEvent(participant, TrackingEventType.PARTICIPANT_JOINED, joinedAt);
     } catch (RuntimeException exception) {
-      participantsByClient.remove(clientId);
+      participantsByKey.remove(key);
       throw exception;
     }
     return Optional.of(participant.participantId());
@@ -369,7 +383,7 @@ final class TrackingSession {
     if (finished) {
       return;
     }
-    ParticipantState state = participantsByClient.get(clientId);
+    ParticipantState state = participantsByKey.get(new ParticipantKey.Client(clientId));
     if (state == null || state.participant.leftAt().isPresent()) {
       return;
     }
@@ -401,7 +415,7 @@ final class TrackingSession {
   }
 
   Optional<UUID> participantForClient(short clientId) {
-    return Optional.ofNullable(participantsByClient.get(clientId))
+    return Optional.ofNullable(participantsByKey.get(new ParticipantKey.Client(clientId)))
         .filter(state -> state.participant.leftAt().isEmpty())
         .map(state -> state.participant.participantId());
   }
@@ -411,7 +425,7 @@ final class TrackingSession {
   }
 
   boolean participantActive(UUID participantId) {
-    return participantsByClient.values().stream()
+    return participantsByKey.values().stream()
         .map(state -> state.participant)
         .anyMatch(
             participant ->
@@ -472,7 +486,7 @@ final class TrackingSession {
   }
 
   private List<TrackingParticipant> participants() {
-    return participantsByClient.values().stream().map(state -> state.participant).toList();
+    return participantsByKey.values().stream().map(state -> state.participant).toList();
   }
 
   private void touchActivePuzzle(String puzzleId) {
@@ -499,4 +513,11 @@ final class TrackingSession {
   }
 
   private record HintUse(UUID participantId, String puzzleId, String hintId) {}
+
+  /** Identifies a participant by its network client or, without one, by a remote key. */
+  private sealed interface ParticipantKey {
+    record Client(short clientId) implements ParticipantKey {}
+
+    record Remote(String key) implements ParticipantKey {}
+  }
 }

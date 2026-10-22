@@ -70,7 +70,8 @@ public record TrackingEvent(
               INTERACTION_RECORDED,
               HINT_USED,
               SURVEY_ANSWERED,
-              BUG_REPORTED ->
+              BUG_REPORTED,
+              VOTE_CAST ->
               true;
           default -> false;
         };
@@ -122,6 +123,25 @@ public record TrackingEvent(
       JsonNode text = payload.get("text");
       if (text == null || !text.isString() || text.stringValue().isBlank()) {
         throw new IllegalArgumentException("BUG_REPORTED requires a non-blank text");
+      }
+    }
+    if (eventType == TrackingEventType.VOTE_CAST || eventType == TrackingEventType.VOTE_RESOLVED) {
+      JsonNode window = payload.get("window");
+      JsonNode context = payload.get("context");
+      if (window == null || !window.isIntegralNumber() || window.longValue() < 1) {
+        throw new IllegalArgumentException(eventType + " requires a positive window");
+      }
+      if (context == null || !context.isString() || context.stringValue().isBlank()) {
+        throw new IllegalArgumentException(eventType + " requires a non-blank context");
+      }
+      String required = eventType == TrackingEventType.VOTE_CAST ? "vote" : "result";
+      JsonNode value = payload.get(required);
+      if (value == null || (eventType == TrackingEventType.VOTE_CAST && value.isNull())) {
+        throw new IllegalArgumentException(eventType + " requires " + required);
+      }
+      if (eventType == TrackingEventType.VOTE_RESOLVED
+          && (payload.get("votes") == null || !payload.get("votes").isArray())) {
+        throw new IllegalArgumentException("VOTE_RESOLVED requires the votes distribution");
       }
     }
     if (eventType == TrackingEventType.HINT_USED && objectId.isEmpty()) {
