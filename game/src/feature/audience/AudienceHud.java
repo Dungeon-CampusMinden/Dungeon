@@ -19,7 +19,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
-import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.network.messages.c2s.InputMessage;
@@ -163,19 +162,12 @@ public final class AudienceHud extends System {
 
   private static void syncJoinPause() {
     if (joinScreen && joinPause == null) {
-      Game.player()
-          .ifPresent(
-              player -> {
-                Entity owner = Entity.createLocalEntity("audience-join-pause");
-                Game.add(owner);
-                DialogContext context =
-                    DialogContext.builder()
-                        .type(JOIN_PAUSE)
-                        .put(DialogContextKeys.PAUSES_PLAY_CLOCK, true)
-                        .build();
-                context.owner(owner.id());
-                joinPause = DialogFactory.show(context, true, false, false, player.id());
-              });
+      DialogContext context =
+          DialogContext.builder()
+              .type(JOIN_PAUSE)
+              .put(DialogContextKeys.PAUSES_PLAY_CLOCK, true)
+              .build();
+      joinPause = DialogFactory.show(context, true, false, false);
     } else if (!joinScreen && joinPause != null) {
       UIUtils.closeDialog(joinPause, true);
       joinPause = null;
