@@ -1,15 +1,11 @@
-import type { Riddle } from "@/data/DeerSchema";
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
-import {
-  CircleQuestionMarkIcon,
-  ClockIcon,
-  FlagIcon,
-  PencilIcon,
-  PlayIcon,
-} from "lucide-react";
+import { CircleQuestionMarkIcon, ClockIcon, FlagIcon, PencilIcon, PlayIcon } from "lucide-react";
+
+import type { Riddle } from "@/data/DeerSchema";
+
+import { getRiddleDifficulty } from "../riddles/riddleTypes";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { getRiddleDifficulty } from "../riddles/riddleTypes";
 
 type GraphNodeFeedback = {
   inputInvalid?: boolean;
@@ -42,7 +38,7 @@ export function StartFlowNode({ data, selected }: NodeProps<Node<StartNodeData, 
   return (
     <div className={nodeClass(selected, Boolean(data.inputInvalid || data.outputInvalid))}>
       <div className="flex items-center gap-2">
-        <PlayIcon size={16} className="text-status-success shrink-0" />
+        <PlayIcon size={16} className="shrink-0 text-status-success" />
         <span className="text-sm font-medium">Start</span>
       </div>
       <p className="m-0 text-xs text-muted-foreground">Hier beginnt das Abenteuer.</p>
@@ -59,7 +55,7 @@ export function EndFlowNode({ data, selected }: NodeProps<Node<EndNodeData, "end
   return (
     <div className={nodeClass(selected, Boolean(data.inputInvalid || data.outputInvalid))}>
       <div className="flex items-center gap-2">
-        <FlagIcon size={16} className="text-status-info shrink-0" />
+        <FlagIcon size={16} className="shrink-0 text-status-info" />
         <span className="text-sm font-medium">Ende</span>
       </div>
       <p className="m-0 text-xs text-muted-foreground">Hier endet das Abenteuer.</p>

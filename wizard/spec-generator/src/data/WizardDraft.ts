@@ -1,7 +1,7 @@
-import type { DeerProject } from "./DeerSchema";
 import { createDeerProject } from "./createDeerProject";
-import { createUntouchedTabs, type TouchedTabs } from "./TabTouchState";
+import type { DeerProject } from "./DeerSchema";
 import type { TabId } from "./Tabs";
+import { createUntouchedTabs, type TouchedTabs } from "./TabTouchState";
 import { Util } from "./Util";
 
 export const WIZARD_DRAFT_VERSION = "1" as const;
@@ -11,7 +11,10 @@ export interface UploadReference {
   originalName: string;
 }
 
-export interface NodePosition { x: number; y: number; }
+export interface NodePosition {
+  x: number;
+  y: number;
+}
 export type GraphLayout = Record<string, NodePosition>;
 
 export interface WizardDraft {

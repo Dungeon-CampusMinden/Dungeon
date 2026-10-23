@@ -2,7 +2,14 @@ import type { KeyboardEvent } from "react";
 
 import { Button } from "./button";
 import { ButtonGroup } from "./button-group";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
 
 type ChoiceOption<T extends string> = {
   readonly value: T;

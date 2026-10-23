@@ -1,12 +1,14 @@
-import type { Asset } from "@/data/DeerSchema";
+import { ImageIcon } from "lucide-react";
 import React from "react";
-import { AssetCard } from "./AssetCard";
-import { useAssetPreviews } from "./useAssetPreviews";
-import { getAssetDisplayName } from "./assetPaths";
-import { useUploadReferences } from "./UploadReferencesContext";
+
+import type { Asset } from "@/data/DeerSchema";
+
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { ImageIcon } from "lucide-react";
+import { AssetCard } from "./AssetCard";
+import { getAssetDisplayName } from "./assetPaths";
+import { useUploadReferences } from "./UploadReferencesContext";
+import { useAssetPreviews } from "./useAssetPreviews";
 
 /**
  * Reusable picker that lets the user choose one asset out of the assets of the deer schema.
@@ -106,9 +108,11 @@ function AssetSelectDialog({
 
         <div className="min-h-0 overflow-y-auto">
           {itemsSorted.length === 0 && !allowEmpty ? (
-            <p className="py-16 text-center text-muted-foreground">Noch keine Dateien hinzugefügt.</p>
+            <p className="py-16 text-center text-muted-foreground">
+              Noch keine Dateien hinzugefügt.
+            </p>
           ) : (
-            <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 p-1">
+            <div className="grid grid-cols-3 gap-4 p-1 sm:grid-cols-5">
               {allowEmpty && (
                 <button
                   type="button"
@@ -132,9 +136,13 @@ function AssetSelectDialog({
                     aria-pressed={selected}
                     className="cursor-pointer rounded-lg p-0 text-left"
                     onMouseEnter={() => setHoveredId(asset.id)}
-                    onMouseLeave={() => setHoveredId((current) => (current === asset.id ? null : current))}
+                    onMouseLeave={() =>
+                      setHoveredId((current) => (current === asset.id ? null : current))
+                    }
                     onFocus={() => setHoveredId(asset.id)}
-                    onBlur={() => setHoveredId((current) => (current === asset.id ? null : current))}
+                    onBlur={() =>
+                      setHoveredId((current) => (current === asset.id ? null : current))
+                    }
                     onClick={() => select(asset.id)}
                   >
                     <AssetCard
@@ -160,7 +168,9 @@ function EmptyAssetCard({ highlighted = false }: { highlighted?: boolean }) {
     <div className="flex min-w-0 flex-col gap-1">
       <div
         className={`flex aspect-square items-center justify-center rounded-lg border border-dashed p-2 transition-colors ${
-          highlighted ? "border-primary bg-primary/5 ring-2 ring-primary" : "border-border bg-muted/30"
+          highlighted
+            ? "border-primary bg-primary/5 ring-2 ring-primary"
+            : "border-border bg-muted/30"
         }`}
       >
         <ImageIcon className="size-8 text-muted-foreground" />

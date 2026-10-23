@@ -1,9 +1,18 @@
 import type { DeerProject } from "@/data/DeerSchema";
+import type { TabIssues } from "@/data/ErrorChecker";
+
+import { StringListEditor } from "./StringListEditor";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "./ui/field";
 import { Input } from "./ui/input";
-import { StringListEditor } from "./StringListEditor";
-import type { TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, ValidationFeedback } from "./ValidationFeedback";
+
+/** Returns the surface that the end node of the riddle graph uses as exit. */
+function findExit(project: DeerProject) {
+  const endNode = project.riddleGraph.nodes.find((node) => node.kind === "end");
+  return endNode?.kind === "end"
+    ? project.surfaces.find((surface) => surface.id === endNode.surfaceId)
+    : undefined;
+}
 
 export function GameEndTab({
   deerSchema,
@@ -11,17 +20,16 @@ export function GameEndTab({
   issues,
 }: {
   deerSchema: DeerProject;
-  updateDeerSchema: (updatedSchema: DeerProject) => void;
+  updateDeerSchema: (transform: (project: DeerProject) => void) => void;
   issues: TabIssues;
 }) {
-  const endNode = deerSchema.riddleGraph.nodes.find((node) => node.kind === "end");
-  const exit = endNode?.kind === "end"
-    ? deerSchema.surfaces.find((surface) => surface.id === endNode.surfaceId)
-    : undefined;
+  const exit = findExit(deerSchema);
   const failureTextRequired = deerSchema.session.time.limitMode === "hard";
   const failureText = deerSchema.scenario.failureText?.length
     ? deerSchema.scenario.failureText
-    : failureTextRequired ? [""] : [];
+    : failureTextRequired
+      ? [""]
+      : [];
 
   return (
     <div className="flex flex-col gap-5">
@@ -35,8 +43,10 @@ export function GameEndTab({
               value={exit?.title ?? ""}
               onChange={(event) => {
                 if (!exit) return;
-                exit.title = event.target.value;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  const target = findExit(project);
+                  if (target) target.title = event.target.value;
+                });
               }}
             />
             <ValidationFeedback issues={fieldIssues(issues, "exit")} />
@@ -47,8 +57,9 @@ export function GameEndTab({
               itemNoun="Nachbesprechungsfrage"
               value={deerSchema.learningDesign.debriefPrompts}
               onChange={(newValue) => {
-                deerSchema.learningDesign.debriefPrompts = newValue;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.learningDesign.debriefPrompts = newValue;
+                });
               }}
               issues={fieldIssues(issues, "debriefPrompts")}
             />
@@ -59,8 +70,9 @@ export function GameEndTab({
               itemNoun="Erfolgstext"
               value={deerSchema.scenario.successText}
               onChange={(newValue) => {
-                deerSchema.scenario.successText = newValue;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.scenario.successText = newValue;
+                });
               }}
               useTextarea
               preventEmpty
@@ -73,12 +85,13 @@ export function GameEndTab({
               itemNoun="Misserfolgstext"
               value={failureText}
               onChange={(newValue) => {
-                if (newValue.length === 0) {
-                  delete deerSchema.scenario.failureText;
-                } else {
-                  deerSchema.scenario.failureText = newValue;
-                }
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  if (newValue.length === 0) {
+                    delete project.scenario.failureText;
+                  } else {
+                    project.scenario.failureText = newValue;
+                  }
+                });
               }}
               useTextarea
               preventEmpty={failureTextRequired}

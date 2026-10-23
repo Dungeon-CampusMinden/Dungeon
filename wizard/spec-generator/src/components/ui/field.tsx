@@ -1,9 +1,9 @@
-import { useMemo } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useMemo } from "react";
 
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -143,7 +143,10 @@ function FieldSeparator({
     <div
       data-slot="field-separator"
       data-content={!!children}
-      className={cn("relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2", className)}
+      className={cn(
+        "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
+        className,
+      )}
       {...props}
     >
       <Separator className="absolute inset-0 top-1/2" />

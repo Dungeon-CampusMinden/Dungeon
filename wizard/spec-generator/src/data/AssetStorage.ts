@@ -32,9 +32,8 @@ export class BrowserAssetStorage implements AssetStoragePort {
 
     const contents = await file.arrayBuffer();
     const digest = await crypto.subtle.digest("SHA-256", contents);
-    const storageKey = Array.from(
-      new Uint8Array(digest),
-      (byte) => byte.toString(16).padStart(2, "0"),
+    const storageKey = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
     ).join("");
     const entry: StoredAssetFile = {
       draftId,
@@ -49,19 +48,23 @@ export class BrowserAssetStorage implements AssetStoragePort {
       transaction.objectStore(UPLOAD_STORE).put(entry);
       await transactionDone(transaction);
       return storageKey;
-    } finally { db.close(); }
+    } finally {
+      db.close();
+    }
   }
 
   async getAssetFile(draftId: string, storageKey: string): Promise<StoredAssetFile | null> {
     const db = await openWizardDatabase();
     try {
       const transaction = db.transaction(UPLOAD_STORE, "readonly");
-      const entry = await requestResult(
+      const entry = (await requestResult(
         transaction.objectStore(UPLOAD_STORE).get([draftId, storageKey]),
-      ) as StoredAssetFile | undefined;
+      )) as StoredAssetFile | undefined;
       await transactionDone(transaction);
       return entry ?? null;
-    } finally { db.close(); }
+    } finally {
+      db.close();
+    }
   }
 
   async listAssetIds(draftId: string): Promise<string[]> {
@@ -78,6 +81,8 @@ export class BrowserAssetStorage implements AssetStoragePort {
         }
         return key[1];
       });
-    } finally { db.close(); }
+    } finally {
+      db.close();
+    }
   }
 }

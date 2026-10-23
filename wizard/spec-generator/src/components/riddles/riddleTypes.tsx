@@ -1,10 +1,13 @@
-import type {
-  HintSeverity,
-  Riddle,
-  RiddleDifficulty,
-} from "@/data/DeerSchema";
+import {
+  BoxesIcon,
+  CircleQuestionMarkIcon,
+  KeyboardIcon,
+  ListChecksIcon,
+  PackageSearchIcon,
+} from "lucide-react";
+
+import type { HintSeverity, Riddle, RiddleDifficulty } from "@/data/DeerSchema";
 import { Util } from "@/data/Util";
-import { BoxesIcon, CircleQuestionMarkIcon, KeyboardIcon, ListChecksIcon, PackageSearchIcon } from "lucide-react";
 
 export const INPUT_TYPES = [
   {
@@ -33,11 +36,12 @@ export const INPUT_TYPES = [
   },
 ] as const;
 
-export const RIDDLE_DIFFICULTIES: { value: RiddleDifficulty; label: string; className: string }[] = [
-  { value: "easy", label: "Leicht", className: "bg-green-600 text-white" },
-  { value: "medium", label: "Mittel", className: "bg-yellow-600 text-white" },
-  { value: "hard", label: "Schwer", className: "bg-red-600 text-white" },
-];
+export const RIDDLE_DIFFICULTIES: { value: RiddleDifficulty; label: string; className: string }[] =
+  [
+    { value: "easy", label: "Leicht", className: "bg-green-600 text-white" },
+    { value: "medium", label: "Mittel", className: "bg-yellow-600 text-white" },
+    { value: "hard", label: "Schwer", className: "bg-red-600 text-white" },
+  ];
 
 export const RESOURCE_KINDS = [
   { value: "inline_text", label: "Text" },

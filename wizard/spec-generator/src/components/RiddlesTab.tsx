@@ -1,13 +1,15 @@
-import type { DeerProject } from "@/data/DeerSchema";
-import type { UpdateDraft, WizardDraft } from "@/data/WizardDraft";
-import { addRiddle as addRiddleToProject, removeRiddle } from "@/data/RiddleGraphActions";
-import React from "react";
 import { PlusIcon } from "lucide-react";
+import React from "react";
+
+import type { DeerProject } from "@/data/DeerSchema";
+import type { TabIssues } from "@/data/ErrorChecker";
+import { addRiddle as addRiddleToProject, removeRiddle } from "@/data/RiddleGraphActions";
+import type { UpdateDraft, WizardDraft } from "@/data/WizardDraft";
+
 import { RiddleCard } from "./riddles/RiddleCard";
 import { RiddleEditDialog } from "./riddles/RiddleEditDialog";
 import { createRiddle } from "./riddles/riddleTypes";
 import { Button } from "./ui/button";
-import type { TabIssues } from "@/data/ErrorChecker";
 import { fieldIssues, prefixedFieldIssues, ValidationFeedback } from "./ValidationFeedback";
 
 export function RiddlesTab({

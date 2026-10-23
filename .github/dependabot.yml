@@ -10,6 +10,17 @@ updates:
     schedule:
       interval: "weekly"
     labels: []
+  - package-ecosystem: "npm"
+    directory: "/wizard/spec-generator"
+    schedule:
+      interval: "weekly"
+    labels: []
+    groups:
+      oxc:
+        patterns:
+          - "oxfmt"
+          - "oxlint"
+          - "oxlint-tsgolint"
   - package-ecosystem: "docker"
     directory: "/tracking/backend"
     schedule:

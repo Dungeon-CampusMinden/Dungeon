@@ -1,5 +1,8 @@
+import { ArrowLeft, File, Folder, PackageIcon, UploadIcon } from "lucide-react";
 import React from "react";
 import assets from "virtual:dungeon-assets-manifest";
+
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogClose,
@@ -9,12 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { Field, FieldLabel } from "../ui/field";
-import { ArrowLeft, File, Folder, PackageIcon, UploadIcon } from "lucide-react";
-import { AssetTile } from "./AssetTile";
+import { Input } from "../ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import {
   ALLOWED_EXTENSIONS,
   getAssetName,
@@ -27,8 +27,9 @@ import {
   type AssetEntry,
   type AssetSelection,
 } from "./assetPaths";
-import { FileTypeIcon } from "./FileTypeIcon";
 import { USE_NN_BELOW } from "./assetPaths";
+import { AssetTile } from "./AssetTile";
+import { FileTypeIcon } from "./FileTypeIcon";
 
 /**
  * Dialog to pick the content of an asset: either a file uploaded by the user (custom asset)
@@ -56,13 +57,13 @@ export function AssetCreateDialog({
   const [selectedManifestPath, setSelectedManifestPath] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
 
-  React.useEffect(() => {
-    if (open) return;
+  const close = () => {
     setMode("custom");
     setUploadedFile(null);
     setSelectedManifestPath(null);
     setSelectedFolder("/");
-  }, [open]);
+    setOpen(false);
+  };
 
   // The assetManifest plugin generates this folder structure from the bundled assets.
   const assetsManifest = assets as AssetEntry[];
@@ -113,8 +114,10 @@ export function AssetCreateDialog({
       setUploadedFile(null);
       setSelectedManifestPath(manifestPath);
       setSelectedFolder(manifestPath ? getParentPath(manifestPath) : "/");
+      setOpen(true);
+    } else {
+      close();
     }
-    setOpen(nextOpen);
   };
 
   const canConfirm = mode === "custom" ? uploadedFile !== null : selectedManifestPath !== null;
@@ -131,7 +134,7 @@ export function AssetCreateDialog({
     setPending(true);
     try {
       await onSelect(selection);
-      setOpen(false);
+      close();
     } catch {
       // The caller reports the technical error. Keep the selection open for a retry.
     } finally {
@@ -205,7 +208,10 @@ export function AssetCreateDialog({
             <div className="h-full max-h-[55vh] min-h-64 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3">
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
                 {showBackOneLevel && (
-                  <AssetTile label="Zurück" onClick={() => setSelectedFolder(getParentPath(selectedFolder))}>
+                  <AssetTile
+                    label="Zurück"
+                    onClick={() => setSelectedFolder(getParentPath(selectedFolder))}
+                  >
                     <ArrowLeft className="size-8" />
                   </AssetTile>
                 )}
@@ -265,7 +271,9 @@ export function AssetCreateDialog({
         </Field>
 
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" disabled={pending} />}>Abbrechen</DialogClose>
+          <DialogClose render={<Button variant="outline" disabled={pending} />}>
+            Abbrechen
+          </DialogClose>
           <Button onClick={() => void handleConfirm()} disabled={!canConfirm || pending}>
             {pending ? "Wird gespeichert…" : "Auswählen"}
           </Button>
@@ -279,19 +287,20 @@ function UploadedFilePreview({ file }: { file: File }) {
   const [objectUrl, setObjectUrl] = React.useState<string | null>(null);
   const [pixelated, setPixelated] = React.useState(false);
 
+  const isImage = file.type.startsWith("image/");
+
   React.useEffect(() => {
-    if (!file.type.startsWith("image/")) {
-      setObjectUrl(null);
-      return;
-    }
+    if (!isImage) return;
     const url = URL.createObjectURL(file);
+    // The object URL is an external resource that this effect creates and revokes.
+    // oxlint-disable-next-line react/set-state-in-effect
     setObjectUrl(url);
     return () => URL.revokeObjectURL(url);
-  }, [file]);
+  }, [file, isImage]);
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-2">
-      {objectUrl ? (
+      {isImage && objectUrl ? (
         <img
           src={objectUrl}
           alt=""

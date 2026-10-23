@@ -5,9 +5,11 @@ import {
   CircleXIcon,
   InfoIcon,
 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+
 import type { IssueSeverity, LocatedIssue } from "@/data/ErrorChecker";
 import { TABS } from "@/data/Tabs";
+
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 const SEVERITY_STYLES: Record<IssueSeverity, string> = {
   error: "border-destructive/30 bg-destructive/10 text-destructive",
@@ -39,9 +41,12 @@ function teacherDescription(description: string): string {
 
 function teacherDetails(details: string | undefined): string | undefined {
   if (!details) return undefined;
-  if (/\b(ids?|json|java|deer|hash|enum)\b/i.test(details)
-    || /\([^)]*(world|container|keypad|terminal|assignment|door)[^)]*\)/i.test(details)
-    || /(?:^|\s)\/(?:[^\s/]+\/)+/.test(details)) return undefined;
+  if (
+    /\b(ids?|json|java|deer|hash|enum)\b/i.test(details) ||
+    /\([^)]*(world|container|keypad|terminal|assignment|door)[^)]*\)/i.test(details) ||
+    /(?:^|\s)\/(?:[^\s/]+\/)+/.test(details)
+  )
+    return undefined;
   return details;
 }
 
@@ -61,7 +66,9 @@ export function IssueList({
 }) {
   if (issues.length === 0) {
     return (
-      <Alert className={`border-emerald-500/30 bg-emerald-500/10 text-status-success ${className ?? ""}`}>
+      <Alert
+        className={`border-emerald-500/30 bg-emerald-500/10 text-status-success ${className ?? ""}`}
+      >
         <CircleCheckIcon className="size-4 shrink-0 text-status-success" />
         <AlertTitle className="text-sm font-medium text-foreground">{emptyMessage}</AlertTitle>
       </Alert>
@@ -80,25 +87,25 @@ export function IssueList({
             disabled={navigationDisabled || onIssueSelect === undefined}
             onClick={() => onIssueSelect?.(tabId)}
             aria-label={`${description} Bereich ${targetLabel} öffnen`}
-            className="group/issue relative w-full rounded-lg text-left outline-none transition-transform enabled:cursor-pointer enabled:hover:-translate-y-px focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default"
+            className="group/issue relative w-full rounded-lg text-left transition-transform outline-none focus-visible:ring-3 focus-visible:ring-ring/50 enabled:cursor-pointer enabled:hover:-translate-y-px disabled:cursor-default"
           >
             <Alert
               role="presentation"
-              className={`py-2 pl-3 pr-8 text-sm transition-colors group-enabled/issue:group-hover/issue:border-current/50 ${SEVERITY_STYLES[issue.severity]}`}
+              className={`py-2 pr-8 pl-3 text-sm transition-colors group-enabled/issue:group-hover/issue:border-current/50 ${SEVERITY_STYLES[issue.severity]}`}
             >
               <SeverityIcon severity={issue.severity} />
-              <AlertTitle className="text-sm font-medium text-foreground text-wrap leading-snug">
+              <AlertTitle className="text-sm leading-snug font-medium text-wrap text-foreground">
                 {description}
               </AlertTitle>
               {teacherDetails(issue.details) && (
-                <AlertDescription className="text-xs text-muted-foreground mt-0.5">
+                <AlertDescription className="mt-0.5 text-xs text-muted-foreground">
                   {teacherDetails(issue.details)}
                 </AlertDescription>
               )}
             </Alert>
             <ChevronRightIcon
               aria-hidden="true"
-              className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-transform group-enabled/issue:group-hover/issue:translate-x-0.5"
+              className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground transition-transform group-enabled/issue:group-hover/issue:translate-x-0.5"
             />
           </button>
         );

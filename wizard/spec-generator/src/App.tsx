@@ -1,5 +1,3 @@
-import React from "react";
-import { toast } from "sonner";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -13,45 +11,25 @@ import {
   Trash2Icon,
   XCircleIcon,
 } from "lucide-react";
+import React from "react";
+import { toast } from "sonner";
+
 import "./App.css";
-import { ThemeProvider } from "./components/ThemeProvider";
-import { ThemeToggle } from "./components/ThemeToggle";
-import { Toaster } from "./components/ui/sonner";
-import type { DeerProject } from "./data/DeerSchema";
+import { getAssetDisplayName, isBundledAssetPath } from "./components/assets/assetPaths";
+import { UploadReferencesProvider } from "./components/assets/UploadReferencesContext";
+import { AssetsTab } from "./components/AssetsTab";
 import { ErrorDetector } from "./components/ErrorDetector";
-import { SidebarNavigation } from "./components/SidebarNavigation";
+import { GameEndTab } from "./components/GameEndTab";
+import { InPageNavigation } from "./components/InPageNavigation";
 import { MetadataTab } from "./components/MetadataTab";
+import { ReviewTab } from "./components/ReviewTab";
+import { RiddleGraphTab } from "./components/RiddleGraphTab";
+import { RiddlesTab } from "./components/RiddlesTab";
 import { ScenarioTab } from "./components/ScenarioTab";
 import { SessionTab } from "./components/SessionTab";
-import { AssetsTab } from "./components/AssetsTab";
-import { RiddlesTab } from "./components/RiddlesTab";
-import { RiddleGraphTab } from "./components/RiddleGraphTab";
-import { GameEndTab } from "./components/GameEndTab";
-import { ReviewTab } from "./components/ReviewTab";
-import { InPageNavigation } from "./components/InPageNavigation";
-import { useErrorCheck } from "./hooks/useErrorCheck";
-import { withTouchedTab } from "./data/TabTouchState";
-import { ErrorChecker, type IssueReport } from "./data/ErrorChecker";
-import {
-  productionIssueReport,
-  type ProjectValidationReport,
-} from "./data/ProjectValidationReport";
-import { prepareProductionRequest } from "./data/prepareProductionRequest";
-import { BrowserDraftStorage, type DraftSummary } from "./data/DraftStorage";
-import { BrowserAssetStorage } from "./data/AssetStorage";
-import {
-  acquireEditorSessionLock,
-  type EditorSessionLock,
-} from "./data/EditorSessionLock";
-import { useWizardStorage, WizardStorageProvider, type WizardStoragePort } from "./data/WizardStorage";
-import { BrowserWizardHost, detectNativeHost, NativeWizardHost } from "./data/NativeWizardHost";
-import {
-  cloneDraft,
-  createSeed,
-  createWizardDraft,
-  type UpdateDraft,
-  type WizardDraft,
-} from "./data/WizardDraft";
+import { SidebarNavigation } from "./components/SidebarNavigation";
+import { ThemeProvider } from "./components/ThemeProvider";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert";
 import { Button } from "./components/ui/button";
 import {
@@ -62,10 +40,34 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./components/ui/dialog";
-import { UploadReferencesProvider } from "./components/assets/UploadReferencesContext";
-import { getAssetDisplayName, isBundledAssetPath } from "./components/assets/assetPaths";
+import { Toaster } from "./components/ui/sonner";
+import { BrowserAssetStorage } from "./data/AssetStorage";
+import type { DeerProject } from "./data/DeerSchema";
+import { BrowserDraftStorage, type DraftSummary } from "./data/DraftStorage";
+import { acquireEditorSessionLock, type EditorSessionLock } from "./data/EditorSessionLock";
+import { ErrorChecker, type IssueReport } from "./data/ErrorChecker";
+import { BrowserWizardHost, detectNativeHost, NativeWizardHost } from "./data/NativeWizardHost";
+import { prepareProductionRequest } from "./data/prepareProductionRequest";
+import {
+  productionIssueReport,
+  type ProjectValidationReport,
+} from "./data/ProjectValidationReport";
 import { VALIDATED_TAB_IDS, type TabId } from "./data/Tabs";
+import { withTouchedTab } from "./data/TabTouchState";
+import {
+  cloneDraft,
+  createSeed,
+  createWizardDraft,
+  type UpdateDraft,
+  type WizardDraft,
+} from "./data/WizardDraft";
+import {
+  useWizardStorage,
+  WizardStorageProvider,
+  type WizardStoragePort,
+} from "./data/WizardStorage";
 import type { WizardWork } from "./data/WizardWork";
+import { useErrorCheck } from "./hooks/useErrorCheck";
 
 type SaveState = "unsaved" | "saving" | "saved" | "error";
 
@@ -78,11 +80,8 @@ interface DraftListEntry extends DraftSummary {
   problemCount: number | null;
 }
 
-const productionContentKey = (draft: WizardDraft) => JSON.stringify([
-  draft.seed,
-  draft.project,
-  draft.uploads,
-]);
+const productionContentKey = (draft: WizardDraft) =>
+  JSON.stringify([draft.seed, draft.project, draft.uploads]);
 
 function wizardRoomFileName(title: string) {
   const safeTitle = title
@@ -106,14 +105,15 @@ function downloadWizardRoom(jar: Blob, title: string) {
 function mergeIssueReports(local: IssueReport, production: IssueReport | null): IssueReport {
   if (production === null) return local;
   const tabIds = new Set([...Object.keys(local), ...Object.keys(production)]);
-  return Object.fromEntries([...tabIds].map((tabId) => [
-    tabId,
-    { ...local[tabId], ...production[tabId] },
-  ]));
+  return Object.fromEntries(
+    [...tabIds].map((tabId) => [tabId, { ...local[tabId], ...production[tabId] }]),
+  );
 }
 
 const createAllTouchedTabs = (): WizardDraft["ui"]["touchedTabs"] =>
-  Object.fromEntries(VALIDATED_TAB_IDS.map((tabId) => [tabId, true])) as WizardDraft["ui"]["touchedTabs"];
+  Object.fromEntries(
+    VALIDATED_TAB_IDS.map((tabId) => [tabId, true]),
+  ) as WizardDraft["ui"]["touchedTabs"];
 
 async function createStorage(): Promise<WizardStoragePort> {
   requestDurableStorage();
@@ -121,7 +121,7 @@ async function createStorage(): Promise<WizardStoragePort> {
   return {
     drafts: new BrowserDraftStorage(),
     assets,
-    host: await detectNativeHost() ? new NativeWizardHost() : new BrowserWizardHost(),
+    host: (await detectNativeHost()) ? new NativeWizardHost() : new BrowserWizardHost(),
   };
 }
 
@@ -144,9 +144,10 @@ async function createDraftListEntry(
     if (draft === null) return { ...summary, problemCount: null };
 
     const customAssets = draft.project.assets.filter((asset) => !isBundledAssetPath(asset.path));
-    const storedUploadKeys = customAssets.length === 0
-      ? new Set<string>()
-      : new Set(await storage.assets.listAssetIds(summary.draftId));
+    const storedUploadKeys =
+      customAssets.length === 0
+        ? new Set<string>()
+        : new Set(await storage.assets.listAssetIds(summary.draftId));
     const storedAssetIds = new Set(
       customAssets
         .filter((asset) => {
@@ -155,13 +156,16 @@ async function createDraftListEntry(
         })
         .map((asset) => asset.id),
     );
-    const assetDisplayNames = new Map(draft.project.assets.map((asset) => [
-      asset.id,
-      getAssetDisplayName(asset, draft.uploads[asset.id]),
-    ]));
+    const assetDisplayNames = new Map(
+      draft.project.assets.map((asset) => [
+        asset.id,
+        getAssetDisplayName(asset, draft.uploads[asset.id]),
+      ]),
+    );
     const report = new ErrorChecker({ storedAssetIds, assetDisplayNames }).check(draft.project);
-    const problemCount = ErrorChecker.getSortedIssues(report)
-      .filter((issue) => issue.severity === "error").length;
+    const problemCount = ErrorChecker.getSortedIssues(report).filter(
+      (issue) => issue.severity === "error",
+    ).length;
     return { ...summary, problemCount };
   } catch {
     return { ...summary, problemCount: null };
@@ -174,21 +178,38 @@ function App() {
 
   React.useEffect(() => {
     let cancelled = false;
-    createStorage().then((next) => { if (!cancelled) setStorage(next); }).catch((cause) => {
-      if (!cancelled) setError(cause instanceof Error ? cause.message : "Die Anwendung konnte nicht gestartet werden.");
-    });
-    return () => { cancelled = true; };
+    createStorage()
+      .then((next) => {
+        if (!cancelled) setStorage(next);
+      })
+      .catch((cause) => {
+        if (!cancelled)
+          setError(
+            cause instanceof Error ? cause.message : "Die Anwendung konnte nicht gestartet werden.",
+          );
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (error) return <FatalError message={error} />;
-  if (!storage) return <p className="p-8 text-center text-muted-foreground">Wizard wird gestartet…</p>;
-  return <WizardStorageProvider value={storage}><WizardWorkspace /></WizardStorageProvider>;
+  if (!storage)
+    return <p className="p-8 text-center text-muted-foreground">Wizard wird gestartet…</p>;
+  return (
+    <WizardStorageProvider value={storage}>
+      <WizardWorkspace />
+    </WizardStorageProvider>
+  );
 }
 
 function FatalError({ message }: { message: string }) {
   return (
     <div className="mx-auto max-w-3xl p-8">
-      <Alert variant="destructive"><AlertTitle>Wizard kann nicht gestartet werden</AlertTitle><AlertDescription>{message}</AlertDescription></Alert>
+      <Alert variant="destructive">
+        <AlertTitle>Wizard kann nicht gestartet werden</AlertTitle>
+        <AlertDescription>{message}</AlertDescription>
+      </Alert>
     </div>
   );
 }
@@ -208,15 +229,22 @@ function WizardWorkspace() {
   const refresh = React.useCallback(async () => {
     try {
       const summaries = await storage.drafts.list();
-      setDrafts(await Promise.all(summaries.map((summary) => createDraftListEntry(storage, summary))));
+      setDrafts(
+        await Promise.all(summaries.map((summary) => createDraftListEntry(storage, summary))),
+      );
       setError(null);
-    }
-    catch (cause) {
+    } catch (cause) {
       setDrafts([]);
-      setError(cause instanceof Error ? cause.message : "Die Entwürfe konnten nicht geladen werden.");
+      setError(
+        cause instanceof Error ? cause.message : "Die Entwürfe konnten nicht geladen werden.",
+      );
     }
   }, [storage]);
-  React.useEffect(() => { void refresh(); }, [refresh]);
+  React.useEffect(() => {
+    // refresh sets state only after the asynchronous storage read.
+    // oxlint-disable-next-line react/set-state-in-effect
+    void refresh();
+  }, [refresh]);
 
   const acquireEditorSession = React.useCallback(async (): Promise<boolean> => {
     if (sessionLockRef.current) return true;
@@ -240,24 +268,32 @@ function WizardWorkspace() {
     try {
       const loaded = await storage.drafts.loadForEditing(draftId);
       if (!loaded) throw new Error("Der Entwurf ist nicht mehr vorhanden.");
-      setDraft(loaded); setError(null);
+      setDraft(loaded);
+      setError(null);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Der Entwurf konnte nicht geöffnet werden.");
+      setError(
+        cause instanceof Error ? cause.message : "Der Entwurf konnte nicht geöffnet werden.",
+      );
       releaseEditorSession();
+    } finally {
+      setBusy(false);
     }
-    finally { setBusy(false); }
   };
   const createDraft = async () => {
     if (!(await acquireEditorSession())) return;
     setBusy(true);
     try {
       const saved = await storage.drafts.save(createWizardDraft());
-      setDraft(saved); setError(null);
+      setDraft(saved);
+      setError(null);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Der Entwurf konnte nicht angelegt werden.");
+      setError(
+        cause instanceof Error ? cause.message : "Der Entwurf konnte nicht angelegt werden.",
+      );
       releaseEditorSession();
+    } finally {
+      setBusy(false);
     }
-    finally { setBusy(false); }
   };
   const deleteSelectedDraft = async () => {
     const selected = deleteDraft;
@@ -268,24 +304,30 @@ function WizardWorkspace() {
     try {
       const result = await acquireEditorSessionLock();
       if (result.status !== "acquired") {
-        setDeleteError(result.status === "unsupported"
-          ? "Dieser Browser kann das Spiel nicht sicher löschen. Öffne den Wizard in einem aktuellen unterstützten Browser."
-          : "Dieses Spiel wird gerade in einem anderen Tab bearbeitet. Beende dort die Bearbeitung, bevor du es löschst.");
+        setDeleteError(
+          result.status === "unsupported"
+            ? "Dieser Browser kann das Spiel nicht sicher löschen. Öffne den Wizard in einem aktuellen unterstützten Browser."
+            : "Dieses Spiel wird gerade in einem anderen Tab bearbeitet. Beende dort die Bearbeitung, bevor du es löschst.",
+        );
         return;
       }
       deleteLock = result.lock;
       setSessionBlocked(null);
       await storage.drafts.delete(selected.draftId);
-      setDrafts((current) => current?.filter((summary) => summary.draftId !== selected.draftId) ?? current);
+      setDrafts(
+        (current) => current?.filter((summary) => summary.draftId !== selected.draftId) ?? current,
+      );
       setDeleteDraft(null);
       await refresh();
     } catch (cause) {
       try {
         const currentDrafts = await storage.drafts.list();
-        setDrafts(await Promise.all(
-          currentDrafts.map((summary) => createDraftListEntry(storage, summary)),
-        ));
-        const current = currentDrafts.find((draftSummary) => draftSummary.draftId === selected.draftId);
+        setDrafts(
+          await Promise.all(currentDrafts.map((summary) => createDraftListEntry(storage, summary))),
+        );
+        const current = currentDrafts.find(
+          (draftSummary) => draftSummary.draftId === selected.draftId,
+        );
         if (current === undefined) {
           setDeleteDraft(null);
           setDeleteError(null);
@@ -297,9 +339,11 @@ function WizardWorkspace() {
       } catch {
         // Keep the original card and dialog if the uncertain state cannot be refreshed.
       }
-      setDeleteError(cause instanceof Error
-        ? cause.message
-        : "Der Entwurf konnte nicht gelöscht werden. Er bleibt gespeichert. Versuche es erneut.");
+      setDeleteError(
+        cause instanceof Error
+          ? cause.message
+          : "Der Entwurf konnte nicht gelöscht werden. Er bleibt gespeichert. Versuche es erneut.",
+      );
     } finally {
       deleteLock?.release();
       setDeleting(false);
@@ -307,7 +351,17 @@ function WizardWorkspace() {
   };
 
   if (draft) {
-    return <DraftEditor key={draft.draftId} initialDraft={draft} onClose={async () => { releaseEditorSession(); setDraft(null); await refresh(); }} />;
+    return (
+      <DraftEditor
+        key={draft.draftId}
+        initialDraft={draft}
+        onClose={async () => {
+          releaseEditorSession();
+          setDraft(null);
+          await refresh();
+        }}
+      />
+    );
   }
   return (
     <div className="wizard-launcher min-h-screen">
@@ -335,7 +389,11 @@ function WizardWorkspace() {
               onClick={() => void createDraft()}
               disabled={busy || deleting}
             >
-              {busy ? <LoaderCircleIcon className="size-4 animate-spin" /> : <PlusIcon className="size-4" />}
+              {busy ? (
+                <LoaderCircleIcon className="size-4 animate-spin" />
+              ) : (
+                <PlusIcon className="size-4" />
+              )}
               {busy ? "Spiel wird angelegt…" : "Neues Spiel"}
             </Button>
           </div>
@@ -345,8 +403,12 @@ function WizardWorkspace() {
       <div className="wizard-library mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10 sm:px-6 md:py-14">
         <div className="wizard-library-header flex items-end justify-between gap-4 border-b pb-4">
           <div>
-            <p className="wizard-library-kicker mb-1 text-xs font-semibold uppercase tracking-[0.16em]">Weitermachen</p>
-            <h2 className="wizard-library-title text-2xl font-semibold tracking-tight">Meine Spiele</h2>
+            <p className="wizard-library-kicker mb-1 text-xs font-semibold tracking-[0.16em] uppercase">
+              Weitermachen
+            </p>
+            <h2 className="wizard-library-title text-2xl font-semibold tracking-tight">
+              Meine Spiele
+            </h2>
           </div>
           {drafts && drafts.length > 0 && (
             <span className="wizard-library-count text-xs">
@@ -366,7 +428,8 @@ function WizardWorkspace() {
           <Alert variant="destructive">
             <AlertTitle>Wizard ist bereits in einem anderen Tab geöffnet</AlertTitle>
             <AlertDescription>
-              Schließe den anderen Tab oder beende dort die Bearbeitung, bevor du hier ein Spiel öffnest oder anlegst.
+              Schließe den anderen Tab oder beende dort die Bearbeitung, bevor du hier ein Spiel
+              öffnest oder anlegst.
             </AlertDescription>
           </Alert>
         )}
@@ -375,7 +438,8 @@ function WizardWorkspace() {
           <Alert variant="destructive">
             <AlertTitle>Dieser Browser wird nicht unterstützt</AlertTitle>
             <AlertDescription>
-              Öffne den Wizard in einem aktuellen unterstützten Browser, damit deine Spiele vor gleichzeitigen Änderungen geschützt sind.
+              Öffne den Wizard in einem aktuellen unterstützten Browser, damit deine Spiele vor
+              gleichzeitigen Änderungen geschützt sind.
             </AlertDescription>
           </Alert>
         )}
@@ -383,7 +447,7 @@ function WizardWorkspace() {
         <div className="flex flex-col gap-3">
           {drafts === null && (
             <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-              <LoaderCircleIcon className="size-5 animate-spin mr-2" />
+              <LoaderCircleIcon className="mr-2 size-5 animate-spin" />
               Entwürfe werden geladen…
             </div>
           )}
@@ -392,7 +456,9 @@ function WizardWorkspace() {
               <div className="wizard-empty-library-icon mb-4 flex size-12 items-center justify-center rounded-xl">
                 <FolderOpenIcon className="size-6" />
               </div>
-              <h3 className="wizard-empty-library-title text-base font-semibold">Noch keine Spiele angelegt</h3>
+              <h3 className="wizard-empty-library-title text-base font-semibold">
+                Noch keine Spiele angelegt
+              </h3>
               <p className="wizard-empty-library-desc mt-1 max-w-sm text-sm">
                 Mit „Neues Spiel“ beginnst du deinen ersten Entwurf.
               </p>
@@ -407,7 +473,7 @@ function WizardWorkspace() {
                 type="button"
                 disabled={busy || deleting}
                 onClick={() => void openDraft(summary.draftId)}
-                className="flex min-w-0 flex-1 items-center justify-between gap-4 p-4 text-left outline-none cursor-pointer sm:px-5"
+                className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-4 p-4 text-left outline-none sm:px-5"
               >
                 <span className="min-w-0">
                   <span className="wizard-draft-title block truncate text-base">
@@ -436,7 +502,10 @@ function WizardWorkspace() {
                   className="text-muted-foreground hover:bg-destructive/15 hover:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20"
                   disabled={busy || deleting}
                   aria-label={`Entwurf ${summary.title.trim() || "Unbenanntes Spiel"} endgültig löschen`}
-                  onClick={() => { setDeleteDraft(summary); setDeleteError(null); }}
+                  onClick={() => {
+                    setDeleteDraft(summary);
+                    setDeleteError(null);
+                  }}
                 >
                   <Trash2Icon className="size-4" />
                 </Button>
@@ -448,22 +517,33 @@ function WizardWorkspace() {
         {!storage.host.native && (
           <Alert className="wizard-dev-banner mt-4">
             <InfoIcon className="size-4 text-muted-foreground" />
-            <AlertTitle className="text-sm font-medium">Separater Entwicklungs- und UI-Testmodus</AlertTitle>
+            <AlertTitle className="text-sm font-medium">
+              Separater Entwicklungs- und UI-Testmodus
+            </AlertTitle>
             <AlertDescription className="text-xs text-muted-foreground">
-              Diese Entwürfe bleiben ausschließlich in diesem Browser. Sie können nicht in die lokale Wizard-Anwendung übertragen, vollständig geprüft oder als Spiel verpackt werden.
+              Diese Entwürfe bleiben ausschließlich in diesem Browser. Sie können nicht in die
+              lokale Wizard-Anwendung übertragen, vollständig geprüft oder als Spiel verpackt
+              werden.
             </AlertDescription>
           </Alert>
         )}
 
         <Dialog
           open={deleteDraft !== null}
-          onOpenChange={(open) => { if (!open && !deleting) { setDeleteDraft(null); setDeleteError(null); } }}
+          onOpenChange={(open) => {
+            if (!open && !deleting) {
+              setDeleteDraft(null);
+              setDeleteError(null);
+            }
+          }}
         >
           <DialogContent showCloseButton={false}>
             <DialogHeader>
               <DialogTitle>Entwurf endgültig löschen?</DialogTitle>
               <DialogDescription>
-                Der Entwurf „{deleteDraft?.title.trim() || "Unbenanntes Spiel"}“ und alle im Wizard gespeicherten Uploads werden dauerhaft gelöscht. Bereits heruntergeladene Spieldateien bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.
+                Der Entwurf „{deleteDraft?.title.trim() || "Unbenanntes Spiel"}“ und alle im Wizard
+                gespeicherten Uploads werden dauerhaft gelöscht. Bereits heruntergeladene
+                Spieldateien bleiben erhalten. Diese Aktion kann nicht rückgängig gemacht werden.
               </DialogDescription>
             </DialogHeader>
             {deleteError && (
@@ -473,8 +553,23 @@ function WizardWorkspace() {
               </Alert>
             )}
             <DialogFooter>
-              <Button type="button" variant="outline" disabled={deleting} onClick={() => { setDeleteDraft(null); setDeleteError(null); }}>Abbrechen</Button>
-              <Button type="button" variant="destructive" disabled={deleting} onClick={() => void deleteSelectedDraft()}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={deleting}
+                onClick={() => {
+                  setDeleteDraft(null);
+                  setDeleteError(null);
+                }}
+              >
+                Abbrechen
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={deleting}
+                onClick={() => void deleteSelectedDraft()}
+              >
                 {deleting ? "Wird gelöscht…" : "Endgültig löschen"}
               </Button>
             </DialogFooter>
@@ -514,28 +609,28 @@ function SaveStatusIndicator({ state }: { state: SaveState }) {
   switch (state) {
     case "saving":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-medium leading-none text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-2.5 py-1 text-xs leading-none font-medium text-muted-foreground">
           <LoaderCircleIcon className="size-3.5 animate-spin" />
           <span className="hidden sm:inline">Wird gespeichert…</span>
         </span>
       );
     case "saved":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium leading-none text-status-success">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs leading-none font-medium text-status-success">
           <CheckIcon className="size-3.5" />
           <span>Gespeichert</span>
         </span>
       );
     case "unsaved":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium leading-none text-status-warning">
-          <span className="size-1.5 rounded-full bg-status-warning animate-pulse" />
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs leading-none font-medium text-status-warning">
+          <span className="size-1.5 animate-pulse rounded-full bg-status-warning" />
           <span className="hidden sm:inline">Ungespeichert</span>
         </span>
       );
     case "error":
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-medium leading-none text-destructive">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-xs leading-none font-medium text-destructive">
           <XCircleIcon className="size-3.5" />
           <span>Speichern fehlgeschlagen</span>
         </span>
@@ -543,7 +638,13 @@ function SaveStatusIndicator({ state }: { state: SaveState }) {
   }
 }
 
-function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onClose: () => Promise<void> }) {
+function DraftEditor({
+  initialDraft,
+  onClose,
+}: {
+  initialDraft: WizardDraft;
+  onClose: () => Promise<void>;
+}) {
   const storage = useWizardStorage();
   const [draft, setDraft] = React.useState(initialDraft);
   const [saveState, setSaveState] = React.useState<SaveState>("saved");
@@ -558,6 +659,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
   const attemptedProductionContentRef = React.useRef<string | null>(null);
   const productionContentRef = React.useRef({
     key: productionContentKey(initialDraft),
+    // Only the initial ref value uses this; the mount time starts the validation delay.
+    // oxlint-disable-next-line react/purity
     changedAt: performance.now(),
   });
   const localReadyRef = React.useRef(false);
@@ -570,7 +673,10 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
   const [downloadedContentKey, setDownloadedContentKey] = React.useState<string | null>(null);
 
   const drainSaves = React.useCallback((): Promise<void> => {
-    if (timerRef.current !== null) { window.clearTimeout(timerRef.current); timerRef.current = null; }
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     if (savePromiseRef.current) return savePromiseRef.current;
     const run = (async () => {
       while (savedRevisionRef.current < revisionRef.current) {
@@ -580,9 +686,10 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
         try {
           const saved = await storage.drafts.save(snapshot);
           savedRevisionRef.current = savingRevision;
-          const current = revisionRef.current === savingRevision
-            ? cloneDraft(saved)
-            : cloneDraft(latestDraftRef.current);
+          const current =
+            revisionRef.current === savingRevision
+              ? cloneDraft(saved)
+              : cloneDraft(latestDraftRef.current);
           current.savedAt = saved.savedAt;
           latestDraftRef.current = current;
           setDraft(current);
@@ -592,7 +699,9 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
           throw cause;
         }
       }
-    })().finally(() => { savePromiseRef.current = null; });
+    })().finally(() => {
+      savePromiseRef.current = null;
+    });
     savePromiseRef.current = run;
     return run;
   }, [storage]);
@@ -601,16 +710,28 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null;
-      void drainSaves().catch((cause) => toast.error("Der Entwurf konnte nicht gespeichert werden.", { description: cause instanceof Error ? cause.message : undefined }));
+      void drainSaves().catch((cause) =>
+        toast.error("Der Entwurf konnte nicht gespeichert werden.", {
+          description: cause instanceof Error ? cause.message : undefined,
+        }),
+      );
     }, 500);
   }, [drainSaves]);
 
-  React.useEffect(() => () => { if (timerRef.current !== null) window.clearTimeout(timerRef.current); }, []);
+  React.useEffect(
+    () => () => {
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    },
+    [],
+  );
   React.useEffect(() => {
     const warnBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (wizardWorkRef.current === null
-        && savedRevisionRef.current >= revisionRef.current
-        && savePromiseRef.current === null) return;
+      if (
+        wizardWorkRef.current === null &&
+        savedRevisionRef.current >= revisionRef.current &&
+        savePromiseRef.current === null
+      )
+        return;
       event.preventDefault();
     };
     window.addEventListener("beforeunload", warnBeforeUnload);
@@ -629,25 +750,29 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     setWizardWork(null);
   }, []);
 
-  const updateDraft = React.useCallback<UpdateDraft>((transform) => {
-    const snapshot = cloneDraft(latestDraftRef.current);
-    if (transform(snapshot) === false) return;
-    const nextProductionContentKey = productionContentKey(snapshot);
-    if (nextProductionContentKey !== productionContentRef.current.key) {
-      productionContentRef.current = {
-        key: nextProductionContentKey,
-        changedAt: performance.now(),
-      };
-    }
-    latestDraftRef.current = snapshot;
-    revisionRef.current += 1;
-    setDraft(snapshot);
-    setSaveState("unsaved");
-    scheduleSave();
-  }, [scheduleSave]);
+  const updateDraft = React.useCallback<UpdateDraft>(
+    (transform) => {
+      const snapshot = cloneDraft(latestDraftRef.current);
+      if (transform(snapshot) === false) return;
+      const nextProductionContentKey = productionContentKey(snapshot);
+      if (nextProductionContentKey !== productionContentRef.current.key) {
+        productionContentRef.current = {
+          key: nextProductionContentKey,
+          changedAt: performance.now(),
+        };
+      }
+      latestDraftRef.current = snapshot;
+      revisionRef.current += 1;
+      setDraft(snapshot);
+      setSaveState("unsaved");
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
   const flush = React.useCallback(async (): Promise<WizardDraft> => {
-    while (savedRevisionRef.current < revisionRef.current || savePromiseRef.current) await drainSaves();
+    while (savedRevisionRef.current < revisionRef.current || savePromiseRef.current)
+      await drainSaves();
     return cloneDraft(latestDraftRef.current);
   }, [drainSaves]);
 
@@ -671,37 +796,44 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     project,
     draft.uploads,
   );
-  const currentProduction = productionValidation
-    && productionContentKey(productionValidation.snapshot) === contentKey
-    ? productionValidation
-    : null;
-  const currentTechnicalError = productionTechnicalError
-    && productionContentKey(productionTechnicalError.snapshot) === contentKey
-    ? productionTechnicalError.action
-    : null;
+  const currentProduction =
+    productionValidation && productionContentKey(productionValidation.snapshot) === contentKey
+      ? productionValidation
+      : null;
+  const currentTechnicalError =
+    productionTechnicalError &&
+    productionContentKey(productionTechnicalError.snapshot) === contentKey
+      ? productionTechnicalError.action
+      : null;
   const issueReport = React.useMemo(
-    () => mergeIssueReports(
-      localIssueReport,
-      currentProduction
-        ? productionIssueReport(currentProduction.report, currentProduction.snapshot)
-        : null,
-    ),
+    () =>
+      mergeIssueReports(
+        localIssueReport,
+        currentProduction
+          ? productionIssueReport(currentProduction.report, currentProduction.snapshot)
+          : null,
+      ),
     [currentProduction, localIssueReport],
   );
-  const localErrorCount = ErrorChecker.getSortedIssues(localIssueReport)
-    .filter((issue) => issue.severity === "error").length;
+  const localErrorCount = ErrorChecker.getSortedIssues(localIssueReport).filter(
+    (issue) => issue.severity === "error",
+  ).length;
   const localReady = assetStorageStatus === "ready" && localErrorCount === 0;
   React.useLayoutEffect(() => {
     localReadyRef.current = localReady;
   }, [localReady]);
-  const updateProject = (updatedProject: DeerProject) => updateDraft((current) => { current.project = structuredClone(updatedProject); });
+  const updateProject = (transform: (project: DeerProject) => void) =>
+    updateDraft((current) => {
+      transform(current.project);
+    });
   const navigateToTab = (activeTab: TabId) => {
     if (wizardWorkRef.current === "uploading") return;
     updateDraft((current) => {
       current.ui.activeTab = activeTab;
-      current.ui.touchedTabs = activeTab === "review"
-        ? createAllTouchedTabs()
-        : withTouchedTab(current.ui.touchedTabs, activeTab);
+      current.ui.touchedTabs =
+        activeTab === "review"
+          ? createAllTouchedTabs()
+          : withTouchedTab(current.ui.touchedTabs, activeTab);
     });
   };
   const setTab = (activeTab: TabId) => navigateToTab(activeTab);
@@ -714,49 +846,56 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
       current.ui.touchedTabs = createAllTouchedTabs();
     });
   }, [hasTouchedAllTabs, tab, updateDraft]);
-  const currentDraftSnapshot = React.useCallback(
-    () => cloneDraft(latestDraftRef.current),
+  const currentDraftSnapshot = React.useCallback(() => cloneDraft(latestDraftRef.current), []);
+  const acceptProductionReport = React.useCallback(
+    (
+      report: ProjectValidationReport,
+      snapshot: WizardDraft,
+      action: "validating" | "packaging",
+    ) => {
+      const snapshotContentKey = productionContentKey(snapshot);
+      if (snapshotContentKey !== productionContentKey(latestDraftRef.current)) {
+        if (
+          action === "validating" &&
+          attemptedProductionContentRef.current === snapshotContentKey
+        ) {
+          attemptedProductionContentRef.current = null;
+        }
+        return;
+      }
+      const technicalIssue = report.issues.find(
+        (issue) =>
+          issue.messageKey === "validation.internal_error" ||
+          issue.messageKey === "validation.derivation.failed" ||
+          issue.messageKey === "validation.input.changed_during_read",
+      );
+      if (technicalIssue) {
+        if (action === "validating") setProductionValidation(null);
+        setProductionTechnicalError({ snapshot, action });
+        return;
+      }
+      setProductionTechnicalError(null);
+      setProductionValidation({ report, snapshot });
+    },
     [],
   );
-  const acceptProductionReport = React.useCallback((
-    report: ProjectValidationReport,
-    snapshot: WizardDraft,
-    action: "validating" | "packaging",
-  ) => {
-    const snapshotContentKey = productionContentKey(snapshot);
-    if (snapshotContentKey !== productionContentKey(latestDraftRef.current)) {
-      if (action === "validating" && attemptedProductionContentRef.current === snapshotContentKey) {
-        attemptedProductionContentRef.current = null;
+  const acceptProductionTechnicalError = React.useCallback(
+    (action: "validating" | "packaging", snapshot: WizardDraft) => {
+      const snapshotContentKey = productionContentKey(snapshot);
+      if (snapshotContentKey !== productionContentKey(latestDraftRef.current)) {
+        if (
+          action === "validating" &&
+          attemptedProductionContentRef.current === snapshotContentKey
+        ) {
+          attemptedProductionContentRef.current = null;
+        }
+        return;
       }
-      return;
-    }
-    const technicalIssue = report.issues.find((issue) =>
-      issue.messageKey === "validation.internal_error"
-      || issue.messageKey === "validation.derivation.failed"
-      || issue.messageKey === "validation.input.changed_during_read",
-    );
-    if (technicalIssue) {
       if (action === "validating") setProductionValidation(null);
       setProductionTechnicalError({ snapshot, action });
-      return;
-    }
-    setProductionTechnicalError(null);
-    setProductionValidation({ report, snapshot });
-  }, []);
-  const acceptProductionTechnicalError = React.useCallback((
-    action: "validating" | "packaging",
-    snapshot: WizardDraft,
-  ) => {
-    const snapshotContentKey = productionContentKey(snapshot);
-    if (snapshotContentKey !== productionContentKey(latestDraftRef.current)) {
-      if (action === "validating" && attemptedProductionContentRef.current === snapshotContentKey) {
-        attemptedProductionContentRef.current = null;
-      }
-      return;
-    }
-    if (action === "validating") setProductionValidation(null);
-    setProductionTechnicalError({ snapshot, action });
-  }, []);
+    },
+    [],
+  );
   const acceptProductionDownload = React.useCallback((jar: Blob, snapshot: WizardDraft) => {
     if (productionContentKey(snapshot) !== productionContentKey(latestDraftRef.current)) return;
     downloadWizardRoom(jar, snapshot.project.metadata.title);
@@ -773,9 +912,14 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
       window.clearTimeout(productionValidationTimerRef.current);
       productionValidationTimerRef.current = null;
     }
-    if (!storage.host.native || !localReady || wizardWork !== null
-      || currentProduction !== null
-      || attemptedProductionContentRef.current === contentKey) return;
+    if (
+      !storage.host.native ||
+      !localReady ||
+      wizardWork !== null ||
+      currentProduction !== null ||
+      attemptedProductionContentRef.current === contentKey
+    )
+      return;
     if (draft.seed === undefined) {
       updateDraft((current) => {
         if (current.seed !== undefined) return false;
@@ -792,22 +936,27 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
     productionValidationTimerRef.current = window.setTimeout(() => {
       productionValidationTimerRef.current = null;
       const latestContent = productionContentRef.current;
-      if (latestContent.key !== capturedContent.key
-        || productionContentKey(latestDraftRef.current) !== capturedContent.key
-        || performance.now() - latestContent.changedAt < 2000
-        || !localReadyRef.current
-        || wizardWorkRef.current !== null
-        || attemptedProductionContentRef.current === capturedContent.key
-        || !beginWizardWork("validating")) return;
+      if (
+        latestContent.key !== capturedContent.key ||
+        productionContentKey(latestDraftRef.current) !== capturedContent.key ||
+        performance.now() - latestContent.changedAt < 2000 ||
+        !localReadyRef.current ||
+        wizardWorkRef.current !== null ||
+        attemptedProductionContentRef.current === capturedContent.key ||
+        !beginWizardWork("validating")
+      )
+        return;
       attemptedProductionContentRef.current = capturedContent.key;
       setProductionTechnicalError(null);
       const attempt = { snapshot: cloneDraft(latestDraftRef.current) };
       void (async () => {
         try {
           const snapshot = await flush();
-          if (productionContentKey(snapshot) !== capturedContent.key
-            || productionContentRef.current.key !== capturedContent.key
-            || productionContentKey(latestDraftRef.current) !== capturedContent.key) {
+          if (
+            productionContentKey(snapshot) !== capturedContent.key ||
+            productionContentRef.current.key !== capturedContent.key ||
+            productionContentKey(latestDraftRef.current) !== capturedContent.key
+          ) {
             if (attemptedProductionContentRef.current === capturedContent.key) {
               attemptedProductionContentRef.current = null;
             }
@@ -859,7 +1008,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
               disabled={wizardWork !== null}
               onClick={() => {
                 if (wizardWorkRef.current !== null) return;
-                void flush().then(onClose).catch((cause) => toast.error("Bitte speichere den Entwurf, bevor du zurückgehst.", { description: cause instanceof Error ? cause.message : undefined }));
+                void flush()
+                  .then(onClose)
+                  .catch((cause) =>
+                    toast.error("Bitte speichere den Entwurf, bevor du zurückgehst.", {
+                      description: cause instanceof Error ? cause.message : undefined,
+                    }),
+                  );
               }}
               className="gap-1.5 text-muted-foreground hover:text-foreground"
             >
@@ -867,7 +1022,7 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
               <span className="hidden sm:inline">Meine Spiele</span>
             </Button>
 
-            <h1 className="min-w-0 flex-1 truncate text-center text-base font-semibold leading-tight text-foreground sm:max-w-md sm:text-lg">
+            <h1 className="min-w-0 flex-1 truncate text-center text-base leading-tight font-semibold text-foreground sm:max-w-md sm:text-lg">
               {project.metadata.title.trim() || "Neues Spiel"}
             </h1>
 
@@ -879,8 +1034,8 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
         </header>
 
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 items-start">
-            <div className="lg:sticky lg:top-18 flex flex-col gap-4">
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[300px_1fr]">
+            <div className="flex flex-col gap-4 lg:sticky lg:top-18">
               <SidebarNavigation
                 issueReport={issueReport}
                 touchedTabs={touchedTabs}
@@ -903,9 +1058,27 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
             </div>
 
             <div className="panel min-w-0">
-              {tab === "metadata" && <MetadataTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.metadata} />}
-              {tab === "scenario" && <ScenarioTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.scenario} />}
-              {tab === "session" && <SessionTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.session} />}
+              {tab === "metadata" && (
+                <MetadataTab
+                  deerSchema={project}
+                  updateDeerSchema={updateProject}
+                  issues={localIssueReport.metadata}
+                />
+              )}
+              {tab === "scenario" && (
+                <ScenarioTab
+                  deerSchema={project}
+                  updateDeerSchema={updateProject}
+                  issues={localIssueReport.scenario}
+                />
+              )}
+              {tab === "session" && (
+                <SessionTab
+                  deerSchema={project}
+                  updateDeerSchema={updateProject}
+                  issues={localIssueReport.session}
+                />
+              )}
               {tab === "assets" && (
                 <AssetsTab
                   draft={draft}
@@ -917,7 +1090,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                   issues={localIssueReport.assets}
                 />
               )}
-              {tab === "riddles" && <RiddlesTab draft={draft} updateDraft={updateDraft} issues={localIssueReport.riddles} />}
+              {tab === "riddles" && (
+                <RiddlesTab
+                  draft={draft}
+                  updateDraft={updateDraft}
+                  issues={localIssueReport.riddles}
+                />
+              )}
               {tab === "riddle_graph" && (
                 <RiddleGraphTab
                   draft={draft}
@@ -926,7 +1105,13 @@ function DraftEditor({ initialDraft, onClose }: { initialDraft: WizardDraft; onC
                   riddleIssues={localIssueReport.riddles}
                 />
               )}
-              {tab === "game_end" && <GameEndTab deerSchema={project} updateDeerSchema={updateProject} issues={localIssueReport.game_end} />}
+              {tab === "game_end" && (
+                <GameEndTab
+                  deerSchema={project}
+                  updateDeerSchema={updateProject}
+                  issues={localIssueReport.game_end}
+                />
+              )}
               {tab === "review" && (
                 <ReviewTab
                   flush={flush}
