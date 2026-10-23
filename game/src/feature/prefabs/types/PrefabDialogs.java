@@ -10,9 +10,13 @@ import feature.hud.dialogs.DialogType;
 import feature.prefabs.ArtifactInput;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /** Shared dialog behavior of prefabs that show images or dialogs to players. */
 final class PrefabDialogs {
+
+  private static final Pattern MARKUP = Pattern.compile("\\[[^\\]]*]");
+  private static final int PREVIEW_LENGTH = 28;
 
   private PrefabDialogs() {}
 
@@ -49,6 +53,35 @@ final class PrefabDialogs {
     Map<String, String> result = new LinkedHashMap<>();
     for (String alias : values.aliases()) result.put(alias, available.getOrDefault(alias, "???"));
     return result;
+  }
+
+  /**
+   * Adds placeholder values to a dialog context. The displaying client replaces the placeholders
+   * after resolving translation keys.
+   *
+   * @param dialog dialog context builder
+   * @param placeholders values by alias, see {@link #placeholders}
+   */
+  static void putPlaceholders(DialogContext.Builder dialog, Map<String, String> placeholders) {
+    if (placeholders.isEmpty()) return;
+    String[] pairs = new String[placeholders.size() * 2];
+    int index = 0;
+    for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+      pairs[index++] = entry.getKey();
+      pairs[index++] = entry.getValue();
+    }
+    dialog.put(DialogContextKeys.PLACEHOLDERS, pairs);
+  }
+
+  /**
+   * Shortens a dialog script to a single line for editor previews, without its markup.
+   *
+   * @param script dialog script or text
+   * @return the first characters of the text
+   */
+  static String preview(String script) {
+    String text = MARKUP.matcher(script).replaceAll(" ").replaceAll("\\s+", " ").strip();
+    return text.length() <= PREVIEW_LENGTH ? text : text.substring(0, PREVIEW_LENGTH - 3) + "...";
   }
 
   /**

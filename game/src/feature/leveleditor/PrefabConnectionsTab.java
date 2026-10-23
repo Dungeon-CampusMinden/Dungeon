@@ -208,7 +208,7 @@ final class PrefabConnectionsTab {
     Table header = new Table();
     Label name =
         Scene2dElementFactory.createLabel(
-            portTitle(port), PORT_FONT_SIZE, ModeDetailsPanel.TEXT_COLOR);
+            portTitle(instance, port), PORT_FONT_SIZE, ModeDetailsPanel.TEXT_COLOR);
     name.setEllipsis(true);
     header.add(name).growX().minWidth(0f).left().padLeft(4f);
     List<PrefabWiring.Connection> outgoing =
@@ -233,10 +233,7 @@ final class PrefabConnectionsTab {
       for (PrefabLink link : instance.links(port)) {
         Optional<PrefabWiring.Problem> problem =
             problemOf(problems, instance.name(), port.key(), link);
-        String output =
-            PrefabWiring.outputPort(host.instances(), link)
-                .map(PrefabPort::displayName)
-                .orElse(link.port());
+        String output = outputName(host.instances(), link);
         block
             .add(
                 linkRow(
@@ -341,18 +338,33 @@ final class PrefabConnectionsTab {
     return field;
   }
 
-  private static String portTitle(PrefabPort port) {
+  private static String portTitle(PrefabInstance instance, PrefabPort port) {
+    String name = PrefabRegistry.require(instance.type()).portDisplayName(instance, port);
     return switch (port) {
-      case ArtifactOutput<?> output ->
-          port.displayName() + " (" + output.type().displayName() + ")";
+      case ArtifactOutput<?> output -> name + " (" + output.type().displayName() + ")";
       case ArtifactSlot<?> slot ->
-          port.displayName()
-              + " ("
-              + slot.type().displayName()
-              + (slot.multiple() ? ", any number" : "")
-              + ")";
-      default -> port.displayName();
+          name + " (" + slot.type().displayName() + (slot.multiple() ? ", any number" : "") + ")";
+      default -> name;
     };
+  }
+
+  /**
+   * Returns the editor-facing name of the output port a link starts at.
+   *
+   * @param instances instances of the level
+   * @param link the link
+   * @return name of the output port, or its key if the source or port does not exist
+   */
+  static String outputName(List<PrefabInstance> instances, PrefabLink link) {
+    for (PrefabInstance instance : instances) {
+      if (!instance.name().equals(link.source())) continue;
+      Optional<Prefab> prefab = PrefabRegistry.find(instance.type());
+      Optional<PrefabPort> port = PrefabWiring.outputPort(instances, link);
+      if (prefab.isPresent() && port.isPresent()) {
+        return prefab.get().portDisplayName(instance, port.get());
+      }
+    }
+    return link.port();
   }
 
   private static Optional<String> portNote(PrefabPort port) {

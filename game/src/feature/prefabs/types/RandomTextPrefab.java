@@ -2,13 +2,11 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.level.elements.ILevel;
-import engine.utils.Point;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactType;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
-import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
@@ -38,10 +36,6 @@ public final class RandomTextPrefab extends Prefab {
   private static final String MODE_LIST = "Pick From List";
   private static final Random RANDOM = new SecureRandom();
   private static final SpawnState<Random> GENERATORS = new SpawnState<>();
-
-  /** Editor-only marker position, used to select the instance and to draw its links. */
-  public static final PrefabProperty<Point> POSITION =
-      PrefabProperty.point("position", "Marker Position", new Point(0, 0), new Point(0.5f, 0.5f));
 
   /** How the text is generated. */
   public static final PrefabProperty<String> MODE =
@@ -83,8 +77,7 @@ public final class RandomTextPrefab extends Prefab {
                   .ifPresent(
                       random -> generate(context.creationContext(), context.instance(), random)));
 
-  private static final List<PrefabProperty<?>> PROPERTIES =
-      List.of(POSITION, MODE, LENGTH, CHOICES, SEED);
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(MODE, LENGTH, CHOICES, SEED);
 
   /** Creates the random-text definition. */
   public RandomTextPrefab() {
@@ -130,18 +123,12 @@ public final class RandomTextPrefab extends Prefab {
   }
 
   @Override
-  public void renderEditorFeedback(
-      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point offset = POSITION.editorFeedbackOffset();
-    Point marker = value(instance, POSITION).translate(offset.x(), offset.y());
-    feedback.point(marker, instance.name());
-    if (!selected) return;
+  public Optional<String> editorSummary(PrefabInstance instance) {
     String seed = value(instance, SEED).strip();
-    String preview =
+    return Optional.of(
         seed.isEmpty()
             ? "random each session"
-            : "text " + text(new Random(Long.parseLong(seed)), instance);
-    feedback.label(marker.translate(0f, -0.45f), "(" + preview + ")");
+            : "text " + text(new Random(Long.parseLong(seed)), instance));
   }
 
   private static void generate(

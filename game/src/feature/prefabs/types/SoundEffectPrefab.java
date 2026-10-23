@@ -6,18 +6,17 @@ import engine.Entity;
 import engine.Game;
 import engine.level.elements.ILevel;
 import engine.sound.SoundSpec;
-import engine.utils.Point;
 import feature.prefabs.ActionContext;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
-import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Server-side sound effect that plays whenever {@link #PLAY} runs, e.g. a chime when a puzzle was
@@ -31,15 +30,9 @@ public final class SoundEffectPrefab extends Prefab {
 
   private static final String TYPE = "sound-effect";
   private static final String DISPLAY_NAME = "Sound Effect";
-  private static final String AUDIENCE_EVERYONE = "Everyone";
-  private static final String AUDIENCE_PLAYER = "Triggering Player";
   private static final String SOUNDS_DIRECTORY = "sounds/";
   private static final String SOUND_EXTENSION = ".wav";
   private static List<String> soundNames;
-
-  /** Editor-only marker position, used to select the instance and to draw its links. */
-  public static final PrefabProperty<Point> POSITION =
-      PrefabProperty.point("position", "Marker Position", new Point(0, 0), new Point(0.5f, 0.5f));
 
   /** Name of the sound asset, i.e. its file name in the sounds directory without extension. */
   public static final PrefabProperty<String> SOUND =
@@ -59,14 +52,12 @@ public final class SoundEffectPrefab extends Prefab {
 
   /** Who hears the sound. */
   public static final PrefabProperty<String> AUDIENCE =
-      PrefabProperty.selection(
-          "audience", "Play For", AUDIENCE_EVERYONE, List.of(AUDIENCE_EVERYONE, AUDIENCE_PLAYER));
+      PrefabAudience.property("Play For", PrefabAudience.EVERYONE);
 
   /** Plays the sound. */
   public static final PrefabAction PLAY = PrefabAction.of("play", "Play", SoundEffectPrefab::play);
 
-  private static final List<PrefabProperty<?>> PROPERTIES =
-      List.of(POSITION, SOUND, VOLUME, PITCH, AUDIENCE);
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(SOUND, VOLUME, PITCH, AUDIENCE);
 
   /** Creates the sound-effect definition. */
   public SoundEffectPrefab() {
@@ -94,14 +85,8 @@ public final class SoundEffectPrefab extends Prefab {
   }
 
   @Override
-  public void renderEditorFeedback(
-      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point offset = POSITION.editorFeedbackOffset();
-    Point marker = value(instance, POSITION).translate(offset.x(), offset.y());
-    feedback.point(marker, instance.name());
-    if (selected) {
-      feedback.label(marker.translate(0f, -0.45f), "(" + value(instance, SOUND) + ")");
-    }
+  public Optional<String> editorSummary(PrefabInstance instance) {
+    return Optional.of(value(instance, SOUND));
   }
 
   private static void play(ActionContext context) {
@@ -109,7 +94,7 @@ public final class SoundEffectPrefab extends Prefab {
         SoundSpec.builder(context.value(SOUND))
             .volume(context.value(VOLUME))
             .pitch(context.value(PITCH));
-    if (context.value(AUDIENCE).equals(AUDIENCE_PLAYER)) {
+    if (context.value(AUDIENCE).equals(PrefabAudience.TRIGGERING_PLAYER)) {
       sound.targets(context.players().stream().mapToInt(Entity::id).toArray());
     }
     Game.audio().playGlobal(sound);

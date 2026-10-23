@@ -102,8 +102,8 @@
       "designLabel" : "FOREST"
     }
   }, {
-    "name" : "r1/dialog-trigger",
-    "type" : "dialog-trigger",
+    "name" : "r1/trigger",
+    "type" : "trigger",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -115,11 +115,21 @@
           "y" : 8.0
         }
       },
+      "repetition" : "Once globally"
+    }
+  }, {
+    "name" : "r1/dialog",
+    "type" : "dialog",
+    "properties" : {
       "text" : "Hello. The code is {random-code}.",
       "translate" : false,
-      "repetition" : "Once globally"
+      "audience" : "Triggering Player"
     },
     "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/trigger",
+        "port" : "entered"
+      } ],
       "values" : [ {
         "source" : "r1/random-code",
         "port" : "code",
@@ -127,51 +137,51 @@
       } ]
     }
   }, {
-    "name" : "r1/dialog-trigger-1",
-    "type" : "dialog-trigger",
+    "name" : "r1/dialog-1",
+    "type" : "dialog",
     "properties" : {
-      "region" : {
-        "bottomLeft" : {
-          "x" : 20.0,
-          "y" : 18.0
-        },
-        "topRight" : {
-          "x" : 20.0,
-          "y" : 18.0
-        }
-      },
       "text" : "You have successfully entered the code! GG",
       "translate" : false,
-      "repetition" : "Once globally"
+      "audience" : "Triggering Player"
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/keypad-1",
-        "port" : "correct-code"
+        "source" : "r1/once",
+        "port" : "triggered"
       } ]
     }
   }, {
-    "name" : "r1/dialog-trigger-2",
-    "type" : "dialog-trigger",
+    "name" : "r1/dialog-2",
+    "type" : "dialog",
     "properties" : {
-      "region" : {
-        "bottomLeft" : {
-          "x" : 17.0,
-          "y" : 17.0
-        },
-        "topRight" : {
-          "x" : 17.0,
-          "y" : 17.0
-        }
-      },
       "text" : "That is the wrong code dawg",
       "translate" : false,
-      "repetition" : "Repeatable"
+      "audience" : "Triggering Player"
     },
     "inputs" : {
       "show-dialog" : [ {
         "source" : "r1/keypad-1",
         "port" : "wrong-code"
+      } ]
+    }
+  }, {
+    "name" : "r1/once",
+    "type" : "once",
+    "properties" : { },
+    "inputs" : {
+      "trigger" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      } ]
+    }
+  }, {
+    "name" : "r1/once-1",
+    "type" : "once",
+    "properties" : { },
+    "inputs" : {
+      "trigger" : [ {
+        "source" : "r1/deco-dialog-decoration",
+        "port" : "interacted"
       } ]
     }
   }, {
@@ -208,18 +218,8 @@
     "name" : "r1/bookshelf-image",
     "type" : "show-image",
     "properties" : {
-      "region" : {
-        "bottomLeft" : {
-          "x" : 17.0,
-          "y" : 15.0
-        },
-        "topRight" : {
-          "x" : 17.0,
-          "y" : 15.0
-        }
-      },
       "image" : "images/binary_hex.jpg",
-      "repetition" : "Repeatable"
+      "audience" : "Triggering Player"
     },
     "inputs" : {
       "show-image" : [ {
@@ -243,26 +243,16 @@
     }
   }, {
     "name" : "r1/deco-dialog",
-    "type" : "dialog-trigger",
+    "type" : "dialog",
     "properties" : {
-      "region" : {
-        "bottomLeft" : {
-          "x" : 13.0,
-          "y" : 15.0
-        },
-        "topRight" : {
-          "x" : 13.0,
-          "y" : 15.0
-        }
-      },
       "text" : "Hello.",
       "translate" : false,
-      "repetition" : "Once globally"
+      "audience" : "Triggering Player"
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/deco-dialog-decoration",
-        "port" : "interacted"
+        "source" : "r1/once-1",
+        "port" : "triggered"
       } ]
     }
   }, {
@@ -283,18 +273,8 @@
     "name" : "r1/deco-image",
     "type" : "show-image",
     "properties" : {
-      "region" : {
-        "bottomLeft" : {
-          "x" : 10.0,
-          "y" : 5.0
-        },
-        "topRight" : {
-          "x" : 10.0,
-          "y" : 5.0
-        }
-      },
       "image" : "images/binary_hex.jpg",
-      "repetition" : "Repeatable"
+      "audience" : "Triggering Player"
     },
     "inputs" : {
       "show-image" : [ {
@@ -349,6 +329,9 @@
       }, {
         "source" : "item-receptacle",
         "port" : "required-item-placed"
+      }, {
+        "source" : "dialog",
+        "port" : "dialog-finished"
       } ],
       "close" : [ {
         "source" : "r1/door-lever-1",
@@ -451,10 +434,6 @@
     "name" : "r1/random-code",
     "type" : "random-code",
     "properties" : {
-      "position" : {
-        "x" : 19.4375,
-        "y" : 13.9375
-      },
       "length" : 4,
       "seed" : ""
     }
@@ -462,10 +441,6 @@
     "name" : "r1/delay",
     "type" : "delay",
     "properties" : {
-      "position" : {
-        "x" : 9.0,
-        "y" : 10.0
-      },
       "delay" : 1000,
       "restart" : false
     },
@@ -879,16 +854,6 @@
       }
     }
   }, {
-    "name" : "door-control",
-    "type" : "door-control",
-    "properties" : {
-      "doorPosition" : {
-        "x" : 22.0,
-        "y" : 10.0
-      },
-      "closedAtStart" : true
-    }
-  }, {
     "name" : "item-receptacle",
     "type" : "item-receptacle",
     "properties" : {
@@ -902,7 +867,7 @@
     },
     "inputs" : {
       "required-item" : [ {
-        "source" : "air-vent",
+        "source" : "item-spawner",
         "port" : "item-1"
       } ]
     }
@@ -911,7 +876,7 @@
     "type" : "item-spawner",
     "properties" : {
       "position" : {
-        "x" : 6.0,
+        "x" : 7.0,
         "y" : 3.0
       },
       "container" : "Chest",
@@ -954,10 +919,6 @@
     "name" : "sound-effect",
     "type" : "sound-effect",
     "properties" : {
-      "position" : {
-        "x" : 7.0,
-        "y" : 14.0
-      },
       "sound" : "fireball",
       "volume" : 0.5,
       "pitch" : 2.0,
@@ -967,6 +928,21 @@
       "play" : [ {
         "source" : "r1/door-lever-2",
         "port" : "switched-on"
+      } ]
+    }
+  }, {
+    "name" : "sound-effect-1",
+    "type" : "sound-effect",
+    "properties" : {
+      "sound" : "qubodup_DoorOpen",
+      "volume" : 0.35,
+      "pitch" : 1.0,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "play" : [ {
+        "source" : "once",
+        "port" : "triggered"
       } ]
     }
   }, {
@@ -986,6 +962,88 @@
       "key" : [ {
         "source" : "item-spawner",
         "port" : "item-2"
+      } ]
+    }
+  }, {
+    "name" : "trigger",
+    "type" : "trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 13.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 16.0,
+          "y" : 2.0
+        }
+      },
+      "repetition" : "Always"
+    }
+  }, {
+    "name" : "choice-dialog",
+    "type" : "choice-dialog",
+    "properties" : {
+      "text" : "Wie viel ist zehn mal 9?",
+      "translate" : false,
+      "audience" : "Triggering Player",
+      "can-cancel" : false,
+      "option-count" : 4,
+      "option-1" : "Ja",
+      "option-2" : "Nein",
+      "option-3" : "Vielleicht",
+      "option-4" : "90",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "trigger",
+        "port" : "entered"
+      } ]
+    }
+  }, {
+    "name" : "dialog",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Das war richtig!",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "choice-dialog",
+        "port" : "option-4"
+      } ]
+    }
+  }, {
+    "name" : "dialog-1",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Das war falsch.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "choice-dialog",
+        "port" : "option-1"
+      }, {
+        "source" : "choice-dialog",
+        "port" : "option-2"
+      }, {
+        "source" : "choice-dialog",
+        "port" : "option-3"
+      } ]
+    }
+  }, {
+    "name" : "once",
+    "type" : "once",
+    "properties" : { },
+    "inputs" : {
+      "trigger" : [ {
+        "source" : "choice-dialog",
+        "port" : "option-4"
       } ]
     }
   } ]

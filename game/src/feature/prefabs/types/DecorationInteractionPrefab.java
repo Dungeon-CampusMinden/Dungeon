@@ -27,8 +27,8 @@ import java.util.function.Consumer;
 /**
  * Server-side decoration players can interact with.
  *
- * <p>It only raises {@link #INTERACTED}, link it to e.g. the Show Dialog action of a Dialog Trigger
- * or the Show Image action of a Show Image prefab.
+ * <p>It only raises {@link #INTERACTED}, link it to e.g. the Show Dialog action of a Dialog or the
+ * Show Image action of a Show Image prefab.
  */
 public final class DecorationInteractionPrefab extends Prefab {
 

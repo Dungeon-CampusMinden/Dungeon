@@ -1018,6 +1018,20 @@ public class DebugDrawSystem extends System {
     drawText(font, text, new Point(textX, textY), color);
   }
 
+  /**
+   * Draws text in world coordinates using the default font, starting at a world position and
+   * vertically centered on it.
+   *
+   * @param text text to draw
+   * @param world position of the vertical center of the left text edge, in world coordinates
+   * @param color text color
+   */
+  public static void drawTextInWorldCoordsLeftAligned(String text, Point world, Color color) {
+    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    GlyphLayout layout = new GlyphLayout(FONT, text);
+    drawText(FONT, text, new Point(screen.x, screen.y + layout.height / 2f), color);
+  }
+
   private static final float INTEGER_TOLERANCE = 0.01f;
 
   private static boolean isNearInteger(float value) {

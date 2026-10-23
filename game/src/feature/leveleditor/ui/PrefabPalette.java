@@ -34,7 +34,9 @@ import java.util.List;
  */
 public class PrefabPalette extends Table {
 
-  private static final String DEFAULT_HINT = "Drag a prefab into the level to place it.";
+  private static final String DEFAULT_HINT =
+      "Drag a prefab into the level to place it. Drop dialogs, sounds and logic onto the prefab"
+          + " that triggers them.";
   private static final float ITEM_SIZE = 56f;
   private static final float ITEM_PAD = 3f;
   private static final float ITEM_CELL = ITEM_SIZE + 2 * ITEM_PAD;

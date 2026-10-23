@@ -2,12 +2,10 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.level.elements.ILevel;
-import engine.utils.Point;
 import feature.prefabs.ActionContext;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
-import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
@@ -16,6 +14,7 @@ import feature.prefabs.PrefabSide;
 import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Server-side timer that passes a signal on after a delay, e.g. to close a door a few seconds after
@@ -30,10 +29,6 @@ public final class DelayPrefab extends Prefab {
   private static final String DISPLAY_NAME = "Delay";
   private static final SpawnState<List<EventScheduler.ScheduledAction>> PENDING =
       new SpawnState<>();
-
-  /** Editor-only marker position, used to select the instance and to draw its links. */
-  public static final PrefabProperty<Point> POSITION =
-      PrefabProperty.point("position", "Marker Position", new Point(0, 0), new Point(0.5f, 0.5f));
 
   /** Time between a start and the finish, in milliseconds. */
   public static final PrefabProperty<Integer> DELAY =
@@ -59,7 +54,7 @@ public final class DelayPrefab extends Prefab {
                   .get(context.level(), context.instance().name())
                   .ifPresent(DelayPrefab::cancelAll));
 
-  private static final List<PrefabProperty<?>> PROPERTIES = List.of(POSITION, DELAY, RESTART);
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(DELAY, RESTART);
 
   /** Creates the delay definition. */
   public DelayPrefab() {
@@ -93,14 +88,8 @@ public final class DelayPrefab extends Prefab {
   }
 
   @Override
-  public void renderEditorFeedback(
-      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point offset = POSITION.editorFeedbackOffset();
-    Point marker = value(instance, POSITION).translate(offset.x(), offset.y());
-    feedback.point(marker, instance.name());
-    if (selected) {
-      feedback.label(marker.translate(0f, -0.45f), "(" + value(instance, DELAY) + " ms)");
-    }
+  public Optional<String> editorSummary(PrefabInstance instance) {
+    return Optional.of(value(instance, DELAY) + " ms");
   }
 
   private static void start(ActionContext context) {

@@ -162,11 +162,13 @@ public final class AirVentPrefab extends Prefab {
     Point position = value(instance, POSITION);
     feedback.point(position, instance.name());
     if (selected) {
+      // The arrow shows where the items are spewed to.
       Direction direction = Direction.fromLabel(value(instance, DIRECTION));
       Point center = position.translate(0.5f, 0.5f);
+      feedback.line(center, center.translate(direction.x * 0.6f, direction.y * 0.6f), true);
+      int count = value(instance, PrefabItems.COUNT);
       feedback.label(
-          center.translate(direction.x * 1.2f, direction.y * 1.2f),
-          "(" + value(instance, PrefabItems.COUNT) + " items)");
+          position.translate(0f, -0.45f), "(" + count + (count == 1 ? " item)" : " items)"));
     }
   }
 

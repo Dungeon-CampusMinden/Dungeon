@@ -2,13 +2,11 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.level.elements.ILevel;
-import engine.utils.Point;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactType;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
-import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
@@ -33,10 +31,6 @@ public final class RandomBoolPrefab extends Prefab {
   private static final String DISPLAY_NAME = "Random Bool";
   private static final Random RANDOM = new SecureRandom();
   private static final SpawnState<Random> GENERATORS = new SpawnState<>();
-
-  /** Editor-only marker position, used to select the instance and to draw its links. */
-  public static final PrefabProperty<Point> POSITION =
-      PrefabProperty.point("position", "Marker Position", new Point(0, 0), new Point(0.5f, 0.5f));
 
   /** Chance of generating {@code true}, in percent. */
   public static final PrefabProperty<Integer> CHANCE =
@@ -72,7 +66,7 @@ public final class RandomBoolPrefab extends Prefab {
                   .ifPresent(
                       random -> generate(context.creationContext(), context.instance(), random)));
 
-  private static final List<PrefabProperty<?>> PROPERTIES = List.of(POSITION, CHANCE, SEED);
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(CHANCE, SEED);
 
   /** Creates the random-bool definition. */
   public RandomBoolPrefab() {
@@ -118,14 +112,8 @@ public final class RandomBoolPrefab extends Prefab {
   }
 
   @Override
-  public void renderEditorFeedback(
-      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point offset = POSITION.editorFeedbackOffset();
-    Point marker = value(instance, POSITION).translate(offset.x(), offset.y());
-    feedback.point(marker, instance.name());
-    if (selected) {
-      feedback.label(marker.translate(0f, -0.45f), "(" + value(instance, CHANCE) + "% true)");
-    }
+  public Optional<String> editorSummary(PrefabInstance instance) {
+    return Optional.of(value(instance, CHANCE) + "% true");
   }
 
   private static void generate(

@@ -247,6 +247,18 @@ public abstract class Prefab {
   }
 
   /**
+   * Returns the editor-facing name of a port of an instance, e.g. including the authored text of
+   * the list entry the port belongs to.
+   *
+   * @param instance normalized instance of this prefab type
+   * @param port one of {@link #ports()}
+   * @return port name; {@link PrefabPort#displayName()} by default
+   */
+  public String portDisplayName(PrefabInstance instance, PrefabPort port) {
+    return port.displayName();
+  }
+
+  /**
    * Returns the artifact slot replacing a property while it is linked.
    *
    * @param property property of this prefab type
@@ -688,6 +700,18 @@ public abstract class Prefab {
    */
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {}
+
+  /**
+   * Returns a short description of an instance, e.g. the sound it plays. The editor shows it next
+   * to the selected instance if the prefab has no world position (no point or region property) and
+   * is therefore drawn next to the prefabs it is linked to.
+   *
+   * @param instance normalized instance
+   * @return summary, if the prefab has one
+   */
+  public Optional<String> editorSummary(PrefabInstance instance) {
+    return Optional.empty();
+  }
 
   /**
    * Cleans up side effects created while spawning an instance.

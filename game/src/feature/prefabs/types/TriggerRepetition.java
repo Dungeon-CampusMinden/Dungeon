@@ -8,20 +8,20 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
-/** How often a dialog or image prefab may show its dialog or image. */
-enum DialogRepetition {
-  REPEATABLE("Repeatable"),
+/** How often a trigger prefab may raise its event. */
+enum TriggerRepetition {
+  ALWAYS("Always"),
   ONCE_PER_PLAYER("Once per player"),
   ONCE_GLOBALLY("Once globally");
 
   private final String label;
 
-  DialogRepetition(String label) {
+  TriggerRepetition(String label) {
     this.label = label;
   }
 
   /**
-   * Creates the shared selection property for choosing a dialog repetition mode.
+   * Creates the shared selection property for choosing a repetition mode.
    *
    * @return selection property storing the mode label
    */
@@ -29,7 +29,7 @@ enum DialogRepetition {
     return PrefabProperty.selection(
         "repetition",
         "Repetition",
-        REPEATABLE.label,
+        ALWAYS.label,
         Arrays.stream(values()).map(value -> value.label).toList());
   }
 
@@ -39,43 +39,39 @@ enum DialogRepetition {
    * @param label serialized label
    * @return matching mode
    */
-  static DialogRepetition fromLabel(String label) {
-    for (DialogRepetition value : values()) {
+  static TriggerRepetition fromLabel(String label) {
+    for (TriggerRepetition value : values()) {
       if (value.label.equals(label)) return value;
     }
-    throw new IllegalArgumentException("Unknown dialog repetition: " + label);
+    throw new IllegalArgumentException("Unknown trigger repetition: " + label);
   }
 
-  /**
-   * Spawn-scoped history of a prefab, shared by every way of showing its dialog or image, so the
-   * repetition applies no matter whether a player entered the region or an action was run.
-   */
+  /** Spawn-scoped history of a trigger, so a respawn or reset allows triggering again. */
   static final class History implements Component {
-    private final DialogRepetition repetition;
+    private final TriggerRepetition repetition;
     private final Set<Entity> players = Collections.newSetFromMap(new IdentityHashMap<>());
-    private boolean shown;
+    private boolean triggered;
 
     /**
      * Creates an empty history.
      *
-     * @param repetition how often the dialog or image may be shown
+     * @param repetition how often the trigger may be triggered
      */
-    History(DialogRepetition repetition) {
+    History(TriggerRepetition repetition) {
       this.repetition = repetition;
     }
 
     /**
-     * Records that the dialog or image is about to be shown to a player, if the repetition allows
-     * it.
+     * Records that a player is about to trigger, if the repetition allows it.
      *
-     * @param who player to show it to
-     * @return true if it may be shown
+     * @param who triggering player
+     * @return true if the trigger may raise its event
      */
-    boolean tryShow(Entity who) {
+    boolean tryTrigger(Entity who) {
       switch (repetition) {
         case ONCE_GLOBALLY -> {
-          if (shown) return false;
-          shown = true;
+          if (triggered) return false;
+          triggered = true;
           return true;
         }
         case ONCE_PER_PLAYER -> {

@@ -2,13 +2,11 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.level.elements.ILevel;
-import engine.utils.Point;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactType;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
-import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
@@ -32,10 +30,6 @@ public final class RandomCodePrefab extends Prefab {
   private static final String TYPE = "random-code";
   private static final String DISPLAY_NAME = "Random Code";
   private static final Random RANDOM = new SecureRandom();
-
-  /** Editor-only marker position, used to select the instance and to draw its links. */
-  public static final PrefabProperty<Point> POSITION =
-      PrefabProperty.point("position", "Marker Position", new Point(0, 0), new Point(0.5f, 0.5f));
 
   /** Number of digits of the code. */
   public static final PrefabProperty<Integer> LENGTH =
@@ -63,7 +57,7 @@ public final class RandomCodePrefab extends Prefab {
                   context.instance(),
                   PrefabRuntime.artifact(context.level(), context.instance().name(), CODE)));
 
-  private static final List<PrefabProperty<?>> PROPERTIES = List.of(POSITION, LENGTH, SEED);
+  private static final List<PrefabProperty<?>> PROPERTIES = List.of(LENGTH, SEED);
 
   /** Creates the random-code definition. */
   public RandomCodePrefab() {
@@ -101,17 +95,12 @@ public final class RandomCodePrefab extends Prefab {
   }
 
   @Override
-  public void renderEditorFeedback(
-      ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
-    Point offset = POSITION.editorFeedbackOffset();
-    Point marker = value(instance, POSITION).translate(offset.x(), offset.y());
+  public Optional<String> editorSummary(PrefabInstance instance) {
     String seed = value(instance, SEED).strip();
-    String preview =
+    return Optional.of(
         seed.isEmpty()
             ? "random each session"
-            : "code " + code(new Random(Long.parseLong(seed)), value(instance, LENGTH));
-    feedback.point(marker, instance.name());
-    if (selected) feedback.label(marker.translate(0f, -0.45f), "(" + preview + ")");
+            : "code " + code(new Random(Long.parseLong(seed)), value(instance, LENGTH)));
   }
 
   /**
