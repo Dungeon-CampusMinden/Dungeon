@@ -385,6 +385,39 @@ textarea::placeholder {
   margin: 12px 0;
 }
 
+/* Screens without inputs: the message sits in the middle of the free space, a little above the
+   true middle, where the eye expects it. */
+.status {
+  margin: auto 0;
+  padding-bottom: 10dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status h1 {
+  font-size: 34px;
+  line-height: 1.12;
+}
+
+.status .lead {
+  font-size: 19px;
+  max-width: 24em;
+}
+
+.status .big {
+  margin: 8px 0 0;
+  font-size: 168px;
+  line-height: 0.85;
+}
+
+/* Dot-matrix symbol of the screen, in the type of the game screen */
+.sign {
+  font: 800 112px/0.8 "Doto", monospace;
+  color: var(--accent);
+  letter-spacing: -0.04em;
+}
+
 /* Result of the last window */
 
 .result {
@@ -606,6 +639,22 @@ kbd {
 
   .big {
     font-size: 180px;
+  }
+
+  .status h1 {
+    font-size: clamp(48px, 4.4vw, 76px);
+  }
+
+  .status .big {
+    font-size: 240px;
+  }
+
+  .status .lead {
+    font-size: 24px;
+  }
+
+  .sign {
+    font-size: 200px;
   }
 
   #app:has(> .controls) {

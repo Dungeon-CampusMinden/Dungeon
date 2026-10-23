@@ -192,25 +192,29 @@ function currentKey() {
 function build() {
   const key = screenKey;
   if (key === "join") return joinScreen();
-  if (key === "connecting") return [bar(), el("h1", {}, "Verbinde …")];
-  if (key === "closed") {
-    return [el("h1", {}, "Die Runde ist vorbei"), el("p", { class: "lead" }, "Danke fürs Mitspielen. Ihr könnt die Seite schließen.")];
-  }
+  if (key === "connecting") return [bar(), statusScreen("Verbinde …")];
+  if (key === "closed") return [statusScreen("Die Runde ist vorbei", "Danke fürs Mitspielen. Ihr könnt die Seite schließen.")];
   const own = status() || "joining";
   switch (own) {
     case "joining":
-      return [bar(), el("h1", {}, "Du bist drin"), el("p", { class: "lead" }, "Gleich erscheint die erste Frage.")];
+      return [bar(), statusScreen("Du bist drin", "Gleich erscheint die erste Frage.")];
     case "pre":
       return surveyScreen("pre");
     case "post":
       return surveyScreen("post");
     case "done":
-      return [bar(), el("h1", {}, "Danke!"), el("p", { class: "lead" }, "Deine Antworten sind angekommen. Ihr könnt die Seite schließen.")];
+      return [bar(), statusScreen("Danke!", "Deine Antworten sind angekommen. Ihr könnt die Seite schließen.")];
     case "spectator":
       return spectatorScreen();
     default:
       return playScreen();
   }
+}
+
+// A screen without inputs: the message sits in the middle of the free space below the bar.
+function statusScreen(title, lead, ...extra) {
+  return el("section", { class: "status" },
+    el("h1", {}, title), lead ? el("p", { class: "lead" }, lead) : null, ...extra);
 }
 
 function bar() {
@@ -305,27 +309,28 @@ function spectatorScreen() {
   const state = session.state;
   return [
     bar(),
-    el("h1", {}, "Du schaust zu"),
-    el("p", { class: "lead" }, "Ohne Einwilligung speichern wir nichts von dir. Dafür stimmst du nicht mit ab."),
-    state.phase === "playing" && !state.paused ? timerRow() : null,
-    resultBlock(),
+    statusScreen("Du schaust zu", "Ohne Einwilligung speichern wir nichts von dir. Dafür stimmst du nicht mit ab.",
+      state.phase === "playing" && !state.paused ? timerRow() : null,
+      resultBlock()),
   ];
 }
 
 function playScreen() {
   const state = session.state;
   if (state.phase === "lobby") {
-    return [bar(), el("h1", {}, "Gleich geht es los"), el("p", { class: "lead" }, "Schaut auf den Spielbildschirm. Die Spielleitung startet die Runde.")];
+    return [bar(), statusScreen("Gleich geht es los", "Schaut auf den Spielbildschirm. Die Spielleitung startet die Runde.")];
   }
   if (state.phase === "countdown") {
-    return [bar(), el("h1", {}, "Gleich geht es los"), el("div", { class: "big", "data-countdown": true }, "")];
+    return [bar(), statusScreen("Gleich geht es los", null, el("div", { class: "big", "data-countdown": true }, ""))];
   }
   if (state.phase === "ended") {
-    return [bar(), el("h1", {}, "Geschafft"), el("p", { class: "lead" }, "Schaut auf den Spielbildschirm.")];
+    return [bar(), statusScreen("Geschafft", "Schaut auf den Spielbildschirm.")];
   }
   // The host paused the game: the window and its time stand still, and votes cast so far stay.
   if (state.paused) {
-    return [bar(), el("h1", {}, "Pausiert"), el("p", { class: "lead" }, "Gleich geht es weiter. Abgegebene Stimmen bleiben erhalten.")];
+    const screen = statusScreen("Pausiert", "Gleich geht es weiter. Abgegebene Stimmen bleiben erhalten.");
+    screen.prepend(el("div", { class: "sign", "aria-hidden": "true" }, "II"));
+    return [bar(), screen];
   }
   const context = state.context || { kind: "wait" };
   const title = {
@@ -343,6 +348,7 @@ function playScreen() {
     code: codePad,
     continue: continuePad,
   }[context.kind];
+  if (!controls) return [bar(), statusScreen(title, null, resultBlock())];
   return [
     bar(),
     el("h1", {}, title),
