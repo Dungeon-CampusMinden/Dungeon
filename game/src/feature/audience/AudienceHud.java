@@ -19,15 +19,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
+import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.network.messages.c2s.InputMessage;
 import engine.systems.input.InputManager;
-import engine.time.PlayClockRuntime;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.PauseDialog;
@@ -73,6 +75,10 @@ public final class AudienceHud extends System {
   private static long stateReceivedAt;
   // The host opened the full join screen during play; the game pauses while it is open.
   private static boolean joinScreen;
+  // An empty dialog that pauses the play clock like the pause menu while the join screen is open;
+  // the overlay draws the screen itself.
+  private static final DialogType JOIN_PAUSE = () -> "AUDIENCE_JOIN_PAUSE";
+  private static UIComponent joinPause;
   // Whether the pause menu was open in the previous frame.
   private static boolean pauseMenuOpenBefore;
 
@@ -97,6 +103,7 @@ public final class AudienceHud extends System {
   public static void register() {
     AudienceHudMessage.registerConverter();
     DialogFactory.numberChoiceOptions(true);
+    DialogFactory.register(JOIN_PAUSE, context -> new Group());
   }
 
   /** Adds the overlay to the game-screen client; call it in the client setup. */
@@ -109,7 +116,6 @@ public final class AudienceHud extends System {
               state = TrackingJson.object(message.json());
               stateReceivedAt = java.lang.System.nanoTime();
             });
-    PlayClockRuntime.pauseWhile(() -> joinScreen);
     Game.add(new AudienceHud());
   }
 
@@ -130,6 +136,7 @@ public final class AudienceHud extends System {
     root.setVisible(!pauseMenuOpen());
     String phase = state.path("phase").asString("");
     if (!phase.equals("playing")) joinScreen = false;
+    syncJoinPause();
     // Only the join panel takes clicks during play; the full join screen takes them anywhere.
     root.setTouchable(joinScreen ? Touchable.enabled : Touchable.childrenOnly);
     String next = joinScreen + "|" + content();
@@ -151,6 +158,27 @@ public final class AudienceHud extends System {
       }
     }
     if (phase.equals("playing") && !joinScreen) place(stage.get());
+  }
+
+  private static void syncJoinPause() {
+    if (joinScreen && joinPause == null) {
+      Game.player()
+          .ifPresent(
+              player -> {
+                Entity owner = Entity.createLocalEntity("audience-join-pause");
+                Game.add(owner);
+                DialogContext context =
+                    DialogContext.builder()
+                        .type(JOIN_PAUSE)
+                        .put(DialogContextKeys.PAUSES_PLAY_CLOCK, true)
+                        .build();
+                context.owner(owner.id());
+                joinPause = DialogFactory.show(context, true, false, false, player.id());
+              });
+    } else if (!joinScreen && joinPause != null) {
+      UIUtils.closeDialog(joinPause, true);
+      joinPause = null;
+    }
   }
 
   private static boolean pauseMenuOpen() {

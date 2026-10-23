@@ -4,8 +4,8 @@ import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.network.input.InputCommandRouter;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InputMessage;
-import engine.network.server.DialogTracker;
 import engine.time.PlayClock;
 import engine.tracking.Tracking;
 import engine.utils.logging.DungeonLogger;
@@ -188,7 +188,10 @@ public final class AudienceSystem extends System {
     postSurvey.ifPresent(survey -> surveys.set("post", survey.definition()));
     relay = new AudienceRelayClient(config.relay(), config.relayKey(), surveys);
     AudienceHudMessage.registerConverter();
-    DialogTracker.instance().clientResponses(false);
+    // The audience answers dialogs through votes; answers from the game-screen client do not count.
+    Game.network()
+        .messageDispatcher()
+        .registerHandler(DialogResponseMessage.class, (session, response) -> {});
     InputCommandRouter.InputCommandHandler ignored = context -> {};
     for (InputMessage.Action action :
         new InputMessage.Action[] {

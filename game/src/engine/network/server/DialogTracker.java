@@ -54,7 +54,6 @@ public final class DialogTracker {
 
   private final Map<String, DialogInfo> dialogs = new ConcurrentHashMap<>();
   private final Map<Short, Set<String>> clientDialogs = new ConcurrentHashMap<>();
-  private volatile boolean clientResponses = true;
 
   private DialogTracker() {}
 
@@ -115,29 +114,16 @@ public final class DialogTracker {
    *
    * @param clientId the client attempting to respond
    * @param dialogId the dialog being responded to
-   * @return true if clients may respond and the client is a registered recipient, or the dialog is
-   *     local-only without network recipients
+   * @return true if the client is a registered recipient, or the dialog is local-only without
+   *     network recipients
    */
   public boolean canRespond(short clientId, String dialogId) {
-    if (!clientResponses) {
-      return false;
-    }
     DialogInfo info = dialogs.get(dialogId);
     if (info == null) {
       return false;
     }
     return info.authorizedClientIds().contains(clientId)
         || (!PreRunConfiguration.multiplayerEnabled() && info.authorizedClientIds().isEmpty());
-  }
-
-  /**
-   * Sets whether clients may answer dialogs. In audience mode the server answers every dialog with
-   * the audience's vote, so the game-screen client only displays them.
-   *
-   * @param allowed whether client responses are accepted
-   */
-  public void clientResponses(boolean allowed) {
-    clientResponses = allowed;
   }
 
   /**
