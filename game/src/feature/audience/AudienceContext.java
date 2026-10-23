@@ -15,6 +15,7 @@ import feature.hud.dialogs.DialogType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -369,9 +370,10 @@ sealed interface AudienceContext {
   }
 
   /**
-   * A free-input dialog. Answers are compared after removing leading and trailing whitespace.
-   * Marked with {@link AudienceSystem#CODE_DIGITS}, it asks for a code: the devices show a digit
-   * keypad, and only codes of that length count, with their leading zeros.
+   * A free-input dialog. Answers count without any whitespace and in lower case, so "O(log n)" and
+   * "o(logn)" are the same vote; the dialog receives that form. Marked with {@link
+   * AudienceSystem#CODE_DIGITS}, it asks for a code: the devices show a digit keypad, and only
+   * codes of that length count, with their leading zeros.
    *
    * @param ui the dialog
    * @param digits number of digits of the code, or {@code 0} for free text
@@ -397,7 +399,7 @@ sealed interface AudienceContext {
     @Override
     public Optional<JsonNode> normalize(JsonNode value) {
       if (!value.isString()) return Optional.empty();
-      String text = value.asString().strip();
+      String text = value.asString().replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
       boolean valid =
           digits > 0
               ? text.matches("[0-9]{" + digits + "}")

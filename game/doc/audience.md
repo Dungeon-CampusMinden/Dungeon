@@ -75,7 +75,8 @@ das tun nur die Stimmen.
   gedrückt hat, bleiben nur noch 5 Sekunden. Die Stimme heißt nur „fertig gelesen“; ohne
   Stimmen geht es nach Ablauf trotzdem weiter.
 - Pro Person und Fenster zählt die letzte Stimme. Bei Mehrfachauswahl zählt die ganze
-  Kombination, bei Text und Codes die vollständige Eingabe ohne Leerzeichen am Anfang und Ende.
+  Kombination. Text und Codes zählen ohne Leerzeichen und kleingeschrieben, „O(log n)“ und
+  „o(logn)“ sind also dieselbe Stimme; in dieser Form kommt die Antwort auch beim Rätsel an.
   Führende Nullen bleiben erhalten.
 - Bei Gleichstand wählt das Spiel eine der häufigsten Eingaben mit gleicher Wahrscheinlichkeit.
 - Wechselt der Spielzustand, verfallen die Stimmen des alten Fensters.
