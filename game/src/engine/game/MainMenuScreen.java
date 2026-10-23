@@ -427,8 +427,10 @@ public class MainMenuScreen extends ScreenAdapter {
 
     Table menu = new Table();
     menu.add(hostTitleLabel).padBottom(20).align(Align.center).row();
-    menu.add(nameLabel).align(Align.left).padBottom(5).row();
-    menu.add(hostNameField).width(BUTTON_WIDTH).padBottom(8).row();
+    if (starter.askPlayerName()) {
+      menu.add(nameLabel).align(Align.left).padBottom(5).row();
+      menu.add(hostNameField).width(BUTTON_WIDTH).padBottom(8).row();
+    }
     menu.add(hostStatusLabel).width(BUTTON_WIDTH).minHeight(24).padBottom(8).row();
     menu.add(buttons).align(Align.center).row();
     return menu;
@@ -681,6 +683,7 @@ public class MainMenuScreen extends ScreenAdapter {
         () -> {
           hostNameField.setText(PreRunConfiguration.username());
           showHostNameViewInternal();
+          if (!starter.askPlayerName()) confirmHostName();
         });
   }
 
@@ -712,6 +715,7 @@ public class MainMenuScreen extends ScreenAdapter {
         () -> {
           hostNameField.setText(ClientConnectionDialog.defaultUsername());
           showHostNameViewInternal();
+          if (!starter.askPlayerName()) confirmHostName();
         });
   }
 

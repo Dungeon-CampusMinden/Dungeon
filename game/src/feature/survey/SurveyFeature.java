@@ -199,6 +199,20 @@ public final class SurveyFeature {
       TrackingRuntime.disableTrackingForRun();
       return Optional.empty();
     }
+    return recordAnswers(survey, participant, answers);
+  }
+
+  /**
+   * Records each answered question of a valid submission that does not decline consent.
+   *
+   * @param survey survey the participant answered
+   * @param participant tracking participant
+   * @param answers JSON object mapping question IDs to answers
+   * @return the last recorded event, or empty when the submission answered nothing
+   * @throws RuntimeException if the answers are invalid or tracking stopped recording
+   */
+  static Optional<TrackingEvent> recordAnswers(
+      SurveyDefinition survey, UUID participant, JsonNode answers) {
     if (!survey.valid(answers)) throw new IllegalArgumentException("invalid survey answers");
     Optional<TrackingEvent> last = Optional.empty();
     for (SurveyDefinition.Question question : survey.questions()) {

@@ -626,6 +626,82 @@ public final class Tracking {
   }
 
   /**
+   * Adds a participant without a network client, such as a device in audience mode, to the running
+   * session. Joining again with the same key returns the same participant identifier.
+   *
+   * @param key stable key of the participant within this run
+   * @return session-scoped participant identifier, or empty when tracking is inactive
+   */
+  public static Optional<UUID> remoteParticipantJoined(String key) {
+    synchronized (LOCK) {
+      if (!active()) {
+        return Optional.empty();
+      }
+      try {
+        return session.remoteParticipantJoined(key);
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
+   * Records the vote of one participant that counted in a closed voting window.
+   *
+   * @param window voting window number, starting at one
+   * @param context game context the window voted on, such as {@code move} or {@code choice}
+   * @param vote the counted vote
+   * @param participantId session-scoped participant identifier
+   * @return recorded event, or empty when tracking or the participant is inactive
+   */
+  public static Optional<TrackingEvent> voteCast(
+      long window, String context, JsonNode vote, UUID participantId) {
+    ObjectNode payload = TrackingJson.object().put("window", window).put("context", context);
+    payload.set("vote", Objects.requireNonNull(vote, "vote"));
+    return voteEvent(TrackingEventType.VOTE_CAST, Optional.of(participantId), payload);
+  }
+
+  /**
+   * Records the result of a closed voting window.
+   *
+   * @param window voting window number, starting at one
+   * @param context game context the window voted on
+   * @param votes distribution as an array of {@code {vote, count}} objects
+   * @param result executed action or adopted answer
+   * @return recorded event, or empty when tracking is inactive
+   */
+  public static Optional<TrackingEvent> voteResolved(
+      long window, String context, JsonNode votes, JsonNode result) {
+    ObjectNode payload = TrackingJson.object().put("window", window).put("context", context);
+    payload.set("votes", Objects.requireNonNull(votes, "votes"));
+    payload.set("result", Objects.requireNonNull(result, "result"));
+    return voteEvent(TrackingEventType.VOTE_RESOLVED, Optional.empty(), payload);
+  }
+
+  private static Optional<TrackingEvent> voteEvent(
+      TrackingEventType type, Optional<UUID> participantId, ObjectNode payload) {
+    synchronized (LOCK) {
+      if (!active() || participantId.map(id -> !session.participantKnown(id)).orElse(false)) {
+        return Optional.empty();
+      }
+      try {
+        return Optional.of(
+            session.event(
+                type,
+                participantId,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                payload));
+      } catch (TrackingPersistenceException exception) {
+        recordPersistenceFailure(exception);
+        return Optional.empty();
+      }
+    }
+  }
+
+  /**
    * Returns whether the HTTP backend has persisted an event and every earlier event of its session.
    *
    * <p>Callers poll this after recording player-facing data, for example to confirm that survey

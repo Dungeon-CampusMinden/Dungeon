@@ -187,15 +187,8 @@ public class DialogFactory {
     // Store owner entity ID in context for network sync
     context.owner(ownerEntity.id());
 
-    DialogContext translatedContext = context;
-    if (Game.isMultiplayerClient() || Game.isSingleplayer()) {
-      translatedContext = resolveDialogTranslationKey(translatedContext);
-      translatedContext = translateText(DialogContextKeys.MESSAGE, translatedContext);
-      translatedContext = translateText(DialogContextKeys.DIALOG, translatedContext);
-      translatedContext = translateText(DialogContextKeys.IMAGE, translatedContext);
-      translatedContext = translateText(DialogContextKeys.OPTIONS, translatedContext);
-      translatedContext = translateText(DialogContextKeys.TITLE, translatedContext);
-    }
+    DialogContext translatedContext =
+        Game.isMultiplayerClient() || Game.isSingleplayer() ? localized(context) : context;
 
     UIComponent ui =
         new UIComponent(translatedContext, willPause, canBeClosed, suppressible, targetEntityIds);
@@ -451,6 +444,16 @@ public class DialogFactory {
   }
 
   /**
+   * Sets whether multiple choice dialogs in this process show each option with its number, starting
+   * at one, so an audience can vote for options by number.
+   *
+   * @param numbered whether options are numbered
+   */
+  public static void numberChoiceOptions(boolean numbered) {
+    MultipleChoiceDialog.numberOptions = numbered;
+  }
+
+  /**
    * Shows a multiple choice dialog with a script-driven question (see {@link DialogScript} for the
    * supported {@code [speaker]} / {@code [speaker clear]} / {@code [p]} markup) and a list of
    * selectable options.
@@ -660,6 +663,22 @@ public class DialogFactory {
   public static UIComponent showCanvas(
       CanvasDefinition definition, int heroId, int... targetEntityIds) {
     return definition.open(heroId, targetEntityIds);
+  }
+
+  /**
+   * Translates the texts of a dialog context into the current language: the message, the dialog
+   * script, the image, the option labels, and the title.
+   *
+   * @param context dialog context with texts or translation keys
+   * @return the context with translated texts
+   */
+  public static DialogContext localized(DialogContext context) {
+    DialogContext translated = resolveDialogTranslationKey(context);
+    translated = translateText(DialogContextKeys.MESSAGE, translated);
+    translated = translateText(DialogContextKeys.DIALOG, translated);
+    translated = translateText(DialogContextKeys.IMAGE, translated);
+    translated = translateText(DialogContextKeys.OPTIONS, translated);
+    return translateText(DialogContextKeys.TITLE, translated);
   }
 
   /* Replaces a dialog script translation key by the script in the current language. */

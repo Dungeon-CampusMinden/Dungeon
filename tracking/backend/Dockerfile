@@ -10,7 +10,7 @@ COPY tracking/backend/ tracking/backend/
 
 RUN sed -i 's/\r$//' gradlew \
     && chmod 0755 gradlew \
-    && mkdir -p game wizard \
+    && mkdir -p game wizard audience/relay \
     && ./gradlew --no-daemon :tracking:backend:installDist
 
 FROM eclipse-temurin:25.0.4.1_1-jre-noble@sha256:d9a39a23634650173f1e2bbc176227af9728587ecf0f4b62d53e9355cd7a19ab

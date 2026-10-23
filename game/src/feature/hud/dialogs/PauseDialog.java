@@ -254,7 +254,9 @@ public class PauseDialog extends Table {
     Table menu = new Table();
     menu.add(label).padBottom(30).align(Align.center).row();
     menu.add(resumeBtn).width(300).align(Align.center).padBottom(10).row();
-    menu.add(questlogBtn).width(300).align(Align.center).padBottom(10).row();
+    if (QuestLogUI.isAvailable()) {
+      menu.add(questlogBtn).width(300).align(Align.center).padBottom(10).row();
+    }
     if (AchievementManager.isAvailable()) {
       menu.add(achievementsBtn).width(300).align(Align.center).padBottom(10).row();
     }

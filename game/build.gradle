@@ -60,6 +60,9 @@ dependencies {
     api supportDependencies.protobuf_java
     implementation supportDependencies.protobuf_java_util
 
+    // QR code of the audience-mode join page
+    implementation supportDependencies.qrcodegen
+
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
     testImplementation supportDependencies.junitLauncher
@@ -117,6 +120,14 @@ def generateTrackingProperties = tasks.register('generateTrackingProperties', Wr
 }
 sourceSets.main.resources.srcDir(generateTrackingProperties.map { it.destinationFile.get().asFile.parentFile })
 
+// Builds with DUNGEON_AUDIENCE_RELAY connect audience mode to that relay; AudienceConfig reads the
+// generated audience.properties. Without the variable, audience mode expects a relay on this machine.
+def generateAudienceProperties = tasks.register('generateAudienceProperties', WriteProperties) {
+    destinationFile = layout.buildDirectory.file('generated/audience/audience.properties')
+    property 'relay', providers.environmentVariable('DUNGEON_AUDIENCE_RELAY').orElse('')
+}
+sourceSets.main.resources.srcDir(generateAudienceProperties.map { it.destinationFile.get().asFile.parentFile })
+
 tasks.register('runBasicStarter', JavaExec) {
     group 'starter'
     mainClass = 'engine.starter.BasicStarter'
@@ -151,6 +162,12 @@ tasks.register('runSpriteTestRoom', JavaExec) {
 tasks.register('runDungeonShowcase', JavaExec) {
     group 'starter'
     mainClass = 'rooms.demo.DungeonShowcase'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runAudienceRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.audience.AudienceRoom'
     classpath = sourceSets.main.runtimeClasspath
 }
 

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "roomId": "audience",
+  "questionnaireId": "audience-post-placeholder-v1",
+  "title": { "de": "Wie war es?" },
+  "skippable": false,
+  "pages": [
+    {
+      "questions": [
+        { "id": "fun", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie viel Spaß hat dir das gemeinsame Rätseln gemacht?" },
+          "minLabel": { "de": "Gar keinen" }, "maxLabel": { "de": "Sehr viel" } },
+        { "id": "statements", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr stimmst du zu?" },
+          "rows": [
+            { "id": "voice-counted", "text": { "de": "Meine Stimme hat gezählt." } },
+            { "id": "windows-fair", "text": { "de": "Die Zeitfenster waren lang genug." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] },
+        { "id": "liked", "type": "multiChoice", "other": true,
+          "text": { "de": "Was hat dir gefallen?" },
+          "options": [
+            { "id": "puzzles", "text": { "de": "Die Rätsel" } },
+            { "id": "voting", "text": { "de": "Das Abstimmen" } },
+            { "id": "screen", "text": { "de": "Das Spiel auf dem Spielbildschirm" } } ] },
+        { "id": "feedback", "type": "longText", "maxLength": 1000,
+          "text": { "de": "Was sollten wir verbessern?" } }
+      ]
+    }
+  ]
+}

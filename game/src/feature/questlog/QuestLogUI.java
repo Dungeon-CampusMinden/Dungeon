@@ -139,7 +139,24 @@ public final class QuestLogUI {
     DialogFactory.register(DIALOG_TYPE, QuestLogUI::build);
   }
 
+  private static volatile boolean available = true;
+
   private QuestLogUI() {}
+
+  /**
+   * Turns the quest log off on this client for rooms without one: the pause menu hides its entry
+   * and the quest log key does nothing.
+   */
+  public static void disable() {
+    available = false;
+  }
+
+  /**
+   * @return whether this client offers the quest log
+   */
+  public static boolean isAvailable() {
+    return available;
+  }
 
   /**
    * Toggles the quest log for the given player.
@@ -150,6 +167,7 @@ public final class QuestLogUI {
    * @param player player entity requesting the quest log
    */
   public static void requestQuestLog(Entity player) {
+    if (!available) return;
     if (NetworkUtils.isNetworkClient()) {
       sendReliableRequest(Game.network(), null);
     } else {

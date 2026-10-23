@@ -16,7 +16,8 @@ final class MigrationRunner {
   private static final List<Migration> MIGRATIONS =
       List.of(
           new Migration("001", "/tracking/backend/migrations/V001__tracking.sql"),
-          new Migration("002", "/tracking/backend/migrations/V002__bug_reports.sql"));
+          new Migration("002", "/tracking/backend/migrations/V002__bug_reports.sql"),
+          new Migration("003", "/tracking/backend/migrations/V003__votes.sql"));
   private static final Pattern SQL_IDENTIFIER = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*");
 
   private MigrationRunner() {}

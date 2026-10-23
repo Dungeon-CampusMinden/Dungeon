@@ -1,0 +1,19 @@
+plugins {
+    id 'application'
+}
+
+application {
+    mainClass = 'audience.relay.AudienceRelay'
+}
+
+dependencies {
+    implementation supportDependencies.jackson_databind
+}
+
+// The page uses the game's fonts; they are packaged from the game assets instead of copied.
+processResources {
+    from(rootProject.file('game/assets/fonts')) {
+        include 'Doto_Rounded-ExtraBold.*', 'Lexend-Regular.ttf', 'Lexend-Bold.ttf', 'Lexend.license.md'
+        into 'audience/relay/web/fonts'
+    }
+}
