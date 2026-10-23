@@ -61,6 +61,7 @@ public final class AudienceSystem extends System {
   private static final int HUD_INTERVAL_MS = 250;
   private static final int TALLY_ENTRIES = 6;
   private static final int INPUTS_PER_FRAME = 500;
+  private static final long READY_REST_MS = 5_000;
 
   /** Session phases, in order. */
   enum Phase {
@@ -292,9 +293,13 @@ public final class AudienceSystem extends System {
       return;
     }
     if (window == null) return;
-    boolean majority =
-        context instanceof AudienceContext.Continue && window.votes.size() * 2 > votingPlayers();
-    if (now >= window.endsAt || majority) resolve(now);
+    // Once half the voters finished reading, the rest get a few more seconds.
+    boolean half =
+        context instanceof AudienceContext.Continue
+            && !window.votes.isEmpty()
+            && window.votes.size() * 2 >= votingPlayers();
+    if (half) window.endsAt = Math.min(window.endsAt, now + READY_REST_MS);
+    if (now >= window.endsAt) resolve(now);
   }
 
   private void resolve(long now) {
@@ -457,7 +462,7 @@ public final class AudienceSystem extends System {
   /** An open voting window and the latest vote of each device in it. */
   private static final class Window {
     private final long startedAt;
-    private final long endsAt;
+    private long endsAt;
     private final Map<String, JsonNode> votes = new LinkedHashMap<>();
 
     private Window(long startedAt, long duration) {

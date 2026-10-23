@@ -26,8 +26,8 @@ import java.util.Properties;
  * @param relayKey key the relay requires to create a session, if it requires one
  * @param moveWindow voting window for a movement step; it starts with the first vote
  * @param puzzleWindow voting window for a puzzle answer; it starts when the puzzle opens
- * @param continueWindow longest wait before a text dialog closes; it closes earlier once a majority
- *     of the voting players pressed "Weiter"
+ * @param continueWindow longest wait before a text dialog closes; once half the voting players
+ *     pressed "Weiter", at most five more seconds remain
  * @param countdown countdown between the host's start and the first window
  * @param resultDisplay how long the audience shows the distribution of a closed window
  * @param closeAfterEnd the session closes on its own this long after the game ended

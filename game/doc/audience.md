@@ -71,9 +71,9 @@ das tun nur die Stimmen.
 - Ein Bewegungsfenster beginnt mit der ersten Stimme und dauert 10 Sekunden.
 - Ein Rätselfenster beginnt, sobald der Dialog offen ist, und dauert 25 Sekunden. Kommt keine
   Stimme, beginnt ein neues Fenster.
-- Ein „Weiter“-Fenster schließt, sobald mehr als die Hälfte der Abstimmenden „Weiter“ gedrückt
-  hat, spätestens nach 30 Sekunden. Die Stimme heißt nur „fertig gelesen“; ohne Stimmen geht es
-  nach Ablauf trotzdem weiter.
+- Ein „Weiter“-Fenster dauert 30 Sekunden. Sobald die Hälfte der Abstimmenden „Weiter“
+  gedrückt hat, bleiben nur noch 5 Sekunden. Die Stimme heißt nur „fertig gelesen“; ohne
+  Stimmen geht es nach Ablauf trotzdem weiter.
 - Pro Person und Fenster zählt die letzte Stimme. Bei Mehrfachauswahl zählt die ganze
   Kombination, bei Text und Codes die vollständige Eingabe ohne Leerzeichen am Anfang und Ende.
   Führende Nullen bleiben erhalten.

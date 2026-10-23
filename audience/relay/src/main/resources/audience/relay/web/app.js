@@ -553,7 +553,7 @@ function continuePad() {
   const mine = ownVote();
   return [
     el("button", { class: "button primary" + (mine ? " picked" : ""), "data-key": "Enter", onclick: () => vote("continue"), disabled: Boolean(mine) }, mine ? "Bereit" : "Weiter", mine ? null : el("kbd", {}, "Enter")),
-    el("p", { class: "note" }, "Es geht weiter, wenn die Mehrheit bereit ist."),
+    el("p", { class: "note" }, "Sobald die Hälfte bereit ist, geht es nach 5 Sekunden weiter."),
   ];
 }
 
