@@ -1,9 +1,17 @@
 import type { DeerProject } from "@/data/DeerSchema";
+import type { TabIssues } from "@/data/ErrorChecker";
+
+import { StringListEditor } from "./StringListEditor";
 import { Field, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "./ui/field";
 import { Input } from "./ui/input";
-import { StringListEditor } from "./StringListEditor";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import type { TabIssues } from "@/data/ErrorChecker";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { fieldIssues, hasFieldErrors, ValidationFeedback } from "./ValidationFeedback";
 
 const THEMES = [{ value: "default", label: "Dungeon" }];
@@ -14,7 +22,7 @@ export function ScenarioTab({
   issues,
 }: {
   deerSchema: DeerProject;
-  updateDeerSchema: (updatedSchema: DeerProject) => void;
+  updateDeerSchema: (transform: (project: DeerProject) => void) => void;
   issues: TabIssues;
 }) {
   const emptyMission = hasFieldErrors(issues, "mission");
@@ -31,11 +39,16 @@ export function ScenarioTab({
                 items={THEMES}
                 value={deerSchema.scenario.themeId}
                 onValueChange={(newValue) => {
-                  deerSchema.scenario.themeId = newValue ?? "";
-                  updateDeerSchema(deerSchema);
+                  updateDeerSchema((project) => {
+                    project.scenario.themeId = newValue ?? "";
+                  });
                 }}
               >
-                <SelectTrigger aria-label="Thema der Geschichte" aria-invalid={hasFieldErrors(issues, "themeId")} className="w-[180px]">
+                <SelectTrigger
+                  aria-label="Thema der Geschichte"
+                  aria-invalid={hasFieldErrors(issues, "themeId")}
+                  className="w-[180px]"
+                >
                   <SelectValue placeholder="Wähle ein Thema" />
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
@@ -57,8 +70,9 @@ export function ScenarioTab({
               aria-label="Mission der Geschichte"
               value={deerSchema.scenario.mission}
               onChange={(e) => {
-                deerSchema.scenario.mission = e.target.value;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.scenario.mission = e.target.value;
+                });
               }}
               aria-invalid={emptyMission}
             />
@@ -73,8 +87,9 @@ export function ScenarioTab({
               itemNoun="Introtext"
               value={deerSchema.scenario.introText}
               onChange={(newValue) => {
-                deerSchema.scenario.introText = newValue;
-                updateDeerSchema(deerSchema);
+                updateDeerSchema((project) => {
+                  project.scenario.introText = newValue;
+                });
               }}
               useTextarea
               preventEmpty

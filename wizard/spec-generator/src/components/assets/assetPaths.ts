@@ -1,6 +1,7 @@
+import assetsManifest from "virtual:dungeon-assets-manifest";
+
 import type { Asset, AssetMediaType } from "@/data/DeerSchema";
 import type { UploadReference } from "@/data/WizardDraft";
-import assetsManifest from "virtual:dungeon-assets-manifest";
 
 export const ALLOWED_EXTENSIONS = ["png", "jpg", "jpeg"];
 export const USE_NN_BELOW = 128;
@@ -42,9 +43,11 @@ export const getParentPath = (assetPath: string) => {
   return segments.length > 1 ? `/${segments.slice(0, -1).join("/")}` : "/";
 };
 
-export const getAssetName = (assetPath: string) => assetPath.split("/").filter(Boolean).at(-1) ?? "/";
+export const getAssetName = (assetPath: string) =>
+  assetPath.split("/").filter(Boolean).at(-1) ?? "/";
 
-export const getFileExtension = (filePath: string) => filePath.split(".").pop()?.toLowerCase() ?? "";
+export const getFileExtension = (filePath: string) =>
+  filePath.split(".").pop()?.toLowerCase() ?? "";
 
 export const getMediaTypeForPath = (filePath: string): AssetMediaType => {
   const mediaType = MEDIA_TYPE_BY_EXTENSION[getFileExtension(filePath)];
@@ -61,9 +64,7 @@ export function validateCustomAssetFile(file: File): AssetMediaType {
     throw new Error("Wähle eine Datei mit der Endung .png, .jpg oder .jpeg aus.");
   }
   if (file.type !== mediaType) {
-    throw new Error(
-      `Dateiendung und Dateityp passen nicht zusammen. Erwartet wird ${mediaType}.`,
-    );
+    throw new Error(`Dateiendung und Dateityp passen nicht zusammen. Erwartet wird ${mediaType}.`);
   }
   return mediaType;
 }
@@ -111,7 +112,8 @@ export const toBundledAssetPath = (manifestPath: string) => stripLeadingSlash(ma
 export const toManifestPath = (assetPath: string) => normalizeAssetPath(assetPath);
 
 /** URL under which the webserver serves the content of a bundled asset. */
-export const getBundledAssetUrl = (assetPath: string) => `/bundled-assets/${stripLeadingSlash(assetPath)}`;
+export const getBundledAssetUrl = (assetPath: string) =>
+  `/bundled-assets/${stripLeadingSlash(assetPath)}`;
 
 let bundledAssetPathCache: Set<string> | null = null;
 let bundledAssetSourceCache: Map<string, Asset["source"]> | null = null;

@@ -1,5 +1,6 @@
-import React from "react";
 import { CircleAlertIcon } from "lucide-react";
+import React from "react";
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function AssetTile({
@@ -22,7 +23,7 @@ export function AssetTile({
         aria-pressed={selected || undefined}
         title={label}
         onClick={onClick}
-        className={`flex size-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg border p-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+        className={`flex size-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg border p-2 text-xs transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
           selected
             ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/30"
             : "border-border bg-background hover:border-primary/50 hover:bg-accent"
@@ -35,11 +36,10 @@ export function AssetTile({
         <Tooltip>
           <TooltipTrigger
             render={
-              <span
-                role="img"
+              <button
+                type="button"
                 aria-label={warning}
-                tabIndex={0}
-                className="absolute right-2 top-2 inline-flex size-6 items-center justify-center text-status-warning outline-none focus-visible:ring-2 focus-visible:ring-status-warning"
+                className="absolute top-2 right-2 inline-flex size-6 items-center justify-center text-status-warning outline-none focus-visible:ring-2 focus-visible:ring-status-warning"
               />
             }
           >

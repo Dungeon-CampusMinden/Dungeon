@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true
+  },
+  "options": {
+    "typeAware": true,
+    "maxWarnings": 0
+  },
+  "rules": {
+    // The automatic JSX runtime ("jsx": "react-jsx") needs no React import.
+    "react/react-in-jsx-scope": "off",
+    // ARIA roles on styled containers are valid; native tags would bring their own styling.
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error"
+  }
+}

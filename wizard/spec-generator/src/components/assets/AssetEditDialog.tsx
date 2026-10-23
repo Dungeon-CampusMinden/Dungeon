@@ -1,5 +1,9 @@
-import type { Asset } from "@/data/DeerSchema";
+import { UploadIcon } from "lucide-react";
 import React from "react";
+
+import type { Asset } from "@/data/DeerSchema";
+
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogClose,
@@ -9,11 +13,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { Field, FieldLabel } from "../ui/field";
+import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
-import { UploadIcon } from "lucide-react";
 import { AssetCreateDialog } from "./AssetCreateDialog";
 import { getBundledAssetSource, isBundledAssetPath, type AssetSelection } from "./assetPaths";
 
@@ -97,7 +99,8 @@ export function AssetEditDialog({
             </div>
             {missing && (
               <span className="text-sm text-destructive">
-                Die hinterlegte Datei ist nicht verfügbar. Wähle eine neue Datei aus, um sie zu ersetzen.
+                Die hinterlegte Datei ist nicht verfügbar. Wähle eine neue Datei aus, um sie zu
+                ersetzen.
               </span>
             )}
           </Field>

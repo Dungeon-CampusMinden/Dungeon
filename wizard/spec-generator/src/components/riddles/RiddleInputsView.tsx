@@ -1,9 +1,17 @@
-import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "@/data/DeerSchema";
 import { CheckIcon } from "lucide-react";
+
+import type { AnyRiddleInput, DeerProject, InformationSource, Riddle } from "@/data/DeerSchema";
+
 import { ResourceCarousel } from "./ResourceCarousel";
 import { getInputType, InputTypeIcon } from "./riddleTypes";
 
-export function RiddleInputsView({ riddle, deerSchema }: { riddle: Riddle; deerSchema: DeerProject }) {
+export function RiddleInputsView({
+  riddle,
+  deerSchema,
+}: {
+  riddle: Riddle;
+  deerSchema: DeerProject;
+}) {
   if (riddle.inputs.length === 0) {
     return <span className="text-sm text-muted-foreground">Keine Eingabe hinterlegt.</span>;
   }
@@ -37,7 +45,7 @@ function InputView({
   const inputType = getInputType(input.type);
 
   return (
-    <div className="flex flex-col gap-1 border border-border rounded-md p-2">
+    <div className="flex flex-col gap-1 rounded-md border border-border p-2">
       <div className="flex items-center gap-2 text-sm">
         <InputTypeIcon type={input.type} size={18} />
         <span>{inputType?.label ?? input.type}</span>
@@ -54,8 +62,9 @@ function InputView({
           <ul className="flex flex-col gap-1">
             {input.items.map((item) => (
               <li key={item.id}>
-                {item.name || "—"} → {input.containers.find((container) => container.id === item.containerId)?.name
-                  || "keine Kiste"}
+                {item.name || "—"} →{" "}
+                {input.containers.find((container) => container.id === item.containerId)?.name ||
+                  "keine Kiste"}
               </li>
             ))}
           </ul>
@@ -66,7 +75,9 @@ function InputView({
             <span>{input.question || "—"}</span>
           </ParameterRow>
           <ParameterRow label="Auswahl">
-            <span>{input.multipleSelection ? "Mehrere richtige Antworten" : "Eine richtige Antwort"}</span>
+            <span>
+              {input.multipleSelection ? "Mehrere richtige Antworten" : "Eine richtige Antwort"}
+            </span>
           </ParameterRow>
           <ParameterRow label="Antworten">
             <ul className="flex flex-col gap-1">

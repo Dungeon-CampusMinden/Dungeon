@@ -19,12 +19,16 @@ ext {
     jsonSchemaValidatorVersion = '3.0.8'
     jsonCanonicalizationVersion = '1.1'
     qrcodegenVersion = '1.8.0'
+    checkstyleVersion = '14.3.0'
 
 
     // -- NETWORK / SERVER
     nettyVersion = '4.2.19.Final'
 
     supportDependencies = [
+        // Checkstyle runtime for the checkstyle Gradle plugin
+        checkstyle                : "com.puppycrawl.tools:checkstyle:$checkstyleVersion",
+
         // LibGDX
         gdx                       : "com.badlogicgames.gdx:gdx:$gdxVersion",
         gdx_platform              : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",

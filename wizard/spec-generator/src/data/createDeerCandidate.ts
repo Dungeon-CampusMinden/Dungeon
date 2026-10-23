@@ -97,7 +97,7 @@ function projectAsset(asset: Asset): Asset {
 
 function projectSurface(surface: Surface): Surface {
   const device = Object.values(DEVICE_INPUTS).find((entry) => entry.kind === surface.kind);
-  const title = surface.kind === "container" ? "Versteck" : device?.title ?? surface.title;
+  const title = surface.kind === "container" ? "Versteck" : (device?.title ?? surface.title);
   return { id: surface.id, kind: surface.kind, title };
 }
 
@@ -165,8 +165,6 @@ export function createDeerCandidate(draft: WizardDraft): DeerSchema {
       edges: project.riddleGraph.edges.map((edge) => ({ from: edge.from, to: edge.to })),
     },
     riddles: project.riddles.map(projectRiddle),
-    assets: project.assets
-      .filter((asset) => referencedAssetIds.has(asset.id))
-      .map(projectAsset),
+    assets: project.assets.filter((asset) => referencedAssetIds.has(asset.id)).map(projectAsset),
   };
 }

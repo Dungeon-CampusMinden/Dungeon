@@ -1,9 +1,11 @@
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon, TrashIcon } from "lucide-react";
+
+import type { Issue } from "@/data/ErrorChecker";
+
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { ValidationFeedback } from "./ValidationFeedback";
-import type { Issue } from "@/data/ErrorChecker";
 
 export function StringListEditor({
   value,
@@ -68,22 +70,47 @@ export function StringListEditor({
           return (
             <div key={index} className="grid grid-cols-[1fr_auto] items-center gap-1">
               {useTextarea ? (
-                <Textarea aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && item.trim() === ""} value={item} onChange={(e) => handleChange(index, e.target.value)} />
+                <Textarea
+                  aria-label={`${itemNoun} ${index + 1}`}
+                  aria-invalid={invalid && item.trim() === ""}
+                  value={item}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                />
               ) : (
-                <Input aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && item.trim() === ""} value={item} onChange={(e) => handleChange(index, e.target.value)} />
+                <Input
+                  aria-label={`${itemNoun} ${index + 1}`}
+                  aria-invalid={invalid && item.trim() === ""}
+                  value={item}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                />
               )}
               <div className="flex items-center gap-0.5">
                 {!lockOrder && (
                   <>
-                    <Button aria-label={`${itemNoun} ${index + 1} nach oben verschieben`} variant="outline" onClick={() => handleMoveUp(index)} disabled={!canMoveUp}>
+                    <Button
+                      aria-label={`${itemNoun} ${index + 1} nach oben verschieben`}
+                      variant="outline"
+                      onClick={() => handleMoveUp(index)}
+                      disabled={!canMoveUp}
+                    >
                       <ArrowUpIcon />
                     </Button>
-                    <Button aria-label={`${itemNoun} ${index + 1} nach unten verschieben`} variant="outline" onClick={() => handleMoveDown(index)} disabled={!canMoveDown}>
+                    <Button
+                      aria-label={`${itemNoun} ${index + 1} nach unten verschieben`}
+                      variant="outline"
+                      onClick={() => handleMoveDown(index)}
+                      disabled={!canMoveDown}
+                    >
                       <ArrowDownIcon />
                     </Button>
                   </>
                 )}
-                <Button aria-label={`${itemNoun} ${index + 1} löschen`} variant="destructive" onClick={() => handleRemove(index)} disabled={!canRemove}>
+                <Button
+                  aria-label={`${itemNoun} ${index + 1} löschen`}
+                  variant="destructive"
+                  onClick={() => handleRemove(index)}
+                  disabled={!canRemove}
+                >
                   <TrashIcon />
                 </Button>
               </div>
@@ -166,22 +193,47 @@ export function ObjectListStringEditor({
           return (
             <div key={index} className="grid grid-cols-[1fr_auto] items-center gap-1">
               {useTextarea ? (
-                <Textarea aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && getItemText(item).trim() === ""} value={getItemText(item)} onChange={(e) => handleChange(index, e.target.value)} />
+                <Textarea
+                  aria-label={`${itemNoun} ${index + 1}`}
+                  aria-invalid={invalid && getItemText(item).trim() === ""}
+                  value={getItemText(item)}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                />
               ) : (
-                <Input aria-label={`${itemNoun} ${index + 1}`} aria-invalid={invalid && getItemText(item).trim() === ""} value={getItemText(item)} onChange={(e) => handleChange(index, e.target.value)} />
+                <Input
+                  aria-label={`${itemNoun} ${index + 1}`}
+                  aria-invalid={invalid && getItemText(item).trim() === ""}
+                  value={getItemText(item)}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                />
               )}
               <div className="flex items-center gap-0.5">
                 {!lockOrder && (
                   <>
-                    <Button aria-label={`${itemNoun} ${index + 1} nach oben verschieben`} variant="outline" onClick={() => handleMoveUp(index)} disabled={!canMoveUp}>
+                    <Button
+                      aria-label={`${itemNoun} ${index + 1} nach oben verschieben`}
+                      variant="outline"
+                      onClick={() => handleMoveUp(index)}
+                      disabled={!canMoveUp}
+                    >
                       <ArrowUpIcon />
                     </Button>
-                    <Button aria-label={`${itemNoun} ${index + 1} nach unten verschieben`} variant="outline" onClick={() => handleMoveDown(index)} disabled={!canMoveDown}>
+                    <Button
+                      aria-label={`${itemNoun} ${index + 1} nach unten verschieben`}
+                      variant="outline"
+                      onClick={() => handleMoveDown(index)}
+                      disabled={!canMoveDown}
+                    >
                       <ArrowDownIcon />
                     </Button>
                   </>
                 )}
-                <Button aria-label={`${itemNoun} ${index + 1} löschen`} variant="destructive" onClick={() => handleRemove(index)} disabled={!canRemove}>
+                <Button
+                  aria-label={`${itemNoun} ${index + 1} löschen`}
+                  variant="destructive"
+                  onClick={() => handleRemove(index)}
+                  disabled={!canRemove}
+                >
                   <TrashIcon />
                 </Button>
               </div>

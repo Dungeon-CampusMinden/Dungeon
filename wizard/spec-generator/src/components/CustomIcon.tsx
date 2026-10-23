@@ -10,6 +10,11 @@ export function CustomIcon({
   size?: number;
 }) {
   return (
-    <img src={src} alt={alt} className={`mt-0 ${className ?? ""}`} style={{ width: size, height: size }} />
+    <img
+      src={src}
+      alt={alt}
+      className={`mt-0 ${className ?? ""}`}
+      style={{ width: size, height: size }}
+    />
   );
 }

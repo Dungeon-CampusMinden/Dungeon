@@ -1,10 +1,12 @@
-import React from "react";
 import { CheckCircle2Icon, DownloadIcon, LoaderCircleIcon } from "lucide-react";
-import type { ProjectValidationReport } from "@/data/ProjectValidationReport";
+import React from "react";
+
 import { prepareProductionRequest } from "@/data/prepareProductionRequest";
-import { useWizardStorage } from "@/data/WizardStorage";
+import type { ProjectValidationReport } from "@/data/ProjectValidationReport";
 import type { WizardDraft } from "@/data/WizardDraft";
+import { useWizardStorage } from "@/data/WizardStorage";
 import type { WizardWork } from "@/data/WizardWork";
+
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 
@@ -44,45 +46,51 @@ export function ReviewTab({
   const storage = useWizardStorage();
   const headingRef = React.useRef<HTMLHeadingElement>(null);
 
-  React.useEffect(() => { headingRef.current?.focus(); }, []);
+  React.useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
 
-  const run = React.useCallback(async (
-    kind: Exclude<ReviewWork, null>,
-    action: (attempt: { snapshot: WizardDraft }) => Promise<void>,
-  ) => {
-    if (!beginWork(kind)) return;
-    clearTechnicalError();
-    const attempt = { snapshot: currentDraftSnapshot() };
-    try {
-      await action(attempt);
-    } catch {
-      acceptTechnicalError(kind, attempt.snapshot);
-    } finally {
-      finishWork(kind);
-    }
-  }, [acceptTechnicalError, beginWork, clearTechnicalError, currentDraftSnapshot, finishWork]);
+  const run = React.useCallback(
+    async (
+      kind: Exclude<ReviewWork, null>,
+      action: (attempt: { snapshot: WizardDraft }) => Promise<void>,
+    ) => {
+      if (!beginWork(kind)) return;
+      clearTechnicalError();
+      const attempt = { snapshot: currentDraftSnapshot() };
+      try {
+        await action(attempt);
+      } catch {
+        acceptTechnicalError(kind, attempt.snapshot);
+      } finally {
+        finishWork(kind);
+      }
+    },
+    [acceptTechnicalError, beginWork, clearTechnicalError, currentDraftSnapshot, finishWork],
+  );
 
-  const packageGame = () => run("packaging", async (attempt) => {
-    const snapshot = await flush();
-    attempt.snapshot = snapshot;
-    const prepared = await prepareProductionRequest(storage, snapshot);
-    const packaged = await storage.host.package(prepared.request);
-    if (packaged.kind === "invalid") {
-      acceptReport(packaged.report, prepared.snapshot, "packaging");
-      return;
-    }
-    acceptDownload(packaged.jar, prepared.snapshot);
-  });
+  const packageGame = () =>
+    run("packaging", async (attempt) => {
+      const snapshot = await flush();
+      attempt.snapshot = snapshot;
+      const prepared = await prepareProductionRequest(storage, snapshot);
+      const packaged = await storage.host.package(prepared.request);
+      if (packaged.kind === "invalid") {
+        acceptReport(packaged.report, prepared.snapshot, "packaging");
+        return;
+      }
+      acceptDownload(packaged.jar, prepared.snapshot);
+    });
 
-  const packageReady = storage.host.native
-    && localReady
-    && productionReport?.valid === true
-    && work === null;
+  const packageReady =
+    storage.host.native && localReady && productionReport?.valid === true && work === null;
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 ref={headingRef} tabIndex={-1} className="wizard-page-title">Spiel erstellen</h1>
+        <h1 ref={headingRef} tabIndex={-1} className="wizard-page-title">
+          Spiel erstellen
+        </h1>
         <p className="text-muted-foreground">
           Dein Spiel wird jetzt geprüft. Danach kannst du die fertige Spieldatei herunterladen.
         </p>
@@ -110,7 +118,7 @@ export function ReviewTab({
 
       <Button
         size="lg"
-        className="h-auto min-h-14 w-full gap-2 whitespace-normal py-4 text-center text-base font-semibold leading-snug"
+        className="h-auto min-h-14 w-full gap-2 py-4 text-center text-base leading-snug font-semibold whitespace-normal"
         onClick={() => void packageGame()}
         disabled={!packageReady}
       >
@@ -121,7 +129,9 @@ export function ReviewTab({
       {downloadReady && (
         <Alert className="border-emerald-500/40 bg-emerald-500/10 text-status-success">
           <CheckCircle2Icon className="size-4 shrink-0 text-status-success" />
-          <AlertTitle className="text-sm font-medium text-foreground">Das Spiel ist bereit</AlertTitle>
+          <AlertTitle className="text-sm font-medium text-foreground">
+            Das Spiel ist bereit
+          </AlertTitle>
           <AlertDescription className="text-xs text-muted-foreground">
             Die Spieldatei wurde heruntergeladen und kann an alle Teilnehmenden verteilt werden.
           </AlertDescription>

@@ -1,17 +1,16 @@
-import type { Asset } from "@/data/DeerSchema";
 import React from "react";
+
+import type { Asset } from "@/data/DeerSchema";
 import { useWizardStorage } from "@/data/WizardStorage";
-import { usePreviewDraftId, useUploadReferences } from "./UploadReferencesContext";
+
 import { getBundledAssetUrl, isBundledAssetPath, type AssetPreview } from "./assetPaths";
+import { usePreviewDraftId, useUploadReferences } from "./UploadReferencesContext";
 
 /**
  * Resolves the preview of every given asset, either from the bundled assets served by the
  * bundled assets or the injected asset storage. Bump `storageRevision` after a write.
  */
-export function useAssetPreviews(
-  assets: Asset[],
-  storageRevision = 0,
-) {
+export function useAssetPreviews(assets: Asset[], storageRevision = 0) {
   const uploads = useUploadReferences();
   const draftId = usePreviewDraftId();
   const storage = useWizardStorage();
@@ -23,7 +22,7 @@ export function useAssetPreviews(
     let cancelled = false;
     const createdUrls: string[] = [];
 
-    (async () => {
+    void (async () => {
       const nextPreviews: Record<string, AssetPreview> = {};
       for (const asset of assets) {
         // Bundled assets are served directly and do not use the draft's asset storage.
