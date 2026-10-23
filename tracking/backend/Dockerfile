@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25.0.4.1_1-jdk-noble@sha256:589ff4cc3f71aab462e7048a47a0d10edf57fbccde3fceea2281e610bf5880b4 AS build
+FROM eclipse-temurin:25.0.4.1_1-jdk-noble@sha256:ba0f0e1a33864105e1d454e88105c617ab40f71062db1f306bf58be32a3f8e5e AS build
 
 WORKDIR /workspace
 COPY gradlew gradlew.bat settings.gradle build.gradle dependencies.gradle gradle.properties .checkstyle.xml ./
@@ -13,7 +13,7 @@ RUN sed -i 's/\r$//' gradlew \
     && mkdir -p game wizard audience/relay \
     && ./gradlew --no-daemon :tracking:backend:installDist
 
-FROM eclipse-temurin:25.0.4.1_1-jre-noble@sha256:d9a39a23634650173f1e2bbc176227af9728587ecf0f4b62d53e9355cd7a19ab
+FROM eclipse-temurin:25.0.4.1_1-jre-noble@sha256:3f2223fe04b750aa5a8179e29b5c9a1ddf7665fc9bb08bfe11ad01d143bc13a5
 
 LABEL org.opencontainers.image.title="Dungeon tracking backend" \
       org.opencontainers.image.description="Self-hosted Dungeon tracking backend" \
