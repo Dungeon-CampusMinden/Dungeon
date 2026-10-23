@@ -60,8 +60,8 @@ public record AudienceConfig(
   }
 
   /**
-   * Returns the default settings: 10-second movement windows, 25-second puzzle windows, and the
-   * relay and key of the build or launch.
+   * Returns the default settings: 10-second movement windows, 25-second puzzle windows, 30 seconds
+   * to read a text, and the relay and key of the build or launch.
    *
    * @return default settings
    */
@@ -83,7 +83,7 @@ public record AudienceConfig(
         relayKey,
         Duration.ofSeconds(10),
         Duration.ofSeconds(25),
-        Duration.ofSeconds(15),
+        Duration.ofSeconds(30),
         Duration.ofSeconds(5),
         Duration.ofSeconds(5),
         Duration.ofMinutes(15));
