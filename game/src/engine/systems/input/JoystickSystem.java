@@ -113,7 +113,7 @@ public class JoystickSystem extends System {
   }
 
   /**
-   * Processes movement input from the controller and sends movement commands to the network.
+   * Processes movement input from the controller and reports it to the {@link MovementInputSystem}.
    *
    * <p>Reads input from the left stick first, falling back to D-Pad if the stick is neutral.
    *
@@ -128,14 +128,14 @@ public class JoystickSystem extends System {
       return;
     }
     if (moveLeftVector.y() > 0) {
-      Game.network().sendInput(InputMessage.move(Direction.UP));
+      MovementInputSystem.hold(Direction.UP);
     } else if (moveLeftVector.y() < 0) {
-      Game.network().sendInput(InputMessage.move(Direction.DOWN));
+      MovementInputSystem.hold(Direction.DOWN);
     }
     if (moveLeftVector.x() > 0) {
-      Game.network().sendInput(InputMessage.move(Direction.RIGHT));
+      MovementInputSystem.hold(Direction.RIGHT);
     } else if (moveLeftVector.x() < 0) {
-      Game.network().sendInput(InputMessage.move(Direction.LEFT));
+      MovementInputSystem.hold(Direction.LEFT);
     }
   }
 

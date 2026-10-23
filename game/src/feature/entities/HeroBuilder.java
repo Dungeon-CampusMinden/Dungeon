@@ -13,6 +13,7 @@ import engine.input.CursorUtils;
 import engine.network.messages.c2s.InputMessage;
 import engine.sound.SoundSpec;
 import engine.systems.VelocitySystem;
+import engine.systems.input.MovementInputSystem;
 import engine.utils.Direction;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
@@ -445,16 +446,16 @@ public final class HeroBuilder {
     // WASD
     inputComp.registerCallback(
         engine.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        (caller) -> Game.network().sendInput(InputMessage.move(Direction.UP)));
+        (caller) -> MovementInputSystem.hold(Direction.UP));
     inputComp.registerCallback(
         engine.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        (caller) -> Game.network().sendInput(InputMessage.move(Direction.DOWN)));
+        (caller) -> MovementInputSystem.hold(Direction.DOWN));
     inputComp.registerCallback(
         engine.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        (caller) -> Game.network().sendInput(InputMessage.move(Direction.RIGHT)));
+        (caller) -> MovementInputSystem.hold(Direction.RIGHT));
     inputComp.registerCallback(
         engine.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        (caller) -> Game.network().sendInput(InputMessage.move(Direction.LEFT)));
+        (caller) -> MovementInputSystem.hold(Direction.LEFT));
 
     // Skills
     inputComp.registerCallback(

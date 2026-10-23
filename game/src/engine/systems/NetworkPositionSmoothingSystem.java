@@ -1,5 +1,6 @@
 package engine.systems;
 
+import com.badlogic.gdx.Gdx;
 import engine.Entity;
 import engine.System;
 import engine.components.NetworkPositionComponent;
@@ -15,7 +16,11 @@ import feature.systems.PositionSync;
  */
 public final class NetworkPositionSmoothingSystem extends System {
 
+  /** Share of the remaining distance covered per reference frame of 1/60 s. */
   private static final float POSITION_LERP = 0.55f;
+
+  private static final float REFERENCE_FRAME_SECONDS = 1f / 60f;
+  private static final float MAX_FRAME_SECONDS = 0.25f;
   private static final double SETTLE_DISTANCE_SQUARED = 0.0001;
   private static final double SNAP_DISTANCE_SQUARED = 4.0;
 
@@ -26,11 +31,23 @@ public final class NetworkPositionSmoothingSystem extends System {
 
   @Override
   public void execute() {
+    float lerp = frameLerp();
     filteredEntityStream(PositionComponent.class, NetworkPositionComponent.class)
-        .forEach(this::smoothPosition);
+        .forEach(entity -> smoothPosition(entity, lerp));
   }
 
-  private void smoothPosition(Entity entity) {
+  /**
+   * Scales the per-frame lerp by the real frame time, so entities catch up equally fast at any
+   * frame rate.
+   */
+  private static float frameLerp() {
+    float delta = Gdx.graphics == null ? 0f : Gdx.graphics.getDeltaTime();
+    if (delta <= 0f) return POSITION_LERP;
+    float frames = Math.min(delta, MAX_FRAME_SECONDS) / REFERENCE_FRAME_SECONDS;
+    return (float) (1 - Math.pow(1 - POSITION_LERP, frames));
+  }
+
+  private void smoothPosition(Entity entity, float lerp) {
     PositionComponent position = entity.fetch(PositionComponent.class).orElseThrow();
     NetworkPositionComponent networkPosition =
         entity.fetch(NetworkPositionComponent.class).orElseThrow();
@@ -51,8 +68,8 @@ public final class NetworkPositionSmoothingSystem extends System {
 
     Point smoothed =
         new Point(
-            current.x() + (target.x() - current.x()) * POSITION_LERP,
-            current.y() + (target.y() - current.y()) * POSITION_LERP);
+            current.x() + (target.x() - current.x()) * lerp,
+            current.y() + (target.y() - current.y()) * lerp);
     position.position(smoothed);
     PositionSync.syncPosition(entity);
   }

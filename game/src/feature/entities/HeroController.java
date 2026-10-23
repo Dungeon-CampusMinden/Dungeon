@@ -13,7 +13,6 @@ import engine.level.utils.LevelUtils;
 import engine.network.input.InputCommandRouter;
 import engine.network.messages.c2s.InputMessage;
 import engine.network.server.ClientState;
-import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
@@ -42,7 +41,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Controller class for handling hero entity actions such as movement, skill usage, and
@@ -63,6 +64,15 @@ public class HeroController {
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
 
+  /**
+   * Time after the last refresh until a held movement direction expires. Clients refresh it every
+   * frame while a movement key is held, so this only ends movement after a lost stop input.
+   */
+  private static final long HELD_MOVE_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(250);
+
+  /** Movement direction each client currently holds, applied on every server tick. */
+  private static final Map<ClientState, HeldMove> heldMoves = new ConcurrentHashMap<>();
+
   /** Delay after a disconnect before the hero inventory drops, matching the reconnect grace. */
   private static final long DISCONNECT_ITEM_DROP_DELAY_MS = 30_000;
 
@@ -75,11 +85,15 @@ public class HeroController {
   /**
    * Moves the hero entity in the specified direction by applying a force to its VelocityComponent.
    *
+   * <p>The direction may combine both axes for diagonal movement. Axes whose movement key binding
+   * was removed from the hero's {@link InputComponent} are ignored. The movement force replaces the
+   * previous one, so applying the same direction several times in one tick has no extra effect.
+   *
    * @param hero the hero entity to move
-   * @param direction the direction to move the hero
+   * @param direction the direction to move the hero; each component is reduced to its sign
    * @param speed the speed vector to scale the movement force
    */
-  public static void moveHero(Entity hero, Direction direction, Vector2 speed) {
+  public static void moveHero(Entity hero, Vector2 direction, Vector2 speed) {
     LOGGER.debug("Moving hero {} in direction {}", hero.id(), direction);
 
     if (hero.fetch(InputComponent.class).map(InputComponent::deactivateControls).orElse(false)) {
@@ -87,51 +101,29 @@ public class HeroController {
       return;
     }
 
-    // check if input allows this movement
-    if (hero.isPresent(InputComponent.class)) {
-      InputComponent ic =
-          hero.fetch(InputComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(hero, InputComponent.class));
-      final Map<Integer, Direction> movementBindings =
-          Map.of(
-              KeyboardConfig.MOVEMENT_UP.value(), Direction.UP,
-              KeyboardConfig.MOVEMENT_DOWN.value(), Direction.DOWN,
-              KeyboardConfig.MOVEMENT_LEFT.value(), Direction.LEFT,
-              KeyboardConfig.MOVEMENT_RIGHT.value(), Direction.RIGHT);
+    float x = Math.signum(direction.x());
+    float y = Math.signum(direction.y());
+    Optional<InputComponent> input = hero.fetch(InputComponent.class);
+    if (input.isPresent()) {
+      Map<Integer, InputComponent.InputData> callbacks = input.get().callbacks();
+      if (x > 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_RIGHT.value())) x = 0;
+      if (x < 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_LEFT.value())) x = 0;
+      if (y > 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_UP.value())) y = 0;
+      if (y < 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_DOWN.value())) y = 0;
+    }
 
-      for (Integer key : movementBindings.keySet()) {
-        Direction dir = movementBindings.get(key);
-        if (!ic.callbacks().containsKey(key) && direction == dir) {
-          LOGGER.debug(
-              "Hero {} movement {} is disabled in InputComponent, cannot move {}.",
-              hero.id(),
-              dir,
-              dir);
-          return;
-        }
-      }
+    Vector2 force = Vector2.of(x * speed.x(), y * speed.y());
+    if (force.lengthSquared() == 0) {
+      LOGGER.debug("Hero {} movement {} is disabled in InputComponent.", hero.id(), direction);
+      return;
     }
 
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-
-    Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
-    Vector2 newForce = speed.scale(direction);
-
-    Vector2 updatedForce =
-        existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
-
-    if (updatedForce.lengthSquared() > 0) {
-      // When moving diagonally, this function is called once per axis. On the first call, only the
-      // force for one axis might be present, so we need to ensure we only scale by the speed of the
-      // moving axes.
-      // TODO: Inputs should be batched and calculated together (explanation in PR #2724)
-      Vector2 unitSpeed =
-          Vector2.of(direction.x() != 0 ? speed.x() : 0, direction.y() != 0 ? speed.y() : 0);
-      updatedForce = updatedForce.normalize().scale(unitSpeed.length());
-      vc.applyForce(MOVEMENT_ID, updatedForce);
-    }
+    // Diagonal movement keeps the speed of a single axis.
+    float axisSpeed = Math.max(Math.abs(force.x()), Math.abs(force.y()));
+    vc.applyForce(MOVEMENT_ID, force.normalize().scale(axisSpeed));
   }
 
   /**
@@ -451,12 +443,46 @@ public class HeroController {
   }
 
   private static void handleMove(InputCommandRouter.InputCommandContext context) {
-    CharacterClass heroClass =
-        context.playerEntity().fetch(CharacterClassComponent.class).orElseThrow().characterClass();
     InputMessage.Move move = context.payloadAs(InputMessage.Move.class);
-    HeroController.moveHero(
-        context.playerEntity(), move.direction().direction(), heroClass.speed());
+    if (move.direction().isZero()) {
+      heldMoves.remove(context.clientState());
+      // A force applied earlier in this tick must not move the hero after the release.
+      context
+          .playerEntity()
+          .fetch(VelocityComponent.class)
+          .ifPresent(velocity -> velocity.removeForce(MOVEMENT_ID));
+    } else {
+      heldMoves.put(context.clientState(), new HeldMove(move.direction(), System.nanoTime()));
+    }
   }
+
+  /**
+   * Applies every held movement direction for this tick and drops expired or blocked ones.
+   *
+   * <p>A held direction keeps the hero moving on ticks without a fresh client input, so the
+   * movement speed does not depend on the client frame rate or on input packet timing.
+   */
+  private static void applyHeldMoves() {
+    long now = System.nanoTime();
+    heldMoves.entrySet().removeIf(entry -> !applyHeldMove(entry.getKey(), entry.getValue(), now));
+  }
+
+  private static boolean applyHeldMove(ClientState clientState, HeldMove heldMove, long now) {
+    if (now - heldMove.refreshedNanos() > HELD_MOVE_TIMEOUT_NANOS) return false;
+    Entity hero = clientState.playerEntity().orElse(null);
+    if (hero == null || Game.hud().blocksGameplayInput(hero)) return false;
+    try {
+      CharacterClass heroClass =
+          hero.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
+      moveHero(hero, heldMove.direction(), heroClass.speed());
+      return true;
+    } catch (RuntimeException e) {
+      LOGGER.debug("Dropping held movement for client {}: {}", clientState, e.getMessage());
+      return false;
+    }
+  }
+
+  private record HeldMove(Vector2 direction, long refreshedNanos) {}
 
   private static void handleCastSkill(InputCommandRouter.InputCommandContext context) {
     InputMessage.CastSkill castSkill = context.payloadAs(InputMessage.CastSkill.class);
@@ -782,7 +808,8 @@ public class HeroController {
   /**
    * Drains the input queue and applies valid inputs to the corresponding hero entities. Processes
    * messages in arrival order (FIFO), but discards stale/duplicate inputs based on sequence
-   * numbers. Intended to be called per server tick in the AuthoritativeServerLoop or equivalent.
+   * numbers. Afterwards, applies the movement direction each client currently holds. Intended to be
+   * called per server tick in the AuthoritativeServerLoop or equivalent.
    */
   public static void drainAndApplyInputs() {
     Tuple<ClientState, InputMessage> tuple;
@@ -815,6 +842,7 @@ public class HeroController {
       }
       clientState.updateLastActivity();
     }
+    applyHeldMoves();
   }
 
   private static void applyInput(
