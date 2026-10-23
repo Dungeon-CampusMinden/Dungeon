@@ -12,11 +12,12 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.System;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import tracking.core.TrackingJson;
 
 /**
@@ -65,6 +67,7 @@ public final class AudienceHud extends System {
   private static final int TALLY_BAR_WIDTH = 220;
   private static final float GAP = 16f;
   private static final float COMPACT = 0.65f;
+  private static final int LABEL_LENGTH = 28;
 
   private static JsonNode state = TrackingJson.object();
   private static long stateReceivedAt;
@@ -73,7 +76,6 @@ public final class AudienceHud extends System {
   // Whether the pause menu was open in the previous frame.
   private static boolean pauseMenuOpenBefore;
 
-  private final TextureRegionDrawable pixel = pixel();
   private Table root;
   private Table joinFull;
   private Table joinCompact;
@@ -130,19 +132,12 @@ public final class AudienceHud extends System {
     if (!phase.equals("playing")) joinScreen = false;
     // Only the join panel takes clicks during play; the full join screen takes them anywhere.
     root.setTouchable(joinScreen ? Touchable.enabled : Touchable.childrenOnly);
-    String next =
-        phase
-            + "|"
-            + joinScreen
-            + "|"
-            + state.path("context").path("kind").asString("")
-            + "|"
-            + content();
+    String next = joinScreen + "|" + content();
     if (!next.equals(layout)) {
       layout = next;
       root.clearChildren();
       root.clearActions();
-      root.setBackground((TextureRegionDrawable) null);
+      root.setBackground((Drawable) null);
       root.top().left();
       switch (phase) {
         case "lobby" -> lobby(false);
@@ -235,9 +230,9 @@ public final class AudienceHud extends System {
    */
   private static String content() {
     JsonNode copy = state.deepCopy();
-    if (copy instanceof tools.jackson.databind.node.ObjectNode object) {
+    if (copy instanceof ObjectNode object) {
       object.remove("phaseMs");
-      if (object.get("context") instanceof tools.jackson.databind.node.ObjectNode context) {
+      if (object.get("context") instanceof ObjectNode context) {
         context.remove("remainingMs");
       }
     }
@@ -276,13 +271,11 @@ public final class AudienceHud extends System {
     panel.add(number);
     dimmed(panel);
     root.addAction(
-        new com.badlogic.gdx.scenes.scene2d.Action() {
-          @Override
-          public boolean act(float delta) {
-            number.setText(Long.toString(Math.max(1, (remaining("phaseMs") + 999) / 1000)));
-            return false;
-          }
-        });
+        Actions.forever(
+            Actions.run(
+                () ->
+                    number.setText(
+                        Long.toString(Math.max(1, (remaining("phaseMs") + 999) / 1000))))));
   }
 
   private void playing() {
@@ -305,11 +298,9 @@ public final class AudienceHud extends System {
 
     statusFull = status(1f);
     statusCompact = status(COMPACT);
-    for (Table panel : new Table[] {statusFull, statusCompact}) {
-      if (panel != null) panel.setTouchable(Touchable.disabled);
-    }
     for (Table panel : new Table[] {joinFull, joinCompact, statusFull, statusCompact}) {
       if (panel == null) continue;
+      if (panel == statusFull || panel == statusCompact) panel.setTouchable(Touchable.disabled);
       panel.pack();
       root.addActor(panel);
     }
@@ -467,23 +458,21 @@ public final class AudienceHud extends System {
       // Two digits at layout time, so the panel is wide enough for the countdown.
       Label timer = label("00", DOT_FONT, size(64, scale), ACCENT);
       head.add(timer).right().padLeft(40 * scale);
-      Image progress = new Image(pixel.tint(ACCENT));
+      Image progress = new Image(tinted(ACCENT));
       Table track = new Table();
-      track.setBackground(pixel.tint(LINE));
+      track.setBackground(tinted(LINE));
       track.add(progress).height(6).left().expandX();
       panel.add(track).growX().height(6).padTop(8).padBottom(12).row();
       root.addAction(
-          new com.badlogic.gdx.scenes.scene2d.Action() {
-            @Override
-            public boolean act(float delta) {
-              long remaining = remaining("remainingMs");
-              long window = Math.max(1, state.path("context").path("windowMs").asLong(1));
-              timer.setText(Long.toString((remaining + 999) / 1000));
-              track.getCell(progress).width(track.getWidth() * remaining / window);
-              track.invalidate();
-              return false;
-            }
-          });
+          Actions.forever(
+              Actions.run(
+                  () -> {
+                    long remaining = remaining("remainingMs");
+                    long window = Math.max(1, state.path("context").path("windowMs").asLong(1));
+                    timer.setText(Long.toString((remaining + 999) / 1000));
+                    track.getCell(progress).width(track.getWidth() * remaining / window);
+                    track.invalidate();
+                  })));
     }
     JsonNode tally = context.path("tally");
     if (tally.isEmpty()) {
@@ -501,7 +490,9 @@ public final class AudienceHud extends System {
     panel.pad(20 * scale);
     panel.add(label("Gewählt", TEXT_FONT, size(24, scale), MUTED)).left().row();
     panel
-        .add(label(result.path("chosen").asString(""), BOLD_FONT, size(44, scale), ACCENT))
+        .add(
+            label(
+                shortened(result.path("chosen").asString("")), BOLD_FONT, size(44, scale), ACCENT))
         .left()
         .row();
     if (!result.path("tally").isEmpty()) {
@@ -519,10 +510,10 @@ public final class AudienceHud extends System {
       if (rows-- == 0) break;
       int count = entry.path("count").asInt();
       table
-          .add(label(entry.path("label").asString(""), TEXT_FONT, size(24, scale), TEXT))
+          .add(label(shortened(entry.path("label").asString("")), TEXT_FONT, size(24, scale), TEXT))
           .left()
           .padRight(20 * scale);
-      Image bar = new Image(pixel.tint(count == top ? ACCENT : MUTED));
+      Image bar = new Image(tinted(count == top ? ACCENT : MUTED));
       table
           .add(bar)
           .width(Math.max(6, TALLY_BAR_WIDTH * scale * count / top))
@@ -535,6 +526,11 @@ public final class AudienceHud extends System {
           .row();
     }
     return table;
+  }
+
+  // Free-text answers can be long; the panels must still fit into a corner.
+  private static String shortened(String label) {
+    return label.length() <= LABEL_LENGTH ? label : label.substring(0, LABEL_LENGTH - 1) + "…";
   }
 
   private static int size(int size, float scale) {
@@ -618,13 +614,13 @@ public final class AudienceHud extends System {
 
   private Table panel() {
     Table panel = new Table();
-    panel.setBackground(pixel.tint(PANEL));
+    panel.setBackground(tinted(PANEL));
     panel.pad(28);
     return panel;
   }
 
   private void dimmed(Table content) {
-    root.setBackground(pixel.tint(GROUND));
+    root.setBackground(tinted(GROUND));
     root.center();
     root.add(content);
   }
@@ -659,14 +655,9 @@ public final class AudienceHud extends System {
     return texture;
   }
 
-  private static TextureRegionDrawable pixel() {
-    if (Game.isHeadless()) return null;
-    Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-    pixmap.setColor(Color.WHITE);
-    pixmap.fill();
-    TextureRegionDrawable drawable = new TextureRegionDrawable(new Texture(pixmap));
-    pixmap.dispose();
-    return drawable;
+  // A plain area of the color, from the skin's white pixel.
+  private static Drawable tinted(Color color) {
+    return UIUtils.defaultSkin().newDrawable("white", color);
   }
 
   private static Label label(String text, String font, int size, Color color) {

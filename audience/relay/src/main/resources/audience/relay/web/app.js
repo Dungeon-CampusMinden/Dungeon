@@ -30,6 +30,8 @@ const session = {
 };
 const votes = new Map();
 const drafts = {};
+// What the device typed per puzzle, so a new window or a pause keeps half-typed answers.
+const typed = new Map();
 let screenKey = "";
 
 // --- helpers
@@ -144,12 +146,15 @@ function forget() {
 
 async function vote(value) {
   const context = session.state.context;
+  const before = votes.get(context.window);
   votes.set(context.window, value);
   render(true);
   try {
     await post("/input", { token: session.token, type: "vote", window: context.window, value });
   } catch {
-    votes.delete(context.window);
+    // The game still counts the vote it accepted before; show that one again.
+    if (before === undefined) votes.delete(context.window);
+    else votes.set(context.window, before);
     render(true);
   }
 }
@@ -339,7 +344,6 @@ function playScreen() {
     text: "Antwort eintippen",
     code: "Code eingeben",
     continue: context.text ? "Text lesen" : "Text auf dem Spielbildschirm lesen",
-    wait: "Schaut auf den Spielbildschirm",
   }[context.kind] || "Schaut auf den Spielbildschirm";
   const controls = {
     move: movePad,
@@ -352,10 +356,10 @@ function playScreen() {
   return [
     bar(),
     el("h1", {}, title),
-    context.kind === "wait" ? null : promptBlock(context),
-    context.kind === "wait" ? null : timerRow(),
+    promptBlock(context),
+    timerRow(),
     resultBlock(),
-    controls ? el("div", { class: "controls" }, controls(context)) : null,
+    el("div", { class: "controls" }, controls(context)),
   ];
 }
 
@@ -498,7 +502,11 @@ function choicePad(context) {
   ];
 }
 
-function textEntry() {
+function typedKey(context) {
+  return [context.kind, context.title, context.text].join("|");
+}
+
+function textEntry(context) {
   const mine = ownVote();
   const input = el("input", {
     type: "text",
@@ -508,8 +516,9 @@ function textEntry() {
     maxlength: "120",
     placeholder: "Eure Antwort",
     "aria-label": "Antwort",
-    value: mine || "",
+    value: mine || typed.get(typedKey(context)) || "",
   });
+  input.addEventListener("input", () => typed.set(typedKey(context), input.value));
   const send = el("button", { class: "button primary", type: "submit" }, mine ? "Ändern" : "Senden");
   const form = el("form", {
     class: "field",
@@ -524,10 +533,11 @@ function textEntry() {
 
 function codePad(context) {
   const length = context.digits;
-  let digits = ownVote() || "";
+  let digits = ownVote() || typed.get(typedKey(context)) || "";
   const display = el("div", { class: "display", "aria-live": "polite" }, "");
   const send = el("button", { class: "button primary word", "data-key": "Enter" }, "OK");
   const show = () => {
+    typed.set(typedKey(context), digits);
     display.textContent = digits.padEnd(length, "_");
     send.disabled = digits.length !== length;
   };
@@ -567,7 +577,7 @@ function keysHint(text) {
 // On laptops a key presses the control button that carries it in data-key; typing into a field
 // keeps its normal meaning.
 document.addEventListener("keydown", (event) => {
-  if (event.target.closest("input, textarea, select") || event.altKey || event.ctrlKey || event.metaKey) return;
+  if (event.repeat || event.target.closest("input, textarea, select") || event.altKey || event.ctrlKey || event.metaKey) return;
   const key = event.key === " " ? "Space" : event.key;
   const button = app.querySelector(`.controls [data-key="${CSS.escape(key)}"]`);
   if (!button || button.disabled) return;

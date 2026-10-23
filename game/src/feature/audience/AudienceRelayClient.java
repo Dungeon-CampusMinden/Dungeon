@@ -20,7 +20,7 @@ import tracking.core.TrackingJson;
  *
  * <p>It creates the session, publishes the public state whenever the game calls {@link #publish},
  * and long-polls the devices' inputs on a background thread. The game thread takes the inputs with
- * {@link #drain()}; nothing here touches game state.
+ * {@link #drain(int)}; nothing here touches game state.
  */
 final class AudienceRelayClient {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(AudienceRelayClient.class);

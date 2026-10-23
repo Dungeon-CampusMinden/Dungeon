@@ -271,10 +271,7 @@ public final class AudienceSystem extends System {
     if (window != null && now() >= window.endsAt) return;
     Optional<JsonNode> vote = context.normalize(message.path("value"));
     if (vote.isEmpty()) return;
-    if (window == null) {
-      if (context instanceof AudienceContext.Wait) return;
-      window = new Window(now(), duration(context));
-    }
+    if (window == null) window = new Window(now(), duration(context));
     window.votes.put(pid, vote.get());
   }
 
@@ -282,7 +279,8 @@ public final class AudienceSystem extends System {
 
   private void play(long now) {
     AudienceContext current = AudienceContext.of(hero, stepper);
-    if (!current.equals(context) || !context.current()) {
+    // A closed or replaced dialog yields another context, because contexts hold their dialog.
+    if (!current.equals(context)) {
       context = current;
       prompt = current.dialog().map(AudienceContext::prompt).orElse(null);
       windowId++;

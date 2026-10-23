@@ -28,7 +28,6 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -70,7 +69,7 @@ public final class AudienceRoomLevel extends DungeonLevel {
         "Raus aus dem Rechenzentrum",
         () -> {},
         "Los",
-        heroIds());
+        Game.allPlayers().mapToInt(Entity::id).toArray());
   }
 
   @Override
@@ -111,7 +110,7 @@ public final class AudienceRoomLevel extends DungeonLevel {
                 true,
                 Set.of("mergesort", "insertionsort"),
                 hero));
-    station(new Point(10, 1), TERMINAL, "terminal-3", AudienceRoomLevel::freeText);
+    station(new Point(10, 1), TERMINAL, "terminal-3", this::freeText);
     station(new Point(7, 5), PANEL, "code-panel", this::codePanel);
   }
 
@@ -172,7 +171,7 @@ public final class AudienceRoomLevel extends DungeonLevel {
         hero.id());
   }
 
-  private static void freeText(Entity hero) {
+  private void freeText(Entity hero) {
     DialogFactory.showInputDialog(
         "Welche Laufzeit hat die binäre Suche im schlechtesten Fall? Schreibt sie als O(...).",
         "Terminal 3",
@@ -181,11 +180,11 @@ public final class AudienceRoomLevel extends DungeonLevel {
         "Senden",
         "Abbrechen",
         payload -> {
-          String answer =
-              payload instanceof DialogResponseMessage.StringValue(String value) ? value : "";
-          String normalized = answer.strip().toLowerCase(Locale.ROOT).replace(" ", "");
-          boolean correct = Set.of("o(logn)", "o(log(n))", "logn", "log(n)").contains(normalized);
-          level().ifPresent(level -> level.answered(2, correct, hero));
+          // Audience mode sends the answer without whitespace and in lower case.
+          boolean correct =
+              payload instanceof DialogResponseMessage.StringValue(String value)
+                  && Set.of("o(logn)", "o(log(n))", "logn", "log(n)").contains(value);
+          answered(2, correct, hero);
         },
         () -> {},
         hero.id());
@@ -204,7 +203,6 @@ public final class AudienceRoomLevel extends DungeonLevel {
             DialogContext.builder()
                 .type(DialogType.DefaultTypes.FREE_INPUT)
                 .put(DialogContextKeys.TITLE, "Tastenfeld")
-                .put(DialogContextKeys.MESSAGE, "Gebt den dreistelligen Türcode ein.")
                 .put(DialogContextKeys.QUESTION, "Gebt den dreistelligen Türcode ein.")
                 .put(DialogContextKeys.INPUT_PLACEHOLDER, "Code")
                 .put(DialogContextKeys.CONFIRM_LABEL, "Öffnen")
@@ -248,15 +246,5 @@ public final class AudienceRoomLevel extends DungeonLevel {
         "Ziffer " + (terminal + 1) + " des Türcodes: " + CODE.charAt(terminal),
         "Richtig",
         hero.id());
-  }
-
-  private static java.util.Optional<AudienceRoomLevel> level() {
-    return Game.currentLevel()
-        .filter(AudienceRoomLevel.class::isInstance)
-        .map(AudienceRoomLevel.class::cast);
-  }
-
-  private static int[] heroIds() {
-    return Game.allPlayers().mapToInt(Entity::id).toArray();
   }
 }

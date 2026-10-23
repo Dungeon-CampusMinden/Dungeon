@@ -256,9 +256,8 @@ final class RelayHttpServer implements AutoCloseable {
 
   // Streams every state change as a server-sent event until the device or session goes away, or the
   // device opens a newer stream; then a "replaced" event tells this page not to reconnect. Each
-  // event
-  // carries the state and its age, so a device that connects late still counts timers from the
-  // moment the game published them.
+  // event carries the state and its age, so a device that connects late still counts timers from
+  // the moment the game published them.
   private static void stream(HttpExchange exchange, RelaySession session, String pid)
       throws IOException, InterruptedException {
     long id = session.openStream(pid);

@@ -85,14 +85,6 @@ sealed interface AudienceContext {
   void apply(JsonNode vote, TileStepper stepper);
 
   /**
-   * @return whether this context still matches the game; a dialog context ends when its dialog
-   *     closes
-   */
-  default boolean current() {
-    return dialog().map(AudienceContext::open).orElse(true);
-  }
-
-  /**
    * Derives the context for the hero.
    *
    * @param hero the hero the audience controls

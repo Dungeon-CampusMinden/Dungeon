@@ -152,8 +152,10 @@ final class RelaySession {
     if (closed) throw new IllegalStateException("Session is closed");
     if (inbox.size() >= MAX_INBOX) throw new IllegalStateException("Game is not reading");
     long now = System.nanoTime();
-    Long last = lastInputByPid.put(pid, now);
+    // Only accepted inputs count, so a burst of refused ones does not lock the device out.
+    Long last = lastInputByPid.get(pid);
     if (last != null && now - last < MIN_INPUT_GAP_NANOS) return false;
+    lastInputByPid.put(pid, now);
     enqueue(pid, message);
     return true;
   }
