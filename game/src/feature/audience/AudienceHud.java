@@ -456,48 +456,49 @@ public final class AudienceHud extends System {
 
   private Table votingPanel(JsonNode context, float scale) {
     Table panel = panel();
-    panel.pad(28 * scale);
+    panel.pad(20 * scale);
     String kind = context.path("kind").asString("");
-    // Two digits at layout time, so the panel is wide enough for the countdown.
-    Label timer = label("00", DOT_FONT, size(64, scale), ACCENT);
+    // Countdown and time bar only while a window runs; before that they would only take room.
+    boolean timed = context.has("remainingMs");
     Table head = new Table();
     head.add(label(title(kind, context), BOLD_FONT, size(30, scale), TEXT)).left().expandX();
-    head.add(timer).right().padLeft(40 * scale);
     panel.add(head).growX().row();
-    Image progress = new Image(pixel.tint(ACCENT));
-    Table track = new Table();
-    track.setBackground(pixel.tint(LINE));
-    track.add(progress).height(6).left().expandX();
-    panel.add(track).growX().height(6).padTop(8).padBottom(12).row();
+    if (timed) {
+      // Two digits at layout time, so the panel is wide enough for the countdown.
+      Label timer = label("00", DOT_FONT, size(64, scale), ACCENT);
+      head.add(timer).right().padLeft(40 * scale);
+      Image progress = new Image(pixel.tint(ACCENT));
+      Table track = new Table();
+      track.setBackground(pixel.tint(LINE));
+      track.add(progress).height(6).left().expandX();
+      panel.add(track).growX().height(6).padTop(8).padBottom(12).row();
+      root.addAction(
+          new com.badlogic.gdx.scenes.scene2d.Action() {
+            @Override
+            public boolean act(float delta) {
+              long remaining = remaining("remainingMs");
+              long window = Math.max(1, state.path("context").path("windowMs").asLong(1));
+              timer.setText(Long.toString((remaining + 999) / 1000));
+              track.getCell(progress).width(track.getWidth() * remaining / window);
+              track.invalidate();
+              return false;
+            }
+          });
+    }
     JsonNode tally = context.path("tally");
     if (tally.isEmpty()) {
       String waiting =
           kind.equals("move") ? "Die Runde startet mit der ersten Stimme." : "Noch keine Stimmen.";
-      panel.add(label(waiting, TEXT_FONT, size(24, scale), MUTED)).left();
+      panel.add(label(waiting, TEXT_FONT, size(24, scale), MUTED)).left().padTop(timed ? 0 : 6);
     } else {
       panel.add(tallyTable(tally, scale)).left();
     }
-    boolean timed = context.has("remainingMs");
-    timer.setVisible(timed);
-    track.setVisible(timed);
-    root.addAction(
-        new com.badlogic.gdx.scenes.scene2d.Action() {
-          @Override
-          public boolean act(float delta) {
-            long remaining = remaining("remainingMs");
-            long window = Math.max(1, state.path("context").path("windowMs").asLong(1));
-            timer.setText(Long.toString((remaining + 999) / 1000));
-            track.getCell(progress).width(track.getWidth() * remaining / window);
-            track.invalidate();
-            return false;
-          }
-        });
     return panel;
   }
 
   private Table resultPanel(JsonNode result, float scale) {
     Table panel = panel();
-    panel.pad(28 * scale);
+    panel.pad(20 * scale);
     panel.add(label("Gewählt", TEXT_FONT, size(24, scale), MUTED)).left().row();
     panel
         .add(label(result.path("chosen").asString(""), BOLD_FONT, size(44, scale), ACCENT))
