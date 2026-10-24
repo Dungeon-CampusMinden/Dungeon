@@ -66,8 +66,9 @@ public class HeroController {
 
   /**
    * Time after the last refresh until a held movement direction expires. Clients refresh it every
-   * frame while a movement key is held, so this ends movement after a lost stop input. Below 4
-   * client FPS the direction also expires between refreshes.
+   * frame while a movement key is held, so this ends movement of a client that stops sending, e.g.
+   * because it froze or disconnected. Below 4 client FPS the direction also expires between
+   * refreshes.
    */
   private static final long HELD_MOVE_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(250);
 

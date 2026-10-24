@@ -11,15 +11,14 @@ import engine.utils.Vector2;
  *
  * <p>Input sources such as keyboard callbacks and controllers report held directions through {@link
  * #hold(Direction)} during the frame. This system runs after them and sends the combined direction.
- * The server keeps applying it until the client sends a zero direction, which this system repeats
- * for a few frames after release in case a single input packet gets lost.
+ * The server keeps applying it until the client sends a zero direction. That stop goes out over UDP
+ * for low latency and over TCP so it cannot get lost; the server applies whichever copy arrives
+ * first and drops the other by its sequence number.
  */
 public final class MovementInputSystem extends System {
-  private static final int STOP_REPEAT_FRAMES = 3;
-
   private static float heldX;
   private static float heldY;
-  private int stopFramesLeft;
+  private boolean moving;
 
   /** Creates a new MovementInputSystem. */
   public MovementInputSystem() {
@@ -42,11 +41,13 @@ public final class MovementInputSystem extends System {
     heldX = 0;
     heldY = 0;
     if (!direction.isZero()) {
-      stopFramesLeft = STOP_REPEAT_FRAMES;
+      moving = true;
       Game.network().sendInput(InputMessage.move(direction));
-    } else if (stopFramesLeft > 0) {
-      stopFramesLeft--;
-      Game.network().sendInput(InputMessage.move(Vector2.ZERO));
+    } else if (moving) {
+      moving = false;
+      InputMessage stop = InputMessage.move(Vector2.ZERO);
+      Game.network().sendInput(stop);
+      Game.network().send((short) 0, stop, true);
     }
   }
 
