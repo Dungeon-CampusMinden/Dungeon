@@ -496,7 +496,8 @@ public class HeroController {
   private static void releaseOvertakenStop(ClientState clientState, InputMessage msg) {
     if (msg.payload() instanceof InputMessage.Move move && move.direction().isZero()) {
       heldMoves.computeIfPresent(
-          clientState, (state, held) -> held.sequence() < msg.sequence() ? null : held);
+          clientState,
+          (state, held) -> ClientState.isNewerSeq(msg.sequence(), held.sequence()) ? null : held);
     }
   }
 

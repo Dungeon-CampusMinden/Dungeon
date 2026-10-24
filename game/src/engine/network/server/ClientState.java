@@ -43,11 +43,14 @@ public class ClientState {
    */
   private byte[] sessionToken;
 
+  /** Marks that no input sequence number has been processed yet. */
+  private static final int NO_SEQ = Integer.MIN_VALUE;
+
   /**
-   * The last processed input sequence number. Used to detect and discard duplicates or stale inputs
-   * (seq <= this value). Initialized to -1 (none processed).
+   * The last processed input sequence number. Used to detect and discard duplicates or stale
+   * inputs. Initialized to {@link #NO_SEQ}.
    */
-  private int lastProcessedSeq = -1;
+  private int lastProcessedSeq = NO_SEQ;
 
   /**
    * The next expected input sequence number. Tracks gaps (for interpolation/warnings) when inputs
@@ -152,7 +155,7 @@ public class ClientState {
 
     this.sessionId = newSessionId;
     this.sessionToken = newSessionToken.clone();
-    this.lastProcessedSeq = -1;
+    this.lastProcessedSeq = NO_SEQ;
     this.expectedSeq = 0;
     this.initialWorldReady = false;
     clearSnapshotBaseline(FullSnapshotSendReason.RECONNECT);
@@ -179,7 +182,7 @@ public class ClientState {
    * @return true when the sequence was accepted, false when it was stale or duplicated.
    */
   public synchronized boolean advanceProcessedSeq(int seq) {
-    if (seq <= this.lastProcessedSeq) {
+    if (lastProcessedSeq != NO_SEQ && !isNewerSeq(seq, lastProcessedSeq)) {
       return false;
     }
     this.lastProcessedSeq = seq;
@@ -300,7 +303,21 @@ public class ClientState {
   }
 
   /**
-   * Returns the last processed seq (initially -1).
+   * Returns whether an input sequence number is newer than another one.
+   *
+   * <p>Sequence numbers are 16-bit and wrap around, so the newer one is the one at most half the
+   * range ahead.
+   *
+   * @param seq the sequence number to check
+   * @param other the sequence number to compare with
+   * @return true if {@code seq} is newer than {@code other}
+   */
+  public static boolean isNewerSeq(int seq, int other) {
+    return (short) (seq - other) > 0;
+  }
+
+  /**
+   * Returns the last processed seq (initially {@link Integer#MIN_VALUE}).
    *
    * @return The last processed seq.
    */
@@ -375,23 +392,16 @@ public class ClientState {
   }
 
   /**
-   * Returns true if seq is plausibly recent (within gap tolerance from lastProcessedSeq). Accounts
-   * for Integer overflow by using signed int arithmetic.
+   * Returns true if seq is plausibly recent: newer than lastProcessedSeq by any amount, since lost
+   * inputs leave gaps, or older by at most {@link NetworkConfig#MAX_SEQUENCE_GAP}. Handles the
+   * 16-bit wrap-around.
    *
    * @param seq The candidate sequence.
    * @return True if plausible (not stale).
    */
   public boolean isSeqPlausible(int seq) {
-    if (lastProcessedSeq == -1) return true; // Fresh state
-
-    int diff = seq - lastProcessedSeq;
-    if (diff >= 0 && diff <= NetworkConfig.MAX_SEQUENCE_GAP) return true; // Forward, small gap
-    if (diff < 0) {
-      // Check for wrap-around (e.g., seq just wrapped, lastProcessedSeq near MAX_VALUE)
-      int wrappedDiff = (seq + (Integer.MAX_VALUE - lastProcessedSeq) + 1);
-      return wrappedDiff >= 0 && wrappedDiff <= NetworkConfig.MAX_SEQUENCE_GAP;
-    }
-    return false; // Too old or large gap
+    if (lastProcessedSeq == NO_SEQ) return true; // Fresh state
+    return (short) (seq - lastProcessedSeq) > -NetworkConfig.MAX_SEQUENCE_GAP;
   }
 
   /**

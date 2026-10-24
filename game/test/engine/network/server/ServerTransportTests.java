@@ -488,7 +488,7 @@ public class ServerTransportTests {
     ServerTransport transport = currentTransport.get();
     Session session = registeredSession(transport, (short) 8);
     ClientState state = session.clientState().orElseThrow();
-    state.advanceProcessedSeq(5);
+    state.advanceProcessedSeq(100);
 
     invokeInputMessage(
         transport,

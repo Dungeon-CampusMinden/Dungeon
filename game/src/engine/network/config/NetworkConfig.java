@@ -138,8 +138,8 @@ public final class NetworkConfig {
   /**
    * Maximum allowed sequence gap for network packets.
    *
-   * <p>This defines the maximum difference between expected and received packet sequence numbers
-   * before considering packets as lost or out of order.
+   * <p>Inputs that arrive this many sequence numbers behind the last processed input are ignored as
+   * too old; newer inputs are accepted regardless of the gap left by lost packets.
    */
   public static final int MAX_SEQUENCE_GAP = 32;
 
