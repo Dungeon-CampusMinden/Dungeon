@@ -94,12 +94,14 @@ public final class AuthoritativeServerLoop {
           Game.complete();
         });
 
-    long tickPeriodMs = 1000L / SERVER_TICK_HZ;
-    long snapshotPeriodMs = 1000L / SERVER_DELTA_SNAPSHOT_HZ;
+    // Nanosecond periods keep the real tick rate at SERVER_TICK_HZ; whole milliseconds would round
+    // 60 Hz up to 62.5 Hz while the simulation advances 1/60 s per tick.
+    long tickPeriodNanos = TimeUnit.SECONDS.toNanos(1) / SERVER_TICK_HZ;
+    long snapshotPeriodNanos = TimeUnit.SECONDS.toNanos(1) / SERVER_DELTA_SNAPSHOT_HZ;
 
-    executor.scheduleAtFixedRate(this::tick, 0, tickPeriodMs, TimeUnit.MILLISECONDS);
+    executor.scheduleAtFixedRate(this::tick, 0, tickPeriodNanos, TimeUnit.NANOSECONDS);
     executor.scheduleAtFixedRate(
-        this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs, TimeUnit.MILLISECONDS);
+        this::sendSnapshot, snapshotPeriodNanos, snapshotPeriodNanos, TimeUnit.NANOSECONDS);
 
     if (PRINT_RTT) {
       executor.scheduleAtFixedRate(

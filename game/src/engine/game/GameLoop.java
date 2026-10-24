@@ -71,6 +71,7 @@ import engine.systems.VelocitySystem;
 import engine.systems.input.InputManager;
 import engine.systems.input.InputSystem;
 import engine.systems.input.JoystickSystem;
+import engine.systems.input.MovementInputSystem;
 import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
@@ -1217,5 +1218,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new QuestLogHudSystem());
     ECSManagement.add(new PauseMenuHudSystem());
     ECSManagement.add(new JoystickSystem());
+    ECSManagement.add(new MovementInputSystem());
   }
 }

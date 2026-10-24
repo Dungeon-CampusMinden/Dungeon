@@ -2,7 +2,11 @@ package engine.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import engine.Entity;
 import engine.Game;
 import engine.components.NetworkPositionComponent;
@@ -106,7 +110,14 @@ public class DefaultSnapshotTranslatorTest {
         entity.fetch(NetworkPositionComponent.class).orElseThrow();
     assertEquals(new Point(1, 0), networkPosition.targetPosition());
 
-    new NetworkPositionSmoothingSystem().execute();
+    Graphics previousGraphics = Gdx.graphics;
+    Gdx.graphics = mock(Graphics.class);
+    when(Gdx.graphics.getDeltaTime()).thenReturn(1f / 60f);
+    try {
+      new NetworkPositionSmoothingSystem().execute();
+    } finally {
+      Gdx.graphics = previousGraphics;
+    }
 
     assertEquals(0.55f, position.position().x(), 0.0001f);
     assertEquals(0f, position.position().y(), 0.0001f);
