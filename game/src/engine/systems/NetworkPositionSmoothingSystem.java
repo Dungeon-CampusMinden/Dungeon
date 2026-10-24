@@ -39,6 +39,8 @@ public final class NetworkPositionSmoothingSystem extends System {
   /**
    * Scales the per-frame lerp by the real frame time, so entities catch up equally fast at any
    * frame rate.
+   *
+   * @return the share of the remaining distance to cover in this frame
    */
   private static float frameLerp() {
     float delta = Gdx.graphics == null ? 0f : Gdx.graphics.getDeltaTime();

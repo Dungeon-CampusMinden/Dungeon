@@ -461,7 +461,12 @@ public class HeroController {
     }
   }
 
-  /** Reduces a direction component to its sign; non-finite values from a client count as 0. */
+  /**
+   * Reduces a direction component to its sign; non-finite values from a client count as 0.
+   *
+   * @param value the direction component
+   * @return -1, 0 or 1
+   */
   private static float axisSign(float value) {
     return Float.isFinite(value) ? Math.signum(value) : 0;
   }
@@ -498,6 +503,9 @@ public class HeroController {
   /**
    * Ends a held move whose stop arrived after a newer input of another action, e.g. the TCP copy of
    * a stop whose UDP copy got lost. The sequence check alone would drop that stop as stale.
+   *
+   * @param clientState the client that sent the input
+   * @param msg the input the sequence check rejected
    */
   private static void releaseOvertakenStop(ClientState clientState, InputMessage msg) {
     if (msg.payload() instanceof InputMessage.Move move && move.direction().isZero()) {
