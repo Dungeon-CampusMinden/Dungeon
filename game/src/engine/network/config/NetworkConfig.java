@@ -38,7 +38,7 @@ public final class NetworkConfig {
   public static final int SAFE_UDP_MTU = 1400;
 
   /** Protocol version used by multiplayer clients and servers during the connection handshake. */
-  public static final short PROTOCOL_VERSION = 16;
+  public static final short PROTOCOL_VERSION = 15;
 
   /** Enables server responses to debug network telemetry requests. */
   public static boolean DEBUG_TELEMETRY_ENABLED = false;
@@ -138,8 +138,8 @@ public final class NetworkConfig {
   /**
    * Maximum allowed sequence gap for network packets.
    *
-   * <p>Inputs that arrive this many sequence numbers behind the last processed input are ignored as
-   * too old; newer inputs are accepted regardless of the gap left by lost packets.
+   * <p>This defines the maximum difference between expected and received packet sequence numbers
+   * before considering packets as lost or out of order.
    */
   public static final int MAX_SEQUENCE_GAP = 32;
 

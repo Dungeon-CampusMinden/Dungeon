@@ -392,19 +392,6 @@ public class ClientState {
   }
 
   /**
-   * Returns true if seq is plausibly recent: newer than lastProcessedSeq by any amount, since lost
-   * inputs leave gaps, or older by at most {@link NetworkConfig#MAX_SEQUENCE_GAP}. Handles the
-   * 16-bit wrap-around.
-   *
-   * @param seq The candidate sequence.
-   * @return True if plausible (not stale).
-   */
-  public boolean isSeqPlausible(int seq) {
-    if (lastProcessedSeq == NO_SEQ) return true; // Fresh state
-    return (short) (seq - lastProcessedSeq) > -NetworkConfig.MAX_SEQUENCE_GAP;
-  }
-
-  /**
    * Returns per-client server-side snapshot sync state.
    *
    * @return snapshot sync state
