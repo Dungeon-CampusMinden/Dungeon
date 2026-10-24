@@ -36,12 +36,12 @@ import feature.skills.projectile.ProjectileSkill;
 import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -73,7 +73,7 @@ public class HeroController {
   private static final long HELD_MOVE_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(250);
 
   /** Movement direction each client currently holds, applied on every server tick. */
-  private static final Map<ClientState, HeldMove> heldMoves = new ConcurrentHashMap<>();
+  private static final Map<ClientState, HeldMove> heldMoves = new HashMap<>();
 
   /** Delay after a disconnect before the hero inventory drops, matching the reconnect grace. */
   private static final long DISCONNECT_ITEM_DROP_DELAY_MS = 30_000;
@@ -454,7 +454,9 @@ public class HeroController {
           .fetch(VelocityComponent.class)
           .ifPresent(velocity -> velocity.removeForce(MOVEMENT_ID));
     } else {
-      heldMoves.put(context.clientState(), new HeldMove(move.direction(), System.nanoTime()));
+      heldMoves.put(
+          context.clientState(),
+          new HeldMove(move.direction(), context.message().sequence(), System.nanoTime()));
     }
   }
 
@@ -472,19 +474,33 @@ public class HeroController {
   private static boolean applyHeldMove(ClientState clientState, HeldMove heldMove, long now) {
     if (now - heldMove.refreshedNanos() > HELD_MOVE_TIMEOUT_NANOS) return false;
     Entity hero = clientState.playerEntity().orElse(null);
-    if (hero == null || Game.hud().blocksGameplayInput(hero)) return false;
+    // A disconnected client keeps its hero entity, which is no longer in the game.
+    if (hero == null || !Game.existInGame(hero) || Game.hud().blocksGameplayInput(hero)) {
+      return false;
+    }
     try {
       CharacterClass heroClass =
           hero.fetch(CharacterClassComponent.class).orElseThrow().characterClass();
       moveHero(hero, heldMove.direction(), heroClass.speed());
       return true;
     } catch (RuntimeException e) {
-      LOGGER.debug("Dropping held movement for client {}: {}", clientState, e.getMessage());
+      LOGGER.warn("Dropping held movement for client {}: {}", clientState, e.getMessage(), e);
       return false;
     }
   }
 
-  private record HeldMove(Vector2 direction, long refreshedNanos) {}
+  /**
+   * Ends a held move whose stop arrived after a newer input of another action, e.g. the TCP copy of
+   * a stop whose UDP copy got lost. The sequence check alone would drop that stop as stale.
+   */
+  private static void releaseOvertakenStop(ClientState clientState, InputMessage msg) {
+    if (msg.payload() instanceof InputMessage.Move move && move.direction().isZero()) {
+      heldMoves.computeIfPresent(
+          clientState, (state, held) -> held.sequence() < msg.sequence() ? null : held);
+    }
+  }
+
+  private record HeldMove(Vector2 direction, int sequence, long refreshedNanos) {}
 
   private static void handleCastSkill(InputCommandRouter.InputCommandContext context) {
     InputMessage.CastSkill castSkill = context.payloadAs(InputMessage.CastSkill.class);
@@ -830,6 +846,7 @@ public class HeroController {
 
       boolean paused = Game.hud().blocksGameplayInput(playerEntity);
       if (!clientState.advanceProcessedSeq(msg.sequence())) {
+        releaseOvertakenStop(clientState, msg);
         LOGGER.debug(
             "Ignoring stale or duplicate input sequence {} for client {}",
             msg.sequence(),
