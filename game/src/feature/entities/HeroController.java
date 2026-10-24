@@ -92,7 +92,8 @@ public class HeroController {
    * previous one, so applying the same direction several times in one tick has no extra effect.
    *
    * @param hero the hero entity to move
-   * @param direction the direction to move the hero; each component is reduced to its sign
+   * @param direction the direction to move the hero; each component is reduced to its sign, and
+   *     non-finite components are ignored
    * @param speed the speed vector to scale the movement force
    */
   public static void moveHero(Entity hero, Vector2 direction, Vector2 speed) {
@@ -103,8 +104,8 @@ public class HeroController {
       return;
     }
 
-    float x = Math.signum(direction.x());
-    float y = Math.signum(direction.y());
+    float x = axisSign(direction.x());
+    float y = axisSign(direction.y());
     Optional<InputComponent> input = hero.fetch(InputComponent.class);
     if (input.isPresent()) {
       Map<Integer, InputComponent.InputData> callbacks = input.get().callbacks();
@@ -458,6 +459,11 @@ public class HeroController {
           context.clientState(),
           new HeldMove(move.direction(), context.message().sequence(), System.nanoTime()));
     }
+  }
+
+  /** Reduces a direction component to its sign; non-finite values from a client count as 0. */
+  private static float axisSign(float value) {
+    return Float.isFinite(value) ? Math.signum(value) : 0;
   }
 
   /**
