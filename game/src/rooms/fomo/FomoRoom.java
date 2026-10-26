@@ -50,8 +50,8 @@ public final class FomoRoom {
   private static final String LEVEL_KEY = "fomo";
   private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
   private static final Color MENU_ACCENT_COLOR = Color.valueOf("9b7bf0ff");
-  // Short movement windows keep the walks between the terminals quick.
-  private static final Duration MOVE_WINDOW = Duration.ofSeconds(1);
+  // Five seconds per step leave the audience time to agree on a direction.
+  private static final Duration MOVE_WINDOW = Duration.ofSeconds(5);
   // Time to discuss a question; once everybody voted, the window closes a few seconds later.
   private static final Duration PUZZLE_WINDOW = Duration.ofMinutes(2);
 

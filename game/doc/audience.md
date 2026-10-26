@@ -27,23 +27,21 @@ Fragen zu regulären Sprachen und Grammatiken und einem vierstelligen Türcode. 
 zeigt einen Tipp, danach kommt dieselbe Frage noch einmal. Terminal 3 ist anfangs kaputt. An seiner
 Stelle steht Kleene, der es repariert, sobald die Figur ihm die Übergangstabelle aus der Truhe
 bringt. Die Tabelle ist kein Inventargegenstand, alles läuft über Dialoge. Die Kamera zeigt immer
-den ganzen Raum und folgt nicht der Figur. Der Raum nutzt das dunkle Design `DARK` mit Maschinen,
-Screens und einem Teleporter-Strahl am Startzustand q0. Ein Bewegungsfenster dauert dort 1 Sekunde,
-ein Rätselfenster 2 Minuten. Das Intro besteht aus mehreren einseitigen Dialogen, die nacheinander
+den ganzen Raum und folgt nicht der Figur. Der Raum nutzt das dunkle Design `DARK`. Ein
+Bewegungsfenster dauert dort 5 Sekunden, ein Rätselfenster 2 Minuten. Das Intro besteht aus mehreren einseitigen Dialogen, die nacheinander
 erscheinen. Der Raum startet mit `./gradlew :game:runAutomatonRoom`. F4 im Hauptmenü öffnet den
 Level-Editor, der ohne Publikum läuft.
 
 Der Raum `rooms.fomo.FomoRoom` („Gefangen im Modell“) folgt demselben Ablauf mit vier Fragen zu
-Modellen und Modellierung für das Modul FOMO. Er ist ein Labor im Design `SYSTEM_RECOVERY` mit
-Kryo-Labor, Eingangshalle, Modellwerkstatt und Foyer, eigenen Terminals und einem Handscanner als
-Tastenfeld. Dort baut Stachowiak Terminal 3 wieder auf, sobald die Figur ihm den Bauplan aus der
+Modellen und Modellierung für das Modul FOMO. Er nutzt das Design `SYSTEM_RECOVERY`, eigene
+Terminals und einen Handscanner als Tastenfeld. Dort baut Stachowiak Terminal 3 wieder auf, sobald die Figur ihm den Bauplan aus der
 Truhe bringt. Der Raum startet mit `./gradlew :game:runFomoRoom`, sein Level liegt in `levels/fomo`.
 
 Beide Räume lesen aus ihrer Level-Datei die benannten Punkte `q1` bis `q4` für die Terminals,
 `chest` für die Truhe, `panel` für das Tastenfeld, `door` für die Tür und `exit` für das Feld
-dahinter. Die Ausstattung sind Dekorationen der Level-Datei; die Einträge mit `Lab` im Namen nutzen
-die Labor-Grafiken aus `objects/tech`. Stehende Geräte blockieren ihr Feld, Wandgeräte nicht. Im
-Level-Editor (F4) lassen sich Punkte und Dekorationen verschieben.
+dahinter. Die Level-Dateien enthalten keine Dekorationen. Im Level-Editor (F4) lassen sich Punkte
+verschieben und Dekorationen setzen. Die Einträge mit `Lab` im Namen nutzen die Labor-Grafiken aus
+`objects/tech`. Stehende Geräte blockieren ihr Feld, Wandgeräte nicht.
 
 ## Ablauf
 
