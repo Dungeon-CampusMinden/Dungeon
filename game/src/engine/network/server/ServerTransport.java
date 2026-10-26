@@ -1238,17 +1238,7 @@ public final class ServerTransport {
 
     msg.lastSnapshotTick().ifPresent(tick -> acknowledgeSnapshot(session, tick));
 
-    // 3. Validate sequence
-    if (!state.isSeqPlausible(msg.sequence())) {
-      LOGGER.debug(
-          "Ignoring InputMessage with implausible sequence={} from clientId={}",
-          msg.sequence(),
-          state.clientId());
-      state.updateLastActivity(); // Still update activity timestamp
-      return;
-    }
-
-    // 4. Enqueue
+    // 3. Enqueue; stale and duplicate sequences are dropped when the queue is drained
     HeroController.enqueueInput(state, msg);
   }
 
