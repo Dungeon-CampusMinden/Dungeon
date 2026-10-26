@@ -28,8 +28,9 @@ const session = {
   replaced: false,
   surveys: {},
 };
+// Votes, survey drafts, and typed answers belong to one round; forget() clears them.
 const votes = new Map();
-const drafts = {};
+let drafts = {};
 // What the device typed per puzzle, so a new window or a pause keeps half-typed answers.
 const typed = new Map();
 let screenKey = "";
@@ -139,19 +140,26 @@ function connect() {
   });
 }
 
+/** Leaves a round that is over, so the next code starts with the consent question again. */
 function forget() {
   if (session.code) localStorage.removeItem(storageKey(session.code));
   session.code = session.token = session.pid = session.state = null;
+  votes.clear();
+  typed.clear();
+  drafts = {};
 }
 
 async function vote(value) {
   const context = session.state.context;
+  const token = session.token;
   const before = votes.get(context.window);
   votes.set(context.window, value);
   render(true);
   try {
-    await post("/input", { token: session.token, type: "vote", window: context.window, value });
+    await post("/input", { token, type: "vote", window: context.window, value });
   } catch {
+    // The round ended while the vote was underway; the next round starts without votes.
+    if (session.token !== token) return;
     // The game still counts the vote it accepted before; show that one again.
     if (before === undefined) votes.delete(context.window);
     else votes.set(context.window, before);
