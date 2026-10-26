@@ -11,7 +11,7 @@
           "text": { "de": "Kurz vorab" },
           "description": { "de": "Wir erforschen, wie gemeinsames Rätseln in einer Gruppe funktioniert. Die Umfrage dauert eine Minute. Wir speichern keine Namen, nur eine zufällige Kennung für diese Sitzung." } },
         { "id": "consent", "type": "singleChoice", "required": true,
-          "text": { "de": "Dürfen wir deine Antworten und Stimmen pseudonym speichern?" },
+          "text": { "de": "Dürfen wir deine Antworten und Abstimmungen pseudonym speichern?" },
           "options": [
             { "id": "yes", "text": { "de": "Ja" } },
             { "id": "no", "text": { "de": "Nein, ich schaue nur zu" }, "declinesConsent": true } ] }
