@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
+import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.network.messages.c2s.InputMessage;
@@ -33,6 +34,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.PauseDialog;
 import feature.input.configuration.KeyboardConfig;
+import feature.interaction.InteractionFeedback;
 import io.nayuki.qrcodegen.QrCode;
 import java.net.URI;
 import java.util.ArrayList;
@@ -117,6 +119,16 @@ public final class AudienceHud extends System {
               stateReceivedAt = java.lang.System.nanoTime();
             });
     Game.add(new AudienceHud());
+    // Nobody points at the shared screen, so it shows what the hero can use at all times.
+    InteractionFeedback.showAlways(AudienceHud::useTarget);
+  }
+
+  /**
+   * @return the entity a vote for "Benutzen" would use, as the server last reported it
+   */
+  static Optional<Entity> useTarget() {
+    JsonNode id = state.path("useTarget");
+    return id.isInt() ? Game.findEntityById(id.asInt()) : Optional.empty();
   }
 
   @Override

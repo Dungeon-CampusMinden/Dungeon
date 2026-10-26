@@ -95,33 +95,38 @@ final class TileStepper {
     target = destination;
   }
 
-  /**
-   * Interacts with the nearest interactable entity on the tile the hero faces. Nothing happens when
-   * there is none.
-   */
+  /** Interacts with the entity {@link #facing()} returns. Nothing happens when there is none. */
   void interact() {
+    facing()
+        .ifPresent(
+            entity ->
+                entity
+                    .fetch(InteractionComponent.class)
+                    .orElseThrow()
+                    .triggerInteraction(entity, hero));
+  }
+
+  /**
+   * Finds the entity a vote for "Benutzen" would use right now.
+   *
+   * @return the nearest interactable entity on the tile the hero faces, or empty when there is none
+   */
+  Optional<Entity> facing() {
     PositionComponent position = hero.fetch(PositionComponent.class).orElseThrow();
     Optional<Tile> current = Game.tileAtEntity(hero);
-    if (current.isEmpty()) return;
+    if (current.isEmpty()) return Optional.empty();
     Optional<Tile> front = Game.tileAt(current.get().position(), position.viewDirection());
-    if (front.isEmpty()) return;
+    if (front.isEmpty()) return Optional.empty();
     Point heroPosition = position.position();
-    Optional<Entity> target =
-        Game.entityAtTile(front.get())
-            .filter(entity -> entity.isPresent(InteractionComponent.class))
-            .min(
-                Comparator.comparingDouble(
-                    entity ->
-                        entity
-                            .fetch(PositionComponent.class)
-                            .map(other -> heroPosition.distanceSquared(other.position()))
-                            .orElse(Double.MAX_VALUE)));
-    target.ifPresent(
-        entity ->
-            entity
-                .fetch(InteractionComponent.class)
-                .orElseThrow()
-                .triggerInteraction(entity, hero));
+    return Game.entityAtTile(front.get())
+        .filter(entity -> entity.isPresent(InteractionComponent.class))
+        .min(
+            Comparator.comparingDouble(
+                entity ->
+                    entity
+                        .fetch(PositionComponent.class)
+                        .map(other -> heroPosition.distanceSquared(other.position()))
+                        .orElse(Double.MAX_VALUE)));
   }
 
   /** Keeps the hero standing during a pause; the step goes on with the next {@link #tick()}. */

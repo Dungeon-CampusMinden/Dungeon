@@ -92,6 +92,12 @@ bevorzugt, sonst auf Englisch; der Umschalter oben rechts speichert die Wahl in 
 Umfragen zeigen ihre Texte in der gewählten Sprache. Dialogtexte und Abstimmungsergebnisse kommen
 vom Spiel und bleiben in dessen Sprache.
 
+Der Spielbildschirm umrandet alle interagierbaren Objekte dauerhaft, nicht nur das Objekt unter dem
+Mauszeiger. Alle tragen den halb durchsichtigen gelben Rand, das Objekt, das „Benutzen“ gerade
+auslösen würde, den roten. Dieses Objekt bestimmt der Server und schickt seine ID mit dem
+HUD-Zustand an den Client, weil der Client die Hitbox der Figur nicht kennt. Solange ein Dialog
+offen ist, sind die Ränder aus.
+
 ## Abstimmung
 
 - Ein Bewegungsfenster beginnt mit der ersten Stimme und dauert 10 Sekunden.

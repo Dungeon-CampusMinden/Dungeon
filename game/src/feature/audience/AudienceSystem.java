@@ -454,6 +454,8 @@ public final class AudienceSystem extends System {
       contextJson.set("tally", tallyJson(context, tally(window)));
     }
     if (result != null && now < result.until) hud.set("result", result.json());
+    // Clients cannot find this entity themselves, because they do not know the hero's hitbox.
+    if (stepper != null) stepper.facing().ifPresent(entity -> hud.put("useTarget", entity.id()));
     return hud;
   }
 
