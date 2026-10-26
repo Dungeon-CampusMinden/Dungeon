@@ -151,12 +151,15 @@ function forget() {
 
 async function vote(value) {
   const context = session.state.context;
+  const token = session.token;
   const before = votes.get(context.window);
   votes.set(context.window, value);
   render(true);
   try {
-    await post("/input", { token: session.token, type: "vote", window: context.window, value });
+    await post("/input", { token, type: "vote", window: context.window, value });
   } catch {
+    // The round ended while the vote was underway; the next round starts without votes.
+    if (session.token !== token) return;
     // The game still counts the vote it accepted before; show that one again.
     if (before === undefined) votes.delete(context.window);
     else votes.set(context.window, before);
