@@ -251,7 +251,6 @@ function initialLanguage() {
 
 /** Switches the page language, remembers it in a cookie, and redraws the screen in place. */
 function switchLanguage(code) {
-  if (code === language) return;
   language = code;
   document.cookie = LANGUAGE_COOKIE + "=" + code + "; max-age=31536000; SameSite=Lax";
   applyLanguage();
@@ -463,7 +462,6 @@ function languageSwitch() {
     ...Object.keys(TEXTS).map((code) => el("button", {
       type: "button",
       lang: code,
-      title: TEXTS[code].name,
       "aria-label": TEXTS[code].name,
       "aria-pressed": String(code === language),
       onclick: () => switchLanguage(code),
