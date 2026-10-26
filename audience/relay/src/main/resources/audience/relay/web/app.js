@@ -28,8 +28,9 @@ const session = {
   replaced: false,
   surveys: {},
 };
+// Votes, survey drafts, and typed answers belong to one round; forget() clears them.
 const votes = new Map();
-const drafts = {};
+let drafts = {};
 // What the device typed per puzzle, so a new window or a pause keeps half-typed answers.
 const typed = new Map();
 let screenKey = "";
@@ -139,9 +140,13 @@ function connect() {
   });
 }
 
+/** Leaves a round that is over, so the next code starts with the consent question again. */
 function forget() {
   if (session.code) localStorage.removeItem(storageKey(session.code));
   session.code = session.token = session.pid = session.state = null;
+  votes.clear();
+  typed.clear();
+  drafts = {};
 }
 
 async function vote(value) {
