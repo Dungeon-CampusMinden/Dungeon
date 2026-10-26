@@ -66,6 +66,11 @@ Die Antworten von Multiple-Choice-Dialogen erscheinen auf dem Spielbildschirm mi
 auf dem Gerät nur als Nummer. Klicks am Rechner des Spielbildschirms beantworten keine Dialoge;
 das tun nur die Stimmen.
 
+Die Webseite gibt es auf Deutsch und Englisch. Sie startet in der ersten Sprache, die der Browser
+bevorzugt, sonst auf Englisch; der Umschalter oben rechts speichert die Wahl in einem Cookie.
+Umfragen zeigen ihre Texte in der gewählten Sprache. Dialogtexte und Abstimmungsergebnisse kommen
+vom Spiel und bleiben in dessen Sprache.
+
 ## Abstimmung
 
 - Ein Bewegungsfenster beginnt mit der ersten Stimme und dauert 10 Sekunden.

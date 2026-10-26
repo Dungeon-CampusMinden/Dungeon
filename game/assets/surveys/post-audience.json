@@ -2,33 +2,33 @@
   "schemaVersion": 1,
   "roomId": "audience",
   "questionnaireId": "audience-post-placeholder-v1",
-  "title": { "de": "Wie war es?" },
+  "title": { "de": "Wie war es?", "en": "How was it?" },
   "skippable": false,
   "pages": [
     {
       "questions": [
         { "id": "fun", "type": "scale", "required": true, "min": 1, "max": 5,
-          "text": { "de": "Wie viel Spaß hat dir das gemeinsame Rätseln gemacht?" },
-          "minLabel": { "de": "Gar keinen" }, "maxLabel": { "de": "Sehr viel" } },
+          "text": { "de": "Wie viel Spaß hat dir das gemeinsame Rätseln gemacht?", "en": "How much did you enjoy solving puzzles together?" },
+          "minLabel": { "de": "Gar keinen", "en": "Not at all" }, "maxLabel": { "de": "Sehr viel", "en": "A lot" } },
         { "id": "statements", "type": "matrix", "required": true,
-          "text": { "de": "Wie sehr stimmst du zu?" },
+          "text": { "de": "Wie sehr stimmst du zu?", "en": "How much do you agree?" },
           "rows": [
-            { "id": "voice-counted", "text": { "de": "Meine Stimme hat gezählt." } },
-            { "id": "windows-fair", "text": { "de": "Die Zeitfenster waren lang genug." } } ],
+            { "id": "voice-counted", "text": { "de": "Meine Stimme hat gezählt.", "en": "My vote counted." } },
+            { "id": "windows-fair", "text": { "de": "Die Zeitfenster waren lang genug.", "en": "The voting windows were long enough." } } ],
           "columns": [
-            { "id": "1", "text": { "de": "Gar nicht" } },
-            { "id": "2", "text": { "de": "Eher nicht" } },
-            { "id": "3", "text": { "de": "Teils" } },
-            { "id": "4", "text": { "de": "Eher" } },
-            { "id": "5", "text": { "de": "Voll" } } ] },
+            { "id": "1", "text": { "de": "Gar nicht", "en": "Not at all" } },
+            { "id": "2", "text": { "de": "Eher nicht", "en": "Not really" } },
+            { "id": "3", "text": { "de": "Teils", "en": "Partly" } },
+            { "id": "4", "text": { "de": "Eher", "en": "Mostly" } },
+            { "id": "5", "text": { "de": "Voll", "en": "Fully" } } ] },
         { "id": "liked", "type": "multiChoice", "other": true,
-          "text": { "de": "Was hat dir gefallen?" },
+          "text": { "de": "Was hat dir gefallen?", "en": "What did you like?" },
           "options": [
-            { "id": "puzzles", "text": { "de": "Die Rätsel" } },
-            { "id": "voting", "text": { "de": "Das Abstimmen" } },
-            { "id": "screen", "text": { "de": "Das Spiel auf dem Spielbildschirm" } } ] },
+            { "id": "puzzles", "text": { "de": "Die Rätsel", "en": "The puzzles" } },
+            { "id": "voting", "text": { "de": "Das Abstimmen", "en": "The voting" } },
+            { "id": "screen", "text": { "de": "Das Spiel auf dem Spielbildschirm", "en": "The game on the main screen" } } ] },
         { "id": "feedback", "type": "longText", "maxLength": 1000,
-          "text": { "de": "Was sollten wir verbessern?" } }
+          "text": { "de": "Was sollten wir verbessern?", "en": "What should we improve?" } }
       ]
     }
   ]
