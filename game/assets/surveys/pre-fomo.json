@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "roomId": "fomo",
+  "questionnaireId": "fomo-pre-v1",
+  "title": { "de": "Bevor es losgeht" },
+  "skippable": false,
+  "pages": [
+    {
+      "questions": [
+        { "id": "intro", "type": "info",
+          "text": { "de": "Kurz vorab" },
+          "description": { "de": "Wir erforschen, wie gemeinsames Rätseln in einer Gruppe funktioniert. Die Umfrage dauert eine Minute. Wir speichern keine Namen, nur eine zufällige Kennung für diese Sitzung." } },
+        { "id": "consent", "type": "singleChoice", "required": true,
+          "text": { "de": "Dürfen wir deine Antworten und Stimmen pseudonym speichern?" },
+          "options": [
+            { "id": "yes", "text": { "de": "Ja" } },
+            { "id": "no", "text": { "de": "Nein, ich schaue nur zu" }, "declinesConsent": true } ] }
+      ]
+    },
+    {
+      "title": { "de": "Erfahrungen und Vorkenntnisse" },
+      "questions": [
+        { "id": "escape-room-experience", "type": "singleChoice", "required": true,
+          "text": { "de": "Wie oft hast du schon Escape-Rooms gespielt?" },
+          "options": [
+            { "id": "never", "text": { "de": "Noch nie" } },
+            { "id": "once", "text": { "de": "Ein- oder zweimal" } },
+            { "id": "often", "text": { "de": "Öfter" } } ] },
+        { "id": "vorkenntnisse", "type": "singleChoice", "required": true,
+          "text": { "de": "Wie schätzt du deine bisherigen Kenntnisse zu Modellen und zur Modellierung ein?" },
+          "options": [
+            { "id": "keine", "text": { "de": "Keine Vorkenntnisse" } },
+            { "id": "gering", "text": { "de": "Geringe Vorkenntnisse" } },
+            { "id": "grundlegend", "text": { "de": "Grundlegende Kenntnisse" } },
+            { "id": "gut", "text": { "de": "Gute bis sehr gute Kenntnisse" } } ] },
+        { "id": "beschaeftigung", "type": "singleChoice", "required": true,
+          "text": { "de": "Wie oft hast du dich bisher mit diesen Themen beschäftigt, etwa in Vorlesung, Übung oder beim Lernen?" },
+          "options": [
+            { "id": "nie", "text": { "de": "Noch nie" } },
+            { "id": "selten", "text": { "de": "Ein- oder zweimal" } },
+            { "id": "gelegentlich", "text": { "de": "Gelegentlich" } },
+            { "id": "regelmaessig", "text": { "de": "Regelmäßig" } } ] }
+      ]
+    }
+  ]
+}

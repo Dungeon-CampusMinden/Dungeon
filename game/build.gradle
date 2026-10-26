@@ -171,6 +171,18 @@ tasks.register('runAudienceRoom', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runAutomatonRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.automaton.AutomatonRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runFomoRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.fomo.FomoRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('runMushRoom', JavaExec) {
     group 'starter'
     mainClass = 'rooms.mushroom.MushRoom'

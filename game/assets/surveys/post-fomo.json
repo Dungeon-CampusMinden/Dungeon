@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "roomId": "fomo",
+  "questionnaireId": "fomo-post-v1",
+  "title": { "de": "Wie war es?" },
+  "skippable": false,
+  "pages": [
+    {
+      "title": { "de": "Dein Können jetzt" },
+      "questions": [
+        { "id": "selbsteinschaetzung_hinweise", "type": "info",
+          "text": { "de": "So gehst du vor" },
+          "description": { "de": "Du schätzt dich zweimal ein. Auf dieser Seite bewertest du, wie gut du die Aussagen jetzt nach dem Escape Room bewältigen kannst. Auf der nächsten Seite schätzt du rückblickend ein, wie gut du sie direkt vor dem Escape Room konntest. Es gibt keine richtigen oder falschen Antworten." } },
+        { "id": "post_01_kompetenzmatrix", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr treffen die Aussagen jetzt auf dich zu?" },
+          "rows": [
+            { "id": "post_02_modell_erklaeren", "text": { "de": "Ich kann erklären, was ein Modell ist und wozu man es verwendet." } },
+            { "id": "post_03_modellart_waehlen", "text": { "de": "Ich kann für eine Fragestellung eine passende Modellart auswählen." } },
+            { "id": "post_04_eigenschaften_auswaehlen", "text": { "de": "Ich kann entscheiden, welche Eigenschaften eines Systems für eine Fragestellung wichtig sind." } },
+            { "id": "post_05_vereinfachungen_begruenden", "text": { "de": "Ich kann begründen, welche Vereinfachungen und Annahmen ein Modell trifft." } },
+            { "id": "post_06_verkuerzung_erklaeren", "text": { "de": "Ich kann erklären, warum ein Modell nicht alle Eigenschaften seines Systems übernimmt." } },
+            { "id": "post_07_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
+            { "id": "post_08_modell_vergleichen", "text": { "de": "Ich kann ein Modell untersuchen und seine Ergebnisse mit dem System vergleichen." } },
+            { "id": "post_09_modell_verbessern", "text": { "de": "Ich kann ein Modell bei Bedarf gezielt verbessern." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] }
+      ]
+    },
+    {
+      "title": { "de": "Dein Können vorher" },
+      "questions": [
+        { "id": "then_intro", "type": "info",
+          "text": { "de": "Denk an die Zeit direkt vor dem Escape Room zurück" },
+          "description": { "de": "Die Aussagen sind dieselben wie auf der vorherigen Seite. Schätze ein, wie gut du sie damals bewältigen konntest, so gut du dich erinnerst." } },
+        { "id": "then_01_kompetenzmatrix", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr trafen die Aussagen direkt vor dem Escape Room auf dich zu?" },
+          "rows": [
+            { "id": "then_02_modell_erklaeren", "text": { "de": "Ich kann erklären, was ein Modell ist und wozu man es verwendet." } },
+            { "id": "then_03_modellart_waehlen", "text": { "de": "Ich kann für eine Fragestellung eine passende Modellart auswählen." } },
+            { "id": "then_04_eigenschaften_auswaehlen", "text": { "de": "Ich kann entscheiden, welche Eigenschaften eines Systems für eine Fragestellung wichtig sind." } },
+            { "id": "then_05_vereinfachungen_begruenden", "text": { "de": "Ich kann begründen, welche Vereinfachungen und Annahmen ein Modell trifft." } },
+            { "id": "then_06_verkuerzung_erklaeren", "text": { "de": "Ich kann erklären, warum ein Modell nicht alle Eigenschaften seines Systems übernimmt." } },
+            { "id": "then_07_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
+            { "id": "then_08_modell_vergleichen", "text": { "de": "Ich kann ein Modell untersuchen und seine Ergebnisse mit dem System vergleichen." } },
+            { "id": "then_09_modell_verbessern", "text": { "de": "Ich kann ein Modell bei Bedarf gezielt verbessern." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] }
+      ]
+    },
+    {
+      "title": { "de": "Lernen im Escape Room" },
+      "questions": [
+        { "id": "lernhilfe", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie hilfreich war der Escape Room für dein Verständnis von Modellen und Modellierung?" },
+          "minLabel": { "de": "Gar nicht hilfreich" }, "maxLabel": { "de": "Sehr hilfreich" } },
+        { "id": "offene_lernfragen", "type": "longText", "maxLength": 1000,
+          "text": { "de": "Was ist dir zu Modellen und zur Modellierung noch unklar?" } }
+      ]
+    },
+    {
+      "title": { "de": "Das gemeinsame Spiel" },
+      "questions": [
+        { "id": "fun", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie viel Spaß hat dir das gemeinsame Rätseln gemacht?" },
+          "minLabel": { "de": "Gar keinen" }, "maxLabel": { "de": "Sehr viel" } },
+        { "id": "statements", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr stimmst du zu?" },
+          "rows": [
+            { "id": "voice-counted", "text": { "de": "Meine Stimme hat gezählt." } },
+            { "id": "windows-fair", "text": { "de": "Die Zeitfenster waren lang genug." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] },
+        { "id": "liked", "type": "multiChoice", "other": true,
+          "text": { "de": "Was hat dir gefallen?" },
+          "options": [
+            { "id": "puzzles", "text": { "de": "Die Rätsel" } },
+            { "id": "voting", "text": { "de": "Das Abstimmen" } },
+            { "id": "screen", "text": { "de": "Das Spiel auf dem Spielbildschirm" } } ] },
+        { "id": "feedback", "type": "longText", "maxLength": 1000,
+          "text": { "de": "Was sollten wir verbessern?" } }
+      ]
+    }
+  ]
+}

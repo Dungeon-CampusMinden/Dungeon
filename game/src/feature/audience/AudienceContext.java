@@ -135,10 +135,11 @@ sealed interface AudienceContext {
 
   /**
    * Reads what a dialog asks, for the devices to show above their controls: the title and the
-   * question, the message, or the dialog script as plain text.
+   * question, the message, or the dialog script as plain text, and the answers of a choice in
+   * display order.
    *
    * @param ui the dialog
-   * @return {@code title} and {@code text}, each only when the dialog has it
+   * @return {@code title}, {@code text} and {@code answers}, each only when the dialog has it
    */
   static ObjectNode prompt(UIComponent ui) {
     DialogContext context = DialogFactory.localized(ui.dialogContext());
@@ -159,6 +160,13 @@ sealed interface AudienceContext {
                     .map(script -> DialogScript.toHeadlessText(DialogScript.parse(script))))
         .filter(text -> !text.isBlank())
         .ifPresent(text -> prompt.put("text", text.strip()));
+    context
+        .find(DialogContextKeys.OPTIONS, ChoiceOptions.class)
+        .ifPresent(
+            options -> {
+              ArrayNode answers = prompt.putArray("answers");
+              options.values().forEach(option -> answers.add(option.label().strip()));
+            });
     return prompt;
   }
 

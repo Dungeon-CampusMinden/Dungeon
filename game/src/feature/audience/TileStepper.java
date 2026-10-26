@@ -12,6 +12,7 @@ import feature.collision.CollisionUtils;
 import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
 import feature.systems.PositionSync;
+import feature.utils.EntityUtils;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -21,6 +22,10 @@ import java.util.Optional;
  * <p>{@link #tick()} must run before the {@code VelocitySystem} in every frame: it steers the hero
  * toward the destination through its velocity, so the walking animation plays, and settles it
  * exactly on the destination tile.
+ *
+ * <p>The hero stands on a tile with the center of its hitbox on the center of the tile. For a
+ * sprite of one tile that is the tile origin. A larger sprite, such as the rogue's, has its hitbox
+ * away from its position, and centering the hitbox keeps it on the tile it counts as standing on.
  */
 final class TileStepper {
   /** Tiles per second while stepping. */
@@ -31,6 +36,32 @@ final class TileStepper {
 
   TileStepper(Entity hero) {
     this.hero = hero;
+  }
+
+  /**
+   * Puts the hero on the tile the game placed it on, centered like after a step. The game places
+   * heroes at a tile origin, which is off the tile for a hero with a larger sprite.
+   */
+  void snap() {
+    PositionComponent position = hero.fetch(PositionComponent.class).orElseThrow();
+    Game.tileAt(position.position()).ifPresent(this::place);
+  }
+
+  /**
+   * Puts the hero on a tile right away; a step under way ends.
+   *
+   * @param tile the tile to stand on
+   */
+  void place(Tile tile) {
+    target = null;
+    hero.fetch(VelocityComponent.class)
+        .ifPresent(
+            velocity -> {
+              velocity.clearForces();
+              velocity.currentVelocity(Vector2.ZERO);
+            });
+    hero.fetch(PositionComponent.class).orElseThrow().position(positionOn(tile));
+    PositionSync.syncPosition(hero);
   }
 
   /**
@@ -50,15 +81,15 @@ final class TileStepper {
     position.viewDirection(direction);
     Optional<Tile> current = Game.tileAtEntity(hero);
     if (current.isEmpty()) return;
-    Point start = current.get().position();
-    Optional<Tile> next = Game.tileAt(start, direction);
+    Optional<Tile> next = Game.tileAt(current.get().position(), direction);
     if (next.isEmpty() || !next.get().isAccessible()) return;
-    Point destination = next.get().position();
+    Point start = positionOn(current.get());
+    Point destination = positionOn(next.get());
     if (hero.isPresent(CollideComponent.class)
         && CollisionUtils.isCollidingWithOtherSolids(hero, destination)) {
       return;
     }
-    // Start from the tile origin so every step ends exactly on the next tile.
+    // Start centered on the current tile so every step ends exactly on the next tile.
     position.position(start);
     PositionSync.syncPosition(hero);
     target = destination;
@@ -99,6 +130,27 @@ final class TileStepper {
     VelocityComponent velocity = hero.fetch(VelocityComponent.class).orElseThrow();
     velocity.clearForces();
     velocity.currentVelocity(Vector2.ZERO);
+  }
+
+  // The hero position that puts the center of its hitbox on the center of the tile.
+  private Point positionOn(Tile tile) {
+    return positionOn(hero, tile.position());
+  }
+
+  /**
+   * Returns the position that puts the center of an entity's hitbox on the center of a tile.
+   *
+   * @param entity an entity with a position
+   * @param tile origin of the tile
+   * @return the position for the entity
+   */
+  static Point positionOn(Entity entity, Point tile) {
+    PositionSync.syncPosition(entity);
+    Point position = entity.fetch(PositionComponent.class).orElseThrow().position();
+    Point center = EntityUtils.getPosition(entity);
+    return new Point(
+        tile.x() + 0.5f - (center.x() - position.x()),
+        tile.y() + 0.5f - (center.y() - position.y()));
   }
 
   /** Steers the hero toward the destination and settles it there; call once per frame. */

@@ -63,6 +63,8 @@ const TEXTS = {
     answer: (number) => "Antwort " + number,
     choiceVote: (label) => "Deine Stimme: " + label + ". Die Antworten stehen auf dem Spielbildschirm.",
     choiceHint: "Die Antworten stehen auf dem Spielbildschirm.",
+    choiceVoteShown: (label) => "Deine Stimme: " + label + ".",
+    choiceHintShown: "Wähle eine Antwort.",
     choiceKeys: (count) => "Auf der Tastatur: Zifferntasten 1 bis " + count + ".",
     submit: "Abschicken",
     resubmit: "Neu abschicken",
@@ -81,7 +83,7 @@ const TEXTS = {
     codeKeys: "Auf der Tastatur: Ziffern, Rücktaste und Enter.",
     ready: "Bereit",
     next: "Weiter",
-    continueHint: "Sobald die Hälfte bereit ist, geht es nach 5 Sekunden weiter.",
+    continueHint: "Ist die Hälfte bereit, geht es nach 5 Sekunden weiter. Sind alle bereit, geht es nach 2 Sekunden weiter.",
     back: "Zurück",
     sending: "Wird gesendet …",
     rejected: "Die Antworten wurden nicht angenommen. Bitte prüft sie und schickt sie erneut.",
@@ -150,6 +152,8 @@ const TEXTS = {
     answer: (number) => "Answer " + number,
     choiceVote: (label) => "Your vote: " + label + ". The answers are on the main screen.",
     choiceHint: "The answers are on the main screen.",
+    choiceVoteShown: (label) => "Your vote: " + label + ".",
+    choiceHintShown: "Pick an answer.",
     choiceKeys: (count) => "On the keyboard: number keys 1 to " + count + ".",
     submit: "Submit",
     resubmit: "Submit again",
@@ -168,7 +172,7 @@ const TEXTS = {
     codeKeys: "On the keyboard: digits, Backspace and Enter.",
     ready: "Ready",
     next: "Next",
-    continueHint: "Once half of you are ready, the game continues after 5 seconds.",
+    continueHint: "Once half of you are ready, the game continues after 5 seconds. Once everyone is ready, after 2 seconds.",
     back: "Back",
     sending: "Sending …",
     rejected: "Your answers were not accepted. Please check them and submit again.",
@@ -413,7 +417,7 @@ function currentKey() {
   const context = state.context || {};
   if (own === "play" || own === "spectator") {
     return [own, state.phase, state.paused, context.kind, context.window, context.options, context.multiple,
-      context.digits, "windowMs" in context, context.title, context.text].join("|");
+      context.digits, "windowMs" in context, context.title, context.text, (context.answers || []).join("\n")].join("|");
   }
   return own + "|" + state.phase;
 }
@@ -683,27 +687,38 @@ function movePad() {
 function choicePad(context) {
   const count = context.options || 0;
   const labels = context.labels || null;
+  // Answer texts of a choice; each button then shows its number, as on the game screen, and its text.
+  const answers = !labels && Array.isArray(context.answers) && context.answers.length === count ? context.answers : null;
+  const face = (i) => labels ? labels[i - 1]
+    : answers ? [el("span", { class: "number" }, i), el("span", { class: "answer" }, answers[i - 1])]
+      : i;
+  const name = (i) => labels ? labels[i - 1] : answers ? i + ": " + answers[i - 1] : t("answer", i);
+  const gridClass = "options" + (labels ? " labels" : "") + (answers ? " answers" : "");
   const mine = ownVote();
   if (!context.multiple) {
-    const grid = el("div", { class: "options" + (labels ? " labels" : "") });
+    const grid = el("div", { class: gridClass });
     for (let i = 1; i <= count; i++) {
       grid.append(el("button", {
         class: "button" + (mine !== undefined && mine !== i ? " off" : "") + (mine === i ? " picked" : ""),
-        "aria-label": labels ? labels[i - 1] : t("answer", i),
+        "aria-label": name(i),
         "aria-pressed": String(mine === i),
         "data-key": String(i),
         onclick: () => vote(i),
-      }, labels ? labels[i - 1] : i));
+      }, face(i)));
     }
+    // With the answer texts on the buttons, the notes need not point to the game screen.
+    const chosen = mine && (labels ? labels[mine - 1] : mine);
     return [
       grid,
-      el("p", { class: "note" }, mine ? t("choiceVote", labels ? labels[mine - 1] : mine) : t("choiceHint")),
+      el("p", { class: "note" }, answers
+        ? (mine ? t("choiceVoteShown", chosen) : t("choiceHintShown"))
+        : (mine ? t("choiceVote", chosen) : t("choiceHint"))),
       keysHint(t("choiceKeys", count)),
     ];
   }
   const sent = Array.isArray(mine) ? mine : [];
   const picked = new Set(typed.get(typedKey(context)) ?? sent);
-  const grid = el("div", { class: "options" });
+  const grid = el("div", { class: gridClass });
   const send = el("button", { class: "button primary", "data-key": "Enter" }, t(sent.length ? "resubmit" : "submit"), el("kbd", {}, "Enter"));
   const refresh = () => {
     grid.querySelectorAll("button").forEach((button, i) => {
@@ -716,14 +731,14 @@ function choicePad(context) {
   for (let i = 1; i <= count; i++) {
     grid.append(el("button", {
       class: "button",
-      "aria-label": t("answer", i),
+      "aria-label": name(i),
       "data-key": String(i),
       onclick: () => {
         picked.has(i) ? picked.delete(i) : picked.add(i);
         typed.set(typedKey(context), [...picked]);
         refresh();
       },
-    }, i));
+    }, face(i)));
   }
   send.addEventListener("click", () => vote([...picked].sort((a, b) => a - b)));
   refresh();

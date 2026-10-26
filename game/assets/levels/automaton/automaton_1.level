@@ -1,0 +1,153 @@
+{
+  "version" : 3,
+  "design" : "DARK",
+  "layout" : [ "WWWWWWWWWWWWWSSSSSSSS", "WWWWWFFFWWWWWSSSSSSSS", "WWWWWWDWWWWWWSSSSSSSS", "WFFFWFFFWFFFWWWWWSSSS", "WFFFWFFFWFFFFFFFWSSSS", "WFFFWFFFWFFFFFFFWSSSS", "WFFFFFFFFFFFFFFFWSSSS", "WFFFFFFFFFFFFFFWWSSSS", "WWWWWWWWWWWWWWWWSSSSS" ],
+  "startTiles" : [ {
+    "x" : 6.0,
+    "y" : 1.0
+  } ],
+  "namedPoints" : {
+    "chest" : {
+      "x" : 15.0,
+      "y" : 3.0
+    },
+    "door" : {
+      "x" : 6.0,
+      "y" : 6.0
+    },
+    "exit" : {
+      "x" : 6.0,
+      "y" : 7.0
+    },
+    "panel" : {
+      "x" : 7.0,
+      "y" : 5.0
+    },
+    "q1" : {
+      "x" : 2.0,
+      "y" : 4.0
+    },
+    "q2" : {
+      "x" : 10.0,
+      "y" : 5.0
+    },
+    "q3" : {
+      "x" : 2.0,
+      "y" : 2.0
+    },
+    "q4" : {
+      "x" : 11.0,
+      "y" : 2.0
+    }
+  },
+  "decorations" : [ {
+    "type" : "LabTeleporter",
+    "position" : {
+      "x" : 6.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "LabPillar",
+    "position" : {
+      "x" : 5.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabScreenArrow",
+    "position" : {
+      "x" : 5.0,
+      "y" : 6.0
+    }
+  }, {
+    "type" : "LabNeon",
+    "position" : {
+      "x" : 7.0,
+      "y" : 6.0
+    }
+  }, {
+    "type" : "LabMachine",
+    "position" : {
+      "x" : 1.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabServer",
+    "position" : {
+      "x" : 3.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabScreenQuestion",
+    "position" : {
+      "x" : 2.0,
+      "y" : 6.0
+    }
+  }, {
+    "type" : "LabScreenFace",
+    "position" : {
+      "x" : 9.0,
+      "y" : 6.0
+    }
+  }, {
+    "type" : "LabScreenSurprised",
+    "position" : {
+      "x" : 11.0,
+      "y" : 6.0
+    }
+  }, {
+    "type" : "LabScannerMachine",
+    "position" : {
+      "x" : 9.0,
+      "y" : 3.0
+    }
+  }, {
+    "type" : "LabWallPipes",
+    "position" : {
+      "x" : 12.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabElectricPanel",
+    "position" : {
+      "x" : 15.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabRedBarrel",
+    "position" : {
+      "x" : 15.0,
+      "y" : 4.0
+    }
+  }, {
+    "type" : "LabBarrel",
+    "position" : {
+      "x" : 12.0,
+      "y" : 4.0
+    }
+  }, {
+    "type" : "LabSuperComputer",
+    "position" : {
+      "x" : 13.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "LabSmallMachine",
+    "position" : {
+      "x" : 1.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "LabPillarBroken",
+    "position" : {
+      "x" : 4.0,
+      "y" : 2.0
+    }
+  }, {
+    "type" : "LabPillarBroken",
+    "position" : {
+      "x" : 8.0,
+      "y" : 2.0
+    }
+  } ],
+  "prefabs" : [ ]
+}

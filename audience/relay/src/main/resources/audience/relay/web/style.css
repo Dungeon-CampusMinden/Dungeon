@@ -330,6 +330,32 @@ h1 {
   opacity: 0.35;
 }
 
+/* Answers with their text, one row each, starting with the number from the game screen */
+.options.answers {
+  grid-template-columns: 1fr;
+}
+
+.options.answers .button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px 16px;
+  text-align: left;
+}
+
+.options.answers .number {
+  flex: none;
+  min-width: 1.1em;
+  font: 800 40px/1 "Doto", monospace;
+  text-align: center;
+}
+
+.options.answers .answer {
+  font: 600 17px/1.3 "Lexend", sans-serif;
+  overflow-wrap: anywhere;
+}
+
 /* Text and code entry */
 
 .field {
@@ -809,6 +835,14 @@ kbd {
   .options .button {
     min-height: clamp(120px, 19vh, 200px);
     font-size: 88px;
+  }
+
+  .options.answers .number {
+    font-size: 56px;
+  }
+
+  .options.answers .answer {
+    font-size: 20px;
   }
 
   .display {

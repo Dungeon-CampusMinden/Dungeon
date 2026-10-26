@@ -228,6 +228,134 @@ public enum Deco {
           .framesPerSprite(8)
           .scaleX(2.35f),
       new Rectangle(2.2f, 1.55f, 0.08f, 0.55f)),
+
+  // Laboratory and machine props from objects/tech. Standing props block their tiles; wall props
+  // and floor markings block nothing.
+
+  /** Lit cryo chamber of the laboratory. */
+  LabCryoBox(
+      "objects/tech/CryoBox.png",
+      new AnimationConfig().scaleX(1.2f),
+      new Rectangle(0.9f, 0.8f, 0.15f, 0.0f)),
+  /** Dark, switched-off cryo chamber. */
+  LabCryoBoxOff(
+      "objects/tech/CryoBoxOFF.png",
+      new AnimationConfig().scaleX(1.2f),
+      new Rectangle(0.9f, 0.8f, 0.15f, 0.0f)),
+  /** Row of three lockers, two tiles wide. */
+  LabLockers(
+      "objects/tech/Lockers_1.png",
+      new AnimationConfig().scaleX(2.0f),
+      new Rectangle(1.9f, 0.8f, 0.05f, 0.0f)),
+  /** Single narrow locker. */
+  LabLocker(
+      "objects/tech/Locker.png",
+      new AnimationConfig().scaleX(0.8f),
+      new Rectangle(0.7f, 0.7f, 0.05f, 0.0f)),
+  /** Laboratory desk with papers, two tiles wide. */
+  LabDesk(
+      "objects/tech/Desk_1.png",
+      new AnimationConfig().scaleX(2.0f),
+      new Rectangle(1.9f, 0.8f, 0.05f, 0.0f)),
+  /** Tall glass device with a purple liquid. */
+  LabDevice(
+      "objects/tech/Laboratory_device.png",
+      new AnimationConfig().scaleX(0.7f),
+      new Rectangle(0.6f, 0.6f, 0.05f, 0.0f)),
+  /** Large bio computer, three tiles wide. */
+  LabBioComputer(
+      "objects/tech/BioComputer.png",
+      new AnimationConfig().scaleX(3.0f),
+      new Rectangle(2.9f, 0.9f, 0.05f, 0.0f)),
+  /** Super computer with many screens, two tiles wide. */
+  LabSuperComputer(
+      "objects/tech/super-computer.png",
+      new AnimationConfig().scaleX(2.0f),
+      new Rectangle(1.9f, 0.9f, 0.05f, 0.0f)),
+  /** Tall machine with a glowing core. */
+  LabMachine(
+      "objects/tech/Machine_1.png",
+      new AnimationConfig().scaleX(1.0f),
+      new Rectangle(0.9f, 0.8f, 0.05f, 0.0f)),
+  /** Machine with a round cyan scanner. */
+  LabScannerMachine(
+      "objects/tech/Machine_2.png",
+      new AnimationConfig().scaleX(1.2f),
+      new Rectangle(0.9f, 0.8f, 0.15f, 0.0f)),
+  /** Glowing tech pillar. */
+  LabPillar(
+      "objects/tech/Pillars.png",
+      new AnimationConfig().scaleX(1.0f),
+      new Rectangle(0.9f, 0.8f, 0.05f, 0.0f)),
+  /** Broken tech pillar. */
+  LabPillarBroken(
+      "objects/tech/Pillar_destroyed.png",
+      new AnimationConfig().scaleX(1.1f),
+      new Rectangle(0.9f, 0.8f, 0.1f, 0.0f)),
+  /** Green barrel with a cyan band. */
+  LabBarrel(
+      "objects/tech/Green_Barrel.png",
+      new AnimationConfig().scaleX(0.9f),
+      new Rectangle(0.8f, 0.7f, 0.05f, 0.0f)),
+  /** Red warning barrel. */
+  LabRedBarrel(
+      "objects/tech/Baril_1.png",
+      new AnimationConfig().scaleX(0.7f),
+      new Rectangle(0.6f, 0.6f, 0.05f, 0.0f)),
+  /** Low machine with cyan vents. */
+  LabSmallMachine(
+      "objects/tech/Small_Machine_1.png",
+      new AnimationConfig().scaleX(1.0f),
+      new Rectangle(0.9f, 0.7f, 0.05f, 0.0f)),
+  /** Server block with glowing slots. */
+  LabServer(
+      "objects/tech/Small_machine_3-1.png",
+      new AnimationConfig().scaleX(1.0f),
+      new Rectangle(0.9f, 0.8f, 0.05f, 0.0f)),
+  /** Office chair; it does not block the way. */
+  LabChair("objects/tech/Chair.png", new AnimationConfig().scaleX(0.6f), (Rectangle) null),
+  /** Teleporter beam on the floor; it does not block the way. */
+  LabTeleporter(
+      "objects/tech/Teleportation.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Flat pedestal on the floor; it does not block the way. */
+  LabPedestal("objects/tech/Socle_1.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Wall screen with a green arrow. */
+  LabScreenArrow(
+      "objects/tech/Screen_info_1.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Wall screen with a red cross. */
+  LabScreenCross(
+      "objects/tech/Screen_info_2.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Wall screen with a yellow question mark. */
+  LabScreenQuestion(
+      "objects/tech/Screen_info_3.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Wall screen with a neutral face. */
+  LabScreenFace(
+      "objects/tech/Neutral_screen.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Wall screen with a surprised face. */
+  LabScreenSurprised(
+      "objects/tech/Surprised_screen.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Cyan neon tube for a wall. */
+  LabNeon("objects/tech/Neon.png", new AnimationConfig().scaleX(1.5f), (Rectangle) null),
+  /** Pipes along a wall. */
+  LabWallPipes("objects/tech/Wall_pipes.png", new AnimationConfig().scaleX(2.5f), (Rectangle) null),
+  /** Electric panel for a wall. */
+  LabElectricPanel(
+      "objects/tech/Wall_electric_pannel_1.png",
+      new AnimationConfig().scaleX(1.4f),
+      (Rectangle) null),
+  /** Small device for a wall. */
+  LabWallDevice(
+      "objects/tech/Wall_device.png", new AnimationConfig().scaleX(1.0f), (Rectangle) null),
+  /** Wide laboratory window for a wall. */
+  LabWindow("objects/tech/Window_2.png", new AnimationConfig().scaleX(2.5f), (Rectangle) null),
+  /** Small laboratory window for a wall. */
+  LabWindowSmall("objects/tech/Window_1.png", new AnimationConfig().scaleX(1.5f), (Rectangle) null),
+  /** Whiteboard with charts for a wall. */
+  LabWhiteboard("objects/tech/Board_1.png", new AnimationConfig().scaleX(1.8f), (Rectangle) null),
+  /** Board with a chart and notes for a wall. */
+  LabChartBoard("objects/tech/Props_1.png", new AnimationConfig().scaleX(1.8f), (Rectangle) null),
+  /** Cyan glyph strip for a wall. */
+  LabGlyphs("objects/tech/Mark_1.png", new AnimationConfig().scaleX(2.0f), (Rectangle) null),
   /** A decoration. */
   Chains0("spritesheets/FD_Dungeon_Free.png", new SpritesheetConfig(17 * 16, 5 * 16)),
   /** A decoration. */

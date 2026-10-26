@@ -22,6 +22,29 @@ Der Raum `rooms.audience.AudienceRoom` zeigt alle Rätselarten mit Platzhalterin
 `./gradlew :game:runAudienceRoom` und dem Menüpunkt „Publikumsrunde starten“. Verlangt das Relay
 einen Schlüssel, bekommt das Spiel ihn beim Start über `DUNGEON_AUDIENCE_RELAY_KEY`.
 
+Der Raum `rooms.automaton.AutomatonRoom` („Gefangen im Automaten“) nutzt denselben Aufbau mit vier
+Fragen zu regulären Sprachen und Grammatiken und einem vierstelligen Türcode. Eine falsche Antwort
+zeigt einen Tipp, danach kommt dieselbe Frage noch einmal. Terminal 3 ist anfangs kaputt. An seiner
+Stelle steht Kleene, der es repariert, sobald die Figur ihm die Übergangstabelle aus der Truhe
+bringt. Die Tabelle ist kein Inventargegenstand, alles läuft über Dialoge. Die Kamera zeigt immer
+den ganzen Raum und folgt nicht der Figur. Der Raum nutzt das dunkle Design `DARK` mit Maschinen,
+Screens und einem Teleporter-Strahl am Startzustand q0. Ein Bewegungsfenster dauert dort 1 Sekunde,
+ein Rätselfenster 2 Minuten. Das Intro besteht aus mehreren einseitigen Dialogen, die nacheinander
+erscheinen. Der Raum startet mit `./gradlew :game:runAutomatonRoom`. F4 im Hauptmenü öffnet den
+Level-Editor, der ohne Publikum läuft.
+
+Der Raum `rooms.fomo.FomoRoom` („Gefangen im Modell“) folgt demselben Ablauf mit vier Fragen zu
+Modellen und Modellierung für das Modul FOMO. Er ist ein Labor im Design `SYSTEM_RECOVERY` mit
+Kryo-Labor, Eingangshalle, Modellwerkstatt und Foyer, eigenen Terminals und einem Handscanner als
+Tastenfeld. Dort baut Stachowiak Terminal 3 wieder auf, sobald die Figur ihm den Bauplan aus der
+Truhe bringt. Der Raum startet mit `./gradlew :game:runFomoRoom`, sein Level liegt in `levels/fomo`.
+
+Beide Räume lesen aus ihrer Level-Datei die benannten Punkte `q1` bis `q4` für die Terminals,
+`chest` für die Truhe, `panel` für das Tastenfeld, `door` für die Tür und `exit` für das Feld
+dahinter. Die Ausstattung sind Dekorationen der Level-Datei; die Einträge mit `Lab` im Namen nutzen
+die Labor-Grafiken aus `objects/tech`. Stehende Geräte blockieren ihr Feld, Wandgeräte nicht. Im
+Level-Editor (F4) lassen sich Punkte und Dekorationen verschieben.
+
 ## Ablauf
 
 1. Das Spiel legt beim Start eine Sitzung im Relay an. Der Spielbildschirm zeigt die Adresse, einen
@@ -52,7 +75,7 @@ aus dem offenen Dialog der Figur ab:
 | Spielzustand | Eingabe auf dem Gerät | Ausgeführt als |
 | --- | --- | --- |
 | Kein Dialog offen | Steuerkreuz und „Benutzen“ | ein Feld weit gehen oder mit dem Feld davor interagieren |
-| `MULTIPLE_CHOICE` | farbige Nummern 1 bis n; bei Mehrfachauswahl mehrere und „Abschicken“ | `ON_OPTION_SELECTED` mit dem Wert oder der Liste der Werte |
+| `MULTIPLE_CHOICE` | farbige Nummern 1 bis n mit dem Text der Antwort; bei Mehrfachauswahl mehrere und „Abschicken“ | `ON_OPTION_SELECTED` mit dem Wert oder der Liste der Werte |
 | `YES_NO` | „Ja“ und „Nein“ | `ON_YES` oder `ON_NO` |
 | `FREE_INPUT` | Textfeld | `ON_CONFIRM` mit dem Text |
 | `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` | Ziffernblock für einen Code dieser Länge | `ON_CONFIRM` mit dem Code |
@@ -62,9 +85,9 @@ aus dem offenen Dialog der Figur ab:
 Über den Eingaben zeigt das Gerät Titel und Frage des Dialogs, bei Texten den Text selbst.
 Auf breiten Bildschirmen stehen Aufgabe und Eingaben nebeneinander, und jede Eingabe hat eine Taste:
 Pfeiltasten und Leertaste zum Gehen, Ziffern für Antworten und Codes, Enter zum Abschicken.
-Die Antworten von Multiple-Choice-Dialogen erscheinen auf dem Spielbildschirm mit ihrer Nummer,
-auf dem Gerät nur als Nummer. Klicks am Rechner des Spielbildschirms beantworten keine Dialoge;
-das tun nur die Stimmen.
+Die Antworten von Multiple-Choice-Dialogen erscheinen auf dem Spielbildschirm und auf dem Gerät mit
+derselben Nummer, auf dem Gerät als eine Zeile je Antwort. Klicks am Rechner des Spielbildschirms
+beantworten keine Dialoge; das tun nur die Stimmen.
 
 Die Webseite gibt es auf Deutsch und Englisch. Sie startet in der ersten Sprache, die der Browser
 bevorzugt, sonst auf Englisch; der Umschalter oben rechts speichert die Wahl in einem Cookie.
@@ -74,11 +97,12 @@ vom Spiel und bleiben in dessen Sprache.
 ## Abstimmung
 
 - Ein Bewegungsfenster beginnt mit der ersten Stimme und dauert 10 Sekunden.
-- Ein Rätselfenster beginnt, sobald der Dialog offen ist, und dauert 25 Sekunden. Kommt keine
+- Ein Rätselfenster beginnt, sobald der Dialog offen ist, und dauert 25 Sekunden. Haben alle
+  Abstimmenden eine Stimme abgegeben, bleiben nur noch 3 Sekunden, um sie zu ändern. Kommt keine
   Stimme, beginnt ein neues Fenster.
 - Ein „Weiter“-Fenster dauert 30 Sekunden. Sobald die Hälfte der Abstimmenden „Weiter“
-  gedrückt hat, bleiben nur noch 5 Sekunden. Die Stimme heißt nur „fertig gelesen“; ohne
-  Stimmen geht es nach Ablauf trotzdem weiter.
+  gedrückt hat, bleiben nur noch 5 Sekunden, sobald alle gedrückt haben, nur noch 2. Die Stimme
+  heißt nur „fertig gelesen“; ohne Stimmen geht es nach Ablauf trotzdem weiter.
 - Pro Person und Fenster zählt die letzte Stimme. Bei Mehrfachauswahl zählt die ganze
   Kombination. Text und Codes zählen ohne Leerzeichen und kleingeschrieben, „O(log n)“ und
   „o(logn)“ sind also dieselbe Stimme; in dieser Form kommt die Antwort auch beim Rätsel an.
@@ -108,6 +132,9 @@ Beim Levelbau gilt:
 - Texte in `DIALOG_DIALOG` sollten eine Seite lang sein, weil „Weiter“ den ganzen Dialog bestätigt.
 - Codes fragt ein `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` ab. Das Keypad der Engine lässt sich
   nicht abstimmen.
+- Die Figur steht mit der Mitte ihrer Hitbox auf der Mitte des Feldes, auch wenn ihr Sprite größer
+  als ein Feld ist. Deshalb funktioniert jede Spielfigur. Andere Figuren wie einen NPC stellt
+  `AudienceSystem.standOn(entity, tile)` genauso auf ein Feld.
 
 ## Umfragen und Tracking
 

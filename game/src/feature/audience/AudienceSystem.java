@@ -3,15 +3,18 @@ package feature.audience;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.components.PositionComponent;
 import engine.network.input.InputCommandRouter;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InputMessage;
 import engine.time.PlayClock;
 import engine.tracking.Tracking;
+import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.hud.UIUtils;
 import feature.survey.ExternalSurvey;
 import feature.survey.SurveyFeature;
+import feature.systems.PositionSync;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -62,6 +65,8 @@ public final class AudienceSystem extends System {
   private static final int TALLY_ENTRIES = 6;
   private static final int INPUTS_PER_FRAME = 500;
   private static final long READY_REST_MS = 5_000;
+  private static final long ALL_READY_REST_MS = 2_000;
+  private static final long ALL_VOTED_REST_MS = 3_000;
 
   /** Session phases, in order. */
   enum Phase {
@@ -146,6 +151,22 @@ public final class AudienceSystem extends System {
     }
   }
 
+  /**
+   * Puts another entity, such as a character standing in the room, on a tile the way the votes
+   * place the hero. The center of its hitbox lands on the center of the tile, even when its sprite
+   * is larger than a tile.
+   *
+   * @param entity an entity with a position
+   * @param tile origin of the tile
+   */
+  public static void standOn(Entity entity, Point tile) {
+    entity
+        .fetch(PositionComponent.class)
+        .orElseThrow()
+        .position(TileStepper.positionOn(entity, tile));
+    PositionSync.syncPosition(entity);
+  }
+
   // Where a consenting player goes once the game is over.
   private Status afterGame(Player player) {
     return player.participant.isPresent() && postSurvey.isPresent() ? Status.POST : Status.DONE;
@@ -158,6 +179,7 @@ public final class AudienceSystem extends System {
     if (hero == null || Game.findEntityById(hero.id()).isEmpty()) {
       hero = Game.allPlayers().findFirst().orElse(null);
       stepper = hero == null ? null : new TileStepper(hero);
+      if (stepper != null) stepper.snap();
     }
     pause(phase == Phase.PLAYING && !Game.playClock().running());
     if (stepper != null) {
@@ -294,13 +316,34 @@ public final class AudienceSystem extends System {
       return;
     }
     if (window == null) return;
-    // Once half the voters finished reading, the rest get a few more seconds.
-    boolean half =
-        context instanceof AudienceContext.Continue
-            && !window.votes.isEmpty()
-            && window.votes.size() * 2 >= votingPlayers();
-    if (half) window.endsAt = Math.min(window.endsAt, now + READY_REST_MS);
+    window.endsAt = windowEnd(context, window.endsAt, window.votes.size(), votingPlayers(), now);
     if (now >= window.endsAt) resolve(now);
+  }
+
+  /**
+   * Returns when a window ends, given its votes so far. A text closes five seconds after half the
+   * voters finished reading and two seconds after all of them did. A puzzle closes three seconds
+   * after everybody voted. Nobody waits out a long window, and the seconds left let a voter change
+   * their mind. Movement windows keep their end.
+   *
+   * @param context context of the window
+   * @param endsAt current end of the window
+   * @param votes number of players who voted in the window
+   * @param voters number of players who may vote
+   * @param now current session time
+   * @return the end of the window, never later than {@code endsAt}
+   */
+  static long windowEnd(AudienceContext context, long endsAt, int votes, long voters, long now) {
+    if (votes == 0) return endsAt;
+    return switch (context) {
+      case AudienceContext.Continue next -> {
+        if (votes >= voters) yield Math.min(endsAt, now + ALL_READY_REST_MS);
+        yield votes * 2L >= voters ? Math.min(endsAt, now + READY_REST_MS) : endsAt;
+      }
+      case AudienceContext.Move move -> endsAt;
+      case AudienceContext.Wait wait -> endsAt;
+      default -> votes >= voters ? Math.min(endsAt, now + ALL_VOTED_REST_MS) : endsAt;
+    };
   }
 
   private void resolve(long now) {

@@ -1,0 +1,213 @@
+{
+  "version" : 3,
+  "design" : "SYSTEM_RECOVERY",
+  "layout" : [ "WWWWWWWWFFFWWWWWWWW", "WWWWWWWWWDWWWWWWWWW", "WFFFFFWFFFFFWFFFFFW", "WFFFFFFFFFFFFFFFFFW", "WFFFFFWFFFFFWFFFFFW", "WFFFFFWFFFFFWFFFFFW", "WWWFWWWWFFFWWWWFWWW", "WFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFW", "WWWWWWWWWWWWWWWWWWW" ],
+  "startTiles" : [ {
+    "x" : 9.0,
+    "y" : 1.0
+  } ],
+  "namedPoints" : {
+    "chest" : {
+      "x" : 17.0,
+      "y" : 5.0
+    },
+    "door" : {
+      "x" : 9.0,
+      "y" : 9.0
+    },
+    "exit" : {
+      "x" : 9.0,
+      "y" : 10.0
+    },
+    "panel" : {
+      "x" : 10.0,
+      "y" : 8.0
+    },
+    "q1" : {
+      "x" : 3.0,
+      "y" : 8.0
+    },
+    "q2" : {
+      "x" : 15.0,
+      "y" : 8.0
+    },
+    "q3" : {
+      "x" : 3.0,
+      "y" : 2.0
+    },
+    "q4" : {
+      "x" : 15.0,
+      "y" : 2.0
+    }
+  },
+  "decorations" : [ {
+    "type" : "LabCryoBox",
+    "position" : {
+      "x" : 1.0,
+      "y" : 8.0
+    }
+  }, {
+    "type" : "LabCryoBoxOff",
+    "position" : {
+      "x" : 1.0,
+      "y" : 6.0
+    }
+  }, {
+    "type" : "LabDevice",
+    "position" : {
+      "x" : 5.0,
+      "y" : 8.0
+    }
+  }, {
+    "type" : "LabBarrel",
+    "position" : {
+      "x" : 5.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabWallDevice",
+    "position" : {
+      "x" : 4.0,
+      "y" : 9.0
+    }
+  }, {
+    "type" : "LabPillar",
+    "position" : {
+      "x" : 8.0,
+      "y" : 8.0
+    }
+  }, {
+    "type" : "LabChartBoard",
+    "position" : {
+      "x" : 6.0,
+      "y" : 9.0
+    }
+  }, {
+    "type" : "LabScreenArrow",
+    "position" : {
+      "x" : 11.0,
+      "y" : 9.0
+    }
+  }, {
+    "type" : "Plant",
+    "position" : {
+      "x" : 7.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "Plant",
+    "position" : {
+      "x" : 11.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabDesk",
+    "position" : {
+      "x" : 13.0,
+      "y" : 8.0
+    }
+  }, {
+    "type" : "LabChair",
+    "position" : {
+      "x" : 13.0,
+      "y" : 7.0
+    }
+  }, {
+    "type" : "LabLocker",
+    "position" : {
+      "x" : 17.0,
+      "y" : 8.0
+    }
+  }, {
+    "type" : "LabRedBarrel",
+    "position" : {
+      "x" : 13.0,
+      "y" : 5.0
+    }
+  }, {
+    "type" : "LabWindowSmall",
+    "position" : {
+      "x" : 13.0,
+      "y" : 9.0
+    }
+  }, {
+    "type" : "LabWhiteboard",
+    "position" : {
+      "x" : 16.0,
+      "y" : 9.0
+    }
+  }, {
+    "type" : "LabPedestal",
+    "position" : {
+      "x" : 9.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "LabDesk",
+    "position" : {
+      "x" : 1.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "LabLockers",
+    "position" : {
+      "x" : 5.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "LabBioComputer",
+    "position" : {
+      "x" : 11.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "LabSuperComputer",
+    "position" : {
+      "x" : 16.0,
+      "y" : 1.0
+    }
+  }, {
+    "type" : "Plant",
+    "position" : {
+      "x" : 17.0,
+      "y" : 3.0
+    }
+  }, {
+    "type" : "LabNeon",
+    "position" : {
+      "x" : 1.0,
+      "y" : 4.0
+    }
+  }, {
+    "type" : "LabElectricPanel",
+    "position" : {
+      "x" : 5.0,
+      "y" : 4.0
+    }
+  }, {
+    "type" : "LabScreenArrow",
+    "position" : {
+      "x" : 7.0,
+      "y" : 4.0
+    }
+  }, {
+    "type" : "LabScreenFace",
+    "position" : {
+      "x" : 12.0,
+      "y" : 4.0
+    }
+  }, {
+    "type" : "LabWindowSmall",
+    "position" : {
+      "x" : 13.0,
+      "y" : 4.0
+    }
+  }, {
+    "type" : "LabWallDevice",
+    "position" : {
+      "x" : 16.0,
+      "y" : 4.0
+    }
+  } ],
+  "prefabs" : [ ]
+}
