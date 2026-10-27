@@ -1581,6 +1581,7 @@ public final class PrefabMode extends LevelEditorMode {
                 label,
                 detail,
                 !linked && !cycle,
+                !isAttached(candidate),
                 () -> addLink(receiver.name(), input, link)));
       }
     }
@@ -1605,17 +1606,23 @@ public final class PrefabMode extends LevelEditorMode {
             + end.port().displayName()
             + (end.port().kind().isInput() ? "' from:" : "' to:")
             + (onlyInstance == null ? "" : " (" + onlyInstance + ")");
-    showOptions(title, linkOptions(end, onlyInstance), parent, x, y);
+    showOptions(title, linkOptions(end, onlyInstance), onlyInstance == null, parent, x, y);
   }
 
   private void showOptions(
-      String title, List<PortPickerPopup.Option> options, Group parent, float x, float y) {
+      String title,
+      List<PortPickerPopup.Option> options,
+      boolean worldTabs,
+      Group parent,
+      float x,
+      float y) {
     if (openPicker != null) openPicker.close();
     PortPickerPopup[] picker = new PortPickerPopup[1];
     picker[0] =
         new PortPickerPopup(
             title,
             options,
+            worldTabs,
             () -> {
               if (openPicker == picker[0]) openPicker = null;
             });
@@ -1749,6 +1756,7 @@ public final class PrefabMode extends LevelEditorMode {
                 label,
                 option.detail(),
                 true,
+                option.inWorld(),
                 option.choose()));
       }
     }
@@ -1770,7 +1778,12 @@ public final class PrefabMode extends LevelEditorMode {
         stage.screenToStageCoordinates(
             new com.badlogic.gdx.math.Vector2(Gdx.input.getX(), Gdx.input.getY()));
     showOptions(
-        "Link '" + name + "' and '" + partner + "':", options, ui, position.x + 12f, position.y);
+        "Link '" + name + "' and '" + partner + "':",
+        options,
+        false,
+        ui,
+        position.x + 12f,
+        position.y);
   }
 
   /**

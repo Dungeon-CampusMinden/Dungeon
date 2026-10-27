@@ -512,6 +512,13 @@
           "invert" : false
         }
       }
+    },
+    "active" : false,
+    "inputs" : {
+      "activate" : [ {
+        "source" : "r1/trigger",
+        "port" : "entered"
+      } ]
     }
   }, {
     "name" : "r3/water-1",
@@ -946,6 +953,21 @@
       } ]
     }
   }, {
+    "name" : "sound-effect-2",
+    "type" : "sound-effect",
+    "properties" : {
+      "sound" : "fireball",
+      "volume" : 0.5,
+      "pitch" : 1.0,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "play" : [ {
+        "source" : "choice-dialog-1",
+        "port" : "option-2"
+      } ]
+    }
+  }, {
     "name" : "door-lock",
     "type" : "door-lock",
     "properties" : {
@@ -979,6 +1001,29 @@
         }
       },
       "repetition" : "Always"
+    },
+    "active" : false,
+    "inputs" : {
+      "activate" : [ {
+        "source" : "item-receptacle",
+        "port" : "required-item-placed"
+      } ]
+    }
+  }, {
+    "name" : "trigger-1",
+    "type" : "trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 30.0,
+          "y" : 2.0
+        },
+        "topRight" : {
+          "x" : 32.0,
+          "y" : 4.0
+        }
+      },
+      "repetition" : "Always"
     }
   }, {
     "name" : "choice-dialog",
@@ -1001,6 +1046,44 @@
         "source" : "trigger",
         "port" : "entered"
       } ]
+    }
+  }, {
+    "name" : "choice-dialog-1",
+    "type" : "choice-dialog",
+    "properties" : {
+      "text" : "Do you want to continue?",
+      "translate" : false,
+      "audience" : "Triggering Player",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "trigger-1",
+        "port" : "entered"
+      } ]
+    }
+  }, {
+    "name" : "choice-dialog-2",
+    "type" : "choice-dialog",
+    "properties" : {
+      "text" : "Do you want to continue?",
+      "translate" : false,
+      "audience" : "Triggering Player",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
     }
   }, {
     "name" : "dialog",
