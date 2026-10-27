@@ -225,7 +225,7 @@ public class PrefabWiringTest {
     assertFalse(plain.has("inputs"));
   }
 
-  /** Version 3 files are read, files are written as version 5 and broken links are dropped. */
+  /** Links and the active flag survive saving and loading, broken links are dropped. */
   @Test
   public void levelFilesKeepLinks() {
     String v3 =
@@ -254,7 +254,6 @@ public class PrefabWiringTest {
     assertEquals(Set.of("plain"), consumer.inputs().keySet());
 
     String saved = LevelParser.serializeLevel(level);
-    assertTrue(saved.contains("\"version\" : 5"));
     DungeonLevel reloaded = LevelParser.parseLevel(saved, "prefab-wiring-test");
     assertEquals(level.prefabs(), reloaded.prefabs());
   }

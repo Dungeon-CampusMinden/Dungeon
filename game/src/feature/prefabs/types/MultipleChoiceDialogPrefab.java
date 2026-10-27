@@ -182,7 +182,8 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
               .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
               .put(DialogContextKeys.CAN_CANCEL, canCancel);
       if (instance.get(TRANSLATE)) dialog.put(DialogContextKeys.DIALOG_IS_TRANSLATION_KEY, true);
-      PrefabDialogs.putPlaceholders(dialog, placeholders);
+      // The displaying client replaces the placeholders after resolving translation keys.
+      dialog.placeholders(placeholders);
 
       UIComponent ui = DialogFactory.show(dialog.build(), true, canCancel, player.id());
       // Choosing closes the dialog, which must not count as cancelling it.

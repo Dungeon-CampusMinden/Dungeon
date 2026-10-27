@@ -125,6 +125,21 @@ public final class DialogContext {
   }
 
   /**
+   * Replaces the {@code {name}} placeholders of {@link DialogContextKeys#PLACEHOLDERS} in a text.
+   *
+   * @param text text to replace the placeholders in, e.g. a translated dialog script
+   * @return text with all placeholders of this context replaced
+   */
+  public String replacePlaceholders(String text) {
+    String[] placeholders =
+        find(DialogContextKeys.PLACEHOLDERS, String[].class).orElse(new String[0]);
+    for (int index = 0; index + 1 < placeholders.length; index += 2) {
+      text = text.replace("{" + placeholders[index] + "}", placeholders[index + 1]);
+    }
+    return text;
+  }
+
+  /**
    * Creates a new empty Builder for constructing a DialogContext.
    *
    * @return A new Builder instance
@@ -294,6 +309,24 @@ public final class DialogContext {
         attributes.put(key, value);
       }
       return this;
+    }
+
+    /**
+     * Stores the values substituted for {@code {name}} placeholders, see {@link
+     * DialogContextKeys#PLACEHOLDERS}. Does nothing if there are no values.
+     *
+     * @param values values by placeholder name
+     * @return This builder for method chaining
+     */
+    public Builder placeholders(Map<String, String> values) {
+      if (values.isEmpty()) return this;
+      String[] pairs = new String[values.size() * 2];
+      int index = 0;
+      for (Map.Entry<String, String> entry : values.entrySet()) {
+        pairs[index++] = entry.getKey();
+        pairs[index++] = entry.getValue();
+      }
+      return put(DialogContextKeys.PLACEHOLDERS, pairs);
     }
 
     /**

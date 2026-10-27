@@ -88,7 +88,10 @@ public final class DoorLockPrefab extends Prefab {
   public static final ArtifactSlot<ItemArtifact> KEY =
       ArtifactSlot.single("key", "Key", ArtifactType.ITEM);
 
-  /** Raised when a player opened the lock with the key, with the player as payload. */
+  /**
+   * Raised when the lock was opened, with the key or through {@link #UNLOCK}, with the player that
+   * caused it as payload, if any.
+   */
   public static final PrefabEvent<Entity> UNLOCKED = PrefabEvent.withPlayer("unlocked", "Unlocked");
 
   /** Opens the lock and the door without a key. */
@@ -198,8 +201,12 @@ public final class DoorLockPrefab extends Prefab {
   }
 
   private static void unlock(ActionContext context) {
-    context.liveEntities().forEach(Game::remove);
+    List<Entity> chains = context.liveEntities();
+    // Already unlocked, or there is no door to lock.
+    if (chains.isEmpty()) return;
+    chains.forEach(Game::remove);
     doorAt(context.level(), context.value(DOOR_POSITION)).ifPresent(DoorTile::open);
+    fire(context.creationContext(), context.instance(), UNLOCKED, context.player().orElse(null));
   }
 
   private static Optional<Item> findKey(InventoryComponent inventory, ItemArtifact key) {

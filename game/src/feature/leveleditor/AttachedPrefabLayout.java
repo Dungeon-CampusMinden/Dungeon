@@ -45,12 +45,15 @@ final class AttachedPrefabLayout {
    * Places the instances without a world position.
    *
    * @param instances instances of the level, in load order
+   * @param connections links between the instances, see {@link PrefabWiring#connections}
    * @param worldAnchor returns the link anchor of an instance with a world position, or empty for
    *     an instance without one
    * @return placed instances by name, in placement order
    */
   static Map<String, Chip> layout(
-      List<PrefabInstance> instances, Function<PrefabInstance, Optional<Point>> worldAnchor) {
+      List<PrefabInstance> instances,
+      List<PrefabWiring.Connection> connections,
+      Function<PrefabInstance, Optional<Point>> worldAnchor) {
     Map<String, Integer> order = new HashMap<>();
     Map<String, Point> world = new HashMap<>();
     List<String> attached = new ArrayList<>();
@@ -62,7 +65,7 @@ final class AttachedPrefabLayout {
     }
     if (attached.isEmpty()) return Map.of();
 
-    Map<String, List<List<String>>> candidates = candidates(instances, attached);
+    Map<String, List<List<String>>> candidates = candidates(connections, attached);
     Map<String, String> hosts = new LinkedHashMap<>();
     for (int maxTier = 0; maxTier < TIERS; maxTier++) {
       boolean changed = true;
@@ -125,14 +128,14 @@ final class AttachedPrefabLayout {
 
   /* Lists the possible hosts of every attached instance, by preference tier. */
   private static Map<String, List<List<String>>> candidates(
-      List<PrefabInstance> instances, List<String> attached) {
+      List<PrefabWiring.Connection> connections, List<String> attached) {
     Map<String, List<List<String>>> result = new HashMap<>();
     for (String name : attached) {
       List<List<String>> tiers = new ArrayList<>(TIERS);
       for (int tier = 0; tier < TIERS; tier++) tiers.add(new ArrayList<>());
       result.put(name, tiers);
     }
-    for (PrefabWiring.Connection connection : PrefabWiring.connections(instances)) {
+    for (PrefabWiring.Connection connection : connections) {
       String source = connection.link().source();
       String receiver = connection.receiver().name();
       if (source.equals(receiver)) continue;

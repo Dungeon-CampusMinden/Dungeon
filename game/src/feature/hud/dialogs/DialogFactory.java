@@ -588,15 +588,7 @@ public class DialogFactory {
       int... targetEntityIds) {
     DialogContext.Builder context = dialogDialogContext(dialog);
     if (isTranslationKey) context.put(DialogContextKeys.DIALOG_IS_TRANSLATION_KEY, true);
-    if (!placeholders.isEmpty()) {
-      String[] pairs = new String[placeholders.size() * 2];
-      int index = 0;
-      for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-        pairs[index++] = entry.getKey();
-        pairs[index++] = entry.getValue();
-      }
-      context.put(DialogContextKeys.PLACEHOLDERS, pairs);
-    }
+    context.placeholders(placeholders);
     return showDialogDialog(context.build(), onFinished, targetEntityIds);
   }
 

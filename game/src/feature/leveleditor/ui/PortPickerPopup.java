@@ -33,7 +33,8 @@ import java.util.Objects;
  * an option is chosen, on Escape, or when clicking outside of it.
  *
  * <p>Optionally, tabs at the top split the options into ports of prefabs with a world position
- * ("In-World") and without one ("Off-World"). The chosen tab is remembered for the runtime.
+ * ("In-World") and without one ("Off-World"). The chosen tab is remembered for the runtime. If the
+ * remembered tab has no options but the other one has, the popup opens on the other tab.
  */
 public final class PortPickerPopup extends Table {
 
@@ -45,7 +46,7 @@ public final class PortPickerPopup extends Table {
   private static final Color WARNING_COLOR = new Color(0.75f, 0.42f, 0f, 1f);
 
   /** Whether the "Off-World" tab was chosen last; shared by all popups showing tabs. */
-  private static boolean offWorldTab = false;
+  private static boolean rememberedOffWorldTab = false;
 
   /**
    * One choosable port.
@@ -77,6 +78,7 @@ public final class PortPickerPopup extends Table {
   private Cell<ScrollPane> scrollCell;
   private InputListener outsideClickListener;
   private boolean closed;
+  private boolean offWorldTab;
 
   /**
    * Creates a popup.
@@ -100,6 +102,10 @@ public final class PortPickerPopup extends Table {
     titleLabel.setWrap(true);
     add(titleLabel).padBottom(6f).row();
 
+    offWorldTab = rememberedOffWorldTab;
+    if (worldTabs && tabOptions(offWorldTab).isEmpty() && !tabOptions(!offWorldTab).isEmpty()) {
+      offWorldTab = !offWorldTab;
+    }
     if (worldTabs) {
       this.worldTabs.defaults().minWidth(0f).growX().uniformX().height(34f).pad(0f, 2f, 0f, 2f);
       rebuildWorldTabs();
@@ -198,7 +204,7 @@ public final class PortPickerPopup extends Table {
     for (boolean offWorld : new boolean[] {false, true}) {
       TextButton tab =
           Scene2dElementFactory.createButton(
-              offWorld ? "Off-World" : "In-World",
+              tabName(offWorld) + " (" + tabOptions(offWorld).size() + ")",
               offWorld == offWorldTab ? "blue-outline" : "default",
               14);
       tab.addListener(
@@ -214,6 +220,7 @@ public final class PortPickerPopup extends Table {
 
   private void selectTab(boolean offWorld) {
     if (getStage() != null) getStage().setKeyboardFocus(filter);
+    rememberedOffWorldTab = offWorld;
     if (offWorldTab == offWorld) return;
     offWorldTab = offWorld;
     rebuildWorldTabs();
@@ -244,16 +251,24 @@ public final class PortPickerPopup extends Table {
     option.choose().run();
   }
 
-  private List<Option> tabOptions() {
+  private static String tabName(boolean offWorld) {
+    return offWorld ? "Off-World" : "In-World";
+  }
+
+  private List<Option> tabOptions(boolean offWorld) {
     if (!showWorldTabs) return options;
-    return options.stream().filter(option -> option.inWorld() != offWorldTab).toList();
+    return options.stream().filter(option -> option.inWorld() != offWorld).toList();
   }
 
   private List<Option> matching() {
+    return matching(offWorldTab);
+  }
+
+  private List<Option> matching(boolean offWorld) {
     String query = filter.getText().strip().toLowerCase(Locale.ROOT);
-    if (query.isEmpty()) return tabOptions();
+    if (query.isEmpty()) return tabOptions(offWorld);
     List<Option> result = new ArrayList<>();
-    for (Option option : tabOptions()) {
+    for (Option option : tabOptions(offWorld)) {
       String text = (option.group() + " " + option.label()).toLowerCase(Locale.ROOT);
       if (text.contains(query)) result.add(option);
     }
@@ -283,10 +298,14 @@ public final class PortPickerPopup extends Table {
 
   private String emptyMessage() {
     if (options.isEmpty()) return "No compatible ports in this level.";
-    if (tabOptions().isEmpty()) {
-      return offWorldTab ? "No compatible off-world ports." : "No compatible in-world ports.";
-    }
-    return "No matches.";
+    String message =
+        tabOptions(offWorldTab).isEmpty()
+            ? "No compatible " + tabName(offWorldTab).toLowerCase(Locale.ROOT) + " ports."
+            : "No matches.";
+    if (!showWorldTabs) return message;
+    int otherTab = matching(!offWorldTab).size();
+    if (otherTab == 0) return message;
+    return message + " " + otherTab + " in the " + tabName(!offWorldTab) + " tab.";
   }
 
   private Actor optionActor(Option option) {

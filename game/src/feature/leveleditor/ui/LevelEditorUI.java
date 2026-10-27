@@ -34,7 +34,7 @@ public class LevelEditorUI extends Group {
 
   private static final float SCREEN_PADDING = 12f;
   private static final float DETAILS_PANEL_WIDTH = 320f;
-  private static final float DETAILS_PANEL_TOP_GAP = 200f;
+  private static final float DETAILS_PANEL_TOP_GAP = 50f;
   private static final float PANEL_GAP = 6f;
 
   private final ModePanel modePanel = new ModePanel();
@@ -142,6 +142,10 @@ public class LevelEditorUI extends Group {
         stageHeight - modePanel.getHeight() - SCREEN_PADDING);
 
     float topGap = DETAILS_PANEL_TOP_GAP;
+    // Side panels only move down if the mode panel is wide enough to reach them.
+    if (modePanel.isVisible() && modePanel.getX() < SCREEN_PADDING + DETAILS_PANEL_WIDTH) {
+      topGap = Math.max(topGap, stageHeight - modePanel.getY() + PANEL_GAP);
+    }
     if (toolbar != null) {
       toolbar.pack();
       toolbar.setPosition(

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -135,11 +136,7 @@ public final class PrefabWiring {
    * @return links of all receivers, in level order
    */
   public static List<Connection> outgoing(List<PrefabInstance> instances, String source) {
-    List<Connection> result = new ArrayList<>();
-    for (Connection connection : connections(instances)) {
-      if (connection.link().source().equals(source)) result.add(connection);
-    }
-    return result;
+    return outgoing(instances, source, null);
   }
 
   /**
@@ -147,14 +144,30 @@ public final class PrefabWiring {
    *
    * @param instances instances of the level
    * @param source name of the source instance
-   * @param port key of the output port
+   * @param port key of the output port, or {@code null} for all output ports
    * @return links of all receivers, in level order
    */
   public static List<Connection> outgoing(
       List<PrefabInstance> instances, String source, String port) {
-    return outgoing(instances, source).stream()
-        .filter(connection -> connection.link().port().equals(port))
-        .toList();
+    // Runs for every raised event, so the links are filtered before resolving any input port.
+    List<Connection> result = new ArrayList<>();
+    for (PrefabInstance receiver : instances) {
+      for (Map.Entry<String, List<PrefabLink>> input : receiver.inputs().entrySet()) {
+        List<PrefabLink> links =
+            input.getValue().stream()
+                .filter(link -> link.source().equals(source))
+                .filter(link -> port == null || link.port().equals(port))
+                .toList();
+        if (links.isEmpty()) continue;
+        Optional<PrefabPort> inputPort =
+            PrefabRegistry.find(receiver.type())
+                .flatMap(prefab -> prefab.port(receiver, input.getKey()))
+                .filter(candidate -> candidate.kind().isInput());
+        if (inputPort.isEmpty()) continue;
+        for (PrefabLink link : links) result.add(new Connection(receiver, inputPort.get(), link));
+      }
+    }
+    return result;
   }
 
   /**
@@ -412,16 +425,29 @@ public final class PrefabWiring {
    */
   public static boolean wouldCreateArtifactCycle(
       List<PrefabInstance> instances, String source, String receiver) {
-    if (source.equals(receiver)) return true;
+    return artifactCycleCheck(instances).test(source, receiver);
+  }
+
+  /**
+   * Returns a check whether a new artifact link would make artifact values depend on themselves,
+   * see {@link #wouldCreateArtifactCycle}. Use it to check many links against the same instances.
+   *
+   * @param instances instances of the level
+   * @return check taking the name of the producing and of the consuming instance
+   */
+  public static BiPredicate<String, String> artifactCycleCheck(List<PrefabInstance> instances) {
     Map<String, Set<String>> consumers = artifactConsumers(instances);
-    Deque<String> open = new ArrayDeque<>(List.of(receiver));
-    Set<String> seen = new HashSet<>();
-    while (!open.isEmpty()) {
-      String current = open.pop();
-      if (current.equals(source)) return true;
-      if (seen.add(current)) open.addAll(consumers.getOrDefault(current, Set.of()));
-    }
-    return false;
+    return (source, receiver) -> {
+      if (source.equals(receiver)) return true;
+      Deque<String> open = new ArrayDeque<>(List.of(receiver));
+      Set<String> seen = new HashSet<>();
+      while (!open.isEmpty()) {
+        String current = open.pop();
+        if (current.equals(source)) return true;
+        if (seen.add(current)) open.addAll(consumers.getOrDefault(current, Set.of()));
+      }
+      return false;
+    };
   }
 
   /**

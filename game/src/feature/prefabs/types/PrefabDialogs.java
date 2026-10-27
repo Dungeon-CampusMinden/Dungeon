@@ -56,24 +56,6 @@ final class PrefabDialogs {
   }
 
   /**
-   * Adds placeholder values to a dialog context. The displaying client replaces the placeholders
-   * after resolving translation keys.
-   *
-   * @param dialog dialog context builder
-   * @param placeholders values by alias, see {@link #placeholders}
-   */
-  static void putPlaceholders(DialogContext.Builder dialog, Map<String, String> placeholders) {
-    if (placeholders.isEmpty()) return;
-    String[] pairs = new String[placeholders.size() * 2];
-    int index = 0;
-    for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-      pairs[index++] = entry.getKey();
-      pairs[index++] = entry.getValue();
-    }
-    dialog.put(DialogContextKeys.PLACEHOLDERS, pairs);
-  }
-
-  /**
    * Shortens a dialog script to a single line for editor previews, without its markup.
    *
    * @param script dialog script or text

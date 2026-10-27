@@ -73,6 +73,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -135,6 +136,8 @@ public final class PrefabMode extends LevelEditorMode {
   private Set<String> pickTargets = Set.of();
   private PortPickerPopup openPicker;
   private List<PrefabWiring.Problem> problems = List.of();
+  // Links with an error problem, to color them while rendering.
+  private Set<LinkKey> errorLinks = Set.of();
   private final PrefabConnectionsTab connectionsTab =
       new PrefabConnectionsTab(new ConnectionsHost());
   // Positions of the instances without a world position, next to the prefabs they are linked to.
@@ -287,9 +290,10 @@ public final class PrefabMode extends LevelEditorMode {
       }
     }
     normalizedRenderInstances = normalized;
-    chips = layoutChips();
-    renderLinks(level);
-    renderChips(level);
+    List<PrefabWiring.Connection> connections = PrefabWiring.connections(level.prefabs());
+    chips = layoutChips(connections);
+    renderLinks(level, connections);
+    renderChips(level, connections);
     if (pendingLinkPick != null) {
       for (PrefabInstance instance : level.prefabs()) {
         if (pickTargets.contains(instance.name())) {
@@ -340,15 +344,16 @@ public final class PrefabMode extends LevelEditorMode {
     }
   }
 
-  private Map<String, AttachedPrefabLayout.Chip> layoutChips() {
-    return AttachedPrefabLayout.layout(getLevel().prefabs(), this::worldLinkAnchor);
+  private Map<String, AttachedPrefabLayout.Chip> layoutChips(
+      List<PrefabWiring.Connection> connections) {
+    return AttachedPrefabLayout.layout(getLevel().prefabs(), connections, this::worldLinkAnchor);
   }
 
   // Draws the instances without a world position next to the prefabs they are attached to.
-  private void renderChips(DungeonLevel level) {
+  private void renderChips(DungeonLevel level, List<PrefabWiring.Connection> connections) {
     Map<String, PrefabInstance> byName = new HashMap<>();
     for (PrefabInstance instance : level.prefabs()) byName.put(instance.name(), instance);
-    Set<String> related = chipsRelatedToSelection(level.prefabs());
+    Set<String> related = chipsRelatedToSelection(connections);
     for (AttachedPrefabLayout.Chip chip : chips.values()) {
       PrefabInstance host = byName.get(chip.host());
       if (host == null) continue;
@@ -382,16 +387,16 @@ public final class PrefabMode extends LevelEditorMode {
    * Returns the chips shown highlighted: the selected chip, the chips of the selected instance's
    * chip group, and the chips linked to the selected instance.
    *
-   * @param instances instances of the level
+   * @param connections links of the level
    * @return names of the highlighted chips
    */
-  private Set<String> chipsRelatedToSelection(List<PrefabInstance> instances) {
+  private Set<String> chipsRelatedToSelection(List<PrefabWiring.Connection> connections) {
     if (selectedName == null) return Set.of();
     Set<String> related = new HashSet<>();
     for (String chip : chips.keySet()) {
       if (chip.equals(selectedName) || withinChipGroup(selectedName, chip)) related.add(chip);
     }
-    for (PrefabWiring.Connection connection : PrefabWiring.connections(instances)) {
+    for (PrefabWiring.Connection connection : connections) {
       String source = connection.link().source();
       String receiver = connection.receiver().name();
       if (source.equals(selectedName)) related.add(receiver);
@@ -447,14 +452,14 @@ public final class PrefabMode extends LevelEditorMode {
     }
   }
 
-  private void renderLinks(DungeonLevel level) {
+  private void renderLinks(DungeonLevel level, List<PrefabWiring.Connection> connections) {
     List<PrefabInstance> instances = level.prefabs();
     Map<String, PrefabInstance> byName = new HashMap<>();
     for (PrefabInstance instance : instances) byName.put(instance.name(), instance);
     Map<String, Integer> labelsPerPair = new HashMap<>();
     PrefabRuntimeState runtime = level.prefabRuntimeState();
     long now = System.nanoTime();
-    for (PrefabWiring.Connection connection : PrefabWiring.connections(instances)) {
+    for (PrefabWiring.Connection connection : connections) {
       String source = connection.link().source();
       String receiver = connection.receiver().name();
       boolean involved =
@@ -469,7 +474,7 @@ public final class PrefabMode extends LevelEditorMode {
       boolean signal = connection.input().kind().isSignal();
       Color color =
           (signal ? PrefabConnectionsTab.SIGNAL_COLOR : PrefabConnectionsTab.ARTIFACT_COLOR).cpy();
-      if (hasError(connection)) color.set(PrefabConnectionsTab.ERROR_COLOR);
+      if (errorLinks.contains(LinkKey.of(connection))) color.set(PrefabConnectionsTab.ERROR_COLOR);
       float pulse =
           runtime
               .lastSignal(PrefabRuntime.signalKey(connection))
@@ -523,16 +528,17 @@ public final class PrefabMode extends LevelEditorMode {
     return sourceRoot.equals(receiverRoot);
   }
 
-  private boolean hasError(PrefabWiring.Connection connection) {
-    for (PrefabWiring.Problem problem : problems) {
-      if (problem.severity() == PrefabWiring.Severity.ERROR
-          && problem.instance().equals(connection.receiver().name())
-          && problem.port().equals(connection.input().key())
-          && problem.link().equals(connection.link())) {
-        return true;
-      }
+  /**
+   * Identity of one link, to look up its problems.
+   *
+   * @param receiver name of the receiving instance
+   * @param port key of the receiving input port
+   * @param link the link
+   */
+  private record LinkKey(String receiver, String port, PrefabLink link) {
+    static LinkKey of(PrefabWiring.Connection connection) {
+      return new LinkKey(connection.receiver().name(), connection.input().key(), connection.link());
     }
-    return false;
   }
 
   /**
@@ -585,7 +591,7 @@ public final class PrefabMode extends LevelEditorMode {
     instanceList = new PrefabInstanceList(new InstanceListListener());
     var list = Scene2dElementFactory.createScrollPane(instanceList, false, true);
     list.setFlickScroll(false);
-    content.add(list).growX().height(350f).row();
+    content.add(list).growX().height(500f).row();
 
     Table actions = new Table();
     addButton = Scene2dElementFactory.createIconButton("hud/plus.png", "blue-outline");
@@ -705,7 +711,13 @@ public final class PrefabMode extends LevelEditorMode {
   private void rebuildDetails(boolean rebuildSecondary) {
     if (instanceList == null) return;
     problems = PrefabWiring.problems(getLevel().prefabs());
-    chips = layoutChips();
+    errorLinks = new HashSet<>();
+    for (PrefabWiring.Problem problem : problems) {
+      if (problem.severity() == PrefabWiring.Severity.ERROR) {
+        errorLinks.add(new LinkKey(problem.instance(), problem.port(), problem.link()));
+      }
+    }
+    chips = layoutChips(PrefabWiring.connections(getLevel().prefabs()));
     instanceList.setItems(listItems(), selectedName, listOrder == ListOrder.LOAD_ORDER);
     if (!rebuildSecondary || secondaryContent == null || secondaryHeader == null) return;
     boolean preserveScroll =
@@ -1428,7 +1440,7 @@ public final class PrefabMode extends LevelEditorMode {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       return;
     }
-    applyChange(() -> getLevel().replacePrefab(index, replacement));
+    if (!applyChange(() -> getLevel().replacePrefab(index, replacement))) return;
     Optional<PrefabPort> output = PrefabWiring.outputPort(getLevel().prefabs(), link);
     if (output.isPresent() && PrefabWiring.lacksPlayer(output.get(), input)) {
       LevelEditorSystem.showFeedback(
@@ -1535,9 +1547,11 @@ public final class PrefabMode extends LevelEditorMode {
     if (owner.isEmpty()) return List.of();
     List<PortPickerPopup.Option> options = new ArrayList<>();
     boolean endIsInput = end.port().kind().isInput();
+    BiPredicate<String, String> artifactCycle = PrefabWiring.artifactCycleCheck(instances);
     for (PrefabInstance candidate : instances) {
       if (onlyInstance != null && !candidate.name().equals(onlyInstance)) continue;
       Prefab prefab = PrefabRegistry.require(candidate.type());
+      boolean candidateInWorld = !isAttached(candidate);
       for (PrefabPort port : prefab.ports(candidate)) {
         PrefabPort output = endIsInput ? port : end.port();
         PrefabPort input = endIsInput ? end.port() : port;
@@ -1552,9 +1566,7 @@ public final class PrefabMode extends LevelEditorMode {
         boolean artifact = !input.kind().isSignal();
         if (artifact && link.source().equals(receiver.name())) continue;
         boolean linked = receiver.links(input).stream().anyMatch(l -> l.sameOutput(link));
-        boolean cycle =
-            artifact
-                && PrefabWiring.wouldCreateArtifactCycle(instances, link.source(), receiver.name());
+        boolean cycle = artifact && artifactCycle.test(link.source(), receiver.name());
         String detail = null;
         if (linked) detail = "already linked";
         else if (cycle) detail = "would make the value depend on itself";
@@ -1581,7 +1593,7 @@ public final class PrefabMode extends LevelEditorMode {
                 label,
                 detail,
                 !linked && !cycle,
-                !isAttached(candidate),
+                candidateInWorld,
                 () -> addLink(receiver.name(), input, link)));
       }
     }
@@ -1765,10 +1777,9 @@ public final class PrefabMode extends LevelEditorMode {
           "'" + name + "' has no port that fits a port of '" + partner + "'.", Color.YELLOW);
       return;
     }
+    // The option links through addLink, which reports the result.
     if (options.size() == 1) {
       options.getFirst().choose().run();
-      LevelEditorSystem.showFeedback(
-          "Linked " + options.getFirst().label().replace("  ", " ") + ".", Color.GREEN);
       return;
     }
     LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
@@ -2354,11 +2365,19 @@ public final class PrefabMode extends LevelEditorMode {
     }
   }
 
-  private void applyChange(Runnable mutation) {
-    applyChange(mutation, true);
+  private boolean applyChange(Runnable mutation) {
+    return applyChange(mutation, true);
   }
 
-  private void applyChange(Runnable mutation, boolean rebuildDetails) {
+  /**
+   * Applies an edit of the authored instances and respawns the changed ones. A failed edit is
+   * rolled back and reported.
+   *
+   * @param mutation edit of the authored instances
+   * @param rebuildDetails whether the details panel is rebuilt
+   * @return whether the edit was applied
+   */
+  private boolean applyChange(Runnable mutation, boolean rebuildDetails) {
     List<PrefabInstance> previousPrefabs = new ArrayList<>(getLevel().prefabs());
     String previousSelection = selectedName;
     try {
@@ -2368,6 +2387,7 @@ public final class PrefabMode extends LevelEditorMode {
       levelChanged();
       if (rebuildDetails) requestRebuild();
       else rebuildDetails(false);
+      return true;
     } catch (RuntimeException exception) {
       getLevel().prefabs().clear();
       getLevel().prefabs().addAll(previousPrefabs);
@@ -2379,6 +2399,7 @@ public final class PrefabMode extends LevelEditorMode {
       }
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       requestRebuild();
+      return false;
     }
   }
 
