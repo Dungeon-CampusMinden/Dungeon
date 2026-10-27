@@ -105,6 +105,7 @@ public final class CombinedDoorPrefabMigration {
   /**
    * Converts a combined record into its standalone form in place and describes its door.
    *
+   * @param node the prefab record to convert
    * @return the split description, or null if the record is not a combined door prefab
    */
   private static Split split(JsonNode node) {
@@ -225,7 +226,12 @@ public final class CombinedDoorPrefabMigration {
     return new Door(defaultX, defaultY);
   }
 
-  /** Door Control input port to source event port, in insertion order. */
+  /**
+   * Door Control input port to source event port, in insertion order.
+   *
+   * @param portPairs alternating Door Control input ports and source event ports
+   * @return the links keyed by Door Control input port
+   */
   private static Map<String, String> links(String... portPairs) {
     Map<String, String> links = new LinkedHashMap<>();
     for (int index = 0; index < portPairs.length; index += 2) {

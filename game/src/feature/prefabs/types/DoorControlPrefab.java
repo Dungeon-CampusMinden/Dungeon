@@ -120,6 +120,11 @@ public final class DoorControlPrefab extends Prefab {
   /**
    * Checks whether another active door control targets the same door, so a despawning control does
    * not open a door that is still meant to be controlled.
+   *
+   * @param level the level to search for door controls
+   * @param position the door position to check
+   * @param removing the door control being removed
+   * @return true if another active door control targets the door
    */
   private static boolean hasOtherControl(ILevel level, Point position, PrefabInstance removing) {
     for (PrefabInstance candidate : level.activePrefabs()) {
