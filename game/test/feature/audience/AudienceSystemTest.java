@@ -16,9 +16,23 @@ class AudienceSystemTest {
       new AudienceContext.Choice(null, List.of(ChoiceOption.of("A", "a")), false);
 
   @Test
-  void puzzleKeepsItsTimeUntilEverybodyVoted() {
+  void puzzleKeepsItsTimeUntilHalfVoted() {
     assertEquals(END, AudienceSystem.windowEnd(CHOICE, END, 0, 3, NOW));
-    assertEquals(END, AudienceSystem.windowEnd(CHOICE, END, 2, 3, NOW));
+    assertEquals(END, AudienceSystem.windowEnd(CHOICE, END, 1, 3, NOW));
+  }
+
+  @Test
+  void puzzleClosesSoonOnceHalfVoted() {
+    assertEquals(NOW + 10_000, AudienceSystem.windowEnd(CHOICE, END, 2, 4, NOW));
+    assertEquals(NOW + 10_000, AudienceSystem.windowEnd(CHOICE, END, 2, 3, NOW));
+    assertEquals(
+        NOW + 10_000, AudienceSystem.windowEnd(new AudienceContext.YesNo(null), END, 2, 4, NOW));
+  }
+
+  @Test
+  void halfVotedEndStaysWhileTimeRuns() {
+    long end = AudienceSystem.windowEnd(CHOICE, END, 2, 4, NOW);
+    assertEquals(end, AudienceSystem.windowEnd(CHOICE, end, 3, 4, NOW + 4_000));
   }
 
   @Test

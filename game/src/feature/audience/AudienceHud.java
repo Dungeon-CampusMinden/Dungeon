@@ -97,14 +97,14 @@ public final class AudienceHud extends System {
   }
 
   /**
-   * Registers the overlay message, numbers the options of choice dialogs so the audience can vote
-   * by number, and registers the dialog that pauses play while the join screen is open. Call it in
+   * Registers the overlay message, letters the options of choice dialogs so the audience can vote
+   * by letter, and registers the dialog that pauses play while the join screen is open. Call it in
    * the client's configuration step, before the client connects: the server sends the message right
    * after the connection.
    */
   public static void register() {
     AudienceHudMessage.registerConverter();
-    DialogFactory.numberChoiceOptions(true);
+    DialogFactory.letterChoiceOptions(true);
     DialogFactory.register(JOIN_PAUSE, context -> new Group());
   }
 

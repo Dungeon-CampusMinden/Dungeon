@@ -47,6 +47,18 @@ class AudienceContextTest {
   }
 
   @Test
+  void choiceVotesShowTheLettersOfTheirOptions() {
+    AudienceContext choice =
+        new AudienceContext.Choice(
+            null,
+            List.of(
+                ChoiceOption.of("a", "x"), ChoiceOption.of("b", "y"), ChoiceOption.of("c", "z")),
+            true);
+    JsonNode vote = choice.normalize(AudienceContext.JSON.arrayNode().add(3).add(1)).orElseThrow();
+    assertEquals("A + C", choice.label(vote));
+  }
+
+  @Test
   void choicePromptListsTheAnswersInDisplayOrder() {
     UIComponent ui = mock(UIComponent.class);
     when(ui.dialogContext())

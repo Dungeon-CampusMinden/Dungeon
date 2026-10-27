@@ -73,7 +73,7 @@ aus dem offenen Dialog der Figur ab:
 | Spielzustand | Eingabe auf dem Gerät | Ausgeführt als |
 | --- | --- | --- |
 | Kein Dialog offen | Steuerkreuz und „Benutzen“ | ein Feld weit gehen oder mit dem Feld davor interagieren |
-| `MULTIPLE_CHOICE` | farbige Nummern 1 bis n mit dem Text der Antwort; bei Mehrfachauswahl mehrere und „Abschicken“ | `ON_OPTION_SELECTED` mit dem Wert oder der Liste der Werte |
+| `MULTIPLE_CHOICE` | farbige Buchstaben A, B, C … mit dem Text der Antwort; bei Mehrfachauswahl mehrere und „Abschicken“ | `ON_OPTION_SELECTED` mit dem Wert oder der Liste der Werte |
 | `YES_NO` | „Ja“ und „Nein“ | `ON_YES` oder `ON_NO` |
 | `FREE_INPUT` | Textfeld | `ON_CONFIRM` mit dem Text |
 | `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` | Ziffernblock für einen Code dieser Länge | `ON_CONFIRM` mit dem Code |
@@ -82,10 +82,12 @@ aus dem offenen Dialog der Figur ab:
 
 Über den Eingaben zeigt das Gerät Titel und Frage des Dialogs, bei Texten den Text selbst.
 Auf breiten Bildschirmen stehen Aufgabe und Eingaben nebeneinander, und jede Eingabe hat eine Taste:
-Pfeiltasten und Leertaste zum Gehen, Ziffern für Antworten und Codes, Enter zum Abschicken.
+Pfeiltasten und Leertaste zum Gehen, Buchstaben für Antworten, Ziffern für Ja/Nein und Codes,
+Enter zum Abschicken.
 Die Antworten von Multiple-Choice-Dialogen erscheinen auf dem Spielbildschirm und auf dem Gerät mit
-derselben Nummer, auf dem Gerät als eine Zeile je Antwort. Klicks am Rechner des Spielbildschirms
-beantworten keine Dialoge; das tun nur die Stimmen.
+demselben Buchstaben, auf dem Gerät als eine Zeile je Antwort. Die Geräte schicken als Stimme
+weiterhin die Nummer der Antwort, ab 1 gezählt. Klicks am Rechner des Spielbildschirms beantworten
+keine Dialoge; das tun nur die Stimmen.
 
 Die Webseite gibt es auf Deutsch und Englisch. Sie startet in der ersten Sprache, die der Browser
 bevorzugt, sonst auf Englisch; der Umschalter oben rechts speichert die Wahl in einem Cookie.
@@ -101,9 +103,9 @@ offen ist, sind die Ränder aus.
 ## Abstimmung
 
 - Ein Bewegungsfenster beginnt mit der ersten Stimme und dauert 10 Sekunden.
-- Ein Rätselfenster beginnt, sobald der Dialog offen ist, und dauert 25 Sekunden. Haben alle
-  Abstimmenden eine Stimme abgegeben, bleiben nur noch 3 Sekunden, um sie zu ändern. Kommt keine
-  Stimme, beginnt ein neues Fenster.
+- Ein Rätselfenster beginnt, sobald der Dialog offen ist, und dauert 25 Sekunden. Hat die Hälfte
+  der Abstimmenden eine Stimme abgegeben, bleiben nur noch 10 Sekunden, haben alle abgestimmt,
+  nur noch 3, um die Stimme zu ändern. Kommt keine Stimme, beginnt ein neues Fenster.
 - Ein „Weiter“-Fenster dauert 30 Sekunden. Sobald die Hälfte der Abstimmenden „Weiter“
   gedrückt hat, bleiben nur noch 5 Sekunden, sobald alle gedrückt haben, nur noch 2. Die Stimme
   heißt nur „fertig gelesen“; ohne Stimmen geht es nach Ablauf trotzdem weiter.

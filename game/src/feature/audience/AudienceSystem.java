@@ -66,6 +66,7 @@ public final class AudienceSystem extends System {
   private static final int INPUTS_PER_FRAME = 500;
   private static final long READY_REST_MS = 5_000;
   private static final long ALL_READY_REST_MS = 2_000;
+  private static final long HALF_VOTED_REST_MS = 10_000;
   private static final long ALL_VOTED_REST_MS = 3_000;
 
   /** Session phases, in order. */
@@ -322,9 +323,9 @@ public final class AudienceSystem extends System {
 
   /**
    * Returns when a window ends, given its votes so far. A text closes five seconds after half the
-   * voters finished reading and two seconds after all of them did. A puzzle closes three seconds
-   * after everybody voted. Nobody waits out a long window, and the seconds left let a voter change
-   * their mind. Movement windows keep their end.
+   * voters finished reading and two seconds after all of them did. A puzzle closes ten seconds
+   * after half the voters voted and three seconds after all of them did. Nobody waits out a long
+   * window, and the seconds left let a voter change their mind. Movement windows keep their end.
    *
    * @param context context of the window
    * @param endsAt current end of the window
@@ -342,7 +343,10 @@ public final class AudienceSystem extends System {
       }
       case AudienceContext.Move move -> endsAt;
       case AudienceContext.Wait wait -> endsAt;
-      default -> votes >= voters ? Math.min(endsAt, now + ALL_VOTED_REST_MS) : endsAt;
+      default -> {
+        if (votes >= voters) yield Math.min(endsAt, now + ALL_VOTED_REST_MS);
+        yield votes * 2L >= voters ? Math.min(endsAt, now + HALF_VOTED_REST_MS) : endsAt;
+      }
     };
   }
 

@@ -254,8 +254,9 @@ sealed interface AudienceContext {
   }
 
   /**
-   * Single or multiple choice. Devices send option numbers starting at one; the counted vote is the
-   * option value, or the values of the chosen combination in option order.
+   * Single or multiple choice. The screens show options with letters starting at A; devices send
+   * option numbers starting at one. The counted vote is the option value, or the values of the
+   * chosen combination in option order.
    *
    * @param ui the dialog
    * @param options options in display order
@@ -301,13 +302,15 @@ sealed interface AudienceContext {
 
     @Override
     public String label(JsonNode vote) {
-      List<String> numbers = new ArrayList<>();
+      List<String> letters = new ArrayList<>();
       for (JsonNode value : vote.isArray() ? vote : JSON.arrayNode().add(vote)) {
         for (int i = 0; i < options.size(); i++) {
-          if (options.get(i).value().equals(value.asString())) numbers.add(Integer.toString(i + 1));
+          if (options.get(i).value().equals(value.asString())) {
+            letters.add(DialogFactory.choiceLetter(i));
+          }
         }
       }
-      return String.join(" + ", numbers);
+      return String.join(" + ", letters);
     }
 
     @Override
