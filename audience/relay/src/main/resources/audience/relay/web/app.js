@@ -9,11 +9,191 @@
 const API = "api/sessions/";
 const app = document.getElementById("app");
 
+// Texts of the page. Dialog texts and vote labels come from the game in its own language.
+const TEXTS = {
+  de: {
+    name: "Deutsch",
+    language: "Sprache",
+    title: "Dungeon gemeinsam spielen",
+    intro: "Alle stimmen ab, die Figur macht, was die meisten wählen.",
+    codeLabel: "Code vom Spielbildschirm",
+    join: "Beitreten",
+    unknownCode: "Diesen Code gibt es nicht.",
+    roundFull: "Runde voll oder schon vorbei.",
+    unreachable: "Server nicht erreichbar.",
+    roundOver: "Diese Runde ist vorbei.",
+    connecting: "Verbinde …",
+    connected: "verbunden",
+    offline: "keine Verbindung",
+    otherTab: "in einem anderen Tab offen",
+    closedTitle: "Die Runde ist vorbei",
+    closedLead: "Danke fürs Mitspielen. Ihr könnt die Seite schließen.",
+    joinedTitle: "Du bist drin",
+    joinedLead: "Gleich erscheint die erste Frage.",
+    doneTitle: "Danke!",
+    doneLead: "Deine Antworten sind angekommen. Ihr könnt die Seite schließen.",
+    spectatorTitle: "Du schaust zu",
+    spectatorLead: "Ohne Einwilligung speichern wir nichts von dir. Dafür stimmst du nicht mit ab.",
+    soon: "Gleich geht es los",
+    lobbyLead: "Schaut auf den Spielbildschirm. Die Spielleitung startet die Runde.",
+    endedTitle: "Geschafft",
+    watchScreen: "Schaut auf den Spielbildschirm.",
+    pausedTitle: "Pausiert",
+    pausedLead: "Gleich geht es weiter. Abgegebene Stimmen bleiben erhalten.",
+    moveTitle: "Wohin geht es?",
+    choiceTitle: "Antwort wählen",
+    choicesTitle: "Antworten wählen",
+    textTitle: "Antwort eintippen",
+    codeTitle: "Code eingeben",
+    readTitle: "Text lesen",
+    readScreenTitle: "Text auf dem Spielbildschirm lesen",
+    watchTitle: "Schaut auf den Spielbildschirm",
+    firstVote: "Die erste Stimme startet die Runde.",
+    secondsLeft: "Sekunden übrig",
+    chosen: (label) => "Gewählt: " + label,
+    up: "oben",
+    left: "links",
+    right: "rechts",
+    down: "unten",
+    use: "Benutzen",
+    space: "Leertaste",
+    moveVote: (name) => "Deine Stimme: " + name + ". Du kannst sie bis zum Ende ändern.",
+    moveHint: "Wähle eine Richtung oder „Benutzen“.",
+    moveKeys: "Auf der Tastatur: Pfeiltasten und Leertaste.",
+    answer: (number) => "Antwort " + number,
+    choiceVote: (label) => "Deine Stimme: " + label + ". Die Antworten stehen auf dem Spielbildschirm.",
+    choiceHint: "Die Antworten stehen auf dem Spielbildschirm.",
+    choiceKeys: (count) => "Auf der Tastatur: Zifferntasten 1 bis " + count + ".",
+    submit: "Abschicken",
+    resubmit: "Neu abschicken",
+    submitted: (list) => "Abgeschickt: " + list + ". Ihr stimmt über die ganze Kombination ab.",
+    choicesHint: "Wähle alle passenden Antworten, dann abschicken.",
+    choicesKeys: "Auf der Tastatur: Zifferntasten wählen, Enter schickt ab.",
+    textPlaceholder: "Eure Antwort",
+    textLabel: "Antwort",
+    send: "Senden",
+    change: "Ändern",
+    textVote: (text) => "Deine Antwort: „" + text + "“",
+    textHint: "Gleiche Antworten werden zusammengezählt.",
+    erase: "Löschen",
+    codeVote: (digits) => "Deine Stimme: " + digits,
+    codeHint: "Führende Nullen zählen mit.",
+    codeKeys: "Auf der Tastatur: Ziffern, Rücktaste und Enter.",
+    ready: "Bereit",
+    next: "Weiter",
+    continueHint: "Sobald die Hälfte bereit ist, geht es nach 5 Sekunden weiter.",
+    back: "Zurück",
+    sending: "Wird gesendet …",
+    rejected: "Die Antworten wurden nicht angenommen. Bitte prüft sie und schickt sie erneut.",
+    sendFailed: "Senden hat nicht geklappt. Prüft die Verbindung und versucht es noch einmal.",
+    page: (page, pages) => "Seite " + page + " von " + pages,
+    required: "Bitte beantworten.",
+    maxChars: (max) => "Höchstens " + max + " Zeichen.",
+    number: "Bitte eine Zahl eingeben.",
+    wholeNumber: "Bitte eine ganze Zahl eingeben.",
+    min: (min) => "Mindestens " + min + ".",
+    max: (max) => "Höchstens " + max + ".",
+    otherMissing: "Bitte „Sonstiges“ ausfüllen.",
+    everyRow: "Bitte jede Zeile beantworten.",
+    pick: "Bitte wählen",
+    other: "Sonstiges",
+  },
+  en: {
+    name: "English",
+    language: "Language",
+    title: "Play Dungeon together",
+    intro: "Everyone votes, and the character does what most people pick.",
+    codeLabel: "Code from the main screen",
+    join: "Join",
+    unknownCode: "This code does not exist.",
+    roundFull: "Round is full or already over.",
+    unreachable: "Cannot reach the server.",
+    roundOver: "This round is over.",
+    connecting: "Connecting …",
+    connected: "connected",
+    offline: "no connection",
+    otherTab: "open in another tab",
+    closedTitle: "The round is over",
+    closedLead: "Thanks for playing. You can close this page.",
+    joinedTitle: "You're in",
+    joinedLead: "The first question will appear shortly.",
+    doneTitle: "Thank you!",
+    doneLead: "We received your answers. You can close this page.",
+    spectatorTitle: "You're watching",
+    spectatorLead: "Without your consent, we store nothing about you. You just can't vote.",
+    soon: "Starting soon",
+    lobbyLead: "Watch the main screen. The host will start the round.",
+    endedTitle: "You made it",
+    watchScreen: "Watch the main screen.",
+    pausedTitle: "Paused",
+    pausedLead: "The game continues shortly. Votes already cast still count.",
+    moveTitle: "Which way?",
+    choiceTitle: "Pick an answer",
+    choicesTitle: "Pick answers",
+    textTitle: "Type your answer",
+    codeTitle: "Enter the code",
+    readTitle: "Read the text",
+    readScreenTitle: "Read the text on the main screen",
+    watchTitle: "Watch the main screen",
+    firstVote: "The first vote starts the round.",
+    secondsLeft: "seconds left",
+    chosen: (label) => "Chosen: " + label,
+    up: "up",
+    left: "left",
+    right: "right",
+    down: "down",
+    use: "Use",
+    space: "Space",
+    moveVote: (name) => "Your vote: " + name + ". You can change it until time runs out.",
+    moveHint: "Pick a direction or “Use”.",
+    moveKeys: "On the keyboard: arrow keys and Space.",
+    answer: (number) => "Answer " + number,
+    choiceVote: (label) => "Your vote: " + label + ". The answers are on the main screen.",
+    choiceHint: "The answers are on the main screen.",
+    choiceKeys: (count) => "On the keyboard: number keys 1 to " + count + ".",
+    submit: "Submit",
+    resubmit: "Submit again",
+    submitted: (list) => "Submitted: " + list + ". You vote on the whole combination.",
+    choicesHint: "Pick every answer that fits, then submit.",
+    choicesKeys: "On the keyboard: pick with number keys, submit with Enter.",
+    textPlaceholder: "Your answer",
+    textLabel: "Answer",
+    send: "Send",
+    change: "Change",
+    textVote: (text) => "Your answer: “" + text + "”",
+    textHint: "Identical answers are counted together.",
+    erase: "Delete",
+    codeVote: (digits) => "Your vote: " + digits,
+    codeHint: "Leading zeros count.",
+    codeKeys: "On the keyboard: digits, Backspace and Enter.",
+    ready: "Ready",
+    next: "Next",
+    continueHint: "Once half of you are ready, the game continues after 5 seconds.",
+    back: "Back",
+    sending: "Sending …",
+    rejected: "Your answers were not accepted. Please check them and submit again.",
+    sendFailed: "Sending failed. Check your connection and try again.",
+    page: (page, pages) => "Page " + page + " of " + pages,
+    required: "Please answer this.",
+    maxChars: (max) => "At most " + max + " characters.",
+    number: "Please enter a number.",
+    wholeNumber: "Please enter a whole number.",
+    min: (min) => "At least " + min + ".",
+    max: (max) => "At most " + max + ".",
+    otherMissing: "Please fill in “Other”.",
+    everyRow: "Please answer every row.",
+    pick: "Please choose",
+    other: "Other",
+  },
+};
+const LANGUAGE_COOKIE = "dungeon-audience-language";
+let language = initialLanguage();
+
 const DIRECTIONS = [
-  { value: "up", label: "▲", name: "oben", area: "up", key: "ArrowUp" },
-  { value: "left", label: "◀", name: "links", area: "left", key: "ArrowLeft" },
-  { value: "right", label: "▶", name: "rechts", area: "right", key: "ArrowRight" },
-  { value: "down", label: "▼", name: "unten", area: "down", key: "ArrowDown" },
+  { value: "up", label: "▲", area: "up", key: "ArrowUp" },
+  { value: "left", label: "◀", area: "left", key: "ArrowLeft" },
+  { value: "right", label: "▶", area: "right", key: "ArrowRight" },
+  { value: "down", label: "▼", area: "down", key: "ArrowDown" },
 ];
 
 const session = {
@@ -31,7 +211,8 @@ const session = {
 // Votes, survey drafts, and typed answers belong to one round; forget() clears them.
 const votes = new Map();
 let drafts = {};
-// What the device typed per puzzle, so a new window or a pause keeps half-typed answers.
+// What the device typed or picked per puzzle, so a new window, a pause, or a language switch keeps
+// unsent answers.
 const typed = new Map();
 let screenKey = "";
 
@@ -52,10 +233,45 @@ function el(tag, attributes = {}, ...children) {
   return node;
 }
 
-/** Text of a survey string in German, falling back to English; `code` spans become <code>. */
+/** Page text in the current language; texts with values are functions of them. */
+function t(key, ...values) {
+  const text = TEXTS[language][key];
+  return typeof text === "function" ? text(...values) : text;
+}
+
+/** The language picked on this device before, otherwise the first one the browser prefers. */
+function initialLanguage() {
+  const stored = document.cookie.match(new RegExp("(?:^|; )" + LANGUAGE_COOKIE + "=(\\w+)"));
+  if (stored && Object.hasOwn(TEXTS, stored[1])) return stored[1];
+  const preferred = (navigator.languages || [navigator.language || ""])
+    .map((tag) => tag.split("-")[0].toLowerCase())
+    .find((code) => Object.hasOwn(TEXTS, code));
+  return preferred || "en";
+}
+
+/** Switches the page language, remembers it in a cookie, and redraws the screen in place. */
+function switchLanguage(code) {
+  language = code;
+  document.cookie = LANGUAGE_COOKIE + "=" + code + "; max-age=31536000; SameSite=Lax";
+  applyLanguage();
+  const input = app.querySelector(".code-input");
+  if (input) app.replaceChildren(...joinScreen("", input.value));
+  else render(true);
+}
+
+function applyLanguage() {
+  document.documentElement.lang = language;
+  document.title = t("title");
+}
+
+/** Text of a survey string in the page language, falling back to the other one. */
+function surveyText(text) {
+  return text ? (text[language] ?? text.de ?? text.en ?? "") : "";
+}
+
+/** Survey text with `code` spans as <code>. */
 function localized(text) {
-  const value = text ? (text.de ?? text.en ?? "") : "";
-  return value.split("`").map((part, i) => (i % 2 === 1 ? el("code", {}, part) : part));
+  return surveyText(text).split("`").map((part, i) => (i % 2 === 1 ? el("code", {}, part) : part));
 }
 
 function spaced(code) {
@@ -132,7 +348,7 @@ function connect() {
       if (error.status === 404 || error.status === 409) {
         events.close();
         forget();
-        showJoin("Diese Runde ist vorbei.");
+        showJoin(t("roundOver"));
         return;
       }
     }
@@ -205,18 +421,18 @@ function currentKey() {
 function build() {
   const key = screenKey;
   if (key === "join") return joinScreen();
-  if (key === "connecting") return [bar(), statusScreen("Verbinde …")];
-  if (key === "closed") return [statusScreen("Die Runde ist vorbei", "Danke fürs Mitspielen. Ihr könnt die Seite schließen.")];
+  if (key === "connecting") return [bar(), statusScreen(t("connecting"))];
+  if (key === "closed") return [languageBar(), statusScreen(t("closedTitle"), t("closedLead"))];
   const own = status() || "joining";
   switch (own) {
     case "joining":
-      return [bar(), statusScreen("Du bist drin", "Gleich erscheint die erste Frage.")];
+      return [bar(), statusScreen(t("joinedTitle"), t("joinedLead"))];
     case "pre":
       return surveyScreen("pre");
     case "post":
       return surveyScreen("post");
     case "done":
-      return [bar(), statusScreen("Danke!", "Deine Antworten sind angekommen. Ihr könnt die Seite schließen.")];
+      return [bar(), statusScreen(t("doneTitle"), t("doneLead"))];
     case "spectator":
       return spectatorScreen();
     default:
@@ -233,16 +449,30 @@ function statusScreen(title, lead, ...extra) {
 function bar() {
   return el("div", { class: "bar" },
     el("span", { class: "code", "aria-label": "Code " + session.code }, spaced(session.code)),
-    el("span", { "data-online": true }));
+    el("span", { class: "end" }, el("span", { "data-online": true }), languageSwitch()));
+}
+
+/** The bar of screens outside a round: only the language switch. */
+function languageBar() {
+  return el("div", { class: "bar" }, el("span"), languageSwitch());
+}
+
+function languageSwitch() {
+  return el("span", { class: "language", role: "group", "aria-label": t("language") },
+    ...Object.keys(TEXTS).map((code) => el("button", {
+      type: "button",
+      lang: code,
+      "aria-label": TEXTS[code].name,
+      "aria-pressed": String(code === language),
+      onclick: () => switchLanguage(code),
+    }, code.toUpperCase())));
 }
 
 /** Shows the connection state in place, so a short interruption keeps entered answers. */
 function updateBar() {
   const status = app.querySelector("[data-online]");
   if (!status) return;
-  status.textContent = session.replaced
-    ? "in einem anderen Tab offen"
-    : session.online ? "verbunden" : "keine Verbindung";
+  status.textContent = t(session.replaced ? "otherTab" : session.online ? "connected" : "offline");
   status.classList.toggle("offline", !session.online);
 }
 
@@ -257,22 +487,20 @@ function digitsOnly(text) {
   return text.replace(/\D/g, "").slice(0, 6);
 }
 
-function joinScreen(error) {
-  const params = new URLSearchParams(location.search);
+function joinScreen(error, code = new URLSearchParams(location.search).get("code") || "") {
   const input = el("input", {
     class: "code-input",
     type: "text",
     inputmode: "numeric",
     autocomplete: "off",
     placeholder: "000000",
-    "aria-label": "Code vom Spielbildschirm",
-    value: digitsOnly(params.get("code") || ""),
+    value: digitsOnly(code),
     "data-autofocus": true,
   });
   // Errors show inside the code box, so nothing below it moves.
   const message = el("p", { class: "error", role: "alert" });
   const box = el("div", { class: "code-box" }, input, message);
-  const submit = el("button", { class: "button primary", type: "submit" }, "Beitreten");
+  const submit = el("button", { class: "button primary", type: "submit" }, t("join"));
   const showError = (text) => {
     message.textContent = text;
     box.classList.toggle("invalid", Boolean(text));
@@ -302,18 +530,15 @@ function joinScreen(error) {
       } catch (failure) {
         session.code = null;
         submit.disabled = false;
-        showError(failure.status === 404
-          ? "Diesen Code gibt es nicht."
-          : failure.status === 409
-            ? "Runde voll oder schon vorbei."
-            : "Server nicht erreichbar.");
+        showError(t(failure.status === 404 ? "unknownCode" : failure.status === 409 ? "roundFull" : "unreachable"));
       }
     },
-  }, el("label", { for: "code" }, "Code vom Spielbildschirm"), box, submit);
+  }, el("label", { for: "code" }, t("codeLabel")), box, submit);
   input.id = "code";
   return [
-    el("h1", {}, "Dungeon gemeinsam spielen"),
-    el("p", { class: "lead" }, "Alle stimmen ab, die Figur macht, was die meisten wählen."),
+    languageBar(),
+    el("h1", {}, t("title")),
+    el("p", { class: "lead" }, t("intro")),
     el("div", { class: "controls" }, form),
   ];
 }
@@ -322,7 +547,7 @@ function spectatorScreen() {
   const state = session.state;
   return [
     bar(),
-    statusScreen("Du schaust zu", "Ohne Einwilligung speichern wir nichts von dir. Dafür stimmst du nicht mit ab.",
+    statusScreen(t("spectatorTitle"), t("spectatorLead"),
       state.phase === "playing" && !state.paused ? timerRow() : null,
       resultBlock()),
   ];
@@ -331,28 +556,28 @@ function spectatorScreen() {
 function playScreen() {
   const state = session.state;
   if (state.phase === "lobby") {
-    return [bar(), statusScreen("Gleich geht es los", "Schaut auf den Spielbildschirm. Die Spielleitung startet die Runde.")];
+    return [bar(), statusScreen(t("soon"), t("lobbyLead"))];
   }
   if (state.phase === "countdown") {
-    return [bar(), statusScreen("Gleich geht es los", null, el("div", { class: "big", "data-countdown": true }, ""))];
+    return [bar(), statusScreen(t("soon"), null, el("div", { class: "big", "data-countdown": true }, ""))];
   }
   if (state.phase === "ended") {
-    return [bar(), statusScreen("Geschafft", "Schaut auf den Spielbildschirm.")];
+    return [bar(), statusScreen(t("endedTitle"), t("watchScreen"))];
   }
   // The host paused the game: the window and its time stand still, and votes cast so far stay.
   if (state.paused) {
-    const screen = statusScreen("Pausiert", "Gleich geht es weiter. Abgegebene Stimmen bleiben erhalten.");
+    const screen = statusScreen(t("pausedTitle"), t("pausedLead"));
     screen.prepend(el("div", { class: "sign", "aria-hidden": "true" }, "II"));
     return [bar(), screen];
   }
   const context = state.context || { kind: "wait" };
-  const title = {
-    move: "Wohin geht es?",
-    choice: context.multiple ? "Antworten wählen" : "Antwort wählen",
-    text: "Antwort eintippen",
-    code: "Code eingeben",
-    continue: context.text ? "Text lesen" : "Text auf dem Spielbildschirm lesen",
-  }[context.kind] || "Schaut auf den Spielbildschirm";
+  const title = t({
+    move: "moveTitle",
+    choice: context.multiple ? "choicesTitle" : "choiceTitle",
+    text: "textTitle",
+    code: "codeTitle",
+    continue: context.text ? "readTitle" : "readScreenTitle",
+  }[context.kind] || "watchTitle");
   const controls = {
     move: movePad,
     choice: choicePad,
@@ -382,13 +607,13 @@ function promptBlock(context) {
 function timerRow() {
   const context = session.state.context || {};
   if (!("windowMs" in context)) {
-    const text = context.kind === "move" ? "Die erste Stimme startet die Runde." : "";
+    const text = context.kind === "move" ? t("firstVote") : "";
     return el("p", { class: "note window" }, text);
   }
   const dots = el("div", { class: "dots", "aria-hidden": "true" });
   for (let i = 0; i < 20; i++) dots.append(el("i"));
   return el("div", { class: "window", "data-timer": true },
-    dots, el("span", { class: "seconds", "aria-label": "Sekunden übrig" }, ""));
+    dots, el("span", { class: "seconds", "aria-label": t("secondsLeft") }, ""));
 }
 
 function updateTimer() {
@@ -425,7 +650,7 @@ function updateResult() {
   }
   const tally = (result.tally || []).map((entry) => entry.count + " × " + entry.label).join(", ");
   holder.className = "result";
-  holder.replaceChildren(...[el("strong", {}, "Gewählt: " + result.chosen), tally ? el("span", {}, tally) : null].filter(Boolean));
+  holder.replaceChildren(...[el("strong", {}, t("chosen", result.chosen)), tally ? el("span", {}, tally) : null].filter(Boolean));
 }
 
 function ownVote() {
@@ -436,7 +661,7 @@ function movePad() {
   const mine = ownVote();
   const buttons = DIRECTIONS.map((direction) => el("button", {
     class: "button " + direction.area + (mine === direction.value ? " picked" : ""),
-    "aria-label": direction.name,
+    "aria-label": t(direction.value),
     "aria-pressed": String(mine === direction.value),
     "data-key": direction.key,
     onclick: () => vote(direction.value),
@@ -446,12 +671,12 @@ function movePad() {
     "aria-pressed": String(mine === "interact"),
     "data-key": "Space",
     onclick: () => vote("interact"),
-  }, "Benutzen", el("kbd", {}, "Leertaste"));
-  const name = mine ? (DIRECTIONS.find((d) => d.value === mine)?.name ?? "Benutzen") : null;
+  }, t("use"), el("kbd", {}, t("space")));
+  const name = mine ? t(mine === "interact" ? "use" : mine) : null;
   return [
     el("div", { class: "pad" }, ...buttons, act),
-    el("p", { class: "note" }, name ? "Deine Stimme: " + name + ". Du kannst sie bis zum Ende ändern." : "Wähle eine Richtung oder „Benutzen“."),
-    keysHint("Auf der Tastatur: Pfeiltasten und Leertaste."),
+    el("p", { class: "note" }, name ? t("moveVote", name) : t("moveHint")),
+    keysHint(t("moveKeys")),
   ];
 }
 
@@ -464,7 +689,7 @@ function choicePad(context) {
     for (let i = 1; i <= count; i++) {
       grid.append(el("button", {
         class: "button" + (mine !== undefined && mine !== i ? " off" : "") + (mine === i ? " picked" : ""),
-        "aria-label": labels ? labels[i - 1] : "Antwort " + i,
+        "aria-label": labels ? labels[i - 1] : t("answer", i),
         "aria-pressed": String(mine === i),
         "data-key": String(i),
         onclick: () => vote(i),
@@ -472,14 +697,14 @@ function choicePad(context) {
     }
     return [
       grid,
-      el("p", { class: "note" }, mine ? "Deine Stimme: " + (labels ? labels[mine - 1] : mine) + ". Die Antworten stehen auf dem Spielbildschirm." : "Die Antworten stehen auf dem Spielbildschirm."),
-      keysHint("Auf der Tastatur: Zifferntasten 1 bis " + count + "."),
+      el("p", { class: "note" }, mine ? t("choiceVote", labels ? labels[mine - 1] : mine) : t("choiceHint")),
+      keysHint(t("choiceKeys", count)),
     ];
   }
   const sent = Array.isArray(mine) ? mine : [];
-  const picked = new Set(sent);
+  const picked = new Set(typed.get(typedKey(context)) ?? sent);
   const grid = el("div", { class: "options" });
-  const send = el("button", { class: "button primary", "data-key": "Enter" }, sent.length ? "Neu abschicken" : "Abschicken", el("kbd", {}, "Enter"));
+  const send = el("button", { class: "button primary", "data-key": "Enter" }, t(sent.length ? "resubmit" : "submit"), el("kbd", {}, "Enter"));
   const refresh = () => {
     grid.querySelectorAll("button").forEach((button, i) => {
       const on = picked.has(i + 1);
@@ -491,10 +716,11 @@ function choicePad(context) {
   for (let i = 1; i <= count; i++) {
     grid.append(el("button", {
       class: "button",
-      "aria-label": "Antwort " + i,
+      "aria-label": t("answer", i),
       "data-key": String(i),
       onclick: () => {
         picked.has(i) ? picked.delete(i) : picked.add(i);
+        typed.set(typedKey(context), [...picked]);
         refresh();
       },
     }, i));
@@ -505,8 +731,8 @@ function choicePad(context) {
   return [
     grid,
     send,
-    el("p", { class: "note" }, sent.length ? "Abgeschickt: " + sent.join(" + ") + ". Ihr stimmt über die ganze Kombination ab." : "Wähle alle passenden Antworten, dann abschicken."),
-    keysHint("Auf der Tastatur: Zifferntasten wählen, Enter schickt ab."),
+    el("p", { class: "note" }, sent.length ? t("submitted", sent.join(" + ")) : t("choicesHint")),
+    keysHint(t("choicesKeys")),
   ];
 }
 
@@ -522,12 +748,12 @@ function textEntry(context) {
     autocapitalize: "off",
     spellcheck: "false",
     maxlength: "120",
-    placeholder: "Eure Antwort",
-    "aria-label": "Antwort",
-    value: mine || typed.get(typedKey(context)) || "",
+    placeholder: t("textPlaceholder"),
+    "aria-label": t("textLabel"),
+    value: typed.get(typedKey(context)) ?? mine ?? "",
   });
   input.addEventListener("input", () => typed.set(typedKey(context), input.value));
-  const send = el("button", { class: "button primary", type: "submit" }, mine ? "Ändern" : "Senden");
+  const send = el("button", { class: "button primary", type: "submit" }, t(mine ? "change" : "send"));
   const form = el("form", {
     class: "field",
     onsubmit: (event) => {
@@ -536,12 +762,12 @@ function textEntry(context) {
       if (value) vote(value);
     },
   }, input, send);
-  return [form, el("p", { class: "note" }, mine ? "Deine Antwort: „" + mine + "“" : "Gleiche Antworten werden zusammengezählt.")];
+  return [form, el("p", { class: "note" }, mine ? t("textVote", mine) : t("textHint"))];
 }
 
 function codePad(context) {
   const length = context.digits;
-  let digits = ownVote() || typed.get(typedKey(context)) || "";
+  let digits = typed.get(typedKey(context)) ?? ownVote() ?? "";
   const display = el("div", { class: "display", "aria-live": "polite" }, "");
   const send = el("button", { class: "button primary word", "data-key": "Enter" }, "OK");
   const show = () => {
@@ -553,7 +779,7 @@ function codePad(context) {
   for (const key of ["1", "2", "3", "4", "5", "6", "7", "8", "9"]) {
     keypad.append(el("button", { class: "button", "data-key": key, onclick: () => { if (digits.length < length) digits += key; show(); } }, key));
   }
-  keypad.append(el("button", { class: "button word", "aria-label": "Löschen", "data-key": "Backspace", onclick: () => { digits = digits.slice(0, -1); show(); } }, "⌫"));
+  keypad.append(el("button", { class: "button word", "aria-label": t("erase"), "data-key": "Backspace", onclick: () => { digits = digits.slice(0, -1); show(); } }, "⌫"));
   keypad.append(el("button", { class: "button", "data-key": "0", onclick: () => { if (digits.length < length) digits += "0"; show(); } }, "0"));
   send.addEventListener("click", () => vote(digits));
   keypad.append(send);
@@ -562,16 +788,16 @@ function codePad(context) {
   return [
     display,
     keypad,
-    el("p", { class: "note" }, mine ? "Deine Stimme: " + mine : "Führende Nullen zählen mit."),
-    keysHint("Auf der Tastatur: Ziffern, Rücktaste und Enter."),
+    el("p", { class: "note" }, mine ? t("codeVote", mine) : t("codeHint")),
+    keysHint(t("codeKeys")),
   ];
 }
 
 function continuePad() {
   const mine = ownVote();
   return [
-    el("button", { class: "button primary" + (mine ? " picked" : ""), "data-key": "Enter", onclick: () => vote("continue"), disabled: Boolean(mine) }, mine ? "Bereit" : "Weiter", mine ? null : el("kbd", {}, "Enter")),
-    el("p", { class: "note" }, "Sobald die Hälfte bereit ist, geht es nach 5 Sekunden weiter."),
+    el("button", { class: "button primary" + (mine ? " picked" : ""), "data-key": "Enter", onclick: () => vote("continue"), disabled: Boolean(mine) }, t(mine ? "ready" : "next"), mine ? null : el("kbd", {}, "Enter")),
+    el("p", { class: "note" }, t("continueHint")),
   ];
 }
 
@@ -583,9 +809,9 @@ function keysHint(text) {
 // --- keyboard
 
 // On laptops a key presses the control button that carries it in data-key; typing into a field
-// keeps its normal meaning.
+// or using the language switch keeps its normal meaning.
 document.addEventListener("keydown", (event) => {
-  if (event.repeat || event.target.closest("input, textarea, select") || event.altKey || event.ctrlKey || event.metaKey) return;
+  if (event.repeat || event.target.closest("input, textarea, select, .language") || event.altKey || event.ctrlKey || event.metaKey) return;
   const key = event.key === " " ? "Space" : event.key;
   const button = app.querySelector(`.controls [data-key="${CSS.escape(key)}"]`);
   if (!button || button.disabled) return;
@@ -609,8 +835,8 @@ function renderSurvey(holder, phase, survey) {
   const fields = page.questions.map((question) => questionField(question, draft.answers));
   const message = el("p", { class: "error", role: "alert" });
   const declining = () => declines(survey, draft.answers);
-  const next = el("button", { class: "button primary" }, last || declining() ? "Abschicken" : "Weiter");
-  const back = draft.page > 0 ? el("button", { class: "button", onclick: () => { draft.page--; renderSurvey(holder, phase, survey); } }, "Zurück") : null;
+  const next = el("button", { class: "button primary" }, t(last || declining() ? "submit" : "next"));
+  const back = draft.page > 0 ? el("button", { class: "button", onclick: () => { draft.page--; renderSurvey(holder, phase, survey); } }, t("back")) : null;
   next.addEventListener("click", async () => {
     if (!declining()) {
       const problems = page.questions.map((question, i) => markProblem(fields[i], question, draft.answers[question.id]));
@@ -626,31 +852,31 @@ function renderSurvey(holder, phase, survey) {
       }
     }
     next.disabled = true;
-    next.textContent = "Wird gesendet …";
+    next.textContent = t("sending");
     message.textContent = "";
     try {
       await post("/input", { token: session.token, type: "survey", phase, answers: submission(survey, draft.answers, declining()) });
       setTimeout(() => {
         if (status() === phase) {
           next.disabled = false;
-          next.textContent = "Abschicken";
-          message.textContent = "Die Antworten wurden nicht angenommen. Bitte prüft sie und schickt sie erneut.";
+          next.textContent = t("submit");
+          message.textContent = t("rejected");
         }
       }, 6000);
     } catch {
       next.disabled = false;
-      next.textContent = "Abschicken";
-      message.textContent = "Senden hat nicht geklappt. Prüft die Verbindung und versucht es noch einmal.";
+      next.textContent = t("submit");
+      message.textContent = t("sendFailed");
     }
   });
   holder.replaceChildren(...[
     el("h1", {}, localized(survey.title)),
-    survey.pages.length > 1 ? el("p", { class: "note" }, "Seite " + (draft.page + 1) + " von " + survey.pages.length) : null,
+    survey.pages.length > 1 ? el("p", { class: "note" }, t("page", draft.page + 1, survey.pages.length)) : null,
     page.title ? el("p", { class: "lead" }, localized(page.title)) : null,
     ...fields,
     el("div", { class: "nav" }, back, next, message),
   ].filter(Boolean));
-  holder.onchange = () => { next.textContent = last || declining() ? "Abschicken" : "Weiter"; };
+  holder.onchange = () => { next.textContent = t(last || declining() ? "submit" : "next"); };
 }
 
 function declines(survey, answers) {
@@ -677,30 +903,30 @@ function submission(survey, answers, declining) {
 function problemOf(question, answer) {
   if (question.type === "info") return null;
   const empty = answer === undefined || (question.type === "matrix" && Object.keys(answer).length === 0);
-  if (empty) return question.required ? "Bitte beantworten." : null;
+  if (empty) return question.required ? t("required") : null;
   switch (question.type) {
     case "shortText":
     case "longText": {
       const max = question.maxLength || (question.type === "shortText" ? 50 : 10000);
-      if (answer.length > max) return "Höchstens " + max + " Zeichen.";
+      if (answer.length > max) return t("maxChars", max);
       return null;
     }
     case "number":
-      if (!Number.isFinite(answer)) return "Bitte eine Zahl eingeben.";
-      if (!question.decimals && !Number.isInteger(answer)) return "Bitte eine ganze Zahl eingeben.";
-      if (question.min !== undefined && answer < question.min) return "Mindestens " + question.min + ".";
-      if (question.max !== undefined && answer > question.max) return "Höchstens " + question.max + ".";
+      if (!Number.isFinite(answer)) return t("number");
+      if (!question.decimals && !Number.isInteger(answer)) return t("wholeNumber");
+      if (question.min !== undefined && answer < question.min) return t("min", question.min);
+      if (question.max !== undefined && answer > question.max) return t("max", question.max);
       return null;
     case "singleChoice":
     case "multiChoice":
     case "dropdown": {
       const selected = [].concat(answer.selected);
-      if (selected.length === 0) return question.required ? "Bitte beantworten." : null;
-      if (selected.includes("other") && !(answer.otherText || "").trim()) return "Bitte „Sonstiges“ ausfüllen.";
+      if (selected.length === 0) return question.required ? t("required") : null;
+      if (selected.includes("other") && !(answer.otherText || "").trim()) return t("otherMissing");
       return null;
     }
     case "matrix":
-      if (question.required && Object.keys(answer).length < question.rows.length) return "Bitte jede Zeile beantworten.";
+      if (question.required && Object.keys(answer).length < question.rows.length) return t("everyRow");
       return null;
     default:
       return null;
@@ -733,7 +959,7 @@ function questionField(question, answers) {
         type: tag === "input" ? "text" : null,
         rows: tag === "textarea" ? "4" : null,
         maxlength: String(question.maxLength || (question.type === "shortText" ? 50 : 10000)),
-        "aria-label": question.text.de ?? question.text.en,
+        "aria-label": surveyText(question.text),
       });
       input.value = current || "";
       input.addEventListener("input", () => set(input.value.trim() ? input.value : undefined));
@@ -769,9 +995,9 @@ function questionField(question, answers) {
       parts.push(...choiceInputs(question, current, set));
       break;
     case "dropdown": {
-      const select = el("select", { "aria-label": question.text.de ?? question.text.en },
-        el("option", { value: "" }, "Bitte wählen"),
-        ...question.options.map((option) => el("option", { value: option.id }, (option.text.de ?? option.text.en).replaceAll("`", ""))));
+      const select = el("select", { "aria-label": surveyText(question.text) },
+        el("option", { value: "" }, t("pick")),
+        ...question.options.map((option) => el("option", { value: option.id }, surveyText(option.text).replaceAll("`", ""))));
       select.value = current ? current.selected : "";
       select.addEventListener("change", () => set(select.value ? { selected: select.value } : undefined));
       parts.push(select);
@@ -804,10 +1030,10 @@ function choiceInputs(question, current, set) {
   const multi = question.type === "multiChoice";
   const name = "q-" + question.id;
   const options = [...question.options];
-  if (question.other) options.push({ id: "other", text: { de: "Sonstiges" } });
+  if (question.other) options.push({ id: "other", text: { [language]: t("other") } });
   let selected = current ? [].concat(current.selected) : [];
   let otherText = current && current.otherText ? current.otherText : "";
-  const other = el("input", { type: "text", placeholder: "Sonstiges", maxlength: "200", "aria-label": "Sonstiges" });
+  const other = el("input", { type: "text", placeholder: t("other"), maxlength: "200", "aria-label": t("other") });
   other.value = otherText;
   const update = () => {
     if (selected.length === 0) return set(undefined);
@@ -842,6 +1068,7 @@ function choiceInputs(question, current, set) {
 // --- start
 
 function start() {
+  applyLanguage();
   render();
   // A link with a code, such as the QR code, joins right away; the join form shows any error. A
   // stored token for the code rejoins as the same participant.

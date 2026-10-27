@@ -88,10 +88,46 @@ select {
   font: 800 22px/1 "Doto", monospace;
   letter-spacing: 0.06em;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .bar .offline {
   color: var(--danger);
+}
+
+/* On very narrow screens a long connection state wraps; the code and the switch stay whole. */
+.bar .end {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  text-align: right;
+}
+
+/* Language switch: two small segments, the current language raised */
+.language {
+  flex: none;
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.language button {
+  appearance: none;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.language button[aria-pressed="true"] {
+  background: var(--raised);
+  color: var(--text);
 }
 
 /* Headline of the current screen */
@@ -693,6 +729,11 @@ kbd {
 
   .bar .code {
     font-size: 28px;
+  }
+
+  .language button {
+    padding: 4px 9px;
+    font-size: 14px;
   }
 
   /* The window strip: the one wide element, a dot-matrix bar across the console */

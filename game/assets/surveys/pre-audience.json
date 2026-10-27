@@ -2,32 +2,32 @@
   "schemaVersion": 1,
   "roomId": "audience",
   "questionnaireId": "audience-pre-placeholder-v1",
-  "title": { "de": "Bevor es losgeht" },
+  "title": { "de": "Bevor es losgeht", "en": "Before we start" },
   "skippable": false,
   "pages": [
     {
       "questions": [
         { "id": "intro", "type": "info",
-          "text": { "de": "Kurz vorab" },
-          "description": { "de": "Wir erforschen, wie gemeinsames Rätseln in einer Gruppe funktioniert. Die Umfrage dauert eine Minute. Wir speichern keine Namen, nur eine zufällige Kennung für diese Sitzung." } },
+          "text": { "de": "Kurz vorab", "en": "A quick note" },
+          "description": { "de": "Wir erforschen, wie gemeinsames Rätseln in einer Gruppe funktioniert. Die Umfrage dauert eine Minute. Wir speichern keine Namen, nur eine zufällige Kennung für diese Sitzung.", "en": "We research how groups solve puzzles together. The survey takes one minute. We don't store names, only a random ID for this session." } },
         { "id": "consent", "type": "singleChoice", "required": true,
-          "text": { "de": "Dürfen wir deine Antworten und Abstimmungen pseudonym speichern?" },
+          "text": { "de": "Dürfen wir deine Antworten und Abstimmungen pseudonym speichern?", "en": "May we store your answers and votes under a pseudonym?" },
           "options": [
-            { "id": "yes", "text": { "de": "Ja" } },
-            { "id": "no", "text": { "de": "Nein, ich schaue nur zu" }, "declinesConsent": true } ] }
+            { "id": "yes", "text": { "de": "Ja", "en": "Yes" } },
+            { "id": "no", "text": { "de": "Nein, ich schaue nur zu", "en": "No, I'll just watch" }, "declinesConsent": true } ] }
       ]
     },
     {
       "questions": [
         { "id": "escape-room-experience", "type": "singleChoice", "required": true,
-          "text": { "de": "Wie oft hast du schon Escape-Rooms gespielt?" },
+          "text": { "de": "Wie oft hast du schon Escape-Rooms gespielt?", "en": "How often have you played escape rooms?" },
           "options": [
-            { "id": "never", "text": { "de": "Noch nie" } },
-            { "id": "once", "text": { "de": "Ein- oder zweimal" } },
-            { "id": "often", "text": { "de": "Öfter" } } ] },
+            { "id": "never", "text": { "de": "Noch nie", "en": "Never" } },
+            { "id": "once", "text": { "de": "Ein- oder zweimal", "en": "Once or twice" } },
+            { "id": "often", "text": { "de": "Öfter", "en": "More than twice" } } ] },
         { "id": "confidence", "type": "scale", "required": true, "min": 1, "max": 5,
-          "text": { "de": "Wie sicher fühlst du dich mit Datenstrukturen?" },
-          "minLabel": { "de": "Gar nicht" }, "maxLabel": { "de": "Sehr" } }
+          "text": { "de": "Wie sicher fühlst du dich mit Datenstrukturen?", "en": "How confident do you feel about data structures?" },
+          "minLabel": { "de": "Gar nicht", "en": "Not at all" }, "maxLabel": { "de": "Sehr", "en": "Very" } }
       ]
     }
   ]
