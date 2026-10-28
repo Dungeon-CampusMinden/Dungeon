@@ -36,7 +36,7 @@ final class WizardThemeCatalog {
   }
 
   /**
-   * Returns the checked level templates of one theme, read once from the classpath.
+   * Returns the level templates of one theme, read once from the classpath.
    *
    * @param themeId scenario theme
    * @return templates in catalog order
