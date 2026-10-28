@@ -102,6 +102,7 @@
             "JSON_DUPLICATE_KEY",
             "JSON_PARSE_INVALID",
             "JSON_UNICODE_INVALID",
+            "LAYOUT_UNPLACEABLE",
             "PLAYER_COUNT_INVALID",
             "REFERENCE_UNKNOWN",
             "RUNNER_CAPACITY_EXCEEDED",

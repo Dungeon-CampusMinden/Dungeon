@@ -26,6 +26,7 @@ import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentat
 import escaperoom.foundation.runtime.AttemptOutcome;
 import escaperoom.foundation.runtime.AttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
+import escaperoom.foundation.runtime.Projection.ProgressStatus;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.MiscFactory;
@@ -33,6 +34,7 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
+import feature.systems.PositionSync;
 import feature.tasks.AnswerItem;
 import feature.tasks.AssignmentChecker;
 import feature.tasks.TaskFactory;
@@ -59,6 +61,7 @@ public final class ServerGameBinding {
   private final FoundationSnapshotTranslator snapshotTranslator;
   private final GamePresentation presentation;
   private final DoorTile doorTile;
+  private final Map<String, List<DoorTile>> riddleDoors;
   private final ExitTile exitTile;
   private final Runnable onTerminalComplete;
   private final FoundationTracking tracking = new FoundationTracking();
@@ -75,6 +78,7 @@ public final class ServerGameBinding {
    * @param presentation complete player-facing room presentation
    * @param snapshotTranslator Foundation keypad snapshot translator
    * @param doorTile authoritative common-exit door
+   * @param riddleDoors authoritative doors by riddle, opened once their riddle is no longer locked
    * @param exitTile authoritative common-exit tile
    * @param levelSystem level system whose default exit callback is disabled
    * @param componentStations authoritative source and input-device positions
@@ -87,6 +91,7 @@ public final class ServerGameBinding {
       final GamePresentation presentation,
       final FoundationSnapshotTranslator snapshotTranslator,
       final DoorTile doorTile,
+      final Map<String, List<DoorTile>> riddleDoors,
       final ExitTile exitTile,
       final LevelSystem levelSystem,
       final Map<String, Point> componentStations,
@@ -98,15 +103,17 @@ public final class ServerGameBinding {
     this.snapshotTranslator = Objects.requireNonNull(snapshotTranslator, "snapshotTranslator");
     FoundationDialogs.register();
     this.doorTile = Objects.requireNonNull(doorTile, "doorTile");
+    this.riddleDoors = Map.copyOf(Objects.requireNonNull(riddleDoors, "riddleDoors"));
     this.exitTile = Objects.requireNonNull(exitTile, "exitTile");
     this.onTerminalComplete = Objects.requireNonNull(onTerminalComplete, "onTerminalComplete");
     Objects.requireNonNull(levelSystem, "levelSystem").onEndTile(() -> {});
     riddles = index(presentation.riddles());
     addStations(componentStations, hintStations);
     this.doorTile.close();
+    this.riddleDoors.values().forEach(doors -> doors.forEach(DoorTile::close));
   }
 
-  /** Advances the authority and mirrors exit presence and door state. */
+  /** Advances the authority and mirrors exit presence and the state of every door. */
   public synchronized void tick() {
     serverBinding.tick();
     reconcileIntros();
@@ -125,6 +132,19 @@ public final class ServerGameBinding {
     } else {
       doorTile.close();
     }
+    projection
+        .riddles()
+        .forEach(
+            riddle -> {
+              boolean open = riddle.status() != ProgressStatus.LOCKED;
+              for (DoorTile door : riddleDoors.getOrDefault(riddle.id(), List.of())) {
+                if (open) {
+                  door.open();
+                } else {
+                  door.close();
+                }
+              }
+            });
     projection.terminal().ifPresent(this::showTerminal);
   }
 
@@ -228,6 +248,8 @@ public final class ServerGameBinding {
             () -> {},
             definition.showDigitCount());
     keypad.name(presentation.title());
+    // Place the hitbox now; without CollisionSystem it would stay at the origin.
+    PositionSync.syncPosition(keypad);
     snapshotTranslator.registerKeypad(keypad.id(), presentation.id());
     keypad.add(
         new InteractionComponent(
@@ -343,6 +365,7 @@ public final class ServerGameBinding {
                   MiscFactory.newChest(
                       Set.of(), new Point(requireStation(stations, container.id())));
               chest.name(container.title());
+              PositionSync.syncPosition(chest);
               containers.put(container.id(), chest);
               Game.add(chest);
             });
