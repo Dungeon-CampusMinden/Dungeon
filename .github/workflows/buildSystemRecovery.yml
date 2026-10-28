@@ -5,70 +5,14 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v7
-            - name: Set up JDK 25
-              uses: actions/setup-java@v6
-              with:
-                  java-version: '25'
-                  distribution: 'temurin'
-                  cache: 'gradle'
-            - name: Make gradlew executable
-              run: chmod +x gradlew
-            - name: Build System Recovery JAR
-              run: ./gradlew :game:buildSystemRecoveryJar
-              env:
-                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
-            - name: Upload JAR
-              uses: actions/upload-artifact@v7
-              with:
-                  name: SystemRecovery-JAR
-                  path: game/build/libs/SystemRecovery.jar
-                  if-no-files-found: error
-
-    buildExecutables:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                include:
-                    - os: windows-latest
-                      platform_name: win-x86_64
-                    - os: ubuntu-latest
-                      platform_name: linux-x86_64
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v7
-            - name: Set up JDK 25
-              uses: actions/setup-java@v6
-              with:
-                  java-version: '25'
-                  distribution: 'temurin'
-                  cache: 'gradle'
-            - name: Make gradlew executable
-              run: chmod +x gradlew
-            - name: Build System Recovery app image
-              run: ./gradlew :game:jpackageImageSystemRecovery
-              env:
-                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
-            - name: Archive System Recovery
-              shell: bash
-              run: |
-                  if [ "${{ runner.os }}" == "Windows" ]; then
-                    7z a SystemRecovery-${{ matrix.platform_name }}.zip ./game/build/jpackage/SystemRecovery
-                  else
-                    tar -czf SystemRecovery-${{ matrix.platform_name }}.tar.gz -C game/build/jpackage SystemRecovery
-                  fi
-            - name: Upload app image
-              uses: actions/upload-artifact@v7
-              with:
-                  name: SystemRecovery-${{ matrix.platform_name }}
-                  path: SystemRecovery-*
-                  if-no-files-found: error
+        uses: ./.github/workflows/buildRelease.yml
+        with:
+            game: SystemRecovery
+        secrets:
+            DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
 
     deploy:
-        needs: [build, buildExecutables]
+        needs: build
         runs-on: ubuntu-latest
         permissions:
             actions: read
