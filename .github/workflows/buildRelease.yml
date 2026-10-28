@@ -26,8 +26,6 @@ jobs:
                   java-version: '25'
                   distribution: 'temurin'
                   cache: 'gradle'
-            - name: Make gradlew executable
-              run: chmod +x gradlew
             - name: Build JAR
               run: ./gradlew :game:build${{ inputs.game }}Jar
               env:
@@ -57,8 +55,6 @@ jobs:
                   java-version: '25'
                   distribution: 'temurin'
                   cache: 'gradle'
-            - name: Make gradlew executable
-              run: chmod +x gradlew
             - name: Build app image
               run: ./gradlew :game:jpackageImage${{ inputs.game }}
               env:
