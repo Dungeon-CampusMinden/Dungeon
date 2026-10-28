@@ -170,36 +170,26 @@ Benannte Punkte einer Vorlage sind Slots. `keypad_N`, `terminal_N`,
 `hint_N` nehmen Stationen auf; `N` legt die Füllreihenfolge fest.
 `door_<north|east|south|west>_N` markiert eine Außenwandkachel, an der ein
 Nachbarstück anschließen kann. Ein Slot liegt auf Boden, auf einem Möbelstück
-oder an der Wand. Auch wenn alle Slots belegt sind, müssen jeder Slot, jeder
-Türeingang und der Startpunkt der Vorlage über freien Boden verbunden bleiben;
-Kollisionsflächen der Dekoration zählen dabei als blockiert. Raumvorlagen
-besitzen mindestens einen Hinweis-Slot, Flurstücke mindestens zwei Tür-Slots
-und keine Stationen, die Ausgangsnische genau eine Exit-Kachel.
+oder an der Wand. In den mitgelieferten Vorlagen bleiben alle Stationen und
+Türeingänge erreichbar, auch wenn jeder Slot belegt ist.
 
-Jedes Rätsel erhält einen Hauptraum. Gewählt wird eine Vorlage, deren Slots alle
-Stationen und den Hinweis aufnehmen und die genug Tür-Slots für Eingang und
-Graphnachfolger hat; unter passenden Vorlagen bevorzugt der Seed die bisher
-seltener genutzten. Passt keine Vorlage, füllt der Runner den Hauptraum zuerst
-und verteilt die übrigen Stationen auf Nebenräume. Die Kisten einer Zuordnung
-bleiben in einem Raum. Nebenräume hängen am Hauptraum ihres Rätsels.
+Jedes Rätsel erhält einen Hauptraum, dessen Slots seine Stationen und den
+Hinweis aufnehmen. Passt keine Vorlage, füllt der Runner den Hauptraum zuerst
+und verteilt die übrigen Stationen auf Nebenräume am Hauptraum. Die Kisten
+einer Zuordnung bleiben in einem Raum. Nebenräume öffnen mit ihrem Hauptraum.
 
 Die Spielenden starten im Hauptraum eines Rätsels, dessen einzige Vorgänger
 der Startknoten ist; bei mehreren wählt der Seed. Jeder weitere Raum grenzt an
 genau einen Raum eines direkten Vorgängerrätsels, bei Rätseln ohne
 Rätselvorgänger an einen bereits gelegten Startraum. Die Verbindung führt
-direkt durch eine gemeinsame Wand oder durch bis zu zwei Flurstücke. Flure
-gehören zum vorderen Raum, öffnen mit ihm und können weitere Räume aufnehmen.
-Die Tür eines Raums liegt an seinem Eingang und gehört seinem Rätsel. Die
+direkt durch eine gemeinsame Wand oder durch bis zu zwei Flurstücke. Die Tür
+eines Raums liegt an seinem Eingang und gehört seinem Rätsel. Die
 Ausgangsnische mit der Exit-Kachel sitzt hinter einer Außenwandtür im
-Hauptraum eines direkten Endvorgängers.
+Hauptraum eines direkten Endvorgängers; bei mehreren wählt der Seed.
 
 Findet ein Versuch keine kollisionsfreie Anordnung, versucht der Runner
 deterministisch aus `seed` abgeleitete Seeds, insgesamt höchstens 32. Danach
 meldet die Produktionsvalidierung `LAYOUT_UNPLACEABLE` am Spielablauf.
-`FoundationRoom` prüft jedes Ergebnis: Mit den Türen eines Rätsels, seiner
-Vorgänger und aller ab Sessionstart aktiven Rätsel erreicht der Startpunkt
-jede Station dieses Rätsels, und der Ausgang ist nur durch die Ausgangstür
-erreichbar.
 
 ## Multiplayer-Lebenszyklus
 

@@ -213,7 +213,12 @@ final class LevelGenerator {
   private record Fill(
       RoomTemplate template, Map<String, RoomPoint> stations, Optional<RoomPoint> hint) {}
 
-  /** Global level cell; coordinates may be negative until the level is normalized. */
+  /**
+   * Global level cell; coordinates may be negative until the level is normalized.
+   *
+   * @param x column
+   * @param y row from the top
+   */
   private record Cell(int x, int y) {
     Cell plus(final RoomPoint point) {
       return new Cell(x + point.x(), y + point.y());
@@ -229,13 +234,11 @@ final class LevelGenerator {
    *
    * @param template stamped template
    * @param origin global cell of the template's top-left tile
-   * @param usedDoors door slots already used for a connection
    * @param corridors corridors that lead away from this room and open together with it
    */
-  private record Placed(
-      RoomTemplate template, Cell origin, Set<Integer> usedDoors, List<Placed> corridors) {
-    Placed(final RoomTemplate template, final Cell origin, final Set<Integer> usedDoors) {
-      this(template, origin, usedDoors, new ArrayList<>());
+  private record Placed(RoomTemplate template, Cell origin, List<Placed> corridors) {
+    Placed(final RoomTemplate template, final Cell origin) {
+      this(template, origin, new ArrayList<>());
     }
   }
 
@@ -510,7 +513,6 @@ final class LevelGenerator {
                 riddleId,
                 corridorsLeft);
         if (placed.isPresent()) {
-          piece.usedDoors().add(door);
           return placed;
         }
       }
@@ -556,8 +558,7 @@ final class LevelGenerator {
             continue;
           }
           Map<Cell, Character> undo = stampTiles(corridor, corridorOrigin);
-          Placed placedCorridor =
-              new Placed(corridor, corridorOrigin, new TreeSet<>(Set.of(entry)));
+          Placed placedCorridor = new Placed(corridor, corridorOrigin);
           Optional<Placed> placed =
               connect(owner, placedCorridor, template, riddleId, corridorsLeft - 1);
           if (placed.isPresent()) {
@@ -586,7 +587,7 @@ final class LevelGenerator {
         if (fits(template, origin)) {
           stampTiles(template, origin);
           addDecorations(template, origin);
-          return Optional.of(new Placed(template, origin, new TreeSet<>(Set.of(door))));
+          return Optional.of(new Placed(template, origin));
         }
       }
       return Optional.empty();
@@ -597,7 +598,7 @@ final class LevelGenerator {
       addDecorations(fill.template(), origin);
       fill.stations().forEach((componentId, slot) -> stations.put(componentId, origin.plus(slot)));
       fill.hint().ifPresent(slot -> hints.put(riddleId, origin.plus(slot)));
-      return new Placed(fill.template(), origin, new TreeSet<>());
+      return new Placed(fill.template(), origin);
     }
 
     private void addDecorations(final RoomTemplate template, final Cell origin) {
@@ -633,7 +634,13 @@ final class LevelGenerator {
       return true;
     }
 
-    /** Stamps template tiles and returns the previous content of every changed cell. */
+    /**
+     * Stamps template tiles into the level.
+     *
+     * @param template template to stamp
+     * @param origin global cell of the template's top-left tile
+     * @return previous content of every changed cell, for rollback
+     */
     private Map<Cell, Character> stampTiles(final RoomTemplate template, final Cell origin) {
       Map<Cell, Character> previous = new HashMap<>();
       List<String> rows = template.rows();
@@ -664,7 +671,7 @@ final class LevelGenerator {
       for (int index = 0; index < doors.size(); index++) {
         DoorSlot slot = doors.get(index);
         Cell outside = placed.origin().plus(slot.point()).step(slot.side());
-        if (!placed.usedDoors().contains(index) && grid.getOrDefault(outside, ' ') == ' ') {
+        if (grid.getOrDefault(outside, ' ') == ' ') {
           free.add(index);
         }
       }

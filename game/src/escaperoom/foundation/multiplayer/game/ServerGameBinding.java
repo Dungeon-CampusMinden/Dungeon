@@ -131,19 +131,10 @@ public final class ServerGameBinding {
     } else {
       doorTile.close();
     }
-    projection
-        .riddles()
-        .forEach(
-            riddle -> {
-              boolean open = riddle.status() != ProgressStatus.LOCKED;
-              for (DoorTile door : riddleDoors.getOrDefault(riddle.id(), List.of())) {
-                if (open) {
-                  door.open();
-                } else {
-                  door.close();
-                }
-              }
-            });
+    projection.riddles().stream()
+        .filter(riddle -> riddle.status() != ProgressStatus.LOCKED)
+        .flatMap(riddle -> riddleDoors.getOrDefault(riddle.id(), List.of()).stream())
+        .forEach(DoorTile::open);
     projection.terminal().ifPresent(this::showTerminal);
   }
 

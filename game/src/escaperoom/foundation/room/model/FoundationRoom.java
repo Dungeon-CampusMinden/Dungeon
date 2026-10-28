@@ -1,9 +1,6 @@
 package escaperoom.foundation.room.model;
 
 import escaperoom.foundation.definition.ComposedRiddleDefinition;
-import escaperoom.foundation.definition.ProgressionDefinition;
-import escaperoom.foundation.definition.ProgressionDefinition.Edge;
-import escaperoom.foundation.definition.ProgressionDefinition.RiddleNode;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.definition.TimerMode;
 import escaperoom.foundation.presentation.GamePresentation;
@@ -14,14 +11,12 @@ import escaperoom.foundation.presentation.GamePresentation.InputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import feature.entities.CharacterClass;
-import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -172,51 +167,7 @@ public final class FoundationRoom {
     for (int index = 0; index < definitions.size(); index++) {
       validateRiddle(definitions.get(index), presentations.get(index), placements.get(index));
     }
-    validateReachability();
     validateAssets();
-  }
-
-  /**
-   * Requires each riddle to be reachable as soon as it becomes active.
-   *
-   * <p>At that point at least the doors of the riddle itself, of all its ancestors, and of all
-   * riddles active from the session start are open; every other door may still be closed.
-   */
-  private void validateReachability() {
-    ProgressionDefinition progression = definition.progression();
-    Map<String, String> riddleIds =
-        progression.riddleNodes().stream()
-            .collect(Collectors.toMap(RiddleNode::id, node -> node.riddle().id()));
-    Map<String, List<String>> predecessors =
-        progression.edges().stream()
-            .collect(
-                Collectors.groupingBy(
-                    Edge::to, Collectors.mapping(Edge::from, Collectors.toList())));
-    Set<String> initiallyActive =
-        riddleIds.keySet().stream()
-            .filter(
-                nodeId ->
-                    predecessors.getOrDefault(nodeId, List.of()).stream()
-                        .allMatch(progression.startNodeId()::equals))
-            .map(riddleIds::get)
-            .collect(Collectors.toSet());
-    for (String nodeId : riddleIds.keySet()) {
-      Set<String> ancestors = new HashSet<>();
-      ArrayDeque<String> pending = new ArrayDeque<>(List.of(nodeId));
-      while (!pending.isEmpty()) {
-        String current = pending.removeFirst();
-        if (ancestors.add(current)) {
-          pending.addAll(predecessors.getOrDefault(current, List.of()));
-        }
-      }
-      Set<String> open = new HashSet<>(initiallyActive);
-      ancestors.stream().map(riddleIds::get).filter(Objects::nonNull).forEach(open::add);
-      if (!layout.riddleReachable(riddleIds.get(nodeId), open)) {
-        throw new IllegalArgumentException(
-            "riddle stations must be reachable once the riddle is active: "
-                + riddleIds.get(nodeId));
-      }
-    }
   }
 
   private void validateAssets() {

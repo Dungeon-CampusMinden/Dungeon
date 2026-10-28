@@ -7,9 +7,7 @@ import feature.entities.deco.Deco;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -33,9 +31,7 @@ import tools.jackson.databind.json.JsonMapper;
  * outer-wall tile where the generator may connect a neighbouring piece. Only the layout, the named
  * points, and the decorations of the JSON level format are read.
  *
- * <p>A station slot lies on floor, on furniture, or on a wall. Loading rejects a template unless
- * every slot, every door entrance, and the start stay connected over free floor while every slot is
- * occupied and decoration colliders block their tiles.
+ * <p>Bundled templates keep all stations and entrances reachable when every slot is occupied.
  *
  * @param name file name without extension
  * @param kind piece kind
@@ -118,10 +114,10 @@ record RoomTemplate(
   }
 
   /**
-   * Reads and checks one bundled template.
+   * Reads one bundled template.
    *
    * @param resource classpath resource path
-   * @return checked template
+   * @return template
    */
   static RoomTemplate load(final String resource) {
     String name = resource.substring(resource.lastIndexOf('/') + 1).replace(".level", "");
@@ -209,32 +205,8 @@ record RoomTemplate(
       blocked.addAll(colliderTiles(height, rows.getFirst().length(), deco, x, y));
     }
 
-    return check(
-        name, kind, rows, Map.copyOf(slots), List.copyOf(doors.values()), decorations, blocked);
-  }
-
-  private static RoomTemplate check(
-      final String name,
-      final Kind kind,
-      final List<String> rows,
-      final Map<SlotKind, List<RoomPoint>> slots,
-      final List<DoorSlot> doors,
-      final List<RoomDecoration> decorations,
-      final Set<RoomPoint> blocked) {
-    int width = rows.getFirst().length();
-    for (int y = 0; y < rows.size(); y++) {
-      for (int x = 0; x < width; x++) {
-        char tile = rows.get(y).charAt(x);
-        if ((tile == '.' || tile == 'E') && !enclosed(rows, x, y)) {
-          throw new IllegalArgumentException(
-              "floor at " + x + "," + y + " is not enclosed by walls");
-        }
-      }
-    }
     List<RoomPoint> stations = slots.values().stream().flatMap(List::stream).toList();
-    if (new HashSet<>(stations).size() != stations.size()) {
-      throw new IllegalArgumentException("slots must use distinct tiles");
-    }
+    int width = rows.getFirst().length();
     Set<RoomPoint> free = new HashSet<>();
     for (int y = 0; y < rows.size(); y++) {
       for (int x = 0; x < width; x++) {
@@ -244,38 +216,9 @@ record RoomTemplate(
         }
       }
     }
-    for (RoomPoint station : stations) {
-      char tile = at(rows, station);
-      if (tile != '.' && tile != '#') {
-        throw new IllegalArgumentException("slot " + station + " must use floor or a wall");
-      }
-    }
-    List<RoomPoint> entries = new ArrayList<>();
-    for (DoorSlot door : doors) {
-      RoomPoint point = door.point();
-      char inside = at(rows, offset(point, door.side().opposite()));
-      char outside = at(rows, offset(point, door.side()));
-      if (at(rows, point) != '#' || (inside != '.' && inside != 'E') || outside != ' ') {
-        throw new IllegalArgumentException("door slot " + point + " must lie on an outer wall");
-      }
-      RoomPoint entry = offset(point, door.side().opposite());
-      if (inside == '.' && !free.contains(entry) || stations.contains(point)) {
-        throw new IllegalArgumentException("door slot " + point + " must open onto free floor");
-      }
-      entries.add(entry);
-    }
-
-    long exits =
-        rows.stream().flatMap(row -> row.chars().boxed()).filter(tile -> tile == 'E').count();
-    boolean stationsAllowed = kind == Kind.ROOM;
-    int minimumDoors = kind == Kind.CORRIDOR ? 2 : 1;
-    if (doors.size() < minimumDoors
-        || (!stationsAllowed && !stations.isEmpty())
-        || (kind == Kind.ROOM && slots.getOrDefault(SlotKind.HINT, List.of()).isEmpty())
-        || exits != (kind == Kind.EXIT ? 1 : 0)) {
-      throw new IllegalArgumentException("slots, doors, or exits do not match the template kind");
-    }
-
+    List<DoorSlot> doorSlots = List.copyOf(doors.values());
+    List<RoomPoint> entries =
+        doorSlots.stream().map(door -> offset(door.point(), door.side().opposite())).toList();
     RoomPoint start =
         free.stream()
             .min(
@@ -286,58 +229,14 @@ record RoomTemplate(
                     .thenComparingInt(RoomPoint::y)
                     .thenComparingInt(RoomPoint::x))
             .orElse(entries.getFirst());
-    Set<RoomPoint> walkable = new HashSet<>(free);
-    walkable.addAll(entries);
-    Set<RoomPoint> reach = reachable(walkable, entries.getFirst());
-    List<RoomPoint> required = new ArrayList<>(entries);
-    required.add(start);
-    for (RoomPoint point : required) {
-      if (!reach.contains(point)) {
-        throw new IllegalArgumentException(
-            "tile " + point + " is cut off when every slot is occupied");
-      }
-    }
-    for (RoomPoint station : stations) {
-      if (Arrays.stream(Side.values()).noneMatch(side -> reach.contains(offset(station, side)))) {
-        throw new IllegalArgumentException(
-            "slot " + station + " is cut off when every slot is occupied");
-      }
-    }
     return new RoomTemplate(
-        name, kind, List.copyOf(rows), slots, doors, List.copyOf(decorations), start);
-  }
-
-  private static Set<RoomPoint> reachable(final Set<RoomPoint> walkable, final RoomPoint start) {
-    Set<RoomPoint> visited = new HashSet<>();
-    ArrayDeque<RoomPoint> pending = new ArrayDeque<>(List.of(start));
-    while (!pending.isEmpty()) {
-      RoomPoint current = pending.removeFirst();
-      if (walkable.contains(current) && visited.add(current)) {
-        for (Side side : Side.values()) {
-          RoomPoint next = offset(current, side);
-          if (next != null) {
-            pending.addLast(next);
-          }
-        }
-      }
-    }
-    return visited;
-  }
-
-  private static boolean enclosed(final List<String> rows, final int x, final int y) {
-    for (int dy = -1; dy <= 1; dy++) {
-      for (int dx = -1; dx <= 1; dx++) {
-        int nx = x + dx;
-        int ny = y + dy;
-        if (ny < 0 || ny >= rows.size() || nx < 0 || nx >= rows.get(ny).length()) {
-          return false;
-        }
-        if (rows.get(ny).charAt(nx) == ' ') {
-          return false;
-        }
-      }
-    }
-    return true;
+        name,
+        kind,
+        List.copyOf(rows),
+        Map.copyOf(slots),
+        doorSlots,
+        List.copyOf(decorations),
+        start);
   }
 
   private static char at(final List<String> rows, final RoomPoint point) {

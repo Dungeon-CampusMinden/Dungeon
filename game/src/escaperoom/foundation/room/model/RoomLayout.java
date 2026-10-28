@@ -82,29 +82,6 @@ public record RoomLayout(
     }
   }
 
-  /**
-   * Reports whether every station of one riddle is reachable while only some doors are open.
-   *
-   * @param riddleId riddle whose stations are checked
-   * @param openRiddleIds riddles whose doors are open
-   * @return true when the start reaches every station of the riddle
-   */
-  boolean riddleReachable(final String riddleId, final Set<String> openRiddleIds) {
-    Set<RoomPoint> reach =
-        reachable(
-            rows,
-            startPoint,
-            riddleDoors.stream()
-                .filter(door -> openRiddleIds.contains(door.riddleId()))
-                .map(RiddleDoor::point)
-                .collect(Collectors.toSet()));
-    return stations(
-            riddlePlacements.stream()
-                .filter(placement -> placement.riddleId().equals(riddleId))
-                .toList())
-        .allMatch(station -> accessible(rows, station, reach));
-  }
-
   private static Stream<RoomPoint> stations(final List<RiddlePlacement> placements) {
     return placements.stream()
         .flatMap(
