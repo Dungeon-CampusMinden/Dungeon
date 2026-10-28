@@ -20,6 +20,7 @@ import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.network.handler.INetworkHandler;
 import engine.network.server.ClientState;
+import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.Point;
 import escaperoom.foundation.ui.BlackFadeCutscene;
@@ -698,6 +699,7 @@ class LastHourPlayerCheckpointTest {
 
   private void finishEntityRemoval(Entity player, Set<EntitySystemMapper> filters) {
     filters.forEach(mapper -> mapper.remove(player));
+    EntityIdProvider.unregister(player.id());
   }
 
   private LastHourSave.SaveData writeCheckpoint(Path file) {
