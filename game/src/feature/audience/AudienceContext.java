@@ -5,6 +5,7 @@ import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Direction;
 import feature.components.UIComponent;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.ChoiceOptions;
 import feature.hud.dialogs.DialogContext;
@@ -116,6 +117,7 @@ sealed interface AudienceContext {
         && ui.callbacks().containsKey(DialogContextKeys.ON_CONFIRM)) {
       return new Continue(ui);
     }
+    if (type == DialogType.DefaultTypes.IMAGE) return new Continue(ui);
     return new Wait();
   }
 
@@ -254,9 +256,8 @@ sealed interface AudienceContext {
   }
 
   /**
-   * Single or multiple choice. The screens show options with letters starting at A; devices send
-   * option numbers starting at one. The counted vote is the option value, or the values of the
-   * chosen combination in option order.
+   * Single or multiple choice. Devices send option numbers starting at one; the counted vote is the
+   * option value, or the values of the chosen combination in option order.
    *
    * @param ui the dialog
    * @param options options in display order
@@ -302,15 +303,13 @@ sealed interface AudienceContext {
 
     @Override
     public String label(JsonNode vote) {
-      List<String> letters = new ArrayList<>();
+      List<String> numbers = new ArrayList<>();
       for (JsonNode value : vote.isArray() ? vote : JSON.arrayNode().add(vote)) {
         for (int i = 0; i < options.size(); i++) {
-          if (options.get(i).value().equals(value.asString())) {
-            letters.add(DialogFactory.choiceLetter(i));
-          }
+          if (options.get(i).value().equals(value.asString())) numbers.add(Integer.toString(i + 1));
         }
       }
-      return String.join(" + ", letters);
+      return String.join(" + ", numbers);
     }
 
     @Override
@@ -423,7 +422,8 @@ sealed interface AudienceContext {
   }
 
   /**
-   * A text the audience reads on the game screen; "Weiter" confirms it.
+   * A text or an image the audience looks at on the game screen. "Weiter" confirms the text and
+   * closes the image the way its close button does.
    *
    * @param ui the dialog
    */
@@ -450,7 +450,13 @@ sealed interface AudienceContext {
 
     @Override
     public void apply(JsonNode vote, TileStepper stepper) {
-      respond(ui, DialogContextKeys.ON_CONFIRM, null);
+      if (ui.callbacks().containsKey(DialogContextKeys.ON_CONFIRM)) {
+        respond(ui, DialogContextKeys.ON_CONFIRM, null);
+        return;
+      }
+      if (!open(ui)) return;
+      respond(ui, DialogContextKeys.ON_CLOSE, null);
+      UIUtils.closeDialog(ui);
     }
   }
 }

@@ -34,8 +34,17 @@ Level-Editor, der ohne Publikum läuft.
 
 Der Raum `rooms.fomo.FomoRoom` („Gefangen im Modell“) folgt demselben Ablauf mit vier Fragen zu
 Modellen und Modellierung für das Modul FOMO. Er nutzt das Design `SYSTEM_RECOVERY`, eigene
-Terminals und einen Handscanner als Tastenfeld. Dort baut Stachowiak Terminal 3 wieder auf, sobald die Figur ihm den Bauplan aus der
-Truhe bringt. Der Raum startet mit `./gradlew :game:runFomoRoom`, sein Level liegt in `levels/fomo`.
+Terminals und einen Handscanner als Tastenfeld. Dort baut Stachowiak Terminal 3 wieder auf, sobald
+die Figur ihm den Bauplan aus der Truhe bringt. Der Raum startet mit `./gradlew :game:runFomoRoom`,
+sein Level liegt in `levels/fomo`.
+
+Im FOMO-Raum beginnt die Figur in einem Vorraum. Das Intro erklärt dort ausführlich Steuerung,
+Abstimmung und Zeitfenster. Im Vorraum steht Robo, ein Roboter auf dem Punkt `tutorial_npc`. Er
+stellt eine Single-Choice- und eine Multiple-Choice-Übungsfrage, bei denen jede Antwort zählt, und
+nennt danach die Wahl des Publikums. Dann verrät er, dass der Code der Tür ins Labor aus den
+letzten drei Ziffern der Telefonnummer besteht. Die Nummer steht auf einer Visitenkarte, die das
+Level als `deco-image`-Prefab auf einen Drucker legt. Die Tür ist der Punkt `tutorial_door`, ihr
+Tastenfeld `tutorial_panel`, der Code ist `279`.
 
 Beide Räume lesen aus ihrer Level-Datei die benannten Punkte `q1` bis `q4` für die Terminals,
 `chest` für die Truhe, `panel` für das Tastenfeld, `door` für die Tür und `exit` für das Feld
@@ -73,21 +82,24 @@ aus dem offenen Dialog der Figur ab:
 | Spielzustand | Eingabe auf dem Gerät | Ausgeführt als |
 | --- | --- | --- |
 | Kein Dialog offen | Steuerkreuz und „Benutzen“ | ein Feld weit gehen oder mit dem Feld davor interagieren |
-| `MULTIPLE_CHOICE` | farbige Buchstaben A, B, C … mit dem Text der Antwort; bei Mehrfachauswahl mehrere und „Abschicken“ | `ON_OPTION_SELECTED` mit dem Wert oder der Liste der Werte |
+| `MULTIPLE_CHOICE` | farbige Nummern 1 bis n mit dem Text der Antwort; bei Mehrfachauswahl mehrere und „Abschicken“ | `ON_OPTION_SELECTED` mit dem Wert oder der Liste der Werte |
 | `YES_NO` | „Ja“ und „Nein“ | `ON_YES` oder `ON_NO` |
 | `FREE_INPUT` | Textfeld | `ON_CONFIRM` mit dem Text |
 | `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` | Ziffernblock für einen Code dieser Länge | `ON_CONFIRM` mit dem Code |
 | `OK`, `TEXT`, `DIALOG_DIALOG` | „Weiter“ | `ON_CONFIRM` |
+| `IMAGE`, etwa vom Prefab `deco-image` | „Weiter“ | `ON_CLOSE`, dann schließt das Bild |
 | andere Dialoge, Figur läuft | nichts, „Schaut auf den Spielbildschirm“ | |
+
+Das Prefab `door-keypad` öffnet einen `KEYPAD`-Dialog, über den das Publikum nicht abstimmen kann.
+Eine Tür mit Code baut ein Raum deshalb selbst, mit einem `FREE_INPUT`-Dialog und
+`AudienceSystem.CODE_DIGITS`, wie der FOMO-Raum.
 
 Über den Eingaben zeigt das Gerät Titel und Frage des Dialogs, bei Texten den Text selbst.
 Auf breiten Bildschirmen stehen Aufgabe und Eingaben nebeneinander, und jede Eingabe hat eine Taste:
-Pfeiltasten und Leertaste zum Gehen, Buchstaben für Antworten, Ziffern für Ja/Nein und Codes,
-Enter zum Abschicken.
+Pfeiltasten und Leertaste zum Gehen, Ziffern für Antworten und Codes, Enter zum Abschicken.
 Die Antworten von Multiple-Choice-Dialogen erscheinen auf dem Spielbildschirm und auf dem Gerät mit
-demselben Buchstaben, auf dem Gerät als eine Zeile je Antwort. Die Geräte schicken als Stimme
-weiterhin die Nummer der Antwort, ab 1 gezählt. Klicks am Rechner des Spielbildschirms beantworten
-keine Dialoge; das tun nur die Stimmen.
+derselben Nummer, auf dem Gerät als eine Zeile je Antwort. Klicks am Rechner des Spielbildschirms
+beantworten keine Dialoge; das tun nur die Stimmen.
 
 Die Webseite gibt es auf Deutsch und Englisch. Sie startet in der ersten Sprache, die der Browser
 bevorzugt, sonst auf Englisch; der Umschalter oben rechts speichert die Wahl in einem Cookie.

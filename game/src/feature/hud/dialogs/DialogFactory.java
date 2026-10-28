@@ -443,23 +443,13 @@ public class DialogFactory {
   }
 
   /**
-   * Sets whether multiple choice dialogs in this process show each option with its letter, starting
-   * at A, so an audience can vote for options by letter.
+   * Sets whether multiple choice dialogs in this process show each option with its number, starting
+   * at one, so an audience can vote for options by number.
    *
-   * @param lettered whether options carry letters
+   * @param numbered whether options are numbered
    */
-  public static void letterChoiceOptions(boolean lettered) {
-    MultipleChoiceDialog.letterOptions = lettered;
-  }
-
-  /**
-   * Returns the letter of a choice option, as {@link #letterChoiceOptions} shows it.
-   *
-   * @param index position of the option, starting at zero; the letters cover 26 options
-   * @return {@code A} for the first option, {@code B} for the second, and so on
-   */
-  public static String choiceLetter(int index) {
-    return String.valueOf((char) ('A' + index));
+  public static void numberChoiceOptions(boolean numbered) {
+    MultipleChoiceDialog.numberOptions = numbered;
   }
 
   /**

@@ -330,7 +330,7 @@ h1 {
   opacity: 0.35;
 }
 
-/* Answers with their text, one row each, starting with the letter from the game screen */
+/* Answers with their text, one row each, starting with the number from the game screen */
 .options.answers {
   grid-template-columns: 1fr;
 }
@@ -344,7 +344,7 @@ h1 {
   text-align: left;
 }
 
-.options.answers .letter {
+.options.answers .number {
   flex: none;
   min-width: 1.1em;
   font: 800 40px/1 "Doto", monospace;
@@ -837,7 +837,7 @@ kbd {
     font-size: 88px;
   }
 
-  .options.answers .letter {
+  .options.answers .number {
     font-size: 56px;
   }
 

@@ -66,12 +66,11 @@ const TEXTS = {
     choiceVoteShown: (label) => "Deine Stimme: " + label + ".",
     choiceHintShown: "Wähle eine Antwort.",
     choiceKeys: (count) => "Auf der Tastatur: Zifferntasten 1 bis " + count + ".",
-    letterKeys: (last) => "Auf der Tastatur: Tasten A bis " + last + ".",
     submit: "Abschicken",
     resubmit: "Neu abschicken",
     submitted: (list) => "Abgeschickt: " + list + ". Ihr stimmt über die ganze Kombination ab.",
     choicesHint: "Wähle alle passenden Antworten, dann abschicken.",
-    choicesKeys: "Auf der Tastatur: Buchstaben wählen, Enter schickt ab.",
+    choicesKeys: "Auf der Tastatur: Zifferntasten wählen, Enter schickt ab.",
     textPlaceholder: "Eure Antwort",
     textLabel: "Antwort",
     send: "Senden",
@@ -156,12 +155,11 @@ const TEXTS = {
     choiceVoteShown: (label) => "Your vote: " + label + ".",
     choiceHintShown: "Pick an answer.",
     choiceKeys: (count) => "On the keyboard: number keys 1 to " + count + ".",
-    letterKeys: (last) => "On the keyboard: keys A to " + last + ".",
     submit: "Submit",
     resubmit: "Submit again",
     submitted: (list) => "Submitted: " + list + ". You vote on the whole combination.",
     choicesHint: "Pick every answer that fits, then submit.",
-    choicesKeys: "On the keyboard: pick with letter keys, submit with Enter.",
+    choicesKeys: "On the keyboard: pick with number keys, submit with Enter.",
     textPlaceholder: "Your answer",
     textLabel: "Answer",
     send: "Send",
@@ -686,22 +684,15 @@ function movePad() {
   ];
 }
 
-// Letter of option i, counted from one, as the game screen shows it; the vote stays the number.
-function letter(i) {
-  return String.fromCharCode(64 + i);
-}
-
 function choicePad(context) {
   const count = context.options || 0;
   const labels = context.labels || null;
-  // Answer texts of a choice; each button then shows its letter, as on the game screen, and its text.
+  // Answer texts of a choice; each button then shows its number, as on the game screen, and its text.
   const answers = !labels && Array.isArray(context.answers) && context.answers.length === count ? context.answers : null;
   const face = (i) => labels ? labels[i - 1]
-    : answers ? [el("span", { class: "letter" }, letter(i)), el("span", { class: "answer" }, answers[i - 1])]
-      : letter(i);
-  const name = (i) => labels ? labels[i - 1] : answers ? letter(i) + ": " + answers[i - 1] : t("answer", letter(i));
-  // Labelled options (Ja/Nein) keep their number keys; lettered ones use their letter.
-  const key = (i) => labels ? String(i) : letter(i).toLowerCase();
+    : answers ? [el("span", { class: "number" }, i), el("span", { class: "answer" }, answers[i - 1])]
+      : i;
+  const name = (i) => labels ? labels[i - 1] : answers ? i + ": " + answers[i - 1] : t("answer", i);
   const gridClass = "options" + (labels ? " labels" : "") + (answers ? " answers" : "");
   const mine = ownVote();
   if (!context.multiple) {
@@ -711,18 +702,18 @@ function choicePad(context) {
         class: "button" + (mine !== undefined && mine !== i ? " off" : "") + (mine === i ? " picked" : ""),
         "aria-label": name(i),
         "aria-pressed": String(mine === i),
-        "data-key": key(i),
+        "data-key": String(i),
         onclick: () => vote(i),
       }, face(i)));
     }
     // With the answer texts on the buttons, the notes need not point to the game screen.
-    const chosen = mine && (labels ? labels[mine - 1] : letter(mine));
+    const chosen = mine && (labels ? labels[mine - 1] : mine);
     return [
       grid,
       el("p", { class: "note" }, answers
         ? (mine ? t("choiceVoteShown", chosen) : t("choiceHintShown"))
         : (mine ? t("choiceVote", chosen) : t("choiceHint"))),
-      keysHint(labels ? t("choiceKeys", count) : t("letterKeys", letter(count))),
+      keysHint(t("choiceKeys", count)),
     ];
   }
   const sent = Array.isArray(mine) ? mine : [];
@@ -741,7 +732,7 @@ function choicePad(context) {
     grid.append(el("button", {
       class: "button",
       "aria-label": name(i),
-      "data-key": key(i),
+      "data-key": String(i),
       onclick: () => {
         picked.has(i) ? picked.delete(i) : picked.add(i);
         typed.set(typedKey(context), [...picked]);
@@ -755,7 +746,7 @@ function choicePad(context) {
   return [
     grid,
     send,
-    el("p", { class: "note" }, sent.length ? t("submitted", sent.map(letter).join(" + ")) : t("choicesHint")),
+    el("p", { class: "note" }, sent.length ? t("submitted", sent.join(" + ")) : t("choicesHint")),
     keysHint(t("choicesKeys")),
   ];
 }
@@ -836,8 +827,7 @@ function keysHint(text) {
 // or using the language switch keeps its normal meaning.
 document.addEventListener("keydown", (event) => {
   if (event.repeat || event.target.closest("input, textarea, select, .language") || event.altKey || event.ctrlKey || event.metaKey) return;
-  // Letters count without Shift, so "A" and "a" press the same answer.
-  const key = event.key === " " ? "Space" : event.key.length === 1 ? event.key.toLowerCase() : event.key;
+  const key = event.key === " " ? "Space" : event.key;
   const button = app.querySelector(`.controls [data-key="${CSS.escape(key)}"]`);
   if (!button || button.disabled) return;
   event.preventDefault();

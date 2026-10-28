@@ -47,7 +47,7 @@ class AudienceContextTest {
   }
 
   @Test
-  void choiceVotesShowTheLettersOfTheirOptions() {
+  void choiceVotesShowTheNumbersOfTheirOptions() {
     AudienceContext choice =
         new AudienceContext.Choice(
             null,
@@ -55,7 +55,7 @@ class AudienceContextTest {
                 ChoiceOption.of("a", "x"), ChoiceOption.of("b", "y"), ChoiceOption.of("c", "z")),
             true);
     JsonNode vote = choice.normalize(AudienceContext.JSON.arrayNode().add(3).add(1)).orElseThrow();
-    assertEquals("A + C", choice.label(vote));
+    assertEquals("1 + 3", choice.label(vote));
   }
 
   @Test
