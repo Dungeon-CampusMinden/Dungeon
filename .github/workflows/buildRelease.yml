@@ -1,0 +1,75 @@
+name: Build Release Artifacts
+
+# Builds the release artifacts of one game: the JAR and the jpackage app images for
+# Windows and Linux, uploaded as workflow artifacts. Called by the release workflows,
+# which publish the artifacts, and by the CI, which only builds them.
+on:
+    workflow_call:
+        inputs:
+            game:
+                description: Game name used in the Gradle tasks and artifact names, e.g. TheLastHour
+                type: string
+                required: true
+        secrets:
+            DUNGEON_TRACKING_ENDPOINT:
+                required: false
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+            - name: Set up JDK 25
+              uses: actions/setup-java@v6
+              with:
+                  java-version: '25'
+                  distribution: 'temurin'
+                  cache: 'gradle'
+            - name: Build JAR
+              run: ./gradlew :game:build${{ inputs.game }}Jar
+              env:
+                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
+            - name: Upload JAR
+              uses: actions/upload-artifact@v7
+              with:
+                  name: ${{ inputs.game }}-JAR
+                  path: game/build/libs/${{ inputs.game }}.jar
+                  if-no-files-found: error
+
+    buildExecutables:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                include:
+                    - os: windows-latest
+                      platform_name: win-x86_64
+                    - os: ubuntu-latest
+                      platform_name: linux-x86_64
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+            - name: Set up JDK 25
+              uses: actions/setup-java@v6
+              with:
+                  java-version: '25'
+                  distribution: 'temurin'
+                  cache: 'gradle'
+            - name: Build app image
+              run: ./gradlew :game:jpackageImage${{ inputs.game }}
+              env:
+                  DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
+            - name: Archive app image
+              shell: bash
+              run: |
+                  if [ "${{ runner.os }}" == "Windows" ]; then
+                    7z a ${{ inputs.game }}-${{ matrix.platform_name }}.zip ./game/build/jpackage/${{ inputs.game }}
+                  else
+                    tar -czf ${{ inputs.game }}-${{ matrix.platform_name }}.tar.gz -C game/build/jpackage ${{ inputs.game }}
+                  fi
+            - name: Upload app image
+              uses: actions/upload-artifact@v7
+              with:
+                  name: ${{ inputs.game }}-${{ matrix.platform_name }}
+                  path: ${{ inputs.game }}-*
+                  if-no-files-found: error
