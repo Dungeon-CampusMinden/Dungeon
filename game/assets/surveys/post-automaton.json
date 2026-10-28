@@ -61,6 +61,18 @@
         { "id": "lernhilfe", "type": "scale", "required": true, "min": 1, "max": 5,
           "text": { "de": "Wie hilfreich war der Escape Room für dein Verständnis von regulären Sprachen und Grammatiken?" },
           "minLabel": { "de": "Gar nicht hilfreich" }, "maxLabel": { "de": "Sehr hilfreich" } },
+        { "id": "recap_vergleich", "type": "matrix", "required": true,
+          "text": { "de": "Wie war der Escape Room im Vergleich zu einem kurzen, normalen Recap am Ende der Vorlesung?" },
+          "description": { "de": "Gemeint ist eine kurze Wiederholung des Stoffs ohne Spiel." },
+          "rows": [
+            { "id": "recap_gefallen", "text": { "de": "Wie gut es mir gefallen hat" } },
+            { "id": "recap_verstaendnis", "text": { "de": "Wie sehr es mir beim Verstehen geholfen hat" } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Deutlich schlechter" } },
+            { "id": "2", "text": { "de": "Etwas schlechter" } },
+            { "id": "3", "text": { "de": "Gleich" } },
+            { "id": "4", "text": { "de": "Etwas besser" } },
+            { "id": "5", "text": { "de": "Deutlich besser" } } ] },
         { "id": "offene_lernfragen", "type": "longText", "maxLength": 1000,
           "text": { "de": "Was ist dir zu regulären Sprachen, Grammatiken oder Automaten noch unklar?" } }
       ]
