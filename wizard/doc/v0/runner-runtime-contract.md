@@ -294,7 +294,9 @@ genau einen richtigen Versuch, sobald der Host sie annimmt; Zwischenstände beim
 Sortieren sind keine Versuche.
 
 Informationsquellen liegen im Raum ihres Rätsels und sind lesbar, sobald dessen
-Tür offen ist. Neue Hinweise werden nur für aktive Rätsel freigegeben. Vor jeder
+Tür offen ist. Informationsquellen, Kisten und Antwort-Items eines gesperrten
+Rätsels reagieren nicht auf Interaktionen, auch nicht durch eine Wand hindurch.
+Möbel und Kisten sind serverseitig fest. Neue Hinweise werden nur für aktive Rätsel freigegeben. Vor jeder
 Freigabe zeigt die Runtime die spielerfreundliche Bedeutung der `severity` des
 nächsten Hinweises und verlangt eine ausdrückliche Bestätigung. Das gilt für
 `orientation`, `approach` und `solution`. Ein Abbruch verändert keinen

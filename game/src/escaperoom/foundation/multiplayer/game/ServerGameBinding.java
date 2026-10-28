@@ -34,7 +34,6 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
-import feature.systems.PositionSync;
 import feature.tasks.AnswerItem;
 import feature.tasks.AssignmentChecker;
 import feature.tasks.TaskFactory;
@@ -182,14 +181,16 @@ public final class ServerGameBinding {
               riddle
                   .informationSources()
                   .forEach(
-                      source ->
-                          Game.add(
-                              station(
-                                  source.title(),
-                                  source.runtimeAssetPath(),
-                                  requireStation(stations, source.id()),
-                                  (ignored, player) ->
-                                      inspectSource(riddle.id(), source, player))));
+                      source -> {
+                        Entity station =
+                            station(
+                                source.title(),
+                                source.runtimeAssetPath(),
+                                requireStation(stations, source.id()),
+                                (ignored, player) -> inspectSource(riddle.id(), source, player));
+                        lockWhileRiddleLocked(station, riddle.id());
+                        Game.add(station);
+                      });
               riddle.inputs().stream()
                   .forEach(
                       input -> {
@@ -229,6 +230,34 @@ public final class ServerGameBinding {
                         (ignored, player) -> requestHint(riddleId, player))));
   }
 
+  /**
+   * Makes a station ignore interactions while its riddle is locked.
+   *
+   * <p>Interactions only check the distance, so a station of a still closed room could otherwise be
+   * used through its wall. Inputs already require an active riddle.
+   *
+   * @param station source, chest, or answer item
+   * @param riddleId owning riddle identifier
+   */
+  private void lockWhileRiddleLocked(final Entity station, final String riddleId) {
+    Interaction interaction = station.fetch(InteractionComponent.class).orElseThrow().interaction();
+    station.add(
+        new InteractionComponent(
+            new Interaction(
+                (entity, player) -> {
+                  boolean locked =
+                      serverBinding.projection().riddles().stream()
+                          .anyMatch(
+                              riddle ->
+                                  riddle.id().equals(riddleId)
+                                      && riddle.status() == ProgressStatus.LOCKED);
+                  if (!locked) {
+                    interaction.interact(entity, player);
+                  }
+                },
+                interaction.range())));
+  }
+
   private void inspectSource(
       final String riddleId, final InformationSourcePresentation source, final Entity player) {
     serverBinding
@@ -248,8 +277,6 @@ public final class ServerGameBinding {
             () -> {},
             definition.showDigitCount());
     keypad.name(presentation.title());
-    // Place the hitbox now; without CollisionSystem it would stay at the origin.
-    PositionSync.syncPosition(keypad);
     snapshotTranslator.registerKeypad(keypad.id(), presentation.id());
     keypad.add(
         new InteractionComponent(
@@ -365,7 +392,7 @@ public final class ServerGameBinding {
                   MiscFactory.newChest(
                       Set.of(), new Point(requireStation(stations, container.id())));
               chest.name(container.title());
-              PositionSync.syncPosition(chest);
+              lockWhileRiddleLocked(chest, riddleId);
               containers.put(container.id(), chest);
               Game.add(chest);
             });
@@ -374,7 +401,8 @@ public final class ServerGameBinding {
         .forEach(
             item ->
                 new AnswerItem(item.id(), item.name(), item.sprite())
-                    .drop(new Point(requireStation(stations, item.id()))));
+                    .drop(new Point(requireStation(stations, item.id())))
+                    .ifPresent(dropped -> lockWhileRiddleLocked(dropped, riddleId)));
     Game.add(
         TaskFactory.itemAssignment(
             definition.task(),
