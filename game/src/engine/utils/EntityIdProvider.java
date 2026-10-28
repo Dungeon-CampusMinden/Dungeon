@@ -111,4 +111,16 @@ public final class EntityIdProvider {
   public static void unregister(int id) {
     USED.remove(id);
   }
+
+  /**
+   * Release all registered IDs and restart both counters.
+   *
+   * <p>Used by the test suite to isolate tests from each other. Entities that still exist keep
+   * their IDs, so the provider can hand those IDs out again.
+   */
+  public static void reset() {
+    USED.clear();
+    NEXT.set(0);
+    LOCAL_NEXT.set(-1);
+  }
 }

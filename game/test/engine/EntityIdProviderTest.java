@@ -11,46 +11,19 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for engine.utils.EntityIdProvider.
  *
- * <p>Each public test method is documented. Tests reset the internal static state of the provider
- * between runs using reflection to avoid test interference.
+ * <p>Each public test method is documented. The test suite resets the provider after each test.
  */
 public class EntityIdProviderTest {
-
-  /**
-   * Reset EntityIdProvider internal state after each test to ensure isolation between tests.
-   *
-   * @throws RuntimeException if reflective access to internal fields fails
-   */
-  @AfterEach
-  public void resetProviderState() {
-    try {
-      Field nextField = EntityIdProvider.class.getDeclaredField("NEXT");
-      nextField.setAccessible(true);
-      AtomicInteger next = (AtomicInteger) nextField.get(null);
-      next.set(0);
-
-      Field usedField = EntityIdProvider.class.getDeclaredField("USED");
-      usedField.setAccessible(true);
-      @SuppressWarnings("unchecked")
-      ConcurrentHashMap<Integer, Boolean> used =
-          (ConcurrentHashMap<Integer, Boolean>) usedField.get(null);
-      used.clear();
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException("Failed to reset EntityIdProvider state", e);
-    }
-  }
 
   /** Verifies that nextId() produces unique, non-negative IDs across a sequence of calls. */
   @Test
