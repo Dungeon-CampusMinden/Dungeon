@@ -733,9 +733,7 @@ public class HeroController {
       return source.swap(adjustedFromSlot, adjustedToSlot);
     }
     // Recorded before the move, so the inventory callbacks already know the moving player.
-    otherInv
-        .filter(inv -> inv == source || inv == target)
-        .ifPresent(inv -> inv.recordMove(player));
+    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
 
     Optional<Item> itemToMove = source.remove(adjustedFromSlot);
     // Take the target item out first, so every item fires a removed callback before it is added.
