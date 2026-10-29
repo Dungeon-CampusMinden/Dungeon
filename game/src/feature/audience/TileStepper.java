@@ -8,6 +8,7 @@ import engine.level.Tile;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import feature.collision.Collider;
 import feature.collision.CollisionUtils;
 import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
@@ -15,6 +16,7 @@ import feature.systems.PositionSync;
 import feature.utils.EntityUtils;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Moves the hero exactly one tile per voted step and interacts with the tile in front of it.
@@ -30,6 +32,9 @@ import java.util.Optional;
 final class TileStepper {
   /** Tiles per second while stepping. */
   private static final float SPEED = 4f;
+
+  // A hitbox has to reach this far into a tile to take it up, so rounding does not add a neighbor.
+  private static final float OVERLAP = 0.01f;
 
   private final Entity hero;
   private Point target;
@@ -109,7 +114,8 @@ final class TileStepper {
   /**
    * Finds the entity a vote for "Benutzen" would use right now.
    *
-   * @return the nearest interactable entity on the tile the hero faces, or empty when there is none
+   * @return the nearest interactable entity that {@link #covers} the tile the hero faces, or empty
+   *     when there is none
    */
   Optional<Entity> facing() {
     PositionComponent position = hero.fetch(PositionComponent.class).orElseThrow();
@@ -118,8 +124,10 @@ final class TileStepper {
     Optional<Tile> front = Game.tileAt(current.get().position(), position.viewDirection());
     if (front.isEmpty()) return Optional.empty();
     Point heroPosition = position.position();
-    return Game.entityAtTile(front.get())
-        .filter(entity -> entity.isPresent(InteractionComponent.class))
+    Point tile = front.get().position();
+    return Game.entities(Set.of(PositionComponent.class, InteractionComponent.class))
+        .filter(entity -> entity.id() != hero.id())
+        .filter(entity -> covers(entity, tile))
         .min(
             Comparator.comparingDouble(
                 entity ->
@@ -127,6 +135,33 @@ final class TileStepper {
                         .fetch(PositionComponent.class)
                         .map(other -> heroPosition.distanceSquared(other.position()))
                         .orElse(Double.MAX_VALUE)));
+  }
+
+  /**
+   * Checks whether an entity takes up a tile. An entity with a hitbox takes up every tile its
+   * hitbox reaches into, so a board two tiles wide can be used from in front of either tile. An
+   * entity without a hitbox takes up the tile of its position. The size of a sprite does not count,
+   * because the server does not know the size of single images.
+   *
+   * @param entity an entity with a position
+   * @param tile origin of the tile
+   * @return whether the entity takes up the tile
+   */
+  static boolean covers(Entity entity, Point tile) {
+    PositionSync.syncPosition(entity);
+    Optional<CollideComponent> hitbox = entity.fetch(CollideComponent.class);
+    if (hitbox.isEmpty()) {
+      Point position = entity.fetch(PositionComponent.class).orElseThrow().position();
+      return Math.floor(position.x()) == tile.x() && Math.floor(position.y()) == tile.y();
+    }
+    Collider collider = hitbox.get().collider();
+    return reaches(collider.absoluteLeft(), collider.absoluteRight(), tile.x())
+        && reaches(collider.absoluteBottom(), collider.absoluteTop(), tile.y());
+  }
+
+  // Whether the span from start to end reaches into the tile starting at origin.
+  private static boolean reaches(float start, float end, float origin) {
+    return start < origin + 1 - OVERLAP && end > origin + OVERLAP;
   }
 
   /** Keeps the hero standing during a pause; the step goes on with the next {@link #tick()}. */
