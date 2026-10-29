@@ -2,10 +2,12 @@ package feature.hud.dialogs;
 
 import engine.Entity;
 import engine.Game;
+import feature.prefabs.Placeholders;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -133,10 +135,12 @@ public final class DialogContext {
   public String replacePlaceholders(String text) {
     String[] placeholders =
         find(DialogContextKeys.PLACEHOLDERS, String[].class).orElse(new String[0]);
+    Map<String, String> values = new HashMap<>();
     for (int index = 0; index + 1 < placeholders.length; index += 2) {
-      text = text.replace("{" + placeholders[index] + "}", placeholders[index + 1]);
+      values.put(placeholders[index], placeholders[index + 1]);
     }
-    return text;
+    // In one pass, so inserted values are not replaced again.
+    return Placeholders.apply(text, values, "", Set.of());
   }
 
   /**

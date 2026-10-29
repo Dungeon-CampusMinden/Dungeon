@@ -3,6 +3,7 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
+import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.entities.deco.Deco;
@@ -115,13 +116,12 @@ public final class ItemReceptaclePrefab extends Prefab {
     Entity container = context.createEntity(instance.name());
     DecoFactory.createDeco(
         container, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
+    container.remove(DecoComponent.class);
     InventoryComponent inventory = new InventoryComponent(CAPACITY);
     container.add(inventory);
 
     ArtifactInput<ItemArtifact> required = input(context, instance, REQUIRED_ITEM);
     boolean consume = value(instance, CONSUME);
-    // Items are moved by the inventory dialog, so the player is the one who opened it last.
-    Entity[] lastPlayer = new Entity[1];
     boolean[] consuming = {false};
     inventory.onItemAdded(
         item -> {
@@ -135,9 +135,9 @@ public final class ItemReceptaclePrefab extends Prefab {
                 consuming[0] = false;
               }
             }
-            fire(context, instance, REQUIRED_ITEM_PLACED, lastPlayer[0]);
+            fire(context, instance, REQUIRED_ITEM_PLACED, mover(inventory));
           } else {
-            fire(context, instance, OTHER_ITEM_PLACED, lastPlayer[0]);
+            fire(context, instance, OTHER_ITEM_PLACED, mover(inventory));
           }
         });
     inventory.onItemRemoved(
@@ -153,7 +153,6 @@ public final class ItemReceptaclePrefab extends Prefab {
             new Interaction(
                 (interacted, interactor) -> {
                   if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
-                  lastPlayer[0] = interactor;
                   DialogContext dialog =
                       DialogContext.builder()
                           .type(DialogType.DefaultTypes.DUAL_INVENTORY)
@@ -167,16 +166,15 @@ public final class ItemReceptaclePrefab extends Prefab {
     return List.of(container);
   }
 
-  // Links of the removed "Contents" slot are dropped from older levels.
-  @Override
-  protected boolean isLegacyPort(String key) {
-    return key.equals("contents");
-  }
-
   @Override
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     feedback.point(value(instance, POSITION), instance.name());
+  }
+
+  // HeroController records the moving player before it moves an item, so it is known here.
+  private static Entity mover(InventoryComponent inventory) {
+    return inventory.lastMove().map(InventoryComponent.Move::player).orElse(null);
   }
 
   private static boolean matches(ArtifactInput<ItemArtifact> required, Item item) {

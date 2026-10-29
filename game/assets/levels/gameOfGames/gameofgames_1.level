@@ -1,15 +1,15 @@
 {
-  "version" : 6,
+  "version" : 4,
   "design" : "DEFAULT",
-  "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSSSSSSSSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
+  "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSWWWWWWSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSWFFFFWSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSWFFFFWSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSWFFFFWSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSWWFWWWSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWDWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
     "x" : 15.0,
     "y" : 7.0
   } ],
   "namedPoints" : {
     "bookshelf" : {
-      "x" : 15.0,
-      "y" : 11.0
+      "x" : 6.0,
+      "y" : 12.0
     }
   },
   "decorations" : [ ],
@@ -53,9 +53,6 @@
     },
     "inputs" : {
       "open" : [ {
-        "source" : "r1/keypad-1",
-        "port" : "correct-code"
-      }, {
         "source" : "r1/keypad-2",
         "port" : "correct-code"
       }, {
@@ -154,7 +151,7 @@
     "name" : "r1/dialog-2",
     "type" : "dialog",
     "properties" : {
-      "text" : "That is the wrong code dawg",
+      "text" : "That is the wrong code :(",
       "translate" : false,
       "audience" : "Triggering Player"
     },
@@ -292,13 +289,7 @@
       },
       "revertable" : true
     },
-    "active" : false,
-    "inputs" : {
-      "activate" : [ {
-        "source" : "r1/keypad-1",
-        "port" : "correct-code"
-      } ]
-    }
+    "active" : false
   }, {
     "name" : "r1/door-lever-2",
     "type" : "lever",
@@ -327,7 +318,7 @@
         "source" : "r2/pressure-plate",
         "port" : "pressed"
       }, {
-        "source" : "item-receptacle",
+        "source" : "cat-npc",
         "port" : "required-item-placed"
       }, {
         "source" : "dialog",
@@ -340,7 +331,7 @@
         "source" : "r2/pressure-plate",
         "port" : "released"
       }, {
-        "source" : "item-receptacle",
+        "source" : "cat-npc",
         "port" : "required-item-removed"
       } ]
     }
@@ -374,8 +365,12 @@
     "active" : false,
     "inputs" : {
       "activate" : [ {
-        "source" : "item-receptacle",
+        "source" : "cat-npc",
         "port" : "required-item-placed"
+      } ],
+      "deactivate" : [ {
+        "source" : "cat-npc",
+        "port" : "required-item-removed"
       } ]
     }
   }, {
@@ -451,6 +446,22 @@
       } ]
     }
   }, {
+    "name" : "r1/door-control",
+    "type" : "door-control",
+    "properties" : {
+      "doorPosition" : {
+        "x" : 15.0,
+        "y" : 13.0
+      },
+      "closedAtStart" : true
+    },
+    "inputs" : {
+      "open" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      } ]
+    }
+  }, {
     "name" : "r2/stone-3",
     "type" : "pushable-stone",
     "properties" : {
@@ -518,6 +529,13 @@
       "activate" : [ {
         "source" : "r1/trigger",
         "port" : "entered"
+      }, {
+        "source" : "cat-npc",
+        "port" : "required-item-placed"
+      } ],
+      "deactivate" : [ {
+        "source" : "cat-npc",
+        "port" : "required-item-removed"
       } ]
     }
   }, {
@@ -825,35 +843,35 @@
       "pieceItemName" : "Saphir-Stück",
       "pieceItemDescription" : "Ein Stück von einem Saphir",
       "hintItemName" : "Saphir",
-      "hintItemDescription" : "Ein waschechter Saphir!",
+      "hintItemDescription" : "A real sapphire!",
       "settings" : {
         "pieceCount" : 4,
         "seed" : 1337,
         "pieces" : [ {
           "position" : {
-            "x" : 8.9375,
-            "y" : 1.5
+            "x" : 6.125,
+            "y" : 1.25
           },
-          "destination" : "deco-inventory",
+          "destination" : "chest",
           "deco" : "FolderRed"
         }, {
           "position" : {
-            "x" : 10.0,
-            "y" : 1.0
-          },
-          "destination" : "world-item",
-          "deco" : "BookshelfLarge"
-        }, {
-          "position" : {
-            "x" : 11.1875,
+            "x" : 7.5625,
             "y" : 1.1875
           },
           "destination" : "world-item",
           "deco" : "BookshelfLarge"
         }, {
           "position" : {
-            "x" : 9.9375,
-            "y" : 1.6875
+            "x" : 7.9375,
+            "y" : 2.0
+          },
+          "destination" : "world-item",
+          "deco" : "BookshelfLarge"
+        }, {
+          "position" : {
+            "x" : 6.6875,
+            "y" : 2.5625
           },
           "destination" : "world-item",
           "deco" : "BookshelfLarge"
@@ -861,30 +879,30 @@
       }
     }
   }, {
-    "name" : "item-receptacle",
+    "name" : "cat-npc",
     "type" : "item-receptacle",
     "properties" : {
       "position" : {
-        "x" : 20.1875,
-        "y" : 6.1875
+        "x" : 22.125,
+        "y" : 8.0
       },
-      "deco" : "Printer",
+      "deco" : "Cat",
       "title" : "Container",
       "consume" : false
     },
     "inputs" : {
       "required-item" : [ {
-        "source" : "item-spawner",
+        "source" : "cat-food-spawner",
         "port" : "item-1"
       } ]
     }
   }, {
-    "name" : "item-spawner",
+    "name" : "cat-food-spawner",
     "type" : "item-spawner",
     "properties" : {
       "position" : {
-        "x" : 7.0,
-        "y" : 3.0
+        "x" : 20.0,
+        "y" : 7.0
       },
       "container" : "Chest",
       "deco" : "Cabinet",
@@ -915,12 +933,6 @@
       "item-4" : "ItemKey",
       "item-5" : "ItemKey",
       "item-6" : "ItemKey"
-    },
-    "inputs" : {
-      "spew" : [ {
-        "source" : "r1/keypad-1",
-        "port" : "correct-code"
-      } ]
     }
   }, {
     "name" : "sound-effect",
@@ -979,12 +991,6 @@
       "key-title" : "Locked Door",
       "key-question" : "Do you want to use your {key} to open the door?",
       "consume-key" : true
-    },
-    "inputs" : {
-      "key" : [ {
-        "source" : "item-spawner",
-        "port" : "item-2"
-      } ]
     }
   }, {
     "name" : "trigger",
@@ -1005,7 +1011,7 @@
     "active" : false,
     "inputs" : {
       "activate" : [ {
-        "source" : "item-receptacle",
+        "source" : "cat-npc",
         "port" : "required-item-placed"
       } ]
     }
@@ -1128,6 +1134,55 @@
         "source" : "choice-dialog",
         "port" : "option-4"
       } ]
+    }
+  }, {
+    "name" : "deco-interaction",
+    "type" : "deco-interaction",
+    "properties" : {
+      "position" : {
+        "x" : 15.0,
+        "y" : 11.0
+      },
+      "deco" : "BookshelfLarge",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "show-image",
+    "type" : "show-image",
+    "properties" : {
+      "image" : "images/door_code.jpg",
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-image" : [ {
+        "source" : "deco-interaction",
+        "port" : "interacted"
+      } ]
+    }
+  }, {
+    "name" : "water",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 13.6875,
+          "y" : 16.0
+        },
+        "topRight" : {
+          "x" : 18.3125,
+          "y" : 18.0
+        }
+      },
+      "color" : "1A66B3FF",
+      "speed" : 0.14999999,
+      "layer" : -55,
+      "repeat" : 1.0,
+      "foamMinWidth" : 1,
+      "foamMaxWidth" : 3,
+      "lineInterval" : 2.5
     }
   } ]
 }

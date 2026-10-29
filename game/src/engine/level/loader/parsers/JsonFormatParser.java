@@ -17,7 +17,6 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabWiring;
-import feature.prefabs.types.CombinedDoorPrefabMigration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,18 +40,12 @@ import tools.jackson.databind.node.ObjectNode;
  * Parser and serializer for the JSON-based level format.
  *
  * <p>Version 4 added the {@code active} flag and the {@code inputs} links of prefab records, see
- * {@link PrefabInstanceCodec}. Version 5 split the combined door prefabs into standalone prefabs
- * and linked door controls, see {@link CombinedDoorPrefabMigration}. Version 6 split the combined
- * decoration prefabs into decoration interactions and linked dialog or image prefabs; no level used
- * the combined prefabs, so there is no migration for it. Version 3 to 5 files are read as well,
- * migrated, and written as version 6. Older builds reject newer files instead of silently dropping
- * linked prefab records.
+ * {@link PrefabInstanceCodec}. Version 3 files are read as well and written as version 4.
  */
 public final class JsonFormatParser extends LevelFormatParser {
 
-  private static final int VERSION = 6;
-  private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4, 5, 6);
-  private static final int SPLIT_DOOR_PREFABS_VERSION = 5;
+  private static final int VERSION = 4;
+  private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4);
   private static final Set<String> ROOT_PROPERTIES =
       Set.of(
           "version",
@@ -88,7 +81,7 @@ public final class JsonFormatParser extends LevelFormatParser {
         throw new IllegalArgumentException("JSON level data must be a JSON object");
       }
       rejectUnknown(root, ROOT_PROPERTIES, "level");
-      int version = requireVersion(root);
+      requireVersion(root);
 
       DesignLabel design = parseDesign(root);
       List<String> layoutRows = parseLayout(root);
@@ -96,7 +89,7 @@ public final class JsonFormatParser extends LevelFormatParser {
       List<Point> startTiles = parsePointArray(requireArray(root, "startTiles"), "startTiles");
       Map<String, Point> namedPoints = parseNamedPoints(root);
       List<Tuple<Deco, Point>> decorations = parseDecorations(root);
-      List<PrefabInstance> prefabs = parsePrefabs(root, version);
+      List<PrefabInstance> prefabs = parsePrefabs(root);
 
       DungeonLevel level = getLevel(levelName, layout, design, namedPoints, decorations);
       parseAtmosphere(root, level);
@@ -264,11 +257,8 @@ public final class JsonFormatParser extends LevelFormatParser {
     return result;
   }
 
-  private static List<PrefabInstance> parsePrefabs(ObjectNode root, int version) {
+  private static List<PrefabInstance> parsePrefabs(ObjectNode root) {
     ArrayNode nodes = requireArray(root, "prefabs");
-    if (version < SPLIT_DOOR_PREFABS_VERSION) {
-      nodes = CombinedDoorPrefabMigration.migrate(nodes, LOGGER::info);
-    }
     List<PrefabInstance> result = new ArrayList<>();
     Set<String> names = new HashSet<>();
     for (int index = 0; index < nodes.size(); index++) {

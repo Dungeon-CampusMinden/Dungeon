@@ -48,6 +48,8 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
 
   private static final String TYPE = "choice-dialog";
   private static final String DISPLAY_NAME = "Multiple Choice Dialog";
+  // Dialogs still shown by a spawned instance, closed without an event when it despawns.
+  private static final SpawnState<List<UIComponent>> OPEN = new SpawnState<>();
 
   /** Shows the dialog to its audience. */
   public static final PrefabAction SHOW_DIALOG =
@@ -155,7 +157,13 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
 
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    OPEN.start(context.level(), instance.name(), new ArrayList<>());
     return List.of();
+  }
+
+  @Override
+  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
+    OPEN.end(context.level(), instance.name()).ifPresent(PrefabDialogs::closeAll);
   }
 
   @Override
@@ -173,6 +181,8 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
     }
     Map<String, String> placeholders =
         PrefabDialogs.placeholders(input(creation, instance, VALUES));
+    List<UIComponent> open = OPEN.get(creation.level(), instance.name()).orElse(null);
+    if (open == null) return;
 
     for (Entity player : PrefabAudience.players(context, AUDIENCE)) {
       DialogContext.Builder dialog =
@@ -186,13 +196,13 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
       dialog.placeholders(placeholders);
 
       UIComponent ui = DialogFactory.show(dialog.build(), true, canCancel, player.id());
-      // Choosing closes the dialog, which must not count as cancelling it.
-      boolean[] done = {false};
+      open.add(ui);
+      // Choosing closes the dialog, which must not count as cancelling it. A dialog that is no
+      // longer open was answered already or closed by the despawn of its instance.
       ui.registerCallback(
           DialogContextKeys.ON_OPTION_SELECTED,
           data -> {
-            if (done[0]) return;
-            done[0] = true;
+            if (!open.remove(ui)) return;
             // Forced, since a dialog without cancel option cannot be closed by the player.
             UIUtils.closeDialog(ui, true);
             chosenIndex(data, options.size())
@@ -201,9 +211,7 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
       if (!canCancel) continue;
       Runnable cancel =
           () -> {
-            if (done[0]) return;
-            done[0] = true;
-            fire(creation, instance, CANCELLED, player);
+            if (open.remove(ui)) fire(creation, instance, CANCELLED, player);
           };
       ui.registerCallback(
           DialogContextKeys.ON_CANCEL,

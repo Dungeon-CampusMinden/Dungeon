@@ -2,6 +2,7 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.level.elements.ILevel;
+import feature.components.UIComponent;
 import feature.prefabs.ActionContext;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
@@ -11,6 +12,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -38,6 +40,8 @@ public final class ShowImagePrefab extends Prefab {
 
   private static final String TYPE = "show-image";
   private static final String DISPLAY_NAME = "Show Image";
+  // Images still shown by a spawned instance, closed without an event when it despawns.
+  private static final SpawnState<List<UIComponent>> OPEN = new SpawnState<>();
   public static final PrefabProperty<String> IMAGE =
       PrefabProperty.string(
           "image", "Image Path", "images/binary_hex.jpg", value -> !value.isBlank());
@@ -79,7 +83,13 @@ public final class ShowImagePrefab extends Prefab {
 
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    OPEN.start(context.level(), instance.name(), new ArrayList<>());
     return List.of();
+  }
+
+  @Override
+  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
+    OPEN.end(context.level(), instance.name()).ifPresent(PrefabDialogs::closeAll);
   }
 
   @Override
@@ -90,9 +100,18 @@ public final class ShowImagePrefab extends Prefab {
   private static void show(ActionContext context) {
     PrefabCreationContext creation = context.creationContext();
     PrefabInstance instance = context.instance();
+    List<UIComponent> open = OPEN.get(creation.level(), instance.name()).orElse(null);
+    if (open == null) return;
     for (Entity player : PrefabAudience.players(context, AUDIENCE)) {
-      PrefabDialogs.showImage(
-          instance.get(IMAGE), player, () -> fire(creation, instance, IMAGE_CLOSED, player));
+      UIComponent[] shown = new UIComponent[1];
+      shown[0] =
+          PrefabDialogs.showImage(
+              instance.get(IMAGE),
+              player,
+              () -> {
+                if (open.remove(shown[0])) fire(creation, instance, IMAGE_CLOSED, player);
+              });
+      open.add(shown[0]);
     }
   }
 }

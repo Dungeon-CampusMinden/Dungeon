@@ -185,9 +185,16 @@ public final class ImagePuzzlePrefab extends Prefab {
           PuzzleMaker.defaultOnComplete().accept(completed, solver);
           fire(context, instance, COMPLETED, solver);
         };
+    // Scoped by the instance name, so instances with equal settings do not share one puzzle.
     Puzzle puzzle =
         PuzzleMaker.makePuzzle(
-            new SimpleIPath(imagePath), settings.pieceCount(), onComplete, settings.seed());
+            new SimpleIPath(imagePath),
+            settings.pieceCount(),
+            onComplete,
+            settings.seed(),
+            false,
+            null,
+            instance.name());
     publish(
         context,
         instance,

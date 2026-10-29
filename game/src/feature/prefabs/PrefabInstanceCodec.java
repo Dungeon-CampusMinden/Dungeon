@@ -107,9 +107,7 @@ public final class PrefabInstanceCodec {
       String port = entry.getKey();
       boolean known = prefab.port(port).filter(p -> p.kind().isInput()).isPresent();
       if (!known) {
-        if (!prefab.isLegacyPort(port)) {
-          warnings.accept("Skipping links of unknown input port '" + port + "'");
-        }
+        warnings.accept("Skipping links of unknown input port '" + port + "'");
         continue;
       }
       if (!(entry.getValue() instanceof ArrayNode array)) {

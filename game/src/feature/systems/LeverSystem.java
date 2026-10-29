@@ -58,14 +58,15 @@ public class LeverSystem extends System {
                       .orElseThrow(
                           () -> MissingComponentException.build(leverEntity, LeverComponent.class));
 
-              Boolean oldState = leverStates.get(leverEntity);
+              // Compare unseen levers with their initial state, so a toggle right after spawning
+              // still runs the command.
+              boolean oldState = leverStates.getOrDefault(leverEntity, leverComp.initiallyOn());
               boolean newState = leverComp.isOn();
 
-              if (oldState == null) {
+              if (oldState == newState) {
                 leverStates.put(leverEntity, newState);
                 return;
               }
-              if (oldState == newState) return;
 
               ICommand cmd = leverComp.command();
               if (newState) {

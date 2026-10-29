@@ -68,6 +68,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -951,7 +952,7 @@ public final class PrefabMode extends LevelEditorMode {
       List<String> aliases = new ArrayList<>();
       for (PrefabLink link : instance.links(slot)) aliases.add(link.alias());
       String text = String.valueOf(slot.placeholderProperty().get().get(instance));
-      Set<String> unknown = new java.util.LinkedHashSet<>(Placeholders.names(text));
+      Set<String> unknown = new LinkedHashSet<>(Placeholders.names(text));
       unknown.removeAll(aliases);
       String hint =
           aliases.isEmpty()
@@ -2172,6 +2173,11 @@ public final class PrefabMode extends LevelEditorMode {
     float best = Float.MAX_VALUE;
     for (WorldAnchor anchor : worldAnchors(instance)) {
       best = Math.min(best, (float) anchor.displayPosition().distance(cursor));
+    }
+    // The link anchor is where links and pick highlights are drawn, e.g. the center of a region.
+    Optional<Point> linkAnchor = worldLinkAnchor(instance);
+    if (linkAnchor.isPresent()) {
+      best = Math.min(best, (float) linkAnchor.get().distance(cursor));
     }
     AttachedPrefabLayout.Chip chip = chips.get(instance.name());
     if (chip != null) {

@@ -2,6 +2,7 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.level.elements.ILevel;
+import feature.components.UIComponent;
 import feature.hud.dialogs.DialogFactory;
 import feature.prefabs.ActionContext;
 import feature.prefabs.ArtifactSlot;
@@ -14,6 +15,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -39,6 +41,8 @@ public final class DialogPrefab extends Prefab {
 
   private static final String TYPE = "dialog";
   private static final String DISPLAY_NAME = "Dialog";
+  // Dialogs still shown by a spawned instance, closed without an event when it despawns.
+  private static final SpawnState<List<UIComponent>> OPEN = new SpawnState<>();
 
   public static final PrefabProperty<String> TEXT =
       PrefabProperty.string("text", "Dialog Script", "Hello.", value -> !value.isBlank());
@@ -88,7 +92,13 @@ public final class DialogPrefab extends Prefab {
 
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    OPEN.start(context.level(), instance.name(), new ArrayList<>());
     return List.of();
+  }
+
+  @Override
+  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
+    OPEN.end(context.level(), instance.name()).ifPresent(PrefabDialogs::closeAll);
   }
 
   @Override
@@ -99,13 +109,21 @@ public final class DialogPrefab extends Prefab {
   private static void show(ActionContext context) {
     PrefabCreationContext creation = context.creationContext();
     PrefabInstance instance = context.instance();
+    List<UIComponent> open = OPEN.get(creation.level(), instance.name()).orElse(null);
+    if (open == null) return;
     for (Entity player : PrefabAudience.players(context, AUDIENCE)) {
-      DialogFactory.showDialogDialog(
-          instance.get(TEXT),
-          instance.get(TRANSLATE),
-          PrefabDialogs.placeholders(input(creation, instance, VALUES)),
-          PrefabDialogs.once(() -> fire(creation, instance, DIALOG_FINISHED, player)),
-          player.id());
+      // Finishing and closing both report, removing the dialog makes sure the event fires once.
+      UIComponent[] shown = new UIComponent[1];
+      shown[0] =
+          DialogFactory.showDialogDialog(
+              instance.get(TEXT),
+              instance.get(TRANSLATE),
+              PrefabDialogs.placeholders(input(creation, instance, VALUES)),
+              () -> {
+                if (open.remove(shown[0])) fire(creation, instance, DIALOG_FINISHED, player);
+              },
+              player.id());
+      open.add(shown[0]);
     }
   }
 }

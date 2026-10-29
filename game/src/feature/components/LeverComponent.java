@@ -13,6 +13,9 @@ public class LeverComponent implements Component {
   /** The command that will be executed when the lever is toggled. */
   private final ICommand command;
 
+  /** The state the lever was created with. */
+  private final boolean initiallyOn;
+
   /** The current state of the lever. True if the lever is on, false otherwise. */
   private boolean isOn;
 
@@ -27,6 +30,7 @@ public class LeverComponent implements Component {
    * @param command The command that will be executed when the lever is toggled.
    */
   public LeverComponent(boolean isOn, ICommand command) {
+    this.initiallyOn = isOn;
     this.isOn = isOn;
     this.command = command;
   }
@@ -61,6 +65,15 @@ public class LeverComponent implements Component {
    */
   public boolean isOn() {
     return isOn;
+  }
+
+  /**
+   * Returns the state the lever was created with.
+   *
+   * @return true if the lever started in the on position, false otherwise
+   */
+  public boolean initiallyOn() {
+    return initiallyOn;
   }
 
   /**

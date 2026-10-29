@@ -565,7 +565,6 @@ public abstract class Prefab {
     for (String key : instance.inputs().keySet()) {
       Optional<PrefabPort> port = port(key);
       if (port.isEmpty()) {
-        if (isLegacyPort(key)) continue;
         throw new IllegalArgumentException(
             "Unknown input port '" + key + "' for prefab type '" + type + "'");
       }
@@ -618,17 +617,6 @@ public abstract class Prefab {
    * @return whether this retired property can be discarded
    */
   protected boolean isLegacyProperty(String key) {
-    return false;
-  }
-
-  /**
-   * Identifies retired input ports whose links are accepted when loading older instances but
-   * discarded during normalization. Links to other unknown ports remain invalid.
-   *
-   * @param key serialized input port key
-   * @return whether links of this retired port can be discarded
-   */
-  protected boolean isLegacyPort(String key) {
     return false;
   }
 

@@ -3,6 +3,7 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
+import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.entities.MiscFactory;
 import feature.entities.WorldItemBuilder;
@@ -109,6 +110,7 @@ public final class ItemSpawnerPrefab extends Prefab {
       case CONTAINER_DECO -> {
         Entity container = context.createEntity(instance.name());
         DecoFactory.createDeco(container, position, Deco.valueOf(value(instance, DECO)));
+        container.remove(DecoComponent.class);
         InventoryComponent inventory = new InventoryComponent(DECO_CAPACITY);
         items.forEach(inventory::add);
         container.add(inventory);
@@ -134,7 +136,7 @@ public final class ItemSpawnerPrefab extends Prefab {
     feedback.point(position, instance.name());
     if (selected) {
       feedback.label(
-          position.translate(0f, -0.45f),
+          position.translate(0f, -0.2f),
           "(" + value(instance, PrefabItems.COUNT) + " in " + value(instance, CONTAINER) + ")");
     }
   }

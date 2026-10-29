@@ -344,11 +344,11 @@ public final class InventoryComponent implements Component {
       LOGGER.warn("Tried to set item at invalid inventory index: {}", index);
       return false;
     }
-    if (this.inventory[index] == item) return true; // no change
-    this.inventory[index % this.inventory.length] = item;
-    if (item == null) return true; // no callback for null items
-
-    this.onItemAdded.accept(item);
+    Item previous = this.inventory[index];
+    if (previous == item) return true; // no change
+    this.inventory[index] = item;
+    if (previous != null) this.onItemRemoved.accept(previous);
+    if (item != null) this.onItemAdded.accept(item);
     return true;
   }
 
