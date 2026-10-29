@@ -353,6 +353,25 @@ public final class InventoryComponent implements Component {
   }
 
   /**
+   * Swap the items at the given indices without firing the added or removed callbacks, because
+   * rearranging slots does not change what the inventory holds.
+   *
+   * @param first Index of the first slot.
+   * @param second Index of the second slot.
+   * @return true if the items were swapped, false if an index is out of bounds.
+   */
+  public boolean swap(int first, int second) {
+    if (first < 0 || first >= inventory.length || second < 0 || second >= inventory.length) {
+      LOGGER.warn("Tried to swap items at invalid inventory indices: {}, {}", first, second);
+      return false;
+    }
+    Item item = inventory[first];
+    inventory[first] = inventory[second];
+    inventory[second] = item;
+    return true;
+  }
+
+  /**
    * Get the item at the given index.
    *
    * @param index Index of item to get.
