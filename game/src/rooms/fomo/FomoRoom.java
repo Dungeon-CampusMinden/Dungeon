@@ -38,10 +38,10 @@ import java.util.logging.Level;
  * runs on a shared screen, and the audience steers the hero and answers the questions by voting on
  * their devices.
  *
- * <p>The hero is trapped inside a model of a laboratory. Four terminals ask about choosing,
- * building and examining models and reveal one digit of the door code each. Start it with the
- * Gradle task {@code runFomoRoom}, then choose "Publikumsrunde starten" in the menu. F4 in the main
- * menu opens the level editor.
+ * <p>The hero is trapped inside a model of a laboratory. Three terminals ask about regular
+ * languages and grammars and one about the steps of modelling; each reveals one digit of the door
+ * code. Start it with the Gradle task {@code runFomoRoom}, then choose "Publikumsrunde starten" in
+ * the menu. F4 in the main menu opens the level editor.
  */
 public final class FomoRoom {
   /** Tracking room ID; the surveys are {@code surveys/pre-fomo.json} and {@code post-fomo.json}. */

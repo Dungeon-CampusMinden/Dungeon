@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roomId": "fomo",
-  "questionnaireId": "fomo-post-v1",
+  "questionnaireId": "fomo-post-v2",
   "title": { "de": "Wie war es?" },
   "skippable": false,
   "pages": [
@@ -15,13 +15,13 @@
           "text": { "de": "Wie sehr treffen die Aussagen jetzt auf dich zu?" },
           "rows": [
             { "id": "post_02_modell_erklaeren", "text": { "de": "Ich kann erklären, was ein Modell ist und wozu man es verwendet." } },
-            { "id": "post_03_modellart_waehlen", "text": { "de": "Ich kann für eine Fragestellung eine passende Modellart auswählen." } },
-            { "id": "post_04_eigenschaften_auswaehlen", "text": { "de": "Ich kann entscheiden, welche Eigenschaften eines Systems für eine Fragestellung wichtig sind." } },
-            { "id": "post_05_vereinfachungen_begruenden", "text": { "de": "Ich kann begründen, welche Vereinfachungen und Annahmen ein Modell trifft." } },
-            { "id": "post_06_verkuerzung_erklaeren", "text": { "de": "Ich kann erklären, warum ein Modell nicht alle Eigenschaften seines Systems übernimmt." } },
-            { "id": "post_07_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
-            { "id": "post_08_modell_vergleichen", "text": { "de": "Ich kann ein Modell untersuchen und seine Ergebnisse mit dem System vergleichen." } },
-            { "id": "post_09_modell_verbessern", "text": { "de": "Ich kann ein Modell bei Bedarf gezielt verbessern." } } ],
+            { "id": "post_03_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
+            { "id": "post_04_regulaere_sprache_erklaeren", "text": { "de": "Ich kann erklären, was eine reguläre Sprache ist." } },
+            { "id": "post_05_regularitaet_begruenden", "text": { "de": "Ich kann bei Sprachen wie a^i b^j mit Bedingungen an i und j begründen, ob sie regulär sind." } },
+            { "id": "post_06_endliche_sprachen_erklaeren", "text": { "de": "Ich kann erklären, warum endliche Sprachen regulär sind." } },
+            { "id": "post_07_grammatikregeln_erklaeren", "text": { "de": "Ich kann erklären, welche Regeln eine reguläre Grammatik enthalten darf." } },
+            { "id": "post_08_leeres_wort_erklaeren", "text": { "de": "Ich kann erklären, wie eine reguläre Grammatik das leere Wort erzeugen kann." } },
+            { "id": "post_09_woerter_bestimmen", "text": { "de": "Ich kann bestimmen, welche Wörter eine kleine Grammatik erzeugt, und denke dabei auch an das leere Wort." } } ],
           "columns": [
             { "id": "1", "text": { "de": "Gar nicht" } },
             { "id": "2", "text": { "de": "Eher nicht" } },
@@ -40,13 +40,13 @@
           "text": { "de": "Wie sehr trafen die Aussagen direkt vor dem Escape Room auf dich zu?" },
           "rows": [
             { "id": "then_02_modell_erklaeren", "text": { "de": "Ich kann erklären, was ein Modell ist und wozu man es verwendet." } },
-            { "id": "then_03_modellart_waehlen", "text": { "de": "Ich kann für eine Fragestellung eine passende Modellart auswählen." } },
-            { "id": "then_04_eigenschaften_auswaehlen", "text": { "de": "Ich kann entscheiden, welche Eigenschaften eines Systems für eine Fragestellung wichtig sind." } },
-            { "id": "then_05_vereinfachungen_begruenden", "text": { "de": "Ich kann begründen, welche Vereinfachungen und Annahmen ein Modell trifft." } },
-            { "id": "then_06_verkuerzung_erklaeren", "text": { "de": "Ich kann erklären, warum ein Modell nicht alle Eigenschaften seines Systems übernimmt." } },
-            { "id": "then_07_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
-            { "id": "then_08_modell_vergleichen", "text": { "de": "Ich kann ein Modell untersuchen und seine Ergebnisse mit dem System vergleichen." } },
-            { "id": "then_09_modell_verbessern", "text": { "de": "Ich kann ein Modell bei Bedarf gezielt verbessern." } } ],
+            { "id": "then_03_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
+            { "id": "then_04_regulaere_sprache_erklaeren", "text": { "de": "Ich kann erklären, was eine reguläre Sprache ist." } },
+            { "id": "then_05_regularitaet_begruenden", "text": { "de": "Ich kann bei Sprachen wie a^i b^j mit Bedingungen an i und j begründen, ob sie regulär sind." } },
+            { "id": "then_06_endliche_sprachen_erklaeren", "text": { "de": "Ich kann erklären, warum endliche Sprachen regulär sind." } },
+            { "id": "then_07_grammatikregeln_erklaeren", "text": { "de": "Ich kann erklären, welche Regeln eine reguläre Grammatik enthalten darf." } },
+            { "id": "then_08_leeres_wort_erklaeren", "text": { "de": "Ich kann erklären, wie eine reguläre Grammatik das leere Wort erzeugen kann." } },
+            { "id": "then_09_woerter_bestimmen", "text": { "de": "Ich kann bestimmen, welche Wörter eine kleine Grammatik erzeugt, und denke dabei auch an das leere Wort." } } ],
           "columns": [
             { "id": "1", "text": { "de": "Gar nicht" } },
             { "id": "2", "text": { "de": "Eher nicht" } },
@@ -59,7 +59,7 @@
       "title": { "de": "Lernen im Escape Room" },
       "questions": [
         { "id": "lernhilfe", "type": "scale", "required": true, "min": 1, "max": 5,
-          "text": { "de": "Wie hilfreich war der Escape Room für dein Verständnis von Modellen und Modellierung?" },
+          "text": { "de": "Wie hilfreich war der Escape Room für dein Verständnis von Modellierung, regulären Sprachen und Grammatiken?" },
           "minLabel": { "de": "Gar nicht hilfreich" }, "maxLabel": { "de": "Sehr hilfreich" } },
         { "id": "recap_vergleich", "type": "matrix", "required": true,
           "text": { "de": "Wie war der Escape Room im Vergleich zu einem kurzen, normalen Recap am Ende der Vorlesung?" },
@@ -74,7 +74,7 @@
             { "id": "4", "text": { "de": "Etwas besser" } },
             { "id": "5", "text": { "de": "Deutlich besser" } } ] },
         { "id": "offene_lernfragen", "type": "longText", "maxLength": 1000,
-          "text": { "de": "Was ist dir zu Modellen und zur Modellierung noch unklar?" } }
+          "text": { "de": "Was ist dir zu Modellierung, regulären Sprachen oder Grammatiken noch unklar?" } }
       ]
     },
     {

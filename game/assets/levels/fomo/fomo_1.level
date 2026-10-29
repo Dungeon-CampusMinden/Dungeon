@@ -1,55 +1,63 @@
 {
   "version" : 3,
   "design" : "SYSTEM_RECOVERY",
-  "layout" : [ "SSSSSSSSSSSSSSSSSSS", "WWWWWWWWFFFWWWWWWWW", "WWWWWWWWWDWWWWWWWWW", "WFFFFFWFFFFFWFFFFFW", "WFFFFFFFFFFFFFFFFFW", "WFFFFFWFFFFFWFFFFFW", "WFFFFFWFFFFFWFFFFFW", "WWWFWWWWFFFWWWWFWWW", "WFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFW", "WFFFFFFFFFFFFFFFFFW", "WWWWWWWWDWWWWWWWWWW", "SSSSSWFFFFFWSSSSSSS", "SSSSSWFFFFFWSSSSSSS", "SSSSSWFFFFFWSSSSSSS", "SSSSSWFFFFFWSSSSSSS", "SSSSSWWWWWWWSSSSSSS", "SSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSS" ],
+  "layout" : [ "SSSSSSSSSSS", "WWWWWFWWWWW", "WWWWWDWWWWW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WWWWWDWWWWW", "SSWFFFFFWSS", "SSWFFFFFWSS", "SSWFFFFFWSS", "SSWWWWWWWSS", "SSSSSSSSSSS" ],
   "startTiles" : [ {
-    "x" : 8.0,
-    "y" : 4.0
+    "x" : 5.0,
+    "y" : 2.0
   } ],
   "namedPoints" : {
     "chest" : {
-      "x" : 17.0,
-      "y" : 12.0
+      "x" : 8.0,
+      "y" : 6.0
     },
     "door" : {
-      "x" : 9.0,
-      "y" : 16.0
+      "x" : 5.0,
+      "y" : 11.0
     },
     "exit" : {
-      "x" : 9.0,
-      "y" : 17.0
+      "x" : 5.0,
+      "y" : 12.0
+    },
+    "graph_model" : {
+      "x" : 7.0,
+      "y" : 6.0
     },
     "panel" : {
-      "x" : 10.0,
-      "y" : 15.0
+      "x" : 6.0,
+      "y" : 11.0
     },
     "q1" : {
-      "x" : 3.0,
-      "y" : 15.0
+      "x" : 1.0,
+      "y" : 7.0
     },
     "q2" : {
-      "x" : 15.0,
-      "y" : 15.0
+      "x" : 9.0,
+      "y" : 7.0
     },
     "q3" : {
-      "x" : 3.0,
+      "x" : 1.0,
       "y" : 9.0
     },
     "q4" : {
-      "x" : 15.0,
+      "x" : 9.0,
       "y" : 9.0
     },
     "tutorial_door" : {
-      "x" : 8.0,
-      "y" : 7.0
-    },
-    "tutorial_npc" : {
-      "x" : 6.0,
+      "x" : 5.0,
       "y" : 5.0
     },
+    "tutorial_npc" : {
+      "x" : 3.0,
+      "y" : 4.0
+    },
     "tutorial_panel" : {
-      "x" : 7.0,
-      "y" : 7.0
+      "x" : 4.0,
+      "y" : 5.0
+    },
+    "whiteboard" : {
+      "x" : 1.0,
+      "y" : 11.0
     }
   },
   "decorations" : [ ],
@@ -58,8 +66,8 @@
     "type" : "deco-image",
     "properties" : {
       "position" : {
-        "x" : 10.0,
-        "y" : 4.0
+        "x" : 7.0,
+        "y" : 3.0
       },
       "deco" : "Printer",
       "scale" : {

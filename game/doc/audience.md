@@ -32,8 +32,10 @@ Bewegungsfenster dauert dort 5 Sekunden, ein Rätselfenster 2 Minuten. Das Intro
 erscheinen. Der Raum startet mit `./gradlew :game:runAutomatonRoom`. F4 im Hauptmenü öffnet den
 Level-Editor, der ohne Publikum läuft.
 
-Der Raum `rooms.fomo.FomoRoom` („Gefangen im Modell“) folgt demselben Ablauf mit vier Fragen zu
-Modellen und Modellierung für das Modul FOMO. Er nutzt das Design `SYSTEM_RECOVERY`, eigene
+Der Raum `rooms.fomo.FomoRoom` („Gefangen im Modell“) folgt demselben Ablauf für das Modul FOMO.
+Die Terminals 1, 2 und 4 stellen die Fragen 1, 2 und 4 des Automatenraums zu regulären Sprachen und
+Grammatiken. Terminal 3 fragt nach den Schritten des Modellierungsprozesses, weil seine Antwort der
+Modellierungskreislauf ist, nach dem die Ziffern des Türcodes geordnet sind. Er nutzt das Design `SYSTEM_RECOVERY`, eigene
 Terminals und einen Handscanner als Tastenfeld. Dort baut Stachowiak Terminal 3 wieder auf, sobald
 die Figur ihm den Bauplan aus der Truhe bringt. Der Raum startet mit `./gradlew :game:runFomoRoom`,
 sein Level liegt in `levels/fomo`.
@@ -45,6 +47,27 @@ nennt danach die Wahl des Publikums. Dann verrät er, dass der Code der Tür ins
 letzten drei Ziffern der Telefonnummer besteht. Die Nummer steht auf einer Visitenkarte, die das
 Level als `deco-image`-Prefab auf einen Drucker legt. Die Tür ist der Punkt `tutorial_door`, ihr
 Tastenfeld `tutorial_panel`, der Code ist `279`.
+
+Die Rätsel im Labor des FOMO-Raums sind mehr als Quizfragen:
+
+- Ein gelöstes Terminal nennt keine Position im Türcode. Es zeigt einen Schritt des
+  Modellierungskreislaufs und eine Ziffer. Terminal 1 zeigt den dritten Schritt, Terminal 2 den
+  ersten, Terminal 3 den vierten und Terminal 4 den zweiten. Der Türcode `4826` nennt die Ziffern in
+  der Reihenfolge des Kreislaufs.
+- Den Kreislauf zeichnet Stachowiak an das Whiteboard auf dem Punkt `whiteboard`, sobald Terminal 3
+  gelöst ist. Vorher ist das Whiteboard leer, damit es die Frage von Terminal 3 nicht verrät. Das
+  Bild ist `rooms/fomo/modelling_cycle.png`. Das Whiteboard ist zwei Felder breit und hat eine
+  Hitbox über beide Felder, also lässt es sich vor jedem der beiden benutzen.
+- Stimmen die Ziffern am Ausgang, aber nicht ihre Reihenfolge, sagt das Tastenfeld genau das.
+- Die Truhe mit dem Bauplan hat ein Zahlenschloss mit zwei Ziffern. Daneben steht auf dem Punkt
+  `graph_model` ein Rechner. Er zeigt ein Graphmodell des Labors: Räume sind Knoten, Gänge sind
+  Kanten, die Zahlen sind Gehminuten. Das Schloss will den kürzesten Weg vom Vorraum zum Serverraum.
+  Er führt über Flur, Labor und Lager und dauert 13 Minuten, drei andere Wege dauern 14. `13` öffnet
+  die Truhe. Stachowiak erwähnt das Graphmodell, wenn er nach dem Bauplan fragt. Das Bild ist
+  `rooms/fomo/graph_model.png`.
+
+Das Labor des FOMO-Raums ist ein Raum mit 9 mal 5 Feldern, damit die Wege kurz bleiben. Vom Eingang
+aus erreicht die Figur jedes Objekt in höchstens 8 Schritten, das Whiteboard ist am weitesten weg.
 
 Beide Räume lesen aus ihrer Level-Datei die benannten Punkte `q1` bis `q4` für die Terminals,
 `chest` für die Truhe, `panel` für das Tastenfeld, `door` für die Tür und `exit` für das Feld
@@ -143,8 +166,11 @@ Beim Levelbau gilt:
 
 - Die Figur bewegt sich nur in ganzen Feldern. Interagierbare Objekte stehen auf einem eigenen
   Feld und brauchen ein freies Nachbarfeld, von dem aus die Figur sie ansehen kann.
-- „Benutzen“ interagiert nur mit dem Objekt auf dem Feld direkt vor der Figur. Die Reichweite der
-  `Interaction` muss mindestens 1 betragen.
+- „Benutzen“ interagiert nur mit dem Objekt auf dem Feld direkt vor der Figur. Ein Objekt belegt
+  jedes Feld, in das seine Hitbox hineinreicht, ein Objekt ohne Hitbox nur das Feld seiner
+  Position. Breite Objekte wie ein Whiteboard brauchen deshalb eine Hitbox über ihre ganze Breite.
+  Die Größe des Sprites zählt nicht, weil der Server die Größe einzelner Bilder nicht kennt. Die
+  Reichweite der `Interaction` muss mindestens 1 betragen.
 - Rätsel müssen einer der Dialogarten aus der Tabelle oben entsprechen. Zuordnungen mit Truhen,
   Inventar oder Echtzeit-Aufgaben lassen sich nicht abstimmen.
 - Texte in `DIALOG_DIALOG` sollten eine Seite lang sein, weil „Weiter“ den ganzen Dialog bestätigt.

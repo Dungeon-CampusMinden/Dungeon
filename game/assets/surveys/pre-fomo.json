@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roomId": "fomo",
-  "questionnaireId": "fomo-pre-v1",
+  "questionnaireId": "fomo-pre-v2",
   "title": { "de": "Bevor es losgeht" },
   "skippable": false,
   "pages": [
@@ -27,7 +27,7 @@
             { "id": "once", "text": { "de": "Ein- oder zweimal" } },
             { "id": "often", "text": { "de": "Öfter" } } ] },
         { "id": "vorkenntnisse", "type": "singleChoice", "required": true,
-          "text": { "de": "Wie schätzt du deine bisherigen Kenntnisse zu Modellen und zur Modellierung ein?" },
+          "text": { "de": "Wie schätzt du deine bisherigen Kenntnisse zu Modellierung, regulären Sprachen und Grammatiken ein?" },
           "options": [
             { "id": "keine", "text": { "de": "Keine Vorkenntnisse" } },
             { "id": "gering", "text": { "de": "Geringe Vorkenntnisse" } },

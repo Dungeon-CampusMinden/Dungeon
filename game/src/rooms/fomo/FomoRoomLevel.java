@@ -11,13 +11,18 @@ import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Point;
+import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.path.SimpleIPath;
 import feature.audience.AudienceSystem;
 import feature.components.CollideComponent;
+import feature.components.DecoComponent;
 import feature.components.UIComponent;
 import feature.entities.NPCFactory;
+import feature.entities.deco.Deco;
+import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
@@ -36,10 +41,12 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
- * Server level of the FOMO room. Four terminals ask about choosing, building and examining models,
- * and a code panel next to the door takes the four-digit code. Each solved terminal reveals one
- * digit of the code. After a wrong answer the audience gets a hint and the same question again.
- * Walking through the open door ends the game.
+ * Server level of the FOMO room. Three terminals ask about regular languages and grammars and one
+ * about the steps of modelling, and a code panel next to the door takes the four-digit code. Each
+ * solved terminal shows one step of the modelling cycle with one digit of the code. The digits
+ * belong in the order of the cycle, which Stachowiak draws on the whiteboard once terminal 3 is
+ * solved. After a wrong answer the audience gets a hint and the same question again. Walking
+ * through the open door ends the game.
  *
  * <p>The hero starts in a tutorial room. A robot there asks a practice single-choice and a practice
  * multiple-choice question, then tells the audience that the code of the tutorial door is the last
@@ -47,18 +54,39 @@ import java.util.stream.Stream;
  * {@code deco-image} prefab.
  *
  * <p>The third terminal is taken apart at first. Stachowiak stands in its place and rebuilds it
- * once the hero brings the blueprint from the chest. The blueprint is a flag of the level, not an
- * inventory item, so all of it happens in dialogs the audience can vote on.
+ * once the hero brings the blueprint from the chest. A two-digit lock keeps the chest shut. Its
+ * code is the length of the shortest path from the anteroom to the server room in the graph model
+ * of the laboratory that a computer next to the chest shows. The blueprint is a flag of the level,
+ * not an inventory item, so all of it happens in dialogs the audience can vote on.
  *
  * <p>The level file places the terminals on its named points {@code q1} to {@code q4}, the chest on
  * {@code chest} and the code panel on {@code panel}; {@code door} is the door tile and {@code exit}
  * the tile behind it. The robot stands on {@code tutorial_npc}, the tutorial door is {@code
- * tutorial_door} and its code panel {@code tutorial_panel}.
+ * tutorial_door} and its code panel {@code tutorial_panel}. The whiteboard hangs on {@code
+ * whiteboard} and the computer with the graph model stands on {@code graph_model}.
  */
 public final class FomoRoomLevel extends DungeonLevel {
   private static final String CODE = "4826";
   // The last three digits of the phone number on the business card in the tutorial room.
   private static final String TUTORIAL_CODE = "279";
+  // Anteroom, hall, laboratory, store and server room take 4 + 2 + 3 + 4 minutes; every other path
+  // takes at least 14.
+  private static final String CHEST_CODE = "13";
+  private static final String MODELLING_CYCLE = "rooms/fomo/modelling_cycle.png";
+  private static final String GRAPH_MODEL = "rooms/fomo/graph_model.png";
+  private static final SimpleIPath COMPUTER =
+      new SimpleIPath("objects/tech/Computer_station_1.png");
+
+  /** Steps of the modelling cycle; the door code lists their digits in this order. */
+  private static final List<String> STEPS =
+      List.of(
+          "Fragestellung festlegen",
+          "Modell erstellen oder auswählen",
+          "Modell untersuchen und auswerten",
+          "Modell bei Bedarf verbessern");
+
+  // The step each terminal shows: terminal 1 shows the third step, terminal 2 the first, and so on.
+  private static final int[] TERMINAL_STEPS = {2, 0, 3, 1};
   private static final SimpleIPath TERMINAL = new SimpleIPath("objects/tech/Screen_device.png");
   private static final SimpleIPath PANEL = new SimpleIPath("objects/tech/Hand_scanner.png");
   private static final SimpleIPath CHEST_TEXTURE = new SimpleIPath("objects/treasurechest");
@@ -91,8 +119,10 @@ public final class FomoRoomLevel extends DungeonLevel {
               + " Sekunden, haben alle abgestimmt, noch 3. Texte wie diesen bestätigt ihr mit"
               + " \"Weiter\".",
           "Codes tippt ihr auf dem Ziffernblock ein. Meine vier Terminals im Labor verraten je"
-              + " eine Ziffer des Türcodes, wenn ihr ihre Frage richtig beantwortet. Nach einer"
-              + " falschen Antwort bekommt ihr einen Tipp und versucht es noch einmal.",
+              + " eine Ziffer des Türcodes, wenn ihr ihre Frage richtig beantwortet.",
+          "In welcher Reihenfolge die Ziffern zum Türcode gehören, müsst ihr selbst"
+              + " herausfinden. Nach einer falschen Antwort bekommt ihr einen Tipp und versucht"
+              + " es noch einmal.",
           "Ihr startet im Vorraum. Sprecht zuerst mit dem Roboter. Er übt mit euch und verrät,"
               + " wie ihr ins Labor kommt.");
 
@@ -142,12 +172,16 @@ public final class FomoRoomLevel extends DungeonLevel {
           "Beim Aufräumen habe ich Terminal 3 auseinandergenommen und dabei seinen Bauplan"
               + " verlegt. Jetzt fehlt seine Frage.",
           "Ich kann es wieder aufbauen, mir fehlt nur der Bauplan. Eine Kopie liegt in der Truhe"
-              + " da drüben. Bringt sie mir!");
+              + " unten rechts. Bringt sie mir!",
+          "Die Truhe hat leider ein Zahlenschloss, und die Zahl habe ich vergessen. Ich weiß nur"
+              + " noch, dass sie in meinem Graphmodell des Labors steckt. Der Rechner neben der"
+              + " Truhe zeigt es.");
 
   private static final List<String> STACHOWIAK_REMINDER =
       List.of(
-          "Die Kopie des Bauplans liegt in der Truhe da drüben. Bringt sie mir, dann baue ich"
-              + " Terminal 3 wieder auf.");
+          "Die Kopie des Bauplans liegt in der Truhe unten rechts. Die Zahl für ihr Schloss"
+              + " steckt in meinem Graphmodell auf dem Rechner daneben. Bringt mir den Bauplan, dann"
+              + " baue ich Terminal 3 wieder auf.");
 
   private static final List<String> STACHOWIAK_REPAIR =
       List.of(
@@ -156,35 +190,46 @@ public final class FomoRoomLevel extends DungeonLevel {
               + " eine Frage für euch.");
 
   private static final List<String> STACHOWIAK_THANKS =
-      List.of("Danke! Ohne den Bauplan hätte ich Terminal 3 nicht wieder aufbauen können.");
+      List.of(
+          "Danke! Ohne den Bauplan hätte ich Terminal 3 nicht wieder aufbauen können. Den"
+              + " Modellierungskreislauf findet ihr auf dem Whiteboard.");
 
-  /** One question per terminal, in the order of the code digits. */
+  private static final List<String> STACHOWIAK_WHITEBOARD =
+      List.of(
+          "Richtig, Modellieren ist ein Kreislauf! Ich zeichne ihn euch an das Whiteboard hier"
+              + " an der Wand.",
+          "Schaut ihn euch genau an. Vielleicht hilft er euch auch bei der Reihenfolge eurer"
+              + " Ziffern.");
+
+  /**
+   * One question per terminal. Terminals 1, 2 and 4 ask about regular languages and grammars, as in
+   * the automaton room. Terminal 3 asks about the steps of modelling, because its answer is the
+   * modelling cycle that orders the digits of the door code.
+   */
   private static final List<Question> QUESTIONS =
       List.of(
           new Question(
-              "Was gehört zur Auswahl eines Modells?",
+              "Welche der folgenden Sprachen sind regulär?",
               List.of(
-                  ChoiceOption.of("Eine passende Modellart wählen.", "a"),
-                  ChoiceOption.of("Die Fragestellung berücksichtigen.", "b"),
-                  ChoiceOption.of("Prüfen, welche Eigenschaften des Systems wichtig sind.", "c"),
-                  ChoiceOption.of(
-                      "Überprüfen, ob es eine graphische Darstellung des Modells gibt.", "d")),
+                  ChoiceOption.of("a^i b^j mit i, j <= 3", "a"),
+                  ChoiceOption.of("a^i b^j mit i, j >= 2", "b"),
+                  ChoiceOption.of("a^i b^j mit j = 2*i", "c")),
               true,
-              Set.of("a", "b", "c"),
-              "Ein Modell wählt man für einen Zweck. Hilft die Antwort diesem Zweck, oder geht es"
-                  + " nur um das Aussehen?"),
+              Set.of("a", "b"),
+              "Ein endlicher Automat hat nur endlich viele Zustände. Muss er sich eine beliebig"
+                  + " große Zahl merken?"),
           new Question(
-              "Was kann beim Erstellen eines Modells nötig sein?",
+              "Wie muss eine reguläre Grammatik aussehen, damit die erzeugte Sprache das leere"
+                  + " Wort enthält?",
               List.of(
-                  ChoiceOption.of("Wichtige Merkmale auswählen.", "a"),
-                  ChoiceOption.of("Vereinfachungen und Annahmen festlegen.", "b"),
-                  ChoiceOption.of("Das Modell passend zur Fragestellung gestalten.", "c"),
                   ChoiceOption.of(
-                      "Alle Eigenschaften des zugrundeliegenden Systems vollständig übernehmen.",
-                      "d")),
-              true,
-              Set.of("a", "b", "c"),
-              "Ein Modell ist immer eine Vereinfachung. Muss es alles vom System enthalten?"),
+                      "A -> epsilon muss für irgendein Nichtterminal enthalten sein", "a"),
+                  ChoiceOption.of("S -> epsilon muss enthalten sein", "b"),
+                  ChoiceOption.of("Reguläre Sprachen können das leere Wort nicht enthalten.", "c"),
+                  ChoiceOption.of("Es geht auch ohne epsilon-Regel.", "d")),
+              false,
+              Set.of("b"),
+              "Jede Ableitung beginnt beim Startsymbol."),
           new Question(
               "Welche Schritte können zum Modellierungsprozess gehören?",
               List.of(
@@ -197,24 +242,26 @@ public final class FomoRoomLevel extends DungeonLevel {
               "Modellieren ist ein Kreislauf. Er führt von der Frage über das Modell zur"
                   + " Auswertung und bei Bedarf wieder zurück."),
           new Question(
-              "Was gehört zur Modellierung?",
+              "Wie viele Wörter enthält die Sprache, die von der Grammatik S -> a | epsilon"
+                  + " erzeugt wird?",
               List.of(
-                  ChoiceOption.of("Ein reales oder gedachtes System untersuchen", "a"),
-                  ChoiceOption.of("Wichtige Eigenschaften auswählen", "b"),
-                  ChoiceOption.of("Das Modell mit dem System vergleichen", "c"),
-                  ChoiceOption.of("Möglichst viele Details des Systems übernehmen", "d")),
-              true,
-              Set.of("a", "b", "c"),
-              "Ein gutes Modell lässt bewusst etwas weg, und man vergleicht es mit seinem"
-                  + " Original."));
+                  ChoiceOption.of("kein Wort", "a"),
+                  ChoiceOption.of("ein Wort", "b"),
+                  ChoiceOption.of("zwei Wörter", "c"),
+                  ChoiceOption.of("unendlich viele Wörter", "d")),
+              false,
+              Set.of("c"),
+              "Was lässt sich aus S alles ableiten? Auch das leere Wort ist ein Wort."));
 
   private final boolean[] solved = new boolean[QUESTIONS.size()];
   private boolean ended;
   private boolean practised;
   private Entity stachowiak;
   private boolean metStachowiak;
+  private boolean chestUnlocked;
   private boolean hasBlueprint;
   private boolean rebuilt;
+  private boolean cycleDrawn;
 
   /**
    * Creates the level.
@@ -260,6 +307,8 @@ public final class FomoRoomLevel extends DungeonLevel {
     stachowiak = stachowiak();
     station(getPoint("q4"), TERMINAL, "terminal-4", hero -> ask(3, hero));
     chest();
+    station(getPoint("graph_model"), COMPUTER, "graph-model", hero -> showImage(GRAPH_MODEL, hero));
+    whiteboard();
     station(getPoint("panel"), PANEL, "code-panel", this::codePanel);
   }
 
@@ -291,6 +340,43 @@ public final class FomoRoomLevel extends DungeonLevel {
     station.add(
         new InteractionComponent(new Interaction((self, hero) -> use.accept(hero), 1.5f, true)));
     Game.add(station);
+  }
+
+  /**
+   * Hangs the whiteboard on the wall. Its hitbox spans the two tiles the board covers, so the hero
+   * can use it from in front of either; the board is drawn two tiles wide to match. It is not a
+   * decoration of the level file, so the level editor leaves it alone.
+   */
+  private void whiteboard() {
+    Deco deco = Deco.LabWhiteboard;
+    // The board image is 50 by 37 pixels and its height is the scale, so this makes it 2 tiles
+    // wide.
+    AnimationConfig look = new AnimationConfig().scaleX(2f * 37 / 50);
+    Entity board =
+        DecoFactory.createDeco(
+            getPoint("whiteboard"), deco, deco.defaultDepth(), look, new Rectangle(2f, 1f, 0, 0));
+    board.remove(DecoComponent.class);
+    board.add(
+        new InteractionComponent(new Interaction((self, hero) -> whiteboard(hero), 1.5f, true)));
+    Game.add(board);
+  }
+
+  // Empty until Stachowiak draws the modelling cycle, so it does not give away terminal 3.
+  private void whiteboard(Entity hero) {
+    if (!cycleDrawn) {
+      DialogUtils.showTextPopup("Das Whiteboard ist noch leer.", "Whiteboard", hero.id());
+      return;
+    }
+    showImage(MODELLING_CYCLE, hero);
+  }
+
+  private static void showImage(String image, Entity hero) {
+    DialogFactory.show(
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.IMAGE)
+            .put(DialogContextKeys.IMAGE, image)
+            .build(),
+        hero.id());
   }
 
   private Entity stachowiak() {
@@ -431,6 +517,27 @@ public final class FomoRoomLevel extends DungeonLevel {
       DialogUtils.showTextPopup("Die Truhe ist leer.", "Truhe", hero.id());
       return;
     }
+    if (!chestUnlocked) {
+      askCode(
+          hero,
+          "Zahlenschloss",
+          "Die Truhe hat ein Zahlenschloss mit zwei Rädchen. Daneben ist eingeritzt: Kürzester"
+              + " Weg vom Vorraum zum Serverraum, in Minuten.",
+          CHEST_CODE.length(),
+          code -> {
+            if (code.equals(CHEST_CODE)) {
+              chestUnlocked = true;
+              openChest(chest, hero);
+            } else {
+              DialogUtils.showTextPopup(
+                  "Das Schloss bleibt zu. Rechnet die Wege im Graphmodell auf dem Rechner noch"
+                      + " einmal nach.",
+                  "Falsch",
+                  hero.id());
+            }
+          });
+      return;
+    }
     hasBlueprint = true;
     chest.fetch(DrawComponent.class).orElseThrow().stateMachine().setState("open_empty", null);
     DialogUtils.showTextPopup(
@@ -439,7 +546,7 @@ public final class FomoRoomLevel extends DungeonLevel {
 
   private void ask(int terminal, Entity hero) {
     if (solved[terminal]) {
-      revealDigit(terminal, hero);
+      revealDigit(terminal, hero, () -> {});
       return;
     }
     Question question = QUESTIONS.get(terminal);
@@ -455,47 +562,71 @@ public final class FomoRoomLevel extends DungeonLevel {
   }
 
   private void codePanel(Entity hero) {
-    codePanel(
-        hero,
-        "door",
-        CODE,
-        "Gebt den vierstelligen Türcode ein.",
-        "Der Code stimmt! Die Tür aus dem Modell springt auf.");
-  }
-
-  private void tutorialPanel(Entity hero) {
-    codePanel(
-        hero,
-        "tutorial_door",
-        TUTORIAL_CODE,
-        "Gebt den dreistelligen Code ein.",
-        "Der Code stimmt! Die Tür ins Labor geht auf.");
-  }
-
-  /**
-   * Opens the code entry for a door.
-   *
-   * @param hero the hero using the panel
-   * @param door named point of the door tile
-   * @param code the code that opens the door
-   * @param question what the dialog asks for
-   * @param opened message after the right code
-   */
-  private void codePanel(Entity hero, String door, String code, String question, String opened) {
-    if (door(door).map(DoorTile::isOpen).orElse(false)) {
+    if (door("door").map(DoorTile::isOpen).orElse(false)) {
       DialogUtils.showTextPopup("Die Tür ist schon offen.", "Tastenfeld", hero.id());
       return;
     }
+    askCode(
+        hero,
+        "Tastenfeld",
+        "Gebt den vierstelligen Türcode ein.",
+        CODE.length(),
+        code -> {
+          if (code.equals(CODE)) {
+            door("door").ifPresent(DoorTile::open);
+            DialogUtils.showTextPopup(
+                "Der Code stimmt! Die Tür aus dem Modell springt auf.", "Richtig", hero.id());
+          } else if (sorted(code).equals(sorted(CODE))) {
+            DialogUtils.showTextPopup(
+                "Die Ziffern stimmen, aber ihre Reihenfolge nicht.", "Fast", hero.id());
+          } else {
+            DialogUtils.showTextPopup("Der Code stimmt nicht.", "Falsch", hero.id());
+          }
+        });
+  }
+
+  private void tutorialPanel(Entity hero) {
+    if (door("tutorial_door").map(DoorTile::isOpen).orElse(false)) {
+      DialogUtils.showTextPopup("Die Tür ist schon offen.", "Tastenfeld", hero.id());
+      return;
+    }
+    askCode(
+        hero,
+        "Tastenfeld",
+        "Gebt den dreistelligen Code ein.",
+        TUTORIAL_CODE.length(),
+        code -> {
+          if (code.equals(TUTORIAL_CODE)) {
+            door("tutorial_door").ifPresent(DoorTile::open);
+            DialogUtils.showTextPopup(
+                "Der Code stimmt! Die Tür ins Labor geht auf.", "Richtig", hero.id());
+          } else {
+            DialogUtils.showTextPopup("Der Code stimmt nicht.", "Falsch", hero.id());
+          }
+        });
+  }
+
+  /**
+   * Asks for a code on the digit keypad of the devices.
+   *
+   * @param hero the hero using the lock
+   * @param title title of the dialog
+   * @param question what the dialog asks for
+   * @param digits number of digits of the code
+   * @param onCode receives the entered code
+   */
+  private static void askCode(
+      Entity hero, String title, String question, int digits, Consumer<String> onCode) {
     UIComponent ui =
         DialogFactory.show(
             DialogContext.builder()
                 .type(DialogType.DefaultTypes.FREE_INPUT)
-                .put(DialogContextKeys.TITLE, "Tastenfeld")
+                .put(DialogContextKeys.TITLE, title)
                 .put(DialogContextKeys.QUESTION, question)
                 .put(DialogContextKeys.INPUT_PLACEHOLDER, "Code")
                 .put(DialogContextKeys.CONFIRM_LABEL, "Öffnen")
                 .put(DialogContextKeys.CANCEL_LABEL, "Abbrechen")
-                .put(AudienceSystem.CODE_DIGITS, code.length())
+                .put(AudienceSystem.CODE_DIGITS, digits)
                 .build(),
             true,
             true,
@@ -504,17 +635,20 @@ public final class FomoRoomLevel extends DungeonLevel {
         DialogContextKeys.ON_CONFIRM,
         payload -> {
           UIUtils.closeDialog(ui);
-          boolean correct =
+          onCode.accept(
               payload instanceof DialogResponseMessage.StringValue(String value)
-                  && value.strip().equals(code);
-          if (correct) {
-            door(door).ifPresent(DoorTile::open);
-            DialogUtils.showTextPopup(opened, "Richtig", hero.id());
-          } else {
-            DialogUtils.showTextPopup("Der Code stimmt nicht.", "Falsch", hero.id());
-          }
+                  ? value.strip()
+                  : "");
         });
     ui.registerCallback(DialogContextKeys.ON_CANCEL, payload -> UIUtils.closeDialog(ui));
+  }
+
+  // The digits of a code in ascending order, to tell a wrong order from wrong digits.
+  private static String sorted(String code) {
+    return code.chars()
+        .sorted()
+        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+        .toString();
   }
 
   private void answered(int terminal, boolean correct, Entity hero) {
@@ -523,7 +657,16 @@ public final class FomoRoomLevel extends DungeonLevel {
       return;
     }
     solved[terminal] = true;
-    revealDigit(terminal, hero);
+    // Terminal 3 asks for the steps of modelling; once it is solved, the cycle may be shown.
+    if (terminal == 2 && !cycleDrawn) {
+      cycleDrawn = true;
+      revealDigit(
+          terminal,
+          hero,
+          () -> story(STACHOWIAK_SPEAKER, STACHOWIAK_WHITEBOARD, 0, () -> {}, hero.id()));
+      return;
+    }
+    revealDigit(terminal, hero, () -> {});
   }
 
   /**
@@ -548,10 +691,20 @@ public final class FomoRoomLevel extends DungeonLevel {
     };
   }
 
-  private static void revealDigit(int terminal, Entity hero) {
+  /**
+   * Shows the step of the modelling cycle a solved terminal stands for and its digit of the door
+   * code, then runs {@code then}.
+   */
+  private static void revealDigit(int terminal, Entity hero, Runnable then) {
+    int step = TERMINAL_STEPS[terminal];
     DialogUtils.showTextPopup(
-        "Ziffer " + (terminal + 1) + " des Türcodes: " + CODE.charAt(terminal),
+        "Auf dem Bildschirm leuchtet der Schritt \""
+            + STEPS.get(step)
+            + "\" und daneben die Ziffer "
+            + CODE.charAt(step)
+            + ".",
         "Richtig",
+        then::run,
         hero.id());
   }
 
