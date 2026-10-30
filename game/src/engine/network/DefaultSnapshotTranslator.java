@@ -22,6 +22,7 @@ import feature.components.InventoryComponent;
 import feature.components.ManaComponent;
 import feature.components.UIComponent;
 import feature.interaction.InteractionComponent;
+import feature.interaction.keypad.KeypadSync;
 import feature.interaction.keypad.TextKeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.shader.ShaderComponent;
@@ -141,6 +142,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
               e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
               Map<String, String> metadata = new HashMap<>();
               metadata.putAll(PuzzleNetworkSync.metadata(e));
+              metadata.putAll(KeypadSync.metadata(e));
               metadata.putAll(TextKeypadSync.metadata(e));
               if (e.isPresent(InteractionComponent.class)) {
                 metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
@@ -205,6 +207,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     && !entity.isPresent(InteractionComponent.class)) {
                   entity.add(new InteractionComponent());
                 }
+                KeypadSync.apply(entity, metadata);
                 TextKeypadSync.apply(entity, metadata);
 
                 entity
