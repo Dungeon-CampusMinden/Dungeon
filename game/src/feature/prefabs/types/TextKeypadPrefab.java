@@ -3,6 +3,7 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
+import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
@@ -43,7 +44,11 @@ public final class TextKeypadPrefab extends Prefab {
           "OPEN",
           TextKeypadPrefab::hasValidAcceptedAnswers);
 
-  private static final List<PrefabProperty<?>> PROPERTIES = List.of(POSITION, ACCEPTED_ANSWERS);
+  public static final PrefabProperty<Boolean> CLEAR_ON_WRONG =
+      PrefabProperty.bool("clearOnWrong", "Clear On Wrong Answer", true);
+
+  private static final List<PrefabProperty<?>> PROPERTIES =
+      List.of(POSITION, ACCEPTED_ANSWERS, CLEAR_ON_WRONG);
 
   /** Creates the text keypad definition. */
   public TextKeypadPrefab() {
@@ -81,9 +86,8 @@ public final class TextKeypadPrefab extends Prefab {
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity keypad =
         KeypadFactory.createTextKeypad(
-            value(instance, POSITION),
-            acceptedAnswers(value(instance, ACCEPTED_ANSWERS)),
-            () -> {});
+            value(instance, POSITION), acceptedAnswers(value(instance, ACCEPTED_ANSWERS)));
+    keypad.fetch(KeypadComponent.class).orElseThrow().clearOnWrong(value(instance, CLEAR_ON_WRONG));
     TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
     task.onCorrect(who -> fire(context, instance, CORRECT_ANSWER, who));
     task.onWrong(who -> fire(context, instance, WRONG_ANSWER, who));

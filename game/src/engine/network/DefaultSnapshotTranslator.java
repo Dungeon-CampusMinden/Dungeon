@@ -23,7 +23,6 @@ import feature.components.ManaComponent;
 import feature.components.UIComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadSync;
-import feature.interaction.keypad.TextKeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.shader.ShaderComponent;
 import feature.systems.PositionSync;
@@ -143,7 +142,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
               Map<String, String> metadata = new HashMap<>();
               metadata.putAll(PuzzleNetworkSync.metadata(e));
               metadata.putAll(KeypadSync.metadata(e));
-              metadata.putAll(TextKeypadSync.metadata(e));
               if (e.isPresent(InteractionComponent.class)) {
                 metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
               }
@@ -208,7 +206,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                   entity.add(new InteractionComponent());
                 }
                 KeypadSync.apply(entity, metadata);
-                TextKeypadSync.apply(entity, metadata);
 
                 entity
                     .fetch(PositionComponent.class)

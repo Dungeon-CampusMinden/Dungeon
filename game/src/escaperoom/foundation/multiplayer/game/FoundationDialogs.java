@@ -35,8 +35,6 @@ import feature.hud.elements.RichLabel;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadUI;
 import feature.systems.EventScheduler;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -216,9 +214,7 @@ public final class FoundationDialogs {
     int digitLimit = context.require(KEYPAD_DIGIT_LIMIT, Integer.class);
     boolean showDigitCount = context.require(KEYPAD_SHOW_DIGIT_COUNT, Boolean.class);
     if (keypad.fetch(KeypadComponent.class).isEmpty()) {
-      keypad.add(
-          new KeypadComponent(
-              new ArrayList<>(Collections.nCopies(digitLimit, -1)), () -> {}, showDigitCount));
+      keypad.add(new KeypadComponent(() -> digitLimit, showDigitCount));
     }
     return new KeypadUI(keypad, context.dialogId());
   }

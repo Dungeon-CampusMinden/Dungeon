@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
-import engine.components.DrawComponent;
 import engine.language.Translation;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
@@ -152,33 +151,46 @@ public class TextKeypadUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    TextKeyPadComponent kc = keypad.fetch(TextKeyPadComponent.class).orElseThrow();
+    // Before the first synchronized state arrives, the keypad is shown empty.
+    KeypadComponent kc = keypad.fetch(KeypadComponent.class).orElse(null);
+    boolean unlocked = kc != null && kc.isUnlocked();
 
     background.setPosition(getX(Align.center), getY(Align.center), Align.center);
-    background.setDrawable(getSkin(), kc.isUnlocked() ? "keypad-ui-on" : "keypad-ui-off");
-    textLabel.setText(kc.enteredText());
+    background.setDrawable(getSkin(), unlocked ? "keypad-ui-on" : "keypad-ui-off");
+    textLabel.setText(kc == null ? "" : kc.enteredText());
 
     super.draw(batch, parentAlpha);
   }
 
+  /**
+   * Handles a button pressed on the text keypad dialog. Runs on the server; actions other than a
+   * single letter, space, back or submit are ignored.
+   *
+   * @param keypadEntity the keypad entity
+   * @param task the task checking submitted answers
+   * @param caller the player that pressed the button
+   * @param action the pressed button
+   */
   static void onButtonPress(
-      Entity keypadEntity, TaskComponent<String> taskComponent, Entity caller, String action) {
+      Entity keypadEntity, TaskComponent<String> task, Entity caller, String action) {
     LOGGER.info("Clicked button: " + action);
 
-    var drawComp = keypadEntity.fetch(DrawComponent.class).orElseThrow();
-    var keypadComp = keypadEntity.fetch(TextKeyPadComponent.class).orElseThrow();
+    var keypadComp = keypadEntity.fetch(KeypadComponent.class).orElseThrow();
 
-    switch (action) {
-      case ACTION_BACK -> keypadComp.backspace();
-      case ACTION_SPACE -> keypadComp.addCharacter(" ");
-      case ACTION_SUBMIT -> onSubmit(keypadComp, taskComponent, drawComp, caller);
-      default -> keypadComp.addCharacter(action);
+    if (action.matches("[A-Z]")) {
+      keypadComp.add(action);
+    } else if (action.equals(ACTION_SPACE)) {
+      keypadComp.add(" ");
+    } else if (action.equals(ACTION_BACK)) {
+      keypadComp.backspace();
+    } else if (action.equals(ACTION_SUBMIT)) {
+      KeypadFactory.submit(keypadEntity, task, caller);
+      return;
+    } else {
+      return;
     }
 
-    int number = 5;
-    if (!action.equals(ACTION_SUBMIT)) {
-      Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").targets(caller.id()));
-    }
+    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").targets(caller.id()));
   }
 
   private String displayLabelForAction(String action) {
@@ -188,22 +200,6 @@ public class TextKeypadUI extends Group {
       case ACTION_SUBMIT -> trans.text("submit");
       default -> action;
     };
-  }
-
-  private static void onSubmit(
-      TextKeyPadComponent keypadComp,
-      TaskComponent<String> task,
-      DrawComponent drawComp,
-      Entity caller) {
-    if (task.isSolved()) return;
-    task.submit(keypadComp.enteredText(), caller);
-    if (task.isSolved()) {
-      drawComp.sendSignal("open");
-      keypadComp.isUnlocked(true);
-      Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
-    } else {
-      Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));
-    }
   }
 
   private Skin getSkin() {

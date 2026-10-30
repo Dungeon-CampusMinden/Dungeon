@@ -15,6 +15,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.tasks.TaskComponent;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -42,6 +43,8 @@ public final class KeypadPrefab extends Prefab {
       PrefabProperty.string("code", "Code", "1234", KeypadPrefab::isDigits);
   public static final PrefabProperty<Boolean> SHOW_DIGIT_COUNT =
       PrefabProperty.bool("showDigitCount", "Show Digit Count", true);
+  public static final PrefabProperty<Boolean> CLEAR_ON_WRONG =
+      PrefabProperty.bool("clearOnWrong", "Clear On Wrong Code", true);
 
   /** Takes the code from another prefab instead of the {@link #CODE} property while linked. */
   public static final ArtifactSlot<String> CODE_INPUT =
@@ -49,7 +52,7 @@ public final class KeypadPrefab extends Prefab {
           .validatedBy(KeypadPrefab::isDigits, "only digits");
 
   private static final List<PrefabProperty<?>> PROPERTIES =
-      List.of(POSITION, CODE, SHOW_DIGIT_COUNT);
+      List.of(POSITION, CODE, SHOW_DIGIT_COUNT, CLEAR_ON_WRONG);
 
   /** Creates the keypad definition. */
   public KeypadPrefab() {
@@ -90,13 +93,12 @@ public final class KeypadPrefab extends Prefab {
     KeypadFactory.createKeypad(
         keypad,
         value(instance, POSITION),
-        code.get().map(KeypadPrefab::digits).orElse(List.of()),
-        () -> {},
+        () -> code.get().orElse(""),
         value(instance, SHOW_DIGIT_COUNT));
-    KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
-    component.correctDigits(() -> code.get().map(KeypadPrefab::digits).orElse(List.of()));
-    component.onCorrectCode((Entity who) -> fire(context, instance, CORRECT_CODE, who));
-    component.onWrongCode((Entity who) -> fire(context, instance, WRONG_CODE, who));
+    keypad.fetch(KeypadComponent.class).orElseThrow().clearOnWrong(value(instance, CLEAR_ON_WRONG));
+    TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
+    task.onCorrect(who -> fire(context, instance, CORRECT_CODE, who));
+    task.onWrong(who -> fire(context, instance, WRONG_CODE, who));
     return List.of(keypad);
   }
 
@@ -111,9 +113,5 @@ public final class KeypadPrefab extends Prefab {
   private static boolean isDigits(String value) {
     return !value.isBlank()
         && value.chars().allMatch(character -> character >= '0' && character <= '9');
-  }
-
-  private static List<Integer> digits(String code) {
-    return code.chars().map(character -> character - '0').boxed().toList();
   }
 }

@@ -8,7 +8,7 @@ import engine.utils.Point;
 import feature.hud.DialogUtils;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
-import java.util.List;
+import feature.tasks.TaskComponent;
 import rooms.systemRecovery.entities.ModuleEntityFactory;
 import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
@@ -35,8 +35,7 @@ public final class ModuleStorageRiddle {
   static final int MODULE_CAPACITY = MODULE_NAMES.length;
   static final int DEFECTIVE_GPU_INDEX = 2;
   static final int OCCUPIED_MODULE_COUNT = MODULE_CAPACITY - 1;
-  private static final List<Integer> SCANNER_DOOR_CODE =
-      List.of(0, MODULE_CAPACITY, 0, DEFECTIVE_GPU_INDEX);
+  private static final String SCANNER_DOOR_CODE = "0" + MODULE_CAPACITY + "0" + DEFECTIVE_GPU_INDEX;
 
   private final DungeonLevel level;
   private final RiddleCallbacks callbacks;
@@ -214,34 +213,16 @@ public final class ModuleStorageRiddle {
   private void setupRoomThreeKeypad() {
     DoorTile scannerDoor =
         (DoorTile) Game.tileAt(level.getPoint("door_inventarscanner")).orElseThrow();
-    boolean[] openedForExpectedStep = {false};
     Entity keypad =
-        KeypadFactory.createKeypad(
-            level.getPoint("room3_keypad"),
-            SCANNER_DOOR_CODE,
-            () -> {
-              if (SystemRecoveryProgressNet.activeStep().orElse(null)
-                      != SystemRecoveryLearningStep.ROOM2_DOOR_CODE
-                  || scannerDoor.isOpen()) {
-                return;
-              }
-              scannerDoor.open();
-              if (!scannerDoor.isOpen()) return;
-              if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
-                openedForExpectedStep[0] = true;
-                SystemRecoverySounds.doorOpened();
-              } else {
-                scannerDoor.close();
-              }
-            },
-            true);
+        KeypadFactory.createKeypad(level.getPoint("room3_keypad"), SCANNER_DOOR_CODE, true);
     keypad
         .fetch(KeypadComponent.class)
         .ifPresent(
             component -> {
-              component.onCorrectCode(
+              TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
+              task.onCorrect(
                   player -> {
-                    if (openedForExpectedStep[0]) {
+                    if (openDoorForStep(scannerDoor, SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
                       callbacks.success("0502", player.id());
                       return;
                     }
@@ -252,12 +233,32 @@ public final class ModuleStorageRiddle {
                         TrackingInteractionStatus.BLOCKED,
                         "out-of-order",
                         player);
-                    component.isUnlocked(false);
-                    component.enteredDigits().clear();
+                    task.setSolved(false);
+                    component.clear();
                   });
-              component.onWrongCode(
-                  player -> callbacks.failure(component.enteredString(), player.id()));
+              task.onWrong(player -> callbacks.failure(component.display(), player.id()));
             });
     Game.add(keypad);
+  }
+
+  /**
+   * Opens a keypad door, but only while its learning step is active.
+   *
+   * @param door the door to open
+   * @param step the learning step the door belongs to
+   * @return true if the door was opened and the step completed
+   */
+  private static boolean openDoorForStep(DoorTile door, SystemRecoveryLearningStep step) {
+    if (SystemRecoveryProgressNet.activeStep().orElse(null) != step || door.isOpen()) {
+      return false;
+    }
+    door.open();
+    if (!door.isOpen()) return false;
+    if (!SystemRecoveryProgressNet.complete(step)) {
+      door.close();
+      return false;
+    }
+    SystemRecoverySounds.doorOpened();
+    return true;
   }
 }

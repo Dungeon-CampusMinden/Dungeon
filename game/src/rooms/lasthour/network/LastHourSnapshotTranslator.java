@@ -12,15 +12,12 @@ import engine.utils.logging.DungeonLogger;
 import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.hud.AutoSaveIndicator;
-import feature.interaction.keypad.KeypadComponent;
 import feature.timer.WorldTimerComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.modules.computer.ComputerProgress;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
@@ -94,10 +91,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
                 entity.remove(WorldTimerComponent.class);
                 entity.add(worldTimerState);
               });
-      entityState
-          .metadata()
-          .flatMap(LastHourSnapshotTranslator::keypadStateFromMetadata)
-          .ifPresent(keypadState -> applyKeypadState(entity, keypadState));
       entityState
           .metadata()
           .flatMap(LastHourSnapshotTranslator::computerStateFromMetadata)
@@ -177,9 +170,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
                   String.valueOf(LastHourLevel.saveRevision()));
             });
     entity
-        .fetch(KeypadComponent.class)
-        .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
-    entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
     COLLIDE_SYNC.appendMetadata(entity, metadata);
@@ -216,20 +206,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
         LastHourEntitySpawnStrategy.METADATA_AC_VENT_CONNECTED,
         String.valueOf(state.acVentConnected()));
     return metadata;
-  }
-
-  private Map<String, String> keypadMetadata(KeypadComponent keypad) {
-    return Map.of(
-        LastHourEntitySpawnStrategy.METADATA_TYPE,
-        LastHourEntitySpawnStrategy.TYPE_KEYPAD,
-        LastHourEntitySpawnStrategy.METADATA_KEYPAD_CORRECT_DIGITS,
-        digitsToString(keypad.correctDigits()),
-        LastHourEntitySpawnStrategy.METADATA_KEYPAD_ENTERED_DIGITS,
-        digitsToString(keypad.enteredDigits()),
-        LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED,
-        String.valueOf(keypad.isUnlocked()),
-        LastHourEntitySpawnStrategy.METADATA_KEYPAD_SHOW_DIGIT_COUNT,
-        String.valueOf(keypad.showDigitCount()));
   }
 
   private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
@@ -358,42 +334,6 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
   }
 
   /**
-   * Create a KeypadComponent from metadata if the type matches and the required fields are present
-   * and valid.
-   *
-   * @param metadata the metadata to parse the KeypadComponent from
-   * @return an Optional containing the KeypadComponent if parsing was successful, or an empty
-   *     Optional if the type does not match or required fields are missing/invalid
-   */
-  public static Optional<KeypadComponent> keypadStateFromMetadata(Map<String, String> metadata) {
-    if (!LastHourEntitySpawnStrategy.TYPE_KEYPAD.equals(
-        metadata.get(LastHourEntitySpawnStrategy.METADATA_TYPE))) {
-      return Optional.empty();
-    }
-
-    String correctDigitsRaw =
-        metadata.get(LastHourEntitySpawnStrategy.METADATA_KEYPAD_CORRECT_DIGITS);
-    if (correctDigitsRaw == null) {
-      return Optional.empty();
-    }
-
-    List<Integer> correctDigits = parseDigits(correctDigitsRaw);
-    List<Integer> enteredDigits =
-        parseDigits(
-            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_KEYPAD_ENTERED_DIGITS, ""));
-    boolean isUnlocked =
-        Boolean.parseBoolean(
-            metadata.getOrDefault(LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED, "false"));
-    boolean showDigitCount =
-        Boolean.parseBoolean(
-            metadata.getOrDefault(
-                LastHourEntitySpawnStrategy.METADATA_KEYPAD_SHOW_DIGIT_COUNT, "true"));
-
-    return Optional.of(
-        new KeypadComponent(correctDigits, enteredDigits, isUnlocked, showDigitCount));
-  }
-
-  /**
    * Create a WorldTimerComponent from metadata if the type matches and the required fields are
    * present and valid.
    *
@@ -422,52 +362,5 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
           "Invalid world timer metadata timestamp='{}' duration='{}'", timestampRaw, durationRaw);
       return Optional.empty();
     }
-  }
-
-  private void applyKeypadState(Entity entity, KeypadComponent keypadComponent) {
-    KeypadComponent component =
-        entity
-            .fetch(KeypadComponent.class)
-            .orElseGet(
-                () -> {
-                  KeypadComponent newComponent =
-                      new KeypadComponent(
-                          keypadComponent.correctDigits(),
-                          () -> {},
-                          keypadComponent.showDigitCount());
-                  entity.add(newComponent);
-                  return newComponent;
-                });
-    component.enteredDigits().clear();
-    component.enteredDigits().addAll(keypadComponent.enteredDigits());
-    component.isUnlocked(keypadComponent.isUnlocked());
-    component.showDigitCount(keypadComponent.showDigitCount());
-  }
-
-  /**
-   * Parses a comma-separated string of integers into a list of integers. If the input is null,
-   * blank, or contains invalid integers, an empty list is returned.
-   *
-   * @param value the comma-separated string of integers to parse
-   * @return a list of integers parsed from the input string, or an empty list if the input is null,
-   *     blank, or contains invalid integers
-   */
-  public static List<Integer> parseDigits(String value) {
-    if (value == null || value.isBlank()) {
-      return new ArrayList<>();
-    }
-    try {
-      return Stream.of(value.split(","))
-          .map(String::trim)
-          .map(Integer::parseInt)
-          .collect(Collectors.toCollection(ArrayList::new));
-    } catch (NumberFormatException ex) {
-      LOGGER.warn("Invalid keypad digits metadata '{}'", value);
-      return new ArrayList<>();
-    }
-  }
-
-  private String digitsToString(List<Integer> digits) {
-    return digits.stream().map(String::valueOf).collect(Collectors.joining(","));
   }
 }

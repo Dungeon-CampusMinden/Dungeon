@@ -223,10 +223,7 @@ public final class ServerGameBinding {
       final Point position) {
     Entity keypad =
         KeypadFactory.createKeypad(
-            new Point(position),
-            digits(definition.answer()),
-            () -> {},
-            definition.showDigitCount());
+            new Point(position), definition.answer(), definition.showDigitCount());
     keypad.name(presentation.title());
     snapshotTranslator.registerKeypad(keypad.id(), presentation.id());
     keypad.add(
@@ -260,7 +257,7 @@ public final class ServerGameBinding {
     KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
     if (action.length() == 1 && action.charAt(0) >= '0' && action.charAt(0) <= '9') {
       int digit = action.charAt(0) - '0';
-      component.addDigit(digit);
+      component.add(action);
       playKeypadButtonSound(digit, player.id());
       return false;
     }
@@ -273,11 +270,7 @@ public final class ServerGameBinding {
       return false;
     }
 
-    String attempt =
-        component.enteredDigits().stream()
-            .map(String::valueOf)
-            .reduce((left, right) -> left + right)
-            .orElse("");
+    String attempt = component.enteredText();
     return submitAnswer(player, player, riddleId, NumericInputDefinition.class, definition, attempt)
         .map(
             result -> {
@@ -290,7 +283,7 @@ public final class ServerGameBinding {
               } else if (result.outcome() == AttemptOutcome.INCORRECT) {
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
-                component.enteredDigits().clear();
+                component.clear();
               }
               return false;
             })
@@ -557,10 +550,6 @@ public final class ServerGameBinding {
       throw new IllegalArgumentException("missing Foundation component station " + componentId);
     }
     return point;
-  }
-
-  private static List<Integer> digits(final String answer) {
-    return answer.chars().map(digit -> digit - '0').boxed().toList();
   }
 
   private static Entity station(

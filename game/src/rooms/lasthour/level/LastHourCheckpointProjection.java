@@ -13,6 +13,7 @@ import feature.interaction.keypad.KeypadComponent;
 import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import feature.systems.EventScheduler;
+import feature.tasks.TaskComponent;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,14 +55,9 @@ final class LastHourCheckpointProjection {
     level.lastKnownVisibleCommentCount = BlogTab.countVisibleComments();
     restoreComputerPresentation(level, restoredComputer, data);
 
-    level
-        .keypad
-        .fetch(KeypadComponent.class)
-        .ifPresent(
-            component -> {
-              component.isUnlocked(data.keypadUnlocked());
-              component.restoreWrongCodeAttempts(data.wrongCodeAttempts());
-            });
+    level.keypad.fetch(KeypadComponent.class).ifPresent(c -> c.isUnlocked(data.keypadUnlocked()));
+    level.keypad.fetch(TaskComponent.class).ifPresent(t -> t.setSolved(data.keypadUnlocked()));
+    level.wrongKeypadCodes = data.wrongCodeAttempts();
     if (data.storageDoorOpen()) level.storageDoor.open();
     else level.storageDoor.close();
     if (restoredComputer.door2Open()) level.exitDoor.open();

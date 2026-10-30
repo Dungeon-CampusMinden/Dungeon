@@ -6,7 +6,6 @@ import engine.components.PositionComponent;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadSync;
-import feature.interaction.keypad.TextKeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +37,6 @@ public final class DefaultEntitySpawnStrategy implements EntitySpawnStrategy {
     EntitySpawnEvent base = new EntitySpawnEvent(entity);
     Map<String, String> metadata = new HashMap<>(PuzzleNetworkSync.metadata(entity));
     metadata.putAll(KeypadSync.metadata(entity));
-    metadata.putAll(TextKeypadSync.metadata(entity));
     if (entity.isPresent(InteractionComponent.class)) {
       metadata.put(METADATA_INTERACTABLE, "true");
     }

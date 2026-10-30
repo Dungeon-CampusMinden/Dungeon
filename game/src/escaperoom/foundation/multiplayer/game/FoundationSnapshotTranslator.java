@@ -11,9 +11,7 @@ import engine.utils.logging.DungeonLogger;
 import escaperoom.foundation.definition.NumericInputDefinition;
 import escaperoom.foundation.room.model.FoundationRoom;
 import feature.interaction.keypad.KeypadComponent;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,7 +93,7 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
     if (inputId == null) {
       throw new IllegalStateException("Foundation keypad entity has no registered input identity");
     }
-    metadata.put(ENTERED_DIGITS, digits(component.enteredDigits()));
+    metadata.put(ENTERED_DIGITS, component.enteredText());
     metadata.put(INPUT_ID, inputId);
     metadata.put(UNLOCKED, String.valueOf(component.isUnlocked()));
 
@@ -126,7 +124,7 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
 
   private void applyKeypadState(final Entity entity, final Map<String, String> metadata) {
     try {
-      List<Integer> enteredDigits = parseDigits(metadata.getOrDefault(ENTERED_DIGITS, ""));
+      String enteredDigits = validDigits(metadata.getOrDefault(ENTERED_DIGITS, ""));
       boolean unlocked = Boolean.parseBoolean(metadata.getOrDefault(UNLOCKED, "false"));
       String inputId = metadata.getOrDefault(INPUT_ID, "");
       NumericInputDefinition definition = numericDefinitions.get(inputId);
@@ -142,12 +140,11 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
                   () -> {
                     KeypadComponent created =
                         new KeypadComponent(
-                            digits(definition.answer()), () -> {}, definition.showDigitCount());
+                            () -> definition.answer().length(), definition.showDigitCount());
                     entity.add(created);
                     return created;
                   });
-      component.enteredDigits().clear();
-      component.enteredDigits().addAll(enteredDigits);
+      component.enteredText(enteredDigits);
       component.isUnlocked(unlocked);
     } catch (IllegalArgumentException exception) {
       LOGGER.warn(
@@ -157,30 +154,13 @@ public final class FoundationSnapshotTranslator implements SnapshotTranslator {
     }
   }
 
-  private static List<Integer> parseDigits(final String value) {
+  private static String validDigits(final String value) {
     if (value.length() > 8) {
       throw new IllegalArgumentException("too many entered digits");
     }
-    List<Integer> digits = new ArrayList<>(value.length());
-    for (int index = 0; index < value.length(); index++) {
-      char digit = value.charAt(index);
-      if (digit < '0' || digit > '9') {
-        throw new IllegalArgumentException("entered digits contain a non-digit");
-      }
-      digits.add(digit - '0');
+    if (!value.chars().allMatch(digit -> digit >= '0' && digit <= '9')) {
+      throw new IllegalArgumentException("entered digits contain a non-digit");
     }
-    return digits;
-  }
-
-  private static String digits(final List<Integer> digits) {
-    StringBuilder value = new StringBuilder(digits.size());
-    digits.forEach(value::append);
-    return value.toString();
-  }
-
-  private static ArrayList<Integer> digits(final String value) {
-    ArrayList<Integer> digits = new ArrayList<>(value.length());
-    value.chars().map(character -> character - '0').forEach(digits::add);
-    return digits;
+    return value;
   }
 }

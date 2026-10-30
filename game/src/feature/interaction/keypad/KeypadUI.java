@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
-import engine.components.DrawComponent;
 import engine.language.Translation;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
@@ -23,6 +22,7 @@ import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.tasks.TaskComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,36 +124,47 @@ public class KeypadUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    KeypadComponent kc = keypad.fetch(KeypadComponent.class).orElseThrow();
+    // Before the first synchronized state arrives, the keypad is shown empty.
+    KeypadComponent kc = keypad.fetch(KeypadComponent.class).orElse(null);
+    boolean unlocked = kc != null && kc.isUnlocked();
 
     background.setPosition(getX(Align.center), getY(Align.center), Align.center);
-    background.setDrawable(getSkin(), kc.isUnlocked() ? "keypad-ui-on" : "keypad-ui-off");
-    numberLabel.setText(kc.enteredString());
+    background.setDrawable(getSkin(), unlocked ? "keypad-ui-on" : "keypad-ui-off");
+    numberLabel.setText(kc == null ? "" : kc.display());
 
     super.draw(batch, parentAlpha);
   }
 
-  static void onButtonPress(Entity keypadEntity, Entity caller, String action) {
+  /**
+   * Handles a button pressed on the keypad dialog. Runs on the server; actions other than a single
+   * digit, back or submit are ignored.
+   *
+   * @param keypadEntity the keypad entity
+   * @param task the task checking submitted codes
+   * @param caller the player that pressed the button
+   * @param action the pressed button
+   */
+  static void onButtonPress(
+      Entity keypadEntity, TaskComponent<String> task, Entity caller, String action) {
     LOGGER.info("Clicked button: " + action);
 
-    var drawComp = keypadEntity.fetch(DrawComponent.class).orElseThrow();
     var keypadComp = keypadEntity.fetch(KeypadComponent.class).orElseThrow();
 
     int number = -1;
-    try {
+    if (action.matches("[0-9]")) {
       number = Integer.parseInt(action);
-      keypadComp.addDigit(number);
-    } catch (NumberFormatException ex) {
-      switch (action) {
-        case ACTION_BACK -> keypadComp.backspace();
-        case ACTION_SUBMIT -> onSubmit(keypadComp, drawComp, caller);
-      }
+      keypadComp.add(action);
+    } else if (action.equals(ACTION_BACK)) {
+      keypadComp.backspace();
+    } else if (action.equals(ACTION_SUBMIT)) {
+      KeypadFactory.submit(keypadEntity, task, caller);
+      return;
+    } else {
+      return;
     }
 
-    if (!action.equals(ACTION_SUBMIT)) {
-      float pitch = 1 + (number - 5) * 0.05f;
-      Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
-    }
+    float pitch = 1 + (number - 5) * 0.05f;
+    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
   }
 
   private String displayLabelForAction(String action) {
@@ -162,17 +173,6 @@ public class KeypadUI extends Group {
       case ACTION_SUBMIT -> trans.text("submit");
       default -> action;
     };
-  }
-
-  private static void onSubmit(KeypadComponent keypadComp, DrawComponent drawComp, Entity caller) {
-    if (keypadComp.isUnlocked()) return;
-    keypadComp.checkUnlock(caller);
-    if (keypadComp.isUnlocked()) {
-      drawComp.sendSignal("open");
-      Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
-    } else {
-      Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong"));
-    }
   }
 
   private Skin getSkin() {

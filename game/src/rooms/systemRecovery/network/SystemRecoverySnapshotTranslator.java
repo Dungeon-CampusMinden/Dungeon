@@ -12,7 +12,6 @@ import engine.network.messages.s2c.SnapshotMessage;
 import feature.collision.CollideSync;
 import feature.hud.AutoSaveIndicator;
 import feature.interaction.InteractionComponent;
-import feature.interaction.keypad.KeypadComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -143,9 +142,6 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
         || entity.name().startsWith("module_socket_occupied_")) {
       metadata.put(SystemRecoveryEntitySpawnStrategy.METADATA_MODULE_SOCKET_ACTIVE, "true");
     }
-    entity
-        .fetch(KeypadComponent.class)
-        .ifPresent(keypad -> SystemRecoveryComponentSync.appendKeypadMetadata(keypad, metadata));
   }
 
   private void appendSortMetadata(Entity entity, Map<String, String> metadata) {

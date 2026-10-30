@@ -72,7 +72,7 @@ class ModuleStorageRiddleTest {
               return chip;
             });
     keypads
-        .when(() -> KeypadFactory.createKeypad(any(), any(), any(), anyBoolean()))
+        .when(() -> KeypadFactory.createKeypad(any(Point.class), anyString(), anyBoolean()))
         .thenReturn(new Entity("keypad"));
   }
 
