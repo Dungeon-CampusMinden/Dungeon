@@ -11,7 +11,6 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
-import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
@@ -25,7 +24,6 @@ import feature.tasks.NumericCodeTask;
 import feature.tasks.TaskComponent;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -36,8 +34,6 @@ import java.util.function.Supplier;
  * TaskComponent#onCorrect} and {@link TaskComponent#onWrong}; a correct answer unlocks the keypad.
  */
 public class KeypadFactory {
-
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(KeypadFactory.class);
 
   private static final float DEFAULT_INTERACTION_RADIUS = 1.5f;
   private static final int MAX_HIDDEN_CODE_LENGTH = 8;
@@ -71,46 +67,46 @@ public class KeypadFactory {
       Entity entity, Point pos, Supplier<String> code, boolean showDigitCount) {
     setupBaseKeypad(entity, pos);
     entity.add(new CollideComponent());
-
-    NumericCodeTask task = new NumericCodeTask(code);
-    TaskComponent<String> taskComponent = new TaskComponent<>(task);
-    entity.add(taskComponent);
     entity.add(
         new KeypadComponent(
-            () -> showDigitCount ? task.code().length() : MAX_HIDDEN_CODE_LENGTH, showDigitCount));
-    addDialogInteraction(
-        entity,
-        DialogType.DefaultTypes.KEYPAD,
-        (who, action) -> KeypadUI.onButtonPress(entity, taskComponent, who, action));
+            () -> showDigitCount ? code.get().length() : MAX_HIDDEN_CODE_LENGTH, showDigitCount));
+    TaskComponent<String> task = new TaskComponent<>(new NumericCodeTask(code));
+    entity.add(task);
+    addDialogInteraction(entity, task, DialogType.DefaultTypes.KEYPAD, KeypadUI.Layout.NUMERIC);
     return entity;
   }
 
   /**
-   * Creates a text keypad at the designated position. Only characters from A-Z and spaces are
-   * supported, up to 32 characters; answers are compared case-insensitively.
+   * Creates a text keypad at the designated position. Answers are compared case-insensitively.
    *
    * @param pos the position where the keypad is created
-   * @param correctTexts the accepted answers
+   * @param answers the accepted answers, see {@link #isTextAnswer(String)}
    * @return the created keypad entity
-   * @throws TextKeyPadException if an answer contains unsupported characters
+   * @throws IllegalArgumentException if an answer cannot be entered on a text keypad
    */
-  public static Entity createTextKeypad(Point pos, List<String> correctTexts) {
-    boolean valid = correctTexts.stream().allMatch(s -> s != null && s.matches("[A-Za-z ]+"));
-    if (!valid) {
-      throw new TextKeyPadException(
-          "TextKeypad only supports letter in the range A-Z, a-z and spaces.");
+  public static Entity createTextKeypad(Point pos, List<String> answers) {
+    if (!answers.stream().allMatch(KeypadFactory::isTextAnswer)) {
+      throw new IllegalArgumentException(
+          "Text keypad answers must consist of 1 to 32 letters A-Z and spaces: " + answers);
     }
     Entity entity = new Entity("keypad");
     setupBaseKeypad(entity, pos);
-
-    TaskComponent<String> taskComponent = new TaskComponent<>(new FreeTextTask(correctTexts));
-    entity.add(taskComponent);
     entity.add(new KeypadComponent(() -> MAX_TEXT_LENGTH, false));
-    addDialogInteraction(
-        entity,
-        DialogType.DefaultTypes.TEXT_KEYPAD,
-        (who, action) -> TextKeypadUI.onButtonPress(entity, taskComponent, who, action));
+    TaskComponent<String> task = new TaskComponent<>(new FreeTextTask(answers));
+    entity.add(task);
+    addDialogInteraction(entity, task, DialogType.DefaultTypes.TEXT_KEYPAD, KeypadUI.Layout.TEXT);
     return entity;
+  }
+
+  /**
+   * Checks whether an answer can be entered on a text keypad: 1 to 32 letters A-Z, in either case,
+   * and spaces.
+   *
+   * @param answer the answer to check
+   * @return true if the answer can be entered
+   */
+  public static boolean isTextAnswer(String answer) {
+    return answer != null && answer.matches("[A-Za-z ]{1," + MAX_TEXT_LENGTH + "}");
   }
 
   /**
@@ -126,11 +122,10 @@ public class KeypadFactory {
    */
   public static void submit(Entity keypad, TaskComponent<String> task, Entity caller) {
     KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
-    if (component.isUnlocked() || task.isSolved()) return;
+    if (component.unlocked() || task.isSolved()) return;
 
-    task.submit(component.enteredText(), caller);
-    if (task.isSolved()) {
-      component.isUnlocked(true);
+    if (task.submit(component.enteredText(), caller)) {
+      component.unlocked(true);
       keypad.fetch(DrawComponent.class).ifPresent(draw -> draw.sendSignal("open"));
       Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
     } else {
@@ -139,8 +134,40 @@ public class KeypadFactory {
     }
   }
 
+  /**
+   * Applies a button pressed in a keypad dialog on the server. Actions that are not a button of the
+   * layout are ignored.
+   *
+   * @param keypad the keypad entity
+   * @param task the task checking submitted answers
+   * @param layout the buttons of the keypad dialog
+   * @param caller the player that pressed the button
+   * @param action the action of the pressed button
+   */
+  private static void press(
+      Entity keypad,
+      TaskComponent<String> task,
+      KeypadUI.Layout layout,
+      Entity caller,
+      String action) {
+    if (!layout.hasAction(action)) return;
+    KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
+    switch (action) {
+      case KeypadUI.ACTION_SUBMIT -> {
+        submit(keypad, task, caller);
+        return;
+      }
+      case KeypadUI.ACTION_BACK -> component.backspace();
+      case KeypadUI.ACTION_SPACE -> component.add(" ");
+      default -> component.add(action);
+    }
+    // Digits rise in pitch from 0 to 9.
+    float pitch = action.matches("[0-9]") ? 1 + (action.charAt(0) - '5') * 0.05f : 1;
+    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
+  }
+
   private static void addDialogInteraction(
-      Entity entity, DialogType type, BiConsumer<Entity, String> onButtonPress) {
+      Entity entity, TaskComponent<String> task, DialogType type, KeypadUI.Layout layout) {
     entity.add(
         new InteractionComponent(
             new Interaction(
@@ -150,15 +177,14 @@ public class KeypadFactory {
                           .type(type)
                           .put(DialogContextKeys.ENTITY, e.id())
                           .build();
-                  UIComponent uic = DialogFactory.show(context, who.id());
-                  uic.registerCallback(
+                  UIComponent ui = DialogFactory.show(context, who.id());
+                  ui.registerCallback(
                       DialogContextKeys.ON_CONFIRM,
                       payload -> {
-                        if (payload instanceof DialogResponseMessage.StringValue(String value)) {
-                          onButtonPress.accept(who, value);
+                        if (payload instanceof DialogResponseMessage.StringValue(String action)) {
+                          press(e, task, layout, who, action);
                         }
                       });
-                  LOGGER.info("Interacted with keypad sprite");
                 },
                 DEFAULT_INTERACTION_RADIUS)));
   }
@@ -171,7 +197,6 @@ public class KeypadFactory {
     StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpen));
     sm.addTransition(stClosed, "open", stOpen);
     sm.addTransition(stOpen, "close", stClosed);
-    DrawComponent dc = new DrawComponent(sm);
-    entity.add(dc);
+    entity.add(new DrawComponent(sm));
   }
 }

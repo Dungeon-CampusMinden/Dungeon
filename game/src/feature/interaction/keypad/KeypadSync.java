@@ -6,14 +6,14 @@ import java.util.Map;
 
 /**
  * Encodes the client-visible state of a numeric or text keypad in generic entity metadata, so a
- * client can render {@link KeypadUI} or {@link TextKeypadUI} for a keypad owned by the server.
+ * client can render the {@link KeypadUI} of a keypad owned by the server.
  */
 public final class KeypadSync {
 
   public static final String ENTERED_TEXT_KEY = "keypad.enteredText";
   public static final String MAX_LENGTH_KEY = "keypad.maxLength";
   public static final String SHOW_LENGTH_KEY = "keypad.showLength";
-  public static final String UNLOCKED_KEY = "keypad.isUnlocked";
+  public static final String UNLOCKED_KEY = "keypad.unlocked";
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(KeypadSync.class);
 
@@ -41,7 +41,7 @@ public final class KeypadSync {
                     SHOW_LENGTH_KEY,
                     Boolean.toString(component.showLength()),
                     UNLOCKED_KEY,
-                    Boolean.toString(component.isUnlocked())))
+                    Boolean.toString(component.unlocked())))
         .orElseGet(Map::of);
   }
 
@@ -79,6 +79,6 @@ public final class KeypadSync {
                   return created;
                 });
     component.enteredText(enteredText);
-    component.isUnlocked(unlocked);
+    component.unlocked(unlocked);
   }
 }

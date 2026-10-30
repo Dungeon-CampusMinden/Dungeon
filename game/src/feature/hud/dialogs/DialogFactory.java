@@ -15,7 +15,6 @@ import feature.canvas.CanvasDialog;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.interaction.keypad.KeypadUI;
-import feature.interaction.keypad.TextKeypadUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
 import feature.puzzle.PuzzleDialog;
@@ -63,8 +62,8 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.FREE_INPUT, FreeInputDialog::build);
     register(DialogType.DefaultTypes.INVENTORY, InventoryGUI::buildSimple);
     register(DialogType.DefaultTypes.DUAL_INVENTORY, InventoryGUI::buildDual);
-    register(DialogType.DefaultTypes.KEYPAD, KeypadUI::build);
-    register(DialogType.DefaultTypes.TEXT_KEYPAD, TextKeypadUI::build);
+    register(DialogType.DefaultTypes.KEYPAD, c -> KeypadUI.build(c, KeypadUI.Layout.NUMERIC));
+    register(DialogType.DefaultTypes.TEXT_KEYPAD, c -> KeypadUI.build(c, KeypadUI.Layout.TEXT));
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
     register(DialogType.DefaultTypes.ACHIEVEMENT_POPUP, AchievementPopup::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);

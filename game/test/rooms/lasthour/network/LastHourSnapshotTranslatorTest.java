@@ -141,7 +141,7 @@ public class LastHourSnapshotTranslatorTest {
     KeypadComponent keypadComponent = entity.fetch(KeypadComponent.class).orElseThrow();
     assertEquals("12", keypadComponent.enteredText());
     assertEquals("12*", keypadComponent.display());
-    assertTrue(keypadComponent.isUnlocked());
+    assertTrue(keypadComponent.unlocked());
 
     CollideComponent collideComponent = entity.fetch(CollideComponent.class).orElseThrow();
     assertFalse(collideComponent.isSolid());

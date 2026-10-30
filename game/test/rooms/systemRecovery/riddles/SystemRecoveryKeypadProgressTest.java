@@ -95,16 +95,16 @@ class SystemRecoveryKeypadProgressTest {
     assertEquals("0502", code);
     submit("5");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("52");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("0502");
 
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
     assertTrue(keypad.enteredText().isEmpty());
     assertEquals(
         SystemRecoveryLearningStep.ENERGY_ARRAY,
@@ -113,20 +113,20 @@ class SystemRecoveryKeypadProgressTest {
     activate(SystemRecoveryLearningStep.ROOM2_DOOR_CODE);
     submit("5");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("52");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("0503");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("0502");
 
     assertTrue(door.isOpen());
-    assertTrue(keypad.isUnlocked());
+    assertTrue(keypad.unlocked());
     assertEquals(
         SystemRecoveryLearningStep.INVENTORY_COUNT,
         SystemRecoveryProgressNet.activeStep().orElseThrow());
@@ -139,16 +139,16 @@ class SystemRecoveryKeypadProgressTest {
     assertEquals("0504", code);
     submit("4");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("54");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("0504");
 
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
     assertTrue(keypad.enteredText().isEmpty());
     assertEquals(
         SystemRecoveryLearningStep.ENERGY_ARRAY,
@@ -157,20 +157,20 @@ class SystemRecoveryKeypadProgressTest {
     activate(SystemRecoveryLearningStep.ROOM3_DOOR_CODE);
     submit("4");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("54");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("0505");
     assertFalse(door.isOpen());
-    assertFalse(keypad.isUnlocked());
+    assertFalse(keypad.unlocked());
 
     submit("0504");
 
     assertTrue(door.isOpen());
-    assertTrue(keypad.isUnlocked());
+    assertTrue(keypad.unlocked());
     assertEquals(
         SystemRecoveryLearningStep.TRANSPORT_ARRAY,
         SystemRecoveryProgressNet.activeStep().orElseThrow());

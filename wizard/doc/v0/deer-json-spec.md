@@ -579,9 +579,9 @@ früheren Zustand zurück, ein erfüllter Input wird nicht unerfüllt und eine
 freigegebene Resource oder ein Hinweis wird nicht wieder verborgen. Im initialen
 Entity-Stream wird lediglich der vollständige `hostInputSha256` übertragen,
 damit ein Client ein abweichendes lokales Projekt vor `InitialWorldReady`
-ablehnt. Dynamische Snapshots enthalten bei Keypads nur eingegebene Ziffern und
-den serverautoritativen Entsperrstatus; statische Keypaddaten stammen aus der
-lokalen vollständigen Definition. Die Dungeon-`PROTOCOL_VERSION` trägt die
+ablehnt. Snapshots enthalten bei Keypads nur eingegebene Ziffern, den
+serverautoritativen Entsperrstatus und die Eingabegrenze, nie den
+Code. Die Dungeon-`PROTOCOL_VERSION` trägt die
 Wire-Kompatibilität.
 Details stehen im
 [`runner-runtime-contract.md`](runner-runtime-contract.md).

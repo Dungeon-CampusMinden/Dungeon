@@ -9,6 +9,7 @@ import engine.level.Tile;
 import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
 import engine.level.loader.DungeonLoader;
+import engine.network.DefaultSnapshotTranslator;
 import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.handler.NettyNetworkHandler;
 import engine.network.server.ClientState;
@@ -25,7 +26,6 @@ import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.definition.RoomDefinition;
 import escaperoom.foundation.multiplayer.binding.ServerBinding;
 import escaperoom.foundation.multiplayer.bootstrap.BootstrapEntitySpawnStrategy;
-import escaperoom.foundation.multiplayer.game.FoundationSnapshotTranslator;
 import escaperoom.foundation.multiplayer.game.ServerGameBinding;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession;
 import escaperoom.foundation.room.level.RoomLevel;
@@ -51,7 +51,6 @@ public final class MultiplayerHostRun {
   private final Optional<String> operatorEmail;
   private final RoomDefinition definition;
   private final RoomLevel level;
-  private final FoundationSnapshotTranslator snapshotTranslator;
   private final Entity bootstrapMarker;
   private final ServerBinding serverBinding;
   private final AtomicBoolean started = new AtomicBoolean();
@@ -62,7 +61,6 @@ public final class MultiplayerHostRun {
     this.operatorEmail = Objects.requireNonNull(operatorEmail, "operatorEmail");
     definition = room.definition();
     level = RoomLevel.fromLayout(room.layout());
-    snapshotTranslator = new FoundationSnapshotTranslator(room);
     MultiplayerSession session =
         new MultiplayerSession(definition, room.presentation(), Game.playClock());
     serverBinding = new ServerBinding(session, MultiplayerHostRun::readyClients);
@@ -105,7 +103,7 @@ public final class MultiplayerHostRun {
               .characterClasses(room.playableCharacterClasses().toArray(CharacterClass[]::new))
               .maximumPlayers(definition.roster().slots().size())
               .entitySpawnStrategy(spawnStrategy)
-              .snapshotTranslator(snapshotTranslator)
+              .snapshotTranslator(new DefaultSnapshotTranslator())
               .onFrame(
                   () -> {
                     ServerGameBinding binding = gameBinding;
@@ -151,7 +149,6 @@ public final class MultiplayerHostRun {
         serverBinding,
         definition,
         room.presentation(),
-        snapshotTranslator,
         requiredTile(RoomLevel.DOOR_POINT_NAME, DoorTile.class),
         requiredTile(RoomLevel.EXIT_POINT_NAME, ExitTile.class),
         requiredLevelSystem(),

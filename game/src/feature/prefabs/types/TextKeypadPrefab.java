@@ -103,9 +103,8 @@ public final class TextKeypadPrefab extends Prefab {
   }
 
   private static boolean hasValidAcceptedAnswers(String value) {
-    return !value.isBlank()
-        && Arrays.stream(value.split("\\|", -1))
-            .allMatch(answer -> !answer.isBlank() && answer.matches("[A-Za-z ]+"));
+    return Arrays.stream(value.split("\\|", -1))
+        .allMatch(answer -> KeypadFactory.isTextAnswer(answer.strip()));
   }
 
   private static List<String> acceptedAnswers(String value) {

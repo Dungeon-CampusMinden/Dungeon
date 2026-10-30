@@ -10,13 +10,13 @@ import feature.tasks.TaskComponent;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
-class KeypadComponentTest {
+class KeypadFactoryTest {
 
   private final KeypadComponent component = new KeypadComponent(() -> 3, true);
   private final TaskComponent<String> task = new TaskComponent<>(new NumericCodeTask("123"));
   private final Entity keypad = new Entity();
 
-  KeypadComponentTest() {
+  KeypadFactoryTest() {
     keypad.add(component);
     keypad.add(task);
   }
@@ -31,7 +31,7 @@ class KeypadComponentTest {
     KeypadFactory.submit(keypad, task, caller);
 
     assertSame(caller, receivedCaller.get());
-    assertTrue(component.isUnlocked());
+    assertTrue(component.unlocked());
   }
 
   @Test

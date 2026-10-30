@@ -19,7 +19,8 @@ public final class NumericCodeTask extends Task<String> {
    * @param code the correct code
    */
   public NumericCodeTask(final String code) {
-    this(constant(Objects.requireNonNull(code, "code")));
+    this(() -> code);
+    Objects.requireNonNull(code, "code");
   }
 
   /**
@@ -32,18 +33,9 @@ public final class NumericCodeTask extends Task<String> {
     this.code = Objects.requireNonNull(code, "code");
   }
 
-  /**
-   * Returns the current correct code.
-   *
-   * @return the correct code, empty while no code is available
-   */
-  public String code() {
-    return code.get();
-  }
-
   @Override
   public boolean isCorrect(final String answer) {
-    String current = code();
+    String current = code.get();
     return !current.isEmpty() && current.equals(answer);
   }
 
@@ -61,9 +53,5 @@ public final class NumericCodeTask extends Task<String> {
   @Override
   public String trackedAnswer(final String answer) {
     return answer;
-  }
-
-  private static Supplier<String> constant(final String code) {
-    return () -> code;
   }
 }

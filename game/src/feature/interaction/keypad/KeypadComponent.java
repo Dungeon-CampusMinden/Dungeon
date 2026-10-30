@@ -101,11 +101,11 @@ public class KeypadComponent implements Component {
   }
 
   /**
-   * Checks if the keypad has been unlocked.
+   * Returns whether the keypad has been unlocked.
    *
    * @return true if unlocked
    */
-  public boolean isUnlocked() {
+  public boolean unlocked() {
     return unlocked;
   }
 
@@ -114,7 +114,7 @@ public class KeypadComponent implements Component {
    *
    * @param unlocked true if unlocked
    */
-  public void isUnlocked(boolean unlocked) {
+  public void unlocked(boolean unlocked) {
     this.unlocked = unlocked;
   }
 

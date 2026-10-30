@@ -1098,7 +1098,7 @@ public class LastHourLevel extends DungeonLevel {
       LastHourProgressNet.complete(LastHourMilestone.LOGIN_SUCCEEDED);
     }
     boolean keypadUnlocked =
-        keypad.fetch(KeypadComponent.class).map(KeypadComponent::isUnlocked).orElse(false);
+        keypad.fetch(KeypadComponent.class).map(KeypadComponent::unlocked).orElse(false);
     if (keypadUnlocked || storageDoor.isOpen()) {
       LastHourProgressNet.complete(LastHourMilestone.STORAGE_OPENED);
     }
@@ -1131,7 +1131,7 @@ public class LastHourLevel extends DungeonLevel {
     KeypadComponent keypadState = keypad.fetch(KeypadComponent.class).orElseThrow();
     return LastHourSave.capture(
         new LastHourSave.CaptureContext(
-            keypadState.isUnlocked(),
+            keypadState.unlocked(),
             wrongKeypadCodes,
             storageDoor.isOpen(),
             remainingMs(),
@@ -1223,7 +1223,7 @@ public class LastHourLevel extends DungeonLevel {
     OfficeLights.update(state.map(ComputerStateComponent::lightsOn).orElse(false));
     if (state.isEmpty()) return;
     if (state.get().lightsOn()) OfficeLights.add(layout, out);
-    boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();
+    boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().unlocked();
     out.add(
         Light.steady(
             Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),

@@ -52,11 +52,9 @@ public final class ServerGameBinding {
   private static final String TERMINAL_ASSET = "objects/tech/Computer_1.png";
   private static final String KEYPAD_BACK = "Back";
   private static final String KEYPAD_SUBMIT = "Submit";
-  private static final int HIDDEN_DIGIT_LIMIT = 8;
   private static final float KEYPAD_INTERACTION_RADIUS = 1.5f;
 
   private final ServerBinding serverBinding;
-  private final FoundationSnapshotTranslator snapshotTranslator;
   private final GamePresentation presentation;
   private final DoorTile doorTile;
   private final ExitTile exitTile;
@@ -73,7 +71,6 @@ public final class ServerGameBinding {
    * @param serverBinding Foundation server binding
    * @param definition complete host-owned room definition
    * @param presentation complete player-facing room presentation
-   * @param snapshotTranslator Foundation keypad snapshot translator
    * @param doorTile authoritative common-exit door
    * @param exitTile authoritative common-exit tile
    * @param levelSystem level system whose default exit callback is disabled
@@ -85,7 +82,6 @@ public final class ServerGameBinding {
       final ServerBinding serverBinding,
       final RoomDefinition definition,
       final GamePresentation presentation,
-      final FoundationSnapshotTranslator snapshotTranslator,
       final DoorTile doorTile,
       final ExitTile exitTile,
       final LevelSystem levelSystem,
@@ -95,7 +91,6 @@ public final class ServerGameBinding {
     this.serverBinding = Objects.requireNonNull(serverBinding, "serverBinding");
     inputDefinitions = indexInputDefinitions(Objects.requireNonNull(definition, "definition"));
     this.presentation = Objects.requireNonNull(presentation, "presentation");
-    this.snapshotTranslator = Objects.requireNonNull(snapshotTranslator, "snapshotTranslator");
     FoundationDialogs.register();
     this.doorTile = Objects.requireNonNull(doorTile, "doorTile");
     this.exitTile = Objects.requireNonNull(exitTile, "exitTile");
@@ -225,7 +220,6 @@ public final class ServerGameBinding {
         KeypadFactory.createKeypad(
             new Point(position), definition.answer(), definition.showDigitCount());
     keypad.name(presentation.title());
-    snapshotTranslator.registerKeypad(keypad.id(), presentation.id());
     keypad.add(
         new InteractionComponent(
             new Interaction(
@@ -233,10 +227,6 @@ public final class ServerGameBinding {
                   if (serverBinding.inputActive(player, riddleId, presentation.id())) {
                     FoundationDialogs.showKeypad(
                         entity,
-                        definition.showDigitCount()
-                            ? definition.answer().length()
-                            : HIDDEN_DIGIT_LIMIT,
-                        definition.showDigitCount(),
                         action -> handleKeypadAction(entity, player, riddleId, definition, action),
                         player.id());
                   }
@@ -266,7 +256,7 @@ public final class ServerGameBinding {
       playKeypadButtonSound(-1, player.id());
       return false;
     }
-    if (!KEYPAD_SUBMIT.equals(action) || component.isUnlocked()) {
+    if (!KEYPAD_SUBMIT.equals(action) || component.unlocked()) {
       return false;
     }
 
@@ -275,7 +265,7 @@ public final class ServerGameBinding {
         .map(
             result -> {
               if (result.outcome() == AttemptOutcome.CORRECT) {
-                component.isUnlocked(true);
+                component.unlocked(true);
                 keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
                 Game.audio()
                     .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));

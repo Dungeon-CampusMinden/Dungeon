@@ -4,8 +4,8 @@ import engine.Game;
 import engine.game.ClientStarter;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
+import engine.network.DefaultSnapshotTranslator;
 import engine.utils.Tuple;
-import escaperoom.foundation.multiplayer.game.FoundationSnapshotTranslator;
 import escaperoom.foundation.room.level.RoomLevel;
 import escaperoom.foundation.room.model.FoundationRoom;
 import java.util.Objects;
@@ -16,13 +16,11 @@ import wizard.runner.bootstrap.JoinBootstrapException;
  * Immutable generic multiplayer client composition derived from the complete local DEER project.
  */
 public final class MultiplayerJoinRun {
-  private final FoundationRoom room;
   private final MultiplayerJoinGameSetup setup;
   private final AtomicBoolean started = new AtomicBoolean();
 
   private MultiplayerJoinRun(final FoundationRoom room) {
-    this.room = Objects.requireNonNull(room, "room");
-    setup = new MultiplayerJoinGameSetup(room);
+    setup = new MultiplayerJoinGameSetup(Objects.requireNonNull(room, "room"));
   }
 
   /**
@@ -72,7 +70,7 @@ public final class MultiplayerJoinRun {
   private ClientStarter clientStarter() {
     return ClientStarter.builder(setup::install)
         .levels(Tuple.of(MultiplayerHostRun.GENERIC_LEVEL_NAME, RoomLevel.class))
-        .snapshotTranslator(new FoundationSnapshotTranslator(room))
+        .snapshotTranslator(new DefaultSnapshotTranslator())
         .disableAudio(true)
         .frameRate(60)
         .build();

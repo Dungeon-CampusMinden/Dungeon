@@ -55,7 +55,7 @@ final class LastHourCheckpointProjection {
     level.lastKnownVisibleCommentCount = BlogTab.countVisibleComments();
     restoreComputerPresentation(level, restoredComputer, data);
 
-    level.keypad.fetch(KeypadComponent.class).ifPresent(c -> c.isUnlocked(data.keypadUnlocked()));
+    level.keypad.fetch(KeypadComponent.class).ifPresent(c -> c.unlocked(data.keypadUnlocked()));
     level.keypad.fetch(TaskComponent.class).ifPresent(t -> t.setSolved(data.keypadUnlocked()));
     level.wrongKeypadCodes = data.wrongCodeAttempts();
     if (data.storageDoorOpen()) level.storageDoor.open();

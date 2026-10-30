@@ -215,29 +215,25 @@ public final class ModuleStorageRiddle {
         (DoorTile) Game.tileAt(level.getPoint("door_inventarscanner")).orElseThrow();
     Entity keypad =
         KeypadFactory.createKeypad(level.getPoint("room3_keypad"), SCANNER_DOOR_CODE, true);
-    keypad
-        .fetch(KeypadComponent.class)
-        .ifPresent(
-            component -> {
-              TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
-              task.onCorrect(
-                  player -> {
-                    if (openDoorForStep(scannerDoor, SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
-                      callbacks.success("0502", player.id());
-                      return;
-                    }
-                    SystemRecoveryPuzzleEvents.interaction(
-                        SystemRecoveryPuzzle.MODULE_STORAGE,
-                        "scanner-keypad",
-                        "submit-pin",
-                        TrackingInteractionStatus.BLOCKED,
-                        "out-of-order",
-                        player);
-                    task.setSolved(false);
-                    component.clear();
-                  });
-              task.onWrong(player -> callbacks.failure(component.display(), player.id()));
-            });
+    KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
+    TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
+    task.onCorrect(
+        player -> {
+          if (openDoorForStep(scannerDoor, SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
+            callbacks.success("0502", player.id());
+            return;
+          }
+          SystemRecoveryPuzzleEvents.interaction(
+              SystemRecoveryPuzzle.MODULE_STORAGE,
+              "scanner-keypad",
+              "submit-pin",
+              TrackingInteractionStatus.BLOCKED,
+              "out-of-order",
+              player);
+          // Locked again; submitting clears the entered code like a wrong one.
+          task.setSolved(false);
+        });
+    task.onWrong(player -> callbacks.failure(component.display(), player.id()));
     Game.add(keypad);
   }
 
