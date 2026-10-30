@@ -1,7 +1,6 @@
 package feature.hud;
 
 import engine.Entity;
-import engine.Game;
 import engine.utils.IVoidFunction;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
@@ -61,20 +60,14 @@ public class DialogUtils {
    */
   public static void showImagePopUp(
       String imagePath, TransitionSpeed speed, IVoidFunction onClose, int... targetIds) {
-    Entity dialogEntity = new Entity();
     DialogContext context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.IMAGE)
             .put(DialogContextKeys.IMAGE, imagePath)
             .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
-            .put(DialogContextKeys.OWNER_ENTITY, dialogEntity.id())
             .build();
-    UIComponent ui = new UIComponent(context, true, true, targetIds);
-
+    UIComponent ui = DialogFactory.show(context, targetIds);
     ui.registerCallback(DialogContextKeys.ON_CLOSE, (data) -> onClose.execute());
-
-    dialogEntity.add(ui);
-    Game.add(dialogEntity);
   }
 
   /**

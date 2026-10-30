@@ -5,85 +5,70 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.ShowImageComponent;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.HeadlessDialogGroup;
 
-/** UI element that displays an image with optional text, used through the ShowImageSystem. */
+/**
+ * UI element that displays an image, used as the renderer of {@link
+ * feature.hud.dialogs.DialogType.DefaultTypes#IMAGE} dialogs.
+ */
 public class ShowImageUI extends Group {
 
   private static final float SCALE = 1f;
   private static final int ANIMATION_OFFSET_X = -5;
   private static final int ANIMATION_OFFSET_Y = -50;
 
-  private final ShowImageComponent component;
+  /** Maximum share of the screen the image occupies in its biggest axis. */
+  private static final float MAX_SIZE = 0.85f;
+
+  private final TransitionSpeed transitionSpeed;
 
   private Image background;
-  private String currentImagePath = null;
-  private String currentSourcePath = null;
   private float animation;
 
-  /**
-   * Creates a new ShowImageUI for the given entity.
-   *
-   * @param sic the ShowImageComponent containing the image and text configuration
-   */
-  public ShowImageUI(ShowImageComponent sic) {
-    this.component = sic;
-    createActors();
-    animation = 0;
-    if (sic.transitionSpeed() == TransitionSpeed.DISABLED) animation = 1;
+  private ShowImageUI(String imagePath, TransitionSpeed transitionSpeed) {
+    this.transitionSpeed = transitionSpeed;
+    createActors(imagePath);
+    animation = transitionSpeed == TransitionSpeed.DISABLED ? 1 : 0;
   }
 
-  private void createActors() {
+  private void createActors(String imagePath) {
     this.setScale(SCALE);
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    currentSourcePath = component.imagePath();
-    currentImagePath = Game.localization().asset(currentSourcePath);
-    background = new Image(TextureMap.instance().textureAt(new SimpleIPath(currentImagePath)));
+    String localizedPath = Game.localization().asset(imagePath);
+    background = new Image(TextureMap.instance().textureAt(new SimpleIPath(localizedPath)));
     background.setOrigin(Align.center);
     this.addActor(background);
-
-    if (component.textConfig() != null) {
-      Table table = new Table();
-      table.setFillParent(true);
-      Label label = new Label(component.textConfig().text(), UIUtils.defaultSkin());
-      label.setFontScale(component.textConfig().scale());
-      label.setColor(component.textConfig().color());
-      table.add(label);
-      this.addActor(table);
-    }
   }
 
   /**
    * Builds a ShowImageUI from the given DialogContext.
    *
+   * <p>Reads the image path from {@link DialogContextKeys#IMAGE} and the optional transition speed
+   * from {@link DialogContextKeys#IMAGE_TRANSITION_SPEED}, which defaults to {@link
+   * TransitionSpeed#MEDIUM}.
+   *
    * @param ctx the DialogContext containing the necessary attributes
    * @return a new ShowImageUI instance
    */
   public static Group build(DialogContext ctx) {
-    String img_path = ctx.require(DialogContextKeys.IMAGE, String.class);
+    String imagePath = ctx.require(DialogContextKeys.IMAGE, String.class);
 
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup();
     }
 
-    ShowImageUI showImageUI = new ShowImageUI(new ShowImageComponent(img_path));
-    ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
-        .ifPresent(showImageUI.component::transitionSpeed);
-
-    return showImageUI;
+    TransitionSpeed speed =
+        ctx.find(DialogContextKeys.IMAGE_TRANSITION_SPEED, TransitionSpeed.class)
+            .orElse(TransitionSpeed.MEDIUM);
+    return new ShowImageUI(imagePath, speed);
   }
 
   @Override
@@ -92,18 +77,10 @@ public class ShowImageUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    // Compare the unlocalized path, since the shown path may be a localized variant of it.
-    if (!currentSourcePath.equals(component.imagePath())) {
-      currentSourcePath = component.imagePath();
-      currentImagePath = Game.localization().asset(currentSourcePath);
-      background.setDrawable(
-          new TextureRegionDrawable(
-              TextureMap.instance().textureAt(new SimpleIPath(currentImagePath))));
-    }
     float imageWidth = background.getImageWidth();
     float imageHeight = background.getImageHeight();
-    float maxWidth = Game.windowWidth() * component.maxSize();
-    float maxHeight = Game.windowHeight() * component.maxSize();
+    float maxWidth = Game.windowWidth() * MAX_SIZE;
+    float maxHeight = Game.windowHeight() * MAX_SIZE;
 
     float scaleX = maxWidth / imageWidth;
     float scaleY = maxHeight / imageHeight;
@@ -115,7 +92,7 @@ public class ShowImageUI extends Group {
     this.setPosition(animationOffsetX(), animationOffsetY());
     this.setColor(1, 1, 1, animation);
     if (animation < 1) {
-      animation = Math.min(1, animation + (1f / component.transitionSpeed().framesToComplete));
+      animation = Math.min(1, animation + (1f / transitionSpeed.framesToComplete));
     }
 
     Color prev = batch.getColor();

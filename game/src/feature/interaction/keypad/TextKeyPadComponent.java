@@ -1,16 +1,13 @@
 package feature.interaction.keypad;
 
 import engine.Component;
-import engine.Entity;
 
 /** Component that represents a keypad with a text that can be entered. */
 public class TextKeyPadComponent implements Component {
 
   private String enteredText;
-  private boolean isUIOpen = false;
   private boolean isUnlocked = false;
   private Runnable action;
-  private Entity overlay;
 
   /**
    * Creates a TextKeyPadComponent.
@@ -79,24 +76,6 @@ public class TextKeyPadComponent implements Component {
   }
 
   /**
-   * Checks if the keypad UI is currently open.
-   *
-   * @return True if the UI is open, false otherwise.
-   */
-  public boolean isUIOpen() {
-    return isUIOpen;
-  }
-
-  /**
-   * Sets whether the keypad UI is open.
-   *
-   * @param isUIOpen True to open the UI, false to close it.
-   */
-  public void isUIOpen(boolean isUIOpen) {
-    this.isUIOpen = isUIOpen;
-  }
-
-  /**
    * Checks if the keypad has been successfully unlocked.
    *
    * @return True if unlocked, false otherwise.
@@ -130,23 +109,5 @@ public class TextKeyPadComponent implements Component {
    */
   public void action(Runnable action) {
     this.action = action;
-  }
-
-  /**
-   * Gets the entity associated with the keypad overlay.
-   *
-   * @return The overlay entity.
-   */
-  public Entity overlay() {
-    return overlay;
-  }
-
-  /**
-   * Sets the entity associated with the keypad overlay.
-   *
-   * @param overlay The new overlay entity.
-   */
-  public void overlay(Entity overlay) {
-    this.overlay = overlay;
   }
 }

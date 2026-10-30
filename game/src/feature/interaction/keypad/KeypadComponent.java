@@ -15,14 +15,12 @@ public class KeypadComponent implements Component {
   private final List<Integer> correctDigits;
   private Supplier<List<Integer>> correctDigitsSource;
   private final List<Integer> enteredDigits;
-  private boolean isUIOpen = false;
   private boolean isUnlocked = false;
   private boolean showDigitCount;
   private Runnable action;
   private Consumer<Entity> onCorrectCode = caller -> {};
   private Consumer<Entity> onWrongCode = caller -> {};
   private int wrongCodeAttempts = 0;
-  private Entity overlay;
 
   /**
    * Creates a KeypadComponent.
@@ -175,24 +173,6 @@ public class KeypadComponent implements Component {
   }
 
   /**
-   * Checks if the keypad UI is currently open.
-   *
-   * @return True if the UI is open, false otherwise.
-   */
-  public boolean isUIOpen() {
-    return isUIOpen;
-  }
-
-  /**
-   * Sets whether the keypad UI is open.
-   *
-   * @param isUIOpen True to open the UI, false to close it.
-   */
-  public void isUIOpen(boolean isUIOpen) {
-    this.isUIOpen = isUIOpen;
-  }
-
-  /**
    * Checks if the keypad has been successfully unlocked.
    *
    * @return True if unlocked, false otherwise.
@@ -306,23 +286,5 @@ public class KeypadComponent implements Component {
     if (wrongCodeAttempts < 0)
       throw new IllegalArgumentException("wrongCodeAttempts must be nonnegative");
     this.wrongCodeAttempts = wrongCodeAttempts;
-  }
-
-  /**
-   * Gets the entity associated with the keypad overlay.
-   *
-   * @return The overlay entity.
-   */
-  public Entity overlay() {
-    return overlay;
-  }
-
-  /**
-   * Sets the entity associated with the keypad overlay.
-   *
-   * @param overlay The new overlay entity.
-   */
-  public void overlay(Entity overlay) {
-    this.overlay = overlay;
   }
 }

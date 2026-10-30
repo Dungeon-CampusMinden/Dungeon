@@ -17,8 +17,8 @@ public final class TextKeypadSync {
   /**
    * Encodes the current text keypad state, if the entity has a text keypad component.
    *
-   * <p>Only state needed to render the keypad is included. Accepted answers, task state, actions,
-   * callbacks and overlay state remain local to the authoritative server.
+   * <p>Only state needed to render the keypad is included. Accepted answers, task state, actions
+   * and callbacks remain local to the authoritative server.
    *
    * @param entity entity to inspect
    * @return an immutable metadata map, or an empty map for entities without a text keypad
