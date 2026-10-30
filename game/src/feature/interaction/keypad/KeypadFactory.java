@@ -41,6 +41,7 @@ public class KeypadFactory {
 
   private static final float DEFAULT_INTERACTION_RADIUS = 1.5f;
   private static final int MAX_HIDDEN_CODE_LENGTH = 8;
+  private static final int MAX_TEXT_LENGTH = 32;
   private static final IPath TEXTURE_ON = new SimpleIPath("objects/keypad/on.png");
   private static final IPath TEXTURE_OFF = new SimpleIPath("objects/keypad/off.png");
 
@@ -86,7 +87,7 @@ public class KeypadFactory {
 
   /**
    * Creates a text keypad at the designated position. Only characters from A-Z and spaces are
-   * supported; answers are compared case-insensitively.
+   * supported, up to 32 characters; answers are compared case-insensitively.
    *
    * @param pos the position where the keypad is created
    * @param correctTexts the accepted answers
@@ -104,7 +105,7 @@ public class KeypadFactory {
 
     TaskComponent<String> taskComponent = new TaskComponent<>(new FreeTextTask(correctTexts));
     entity.add(taskComponent);
-    entity.add(new KeypadComponent(() -> Integer.MAX_VALUE, false));
+    entity.add(new KeypadComponent(() -> MAX_TEXT_LENGTH, false));
     addDialogInteraction(
         entity,
         DialogType.DefaultTypes.TEXT_KEYPAD,

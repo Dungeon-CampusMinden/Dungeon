@@ -25,6 +25,7 @@ import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.tasks.TaskComponent;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /** The UI for a text keypad entity, allowing the player to input a code. */
 public class TextKeypadUI extends Group {
@@ -152,12 +153,12 @@ public class TextKeypadUI extends Group {
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
     // Before the first synchronized state arrives, the keypad is shown empty.
-    KeypadComponent kc = keypad.fetch(KeypadComponent.class).orElse(null);
-    boolean unlocked = kc != null && kc.isUnlocked();
+    Optional<KeypadComponent> kc = keypad.fetch(KeypadComponent.class);
+    boolean unlocked = kc.map(KeypadComponent::isUnlocked).orElse(false);
 
     background.setPosition(getX(Align.center), getY(Align.center), Align.center);
     background.setDrawable(getSkin(), unlocked ? "keypad-ui-on" : "keypad-ui-off");
-    textLabel.setText(kc == null ? "" : kc.enteredText());
+    textLabel.setText(kc.map(KeypadComponent::enteredText).orElse(""));
 
     super.draw(batch, parentAlpha);
   }

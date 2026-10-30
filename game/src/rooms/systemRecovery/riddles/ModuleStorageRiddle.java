@@ -248,7 +248,7 @@ public final class ModuleStorageRiddle {
    * @param step the learning step the door belongs to
    * @return true if the door was opened and the step completed
    */
-  private static boolean openDoorForStep(DoorTile door, SystemRecoveryLearningStep step) {
+  static boolean openDoorForStep(DoorTile door, SystemRecoveryLearningStep step) {
     if (SystemRecoveryProgressNet.activeStep().orElse(null) != step || door.isOpen()) {
       return false;
     }

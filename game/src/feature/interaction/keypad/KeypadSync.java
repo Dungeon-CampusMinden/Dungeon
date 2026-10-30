@@ -23,7 +23,7 @@ public final class KeypadSync {
    * Encodes the current keypad state, if the entity has a keypad component.
    *
    * <p>Only state needed to render the keypad is included. Answers, tasks and callbacks remain
-   * local to the authoritative server; a numeric code is sent as its length only.
+   * local to the authoritative server; of a numeric code, only the input limit is sent.
    *
    * @param entity entity to inspect
    * @return an immutable metadata map, or an empty map for entities without a keypad

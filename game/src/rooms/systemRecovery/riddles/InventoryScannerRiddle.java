@@ -20,7 +20,6 @@ import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
-import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoverySounds;
@@ -215,7 +214,7 @@ public final class InventoryScannerRiddle {
               TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
               task.onCorrect(
                   player -> {
-                    if (openDoorForStep(
+                    if (ModuleStorageRiddle.openDoorForStep(
                         transportDoor, SystemRecoveryLearningStep.ROOM3_DOOR_CODE)) {
                       callbacks.success("0504", player.id());
                       return;
@@ -233,26 +232,5 @@ public final class InventoryScannerRiddle {
               task.onWrong(player -> callbacks.failure(component.display(), player.id()));
             });
     Game.add(keypad);
-  }
-
-  /**
-   * Opens a keypad door, but only while its learning step is active.
-   *
-   * @param door the door to open
-   * @param step the learning step the door belongs to
-   * @return true if the door was opened and the step completed
-   */
-  private static boolean openDoorForStep(DoorTile door, SystemRecoveryLearningStep step) {
-    if (SystemRecoveryProgressNet.activeStep().orElse(null) != step || door.isOpen()) {
-      return false;
-    }
-    door.open();
-    if (!door.isOpen()) return false;
-    if (!SystemRecoveryProgressNet.complete(step)) {
-      door.close();
-      return false;
-    }
-    SystemRecoverySounds.doorOpened();
-    return true;
   }
 }
