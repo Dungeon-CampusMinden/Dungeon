@@ -101,14 +101,7 @@ public class KeypadUI extends Group {
   private Image background;
   private Label label;
 
-  /**
-   * Creates the dialog for a keypad entity.
-   *
-   * @param keypad the keypad entity
-   * @param dialogId the dialog ID for callback resolution
-   * @param layout the buttons of the keypad
-   */
-  public KeypadUI(Entity keypad, String dialogId, Layout layout) {
+  private KeypadUI(Entity keypad, String dialogId, Layout layout) {
     this.keypad = keypad;
     this.dialogId = dialogId;
     this.layout = layout;

@@ -33,6 +33,7 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
+import feature.interaction.keypad.KeypadUI;
 import feature.tasks.AnswerItem;
 import feature.tasks.AssignmentChecker;
 import feature.tasks.TaskFactory;
@@ -50,8 +51,6 @@ import java.util.function.BiConsumer;
 public final class ServerGameBinding {
   private static final String HINT_ASSET = "items/book/wisdom_scroll.png";
   private static final String TERMINAL_ASSET = "objects/tech/Computer_1.png";
-  private static final String KEYPAD_BACK = "Back";
-  private static final String KEYPAD_SUBMIT = "Submit";
   private static final float KEYPAD_INTERACTION_RADIUS = 1.5f;
 
   private final ServerBinding serverBinding;
@@ -245,18 +244,8 @@ public final class ServerGameBinding {
       return false;
     }
     KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
-    if (action.length() == 1 && action.charAt(0) >= '0' && action.charAt(0) <= '9') {
-      int digit = action.charAt(0) - '0';
-      component.add(action);
-      playKeypadButtonSound(digit, player.id());
-      return false;
-    }
-    if (KEYPAD_BACK.equals(action)) {
-      component.backspace();
-      playKeypadButtonSound(-1, player.id());
-      return false;
-    }
-    if (!KEYPAD_SUBMIT.equals(action) || component.unlocked()) {
+    if (!KeypadFactory.press(keypad, KeypadUI.Layout.NUMERIC, player, action)
+        || component.unlocked()) {
       return false;
     }
 
@@ -426,12 +415,6 @@ public final class ServerGameBinding {
                         evaluated.outcome() == AttemptOutcome.CORRECT,
                         credited));
     return result;
-  }
-
-  private static void playKeypadButtonSound(final int digit, final int targetEntityId) {
-    float pitch = 1 + (digit - 5) * 0.05f;
-    Game.audio()
-        .playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(targetEntityId));
   }
 
   private void requestHint(final String riddleId, final Entity player) {

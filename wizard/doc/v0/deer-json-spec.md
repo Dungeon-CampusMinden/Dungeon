@@ -580,8 +580,8 @@ freigegebene Resource oder ein Hinweis wird nicht wieder verborgen. Im initialen
 Entity-Stream wird lediglich der vollständige `hostInputSha256` übertragen,
 damit ein Client ein abweichendes lokales Projekt vor `InitialWorldReady`
 ablehnt. Snapshots enthalten bei Keypads nur eingegebene Ziffern, den
-serverautoritativen Entsperrstatus und die Eingabegrenze, nie den
-Code. Die Dungeon-`PROTOCOL_VERSION` trägt die
+serverautoritativen Entsperrstatus und die Eingabegrenze, nie den Code. Die
+Dungeon-`PROTOCOL_VERSION` trägt die
 Wire-Kompatibilität.
 Details stehen im
 [`runner-runtime-contract.md`](runner-runtime-contract.md).

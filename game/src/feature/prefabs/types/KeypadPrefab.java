@@ -40,7 +40,7 @@ public final class KeypadPrefab extends Prefab {
   public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0), new Point(0.5f, 0.5f));
   public static final PrefabProperty<String> CODE =
-      PrefabProperty.string("code", "Code", "1234", KeypadPrefab::isDigits);
+      PrefabProperty.string("code", "Code", "1234", KeypadFactory::isNumericCode);
   public static final PrefabProperty<Boolean> SHOW_DIGIT_COUNT =
       PrefabProperty.bool("showDigitCount", "Show Digit Count", true);
   public static final PrefabProperty<Boolean> CLEAR_ON_WRONG =
@@ -49,7 +49,7 @@ public final class KeypadPrefab extends Prefab {
   /** Takes the code from another prefab instead of the {@link #CODE} property while linked. */
   public static final ArtifactSlot<String> CODE_INPUT =
       ArtifactSlot.forProperty(CODE, ArtifactType.TEXT)
-          .validatedBy(KeypadPrefab::isDigits, "only digits");
+          .validatedBy(KeypadFactory::isNumericCode, "1 to 8 digits");
 
   private static final List<PrefabProperty<?>> PROPERTIES =
       List.of(POSITION, CODE, SHOW_DIGIT_COUNT, CLEAR_ON_WRONG);
@@ -108,10 +108,5 @@ public final class KeypadPrefab extends Prefab {
     Point position = value(instance, POSITION);
     Point offset = POSITION.editorFeedbackOffset();
     feedback.point(position.translate(offset.x(), offset.y()), instance.name());
-  }
-
-  private static boolean isDigits(String value) {
-    return !value.isBlank()
-        && value.chars().allMatch(character -> character >= '0' && character <= '9');
   }
 }
