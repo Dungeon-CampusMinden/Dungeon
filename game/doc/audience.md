@@ -125,6 +125,10 @@ nicht.
    abgeschickten Umfragen. Enter schließt die Sitzung, spätestens schließt sie sich nach 15
    Minuten.
 
+Belegt schon ein anderes Programm den Spiel-Port, etwa der Server einer abgestürzten Runde, startet
+das Hauptmenü keinen eigenen Server und meldet den belegten Port. Sonst würde es sich mit dem alten
+Server verbinden. Ist der alte Prozess beendet, startet die Runde normal.
+
 Die Ende-Taste beendet das Spiel vorzeitig, etwa wenn die Zeit knapp wird. Die Spielzeit
 endet dann als nicht gelöst.
 
