@@ -183,6 +183,12 @@ tasks.register('runFomoRoom', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runKiRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.ki.KiRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('runMushRoom', JavaExec) {
     group 'starter'
     mainClass = 'rooms.mushroom.MushRoom'

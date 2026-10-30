@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /** Client-side cursor and outline feedback for interactable world entities. */
@@ -30,6 +31,8 @@ public final class InteractionFeedback {
   // Picks the entity the hero would use while every interactable entity shows its outline, or null
   // while the outline follows the cursor.
   private static Supplier<Optional<Entity>> fixedTarget;
+  // Picks the interactable entities that show an outline while fixedTarget is set.
+  private static Predicate<Entity> outlined = entity -> true;
 
   private InteractionFeedback() {}
 
@@ -41,7 +44,8 @@ public final class InteractionFeedback {
    * switches to {@link Cursors#INTERACT}.
    *
    * <p>After {@link #showAlways(Supplier)}, the cursor plays no part. Every interactable entity
-   * receives the discovery outline, and the entity the hero would use receives the solid one.
+   * receives the discovery outline, and the entity the hero would use receives the solid one. After
+   * {@link #showAlways(Supplier, Predicate)}, only the entities the filter accepts show outlines.
    */
   public static void update() {
     Optional<Entity> hero = Game.player();
@@ -81,12 +85,25 @@ public final class InteractionFeedback {
    * @param target picks the entity the hero would use next, if any
    */
   public static void showAlways(Supplier<Optional<Entity>> target) {
+    showAlways(target, entity -> true);
+  }
+
+  /**
+   * Like {@link #showAlways(Supplier)}, but only the interactable entities that {@code outlined}
+   * accepts show an outline, for a game in which only some of them can be chosen right now.
+   *
+   * @param target picks the entity the hero would use next, if any
+   * @param outlined whether an interactable entity shows an outline
+   */
+  public static void showAlways(Supplier<Optional<Entity>> target, Predicate<Entity> outlined) {
     fixedTarget = Objects.requireNonNull(target);
+    InteractionFeedback.outlined = Objects.requireNonNull(outlined);
   }
 
   /** Lets the outline follow the cursor again, as before {@link #showAlways(Supplier)}. */
   public static void followCursor() {
     fixedTarget = null;
+    outlined = entity -> true;
   }
 
   private static void outlineAll(Entity hero) {
@@ -94,6 +111,7 @@ public final class InteractionFeedback {
     Optional<Entity> target = fixedTarget.get();
     Game.entities(Set.of(PositionComponent.class, InteractionComponent.class))
         .filter(entity -> entity.id() != hero.id())
+        .filter(outlined)
         .forEach(
             entity -> {
               boolean used = target.isPresent() && target.orElseThrow().id() == entity.id();

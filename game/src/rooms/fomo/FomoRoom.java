@@ -36,7 +36,8 @@ import java.util.logging.Level;
 /**
  * An escape room about models and modelling for the module FOMO, played in audience mode. The game
  * runs on a shared screen, and the audience steers the hero and answers the questions by voting on
- * their devices.
+ * their devices. Instead of single steps, the audience picks where the hero goes from a list of
+ * targets that grows as the story goes on.
  *
  * <p>The hero is trapped inside a model of a laboratory. Three terminals ask about regular
  * languages and grammars and one about the steps of modelling; each reveals one digit of the door
@@ -50,14 +51,15 @@ public final class FomoRoom {
   private static final String LEVEL_KEY = "fomo";
   private static final String TRACKING_OPERATOR_EMAIL = "amatutat@hsbi.de";
   private static final Color MENU_ACCENT_COLOR = Color.valueOf("9b7bf0ff");
-  // Five seconds per step leave the audience time to agree on a direction.
-  private static final Duration MOVE_WINDOW = Duration.ofSeconds(5);
+  // The audience picks a target from a list, which takes longer to read than an arrow; once
+  // everybody voted, the window closes three seconds later.
+  private static final Duration MOVE_WINDOW = Duration.ofSeconds(15);
   // Time to discuss a question; once everybody voted, the window closes a few seconds later.
   private static final Duration PUZZLE_WINDOW = Duration.ofMinutes(2);
 
   private static AudienceSystem audience;
-  // The level editor (F4 in the main menu) builds the level without an audience: no relay session,
-  // no overlay, and the keyboard moves the hero.
+  // The level editor (F4 in the main menu) builds the level without an audience. It opens no relay
+  // session and no overlay, and the keyboard moves the hero.
   private static boolean levelEditorMode;
 
   private FomoRoom() {}

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
@@ -323,9 +324,10 @@ public final class AudienceSystem extends System {
 
   /**
    * Returns when a window ends, given its votes so far. A text closes five seconds after half the
-   * voters finished reading and two seconds after all of them did. A puzzle closes ten seconds
-   * after half the voters voted and three seconds after all of them did. Nobody waits out a long
-   * window, and the seconds left let a voter change their mind. Movement windows keep their end.
+   * voters finished reading and two seconds after all of them did. A puzzle or a choice of targets
+   * closes ten seconds after half the voters voted and three seconds after all of them did. Nobody
+   * waits out a long window, and the seconds left let a voter change their mind. Windows for single
+   * steps keep their end.
    *
    * @param context context of the window
    * @param endsAt current end of the window
@@ -397,6 +399,7 @@ public final class AudienceSystem extends System {
   private long duration(AudienceContext context) {
     return switch (context) {
       case AudienceContext.Move move -> config.moveWindow().toMillis();
+      case AudienceContext.Goto choice -> config.moveWindow().toMillis();
       case AudienceContext.Continue next -> config.continueWindow().toMillis();
       default -> config.puzzleWindow().toMillis();
     };
@@ -412,7 +415,7 @@ public final class AudienceSystem extends System {
   private void publish(long now) {
     ObjectNode state = TrackingJson.object().put("phase", phase.name().toLowerCase());
     if (paused()) state.put("paused", true);
-    ObjectNode contextJson = state.putObject("context").put("kind", context.kind());
+    ObjectNode contextJson = state.putObject("context").put("kind", context.controls());
     contextJson.put("window", windowId);
     context.describe(contextJson);
     if (prompt != null) contextJson.setAll(prompt);
@@ -452,15 +455,29 @@ public final class AudienceSystem extends System {
             });
     ObjectNode contextJson = hud.putObject("context").put("kind", context.kind());
     context.describe(contextJson);
+    if (context instanceof AudienceContext.Goto choice)
+      contextJson.set("targets", choice.markers());
     if (window != null) {
       contextJson.put("remainingMs", Math.max(0, window.endsAt - now));
       contextJson.put("windowMs", window.endsAt - window.startedAt);
       contextJson.set("tally", tallyJson(context, tally(window)));
     }
     if (result != null && now < result.until) hud.set("result", result.json());
-    // Clients cannot find this entity themselves, because they do not know the hero's hitbox.
-    if (stepper != null) stepper.facing().ifPresent(entity -> hud.put("useTarget", entity.id()));
+    if (stepper != null) outlines(hud);
     return hud;
+  }
+
+  // What the game screen outlines. In a room with targets, only the targets the audience can pick,
+  // because nothing else is chosen there. Elsewhere every interactable object shows an outline, and
+  // the one "Benutzen" would use a red one. Clients cannot work out either, because they know
+  // neither the hero's hitbox nor which targets the room offers.
+  private void outlines(ObjectNode hud) {
+    if (Game.entities(Set.of(AudienceTarget.class)).findAny().isEmpty()) {
+      stepper.facing().ifPresent(entity -> hud.put("useTarget", entity.id()));
+      return;
+    }
+    ArrayNode outlined = hud.putArray("outlined");
+    AudienceContext.Goto.reachable(stepper).forEach(target -> outlined.add(target.entity()));
   }
 
   private static ArrayNode tallyJson(

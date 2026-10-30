@@ -73,8 +73,8 @@ final class MultipleChoiceDialog {
       FontSpec.of("fonts/Roboto-SemiBold.ttf", 18, Color.BLACK);
   private static final FontSpec OPTION_FONT_SELECTED = OPTION_FONT_NORMAL.withColor(Color.WHITE);
 
-  /** Prefixes options with their number, set through {@link DialogFactory#numberChoiceOptions}. */
-  static boolean numberOptions;
+  /** Prefixes options with their letter, set through {@link DialogFactory#letterChoiceOptions}. */
+  static boolean letterOptions;
 
   private static final float SLIDE_DISTANCE = 60;
   private static final float SLIDE_DURATION = 0.3f;
@@ -221,7 +221,9 @@ final class MultipleChoiceDialog {
       row.setTouchable(Touchable.disabled);
 
       String text =
-          numberOptions && i < options.size() ? (i + 1) + "   " + entry.label() : entry.label();
+          letterOptions && i < options.size()
+              ? DialogFactory.choiceLetter(i) + "   " + entry.label()
+              : entry.label();
       RichLabel label = new RichLabel(text, OPTION_FONT_NORMAL);
 
       float maxLabelWidth = OPTION_WIDTH - OPTION_PAD * 2;

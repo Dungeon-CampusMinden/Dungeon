@@ -24,7 +24,8 @@ import java.util.Properties;
  * @param relay base URL of the relay, the page the audience opens, such as {@code
  *     https://example.org/play}
  * @param relayKey key the relay requires to create a session, if it requires one
- * @param moveWindow voting window for a movement step; it starts with the first vote
+ * @param moveWindow voting window for a movement step or a choice of targets; it starts with the
+ *     first vote
  * @param puzzleWindow voting window for a puzzle answer; it starts when the puzzle opens, and three
  *     seconds remain once every voting player voted
  * @param continueWindow longest wait before a text dialog closes; once half the voting players

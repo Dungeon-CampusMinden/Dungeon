@@ -62,6 +62,13 @@ class AudienceSystemTest {
   }
 
   @Test
+  void targetChoiceClosesSoonOnceEverybodyVoted() {
+    AudienceContext targets = new AudienceContext.Goto(List.of());
+    assertEquals(END, AudienceSystem.windowEnd(targets, END, 1, 3, NOW));
+    assertEquals(NOW + 3_000, AudienceSystem.windowEnd(targets, END, 3, 3, NOW));
+  }
+
+  @Test
   void movementKeepsItsEnd() {
     assertEquals(END, AudienceSystem.windowEnd(new AudienceContext.Move(), END, 3, 3, NOW));
   }

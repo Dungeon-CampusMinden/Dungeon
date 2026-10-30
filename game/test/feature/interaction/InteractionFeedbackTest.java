@@ -86,4 +86,16 @@ class InteractionFeedbackTest {
     assertEquals(0.4f, outline(chest).orElseThrow().color().a);
     assertEquals(0.4f, outline(terminal).orElseThrow().color().a);
   }
+
+  @Test
+  void filterLimitsTheOutlines() {
+    Entity terminal = entity(new InteractionComponent());
+    Entity chest = entity(new InteractionComponent());
+    InteractionFeedback.showAlways(Optional::empty, entity -> entity == terminal);
+
+    InteractionFeedback.update();
+
+    assertEquals(0.4f, outline(terminal).orElseThrow().color().a);
+    assertNull(outline(chest).orElse(null));
+  }
 }

@@ -58,8 +58,8 @@ public final class AutomatonRoom {
   private static final Duration PUZZLE_WINDOW = Duration.ofMinutes(2);
 
   private static AudienceSystem audience;
-  // The level editor (F4 in the main menu) builds the level without an audience: no relay session,
-  // no overlay, and the keyboard moves the hero.
+  // The level editor (F4 in the main menu) builds the level without an audience. It opens no relay
+  // session and no overlay, and the keyboard moves the hero.
   private static boolean levelEditorMode;
 
   private AutomatonRoom() {}

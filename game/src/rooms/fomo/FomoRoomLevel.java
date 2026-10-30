@@ -17,6 +17,7 @@ import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.path.SimpleIPath;
 import feature.audience.AudienceSystem;
+import feature.audience.AudienceTarget;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.components.UIComponent;
@@ -32,11 +33,13 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.prefabs.types.DecoImagePrefab;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -58,6 +61,12 @@ import java.util.stream.Stream;
  * code is the length of the shortest path from the anteroom to the server room in the graph model
  * of the laboratory that a computer next to the chest shows. The blueprint is a flag of the level,
  * not an inventory item, so all of it happens in dialogs the audience can vote on.
+ *
+ * <p>The audience picks targets from a list instead of single steps. The room offers each object
+ * once the story reaches it: at first only the robot, after the practice the keypad and the printer
+ * with the business card, behind the tutorial door Stachowiak, terminals 1, 2 and 4 and the door
+ * lock, after the first talk with Stachowiak the computer and the chest, then terminal 3 and the
+ * whiteboard. Finished objects leave the list, and once the door is open, the exit joins it.
  *
  * <p>The level file places the terminals on its named points {@code q1} to {@code q4}, the chest on
  * {@code chest} and the code panel on {@code panel}; {@code door} is the door tile and {@code exit}
@@ -106,13 +115,13 @@ public final class FomoRoomLevel extends DungeonLevel {
           "Gesteuert wird per Abstimmung. Alle geben auf ihrem Gerät eine Stimme ab, und die"
               + " Figur macht, was die meisten gewählt haben. Bei Gleichstand entscheidet der"
               + " Zufall.",
-          "Die Pfeile bewegen die Figur ein Feld weit. Die erste Stimme startet eine Runde von 5"
-              + " Sekunden. Bis sie vorbei ist, könnt ihr eure Stimme noch ändern, es zählt die"
-              + " letzte.",
-          "Alles, was ihr benutzen könnt, hat einen gelben Rand. Rot umrandet ist, was"
-              + " \"Benutzen\" gerade auslösen würde. Dafür muss die Figur direkt davor stehen"
-              + " und hinschauen.",
-          "Bei Fragen haben die Antworten Nummern. Bei Single-Choice wählt ihr genau eine"
+          "Ihr wählt aus einer Liste, wohin die Figur geht. Jedes Ziel im Raum hat einen gelben"
+              + " Rand und darüber seinen Buchstaben und seinen Namen. Die Figur läuft selbst hin"
+              + " und benutzt, was dort steht.",
+          "Die erste Stimme startet eine Runde von 15 Sekunden. Bis sie vorbei ist, könnt ihr"
+              + " eure Stimme noch ändern, es zählt die letzte. Neue Ziele kommen dazu, sobald ihr"
+              + " weiterkommt.",
+          "Bei Fragen haben die Antworten Buchstaben. Bei Single-Choice wählt ihr genau eine"
               + " Antwort. Bei Multiple-Choice wählt ihr alle passenden und drückt"
               + " \"Abschicken\", dann zählt die ganze Kombination.",
           "Für eine Frage habt ihr 2 Minuten. Hat die Hälfte abgestimmt, bleiben noch 10"
@@ -262,6 +271,8 @@ public final class FomoRoomLevel extends DungeonLevel {
   private boolean hasBlueprint;
   private boolean rebuilt;
   private boolean cycleDrawn;
+  // Whether the printer of the level file is a target yet; the level spawns it on its own.
+  private boolean printerOffered;
 
   /**
    * Creates the level.
@@ -280,10 +291,8 @@ public final class FomoRoomLevel extends DungeonLevel {
     story(INTRO_SPEAKER, INTRO, 0, () -> {}, Game.allPlayers().mapToInt(Entity::id).toArray());
   }
 
-  /**
-   * Shows the pages of a speaker one after another and runs {@code then} after the last. Each page
-   * is a dialog of its own, because the audience's "Weiter" confirms a whole dialog.
-   */
+  // Shows the pages of a speaker one after another and runs the callback after the last one. Each
+  // page is a dialog of its own, because the audience's "Weiter" confirms a whole dialog.
   private static void story(
       String speaker, List<String> pages, int page, Runnable then, int... targetIds) {
     if (page >= pages.size()) {
@@ -300,20 +309,51 @@ public final class FomoRoomLevel extends DungeonLevel {
   protected void onFirstTick() {
     door("door").ifPresent(DoorTile::close);
     door("tutorial_door").ifPresent(DoorTile::close);
-    robot();
-    station(getPoint("tutorial_panel"), KEYPAD, "tutorial-panel", this::tutorialPanel);
-    station(getPoint("q1"), TERMINAL, "terminal-1", hero -> ask(0, hero));
-    station(getPoint("q2"), TERMINAL, "terminal-2", hero -> ask(1, hero));
-    stachowiak = stachowiak();
-    station(getPoint("q4"), TERMINAL, "terminal-4", hero -> ask(3, hero));
-    chest();
-    station(getPoint("graph_model"), COMPUTER, "graph-model", hero -> showImage(GRAPH_MODEL, hero));
-    whiteboard();
-    station(getPoint("panel"), PANEL, "code-panel", this::codePanel);
+    BooleanSupplier always = () -> true;
+    target(robot(), "Robo", this::inTutorial);
+    target(
+        station(getPoint("tutorial_panel"), KEYPAD, "tutorial-panel", this::tutorialPanel),
+        "Tastenfeld",
+        () -> practised && inTutorial());
+    target(
+        station(getPoint("q1"), TERMINAL, "terminal-1", hero -> ask(0, hero)),
+        "Terminal 1",
+        always);
+    target(
+        station(getPoint("q2"), TERMINAL, "terminal-2", hero -> ask(1, hero)),
+        "Terminal 2",
+        always);
+    stachowiak = target(stachowiak(), "Stachowiak", always);
+    target(
+        station(getPoint("q4"), TERMINAL, "terminal-4", hero -> ask(3, hero)),
+        "Terminal 4",
+        always);
+    target(chest(), "Truhe", () -> metStachowiak && !hasBlueprint && !rebuilt);
+    target(
+        station(
+            getPoint("graph_model"), COMPUTER, "graph-model", hero -> showImage(GRAPH_MODEL, hero)),
+        "Rechner",
+        () -> metStachowiak);
+    target(whiteboard(), "Whiteboard", () -> cycleDrawn);
+    target(
+        station(getPoint("panel"), PANEL, "code-panel", this::codePanel),
+        "Türschloss",
+        () -> !isOpen("door"));
+    Game.add(AudienceTarget.tile(getPoint("exit"), "Ausgang", () -> isOpen("door")));
   }
 
   @Override
   protected void onTick() {
+    if (!printerOffered) {
+      prefabs(DecoImagePrefab.class).stream()
+          .findFirst()
+          .flatMap(DecoImagePrefab::decoEntity)
+          .ifPresent(
+              printer -> {
+                target(printer, "Drucker", () -> practised && inTutorial());
+                printerOffered = true;
+              });
+    }
     if (ended) return;
     boolean atExit =
         Game.allPlayers()
@@ -332,7 +372,22 @@ public final class FomoRoomLevel extends DungeonLevel {
     return tileAt(getPoint(point)).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
   }
 
-  private void station(Point position, SimpleIPath texture, String name, Consumer<Entity> use) {
+  private boolean isOpen(String door) {
+    return door(door).map(DoorTile::isOpen).orElse(false);
+  }
+
+  // The robot, the keypad and the printer are of no more use once the tutorial door is open.
+  private boolean inTutorial() {
+    return !isOpen("tutorial_door");
+  }
+
+  // Offers an entity in the audience's list of targets while available says so.
+  private static Entity target(Entity entity, String label, BooleanSupplier available) {
+    entity.add(new AudienceTarget(label, available));
+    return entity;
+  }
+
+  private Entity station(Point position, SimpleIPath texture, String name, Consumer<Entity> use) {
     Entity station = new Entity(name);
     station.add(new PositionComponent(position));
     station.add(new DrawComponent(new Animation(texture)));
@@ -340,14 +395,13 @@ public final class FomoRoomLevel extends DungeonLevel {
     station.add(
         new InteractionComponent(new Interaction((self, hero) -> use.accept(hero), 1.5f, true)));
     Game.add(station);
+    return station;
   }
 
-  /**
-   * Hangs the whiteboard on the wall. Its hitbox spans the two tiles the board covers, so the hero
-   * can use it from in front of either; the board is drawn two tiles wide to match. It is not a
-   * decoration of the level file, so the level editor leaves it alone.
-   */
-  private void whiteboard() {
+  // Hangs the whiteboard on the wall. Its hitbox spans the two tiles the board covers, so the hero
+  // can use it from in front of either; the board is drawn two tiles wide to match. It is not a
+  // decoration of the level file, so the level editor leaves it alone.
+  private Entity whiteboard() {
     Deco deco = Deco.LabWhiteboard;
     // The board image is 50 by 37 pixels and its height is the scale, so this makes it 2 tiles
     // wide.
@@ -359,6 +413,7 @@ public final class FomoRoomLevel extends DungeonLevel {
     board.add(
         new InteractionComponent(new Interaction((self, hero) -> whiteboard(hero), 1.5f, true)));
     Game.add(board);
+    return board;
   }
 
   // Empty until Stachowiak draws the modelling cycle, so it does not give away terminal 3.
@@ -383,8 +438,8 @@ public final class FomoRoomLevel extends DungeonLevel {
     return npc("q3", "character/wizard", this::talkToStachowiak);
   }
 
-  private void robot() {
-    npc("tutorial_npc", "character/roboter_cleaner", this::talkToRobot);
+  private Entity robot() {
+    return npc("tutorial_npc", "character/roboter_cleaner", this::talkToRobot);
   }
 
   private Entity npc(String point, String sprite, Consumer<Entity> talk) {
@@ -401,10 +456,8 @@ public final class FomoRoomLevel extends DungeonLevel {
     return npc;
   }
 
-  /**
-   * The robot practises a single-choice and a multiple-choice question, says what the audience
-   * chose, and then gives the hint for the tutorial door. Afterwards it only repeats the hint.
-   */
+  // The robot practises a single-choice and a multiple-choice question, says what the audience
+  // chose, and then gives the hint for the tutorial door. Afterwards it only repeats the hint.
   private void talkToRobot(Entity hero) {
     if (practised) {
       story(ROBOT_SPEAKER, List.of(DOOR_HINT), 0, () -> {}, hero.id());
@@ -440,10 +493,8 @@ public final class FomoRoomLevel extends DungeonLevel {
         hero.id());
   }
 
-  /**
-   * Asks a practice question. Every answer counts; {@code then} receives the chosen options as
-   * text, such as "Kaffee und Tee".
-   */
+  // Asks a practice question. Every answer counts, and the callback receives the chosen options as
+  // text, such as "Kaffee und Tee".
   private static void practise(ChoicePractice practice, Entity hero, Consumer<String> then) {
     DialogFactory.showMultipleChoiceDialog(
         practice.text(),
@@ -480,10 +531,8 @@ public final class FomoRoomLevel extends DungeonLevel {
     }
   }
 
-  /**
-   * Stachowiak steps onto a free tile next to q3, terminal 3 is back, and its question opens right
-   * away. The hero stays where it is, next to the terminal.
-   */
+  // Stachowiak steps onto a free tile next to q3, terminal 3 is back, and its question opens right
+  // away. The hero stays where it is, next to the terminal.
   private void rebuild(Entity hero) {
     rebuilt = true;
     Point terminal = getPoint("q3");
@@ -497,11 +546,14 @@ public final class FomoRoomLevel extends DungeonLevel {
         .filter(tile -> tileAt(tile).map(Tile::isAccessible).orElse(false))
         .findFirst()
         .ifPresent(aside -> AudienceSystem.standOn(stachowiak, aside));
-    station(terminal, TERMINAL, "terminal-3", other -> ask(2, other));
+    target(
+        station(terminal, TERMINAL, "terminal-3", other -> ask(2, other)),
+        "Terminal 3",
+        () -> true);
     ask(2, hero);
   }
 
-  private void chest() {
+  private Entity chest() {
     Entity chest = new Entity("chest");
     chest.add(new PositionComponent(getPoint("chest")));
     chest.add(new DrawComponent(CHEST_TEXTURE, "closed"));
@@ -510,6 +562,7 @@ public final class FomoRoomLevel extends DungeonLevel {
         new InteractionComponent(
             new Interaction((self, hero) -> openChest(self, hero), 1.5f, true)));
     Game.add(chest);
+    return chest;
   }
 
   private void openChest(Entity chest, Entity hero) {
@@ -562,7 +615,7 @@ public final class FomoRoomLevel extends DungeonLevel {
   }
 
   private void codePanel(Entity hero) {
-    if (door("door").map(DoorTile::isOpen).orElse(false)) {
+    if (isOpen("door")) {
       DialogUtils.showTextPopup("Die Tür ist schon offen.", "Tastenfeld", hero.id());
       return;
     }
@@ -586,7 +639,7 @@ public final class FomoRoomLevel extends DungeonLevel {
   }
 
   private void tutorialPanel(Entity hero) {
-    if (door("tutorial_door").map(DoorTile::isOpen).orElse(false)) {
+    if (isOpen("tutorial_door")) {
       DialogUtils.showTextPopup("Die Tür ist schon offen.", "Tastenfeld", hero.id());
       return;
     }
@@ -657,7 +710,8 @@ public final class FomoRoomLevel extends DungeonLevel {
       return;
     }
     solved[terminal] = true;
-    // Terminal 3 asks for the steps of modelling; once it is solved, the cycle may be shown.
+    // Terminal 3 asks for the steps of modelling. Once the audience solves it, the whiteboard may
+    // show the cycle.
     if (terminal == 2 && !cycleDrawn) {
       cycleDrawn = true;
       revealDigit(
@@ -669,10 +723,8 @@ public final class FomoRoomLevel extends DungeonLevel {
     revealDigit(terminal, hero, () -> {});
   }
 
-  /**
-   * Rejects a wrong answer with the hint of the terminal. Once the audience has read it, the same
-   * question opens again.
-   */
+  // Rejects a wrong answer with the hint of the terminal. Once the audience has read it, the same
+  // question opens again.
   private void reject(int terminal, Entity hero) {
     DialogUtils.showTextPopup(
         "Diese Antwort passt noch nicht zum Modell. Versucht es noch einmal. Tipp: "
@@ -691,10 +743,8 @@ public final class FomoRoomLevel extends DungeonLevel {
     };
   }
 
-  /**
-   * Shows the step of the modelling cycle a solved terminal stands for and its digit of the door
-   * code, then runs {@code then}.
-   */
+  // Shows the step of the modelling cycle a solved terminal stands for and its digit of the door
+  // code, then runs the callback.
   private static void revealDigit(int terminal, Entity hero, Runnable then) {
     int step = TERMINAL_STEPS[terminal];
     DialogUtils.showTextPopup(

@@ -9,14 +9,19 @@ import static org.mockito.Mockito.when;
 import engine.Entity;
 import engine.components.PositionComponent;
 import engine.level.Tile;
+import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests where the stepper puts heroes whose hitbox sits at different places in their sprite, and
- * which tiles an entity takes up for "Benutzen".
+ * Tests where the stepper puts heroes whose hitbox sits at different places in their sprite, which
+ * tiles an entity takes up for "Benutzen", and how the hero finds its way to a target.
  */
 class TileStepperTest {
 
@@ -82,6 +87,64 @@ class TileStepperTest {
     sign.add(new PositionComponent(new Point(2.4f, 7.2f)));
     assertTrue(TileStepper.covers(sign, new Point(2, 7)));
     assertFalse(TileStepper.covers(sign, new Point(3, 7)));
+  }
+
+  @Test
+  void wideHitboxListsEveryTileItTakesUp() {
+    Entity board = entity(new Point(5, 11), new Rectangle(Vector2.ZERO, Vector2.of(2, 1)));
+    assertEquals(Set.of(new Point(5, 11), new Point(6, 11)), TileStepper.tiles(board));
+  }
+
+  // Walkable tiles of a small room, given as rows from top to bottom: '.' is free, '#' is not.
+  private static Predicate<Point> room(String... rows) {
+    return tile -> {
+      int row = rows.length - 1 - (int) tile.y();
+      int column = (int) tile.x();
+      return row >= 0
+          && row < rows.length
+          && column >= 0
+          && column < rows[row].length()
+          && rows[row].charAt(column) == '.';
+    };
+  }
+
+  // The target stands on the top left tile; the only free tile next to it is to its right.
+  private static final Predicate<Point> AROUND = room("#..", "##.", "...");
+
+  @Test
+  void routeLeadsAroundObstaclesToATileNextToTheTarget() {
+    Map<Point, Point> reached = TileStepper.reach(new Point(0, 0), AROUND);
+    TileStepper.Route route =
+        TileStepper.route(reached, Set.of(new Point(0, 2)), false).orElseThrow();
+    assertEquals(
+        List.of(Direction.RIGHT, Direction.RIGHT, Direction.UP, Direction.UP, Direction.LEFT),
+        route.steps());
+    assertEquals(Direction.LEFT, route.face());
+  }
+
+  @Test
+  void enteredTargetIsWalkedOnto() {
+    Map<Point, Point> reached = TileStepper.reach(new Point(0, 0), AROUND);
+    TileStepper.Route route =
+        TileStepper.route(reached, Set.of(new Point(2, 2)), true).orElseThrow();
+    assertEquals(
+        List.of(Direction.RIGHT, Direction.RIGHT, Direction.UP, Direction.UP), route.steps());
+    assertEquals(Direction.NONE, route.face());
+  }
+
+  @Test
+  void heroNextToTheTargetOnlyTurnsToIt() {
+    Map<Point, Point> reached = TileStepper.reach(new Point(1, 2), AROUND);
+    TileStepper.Route route =
+        TileStepper.route(reached, Set.of(new Point(0, 2)), false).orElseThrow();
+    assertTrue(route.steps().isEmpty());
+    assertEquals(Direction.LEFT, route.face());
+  }
+
+  @Test
+  void targetBehindAWallHasNoRoute() {
+    Map<Point, Point> reached = TileStepper.reach(new Point(0, 0), room("#.#", "###", "..."));
+    assertTrue(TileStepper.route(reached, Set.of(new Point(0, 2)), false).isEmpty());
   }
 
   private record Rectangle(Vector2 offset, Vector2 size) {}

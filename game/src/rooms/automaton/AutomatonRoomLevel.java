@@ -175,10 +175,8 @@ public final class AutomatonRoomLevel extends DungeonLevel {
     story(INTRO_SPEAKER, INTRO, 0, () -> {}, Game.allPlayers().mapToInt(Entity::id).toArray());
   }
 
-  /**
-   * Shows the pages of a speaker one after another and runs {@code then} after the last. Each page
-   * is a dialog of its own, because the audience's "Weiter" confirms a whole dialog.
-   */
+  // Shows the pages of a speaker one after another and runs the callback after the last one. Each
+  // page is a dialog of its own, because the audience's "Weiter" confirms a whole dialog.
   private static void story(
       String speaker, List<String> pages, int page, Runnable then, int... targetIds) {
     if (page >= pages.size()) {
@@ -254,10 +252,8 @@ public final class AutomatonRoomLevel extends DungeonLevel {
     }
   }
 
-  /**
-   * Kleene steps onto a free tile next to q3, terminal 3 is back, and its question opens right
-   * away. The hero stays where it is, next to the terminal.
-   */
+  // Kleene steps onto a free tile next to q3, terminal 3 is back, and its question opens right
+  // away. The hero stays where it is, next to the terminal.
   private void repair(Entity hero) {
     repaired = true;
     Point terminal = getPoint("q3");
@@ -372,10 +368,8 @@ public final class AutomatonRoomLevel extends DungeonLevel {
     revealDigit(terminal, hero);
   }
 
-  /**
-   * Rejects a wrong answer with the hint of the terminal. Once the audience has read it, the same
-   * question opens again.
-   */
+  // Rejects a wrong answer with the hint of the terminal. Once the audience has read it, the same
+  // question opens again.
   private void reject(int terminal, Entity hero) {
     DialogUtils.showTextPopup(
         "Für diese Antwort kennt der Automat keinen Übergang. Versucht es noch einmal. Tipp: "

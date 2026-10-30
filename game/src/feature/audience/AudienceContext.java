@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Direction;
+import engine.utils.Point;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
@@ -13,10 +14,12 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogScript;
 import feature.hud.dialogs.DialogType;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,8 +30,9 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * What the audience decides in the current game situation, derived from the dialog open for the
- * hero or, without one, movement.
+ * What the audience decides in the current game situation. The dialog open for the hero decides it.
+ * Without a dialog the audience moves the hero, by choosing a target in a room that marks reachable
+ * {@link AudienceTarget}s and by single steps otherwise.
  *
  * <p>Each context checks and normalizes votes, names a vote for the game screen, and applies the
  * winning vote: a movement step, or the dialog response the dialog's own button would send. A
@@ -38,9 +42,18 @@ sealed interface AudienceContext {
   JsonNodeFactory JSON = JsonNodeFactory.instance;
 
   /**
-   * @return kind the devices use to pick their controls, such as {@code move} or {@code choice}
+   * @return what the audience decides, such as {@code move} or {@code choice}; tracking and the
+   *     game screen use it
    */
   String kind();
+
+  /**
+   * @return controls the devices show, such as {@code move} or {@code choice}; the kind, unless the
+   *     devices show the decision with the controls of another kind
+   */
+  default String controls() {
+    return kind();
+  }
 
   /**
    * @return whether the voting window starts at once instead of with the first vote
@@ -94,7 +107,11 @@ sealed interface AudienceContext {
    */
   static AudienceContext of(Entity hero, TileStepper stepper) {
     Optional<UIComponent> dialog = dialog(hero);
-    if (dialog.isEmpty()) return stepper.moving() ? new Wait() : new Move();
+    if (dialog.isEmpty()) {
+      if (stepper.moving()) return new Wait();
+      List<Goto.Destination> targets = Goto.reachable(stepper);
+      return targets.isEmpty() ? new Move() : new Goto(targets);
+    }
     UIComponent ui = dialog.get();
     DialogType type = ui.dialogContext().dialogType();
     if (type == DialogType.DefaultTypes.MULTIPLE_CHOICE) {
@@ -256,8 +273,129 @@ sealed interface AudienceContext {
   }
 
   /**
-   * Single or multiple choice. Devices send option numbers starting at one; the counted vote is the
-   * option value, or the values of the chosen combination in option order.
+   * A choice of destinations instead of single steps. The devices show it as a single choice with
+   * the names of the targets, and the game screen shows each target's letter above it, as for the
+   * options of a question. The counted vote is the name. The hero walks to the winning target and
+   * uses it.
+   *
+   * @param targets the targets the hero can reach, in list order
+   */
+  record Goto(List<Destination> targets) implements AudienceContext {
+    // Sorted by name, the list on the devices is easy to scan.
+    private static final Collator ORDER = Collator.getInstance(Locale.GERMAN);
+
+    /**
+     * Collects the targets the room offers right now and the hero can reach.
+     *
+     * @param stepper movement of the hero
+     * @return the targets sorted by name, or an empty list when there is none
+     */
+    static List<Destination> reachable(TileStepper stepper) {
+      List<Entity> offered =
+          Game.entities(Set.of(AudienceTarget.class))
+              .filter(
+                  entity ->
+                      entity.fetch(AudienceTarget.class).orElseThrow().available().getAsBoolean())
+              .toList();
+      if (offered.isEmpty()) return List.of();
+      Map<Point, Point> reachable = stepper.reachable();
+      return offered.stream()
+          .filter(entity -> stepper.route(entity, reachable).isPresent())
+          .map(Destination::of)
+          .sorted(Comparator.comparing(Destination::label, ORDER))
+          .toList();
+    }
+
+    @Override
+    public String kind() {
+      return "goto";
+    }
+
+    @Override
+    public String controls() {
+      return "choice";
+    }
+
+    @Override
+    public boolean startsAtOnce() {
+      return false;
+    }
+
+    @Override
+    public void describe(ObjectNode json) {
+      json.put("options", targets.size()).put("multiple", false);
+      json.put("title", "Wohin geht es?");
+      json.put("text", "Die Figur läuft selbst hin und benutzt, was dort steht.");
+      ArrayNode answers = json.putArray("answers");
+      targets.forEach(target -> answers.add(target.label()));
+    }
+
+    @Override
+    public Optional<JsonNode> normalize(JsonNode value) {
+      if (!value.canConvertToInt()) return Optional.empty();
+      int index = value.asInt() - 1;
+      return index >= 0 && index < targets.size()
+          ? Optional.of(JSON.stringNode(targets.get(index).label()))
+          : Optional.empty();
+    }
+
+    @Override
+    public String label(JsonNode vote) {
+      return vote.asString();
+    }
+
+    @Override
+    public void apply(JsonNode vote, TileStepper stepper) {
+      targets.stream()
+          .filter(target -> target.label().equals(vote.asString()))
+          .findFirst()
+          .flatMap(target -> Game.findEntityById(target.entity()))
+          .ifPresent(stepper::goTo);
+    }
+
+    /**
+     * @return letter, name and marker position of each target, for the game screen
+     */
+    ArrayNode markers() {
+      ArrayNode markers = JSON.arrayNode();
+      for (int i = 0; i < targets.size(); i++) {
+        Destination target = targets.get(i);
+        markers
+            .addObject()
+            .put("letter", DialogFactory.choiceLetter(i))
+            .put("label", target.label())
+            .put("x", target.marker().x())
+            .put("y", target.marker().y());
+      }
+      return markers;
+    }
+
+    /**
+     * A target in the list.
+     *
+     * @param entity id of the target's entity
+     * @param label name of the target
+     * @param marker where the game screen shows the letter, above the middle of the tiles the
+     *     target takes up
+     */
+    record Destination(int entity, String label, Point marker) {
+      static Destination of(Entity entity) {
+        Set<Point> tiles = TileStepper.tiles(entity);
+        double left = tiles.stream().mapToDouble(Point::x).min().orElseThrow();
+        double right = tiles.stream().mapToDouble(Point::x).max().orElseThrow() + 1;
+        double top = tiles.stream().mapToDouble(Point::y).max().orElseThrow() + 1;
+        return new Destination(
+            entity.id(),
+            entity.fetch(AudienceTarget.class).orElseThrow().label(),
+            new Point((float) (left + right) / 2, (float) top));
+      }
+    }
+  }
+
+  /**
+   * Single or multiple choice. The screens show options with letters starting at A; devices send
+   * option numbers starting at one. The counted vote is the option value, or the values of the
+   * chosen combination in option order.
    *
    * @param ui the dialog
    * @param options options in display order
@@ -303,13 +441,15 @@ sealed interface AudienceContext {
 
     @Override
     public String label(JsonNode vote) {
-      List<String> numbers = new ArrayList<>();
+      List<String> letters = new ArrayList<>();
       for (JsonNode value : vote.isArray() ? vote : JSON.arrayNode().add(vote)) {
         for (int i = 0; i < options.size(); i++) {
-          if (options.get(i).value().equals(value.asString())) numbers.add(Integer.toString(i + 1));
+          if (options.get(i).value().equals(value.asString())) {
+            letters.add(DialogFactory.choiceLetter(i));
+          }
         }
       }
-      return String.join(" + ", numbers);
+      return String.join(" + ", letters);
     }
 
     @Override
