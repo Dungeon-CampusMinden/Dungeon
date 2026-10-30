@@ -220,8 +220,8 @@ public class Lore {
    */
   public static final String DoorCodeMorse = "...-- --... ..... ---..";
 
-  /** The actual numeric door code as a list of individual digits. */
-  public static final List<Integer> DoorCode = List.of(3, 7, 5, 8);
+  /** The actual numeric door code. */
+  public static final String DoorCode = "3758";
 
   public static final String VentSerialNumber = "49221";
 }

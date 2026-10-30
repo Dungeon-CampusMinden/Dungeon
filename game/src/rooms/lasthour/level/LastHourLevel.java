@@ -60,6 +60,7 @@ import feature.puzzle.PuzzlePieceItem;
 import feature.survey.SurveyFeature;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
+import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerAlarm;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
@@ -129,6 +130,7 @@ public class LastHourLevel extends DungeonLevel {
   LastHourSave.SaveData lastSaved;
   ComputerStateComponent cscLastTick;
   Entity keypad;
+  int wrongKeypadCodes = 0;
   int lastKnownVisibleCommentCount = 0;
   private int saveRevision;
   private final Set<Integer> usbCollectorWatchedPlayers = new HashSet<>();
@@ -221,50 +223,41 @@ public class LastHourLevel extends DungeonLevel {
     entryDoor.close();
     this.exitDoor = entryDoor;
 
-    keypad =
-        KeypadFactory.createKeypad(
-            getPoint("keypad-storage"),
-            Lore.DoorCode,
-            () -> {
-              storageDoor.open();
-              LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
-              LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
-              scheduleFirstPhoneCall(FIRST_PHONE_RING_DELAY_MS);
-            },
-            true);
-    keypad
-        .fetch(KeypadComponent.class)
-        .ifPresent(
-            component -> {
-              component.onCorrectCode(
-                  player -> {
-                    LastHourTracking.attempt(
-                        LastHourPuzzle.STORAGE_ACCESS,
-                        "storage-keypad",
-                        "numeric-code",
-                        component.enteredDigits().stream()
-                            .map(String::valueOf)
-                            .collect(java.util.stream.Collectors.joining()),
-                        true,
-                        player);
-                    LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
-                    LastHourTracking.started(LastHourPuzzle.BLUE_USB);
-                    LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
-                  });
-              component.onWrongCode(
-                  player -> {
-                    LastHourTracking.attempt(
-                        LastHourPuzzle.STORAGE_ACCESS,
-                        "storage-keypad",
-                        "numeric-code",
-                        component.enteredDigits().stream()
-                            .map(String::valueOf)
-                            .collect(java.util.stream.Collectors.joining()),
-                        false,
-                        player);
-                    LastHourAchievements.checkBruteforce(player, component.wrongCodeAttempts());
-                  });
-            });
+    keypad = KeypadFactory.createKeypad(getPoint("keypad-storage"), Lore.DoorCode, true);
+    KeypadComponent keypadComponent = keypad.fetch(KeypadComponent.class).orElseThrow();
+    TaskComponent<?> keypadTask = keypad.fetch(TaskComponent.class).orElseThrow();
+    keypadTask.onCorrect(
+        player -> {
+          storageDoor.open();
+          LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
+          LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
+          scheduleFirstPhoneCall(FIRST_PHONE_RING_DELAY_MS);
+          LastHourTracking.attempt(
+              LastHourPuzzle.STORAGE_ACCESS,
+              "storage-keypad",
+              "numeric-code",
+              keypadComponent.enteredText(),
+              true,
+              player);
+          LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
+          LastHourTracking.started(LastHourPuzzle.BLUE_USB);
+          LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
+        });
+    keypadTask.onWrong(
+        player -> {
+          LastHourTracking.attempt(
+              LastHourPuzzle.STORAGE_ACCESS,
+              "storage-keypad",
+              "numeric-code",
+              keypadComponent.enteredText(),
+              false,
+              player);
+          // Only complete codes count as brute-force attempts.
+          if (keypadComponent.enteredText().length() == Lore.DoorCode.length()) {
+            wrongKeypadCodes++;
+          }
+          LastHourAchievements.checkBruteforce(player, wrongKeypadCodes);
+        });
     Game.add(keypad);
 
     setupPC();
@@ -1105,7 +1098,7 @@ public class LastHourLevel extends DungeonLevel {
       LastHourProgressNet.complete(LastHourMilestone.LOGIN_SUCCEEDED);
     }
     boolean keypadUnlocked =
-        keypad.fetch(KeypadComponent.class).map(KeypadComponent::isUnlocked).orElse(false);
+        keypad.fetch(KeypadComponent.class).map(KeypadComponent::unlocked).orElse(false);
     if (keypadUnlocked || storageDoor.isOpen()) {
       LastHourProgressNet.complete(LastHourMilestone.STORAGE_OPENED);
     }
@@ -1138,8 +1131,8 @@ public class LastHourLevel extends DungeonLevel {
     KeypadComponent keypadState = keypad.fetch(KeypadComponent.class).orElseThrow();
     return LastHourSave.capture(
         new LastHourSave.CaptureContext(
-            keypadState.isUnlocked(),
-            keypadState.wrongCodeAttempts(),
+            keypadState.unlocked(),
+            wrongKeypadCodes,
             storageDoor.isOpen(),
             remainingMs(),
             timerExpired,
@@ -1230,7 +1223,7 @@ public class LastHourLevel extends DungeonLevel {
     OfficeLights.update(state.map(ComputerStateComponent::lightsOn).orElse(false));
     if (state.isEmpty()) return;
     if (state.get().lightsOn()) OfficeLights.add(layout, out);
-    boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().isUnlocked();
+    boolean unlocked = keypad.fetch(KeypadComponent.class).orElseThrow().unlocked();
     out.add(
         Light.steady(
             Game.positionOf(keypad).orElse(new Point(0, 0)).translate(0.5f, 0.5f),

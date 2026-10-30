@@ -30,13 +30,8 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
-import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.hud.elements.RichLabel;
-import feature.interaction.keypad.KeypadComponent;
-import feature.interaction.keypad.KeypadUI;
 import feature.systems.EventScheduler;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -45,8 +40,6 @@ import java.util.stream.Stream;
 /** Foundation-specific views on top of Dungeon's server-owned multiplayer dialog lifecycle. */
 public final class FoundationDialogs {
   private static final String RESOURCE_ASSET = "foundation.resource.asset";
-  private static final String KEYPAD_DIGIT_LIMIT = "foundation.keypad.digitLimit";
-  private static final String KEYPAD_SHOW_DIGIT_COUNT = "foundation.keypad.showDigitCount";
   private static final long KEYPAD_CLOSE_DELAY_MILLIS = 1_000;
   private static final float CONTENT_WIDTH = 600;
   private static final float TEXT_HEIGHT = 220;
@@ -61,7 +54,6 @@ public final class FoundationDialogs {
   public static void register() {
     BlackFadeCutscene.register();
     DialogFactory.register(FoundationDialogType.RESOURCE, FoundationDialogs::resourceDialog);
-    DialogFactory.register(FoundationDialogType.KEYPAD, FoundationDialogs::keypadDialog);
   }
 
   static void showIntro(
@@ -96,19 +88,13 @@ public final class FoundationDialogs {
   }
 
   static void showKeypad(
-      final Entity keypad,
-      final int digitLimit,
-      final boolean showDigitCount,
-      final Predicate<String> onAction,
-      final int targetEntityId) {
+      final Entity keypad, final Predicate<String> onAction, final int targetEntityId) {
     Objects.requireNonNull(keypad, "keypad");
     Objects.requireNonNull(onAction, "onAction");
     DialogContext context =
         DialogContext.builder()
-            .type(FoundationDialogType.KEYPAD)
+            .type(DialogType.DefaultTypes.KEYPAD)
             .put(DialogContextKeys.ENTITY, keypad.id())
-            .put(KEYPAD_DIGIT_LIMIT, digitLimit)
-            .put(KEYPAD_SHOW_DIGIT_COUNT, showDigitCount)
             .build();
     UIComponent dialog = DialogFactory.show(context, targetEntityId);
     dialog.registerCallback(
@@ -208,21 +194,6 @@ public final class FoundationDialogs {
     return new BaseContainerUI(dialog);
   }
 
-  private static Group keypadDialog(final DialogContext context) {
-    if (Game.isHeadless()) {
-      return new HeadlessDialogGroup();
-    }
-    Entity keypad = context.requireEntity(DialogContextKeys.ENTITY);
-    int digitLimit = context.require(KEYPAD_DIGIT_LIMIT, Integer.class);
-    boolean showDigitCount = context.require(KEYPAD_SHOW_DIGIT_COUNT, Boolean.class);
-    if (keypad.fetch(KeypadComponent.class).isEmpty()) {
-      keypad.add(
-          new KeypadComponent(
-              new ArrayList<>(Collections.nCopies(digitLimit, -1)), () -> {}, showDigitCount));
-    }
-    return new KeypadUI(keypad, context.dialogId());
-  }
-
   private static void addScrollableText(final Dialog dialog, final String text) {
     RichLabel label =
         new RichLabel(RichLabel.toRichText(text), DialogDesign.DIALOG_FONT_SPEC_NORMAL);
@@ -243,8 +214,7 @@ public final class FoundationDialogs {
   }
 
   private enum FoundationDialogType implements DialogType {
-    RESOURCE("FOUNDATION_RESOURCE"),
-    KEYPAD("FOUNDATION_KEYPAD");
+    RESOURCE("FOUNDATION_RESOURCE");
 
     private final String type;
 

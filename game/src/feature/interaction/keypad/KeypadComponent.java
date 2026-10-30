@@ -1,328 +1,138 @@
 package feature.interaction.keypad;
 
 import engine.Component;
-import engine.Entity;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.function.IntSupplier;
 
-/** Component that represents a keypad with a code that can be entered. */
+/**
+ * Input and display state of a numeric or text keypad: the entered text and whether the keypad is
+ * unlocked.
+ *
+ * <p>Answers are checked by the {@link feature.tasks.TaskComponent} of the keypad entity, see
+ * {@link KeypadFactory}. On clients, the component holds the state synchronized by {@link
+ * KeypadSync}.
+ */
 public class KeypadComponent implements Component {
 
-  private final List<Integer> correctDigits;
-  private Supplier<List<Integer>> correctDigitsSource;
-  private final List<Integer> enteredDigits;
-  private boolean isUIOpen = false;
-  private boolean isUnlocked = false;
-  private boolean showDigitCount;
-  private Runnable action;
-  private Consumer<Entity> onCorrectCode = caller -> {};
-  private Consumer<Entity> onWrongCode = caller -> {};
-  private int wrongCodeAttempts = 0;
-  private Entity overlay;
+  private final IntSupplier maxLength;
+  private final boolean showLength;
+  private String enteredText = "";
+  private boolean unlocked = false;
+  private boolean clearOnWrong = true;
 
   /**
-   * Creates a KeypadComponent.
+   * Creates a keypad component.
    *
-   * @param correctDigits The correct digits for the keypad
-   * @param action The action to execute when the correct digits are entered
-   * @param showDigitCount Whether to show the number of digits to be entered
+   * @param maxLength supplies the maximum number of characters that can be entered
+   * @param showLength whether unentered characters up to {@code maxLength} are shown as {@code *}
    */
-  public KeypadComponent(List<Integer> correctDigits, Runnable action, boolean showDigitCount) {
-    this.correctDigits = correctDigits;
-    this.enteredDigits = new ArrayList<>();
-    this.action = action;
-    this.showDigitCount = showDigitCount;
+  public KeypadComponent(IntSupplier maxLength, boolean showLength) {
+    this.maxLength = Objects.requireNonNull(maxLength, "maxLength");
+    this.showLength = showLength;
   }
 
   /**
-   * Creates a KeypadComponent with showDigitCount set to true.
+   * Appends input to the entered text, unless the keypad is unlocked or the input would exceed
+   * {@link #maxLength()}.
    *
-   * @param correctDigits The correct digits for the keypad
-   * @param action The action to execute when the correct digits are entered
+   * @param input characters to append
    */
-  public KeypadComponent(List<Integer> correctDigits, Runnable action) {
-    this(correctDigits, action, true);
+  public void add(String input) {
+    if (unlocked || enteredText.length() + input.length() > maxLength()) return;
+    enteredText += input;
   }
 
-  /**
-   * Creates a KeypadComponent.
-   *
-   * @param correctDigits the correct digits to enter.
-   * @param enteredDigits the current entered digits.
-   * @param isUnlocked if the keypad is already unlocked.
-   * @param showDigitCount whether the digit count should be shown
-   */
-  public KeypadComponent(
-      List<Integer> correctDigits,
-      List<Integer> enteredDigits,
-      boolean isUnlocked,
-      boolean showDigitCount) {
-    this.correctDigits = correctDigits;
-    this.enteredDigits = enteredDigits;
-    this.isUnlocked = isUnlocked;
-    this.showDigitCount = showDigitCount;
-  }
-
-  /**
-   * Returns the entered digits as a string, with asterisks for unentered digits if showDigitCount
-   * is true.
-   *
-   * @return The entered digits as a string
-   */
-  public String enteredString() {
-    StringBuilder s =
-        new StringBuilder(
-            enteredDigits.stream().map(Object::toString).collect(Collectors.joining("")));
-    if (showDigitCount) {
-      while (s.length() < correctDigits().size()) {
-        s.append("*");
-      }
-    }
-    return s.toString();
-  }
-
-  /**
-   * Returns the correct digits as a string.
-   *
-   * @return The correct digits as a string
-   */
-  public String correctString() {
-    return correctDigits().stream().map(Object::toString).collect(Collectors.joining(""));
-  }
-
-  /** Removes the last entered digit. */
+  /** Removes the last entered character, unless the keypad is unlocked. */
   public void backspace() {
-    if (enteredDigits.isEmpty() || isUnlocked) return;
-    enteredDigits.removeLast();
+    if (enteredText.isEmpty() || unlocked) return;
+    enteredText = enteredText.substring(0, enteredText.length() - 1);
+  }
+
+  /** Removes the entered text. */
+  public void clear() {
+    enteredText = "";
   }
 
   /**
-   * Adds a digit to the entered digits.
+   * Returns the entered text.
    *
-   * @param digit The digit to add
+   * @return the entered text
    */
-  public void addDigit(int digit) {
-    if (enteredDigits.size() >= 8 || isUnlocked) return;
-    else if (enteredDigits.size() >= correctDigits().size() && showDigitCount) return;
-    enteredDigits.add(digit);
+  public String enteredText() {
+    return enteredText;
   }
 
   /**
-   * Checks the submitted digits and unlocks the keypad if they match the code.
+   * Replaces the entered text, e.g. with synchronized state.
    *
-   * <p>Every failed submission invokes the wrong-code callback. Only complete failed codes count
-   * toward {@link #wrongCodeAttempts()}.
-   *
-   * @param caller entity that submitted the code
-   * @throws NullPointerException if caller is null
+   * @param enteredText new entered text
    */
-  public void checkUnlock(Entity caller) {
-    Objects.requireNonNull(caller, "caller");
-    List<Integer> correct = correctDigits();
-    // Without a code, e.g. while a linked code is not available yet, no code is correct.
-    boolean completeCodeEntered = !correct.isEmpty() && enteredDigits.size() == correct.size();
-    boolean isCorrect = completeCodeEntered;
-    if (completeCodeEntered) {
-      for (int i = 0; i < enteredDigits.size(); i++) {
-        if (!Objects.equals(enteredDigits.get(i), correct.get(i))) {
-          isCorrect = false;
-          break;
-        }
-      }
-    }
-
-    if (isCorrect) {
-      isUnlocked = true;
-      if (action != null) action.run();
-      onCorrectCode.accept(caller);
-    } else {
-      if (completeCodeEntered) wrongCodeAttempts++;
-      onWrongCode.accept(caller);
-      enteredDigits.clear();
-    }
+  public void enteredText(String enteredText) {
+    this.enteredText = Objects.requireNonNull(enteredText, "enteredText");
   }
 
   /**
-   * Gets the list of correct digits for the keypad.
+   * Returns the text shown on the keypad: the entered text, padded with {@code *} up to {@link
+   * #maxLength()} if {@link #showLength()} is set.
    *
-   * @return The correct digits.
+   * @return the displayed text
    */
-  public List<Integer> correctDigits() {
-    return correctDigitsSource == null ? correctDigits : correctDigitsSource.get();
+  public String display() {
+    if (!showLength) return enteredText;
+    return enteredText + "*".repeat(Math.max(0, maxLength() - enteredText.length()));
   }
 
   /**
-   * Replaces the correct digits with digits that are resolved whenever they are needed, e.g. a code
-   * generated by another prefab. An empty list means that no code is correct.
+   * Returns the maximum number of characters that can be entered.
    *
-   * @param source supplies the current correct digits
+   * @return the current maximum length
    */
-  public void correctDigits(Supplier<List<Integer>> source) {
-    this.correctDigitsSource = Objects.requireNonNull(source, "source");
+  public int maxLength() {
+    return maxLength.getAsInt();
   }
 
   /**
-   * Gets the list of digits currently entered by the user.
+   * Returns whether unentered characters up to {@link #maxLength()} are shown as {@code *}.
    *
-   * @return The entered digits.
+   * @return true if the length is shown
    */
-  public List<Integer> enteredDigits() {
-    return enteredDigits;
+  public boolean showLength() {
+    return showLength;
   }
 
   /**
-   * Checks if the keypad UI is currently open.
+   * Returns whether the keypad has been unlocked.
    *
-   * @return True if the UI is open, false otherwise.
+   * @return true if unlocked
    */
-  public boolean isUIOpen() {
-    return isUIOpen;
-  }
-
-  /**
-   * Sets whether the keypad UI is open.
-   *
-   * @param isUIOpen True to open the UI, false to close it.
-   */
-  public void isUIOpen(boolean isUIOpen) {
-    this.isUIOpen = isUIOpen;
-  }
-
-  /**
-   * Checks if the keypad has been successfully unlocked.
-   *
-   * @return True if unlocked, false otherwise.
-   */
-  public boolean isUnlocked() {
-    return isUnlocked;
+  public boolean unlocked() {
+    return unlocked;
   }
 
   /**
    * Sets the unlocked state of the keypad.
    *
-   * @param isUnlocked True if unlocked, false otherwise.
+   * @param unlocked true if unlocked
    */
-  public void isUnlocked(boolean isUnlocked) {
-    this.isUnlocked = isUnlocked;
+  public void unlocked(boolean unlocked) {
+    this.unlocked = unlocked;
   }
 
   /**
-   * Checks if the number of required digits should be displayed (e.g., using asterisks).
+   * Returns whether a wrong answer clears the entered text. Defaults to true.
    *
-   * @return True if digit count is shown, false otherwise.
+   * @return true if a wrong answer clears the entered text
    */
-  public boolean showDigitCount() {
-    return showDigitCount;
+  public boolean clearOnWrong() {
+    return clearOnWrong;
   }
 
   /**
-   * Sets whether the number of required digits should be displayed.
+   * Sets whether a wrong answer clears the entered text.
    *
-   * @param showDigitCount True to show the digit count, false otherwise.
+   * @param clearOnWrong true to clear the entered text after a wrong answer
    */
-  public void showDigitCount(boolean showDigitCount) {
-    this.showDigitCount = showDigitCount;
-  }
-
-  /**
-   * Gets the action to be executed upon successful unlocking.
-   *
-   * @return The unlock action.
-   */
-  public Runnable action() {
-    return action;
-  }
-
-  /**
-   * Sets the action to be executed upon successful unlocking.
-   *
-   * @param action The new unlock action.
-   */
-  public void action(Runnable action) {
-    this.action = action;
-  }
-
-  /**
-   * Registers a callback executed after the keypad is unlocked with the correct code.
-   *
-   * @param onCorrectCode callback to run
-   * @throws NullPointerException if the callback is null
-   */
-  public void onCorrectCode(Runnable onCorrectCode) {
-    Objects.requireNonNull(onCorrectCode, "onCorrectCode");
-    this.onCorrectCode = caller -> onCorrectCode.run();
-  }
-
-  /**
-   * Registers a callback executed after the keypad is unlocked with the correct code.
-   *
-   * @param onCorrectCode callback receiving the submitting entity
-   * @throws NullPointerException if the callback is null
-   */
-  public void onCorrectCode(Consumer<Entity> onCorrectCode) {
-    this.onCorrectCode = Objects.requireNonNull(onCorrectCode, "onCorrectCode");
-  }
-
-  /**
-   * Registers a callback executed after each failed submit.
-   *
-   * @param onWrongCode callback to run
-   * @throws NullPointerException if the callback is null
-   */
-  public void onWrongCode(Runnable onWrongCode) {
-    Objects.requireNonNull(onWrongCode, "onWrongCode");
-    this.onWrongCode = caller -> onWrongCode.run();
-  }
-
-  /**
-   * Registers a callback executed after each failed submit.
-   *
-   * @param onWrongCode callback receiving the submitting entity
-   * @throws NullPointerException if the callback is null
-   */
-  public void onWrongCode(Consumer<Entity> onWrongCode) {
-    this.onWrongCode = Objects.requireNonNull(onWrongCode, "onWrongCode");
-  }
-
-  /**
-   * Returns the number of complete failed code submissions.
-   *
-   * @return complete failed submission count
-   */
-  public int wrongCodeAttempts() {
-    return wrongCodeAttempts;
-  }
-
-  /**
-   * Restores the number of complete wrong submissions without firing callbacks.
-   *
-   * @param wrongCodeAttempts number of complete wrong submissions
-   */
-  public void restoreWrongCodeAttempts(int wrongCodeAttempts) {
-    if (wrongCodeAttempts < 0)
-      throw new IllegalArgumentException("wrongCodeAttempts must be nonnegative");
-    this.wrongCodeAttempts = wrongCodeAttempts;
-  }
-
-  /**
-   * Gets the entity associated with the keypad overlay.
-   *
-   * @return The overlay entity.
-   */
-  public Entity overlay() {
-    return overlay;
-  }
-
-  /**
-   * Sets the entity associated with the keypad overlay.
-   *
-   * @param overlay The new overlay entity.
-   */
-  public void overlay(Entity overlay) {
-    this.overlay = overlay;
+  public void clearOnWrong(boolean clearOnWrong) {
+    this.clearOnWrong = clearOnWrong;
   }
 }

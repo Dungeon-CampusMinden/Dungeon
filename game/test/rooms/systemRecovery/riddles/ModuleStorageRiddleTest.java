@@ -14,7 +14,10 @@ import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
+import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
+import feature.tasks.NumericCodeTask;
+import feature.tasks.TaskComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,8 +75,16 @@ class ModuleStorageRiddleTest {
               return chip;
             });
     keypads
-        .when(() -> KeypadFactory.createKeypad(any(), any(), any(), anyBoolean()))
-        .thenReturn(new Entity("keypad"));
+        .when(() -> KeypadFactory.createKeypad(any(Point.class), anyString(), anyBoolean()))
+        .thenAnswer(
+            invocation -> {
+              Entity keypad = new Entity("keypad");
+              keypad.add(new KeypadComponent(() -> 4, true));
+              keypad.add(
+                  new TaskComponent<>(
+                      new NumericCodeTask(invocation.getArgument(1, String.class))));
+              return keypad;
+            });
   }
 
   @AfterEach

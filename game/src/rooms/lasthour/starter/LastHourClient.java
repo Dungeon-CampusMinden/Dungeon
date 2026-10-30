@@ -35,7 +35,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.input.configuration.KeyboardConfig;
 import feature.input.systems.ControlsDialogSystem;
 import feature.interaction.InteractionComponent;
-import feature.interaction.keypad.TextKeypadSync;
+import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.puzzle.PuzzlePieceItem;
@@ -135,7 +135,7 @@ public final class LastHourClient {
                 newEntity.add(event.positionComponent());
               }
               PuzzleNetworkSync.ensureTextures(event.metadata());
-              TextKeypadSync.apply(newEntity, event.metadata());
+              KeypadSync.apply(newEntity, event.metadata());
               ensurePuzzlePieceTextures(event.metadata());
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
@@ -149,8 +149,6 @@ public final class LastHourClient {
                 newEntity.add(new InteractionComponent());
               }
               LastHourSnapshotTranslator.computerStateFromMetadata(event.metadata())
-                  .ifPresent(newEntity::add);
-              LastHourSnapshotTranslator.keypadStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);
               LastHourSnapshotTranslator.worldTimerStateFromMetadata(event.metadata())
                   .ifPresent(newEntity::add);

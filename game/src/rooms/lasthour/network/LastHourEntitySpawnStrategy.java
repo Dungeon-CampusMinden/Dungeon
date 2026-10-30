@@ -8,11 +8,9 @@ import engine.network.messages.s2c.EntitySpawnEvent;
 import feature.collision.CollideSync;
 import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
-import feature.interaction.keypad.KeypadComponent;
 import feature.puzzle.PuzzlePieceItem;
 import feature.timer.WorldTimerComponent;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.lasthour.level.LastHourLevel;
@@ -20,7 +18,7 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
 
 /**
  * Entity spawn strategy for The Last Hour that supports metadata-only spawn events for {@link
- * ComputerStateComponent}, {@link KeypadComponent}, {@link WorldTimerComponent}, and {@link
+ * ComputerStateComponent}, {@link WorldTimerComponent}, and {@link
  * feature.components.CollideComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
@@ -34,9 +32,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Type value for computer-state entities. */
   public static final String TYPE_COMPUTER = "computer-state";
-
-  /** Type value for keypad entities. */
-  public static final String TYPE_KEYPAD = "keypad";
 
   /** Type value for world-timer entities. */
   public static final String TYPE_WORLD_TIMER = "world-timer";
@@ -79,18 +74,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
   /** Metadata key indicating whether the AC vent has been connected via the control panel. */
   public static final String METADATA_AC_VENT_CONNECTED = "computer.acVentConnected";
-
-  /** Metadata key for the keypad's correct digit sequence. */
-  public static final String METADATA_KEYPAD_CORRECT_DIGITS = "keypad.correctDigits";
-
-  /** Metadata key for the digits entered on the keypad so far. */
-  public static final String METADATA_KEYPAD_ENTERED_DIGITS = "keypad.enteredDigits";
-
-  /** Metadata key indicating whether the keypad is unlocked. */
-  public static final String METADATA_KEYPAD_UNLOCKED = "keypad.isUnlocked";
-
-  /** Metadata key for the number of digits to display on the keypad. */
-  public static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "keypad.showDigitCount";
 
   /** Metadata key for the world timer's start timestamp. */
   public static final String METADATA_WORLD_TIMER_TIMESTAMP = "worldTimer.startedAtActiveMs";
@@ -138,9 +121,6 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
               metadata.putAll(computerStateMetadata(state));
               metadata.put(METADATA_SAVE_REVISION, String.valueOf(LastHourLevel.saveRevision()));
             });
-    entity
-        .fetch(KeypadComponent.class)
-        .ifPresent(keypad -> metadata.putAll(keypadMetadata(keypad)));
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));
@@ -201,29 +181,12 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
     return metadata;
   }
 
-  private Map<String, String> keypadMetadata(KeypadComponent keypad) {
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put(METADATA_TYPE, TYPE_KEYPAD);
-    metadata.put(METADATA_KEYPAD_CORRECT_DIGITS, digitsToString(keypad.correctDigits()));
-    metadata.put(METADATA_KEYPAD_ENTERED_DIGITS, digitsToString(keypad.enteredDigits()));
-    metadata.put(METADATA_KEYPAD_UNLOCKED, String.valueOf(keypad.isUnlocked()));
-    metadata.put(METADATA_KEYPAD_SHOW_DIGIT_COUNT, String.valueOf(keypad.showDigitCount()));
-    return metadata;
-  }
-
   private Map<String, String> worldTimerMetadata(WorldTimerComponent worldTimer) {
     Map<String, String> metadata = new HashMap<>();
     metadata.put(METADATA_TYPE, TYPE_WORLD_TIMER);
     metadata.put(METADATA_WORLD_TIMER_TIMESTAMP, String.valueOf(worldTimer.startedAtActiveMs()));
     metadata.put(METADATA_WORLD_TIMER_DURATION, String.valueOf(worldTimer.duration()));
     return metadata;
-  }
-
-  private String digitsToString(List<Integer> digits) {
-    return digits.stream()
-        .map(String::valueOf)
-        .reduce((left, right) -> left + "," + right)
-        .orElse("");
   }
 
   /**

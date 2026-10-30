@@ -21,7 +21,7 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.hud.AutoSaveIndicator;
 import feature.input.systems.ControlsDialogSystem;
-import feature.interaction.keypad.TextKeypadSync;
+import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
@@ -110,7 +110,7 @@ public final class SystemRecoveryClient {
                 newEntity.add(event.positionComponent());
               }
               PuzzleNetworkSync.ensureTextures(event.metadata());
-              TextKeypadSync.apply(newEntity, event.metadata());
+              KeypadSync.apply(newEntity, event.metadata());
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }

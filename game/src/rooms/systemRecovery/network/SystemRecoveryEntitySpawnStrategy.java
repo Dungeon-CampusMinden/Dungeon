@@ -7,7 +7,6 @@ import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
-import feature.interaction.keypad.KeypadComponent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,13 +27,6 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
   /** Metadata key indicating that a module socket has been activated. */
   public static final String METADATA_MODULE_SOCKET_ACTIVE = "systemRecovery.moduleSocket.active";
 
-  /** Metadata key identifying a synchronized keypad. */
-  public static final String METADATA_KEYPAD = "systemRecovery.keypad";
-
-  public static final String METADATA_KEYPAD_CORRECT_DIGITS = "systemRecovery.keypad.correct";
-  public static final String METADATA_KEYPAD_ENTERED_DIGITS = "systemRecovery.keypad.entered";
-  public static final String METADATA_KEYPAD_UNLOCKED = "systemRecovery.keypad.unlocked";
-  public static final String METADATA_KEYPAD_SHOW_DIGIT_COUNT = "systemRecovery.keypad.showCount";
   public static final String METADATA_DISPLAY_TEXT = "systemRecovery.display.text";
   public static final String METADATA_TERMINAL_STATE = "systemRecovery.terminal.state";
   public static final String METADATA_SAVE_REVISION = "systemRecovery.save.revision";
@@ -75,9 +67,6 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     entity
         .fetch(InteractionComponent.class)
         .ifPresent(interaction -> metadata.put(METADATA_INTERACTABLE, String.valueOf(true)));
-    entity
-        .fetch(KeypadComponent.class)
-        .ifPresent(keypad -> SystemRecoveryComponentSync.appendKeypadMetadata(keypad, metadata));
     entity
         .fetch(DisplayTextComponent.class)
         .ifPresent(display -> metadata.put(METADATA_DISPLAY_TEXT, display.text()));

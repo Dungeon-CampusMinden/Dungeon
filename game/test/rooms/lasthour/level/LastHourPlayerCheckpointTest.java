@@ -82,7 +82,7 @@ class LastHourPlayerCheckpointTest {
     LastHourLevel.INTRO_SHOWN_TO.clear();
     level.storageDoor = mock(DoorTile.class);
     level.keypad = new Entity("checkpoint-test-keypad");
-    level.keypad.add(new KeypadComponent(List.of(1, 2, 3), () -> {}, true));
+    level.keypad.add(new KeypadComponent(() -> 3, true));
     level.worldTimer = new Entity("checkpoint-test-timer");
     level.worldTimer.add(new WorldTimerComponent(Game.playClock().activeMs(), 3600));
 

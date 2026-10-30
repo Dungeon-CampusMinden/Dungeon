@@ -16,6 +16,7 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
 import feature.interaction.keypad.KeypadComponent;
+import feature.interaction.keypad.KeypadSync;
 import feature.systems.PositionSync;
 import java.util.HashMap;
 import java.util.List;
@@ -107,7 +108,7 @@ public class LastHourSnapshotTranslatorTest {
   void applySnapshotUpdatesKeypadAndColliderStateTogether() {
     Entity entity = new Entity("keypad");
     entity.add(new PositionComponent(new Point(1f, 1f)));
-    entity.add(new KeypadComponent(List.of(9, 8, 7), () -> {}, true));
+    entity.add(new KeypadComponent(() -> 3, true));
     entity.add(new CollideComponent());
     Game.add(entity);
 
@@ -117,12 +118,10 @@ public class LastHourSnapshotTranslatorTest {
     updatedCollider.collider().scale(Vector2.of(1.1f, 0.9f));
 
     Map<String, String> metadata = new HashMap<>();
-    metadata.put(
-        LastHourEntitySpawnStrategy.METADATA_TYPE, LastHourEntitySpawnStrategy.TYPE_KEYPAD);
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_KEYPAD_CORRECT_DIGITS, "1,2,3");
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_KEYPAD_ENTERED_DIGITS, "1,2");
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_KEYPAD_UNLOCKED, "true");
-    metadata.put(LastHourEntitySpawnStrategy.METADATA_KEYPAD_SHOW_DIGIT_COUNT, "false");
+    metadata.put(KeypadSync.ENTERED_TEXT_KEY, "12");
+    metadata.put(KeypadSync.MAX_LENGTH_KEY, "3");
+    metadata.put(KeypadSync.SHOW_LENGTH_KEY, "true");
+    metadata.put(KeypadSync.UNLOCKED_KEY, "true");
     metadata.putAll(LastHourSnapshotTranslator.collideMetadata(updatedCollider));
 
     SnapshotMessage snapshot =
@@ -140,10 +139,9 @@ public class LastHourSnapshotTranslatorTest {
     new LastHourSnapshotTranslator().applySnapshot(snapshot, null);
 
     KeypadComponent keypadComponent = entity.fetch(KeypadComponent.class).orElseThrow();
-    assertEquals(List.of(9, 8, 7), keypadComponent.correctDigits());
-    assertEquals(List.of(1, 2), keypadComponent.enteredDigits());
-    assertTrue(keypadComponent.isUnlocked());
-    assertFalse(keypadComponent.showDigitCount());
+    assertEquals("12", keypadComponent.enteredText());
+    assertEquals("12*", keypadComponent.display());
+    assertTrue(keypadComponent.unlocked());
 
     CollideComponent collideComponent = entity.fetch(CollideComponent.class).orElseThrow();
     assertFalse(collideComponent.isSolid());

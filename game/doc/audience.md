@@ -106,9 +106,8 @@ Beim Levelbau gilt:
 - Rätsel müssen einer der Dialogarten aus der Tabelle oben entsprechen. Zuordnungen mit Truhen,
   Inventar oder Echtzeit-Aufgaben lassen sich nicht abstimmen.
 - Texte in `DIALOG_DIALOG` sollten eine Seite lang sein, weil „Weiter“ den ganzen Dialog bestätigt.
-- Codes fragt ein `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` ab. Das Keypad der Engine läuft im
-  Mehrspielermodus nur, wenn der Raum seine `KeypadComponent` an die Clients synchronisiert, und
-  lässt sich nicht abstimmen.
+- Codes fragt ein `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` ab. Das Keypad der Engine lässt sich
+  nicht abstimmen.
 
 ## Umfragen und Tracking
 

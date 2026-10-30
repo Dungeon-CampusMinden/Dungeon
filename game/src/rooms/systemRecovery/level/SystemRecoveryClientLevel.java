@@ -185,7 +185,7 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
         .forEach(
             entity -> {
               KeypadComponent keypad = entity.fetch(KeypadComponent.class).orElseThrow();
-              Color color = keypad.isUnlocked() ? Color.GREEN : Color.RED;
+              Color color = keypad.unlocked() ? Color.GREEN : Color.RED;
               addLight(lighting, entity, 0.3f, color);
             });
 

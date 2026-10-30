@@ -13,14 +13,13 @@ import feature.entities.deco.DecoFactory;
 import feature.interaction.keypad.KeypadComponent;
 import feature.interaction.keypad.KeypadFactory;
 import feature.systems.EventScheduler;
+import feature.tasks.TaskComponent;
 import feature.utils.ICommand;
-import java.util.List;
 import rooms.systemRecovery.entities.ScannerEntityFactory;
 import rooms.systemRecovery.entities.SystemRecoveryDisplayFactory;
 import rooms.systemRecovery.level.SystemRecoveryLevel;
 import rooms.systemRecovery.modules.computer.SystemRecoveryComputerFactory;
 import rooms.systemRecovery.petrinet.SystemRecoveryLearningStep;
-import rooms.systemRecovery.petrinet.SystemRecoveryProgressNet;
 import rooms.systemRecovery.riddles.support.RiddleCallbacks;
 import rooms.systemRecovery.story.SystemRecoveryStoryDialogs;
 import rooms.systemRecovery.util.SystemRecoverySounds;
@@ -36,8 +35,8 @@ import tracking.core.TrackingInteractionStatus;
  * clients receive entity state through the existing snapshot protocol.
  */
 public final class InventoryScannerRiddle {
-  private static final List<Integer> TRANSPORT_DOOR_CODE =
-      List.of(0, ModuleStorageRiddle.MODULE_CAPACITY, 0, ModuleStorageRiddle.OCCUPIED_MODULE_COUNT);
+  private static final String TRANSPORT_DOOR_CODE =
+      "0" + ModuleStorageRiddle.MODULE_CAPACITY + "0" + ModuleStorageRiddle.OCCUPIED_MODULE_COUNT;
 
   private final DungeonLevel level;
   private final RiddleCallbacks callbacks;
@@ -205,50 +204,29 @@ public final class InventoryScannerRiddle {
   private void setupTransportStorageKeypad() {
     DoorTile transportDoor =
         (DoorTile) Game.tileAt(level.getPoint("door_transportlager")).orElseThrow();
-    boolean[] openedForExpectedStep = {false};
     Entity keypad =
         KeypadFactory.createKeypad(
-            level.getPoint("keypad_transportlager"),
-            TRANSPORT_DOOR_CODE,
-            () -> {
-              if (SystemRecoveryProgressNet.activeStep().orElse(null)
-                      != SystemRecoveryLearningStep.ROOM3_DOOR_CODE
-                  || transportDoor.isOpen()) {
-                return;
-              }
-              transportDoor.open();
-              if (!transportDoor.isOpen()) return;
-              if (SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.ROOM3_DOOR_CODE)) {
-                openedForExpectedStep[0] = true;
-                SystemRecoverySounds.doorOpened();
-              } else {
-                transportDoor.close();
-              }
-            },
-            true);
-    keypad
-        .fetch(KeypadComponent.class)
-        .ifPresent(
-            component -> {
-              component.onCorrectCode(
-                  player -> {
-                    if (openedForExpectedStep[0]) {
-                      callbacks.success("0504", player.id());
-                      return;
-                    }
-                    SystemRecoveryPuzzleEvents.interaction(
-                        SystemRecoveryPuzzle.INVENTORY_SCANNER,
-                        "transport-keypad",
-                        "submit-pin",
-                        TrackingInteractionStatus.BLOCKED,
-                        "out-of-order",
-                        player);
-                    component.isUnlocked(false);
-                    component.enteredDigits().clear();
-                  });
-              component.onWrongCode(
-                  player -> callbacks.failure(component.enteredString(), player.id()));
-            });
+            level.getPoint("keypad_transportlager"), TRANSPORT_DOOR_CODE, true);
+    KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
+    TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
+    task.onCorrect(
+        player -> {
+          if (ModuleStorageRiddle.openDoorForStep(
+              transportDoor, SystemRecoveryLearningStep.ROOM3_DOOR_CODE)) {
+            callbacks.success("0504", player.id());
+            return;
+          }
+          SystemRecoveryPuzzleEvents.interaction(
+              SystemRecoveryPuzzle.INVENTORY_SCANNER,
+              "transport-keypad",
+              "submit-pin",
+              TrackingInteractionStatus.BLOCKED,
+              "out-of-order",
+              player);
+          // Locked again; submitting clears the entered code like a wrong one.
+          task.setSolved(false);
+        });
+    task.onWrong(player -> callbacks.failure(component.display(), player.id()));
     Game.add(keypad);
   }
 }
