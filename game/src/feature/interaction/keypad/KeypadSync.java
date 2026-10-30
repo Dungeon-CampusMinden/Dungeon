@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
  */
 public final class KeypadSync {
 
-  public static final String ENTERED_DIGITS_KEY = "keypad.enteredDigits";
-  public static final String CODE_LENGTH_KEY = "keypad.codeLength";
-  public static final String SHOW_DIGIT_COUNT_KEY = "keypad.showDigitCount";
-  public static final String UNLOCKED_KEY = "keypad.isUnlocked";
+  public static final String ENTERED_DIGITS_KEY = "numericKeypad.enteredDigits";
+  public static final String CODE_LENGTH_KEY = "numericKeypad.codeLength";
+  public static final String SHOW_DIGIT_COUNT_KEY = "numericKeypad.showDigitCount";
+  public static final String UNLOCKED_KEY = "numericKeypad.isUnlocked";
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(KeypadSync.class);
 
