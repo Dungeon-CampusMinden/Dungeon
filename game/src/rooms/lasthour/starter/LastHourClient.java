@@ -35,6 +35,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.input.configuration.KeyboardConfig;
 import feature.input.systems.ControlsDialogSystem;
 import feature.interaction.InteractionComponent;
+import feature.interaction.keypad.KeypadSync;
 import feature.interaction.keypad.TextKeypadSync;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzleNetworkSync;
@@ -135,6 +136,7 @@ public final class LastHourClient {
                 newEntity.add(event.positionComponent());
               }
               PuzzleNetworkSync.ensureTextures(event.metadata());
+              KeypadSync.apply(newEntity, event.metadata());
               TextKeypadSync.apply(newEntity, event.metadata());
               ensurePuzzlePieceTextures(event.metadata());
               if (event.drawInfo() != null) {

@@ -15,6 +15,7 @@ import engine.utils.components.draw.DrawComponentFactory;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
+import feature.interaction.keypad.KeypadSync;
 import feature.interaction.keypad.TextKeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.systems.AttributeBarSystem;
@@ -77,6 +78,7 @@ public final class GameOfGamesClient {
                 newEntity.add(event.positionComponent());
               }
               PuzzleNetworkSync.ensureTextures(event.metadata());
+              KeypadSync.apply(newEntity, event.metadata());
               TextKeypadSync.apply(newEntity, event.metadata());
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
