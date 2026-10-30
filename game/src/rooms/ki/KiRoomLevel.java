@@ -33,7 +33,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import feature.prefabs.types.DecoImagePrefab;
+import feature.prefabs.types.DecorationInteractionPrefab;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +53,9 @@ import java.util.stream.Stream;
  *
  * <p>The hero starts in a tutorial room. A robot there asks a practice single-choice and a practice
  * multiple-choice question, then tells the audience that the code of the tutorial door is the last
- * three digits of the phone number. The number is on the contact page of Carsten Gips that the
- * level file places on a printer as a {@code deco-image} prefab.
+ * three digits of the phone number. The number is on the contact page of Carsten Gips. The level
+ * file places a printer as a {@code deco-interaction} prefab, and a {@code show-image} prefab shows
+ * the page when the hero uses it.
  *
  * <p>Terminal 4 is taken apart at first. Quinlan stands in its place and rebuilds it once the hero
  * brings the blueprint from the chest. A two-digit lock keeps the chest shut. Its code is a leaf of
@@ -378,9 +379,9 @@ public final class KiRoomLevel extends DungeonLevel {
   @Override
   protected void onTick() {
     if (!printerOffered) {
-      prefabs(DecoImagePrefab.class).stream()
+      prefabs(DecorationInteractionPrefab.class).stream()
           .findFirst()
-          .flatMap(DecoImagePrefab::decoEntity)
+          .flatMap(DecorationInteractionPrefab::decoEntity)
           .ifPresent(
               printer -> {
                 target(printer, "Drucker", () -> practised && inTutorial());

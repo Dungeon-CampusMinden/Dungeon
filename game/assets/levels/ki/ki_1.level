@@ -69,8 +69,8 @@
   "decorations" : [ ],
   "prefabs" : [
     {
-      "name" : "deco-image",
-      "type" : "deco-image",
+      "name" : "printer",
+      "type" : "deco-interaction",
       "properties" : {
         "position" : {
           "x" : 7.0,
@@ -80,8 +80,23 @@
         "scale" : {
           "x" : 1.0,
           "y" : 1.0
-        },
-        "image" : "rooms/ki/contact_page.png"
+        }
+      }
+    },
+    {
+      "name" : "contact-page",
+      "type" : "show-image",
+      "properties" : {
+        "image" : "rooms/ki/contact_page.png",
+        "audience" : "Triggering Player"
+      },
+      "inputs" : {
+        "show-image" : [
+          {
+            "source" : "printer",
+            "port" : "interacted"
+          }
+        ]
       }
     }
   ]

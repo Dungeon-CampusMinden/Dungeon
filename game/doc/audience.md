@@ -45,9 +45,10 @@ Im FOMO-Raum beginnt die Figur in einem Vorraum. Das Intro erklärt dort ausfüh
 Abstimmung und Zeitfenster. Im Vorraum steht Robo, ein Roboter auf dem Punkt `tutorial_npc`. Er
 stellt eine Single-Choice- und eine Multiple-Choice-Übungsfrage, bei denen jede Antwort zählt, und
 nennt danach die Wahl des Publikums. Dann verrät er, dass der Code der Tür ins Labor aus den
-letzten drei Ziffern der Telefonnummer besteht. Die Nummer steht auf einer Visitenkarte, die das
-Level als `deco-image`-Prefab auf einen Drucker legt. Die Tür ist der Punkt `tutorial_door`, ihr
-Tastenfeld `tutorial_panel`, der Code ist `279`.
+letzten drei Ziffern der Telefonnummer besteht. Die Nummer steht auf einer Visitenkarte. Das Level
+stellt dafür einen Drucker als `deco-interaction`-Prefab auf, und ein `show-image`-Prefab zeigt die
+Karte, sobald die Figur den Drucker benutzt. Die Tür ist der Punkt `tutorial_door`, ihr Tastenfeld
+`tutorial_panel`, der Code ist `279`.
 
 Im FOMO-Raum stimmt das Publikum nicht über einzelne Schritte ab. Es wählt aus einer Liste, wohin
 die Figur geht. Die Figur läuft auf dem kürzesten freien Weg hin, dreht sich zum Ziel und benutzt
@@ -153,7 +154,7 @@ aus dem offenen Dialog der Figur ab:
 | `FREE_INPUT` | Textfeld | `ON_CONFIRM` mit dem Text |
 | `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` | Ziffernblock für einen Code dieser Länge | `ON_CONFIRM` mit dem Code |
 | `OK`, `TEXT`, `DIALOG_DIALOG` | „Weiter“ | `ON_CONFIRM` |
-| `IMAGE`, etwa vom Prefab `deco-image` | „Weiter“ | `ON_CLOSE`, dann schließt das Bild |
+| `IMAGE`, etwa vom Prefab `show-image` | „Weiter“ | `ON_CLOSE`, dann schließt das Bild |
 | andere Dialoge, Figur läuft | nichts, „Schaut auf den Spielbildschirm“ | |
 
 Das Prefab `door-keypad` öffnet einen `KEYPAD`-Dialog, über den das Publikum nicht abstimmen kann.

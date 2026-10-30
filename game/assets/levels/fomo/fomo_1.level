@@ -2,10 +2,12 @@
   "version" : 3,
   "design" : "SYSTEM_RECOVERY",
   "layout" : [ "SSSSSSSSSSS", "WWWWWFWWWWW", "WWWWWDWWWWW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WWWWWDWWWWW", "SSWFFFFFWSS", "SSWFFFFFWSS", "SSWFFFFFWSS", "SSWWWWWWWSS", "SSSSSSSSSSS" ],
-  "startTiles" : [ {
-    "x" : 5.0,
-    "y" : 2.0
-  } ],
+  "startTiles" : [
+    {
+      "x" : 5.0,
+      "y" : 2.0
+    }
+  ],
   "namedPoints" : {
     "chest" : {
       "x" : 8.0,
@@ -61,20 +63,37 @@
     }
   },
   "decorations" : [ ],
-  "prefabs" : [ {
-    "name" : "deco-image",
-    "type" : "deco-image",
-    "properties" : {
-      "position" : {
-        "x" : 7.0,
-        "y" : 3.0
+  "prefabs" : [
+    {
+      "name" : "printer",
+      "type" : "deco-interaction",
+      "properties" : {
+        "position" : {
+          "x" : 7.0,
+          "y" : 3.0
+        },
+        "deco" : "Printer",
+        "scale" : {
+          "x" : 1.0,
+          "y" : 1.0
+        }
+      }
+    },
+    {
+      "name" : "business-card",
+      "type" : "show-image",
+      "properties" : {
+        "image" : "images/bc.png",
+        "audience" : "Triggering Player"
       },
-      "deco" : "Printer",
-      "scale" : {
-        "x" : 1.0,
-        "y" : 1.0
-      },
-      "image" : "images/bc.png"
+      "inputs" : {
+        "show-image" : [
+          {
+            "source" : "printer",
+            "port" : "interacted"
+          }
+        ]
+      }
     }
-  } ]
+  ]
 }
