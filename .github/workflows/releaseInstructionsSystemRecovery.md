@@ -21,8 +21,6 @@ java -jar SystemRecovery.jar
 - Windows: Extract `SystemRecovery-win-x86_64.zip` and start `SystemRecovery/SystemRecovery.exe`.
 - Linux: Extract `SystemRecovery-linux-x86_64.tar.gz` and start `SystemRecovery/bin/SystemRecovery`.
 
-## Multiplayer
+### How to play the game
 
-Both players need their own computer on the same local network. Start the game on both computers. One player selects **Host Game**; the other selects **Join Game** and enters the host's displayed IP address. Internet play and local split-screen are not supported.
-
-The host's System Recovery progress is saved locally at puzzle checkpoints. Use **Load Game** in the main menu to resume a saved run.
+Press **Start Game**, enter a name and start the game, everything is setup. If a game was previously started and reached the a checkpoint, there is a **Continue** button available to continue at the last solved puzzle
