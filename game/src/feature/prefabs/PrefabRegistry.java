@@ -1,22 +1,34 @@
 package feature.prefabs;
 
 import engine.level.elements.ILevel;
+import feature.prefabs.types.AirVentPrefab;
 import feature.prefabs.types.AvailableCharacterPrefab;
-import feature.prefabs.types.BookshelfImagePrefab;
-import feature.prefabs.types.DecoDialogPrefab;
-import feature.prefabs.types.DecoImagePrefab;
+import feature.prefabs.types.DecorationInteractionPrefab;
+import feature.prefabs.types.DelayPrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
-import feature.prefabs.types.DialogTriggerPrefab;
-import feature.prefabs.types.DoorKeypadPrefab;
-import feature.prefabs.types.DoorLeverPrefab;
-import feature.prefabs.types.DoorTextKeypadPrefab;
+import feature.prefabs.types.DialogPrefab;
+import feature.prefabs.types.DoorControlPrefab;
+import feature.prefabs.types.DoorLockPrefab;
 import feature.prefabs.types.ImagePuzzlePrefab;
 import feature.prefabs.types.InvisibleWallPrefab;
+import feature.prefabs.types.ItemReceptaclePrefab;
+import feature.prefabs.types.ItemSpawnerPrefab;
+import feature.prefabs.types.KeypadPrefab;
 import feature.prefabs.types.LevelHiderPrefab;
+import feature.prefabs.types.LeverPrefab;
+import feature.prefabs.types.MultipleChoiceDialogPrefab;
+import feature.prefabs.types.OncePrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
+import feature.prefabs.types.RandomBoolPrefab;
+import feature.prefabs.types.RandomCodePrefab;
+import feature.prefabs.types.RandomTextPrefab;
 import feature.prefabs.types.ShaderPrefab;
+import feature.prefabs.types.ShowImagePrefab;
+import feature.prefabs.types.SoundEffectPrefab;
+import feature.prefabs.types.TextKeypadPrefab;
 import feature.prefabs.types.TorchPrefab;
+import feature.prefabs.types.TriggerPrefab;
 import feature.prefabs.types.WaterPrefab;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,25 +45,37 @@ public final class PrefabRegistry {
       new LinkedHashMap<>();
 
   static {
-    register(new DoorKeypadPrefab(), DoorKeypadPrefab::new);
-    register(new DoorTextKeypadPrefab(), DoorTextKeypadPrefab::new);
+    register(new KeypadPrefab(), KeypadPrefab::new);
+    register(new TextKeypadPrefab(), TextKeypadPrefab::new);
     register(new ImagePuzzlePrefab(), ImagePuzzlePrefab::new);
     register(new AvailableCharacterPrefab(), AvailableCharacterPrefab::new);
-    register(new BookshelfImagePrefab(), BookshelfImagePrefab::new);
     register(
         new LevelHiderPrefab(),
         (level, name) -> ((Prefab) new LevelHiderPrefab()).bind(level, name));
     register(new DesignLabelRegionPrefab(), DesignLabelRegionPrefab::new);
-    register(new DoorLeverPrefab(), DoorLeverPrefab::new);
-    register(new DecoDialogPrefab(), DecoDialogPrefab::new);
+    register(new LeverPrefab(), LeverPrefab::new);
+    register(new DecorationInteractionPrefab(), DecorationInteractionPrefab::new);
     register(new ShaderPrefab(), ShaderPrefab::new);
     register(new WaterPrefab(), WaterPrefab::new);
-    register(new DialogTriggerPrefab(), DialogTriggerPrefab::new);
+    register(new TriggerPrefab(), TriggerPrefab::new);
+    register(new DialogPrefab(), DialogPrefab::new);
+    register(new MultipleChoiceDialogPrefab(), MultipleChoiceDialogPrefab::new);
+    register(new ShowImagePrefab(), ShowImagePrefab::new);
     register(new PushableStonePrefab(), PushableStonePrefab::new);
     register(new PressurePlatePrefab(), PressurePlatePrefab::new);
     register(new TorchPrefab(), TorchPrefab::new);
-    register(new DecoImagePrefab(), DecoImagePrefab::new);
     register(new InvisibleWallPrefab(), InvisibleWallPrefab::new);
+    register(new DoorControlPrefab(), DoorControlPrefab::new);
+    register(new RandomCodePrefab(), RandomCodePrefab::new);
+    register(new ItemReceptaclePrefab(), ItemReceptaclePrefab::new);
+    register(new RandomBoolPrefab(), RandomBoolPrefab::new);
+    register(new RandomTextPrefab(), RandomTextPrefab::new);
+    register(new DelayPrefab(), DelayPrefab::new);
+    register(new OncePrefab(), OncePrefab::new);
+    register(new ItemSpawnerPrefab(), ItemSpawnerPrefab::new);
+    register(new AirVentPrefab(), AirVentPrefab::new);
+    register(new SoundEffectPrefab(), SoundEffectPrefab::new);
+    register(new DoorLockPrefab(), DoorLockPrefab::new);
   }
 
   private PrefabRegistry() {}

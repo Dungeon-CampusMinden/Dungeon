@@ -63,6 +63,7 @@ final class DialogDialog {
                 speakerImagePath ->
                     sourceScript.replace(SPEAKER_IMAGE_PLACEHOLDER, speakerImagePath))
             .orElse(sourceScript);
+    script = ctx.replacePlaceholders(script);
     if (script.isBlank()) {
       throw new DialogCreationException("DialogDialog requires a non-blank dialog script");
     }

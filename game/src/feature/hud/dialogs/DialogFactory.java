@@ -568,6 +568,31 @@ public class DialogFactory {
   }
 
   /**
+   * Shows a sequenced speaker dialogue whose {@code {name}} placeholders are replaced with values.
+   *
+   * <p>Placeholders are replaced on the displaying client after a translation key was resolved, so
+   * translated scripts can contain them as well.
+   *
+   * @param dialog The non-empty dialog script, or the translation key of the script.
+   * @param isTranslationKey Whether {@code dialog} is a translation key.
+   * @param placeholders Values by placeholder name.
+   * @param onFinished Callback executed after the last page has been confirmed.
+   * @param targetEntityIds The target entity IDs for which the dialog is displayed.
+   * @return The {@link UIComponent} containing the dialog.
+   */
+  public static UIComponent showDialogDialog(
+      String dialog,
+      boolean isTranslationKey,
+      Map<String, String> placeholders,
+      IVoidFunction onFinished,
+      int... targetEntityIds) {
+    DialogContext.Builder context = dialogDialogContext(dialog);
+    if (isTranslationKey) context.put(DialogContextKeys.DIALOG_IS_TRANSLATION_KEY, true);
+    context.placeholders(placeholders);
+    return showDialogDialog(context.build(), onFinished, targetEntityIds);
+  }
+
+  /**
    * Shows a sequenced speaker dialogue with a dynamic speaker image.
    *
    * <p>The image path replaces {@code {path}} in the dialog script after client-side translation.

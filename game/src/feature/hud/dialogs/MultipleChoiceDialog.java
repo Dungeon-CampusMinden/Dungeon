@@ -92,12 +92,20 @@ final class MultipleChoiceDialog {
    */
   static Group build(DialogContext ctx) {
     String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(TITLE_DEFAULT);
-    String script = ctx.require(DialogContextKeys.DIALOG, String.class);
+    String script = ctx.replacePlaceholders(ctx.require(DialogContextKeys.DIALOG, String.class));
+    ChoiceOptions choiceOptions = ctx.require(DialogContextKeys.OPTIONS, ChoiceOptions.class);
+    List<ChoiceOption> options = choiceOptions.values();
+    if (ctx.find(DialogContextKeys.PLACEHOLDERS, String[].class).isPresent()) {
+      options =
+          options.stream()
+              .map(
+                  option ->
+                      ChoiceOption.of(ctx.replacePlaceholders(option.label()), option.value()))
+              .toList();
+    }
     if (script.isBlank()) {
       throw new DialogCreationException("MultipleChoiceDialog requires a non-blank dialog script");
     }
-    ChoiceOptions choiceOptions = ctx.require(DialogContextKeys.OPTIONS, ChoiceOptions.class);
-    List<ChoiceOption> options = choiceOptions.values();
     boolean multipleSelection =
         ctx.find(DialogContextKeys.MULTIPLE_SELECTION, Boolean.class).orElse(false);
     boolean canCancel = ctx.find(DialogContextKeys.CAN_CANCEL, Boolean.class).orElse(false);

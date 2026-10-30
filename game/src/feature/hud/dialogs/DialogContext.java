@@ -2,10 +2,12 @@ package feature.hud.dialogs;
 
 import engine.Entity;
 import engine.Game;
+import feature.prefabs.Placeholders;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -122,6 +124,23 @@ public final class DialogContext {
    */
   public Optional<Entity> findEntity(String key) {
     return find(key, Integer.class).flatMap(Game::findEntityById);
+  }
+
+  /**
+   * Replaces the {@code {name}} placeholders of {@link DialogContextKeys#PLACEHOLDERS} in a text.
+   *
+   * @param text text to replace the placeholders in, e.g. a translated dialog script
+   * @return text with all placeholders of this context replaced
+   */
+  public String replacePlaceholders(String text) {
+    String[] placeholders =
+        find(DialogContextKeys.PLACEHOLDERS, String[].class).orElse(new String[0]);
+    Map<String, String> values = new HashMap<>();
+    for (int index = 0; index + 1 < placeholders.length; index += 2) {
+      values.put(placeholders[index], placeholders[index + 1]);
+    }
+    // In one pass, so inserted values are not replaced again.
+    return Placeholders.apply(text, values, "", Set.of());
   }
 
   /**
@@ -294,6 +313,24 @@ public final class DialogContext {
         attributes.put(key, value);
       }
       return this;
+    }
+
+    /**
+     * Stores the values substituted for {@code {name}} placeholders, see {@link
+     * DialogContextKeys#PLACEHOLDERS}. Does nothing if there are no values.
+     *
+     * @param values values by placeholder name
+     * @return This builder for method chaining
+     */
+    public Builder placeholders(Map<String, String> values) {
+      if (values.isEmpty()) return this;
+      String[] pairs = new String[values.size() * 2];
+      int index = 0;
+      for (Map.Entry<String, String> entry : values.entrySet()) {
+        pairs[index++] = entry.getKey();
+        pairs[index++] = entry.getValue();
+      }
+      return put(DialogContextKeys.PLACEHOLDERS, pairs);
     }
 
     /**

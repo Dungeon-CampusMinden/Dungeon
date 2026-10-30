@@ -1,47 +1,71 @@
 {
-  "version" : 3,
+  "version" : 4,
   "design" : "DEFAULT",
-  "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSSSSSSSSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSSSSSSSSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWWWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
+  "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSWWWWWWSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSWFFFFWSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSWFFFFWSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSWFFFFWSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSWWFWWWSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWDWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
     "x" : 15.0,
     "y" : 7.0
   } ],
   "namedPoints" : {
     "bookshelf" : {
-      "x" : 15.0,
-      "y" : 11.0
+      "x" : 6.0,
+      "y" : 12.0
     }
   },
   "decorations" : [ ],
   "prefabs" : [ {
     "name" : "r1/keypad-1",
-    "type" : "door-keypad",
+    "type" : "keypad",
     "properties" : {
-      "keypadPosition" : {
+      "position" : {
         "x" : 18.0,
         "y" : 13.0
       },
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
-      },
       "code" : "1234",
       "showDigitCount" : true
+    },
+    "inputs" : {
+      "code" : [ {
+        "source" : "r1/random-code",
+        "port" : "code"
+      } ]
     }
   }, {
     "name" : "r1/keypad-2",
-    "type" : "door-keypad",
+    "type" : "keypad",
     "properties" : {
-      "keypadPosition" : {
+      "position" : {
         "x" : 11.0,
         "y" : 13.0
       },
+      "code" : "123",
+      "showDigitCount" : true
+    }
+  }, {
+    "name" : "r1/door-7-10",
+    "type" : "door-control",
+    "properties" : {
       "doorPosition" : {
         "x" : 7.0,
         "y" : 10.0
       },
-      "code" : "123",
-      "showDigitCount" : true
+      "closedAtStart" : true
+    },
+    "inputs" : {
+      "open" : [ {
+        "source" : "r1/keypad-2",
+        "port" : "correct-code"
+      }, {
+        "source" : "door-text-keypad",
+        "port" : "correct-answer"
+      }, {
+        "source" : "r1/delay",
+        "port" : "finished"
+      } ],
+      "close" : [ {
+        "source" : "r1/door-lever-2",
+        "port" : "switched-off"
+      } ]
     }
   }, {
     "name" : "r1/torch",
@@ -75,8 +99,8 @@
       "designLabel" : "FOREST"
     }
   }, {
-    "name" : "r1/dialog-trigger",
-    "type" : "dialog-trigger",
+    "name" : "r1/trigger",
+    "type" : "trigger",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -88,9 +112,74 @@
           "y" : 8.0
         }
       },
-      "text" : "Hello.",
-      "translate" : false,
       "repetition" : "Once globally"
+    }
+  }, {
+    "name" : "r1/dialog",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Hello. The code is {random-code}.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/trigger",
+        "port" : "entered"
+      } ],
+      "values" : [ {
+        "source" : "r1/random-code",
+        "port" : "code",
+        "alias" : "random-code"
+      } ]
+    }
+  }, {
+    "name" : "r1/dialog-1",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "You have successfully entered the code! GG",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/once",
+        "port" : "triggered"
+      } ]
+    }
+  }, {
+    "name" : "r1/dialog-2",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "That is the wrong code :(",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "wrong-code"
+      } ]
+    }
+  }, {
+    "name" : "r1/once",
+    "type" : "once",
+    "properties" : { },
+    "inputs" : {
+      "trigger" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      } ]
+    }
+  }, {
+    "name" : "r1/once-1",
+    "type" : "once",
+    "properties" : { },
+    "inputs" : {
+      "trigger" : [ {
+        "source" : "r1/deco-dialog-decoration",
+        "port" : "interacted"
+      } ]
     }
   }, {
     "name" : "r1/dl-fire",
@@ -109,18 +198,35 @@
       "designLabel" : "FIRE"
     }
   }, {
-    "name" : "r1/bookshelf-image",
-    "type" : "bookshelf-image",
+    "name" : "r1/bookshelf-image-decoration",
+    "type" : "deco-interaction",
     "properties" : {
       "position" : {
         "x" : 17.0,
         "y" : 8.0
       },
-      "image" : "images/binary_hex.jpg"
+      "deco" : "BookshelfLarge",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
     }
   }, {
-    "name" : "r1/deco-dialog",
-    "type" : "deco-dialog",
+    "name" : "r1/bookshelf-image",
+    "type" : "show-image",
+    "properties" : {
+      "image" : "images/binary_hex.jpg",
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-image" : [ {
+        "source" : "r1/bookshelf-image-decoration",
+        "port" : "interacted"
+      } ]
+    }
+  }, {
+    "name" : "r1/deco-dialog-decoration",
+    "type" : "deco-interaction",
     "properties" : {
       "position" : {
         "x" : 13.0,
@@ -130,14 +236,25 @@
       "scale" : {
         "x" : 1.0,
         "y" : 1.0
-      },
-      "text" : "Hello.",
-      "translate" : false,
-      "repetition" : "Once globally"
+      }
     }
   }, {
-    "name" : "r1/deco-image",
-    "type" : "deco-image",
+    "name" : "r1/deco-dialog",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Hello.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/once-1",
+        "port" : "triggered"
+      } ]
+    }
+  }, {
+    "name" : "r1/deco-image-decoration",
+    "type" : "deco-interaction",
     "properties" : {
       "position" : {
         "x" : 10.0,
@@ -147,38 +264,76 @@
       "scale" : {
         "x" : 1.0,
         "y" : 1.0
-      },
-      "image" : "images/binary_hex.jpg"
+      }
+    }
+  }, {
+    "name" : "r1/deco-image",
+    "type" : "show-image",
+    "properties" : {
+      "image" : "images/binary_hex.jpg",
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-image" : [ {
+        "source" : "r1/deco-image-decoration",
+        "port" : "interacted"
+      } ]
     }
   }, {
     "name" : "r1/door-lever-1",
-    "type" : "door-lever",
+    "type" : "lever",
     "properties" : {
-      "leverPosition" : {
+      "position" : {
         "x" : 18.0,
         "y" : 11.0
       },
+      "revertable" : true
+    },
+    "active" : false
+  }, {
+    "name" : "r1/door-lever-2",
+    "type" : "lever",
+    "properties" : {
+      "position" : {
+        "x" : 11.0,
+        "y" : 10.0
+      },
+      "revertable" : true
+    }
+  }, {
+    "name" : "r1/door-22-10",
+    "type" : "door-control",
+    "properties" : {
       "doorPosition" : {
         "x" : 22.0,
         "y" : 10.0
       },
-      "open" : false,
-      "revertable" : true
-    }
-  }, {
-    "name" : "r1/door-lever-2",
-    "type" : "door-lever",
-    "properties" : {
-      "leverPosition" : {
-        "x" : 11.0,
-        "y" : 10.0
-      },
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
-      },
-      "open" : false,
-      "revertable" : true
+      "closedAtStart" : true
+    },
+    "inputs" : {
+      "open" : [ {
+        "source" : "r1/door-lever-1",
+        "port" : "switched-on"
+      }, {
+        "source" : "r2/pressure-plate",
+        "port" : "pressed"
+      }, {
+        "source" : "cat-npc",
+        "port" : "required-item-placed"
+      }, {
+        "source" : "dialog",
+        "port" : "dialog-finished"
+      } ],
+      "close" : [ {
+        "source" : "r1/door-lever-1",
+        "port" : "switched-off"
+      }, {
+        "source" : "r2/pressure-plate",
+        "port" : "released"
+      }, {
+        "source" : "cat-npc",
+        "port" : "required-item-removed"
+      } ]
     }
   }, {
     "name" : "r1/highlight-1",
@@ -188,12 +343,12 @@
       "isLevel" : false,
       "region" : {
         "bottomLeft" : {
-          "x" : 12.75,
-          "y" : 7.75
+          "x" : 5.75,
+          "y" : 0.0
         },
         "topRight" : {
-          "x" : 15.25,
-          "y" : 9.75
+          "x" : 24.25,
+          "y" : 13.75
         }
       },
       "shader" : {
@@ -206,6 +361,17 @@
           "invert" : false
         }
       }
+    },
+    "active" : false,
+    "inputs" : {
+      "activate" : [ {
+        "source" : "cat-npc",
+        "port" : "required-item-placed"
+      } ],
+      "deactivate" : [ {
+        "source" : "cat-npc",
+        "port" : "required-item-removed"
+      } ]
     }
   }, {
     "name" : "r1/highlight-2",
@@ -260,6 +426,42 @@
       }
     }
   }, {
+    "name" : "r1/random-code",
+    "type" : "random-code",
+    "properties" : {
+      "length" : 4,
+      "seed" : ""
+    }
+  }, {
+    "name" : "r1/delay",
+    "type" : "delay",
+    "properties" : {
+      "delay" : 1000,
+      "restart" : false
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "r1/door-lever-2",
+        "port" : "switched-on"
+      } ]
+    }
+  }, {
+    "name" : "r1/door-control",
+    "type" : "door-control",
+    "properties" : {
+      "doorPosition" : {
+        "x" : 15.0,
+        "y" : 13.0
+      },
+      "closedAtStart" : true
+    },
+    "inputs" : {
+      "open" : [ {
+        "source" : "r1/keypad-1",
+        "port" : "correct-code"
+      } ]
+    }
+  }, {
     "name" : "r2/stone-3",
     "type" : "pushable-stone",
     "properties" : {
@@ -293,10 +495,6 @@
       "position" : {
         "x" : 25.0,
         "y" : 9.0
-      },
-      "doorPosition" : {
-        "x" : 22.0,
-        "y" : 10.0
       }
     }
   }, {
@@ -325,6 +523,20 @@
           "invert" : false
         }
       }
+    },
+    "active" : false,
+    "inputs" : {
+      "activate" : [ {
+        "source" : "r1/trigger",
+        "port" : "entered"
+      }, {
+        "source" : "cat-npc",
+        "port" : "required-item-placed"
+      } ],
+      "deactivate" : [ {
+        "source" : "cat-npc",
+        "port" : "required-item-removed"
+      } ]
     }
   }, {
     "name" : "r3/water-1",
@@ -615,15 +827,11 @@
     }
   }, {
     "name" : "door-text-keypad",
-    "type" : "door-text-keypad",
+    "type" : "text-keypad",
     "properties" : {
-      "keypadPosition" : {
+      "position" : {
         "x" : 9.0,
         "y" : 13.0
-      },
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
       },
       "acceptedAnswers" : "OPEN"
     }
@@ -635,40 +843,346 @@
       "pieceItemName" : "Saphir-Stück",
       "pieceItemDescription" : "Ein Stück von einem Saphir",
       "hintItemName" : "Saphir",
-      "hintItemDescription" : "Ein waschechter Saphir!",
+      "hintItemDescription" : "A real sapphire!",
       "settings" : {
         "pieceCount" : 4,
         "seed" : 1337,
         "pieces" : [ {
           "position" : {
-            "x" : 8.9375,
-            "y" : 1.5
+            "x" : 6.125,
+            "y" : 1.25
           },
-          "destination" : "deco-inventory",
+          "destination" : "chest",
           "deco" : "FolderRed"
         }, {
           "position" : {
-            "x" : 10.0,
-            "y" : 1.0
-          },
-          "destination" : "world-item",
-          "deco" : "BookshelfLarge"
-        }, {
-          "position" : {
-            "x" : 11.1875,
+            "x" : 7.5625,
             "y" : 1.1875
           },
           "destination" : "world-item",
           "deco" : "BookshelfLarge"
         }, {
           "position" : {
-            "x" : 9.9375,
-            "y" : 1.6875
+            "x" : 7.9375,
+            "y" : 2.0
+          },
+          "destination" : "world-item",
+          "deco" : "BookshelfLarge"
+        }, {
+          "position" : {
+            "x" : 6.6875,
+            "y" : 2.5625
           },
           "destination" : "world-item",
           "deco" : "BookshelfLarge"
         } ]
       }
+    }
+  }, {
+    "name" : "cat-npc",
+    "type" : "item-receptacle",
+    "properties" : {
+      "position" : {
+        "x" : 22.125,
+        "y" : 8.0
+      },
+      "deco" : "Cat",
+      "title" : "Container",
+      "consume" : false
+    },
+    "inputs" : {
+      "required-item" : [ {
+        "source" : "cat-food-spawner",
+        "port" : "item-1"
+      } ]
+    }
+  }, {
+    "name" : "cat-food-spawner",
+    "type" : "item-spawner",
+    "properties" : {
+      "position" : {
+        "x" : 20.0,
+        "y" : 7.0
+      },
+      "container" : "Chest",
+      "deco" : "Cabinet",
+      "title" : "Container",
+      "item-count" : 2,
+      "item-1" : "ItemHammer",
+      "item-2" : "ItemKey",
+      "item-3" : "ItemKey",
+      "item-4" : "ItemKey",
+      "item-5" : "ItemKey",
+      "item-6" : "ItemKey"
+    }
+  }, {
+    "name" : "air-vent",
+    "type" : "air-vent",
+    "properties" : {
+      "position" : {
+        "x" : 13.0,
+        "y" : 12.8125
+      },
+      "deco" : "FloorBarsSmall",
+      "message" : "Warm air is blowing out of the vent.",
+      "direction" : "Down",
+      "item-count" : 1,
+      "item-1" : "ItemKey",
+      "item-2" : "ItemKey",
+      "item-3" : "ItemKey",
+      "item-4" : "ItemKey",
+      "item-5" : "ItemKey",
+      "item-6" : "ItemKey"
+    }
+  }, {
+    "name" : "sound-effect",
+    "type" : "sound-effect",
+    "properties" : {
+      "sound" : "fireball",
+      "volume" : 0.5,
+      "pitch" : 2.0,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "play" : [ {
+        "source" : "r1/door-lever-2",
+        "port" : "switched-on"
+      } ]
+    }
+  }, {
+    "name" : "sound-effect-1",
+    "type" : "sound-effect",
+    "properties" : {
+      "sound" : "qubodup_DoorOpen",
+      "volume" : 0.35,
+      "pitch" : 1.0,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "play" : [ {
+        "source" : "once",
+        "port" : "triggered"
+      } ]
+    }
+  }, {
+    "name" : "sound-effect-2",
+    "type" : "sound-effect",
+    "properties" : {
+      "sound" : "fireball",
+      "volume" : 0.5,
+      "pitch" : 1.0,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "play" : [ {
+        "source" : "choice-dialog-1",
+        "port" : "option-2"
+      } ]
+    }
+  }, {
+    "name" : "door-lock",
+    "type" : "door-lock",
+    "properties" : {
+      "doorPosition" : {
+        "x" : 7.0,
+        "y" : 10.0
+      },
+      "locked-dialog" : "The door is locked with a chain. You need a key to open it.",
+      "key-title" : "Locked Door",
+      "key-question" : "Do you want to use your {key} to open the door?",
+      "consume-key" : true
+    }
+  }, {
+    "name" : "trigger",
+    "type" : "trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 13.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 16.0,
+          "y" : 2.0
+        }
+      },
+      "repetition" : "Always"
+    },
+    "active" : false,
+    "inputs" : {
+      "activate" : [ {
+        "source" : "cat-npc",
+        "port" : "required-item-placed"
+      } ]
+    }
+  }, {
+    "name" : "trigger-1",
+    "type" : "trigger",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 30.0,
+          "y" : 2.0
+        },
+        "topRight" : {
+          "x" : 32.0,
+          "y" : 4.0
+        }
+      },
+      "repetition" : "Always"
+    }
+  }, {
+    "name" : "choice-dialog",
+    "type" : "choice-dialog",
+    "properties" : {
+      "text" : "Wie viel ist zehn mal 9?",
+      "translate" : false,
+      "audience" : "Triggering Player",
+      "can-cancel" : false,
+      "option-count" : 4,
+      "option-1" : "Ja",
+      "option-2" : "Nein",
+      "option-3" : "Vielleicht",
+      "option-4" : "90",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "trigger",
+        "port" : "entered"
+      } ]
+    }
+  }, {
+    "name" : "choice-dialog-1",
+    "type" : "choice-dialog",
+    "properties" : {
+      "text" : "Do you want to continue?",
+      "translate" : false,
+      "audience" : "Triggering Player",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "trigger-1",
+        "port" : "entered"
+      } ]
+    }
+  }, {
+    "name" : "choice-dialog-2",
+    "type" : "choice-dialog",
+    "properties" : {
+      "text" : "Do you want to continue?",
+      "translate" : false,
+      "audience" : "Triggering Player",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    }
+  }, {
+    "name" : "dialog",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Das war richtig!",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "choice-dialog",
+        "port" : "option-4"
+      } ]
+    }
+  }, {
+    "name" : "dialog-1",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Das war falsch.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "choice-dialog",
+        "port" : "option-1"
+      }, {
+        "source" : "choice-dialog",
+        "port" : "option-2"
+      }, {
+        "source" : "choice-dialog",
+        "port" : "option-3"
+      } ]
+    }
+  }, {
+    "name" : "once",
+    "type" : "once",
+    "properties" : { },
+    "inputs" : {
+      "trigger" : [ {
+        "source" : "choice-dialog",
+        "port" : "option-4"
+      } ]
+    }
+  }, {
+    "name" : "deco-interaction",
+    "type" : "deco-interaction",
+    "properties" : {
+      "position" : {
+        "x" : 15.0,
+        "y" : 11.0
+      },
+      "deco" : "BookshelfLarge",
+      "scale" : {
+        "x" : 1.0,
+        "y" : 1.0
+      }
+    }
+  }, {
+    "name" : "show-image",
+    "type" : "show-image",
+    "properties" : {
+      "image" : "images/door_code.jpg",
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-image" : [ {
+        "source" : "deco-interaction",
+        "port" : "interacted"
+      } ]
+    }
+  }, {
+    "name" : "water",
+    "type" : "water",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 13.6875,
+          "y" : 16.0
+        },
+        "topRight" : {
+          "x" : 18.3125,
+          "y" : 18.0
+        }
+      },
+      "color" : "1A66B3FF",
+      "speed" : 0.14999999,
+      "layer" : -55,
+      "repeat" : 1.0,
+      "foamMinWidth" : 1,
+      "foamMaxWidth" : 3,
+      "lineInterval" : 2.5
     }
   } ]
 }

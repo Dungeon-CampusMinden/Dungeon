@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -25,6 +26,9 @@ public final class PrefabRuntimeState {
   private final Map<String, PrefabInstance> overrides = new LinkedHashMap<>();
   private final Set<String> removed = new HashSet<>();
   private final Map<String, Map<PrefabEvent<?>, List<Consumer<?>>>> listeners = new HashMap<>();
+  private final Map<String, Map<String, Object>> artifacts = new HashMap<>();
+  private final Map<String, List<Runnable>> artifactListeners = new HashMap<>();
+  private final Map<String, Long> signals = new HashMap<>();
 
   /**
    * Snapshot of the runtime state of one instance name, used to roll back failed changes.
@@ -92,6 +96,24 @@ public final class PrefabRuntimeState {
     }
   }
 
+  /**
+   * Reverts runtime activations and deactivations of authored instances, so each of them is active
+   * exactly when its authored data says so. Other runtime changes are kept.
+   *
+   * <p>Used by the level editor when it is opened, so the world matches the edited level.
+   *
+   * @param authored authored level instances
+   */
+  public void revertActivity(List<PrefabInstance> authored) {
+    for (PrefabInstance instance : authored) {
+      PrefabInstance override = overrides.get(instance.name());
+      if (override == null || override.active() == instance.active()) continue;
+      PrefabInstance reverted = override.withActive(instance.active());
+      if (reverted.equals(instance)) overrides.remove(instance.name());
+      else overrides.put(instance.name(), reverted);
+    }
+  }
+
   Entry entry(String name) {
     return new Entry(overrides.get(name), removed.contains(name));
   }
@@ -110,6 +132,52 @@ public final class PrefabRuntimeState {
         .computeIfAbsent(name, ignored -> new HashMap<>())
         .computeIfAbsent(event, ignored -> new ArrayList<>())
         .add(listener);
+  }
+
+  void putArtifact(String name, String port, Object value) {
+    artifacts.computeIfAbsent(name, ignored -> new HashMap<>()).put(port, value);
+  }
+
+  Object artifact(String name, String port) {
+    Map<String, Object> values = artifacts.get(name);
+    return values == null ? null : values.get(port);
+  }
+
+  boolean clearArtifacts(String name) {
+    return artifacts.remove(name) != null;
+  }
+
+  void addArtifactListener(String consumer, Runnable listener) {
+    artifactListeners
+        .computeIfAbsent(consumer, ignored -> new ArrayList<>())
+        .add(Objects.requireNonNull(listener, "listener"));
+  }
+
+  List<Runnable> artifactListeners(String consumer) {
+    return List.copyOf(artifactListeners.getOrDefault(consumer, List.of()));
+  }
+
+  void clearArtifactListeners(String consumer) {
+    artifactListeners.remove(consumer);
+  }
+
+  /**
+   * Records that a link or action carried a signal, for editor visualization.
+   *
+   * @param key identity of the link or action
+   */
+  public void recordSignal(String key) {
+    signals.put(key, System.nanoTime());
+  }
+
+  /**
+   * Returns when a link or action last carried a signal.
+   *
+   * @param key identity of the link or action
+   * @return {@link System#nanoTime()} of the last signal, or empty if there was none
+   */
+  public Optional<Long> lastSignal(String key) {
+    return Optional.ofNullable(signals.get(key));
   }
 
   @SuppressWarnings("unchecked")

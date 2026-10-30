@@ -853,6 +853,59 @@ public class DebugDrawSystem extends System {
   }
 
   /**
+   * Draws a thick world-space line with a filled arrow head at its middle, pointing to {@code to}.
+   *
+   * @param from line start
+   * @param to line end
+   * @param width line width in world units
+   * @param color line color
+   */
+  public static void drawLinkLine(Point from, Point to, float width, Color color) {
+    float x = to.x() - from.x();
+    float y = to.y() - from.y();
+    float length = (float) Math.sqrt(x * x + y * y);
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+    SHAPE_RENDERER.rectLine(from.x(), from.y(), to.x(), to.y(), width);
+    if (length > 0f) {
+      float headLength = Math.min(0.3f, length * 0.3f) + width;
+      float unitX = x / length;
+      float unitY = y / length;
+      float tipX = from.x() + x * 0.5f + unitX * headLength * 0.5f;
+      float tipY = from.y() + y * 0.5f + unitY * headLength * 0.5f;
+      float backX = tipX - unitX * headLength;
+      float backY = tipY - unitY * headLength;
+      float halfWidth = headLength * 0.55f;
+      SHAPE_RENDERER.triangle(
+          tipX,
+          tipY,
+          backX - unitY * halfWidth,
+          backY + unitX * halfWidth,
+          backX + unitY * halfWidth,
+          backY - unitX * halfWidth);
+    }
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draws a world-space circle outline.
+   *
+   * @param center circle center
+   * @param radius circle radius in world units
+   * @param color outline color
+   */
+  public static void drawCircleOutline(Point center, float radius, Color color) {
+    BlendUtils.setBlending();
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+    SHAPE_RENDERER.circle(center.x(), center.y(), radius, CIRCLE_SEGMENTS);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
    * Draws text on the screen at the specified screen coordinates with the given font and color.
    *
    * @param font the {@link BitmapFont} to use for rendering the text
@@ -963,6 +1016,20 @@ public class DebugDrawSystem extends System {
     float textX = screen.x - layout.width / 2f;
     float textY = screen.y + layout.height / 2f;
     drawText(font, text, new Point(textX, textY), color);
+  }
+
+  /**
+   * Draws text in world coordinates using the default font, starting at a world position and
+   * vertically centered on it.
+   *
+   * @param text text to draw
+   * @param world position of the vertical center of the left text edge, in world coordinates
+   * @param color text color
+   */
+  public static void drawTextInWorldCoordsLeftAligned(String text, Point world, Color color) {
+    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    GlyphLayout layout = new GlyphLayout(FONT, text);
+    drawText(FONT, text, new Point(screen.x, screen.y + layout.height / 2f), color);
   }
 
   private static final float INTEGER_TOLERANCE = 0.01f;

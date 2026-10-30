@@ -62,14 +62,7 @@ public final class DesignLabelRegionPrefab extends Prefab {
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Region region = value(instance, REGION);
-    feedback.point(region.bottomLeft(), null);
-    feedback.point(region.topRight(), null);
-    feedback.rectangle(region.bottomLeft(), region.topRight());
-    feedback.label(midpoint(region.bottomLeft(), region.topRight()), instance.name());
-  }
-
-  private static Point midpoint(Point first, Point second) {
-    return new Point(first.x() * 0.5f + second.x() * 0.5f, first.y() * 0.5f + second.y() * 0.5f);
+    feedback.region(region, instance.name());
   }
 
   /**

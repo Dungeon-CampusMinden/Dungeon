@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -576,6 +577,44 @@ public abstract class PrefabProperty<T> {
           throw invalid(key, "must be one of " + allowedValues);
         }
         return value;
+      }
+    };
+  }
+
+  /**
+   * Creates a string-backed select property whose choices are computed when the editor asks for
+   * them, e.g. from a registry that is filled at runtime.
+   *
+   * <p>Any non-blank value is accepted, since a value that is not offered yet may become available
+   * later. Prefabs have to handle unknown values when they spawn.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default value
+   * @param values supplies the currently selectable values
+   * @return selection property descriptor
+   */
+  public static PrefabProperty<String> openSelection(
+      String key, String displayName, String defaultValue, Supplier<List<String>> values) {
+    Objects.requireNonNull(values, "values");
+    return new PrefabProperty<>(key, displayName, PrefabPropertyType.ENUM, defaultValue) {
+      @Override
+      public String decode(JsonNode node) {
+        if (!node.isTextual() || node.asText().isBlank()) {
+          throw invalid(key, "must be a non-empty string");
+        }
+        return node.asText();
+      }
+
+      @Override
+      public JsonNode encode(ObjectMapper mapper, String value) {
+        if (value == null || value.isBlank()) throw invalid(key, "must be a non-empty string");
+        return mapper.getNodeFactory().textNode(value);
+      }
+
+      @Override
+      public List<String> choices() {
+        return values.get();
       }
     };
   }

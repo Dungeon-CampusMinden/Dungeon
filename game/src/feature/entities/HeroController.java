@@ -723,15 +723,22 @@ public class HeroController {
       return false;
     }
 
-    Optional<Item> itemToMove = source.remove(adjustedFromSlot);
-    if (itemToMove.isEmpty()) {
+    if (source.get(adjustedFromSlot).isEmpty()) {
       LOGGER.debug(
           "No item in slot {} of source inventory for entity {}", adjustedFromSlot, player.id());
       return false;
     }
+    // Rearranging slots does not change what an inventory holds, so it fires no callbacks.
+    if (source == target) {
+      return source.swap(adjustedFromSlot, adjustedToSlot);
+    }
+    // Recorded before the move, so the inventory callbacks already know the moving player.
+    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
 
+    Optional<Item> itemToMove = source.remove(adjustedFromSlot);
+    // Take the target item out first, so every item fires a removed callback before it is added.
     target
-        .get(adjustedToSlot)
+        .remove(adjustedToSlot)
         .ifPresentOrElse(
             existingItem -> {
               // Slot occupied, swap items
@@ -741,6 +748,8 @@ public class HeroController {
                     "Failed to swap items between inventories for entity {}: could not set item in source slot {}",
                     player.id(),
                     adjustedFromSlot);
+                source.set(adjustedFromSlot, itemToMove.get()); // revert source
+                target.set(adjustedToSlot, existingItem); // revert target
                 return;
               }
               suc = target.set(adjustedToSlot, itemToMove.get());
@@ -749,7 +758,8 @@ public class HeroController {
                     "Failed to swap items between inventories for entity {}: could not set item in target slot {}",
                     player.id(),
                     adjustedToSlot);
-                source.set(adjustedFromSlot, existingItem); // revert source
+                source.set(adjustedFromSlot, itemToMove.get()); // revert source
+                target.set(adjustedToSlot, existingItem); // revert target
                 return;
               }
               LOGGER.debug(
@@ -773,12 +783,6 @@ public class HeroController {
                   adjustedToSlot,
                   player.id());
             });
-    // Only moves between inventories change what a chest holds; rearranging slots does not.
-    if (source != target) {
-      otherInv
-          .filter(inv -> inv == source || inv == target)
-          .ifPresent(inv -> inv.recordMove(player));
-    }
     return true;
   }
 

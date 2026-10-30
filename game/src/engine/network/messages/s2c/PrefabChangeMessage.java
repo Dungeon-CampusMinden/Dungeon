@@ -13,10 +13,10 @@ import java.util.Objects;
  * @param action kind of change
  * @param name level-unique instance name
  * @param type prefab registry type, empty unless {@code action} is {@link Action#PUT}
- * @param propertiesJson serialized JSON object of the instance properties, empty unless {@code
- *     action} is {@link Action#PUT}
+ * @param instanceJson serialized JSON record of the instance, see {@link
+ *     feature.prefabs.PrefabInstanceCodec}, empty unless {@code action} is {@link Action#PUT}
  */
-public record PrefabChangeMessage(Action action, String name, String type, String propertiesJson)
+public record PrefabChangeMessage(Action action, String name, String type, String instanceJson)
     implements NetworkMessage {
 
   /** Kind of runtime prefab change. */
@@ -34,6 +34,6 @@ public record PrefabChangeMessage(Action action, String name, String type, Strin
     Objects.requireNonNull(action, "action");
     Objects.requireNonNull(name, "name");
     type = type == null ? "" : type;
-    propertiesJson = propertiesJson == null ? "" : propertiesJson;
+    instanceJson = instanceJson == null ? "" : instanceJson;
   }
 }

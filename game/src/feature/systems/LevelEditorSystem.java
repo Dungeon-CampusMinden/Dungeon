@@ -328,6 +328,18 @@ public class LevelEditorSystem extends System {
   }
 
   /**
+   * Moves the free editor camera so that it centers the given world position.
+   *
+   * @param position world position to look at
+   */
+  public static void focusCamera(Point position) {
+    if (!active) return;
+    editorCameraEntity()
+        .fetch(PositionComponent.class)
+        .ifPresent(component -> component.position(position));
+  }
+
+  /**
    * Switches to the given editor mode.
    *
    * <p>Exits the previous mode, creates a new instance of the given mode and enters it. Also

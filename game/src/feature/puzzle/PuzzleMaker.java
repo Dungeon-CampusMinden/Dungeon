@@ -128,6 +128,32 @@ public final class PuzzleMaker {
       long seed,
       boolean debug,
       String pieceFamilyId) {
+    return makePuzzle(imagePath, pieceCount, onComplete, seed, debug, pieceFamilyId, null);
+  }
+
+  /**
+   * Creates a puzzle whose id additionally depends on a scope, so puzzles with the same image,
+   * piece count and seed but different scopes are separate puzzles with their own completion
+   * callbacks, e.g. two prefab instances showing the same image.
+   *
+   * @param imagePath path to the source image
+   * @param pieceCount total number of puzzle pieces (must be {@code >= 2})
+   * @param onComplete callback fired exactly once when all pieces are placed correctly
+   * @param seed RNG seed used for deterministic slicing and scatter
+   * @param debug whether the puzzle UI should expose seed-tweaking controls
+   * @param pieceFamilyId stable identifier shared by puzzle variants, or null to use this puzzle's
+   *     deterministic ID
+   * @param scope stable value mixed into the puzzle id, or null for none
+   * @return the created puzzle
+   */
+  public static Puzzle makePuzzle(
+      IPath imagePath,
+      int pieceCount,
+      BiConsumer<Puzzle, Entity> onComplete,
+      long seed,
+      boolean debug,
+      String pieceFamilyId,
+      String scope) {
     Objects.requireNonNull(imagePath, "imagePath");
     if (pieceCount < 2) {
       throw new IllegalArgumentException("pieceCount must be >= 2");
@@ -135,7 +161,7 @@ public final class PuzzleMaker {
 
     PuzzlePieceItem.ensureRegistration();
 
-    String id = deterministicId(imagePath, pieceCount, seed);
+    String id = deterministicId(imagePath, pieceCount, seed, scope);
     String effectivePieceFamilyId =
         pieceFamilyId == null ? id : requirePieceFamilyId(pieceFamilyId);
     BiConsumer<Puzzle, Entity> effectiveOnComplete;
@@ -249,7 +275,7 @@ public final class PuzzleMaker {
    *
    * @return the default completion callback
    */
-  private static BiConsumer<Puzzle, Entity> defaultOnComplete() {
+  public static BiConsumer<Puzzle, Entity> defaultOnComplete() {
     return (puzzle, solver) -> {
       HintItem hintItem = completionHint(puzzle, solver);
       puzzle.removeItems(solver);
@@ -293,10 +319,12 @@ public final class PuzzleMaker {
    * @param imagePath the source image path of the puzzle
    * @param pieceCount the number of pieces the puzzle is split into
    * @param seed the seed used to slice the puzzle
+   * @param scope additional identifying value, or null for none
    * @return the deterministic puzzle id
    */
-  private static String deterministicId(IPath imagePath, int pieceCount, long seed) {
+  private static String deterministicId(IPath imagePath, int pieceCount, long seed, String scope) {
     String raw = imagePath.pathString() + "|" + pieceCount + "|" + seed;
+    if (scope != null) raw += "|" + scope;
     UUID uuid = UUID.nameUUIDFromBytes(raw.getBytes(StandardCharsets.UTF_8));
     return "puzzle-" + uuid;
   }

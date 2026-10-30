@@ -38,6 +38,7 @@ message PrefabChangeMessage {
   // Prefab registry type, only set for PUT.
   string type = 3;
 
-  // Serialized JSON object of the instance properties, only set for PUT.
-  string properties_json = 4;
+  // Serialized JSON record of the instance (properties, active flag and input links), only set
+  // for PUT.
+  string instance_json = 4;
 }

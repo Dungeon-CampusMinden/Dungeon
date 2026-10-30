@@ -11,9 +11,12 @@ import engine.utils.Tuple;
 import feature.entities.deco.Deco;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabInstanceCodec;
+import feature.prefabs.PrefabLink;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
+import feature.prefabs.PrefabWiring;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,10 +36,16 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-/** Parser and serializer for the JSON-based version 3 level format. */
-public final class V3FormatParser extends LevelFormatParser {
+/**
+ * Parser and serializer for the JSON-based level format.
+ *
+ * <p>Version 4 added the {@code active} flag and the {@code inputs} links of prefab records, see
+ * {@link PrefabInstanceCodec}. Version 3 files are read as well and written as version 4.
+ */
+public final class JsonFormatParser extends LevelFormatParser {
 
-  private static final int VERSION = 3;
+  private static final int VERSION = 4;
+  private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4);
   private static final Set<String> ROOT_PROPERTIES =
       Set.of(
           "version",
@@ -51,7 +60,6 @@ public final class V3FormatParser extends LevelFormatParser {
   private static final Set<String> ATMOSPHERE_PROPERTIES = Set.of("preset", "ambient");
   private static final Set<String> POINT_PROPERTIES = Set.of("x", "y");
   private static final Set<String> DECORATION_PROPERTIES = Set.of("type", "position");
-  private static final Set<String> PREFAB_PROPERTIES = Set.of("name", "type", "properties");
   private static final ObjectMapper MAPPER =
       JsonMapper.builder(
               JsonFactory.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build())
@@ -70,10 +78,10 @@ public final class V3FormatParser extends LevelFormatParser {
     try {
       JsonNode parsed = MAPPER.readTree(input.toString());
       if (!(parsed instanceof ObjectNode root)) {
-        throw new IllegalArgumentException("V3 level data must be a JSON object");
+        throw new IllegalArgumentException("JSON level data must be a JSON object");
       }
       rejectUnknown(root, ROOT_PROPERTIES, "level");
-      requireInteger(root, "version", VERSION);
+      requireVersion(root);
 
       DesignLabel design = parseDesign(root);
       List<String> layoutRows = parseLayout(root);
@@ -97,7 +105,7 @@ public final class V3FormatParser extends LevelFormatParser {
       level.prefabs().addAll(prefabs);
       return level;
     } catch (JacksonException e) {
-      throw new IllegalArgumentException("Invalid V3 level JSON: " + e.getMessage(), e);
+      throw new IllegalArgumentException("Invalid JSON level data: " + e.getMessage(), e);
     }
   }
 
@@ -135,7 +143,7 @@ public final class V3FormatParser extends LevelFormatParser {
     try {
       return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(root);
     } catch (JacksonException e) {
-      throw new IllegalArgumentException("Could not serialize V3 level JSON", e);
+      throw new IllegalArgumentException("Could not serialize JSON level data", e);
     }
   }
 
@@ -263,7 +271,7 @@ public final class V3FormatParser extends LevelFormatParser {
       String name = optionalText(object, "name");
       String type = optionalText(object, "type");
       try {
-        rejectUnknown(object, PREFAB_PROPERTIES, "prefab " + index);
+        rejectUnknown(object, PrefabInstanceCodec.RECORD_KEYS, "prefab " + index);
         name = requireText(object, "name");
         if (name.isBlank()) {
           throw new IllegalArgumentException("name must not be blank");
@@ -291,7 +299,18 @@ public final class V3FormatParser extends LevelFormatParser {
         propertiesObject
             .properties()
             .forEach(entry -> properties.put(entry.getKey(), entry.getValue()));
-        PrefabInstance normalized = prefab.normalize(new PrefabInstance(name, type, properties));
+        String recordName = name;
+        String recordType = type;
+        int recordIndex = index;
+        Map<String, List<PrefabLink>> inputs =
+            PrefabInstanceCodec.decodeInputs(
+                prefab,
+                object,
+                warning -> warnPrefabLinks(recordIndex, recordName, recordType, warning));
+        PrefabInstance normalized =
+            prefab.normalize(
+                new PrefabInstance(
+                    name, type, properties, PrefabInstanceCodec.decodeActive(object), inputs));
         if (names.contains(name)) {
           throw new IllegalArgumentException("duplicate prefab name '" + name + "'");
         }
@@ -301,7 +320,11 @@ public final class V3FormatParser extends LevelFormatParser {
         warnSkippedPrefab(index, name, type, exception.getMessage());
       }
     }
-    return result;
+    return PrefabWiring.withoutBrokenLinks(result, LOGGER::warn);
+  }
+
+  private static void warnPrefabLinks(int index, String name, String type, String reason) {
+    LOGGER.warn("Prefab at index {} (name='{}', type='{}'): {}", index, name, type, reason);
   }
 
   private static String optionalText(ObjectNode object, String property) {
@@ -394,13 +417,7 @@ public final class V3FormatParser extends LevelFormatParser {
             "Duplicate prefab instance name: '" + source.name() + "'");
       }
       PrefabInstance instance = PrefabRegistry.require(source.type()).normalize(source);
-      ObjectNode node = MAPPER.createObjectNode();
-      node.put("name", instance.name());
-      node.put("type", instance.type());
-      ObjectNode properties = MAPPER.createObjectNode();
-      instance.properties().forEach(properties::set);
-      node.set("properties", properties);
-      result.add(node);
+      result.add(PrefabInstanceCodec.encode(MAPPER, instance));
     }
     return result;
   }
@@ -439,11 +456,13 @@ public final class V3FormatParser extends LevelFormatParser {
     return array;
   }
 
-  private static void requireInteger(ObjectNode object, String property, int expected) {
-    JsonNode value = require(object, property);
-    if (!value.isIntegralNumber() || value.intValue() != expected) {
-      throw new IllegalArgumentException("'" + property + "' must be the integer " + expected);
+  private static int requireVersion(ObjectNode root) {
+    JsonNode value = require(root, "version");
+    if (!value.isIntegralNumber() || !READABLE_VERSIONS.contains(value.intValue())) {
+      throw new IllegalArgumentException(
+          "'version' must be one of " + READABLE_VERSIONS + ", got " + value);
     }
+    return value.intValue();
   }
 
   private static void rejectUnknown(

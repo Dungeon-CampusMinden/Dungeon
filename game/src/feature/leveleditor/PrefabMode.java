@@ -4,41 +4,58 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
+import engine.Entity;
+import engine.Game;
 import engine.level.DungeonLevel;
-import engine.systems.CameraSystem;
 import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
 import feature.entities.deco.Deco;
+import feature.hud.UIUtils;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ColorSetting;
 import feature.leveleditor.ui.FloatSetting;
 import feature.leveleditor.ui.IntegerSetting;
+import feature.leveleditor.ui.LevelEditorUI;
 import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.NumberSliderSetting;
 import feature.leveleditor.ui.PointSetting;
+import feature.leveleditor.ui.PortPickerPopup;
 import feature.leveleditor.ui.PrefabInstanceList;
+import feature.leveleditor.ui.PrefabPalette;
 import feature.leveleditor.ui.RegionSetting;
 import feature.leveleditor.ui.SelectSetting;
 import feature.leveleditor.ui.StringSetting;
 import feature.leveleditor.ui.Vector2Setting;
+import feature.prefabs.ArtifactOutput;
+import feature.prefabs.ArtifactSlot;
 import feature.prefabs.ImagePuzzleSettings;
+import feature.prefabs.Placeholders;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabLink;
+import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
+import feature.prefabs.PrefabRuntime;
+import feature.prefabs.PrefabRuntimeState;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
+import feature.prefabs.PrefabWiring;
 import feature.prefabs.PuzzlePiecePlacement;
 import feature.prefabs.Region;
 import feature.prefabs.shaders.PrefabShader;
@@ -46,18 +63,20 @@ import feature.prefabs.shaders.ShaderParameters;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /** Editor mode for authoring registered prefab instances in a level. */
 public final class PrefabMode extends LevelEditorMode {
@@ -70,9 +89,25 @@ public final class PrefabMode extends LevelEditorMode {
   private static final Color DRAG_ORIGINAL_COLOR = new Color(1f, 0.15f, 0.1f, 1f);
   private static final Color DRAG_PREVIEW_COLOR = new Color(0.25f, 1f, 0.45f, 0.9f);
   private static final int SETTINGS_PAD = 8;
+  private static final Color INACTIVE_LABEL_COLOR = new Color(0.75f, 0.75f, 0.75f, 0.8f);
+  private static final Color PICK_TARGET_COLOR = new Color(0.25f, 1f, 0.45f, 0.9f);
+  private static final DebugDrawPrefabEditorFeedback.Style INACTIVE_STYLE =
+      new DebugDrawPrefabEditorFeedback.Style(
+          new Color(0.6f, 0.6f, 0.6f, 0.3f), new Color(0.8f, 0.8f, 0.8f, 0.4f), 0.09f);
+  private static final float LINK_PULSE_SECONDS = 0.8f;
+  private static final float LINK_LABEL_SPACING = 0.32f;
+  private static final float CHIP_RADIUS = 0.1f;
+  // Attached prefabs are also hit on their label, which starts right of the marker.
+  private static final float CHIP_HIT_WIDTH = 1.6f;
+  private static final Color CHIP_COLOR = new Color(0.25f, 0.85f, 1f, 0.9f);
+  private static final Color CHIP_SELECTED_COLOR = new Color(1f, 0.75f, 0.1f, 1f);
+  private static final Color CHIP_INACTIVE_COLOR = new Color(0.6f, 0.6f, 0.6f, 0.6f);
+  private static final Color CHIP_LEADER_COLOR = new Color(0.25f, 0.85f, 1f, 0.35f);
+  // Chips unrelated to the selection are dimmed like unselected world prefabs.
+  private static final float CHIP_UNRELATED_ALPHA = 0.4f;
+  private static final Color UNPLACED_BADGE_COLOR = new Color(0.55f, 0.55f, 0.55f, 1f);
 
   private String selectedName;
-  private Prefab selectedPrefab;
   private PendingPointAssignment pendingPointAssignment;
   private PendingPointAssignment lastPointAssignment;
   private PendingAnchorDrag pendingAnchorDrag;
@@ -86,10 +121,28 @@ public final class PrefabMode extends LevelEditorMode {
   private PrefabInstanceList instanceList;
   private Table listOrderTabs;
   private ListOrder listOrder = ListOrder.ALPHABETICAL;
-  private SelectSetting<Prefab> prefabTypeSetting;
   private boolean rebuildPending;
+  private ImageButton addButton;
+  // While set, the prefab palette is shown below the mode panel.
+  private PrefabPalette palette;
+  // Prefab currently dragged from the palette, previewed at the cursor while over the level.
+  private Prefab paletteDrag;
   // While set, the secondary details show the parameters of one shader property instead.
   private ShaderEditTarget shaderEditTarget;
+  private DetailsTab detailsTab = DetailsTab.PROPERTIES;
+  private boolean showAllLinks;
+  // While set, the next click on a prefab in the world links it to this port.
+  private PrefabConnectionsTab.LinkEnd pendingLinkPick;
+  // Instances with a port that fits the pending pick, computed when the pick starts.
+  private Set<String> pickTargets = Set.of();
+  private PortPickerPopup openPicker;
+  private List<PrefabWiring.Problem> problems = List.of();
+  // Links with an error problem, to color them while rendering.
+  private Set<LinkKey> errorLinks = Set.of();
+  private final PrefabConnectionsTab connectionsTab =
+      new PrefabConnectionsTab(new ConnectionsHost());
+  // Positions of the instances without a world position, next to the prefabs they are linked to.
+  private Map<String, AttachedPrefabLayout.Chip> chips = Map.of();
   // Authored instances are immutable, so their normalized form is reused between frames.
   private Map<PrefabInstance, PrefabInstance> normalizedRenderInstances = new IdentityHashMap<>();
 
@@ -111,8 +164,10 @@ public final class PrefabMode extends LevelEditorMode {
   public void onEnter() {
     cancelAnchorDrag();
     clearPendingPointAssignment();
+    cancelLinkPick();
     if (selectedName != null && selected().isEmpty()) selectedName = null;
     if (applyGroupedOrder()) levelChanged();
+    getLevel().prefabRuntimeState().revertActivity(getLevel().prefabs());
     try {
       respawnAll();
     } catch (RuntimeException exception) {
@@ -126,6 +181,8 @@ public final class PrefabMode extends LevelEditorMode {
   public void onExit() {
     cancelAnchorDrag();
     clearPendingPointAssignment();
+    cancelLinkPick();
+    paletteDrag = null;
     try {
       syncChanged();
     } catch (RuntimeException exception) {
@@ -146,6 +203,14 @@ public final class PrefabMode extends LevelEditorMode {
       snapMode = snapMode.nextMode();
     }
     Point cursor = getCursorPosition();
+    if (pendingLinkPick != null) {
+      if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
+        cancelLinkPick();
+      } else if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+        completeLinkPick(cursor);
+      }
+      return;
+    }
     if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
       if (pendingPointAssignment != null) {
         PendingPointAssignment assignment = pendingPointAssignment;
@@ -209,14 +274,39 @@ public final class PrefabMode extends LevelEditorMode {
                   && pendingAnchorDrag.anchor().instanceName().equals(source.name())
               ? pendingAnchorDrag.anchor().displayPosition()
               : null;
+      boolean selected = Objects.equals(selectedName, source.name());
       prefab.renderEditorFeedback(
           level,
           instance,
-          new DebugDrawPrefabEditorFeedback(
-              Objects.equals(selectedName, source.name()), highlighted),
-          Objects.equals(selectedName, source.name()));
+          selected || instance.active()
+              ? new DebugDrawPrefabEditorFeedback(selected, highlighted)
+              : new DebugDrawPrefabEditorFeedback(INACTIVE_STYLE),
+          selected);
+      if (!instance.active()) {
+        worldLinkAnchor(instance)
+            .ifPresent(
+                anchor ->
+                    DebugDrawSystem.drawTextInWorldCoordsCentered(
+                        "(inactive)", anchor.translate(0f, -0.35f), INACTIVE_LABEL_COLOR));
+      }
     }
     normalizedRenderInstances = normalized;
+    List<PrefabWiring.Connection> connections = PrefabWiring.connections(level.prefabs());
+    chips = layoutChips(connections);
+    renderLinks(level, connections);
+    renderChips(level, connections);
+    if (pendingLinkPick != null) {
+      for (PrefabInstance instance : level.prefabs()) {
+        if (pickTargets.contains(instance.name())) {
+          linkAnchor(instance)
+              .ifPresent(
+                  anchor -> {
+                    DebugDrawSystem.drawCircleOutline(anchor, 0.4f, PICK_TARGET_COLOR);
+                    DebugDrawSystem.drawCircleOutline(anchor, 0.43f, PICK_TARGET_COLOR);
+                  });
+        }
+      }
+    }
     if (pendingAnchorDrag != null && pendingAnchorDrag.active()) {
       Point destination =
           feedbackPositionForCursor(
@@ -233,35 +323,285 @@ public final class PrefabMode extends LevelEditorMode {
           POINT_ASSIGNMENT_PREVIEW_RADIUS,
           POINT_ASSIGNMENT_PREVIEW_COLOR);
     }
+    if (paletteDrag != null && !isCursorOverUI() && isAttached(paletteDrag)) {
+      Point cursor = getCursorPosition();
+      prefabNear(cursor)
+          .flatMap(this::linkAnchor)
+          .ifPresent(
+              anchor -> {
+                DebugDrawSystem.drawCircleOutline(anchor, 0.4f, PICK_TARGET_COLOR);
+                DebugDrawSystem.drawCircleOutline(anchor, 0.43f, PICK_TARGET_COLOR);
+              });
+      drawChip(cursor, paletteDrag.displayName(), CHIP_SELECTED_COLOR);
+    } else if (paletteDrag != null && !isCursorOverUI()) {
+      try {
+        PrefabInstance preview =
+            placedInstance(paletteDrag, newInstanceName(paletteDrag), getCursorPosition());
+        paletteDrag.renderEditorFeedback(
+            level, preview, new DebugDrawPrefabEditorFeedback(true, null), true);
+      } catch (RuntimeException invalidPreview) {
+        // The preview is skipped, dropping the prefab reports the problem.
+      }
+    }
+  }
+
+  private Map<String, AttachedPrefabLayout.Chip> layoutChips(
+      List<PrefabWiring.Connection> connections) {
+    return AttachedPrefabLayout.layout(getLevel().prefabs(), connections, this::worldLinkAnchor);
+  }
+
+  // Draws the instances without a world position next to the prefabs they are attached to.
+  private void renderChips(DungeonLevel level, List<PrefabWiring.Connection> connections) {
+    Map<String, PrefabInstance> byName = new HashMap<>();
+    for (PrefabInstance instance : level.prefabs()) byName.put(instance.name(), instance);
+    Set<String> related = chipsRelatedToSelection(connections);
+    for (AttachedPrefabLayout.Chip chip : chips.values()) {
+      PrefabInstance host = byName.get(chip.host());
+      if (host == null) continue;
+      Color leader = dimmed(CHIP_LEADER_COLOR, related.contains(chip.name()));
+      linkAnchor(host)
+          .ifPresent(anchor -> DebugDrawSystem.drawLine(anchor, chip.position(), false, leader));
+    }
+    for (AttachedPrefabLayout.Chip chip : chips.values()) {
+      PrefabInstance source = byName.get(chip.name());
+      if (source == null) continue;
+      PrefabInstance instance = normalizedForRender(source);
+      Prefab prefab = PrefabRegistry.require(instance.type());
+      boolean selected = Objects.equals(selectedName, chip.name());
+      String label = chipLabel(chip);
+      if (!instance.active()) label += " (inactive)";
+      if (selected) {
+        Optional<String> summary = prefab.editorSummary(instance);
+        if (summary.isPresent()) label += "  (" + summary.get() + ")";
+      }
+      Color color =
+          selected
+              ? CHIP_SELECTED_COLOR
+              : dimmed(
+                  instance.active() ? CHIP_COLOR : CHIP_INACTIVE_COLOR,
+                  related.contains(chip.name()));
+      drawChip(chip.position(), label, color);
+    }
+  }
+
+  /**
+   * Returns the chips shown highlighted: the selected chip, the chips of the selected instance's
+   * chip group, and the chips linked to the selected instance.
+   *
+   * @param connections links of the level
+   * @return names of the highlighted chips
+   */
+  private Set<String> chipsRelatedToSelection(List<PrefabWiring.Connection> connections) {
+    if (selectedName == null) return Set.of();
+    Set<String> related = new HashSet<>();
+    for (String chip : chips.keySet()) {
+      if (chip.equals(selectedName) || withinChipGroup(selectedName, chip)) related.add(chip);
+    }
+    for (PrefabWiring.Connection connection : connections) {
+      String source = connection.link().source();
+      String receiver = connection.receiver().name();
+      if (source.equals(selectedName)) related.add(receiver);
+      if (receiver.equals(selectedName)) related.add(source);
+    }
+    return related;
+  }
+
+  private static Color dimmed(Color color, boolean related) {
+    if (related) return color;
+    Color result = color.cpy();
+    result.a *= CHIP_UNRELATED_ALPHA;
+    return result;
+  }
+
+  private void drawChip(Point position, String label, Color color) {
+    DebugDrawSystem.drawPoint(position, CHIP_RADIUS, color);
+    DebugDrawSystem.drawCircleOutline(position, CHIP_RADIUS + 0.05f, color);
+    Color labelColor = color.cpy();
+    labelColor.a = Math.min(1f, color.a * 1.25f);
+    DebugDrawSystem.drawTextInWorldCoordsLeftAligned(
+        label, position.translate(CHIP_RADIUS + 0.12f, 0f), labelColor);
+  }
+
+  /* Inside the area of the world prefab a chain starts at, the area prefix is omitted. */
+  private static String chipLabel(AttachedPrefabLayout.Chip chip) {
+    String area = PrefabNames.areaPrefix(chip.name());
+    if (area == null || !area.equals(PrefabNames.areaPrefix(chip.root()))) return chip.name();
+    return chip.name().substring(area.length() + 1);
+  }
+
+  private PrefabInstance normalizedForRender(PrefabInstance source) {
+    PrefabInstance instance = normalizedRenderInstances.get(source);
+    return instance == null ? PrefabRegistry.require(source.type()).normalize(source) : instance;
+  }
+
+  /**
+   * Returns whether instances of a prefab have no world position, so the editor draws them next to
+   * the prefabs they are linked to.
+   *
+   * @param prefab prefab definition
+   * @return true if the prefab has no point or region property
+   */
+  private boolean isAttached(Prefab prefab) {
+    return worldAnchors(prefab.newInstance(prefab.type())).isEmpty();
+  }
+
+  private boolean isAttached(PrefabInstance instance) {
+    try {
+      return worldAnchors(instance).isEmpty();
+    } catch (IllegalArgumentException invalidInstance) {
+      return false;
+    }
+  }
+
+  private void renderLinks(DungeonLevel level, List<PrefabWiring.Connection> connections) {
+    List<PrefabInstance> instances = level.prefabs();
+    Map<String, PrefabInstance> byName = new HashMap<>();
+    for (PrefabInstance instance : instances) byName.put(instance.name(), instance);
+    Map<String, Integer> labelsPerPair = new HashMap<>();
+    PrefabRuntimeState runtime = level.prefabRuntimeState();
+    long now = System.nanoTime();
+    for (PrefabWiring.Connection connection : connections) {
+      String source = connection.link().source();
+      String receiver = connection.receiver().name();
+      boolean involved =
+          Objects.equals(selectedName, source) || Objects.equals(selectedName, receiver);
+      if (!involved && !showAllLinks) continue;
+      PrefabInstance sourceInstance = byName.get(source);
+      if (sourceInstance == null) continue;
+      Optional<Point> from = linkAnchor(sourceInstance);
+      Optional<Point> to = linkAnchor(connection.receiver());
+      if (from.isEmpty() || to.isEmpty()) continue;
+
+      boolean signal = connection.input().kind().isSignal();
+      Color color =
+          (signal ? PrefabConnectionsTab.SIGNAL_COLOR : PrefabConnectionsTab.ARTIFACT_COLOR).cpy();
+      if (errorLinks.contains(LinkKey.of(connection))) color.set(PrefabConnectionsTab.ERROR_COLOR);
+      float pulse =
+          runtime
+              .lastSignal(PrefabRuntime.signalKey(connection))
+              .map(time -> 1f - (now - time) / 1e9f / LINK_PULSE_SECONDS)
+              .filter(value -> value > 0f)
+              .orElse(0f);
+      color.lerp(Color.WHITE, pulse * 0.6f);
+      color.a = involved ? 0.9f : 0.3f;
+      color.a = Math.max(color.a, pulse);
+      float width = (involved ? 0.05f : 0.025f) * (1f + pulse * 1.5f);
+
+      String pairKey =
+          source.compareTo(receiver) < 0 ? source + "\n" + receiver : receiver + "\n" + source;
+      int stackIndex = labelsPerPair.merge(pairKey, 1, Integer::sum) - 1;
+      Point labelPosition;
+      if (source.equals(receiver)) {
+        Point loopCenter = from.get().translate(0f, 0.55f);
+        DebugDrawSystem.drawCircleOutline(loopCenter, 0.3f, color);
+        labelPosition = loopCenter.translate(0f, 0.45f + stackIndex * LINK_LABEL_SPACING);
+      } else {
+        DebugDrawSystem.drawLinkLine(from.get(), to.get(), width, color);
+        labelPosition =
+            new Point(
+                (from.get().x() + to.get().x()) * 0.5f,
+                (from.get().y() + to.get().y()) * 0.5f + 0.3f + stackIndex * LINK_LABEL_SPACING);
+      }
+      if (involved && !withinChipGroup(source, receiver)) {
+        String output = PrefabConnectionsTab.outputName(instances, connection.link());
+        Color labelColor = color.cpy();
+        labelColor.a = 1f;
+        DebugDrawSystem.drawTextInWorldCoordsCentered(
+            output + " -> " + connection.input().displayName(), labelPosition, labelColor);
+      }
+    }
+  }
+
+  /**
+   * Returns whether a link connects an attached prefab with the world prefab its chip group is
+   * drawn at, or with another chip of the group. These links are too short for a readable label.
+   *
+   * @param source name of the source instance
+   * @param receiver name of the receiving instance
+   * @return true if at least one end is an attached prefab and both ends share a group
+   */
+  private boolean withinChipGroup(String source, String receiver) {
+    AttachedPrefabLayout.Chip sourceChip = chips.get(source);
+    AttachedPrefabLayout.Chip receiverChip = chips.get(receiver);
+    if (sourceChip == null && receiverChip == null) return false;
+    String sourceRoot = sourceChip == null ? source : sourceChip.root();
+    String receiverRoot = receiverChip == null ? receiver : receiverChip.root();
+    return sourceRoot.equals(receiverRoot);
+  }
+
+  /**
+   * Identity of one link, to look up its problems.
+   *
+   * @param receiver name of the receiving instance
+   * @param port key of the receiving input port
+   * @param link the link
+   */
+  private record LinkKey(String receiver, String port, PrefabLink link) {
+    static LinkKey of(PrefabWiring.Connection connection) {
+      return new LinkKey(connection.receiver().name(), connection.input().key(), connection.link());
+    }
+  }
+
+  /**
+   * Returns the world position where links of an instance start and end: its first point, the
+   * center of its first region, or its marker next to the prefab it is attached to.
+   *
+   * @param instance normalized instance
+   * @return link anchor, if the instance has a world position or is attached to a prefab
+   */
+  private Optional<Point> linkAnchor(PrefabInstance instance) {
+    Optional<Point> anchor = worldLinkAnchor(instance);
+    if (anchor.isPresent()) return anchor;
+    AttachedPrefabLayout.Chip chip = chips.get(instance.name());
+    return chip == null ? Optional.empty() : Optional.of(chip.position());
+  }
+
+  /**
+   * Returns the link anchor of an instance from its own world position: its first point, or the
+   * center of its first region.
+   *
+   * @param instance normalized instance
+   * @return link anchor, if the instance has a world position
+   */
+  private Optional<Point> worldLinkAnchor(PrefabInstance instance) {
+    List<WorldAnchor> anchors;
+    try {
+      anchors = worldAnchors(instance);
+    } catch (IllegalArgumentException invalidInstance) {
+      return Optional.empty();
+    }
+    if (anchors.isEmpty()) return Optional.empty();
+    WorldAnchor first = anchors.getFirst();
+    if (first.corner() == AnchorCorner.BOTTOM_LEFT && anchors.size() > 1) {
+      Point other = anchors.get(1).displayPosition();
+      return Optional.of(
+          new Point(
+              (first.displayPosition().x() + other.x()) * 0.5f,
+              (first.displayPosition().y() + other.y()) * 0.5f));
+    }
+    return Optional.of(first.displayPosition());
   }
 
   @Override
   public void buildDetailsUI(Table content) {
     detailsContent = content;
     content.clearChildren();
-    Prefab[] prefabDefinitions = PrefabRegistry.all().toArray(Prefab[]::new);
-    Arrays.sort(
-        prefabDefinitions,
-        Comparator.comparing(Prefab::displayName, String.CASE_INSENSITIVE_ORDER)
-            .thenComparing(Prefab::displayName));
-    if (selectedPrefab == null && prefabDefinitions.length > 0) {
-      selectedPrefab = prefabDefinitions[0];
-    }
     listOrderTabs = new Table();
     rebuildListOrderTabs();
     content.add(listOrderTabs).growX().padBottom(4f).row();
     instanceList = new PrefabInstanceList(new InstanceListListener());
     var list = Scene2dElementFactory.createScrollPane(instanceList, false, true);
     list.setFlickScroll(false);
-    content.add(list).growX().height(350f).row();
+    content.add(list).growX().height(500f).row();
 
     Table actions = new Table();
-    ImageButton add = Scene2dElementFactory.createIconButton("hud/plus.png", "blue-outline");
-    add.addListener(
+    addButton = Scene2dElementFactory.createIconButton("hud/plus.png", "blue-outline");
+    applyAddButtonStyle();
+    addButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            addSelectedPrefab();
+            togglePalette();
           }
         });
     ImageButton duplicate = Scene2dElementFactory.createIconButton("hud/copy.png", "default");
@@ -281,19 +621,16 @@ public final class PrefabMode extends LevelEditorMode {
           }
         });
     actions.defaults().minWidth(0).growX().uniformX().height(50f).pad(2f);
-    actions.add(add);
+    actions.add(addButton);
     actions.add(duplicate);
     actions.add(delete);
-    prefabTypeSetting =
-        new SelectSetting<>(
-            "Prefab Type",
-            prefabDefinitions,
-            () -> selectedPrefab,
-            prefab -> selectedPrefab = prefab,
-            Prefab::displayName,
-            true);
-    content.add(prefabTypeSetting).growX().padTop(6f).row();
     content.add(actions).growX().padTop(4f).row();
+    content
+        .add(
+            new BooleanSetting("Show All Links", () -> showAllLinks, value -> showAllLinks = value))
+        .growX()
+        .padTop(6f)
+        .row();
     rebuildDetails();
   }
 
@@ -335,7 +672,6 @@ public final class PrefabMode extends LevelEditorMode {
 
   @Override
   public void updateDetailsUI() {
-    if (prefabTypeSetting != null) prefabTypeSetting.refresh();
     if (rebuildPending) {
       rebuildPending = false;
       rebuildDetails();
@@ -343,7 +679,17 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   @Override
+  public Table toolbarUI() {
+    return palette;
+  }
+
+  @Override
   public String additionalInformation() {
+    if (pendingLinkPick != null) {
+      return "Click a highlighted prefab to link '"
+          + pendingLinkPick.port().displayName()
+          + "'. Right click cancels.";
+    }
     return "Snap Mode: "
         + snapMode.name()
         + (pendingPointAssignment == null ? "" : "\nWaiting for world point assignment");
@@ -355,6 +701,7 @@ public final class PrefabMode extends LevelEditorMode {
     controls.put(Input.Buttons.LEFT, "Select / drag prefab anchors / assign point");
     controls.put(SECONDARY_UP, "Change point and region snap mode");
     controls.put(TERTIARY, "Arm last world point assignment");
+    controls.put(Input.Buttons.RIGHT, "Cancel linking in the world");
     return controls;
   }
 
@@ -364,6 +711,14 @@ public final class PrefabMode extends LevelEditorMode {
 
   private void rebuildDetails(boolean rebuildSecondary) {
     if (instanceList == null) return;
+    problems = PrefabWiring.problems(getLevel().prefabs());
+    errorLinks = new HashSet<>();
+    for (PrefabWiring.Problem problem : problems) {
+      if (problem.severity() == PrefabWiring.Severity.ERROR) {
+        errorLinks.add(new LinkKey(problem.instance(), problem.port(), problem.link()));
+      }
+    }
+    chips = layoutChips(PrefabWiring.connections(getLevel().prefabs()));
     instanceList.setItems(listItems(), selectedName, listOrder == ListOrder.LOAD_ORDER);
     if (!rebuildSecondary || secondaryContent == null || secondaryHeader == null) return;
     boolean preserveScroll =
@@ -401,7 +756,22 @@ public final class PrefabMode extends LevelEditorMode {
                       if (!focused) commitName.accept(name.getText());
                     }
                   });
-              secondaryHeader.add(name).growX().height(40f).row();
+              Table nameRow = new Table();
+              nameRow.add(name).growX().minWidth(0f).height(40f);
+              TextButton active =
+                  Scene2dElementFactory.createButton(
+                      instance.active() ? "Active" : "Inactive",
+                      instance.active() ? "green" : "default",
+                      14);
+              active.addListener(
+                  new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                      setActive(instance.name(), !instance.active());
+                    }
+                  });
+              nameRow.add(active).width(84f).height(40f).padLeft(4f);
+              secondaryHeader.add(nameRow).growX().row();
               secondaryHeader
                   .add(
                       Scene2dElementFactory.createLabel(
@@ -412,6 +782,16 @@ public final class PrefabMode extends LevelEditorMode {
                   .padBottom(5f)
                   .padLeft(5f)
                   .row();
+              if (isUnplaced(instance)) {
+                Label unplaced =
+                    Scene2dElementFactory.createLabel(
+                        "Not shown in the world until it is linked to a placed prefab. Drop it from"
+                            + " the palette onto a prefab, or link it in Connections.",
+                        12,
+                        PrefabConnectionsTab.MUTED_COLOR);
+                unplaced.setWrap(true);
+                secondaryHeader.add(unplaced).growX().padLeft(5f).padBottom(5f).row();
+              }
               secondaryHeader.add(Scene2dElementFactory.createHorizontalDivider()).growX().row();
               Optional<PrefabProperty<ShaderParameters>> editedShader =
                   editedShaderProperty(prefab, instance);
@@ -419,12 +799,183 @@ public final class PrefabMode extends LevelEditorMode {
                 addShaderParameterEditor(editedShader.get(), instance);
                 return;
               }
+              secondaryHeader.add(detailsTabs(instance)).growX().padTop(4f).row();
+              if (detailsTab == DetailsTab.CONNECTIONS) {
+                connectionsTab.build(secondaryContent, instance, problems);
+                return;
+              }
+              addProblemNotice(instance);
               PropertyAccess access = new InstancePropertyAccess(instance.name());
-              for (PrefabProperty<?> property : prefab.visibleProperties(instance))
+              for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
+                Optional<ArtifactSlot<?>> slot = prefab.slotFor(property);
+                if (slot.isPresent() && !instance.links(slot.get()).isEmpty()) {
+                  addLinkedProperty(instance, property, slot.get());
+                  continue;
+                }
                 addProperty(property, instance.name(), access);
+                slot.ifPresent(s -> addUseArtifactButton(instance, s));
+                addPlaceholderHint(prefab, instance, property);
+              }
             });
     secondaryScrollInstanceName = selectedName;
     secondaryScrollPane.setScrollY(scrollY);
+  }
+
+  private Table detailsTabs(PrefabInstance instance) {
+    Table tabs = new Table();
+    tabs.defaults().minWidth(0).growX().uniformX().height(34f).pad(0f, 2f, 0f, 2f);
+    int links = PrefabConnectionsTab.linkCount(getLevel().prefabs(), instance);
+    for (DetailsTab tab : DetailsTab.values()) {
+      String label = tab == DetailsTab.CONNECTIONS ? tab.label + " (" + links + ")" : tab.label;
+      TextButton button =
+          Scene2dElementFactory.createButton(
+              label, tab == detailsTab ? "blue-outline" : "default", 14);
+      button.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              if (detailsTab == tab) return;
+              detailsTab = tab;
+              requestRebuild();
+            }
+          });
+      tabs.add(button);
+    }
+    return tabs;
+  }
+
+  private void addProblemNotice(PrefabInstance instance) {
+    long errors = 0;
+    long warnings = 0;
+    for (PrefabWiring.Problem problem : problemsOf(instance.name())) {
+      if (problem.severity() == PrefabWiring.Severity.ERROR) errors++;
+      else warnings++;
+    }
+    if (errors + warnings == 0) return;
+    Label notice =
+        Scene2dElementFactory.createLabel(
+            (errors + warnings)
+                + (errors + warnings == 1 ? " link needs" : " links need")
+                + " attention, see Connections.",
+            14,
+            errors > 0 ? PrefabConnectionsTab.ERROR_COLOR : PrefabConnectionsTab.WARNING_COLOR);
+    notice.setWrap(true);
+    secondaryContent.add(notice).growX().padTop(SETTINGS_PAD).padLeft(5f).row();
+  }
+
+  private List<PrefabWiring.Problem> problemsOf(String instance) {
+    List<PrefabWiring.Problem> result = new ArrayList<>();
+    for (PrefabWiring.Problem problem : problems) {
+      if (problem.instance().equals(instance) || problem.link().source().equals(instance)) {
+        result.add(problem);
+      }
+    }
+    return result;
+  }
+
+  private void addLinkedProperty(
+      PrefabInstance instance, PrefabProperty<?> property, ArtifactSlot<?> slot) {
+    Table setting = new Table();
+    setting.defaults().growX().minWidth(0f);
+    setting
+        .add(
+            Scene2dElementFactory.createLabel(
+                property.displayName(), 18, ModeDetailsPanel.TEXT_COLOR))
+        .left()
+        .row();
+    for (PrefabLink link : instance.links(slot)) {
+      Table row = new Table();
+      String output =
+          PrefabWiring.outputPort(getLevel().prefabs(), link)
+              .map(PrefabPort::displayName)
+              .orElse(link.port());
+      Label chip =
+          Scene2dElementFactory.createLabel(
+              "Artifact: " + link.source() + " > " + output,
+              14,
+              PrefabConnectionsTab.ARTIFACT_COLOR);
+      chip.setEllipsis(true);
+      row.add(chip).growX().minWidth(0f).left();
+      TextButton go = Scene2dElementFactory.createButton("Go", "default", 13);
+      go.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              focus(link.source());
+            }
+          });
+      row.add(go).width(36f).height(26f);
+      TextButton unlink = Scene2dElementFactory.createButton("X", "red-outline", 13);
+      unlink.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              removeLink(instance.name(), slot.key(), link);
+            }
+          });
+      row.add(unlink).width(30f).height(26f).padLeft(2f);
+      setting.add(row).padTop(2f).row();
+    }
+    Label fallback =
+        Scene2dElementFactory.createLabel(
+            "Manual value kept for when the link is removed: "
+                + instance.properties().get(property.key()),
+            12,
+            PrefabConnectionsTab.MUTED_COLOR);
+    fallback.setWrap(true);
+    setting.add(fallback).row();
+    secondaryContent.add(setting).growX().padTop(SETTINGS_PAD).row();
+  }
+
+  private void addUseArtifactButton(PrefabInstance instance, ArtifactSlot<?> slot) {
+    TextButton button =
+        Scene2dElementFactory.createButton(
+            "Use Artifact (" + slot.type().displayName() + ")...", "default", 13);
+    PrefabConnectionsTab.LinkEnd end = new PrefabConnectionsTab.LinkEnd(instance.name(), slot);
+    button.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            openLinkPicker(end, button);
+          }
+        });
+    secondaryContent.add(button).right().height(26f).padTop(2f).row();
+  }
+
+  private void addPlaceholderHint(
+      Prefab prefab, PrefabInstance instance, PrefabProperty<?> property) {
+    for (PrefabPort port : prefab.ports(instance, PrefabPort.Kind.ARTIFACT_SLOT)) {
+      if (!(port instanceof ArtifactSlot<?> slot)
+          || slot.placeholderProperty().filter(p -> p == property).isEmpty()) {
+        continue;
+      }
+      List<String> aliases = new ArrayList<>();
+      for (PrefabLink link : instance.links(slot)) aliases.add(link.alias());
+      String text = String.valueOf(slot.placeholderProperty().get().get(instance));
+      Set<String> unknown = new LinkedHashSet<>(Placeholders.names(text));
+      unknown.removeAll(aliases);
+      String hint =
+          aliases.isEmpty()
+              ? "Link '"
+                  + slot.displayName()
+                  + "' artifacts in Connections to use {alias} placeholders."
+              : "Placeholders: "
+                  + String.join(" ", aliases.stream().map(alias -> "{" + alias + "}").toList());
+      Label hintLabel =
+          Scene2dElementFactory.createLabel(hint, 12, PrefabConnectionsTab.MUTED_COLOR);
+      hintLabel.setWrap(true);
+      secondaryContent.add(hintLabel).growX().padLeft(5f).row();
+      if (!unknown.isEmpty()) {
+        Label warning =
+            Scene2dElementFactory.createLabel(
+                "Unknown placeholders (shown as written): "
+                    + String.join(" ", unknown.stream().map(name -> "{" + name + "}").toList()),
+                12,
+                PrefabConnectionsTab.WARNING_COLOR);
+        warning.setWrap(true);
+        secondaryContent.add(warning).growX().padLeft(5f).row();
+      }
+    }
   }
 
   private Optional<PrefabProperty<ShaderParameters>> editedShaderProperty(
@@ -559,7 +1110,11 @@ public final class PrefabMode extends LevelEditorMode {
       }
       case ENUM -> {
         PrefabProperty<String> p = cast(property);
-        String[] values = p.choices().toArray(String[]::new);
+        List<String> choices = new ArrayList<>(p.choices());
+        // Open selections accept values that are currently not offered, which stay selectable.
+        String current = access.get(p);
+        if (!choices.contains(current)) choices.addFirst(current);
+        String[] values = choices.toArray(String[]::new);
         secondaryContent
             .add(
                 new SelectSetting<>(
@@ -802,7 +1357,12 @@ public final class PrefabMode extends LevelEditorMode {
                             .equals(visibilitySignature(prefab, replacement));
                 int index = getLevel().prefabs().indexOf(source);
                 if (index >= 0) {
-                  applyChange(() -> getLevel().replacePrefab(index, replacement), rebuild);
+                  applyChange(
+                      () -> {
+                        getLevel().replacePrefab(index, replacement);
+                        dropLinksToUnavailableOutputs(replacement.name());
+                      },
+                      rebuild);
                 }
               } catch (IllegalArgumentException exception) {
                 LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
@@ -812,14 +1372,39 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
-   * Lists the visible properties and shader parameters, which decide the generated controls.
+   * Removes the links to outputs an instance no longer offers, e.g. after its item list was
+   * shortened.
+   *
+   * @param name name of the changed instance
+   */
+  private void dropLinksToUnavailableOutputs(String name) {
+    int dropped = PrefabWiring.linksToUnavailableOutputs(getLevel().prefabs(), name).size();
+    if (dropped == 0) return;
+    List<PrefabInstance> unlinked =
+        PrefabWiring.withoutLinksToUnavailableOutputs(getLevel().prefabs(), name);
+    getLevel().prefabs().clear();
+    getLevel().prefabs().addAll(unlinked);
+    LevelEditorSystem.showFeedback(
+        "Removed "
+            + dropped
+            + (dropped == 1 ? " link" : " links")
+            + " to outputs "
+            + name
+            + " no longer has.",
+        Color.YELLOW);
+  }
+
+  /**
+   * Lists the visible properties, shader parameters and available ports, which decide the generated
+   * controls.
    *
    * @param prefab prefab definition of the instance
    * @param instance normalized instance
-   * @return keys of the visible properties and shader parameters
+   * @return keys of the visible properties, shader parameters and available ports
    */
   private static List<String> visibilitySignature(Prefab prefab, PrefabInstance instance) {
     List<String> keys = new ArrayList<>();
+    for (PrefabPort port : prefab.ports(instance)) keys.add("port:" + port.key());
     for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
       keys.add(property.key());
       if (property.type() != PrefabPropertyType.SHADER_PARAMETERS) continue;
@@ -834,26 +1419,425 @@ public final class PrefabMode extends LevelEditorMode {
     return keys;
   }
 
-  private void addSelectedPrefab() {
-    if (selectedPrefab == null) {
-      LevelEditorSystem.showFeedback("No prefab definitions are registered.", Color.YELLOW);
-      return;
-    }
-    add(selectedPrefab);
+  private void setActive(String name, boolean active) {
+    int index = indexOf(name);
+    if (index < 0) return;
+    PrefabInstance current = getLevel().prefabs().get(index);
+    applyChange(() -> getLevel().replacePrefab(index, current.withActive(active)));
   }
 
-  private void add(Prefab prefab) {
+  private void addLink(String receiverName, PrefabPort input, PrefabLink link) {
+    int index = indexOf(receiverName);
+    if (index < 0) return;
+    PrefabInstance receiver = getLevel().prefabs().get(index);
+    Prefab prefab = PrefabRegistry.require(receiver.type());
+    List<PrefabLink> links = new ArrayList<>(receiver.links(input));
+    if (input instanceof ArtifactSlot<?> slot && !slot.multiple()) links.clear();
+    links.add(link);
+    PrefabInstance replacement;
+    try {
+      replacement = prefab.normalize(receiver.withLinks(input.key(), links));
+    } catch (IllegalArgumentException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+      return;
+    }
+    if (!applyChange(() -> getLevel().replacePrefab(index, replacement))) return;
+    Optional<PrefabPort> output = PrefabWiring.outputPort(getLevel().prefabs(), link);
+    if (output.isPresent() && PrefabWiring.lacksPlayer(output.get(), input)) {
+      LevelEditorSystem.showFeedback(
+          "'"
+              + output.get().displayName()
+              + "' has no player, so '"
+              + input.displayName()
+              + "' runs for every player.",
+          Color.YELLOW);
+    } else {
+      LevelEditorSystem.showFeedback(
+          "Linked " + link.source() + " > " + receiverName + "." + input.displayName(),
+          Color.GREEN);
+    }
+  }
+
+  private void removeLink(String receiverName, String port, PrefabLink link) {
+    int index = indexOf(receiverName);
+    if (index < 0) return;
+    PrefabInstance receiver = getLevel().prefabs().get(index);
+    List<PrefabLink> links = new ArrayList<>(receiver.links(port));
+    if (!links.remove(link)) return;
+    applyChange(() -> getLevel().replacePrefab(index, receiver.withLinks(port, links)));
+  }
+
+  private void setAlias(String receiverName, String port, PrefabLink link, String alias) {
+    int index = indexOf(receiverName);
+    if (index < 0) return;
+    if (!PrefabLink.isValidAlias(alias)) {
+      LevelEditorSystem.showFeedback(
+          "Aliases may only contain letters, digits, '_' and '-'.", Color.YELLOW);
+      requestRebuild();
+      return;
+    }
+    PrefabInstance receiver = getLevel().prefabs().get(index);
+    List<PrefabLink> links = new ArrayList<>(receiver.links(port));
+    int linkIndex = links.indexOf(link);
+    if (linkIndex < 0) return;
+    links.set(linkIndex, link.withAlias(alias));
+    try {
+      PrefabInstance replacement =
+          PrefabRegistry.require(receiver.type()).normalize(receiver.withLinks(port, links));
+      applyChange(() -> getLevel().replacePrefab(index, replacement));
+    } catch (IllegalArgumentException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+      requestRebuild();
+    }
+  }
+
+  private void focus(String name) {
+    Optional<PrefabInstance> instance =
+        getLevel().prefabs().stream().filter(i -> i.name().equals(name)).findFirst();
+    if (instance.isEmpty()) {
+      LevelEditorSystem.showFeedback("Prefab '" + name + "' does not exist.", Color.YELLOW);
+      return;
+    }
     cancelAnchorDrag();
     clearPendingPointAssignment();
+    selectedName = name;
+    linkAnchor(instance.get()).ifPresent(LevelEditorSystem::focusCamera);
+    requestRebuild();
+  }
+
+  @SuppressWarnings("unchecked")
+  private void test(String name, PrefabPort port) {
+    if (Game.isMultiplayerClient()) return;
+    Optional<Entity> player = Game.allPlayers().findFirst();
+    try {
+      if (PrefabRuntime.find(getLevel(), name).isEmpty()) {
+        LevelEditorSystem.showFeedback("'" + name + "' was removed in this session.", Color.YELLOW);
+        return;
+      }
+      if (port instanceof PrefabEvent<?> event) {
+        PrefabRuntime.fire(
+            getLevel(),
+            name,
+            (PrefabEvent<Object>) event,
+            event.carriesPlayer() ? player.orElse(null) : null);
+      } else {
+        PrefabRuntime.runAction(getLevel(), name, port.key(), player);
+      }
+      LevelEditorSystem.showFeedback(
+          (port instanceof PrefabEvent<?> ? "Sent " : "Ran ") + name + "." + port.displayName(),
+          Color.GREEN);
+    } catch (RuntimeException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+    }
+    requestRebuild();
+  }
+
+  /**
+   * Lists the ports that can be linked to a port of the selected instance.
+   *
+   * @param end port of the selected instance
+   * @param onlyInstance only list ports of this instance, or {@code null} for all instances
+   * @return choosable ports, grouped by instance
+   */
+  private List<PortPickerPopup.Option> linkOptions(
+      PrefabConnectionsTab.LinkEnd end, String onlyInstance) {
+    List<PrefabInstance> instances = getLevel().prefabs();
+    Optional<PrefabInstance> owner = selectedInstance(end.instance());
+    if (owner.isEmpty())
+      owner = instances.stream().filter(i -> i.name().equals(end.instance())).findFirst();
+    if (owner.isEmpty()) return List.of();
+    List<PortPickerPopup.Option> options = new ArrayList<>();
+    boolean endIsInput = end.port().kind().isInput();
+    BiPredicate<String, String> artifactCycle = PrefabWiring.artifactCycleCheck(instances);
+    for (PrefabInstance candidate : instances) {
+      if (onlyInstance != null && !candidate.name().equals(onlyInstance)) continue;
+      Prefab prefab = PrefabRegistry.require(candidate.type());
+      boolean candidateInWorld = !isAttached(candidate);
+      for (PrefabPort port : prefab.ports(candidate)) {
+        PrefabPort output = endIsInput ? port : end.port();
+        PrefabPort input = endIsInput ? end.port() : port;
+        if (port.kind().isInput() == endIsInput || !PrefabWiring.compatible(output, input)) {
+          continue;
+        }
+        PrefabInstance receiver = endIsInput ? owner.get() : candidate;
+        PrefabLink link =
+            endIsInput
+                ? new PrefabLink(candidate.name(), port.key())
+                : new PrefabLink(end.instance(), end.port().key());
+        boolean artifact = !input.kind().isSignal();
+        if (artifact && link.source().equals(receiver.name())) continue;
+        boolean linked = receiver.links(input).stream().anyMatch(l -> l.sameOutput(link));
+        boolean cycle = artifact && artifactCycle.test(link.source(), receiver.name());
+        String detail = null;
+        if (linked) detail = "already linked";
+        else if (cycle) detail = "would make the value depend on itself";
+        else if (PrefabWiring.lacksPlayer(output, input)) detail = "runs for every player";
+        else if (input instanceof ArtifactSlot<?> slot
+            && !slot.multiple()
+            && !receiver.links(input).isEmpty()) {
+          detail = "replaces the current link";
+        }
+        String label = prefab.portDisplayName(candidate, port);
+        if (port instanceof ArtifactOutput<?> artifactOutput) {
+          label += " (" + artifactOutput.type().displayName() + ")";
+        } else if (port instanceof ArtifactSlot<?> slot) {
+          label += " (" + slot.type().displayName() + ")";
+        }
+        String group =
+            candidate.name().equals(end.instance())
+                ? candidate.name() + " (this prefab)"
+                : candidate.name() + "  -  " + prefab.displayName();
+        options.add(
+            new PortPickerPopup.Option(
+                candidate.name(),
+                group,
+                label,
+                detail,
+                !linked && !cycle,
+                candidateInWorld,
+                () -> addLink(receiver.name(), input, link)));
+      }
+    }
+    return options;
+  }
+
+  private void openLinkPicker(PrefabConnectionsTab.LinkEnd end, Actor anchor) {
+    cancelLinkPick();
+    LevelEditorUI ui = editorUi(anchor);
+    if (ui == null || anchor.getStage() == null) return;
+    com.badlogic.gdx.math.Vector2 position =
+        anchor.localToStageCoordinates(new com.badlogic.gdx.math.Vector2(0f, anchor.getHeight()));
+    showPicker(end, null, ui, position.x - 350f, position.y);
+  }
+
+  private void showPicker(
+      PrefabConnectionsTab.LinkEnd end, String onlyInstance, Group parent, float x, float y) {
+    if (openPicker != null) openPicker.close();
+    String verb = end.port().kind().isInput() ? "Link to '" : "Link '";
+    String title =
+        verb
+            + end.port().displayName()
+            + (end.port().kind().isInput() ? "' from:" : "' to:")
+            + (onlyInstance == null ? "" : " (" + onlyInstance + ")");
+    showOptions(title, linkOptions(end, onlyInstance), onlyInstance == null, parent, x, y);
+  }
+
+  private void showOptions(
+      String title,
+      List<PortPickerPopup.Option> options,
+      boolean worldTabs,
+      Group parent,
+      float x,
+      float y) {
+    if (openPicker != null) openPicker.close();
+    PortPickerPopup[] picker = new PortPickerPopup[1];
+    picker[0] =
+        new PortPickerPopup(
+            title,
+            options,
+            worldTabs,
+            () -> {
+              if (openPicker == picker[0]) openPicker = null;
+            });
+    openPicker = picker[0];
+    picker[0].show(parent, x, y);
+  }
+
+  private LevelEditorUI editorUi(Actor actor) {
+    Actor current = actor;
+    while (current != null && !(current instanceof LevelEditorUI)) current = current.getParent();
+    return (LevelEditorUI) current;
+  }
+
+  private void armLinkPick(PrefabConnectionsTab.LinkEnd end) {
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    if (openPicker != null) openPicker.close();
+    Set<String> targets = new HashSet<>();
+    for (PortPickerPopup.Option option : linkOptions(end, null)) {
+      if (option.enabled()) targets.add(option.instance());
+    }
+    if (targets.isEmpty()) {
+      LevelEditorSystem.showFeedback(
+          "No prefab in this level has a port that fits '" + end.port().displayName() + "'.",
+          Color.YELLOW);
+      return;
+    }
+    pickTargets = targets;
+    pendingLinkPick = end;
+  }
+
+  private void cancelLinkPick() {
+    pendingLinkPick = null;
+    pickTargets = Set.of();
+    if (openPicker != null) openPicker.close();
+  }
+
+  private void completeLinkPick(Point cursor) {
+    PrefabConnectionsTab.LinkEnd end = pendingLinkPick;
+    Set<String> targets = pickTargets;
+    cancelLinkPick();
+    Optional<PrefabInstance> target =
+        getLevel().prefabs().stream()
+            .filter(i -> targets.contains(i.name()))
+            .filter(i -> nearestDistance(i, cursor) <= PICK_DISTANCE)
+            .min(Comparator.comparingDouble(i -> nearestDistance(i, cursor)));
+    if (target.isEmpty()) {
+      LevelEditorSystem.showFeedback("No prefab with a matching port was clicked.", Color.YELLOW);
+      return;
+    }
+    List<PortPickerPopup.Option> enabled =
+        linkOptions(end, target.get().name()).stream()
+            .filter(PortPickerPopup.Option::enabled)
+            .toList();
+    if (enabled.size() == 1) {
+      enabled.getFirst().choose().run();
+      return;
+    }
+    LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
+    Stage stage = ui == null ? null : ui.getStage();
+    if (stage == null) return;
+    com.badlogic.gdx.math.Vector2 position =
+        stage.screenToStageCoordinates(
+            new com.badlogic.gdx.math.Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    showPicker(end, target.get().name(), ui, position.x + 12f, position.y);
+  }
+
+  private void togglePalette() {
+    palette = palette == null ? new PrefabPalette(new PaletteListener()) : null;
+    paletteDrag = null;
+    applyAddButtonStyle();
+  }
+
+  private void applyAddButtonStyle() {
+    if (addButton == null) return;
+    TextButton.TextButtonStyle base =
+        UIUtils.defaultSkin()
+            .get(palette == null ? "blue-outline" : "green", TextButton.TextButtonStyle.class);
+    ImageButton.ImageButtonStyle style = addButton.getStyle();
+    style.up = base.up;
+    style.down = base.down;
+    style.over = base.over;
+    addButton.setStyle(style);
+  }
+
+  private boolean isCursorOverUI() {
+    LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
+    return ui != null && ui.isCursorOverUI();
+  }
+
+  /**
+   * Adds a new instance of a prefab without a world position and links it to another instance.
+   *
+   * @param prefab prefab to add, see {@link #isAttached(Prefab)}
+   * @param partner instance to link the new one to, or {@code null} to add it unlinked
+   */
+  private void addAttached(Prefab prefab, String partner) {
+    // The new instance joins the area of its partner.
+    if (partner != null) selectedName = partner;
+    String name = add(prefab, getCursorPosition());
+    if (name == null || partner == null) return;
+    detailsTab = DetailsTab.CONNECTIONS;
+    offerLinks(name, partner);
+  }
+
+  /**
+   * Links two instances: directly if exactly one link between them is possible, otherwise through a
+   * list of the possible links.
+   *
+   * @param name instance whose ports are linked
+   * @param partner instance the ports are linked to
+   */
+  private void offerLinks(String name, String partner) {
+    Optional<PrefabInstance> instance = selectedInstance(name);
+    if (instance.isEmpty()) return;
+    Prefab prefab = PrefabRegistry.require(instance.get().type());
+    List<PortPickerPopup.Option> options = new ArrayList<>();
+    for (PrefabPort port : prefab.ports(instance.get())) {
+      String portName = prefab.portDisplayName(instance.get(), port);
+      for (PortPickerPopup.Option option :
+          linkOptions(new PrefabConnectionsTab.LinkEnd(name, port), partner)) {
+        if (!option.enabled()) continue;
+        String label =
+            port.kind().isInput()
+                ? option.label() + "  ->  " + portName
+                : portName + "  ->  " + option.label();
+        options.add(
+            new PortPickerPopup.Option(
+                option.instance(),
+                partner + "  -  " + name,
+                label,
+                option.detail(),
+                true,
+                option.inWorld(),
+                option.choose()));
+      }
+    }
+    if (options.isEmpty()) {
+      LevelEditorSystem.showFeedback(
+          "'" + name + "' has no port that fits a port of '" + partner + "'.", Color.YELLOW);
+      return;
+    }
+    // The option links through addLink, which reports the result.
+    if (options.size() == 1) {
+      options.getFirst().choose().run();
+      return;
+    }
+    LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
+    Stage stage = ui == null ? null : ui.getStage();
+    if (stage == null) return;
+    com.badlogic.gdx.math.Vector2 position =
+        stage.screenToStageCoordinates(
+            new com.badlogic.gdx.math.Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    showOptions(
+        "Link '" + name + "' and '" + partner + "':",
+        options,
+        false,
+        ui,
+        position.x + 12f,
+        position.y);
+  }
+
+  /**
+   * Adds a new instance of a prefab and selects it.
+   *
+   * @param prefab prefab to add
+   * @param cursor world position the first anchor of the new instance is snapped to
+   * @return name of the added instance, or {@code null} if it could not be added
+   */
+  private String add(Prefab prefab, Point cursor) {
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    cancelLinkPick();
+    String name = newInstanceName(prefab);
+    PrefabInstance added;
+    try {
+      added = placedInstance(prefab, name, cursor);
+    } catch (IllegalArgumentException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+      return null;
+    }
+    applyChange(
+        () -> {
+          getLevel().addPrefab(added);
+          applyGroupedOrder();
+          selectedName = name;
+        });
+    return containsName(name) ? name : null;
+  }
+
+  // New instances join the area of the selected instance.
+  private String newInstanceName(Prefab prefab) {
     String area = selected().map(i -> PrefabNames.areaPrefix(i.name())).orElse(null);
     String base = area == null ? prefab.type() : area + "/" + prefab.type();
-    String name = containsName(base) ? PrefabNames.nextName(base, this::containsName) : base;
+    return containsName(base) ? PrefabNames.nextName(base, this::containsName) : base;
+  }
+
+  private PrefabInstance placedInstance(Prefab prefab, String name, Point cursor) {
     PrefabInstance instance = prefab.newInstance(name);
-    Point screenCenter =
-        new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y);
     Optional<WorldAnchor> anchor = worldAnchors(instance).stream().findFirst();
     if (anchor.isPresent()) {
-      Point spawnPosition = propertyPositionForCursor(screenCenter, anchor.get().feedbackOffset());
+      Point spawnPosition = propertyPositionForCursor(cursor, anchor.get().feedbackOffset());
       Point anchorPosition = anchor.get().authoredPosition();
       instance =
           prefab.translate(
@@ -861,13 +1845,7 @@ public final class PrefabMode extends LevelEditorMode {
               Vector2.of(
                   spawnPosition.x() - anchorPosition.x(), spawnPosition.y() - anchorPosition.y()));
     }
-    PrefabInstance added = prefab.normalize(instance);
-    applyChange(
-        () -> {
-          getLevel().addPrefab(added);
-          applyGroupedOrder();
-          selectedName = name;
-        });
+    return prefab.normalize(instance);
   }
 
   private void duplicateSelected() {
@@ -901,9 +1879,24 @@ public final class PrefabMode extends LevelEditorMode {
     int deletedIndex = indexOf(name);
     if (deletedIndex < 0) return;
     int selectionIndex = deletedIndex;
+    int removedLinks = PrefabWiring.countLinksTo(getLevel().prefabs(), Set.of(name));
+    if (removedLinks > 0) {
+      LevelEditorSystem.showFeedback(
+          "Deleted "
+              + name
+              + " and "
+              + removedLinks
+              + (removedLinks == 1 ? " link" : " links")
+              + " to it.",
+          Color.YELLOW);
+    }
     applyChange(
         () -> {
           getLevel().removePrefab(name);
+          List<PrefabInstance> unlinked =
+              PrefabWiring.removeLinksTo(getLevel().prefabs(), Set.of(name));
+          getLevel().prefabs().clear();
+          getLevel().prefabs().addAll(unlinked);
           if (Objects.equals(selectedName, name)) {
             selectedName =
                 selectionIndex < getLevel().prefabs().size()
@@ -930,6 +1923,10 @@ public final class PrefabMode extends LevelEditorMode {
       applyChange(
           () -> {
             getLevel().replacePrefab(index, current.withName(name));
+            List<PrefabInstance> relinked =
+                PrefabWiring.renameSources(getLevel().prefabs(), Map.of(current.name(), name));
+            getLevel().prefabs().clear();
+            getLevel().prefabs().addAll(relinked);
             applyGroupedOrder();
             selectedName = name;
             if (shaderEditTarget != null
@@ -964,30 +1961,66 @@ public final class PrefabMode extends LevelEditorMode {
   private List<PrefabInstanceList.Item> listItems() {
     List<PrefabNames.Node> tree = PrefabNames.tree(getLevel().prefabs());
     if (listOrder == ListOrder.ALPHABETICAL) tree = PrefabNames.alphabetical(tree);
-    return listItems(tree, "");
+    Map<String, PrefabWiring.Severity> worst = new HashMap<>();
+    for (PrefabWiring.Problem problem : problems) {
+      worst.merge(problem.instance(), problem.severity(), (a, b) -> a.compareTo(b) >= 0 ? a : b);
+    }
+    return listItems(
+        tree, "", instance -> badges(instance, worst.get(instance.name()), isUnplaced(instance)));
+  }
+
+  /* Instances without a world position that are not attached to a prefab in the world. */
+  private boolean isUnplaced(PrefabInstance instance) {
+    return !chips.containsKey(instance.name()) && isAttached(instance);
+  }
+
+  private static List<PrefabInstanceList.Badge> badges(
+      PrefabInstance instance, PrefabWiring.Severity problem, boolean unplaced) {
+    List<PrefabInstanceList.Badge> badges = new ArrayList<>();
+    if (unplaced) badges.add(new PrefabInstanceList.Badge("not in world", UNPLACED_BADGE_COLOR));
+    if (!instance.active()) {
+      badges.add(new PrefabInstanceList.Badge("off", new Color(0.55f, 0.55f, 0.55f, 1f)));
+    }
+    if (problem != null) {
+      badges.add(
+          new PrefabInstanceList.Badge(
+              "!",
+              problem == PrefabWiring.Severity.ERROR
+                  ? PrefabConnectionsTab.ERROR_COLOR
+                  : PrefabConnectionsTab.WARNING_COLOR));
+    }
+    return badges;
   }
 
   // Inside an area group, the area prefix is omitted from the displayed names.
   private static List<PrefabInstanceList.Item> listItems(
-      List<PrefabNames.Node> nodes, String hiddenPrefix) {
+      List<PrefabNames.Node> nodes,
+      String hiddenPrefix,
+      Function<PrefabInstance, List<PrefabInstanceList.Badge>> badges) {
     List<PrefabInstanceList.Item> items = new ArrayList<>();
     for (PrefabNames.Node node : nodes) {
       switch (node) {
         case PrefabNames.Leaf leaf -> {
           String name = leaf.instance().name();
           items.add(
-              new PrefabInstanceList.Entry(leaf.id(), name, name.substring(hiddenPrefix.length())));
+              new PrefabInstanceList.Entry(
+                  leaf.id(),
+                  name,
+                  name.substring(hiddenPrefix.length()),
+                  badges.apply(leaf.instance())));
         }
         case PrefabNames.Branch branch when branch.kind() == PrefabNames.BranchKind.AREA ->
             items.add(
                 new PrefabInstanceList.Group(
-                    branch.id(), branch.key(), listItems(branch.children(), branch.key() + "/")));
+                    branch.id(),
+                    branch.key(),
+                    listItems(branch.children(), branch.key() + "/", badges)));
         case PrefabNames.Branch branch ->
             items.add(
                 new PrefabInstanceList.Group(
                     branch.id(),
                     branch.key().substring(hiddenPrefix.length()),
-                    listItems(branch.children(), hiddenPrefix)));
+                    listItems(branch.children(), hiddenPrefix, badges)));
       }
     }
     return items;
@@ -1043,6 +2076,7 @@ public final class PrefabMode extends LevelEditorMode {
     String newKey = oldKey.substring(0, oldKey.length() - label.length()) + newLabel;
     List<PrefabInstance> members = PrefabNames.instances(branch);
     List<PrefabInstance> renamed = new ArrayList<>();
+    Map<String, String> newNames = new HashMap<>();
     String renamedSelection = selectedName;
     for (PrefabInstance instance : getLevel().prefabs()) {
       if (!members.contains(instance)) {
@@ -1054,6 +2088,7 @@ public final class PrefabMode extends LevelEditorMode {
               ? newKey + instance.name().substring(oldKey.length())
               : newKey + PrefabNames.groupSuffix(instance.name());
       if (instance.name().equals(selectedName)) renamedSelection = name;
+      newNames.put(instance.name(), name);
       renamed.add(instance.withName(name));
     }
     if (renamed.stream().map(PrefabInstance::name).distinct().count() != renamed.size()) {
@@ -1063,10 +2098,11 @@ public final class PrefabMode extends LevelEditorMode {
       return null;
     }
     String selection = renamedSelection;
+    List<PrefabInstance> relinked = PrefabWiring.renameSources(renamed, newNames);
     applyChange(
         () -> {
           getLevel().prefabs().clear();
-          getLevel().prefabs().addAll(renamed);
+          getLevel().prefabs().addAll(relinked);
           applyGroupedOrder();
           selectedName = selection;
         });
@@ -1137,6 +2173,18 @@ public final class PrefabMode extends LevelEditorMode {
     float best = Float.MAX_VALUE;
     for (WorldAnchor anchor : worldAnchors(instance)) {
       best = Math.min(best, (float) anchor.displayPosition().distance(cursor));
+    }
+    // The link anchor is where links and pick highlights are drawn, e.g. the center of a region.
+    Optional<Point> linkAnchor = worldLinkAnchor(instance);
+    if (linkAnchor.isPresent()) {
+      best = Math.min(best, (float) linkAnchor.get().distance(cursor));
+    }
+    AttachedPrefabLayout.Chip chip = chips.get(instance.name());
+    if (chip != null) {
+      // Distance to the marker and its label.
+      Point marker = chip.position();
+      float x = Math.clamp(cursor.x(), marker.x(), marker.x() + CHIP_HIT_WIDTH);
+      best = Math.min(best, (float) new Point(x, marker.y()).distance(cursor));
     }
     return best;
   }
@@ -1249,12 +2297,17 @@ public final class PrefabMode extends LevelEditorMode {
       } else {
         PrefabProperty<Region> regionProperty = cast(anchor.property());
         Region region = regionProperty.get(source);
-        replacement =
-            regionProperty.set(
-                source,
-                anchor.corner() == AnchorCorner.BOTTOM_LEFT
-                    ? new Region(point, region.topRight())
-                    : new Region(region.bottomLeft(), point));
+        Region moved;
+        if (region.bottomLeft().equals(region.topRight())) {
+          // A region collapsed to a single point is moved as a whole, it can only be expanded
+          // through the details panel.
+          moved = new Region(point, point);
+        } else if (anchor.corner() == AnchorCorner.BOTTOM_LEFT) {
+          moved = new Region(point, region.topRight());
+        } else {
+          moved = new Region(region.bottomLeft(), point);
+        }
+        replacement = regionProperty.set(source, moved);
       }
       replacement = PrefabRegistry.require(source.type()).normalize(replacement);
       int index = getLevel().prefabs().indexOf(source);
@@ -1318,11 +2371,19 @@ public final class PrefabMode extends LevelEditorMode {
     }
   }
 
-  private void applyChange(Runnable mutation) {
-    applyChange(mutation, true);
+  private boolean applyChange(Runnable mutation) {
+    return applyChange(mutation, true);
   }
 
-  private void applyChange(Runnable mutation, boolean rebuildDetails) {
+  /**
+   * Applies an edit of the authored instances and respawns the changed ones. A failed edit is
+   * rolled back and reported.
+   *
+   * @param mutation edit of the authored instances
+   * @param rebuildDetails whether the details panel is rebuilt
+   * @return whether the edit was applied
+   */
+  private boolean applyChange(Runnable mutation, boolean rebuildDetails) {
     List<PrefabInstance> previousPrefabs = new ArrayList<>(getLevel().prefabs());
     String previousSelection = selectedName;
     try {
@@ -1332,6 +2393,7 @@ public final class PrefabMode extends LevelEditorMode {
       levelChanged();
       if (rebuildDetails) requestRebuild();
       else rebuildDetails(false);
+      return true;
     } catch (RuntimeException exception) {
       getLevel().prefabs().clear();
       getLevel().prefabs().addAll(previousPrefabs);
@@ -1343,6 +2405,7 @@ public final class PrefabMode extends LevelEditorMode {
       }
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       requestRebuild();
+      return false;
     }
   }
 
@@ -1375,6 +2438,61 @@ public final class PrefabMode extends LevelEditorMode {
     for (PrefabSide side : activeSides()) PrefabSpawner.clear(getLevel(), side);
   }
 
+  /** Tabs of the selected instance's details. */
+  private enum DetailsTab {
+    PROPERTIES("Properties"),
+    CONNECTIONS("Connections");
+
+    private final String label;
+
+    DetailsTab(String label) {
+      this.label = label;
+    }
+  }
+
+  /** Connects the connections tab to the editor mode. */
+  private final class ConnectionsHost implements PrefabConnectionsTab.Host {
+    @Override
+    public List<PrefabInstance> instances() {
+      return getLevel().prefabs();
+    }
+
+    @Override
+    public void connect(PrefabConnectionsTab.LinkEnd end, Actor anchor) {
+      openLinkPicker(end, anchor);
+    }
+
+    @Override
+    public void pickInWorld(PrefabConnectionsTab.LinkEnd end) {
+      armLinkPick(end);
+    }
+
+    @Override
+    public void removeLink(String receiver, String port, PrefabLink link) {
+      PrefabMode.this.removeLink(receiver, port, link);
+    }
+
+    @Override
+    public void setAlias(String receiver, String port, PrefabLink link, String alias) {
+      PrefabMode.this.setAlias(receiver, port, link, alias);
+    }
+
+    @Override
+    public void focus(String instance) {
+      PrefabMode.this.focus(instance);
+    }
+
+    @Override
+    public void test(String instance, PrefabPort port) {
+      PrefabMode.this.test(instance, port);
+    }
+
+    @Override
+    public boolean canTest() {
+      return !Game.isMultiplayerClient();
+    }
+  }
+
   /** Order in which the prefab instance list is shown. */
   private enum ListOrder {
     ALPHABETICAL("Alphabetical"),
@@ -1384,6 +2502,39 @@ public final class PrefabMode extends LevelEditorMode {
 
     ListOrder(String label) {
       this.label = label;
+    }
+  }
+
+  /** Places prefabs dragged from the palette into the level. */
+  private final class PaletteListener implements PrefabPalette.Listener {
+    @Override
+    public void dragStarted(Prefab prefab) {
+      cancelAnchorDrag();
+      clearPendingPointAssignment();
+      cancelLinkPick();
+      paletteDrag = prefab;
+    }
+
+    @Override
+    public void dropped(Prefab prefab) {
+      paletteDrag = null;
+      // The palette may have been closed or the mode switched while dragging.
+      if (palette == null || palette.getStage() == null || isCursorOverUI()) return;
+      if (isAttached(prefab)) {
+        addAttached(prefab, prefabNear(getCursorPosition()).map(PrefabInstance::name).orElse(null));
+      } else {
+        add(prefab, getCursorPosition());
+      }
+    }
+
+    @Override
+    public void clicked(Prefab prefab) {
+      if (isAttached(prefab)) {
+        addAttached(prefab, selected().map(PrefabInstance::name).orElse(null));
+        return;
+      }
+      LevelEditorSystem.showFeedback(
+          "Drag '" + prefab.displayName() + "' into the level to place it.", Color.WHITE);
     }
   }
 

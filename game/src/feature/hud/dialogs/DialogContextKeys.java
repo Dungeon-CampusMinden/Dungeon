@@ -107,6 +107,12 @@ public class DialogContextKeys {
   /** The key for the dialog script (String) used by {@link DialogDialog}. */
   public static final String DIALOG = "dialog";
 
+  /**
+   * Values substituted for {@code {name}} placeholders in a (translated) dialog script, as a {@code
+   * String[]} of alternating names and values.
+   */
+  public static final String PLACEHOLDERS = "placeholders";
+
   /** The image path substituted for {@code {path}} in a translated dialog script. */
   public static final String SPEAKER_IMAGE = "speakerImage";
 

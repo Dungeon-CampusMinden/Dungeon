@@ -20,7 +20,7 @@ public final class PrefabChangeConverter
             })
         .setName(message.name())
         .setType(message.type())
-        .setPropertiesJson(message.propertiesJson())
+        .setInstanceJson(message.instanceJson())
         .build();
   }
 
@@ -35,7 +35,7 @@ public final class PrefabChangeConverter
               throw new IllegalArgumentException("Unknown prefab change action: " + proto);
         };
     return new PrefabChangeMessage(
-        action, proto.getName(), proto.getType(), proto.getPropertiesJson());
+        action, proto.getName(), proto.getType(), proto.getInstanceJson());
   }
 
   @Override
