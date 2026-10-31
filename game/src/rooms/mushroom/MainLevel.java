@@ -32,7 +32,6 @@ import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import feature.inventory.Item;
 import feature.level.visibility.LevelHideFactory;
 import feature.systems.DebugDrawSystem;
 import feature.systems.EventScheduler;
@@ -47,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.IntStream;
 import rooms.mushroom.modules.items.AxeItem;
 import rooms.mushroom.modules.items.CustomHammerItem;
 import rooms.mushroom.modules.items.LanternItem;
@@ -60,8 +58,6 @@ import rooms.mushroom.shaders.MushroomPostProcessing;
 
 /** The MushRoom. */
 public class MainLevel extends DungeonLevel {
-
-  private static final int TO_GENERATE_PER_TYPE = 1;
 
   private NpcState npcState = NpcState.FIRST_TALK;
 
@@ -490,40 +486,16 @@ public class MainLevel extends DungeonLevel {
   }
 
   private void generateMushrooms() {
-    List<Point> allPoints = listPoints("mushroom");
-    Collections.shuffle(allPoints);
-
-    int maxMushroomCount = Mushrooms.values().length * TO_GENERATE_PER_TYPE;
-    if (allPoints.size() > maxMushroomCount) {
-      allPoints = allPoints.subList(0, maxMushroomCount);
+    List<Point> points = listPoints("mushroom");
+    Collections.shuffle(points);
+    Mushrooms[] types = Mushrooms.values();
+    for (int index = 0; index < Math.min(points.size(), types.length); index++) {
+      Mushrooms type = types[index];
+      if (!type.poisonous()) maxMushrooms++;
+      Game.add(
+          WorldItemBuilder.buildWorldItem(
+              MushroomItem.createMushroomItem(type), points.get(index)));
     }
-
-    List<Point> finalAllPoints = allPoints;
-    IntStream.range(0, allPoints.size())
-        .forEach(
-            index -> {
-              Point p = finalAllPoints.get(index);
-              if (index >= Mushrooms.values().length * TO_GENERATE_PER_TYPE) {
-                return;
-              }
-
-              Mushrooms type = Mushrooms.values()[index % Mushrooms.values().length];
-              if (!type.poisonous()) {
-                maxMushrooms++;
-              }
-
-              Entity mushroom =
-                  WorldItemBuilder.buildWorldItem(MushroomItem.createMushroomItem(type), p);
-              mushroom.remove(InteractionComponent.class);
-              mushroom.add(
-                  new InteractionComponent(
-                      new Interaction(
-                          (e, player) -> {
-                            Item item = MushroomItem.createMushroomItem(type);
-                            item.collect(e, player);
-                          })));
-              Game.add(mushroom);
-            });
   }
 
   private Tuple<Integer, Integer> getCollectionState() {

@@ -501,7 +501,7 @@ class LastHourPlayerCheckpointTest {
     assertTrue(inventory(sender).transfer(blue, inventory(recipient)));
     UsbStickItem.RedUsbStick red = new UsbStickItem.RedUsbStick();
     assertTrue(inventory(sender).add(red));
-    Item unsaveable = new UnregisteredItem();
+    Item unsaveable = new Item("unregistered", "", null);
     assertTrue(inventory(sender).add(unsaveable));
     Game.remove(sender);
     completeLogin();
@@ -739,12 +739,5 @@ class LastHourPlayerCheckpointTest {
                     .anyMatch(item -> item.state().itemType().equals("BlueUsbStick")))
         .map(player -> player.name())
         .toList();
-  }
-
-  /** Item without a registry entry, so saving a player that holds it fails. */
-  private static final class UnregisteredItem extends Item {
-    UnregisteredItem() {
-      super("unregistered", "", null);
-    }
   }
 }

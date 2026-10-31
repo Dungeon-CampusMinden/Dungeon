@@ -402,46 +402,14 @@ public final class MiscFactory {
   }
 
   /**
-   * Creates a new Entity that blocks a door aka. locks a door tile.
-   *
-   * @param door the door Tile to be locked
-   * @param requiredKeyType the key type which is needed to unlock the door
-   * @return a new DoorBlocker Entity
-   */
-  public static Entity createDoorBlocker(
-      DoorTile door, final Class<? extends Item> requiredKeyType) {
-    return createDoorBlocker(door, requiredKeyType, interactor -> {});
-  }
-
-  /**
-   * Creates a key-locked door blocker and invokes a server callback after the door opens.
+   * Creates a door blocker that opens with an {@link ItemKey} and provides the unlocking player to
+   * its callback.
    *
    * @param door the door tile to unlock
-   * @param requiredKeyType key item required to open the door
    * @param onUnlocked callback invoked after the authoritative open state changes
    * @return a new DoorBlocker entity
    */
-  public static Entity createDoorBlocker(
-      DoorTile door, final Class<? extends Item> requiredKeyType, Runnable onUnlocked) {
-    return createDoorBlocker(door, requiredKeyType, interactor -> onUnlocked.run());
-  }
-
-  /**
-   * Creates a key-locked door blocker and provides the unlocking player to its callback.
-   *
-   * @param door the door tile to unlock
-   * @param requiredKeyType key item required to open the door
-   * @param onUnlocked callback invoked after the authoritative open state changes
-   * @return a new DoorBlocker entity
-   */
-  public static Entity createDoorBlocker(
-      DoorTile door, final Class<? extends Item> requiredKeyType, Consumer<Entity> onUnlocked) {
-    if (!ItemKey.class.equals(requiredKeyType)) {
-      throw new IllegalArgumentException(
-          "DoorBlocker entity could not be created: Only ItemKey.class is allowed as requiredKeyType");
-    }
-
-    String reqKeyName = "silbernen Schlüssel";
+  public static Entity createDoorBlocker(DoorTile door, Consumer<Entity> onUnlocked) {
     Entity doorBlocker = new Entity("doorBlocker");
     float x = door.position().x();
     float y = door.position().y();
@@ -458,9 +426,9 @@ public final class MiscFactory {
                     return;
                   }
 
-                  if (!invComp.hasItem(requiredKeyType)) {
+                  if (!invComp.hasItem(ItemKey.class)) {
                     DialogUtils.showTextPopup(
-                        "Du brauchst einen " + reqKeyName + " um diese Tür zu öffnen!",
+                        "Du brauchst einen silbernen Schlüssel um diese Tür zu öffnen!",
                         "Fehlender Schlüssel.");
                     return;
                   }
@@ -472,14 +440,12 @@ public final class MiscFactory {
                               .put(DialogContextKeys.TITLE, "Verschlossene Tür.")
                               .put(
                                   DialogContextKeys.MESSAGE,
-                                  "Willst du deinen "
-                                      + reqKeyName
-                                      + " verwenden, um die Tür zu öffnen?")
+                                  "Willst du deinen silbernen Schlüssel verwenden, um die Tür zu öffnen?")
                               .build());
                   doorUI.registerCallback(
                       DialogContextKeys.ON_YES,
                       data -> {
-                        invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
+                        invComp.itemOfClass(ItemKey.class).ifPresent(invComp::remove);
                         Game.remove(interacted);
                         door.open();
                         if (door.isOpen()) onUnlocked.accept(interactor);

@@ -68,16 +68,8 @@ public class JournalItem extends Item {
    */
   public static void openJournal(Entity user) {
     user.fetch(InventoryComponent.class)
-        .ifPresent(
-            ic -> {
-              if (!ic.hasItem(JournalItem.class)) return;
-              ic.itemOfClass(JournalItem.class)
-                  .ifPresent(
-                      i -> {
-                        JournalItem journalItem = (JournalItem) i;
-                        openJournal(user, journalItem.unlockedPages.getAsInt());
-                      });
-            });
+        .flatMap(inventory -> inventory.itemOfClass(JournalItem.class))
+        .ifPresent(item -> item.use(user));
   }
 
   private static void openJournal(Entity user, int unlockedPages) {
