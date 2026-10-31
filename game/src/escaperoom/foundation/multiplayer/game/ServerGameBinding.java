@@ -26,6 +26,7 @@ import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentat
 import escaperoom.foundation.runtime.AttemptOutcome;
 import escaperoom.foundation.runtime.AttemptResult;
 import escaperoom.foundation.runtime.HintPreview;
+import escaperoom.foundation.runtime.Projection.ProgressStatus;
 import escaperoom.foundation.runtime.ReleasedHint;
 import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.MiscFactory;
@@ -56,6 +57,7 @@ public final class ServerGameBinding {
   private final ServerBinding serverBinding;
   private final GamePresentation presentation;
   private final DoorTile doorTile;
+  private final Map<String, List<DoorTile>> riddleDoors;
   private final ExitTile exitTile;
   private final Runnable onTerminalComplete;
   private final FoundationTracking tracking = new FoundationTracking();
@@ -71,6 +73,7 @@ public final class ServerGameBinding {
    * @param definition complete host-owned room definition
    * @param presentation complete player-facing room presentation
    * @param doorTile authoritative common-exit door
+   * @param riddleDoors authoritative doors by riddle, opened once their riddle is no longer locked
    * @param exitTile authoritative common-exit tile
    * @param levelSystem level system whose default exit callback is disabled
    * @param componentStations authoritative source and input-device positions
@@ -82,6 +85,7 @@ public final class ServerGameBinding {
       final RoomDefinition definition,
       final GamePresentation presentation,
       final DoorTile doorTile,
+      final Map<String, List<DoorTile>> riddleDoors,
       final ExitTile exitTile,
       final LevelSystem levelSystem,
       final Map<String, Point> componentStations,
@@ -92,15 +96,17 @@ public final class ServerGameBinding {
     this.presentation = Objects.requireNonNull(presentation, "presentation");
     FoundationDialogs.register();
     this.doorTile = Objects.requireNonNull(doorTile, "doorTile");
+    this.riddleDoors = Map.copyOf(Objects.requireNonNull(riddleDoors, "riddleDoors"));
     this.exitTile = Objects.requireNonNull(exitTile, "exitTile");
     this.onTerminalComplete = Objects.requireNonNull(onTerminalComplete, "onTerminalComplete");
     Objects.requireNonNull(levelSystem, "levelSystem").onEndTile(() -> {});
     riddles = index(presentation.riddles());
     addStations(componentStations, hintStations);
     this.doorTile.close();
+    this.riddleDoors.values().forEach(doors -> doors.forEach(DoorTile::close));
   }
 
-  /** Advances the authority and mirrors exit presence and door state. */
+  /** Advances the authority and mirrors exit presence and the state of every door. */
   public synchronized void tick() {
     serverBinding.tick();
     reconcileIntros();
@@ -119,6 +125,10 @@ public final class ServerGameBinding {
     } else {
       doorTile.close();
     }
+    projection.riddles().stream()
+        .filter(riddle -> riddle.status() != ProgressStatus.LOCKED)
+        .flatMap(riddle -> riddleDoors.getOrDefault(riddle.id(), List.of()).stream())
+        .forEach(DoorTile::open);
     projection.terminal().ifPresent(this::showTerminal);
   }
 
@@ -156,14 +166,16 @@ public final class ServerGameBinding {
               riddle
                   .informationSources()
                   .forEach(
-                      source ->
-                          Game.add(
-                              station(
-                                  source.title(),
-                                  source.runtimeAssetPath(),
-                                  requireStation(stations, source.id()),
-                                  (ignored, player) ->
-                                      inspectSource(riddle.id(), source, player))));
+                      source -> {
+                        Entity station =
+                            station(
+                                source.title(),
+                                source.runtimeAssetPath(),
+                                requireStation(stations, source.id()),
+                                (ignored, player) -> inspectSource(riddle.id(), source, player));
+                        lockWhileRiddleLocked(station, riddle.id());
+                        Game.add(station);
+                      });
               riddle.inputs().stream()
                   .forEach(
                       input -> {
@@ -201,6 +213,34 @@ public final class ServerGameBinding {
                         HINT_ASSET,
                         position,
                         (ignored, player) -> requestHint(riddleId, player))));
+  }
+
+  /**
+   * Makes a station ignore interactions while its riddle is locked.
+   *
+   * <p>Interactions only check the distance, so a station of a still closed room could otherwise be
+   * used through its wall. Inputs already require an active riddle.
+   *
+   * @param station source, chest, or answer item
+   * @param riddleId owning riddle identifier
+   */
+  private void lockWhileRiddleLocked(final Entity station, final String riddleId) {
+    Interaction interaction = station.fetch(InteractionComponent.class).orElseThrow().interaction();
+    station.add(
+        new InteractionComponent(
+            new Interaction(
+                (entity, player) -> {
+                  boolean locked =
+                      serverBinding.projection().riddles().stream()
+                          .anyMatch(
+                              riddle ->
+                                  riddle.id().equals(riddleId)
+                                      && riddle.status() == ProgressStatus.LOCKED);
+                  if (!locked) {
+                    interaction.interact(entity, player);
+                  }
+                },
+                interaction.range())));
   }
 
   private void inspectSource(
@@ -315,6 +355,7 @@ public final class ServerGameBinding {
                   MiscFactory.newChest(
                       Set.of(), new Point(requireStation(stations, container.id())));
               chest.name(container.title());
+              lockWhileRiddleLocked(chest, riddleId);
               containers.put(container.id(), chest);
               Game.add(chest);
             });
@@ -323,7 +364,8 @@ public final class ServerGameBinding {
         .forEach(
             item ->
                 new AnswerItem(item.id(), item.name(), item.sprite())
-                    .drop(new Point(requireStation(stations, item.id()))));
+                    .drop(new Point(requireStation(stations, item.id())))
+                    .ifPresent(dropped -> lockWhileRiddleLocked(dropped, riddleId)));
     Game.add(
         TaskFactory.itemAssignment(
             definition.task(),

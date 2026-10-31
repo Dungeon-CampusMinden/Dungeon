@@ -100,20 +100,23 @@ entstehen:
 1. eine vollständige `FoundationRoom`, die jeder Teilnehmer lokal ableitet;
 2. die `RoomDefinition` mit `session.playerCount.min` und allen Slots von eins
    bis `session.playerCount.max`;
-3. das generische `RoomLevel` mit Geometrie, benannten Stationspunkten und
-   einem gemeinsamen Startpunkt;
+3. das generierte `RoomLevel` mit Räumen, Fluren, Türen, Dekoration,
+   benannten Stationspunkten und einem gemeinsamen Startpunkt (siehe
+   [Levelgenerator](#levelgenerator));
 4. die vollständige Präsentation und die verifizierten Custom-Assets.
 
 Gleiche kanonische DEER-Daten erzeugen unabhängig von JSON-Formatierung und
 Property-Reihenfolge denselben `hostInputSha256`. Gleiche vollständige
-DEER-Daten und gleiche verifizierte Custom-Assetbytes erzeugen dieselbe
-vollständige `FoundationRoom` einschließlich Raumdefinition, Layoutplan,
-Präsentation und gemeinsamem Level-Startpunkt.
+DEER-Daten und gleiche verifizierte Custom-Assetbytes erzeugen mit derselben
+Spieler-JAR dieselbe vollständige `FoundationRoom` einschließlich
+Raumdefinition, generiertem Level, Präsentation und gemeinsamem
+Level-Startpunkt.
 Netzwerkzustand, Verbindungsreihenfolge und Laufzeit-Timestamps fließen nicht
 in diese Projektidentität ein.
 
 Der Host stellt das fertig abgeleitete Level vor dem Öffnen des Servers als
-aktuelles Dungeon-Level bereit. Es gibt kein Platzhalterlevel, keine
+aktuelles Dungeon-Level bereit und erzeugt dessen Dekorationen als normale
+Entities. Es gibt kein Platzhalterlevel, keine
 level-freie Lobby, kein nutzergesteuertes Ready/Unready und keinen
 Roster-Freeze.
 
@@ -153,11 +156,46 @@ beziehen sich auf einen Raum, nicht auf eine sitzungsübergreifende
 Spieleridentität; sie erzeugen oder ersetzen keine solche Identität. Binäre
 Assets werden nicht übertragen; V0.5 bietet keinen Assetdownload.
 
+## Levelgenerator
+
+Der Runner baut das Level aus mitgelieferten Vorlagen des Themes
+`scenario.themeId`. Die Vorlagen sind `.level`-Dateien im JSON-Levelformat des
+Level-Editors und liegen in der Spieler-JAR unter
+`wizard/room-templates/<themeId>/`. Der Runner liest sie nur; er schreibt keine
+`.level`-Datei. Für `default` gibt es drei Raumgrößen mit je zwei Varianten,
+drei Flurstücke und eine Ausgangsnische.
+
+Benannte Punkte einer Vorlage sind Slots. `keypad_N`, `terminal_N`,
+`container_N` (Informationsquellen), `chest_N` und `item_N` (Zuordnungen) sowie
+`hint_N` nehmen Stationen auf; `N` legt die Füllreihenfolge fest.
+`door_<north|east|south|west>_N` markiert eine Außenwandkachel, an der ein
+Nachbarstück anschließen kann. Ein Slot liegt auf Boden, auf einem Möbelstück
+oder an der Wand. In den mitgelieferten Vorlagen bleiben alle Stationen und
+Türeingänge erreichbar, auch wenn jeder Slot belegt ist.
+
+Jedes Rätsel erhält einen Hauptraum, dessen Slots seine Stationen und den
+Hinweis aufnehmen. Passt keine Vorlage, füllt der Runner den Hauptraum zuerst
+und verteilt die übrigen Stationen auf Nebenräume am Hauptraum. Die Kisten
+einer Zuordnung bleiben in einem Raum. Nebenräume öffnen mit ihrem Hauptraum.
+
+Die Spielenden starten im Hauptraum eines Rätsels, dessen einzige Vorgänger
+der Startknoten ist; bei mehreren wählt der Seed. Jeder weitere Raum grenzt an
+genau einen Raum eines direkten Vorgängerrätsels, bei Rätseln ohne
+Rätselvorgänger an einen bereits gelegten Startraum. Die Verbindung führt
+direkt durch eine gemeinsame Wand oder durch bis zu zwei Flurstücke. Die Tür
+eines Raums liegt an seinem Eingang und gehört seinem Rätsel. Die
+Ausgangsnische mit der Exit-Kachel sitzt hinter einer Außenwandtür im
+Hauptraum eines direkten Endvorgängers; bei mehreren wählt der Seed.
+
+Findet ein Versuch keine kollisionsfreie Anordnung, versucht der Runner
+deterministisch aus `seed` abgeleitete Seeds, insgesamt höchstens 32. Danach
+meldet die Produktionsvalidierung `LAYOUT_UNPLACEABLE` am Spielablauf.
+
 ## Multiplayer-Lebenszyklus
 
 `session.playerCount.max` ist die Hostkapazität und die Zahl der deterministisch
 vorbereiteten Dungeon-Identitäten und logischen Authority-Slots. Alle Spieler
-verwenden den gemeinsamen Startpunkt des Raums. Eine einmal vergebene Identität
+verwenden den gemeinsamen Startpunkt des Levels. Eine einmal vergebene Identität
 bleibt bis zum Ende des Hostprozesses reserviert. Nachdem alle Identitäten
 mindestens einmal vergeben wurden, kann nur derselbe Client seine vorhandene
 Identität im normalen Dungeon-Best-Effort-Reconnect wieder aufnehmen; ein neuer
@@ -205,9 +243,10 @@ Reconnect-Protokoll.
 
 ## Serverautoritative Runtime
 
-Die `RoomLevel` materialisiert die Raumgeometrie mit gemeinsamer Tür, Ausgang
-und gemeinsamem Startpunkt sowie benannten Punkten für Informationsquellen-,
-Zahlencode-, Auswahlfrage-, Zuordnungs- und Hinweisinteraktionen. Jede
+Die `RoomLevel` materialisiert das generierte Level mit Rätseltüren,
+Ausgangstür, Ausgang, Dekoration und gemeinsamem Startpunkt sowie benannten
+Punkten für Informationsquellen-, Zahlencode-, Auswahlfrage-, Zuordnungs- und
+Hinweisinteraktionen. Jede
 surface-gebundene Informationsquelle und jeder Numeric-, Choice- oder
 Assignment-Input verwendet in Placement,
 Präsentation und Authority dieselbe authorierte `surfaceId`; ein
@@ -244,9 +283,10 @@ Kisten-ID jedes einsortierten Items als JSON-Objekt. Eine Zuordnung erzeugt
 genau einen richtigen Versuch, sobald der Host sie annimmt; Zwischenstände beim
 Sortieren sind keine Versuche.
 
-Informationsquellen mit Informationen oder Aufgabeninhalten bleiben unabhängig
-davon lesbar und dürfen deshalb schon vor der Rätselaktivierung erreichbar
-sein. Neue Hinweise werden nur für aktive Rätsel freigegeben. Vor jeder
+Informationsquellen liegen im Raum ihres Rätsels und sind lesbar, sobald dessen
+Tür offen ist. Informationsquellen, Kisten und Antwort-Items eines gesperrten
+Rätsels reagieren nicht auf Interaktionen, auch nicht durch eine Wand hindurch.
+Möbel und Kisten sind serverseitig fest. Neue Hinweise werden nur für aktive Rätsel freigegeben. Vor jeder
 Freigabe zeigt die Runtime die spielerfreundliche Bedeutung der `severity` des
 nächsten Hinweises und verlangt eine ausdrückliche Bestätigung. Das gilt für
 `orientation`, `approach` und `solution`. Ein Abbruch verändert keinen
@@ -256,10 +296,14 @@ Hinweise bleiben lesbar. Der gemeinsame Zustand ist monoton und fällt weder bei
 Rätseln noch bei Inputs, Resources oder Hinweisen in einen früheren Zustand
 zurück.
 
-Der Endknoten besitzt allein seine Door-Surface. Sobald alle direkten
-Vorgängerrätsel gelöst sind, wird das Ende erreicht und genau diese Tür
-serverautoritativ geöffnet. Es gibt weder eine zweite globale
-„alle Rätsel gelöst“-Türregel noch frei konfigurierbare Rätseloutputs.
+Die Tür zu einem Rätselraum und seinen Nebenräumen öffnet serverautoritativ,
+sobald das Rätsel `ACTIVE` wird; danach bleibt sie offen. Diese Rätseltüren
+sind keine authorierten Surfaces. Der Endknoten besitzt allein seine
+Door-Surface, die Ausgangstür. Sobald alle direkten Vorgängerrätsel gelöst
+sind, wird das Ende erreicht und genau diese Tür serverautoritativ geöffnet.
+Es gibt weder eine zweite globale „alle Rätsel gelöst“-Türregel noch frei
+konfigurierbare Rätseloutputs. Clients erhalten den Zustand aller Türen über
+den normalen Dungeon-Snapshot.
 
 Der aktive Vertrag kennt nur `world`, `container`, `keypad`, `terminal`,
 `assignment` und `door`. Weitere Surface-Arten oder mehrere Rätselbindungen an eine Surface
@@ -300,6 +344,7 @@ Teilausgabe.
 Die Abnahme schützt insbesondere:
 
 - wiederholbare Hash-, Raum-, Layout- und gemeinsame Level-Startpunktdaten;
+- erreichbare Stationen und Ausgang in jedem generierten Level;
 - Ablehnung unterschiedlicher lokaler DEER-Projekte vor `InitialWorldReady`;
 - Main-Menü-, Host-/Join-Verantwortlichkeiten, Custom-Asset-Integrität und
   direkte gebündelte Assetreferenzen;

@@ -52,6 +52,8 @@ public enum IssueCode {
   JSON_PARSE_INVALID,
   /** The DEER document contains invalid Unicode. */
   JSON_UNICODE_INVALID,
+  /** The level generator found no collision-free arrangement of the rooms. */
+  LAYOUT_UNPLACEABLE,
   /** The player-count range is invalid. */
   PLAYER_COUNT_INVALID,
   /** A referenced identifier does not exist. */

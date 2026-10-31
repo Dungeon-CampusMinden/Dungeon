@@ -88,9 +88,10 @@ gradlew.bat :wizard:buildWizardRoomJar -PwizardProject=<projektordner>
 4. [`v0/runner-project-format.md`](v0/runner-project-format.md) definiert das
    eingebettete Projekt, Assets, Packaging und Validierungsreports.
 5. [`v0/runner-runtime-contract.md`](v0/runner-runtime-contract.md) definiert
-   Packaging, Host-/Join-Grenze und Spielruntime.
-6. [`../examples/foundation-v0.5/`](../examples/foundation-v0.5/) und
-   [`../examples/the-last-hour-v0.5/`](../examples/the-last-hour-v0.5/) sind
+   Packaging, Host-/Join-Grenze, Levelgenerator und Spielruntime.
+6. [`../examples/foundation-v0.5/`](../examples/foundation-v0.5/),
+   [`../examples/the-last-hour-v0.5/`](../examples/the-last-hour-v0.5/) und
+   [`../examples/city-archive-v0.5/`](../examples/city-archive-v0.5/) sind
    ausführbare Beispiele.
 
 [`v0/the-last-hour-interaction-catalog.md`](v0/the-last-hour-interaction-catalog.md)

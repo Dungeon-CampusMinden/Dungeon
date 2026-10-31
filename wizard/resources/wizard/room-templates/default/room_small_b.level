@@ -1,0 +1,103 @@
+{
+  "version": 3,
+  "design": "DEFAULT",
+  "layout": [
+    "WWWWWWWWW",
+    "WFFFFFFFW",
+    "WFFFFFFFW",
+    "WFFFFFFFW",
+    "WFFFFFFFW",
+    "WFFFFFFFW",
+    "WWWWWWWWW"
+  ],
+  "startTiles": [
+    {
+      "x": 4.0,
+      "y": 3.0
+    }
+  ],
+  "namedPoints": {
+    "chest_1": {
+      "x": 7.0,
+      "y": 1.0
+    },
+    "container_1": {
+      "x": 2.0,
+      "y": 4.0
+    },
+    "door_east_1": {
+      "x": 8.0,
+      "y": 3.0
+    },
+    "door_north_1": {
+      "x": 5.0,
+      "y": 6.0
+    },
+    "door_south_1": {
+      "x": 4.0,
+      "y": 0.0
+    },
+    "door_west_1": {
+      "x": 0.0,
+      "y": 3.0
+    },
+    "hint_1": {
+      "x": 2.0,
+      "y": 2.0
+    },
+    "item_1": {
+      "x": 1.0,
+      "y": 1.0
+    },
+    "item_2": {
+      "x": 3.0,
+      "y": 1.0
+    },
+    "keypad_1": {
+      "x": 3.0,
+      "y": 6.0
+    },
+    "terminal_1": {
+      "x": 6.0,
+      "y": 4.0
+    }
+  },
+  "decorations": [
+    {
+      "type": "PottedTree",
+      "position": {
+        "x": 1.0,
+        "y": 5.0
+      }
+    },
+    {
+      "type": "WritingTable",
+      "position": {
+        "x": 6.0,
+        "y": 5.0
+      }
+    },
+    {
+      "type": "Painting3",
+      "position": {
+        "x": 2.1,
+        "y": 6.35
+      }
+    },
+    {
+      "type": "WaterCooler",
+      "position": {
+        "x": 7.25,
+        "y": 2.0
+      }
+    },
+    {
+      "type": "Printer",
+      "position": {
+        "x": 5.2,
+        "y": 1.1
+      }
+    }
+  ],
+  "prefabs": []
+}
