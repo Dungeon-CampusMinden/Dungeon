@@ -607,33 +607,19 @@ public final class LastHourSave {
    */
   public record ItemData(int slot, ItemState state) {
     /**
-     * Validates the saved slot and item stack.
+     * Validates the saved slot and item.
      *
      * @param slot inventory slot containing the item
      * @param state serialized item state
      */
     public ItemData {
-      if (slot < 0
-          || state == null
-          || state.stackSize() <= 0
-          || state.maxStackSize() <= 0
-          || state.stackSize() > state.maxStackSize()) {
+      if (slot < 0 || state == null) {
         throw new IllegalArgumentException("Invalid saved item state");
       }
     }
 
     Map<String, Object> toMap() {
-      return Map.of(
-          "slot",
-          slot,
-          "type",
-          state.itemType(),
-          "stackSize",
-          state.stackSize(),
-          "maxStackSize",
-          state.maxStackSize(),
-          "data",
-          state.itemData());
+      return Map.of("slot", slot, "type", state.itemType(), "data", state.itemData());
     }
   }
 }

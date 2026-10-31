@@ -72,8 +72,7 @@ class LastHourSaveTest {
 
   private LastHourSave.SaveData sampleSaveData() {
     HintItem.ensureRegistration();
-    ItemState item =
-        new ItemState("HintItem", 1, 1, Map.of("imagePath", "images/note-password-1.png"));
+    ItemState item = new ItemState("HintItem", Map.of("imagePath", "images/note-password-1.png"));
     return new LastHourSave.SaveData(
         UUID.randomUUID(),
         2_366_789L,

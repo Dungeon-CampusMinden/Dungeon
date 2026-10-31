@@ -1255,7 +1255,6 @@ public class SystemRecoveryLevel extends DungeonLevel {
     archiveDoorBlocker =
         MiscFactory.createDoorBlocker(
             archiveDoor,
-            ItemKey.class,
             player -> {
               archiveDoorBlocker = null;
               if (!archiveDoor.isOpen()) return;

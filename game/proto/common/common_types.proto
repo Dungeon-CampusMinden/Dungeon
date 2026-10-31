@@ -96,11 +96,8 @@ message Item {
   // Class path matching REGISTERED_ITEMS key (e.g., "ItemPotionHealth").
   string item_type = 1;
 
-  // Current stack size.
-  int32 stack_size = 2;
-
-  // Maximum stack size for this item type.
-  int32 max_stack_size = 3;
+  reserved 2, 3;
+  reserved "stack_size", "max_stack_size";
 
   // Item-specific parameters (e.g., "strength" -> "50" for potions).
   map<string, string> item_data = 4;

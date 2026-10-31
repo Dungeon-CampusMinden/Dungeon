@@ -192,7 +192,7 @@ public final class DoorLockPrefab extends Prefab {
           // The key may have been dropped while the question was open.
           Optional<Item> held = findKey(inventory.get(), keyKind.get());
           if (held.isEmpty() || Game.findEntityById(chain.id()).isEmpty()) return;
-          if (instance.get(CONSUME_KEY)) inventory.get().removeOne(held.get());
+          if (instance.get(CONSUME_KEY)) inventory.get().remove(held.get());
           Game.remove(chain);
           door.open();
           fire(context, instance, UNLOCKED, who);

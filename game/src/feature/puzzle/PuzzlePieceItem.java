@@ -161,24 +161,11 @@ public class PuzzlePieceItem extends Item {
   @Override
   public Animation worldAnimation() {
     Animation animation = super.worldAnimation();
-    if (Game.isHeadless()
-        && animation.getConfig().config().isEmpty()
-        && animation
-            .sourcePath()
-            .filter(
-                texturePath ->
-                    texturePath
-                        .pathString()
-                        .equals(PuzzleTextureGenerator.texturePath(puzzleId, pieceIndex)))
-            .isPresent()) {
-      AnimationConfig config = animation.clone().getConfig();
-      config.config(
-          PuzzleTextureGenerator.pieceSpritesheetConfig(imagePath, pieceCount, seed, pieceIndex));
-      animation =
-          new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
-      super.worldAnimation(animation);
-    }
-    return animation;
+    if (!Game.isHeadless()) return animation;
+    AnimationConfig config = animation.clone().getConfig();
+    config.config(
+        PuzzleTextureGenerator.pieceSpritesheetConfig(imagePath, pieceCount, seed, pieceIndex));
+    return new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
   }
 
   /**
@@ -347,37 +334,6 @@ public class PuzzlePieceItem extends Item {
           "PuzzlePieceItem itemData is missing required key '" + key + "'");
     }
     return value;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof PuzzlePieceItem other)) return false;
-    return pieceIndex == other.pieceIndex
-        && pieceCount == other.pieceCount
-        && seed == other.seed
-        && puzzleId.equals(other.puzzleId)
-        && imagePath.pathString().equals(other.imagePath.pathString())
-        && pieceFamilyId.equals(other.pieceFamilyId)
-        && Objects.equals(customItemName, other.customItemName)
-        && Objects.equals(customItemDescription, other.customItemDescription)
-        && Objects.equals(completionHintName, other.completionHintName)
-        && Objects.equals(completionHintDescription, other.completionHintDescription);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        puzzleId,
-        pieceIndex,
-        imagePath.pathString(),
-        pieceCount,
-        seed,
-        pieceFamilyId,
-        customItemName,
-        customItemDescription,
-        completionHintName,
-        completionHintDescription);
   }
 
   /**
