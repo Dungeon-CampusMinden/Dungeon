@@ -153,6 +153,23 @@ public final class ServerProcess {
   }
 
   /**
+   * Checks whether a server could listen on a port right now. Ask before starting a server: the
+   * readiness probe of {@link #awaitReady} also succeeds when another program holds the port, and
+   * the client would then connect to that program instead of its own server.
+   *
+   * @param port the port the server would listen on
+   * @return {@code true} if no other program listens on the port
+   */
+  public static boolean portFree(final int port) {
+    try (ServerSocket socket = new ServerSocket()) {
+      socket.bind(new InetSocketAddress(port));
+      return true;
+    } catch (IOException exception) {
+      return false;
+    }
+  }
+
+  /**
    * Blocks until the server's port is reachable on localhost or the timeout elapses.
    *
    * @param port the port to probe

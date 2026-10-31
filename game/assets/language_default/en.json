@@ -188,6 +188,7 @@
         "server_stop_failed": "Could not stop server: $1",
         "server_start_failed": "Could not start server: $1",
         "server_timeout": "Server did not start in time.",
+        "port_busy": "Port $1 is in use. Is another game still running? Close it and try again.",
         "character_selection_title": "Choose your character",
         "refreshing_characters": "Checking server character availability...",
         "connecting_to_server": "Connecting to server...",

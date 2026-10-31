@@ -1,0 +1,3 @@
+- Source: `character/roboter_cleaner/roboter_cleaner.png` of this project
+- License: CC0 1.0, see `character/roboter_cleaner/roboter_cleaner.png.license.md`
+- Note: Cropped and enlarged from the first idle frame

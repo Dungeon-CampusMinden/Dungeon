@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -19,9 +20,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
+import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.network.messages.c2s.InputMessage;
+import engine.systems.CameraSystem;
 import engine.systems.input.InputManager;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
@@ -33,6 +36,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.PauseDialog;
 import feature.input.configuration.KeyboardConfig;
+import feature.interaction.InteractionFeedback;
 import io.nayuki.qrcodegen.QrCode;
 import java.net.URI;
 import java.util.ArrayList;
@@ -46,7 +50,7 @@ import tracking.core.TrackingJson;
 /**
  * Game-screen overlay of audience mode: how to join, the countdown, the open voting window with its
  * live distribution, the result of the last window, and the thank-you screen with the post-survey
- * count.
+ * count. While the audience picks a target, each target in the room carries its letter and name.
  *
  * <p>It also reads the host's keys: Enter starts the round in the lobby and closes the session at
  * the end, the End key ends the game while it runs. A click on the join panel during play pauses
@@ -82,6 +86,9 @@ public final class AudienceHud extends System {
   private static boolean pauseMenuOpenBefore;
 
   private Table root;
+  // Letter and name above each target while the audience picks one; behind the panels of root.
+  private Group markers;
+  private String markersFor = "";
   private Table joinFull;
   private Table joinCompact;
   private Table statusFull;
@@ -95,14 +102,14 @@ public final class AudienceHud extends System {
   }
 
   /**
-   * Registers the overlay message, numbers the options of choice dialogs so the audience can vote
-   * by number, and registers the dialog that pauses play while the join screen is open. Call it in
+   * Registers the overlay message, letters the options of choice dialogs so the audience can vote
+   * by letter, and registers the dialog that pauses play while the join screen is open. Call it in
    * the client's configuration step, before the client connects: the server sends the message right
    * after the connection.
    */
   public static void register() {
     AudienceHudMessage.registerConverter();
-    DialogFactory.numberChoiceOptions(true);
+    DialogFactory.letterChoiceOptions(true);
     DialogFactory.register(JOIN_PAUSE, context -> new Group());
   }
 
@@ -117,6 +124,29 @@ public final class AudienceHud extends System {
               stateReceivedAt = java.lang.System.nanoTime();
             });
     Game.add(new AudienceHud());
+    // Nobody points at the shared screen, so it shows what the hero can use at all times.
+    InteractionFeedback.showAlways(AudienceHud::useTarget, AudienceHud::outlined);
+  }
+
+  /**
+   * @return the entity a vote for "Benutzen" would use, as the server last reported it
+   */
+  static Optional<Entity> useTarget() {
+    JsonNode id = state.path("useTarget");
+    return id.isInt() ? Game.findEntityById(id.asInt()) : Optional.empty();
+  }
+
+  /**
+   * @param entity an interactable entity
+   * @return whether the game screen outlines it. In a room with targets, only the targets the
+   *     audience can pick show an outline, as the server last reported. In any other room, every
+   *     interactable entity does.
+   */
+  static boolean outlined(Entity entity) {
+    JsonNode ids = state.path("outlined");
+    if (!ids.isArray()) return true;
+    for (JsonNode id : ids) if (id.asInt() == entity.id()) return true;
+    return false;
   }
 
   @Override
@@ -130,12 +160,19 @@ public final class AudienceHud extends System {
       root.setFillParent(true);
       root.addListener(clicked(() -> joinScreen = false));
     }
+    if (markers == null) {
+      markers = new Group();
+      markers.setTouchable(Touchable.disabled);
+    }
     if (root.getStage() != stage.get()) stage.get().addActor(root);
+    if (markers.getStage() != stage.get()) stage.get().addActor(markers);
+    markers.toFront();
     root.toFront();
     // The overlay stays in front of the game's dialogs, but the host's pause menu must stay usable.
     root.setVisible(!pauseMenuOpen());
     String phase = state.path("phase").asString("");
     if (!phase.equals("playing")) joinScreen = false;
+    markers(stage.get(), phase.equals("playing") && !joinScreen && root.isVisible());
     syncJoinPause();
     // Only the join panel takes clicks during play; the full join screen takes them anywhere.
     root.setTouchable(joinScreen ? Touchable.enabled : Touchable.childrenOnly);
@@ -158,6 +195,41 @@ public final class AudienceHud extends System {
       }
     }
     if (phase.equals("playing") && !joinScreen) place(stage.get());
+  }
+
+  // Shows the letter and the name of each target above it, at the place the server reported.
+  private void markers(Stage stage, boolean shown) {
+    JsonNode targets = state.path("context").path("targets");
+    markers.setVisible(shown && targets.isArray());
+    if (!markers.isVisible()) return;
+    if (!targets.toString().equals(markersFor)) {
+      markersFor = targets.toString();
+      markers.clearChildren();
+      for (JsonNode target : targets) {
+        Table badge = new Table();
+        badge.setBackground(tinted(PANEL));
+        badge.pad(4, 12, 4, 12);
+        badge.add(label(target.path("letter").asString(""), BOLD_FONT, 28, ACCENT)).padRight(10);
+        badge.add(label(target.path("label").asString(""), TEXT_FONT, 24, TEXT));
+        badge.pack();
+        markers.addActor(badge);
+      }
+    }
+    // Every frame, so the badges stay on their targets when the camera moves.
+    for (int i = 0; i < targets.size(); i++) {
+      JsonNode target = targets.get(i);
+      Actor badge = markers.getChild(i);
+      Vector3 screen =
+          CameraSystem.camera()
+              .project(
+                  new Vector3(
+                      (float) target.path("x").asDouble(), (float) target.path("y").asDouble(), 0));
+      // The camera counts pixels from the bottom, the stage's screen coordinates from the top.
+      Vector2 point =
+          stage.screenToStageCoordinates(
+              new Vector2(screen.x, Gdx.graphics.getHeight() - screen.y));
+      badge.setPosition(point.x - badge.getWidth() / 2, point.y + 4);
+    }
   }
 
   private static void syncJoinPause() {
@@ -404,7 +476,8 @@ public final class AudienceHud extends System {
   private List<Rectangle> obstacles(Stage stage) {
     List<Rectangle> obstacles = new ArrayList<>();
     for (Actor actor : stage.getActors()) {
-      if (actor == root || !actor.isVisible()) continue;
+      // The badges sit in the room; a panel may cover one of them.
+      if (actor == root || actor == markers || !actor.isVisible()) continue;
       Rectangle union = new Rectangle();
       boolean[] any = {false};
       visibleParts(
@@ -498,7 +571,9 @@ public final class AudienceHud extends System {
     JsonNode tally = context.path("tally");
     if (tally.isEmpty()) {
       String waiting =
-          kind.equals("move") ? "Die Runde startet mit der ersten Stimme." : "Noch keine Stimmen.";
+          kind.equals("move") || kind.equals("goto")
+              ? "Die Runde startet mit der ersten Stimme."
+              : "Noch keine Stimmen.";
       panel.add(label(waiting, TEXT_FONT, size(24, scale), MUTED)).left().padTop(timed ? 0 : 6);
     } else {
       panel.add(tallyTable(tally, scale)).left();
@@ -579,7 +654,7 @@ public final class AudienceHud extends System {
 
   private static String title(String kind, JsonNode context) {
     return switch (kind) {
-      case "move" -> "Wohin geht es?";
+      case "move", "goto" -> "Wohin geht es?";
       case "choice" -> context.path("multiple").asBoolean() ? "Antworten wählen" : "Antwort wählen";
       case "text" -> "Antwort eintippen";
       case "code" -> "Code eingeben";

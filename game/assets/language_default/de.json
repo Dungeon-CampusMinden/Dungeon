@@ -188,6 +188,7 @@
         "server_stop_failed": "Server konnte nicht beendet werden: $1",
         "server_start_failed": "Server konnte nicht gestartet werden: $1",
         "server_timeout": "Server wurde nicht rechtzeitig gestartet.",
+        "port_busy": "Port $1 ist belegt. Läuft noch ein anderes Spiel? Beende es und versuche es erneut.",
         "character_selection_title": "Wähle deinen Charakter",
         "refreshing_characters": "Verfügbare Charaktere werden geprüft...",
         "connecting_to_server": "Verbindung zum Server wird aufgebaut...",

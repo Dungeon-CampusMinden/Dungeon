@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "roomId": "fomo",
+  "questionnaireId": "fomo-post-v2",
+  "title": { "de": "Wie war es?" },
+  "skippable": false,
+  "pages": [
+    {
+      "title": { "de": "Dein Können jetzt" },
+      "questions": [
+        { "id": "selbsteinschaetzung_hinweise", "type": "info",
+          "text": { "de": "So gehst du vor" },
+          "description": { "de": "Du schätzt dich zweimal ein. Auf dieser Seite bewertest du, wie gut du die Aussagen jetzt nach dem Escape Room bewältigen kannst. Auf der nächsten Seite schätzt du rückblickend ein, wie gut du sie direkt vor dem Escape Room konntest. Es gibt keine richtigen oder falschen Antworten." } },
+        { "id": "post_01_kompetenzmatrix", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr treffen die Aussagen jetzt auf dich zu?" },
+          "rows": [
+            { "id": "post_02_modell_erklaeren", "text": { "de": "Ich kann erklären, was ein Modell ist und wozu man es verwendet." } },
+            { "id": "post_03_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
+            { "id": "post_04_regulaere_sprache_erklaeren", "text": { "de": "Ich kann erklären, was eine reguläre Sprache ist." } },
+            { "id": "post_05_regularitaet_begruenden", "text": { "de": "Ich kann bei Sprachen wie a^i b^j mit Bedingungen an i und j begründen, ob sie regulär sind." } },
+            { "id": "post_06_endliche_sprachen_erklaeren", "text": { "de": "Ich kann erklären, warum endliche Sprachen regulär sind." } },
+            { "id": "post_07_grammatikregeln_erklaeren", "text": { "de": "Ich kann erklären, welche Regeln eine reguläre Grammatik enthalten darf." } },
+            { "id": "post_08_leeres_wort_erklaeren", "text": { "de": "Ich kann erklären, wie eine reguläre Grammatik das leere Wort erzeugen kann." } },
+            { "id": "post_09_woerter_bestimmen", "text": { "de": "Ich kann bestimmen, welche Wörter eine kleine Grammatik erzeugt, und denke dabei auch an das leere Wort." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] }
+      ]
+    },
+    {
+      "title": { "de": "Dein Können vorher" },
+      "questions": [
+        { "id": "then_intro", "type": "info",
+          "text": { "de": "Denk an die Zeit direkt vor dem Escape Room zurück" },
+          "description": { "de": "Die Aussagen sind dieselben wie auf der vorherigen Seite. Schätze ein, wie gut du sie damals bewältigen konntest, so gut du dich erinnerst." } },
+        { "id": "then_01_kompetenzmatrix", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr trafen die Aussagen direkt vor dem Escape Room auf dich zu?" },
+          "rows": [
+            { "id": "then_02_modell_erklaeren", "text": { "de": "Ich kann erklären, was ein Modell ist und wozu man es verwendet." } },
+            { "id": "then_03_prozess_beschreiben", "text": { "de": "Ich kann die Schritte des Modellierungsprozesses beschreiben." } },
+            { "id": "then_04_regulaere_sprache_erklaeren", "text": { "de": "Ich kann erklären, was eine reguläre Sprache ist." } },
+            { "id": "then_05_regularitaet_begruenden", "text": { "de": "Ich kann bei Sprachen wie a^i b^j mit Bedingungen an i und j begründen, ob sie regulär sind." } },
+            { "id": "then_06_endliche_sprachen_erklaeren", "text": { "de": "Ich kann erklären, warum endliche Sprachen regulär sind." } },
+            { "id": "then_07_grammatikregeln_erklaeren", "text": { "de": "Ich kann erklären, welche Regeln eine reguläre Grammatik enthalten darf." } },
+            { "id": "then_08_leeres_wort_erklaeren", "text": { "de": "Ich kann erklären, wie eine reguläre Grammatik das leere Wort erzeugen kann." } },
+            { "id": "then_09_woerter_bestimmen", "text": { "de": "Ich kann bestimmen, welche Wörter eine kleine Grammatik erzeugt, und denke dabei auch an das leere Wort." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] }
+      ]
+    },
+    {
+      "title": { "de": "Lernen im Escape Room" },
+      "questions": [
+        { "id": "lernhilfe", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie hilfreich war der Escape Room für dein Verständnis von Modellierung, regulären Sprachen und Grammatiken?" },
+          "minLabel": { "de": "Gar nicht hilfreich" }, "maxLabel": { "de": "Sehr hilfreich" } },
+        { "id": "recap_vergleich", "type": "matrix", "required": true,
+          "text": { "de": "Wie war der Escape Room im Vergleich zu einem kurzen, normalen Recap am Ende der Vorlesung?" },
+          "description": { "de": "Gemeint ist eine kurze Wiederholung des Stoffs ohne Spiel." },
+          "rows": [
+            { "id": "recap_gefallen", "text": { "de": "Wie gut es mir gefallen hat" } },
+            { "id": "recap_verstaendnis", "text": { "de": "Wie sehr es mir beim Verstehen geholfen hat" } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Deutlich schlechter" } },
+            { "id": "2", "text": { "de": "Etwas schlechter" } },
+            { "id": "3", "text": { "de": "Gleich" } },
+            { "id": "4", "text": { "de": "Etwas besser" } },
+            { "id": "5", "text": { "de": "Deutlich besser" } } ] },
+        { "id": "offene_lernfragen", "type": "longText", "maxLength": 1000,
+          "text": { "de": "Was ist dir zu Modellierung, regulären Sprachen oder Grammatiken noch unklar?" } }
+      ]
+    },
+    {
+      "title": { "de": "Das gemeinsame Spiel" },
+      "questions": [
+        { "id": "fun", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie viel Spaß hat dir das gemeinsame Rätseln gemacht?" },
+          "minLabel": { "de": "Gar keinen" }, "maxLabel": { "de": "Sehr viel" } },
+        { "id": "statements", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr stimmst du zu?" },
+          "rows": [
+            { "id": "voice-counted", "text": { "de": "Meine Stimme hat gezählt." } },
+            { "id": "windows-fair", "text": { "de": "Die Zeitfenster waren lang genug." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] },
+        { "id": "liked", "type": "multiChoice", "other": true,
+          "text": { "de": "Was hat dir gefallen?" },
+          "options": [
+            { "id": "puzzles", "text": { "de": "Die Rätsel" } },
+            { "id": "voting", "text": { "de": "Das Abstimmen" } },
+            { "id": "screen", "text": { "de": "Das Spiel auf dem Spielbildschirm" } } ] },
+        { "id": "feedback", "type": "longText", "maxLength": 1000,
+          "text": { "de": "Was sollten wir verbessern?" } }
+      ]
+    }
+  ]
+}

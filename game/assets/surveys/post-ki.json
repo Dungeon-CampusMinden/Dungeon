@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "roomId": "ki",
+  "questionnaireId": "ki-post-v1",
+  "title": { "de": "Wie war es?" },
+  "skippable": false,
+  "pages": [
+    {
+      "title": { "de": "Dein Können jetzt" },
+      "questions": [
+        { "id": "selbsteinschaetzung_hinweise", "type": "info",
+          "text": { "de": "So gehst du vor" },
+          "description": { "de": "Du schätzt dich zweimal ein. Auf dieser Seite bewertest du, wie gut du die Aussagen jetzt nach dem Escape Room bewältigen kannst. Auf der nächsten Seite schätzt du rückblickend ein, wie gut du sie direkt vor dem Escape Room konntest. Es gibt keine richtigen oder falschen Antworten." } },
+        { "id": "post_01_kompetenzmatrix", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr treffen die Aussagen jetzt auf dich zu?" },
+          "rows": [
+            { "id": "post_02_lernarten_unterscheiden", "text": { "de": "Ich kann überwachtes und unüberwachtes Lernen unterscheiden." } },
+            { "id": "post_03_cal2_erklaeren", "text": { "de": "Ich kann erklären, wie CAL2 aus Trainingsbeispielen einen Entscheidungsbaum lernt." } },
+            { "id": "post_04_entropie_erklaeren", "text": { "de": "Ich kann erklären, was die Entropie einer Variable angibt." } },
+            { "id": "post_05_id3_erklaeren", "text": { "de": "Ich kann erklären, wie ID3 mit dem Informationsgewinn das nächste Attribut wählt." } },
+            { "id": "post_06_cal2_id3_vergleichen", "text": { "de": "Ich kann die Unterschiede zwischen CAL2 und ID3 beschreiben." } },
+            { "id": "post_07_random_forest_erklaeren", "text": { "de": "Ich kann erklären, wodurch sich die Bäume in einem Random Forest unterscheiden." } },
+            { "id": "post_08_baum_anwenden", "text": { "de": "Ich kann ein Beispiel mit einem gegebenen Entscheidungsbaum klassifizieren." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] }
+      ]
+    },
+    {
+      "title": { "de": "Dein Können vorher" },
+      "questions": [
+        { "id": "then_intro", "type": "info",
+          "text": { "de": "Denk an die Zeit direkt vor dem Escape Room zurück" },
+          "description": { "de": "Die Aussagen sind dieselben wie auf der vorherigen Seite. Schätze ein, wie gut du sie damals bewältigen konntest, so gut du dich erinnerst." } },
+        { "id": "then_01_kompetenzmatrix", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr trafen die Aussagen direkt vor dem Escape Room auf dich zu?" },
+          "rows": [
+            { "id": "then_02_lernarten_unterscheiden", "text": { "de": "Ich kann überwachtes und unüberwachtes Lernen unterscheiden." } },
+            { "id": "then_03_cal2_erklaeren", "text": { "de": "Ich kann erklären, wie CAL2 aus Trainingsbeispielen einen Entscheidungsbaum lernt." } },
+            { "id": "then_04_entropie_erklaeren", "text": { "de": "Ich kann erklären, was die Entropie einer Variable angibt." } },
+            { "id": "then_05_id3_erklaeren", "text": { "de": "Ich kann erklären, wie ID3 mit dem Informationsgewinn das nächste Attribut wählt." } },
+            { "id": "then_06_cal2_id3_vergleichen", "text": { "de": "Ich kann die Unterschiede zwischen CAL2 und ID3 beschreiben." } },
+            { "id": "then_07_random_forest_erklaeren", "text": { "de": "Ich kann erklären, wodurch sich die Bäume in einem Random Forest unterscheiden." } },
+            { "id": "then_08_baum_anwenden", "text": { "de": "Ich kann ein Beispiel mit einem gegebenen Entscheidungsbaum klassifizieren." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] }
+      ]
+    },
+    {
+      "title": { "de": "Lernen im Escape Room" },
+      "questions": [
+        { "id": "lernhilfe", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie hilfreich war der Escape Room für dein Verständnis von maschinellem Lernen und Entscheidungsbäumen?" },
+          "minLabel": { "de": "Gar nicht hilfreich" }, "maxLabel": { "de": "Sehr hilfreich" } },
+        { "id": "recap_vergleich", "type": "matrix", "required": true,
+          "text": { "de": "Wie war der Escape Room im Vergleich zu einem kurzen, normalen Recap am Ende der Vorlesung?" },
+          "description": { "de": "Gemeint ist eine kurze Wiederholung des Stoffs ohne Spiel." },
+          "rows": [
+            { "id": "recap_gefallen", "text": { "de": "Wie gut es mir gefallen hat" } },
+            { "id": "recap_verstaendnis", "text": { "de": "Wie sehr es mir beim Verstehen geholfen hat" } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Deutlich schlechter" } },
+            { "id": "2", "text": { "de": "Etwas schlechter" } },
+            { "id": "3", "text": { "de": "Gleich" } },
+            { "id": "4", "text": { "de": "Etwas besser" } },
+            { "id": "5", "text": { "de": "Deutlich besser" } } ] },
+        { "id": "offene_lernfragen", "type": "longText", "maxLength": 1000,
+          "text": { "de": "Was ist dir zu maschinellem Lernen oder Entscheidungsbäumen noch unklar?" } }
+      ]
+    },
+    {
+      "title": { "de": "Das gemeinsame Spiel" },
+      "questions": [
+        { "id": "fun", "type": "scale", "required": true, "min": 1, "max": 5,
+          "text": { "de": "Wie viel Spaß hat dir das gemeinsame Rätseln gemacht?" },
+          "minLabel": { "de": "Gar keinen" }, "maxLabel": { "de": "Sehr viel" } },
+        { "id": "statements", "type": "matrix", "required": true,
+          "text": { "de": "Wie sehr stimmst du zu?" },
+          "rows": [
+            { "id": "voice-counted", "text": { "de": "Meine Stimme hat gezählt." } },
+            { "id": "windows-fair", "text": { "de": "Die Zeitfenster waren lang genug." } } ],
+          "columns": [
+            { "id": "1", "text": { "de": "Gar nicht" } },
+            { "id": "2", "text": { "de": "Eher nicht" } },
+            { "id": "3", "text": { "de": "Teils" } },
+            { "id": "4", "text": { "de": "Eher" } },
+            { "id": "5", "text": { "de": "Voll" } } ] },
+        { "id": "liked", "type": "multiChoice", "other": true,
+          "text": { "de": "Was hat dir gefallen?" },
+          "options": [
+            { "id": "puzzles", "text": { "de": "Die Rätsel" } },
+            { "id": "voting", "text": { "de": "Das Abstimmen" } },
+            { "id": "screen", "text": { "de": "Das Spiel auf dem Spielbildschirm" } } ] },
+        { "id": "feedback", "type": "longText", "maxLength": 1000,
+          "text": { "de": "Was sollten wir verbessern?" } }
+      ]
+    }
+  ]
+}
