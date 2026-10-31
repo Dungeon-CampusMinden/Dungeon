@@ -533,10 +533,7 @@ public final class CommonProtoConverters {
    */
   public static engine.network.proto.common.Item toProto(ItemState itemState) {
     engine.network.proto.common.Item.Builder builder =
-        engine.network.proto.common.Item.newBuilder()
-            .setItemType(itemState.itemType())
-            .setStackSize(itemState.stackSize())
-            .setMaxStackSize(itemState.maxStackSize());
+        engine.network.proto.common.Item.newBuilder().setItemType(itemState.itemType());
 
     Map<String, String> itemData = itemState.itemData();
     if (itemData != null && !itemData.isEmpty()) {
@@ -563,8 +560,7 @@ public final class CommonProtoConverters {
    * @return immutable item state
    */
   public static ItemState itemStateFromProto(engine.network.proto.common.Item proto) {
-    return new ItemState(
-        proto.getItemType(), proto.getStackSize(), proto.getMaxStackSize(), proto.getItemDataMap());
+    return new ItemState(proto.getItemType(), proto.getItemDataMap());
   }
 
   /**

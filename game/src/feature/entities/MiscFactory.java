@@ -33,39 +33,23 @@ import feature.interaction.DropItemsInteraction;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
-import feature.inventory.components.ItemGenerator;
-import feature.inventory.items.ItemBigKey;
-import feature.inventory.items.ItemFairy;
 import feature.inventory.items.ItemHammer;
-import feature.inventory.items.ItemHeart;
 import feature.inventory.items.ItemKey;
-import feature.inventory.items.ItemWoodenArrow;
 import feature.skills.SkillTools;
 import feature.systems.PositionSync;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /** A utility class for building different miscellaneous entities in the game world. */
 public final class MiscFactory {
 
-  private static final Random RANDOM = new Random();
   private static final float DEFAULT_INTERACTION_RADIUS = 1f;
   private static final int DEFAULT_CHEST_SIZE = 12;
-  private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
-  private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
   private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
-  private static final SimpleIPath HEART_TEXTURE =
-      new SimpleIPath("items/pickups/heart_pickup.png");
-  private static final SimpleIPath FAIRY_TEXTURE =
-      new SimpleIPath("items/pickups/fairy_pickup.png");
   private static final SimpleIPath DOOR_BLOCKER_TEXTURE = new SimpleIPath("other/chain_lock.png");
 
   private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
@@ -78,84 +62,6 @@ public final class MiscFactory {
 
   /** Maximum number of items displayed per row in the inventory UI. */
   private static final int INVENTORY_UI_MAX_ITEMS_PER_ROW = 6;
-
-  /**
-   * The {@link ItemGenerator} used to generate random items for chests.
-   *
-   * @see ItemGenerator
-   * @see ItemGenerator#defaultItemGenerator()
-   */
-  private static ItemGenerator randomItemGenerator = ItemGenerator.defaultItemGenerator();
-
-  /**
-   * This method is used to create a new chest entity. The chest will be filled with random items.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>The Entity will have a {@link InteractionComponent}, {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
-   * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
-   * interaction.
-   *
-   * @return A new Entity representing the chest.
-   * @see MiscFactory#generateRandomItems(int, int) generateRandomItems
-   */
-  public static Entity newChest() {
-    return newChest(FILL_CHEST.RANDOM);
-  }
-
-  /**
-   * This method is used to create a new chest entity. The chest entity can either be empty or
-   * filled with random items.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>The Entity will have a {@link InteractionComponent}, {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
-   * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
-   * interaction.
-   *
-   * @param type The type of chest to be created. It can either be RANDOM (filled with random items)
-   *     or EMPTY.
-   * @return A new Entity representing the chest.
-   */
-  public static Entity newChest(FILL_CHEST type) {
-    return switch (type) {
-      case RANDOM ->
-          newChest(
-              generateRandomItems(MIN_AMOUNT_OF_ITEMS_ON_RANDOM, MAX_AMOUNT_OF_ITEMS_ON_RANDOM),
-              PositionComponent.ILLEGAL_POSITION);
-      case EMPTY -> newChest(Set.of(), PositionComponent.ILLEGAL_POSITION);
-    };
-  }
-
-  private static Set<Item> generateRandomItems(int min, int max) {
-    return IntStream.range(0, RANDOM.nextInt(min, max))
-        .mapToObj(i -> randomItemGenerator.generateItemData())
-        .collect(Collectors.toSet());
-  }
-
-  /**
-   * Sets the ItemGenerator used to generate random items for monsters upon death.
-   *
-   * @param randomItemGenerator The ItemGenerator to use for generating random items.
-   * @see ItemGenerator
-   */
-  public static void randomItemGenerator(ItemGenerator randomItemGenerator) {
-    MiscFactory.randomItemGenerator = randomItemGenerator;
-  }
-
-  /**
-   * Gets the ItemGenerator used to generate random items for randomly filled chests.
-   *
-   * <p>The default ItemGenerator is {@link ItemGenerator#defaultItemGenerator()}.
-   *
-   * @return The current ItemGenerator used for generating random items.
-   * @see ItemGenerator
-   */
-  public static ItemGenerator randomItemGenerator() {
-    return randomItemGenerator;
-  }
 
   /**
    * Get an Entity that can be used as a chest.
@@ -240,81 +146,6 @@ public final class MiscFactory {
     interacted
         .fetch(DrawComponent.class)
         .ifPresent(interactedDC -> interactedDC.sendSignal(ic.count() == 0 ? "empty" : "filled"));
-  }
-
-  /**
-   * Creates a new locked chest entity that requires a key item to be opened.
-   *
-   * <p>Uses {@link MiscFactory#newChest(Set, Point)} and adds a locking mechanism to it.
-   *
-   * @param items Items that should be stored in the chest.
-   * @param position The position where the chest should be placed.
-   * @param requiredKeyType The type of key item required to open the chest.
-   * @return A new locked chest entity.
-   */
-  public static Entity newLockedChest(
-      final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType) {
-    if (!ItemKey.class.equals(requiredKeyType) && !ItemBigKey.class.equals(requiredKeyType)) {
-      throw new IllegalArgumentException(
-          "LockedChest entity could not be created: Only ItemKey.class or ItemBigKey.class are allowed as requiredKeyType");
-    }
-
-    String reqKeyName =
-        requiredKeyType.equals(ItemKey.class) ? "silbernen Schlüssel" : "großen goldenen Schlüssel";
-    Entity lockedChest = newChest(items, position);
-
-    lockedChest
-        .fetch(InteractionComponent.class)
-        .ifPresent(
-            oldIC -> {
-              InteractionComponent wrapperIC =
-                  new InteractionComponent(
-                      new Interaction(
-                          (interacted, interactor) -> {
-                            InventoryComponent invComp =
-                                interactor.fetch(InventoryComponent.class).orElse(null);
-                            if (invComp == null) {
-                              return;
-                            }
-
-                            if (!invComp.hasItem(requiredKeyType)) {
-                              DialogUtils.showTextPopup(
-                                  "Du brauchst einen "
-                                      + reqKeyName
-                                      + " um diese Schatzkiste zu öffnen!",
-                                  "Fehlender Schlüssel.");
-                              return;
-                            }
-
-                            UIComponent dialogUI =
-                                DialogFactory.show(
-                                    DialogContext.builder()
-                                        .type(DialogType.DefaultTypes.YES_NO)
-                                        .put(DialogContextKeys.TITLE, "Verschlossene Schatzkiste.")
-                                        .put(
-                                            DialogContextKeys.MESSAGE,
-                                            "Willst du deinen "
-                                                + reqKeyName
-                                                + " verwenden, um die Schatzkiste zu öffnen?")
-                                        .build());
-                            dialogUI.registerCallback(
-                                DialogContextKeys.ON_YES,
-                                data -> {
-                                  invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
-                                  oldIC.triggerInteraction(interacted, interactor);
-                                  interacted.remove(InteractionComponent.class);
-                                  interacted.add(oldIC);
-                                  UIUtils.closeDialog(dialogUI);
-                                });
-                            dialogUI.registerCallback(
-                                DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(dialogUI));
-                          }));
-
-              lockedChest.remove(InteractionComponent.class);
-              lockedChest.add(wrapperIC);
-            });
-
-    return lockedChest;
   }
 
   /**
@@ -605,13 +436,12 @@ public final class MiscFactory {
    */
   public static Entity createDoorBlocker(
       DoorTile door, final Class<? extends Item> requiredKeyType, Consumer<Entity> onUnlocked) {
-    if (!ItemKey.class.equals(requiredKeyType) && !ItemBigKey.class.equals(requiredKeyType)) {
+    if (!ItemKey.class.equals(requiredKeyType)) {
       throw new IllegalArgumentException(
-          "DoorBlocker entity could not be created: Only ItemKey.class or ItemBigKey.class are allowed as requiredKeyType");
+          "DoorBlocker entity could not be created: Only ItemKey.class is allowed as requiredKeyType");
     }
 
-    String reqKeyName =
-        requiredKeyType.equals(ItemKey.class) ? "silbernen Schlüssel" : "großen goldenen Schlüssel";
+    String reqKeyName = "silbernen Schlüssel";
     Entity doorBlocker = new Entity("doorBlocker");
     float x = door.position().x();
     float y = door.position().y();
@@ -795,80 +625,5 @@ public final class MiscFactory {
    */
   public static Entity newStone(Point spawnPoint, final Set<Item> items) {
     return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
-  }
-
-  /**
-   * Creates a destructible vase entity with randomized drops.
-   *
-   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
-   * suitable for a vase: does not require a hammer to break and drops all items stored inside the
-   * vase.
-   *
-   * @param spawnPoint The world position where the vase should be spawned.
-   * @param dropChance A value between 0.0 and 1.0 indicating the probability that the vase drops an
-   *     item. If the random roll fails, the vase will drop nothing.
-   * @return A new {@link Entity} representing the destructible vase.
-   */
-  public static Entity newVase(Point spawnPoint, float dropChance) {
-    Set<Item> items = generateRandomDrop(dropChance);
-    return newDestroyableObject("vase", VASE_TEXTURES, spawnPoint, null, items);
-  }
-
-  /**
-   * Creates a destructible stone entity with randomized drops.
-   *
-   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
-   * suitable for a stone: requires a hammer to break and drops all items stored inside the stone.
-   *
-   * @param spawnPoint The world position where the stone should be spawned.
-   * @param dropChance A value between 0.0 and 1.0 indicating the probability that the stone drops
-   *     an item. If the random roll fails, the stone will drop nothing.
-   * @return A new {@link Entity} representing the destructible stone.
-   */
-  public static Entity newStone(Point spawnPoint, float dropChance) {
-    Set<Item> items = generateRandomDrop(dropChance);
-    return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
-  }
-
-  /**
-   * Helper to create a random drop set based on probability.
-   *
-   * <p>Item distribution is hardcoded as an example:
-   *
-   * <ul>
-   *   <li>50% Heart
-   *   <li>30% Arrows
-   *   <li>20% Fairy
-   * </ul>
-   *
-   * @param dropChance probability that any item will drop.
-   * @return a set containing one random item, or empty if no drop occurs.
-   */
-  private static Set<Item> generateRandomDrop(float dropChance) {
-    Set<Item> result = new HashSet<>();
-    if (Math.random() <= dropChance) {
-      double roll = Math.random();
-      if (roll < 0.5) {
-        result.add(new ItemHeart(5));
-      } else if (roll < 0.8) {
-        result.add(new ItemWoodenArrow(8));
-      } else {
-        result.add(new ItemFairy());
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Enum representing the types of chest fillings. The chest can either be filled with random items
-   * (RANDOM) or be empty (EMPTY).
-   *
-   * @see MiscFactory#newChest(FILL_CHEST)
-   */
-  public enum FILL_CHEST {
-    /** Represents a chest filled with random items. */
-    RANDOM,
-    /** Represents an empty chest. */
-    EMPTY,
   }
 }

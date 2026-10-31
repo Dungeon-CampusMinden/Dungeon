@@ -61,11 +61,12 @@ import rooms.mushroom.shaders.MushroomPostProcessing;
 /** The MushRoom. */
 public class MainLevel extends DungeonLevel {
 
-  private static final int TO_GENERATE_PER_TYPE = 4;
+  private static final int TO_GENERATE_PER_TYPE = 1;
 
   private NpcState npcState = NpcState.FIRST_TALK;
 
   private int maxMushrooms;
+  private int unlockedJournalPages = JournalItem.BASE_PAGES_UNLOCKED;
   private Entity npc;
   private List<Entity> dialogTriggers = new ArrayList<>();
 
@@ -147,7 +148,7 @@ public class MainLevel extends DungeonLevel {
     listPoints("page")
         .forEach(
             p -> {
-              Game.add(JournalPageFactory.createJournalPage(p));
+              Game.add(JournalPageFactory.createJournalPage(p, () -> unlockedJournalPages++));
             });
 
     createPushPuzzle();
@@ -158,7 +159,7 @@ public class MainLevel extends DungeonLevel {
         .forEach(
             p -> {
               try {
-                Game.add(EntityFactory.newStone(p, 0));
+                Game.add(EntityFactory.newStone(p));
               } catch (IOException ignored) {
               }
             });
@@ -533,7 +534,7 @@ public class MainLevel extends DungeonLevel {
               long collected =
                   Arrays.stream(inventory.items())
                       .filter(item -> item instanceof MushroomItem.BaseMushroom)
-                      .reduce(0, (a, b) -> a + b.stackSize(), Integer::sum);
+                      .count();
               long collectedPoisonous =
                   Arrays.stream(inventory.items())
                       .filter(
@@ -543,7 +544,7 @@ public class MainLevel extends DungeonLevel {
                             }
                             return bm.type().poisonous();
                           })
-                      .reduce(0, (a, b) -> a + b.stackSize(), Integer::sum);
+                      .count();
               if (collected - collectedPoisonous >= maxMushrooms
                   && npcState == NpcState.DURING_COLLECTING) {
                 npcState = NpcState.ALL_COLLECTED;
@@ -581,9 +582,7 @@ public class MainLevel extends DungeonLevel {
         break;
       case SECOND_TALK:
         DialogUtils.showTextPopup(
-            "Sammle von jeder Sorte "
-                + TO_GENERATE_PER_TYPE
-                + " Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit <B>",
+            "Sammle von jeder Sorte ein Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit <B>",
             "Kumpel");
         npcState = NpcState.THIRD_TALK;
         giveJournal();
@@ -598,8 +597,7 @@ public class MainLevel extends DungeonLevel {
       case DURING_COLLECTING:
         DialogUtils.showTextPopup(
             "Hast du schon alle Pilze gesammelt? Ich brauche sie dringend, um den Heiltrank zu brauen! "
-                + TO_GENERATE_PER_TYPE
-                + " Stück von jeder nicht giftigen Sorte sollten reichen."
+                + "Ein Stück von jeder nicht giftigen Sorte sollte reichen."
                 + " Du hast gerade schon "
                 + collectionState.a()
                 + " Pilze gesammelt, insgesamt brauche ich "
@@ -640,7 +638,7 @@ public class MainLevel extends DungeonLevel {
         .flatMap(e -> e.fetch(InventoryComponent.class))
         .ifPresent(
             inventory -> {
-              inventory.add(new JournalItem());
+              inventory.add(new JournalItem(() -> unlockedJournalPages));
             });
   }
 

@@ -57,7 +57,7 @@ final class AssignmentCheckerTest {
     Item restored = ItemRegistry.create(ItemRegistry.idFor(item), item.itemData()).orElseThrow();
 
     assertEquals("bread", ((AnswerItem) restored).answerId());
-    assertEquals(item, restored);
+    assertEquals(item.itemData(), restored.itemData());
   }
 
   private static Map<String, String> targets() {

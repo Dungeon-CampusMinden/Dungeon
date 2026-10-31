@@ -60,10 +60,7 @@ public enum CharacterClass {
           new DashSkill(5, 180, 120, new Tuple<>(Resource.STAMINA, 20)),
           new MeleeAttackSkill(3, DamageType.PHYSICAL, 500, Vector2.ZERO, Vector2.ONE)),
       List.of(
-          new ItemWoodenBow(),
-          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
-          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
-          new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE)),
+          new ItemWoodenBow(), new ItemWoodenArrow(), new ItemWoodenArrow(), new ItemWoodenArrow()),
       10,
       0,
       0,

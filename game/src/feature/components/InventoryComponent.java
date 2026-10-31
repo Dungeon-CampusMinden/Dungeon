@@ -5,16 +5,11 @@ import engine.Entity;
 import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.inventory.Item;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Allows the entity to collect items in an inventory.
@@ -63,62 +58,20 @@ public final class InventoryComponent implements Component {
   /**
    * Add the given item to the inventory.
    *
-   * <p>Does not allow adding more items than the size of the inventory.
-   *
-   * <p>Items do get stacked, a stack will be split if needed.
-   *
-   * <p>Items are stored as a set, so an item instance cannot be stored twice in the same inventory
-   * at the same time.
+   * <p>The item occupies the next free slot. Does not allow adding more items than the size of the
+   * inventory.
    *
    * @param item The item to be added.
    * @return True if the item was added, false if not.
    */
   public boolean add(final Item item) {
-    if (addToStack(item) == 0) {
-      this.onItemAdded.accept(item);
-      return true;
-    }
-
     int firstEmpty = this.findNextAvailableSlot();
     if (firstEmpty == -1) return false;
     return set(firstEmpty, item);
   }
 
   /**
-   * Try to add the given item to existing stacks of the same item class.
-   *
-   * @param item The item to be added.
-   * @return The remaining stack size of the item that could not be added.
-   */
-  private int addToStack(final Item item) {
-    List<Item> sameClassItems = itemsOfSameClass(item);
-    for (Item stack : sameClassItems) {
-      if (item.stackSize() <= 0) {
-        return 0;
-      }
-      int spaceLeft = stack.maxStackSize() - stack.stackSize();
-      if (spaceLeft > 0) {
-        int toTransfer = Math.min(spaceLeft, item.stackSize());
-        stack.stackSize((byte) (stack.stackSize() + toTransfer));
-        item.stackSize((byte) (item.stackSize() - toTransfer));
-      }
-    }
-
-    return item.stackSize();
-  }
-
-  private List<Item> itemsOfSameClass(Item toGet) {
-    List<Item> result = new ArrayList<>(this.inventory.length);
-    for (Item invItem : inventory) {
-      if (invItem != null && invItem.getClass().equals(toGet.getClass())) {
-        result.add(invItem);
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Remove the given item from the inventory.
+   * Remove the given item instance from the inventory.
    *
    * @param item The item to be removed.
    * @return An {@link Optional} containing the removed item, or {@link Optional#empty()} if the
@@ -126,8 +79,9 @@ public final class InventoryComponent implements Component {
    */
   public Optional<Item> remove(final Item item) {
     LOGGER.debug("Removing item '{}' from inventory.", this.getClass().getSimpleName());
+    if (item == null) return Optional.empty();
     for (int i = 0; i < inventory.length; i++) {
-      if (inventory[i] != null && inventory[i].equals(item)) {
+      if (inventory[i] == item) {
         return remove(i);
       }
     }
@@ -184,20 +138,6 @@ public final class InventoryComponent implements Component {
    */
   public Optional<Item> itemOfClass(final Class<? extends Item> klass) {
     return Arrays.stream(this.inventory).filter(klass::isInstance).findFirst();
-  }
-
-  /**
-   * Gets the item with the smallest stack size out of all items of a given class.
-   *
-   * @param klass The class of the item to search for.
-   * @return an {@link Optional} containing the item with the smallest stack size, or {@link
-   *     Optional#empty()} if no such item is found.
-   */
-  public Optional<Item> smallestStackOfItemClass(final Class<? extends Item> klass) {
-    return Arrays.stream(this.inventory)
-        .filter(Objects::nonNull)
-        .filter(klass::isInstance)
-        .min(Comparator.comparingInt(Item::stackSize));
   }
 
   /**
@@ -258,16 +198,13 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Returns the total number of items of the specified type in the inventory.
-   *
-   * <p>This method sums the {@link Item#stackSize()} of all items that are instances of the given
-   * class.
+   * Returns the number of items of the specified type in the inventory.
    *
    * @param klass the class of items to count
-   * @return the total number of items of the specified type
+   * @return the number of items that are instances of the given class
    */
   public int count(Class<? extends Item> klass) {
-    return items(klass).stream().mapToInt(Item::stackSize).sum();
+    return items(klass).size();
   }
 
   /**
@@ -321,15 +258,13 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Get a Set of items stored in this component that are an instance of the given class.
+   * Get the items stored in this component that are an instance of the given class.
    *
    * @param klass Only return items that are an instance of this class.
-   * @return A Set of items that are in this Inventory and are an instance of the given class.
+   * @return The matching items in slot order.
    */
-  public Set<Item> items(final Class<? extends Item> klass) {
-    return Arrays.stream(this.inventory.clone())
-        .filter(klass::isInstance)
-        .collect(Collectors.toSet());
+  public List<Item> items(final Class<? extends Item> klass) {
+    return Arrays.stream(this.inventory).filter(klass::isInstance).toList();
   }
 
   /**
@@ -387,75 +322,17 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Removes one unit from the first matching item in the inventory.
-   *
-   * <p>The method first searches for an exact reference match ({@code ==}). If none is found, it
-   * falls back to an {@link Object#equals(Object) equals}-based match. The first match encountered
-   * (in slot order) has its stack size decremented by one. If the stack size reaches zero or below,
-   * the item is removed from the inventory entirely.
-   *
-   * @param item The reference item used to find a matching inventory entry.
-   * @return true if one unit was successfully removed; false if no matching item was found in the
-   *     inventory.
-   */
-  public boolean removeOne(Item item) {
-    // Exact instance match
-    for (int i = 0; i < inventory.length; i++) {
-      if (inventory[i] == item) {
-        Item it = inventory[i];
-        it.stackSize(it.stackSize() - 1);
-        if (it.stackSize() <= 0) {
-          inventory[i] = null;
-        }
-        this.onItemRemoved.accept(it);
-        return true;
-      }
-    }
-
-    // Equals-based match
-    for (int i = 0; i < inventory.length; i++) {
-      if (inventory[i] != null && inventory[i].equals(item)) {
-        Item it = inventory[i];
-        it.stackSize(it.stackSize() - 1);
-        if (it.stackSize() <= 0) {
-          inventory[i] = null;
-        }
-        this.onItemRemoved.accept(it);
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Removes a specified number of items of a given type from the inventory.
-   *
-   * <p>If multiple stacks of the item exist, the method will remove items from each stack until the
-   * requested amount has been removed. If a stack contains fewer items than needed, the entire
-   * stack is removed and the method continues with the remaining amount. Partial stacks are reduced
-   * accordingly.
+   * Removes up to the given number of items of a given type from the inventory, in slot order.
    *
    * @param klass the class of the items to remove
-   * @param amount the total number of items to remove
+   * @param amount the maximum number of items to remove
    */
   public void remove(Class<? extends Item> klass, int amount) {
-    Set<Item> itemSet = this.items(klass);
-
-    Iterator<Item> iterator = itemSet.iterator();
-    while (iterator.hasNext() && amount > 0) {
-      Item item = iterator.next();
-      int stack = item.stackSize();
-
-      if (stack <= amount) {
-        amount -= stack;
-        this.remove(item);
-        iterator.remove(); // safe removal from Set
-      } else {
-        item.stackSize((byte) (stack - amount));
-        amount = 0;
+    for (int i = 0; i < inventory.length && amount > 0; i++) {
+      if (klass.isInstance(inventory[i])) {
+        remove(i);
+        amount--;
       }
-      this.onItemRemoved.accept(item);
     }
   }
 

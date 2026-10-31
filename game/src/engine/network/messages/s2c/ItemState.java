@@ -10,30 +10,19 @@ import java.util.Optional;
  * Immutable network representation of an item.
  *
  * @param itemType stable item registry ID
- * @param stackSize current stack size
- * @param maxStackSize maximum stack size
  * @param itemData serialized item-specific data
  */
-public record ItemState(
-    String itemType, int stackSize, int maxStackSize, Map<String, String> itemData) {
+public record ItemState(String itemType, Map<String, String> itemData) {
 
   /**
    * Creates an immutable item state.
    *
    * @param itemType stable item registry ID
-   * @param stackSize current stack size
-   * @param maxStackSize maximum stack size
    * @param itemData serialized item-specific data
    */
   public ItemState {
     if (itemType == null || itemType.isBlank()) {
       throw new IllegalArgumentException("itemType must not be null or blank.");
-    }
-    if (stackSize < 0) {
-      throw new IllegalArgumentException("stackSize must not be negative.");
-    }
-    if (maxStackSize < 0) {
-      throw new IllegalArgumentException("maxStackSize must not be negative.");
     }
     itemData = itemData == null ? Map.of() : Map.copyOf(itemData);
   }
@@ -46,8 +35,7 @@ public record ItemState(
    */
   public static ItemState fromItem(Item item) {
     Objects.requireNonNull(item, "item");
-    return new ItemState(
-        ItemRegistry.idFor(item), item.stackSize(), item.maxStackSize(), item.itemData());
+    return new ItemState(ItemRegistry.idFor(item), item.itemData());
   }
 
   /**
@@ -56,21 +44,15 @@ public record ItemState(
    * @return new domain item instance
    */
   public Item toItem() {
-    Item item =
-        itemFromData()
-            .orElseGet(
-                () -> {
-                  Class<? extends Item> itemClass =
-                      ItemRegistry.lookup(itemType)
-                          .orElseThrow(
-                              () -> new IllegalArgumentException("Unknown item type: " + itemType));
-                  return instantiate(itemClass);
-                });
-    if (maxStackSize > 0) {
-      item.maxStackSize(maxStackSize);
-    }
-    item.stackSize(stackSize);
-    return item;
+    return itemFromData()
+        .orElseGet(
+            () -> {
+              Class<? extends Item> itemClass =
+                  ItemRegistry.lookup(itemType)
+                      .orElseThrow(
+                          () -> new IllegalArgumentException("Unknown item type: " + itemType));
+              return instantiate(itemClass);
+            });
   }
 
   private Optional<Item> itemFromData() {

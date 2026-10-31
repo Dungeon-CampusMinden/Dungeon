@@ -174,9 +174,7 @@ public class PuzzlePieceItem extends Item {
       AnimationConfig config = animation.clone().getConfig();
       config.config(
           PuzzleTextureGenerator.pieceSpritesheetConfig(imagePath, pieceCount, seed, pieceIndex));
-      animation =
-          new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
-      super.worldAnimation(animation);
+      return new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
     }
     return animation;
   }
@@ -347,37 +345,6 @@ public class PuzzlePieceItem extends Item {
           "PuzzlePieceItem itemData is missing required key '" + key + "'");
     }
     return value;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof PuzzlePieceItem other)) return false;
-    return pieceIndex == other.pieceIndex
-        && pieceCount == other.pieceCount
-        && seed == other.seed
-        && puzzleId.equals(other.puzzleId)
-        && imagePath.pathString().equals(other.imagePath.pathString())
-        && pieceFamilyId.equals(other.pieceFamilyId)
-        && Objects.equals(customItemName, other.customItemName)
-        && Objects.equals(customItemDescription, other.customItemDescription)
-        && Objects.equals(completionHintName, other.completionHintName)
-        && Objects.equals(completionHintDescription, other.completionHintDescription);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        puzzleId,
-        pieceIndex,
-        imagePath.pathString(),
-        pieceCount,
-        seed,
-        pieceFamilyId,
-        customItemName,
-        customItemDescription,
-        completionHintName,
-        completionHintDescription);
   }
 
   /**

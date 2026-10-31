@@ -11,20 +11,12 @@ import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
 import feature.entities.WorldItemBuilder;
 import feature.inventory.items.HintItem;
-import feature.inventory.items.ItemBigKey;
-import feature.inventory.items.ItemFairy;
 import feature.inventory.items.ItemHammer;
-import feature.inventory.items.ItemHeart;
 import feature.inventory.items.ItemKey;
 import feature.inventory.items.ItemPotionHealth;
-import feature.inventory.items.ItemPotionWater;
-import feature.inventory.items.ItemResourceBerry;
-import feature.inventory.items.ItemResourceEgg;
-import feature.inventory.items.ItemResourceMushroomRed;
 import feature.inventory.items.ItemWoodenArrow;
 import feature.inventory.items.ItemWoodenBow;
 import feature.tasks.AnswerItem;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -40,20 +32,11 @@ import java.util.Random;
  * item will add it to the inventory of the collector. To change this behavior, override the {@link
  * #drop(Point)} and {@link #collect(Entity, Entity)}.
  *
- * <p>Items have a max stack size and a stack size. The stack size is the amount of items on this
- * stack. The max stack size is the maximum amount of items that can be on this stack. The default
- * max stack size is 1 and the default stack size is 1. The values can be changed via the {@link
- * #stackSize()} and {@link #maxStackSize()} methods.
+ * <p>Items are immutable, so one instance can safely appear in several places (start items,
+ * inventories, snapshots). Each inventory slot holds exactly one item; items do not stack.
  */
 public class Item {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Item.class);
-
-  /**
-   * The maximum stack size for any item.
-   *
-   * <p>Cannot be higher than 255 due to byte storage.
-   */
-  private static final long MAX_STACK_SIZE = 64;
 
   /** Random object used to generate random numbers for item related things. */
   public static final Random RANDOM = new Random();
@@ -64,27 +47,18 @@ public class Item {
 
   static {
     ItemRegistry.register(ItemPotionHealth.class, Item::createHealthPotionFromData);
-    ItemRegistry.register(ItemPotionWater.class);
-    ItemRegistry.register(ItemResourceBerry.class);
-    ItemRegistry.register(ItemResourceEgg.class);
-    ItemRegistry.register(ItemResourceMushroomRed.class);
     ItemRegistry.register(ItemWoodenArrow.class);
     ItemRegistry.register(ItemWoodenBow.class);
-    ItemRegistry.register(ItemBigKey.class);
-    ItemRegistry.register(ItemFairy.class);
     ItemRegistry.register(ItemHammer.class);
-    ItemRegistry.register(ItemHeart.class, Item::createHeartFromData);
     ItemRegistry.register(ItemKey.class);
     HintItem.ensureRegistration();
     AnswerItem.ensureRegistration();
   }
 
-  private String displayName;
-  private String description;
-  private Animation inventoryAnimation;
-  private Animation worldAnimation;
-  private byte stackSize;
-  private byte maxStackSize;
+  private final String displayName;
+  private final String description;
+  private final Animation inventoryAnimation;
+  private final Animation worldAnimation;
 
   /**
    * Create a new Item.
@@ -93,26 +67,16 @@ public class Item {
    * @param description The description of the item.
    * @param inventoryAnimation The inventory animation of the item.
    * @param worldAnimation The world animation of the item.
-   * @param stackSize The stack size of the item (max 64).
-   * @param maxStackSize The max stack size of the item (max 64).
    */
   public Item(
       final String displayName,
       final String description,
       final Animation inventoryAnimation,
-      final Animation worldAnimation,
-      int stackSize,
-      int maxStackSize) {
+      final Animation worldAnimation) {
     this.displayName = displayName;
     this.description = description;
     this.inventoryAnimation = inventoryAnimation;
     this.worldAnimation = worldAnimation;
-    if (stackSize > MAX_STACK_SIZE || maxStackSize > MAX_STACK_SIZE) {
-      throw new IllegalArgumentException(
-          "Stack size and max stack size cannot be higher than " + MAX_STACK_SIZE);
-    }
-    this.stackSize = (byte) stackSize;
-    this.maxStackSize = (byte) maxStackSize;
 
     // Stupidity check
     if (!Item.isRegistered(this.getClass())) {
@@ -125,26 +89,6 @@ public class Item {
   /**
    * Create a new Item.
    *
-   * <p>The default max stack size is 1 and the default stack size is 1.
-   *
-   * @param displayName The display name of the item.
-   * @param description The description of the item.
-   * @param inventoryAnimation The inventory animation of the item.
-   * @param worldAnimation The world animation of the item.
-   */
-  public Item(
-      final String displayName,
-      final String description,
-      final Animation inventoryAnimation,
-      final Animation worldAnimation) {
-    this(displayName, description, inventoryAnimation, worldAnimation, 1, 1);
-  }
-
-  /**
-   * Create a new Item.
-   *
-   * <p>The default max stack size is 1 and the default stack size is 1.
-   *
    * <p>The given animation is used for both the inventory and the world animation.
    *
    * @param displayName The display name.
@@ -152,7 +96,7 @@ public class Item {
    * @param animation The animation.
    */
   public Item(final String displayName, final String description, final Animation animation) {
-    this(displayName, description, animation, animation, 1, 1);
+    this(displayName, description, animation, animation);
   }
 
   /**
@@ -164,47 +108,6 @@ public class Item {
    */
   public Map<String, String> itemData() {
     return Map.of();
-  }
-
-  /**
-   * Register an item class using its simple name.
-   *
-   * @param clazz The class of the item to register.
-   * @deprecated Use {@link ItemRegistry#register(Class)} instead.
-   */
-  @Deprecated
-  public static void registerItem(final Class<? extends Item> clazz) {
-    ItemRegistry.register(clazz);
-  }
-
-  /**
-   * Get a copy of the registered items.
-   *
-   * <p>This method is used a copy of all registered items. It returns a map where the keys are the
-   * simple names of the classes (e.g. {@link ItemResourceBerry}), and the values are the
-   * corresponding class objects.
-   *
-   * @return A copy of the registered items.
-   * @deprecated Use {@link ItemRegistry#entries()} instead.
-   */
-  @Deprecated
-  public static Map<String, Class<? extends Item>> registeredItems() {
-    return new HashMap<>(ItemRegistry.entries());
-  }
-
-  /**
-   * Get an item by its identifier.
-   *
-   * <p>This method is used to get an item by its identifier. The identifier is the simple name of
-   * the class (e.g. "ItemResourceBerry").
-   *
-   * @param id The identifier of the item.
-   * @return The class of the item with the given identifier.
-   * @deprecated Use {@link ItemRegistry#lookup(String)} instead.
-   */
-  @Deprecated
-  public static Class<? extends Item> getItem(final String id) {
-    return ItemRegistry.lookup(id).orElse(null);
   }
 
   private static boolean isRegistered(final Class<? extends Item> clazz) {
@@ -222,15 +125,6 @@ public class Item {
           "Missing or invalid item data for " + ItemPotionHealth.class.getSimpleName());
     }
     return new ItemPotionHealth(type.get());
-  }
-
-  private static Item createHeartFromData(Map<String, String> data) {
-    OptionalInt healAmount = parseInt(data.get(DATA_KEY_HEAL_AMOUNT));
-    if (healAmount.isEmpty()) {
-      throw new IllegalArgumentException(
-          "Missing or invalid item data for " + ItemHeart.class.getSimpleName());
-    }
-    return new ItemHeart(healAmount.getAsInt());
   }
 
   private static Optional<HealthPotionType> resolveHealthPotionType(Map<String, String> data) {
@@ -286,27 +180,12 @@ public class Item {
   }
 
   /**
-   * Gets the display name of this item.
-   *
-   * <p>If there is more than one item in the stack, a prefix in the format "Count x DisplayName" is
-   * returned.
+   * Gets the translated display name of this item.
    *
    * @return The display name.
    */
   public String displayName() {
-    String prefix = "";
-    if (this.stackSize > 1) prefix = this.stackSize() + " x ";
-    return prefix.concat(
-        Localization.getInstance().getCurrentTranslator().translate(this.displayName));
-  }
-
-  /**
-   * Set the display name of this item.
-   *
-   * @param displayName The new display name.
-   */
-  public void displayName(final String displayName) {
-    this.displayName = displayName;
+    return Localization.getInstance().getCurrentTranslator().translate(this.displayName);
   }
 
   /**
@@ -319,15 +198,6 @@ public class Item {
   }
 
   /**
-   * Set the description of this item.
-   *
-   * @param description The new description.
-   */
-  public void description(final String description) {
-    this.description = description;
-  }
-
-  /**
    * Get the inventory animation of this item.
    *
    * @return The inventory animation.
@@ -337,75 +207,12 @@ public class Item {
   }
 
   /**
-   * Set the inventory animation of this item.
-   *
-   * @param inventoryAnimation The new inventory animation.
-   */
-  public void inventoryAnimation(final Animation inventoryAnimation) {
-    this.inventoryAnimation = inventoryAnimation;
-  }
-
-  /**
    * Get the world animation of this item.
    *
    * @return The world animation.
    */
   public Animation worldAnimation() {
     return this.worldAnimation;
-  }
-
-  /**
-   * Set the world animation of this item.
-   *
-   * @param worldAnimation The new world animation.
-   */
-  public void worldAnimation(final Animation worldAnimation) {
-    this.worldAnimation = worldAnimation;
-  }
-
-  /**
-   * Get the stack size of this item.
-   *
-   * @return The stack size.
-   */
-  public int stackSize() {
-    return this.stackSize;
-  }
-
-  /**
-   * Set the stack size of this item.
-   *
-   * @param stackSize The new stack size (max {@link #MAX_STACK_SIZE}; min 0).
-   */
-  public void stackSize(int stackSize) {
-    if (stackSize > MAX_STACK_SIZE || stackSize < 0) {
-      throw new IllegalArgumentException(
-          "Stack size cannot be higher than " + MAX_STACK_SIZE + " or lower than 0");
-    }
-
-    this.stackSize = (byte) stackSize;
-  }
-
-  /**
-   * Get the max stack size of this item.
-   *
-   * @return The max stack size.
-   */
-  public int maxStackSize() {
-    return this.maxStackSize;
-  }
-
-  /**
-   * Set the max stack size of this item.
-   *
-   * @param maxStackSize The new max stack size (max {@link #MAX_STACK_SIZE}; min 1).
-   */
-  public void maxStackSize(int maxStackSize) {
-    if (maxStackSize > MAX_STACK_SIZE || maxStackSize < 1) {
-      throw new IllegalArgumentException(
-          "Max stack size cannot be higher than " + MAX_STACK_SIZE + " or lower than 1");
-    }
-    this.maxStackSize = (byte) maxStackSize;
   }
 
   /**
@@ -457,46 +264,5 @@ public class Item {
    */
   public void use(final Entity user) {
     user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
-  }
-
-  /**
-   * Check if the Item matches the input.
-   *
-   * @param input The input to match.
-   * @return True if the item matches the input, false otherwise.
-   */
-  public boolean match(final Item input) {
-    if (this.getClass().isInstance(input)) return input.stackSize() <= stackSize;
-    return false;
-  }
-
-  /**
-   * Sets the stacksize.
-   *
-   * @param count The stacksize to set.
-   */
-  public void amount(int count) {
-    this.stackSize(count);
-  }
-
-  /**
-   * Get the stacksize.
-   *
-   * @return The stacksize
-   */
-  public int amount() {
-    return stackSize;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
-    Item other = (Item) obj;
-
-    return displayName.equals(other.displayName)
-        && description.equals(other.description)
-        && stackSize == other.stackSize
-        && maxStackSize == other.maxStackSize;
   }
 }
