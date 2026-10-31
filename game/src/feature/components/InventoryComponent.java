@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 /**
  * Allows the entity to collect items in an inventory.
  *
- * <p>The component stores a set of {@link Item} that the associated entity has collected.
+ * <p>The component stores the {@link Item}s the associated entity has collected in fixed slots.
  *
  * <p>Each inventory has a maximum number of item instances (items do not get stacked) that can be
  * carried.
@@ -208,9 +208,9 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Get a Set of items stored in this component.
+   * Get the slots of this component.
    *
-   * @return A copy of the inventory.
+   * @return A copy of the inventory slots; empty slots are {@code null}.
    */
   public Item[] items() {
     return this.inventory.clone();

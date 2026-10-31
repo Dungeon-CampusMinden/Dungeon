@@ -97,6 +97,7 @@ message Item {
   string item_type = 1;
 
   reserved 2, 3;
+  reserved "stack_size", "max_stack_size";
 
   // Item-specific parameters (e.g., "strength" -> "50" for potions).
   map<string, string> item_data = 4;

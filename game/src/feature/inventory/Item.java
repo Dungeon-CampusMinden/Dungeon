@@ -32,7 +32,7 @@ import java.util.Random;
  * item will add it to the inventory of the collector. To change this behavior, override the {@link
  * #drop(Point)} and {@link #collect(Entity, Entity)}.
  *
- * <p>Items are immutable, so one instance can safely appear in several places (start items,
+ * <p>Items hold no mutable item state, so one instance can appear in several places (start items,
  * inventories, snapshots). Each inventory slot holds exactly one item; items do not stack.
  */
 public class Item {

@@ -161,22 +161,11 @@ public class PuzzlePieceItem extends Item {
   @Override
   public Animation worldAnimation() {
     Animation animation = super.worldAnimation();
-    if (Game.isHeadless()
-        && animation.getConfig().config().isEmpty()
-        && animation
-            .sourcePath()
-            .filter(
-                texturePath ->
-                    texturePath
-                        .pathString()
-                        .equals(PuzzleTextureGenerator.texturePath(puzzleId, pieceIndex)))
-            .isPresent()) {
-      AnimationConfig config = animation.clone().getConfig();
-      config.config(
-          PuzzleTextureGenerator.pieceSpritesheetConfig(imagePath, pieceCount, seed, pieceIndex));
-      return new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
-    }
-    return animation;
+    if (!Game.isHeadless()) return animation;
+    AnimationConfig config = animation.clone().getConfig();
+    config.config(
+        PuzzleTextureGenerator.pieceSpritesheetConfig(imagePath, pieceCount, seed, pieceIndex));
+    return new Animation(PuzzleTextureGenerator.texturePathFor(puzzleId, pieceIndex), config);
   }
 
   /**
