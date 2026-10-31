@@ -39,7 +39,7 @@ Grammatiken. Terminal 3 fragt nach den Schritten des Modellierungsprozesses. Sei
 Modellierungskreislauf, und nach ihm ordnen sich die Ziffern des Türcodes. Der Raum nutzt das Design
 `SYSTEM_RECOVERY`, eigene Terminals und einen Handscanner als Tastenfeld. Stachowiak baut dort
 Terminal 3 wieder auf, sobald die Figur ihm den Bauplan aus der Truhe bringt. Der Raum startet mit
-`./gradlew :game:runFomoRoom`, sein Level liegt in `levels/fomo`.
+`./gradlew :game:runFomoRoom`, sein Level liegt in `game/assets/levels/fomo`.
 
 Im FOMO-Raum beginnt die Figur in einem Vorraum. Das Intro erklärt dort ausführlich Steuerung,
 Abstimmung und Zeitfenster. Im Vorraum steht Robo, ein Roboter auf dem Punkt `tutorial_npc`. Er
@@ -91,7 +91,7 @@ aus erreicht die Figur jedes Objekt in höchstens 8 Schritten, das Whiteboard is
 
 Der Raum `rooms.ki.KiRoom` („Gefangen im Entscheidungsbaum“) ist nach dem FOMO-Raum gebaut und
 fragt nach maschinellem Lernen und Entscheidungsbäumen. Er startet mit `./gradlew :game:runKiRoom`,
-sein Level liegt in `levels/ki`. Die Unterschiede zum FOMO-Raum:
+sein Level liegt in `game/assets/levels/ki`. Die Unterschiede zum FOMO-Raum:
 
 - Im Vorraum liegt auf dem Drucker die Kontaktseite von Carsten Gips
   (`rooms/ki/contact_page.png`). Der Code der Tür ins Labor ist `268`, die letzten drei Ziffern
@@ -110,9 +110,17 @@ sein Level liegt in `levels/ki`. Die Unterschiede zum FOMO-Raum:
 Alle drei Räume lesen aus ihrer Level-Datei die benannten Punkte `q1` bis `q4` für die Terminals,
 im KI-Raum bis `q5`. Dazu kommen `chest` für die Truhe, `panel` für das Tastenfeld, `door` für die
 Tür und `exit` für das Feld dahinter. Die Level-Dateien enthalten keine Dekorationen. Im
-Level-Editor (F4) lassen sich Punkte verschieben und Dekorationen setzen. Die Einträge mit `Lab` im
-Namen nutzen die Labor-Grafiken aus `objects/tech`. Stehende Geräte blockieren ihr Feld, Wandgeräte
-nicht.
+Level-Editor (F4) lassen sich Punkte verschieben und Dekorationen setzen. Er speichert direkt
+nach `game/assets/levels/<Raum>`. Die Einträge mit `Lab` im Namen nutzen die Labor-Grafiken aus
+`objects/tech`. Stehende Geräte blockieren ihr Feld, Wandgeräte nicht.
+
+Die drei Räume teilen ihren Code im Paket `rooms.escape`. `EscapeRoom` startet einen Raum mit
+seinen Werten: Raum-ID, Titel, Menüfarbe, Level, Intro und Bewegungsfenster. `EscapeRoomLevel`
+enthält Terminals, Helfer, Truhe, Türschloss, Vorraum, Rechner und Whiteboard. Ein Raum liefert
+nur noch seine Texte, Fragen und Codes und legt in `setUp()` fest, welche Teile er nutzt. Der
+Automatenraum lässt Vorraum, Rechner und Whiteboard weg und schaltet die Zielliste ab. Stimmen am
+Türschloss die Ziffern, aber nicht ihre Reihenfolge, sagt das Tastenfeld das in allen drei
+Räumen.
 
 ## Ablauf
 

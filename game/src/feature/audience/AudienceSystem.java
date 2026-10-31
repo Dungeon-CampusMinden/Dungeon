@@ -181,7 +181,6 @@ public final class AudienceSystem extends System {
     if (hero == null || Game.findEntityById(hero.id()).isEmpty()) {
       hero = Game.allPlayers().findFirst().orElse(null);
       stepper = hero == null ? null : new TileStepper(hero);
-      if (stepper != null) stepper.snap();
     }
     pause(phase == Phase.PLAYING && !Game.playClock().running());
     if (stepper != null) {

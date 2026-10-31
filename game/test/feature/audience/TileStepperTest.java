@@ -3,12 +3,9 @@ package feature.audience;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import engine.Entity;
 import engine.components.PositionComponent;
-import engine.level.Tile;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
@@ -29,10 +26,7 @@ class TileStepperTest {
     Entity hero = new Entity("hero");
     hero.add(new PositionComponent(new Point(0, 0)));
     hero.add(new CollideComponent(hitbox.offset(), hitbox.size()));
-    Tile tile = mock(Tile.class);
-    when(tile.position()).thenReturn(new Point(6, 1));
-    new TileStepper(hero).place(tile);
-    return hero.fetch(PositionComponent.class).orElseThrow().position();
+    return TileStepper.positionOn(hero, new Point(6, 1));
   }
 
   private static void assertNear(Point expected, Point actual) {

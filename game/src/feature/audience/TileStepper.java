@@ -59,34 +59,6 @@ final class TileStepper {
   }
 
   /**
-   * Puts the hero on the tile the game placed it on, centered like after a step. The game places
-   * heroes at a tile origin, which is off the tile for a hero with a larger sprite.
-   */
-  void snap() {
-    PositionComponent position = hero.fetch(PositionComponent.class).orElseThrow();
-    Game.tileAt(position.position()).ifPresent(this::place);
-  }
-
-  /**
-   * Puts the hero on a tile right away; a step or route under way ends.
-   *
-   * @param tile the tile to stand on
-   */
-  void place(Tile tile) {
-    target = null;
-    path.clear();
-    onArrival = null;
-    hero.fetch(VelocityComponent.class)
-        .ifPresent(
-            velocity -> {
-              velocity.clearForces();
-              velocity.currentVelocity(Vector2.ZERO);
-            });
-    hero.fetch(PositionComponent.class).orElseThrow().position(positionOn(tile));
-    PositionSync.syncPosition(hero);
-  }
-
-  /**
    * @return whether the hero is still walking, to the destination of the last step or along a route
    */
   boolean moving() {
