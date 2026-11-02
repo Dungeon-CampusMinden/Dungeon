@@ -1,0 +1,3 @@
+- Source: drawn for this project with a script
+- License: CC0 1.0, see `LICENSE-ASSETS.md`
+- Note: The text uses the font Lexend from `fonts/`, see `fonts/Lexend.license.md`

@@ -1,0 +1,103 @@
+{
+  "version" : 3,
+  "design" : "SYSTEM_RECOVERY",
+  "layout" : [ "SSSSSSSSSSS", "WWWWWFWWWWW", "WWWWWDWWWWW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WFFFFFFFFFW", "WWWWWDWWWWW", "SSWFFFFFWSS", "SSWFFFFFWSS", "SSWFFFFFWSS", "SSWWWWWWWSS", "SSSSSSSSSSS" ],
+  "startTiles" : [
+    {
+      "x" : 5.0,
+      "y" : 2.0
+    }
+  ],
+  "namedPoints" : {
+    "chest" : {
+      "x" : 8.0,
+      "y" : 6.0
+    },
+    "decision_tree" : {
+      "x" : 7.0,
+      "y" : 6.0
+    },
+    "door" : {
+      "x" : 5.0,
+      "y" : 11.0
+    },
+    "exit" : {
+      "x" : 5.0,
+      "y" : 12.0
+    },
+    "panel" : {
+      "x" : 6.0,
+      "y" : 11.0
+    },
+    "q1" : {
+      "x" : 1.0,
+      "y" : 7.0
+    },
+    "q2" : {
+      "x" : 9.0,
+      "y" : 7.0
+    },
+    "q3" : {
+      "x" : 1.0,
+      "y" : 9.0
+    },
+    "q4" : {
+      "x" : 9.0,
+      "y" : 9.0
+    },
+    "q5" : {
+      "x" : 5.0,
+      "y" : 8.0
+    },
+    "tutorial_door" : {
+      "x" : 5.0,
+      "y" : 5.0
+    },
+    "tutorial_npc" : {
+      "x" : 3.0,
+      "y" : 4.0
+    },
+    "tutorial_panel" : {
+      "x" : 4.0,
+      "y" : 5.0
+    },
+    "whiteboard" : {
+      "x" : 1.0,
+      "y" : 11.0
+    }
+  },
+  "decorations" : [ ],
+  "prefabs" : [
+    {
+      "name" : "printer",
+      "type" : "deco-interaction",
+      "properties" : {
+        "position" : {
+          "x" : 7.0,
+          "y" : 3.0
+        },
+        "deco" : "Printer",
+        "scale" : {
+          "x" : 1.0,
+          "y" : 1.0
+        }
+      }
+    },
+    {
+      "name" : "contact-page",
+      "type" : "show-image",
+      "properties" : {
+        "image" : "rooms/ki/contact_page.png",
+        "audience" : "Triggering Player"
+      },
+      "inputs" : {
+        "show-image" : [
+          {
+            "source" : "printer",
+            "port" : "interacted"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -107,6 +107,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final String T_SERVER_STOP_FAILED = "server_stop_failed";
   private static final String T_SERVER_START_FAILED = "server_start_failed";
   private static final String T_SERVER_TIMEOUT = "server_timeout";
+  private static final String T_PORT_BUSY = "port_busy";
   private static final String T_NEW_GAME_OVERWRITE_TITLE = "new_game_overwrite_title";
   private static final String T_NEW_GAME_OVERWRITE_MESSAGE = "new_game_overwrite_message";
   private static final String T_CANCEL = "cancel";
@@ -1313,6 +1314,18 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private void launchHostedServer(
       int port, boolean continueGame, long operation, String playerName) {
+    // A server left over from an earlier game would answer the readiness probe, and the client
+    // would join that game instead of its own.
+    if (!ServerProcess.portFree(port)) {
+      LOGGER.warn("Port {} is in use; not starting a server.", port);
+      postToRenderThread(
+          () -> {
+            if (operation == hostGeneration && stage != null) {
+              onHostFailed(trans.text(T_PORT_BUSY, Integer.toString(port)));
+            }
+          });
+      return;
+    }
     ServerProcess server;
     try {
       server =

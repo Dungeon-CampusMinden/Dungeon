@@ -1,0 +1,45 @@
+{
+  "version" : 3,
+  "design" : "SYSTEM_RECOVERY",
+  "layout" : [ "WWWWWWWWWWWWWSSSSSSSS", "WWWWWFFFWWWWWSSSSSSSS", "WWWWWWDWWWWWWSSSSSSSS", "WFFFWFFFWFFFWWWWWSSSS", "WFFFWFFFWFFFFFFFWSSSS", "WFFFWFFFWFFFFFFFWSSSS", "WFFFFFFFFFFFFFFFWSSSS", "WFFFFFFFFFFFFFFWWSSSS", "WWWWWWWWWWWWWWWWSSSSS" ],
+  "startTiles" : [ {
+    "x" : 6.0,
+    "y" : 1.0
+  } ],
+  "namedPoints" : {
+    "chest" : {
+      "x" : 15.0,
+      "y" : 3.0
+    },
+    "door" : {
+      "x" : 6.0,
+      "y" : 6.0
+    },
+    "exit" : {
+      "x" : 6.0,
+      "y" : 7.0
+    },
+    "panel" : {
+      "x" : 7.0,
+      "y" : 5.0
+    },
+    "q1" : {
+      "x" : 2.0,
+      "y" : 4.0
+    },
+    "q2" : {
+      "x" : 10.0,
+      "y" : 5.0
+    },
+    "q3" : {
+      "x" : 2.0,
+      "y" : 2.0
+    },
+    "q4" : {
+      "x" : 11.0,
+      "y" : 2.0
+    }
+  },
+  "decorations" : [ ],
+  "prefabs" : [ ]
+}

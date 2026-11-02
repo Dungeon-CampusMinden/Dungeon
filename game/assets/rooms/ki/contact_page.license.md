@@ -1,0 +1,3 @@
+- Source: screenshot of the contact page of Carsten Gips at Hochschule Bielefeld
+- License: not CC0; the photo and the page belong to Carsten Gips and Hochschule Bielefeld
+- Note: The tutorial room uses the phone number on it as the door code

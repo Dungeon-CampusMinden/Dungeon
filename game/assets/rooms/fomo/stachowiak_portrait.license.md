@@ -1,0 +1,3 @@
+- Source: `character/wizard/wizard.png` of this project
+- License: CC0 1.0, see `LICENSE-ASSETS.md`
+- Note: Cropped and enlarged from the first idle frame

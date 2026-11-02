@@ -3,15 +3,18 @@ package feature.audience;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.components.PositionComponent;
 import engine.network.input.InputCommandRouter;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.c2s.InputMessage;
 import engine.time.PlayClock;
 import engine.tracking.Tracking;
+import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.hud.UIUtils;
 import feature.survey.ExternalSurvey;
 import feature.survey.SurveyFeature;
+import feature.systems.PositionSync;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
@@ -62,6 +66,9 @@ public final class AudienceSystem extends System {
   private static final int TALLY_ENTRIES = 6;
   private static final int INPUTS_PER_FRAME = 500;
   private static final long READY_REST_MS = 5_000;
+  private static final long ALL_READY_REST_MS = 2_000;
+  private static final long HALF_VOTED_REST_MS = 10_000;
+  private static final long ALL_VOTED_REST_MS = 3_000;
 
   /** Session phases, in order. */
   enum Phase {
@@ -144,6 +151,22 @@ public final class AudienceSystem extends System {
     for (Player player : players.values()) {
       if (player.status == Status.PLAY) player.status = afterGame(player);
     }
+  }
+
+  /**
+   * Puts another entity, such as a character standing in the room, on a tile the way the votes
+   * place the hero. The center of its hitbox lands on the center of the tile, even when its sprite
+   * is larger than a tile.
+   *
+   * @param entity an entity with a position
+   * @param tile origin of the tile
+   */
+  public static void standOn(Entity entity, Point tile) {
+    entity
+        .fetch(PositionComponent.class)
+        .orElseThrow()
+        .position(TileStepper.positionOn(entity, tile));
+    PositionSync.syncPosition(entity);
   }
 
   // Where a consenting player goes once the game is over.
@@ -294,13 +317,38 @@ public final class AudienceSystem extends System {
       return;
     }
     if (window == null) return;
-    // Once half the voters finished reading, the rest get a few more seconds.
-    boolean half =
-        context instanceof AudienceContext.Continue
-            && !window.votes.isEmpty()
-            && window.votes.size() * 2 >= votingPlayers();
-    if (half) window.endsAt = Math.min(window.endsAt, now + READY_REST_MS);
+    window.endsAt = windowEnd(context, window.endsAt, window.votes.size(), votingPlayers(), now);
     if (now >= window.endsAt) resolve(now);
+  }
+
+  /**
+   * Returns when a window ends, given its votes so far. A text closes five seconds after half the
+   * voters finished reading and two seconds after all of them did. A puzzle or a choice of targets
+   * closes ten seconds after half the voters voted and three seconds after all of them did. Nobody
+   * waits out a long window, and the seconds left let a voter change their mind. Windows for single
+   * steps keep their end.
+   *
+   * @param context context of the window
+   * @param endsAt current end of the window
+   * @param votes number of players who voted in the window
+   * @param voters number of players who may vote
+   * @param now current session time
+   * @return the end of the window, never later than {@code endsAt}
+   */
+  static long windowEnd(AudienceContext context, long endsAt, int votes, long voters, long now) {
+    if (votes == 0) return endsAt;
+    return switch (context) {
+      case AudienceContext.Continue next -> {
+        if (votes >= voters) yield Math.min(endsAt, now + ALL_READY_REST_MS);
+        yield votes * 2L >= voters ? Math.min(endsAt, now + READY_REST_MS) : endsAt;
+      }
+      case AudienceContext.Move move -> endsAt;
+      case AudienceContext.Wait wait -> endsAt;
+      default -> {
+        if (votes >= voters) yield Math.min(endsAt, now + ALL_VOTED_REST_MS);
+        yield votes * 2L >= voters ? Math.min(endsAt, now + HALF_VOTED_REST_MS) : endsAt;
+      }
+    };
   }
 
   private void resolve(long now) {
@@ -350,6 +398,7 @@ public final class AudienceSystem extends System {
   private long duration(AudienceContext context) {
     return switch (context) {
       case AudienceContext.Move move -> config.moveWindow().toMillis();
+      case AudienceContext.Goto choice -> config.moveWindow().toMillis();
       case AudienceContext.Continue next -> config.continueWindow().toMillis();
       default -> config.puzzleWindow().toMillis();
     };
@@ -365,7 +414,7 @@ public final class AudienceSystem extends System {
   private void publish(long now) {
     ObjectNode state = TrackingJson.object().put("phase", phase.name().toLowerCase());
     if (paused()) state.put("paused", true);
-    ObjectNode contextJson = state.putObject("context").put("kind", context.kind());
+    ObjectNode contextJson = state.putObject("context").put("kind", context.controls());
     contextJson.put("window", windowId);
     context.describe(contextJson);
     if (prompt != null) contextJson.setAll(prompt);
@@ -405,13 +454,29 @@ public final class AudienceSystem extends System {
             });
     ObjectNode contextJson = hud.putObject("context").put("kind", context.kind());
     context.describe(contextJson);
+    if (context instanceof AudienceContext.Goto choice)
+      contextJson.set("targets", choice.markers());
     if (window != null) {
       contextJson.put("remainingMs", Math.max(0, window.endsAt - now));
       contextJson.put("windowMs", window.endsAt - window.startedAt);
       contextJson.set("tally", tallyJson(context, tally(window)));
     }
     if (result != null && now < result.until) hud.set("result", result.json());
+    if (stepper != null) outlines(hud);
     return hud;
+  }
+
+  // What the game screen outlines. In a room with targets, only the targets the audience can pick,
+  // because nothing else is chosen there. Elsewhere every interactable object shows an outline, and
+  // the one "Benutzen" would use a red one. Clients cannot work out either, because they know
+  // neither the hero's hitbox nor which targets the room offers.
+  private void outlines(ObjectNode hud) {
+    if (Game.entities(Set.of(AudienceTarget.class)).findAny().isEmpty()) {
+      stepper.facing().ifPresent(entity -> hud.put("useTarget", entity.id()));
+      return;
+    }
+    ArrayNode outlined = hud.putArray("outlined");
+    AudienceContext.Goto.reachable(stepper).forEach(target -> outlined.add(target.entity()));
   }
 
   private static ArrayNode tallyJson(
