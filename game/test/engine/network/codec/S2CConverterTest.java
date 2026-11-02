@@ -350,8 +350,6 @@ public class S2CConverterTest {
     assertTrue(inventory.get(0).item() == null);
     assertEquals(1, inventory.get(1).slotIndex());
     assertEquals("ItemPotionHealth", inventory.get(1).item().itemType());
-    assertEquals(item.stackSize(), inventory.get(1).item().stackSize());
-    assertEquals(item.maxStackSize(), inventory.get(1).item().maxStackSize());
     assertEquals(item.itemData(), inventory.get(1).item().itemData());
     assertTrue(inventory.get(2).item() == null);
     assertEquals(ItemPotionHealth.class, inventory.get(1).item().toItem().getClass());
@@ -391,7 +389,7 @@ public class S2CConverterTest {
   /** Verifies item data without a registered factory fails instead of being ignored. */
   @Test
   public void testItemStateDataWithoutFactoryFails() {
-    ItemState itemState = new ItemState("ItemKey", 1, 1, Map.of("custom", "value"));
+    ItemState itemState = new ItemState("ItemKey", Map.of("custom", "value"));
 
     IllegalArgumentException exception =
         assertThrows(IllegalArgumentException.class, itemState::toItem);

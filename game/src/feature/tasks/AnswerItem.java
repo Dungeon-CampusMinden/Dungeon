@@ -71,14 +71,4 @@ public final class AnswerItem extends Item {
   /** Keeps the item in the inventory; an answer has no use effect. */
   @Override
   public void use(final Entity user) {}
-
-  @Override
-  public boolean equals(final Object obj) {
-    return super.equals(obj) && answerId.equals(((AnswerItem) obj).answerId);
-  }
-
-  @Override
-  public int hashCode() {
-    return answerId.hashCode();
-  }
 }

@@ -2,15 +2,11 @@ package feature.entities;
 
 import engine.Entity;
 import engine.components.CameraComponent;
-import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.utils.Direction;
 import engine.utils.Point;
-import feature.components.AIComponent;
-import feature.components.CollideComponent;
 import feature.components.HealthComponent;
-import feature.components.InventoryComponent;
 import feature.interaction.DropItemsInteraction;
 import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
@@ -77,44 +73,6 @@ public final class EntityFactory {
   }
 
   /**
-   * Get an Entity that can be used as a monster.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} with
-   * random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
-   * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link
-   * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
-   * death.
-   *
-   * <p>The Monster will be placed at the {@link PositionComponent#ILLEGAL_POSITION}.
-   *
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity randomMonster() throws IOException {
-    return DungeonMonster.randomMonster().builder().build(PositionComponent.ILLEGAL_POSITION);
-  }
-
-  /**
-   * Get an Entity that can be used as a chest.
-   *
-   * <p>Will contain some random items.
-   *
-   * <p>The Entity is not added to the game yet. *
-   *
-   * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
-   * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
-   * interaction.
-   *
-   * @return A new Entity.
-   */
-  public static Entity newChest() {
-    return MiscFactory.newChest(MiscFactory.FILL_CHEST.RANDOM);
-  }
-
-  /**
    * Get an Entity that can be used as a chest.
    *
    * <p>It will contain the given items.
@@ -165,22 +123,6 @@ public final class EntityFactory {
   }
 
   /**
-   * Creates a destructible stone entity with randomized drops.
-   *
-   * <p>The stone requires a hammer to break. Instead of a fixed set of items, a single random item
-   * may be dropped based on {@code dropChance}.
-   *
-   * @param spawnPoint the world position where the stone is spawned.
-   * @param dropChance a value between 0.0 and 1.0 indicating the probability that the stone drops
-   *     an item when destroyed.
-   * @return a new {@link Entity} representing the stone.
-   * @throws IOException if loading textures or animations fails.
-   */
-  public static Entity newStone(Point spawnPoint, float dropChance) throws IOException {
-    return MiscFactory.newStone(spawnPoint, dropChance);
-  }
-
-  /**
    * Creates a destructible vase entity.
    *
    * <p>The vase does not require a hammer to break. All items in {@code items} are stored inside
@@ -207,22 +149,6 @@ public final class EntityFactory {
   public static Entity newVase(Point spawnPoint) throws IOException {
     Set<Item> vaseItems = new HashSet<>();
     return MiscFactory.newVase(spawnPoint, vaseItems);
-  }
-
-  /**
-   * Creates a destructible vase entity with randomized drops.
-   *
-   * <p>The vase does not require a hammer to break. Instead of a fixed set of items, a single
-   * random item may be dropped based on {@code dropChance}.
-   *
-   * @param spawnPoint the world position where the vase is spawned.
-   * @param dropChance a value between 0.0 and 1.0 indicating the probability that the vase drops an
-   *     item when destroyed.
-   * @return a new {@link Entity} representing the vase.
-   * @throws IOException if loading textures or animations fails.
-   */
-  public static Entity newVase(Point spawnPoint, float dropChance) throws IOException {
-    return MiscFactory.newVase(spawnPoint, dropChance);
   }
 
   /**

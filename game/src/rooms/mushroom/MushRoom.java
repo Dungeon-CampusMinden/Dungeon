@@ -60,6 +60,8 @@ public class MushRoom {
 
   private static void onSetup() {
     PreRunConfiguration.enableCheckPattern(false);
+    // The level has no character markers, so this is the only class the selection offers.
+    PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.MUSHROOM_WIZARD);
     Game.userOnSetup(
         () -> {
           setupMusic();

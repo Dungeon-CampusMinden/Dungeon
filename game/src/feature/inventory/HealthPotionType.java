@@ -44,24 +44,6 @@ public enum HealthPotionType {
   }
 
   /**
-   * Generates a random health potion type based on the following weights.
-   *
-   * <ul>
-   *   <li>75%: HealthPotionType.WEAK
-   *   <li>20%: HealthPotionType.NORMAL
-   *   <li>5%: HealthPotionType.GREATER
-   * </ul>
-   *
-   * @return A randomly selected health potion type
-   */
-  public static HealthPotionType randomType() {
-    float randomValue = Item.RANDOM.nextFloat();
-    if (randomValue < 0.75f) return WEAK;
-    if (randomValue < 0.95f) return NORMAL;
-    return GREATER;
-  }
-
-  /**
    * Resolves a health potion type from a heal amount.
    *
    * @param healAmount The heal amount to match.

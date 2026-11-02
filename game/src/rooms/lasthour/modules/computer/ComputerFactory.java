@@ -179,7 +179,7 @@ public class ComputerFactory {
       LastHourQuestLogUtil.addUsbUsedQuestLogEntry();
       LastHourQuestLogUtil.addUsbRecoveredDataQuestLogEntry();
       // Remove the stick from inventory and mark as inserted
-      who.fetch(InventoryComponent.class).ifPresent(inv -> inv.removeOne(stick));
+      who.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(stick));
       ComputerStateComponent.setUsbInserted(true);
       // The control panel accepts the exit code and the USB hint file describes its assembly from
       // now on; ventilation is the next main step.

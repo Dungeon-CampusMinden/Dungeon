@@ -9,8 +9,6 @@ import rooms.mushroom.Sounds;
 /** Utility class that provides factory methods and item implementations for mushrooms. */
 public class MushroomItem {
 
-  private static final int maxStackSize = 10;
-
   /**
    * Create an Item instance for the given mushroom type.
    *
@@ -44,9 +42,7 @@ public class MushroomItem {
           type.displayName(),
           type.descriptionShort(),
           new Animation(new SimpleIPath(type.getTexturePath())),
-          new Animation(new SimpleIPath(type.getTexturePath())),
-          1,
-          maxStackSize);
+          new Animation(new SimpleIPath(type.getTexturePath())));
       this.type = type;
     }
 

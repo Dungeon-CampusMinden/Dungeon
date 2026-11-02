@@ -16,38 +16,49 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
+import java.util.function.IntSupplier;
 import rooms.mushroom.Sounds;
 import rooms.mushroom.modules.EscapeRoomDialogTypes;
 import rooms.mushroom.modules.mushrooms.Mushrooms;
 
-/** Item representing a journal that can be used to document discovered mushrooms. */
+/**
+ * Item representing a journal that can be used to document discovered mushrooms.
+ *
+ * <p>The journal does not store its progress; the room owns the unlocked page count and hands the
+ * journal a supplier for it.
+ */
 public class JournalItem extends Item {
 
-  private static final int BASE_PAGES_UNLOCKED = 2;
+  /** Number of pages that are unlocked when the player receives the journal. */
+  public static final int BASE_PAGES_UNLOCKED = 2;
 
   private static final SimpleIPath inventoryPath =
       new SimpleIPath("items/rpg/item_book_blue_lines.png");
 
-  private int unlockedPages = BASE_PAGES_UNLOCKED;
+  private final IntSupplier unlockedPages;
 
   static {
     DialogFactory.register(EscapeRoomDialogTypes.JOURNAL, JournalItem::buildMushroomJournalDialog);
   }
 
-  /** Constructs a new JournalItem. */
-  public JournalItem() {
-    super(
-        "Notizbuch",
-        BASE_PAGES_UNLOCKED + " / 6 Seiten beschrieben",
-        new Animation(inventoryPath),
-        new Animation(inventoryPath),
-        1,
-        1);
+  /**
+   * Constructs a new JournalItem.
+   *
+   * @param unlockedPages supplies the number of pages the room has unlocked so far
+   */
+  public JournalItem(IntSupplier unlockedPages) {
+    super("Notizbuch", "", new Animation(inventoryPath), new Animation(inventoryPath));
+    this.unlockedPages = unlockedPages;
+  }
+
+  @Override
+  public String description() {
+    return unlockedPages.getAsInt() + " / 6 Seiten beschrieben";
   }
 
   @Override
   public void use(final Entity user) {
-    openJournal(user, this.unlockedPages);
+    openJournal(user, unlockedPages.getAsInt());
   }
 
   /**
@@ -57,16 +68,8 @@ public class JournalItem extends Item {
    */
   public static void openJournal(Entity user) {
     user.fetch(InventoryComponent.class)
-        .ifPresent(
-            ic -> {
-              if (!ic.hasItem(JournalItem.class)) return;
-              ic.itemOfClass(JournalItem.class)
-                  .ifPresent(
-                      i -> {
-                        JournalItem journalItem = (JournalItem) i;
-                        openJournal(user, journalItem.unlockedPages);
-                      });
-            });
+        .flatMap(inventory -> inventory.itemOfClass(JournalItem.class))
+        .ifPresent(item -> item.use(user));
   }
 
   private static void openJournal(Entity user, int unlockedPages) {
@@ -100,11 +103,5 @@ public class JournalItem extends Item {
 
     engine.sound.Sounds.playUi(Sounds.OPEN_INVENTORY_SOUND);
     return bookUI;
-  }
-
-  /** Unlocks a new page in the journal and updates the description. */
-  public void unlockPage() {
-    this.unlockedPages++;
-    this.description(unlockedPages + " / 6 Seiten beschrieben");
   }
 }

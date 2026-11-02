@@ -200,11 +200,7 @@ public final class LastHourLoad {
     map(map.get("data")).forEach((key, value) -> itemData.put(key, string(value)));
     int slot = integer(map.get("slot"));
     engine.network.messages.s2c.ItemState state =
-        new engine.network.messages.s2c.ItemState(
-            string(map.get("type")),
-            integer(map.get("stackSize")),
-            integer(map.get("maxStackSize")),
-            itemData);
+        new engine.network.messages.s2c.ItemState(string(map.get("type")), itemData);
     if (slot < 0) throw new IllegalArgumentException("Invalid inventory slot");
     UsbStickItem.ensureRegistration();
     PuzzlePieceItem.ensureRegistration();

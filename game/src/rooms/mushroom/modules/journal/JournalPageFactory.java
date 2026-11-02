@@ -21,27 +21,29 @@ public class JournalPageFactory {
    * Creates a journal page entity at the specified position.
    *
    * @param position the position to place the journal page
+   * @param unlockPage called when a player holding a {@link JournalItem} picks up the page
    * @return the created journal page entity
    */
-  public static Entity createJournalPage(Point position) {
+  public static Entity createJournalPage(Point position, Runnable unlockPage) {
     Entity entity = new Entity();
     entity.add(new PositionComponent(position));
     entity.add(new DrawComponent(new SimpleIPath(TEXTURE_PATH)));
-    entity.add(new InteractionComponent(new Interaction(JournalPageFactory::handlePickup)));
+    entity.add(
+        new InteractionComponent(
+            new Interaction((page, player) -> handlePickup(page, player, unlockPage))));
     return entity;
   }
 
-  private static void handlePickup(Entity journalPage, Entity player) {
+  private static void handlePickup(Entity journalPage, Entity player, Runnable unlockPage) {
     player
         .fetch(InventoryComponent.class)
         .ifPresent(
             inventory -> {
-              inventory.items(JournalItem.class).stream()
-                  .findFirst()
+              inventory
+                  .itemOfClass(JournalItem.class)
                   .ifPresentOrElse(
                       item -> {
-                        JournalItem journalItem = (JournalItem) item;
-                        journalItem.unlockPage();
+                        unlockPage.run();
                         Game.remove(journalPage);
                         DialogUtils.showTextPopup(
                             "Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...",

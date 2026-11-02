@@ -1,17 +1,12 @@
 package feature.entities;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
-import engine.level.DungeonLevel;
-import engine.level.utils.DesignLabel;
-import engine.level.utils.LevelElement;
-import engine.systems.LevelSystem;
 import engine.utils.Point;
 import feature.components.InventoryComponent;
 import feature.inventory.Item;
@@ -71,71 +66,4 @@ public class ChestTest {
      // assertEquals(2, Game.getEntitiesStream().count());
   }*/
 
-  /*
-   * Checks the dropped Item.
-   *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
-   * cant be tested.
-   */
-  /*@Test
-  public void checkInteractionOnDroppedItems() {
-      List<Item> itemData = List.of(new ItemGenerator().generateItemData());
-      Point position = new Point(0, 0);
-      Entity c = EntityFactory.getChest(itemData, position);
-      c.getComponent(InteractionComponent.class)
-              .map(InteractionComponent.class::cast)
-              .ifPresent(InteractionComponent::triggerInteraction);
-      Game.removeEntity(c);
-
-      assertEquals(1, Game.getEntitiesStream().count());
-      Entity droppedItem = Game.getEntitiesStream().iterator().next();
-      assertTrue(
-              "droppedItem should have the HitboxComponent",
-              droppedItem
-                      .getComponent(CollideComponent.class)
-                      .map(CollideComponent.class::cast)
-                      .isPresent());
-  }*/
-
-  /** WTF? . */
-  @Test
-  public void checkGeneratorMethod() throws IOException {
-    Game.add(new LevelSystem());
-
-    Game.currentLevel(
-        new DungeonLevel(
-            new LevelElement[][] {
-              new LevelElement[] {
-                LevelElement.FLOOR,
-              }
-            },
-            DesignLabel.DEFAULT));
-    Entity newChest = EntityFactory.newChest();
-
-    // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
-    // newChest));
-    assertTrue(newChest.isPresent(DrawComponent.class));
-    Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
-    assertTrue(inventoryComponent.isPresent());
-    assertTrue(1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
-
-    assertEquals(
-        PositionComponent.ILLEGAL_POSITION.x(),
-        newChest
-            .fetch(PositionComponent.class)
-            .map(PositionComponent.class::cast)
-            .get()
-            .position()
-            .x(),
-        0.00001f);
-    assertEquals(
-        PositionComponent.ILLEGAL_POSITION.y(),
-        newChest
-            .fetch(PositionComponent.class)
-            .map(PositionComponent.class::cast)
-            .get()
-            .position()
-            .y(),
-        0.00001f);
-  }
 }

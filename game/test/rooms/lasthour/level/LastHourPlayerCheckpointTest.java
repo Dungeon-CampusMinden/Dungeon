@@ -27,6 +27,7 @@ import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.InventoryComponent;
 import feature.entities.CharacterClass;
 import feature.interaction.keypad.KeypadComponent;
+import feature.inventory.Item;
 import feature.petrinet.PetriNetSystem;
 import feature.timer.WorldTimerComponent;
 import java.lang.reflect.Field;
@@ -500,7 +501,8 @@ class LastHourPlayerCheckpointTest {
     assertTrue(inventory(sender).transfer(blue, inventory(recipient)));
     UsbStickItem.RedUsbStick red = new UsbStickItem.RedUsbStick();
     assertTrue(inventory(sender).add(red));
-    red.stackSize(0);
+    Item unsaveable = new Item("unregistered", "", null);
+    assertTrue(inventory(sender).add(unsaveable));
     Game.remove(sender);
     completeLogin();
 
@@ -514,7 +516,7 @@ class LastHourPlayerCheckpointTest {
     assertEquals(revision, LastHourLevel.saveRevision());
     assertEquals(previousJson, Files.readString(saveFile));
 
-    red.stackSize(1);
+    inventory(sender).remove(unsaveable);
     level.playerStates.execute();
     assertTrue(level.playerStates.isUpdated());
     LastHourSave.SaveData next = writeCheckpoint(saveFile);

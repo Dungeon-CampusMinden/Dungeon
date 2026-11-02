@@ -2,7 +2,6 @@ package engine.network.delta;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.level.utils.Coordinate;
@@ -11,7 +10,6 @@ import engine.network.messages.s2c.DoorTileState;
 import engine.network.messages.s2c.EntityDelta;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.EntityStateField;
-import engine.network.messages.s2c.InventorySlotState;
 import engine.network.messages.s2c.ItemState;
 import engine.network.messages.s2c.LevelState;
 import engine.network.messages.s2c.SnapshotMessage;
@@ -333,13 +331,11 @@ public class SnapshotDeltaCompressorTest {
     assertEquals(List.of(2), delta.removedEntityIds());
   }
 
-  /** Verifies inventory stack-size changes are detected without mutable item baselines. */
+  /** Verifies inventory item-data changes are detected. */
   @Test
-  void compressDetectsInventoryStackSizeChanges() {
-    ItemPotionHealth baselineItem = new ItemPotionHealth(HealthPotionType.GREATER);
-    baselineItem.stackSize(1);
+  void compressDetectsInventoryItemDataChanges() {
+    ItemPotionHealth baselineItem = new ItemPotionHealth(HealthPotionType.WEAK);
     ItemPotionHealth currentItem = new ItemPotionHealth(HealthPotionType.GREATER);
-    currentItem.stackSize(2);
     SnapshotMessage baseline =
         new SnapshotMessage(
             10,
@@ -357,38 +353,7 @@ public class SnapshotDeltaCompressorTest {
     SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
     ItemState materializedItem =
         entity(materialized, 1).inventory().orElseThrow().getFirst().item();
-    assertEquals(2, materializedItem.stackSize());
-  }
-
-  /** Verifies materialized inventory state does not expose mutable baseline item instances. */
-  @Test
-  void materializedInventoryDoesNotShareMutableItems() {
-    ItemPotionHealth item = new ItemPotionHealth(HealthPotionType.GREATER);
-    item.stackSize(1);
-    SnapshotMessage baseline =
-        new SnapshotMessage(
-            10,
-            List.of(EntityState.builder().entityId(1).inventory(new Item[] {item}).build()),
-            new LevelState(Set.of()));
-    DeltaSnapshotMessage delta =
-        new DeltaSnapshotMessage(
-            10,
-            11,
-            List.of(
-                new EntityDelta(
-                    1, EntityState.builder().entityId(1).currentHealth(7).build(), Set.of())),
-            List.of(),
-            null);
-
-    SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
-    InventorySlotState slot = entity(materialized, 1).inventory().orElseThrow().getFirst();
-    Item firstItem = slot.item().toItem();
-    Item secondItem = slot.item().toItem();
-    firstItem.stackSize(5);
-
-    assertNotSame(firstItem, secondItem);
-    assertEquals(1, slot.item().stackSize());
-    assertEquals(1, secondItem.stackSize());
+    assertEquals(currentItem.itemData(), materializedItem.itemData());
   }
 
   /** Verifies removed metadata keys clear the baseline before applying remaining entries. */

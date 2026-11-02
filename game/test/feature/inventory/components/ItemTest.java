@@ -100,8 +100,6 @@ public class ItemTest {
     assertEquals(item.description(), "Test description");
     assertEquals(item.inventoryAnimation(), defaultAnimation);
     assertEquals(item.worldAnimation(), defaultAnimation);
-    assertEquals(1, item.stackSize());
-    assertEquals(1, item.maxStackSize());
   }
 
   /** WTF? . */
@@ -113,75 +111,6 @@ public class ItemTest {
     assertEquals(item.description(), "Another test description");
     assertEquals(item.inventoryAnimation(), inventoryAnimation);
     assertEquals(item.worldAnimation(), worldAnimation);
-    assertEquals(1, item.stackSize());
-    assertEquals(1, item.maxStackSize());
-  }
-
-  /** WTF? . */
-  @Test
-  public void testConstructorSixParameter() {
-    Item item =
-        new Item("Test item 3", "More description", inventoryAnimation, worldAnimation, 2, 6);
-    assertEquals(item.displayName(), "2 x Test item 3");
-    assertEquals(item.description(), "More description");
-    assertEquals(item.inventoryAnimation(), inventoryAnimation);
-    assertEquals(item.worldAnimation(), worldAnimation);
-    assertEquals(2, item.stackSize());
-    assertEquals(6, item.maxStackSize());
-  }
-
-  /** WTF? . */
-  @Test
-  public void testDisplayName() {
-    Item item = new Item("Test item", "Test description", defaultAnimation);
-    item.displayName("New Display Name");
-
-    assertEquals(item.displayName(), "New Display Name");
-  }
-
-  /** WTF? . */
-  @Test
-  public void testDescription() {
-    Item item = new Item("Test item", "Test description", defaultAnimation);
-    item.description("New Description");
-
-    assertEquals(item.description(), "New Description");
-  }
-
-  /** WTF? . */
-  @Test
-  public void testInventoryAnimation() {
-    Item item = new Item("Test item", "Test description", defaultAnimation);
-    item.inventoryAnimation(inventoryAnimation);
-
-    assertEquals(item.inventoryAnimation(), inventoryAnimation);
-  }
-
-  /** WTF? . */
-  @Test
-  public void testWorldAnimation() {
-    Item item = new Item("Test item", "Test description", defaultAnimation);
-    item.worldAnimation(worldAnimation);
-
-    assertEquals(item.worldAnimation(), worldAnimation);
-  }
-
-  /** WTF? . */
-  @Test
-  public void testStackSize() {
-    Item item = new Item("Test item", "Test description", defaultAnimation);
-    item.stackSize(2);
-
-    assertEquals(2, item.stackSize());
-  }
-
-  /** WTF? . */
-  @Test
-  public void testMaxStackSize() {
-    Item item = new Item("Test item", "Test description", defaultAnimation);
-    item.maxStackSize(8);
-
-    assertEquals(8, item.maxStackSize());
   }
 
   /** Tests if item is removed from inventory and present in Game world after drop. */

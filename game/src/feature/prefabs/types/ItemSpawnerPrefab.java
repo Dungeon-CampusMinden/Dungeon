@@ -102,7 +102,6 @@ public final class ItemSpawnerPrefab extends Prefab {
     Point position = value(instance, POSITION);
     return switch (value(instance, CONTAINER)) {
       case CONTAINER_CHEST -> {
-        // Items are added one by one, since a set would merge equal items.
         Entity chest = MiscFactory.newChest(Set.of(), position);
         chest.fetch(InventoryComponent.class).ifPresent(inventory -> items.forEach(inventory::add));
         yield List.of(chest);
