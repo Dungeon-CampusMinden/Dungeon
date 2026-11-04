@@ -108,6 +108,7 @@ class InteractionFeedbackTest {
     Entity chest = entity(new InteractionComponent());
     InteractionFeedback.showAlways(() -> Optional.of(chest));
     InteractionFeedback.update();
+    assertEquals(1f, outline(chest).orElseThrow().color().a);
 
     GameInput.activate(new InputContext(UiActions.INVENTORY));
     InteractionFeedback.update();

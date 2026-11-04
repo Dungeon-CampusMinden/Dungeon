@@ -7,7 +7,9 @@ import engine.Game;
 import engine.input.ActionId;
 import engine.input.ContextSpec;
 import engine.input.CoreActions;
+import engine.input.GameInput;
 import engine.input.InputContext;
+import engine.input.InputDevice;
 import engine.input.UiActions;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -97,11 +99,11 @@ public final class DialogInput {
     return UIUtils.findAllTypesInGroup(ui.dialog(), InventoryGUI.class).toList();
   }
 
-  // A dialog that cannot be closed leaves the close input to the pause menu.
+  // A dialog that cannot be closed leaves Escape to the pause menu; the pad has START for that.
   private static void close(UIComponent ui) {
     if (ui.canBeClosed() || UIUtils.hasCloseRequestHandler(ui.dialog())) {
       UIUtils.requestCloseDialog(ui);
-    } else {
+    } else if (GameInput.device() != InputDevice.PAD) {
       Game.player().ifPresent(PauseDialog::showPauseDialog);
     }
   }

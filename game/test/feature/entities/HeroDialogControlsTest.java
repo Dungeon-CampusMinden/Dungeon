@@ -20,8 +20,10 @@ import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
+import engine.input.Binding;
 import engine.input.ContextLayer;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.input.InputResolver;
 import engine.network.handler.INetworkHandler;
 import engine.network.messages.c2s.DialogResponseMessage;
@@ -301,6 +303,18 @@ class HeroDialogControlsTest {
     owner.add(bar);
     Game.add(owner);
     return bar;
+  }
+
+  @Test
+  void padCloseLeavesANonCloseableDialogWithoutOpeningPause() {
+    UIComponent dialog = showDialog(true, false);
+
+    resolver.device(InputDevice.PAD);
+    resolver.padDown(Binding.pad(Binding.Pad.B));
+    resolver.advance(0);
+
+    assertStillOpen(dialog);
+    assertTrue(pauseMenu().isEmpty());
   }
 
   private UIComponent showDialog(boolean local, boolean closeable) {

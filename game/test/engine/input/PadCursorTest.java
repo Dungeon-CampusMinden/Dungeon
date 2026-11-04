@@ -1,6 +1,5 @@
 package engine.input;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -10,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import engine.input.Binding.Pad;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -139,18 +137,6 @@ class PadCursorTest {
 
     press();
     verify(stage, times(2)).touchDown(anyInt(), anyInt(), anyInt(), anyInt());
-  }
-
-  @Test
-  void aFocusedTextFieldLetsThePadReachTheUi() {
-    AtomicBoolean paused = new AtomicBoolean();
-    inventory.onPress(CoreActions.PAUSE_MENU, () -> paused.set(true));
-    resolver.activate(new InputContext(CoreActions.TEXT));
-
-    resolver.padDown(Binding.pad(Pad.START));
-    frame();
-
-    assertTrue(paused.get());
   }
 
   @Test

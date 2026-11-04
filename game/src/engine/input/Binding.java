@@ -360,7 +360,9 @@ public sealed interface Binding {
         try {
           int code = field.getInt(null);
           CODES.put(field.getName(), code);
-          NAMES.putIfAbsent(code, field.getName());
+          // Some codes have a second name, such as DPAD_UP for UP or META_ALT_LEFT_ON for NUM_9.
+          String name = field.getName();
+          if (!name.startsWith("DPAD_") && !name.startsWith("META_")) NAMES.putIfAbsent(code, name);
         } catch (IllegalAccessException e) {
           throw new IllegalStateException(e);
         }

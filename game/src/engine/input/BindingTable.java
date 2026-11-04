@@ -26,7 +26,7 @@ import java.util.TreeMap;
  * one means default. The override file keeps entries of actions this process does not know, so one
  * starter never drops the bindings of another room.
  *
- * <p>Bindings are parsed and indexed when they change, never per frame.
+ * <p>The index that routes input is built when bindings change, never per frame.
  */
 public final class BindingTable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BindingTable.class);

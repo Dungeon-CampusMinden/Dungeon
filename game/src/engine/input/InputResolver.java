@@ -35,7 +35,7 @@ import java.util.function.Predicate;
  * moves one edge per action into the current frame, so several presses within one frame stay
  * separate presses.
  *
- * <p>Keyboard, mouse and pad feed the same press, release and axis calls as virtual sources.
+ * <p>Keyboard, mouse, pad and virtual sources all end in the same action state.
  *
  * <p>This class needs no graphics; the UI is any {@link InputProcessor}.
  */
@@ -202,16 +202,6 @@ public final class InputResolver implements InputProcessor {
         .anyMatch(above -> above.spec().blocks(pad));
   }
 
-  /**
-   * Checks whether a context is on the stack.
-   *
-   * @param context the context
-   * @return true if it is on the stack
-   */
-  public boolean contains(InputContext context) {
-    return stack.contains(context);
-  }
-
   // endregion
 
   // region Reading
@@ -279,16 +269,6 @@ public final class InputResolver implements InputProcessor {
   }
 
   /**
-   * Checks a physical key, whatever the context stack does with it.
-   *
-   * @param keycode libGDX keycode
-   * @return true if the key is down
-   */
-  public boolean keyHeld(int keycode) {
-    return heldKeys.contains(keycode);
-  }
-
-  /**
    * Checks whether a modifier is held on either side.
    *
    * @param modifier {@link Input.Keys#CONTROL_LEFT}, {@link Input.Keys#SHIFT_LEFT}, {@link
@@ -296,16 +276,7 @@ public final class InputResolver implements InputProcessor {
    * @return true if the modifier is down; on macOS, Command counts as Control
    */
   public boolean modifierHeld(int modifier) {
-    return switch (modifier) {
-      case Input.Keys.CONTROL_LEFT ->
-          keyHeld(Input.Keys.CONTROL_LEFT)
-              || keyHeld(Input.Keys.CONTROL_RIGHT)
-              || (MAC_OS && keyHeld(Input.Keys.SYM));
-      case Input.Keys.SHIFT_LEFT ->
-          keyHeld(Input.Keys.SHIFT_LEFT) || keyHeld(Input.Keys.SHIFT_RIGHT);
-      case Input.Keys.ALT_LEFT -> keyHeld(Input.Keys.ALT_LEFT) || keyHeld(Input.Keys.ALT_RIGHT);
-      default -> keyHeld(modifier);
-    };
+    return heldKeys.stream().anyMatch(key -> matchesPrefix(key, modifier));
   }
 
   /**

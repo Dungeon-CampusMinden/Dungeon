@@ -24,7 +24,6 @@ public class CursorUtil {
     Optional<Cursors> cursorOverride();
   }
 
-  private static Stage stage;
   private static Cursors currentCursor;
   private static boolean nativeCursorHidden;
   private static Cursor hiddenCursor;
@@ -90,7 +89,6 @@ public class CursorUtil {
    */
   public static void setWorldCursor(Cursors cursor) {
     worldCursorOverride = cursor;
-    refreshCursor();
   }
 
   /**
@@ -99,29 +97,19 @@ public class CursorUtil {
    */
   public static void clearWorldCursor() {
     worldCursorOverride = null;
-    refreshCursor();
-  }
-
-  private static void refreshCursor() {
-    Actor hit = null;
-    if (stage != null) {
-      Vector2 pointer =
-          stage.screenToStageCoordinates(
-              new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
-      hit = stage.hit(pointer.x, pointer.y, true);
-    }
-    setCursor(cursorFor(hit));
   }
 
   /**
    * Resolves the cursor for the current screen. Runs every frame, so UI that opens or closes under
    * a resting pointer updates it, and so does a change of the input device.
    *
-   * @param current the stage of the current screen
+   * @param stage the stage of the current screen
    */
-  public static void update(Stage current) {
-    stage = current;
-    refreshCursor();
+  public static void update(Stage stage) {
+    Vector2 pointer =
+        stage.screenToStageCoordinates(
+            new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
+    setCursor(cursorFor(stage.hit(pointer.x, pointer.y, true)));
   }
 
   /**

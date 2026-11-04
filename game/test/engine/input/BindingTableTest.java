@@ -38,6 +38,7 @@ class BindingTableTest {
   @Test
   void factoriesAndStringsDescribeTheSameBindings() {
     assertEquals(Binding.parse("key:E"), key(Keys.E));
+    assertEquals("key:UP", key(Keys.UP).format());
     assertEquals(Binding.parse("key:F3+A"), key(Keys.F3, Keys.A));
     assertEquals(Binding.parse("key:Ctrl+C"), key(CTRL, Keys.C));
     assertEquals(Binding.parse("key:F3+SHIFT_LEFT"), key(Keys.F3, Keys.SHIFT_LEFT));

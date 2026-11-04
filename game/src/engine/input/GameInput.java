@@ -75,15 +75,13 @@ public final class GameInput {
   /** Cancels held input because the application pauses. */
   public static void applicationPaused() {
     resolver.cancelAll();
+    PadCursor.cancelKept();
     if (stage != null) stage.cancelTouchFocus();
   }
 
   private static void windowFocused(boolean focused) {
     windowFocused = focused;
-    if (!focused) {
-      applicationPaused();
-      PadCursor.cancelKept();
-    }
+    if (!focused) applicationPaused();
   }
 
   /**
@@ -179,17 +177,6 @@ public final class GameInput {
   public static void active(InputContext context, boolean active) {
     if (active) activate(context);
     else deactivate(context);
-  }
-
-  /**
-   * Removes everything a game session left on the stack, for the way back to the menu.
-   *
-   * @see ContextLayer#SYSTEM
-   */
-  public static void clearSessionContexts() {
-    for (InputContext context : resolver.contexts()) {
-      if (context.spec().layer() != ContextLayer.SYSTEM) deactivate(context);
-    }
   }
 
   /**
@@ -401,7 +388,7 @@ public final class GameInput {
     @Override
     public boolean keyDown(int keycode) {
       syncTextContext();
-      boolean editing = resolver.contains(textContext);
+      boolean editing = resolver.contexts().contains(textContext);
       boolean handled = resolver.keyDown(keycode);
       // The widget keeps Escape; without own handling it cancels the input by losing the focus.
       if (editing && keycode == Input.Keys.ESCAPE && stage != null) {

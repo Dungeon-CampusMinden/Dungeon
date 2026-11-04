@@ -1,11 +1,8 @@
 package feature.input.systems;
 
 import engine.Entity;
-import engine.Game;
 import engine.System;
 import engine.System.AuthoritativeSide;
-import engine.input.CoreActions;
-import engine.input.GameInput;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -35,8 +32,6 @@ public final class ControlsDialogSystem extends System {
   @Override
   public void execute() {
     discardClosedDialogs();
-    if (Game.isHeadless() || !GameInput.justPressed(CoreActions.SHOW_CONTROLS)) return;
-    Game.player().ifPresent(this::showControlsFor);
   }
 
   /**

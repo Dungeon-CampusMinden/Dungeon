@@ -42,7 +42,8 @@ public final class GameplayInputSystem extends System {
         .onPress(CoreActions.INVENTORY, () -> send(InputMessage.toggleInventory()))
         .onPress(CoreActions.INTERACT, () -> withHero(GameplayInputSystem::interact))
         .onPress(CoreActions.PAUSE_MENU, () -> withHero(PauseDialog::showPauseDialog))
-        .onPress(CoreActions.QUESTLOG, () -> withHero(QuestLogUI::requestQuestLog));
+        .onPress(CoreActions.QUESTLOG, () -> withHero(QuestLogUI::requestQuestLog))
+        .onPress(CoreActions.SHOW_CONTROLS, () -> withHero(GameplayInputSystem::showControls));
   }
 
   private static void send(InputMessage message) {
@@ -51,6 +52,10 @@ public final class GameplayInputSystem extends System {
 
   private static void withHero(Consumer<Entity> action) {
     Game.player().ifPresent(action);
+  }
+
+  private static void showControls(Entity hero) {
+    Game.system(ControlsDialogSystem.class, system -> system.showControlsFor(hero));
   }
 
   private static void interact(Entity hero) {

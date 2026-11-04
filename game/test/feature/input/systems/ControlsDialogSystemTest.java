@@ -6,17 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mockStatic;
 
-import com.badlogic.gdx.Input;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
-import engine.input.CoreActions;
-import engine.input.GameInput;
-import engine.input.InputContext;
-import engine.input.InputResolver;
 import engine.network.server.DialogTracker;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -28,8 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import testingUtils.MockNetworkHandler;
 
 /** Tests controls dialog lifetime independently of the completion callback and visibility. */
@@ -78,33 +70,6 @@ class ControlsDialogSystemTest {
     assertSame(first, onlyControlsDialog());
     assertEquals(1, scriptRequests.get());
     assertArrayEquals(new int[] {player.id()}, first.targetEntityIds());
-  }
-
-  @Test
-  void controlsKeyReopensAfterRemovalWithoutACompletionCallback() {
-    GameInput.reset();
-    InputResolver resolver = GameInput.resolver();
-    resolver.activate(new InputContext(CoreActions.GAMEPLAY));
-
-    try (MockedStatic<Game> game = mockStatic(Game.class, Mockito.CALLS_REAL_METHODS)) {
-      game.when(Game::isHeadless).thenReturn(false);
-      resolver.keyDown(Input.Keys.F1);
-      resolver.advance(0);
-      system.execute();
-      UIComponent first = onlyControlsDialog();
-      resolver.keyUp(Input.Keys.F1);
-      resolver.advance(0);
-      Game.remove(first.dialogContext().ownerEntity());
-
-      resolver.keyDown(Input.Keys.F1);
-      resolver.advance(0);
-      system.execute();
-
-      assertNotSame(first, onlyControlsDialog());
-      assertEquals(2, scriptRequests.get());
-    } finally {
-      GameInput.reset();
-    }
   }
 
   @Test

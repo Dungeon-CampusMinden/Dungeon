@@ -285,6 +285,5 @@ Hier finden Sie noch einige Links, um Ihr Verständnis des Dungeons zu vertiefen
 
 -   [ECS Basics](ecs_basics.md)
 -   [Entitäten, Components und Systeme selbst erstellen](create_own_content.md)
--   [Config](configuration/readme.md)
 -   [Dungeon-Wiki](../../doc/wiki)
 -   [LibGDX Dokumentation](https://libgdx.com/wiki/)

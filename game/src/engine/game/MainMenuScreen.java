@@ -195,10 +195,6 @@ public class MainMenuScreen extends ScreenAdapter {
   private volatile ServerProcess pendingServer;
   private final Object networkStartLock = new Object();
 
-  /**
-   * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
-   * {@link Gdx#app} keeps the rebuild out of the settings dropdown's event dispatch.
-   */
   private final InputContext menuContext =
       new InputContext(EditorActions.MENU)
           .onPress(
@@ -212,6 +208,10 @@ public class MainMenuScreen extends ScreenAdapter {
           .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
           .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1));
 
+  /**
+   * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
+   * {@link Gdx#app} keeps the rebuild out of the settings dropdown's event dispatch.
+   */
   private final Consumer<Language> languageChangeListener =
       language -> Gdx.app.postRunnable(this::rebuildViews);
 
@@ -233,7 +233,6 @@ public class MainMenuScreen extends ScreenAdapter {
     int height = Game.windowHeight() > 0 ? Game.windowHeight() : PreRunConfiguration.windowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     GameInput.stage(stage);
-    GameInput.clearSessionContexts();
     GameInput.activate(uiContext);
     GameInput.activate(menuContext);
     skin = UIUtils.defaultSkin();

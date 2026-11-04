@@ -100,7 +100,6 @@ public final class AudienceHud extends System {
   // the overlay draws the screen itself.
   private static final DialogType JOIN_PAUSE = () -> "AUDIENCE_JOIN_PAUSE";
   private static UIComponent joinPause;
-  // Whether the pause menu was open in the previous frame.
 
   private Table root;
   // Letter and name above each target while the audience picks one; behind the panels of root.
