@@ -1,6 +1,5 @@
 package feature.systems;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -19,6 +18,7 @@ import engine.components.SoundComponent;
 import engine.components.VelocityComponent;
 import engine.game.ECSManagement;
 import engine.game.WindowEventManager;
+import engine.input.GameInput;
 import engine.level.DungeonLevel;
 import engine.level.elements.ILevel;
 import engine.network.NetworkTelemetry;
@@ -31,7 +31,6 @@ import engine.network.telemetry.TelemetrySection;
 import engine.network.telemetry.TelemetrySeverity;
 import engine.network.telemetry.TelemetrySpan;
 import engine.systems.CameraSystem;
-import engine.systems.input.InputManager;
 import engine.utils.ClipboardUtil;
 import engine.utils.FontHelper;
 import engine.utils.Point;
@@ -42,6 +41,7 @@ import engine.utils.components.draw.ColorUtils;
 import engine.utils.components.draw.animation.Animation;
 import feature.components.AIComponent;
 import feature.components.CollideComponent;
+import feature.components.DebugActions;
 import feature.components.DecoComponent;
 import feature.components.HealthComponent;
 import feature.components.InventoryComponent;
@@ -122,6 +122,7 @@ public class DebugDrawSystem extends System {
   public void render(float delta) {
     if (!render && !renderSystemList && !renderNetworkTelemetry) return;
 
+    if (render) drawInputState();
     if (renderSystemList) drawSystemList();
     if (renderNetworkTelemetry) {
       updateNetworkTelemetryRequest();
@@ -138,6 +139,13 @@ public class DebugDrawSystem extends System {
     if (!LevelEditorSystem.active()) {
       drawNamedPoints();
     }
+  }
+
+  private void drawInputState() {
+    drawScreenOverlay(
+        String.join("\n", GameInput.describe()),
+        Game.windowWidth() - 320f,
+        Game.windowHeight() - 10f);
   }
 
   private void drawSystemList() {
@@ -159,20 +167,13 @@ public class DebugDrawSystem extends System {
   }
 
   private void copyNetworkTelemetryIfRequested(String text) {
-    if (!InputManager.isKeyJustPressed(Input.Keys.C) || !isControlPressed()) {
-      return;
-    }
+    if (!GameInput.justPressed(DebugActions.COPY_TELEMETRY)) return;
     try {
       ClipboardUtil.copyToClipboard(text);
       showNetworkTelemetryNotice("Copied network telemetry", TelemetrySeverity.NORMAL);
     } catch (Exception e) {
       showNetworkTelemetryNotice("Clipboard copy failed", TelemetrySeverity.BAD);
     }
-  }
-
-  private boolean isControlPressed() {
-    return InputManager.isKeyPressed(Input.Keys.CONTROL_LEFT)
-        || InputManager.isKeyPressed(Input.Keys.CONTROL_RIGHT);
   }
 
   private void drawScreenOverlay(String text, float textX, float textY) {
@@ -601,16 +602,17 @@ public class DebugDrawSystem extends System {
       info.append(quickInfoCache.get(entity)).append("\n");
     }
 
-    // If holding Shift, show all components; otherwise hint how to show them
-    if (InputManager.isKeyPressed(Input.Keys.SHIFT_LEFT)
-        || InputManager.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+    // While the action is held, show all components; otherwise hint how to show them
+    if (GameInput.pressed(DebugActions.SHOW_COMPONENTS)) {
       info.append(componentNames.size())
           .append(" component")
           .append(componentNames.size() == 1 ? "" : "s")
           .append("\n");
       componentNames.forEach(name -> info.append(" - ").append(name).append("\n"));
     } else {
-      info.append("(Hold Shift to show all ")
+      info.append("(Hold ")
+          .append(GameInput.label(DebugActions.SHOW_COMPONENTS))
+          .append(" to show all ")
           .append(componentNames.size())
           .append(" component")
           .append(componentNames.size() == 1 ? "" : "s")

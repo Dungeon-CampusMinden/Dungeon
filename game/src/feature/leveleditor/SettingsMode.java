@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
 import engine.components.PositionComponent;
+import engine.input.ActionId;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.loader.DungeonSaver;
@@ -151,7 +152,7 @@ public class SettingsMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<Integer, String> getControls() {
+  public Map<ActionId, String> getControls() {
     return Map.of();
   }
 

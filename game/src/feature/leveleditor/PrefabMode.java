@@ -1,7 +1,6 @@
 package feature.leveleditor;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -16,8 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import engine.Entity;
 import engine.Game;
+import engine.input.ActionId;
+import engine.input.GameInput;
 import engine.level.DungeonLevel;
-import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
@@ -198,20 +198,20 @@ public final class PrefabMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)
+    if (GameInput.justPressed(EditorActions.SECONDARY_NEXT)
         && (pendingAnchorDrag == null || !pendingAnchorDrag.active())) {
       snapMode = snapMode.nextMode();
     }
     Point cursor = getCursorPosition();
     if (pendingLinkPick != null) {
-      if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
+      if (GameInput.justPressed(EditorActions.ALT)) {
         cancelLinkPick();
-      } else if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+      } else if (GameInput.justPressed(EditorActions.PLACE)) {
         completeLinkPick(cursor);
       }
       return;
     }
-    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (GameInput.justPressed(EditorActions.PLACE)) {
       if (pendingPointAssignment != null) {
         PendingPointAssignment assignment = pendingPointAssignment;
         pendingPointAssignment = null;
@@ -229,7 +229,7 @@ public final class PrefabMode extends LevelEditorMode {
       }
     }
     if (pendingAnchorDrag != null
-        && InputManager.isButtonPressed(Input.Buttons.LEFT)
+        && GameInput.pressed(EditorActions.PLACE)
         && !pendingAnchorDrag.active()
         && pendingAnchorDrag.startPosition().distance(cursor) > DRAG_START_DISTANCE) {
       pendingAnchorDrag = pendingAnchorDrag.activate();
@@ -240,7 +240,7 @@ public final class PrefabMode extends LevelEditorMode {
         snapMode = predictedSnapMode;
       }
     }
-    if (pendingAnchorDrag != null && InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {
+    if (pendingAnchorDrag != null && GameInput.released(EditorActions.PLACE)) {
       PendingAnchorDrag drag = pendingAnchorDrag;
       pendingAnchorDrag = null;
       if (drag.active()) {
@@ -254,7 +254,10 @@ public final class PrefabMode extends LevelEditorMode {
         selectAnchorInstance(drag.anchor().instanceName());
       }
     }
-    if (InputManager.isKeyJustPressed(TERTIARY)) {
+    if (pendingAnchorDrag != null && !GameInput.pressed(EditorActions.PLACE)) {
+      cancelAnchorDrag();
+    }
+    if (GameInput.justPressed(EditorActions.TERTIARY)) {
       pendingPointAssignment = lastPointAssignment;
     }
   }
@@ -688,7 +691,7 @@ public final class PrefabMode extends LevelEditorMode {
     if (pendingLinkPick != null) {
       return "Click a highlighted prefab to link '"
           + pendingLinkPick.port().displayName()
-          + "'. Right click cancels.";
+          + "'. [action id=editor:alt] cancels.";
     }
     return "Snap Mode: "
         + snapMode.name()
@@ -696,12 +699,12 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(Input.Buttons.LEFT, "Select / drag prefab anchors / assign point");
-    controls.put(SECONDARY_UP, "Change point and region snap mode");
-    controls.put(TERTIARY, "Arm last world point assignment");
-    controls.put(Input.Buttons.RIGHT, "Cancel linking in the world");
+  public Map<ActionId, String> getControls() {
+    Map<ActionId, String> controls = new LinkedHashMap<>();
+    controls.put(EditorActions.PLACE, "Select / drag prefab anchors / assign point");
+    controls.put(EditorActions.SECONDARY_NEXT, "Change point and region snap mode");
+    controls.put(EditorActions.TERTIARY, "Arm last world point assignment");
+    controls.put(EditorActions.ALT, "Cancel linking in the world");
     return controls;
   }
 
@@ -1699,7 +1702,7 @@ public final class PrefabMode extends LevelEditorMode {
     if (stage == null) return;
     com.badlogic.gdx.math.Vector2 position =
         stage.screenToStageCoordinates(
-            new com.badlogic.gdx.math.Vector2(Gdx.input.getX(), Gdx.input.getY()));
+            new com.badlogic.gdx.math.Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
     showPicker(end, target.get().name(), ui, position.x + 12f, position.y);
   }
 
@@ -1788,7 +1791,7 @@ public final class PrefabMode extends LevelEditorMode {
     if (stage == null) return;
     com.badlogic.gdx.math.Vector2 position =
         stage.screenToStageCoordinates(
-            new com.badlogic.gdx.math.Vector2(Gdx.input.getX(), Gdx.input.getY()));
+            new com.badlogic.gdx.math.Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
     showOptions(
         "Link '" + name + "' and '" + partner + "':",
         options,

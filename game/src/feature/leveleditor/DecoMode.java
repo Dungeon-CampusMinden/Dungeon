@@ -1,6 +1,5 @@
 package feature.leveleditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -12,8 +11,11 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.input.ActionId;
+import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.UiActions;
 import engine.level.DungeonLevel;
-import engine.systems.input.InputManager;
 import engine.utils.BaseContainerUI;
 import engine.utils.Point;
 import engine.utils.Rectangle;
@@ -67,7 +69,7 @@ public class DecoMode extends LevelEditorMode {
   private DecoButton[] historyButtons;
   private Table neighboringButtonTable;
   private BaseContainerUI decoSelectorOverlay;
-  private InputListener decoSelectorEscapeListener;
+  private InputContext decoSelectorInput;
 
   /**
    * Constructs the Deco Mode.
@@ -80,19 +82,19 @@ public class DecoMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (InputManager.isButtonJustReleased(Input.Buttons.LEFT)) {
+    if (GameInput.released(EditorActions.PLACE)) {
       flushRapidFireLevelChange();
     }
 
     // Change selected deco
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
+    if (GameInput.justPressed(EditorActions.PRIMARY_NEXT)) {
       selectDeco(Deco.values()[Math.floorMod(selectedDecoIndex + 1, Deco.values().length)]);
-    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
+    } else if (GameInput.justPressed(EditorActions.PRIMARY_PREV)) {
       selectDeco(Deco.values()[Math.floorMod(selectedDecoIndex - 1, Deco.values().length)]);
     }
 
     // Change snap mode
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
+    if (GameInput.justPressed(EditorActions.SECONDARY_NEXT)) {
       decoSnapMode = decoSnapMode.nextMode();
     }
 
@@ -104,7 +106,7 @@ public class DecoMode extends LevelEditorMode {
     // - Mouse move [holding a deco]: show preview of deco at cursor position
     Point cursorPos = getCursorPosition();
     Point snapPos = decoSnapMode.getPosition(cursorPos);
-    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (GameInput.justPressed(EditorActions.PLACE)) {
       rapidFireActive = true;
 
       if (decoHeldEntity != null) {
@@ -116,7 +118,7 @@ public class DecoMode extends LevelEditorMode {
         levelChanged();
         rapidFireActive = false;
       }
-    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT) && decoHeldEntity == null) {
+    } else if (GameInput.justPressed(EditorActions.ALT) && decoHeldEntity == null) {
       rapidFireActive = false;
       // Pickup deco on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
@@ -124,7 +126,7 @@ public class DecoMode extends LevelEditorMode {
         decoHeldEntity = clickedDeco.get();
         removePreviewEntity();
       }
-    } else if (InputManager.isKeyPressed(TERTIARY)) {
+    } else if (GameInput.pressed(EditorActions.TERTIARY)) {
       rapidFireActive = false;
       // Delete deco on cursor
       getDecoOnPosition(cursorPos)
@@ -134,8 +136,7 @@ public class DecoMode extends LevelEditorMode {
                 syncPlacedDecos();
                 levelChanged();
               });
-    } else if (InputManager.isKeyJustPressed(QUARTERNARY)
-        || InputManager.isButtonJustPressed(Input.Buttons.MIDDLE)) {
+    } else if (GameInput.justPressed(EditorActions.PICK)) {
       rapidFireActive = false;
       // Pipette tool to pick deco type on cursor
       Optional<DecoEntityData> clickedDeco = getDecoOnPosition(cursorPos);
@@ -150,7 +151,7 @@ public class DecoMode extends LevelEditorMode {
       }
     }
 
-    if (InputManager.isButtonPressed(Input.Buttons.LEFT) && rapidFireActive) {
+    if (GameInput.pressed(EditorActions.PLACE) && rapidFireActive) {
       boolean checkBlocked = decoSnapMode.checkBlocked();
       placeDeco(snapPos, checkBlocked);
       if (!checkBlocked) {
@@ -238,16 +239,15 @@ public class DecoMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(Input.Buttons.LEFT, "Place Deco");
-    controls.put(Input.Buttons.RIGHT, "Pickup Deco");
-    controls.put(PRIMARY_UP, "Next Deco");
-    controls.put(PRIMARY_DOWN, "Prev Deco");
-    controls.put(SECONDARY_UP, "Change Grid Snap");
-    controls.put(TERTIARY, "Delete on Cursor");
-    controls.put(QUARTERNARY, "Pick from Cursor");
-    controls.put(Input.Buttons.MIDDLE, "Pick from Cursor");
+  public Map<ActionId, String> getControls() {
+    Map<ActionId, String> controls = new LinkedHashMap<>();
+    controls.put(EditorActions.PLACE, "Place Deco");
+    controls.put(EditorActions.ALT, "Pickup Deco");
+    controls.put(EditorActions.PRIMARY_NEXT, "Next Deco");
+    controls.put(EditorActions.PRIMARY_PREV, "Prev Deco");
+    controls.put(EditorActions.SECONDARY_NEXT, "Change Grid Snap");
+    controls.put(EditorActions.TERTIARY, "Delete on Cursor");
+    controls.put(EditorActions.PICK, "Pick from Cursor");
     return controls;
   }
 
@@ -394,26 +394,18 @@ public class DecoMode extends LevelEditorMode {
                     }
                   });
               decoSelectorOverlay = overlay;
-              decoSelectorEscapeListener =
-                  new InputListener() {
-                    @Override
-                    public boolean keyDown(InputEvent event, int keycode) {
-                      if (keycode != Input.Keys.ESCAPE) return false;
-                      event.stop();
-                      closeDecoSelector();
-                      return true;
-                    }
-                  };
-              stage.getRoot().addCaptureListener(decoSelectorEscapeListener);
+              decoSelectorInput =
+                  new InputContext(EditorActions.EDITOR_POPUP)
+                      .onPress(UiActions.CLOSE, this::closeDecoSelector);
+              GameInput.push(decoSelectorInput);
               stage.addActor(overlay);
             });
   }
 
   private void closeDecoSelector() {
-    if (decoSelectorEscapeListener != null) {
-      InputListener listener = decoSelectorEscapeListener;
-      Game.stage().ifPresent(stage -> stage.getRoot().removeCaptureListener(listener));
-      decoSelectorEscapeListener = null;
+    if (decoSelectorInput != null) {
+      GameInput.remove(decoSelectorInput);
+      decoSelectorInput = null;
     }
     if (decoSelectorOverlay != null) {
       decoSelectorOverlay.remove();

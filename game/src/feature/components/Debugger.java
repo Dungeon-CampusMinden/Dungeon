@@ -1,6 +1,5 @@
 package feature.components;
 
-import com.badlogic.gdx.Input;
 import engine.Entity;
 import engine.Game;
 import engine.System;
@@ -8,13 +7,14 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.input.CursorUtils;
+import engine.input.GameInput;
+import engine.input.InputContext;
 import engine.level.Tile;
 import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
 import engine.level.utils.LevelElement;
 import engine.network.NetworkUtils;
 import engine.systems.CameraSystem;
-import engine.systems.input.InputManager;
 import engine.utils.IVoidFunction;
 import engine.utils.Point;
 import engine.utils.components.MissingComponentException;
@@ -25,9 +25,7 @@ import feature.ai.idle.RadiusWalk;
 import feature.ai.transition.SelfDefendTransition;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.PauseDialog;
-import feature.input.configuration.KeyboardConfig;
 import feature.systems.DebugDrawSystem;
-import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +38,12 @@ import java.util.List;
  * <p>Add the Debugger in the Game-Loop by adding the {@link #execute()} call in {@link
  * Game#userOnFrame(IVoidFunction)}
  *
- * @see KeyboardConfig
+ * @see DebugActions
  */
 public class Debugger extends System {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
+  private final InputContext context = new InputContext(DebugActions.DEBUG);
   private static Entity pauseMenu;
   private static int advanceTimer = 0;
   private static final List<Runnable> actions = new ArrayList<>();
@@ -55,6 +54,7 @@ public class Debugger extends System {
   /** Creates a new Debugger system. */
   public Debugger() {
     super(AuthoritativeSide.CLIENT);
+    DebugActions.define(GameInput.bindings());
   }
 
   /**
@@ -231,27 +231,6 @@ public class Debugger extends System {
     actions.add(action);
   }
 
-  private static void CHECK_DEBUG_HUD_INPUT() {
-    boolean toggleHudPressed =
-        InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value());
-    boolean toggleSystemListPressed =
-        InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
-    boolean toggleSystemListHeld =
-        InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_SYSTEM_LIST.value());
-    boolean toggleNetworkTelemetryPressed =
-        InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_NETWORK_TELEMETRY.value());
-    boolean toggleNetworkTelemetryHeld =
-        InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_NETWORK_TELEMETRY.value());
-
-    if ((toggleHudPressed && toggleNetworkTelemetryHeld) || toggleNetworkTelemetryPressed) {
-      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleNetworkTelemetry);
-    } else if ((toggleHudPressed && toggleSystemListHeld) || toggleSystemListPressed) {
-      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleSystemList);
-    } else if (toggleHudPressed) {
-      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
-    }
-  }
-
   @Override
   public void stop() {
     // Cant be stopped
@@ -262,42 +241,41 @@ public class Debugger extends System {
    * function if detected.
    */
   public void execute() {
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_OUT.value()))
-      Debugger.ZOOM_CAMERA(-0.2f);
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ZOOM_IN.value()))
-      Debugger.ZOOM_CAMERA(0.2f);
+    GameInput.push(context);
 
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TELEPORT_TO_CURSOR.value()))
-      Debugger.TELEPORT_TO_CURSOR();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value())
-        && !LevelEditorSystem.active()) Debugger.SPAWN_MONSTER_ON_CURSOR();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())
-        && !isControlPressed()) Debugger.OPEN_DOORS();
-    if (InputManager.isKeyJustPressed(engine.configuration.KeyboardConfig.PAUSE.value()))
-      Debugger.PAUSE_GAME();
-    if (InputManager.isKeyJustPressed(engine.configuration.KeyboardConfig.ADVANCE_FRAME.value()))
-      Debugger.ADVANCE_FRAME();
-    if (InputManager.isKeyPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value())) CHECK_DEBUG_HUD_INPUT();
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_SCENE_HUD.value()))
+    if (GameInput.justPressed(DebugActions.ZOOM_OUT)) Debugger.ZOOM_CAMERA(-0.2f);
+    if (GameInput.justPressed(DebugActions.ZOOM_IN)) Debugger.ZOOM_CAMERA(0.2f);
+
+    if (GameInput.justPressed(DebugActions.TELEPORT)) Debugger.TELEPORT_TO_CURSOR();
+    if (GameInput.justPressed(DebugActions.SPAWN_MONSTER)) Debugger.SPAWN_MONSTER_ON_CURSOR();
+    if (GameInput.justPressed(DebugActions.OPEN_DOORS)) Debugger.OPEN_DOORS();
+    if (GameInput.justPressed(DebugActions.PAUSE)) Debugger.PAUSE_GAME();
+    if (GameInput.justPressed(DebugActions.ADVANCE_FRAME)) Debugger.ADVANCE_FRAME();
+    if (GameInput.justPressed(DebugActions.TOGGLE_HUD)) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
+    }
+    if (GameInput.justPressed(DebugActions.TOGGLE_SYSTEM_LIST)) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleSystemList);
+    }
+    if (GameInput.justPressed(DebugActions.TOGGLE_NETWORK_TELEMETRY)) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleNetworkTelemetry);
+    }
+    if (GameInput.justPressed(DebugActions.TOGGLE_SCENE_HUD)) {
       Game.stage().ifPresent(stage -> stage.setDebugAll(!stage.isDebugAll()));
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_UP.value())) {
+    }
+    if (GameInput.justPressed(DebugActions.VALUE_UP)) {
       multiPurposeDebugValue += 1;
       LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
     }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_VALUE_DOWN.value())) {
+    if (GameInput.justPressed(DebugActions.VALUE_DOWN)) {
       multiPurposeDebugValue -= 1;
       LOGGER.info("multiPurposeDebugValue: " + multiPurposeDebugValue);
     }
-    if (InputManager.isKeyJustPressed(KeyboardConfig.DEBUG_ACTION.value())) {
+    if (GameInput.justPressed(DebugActions.ACTION)) {
       LOGGER.info("Executed actions.");
       executeActions();
     }
 
     checkFrameAdvance();
-  }
-
-  private static boolean isControlPressed() {
-    return InputManager.isKeyPressed(Input.Keys.CONTROL_LEFT)
-        || InputManager.isKeyPressed(Input.Keys.CONTROL_RIGHT);
   }
 }
