@@ -8,14 +8,10 @@ import com.badlogic.gdx.utils.XmlReader;
 import engine.input.Binding;
 import engine.input.Binding.Pad;
 import engine.input.Binding.PadAxisId;
-import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.TextureMap;
-import engine.utils.components.draw.shader.ColorGradeShader;
-import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.SimpleIPath;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -87,20 +83,6 @@ public final class InputPromptHelper {
   }
 
   private InputPromptHelper() {}
-
-  /**
-   * Inverts the prompt spritesheets, for rooms that show prompts on light dialogs. The sheets are
-   * white with transparent cut-outs, so this gives dark prompts with light glyphs at the same
-   * paths.
-   */
-  public static void useDarkPrompts() {
-    ShaderList shaders = new ShaderList();
-    shaders.add("invert", new ColorGradeShader().invert(true));
-    for (String sheet :
-        List.of(KEYBOARD_MOUSE_TEXTURE_PATH, XBOX_TEXTURE_PATH, PLAYSTATION_TEXTURE_PATH)) {
-      TextureGenerator.registerRenderShaderTexture(sheet, sheet, shaders);
-    }
-  }
 
   /**
    * Returns the currently active input method.

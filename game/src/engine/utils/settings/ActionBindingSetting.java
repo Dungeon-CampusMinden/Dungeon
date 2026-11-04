@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import engine.input.ActionId;
-import engine.input.GameInput;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
 
@@ -30,7 +29,7 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
 
     Table bindingDisplay = new Table(UIUtils.defaultSkin());
     bindingDisplay.setBackground("generic-area");
-    RichLabel bindingLabel = new RichLabel(GameInput.label(value()), 24, Color.BLACK);
+    RichLabel bindingLabel = new RichLabel("[action id=" + value() + "]", 24, Color.BLACK);
     bindingLabel.setAlignment(Align.center);
     bindingDisplay.add(bindingLabel);
 

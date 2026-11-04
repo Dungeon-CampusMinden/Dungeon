@@ -287,6 +287,7 @@ public class RichLabelLayout {
         TextureRegion region = getTextureRegion(ir);
         if (region == null) continue;
         Image image = new Image(new TextureRegionDrawable(region));
+        image.setColor(ir.tint() != null ? ir.tint() : fontSpec.color());
         float imgH = pr.height();
         float band = textAbove[line] + textBelow[line];
         // Bottom edge sits on the baseline for small images; tall images split the overflow

@@ -2,6 +2,7 @@ package engine.input;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -64,6 +65,7 @@ final class PadCursor {
         stage.screenToStageCoordinates(
             new com.badlogic.gdx.math.Vector2(position.x(), position.y()));
     batch.setProjectionMatrix(stage.getCamera().combined);
+    batch.setColor(Color.WHITE);
     batch.begin();
     batch.draw(
         texture,

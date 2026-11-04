@@ -139,7 +139,17 @@ public class RichLabelParser {
           boolean noGapRight = params.getBoolean("noGapRight");
           runs.add(
               new ImageRun(
-                  path, currentShake, currentSize, scale, rx, ry, rw, rh, noGapLeft, noGapRight));
+                  path,
+                  currentShake,
+                  currentSize,
+                  scale,
+                  rx,
+                  ry,
+                  rw,
+                  rh,
+                  noGapLeft,
+                  noGapRight,
+                  Color.WHITE));
         }
       } else if (matcher.group(3) != null) {
         TagParams params = TagParams.parse(matcher.group(3));
@@ -291,14 +301,14 @@ public class RichLabelParser {
   /**
    * Resolves an {@code [action]} tag to the current binding of the action on the device the player
    * used last. The required {@code id} parameter names the action, the optional {@code all} flag
-   * shows every binding of that device instead of the first, and the optional {@code outline} flag
-   * selects the outlined spritesheet variant. Keys, mouse buttons and pad inputs show their prompt
-   * graphic, a combo shows one graphic per key. Inputs without a graphic and unbound actions show
-   * their label.
+   * shows every binding of that device instead of the first. Keys, mouse buttons and pad inputs
+   * show the outlined variant of their prompt graphic in the color of the text, so prompts look the
+   * same on light and dark backgrounds; a combo shows one graphic per key. Inputs without a graphic
+   * and unbound actions show their label.
    *
    * @param params the raw parameter string of the tag (everything after {@code [action} and before
    *     the closing {@code ]}).
-   * @param color the current text color for inputs shown as text.
+   * @param color the current text color, also used for the prompt graphics.
    * @param shake the current shake effect to attach to the resulting runs, or {@code null}.
    * @param sizeOverride the current font size override, or {@code -1}.
    * @param runs receives the resolved runs.
@@ -318,7 +328,6 @@ public class RichLabelParser {
       LOGGER.warn("[action] tag has invalid id '" + id + "'; ignoring");
       return;
     }
-    boolean outline = tp.getBoolean("outline");
     List<Binding> bindings = GameInput.displayBindings(action);
     if (bindings.isEmpty()) {
       runs.add(new TextRun("-", color, sizeOverride, shake));
@@ -327,47 +336,41 @@ public class RichLabelParser {
     int shown = tp.getBoolean("all") ? bindings.size() : 1;
     for (int i = 0; i < shown; i++) {
       if (i > 0) runs.add(new TextRun("/ ", color, sizeOverride, shake));
-      addBinding(bindings.get(i), outline, color, shake, sizeOverride, runs);
+      addBinding(bindings.get(i), color, shake, sizeOverride, runs);
     }
   }
 
   private static void addBinding(
-      Binding binding,
-      boolean outline,
-      Color color,
-      ShakeEffect shake,
-      int sizeOverride,
-      List<Run> runs) {
-    List<InputPromptRegion> regions = regions(binding, outline);
+      Binding binding, Color color, ShakeEffect shake, int sizeOverride, List<Run> runs) {
+    List<InputPromptRegion> regions = regions(binding);
     if (regions.isEmpty() || regions.contains(null)) {
       runs.add(new TextRun(KeyNames.label(binding), color, sizeOverride, shake));
       return;
     }
-    for (InputPromptRegion region : regions) runs.add(imageRun(region, shake, sizeOverride));
+    for (InputPromptRegion region : regions) runs.add(imageRun(region, color, shake, sizeOverride));
   }
 
-  private static List<InputPromptRegion> regions(Binding binding, boolean outline) {
+  private static List<InputPromptRegion> regions(Binding binding) {
     if (binding instanceof Binding.MouseButton mouse) {
-      return Collections.singletonList(
-          InputPromptHelper.lookupMouseButton(mouse.button(), outline));
+      return Collections.singletonList(InputPromptHelper.lookupMouseButton(mouse.button(), true));
     }
     if (binding.isPad()) {
       InputMethod method = InputMethod.ofController(GameInput.padName());
-      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding, outline));
+      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding, true));
     }
     if (!(binding instanceof Binding.Key key)) return List.of();
     List<InputPromptRegion> regions = new ArrayList<>();
-    key.prefixes().stream().sorted().forEach(prefix -> regions.add(keyRegion(prefix, outline)));
-    regions.add(keyRegion(key.keycode(), outline));
+    key.prefixes().stream().sorted().forEach(prefix -> regions.add(keyRegion(prefix)));
+    regions.add(keyRegion(key.keycode()));
     return regions;
   }
 
-  private static InputPromptRegion keyRegion(int keycode, boolean outline) {
-    return InputPromptHelper.lookupKey(
-        InputMethod.KEYBOARD, KeyNames.glyphKeycode(keycode), outline);
+  private static InputPromptRegion keyRegion(int keycode) {
+    return InputPromptHelper.lookupKey(InputMethod.KEYBOARD, KeyNames.glyphKeycode(keycode), true);
   }
 
-  private static ImageRun imageRun(InputPromptRegion region, ShakeEffect shake, int sizeOverride) {
+  private static ImageRun imageRun(
+      InputPromptRegion region, Color color, ShakeEffect shake, int sizeOverride) {
     return new ImageRun(
         region.texturePath(),
         shake,
@@ -378,7 +381,8 @@ public class RichLabelParser {
         region.width(),
         region.height(),
         false,
-        false);
+        false,
+        color);
   }
 
   private ShakeEffect parseShake(String params) {

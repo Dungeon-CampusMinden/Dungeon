@@ -4,19 +4,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.System;
 import engine.input.CoreActions;
-import engine.input.GameInput;
 import engine.utils.FontSpec;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.dialogs.PauseDialog;
+import feature.hud.elements.RichLabel;
 
 /** Client-side HUD button in the bottom-left corner that opens the pause menu. */
 public final class PauseMenuHudSystem extends System {
@@ -27,7 +25,7 @@ public final class PauseMenuHudSystem extends System {
   private static final FontSpec FONT_KEY = FontSpec.of(18, Color.WHITE, 2f, Color.BLACK);
 
   private Table hud;
-  private Label keyLabel;
+  private RichLabel keyLabel;
 
   /** Creates the pause menu HUD system. */
   public PauseMenuHudSystem() {
@@ -48,7 +46,7 @@ public final class PauseMenuHudSystem extends System {
               hud.setVisible(Game.player().isPresent());
               if (!hud.isVisible()) return;
 
-              keyLabel.setText(GameInput.label(CoreActions.PAUSE_MENU));
+              keyLabel.showBinding(CoreActions.PAUSE_MENU);
               hud.pack();
               hud.setPosition(SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomLeft);
             });
@@ -56,7 +54,8 @@ public final class PauseMenuHudSystem extends System {
 
   private Table buildHud() {
     Image icon = new Image(TextureMap.instance().textureAt(new SimpleIPath(ICON_PATH)));
-    keyLabel = Scene2dElementFactory.createLabel("", FONT_KEY);
+    keyLabel = new RichLabel("", FONT_KEY);
+    keyLabel.setWrap(false);
 
     Table table = new Table();
     table.setTouchable(Touchable.enabled);

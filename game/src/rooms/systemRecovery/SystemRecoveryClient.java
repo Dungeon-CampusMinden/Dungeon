@@ -16,7 +16,6 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.hud.AutoSaveIndicator;
 import feature.input.systems.ControlsDialogSystem;
-import feature.input.ui.InputPromptHelper;
 import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.systems.AttributeBarSystem;
@@ -44,7 +43,6 @@ public final class SystemRecoveryClient {
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
-    InputPromptHelper.useDarkPrompts();
     Game.add(new ControlsDialogSystem(SystemRecoveryText::controls));
     SystemRecoveryMusic.setup();
 

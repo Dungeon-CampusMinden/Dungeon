@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
+import engine.input.ActionId;
+import engine.input.GameInput;
 import engine.utils.FontSpec;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.richlabel.PauseRun;
@@ -36,11 +38,11 @@ import java.util.List;
  *       {@code [img-block path=image.png width=50%]} - renders a block-level image on its own line,
  *       centered horizontally. Width can be pixels or a percentage of the container width. Aspect
  *       ratio is always preserved. Defaults to full container width.
- *   <li>{@code [action id=core:interact]} or {@code [action id=core:interact all]} or {@code
- *       [action id=core:interact outline]} - shows the current binding of an action for the device
- *       the player used last, as input-prompt graphics where they exist and as text otherwise.
- *       Behaves like {@code [img]} regarding sizing, spacing and shake. The optional {@code all}
- *       flag shows every binding of that device.
+ *   <li>{@code [action id=core:interact]} or {@code [action id=core:interact all]} - shows the
+ *       current binding of an action for the device the player used last, as outlined input-prompt
+ *       graphics in the text color where they exist and as text otherwise. Behaves like {@code
+ *       [img]} regarding sizing, spacing and shake. The optional {@code all} flag shows every
+ *       binding of that device.
  *   <li>{@code [color=red]} or {@code [color=#ff0000]} - changes the text color for subsequent
  *       text.
  *   <li>{@code [/color]} - resets the text color to the default.
@@ -92,6 +94,10 @@ public class RichLabel extends WidgetGroup implements Disposable {
 
   private FontSpec fontSpec;
   private String text;
+
+  /** What {@link #showBinding(ActionId)} shows, to rebuild only when it changes. */
+  private String shownBinding;
+
   private float computedPrefHeight;
   private float lastPrefHeightWidth;
   private boolean wrap = true;
@@ -317,6 +323,19 @@ public class RichLabel extends WidgetGroup implements Disposable {
     runs = parser.parse(text, typewriterEnabledByDefault);
     resetTypewriter();
     invalidateHierarchy();
+  }
+
+  /**
+   * Shows the prompt graphic of an action and keeps it current. The label only rebuilds when the
+   * binding, the device or the controller changes, so this may run every frame.
+   *
+   * @param action the action
+   */
+  public void showBinding(ActionId action) {
+    String shown = GameInput.displayBindings(action) + GameInput.padName();
+    if (shown.equals(shownBinding)) return;
+    shownBinding = shown;
+    setText("[action id=" + action + "]");
   }
 
   /**
