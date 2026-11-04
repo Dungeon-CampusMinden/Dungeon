@@ -3,7 +3,6 @@ package engine.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -378,7 +377,11 @@ public final class GameInput {
   }
 
   /** Forwards window events, keeping the text context up to date before each press is routed. */
-  private static final class WindowInput implements InputProcessor {
+  private static final class WindowInput extends InputMultiplexer {
+    private WindowInput() {
+      super(resolver);
+    }
+
     @Override
     public boolean keyDown(int keycode) {
       syncTextContext();
@@ -392,45 +395,10 @@ public final class GameInput {
     }
 
     @Override
-    public boolean keyUp(int keycode) {
-      return resolver.keyUp(keycode);
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-      return resolver.keyTyped(character);
-    }
-
-    @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
       clearTextFocusOutside(screenX, screenY);
       syncTextContext();
       return resolver.touchDown(screenX, screenY, pointer, button);
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-      return resolver.touchUp(screenX, screenY, pointer, button);
-    }
-
-    @Override
-    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-      return resolver.touchCancelled(screenX, screenY, pointer, button);
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-      return resolver.touchDragged(screenX, screenY, pointer);
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-      return resolver.mouseMoved(screenX, screenY);
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-      return resolver.scrolled(amountX, amountY);
     }
   }
 }
