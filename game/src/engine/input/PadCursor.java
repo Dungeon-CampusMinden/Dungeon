@@ -26,6 +26,7 @@ final class PadCursor {
   private static boolean touching;
   private static boolean dragPress;
   private static InputContext keptBy;
+  private static boolean cancelKept;
   private static Vector2 lastPosition = Vector2.ZERO;
 
   private PadCursor() {}
@@ -34,6 +35,12 @@ final class PadCursor {
     touching = false;
     dragPress = false;
     keptBy = null;
+    cancelKept = false;
+  }
+
+  /** Ends a kept press on the next frame, because the pad or the window went away. */
+  static void cancelKept() {
+    cancelKept = keptBy != null;
   }
 
   static void beginPress() {
@@ -85,7 +92,7 @@ final class PadCursor {
   }
 
   private static void updateKept(InputResolver resolver, Stage stage, int x, int y, boolean moved) {
-    if (clickOwner(resolver) != keptBy || resolver.device() != InputDevice.PAD) {
+    if (cancelKept || clickOwner(resolver) != keptBy || resolver.device() != InputDevice.PAD) {
       reset();
       stage.touchCancelled(x, y, 0, Input.Buttons.LEFT);
     } else if (resolver.justPressed(UiActions.CLICK)) {
@@ -96,11 +103,13 @@ final class PadCursor {
     }
   }
 
-  // The topmost context that takes the click, which is the UI the press belongs to.
+  // The context a click reaches, which is the UI the press belongs to.
   private static InputContext clickOwner(InputResolver resolver) {
     List<InputContext> contexts = resolver.contexts();
     for (int i = contexts.size() - 1; i >= 0; i--) {
-      if (contexts.get(i).spec().actions().contains(UiActions.CLICK)) return contexts.get(i);
+      InputContext context = contexts.get(i);
+      if (context.spec().actions().contains(UiActions.CLICK)) return context;
+      if (context.spec().blocksBelow() && !context.spec().equals(CoreActions.TEXT)) return null;
     }
     return null;
   }

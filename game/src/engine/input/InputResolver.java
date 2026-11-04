@@ -130,11 +130,19 @@ public final class InputResolver implements InputProcessor {
     int index = stack.size();
     while (index > 0 && layer(stack.get(index - 1)) > layer(context)) index--;
     stack.add(index, context);
-    if (context.spec().blocksBelow()) {
+    if (context.spec().equals(CoreActions.TEXT)) {
+      // A text field only claims the keyboard; the pad keeps working in the UI around it.
+      Set<InputContext> below = new HashSet<>(stack.subList(0, index));
+      cancelWhere(press -> below.contains(press.owner) && !isPad(press));
+    } else if (context.spec().blocksBelow()) {
       Set<InputContext> below = new HashSet<>(stack.subList(0, index));
       cancelWhere(press -> below.contains(press.owner));
       dropEdges(below::contains);
     }
+  }
+
+  private static boolean isPad(Press press) {
+    return press.source.source().startsWith("pad:");
   }
 
   private static int layer(InputContext context) {
@@ -175,7 +183,8 @@ public final class InputResolver implements InputProcessor {
   }
 
   /**
-   * Checks whether a blocking context lies above a context.
+   * Checks whether a blocking context lies above a context. A focused text field does not count: it
+   * stops the keyboard at routing, but pad input passes.
    *
    * @param context the context
    * @return true if input cannot reach the context
@@ -183,7 +192,7 @@ public final class InputResolver implements InputProcessor {
   public boolean covered(InputContext context) {
     int index = stack.indexOf(context);
     return stack.subList(index + 1, stack.size()).stream()
-        .anyMatch(above -> above.spec().blocksBelow());
+        .anyMatch(above -> above.spec().blocksBelow() && !above.spec().equals(CoreActions.TEXT));
   }
 
   /**
@@ -534,8 +543,8 @@ public final class InputResolver implements InputProcessor {
 
   /** Cancels everything a pad holds, e.g. because it was unplugged. */
   public void cancelPad() {
-    cancelWhere(press -> press.source.source().startsWith("pad:"));
-    presses.values().removeIf(press -> press.source.source().startsWith("pad:"));
+    cancelWhere(InputResolver::isPad);
+    presses.values().removeIf(InputResolver::isPad);
   }
 
   private static SourceId padSource(Binding input) {

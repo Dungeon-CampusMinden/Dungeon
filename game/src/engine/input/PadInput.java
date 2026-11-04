@@ -52,6 +52,7 @@ final class PadInput {
         Controllers.getControllers().size == 0 ? null : Controllers.getControllers().first();
     if (controller != connected) {
       resolver.cancelPad();
+      PadCursor.cancelKept();
       heldButtons.clear();
       heldAxes.clear();
       connected = controller;

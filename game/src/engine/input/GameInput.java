@@ -80,7 +80,10 @@ public final class GameInput {
 
   private static void windowFocused(boolean focused) {
     windowFocused = focused;
-    if (!focused) applicationPaused();
+    if (!focused) {
+      applicationPaused();
+      PadCursor.cancelKept();
+    }
   }
 
   /**
