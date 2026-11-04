@@ -26,8 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -129,14 +127,13 @@ sealed interface AudienceContext {
     }
     if (type == DialogType.DefaultTypes.YES_NO) return new YesNo(ui);
     if (type == DialogType.DefaultTypes.COMBINATION_LOCK) {
-      Optional<CombinationLockComponent> lock =
-          ui.dialogContext()
-              .find(DialogContextKeys.ENTITY, Integer.class)
-              .flatMap(Game::findEntityById)
-              .flatMap(entity -> entity.fetch(CombinationLockComponent.class));
-      // While the wheels turn to the winning code, there is nothing to vote on.
-      if (lock.map(CombinationLockComponent::dialing).orElse(false)) return new Wait();
-      return new Lock(ui, lock.map(CombinationLockComponent::wheels).orElse(0));
+      return ui.dialogContext()
+          .findEntity(DialogContextKeys.ENTITY)
+          .flatMap(entity -> entity.fetch(CombinationLockComponent.class))
+          // While the wheels turn to the winning code, there is nothing to vote on.
+          .filter(lock -> !lock.dialing())
+          .<AudienceContext>map(lock -> new Lock(ui, lock.wheels()))
+          .orElseGet(Wait::new);
     }
     if (type == DialogType.DefaultTypes.FREE_INPUT) {
       return new Text(
@@ -192,6 +189,13 @@ sealed interface AudienceContext {
                     .map(script -> DialogScript.toHeadlessText(DialogScript.parse(script))))
         .filter(text -> !text.isBlank())
         .ifPresent(text -> prompt.put("text", text.strip()));
+    // Only the combination lock has a hint, which belongs below its question.
+    context
+        .find(DialogContextKeys.DESCRIPTION, String.class)
+        .map(AudienceContext::translated)
+        .filter(hint -> !hint.isBlank())
+        .ifPresent(
+            hint -> prompt.put("text", (prompt.path("text").asString("") + " " + hint).strip()));
     context
         .find(DialogContextKeys.OPTIONS, ChoiceOptions.class)
         .ifPresent(
@@ -582,7 +586,7 @@ sealed interface AudienceContext {
   /**
    * A combination lock, which the devices show as a digit keypad with one digit per wheel. The
    * winning code turns the wheels on the game screen one after the other, and then the lock tries
-   * to open. The devices show the question and the hint of the dialog as its text.
+   * to open. Without a lock component, or while the wheels turn, there is no lock to vote on.
    *
    * @param ui the dialog
    * @param wheels number of wheels of the lock
@@ -606,14 +610,6 @@ sealed interface AudienceContext {
     @Override
     public void describe(ObjectNode json) {
       json.put("digits", wheels);
-      DialogContext context = ui.dialogContext();
-      String text =
-          Stream.of(DialogContextKeys.QUESTION, DialogContextKeys.DESCRIPTION)
-              .flatMap(key -> context.find(key, String.class).stream())
-              .map(part -> translated(part).strip())
-              .filter(part -> !part.isEmpty())
-              .collect(Collectors.joining(" "));
-      if (!text.isEmpty()) json.put("text", text);
     }
 
     @Override

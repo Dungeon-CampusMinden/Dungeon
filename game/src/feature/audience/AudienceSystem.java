@@ -416,9 +416,8 @@ public final class AudienceSystem extends System {
     if (paused()) state.put("paused", true);
     ObjectNode contextJson = state.putObject("context").put("kind", context.controls());
     contextJson.put("window", windowId);
-    // After the prompt, so a context can replace a text of its dialog.
-    if (prompt != null) contextJson.setAll(prompt);
     context.describe(contextJson);
+    if (prompt != null) contextJson.setAll(prompt);
     if (window != null) contextJson.put("windowMs", window.endsAt - window.startedAt);
     ObjectNode statuses = state.putObject("players");
     players.forEach((pid, player) -> statuses.put(pid, player.status.name().toLowerCase()));

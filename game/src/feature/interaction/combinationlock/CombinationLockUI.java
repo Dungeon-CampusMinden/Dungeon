@@ -103,9 +103,9 @@ public final class CombinationLockUI extends Table {
    */
   public static Group build(DialogContext context) {
     String title = context.find(DialogContextKeys.TITLE, String.class).orElse("");
-    String question = context.find(DialogContextKeys.QUESTION, String.class).orElse("");
+    String question = localize(context.find(DialogContextKeys.QUESTION, String.class).orElse(""));
     if (Game.isHeadless()) return new HeadlessDialogGroup(title, question);
-    String hint = context.find(DialogContextKeys.DESCRIPTION, String.class).orElse("");
+    String hint = localize(context.find(DialogContextKeys.DESCRIPTION, String.class).orElse(""));
     boolean controls = context.find(CombinationLock.CONTROLS, Boolean.class).orElse(true);
     return new BaseContainerUI(
         new CombinationLockUI(
@@ -184,6 +184,11 @@ public final class CombinationLockUI extends Table {
           pixmap.dispose();
           return texture;
         });
+  }
+
+  // DialogFactory.localized translates the title, but not the question or the hint.
+  private static String localize(String text) {
+    return Game.localization().getCurrentTranslator().translate(text);
   }
 
   private static Drawable tinted(Color color) {

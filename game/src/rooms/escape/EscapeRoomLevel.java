@@ -421,7 +421,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
     board.add(
         new InteractionComponent(new Interaction((self, hero) -> readBoard(hero), 1.5f, true)));
     Game.add(board);
-    offer(board, "Whiteboard", () -> boardWritten || (boardListsFindings && anySolved()));
+    offer(board, "Whiteboard", this::boardHasContent);
   }
 
   /**
@@ -448,13 +448,18 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
                 hero.id()));
   }
 
+  // Written by the helper, or a findings board with at least one solved terminal.
+  private boolean boardHasContent() {
+    return boardWritten || (boardListsFindings && anySolved());
+  }
+
   private boolean anySolved() {
     for (boolean done : solved) if (done) return true;
     return false;
   }
 
   private void readBoard(Entity hero) {
-    if (!boardWritten && !boardListsFindings) {
+    if (!boardHasContent()) {
       DialogUtils.showTextPopup("Das Whiteboard ist noch leer.", "Whiteboard", hero.id());
       return;
     }

@@ -153,7 +153,8 @@ class AudienceContextTest {
       ObjectNode json = AudienceContext.JSON.objectNode();
       context.describe(json);
       assertEquals(2, json.path("digits").asInt());
-      assertEquals("Welche Zahl? Tippt sie ein.", json.path("text").asString());
+      ObjectNode prompt = AudienceContext.prompt(context.dialog().orElseThrow());
+      assertEquals("Welche Zahl? Tippt sie ein.", prompt.path("text").asString());
 
       assertTrue(context.normalize(AudienceContext.JSON.stringNode("8")).isEmpty());
       JsonNode code = context.normalize(AudienceContext.JSON.stringNode(" 83 ")).orElseThrow();
@@ -166,6 +167,23 @@ class AudienceContextTest {
     } finally {
       // The remaining wheel and the try to open wait in the scheduler.
       EventScheduler.clear();
+      Game.removeAllEntities();
+    }
+  }
+
+  @Test
+  void lockDialogWithoutLockHasNothingToVoteOn() {
+    Game.removeAllEntities();
+    Entity hero = new Entity("hero");
+    Game.add(hero);
+    Entity chest = new Entity("chest");
+    chest.add(new CombinationLockComponent(2));
+    Game.add(chest);
+    CombinationLock.show(chest, hero, "Zahlenschloss", "Welche Zahl?", "", false, code -> {});
+    chest.remove(CombinationLockComponent.class);
+    try {
+      assertEquals("wait", AudienceContext.of(hero, null).kind());
+    } finally {
       Game.removeAllEntities();
     }
   }
