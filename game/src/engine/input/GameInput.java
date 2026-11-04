@@ -284,6 +284,15 @@ public final class GameInput {
   }
 
   /**
+   * Checks whether a dialog or another modal UI takes the input.
+   *
+   * @return true while a context of the UI layer is active
+   */
+  public static boolean uiOpen() {
+    return resolver.contexts().stream().anyMatch(c -> c.spec().layer() == ContextLayer.UI);
+  }
+
+  /**
    * Describes the input state for the debug HUD.
    *
    * @return the context stack from top to bottom with its blocking flags, the owners of held input
@@ -364,9 +373,7 @@ public final class GameInput {
       boolean handled = super.keyDown(keycode);
       boolean claimedByWindow =
           target.getKeyboardFocus() instanceof Window window && window.isModal();
-      boolean dialogContext =
-          resolver.contexts().stream().anyMatch(c -> c.spec().layer() == ContextLayer.UI);
-      return handled && !(claimedByWindow && dialogContext);
+      return handled && !(claimedByWindow && uiOpen());
     }
   }
 
