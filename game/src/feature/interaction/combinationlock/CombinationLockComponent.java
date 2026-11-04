@@ -6,12 +6,13 @@ import engine.Component;
  * Wheels of a combination lock. It holds one digit per wheel and the wheel that turns next.
  *
  * <p>The server turns the wheels, see {@link CombinationLock}. On clients, the component holds the
- * state synchronized by {@link CombinationLockSync}.
+ * state synchronized by {@link CombinationLockSync}, without {@link #dialing()}.
  */
 public class CombinationLockComponent implements Component {
 
   private final int[] digits;
   private int selected;
+  private boolean dialing;
 
   /**
    * Creates a lock whose wheels all show 0, with the first wheel selected.
@@ -87,6 +88,25 @@ public class CombinationLockComponent implements Component {
       throw new IllegalArgumentException("No wheel " + selected + " of " + digits.length);
     }
     this.selected = selected;
+  }
+
+  /**
+   * Returns whether the lock is turning its wheels to a dialed code. Meanwhile it ignores further
+   * actions.
+   *
+   * @return true from a dialed code until the lock tried to open, on the server only
+   */
+  public boolean dialing() {
+    return dialing;
+  }
+
+  /**
+   * Marks whether the lock is turning its wheels to a dialed code.
+   *
+   * @param dialing whether the lock is dialing
+   */
+  void dialing(boolean dialing) {
+    this.dialing = dialing;
   }
 
   /**

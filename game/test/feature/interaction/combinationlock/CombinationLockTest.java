@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,6 +92,7 @@ class CombinationLockTest {
             lock,
             user,
             "83",
+            () -> true,
             () -> opened.set(component.digits()),
             (step, delay) -> {
               steps.add(step);
@@ -100,18 +102,36 @@ class CombinationLockTest {
     assertTrue(dialing);
     // The first wheel turns at once, the second and the try to open follow.
     assertEquals("80", component.digits());
+    assertTrue(component.dialing());
     assertEquals(List.of(800L, 2000L), delays);
     steps.get(0).run();
     assertEquals("83", component.digits());
     assertEquals(1, component.selected());
     steps.get(1).run();
     assertEquals("83", opened.get());
+    assertFalse(component.dialing());
+  }
+
+  @Test
+  void closedDialogStopsTheWheelsAndTheTryToOpen() {
+    List<Runnable> steps = new ArrayList<>();
+    AtomicBoolean open = new AtomicBoolean(true);
+    AtomicReference<String> opened = new AtomicReference<>();
+    CombinationLock.dial(
+        lock, user, "83", open::get, () -> opened.set("tried"), (step, delay) -> steps.add(step));
+    open.set(false);
+    steps.forEach(Runnable::run);
+    assertEquals("80", component.digits());
+    assertNull(opened.get());
+    assertFalse(component.dialing());
   }
 
   @Test
   void codeOfTheWrongLengthDialsNothing() {
-    assertFalse(CombinationLock.dial(lock, user, "834", () -> {}, (step, delay) -> step.run()));
+    assertFalse(
+        CombinationLock.dial(lock, user, "834", () -> true, () -> {}, (step, delay) -> step.run()));
     assertEquals("00", component.digits());
+    assertFalse(component.dialing());
   }
 
   @Test

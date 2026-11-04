@@ -16,6 +16,7 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.combinationlock.CombinationLock;
 import feature.interaction.combinationlock.CombinationLockComponent;
+import feature.systems.EventScheduler;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -160,7 +161,11 @@ class AudienceContextTest {
       context.apply(code, null);
       // The first wheel turns at once; the play clock turns the second one later.
       assertEquals("80", wheels.digits());
+      // Meanwhile there is nothing to vote on.
+      assertEquals("wait", AudienceContext.of(hero, null).kind());
     } finally {
+      // The remaining wheel and the try to open wait in the scheduler.
+      EventScheduler.clear();
       Game.removeAllEntities();
     }
   }

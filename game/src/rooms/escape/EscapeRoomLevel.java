@@ -41,8 +41,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.IntPredicate;
 import java.util.stream.Stream;
 
 /**
@@ -62,8 +64,8 @@ import java.util.stream.Stream;
  * audience that the code of the tutorial door is the last three digits of the phone number. The
  * level file places a printer as a {@code deco-interaction} prefab, and a {@code show-image} prefab
  * shows the number when the hero uses it. The whiteboard stays empty until the audience solves the
- * rebuilt terminal; then the helper writes on it. A room whose board keeps what the solved
- * terminals showed, see {@link #boardListsFindings()}, offers the board earlier.
+ * rebuilt terminal; then the helper writes on it. A board that keeps what the solved terminals
+ * showed, see {@link #findingsBoard}, joins the targets earlier.
  *
  * <p>Subclasses build their objects in {@link #setUp()} and describe a revealed digit in {@link
  * #revealText(int)}. The audience picks targets from a list unless {@link #offersTargets()} says
@@ -150,6 +152,8 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
   // Set by whiteboard(); null in a room without a whiteboard.
   private List<String> boardPages;
   private Consumer<Entity> boardContent;
+  // Set by findingsBoard().
+  private boolean boardListsFindings;
   private boolean boardWritten;
 
   /**
@@ -185,34 +189,6 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
    * @return text of the popup after the right answer
    */
   protected abstract String revealText(int terminal);
-
-  /**
-   * @param terminal index of the terminal, starting at 0
-   * @return whether the audience has answered the terminal's question correctly
-   */
-  protected final boolean solved(int terminal) {
-    return solved[terminal];
-  }
-
-  /**
-   * @return whether the helper has written on the whiteboard, which it does once the audience
-   *     solves the rebuilt terminal
-   */
-  protected final boolean boardWritten() {
-    return boardWritten;
-  }
-
-  /**
-   * Says whether the whiteboard repeats what the solved terminals showed. Then a solved terminal
-   * leaves the targets, because the board keeps its digit, and the board joins the targets with the
-   * first solved terminal instead of waiting for the helper. Its content then has to work before
-   * the helper wrote on it, see {@link #boardWritten()}.
-   *
-   * @return {@code false} unless a room overrides it
-   */
-  protected boolean boardListsFindings() {
-    return false;
-  }
 
   /**
    * Whether the audience picks targets from a list. Otherwise it votes on single steps.
@@ -445,7 +421,31 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
     board.add(
         new InteractionComponent(new Interaction((self, hero) -> readBoard(hero), 1.5f, true)));
     Game.add(board);
-    offer(board, "Whiteboard", () -> boardWritten || (boardListsFindings() && anySolved()));
+    offer(board, "Whiteboard", () -> boardWritten || (boardListsFindings && anySolved()));
+  }
+
+  /**
+   * Hangs a whiteboard that keeps what the solved terminals showed, like {@link #whiteboard}. The
+   * board joins the targets with the first solved terminal, and a solved terminal leaves them,
+   * because the board keeps its digit. The helper still says its pages once the audience solves the
+   * rebuilt terminal.
+   *
+   * @param helperPages what the helper says when it writes on the board
+   * @param text writes the board from whether a terminal is solved, by its index starting at 0, and
+   *     whether the helper wrote on it
+   */
+  protected final void findingsBoard(
+      List<String> helperPages, BiFunction<IntPredicate, Boolean, String> text) {
+    boardListsFindings = true;
+    // An OK dialog keeps the line breaks; DialogUtils.showTextPopup joins all lines.
+    whiteboard(
+        helperPages,
+        hero ->
+            DialogFactory.showOkDialog(
+                text.apply(terminal -> solved[terminal], boardWritten),
+                "Whiteboard",
+                () -> {},
+                hero.id()));
   }
 
   private boolean anySolved() {
@@ -454,7 +454,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
   }
 
   private void readBoard(Entity hero) {
-    if (!boardWritten && !boardListsFindings()) {
+    if (!boardWritten && !boardListsFindings) {
       DialogUtils.showTextPopup("Das Whiteboard ist noch leer.", "Whiteboard", hero.id());
       return;
     }
@@ -488,7 +488,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
             "terminal-" + (terminal + 1),
             hero -> ask(terminal, hero)),
         "Terminal " + (terminal + 1),
-        () -> !(boardListsFindings() && solved[terminal]));
+        () -> !(boardListsFindings && solved[terminal]));
   }
 
   private Entity station(Point position, SimpleIPath texture, String name, Consumer<Entity> use) {
@@ -634,13 +634,15 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
       return;
     }
     if (chestLock != null && !chestUnlocked) {
+      // Without an audience, as in the level editor, the lock needs its arrows and button.
+      boolean controls = EscapeRoom.levelEditor();
       CombinationLock.show(
           chest,
           hero,
           "Zahlenschloss",
           chestLock.question(),
-          LOCK_HINT,
-          false,
+          controls ? "" : LOCK_HINT,
+          controls,
           code -> {
             if (code.equals(chestLock.code())) {
               chestUnlocked = true;

@@ -124,10 +124,11 @@ enthält Terminals, Helfer, Truhe, Türschloss, Vorraum, Rechner und Whiteboard.
 nur noch seine Texte, Fragen und Codes und legt in `setUp()` fest, welche Teile er nutzt. Der
 Automatenraum lässt Vorraum, Rechner und Whiteboard weg und schaltet die Zielliste ab. Stimmen am
 Türschloss die Ziffern, aber nicht ihre Reihenfolge, sagt das Tastenfeld das in allen drei
-Räumen. Die Truhe hat ein Zahlenschloss mit einem Rädchen je Ziffer, siehe unten. Der Rechner
-verschwindet aus der Zielliste, sobald die Truhe offen ist. Gibt `boardListsFindings()` `true`
-zurück, wie im KI-Raum, verschwinden auch gelöste Terminals. Das Whiteboard kommt dann schon mit
-dem ersten gelösten Terminal dazu.
+Räumen. Die Truhe hat ein Zahlenschloss mit einem Rädchen je Ziffer, siehe unten. Im Level-Editor
+zeigt es Pfeile und einen Knopf zum Öffnen, weil dort kein Publikum abstimmt. Der Rechner
+verschwindet aus der Zielliste, sobald die Truhe offen ist. Hängt ein Raum sein Whiteboard mit
+`findingsBoard(...)` statt `whiteboard(...)` auf, wie der KI-Raum, verschwinden auch gelöste
+Terminals. Das Whiteboard kommt dann schon mit dem ersten gelösten Terminal dazu.
 
 ## Ablauf
 
@@ -252,9 +253,10 @@ Beim Levelbau gilt:
   Spielbildschirm bekommt sie wie beim Keypad über die Metadaten des Objekts und lässt sie Ziffer
   für Ziffer rollen. Das Publikum stimmt wie bei einem Code über die ganze Zahl ab. Das Schloss
   dreht dann ein Rädchen nach dem anderen, 0,8 Sekunden je Rädchen auf der Spielzeit, und versucht
-  danach zu öffnen. Der Dialog schließt sich, und der Raum prüft die Ziffern. Sie bleiben nach
-  einem falschen Versuch stehen. Mit `controls` = `true` zeigt der Dialog stattdessen Pfeile zum
-  Drehen und Wählen und einen Knopf zum Öffnen, für ein Spiel ohne Publikum.
+  danach zu öffnen. Solange die Rädchen drehen, gibt es nichts abzustimmen. Dann schließt sich
+  der Dialog, und der Raum prüft die Ziffern. Sie bleiben nach einem falschen Versuch stehen. Mit
+  `controls` = `true` zeigt der Dialog stattdessen Pfeile zum Drehen und Wählen und einen Knopf zum
+  Öffnen, für ein Spiel ohne Publikum.
 - Statt einzelner Schritte kann ein Raum das Publikum Ziele wählen lassen. Dafür bekommt jedes
   Objekt ein `AudienceTarget` mit einem eindeutigen Namen und einer Bedingung, wann es in der Liste
   steht. Ein Feld, auf das die Figur gehen soll, etwa hinter der letzten Tür, markiert

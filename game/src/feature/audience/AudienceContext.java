@@ -129,14 +129,14 @@ sealed interface AudienceContext {
     }
     if (type == DialogType.DefaultTypes.YES_NO) return new YesNo(ui);
     if (type == DialogType.DefaultTypes.COMBINATION_LOCK) {
-      int wheels =
+      Optional<CombinationLockComponent> lock =
           ui.dialogContext()
               .find(DialogContextKeys.ENTITY, Integer.class)
               .flatMap(Game::findEntityById)
-              .flatMap(lock -> lock.fetch(CombinationLockComponent.class))
-              .map(CombinationLockComponent::wheels)
-              .orElse(0);
-      return new Lock(ui, wheels);
+              .flatMap(entity -> entity.fetch(CombinationLockComponent.class));
+      // While the wheels turn to the winning code, there is nothing to vote on.
+      if (lock.map(CombinationLockComponent::dialing).orElse(false)) return new Wait();
+      return new Lock(ui, lock.map(CombinationLockComponent::wheels).orElse(0));
     }
     if (type == DialogType.DefaultTypes.FREE_INPUT) {
       return new Text(
@@ -183,8 +183,7 @@ sealed interface AudienceContext {
         .ifPresent(title -> prompt.put("title", title.strip()));
     context
         .find(DialogContextKeys.QUESTION, String.class)
-        // Unlike the other texts, the free-input dialog translates its question itself.
-        .map(question -> Game.localization().getCurrentTranslator().translate(question))
+        .map(AudienceContext::translated)
         .or(() -> context.find(DialogContextKeys.MESSAGE, String.class))
         .or(
             () ->
@@ -201,6 +200,11 @@ sealed interface AudienceContext {
               options.values().forEach(option -> answers.add(option.label().strip()));
             });
     return prompt;
+  }
+
+  // DialogFactory.localized translates titles and messages, but not questions or descriptions.
+  private static String translated(String text) {
+    return Game.localization().getCurrentTranslator().translate(text);
   }
 
   private static boolean targets(UIComponent ui, Entity hero) {
@@ -602,11 +606,11 @@ sealed interface AudienceContext {
     @Override
     public void describe(ObjectNode json) {
       json.put("digits", wheels);
-      DialogContext context = DialogFactory.localized(ui.dialogContext());
+      DialogContext context = ui.dialogContext();
       String text =
           Stream.of(DialogContextKeys.QUESTION, DialogContextKeys.DESCRIPTION)
               .flatMap(key -> context.find(key, String.class).stream())
-              .map(String::strip)
+              .map(part -> translated(part).strip())
               .filter(part -> !part.isEmpty())
               .collect(Collectors.joining(" "));
       if (!text.isEmpty()) json.put("text", text);

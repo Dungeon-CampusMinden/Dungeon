@@ -5,7 +5,6 @@ import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.dialogs.ChoiceOption;
-import feature.hud.dialogs.DialogFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -212,11 +211,7 @@ public final class KiRoomLevel extends EscapeRoomLevel {
     tutorial(TUTORIAL_CODE);
     terminals(QUINLAN, CHEST_LOCK);
     computer("decision_tree", DECISION_TREE);
-    whiteboard(
-        QUINLAN_WHITEBOARD,
-        hero ->
-            DialogFactory.showOkDialog(
-                boardText(this::solved, boardWritten()), "Whiteboard", () -> {}, hero.id()));
+    findingsBoard(QUINLAN_WHITEBOARD, KiRoomLevel::boardText);
     doorLock(
         new DoorLock(
             PANEL,
@@ -241,18 +236,10 @@ public final class KiRoomLevel extends EscapeRoomLevel {
         + ". Das Whiteboard merkt es sich.";
   }
 
-  // The whiteboard repeats the attributes of the solved terminals, so those terminals leave the
-  // targets.
-  @Override
-  protected boolean boardListsFindings() {
-    return true;
-  }
-
   /**
    * Writes the whiteboard. It lists every attribute the audience has found so far, in the order of
    * the terminals, with its information gain and its digit, so the audience only has to sort them.
-   * Once Quinlan wrote the rule, it stands above the list. The board shows the text in an OK
-   * dialog, because {@code DialogUtils.showTextPopup} joins all lines.
+   * Once Quinlan wrote the rule, it stands above the list.
    *
    * @param solved whether the audience has solved a terminal, by its index starting at 0
    * @param ruleWritten whether Quinlan has written the rule

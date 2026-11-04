@@ -213,8 +213,9 @@ public final class CombinationLockUI extends Table {
   private final class Column {
     private final Table table = new Table();
     private final Table rim = new Table();
-    private final Image up = arrow(Arrow.UP, CombinationLock.UP);
-    private final Image down = arrow(Arrow.DOWN, CombinationLock.DOWN);
+    // Only with the controls.
+    private final Image up = controls ? arrow(Arrow.UP, CombinationLock.UP) : null;
+    private final Image down = controls ? arrow(Arrow.DOWN, CombinationLock.DOWN) : null;
     private final Wheel wheel = new Wheel();
     private Boolean selected;
 
@@ -231,6 +232,7 @@ public final class CombinationLockUI extends Table {
       if (Boolean.valueOf(selected).equals(this.selected)) return;
       this.selected = selected;
       rim.setBackground(tinted(selected ? ACCENT : RIM));
+      if (!controls) return;
       // Hidden arrows keep their cells, so the wheels stay in place.
       up.setVisible(selected);
       down.setVisible(selected);

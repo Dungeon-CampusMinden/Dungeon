@@ -3,15 +3,15 @@ package feature.interaction.combinationlock;
 import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
-import engine.sound.SoundSpec;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.keypad.KeypadFactory;
 import feature.systems.EventScheduler;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.ObjLongConsumer;
 
@@ -100,36 +100,36 @@ public final class CombinationLock {
             .build();
     UIComponent ui = DialogFactory.show(context, true, true, user.id());
     CombinationLockComponent component = lock.fetch(CombinationLockComponent.class).orElseThrow();
+    // The dialog may close while the wheels turn, for example when the game ends.
+    BooleanSupplier stillOpen =
+        () ->
+            ui.dialogContext()
+                .find(DialogContextKeys.OWNER_ENTITY, Integer.class)
+                .flatMap(Game::findEntityById)
+                .flatMap(owner -> owner.fetch(UIComponent.class))
+                .filter(current -> current == ui)
+                .isPresent();
     Runnable open =
         () -> {
-          // The dialog may have closed while the wheels turned.
-          boolean stillOpen =
-              ui.dialogContext()
-                  .find(DialogContextKeys.OWNER_ENTITY, Integer.class)
-                  .flatMap(Game::findEntityById)
-                  .flatMap(owner -> owner.fetch(UIComponent.class))
-                  .filter(current -> current == ui)
-                  .isPresent();
-          if (!stillOpen) return;
+          if (!stillOpen.getAsBoolean()) return;
           UIUtils.closeDialog(ui);
           onOpen.accept(component.digits());
         };
-    AtomicBoolean dialing = new AtomicBoolean();
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String action))
-              || dialing.get()) {
+              || component.dialing()) {
             return;
           }
           if (action.startsWith(DIAL)) {
-            dialing.set(
-                dial(
-                    lock,
-                    user,
-                    action.substring(DIAL.length()),
-                    open,
-                    (step, delay) -> EventScheduler.schedulePlayAction(step::run, delay)));
+            dial(
+                lock,
+                user,
+                action.substring(DIAL.length()),
+                stillOpen,
+                open,
+                (step, delay) -> EventScheduler.schedulePlayAction(step::run, delay));
           } else if (press(lock, user, action)) {
             open.run();
           }
@@ -166,23 +166,33 @@ public final class CombinationLock {
 
   /**
    * Turns the wheels one after the other to the digits of a code, then runs {@code then}. The first
-   * wheel turns at once, each further one after the previous one had time to roll.
+   * wheel turns at once, each further one after the previous one had time to roll. Until the last
+   * step, the lock is {@link CombinationLockComponent#dialing() dialing}. Once {@code active} turns
+   * false, the remaining wheels stay where they are and {@code then} does not run.
    *
    * @param lock entity with a {@link CombinationLockComponent}
    * @param user the player who dialed
    * @param digits one digit per wheel from left to right
+   * @param active whether the dial may go on, for example while its dialog is open
    * @param then runs once the last wheel stopped, for example to try to open the lock
    * @param schedule runs a step after a delay in milliseconds
    * @return true if the code fits the wheels and the lock dials it
    */
   static boolean dial(
-      Entity lock, Entity user, String digits, Runnable then, ObjLongConsumer<Runnable> schedule) {
+      Entity lock,
+      Entity user,
+      String digits,
+      BooleanSupplier active,
+      Runnable then,
+      ObjLongConsumer<Runnable> schedule) {
     CombinationLockComponent component = lock.fetch(CombinationLockComponent.class).orElseThrow();
     if (!digits.matches("[0-9]{" + component.wheels() + "}")) return false;
+    component.dialing(true);
     for (int wheel = 0; wheel < digits.length(); wheel++) {
       int index = wheel;
       Runnable turn =
           () -> {
+            if (!active.getAsBoolean()) return;
             component.selected(index);
             component.turn(digits.charAt(index) - component.digits().charAt(index));
             click(component, user, true);
@@ -190,14 +200,18 @@ public final class CombinationLock {
       if (wheel == 0) turn.run();
       else schedule.accept(turn, wheel * WHEEL_MS);
     }
-    schedule.accept(then, digits.length() * WHEEL_MS + SETTLE_MS);
+    schedule.accept(
+        () -> {
+          component.dialing(false);
+          if (active.getAsBoolean()) then.run();
+        },
+        digits.length() * WHEEL_MS + SETTLE_MS);
     return true;
   }
 
-  // A turned wheel clicks higher the higher its digit, like the digits of a keypad.
+  // A turned wheel clicks like the digit key of a keypad, selecting a wheel clicks lower.
   private static void click(CombinationLockComponent component, Entity user, boolean turned) {
-    float pitch =
-        turned ? 1 + (component.digits().charAt(component.selected()) - '5') * 0.05f : 0.8f;
-    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(user.id()));
+    int digit = component.digits().charAt(component.selected()) - '0';
+    KeypadFactory.beep(user, turned ? KeypadFactory.digitPitch(digit) : 0.8f);
   }
 }
