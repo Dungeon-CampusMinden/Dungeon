@@ -53,7 +53,12 @@ public class JournalItem extends Item {
     DialogInput.register(
         EscapeRoomDialogTypes.JOURNAL,
         ContextSpec.of(
-                "journal", ContextLayer.UI, UiActions.NAV_UP, UiActions.NAV_DOWN, UiActions.CLICK)
+                "journal",
+                ContextLayer.UI,
+                UiActions.OPEN_PAUSE,
+                UiActions.NAV_UP,
+                UiActions.NAV_DOWN,
+                UiActions.CLICK)
             .closedBy(UiActions.CLOSE, OPEN)
             .blocking());
   }

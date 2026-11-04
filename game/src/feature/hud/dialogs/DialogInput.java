@@ -76,6 +76,8 @@ public final class DialogInput {
     ContextSpec spec = SPECS.getOrDefault(ui.dialogContext().dialogType().type(), UiActions.DIALOG);
     InputContext context =
         new InputContext(spec)
+            .onPress(
+                UiActions.OPEN_PAUSE, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
             .onPress(UiActions.CONFIRM, () -> fire(ui, UiActions.CONFIRM))
             .onPress(UiActions.NAV_UP, () -> navigate(ui, UiActions.NAV_UP, -1))
             .onPress(UiActions.NAV_DOWN, () -> navigate(ui, UiActions.NAV_DOWN, 1))

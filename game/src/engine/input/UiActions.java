@@ -32,22 +32,30 @@ public final class UiActions {
   /** Moves the item under pointer 0 to the other inventory. */
   public static final ActionId TRANSFER_ITEM = ui("transfer_item", pad(Pad.RB));
 
+  /**
+   * Opens the pause menu above a UI. The pad has its own close button, so unlike Escape its pause
+   * button keeps this meaning everywhere.
+   */
+  public static final ActionId OPEN_PAUSE = ui("open_pause", pad(Pad.START));
+
   /** A modal dialog without a confirm action; the pad works through its cursor. */
   public static final ContextSpec DIALOG =
-      ContextSpec.of("dialog", ContextLayer.UI, NAV_UP, NAV_DOWN, CLICK).closedBy(CLOSE).blocking();
+      ContextSpec.of("dialog", ContextLayer.UI, OPEN_PAUSE, NAV_UP, NAV_DOWN, CLICK)
+          .closedBy(CLOSE)
+          .blocking();
 
   /**
    * A modal dialog with a confirm action. It does not take {@link #CLICK}: both lie on the same pad
    * button, and selection and confirmation already cover the pad.
    */
   public static final ContextSpec CONFIRM_DIALOG =
-      ContextSpec.of("confirm_dialog", ContextLayer.UI, CONFIRM, NAV_UP, NAV_DOWN)
+      ContextSpec.of("confirm_dialog", ContextLayer.UI, OPEN_PAUSE, CONFIRM, NAV_UP, NAV_DOWN)
           .closedBy(CLOSE)
           .blocking();
 
   /** The room's controls; their open action closes them as well. */
   public static final ContextSpec CONTROLS =
-      ContextSpec.of("controls", ContextLayer.UI, CONFIRM, NAV_UP, NAV_DOWN)
+      ContextSpec.of("controls", ContextLayer.UI, OPEN_PAUSE, CONFIRM, NAV_UP, NAV_DOWN)
           .closedBy(CLOSE, CoreActions.SHOW_CONTROLS)
           .blocking();
 
@@ -59,13 +67,13 @@ public final class UiActions {
 
   /** Inventory and chest; the inventory action closes them as well. */
   public static final ContextSpec INVENTORY =
-      ContextSpec.of("inventory", ContextLayer.UI, USE_ITEM, TRANSFER_ITEM, CLICK)
+      ContextSpec.of("inventory", ContextLayer.UI, OPEN_PAUSE, USE_ITEM, TRANSFER_ITEM, CLICK)
           .closedBy(CLOSE, CoreActions.INVENTORY)
           .blocking();
 
   /** The quest log; its open action closes it as well. */
   public static final ContextSpec QUESTLOG =
-      ContextSpec.of("questlog", ContextLayer.UI, NAV_UP, NAV_DOWN, CLICK)
+      ContextSpec.of("questlog", ContextLayer.UI, OPEN_PAUSE, NAV_UP, NAV_DOWN, CLICK)
           .closedBy(CLOSE, CoreActions.QUESTLOG)
           .blocking();
 
