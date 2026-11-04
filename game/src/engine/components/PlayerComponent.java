@@ -12,6 +12,7 @@ public final class PlayerComponent implements Component {
 
   private final boolean isLocalPlayer;
   private final String playerName;
+  private boolean controlsLocked;
 
   /**
    * Create a new PlayerComponent.
@@ -51,6 +52,26 @@ public final class PlayerComponent implements Component {
    */
   public boolean isLocal() {
     return isLocalPlayer;
+  }
+
+  /**
+   * Whether the server currently locks the controls of this player, e.g. during a cutscene. The
+   * lock is server state and reaches clients through snapshots.
+   *
+   * @return true while gameplay input of this player has no effect
+   */
+  public boolean controlsLocked() {
+    return controlsLocked;
+  }
+
+  /**
+   * Stores the lock state. Game logic uses {@code HeroController.controlsLocked}, which also ends
+   * the input in progress; this setter alone is for mirroring the server on clients.
+   *
+   * @param locked true if the controls are locked
+   */
+  public void controlsLocked(boolean locked) {
+    controlsLocked = locked;
   }
 
   /**

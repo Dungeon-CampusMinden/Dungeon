@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.NetworkPositionComponent;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.tile.DoorTile;
 import engine.network.codec.ShaderComponentCodec;
@@ -50,6 +51,9 @@ import java.util.stream.Collectors;
 public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(DefaultSnapshotTranslator.class);
+
+  /** Metadata key of a hero's server-side control lock. */
+  private static final String METADATA_CONTROLS_LOCKED = "controlsLocked";
 
   private long latestServerTick = -1;
 
@@ -142,6 +146,11 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
               Map<String, String> metadata = new HashMap<>();
               metadata.putAll(PuzzleNetworkSync.metadata(e));
               metadata.putAll(KeypadSync.metadata(e));
+              e.fetch(PlayerComponent.class)
+                  .ifPresent(
+                      player ->
+                          metadata.put(
+                              METADATA_CONTROLS_LOCKED, String.valueOf(player.controlsLocked())));
               if (e.isPresent(InteractionComponent.class)) {
                 metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
               }
@@ -206,6 +215,14 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                   entity.add(new InteractionComponent());
                 }
                 KeypadSync.apply(entity, metadata);
+                if (metadata.containsKey(METADATA_CONTROLS_LOCKED)) {
+                  entity
+                      .fetch(PlayerComponent.class)
+                      .ifPresent(
+                          player ->
+                              player.controlsLocked(
+                                  Boolean.parseBoolean(metadata.get(METADATA_CONTROLS_LOCKED))));
+                }
 
                 entity
                     .fetch(PositionComponent.class)
