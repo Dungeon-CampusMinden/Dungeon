@@ -23,6 +23,19 @@ public final class UiActions {
   public static final ActionId NAV_DOWN =
       ui("nav_down", key(Keys.S), key(Keys.DOWN), pad(Pad.DPAD_DOWN), pad(PadAxisId.LSTICK_DOWN));
 
+  /** Selects the previous entry of a horizontal list. */
+  public static final ActionId NAV_LEFT =
+      ui("nav_left", key(Keys.A), key(Keys.LEFT), pad(Pad.DPAD_LEFT), pad(PadAxisId.LSTICK_LEFT));
+
+  /** Selects the next entry of a horizontal list. */
+  public static final ActionId NAV_RIGHT =
+      ui(
+          "nav_right",
+          key(Keys.D),
+          key(Keys.RIGHT),
+          pad(Pad.DPAD_RIGHT),
+          pad(PadAxisId.LSTICK_RIGHT));
+
   /** Clicks with the pad cursor; the mouse talks to the stage directly. */
   public static final ActionId CLICK = ui("click", pad(Pad.A));
 
@@ -37,6 +50,10 @@ public final class UiActions {
    * button keeps this meaning everywhere.
    */
   public static final ActionId OPEN_PAUSE = ui("open_pause", pad(Pad.START));
+
+  /** Screens outside a running game. It does not block, and its windows keep their keys. */
+  public static final ContextSpec MENU =
+      ContextSpec.of("menu_ui", ContextLayer.BASE, CLICK, NAV_LEFT, NAV_RIGHT);
 
   /** A modal dialog without a confirm action; the pad works through its cursor. */
   public static final ContextSpec DIALOG =

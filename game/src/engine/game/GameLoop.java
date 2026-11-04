@@ -72,7 +72,6 @@ import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
 import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
-import engine.utils.CursorUtil;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
 import engine.utils.components.MissingComponentException;
@@ -385,7 +384,6 @@ public final class GameLoop extends ScreenAdapter {
     int height = currentWindowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     GameInput.stage(stage);
-    CursorUtil.initListener(stage);
   }
 
   private static int currentWindowWidth() {

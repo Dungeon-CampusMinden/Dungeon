@@ -4,11 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
-import engine.Game;
 import engine.input.GameInput;
 import engine.input.InputDevice;
 import java.util.EnumMap;
@@ -26,6 +24,7 @@ public class CursorUtil {
     Optional<Cursors> cursorOverride();
   }
 
+  private static Stage stage;
   private static Cursors currentCursor;
   private static boolean nativeCursorHidden;
   private static Cursor hiddenCursor;
@@ -74,11 +73,6 @@ public class CursorUtil {
     return hiddenCursor;
   }
 
-  /** Reset the mouse cursor to the default type. */
-  public static void resetCursor() {
-    setCursor(Cursors.DEFAULT);
-  }
-
   /**
    * Get the currently active mouse cursor type.
    *
@@ -109,35 +103,25 @@ public class CursorUtil {
   }
 
   private static void refreshCursor() {
-    Actor hit =
-        Game.stage()
-            .map(
-                stage -> {
-                  Vector2 pointer =
-                      stage.screenToStageCoordinates(
-                          new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
-                  return stage.hit(pointer.x, pointer.y, true);
-                })
-            .orElse(null);
+    Actor hit = null;
+    if (stage != null) {
+      Vector2 pointer =
+          stage.screenToStageCoordinates(
+              new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
+      hit = stage.hit(pointer.x, pointer.y, true);
+    }
     setCursor(cursorFor(hit));
   }
 
   /**
-   * Initialize cursor management for the game stage. The cursor is resolved every frame, so UI that
-   * opens or closes under a resting pointer updates it as well.
+   * Resolves the cursor for the current screen. Runs every frame, so UI that opens or closes under
+   * a resting pointer updates it, and so does a change of the input device.
    *
-   * @param stage the game stage
+   * @param current the stage of the current screen
    */
-  public static void initListener(Stage stage) {
-    resetCursor();
-    stage.addAction(
-        new Action() {
-          @Override
-          public boolean act(float delta) {
-            refreshCursor();
-            return false;
-          }
-        });
+  public static void update(Stage current) {
+    stage = current;
+    refreshCursor();
   }
 
   /**

@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import engine.game.WindowEventManager;
+import engine.utils.CursorUtil;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,6 +103,7 @@ public final class GameInput {
     if (windowFocused) PadInput.poll(resolver, delta);
     resolver.advance(delta);
     PadCursor.update(resolver, stage);
+    if (stage != null) CursorUtil.update(stage);
   }
 
   private static void syncTextContext() {

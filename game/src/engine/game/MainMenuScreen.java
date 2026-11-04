@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Game;
 import engine.input.GameInput;
 import engine.input.InputContext;
+import engine.input.UiActions;
 import engine.language.Language;
 import engine.language.Translation;
 import engine.network.ConnectionListener;
@@ -206,6 +207,11 @@ public class MainMenuScreen extends ScreenAdapter {
                 if (activeView == View.MAIN) toggleLevelEditorOption();
               });
 
+  private final InputContext uiContext =
+      new InputContext(UiActions.MENU)
+          .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
+          .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1));
+
   private final Consumer<Language> languageChangeListener =
       language -> Gdx.app.postRunnable(this::rebuildViews);
 
@@ -229,6 +235,7 @@ public class MainMenuScreen extends ScreenAdapter {
     GameInput.stage(stage);
     GameInput.clearSessionContexts();
     GameInput.activate(menuContext);
+    GameInput.activate(uiContext);
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);
@@ -738,6 +745,10 @@ public class MainMenuScreen extends ScreenAdapter {
     setJoinControlsDisabled(discoveryInProgress || admissionCleanupPending);
     swapContent(joinView);
     stage.setKeyboardFocus(joinNameField);
+  }
+
+  private void moveCharacter(int amount) {
+    if (activeView == View.CHARACTER_SELECT) characterCarousel.move(amount);
   }
 
   private void showCharacterSelectionView() {
@@ -1475,6 +1486,7 @@ public class MainMenuScreen extends ScreenAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     stage.act(delta);
     stage.draw();
+    GameInput.draw(stage);
     if (activeView == View.CHARACTER_SELECT) {
       characterRefreshElapsed += delta;
       if (characterRefreshElapsed >= CharacterCarousel.AVAILABILITY_REFRESH_SECONDS
@@ -1505,6 +1517,7 @@ public class MainMenuScreen extends ScreenAdapter {
   @Override
   public void hide() {
     GameInput.deactivate(menuContext);
+    GameInput.deactivate(uiContext);
     dispose();
   }
 
