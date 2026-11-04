@@ -22,7 +22,7 @@ public final class PauseMenuHudSystem extends System {
   private static final String ICON_PATH = "hud/settings.png";
   private static final float ICON_SIZE = 56f;
   private static final float SCREEN_MARGIN = 16f;
-  private static final FontSpec FONT_KEY = FontSpec.of(18, Color.WHITE, 2f, Color.BLACK);
+  private static final FontSpec FONT_KEY = FontSpec.of(28, Color.WHITE, 2f, Color.BLACK);
 
   private Table hud;
   private RichLabel keyLabel;

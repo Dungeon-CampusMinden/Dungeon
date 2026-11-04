@@ -40,7 +40,7 @@ public final class QuestLogHudSystem extends System {
   private static final float SCREEN_MARGIN = 16f;
   private static final int MAX_BADGE_COUNT = 9;
   private static final FontSpec FONT_BADGE = FontSpec.of(14, Color.WHITE);
-  private static final FontSpec FONT_KEY = FontSpec.of(18, Color.WHITE, 2f, Color.BLACK);
+  private static final FontSpec FONT_KEY = FontSpec.of(28, Color.WHITE, 2f, Color.BLACK);
 
   private static final Set<ReadKey> READ_ENTRIES = new HashSet<>();
 

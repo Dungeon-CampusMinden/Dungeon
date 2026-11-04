@@ -1,6 +1,8 @@
 package feature.hud.elements.richlabel;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -764,7 +766,17 @@ public class RichLabelLayout {
               new TextureRegion(
                   base.getTexture(), ir.regionX(), ir.regionY(), ir.regionW(), ir.regionH());
           sub.flip(false, true);
+          generateMipmaps(base.getTexture());
           return sub;
         });
+  }
+
+  // Sheet cells are far larger than their inline size; without mipmaps thin lines get lost
+  // unevenly.
+  private static void generateMipmaps(Texture texture) {
+    if (texture.getMinFilter() == Texture.TextureFilter.MipMapLinearLinear) return;
+    texture.bind();
+    Gdx.gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
+    texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
   }
 }
