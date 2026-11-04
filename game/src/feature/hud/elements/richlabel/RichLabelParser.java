@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Align;
 import engine.input.ActionId;
 import engine.input.Binding;
+import engine.input.CoreActions;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.input.KeyNames;
 import engine.utils.logging.DungeonLogger;
 import feature.input.ui.InputMethod;
@@ -301,10 +303,11 @@ public class RichLabelParser {
   /**
    * Resolves an {@code [action]} tag to the current binding of the action on the device the player
    * used last. The required {@code id} parameter names the action, the optional {@code all} flag
-   * shows every binding of that device instead of the first. Keys, mouse buttons and pad inputs
-   * show the outlined variant of their prompt graphic in the color of the text, so prompts look the
-   * same on light and dark backgrounds; a combo shows one graphic per key. Inputs without a graphic
-   * and unbound actions show their label.
+   * shows every binding of that device instead of the first. {@code core:move} shows the stick on
+   * the pad and the four movement keys otherwise. Keys, mouse buttons and pad inputs show the
+   * outlined variant of their prompt graphic in the color of the text, so prompts look the same on
+   * light and dark backgrounds; a combo shows one graphic per key. Inputs without a graphic and
+   * unbound actions show their label.
    *
    * @param params the raw parameter string of the tag (everything after {@code [action} and before
    *     the closing {@code ]}).
@@ -326,6 +329,14 @@ public class RichLabelParser {
       action = ActionId.of(id);
     } catch (IllegalArgumentException e) {
       LOGGER.warn("[action] tag has invalid id '" + id + "'; ignoring");
+      return;
+    }
+    if (action.equals(CoreActions.MOVE) && GameInput.device() != InputDevice.PAD) {
+      for (ActionId key : CoreActions.MOVE_KEYS) {
+        GameInput.displayBindings(key).stream()
+            .findFirst()
+            .ifPresent(binding -> addBinding(binding, color, shake, sizeOverride, runs));
+      }
       return;
     }
     List<Binding> bindings = GameInput.displayBindings(action);

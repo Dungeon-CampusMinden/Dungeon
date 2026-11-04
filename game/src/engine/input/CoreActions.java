@@ -9,23 +9,27 @@ import com.badlogic.gdx.Input.Keys;
 import engine.input.Binding.Pad;
 import engine.input.Binding.PadAxisId;
 import engine.utils.Vector2;
+import java.util.List;
 
 /** Actions and contexts of the game itself. */
 public final class CoreActions {
-  /** Analog movement. Digital movement comes from the {@code MOVE_*} actions. */
+  /** Analog movement on the stick. Keys move through the {@code MOVE_*} actions. */
   public static final ActionId MOVE = core("move", pad(PadAxisId.LSTICK));
 
   /** Move up. */
-  public static final ActionId MOVE_UP = core("move_up", key(Keys.W), pad(Pad.DPAD_UP));
+  public static final ActionId MOVE_UP = core("move_up", key(Keys.W));
 
   /** Move down. */
-  public static final ActionId MOVE_DOWN = core("move_down", key(Keys.S), pad(Pad.DPAD_DOWN));
+  public static final ActionId MOVE_DOWN = core("move_down", key(Keys.S));
 
   /** Move left. */
-  public static final ActionId MOVE_LEFT = core("move_left", key(Keys.A), pad(Pad.DPAD_LEFT));
+  public static final ActionId MOVE_LEFT = core("move_left", key(Keys.A));
 
   /** Move right. */
-  public static final ActionId MOVE_RIGHT = core("move_right", key(Keys.D), pad(Pad.DPAD_RIGHT));
+  public static final ActionId MOVE_RIGHT = core("move_right", key(Keys.D));
+
+  /** The key movement actions, in the order prompts show them. */
+  public static final List<ActionId> MOVE_KEYS = List.of(MOVE_UP, MOVE_LEFT, MOVE_DOWN, MOVE_RIGHT);
 
   /** Uses the main skill while held. */
   public static final ActionId SKILL_MAIN = core("skill_main", key(Keys.Q), pad(PadAxisId.RT));
