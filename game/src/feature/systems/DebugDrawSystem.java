@@ -122,7 +122,6 @@ public class DebugDrawSystem extends System {
   public void render(float delta) {
     if (!render && !renderSystemList && !renderNetworkTelemetry) return;
 
-    if (render) drawInputState();
     if (renderSystemList) drawSystemList();
     if (renderNetworkTelemetry) {
       updateNetworkTelemetryRequest();
@@ -139,6 +138,8 @@ public class DebugDrawSystem extends System {
     if (!LevelEditorSystem.active()) {
       drawNamedPoints();
     }
+    // Last, so that the boxes of the world do not cover it.
+    drawInputState();
   }
 
   private void drawInputState() {
