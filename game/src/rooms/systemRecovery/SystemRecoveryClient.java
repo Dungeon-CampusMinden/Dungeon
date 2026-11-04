@@ -8,7 +8,6 @@ import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
-import engine.utils.CursorUtil;
 import engine.utils.components.draw.DrawComponentFactory;
 import feature.components.CollideComponent;
 import feature.components.Debugger;
@@ -40,7 +39,6 @@ public final class SystemRecoveryClient {
   public static void clientSetup() {
     AutoSaveIndicator.reset();
     registerEntitySpawnHandler();
-    Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
     Game.add(new ControlsDialogSystem(SystemRecoveryText::controls));

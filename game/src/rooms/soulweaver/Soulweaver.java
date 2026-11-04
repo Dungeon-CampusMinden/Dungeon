@@ -16,7 +16,6 @@ import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
-import engine.utils.CursorUtil;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
@@ -169,7 +168,6 @@ public final class Soulweaver {
   }
 
   private static void clientSetup() {
-    Game.stage().ifPresent(CursorUtil::initListener);
     BlackFadeCutscene.register();
     QuestLogUI.register();
     SoulweaverTerminal.register();

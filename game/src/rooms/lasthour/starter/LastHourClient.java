@@ -11,7 +11,6 @@ import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
-import engine.utils.CursorUtil;
 import engine.utils.Tuple;
 import engine.utils.components.draw.DrawComponentFactory;
 import engine.utils.components.draw.TextureGenerator;
@@ -75,7 +74,6 @@ public final class LastHourClient {
       Game.add(new Debugger());
     }
     TheLastHour.registerLocalWorldTimerSystem();
-    Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     Game.add(new ComputerStateSyncSystem());
 
