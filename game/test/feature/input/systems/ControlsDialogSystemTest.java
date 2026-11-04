@@ -233,7 +233,7 @@ class ControlsDialogSystemTest {
   private List<UIComponent> controlsDialogs() {
     return Game.entities()
         .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.DIALOG_DIALOG)
+        .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.CONTROLS)
         .toList();
   }
 }
