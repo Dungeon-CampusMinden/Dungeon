@@ -1,6 +1,8 @@
 package feature.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import engine.Game;
 import engine.input.ActionId;
 import engine.input.ContextSpec;
@@ -12,7 +14,6 @@ import feature.hud.UIUtils;
 import feature.inventory.ui.InventoryGUI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /** Builds the input context of a dialog. */
 public final class DialogInput {
@@ -112,9 +113,10 @@ public final class DialogInput {
     return event.isHandled();
   }
 
-  // Dialogs without a selection scroll instead, which also serves the pad.
+  // Dialogs without a selection scroll their text instead, which also serves the pad.
   private static void navigate(UIComponent ui, ActionId action, int scroll) {
     if (fire(ui, action)) return;
-    Optional.ofNullable(ui.dialog().getStage()).ifPresent(stage -> stage.scrolled(0, scroll));
+    Stage stage = ui.dialog().getStage();
+    if (stage != null && stage.getScrollFocus() instanceof ScrollPane) stage.scrolled(0, scroll);
   }
 }

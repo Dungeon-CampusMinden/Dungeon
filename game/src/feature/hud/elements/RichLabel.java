@@ -36,11 +36,11 @@ import java.util.List;
  *       {@code [img-block path=image.png width=50%]} - renders a block-level image on its own line,
  *       centered horizontally. Width can be pixels or a percentage of the container width. Aspect
  *       ratio is always preserved. Defaults to full container width.
- *   <li>{@code [action id=core:interact]} or {@code [action id=core:interact index=1]} or {@code
+ *   <li>{@code [action id=core:interact]} or {@code [action id=core:interact all]} or {@code
  *       [action id=core:interact outline]} - shows the current binding of an action for the device
  *       the player used last, as input-prompt graphics where they exist and as text otherwise.
- *       Behaves like {@code [img]} regarding sizing, spacing and shake. The optional {@code index}
- *       selects a further binding of that device.
+ *       Behaves like {@code [img]} regarding sizing, spacing and shake. The optional {@code all}
+ *       flag shows every binding of that device.
  *   <li>{@code [color=red]} or {@code [color=#ff0000]} - changes the text color for subsequent
  *       text.
  *   <li>{@code [/color]} - resets the text color to the default.

@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -291,10 +290,10 @@ public class RichLabelParser {
 
   /**
    * Resolves an {@code [action]} tag to the current binding of the action on the device the player
-   * used last. The required {@code id} parameter names the action, the optional {@code index}
-   * selects a further binding of that device, and the optional {@code outline} flag selects the
-   * outlined spritesheet variant. Keys and mouse buttons show their prompt graphic, a combo shows
-   * one graphic per key. Inputs without a graphic and unbound actions show their label.
+   * used last. The required {@code id} parameter names the action, the optional {@code all} flag
+   * shows every binding of that device instead of the first, and the optional {@code outline} flag
+   * selects the outlined spritesheet variant. Keys and mouse buttons show their prompt graphic, a
+   * combo shows one graphic per key. Inputs without a graphic and unbound actions show their label.
    *
    * @param params the raw parameter string of the tag (everything after {@code [action} and before
    *     the closing {@code ]}).
@@ -318,13 +317,29 @@ public class RichLabelParser {
       LOGGER.warn("[action] tag has invalid id '" + id + "'; ignoring");
       return;
     }
-    int index = (int) tp.getFloat("index", 0);
     boolean outline = tp.getBoolean("outline");
-    Optional<Binding> binding = GameInput.displayBinding(action, index);
-    List<InputPromptRegion> regions = binding.map(b -> regions(b, outline)).orElse(List.of());
+    List<Binding> bindings = GameInput.displayBindings(action);
+    if (bindings.isEmpty()) {
+      runs.add(new TextRun("-", color, sizeOverride, shake));
+      return;
+    }
+    int shown = tp.getBoolean("all") ? bindings.size() : 1;
+    for (int i = 0; i < shown; i++) {
+      if (i > 0) runs.add(new TextRun("/ ", color, sizeOverride, shake));
+      addBinding(bindings.get(i), outline, color, shake, sizeOverride, runs);
+    }
+  }
+
+  private static void addBinding(
+      Binding binding,
+      boolean outline,
+      Color color,
+      ShakeEffect shake,
+      int sizeOverride,
+      List<Run> runs) {
+    List<InputPromptRegion> regions = regions(binding, outline);
     if (regions.isEmpty() || regions.contains(null)) {
-      String label = binding.map(KeyNames::label).orElse("-");
-      runs.add(new TextRun(label, color, sizeOverride, shake));
+      runs.add(new TextRun(KeyNames.label(binding), color, sizeOverride, shake));
       return;
     }
     for (InputPromptRegion region : regions) runs.add(imageRun(region, shake, sizeOverride));

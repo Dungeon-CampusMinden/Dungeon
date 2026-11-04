@@ -58,4 +58,5 @@ Spieler-Overrides stehen in `input_bindings.json` neben dem Spiel, dort als lesb
 Eintrag Default. `InputResolver#rebind` lehnt Konflikte ab; Konflikte der
 Defaults erscheinen beim Anmelden eines Kontexts im Log.
 
-In Texten zeigt `[action id=core:interact]` die aktuelle Belegung für das zuletzt genutzte Gerät.
+In Texten zeigt `[action id=core:interact]` die aktuelle Belegung für das zuletzt genutzte Gerät;
+`[action id=core:interact all]` zeigt alle Belegungen dieses Geräts.

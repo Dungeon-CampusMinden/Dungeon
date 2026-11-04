@@ -18,6 +18,17 @@
             "FORWARD_DEL": "Entf",
             "END": "Ende"
         },
+        "pad": {
+            "DPAD_UP": "D-Pad hoch",
+            "DPAD_DOWN": "D-Pad runter",
+            "DPAD_LEFT": "D-Pad links",
+            "DPAD_RIGHT": "D-Pad rechts",
+            "LSTICK": "Linker Stick",
+            "LSTICK_UP": "Linker Stick hoch",
+            "LSTICK_DOWN": "Linker Stick runter",
+            "LSTICK_LEFT": "Linker Stick links",
+            "LSTICK_RIGHT": "Linker Stick rechts"
+        },
         "mouse": {
             "LEFT": "Linksklick",
             "RIGHT": "Rechtsklick",

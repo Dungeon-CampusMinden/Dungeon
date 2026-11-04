@@ -141,7 +141,7 @@ Server verbinden. Ist der alte Prozess beendet, startet die Runde normal.
 Die Ende-Taste beendet das Spiel vorzeitig, etwa wenn die Zeit knapp wird. Die Spielzeit
 endet dann als nicht gelöst.
 
-Die Spielleitung kann das Spiel jederzeit pausieren: P oder Esc öffnet das Pause-Menü, auch
+Die Spielleitung kann das Spiel jederzeit pausieren: Esc öffnet das Pause-Menü, auch
 über einem offenen Rätsel. Ein Klick auf die Ecke mit dem Code zeigt die Beitrittsansicht groß
 für Nachzügler; Enter oder ein weiterer Klick setzt fort. In der Pause stehen Spielzeit,
 Abstimmungsfenster, Restzeit und Ergebnisanzeige still, die Geräte zeigen „Pausiert“.

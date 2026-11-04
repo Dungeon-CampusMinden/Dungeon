@@ -18,6 +18,17 @@
             "FORWARD_DEL": "Del",
             "END": "End"
         },
+        "pad": {
+            "DPAD_UP": "D-pad up",
+            "DPAD_DOWN": "D-pad down",
+            "DPAD_LEFT": "D-pad left",
+            "DPAD_RIGHT": "D-pad right",
+            "LSTICK": "Left stick",
+            "LSTICK_UP": "Left stick up",
+            "LSTICK_DOWN": "Left stick down",
+            "LSTICK_LEFT": "Left stick left",
+            "LSTICK_RIGHT": "Left stick right"
+        },
         "mouse": {
             "LEFT": "Left click",
             "RIGHT": "Right click",

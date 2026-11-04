@@ -33,8 +33,8 @@ public final class KeyNames {
       case Binding.MouseButton mouse ->
           localized(binding.format().replace(':', '.'), binding.format());
       case Binding.MouseWheel wheel -> localized("mouse.WHEEL", binding.format());
-      case Binding.PadButton pad -> pad.button().name();
-      case Binding.PadAxis axis -> axis.axis().name();
+      case Binding.PadButton pad -> localized("pad." + pad.button(), pad.button().name());
+      case Binding.PadAxis axis -> localized("pad." + axis.axis(), axis.axis().name());
     };
   }
 

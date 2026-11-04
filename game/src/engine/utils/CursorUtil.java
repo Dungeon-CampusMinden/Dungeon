@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import engine.Game;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +27,8 @@ public class CursorUtil {
   }
 
   private static Cursors currentCursor;
+  private static boolean nativeCursorHidden;
+  private static Cursor hiddenCursor;
 
   /** Cache of native cursor objects keyed by cursor type to avoid repeated allocation. */
   private static final Map<Cursors, Cursor> cursorCache = new EnumMap<>(Cursors.class);
@@ -43,18 +46,32 @@ public class CursorUtil {
    * @param cursor the type of cursor to set
    */
   public static void setCursor(Cursors cursor) {
-    if (cursor == currentCursor) return;
-    Cursor nativeCursor =
-        cursorCache.computeIfAbsent(
-            cursor,
-            c -> {
-              Pixmap pixmap = new Pixmap(Gdx.files.internal(c.path()));
-              Cursor created = Gdx.graphics.newCursor(pixmap, c.hotspotX(), c.hotspotY());
-              pixmap.dispose();
-              return created;
-            });
-    Gdx.graphics.setCursor(nativeCursor);
+    boolean hide = GameInput.device() == InputDevice.PAD;
+    if (cursor == currentCursor && hide == nativeCursorHidden) return;
+    Gdx.graphics.setCursor(hide ? hiddenCursor() : nativeCursor(cursor));
     currentCursor = cursor;
+    nativeCursorHidden = hide;
+  }
+
+  private static Cursor nativeCursor(Cursors cursor) {
+    return cursorCache.computeIfAbsent(
+        cursor,
+        c -> {
+          Pixmap pixmap = new Pixmap(Gdx.files.internal(c.path()));
+          Cursor created = Gdx.graphics.newCursor(pixmap, c.hotspotX(), c.hotspotY());
+          pixmap.dispose();
+          return created;
+        });
+  }
+
+  // The pad draws its own cursor, so the system cursor must not stay frozen next to it.
+  private static Cursor hiddenCursor() {
+    if (hiddenCursor == null) {
+      Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+      hiddenCursor = Gdx.graphics.newCursor(pixmap, 0, 0);
+      pixmap.dispose();
+    }
+    return hiddenCursor;
   }
 
   /** Reset the mouse cursor to the default type. */

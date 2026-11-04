@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Entry point of the input system.
@@ -315,20 +314,16 @@ public final class GameInput {
   }
 
   /**
-   * Gets the binding shown for an action on the device the player used last.
+   * Gets the bindings shown for an action on the device the player used last.
    *
    * @param action the action
-   * @param index which binding of that device to show
-   * @return that binding, or else the first binding of any device
+   * @return the bindings of that device, or else all bindings of the action
    */
-  public static Optional<Binding> displayBinding(ActionId action, int index) {
-    List<Binding> list = bindings.bindings(action);
+  public static List<Binding> displayBindings(ActionId action) {
+    List<Binding> all = bindings.bindings(action);
     boolean pad = device() == InputDevice.PAD;
-    return list.stream()
-        .filter(binding -> binding.isPad() == pad)
-        .skip(index)
-        .findFirst()
-        .or(() -> list.stream().findFirst());
+    List<Binding> ofDevice = all.stream().filter(binding -> binding.isPad() == pad).toList();
+    return ofDevice.isEmpty() ? all : ofDevice;
   }
 
   /**
@@ -338,7 +333,7 @@ public final class GameInput {
    * @return the label of its first binding on the active device, or a dash if it is unbound
    */
   public static String label(ActionId action) {
-    return displayBinding(action, 0).map(KeyNames::label).orElse("-");
+    return displayBindings(action).stream().findFirst().map(KeyNames::label).orElse("-");
   }
 
   /**
