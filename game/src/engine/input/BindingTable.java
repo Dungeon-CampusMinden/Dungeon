@@ -76,15 +76,6 @@ public final class BindingTable {
   }
 
   /**
-   * Gets the registered context declarations.
-   *
-   * @return the context declarations in registration order
-   */
-  public Set<ContextSpec> contexts() {
-    return Set.copyOf(contexts);
-  }
-
-  /**
    * Gets the current bindings of an action.
    *
    * @param action the action
@@ -94,15 +85,6 @@ public final class BindingTable {
     List<String> override = overrides.get(action.toString());
     if (override != null) return override.stream().map(Binding::parse).toList();
     return defaults.getOrDefault(action, action.defaults());
-  }
-
-  /**
-   * Gets all known actions.
-   *
-   * @return the action ids in registration order
-   */
-  public Set<ActionId> actions() {
-    return new LinkedHashSet<>(defaults.keySet());
   }
 
   /**

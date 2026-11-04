@@ -49,24 +49,6 @@ public final class ActionId {
   }
 
   /**
-   * Gets the owner of the action.
-   *
-   * @return the namespace
-   */
-  public String namespace() {
-    return namespace;
-  }
-
-  /**
-   * Gets the name inside the namespace.
-   *
-   * @return the name
-   */
-  public String name() {
-    return name;
-  }
-
-  /**
    * Gets the default bindings.
    *
    * @return the bindings the action has unless the player overrides them

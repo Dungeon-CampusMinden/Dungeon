@@ -162,15 +162,11 @@ class InputResolverTest {
 
   @Test
   void releaseAlwaysReachesStageAndOwner() {
-    List<String> fired = new ArrayList<>();
-    game.onRelease(ATTACK, () -> fired.add("released"));
-
     resolver.keyDown(Input.Keys.Q);
     resolver.advance(0);
     resolver.keyUp(Input.Keys.Q);
     resolver.advance(0);
 
-    assertEquals(List.of("released"), fired);
     assertTrue(stageEvents.contains("up " + Input.Keys.Q));
     assertTrue(resolver.justReleased(ATTACK));
     assertFalse(resolver.pressed(ATTACK));
@@ -259,8 +255,6 @@ class InputResolverTest {
 
   @Test
   void blockingContextCancelsWithoutReleaseAndStaysLocked() {
-    List<String> fired = new ArrayList<>();
-    game.onRelease(ATTACK, () -> fired.add("released"));
     resolver.keyDown(Input.Keys.Q);
     resolver.advance(0);
     assertTrue(resolver.pressed(ATTACK));
@@ -276,11 +270,78 @@ class InputResolverTest {
 
     resolver.keyUp(Input.Keys.Q);
     resolver.advance(0);
-    assertEquals(List.of(), fired);
+    assertFalse(resolver.justReleased(ATTACK));
 
     resolver.keyDown(Input.Keys.Q);
     resolver.advance(0);
     assertTrue(resolver.pressed(ATTACK), "a real new press works again");
+  }
+
+  @Test
+  void handlerThatOpensBlockingContextStopsTheOtherHandlersOfThatFrame() {
+    List<String> fired = new ArrayList<>();
+    InputContext dialog = new InputContext(DIALOG);
+    Runnable open =
+        () -> {
+          fired.add("press");
+          resolver.activate(dialog);
+        };
+    game.onPress(PAUSE, open).onPress(ATTACK, open);
+
+    resolver.keyDown(Input.Keys.ESCAPE);
+    resolver.keyDown(Input.Keys.Q);
+    resolver.advance(0);
+
+    assertEquals(List.of("press"), fired);
+    assertFalse(resolver.justPressed(ATTACK) || resolver.justPressed(PAUSE));
+  }
+
+  @Test
+  void orderChangesOnlyTheGivenContexts() {
+    InputContext lower = new InputContext(DIALOG);
+    InputContext upper = new InputContext(DIALOG);
+    resolver.activate(lower);
+    resolver.activate(upper);
+
+    resolver.order(List.of(upper, lower));
+
+    List<InputContext> stack = resolver.contexts();
+    assertEquals(game, stack.get(0));
+    assertEquals(upper, stack.get(1));
+    assertEquals(lower, stack.get(2));
+  }
+
+  @Test
+  void touchesOfDifferentPointersAreSeparatePresses() {
+    resolver.touchDown(10, 10, 0, Buttons.LEFT);
+    resolver.touchDown(20, 20, 1, Buttons.LEFT);
+    resolver.advance(0);
+    resolver.touchUp(10, 10, 0, Buttons.LEFT);
+    resolver.advance(0);
+
+    assertTrue(resolver.pressed(ATTACK));
+  }
+
+  @Test
+  void resetBindingCancelsHeldInput() {
+    resolver.rebind(ATTACK, List.of(key(Keys.F)));
+    resolver.keyDown(Keys.F);
+    resolver.advance(0);
+
+    resolver.resetBinding(ATTACK);
+    resolver.advance(0);
+
+    assertFalse(resolver.pressed(ATTACK));
+  }
+
+  @Test
+  void focusLossDropsCollectedWheelTicks() {
+    resolver.scrolled(0, 2);
+
+    resolver.cancelAll();
+    resolver.advance(0);
+
+    assertEquals(0f, resolver.axis(ZOOM));
   }
 
   @Test

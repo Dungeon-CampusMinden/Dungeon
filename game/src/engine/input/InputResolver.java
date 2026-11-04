@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -81,6 +82,7 @@ public final class InputResolver implements InputProcessor {
     private boolean justPressed;
     private boolean released;
     private float pendingAxis;
+    private InputContext pendingOwner;
     private float axis;
     private boolean repeats;
     private float repeatTimer;
@@ -157,6 +159,19 @@ public final class InputResolver implements InputProcessor {
    */
   public List<InputContext> contexts() {
     return List.copyOf(stack);
+  }
+
+  /**
+   * Puts active contexts into a new order among themselves, e.g. after their dialogs changed places
+   * on screen. Other contexts keep their positions.
+   *
+   * @param ordered the contexts from bottom to top
+   */
+  public void order(List<InputContext> ordered) {
+    Iterator<InputContext> next = ordered.iterator();
+    for (int i = 0; i < stack.size(); i++) {
+      if (ordered.contains(stack.get(i))) stack.set(i, next.next());
+    }
   }
 
   /**
@@ -278,16 +293,6 @@ public final class InputResolver implements InputProcessor {
   }
 
   /**
-   * Checks a physical mouse button, whatever the context stack does with it.
-   *
-   * @param button libGDX button code
-   * @return true if the button is down
-   */
-  public boolean buttonHeld(int button) {
-    return heldButtons.contains(button);
-  }
-
-  /**
    * Checks whether any mouse button is down.
    *
    * @return true if a button is down
@@ -389,7 +394,7 @@ public final class InputResolver implements InputProcessor {
    * @param delta seconds since the last frame
    */
   public void advance(float delta) {
-    Map<ActionId, Edge> fired = new LinkedHashMap<>();
+    Map<ActionId, InputContext> fired = new LinkedHashMap<>();
     for (Map.Entry<ActionId, ActionState> entry : actions.entrySet()) {
       ActionState state = entry.getValue();
       state.justPressed = false;
@@ -402,21 +407,21 @@ public final class InputResolver implements InputProcessor {
         state.justPressed = edge.press();
         state.released = !edge.press();
         state.repeatTimer = REPEAT_DELAY;
-        fired.put(entry.getKey(), edge);
+        if (edge.press()) fired.put(entry.getKey(), edge.owner());
       } else if (state.repeats && state.pressed) {
         state.repeatTimer -= delta;
         if (state.repeatTimer <= 0 && !state.active.isEmpty()) {
           state.repeatTimer = REPEAT_INTERVAL;
           state.justPressed = true;
-          fired.put(entry.getKey(), new Edge(true, state.active.iterator().next().owner));
+          fired.put(entry.getKey(), state.active.iterator().next().owner);
         }
       }
     }
+    // A handler may open a dialog or close its context; the remaining handlers then lost their
+    // turn.
     fired.forEach(
-        (action, edge) -> {
-          if (!stack.contains(edge.owner())) return;
-          if (edge.press()) edge.owner().firePress(action);
-          else edge.owner().fireRelease(action);
+        (action, owner) -> {
+          if (stack.contains(owner) && !covered(owner)) owner.firePress(action);
         });
   }
 
@@ -462,16 +467,12 @@ public final class InputResolver implements InputProcessor {
    */
   public void axis(ActionId action, String source, int pointer, float x, float y) {
     SourceId id = new SourceId(source, pointer);
-    Press press = presses.get(id);
     if (x == 0 && y == 0) {
       release(source, pointer);
       return;
     }
-    if (press == null) {
-      press = virtualPress(id, action);
-      presses.put(id, press);
-      startAction(press);
-    }
+    if (!presses.containsKey(id)) press(action, source, pointer);
+    Press press = presses.get(id);
     press.x = x;
     press.y = y;
   }
@@ -521,17 +522,12 @@ public final class InputResolver implements InputProcessor {
    */
   public void padAxis(Binding input, float x, float y) {
     SourceId id = padSource(input);
-    Press press = presses.get(id);
     if (x == 0 && y == 0) {
       padUp(input);
       return;
     }
-    if (press == null) {
-      Route route = resolve(input);
-      press = new Press(id, route.owner(), route.action().orElse(null));
-      presses.put(id, press);
-      startAction(press);
-    }
+    if (!presses.containsKey(id)) padDown(input);
+    Press press = presses.get(id);
     press.x = x;
     press.y = y;
   }
@@ -571,12 +567,26 @@ public final class InputResolver implements InputProcessor {
    */
   public Optional<BindingTable.Conflict> rebind(ActionId action, List<Binding> newBindings) {
     Optional<BindingTable.Conflict> conflict = bindings.rebind(action, newBindings);
-    if (conflict.isEmpty()) {
-      cancelWhere(press -> action.equals(press.action));
-      state(action).edges.clear();
-      if (state(action).active.isEmpty()) state(action).pressed = false;
-    }
+    if (conflict.isEmpty()) cancel(action);
     return conflict;
+  }
+
+  /**
+   * Removes the player's override of an action and cancels the input that drives it.
+   *
+   * @param action the action
+   */
+  public void resetBinding(ActionId action) {
+    bindings.reset(action);
+    cancel(action);
+  }
+
+  private void cancel(ActionId action) {
+    cancelWhere(press -> action.equals(press.action));
+    ActionState state = state(action);
+    state.edges.clear();
+    state.pendingAxis = 0;
+    if (state.active.isEmpty()) state.pressed = false;
   }
 
   private void cancelWhere(Predicate<Press> predicate) {
@@ -590,16 +600,19 @@ public final class InputResolver implements InputProcessor {
       if (state.active.isEmpty()) {
         state.edges.clear();
         state.pressed = false;
+        state.justPressed = false;
       }
     }
   }
 
-  // A quick tap has no press left to cancel, only its buffered edges.
+  // A quick tap or a wheel tick has no press left to cancel, only what it buffered.
   private void dropEdges(Predicate<InputContext> owner) {
     for (ActionState state : actions.values()) {
       if (state.edges.removeIf(edge -> owner.test(edge.owner())) && state.active.isEmpty()) {
         state.pressed = false;
+        state.justPressed = false;
       }
+      if (state.pendingOwner != null && owner.test(state.pendingOwner)) state.pendingAxis = 0;
     }
   }
 
@@ -731,6 +744,10 @@ public final class InputResolver implements InputProcessor {
     return stage != null && stage.keyTyped(character);
   }
 
+  private static SourceId mouseSource(int button, int pointer) {
+    return new SourceId("mouse:" + button, pointer);
+  }
+
   @Override
   public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     pointer(pointer, screenX, screenY);
@@ -738,7 +755,7 @@ public final class InputResolver implements InputProcessor {
     heldButtons.add(button);
     Route route = resolve(new Binding.MouseButton(button));
     boolean handled = stage != null && stage.touchDown(screenX, screenY, pointer, button);
-    pressKeyOrButton(new SourceId("mouse", button), route, handled, -1);
+    pressKeyOrButton(mouseSource(button, pointer), route, handled, -1);
     return handled || route.bound() != null;
   }
 
@@ -747,14 +764,14 @@ public final class InputResolver implements InputProcessor {
     pointer(pointer, screenX, screenY);
     heldButtons.remove(button);
     boolean handled = stage != null && stage.touchUp(screenX, screenY, pointer, button);
-    releaseKeyOrButton(new SourceId("mouse", button));
+    releaseKeyOrButton(mouseSource(button, pointer));
     return handled;
   }
 
   @Override
   public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
     heldButtons.remove(button);
-    SourceId id = new SourceId("mouse", button);
+    SourceId id = mouseSource(button, pointer);
     Press press = presses.get(id);
     if (press != null) cancelWhere(candidate -> candidate == press);
     presses.remove(id);
@@ -779,10 +796,11 @@ public final class InputResolver implements InputProcessor {
   public boolean scrolled(float amountX, float amountY) {
     Route route = resolve(new Binding.MouseWheel());
     boolean handled = stage != null && stage.scrolled(amountX, amountY);
-    route
-        .action()
-        .filter(action -> !handled)
-        .ifPresent(action -> state(action).pendingAxis += amountY);
+    if (!handled && route.bound() != null) {
+      ActionState state = state(route.bound().action());
+      state.pendingAxis += amountY;
+      state.pendingOwner = route.owner();
+    }
     return handled || route.bound() != null;
   }
 

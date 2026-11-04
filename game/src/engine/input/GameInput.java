@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import engine.game.WindowEventManager;
-import engine.utils.logging.DungeonLogger;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +24,6 @@ import java.util.Optional;
  * actions here and registers {@link InputContext}s.
  */
 public final class GameInput {
-  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameInput.class);
   private static final Path BINDING_FILE = Path.of("input_bindings.json");
 
   private static BindingTable bindings;
@@ -345,7 +343,9 @@ public final class GameInput {
 
   /**
    * The UI as the resolver sees it. A modal {@link Window} with the keyboard focus claims every
-   * key, which is no reaction of a widget, so the action of that key must still happen.
+   * key. Dialogs with an input context take their keys there, so such a claim is no reaction of a
+   * widget and the action must still happen. Windows outside the context stack, as in the main
+   * menu, keep their claim.
    */
   private static final class StageInput extends InputMultiplexer {
     private final Stage target;
@@ -358,7 +358,11 @@ public final class GameInput {
     @Override
     public boolean keyDown(int keycode) {
       boolean handled = super.keyDown(keycode);
-      return handled && !(target.getKeyboardFocus() instanceof Window window && window.isModal());
+      boolean claimedByWindow =
+          target.getKeyboardFocus() instanceof Window window && window.isModal();
+      boolean dialogContext =
+          resolver.contexts().stream().anyMatch(c -> c.spec().layer() == ContextLayer.UI);
+      return handled && !(claimedByWindow && dialogContext);
     }
   }
 

@@ -188,8 +188,8 @@ public sealed interface Binding {
   /**
    * A pad axis.
    *
-   * <p>{@link PadAxisId#LSTICK} and {@link PadAxisId#RSTICK} are two-dimensional; triggers and
-   * stick directions act like buttons with hysteresis.
+   * <p>{@link PadAxisId#LSTICK} is two-dimensional; triggers and stick directions act like buttons
+   * with hysteresis.
    *
    * @param axis the axis
    */
@@ -252,8 +252,6 @@ public sealed interface Binding {
   enum PadAxisId {
     /** Left stick as vector. */
     LSTICK,
-    /** Right stick as vector. */
-    RSTICK,
     /** Left trigger. */
     LT,
     /** Right trigger. */

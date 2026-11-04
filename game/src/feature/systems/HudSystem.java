@@ -265,17 +265,19 @@ public final class HudSystem extends System {
               GameInput.deactivate(entry.getValue());
               return true;
             });
-    // Dialogs that appear together stack like their actors.
-    entityUIComponentMap.values().stream()
-        .filter(component -> !inputContexts.containsKey(component))
-        .filter(this::wantsInputContext)
-        .sorted(Comparator.comparingInt(component -> component.dialog().getZIndex()))
-        .forEach(
-            component -> {
-              InputContext context = DialogInput.context(component);
-              inputContexts.put(component, context);
-              GameInput.activate(context);
-            });
+    for (UIComponent component : entityUIComponentMap.values()) {
+      if (inputContexts.containsKey(component) || !wantsInputContext(component)) continue;
+      InputContext context = DialogInput.context(component);
+      inputContexts.put(component, context);
+      GameInput.activate(context);
+    }
+    // Input follows the visible order of the dialogs.
+    GameInput.resolver()
+        .order(
+            inputContexts.entrySet().stream()
+                .sorted(Comparator.comparingInt(entry -> entry.getKey().dialog().getZIndex()))
+                .map(Map.Entry::getValue)
+                .toList());
   }
 
   private boolean wantsInputContext(UIComponent component) {
