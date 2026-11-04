@@ -363,11 +363,11 @@ public class RichLabelParser {
 
   private static List<InputPromptRegion> regions(Binding binding) {
     if (binding instanceof Binding.MouseButton mouse) {
-      return Collections.singletonList(InputPromptHelper.lookupMouseButton(mouse.button(), true));
+      return Collections.singletonList(InputPromptHelper.lookupMouseButton(mouse.button()));
     }
     if (binding.isPad()) {
       InputMethod method = InputMethod.ofController(GameInput.padName());
-      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding, true));
+      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding));
     }
     if (!(binding instanceof Binding.Key key)) return List.of();
     List<InputPromptRegion> regions = new ArrayList<>();
@@ -377,7 +377,7 @@ public class RichLabelParser {
   }
 
   private static InputPromptRegion keyRegion(int keycode) {
-    return InputPromptHelper.lookupKey(InputMethod.KEYBOARD, KeyNames.glyphKeycode(keycode), true);
+    return InputPromptHelper.lookupKey(KeyNames.glyphKeycode(keycode));
   }
 
   private static ImageRun imageRun(

@@ -3,20 +3,14 @@ package feature.input.ui;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Enumerates the input methods that can be displayed via {@link InputPromptHelper}.
- *
- * <p>{@link #TOUCH} is reserved for a future implementation.
- */
+/** Enumerates the input methods that can be displayed via {@link InputPromptHelper}. */
 public enum InputMethod {
   /** Keyboard and mouse input. */
   KEYBOARD,
   /** PlayStation controller input. */
   PLAYSTATION,
   /** Xbox controller input, also the look of every other controller. */
-  XBOX,
-  /** Touch / on-screen input (not yet supported). */
-  TOUCH;
+  XBOX;
 
   private static final List<String> PLAYSTATION_NAMES =
       List.of("playstation", "dualsense", "dualshock", "sony", "ps3", "ps4", "ps5");

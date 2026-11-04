@@ -963,12 +963,12 @@ public class CanvasArea extends Group implements CursorUtil.CursorOverride {
     return GameInput.ctrl() || GameInput.shift();
   }
 
-  /** Routes pointer and keyboard input to view manipulation and node interactions. */
   @Override
   public Optional<Cursors> cursorOverride() {
     return dragMode == DragMode.NODE ? Optional.of(Cursors.GRABBING) : Optional.empty();
   }
 
+  /** Routes pointer and keyboard input to view manipulation and node interactions. */
   private final class CanvasInputListener extends InputListener {
 
     @Override

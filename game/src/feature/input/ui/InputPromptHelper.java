@@ -15,7 +15,7 @@ import java.util.Map;
  * located under {@code assets/hud/input/}, whose atlases are read on first use.
  *
  * <p>Keys and mouse buttons live on the keyboard & mouse spritesheet, pad inputs on the controller
- * spritesheets. Looking up {@link InputMethod#TOUCH} throws {@link UnsupportedOperationException}.
+ * spritesheets.
  */
 public final class InputPromptHelper {
 
@@ -74,28 +74,23 @@ public final class InputPromptHelper {
   /**
    * Looks up the spritesheet location for a keyboard key prompt.
    *
-   * @param inputMethod the input method to look up the prompt for.
    * @param keyCode a libGDX {@link Input.Keys} key code.
-   * @param outline if {@code true}, return the outlined variant if available.
    * @return the {@link InputPromptRegion} describing the spritesheet location, or {@code null} if
    *     no mapping exists.
-   * @throws UnsupportedOperationException if the input method is not yet supported.
    */
-  public static InputPromptRegion lookupKey(InputMethod inputMethod, int keyCode, boolean outline) {
-    String baseName = keyNameMapFor(inputMethod).get(keyCode);
-    return lookupRegion(inputMethod, baseName, outline);
+  public static InputPromptRegion lookupKey(int keyCode) {
+    return lookupRegion(InputMethod.KEYBOARD, KEYBOARD_KEY_NAMES.get(keyCode));
   }
 
   /**
    * Looks up the spritesheet location for a mouse button prompt.
    *
    * @param button a libGDX {@link Input.Buttons} button code.
-   * @param outline if {@code true}, return the outlined variant if available.
    * @return the {@link InputPromptRegion} describing the spritesheet location, or {@code null} if
    *     no mapping exists.
    */
-  public static InputPromptRegion lookupMouseButton(int button, boolean outline) {
-    return lookupRegion(InputMethod.KEYBOARD, MOUSE_BUTTON_NAMES.get(button), outline);
+  public static InputPromptRegion lookupMouseButton(int button) {
+    return lookupRegion(InputMethod.KEYBOARD, MOUSE_BUTTON_NAMES.get(button));
   }
 
   /**
@@ -104,13 +99,11 @@ public final class InputPromptHelper {
    * @param inputMethod the controller look, {@link InputMethod#XBOX} or {@link
    *     InputMethod#PLAYSTATION}.
    * @param binding the pad binding.
-   * @param outline if {@code true}, return the outlined variant if available.
    * @return the {@link InputPromptRegion} describing the spritesheet location, or {@code null} if
    *     no mapping exists.
    */
-  public static InputPromptRegion lookupPad(
-      InputMethod inputMethod, Binding binding, boolean outline) {
-    return lookupRegion(inputMethod, padRegionName(inputMethod, binding), outline);
+  public static InputPromptRegion lookupPad(InputMethod inputMethod, Binding binding) {
+    return lookupRegion(inputMethod, padRegionName(inputMethod, binding));
   }
 
   /**
@@ -126,20 +119,18 @@ public final class InputPromptHelper {
   }
 
   /**
-   * Resolves a base region name to its spritesheet location. If {@code outline} is {@code true} but
-   * no {@code _outline} variant exists, the base region is returned instead.
+   * Resolves a base region name to its spritesheet location, preferring its {@code _outline}
+   * variant. The sheets have none for a few inputs such as the sticks.
    *
    * @param inputMethod the input method whose spritesheet to look up.
    * @param baseName the base region name (without {@code _outline}), or {@code null}.
-   * @param outline if {@code true}, prefer the outlined variant when present.
    * @return the matching {@link InputPromptRegion}, or {@code null} if no mapping exists.
    */
-  private static InputPromptRegion lookupRegion(
-      InputMethod inputMethod, String baseName, boolean outline) {
+  private static InputPromptRegion lookupRegion(InputMethod inputMethod, String baseName) {
     if (baseName == null) return null;
-    Map<String, int[]> regions = regionMapFor(inputMethod);
+    Map<String, int[]> regions = REGIONS.computeIfAbsent(inputMethod, InputPromptHelper::readAtlas);
 
-    String name = outline ? baseName + "_outline" : baseName;
+    String name = baseName + "_outline";
     if (!regions.containsKey(name)) {
       name = baseName;
       if (!regions.containsKey(name)) return null;
@@ -147,23 +138,6 @@ public final class InputPromptHelper {
     int[] xy = regions.get(name);
     return new InputPromptRegion(
         texturePathFor(inputMethod), xy[0], xy[1], REGION_SIZE, REGION_SIZE);
-  }
-
-  /**
-   * Returns the region map for the given input method.
-   *
-   * @param inputMethod the input method to resolve.
-   * @return the {@code regionName -> [x, y]} map for the input method's spritesheet.
-   * @throws UnsupportedOperationException if the input method has no spritesheet wired up yet.
-   */
-  private static Map<String, int[]> regionMapFor(InputMethod inputMethod) {
-    return switch (inputMethod) {
-      case KEYBOARD, PLAYSTATION, XBOX ->
-          REGIONS.computeIfAbsent(inputMethod, InputPromptHelper::readAtlas);
-      case TOUCH ->
-          throw new UnsupportedOperationException(
-              "Input method " + inputMethod + " is not yet supported.");
-    };
   }
 
   private static Map<String, int[]> readAtlas(InputMethod inputMethod) {
@@ -178,37 +152,11 @@ public final class InputPromptHelper {
     return regions;
   }
 
-  /**
-   * Returns the spritesheet texture path for the given input method.
-   *
-   * @param inputMethod the input method to resolve.
-   * @return the asset path of the spritesheet texture for the input method.
-   * @throws UnsupportedOperationException if the input method has no spritesheet wired up yet.
-   */
   private static String texturePathFor(InputMethod inputMethod) {
     return switch (inputMethod) {
       case KEYBOARD -> KEYBOARD_MOUSE_TEXTURE_PATH;
       case XBOX -> XBOX_TEXTURE_PATH;
       case PLAYSTATION -> PLAYSTATION_TEXTURE_PATH;
-      case TOUCH ->
-          throw new UnsupportedOperationException(
-              "Input method " + inputMethod + " is not yet supported.");
-    };
-  }
-
-  /**
-   * Returns the libGDX-key-code -> base-region-name map for the given input method.
-   *
-   * @param inputMethod the input method to resolve.
-   * @return the {@code keyCode -> regionName} map for the input method.
-   * @throws UnsupportedOperationException if the input method has no spritesheet wired up yet.
-   */
-  private static Map<Integer, String> keyNameMapFor(InputMethod inputMethod) {
-    return switch (inputMethod) {
-      case KEYBOARD -> KEYBOARD_KEY_NAMES;
-      case PLAYSTATION, XBOX, TOUCH ->
-          throw new UnsupportedOperationException(
-              "Input method " + inputMethod + " is not yet supported.");
     };
   }
 
