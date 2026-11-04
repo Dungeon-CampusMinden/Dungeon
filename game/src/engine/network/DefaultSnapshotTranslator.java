@@ -23,6 +23,7 @@ import feature.components.InventoryComponent;
 import feature.components.ManaComponent;
 import feature.components.UIComponent;
 import feature.interaction.InteractionComponent;
+import feature.interaction.combinationlock.CombinationLockSync;
 import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.shader.ShaderComponent;
@@ -151,6 +152,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                       player ->
                           metadata.put(
                               METADATA_CONTROLS_LOCKED, String.valueOf(player.controlsLocked())));
+              metadata.putAll(CombinationLockSync.metadata(e));
               if (e.isPresent(InteractionComponent.class)) {
                 metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
               }
@@ -223,6 +225,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                               player.controlsLocked(
                                   Boolean.parseBoolean(metadata.get(METADATA_CONTROLS_LOCKED))));
                 }
+                CombinationLockSync.apply(entity, metadata);
 
                 entity
                     .fetch(PositionComponent.class)

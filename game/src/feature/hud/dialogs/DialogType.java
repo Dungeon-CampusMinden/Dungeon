@@ -73,7 +73,10 @@ public interface DialogType {
     CANVAS("CANVAS"),
 
     /** Local multiplayer client connection dialog. */
-    CLIENT_CONNECTION("CLIENT_CONNECTION");
+    CLIENT_CONNECTION("CLIENT_CONNECTION"),
+
+    /** Combination lock with digit wheels. */
+    COMBINATION_LOCK("COMBINATION_LOCK");
 
     private final String type;
 

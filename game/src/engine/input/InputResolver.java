@@ -183,13 +183,19 @@ public final class InputResolver implements InputProcessor {
   }
 
   /**
-   * Checks whether a blocking context lies above a context. A focused text field does not count: it
-   * stops the keyboard at routing, but pad input passes.
+   * Checks whether a blocking context lies above a context.
    *
    * @param context the context
    * @return true if input cannot reach the context
    */
   public boolean covered(InputContext context) {
+    int index = stack.indexOf(context);
+    return stack.subList(index + 1, stack.size()).stream()
+        .anyMatch(above -> above.spec().blocksBelow());
+  }
+
+  // A focused text field stops the keyboard at routing; what got past it comes from the pad.
+  private boolean coveredBeyondText(InputContext context) {
     int index = stack.indexOf(context);
     return stack.subList(index + 1, stack.size()).stream()
         .anyMatch(above -> above.spec().blocksBelow() && !above.spec().equals(CoreActions.TEXT));
@@ -430,7 +436,7 @@ public final class InputResolver implements InputProcessor {
     // turn.
     fired.forEach(
         (action, owner) -> {
-          if (stack.contains(owner) && !covered(owner)) owner.firePress(action);
+          if (stack.contains(owner) && !coveredBeyondText(owner)) owner.firePress(action);
         });
   }
 

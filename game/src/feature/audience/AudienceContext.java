@@ -14,6 +14,8 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogScript;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.combinationlock.CombinationLock;
+import feature.interaction.combinationlock.CombinationLockComponent;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -124,6 +126,15 @@ sealed interface AudienceContext {
       return new Choice(ui, options, multiple);
     }
     if (type == DialogType.DefaultTypes.YES_NO) return new YesNo(ui);
+    if (type == DialogType.DefaultTypes.COMBINATION_LOCK) {
+      return ui.dialogContext()
+          .findEntity(DialogContextKeys.ENTITY)
+          .flatMap(entity -> entity.fetch(CombinationLockComponent.class))
+          // While the wheels turn to the winning code, there is nothing to vote on.
+          .filter(lock -> !lock.dialing())
+          .<AudienceContext>map(lock -> new Lock(ui, lock.wheels()))
+          .orElseGet(Wait::new);
+    }
     if (type == DialogType.DefaultTypes.FREE_INPUT) {
       return new Text(
           ui, ui.dialogContext().find(AudienceSystem.CODE_DIGITS, Integer.class).orElse(0));
@@ -170,8 +181,7 @@ sealed interface AudienceContext {
         .ifPresent(title -> prompt.put("title", title.strip()));
     context
         .find(DialogContextKeys.QUESTION, String.class)
-        // Unlike the other texts, the free-input dialog translates its question itself.
-        .map(question -> Game.localization().getCurrentTranslator().translate(question))
+        .map(AudienceContext::translated)
         .or(() -> context.find(DialogContextKeys.MESSAGE, String.class))
         .or(
             () ->
@@ -180,6 +190,13 @@ sealed interface AudienceContext {
                     .map(script -> DialogScript.toHeadlessText(DialogScript.parse(script))))
         .filter(text -> !text.isBlank())
         .ifPresent(text -> prompt.put("text", text.strip()));
+    // Only the combination lock has a hint, which belongs below its question.
+    context
+        .find(DialogContextKeys.DESCRIPTION, String.class)
+        .map(AudienceContext::translated)
+        .filter(hint -> !hint.isBlank())
+        .ifPresent(
+            hint -> prompt.put("text", (prompt.path("text").asString("") + " " + hint).strip()));
     context
         .find(DialogContextKeys.OPTIONS, ChoiceOptions.class)
         .ifPresent(
@@ -188,6 +205,11 @@ sealed interface AudienceContext {
               options.values().forEach(option -> answers.add(option.label().strip()));
             });
     return prompt;
+  }
+
+  // DialogFactory.localized translates titles and messages, but not questions or descriptions.
+  private static String translated(String text) {
+    return Game.localization().getCurrentTranslator().translate(text);
   }
 
   private static boolean targets(UIComponent ui, Entity hero) {
@@ -559,6 +581,54 @@ sealed interface AudienceContext {
     public void apply(JsonNode vote, TileStepper stepper) {
       respond(
           ui, DialogContextKeys.ON_CONFIRM, new DialogResponseMessage.StringValue(vote.asString()));
+    }
+  }
+
+  /**
+   * A combination lock, which the devices show as a digit keypad with one digit per wheel. The
+   * winning code turns the wheels on the game screen one after the other, and then the lock tries
+   * to open. Without a lock component, or while the wheels turn, there is no lock to vote on.
+   *
+   * @param ui the dialog
+   * @param wheels number of wheels of the lock
+   */
+  record Lock(UIComponent ui, int wheels) implements AudienceContext {
+    @Override
+    public String kind() {
+      return "lock";
+    }
+
+    @Override
+    public String controls() {
+      return "code";
+    }
+
+    @Override
+    public Optional<UIComponent> dialog() {
+      return Optional.of(ui);
+    }
+
+    @Override
+    public void describe(ObjectNode json) {
+      json.put("digits", wheels);
+    }
+
+    @Override
+    public Optional<JsonNode> normalize(JsonNode value) {
+      return new Text(ui, wheels).normalize(value);
+    }
+
+    @Override
+    public String label(JsonNode vote) {
+      return vote.asString();
+    }
+
+    @Override
+    public void apply(JsonNode vote, TileStepper stepper) {
+      respond(
+          ui,
+          DialogContextKeys.ON_CONFIRM,
+          new DialogResponseMessage.StringValue(CombinationLock.dial(vote.asString())));
     }
   }
 
