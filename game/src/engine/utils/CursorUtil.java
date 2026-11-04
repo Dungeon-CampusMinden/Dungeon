@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import engine.Game;
+import engine.input.GameInput;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -97,7 +98,7 @@ public class CursorUtil {
                 stage -> {
                   Vector2 pointer =
                       stage.screenToStageCoordinates(
-                          new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+                          new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
                   return stage.hit(pointer.x, pointer.y, true);
                 })
             .orElse(null);
