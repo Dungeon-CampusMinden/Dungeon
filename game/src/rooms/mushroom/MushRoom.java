@@ -1,6 +1,9 @@
 package rooms.mushroom;
 
+import static engine.input.Binding.key;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
@@ -93,16 +96,14 @@ public class MushRoom {
     }
   }
 
-  private static final ActionId JOURNAL = new ActionId("mushroom", "journal");
-  private static final ActionId MAGIC_LENS = new ActionId("mushroom", "magic_lens");
+  private static final ActionId JOURNAL = new ActionId("mushroom", "journal", key(Keys.J));
+  private static final ActionId MAGIC_LENS = new ActionId("mushroom", "magic_lens", key(Keys.V));
 
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
     Game.add(hero);
-    GameInput.bindings().define(JOURNAL, "key:J");
-    GameInput.bindings().define(MAGIC_LENS, "key:V");
-    GameInput.push(
-        new InputContext(ContextSpec.of("mushroom", ContextLayer.ROOM, false, JOURNAL, MAGIC_LENS))
+    GameInput.activate(
+        new InputContext(ContextSpec.of("mushroom", ContextLayer.ROOM, JOURNAL, MAGIC_LENS))
             .onPress(JOURNAL, () -> Game.player().ifPresent(JournalItem::openJournal))
             .onPress(MAGIC_LENS, () -> Game.player().ifPresent(MagicLensItem::toggleMagicLens)));
   }

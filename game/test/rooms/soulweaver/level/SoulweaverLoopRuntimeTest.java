@@ -199,7 +199,7 @@ class SoulweaverLoopRuntimeTest {
         opened.dialog(), () -> opened.callbacks().get(CanvasUI.EVENT_CLOSE).accept(null));
     var resolver = GameInput.resolver();
     var gameplay = new InputContext(CoreActions.GAMEPLAY);
-    resolver.push(gameplay);
+    resolver.activate(gameplay);
     resolver.keyDown(Input.Keys.W);
     resolver.touchDown(0, 0, 0, Input.Buttons.LEFT);
     resolver.advance(0);
@@ -220,7 +220,7 @@ class SoulweaverLoopRuntimeTest {
     assertTrue(resolver.pressed(CoreActions.INTERACT), "Closing must restore mouse interactions");
     resolver.keyUp(Input.Keys.W);
     resolver.touchUp(0, 0, 0, Input.Buttons.LEFT);
-    resolver.remove(gameplay);
+    resolver.deactivate(gameplay);
     int beforeInteractions = interactions.get();
     sendInput(
         player, new InputMessage(InputMessage.Action.INTERACT, new InputMessage.Interact(target)));

@@ -21,17 +21,24 @@ public record ContextSpec(
     Set<ActionId> keyboardOnly) {
 
   /**
-   * Creates a specification.
+   * Creates a specification of a context that lets input it does not take pass.
    *
    * @param name name shown in logs and in the debug HUD
    * @param layer vertical position in the context stack
-   * @param blocksBelow true if input not taken here must not reach lower contexts
    * @param actions actions this context takes
    * @return the specification
    */
-  public static ContextSpec of(
-      String name, ContextLayer layer, boolean blocksBelow, ActionId... actions) {
-    return new ContextSpec(name, layer, blocksBelow, Set.of(actions), Set.of());
+  public static ContextSpec of(String name, ContextLayer layer, ActionId... actions) {
+    return new ContextSpec(name, layer, false, Set.of(actions), Set.of());
+  }
+
+  /**
+   * Returns a copy that keeps all input from the contexts below.
+   *
+   * @return the copy
+   */
+  public ContextSpec blocking() {
+    return new ContextSpec(name, layer, true, actions, keyboardOnly);
   }
 
   /**

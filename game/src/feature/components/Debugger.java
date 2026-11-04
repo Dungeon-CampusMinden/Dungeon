@@ -54,7 +54,6 @@ public class Debugger extends System {
   /** Creates a new Debugger system. */
   public Debugger() {
     super(AuthoritativeSide.CLIENT);
-    DebugActions.define(GameInput.bindings());
   }
 
   /**
@@ -241,7 +240,7 @@ public class Debugger extends System {
    * function if detected.
    */
   public void execute() {
-    GameInput.push(context);
+    GameInput.activate(context);
 
     if (GameInput.justPressed(DebugActions.ZOOM_OUT)) Debugger.ZOOM_CAMERA(-0.2f);
     if (GameInput.justPressed(DebugActions.ZOOM_IN)) Debugger.ZOOM_CAMERA(0.2f);

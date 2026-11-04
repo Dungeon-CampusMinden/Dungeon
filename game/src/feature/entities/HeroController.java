@@ -5,7 +5,6 @@ import engine.Game;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
-import engine.input.InputResolver;
 import engine.level.Tile;
 import engine.level.elements.tile.FloorTile;
 import engine.level.utils.LevelUtils;
@@ -103,8 +102,7 @@ public class HeroController {
       return;
     }
 
-    Vector2 limited =
-        InputResolver.clampLength(Vector2.of(finite(direction.x()), finite(direction.y())));
+    Vector2 limited = Vector2.of(finite(direction.x()), finite(direction.y())).clampLength(1);
     Vector2 force = Vector2.of(limited.x() * speed.x(), limited.y() * speed.y());
     if (force.lengthSquared() == 0) {
       LOGGER.debug("Hero {} has no movement in direction {}.", hero.id(), direction);

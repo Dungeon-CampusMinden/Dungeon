@@ -11,7 +11,7 @@ Kontext-Stack. Einstiegspunkt ist `engine.input.GameInput`.
 ``` java
 GameInput.pressed(CoreActions.SKILL_MAIN);     // gehalten
 GameInput.justPressed(EditorActions.PICK);     // Druck erreicht diesen Frame
-GameInput.released(EditorActions.PLACE);       // Loslassen erreicht diesen Frame
+GameInput.justReleased(EditorActions.PLACE);   // Loslassen erreicht diesen Frame
 GameInput.axis(EditorActions.ZOOM);            // 1D-Achse dieses Frames
 CoreActions.move();                            // Bewegungsvektor, Länge höchstens 1
 GameInput.pointer();                           // Zeiger 0: Maus oder Pad-Cursor
@@ -33,24 +33,29 @@ laufende Eingaben ohne Release ab. Sie bleiben bis zum echten Loslassen gesperrt
 Dialoge bekommen ihren Kontext vom `HudSystem`. Dialogtypen mit eigener Belegung melden sie mit
 `DialogInput.register` an; eigene Reaktionen im Dialog stehen in `UIUtils.onUiAction`.
 
-Räume definieren Actions in ihrem Namespace und legen beim Start einen Kontext auf:
+Räume definieren Actions in ihrem Namespace und aktivieren beim Start einen Kontext. Die
+Default-Belegung steht direkt an der Action, das Aktivieren meldet beides an:
 
 ``` java
-ActionId jump = new ActionId("myroom", "jump");
-GameInput.bindings().define(jump, "key:SPACE");
-GameInput.push(
-    new InputContext(ContextSpec.of("myroom", ContextLayer.ROOM, false, jump))
+ActionId jump = new ActionId("myroom", "jump", key(Keys.SPACE));
+GameInput.activate(
+    new InputContext(ContextSpec.of("myroom", ContextLayer.ROOM, jump))
         .onPress(jump, this::jump));
 ```
 
+`.blocking()` macht einen Kontext blockierend. `GameInput.register(spec)` meldet Actions an, die
+angezeigt werden sollen, bevor ihr Kontext aktiv ist.
+
 ## Bindings
 
-Bindings sind lesbare Strings: `key:E`, `key:Ctrl+C`, `key:F3+A`, `mouse:RIGHT`, `mouse:WHEEL`,
-`pad:A`, `pad:LSTICK`. Eine Kombi braucht bereits gehaltene Präfixtasten und eine neue Druckkante der
-letzten Taste. Eine Taste, die selbst Action und Präfix ist (F3), feuert beim Loslassen.
+Im Code entstehen Bindings über die Factories von `Binding`: `key(Keys.E)`, `key(Keys.F3, Keys.A)`,
+`key(CTRL, Keys.C)`, `mouse(Buttons.RIGHT)`, `wheel()`, `pad(Pad.A)`, `pad(PadAxisId.LSTICK)`. Bei
+Kombis löst die letzte Taste aus, die davor müssen schon gehalten sein. Eine Taste, die selbst Action
+und Präfix ist (F3), feuert beim Loslassen.
 
-Spieler-Overrides stehen in `input_bindings.json` neben dem Spiel. Eine leere Liste heißt bewusst
-unbelegt, ein fehlender Eintrag Default. `InputResolver#rebind` lehnt Konflikte ab; Konflikte der
-Defaults erscheinen beim Start im Log.
+Spieler-Overrides stehen in `input_bindings.json` neben dem Spiel, dort als lesbare Strings wie
+`key:Ctrl+C`, `mouse:RIGHT` oder `pad:A`. Eine leere Liste heißt bewusst unbelegt, ein fehlender
+Eintrag Default. `InputResolver#rebind` lehnt Konflikte ab; Konflikte der
+Defaults erscheinen beim Anmelden eines Kontexts im Log.
 
 In Texten zeigt `[action id=core:interact]` die aktuelle Belegung für das zuletzt genutzte Gerät.

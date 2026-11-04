@@ -240,7 +240,7 @@ public final class PrefabMode extends LevelEditorMode {
         snapMode = predictedSnapMode;
       }
     }
-    if (pendingAnchorDrag != null && GameInput.released(EditorActions.PLACE)) {
+    if (pendingAnchorDrag != null && GameInput.justReleased(EditorActions.PLACE)) {
       PendingAnchorDrag drag = pendingAnchorDrag;
       pendingAnchorDrag = null;
       if (drag.active()) {

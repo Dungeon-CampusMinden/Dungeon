@@ -19,11 +19,12 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * All bindings of the running process: defaults of the defined actions plus the player's overrides.
+ * All bindings of the running process: defaults of the known actions plus the player's overrides.
  *
- * <p>A player override wins over the default. An empty override means deliberately unbound; a
- * missing one means default. The override file keeps entries of actions this process does not know,
- * so one starter never drops the bindings of another room.
+ * <p>Actions bring their defaults; the table learns them through {@link #register(ContextSpec)}. A
+ * player override wins over the default. An empty override means deliberately unbound; a missing
+ * one means default. The override file keeps entries of actions this process does not know, so one
+ * starter never drops the bindings of another room.
  *
  * <p>Bindings are parsed and indexed when they change, never per frame.
  */
@@ -50,24 +51,28 @@ public final class BindingTable {
   private Path file;
 
   /**
-   * Defines an action with its default bindings. Defining an action again changes nothing.
-   *
-   * @param action the action
-   * @param defaultBindings its default binding strings
-   */
-  public void define(ActionId action, String... defaultBindings) {
-    if (defaults.containsKey(action)) return;
-    defaults.put(action, Binding.parseAll(defaultBindings));
-    rebuildIndex();
-  }
-
-  /**
-   * Registers a context for the conflict check.
+   * Makes a context and its actions known: their defaults, the conflict check and the labels of
+   * texts. New conflicts go to the log. Registering a context again changes nothing.
    *
    * @param spec the context declaration
    */
-  public void context(ContextSpec spec) {
-    contexts.add(spec);
+  public void register(ContextSpec spec) {
+    if (!contexts.add(spec)) return;
+    spec.actions().forEach(action -> defaults.putIfAbsent(action, action.defaults()));
+    rebuildIndex();
+    logConflicts(spec.actions());
+  }
+
+  private void logConflicts(Set<ActionId> actions) {
+    for (Conflict conflict : conflicts()) {
+      if (!actions.contains(conflict.first()) && !actions.contains(conflict.second())) continue;
+      LOGGER.warn(
+          "Input conflict in {}: {} drives {} and {}",
+          conflict.context(),
+          conflict.binding().format(),
+          conflict.first(),
+          conflict.second());
+    }
   }
 
   /**
@@ -83,18 +88,18 @@ public final class BindingTable {
    * Gets the current bindings of an action.
    *
    * @param action the action
-   * @return override if present, otherwise the defaults; empty for an unknown action
+   * @return override if present, otherwise the defaults
    */
   public List<Binding> bindings(ActionId action) {
     List<String> override = overrides.get(action.toString());
     if (override != null) return override.stream().map(Binding::parse).toList();
-    return defaults.getOrDefault(action, List.of());
+    return defaults.getOrDefault(action, action.defaults());
   }
 
   /**
-   * Gets all defined actions.
+   * Gets all known actions.
    *
-   * @return the action ids in definition order
+   * @return the action ids in registration order
    */
   public Set<ActionId> actions() {
     return new LinkedHashSet<>(defaults.keySet());
@@ -182,6 +187,7 @@ public final class BindingTable {
       }
     }
     rebuildIndex();
+    logConflicts(defaults.keySet());
   }
 
   private static Map<String, List<String>> parse(String json) {

@@ -1,6 +1,9 @@
 package feature.audience;
 
+import static engine.input.Binding.key;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -62,13 +65,12 @@ import tracking.core.TrackingJson;
  * #install()} in the client setup.
  */
 public final class AudienceHud extends System {
-  private static final ActionId CONFIRM = new ActionId("audience", "confirm");
-  private static final ActionId END = new ActionId("audience", "end");
+  private static final ActionId CONFIRM = new ActionId("audience", "confirm", key(Keys.ENTER));
+  private static final ActionId END = new ActionId("audience", "end", key(Keys.END));
 
   /** Lies above all dialogs: Escape pauses here, because the server ignores closing dialogs. */
   private static final ContextSpec HOST =
-      ContextSpec.of(
-          "audience_host", ContextLayer.AUDIENCE, false, CONFIRM, END, CoreActions.PAUSE_MENU);
+      ContextSpec.of("audience_host", ContextLayer.AUDIENCE, CONFIRM, END, CoreActions.PAUSE_MENU);
 
   private final InputContext hostInput =
       new InputContext(HOST)
@@ -130,8 +132,6 @@ public final class AudienceHud extends System {
 
   /** Adds the overlay to the game-screen client; call it in the client setup. */
   public static void install() {
-    GameInput.bindings().define(CONFIRM, "key:ENTER");
-    GameInput.bindings().define(END, "key:END");
     Game.network()
         .messageDispatcher()
         .registerHandler(
@@ -276,7 +276,7 @@ public final class AudienceHud extends System {
 
   private void hostKeys() {
     String phase = state.path("phase").asString("");
-    GameInput.push(hostInput);
+    GameInput.activate(hostInput);
     if (phase.equals("lobby") && GameInput.justPressed(CONFIRM)) {
       send(AudienceSystem.START);
     } else if (phase.equals("playing") && joinScreen && GameInput.justPressed(CONFIRM)) {

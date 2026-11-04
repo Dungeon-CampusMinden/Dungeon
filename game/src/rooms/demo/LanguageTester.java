@@ -1,5 +1,8 @@
 package rooms.demo;
 
+import static engine.input.Binding.key;
+
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
 import engine.input.ActionId;
@@ -48,21 +51,17 @@ public class LanguageTester {
     Game.run();
   }
 
-  private static final ActionId POPUP = new ActionId("langtest", "popup");
-  private static final ActionId LANGUAGE = new ActionId("langtest", "language");
-  private static final ActionId IMAGE = new ActionId("langtest", "image");
+  private static final ActionId POPUP = new ActionId("langtest", "popup", key(Keys.M));
+  private static final ActionId LANGUAGE = new ActionId("langtest", "language", key(Keys.N));
+  private static final ActionId IMAGE = new ActionId("langtest", "image", key(Keys.B));
 
   private static void addLanguageSystem() {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
     localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
 
-    GameInput.bindings().define(POPUP, "key:M");
-    GameInput.bindings().define(LANGUAGE, "key:N");
-    GameInput.bindings().define(IMAGE, "key:B");
-    GameInput.push(
-        new InputContext(
-                ContextSpec.of("langtest", ContextLayer.ROOM, false, POPUP, LANGUAGE, IMAGE))
+    GameInput.activate(
+        new InputContext(ContextSpec.of("langtest", ContextLayer.ROOM, POPUP, LANGUAGE, IMAGE))
             // Shows a text popup; ("text", "test", "fail") shows the fallback case in English.
             .onPress(
                 POPUP,

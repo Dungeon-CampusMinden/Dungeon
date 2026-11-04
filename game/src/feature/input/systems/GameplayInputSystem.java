@@ -61,8 +61,8 @@ public final class GameplayInputSystem extends System {
   public void execute() {
     Optional<Entity> hero = Game.player();
     if (hero.isEmpty()) {
-      GameInput.remove(gameplay);
-      GameInput.remove(serverLock);
+      GameInput.deactivate(gameplay);
+      GameInput.deactivate(serverLock);
       moving = false;
       return;
     }
@@ -70,11 +70,10 @@ public final class GameplayInputSystem extends System {
     ILevel level = Game.currentLevel().orElse(null);
     if (level != lastLevel) {
       lastLevel = level;
-      GameInput.remove(gameplay);
+      GameInput.deactivate(gameplay);
     }
-    GameInput.push(gameplay);
-    if (HeroController.controlsLocked(hero.get())) GameInput.push(serverLock);
-    else GameInput.remove(serverLock);
+    GameInput.activate(gameplay);
+    GameInput.active(serverLock, HeroController.controlsLocked(hero.get()));
     sendMovement();
     if (GameInput.pressed(CoreActions.SKILL_MAIN)) {
       send(InputMessage.castSkill(CursorUtils.positionInWorld(), true));

@@ -38,7 +38,7 @@ final class PadCursor {
       stage.touchDown(x, y, 0, Input.Buttons.LEFT);
     } else if (!pressed && touching) {
       touching = false;
-      if (resolver.released(UiActions.CLICK)) stage.touchUp(x, y, 0, Input.Buttons.LEFT);
+      if (resolver.justReleased(UiActions.CLICK)) stage.touchUp(x, y, 0, Input.Buttons.LEFT);
       else stage.touchCancelled(x, y, 0, Input.Buttons.LEFT);
     } else if (touching && moved) {
       stage.touchDragged(x, y, 0);

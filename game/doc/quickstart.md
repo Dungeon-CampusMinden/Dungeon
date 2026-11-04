@@ -271,10 +271,9 @@ Actions des lokalen Spielers (zum Beispiel `CoreActions.MOVE_UP` auf W) und send
 Eigene Tasten laufen ebenfalls über Actions:
 
 ``` java
-ActionId jump = new ActionId("myroom", "jump");
-GameInput.bindings().define(jump, "key:SPACE");
-GameInput.push(
-    new InputContext(ContextSpec.of("myroom", ContextLayer.ROOM, false, jump))
+ActionId jump = new ActionId("myroom", "jump", key(Keys.SPACE));
+GameInput.activate(
+    new InputContext(ContextSpec.of("myroom", ContextLayer.ROOM, jump))
         .onPress(jump, () -> System.out.println("Sprung!")));
 ```
 

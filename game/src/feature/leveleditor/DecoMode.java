@@ -82,7 +82,7 @@ public class DecoMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (GameInput.released(EditorActions.PLACE)) {
+    if (GameInput.justReleased(EditorActions.PLACE)) {
       flushRapidFireLevelChange();
     }
 
@@ -397,14 +397,14 @@ public class DecoMode extends LevelEditorMode {
               decoSelectorInput =
                   new InputContext(EditorActions.EDITOR_POPUP)
                       .onPress(UiActions.CLOSE, this::closeDecoSelector);
-              GameInput.push(decoSelectorInput);
+              GameInput.activate(decoSelectorInput);
               stage.addActor(overlay);
             });
   }
 
   private void closeDecoSelector() {
     if (decoSelectorInput != null) {
-      GameInput.remove(decoSelectorInput);
+      GameInput.deactivate(decoSelectorInput);
       decoSelectorInput = null;
     }
     if (decoSelectorOverlay != null) {

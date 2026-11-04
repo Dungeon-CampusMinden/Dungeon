@@ -84,7 +84,7 @@ class ControlsDialogSystemTest {
   void controlsKeyReopensAfterRemovalWithoutACompletionCallback() {
     GameInput.reset();
     InputResolver resolver = GameInput.resolver();
-    resolver.push(new InputContext(CoreActions.GAMEPLAY));
+    resolver.activate(new InputContext(CoreActions.GAMEPLAY));
 
     try (MockedStatic<Game> game = mockStatic(Game.class, Mockito.CALLS_REAL_METHODS)) {
       game.when(Game::isHeadless).thenReturn(false);

@@ -14,13 +14,72 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * A physical input that can drive an action, stored as a readable string such as {@code key:E},
- * {@code key:Ctrl+C}, {@code key:F3+A}, {@code mouse:RIGHT}, {@code mouse:WHEEL} or {@code pad:A}.
+ * A physical input that can drive an action. Code creates bindings with the factories below; the
+ * binding file stores them as readable strings such as {@code key:E}, {@code key:Ctrl+C}, {@code
+ * key:F3+A}, {@code mouse:RIGHT}, {@code mouse:WHEEL} or {@code pad:A}.
  *
  * <p>Keys are stored as positions (libGDX keycodes on a US layout); {@link KeyNames} resolves their
  * label on the active layout.
  */
 public sealed interface Binding {
+
+  /** Control on either side, as prefix of a combo. */
+  int CTRL = Input.Keys.CONTROL_LEFT;
+
+  /**
+   * Creates a key binding. All keys but the last are prefixes that must already be held; the last
+   * one triggers.
+   *
+   * @param first the only key, or the first prefix
+   * @param rest further prefixes and the triggering key
+   * @return the binding
+   */
+  static Key key(int first, int... rest) {
+    if (rest.length == 0) return new Key(first);
+    Set<Integer> prefixes = new LinkedHashSet<>();
+    prefixes.add(first);
+    for (int i = 0; i < rest.length - 1; i++) prefixes.add(rest[i]);
+    return new Key(rest[rest.length - 1], prefixes);
+  }
+
+  /**
+   * Creates a mouse button binding.
+   *
+   * @param button libGDX button code
+   * @return the binding
+   */
+  static MouseButton mouse(int button) {
+    return new MouseButton(button);
+  }
+
+  /**
+   * Creates the binding of the vertical mouse wheel.
+   *
+   * @return the binding
+   */
+  static MouseWheel wheel() {
+    return new MouseWheel();
+  }
+
+  /**
+   * Creates a pad button binding.
+   *
+   * @param button the button
+   * @return the binding
+   */
+  static PadButton pad(Pad button) {
+    return new PadButton(button);
+  }
+
+  /**
+   * Creates a pad axis binding.
+   *
+   * @param axis the axis
+   * @return the binding
+   */
+  static PadAxis pad(PadAxisId axis) {
+    return new PadAxis(axis);
+  }
 
   /**
    * The input that produces the edge for this binding, without any combo prefixes.
@@ -227,17 +286,6 @@ public sealed interface Binding {
       case "pad" -> parsePad(text, value);
       default -> throw new IllegalArgumentException("Unknown binding device: " + text);
     };
-  }
-
-  /**
-   * Parses several bindings.
-   *
-   * @param texts the binding strings
-   * @return the parsed bindings, in order
-   * @throws IllegalArgumentException if a string names no known input
-   */
-  static List<Binding> parseAll(String... texts) {
-    return Arrays.stream(texts).map(Binding::parse).toList();
   }
 
   private static Binding parseKey(String text, String value) {

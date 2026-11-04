@@ -1,11 +1,20 @@
 package engine.input;
 
+import static engine.input.Binding.CTRL;
+import static engine.input.Binding.key;
+import static engine.input.Binding.mouse;
+import static engine.input.Binding.pad;
+import static engine.input.Binding.wheel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import engine.input.Binding.Pad;
+import engine.input.Binding.PadAxisId;
 import engine.utils.Vector2;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,46 +25,34 @@ import org.junit.jupiter.api.Test;
 
 /** Tests routing, ownership, cancelling and combos of {@link InputResolver}. */
 class InputResolverTest {
-  private static final ActionId ATTACK = new ActionId("test", "attack");
-  private static final ActionId OTHER = new ActionId("test", "other");
-  private static final ActionId CLOSE = new ActionId("test", "close");
-  private static final ActionId PAUSE = new ActionId("test", "pause");
-  private static final ActionId HUD = new ActionId("test", "hud");
-  private static final ActionId LIST = new ActionId("test", "list");
-  private static final ActionId LEFT = new ActionId("test", "left");
-  private static final ActionId COPY = new ActionId("test", "copy");
-  private static final ActionId DOORS = new ActionId("test", "doors");
-  private static final ActionId STICK = new ActionId("test", "stick");
-  private static final ActionId ZOOM = new ActionId("test", "zoom");
+  private static final ActionId ATTACK =
+      new ActionId("test", "attack", key(Keys.Q), mouse(Buttons.LEFT));
+  private static final ActionId OTHER = new ActionId("test", "other", key(Keys.TAB), key(Keys.I));
+  private static final ActionId CLOSE = new ActionId("test", "close", key(Keys.ESCAPE));
+  private static final ActionId PAUSE = new ActionId("test", "pause", key(Keys.ESCAPE));
+  private static final ActionId HUD = new ActionId("test", "hud", key(Keys.F3));
+  private static final ActionId LIST = new ActionId("test", "list", key(Keys.F3, Keys.A));
+  private static final ActionId LEFT = new ActionId("test", "left", key(Keys.A));
+  private static final ActionId COPY = new ActionId("test", "copy", key(CTRL, Keys.C));
+  private static final ActionId DOORS = new ActionId("test", "doors", key(Keys.C));
+  private static final ActionId STICK = new ActionId("test", "stick", pad(PadAxisId.LSTICK));
+  private static final ActionId ZOOM = new ActionId("test", "zoom", wheel());
 
   private static final ContextSpec GAME =
-      ContextSpec.of(
-          "game", ContextLayer.BASE, false, ATTACK, OTHER, PAUSE, LEFT, DOORS, STICK, ZOOM);
+      ContextSpec.of("game", ContextLayer.BASE, ATTACK, OTHER, PAUSE, LEFT, DOORS, STICK, ZOOM);
   private static final ContextSpec DEBUG =
-      ContextSpec.of("debug", ContextLayer.DEBUG, false, HUD, LIST, COPY);
-  private static final ContextSpec DIALOG = ContextSpec.of("dialog", ContextLayer.UI, true, CLOSE);
+      ContextSpec.of("debug", ContextLayer.DEBUG, HUD, LIST, COPY);
+  private static final ContextSpec DIALOG =
+      ContextSpec.of("dialog", ContextLayer.UI, CLOSE).blocking();
 
   private final Set<Integer> stageHandledKeys = new HashSet<>();
   private final List<String> stageEvents = new ArrayList<>();
-  private BindingTable table;
   private InputResolver resolver;
   private InputContext game;
 
   @BeforeEach
   void setUp() {
-    table = new BindingTable();
-    table.define(ATTACK, "key:Q", "mouse:LEFT");
-    table.define(OTHER, "key:TAB", "key:I");
-    table.define(CLOSE, "key:ESCAPE");
-    table.define(PAUSE, "key:ESCAPE");
-    table.define(HUD, "key:F3");
-    table.define(LIST, "key:F3+A");
-    table.define(LEFT, "key:A");
-    table.define(COPY, "key:Ctrl+C");
-    table.define(DOORS, "key:C");
-    table.define(STICK, "pad:LSTICK");
-    table.define(ZOOM, "mouse:WHEEL");
-    resolver = new InputResolver(table);
+    resolver = new InputResolver(new BindingTable());
     resolver.stage(
         new InputAdapter() {
           @Override
@@ -71,8 +68,8 @@ class InputResolverTest {
           }
         });
     game = new InputContext(GAME);
-    resolver.push(game);
-    resolver.push(new InputContext(DEBUG));
+    resolver.activate(game);
+    resolver.activate(new InputContext(DEBUG));
   }
 
   private void tap(int key) {
@@ -85,7 +82,7 @@ class InputResolverTest {
     List<String> fired = new ArrayList<>();
     game.onPress(PAUSE, () -> fired.add("pause"));
     InputContext dialog = new InputContext(DIALOG).onPress(CLOSE, () -> fired.add("close"));
-    resolver.push(dialog);
+    resolver.activate(dialog);
 
     resolver.keyDown(Input.Keys.ESCAPE);
     resolver.advance(0);
@@ -102,9 +99,9 @@ class InputResolverTest {
         CLOSE,
         () -> {
           fired.add("close");
-          resolver.remove(dialog);
+          resolver.deactivate(dialog);
         });
-    resolver.push(dialog);
+    resolver.activate(dialog);
 
     resolver.keyDown(Input.Keys.ESCAPE);
     resolver.advance(0);
@@ -119,7 +116,7 @@ class InputResolverTest {
   void pressThatOpensBlockingContextDoesNotReachIt() {
     List<String> fired = new ArrayList<>();
     InputContext dialog = new InputContext(DIALOG).onPress(CLOSE, () -> fired.add("close"));
-    game.onPress(PAUSE, () -> resolver.push(dialog));
+    game.onPress(PAUSE, () -> resolver.activate(dialog));
 
     resolver.keyDown(Input.Keys.ESCAPE);
     resolver.advance(0);
@@ -130,7 +127,7 @@ class InputResolverTest {
 
   @Test
   void blockingContextHidesLowerActions() {
-    resolver.push(new InputContext(DIALOG));
+    resolver.activate(new InputContext(DIALOG));
 
     resolver.keyDown(Input.Keys.Q);
     resolver.advance(0);
@@ -142,8 +139,8 @@ class InputResolverTest {
   @Test
   void textContextKeepsEscapeFromDialogAndOthersBelow() {
     List<String> fired = new ArrayList<>();
-    resolver.push(new InputContext(DIALOG).onPress(CLOSE, () -> fired.add("close")));
-    resolver.push(new InputContext(CoreActions.TEXT));
+    resolver.activate(new InputContext(DIALOG).onPress(CLOSE, () -> fired.add("close")));
+    resolver.activate(new InputContext(CoreActions.TEXT));
 
     resolver.keyDown(Input.Keys.ESCAPE);
     resolver.advance(0);
@@ -175,7 +172,7 @@ class InputResolverTest {
 
     assertEquals(List.of("released"), fired);
     assertTrue(stageEvents.contains("up " + Input.Keys.Q));
-    assertTrue(resolver.released(ATTACK));
+    assertTrue(resolver.justReleased(ATTACK));
     assertFalse(resolver.pressed(ATTACK));
   }
 
@@ -186,11 +183,11 @@ class InputResolverTest {
     resolver.advance(0);
     assertTrue(resolver.justPressed(ATTACK));
     assertTrue(resolver.pressed(ATTACK));
-    assertFalse(resolver.released(ATTACK));
+    assertFalse(resolver.justReleased(ATTACK));
 
     resolver.advance(0);
     assertFalse(resolver.pressed(ATTACK));
-    assertTrue(resolver.released(ATTACK));
+    assertTrue(resolver.justReleased(ATTACK));
   }
 
   @Test
@@ -219,12 +216,12 @@ class InputResolverTest {
 
     resolver.keyUp(Input.Keys.TAB);
     resolver.advance(0);
-    assertFalse(resolver.released(OTHER));
+    assertFalse(resolver.justReleased(OTHER));
     assertTrue(resolver.pressed(OTHER));
 
     resolver.keyUp(Input.Keys.I);
     resolver.advance(0);
-    assertTrue(resolver.released(OTHER));
+    assertTrue(resolver.justReleased(OTHER));
   }
 
   @Test
@@ -240,14 +237,14 @@ class InputResolverTest {
 
     resolver.release("touch", 3);
     resolver.advance(0);
-    assertTrue(resolver.released(ATTACK));
+    assertTrue(resolver.justReleased(ATTACK));
   }
 
   @Test
   void ownershipAndCancelAreTrackedPerPointer() {
     resolver.press(ATTACK, "touch", 1);
     resolver.advance(0);
-    resolver.push(new InputContext(DIALOG));
+    resolver.activate(new InputContext(DIALOG));
     resolver.press(OTHER, "touch", 2);
     resolver.advance(0);
 
@@ -257,7 +254,7 @@ class InputResolverTest {
 
     resolver.release("touch", 1);
     resolver.advance(0);
-    assertFalse(resolver.released(ATTACK), "a cancelled pointer fires no release");
+    assertFalse(resolver.justReleased(ATTACK), "a cancelled pointer fires no release");
   }
 
   @Test
@@ -269,11 +266,11 @@ class InputResolverTest {
     assertTrue(resolver.pressed(ATTACK));
 
     InputContext dialog = new InputContext(DIALOG);
-    resolver.push(dialog);
+    resolver.activate(dialog);
     resolver.advance(0);
     assertFalse(resolver.pressed(ATTACK));
 
-    resolver.remove(dialog);
+    resolver.deactivate(dialog);
     resolver.advance(0);
     assertFalse(resolver.pressed(ATTACK), "closing the dialog must not re-arm the held key");
 
@@ -301,7 +298,7 @@ class InputResolverTest {
   void blockingContextDropsBufferedTapOfOwnerBelow() {
     tap(Input.Keys.Q);
 
-    resolver.push(new InputContext(DIALOG));
+    resolver.activate(new InputContext(DIALOG));
     resolver.advance(0);
 
     assertFalse(resolver.justPressed(ATTACK));
@@ -309,12 +306,11 @@ class InputResolverTest {
 
   @Test
   void padReachesUiBelowTextContext() {
-    ActionId click = new ActionId("test", "click");
-    table.define(click, "pad:A");
-    resolver.push(new InputContext(ContextSpec.of("ui", ContextLayer.UI, true, click)));
-    resolver.push(new InputContext(CoreActions.TEXT));
+    ActionId click = new ActionId("test", "click", pad(Pad.A));
+    resolver.activate(new InputContext(ContextSpec.of("ui", ContextLayer.UI, click).blocking()));
+    resolver.activate(new InputContext(CoreActions.TEXT));
 
-    resolver.padDown(new Binding.PadButton(Binding.Pad.A));
+    resolver.padDown(pad(Pad.A));
     resolver.advance(0);
 
     assertTrue(resolver.pressed(click));
@@ -337,16 +333,16 @@ class InputResolverTest {
   @Test
   void removingOwnerCancelsOnlyItsPresses() {
     InputContext dialog = new InputContext(DIALOG);
-    resolver.push(dialog);
+    resolver.activate(dialog);
     resolver.keyDown(Input.Keys.ESCAPE);
     resolver.advance(0);
     assertTrue(resolver.pressed(CLOSE));
 
-    resolver.remove(dialog);
+    resolver.deactivate(dialog);
     resolver.advance(0);
 
     assertFalse(resolver.pressed(CLOSE));
-    assertFalse(resolver.released(CLOSE));
+    assertFalse(resolver.justReleased(CLOSE));
   }
 
   @Test
@@ -434,21 +430,21 @@ class InputResolverTest {
 
   @Test
   void stickKeepsAnalogValueAndIsLimitedToLengthOne() {
-    resolver.padAxis(new Binding.PadAxis(Binding.PadAxisId.LSTICK), 0.3f, 0.4f);
+    resolver.padAxis(pad(PadAxisId.LSTICK), 0.3f, 0.4f);
     Vector2 half = resolver.vector(STICK);
     assertEquals(0.5, half.length(), 1e-4);
 
-    resolver.padAxis(new Binding.PadAxis(Binding.PadAxisId.LSTICK), 3f, 4f);
+    resolver.padAxis(pad(PadAxisId.LSTICK), 3f, 4f);
     assertEquals(1.0, resolver.vector(STICK).length(), 1e-4);
   }
 
   @Test
   void cancelledStickStaysLockedUntilNeutral() {
-    Binding stick = new Binding.PadAxis(Binding.PadAxisId.LSTICK);
+    Binding stick = pad(PadAxisId.LSTICK);
     resolver.padAxis(stick, 1f, 0f);
     InputContext dialog = new InputContext(DIALOG);
-    resolver.push(dialog);
-    resolver.remove(dialog);
+    resolver.activate(dialog);
+    resolver.deactivate(dialog);
 
     resolver.padAxis(stick, 1f, 0f);
     assertTrue(resolver.vector(STICK).isZero());
@@ -475,7 +471,7 @@ class InputResolverTest {
     resolver.keyDown(Input.Keys.Q);
     resolver.advance(0);
 
-    resolver.rebind(ATTACK, List.of(Binding.parse("key:F")));
+    resolver.rebind(ATTACK, List.of(key(Keys.F)));
     resolver.advance(0);
     assertFalse(resolver.pressed(ATTACK));
 

@@ -551,7 +551,6 @@ public final class GameLoop extends ScreenAdapter {
       showStandaloneCharacterSelection = true;
     }
     PreRunConfiguration.userOnSetup().execute();
-    GameInput.logConflicts();
     if (startNetwork && !showStandaloneCharacterSelection) {
       // Clients without a configured address wait for the connection dialog to start networking.
       if (!Game.isMultiplayerClient()) {

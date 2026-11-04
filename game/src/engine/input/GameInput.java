@@ -43,12 +43,23 @@ public final class GameInput {
   /** Starts over with default bindings and an empty stack, for a new process or a test. */
   public static void reset() {
     bindings = new BindingTable();
-    CoreActions.define(bindings);
-    UiActions.define(bindings);
+    for (ContextSpec spec :
+        List.of(
+            CoreActions.GAMEPLAY,
+            CoreActions.SYSTEM,
+            CoreActions.SERVER_LOCK,
+            CoreActions.TEXT,
+            UiActions.DIALOG,
+            UiActions.CONFIRM_DIALOG,
+            UiActions.PAUSE,
+            UiActions.INVENTORY,
+            UiActions.QUESTLOG)) {
+      register(spec);
+    }
     resolver = new InputResolver(bindings);
     resolver.repeating(UiActions.NAV_UP);
     resolver.repeating(UiActions.NAV_DOWN);
-    resolver.push(new InputContext(CoreActions.SYSTEM));
+    resolver.activate(new InputContext(CoreActions.SYSTEM));
     textContext = new InputContext(CoreActions.TEXT);
     stage = null;
     windowFocused = true;
@@ -61,20 +72,6 @@ public final class GameInput {
     resolver.pointer(0, Gdx.input.getX(), Gdx.input.getY());
     Gdx.input.setInputProcessor(new WindowInput());
     WindowEventManager.registerFocusChangeListener(GameInput::windowFocused);
-  }
-
-  /** Logs colliding bindings of everything registered so far, once a game has been set up. */
-  public static void logConflicts() {
-    bindings
-        .conflicts()
-        .forEach(
-            conflict ->
-                LOGGER.warn(
-                    "Input conflict in {}: {} drives {} and {}",
-                    conflict.context(),
-                    conflict.binding().format(),
-                    conflict.first(),
-                    conflict.second()));
   }
 
   /** Cancels held input because the application pauses. */
@@ -112,8 +109,7 @@ public final class GameInput {
 
   private static void syncTextContext() {
     boolean textFocused = stage != null && stage.getKeyboardFocus() instanceof TextField;
-    if (textFocused) resolver.push(textContext);
-    else resolver.remove(textContext);
+    active(textContext, textFocused);
   }
 
   // Clears the text focus when a press lands outside the focused field.
@@ -143,32 +139,44 @@ public final class GameInput {
   }
 
   /**
-   * Gets the bindings of this process.
+   * Makes the actions of a context known without activating it, for texts and settings that show
+   * them earlier.
    *
-   * @return the binding table
+   * @param spec the context declaration
    */
-  public static BindingTable bindings() {
-    return bindings;
+  public static void register(ContextSpec spec) {
+    bindings.register(spec);
   }
 
   /**
-   * Adds a context.
+   * Activates a context.
    *
    * @param context the context
-   * @see InputResolver#push(InputContext)
+   * @see InputResolver#activate(InputContext)
    */
-  public static void push(InputContext context) {
-    resolver.push(context);
+  public static void activate(InputContext context) {
+    resolver.activate(context);
   }
 
   /**
-   * Removes a context.
+   * Deactivates a context.
    *
    * @param context the context
-   * @see InputResolver#remove(InputContext)
+   * @see InputResolver#deactivate(InputContext)
    */
-  public static void remove(InputContext context) {
-    resolver.remove(context);
+  public static void deactivate(InputContext context) {
+    resolver.deactivate(context);
+  }
+
+  /**
+   * Activates or deactivates a context.
+   *
+   * @param context the context
+   * @param active true if the context should be active
+   */
+  public static void active(InputContext context, boolean active) {
+    if (active) activate(context);
+    else deactivate(context);
   }
 
   /**
@@ -178,7 +186,7 @@ public final class GameInput {
    */
   public static void clearSessionContexts() {
     for (InputContext context : resolver.contexts()) {
-      if (context.spec().layer() != ContextLayer.SYSTEM) resolver.remove(context);
+      if (context.spec().layer() != ContextLayer.SYSTEM) deactivate(context);
     }
   }
 
@@ -208,8 +216,8 @@ public final class GameInput {
    * @param action the action
    * @return true in the frame of the release
    */
-  public static boolean released(ActionId action) {
-    return resolver.released(action);
+  public static boolean justReleased(ActionId action) {
+    return resolver.justReleased(action);
   }
 
   /**

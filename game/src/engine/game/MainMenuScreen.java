@@ -227,9 +227,8 @@ public class MainMenuScreen extends ScreenAdapter {
     int height = Game.windowHeight() > 0 ? Game.windowHeight() : PreRunConfiguration.windowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     GameInput.stage(stage);
-    EditorActions.define(GameInput.bindings());
     GameInput.clearSessionContexts();
-    GameInput.push(menuContext);
+    GameInput.activate(menuContext);
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);
@@ -1505,7 +1504,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   @Override
   public void hide() {
-    GameInput.remove(menuContext);
+    GameInput.deactivate(menuContext);
     dispose();
   }
 

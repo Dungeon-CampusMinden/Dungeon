@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests the movement vector from keys and stick, and how the hero turns it into force. */
 class MovementInputTest {
-  private static final Binding STICK = new Binding.PadAxis(Binding.PadAxisId.LSTICK);
+  private static final Binding STICK = Binding.pad(Binding.PadAxisId.LSTICK);
   private static final Vector2 SPEED = Vector2.of(5, 5);
 
   private InputResolver resolver;
@@ -23,7 +23,7 @@ class MovementInputTest {
   void setUp() {
     GameInput.reset();
     resolver = GameInput.resolver();
-    resolver.push(new InputContext(CoreActions.GAMEPLAY));
+    resolver.activate(new InputContext(CoreActions.GAMEPLAY));
   }
 
   @AfterEach

@@ -144,7 +144,7 @@ public class TilesMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (GameInput.released(EditorActions.PLACE) || GameInput.released(EditorActions.ALT)) {
+    if (GameInput.justReleased(EditorActions.PLACE) || GameInput.justReleased(EditorActions.ALT)) {
       flushMouseLevelChange();
     }
 

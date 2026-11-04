@@ -262,7 +262,7 @@ public final class HudSystem extends System {
         .removeIf(
             entry -> {
               if (wantsInputContext(entry.getKey())) return false;
-              GameInput.remove(entry.getValue());
+              GameInput.deactivate(entry.getValue());
               return true;
             });
     // Dialogs that appear together stack like their actors.
@@ -274,7 +274,7 @@ public final class HudSystem extends System {
             component -> {
               InputContext context = DialogInput.context(component);
               inputContexts.put(component, context);
-              GameInput.push(context);
+              GameInput.activate(context);
             });
   }
 

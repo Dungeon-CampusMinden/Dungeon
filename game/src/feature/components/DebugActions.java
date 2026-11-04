@@ -1,67 +1,72 @@
 package feature.components;
 
+import static engine.input.Binding.CTRL;
+import static engine.input.Binding.key;
+
+import com.badlogic.gdx.Input.Keys;
 import engine.input.ActionId;
-import engine.input.BindingTable;
+import engine.input.Binding;
 import engine.input.ContextLayer;
 import engine.input.ContextSpec;
 
 /** Actions and the context of the debugger. */
 public final class DebugActions {
   /** Toggles the debug HUD; F3 fires on release because it is also a combo prefix. */
-  public static final ActionId TOGGLE_HUD = new ActionId("debug", "toggle_hud");
+  public static final ActionId TOGGLE_HUD = debug("toggle_hud", key(Keys.F3));
 
   /** Toggles the system list. */
-  public static final ActionId TOGGLE_SYSTEM_LIST = new ActionId("debug", "toggle_system_list");
+  public static final ActionId TOGGLE_SYSTEM_LIST =
+      debug("toggle_system_list", key(Keys.F3, Keys.A));
 
   /** Toggles the network telemetry. */
   public static final ActionId TOGGLE_NETWORK_TELEMETRY =
-      new ActionId("debug", "toggle_network_telemetry");
+      debug("toggle_network_telemetry", key(Keys.F3, Keys.N));
 
   /** Toggles the scene2d debug lines. */
-  public static final ActionId TOGGLE_SCENE_HUD = new ActionId("debug", "toggle_scene_hud");
+  public static final ActionId TOGGLE_SCENE_HUD = debug("toggle_scene_hud", key(Keys.F5));
 
   /** Zooms in. */
-  public static final ActionId ZOOM_IN = new ActionId("debug", "zoom_in");
+  public static final ActionId ZOOM_IN = debug("zoom_in", key(Keys.K));
 
   /** Zooms out. */
-  public static final ActionId ZOOM_OUT = new ActionId("debug", "zoom_out");
+  public static final ActionId ZOOM_OUT = debug("zoom_out", key(Keys.L));
 
   /** Teleports the hero to the cursor. */
-  public static final ActionId TELEPORT = new ActionId("debug", "teleport");
+  public static final ActionId TELEPORT = debug("teleport", key(Keys.O));
 
   /** Spawns a monster at the cursor. */
-  public static final ActionId SPAWN_MONSTER = new ActionId("debug", "spawn_monster");
+  public static final ActionId SPAWN_MONSTER = debug("spawn_monster", key(Keys.F3, Keys.X));
 
   /** Opens all doors. */
-  public static final ActionId OPEN_DOORS = new ActionId("debug", "open_doors");
+  public static final ActionId OPEN_DOORS = debug("open_doors", key(Keys.F3, Keys.C));
 
   /** Copies the network telemetry. */
-  public static final ActionId COPY_TELEMETRY = new ActionId("debug", "copy_telemetry");
+  public static final ActionId COPY_TELEMETRY = debug("copy_telemetry", key(CTRL, Keys.C));
 
   /** Shows all components of hovered entities while held. */
-  public static final ActionId SHOW_COMPONENTS = new ActionId("debug", "show_components");
+  public static final ActionId SHOW_COMPONENTS =
+      debug("show_components", key(Keys.F3, Keys.SHIFT_LEFT), key(Keys.F3, Keys.SHIFT_RIGHT));
 
   /** Raises the multi-purpose debug value. */
-  public static final ActionId VALUE_UP = new ActionId("debug", "value_up");
+  public static final ActionId VALUE_UP = debug("value_up", key(Keys.F3, Keys.UP));
 
   /** Lowers the multi-purpose debug value. */
-  public static final ActionId VALUE_DOWN = new ActionId("debug", "value_down");
+  public static final ActionId VALUE_DOWN = debug("value_down", key(Keys.F3, Keys.DOWN));
 
   /** Runs the registered debug actions. */
-  public static final ActionId ACTION = new ActionId("debug", "action");
+  public static final ActionId ACTION = debug("action", key(Keys.NUMPAD_1));
 
   /** Pauses the game. */
-  public static final ActionId PAUSE = new ActionId("debug", "pause");
+  public static final ActionId PAUSE = debug("pause", key(Keys.F3, Keys.P));
 
   /** Advances one frame while paused. */
-  public static final ActionId ADVANCE_FRAME = new ActionId("debug", "advance_frame");
+  public static final ActionId ADVANCE_FRAME = debug("advance_frame", key(Keys.M));
 
   /** Lies above editor and dialogs and below text fields, so typing triggers nothing. */
   public static final ContextSpec DEBUG =
       ContextSpec.of(
           "debug",
           ContextLayer.DEBUG,
-          false,
           TOGGLE_HUD,
           TOGGLE_SYSTEM_LIST,
           TOGGLE_NETWORK_TELEMETRY,
@@ -81,28 +86,7 @@ public final class DebugActions {
 
   private DebugActions() {}
 
-  /**
-   * Defines the debug actions.
-   *
-   * @param table the binding table of this process
-   */
-  public static void define(BindingTable table) {
-    table.define(TOGGLE_HUD, "key:F3");
-    table.define(TOGGLE_SYSTEM_LIST, "key:F3+A");
-    table.define(TOGGLE_NETWORK_TELEMETRY, "key:F3+N");
-    table.define(TOGGLE_SCENE_HUD, "key:F5");
-    table.define(ZOOM_IN, "key:K");
-    table.define(ZOOM_OUT, "key:L");
-    table.define(TELEPORT, "key:O");
-    table.define(SPAWN_MONSTER, "key:F3+X");
-    table.define(OPEN_DOORS, "key:F3+C");
-    table.define(COPY_TELEMETRY, "key:Ctrl+C");
-    table.define(SHOW_COMPONENTS, "key:F3+SHIFT_LEFT", "key:F3+SHIFT_RIGHT");
-    table.define(VALUE_UP, "key:F3+UP");
-    table.define(VALUE_DOWN, "key:F3+DOWN");
-    table.define(ACTION, "key:NUMPAD_1");
-    table.define(PAUSE, "key:F3+P");
-    table.define(ADVANCE_FRAME, "key:M");
-    table.context(DEBUG);
+  private static ActionId debug(String name, Binding... defaults) {
+    return new ActionId("debug", name, defaults);
   }
 }

@@ -94,7 +94,6 @@ public class LevelEditorSystem extends System {
    */
   public LevelEditorSystem(String pathToLevels) {
     super();
-    EditorActions.define(GameInput.bindings());
     settingsLevelPath = null;
     defaultSaveFolder = normalizePath(pathToLevels);
     LevelEditorSystem.pathToLevels = defaultSaveFolder;
@@ -104,7 +103,6 @@ public class LevelEditorSystem extends System {
   /** Creates a new LevelEditorSystem. */
   public LevelEditorSystem() {
     super();
-    EditorActions.define(GameInput.bindings());
   }
 
   private static void loadSettingsForCurrentLevel() {
@@ -170,7 +168,7 @@ public class LevelEditorSystem extends System {
               CameraSystem.camera().position.x, CameraSystem.camera().position.y));
       editorCamera.add(editorCameraComponent);
       LevelEditorSystem.active = true;
-      GameInput.push(EDITOR_INPUT);
+      GameInput.activate(EDITOR_INPUT);
       player
           .fetch(HealthComponent.class)
           .ifPresent(
@@ -191,7 +189,7 @@ public class LevelEditorSystem extends System {
         CameraSystem.camera().zoom = cameraZoomBeforeEditor;
         cameraZoomBeforeEditor = null;
       }
-      GameInput.remove(EDITOR_INPUT);
+      GameInput.deactivate(EDITOR_INPUT);
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
       currentModeInstance.onExit();
       Game.stage().ifPresent(Stage::unfocusAll);
@@ -385,7 +383,7 @@ public class LevelEditorSystem extends System {
       active(true);
     }
 
-    GameInput.push(TOGGLE_INPUT);
+    GameInput.activate(TOGGLE_INPUT);
     if (GameInput.justPressed(EditorActions.TOGGLE)) {
       active(!active);
     }

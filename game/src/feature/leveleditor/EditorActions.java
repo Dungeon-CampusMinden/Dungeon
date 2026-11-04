@@ -1,7 +1,13 @@
 package feature.leveleditor;
 
+import static engine.input.Binding.key;
+import static engine.input.Binding.mouse;
+import static engine.input.Binding.wheel;
+
+import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.Input.Keys;
 import engine.input.ActionId;
-import engine.input.BindingTable;
+import engine.input.Binding;
 import engine.input.ContextLayer;
 import engine.input.ContextSpec;
 import engine.input.UiActions;
@@ -9,131 +15,107 @@ import engine.input.UiActions;
 /** Actions and contexts of the level editor. */
 public final class EditorActions {
   /** Toggles the editor, or its option in the main menu. */
-  public static final ActionId TOGGLE = new ActionId("editor", "toggle");
+  public static final ActionId TOGGLE = editor("toggle", key(Keys.F4));
 
   /** Moves the camera up. */
-  public static final ActionId CAMERA_UP = new ActionId("editor", "camera_up");
+  public static final ActionId CAMERA_UP = editor("camera_up", key(Keys.W));
 
   /** Moves the camera down. */
-  public static final ActionId CAMERA_DOWN = new ActionId("editor", "camera_down");
+  public static final ActionId CAMERA_DOWN = editor("camera_down", key(Keys.S));
 
   /** Moves the camera left. */
-  public static final ActionId CAMERA_LEFT = new ActionId("editor", "camera_left");
+  public static final ActionId CAMERA_LEFT = editor("camera_left", key(Keys.A));
 
   /** Moves the camera right. */
-  public static final ActionId CAMERA_RIGHT = new ActionId("editor", "camera_right");
+  public static final ActionId CAMERA_RIGHT = editor("camera_right", key(Keys.D));
 
   /** Moves the camera faster while held. */
-  public static final ActionId CAMERA_FAST = new ActionId("editor", "camera_fast");
+  public static final ActionId CAMERA_FAST =
+      editor("camera_fast", key(Keys.SHIFT_LEFT), key(Keys.SHIFT_RIGHT));
 
   /** Zooms the camera; a one-dimensional axis. */
-  public static final ActionId ZOOM = new ActionId("editor", "zoom");
+  public static final ActionId ZOOM = editor("zoom", wheel());
 
   /** Toggles the debug shader. */
-  public static final ActionId DEBUG_SHADER = new ActionId("editor", "debug_shader");
+  public static final ActionId DEBUG_SHADER = editor("debug_shader", key(Keys.SPACE));
 
   /** Primary mode value up. */
-  public static final ActionId PRIMARY_NEXT = new ActionId("editor", "primary_next");
+  public static final ActionId PRIMARY_NEXT = editor("primary_next", key(Keys.E));
 
   /** Primary mode value down. */
-  public static final ActionId PRIMARY_PREV = new ActionId("editor", "primary_prev");
+  public static final ActionId PRIMARY_PREV = editor("primary_prev", key(Keys.Q));
 
   /** Secondary mode value up. */
-  public static final ActionId SECONDARY_NEXT = new ActionId("editor", "secondary_next");
+  public static final ActionId SECONDARY_NEXT = editor("secondary_next", key(Keys.C));
 
   /** Secondary mode value down. */
-  public static final ActionId SECONDARY_PREV = new ActionId("editor", "secondary_prev");
+  public static final ActionId SECONDARY_PREV = editor("secondary_prev", key(Keys.Z));
 
   /** Third mode action. */
-  public static final ActionId TERTIARY = new ActionId("editor", "tertiary");
+  public static final ActionId TERTIARY = editor("tertiary", key(Keys.X));
 
   /** Picks what lies under the cursor. */
-  public static final ActionId PICK = new ActionId("editor", "pick");
+  public static final ActionId PICK = editor("pick", key(Keys.V), mouse(Buttons.MIDDLE));
 
   /** Places at the cursor. */
-  public static final ActionId PLACE = new ActionId("editor", "place");
+  public static final ActionId PLACE = editor("place", mouse(Buttons.LEFT));
 
   /** Alternative action at the cursor. */
-  public static final ActionId ALT = new ActionId("editor", "alt");
+  public static final ActionId ALT = editor("alt", mouse(Buttons.RIGHT));
 
   /** Editor modes 1 to 6, in order. */
   public static final ActionId[] MODES = {
-    new ActionId("editor", "mode_1"),
-    new ActionId("editor", "mode_2"),
-    new ActionId("editor", "mode_3"),
-    new ActionId("editor", "mode_4"),
-    new ActionId("editor", "mode_5"),
-    new ActionId("editor", "mode_6")
+    editor("mode_1", key(Keys.NUM_1)),
+    editor("mode_2", key(Keys.NUM_2)),
+    editor("mode_3", key(Keys.NUM_3)),
+    editor("mode_4", key(Keys.NUM_4)),
+    editor("mode_5", key(Keys.NUM_5)),
+    editor("mode_6", key(Keys.NUM_6))
   };
 
   /** The main menu, which offers the editor. */
-  public static final ContextSpec MENU = ContextSpec.of("menu", ContextLayer.BASE, false, TOGGLE);
+  public static final ContextSpec MENU = ContextSpec.of("menu", ContextLayer.BASE, TOGGLE);
 
   /** A running game with the editor available. */
   public static final ContextSpec EDITOR_TOGGLE =
-      ContextSpec.of("editor_toggle", ContextLayer.EDITOR_TOGGLE, false, TOGGLE);
+      ContextSpec.of("editor_toggle", ContextLayer.EDITOR_TOGGLE, TOGGLE);
 
   /** The active editor. It blocks gameplay, so WASD moves its camera and not the hero. */
   public static final ContextSpec EDITOR =
       ContextSpec.of(
-          "editor",
-          ContextLayer.EDITOR,
-          true,
-          TOGGLE,
-          CAMERA_UP,
-          CAMERA_DOWN,
-          CAMERA_LEFT,
-          CAMERA_RIGHT,
-          CAMERA_FAST,
-          ZOOM,
-          DEBUG_SHADER,
-          PRIMARY_NEXT,
-          PRIMARY_PREV,
-          SECONDARY_NEXT,
-          SECONDARY_PREV,
-          TERTIARY,
-          PICK,
-          PLACE,
-          ALT,
-          MODES[0],
-          MODES[1],
-          MODES[2],
-          MODES[3],
-          MODES[4],
-          MODES[5]);
+              "editor",
+              ContextLayer.EDITOR,
+              TOGGLE,
+              CAMERA_UP,
+              CAMERA_DOWN,
+              CAMERA_LEFT,
+              CAMERA_RIGHT,
+              CAMERA_FAST,
+              ZOOM,
+              DEBUG_SHADER,
+              PRIMARY_NEXT,
+              PRIMARY_PREV,
+              SECONDARY_NEXT,
+              SECONDARY_PREV,
+              TERTIARY,
+              PICK,
+              PLACE,
+              ALT,
+              MODES[0],
+              MODES[1],
+              MODES[2],
+              MODES[3],
+              MODES[4],
+              MODES[5])
+          .blocking();
 
   /** A popup of the editor. */
   public static final ContextSpec EDITOR_POPUP =
-      ContextSpec.of("editor_popup", ContextLayer.EDITOR_POPUP, true, UiActions.CLOSE);
+      ContextSpec.of("editor_popup", ContextLayer.EDITOR_POPUP, UiActions.CLOSE).blocking();
 
   private EditorActions() {}
 
-  /**
-   * Defines the editor actions.
-   *
-   * @param table the binding table of this process
-   */
-  public static void define(BindingTable table) {
-    table.define(TOGGLE, "key:F4");
-    table.define(CAMERA_UP, "key:W");
-    table.define(CAMERA_DOWN, "key:S");
-    table.define(CAMERA_LEFT, "key:A");
-    table.define(CAMERA_RIGHT, "key:D");
-    table.define(CAMERA_FAST, "key:SHIFT_LEFT", "key:SHIFT_RIGHT");
-    table.define(ZOOM, "mouse:WHEEL");
-    table.define(DEBUG_SHADER, "key:SPACE");
-    table.define(PRIMARY_NEXT, "key:E");
-    table.define(PRIMARY_PREV, "key:Q");
-    table.define(SECONDARY_NEXT, "key:C");
-    table.define(SECONDARY_PREV, "key:Z");
-    table.define(TERTIARY, "key:X");
-    table.define(PICK, "key:V", "mouse:MIDDLE");
-    table.define(PLACE, "mouse:LEFT");
-    table.define(ALT, "mouse:RIGHT");
-    for (int i = 0; i < MODES.length; i++) table.define(MODES[i], "key:NUM_" + (i + 1));
-    table.context(MENU);
-    table.context(EDITOR_TOGGLE);
-    table.context(EDITOR);
-    table.context(EDITOR_POPUP);
+  private static ActionId editor(String name, Binding... defaults) {
+    return new ActionId("editor", name, defaults);
   }
 }

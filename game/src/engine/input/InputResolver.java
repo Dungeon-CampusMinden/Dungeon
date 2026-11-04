@@ -114,26 +114,17 @@ public final class InputResolver implements InputProcessor {
     this.stage = stage;
   }
 
-  /**
-   * Gets the bindings this resolver works with.
-   *
-   * @return the binding table
-   */
-  public BindingTable bindings() {
-    return bindings;
-  }
-
   // region Contexts
 
   /**
-   * Adds a context at its place in the stack. A blocking context cancels the input owned by the
-   * contexts below it.
+   * Adds a context at its place in the stack, unless it is active already. A blocking context
+   * cancels the input owned by the contexts below it.
    *
    * @param context the context
    */
-  public void push(InputContext context) {
+  public void activate(InputContext context) {
     if (stack.contains(context)) return;
-    bindings.context(context.spec());
+    bindings.register(context.spec());
     int index = stack.size();
     while (index > 0 && layer(stack.get(index - 1)) > layer(context)) index--;
     stack.add(index, context);
@@ -153,7 +144,7 @@ public final class InputResolver implements InputProcessor {
    *
    * @param context the context
    */
-  public void remove(InputContext context) {
+  public void deactivate(InputContext context) {
     if (!stack.remove(context)) return;
     cancelWhere(press -> press.owner == context);
     dropEdges(owner -> owner == context);
@@ -222,7 +213,7 @@ public final class InputResolver implements InputProcessor {
    * @param action the action
    * @return true in the frame of the release
    */
-  public boolean released(ActionId action) {
+  public boolean justReleased(ActionId action) {
     ActionState state = actions.get(action);
     return state != null && state.released;
   }
@@ -253,17 +244,7 @@ public final class InputResolver implements InputProcessor {
       x += press.x;
       y += press.y;
     }
-    return clampLength(Vector2.of(x, y));
-  }
-
-  /**
-   * Limits a vector to length 1.
-   *
-   * @param vector the vector
-   * @return the vector, shortened to length 1 if it is longer
-   */
-  public static Vector2 clampLength(Vector2 vector) {
-    return vector.lengthSquared() > 1 ? vector.normalize() : vector;
+    return Vector2.of(x, y).clampLength(1);
   }
 
   /**
@@ -455,7 +436,7 @@ public final class InputResolver implements InputProcessor {
     SourceId id = new SourceId(source, pointer);
     Press press = virtualPress(id, action);
     presses.put(id, press);
-    activate(press);
+    startAction(press);
   }
 
   /**
@@ -466,7 +447,7 @@ public final class InputResolver implements InputProcessor {
    */
   public void release(String source, int pointer) {
     Press press = presses.remove(new SourceId(source, pointer));
-    if (press != null) deactivate(press);
+    if (press != null) endAction(press);
   }
 
   /**
@@ -489,7 +470,7 @@ public final class InputResolver implements InputProcessor {
     if (press == null) {
       press = virtualPress(id, action);
       presses.put(id, press);
-      activate(press);
+      startAction(press);
     }
     press.x = x;
     press.y = y;
@@ -518,7 +499,7 @@ public final class InputResolver implements InputProcessor {
     Route route = resolve(input);
     Press press = new Press(id, route.owner(), route.action().orElse(null));
     presses.put(id, press);
-    activate(press);
+    startAction(press);
   }
 
   /**
@@ -528,7 +509,7 @@ public final class InputResolver implements InputProcessor {
    */
   public void padUp(Binding input) {
     Press press = presses.remove(padSource(input));
-    if (press != null) deactivate(press);
+    if (press != null) endAction(press);
   }
 
   /**
@@ -549,7 +530,7 @@ public final class InputResolver implements InputProcessor {
       Route route = resolve(input);
       press = new Press(id, route.owner(), route.action().orElse(null));
       presses.put(id, press);
-      activate(press);
+      startAction(press);
     }
     press.x = x;
     press.y = y;
@@ -686,7 +667,7 @@ public final class InputResolver implements InputProcessor {
         || (prefix == Input.Keys.ALT_LEFT && keycode == Input.Keys.ALT_RIGHT);
   }
 
-  private void activate(Press press) {
+  private void startAction(Press press) {
     if (press.action == null || press.cancelled) return;
     ActionState state = state(press.action);
     press.active = true;
@@ -694,7 +675,7 @@ public final class InputResolver implements InputProcessor {
     if (state.active.size() == 1) state.edges.add(new Edge(true, press.owner));
   }
 
-  private void deactivate(Press press) {
+  private void endAction(Press press) {
     if (!press.active) return;
     press.active = false;
     ActionState state = state(press.action);
@@ -703,17 +684,17 @@ public final class InputResolver implements InputProcessor {
   }
 
   private void firePressAndRelease(Press press) {
-    activate(press);
-    deactivate(press);
+    startAction(press);
+    endAction(press);
   }
 
   private void pressKeyOrButton(SourceId id, Route route, boolean handledByStage, int keycode) {
     Press press = new Press(id, route.owner(), handledByStage ? null : route.action().orElse(null));
     Press previous = presses.put(id, press);
-    if (previous != null) deactivate(previous);
+    if (previous != null) endAction(previous);
     if (handledByStage || route.bound() == null) return;
     if (keycode >= 0 && isDeferred(route, keycode)) press.deferred = true;
-    else activate(press);
+    else startAction(press);
   }
 
   private void releaseKeyOrButton(SourceId id) {
@@ -722,7 +703,7 @@ public final class InputResolver implements InputProcessor {
     if (press.deferred) {
       if (!press.comboUsed && press.action != null) firePressAndRelease(press);
     } else {
-      deactivate(press);
+      endAction(press);
     }
   }
 

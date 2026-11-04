@@ -1,66 +1,77 @@
 package engine.input;
 
+import static engine.input.Binding.key;
+import static engine.input.Binding.mouse;
+import static engine.input.Binding.pad;
+
+import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.Input.Keys;
+import engine.input.Binding.Pad;
+import engine.input.Binding.PadAxisId;
 import engine.utils.Vector2;
 
 /** Actions and contexts of the game itself. */
 public final class CoreActions {
   /** Analog movement. Digital movement comes from the {@code MOVE_*} actions. */
-  public static final ActionId MOVE = new ActionId("core", "move");
+  public static final ActionId MOVE = core("move", pad(PadAxisId.LSTICK));
 
   /** Move up. */
-  public static final ActionId MOVE_UP = new ActionId("core", "move_up");
+  public static final ActionId MOVE_UP = core("move_up", key(Keys.W), pad(Pad.DPAD_UP));
 
   /** Move down. */
-  public static final ActionId MOVE_DOWN = new ActionId("core", "move_down");
+  public static final ActionId MOVE_DOWN = core("move_down", key(Keys.S), pad(Pad.DPAD_DOWN));
 
   /** Move left. */
-  public static final ActionId MOVE_LEFT = new ActionId("core", "move_left");
+  public static final ActionId MOVE_LEFT = core("move_left", key(Keys.A), pad(Pad.DPAD_LEFT));
 
   /** Move right. */
-  public static final ActionId MOVE_RIGHT = new ActionId("core", "move_right");
+  public static final ActionId MOVE_RIGHT = core("move_right", key(Keys.D), pad(Pad.DPAD_RIGHT));
 
   /** Uses the main skill while held. */
-  public static final ActionId SKILL_MAIN = new ActionId("core", "skill_main");
+  public static final ActionId SKILL_MAIN = core("skill_main", key(Keys.Q), pad(PadAxisId.RT));
 
   /** Uses the second skill while held. */
-  public static final ActionId SKILL_SECOND = new ActionId("core", "skill_second");
+  public static final ActionId SKILL_SECOND = core("skill_second", key(Keys.R), pad(PadAxisId.LT));
 
   /** Selects the next main skill. */
-  public static final ActionId SKILL_MAIN_NEXT = new ActionId("core", "skill_main_next");
+  public static final ActionId SKILL_MAIN_NEXT =
+      core("skill_main_next", key(Keys.RIGHT), pad(Pad.RB));
 
   /** Selects the previous main skill. */
-  public static final ActionId SKILL_MAIN_PREV = new ActionId("core", "skill_main_prev");
+  public static final ActionId SKILL_MAIN_PREV =
+      core("skill_main_prev", key(Keys.LEFT), pad(Pad.LB));
 
   /** Selects the next second skill. */
-  public static final ActionId SKILL_SECOND_NEXT = new ActionId("core", "skill_second_next");
+  public static final ActionId SKILL_SECOND_NEXT = core("skill_second_next", key(Keys.UP));
 
   /** Selects the previous second skill. */
-  public static final ActionId SKILL_SECOND_PREV = new ActionId("core", "skill_second_prev");
+  public static final ActionId SKILL_SECOND_PREV = core("skill_second_prev", key(Keys.DOWN));
 
   /** Interacts with the world at pointer 0. */
-  public static final ActionId INTERACT = new ActionId("core", "interact");
+  public static final ActionId INTERACT =
+      core("interact", mouse(Buttons.LEFT), key(Keys.E), pad(Pad.A));
 
   /** Opens the inventory; closes it as well inside the inventory context. */
-  public static final ActionId INVENTORY = new ActionId("core", "inventory");
+  public static final ActionId INVENTORY =
+      core("inventory", key(Keys.TAB), key(Keys.I), pad(Pad.Y));
 
   /** Opens the pause menu. */
-  public static final ActionId PAUSE_MENU = new ActionId("core", "pause_menu");
+  public static final ActionId PAUSE_MENU = core("pause_menu", key(Keys.ESCAPE), pad(Pad.START));
 
   /** Opens the quest log; closes it as well inside the quest log context. */
-  public static final ActionId QUESTLOG = new ActionId("core", "questlog");
+  public static final ActionId QUESTLOG = core("questlog", key(Keys.B), pad(Pad.BACK));
 
   /** Shows the room's controls. */
-  public static final ActionId SHOW_CONTROLS = new ActionId("core", "show_controls");
+  public static final ActionId SHOW_CONTROLS = core("show_controls", key(Keys.F1));
 
   /** Toggles fullscreen. */
-  public static final ActionId FULLSCREEN = new ActionId("core", "fullscreen");
+  public static final ActionId FULLSCREEN = core("fullscreen", key(Keys.F11));
 
   /** Everything a hero can do. */
   public static final ContextSpec GAMEPLAY =
       ContextSpec.of(
           "gameplay",
           ContextLayer.BASE,
-          false,
           MOVE,
           MOVE_UP,
           MOVE_DOWN,
@@ -80,14 +91,14 @@ public final class CoreActions {
 
   /** Actions that work everywhere. */
   public static final ContextSpec SYSTEM =
-      ContextSpec.of("system", ContextLayer.SYSTEM, false, FULLSCREEN);
+      ContextSpec.of("system", ContextLayer.SYSTEM, FULLSCREEN);
 
   /** Mirror of a server-side control lock. */
   public static final ContextSpec SERVER_LOCK =
-      ContextSpec.of("server_lock", ContextLayer.SERVER_LOCK, true);
+      ContextSpec.of("server_lock", ContextLayer.SERVER_LOCK).blocking();
 
   /** A focused text field; characters, Enter and Escape stay with the widget. */
-  public static final ContextSpec TEXT = ContextSpec.of("text", ContextLayer.TEXT, true);
+  public static final ContextSpec TEXT = ContextSpec.of("text", ContextLayer.TEXT).blocking();
 
   private CoreActions() {}
 
@@ -101,30 +112,10 @@ public final class CoreActions {
     int x = (GameInput.pressed(MOVE_RIGHT) ? 1 : 0) - (GameInput.pressed(MOVE_LEFT) ? 1 : 0);
     int y = (GameInput.pressed(MOVE_UP) ? 1 : 0) - (GameInput.pressed(MOVE_DOWN) ? 1 : 0);
     Vector2 digital = Vector2.of(x, y).normalize();
-    return InputResolver.clampLength(digital.add(GameInput.vector(MOVE)));
+    return digital.add(GameInput.vector(MOVE)).clampLength(1);
   }
 
-  static void define(BindingTable table) {
-    table.define(MOVE, "pad:LSTICK");
-    table.define(MOVE_UP, "key:W", "pad:DPAD_UP");
-    table.define(MOVE_DOWN, "key:S", "pad:DPAD_DOWN");
-    table.define(MOVE_LEFT, "key:A", "pad:DPAD_LEFT");
-    table.define(MOVE_RIGHT, "key:D", "pad:DPAD_RIGHT");
-    table.define(SKILL_MAIN, "key:Q", "pad:RT");
-    table.define(SKILL_SECOND, "key:R", "pad:LT");
-    table.define(SKILL_MAIN_NEXT, "key:RIGHT", "pad:RB");
-    table.define(SKILL_MAIN_PREV, "key:LEFT", "pad:LB");
-    table.define(SKILL_SECOND_NEXT, "key:UP");
-    table.define(SKILL_SECOND_PREV, "key:DOWN");
-    table.define(INTERACT, "mouse:LEFT", "key:E", "pad:A");
-    table.define(INVENTORY, "key:TAB", "key:I", "pad:Y");
-    table.define(PAUSE_MENU, "key:ESCAPE", "pad:START");
-    table.define(QUESTLOG, "key:B", "pad:BACK");
-    table.define(SHOW_CONTROLS, "key:F1");
-    table.define(FULLSCREEN, "key:F11");
-    table.context(GAMEPLAY);
-    table.context(SYSTEM);
-    table.context(SERVER_LOCK);
-    table.context(TEXT);
+  private static ActionId core(String name, Binding... defaults) {
+    return new ActionId("core", name, defaults);
   }
 }
