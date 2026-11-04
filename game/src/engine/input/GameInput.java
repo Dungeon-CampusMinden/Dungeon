@@ -60,6 +60,7 @@ public final class GameInput {
     stage = null;
     windowFocused = true;
     PadInput.reset();
+    PadCursor.reset();
   }
 
   /** Connects the input system to the window. Call once, before the first screen appears. */
@@ -280,6 +281,15 @@ public final class GameInput {
    */
   public static boolean covered(InputContext context) {
     return resolver.covered(context);
+  }
+
+  /**
+   * Marks the current press as the start of a drag. Widgets call this from {@code touchDown} on
+   * something draggable. The pad's click then stays down after the button comes up and drops on its
+   * next press, so the player need not hold the button. The mouse is not affected.
+   */
+  public static void keepPadPress() {
+    PadCursor.keepPress();
   }
 
   /**

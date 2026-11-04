@@ -1271,6 +1271,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
             pressedEditor[0] = editorButton(event.getTarget(), actor);
+            if (owner.editable() && !pressedEditor[0]) GameInput.keepPadPress();
             return false;
           }
         });

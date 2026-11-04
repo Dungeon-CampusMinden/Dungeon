@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import engine.Game;
+import engine.input.GameInput;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.utils.components.draw.TextureMap;
@@ -501,6 +502,7 @@ public class PuzzleUI extends Group {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
               if (puzzle.isFullySolved() || dragPointer != -1) return false;
               dragPointer = pointer;
+              GameInput.keepPadPress();
               for (PieceActor piece : cluster) {
                 piece.toFront();
               }

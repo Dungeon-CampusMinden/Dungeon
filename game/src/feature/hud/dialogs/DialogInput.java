@@ -22,6 +22,8 @@ public final class DialogInput {
     register(DialogType.DefaultTypes.PAUSE_MENU, UiActions.PAUSE);
     register(DialogType.DefaultTypes.INVENTORY, UiActions.INVENTORY);
     register(DialogType.DefaultTypes.DUAL_INVENTORY, UiActions.INVENTORY);
+    register(DialogType.DefaultTypes.OK, UiActions.CONFIRM_DIALOG);
+    register(DialogType.DefaultTypes.TEXT, UiActions.CONFIRM_DIALOG);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, UiActions.CONFIRM_DIALOG);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, UiActions.CONFIRM_DIALOG);
     register(DialogType.DefaultTypes.CONTROLS, UiActions.CONTROLS);

@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
+import engine.input.GameInput;
 import engine.sound.Sounds;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
@@ -253,6 +254,7 @@ public class TrashMinigameUI extends Group {
               }
               Vector2 stagePos = localToStageCoordinates(new com.badlogic.gdx.math.Vector2(x, y));
               dragOffsetStage.set(stagePos.x - getX(), stagePos.y - getY());
+              GameInput.keepPadPress();
               return true;
             }
 

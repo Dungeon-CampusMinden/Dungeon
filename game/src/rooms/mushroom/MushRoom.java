@@ -1,6 +1,7 @@
 package rooms.mushroom;
 
 import static engine.input.Binding.key;
+import static engine.input.Binding.pad;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -10,6 +11,7 @@ import engine.Entity;
 import engine.Game;
 import engine.game.PreRunConfiguration;
 import engine.input.ActionId;
+import engine.input.Binding.Pad;
 import engine.input.ContextLayer;
 import engine.input.ContextSpec;
 import engine.input.GameInput;
@@ -96,7 +98,8 @@ public class MushRoom {
     }
   }
 
-  private static final ActionId MAGIC_LENS = new ActionId("mushroom", "magic_lens", key(Keys.V));
+  private static final ActionId MAGIC_LENS =
+      new ActionId("mushroom", "magic_lens", key(Keys.V), pad(Pad.X));
 
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);

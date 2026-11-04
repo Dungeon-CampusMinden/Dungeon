@@ -48,6 +48,9 @@ schließen. Eine UI listet dort auch die Action, die sie öffnet, damit dieselbe
 schließt. `GameInput.register(spec)` meldet Actions an, die
 angezeigt werden sollen, bevor ihr Kontext aktiv ist.
 
+Widgets rufen in `touchDown` auf etwas Ziehbarem `GameInput.keepPadPress()` auf. Am Pad startet A
+dann den Drag und das nächste A legt ab, ohne dass die Taste gehalten wird.
+
 ## Bindings
 
 Im Code entstehen Bindings über die Factories von `Binding`: `key(Keys.E)`, `key(Keys.F3, Keys.A)`,

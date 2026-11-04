@@ -494,6 +494,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
         new InputListener() {
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            int slot = getSlotByCoordinates(x, y);
+            if (slot >= 0 && inventoryComponent.get(slot).isPresent()) GameInput.keepPadPress();
             return button == Input.Buttons.RIGHT && transferItemAtPointer();
           }
         });

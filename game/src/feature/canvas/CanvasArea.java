@@ -1034,6 +1034,7 @@ public class CanvasArea extends Group {
           draggedNode = hit;
           draggedGroup = List.of(hit);
           dragMode = DragMode.NODE;
+          GameInput.keepPadPress();
           return true;
         }
         boolean additive = additiveRequested();
@@ -1047,6 +1048,7 @@ public class CanvasArea extends Group {
         draggedNode = hit;
         draggedGroup = selection.contains(hit) ? List.copyOf(selection) : List.of(hit);
         dragMode = DragMode.NODE;
+        GameInput.keepPadPress();
         bringToFront(hit);
         return true;
       }
