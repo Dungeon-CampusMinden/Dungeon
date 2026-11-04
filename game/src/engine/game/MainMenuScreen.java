@@ -234,8 +234,8 @@ public class MainMenuScreen extends ScreenAdapter {
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     GameInput.stage(stage);
     GameInput.clearSessionContexts();
-    GameInput.activate(menuContext);
     GameInput.activate(uiContext);
+    GameInput.activate(menuContext);
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);

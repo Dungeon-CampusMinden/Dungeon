@@ -73,7 +73,7 @@ public final class InputResolver implements InputProcessor {
     }
   }
 
-  private record Edge(boolean press, InputContext owner) {}
+  private record Edge(boolean press, InputContext owner, boolean pad) {}
 
   private static final class ActionState {
     private final Set<Press> active = new LinkedHashSet<>();
@@ -130,15 +130,17 @@ public final class InputResolver implements InputProcessor {
     int index = stack.size();
     while (index > 0 && layer(stack.get(index - 1)) > layer(context)) index--;
     stack.add(index, context);
-    if (context.spec().equals(CoreActions.TEXT)) {
-      // A text field only claims the keyboard; the pad keeps working in the UI around it.
-      Set<InputContext> below = new HashSet<>(stack.subList(0, index));
-      cancelWhere(press -> below.contains(press.owner) && !isPad(press));
-    } else if (context.spec().blocksBelow()) {
-      Set<InputContext> below = new HashSet<>(stack.subList(0, index));
-      cancelWhere(press -> below.contains(press.owner));
-      dropEdges(below::contains);
-    }
+    if (context.spec().blocksBelow()) cancelCovered();
+  }
+
+  // Input ends when a blocking context comes to lie above its owner, however that happened.
+  private void cancelCovered() {
+    cancelWhere(
+        press ->
+            press.owner != null
+                && stack.contains(press.owner)
+                && covered(press.owner, isPad(press)));
+    dropEdges(edge -> stack.contains(edge.owner()) && covered(edge.owner(), edge.pad()));
   }
 
   private static boolean isPad(Press press) {
@@ -157,7 +159,7 @@ public final class InputResolver implements InputProcessor {
   public void deactivate(InputContext context) {
     if (!stack.remove(context)) return;
     cancelWhere(press -> press.owner == context);
-    dropEdges(owner -> owner == context);
+    dropEdges(edge -> edge.owner() == context);
   }
 
   /**
@@ -176,10 +178,12 @@ public final class InputResolver implements InputProcessor {
    * @param ordered the contexts from bottom to top
    */
   public void order(List<InputContext> ordered) {
+    List<InputContext> before = List.copyOf(stack);
     Iterator<InputContext> next = ordered.iterator();
     for (int i = 0; i < stack.size(); i++) {
       if (ordered.contains(stack.get(i))) stack.set(i, next.next());
     }
+    if (!stack.equals(before)) cancelCovered();
   }
 
   /**
@@ -189,16 +193,13 @@ public final class InputResolver implements InputProcessor {
    * @return true if input cannot reach the context
    */
   public boolean covered(InputContext context) {
-    int index = stack.indexOf(context);
-    return stack.subList(index + 1, stack.size()).stream()
-        .anyMatch(above -> above.spec().blocksBelow());
+    return covered(context, false);
   }
 
-  // A focused text field stops the keyboard at routing; what got past it comes from the pad.
-  private boolean coveredBeyondText(InputContext context) {
+  private boolean covered(InputContext context, boolean pad) {
     int index = stack.indexOf(context);
     return stack.subList(index + 1, stack.size()).stream()
-        .anyMatch(above -> above.spec().blocksBelow() && !above.spec().equals(CoreActions.TEXT));
+        .anyMatch(above -> above.spec().blocks(pad));
   }
 
   /**
@@ -409,7 +410,7 @@ public final class InputResolver implements InputProcessor {
    * @param delta seconds since the last frame
    */
   public void advance(float delta) {
-    Map<ActionId, InputContext> fired = new LinkedHashMap<>();
+    Map<ActionId, Edge> fired = new LinkedHashMap<>();
     for (Map.Entry<ActionId, ActionState> entry : actions.entrySet()) {
       ActionState state = entry.getValue();
       state.justPressed = false;
@@ -422,21 +423,23 @@ public final class InputResolver implements InputProcessor {
         state.justPressed = edge.press();
         state.released = !edge.press();
         state.repeatTimer = REPEAT_DELAY;
-        if (edge.press()) fired.put(entry.getKey(), edge.owner());
+        if (edge.press()) fired.put(entry.getKey(), edge);
       } else if (state.repeats && state.pressed) {
         state.repeatTimer -= delta;
         if (state.repeatTimer <= 0 && !state.active.isEmpty()) {
           state.repeatTimer = REPEAT_INTERVAL;
           state.justPressed = true;
-          fired.put(entry.getKey(), state.active.iterator().next().owner);
+          Press held = state.active.iterator().next();
+          fired.put(entry.getKey(), new Edge(true, held.owner, isPad(held)));
         }
       }
     }
     // A handler may open a dialog or close its context; the remaining handlers then lost their
     // turn.
     fired.forEach(
-        (action, owner) -> {
-          if (stack.contains(owner) && !coveredBeyondText(owner)) owner.firePress(action);
+        (action, edge) -> {
+          InputContext owner = edge.owner();
+          if (stack.contains(owner) && !covered(owner, edge.pad())) owner.firePress(action);
         });
   }
 
@@ -568,7 +571,7 @@ public final class InputResolver implements InputProcessor {
    */
   public void cancelAll() {
     cancelWhere(press -> true);
-    dropEdges(owner -> true);
+    dropEdges(edge -> true);
     heldKeys.clear();
     heldButtons.clear();
   }
@@ -621,13 +624,15 @@ public final class InputResolver implements InputProcessor {
   }
 
   // A quick tap or a wheel tick has no press left to cancel, only what it buffered.
-  private void dropEdges(Predicate<InputContext> owner) {
+  private void dropEdges(Predicate<Edge> which) {
     for (ActionState state : actions.values()) {
-      if (state.edges.removeIf(edge -> owner.test(edge.owner())) && state.active.isEmpty()) {
+      if (state.edges.removeIf(which) && state.active.isEmpty()) {
         state.pressed = false;
         state.justPressed = false;
       }
-      if (state.pendingOwner != null && owner.test(state.pendingOwner)) state.pendingAxis = 0;
+      if (state.pendingOwner != null && which.test(new Edge(true, state.pendingOwner, false))) {
+        state.pendingAxis = 0;
+      }
     }
   }
 
@@ -643,18 +648,16 @@ public final class InputResolver implements InputProcessor {
     List<Bound> candidates = bindings.bound(trigger);
     for (int i = stack.size() - 1; i >= 0; i--) {
       InputContext context = stack.get(i);
-      // A text field only claims the keyboard; the pad must still reach the UI around it.
-      if (trigger.isPad() && context.spec().equals(CoreActions.TEXT)) continue;
       Bound best = null;
       for (Bound bound : candidates) {
-        if (context.spec().actions().contains(bound.action())
+        if (context.spec().accepts(bound.action(), bound.binding())
             && prefixesHeld(bound.binding())
             && (best == null || prefixCount(bound.binding()) > prefixCount(best.binding()))) {
           best = bound;
         }
       }
       if (best != null) return new Route(context, best);
-      if (context.spec().blocksBelow()) return new Route(context, null);
+      if (context.spec().blocks(trigger.isPad())) return new Route(context, null);
     }
     return Route.NONE;
   }
@@ -700,7 +703,7 @@ public final class InputResolver implements InputProcessor {
     ActionState state = state(press.action);
     press.active = true;
     state.active.add(press);
-    if (state.active.size() == 1) state.edges.add(new Edge(true, press.owner));
+    if (state.active.size() == 1) state.edges.add(new Edge(true, press.owner, isPad(press)));
   }
 
   private void endAction(Press press) {
@@ -708,7 +711,7 @@ public final class InputResolver implements InputProcessor {
     press.active = false;
     ActionState state = state(press.action);
     state.active.remove(press);
-    if (state.active.isEmpty()) state.edges.add(new Edge(false, press.owner));
+    if (state.active.isEmpty()) state.edges.add(new Edge(false, press.owner, isPad(press)));
   }
 
   private void firePressAndRelease(Press press) {

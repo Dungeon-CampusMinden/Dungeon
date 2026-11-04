@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import engine.Game;
 import engine.input.ActionId;
 import engine.input.ContextSpec;
+import engine.input.CoreActions;
 import engine.input.InputContext;
 import engine.input.UiActions;
 import feature.components.UIComponent;
@@ -79,7 +80,7 @@ public final class DialogInput {
     InputContext context =
         new InputContext(spec)
             .onPress(
-                UiActions.OPEN_PAUSE, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
+                CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
             .onPress(UiActions.CONFIRM, () -> fire(ui, UiActions.CONFIRM))
             .onPress(UiActions.NAV_UP, () -> navigate(ui, UiActions.NAV_UP, -1))
             .onPress(UiActions.NAV_DOWN, () -> navigate(ui, UiActions.NAV_DOWN, 1))

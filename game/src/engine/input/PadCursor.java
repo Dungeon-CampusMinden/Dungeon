@@ -109,7 +109,7 @@ final class PadCursor {
     for (int i = contexts.size() - 1; i >= 0; i--) {
       InputContext context = contexts.get(i);
       if (context.spec().actions().contains(UiActions.CLICK)) return context;
-      if (context.spec().blocksBelow() && !context.spec().equals(CoreActions.TEXT)) return null;
+      if (context.spec().blocks(true)) return null;
     }
     return null;
   }

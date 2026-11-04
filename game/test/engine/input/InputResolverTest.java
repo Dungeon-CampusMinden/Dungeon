@@ -50,6 +50,21 @@ class InputResolverTest {
   private InputResolver resolver;
   private InputContext game;
 
+  @Test
+  void aBlockingContextMovedAboveAnOwnerCancelsItsPress() {
+    InputContext first = new InputContext(DIALOG);
+    InputContext second = new InputContext(ContextSpec.of("other", ContextLayer.UI).blocking());
+    resolver.activate(second);
+    resolver.activate(first);
+    resolver.keyDown(Keys.ESCAPE);
+    resolver.advance(0);
+    assertTrue(resolver.pressed(CLOSE));
+
+    resolver.order(List.of(first, second));
+
+    assertFalse(resolver.pressed(CLOSE));
+  }
+
   @BeforeEach
   void setUp() {
     resolver = new InputResolver(new BindingTable());

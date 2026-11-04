@@ -45,7 +45,8 @@ GameInput.activate(
 
 `.blocking()` macht einen Kontext blockierend. `.closedBy(...)` nennt die Actions, die eine UI
 schließen. Eine UI listet dort auch die Action, die sie öffnet, damit dieselbe Eingabe sie wieder
-schließt. `GameInput.register(spec)` meldet Actions an, die
+schließt. `.padOnly(...)` nimmt eine Action nur über ihre Pad-Belegung an: START öffnet die Pause
+über jeder UI, Esc schließt dort. `GameInput.register(spec)` meldet Actions an, die
 angezeigt werden sollen, bevor ihr Kontext aktiv ist.
 
 Widgets rufen in `touchDown` auf etwas Ziehbarem `GameInput.startDrag()` auf. Der Drag beginnt dann

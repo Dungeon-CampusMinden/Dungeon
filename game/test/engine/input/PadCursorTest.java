@@ -144,7 +144,7 @@ class PadCursorTest {
   @Test
   void aFocusedTextFieldLetsThePadReachTheUi() {
     AtomicBoolean paused = new AtomicBoolean();
-    inventory.onPress(UiActions.OPEN_PAUSE, () -> paused.set(true));
+    inventory.onPress(CoreActions.PAUSE_MENU, () -> paused.set(true));
     resolver.activate(new InputContext(CoreActions.TEXT));
 
     resolver.padDown(Binding.pad(Pad.START));
