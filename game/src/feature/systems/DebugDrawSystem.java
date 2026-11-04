@@ -100,6 +100,7 @@ public class DebugDrawSystem extends System {
   private boolean render = false;
   private boolean renderSystemList = false;
   private boolean renderNetworkTelemetry = false;
+  private boolean renderInputState = false;
   private volatile long debugTelemetryStreamRequestId = -1L;
   private volatile long nextDebugTelemetryPingTimeMs = 0L;
   private volatile long nextDebugTelemetryStreamRetryTimeMs = 0L;
@@ -120,7 +121,7 @@ public class DebugDrawSystem extends System {
 
   @Override
   public void render(float delta) {
-    if (!render && !renderSystemList && !renderNetworkTelemetry) return;
+    if (!render && !renderSystemList && !renderNetworkTelemetry && !renderInputState) return;
 
     if (renderSystemList) drawSystemList();
     if (renderNetworkTelemetry) {
@@ -130,16 +131,16 @@ public class DebugDrawSystem extends System {
       drawNetworkTelemetry(telemetryReport);
     }
 
-    if (!render) return;
+    if (render) {
+      SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+      filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
 
-    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
-    filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
-
-    if (!LevelEditorSystem.active()) {
-      drawNamedPoints();
+      if (!LevelEditorSystem.active()) {
+        drawNamedPoints();
+      }
     }
     // Last, so that the boxes of the world do not cover it.
-    drawInputState();
+    if (renderInputState) drawInputState();
   }
 
   private void drawInputState() {
@@ -682,6 +683,11 @@ public class DebugDrawSystem extends System {
   /** Toggles the screen-space list of currently running systems. */
   public void toggleSystemList() {
     this.renderSystemList = !this.renderSystemList;
+  }
+
+  /** Toggles the screen-space list of input contexts and held input. */
+  public void toggleInputState() {
+    this.renderInputState = !this.renderInputState;
   }
 
   /** Toggles the screen-space multiplayer network telemetry overlay. */

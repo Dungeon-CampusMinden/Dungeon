@@ -256,6 +256,9 @@ public class Debugger extends System {
     if (GameInput.justPressed(DebugActions.TOGGLE_SYSTEM_LIST)) {
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleSystemList);
     }
+    if (GameInput.justPressed(DebugActions.TOGGLE_INPUT_STATE)) {
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleInputState);
+    }
     if (GameInput.justPressed(DebugActions.TOGGLE_NETWORK_TELEMETRY)) {
       Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleNetworkTelemetry);
     }

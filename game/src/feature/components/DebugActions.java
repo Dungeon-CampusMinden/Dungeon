@@ -22,6 +22,10 @@ public final class DebugActions {
   public static final ActionId TOGGLE_NETWORK_TELEMETRY =
       debug("toggle_network_telemetry", key(Keys.F3, Keys.N));
 
+  /** Toggles the input state overlay. */
+  public static final ActionId TOGGLE_INPUT_STATE =
+      debug("toggle_input_state", key(Keys.F3, Keys.I));
+
   /** Toggles the scene2d debug lines. */
   public static final ActionId TOGGLE_SCENE_HUD = debug("toggle_scene_hud", key(Keys.F5));
 
@@ -69,6 +73,7 @@ public final class DebugActions {
           ContextLayer.DEBUG,
           TOGGLE_HUD,
           TOGGLE_SYSTEM_LIST,
+          TOGGLE_INPUT_STATE,
           TOGGLE_NETWORK_TELEMETRY,
           TOGGLE_SCENE_HUD,
           ZOOM_IN,
