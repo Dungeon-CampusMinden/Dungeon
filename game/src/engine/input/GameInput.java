@@ -285,11 +285,12 @@ public final class GameInput {
 
   /**
    * Marks the current press as the start of a drag. Widgets call this from {@code touchDown} on
-   * something draggable. The pad's click then stays down after the button comes up and drops on its
-   * next press, so the player need not hold the button. The mouse is not affected.
+   * something draggable. The stage then gets a drag event right after the press, so the drag shows
+   * at once instead of with the first movement. The pad's click also stays down after the button
+   * comes up and drops on its next press, so the player need not hold the button.
    */
-  public static void keepPadPress() {
-    PadCursor.keepPress();
+  public static void startDrag() {
+    PadCursor.startDrag();
   }
 
   /**
@@ -408,7 +409,10 @@ public final class GameInput {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
       clearTextFocusOutside(screenX, screenY);
       syncTextContext();
-      return resolver.touchDown(screenX, screenY, pointer, button);
+      PadCursor.beginPress();
+      boolean handled = resolver.touchDown(screenX, screenY, pointer, button);
+      PadCursor.liftDrag(stage, screenX, screenY, pointer);
+      return handled;
     }
   }
 }

@@ -21,6 +21,8 @@ import engine.Game;
 import engine.input.GameInput;
 import engine.sound.CoreSounds;
 import engine.sound.Sounds;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
@@ -475,7 +477,7 @@ public class PuzzleUI extends Group {
   }
 
   /** A draggable puzzle piece that moves together with its connected neighbors. */
-  private class PieceActor extends Group {
+  private class PieceActor extends Group implements CursorUtil.CursorOverride {
     private final int idx;
     private final float imageX;
     private final float imageY;
@@ -484,6 +486,12 @@ public class PuzzleUI extends Group {
     private final Vector2 dragOffset = new Vector2();
     private final List<PieceActor> neighbors = new ArrayList<>();
     private List<PieceActor> cluster = new ArrayList<>();
+
+    @Override
+    public Optional<Cursors> cursorOverride() {
+      if (puzzle.isFullySolved()) return Optional.empty();
+      return Optional.of(dragPointer != -1 ? Cursors.GRABBING : Cursors.GRAB);
+    }
 
     PieceActor(int idx, Image img, float imageX, float imageY, float w, float h) {
       this.idx = idx;
@@ -502,7 +510,7 @@ public class PuzzleUI extends Group {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
               if (puzzle.isFullySolved() || dragPointer != -1) return false;
               dragPointer = pointer;
-              GameInput.keepPadPress();
+              GameInput.startDrag();
               for (PieceActor piece : cluster) {
                 piece.toFront();
               }

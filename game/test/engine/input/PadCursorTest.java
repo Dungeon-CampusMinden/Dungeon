@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import engine.input.Binding.Pad;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,11 @@ class PadCursorTest {
     resolver.device(InputDevice.PAD);
     inventory = new InputContext(UiActions.INVENTORY);
     resolver.activate(inventory);
+  }
+
+  @AfterEach
+  void tearDown() {
+    GameInput.reset();
   }
 
   private void frame() {
@@ -48,7 +54,7 @@ class PadCursorTest {
     when(stage.touchDown(anyInt(), anyInt(), anyInt(), anyInt()))
         .thenAnswer(
             call -> {
-              GameInput.keepPadPress();
+              GameInput.startDrag();
               return true;
             });
     press();
@@ -70,6 +76,7 @@ class PadCursorTest {
   @Test
   void aDragStaysAfterTheReleaseAndTheNextPressDrops() {
     pressOnDraggable();
+    verify(stage).touchDragged(anyInt(), anyInt(), anyInt());
     release();
     verifyTouchUps(0);
 

@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
@@ -23,6 +24,8 @@ import engine.components.PlayerComponent;
 import engine.input.GameInput;
 import engine.language.Translation;
 import engine.network.messages.c2s.InputMessage;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
@@ -43,7 +46,8 @@ import feature.inventory.Item;
 import java.util.Optional;
 
 /** WTF? . */
-public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Disposable {
+public class InventoryGUI extends CombinableGUI
+    implements IInventoryHolder, Disposable, CursorUtil.CursorOverride {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
   private static final Translation trans = new Translation("dialog.inventory_dialog");
 
@@ -211,6 +215,14 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   @Override
   protected void drawTopLayer(Batch batch) {
     this.drawItemInfo(batch);
+  }
+
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    if (dragAndDrop() != null && dragAndDrop().isDragging()) return Optional.of(Cursors.GRABBING);
+    int slot = getSlotByMousePosition();
+    boolean item = slot >= 0 && inventoryComponent.get(slot).isPresent();
+    return item ? Optional.of(Cursors.GRAB) : Optional.empty();
   }
 
   private int getSlotByMousePosition() {
@@ -416,6 +428,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
         float dragW = dragRegionW * dragFitScale;
         float dragH = dragRegionH * dragFitScale;
         image.setSize(dragW, dragH);
+        // The cursor reads the UI under the dragged item.
+        image.setTouchable(Touchable.disabled);
         payload.setDragActor(image);
         dragAndDrop().setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);
 
@@ -477,6 +491,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
               Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
             targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
           }
+          if (sourceSlot == targetSlot) return;
           if (Game.network().isServer()) {
             HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
           } else {
@@ -494,9 +509,10 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
         new InputListener() {
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            if (button == Input.Buttons.RIGHT) return transferItemAtPointer();
             int slot = getSlotByCoordinates(x, y);
-            if (slot >= 0 && inventoryComponent.get(slot).isPresent()) GameInput.keepPadPress();
-            return button == Input.Buttons.RIGHT && transferItemAtPointer();
+            if (slot >= 0 && inventoryComponent.get(slot).isPresent()) GameInput.startDrag();
+            return false;
           }
         });
   }

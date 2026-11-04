@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import engine.input.GameInput;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import engine.utils.logging.DungeonLogger;
 import feature.hud.dialogs.DialogCallbackResolver;
 import java.util.ArrayList;
@@ -57,7 +59,7 @@ import java.util.stream.Stream;
  * <p>Interactions of individual nodes take precedence: if a child actor of a node (a button for
  * example) already handled a touch, the canvas does not start a drag.
  */
-public class CanvasArea extends Group {
+public class CanvasArea extends Group implements CursorUtil.CursorOverride {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CanvasArea.class);
 
@@ -962,6 +964,11 @@ public class CanvasArea extends Group {
   }
 
   /** Routes pointer and keyboard input to view manipulation and node interactions. */
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    return dragMode == DragMode.NODE ? Optional.of(Cursors.GRABBING) : Optional.empty();
+  }
+
   private final class CanvasInputListener extends InputListener {
 
     @Override
@@ -1034,7 +1041,7 @@ public class CanvasArea extends Group {
           draggedNode = hit;
           draggedGroup = List.of(hit);
           dragMode = DragMode.NODE;
-          GameInput.keepPadPress();
+          GameInput.startDrag();
           return true;
         }
         boolean additive = additiveRequested();
@@ -1048,7 +1055,7 @@ public class CanvasArea extends Group {
         draggedNode = hit;
         draggedGroup = selection.contains(hit) ? List.copyOf(selection) : List.of(hit);
         dragMode = DragMode.NODE;
-        GameInput.keepPadPress();
+        GameInput.startDrag();
         bringToFront(hit);
         return true;
       }

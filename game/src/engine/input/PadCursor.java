@@ -18,13 +18,13 @@ import java.util.Map;
  * events at the pointer, and movement becomes hover. These events go straight to the stage and
  * never back through the resolver. A drag keeps its receiver through the stage's touch focus.
  *
- * <p>A press on something draggable (see {@link GameInput#keepPadPress()}) stays down after the
- * button comes up, and the next press drops. Leaving the UI or the pad cancels it.
+ * <p>A press on something draggable (see {@link GameInput#startDrag()}) stays down after the button
+ * comes up, and the next press drops. Leaving the UI or the pad cancels it.
  */
 final class PadCursor {
   private static final Map<Cursors, Texture> textures = new EnumMap<>(Cursors.class);
   private static boolean touching;
-  private static boolean keepPress;
+  private static boolean dragPress;
   private static InputContext keptBy;
   private static Vector2 lastPosition = Vector2.ZERO;
 
@@ -32,12 +32,21 @@ final class PadCursor {
 
   static void reset() {
     touching = false;
-    keepPress = false;
+    dragPress = false;
     keptBy = null;
   }
 
-  static void keepPress() {
-    keepPress = true;
+  static void beginPress() {
+    dragPress = false;
+  }
+
+  static void startDrag() {
+    dragPress = true;
+  }
+
+  // Sends the drag event that lets a press start its drag without any movement.
+  static void liftDrag(Stage stage, int x, int y, int pointer) {
+    if (dragPress && stage != null) stage.touchDragged(x, y, pointer);
   }
 
   static void update(InputResolver resolver, Stage stage) {
@@ -53,15 +62,16 @@ final class PadCursor {
       updateKept(resolver, stage, x, y, moved);
     } else if (resolver.justPressed(UiActions.CLICK) && !touching) {
       touching = true;
-      keepPress = false;
+      beginPress();
       GameInput.clearTextFocusOutside(x, y);
       stage.touchDown(x, y, 0, Input.Buttons.LEFT);
+      liftDrag(stage, x, y, 0);
     } else if (!pressed && touching) {
       InputContext owner = clickOwner(resolver);
       if (!resolver.justReleased(UiActions.CLICK)) {
         touching = false;
         stage.touchCancelled(x, y, 0, Input.Buttons.LEFT);
-      } else if (keepPress && owner != null) {
+      } else if (dragPress && owner != null) {
         keptBy = owner;
       } else {
         touching = false;

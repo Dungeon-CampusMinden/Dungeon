@@ -14,6 +14,8 @@ import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.input.GameInput;
 import engine.sound.Sounds;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.UIUtils;
@@ -201,11 +203,12 @@ public class TrashMinigameUI extends Group {
     setSize(width, height);
   }
 
-  private class TrashItemActor extends Group {
+  private class TrashItemActor extends Group implements CursorUtil.CursorOverride {
     private final Image image;
     private final boolean isSpecial;
     private final Vector2 dragOffsetStage = new Vector2();
     private boolean won = false;
+    private boolean held = false;
 
     /**
      * Position relative to the playfield's free area, in the range [0, 1]. Used to recompute the
@@ -214,6 +217,12 @@ public class TrashMinigameUI extends Group {
     private float relX = 0.5f;
 
     private float relY = 0.5f;
+
+    @Override
+    public Optional<Cursors> cursorOverride() {
+      if (isSpecial) return Optional.of(Cursors.INTERACT);
+      return Optional.of(held ? Cursors.GRABBING : Cursors.GRAB);
+    }
 
     /**
      * Creates a new TrashItemActor with the given texture.
@@ -254,8 +263,14 @@ public class TrashMinigameUI extends Group {
               }
               Vector2 stagePos = localToStageCoordinates(new com.badlogic.gdx.math.Vector2(x, y));
               dragOffsetStage.set(stagePos.x - getX(), stagePos.y - getY());
-              GameInput.keepPadPress();
+              held = true;
+              GameInput.startDrag();
               return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+              held = false;
             }
 
             @Override
