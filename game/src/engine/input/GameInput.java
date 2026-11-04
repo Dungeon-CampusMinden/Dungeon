@@ -2,11 +2,13 @@ package engine.input;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import engine.game.WindowEventManager;
 import engine.utils.logging.DungeonLogger;
 import java.nio.file.Path;
@@ -93,7 +95,7 @@ public final class GameInput {
    */
   public static void stage(Stage newStage) {
     stage = newStage;
-    resolver.stage(newStage);
+    resolver.stage(newStage == null ? null : new StageInput(newStage));
   }
 
   /**
@@ -331,6 +333,25 @@ public final class GameInput {
    */
   public static String label(ActionId action) {
     return displayBinding(action, 0).map(KeyNames::label).orElse("-");
+  }
+
+  /**
+   * The UI as the resolver sees it. A modal {@link Window} with the keyboard focus claims every
+   * key, which is no reaction of a widget, so the action of that key must still happen.
+   */
+  private static final class StageInput extends InputMultiplexer {
+    private final Stage target;
+
+    private StageInput(Stage target) {
+      super(target);
+      this.target = target;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+      boolean handled = super.keyDown(keycode);
+      return handled && !(target.getKeyboardFocus() instanceof Window window && window.isModal());
+    }
   }
 
   /** Forwards window events, keeping the text context up to date before each press is routed. */
