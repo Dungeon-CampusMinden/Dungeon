@@ -673,8 +673,10 @@ public final class InputResolver implements InputProcessor {
 
   // A key that is an action and also a prefix there fires on release, if no combo used it.
   private boolean isDeferred(Route route, int keycode) {
-    return route.owner().spec().actions().stream()
-        .flatMap(action -> bindings.bindings(action).stream())
+    ContextSpec spec = route.owner().spec();
+    return spec.actions().stream()
+        .flatMap(
+            action -> bindings.bindings(action).stream().filter(key -> spec.accepts(action, key)))
         .anyMatch(
             binding -> binding instanceof Binding.Key key && key.prefixes().contains(keycode));
   }
