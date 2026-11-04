@@ -68,6 +68,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.ACHIEVEMENT_POPUP, AchievementPopup::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
+    register(DialogType.DefaultTypes.CONTROLS, DialogDialog::build);
     register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
     register(DialogType.DefaultTypes.CANVAS, CanvasDialog::build);
     register(DialogType.DefaultTypes.CLIENT_CONNECTION, ClientConnectionDialog::build);

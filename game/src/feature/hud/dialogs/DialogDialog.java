@@ -88,11 +88,12 @@ final class DialogDialog {
     content.add(scriptView);
     content.row();
 
-    scriptView.setOnSequenceComplete(
+    Runnable confirm =
         () ->
             DialogCallbackResolver.createButtonCallback(
                     ctx.dialogId(), DialogContextKeys.ON_CONFIRM)
-                .accept(null));
+                .accept(null);
+    scriptView.setOnSequenceComplete(confirm);
 
     Runnable advance =
         () -> {
@@ -125,7 +126,9 @@ final class DialogDialog {
             }
           }
         };
-    UIUtils.onCloseRequest(container, advance);
+    // The controls are a reference, so closing ends them at once instead of page by page.
+    boolean reference = ctx.dialogType() == DialogType.DefaultTypes.CONTROLS;
+    UIUtils.onCloseRequest(container, reference ? confirm : advance);
     UIUtils.onUiAction(container, UiActions.CONFIRM, advance);
     return container;
   }

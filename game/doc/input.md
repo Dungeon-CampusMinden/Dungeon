@@ -43,7 +43,9 @@ GameInput.activate(
         .onPress(jump, this::jump));
 ```
 
-`.blocking()` macht einen Kontext blockierend. `GameInput.register(spec)` meldet Actions an, die
+`.blocking()` macht einen Kontext blockierend. `.closedBy(...)` nennt die Actions, die eine UI
+schließen. Eine UI listet dort auch die Action, die sie öffnet, damit dieselbe Eingabe sie wieder
+schließt. `GameInput.register(spec)` meldet Actions an, die
 angezeigt werden sollen, bevor ihr Kontext aktiv ist.
 
 ## Bindings

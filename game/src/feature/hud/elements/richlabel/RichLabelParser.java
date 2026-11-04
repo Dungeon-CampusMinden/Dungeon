@@ -292,8 +292,9 @@ public class RichLabelParser {
    * Resolves an {@code [action]} tag to the current binding of the action on the device the player
    * used last. The required {@code id} parameter names the action, the optional {@code all} flag
    * shows every binding of that device instead of the first, and the optional {@code outline} flag
-   * selects the outlined spritesheet variant. Keys and mouse buttons show their prompt graphic, a
-   * combo shows one graphic per key. Inputs without a graphic and unbound actions show their label.
+   * selects the outlined spritesheet variant. Keys, mouse buttons and pad inputs show their prompt
+   * graphic, a combo shows one graphic per key. Inputs without a graphic and unbound actions show
+   * their label.
    *
    * @param params the raw parameter string of the tag (everything after {@code [action} and before
    *     the closing {@code ]}).
@@ -349,6 +350,10 @@ public class RichLabelParser {
     if (binding instanceof Binding.MouseButton mouse) {
       return Collections.singletonList(
           InputPromptHelper.lookupMouseButton(mouse.button(), outline));
+    }
+    if (binding.isPad()) {
+      InputMethod method = InputMethod.ofController(GameInput.padName());
+      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding, outline));
     }
     if (!(binding instanceof Binding.Key key)) return List.of();
     List<InputPromptRegion> regions = new ArrayList<>();

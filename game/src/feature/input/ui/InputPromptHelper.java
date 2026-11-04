@@ -1,11 +1,21 @@
 package feature.input.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.XmlReader;
+import engine.input.Binding;
+import engine.input.Binding.Pad;
+import engine.input.Binding.PadAxisId;
+import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.TextureMap;
+import engine.utils.components.draw.shader.ColorGradeShader;
+import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.SimpleIPath;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,9 +27,9 @@ import java.util.Map;
  * the first request and is kept alive for the lifetime of the application; this helper does not own
  * the texture and therefore does not need to dispose of it.
  *
- * <p>Currently only the {@link InputMethod#KEYBOARD} (keyboard & mouse) spritesheet is wired up.
- * Calls for other input methods will throw {@link UnsupportedOperationException} until support for
- * them is added.
+ * <p>The keyboard & mouse, Xbox and PlayStation spritesheets are wired up. Calls for other input
+ * methods will throw {@link UnsupportedOperationException} until support for them is added. Keys
+ * only exist on the keyboard & mouse spritesheet, pad inputs only on the controller spritesheets.
  *
  * <p>Mouse button look-ups use the dedicated {@link #getMouseButton(int)} family of overloads to
  * avoid collisions with the keyboard key code space. Mouse buttons are always rendered using the
@@ -30,7 +40,13 @@ public final class InputPromptHelper {
   /** Path of the keyboard & mouse spritesheet inside the assets directory. */
   private static final String KEYBOARD_MOUSE_TEXTURE_PATH = "hud/input/keyboard_mouse.png";
 
-  /** Width and height (in pixels) of every region in the keyboard / mouse spritesheet. */
+  /** Path of the Xbox spritesheet inside the assets directory. */
+  private static final String XBOX_TEXTURE_PATH = "hud/input/xbox.png";
+
+  /** Path of the PlayStation spritesheet inside the assets directory. */
+  private static final String PLAYSTATION_TEXTURE_PATH = "hud/input/playstation.png";
+
+  /** Width and height (in pixels) of every region in the spritesheets. */
   private static final int REGION_SIZE = 128;
 
   /** Currently active input method. Defaults to {@link InputMethod#KEYBOARD}. */
@@ -50,6 +66,16 @@ public final class InputPromptHelper {
    */
   private static final Map<Integer, String> MOUSE_BUTTON_NAMES = new HashMap<>();
 
+  /** Maps a pad binding to its base region name on the Xbox spritesheet. */
+  private static final Map<Binding, String> XBOX_PAD_NAMES = new HashMap<>();
+
+  /** Maps a pad binding to its base region name on the PlayStation spritesheet. */
+  private static final Map<Binding, String> PLAYSTATION_PAD_NAMES = new HashMap<>();
+
+  /** Regions of the controller spritesheets, read from their atlas on first use. */
+  private static final Map<InputMethod, Map<String, int[]>> CONTROLLER_REGIONS =
+      new EnumMap<>(InputMethod.class);
+
   /** Cache of already created {@link TextureRegion}s keyed by region name. */
   private static final Map<String, TextureRegion> REGION_CACHE = new HashMap<>();
 
@@ -57,9 +83,24 @@ public final class InputPromptHelper {
     initKeyboardMouseRegions();
     initKeyboardMappings();
     initMouseMappings();
+    initPadMappings();
   }
 
   private InputPromptHelper() {}
+
+  /**
+   * Inverts the prompt spritesheets, for rooms that show prompts on light dialogs. The sheets are
+   * white with transparent cut-outs, so this gives dark prompts with light glyphs at the same
+   * paths.
+   */
+  public static void useDarkPrompts() {
+    ShaderList shaders = new ShaderList();
+    shaders.add("invert", new ColorGradeShader().invert(true));
+    for (String sheet :
+        List.of(KEYBOARD_MOUSE_TEXTURE_PATH, XBOX_TEXTURE_PATH, PLAYSTATION_TEXTURE_PATH)) {
+      TextureGenerator.registerRenderShaderTexture(sheet, sheet, shaders);
+    }
+  }
 
   /**
    * Returns the currently active input method.
@@ -199,6 +240,33 @@ public final class InputPromptHelper {
   }
 
   /**
+   * Looks up the spritesheet location for a pad button or axis prompt.
+   *
+   * @param inputMethod the controller look, {@link InputMethod#XBOX} or {@link
+   *     InputMethod#PLAYSTATION}.
+   * @param binding the pad binding.
+   * @param outline if {@code true}, return the outlined variant if available.
+   * @return the {@link InputPromptRegion} describing the spritesheet location, or {@code null} if
+   *     no mapping exists.
+   */
+  public static InputPromptRegion lookupPad(
+      InputMethod inputMethod, Binding binding, boolean outline) {
+    return lookupRegion(inputMethod, padRegionName(inputMethod, binding), outline);
+  }
+
+  /**
+   * Names the region of a pad binding.
+   *
+   * @param inputMethod the controller look
+   * @param binding the pad binding
+   * @return the base region name, or {@code null} if no mapping exists
+   */
+  static String padRegionName(InputMethod inputMethod, Binding binding) {
+    return (inputMethod == InputMethod.PLAYSTATION ? PLAYSTATION_PAD_NAMES : XBOX_PAD_NAMES)
+        .get(binding);
+  }
+
+  /**
    * Resolves a base region name to its spritesheet location, honoring the {@code _outline} fallback
    * rules used by {@link #regionFor(InputMethod, String, boolean)}.
    *
@@ -232,10 +300,24 @@ public final class InputPromptHelper {
   private static Map<String, int[]> regionMapFor(InputMethod inputMethod) {
     return switch (inputMethod) {
       case KEYBOARD -> KEYBOARD_MOUSE_REGIONS;
-      case PLAYSTATION, XBOX, TOUCH ->
+      case PLAYSTATION, XBOX ->
+          CONTROLLER_REGIONS.computeIfAbsent(inputMethod, InputPromptHelper::readAtlas);
+      case TOUCH ->
           throw new UnsupportedOperationException(
               "Input method " + inputMethod + " is not yet supported.");
     };
+  }
+
+  private static Map<String, int[]> readAtlas(InputMethod inputMethod) {
+    String atlas = texturePathFor(inputMethod).replace(".png", ".xml");
+    Map<String, int[]> regions = new HashMap<>();
+    for (XmlReader.Element region :
+        new XmlReader().parse(Gdx.files.internal(atlas)).getChildrenByName("SubTexture")) {
+      regions.put(
+          region.getAttribute("name"),
+          new int[] {region.getIntAttribute("x"), region.getIntAttribute("y")});
+    }
+    return regions;
   }
 
   /**
@@ -248,7 +330,9 @@ public final class InputPromptHelper {
   private static String texturePathFor(InputMethod inputMethod) {
     return switch (inputMethod) {
       case KEYBOARD -> KEYBOARD_MOUSE_TEXTURE_PATH;
-      case PLAYSTATION, XBOX, TOUCH ->
+      case XBOX -> XBOX_TEXTURE_PATH;
+      case PLAYSTATION -> PLAYSTATION_TEXTURE_PATH;
+      case TOUCH ->
           throw new UnsupportedOperationException(
               "Input method " + inputMethod + " is not yet supported.");
     };
@@ -300,6 +384,33 @@ public final class InputPromptHelper {
     TextureRegion region = new TextureRegion(texture, xy[0], xy[1], REGION_SIZE, REGION_SIZE);
     REGION_CACHE.put(cacheKey, region);
     return region;
+  }
+
+  private static void putPad(Binding binding, String xbox, String playstation) {
+    XBOX_PAD_NAMES.put(binding, xbox);
+    PLAYSTATION_PAD_NAMES.put(binding, playstation);
+  }
+
+  private static void initPadMappings() {
+    putPad(Binding.pad(Pad.A), "xbox_button_a", "playstation_button_cross");
+    putPad(Binding.pad(Pad.B), "xbox_button_b", "playstation_button_circle");
+    putPad(Binding.pad(Pad.X), "xbox_button_x", "playstation_button_square");
+    putPad(Binding.pad(Pad.Y), "xbox_button_y", "playstation_button_triangle");
+    putPad(Binding.pad(Pad.BACK), "xbox_button_view", "playstation4_button_share");
+    putPad(Binding.pad(Pad.START), "xbox_button_menu", "playstation4_button_options");
+    putPad(Binding.pad(Pad.LB), "xbox_lb", "playstation_trigger_l1");
+    putPad(Binding.pad(Pad.RB), "xbox_rb", "playstation_trigger_r1");
+    putPad(Binding.pad(Pad.DPAD_UP), "xbox_dpad_up", "playstation_dpad_up");
+    putPad(Binding.pad(Pad.DPAD_DOWN), "xbox_dpad_down", "playstation_dpad_down");
+    putPad(Binding.pad(Pad.DPAD_LEFT), "xbox_dpad_left", "playstation_dpad_left");
+    putPad(Binding.pad(Pad.DPAD_RIGHT), "xbox_dpad_right", "playstation_dpad_right");
+    putPad(Binding.pad(PadAxisId.LT), "xbox_lt", "playstation_trigger_l2");
+    putPad(Binding.pad(PadAxisId.RT), "xbox_rt", "playstation_trigger_r2");
+    putPad(Binding.pad(PadAxisId.LSTICK), "xbox_stick_l", "playstation_stick_l");
+    putPad(Binding.pad(PadAxisId.LSTICK_UP), "xbox_stick_l_up", "playstation_stick_l_up");
+    putPad(Binding.pad(PadAxisId.LSTICK_DOWN), "xbox_stick_l_down", "playstation_stick_l_down");
+    putPad(Binding.pad(PadAxisId.LSTICK_LEFT), "xbox_stick_l_left", "playstation_stick_l_left");
+    putPad(Binding.pad(PadAxisId.LSTICK_RIGHT), "xbox_stick_l_right", "playstation_stick_l_right");
   }
 
   private static void putRegion(String name, int x, int y) {

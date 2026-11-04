@@ -314,6 +314,15 @@ public final class GameInput {
   }
 
   /**
+   * Gets the name of the connected controller.
+   *
+   * @return the name the controller reports, or an empty string without one
+   */
+  public static String padName() {
+    return PadInput.name();
+  }
+
+  /**
    * Gets the bindings shown for an action on the device the player used last.
    *
    * @param action the action

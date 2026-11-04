@@ -1,6 +1,7 @@
 package engine.input;
 
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -10,15 +11,14 @@ import java.util.Set;
  * @param layer vertical position in the context stack
  * @param blocksBelow true if input not taken here must not reach lower contexts
  * @param actions actions this context takes
- * @param keyboardOnly actions of this context that ignore their pad bindings here, because the pad
- *     button has another meaning in this context
+ * @param closing actions of this context that close it; they may share bindings with each other
  */
 public record ContextSpec(
     String name,
     ContextLayer layer,
     boolean blocksBelow,
     Set<ActionId> actions,
-    Set<ActionId> keyboardOnly) {
+    Set<ActionId> closing) {
 
   /**
    * Creates a specification of a context that lets input it does not take pass.
@@ -38,27 +38,19 @@ public record ContextSpec(
    * @return the copy
    */
   public ContextSpec blocking() {
-    return new ContextSpec(name, layer, true, actions, keyboardOnly);
+    return new ContextSpec(name, layer, true, actions, closing);
   }
 
   /**
-   * Returns a copy whose given actions ignore their pad bindings.
+   * Returns a copy that also takes the given actions and closes through them. A UI lists the action
+   * that opens it here, so that the same input closes it again.
    *
-   * @param ids the keyboard-only actions
+   * @param ids the closing actions
    * @return the copy
    */
-  public ContextSpec keyboardOnly(ActionId... ids) {
-    return new ContextSpec(name, layer, blocksBelow, actions, Set.copyOf(Arrays.asList(ids)));
-  }
-
-  /**
-   * Checks whether this context takes an action through a binding.
-   *
-   * @param action the action
-   * @param binding the binding driving the action
-   * @return true if the binding reaches the action in this context
-   */
-  public boolean accepts(ActionId action, Binding binding) {
-    return actions.contains(action) && !(binding.isPad() && keyboardOnly.contains(action));
+  public ContextSpec closedBy(ActionId... ids) {
+    Set<ActionId> all = new HashSet<>(actions);
+    all.addAll(List.of(ids));
+    return new ContextSpec(name, layer, blocksBelow, Set.copyOf(all), Set.of(ids));
   }
 }

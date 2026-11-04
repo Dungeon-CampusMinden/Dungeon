@@ -632,7 +632,7 @@ public final class InputResolver implements InputProcessor {
       if (trigger.isPad() && context.spec().equals(CoreActions.TEXT)) continue;
       Bound best = null;
       for (Bound bound : candidates) {
-        if (context.spec().accepts(bound.action(), bound.binding())
+        if (context.spec().actions().contains(bound.action())
             && prefixesHeld(bound.binding())
             && (best == null || prefixCount(bound.binding()) > prefixCount(best.binding()))) {
           best = bound;

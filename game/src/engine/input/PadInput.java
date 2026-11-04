@@ -8,6 +8,7 @@ import engine.input.Binding.PadAxis;
 import engine.input.Binding.PadAxisId;
 import engine.input.Binding.PadButton;
 import engine.utils.Vector2;
+import engine.utils.logging.DungeonLogger;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import java.util.Set;
  * stick moves pointer 0. Unplugging cancels everything the pad holds.
  */
 final class PadInput {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(PadInput.class);
   private static final int AXIS_LEFT_X = 0;
   private static final int AXIS_LEFT_Y = 1;
   private static final int AXIS_RIGHT_X = 2;
@@ -41,6 +43,10 @@ final class PadInput {
     connected = null;
   }
 
+  static String name() {
+    return connected == null ? "" : connected.getName();
+  }
+
   static void poll(InputResolver resolver, float delta) {
     Controller controller =
         Controllers.getControllers().size == 0 ? null : Controllers.getControllers().first();
@@ -49,6 +55,7 @@ final class PadInput {
       heldButtons.clear();
       heldAxes.clear();
       connected = controller;
+      LOGGER.info("Controller: {}", controller == null ? "none" : controller.getName());
     }
     if (controller == null) return;
 

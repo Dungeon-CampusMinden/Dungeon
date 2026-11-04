@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import engine.Game;
 import engine.input.ActionId;
 import engine.input.ContextSpec;
-import engine.input.CoreActions;
 import engine.input.InputContext;
 import engine.input.UiActions;
 import feature.components.UIComponent;
@@ -25,6 +24,7 @@ public final class DialogInput {
     register(DialogType.DefaultTypes.DUAL_INVENTORY, UiActions.INVENTORY);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, UiActions.CONFIRM_DIALOG);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, UiActions.CONFIRM_DIALOG);
+    register(DialogType.DefaultTypes.CONTROLS, UiActions.CONTROLS);
   }
 
   private DialogInput() {}
@@ -76,7 +76,6 @@ public final class DialogInput {
     ContextSpec spec = SPECS.getOrDefault(ui.dialogContext().dialogType().type(), UiActions.DIALOG);
     InputContext context =
         new InputContext(spec)
-            .onPress(UiActions.CLOSE, () -> close(ui))
             .onPress(UiActions.CONFIRM, () -> fire(ui, UiActions.CONFIRM))
             .onPress(UiActions.NAV_UP, () -> navigate(ui, UiActions.NAV_UP, -1))
             .onPress(UiActions.NAV_DOWN, () -> navigate(ui, UiActions.NAV_DOWN, 1))
@@ -85,12 +84,7 @@ public final class DialogInput {
             .onPress(
                 UiActions.TRANSFER_ITEM,
                 () -> inventories(ui).forEach(InventoryGUI::transferItemAtPointer));
-    if (spec.actions().contains(CoreActions.INVENTORY)) {
-      context.onPress(CoreActions.INVENTORY, () -> UIUtils.requestCloseDialog(ui));
-    }
-    if (spec.actions().contains(CoreActions.QUESTLOG)) {
-      context.onPress(CoreActions.QUESTLOG, () -> UIUtils.requestCloseDialog(ui));
-    }
+    spec.closing().forEach(action -> context.onPress(action, () -> close(ui)));
     return context;
   }
 

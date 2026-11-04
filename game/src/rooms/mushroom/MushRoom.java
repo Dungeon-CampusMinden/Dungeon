@@ -96,15 +96,15 @@ public class MushRoom {
     }
   }
 
-  private static final ActionId JOURNAL = new ActionId("mushroom", "journal", key(Keys.J));
   private static final ActionId MAGIC_LENS = new ActionId("mushroom", "magic_lens", key(Keys.V));
 
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
     Game.add(hero);
     GameInput.activate(
-        new InputContext(ContextSpec.of("mushroom", ContextLayer.ROOM, JOURNAL, MAGIC_LENS))
-            .onPress(JOURNAL, () -> Game.player().ifPresent(JournalItem::openJournal))
+        new InputContext(
+                ContextSpec.of("mushroom", ContextLayer.ROOM, JournalItem.OPEN, MAGIC_LENS))
+            .onPress(JournalItem.OPEN, () -> Game.player().ifPresent(JournalItem::openJournal))
             .onPress(MAGIC_LENS, () -> Game.player().ifPresent(MagicLensItem::toggleMagicLens)));
   }
 

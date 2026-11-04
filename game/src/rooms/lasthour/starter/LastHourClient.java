@@ -16,7 +16,6 @@ import engine.utils.Tuple;
 import engine.utils.components.draw.DrawComponentFactory;
 import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.TextureMap;
-import engine.utils.components.draw.shader.ColorGradeShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.SimpleIPath;
@@ -29,6 +28,7 @@ import feature.entities.HeroBuilder;
 import feature.hud.AutoSaveIndicator;
 import feature.hud.dialogs.DialogFactory;
 import feature.input.systems.ControlsDialogSystem;
+import feature.input.ui.InputPromptHelper;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleMaker;
@@ -252,13 +252,7 @@ public final class LastHourClient {
       TextureGenerator.registerRenderShaderTexture(basePath, outTexturePath, shaderList);
     }
 
-    // Invert the keyboard / mouse input-prompt spritesheet so the white-on-transparent icons
-    // read clearly against the dark HUD text used in this game.
-    String keyboardPromptPath = "hud/input/keyboard_mouse.png";
-    ShaderList invertShaders = new ShaderList();
-    invertShaders.add("invert", new ColorGradeShader().invert(true));
-    TextureGenerator.registerRenderShaderTexture(
-        keyboardPromptPath, keyboardPromptPath, invertShaders);
+    InputPromptHelper.useDarkPrompts();
 
     // Put the first frame of the idle animation of the rogue and the char03 characters into a
     // special texture in "@gen/char03.png" and "@gen/rogue.png", so they can be used for Dialogs

@@ -124,14 +124,11 @@ class BindingTableTest {
   }
 
   @Test
-  void keyboardOnlyActionIgnoresItsPadBindingInConflicts() {
-    ActionId close = new ActionId("test", "close", pad(Pad.Y));
-    ActionId transfer = new ActionId("test", "transfer", pad(Pad.Y));
+  void closingActionsMayShareABinding() {
+    ActionId close = new ActionId("test", "close", key(Keys.ESCAPE));
+    ActionId menu = new ActionId("test", "menu", key(Keys.ESCAPE), pad(Pad.START));
     BindingTable table = new BindingTable();
-    table.register(
-        ContextSpec.of("inventory", ContextLayer.UI, close, transfer)
-            .blocking()
-            .keyboardOnly(close));
+    table.register(ContextSpec.of("menu", ContextLayer.UI).closedBy(close, menu).blocking());
 
     assertEquals(List.of(), table.conflicts());
   }

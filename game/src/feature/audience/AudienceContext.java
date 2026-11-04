@@ -130,7 +130,8 @@ sealed interface AudienceContext {
     }
     if ((type == DialogType.DefaultTypes.OK
             || type == DialogType.DefaultTypes.TEXT
-            || type == DialogType.DefaultTypes.DIALOG_DIALOG)
+            || type == DialogType.DefaultTypes.DIALOG_DIALOG
+            || type == DialogType.DefaultTypes.CONTROLS)
         && ui.callbacks().containsKey(DialogContextKeys.ON_CONFIRM)) {
       return new Continue(ui);
     }

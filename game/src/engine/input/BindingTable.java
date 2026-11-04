@@ -142,11 +142,10 @@ public final class BindingTable {
     for (ContextSpec spec : group) {
       for (ActionId action : spec.actions()) {
         for (Binding binding : bindings(action)) {
-          if (!spec.accepts(action, binding)) continue;
           ActionId other = seen.putIfAbsent(binding, action);
-          if (other != null && !other.equals(action)) {
-            found.add(new Conflict(binding, other, action, name));
-          }
+          if (other == null || other.equals(action)) continue;
+          boolean bothClose = spec.closing().contains(action) && spec.closing().contains(other);
+          if (!bothClose) found.add(new Conflict(binding, other, action, name));
         }
       }
     }
