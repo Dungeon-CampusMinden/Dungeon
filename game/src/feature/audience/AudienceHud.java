@@ -657,7 +657,7 @@ public final class AudienceHud extends System {
       case "move", "goto" -> "Wohin geht es?";
       case "choice" -> context.path("multiple").asBoolean() ? "Antworten wählen" : "Antwort wählen";
       case "text" -> "Antwort eintippen";
-      case "code" -> "Code eingeben";
+      case "code", "lock" -> "Code eingeben";
       case "continue" -> "Weiterlesen?";
       default -> "";
     };

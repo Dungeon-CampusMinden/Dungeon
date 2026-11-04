@@ -166,14 +166,34 @@ public class KeypadFactory {
       case KeypadUI.ACTION_SPACE -> component.add(" ");
       default -> component.add(action);
     }
-    // Digits rise in pitch from 0 to 9, back sounds lowest.
+    // Back sounds lowest.
     float pitch =
         switch (action) {
           case KeypadUI.ACTION_BACK -> 0.7f;
-          default -> action.matches("[0-9]") ? 1 + (action.charAt(0) - '5') * 0.05f : 1;
+          default -> action.matches("[0-9]") ? digitPitch(action.charAt(0) - '0') : 1;
         };
-    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
+    beep(caller, pitch);
     return false;
+  }
+
+  /**
+   * Returns the pitch of the beep for a digit key. Digits rise in pitch from 0 to 9.
+   *
+   * @param digit the digit, from 0 to 9
+   * @return the pitch, 1 for the digit 5
+   */
+  public static float digitPitch(int digit) {
+    return 1 + (digit - 5) * 0.05f;
+  }
+
+  /**
+   * Plays the beep of a pressed key for one player.
+   *
+   * @param caller the player that pressed the key
+   * @param pitch pitch of the beep, see {@link #digitPitch(int)}
+   */
+  public static void beep(Entity caller, float pitch) {
+    Game.audio().playGlobal(SoundSpec.builder("retro_beep_01").pitch(pitch).targets(caller.id()));
   }
 
   private static void addDialogInteraction(

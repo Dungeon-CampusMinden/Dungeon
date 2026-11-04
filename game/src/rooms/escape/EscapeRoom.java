@@ -122,6 +122,15 @@ public record EscapeRoom(
     MainMenu.run(args, game, client, server);
   }
 
+  /**
+   * Says whether the room runs in the level editor, without an audience.
+   *
+   * @return true in the level editor
+   */
+  static boolean levelEditor() {
+    return levelEditorMode;
+  }
+
   /** Ends the game once the hero reached the exit. The devices switch to the post survey. */
   static void finished() {
     if (audience != null) audience.end(PlayClock.Outcome.SUCCESS);

@@ -65,8 +65,8 @@ es. Ein Fenster dafür dauert 15 Sekunden ab der ersten Stimme. Die Liste wächs
 | Tür des Labors offen | Ausgang |
 
 Erledigtes verschwindet wieder. Robo, Tastenfeld und Drucker gehen, sobald die Tür ins Labor offen
-ist, die Truhe, sobald sie leer ist, und das Türschloss, sobald die Tür des Labors offen ist. Die
-Liste ist nach Namen sortiert.
+ist, Rechner und Truhe, sobald die Truhe offen ist, und das Türschloss, sobald die Tür des Labors
+offen ist. Die Liste ist nach Namen sortiert.
 
 Neben den Quizfragen hat das Labor des FOMO-Raums diese Rätsel:
 
@@ -79,7 +79,7 @@ Neben den Quizfragen hat das Labor des FOMO-Raums diese Rätsel:
   Bild ist `rooms/fomo/modelling_cycle.png`. Das Whiteboard ist zwei Felder breit und hat eine
   Hitbox über beide Felder, also lässt es sich vor jedem der beiden benutzen.
 - Stimmen die Ziffern am Ausgang, aber nicht ihre Reihenfolge, sagt das Tastenfeld genau das.
-- Die Truhe mit dem Bauplan hat ein Zahlenschloss mit zwei Ziffern. Daneben steht auf dem Punkt
+- Die Truhe mit dem Bauplan hat ein Zahlenschloss mit zwei Rädchen. Daneben steht auf dem Punkt
   `graph_model` ein Rechner. Er zeigt ein Graphmodell des Labors. Darin sind Räume Knoten, Gänge
   Kanten und die Zahlen Gehminuten. Das Schloss will den kürzesten Weg vom Vorraum zum Serverraum.
   Er führt über Flur, Labor und Lager und dauert 13 Minuten, drei andere Wege dauern 14. `13` öffnet
@@ -103,6 +103,10 @@ sein Level liegt in `game/assets/levels/ki`. Die Unterschiede zum FOMO-Raum:
 - Quinlan, der Erfinder von ID3, hat Terminal 4 auseinandergenommen. Er baut es wieder auf, sobald
   die Figur ihm den Bauplan aus der Truhe bringt. Ist die ID3-Frage gelöst, schreibt er die Regel
   „größter Informationsgewinn zuerst“ an das Whiteboard.
+- Das Whiteboard listet alle schon gefundenen Attribute mit Informationsgewinn und Ziffer, in der
+  Reihenfolge der Terminals, etwa „Wetter 0,25 -> 7“. Es kommt mit dem ersten gelösten Terminal in
+  die Zielliste, die Regel steht erst nach der ID3-Frage darüber. Weil das Whiteboard die Ziffern
+  aufhebt, verschwindet ein gelöstes Terminal aus der Zielliste.
 - Das Zahlenschloss der Truhe öffnet `83`. Die Zahl liefert der Entscheidungsbaum auf dem Rechner
   am Punkt `decision_tree` (`rooms/ki/decision_tree.png`) für Regen und starken Wind. Die
   eingeritzte Luftfeuchte spielt auf diesem Ast keine Rolle.
@@ -120,7 +124,11 @@ enthält Terminals, Helfer, Truhe, Türschloss, Vorraum, Rechner und Whiteboard.
 nur noch seine Texte, Fragen und Codes und legt in `setUp()` fest, welche Teile er nutzt. Der
 Automatenraum lässt Vorraum, Rechner und Whiteboard weg und schaltet die Zielliste ab. Stimmen am
 Türschloss die Ziffern, aber nicht ihre Reihenfolge, sagt das Tastenfeld das in allen drei
-Räumen.
+Räumen. Die Truhe hat ein Zahlenschloss mit einem Rädchen je Ziffer, siehe unten. Im Level-Editor
+zeigt es Pfeile und einen Knopf zum Öffnen, weil dort kein Publikum abstimmt. Der Rechner
+verschwindet aus der Zielliste, sobald die Truhe offen ist. Hängt ein Raum sein Whiteboard mit
+`findingsBoard(...)` statt `whiteboard(...)` auf, wie der KI-Raum, verschwinden auch gelöste
+Terminals. Das Whiteboard kommt dann schon mit dem ersten gelösten Terminal dazu.
 
 ## Ablauf
 
@@ -161,6 +169,7 @@ aus dem offenen Dialog der Figur ab:
 | `YES_NO` | „Ja“ und „Nein“ | `ON_YES` oder `ON_NO` |
 | `FREE_INPUT` | Textfeld | `ON_CONFIRM` mit dem Text |
 | `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` | Ziffernblock für einen Code dieser Länge | `ON_CONFIRM` mit dem Code |
+| `COMBINATION_LOCK` | Ziffernblock mit einer Ziffer je Rädchen | `ON_CONFIRM` mit `CombinationLock.dial(code)` |
 | `OK`, `TEXT`, `DIALOG_DIALOG` | „Weiter“ | `ON_CONFIRM` |
 | `IMAGE`, etwa vom Prefab `show-image` | „Weiter“ | `ON_CLOSE`, dann schließt das Bild |
 | andere Dialoge, Figur läuft | nichts, „Schaut auf den Spielbildschirm“ | |
@@ -170,6 +179,8 @@ Eine Tür mit Code baut ein Raum deshalb selbst, mit einem `FREE_INPUT`-Dialog u
 `AudienceSystem.CODE_DIGITS`, wie der FOMO-Raum.
 
 Über den Eingaben zeigt das Gerät Titel und Frage des Dialogs, bei Texten den Text selbst.
+Beim Zahlenschloss steht unter der Frage der Hinweis des Schlosses. Das Gerät zeigt den
+Ziffernblock wie bei einem Code, der Spielbildschirm dreht danach die Rädchen.
 Auf breiten Bildschirmen stehen Aufgabe und Eingaben nebeneinander, und jede Eingabe hat eine Taste:
 Pfeiltasten und Leertaste zum Gehen, Buchstaben für Antworten und Ziele, Ziffern für Ja/Nein und
 Codes, Enter zum Abschicken. Die Antworten von Multiple-Choice-Dialogen erscheinen auf dem
@@ -236,6 +247,16 @@ Beim Levelbau gilt:
 - Texte in `DIALOG_DIALOG` sollten eine Seite lang sein, weil „Weiter“ den ganzen Dialog bestätigt.
 - Codes fragt ein `FREE_INPUT` mit `AudienceSystem.CODE_DIGITS` ab. Das Keypad der Engine lässt sich
   nicht abstimmen.
+- Ein Zahlenschloss mit Rädchen zeigt `CombinationLock.show(...)` aus
+  `feature.interaction.combinationlock`. Das Objekt mit dem Schloss braucht eine
+  `CombinationLockComponent` mit einem Rädchen je Ziffer. Die Rädchen liegen auf dem Server, der
+  Spielbildschirm bekommt sie wie beim Keypad über die Metadaten des Objekts und lässt sie Ziffer
+  für Ziffer rollen. Das Publikum stimmt wie bei einem Code über die ganze Zahl ab. Das Schloss
+  dreht dann ein Rädchen nach dem anderen, 0,8 Sekunden je Rädchen auf der Spielzeit, und versucht
+  danach zu öffnen. Solange die Rädchen drehen, gibt es nichts abzustimmen. Dann schließt sich
+  der Dialog, und der Raum prüft die Ziffern. Sie bleiben nach einem falschen Versuch stehen. Mit
+  `controls` = `true` zeigt der Dialog stattdessen Pfeile zum Drehen und Wählen und einen Knopf zum
+  Öffnen, für ein Spiel ohne Publikum.
 - Statt einzelner Schritte kann ein Raum das Publikum Ziele wählen lassen. Dafür bekommt jedes
   Objekt ein `AudienceTarget` mit einem eindeutigen Namen und einer Bedingung, wann es in der Liste
   steht. Ein Feld, auf das die Figur gehen soll, etwa hinter der letzten Tür, markiert
@@ -261,8 +282,8 @@ Jedes zustimmende Gerät wird ein Tracking-Teilnehmer ohne Netzwerkclient. Neben
 - `VOTE_RESOLVED`: die Verteilung eines Fensters und das ausgeführte Ergebnis.
 
 Beide tragen die Fensternummer `window` und den Spielzustand `context` (`move`, `goto`, `choice`,
-`text`, `code`, `continue`). Bei `goto` ist die Stimme der Name des Ziels. Das Tracking-Backend
-braucht dafür die Migration `V003__votes.sql`.
+`text`, `code`, `lock`, `continue`). Bei `goto` ist die Stimme der Name des Ziels, bei `lock` der
+Code. Das Tracking-Backend braucht dafür die Migration `V003__votes.sql`.
 
 Die Tracking-Sitzung hängt am Client des Spielbildschirms. Verliert er die Verbindung zum
 Spielserver, endet sie; nach dem Wiederverbinden zählen die Abstimmungen weiter, werden aber nicht
