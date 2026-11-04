@@ -14,6 +14,7 @@ import engine.input.ActionId;
 import engine.input.Binding.Pad;
 import engine.input.ContextLayer;
 import engine.input.ContextSpec;
+import engine.input.CoreActions;
 import engine.input.GameInput;
 import engine.input.InputContext;
 import engine.level.loader.DungeonLoader;
@@ -106,8 +107,14 @@ public class MushRoom {
     Game.add(hero);
     GameInput.activate(
         new InputContext(
-                ContextSpec.of("mushroom", ContextLayer.ROOM, JournalItem.OPEN, MAGIC_LENS))
+                ContextSpec.of(
+                    "mushroom",
+                    ContextLayer.ROOM,
+                    JournalItem.OPEN,
+                    CoreActions.QUESTLOG,
+                    MAGIC_LENS))
             .onPress(JournalItem.OPEN, () -> Game.player().ifPresent(JournalItem::openJournal))
+            .onPress(CoreActions.QUESTLOG, () -> Game.player().ifPresent(JournalItem::openJournal))
             .onPress(MAGIC_LENS, () -> Game.player().ifPresent(MagicLensItem::toggleMagicLens)));
   }
 

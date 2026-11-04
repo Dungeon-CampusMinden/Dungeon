@@ -12,6 +12,7 @@ import engine.Entity;
 import engine.input.ActionId;
 import engine.input.ContextLayer;
 import engine.input.ContextSpec;
+import engine.input.CoreActions;
 import engine.input.UiActions;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.animation.Animation;
@@ -37,7 +38,7 @@ import rooms.mushroom.modules.mushrooms.Mushrooms;
  */
 public class JournalItem extends Item {
 
-  /** Opens the journal; closes it as well. */
+  /** Opens the journal; closes it as well. This room's quest log action does the same. */
   public static final ActionId OPEN = new ActionId("mushroom", "journal", key(Keys.J));
 
   /** Number of pages that are unlocked when the player receives the journal. */
@@ -59,7 +60,7 @@ public class JournalItem extends Item {
                 UiActions.NAV_UP,
                 UiActions.NAV_DOWN,
                 UiActions.CLICK)
-            .closedBy(UiActions.CLOSE, OPEN)
+            .closedBy(UiActions.CLOSE, OPEN, CoreActions.QUESTLOG)
             .blocking());
   }
 
