@@ -1,6 +1,5 @@
 package feature.canvas;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import engine.input.GameInput;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.logging.DungeonLogger;
 import feature.hud.dialogs.DialogCallbackResolver;
@@ -954,23 +954,11 @@ public class CanvasArea extends Group {
   }
 
   private boolean panRequested(int button) {
-    if (button == options.panButton()) {
-      return true;
-    }
-    return options.panWithSpace()
-        && button == Input.Buttons.LEFT
-        && Gdx.input != null
-        && Gdx.input.isKeyPressed(Input.Keys.SPACE);
+    return button == options.panButton();
   }
 
   private boolean additiveRequested() {
-    if (Gdx.input == null) {
-      return false;
-    }
-    return Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
-        || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)
-        || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
-        || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+    return GameInput.ctrl() || GameInput.shift();
   }
 
   /** Routes pointer and keyboard input to view manipulation and node interactions. */

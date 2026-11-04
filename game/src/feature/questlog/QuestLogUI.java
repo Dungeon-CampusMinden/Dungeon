@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.input.UiActions;
 import engine.language.Translation;
 import engine.network.NetworkUtils;
 import engine.network.handler.INetworkHandler;
@@ -39,6 +40,7 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogEntry;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogScript;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
@@ -137,6 +139,7 @@ public final class QuestLogUI {
   /** Registers the quest log dialog in every runtime that displays it. */
   public static void register() {
     DialogFactory.register(DIALOG_TYPE, QuestLogUI::build);
+    DialogInput.register(DIALOG_TYPE, UiActions.QUESTLOG);
   }
 
   private static volatile boolean available = true;

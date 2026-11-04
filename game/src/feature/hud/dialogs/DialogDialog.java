@@ -1,6 +1,5 @@
 package feature.hud.dialogs;
 
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
+import engine.input.UiActions;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
 import feature.hud.UIUtils;
@@ -24,9 +24,8 @@ import java.util.List;
  * <p>User interaction:
  *
  * <ul>
- *   <li>Any mouse click anywhere on the dialog, pressing the configured interact key (see {@link
- *       feature.input.configuration.KeyboardConfig#INTERACT_WORLD}), or pressing {@code ESC}
- *       advances the script view.
+ *   <li>Any mouse click anywhere on the dialog, {@link engine.input.UiActions#CONFIRM} or {@link
+ *       engine.input.UiActions#CLOSE} advances the script view.
  *   <li>If the typewriter is still revealing text, advancing skips to the end of the current
  *       entry's text.
  *   <li>Otherwise, the next page is shown.
@@ -113,32 +112,6 @@ final class DialogDialog {
           }
         });
 
-    // ESC is routed through the close request; only interaction advances here.
-    dialog.addListener(
-        new InputListener() {
-          @Override
-          public boolean keyDown(InputEvent event, int keycode) {
-            if (!DialogAdvanceInput.isAdvanceKey(keycode)) {
-              return false;
-            }
-            advance.run();
-            return true;
-          }
-        });
-
-    // Visible dialogs reclaim keyboard focus after mouse activity.
-    dialog.addAction(
-        new Action() {
-          @Override
-          public boolean act(float delta) {
-            Stage stage = dialog.getStage();
-            if (stage != null && dialog.ancestorsVisible()) {
-              stage.setKeyboardFocus(dialog);
-            }
-            return false; // run forever
-          }
-        });
-
     // Wrap in an actor that clears the local texture cache on stage removal. Textures themselves
     // are owned by the TextureMap and must not be disposed here.
     dialog.pack();
@@ -153,6 +126,7 @@ final class DialogDialog {
           }
         };
     UIUtils.onCloseRequest(container, advance);
+    UIUtils.onUiAction(container, UiActions.CONFIRM, advance);
     return container;
   }
 }

@@ -4,25 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.components.NetworkPositionComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
+import engine.input.CoreActions;
+import engine.input.GameInput;
+import engine.input.InputContext;
 import engine.level.DungeonLevel;
 import engine.network.messages.c2s.InputMessage;
 import engine.network.server.ClientState;
 import engine.systems.LevelSystem;
 import engine.systems.NetworkPositionSmoothingSystem;
-import engine.systems.input.InputManager;
-import engine.systems.input.InputSystem;
 import engine.utils.Direction;
 import engine.utils.Point;
 import feature.canvas.CanvasUI;
@@ -30,6 +29,7 @@ import feature.components.CharacterClassComponent;
 import feature.components.UIComponent;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -194,38 +194,33 @@ class SoulweaverLoopRuntimeTest {
             .isPresent(),
         "Another player's controls must remain available");
 
-    var input = new InputComponent();
-    var movementCalls = new AtomicInteger();
-    input.registerCallback(Input.Keys.W, ignored -> movementCalls.incrementAndGet());
-    input.registerCallback(Input.Buttons.LEFT, who -> HeroController.interact(who, target));
     UIComponent opened = dialog();
-    input.registerCallback(
-        Input.Keys.ESCAPE,
-        ignored -> opened.callbacks().get(CanvasUI.EVENT_CLOSE).accept(null),
-        false,
-        true);
-    player.add(input);
-    var inputs = new InputSystem();
-    Game.add(inputs);
-    try (var keys = mockStatic(InputManager.class)) {
-      keys.when(() -> InputManager.isKeyPressed(Input.Keys.W)).thenReturn(true);
-      keys.when(() -> InputManager.isButtonPressed(Input.Buttons.LEFT)).thenReturn(true);
-      keys.when(() -> InputManager.isButtonJustPressed(Input.Buttons.LEFT)).thenReturn(true);
-      inputs.execute();
-      assertEquals(0, movementCalls.get(), "Local gameplay callbacks must be blocked");
-      assertEquals(0, interactions.get(), "Local mouse input must not interact through the canvas");
-      keys.when(() -> InputManager.isKeyJustPressed(Input.Keys.ESCAPE)).thenReturn(true);
-      inputs.execute();
-      assertFalse(Game.hud().hasOpenUI(player), "Closing must remain possible");
-      keys.when(() -> InputManager.isKeyJustPressed(Input.Keys.ESCAPE)).thenReturn(false);
-      int before = movementCalls.get();
-      int beforeInteractions = interactions.get();
-      inputs.execute();
-      assertEquals(before + 1, movementCalls.get(), "Closing must restore gameplay controls");
-      assertEquals(
-          beforeInteractions + 1, interactions.get(), "Closing must restore mouse interactions");
-    }
-    player.remove(InputComponent.class);
+    UIUtils.onCloseRequest(
+        opened.dialog(), () -> opened.callbacks().get(CanvasUI.EVENT_CLOSE).accept(null));
+    var resolver = GameInput.resolver();
+    var gameplay = new InputContext(CoreActions.GAMEPLAY);
+    resolver.push(gameplay);
+    resolver.keyDown(Input.Keys.W);
+    resolver.touchDown(0, 0, 0, Input.Buttons.LEFT);
+    resolver.advance(0);
+    assertFalse(resolver.pressed(CoreActions.MOVE_UP), "Local gameplay input must be blocked");
+    assertFalse(
+        resolver.pressed(CoreActions.INTERACT),
+        "Local mouse input must not interact through the canvas");
+    resolver.keyDown(Input.Keys.ESCAPE);
+    resolver.advance(0);
+    assertFalse(Game.hud().hasOpenUI(player), "Closing must remain possible");
+    resolver.keyUp(Input.Keys.ESCAPE);
+    resolver.keyUp(Input.Keys.W);
+    resolver.touchUp(0, 0, 0, Input.Buttons.LEFT);
+    resolver.keyDown(Input.Keys.W);
+    resolver.touchDown(0, 0, 0, Input.Buttons.LEFT);
+    resolver.advance(0);
+    assertTrue(resolver.pressed(CoreActions.MOVE_UP), "Closing must restore gameplay input");
+    assertTrue(resolver.pressed(CoreActions.INTERACT), "Closing must restore mouse interactions");
+    resolver.keyUp(Input.Keys.W);
+    resolver.touchUp(0, 0, 0, Input.Buttons.LEFT);
+    resolver.remove(gameplay);
     int beforeInteractions = interactions.get();
     sendInput(
         player, new InputMessage(InputMessage.Action.INTERACT, new InputMessage.Interact(target)));

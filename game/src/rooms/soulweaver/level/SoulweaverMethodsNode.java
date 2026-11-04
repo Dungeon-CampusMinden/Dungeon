@@ -1,6 +1,5 @@
 package rooms.soulweaver.level;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -19,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
+import engine.input.GameInput;
 import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
@@ -122,9 +122,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
             int edges =
                 button == Input.Buttons.RIGHT
                     ? Align.bottom | (container.equals("draft") ? Align.right : 0)
-                    : button == Input.Buttons.LEFT && !Gdx.input.isKeyPressed(Input.Keys.SPACE)
-                        ? resizeEdges(x, y)
-                        : 0;
+                    : button == Input.Buttons.LEFT ? resizeEdges(x, y) : 0;
             if (edges == 0) return false;
             resizingPointer = pointer;
             resizingButton = button;
@@ -209,9 +207,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
   @Override
   public Optional<Cursors> cursorOverride() {
     Optional<Cursors> active = owner == null ? manipulationCursor() : owner.cursorOverride();
-    if (active.isPresent() || getStage() == null || Gdx.input.isKeyPressed(Input.Keys.SPACE))
-      return active;
-    Vector2 pointer = screenToLocalCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    if (active.isPresent() || getStage() == null) return active;
+    Vector2 pointer =
+        screenToLocalCoordinates(new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
     int edges = resizeEdges(pointer.x, pointer.y);
     return edges == 0 ? Optional.empty() : Optional.of(resizeCursor(edges));
   }
@@ -792,12 +790,8 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
             if (!owner.editable()
                 || editorButton(event.getTarget(), row)
                 || !super.touchDown(event, x, y, pointer, button)) return false;
-            toggle =
-                Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
-                    || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
-            range =
-                Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
-                    || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+            toggle = GameInput.ctrl();
+            range = GameInput.shift();
             return true;
           }
 

@@ -92,9 +92,6 @@ public class PauseDialog extends Table {
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showPauseDialog(Entity caller) {
-    boolean isInInput = Game.stage().map(s -> s.getKeyboardFocus() != null).orElse(false);
-    if (isInInput) return null;
-
     var openMenu =
         Game.entities()
             .filter(Entity::isLocal)

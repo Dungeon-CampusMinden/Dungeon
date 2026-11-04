@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import engine.Entity;
 import engine.Game;
+import engine.input.ActionId;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
@@ -17,6 +18,7 @@ import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogCloseEvent;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
+import feature.hud.dialogs.DialogInput;
 import feature.hud.elements.GUICombination;
 import feature.inventory.ui.InventoryGUI;
 import java.util.Optional;
@@ -279,6 +281,24 @@ public final class UIUtils {
       if (listener instanceof CloseRequestListener) return true;
     }
     return false;
+  }
+
+  /**
+   * Registers a dialog's reaction to UI actions routed to its input context.
+   *
+   * @param actor the dialog's outermost actor
+   * @param action the action
+   * @param handler reaction to the action
+   */
+  public static void onUiAction(Actor actor, ActionId action, Runnable handler) {
+    actor.addListener(
+        event -> {
+          if (!(event instanceof DialogInput.UiActionEvent uiAction)) return false;
+          if (!uiAction.action().equals(action)) return false;
+          handler.run();
+          event.handle();
+          return true;
+        });
   }
 
   /**

@@ -7,17 +7,18 @@ import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.game.PreRunConfiguration;
+import engine.input.GameInput;
+import engine.input.InputContext;
 import engine.network.server.DialogTracker;
-import engine.utils.Tuple;
 import engine.utils.components.MissingComponentException;
 import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContextKeys;
+import feature.hud.dialogs.DialogInput;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -35,6 +36,9 @@ public final class HudSystem extends System {
 
   /** Stores the component because it is no longer available on the entity during removal. */
   private final Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
+
+  /** Input contexts of the modal dialogs the local player currently sees. */
+  private final Map<UIComponent, InputContext> inputContexts = new LinkedHashMap<>();
 
   /** Visible dialogs that must be restored after temporary HUD suppression. */
   private final Set<UIComponent> dialogsVisibleBeforeSuppression = new HashSet<>();
@@ -55,25 +59,6 @@ public final class HudSystem extends System {
     super(AuthoritativeSide.BOTH, UIComponent.class);
     onEntityAdd = this::addListener;
     onEntityRemove = this::removeListener;
-  }
-
-  /**
-   * Returns the topmost visible UI that can be closed or handles close requests locally.
-   *
-   * <p>Passive HUD elements are excluded. Non-closeable cutscenes with a local close-request
-   * handler still receive the shortcut.
-   *
-   * @return a Tuple of the Entity and its UIComponent
-   */
-  public Optional<Tuple<Entity, UIComponent>> topmostCloseRequestUI() {
-    return entityUIComponentMap.entrySet().stream()
-        .filter(
-            entry ->
-                entry.getValue().isVisible()
-                    && (entry.getValue().canBeClosed()
-                        || UIUtils.hasCloseRequestHandler(entry.getValue().dialog())))
-        .max(Comparator.comparingInt(entry -> entry.getValue().dialog().getZIndex()))
-        .map(entry -> Tuple.of(entry.getKey(), entry.getValue()));
   }
 
   /**
@@ -184,6 +169,7 @@ public final class HudSystem extends System {
       return;
     }
     removedComponent.dialog().remove();
+    syncInputContexts();
     boolean terminalRemoval =
         !entity.isPresent(UIComponent.class) || Game.systems().get(HudSystem.class) == this;
     if (PreRunConfiguration.isNetworkServer()) {
@@ -233,6 +219,7 @@ public final class HudSystem extends System {
 
     entityUIComponentMap.put(entity, component);
     if (dialogsSuppressed) suppressDialog(component);
+    syncInputContexts();
     // Multiplayer clients only render dialogs. The server keeps callback ownership and
     // response authorization in DialogTracker.
     if (!Game.isMultiplayerClient()) {
@@ -261,6 +248,37 @@ public final class HudSystem extends System {
 
     // clean up any entities that no longer have a UIComponent
     entityUIComponentMap.keySet().removeIf(entity -> !entity.isPresent(UIComponent.class));
+    syncInputContexts();
+  }
+
+  /**
+   * Gives every modal dialog the local player sees its own input context, and removes exactly the
+   * context of a dialog that was closed, hidden or taken off the stage.
+   */
+  private void syncInputContexts() {
+    inputContexts
+        .entrySet()
+        .removeIf(
+            entry -> {
+              if (wantsInputContext(entry.getKey())) return false;
+              GameInput.remove(entry.getValue());
+              return true;
+            });
+    for (UIComponent component : entityUIComponentMap.values()) {
+      if (inputContexts.containsKey(component) || !wantsInputContext(component)) continue;
+      InputContext context = DialogInput.context(component);
+      inputContexts.put(component, context);
+      GameInput.push(context);
+    }
+  }
+
+  private boolean wantsInputContext(UIComponent component) {
+    return entityUIComponentMap.containsValue(component)
+        && component.modal()
+        && component.isVisible()
+        && (Game.stage().isEmpty() || component.dialog().getStage() != null)
+        && (component.targetEntityIds().length == 0
+            || Game.player().filter(player -> isVisibleFor(component, player)).isPresent());
   }
 
   private boolean pausesGame(final Entity entity) {
