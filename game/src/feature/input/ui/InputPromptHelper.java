@@ -170,7 +170,7 @@ public final class InputPromptHelper {
   /**
    * Looks up the spritesheet location for a keyboard key prompt without creating a {@link
    * TextureRegion}. This is useful for callers that load and crop the texture themselves (for
-   * example markup parsers that desugar a {@code [key]} tag into a regular image reference).
+   * example markup parsers that desugar a {@code [action]} tag into a regular image reference).
    *
    * @param inputMethod the input method to look up the prompt for.
    * @param keyCode a libGDX {@link Input.Keys} key code.

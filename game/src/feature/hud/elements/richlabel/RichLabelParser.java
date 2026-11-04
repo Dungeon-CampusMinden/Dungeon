@@ -2,14 +2,20 @@ package feature.hud.elements.richlabel;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Align;
+import engine.input.ActionId;
+import engine.input.Binding;
+import engine.input.GameInput;
+import engine.input.KeyNames;
 import engine.utils.logging.DungeonLogger;
 import feature.input.ui.InputMethod;
 import feature.input.ui.InputPromptHelper;
 import feature.input.ui.InputPromptHelper.InputPromptRegion;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +33,7 @@ public class RichLabelParser {
           "\\[img=([^]]+)]"
               + "|\\[img((?:\\s+[^]]*))]"
               + "|\\[img-block((?:\\s+[^]]*))]"
-              + "|\\[key((?:\\s+[^]]*))]"
+              + "|\\[action((?:\\s+[^]]*))]"
               + "|\\[color=([^]]+)]|\\[/color]"
               + "|\\[size=([^]]+)]|\\[/size]"
               + "|\\[shake((?:\\s+[^]]*)?)]|\\[/shake]"
@@ -144,8 +150,7 @@ public class RichLabelParser {
           runs.add(new ImageBlockRun(path, widthSpec));
         }
       } else if (matcher.group(4) != null) {
-        ImageRun keyImage = parseKeyTag(matcher.group(4), currentShake, currentSize);
-        if (keyImage != null) runs.add(keyImage);
+        parseActionTag(matcher.group(4), currentColor, currentShake, currentSize, runs);
       } else if (matcher.group(5) != null) {
         currentColor = parseColor(matcher.group(5));
       } else if (matcher.group(6) != null) {
@@ -285,61 +290,64 @@ public class RichLabelParser {
   }
 
   /**
-   * Parses a {@code [key]} tag's parameter string and resolves it to an {@link ImageRun} that
-   * references the matching cell of an input-prompt spritesheet. The {@code code} parameter is
-   * required and holds the libGDX key or button integer; the optional {@code type} parameter
-   * selects the lookup space ({@code keyboard} (default), {@code mouse}, {@code playstation},
-   * {@code xbox}, {@code touch}). The optional {@code outline} boolean flag selects the outlined
-   * spritesheet variant. Returns {@code null} (and logs a warning) when the tag cannot be resolved,
-   * so the markup is silently dropped at render time instead of throwing.
+   * Resolves an {@code [action]} tag to the current binding of the action on the device the player
+   * used last. The required {@code id} parameter names the action, the optional {@code index}
+   * selects a further binding of that device, and the optional {@code outline} flag selects the
+   * outlined spritesheet variant. Keys and mouse buttons show their prompt graphic, a combo shows
+   * one graphic per key. Inputs without a graphic and unbound actions show their label.
    *
-   * @param params the raw parameter string of the tag (everything after {@code [key} and before the
-   *     closing {@code ]}).
-   * @param shake the current shake effect to attach to the resulting image run, or {@code null}.
-   * @param sizeOverride the current font size override to scale the image with, or {@code -1}.
-   * @return the resolved {@link ImageRun}, or {@code null} when the tag cannot be resolved.
+   * @param params the raw parameter string of the tag (everything after {@code [action} and before
+   *     the closing {@code ]}).
+   * @param color the current text color for inputs shown as text.
+   * @param shake the current shake effect to attach to the resulting runs, or {@code null}.
+   * @param sizeOverride the current font size override, or {@code -1}.
+   * @param runs receives the resolved runs.
    */
-  private static ImageRun parseKeyTag(String params, ShakeEffect shake, int sizeOverride) {
+  private static void parseActionTag(
+      String params, Color color, ShakeEffect shake, int sizeOverride, List<Run> runs) {
     TagParams tp = TagParams.parse(params);
-    String codeStr = tp.getString("code", null);
-    if (codeStr == null) {
-      LOGGER.warn("[key] tag is missing required 'code' parameter; ignoring");
-      return null;
+    String id = tp.getString("id", null);
+    if (id == null) {
+      LOGGER.warn("[action] tag is missing required 'id' parameter; ignoring");
+      return;
     }
-    int code;
+    ActionId action;
     try {
-      code = Integer.parseInt(codeStr);
-    } catch (NumberFormatException e) {
-      LOGGER.warn("[key] tag has non-integer code '" + codeStr + "'; ignoring");
-      return null;
+      action = ActionId.of(id);
+    } catch (IllegalArgumentException e) {
+      LOGGER.warn("[action] tag has invalid id '" + id + "'; ignoring");
+      return;
     }
-    String type = tp.getString("type", "keyboard").toLowerCase();
+    int index = (int) tp.getFloat("index", 0);
     boolean outline = tp.getBoolean("outline");
-
-    InputPromptRegion region;
-    try {
-      if ("mouse".equals(type)) {
-        region = InputPromptHelper.lookupMouseButton(code, outline);
-      } else {
-        InputMethod method;
-        try {
-          method = InputMethod.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException e) {
-          LOGGER.warn("[key] tag has unknown type '" + type + "'; ignoring");
-          return null;
-        }
-        region = InputPromptHelper.lookupKey(method, code, outline);
-      }
-    } catch (UnsupportedOperationException e) {
-      LOGGER.warn("[key] tag uses unsupported input method '" + type + "'; ignoring");
-      return null;
+    Optional<Binding> binding = GameInput.displayBinding(action, index);
+    List<InputPromptRegion> regions = binding.map(b -> regions(b, outline)).orElse(List.of());
+    if (regions.isEmpty() || regions.contains(null)) {
+      String label = binding.map(KeyNames::label).orElse("-");
+      runs.add(new TextRun(label, color, sizeOverride, shake));
+      return;
     }
+    for (InputPromptRegion region : regions) runs.add(imageRun(region, shake, sizeOverride));
+  }
 
-    if (region == null) {
-      LOGGER.warn(
-          "[key] tag has no prompt mapping for code=" + code + " type=" + type + "; ignoring");
-      return null;
+  private static List<InputPromptRegion> regions(Binding binding, boolean outline) {
+    if (binding instanceof Binding.MouseButton mouse) {
+      return Collections.singletonList(
+          InputPromptHelper.lookupMouseButton(mouse.button(), outline));
     }
+    if (!(binding instanceof Binding.Key key)) return List.of();
+    List<InputPromptRegion> regions = new ArrayList<>();
+    key.prefixes().stream().sorted().forEach(prefix -> regions.add(keyRegion(prefix, outline)));
+    regions.add(keyRegion(key.keycode(), outline));
+    return regions;
+  }
+
+  private static InputPromptRegion keyRegion(int keycode, boolean outline) {
+    return InputPromptHelper.lookupKey(
+        InputMethod.KEYBOARD, KeyNames.glyphKeycode(keycode), outline);
+  }
+
+  private static ImageRun imageRun(InputPromptRegion region, ShakeEffect shake, int sizeOverride) {
     return new ImageRun(
         region.texturePath(),
         shake,

@@ -1,4 +1,32 @@
 {
+    "input": {
+        "key": {
+            "ESCAPE": "Esc",
+            "TAB": "Tab",
+            "ENTER": "Enter",
+            "SPACE": "Space",
+            "SHIFT_LEFT": "Shift",
+            "SHIFT_RIGHT": "Right Shift",
+            "CONTROL_LEFT": "Ctrl",
+            "CONTROL_RIGHT": "Right Ctrl",
+            "ALT_LEFT": "Alt",
+            "UP": "Up",
+            "DOWN": "Down",
+            "LEFT": "Left",
+            "RIGHT": "Right",
+            "BACKSPACE": "Backspace",
+            "FORWARD_DEL": "Del",
+            "END": "End"
+        },
+        "mouse": {
+            "LEFT": "Left click",
+            "RIGHT": "Right click",
+            "MIDDLE": "Middle click",
+            "BACK": "Mouse back",
+            "FORWARD": "Mouse forward",
+            "WHEEL": "Mouse wheel"
+        }
+    },
     "dialog": {
         "ok_dialog": {
             "ok": "OK"
@@ -155,6 +183,13 @@
         "disconnected_from_server_reason": "Disconnected from server: $1"
     },
     "settings": {
+        "controls_header": "Controls",
+        "pause": "Pause",
+        "interact": "Interact",
+        "inventory": "Inventory",
+        "questlog": "Quest Log",
+        "skill_main": "Main skill",
+        "skill_second": "Second skill",
         "master_volume": "Master Volume",
         "effects_volume": "Effects Volume",
         "music_volume": "Music Volume",

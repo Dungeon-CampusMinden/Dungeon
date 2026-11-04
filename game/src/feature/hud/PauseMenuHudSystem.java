@@ -1,6 +1,5 @@
 package feature.hud;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -11,12 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.System;
+import engine.input.CoreActions;
+import engine.input.GameInput;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.dialogs.PauseDialog;
-import feature.input.configuration.KeyboardConfig;
 
 /** Client-side HUD button in the bottom-left corner that opens the pause menu. */
 public final class PauseMenuHudSystem extends System {
@@ -48,7 +48,7 @@ public final class PauseMenuHudSystem extends System {
               hud.setVisible(Game.player().isPresent());
               if (!hud.isVisible()) return;
 
-              keyLabel.setText(Input.Keys.toString(KeyboardConfig.PAUSE_MENU.value()));
+              keyLabel.setText(GameInput.label(CoreActions.PAUSE_MENU));
               hud.pack();
               hud.setPosition(SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomLeft);
             });

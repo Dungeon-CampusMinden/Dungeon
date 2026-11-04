@@ -1,6 +1,5 @@
 package feature.questlog;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -13,12 +12,13 @@ import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.System;
 import engine.components.PlayerComponent;
+import engine.input.CoreActions;
+import engine.input.GameInput;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.UIUtils;
-import feature.input.configuration.KeyboardConfig;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -70,7 +70,7 @@ public final class QuestLogHudSystem extends System {
               int unread = unreadCount();
               badge.setVisible(unread > 0);
               badgeLabel.setText(badgeText(unread));
-              keyLabel.setText(Input.Keys.toString(KeyboardConfig.QUESTLOG_OPEN.value()));
+              keyLabel.setText(GameInput.label(CoreActions.QUESTLOG));
               hud.pack();
               hud.setPosition(stage.getWidth() - SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomRight);
             });

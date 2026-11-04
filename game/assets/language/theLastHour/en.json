@@ -56,15 +56,6 @@
             }
         }
     },
-    "settings": {
-        "controls_header": "Controls",
-        "controls_description": "Use the mouse to find interactables, then press [key code=$1] to interact!",
-        "pause": "Pause",
-        "interact": "Interact",
-        "inventory": "Inventory",
-        "questlog": "Questlog",
-        "inventory_description": "In the inventory, use [key code=$1 type=mouse] to use an Item"
-    },
     "achievements": {
         "lights_on": {
             "name": "Lights On",
@@ -119,7 +110,7 @@
         "IntroText_5": "Your intrusion to his office triggered an alarm and locked the door behind you.\n\nA timer on the wall shows: You have 60 minutes until something happens...",
         "IntroText_6": "The Last Hour",
         "PostIntroDialogText1": "Your task is to reconstruct [color=#aa00aa]Dr. Mertens'[/color] final steps.[n][pause=0.5]Gain access to his PC, investigate his communication, and uncover the clues he left behind.[p]But be careful: not every piece of information can be trusted.[n][pause=0.5]Among helpful messages, there may be deliberate [color=#aa0000]manipulation attempts[/color].[p]If you discover what he was working on, you may come closer to understanding why he[tr speed=0.1]...[pause=0.5][tr speed=0.3][shake strength=0.4 speed=0.5][color=#880000] disappeared[/color][/shake].",
-        "PostIntroDialogText2": "[size=24]Controls:\n\nMove -> [key code=$1][key code=$2][key code=$3][key code=$4]\nInteract -> [key code=$5] / [key code=$6 type=mouse]\nInventory -> [key code=$7]\nClose Dialog -> [key code=$8]\nSettings -> [key code=$9]\n[size=18][color=#888888]You can look the controls up in the Settings.[/color]\n\n[size=24][align=center]Use the mouse to find things to interact with!",
+        "PostIntroDialogText2": "[size=24]Controls:\n\nMove -> [action id=core:move_up][action id=core:move_left][action id=core:move_down][action id=core:move_right]\nInteract -> [action id=core:interact] / [action id=core:interact index=1]\nInventory -> [action id=core:inventory]\nClose Dialog -> [action id=ui:close]\nSettings -> [action id=core:pause_menu]\n[size=18][color=#888888]You can look the controls up in the Settings.[/color]\n\n[size=24][align=center]Use the mouse to find things to interact with!",
         "R2DeskNoteText": "[tr speed=0]A note from a colleague:[n][n][tr speed=2.4]Hey, hope you're doing alright! Things have been pretty hectic around here lately, so I figured I'd leave you a quick note instead of trying to catch you between meetings.[n][n][pause=0.3]Oh, and about that USB stick of yours I borrowed, here's the quick rundown:[n][n][tr speed=1.0]- [color=#444477]B[/color]rought it back and left it with the control panel key.[n]- [color=#444477]L[/color]ightning quick, by the way - best stick I've used.[n]- [color=#444477]U[/color]seful little thing, really saved me this week.[n]- [color=#444477]E[/color]xpect I'll ask to borrow it again sometime soon![n][n][pause=0.3][tr speed=2.0]Anyway, take care and don't stay too late again. See you tomorrow!",
         "OutroText_1": "The exit door of Dr. Mertens' office finally clicks open - but his last message still echoes in your mind:",
         "OutroText_2": "\"The project files are hidden in a locker on the 6th floor.\"\n\nYou step out into the silent hallway, the timer behind you finally still.",
@@ -270,9 +261,9 @@
         "RansomwarePhrase": "backup your data",
         "AdwarePhrase": "read before click",
         "HintItemName": "Hint",
-        "HintItemDescription": "A note with an image. Press [key code=$1] to view the image.",
+        "HintItemDescription": "A note with an image. Press [action id=ui:use_item] to view the image.",
         "PuzzleItemName": "A Puzzle Piece",
-        "PuzzleItemDescription": "There must be more of them...\nPress [key code=$1] to see the puzzle.",
+        "PuzzleItemDescription": "There must be more of them...\nPress [action id=ui:use_item] to see the puzzle.",
         "RedUSBStickName": "Red USB Stick",
         "RedUSBStickDescription": "A red USB stick.",
         "GreenUSBStickName": "Green USB Stick",

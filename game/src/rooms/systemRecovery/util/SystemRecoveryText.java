@@ -1,7 +1,5 @@
 package rooms.systemRecovery.util;
 
-import com.badlogic.gdx.Input;
-import engine.configuration.KeyboardConfig;
 import engine.language.Translation;
 import engine.utils.Tuple;
 import java.nio.charset.StandardCharsets;
@@ -182,18 +180,7 @@ public final class SystemRecoveryText {
    * @return keyed control overview
    */
   public static String controls() {
-    return phoneCall(
-        "controls",
-        KeyboardConfig.MOVEMENT_UP.value(),
-        KeyboardConfig.MOVEMENT_LEFT.value(),
-        KeyboardConfig.MOVEMENT_DOWN.value(),
-        KeyboardConfig.MOVEMENT_RIGHT.value(),
-        feature.input.configuration.KeyboardConfig.INTERACT_WORLD.value(),
-        Input.Buttons.LEFT,
-        feature.input.configuration.KeyboardConfig.INVENTORY_OPEN.value(),
-        feature.input.configuration.KeyboardConfig.QUESTLOG_OPEN.value(),
-        feature.input.configuration.KeyboardConfig.CLOSE_UI.value(),
-        feature.input.configuration.KeyboardConfig.PAUSE_MENU.value());
+    return phoneCall("controls");
   }
 
   /**

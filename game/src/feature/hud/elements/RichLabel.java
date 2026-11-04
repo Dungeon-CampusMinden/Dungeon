@@ -36,13 +36,11 @@ import java.util.List;
  *       {@code [img-block path=image.png width=50%]} - renders a block-level image on its own line,
  *       centered horizontally. Width can be pixels or a percentage of the container width. Aspect
  *       ratio is always preserved. Defaults to full container width.
- *   <li>{@code [key code=<int>]} or {@code [key code=<int> type=<inputMethod>]} or {@code [key
- *       code=<int> outline]} - renders an input-prompt graphic (keyboard key, mouse button, ...)
- *       inline. Behaves exactly like {@code [img]} regarding sizing, spacing and shake. The
- *       required {@code code} parameter holds the libGDX {@code Input.Keys} or {@code
- *       Input.Buttons} integer. The optional {@code type} parameter selects the lookup space:
- *       {@code keyboard} (default), {@code mouse}, {@code playstation}, {@code xbox} or {@code
- *       touch}. Unknown codes / unsupported input methods log a warning and render nothing.
+ *   <li>{@code [action id=core:interact]} or {@code [action id=core:interact index=1]} or {@code
+ *       [action id=core:interact outline]} - shows the current binding of an action for the device
+ *       the player used last, as input-prompt graphics where they exist and as text otherwise.
+ *       Behaves like {@code [img]} regarding sizing, spacing and shake. The optional {@code index}
+ *       selects a further binding of that device.
  *   <li>{@code [color=red]} or {@code [color=#ff0000]} - changes the text color for subsequent
  *       text.
  *   <li>{@code [/color]} - resets the text color to the default.

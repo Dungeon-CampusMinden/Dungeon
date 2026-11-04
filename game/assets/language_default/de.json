@@ -1,4 +1,32 @@
 {
+    "input": {
+        "key": {
+            "ESCAPE": "Esc",
+            "TAB": "Tab",
+            "ENTER": "Eingabe",
+            "SPACE": "Leertaste",
+            "SHIFT_LEFT": "Umschalt",
+            "SHIFT_RIGHT": "Umschalt rechts",
+            "CONTROL_LEFT": "Strg",
+            "CONTROL_RIGHT": "Strg rechts",
+            "ALT_LEFT": "Alt",
+            "UP": "Pfeil hoch",
+            "DOWN": "Pfeil runter",
+            "LEFT": "Pfeil links",
+            "RIGHT": "Pfeil rechts",
+            "BACKSPACE": "Rücktaste",
+            "FORWARD_DEL": "Entf",
+            "END": "Ende"
+        },
+        "mouse": {
+            "LEFT": "Linksklick",
+            "RIGHT": "Rechtsklick",
+            "MIDDLE": "Mittelklick",
+            "BACK": "Maus zurück",
+            "FORWARD": "Maus vor",
+            "WHEEL": "Mausrad"
+        }
+    },
     "dialog": {
         "ok_dialog": {
             "ok": "OK"
@@ -155,6 +183,13 @@
         "disconnected_from_server_reason": "Verbindung zum Server getrennt: $1"
     },
     "settings": {
+        "controls_header": "Steuerung",
+        "pause": "Pause",
+        "interact": "Interagieren",
+        "inventory": "Inventar",
+        "questlog": "Questlog",
+        "skill_main": "Hauptskill",
+        "skill_second": "Zweitskill",
         "master_volume": "Master-Lautstärke",
         "effects_volume": "Effekt-Lautstärke",
         "music_volume": "Musik-Lautstärke",
