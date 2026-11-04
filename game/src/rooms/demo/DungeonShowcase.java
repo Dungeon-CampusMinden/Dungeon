@@ -6,7 +6,6 @@ import engine.level.DungeonLevel;
 import engine.level.loader.DungeonLoader;
 import engine.utils.Point;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import feature.entities.DungeonMonster;
 import feature.entities.EntityFactory;
 import feature.entities.LeverFactory;
@@ -36,10 +35,6 @@ public class DungeonShowcase {
    * @throws IOException if the game configuration cannot be loaded
    */
   public static void main(String[] args) throws IOException {
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        feature.input.configuration.KeyboardConfig.class,
-        engine.configuration.KeyboardConfig.class);
     Game.disableAudio(true);
     Game.frameRate(60);
     Game.userOnSetup(

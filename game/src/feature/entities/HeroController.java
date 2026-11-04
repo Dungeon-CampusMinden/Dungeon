@@ -2,11 +2,10 @@ package feature.entities;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
-import engine.configuration.KeyboardConfig;
+import engine.input.InputResolver;
 import engine.level.Tile;
 import engine.level.elements.tile.FloorTile;
 import engine.level.utils.LevelUtils;
@@ -87,37 +86,28 @@ public class HeroController {
   /**
    * Moves the hero entity in the specified direction by applying a force to its VelocityComponent.
    *
-   * <p>The direction may combine both axes for diagonal movement. Axes whose movement key binding
-   * was removed from the hero's {@link InputComponent} are ignored. The movement force replaces the
-   * previous one, so applying the same direction several times in one tick has no extra effect.
+   * <p>The direction may combine both axes for diagonal movement, and its length selects the speed:
+   * length 1 is full speed, a half tilted stick moves at half speed. Longer directions are limited
+   * to length 1. The movement force replaces the previous one, so applying the same direction
+   * several times in one tick has no extra effect.
    *
    * @param hero the hero entity to move
-   * @param direction the direction to move the hero; each component is reduced to its sign, and
-   *     non-finite components are ignored
+   * @param direction the direction to move the hero; non-finite components count as 0
    * @param speed the speed vector to scale the movement force
    */
   public static void moveHero(Entity hero, Vector2 direction, Vector2 speed) {
     LOGGER.debug("Moving hero {} in direction {}", hero.id(), direction);
 
-    if (hero.fetch(InputComponent.class).map(InputComponent::deactivateControls).orElse(false)) {
-      LOGGER.debug("Hero {} controls are deactivated, cannot move.", hero.id());
+    if (controlsLocked(hero)) {
+      LOGGER.debug("Hero {} controls are locked, cannot move.", hero.id());
       return;
     }
 
-    float x = axisSign(direction.x());
-    float y = axisSign(direction.y());
-    Optional<InputComponent> input = hero.fetch(InputComponent.class);
-    if (input.isPresent()) {
-      Map<Integer, InputComponent.InputData> callbacks = input.get().callbacks();
-      if (x > 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_RIGHT.value())) x = 0;
-      if (x < 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_LEFT.value())) x = 0;
-      if (y > 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_UP.value())) y = 0;
-      if (y < 0 && !callbacks.containsKey(KeyboardConfig.MOVEMENT_DOWN.value())) y = 0;
-    }
-
-    Vector2 force = Vector2.of(x * speed.x(), y * speed.y());
+    Vector2 limited =
+        InputResolver.clampLength(Vector2.of(finite(direction.x()), finite(direction.y())));
+    Vector2 force = Vector2.of(limited.x() * speed.x(), limited.y() * speed.y());
     if (force.lengthSquared() == 0) {
-      LOGGER.debug("Hero {} movement {} is disabled in InputComponent.", hero.id(), direction);
+      LOGGER.debug("Hero {} has no movement in direction {}.", hero.id(), direction);
       return;
     }
 
@@ -125,8 +115,35 @@ public class HeroController {
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
     // Diagonal movement keeps the speed of a single axis.
-    float axisSpeed = Math.max(Math.abs(force.x()), Math.abs(force.y()));
-    vc.applyForce(MOVEMENT_ID, force.normalize().scale(axisSpeed));
+    double axisSpeed =
+        Math.max(
+            limited.x() == 0 ? 0 : Math.abs(speed.x()), limited.y() == 0 ? 0 : Math.abs(speed.y()));
+    vc.applyForce(MOVEMENT_ID, force.normalize().scale(axisSpeed * limited.length()));
+  }
+
+  /**
+   * Checks whether the server locks the controls of a hero.
+   *
+   * @param hero the hero
+   * @return true while its gameplay input has no effect
+   */
+  public static boolean controlsLocked(Entity hero) {
+    return hero.fetch(PlayerComponent.class).map(PlayerComponent::controlsLocked).orElse(false);
+  }
+
+  /**
+   * Locks or unlocks the controls of a hero. A new lock ends the stored movement at once; gameplay
+   * input arriving during the lock is dropped for good, while dialog answers and allowed UI
+   * commands still pass. Clients learn the state through snapshots.
+   *
+   * @param hero the hero
+   * @param locked true to lock
+   */
+  public static void controlsLocked(Entity hero, boolean locked) {
+    hero.fetch(PlayerComponent.class).ifPresent(player -> player.controlsLocked(locked));
+    if (!locked) return;
+    heldMoves.keySet().removeIf(client -> client.playerEntity().filter(hero::equals).isPresent());
+    hero.fetch(VelocityComponent.class).ifPresent(velocity -> velocity.removeForce(MOVEMENT_ID));
   }
 
   /**
@@ -462,13 +479,13 @@ public class HeroController {
   }
 
   /**
-   * Reduces a direction component to its sign; non-finite values from a client count as 0.
+   * Replaces non-finite direction components from a client by 0.
    *
    * @param value the direction component
-   * @return -1, 0 or 1
+   * @return the value, or 0 if it is not finite
    */
-  private static float axisSign(float value) {
-    return Float.isFinite(value) ? Math.signum(value) : 0;
+  private static double finite(double value) {
+    return Double.isFinite(value) ? value : 0;
   }
 
   /**
@@ -863,7 +880,7 @@ public class HeroController {
         continue;
       }
 
-      boolean paused = Game.hud().blocksGameplayInput(playerEntity);
+      boolean paused = Game.hud().blocksGameplayInput(playerEntity) || controlsLocked(playerEntity);
       if (!clientState.advanceProcessedSeq(msg.sequence())) {
         releaseOvertakenStop(clientState, msg);
         LOGGER.debug(

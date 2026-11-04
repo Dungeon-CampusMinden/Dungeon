@@ -1,11 +1,9 @@
 package rooms.gameofgames;
 
-import com.badlogic.gdx.Input;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
-import engine.configuration.KeyboardConfig;
 import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.codec.ShaderComponentCodec;
@@ -37,7 +35,6 @@ public final class GameOfGamesClient {
 
     if (GameOfGames.DEBUG_MODE) {
       Game.add(new Debugger());
-      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
       Game.add(new DebugDrawSystem());
       Game.add(new LevelEditorSystem());
     }

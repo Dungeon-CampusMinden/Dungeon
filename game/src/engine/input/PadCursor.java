@@ -61,7 +61,7 @@ final class PadCursor {
     Vector2 position = GameInput.pointer();
     com.badlogic.gdx.math.Vector2 stagePosition =
         stage.screenToStageCoordinates(
-            new com.badlogic.gdx.math.Vector2((float) position.x(), (float) position.y()));
+            new com.badlogic.gdx.math.Vector2(position.x(), position.y()));
     batch.setProjectionMatrix(stage.getCamera().combined);
     batch.begin();
     batch.draw(

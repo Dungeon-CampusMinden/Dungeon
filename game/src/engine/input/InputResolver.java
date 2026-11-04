@@ -43,7 +43,7 @@ public final class InputResolver implements InputProcessor {
   private static final float REPEAT_INTERVAL = 0.12f;
   private static final boolean MAC_OS = System.getProperty("os.name", "").startsWith("Mac");
 
-  /** Identifies a press: per key or button, for pointers per source and pointer id. */
+  // Identifies a press: per key or button, for pointers per source and pointer id.
   private record SourceId(String source, int pointer) {}
 
   private record Route(InputContext owner, Bound bound) {
@@ -163,6 +163,18 @@ public final class InputResolver implements InputProcessor {
    */
   public List<InputContext> contexts() {
     return List.copyOf(stack);
+  }
+
+  /**
+   * Checks whether a blocking context lies above a context.
+   *
+   * @param context the context
+   * @return true if input cannot reach the context
+   */
+  public boolean covered(InputContext context) {
+    int index = stack.indexOf(context);
+    return stack.subList(index + 1, stack.size()).stream()
+        .anyMatch(above -> above.spec().blocksBelow());
   }
 
   /**
@@ -289,6 +301,15 @@ public final class InputResolver implements InputProcessor {
    */
   public boolean buttonHeld(int button) {
     return heldButtons.contains(button);
+  }
+
+  /**
+   * Checks whether any mouse button is down.
+   *
+   * @return true if a button is down
+   */
+  public boolean anyButtonHeld() {
+    return !heldButtons.isEmpty();
   }
 
   /**
@@ -619,7 +640,7 @@ public final class InputResolver implements InputProcessor {
     return binding instanceof Binding.Key key ? key.prefixes().size() : 0;
   }
 
-  /** A key that is an action and also a prefix there fires on release, if no combo used it. */
+  // A key that is an action and also a prefix there fires on release, if no combo used it.
   private boolean isDeferred(Route route, int keycode) {
     return route.owner().spec().actions().stream()
         .flatMap(action -> bindings.bindings(action).stream())

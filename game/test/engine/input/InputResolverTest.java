@@ -140,6 +140,19 @@ class InputResolverTest {
   }
 
   @Test
+  void textContextKeepsEscapeFromDialogAndOthersBelow() {
+    List<String> fired = new ArrayList<>();
+    resolver.push(new InputContext(DIALOG).onPress(CLOSE, () -> fired.add("close")));
+    resolver.push(new InputContext(CoreActions.TEXT));
+
+    resolver.keyDown(Input.Keys.ESCAPE);
+    resolver.advance(0);
+
+    assertEquals(List.of(), fired);
+    assertEquals(List.of("down " + Input.Keys.ESCAPE), stageEvents);
+  }
+
+  @Test
   void stageHandledEventCreatesNoAction() {
     stageHandledKeys.add(Input.Keys.Q);
 

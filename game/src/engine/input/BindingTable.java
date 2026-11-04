@@ -30,7 +30,7 @@ import java.util.TreeMap;
 public final class BindingTable {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(BindingTable.class);
 
-  /** A binding with the action it drives. */
+  // A binding with the action it drives.
   record Bound(ActionId action, Binding binding) {}
 
   /**

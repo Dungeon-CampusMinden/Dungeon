@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.input.GameInput;
 import engine.language.Translation;
 import engine.network.messages.s2c.CharacterOptions;
 import engine.network.server.CharacterSelection;
@@ -102,7 +103,7 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
     root.setFillParent(true);
     root.add(content);
     stage.addActor(root);
-    Gdx.input.setInputProcessor(stage);
+    GameInput.stage(stage);
     refreshOptions();
   }
 

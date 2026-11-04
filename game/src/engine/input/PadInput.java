@@ -84,7 +84,7 @@ final class PadInput {
     }
   }
 
-  /** Digital reading of an analog value, with hysteresis against flicker at the threshold. */
+  // Digital reading of an analog value, with hysteresis against flicker at the threshold.
   private static void readThreshold(InputResolver resolver, PadAxisId axis, float value) {
     boolean held = heldAxes.contains(axis);
     if (!held && value > PRESS_THRESHOLD) {
@@ -116,8 +116,8 @@ final class PadInput {
     if (stick.isZero()) return;
     resolver.device(InputDevice.PAD);
     Vector2 pointer = resolver.pointer(0);
-    float x = (float) pointer.x() + (float) stick.x() * CURSOR_SPEED * delta;
-    float y = (float) pointer.y() - (float) stick.y() * CURSOR_SPEED * delta;
+    float x = pointer.x() + stick.x() * CURSOR_SPEED * delta;
+    float y = pointer.y() - stick.y() * CURSOR_SPEED * delta;
     resolver.pointer(
         0,
         Math.max(0f, Math.min(x, Game.windowWidth() - 1f)),

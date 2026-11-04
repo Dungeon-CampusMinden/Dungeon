@@ -1,9 +1,7 @@
 package rooms.lasthour.starter;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
@@ -22,7 +20,6 @@ import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.NetworkUtils;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
@@ -158,10 +155,6 @@ public class TheLastHour {
                   UsbStickItem.ensureRegistration();
                   initLocalization();
                 })
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
             .onFrame(TheLastHour::onFrame)
@@ -172,7 +165,6 @@ public class TheLastHour {
             .levels(Tuple.of("lasthour", LastHourLevelClient.class))
             .onConfigure(LastHourClient::registerClientContent)
             .initLocalization(TheLastHour::initLocalization)
-            .registerSettings(LastHourClient::registerSettings)
             .build();
 
     GameStarter game =
@@ -309,7 +301,6 @@ public class TheLastHour {
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
-      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN); // Unbind Debuggers' pause bind
 
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());

@@ -266,107 +266,19 @@ public class Main {
 Damit der Held vom `VelocitySystem` bewegt werden kann, benötigt er das `VelocityComponent`. Das `VelocityComponent`
 speichert die Maximalgeschwindigkeit des Helden (in diesem Beispiel `5f` auf jeder Achse).
 
-Damit wir den Helden auch per Tastatur steuern können, müssen im `PlayerComponent` noch die Tasten und das dazugehörige
-Verhalten registriert werden.
-
-Um die Konfiguration zu laden, können wir (außerhalb eines Callbacks)
-`Game.loadConfig("dungeon_config.json",engine.configuration.KeyboardConfig.class);` aufrufen. Die Methode prüft zuerst, ob
-das File "dungeon_config.json" vorhanden ist und wenn ja, lädt die dort gespeicherte Tastenbelegung, ansonsten wird die
-Konfiguration aus der Klasse `engine.configuration.KeyboardConfig.class` geladen.
-
-*Hinweis*: Hier erfahren Sie mehr zur Konfiguration der [Tastenbelegung](configuration/readme.md).
-
-Jetzt müssen die Tastatureingaben noch im Helden hinterlegt werden. Dies wird über das `PlayerComponent` gemacht.
+Damit der Held auf die Steuerung reagiert, braucht er das `PlayerComponent`. Das `GameplayInputSystem` liest dann die
+Actions des lokalen Spielers (zum Beispiel `CoreActions.MOVE_UP` auf W) und sendet sie an den `HeroController`.
+Eigene Tasten laufen ebenfalls über Actions:
 
 ``` java
-PlayerComponent pc = new PlayerComponent();
-pc.registerCallback(engine.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-    entity -> {
-        VelocityComponent vc =
-            entity.fetch(VelocityComponent.class).orElseThrow(
-            () -> MissingComponentException.build(entity,VelocityComponent.class));
-        vc.currentYVelocity(vc.yVelocity());
-    });
+ActionId jump = new ActionId("myroom", "jump");
+GameInput.bindings().define(jump, "key:SPACE");
+GameInput.push(
+    new InputContext(ContextSpec.of("myroom", ContextLayer.ROOM, false, jump))
+        .onPress(jump, () -> System.out.println("Sprung!")));
 ```
 
-Mit `PlayerComponent#registerCallback` können wir einen Evenhandler für eine Tastatureingabe registrieren. Der erste
-Parameter (hier `engine.configuration.KeyboardConfig.MOVEMENT_UP.value()`) gibt an, bei welchen Tastendruck das Event
-ausgelöst werden soll. Der zweite Parameter ist ein `Comsumer<Entity>` welcher (mit dem Helden als Parameter) aufgerufen
-wird, wenn das Event ausgelöst wird. In diesem Callback fetchen wir uns nun das `VelocityComponent` aus dem Helden und
-setzen mit `VelocityComponent#currentYVelocity` die aktuelle Geschwindigkeit auf der Y-Achse auf den vorher
-konfigurierten Wert. Der Held kann sich jetzt nach oben bewegen.
-
-Unsere Finale Main sollte nun so aussehen:
-
-``` java
-package starter;
-
-import engine.Entity;
-import engine.Game;
-import engine.components.*;
-import engine.utils.IVoidFunction;
-import engine.utils.components.MissingComponentException;
-import engine.utils.components.path.SimpleIPath;
-
-import java.io.IOException;
-
-public class Main {
-    public static void main(String[] args) throws IOException {
-        IVoidFunction onSetup =
-                new IVoidFunction() {
-                    @Override
-                    public void execute() {
-                        Entity hero = new Entity();
-                        hero.add(new PositionComponent());
-                        try {
-                            hero.add(new DrawComponent(new SimpleIPath("character/knight")));
-                        } catch (IOException e) {
-                            System.out.println("Could not load textures for hero.");
-                            throw new RuntimeException(e);
-                        }
-                        hero.add(new CameraComponent());
-                        hero.add(new VelocityComponent(5f, 5f));
-                        PlayerComponent pc = new PlayerComponent();
-                        pc.registerCallback(
-                                engine.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-                                entity -> {
-                                    VelocityComponent vc =
-                                            entity.fetch(VelocityComponent.class)
-                                                    .orElseThrow(
-                                                            () ->
-                                                                    MissingComponentException.build(
-                                                                            entity,
-                                                                            VelocityComponent
-                                                                                    .class));
-                                    vc.currentYVelocity(vc.yVelocity());
-                                });
-                        hero.add(pc);
-                        Game.add(hero);
-                    }
-                };
-        Game.userOnSetup(onSetup);
-        Game.loadConfig(new SimplePath("dungeon_config.json"), engine.configuration.KeyboardConfig.class);
-        Game.run();
-    }
-}
-```
-
-Implementieren Sie nun selbst die Steuerung für die anderen Bewegungen.
-
-*Anmerkung*: Oben ist der Consumer-Parameter als lambda Ausdruck formuliert, eine alternative Schreibweise wäre
-
-``` java
-pc.registerCallback(
-    engine.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-    new Consumer<Entity>() {
-        @Override
-        public void accept(Entity entity) {
-            VelocityComponent vc =entity.fetch(VelocityComponent.class)
-                .orElseThrow(() ->MissingComponentException.build(entity,VelocityComponent.class));
-            vc.currentYVelocity(vc.yVelocity());
-        }
-    });
-```
+*Hinweis*: Mehr dazu steht unter [Eingaben](input.md).
 
 ## Linksammlung
 

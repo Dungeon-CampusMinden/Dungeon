@@ -1,13 +1,16 @@
 package rooms.mushroom;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.game.PreRunConfiguration;
+import engine.input.ActionId;
+import engine.input.ContextLayer;
+import engine.input.ContextSpec;
+import engine.input.GameInput;
+import engine.input.InputContext;
 import engine.level.loader.DungeonLoader;
 import engine.utils.Tuple;
 import engine.utils.components.draw.ColorUtils;
@@ -15,7 +18,6 @@ import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.ShaderList;
-import engine.utils.components.path.SimpleIPath;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.EntityFactory;
@@ -91,22 +93,21 @@ public class MushRoom {
     }
   }
 
+  private static final ActionId JOURNAL = new ActionId("mushroom", "journal");
+  private static final ActionId MAGIC_LENS = new ActionId("mushroom", "magic_lens");
+
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
-    hero.fetch(InputComponent.class)
-        .ifPresent(
-            ic -> {
-              ic.registerCallback(Input.Keys.B, JournalItem::openJournal, false, false);
-              ic.registerCallback(Input.Keys.V, MagicLensItem::toggleMagicLens, false, false);
-            });
     Game.add(hero);
+    GameInput.bindings().define(JOURNAL, "key:J");
+    GameInput.bindings().define(MAGIC_LENS, "key:V");
+    GameInput.push(
+        new InputContext(ContextSpec.of("mushroom", ContextLayer.ROOM, false, JOURNAL, MAGIC_LENS))
+            .onPress(JOURNAL, () -> Game.player().ifPresent(JournalItem::openJournal))
+            .onPress(MAGIC_LENS, () -> Game.player().ifPresent(MagicLensItem::toggleMagicLens)));
   }
 
   private static void configGame() throws IOException {
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        feature.input.configuration.KeyboardConfig.class,
-        engine.configuration.KeyboardConfig.class);
     Game.disableAudio(false);
     Game.frameRate(60);
   }

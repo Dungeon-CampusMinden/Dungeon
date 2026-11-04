@@ -1,9 +1,7 @@
 package rooms.systemRecovery;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
@@ -20,7 +18,6 @@ import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
@@ -136,10 +133,6 @@ public final class SystemRecovery {
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
             .levels(Tuple.of(LEVEL_KEY, SystemRecoveryLevel.class))
             .onConfigure(SystemRecovery::registerContent)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .snapshotTranslator(new SystemRecoverySnapshotTranslator())
             .entitySpawnStrategy(new SystemRecoveryEntitySpawnStrategy())
             .onFrame(SystemRecovery::onFrame)
@@ -351,7 +344,6 @@ public final class SystemRecovery {
 
     if (debugMode() && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
-      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
     }

@@ -673,7 +673,7 @@ Dieses Kapitel beschreibt den Laufzeitpfad des Clients vom Verbindungsaufbau bis
 ### 8.2 Eingaben: Erfassung und Versand
 
 - Eingabeerfassung
-    - Das InputSystem erfasst pro Frame die Benutzereingaben (Bewegung, Aktionen).
+    - Das GameplayInputSystem erfasst pro Frame die Benutzereingaben (Bewegung, Aktionen).
 - Packaging
     - Pro Frame wird eine InputMessage(seq, clientTick, …) erzeugt, falls eine Eingabe getätigt wurde.
     - seq: anwendungsseitige Sequenznummer für Ordnung/Verlusterkennung bei UDP.
@@ -717,7 +717,7 @@ Dieses Kapitel beschreibt den Laufzeitpfad des Clients vom Verbindungsaufbau bis
 ### 8.6 Client-seitiger ECS-Tick und Rendering
 
 - Systemfilter (Multiplayer-Client)
-    - Der GameLoop führt auf dem Client im MP-Modus nur Render-/UI-nahe Systeme aus (DrawSystem, CameraSystem, InputSystem, HUD/Mana/Health Bars).
+    - Der GameLoop führt auf dem Client im MP-Modus nur Render-/UI-nahe Systeme aus (DrawSystem, CameraSystem, GameplayInputSystem, HUD/Mana/Health Bars).
 - Reihenfolge pro Frame
     - pollAndDispatch() -> Frame-Logik -> ECS-Tick (gefiltert) -> optional LocalNetworkHandler.triggerStateUpdate() im Singleplayer -> Kamera/Stage -> Render.
 - Singleplayer-Sonderfall

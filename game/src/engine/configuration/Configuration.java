@@ -30,7 +30,6 @@ import java.util.stream.Stream;
  *
  * @see ConfigKey
  * @see ConfigMap
- * @see KeyboardConfig
  */
 public class Configuration {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Configuration.class);

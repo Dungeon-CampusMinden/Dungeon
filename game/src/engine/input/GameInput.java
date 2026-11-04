@@ -8,7 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.game.WindowEventManager;
+import engine.utils.logging.DungeonLogger;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +23,7 @@ import java.util.Optional;
  * actions here and registers {@link InputContext}s.
  */
 public final class GameInput {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameInput.class);
   private static final Path BINDING_FILE = Path.of("input_bindings.json");
 
   private static BindingTable bindings;
@@ -55,6 +59,20 @@ public final class GameInput {
     resolver.pointer(0, Gdx.input.getX(), Gdx.input.getY());
     Gdx.input.setInputProcessor(new WindowInput());
     WindowEventManager.registerFocusChangeListener(GameInput::windowFocused);
+  }
+
+  /** Logs colliding bindings of everything registered so far, once a game has been set up. */
+  public static void logConflicts() {
+    bindings
+        .conflicts()
+        .forEach(
+            conflict ->
+                LOGGER.warn(
+                    "Input conflict in {}: {} drives {} and {}",
+                    conflict.context(),
+                    conflict.binding().format(),
+                    conflict.first(),
+                    conflict.second()));
   }
 
   /** Cancels held input because the application pauses. */
@@ -96,7 +114,7 @@ public final class GameInput {
     else resolver.remove(textContext);
   }
 
-  /** Clears the text focus when a press lands outside the focused field. */
+  // Clears the text focus when a press lands outside the focused field.
   private static void clearTextFocusOutside(int screenX, int screenY) {
     if (stage == null || !(stage.getKeyboardFocus() instanceof TextField field)) return;
     Vector2 position = stage.screenToStageCoordinates(new Vector2(screenX, screenY));
@@ -240,6 +258,46 @@ public final class GameInput {
   }
 
   /**
+   * Checks whether the primary pointer is down, whatever the context stack does with it.
+   *
+   * @return true while a mouse button or the pad's click is held
+   */
+  public static boolean pointerDown() {
+    return resolver.anyButtonHeld() || pressed(UiActions.CLICK);
+  }
+
+  /**
+   * Checks whether a blocking context lies above a context.
+   *
+   * @param context the context
+   * @return true if input cannot reach the context
+   */
+  public static boolean covered(InputContext context) {
+    return resolver.covered(context);
+  }
+
+  /**
+   * Describes the input state for the debug HUD.
+   *
+   * @return the context stack from top to bottom with its blocking flags, the owners of held input
+   *     and the held actions
+   */
+  public static List<String> describe() {
+    List<String> lines = new ArrayList<>();
+    lines.add("Input contexts:");
+    List<InputContext> contexts = new ArrayList<>(resolver.contexts());
+    Collections.reverse(contexts);
+    for (InputContext context : contexts) {
+      lines.add(" " + context + (context.spec().blocksBelow() ? " (blocks)" : ""));
+    }
+    lines.add("Held input:");
+    resolver.describePresses().forEach(line -> lines.add(" " + line));
+    lines.add("Active actions:");
+    resolver.heldActions().forEach(action -> lines.add(" " + action));
+    return lines;
+  }
+
+  /**
    * Gets the device the player used last.
    *
    * @return the last device
@@ -252,15 +310,27 @@ public final class GameInput {
    * Gets the binding shown for an action on the device the player used last.
    *
    * @param action the action
-   * @return the first binding of that device, or any binding if that device has none
+   * @param index which binding of that device to show
+   * @return that binding, or else the first binding of any device
    */
-  public static Optional<Binding> displayBinding(ActionId action) {
+  public static Optional<Binding> displayBinding(ActionId action, int index) {
     List<Binding> list = bindings.bindings(action);
     boolean pad = device() == InputDevice.PAD;
     return list.stream()
         .filter(binding -> binding.isPad() == pad)
+        .skip(index)
         .findFirst()
         .or(() -> list.stream().findFirst());
+  }
+
+  /**
+   * Names the current binding of an action for the player.
+   *
+   * @param action the action
+   * @return the label of its first binding on the active device, or a dash if it is unbound
+   */
+  public static String label(ActionId action) {
+    return displayBinding(action, 0).map(KeyNames::label).orElse("-");
   }
 
   /** Forwards window events, keeping the text context up to date before each press is routed. */

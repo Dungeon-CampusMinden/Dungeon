@@ -6,30 +6,25 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
+import engine.input.CoreActions;
+import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.InputResolver;
 import engine.network.server.DialogTracker;
-import engine.systems.input.InputManager;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogType;
-import feature.input.configuration.KeyboardConfig;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,38 +82,28 @@ class ControlsDialogSystemTest {
 
   @Test
   void controlsKeyReopensAfterRemovalWithoutACompletionCallback() {
-    Input originalInput = Gdx.input;
-    AtomicReference<InputProcessor> processor = new AtomicReference<>();
-    int controlsKey = KeyboardConfig.SHOW_CONTROLS.value();
-    Gdx.input = mock(Input.class);
-    when(Gdx.input.getInputProcessor()).thenAnswer(ignored -> processor.get());
-    doAnswer(
-            invocation -> {
-              processor.set(invocation.getArgument(0));
-              return null;
-            })
-        .when(Gdx.input)
-        .setInputProcessor(any(InputProcessor.class));
-    InputManager.init();
+    GameInput.reset();
+    InputResolver resolver = GameInput.resolver();
+    resolver.push(new InputContext(CoreActions.GAMEPLAY));
 
     try (MockedStatic<Game> game = mockStatic(Game.class, Mockito.CALLS_REAL_METHODS)) {
       game.when(Game::isHeadless).thenReturn(false);
-      processor.get().keyDown(controlsKey);
+      resolver.keyDown(Input.Keys.F1);
+      resolver.advance(0);
       system.execute();
       UIComponent first = onlyControlsDialog();
-      processor.get().keyUp(controlsKey);
-      InputManager.update();
+      resolver.keyUp(Input.Keys.F1);
+      resolver.advance(0);
       Game.remove(first.dialogContext().ownerEntity());
 
-      processor.get().keyDown(controlsKey);
+      resolver.keyDown(Input.Keys.F1);
+      resolver.advance(0);
       system.execute();
 
       assertNotSame(first, onlyControlsDialog());
       assertEquals(2, scriptRequests.get());
     } finally {
-      processor.get().keyUp(controlsKey);
-      InputManager.update();
-      Gdx.input = originalInput;
+      GameInput.reset();
     }
   }
 
