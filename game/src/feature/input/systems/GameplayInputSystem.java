@@ -7,6 +7,7 @@ import engine.input.CoreActions;
 import engine.input.CursorUtils;
 import engine.input.GameInput;
 import engine.input.InputContext;
+import engine.level.elements.ILevel;
 import engine.network.messages.c2s.InputMessage;
 import engine.utils.Vector2;
 import feature.entities.HeroController;
@@ -18,15 +19,16 @@ import java.util.function.Consumer;
 /**
  * Turns the gameplay actions of the local player into network input.
  *
- * <p>Owns the {@code gameplay} context, which exists while a local hero exists, and mirrors the
- * server's control lock as a blocking context above it. Held actions are read every frame, so a
- * blocking context above stops them at once. Movement goes out once per frame while the hero moves;
- * the stop goes out over UDP for low latency and over TCP so it cannot get lost, and the server
- * applies whichever copy arrives first.
+ * <p>Owns the {@code gameplay} context, which exists while a local hero exists and starts over on a
+ * level change, and mirrors the server's control lock as a blocking context above it. Held actions
+ * are read every frame, so a blocking context above stops them at once. Movement goes out once per
+ * frame while the hero moves; the stop goes out over UDP for low latency and over TCP so it cannot
+ * get lost, and the server applies whichever copy arrives first.
  */
 public final class GameplayInputSystem extends System {
   private final InputContext gameplay = new InputContext(CoreActions.GAMEPLAY);
   private final InputContext serverLock = new InputContext(CoreActions.SERVER_LOCK);
+  private ILevel lastLevel;
   private boolean moving;
 
   /** Creates the system and the reactions of the {@code gameplay} context. */
@@ -63,6 +65,12 @@ public final class GameplayInputSystem extends System {
       GameInput.remove(serverLock);
       moving = false;
       return;
+    }
+    // Input held across a level change belongs to the old level.
+    ILevel level = Game.currentLevel().orElse(null);
+    if (level != lastLevel) {
+      lastLevel = level;
+      GameInput.remove(gameplay);
     }
     GameInput.push(gameplay);
     if (HeroController.controlsLocked(hero.get())) GameInput.push(serverLock);

@@ -287,6 +287,40 @@ class InputResolverTest {
   }
 
   @Test
+  void focusLossDropsBufferedTap() {
+    tap(Input.Keys.Q);
+
+    resolver.cancelAll();
+    resolver.advance(0);
+
+    assertFalse(resolver.justPressed(ATTACK));
+    assertFalse(resolver.pressed(ATTACK));
+  }
+
+  @Test
+  void blockingContextDropsBufferedTapOfOwnerBelow() {
+    tap(Input.Keys.Q);
+
+    resolver.push(new InputContext(DIALOG));
+    resolver.advance(0);
+
+    assertFalse(resolver.justPressed(ATTACK));
+  }
+
+  @Test
+  void padReachesUiBelowTextContext() {
+    ActionId click = new ActionId("test", "click");
+    table.define(click, "pad:A");
+    resolver.push(new InputContext(ContextSpec.of("ui", ContextLayer.UI, true, click)));
+    resolver.push(new InputContext(CoreActions.TEXT));
+
+    resolver.padDown(new Binding.PadButton(Binding.Pad.A));
+    resolver.advance(0);
+
+    assertTrue(resolver.pressed(click));
+  }
+
+  @Test
   void focusLossCancelsAndKeyDownAfterMissedReleaseStartsNewPress() {
     resolver.keyDown(Input.Keys.Q);
     resolver.advance(0);

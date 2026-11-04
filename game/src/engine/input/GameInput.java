@@ -115,7 +115,7 @@ public final class GameInput {
   }
 
   // Clears the text focus when a press lands outside the focused field.
-  private static void clearTextFocusOutside(int screenX, int screenY) {
+  static void clearTextFocusOutside(int screenX, int screenY) {
     if (stage == null || !(stage.getKeyboardFocus() instanceof TextField field)) return;
     Vector2 position = stage.screenToStageCoordinates(new Vector2(screenX, screenY));
     Actor hit = stage.hit(position.x, position.y, true);

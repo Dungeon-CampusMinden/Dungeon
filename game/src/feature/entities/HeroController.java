@@ -134,12 +134,14 @@ public class HeroController {
   /**
    * Locks or unlocks the controls of a hero. A new lock ends the stored movement at once; gameplay
    * input arriving during the lock is dropped for good, while dialog answers and allowed UI
-   * commands still pass. Clients learn the state through snapshots.
+   * commands still pass. The lock is server state: clients learn it through snapshots, and this
+   * call changes nothing there.
    *
    * @param hero the hero
    * @param locked true to lock
    */
   public static void controlsLocked(Entity hero, boolean locked) {
+    if (Game.isMultiplayerClient()) return;
     hero.fetch(PlayerComponent.class).ifPresent(player -> player.controlsLocked(locked));
     if (!locked) return;
     heldMoves.keySet().removeIf(client -> client.playerEntity().filter(hero::equals).isPresent());

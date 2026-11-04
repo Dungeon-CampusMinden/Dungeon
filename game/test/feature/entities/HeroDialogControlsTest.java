@@ -182,7 +182,7 @@ class HeroDialogControlsTest {
   @Test
   void disabledGameplayControlsAllowClosingAPausingDialogWithoutSendingMovement() {
     INetworkHandler network = useNetworkClient();
-    HeroController.controlsLocked(player, true);
+    player.fetch(PlayerComponent.class).orElseThrow().controlsLocked(true);
     gameplayInput.execute();
     UIComponent dialog = showDialog(true, true);
     AtomicInteger closes = new AtomicInteger();
@@ -200,7 +200,7 @@ class HeroDialogControlsTest {
   @Test
   void disabledControlsWithOnlyPassiveUIDoNotOpenMenus() {
     INetworkHandler network = useNetworkClient();
-    HeroController.controlsLocked(player, true);
+    player.fetch(PlayerComponent.class).orElseThrow().controlsLocked(true);
     gameplayInput.execute();
     showPassiveUI();
 
@@ -245,7 +245,7 @@ class HeroDialogControlsTest {
   @Test
   void disabledGameplayControlsStillAllowTheNonCloseableDialogHandler() {
     INetworkHandler network = useNetworkClient();
-    HeroController.controlsLocked(player, true);
+    player.fetch(PlayerComponent.class).orElseThrow().controlsLocked(true);
     gameplayInput.execute();
     UIComponent dialog = showDialog(true, false);
     AtomicInteger advances = new AtomicInteger();

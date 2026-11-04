@@ -34,6 +34,7 @@ final class PadCursor {
 
     if (pressed && !touching) {
       touching = true;
+      GameInput.clearTextFocusOutside(x, y);
       stage.touchDown(x, y, 0, Input.Buttons.LEFT);
     } else if (!pressed && touching) {
       touching = false;

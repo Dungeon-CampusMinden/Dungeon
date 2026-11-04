@@ -331,7 +331,7 @@ public final class AuthoritativeServerLoop {
         HeroBuilder.builder()
             .username(state.username())
             .characterClass(state.characterClass())
-            .isLocalPlayer(false)
+            .isLocalPlayer(true)
             .build();
     EntityUtils.setPosition(
         hero,

@@ -430,7 +430,9 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
           int pointer,
           DragAndDrop.Payload payload,
           DragAndDrop.Target target) {
+        // A drag ended by focus loss or an unplugged pad must not drop the item.
         if (target == null
+            && !event.isTouchFocusCancel()
             && payload != null
             && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
           if (Game.network().isServer()) {

@@ -16,6 +16,7 @@ import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogInput;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -264,12 +265,17 @@ public final class HudSystem extends System {
               GameInput.remove(entry.getValue());
               return true;
             });
-    for (UIComponent component : entityUIComponentMap.values()) {
-      if (inputContexts.containsKey(component) || !wantsInputContext(component)) continue;
-      InputContext context = DialogInput.context(component);
-      inputContexts.put(component, context);
-      GameInput.push(context);
-    }
+    // Dialogs that appear together stack like their actors.
+    entityUIComponentMap.values().stream()
+        .filter(component -> !inputContexts.containsKey(component))
+        .filter(this::wantsInputContext)
+        .sorted(Comparator.comparingInt(component -> component.dialog().getZIndex()))
+        .forEach(
+            component -> {
+              InputContext context = DialogInput.context(component);
+              inputContexts.put(component, context);
+              GameInput.push(context);
+            });
   }
 
   private boolean wantsInputContext(UIComponent component) {

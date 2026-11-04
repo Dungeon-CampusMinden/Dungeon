@@ -140,6 +140,7 @@ public final class InputResolver implements InputProcessor {
     if (context.spec().blocksBelow()) {
       Set<InputContext> below = new HashSet<>(stack.subList(0, index));
       cancelWhere(press -> below.contains(press.owner));
+      dropEdges(below::contains);
     }
   }
 
@@ -153,7 +154,9 @@ public final class InputResolver implements InputProcessor {
    * @param context the context
    */
   public void remove(InputContext context) {
-    if (stack.remove(context)) cancelWhere(press -> press.owner == context);
+    if (!stack.remove(context)) return;
+    cancelWhere(press -> press.owner == context);
+    dropEdges(owner -> owner == context);
   }
 
   /**
@@ -573,6 +576,7 @@ public final class InputResolver implements InputProcessor {
    */
   public void cancelAll() {
     cancelWhere(press -> true);
+    dropEdges(owner -> true);
     heldKeys.clear();
     heldButtons.clear();
   }
@@ -586,7 +590,11 @@ public final class InputResolver implements InputProcessor {
    */
   public Optional<BindingTable.Conflict> rebind(ActionId action, List<Binding> newBindings) {
     Optional<BindingTable.Conflict> conflict = bindings.rebind(action, newBindings);
-    if (conflict.isEmpty()) cancelWhere(press -> action.equals(press.action));
+    if (conflict.isEmpty()) {
+      cancelWhere(press -> action.equals(press.action));
+      state(action).edges.clear();
+      if (state(action).active.isEmpty()) state(action).pressed = false;
+    }
     return conflict;
   }
 
@@ -605,6 +613,15 @@ public final class InputResolver implements InputProcessor {
     }
   }
 
+  // A quick tap has no press left to cancel, only its buffered edges.
+  private void dropEdges(Predicate<InputContext> owner) {
+    for (ActionState state : actions.values()) {
+      if (state.edges.removeIf(edge -> owner.test(edge.owner())) && state.active.isEmpty()) {
+        state.pressed = false;
+      }
+    }
+  }
+
   // endregion
 
   // region Routing
@@ -617,6 +634,8 @@ public final class InputResolver implements InputProcessor {
     List<Bound> candidates = bindings.bound(trigger);
     for (int i = stack.size() - 1; i >= 0; i--) {
       InputContext context = stack.get(i);
+      // A text field only claims the keyboard; the pad must still reach the UI around it.
+      if (trigger.isPad() && context.spec().equals(CoreActions.TEXT)) continue;
       Bound best = null;
       for (Bound bound : candidates) {
         if (context.spec().accepts(bound.action(), bound.binding())
