@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import engine.Entity;
+import engine.Game;
 import engine.utils.Point;
 import feature.components.UIComponent;
 import feature.hud.dialogs.ChoiceOption;
@@ -12,6 +14,8 @@ import feature.hud.dialogs.ChoiceOptions;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.combinationlock.CombinationLock;
+import feature.interaction.combinationlock.CombinationLockComponent;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -20,7 +24,8 @@ import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Tests how the game normalizes free-text and code votes before counting them, what the devices
- * show of a dialog, and how the devices and the game screen show a choice of targets.
+ * show of a dialog, how the devices and the game screen show a choice of targets, and how a code
+ * from the devices reaches a lock.
  */
 class AudienceContextTest {
 
@@ -127,5 +132,36 @@ class AudienceContextTest {
     assertEquals("Truhe", truhe.path("label").asString());
     assertEquals(8.5, truhe.path("x").asDouble(), 1e-6);
     assertEquals(7, truhe.path("y").asDouble(), 1e-6);
+  }
+
+  @Test
+  void devicesEnterTheCodeOfALockOnTheKeypadAndTheLockDialsIt() {
+    Game.removeAllEntities();
+    Entity hero = new Entity("hero");
+    Game.add(hero);
+    Entity chest = new Entity("chest");
+    CombinationLockComponent wheels = new CombinationLockComponent(2);
+    chest.add(wheels);
+    Game.add(chest);
+    CombinationLock.show(
+        chest, hero, "Zahlenschloss", "Welche Zahl?", "Tippt sie ein.", false, code -> {});
+    try {
+      AudienceContext context = AudienceContext.of(hero, null);
+      assertEquals("lock", context.kind());
+      assertEquals("code", context.controls());
+      ObjectNode json = AudienceContext.JSON.objectNode();
+      context.describe(json);
+      assertEquals(2, json.path("digits").asInt());
+      assertEquals("Welche Zahl? Tippt sie ein.", json.path("text").asString());
+
+      assertTrue(context.normalize(AudienceContext.JSON.stringNode("8")).isEmpty());
+      JsonNode code = context.normalize(AudienceContext.JSON.stringNode(" 83 ")).orElseThrow();
+      assertEquals("83", context.label(code));
+      context.apply(code, null);
+      // The first wheel turns at once; the play clock turns the second one later.
+      assertEquals("80", wheels.digits());
+    } finally {
+      Game.removeAllEntities();
+    }
   }
 }

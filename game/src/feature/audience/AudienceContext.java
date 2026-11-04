@@ -14,6 +14,8 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogScript;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.combinationlock.CombinationLock;
+import feature.interaction.combinationlock.CombinationLockComponent;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,6 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -124,6 +128,16 @@ sealed interface AudienceContext {
       return new Choice(ui, options, multiple);
     }
     if (type == DialogType.DefaultTypes.YES_NO) return new YesNo(ui);
+    if (type == DialogType.DefaultTypes.COMBINATION_LOCK) {
+      int wheels =
+          ui.dialogContext()
+              .find(DialogContextKeys.ENTITY, Integer.class)
+              .flatMap(Game::findEntityById)
+              .flatMap(lock -> lock.fetch(CombinationLockComponent.class))
+              .map(CombinationLockComponent::wheels)
+              .orElse(0);
+      return new Lock(ui, wheels);
+    }
     if (type == DialogType.DefaultTypes.FREE_INPUT) {
       return new Text(
           ui, ui.dialogContext().find(AudienceSystem.CODE_DIGITS, Integer.class).orElse(0));
@@ -558,6 +572,62 @@ sealed interface AudienceContext {
     public void apply(JsonNode vote, TileStepper stepper) {
       respond(
           ui, DialogContextKeys.ON_CONFIRM, new DialogResponseMessage.StringValue(vote.asString()));
+    }
+  }
+
+  /**
+   * A combination lock, which the devices show as a digit keypad with one digit per wheel. The
+   * winning code turns the wheels on the game screen one after the other, and then the lock tries
+   * to open. The devices show the question and the hint of the dialog as its text.
+   *
+   * @param ui the dialog
+   * @param wheels number of wheels of the lock
+   */
+  record Lock(UIComponent ui, int wheels) implements AudienceContext {
+    @Override
+    public String kind() {
+      return "lock";
+    }
+
+    @Override
+    public String controls() {
+      return "code";
+    }
+
+    @Override
+    public Optional<UIComponent> dialog() {
+      return Optional.of(ui);
+    }
+
+    @Override
+    public void describe(ObjectNode json) {
+      json.put("digits", wheels);
+      DialogContext context = DialogFactory.localized(ui.dialogContext());
+      String text =
+          Stream.of(DialogContextKeys.QUESTION, DialogContextKeys.DESCRIPTION)
+              .flatMap(key -> context.find(key, String.class).stream())
+              .map(String::strip)
+              .filter(part -> !part.isEmpty())
+              .collect(Collectors.joining(" "));
+      if (!text.isEmpty()) json.put("text", text);
+    }
+
+    @Override
+    public Optional<JsonNode> normalize(JsonNode value) {
+      return new Text(ui, wheels).normalize(value);
+    }
+
+    @Override
+    public String label(JsonNode vote) {
+      return vote.asString();
+    }
+
+    @Override
+    public void apply(JsonNode vote, TileStepper stepper) {
+      respond(
+          ui,
+          DialogContextKeys.ON_CONFIRM,
+          new DialogResponseMessage.StringValue(CombinationLock.dial(vote.asString())));
     }
   }
 

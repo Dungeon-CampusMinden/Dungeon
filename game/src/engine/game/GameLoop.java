@@ -88,6 +88,7 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
 import feature.interaction.InteractionComponent;
+import feature.interaction.combinationlock.CombinationLockSync;
 import feature.interaction.keypad.KeypadSync;
 import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
@@ -683,6 +684,7 @@ public final class GameLoop extends ScreenAdapter {
             newEntity.add(new InteractionComponent());
           }
           KeypadSync.apply(newEntity, event.metadata());
+          CombinationLockSync.apply(newEntity, event.metadata());
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
           }

@@ -14,6 +14,7 @@ import feature.canvas.CanvasDefinition;
 import feature.canvas.CanvasDialog;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.interaction.combinationlock.CombinationLockUI;
 import feature.interaction.keypad.KeypadUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
@@ -71,6 +72,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
     register(DialogType.DefaultTypes.CANVAS, CanvasDialog::build);
     register(DialogType.DefaultTypes.CLIENT_CONNECTION, ClientConnectionDialog::build);
+    register(DialogType.DefaultTypes.COMBINATION_LOCK, CombinationLockUI::build);
     LOGGER.debug("Registered built-in dialog types");
   }
 

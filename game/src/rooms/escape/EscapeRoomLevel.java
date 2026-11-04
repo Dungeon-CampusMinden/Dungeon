@@ -33,6 +33,8 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.interaction.combinationlock.CombinationLock;
+import feature.interaction.combinationlock.CombinationLockComponent;
 import feature.prefabs.types.DecorationInteractionPrefab;
 import java.util.Arrays;
 import java.util.List;
@@ -54,11 +56,14 @@ import java.util.stream.Stream;
  * all of it happens in dialogs the audience can vote on.
  *
  * <p>A room can add a tutorial, a lock on the chest, a computer that shows an image, and a
- * whiteboard. In the tutorial a robot practises a single-choice and a multiple-choice question and
- * then tells the audience that the code of the tutorial door is the last three digits of the phone
- * number. The level file places a printer as a {@code deco-interaction} prefab, and a {@code
- * show-image} prefab shows the number when the hero uses it. The whiteboard stays empty until the
- * audience solves the rebuilt terminal; then the helper writes on it.
+ * whiteboard. The lock has one digit wheel per digit of its code. The audience votes on a code, the
+ * wheels turn to it on the game screen, and they keep their digits after a wrong try. In the
+ * tutorial a robot practises a single-choice and a multiple-choice question and then tells the
+ * audience that the code of the tutorial door is the last three digits of the phone number. The
+ * level file places a printer as a {@code deco-interaction} prefab, and a {@code show-image} prefab
+ * shows the number when the hero uses it. The whiteboard stays empty until the audience solves the
+ * rebuilt terminal; then the helper writes on it. A room whose board keeps what the solved
+ * terminals showed, see {@link #boardListsFindings()}, offers the board earlier.
  *
  * <p>Subclasses build their objects in {@link #setUp()} and describe a revealed digit in {@link
  * #revealText(int)}. The audience picks targets from a list unless {@link #offersTargets()} says
@@ -115,6 +120,10 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
   private static final String DOOR_HINT =
       "Die Tür ins Labor ist verschlossen. Der Code für das Tastenfeld daneben sind die letzten"
           + " drei Ziffern der Telefonnummer. Schaut euch hier im Raum um.";
+
+  // Below the question of the chest lock, on the game screen and the devices.
+  private static final String LOCK_HINT =
+      "Gebt die Zahl auf dem Handy ein. Das Schloss dreht seine Rädchen dann selbst.";
 
   private final Terminals terminals;
   private final boolean[] solved;
@@ -176,6 +185,34 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
    * @return text of the popup after the right answer
    */
   protected abstract String revealText(int terminal);
+
+  /**
+   * @param terminal index of the terminal, starting at 0
+   * @return whether the audience has answered the terminal's question correctly
+   */
+  protected final boolean solved(int terminal) {
+    return solved[terminal];
+  }
+
+  /**
+   * @return whether the helper has written on the whiteboard, which it does once the audience
+   *     solves the rebuilt terminal
+   */
+  protected final boolean boardWritten() {
+    return boardWritten;
+  }
+
+  /**
+   * Says whether the whiteboard repeats what the solved terminals showed. Then a solved terminal
+   * leaves the targets, because the board keeps its digit, and the board joins the targets with the
+   * first solved terminal instead of waiting for the helper. Its content then has to work before
+   * the helper wrote on it, see {@link #boardWritten()}.
+   *
+   * @return {@code false} unless a room overrides it
+   */
+  protected boolean boardListsFindings() {
+    return false;
+  }
 
   /**
    * Whether the audience picks targets from a list. Otherwise it votes on single steps.
@@ -371,7 +408,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
 
   /**
    * Places a computer that shows an image. It joins the targets once the audience has talked to the
-   * helper.
+   * helper and leaves them once the chest is open, because it only helps with the lock.
    *
    * @param point named point of the computer; also the name of its entity
    * @param image path of the image
@@ -380,7 +417,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
     offer(
         station(getPoint(point), COMPUTER, point.replace('_', '-'), hero -> showImage(image, hero)),
         "Rechner",
-        () -> metHelper);
+        () -> metHelper && !hasItem && !rebuilt);
   }
 
   /**
@@ -408,11 +445,16 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
     board.add(
         new InteractionComponent(new Interaction((self, hero) -> readBoard(hero), 1.5f, true)));
     Game.add(board);
-    offer(board, "Whiteboard", () -> boardWritten);
+    offer(board, "Whiteboard", () -> boardWritten || (boardListsFindings() && anySolved()));
+  }
+
+  private boolean anySolved() {
+    for (boolean done : solved) if (done) return true;
+    return false;
   }
 
   private void readBoard(Entity hero) {
-    if (!boardWritten) {
+    if (!boardWritten && !boardListsFindings()) {
       DialogUtils.showTextPopup("Das Whiteboard ist noch leer.", "Whiteboard", hero.id());
       return;
     }
@@ -446,7 +488,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
             "terminal-" + (terminal + 1),
             hero -> ask(terminal, hero)),
         "Terminal " + (terminal + 1),
-        () -> true);
+        () -> !(boardListsFindings() && solved[terminal]));
   }
 
   private Entity station(Point position, SimpleIPath texture, String name, Consumer<Entity> use) {
@@ -578,6 +620,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
     chest.add(new PositionComponent(getPoint("chest")));
     chest.add(new DrawComponent(CHEST_TEXTURE, "closed"));
     chest.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
+    if (chestLock != null) chest.add(new CombinationLockComponent(chestLock.code().length()));
     chest.add(
         new InteractionComponent(
             new Interaction((self, hero) -> openChest(self, hero), 1.5f, true)));
@@ -591,11 +634,13 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
       return;
     }
     if (chestLock != null && !chestUnlocked) {
-      askCode(
+      CombinationLock.show(
+          chest,
           hero,
           "Zahlenschloss",
           chestLock.question(),
-          chestLock.code().length(),
+          LOCK_HINT,
+          false,
           code -> {
             if (code.equals(chestLock.code())) {
               chestUnlocked = true;
@@ -819,7 +864,7 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
       List<String> thanks) {}
 
   /**
-   * Number lock of the chest.
+   * Combination lock of the chest, with one wheel per digit of the code.
    *
    * @param code the code
    * @param question what the lock says about its code
