@@ -1,0 +1,83 @@
+{
+  "achievements": [
+    {
+      "id": "morphco_alarm_off",
+      "imagePath": "objects/tech/Alert_1.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "morphco_word_classes",
+      "imagePath": "objects/crate/basic.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "morphco_marie_kondo",
+      "imagePath": "items/rpg/item_sack.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "morphco_combinatorial",
+      "imagePath": "items/puzzle-piece.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "morphco_flexion",
+      "imagePath": "items/tools/hammer.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "morphco_restart",
+      "imagePath": "objects/tech/Computer_1.png",
+      "unlockForAll": true,
+      "hidden": false
+    },
+    {
+      "id": "morphco_first_try",
+      "imagePath": "items/rpg/scissors.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "morphco_plants",
+      "imagePath": "office/plant.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "morphco_lever",
+      "imagePath": "items/rpg/pickaxe_iron.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "morphco_nobody_home",
+      "imagePath": "office/phone.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "morphco_posters",
+      "imagePath": "items/rpg/item_paper.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "morphco_bookworm",
+      "imagePath": "items/rpg/item_book_teal.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "morphco_platinum",
+      "imagePath": "items/rpg/item_gem_diamond_smooth.png",
+      "unlockForAll": true,
+      "hidden": false,
+      "platinum": true
+    }
+  ]
+}

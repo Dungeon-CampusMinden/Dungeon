@@ -1,0 +1,788 @@
+{
+  "version": 3,
+  "design": "SYSTEM_RECOVERY",
+  "layout": [
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+    "SWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS",
+    "SWWWWWWWWWWWDWWWWWWWWWWWWWWWWWWWWDWWWWWWWWWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS",
+    "SWWWWDWWWWWWDWWWWWWDWWWWWWWWWWDWWWWWWWWWWWWSSS",
+    "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS",
+    "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS",
+    "SWWWWWWWWWWWWWWWWWWWWWWWFFFFFFFFFFFFFFFFFFWSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFFFFFFFFFWSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSWWWWWWWWWDWWWWWWWWWWSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSWWWWWWWWWWWWSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
+  ],
+  "startTiles": [
+    {
+      "x": 32.0,
+      "y": 4.0
+    }
+  ],
+  "namedPoints": {
+    "a12_conveyor": {
+      "x": 25.4,
+      "y": 27.8
+    },
+    "alarm_light": {
+      "x": 37.1,
+      "y": 16.6
+    },
+    "boxes0": {
+      "x": 37.4,
+      "y": 26.4
+    },
+    "boxes1": {
+      "x": 38.3,
+      "y": 26.4
+    },
+    "card_slot": {
+      "x": 33.1,
+      "y": 7.0
+    },
+    "cctv": {
+      "x": 40.2,
+      "y": 16.9
+    },
+    "coffee": {
+      "x": 37.6,
+      "y": 11.399999999999999
+    },
+    "console": {
+      "x": 35.0,
+      "y": 16.8
+    },
+    "control_enter": {
+      "x": 32.0,
+      "y": 9.0
+    },
+    "control_table": {
+      "x": 36.6,
+      "y": 12.0
+    },
+    "conveyor": {
+      "x": 3.0,
+      "y": 27.0
+    },
+    "conveyor_word0": {
+      "x": 3.6,
+      "y": 26.9
+    },
+    "conveyor_word1": {
+      "x": 5.2,
+      "y": 26.9
+    },
+    "conveyor_word2": {
+      "x": 6.8,
+      "y": 26.9
+    },
+    "conveyor_word3": {
+      "x": 8.4,
+      "y": 26.9
+    },
+    "crate0": {
+      "x": 7.4,
+      "y": 31.6
+    },
+    "crate1": {
+      "x": 8.95,
+      "y": 31.6
+    },
+    "crate2": {
+      "x": 10.5,
+      "y": 31.6
+    },
+    "crate3": {
+      "x": 12.05,
+      "y": 31.6
+    },
+    "crate4": {
+      "x": 13.6,
+      "y": 31.6
+    },
+    "door_a12": {
+      "x": 33.0,
+      "y": 22.0
+    },
+    "door_control": {
+      "x": 32.0,
+      "y": 8.0
+    },
+    "door_f04": {
+      "x": 12.0,
+      "y": 22.0
+    },
+    "door_f04_a12": {
+      "x": 24.0,
+      "y": 28.0
+    },
+    "door_kitchen": {
+      "x": 5.0,
+      "y": 18.0
+    },
+    "door_production": {
+      "x": 30.0,
+      "y": 18.0
+    },
+    "door_restroom": {
+      "x": 19.0,
+      "y": 18.0
+    },
+    "door_storage": {
+      "x": 12.0,
+      "y": 18.0
+    },
+    "f04_door_sign": {
+      "x": 13.2,
+      "y": 23.0
+    },
+    "f04_enter": {
+      "x": 12.0,
+      "y": 23.0
+    },
+    "f04_enter_inner": {
+      "x": 23.0,
+      "y": 28.0
+    },
+    "f04_screen": {
+      "x": 6.1,
+      "y": 32.8
+    },
+    "flexion_machine": {
+      "x": 2.8,
+      "y": 31.6
+    },
+    "fuse_box": {
+      "x": 40.4,
+      "y": 14.0
+    },
+    "hatch": {
+      "x": 28.4,
+      "y": 32.0
+    },
+    "hatch_lock": {
+      "x": 29.6,
+      "y": 31.9
+    },
+    "lever": {
+      "x": 27.3,
+      "y": 32.0
+    },
+    "mirror": {
+      "x": 20.6,
+      "y": 16.8
+    },
+    "pc": {
+      "x": 26.4,
+      "y": 16.0
+    },
+    "phone": {
+      "x": 28.6,
+      "y": 15.8
+    },
+    "picture": {
+      "x": 37.2,
+      "y": 32.8
+    },
+    "pile": {
+      "x": 27.0,
+      "y": 24.8
+    },
+    "plant_control": {
+      "x": 24.4,
+      "y": 10.0
+    },
+    "plant_corridor": {
+      "x": 40.2,
+      "y": 20.9
+    },
+    "plant_f04": {
+      "x": 22.6,
+      "y": 32.0
+    },
+    "poster_a12": {
+      "x": 35.0,
+      "y": 32.8
+    },
+    "poster_control1": {
+      "x": 24.6,
+      "y": 16.9
+    },
+    "poster_control2": {
+      "x": 32.6,
+      "y": 16.9
+    },
+    "poster_control3": {
+      "x": 38.4,
+      "y": 16.9
+    },
+    "poster_control4": {
+      "x": 40.3,
+      "y": 10.8
+    },
+    "poster_f04_1": {
+      "x": 11.0,
+      "y": 33.0
+    },
+    "poster_f04_2": {
+      "x": 21.0,
+      "y": 32.8
+    },
+    "production_sign": {
+      "x": 28.6,
+      "y": 17.5
+    },
+    "shelf_a12": {
+      "x": 39.0,
+      "y": 32.6
+    },
+    "shelf_f04_a": {
+      "x": 15.6,
+      "y": 32.6
+    },
+    "shelf_f04_b": {
+      "x": 18.0,
+      "y": 32.6
+    },
+    "shift_lead": {
+      "x": 29.0,
+      "y": 6.0
+    },
+    "sign_a12": {
+      "x": 34.1,
+      "y": 20.9
+    },
+    "sign_control": {
+      "x": 31.1,
+      "y": 19.0
+    },
+    "sign_f04": {
+      "x": 13.1,
+      "y": 20.9
+    },
+    "sign_kitchen": {
+      "x": 6.1,
+      "y": 19.0
+    },
+    "sign_restroom": {
+      "x": 20.1,
+      "y": 19.0
+    },
+    "sign_storage": {
+      "x": 13.1,
+      "y": 19.0
+    },
+    "sink": {
+      "x": 18.0,
+      "y": 16.8
+    },
+    "sorter": {
+      "x": 27.2,
+      "y": 31.4
+    },
+    "sorter_display": {
+      "x": 31.0,
+      "y": 32.8
+    },
+    "station": {
+      "x": 34.0,
+      "y": 26.4
+    },
+    "station_chair": {
+      "x": 34.9,
+      "y": 25.4
+    },
+    "trash_f04": {
+      "x": 21.8,
+      "y": 24.8
+    },
+    "warning_sign": {
+      "x": 30.8,
+      "y": 7.0
+    }
+  },
+  "decorations": [
+    {
+      "type": "LabServer",
+      "position": {
+        "x": 24.2,
+        "y": 13.5
+      }
+    },
+    {
+      "type": "LabServer",
+      "position": {
+        "x": 24.2,
+        "y": 12.5
+      }
+    },
+    {
+      "type": "ChairBlue",
+      "position": {
+        "x": 35.8,
+        "y": 12.0
+      }
+    },
+    {
+      "type": "ChairBlue",
+      "position": {
+        "x": 39.0,
+        "y": 12.0
+      }
+    },
+    {
+      "type": "LabNeon",
+      "position": {
+        "x": 34.0,
+        "y": 8.8
+      }
+    },
+    {
+      "type": "WaterDispenser",
+      "position": {
+        "x": 41.0,
+        "y": 9.0
+      }
+    },
+    {
+      "type": "LabWindow",
+      "position": {
+        "x": 27.0,
+        "y": 8.399999999999999
+      }
+    },
+    {
+      "type": "SnackDispenser",
+      "position": {
+        "x": 2.2,
+        "y": 20.9
+      }
+    },
+    {
+      "type": "WaterDispenser",
+      "position": {
+        "x": 3.6,
+        "y": 20.9
+      }
+    },
+    {
+      "type": "LabNeon",
+      "position": {
+        "x": 22.0,
+        "y": 21.0
+      }
+    },
+    {
+      "type": "Clock",
+      "position": {
+        "x": 26.0,
+        "y": 21.0
+      }
+    },
+    {
+      "type": "CoffeeMaker",
+      "position": {
+        "x": 2.4,
+        "y": 16.8
+      }
+    },
+    {
+      "type": "WaterCooler",
+      "position": {
+        "x": 5.5,
+        "y": 16.8
+      }
+    },
+    {
+      "type": "TableShort",
+      "position": {
+        "x": 3.6,
+        "y": 13.0
+      }
+    },
+    {
+      "type": "ChairRed",
+      "position": {
+        "x": 3.0,
+        "y": 13.0
+      }
+    },
+    {
+      "type": "ChairRed",
+      "position": {
+        "x": 5.8,
+        "y": 13.0
+      }
+    },
+    {
+      "type": "SoulweaverCrate",
+      "position": {
+        "x": 10.2,
+        "y": 16.6
+      }
+    },
+    {
+      "type": "SoulweaverCrate",
+      "position": {
+        "x": 11.2,
+        "y": 16.6
+      }
+    },
+    {
+      "type": "SoulweaverSmallCrate",
+      "position": {
+        "x": 10.6,
+        "y": 15.600000000000001
+      }
+    },
+    {
+      "type": "LabBarrel",
+      "position": {
+        "x": 14.4,
+        "y": 16.6
+      }
+    },
+    {
+      "type": "LabRedBarrel",
+      "position": {
+        "x": 14.6,
+        "y": 13.0
+      }
+    },
+    {
+      "type": "BookShelf",
+      "position": {
+        "x": 12.0,
+        "y": 11.600000000000001
+      }
+    },
+    {
+      "type": "LabPillar",
+      "position": {
+        "x": 2.2,
+        "y": 24.0
+      }
+    },
+    {
+      "type": "LabBarrel",
+      "position": {
+        "x": 2.4,
+        "y": 29.0
+      }
+    },
+    {
+      "type": "LabSmallMachine",
+      "position": {
+        "x": 13.5,
+        "y": 29.0
+      }
+    },
+    {
+      "type": "LabServer",
+      "position": {
+        "x": 15.0,
+        "y": 29.0
+      }
+    },
+    {
+      "type": "LabRedBarrel",
+      "position": {
+        "x": 20.0,
+        "y": 24.0
+      }
+    },
+    {
+      "type": "LabNeon",
+      "position": {
+        "x": 9.0,
+        "y": 22.6
+      }
+    },
+    {
+      "type": "FloorBarsSmall",
+      "position": {
+        "x": 11.0,
+        "y": 29.6
+      }
+    },
+    {
+      "type": "LabPillar",
+      "position": {
+        "x": 41.0,
+        "y": 24.0
+      }
+    },
+    {
+      "type": "LabBarrel",
+      "position": {
+        "x": 25.4,
+        "y": 23.6
+      }
+    },
+    {
+      "type": "SoulweaverSmallCrate",
+      "position": {
+        "x": 30.4,
+        "y": 24.2
+      }
+    },
+    {
+      "type": "LabLocker",
+      "position": {
+        "x": 41.0,
+        "y": 30.0
+      }
+    },
+    {
+      "type": "LabNeon",
+      "position": {
+        "x": 28.0,
+        "y": 22.6
+      }
+    },
+    {
+      "type": "LabLockers",
+      "position": {
+        "x": 35.2,
+        "y": 6.699999999999999
+      }
+    },
+    {
+      "type": "CouchBlue",
+      "position": {
+        "x": 34.6,
+        "y": 3.1999999999999993
+      }
+    },
+    {
+      "type": "WaterCooler",
+      "position": {
+        "x": 28.2,
+        "y": 3.3999999999999986
+      }
+    },
+    {
+      "type": "LabScreenArrow",
+      "position": {
+        "x": 31.6,
+        "y": 7.100000000000001
+      }
+    },
+    {
+      "type": "LabSmallMachine",
+      "position": {
+        "x": 33.6,
+        "y": 16.6
+      }
+    },
+    {
+      "type": "LabScreenFace",
+      "position": {
+        "x": 34.2,
+        "y": 17.4
+      }
+    },
+    {
+      "type": "LabChair",
+      "position": {
+        "x": 35.4,
+        "y": 15.600000000000001
+      }
+    },
+    {
+      "type": "LabChair",
+      "position": {
+        "x": 27.2,
+        "y": 14.899999999999999
+      }
+    },
+    {
+      "type": "LabBioComputer",
+      "position": {
+        "x": 36.6,
+        "y": 9.2
+      }
+    },
+    {
+      "type": "LabScreenQuestion",
+      "position": {
+        "x": 27.2,
+        "y": 17.4
+      }
+    },
+    {
+      "type": "FloorBarsSquare",
+      "position": {
+        "x": 31.0,
+        "y": 13.0
+      }
+    },
+    {
+      "type": "FloorBarsRound",
+      "position": {
+        "x": 27.0,
+        "y": 19.6
+      }
+    },
+    {
+      "type": "FloorBarsRound",
+      "position": {
+        "x": 8.0,
+        "y": 19.6
+      }
+    },
+    {
+      "type": "LabNeon",
+      "position": {
+        "x": 3.0,
+        "y": 18.4
+      }
+    },
+    {
+      "type": "TrashCanBlue",
+      "position": {
+        "x": 22.0,
+        "y": 11.0
+      }
+    },
+    {
+      "type": "ThinWallVertical",
+      "position": {
+        "x": 20.0,
+        "y": 13.399999999999999
+      }
+    },
+    {
+      "type": "LabCryoBoxOff",
+      "position": {
+        "x": 17.0,
+        "y": 24.6
+      }
+    },
+    {
+      "type": "LabCryoBox",
+      "position": {
+        "x": 18.6,
+        "y": 24.6
+      }
+    },
+    {
+      "type": "LabCryoBoxOff",
+      "position": {
+        "x": 20.2,
+        "y": 24.6
+      }
+    },
+    {
+      "type": "FloorBarsSquare",
+      "position": {
+        "x": 6.0,
+        "y": 29.0
+      }
+    },
+    {
+      "type": "FloorBarsSquare",
+      "position": {
+        "x": 16.0,
+        "y": 28.6
+      }
+    },
+    {
+      "type": "FloorBarsSmall",
+      "position": {
+        "x": 11.0,
+        "y": 24.6
+      }
+    },
+    {
+      "type": "LabMachine",
+      "position": {
+        "x": 2.2,
+        "y": 25.2
+      }
+    },
+    {
+      "type": "LabScreenArrow",
+      "position": {
+        "x": 9.6,
+        "y": 32.8
+      }
+    },
+    {
+      "type": "LabServer",
+      "position": {
+        "x": 35.0,
+        "y": 29.4
+      }
+    },
+    {
+      "type": "LabServer",
+      "position": {
+        "x": 36.0,
+        "y": 29.4
+      }
+    },
+    {
+      "type": "LabServer",
+      "position": {
+        "x": 37.0,
+        "y": 29.4
+      }
+    },
+    {
+      "type": "LabDevice",
+      "position": {
+        "x": 40.6,
+        "y": 26.6
+      }
+    },
+    {
+      "type": "FloorBarsSquare",
+      "position": {
+        "x": 30.0,
+        "y": 26.0
+      }
+    },
+    {
+      "type": "FloorBarsSmall",
+      "position": {
+        "x": 38.0,
+        "y": 24.0
+      }
+    },
+    {
+      "type": "LabBarrel",
+      "position": {
+        "x": 41.0,
+        "y": 25.4
+      }
+    }
+  ],
+  "prefabs": []
+}
