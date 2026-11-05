@@ -205,6 +205,8 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private final InputContext uiContext =
       new InputContext(UiActions.MENU)
+          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
           .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
           .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1));
 

@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import engine.game.WindowEventManager;
@@ -105,6 +106,16 @@ public final class GameInput {
     resolver.advance(delta);
     PadCursor.update(resolver, stage);
     if (stage != null) CursorUtil.update(stage);
+  }
+
+  /**
+   * Scrolls the pane under the cursor, so that navigation actions also serve views without a
+   * selection.
+   *
+   * @param amount wheel notches, positive scrolls down
+   */
+  public static void scroll(int amount) {
+    if (stage != null && stage.getScrollFocus() instanceof ScrollPane) stage.scrolled(0, amount);
   }
 
   private static void syncTextContext() {

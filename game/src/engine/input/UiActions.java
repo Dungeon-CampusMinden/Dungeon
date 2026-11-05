@@ -47,7 +47,8 @@ public final class UiActions {
 
   /** Screens outside a running game. On the base layer, so that their windows keep their keys. */
   public static final ContextSpec MENU =
-      ContextSpec.of("menu_ui", ContextLayer.BASE, CLICK, NAV_LEFT, NAV_RIGHT).blocking();
+      ContextSpec.of("menu_ui", ContextLayer.BASE, CLICK, NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT)
+          .blocking();
 
   /** A modal dialog without a confirm action; the pad works through its cursor. */
   public static final ContextSpec DIALOG =
