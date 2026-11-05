@@ -121,7 +121,7 @@ public final class LevelRenderer {
         Tile t = layout[y][x];
         if (!drawable(t)) continue;
         batch.setColor(tint(t));
-        if (t.levelElement() == LevelElement.DOOR ? isAutoFloor(t) : t.isAccessible()) {
+        if (t.isAccessible() && (t.levelElement() != LevelElement.DOOR || isAutoFloor(t))) {
           drawFloorShadows(batch, layout, x, y);
         }
       }

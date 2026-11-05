@@ -87,17 +87,8 @@ public class DoorTile extends Tile {
   }
 
   /**
-   * Whether this is a barred door: while closed it blocks movement, but sight and light pass
-   * through it, so a hidden door looks like floor even while closed.
-   *
-   * @return true if the door is barred
-   */
-  public boolean barred() {
-    return barred;
-  }
-
-  /**
-   * Makes this a barred door, see {@link #barred()}.
+   * Sets whether a closed door lets sight and light through while still blocking movement, so a
+   * hidden door looks like floor even while closed.
    *
    * @param barred whether the door is barred
    */
