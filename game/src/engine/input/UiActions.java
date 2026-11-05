@@ -67,6 +67,13 @@ public final class UiActions {
           .padOnly(CoreActions.PAUSE_MENU)
           .blocking();
 
+  /** A shown image; it holds nothing to select, so confirming closes it as well. */
+  public static final ContextSpec IMAGE =
+      ContextSpec.of("image", ContextLayer.UI)
+          .closedBy(CLOSE, CONFIRM)
+          .padOnly(CoreActions.PAUSE_MENU)
+          .blocking();
+
   /** The room's controls; their open action closes them as well. */
   public static final ContextSpec CONTROLS =
       ContextSpec.of("controls", ContextLayer.UI, CONFIRM, NAV_UP, NAV_DOWN)

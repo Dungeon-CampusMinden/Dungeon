@@ -28,6 +28,7 @@ public final class DialogInput {
     register(DialogType.DefaultTypes.DIALOG_DIALOG, UiActions.CONFIRM_DIALOG);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, UiActions.CONFIRM_DIALOG);
     register(DialogType.DefaultTypes.CONTROLS, UiActions.CONTROLS);
+    register(DialogType.DefaultTypes.IMAGE, UiActions.IMAGE);
   }
 
   private DialogInput() {}
