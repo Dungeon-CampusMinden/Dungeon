@@ -30,8 +30,10 @@ final class SoulweaverWorkshopWorld {
   static final int TILE_STEP = 1;
   private static final Point INITIAL = new Point(30, 26);
   private static final Point EXIT = new Point(34, 46);
-  // Native pixel density of the 80x24 iron bars: five tiles wide, one and a half tiles high.
-  private static final float BARS_SCALE = 1.5f;
+  // Native pixel density of the 80x26 iron bars: five tiles wide, 26 pixels high, of which the
+  // lowest two are the contact shadow baked into the sprite.
+  private static final float BARS_SCALE = 26 / 16f;
+  private static final float BARS_FOOT = .5f + 2 / 16f;
 
   private static final boolean[] activated = new boolean[8];
   private static final int[] remaining = new int[8];
@@ -397,7 +399,8 @@ final class SoulweaverWorkshopWorld {
 
   /**
    * One sprite, so the whole gate is lit like the floor at its foot. It stands upright for the
-   * light pass, but on a layer that casts no contact shadow; heroes and Nox draw in front of it.
+   * light pass, on a layer without the engine's contact shadow: the sprite carries a thin one below
+   * its spikes, so light still falls through the gaps. Heroes and Nox draw in front of it.
    *
    * @param name entity name suffix
    * @param at lower-left corner of the gate opening
@@ -405,13 +408,13 @@ final class SoulweaverWorkshopWorld {
    */
   private static Entity ironBars(String name, Point at) {
     Entity entity = new Entity("soulweaver-methods-" + name);
-    PositionComponent position = new PositionComponent(at.translate(0, -.5f));
+    PositionComponent position = new PositionComponent(at.translate(0, -BARS_FOOT));
     position.scale(BARS_SCALE);
     entity.add(position);
     DrawComponent draw =
         new DrawComponent(
             new SimpleIPath("rooms/soulweaver/art/iron-bars.png"),
-            new SpritesheetConfig(0, 0, 1, 1, 80, 24));
+            new SpritesheetConfig(0, 0, 1, 1, 80, 26));
     draw.depth(DepthLayer.ForegroundDeco.depth());
     entity.add(draw);
     Game.add(entity);
@@ -419,9 +422,9 @@ final class SoulweaverWorkshopWorld {
   }
 
   private static CollideComponent gateCollider() {
-    // Fills the wall opening, which starts half a tile above the sprite's foot.
+    // Fills the wall opening, which starts above the sprite's foot.
     return new CollideComponent(
-        Vector2.of(0, .5f / BARS_SCALE), Vector2.of(5 / BARS_SCALE, 1 / BARS_SCALE));
+        Vector2.of(0, BARS_FOOT / BARS_SCALE), Vector2.of(5 / BARS_SCALE, 1 / BARS_SCALE));
   }
 
   private static void tint(String suffix, int color) {
