@@ -22,11 +22,11 @@ import java.util.Optional;
  *
  * <p>Walls are autotiled from their design's atlas, see {@link DesignTileset}: the cell follows the
  * wall's eight neighbours (Godot "3x3 minimal" blob layout), where walls, doors and the void
- * connect. Hidden doors look like wall while closed and like floor while open. Floors receive the
- * ambient occlusion of adjacent walls. Designs with floor variants also vary their floors and open
- * doorways, break off floor edges above the void and, if the level's {@link Atmosphere#wallDecor()}
- * asks for it, decorate wall faces with banners, cracks, torches and fountains. Every other tile is
- * drawn from the texture {@link TileTextures} resolves for it.
+ * connect. Hidden doors look like wall while closed and like floor while open or barred. Floors
+ * receive the ambient occlusion of adjacent walls. Designs with floor variants also vary their
+ * floors and open doorways, break off floor edges above the void and, if the level's {@link
+ * Atmosphere#wallDecor()} asks for it, decorate wall faces with banners, cracks, torches and
+ * fountains. Every other tile is drawn from the texture {@link TileTextures} resolves for it.
  *
  * <p>All decoration is derived from the tile coordinates, so every client renders the same level
  * without any synchronised state.
@@ -121,7 +121,7 @@ public final class LevelRenderer {
         Tile t = layout[y][x];
         if (!drawable(t)) continue;
         batch.setColor(tint(t));
-        if (t.isAccessible() && (t.levelElement() != LevelElement.DOOR || isAutoFloor(t))) {
+        if (t.levelElement() == LevelElement.DOOR ? isAutoFloor(t) : t.isAccessible()) {
           drawFloorShadows(batch, layout, x, y);
         }
       }
@@ -354,7 +354,7 @@ public final class LevelRenderer {
    * @return true if it is
    */
   static boolean isAutoWall(Tile t) {
-    if (t instanceof DoorTile door && door.hidden()) return !door.isOpen();
+    if (t instanceof DoorTile door && door.hidden()) return !door.canSeeThrough();
     return t.levelElement() == LevelElement.WALL;
   }
 
@@ -362,7 +362,7 @@ public final class LevelRenderer {
     if (!hasVariants(t)) return false;
     return switch (t.levelElement()) {
       case FLOOR -> true;
-      case DOOR -> t.isAccessible();
+      case DOOR -> t.canSeeThrough();
       default -> false;
     };
   }
@@ -457,7 +457,7 @@ public final class LevelRenderer {
     return t == null
         || t.levelElement() == LevelElement.WALL
         || t.levelElement() == LevelElement.SKIP
-        || (isHiddenDoor(t) && !t.isAccessible());
+        || (isHiddenDoor(t) && !t.canSeeThrough());
   }
 
   private static boolean connects(Tile[][] layout, int x, int y) {

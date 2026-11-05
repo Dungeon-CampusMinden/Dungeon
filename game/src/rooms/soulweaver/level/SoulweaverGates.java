@@ -69,8 +69,10 @@ final class SoulweaverGates {
             .ifPresent(
                 door -> {
                   if (initialize) {
-                    // Gates look like wall while closed and like floor once open.
+                    // Gates look like wall while closed and like floor once open. Act 3 ends at
+                    // iron bars, which stand in the open passage.
                     door.hidden(true);
+                    door.barred(gate.equals("act3"));
                     door.close();
                   } else {
                     door.open();
