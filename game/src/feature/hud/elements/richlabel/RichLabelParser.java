@@ -132,9 +132,20 @@ public class RichLabelParser {
           float scale = params.getFloat("scale", 1f);
           boolean noGapLeft = params.getBoolean("noGapLeft");
           boolean noGapRight = params.getBoolean("noGapRight");
+          String tint = params.getString("color", null);
           runs.add(
               new ImageRun(
-                  path, currentShake, currentSize, scale, rx, ry, rw, rh, noGapLeft, noGapRight));
+                  path,
+                  currentShake,
+                  currentSize,
+                  scale,
+                  rx,
+                  ry,
+                  rw,
+                  rh,
+                  noGapLeft,
+                  noGapRight,
+                  tint == null ? null : parseColor(tint)));
         }
       } else if (matcher.group(3) != null) {
         TagParams params = TagParams.parse(matcher.group(3));
@@ -290,8 +301,10 @@ public class RichLabelParser {
    * required and holds the libGDX key or button integer; the optional {@code type} parameter
    * selects the lookup space ({@code keyboard} (default), {@code mouse}, {@code playstation},
    * {@code xbox}, {@code touch}). The optional {@code outline} boolean flag selects the outlined
-   * spritesheet variant. Returns {@code null} (and logs a warning) when the tag cannot be resolved,
-   * so the markup is silently dropped at render time instead of throwing.
+   * spritesheet variant. The optional {@code color} parameter (a name like {@code black} or a hex
+   * value) tints the icon, e.g. to draw the white prompts in black on a light dialog. Returns
+   * {@code null} (and logs a warning) when the tag cannot be resolved, so the markup is silently
+   * dropped at render time instead of throwing.
    *
    * @param params the raw parameter string of the tag (everything after {@code [key} and before the
    *     closing {@code ]}).
@@ -315,6 +328,7 @@ public class RichLabelParser {
     }
     String type = tp.getString("type", "keyboard").toLowerCase();
     boolean outline = tp.getBoolean("outline");
+    String tint = tp.getString("color", null);
 
     InputPromptRegion region;
     try {
@@ -350,7 +364,8 @@ public class RichLabelParser {
         region.width(),
         region.height(),
         false,
-        false);
+        false,
+        tint == null ? null : parseColor(tint));
   }
 
   private ShakeEffect parseShake(String params) {
