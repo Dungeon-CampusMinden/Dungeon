@@ -107,7 +107,7 @@ public final class MorphCoText {
   private static String speaker(String image, String nameKey, String key) {
     return "[speaker img="
         + image
-        + " name=\"[color=#aaaaaa]"
+        + " name=\"[color=black]"
         + key(nameKey)
         + "[/color]\"]"
         + key("story." + key);
@@ -121,7 +121,7 @@ public final class MorphCoText {
   public static String controls() {
     return "[speaker img="
         + SHIFT_LEAD_IMAGE
-        + " name=\"[color=#aaaaaa]"
+        + " name=\"[color=black]"
         + key("story.shift-lead")
         + "[/color]\"]"
         + key(

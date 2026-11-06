@@ -19,6 +19,7 @@ import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.function.BiConsumer;
 import rooms.morphco.util.MorphCoText;
@@ -45,16 +46,22 @@ final class MorphCoProps {
    */
   static Entity deco(
       String name, Point position, Deco deco, BiConsumer<Entity, Entity> onInteract) {
-    Entity entity = DecoFactory.createDeco(position, deco);
-    entity.name(name);
-    entity.remove(DecoComponent.class);
-    entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
+    Entity entity = buildDeco(name, position, deco, onInteract);
     Game.add(entity);
     return entity;
   }
 
+  private static Entity buildDeco(
+      String name, Point position, Deco deco, BiConsumer<Entity, Entity> onInteract) {
+    Entity entity = DecoFactory.createDeco(position, deco);
+    entity.name(name);
+    entity.remove(DecoComponent.class);
+    entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
+    return entity;
+  }
+
   /**
-   * Turns a decoration that hangs on a wall or lies on a table into an interactable object.
+   * Turns a decoration that hangs on a wall or lies on the floor into an interactable object.
    *
    * <p>Office decorations such as paintings and boards come with a solid collider for standing
    * furniture. In front of a wall that collider would block the walkway, so it is removed.
@@ -67,11 +74,84 @@ final class MorphCoProps {
    */
   static Entity flatDeco(
       String name, Point position, Deco deco, BiConsumer<Entity, Entity> onInteract) {
-    Entity entity = deco(name, position, deco, onInteract);
+    Entity entity = buildDeco(name, position, deco, onInteract);
     entity.remove(CollideComponent.class);
     entity
         .fetch(DrawComponent.class)
         .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
+    Game.add(entity);
+    return entity;
+  }
+
+  /**
+   * Turns a small decoration that stands on a table into an interactable object.
+   *
+   * @param name entity name
+   * @param position bottom-left corner, on the table top
+   * @param tableFront front edge of the table (its bottom-left corner)
+   * @param deco decoration
+   * @param onInteract called with the object and the acting player
+   * @return the added entity
+   * @see #onTable(Entity, Point)
+   */
+  static Entity tableDeco(
+      String name,
+      Point position,
+      Point tableFront,
+      Deco deco,
+      BiConsumer<Entity, Entity> onInteract) {
+    Entity entity = onTable(buildDeco(name, position, deco, onInteract), tableFront);
+    Game.add(entity);
+    return entity;
+  }
+
+  /**
+   * Creates an interactable object from a texture that stands on a table.
+   *
+   * @param name entity name
+   * @param position bottom-left corner, on the table top
+   * @param tableFront front edge of the table (its bottom-left corner)
+   * @param texture texture path inside the assets
+   * @param size length of the texture's shorter side in tiles
+   * @param onInteract called with the object and the acting player
+   * @return the added entity
+   * @see #onTable(Entity, Point)
+   */
+  static Entity tableTexture(
+      String name,
+      Point position,
+      Point tableFront,
+      String texture,
+      float size,
+      BiConsumer<Entity, Entity> onInteract) {
+    Entity entity =
+        onTable(buildTexture(name, position, texture, size, null, onInteract), tableFront);
+    Game.add(entity);
+    return entity;
+  }
+
+  /**
+   * Prepares an object that lies on a table, before it is added to the game.
+   *
+   * <p>The object has no collider of its own (the table blocks the way). It is drawn in the same
+   * layer as the table and the players, but sorted as if it stood at the table's front edge: it
+   * lies on the table, and a player in front of the table still covers it.
+   *
+   * @param entity the object, positioned on the table top
+   * @param tableFront front edge of the table (its bottom-left corner)
+   * @return the same object
+   */
+  private static Entity onTable(Entity entity, Point tableFront) {
+    entity.remove(CollideComponent.class);
+    // The draw order uses the sprite center of an object without a collider.
+    float sortY = EntityUtils.getPosition(entity).y();
+    entity
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            draw -> {
+              draw.depth(DepthLayer.Player.depth());
+              draw.sortOffset(tableFront.y() - 0.01f - sortY);
+            });
     return entity;
   }
 
@@ -94,6 +174,18 @@ final class MorphCoProps {
       float size,
       Rectangle collider,
       BiConsumer<Entity, Entity> onInteract) {
+    Entity entity = buildTexture(name, position, texture, size, collider, onInteract);
+    Game.add(entity);
+    return entity;
+  }
+
+  private static Entity buildTexture(
+      String name,
+      Point position,
+      String texture,
+      float size,
+      Rectangle collider,
+      BiConsumer<Entity, Entity> onInteract) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
     DrawComponent draw =
@@ -105,7 +197,6 @@ final class MorphCoProps {
     if (onInteract != null) {
       entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
     }
-    Game.add(entity);
     return entity;
   }
 

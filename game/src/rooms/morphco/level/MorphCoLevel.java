@@ -105,6 +105,7 @@ public class MorphCoLevel extends DungeonLevel {
     new CircumfixStation(this).spawn();
     new ShiftLead(this).spawn();
     new Corridor(this).spawn();
+    MorphCoDecor.spawn(this);
 
     questLog.sync(state);
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {

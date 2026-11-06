@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 final class SortBoard {
 
-  private static final Color CHIP_TEXT = Color.WHITE;
+  private static final Color CHIP_TEXT = Color.BLACK;
   private static final String CHIP = "morphCoChip";
   private static final String STYLE_FREE = "blue_square_flat";
   private static final String STYLE_SELECTED = "green_square_depth_flat";

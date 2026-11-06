@@ -40,6 +40,24 @@ class MorphCoLevelFileTest {
   }
 
   @Test
+  void everyFurniturePointHasArt() throws IOException {
+    List<String> broken = new ArrayList<>();
+    level()
+        .get("namedPoints")
+        .propertyNames()
+        .forEach(
+            name -> {
+              if (!name.startsWith("deco_")) return;
+              boolean art =
+                  MorphCoDecor.texture(name)
+                      .map(file -> Files.exists(Path.of("assets/rooms/morphCo/art", file)))
+                      .orElse(false);
+              if (!art) broken.add(name);
+            });
+    assertTrue(broken.isEmpty(), "Furniture points without art: " + broken);
+  }
+
+  @Test
   void everyPointUsedByTheRoomExists() throws IOException {
     JsonNode points = level().get("namedPoints");
     Pattern literal = Pattern.compile("(?:point|door)\\(\"([a-z0-9_]+)\"\\)");

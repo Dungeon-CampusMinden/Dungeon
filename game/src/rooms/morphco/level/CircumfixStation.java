@@ -63,8 +63,6 @@ final class CircumfixStation {
         1.5f,
         new Rectangle(2.9f, 0.6f, 0.05f, 0f),
         (self, player) -> station(player));
-    MorphCoProps.deco(
-        "station-chair", level.point("station_chair"), Deco.ChairGrey, (s, p) -> station(p));
     for (int index = 0; index < 2; index++) {
       MorphCoProps.deco(
           "boxes" + index,

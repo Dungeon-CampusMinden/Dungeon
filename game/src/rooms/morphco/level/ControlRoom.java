@@ -90,7 +90,14 @@ final class ControlRoom {
         2f,
         new Rectangle(1.9f, 0.9f, 0.05f, 0f),
         (self, player) -> computer(player));
-    Entity phone = MorphCoProps.deco("phone", level.point("phone"), Deco.Phone, (s, p) -> phone(p));
+    Entity phone =
+        MorphCoProps.tableTexture(
+            "phone",
+            level.point("phone"),
+            level.point("control_table"),
+            MorphCoProps.ART + "phone.png",
+            9 / 16f,
+            (self, player) -> phone(player));
     if (!state.has(MorphCoState.MESSAGE_HEARD)) {
       phoneEmote =
           EmoteFactory.createEmote(
@@ -99,15 +106,18 @@ final class ControlRoom {
     }
     phone.name("phone");
 
-    MorphCoProps.deco(
+    MorphCoProps.texture(
         "control-table",
         level.point("control_table"),
-        Deco.TableShort,
+        MorphCoProps.ART + "table.png",
+        19 / 16f,
+        new Rectangle(2.4f, 0.5f, 0.05f, 0f),
         (self, player) ->
             MorphCoProps.popup(player, "world.control.table-title", "world.control.table"));
-    MorphCoProps.flatDeco(
+    MorphCoProps.tableDeco(
         "coffee",
         level.point("coffee"),
+        level.point("control_table"),
         Deco.Cup,
         (self, player) ->
             MorphCoProps.popup(player, "world.control.coffee-title", "world.control.coffee"));

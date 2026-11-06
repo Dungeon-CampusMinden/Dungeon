@@ -81,7 +81,7 @@ final class DocumentUI extends MorphCoPanel {
     table.add(cell(t("free-article"), false)).row();
     body.add(table).padBottom(12).row();
     body.add(text(t("portmanteau"), 20)).padBottom(12).row();
-    body.add(text("[color=#666666]" + t("source"), 16)).row();
+    body.add(text("[color=black]" + t("source"), 16)).row();
   }
 
   private void boundMorphemes() {
@@ -96,7 +96,7 @@ final class DocumentUI extends MorphCoPanel {
     table.add(cell(t("bound-derivation"), false, true)).colspan(2).row();
     body.add(table).padBottom(12).row();
     body.add(text(t("definitions"), 20)).padBottom(12).row();
-    body.add(text("[color=#666666]" + t("source"), 16)).row();
+    body.add(text("[color=black]" + t("source"), 16)).row();
   }
 
   private Table cell(String content, boolean heading) {

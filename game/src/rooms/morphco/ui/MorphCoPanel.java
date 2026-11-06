@@ -27,11 +27,8 @@ import rooms.morphco.util.MorphCoText;
  */
 abstract class MorphCoPanel extends Group {
 
-  /** Dark text on the light panel. */
-  static final Color INK = new Color(0.12f, 0.12f, 0.16f, 1f);
-
-  /** Muted text for help lines. */
-  static final Color MUTED = new Color(0.35f, 0.35f, 0.4f, 1f);
+  /** Text and icons on the light panel are always black. */
+  static final Color INK = Color.BLACK;
 
   /** Green feedback. */
   static final Color GOOD = new Color(0.1f, 0.5f, 0.2f, 1f);
@@ -89,7 +86,7 @@ abstract class MorphCoPanel extends Group {
       panel.add(text).growX().padBottom(4).row();
     }
     if (!help.isBlank()) {
-      RichLabel helpLabel = new RichLabel(help, 16, MUTED);
+      RichLabel helpLabel = new RichLabel(help, 16, INK);
       helpLabel.setWrap(true);
       helpLabel.setMaxPrefWidth(contentWidth());
       panel.add(helpLabel).growX().padBottom(8).row();
