@@ -106,9 +106,9 @@ public final class TileTextures {
 
   private static IPath door(DoorTile door, Tile[][] layout) {
     // A door shows its frame on the side that faces the room; a hidden door is wall while closed
-    // and floor while open.
+    // and floor while open or barred.
     if (door.hidden()) {
-      return door.isOpen()
+      return door.canSeeThrough()
           ? path(door.designLabel(), "floor/floor_1.png")
           : wallAtlas(door.designLabel());
     }

@@ -14,6 +14,7 @@ public class DoorTile extends Tile {
 
   private boolean open;
   private boolean hidden;
+  private boolean barred;
 
   /**
    * Creates a new Tile.
@@ -36,7 +37,7 @@ public class DoorTile extends Tile {
 
   @Override
   public boolean canSeeThrough() {
-    return this.open;
+    return open || barred;
   }
 
   /**
@@ -83,6 +84,16 @@ public class DoorTile extends Tile {
    */
   public void hidden(boolean hidden) {
     this.hidden = hidden;
+  }
+
+  /**
+   * Sets whether a closed door lets sight and light through while still blocking movement, so a
+   * hidden door looks like floor even while closed.
+   *
+   * @param barred whether the door is barred
+   */
+  public void barred(boolean barred) {
+    this.barred = barred;
   }
 
   @Override
