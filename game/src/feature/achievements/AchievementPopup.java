@@ -46,17 +46,6 @@ public final class AchievementPopup {
    * @return popup group
    */
   public static Group build(DialogContext ctx) {
-    return build(ctx, true);
-  }
-
-  /**
-   * Builds the standard popup with the room's sound policy.
-   *
-   * @param ctx dialog context
-   * @param withSound whether a newly unlocked achievement plays its confirmation sound
-   * @return popup group
-   */
-  public static Group build(DialogContext ctx, boolean withSound) {
     String imagePath = ctx.require(KEY_IMAGE_PATH, String.class);
     String achievementId = ctx.require(KEY_ID, String.class);
     if (Game.isHeadless()) {
@@ -70,16 +59,14 @@ public final class AchievementPopup {
       return new HeadlessDialogGroup();
     }
 
-    Game.system(
-        AchievementPopupSystem.class,
-        system -> system.enqueue(achievementId, imagePath, withSound));
+    Game.system(AchievementPopupSystem.class, system -> system.enqueue(achievementId, imagePath));
     // Queue the triggering achievement before checking whether it also unlocked platinum.
     AchievementManager.onPopupQueued(achievementId);
     // The UIComponent transports the unlock; the local system owns the visible card.
     return new HeadlessDialogGroup();
   }
 
-  static Group buildCard(String imagePath, String achievementId, boolean withSound) {
+  static Group buildCard(String imagePath, String achievementId) {
     String name = localized(translationKey(achievementId, "name"), achievementId);
     String description = localized(translationKey(achievementId, "description"), "");
 
@@ -112,7 +99,7 @@ public final class AchievementPopup {
         Actions.sequence(
             Actions.delay(displaySeconds - FADE_OUT_DURATION_SECONDS),
             Actions.fadeOut(FADE_OUT_DURATION_SECONDS)));
-    if (withSound) Sounds.playUi(CoreSounds.INTERFACE_ACHIEVEMENT_UNLOCKED);
+    Sounds.playUi(CoreSounds.INTERFACE_ACHIEVEMENT_UNLOCKED);
 
     return new AlwaysOnTopContainer(card);
   }

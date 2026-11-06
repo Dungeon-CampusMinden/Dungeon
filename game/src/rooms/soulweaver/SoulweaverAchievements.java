@@ -4,9 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.language.Language;
 import feature.achievements.AchievementManager;
-import feature.achievements.AchievementPopup;
-import feature.hud.dialogs.DialogFactory;
-import feature.hud.dialogs.DialogType;
 import java.util.Locale;
 
 /** Room achievements; recipient scope and persistent unlocks use the shared achievement system. */
@@ -33,9 +30,6 @@ public enum SoulweaverAchievements {
   public static void register() {
     AchievementManager.registerAchievements(
         "achievements/soulweaver.json", "soulweaver-achievement-unlock.json");
-    DialogFactory.register(
-        DialogType.DefaultTypes.ACHIEVEMENT_POPUP,
-        context -> AchievementPopup.build(context, false));
     registerTranslations();
   }
 
