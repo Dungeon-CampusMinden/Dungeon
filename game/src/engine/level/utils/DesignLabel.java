@@ -33,5 +33,11 @@ public enum DesignLabel {
   RAINBOW,
 
   /** A damaged AI research facility with cool metal surfaces and restrained cyan accents. */
-  SYSTEM_RECOVERY;
+  SYSTEM_RECOVERY,
+
+  /**
+   * A word factory: warm grey tread plates on the floor, steel walls with an orange-black hazard
+   * stripe along their face.
+   */
+  MORPH_CO;
 }

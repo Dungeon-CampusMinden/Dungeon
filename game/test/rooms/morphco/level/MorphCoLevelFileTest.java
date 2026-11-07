@@ -89,6 +89,6 @@ class MorphCoLevelFileTest {
               }
             });
     assertEquals('F', tile(level, level.get("startTiles").get(0)));
-    assertEquals("SYSTEM_RECOVERY", level.get("design").asString());
+    assertEquals("MORPH_CO", level.get("design").asString());
   }
 }
