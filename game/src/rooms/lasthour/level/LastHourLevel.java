@@ -279,6 +279,7 @@ public class LastHourLevel extends DungeonLevel {
             return;
           }
           LastHourCheckpointProjection.apply(this, data);
+          introSuppressed = true;
         });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
@@ -286,6 +287,7 @@ public class LastHourLevel extends DungeonLevel {
 
   private void playReady(int playerId) {
     if (escaped || !playingPlayers.add(playerId)) return;
+    System.out.println("playReady called");
     Game.playClock().playingParticipants(playingPlayers);
     Game.playClock().ready();
     ComputerStateComponent computer = ComputerStateComponent.getState().orElseThrow();
