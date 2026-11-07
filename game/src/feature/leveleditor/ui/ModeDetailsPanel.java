@@ -1,10 +1,10 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import engine.input.ActionId;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
@@ -99,14 +99,15 @@ public class ModeDetailsPanel extends Table {
     controlsContent.clearChildren();
     if (secondary) return;
     if (mode == null) return;
-    Map<Integer, String> modeControls = mode.controls();
+    Map<ActionId, String> modeControls = mode.controls();
     if (modeControls == null || modeControls.isEmpty()) return;
 
     controlsContent.add(text("Controls:")).colspan(2).left().padBottom(4f).row();
     Map<String, String> keysByAction = new LinkedHashMap<>();
     modeControls.forEach(
-        (key, action) ->
-            keysByAction.merge(action, keyTag(key), (keys, nextKey) -> keys + " " + nextKey));
+        (id, action) ->
+            keysByAction.merge(
+                action, "[action id=" + id + "]", (keys, nextKey) -> keys + " " + nextKey));
     keysByAction.forEach(
         (action, keys) -> {
           controlsContent.add(text(keys)).left().padRight(10f).padBottom(2f);
@@ -196,31 +197,5 @@ public class ModeDetailsPanel extends Table {
 
   private static RichLabel text(String content) {
     return new RichLabel(RichLabel.toRichText(content), TEXT_FONT_SIZE, TEXT_COLOR, false);
-  }
-
-  /**
-   * Builds the {@code [key]} markup that renders the input prompt graphic for the given key or
-   * mouse button.
-   *
-   * @param key the key or mouse button code.
-   * @return the rich text markup rendering the input prompt graphic.
-   */
-  private static String keyTag(int key) {
-    if (key == Input.Buttons.LEFT || key == Input.Buttons.RIGHT || key == Input.Buttons.MIDDLE) {
-      return "[key code=" + key + " type=mouse]";
-    }
-    return "[key code=" + swapForLayout(key) + "]";
-  }
-
-  /**
-   * Quick and dirty fix for the german keyboard layout where Y and Z are swapped.
-   *
-   * @param key the key code.
-   * @return the key code to render an icon for.
-   */
-  private static int swapForLayout(int key) {
-    if (key == Input.Keys.Y) return Input.Keys.Z;
-    if (key == Input.Keys.Z) return Input.Keys.Y;
-    return key;
   }
 }

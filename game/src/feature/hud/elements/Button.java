@@ -1,11 +1,11 @@
 package feature.hud.elements;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import engine.Game;
+import engine.input.GameInput;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
@@ -103,8 +103,8 @@ public class Button {
    * @param batch The batch to draw on
    */
   public void draw(Batch batch) {
-    int mouseX = Gdx.input.getX();
-    int mouseY = Math.round(Game.stage().orElseThrow().getHeight()) - Gdx.input.getY();
+    int mouseX = (int) GameInput.pointer().x();
+    int mouseY = Math.round(Game.stage().orElseThrow().getHeight()) - (int) GameInput.pointer().y();
     if (mouseX >= this.x
         && mouseX <= this.x + this.width
         && mouseY >= this.y

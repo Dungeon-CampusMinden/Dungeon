@@ -1,7 +1,6 @@
 package rooms.soulweaver;
 
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
@@ -17,9 +16,7 @@ import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
-import engine.utils.CursorUtil;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.entities.CharacterClass;
@@ -100,10 +97,6 @@ public final class Soulweaver {
             .characterClasses(CHARACTER_CLASSES)
             .maximumPlayers(2)
             .levels(Tuple.of(LEVEL_KEY, SoulweaverLevel.class))
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .snapshotTranslator(new SoulweaverSnapshotTranslator())
             .onFrame(HeroController::drainAndApplyInputs)
             .build();
@@ -175,7 +168,6 @@ public final class Soulweaver {
   }
 
   private static void clientSetup() {
-    Game.stage().ifPresent(CursorUtil::initListener);
     BlackFadeCutscene.register();
     QuestLogUI.register();
     SoulweaverTerminal.register();

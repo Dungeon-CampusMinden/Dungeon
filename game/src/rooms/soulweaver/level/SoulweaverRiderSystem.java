@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.components.DrawComponent;
-import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.systems.DrawSystem;
@@ -13,6 +12,7 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.state.StateMachine;
 import feature.components.CollideComponent;
+import feature.entities.HeroController;
 import feature.systems.PositionSync;
 
 /** Attaches the real Act IV player to Nox after movement, on the host and receiving clients. */
@@ -76,8 +76,7 @@ final class SoulweaverRiderSystem extends System {
       rider = nextRider;
       mount = nextMount;
       walking = rider.fetch(VelocityComponent.class).orElse(null);
-      controlsDisabled =
-          rider.fetch(InputComponent.class).map(InputComponent::deactivateControls).orElse(false);
+      controlsDisabled = HeroController.controlsLocked(rider);
       solid = rider.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
       var draw = rider.fetch(DrawComponent.class).orElseThrow();
       depth =
@@ -87,7 +86,7 @@ final class SoulweaverRiderSystem extends System {
     }
     // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
     rider.remove(VelocityComponent.class);
-    rider.fetch(InputComponent.class).ifPresent(input -> input.deactivateControls(true));
+    HeroController.controlsLocked(rider, true);
     rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(false));
     var origin = mount.fetch(PositionComponent.class).orElseThrow();
     var position = rider.fetch(PositionComponent.class).orElseThrow();
@@ -136,9 +135,7 @@ final class SoulweaverRiderSystem extends System {
       walking.currentVelocity(Vector2.ZERO);
       rider.add(walking);
     }
-    rider
-        .fetch(InputComponent.class)
-        .ifPresent(input -> input.deactivateControls(controlsDisabled));
+    HeroController.controlsLocked(rider, controlsDisabled);
     rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(solid));
     if (mount.isPresent(PositionComponent.class))
       rider

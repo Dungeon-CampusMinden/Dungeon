@@ -1,20 +1,17 @@
 package feature.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.Entity;
 import engine.Game;
 import engine.System;
 import engine.components.CameraComponent;
-import engine.components.InputComponent;
 import engine.components.PositionComponent;
+import engine.input.GameInput;
+import engine.input.InputContext;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.elements.ILevel;
@@ -22,7 +19,6 @@ import engine.level.loader.DungeonLoader;
 import engine.level.loader.DungeonSaver;
 import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
-import engine.systems.input.InputManager;
 import engine.utils.FontHelper;
 import engine.utils.Point;
 import engine.utils.components.draw.DepthLayer;
@@ -31,6 +27,7 @@ import engine.utils.components.draw.shader.PassthroughShader;
 import engine.utils.logging.DungeonLogger;
 import feature.components.HealthComponent;
 import feature.leveleditor.DecoMode;
+import feature.leveleditor.EditorActions;
 import feature.leveleditor.LevelEditorMode;
 import feature.leveleditor.LevelEditorSettings;
 import feature.leveleditor.PointMode;
@@ -60,26 +57,18 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static boolean activateOnStart = false;
-  private static final int TOGGLE_ACTIVE = Input.Keys.F4;
   private static String pathToLevels = "";
   private static String defaultSaveFolder = "";
   private static boolean autoSave = true;
   private static boolean defaultAutoSave = true;
   private static String settingsLevelPath;
 
-  private static final int TOGGLE_DEBUG_SHADER = Input.Keys.SPACE;
   private boolean debugShaderActive = false;
   private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
   private static Mode currentMode = Mode.Tiles;
   private static LevelEditorMode currentModeInstance =
       currentMode.getModeInstance(LevelEditorSystem::levelChanged);
-  private static final int MODE_1 = Input.Keys.NUM_1;
-  private static final int MODE_2 = Input.Keys.NUM_2;
-  private static final int MODE_3 = Input.Keys.NUM_3;
-  private static final int MODE_4 = Input.Keys.NUM_4;
-  private static final int MODE_5 = Input.Keys.NUM_5;
-  private static final int MODE_6 = Input.Keys.NUM_6;
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
@@ -93,10 +82,10 @@ public class LevelEditorSystem extends System {
   private static Entity editorCameraEntity;
   private static CameraComponent editorCameraComponent;
   private static Float cameraZoomBeforeEditor;
-  private static Boolean playerControlsDeactivatedBeforeEditor;
+  private static final InputContext TOGGLE_INPUT = new InputContext(EditorActions.EDITOR_TOGGLE);
+  private static final InputContext EDITOR_INPUT = new InputContext(EditorActions.EDITOR);
 
   private static LevelEditorUI ui = null;
-  private static boolean cursorCapturedByUI = false;
 
   /**
    * Creates a new LevelEditorSystem.
@@ -114,35 +103,6 @@ public class LevelEditorSystem extends System {
   /** Creates a new LevelEditorSystem. */
   public LevelEditorSystem() {
     super();
-  }
-
-  private static void clearTextFieldFocusOnOutsideClick() {
-    Stage stage = Game.stage().orElse(null);
-    if (stage == null || !(stage.getKeyboardFocus() instanceof TextField focusedTextField)) {
-      return;
-    }
-    if (!isAnyMouseButtonJustPressed()) return;
-
-    Vector2 stagePosition =
-        stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
-    Actor hit = stage.hit(stagePosition.x, stagePosition.y, true);
-    if (!isActorOrDescendant(hit, focusedTextField)) {
-      stage.setKeyboardFocus(null);
-    }
-  }
-
-  private static boolean isAnyMouseButtonJustPressed() {
-    return Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
-        || Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)
-        || Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE);
-  }
-
-  private static boolean isActorOrDescendant(Actor actor, Actor ancestor) {
-    while (actor != null) {
-      if (actor == ancestor) return true;
-      actor = actor.getParent();
-    }
-    return false;
   }
 
   private static void loadSettingsForCurrentLevel() {
@@ -208,14 +168,7 @@ public class LevelEditorSystem extends System {
               CameraSystem.camera().position.x, CameraSystem.camera().position.y));
       editorCamera.add(editorCameraComponent);
       LevelEditorSystem.active = true;
-      playerControlsDeactivatedBeforeEditor = null;
-      player
-          .fetch(InputComponent.class)
-          .ifPresent(
-              pc -> {
-                playerControlsDeactivatedBeforeEditor = pc.deactivateControls();
-                pc.deactivateControls(true);
-              });
+      GameInput.activate(EDITOR_INPUT);
       player
           .fetch(HealthComponent.class)
           .ifPresent(
@@ -236,12 +189,7 @@ public class LevelEditorSystem extends System {
         CameraSystem.camera().zoom = cameraZoomBeforeEditor;
         cameraZoomBeforeEditor = null;
       }
-      if (playerControlsDeactivatedBeforeEditor != null) {
-        player
-            .fetch(InputComponent.class)
-            .ifPresent(pc -> pc.deactivateControls(playerControlsDeactivatedBeforeEditor));
-        playerControlsDeactivatedBeforeEditor = null;
-      }
+      GameInput.deactivate(EDITOR_INPUT);
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
       currentModeInstance.onExit();
       Game.stage().ifPresent(Stage::unfocusAll);
@@ -401,7 +349,11 @@ public class LevelEditorSystem extends System {
 
     DebugDrawSystem.drawText(
         FONT,
-        "( SPACE to toggle layer debug shader [" + DrawSystem.shadersActiveLastFrame() + "] )",
+        "( "
+            + GameInput.label(EditorActions.DEBUG_SHADER)
+            + " to toggle layer debug shader ["
+            + DrawSystem.shadersActiveLastFrame()
+            + "] )",
         new Point(10.0f, Game.windowHeight() - 10.0f));
 
     // Draw feedback message if timer > 0
@@ -431,7 +383,8 @@ public class LevelEditorSystem extends System {
       active(true);
     }
 
-    if (InputManager.isKeyJustPressed(TOGGLE_ACTIVE, true)) {
+    GameInput.activate(TOGGLE_INPUT);
+    if (GameInput.justPressed(EditorActions.TOGGLE)) {
       active(!active);
     }
 
@@ -441,20 +394,13 @@ public class LevelEditorSystem extends System {
     if (!active) return;
     Entity editorCamera = editorCameraEntity();
 
-    clearTextFieldFocusOnOutsideClick();
-
-    if (Game.player().map(Game.hud()::hasOpenUI).orElse(false)) {
+    // Dialogs and text fields above the editor own the input.
+    if (GameInput.covered(EDITOR_INPUT)) {
       currentModeInstance.onCursorLeaveWorld();
       return;
     }
 
-    // Do not react to editor keys while the user types into a text field of the editor UI
-    if (Game.stage().map(stage -> stage.getKeyboardFocus() instanceof TextField).orElse(false)) {
-      currentModeInstance.onCursorLeaveWorld();
-      return;
-    }
-
-    if (InputManager.isKeyJustPressed(TOGGLE_DEBUG_SHADER)) {
+    if (GameInput.justPressed(EditorActions.DEBUG_SHADER)) {
       toggleDebugShader();
     }
 
@@ -465,18 +411,8 @@ public class LevelEditorSystem extends System {
     updateFreeCamera(editorCamera, !cursorCaptured);
 
     Mode previousMode = currentMode;
-    if (InputManager.isKeyPressed(MODE_1)) {
-      currentMode(Mode.getMode(0));
-    } else if (InputManager.isKeyPressed(MODE_2)) {
-      currentMode(Mode.getMode(1));
-    } else if (InputManager.isKeyPressed(MODE_3)) {
-      currentMode(Mode.getMode(2));
-    } else if (InputManager.isKeyPressed(MODE_4)) {
-      currentMode(Mode.getMode(3));
-    } else if (InputManager.isKeyPressed(MODE_5)) {
-      currentMode(Mode.getMode(4));
-    } else if (InputManager.isKeyPressed(MODE_6)) {
-      currentMode(Mode.getMode(5));
+    for (int mode = 0; mode < EditorActions.MODES.length; mode++) {
+      if (GameInput.justPressed(EditorActions.MODES[mode])) currentMode(Mode.getMode(mode));
     }
 
     if (!internalStopped || previousMode != currentMode) {
@@ -490,18 +426,15 @@ public class LevelEditorSystem extends System {
     PositionComponent positionComponent = editorCamera.fetch(PositionComponent.class).orElseThrow();
 
     int horizontal =
-        (InputManager.isKeyPressed(Input.Keys.D) ? 1 : 0)
-            - (InputManager.isKeyPressed(Input.Keys.A) ? 1 : 0);
+        (GameInput.pressed(EditorActions.CAMERA_RIGHT) ? 1 : 0)
+            - (GameInput.pressed(EditorActions.CAMERA_LEFT) ? 1 : 0);
     int vertical =
-        (InputManager.isKeyPressed(Input.Keys.W) ? 1 : 0)
-            - (InputManager.isKeyPressed(Input.Keys.S) ? 1 : 0);
+        (GameInput.pressed(EditorActions.CAMERA_UP) ? 1 : 0)
+            - (GameInput.pressed(EditorActions.CAMERA_DOWN) ? 1 : 0);
     engine.utils.Vector2 direction = engine.utils.Vector2.of(horizontal, vertical);
     if (!direction.isZero()) {
       float speedMultiplier =
-          InputManager.isKeyPressed(Input.Keys.SHIFT_LEFT)
-                  || InputManager.isKeyPressed(Input.Keys.SHIFT_RIGHT)
-              ? FREE_CAMERA_SHIFT_SPEED_MULTIPLIER
-              : 1f;
+          GameInput.pressed(EditorActions.CAMERA_FAST) ? FREE_CAMERA_SHIFT_SPEED_MULTIPLIER : 1f;
       float distance =
           FREE_CAMERA_SPEED
               * speedMultiplier
@@ -511,7 +444,7 @@ public class LevelEditorSystem extends System {
           positionComponent.position().translate(direction.normalize().scale(distance)));
     }
 
-    float scrollAmount = InputManager.scrollAmountY();
+    float scrollAmount = GameInput.axis(EditorActions.ZOOM);
     if (allowZoom && scrollAmount != 0f) {
       CameraSystem.camera().zoom =
           Math.max(
@@ -543,22 +476,17 @@ public class LevelEditorSystem extends System {
 
   /**
    * Checks whether the level editor UI currently owns the mouse cursor, so the active mode must not
-   * act on mouse input.
-   *
-   * <p>Once a mouse button was pressed over a panel, the UI keeps the cursor until all buttons are
-   * released again. This stops a drag that started on a panel from acting on the level.
+   * act on it. A drag that started in the level keeps going over the panels; a press on a panel
+   * belongs to the UI and never starts an editor action.
    *
    * @return true if the active mode must not act on the cursor, false otherwise.
    */
   private static boolean uiCapturesCursor() {
-    boolean buttonDown =
-        InputManager.isButtonPressed(Input.Buttons.LEFT)
-            || InputManager.isButtonPressed(Input.Buttons.RIGHT)
-            || InputManager.isButtonPressed(Input.Buttons.MIDDLE);
-    if (!buttonDown) {
-      cursorCapturedByUI = ui != null && ui.isCursorOverUI();
-    }
-    return cursorCapturedByUI;
+    boolean dragging =
+        GameInput.pressed(EditorActions.PLACE)
+            || GameInput.pressed(EditorActions.ALT)
+            || GameInput.pressed(EditorActions.PICK);
+    return !dragging && ui != null && ui.isCursorOverUI();
   }
 
   private void toggleDebugShader() {

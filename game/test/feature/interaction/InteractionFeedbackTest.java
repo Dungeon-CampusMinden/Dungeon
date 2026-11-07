@@ -11,6 +11,9 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
+import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.UiActions;
 import engine.utils.Point;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.shader.OutlineShader;
@@ -40,6 +43,7 @@ class InteractionFeedbackTest {
   @AfterEach
   void cleanup() {
     InteractionFeedback.followCursor();
+    GameInput.reset();
     Game.removeAllEntities();
     TextureMap.instance().clear();
   }
@@ -96,6 +100,19 @@ class InteractionFeedbackTest {
     InteractionFeedback.update();
 
     assertEquals(0.4f, outline(terminal).orElseThrow().color().a);
+    assertNull(outline(chest).orElse(null));
+  }
+
+  @Test
+  void anOpenUiHidesTheOutlines() {
+    Entity chest = entity(new InteractionComponent());
+    InteractionFeedback.showAlways(() -> Optional.of(chest));
+    InteractionFeedback.update();
+    assertEquals(1f, outline(chest).orElseThrow().color().a);
+
+    GameInput.activate(new InputContext(UiActions.INVENTORY));
+    InteractionFeedback.update();
+
     assertNull(outline(chest).orElse(null));
   }
 }

@@ -15,6 +15,9 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.UiActions;
 import engine.language.Translation;
 import engine.network.messages.s2c.CharacterOptions;
 import engine.network.server.CharacterSelection;
@@ -36,6 +39,7 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
   private CharacterCarousel carousel;
   private Label status;
   private TextButton confirm;
+  private InputContext input;
   private List<Entity> localHeroes = List.of();
   private float refreshElapsed;
 
@@ -102,7 +106,12 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
     root.setFillParent(true);
     root.add(content);
     stage.addActor(root);
-    Gdx.input.setInputProcessor(stage);
+    GameInput.stage(stage);
+    input =
+        new InputContext(UiActions.MENU)
+            .onPress(UiActions.NAV_LEFT, () -> carousel.move(-1))
+            .onPress(UiActions.NAV_RIGHT, () -> carousel.move(1));
+    GameInput.activate(input);
     refreshOptions();
   }
 
@@ -174,6 +183,7 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     stage.act(delta);
     stage.draw();
+    GameInput.draw(stage);
   }
 
   @Override
@@ -192,6 +202,7 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
 
   @Override
   public void dispose() {
+    if (input != null) GameInput.deactivate(input);
     if (stage != null) {
       stage.dispose();
       stage = null;

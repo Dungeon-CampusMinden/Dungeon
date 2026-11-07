@@ -17,8 +17,7 @@
       "create_personal": "Private Notiz",
       "note_prompt": "Schreibe eine Notiz für diesen Tab.",
       "note_placeholder": "Deine Notiz",
-      "cancel": "Abbrechen",
-      "not_initialized": "Das gemeinsame Aufgabenlogbuch ist noch nicht verfügbar. Versuche es gleich erneut."
+      "cancel": "Abbrechen"
     }
   },
   "trackingConsent": {

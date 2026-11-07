@@ -1,6 +1,7 @@
 package feature.inventory.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
@@ -19,8 +21,11 @@ import com.badlogic.gdx.utils.Disposable;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.input.GameInput;
 import engine.language.Translation;
 import engine.network.messages.c2s.InputMessage;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
@@ -37,12 +42,12 @@ import feature.hud.dialogs.DialogCreationException;
 import feature.hud.elements.CombinableGUI;
 import feature.hud.elements.GUICombination;
 import feature.hud.elements.RichLabel;
-import feature.input.configuration.KeyboardConfig;
 import feature.inventory.Item;
 import java.util.Optional;
 
 /** WTF? . */
-public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Disposable {
+public class InventoryGUI extends CombinableGUI
+    implements IInventoryHolder, Disposable, CursorUtil.CursorOverride {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
   private static final Translation trans = new Translation("dialog.inventory_dialog");
 
@@ -212,8 +217,17 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
     this.drawItemInfo(batch);
   }
 
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    if (dragAndDrop() != null && dragAndDrop().isDragging()) return Optional.of(Cursors.GRABBING);
+    int slot = getSlotByMousePosition();
+    boolean item = slot >= 0 && inventoryComponent.get(slot).isPresent();
+    return item ? Optional.of(Cursors.GRAB) : Optional.empty();
+  }
+
   private int getSlotByMousePosition() {
-    Vector2 mousePos = Vector2.of(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    Vector2 pointer = GameInput.pointer();
+    Vector2 mousePos = Vector2.of(pointer.x(), Gdx.graphics.getHeight() - pointer.y());
     Vector2 relMousePos = Vector2.of(mousePos.x() - this.x(), mousePos.y() - this.y());
     return getSlotByCoordinates(relMousePos.x(), relMousePos.y());
   }
@@ -310,7 +324,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
 
   private void drawItemInfo(Batch batch) {
     // Flip Y axis (mouse origin top left, batch origin bottom left)
-    Point mousePos = new Point(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    Vector2 pointer = GameInput.pointer();
+    Point mousePos = new Point(pointer.x(), Gdx.graphics.getHeight() - pointer.y());
     Point relMousePos = new Point(mousePos.x() - this.x(), mousePos.y() - this.y());
 
     // Check if mouse is in inventory bounds
@@ -327,10 +342,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
     Item itemToShow = item.get();
 
     String title = displayText(itemToShow.displayName());
-    String description =
-        RichLabel.toRichText(
-            displayText(itemToShow.description())
-                .replace("$1", Integer.toString(KeyboardConfig.USE_ITEM.value())));
+    String description = RichLabel.toRichText(displayText(itemToShow.description()));
     if (hoverDescriptionLabel == null) {
       hoverDescriptionLabel = new RichLabel(description, 12, new Color(0x000000b0), false);
       hoverDescriptionLabel.setMaxPrefWidth(MAX_HOVER_DESCRIPTION_WIDTH);
@@ -416,6 +428,8 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
         float dragW = dragRegionW * dragFitScale;
         float dragH = dragRegionH * dragFitScale;
         image.setSize(dragW, dragH);
+        // The cursor reads the UI under the dragged item.
+        image.setTouchable(Touchable.disabled);
         payload.setDragActor(image);
         dragAndDrop().setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);
 
@@ -430,7 +444,9 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
           int pointer,
           DragAndDrop.Payload payload,
           DragAndDrop.Target target) {
+        // A drag ended by focus loss or an unplugged pad must not drop the item.
         if (target == null
+            && !event.isTouchFocusCancel()
             && payload != null
             && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
           if (Game.network().isServer()) {
@@ -475,6 +491,7 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
               Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
             targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
           }
+          if (sourceSlot == targetSlot) return;
           if (Game.network().isServer()) {
             HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
           } else {
@@ -486,87 +503,66 @@ public class InventoryGUI extends CombinableGUI implements IInventoryHolder, Dis
   }
 
   private void addInputListener() {
-    Game.stage().orElseThrow().setKeyboardFocus(this);
-
     setBounds(0, 0, this.width(), this.height());
 
     this.addListener(
         new InputListener() {
           @Override
-          public boolean keyDown(InputEvent event, int keycode) {
-            Entity player = Game.player().orElseThrow();
-            if (UIUtils.getPlayerInventoryGUI(player).isPresent()) {
-              if (KeyboardConfig.USE_ITEM.value() == keycode) {
-                if (Game.network().isServer()) {
-                  return HeroController.useItem(player, getSlotByMousePosition());
-                } else {
-                  Game.network()
-                      .send((short) 0, InputMessage.invUse(getSlotByMousePosition()), true);
-                  return true;
-                }
-              }
-            }
-            return false;
-          }
-
-          @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            Entity player = Game.player().orElseThrow();
-            UIComponent uiComponent = player.fetch(UIComponent.class).orElse(null);
-            InventoryComponent inventoryComponent =
-                player.fetch(InventoryComponent.class).orElse(null);
-            if (uiComponent != null
-                && UIUtils.getInventoriesFromUI(uiComponent)
-                    .allMatch(ic -> ic == inventoryComponent)) {
-              if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
-                if (Game.network().isServer()) {
-                  return HeroController.useItem(player, getSlotByMousePosition());
-                } else {
-                  Game.network()
-                      .send((short) 0, InputMessage.invUse(getSlotByMousePosition()), true);
-                  return true;
-                }
-              }
-              return false;
-            }
-
-            if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
-              // if two inventories are open, transfer items between them if key is pressed
-              if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
-                int sourceSlot = getSlotByMousePosition();
-                if (isPlayersInventory(
-                    Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
-                  sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory
-                }
-                Optional<InventoryComponent> targetInventory =
-                    UIUtils.getInventoriesFromUI(uiComponent)
-                        .filter(invComp -> invComp != InventoryGUI.this.inventoryComponent)
-                        .findFirst();
-
-                if (targetInventory.isEmpty()) return false;
-
-                int nextBestTargetSlot = targetInventory.get().findNextAvailableSlot();
-                if (nextBestTargetSlot == -1) {
-                  LOGGER.debug("No available slot in target inventory for transfer.");
-                  return false;
-                }
-                if (isPlayersInventory(Game.player().orElseThrow(), targetInventory.get())) {
-                  nextBestTargetSlot = (-nextBestTargetSlot) - 1; // negative slots for hero
-                }
-
-                if (Game.network().isServer()) {
-                  return HeroController.moveItem(
-                      Game.player().orElseThrow(), sourceSlot, nextBestTargetSlot);
-                } else {
-                  Game.network()
-                      .send((short) 0, InputMessage.invMove(sourceSlot, nextBestTargetSlot), true);
-                  return true;
-                }
-              }
-            }
+            if (button == Input.Buttons.RIGHT) return transferItemAtPointer();
+            int slot = getSlotByCoordinates(x, y);
+            if (slot >= 0 && inventoryComponent.get(slot).isPresent()) GameInput.startDrag();
             return false;
           }
         });
+  }
+
+  /**
+   * Uses the item under pointer 0, if it lies in the local player's own inventory.
+   *
+   * @return true if a use was sent
+   */
+  public boolean useItemAtPointer() {
+    Entity player = Game.player().orElseThrow();
+    if (!isPlayersInventory(player, inventoryComponent)) return false;
+    int slot = getSlotByMousePosition();
+    if (slot < 0) return false;
+    if (Game.network().isServer()) return HeroController.useItem(player, slot);
+    Game.network().send((short) 0, InputMessage.invUse(slot), true);
+    return true;
+  }
+
+  /**
+   * Moves the item under pointer 0 to the other open inventory.
+   *
+   * @return true if a move was sent; false without another inventory or free slot
+   */
+  public boolean transferItemAtPointer() {
+    Entity player = Game.player().orElseThrow();
+    UIComponent uiComponent = player.fetch(UIComponent.class).orElse(null);
+    if (uiComponent == null || !(uiComponent.dialog() instanceof GUICombination)) return false;
+    int sourceSlot = getSlotByMousePosition();
+    if (sourceSlot < 0) return false;
+    if (isPlayersInventory(player, inventoryComponent)) {
+      sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory
+    }
+    Optional<InventoryComponent> targetInventory =
+        UIUtils.getInventoriesFromUI(uiComponent)
+            .filter(invComp -> invComp != inventoryComponent)
+            .findFirst();
+    if (targetInventory.isEmpty()) return false;
+
+    int targetSlot = targetInventory.get().findNextAvailableSlot();
+    if (targetSlot == -1) {
+      LOGGER.debug("No available slot in target inventory for transfer.");
+      return false;
+    }
+    if (isPlayersInventory(player, targetInventory.get())) {
+      targetSlot = (-targetSlot) - 1; // negative slots for hero
+    }
+    if (Game.network().isServer()) return HeroController.moveItem(player, sourceSlot, targetSlot);
+    Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
+    return true;
   }
 
   @Override

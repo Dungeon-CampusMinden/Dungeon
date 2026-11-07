@@ -1,11 +1,19 @@
 package rooms.mushroom.modules.journal;
 
+import static engine.input.Binding.key;
+
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import engine.Entity;
+import engine.input.ActionId;
+import engine.input.ContextLayer;
+import engine.input.ContextSpec;
+import engine.input.CoreActions;
+import engine.input.UiActions;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
@@ -15,6 +23,7 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogInput;
 import feature.inventory.Item;
 import java.util.function.IntSupplier;
 import rooms.mushroom.Sounds;
@@ -29,6 +38,9 @@ import rooms.mushroom.modules.mushrooms.Mushrooms;
  */
 public class JournalItem extends Item {
 
+  /** Opens the journal; closes it as well. This room's quest log action does the same. */
+  public static final ActionId OPEN = new ActionId("mushroom", "journal", key(Keys.J));
+
   /** Number of pages that are unlocked when the player receives the journal. */
   public static final int BASE_PAGES_UNLOCKED = 2;
 
@@ -39,6 +51,13 @@ public class JournalItem extends Item {
 
   static {
     DialogFactory.register(EscapeRoomDialogTypes.JOURNAL, JournalItem::buildMushroomJournalDialog);
+    DialogInput.register(
+        EscapeRoomDialogTypes.JOURNAL,
+        ContextSpec.of(
+                "journal", ContextLayer.UI, UiActions.NAV_UP, UiActions.NAV_DOWN, UiActions.CLICK)
+            .closedBy(UiActions.CLOSE, OPEN, CoreActions.QUESTLOG)
+            .padOnly(CoreActions.PAUSE_MENU)
+            .blocking());
   }
 
   /**

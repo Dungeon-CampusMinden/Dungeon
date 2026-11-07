@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.components.InputComponent;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.language.Language;
@@ -40,6 +40,7 @@ import feature.credits.CreditsFeature;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.CharacterClass;
+import feature.entities.HeroController;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -341,7 +342,7 @@ public class LastHourLevel extends DungeonLevel {
                 Vector2.ONE,
                 (e, other, dir) -> {
                   other
-                      .fetch(InputComponent.class)
+                      .fetch(PlayerComponent.class)
                       .ifPresent(
                           pc -> {
                             if (escaped) return;
@@ -382,9 +383,7 @@ public class LastHourLevel extends DungeonLevel {
                 Vector2.ZERO,
                 Vector2.ONE,
                 (e, other, dir) -> {
-                  other
-                      .fetch(InputComponent.class)
-                      .ifPresent(inputComponent -> inputComponent.deactivateControls(true));
+                  HeroController.controlsLocked(other, true);
                 },
                 null)
             .isSolid(false));

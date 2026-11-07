@@ -1,13 +1,10 @@
 package engine.starter;
 
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.level.DungeonLevel;
 import engine.level.loader.DungeonLoader;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import feature.entities.EntityFactory;
-import java.io.IOException;
 
 /**
  * Entry point for running a minimal dungeon game instance.
@@ -27,11 +24,6 @@ public class BasicStarter {
    */
   public static void main(String[] args) {
     DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
-    try {
-      Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
     Game.disableAudio(true);
     Game.userOnSetup(() -> Game.add(EntityFactory.newHero()));
     Game.frameRate(30);

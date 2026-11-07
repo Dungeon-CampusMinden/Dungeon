@@ -1,5 +1,7 @@
 package feature.hud.elements.richlabel;
 
+import com.badlogic.gdx.graphics.Color;
+
 /**
  * An inline image reference with optional shake effect and optional spritesheet sub-region.
  *
@@ -27,6 +29,8 @@ package feature.hud.elements.richlabel;
  * @param noGapRight if {@code true}, suppresses the additional inline-image gap on the right side
  *     (the natural word-space contributed by surrounding whitespace is unaffected). Has no effect
  *     when the image already has no right gap (e.g. it is the last run).
+ * @param tint color multiplied onto the image, white shows it unchanged and null uses the text
+ *     color
  */
 public record ImageRun(
     String path,
@@ -38,7 +42,8 @@ public record ImageRun(
     int regionW,
     int regionH,
     boolean noGapLeft,
-    boolean noGapRight)
+    boolean noGapRight,
+    Color tint)
     implements Run {
 
   /**
@@ -50,7 +55,7 @@ public record ImageRun(
    * @return a new ImageRun referencing the entire texture at {@code path}
    */
   public static ImageRun fullTexture(String path, ShakeEffect shake, int sizeOverride) {
-    return new ImageRun(path, shake, sizeOverride, 1f, -1, -1, -1, -1, false, false);
+    return new ImageRun(path, shake, sizeOverride, 1f, -1, -1, -1, -1, false, false, Color.WHITE);
   }
 
   /**

@@ -1,15 +1,12 @@
 package engine.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -25,6 +22,9 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Game;
+import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.UiActions;
 import engine.language.Language;
 import engine.language.Translation;
 import engine.network.ConnectionListener;
@@ -47,6 +47,7 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.ClientConnectionDialog;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.RichLabel;
+import feature.leveleditor.EditorActions;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -194,6 +195,21 @@ public class MainMenuScreen extends ScreenAdapter {
   private volatile ServerProcess pendingServer;
   private final Object networkStartLock = new Object();
 
+  private final InputContext menuContext =
+      new InputContext(EditorActions.MENU)
+          .onPress(
+              EditorActions.TOGGLE,
+              () -> {
+                if (activeView == View.MAIN) toggleLevelEditorOption();
+              });
+
+  private final InputContext uiContext =
+      new InputContext(UiActions.MENU)
+          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+          .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
+          .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1));
+
   /**
    * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
    * {@link Gdx#app} keeps the rebuild out of the settings dropdown's event dispatch.
@@ -218,20 +234,9 @@ public class MainMenuScreen extends ScreenAdapter {
     int width = Game.windowWidth() > 0 ? Game.windowWidth() : PreRunConfiguration.windowWidth();
     int height = Game.windowHeight() > 0 ? Game.windowHeight() : PreRunConfiguration.windowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
-    stage
-        .getRoot()
-        .addListener(
-            new InputListener() {
-              @Override
-              public boolean keyDown(InputEvent event, int keycode) {
-                if (keycode == Input.Keys.F4 && activeView == View.MAIN) {
-                  toggleLevelEditorOption();
-                  return true;
-                }
-                return false;
-              }
-            });
-    Gdx.input.setInputProcessor(stage);
+    GameInput.stage(stage);
+    GameInput.activate(uiContext);
+    GameInput.activate(menuContext);
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);
@@ -741,6 +746,10 @@ public class MainMenuScreen extends ScreenAdapter {
     setJoinControlsDisabled(discoveryInProgress || admissionCleanupPending);
     swapContent(joinView);
     stage.setKeyboardFocus(joinNameField);
+  }
+
+  private void moveCharacter(int amount) {
+    if (activeView == View.CHARACTER_SELECT) characterCarousel.move(amount);
   }
 
   private void showCharacterSelectionView() {
@@ -1478,6 +1487,7 @@ public class MainMenuScreen extends ScreenAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     stage.act(delta);
     stage.draw();
+    GameInput.draw(stage);
     if (activeView == View.CHARACTER_SELECT) {
       characterRefreshElapsed += delta;
       if (characterRefreshElapsed >= CharacterCarousel.AVAILABILITY_REFRESH_SECONDS
@@ -1507,6 +1517,8 @@ public class MainMenuScreen extends ScreenAdapter {
 
   @Override
   public void hide() {
+    GameInput.deactivate(menuContext);
+    GameInput.deactivate(uiContext);
     dispose();
   }
 

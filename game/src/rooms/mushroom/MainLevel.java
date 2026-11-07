@@ -554,7 +554,7 @@ public class MainLevel extends DungeonLevel {
         break;
       case SECOND_TALK:
         DialogUtils.showTextPopup(
-            "Sammle von jeder Sorte ein Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit <B>",
+            "Sammle von jeder Sorte ein Stück. Nicht alle Pilze sind ungefährlich, einige sind giftig! Nimm dieses Notizbuch, um die Pilze zu identifizieren. Öffne es mit [action id=core:questlog]",
             "Kumpel");
         npcState = NpcState.THIRD_TALK;
         giveJournal();

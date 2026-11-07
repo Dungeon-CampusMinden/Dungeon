@@ -3,6 +3,7 @@ package feature.components;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Component;
 import engine.network.messages.c2s.DialogResponseMessage;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
@@ -143,6 +144,19 @@ public final class UIComponent implements Component {
    */
   public boolean willPauseGame() {
     return willPauseGame;
+  }
+
+  /**
+   * Whether this UI takes over the input while it is visible. Passive UIs such as bars and popups
+   * cannot be closed, do not pause and leave the input alone.
+   *
+   * @return true if this UI gets a blocking input context
+   */
+  public boolean modal() {
+    return willPauseGame
+        || canBeClosed
+        || dialogContext.find(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, Boolean.class).orElse(false)
+        || UIUtils.hasCloseRequestHandler(dialog());
   }
 
   /**

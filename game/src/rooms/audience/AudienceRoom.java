@@ -2,7 +2,6 @@ package rooms.audience;
 
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
@@ -18,7 +17,6 @@ import engine.time.PlayClock;
 import engine.tracking.Tracking;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import feature.audience.AudienceConfig;
 import feature.audience.AudienceHud;
@@ -79,10 +77,6 @@ public final class AudienceRoom {
             .maximumPlayers(1)
             .levels(Tuple.of(LEVEL_KEY, AudienceRoomLevel.class))
             .onConfigure(SurveyFeature::register)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .onFrame(HeroController::drainAndApplyInputs)
             .build();
 

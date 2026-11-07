@@ -8,8 +8,6 @@ import engine.network.config.EntitySpawnStrategy;
 import engine.network.config.NetworkConfig;
 import engine.utils.IVoidFunction;
 import engine.utils.Tuple;
-import engine.utils.components.path.IPath;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +32,6 @@ public abstract class AbstractStarter {
   private final List<Tuple<String, Class<? extends DungeonLevel>>> levels;
   private final IVoidFunction onConfigure;
   private final IVoidFunction onSetup;
-  private final IPath configFile;
-  private final Class<?>[] keyboardConfigClasses;
   private final boolean disableAudio;
   private final int frameRate;
   private final SnapshotTranslator snapshotTranslator;
@@ -51,8 +47,6 @@ public abstract class AbstractStarter {
     this.levels = List.copyOf(builder.levels);
     this.onConfigure = builder.onConfigure;
     this.onSetup = builder.onSetup;
-    this.configFile = builder.configFile;
-    this.keyboardConfigClasses = builder.keyboardConfigClasses.clone();
     this.disableAudio = builder.disableAudio;
     this.frameRate = builder.frameRate;
     this.snapshotTranslator = builder.snapshotTranslator;
@@ -78,14 +72,6 @@ public abstract class AbstractStarter {
   protected final void applyShared() {
     onConfigure.execute();
     levels.forEach(DungeonLoader::addLevel);
-    if (configFile != null) {
-      try {
-        Game.loadConfig(configFile, keyboardConfigClasses);
-      } catch (IOException e) {
-        throw new IllegalStateException(
-            "Failed to load config '" + configFile.pathString() + "'", e);
-      }
-    }
     Game.disableAudio(disableAudio);
     Game.frameRate(frameRate);
     if (snapshotTranslator != null) {
@@ -108,8 +94,6 @@ public abstract class AbstractStarter {
     private final List<Tuple<String, Class<? extends DungeonLevel>>> levels = new ArrayList<>();
     private int port = PreRunConfiguration.networkPort();
     private IVoidFunction onConfigure = () -> {};
-    private IPath configFile;
-    private Class<?>[] keyboardConfigClasses = new Class<?>[0];
     private boolean disableAudio = false;
     private int frameRate = 60;
     private SnapshotTranslator snapshotTranslator;
@@ -138,8 +122,6 @@ public abstract class AbstractStarter {
      */
     final T inheritSharedFrom(AbstractStarter starter) {
       Objects.requireNonNull(starter, "starter");
-      this.configFile = starter.configFile;
-      this.keyboardConfigClasses = starter.keyboardConfigClasses.clone();
       this.snapshotTranslator = starter.snapshotTranslator;
       this.entitySpawnStrategy = starter.entitySpawnStrategy;
       return self();
@@ -179,20 +161,6 @@ public abstract class AbstractStarter {
      */
     public T onConfigure(IVoidFunction onConfigure) {
       this.onConfigure = Objects.requireNonNull(onConfigure, "onConfigure");
-      return self();
-    }
-
-    /**
-     * Sets the config file (and keyboard config classes) to load via {@link Game#loadConfig}.
-     *
-     * @param configFile the config file path
-     * @param keyboardConfigClasses the classes holding the {@code ConfigKey} fields
-     * @return this builder
-     */
-    public T config(IPath configFile, Class<?>... keyboardConfigClasses) {
-      this.configFile = Objects.requireNonNull(configFile, "configFile");
-      this.keyboardConfigClasses =
-          Objects.requireNonNull(keyboardConfigClasses, "keyboardConfigClasses").clone();
       return self();
     }
 

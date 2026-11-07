@@ -161,7 +161,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
             "Code ordnen: Zeilen ziehen. Strg-Klick wählt einzelne Zeilen, Umschalt-Klick einen Bereich.\n"
                 + "Methode bauen: Namen und Eingaben festlegen, Code hineinziehen, Methode bauen wählen. Die neue Rune ins Hauptprogramm ziehen.\n"
                 + "Werte ändern: ... an einer Zeile öffnen. Enter oder Verlassen des Felds speichert.\n"
-                + "Arbeitsfläche: Mittlere Maustaste oder Leertaste + Ziehen. Mausrad über Hintergrund zoomt, über Code scrollt es.\n"
+                + "Arbeitsfläche: Mittlere Maustaste + Ziehen. Mausrad über Hintergrund zoomt, über Code scrollt es.\n"
                 + "Fenster: Titel ziehen; Ränder und Ecken mit links ziehen zum Vergrößern. Auch mit gedrückter rechter Maustaste möglich.\n"
                 + "Ausdrücke: Zahlen, Variablen, +, -, Klammern und eigene Methoden. Eine Methode hat höchstens "
                 + MethodsWorkshop.MAX_METHOD_BLOCKS
