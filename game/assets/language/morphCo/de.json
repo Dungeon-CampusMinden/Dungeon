@@ -1,0 +1,428 @@
+{
+  "morphCo": {
+    "title": "Morph & Co. KG - Die Wörterfabrik",
+    "menu": {
+      "start": "Schicht beginnen"
+    },
+    "controls": "[size=24]Steuerung:[n][n]Bewegen -> [key code=$1 color=black][key code=$2 color=black][key code=$3 color=black][key code=$4 color=black][n]Interagieren -> [key code=$5 color=black] / [key code=$6 type=mouse color=black][n]Inventar -> [key code=$7 color=black][n]Questlog -> [key code=$8 color=black][n]Dialog schließen -> [key code=$9 color=black][n]Einstellungen -> [key code=$10 color=black][n][size=18][color=black]Erledigte Aufgaben und gesammelte Indizien findest du im Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
+    "intro": {
+      "page1": "Die berühmte Wörterfabrik der Firma Morph & Co. KG stellt seit Jahrhunderten alle deutschen Wörter her. Normalerweise läuft alles automatisch: Morpheme werden angeliefert. Wortbildungsaffixe werden angebaut. Flexive werden am Ende montiert. Komposita werden zusammengesetzt.",
+      "page2": "Heute Morgen ist jedoch etwas schiefgelaufen: Ein Teil der Maschinen spielt verrückt und produziert Unsinn oder verweigert sogar total den Dienst. Präfixe landen an den falschen Wörtern und Flexive werden bis zur Unkenntlichkeit vertauscht.",
+      "page3": "Die Qualitätskontrolle hat die Produktion sofort gestoppt, aber ohne neue Wörter und Wortformen droht schnell ein Kommunikationschaos! Will die Firma ihre Aufträge noch irgendwie fristgerecht abliefern, muss die Produktionslinie schnellstmöglich repariert werden.",
+      "page4": "Hilf der Morph & Co. KG, ihre Produktion wieder zu starten!"
+    },
+    "story": {
+      "shift-lead": "Schichtleitung",
+      "you": "Du",
+      "arrival": "\"Endlich bist du da!\", brüllt die Schichtleitung dir über den ohrenbetäubenden Lärm zu - eine Mischung aus Alarmsirenen, stotternden Maschinen und aufgebrachten Arbeitskräften. Wuuuuuuh, wuuuuuh! Wild gestikulierend fährt sie fort: \"chDiKlä...ut!\"",
+      "arrival-you": "\"HÄ? WAS?\"",
+      "arrival-alarm": "\"ZU LAUT. ALARM!\" Sie versucht, die Geräuschkulisse zu übertönen, und zeigt aufgeregt in Richtung des Kontrollraums.",
+      "arrival-card": "Du zückst deine Sicherheitskarte. Alles klar: Bevor du herausfinden kannst, was hier eigentlich los ist, muss erst einmal dieser Lärm aufhören.",
+      "hint-alarm": "\"ZU LAUT! ALARM! KONTROLLRAUM!\" Mehr verstehst du nicht. Sie zeigt auf die Tür mit dem Kartenschlitz.",
+      "hint-pc": "\"Danke! Endlich versteht man wieder sein eigenes Wort. Schau bitte auf den Computer im Kontrollraum. Das Produktionsleitsystem weiß, was kaputt ist.\"",
+      "hint-repair": "\"F-04 und A-12 streiken. In welcher Reihenfolge du sie reparierst, ist egal. Die Tür 'Zur Produktion' im Kontrollraum führt zum Flur. In den Hallen stehen Regale mit Handbüchern.\"",
+      "hint-handbook": "\"Ohne Handbuch würde ich die Flexionsmaschine nicht anfassen. Schau mal ins Bücherregal in F-04.\"",
+      "hint-word-classes": "\"Neben der Flexionsmaschine stehen Kisten für die flektierbaren Wortarten. Da liegt bestimmt einiges falsch.\"",
+      "hint-hatch": "\"Die Wartungsklappe von A-12 hat ein Zahlenschloss. Die Antwort steht in 'Morphemtypen und wo sie zu finden sind: Teil 1'. Das Buch steht im Regal in F-04.\"",
+      "hint-affixes": "\"Die Affixe in A-12 haben sich verkeilt. Schneide die Affixe von den Wörtern ab und sortiere sie. Wörter ohne Affix - auch zusammengesetzte - kommen ungeteilt ins Fach 'Kein Affix'.\"",
+      "hint-flexion": "\"A-12 sortiert wieder? Dann sieh nach, ob die Flexionsmaschine jetzt die richtigen Affixe bekommt.\"",
+      "hint-restart": "\"Alles repariert? Großartig! Dann ab in den Kontrollraum und die Produktion am Computer neu starten.\"",
+      "hint-done": "\"Hörst du das? Die Maschinen laufen wieder. Danke! Die Wörter fließen wieder.\"",
+      "hint-shafts": "\"Wortbildung oder Flexion? In 'Morphemtypen und wo sie zu finden sind: Teil 2' im Regal von A-12 steht es: Ein Flexionsaffix bildet eine neue Wortform, ein Derivationsaffix ein neues Wort.\""
+    },
+    "world": {
+      "titles": {
+        "control": "Kontrollraum",
+        "corridor": "Flur",
+        "f04": "F-04 Flexionsstraße",
+        "a12": "A-12 Affix-Sortieranlage",
+        "restroom": "Sanitäranlagen",
+        "entrance": "Eingang"
+      },
+      "entrance": {
+        "warning-sign": "Ein Warnschild an der Tür: \"Zutritt nur für befugte Personen!\"",
+        "card-slot": "Du steckst deine Sicherheitskarte in den Kartenschlitz. Piep! Die Tür zum Kontrollraum öffnet sich.",
+        "card-slot-open": "Die Tür zum Kontrollraum steht bereits offen."
+      },
+      "control": {
+        "enter": "Im Kontrollraum ist der Lärm etwas gedämpfter. Ein rotes Licht blinkt über einer Konsole voller Knöpfe und Regler. Auch das Telefon auf dem Schreibtisch blinkt.",
+        "console-title": "Konsole",
+        "console": "Diverse Knöpfe und Regler. Einer ist mit 'Nerviger Alarmton' beschriftet und eingedrückt.",
+        "console-alarm": "Nerviger Alarmton",
+        "console-conveyor": "Förderband-Turbo",
+        "console-coffee": "Kaffeemaschine Personalküche",
+        "console-music": "Hintergrundmusik Flur",
+        "console-light": "Notbeleuchtung",
+        "console-conveyor-result": "Irgendwo ruckelt ein Förderband ein bisschen schneller. Der Alarm heult unbeeindruckt weiter.",
+        "console-coffee-result": "In der Personalküche gurgelt eine Kaffeemaschine. Leider ist die Küche abgeschlossen. Der Alarm heult weiter.",
+        "console-music-result": "Im Flur beginnt leise Fahrstuhlmusik zu dudeln. Gegen den Alarm hat sie keine Chance.",
+        "console-light-result": "Für einen Moment flackert die Notbeleuchtung. Dann ist alles wie vorher - inklusive Alarm.",
+        "console-alarm-off": "Endlich Stille! Oder ... fast. Irgendwo klappert eine Maschine und aus einem Lüftungsschacht dringt ein Geräusch, das verdächtig nach einem Drucker klingt, der gerade stirbt. Auf dem Computerbildschirm blinkt eine rote Meldung.",
+        "console-done": "Die Konsole. Der Knopf 'Nerviger Alarmton' ist ausgeschaltet. Und das bleibt auch so.",
+        "fuse-box-title": "Sicherungsbox",
+        "fuse-box": "Eine Sicherungsbox. Alle Sicherungen scheinen eingeschaltet zu sein. Daran liegt es wohl nicht.",
+        "coffee-title": "Kaffeetasse",
+        "coffee": "Diese Tasse ist leer.",
+        "plant-title": "Topfpflanze",
+        "plant": "Eine traurig aussehende, bräunliche Topfpflanze. Wann die wohl zuletzt gegossen wurde?",
+        "cctv-title": "Hinweisschild",
+        "cctv": "Hinweisschild: \"Achtung, dieser Bereich wird videoüberwacht.\"",
+        "table-title": "Tisch",
+        "table": "Ein Tisch mit zwei Stühlen. Auf dem Tisch steht eine leere Kaffeetasse, daneben liegen lose Zettel mit Schichtplänen.",
+        "poster-title": "Plakat",
+        "poster1": "Sicherheitshinweis: Lassen Sie Ihr Gepäck nicht unbeaufsichtigt.",
+        "poster2": "Einladung zum Sommerfest: Alle Mitarbeitenden sind herzlich zum diesjährigen Sommerfest eingeladen. 12.06., 16.30 Uhr, hinter den Klassifikator-Kontrolltürmen. Wie immer Mitbringbuffet (KEINE Quiches, wir erinnern uns noch alle an letztes Jahr!!!) - Bringt SPASS mit! - gez. Sommerfestkomitee",
+        "poster3": "Auf dem Plakat ist ein Helm abgebildet: \"Sicherheit beginnt bei dir. Sicher arbeiten, sicher nach Hause kommen!\"",
+        "poster4": "Die Mitarbeitenden der Abteilung gebundene Morpheme werden gebeten, sich vor Dienstbeginn zuverlässig einzustempeln! Nachträgliches Einstempeln ist nicht möglich!",
+        "production-sign": "Ein Schild an der Tür: \"Zur Produktion\".",
+        "phone-title": "Telefon",
+        "phone": "Das Telefon blinkt. Du nimmst den Hörer ab.",
+        "phone-quiet": "Das Telefon. Du nimmst den Hörer ab.",
+        "phone-messages": "Nachrichten abhören",
+        "phone-security": "Wachschutz am Eingang anrufen",
+        "phone-rosi": "Rosi anrufen",
+        "phone-hang-up": "Auflegen",
+        "phone-message": "\"Sie haben eine neue Nachricht. Erste neue Nachricht, empfangen um 13:31: Wuuuuuuh, wuuuuuh, wuuuuuh, wuuuuuh.\"",
+        "phone-no-message": "\"Sie haben keine neuen Nachrichten.\"",
+        "phone-security-result": "Tuuut ... tuuut ... tuuut ... Beim Wachschutz am Eingang nimmt niemand ab.",
+        "phone-rosi-result": "Tuuut ... tuuut ... tuuut ... Wer auch immer Rosi ist: Sie nimmt nicht ab.",
+        "production-locked": "Ein Schild an der Tür: \"Zur Produktion\". Die Tür ist noch verriegelt. Finde zuerst heraus, was hier eigentlich los ist - vielleicht weiß der Computer mehr."
+      },
+      "corridor": {
+        "door-locked-title": "Abgeschlossen",
+        "kitchen": "Die Personalküche ist abgeschlossen. Durch den Türspalt riecht es nach kaltem Kaffee.",
+        "storage": "Die Abstellkammer ist abgeschlossen. Was da wohl drin ist?",
+        "sign-f04": "F-04 Flexionsstraße",
+        "sign-a12": "A-12 Affix-Sortieranlage",
+        "sign-kitchen": "Personalküche - Zutritt nur in den Pausen",
+        "sign-storage": "Abstellkammer",
+        "sign-restroom": "Sanitäranlagen",
+        "sign-control": "Kontrollraum",
+        "sign-title": "Türschild"
+      },
+      "restroom": {
+        "sink-title": "Waschbecken",
+        "sink": "Ein Waschbecken. Du wäschst dir kurz die Hände. Hygiene muss sein, auch in der Krise.",
+        "mirror-title": "Spiegel",
+        "mirror": "Im Spiegel siehst du eine Person, die gleich eine ganze Wörterfabrik retten wird. Kein Druck."
+      },
+      "f04": {
+        "sign": "Über der Tür hängt ein Schild: \"Aus einem Lexem viele Wortformen - seit 1785.\"",
+        "enter": "Du betrittst eine große Produktionshalle. Eigentlich sollten hier aus Lexemen zuverlässig die passenden Wortformen hergestellt werden. Aber nichts geht hier: Ein Förderband ruckelt vor sich hin, eine Maschine stößt gelegentlich ein unzufriedenes Quietschen aus. Auf einem Bildschirm blinkt in großen roten Buchstaben: FEHLER 133.",
+        "plant-title": "Topfpflanze",
+        "plant": "Eine Topfpflanze. Was hast du erwartet?",
+        "conveyor-title": "Förderband",
+        "conveyor-word": "\"$1\" - Das sieht nicht ganz richtig aus. Offenbar montiert die Maschine die falschen Flexive.",
+        "conveyor-word-fixed": "\"$1\" - Dieses Ausschussprodukt bleibt Ausschuss. Die neuen Wortformen kommen aber wieder richtig aus der Maschine.",
+        "conveyor": "Auf dem Förderband liegen mehrere fehlerhafte Wortformen: du schreiben, Gemäuse, undes, zerkleinst. Untersuchen kannst du sie, reparieren aber noch nicht.",
+        "poster-title": "Wandplakat",
+        "poster1": "Konjugieren, deklinieren, komparieren: Wir bringen alles in Form.",
+        "poster2": "ACHTUNG: Wortbildungsmorpheme haben in der Flexionsstraße nichts verloren!",
+        "screen-title": "Bildschirm",
+        "screen": "In großen roten Buchstaben: FEHLER 133 - Flexionsparadigma inkonsistent.",
+        "screen-fixed": "Der Bildschirm zeigt in grünen Buchstaben: BEREIT.",
+        "trash-title": "Papierkorb",
+        "trash": "Im Papierkorb liegen mehrere zerknüllte Produktionszettel. Hier liegen noch mehr fehlerhafte Wortformen (verunter, größsts, am vermutlichsten). Offenbar ist die Maschine schon länger nicht ganz zuverlässig.[n][n]Einer der Zettel:[n]MÄNGELMELDUNG F-04[n]Wiederholte Fehlzuordnung von Flexionssuffixen. Technische Überprüfung dringend empfohlen.",
+        "shelf-title": "Bücherregal",
+        "shelf": "Das Regal enthält mehrere Bücher und Ordner. Du liest einige der Titel auf den Buchrücken. Welches Buch schlägst du auf?",
+        "book-green": "Das grüne Buch",
+        "book-green-text": "Das Buch ist tatsächlich grün. Innen geht es um die Satzlehre. Spannend, aber gerade nicht dein Problem.",
+        "book-zero": "Die drei Nullmorpheme und die verlorene Form",
+        "book-zero-text": "Ein Krimi. Du blätterst ihn durch: Die Seiten sind leer. Irgendwie passend.",
+        "book-handbook": "Handbuch: Flexionsmaschine FL3-10-9001",
+        "book-evidentia": "Evidentia erzählt",
+        "book-evidentia-text": "Eine Sammlung von Geschichten aus der Wörterfabrik. Für eine Lesestunde ist gerade keine Zeit.",
+        "book-morph1": "Morphemtypen und wo sie zu finden sind: Teil 1",
+        "close-shelf": "Regal schließen",
+        "crates-title": "Kisten und Kartons",
+        "crates-locked": "Eine Menge Kisten und Kartons. Darauf steht: Verben, Adjektive, Nomen, Artikel, Pronomina. Nur was sagt dir das? Du solltest erst eine Anleitung finden.",
+        "crates-done": "Die Kisten sind ordentlich befüllt. In die Flexionsmaschine gelangen nur noch flektierbare Wortarten.",
+        "crates-solved": "Alles richtig! Nur flektierbare Wörter liegen in den Kisten. Die Flexionsmaschine bekommt jetzt die richtigen Wortarten angeliefert.",
+        "machine-title": "Flexionsmaschine",
+        "machine-locked": "Die Flexionsmaschine. Sie hat sehr viele Tasten und Knöpfe und du leider keine Ahnung, wie sie zu bedienen ist. Du solltest erst etwas finden, das dir hier weiterhelfen kann.",
+        "machine-inspect": "Du betrachtest die Flexionsmaschine eingehend, ebenso die falschen Wortformen, die herauskommen. Was stand im Handbuch? Es scheint so, als würden hier sowohl falsche Affixe angeliefert als auch falsche Wortarten. Finde heraus, wie das passieren kann.",
+        "machine-need-crates": "Die Affixe stimmen jetzt. Aber in der Maschine landen immer noch falsche Wortarten. Sieh dir die Kisten neben der Maschine an.",
+        "machine-need-a12": "Die Wortarten stimmen jetzt. Aber die Maschine bekommt immer noch falsche Affixe angeliefert. Die Affix-Sortieranlage A-12 muss repariert werden.",
+        "machine-repaired": "Du stellst testweise ein paar neue Wortformen her: grammatisches, Möwen, vergleichst. Wunderbar! Nun kommen sowohl die richtigen Wortarten zum Flektieren hier an als auch die korrekten Flexionsaffixe. Keine Spur mehr von seltsamen Bildungen mit unflektierbaren Wörtern, Wortbildungssuffixen oder Präfixen!",
+        "machine-done": "Die Flexionsmaschine brummt zufrieden vor sich hin.",
+        "crates-solved-a12": "Alles richtig! Nur flektierbare Wörter liegen in den Kisten. Die Flexionsmaschine bekommt jetzt die richtigen Wortarten angeliefert. Probier jetzt die Flexionsmaschine aus!"
+      },
+      "a12": {
+        "poster-title": "Wandplakat",
+        "poster": "WARNHINWEIS: Morpheme sind nicht genießbar! Bitte nicht essen!",
+        "picture-title": "Bild",
+        "picture": "Ein Bild eines Murmeltiers. Was das wohl hier zu suchen hat?",
+        "shelf-title": "Bücherregal",
+        "shelf": "Das Regal enthält mehrere Bücher und Ordner. Du liest einige der Titel auf den Buchrücken. Welches Buch schlägst du auf?",
+        "book-syntagma": "Syntagma - Ein Grammatik-Abenteuer",
+        "book-syntagma-text": "Ein Abenteuerroman über Satzglieder. Klingt spannend, aber das ist ein anderes Kapitel.",
+        "book-morph2": "Morphemtypen und wo sie zu finden sind: Teil 2",
+        "book-hamster": "100 anspruchsvolle Hamsterwitze für den täglichen Gebrauch",
+        "book-hamster-text": "Witz Nr. 37: Treffen sich zwei Hamster. Sagt der eine: \"Ich habe heute ein Präfix gefunden.\" Sagt der andere: \"Unglaublich!\"[n][n]Du klappst das Buch schnell wieder zu.",
+        "close-shelf": "Regal schließen",
+        "machine-title": "Affix-Sortieranlage",
+        "machine": "Ein großer metallischer Kasten mit einem Hebel, einem blinkenden roten Licht und einem Display.[n]Auf dem Display: \"Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen.\"",
+        "machine-sorting": "Auf dem Display: \"Sortierung blockiert. Affixe manuell sortieren.\"",
+        "machine-repaired": "Die Affix-Sortieranlage läuft wieder. Plop, plop, plop: Jedes Affix landet in der richtigen Kategorie.",
+        "lever-title": "Hebel",
+        "lever": "Du ziehst an dem Hebel. Hnnnnnnnnnng - obwohl du mit aller Kraft ziehst, bewegt er sich nicht.",
+        "lever-repaired": "Der Hebel lässt sich jetzt mühelos bewegen. Klack. Klack. Passiert ist trotzdem nichts.",
+        "lock-title": "Elektronisches Schloss",
+        "lock-question": "Wie viele unterschiedliche Typen von freien Morphemen\n(ohne das Portmanteaumorphem) unterscheidet man?\nGib eine Zahl ein, um das Schloss zu entsperren.",
+        "lock-wrong": "Das Schloss piept unwillig. Das war nicht die richtige Zahl.",
+        "lock-correct": "Klick! Das Schloss ist entsperrt. Jetzt lässt sich die Wartungsklappe öffnen.",
+        "lock-open": "Das Schloss ist entsperrt.",
+        "hatch-title": "Wartungsklappe",
+        "hatch-locked": "Die Wartungsklappe ist mit einem elektronischen Schloss gesichert.",
+        "hatch-open": "Du blickst durch die Wartungsklappe in die Sortieranlage. Hier scheinen sich einige Affixe ineinander verkeilt zu haben, so dass die Sortierung zum Teil blockiert ist. Das erklärt, wieso die Zuordnungen falsch sind! Sortiere die Affixe, um die Anlage wieder in Gang zu bekommen.",
+        "affixes-solved": "Du hast alle Affixe korrekt identifiziert! Sortiere nun die Präfixe, Suffixe und Zirkumfixe in die Eingabeschächte für Wortbildung oder Flexion, je nachdem, wo sie hingehören.",
+        "shafts-solved": "Mit einem leisen Plop, Plop, Plop hörst du nun wieder, wie die Affixe von der Sortiermaschine in die richtigen Kategorien sortiert werden. Nun sollte auch die Flexionsmaschine wieder die korrekten Affixe angeliefert bekommen!",
+        "hatch-done": "Hinter der Wartungsklappe ist alles ordentlich sortiert.",
+        "pile-title": "Haufen mit diversem Zeugs",
+        "pile": "Hier liegt aller möglicher Krimskrams herum: teilweise zerbrochene, teilweise intakte Zirkumfixe. Möchtest du welche mitnehmen?",
+        "pile-taken": "Du erhältst einige zerbrochene Zirkumfix-Teile. Aber wie passen sie aneinander? Es gibt gar keine Markierung der Gebundenheit, die muss abgebrochen sein ...",
+        "pile-empty": "Hier liegt nur noch Krimskrams, mit dem niemand etwas anfangen kann.",
+        "station-title": "Zirkumfixmontagestation",
+        "station-empty": "Ein Tisch mit einem Stuhl und drei Schälchen: links eins, rechts eins und in der Mitte ein größeres. Darüber hängt ein Schild: \"Zirkumfixmontagestation\". Dir fehlen passende Teile.",
+        "station-done": "Im mittleren Schälchen liegen drei frisch montierte Zirkumfixe: {ge- ... -e}, {be- ... -ig} und {ge- ... -en}.",
+        "station-wrong": "Die Teile passen so nicht zusammen. Das Schälchen in der Mitte bleibt leer.",
+        "station-missing": "Dir fehlt eines der beiden Teile.",
+        "station-assembled": "Im mittleren Schälchen erscheint $1 - wie in \"$2\".",
+        "station-complete": "Alle drei Zirkumfixe sind montiert!",
+        "boxes-title": "Kisten",
+        "boxes": "Leere Kartons mit der Aufschrift \"Präfixe - zerbrechlich!\".",
+        "lock-almost": "Das Schloss piept unwillig. Fast - aber das Portmanteaumorphem zählt nicht mit."
+      }
+    },
+    "documents": {
+      "handbook-title": "Handbuch: Flexionsmaschine FL3-10-9001",
+      "handbook": "Die Flexionsmaschine FL3-10-9001 ist zuständig für die Flexion von Wörtern. Neben der Wortbildung ist die Flexion ein Teilbereich der Morphologie, der sich damit beschäftigt, wie neue Wortformen gebildet werden.[n][n]Zu den flektierbaren Wortarten zählen [color=#1f5fa8]Nomen, Adjektive, Verben, Artikel und Pronomina[/color]. Achtung: Es dürfen nur diese Wortarten in die Flexionsmaschine! Anlieferungen, die Adverbien, Partikeln, Konjunktionen oder Präpositionen enthalten, dürfen nicht zusammen mit den flektierbaren Wortarten gelagert werden![n][n]Im Deutschen wird Flexion mithilfe von Affixen, insbesondere Suffixen (geh-st, schreib-en, Hamster-s), und Veränderungen des Wortstamms realisiert, beispielsweise Ablaut (gehen - ging - gegangen) oder Umlaut (Buch - Bücher). Achtung: [color=#a8321f]Präfixe und Zirkumfixe gehören daher nicht in die Flexionsmaschine![/color][n][n][color=black]Hat Ihnen dieses Buch gefallen? Kaufen Sie auch: Morphemtypen und wo sie zu finden sind, unser neuer Bestseller in zwei Bänden![/color]",
+      "morph-title": "Morphemtypen und wo sie zu finden sind",
+      "morph1-title": "Morphemtypen und wo sie zu finden sind: Teil 1",
+      "morph2-title": "Morphemtypen und wo sie zu finden sind: Teil 2",
+      "morph-header": "Klassifikation für Affix-Sortieranlage, Typenbezeichnung: NCC-585-AS[n]Achtung: Nur für den internen Gebrauch![n]Die Morpheme bei den einzelnen Typen sind Beispiele und keine exhaustive Liste!",
+      "morph-free": "freie Morpheme",
+      "morph-bound": "gebundene Morpheme",
+      "morph-lexical": "lexikalisch",
+      "morph-grammatical": "grammatisch",
+      "free-verbal": "verbales Basismorphem (wenn Stamm auch als Imperativ vorkommt): {komm}",
+      "free-noun": "substantivisches Basismorphem: {Fisch}",
+      "free-adjective": "adjektivisches Basismorphem: {schön}",
+      "free-adverb": "adverbiales Basismorphem: {bald}",
+      "free-pronoun": "pronominales Basismorphem: {ihr}",
+      "free-preposition": "präpositionales Basismorphem: {auf}",
+      "free-conjunction": "konjunktionales Basismorphem: {und}",
+      "free-article": "Basismorphem, Artikel: {das}",
+      "portmanteau": "[color=#1f5fa8]Portmanteaumorpheme:[/color] Morpheme einer Wortverschmelzung: {im} (= in dem), {beim} (= bei dem)",
+      "bound-unique": "unikales Morphem: {Brom-} (Brombeere), {-thek}",
+      "bound-verbal": "verbales Basismorphem (wenn Stamm nicht als Imperativ vorkommt): {nimm}",
+      "bound-inflection": "[color=#1f5fa8]Flexionsaffixe:[/color][n]Zirkumfix: {ge-} + {-t} (gelebt)[n]Suffix: {-t}/{-et} (schreibt, arbeitet)",
+      "bound-derivation": "[color=#1f5fa8]Derivationsaffixe:[/color][n]Präfix: {un-} (unfrei), {ver-} (vergleichen)[n]Zirkumfix: {ge-} + {-e} (Gebirge), {be-} + {-t} (berühmt)[n]Suffix: {-ei} (Bücherei), {-ung} (Leitung)",
+      "definitions": "[color=#1f5fa8]Flexionsaffix:[/color] Eine neue Wortform wird gebildet. (Kind-er, turn-te)[n][color=#1f5fa8]Derivationsaffix:[/color] Ein neues Wort wird gebildet. (kind-lich, Turn-er)",
+      "source": "Übersicht angepasst nach Busch, Albert & Oliver Stenschke (2014). Germanistische Linguistik. Eine Einführung. Tübingen: narr, S. 83.",
+      "close": "Schließen"
+    },
+    "ui": {
+      "check": "Prüfen",
+      "reset": "Zurücksetzen",
+      "close": "Schließen",
+      "word-classes": {
+        "title": "Kisten neben der Flexionsmaschine",
+        "instruction": "Sortiere die passenden Wörter in den folgenden Sätzen in die passenden Kisten basierend auf ihrer Wortart. Wenn es für ein Wort keine passende Wortarten-Kiste gibt, lass es einfach liegen. So kannst du sicherstellen, dass nur flektierbare Wörter, die in die Flexionsmaschine gehören, in den Kisten sind!",
+        "help": "Ziehe ein Wort auf eine Kiste oder klicke erst das Wort und dann die Kiste an. Ein Klick auf ein Wort in einer Kiste legt es zurück.",
+        "VERBEN": "Verben",
+        "ADJEKTIVE": "Adjektive",
+        "NOMEN": "Nomen",
+        "ARTIKEL": "Artikel",
+        "PRONOMINA": "Pronomina",
+        "table": "Satz $1",
+        "feedback": "Noch nicht ganz. In einer falschen Kiste: $1 · flektierbar, aber noch auf dem Tisch: $2",
+        "feedback-misplaced": "Noch nicht ganz. In einer falschen Kiste: $1",
+        "feedback-missing": "Noch nicht ganz. Flektierbar, aber noch auf dem Tisch: $1"
+      },
+      "affixes": {
+        "title": "Affix-Sortieranlage A-12 - Wartungsmodus",
+        "instruction": "Entscheide, ob die folgenden Wörter Affixe enthalten. Wenn das der Fall ist, sortiere sie korrekt.",
+        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\".",
+        "KEIN_AFFIX": "Kein Affix",
+        "PRAEFIX": "Präfixe",
+        "SUFFIX": "Suffixe",
+        "ZIRKUMFIX": "Zirkumfixe",
+        "feedback": "Richtig bearbeitet: $1 von $2 Wörtern. Die Markierung rechts zeigt, welche Wörter schon stimmen.",
+        "shafts-title": "Affix-Sortieranlage A-12 - Eingabeschächte",
+        "shafts-instruction": "Sortiere die Präfixe, Suffixe und Zirkumfixe in die Eingabeschächte für Wortbildung oder Flexion, je nachdem, wo sie hingehören.",
+        "shafts-help": "Ziehe jedes Affix in einen Schacht oder klicke erst das Affix und dann den Schacht an.",
+        "WORTBILDUNG": "Wortbildung",
+        "FLEXION": "Flexion",
+        "shafts-feedback": "Noch nicht ganz. Nicht im richtigen Schacht: $1",
+        "mark-ok": "richtig",
+        "mark-wrong": "noch falsch"
+      },
+      "station": {
+        "title": "Zirkumfixmontagestation",
+        "instruction": "Lege ein Teil in das linke und ein Teil in das rechte Schälchen. Passen die beiden Teile zusammen, erscheint das montierte Zirkumfix im mittleren Schälchen.",
+        "inventory": "Deine Zirkumfix-Teile",
+        "left": "Schälchen links",
+        "right": "Schälchen rechts",
+        "middle": "Schälchen Mitte",
+        "assemble": "Montieren",
+        "empty": "leer"
+      },
+      "cancel": "Abbrechen"
+    },
+    "pc": {
+      "title": "Computer",
+      "screensaver": "MORPH & CO. KG",
+      "screensaver-hint": "Bildschirmschoner aktiv. Klicke, um ihn zu beenden.",
+      "header": "MORPH & CO. KG - PRODUKTIONSLEITSYSTEM",
+      "error": "KRITISCHER SYSTEMFEHLER: MEHRFACHSTÖRUNG",
+      "stop": "Automatischer Produktionsstopp um 13:37 Uhr",
+      "ok-header": "ALLE ANLAGEN BEREIT - NEUSTART MÖGLICH",
+      "tab-status": "[ANLAGENSTATUS]",
+      "tab-log": "[FEHLERPROTOKOLL]",
+      "tab-restart": "[NEUSTART]",
+      "status-f04-error": "F-04 FLEXIONSSTRASSE - FEHLER 133: Flexionsparadigma inkonsistent. Manuelle Inspektion erforderlich.",
+      "status-f04-ok": "F-04 FLEXIONSSTRASSE - STATUS: O.K.",
+      "status-a12-error": "A-12 AFFIX-SORTIERANLAGE - FEHLER 204: Unzulässiger Morphemtyp im Materialmagazin. Manuelle Inspektion erforderlich.",
+      "status-a12-ok": "A-12 AFFIX-SORTIERANLAGE - STATUS: O.K.",
+      "status-k03": "K-03 KOMPOSITIONSANLAGE - STATUS: O.K.",
+      "status-z01": "Z-01 IC-ZERLEGEANLAGE - STATUS: O.K.",
+      "log-1": "13:36:41 - A-12: Produktionsstau in Zulieferungsklappe",
+      "log-2": "13:37:39 - F-04: Materialfehler",
+      "log-3": "13:37:42 - automatischer Produktionsstopp",
+      "log-a12": "A-12: manuelle Reparatur abgeschlossen",
+      "log-f04": "F-04: manuelle Reparatur abgeschlossen",
+      "restart-unavailable": "Nicht verfügbar.",
+      "restart-unavailable-hint": "Ein Neustart ist erst möglich, wenn alle Anlagen fehlerfrei laufen.",
+      "restart-available": "Verfügbar.",
+      "restart-button": "NEUSTART",
+      "security-question": "Sicherheitsfrage: Aus wie vielen Morphemen besteht das Wort Überlegungen? Gib eine Zahl ein.",
+      "security-placeholder": "Zahl",
+      "security-submit": "Bestätigen",
+      "security-wrong": "Überlege nochmal.",
+      "security-correct": "Korrekt! Initiiere Neustart ...",
+      "too-loud": "Auf dem Bildschirm blinkt etwas Rotes, aber bei diesem Lärm kannst du keinen klaren Gedanken fassen. Erst muss der Alarm aus!",
+      "security-hint": "Tipp: Zähle Präfix, Stamm, Wortbildungssuffix und Flexionssuffix."
+    },
+    "ending": {
+      "brrr": "Der Bildschirm wird schwarz. Mit einem lauten BRRRRRRRR, das irgendwie seltsam dankbar klingt, springt im Nebenraum die Flexionsmaschine wieder an.",
+      "status": "A-12: online[n]Sensoren: online[n]F-04: online[n]All systems nominal.",
+      "final": "Geschafft! Die Produktion der Morph & Co. KG kann weiterlaufen. Doch wie kam es eigentlich zu dem Vorfall? War es Sabotage? Ein Materialfehler? Unglückliche Zufälle? Das muss bis zum nächsten Abenteuer offen bleiben ..."
+    },
+    "items": {
+      "fragment-name": "Zirkumfix-Teil $1",
+      "fragment-description": "Ein zerbrochenes Zirkumfix-Teil. Die Markierung der Gebundenheit ist abgebrochen."
+    }
+  },
+  "questlog": {
+    "main": {
+      "tab": "Auftrag",
+      "entries": {
+        "alarm": "Der Alarm ist ohrenbetäubend. Bevor du herausfinden kannst, was hier los ist, muss der Lärm aufhören. Die Schichtleitung zeigt auf den Kontrollraum.",
+        "alarm-done": "Alarm ausgeschaltet. (erledigt)",
+        "causes": "Ursachen des Produktionsstopps feststellen. Der Computer im Kontrollraum zeigt eine rote Meldung.",
+        "causes-done": "Ursachen des Produktionsstopps feststellen. (erledigt) - F-04 und A-12 melden Fehler. Die Reihenfolge der Reparaturen ist egal.",
+        "repair-a12": "A-12 reparieren.",
+        "repair-f04": "F-04 reparieren.",
+        "a12-done": "A-12 reparieren. (erledigt)",
+        "f04-done": "F-04 reparieren. (erledigt)",
+        "restart": "Produktion neu starten: Gehe zurück in den Kontrollraum an den Computer.",
+        "restart-done": "Produktion neu gestartet. (erledigt) - All systems nominal.",
+        "restart-open": "Produktion neu starten - am Computer im Kontrollraum, sobald F-04 und A-12 wieder laufen."
+      }
+    },
+    "f04": {
+      "tab": "F-04 Flexionsstraße",
+      "entries": {
+        "handbook": "Handbuch gelesen. (erledigt)",
+        "inspect-machine": "Flexionsmaschine überprüfen. (neu)",
+        "word-classes": "Flektierbare Wortarten für die Flexionsmaschine identifiziert. (erledigt)",
+        "inspect-a12": "Die Affix-Sortieranlage inspizieren.",
+        "repaired": "Flexionsmaschine repariert. (abgeschlossen)",
+        "inspect-machine-done": "Flexionsmaschine überprüfen. (erledigt)",
+        "inspect-a12-done": "Die Affix-Sortieranlage inspizieren. (erledigt)"
+      }
+    },
+    "a12": {
+      "tab": "A-12 Affix-Sortieranlage",
+      "entries": {
+        "inspect-done": "Die Affix-Sortieranlage inspizieren. (erledigt)",
+        "sort": "Affixe sortieren. (neu)",
+        "sort-done": "Affixe sortieren. (erledigt)",
+        "repaired": "Affix-Sortieranlage repariert. (erledigt)",
+        "go-f04": "Gehe zur Flexionsmaschine.",
+        "go-f04-done": "Gehe zur Flexionsmaschine. (erledigt)"
+      }
+    },
+    "clues": {
+      "tab": "Indizien",
+      "entries": {
+        "faulty-forms": "Fehlerhafte Wortformen auf dem Förderband in F-04: du schreiben, Gemäuse, undes, zerkleinst. Offenbar montiert die Maschine die falschen Flexive.",
+        "complaint": "Mängelmeldung F-04 aus dem Papierkorb: Wiederholte Fehlzuordnung von Flexionssuffixen. Weitere Ausschussprodukte: verunter, größsts, am vermutlichsten.",
+        "handbook-title": "Handbuch: Flexionsmaschine FL3-10-9001",
+        "handbook": "Flektierbar sind Nomen, Adjektive, Verben, Artikel und Pronomina - nur diese Wortarten dürfen in die Flexionsmaschine. Adverbien, Partikeln, Konjunktionen und Präpositionen nicht. Flexion geschieht über Affixe (v. a. Suffixe) und Veränderungen des Wortstamms (Ablaut, Umlaut). Präfixe und Zirkumfixe gehören nicht in die Flexionsmaschine.",
+        "morph1-title": "Morphemtypen, Teil 1: freie Morpheme",
+        "morph1": "Lexikalisch: verbales Basismorphem {komm}, substantivisches {Fisch}, adjektivisches {schön}, adverbiales {bald}.[n]Grammatisch: pronominales Basismorphem {ihr}, präpositionales {auf}, konjunktionales {und}, Artikel {das}.[n]Portmanteaumorpheme: {im} (= in dem), {beim} (= bei dem).",
+        "morph2-title": "Morphemtypen, Teil 2: gebundene Morpheme",
+        "morph2": "Lexikalisch: unikales Morphem {Brom-}, {-thek}; verbales Basismorphem, wenn der Stamm nicht als Imperativ vorkommt.[n]Flexionsaffixe (neue Wortform): Zirkumfix {ge-} + {-t}, Suffix {-t}/{-et}.[n]Derivationsaffixe (neues Wort): Präfix {un-}, {ver-}; Zirkumfix {ge-} + {-e}, {be-} + {-t}; Suffix {-ei}, {-ung}.",
+        "a12-display": "Display der Affix-Sortieranlage: \"Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen.\" Die Wartungsklappe ist mit einem Zahlenschloss gesichert.",
+        "lock-question": "Frage am Schloss der Wartungsklappe: Wie viele unterschiedliche Typen von freien Morphemen (ohne das Portmanteaumorphem) unterscheidet man?",
+        "fragments": "Zerbrochene Zirkumfix-Teile aus dem Krimskrams in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. An der Zirkumfixmontagestation lassen sie sich vielleicht wieder zusammensetzen."
+      }
+    }
+  },
+  "achievements": {
+    "morphco_alarm_off": {
+      "name": "Wuuuuuuh-o, wuuuuuh-o",
+      "description": "Alarm ausgeschaltet. Endlich."
+    },
+    "morphco_word_classes": {
+      "name": "Kistenweise Wortarten",
+      "description": "Sortiere alle flektierbaren Wörter in die passenden Kisten."
+    },
+    "morphco_marie_kondo": {
+      "name": "Marie Kondo wäre stolz auf dich",
+      "description": "Alles ist richtig wegsortiert."
+    },
+    "morphco_combinatorial": {
+      "name": "Kombinatorisch 1A!",
+      "description": "Endlich kann es wieder begierige Hamster, gelesene Bücher und Gebirge geben!"
+    },
+    "morphco_flexion": {
+      "name": "In Form gebracht",
+      "description": "Repariere die Flexionsmaschine FL3-10-9001."
+    },
+    "morphco_restart": {
+      "name": "All systems nominal",
+      "description": "Starte die Produktion der Morph & Co. KG neu."
+    },
+    "morphco_first_try": {
+      "name": "Schnitt sitzt",
+      "description": "Zerlege und sortiere alle Affixe in A-12 im ersten Versuch richtig."
+    },
+    "morphco_plants": {
+      "name": "Was hast du erwartet?",
+      "description": "Untersuche alle Topfpflanzen der Fabrik."
+    },
+    "morphco_lever": {
+      "name": "Hnnnnnnnnnng",
+      "description": "Ziehe fünfmal am festsitzenden Hebel der Affix-Sortieranlage."
+    },
+    "morphco_nobody_home": {
+      "name": "Niemand zu Hause",
+      "description": "Versuche, den Wachschutz und Rosi zu erreichen."
+    },
+    "morphco_posters": {
+      "name": "Aushangkundig",
+      "description": "Lies alle Plakate in der Fabrik."
+    },
+    "morphco_bookworm": {
+      "name": "Leseratte",
+      "description": "Schlage jedes Buch in den Regalen der Fabrik auf."
+    },
+    "morphco_platinum": {
+      "name": "Mitarbeitende des Monats",
+      "description": "Schalte alle anderen Errungenschaften der Morph & Co. KG frei."
+    }
+  }
+}

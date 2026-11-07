@@ -1,0 +1,428 @@
+{
+  "morphCo": {
+    "title": "Morph & Co. KG - The Word Factory",
+    "menu": {
+      "start": "Start shift"
+    },
+    "controls": "[size=24]Controls:[n][n]Move -> [key code=$1 color=black][key code=$2 color=black][key code=$3 color=black][key code=$4 color=black][n]Interact -> [key code=$5 color=black] / [key code=$6 type=mouse color=black][n]Inventory -> [key code=$7 color=black][n]Quest log -> [key code=$8 color=black][n]Close dialog -> [key code=$9 color=black][n]Settings -> [key code=$10 color=black][n][size=18][color=black]You can find completed tasks and collected clues in the quest log.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
+    "intro": {
+      "page1": "For centuries, the famous word factory of Morph & Co. KG has been producing every single German word. Normally everything runs automatically: morphemes are delivered, word-formation affixes are attached, inflectional endings are mounted at the very end, and compounds are assembled.",
+      "page2": "This morning, however, something went wrong: some of the machines have gone haywire and are producing nonsense or have stopped working altogether. Prefixes end up on the wrong words, and inflectional endings get mixed up beyond recognition.",
+      "page3": "Quality control stopped production immediately, but without new words and word forms, communication chaos is just around the corner! If the company wants to deliver its orders on time, the production line has to be repaired as quickly as possible.",
+      "page4": "Help Morph & Co. KG get its production running again!"
+    },
+    "story": {
+      "shift-lead": "Shift supervisor",
+      "you": "You",
+      "arrival": "\"Finally, you're here!\" the shift supervisor yells at you over the deafening noise - a mixture of alarm sirens, sputtering machines and agitated workers. Wuuuuuuh, wuuuuuh! Gesturing wildly, she continues: \"I...ThAla...oud!\"",
+      "arrival-you": "\"HUH? WHAT?\"",
+      "arrival-alarm": "\"TOO LOUD. ALARM!\" She tries to shout over the din and points excitedly towards the control room.",
+      "arrival-card": "You pull out your security card. Got it: before you can find out what is actually going on here, this noise has to stop.",
+      "hint-alarm": "\"TOO LOUD! ALARM! CONTROL ROOM!\" That's all you can make out. She points to the door with the card slot.",
+      "hint-pc": "\"Thank you! Finally you can hear yourself think again. Please check the computer in the control room. The production control system knows what is broken.\"",
+      "hint-repair": "\"F-04 and A-12 are on strike. It doesn't matter in which order you repair them. The door 'To Production' in the control room leads to the corridor. There are shelves with manuals in the halls.\"",
+      "hint-handbook": "\"I wouldn't touch the inflection machine without the manual. Have a look at the bookshelf in F-04.\"",
+      "hint-word-classes": "\"Next to the inflection machine there are crates for the inflectable parts of speech. I bet a lot of things are in the wrong place there.\"",
+      "hint-hatch": "\"The maintenance hatch of A-12 has a number lock. The answer is in 'Morpheme Types and Where to Find Them: Part 1'. That book is on the shelf in F-04.\"",
+      "hint-affixes": "\"The affixes in A-12 are jammed. Cut the affixes off the words and sort them. Words without an affix - compounds too - go undivided into the 'No affix' bin.\"",
+      "hint-flexion": "\"A-12 is sorting again? Then go and check whether the inflection machine is getting the right affixes now.\"",
+      "hint-restart": "\"Everything repaired? Great! Then off to the control room and restart production at the computer.\"",
+      "hint-done": "\"Do you hear that? The machines are running again. Thank you! The words are flowing again.\"",
+      "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\""
+    },
+    "world": {
+      "titles": {
+        "control": "Control room",
+        "corridor": "Corridor",
+        "f04": "F-04 Inflection line",
+        "a12": "A-12 Affix sorting unit",
+        "restroom": "Restrooms",
+        "entrance": "Entrance"
+      },
+      "entrance": {
+        "warning-sign": "A warning sign on the door: \"Authorized personnel only!\"",
+        "card-slot": "You insert your security card into the card slot. Beep! The door to the control room opens.",
+        "card-slot-open": "The door to the control room is already open."
+      },
+      "control": {
+        "enter": "In the control room the noise is a bit more muffled. A red light is flashing above a console full of buttons and knobs. The phone on the desk is blinking, too.",
+        "console-title": "Console",
+        "console": "All kinds of buttons and knobs. One of them is labelled 'Annoying alarm sound' and is pressed in.",
+        "console-alarm": "Annoying alarm sound",
+        "console-conveyor": "Conveyor belt turbo",
+        "console-coffee": "Staff kitchen coffee machine",
+        "console-music": "Corridor background music",
+        "console-light": "Emergency lighting",
+        "console-conveyor-result": "Somewhere a conveyor belt judders a little faster. The alarm keeps wailing, unimpressed.",
+        "console-coffee-result": "In the staff kitchen a coffee machine gurgles. Unfortunately, the kitchen is locked. The alarm keeps wailing.",
+        "console-music-result": "Soft elevator music starts tootling in the corridor. It doesn't stand a chance against the alarm.",
+        "console-light-result": "For a moment the emergency lighting flickers. Then everything is back to how it was - alarm included.",
+        "console-alarm-off": "Silence at last! Or ... almost. Somewhere a machine is rattling, and from a ventilation shaft comes a noise that sounds suspiciously like a printer in its death throes. A red message is flashing on the computer screen.",
+        "console-done": "The console. The 'Annoying alarm sound' button is switched off. And it's staying that way.",
+        "fuse-box-title": "Fuse box",
+        "fuse-box": "A fuse box. All the fuses seem to be switched on. That's probably not the problem.",
+        "coffee-title": "Coffee mug",
+        "coffee": "This mug is empty.",
+        "plant-title": "Potted plant",
+        "plant": "A sad-looking, brownish potted plant. When was it last watered, I wonder?",
+        "cctv-title": "Notice",
+        "cctv": "Notice: \"Attention, this area is under video surveillance.\"",
+        "table-title": "Table",
+        "table": "A table with two chairs. On the table there is an empty coffee mug, next to it loose sheets of paper with shift schedules.",
+        "poster-title": "Poster",
+        "poster1": "Safety notice: Do not leave your luggage unattended.",
+        "poster2": "Invitation to the summer party: All employees are cordially invited to this year's summer party. 12 June, 4:30 pm, behind the classifier control towers. Potluck buffet as always (NO quiches, we all still remember last year!!!) - Bring FUN! - signed, the Summer Party Committee",
+        "poster3": "The poster shows a helmet: \"Safety starts with you. Work safely, get home safely!\"",
+        "poster4": "Employees of the Bound Morphemes department are asked to reliably clock in before their shift starts! Clocking in retroactively is not possible!",
+        "production-sign": "A sign on the door: \"To Production\".",
+        "phone-title": "Telephone",
+        "phone": "The phone is blinking. You pick up the receiver.",
+        "phone-quiet": "The phone. You pick up the receiver.",
+        "phone-messages": "Listen to messages",
+        "phone-security": "Call security at the entrance",
+        "phone-rosi": "Call Rosi",
+        "phone-hang-up": "Hang up",
+        "phone-message": "\"You have one new message. First new message, received at 1:31 pm: Wuuuuuuh, wuuuuuh, wuuuuuh, wuuuuuh.\"",
+        "phone-no-message": "\"You have no new messages.\"",
+        "phone-security-result": "Beeep ... beeep ... beeep ... Nobody picks up at the security desk.",
+        "phone-rosi-result": "Beeep ... beeep ... beeep ... Whoever Rosi is: she's not picking up.",
+        "production-locked": "A sign on the door: \"To Production\". The door is still locked. First find out what is actually going on here - maybe the computer knows more."
+      },
+      "corridor": {
+        "door-locked-title": "Locked",
+        "kitchen": "The staff kitchen is locked. Through the gap in the door you can smell cold coffee.",
+        "storage": "The storage room is locked. What could be in there?",
+        "sign-f04": "F-04 Inflection line",
+        "sign-a12": "A-12 Affix sorting unit",
+        "sign-kitchen": "Staff kitchen - access during breaks only",
+        "sign-storage": "Storage room",
+        "sign-restroom": "Restrooms",
+        "sign-control": "Control room",
+        "sign-title": "Door sign"
+      },
+      "restroom": {
+        "sink-title": "Sink",
+        "sink": "A sink. You quickly wash your hands. Hygiene matters, even in a crisis.",
+        "mirror-title": "Mirror",
+        "mirror": "In the mirror you see a person who is about to save an entire word factory. No pressure."
+      },
+      "f04": {
+        "sign": "A sign hangs above the door: \"From one lexeme, many word forms - since 1785.\"",
+        "enter": "You enter a large production hall. This is where lexemes are supposed to be reliably turned into the right word forms. But nothing is working: a conveyor belt judders along, and a machine occasionally lets out a disgruntled squeak. On a screen, big red letters are flashing: ERROR 133.",
+        "plant-title": "Potted plant",
+        "plant": "A potted plant. What did you expect?",
+        "conveyor-title": "Conveyor belt",
+        "conveyor-word": "\"$1\" - That doesn't look quite right. Apparently the machine is attaching the wrong inflectional endings.",
+        "conveyor-word-fixed": "\"$1\" - This reject stays a reject. But the new word forms are coming out of the machine correctly again.",
+        "conveyor": "There are several faulty word forms on the conveyor belt: du schreiben, Gemäuse, undes, zerkleinst. You can examine them, but you can't repair them yet.",
+        "poster-title": "Wall poster",
+        "poster1": "Conjugate, decline, form comparatives: we get everything into (word) form.",
+        "poster2": "ATTENTION: Word-formation morphemes have no business in the inflection line!",
+        "screen-title": "Screen",
+        "screen": "In big red letters: ERROR 133 - Inflectional paradigm inconsistent.",
+        "screen-fixed": "The screen shows in green letters: READY.",
+        "trash-title": "Wastepaper basket",
+        "trash": "There are several crumpled production slips in the wastepaper basket. More faulty word forms are lying here (verunter, größsts, am vermutlichsten). Apparently the machine hasn't been entirely reliable for a while.[n][n]One of the slips:[n]DEFECT REPORT F-04[n]Repeated misassignment of inflectional suffixes. Technical inspection urgently recommended.",
+        "shelf-title": "Bookshelf",
+        "shelf": "The shelf holds several books and binders. You read some of the titles on the spines. Which book do you open?",
+        "book-green": "The Green Book",
+        "book-green-text": "The book really is green. Inside, it's all about syntax. Exciting, but not your problem right now.",
+        "book-zero": "The Three Zero Morphemes and the Lost Form",
+        "book-zero-text": "A crime novel. You leaf through it: the pages are blank. Somehow fitting.",
+        "book-handbook": "Manual: Inflection machine FL3-10-9001",
+        "book-evidentia": "Evidentia Tells Tales",
+        "book-evidentia-text": "A collection of stories from the word factory. No time for story hour right now.",
+        "book-morph1": "Morpheme Types and Where to Find Them: Part 1",
+        "close-shelf": "Close shelf",
+        "crates-title": "Crates and boxes",
+        "crates-locked": "Lots of crates and boxes. They are labelled: Verbs, Adjectives, Nouns, Articles, Pronouns. But what does that tell you? You should find some instructions first.",
+        "crates-done": "The crates are neatly filled. Only inflectable parts of speech get into the inflection machine now.",
+        "crates-solved": "All correct! Only inflectable words are in the crates. The inflection machine is now being supplied with the right parts of speech.",
+        "machine-title": "Inflection machine",
+        "machine-locked": "The inflection machine. It has an awful lot of keys and buttons, and unfortunately you have no idea how to operate it. You should first find something that can help you here.",
+        "machine-inspect": "You take a close look at the inflection machine, and at the wrong word forms coming out of it. What did the manual say? It looks as if both the wrong affixes and the wrong parts of speech are being delivered here. Find out how that can happen.",
+        "machine-need-crates": "The affixes are right now. But the wrong parts of speech are still ending up in the machine. Take a look at the crates next to the machine.",
+        "machine-need-a12": "The parts of speech are right now. But the machine is still being supplied with the wrong affixes. The affix sorting unit A-12 needs to be repaired.",
+        "machine-repaired": "You produce a few new word forms as a test: grammatisches, Möwen, vergleichst. Wonderful! Now both the right parts of speech arrive here for inflection and the correct inflectional affixes. No more trace of strange formations with uninflectable words, derivational suffixes or prefixes!",
+        "machine-done": "The inflection machine hums contentedly to itself.",
+        "crates-solved-a12": "All correct! Only inflectable words are in the crates. The inflection machine is now being supplied with the right parts of speech. Now try the inflection machine!"
+      },
+      "a12": {
+        "poster-title": "Wall poster",
+        "poster": "WARNING: Morphemes are not edible! Please do not eat!",
+        "picture-title": "Picture",
+        "picture": "A picture of a marmot. What is it doing here, I wonder?",
+        "shelf-title": "Bookshelf",
+        "shelf": "The shelf holds several books and binders. You read some of the titles on the spines. Which book do you open?",
+        "book-syntagma": "Syntagma - A Grammar Adventure",
+        "book-syntagma-text": "An adventure novel about sentence constituents. Sounds exciting, but that's a different chapter.",
+        "book-morph2": "Morpheme Types and Where to Find Them: Part 2",
+        "book-hamster": "100 Sophisticated Hamster Jokes for Everyday Use",
+        "book-hamster-text": "Joke no. 37: Two hamsters meet. One says: \"I found a prefix today.\" The other says: \"Unbelievable!\"[n][n]You quickly close the book again.",
+        "close-shelf": "Close shelf",
+        "machine-title": "Affix sorting unit",
+        "machine": "A big metal box with a lever, a flashing red light and a display.[n]The display reads: \"Sorting error. Manual inspection required. Open maintenance hatch.\"",
+        "machine-sorting": "The display reads: \"Sorting blocked. Sort affixes manually.\"",
+        "machine-repaired": "The affix sorting unit is running again. Plop, plop, plop: every affix lands in the right category.",
+        "lever-title": "Lever",
+        "lever": "You pull the lever. Hnnnnnnnnnng - even though you pull with all your might, it won't budge.",
+        "lever-repaired": "The lever now moves effortlessly. Clack. Clack. Still, nothing happened.",
+        "lock-title": "Electronic lock",
+        "lock-question": "How many different types of free morphemes\n(not counting the portmanteau morpheme) are distinguished?\nEnter a number to unlock the lock.",
+        "lock-wrong": "The lock beeps grumpily. That wasn't the right number.",
+        "lock-correct": "Click! The lock is unlocked. Now the maintenance hatch can be opened.",
+        "lock-open": "The lock is unlocked.",
+        "hatch-title": "Maintenance hatch",
+        "hatch-locked": "The maintenance hatch is secured with an electronic lock.",
+        "hatch-open": "You look through the maintenance hatch into the sorting unit. Some affixes seem to have got jammed into each other, so that the sorting is partly blocked. That explains why the assignments are wrong! Sort the affixes to get the unit running again.",
+        "affixes-solved": "You have identified all affixes correctly! Now sort the prefixes, suffixes and circumfixes into the input shafts for word formation or inflection, depending on where they belong.",
+        "shafts-solved": "With a soft plop, plop, plop you can hear the sorting machine sorting the affixes into the right categories again. Now the inflection machine should be supplied with the correct affixes again, too!",
+        "hatch-done": "Behind the maintenance hatch everything is neatly sorted.",
+        "pile-title": "Pile of assorted stuff",
+        "pile": "All kinds of odds and ends are lying around here: some broken, some intact circumfixes. Do you want to take some with you?",
+        "pile-taken": "You get some broken circumfix pieces. But how do they fit together? There is no boundary hyphen at all - it must have broken off ...",
+        "pile-empty": "Only odds and ends that nobody can do anything with are left here.",
+        "station-title": "Circumfix assembly station",
+        "station-empty": "A table with a chair and three small bowls: one on the left, one on the right and a bigger one in the middle. Above it hangs a sign: \"Circumfix assembly station\". You don't have any suitable parts.",
+        "station-done": "In the middle bowl lie three freshly assembled circumfixes: {ge- ... -e}, {be- ... -ig} and {ge- ... -en}.",
+        "station-wrong": "The pieces don't fit together like this. The middle bowl stays empty.",
+        "station-missing": "You're missing one of the two pieces.",
+        "station-assembled": "$1 appears in the middle bowl - as in \"$2\".",
+        "station-complete": "All three circumfixes are assembled!",
+        "boxes-title": "Boxes",
+        "boxes": "Empty cardboard boxes labelled \"Prefixes - fragile!\".",
+        "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count."
+      }
+    },
+    "documents": {
+      "handbook-title": "Manual: Inflection machine FL3-10-9001",
+      "handbook": "The inflection machine FL3-10-9001 is responsible for the inflection of words. Alongside word formation, inflection is a subfield of morphology; it deals with how new word forms are built.[n][n]The inflectable parts of speech are [color=#1f5fa8]nouns, adjectives, verbs, articles and pronouns[/color]. Attention: only these parts of speech may go into the inflection machine! Deliveries containing adverbs, particles, conjunctions or prepositions must not be stored together with the inflectable parts of speech![n][n]In German, inflection is realized by means of affixes, especially suffixes (geh-st, schreib-en, Hamster-s), and by changes to the word stem, for example ablaut (gehen - ging - gegangen) or umlaut (Buch - Bücher). Attention: [color=#a8321f]prefixes and circumfixes therefore do not belong in the inflection machine![/color][n][n][color=black]Did you enjoy this book? Then also buy: Morpheme Types and Where to Find Them, our new bestseller in two volumes![/color]",
+      "morph-title": "Morpheme Types and Where to Find Them",
+      "morph1-title": "Morpheme Types and Where to Find Them: Part 1",
+      "morph2-title": "Morpheme Types and Where to Find Them: Part 2",
+      "morph-header": "Classification for affix sorting unit, type designation: NCC-585-AS[n]Attention: For internal use only![n]The morphemes listed for each type are examples, not an exhaustive list!",
+      "morph-free": "free morphemes",
+      "morph-bound": "bound morphemes",
+      "morph-lexical": "lexical",
+      "morph-grammatical": "grammatical",
+      "free-verbal": "verbal base morpheme (if the stem also occurs as an imperative): {komm}",
+      "free-noun": "nominal base morpheme: {Fisch}",
+      "free-adjective": "adjectival base morpheme: {schön}",
+      "free-adverb": "adverbial base morpheme: {bald}",
+      "free-pronoun": "pronominal base morpheme: {ihr}",
+      "free-preposition": "prepositional base morpheme: {auf}",
+      "free-conjunction": "conjunctional base morpheme: {und}",
+      "free-article": "base morpheme, article: {das}",
+      "portmanteau": "[color=#1f5fa8]Portmanteau morphemes:[/color] morphemes resulting from a fusion of words: {im} (= in dem), {beim} (= bei dem)",
+      "bound-unique": "unique (cranberry) morpheme: {Brom-} (Brombeere), {-thek}",
+      "bound-verbal": "verbal base morpheme (if the stem does not occur as an imperative): {nimm}",
+      "bound-inflection": "[color=#1f5fa8]Inflectional affixes:[/color][n]Circumfix: {ge-} + {-t} (gelebt)[n]Suffix: {-t}/{-et} (schreibt, arbeitet)",
+      "bound-derivation": "[color=#1f5fa8]Derivational affixes:[/color][n]Prefix: {un-} (unfrei), {ver-} (vergleichen)[n]Circumfix: {ge-} + {-e} (Gebirge), {be-} + {-t} (berühmt)[n]Suffix: {-ei} (Bücherei), {-ung} (Leitung)",
+      "definitions": "[color=#1f5fa8]Inflectional affix:[/color] A new word form is created. (Kind-er, turn-te)[n][color=#1f5fa8]Derivational affix:[/color] A new word is created. (kind-lich, Turn-er)",
+      "source": "Overview adapted from Busch, Albert & Oliver Stenschke (2014). Germanistische Linguistik. Eine Einführung. Tübingen: narr, p. 83.",
+      "close": "Close"
+    },
+    "ui": {
+      "check": "Check",
+      "reset": "Reset",
+      "close": "Close",
+      "word-classes": {
+        "title": "Crates next to the inflection machine",
+        "instruction": "Sort the words in the following sentences into the matching crates based on their part of speech. If there is no matching crate for a word, just leave it where it is. That way you can make sure that only inflectable words, which belong in the inflection machine, end up in the crates!",
+        "help": "Drag a word onto a crate, or click the word first and then the crate. Clicking a word in a crate puts it back.",
+        "VERBEN": "Verbs",
+        "ADJEKTIVE": "Adjectives",
+        "NOMEN": "Nouns",
+        "ARTIKEL": "Articles",
+        "PRONOMINA": "Pronouns",
+        "table": "Sentence $1",
+        "feedback": "Not quite. In a wrong crate: $1 · inflectable but still on the table: $2",
+        "feedback-misplaced": "Not quite. In a wrong crate: $1",
+        "feedback-missing": "Not quite. Inflectable but still on the table: $1"
+      },
+      "affixes": {
+        "title": "Affix sorting unit A-12 - Maintenance mode",
+        "instruction": "Decide whether the following words contain affixes. If they do, sort them correctly.",
+        "help": "Click between two letters to cut a word at that point (another click joins it back together). Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
+        "KEIN_AFFIX": "No affix",
+        "PRAEFIX": "Prefixes",
+        "SUFFIX": "Suffixes",
+        "ZIRKUMFIX": "Circumfixes",
+        "feedback": "Handled correctly: $1 of $2 words. The marks on the right show which words are already right.",
+        "shafts-title": "Affix sorting unit A-12 - Input shafts",
+        "shafts-instruction": "Sort the prefixes, suffixes and circumfixes into the input shafts for word formation or inflection, depending on where they belong.",
+        "shafts-help": "Drag each affix into a shaft, or click the affix first and then the shaft.",
+        "WORTBILDUNG": "Word formation",
+        "FLEXION": "Inflection",
+        "shafts-feedback": "Not quite. Not in the right shaft: $1",
+        "mark-ok": "correct",
+        "mark-wrong": "not yet"
+      },
+      "station": {
+        "title": "Circumfix assembly station",
+        "instruction": "Put one piece into the left bowl and one piece into the right bowl. If the two pieces fit together, the assembled circumfix appears in the middle bowl.",
+        "inventory": "Your circumfix pieces",
+        "left": "Left bowl",
+        "right": "Right bowl",
+        "middle": "Middle bowl",
+        "assemble": "Assemble",
+        "empty": "empty"
+      },
+      "cancel": "Cancel"
+    },
+    "pc": {
+      "title": "Computer",
+      "screensaver": "MORPH & CO. KG",
+      "screensaver-hint": "Screensaver active. Click to exit.",
+      "header": "MORPH & CO. KG - PRODUCTION CONTROL SYSTEM",
+      "error": "CRITICAL SYSTEM ERROR: MULTIPLE FAILURES",
+      "stop": "Automatic production stop at 1:37 pm",
+      "ok-header": "ALL UNITS READY - RESTART POSSIBLE",
+      "tab-status": "[UNIT STATUS]",
+      "tab-log": "[ERROR LOG]",
+      "tab-restart": "[RESTART]",
+      "status-f04-error": "F-04 INFLECTION LINE - ERROR 133: Inflectional paradigm inconsistent. Manual inspection required.",
+      "status-f04-ok": "F-04 INFLECTION LINE - STATUS: OK",
+      "status-a12-error": "A-12 AFFIX SORTING UNIT - ERROR 204: Invalid morpheme type in material feed. Manual inspection required.",
+      "status-a12-ok": "A-12 AFFIX SORTING UNIT - STATUS: OK",
+      "status-k03": "K-03 COMPOUNDING UNIT - STATUS: OK",
+      "status-z01": "Z-01 IC DECOMPOSITION UNIT - STATUS: OK",
+      "log-1": "13:36:41 - A-12: Production jam in supply hatch",
+      "log-2": "13:37:39 - F-04: Material defect",
+      "log-3": "13:37:42 - automatic production stop",
+      "log-a12": "A-12: manual repair completed",
+      "log-f04": "F-04: manual repair completed",
+      "restart-unavailable": "Not available.",
+      "restart-unavailable-hint": "A restart is only possible once all units are running without errors.",
+      "restart-available": "Available.",
+      "restart-button": "RESTART",
+      "security-question": "Security question: How many morphemes does the word Überlegungen consist of? Enter a number.",
+      "security-placeholder": "Number",
+      "security-submit": "Confirm",
+      "security-wrong": "Give it some more Überlegung.",
+      "security-correct": "Correct! Initiating restart ...",
+      "too-loud": "Something red is flashing on the screen, but with all this noise you can't think straight. The alarm has to go off first!",
+      "security-hint": "Hint: count the prefix, the stem, the derivational suffix and the inflectional suffix."
+    },
+    "ending": {
+      "brrr": "The screen goes black. With a loud BRRRRRRRR that somehow sounds strangely grateful, the inflection machine in the next room starts up again.",
+      "status": "A-12: online[n]Sensors: online[n]F-04: online[n]All systems nominal.",
+      "final": "Done! Production at Morph & Co. KG can carry on. But how did the incident actually happen? Was it sabotage? A material defect? An unfortunate series of coincidences? That will have to remain open until the next adventure ..."
+    },
+    "items": {
+      "fragment-name": "Circumfix piece $1",
+      "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off."
+    }
+  },
+  "questlog": {
+    "main": {
+      "tab": "Assignment",
+      "entries": {
+        "alarm": "The alarm is deafening. Before you can find out what's going on here, the noise has to stop. The shift supervisor points to the control room.",
+        "alarm-done": "Alarm switched off. (done)",
+        "causes": "Determine the causes of the production stop. The computer in the control room is showing a red message.",
+        "causes-done": "Determine the causes of the production stop. (done) - F-04 and A-12 are reporting errors. The order of the repairs doesn't matter.",
+        "repair-a12": "Repair A-12.",
+        "repair-f04": "Repair F-04.",
+        "a12-done": "Repair A-12. (done)",
+        "f04-done": "Repair F-04. (done)",
+        "restart": "Restart production: go back to the computer in the control room.",
+        "restart-done": "Production restarted. (done) - All systems nominal.",
+        "restart-open": "Restart the production - at the computer in the control room, once F-04 and A-12 run again."
+      }
+    },
+    "f04": {
+      "tab": "F-04 Inflection line",
+      "entries": {
+        "handbook": "Manual read. (done)",
+        "inspect-machine": "Check the inflection machine. (new)",
+        "word-classes": "Inflectable parts of speech for the inflection machine identified. (done)",
+        "inspect-a12": "Inspect the affix sorting unit.",
+        "repaired": "Inflection machine repaired. (completed)",
+        "inspect-machine-done": "Check the inflection machine. (done)",
+        "inspect-a12-done": "Inspect the affix sorter. (done)"
+      }
+    },
+    "a12": {
+      "tab": "A-12 Affix sorting unit",
+      "entries": {
+        "inspect-done": "Inspect the affix sorting unit. (done)",
+        "sort": "Sort the affixes. (new)",
+        "sort-done": "Sort the affixes. (done)",
+        "repaired": "Affix sorting unit repaired. (done)",
+        "go-f04": "Go to the inflection machine.",
+        "go-f04-done": "Go to the inflection machine. (done)"
+      }
+    },
+    "clues": {
+      "tab": "Clues",
+      "entries": {
+        "faulty-forms": "Faulty word forms on the conveyor belt in F-04: du schreiben, Gemäuse, undes, zerkleinst. Apparently the machine is attaching the wrong inflectional endings.",
+        "complaint": "Defect report F-04 from the wastepaper basket: Repeated misassignment of inflectional suffixes. More rejects: verunter, größsts, am vermutlichsten.",
+        "handbook-title": "Manual: Inflection machine FL3-10-9001",
+        "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes and circumfixes do not belong in the inflection machine.",
+        "morph1-title": "Morpheme types, Part 1: free morphemes",
+        "morph1": "Lexical: verbal base morpheme {komm}, nominal {Fisch}, adjectival {schön}, adverbial {bald}.[n]Grammatical: pronominal base morpheme {ihr}, prepositional {auf}, conjunctional {und}, article {das}.[n]Portmanteau morphemes: {im} (= in dem), {beim} (= bei dem).",
+        "morph2-title": "Morpheme types, Part 2: bound morphemes",
+        "morph2": "Lexical: unique (cranberry) morpheme {Brom-}, {-thek}; verbal base morpheme if the stem does not occur as an imperative.[n]Inflectional affixes (new word form): circumfix {ge-} + {-t}, suffix {-t}/{-et}.[n]Derivational affixes (new word): prefix {un-}, {ver-}; circumfix {ge-} + {-e}, {be-} + {-t}; suffix {-ei}, {-ung}.",
+        "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
+        "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
+        "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station."
+      }
+    }
+  },
+  "achievements": {
+    "morphco_alarm_off": {
+      "name": "Wuuuuuuh-o, wuuuuuh-o",
+      "description": "Alarm switched off. Finally."
+    },
+    "morphco_word_classes": {
+      "name": "Parts of Speech by the Crateload",
+      "description": "Sort all inflectable words into the matching crates."
+    },
+    "morphco_marie_kondo": {
+      "name": "Marie Kondo Would Be Proud of You",
+      "description": "Everything has been sorted away correctly."
+    },
+    "morphco_combinatorial": {
+      "name": "Top-Notch Combinatorics!",
+      "description": "Finally there can be begierige Hamster, gelesene Bücher and Gebirge again!"
+    },
+    "morphco_flexion": {
+      "name": "Back in Form",
+      "description": "Repair the inflection machine FL3-10-9001."
+    },
+    "morphco_restart": {
+      "name": "All systems nominal",
+      "description": "Restart production at Morph & Co. KG."
+    },
+    "morphco_first_try": {
+      "name": "Clean Cut",
+      "description": "Segment and sort all affixes in A-12 correctly on the first try."
+    },
+    "morphco_plants": {
+      "name": "What Did You Expect?",
+      "description": "Examine all the potted plants in the factory."
+    },
+    "morphco_lever": {
+      "name": "Hnnnnnnnnnng",
+      "description": "Pull the stuck lever of the affix sorting unit five times."
+    },
+    "morphco_nobody_home": {
+      "name": "Nobody Home",
+      "description": "Try to reach security and Rosi."
+    },
+    "morphco_posters": {
+      "name": "Poster Child",
+      "description": "Read all the posters in the factory."
+    },
+    "morphco_bookworm": {
+      "name": "Bookworm",
+      "description": "Open every book on the factory's shelves."
+    },
+    "morphco_platinum": {
+      "name": "Employee of the Month",
+      "description": "Unlock all other Morph & Co. KG achievements."
+    }
+  }
+}

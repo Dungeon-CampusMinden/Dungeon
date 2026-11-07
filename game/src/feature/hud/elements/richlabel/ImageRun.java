@@ -1,5 +1,7 @@
 package feature.hud.elements.richlabel;
 
+import com.badlogic.gdx.graphics.Color;
+
 /**
  * An inline image reference with optional shake effect and optional spritesheet sub-region.
  *
@@ -27,6 +29,8 @@ package feature.hud.elements.richlabel;
  * @param noGapRight if {@code true}, suppresses the additional inline-image gap on the right side
  *     (the natural word-space contributed by surrounding whitespace is unaffected). Has no effect
  *     when the image already has no right gap (e.g. it is the last run).
+ * @param tint color multiplied onto the image (for example black for the white input-prompt icons
+ *     on a light dialog), or {@code null} to draw the image unchanged
  */
 public record ImageRun(
     String path,
@@ -38,8 +42,48 @@ public record ImageRun(
     int regionW,
     int regionH,
     boolean noGapLeft,
-    boolean noGapRight)
+    boolean noGapRight,
+    Color tint)
     implements Run {
+
+  /**
+   * Creates an untinted image run.
+   *
+   * @param path the asset path of the image
+   * @param shake the shake effect parameters, or null for no shake
+   * @param sizeOverride font size override, or {@code -1} to use the default font size
+   * @param scale extra size multiplier applied on top of the font-derived image height
+   * @param regionX the x coordinate of the sub-region in pixels, or {@code -1} for the full texture
+   * @param regionY the y coordinate of the sub-region in pixels, or {@code -1} for the full texture
+   * @param regionW the width of the sub-region in pixels, or {@code -1} for the full texture
+   * @param regionH the height of the sub-region in pixels, or {@code -1} for the full texture
+   * @param noGapLeft if {@code true}, suppresses the additional inline-image gap on the left side
+   * @param noGapRight if {@code true}, suppresses the additional inline-image gap on the right side
+   */
+  public ImageRun(
+      String path,
+      ShakeEffect shake,
+      int sizeOverride,
+      float scale,
+      int regionX,
+      int regionY,
+      int regionW,
+      int regionH,
+      boolean noGapLeft,
+      boolean noGapRight) {
+    this(
+        path,
+        shake,
+        sizeOverride,
+        scale,
+        regionX,
+        regionY,
+        regionW,
+        regionH,
+        noGapLeft,
+        noGapRight,
+        null);
+  }
 
   /**
    * Convenience factory for an inline image without a sub-region and at default scale.
