@@ -98,6 +98,7 @@ public class MorphCoLevel extends DungeonLevel {
           state.restore(save.flags(), save.assembled(), save.leverPulls(), save.affixAttempts());
         });
 
+    MorphCoObjects.reset();
     controlRoom = new ControlRoom(this);
     controlRoom.spawn();
     new FlexionLine(this).spawn();
@@ -105,7 +106,6 @@ public class MorphCoLevel extends DungeonLevel {
     new CircumfixStation(this).spawn();
     new ShiftLead(this).spawn();
     new Corridor(this).spawn();
-    MorphCoDecor.spawn(this);
 
     questLog.sync(state);
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {

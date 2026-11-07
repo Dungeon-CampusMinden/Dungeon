@@ -48,6 +48,7 @@ import java.util.logging.Level;
 import rooms.morphco.items.CircumfixFragmentItem;
 import rooms.morphco.level.MorphCoClientLevel;
 import rooms.morphco.level.MorphCoLevel;
+import rooms.morphco.level.MorphCoObjectPrefab;
 import rooms.morphco.network.MorphCoSnapshotTranslator;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.CircumfixPuzzle;
@@ -101,6 +102,7 @@ public final class MorphCo {
    *     --leveleditor} the level editor and {@code --debug} enables debug systems
    */
   public static void main(String[] args) {
+    MorphCoObjectPrefab.register();
     List<String> arguments = Arrays.asList(args);
     autoplay = arguments.contains("--autoplay");
     debugMode = autoplay || arguments.contains("--debug") || arguments.contains("--leveleditor");

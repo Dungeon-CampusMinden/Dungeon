@@ -46,85 +46,9 @@
     }
   ],
   "namedPoints": {
-    "a12_conveyor": {
-      "x": 25.0,
-      "y": 29.9
-    },
-    "alarm_light": {
-      "x": 37.1,
-      "y": 16.6
-    },
-    "boxes0": {
-      "x": 38.4,
-      "y": 23.0
-    },
-    "boxes1": {
-      "x": 39.4,
-      "y": 23.0
-    },
-    "card_slot": {
-      "x": 33.1,
-      "y": 7.0
-    },
-    "cctv": {
-      "x": 40.2,
-      "y": 16.9
-    },
-    "coffee": {
-      "x": 38.4,
-      "y": 12.25
-    },
-    "console": {
-      "x": 35.0,
-      "y": 16.8
-    },
     "control_enter": {
       "x": 32.0,
       "y": 9.0
-    },
-    "control_table": {
-      "x": 36.6,
-      "y": 12.0
-    },
-    "conveyor": {
-      "x": 3.0,
-      "y": 30.1
-    },
-    "conveyor_word0": {
-      "x": 6.4,
-      "y": 30.05
-    },
-    "conveyor_word1": {
-      "x": 8.6,
-      "y": 30.05
-    },
-    "conveyor_word2": {
-      "x": 10.8,
-      "y": 30.05
-    },
-    "conveyor_word3": {
-      "x": 13.0,
-      "y": 30.05
-    },
-    "crate0": {
-      "x": 7.4,
-      "y": 31.6
-    },
-    "crate1": {
-      "x": 8.95,
-      "y": 31.6
-    },
-    "crate2": {
-      "x": 10.5,
-      "y": 31.6
-    },
-    "crate3": {
-      "x": 12.05,
-      "y": 31.6
-    },
-    "crate4": {
-      "x": 13.6,
-      "y": 31.6
     },
     "door_a12": {
       "x": 33.0,
@@ -158,10 +82,6 @@
       "x": 12.0,
       "y": 18.0
     },
-    "f04_door_sign": {
-      "x": 13.2,
-      "y": 23.0
-    },
     "f04_enter": {
       "x": 12.0,
       "y": 23.0
@@ -169,226 +89,6 @@
     "f04_enter_inner": {
       "x": 23.0,
       "y": 28.0
-    },
-    "f04_screen": {
-      "x": 6.1,
-      "y": 32.8
-    },
-    "flexion_machine": {
-      "x": 2.8,
-      "y": 31.6
-    },
-    "fuse_box": {
-      "x": 40.4,
-      "y": 14.0
-    },
-    "hatch": {
-      "x": 28.4,
-      "y": 32.0
-    },
-    "hatch_lock": {
-      "x": 29.6,
-      "y": 31.9
-    },
-    "lever": {
-      "x": 27.3,
-      "y": 32.0
-    },
-    "mirror": {
-      "x": 20.6,
-      "y": 16.8
-    },
-    "pc": {
-      "x": 26.4,
-      "y": 16.0
-    },
-    "phone": {
-      "x": 36.95,
-      "y": 12.3
-    },
-    "picture": {
-      "x": 37.2,
-      "y": 32.8
-    },
-    "pile": {
-      "x": 25.3,
-      "y": 23.0
-    },
-    "plant_control": {
-      "x": 24.3,
-      "y": 9.0
-    },
-    "plant_corridor": {
-      "x": 40.2,
-      "y": 20.9
-    },
-    "plant_f04": {
-      "x": 22.6,
-      "y": 32.0
-    },
-    "poster_a12": {
-      "x": 35.0,
-      "y": 32.8
-    },
-    "poster_control1": {
-      "x": 24.6,
-      "y": 16.9
-    },
-    "poster_control2": {
-      "x": 32.6,
-      "y": 16.9
-    },
-    "poster_control3": {
-      "x": 38.4,
-      "y": 16.9
-    },
-    "poster_control4": {
-      "x": 29.2,
-      "y": 6.9
-    },
-    "poster_f04_1": {
-      "x": 11.0,
-      "y": 33.0
-    },
-    "poster_f04_2": {
-      "x": 21.0,
-      "y": 32.8
-    },
-    "production_sign": {
-      "x": 28.6,
-      "y": 17.5
-    },
-    "shelf_a12": {
-      "x": 39.0,
-      "y": 32.6
-    },
-    "shelf_f04_a": {
-      "x": 15.6,
-      "y": 32.6
-    },
-    "shelf_f04_b": {
-      "x": 18.0,
-      "y": 32.6
-    },
-    "shift_lead": {
-      "x": 29.0,
-      "y": 6.0
-    },
-    "sign_a12": {
-      "x": 34.1,
-      "y": 20.9
-    },
-    "sign_control": {
-      "x": 31.1,
-      "y": 19.0
-    },
-    "sign_f04": {
-      "x": 13.1,
-      "y": 20.9
-    },
-    "sign_kitchen": {
-      "x": 6.1,
-      "y": 19.0
-    },
-    "sign_restroom": {
-      "x": 20.1,
-      "y": 19.0
-    },
-    "sign_storage": {
-      "x": 13.1,
-      "y": 19.0
-    },
-    "sink": {
-      "x": 18.0,
-      "y": 16.8
-    },
-    "sorter": {
-      "x": 27.2,
-      "y": 31.4
-    },
-    "sorter_display": {
-      "x": 31.0,
-      "y": 32.8
-    },
-    "station": {
-      "x": 35.0,
-      "y": 23.0
-    },
-    "trash_f04": {
-      "x": 22.4,
-      "y": 23.0
-    },
-    "warning_sign": {
-      "x": 30.8,
-      "y": 7.0
-    },
-    "deco_server_1": {
-      "x": 24.1,
-      "y": 14.0
-    },
-    "deco_server_2": {
-      "x": 24.1,
-      "y": 12.0
-    },
-    "deco_server_3": {
-      "x": 17.4,
-      "y": 23.0
-    },
-    "deco_server_4": {
-      "x": 32.8,
-      "y": 31.8
-    },
-    "deco_server_5": {
-      "x": 33.8,
-      "y": 31.8
-    },
-    "deco_lockers_1": {
-      "x": 35.2,
-      "y": 6.7
-    },
-    "deco_chair_1": {
-      "x": 35.4,
-      "y": 15.6
-    },
-    "deco_chair_2": {
-      "x": 27.2,
-      "y": 14.9
-    },
-    "deco_table_1": {
-      "x": 3.4,
-      "y": 13.0
-    },
-    "deco_cabinet_1": {
-      "x": 16.0,
-      "y": 23.0
-    },
-    "deco_cabinet_2": {
-      "x": 2.2,
-      "y": 23.0
-    },
-    "deco_cabinet_3": {
-      "x": 40.6,
-      "y": 23.0
-    },
-    "deco_tank_1": {
-      "x": 4.0,
-      "y": 23.0
-    },
-    "deco_tank_2": {
-      "x": 5.4,
-      "y": 23.0
-    },
-    "deco_tank_3": {
-      "x": 6.8,
-      "y": 23.0
-    },
-    "deco_cart_1": {
-      "x": 6.05,
-      "y": 31.6
-    },
-    "deco_cart_2": {
-      "x": 29.0,
-      "y": 23.0
     }
   },
   "decorations": [
@@ -550,21 +250,21 @@
       "type": "LabScreenArrow",
       "position": {
         "x": 31.6,
-        "y": 7.1
+        "y": 8.19
       }
     },
     {
       "type": "LabScreenFace",
       "position": {
         "x": 34.2,
-        "y": 17.4
+        "y": 18.19
       }
     },
     {
       "type": "LabScreenQuestion",
       "position": {
         "x": 27.2,
-        "y": 17.4
+        "y": 18.19
       }
     },
     {
@@ -627,7 +327,7 @@
       "type": "LabScreenArrow",
       "position": {
         "x": 9.6,
-        "y": 32.8
+        "y": 33.19
       }
     },
     {
@@ -652,5 +352,882 @@
       }
     }
   ],
-  "prefabs": []
+  "prefabs": [
+    {
+      "name": "card-slot",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 33.1,
+          "y": 8.19
+        },
+        "kind": "card-slot",
+        "number": 0
+      }
+    },
+    {
+      "name": "warning-sign",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 30.8,
+          "y": 8.19
+        },
+        "kind": "warning-screen",
+        "number": 0
+      }
+    },
+    {
+      "name": "console",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 35.0,
+          "y": 16.8
+        },
+        "kind": "console",
+        "number": 0
+      }
+    },
+    {
+      "name": "morph-co-alarm-light",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 37.1,
+          "y": 16.6
+        },
+        "kind": "alarm-light",
+        "number": 0
+      }
+    },
+    {
+      "name": "pc",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 26.4,
+          "y": 16.0
+        },
+        "kind": "desk-pc",
+        "number": 0
+      }
+    },
+    {
+      "name": "control-table",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 36.6,
+          "y": 12.0
+        },
+        "kind": "meeting-table",
+        "number": 0
+      }
+    },
+    {
+      "name": "plant-control",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 24.3,
+          "y": 9.0
+        },
+        "kind": "plant",
+        "number": 0
+      }
+    },
+    {
+      "name": "fuse-box",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 40.4,
+          "y": 14.0
+        },
+        "kind": "fuse-box",
+        "number": 0
+      }
+    },
+    {
+      "name": "cctv",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 40.2,
+          "y": 18.19
+        },
+        "kind": "cctv",
+        "number": 0
+      }
+    },
+    {
+      "name": "poster_control1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 24.6,
+          "y": 18.19
+        },
+        "kind": "picture-luggage",
+        "number": 0
+      }
+    },
+    {
+      "name": "poster_control2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 32.6,
+          "y": 18.19
+        },
+        "kind": "picture-summer",
+        "number": 0
+      }
+    },
+    {
+      "name": "poster_control3",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 38.4,
+          "y": 18.19
+        },
+        "kind": "picture-safety",
+        "number": 0
+      }
+    },
+    {
+      "name": "poster_control4",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 29.2,
+          "y": 8.19
+        },
+        "kind": "picture-clock",
+        "number": 0
+      }
+    },
+    {
+      "name": "production-sign",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 28.6,
+          "y": 18.19
+        },
+        "kind": "sign-production",
+        "number": 0
+      }
+    },
+    {
+      "name": "sign_f04",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 13.1,
+          "y": 22.19
+        },
+        "kind": "sign-f04",
+        "number": 0
+      }
+    },
+    {
+      "name": "sign_a12",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 34.1,
+          "y": 22.19
+        },
+        "kind": "sign-a12",
+        "number": 0
+      }
+    },
+    {
+      "name": "sign_restroom",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 20.1,
+          "y": 19.0
+        },
+        "kind": "sign-wc",
+        "number": 0
+      }
+    },
+    {
+      "name": "sign_control",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 31.1,
+          "y": 19.0
+        },
+        "kind": "sign-control",
+        "number": 0
+      }
+    },
+    {
+      "name": "sign_kitchen",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 6.1,
+          "y": 19.0
+        },
+        "kind": "sign-kitchen",
+        "number": 0
+      }
+    },
+    {
+      "name": "sign_storage",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 13.1,
+          "y": 19.0
+        },
+        "kind": "sign-storage",
+        "number": 0
+      }
+    },
+    {
+      "name": "plant-corridor",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 40.2,
+          "y": 20.9
+        },
+        "kind": "potted-tree",
+        "number": 0
+      }
+    },
+    {
+      "name": "sink",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 18.0,
+          "y": 16.8
+        },
+        "kind": "sink",
+        "number": 0
+      }
+    },
+    {
+      "name": "mirror",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 20.6,
+          "y": 18.19
+        },
+        "kind": "mirror",
+        "number": 0
+      }
+    },
+    {
+      "name": "flexion-machine",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 2.8,
+          "y": 31.6
+        },
+        "kind": "flexion-machine",
+        "number": 0
+      }
+    },
+    {
+      "name": "f04-screen",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 6.1,
+          "y": 34.19
+        },
+        "kind": "display-f04",
+        "number": 0
+      }
+    },
+    {
+      "name": "conveyor",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 3.0,
+          "y": 30.1
+        },
+        "kind": "belt",
+        "number": 13
+      }
+    },
+    {
+      "name": "shelf-f04-a",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 15.6,
+          "y": 32.6
+        },
+        "kind": "bookshelf",
+        "number": 0
+      }
+    },
+    {
+      "name": "shelf-f04-b",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 18.0,
+          "y": 32.6
+        },
+        "kind": "bookshelf-large",
+        "number": 0
+      }
+    },
+    {
+      "name": "trash-f04",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 22.4,
+          "y": 23.0
+        },
+        "kind": "trash-can",
+        "number": 0
+      }
+    },
+    {
+      "name": "poster_f04_1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 11.0,
+          "y": 34.19
+        },
+        "kind": "picture-form",
+        "number": 0
+      }
+    },
+    {
+      "name": "poster_f04_2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 21.0,
+          "y": 34.19
+        },
+        "kind": "picture-warning",
+        "number": 0
+      }
+    },
+    {
+      "name": "plant-f04",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 22.6,
+          "y": 32.0
+        },
+        "kind": "tall-plant",
+        "number": 0
+      }
+    },
+    {
+      "name": "f04-door-sign",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 13.2,
+          "y": 23.0
+        },
+        "kind": "sign-f04",
+        "number": 0
+      }
+    },
+    {
+      "name": "affix-sorter",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 27.2,
+          "y": 31.4
+        },
+        "kind": "affix-sorter",
+        "number": 0
+      }
+    },
+    {
+      "name": "a12-lever",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 27.3,
+          "y": 32.0
+        },
+        "kind": "click-area",
+        "number": 8
+      }
+    },
+    {
+      "name": "hatch",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 28.4,
+          "y": 32.0
+        },
+        "kind": "click-area",
+        "number": 10
+      }
+    },
+    {
+      "name": "hatch-lock",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 29.6,
+          "y": 31.9
+        },
+        "kind": "keypad",
+        "number": 0
+      }
+    },
+    {
+      "name": "a12-display",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 31.0,
+          "y": 34.19
+        },
+        "kind": "display-a12",
+        "number": 0
+      }
+    },
+    {
+      "name": "a12-conveyor",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 25.0,
+          "y": 29.9
+        },
+        "kind": "belt",
+        "number": 9
+      }
+    },
+    {
+      "name": "poster_a12",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 35.0,
+          "y": 34.19
+        },
+        "kind": "picture-noeat",
+        "number": 0
+      }
+    },
+    {
+      "name": "picture",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 37.2,
+          "y": 34.19
+        },
+        "kind": "picture-marmot",
+        "number": 0
+      }
+    },
+    {
+      "name": "shelf-a12",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 39.0,
+          "y": 32.6
+        },
+        "kind": "bookshelf",
+        "number": 0
+      }
+    },
+    {
+      "name": "pile",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 25.3,
+          "y": 23.0
+        },
+        "kind": "pile",
+        "number": 0
+      }
+    },
+    {
+      "name": "station",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 35.0,
+          "y": 23.0
+        },
+        "kind": "station",
+        "number": 0
+      }
+    },
+    {
+      "name": "shift-lead",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 29.0,
+          "y": 6.0
+        },
+        "kind": "shift-lead",
+        "number": 0
+      }
+    },
+    {
+      "name": "crate0",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 7.4,
+          "y": 31.6
+        },
+        "kind": "crate",
+        "number": 0
+      }
+    },
+    {
+      "name": "crate1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 8.95,
+          "y": 31.6
+        },
+        "kind": "crate",
+        "number": 1
+      }
+    },
+    {
+      "name": "crate2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 10.5,
+          "y": 31.6
+        },
+        "kind": "crate",
+        "number": 2
+      }
+    },
+    {
+      "name": "crate3",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 12.05,
+          "y": 31.6
+        },
+        "kind": "crate",
+        "number": 3
+      }
+    },
+    {
+      "name": "crate4",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 13.6,
+          "y": 31.6
+        },
+        "kind": "crate",
+        "number": 4
+      }
+    },
+    {
+      "name": "conveyor-word0",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 6.4,
+          "y": 30.05
+        },
+        "kind": "word-sheet",
+        "number": 0
+      }
+    },
+    {
+      "name": "conveyor-word1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 8.6,
+          "y": 30.05
+        },
+        "kind": "word-sheet",
+        "number": 0
+      }
+    },
+    {
+      "name": "conveyor-word2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 10.8,
+          "y": 30.05
+        },
+        "kind": "word-sheet",
+        "number": 0
+      }
+    },
+    {
+      "name": "conveyor-word3",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 13.0,
+          "y": 30.05
+        },
+        "kind": "word-sheet",
+        "number": 0
+      }
+    },
+    {
+      "name": "boxes0",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 38.4,
+          "y": 23.0
+        },
+        "kind": "boxes",
+        "number": 0
+      }
+    },
+    {
+      "name": "boxes1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 39.4,
+          "y": 23.0
+        },
+        "kind": "boxes",
+        "number": 0
+      }
+    },
+    {
+      "name": "cabinet-1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 16.0,
+          "y": 23.0
+        },
+        "kind": "cabinet",
+        "number": 0
+      }
+    },
+    {
+      "name": "cabinet-2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 2.2,
+          "y": 23.0
+        },
+        "kind": "cabinet",
+        "number": 0
+      }
+    },
+    {
+      "name": "cabinet-3",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 40.6,
+          "y": 23.0
+        },
+        "kind": "cabinet",
+        "number": 0
+      }
+    },
+    {
+      "name": "cart-1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 6.05,
+          "y": 31.6
+        },
+        "kind": "cart",
+        "number": 0
+      }
+    },
+    {
+      "name": "cart-2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 29.0,
+          "y": 23.0
+        },
+        "kind": "cart",
+        "number": 0
+      }
+    },
+    {
+      "name": "chair-1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 35.4,
+          "y": 15.6
+        },
+        "kind": "chair",
+        "number": 0
+      }
+    },
+    {
+      "name": "chair-2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 27.2,
+          "y": 14.9
+        },
+        "kind": "chair",
+        "number": 0
+      }
+    },
+    {
+      "name": "lockers-1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 35.2,
+          "y": 6.7
+        },
+        "kind": "lockers",
+        "number": 0
+      }
+    },
+    {
+      "name": "server-1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 24.1,
+          "y": 14.0
+        },
+        "kind": "server",
+        "number": 0
+      }
+    },
+    {
+      "name": "server-2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 24.1,
+          "y": 12.0
+        },
+        "kind": "server",
+        "number": 0
+      }
+    },
+    {
+      "name": "server-3",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 17.4,
+          "y": 23.0
+        },
+        "kind": "server",
+        "number": 0
+      }
+    },
+    {
+      "name": "server-4",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 32.8,
+          "y": 31.8
+        },
+        "kind": "server",
+        "number": 0
+      }
+    },
+    {
+      "name": "server-5",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 33.8,
+          "y": 31.8
+        },
+        "kind": "server",
+        "number": 0
+      }
+    },
+    {
+      "name": "table-1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 3.4,
+          "y": 13.0
+        },
+        "kind": "table",
+        "number": 0
+      }
+    },
+    {
+      "name": "tank-1",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 4.0,
+          "y": 23.0
+        },
+        "kind": "tank",
+        "number": 0
+      }
+    },
+    {
+      "name": "tank-2",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 5.4,
+          "y": 23.0
+        },
+        "kind": "tank",
+        "number": 0
+      }
+    },
+    {
+      "name": "tank-3",
+      "type": "morphco-object",
+      "properties": {
+        "position": {
+          "x": 6.8,
+          "y": 23.0
+        },
+        "kind": "tank",
+        "number": 0
+      }
+    }
+  ]
 }

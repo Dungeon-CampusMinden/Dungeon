@@ -18,6 +18,20 @@ Morphologie-Escape-Room für 1–2 Spieler. Konzept, Lösungsweg und Technik:
 Neue Rätsellogik gehört in den Controller ihres Bereichs; Meilensteine werden nur über
 `MorphCoLevel.complete(...)` abgeschlossen, damit Questlog und Speicherstand mitlaufen.
 
+## Objekte platzieren
+
+Alle Objekte des Raums sind Prefab-Instanzen vom Typ `morphco-object` in der Level-Datei und werden
+im Level-Editor im Prefab-Modus (4) gesetzt und verschoben. Eine Instanz hat Position, Objektart
+(`MorphCoObjects.kinds()`, z. B. `console`, `crate`, `picture-summer`, `server`) und eine Zahl
+(Kistenindex, Bandlänge, Größe einer Klickfläche in Zehntelkacheln).
+
+Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen
+(`MorphCoObjects.on("console", ...)`); das greift auch, wenn der Editor ein verschobenes Objekt neu
+erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es nur noch für Türen und
+Auslöseflächen. Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen
+genügt. Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
+(`*_large.png`).
+
 ## Starten
 
 ```sh

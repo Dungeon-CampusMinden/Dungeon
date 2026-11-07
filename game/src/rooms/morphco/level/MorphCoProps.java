@@ -1,7 +1,6 @@
 package rooms.morphco.level;
 
 import engine.Entity;
-import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import rooms.morphco.util.MorphCoText;
 
-/** Creates the interactable objects of the room at the named points of the level. */
+/** Building blocks for the room's objects: their entities, interactions and popups. */
 final class MorphCoProps {
 
   /** Folder of the room's own pixel art. */
@@ -36,97 +35,18 @@ final class MorphCoProps {
   private MorphCoProps() {}
 
   /**
-   * Turns a decoration into an interactable object.
+   * Builds an object from a shared decoration, not added to the game yet.
    *
    * @param name entity name
    * @param position bottom-left corner
    * @param deco decoration
-   * @param onInteract called with the object and the acting player
-   * @return the added entity
+   * @return the entity
    */
-  static Entity deco(
-      String name, Point position, Deco deco, BiConsumer<Entity, Entity> onInteract) {
-    Entity entity = buildDeco(name, position, deco, onInteract);
-    Game.add(entity);
-    return entity;
-  }
-
-  private static Entity buildDeco(
-      String name, Point position, Deco deco, BiConsumer<Entity, Entity> onInteract) {
+  static Entity buildDeco(String name, Point position, Deco deco) {
     Entity entity = DecoFactory.createDeco(position, deco);
     entity.name(name);
+    // The prefab owns persistence; the editor must not save it again as a loose decoration.
     entity.remove(DecoComponent.class);
-    entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
-    return entity;
-  }
-
-  /**
-   * Turns a decoration that hangs on a wall or lies on the floor into an interactable object.
-   *
-   * <p>Office decorations such as paintings and boards come with a solid collider for standing
-   * furniture. In front of a wall that collider would block the walkway, so it is removed.
-   *
-   * @param name entity name
-   * @param position bottom-left corner
-   * @param deco decoration
-   * @param onInteract called with the object and the acting player
-   * @return the added entity
-   */
-  static Entity flatDeco(
-      String name, Point position, Deco deco, BiConsumer<Entity, Entity> onInteract) {
-    Entity entity = buildDeco(name, position, deco, onInteract);
-    entity.remove(CollideComponent.class);
-    entity
-        .fetch(DrawComponent.class)
-        .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
-    Game.add(entity);
-    return entity;
-  }
-
-  /**
-   * Turns a small decoration that stands on a table into an interactable object.
-   *
-   * @param name entity name
-   * @param position bottom-left corner, on the table top
-   * @param tableFront front edge of the table (its bottom-left corner)
-   * @param deco decoration
-   * @param onInteract called with the object and the acting player
-   * @return the added entity
-   * @see #onTable(Entity, Point)
-   */
-  static Entity tableDeco(
-      String name,
-      Point position,
-      Point tableFront,
-      Deco deco,
-      BiConsumer<Entity, Entity> onInteract) {
-    Entity entity = onTable(buildDeco(name, position, deco, onInteract), tableFront);
-    Game.add(entity);
-    return entity;
-  }
-
-  /**
-   * Creates an interactable object from a texture that stands on a table.
-   *
-   * @param name entity name
-   * @param position bottom-left corner, on the table top
-   * @param tableFront front edge of the table (its bottom-left corner)
-   * @param texture texture path inside the assets
-   * @param size length of the texture's shorter side in tiles
-   * @param onInteract called with the object and the acting player
-   * @return the added entity
-   * @see #onTable(Entity, Point)
-   */
-  static Entity tableTexture(
-      String name,
-      Point position,
-      Point tableFront,
-      String texture,
-      float size,
-      BiConsumer<Entity, Entity> onInteract) {
-    Entity entity =
-        onTable(buildTexture(name, position, texture, size, null, onInteract), tableFront);
-    Game.add(entity);
     return entity;
   }
 
@@ -141,7 +61,7 @@ final class MorphCoProps {
    * @param tableFront front edge of the table (its bottom-left corner)
    * @return the same object
    */
-  private static Entity onTable(Entity entity, Point tableFront) {
+  static Entity onTable(Entity entity, Point tableFront) {
     entity.remove(CollideComponent.class);
     // The draw order uses the sprite center of an object without a collider.
     float sortY = EntityUtils.getPosition(entity).y();
@@ -156,7 +76,7 @@ final class MorphCoProps {
   }
 
   /**
-   * Creates an interactable object from a texture.
+   * Builds an object from a texture, not added to the game yet.
    *
    * @param name entity name
    * @param position bottom-left corner
@@ -164,28 +84,10 @@ final class MorphCoProps {
    * @param size length of the texture's shorter side in tiles (the engine scales the shorter side);
    *     the room's own art uses 16 pixels per tile, so a 26x16 display takes {@code 1}
    * @param collider solid collider, or {@code null} for a walkable object
-   * @param onInteract called with the object and the acting player
-   * @return the added entity
+   * @return the entity
    */
-  static Entity texture(
-      String name,
-      Point position,
-      String texture,
-      float size,
-      Rectangle collider,
-      BiConsumer<Entity, Entity> onInteract) {
-    Entity entity = buildTexture(name, position, texture, size, collider, onInteract);
-    Game.add(entity);
-    return entity;
-  }
-
-  private static Entity buildTexture(
-      String name,
-      Point position,
-      String texture,
-      float size,
-      Rectangle collider,
-      BiConsumer<Entity, Entity> onInteract) {
+  static Entity buildTexture(
+      String name, Point position, String texture, float size, Rectangle collider) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
     DrawComponent draw =
@@ -194,32 +96,22 @@ final class MorphCoProps {
     draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
     entity.add(draw);
     if (collider != null) entity.add(new CollideComponent(collider));
-    if (onInteract != null) {
-      entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
-    }
     return entity;
   }
 
   /**
-   * Creates an interactable object with two looks, for example a broken and a repaired screen.
+   * Builds an object with an "off" and an "on" texture, not added to the game yet.
    *
    * @param name entity name
    * @param position bottom-left corner
-   * @param off texture of the state {@code off}
-   * @param on texture of the state {@code on}
-   * @param size length of the texture's shorter side in tiles, see {@link #texture}
-   * @param collider solid collider, or {@code null}
-   * @param onInteract called with the object and the acting player
-   * @return the added entity
+   * @param off texture while off
+   * @param on texture after {@link #switchOn(Entity)}
+   * @param size length of the textures' shorter side in tiles
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
    */
-  static Entity switchable(
-      String name,
-      Point position,
-      String off,
-      String on,
-      float size,
-      Rectangle collider,
-      BiConsumer<Entity, Entity> onInteract) {
+  static Entity buildSwitchable(
+      String name, Point position, String off, String on, float size, Rectangle collider) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
     AnimationConfig config = new AnimationConfig().scaleX(size);
@@ -232,11 +124,18 @@ final class MorphCoProps {
     draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
     entity.add(draw);
     if (collider != null) entity.add(new CollideComponent(collider));
-    if (onInteract != null) {
-      entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
-    }
-    Game.add(entity);
     return entity;
+  }
+
+  /**
+   * Makes an object interactable, replacing a previous interaction.
+   *
+   * @param entity the object
+   * @param onInteract called with the object and the acting player
+   */
+  static void interact(Entity entity, BiConsumer<Entity, Entity> onInteract) {
+    entity.remove(InteractionComponent.class);
+    entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
   }
 
   /**
@@ -247,6 +146,20 @@ final class MorphCoProps {
   static void switchOn(Entity entity) {
     if (entity == null) return;
     entity.fetch(DrawComponent.class).ifPresent(draw -> draw.stateMachine().setState("on", null));
+  }
+
+  /**
+   * Shows a picture from the wall large, then its text.
+   *
+   * @param player acting player
+   * @param art picture in the room's art folder, without extension; its {@code _large} version is
+   *     shown
+   * @param titleKey key of the text title
+   * @param textKey key of the text
+   */
+  static void picture(Entity player, String art, String titleKey, String textKey) {
+    DialogUtils.showImagePopUp(
+        ART + art + "_large.png", () -> popup(player, titleKey, textKey), player.id());
   }
 
   /**

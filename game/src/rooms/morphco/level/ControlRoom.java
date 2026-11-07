@@ -2,19 +2,20 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PositionComponent;
 import engine.level.elements.tile.DoorTile;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
-import engine.utils.Rectangle;
+import engine.utils.Point;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
-import feature.entities.deco.Deco;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.EventScheduler;
 import java.util.List;
+import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -47,123 +48,76 @@ final class ControlRoom {
     if (!state.has(MorphCoState.CARD_USED)) level.door("door_control").close();
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) level.door("door_production").close();
 
-    MorphCoProps.texture(
-        "card-slot",
-        level.point("card_slot"),
-        "objects/tech/Hand_scanner.png",
-        0.8f,
-        null,
-        (self, player) -> cardSlot(player));
-    MorphCoProps.texture(
+    on("card-slot", (self, player) -> cardSlot(player));
+    on(
         "warning-sign",
-        level.point("warning_sign"),
-        "objects/tech/Screen_info_2.png",
-        0.9f,
-        null,
         (self, player) ->
             MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.warning-sign"));
-
-    console =
-        MorphCoProps.switchable(
-            "console",
-            level.point("console"),
-            MorphCoProps.ART + "console_alarm.png",
-            MorphCoProps.ART + "console_off.png",
-            1.62f,
-            new Rectangle(2f, 0.8f, 0.05f, 0f),
-            (self, player) -> console(player));
-    if (state.done(MorphCoMilestone.ALARM_OFF)) MorphCoProps.switchOn(console);
-    if (!state.done(MorphCoMilestone.ALARM_OFF)) {
-      alarmLight =
-          MorphCoProps.texture(
-              MorphCoLighting.ALARM_LIGHT,
-              level.point("alarm_light"),
-              "objects/tech/Alert_1.png",
-              0.45f,
-              null,
-              null);
-    }
-    MorphCoProps.texture(
-        "pc",
-        level.point("pc"),
-        "office/desk-with-pc.png",
-        2f,
-        new Rectangle(1.9f, 0.9f, 0.05f, 0f),
-        (self, player) -> computer(player));
-    Entity phone =
-        MorphCoProps.tableTexture(
-            "phone",
-            level.point("phone"),
-            level.point("control_table"),
-            MorphCoProps.ART + "phone.png",
-            9 / 16f,
-            (self, player) -> phone(player));
-    if (!state.has(MorphCoState.MESSAGE_HEARD)) {
-      phoneEmote =
-          EmoteFactory.createEmote(
-              level.point("phone").translate(0f, 0.7f), Emote.EXCLAMATION, EMOTE_DURATION_MS);
-      Game.add(phoneEmote);
-    }
-    phone.name("phone");
-
-    MorphCoProps.texture(
+    MorphCoObjects.on(
+        "console",
+        entity -> {
+          console = entity;
+          MorphCoProps.interact(entity, (self, player) -> console(player));
+          if (state.done(MorphCoMilestone.ALARM_OFF)) MorphCoProps.switchOn(entity);
+        });
+    MorphCoObjects.on(
+        MorphCoLighting.ALARM_LIGHT,
+        entity -> {
+          alarmLight = entity;
+          if (state.done(MorphCoMilestone.ALARM_OFF)) Game.remove(entity);
+        });
+    on("pc", (self, player) -> computer(player));
+    MorphCoObjects.on(
+        "phone",
+        entity -> {
+          MorphCoProps.interact(entity, (self, player) -> phone(player));
+          if (state.has(MorphCoState.MESSAGE_HEARD)) return;
+          if (phoneEmote != null) Game.remove(phoneEmote);
+          Point position = entity.fetch(PositionComponent.class).orElseThrow().position();
+          phoneEmote =
+              EmoteFactory.createEmote(
+                  position.translate(0f, 0.7f), Emote.EXCLAMATION, EMOTE_DURATION_MS);
+          Game.add(phoneEmote);
+        });
+    on(
         "control-table",
-        level.point("control_table"),
-        MorphCoProps.ART + "table.png",
-        19 / 16f,
-        new Rectangle(2.4f, 0.5f, 0.05f, 0f),
         (self, player) ->
             MorphCoProps.popup(player, "world.control.table-title", "world.control.table"));
-    MorphCoProps.tableDeco(
+    on(
         "coffee",
-        level.point("coffee"),
-        level.point("control_table"),
-        Deco.Cup,
         (self, player) ->
             MorphCoProps.popup(player, "world.control.coffee-title", "world.control.coffee"));
-    MorphCoProps.deco(
+    on(
         "plant-control",
-        level.point("plant_control"),
-        Deco.Plant,
         (self, player) -> {
           MorphCoProps.popup(player, "world.control.plant-title", "world.control.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "control", player);
         });
-    MorphCoProps.deco(
+    on(
         "fuse-box",
-        level.point("fuse_box"),
-        Deco.LabElectricPanel,
         (self, player) ->
             MorphCoProps.popup(player, "world.control.fuse-box-title", "world.control.fuse-box"));
-    MorphCoProps.deco(
+    on(
         "cctv",
-        level.point("cctv"),
-        Deco.LabWallDevice,
         (self, player) ->
             MorphCoProps.popup(player, "world.control.cctv-title", "world.control.cctv"));
-    poster("poster_control1", "poster_luggage.png", "world.control.poster1");
-    poster("poster_control2", "poster_summer.png", "world.control.poster2");
-    poster("poster_control3", "poster_safety.png", "world.control.poster3");
-    poster("poster_control4", "poster_clock.png", "world.control.poster4");
-    MorphCoProps.texture(
-        "production-sign",
-        level.point("production_sign"),
-        MorphCoProps.ART + "sign_production.png",
-        0.81f,
-        null,
-        (self, player) -> productionSign(player));
+    poster("poster_control1", "poster_luggage", "world.control.poster1");
+    poster("poster_control2", "poster_summer", "world.control.poster2");
+    poster("poster_control3", "poster_safety", "world.control.poster3");
+    poster("poster_control4", "poster_clock", "world.control.poster4");
+    on("production-sign", (self, player) -> productionSign(player));
   }
 
-  private void poster(String point, String art, String textKey) {
-    MorphCoProps.texture(
-        point,
-        level.point(point),
-        MorphCoProps.ART + art,
-        1.3f,
-        null,
+  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
+    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
+  }
+
+  private void poster(String name, String art, String textKey) {
+    on(
+        name,
         (self, player) -> {
-          MorphCoProps.popup(player, "world.control.poster-title", textKey);
-          level.seen(MorphCoState.POSTER_PREFIX, point, player);
+          MorphCoProps.picture(player, art, "world.control.poster-title", textKey);
+          level.seen(MorphCoState.POSTER_PREFIX, name, player);
         });
   }
 

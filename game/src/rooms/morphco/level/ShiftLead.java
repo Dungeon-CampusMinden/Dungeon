@@ -1,13 +1,6 @@
 package rooms.morphco.level;
 
 import engine.Entity;
-import engine.Game;
-import engine.components.DrawComponent;
-import engine.components.PositionComponent;
-import engine.utils.Vector2;
-import engine.utils.components.draw.DepthLayer;
-import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -33,17 +26,14 @@ final class ShiftLead {
 
   /** Places the shift lead in front of the control room. */
   void spawn() {
-    // The lab-coat sprite only has undirected idle and run animations.
-    Entity npc = new Entity("shift-lead");
-    npc.add(new PositionComponent(level.point("shift_lead")));
-    DrawComponent draw = new DrawComponent(new SimpleIPath("character/monster/doc"));
-    draw.depth(DepthLayer.Player.depth());
-    npc.add(draw);
-    CollideComponent collider = new CollideComponent(Vector2.of(0.1f, 0f), Vector2.of(0.8f, 0.6f));
-    collider.isSolid(true);
-    npc.add(collider);
-    npc.add(new InteractionComponent(new Interaction((self, player) -> talk(player), 1.6f, true)));
-    Game.add(npc);
+    MorphCoObjects.on(
+        "shift-lead",
+        entity -> {
+          entity.remove(InteractionComponent.class);
+          entity.add(
+              new InteractionComponent(
+                  new Interaction((self, player) -> talk(player), 1.6f, true)));
+        });
   }
 
   private void talk(Entity player) {

@@ -3,6 +3,7 @@ package rooms.morphco.level;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.Game;
+import engine.components.PositionComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Point;
 import feature.components.UIComponent;
@@ -71,7 +72,7 @@ final class MorphCoAutoplay {
 
   private void script() {
     for (int index = 0; index < 4; index++) add("intro", player -> dismiss());
-    add("entrance", player -> go(player, "card_slot"));
+    add("entrance", player -> go(player, "card-slot"));
     add("card slot", player -> use(player, "card-slot"));
     add("console", player -> dismissAndGo(player, "console"));
     show("alarm buttons", player -> use(player, "console"));
@@ -83,7 +84,7 @@ final class MorphCoAutoplay {
     show("status screen", player -> use(player, "pc"));
     add("corridor", player -> dismissAndGo(player, "sign_f04"));
     add("hall F-04", player -> go(player, "f04_enter"));
-    add("shelf", player -> dismissAndGo(player, "shelf_f04_a"));
+    add("shelf", player -> dismissAndGo(player, "shelf-f04-a"));
     add("books", player -> use(player, "shelf-f04-a"));
     show("handbook", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "handbook"));
     add("shelf again", player -> dismissThen(() -> use(player, "shelf-f04-a")));
@@ -91,9 +92,9 @@ final class MorphCoAutoplay {
     add("crates", player -> dismissAndGo(player, "crate1"));
     show("word classes", player -> use(player, "crate1"));
     add("sort crates", player -> submit(WordClassPuzzle.encode(wordClasses())));
-    add("machine", player -> dismissAndGo(player, "flexion_machine"));
+    add("machine", player -> dismissAndGo(player, "flexion-machine"));
     add("inspect machine", player -> use(player, "flexion-machine"));
-    add("hall A-12", player -> dismissAndGo(player, "hatch_lock"));
+    add("hall A-12", player -> dismissAndGo(player, "hatch-lock"));
     add("lock", player -> use(player, "hatch-lock"));
     add("answer lock", player -> answer(DialogContextKeys.ON_CONFIRM, "8"));
     add("hatch", player -> dismissThen(() -> use(player, "hatch")));
@@ -109,7 +110,7 @@ final class MorphCoAutoplay {
       show("open station", player -> dismissThen(() -> use(player, "station")));
       add("assemble " + pair, player -> submit(pair));
     }
-    add("back to F-04", player -> dismissAndGo(player, "flexion_machine"));
+    add("back to F-04", player -> dismissAndGo(player, "flexion-machine"));
     show("repair machine", player -> use(player, "flexion-machine"));
     add("control room", player -> dismissAndGo(player, "pc"));
     add("restart", player -> use(player, "pc"));
@@ -117,9 +118,18 @@ final class MorphCoAutoplay {
     for (int index = 0; index < 4; index++) show("ending", player -> dismiss());
   }
 
-  private void go(Entity player, String point) {
-    Point target = level.point(point).translate(0.4f, -1.1f);
-    EntityUtils.teleportEntityTo(player, target);
+  // Goes to a named area of the level or in front of an object.
+  private void go(Entity player, String target) {
+    Point position =
+        level.namedPoints().containsKey(target)
+            ? level.point(target)
+            : Game.levelEntities()
+                .filter(entity -> target.equals(entity.name()))
+                .findFirst()
+                .flatMap(entity -> entity.fetch(PositionComponent.class))
+                .map(PositionComponent::position)
+                .orElseThrow(() -> new IllegalStateException("No object " + target));
+    EntityUtils.teleportEntityTo(player, position.translate(0.4f, -1.1f));
   }
 
   private void dismissAndGo(Entity player, String point) {

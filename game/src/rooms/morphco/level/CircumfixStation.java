@@ -4,10 +4,8 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
-import engine.utils.Rectangle;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
-import feature.entities.deco.Deco;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -16,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import rooms.morphco.items.CircumfixFragmentItem;
 import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -49,27 +48,17 @@ final class CircumfixStation {
   void spawn() {
     // Inventories are not part of the checkpoint, so a loaded run can take the parts again.
     pileTaken = false;
-    MorphCoProps.texture(
-        "pile",
-        level.point("pile"),
-        MorphCoProps.ART + "pile.png",
-        1.5f,
-        new Rectangle(2f, 0.5f, 0.12f, 0f),
-        (self, player) -> pile(player));
-    MorphCoProps.texture(
-        "station",
-        level.point("station"),
-        MorphCoProps.ART + "station.png",
-        1.5f,
-        new Rectangle(2.9f, 0.6f, 0.05f, 0f),
-        (self, player) -> station(player));
+    on("pile", (self, player) -> pile(player));
+    on("station", (self, player) -> station(player));
     for (int index = 0; index < 2; index++) {
-      MorphCoProps.deco(
+      on(
           "boxes" + index,
-          level.point("boxes" + index),
-          Deco.SoulweaverSmallCrate,
           (self, player) -> MorphCoProps.popup(player, "world.a12.boxes-title", "world.a12.boxes"));
     }
+  }
+
+  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
+    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
   }
 
   private void pile(Entity player) {

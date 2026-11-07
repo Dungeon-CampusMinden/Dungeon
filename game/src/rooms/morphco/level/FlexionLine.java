@@ -4,16 +4,14 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
-import engine.utils.Rectangle;
 import feature.components.UIComponent;
-import feature.entities.deco.Deco;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -48,106 +46,67 @@ final class FlexionLine {
 
   /** Creates the machine, the crates, the conveyor belt and the inventory of the hall. */
   void spawn() {
-    MorphCoProps.texture(
-        "flexion-machine",
-        level.point("flexion_machine"),
-        MorphCoProps.ART + "flexion_machine.png",
-        3f,
-        new Rectangle(2.6f, 1.4f, 0.2f, 0f),
-        (self, player) -> machine(player));
-    screen =
-        MorphCoProps.switchable(
-            "f04-screen",
-            level.point("f04_screen"),
-            MorphCoProps.ART + "display_f04_error.png",
-            MorphCoProps.ART + "display_f04_ok.png",
-            1f,
-            null,
-            (self, player) ->
-                MorphCoProps.popup(
-                    player,
-                    "world.f04.screen-title",
-                    state.done(MorphCoMilestone.F04_REPAIRED)
-                        ? "world.f04.screen-fixed"
-                        : "world.f04.screen"));
-    if (state.done(MorphCoMilestone.F04_REPAIRED)) MorphCoProps.switchOn(screen);
+    on("flexion-machine", (self, player) -> machine(player));
+    MorphCoObjects.on(
+        "f04-screen",
+        entity -> {
+          screen = entity;
+          MorphCoProps.interact(
+              entity,
+              (self, player) ->
+                  MorphCoProps.popup(
+                      player,
+                      "world.f04.screen-title",
+                      state.done(MorphCoMilestone.F04_REPAIRED)
+                          ? "world.f04.screen-fixed"
+                          : "world.f04.screen"));
+          if (state.done(MorphCoMilestone.F04_REPAIRED)) MorphCoProps.switchOn(entity);
+        });
 
     // One crate per inflectable word class, labelled like the crates in the sorting dialog.
-    WordClassPuzzle.Crate[] classes = WordClassPuzzle.Crate.values();
-    for (int index = 0; index < classes.length; index++) {
-      MorphCoProps.texture(
-          "crate" + index,
-          level.point("crate" + index),
-          MorphCoProps.ART + "crate_" + classes[index].name().toLowerCase(Locale.ROOT) + ".png",
-          1.375f,
-          new Rectangle(1.4f, 0.7f, 0.05f, 0f),
-          (self, player) -> crates(player));
+    for (int index = 0; index < WordClassPuzzle.Crate.values().length; index++) {
+      on("crate" + index, (self, player) -> crates(player));
     }
-
-    for (int index = 0; index < 13; index++) {
-      MorphCoProps.texture(
-          "conveyor" + index,
-          level.point("conveyor").translate(index, 0),
-          "objects/tech/transport_conveyor_tile.png",
-          1f,
-          null,
-          (self, player) ->
-              MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"));
-    }
+    on(
+        "conveyor",
+        (self, player) ->
+            MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"));
     for (int index = 0; index < FAULTY_FORMS.size(); index++) {
       String form = FAULTY_FORMS.get(index);
-      MorphCoProps.texture(
-          "conveyor-word" + index,
-          level.point("conveyor_word" + index),
-          "items/rpg/item_paper.png",
-          0.7f,
-          null,
-          (self, player) -> conveyorWord(player, form));
+      on("conveyor-word" + index, (self, player) -> conveyorWord(player, form));
     }
 
-    MorphCoProps.deco(
-        "shelf-f04-a", level.point("shelf_f04_a"), Deco.BookShelf, (s, p) -> shelf(p));
-    MorphCoProps.deco(
-        "shelf-f04-b", level.point("shelf_f04_b"), Deco.BookshelfLarge, (s, p) -> shelf(p));
-    MorphCoProps.deco(
+    on("shelf-f04-a", (self, player) -> shelf(player));
+    on("shelf-f04-b", (self, player) -> shelf(player));
+    on(
         "trash-f04",
-        level.point("trash_f04"),
-        Deco.TrashCanRed,
         (self, player) -> {
           level.observe(MorphCoState.COMPLAINT_SEEN);
           MorphCoProps.popup(player, "world.f04.trash-title", "world.f04.trash");
         });
-    poster("poster_f04_1", "poster_form.png", "world.f04.poster1");
-    poster("poster_f04_2", "poster_warning.png", "world.f04.poster2");
-    MorphCoProps.texture(
+    poster("poster_f04_1", "poster_form", "world.f04.poster1");
+    poster("poster_f04_2", "poster_warning", "world.f04.poster2");
+    on(
         "plant-f04",
-        level.point("plant_f04"),
-        "office/plant.png",
-        1.2f,
-        new Rectangle(0.9f, 0.5f, 0.15f, 0f),
         (self, player) -> {
           MorphCoProps.popup(player, "world.f04.plant-title", "world.f04.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "f04", player);
         });
-    MorphCoProps.texture(
+    on(
         "f04-door-sign",
-        level.point("f04_door_sign"),
-        MorphCoProps.ART + "sign_f04.png",
-        0.94f,
-        null,
         (self, player) -> MorphCoProps.popup(player, "world.titles.f04", "world.f04.sign"));
   }
 
-  private void poster(String point, String art, String textKey) {
-    MorphCoProps.texture(
-        point,
-        level.point(point),
-        MorphCoProps.ART + art,
-        1.3f,
-        null,
+  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
+    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
+  }
+
+  private void poster(String name, String art, String textKey) {
+    on(
+        name,
         (self, player) -> {
-          MorphCoProps.popup(player, "world.f04.poster-title", textKey);
-          level.seen(MorphCoState.POSTER_PREFIX, point, player);
+          MorphCoProps.picture(player, art, "world.f04.poster-title", textKey);
+          level.seen(MorphCoState.POSTER_PREFIX, name, player);
         });
   }
 

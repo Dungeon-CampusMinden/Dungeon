@@ -4,15 +4,14 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
-import engine.utils.Rectangle;
 import feature.components.UIComponent;
-import feature.entities.deco.Deco;
 import feature.hud.DialogUtils;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import java.util.List;
+import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.MorphemeQuestions;
@@ -48,80 +47,41 @@ final class AffixSorter {
 
   /** Creates the sorter, its lock and hatch and the inventory of the hall. */
   void spawn() {
-    MorphCoProps.texture(
-        "affix-sorter",
-        level.point("sorter"),
-        MorphCoProps.ART + "affix_sorter.png",
-        3f,
-        new Rectangle(2.8f, 1.2f, 0.1f, 0f),
-        (self, player) -> machine(player));
-    MorphCoProps.texture(
-        "a12-lever",
-        level.point("lever"),
-        // The lever is part of the sorter's picture; this is its click area.
-        MorphCoProps.ART + "hotspot.png",
-        0.8f,
-        null,
-        (self, player) -> lever(player));
-    MorphCoProps.texture(
-        "hatch",
-        level.point("hatch"),
-        // The hatch with its lock is drawn on the sorter; this is its click area.
-        MorphCoProps.ART + "hotspot.png",
-        1f,
-        null,
-        (self, player) -> hatch(player));
-    lock =
-        MorphCoProps.switchable(
-            "hatch-lock",
-            level.point("hatch_lock"),
-            "objects/keypad/off.png",
-            "objects/keypad/on.png",
-            0.45f,
-            null,
-            (self, player) -> lock(player));
-    if (state.done(MorphCoMilestone.HATCH_UNLOCKED)) MorphCoProps.switchOn(lock);
-    display =
-        MorphCoProps.switchable(
-            "a12-display",
-            level.point("sorter_display"),
-            MorphCoProps.ART + "display_a12_error.png",
-            MorphCoProps.ART + "display_a12_ok.png",
-            1f,
-            null,
-            (self, player) -> machine(player));
-    if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(display);
-
-    // Feed belt from the sorter to the sorting compartments.
-    for (int index = 0; index < 9; index++) {
-      MorphCoProps.texture(
-          "a12-conveyor" + index,
-          level.point("a12_conveyor").translate(index, 0),
-          "objects/tech/transport_conveyor_tile.png",
-          1f,
-          null,
-          null);
-    }
-
-    MorphCoProps.texture(
+    on("affix-sorter", (self, player) -> machine(player));
+    // Lever and hatch are part of the sorter's picture; their objects are click areas.
+    on("a12-lever", (self, player) -> lever(player));
+    on("hatch", (self, player) -> hatch(player));
+    MorphCoObjects.on(
+        "hatch-lock",
+        entity -> {
+          lock = entity;
+          MorphCoProps.interact(entity, (self, player) -> lock(player));
+          if (state.done(MorphCoMilestone.HATCH_UNLOCKED)) MorphCoProps.switchOn(entity);
+        });
+    MorphCoObjects.on(
+        "a12-display",
+        entity -> {
+          display = entity;
+          MorphCoProps.interact(entity, (self, player) -> machine(player));
+          if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
+        });
+    on(
         "poster_a12",
-        level.point("poster_a12"),
-        MorphCoProps.ART + "poster_noeat.png",
-        1.3f,
-        null,
         (self, player) -> {
-          MorphCoProps.popup(player, "world.a12.poster-title", "world.a12.poster");
+          MorphCoProps.picture(
+              player, "poster_noeat", "world.a12.poster-title", "world.a12.poster");
           level.seen(MorphCoState.POSTER_PREFIX, "poster_a12", player);
         });
-    MorphCoProps.texture(
+    on(
         "picture",
-        level.point("picture"),
-        MorphCoProps.ART + "picture_marmot.png",
-        1.6f,
-        null,
         (self, player) ->
-            MorphCoProps.popup(player, "world.a12.picture-title", "world.a12.picture"));
-    MorphCoProps.deco("shelf-a12", level.point("shelf_a12"), Deco.BookShelf, (s, p) -> shelf(p));
+            MorphCoProps.picture(
+                player, "picture_marmot", "world.a12.picture-title", "world.a12.picture"));
+    on("shelf-a12", (self, player) -> shelf(player));
+  }
+
+  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
+    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
   }
 
   private void machine(Entity player) {

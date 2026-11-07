@@ -163,9 +163,11 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   die noch nicht montierten Zirkumfix-Teile erneut heraus.
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`)
   und Hinweise der Schichtleitung über `MorphCoTracking`.
-- **Level:** `game/assets/levels/morphCo/morphco_1.level` (JSON v3, Design `SYSTEM_RECOVERY`).
-  Interaktive Objekte entstehen in Code an benannten Punkten; `MorphCoLevelFileTest` prüft, dass
-  alle Punkte existieren.
+- **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
+  Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
+  Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und
+  Auslöseflächen. `MorphCoLevelFileTest` prüft, dass jedes vom Code genutzte Objekt im Level steht,
+  jede Objektart bekannt ist und alle Bilder existieren.
 
 ## Abweichungen vom Skript
 
