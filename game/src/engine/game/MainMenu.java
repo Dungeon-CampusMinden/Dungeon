@@ -56,7 +56,8 @@ public final class MainMenu {
    * and shows the main menu.
    *
    * <p>The {@link GameStarter#language() configured language} is applied first, so the menu and the
-   * launched game are already shown in the desired language.
+   * launched game are already shown in the desired language. A dedicated server always installs
+   * {@link ServerLifecycle}, so a stopped server still finishes its tracking session.
    *
    * @param args the program arguments (checked for server and level-editor mode flags)
    * @param game the menu/hosting integration
@@ -69,6 +70,7 @@ public final class MainMenu {
       Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
       server.apply();
+      ServerLifecycle.install(game.title() + " server stopped");
       Game.run();
       return;
     }
