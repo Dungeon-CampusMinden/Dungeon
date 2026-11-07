@@ -287,7 +287,6 @@ public class LastHourLevel extends DungeonLevel {
 
   private void playReady(int playerId) {
     if (escaped || !playingPlayers.add(playerId)) return;
-    System.out.println("playReady called");
     Game.playClock().playingParticipants(playingPlayers);
     Game.playClock().ready();
     ComputerStateComponent computer = ComputerStateComponent.getState().orElseThrow();
