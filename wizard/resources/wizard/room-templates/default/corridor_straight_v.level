@@ -1,0 +1,30 @@
+{
+  "version": 3,
+  "design": "DEFAULT",
+  "layout": [
+    "WWW",
+    "WFW",
+    "WFW",
+    "WFW",
+    "WFW",
+    "WWW"
+  ],
+  "startTiles": [
+    {
+      "x": 1.0,
+      "y": 3.0
+    }
+  ],
+  "namedPoints": {
+    "door_north_1": {
+      "x": 1.0,
+      "y": 5.0
+    },
+    "door_south_1": {
+      "x": 1.0,
+      "y": 0.0
+    }
+  },
+  "decorations": [],
+  "prefabs": []
+}

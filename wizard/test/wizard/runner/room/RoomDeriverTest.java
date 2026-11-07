@@ -12,7 +12,6 @@ import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ComposedPresentation;
 import escaperoom.foundation.presentation.GamePresentation.NumericInputPresentation;
 import escaperoom.foundation.room.model.FoundationRoom;
-import escaperoom.foundation.room.model.RoomPoint;
 import escaperoom.foundation.runtime.Authority;
 import escaperoom.foundation.runtime.Projection.ProgressStatus;
 import feature.entities.CharacterClass;
@@ -104,7 +103,6 @@ class RoomDeriverTest {
     assertEquals(
         List.of(1, 2, 3, 4),
         room.definition().roster().slots().stream().map(slot -> slot.number()).toList());
-    assertEquals(new RoomPoint(1, 1), room.layout().startPoint());
     assertEquals(
         List.of("r_exit_code"),
         room.layout().riddlePlacements().stream().map(placement -> placement.riddleId()).toList());

@@ -17,8 +17,11 @@ import java.util.Objects;
 
 /** Generic Dungeon level materialized from one Foundation room layout. */
 public final class RoomLevel extends DungeonLevel {
-  /** Stable named-point key for the common Foundation door. */
+  /** Stable named-point key for the common Foundation exit door. */
   public static final String DOOR_POINT_NAME = "foundation_door";
+
+  /** Named-point key prefix for riddle doors, followed by their index in the layout. */
+  public static final String RIDDLE_DOOR_POINT_PREFIX = "foundation_riddle_door_";
 
   /** Stable named-point key for the common Foundation exit. */
   public static final String EXIT_POINT_NAME = "foundation_exit";
@@ -46,13 +49,16 @@ public final class RoomLevel extends DungeonLevel {
    * Materializes a generic default-design level directly from neutral top-to-bottom room data.
    *
    * @param roomLayout validated neutral room layout
-   * @return level with deterministic named points and one shared start
+   * @return level with deterministic named points, decorations, and one shared start
    */
   public static RoomLevel fromLayout(final RoomLayout roomLayout) {
     Objects.requireNonNull(roomLayout, "roomLayout");
     RoomLevel level =
         new RoomLevel(
-            levelElements(roomLayout), DesignLabel.DEFAULT, namedPoints(roomLayout), List.of());
+            levelElements(roomLayout),
+            DesignLabel.DEFAULT,
+            namedPoints(roomLayout),
+            decorations(roomLayout));
     level.startTiles().add(level.requiredTile(enginePoint(roomLayout, roomLayout.startPoint())));
     return level;
   }
@@ -78,6 +84,7 @@ public final class RoomLevel extends DungeonLevel {
 
   private static LevelElement levelElement(final char marker) {
     return switch (marker) {
+      case ' ' -> LevelElement.SKIP;
       case '#' -> LevelElement.WALL;
       case '.' -> LevelElement.FLOOR;
       case 'D' -> LevelElement.DOOR;
@@ -102,9 +109,26 @@ public final class RoomLevel extends DungeonLevel {
           .ifPresent(
               point -> points.put("hint_" + placement.riddleId(), enginePoint(roomLayout, point)));
     }
+    for (int index = 0; index < roomLayout.riddleDoors().size(); index++) {
+      points.put(
+          RIDDLE_DOOR_POINT_PREFIX + index,
+          enginePoint(roomLayout, roomLayout.riddleDoors().get(index).point()));
+    }
     points.put(DOOR_POINT_NAME, enginePoint(roomLayout, roomLayout.doorPoint()));
     points.put(EXIT_POINT_NAME, enginePoint(roomLayout, roomLayout.exitPoint()));
     return points;
+  }
+
+  private static List<Tuple<Deco, Point>> decorations(final RoomLayout roomLayout) {
+    return roomLayout.decorations().stream()
+        .map(
+            decoration -> {
+              Point tile = enginePoint(roomLayout, decoration.tile());
+              return Tuple.of(
+                  decoration.deco(),
+                  new Point(tile.x() + decoration.offsetX(), tile.y() + decoration.offsetY()));
+            })
+        .toList();
   }
 
   private static Point enginePoint(final RoomLayout roomLayout, final RoomPoint point) {
