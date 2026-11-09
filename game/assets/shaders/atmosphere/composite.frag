@@ -54,10 +54,8 @@ float fbm(vec2 p) {
     return v;
 }
 
-// Where the light falls on the art pixel at p, seen at scene uv: for an upright entity in its
-// lowest art pixel row, so a wall's shadow lights it as a whole instead of cutting across its upper
-// part; elsewhere at p. The base is read per scene pixel, as sprites need not sit on the art-pixel
-// grid.
+// Where the light falls on the art pixel at p: for an upright entity (base read per scene pixel at
+// uv) in its lowest art pixel row, so a wall's shadow lights it as a whole; elsewhere at p.
 vec2 litPoint(vec2 p, vec2 uv) {
     vec4 b = texture2D(u_bases, uv);
     if (b.b < 0.5) return p;

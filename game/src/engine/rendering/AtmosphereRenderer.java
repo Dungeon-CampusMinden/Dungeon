@@ -451,15 +451,13 @@ public final class AtmosphereRenderer implements Disposable {
     // Without glowing sprites the light buffer stands in for the emissive texture, which then adds
     // nothing.
     emissive.orElse(light).getColorBufferTexture().bind(4);
-    bases.getColorBufferTexture().bind(5);
+    bindBases(compositeShader, bases, 5);
     Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
     Atmosphere a = atmosphere;
     compositeShader.setUniformi("u_light", 1);
     compositeShader.setUniformi("u_bloomNear", 2);
     compositeShader.setUniformi("u_bloomFar", 3);
     compositeShader.setUniformi("u_emissive", 4);
-    compositeShader.setUniformi("u_bases", 5);
-    setBaseRange(compositeShader);
     compositeShader.setUniformf("u_glow", emissive.isPresent() ? 1f : 0f);
     setColor(compositeShader, "u_ambient", a.ambient());
     setColor(compositeShader, "u_shadowTint", a.shadowTint());
@@ -648,11 +646,9 @@ public final class AtmosphereRenderer implements Disposable {
         bloomNear,
         s -> {
           light.getColorBufferTexture().bind(1);
-          bases.getColorBufferTexture().bind(2);
+          bindBases(s, bases, 2);
           Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
           s.setUniformi("u_light", 1);
-          s.setUniformi("u_bases", 2);
-          setBaseRange(s);
           setColor(s, "u_ambient", atmosphere.ambient());
           setArea(s, "u_view", view);
           setArea(s, "u_lightArea", lightArea);
@@ -717,8 +713,11 @@ public final class AtmosphereRenderer implements Disposable {
     shader.setUniformf(name, area.x(), area.y(), area.width(), area.height());
   }
 
-  // The bases range of baseColor: the view grown by MAX_HEIGHT below and above.
-  private void setBaseRange(ShaderProgram shader) {
+  // Binds the bases to the texture unit and passes the range of baseColor: the view grown by
+  // MAX_HEIGHT below and above.
+  private void bindBases(ShaderProgram shader, FrameBuffer bases, int unit) {
+    bases.getColorBufferTexture().bind(unit);
+    shader.setUniformi("u_bases", unit);
     shader.setUniformf("u_baseRange", view.y() - MAX_HEIGHT, view.height() + 2 * MAX_HEIGHT);
   }
 
