@@ -74,7 +74,6 @@
         "poster2": "Invitation to the summer party: All employees are cordially invited to this year's summer party. 12 June, 4:30 pm, behind the classifier control towers. Potluck buffet as always (NO quiches, we all still remember last year!!!) - Bring FUN! - signed, the Summer Party Committee",
         "poster3": "The poster shows a helmet: \"Safety starts with you. Work safely, get home safely!\"",
         "poster4": "Employees of the Bound Morphemes department are asked to reliably clock in before their shift starts! Clocking in retroactively is not possible!",
-        "production-sign": "A sign on the door: \"To Production\".",
         "phone-title": "Telephone",
         "phone": "The phone is blinking. You pick up the receiver.",
         "phone-quiet": "The phone. You pick up the receiver.",
@@ -85,8 +84,7 @@
         "phone-message": "\"You have one new message. First new message, received at 1:31 pm: Wuuuuuuh, wuuuuuh, wuuuuuh, wuuuuuh.\"",
         "phone-no-message": "\"You have no new messages.\"",
         "phone-security-result": "Beeep ... beeep ... beeep ... Nobody picks up at the security desk.",
-        "phone-rosi-result": "Beeep ... beeep ... beeep ... Whoever Rosi is: she's not picking up.",
-        "production-locked": "A sign on the door: \"To Production\". The door is still locked. First find out what is actually going on here - maybe the computer knows more."
+        "phone-rosi-result": "Beeep ... beeep ... beeep ... Whoever Rosi is: she's not picking up."
       },
       "corridor": {
         "door-locked-title": "Locked",

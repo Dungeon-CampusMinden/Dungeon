@@ -105,7 +105,6 @@ final class ControlRoom {
     poster("poster_control2", "poster_summer", "world.control.poster2");
     poster("poster_control3", "poster_safety", "world.control.poster3");
     poster("poster_control4", "poster_clock", "world.control.poster4");
-    on("production-sign", (self, player) -> productionSign(player));
   }
 
   private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
@@ -133,14 +132,6 @@ final class ControlRoom {
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);
     MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot");
-  }
-
-  private void productionSign(Entity player) {
-    if (state.done(MorphCoMilestone.CAUSES_FOUND)) {
-      MorphCoProps.popup(player, "world.corridor.sign-title", "world.control.production-sign");
-    } else {
-      MorphCoProps.popup(player, "world.corridor.sign-title", "world.control.production-locked");
-    }
   }
 
   private void console(Entity player) {

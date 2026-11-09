@@ -74,7 +74,6 @@
         "poster2": "Einladung zum Sommerfest: Alle Mitarbeitenden sind herzlich zum diesjährigen Sommerfest eingeladen. 12.06., 16.30 Uhr, hinter den Klassifikator-Kontrolltürmen. Wie immer Mitbringbuffet (KEINE Quiches, wir erinnern uns noch alle an letztes Jahr!!!) - Bringt SPASS mit! - gez. Sommerfestkomitee",
         "poster3": "Auf dem Plakat ist ein Helm abgebildet: \"Sicherheit beginnt bei dir. Sicher arbeiten, sicher nach Hause kommen!\"",
         "poster4": "Die Mitarbeitenden der Abteilung gebundene Morpheme werden gebeten, sich vor Dienstbeginn zuverlässig einzustempeln! Nachträgliches Einstempeln ist nicht möglich!",
-        "production-sign": "Ein Schild an der Tür: \"Zur Produktion\".",
         "phone-title": "Telefon",
         "phone": "Das Telefon blinkt. Du nimmst den Hörer ab.",
         "phone-quiet": "Das Telefon. Du nimmst den Hörer ab.",
@@ -85,8 +84,7 @@
         "phone-message": "\"Sie haben eine neue Nachricht. Erste neue Nachricht, empfangen um 13:31: Wuuuuuuh, wuuuuuh, wuuuuuh, wuuuuuh.\"",
         "phone-no-message": "\"Sie haben keine neuen Nachrichten.\"",
         "phone-security-result": "Tuuut ... tuuut ... tuuut ... Beim Wachschutz am Eingang nimmt niemand ab.",
-        "phone-rosi-result": "Tuuut ... tuuut ... tuuut ... Wer auch immer Rosi ist: Sie nimmt nicht ab.",
-        "production-locked": "Ein Schild an der Tür: \"Zur Produktion\". Die Tür ist noch verriegelt. Finde zuerst heraus, was hier eigentlich los ist - vielleicht weiß der Computer mehr."
+        "phone-rosi-result": "Tuuut ... tuuut ... tuuut ... Wer auch immer Rosi ist: Sie nimmt nicht ab."
       },
       "corridor": {
         "door-locked-title": "Abgeschlossen",
