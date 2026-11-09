@@ -2,27 +2,31 @@
 <!--  pandoc -s -f markdown -t markdown+smart+four_space_rule-grid_tables-multiline_tables-simple_tables --columns=94 --reference-links=true  README.md  -o xxx.md  -->
 
 <h1 align="center">Dungeon</h1>
-<p align="center"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/banner.png?raw=true" alt="Banner"></p>
+<p align="center"><img src="doc/img/readme/banner.png" alt="Pixel-art banner: an office, a golem forge and a server room side by side in a dungeon"></p>
 
-Dungeon is a Java framework for the gamification of educational content. Its main use is
-didactic escape rooms: students play alone or together over the network in a 2D game world
-and solve subject-related puzzles to get out. A low-code wizard lets educators build their own
-rooms without programming.
+Dungeon is a Java framework for the gamification of educational content, and its main use is
+didactic escape rooms. Step into a vanished scientist's office and tell real clues from
+manipulation, program your way through a facility run by an AI that does not tell you
+everything, or bring a stone golem to life with variables, loops and methods. Students play
+alone or together over the network and solve subject-related puzzles to get out. A low-code
+wizard lets educators build their own rooms without programming.
 
 <table>
   <tr>
-    <td width="50%"><img src="doc/img/readme/the-last-hour.png" alt="The Last Hour: an office with bookshelves, a computer and scattered papers"><br><b>The Last Hour</b> (cybersecurity)</td>
-    <td width="50%"><img src="doc/img/readme/system-recovery.png" alt="System Recovery: server racks and terminals in a damaged facility"><br><b>System Recovery</b> (arrays in Java)</td>
+    <td width="50%"><a href="game/src/rooms/lasthour/README.md"><img src="doc/img/readme/the-last-hour.png" alt="The Last Hour: an office with bookshelves, a computer and scattered papers"></a><br><a href="game/src/rooms/lasthour/README.md"><b>The Last Hour</b></a> (cybersecurity)<br><a href="https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=The+Last+Hour"><img src="https://img.shields.io/badge/Download-The_Last_Hour-2ea44f?style=for-the-badge&logo=github" alt="Download The Last Hour"></a></td>
+    <td width="50%"><a href="game/src/rooms/systemRecovery/README.md"><img src="doc/img/readme/system-recovery.png" alt="System Recovery: server racks and terminals in a damaged facility"></a><br><a href="game/src/rooms/systemRecovery/README.md"><b>System Recovery</b></a> (arrays in Java)<br><a href="https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=System+Recovery"><img src="https://img.shields.io/badge/Download-System_Recovery-2ea44f?style=for-the-badge&logo=github" alt="Download System Recovery"></a></td>
   </tr>
   <tr>
-    <td width="50%"><img src="doc/img/readme/soulweaver.png" alt="Das Erbe der Seelenweber: the hero next to the stone golem Nox in a forge"><br><b>Das Erbe der Seelenweber</b> (introduction to programming)</td>
-    <td width="50%"><img src="doc/img/readme/game-of-games.png" alt="Game of Games: a wizard in a room with bookshelves, a lever, chests and water"><br><b>Game of Games</b> (work in progress)</td>
+    <td width="50%"><a href="game/src/rooms/soulweaver/README.md"><img src="doc/img/readme/soulweaver.png" alt="Das Erbe der Seelenweber: the hero next to the stone golem Nox in a forge"></a><br><a href="game/src/rooms/soulweaver/README.md"><b>Das Erbe der Seelenweber</b></a> (introduction to programming)<br><a href="https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=Seelenweber"><img src="https://img.shields.io/badge/Download-Das_Erbe_der_Seelenweber-2ea44f?style=for-the-badge&logo=github" alt="Download Das Erbe der Seelenweber"></a></td>
+    <td width="50%"><a href="game/src/rooms/gameofgames/README.md"><img src="doc/img/readme/game-of-games.png" alt="Game of Games: a wizard in a room with bookshelves, a lever, chests and water"></a><br><a href="game/src/rooms/gameofgames/README.md"><b>Game of Games</b></a> (work in progress, no release yet)</td>
   </tr>
 </table>
 
 ## Quick start
 
-You need the [Java SE Development Kit 25 LTS]. Gradle comes with the repository.
+You need the [Java SE Development Kit 25 LTS]. The fastest way in: download a room from the
+[releases] and start it with `java -jar <file>.jar`. To play from source, clone the repository;
+Gradle comes with it.
 
 ``` bash
 git clone https://github.com/Dungeon-CampusMinden/Dungeon.git
@@ -44,14 +48,15 @@ problems or suggestions, please feel free to contact us in English or German.
 
 ## Escape rooms
 
-| Room | Topic | Players | Start | Docs |
-|------|-------|---------|-------|------|
-| The Last Hour | Cybersecurity: a scientist has vanished. Players search his office, crack codes and tell real clues from manipulation attempts. | 1–2 | `./gradlew :game:runTheLastHour` | [README][The Last Hour] |
-| System Recovery | Programming 1, arrays in Java: energy fields, modules, sorting and two-dimensional data become puzzles in a damaged facility. | 1–2 | `./gradlew :game:runSystemRecovery` | [Concept][System Recovery], [Code][System Recovery code] |
-| Das Erbe der Seelenweber (Soulweaver) | Introduction to programming, first semester: variables and data types, loops, methods and nested conditions, which players use to instruct the golem Nox. | 1–2 | `./gradlew :game:runSoulweaver` | [Concept][Soulweaver] |
-| Game of Games | Work in progress without a subject concept yet: levers, keypads, pressure plates and pushable stones placed in the level editor. | 1–2 | `./gradlew :game:runGameOfGames` | [Code][Game of Games code] |
+| Room | Topic | Players | Start | Download |
+|------|-------|---------|-------|----------|
+| [The Last Hour] | Cybersecurity: a scientist has vanished. Players search his office, crack codes and tell real clues from manipulation attempts. | 1–2 | `./gradlew :game:runTheLastHour` | [Release][The Last Hour release] |
+| [System Recovery] | Programming 1, arrays in Java: energy fields, modules, sorting and two-dimensional data become puzzles in a damaged facility. | 1–2 | `./gradlew :game:runSystemRecovery` | [Release][System Recovery release] |
+| [Das Erbe der Seelenweber][Soulweaver] (Soulweaver) | Introduction to programming, first semester: variables and data types, loops, methods and nested conditions, which players use to instruct the golem Nox. | 1–2 | `./gradlew :game:runSoulweaver` | [Release][Soulweaver release] |
+| [Game of Games] | Work in progress without a subject concept yet: levers, keypads, pressure plates and pushable stones placed in the level editor. | 1–2 | `./gradlew :game:runGameOfGames` | none yet |
 
-Room documentation is in German, except for The Last Hour.
+Each room has its own README with a story teaser for players and a section for educators. The
+detailed concept documents behind them are in German.
 
 ## For educators and developers
 
@@ -74,7 +79,8 @@ Additionally, a local school has published an [article](https://www.herder-gymna
 It is acknowledged that parts of the materials contained in this repository have been
 developed as part of various publicly funded projects.
 
-### Lehr-Escape-Rooms mit LowCode im Dungeon (L\<ESC\>ROD)
+<details>
+<summary><b>Lehr-Escape-Rooms mit LowCode im Dungeon (L&lt;ESC&gt;ROD)</b></summary>
 
 04/2025 - 03/2027, 3003-1271, [Freiraum 2025], [Stiftung Innovation in der Hochschullehre]
 
@@ -84,7 +90,10 @@ subject-related puzzles. It extends the framework with remote multiplayer and de
 low-code approach that enables educators without programming experience to create their own
 escape rooms.
 
-### Programming Dungeon Adventures at School (PRODUS)
+</details>
+
+<details>
+<summary><b>Programming Dungeon Adventures at School (PRODUS)</b></summary>
 
 12/2024 - 08/2026, EFRE-20300105, [Pakt für Informatik 2.0], [EFRE/JTF NRW 2021--27]
 
@@ -96,7 +105,10 @@ schools, companies in the OWL (Ostwestfalen-Lippe) region and Bielefeld Universi
 Sciences (HSBI). Documentation and results are in the dedicated [produs repository]; more
 information is on our [project page].
 
-### Spiele-Framework für Digital Game Based Learning
+</details>
+
+<details>
+<summary><b>Spiele-Framework für Digital Game Based Learning</b></summary>
 
 09/2022 - 11/2023, FRFMM-623/2022, [Freiraum 2022][Freiraum 2025], [Stiftung Innovation in der
 Hochschullehre]
@@ -107,7 +119,10 @@ where students struggled. The tasks were defined in a custom domain-specific lan
 that non-programmers can use, and a Petri net-based system adapted the learning paths to the
 learner.
 
-### PM-Dungeon
+</details>
+
+<details>
+<summary><b>PM-Dungeon</b></summary>
 
 10/2021 - 11/2022, [Fellowships für Innovationen in der digitalen Hochschullehre
 (digi-Fellows)], Ministerium für Kultur und Wissenschaft (MKW) in NRW im Einvernehmen mit der
@@ -118,6 +133,8 @@ built the libGDX-based Dungeon framework, which students of the "Programming Met
 at HSBI used to develop their own 2D rogue-like games. A submission process called "Deploy to
 Grading", based on GitHub Actions, gave students immediate feedback on their code through
 JUnit tests, Checkstyle and similar tools.
+
+</details>
 
 ## Credits
 
@@ -149,11 +166,14 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Dungeon logo"></p>
 
   [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
-  [The Last Hour]: doc/lasthourReadme.md
-  [System Recovery]: doc/escape_room/room_concepts/prog1_arrays/README.md
-  [System Recovery code]: game/src/rooms/systemRecovery/README.md
-  [Soulweaver]: doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md
-  [Game of Games code]: game/src/rooms/gameofgames/
+  [releases]: https://github.com/Dungeon-CampusMinden/Dungeon/releases
+  [The Last Hour]: game/src/rooms/lasthour/README.md
+  [System Recovery]: game/src/rooms/systemRecovery/README.md
+  [Soulweaver]: game/src/rooms/soulweaver/README.md
+  [Game of Games]: game/src/rooms/gameofgames/README.md
+  [The Last Hour release]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=The+Last+Hour
+  [System Recovery release]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=System+Recovery
+  [Soulweaver release]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=Seelenweber
   [Framework documentation]: game/doc/readme.md
   [quickstart guide]: game/doc/quickstart.md
   [Escape room concepts]: doc/escape_room/room_concepts/
