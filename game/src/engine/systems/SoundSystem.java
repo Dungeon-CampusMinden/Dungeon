@@ -6,6 +6,7 @@ import engine.System;
 import engine.components.SoundComponent;
 import engine.network.messages.c2s.SoundFinishedMessage;
 import engine.sound.SoundSpec;
+import engine.sound.Sounds;
 import engine.sound.player.ISoundPlayer;
 import engine.sound.player.PlayHandle;
 import engine.utils.Point;
@@ -140,7 +141,7 @@ public class SoundSystem extends System {
             .playWithInstance(
                 soundInstanceId,
                 soundSpec.soundName(),
-                soundSpec.baseVolume(),
+                soundSpec.baseVolume() * Sounds.getEffectsVolume(),
                 soundSpec.looping(),
                 soundSpec.pitch(),
                 0,
@@ -218,6 +219,8 @@ public class SoundSystem extends System {
    *   <li>If distance > maxDistance -> mute sound.
    *   <li>If maxDistance < 0 -> global sound, no attenuation.
    *   <li>Otherwise apply distance attenuation and pan (pan reduced for distant sounds).
+   *   <li>Scale the volume by the master and effects volume settings, so changes to the settings
+   *       also reach sounds that are already playing.
    * </ul>
    *
    * @param playbackHandle handle for the playing sound instance
@@ -243,15 +246,18 @@ public class SoundSystem extends System {
 
     // Global sounds (no distance attenuation)
     if (soundSpec.maxDistance() <= 0f) {
-      var soundUpdate = ISoundPlayer.SoundUpdate.builder().build();
-      soundPlayer.get().updateSound(playbackHandle.instanceId(), soundUpdate);
+      var soundUpdate =
+          ISoundPlayer.SoundUpdate.builder()
+              .volume(soundSpec.baseVolume() * Sounds.getEffectsVolume());
+      soundPlayer.get().updateSound(playbackHandle.instanceId(), soundUpdate.build());
       return;
     }
 
     // Distance attenuation
     float attenuationRatio = (distance / soundSpec.maxDistance()) * soundSpec.attenuationFactor();
     float newVolume =
-        Math.clamp(soundSpec.maxDistance() * (1 - attenuationRatio), 0f, soundSpec.baseVolume());
+        Math.clamp(soundSpec.maxDistance() * (1 - attenuationRatio), 0f, soundSpec.baseVolume())
+            * Sounds.getEffectsVolume();
     // Pan based on horizontal offset, normalized and clamped to [-1, 1]
     float offsetX = entityPosition.x() - listenerPosition.x();
     float pan = Math.clamp(offsetX / PAN_NORMALIZATION_DISTANCE, -1f, 1f);

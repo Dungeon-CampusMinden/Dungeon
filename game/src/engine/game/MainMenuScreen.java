@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -32,6 +34,8 @@ import engine.network.client.CharacterOptionsClient;
 import engine.network.client.ClientConnectionConfig;
 import engine.network.messages.s2c.CharacterOptions;
 import engine.network.messages.s2c.ConnectReject;
+import engine.sound.CoreSounds;
+import engine.sound.Sounds;
 import engine.tracking.TrackingRuntime;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
@@ -229,6 +233,19 @@ public class MainMenuScreen extends ScreenAdapter {
                   return true;
                 }
                 return false;
+              }
+            });
+    // Capture phase: starting the game disposes the stage before a bubbling listener would run.
+    // BoolSetting plays its own sound for checkboxes.
+    stage
+        .getRoot()
+        .addCaptureListener(
+            new ChangeListener() {
+              @Override
+              public void changed(ChangeEvent event, Actor actor) {
+                if (actor instanceof Button && !(actor instanceof CheckBox)) {
+                  Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
+                }
               }
             });
     Gdx.input.setInputProcessor(stage);
