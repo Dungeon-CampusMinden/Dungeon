@@ -11,6 +11,7 @@ import java.util.List;
 import rooms.soulweaver.modules.decisions.DecisionMaze;
 import rooms.soulweaver.modules.decisions.DecisionMaze.Side;
 import rooms.soulweaver.modules.decisions.DecisionMaze.Values;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Server-owned progression. A blocked segment is resumed from its actual physical position. */
 final class SoulweaverDecisionRuntime {
@@ -23,7 +24,7 @@ final class SoulweaverDecisionRuntime {
   private int revision, junction, failures;
   private int driver = -1;
   private boolean active, moving, blocked, completed;
-  private String feedback = "Sechs Entscheidungsrunen trennen Nox vom Herzfeuer.";
+  private String feedback = SoulweaverText.key("decisions.feedback.intro");
   private Runnable arrival = () -> {};
 
   SoulweaverDecisionRuntime(DungeonLevel level, Entity golem, SoulweaverGolemRuntime motion) {
@@ -38,13 +39,12 @@ final class SoulweaverDecisionRuntime {
   void start() {
     if (active) return;
     active = true;
-    SoulweaverProgress.started(
-        "decisions", "Verfolge die sechs Runen und führe Nox zum Herzfeuer.");
-    feedback = "Nox betritt das Labyrinth. Steige mit E auf Nox auf.";
+    SoulweaverProgress.started("decisions", SoulweaverText.key("progress.task.decisions"));
+    feedback = SoulweaverText.key("decisions.feedback.enter");
     var approach = motion.workshopPath(SoulweaverDecisionWorld.START);
     if (approachBlocked(approach)) {
       blocked = true;
-      feedback = "Der Zugang ist blockiert. Räume den Weg frei und wähle Weiter.";
+      feedback = SoulweaverText.key("decisions.feedback.access-blocked");
       publish();
       return;
     }
@@ -52,7 +52,7 @@ final class SoulweaverDecisionRuntime {
     travel(
         points,
         () -> {
-          feedback = "Steige mit E auf Nox auf und lies die erste Rune.";
+          feedback = SoulweaverText.key("decisions.feedback.mount");
           publish();
           if (driver >= 0) enter();
         });
@@ -77,7 +77,7 @@ final class SoulweaverDecisionRuntime {
       return;
     }
     if (driver >= 0 && driver != who.id()) {
-      SoulweaverGolemRuntime.showText(who, "Ein anderer Spieler reitet Nox.");
+      SoulweaverGolemRuntime.showText(who, SoulweaverText.key("decisions.occupied"));
       return;
     }
     driver = who.id();
@@ -96,7 +96,7 @@ final class SoulweaverDecisionRuntime {
     travel(
         List.of(SoulweaverDecisionWorld.junction(0)),
         () -> {
-          feedback = "Lies von oben nach unten. Welcher Zweig f\u00fchrt zu LINKS oder RECHTS?";
+          feedback = SoulweaverText.key("decisions.feedback.read");
           publish();
         });
   }
@@ -129,17 +129,17 @@ final class SoulweaverDecisionRuntime {
           publish();
           return;
         }
-        feedback = "Nox setzt seinen Weg fort.";
+        feedback = SoulweaverText.key("decisions.feedback.continue");
         var points = new java.util.ArrayList<>(approach);
         points.add(SoulweaverDecisionWorld.junction(0));
         travel(
             points,
             () -> {
-              feedback = "Die erste Rune wartet.";
+              feedback = SoulweaverText.key("decisions.feedback.first-rune");
               publish();
             });
       } else {
-        feedback = "Nox setzt seinen Weg fort.";
+        feedback = SoulweaverText.key("decisions.feedback.continue");
         moving = true;
         publish();
         next();
@@ -198,27 +198,28 @@ final class SoulweaverDecisionRuntime {
                         assisted,
                         correct
                             ? List.of()
-                            : List.of("Ausgeführter Zweig führt zur anderen Tür."))));
+                            : List.of(
+                                SoulweaverText.german(
+                                    SoulweaverText.key("decisions.failure.other-door"))))));
     SoulweaverProgress.log(
         "decisions",
-        "Versuch " + (failures + 1),
-        "Kreuzung "
-            + (junction + 1)
-            + " · K"
-            + values.kraft()
-            + " E"
-            + values.energie()
-            + " T"
-            + values.temperatur()
+        SoulweaverText.key("decisions.log.attempt", failures + 1),
+        SoulweaverText.key(
+                "decisions.log.junction",
+                junction + 1,
+                values.kraft(),
+                values.energie(),
+                values.temperatur())
             + " · "
-            + (side == Side.LEFT ? "LINKS" : "RECHTS")
-            + (correct ? " · richtig" : " · falsch, zurück zum START")
-            + (assisted ? " (Hilfe)" : ""));
+            + SoulweaverText.key(side == Side.LEFT ? "decisions.code.left" : "decisions.code.right")
+            + " · "
+            + SoulweaverText.key(correct ? "decisions.log.correct" : "decisions.log.wrong")
+            + (assisted ? " " + SoulweaverText.key("progress.assisted") : ""));
     SoulweaverDecisionWorld.open(level, junction, side, correct);
     feedback =
         correct
-            ? "Die Tür führt weiter. Nox folgt dem ausgeführten Zweig."
-            : "Diese Tür führt zurück. Nox läuft durch den Rückgang zum START.";
+            ? SoulweaverText.key("decisions.feedback.door-onward")
+            : SoulweaverText.key("decisions.feedback.door-back");
     travel(
         SoulweaverDecisionWorld.route(junction, side, correct),
         () -> {
@@ -229,9 +230,7 @@ final class SoulweaverDecisionRuntime {
             if (junction == 6) {
               completed = true;
               motion.completeDecisions();
-              feedback =
-                  "Das Herzfeuer ist erreicht. Lies die Schriftrolle vor dem Feuer, "
-                      + "um die Opfergabe darzubringen und den Raum abzuschließen.";
+              feedback = SoulweaverText.key("decisions.feedback.heartfire");
               SoulweaverProgress.solved("decisions", feedback);
               // The ride ends at the goal; the rider walks to the inscription on foot.
               int rider = driver;
@@ -244,7 +243,7 @@ final class SoulweaverDecisionRuntime {
             failures++;
             junction = 0;
             values = DecisionMaze.start(failures);
-            feedback = "Zurück am START. Nox trägt neue Startwerte.";
+            feedback = SoulweaverText.key("decisions.feedback.back-at-start");
           }
           publish();
           if (!correct) {
@@ -252,7 +251,7 @@ final class SoulweaverDecisionRuntime {
             route.add(SoulweaverDecisionWorld.junction(0));
             arrival =
                 () -> {
-                  feedback = "Neue Werte, neue Entscheidung. Lies die Rune erneut.";
+                  feedback = SoulweaverText.key("decisions.feedback.new-values");
                   publish();
                 };
             publish();
@@ -285,7 +284,7 @@ final class SoulweaverDecisionRuntime {
         reason -> {
           moving = false;
           blocked = true;
-          feedback = reason + " Räume den Weg frei und wähle Weiter.";
+          feedback = reason + " " + SoulweaverText.key("decisions.feedback.clear-way");
           publish();
         });
   }
@@ -320,9 +319,9 @@ final class SoulweaverDecisionRuntime {
    * @return why tips are unavailable, or empty while Nox waits at a junction
    */
   String helpStatus() {
-    if (completed) return "Das Labyrinth ist geschafft.";
-    if (moving) return "Nox ist unterwegs. Tipps gibt es wieder an der nächsten Kreuzung.";
-    if (blocked) return "Wähle Weiter, damit Nox zur nächsten Kreuzung läuft.";
+    if (completed) return SoulweaverText.key("decisions.help.completed");
+    if (moving) return SoulweaverText.key("decisions.help.moving");
+    if (blocked) return SoulweaverText.key("decisions.help.blocked");
     return "";
   }
 

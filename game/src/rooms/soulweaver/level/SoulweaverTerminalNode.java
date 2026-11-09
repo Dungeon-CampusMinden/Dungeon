@@ -19,6 +19,7 @@ import rooms.soulweaver.modules.loops.LoopMaze;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
 import rooms.soulweaver.modules.loops.LoopRune;
 import rooms.soulweaver.modules.loops.TerminalState;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Room-specific map, program cards and the single execution slot. */
 final class SoulweaverTerminalNode extends CanvasNode {
@@ -140,17 +141,18 @@ final class SoulweaverTerminalNode extends CanvasNode {
   }
 
   private String caption() {
-    if (kind.equals("help"))
-      return "schritt(): ein Feld vorwärts\nspringen(): über eine Grube, zwei Felder\nangreifen(): Gegner direkt voraus\nbodenVoraus(): Boden, auch mit Gegner\namWegzeichen(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung";
+    if (kind.equals("help")) return SoulweaverText.text("terminal.commands");
     if (kind.equals("status")) {
-      return state == null ? "Eine Rune hier ablegen" : state.status();
+      return state == null
+          ? SoulweaverText.text("terminal.drop-rune")
+          : SoulweaverText.translate(state.status());
     }
     return "";
   }
 
   private String slotCaption() {
     if (state == null || state.activeRune().isEmpty()) return "";
-    return state.busy() ? "Gesperrt" : "Herausziehen";
+    return SoulweaverText.text(state.busy() ? "terminal.locked" : "terminal.pull-out");
   }
 
   @Override
@@ -159,9 +161,9 @@ final class SoulweaverTerminalNode extends CanvasNode {
     heading =
         SoulweaverUI.zoomLabel(
             switch (kind) {
-              case "map" -> "Keller";
-              case "status" -> "Executor";
-              default -> "Befehle";
+              case "map" -> SoulweaverText.text("terminal.heading.map");
+              case "status" -> SoulweaverText.text("terminal.heading.executor");
+              default -> SoulweaverText.text("terminal.heading.commands");
             },
             22,
             SoulweaverUI.TEXT);

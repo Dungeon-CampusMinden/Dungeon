@@ -39,6 +39,7 @@ import rooms.soulweaver.SoulweaverRoomController;
 import rooms.soulweaver.modules.loops.LoopMaze;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
 import rooms.soulweaver.modules.variables.VariablePuzzle;
+import rooms.soulweaver.util.SoulweaverText;
 import testingUtils.MockNetworkHandler;
 
 /** Executes real loop instructions and movement against the generated cellar geometry. */
@@ -137,16 +138,22 @@ class SoulweaverGolemMovementTest {
   @Test
   void longRuneReachesCorridorEndBeforeReportingWall() {
     runtime.executeRune("archive-long", player);
-    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains("Wand"); i++) {
+    for (int i = 0;
+        i < 2000
+            && !runtime.terminalState().status().contains(SoulweaverText.key("golem.wall-reached"));
+        i++) {
       Point previous = position.position();
       tick();
       assertTrue(
           Point.calculateDistance(previous, position.position())
               <= 2.5f / Game.frameRate() + .001f);
       if (position.position().x() < ORIGIN.x() + 4 * LoopMaze.CELL_WIDTH - .01f)
-        assertFalse(runtime.terminalState().status().contains("Wand"));
+        assertFalse(
+            runtime.terminalState().status().contains(SoulweaverText.key("golem.wall-reached")));
     }
-    assertTrue(runtime.terminalState().status().contains("Wand"), runtime.terminalState().status());
+    assertTrue(
+        runtime.terminalState().status().contains(SoulweaverText.key("golem.wall-reached")),
+        runtime.terminalState().status());
     float feetRight = position.position().x() + 61f / 64f * position.scale().x();
     assertEquals(
         ORIGIN.x() + 5 * LoopMaze.CELL_WIDTH,
@@ -180,7 +187,13 @@ class SoulweaverGolemMovementTest {
     position.position(LoopMaze.world(ORIGIN, LoopMaze.checkpoints().get(checkpoint).start()));
     runtime.faceWorkshop(LoopMaze.checkpoints().get(checkpoint).facing());
     runtime.executeRune(rune, player);
-    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains("bestätigt"); i++) {
+    for (int i = 0;
+        i < 2000
+            && !runtime
+                .terminalState()
+                .status()
+                .contains(SoulweaverText.key("golem.position-confirmed"));
+        i++) {
       tick();
       assertEquals(
           (position.position().x() - ORIGIN.x()) / LoopMaze.CELL_WIDTH,
@@ -192,7 +205,8 @@ class SoulweaverGolemMovementTest {
           .0001f);
     }
     assertTrue(
-        runtime.terminalState().status().contains("bestätigt"), runtime.terminalState().status());
+        runtime.terminalState().status().contains(SoulweaverText.key("golem.position-confirmed")),
+        runtime.terminalState().status());
     assertEquals(
         LoopMaze.world(ORIGIN, LoopMaze.checkpoints().get(checkpoint).goal()), position.position());
   }
@@ -215,8 +229,15 @@ class SoulweaverGolemMovementTest {
   void interruptedStepReturnsFromActualPositionAndWaitsForBlockedReturn() {
     blocked.add(new Coordinate(27, 20));
     runtime.executeRune("forge-press-for", player);
-    for (int i = 0; i < 300 && !runtime.terminalState().status().contains("gestoppt"); i++) tick();
-    assertTrue(runtime.terminalState().status().contains("gestoppt"));
+    for (int i = 0;
+        i < 300
+            && !runtime
+                .terminalState()
+                .status()
+                .contains(SoulweaverText.key("golem.program-stopped"));
+        i++) tick();
+    assertTrue(
+        runtime.terminalState().status().contains(SoulweaverText.key("golem.program-stopped")));
     Point stopped = position.position();
     assertTrue(stopped.x() > ORIGIN.x());
     assertTrue(stopped.x() < ORIGIN.x() + LoopMaze.CELL_WIDTH);

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import rooms.soulweaver.modules.loops.LoopExecution;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Server-owned hint stages release requested tips without publishing future answers. */
 public final class SoulweaverHelp {
@@ -94,19 +95,10 @@ public final class SoulweaverHelp {
       if (runtime.terminalState().collectedRunes().stream()
           .noneMatch(rune -> rune.startsWith(family + "-")))
         status +=
-            " Noch keine Rune für diesen Abschnitt gesammelt. "
-                + switch (checkpoint) {
-                  case 0 ->
-                      "Eine passende orange for-Rune liegt im Runenarchiv auf der unteren Tischreihe ganz links.";
-                  case 1 ->
-                      "Eine passende blaue while-Rune liegt im Runenarchiv auf der unteren Tischreihe, an zweiter Stelle von links.";
-                  case 2 ->
-                      "Eine passende blaue while-Rune liegt im Runenarchiv auf dem mittleren Tisch der unteren Reihe, an dessen linkem Ende.";
-                  case 3 ->
-                      "Eine passende violette do-while-Rune liegt im Runenarchiv auf der mittleren Tischreihe ganz links.";
-                  default ->
-                      "Eine passende orange for-Rune liegt im Runenarchiv auf dem rechten Tisch der unteren Reihe, links neben der letzten Rune.";
-                };
+            " "
+                + SoulweaverText.key("help.no-rune")
+                + " "
+                + SoulweaverText.key("help.rune-location." + checkpoint);
     }
     return new State(
         id,
@@ -133,7 +125,11 @@ public final class SoulweaverHelp {
       String hint = hints(expected).get(step - 1);
       history.add(new ReleasedHint(expected, state.title(), step, hint));
       SoulweaverProgress.hint(
-          expected, "step-" + step, state.title() + " · Tipp " + step, hint, who);
+          expected,
+          "step-" + step,
+          SoulweaverText.key("help.tip-title", state.title(), step),
+          hint,
+          who);
       if (step == 3) SoulweaverProgress.interaction(expected, "simplification", who);
     } else if (event.equals("help.solve")) {
       if (!state.canSolve() || !runtime.helpSolveAuthorized(who)) return;
@@ -210,7 +206,7 @@ public final class SoulweaverHelp {
   }
 
   /**
-   * Serializes released hint references; their static titles and texts are already on each client.
+   * Serializes released hint references; each client resolves their static titles and texts.
    *
    * @param state authoritative help snapshot
    * @return compact help snapshot
@@ -297,65 +293,23 @@ public final class SoulweaverHelp {
   }
 
   private static String title(String id) {
-    return switch (id) {
-      case "vessels" -> "Gefäße zuordnen";
-      case "essences" -> "Essenzen einsetzen";
-      case "methods" -> "Werkstattprogramm kürzen";
-      case "decisions" -> "Labyrinth der Entscheidungen";
-      default -> "Kellerauftrag " + (Integer.parseInt(id.substring(7)) + 1);
-    };
+    return id.startsWith("cellar-")
+        ? SoulweaverText.key("help.title.cellar", Integer.parseInt(id.substring(7)) + 1)
+        : SoulweaverText.key("help.title." + id);
   }
 
   private static String goal(String id) {
-    return switch (id) {
-      case "vessels" -> "Gib jeder Eigenschaft ein Gefäß für ihren Datentyp.";
-      case "essences" -> "Fülle die Gefäße mit den Werten aus Valerius' Bindungsplan.";
-      case "methods" ->
-          "Erledige alle Arbeitsstellen mit höchstens acht Hauptblöcken und wiederverwendbaren Methoden.";
-      case "decisions" ->
-          "Führe die Rune mit Nox' aktuellen Werten aus und wähle die Tür des ausgeführten Zweigs.";
-      default -> "Bringe Nox zur Zielmarke und richte ihn für den Räumauftrag aus.";
-    };
+    return SoulweaverText.key("help.goal." + (id.startsWith("cellar-") ? "cellar" : id));
   }
 
   private static List<String> hints(String id) {
-    return switch (id) {
-      case "vessels" ->
-          List.of(
-              "Öffne die Gefäß-Kiste. Lies dann Valerius' Bindungsplan und ordne die Gefäße an der Bindungsfläche zu.",
-              "Achte auf die Art des Wertes: Text, ganze Zahl, Bruchzahl, Wahrheitswert oder einzelnes Zeichen. Die Gefäße tragen passende Prägungen.",
-              "Die nächste offene Fassung ist markiert. Nur passende Gefäße bleiben sichtbar. Ordne ein passendes Gefäß zu.");
-      case "essences" ->
-          List.of(
-              "Öffne die Essenz-Kiste, falls das Essenzfach noch leer ist. Lies dann die gewünschten Werte in Valerius' Bindungsplan und setze Essenzen in die Fassungen.",
-              "Ein passender Datentyp allein reicht nicht. Jeder Wert muss auch dem Bindungsplan entsprechen. Eine neue Essenz überschreibt den alten Wert.",
-              "Die nächste offene Fassung ist markiert. Nur passende Essenzen bleiben sichtbar. Setze den Wert aus dem Bindungsplan ein.");
-      case "methods" ->
-          List.of(
-              "Nox arbeitet die verbundenen Hauptblöcke ab. Vergleiche das lange Ausgangsprogramm mit den Arbeitsstellen und fasse wiederholte Abschnitte zusammen.",
-              "Höchstens acht Hauptblöcke und sechs Blöcke je Methode. Rufe eine Methode mit Parametern mehrfach auf und verwende einen Rückgabewert. Beide Altäre müssen gefüllt sein; Nox und kristalle müssen am Ende 0 haben.",
-              "Die Werkbank markiert jetzt wiederholte Anweisungen und veränderliche Eingaben in Gold. Nutze Richtung und Menge als Parameter. Sammeln gibt die Menge zurück; der Aufrufer addiert sie zu kristalle und zieht abgelegte Mengen wieder ab.");
-      case "decisions" ->
-          List.of(
-              "Lies die Rune von oben nach unten. Setze Nox' aktuelle Werte in die erste Bedingung ein. Ist sie wahr, gilt der eingerückte Block darunter, sonst der Block nach dem zugehörigen SONST.",
-              "Prüfe nur die Bedingungen auf deinem Weg; übersprungene Blöcke zählen nicht. Bei UND müssen beide Teile wahr sein, bei ODER reicht einer. Achte auf > und >=: 50 > 50 ist falsch, 50 >= 50 ist wahr.",
-              "Das Runenbuch setzt jetzt Nox' aktuelle Werte in die Bedingungen ein. Vergleiche nur noch die Zahlen und folge dem Zweig, dessen Bedingung wahr ist.");
-      default ->
-          List.of(
-              "Beobachte Nox und die Zielmarke am Sehstein. Sammle Programmrunen im Archiv und lege in der Kellersteuerung eine Rune in den Executor.",
-              switch (id) {
-                case "cellar-0" ->
-                    "Prüfe die Zahl der Schritte und die abschließende Linksdrehung. Eine vorab geprüfte Bedingung kann schon am Start falsch sein.";
-                case "cellar-1" ->
-                    "Prüfe, wann die Bedingung ausgewertet wird und wie weit die Schleife läuft. Boden voraus und Zielmarke sind verschiedene Bedingungen. Prüfe auch die Schlussdrehung.";
-                case "cellar-2" ->
-                    "Ein Eindringling versperrt den Weg. Der Angriff muss vor dem Schritt auf sein Feld erfolgen. Prüfe auch die Schlussdrehung.";
-                case "cellar-3" ->
-                    "Vor Nox liegt eine Grube. Springe darüber, bevor du weitergehst. Wiederhole den passenden Bewegungsblock und prüfe die Schlussdrehung.";
-                default ->
-                    "Der Weg hat wiederholte Knicke. Verfolge einen ganzen Schleifenrumpf aus Schritten und Drehungen, dann die Anzahl der Wiederholungen.";
-              },
-              "Die Kellersteuerung zeigt jetzt die Runenfamilie für diesen Abschnitt und markiert den Weg. Vergleiche ihre Schleifen. Falls keine Rune angezeigt wird, sammle diese Familie im Runenarchiv.");
-    };
+    if (!id.startsWith("cellar-"))
+      return java.util.stream.IntStream.rangeClosed(1, 3)
+          .mapToObj(step -> SoulweaverText.key("help.hint." + id + "." + step))
+          .toList();
+    return List.of(
+        SoulweaverText.key("help.hint.cellar.1"),
+        SoulweaverText.key("help.hint.cellar.2." + id.substring(7)),
+        SoulweaverText.key("help.hint.cellar.3"));
   }
 }

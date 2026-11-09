@@ -12,6 +12,7 @@ import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import java.util.Optional;
 import rooms.soulweaver.modules.loops.TerminalState;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Keeps live server updates separate from the player's canvas arrangement. */
 final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
@@ -50,13 +51,12 @@ final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
     super(
         SoulweaverTerminal.ID,
         dialogId,
-        "Nox · Kellersteuerung",
-        "Ziehe eine Rune in den Executor und führe Nox zu den fünf Wegzeichen.",
+        SoulweaverText.text("terminal.title"),
+        SoulweaverText.text("terminal.goal"),
         SoulweaverTerminal.nodes(initial));
     footer.clearChildren();
     footer.add(status).growX().padTop(8);
-    help(
-        "Starten: Rune in den Executor ziehen.\nCode lesen: Maus über eine Rune halten.\nWechseln: Nach einem Fehlversuch ist der Executor wieder frei. Sonst Rune herausziehen oder ersetzen.\nBeobachten: Die Karte zeigt Nox und das nächste Wegzeichen.");
+    help(SoulweaverText.text("terminal.controls"));
     update(initial);
     tooltip.setTransform(false);
     tooltip.setTouchable(Touchable.disabled);
@@ -130,8 +130,8 @@ final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
             .map(
                 s ->
                     s.status().isBlank()
-                        ? "Gold zeigt den aktuellen Weg. Nur passende Runengruppen sind sichtbar."
-                        : s.status())
+                        ? SoulweaverText.text("terminal.simplified")
+                        : SoulweaverText.translate(s.status()))
             .orElse(""));
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       String id = state.collectedRunes().get(i);

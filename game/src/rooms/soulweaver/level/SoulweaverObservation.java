@@ -32,6 +32,7 @@ import feature.utils.EntityUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Live camera observation while the server continues executing the golem's program. */
 public final class SoulweaverObservation {
@@ -156,7 +157,7 @@ public final class SoulweaverObservation {
       addActor(torches);
       header =
           SoulweaverUI.header(
-              "Nox · Kellerbeobachtung",
+              SoulweaverText.text("observation.title"),
               torchHint(),
               () ->
                   feature.hud.dialogs.DialogCallbackResolver.createButtonCallback(
@@ -180,7 +181,9 @@ public final class SoulweaverObservation {
       float headerHeight = getWidth() < 1180 ? 112 : 68;
       header.setBounds(20, getHeight() - headerHeight - 20, getWidth() - 40, headerHeight);
       label.setBounds(36, 32, Math.min(660, getWidth() - 72), 56);
-      if (!cinematic) SoulweaverTerminal.state().ifPresent(state -> label.setText(state.status()));
+      if (!cinematic)
+        SoulweaverTerminal.state()
+            .ifPresent(state -> label.setText(SoulweaverText.translate(state.status())));
       if (camera.target().isEmpty() && getStage() != null) {
         Game.findEntityById(golemId)
             .ifPresent(
@@ -236,7 +239,9 @@ public final class SoulweaverObservation {
 
     private static com.badlogic.gdx.scenes.scene2d.ui.Table torchHint() {
       var hint = new com.badlogic.gdx.scenes.scene2d.ui.Table();
-      hint.add(SoulweaverUI.label("Fackeln anklicken: an / aus", 17, SoulweaverUI.TEXT)).width(260);
+      hint.add(
+              SoulweaverUI.label(SoulweaverText.text("observation.torches"), 17, SoulweaverUI.TEXT))
+          .width(260);
       return hint;
     }
 

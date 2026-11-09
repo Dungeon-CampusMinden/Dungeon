@@ -44,6 +44,7 @@ import rooms.soulweaver.modules.variables.SoulVessel;
 import rooms.soulweaver.modules.variables.VariablePuzzle;
 import rooms.soulweaver.state.SoulweaverPhase;
 import rooms.soulweaver.state.VariablePuzzleStage;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Server-owned assignment dialogs and collision-checked movement of the one shared golem. */
 final class SoulweaverGolemRuntime {
@@ -95,13 +96,13 @@ final class SoulweaverGolemRuntime {
   private boolean busy;
   private boolean breakingGate;
   private float pause;
-  private String status = "Seelenbindung unvollständig.";
+  private String status = SoulweaverText.key("golem.binding-incomplete");
   private String returnFeedback = "";
   private boolean essencesCollected;
   private boolean vesselsCollected;
   private int loopFailures;
   private int checkpointFailures;
-  private String bindingFeedback = "Gefäße und Essenzen fehlen. Öffne die beiden Werkstattkisten.";
+  private String bindingFeedback = SoulweaverText.key("binding.feedback.supplies-missing");
 
   SoulweaverGolemRuntime(DungeonLevel level, Entity golem) {
     this.level = level;
@@ -125,7 +126,7 @@ final class SoulweaverGolemRuntime {
     } else if (controller.phase() == SoulweaverPhase.VARIABLES) {
       SoulweaverBinding.open(who, this);
     } else if (controller.phase() == SoulweaverPhase.METHODS) {
-      text(who, "Valerius' Pr\u00fcfungsbuch liegt am Eingang zur Werkstatt.");
+      text(who, SoulweaverText.key("golem.trial-book"));
     } else {
       showTerminal(who);
     }
@@ -145,20 +146,21 @@ final class SoulweaverGolemRuntime {
     String marker = essenceChest ? "variables-essences" : "variables-vessels";
     if (!authorized(who, marker, 3f)) return;
     if (essenceChest ? essencesCollected : vesselsCollected) {
-      showText(who, "Die Kiste ist leer.");
+      showText(who, SoulweaverText.key("binding.chest-empty"));
       return;
     }
     if (essenceChest) essencesCollected = true;
     else vesselsCollected = true;
     bindingFeedback =
-        essencesCollected && vesselsCollected
-            ? "Gefäße zuordnen und Essenzen einsetzen. Valerius' Bindungsplan liegt beim Golem."
-            : essencesCollected ? "Gefäßvorrat fehlt." : "Essenzfach fehlt.";
+        SoulweaverText.key(
+            essencesCollected && vesselsCollected
+                ? "binding.feedback.supplies-ready"
+                : essencesCollected
+                    ? "binding.feedback.vessels-missing"
+                    : "binding.feedback.essences-missing");
     showText(
         who,
-        essenceChest
-            ? "Essenzen eingepackt. Valerius' Bindungsplan nennt den Wert für jede Fassung. Der Vorrat reicht für mehrere Fassungen."
-            : "Seelengefäße eingepackt. Jedes Gefäß trägt eine Prägung für seinen Inhalt. Der Vorrat reicht für mehrere Fassungen.");
+        SoulweaverText.key(essenceChest ? "binding.essences-packed" : "binding.vessels-packed"));
   }
 
   void assignBinding(Entity who, String propertyName, String value, boolean vessel) {
@@ -179,31 +181,41 @@ final class SoulweaverGolemRuntime {
             true,
             VariablePuzzle.vesselSolution().get(property) == selected
                 ? List.of()
-                : List.of("Falscher Gefäßtyp für " + property.label() + "."));
+                : List.of(
+                    SoulweaverText.key(
+                        "binding.failure.wrong-vessel", SoulweaverText.key(property.labelKey()))));
         logBinding(
             true,
-            property.label() + ": " + selected.label(),
-            VariablePuzzle.vesselSolution().get(property) == selected
-                ? "richtig"
-                : "falscher Gefäßtyp");
+            SoulweaverText.key(
+                "binding.log.vessel",
+                SoulweaverText.key(property.labelKey()),
+                SoulweaverText.key(selected.labelKey())),
+            SoulweaverText.key(
+                VariablePuzzle.vesselSolution().get(property) == selected
+                    ? "binding.log.correct"
+                    : "binding.log.wrong-vessel"));
         if (VariablePuzzle.vesselSolution().get(property) != selected) {
           bindingFeedback =
               selected == SoulVessel.CRYSTAL_BOTTLE
                       && VariablePuzzle.vesselSolution().get(property) == SoulVessel.IRON_CHEST
-                  ? "Die Kristallflasche fasst auch ganze Zahlen. Valerius verwendet hier die Eisenkiste; Kristall ist für Bruchteile vorgesehen."
-                  : selected.label()
-                      + " trägt: "
-                      + selected.capacity()
-                      + ". Wähle ein Gefäß, das zum benötigten Wert passt.";
+                  ? SoulweaverText.key("binding.feedback.crystal-for-whole-number")
+                  : SoulweaverText.key(
+                      "binding.feedback.vessel-holds",
+                      SoulweaverText.key(selected.labelKey()),
+                      SoulweaverText.key(selected.capacityKey()));
           return;
         }
         vessels.put(property, selected);
-        bindingFeedback = property.label() + ": " + selected.label() + " eingesetzt.";
+        bindingFeedback =
+            SoulweaverText.key(
+                "binding.feedback.vessel-set",
+                SoulweaverText.key(property.labelKey()),
+                SoulweaverText.key(selected.labelKey()));
         if (vessels.size() == GolemProperty.values().length) {
           controller.submitVessels(vessels);
-          SoulweaverProgress.solved("vessels", "Alle Gefäße sind zugeordnet.");
-          SoulweaverProgress.started("essences", "Setze die Werte aus dem Bindungsplan ein.");
-          bindingFeedback = "Alle Gefäße eingesetzt. Fehlende Füllungen ergänzen.";
+          SoulweaverProgress.solved("vessels", SoulweaverText.key("binding.vessels-solved"));
+          SoulweaverProgress.started("essences", SoulweaverText.key("progress.task.essences"));
+          bindingFeedback = SoulweaverText.key("binding.feedback.vessels-complete");
         }
       } else {
         MagicalEssence selected = MagicalEssence.valueOf(value);
@@ -214,40 +226,45 @@ final class SoulweaverGolemRuntime {
             selected.name(),
             false,
             container == null
-                ? List.of("Gefäß fehlt für " + property.label() + ".")
+                ? List.of(
+                    SoulweaverText.key(
+                        "binding.failure.vessel-missing", SoulweaverText.key(property.labelKey())))
                 : !VariablePuzzle.fits(container, selected)
                     ? List.of(
-                        "Falscher Datentyp: "
-                            + selected.literal()
-                            + " passt nicht in "
-                            + container.label()
-                            + ".")
+                        SoulweaverText.key(
+                            "binding.failure.wrong-type",
+                            selected.literal(),
+                            SoulweaverText.key(container.labelKey())))
                     : VariablePuzzle.essenceSolution().get(property) != selected
                         ? List.of(
-                            "Falscher Wert für "
-                                + property.label()
-                                + ": "
-                                + selected.literal()
-                                + ".")
+                            SoulweaverText.key(
+                                "binding.failure.wrong-value",
+                                SoulweaverText.key(property.labelKey()),
+                                selected.literal()))
                         : List.of());
         logBinding(
             false,
-            property.label() + " = " + selected.literal(),
+            SoulweaverText.key(
+                "binding.log.essence", SoulweaverText.key(property.labelKey()), selected.literal()),
             container == null
-                ? "Gefäß fehlt"
+                ? SoulweaverText.key("binding.log.vessel-missing")
                 : !VariablePuzzle.fits(container, selected)
-                    ? "passt nicht in " + container.label()
-                    : VariablePuzzle.essenceSolution().get(property) != selected
-                        ? "falscher Wert"
-                        : "richtig");
+                    ? SoulweaverText.key(
+                        "binding.log.does-not-fit", SoulweaverText.key(container.labelKey()))
+                    : SoulweaverText.key(
+                        VariablePuzzle.essenceSolution().get(property) != selected
+                            ? "binding.log.wrong-value"
+                            : "binding.log.correct"));
         if (container == null || !VariablePuzzle.fits(container, selected)) {
           if (container != null && !solvingBinding) SoulweaverAchievements.WRONG_TYPE.unlock(who);
           bindingFeedback =
-              selected.literal()
-                  + " passt nicht in "
-                  + (container == null
-                      ? "diese Fassung."
-                      : container.label() + ". " + container.capacity() + ".");
+              container == null
+                  ? SoulweaverText.key("binding.feedback.no-vessel", selected.literal())
+                  : SoulweaverText.key(
+                      "binding.feedback.does-not-fit",
+                      selected.literal(),
+                      SoulweaverText.key(container.labelKey()),
+                      SoulweaverText.key(container.capacityKey()));
           return;
         }
         MagicalEssence previous = essences.put(property, selected);
@@ -257,19 +274,17 @@ final class SoulweaverGolemRuntime {
             && property == GolemProperty.ACTIVATED
             && selected == MagicalEssence.BOOLEAN_FALSE) SoulweaverAchievements.SLEEPY.unlock(who);
         bindingFeedback =
-            property.label()
-                + " = "
-                + selected.literal()
-                + " gespeichert."
-                + (VariablePuzzle.essenceSolution().get(property) == selected
-                    ? ""
-                    : " Bindung reagiert nicht.");
+            SoulweaverText.key(
+                VariablePuzzle.essenceSolution().get(property) == selected
+                    ? "binding.feedback.stored"
+                    : "binding.feedback.stored-no-reaction",
+                SoulweaverText.key(property.labelKey()),
+                selected.literal());
         if (VariablePuzzle.essencesCorrect(essences)) {
           controller.submitEssences(essences);
-          SoulweaverProgress.solved(
-              "essences", "Die Seelenbindung ist vollständig. Aktiviere Nox.");
+          SoulweaverProgress.solved("essences", SoulweaverText.key("binding.essences-solved"));
           SoulweaverAchievements.BOUND.unlock();
-          bindingFeedback = "Seelenbindung vollständig. Gefäß, Name und Wert bilden eine Variable.";
+          bindingFeedback = SoulweaverText.key("binding.feedback.complete");
         }
       }
     } catch (IllegalArgumentException ignored) {
@@ -287,7 +302,8 @@ final class SoulweaverGolemRuntime {
       if (essences.remove(property) == null
           && controller.variableStage() == VariablePuzzleStage.VESSELS) vessels.remove(property);
       SoulweaverProgress.interaction(helpPuzzle(), "clear-" + property.name(), who);
-      bindingFeedback = property.label() + ": Fassung geleert.";
+      bindingFeedback =
+          SoulweaverText.key("binding.feedback.cleared", SoulweaverText.key(property.labelKey()));
     } catch (IllegalArgumentException ignored) {
       // Ignore unknown property IDs.
     }
@@ -306,7 +322,7 @@ final class SoulweaverGolemRuntime {
     List<Point> path = path(position.position(), destination);
     if (path.isEmpty() && Point.calculateDistance(position.position(), destination) > 0.1f) {
       breakingGate = false;
-      text(who, "Aktivierung unterbrochen. Laufweg blockiert.");
+      text(who, SoulweaverText.key("golem.activation-blocked"));
       return;
     }
     if (!controller.activateGolem()) {
@@ -314,7 +330,7 @@ final class SoulweaverGolemRuntime {
       return;
     }
     SoulweaverProgress.interaction("essences", "activate-golem", who);
-    status = "Aktivierung läuft.";
+    status = SoulweaverText.key("golem.activating");
     SoulweaverBinding.closeAll();
     move(
         path,
@@ -344,13 +360,13 @@ final class SoulweaverGolemRuntime {
         LoopMaze.world(level.getPoint("maze-origin"), LoopMaze.checkpoints().getFirst().start()));
     PositionSync.syncPosition(golem);
     mazeReady = true;
-    SoulweaverProgress.started("cellar-0", "Bringe Nox zur ersten Zielmarke und richte ihn aus.");
+    SoulweaverProgress.started("cellar-0", SoulweaverText.key("progress.task.first-marker"));
     Game.levelEntities()
         .filter(entity -> entity.name().equals("soulweaver-loop-monitor"))
         .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
         .forEach(draw -> draw.stateMachine().setState("active", null));
     face(LoopMaze.checkpoints().getFirst().facing());
-    status = "Keller erreicht. Räumauftrag bereit.";
+    status = SoulweaverText.key("golem.cellar-reached");
     Soulweaver.saveCheckpoint(SoulweaverPhase.LOOPS);
   }
 
@@ -523,7 +539,7 @@ final class SoulweaverGolemRuntime {
     mazeReady = false;
     SoulweaverGates.departure(level, true);
     workshopTransit = true;
-    status = "Der Schutt ist beseitigt. Die Winde leider auch.";
+    status = SoulweaverText.key("golem.rubble-cleared");
     Game.allPlayers().forEach(player -> showText(player, status));
     awaitingWorkshopRoute = true;
     beginWorkshopReturn();
@@ -660,20 +676,19 @@ final class SoulweaverGolemRuntime {
     if (success) {
       String challenge = currentChallenge();
       busy = true;
-      status = "Programm beendet. Arbeitsposition bestätigt.";
+      status = SoulweaverText.key("golem.position-confirmed");
       pause = 1f;
       arrived =
           () -> {
             busy = true;
-            status = "Räumauftrag läuft. Steuerprogramm beendet.";
+            status = SoulweaverText.key("golem.clearing");
             machinery.clear(
                 controller.completedLoops(),
                 () -> {
                   controller.completeExecutedLoop(challenge);
                   recordLoopOutcome(List.of());
                   SoulweaverProgress.solved(
-                      attemptPuzzle,
-                      "Nox hat die Zielmarke erreicht und den Räumauftrag erledigt.");
+                      attemptPuzzle, SoulweaverText.key("golem.cellar-solved"));
                   if (controller.completedLoops() == 1) SoulweaverAchievements.FIRST_ROUTE.unlock();
                   if (checkpointFailures > 0) SoulweaverAchievements.SECOND_TRY.unlock();
                   checkpointFailures = 0;
@@ -686,9 +701,9 @@ final class SoulweaverGolemRuntime {
                   }
                   SoulweaverProgress.started(
                       "cellar-" + controller.completedLoops(),
-                      "Bringe Nox zur nächsten Zielmarke und richte ihn aus.");
+                      SoulweaverText.key("progress.task.next-marker"));
                   busy = false;
-                  status = "Räumauftrag erledigt. Nächste Arbeitsposition bereit.";
+                  status = SoulweaverText.key("golem.next-position");
                 });
           };
     } else {
@@ -696,9 +711,9 @@ final class SoulweaverGolemRuntime {
       checkpointFailures++;
       returnFeedback =
           reason.isEmpty()
-              ? "Programm beendet. " + missedGoal(finished)
-              : "Programm gestoppt. " + reason;
-      status = returnFeedback + " Nox kehrt zurück.";
+              ? SoulweaverText.key("golem.program-finished") + " " + missedGoal(finished)
+              : SoulweaverText.key("golem.program-stopped") + " " + reason;
+      status = returnFeedback + " " + SoulweaverText.key("golem.returning");
       returning = true;
       busy = true;
       pause = 1.5f;
@@ -717,8 +732,8 @@ final class SoulweaverGolemRuntime {
    */
   private String missedGoal(LoopExecution finished) {
     return finished.cell().equals(LoopMaze.checkpoints().get(controller.completedLoops()).goal())
-        ? "Blickrichtung falsch."
-        : "Zielmarke nicht erreicht.";
+        ? SoulweaverText.key("golem.wrong-facing")
+        : SoulweaverText.key("golem.marker-missed");
   }
 
   private void resetAttempt() {
@@ -738,7 +753,7 @@ final class SoulweaverGolemRuntime {
     route.clear();
     busy = false;
     returning = false;
-    status = returnFeedback + " Nox ist zurück an der Arbeitsposition.";
+    status = returnFeedback + " " + SoulweaverText.key("golem.returned");
     if (activeRune.equals("archive-spin")) SoulweaverAchievements.SPIN.unlock();
     activeRune = "";
   }
@@ -845,8 +860,8 @@ final class SoulweaverGolemRuntime {
           || CollisionUtils.isCollidingWithOtherSolids(golem, airborne)) {
         if (returning) {
           actionTime -= delta;
-          status = returnFeedback + " Nox wartet auf einen freien Rückweg.";
-        } else finishAttempt(false, "Sprungbahn blockiert.");
+          status = returnFeedback + " " + SoulweaverText.key("golem.waiting-return");
+        } else finishAttempt(false, SoulweaverText.key("golem.jump-blocked"));
         return;
       }
       position.position(airborne);
@@ -868,7 +883,7 @@ final class SoulweaverGolemRuntime {
       }
       route.clear();
       busy = false;
-      status = "Bewegung unterbrochen. Laufweg blockiert.";
+      status = SoulweaverText.key("golem.movement-blocked");
       if (attempt != null) finishAttempt(false, status);
       else notifyMovementFailure(status);
       return;
@@ -897,7 +912,7 @@ final class SoulweaverGolemRuntime {
       }
       route.clear();
       busy = false;
-      status = "Wand oder Hindernis erreicht. Bewegung gestoppt.";
+      status = SoulweaverText.key("golem.wall-reached");
       if (attempt != null) finishAttempt(false, status);
       else notifyMovementFailure(status);
       return;
@@ -920,10 +935,8 @@ final class SoulweaverGolemRuntime {
    */
   private String waitingStatus() {
     return returning
-        ? returnFeedback + " Nox wartet auf einen freien Rückweg."
-        : workshopTransit
-            ? "Nox wartet auf einen freien Weg in der Werkstatt."
-            : "Nox wartet auf einen freien Weg zur Schleuse.";
+        ? returnFeedback + " " + SoulweaverText.key("golem.waiting-return")
+        : SoulweaverText.key(workshopTransit ? "golem.waiting-workshop" : "golem.waiting-airlock");
   }
 
   /**
@@ -1151,7 +1164,9 @@ final class SoulweaverGolemRuntime {
                     property.name() + "=" + selected,
                     participant,
                     new engine.tracking.AttemptDetails(
-                        help.level(vessel ? "vessels" : "essences"), false, failureReasons)));
+                        help.level(vessel ? "vessels" : "essences"),
+                        false,
+                        failureReasons.stream().map(SoulweaverText::german).toList())));
   }
 
   /**
@@ -1178,25 +1193,28 @@ final class SoulweaverGolemRuntime {
                     answer,
                     participant,
                     new engine.tracking.AttemptDetails(help.level(puzzle), true, List.of())));
-    logBinding(vessel, "Lösung eingesetzt", "Hilfe");
+    logBinding(
+        vessel, SoulweaverText.key("binding.log.solution"), SoulweaverText.key("binding.log.help"));
   }
 
   private void logBinding(boolean vessel, String entry, String outcome) {
     if (solvingBinding) return;
     SoulweaverProgress.log(
         vessel ? "vessels" : "essences",
-        vessel ? "Gefäße zuordnen" : "Essenzen einsetzen",
+        SoulweaverText.key(vessel ? "help.title.vessels" : "help.title.essences"),
         entry + " · " + outcome);
   }
 
   private void recordLoopOutcome(List<String> failureReasons) {
     SoulweaverProgress.log(
         attemptPuzzle,
-        "Kellerauftrag " + (Integer.parseInt(attemptPuzzle.substring(7)) + 1),
+        SoulweaverText.key("help.title.cellar", Integer.parseInt(attemptPuzzle.substring(7)) + 1),
         LoopPuzzle.rune(activeRune).map(SoulweaverProgress::runeTitle).orElse(activeRune)
             + " · "
-            + (failureReasons.isEmpty() ? "Ziel erreicht" : failureReasons.getFirst())
-            + (attemptAutomaticSolution ? " (Hilfe)" : ""));
+            + (failureReasons.isEmpty()
+                ? SoulweaverText.key("golem.goal-reached")
+                : failureReasons.getFirst())
+            + (attemptAutomaticSolution ? " " + SoulweaverText.key("progress.assisted") : ""));
     if (attemptParticipant != null)
       SoulweaverProgress.attempt(
           attemptPuzzle,
@@ -1205,7 +1223,9 @@ final class SoulweaverGolemRuntime {
           attemptCode,
           attemptParticipant,
           new engine.tracking.AttemptDetails(
-              attemptHintLevel, attemptAutomaticSolution, failureReasons));
+              attemptHintLevel,
+              attemptAutomaticSolution,
+              failureReasons.stream().map(SoulweaverText::german).toList()));
   }
 
   private String currentChallenge() {
@@ -1227,6 +1247,6 @@ final class SoulweaverGolemRuntime {
   }
 
   private void text(Entity who, String message) {
-    showText(who, "Nox · Steuerungsstatus", message);
+    showText(who, SoulweaverText.key("golem.status-title"), message);
   }
 }

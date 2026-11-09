@@ -17,6 +17,7 @@ import feature.canvas.CanvasUI;
 import feature.canvas.NodeOrigin;
 import feature.hud.UIUtils;
 import java.util.List;
+import rooms.soulweaver.util.SoulweaverText;
 
 /**
  * Fixed navigation around a scrollable workspace; drawing and drag coordinates remain canvas-local.
@@ -101,7 +102,7 @@ abstract class SoulweaverWorkbenchUI extends CanvasUI {
     body.add(reference);
     helpButton =
         SoulweaverUI.referenceButton(
-            "Hilfe",
+            SoulweaverText.text("ui.help"),
             () -> {
               if (referenceOpen) {
                 reference.returnToPuzzle();
@@ -116,7 +117,7 @@ abstract class SoulweaverWorkbenchUI extends CanvasUI {
     actions
         .add(
             SoulweaverUI.button(
-                "Quest-Log",
+                SoulweaverText.text("ui.questlog"),
                 false,
                 () ->
                     SoulweaverHelp.state()

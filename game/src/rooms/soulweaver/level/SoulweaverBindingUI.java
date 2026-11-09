@@ -10,6 +10,7 @@ import rooms.soulweaver.modules.variables.BindingState;
 import rooms.soulweaver.modules.variables.GolemProperty;
 import rooms.soulweaver.modules.variables.MagicalEssence;
 import rooms.soulweaver.modules.variables.SoulVessel;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** One workbench: reusable vessel stamps, named storage and replaceable value tokens. */
 final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorUtil.CursorOverride {
@@ -36,11 +37,10 @@ final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorU
     super(
         SoulweaverBinding.ID,
         dialogId,
-        "Nox · Seelenwerkbank",
-        "Binde Gefäß, Name und Wert und erwecke Nox.",
+        SoulweaverText.text("binding.ui.title"),
+        SoulweaverText.text("binding.ui.goal"),
         nodes());
-    help(
-        "Ablegen: Gefäß oder Essenz ziehen. Alternativ erst den Vorrat, dann eine Fassung anklicken.\nEntfernen: × an der Fassung. Vorräte sind mehrfach verwendbar.\nPrüfen: Nach vollständiger Bindung Aktivieren wählen.");
+    help(SoulweaverText.text("binding.ui.controls"));
     update(initial);
   }
 
@@ -78,7 +78,7 @@ final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorU
   private void update(BindingState next) {
     if (state != null && state.stage() != next.stage()) selectedSupply = "";
     state = next;
-    feedback.setText(next.feedback());
+    feedback.setText(SoulweaverText.translate(next.feedback()));
     boolean vessels = next.stage() == rooms.soulweaver.state.VariablePuzzleStage.VESSELS;
     boolean aided = SoulweaverHelpUI.simplified(vessels ? "vessels" : "essences");
     GolemProperty focus =
@@ -97,7 +97,7 @@ final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorU
     // Like the other stations, the status line only carries the strongest help hint.
     status.setText(
         aided && focus != null
-            ? "Markierte Fassung: " + focus.label() + " · Passende Vorräte sind sichtbar."
+            ? SoulweaverText.text("binding.ui.simplified", SoulweaverText.text(focus.labelKey()))
             : "");
     for (var node : area().nodes())
       if (node instanceof SoulweaverBindingNode binding) {

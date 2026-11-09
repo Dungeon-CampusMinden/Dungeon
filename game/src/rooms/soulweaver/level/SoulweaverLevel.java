@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import rooms.soulweaver.Soulweaver;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Level handler for the Soulweaver escape room. */
 public class SoulweaverLevel extends DungeonLevel {
@@ -109,7 +110,7 @@ public class SoulweaverLevel extends DungeonLevel {
         true,
         () -> {
           playReady(playerId);
-          SoulweaverProgress.started("vessels", "Ordne jeder Eigenschaft ein passendes Gefäß zu.");
+          SoulweaverProgress.started("vessels", SoulweaverText.key("progress.task.vessels"));
         },
         playerId);
   }

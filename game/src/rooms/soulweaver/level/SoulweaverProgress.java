@@ -18,12 +18,14 @@ import java.util.UUID;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
 import rooms.soulweaver.modules.loops.LoopRune;
 import rooms.soulweaver.state.SoulweaverPhase;
+import rooms.soulweaver.util.SoulweaverText;
 
 /**
  * Authoritative journal and tracking for the room's discoveries and learning progress. Each act has
  * its own journal tab with a compact history of outcomes, released tips and completions.
  */
 public final class SoulweaverProgress {
+  private static final String TASKS = SoulweaverText.key("progress.tab.tasks");
   private static final Map<String, QuestLogEntry> RECORDED = new LinkedHashMap<>();
   private static final Set<String> COMPLETED = new HashSet<>();
   private static final Set<String> STARTED = new HashSet<>();
@@ -42,7 +44,7 @@ public final class SoulweaverProgress {
     taskOverview = Optional.empty();
     currentObjective = "";
     Game.add(QuestLogUtil.initServerQuestLog());
-    updateTasks("Erkunde Valerius' Werkstatt und finde heraus, wie du Nox wieder erwecken kannst.");
+    updateTasks(SoulweaverText.key("progress.task.explore"));
   }
 
   /**
@@ -57,7 +59,7 @@ public final class SoulweaverProgress {
       for (int i = 0; i < LoopPuzzle.challenges().size(); i++) COMPLETED.add("cellar-" + i);
     }
     if (phase == SoulweaverPhase.DECISIONS) COMPLETED.add("methods");
-    record("continued", "Aufgaben", "Spiel ab Akt " + (phase.ordinal() + 1) + " fortgesetzt.");
+    record("continued", TASKS, SoulweaverText.key("progress.continued", phase.ordinal() + 1));
   }
 
   /**
@@ -90,12 +92,11 @@ public final class SoulweaverProgress {
       currentObjective = "";
       updateTasks(
           switch (puzzleId) {
-            case "essences" -> "Aktiviere Nox an der Bindungsfläche.";
-            case "cellar-4" -> "Folge Nox zur Methodenwerkstatt.";
-            case "methods" -> "Folge Nox durch den Nebenausgang zum Labyrinth der Entscheidungen.";
-            case "decisions" ->
-                "Lies die Schriftrolle vor dem Herzfeuer und bringe die Opfergabe dar.";
-            default -> "Nox bereitet den nächsten Schritt vor.";
+            case "essences" -> SoulweaverText.key("progress.task.activate");
+            case "cellar-4" -> SoulweaverText.key("progress.task.follow-workshop");
+            case "methods" -> SoulweaverText.key("progress.task.follow-labyrinth");
+            case "decisions" -> SoulweaverText.key("progress.task.offering");
+            default -> SoulweaverText.key("progress.task.next-step");
           });
     }
   }
@@ -133,10 +134,10 @@ public final class SoulweaverProgress {
 
   private static String tab(String puzzleId) {
     return switch (puzzleId) {
-      case "vessels", "essences" -> "Akt I · Seelenbindung";
-      case "methods" -> "Akt III · Werkstatt";
-      case "decisions" -> "Akt IV · Labyrinth";
-      default -> "Akt II · Keller";
+      case "vessels", "essences" -> SoulweaverText.key("progress.tab.binding");
+      case "methods" -> SoulweaverText.key("progress.tab.workshop");
+      case "decisions" -> SoulweaverText.key("progress.tab.labyrinth");
+      default -> SoulweaverText.key("progress.tab.cellar");
     };
   }
 
@@ -149,15 +150,18 @@ public final class SoulweaverProgress {
     QuestLogUtil.getQuestLogComponent()
         .ifPresent(
             log -> {
-              taskOverview.ifPresent(entry -> log.remove("Aufgaben", entry));
+              taskOverview.ifPresent(entry -> log.remove(TASKS, entry));
               QuestLogEntry entry =
                   new QuestLogEntry(
-                      "[color=#dbb463]Aktuelle Aufgabe[/color]\n> " + current,
+                      "[color=#dbb463]"
+                          + SoulweaverText.key("progress.current-task")
+                          + "[/color]\n> "
+                          + current,
                       taskOverview.map(QuestLogEntry::timestamp).orElse(Game.currentTick()),
                       false,
                       QuestLogEntry.DEFAULT_OWNER,
                       false);
-              log.add("Aufgaben", entry);
+              log.add(TASKS, entry);
               taskOverview = Optional.of(entry);
             });
     updateReferences();
@@ -183,7 +187,7 @@ public final class SoulweaverProgress {
           if (!currentObjective.isEmpty() && key.startsWith("hint:" + currentObjective + ":"))
             references.add(entry);
         });
-    QuestLogUtil.getQuestLogComponent().ifPresent(log -> log.overview("Aufgaben", references));
+    QuestLogUtil.getQuestLogComponent().ifPresent(log -> log.overview(TASKS, references));
   }
 
   /**
@@ -271,7 +275,10 @@ public final class SoulweaverProgress {
   public static void discover(String objectId, String title, String text, Entity who) {
     if (Game.isMultiplayerClient()) return;
     interaction(objectId, "discover", who);
-    record("discovery:" + objectId, "Fundstücke", QuestLogEntry.collapsible(title, text));
+    record(
+        "discovery:" + objectId,
+        SoulweaverText.key("progress.tab.findings"),
+        QuestLogEntry.collapsible(title, text));
   }
 
   /**
@@ -290,7 +297,7 @@ public final class SoulweaverProgress {
    */
   static String runeTitle(LoopRune rune) {
     String type = rune.program().type().name().toLowerCase(java.util.Locale.ROOT).replace('_', '-');
-    return "Schleifenrune " + (LoopPuzzle.runes().indexOf(rune) + 1) + " · " + type;
+    return SoulweaverText.key("progress.rune-title", LoopPuzzle.runes().indexOf(rune) + 1, type);
   }
 
   private static void record(String key, String tab, String text) {

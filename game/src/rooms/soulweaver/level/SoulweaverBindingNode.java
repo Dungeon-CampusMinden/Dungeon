@@ -23,6 +23,7 @@ import rooms.soulweaver.modules.variables.MagicalEssence;
 import rooms.soulweaver.modules.variables.SoulVessel;
 import rooms.soulweaver.modules.variables.VariablePuzzle;
 import rooms.soulweaver.state.VariablePuzzleStage;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Physical supply tokens, labelled storage sockets, and the golem's assembly preview. */
 final class SoulweaverBindingNode extends CanvasNode {
@@ -166,7 +167,7 @@ final class SoulweaverBindingNode extends CanvasNode {
     if (kind == Kind.CORE) {
       activate =
           SoulweaverUI.zoomButton(
-              "Aktivieren",
+              SoulweaverText.text("binding.ui.activate"),
               true,
               () ->
                   canvas().fireServerEvent("activate", new DialogResponseMessage.StringValue("")));
@@ -194,17 +195,20 @@ final class SoulweaverBindingNode extends CanvasNode {
     if (state == null || emptySupply()) return;
     switch (kind) {
       case VESSEL -> {
-        title.setText(vessel().label());
-        detail.setText(state.revealed() ? vessel().javaType() : vessel().capacity());
+        title.setText(SoulweaverText.text(vessel().labelKey()));
+        detail.setText(
+            state.revealed() ? vessel().javaType() : SoulweaverText.text(vessel().capacityKey()));
       }
       case ESSENCE -> value.setText(essence().literal());
       case SOCKET -> {
         var property = property();
         var container = state.vessels().get(property);
         var stored = state.essences().get(property);
-        title.setText(property.label());
+        title.setText(SoulweaverText.text(property.labelKey()));
         value.setText(
-            container == null ? "Gefäß ablegen" : stored == null ? "leer" : stored.literal());
+            container == null
+                ? SoulweaverText.text("binding.ui.drop-vessel")
+                : stored == null ? SoulweaverText.text("binding.ui.empty") : stored.literal());
         if (state.revealed())
           detail.setText(
               container.javaType() + " " + property.identifier() + " = " + stored.literal() + ";");
@@ -215,11 +219,17 @@ final class SoulweaverBindingNode extends CanvasNode {
             state.essences().get(GolemProperty.NAME) == MagicalEssence.NAME_VALUE ? "Nox" : "");
         title.setAlignment(Align.center);
         detail.setAlignment(Align.center);
-        detail.setText(state.revealed() ? "Seelenbindung vollständig" : "Seelenkern");
+        detail.setText(
+            SoulweaverText.text(state.revealed() ? "binding.ui.complete" : "binding.ui.core"));
         value.setAlignment(Align.center);
         value.setText("");
       }
-      case HEADING -> title.setText(id().equals("vessel-heading") ? "Gefäßvorrat" : "Essenzfach");
+      case HEADING ->
+          title.setText(
+              SoulweaverText.text(
+                  id().equals("vessel-heading")
+                      ? "binding.ui.vessel-heading"
+                      : "binding.ui.essence-heading"));
     }
   }
 

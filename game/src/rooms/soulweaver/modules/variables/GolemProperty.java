@@ -1,27 +1,27 @@
 package rooms.soulweaver.modules.variables;
 
+import java.util.Locale;
+
 /** Properties filled into the golem's soul crystal. */
 public enum GolemProperty {
-  NAME("Name", "name"),
-  LIFE_ENERGY("Lebensenergie", "lebensenergie"),
-  MANA("Mana", "mana"),
-  ACTIVATED("Aktiviert", "aktiviert"),
-  VIEW_DIRECTION("Blickrichtung", "blickrichtung"),
-  STEPS("Schritte", "schritte");
+  NAME("name"),
+  LIFE_ENERGY("lebensenergie"),
+  MANA("mana"),
+  ACTIVATED("aktiviert"),
+  VIEW_DIRECTION("blickrichtung"),
+  STEPS("schritte");
 
-  private final String label;
   private final String identifier;
 
-  GolemProperty(String label, String identifier) {
-    this.label = label;
+  GolemProperty(String identifier) {
     this.identifier = identifier;
   }
 
   /**
-   * @return the inscription on the property rune
+   * @return language key of the inscription on the property rune
    */
-  public String label() {
-    return label;
+  public String labelKey() {
+    return "property." + name().toLowerCase(Locale.ROOT);
   }
 
   /**

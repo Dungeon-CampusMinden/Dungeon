@@ -703,7 +703,7 @@ public class DialogFactory {
 
   /**
    * Translates the texts of a dialog context into the current language: the message, the dialog
-   * script, the image, the option labels, and the title.
+   * script, the image, the option labels, the confirm label, and the title.
    *
    * @param context dialog context with texts or translation keys
    * @return the context with translated texts
@@ -714,6 +714,7 @@ public class DialogFactory {
     translated = translateText(DialogContextKeys.DIALOG, translated);
     translated = translateText(DialogContextKeys.IMAGE, translated);
     translated = translateText(DialogContextKeys.OPTIONS, translated);
+    translated = translateText(DialogContextKeys.CONFIRM_LABEL, translated);
     return translateText(DialogContextKeys.TITLE, translated);
   }
 

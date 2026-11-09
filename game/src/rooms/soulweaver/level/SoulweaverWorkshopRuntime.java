@@ -15,6 +15,7 @@ import rooms.soulweaver.SoulweaverAchievements;
 import rooms.soulweaver.modules.loops.LoopMaze;
 import rooms.soulweaver.modules.methods.MethodsRoute;
 import rooms.soulweaver.modules.methods.MethodsWorkshop;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Owns workshop execution while the shared golem retains its collision-checked movement. */
 final class SoulweaverWorkshopRuntime {
@@ -51,8 +52,7 @@ final class SoulweaverWorkshopRuntime {
 
   void arrive() {
     arrived = true;
-    SoulweaverProgress.started(
-        "methods", "Kürze das Werkstattprogramm mit Methoden und erledige alle Arbeitsstellen.");
+    SoulweaverProgress.started("methods", SoulweaverText.key("progress.task.methods"));
     if (direction == null) face(SoulweaverWorkshopWorld.startFacing(0));
     publish();
   }
@@ -60,7 +60,7 @@ final class SoulweaverWorkshopRuntime {
   void show(Entity player) {
     if (!motion.methodsActive() || !authorized(player)) return;
     if (!arrived && !workshop.state().busy()) {
-      SoulweaverGolemRuntime.showText(player, "Nox ist auf dem Weg zur ersten Arbeitsstelle.");
+      SoulweaverGolemRuntime.showText(player, SoulweaverText.key("workshop.on-the-way-first"));
       return;
     }
     if (claimEditor(player)) publish();
@@ -258,7 +258,7 @@ final class SoulweaverWorkshopRuntime {
       case OPEN_GATE, ACTIVATE_RUNE, COLLECT, PLACE -> {
         if (instruction.action() == MethodsRoute.Action.PLACE
             && (instruction.amount() < 0 || instruction.amount() > inventory)) {
-          workshop.actionResult(false, 0, "Nox hat nicht genug Kristalle für diese Ablage.");
+          workshop.actionResult(false, 0, SoulweaverText.key("workshop.not-enough-crystals"));
           finish();
           return;
         }
@@ -288,9 +288,7 @@ final class SoulweaverWorkshopRuntime {
     golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(-1));
     recordOutcome();
     if (workshop.state().completed()) {
-      SoulweaverProgress.solved(
-          "methods",
-          "Alle Arbeitsstellen und Programmprüfungen sind erfüllt. Der Nebenausgang ist offen.");
+      SoulweaverProgress.solved("methods", SoulweaverText.key("workshop.solved"));
       SoulweaverWorkshopWorld.openExit();
       SoulweaverGates.open(level, 3);
       if (!awarded && !assisted) {
@@ -310,7 +308,7 @@ final class SoulweaverWorkshopRuntime {
   }
 
   String helpStatus() {
-    return !arrived ? "Nox ist auf dem Weg zur Werkstatt." : workshop.state().feedback();
+    return !arrived ? SoulweaverText.key("workshop.on-the-way") : workshop.state().feedback();
   }
 
   boolean helpAuthorized(Entity player) {
@@ -346,13 +344,12 @@ final class SoulweaverWorkshopRuntime {
                 : List.of(state.feedback());
     SoulweaverProgress.log(
         "methods",
-        "Werkstattprogramm",
-        "Lauf "
-            + ++runs
+        SoulweaverText.key("workshop.log.title"),
+        SoulweaverText.key("workshop.log.run", ++runs)
             + " · "
             + state.resultTitle()
             + (reasons.isEmpty() ? "" : " · " + reasons.getFirst())
-            + (runAutomaticSolution ? " (Hilfe)" : ""));
+            + (runAutomaticSolution ? " " + SoulweaverText.key("progress.assisted") : ""));
     if (runParticipant != null) {
       SoulweaverProgress.attempt(
           "methods",
@@ -360,7 +357,10 @@ final class SoulweaverWorkshopRuntime {
           "code",
           runCode,
           runParticipant,
-          new engine.tracking.AttemptDetails(runHintLevel, runAutomaticSolution, reasons));
+          new engine.tracking.AttemptDetails(
+              runHintLevel,
+              runAutomaticSolution,
+              reasons.stream().map(SoulweaverText::german).toList()));
     }
   }
 
