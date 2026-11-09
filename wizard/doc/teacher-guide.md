@@ -24,7 +24,7 @@ The Wizard currently runs as a local program and is meant to be set up with tech
     one or open another local draft.
 2.  **Basic details** (*Eckdaten*) and, after the story, **game settings**
     (*Spieleinstellungen*): room title, content language, target group, prior knowledge,
-    number of players (1 to 4), time limit (1 to 240 minutes) and at least one learning
+    number of players (1 to 4), time limit (5 to 240 minutes) and at least one learning
     objective.
 3.  **Story** (*Geschichte*): the mission, the intro pages and the pages shown on success
     (with a hard time limit also the pages shown on failure). Each page appears as its own

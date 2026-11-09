@@ -70,8 +70,9 @@ Turn your own course material into an escape room. The [Wizard][low-code wizard]
 educators page by page through story, puzzles and game flow in the browser: number codes,
 multiple-choice questions, matching tasks and information sources to discover, each puzzle with
 optional graded hints. A check in the background points to anything missing, and at the end
-the Wizard packs the room into a single JAR file that you hand out to all players. Start with
-the [step-by-step guide][Wizard guide].
+the Wizard packs the room into a single JAR file that you hand out to all players. It currently
+runs locally from the repository; the [step-by-step guide][Wizard guide] explains the setup and
+walks you through every page.
 
 ### DEER-Editor: build levels inside the game
 
