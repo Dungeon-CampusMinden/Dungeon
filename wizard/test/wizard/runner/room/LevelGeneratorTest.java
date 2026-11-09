@@ -2,10 +2,10 @@ package wizard.runner.room;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import escaperoom.foundation.definition.HintSeverity;
 import escaperoom.foundation.room.model.RiddlePlacement;
-import escaperoom.foundation.room.model.RoomPoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,10 +28,10 @@ import wizard.runner.model.ProjectDefinition.Session;
 import wizard.runner.model.ProjectDefinition.Surface;
 import wizard.runner.model.ProjectDefinition.SurfaceKind;
 import wizard.runner.model.ProjectDefinition.TimeLimit;
-import wizard.runner.room.SingleRoomPlanner.Plan;
+import wizard.runner.room.LevelGenerator.Plan;
 
-/** Deterministic planning proofs for the one supported Foundation room profile. */
-final class SingleRoomPlannerTest {
+/** Deterministic planning proofs for the generated Foundation level. */
+final class LevelGeneratorTest {
   @Test
   void ordersCompleteAndGraphByLongestDistanceThenRiddleId() {
     ProjectDefinition project =
@@ -41,7 +41,6 @@ final class SingleRoomPlannerTest {
     Plan plan = plan(project, 0);
 
     assertEquals(List.of("r_alpha", "r_zulu", "r_bravo", "r_charlie"), plan.riddleIds());
-    assertEquals(new RoomPoint(1, 1), plan.layout().startPoint());
     assertEquals(plan, plan(project, 0));
     assertEquals(plan, plan(reversedTopology(project), 0));
   }
@@ -64,8 +63,8 @@ final class SingleRoomPlannerTest {
                 new GraphEdge(nodeId("r_zulu"), nodeId("r_charlie")),
                 new GraphEdge(nodeId("r_charlie"), "n_end")));
 
-    Plan plan = SingleRoomPlanner.planRoom(staggered);
-    Plan reordered = SingleRoomPlanner.planRoom(reversedTopology(staggered));
+    Plan plan = LevelGenerator.plan(staggered);
+    Plan reordered = LevelGenerator.plan(reversedTopology(staggered));
 
     assertEquals(List.of("r_alpha", "r_zulu", "r_bravo", "r_charlie"), plan.riddleIds());
     assertEquals(plan.riddleIds(), reordered.riddleIds());
@@ -73,27 +72,20 @@ final class SingleRoomPlannerTest {
   }
 
   @Test
-  void honorsSeedAndUsesTheSharedStartForEverySupportedPlayerMaximum() {
+  void honorsSeedAndIgnoresThePlayerMaximum() {
     ProjectDefinition onePlayer = project("seed_room", 1, List.of(List.of("r_one", "r_two")));
-    Plan left = plan(onePlayer, 0);
-    Plan right = plan(onePlayer, 1);
 
-    assertNotEquals(
-        left.layout().riddlePlacements().getFirst().components().getFirst().point(),
-        right.layout().riddlePlacements().getFirst().components().getFirst().point());
-    assertEquals(left.layout().rows(), right.layout().rows());
-    assertEquals(left.layout().startPoint(), right.layout().startPoint());
-    for (int players = 1; players <= 4; players++) {
+    assertNotEquals(plan(onePlayer, 0).layout(), plan(onePlayer, 1).layout());
+    for (int players = 2; players <= 4; players++) {
       assertEquals(
-          new RoomPoint(1, 1),
-          plan(project("room_" + players, players, List.of(List.of("r_only"))), 42)
-              .layout()
-              .startPoint());
+          plan(onePlayer, 42).layout(),
+          plan(project("room_" + players, players, List.of(List.of("r_one", "r_two"))), 42)
+              .layout());
     }
   }
 
   @Test
-  void mapsSharedStartAndAuthoredHintsIntoTheRuntimeLayout() {
+  void mapsAuthoredHintsIntoTheRuntimeLayout() {
     ProjectDefinition project =
         withSeed(
             withHints(
@@ -101,16 +93,15 @@ final class SingleRoomPlannerTest {
                 Set.of("r_alpha")),
             42L);
 
-    Plan plan = SingleRoomPlanner.planRoom(project);
+    Plan plan = LevelGenerator.plan(project);
 
-    assertEquals(new RoomPoint(1, 1), plan.layout().startPoint());
-    assertEquals(Optional.of(new RoomPoint(1, 4)), placement(plan, "r_alpha").hintPoint());
+    assertTrue(placement(plan, "r_alpha").hintPoint().isPresent());
     assertEquals(Optional.empty(), placement(plan, "r_zulu").hintPoint());
     assertEquals("surface_r_alpha", placement(plan, "r_alpha").components().getFirst().surfaceId());
   }
 
   private static Plan plan(final ProjectDefinition project, final long seed) {
-    return SingleRoomPlanner.planRoom(withSeed(project, seed));
+    return LevelGenerator.plan(withSeed(project, seed));
   }
 
   private static RiddlePlacement placement(final Plan plan, final String riddleId) {
@@ -123,7 +114,7 @@ final class SingleRoomPlannerTest {
   private static ProjectDefinition project(
       final String roomId, final int maxPlayers, final List<List<String>> layerIds) {
     List<Riddle> riddles =
-        layerIds.stream().flatMap(List::stream).map(SingleRoomPlannerTest::riddle).toList();
+        layerIds.stream().flatMap(List::stream).map(LevelGeneratorTest::riddle).toList();
     List<GraphNode> nodes = new ArrayList<>();
     nodes.add(node("n_end", GraphNodeKind.END, Optional.empty()));
     for (List<String> layer : layerIds.reversed()) {
@@ -135,7 +126,7 @@ final class SingleRoomPlannerTest {
     List<List<String>> nodeLayers = new ArrayList<>();
     nodeLayers.add(List.of("n_start"));
     layerIds.forEach(
-        layer -> nodeLayers.add(layer.stream().map(SingleRoomPlannerTest::nodeId).toList()));
+        layer -> nodeLayers.add(layer.stream().map(LevelGeneratorTest::nodeId).toList()));
     nodeLayers.add(List.of("n_end"));
     List<GraphEdge> edges = new ArrayList<>();
     for (int layer = 0; layer + 1 < nodeLayers.size(); layer++) {

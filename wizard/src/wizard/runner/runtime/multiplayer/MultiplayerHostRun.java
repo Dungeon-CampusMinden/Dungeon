@@ -30,10 +30,15 @@ import escaperoom.foundation.multiplayer.game.ServerGameBinding;
 import escaperoom.foundation.multiplayer.session.MultiplayerSession;
 import escaperoom.foundation.room.level.RoomLevel;
 import escaperoom.foundation.room.model.FoundationRoom;
+import escaperoom.foundation.room.model.RiddleDoor;
 import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
+import feature.entities.deco.DecoFactory;
+import feature.systems.CollisionSystem;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -108,6 +113,7 @@ public final class MultiplayerHostRun {
                   () -> {
                     ServerGameBinding binding = gameBinding;
                     if (binding == null) {
+                      addDecorations();
                       binding = createGameBinding(() -> requestTerminalExit(lifecycle));
                       gameBinding = binding;
                     }
@@ -141,7 +147,20 @@ public final class MultiplayerHostRun {
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new CollisionSystem());
     Game.add(bootstrapMarker);
+  }
+
+  /**
+   * Adds the level decorations once the server runs.
+   *
+   * <p>The level is current before the engine wires its level-load callback, so the decorations
+   * that callback would spawn are added here, like the riddle stations after the network started.
+   */
+  private void addDecorations() {
+    level
+        .decorations()
+        .forEach(decoration -> Game.add(DecoFactory.createDeco(decoration.b(), decoration.a())));
   }
 
   private ServerGameBinding createGameBinding(final Runnable onTerminalComplete) {
@@ -150,6 +169,7 @@ public final class MultiplayerHostRun {
         definition,
         room.presentation(),
         requiredTile(RoomLevel.DOOR_POINT_NAME, DoorTile.class),
+        riddleDoors(),
         requiredTile(RoomLevel.EXIT_POINT_NAME, ExitTile.class),
         requiredLevelSystem(),
         componentStations(),
@@ -168,6 +188,17 @@ public final class MultiplayerHostRun {
     } else {
       lifecycle.requestExit("Foundation multiplayer room stopped");
     }
+  }
+
+  private Map<String, List<DoorTile>> riddleDoors() {
+    Map<String, List<DoorTile>> doors = new LinkedHashMap<>();
+    List<RiddleDoor> riddleDoors = room.layout().riddleDoors();
+    for (int index = 0; index < riddleDoors.size(); index++) {
+      doors
+          .computeIfAbsent(riddleDoors.get(index).riddleId(), ignored -> new ArrayList<>())
+          .add(requiredTile(RoomLevel.RIDDLE_DOOR_POINT_PREFIX + index, DoorTile.class));
+    }
+    return Map.copyOf(doors);
   }
 
   private Map<String, Point> componentStations() {

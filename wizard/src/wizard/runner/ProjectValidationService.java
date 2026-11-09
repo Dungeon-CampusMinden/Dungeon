@@ -11,6 +11,7 @@ import wizard.runner.contract.ValidationPhase;
 import wizard.runner.contract.ValidationSeverity;
 import wizard.runner.report.ProjectValidationReport;
 import wizard.runner.room.RoomDeriver;
+import wizard.runner.room.UnplaceableLevelException;
 import wizard.runner.validation.ProjectValidationPipeline;
 import wizard.runner.validation.ValidationResult;
 
@@ -30,11 +31,25 @@ public final class ProjectValidationService {
     if (validation.valid()) {
       try {
         new RoomDeriver().derive(validation);
+      } catch (UnplaceableLevelException exception) {
+        report = report.withFailure(layoutFailure());
       } catch (RuntimeException exception) {
         report = report.withFailure(derivationFailure());
       }
     }
     return new Outcome(report, report.valid() ? Optional.of(validation) : Optional.empty());
+  }
+
+  private static ValidationIssue layoutFailure() {
+    return new ValidationIssue(
+        ValidationSeverity.ERROR,
+        ValidationPhase.FEASIBILITY,
+        IssueCode.LAYOUT_UNPLACEABLE,
+        "validation.feasibility.layout_unplaceable",
+        Map.of(),
+        "/riddleGraph",
+        Optional.empty(),
+        List.of());
   }
 
   private static ValidationIssue derivationFailure() {

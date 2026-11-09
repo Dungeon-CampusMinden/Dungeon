@@ -45,6 +45,7 @@ const ISSUE_CODES = new Set([
   "JSON_DUPLICATE_KEY",
   "JSON_PARSE_INVALID",
   "JSON_UNICODE_INVALID",
+  "LAYOUT_UNPLACEABLE",
   "PLAYER_COUNT_INVALID",
   "REFERENCE_UNKNOWN",
   "RUNNER_CAPACITY_EXCEEDED",
@@ -111,8 +112,9 @@ const MESSAGES = {
     "Material oder Eingabe eines Rätsels ist nicht passend eingerichtet.",
   "validation.capability.surface_ownership_invalid":
     "Eine Material- oder Eingabezuordnung gehört nicht genau zu einem Rätsel.",
-  "validation.feasibility.capacity_exceeded":
-    "Der Entwurf ist für einen einzelnen Spielraum zu umfangreich.",
+  "validation.feasibility.capacity_exceeded": "Der Entwurf ist für ein Spiel zu umfangreich.",
+  "validation.feasibility.layout_unplaceable":
+    "Die Räume dieses Spielablaufs lassen sich nicht anordnen. Lass weniger Rätsel direkt auf dasselbe Rätsel folgen.",
   "validation.feasibility.text_long":
     "Ein Text ist sehr lang und könnte im Spiel schlecht lesbar sein.",
   "validation.graph.cycle": "Der Spielablauf enthält einen Kreis.",
