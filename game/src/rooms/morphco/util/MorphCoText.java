@@ -30,7 +30,7 @@ public final class MorphCoText {
   /** Portrait of the shift lead in speaker dialogs. */
   public static final String SHIFT_LEAD_IMAGE = "rooms/morphCo/shift_lead_portrait.png";
 
-  /** Portrait of a player in speaker dialogs whose character has no portrait of its own. */
+  /** Portrait of Char03 in speaker dialogs, also the fallback for characters without their own. */
   public static final String PLAYER_IMAGE = "rooms/morphCo/player_portrait.png";
 
   private static final Translation TEXT = new Translation("morphCo");
@@ -94,7 +94,7 @@ public final class MorphCoText {
   /**
    * Returns the dialog portrait of a player's character.
    *
-   * @param player the player
+   * @param player player whose character class selects the portrait
    * @return portrait path inside the assets
    */
   public static String playerImage(Entity player) {
@@ -106,6 +106,7 @@ public final class MorphCoText {
                 switch (characterClass) {
                   case TECHNICIAN -> "rooms/morphCo/technician_portrait.png";
                   case THE_LAST_HOUR_ROGUE -> "rooms/morphCo/rogue_portrait.png";
+                  case THE_LAST_HOUR_CHAR03 -> PLAYER_IMAGE;
                   default -> PLAYER_IMAGE;
                 })
         .orElse(PLAYER_IMAGE);
