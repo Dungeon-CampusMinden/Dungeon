@@ -52,7 +52,7 @@ public final class GameInput {
             UiActions.PAUSE,
             UiActions.INVENTORY,
             UiActions.QUESTLOG)) {
-      register(spec);
+      bindings.register(spec);
     }
     resolver = new InputResolver(bindings);
     resolver.repeating(UiActions.NAV_UP);
@@ -147,16 +147,6 @@ public final class GameInput {
    */
   public static InputResolver resolver() {
     return resolver;
-  }
-
-  /**
-   * Makes the actions of a context known without activating it, for texts and settings that show
-   * them earlier.
-   *
-   * @param spec the context declaration
-   */
-  public static void register(ContextSpec spec) {
-    bindings.register(spec);
   }
 
   /**

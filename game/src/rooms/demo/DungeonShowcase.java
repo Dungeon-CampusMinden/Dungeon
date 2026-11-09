@@ -16,7 +16,6 @@ import feature.systems.HealthSystem;
 import feature.systems.ManaRestoreSystem;
 import feature.systems.PathSystem;
 import feature.systems.ProjectileSystem;
-import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -32,9 +31,8 @@ public class DungeonShowcase {
    * Starts the showcase.
    *
    * @param args not used
-   * @throws IOException if the game configuration cannot be loaded
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     Game.disableAudio(true);
     Game.frameRate(60);
     Game.userOnSetup(

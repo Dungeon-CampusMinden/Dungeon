@@ -35,7 +35,7 @@ import java.util.function.Predicate;
  * moves one edge per action into the current frame, so several presses within one frame stay
  * separate presses.
  *
- * <p>Keyboard, mouse, pad and virtual sources all end in the same action state.
+ * <p>Keyboard, mouse and pad all end in the same action state.
  *
  * <p>This class needs no graphics; the UI is any {@link InputProcessor}.
  */
@@ -412,67 +412,6 @@ public final class InputResolver implements InputProcessor {
           InputContext owner = edge.owner();
           if (stack.contains(owner) && !covered(owner, edge.pad())) owner.firePress(action);
         });
-  }
-
-  // endregion
-
-  // region Virtual sources
-
-  /**
-   * Presses an action from a virtual source.
-   *
-   * @param action the action
-   * @param source name of the source
-   * @param pointer pointer id inside the source
-   */
-  public void press(ActionId action, String source, int pointer) {
-    release(source, pointer);
-    SourceId id = new SourceId(source, pointer);
-    Press press = virtualPress(id, action);
-    presses.put(id, press);
-    startAction(press);
-  }
-
-  /**
-   * Releases what a virtual source holds.
-   *
-   * @param source name of the source
-   * @param pointer pointer id inside the source
-   */
-  public void release(String source, int pointer) {
-    Press press = presses.remove(new SourceId(source, pointer));
-    if (press != null) endAction(press);
-  }
-
-  /**
-   * Sets a vector value from a virtual source. Leaving neutral starts a press, returning to neutral
-   * ends it.
-   *
-   * @param action the action
-   * @param source name of the source
-   * @param pointer pointer id inside the source
-   * @param x horizontal value
-   * @param y vertical value
-   */
-  public void axis(ActionId action, String source, int pointer, float x, float y) {
-    SourceId id = new SourceId(source, pointer);
-    if (x == 0 && y == 0) {
-      release(source, pointer);
-      return;
-    }
-    if (!presses.containsKey(id)) press(action, source, pointer);
-    Press press = presses.get(id);
-    press.x = x;
-    press.y = y;
-  }
-
-  private Press virtualPress(SourceId id, ActionId action) {
-    for (int i = stack.size() - 1; i >= 0; i--) {
-      InputContext context = stack.get(i);
-      if (context.spec().actions().contains(action)) return new Press(id, context, action);
-      if (context.spec().blocksBelow()) return new Press(id, context, null);
-    }
-    return new Press(id, null, null);
   }
 
   // endregion

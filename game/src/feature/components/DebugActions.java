@@ -1,6 +1,5 @@
 package feature.components;
 
-import static engine.input.Binding.CTRL;
 import static engine.input.Binding.key;
 
 import com.badlogic.gdx.Input.Keys;
@@ -45,7 +44,8 @@ public final class DebugActions {
   public static final ActionId OPEN_DOORS = debug("open_doors", key(Keys.F3, Keys.C));
 
   /** Copies the network telemetry. */
-  public static final ActionId COPY_TELEMETRY = debug("copy_telemetry", key(CTRL, Keys.C));
+  public static final ActionId COPY_TELEMETRY =
+      debug("copy_telemetry", key(Keys.CONTROL_LEFT, Keys.C));
 
   /** Shows all components of hovered entities while held. */
   public static final ActionId SHOW_COMPONENTS =

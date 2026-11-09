@@ -56,14 +56,18 @@ public record ContextSpec(
   }
 
   /**
-   * Returns a copy that also takes the given actions and closes through them. A UI lists the action
-   * that opens it here, so that the same input closes it again.
+   * Returns a copy that also takes the given actions and closes through them, in addition to the
+   * closing actions it already has. A UI lists the action that opens it here, so that the same
+   * input closes it again.
    *
    * @param ids the closing actions
    * @return the copy
    */
   public ContextSpec closedBy(ActionId... ids) {
-    return new ContextSpec(name, layer, blocksBelow, passesPad, with(ids), Set.of(ids), padOnly);
+    Set<ActionId> allClosing = new HashSet<>(closing);
+    allClosing.addAll(List.of(ids));
+    return new ContextSpec(
+        name, layer, blocksBelow, passesPad, with(ids), Set.copyOf(allClosing), padOnly);
   }
 
   /**

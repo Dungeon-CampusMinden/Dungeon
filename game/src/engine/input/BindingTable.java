@@ -45,7 +45,7 @@ public final class BindingTable {
   public record Conflict(Binding binding, ActionId first, ActionId second, String context) {}
 
   private final Map<ActionId, List<Binding>> defaults = new LinkedHashMap<>();
-  private final Map<String, List<String>> overrides = new TreeMap<>();
+  private final Map<String, List<Binding>> overrides = new TreeMap<>();
   private final Set<ContextSpec> contexts = new LinkedHashSet<>();
   private final Map<Binding, List<Bound>> index = new HashMap<>();
   private Path file;
@@ -82,8 +82,8 @@ public final class BindingTable {
    * @return override if present, otherwise the defaults
    */
   public List<Binding> bindings(ActionId action) {
-    List<String> override = overrides.get(action.toString());
-    if (override != null) return override.stream().map(Binding::parse).toList();
+    List<Binding> override = overrides.get(action.toString());
+    if (override != null) return override;
     return defaults.getOrDefault(action, action.defaults());
   }
 
@@ -95,8 +95,8 @@ public final class BindingTable {
    * @return the conflict that prevented the change, or empty if the change was applied
    */
   public Optional<Conflict> rebind(ActionId action, List<Binding> bindings) {
-    List<String> previous = overrides.get(action.toString());
-    overrides.put(action.toString(), bindings.stream().map(Binding::format).toList());
+    List<Binding> previous = overrides.get(action.toString());
+    overrides.put(action.toString(), List.copyOf(bindings));
     Optional<Conflict> conflict =
         conflicts().stream()
             .filter(c -> c.first().equals(action) || c.second().equals(action))
@@ -172,19 +172,15 @@ public final class BindingTable {
     logConflicts(defaults.keySet());
   }
 
-  private static Map<String, List<String>> parse(String json) {
-    Map<String, List<String>> parsed = new TreeMap<>();
+  private static Map<String, List<Binding>> parse(String json) {
+    Map<String, List<Binding>> parsed = new TreeMap<>();
     for (Map.Entry<String, Object> entry : JsonHandler.readJson(json).entrySet()) {
       ActionId.of(entry.getKey());
       if (!(entry.getValue() instanceof List<?> values)) {
         throw new IllegalArgumentException("No binding list for " + entry.getKey());
       }
-      List<String> bindings = new ArrayList<>();
-      for (Object value : values) {
-        Binding.parse((String) value);
-        bindings.add((String) value);
-      }
-      parsed.put(entry.getKey(), List.copyOf(bindings));
+      parsed.put(
+          entry.getKey(), values.stream().map(value -> Binding.parse((String) value)).toList());
     }
     return parsed;
   }
@@ -201,7 +197,9 @@ public final class BindingTable {
 
   private void save() {
     if (file == null) return;
-    Map<String, Object> data = new TreeMap<>(overrides);
+    Map<String, Object> data = new TreeMap<>();
+    overrides.forEach(
+        (action, bindings) -> data.put(action, bindings.stream().map(Binding::format).toList()));
     try {
       Path temp = file.resolveSibling(file.getFileName() + ".tmp");
       Files.writeString(temp, JsonHandler.writeJson(data, true), StandardCharsets.UTF_8);

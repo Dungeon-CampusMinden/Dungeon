@@ -23,9 +23,6 @@ import java.util.TreeMap;
  */
 public sealed interface Binding {
 
-  /** Control on either side, as prefix of a combo. */
-  int CTRL = Input.Keys.CONTROL_LEFT;
-
   /**
    * Creates a key binding. All keys but the last are prefixes that must already be held; the last
    * one triggers.

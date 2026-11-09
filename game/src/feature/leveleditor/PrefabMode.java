@@ -699,7 +699,7 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<ActionId, String> getControls() {
+  public Map<ActionId, String> controls() {
     Map<ActionId, String> controls = new LinkedHashMap<>();
     controls.put(EditorActions.PLACE, "Select / drag prefab anchors / assign point");
     controls.put(EditorActions.SECONDARY_NEXT, "Change point and region snap mode");

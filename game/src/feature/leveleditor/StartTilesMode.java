@@ -117,7 +117,7 @@ public class StartTilesMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<ActionId, String> getControls() {
+  public Map<ActionId, String> controls() {
     Map<ActionId, String> controls = new LinkedHashMap<>();
     controls.put(EditorActions.PLACE, "Place Start Tile");
     controls.put(EditorActions.ALT, "Delete Start Tile on Cursor");

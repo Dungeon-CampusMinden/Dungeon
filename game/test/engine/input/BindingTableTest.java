@@ -1,6 +1,5 @@
 package engine.input;
 
-import static engine.input.Binding.CTRL;
 import static engine.input.Binding.key;
 import static engine.input.Binding.mouse;
 import static engine.input.Binding.pad;
@@ -40,7 +39,7 @@ class BindingTableTest {
     assertEquals(Binding.parse("key:E"), key(Keys.E));
     assertEquals("key:UP", key(Keys.UP).format());
     assertEquals(Binding.parse("key:F3+A"), key(Keys.F3, Keys.A));
-    assertEquals(Binding.parse("key:Ctrl+C"), key(CTRL, Keys.C));
+    assertEquals(Binding.parse("key:Ctrl+C"), key(Keys.CONTROL_LEFT, Keys.C));
     assertEquals(Binding.parse("key:F3+SHIFT_LEFT"), key(Keys.F3, Keys.SHIFT_LEFT));
     assertEquals(Binding.parse("mouse:RIGHT"), mouse(Buttons.RIGHT));
     assertEquals(Binding.parse("mouse:WHEEL"), wheel());
@@ -54,7 +53,7 @@ class BindingTableTest {
     for (Binding binding :
         List.of(
             key(Keys.E),
-            key(CTRL, Keys.C),
+            key(Keys.CONTROL_LEFT, Keys.C),
             key(Keys.F3, Keys.SHIFT_LEFT),
             mouse(Buttons.RIGHT),
             wheel(),

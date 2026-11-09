@@ -43,11 +43,11 @@ GameInput.activate(
         .onPress(jump, this::jump));
 ```
 
-`.blocking()` macht einen Kontext blockierend. `.closedBy(...)` nennt die Actions, die eine UI
+`.blocking()` macht einen Kontext blockierend. `.closedBy(...)` nennt weitere Actions, die eine UI
 schließen. Eine UI listet dort auch die Action, die sie öffnet, damit dieselbe Eingabe sie wieder
 schließt. `.padOnly(...)` nimmt eine Action nur über ihre Pad-Belegung an: START öffnet die Pause
-über jeder UI, Esc schließt dort. `GameInput.register(spec)` meldet Actions an, die
-angezeigt werden sollen, bevor ihr Kontext aktiv ist.
+über jeder UI, Esc schließt dort. `UiActions.modal(name, actions...)` fasst das für eine modale
+UI zusammen: blockierend, `ui:close` schließt, START öffnet die Pause darüber.
 
 Widgets rufen in `touchDown` auf etwas Ziehbarem `GameInput.startDrag()` auf. Der Drag beginnt dann
 schon mit dem Druck statt mit der ersten Bewegung. Am Pad legt das nächste A ab, ohne dass die Taste
@@ -56,7 +56,7 @@ gehalten wird.
 ## Bindings
 
 Im Code entstehen Bindings über die Factories von `Binding`: `key(Keys.E)`, `key(Keys.F3, Keys.A)`,
-`key(CTRL, Keys.C)`, `mouse(Buttons.RIGHT)`, `wheel()`, `pad(Pad.A)`, `pad(PadAxisId.LSTICK)`. Bei
+`key(Keys.CONTROL_LEFT, Keys.C)`, `mouse(Buttons.RIGHT)`, `wheel()`, `pad(Pad.A)`, `pad(PadAxisId.LSTICK)`. Bei
 Kombis löst die letzte Taste aus, die davor müssen schon gehalten sein. Eine Taste, die selbst Action
 und Präfix ist (F3), feuert beim Loslassen.
 

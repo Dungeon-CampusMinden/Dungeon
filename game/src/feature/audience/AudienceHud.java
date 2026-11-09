@@ -263,14 +263,9 @@ public final class AudienceHud extends System {
   }
 
   private static boolean pauseMenuOpen() {
-    return pauseMenu().isPresent();
-  }
-
-  private static Optional<UIComponent> pauseMenu() {
     return Game.entities()
         .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU)
-        .findFirst();
+        .anyMatch(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU);
   }
 
   private void hostKeys() {

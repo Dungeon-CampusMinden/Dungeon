@@ -239,7 +239,7 @@ public class DecoMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<ActionId, String> getControls() {
+  public Map<ActionId, String> controls() {
     Map<ActionId, String> controls = new LinkedHashMap<>();
     controls.put(EditorActions.PLACE, "Place Deco");
     controls.put(EditorActions.ALT, "Pickup Deco");

@@ -36,7 +36,6 @@ import feature.systems.LevelTickSystem;
 import feature.systems.LeverSystem;
 import feature.systems.PressurePlateSystem;
 import feature.systems.ProjectileSystem;
-import java.io.IOException;
 import rooms.mushroom.modules.items.MagicLensItem;
 import rooms.mushroom.modules.journal.JournalItem;
 import rooms.mushroom.modules.mushrooms.Mushrooms;
@@ -56,9 +55,8 @@ public class MushRoom {
    * Main method to start the game.
    *
    * @param args The arguments passed to the game.
-   * @throws IOException If an I/O error occurs.
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     configGame();
     onSetup();
 
@@ -118,7 +116,7 @@ public class MushRoom {
             .onPress(MAGIC_LENS, () -> Game.player().ifPresent(MagicLensItem::toggleMagicLens)));
   }
 
-  private static void configGame() throws IOException {
+  private static void configGame() {
     Game.disableAudio(false);
     Game.frameRate(60);
   }

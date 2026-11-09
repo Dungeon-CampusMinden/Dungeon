@@ -50,8 +50,6 @@ public class LastHourTranslator extends Translator {
     String translatedText = text;
     for (String s : keysToBeReplaced) {
       switch (s) {
-        case TranslationKey.PostIntroDialogText2 ->
-            translatedText = translatedText.replace(s, translation.text(s));
         case TranslationKey.Ringing1 ->
             translatedText = translatedText.replace(s, translation.text(s, MertensColor));
         case TranslationKey.Ringing2 ->

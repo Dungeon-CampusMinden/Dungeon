@@ -82,7 +82,7 @@ public final class DialogInput {
         new InputContext(spec)
             .onPress(
                 CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
-            .onPress(UiActions.CONFIRM, () -> fire(ui, UiActions.CONFIRM))
+            .onPress(UiActions.CONFIRM, () -> confirm(ui))
             .onPress(UiActions.NAV_UP, () -> navigate(ui, UiActions.NAV_UP, -1))
             .onPress(UiActions.NAV_DOWN, () -> navigate(ui, UiActions.NAV_DOWN, 1))
             .onPress(
@@ -105,6 +105,14 @@ public final class DialogInput {
     } else if (GameInput.device() != InputDevice.PAD) {
       Game.player().ifPresent(PauseDialog::showPauseDialog);
     }
+  }
+
+  // Dialogs that do not handle confirm themselves confirm through their callback.
+  private static void confirm(UIComponent ui) {
+    if (fire(ui, UiActions.CONFIRM)) return;
+    DialogCallbackResolver.createButtonCallback(
+            ui.dialogContext().dialogId(), DialogContextKeys.ON_CONFIRM)
+        .accept(null);
   }
 
   private static boolean fire(UIComponent ui, ActionId action) {

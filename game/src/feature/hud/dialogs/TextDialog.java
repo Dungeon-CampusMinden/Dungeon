@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
-import engine.input.UiActions;
 import engine.language.Translation;
 import engine.utils.BaseContainerUI;
 import engine.utils.Scene2dElementFactory;
@@ -94,14 +93,6 @@ public class TextDialog {
         confirmButton, confirmButton, skin.get("green", TextButton.TextButtonStyle.class));
 
     dialog.pack();
-    BaseContainerUI container = new BaseContainerUI(dialog);
-    UIUtils.onUiAction(
-        container,
-        UiActions.CONFIRM,
-        () ->
-            DialogCallbackResolver.createButtonCallback(
-                    ctx.dialogId(), DialogContextKeys.ON_CONFIRM)
-                .accept(null));
-    return container;
+    return new BaseContainerUI(dialog);
   }
 }

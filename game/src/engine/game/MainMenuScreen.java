@@ -543,6 +543,8 @@ public class MainMenuScreen extends ScreenAdapter {
             (key, setting) ->
                 settingsTable.add(setting.toUIActor()).width(500).pad(0, 10, 20, 10).row());
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(settingsTable, false, true);
+    // Dragging a slider moves the slider only; the wheel and the scroll bar still scroll.
+    scrollPane.setFlickScroll(false);
 
     Table menu = new Table();
     menu.add(title).padBottom(15).align(Align.center).row();

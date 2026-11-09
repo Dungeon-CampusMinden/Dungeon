@@ -287,7 +287,7 @@ public class TilesMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<ActionId, String> getControls() {
+  public Map<ActionId, String> controls() {
     Map<ActionId, String> controls = new LinkedHashMap<>();
     controls.put(EditorActions.PLACE, "Place Tile [L]");
     controls.put(EditorActions.ALT, "Place Tile [R]");

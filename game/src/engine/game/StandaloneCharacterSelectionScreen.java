@@ -39,7 +39,10 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
   private CharacterCarousel carousel;
   private Label status;
   private TextButton confirm;
-  private InputContext input;
+  private final InputContext input =
+      new InputContext(UiActions.MENU)
+          .onPress(UiActions.NAV_LEFT, () -> carousel.move(-1))
+          .onPress(UiActions.NAV_RIGHT, () -> carousel.move(1));
   private List<Entity> localHeroes = List.of();
   private float refreshElapsed;
 
@@ -107,10 +110,6 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
     root.add(content);
     stage.addActor(root);
     GameInput.stage(stage);
-    input =
-        new InputContext(UiActions.MENU)
-            .onPress(UiActions.NAV_LEFT, () -> carousel.move(-1))
-            .onPress(UiActions.NAV_RIGHT, () -> carousel.move(1));
     GameInput.activate(input);
     refreshOptions();
   }
@@ -202,7 +201,7 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
 
   @Override
   public void dispose() {
-    if (input != null) GameInput.deactivate(input);
+    GameInput.deactivate(input);
     if (stage != null) {
       stage.dispose();
       stage = null;

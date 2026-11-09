@@ -12,8 +12,6 @@ import engine.systems.LevelSystem;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.systems.LevelEditorSystem;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,7 +20,6 @@ public abstract class LevelEditorMode {
 
   private final String name;
   private final Runnable levelChangedCallback;
-  private final Map<ActionId, String> controls = new LinkedHashMap<>();
 
   /**
    * Constructs a new LevelEditorMode with the given name.
@@ -33,10 +30,6 @@ public abstract class LevelEditorMode {
   public LevelEditorMode(String name, Runnable levelChangedCallback) {
     this.name = name;
     this.levelChangedCallback = Objects.requireNonNull(levelChangedCallback);
-    Map<ActionId, String> controls = getControls();
-    if (controls != null) {
-      this.controls.putAll(controls);
-    }
   }
 
   /**
@@ -143,20 +136,11 @@ public abstract class LevelEditorMode {
   }
 
   /**
-   * Gets the controls for this mode.
+   * Gets the controls of this mode, shown in the editor's details panel.
    *
-   * @return A map of key codes to their action descriptions.
+   * @return the actions of this mode with their descriptions, in display order
    */
-  public abstract Map<ActionId, String> getControls();
-
-  /**
-   * Gets the controls of this mode as they were resolved when this mode was created.
-   *
-   * @return an unmodifiable map of key codes to their action descriptions.
-   */
-  public Map<ActionId, String> controls() {
-    return Collections.unmodifiableMap(controls);
-  }
+  public abstract Map<ActionId, String> controls();
 
   /** Notifies the level editor system that this mode changed the level. */
   protected final void levelChanged() {

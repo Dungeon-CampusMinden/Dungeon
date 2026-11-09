@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
-import engine.input.UiActions;
 import engine.language.Translation;
 import engine.utils.BaseContainerUI;
 import feature.hud.UIUtils;
@@ -70,13 +69,6 @@ final class OkDialog {
 
     dialog.pack();
 
-    BaseContainerUI container = new BaseContainerUI(dialog);
-    UIUtils.onUiAction(
-        container,
-        UiActions.CONFIRM,
-        () ->
-            DialogCallbackResolver.createButtonCallback(dialogId, DialogContextKeys.ON_CONFIRM)
-                .accept(null));
-    return container;
+    return new BaseContainerUI(dialog);
   }
 }

@@ -152,7 +152,7 @@ public class SettingsMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<ActionId, String> getControls() {
+  public Map<ActionId, String> controls() {
     return Map.of();
   }
 

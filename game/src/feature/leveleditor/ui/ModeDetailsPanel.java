@@ -11,7 +11,6 @@ import feature.hud.elements.RichLabel;
 import feature.leveleditor.LevelEditorMode;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LevelEditorSystem.Mode;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -100,17 +99,16 @@ public class ModeDetailsPanel extends Table {
     if (secondary) return;
     if (mode == null) return;
     Map<ActionId, String> modeControls = mode.controls();
-    if (modeControls == null || modeControls.isEmpty()) return;
+    if (modeControls.isEmpty()) return;
 
     controlsContent.add(text("Controls:")).colspan(2).left().padBottom(4f).row();
-    Map<String, String> keysByAction = new LinkedHashMap<>();
     modeControls.forEach(
-        (id, action) ->
-            keysByAction.merge(
-                action, "[action id=" + id + "]", (keys, nextKey) -> keys + " " + nextKey));
-    keysByAction.forEach(
-        (action, keys) -> {
-          controlsContent.add(text(keys)).left().padRight(10f).padBottom(2f);
+        (id, action) -> {
+          controlsContent
+              .add(text("[action id=" + id + " all]"))
+              .left()
+              .padRight(10f)
+              .padBottom(2f);
           RichLabel actionLabel = text(action);
           actionLabel.setWrap(true);
           actionLabel.setMaxPrefWidth(getWidth() - getPadLeft() - getPadRight() - 30f);

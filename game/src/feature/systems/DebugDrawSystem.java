@@ -121,8 +121,6 @@ public class DebugDrawSystem extends System {
 
   @Override
   public void render(float delta) {
-    if (!render && !renderSystemList && !renderNetworkTelemetry && !renderInputState) return;
-
     if (renderSystemList) drawSystemList();
     if (renderNetworkTelemetry) {
       updateNetworkTelemetryRequest();

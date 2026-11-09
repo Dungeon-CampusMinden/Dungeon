@@ -482,10 +482,9 @@ public class LevelEditorSystem extends System {
    * @return true if the active mode must not act on the cursor, false otherwise.
    */
   private static boolean uiCapturesCursor() {
+    // Pick acts on its press only, so only place and alt drag.
     boolean dragging =
-        GameInput.pressed(EditorActions.PLACE)
-            || GameInput.pressed(EditorActions.ALT)
-            || GameInput.pressed(EditorActions.PICK);
+        GameInput.pressed(EditorActions.PLACE) || GameInput.pressed(EditorActions.ALT);
     return !dragging && ui != null && ui.isCursorOverUI();
   }
 

@@ -36,9 +36,8 @@ public class SpriteTestRoom {
    * Main method to start the game.
    *
    * @param args The arguments passed to the game.
-   * @throws IOException If an I/O error occurs.
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     configGame();
     onSetup();
 
@@ -65,7 +64,7 @@ public class SpriteTestRoom {
     Game.add(hero);
   }
 
-  private static void configGame() throws IOException {
+  private static void configGame() {
     Game.disableAudio(true);
     Game.frameRate(60);
   }

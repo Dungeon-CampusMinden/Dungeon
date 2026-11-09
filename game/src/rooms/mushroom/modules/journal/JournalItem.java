@@ -10,8 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import engine.Entity;
 import engine.input.ActionId;
-import engine.input.ContextLayer;
-import engine.input.ContextSpec;
 import engine.input.CoreActions;
 import engine.input.UiActions;
 import engine.utils.components.draw.TextureMap;
@@ -53,11 +51,8 @@ public class JournalItem extends Item {
     DialogFactory.register(EscapeRoomDialogTypes.JOURNAL, JournalItem::buildMushroomJournalDialog);
     DialogInput.register(
         EscapeRoomDialogTypes.JOURNAL,
-        ContextSpec.of(
-                "journal", ContextLayer.UI, UiActions.NAV_UP, UiActions.NAV_DOWN, UiActions.CLICK)
-            .closedBy(UiActions.CLOSE, OPEN, CoreActions.QUESTLOG)
-            .padOnly(CoreActions.PAUSE_MENU)
-            .blocking());
+        UiActions.modal("journal", UiActions.NAV_UP, UiActions.NAV_DOWN, UiActions.CLICK)
+            .closedBy(OPEN, CoreActions.QUESTLOG));
   }
 
   /**

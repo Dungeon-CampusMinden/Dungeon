@@ -1,6 +1,5 @@
 package engine.input;
 
-import static engine.input.Binding.CTRL;
 import static engine.input.Binding.key;
 import static engine.input.Binding.mouse;
 import static engine.input.Binding.pad;
@@ -33,7 +32,7 @@ class InputResolverTest {
   private static final ActionId HUD = new ActionId("test", "hud", key(Keys.F3));
   private static final ActionId LIST = new ActionId("test", "list", key(Keys.F3, Keys.A));
   private static final ActionId LEFT = new ActionId("test", "left", key(Keys.A));
-  private static final ActionId COPY = new ActionId("test", "copy", key(CTRL, Keys.C));
+  private static final ActionId COPY = new ActionId("test", "copy", key(Keys.CONTROL_LEFT, Keys.C));
   private static final ActionId DOORS = new ActionId("test", "doors", key(Keys.C));
   private static final ActionId STICK = new ActionId("test", "stick", pad(PadAxisId.LSTICK));
   private static final ActionId ZOOM = new ActionId("test", "zoom", wheel());
@@ -233,39 +232,6 @@ class InputResolverTest {
     resolver.keyUp(Input.Keys.I);
     resolver.advance(0);
     assertTrue(resolver.justReleased(OTHER));
-  }
-
-  @Test
-  void bindingAndVirtualSourceAggregate() {
-    resolver.keyDown(Input.Keys.Q);
-    resolver.press(ATTACK, "touch", 3);
-    resolver.advance(0);
-    assertTrue(resolver.justPressed(ATTACK));
-
-    resolver.keyUp(Input.Keys.Q);
-    resolver.advance(0);
-    assertTrue(resolver.pressed(ATTACK));
-
-    resolver.release("touch", 3);
-    resolver.advance(0);
-    assertTrue(resolver.justReleased(ATTACK));
-  }
-
-  @Test
-  void ownershipAndCancelAreTrackedPerPointer() {
-    resolver.press(ATTACK, "touch", 1);
-    resolver.advance(0);
-    resolver.activate(new InputContext(DIALOG));
-    resolver.press(OTHER, "touch", 2);
-    resolver.advance(0);
-
-    assertFalse(resolver.pressed(ATTACK), "pointer 1 is cancelled by the dialog");
-    assertFalse(
-        resolver.pressed(OTHER), "pointer 2 belongs to the dialog, which has no such action");
-
-    resolver.release("touch", 1);
-    resolver.advance(0);
-    assertFalse(resolver.justReleased(ATTACK), "a cancelled pointer fires no release");
   }
 
   @Test
