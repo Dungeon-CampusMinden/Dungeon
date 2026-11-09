@@ -75,6 +75,8 @@ the [step-by-step guide][Wizard guide].
 
 ### DEER-Editor: build levels inside the game
 
+<p align="center"><img src="doc/img/readme/deer-editor.png" alt="DEER-Editor in prefab mode: the prefab list on the left, labelled prefabs such as levers, dialogs and pressure plates in the level"></p>
+
 The DEER-Editor (DEER = Digital Educational Escape Room) is the level editor built into
 Dungeon. Paint the map, place decorations and connect ready-made prefabs such as doors, levers,
 keypads and pressure plates into puzzles, then press `F4` and play what you just built. Every

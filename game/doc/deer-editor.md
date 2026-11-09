@@ -8,6 +8,8 @@ ready-made building blocks (prefabs) such as doors, levers, keypads, pressure pl
 and item spawners into puzzles. In the code it is still called the level editor
 (`LevelEditorSystem`, `feature.leveleditor`).
 
+<p align="center"><img src="../../doc/img/readme/deer-editor.png" alt="DEER-Editor in prefab mode: the prefab list on the left, labelled prefabs such as levers, dialogs and pressure plates in the level"></p>
+
 ## Start
 
 Each escape room has its own task:
