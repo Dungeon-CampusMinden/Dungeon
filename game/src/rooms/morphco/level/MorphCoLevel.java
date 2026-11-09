@@ -139,14 +139,15 @@ public class MorphCoLevel extends DungeonLevel {
         SurveyFeature.Phase.PRE,
         () ->
             BlackFadeCutscene.show(
-                MorphCoText.introPages(), false, true, true, () -> arrival(id), id),
+                MorphCoText.introPages(), false, true, true, () -> arrival(player), id),
         id);
   }
 
-  private void arrival(int playerId) {
+  private void arrival(Entity player) {
+    int playerId = player.id();
     playReady(playerId);
     DialogFactory.showDialogDialog(
-        MorphCoText.arrival(),
+        MorphCoText.arrival(MorphCoText.playerImage(player)),
         () -> {
           observe(MorphCoState.ARRIVAL);
           DialogFactory.showDialogDialog(MorphCoText.controls(), () -> {}, playerId);

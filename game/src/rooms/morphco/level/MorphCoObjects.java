@@ -250,7 +250,7 @@ final class MorphCoObjects {
   private static List<Entity> shiftLead(String name, Point position, int number) {
     Entity npc = new Entity(name);
     npc.add(new PositionComponent(position));
-    DrawComponent draw = new DrawComponent(new SimpleIPath("character/monster/doc"));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("character/shift_lead"));
     draw.depth(DepthLayer.Player.depth());
     npc.add(draw);
     CollideComponent collider = new CollideComponent(Vector2.of(0.1f, 0f), Vector2.of(0.8f, 0.6f));

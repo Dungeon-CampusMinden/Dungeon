@@ -1,9 +1,11 @@
 package rooms.morphco.util;
 
 import com.badlogic.gdx.Input;
+import engine.Entity;
 import engine.configuration.KeyboardConfig;
 import engine.language.Translation;
 import engine.utils.Tuple;
+import feature.components.CharacterClassComponent;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -28,7 +30,7 @@ public final class MorphCoText {
   /** Portrait of the shift lead in speaker dialogs. */
   public static final String SHIFT_LEAD_IMAGE = "rooms/morphCo/shift_lead_portrait.png";
 
-  /** Portrait of the player in speaker dialogs. */
+  /** Portrait of a player in speaker dialogs whose character has no portrait of its own. */
   public static final String PLAYER_IMAGE = "rooms/morphCo/player_portrait.png";
 
   private static final Translation TEXT = new Translation("morphCo");
@@ -90,18 +92,39 @@ public final class MorphCoText {
   }
 
   /**
+   * Returns the dialog portrait of a player's character.
+   *
+   * @param player the player
+   * @return portrait path inside the assets
+   */
+  public static String playerImage(Entity player) {
+    return player
+        .fetch(CharacterClassComponent.class)
+        .map(CharacterClassComponent::characterClass)
+        .map(
+            characterClass ->
+                switch (characterClass) {
+                  case TECHNICIAN -> "rooms/morphCo/technician_portrait.png";
+                  case THE_LAST_HOUR_ROGUE -> "rooms/morphCo/rogue_portrait.png";
+                  default -> PLAYER_IMAGE;
+                })
+        .orElse(PLAYER_IMAGE);
+  }
+
+  /**
    * Creates the arrival conversation between the shift lead and the player.
    *
+   * @param playerImage portrait of the player, see {@link #playerImage(Entity)}
    * @return keyed multi-page speaker script
    */
-  public static String arrival() {
+  public static String arrival(String playerImage) {
     return shiftLead("arrival")
         + "[p]"
-        + speaker(PLAYER_IMAGE, "story.you", "arrival-you")
+        + speaker(playerImage, "story.you", "arrival-you")
         + "[p]"
         + shiftLead("arrival-alarm")
         + "[p]"
-        + speaker(PLAYER_IMAGE, "story.you", "arrival-card");
+        + speaker(playerImage, "story.you", "arrival-card");
   }
 
   private static String speaker(String image, String nameKey, String key) {

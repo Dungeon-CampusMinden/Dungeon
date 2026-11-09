@@ -118,6 +118,7 @@ class MorphCoLocalizationTest {
     assertEquals("Im mittleren Schälchen erscheint {ge- ... -e} - wie in \"Gebirge\".", text);
     String quest = translator.translate(MorphCoText.questKey("main.tab"));
     assertEquals("Auftrag", quest);
-    assertFalse(translator.translate(MorphCoText.arrival()).contains("morphCo."));
+    assertFalse(
+        translator.translate(MorphCoText.arrival(MorphCoText.PLAYER_IMAGE)).contains("morphCo."));
   }
 }

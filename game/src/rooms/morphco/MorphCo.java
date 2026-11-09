@@ -82,7 +82,9 @@ public final class MorphCo {
   private static final String NEW_GAME_ARGUMENT = "--new-morph-co";
   private static final String LOAD_SAVE_ARGUMENT = "--load-morph-co";
   private static final CharacterClass[] CHARACTER_CLASSES = {
-    CharacterClass.THE_LAST_HOUR_ROGUE, CharacterClass.THE_LAST_HOUR_CHAR03
+    CharacterClass.TECHNICIAN,
+    CharacterClass.THE_LAST_HOUR_ROGUE,
+    CharacterClass.THE_LAST_HOUR_CHAR03
   };
 
   private static boolean debugMode;
