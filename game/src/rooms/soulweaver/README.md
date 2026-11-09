@@ -4,14 +4,14 @@
 
 <p align="center"><a href="https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=Seelenweber"><img src="https://img.shields.io/badge/Download-Das_Erbe_der_Seelenweber-2ea44f?style=for-the-badge&logo=github" alt="Download Das Erbe der Seelenweber"></a></p>
 
-A fantasy escape room for first steps in programming, for 1–2 players. From the repository:
+A fantasy escape room about first steps in programming, for 1–2 players. From the repository:
 `./gradlew :game:runSoulweaver`
 
 ## For players
 
 Step into the abandoned forge of Aethelgard. Master Valerius set out for the Heartfire and never
 came back. Rubble jams the winch in the cellar, hot steam hisses from the pipes, and the only
-helper left is Nox, a stone golem whose soul binding has gone out. Wake him up, steer him
+helper left is Nox, a stone golem whose soul binding has faded. Wake him up, steer him
 through the cellar he can enter and you cannot, teach him new tricks in Valerius' workshop and
 lead him through the labyrinth of decisions. Nox does exactly what you tell him, so choose your
 words carefully. Play alone or with a partner.

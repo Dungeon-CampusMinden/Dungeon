@@ -29,7 +29,7 @@ two players and has a shared 60-minute limit.
 | 2 Modules | fill an array, take out an element, read its length |
 | 3 Inventory scanner | count occupied entries with a for-each loop |
 | 4 Transport storage | process an array index by index in a loop |
-| 5 Manual sorting | order neighbouring values by hand |
+| 5 Manual sorting | order neighboring values by hand |
 | 6 Bubble sort | complete the condition of a bubble sort |
 | 7 Data archive | reconstruct three array declarations |
 | 8 2D storage | work with a 3x4 matrix |
@@ -42,8 +42,9 @@ quest log keeps every accepted solution, and the *Memory Watch* tab on the PC sh
 from the accepted inputs.
 
 **Use in teaching:** the game saves automatically at checkpoints, and *Continue* resumes with
-the remaining time. With the players' consent, attempts, hints and solutions are recorded in a tracking file
-on the host computer. The texts are German by default; an English translation exists.
+the remaining time. With the players' consent, attempts, hints and solutions are recorded in a
+tracking file on the host computer. The texts are German by default; an English translation
+exists.
 
 -   [Concept and documentation] (German)
 -   [Story flow] (German, contains spoilers)

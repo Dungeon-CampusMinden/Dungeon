@@ -27,7 +27,7 @@ The puzzles build on each other and bring everyday security topics into play:
 -   **Manipulation and social engineering:** e-mails and phone calls press for urgent action or
     claim authority. Players have to judge which sources they can trust.
 -   **Access control:** a locked computer, a login screen and an electronic door lock.
--   **Encoding and decryption:** credentials and door codes are hidden in encoded form and have
+-   **Encoding and decoding:** credentials and door codes are hidden in encoded form and have
     to be decoded with the right manual.
 -   **Removable media:** several USB sticks lie around the office, and not every one of them is
     harmless.
