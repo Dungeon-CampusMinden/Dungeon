@@ -117,6 +117,7 @@ public final class Soulweaver {
 
     GameStarter game =
         GameStarter.builder("Das Erbe der Seelenweber", Soulweaver.class)
+            .localizedTitle(Language.EN, "The Soulweavers' Legacy")
             .language(Language.DE)
             .levelEditor("levels/soulweaver")
             .serverArguments(ServerProcess.SERVER_ARGUMENT, NEW_GAME_ARGUMENT)

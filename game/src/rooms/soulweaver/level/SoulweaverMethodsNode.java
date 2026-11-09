@@ -420,15 +420,11 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     }
     List<Block> blocks = panelBlocks(state);
     for (Block block : blocks) {
-      // Fields show direction literals in this client's language; saving sends only edited text.
-      current.put(
-          block.id() + ":operand",
-          MethodsWorkshop.directions(block.operand(), SoulweaverText::text));
+      current.put(block.id() + ":operand", block.operand());
       current.put(block.id() + ":target", block.target());
-      current.put(
-          block.id() + ":arguments",
-          MethodsWorkshop.directions(String.join(", ", block.arguments()), SoulweaverText::text));
+      current.put(block.id() + ":arguments", String.join(", ", block.arguments()));
     }
+    current.replaceAll((key, value) -> MethodsWorkshop.localized(value, SoulweaverText::text));
     return current;
   }
 
@@ -709,7 +705,10 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
               paletteRow(
                   table,
                   SoulweaverText.text(
-                      "methods.ui.rune", name, String.join(", ", definition.parameters())),
+                      "methods.ui.rune",
+                      MethodsWorkshop.localized(name, SoulweaverText::text),
+                      MethodsWorkshop.localized(
+                          String.join(", ", definition.parameters()), SoulweaverText::text)),
                   new Block(
                       "",
                       Action.CALL,
@@ -1048,11 +1047,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
   }
 
   private void editField(Table table, Block block, String field, String caption, String value) {
-    String shown =
-        field.equals("target") ? value : MethodsWorkshop.directions(value, SoulweaverText::text);
     table.add(SoulweaverUI.zoomLabel(caption, 15, SoulweaverUI.MUTED)).growX().row();
     table
-        .add(field(block.id() + ":" + field, shown, (next, ack) -> edit(block, field, next, ack)))
+        .add(field(block.id() + ":" + field, value, (next, ack) -> edit(block, field, next, ack)))
         .growX()
         .height(36)
         .padBottom(7)
@@ -1110,10 +1107,15 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     return button;
   }
 
+  // Fields show the game's names and direction literals in this client's language and send them in
+  // their stored spelling. Saving sends only text the player has changed.
   private TextField field(String key, String initial, BiConsumer<String, Consumer<State>> commit) {
-    EditorField field = fields.computeIfAbsent(key, ignored -> new EditorField(key, initial));
-    field.commit = commit;
-    field.receive(initial);
+    String shown = MethodsWorkshop.localized(initial, SoulweaverText::text);
+    EditorField field = fields.computeIfAbsent(key, ignored -> new EditorField(key, shown));
+    field.commit =
+        (value, acknowledged) ->
+            commit.accept(MethodsWorkshop.stored(value, SoulweaverText::text), acknowledged);
+    field.receive(shown);
     field.setDisabled(!owner.editable());
     return field;
   }

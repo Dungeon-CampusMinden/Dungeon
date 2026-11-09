@@ -211,7 +211,12 @@ final class SoulweaverBindingNode extends CanvasNode {
                 : stored == null ? SoulweaverText.text("binding.ui.empty") : stored.literal());
         if (state.revealed())
           detail.setText(
-              container.javaType() + " " + property.identifier() + " = " + stored.literal() + ";");
+              container.javaType()
+                  + " "
+                  + SoulweaverText.text(property.identifierKey())
+                  + " = "
+                  + stored.literal()
+                  + ";");
         if (clearable()) erase.setText("×");
       }
       case CORE -> {

@@ -414,7 +414,10 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
               + SoulweaverText.text("methods.ui.variables")
               + "\n"
               + state.variables().entrySet().stream()
-                  .map(entry -> entry.getKey() + " = " + entry.getValue())
+                  .map(
+                      entry ->
+                          MethodsWorkshop.localized(
+                              entry.getKey() + " = " + entry.getValue(), SoulweaverText::text))
                   .collect(java.util.stream.Collectors.joining("\n"));
     };
   }

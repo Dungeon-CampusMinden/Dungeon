@@ -34,6 +34,7 @@ import rooms.soulweaver.level.SoulweaverProgress;
 import rooms.soulweaver.modules.decisions.DecisionMaze;
 import rooms.soulweaver.modules.loops.LoopExecution;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
+import rooms.soulweaver.modules.loops.LoopRune;
 import rooms.soulweaver.modules.methods.MethodsRoute;
 import rooms.soulweaver.modules.methods.MethodsWorkshop;
 import rooms.soulweaver.modules.variables.GolemProperty;
@@ -125,6 +126,9 @@ class SoulweaverLocalizationTest {
         texts.add(
             SoulweaverText.text("binding.book.note." + property.name().toLowerCase(Locale.ROOT)));
       }
+      for (GolemProperty property : GolemProperty.values())
+        texts.add(SoulweaverText.text(property.identifierKey()));
+      for (LoopRune rune : LoopPuzzle.runes()) texts.add(rune.code(SoulweaverText::text));
       for (SoulVessel vessel : SoulVessel.values()) {
         texts.add(SoulweaverText.text(vessel.labelKey()));
         texts.add(SoulweaverText.text(vessel.capacityKey()));
@@ -248,7 +252,7 @@ class SoulweaverLocalizationTest {
             MethodsRoute.Action.CALL,
             "",
             "kristalle",
-            "sammeln",
+            "meinSammeln",
             List.of("RIGHT", "LINKSHERUM"),
             MethodsWorkshop.ResultMode.ADD);
     String transported = MethodsWorkshop.blockSource(turn, SoulweaverText::key);
@@ -256,17 +260,61 @@ class SoulweaverLocalizationTest {
     Game.localization().currentLanguage(Language.DE);
     assertEquals("DREHE(LINKS)", SoulweaverText.translate(transported));
     assertEquals(
-        "kristalle += sammeln(RECHTS, LINKSHERUM)",
+        "kristalle += meinSammeln(RECHTS, LINKSHERUM)",
         MethodsWorkshop.blockSource(call, SoulweaverText::text));
 
     Game.localization().currentLanguage(Language.EN);
     assertEquals("TURN(LEFT)", SoulweaverText.translate(transported));
     assertEquals(
-        "LEFT, 3, LINKSHERUM",
-        MethodsWorkshop.directions("LINKS, 3, LINKSHERUM", SoulweaverText::text));
-    assertEquals(
-        "kristalle += sammeln(RIGHT, LINKSHERUM)",
+        "crystals += meinSammeln(RIGHT, LINKSHERUM)",
         MethodsWorkshop.blockSource(call, SoulweaverText::text));
+    assertEquals(
+        "kristalle + gesammelt - meinWert",
+        MethodsWorkshop.stored("crystals + collected - meinWert", SoulweaverText::text));
+  }
+
+  @Test
+  void helpSolutionShowsEnglishNamesAndStaysValidWhenEditedInEnglish() {
+    Game.localization().currentLanguage(Language.EN);
+    var workshop = new MethodsWorkshop();
+    assertTrue(
+        workshop.apply(1, new MethodsWorkshop.Intent(0, MethodsWorkshop.Operation.CLAIM, "")));
+    assertTrue(workshop.loadHelpSolution(1));
+    var state = workshop.state();
+
+    assertEquals(
+        "crystals += helpCollect()",
+        MethodsWorkshop.blockSource(
+            state.main().stream()
+                .filter(block -> block.method().equals("hilfeSammeln"))
+                .findFirst()
+                .orElseThrow(),
+            SoulweaverText::text));
+    assertEquals(
+        List.of("direction"),
+        state.definitions().get("hilfeRune").parameters().stream()
+            .map(name -> MethodsWorkshop.localized(name, SoulweaverText::text))
+            .toList());
+    // What an English player sees and saves unchanged maps back to the stored solution.
+    for (var block : state.main()) {
+      for (String stored :
+          List.of(block.target(), block.method(), String.join(", ", block.arguments())))
+        assertEquals(
+            stored,
+            MethodsWorkshop.stored(
+                MethodsWorkshop.localized(stored, SoulweaverText::text), SoulweaverText::text));
+    }
+  }
+
+  @Test
+  void loopRunesShowEnglishCodeAndStayGermanForTracking() {
+    LoopRune rune = LoopPuzzle.rune("archive-jump").orElseThrow();
+    Game.localization().currentLanguage(Language.EN);
+
+    assertTrue(
+        rune.code(SoulweaverText::text).contains("jump();"), rune.code(SoulweaverText::text));
+    assertTrue(SoulweaverText.german(rune.code(SoulweaverText::key)).contains("springen();"));
+    assertFalse(rune.code(SoulweaverText::text).contains("springen"));
   }
 
   /**

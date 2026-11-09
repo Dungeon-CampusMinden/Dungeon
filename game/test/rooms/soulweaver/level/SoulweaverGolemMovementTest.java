@@ -37,6 +37,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import rooms.soulweaver.SoulweaverRoomController;
 import rooms.soulweaver.modules.loops.LoopMaze;
+import rooms.soulweaver.modules.loops.LoopProgram;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
 import rooms.soulweaver.modules.variables.VariablePuzzle;
 import rooms.soulweaver.util.SoulweaverText;
@@ -132,7 +133,8 @@ class SoulweaverGolemMovementTest {
         (position.position().x() - ORIGIN.x()) / LoopMaze.CELL_WIDTH,
         runtime.terminalState().cellX(),
         .0001f);
-    assertEquals("schritt()", runtime.terminalState().status());
+    assertEquals(
+        LoopProgram.Action.MOVE.code(SoulweaverText::key), runtime.terminalState().status());
   }
 
   @Test
@@ -219,7 +221,8 @@ class SoulweaverGolemMovementTest {
     movement.stop();
     for (int i = 0; i < 300; i++) runtime.tick();
     assertEquals(paused, position.position());
-    assertEquals("schritt()", runtime.terminalState().status());
+    assertEquals(
+        LoopProgram.Action.MOVE.code(SoulweaverText::key), runtime.terminalState().status());
     movement.run();
     tick();
     assertTrue(position.position().x() > paused.x());

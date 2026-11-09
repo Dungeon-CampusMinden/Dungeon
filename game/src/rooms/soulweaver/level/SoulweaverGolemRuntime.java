@@ -598,7 +598,8 @@ final class SoulweaverGolemRuntime {
         || facing != LoopMaze.checkpoints().get(checkpoint).facing()) return;
     attemptParticipant = SoulweaverProgress.participant(who).orElse(null);
     attemptPuzzle = "cellar-" + checkpoint;
-    attemptCode = rune.orElseThrow().code();
+    // Tracking keeps the German source independent of the language of this process.
+    attemptCode = SoulweaverText.german(rune.orElseThrow().code(SoulweaverText::key));
     attemptHintLevel = help.level(attemptPuzzle);
     attemptAutomaticSolution = automaticSolution;
     SoulweaverProgress.interaction(attemptPuzzle, "execute", who);
@@ -625,7 +626,7 @@ final class SoulweaverGolemRuntime {
     }
     LoopExecution.Step instruction = step.orElseThrow();
     face(instruction.facing());
-    status = instruction.action().code();
+    status = instruction.action().code(SoulweaverText::key);
     if (instruction.action() == LoopProgram.Action.ATTACK) {
       attacking = true;
       actionTime = 0;

@@ -16,6 +16,7 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
 import rooms.soulweaver.modules.methods.MethodsRoute.Direction;
 import rooms.soulweaver.modules.methods.MethodsRoute.Step;
@@ -393,9 +394,21 @@ public final class MethodsWorkshop {
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final Set<String> DIRECTIONS =
       Set.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN");
-  private static final Pattern DIRECTION_LITERAL =
-      Pattern.compile(
-          "(?<![\\p{L}\\p{N}_])(?:" + String.join("|", DIRECTIONS) + ")(?![\\p{L}\\p{N}_])");
+
+  /** Names the game itself writes into programs; editors show them in the client's language. */
+  private static final Set<String> GAME_IDENTIFIERS =
+      Set.of(
+          "kristalle",
+          "gesammelt",
+          "menge",
+          "richtung",
+          "hilfeTor",
+          "hilfeRune",
+          "hilfeSammeln",
+          "hilfeAltar");
+
+  private static final Pattern NAME =
+      Pattern.compile("(?<![\\p{L}\\p{N}_])[\\p{L}_][\\p{L}\\p{N}_]*");
   private final List<Block> main = new ArrayList<>(), scrap = new ArrayList<>();
   private final Map<String, Definition> definitions = new LinkedHashMap<>();
   private Definition draft = new Definition("", List.of(), List.of());
@@ -1088,9 +1101,11 @@ public final class MethodsWorkshop {
   private void invoke(String name, List<String> arguments, Consumer<String> returnValue) {
     Definition method = definitions.get(name);
     if (method == null)
-      throw new IllegalArgumentException(SoulweaverText.key("methods.error.method-missing", name));
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.method-missing", localized(name, SoulweaverText::key)));
     if (method.parameters().size() != arguments.size())
-      throw new IllegalArgumentException(SoulweaverText.key("methods.error.argument-count", name));
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.argument-count", localized(name, SoulweaverText::key)));
     if (stack.size() >= 16)
       throw new IllegalArgumentException(SoulweaverText.key("methods.error.nested-calls"));
     Map<String, String> locals = new LinkedHashMap<>();
@@ -1103,7 +1118,8 @@ public final class MethodsWorkshop {
 
   private static void requireReturn(String method, String value) {
     if (value == null)
-      throw new IllegalArgumentException(SoulweaverText.key("methods.error.no-return", method));
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.no-return", localized(method, SoulweaverText::key)));
   }
 
   private static List<String> arguments(Frame frame, int count) {
@@ -1184,12 +1200,14 @@ public final class MethodsWorkshop {
   private void assign(Map<String, String> vars, String target, String value, ResultMode mode) {
     if (!identifier(target))
       throw new IllegalArgumentException(
-          SoulweaverText.key("methods.error.invalid-variable", target));
+          SoulweaverText.key(
+              "methods.error.invalid-variable", localized(target, SoulweaverText::key)));
     int amount = numeric(value);
     if (mode != ResultMode.REPLACE) {
       if (!vars.containsKey(target))
         throw new IllegalArgumentException(
-            SoulweaverText.key("methods.error.unknown-variable", target));
+            SoulweaverText.key(
+                "methods.error.unknown-variable", localized(target, SoulweaverText::key)));
       int current = numeric(vars.get(target));
       value =
           Integer.toString(
@@ -1207,7 +1225,8 @@ public final class MethodsWorkshop {
     try {
       return Integer.parseInt(value);
     } catch (NumberFormatException ex) {
-      throw new IllegalArgumentException(SoulweaverText.key("methods.error.number", value));
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.number", localized(value, SoulweaverText::key)));
     }
   }
 
@@ -1217,7 +1236,8 @@ public final class MethodsWorkshop {
       case "RIGHT", "RECHTS" -> Direction.RIGHT;
       case "BACK", "HINTEN" -> Direction.BACK;
       default ->
-          throw new IllegalArgumentException(SoulweaverText.key("methods.error.direction", value));
+          throw new IllegalArgumentException(
+              SoulweaverText.key("methods.error.direction", localized(value, SoulweaverText::key)));
     };
   }
 
@@ -1247,7 +1267,8 @@ public final class MethodsWorkshop {
           String result = frame.variables.get(input);
           if (result == null)
             throw new IllegalArgumentException(
-                SoulweaverText.key("methods.error.unknown-variable", input));
+                SoulweaverText.key(
+                    "methods.error.unknown-variable", localized(input, SoulweaverText::key)));
           frame.values.push(result);
         }
       }
@@ -1372,27 +1393,62 @@ public final class MethodsWorkshop {
 
     private IllegalArgumentException invalid() {
       return new IllegalArgumentException(
-          SoulweaverText.key("methods.error.invalid-expression", input));
+          SoulweaverText.key(
+              "methods.error.invalid-expression", localized(input, SoulweaverText::key)));
     }
   }
 
   /**
-   * Shows the direction literals of an expression in one language; the interpreter accepts both.
+   * Shows the direction literals and the game's own names in an expression in one language. The
+   * player's own names stay as entered; the interpreter accepts both direction spellings.
    *
-   * @param source stored expression
+   * @param source stored expression or name
    * @param word renders a key below the {@code soulweaver} namespace, as text for this client or as
    *     a transport key on the server
-   * @return expression with each direction literal rendered by {@code word}
+   * @return expression with each direction literal and game name rendered by {@code word}
    */
-  public static String directions(String source, UnaryOperator<String> word) {
-    return DIRECTION_LITERAL
-        .matcher(source)
+  public static String localized(String source, UnaryOperator<String> word) {
+    return NAME.matcher(source)
+        .replaceAll(
+            match -> {
+              String name = match.group();
+              if (DIRECTIONS.contains(name))
+                return Matcher.quoteReplacement(
+                    word.apply(
+                        "methods.direction." + direction(name).name().toLowerCase(Locale.ROOT)));
+              if (GAME_IDENTIFIERS.contains(name))
+                return Matcher.quoteReplacement(word.apply("methods.identifier." + name));
+              return name;
+            });
+  }
+
+  /**
+   * Turns the game's names and direction literals typed in the client's language back into their
+   * stored spelling, so the interpreter, the solution checks and tracking stay unchanged.
+   *
+   * @param input expression or name as typed
+   * @param word renders a key below the {@code soulweaver} namespace as text for this client
+   * @return input with the game's names in their stored spelling
+   */
+  public static String stored(String input, UnaryOperator<String> word) {
+    return NAME.matcher(input)
         .replaceAll(
             match ->
-                Matcher.quoteReplacement(
-                    word.apply(
-                        "methods.direction."
-                            + direction(match.group()).name().toLowerCase(Locale.ROOT))));
+                Stream.concat(
+                        GAME_IDENTIFIERS.stream()
+                            .filter(
+                                name ->
+                                    word.apply("methods.identifier." + name).equals(match.group())),
+                        Stream.of(Direction.LEFT, Direction.RIGHT, Direction.BACK)
+                            .filter(
+                                direction ->
+                                    word.apply(
+                                            "methods.direction."
+                                                + direction.name().toLowerCase(Locale.ROOT))
+                                        .equals(match.group()))
+                            .map(Direction::label))
+                    .findFirst()
+                    .orElse(match.group()));
   }
 
   /**
@@ -1406,16 +1462,17 @@ public final class MethodsWorkshop {
    */
   public static String blockSource(Block b, UnaryOperator<String> word) {
     String command = "methods.command." + b.action().name().toLowerCase(Locale.ROOT);
-    UnaryOperator<String> expression = source -> directions(source, word);
+    UnaryOperator<String> expression = source -> localized(source, word);
     return switch (b.action()) {
       case MOVE, TURN, PLACE -> word.apply(command) + "(" + expression.apply(b.operand()) + ")";
       case OPEN_GATE, ACTIVATE_RUNE -> word.apply(command) + "()";
-      case COLLECT -> b.target() + " = " + word.apply(command) + "()";
+      case COLLECT -> expression.apply(b.target()) + " = " + word.apply(command) + "()";
       case RETURN -> word.apply(command) + " " + expression.apply(b.operand());
-      case ASSIGN -> b.target() + b.mode().operator() + expression.apply(b.operand());
+      case ASSIGN ->
+          expression.apply(b.target()) + b.mode().operator() + expression.apply(b.operand());
       case CALL ->
-          (b.target().isBlank() ? "" : b.target() + b.mode().operator())
-              + b.method()
+          (b.target().isBlank() ? "" : expression.apply(b.target()) + b.mode().operator())
+              + expression.apply(b.method())
               + "("
               + b.arguments().stream().map(expression).collect(Collectors.joining(", "))
               + ")";

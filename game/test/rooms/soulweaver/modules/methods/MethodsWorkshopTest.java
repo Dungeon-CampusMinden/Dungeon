@@ -351,7 +351,9 @@ class MethodsWorkshopTest {
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
     run(workshop, 3, 5);
     assertFalse(workshop.state().busy());
-    String unknown = SoulweaverText.key("methods.error.unknown-variable", "kristalle");
+    String unknown =
+        SoulweaverText.key(
+            "methods.error.unknown-variable", SoulweaverText.key("methods.identifier.kristalle"));
     assertEquals(unknown, workshop.state().feedback());
     assertEquals(
         Map.of(workshop.state().main().get(4).id(), unknown), workshop.state().blockErrors());

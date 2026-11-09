@@ -141,7 +141,15 @@
       "mana": "Mana",
       "activated": "Aktiviert",
       "view_direction": "Blickrichtung",
-      "steps": "Schritte"
+      "steps": "Schritte",
+      "identifier": {
+        "name": "name",
+        "life_energy": "lebensenergie",
+        "mana": "mana",
+        "activated": "aktiviert",
+        "view_direction": "blickrichtung",
+        "steps": "schritte"
+      }
     },
     "vessel": {
       "iron_chest": {
@@ -264,6 +272,15 @@
         "pit-ahead": "Grube voraus. Schritt gestoppt.",
         "intruder": "Ein Eindringling versperrt den Weg.",
         "off-path": "Weg verlassen. Bewegung gestoppt."
+      },
+      "code": {
+        "move": "schritt",
+        "left": "linksDrehen",
+        "right": "rechtsDrehen",
+        "attack": "angreifen",
+        "jump": "springen",
+        "free": "bodenVoraus",
+        "goal": "amWegzeichen"
       }
     },
     "ui": {
@@ -278,7 +295,7 @@
       "goal": "Ziehe eine Rune in den Executor und führe Nox zu den fünf Wegzeichen.",
       "controls": "Starten: Rune in den Executor ziehen.\nCode lesen: Maus über eine Rune halten.\nWechseln: Nach einem Fehlversuch ist der Executor wieder frei. Sonst Rune herausziehen oder ersetzen.\nBeobachten: Die Karte zeigt Nox und das nächste Wegzeichen.",
       "simplified": "Gold zeigt den aktuellen Weg. Nur passende Runengruppen sind sichtbar.",
-      "commands": "schritt(): ein Feld vorwärts\nspringen(): über eine Grube, zwei Felder\nangreifen(): Gegner direkt voraus\nbodenVoraus(): Boden, auch mit Gegner\namWegzeichen(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung",
+      "commands": "$1(): ein Feld vorwärts\n$2(): über eine Grube, zwei Felder\n$3(): Gegner direkt voraus\n$4(): Boden, auch mit Gegner\n$5(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung",
       "drop-rune": "Eine Rune hier ablegen",
       "locked": "Gesperrt",
       "pull-out": "Herausziehen",
@@ -578,6 +595,16 @@
         "left": "LINKS",
         "right": "RECHTS",
         "back": "HINTEN"
+      },
+      "identifier": {
+        "kristalle": "kristalle",
+        "gesammelt": "gesammelt",
+        "menge": "menge",
+        "richtung": "richtung",
+        "hilfeTor": "hilfeTor",
+        "hilfeRune": "hilfeRune",
+        "hilfeSammeln": "hilfeSammeln",
+        "hilfeAltar": "hilfeAltar"
       }
     },
     "workshop": {

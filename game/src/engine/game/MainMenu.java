@@ -105,8 +105,10 @@ public final class MainMenu {
   }
 
   private static void run(GameStarter game, ClientStarter client, ServerStarter server) {
-    Game.windowTitle(game.title());
     Game.localization().currentLanguage(game.language());
+    Game.windowTitle(game.title());
+    // A title can depend on the language chosen in the menu or the in-game settings.
+    Game.localization().registerLanguageChangeListener(language -> Game.windowTitle(game.title()));
     client.apply();
     Runnable levelEditorLauncher =
         server == null

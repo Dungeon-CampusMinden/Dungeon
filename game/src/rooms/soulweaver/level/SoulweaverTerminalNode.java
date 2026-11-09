@@ -17,7 +17,6 @@ import feature.canvas.NodeState;
 import java.util.Optional;
 import rooms.soulweaver.modules.loops.LoopMaze;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
-import rooms.soulweaver.modules.loops.LoopRune;
 import rooms.soulweaver.modules.loops.TerminalState;
 import rooms.soulweaver.util.SoulweaverText;
 
@@ -141,7 +140,14 @@ final class SoulweaverTerminalNode extends CanvasNode {
   }
 
   private String caption() {
-    if (kind.equals("help")) return SoulweaverText.text("terminal.commands");
+    if (kind.equals("help"))
+      return SoulweaverText.text(
+          "terminal.commands",
+          SoulweaverText.text("loops.code.move"),
+          SoulweaverText.text("loops.code.jump"),
+          SoulweaverText.text("loops.code.attack"),
+          SoulweaverText.text("loops.code.free"),
+          SoulweaverText.text("loops.code.goal"));
     if (kind.equals("status")) {
       return state == null
           ? SoulweaverText.text("terminal.drop-rune")
@@ -345,7 +351,7 @@ final class SoulweaverTerminalNode extends CanvasNode {
         kind.equals("rune")
             ? id()
             : kind.equals("executor") && state != null ? state.activeRune() : "";
-    return LoopPuzzle.rune(runeId).map(LoopRune::code);
+    return LoopPuzzle.rune(runeId).map(rune -> rune.code(SoulweaverText::text));
   }
 
   boolean dragging() {

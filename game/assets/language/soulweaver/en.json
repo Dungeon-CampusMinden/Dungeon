@@ -141,7 +141,15 @@
       "mana": "Mana",
       "activated": "Activated",
       "view_direction": "Facing",
-      "steps": "Steps"
+      "steps": "Steps",
+      "identifier": {
+        "name": "name",
+        "life_energy": "lifeEnergy",
+        "mana": "mana",
+        "activated": "activated",
+        "view_direction": "facing",
+        "steps": "steps"
+      }
     },
     "vessel": {
       "iron_chest": {
@@ -264,6 +272,15 @@
         "pit-ahead": "Pit ahead. Step stopped.",
         "intruder": "An intruder is blocking the way.",
         "off-path": "Left the path. Movement stopped."
+      },
+      "code": {
+        "move": "step",
+        "left": "turnLeft",
+        "right": "turnRight",
+        "attack": "attack",
+        "jump": "jump",
+        "free": "floorAhead",
+        "goal": "atWaymark"
       }
     },
     "ui": {
@@ -278,7 +295,7 @@
       "goal": "Drag a rune into the executor and guide Nox to the five waymarks.",
       "controls": "Start: Drag a rune into the executor.\nRead code: Hover the mouse over a rune.\nSwitch: After a failed attempt the executor is free again. Otherwise pull the rune out or replace it.\nObserve: The map shows Nox and the next waymark.",
       "simplified": "Gold shows the current path. Only matching rune groups are visible.",
-      "commands": "schritt(): one tile forward\nspringen(): over a pit, two tiles\nangreifen(): enemy directly ahead\nbodenVoraus(): floor ahead, even with an enemy\namWegzeichen(): current goal reached\nTurning: a quarter turn",
+      "commands": "$1(): one tile forward\n$2(): over a pit, two tiles\n$3(): enemy directly ahead\n$4(): floor ahead, even with an enemy\n$5(): current goal reached\nTurning: a quarter turn",
       "drop-rune": "Drop a rune here",
       "locked": "Locked",
       "pull-out": "Pull out",
@@ -325,8 +342,8 @@
         },
         "methods": {
           "1": "Nox works through the connected main blocks. Compare the long starting program with the work stations and combine repeated sections.",
-          "2": "At most eight main blocks and six blocks per method. Call a method with parameters several times and use a return value. Both altars must be filled; at the end Nox must carry no crystals and kristalle must be 0.",
-          "3": "The workbench now marks repeated statements and changing inputs in gold. Use direction and amount as parameters. Collecting returns the amount; the caller adds it to kristalle and subtracts the amounts placed on the altars."
+          "2": "At most eight main blocks and six blocks per method. Call a method with parameters several times and use a return value. Both altars must be filled; at the end Nox must carry no crystals and the variable crystals must be 0.",
+          "3": "The workbench now marks repeated statements and changing inputs in gold. Use direction and amount as parameters. Collecting returns the amount; the caller adds it to crystals and subtracts the amounts placed on the altars."
         },
         "decisions": {
           "1": "Read the rune from top to bottom. Insert Nox's current values into the first condition. If it is true, the indented block below it applies; otherwise the block after the matching ELSE.",
@@ -468,9 +485,9 @@
         "world": "Complete all work stations: gates, runes and both altars.",
         "carried": "Nox is carrying $1 crystals. Expected: 0.",
         "carry-none": "Nox should carry no crystals at the end.",
-        "counted": "Variable kristalle: counted $1, final value $2. Expected: $3 collected crystals, then 0.",
-        "counted-wrong": "Variable kristalle: counted $1, final value $2. Expected: $3 collected crystals, then 0. Check the calculation when collecting and placing.",
-        "count": "The variable kristalle must count all collected crystals and be 0 at the end.",
+        "counted": "Variable crystals: counted $1, final value $2. Expected: $3 collected crystals, then 0.",
+        "counted-wrong": "Variable crystals: counted $1, final value $2. Expected: $3 collected crystals, then 0. Check the calculation when collecting and placing.",
+        "count": "The variable crystals must count all collected crystals and be 0 at the end.",
         "main-blocks": "Main program: $1 blocks, at most 8 allowed.",
         "main-blocks-too-many": "Main program: $1 blocks, at most 8 allowed. Combine statements into methods.",
         "reuse-done": "Method with parameters called several times.",
@@ -578,6 +595,16 @@
         "left": "LEFT",
         "right": "RIGHT",
         "back": "BACK"
+      },
+      "identifier": {
+        "kristalle": "crystals",
+        "gesammelt": "collected",
+        "menge": "amount",
+        "richtung": "direction",
+        "hilfeTor": "helpGate",
+        "hilfeRune": "helpRune",
+        "hilfeSammeln": "helpCollect",
+        "hilfeAltar": "helpAltar"
       }
     },
     "workshop": {

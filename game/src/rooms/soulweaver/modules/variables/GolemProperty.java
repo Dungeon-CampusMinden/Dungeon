@@ -4,18 +4,12 @@ import java.util.Locale;
 
 /** Properties filled into the golem's soul crystal. */
 public enum GolemProperty {
-  NAME("name"),
-  LIFE_ENERGY("lebensenergie"),
-  MANA("mana"),
-  ACTIVATED("aktiviert"),
-  VIEW_DIRECTION("blickrichtung"),
-  STEPS("schritte");
-
-  private final String identifier;
-
-  GolemProperty(String identifier) {
-    this.identifier = identifier;
-  }
+  NAME,
+  LIFE_ENERGY,
+  MANA,
+  ACTIVATED,
+  VIEW_DIRECTION,
+  STEPS;
 
   /**
    * @return language key of the inscription on the property rune
@@ -25,9 +19,9 @@ public enum GolemProperty {
   }
 
   /**
-   * @return the variable name in the final source reveal
+   * @return language key of the variable name in the final source reveal
    */
-  public String identifier() {
-    return identifier;
+  public String identifierKey() {
+    return "property.identifier." + name().toLowerCase(Locale.ROOT);
   }
 }
