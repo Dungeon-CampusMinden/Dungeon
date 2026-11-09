@@ -1,0 +1,492 @@
+{
+  "formatVersion": "0.5",
+  "seed": 7340291187263,
+  "metadata": {
+    "id": "city_archive",
+    "title": "Das Stadtarchiv",
+    "locale": "de-DE",
+    "description": "Beispiel mit zwei parallelen Zweigen, einem Zusammenführungsrätsel und einer großen Zuordnung.",
+    "author": "Dungeon contributors"
+  },
+  "learningDesign": {
+    "objectives": [
+      {
+        "id": "lo_check_sources",
+        "description": "Die Lernenden können die Echtheit einer Nachricht anhand von Absender und Adresse prüfen."
+      },
+      {
+        "id": "lo_classify_records",
+        "description": "Die Lernenden können Archivstücke nach Merkmalen ordnen."
+      },
+      {
+        "id": "lo_combine_results",
+        "description": "Die Lernenden können Zwischenergebnisse aus getrennten Arbeitsgruppen zusammenführen."
+      }
+    ],
+    "debriefPrompts": [
+      "Wie habt ihr die Arbeit auf die beiden Zweige verteilt?",
+      "Woran habt ihr die echte Nachricht erkannt?"
+    ]
+  },
+  "session": {
+    "targetAudience": "Lernende der Sekundarstufe I",
+    "priorKnowledge": "Keine besonderen Vorkenntnisse.",
+    "playerCount": {
+      "min": 1,
+      "max": 4
+    },
+    "time": {
+      "limitMinutes": 40,
+      "limitMode": "soft"
+    }
+  },
+  "scenario": {
+    "themeId": "default",
+    "mission": "Öffnet den Tresor des Stadtarchivs, bevor die Nachtschicht beginnt.",
+    "introText": [
+      "Das Stadtarchiv ist verschlossen, die Archivarin ist verschwunden.",
+      "Zwei Wege führen tiefer ins Archiv. Teilt euch auf."
+    ],
+    "successText": [
+      "Der Tresor ist offen und das Archiv gerettet."
+    ],
+    "failureText": [
+      "Die Nachtschicht beginnt. Das Archiv bleibt verschlossen."
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "s_world",
+      "kind": "world",
+      "title": "Stadtarchiv"
+    },
+    {
+      "id": "s_badge_drawer",
+      "kind": "container",
+      "title": "Schublade am Empfang"
+    },
+    {
+      "id": "s_badge_keypad",
+      "kind": "keypad",
+      "title": "Keypad am Empfang"
+    },
+    {
+      "id": "s_mail_tray",
+      "kind": "container",
+      "title": "Posteingang"
+    },
+    {
+      "id": "s_mail_terminal",
+      "kind": "terminal",
+      "title": "Postterminal"
+    },
+    {
+      "id": "s_sorting_list",
+      "kind": "container",
+      "title": "Sortierliste"
+    },
+    {
+      "id": "s_archive_shelves",
+      "kind": "assignment",
+      "title": "Archivregale"
+    },
+    {
+      "id": "s_server_log",
+      "kind": "container",
+      "title": "Serverprotokoll"
+    },
+    {
+      "id": "s_server_keypad",
+      "kind": "keypad",
+      "title": "Keypad im Serverraum"
+    },
+    {
+      "id": "s_vault_note",
+      "kind": "container",
+      "title": "Notiz am Tresor"
+    },
+    {
+      "id": "s_vault_keypad",
+      "kind": "keypad",
+      "title": "Tresor-Keypad"
+    },
+    {
+      "id": "s_exit_door",
+      "kind": "door",
+      "title": "Ausgang"
+    }
+  ],
+  "riddleGraph": {
+    "nodes": [
+      {
+        "id": "n_start",
+        "kind": "start"
+      },
+      {
+        "id": "n_badge",
+        "kind": "riddle",
+        "riddleId": "r_badge"
+      },
+      {
+        "id": "n_mail",
+        "kind": "riddle",
+        "riddleId": "r_mail"
+      },
+      {
+        "id": "n_sort",
+        "kind": "riddle",
+        "riddleId": "r_sort"
+      },
+      {
+        "id": "n_server",
+        "kind": "riddle",
+        "riddleId": "r_server"
+      },
+      {
+        "id": "n_vault",
+        "kind": "riddle",
+        "riddleId": "r_vault"
+      },
+      {
+        "id": "n_exit",
+        "kind": "end",
+        "surfaceId": "s_exit_door"
+      }
+    ],
+    "edges": [
+      {
+        "from": "n_start",
+        "to": "n_badge"
+      },
+      {
+        "from": "n_start",
+        "to": "n_mail"
+      },
+      {
+        "from": "n_badge",
+        "to": "n_sort"
+      },
+      {
+        "from": "n_mail",
+        "to": "n_server"
+      },
+      {
+        "from": "n_sort",
+        "to": "n_vault"
+      },
+      {
+        "from": "n_server",
+        "to": "n_vault"
+      },
+      {
+        "from": "n_vault",
+        "to": "n_exit"
+      }
+    ]
+  },
+  "riddles": [
+    {
+      "id": "r_badge",
+      "title": "Ausweis am Empfang",
+      "difficulty": "easy",
+      "estimatedMinutes": 4,
+      "learningObjectiveIds": [
+        "lo_combine_results"
+      ],
+      "informationSources": [
+        {
+          "id": "source_badge",
+          "surfaceId": "s_badge_drawer",
+          "resources": [
+            {
+              "id": "res_badge",
+              "kind": "inline_text",
+              "title": "Dienstausweis",
+              "text": "Auf dem Ausweis der Archivarin steht die Personalnummer 2741."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_badge_code",
+          "type": "numeric",
+          "surfaceId": "s_badge_keypad",
+          "answer": "2741",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_badge_1",
+          "title": "Schublade",
+          "text": "Am Empfang liegt der Ausweis der Archivarin.",
+          "severity": "orientation"
+        }
+      ]
+    },
+    {
+      "id": "r_mail",
+      "title": "Echte Nachricht finden",
+      "difficulty": "medium",
+      "estimatedMinutes": 6,
+      "learningObjectiveIds": [
+        "lo_check_sources"
+      ],
+      "informationSources": [
+        {
+          "id": "source_mail",
+          "surfaceId": "s_mail_tray",
+          "resources": [
+            {
+              "id": "res_mail_a",
+              "kind": "inline_text",
+              "title": "Nachricht 1",
+              "text": "Von: archiv@stadt-archiv.de – Der Serverraum ist mit dem Code 0815 gesichert."
+            },
+            {
+              "id": "res_mail_b",
+              "kind": "inline_text",
+              "title": "Nachricht 2",
+              "text": "Von: archiv@stadt-archiv.de.info-service.com – Bitte Zugangsdaten bestätigen."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_collect_mail",
+          "type": "collection",
+          "informationSourceId": "source_mail"
+        },
+        {
+          "id": "input_real_mail",
+          "type": "choice",
+          "surfaceId": "s_mail_terminal",
+          "question": "Welche Nachricht stammt wirklich vom Archiv?",
+          "options": [
+            {
+              "id": "opt_mail_a",
+              "text": "Nachricht 1"
+            },
+            {
+              "id": "opt_mail_b",
+              "text": "Nachricht 2"
+            }
+          ],
+          "correctOptionIds": [
+            "opt_mail_a"
+          ],
+          "multipleSelection": false
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_mail_1",
+          "title": "Absender",
+          "text": "Lest die Adresse bis zum Ende.",
+          "severity": "approach"
+        }
+      ]
+    },
+    {
+      "id": "r_sort",
+      "title": "Archiv sortieren",
+      "difficulty": "medium",
+      "estimatedMinutes": 8,
+      "learningObjectiveIds": [
+        "lo_classify_records"
+      ],
+      "informationSources": [
+        {
+          "id": "source_sorting",
+          "surfaceId": "s_sorting_list",
+          "resources": [
+            {
+              "id": "res_sorting",
+              "kind": "inline_text",
+              "title": "Sortierliste",
+              "text": "Schriftstücke, Vorräte, Wertsachen und Baustoffe kommen jeweils in ihre eigene Kiste."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_sort_archive",
+          "type": "assignment",
+          "surfaceId": "s_archive_shelves",
+          "containers": [
+            {
+              "id": "box_documents",
+              "name": "Aktenkiste"
+            },
+            {
+              "id": "box_supplies",
+              "name": "Vorratskiste"
+            },
+            {
+              "id": "box_valuables",
+              "name": "Wertkiste"
+            },
+            {
+              "id": "box_materials",
+              "name": "Baustoffkiste"
+            }
+          ],
+          "items": [
+            {
+              "id": "item_letter",
+              "name": "Brief",
+              "sprite": "items/book/letter.png",
+              "containerId": "box_documents"
+            },
+            {
+              "id": "item_ledger",
+              "name": "Kassenbuch",
+              "sprite": "items/rpg/item_book_blue.png",
+              "containerId": "box_documents"
+            },
+            {
+              "id": "item_bread",
+              "name": "Brot",
+              "sprite": "items/rpg/food_bread.png",
+              "containerId": "box_supplies"
+            },
+            {
+              "id": "item_apple",
+              "name": "Apfel",
+              "sprite": "items/rpg/food_apple.png",
+              "containerId": "box_supplies"
+            },
+            {
+              "id": "item_gold",
+              "name": "Goldmünzen",
+              "sprite": "items/resource/gold.png",
+              "containerId": "box_valuables"
+            },
+            {
+              "id": "item_emerald",
+              "name": "Smaragd",
+              "sprite": "items/resource/emerald.png",
+              "containerId": "box_valuables"
+            },
+            {
+              "id": "item_wood",
+              "name": "Holz",
+              "sprite": "items/resource/wood.png",
+              "containerId": "box_materials"
+            },
+            {
+              "id": "item_stone",
+              "name": "Stein",
+              "sprite": "items/resource/stone.png",
+              "containerId": "box_materials"
+            }
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_sort_1",
+          "title": "Paare",
+          "text": "Zu jeder Kiste gehören genau zwei Fundstücke.",
+          "severity": "orientation"
+        },
+        {
+          "id": "h_sort_2",
+          "title": "Lösung",
+          "text": "Brief und Kassenbuch in die Aktenkiste, Brot und Apfel in die Vorratskiste, Gold und Smaragd in die Wertkiste, Holz und Stein in die Baustoffkiste.",
+          "severity": "solution"
+        }
+      ]
+    },
+    {
+      "id": "r_server",
+      "title": "Serverraum öffnen",
+      "difficulty": "easy",
+      "estimatedMinutes": 4,
+      "learningObjectiveIds": [
+        "lo_check_sources"
+      ],
+      "informationSources": [
+        {
+          "id": "source_server_log",
+          "surfaceId": "s_server_log",
+          "resources": [
+            {
+              "id": "res_server_log",
+              "kind": "inline_text",
+              "title": "Serverprotokoll",
+              "text": "Letzte Anmeldung: Code aus der echten Nachricht. Neuer Tresorteil: 58."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_server_code",
+          "type": "numeric",
+          "surfaceId": "s_server_keypad",
+          "answer": "0815",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_server_1",
+          "title": "Nachricht",
+          "text": "Der Code stand in der echten Nachricht.",
+          "severity": "approach"
+        }
+      ]
+    },
+    {
+      "id": "r_vault",
+      "title": "Tresor öffnen",
+      "difficulty": "medium",
+      "estimatedMinutes": 5,
+      "learningObjectiveIds": [
+        "lo_combine_results"
+      ],
+      "informationSources": [
+        {
+          "id": "source_vault_note",
+          "surfaceId": "s_vault_note",
+          "resources": [
+            {
+              "id": "res_vault_note",
+              "kind": "inline_text",
+              "title": "Notiz am Tresor",
+              "text": "Der Tresorcode beginnt mit der Zahl der gefüllten Kisten und endet mit dem Tresorteil aus dem Serverraum."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "id": "input_vault_code",
+          "type": "numeric",
+          "surfaceId": "s_vault_keypad",
+          "answer": "458",
+          "showDigitCount": true
+        }
+      ],
+      "hints": [
+        {
+          "id": "h_vault_1",
+          "title": "Zusammenführen",
+          "text": "Ihr braucht ein Ergebnis aus jedem Zweig.",
+          "severity": "orientation"
+        },
+        {
+          "id": "h_vault_2",
+          "title": "Lösung",
+          "text": "Vier Kisten und der Tresorteil 58 ergeben 458.",
+          "severity": "solution"
+        }
+      ]
+    }
+  ],
+  "assets": []
+}

@@ -7,7 +7,6 @@ import engine.game.ECSManagement;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
 import engine.game.PreRunConfiguration;
-import engine.game.ServerLifecycle;
 import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
@@ -281,7 +280,6 @@ public class TheLastHour {
    * broadcast, and the standalone server status window.
    */
   private static void serverSetup() {
-    ServerLifecycle.install("The Last Hour server stopped");
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());

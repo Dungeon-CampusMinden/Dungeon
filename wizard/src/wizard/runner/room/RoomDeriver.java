@@ -68,6 +68,7 @@ public final class RoomDeriver {
    *
    * @param validation valid closed production validation result
    * @return immutable deterministic Foundation room
+   * @throws UnplaceableLevelException when the level generator finds no arrangement
    */
   public FoundationRoom derive(final ValidationResult validation) {
     Objects.requireNonNull(validation, "validation");
@@ -82,14 +83,14 @@ public final class RoomDeriver {
         validation
             .hostInputSha256()
             .orElseThrow(() -> new IllegalArgumentException("validated host hash is missing"));
-    SingleRoomPlanner.Plan plan = SingleRoomPlanner.planRoom(project);
+    LevelGenerator.Plan plan = LevelGenerator.plan(project);
     return derive(project, hostInputSha256, plan, validation.assets());
   }
 
   private static FoundationRoom derive(
       final ProjectDefinition project,
       final String hostInputSha256,
-      final SingleRoomPlanner.Plan plan,
+      final LevelGenerator.Plan plan,
       final List<VerifiedAsset> verifiedAssets) {
     Map<String, Riddle> riddles = index(project.riddles(), Riddle::id);
     Map<String, Asset> assets = index(project.assets(), Asset::id);
@@ -127,7 +128,7 @@ public final class RoomDeriver {
 
   private static ProgressionDefinition progression(
       final ProjectDefinition project,
-      final SingleRoomPlanner.Plan plan,
+      final LevelGenerator.Plan plan,
       final Map<String, Riddle> riddles) {
     Map<String, GraphNode> nodesByRiddle =
         project.riddleGraph().nodes().stream()
@@ -236,7 +237,7 @@ public final class RoomDeriver {
 
   private static GamePresentation presentation(
       final ProjectDefinition project,
-      final SingleRoomPlanner.Plan plan,
+      final LevelGenerator.Plan plan,
       final Map<String, Riddle> riddles,
       final Map<String, Asset> assets,
       final Map<String, Surface> surfaces) {

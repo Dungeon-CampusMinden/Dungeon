@@ -280,6 +280,7 @@ public class LastHourLevel extends DungeonLevel {
             return;
           }
           LastHourCheckpointProjection.apply(this, data);
+          introSuppressed = true;
         });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
