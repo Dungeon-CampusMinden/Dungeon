@@ -52,9 +52,12 @@ exists.
 
 ## Technical notes
 
--   **Play a release:** download `SystemRecovery.jar` (or the Windows or Linux package) from
-    the [releases] and start it with `java -jar SystemRecovery.jar`. It needs the
-    [Java SE Development Kit 25 LTS].
+-   **Play a release:** download a package from the [releases]. On Windows, extract
+    `SystemRecovery-win-x86_64.zip` and start `SystemRecovery/SystemRecovery.exe`; on Linux,
+    extract `SystemRecovery-linux-x86_64.tar.gz` and start
+    `SystemRecovery/bin/SystemRecovery`. Both packages include Java. On other systems such as
+    macOS, use `SystemRecovery.jar`: it needs the [Java SE Development Kit 25 LTS] and starts
+    with `java -jar SystemRecovery.jar`.
 -   **Play from source:** `./gradlew :game:runSystemRecovery`
 -   **Multiplayer:** the *Join* button is hidden by default and can be enabled with
     `SystemRecovery.SHOW_JOIN_IN_MENU`. A dedicated server starts with

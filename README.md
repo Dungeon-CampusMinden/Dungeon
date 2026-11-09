@@ -24,9 +24,13 @@ wizard lets educators build their own rooms without programming.
 
 ## Quick start
 
-You need the [Java SE Development Kit 25 LTS]. The fastest way in: download a room from the
-[releases] and start it with `java -jar <file>.jar`. To play from source, clone the repository;
-Gradle comes with it.
+The fastest way in is a ready-made package from the [releases]. For Windows
+(`<Name>-win-x86_64.zip`) and Linux (`<Name>-linux-x86_64.tar.gz`), Java is included: extract
+the archive and start `<Name>/<Name>.exe` on Windows or `<Name>/bin/<Name>` on Linux. The
+platform-independent `<Name>.jar`, for example for macOS, needs the
+[Java SE Development Kit 25 LTS] and starts with `java -jar <Name>.jar`.
+
+To play from source, you also need JDK 25. Clone the repository; Gradle comes with it.
 
 ``` bash
 git clone https://github.com/Dungeon-CampusMinden/Dungeon.git

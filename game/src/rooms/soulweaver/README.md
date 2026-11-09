@@ -52,9 +52,11 @@ reasons for failure, and the hints used for each puzzle.
 
 ## Technical notes
 
--   **Play a release:** download `Soulweaver.jar` (or the Windows or Linux package) from the
-    [releases] and start it with `java -jar Soulweaver.jar`. It needs the
-    [Java SE Development Kit 25 LTS].
+-   **Play a release:** download a package from the [releases]. On Windows, extract
+    `Soulweaver-win-x86_64.zip` and start `Soulweaver/Soulweaver.exe`; on Linux, extract
+    `Soulweaver-linux-x86_64.tar.gz` and start `Soulweaver/bin/Soulweaver`. Both packages
+    include Java. On other systems such as macOS, use `Soulweaver.jar`: it needs the [Java SE
+    Development Kit 25 LTS] and starts with `java -jar Soulweaver.jar`.
 -   **Play from source:** `./gradlew :game:runSoulweaver`
 -   **Multiplayer:** one player chooses *Spiel hosten* (host game), the other
     *Spiel beitreten* (join game).

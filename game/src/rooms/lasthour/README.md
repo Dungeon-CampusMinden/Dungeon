@@ -38,9 +38,11 @@ game; without consent, it runs without tracking.
 
 ## Technical notes
 
--   **Play a release:** download `TheLastHour.jar` (or the Windows or Linux package) from the
-    [releases]. Start the JAR with a double-click or with `java -jar TheLastHour.jar`. It needs
-    the [Java SE Development Kit 25 LTS]; check your installation with `java --version`.
+-   **Play a release:** download a package from the [releases]. On Windows, extract
+    `TheLastHour-win-x86_64.zip` and start `TheLastHour/TheLastHour.exe`; on Linux, extract
+    `TheLastHour-linux-x86_64.tar.gz` and start `TheLastHour/bin/TheLastHour`. Both packages
+    include Java. On other systems such as macOS, use `TheLastHour.jar`: it needs the [Java SE
+    Development Kit 25 LTS] and starts with `java -jar TheLastHour.jar`.
 -   **Play from source:** `./gradlew :game:runTheLastHour`
 -   **Multiplayer:** one player chooses *Host Game*, the other *Join Game* and enters the
     host's IP address. A dedicated server starts with `./gradlew :game:runTheLastHourServer`.
