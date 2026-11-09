@@ -35,7 +35,10 @@ import rooms.soulweaver.util.SoulweaverTranslator;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Checks that both language files match and that the room only uses keys that exist. */
+/**
+ * Checks that both language files and the surveys cover German and English, and that the room only
+ * uses keys that exist.
+ */
 class SoulweaverLocalizationTest {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
@@ -204,6 +207,30 @@ class SoulweaverLocalizationTest {
         return source.substring(start, index);
     }
     return source.substring(start);
+  }
+
+  @Test
+  void everySurveyTextHasGermanAndEnglish() throws IOException {
+    List<String> incomplete = new ArrayList<>();
+    for (String survey : List.of("pre-a", "pre-b", "post-a", "post-b")) {
+      String path = "surveys/" + survey + "-soulweaver.json";
+      try (InputStream in =
+          SoulweaverLocalizationTest.class.getClassLoader().getResourceAsStream(path)) {
+        collectIncompleteTexts(
+            path, JSON.readTree(new String(in.readAllBytes(), StandardCharsets.UTF_8)), incomplete);
+      }
+    }
+    assertTrue(incomplete.isEmpty(), "Texts without both languages: " + incomplete);
+  }
+
+  private static void collectIncompleteTexts(String path, JsonNode node, List<String> out) {
+    if (node.isArray()) node.forEach(child -> collectIncompleteTexts(path, child, out));
+    if (!node.isObject()) return;
+    if (node.has("de") || node.has("en")) {
+      if (!node.has("de") || !node.has("en")) out.add(path + ": " + node);
+      return;
+    }
+    node.properties().forEach(entry -> collectIncompleteTexts(path, entry.getValue(), out));
   }
 
   private static SoulweaverHelp.State helpWithEveryHint() {
