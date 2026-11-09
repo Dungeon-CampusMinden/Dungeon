@@ -67,7 +67,9 @@ final class SoulweaverBindingBook extends Group {
                 property ->
                     SoulweaverText.key(property.labelKey())
                         + ": "
-                        + VariablePuzzle.essenceSolution().get(property).literal())
+                        + VariablePuzzle.essenceSolution()
+                            .get(property)
+                            .literal(SoulweaverText::key))
             .collect(java.util.stream.Collectors.joining("\n"));
     SoulweaverProgress.discover(
         "variables-translation", SoulweaverText.key("binding.book.title"), reference, who);
@@ -186,7 +188,13 @@ final class SoulweaverBindingBook extends Group {
     content.addActor(drawing);
 
     Label value =
-        label(VariablePuzzle.essenceSolution().get(property).literal(), 48, x, 362, 460, 76);
+        label(
+            VariablePuzzle.essenceSolution().get(property).literal(SoulweaverText::text),
+            48,
+            x,
+            362,
+            460,
+            76);
     value.setAlignment(Align.center);
     String note =
         SoulweaverText.text("binding.book.note." + property.name().toLowerCase(Locale.ROOT));

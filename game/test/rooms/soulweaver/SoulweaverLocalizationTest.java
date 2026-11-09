@@ -38,6 +38,7 @@ import rooms.soulweaver.modules.loops.LoopRune;
 import rooms.soulweaver.modules.methods.MethodsRoute;
 import rooms.soulweaver.modules.methods.MethodsWorkshop;
 import rooms.soulweaver.modules.variables.GolemProperty;
+import rooms.soulweaver.modules.variables.MagicalEssence;
 import rooms.soulweaver.modules.variables.SoulVessel;
 import rooms.soulweaver.util.SoulweaverText;
 import rooms.soulweaver.util.SoulweaverTranslator;
@@ -304,6 +305,17 @@ class SoulweaverLocalizationTest {
             MethodsWorkshop.stored(
                 MethodsWorkshop.localized(stored, SoulweaverText::text), SoulweaverText::text));
     }
+  }
+
+  @Test
+  void facingLetterFollowsTheLanguageAndStaysGermanForTracking() {
+    String transported = MagicalEssence.VIEW_DIRECTION_VALUE.literal(SoulweaverText::key);
+    Game.localization().currentLanguage(Language.EN);
+
+    assertEquals("'E'", MagicalEssence.VIEW_DIRECTION_VALUE.literal(SoulweaverText::text));
+    assertEquals("'E'", SoulweaverText.translate(transported));
+    assertEquals("'O'", SoulweaverText.german(transported));
+    assertEquals("3.5", MagicalEssence.MANA_VALUE.literal(SoulweaverText::text));
   }
 
   @Test

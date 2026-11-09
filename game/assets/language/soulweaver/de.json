@@ -620,6 +620,9 @@
       "field-locked": "Der Runenstein hat dieses Kristallfeld noch nicht freigegeben.",
       "altar-capacity": "Dieser Altar hat noch $1 freie Fassungen.",
       "no-world-command": "Kein Weltbefehl."
+    },
+    "essence": {
+      "view_direction": "'O'"
     }
   }
 }

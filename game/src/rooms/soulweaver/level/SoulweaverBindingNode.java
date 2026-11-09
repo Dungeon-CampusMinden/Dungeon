@@ -199,7 +199,7 @@ final class SoulweaverBindingNode extends CanvasNode {
         detail.setText(
             state.revealed() ? vessel().javaType() : SoulweaverText.text(vessel().capacityKey()));
       }
-      case ESSENCE -> value.setText(essence().literal());
+      case ESSENCE -> value.setText(essence().literal(SoulweaverText::text));
       case SOCKET -> {
         var property = property();
         var container = state.vessels().get(property);
@@ -208,14 +208,16 @@ final class SoulweaverBindingNode extends CanvasNode {
         value.setText(
             container == null
                 ? SoulweaverText.text("binding.ui.drop-vessel")
-                : stored == null ? SoulweaverText.text("binding.ui.empty") : stored.literal());
+                : stored == null
+                    ? SoulweaverText.text("binding.ui.empty")
+                    : stored.literal(SoulweaverText::text));
         if (state.revealed())
           detail.setText(
               container.javaType()
                   + " "
                   + SoulweaverText.text(property.identifierKey())
                   + " = "
-                  + stored.literal()
+                  + stored.literal(SoulweaverText::text)
                   + ";");
         if (clearable()) erase.setText("×");
       }

@@ -260,7 +260,7 @@
           "life_energy": "The charge for his heavy stone body. Less was not enough during the last attempt.",
           "mana": "The amount for the soul binding. Don't forget the half.",
           "activated": "The release for the drive. Only activate the soul core once the binding is complete.",
-          "view_direction": "O for Osten, the east in Valerius' own tongue. That is where he should turn after awakening.",
+          "view_direction": "E for east. That is where he should turn after awakening.",
           "steps": "The step counter reading at the last maintenance. Restore this value during the binding."
         }
       }
@@ -620,6 +620,9 @@
       "field-locked": "The rune stone has not released this crystal field yet.",
       "altar-capacity": "This altar still has $1 free sockets.",
       "no-world-command": "Not a world command."
+    },
+    "essence": {
+      "view_direction": "'E'"
     }
   }
 }

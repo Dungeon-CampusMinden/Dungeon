@@ -233,19 +233,21 @@ final class SoulweaverGolemRuntime {
                     ? List.of(
                         SoulweaverText.key(
                             "binding.failure.wrong-type",
-                            selected.literal(),
+                            selected.literal(SoulweaverText::key),
                             SoulweaverText.key(container.labelKey())))
                     : VariablePuzzle.essenceSolution().get(property) != selected
                         ? List.of(
                             SoulweaverText.key(
                                 "binding.failure.wrong-value",
                                 SoulweaverText.key(property.labelKey()),
-                                selected.literal()))
+                                selected.literal(SoulweaverText::key)))
                         : List.of());
         logBinding(
             false,
             SoulweaverText.key(
-                "binding.log.essence", SoulweaverText.key(property.labelKey()), selected.literal()),
+                "binding.log.essence",
+                SoulweaverText.key(property.labelKey()),
+                selected.literal(SoulweaverText::key)),
             container == null
                 ? SoulweaverText.key("binding.log.vessel-missing")
                 : !VariablePuzzle.fits(container, selected)
@@ -259,10 +261,11 @@ final class SoulweaverGolemRuntime {
           if (container != null && !solvingBinding) SoulweaverAchievements.WRONG_TYPE.unlock(who);
           bindingFeedback =
               container == null
-                  ? SoulweaverText.key("binding.feedback.no-vessel", selected.literal())
+                  ? SoulweaverText.key(
+                      "binding.feedback.no-vessel", selected.literal(SoulweaverText::key))
                   : SoulweaverText.key(
                       "binding.feedback.does-not-fit",
-                      selected.literal(),
+                      selected.literal(SoulweaverText::key),
                       SoulweaverText.key(container.labelKey()),
                       SoulweaverText.key(container.capacityKey()));
           return;
@@ -279,7 +282,7 @@ final class SoulweaverGolemRuntime {
                     ? "binding.feedback.stored"
                     : "binding.feedback.stored-no-reaction",
                 SoulweaverText.key(property.labelKey()),
-                selected.literal());
+                selected.literal(SoulweaverText::key));
         if (VariablePuzzle.essencesCorrect(essences)) {
           controller.submitEssences(essences);
           SoulweaverProgress.solved("essences", SoulweaverText.key("binding.essences-solved"));
