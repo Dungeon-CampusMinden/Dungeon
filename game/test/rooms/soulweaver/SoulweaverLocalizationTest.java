@@ -262,6 +262,9 @@ class SoulweaverLocalizationTest {
     Game.localization().currentLanguage(Language.EN);
     assertEquals("TURN(LEFT)", SoulweaverText.translate(transported));
     assertEquals(
+        "LEFT, 3, LINKSHERUM",
+        MethodsWorkshop.directions("LINKS, 3, LINKSHERUM", SoulweaverText::text));
+    assertEquals(
         "kristalle += sammeln(RIGHT, LINKSHERUM)",
         MethodsWorkshop.blockSource(call, SoulweaverText::text));
   }

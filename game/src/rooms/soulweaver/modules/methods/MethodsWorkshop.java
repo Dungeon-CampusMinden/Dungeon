@@ -1377,6 +1377,25 @@ public final class MethodsWorkshop {
   }
 
   /**
+   * Shows the direction literals of an expression in one language; the interpreter accepts both.
+   *
+   * @param source stored expression
+   * @param word renders a key below the {@code soulweaver} namespace, as text for this client or as
+   *     a transport key on the server
+   * @return expression with each direction literal rendered by {@code word}
+   */
+  public static String directions(String source, UnaryOperator<String> word) {
+    return DIRECTION_LITERAL
+        .matcher(source)
+        .replaceAll(
+            match ->
+                Matcher.quoteReplacement(
+                    word.apply(
+                        "methods.direction."
+                            + direction(match.group()).name().toLowerCase(Locale.ROOT))));
+  }
+
+  /**
    * Renders the actual editable statement, including arguments and result assignment. Command words
    * and direction literals are language keys; the stored statement stays unchanged.
    *
@@ -1387,16 +1406,7 @@ public final class MethodsWorkshop {
    */
   public static String blockSource(Block b, UnaryOperator<String> word) {
     String command = "methods.command." + b.action().name().toLowerCase(Locale.ROOT);
-    UnaryOperator<String> expression =
-        source ->
-            DIRECTION_LITERAL
-                .matcher(source)
-                .replaceAll(
-                    match ->
-                        Matcher.quoteReplacement(
-                            word.apply(
-                                "methods.direction."
-                                    + direction(match.group()).name().toLowerCase(Locale.ROOT))));
+    UnaryOperator<String> expression = source -> directions(source, word);
     return switch (b.action()) {
       case MOVE, TURN, PLACE -> word.apply(command) + "(" + expression.apply(b.operand()) + ")";
       case OPEN_GATE, ACTIVATE_RUNE -> word.apply(command) + "()";

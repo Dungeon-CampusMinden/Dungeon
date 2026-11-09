@@ -41,6 +41,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
+import rooms.soulweaver.modules.methods.MethodsRoute.Direction;
 import rooms.soulweaver.modules.methods.MethodsWorkshop;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Block;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Definition;
@@ -419,9 +420,14 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     }
     List<Block> blocks = panelBlocks(state);
     for (Block block : blocks) {
-      current.put(block.id() + ":operand", block.operand());
+      // Fields show direction literals in this client's language; saving sends only edited text.
+      current.put(
+          block.id() + ":operand",
+          MethodsWorkshop.directions(block.operand(), SoulweaverText::text));
       current.put(block.id() + ":target", block.target());
-      current.put(block.id() + ":arguments", String.join(", ", block.arguments()));
+      current.put(
+          block.id() + ":arguments",
+          MethodsWorkshop.directions(String.join(", ", block.arguments()), SoulweaverText::text));
     }
     return current;
   }
@@ -673,7 +679,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
           new Block(
               "",
               action,
-              action == Action.TURN ? SoulweaverText.text("methods.direction.right") : "1",
+              action == Action.TURN ? Direction.RIGHT.label() : "1",
               action == Action.COLLECT ? "gesammelt" : action == Action.ASSIGN ? "kristalle" : "",
               "",
               List.of(),
@@ -1042,9 +1048,11 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
   }
 
   private void editField(Table table, Block block, String field, String caption, String value) {
+    String shown =
+        field.equals("target") ? value : MethodsWorkshop.directions(value, SoulweaverText::text);
     table.add(SoulweaverUI.zoomLabel(caption, 15, SoulweaverUI.MUTED)).growX().row();
     table
-        .add(field(block.id() + ":" + field, value, (next, ack) -> edit(block, field, next, ack)))
+        .add(field(block.id() + ":" + field, shown, (next, ack) -> edit(block, field, next, ack)))
         .growX()
         .height(36)
         .padBottom(7)
