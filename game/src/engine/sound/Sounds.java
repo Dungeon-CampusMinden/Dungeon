@@ -57,7 +57,9 @@ public class Sounds {
    * no click sound of their own. A button whose press already makes its own sound opts out with
    * {@link #ownSound}.
    *
-   * <p>Listens in the capture phase, so the sound still plays when the click disposes the UI.
+   * <p>Only the pressed button sounds. Buttons that change by code, such as the one a button group
+   * unchecks, stay silent. Listens in the capture phase, so the sound still plays when the click
+   * disposes the UI.
    *
    * @param root the stage root whose buttons click
    */
@@ -66,9 +68,11 @@ public class Sounds {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            if (actor instanceof CheckBox box) {
+            if (!(actor instanceof Button button) || !button.getClickListener().isPressed()) return;
+            if (button.getListeners().contains(OWN_SOUND, true)) return;
+            if (button instanceof CheckBox box) {
               playUi(CoreSounds.SETTINGS_TOGGLE_CLICK, box.isChecked() ? 1.0f : 0.8f);
-            } else if (actor instanceof Button && !actor.getListeners().contains(OWN_SOUND, true)) {
+            } else {
               playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
             }
           }
