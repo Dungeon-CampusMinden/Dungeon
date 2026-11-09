@@ -67,4 +67,4 @@ reasons for failure, and the hints used for each puzzle.
   [Concept]: ../../../../doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md
   [releases]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=Seelenweber
   [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
-  [DEER-Editor]: ../../../../game/doc/deer-editor.md
+  [DEER-Editor]: ../../../../game/doc/deer_editor.md

@@ -8,8 +8,8 @@ Dungeon is a Java framework for the gamification of educational content, and its
 didactic escape rooms. Step into a vanished scientist's office and tell real clues from
 manipulation, program your way through a facility run by an AI that does not tell you
 everything, or bring a stone golem to life with variables, loops and methods. Students play
-alone or together over the network and solve subject-related puzzles to get out. A low-code
-wizard lets educators build their own rooms without programming.
+alone or together over the network and solve subject-related puzzles to get out. The low-code
+Wizard lets educators build their own rooms without programming.
 
 <table>
   <tr>
@@ -68,8 +68,8 @@ detailed concept documents behind them are in German.
 
 Turn your own course material into an escape room. The [Wizard][low-code wizard] guides
 educators page by page through story, puzzles and game flow in the browser: number codes,
-multiple-choice questions, matching tasks and information sources to discover, with graded
-hints for every puzzle. A check in the background points to anything missing, and at the end
+multiple-choice questions, matching tasks and information sources to discover, each puzzle with
+optional graded hints. A check in the background points to anything missing, and at the end
 the Wizard packs the room into a single JAR file that you hand out to all players. Start with
 the [step-by-step guide][Wizard guide].
 
@@ -182,7 +182,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [escape room research and design notes]: game/doc/escapeRoom/readme.md
   [low-code wizard]: wizard/doc/README.md
   [Wizard guide]: wizard/doc/teacher-guide.md
-  [DEER-Editor guide]: game/doc/deer-editor.md
+  [DEER-Editor guide]: game/doc/deer_editor.md
   [Contributing]: CONTRIBUTING.md
   [license rules]: doc/license_rules.md
   [citation]: CITATION.cff

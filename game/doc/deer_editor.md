@@ -48,7 +48,9 @@ The number keys `1` to `6` select the mode:
 
 ## Saving
 
-Auto-save is on by default: every change is written to the level file of the room under
-`game/assets/levels/`. In the *Settings* mode you can change the save path or turn auto-save
-off; then a *Save Level* button appears. Because the editor writes into the repository, check
-`git status` after an editing session and commit only the changes you want.
+Auto-save is on by default: every change is written to `levels/<room>/` in the repository root.
+Git ignores this folder, so the room itself does not change yet. To take your changes into the
+room, copy the saved file to `game/assets/levels/<room>/` and replace the level file there.
+
+In the *Settings* mode you can change the save path or turn auto-save off; then a *Save Level*
+button appears, which also copies the level to the clipboard.

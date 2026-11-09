@@ -54,4 +54,4 @@ game; without consent, it runs without tracking.
 
   [releases]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=The+Last+Hour
   [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
-  [DEER-Editor]: ../../../../game/doc/deer-editor.md
+  [DEER-Editor]: ../../../../game/doc/deer_editor.md

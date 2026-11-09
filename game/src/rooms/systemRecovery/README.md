@@ -70,7 +70,7 @@ exists.
   [Sample solutions]: ../../../../doc/escape_room/room_concepts/prog1_arrays/terminalSolution.md
   [releases]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=System+Recovery
   [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
-  [DEER-Editor]: ../../../../game/doc/deer-editor.md
+  [DEER-Editor]: ../../../../game/doc/deer_editor.md
 
 ## Developer notes (German)
 

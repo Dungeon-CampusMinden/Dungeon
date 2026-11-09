@@ -26,4 +26,4 @@ keypads, pressure plates, pushable stones, water) and the node canvas behind the
     systems and the editor are switched on while `GameOfGames.DEBUG_MODE` is `true`.
 -   Level: `game/assets/levels/gameOfGames/`
 
-  [DEER-Editor]: ../../../../game/doc/deer-editor.md
+  [DEER-Editor]: ../../../../game/doc/deer_editor.md
