@@ -73,7 +73,6 @@ public class PauseDialog extends Table {
   private PauseDialog(Skin skin, DialogContext ctx) {
     contentTable = new Table(skin);
     contentTable.setBackground("window_background_big");
-    Sounds.playButtonSounds(this);
 
     mainMenu = createMainView(ctx);
     settingsMenu = createSettingsView();

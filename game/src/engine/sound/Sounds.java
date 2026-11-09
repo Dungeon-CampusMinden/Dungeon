@@ -51,15 +51,16 @@ public class Sounds {
   }
 
   /**
-   * Gives every button inside a menu its click sound: checkboxes play the toggle sound, all other
-   * buttons the click sound. Buttons inside the menu play no click sound of their own.
+   * Gives every button below the given actor its click sound: checkboxes play the toggle sound, all
+   * other buttons the click sound. Each screen installs it once on its stage root, so buttons play
+   * no click sound of their own.
    *
-   * <p>Listens in the capture phase, so the sound still plays when the click disposes the menu.
+   * <p>Listens in the capture phase, so the sound still plays when the click disposes the UI.
    *
-   * @param menu the menu whose buttons click
+   * @param root the stage root whose buttons click
    */
-  public static void playButtonSounds(Group menu) {
-    menu.addCaptureListener(
+  public static void playButtonSounds(Group root) {
+    root.addCaptureListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {

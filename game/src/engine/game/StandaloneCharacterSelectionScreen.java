@@ -21,6 +21,7 @@ import engine.input.UiActions;
 import engine.language.Translation;
 import engine.network.messages.s2c.CharacterOptions;
 import engine.network.server.CharacterSelection;
+import engine.sound.Sounds;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.entities.CharacterClass;
@@ -110,6 +111,7 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
     root.add(content);
     stage.addActor(root);
     GameInput.stage(stage);
+    Sounds.playButtonSounds(stage.getRoot());
     GameInput.activate(input);
     refreshOptions();
   }
