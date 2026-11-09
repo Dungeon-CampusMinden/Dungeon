@@ -564,6 +564,20 @@
         "variable": "Variable",
         "delete": "Baustein löschen",
         "drop-code": "Code hier ablegen"
+      },
+      "command": {
+        "move": "GEHE",
+        "turn": "DREHE",
+        "open_gate": "ÖFFNE",
+        "activate_rune": "AKTIVIERE",
+        "collect": "SAMMLE_ALLE",
+        "place": "LEGE_AB",
+        "return": "GIB_ZURÜCK"
+      },
+      "direction": {
+        "left": "LINKS",
+        "right": "RECHTS",
+        "back": "HINTEN"
       }
     },
     "workshop": {

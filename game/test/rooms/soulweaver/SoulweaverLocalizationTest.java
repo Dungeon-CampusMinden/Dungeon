@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Game;
 import engine.language.Language;
+import engine.tracking.AttemptDetails;
+import engine.tracking.Tracking;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -18,14 +20,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import rooms.soulweaver.level.SoulweaverHelp;
+import rooms.soulweaver.level.SoulweaverProgress;
 import rooms.soulweaver.modules.decisions.DecisionMaze;
+import rooms.soulweaver.modules.loops.LoopExecution;
+import rooms.soulweaver.modules.loops.LoopPuzzle;
 import rooms.soulweaver.modules.methods.MethodsRoute;
 import rooms.soulweaver.modules.methods.MethodsWorkshop;
 import rooms.soulweaver.modules.variables.GolemProperty;
@@ -121,8 +129,20 @@ class SoulweaverLocalizationTest {
         texts.add(SoulweaverText.text(vessel.labelKey()));
         texts.add(SoulweaverText.text(vessel.capacityKey()));
       }
-      for (MethodsRoute.Action action : MethodsRoute.Action.values())
+      for (MethodsRoute.Action action : MethodsRoute.Action.values()) {
         texts.add(SoulweaverText.text("methods.action." + action.name().toLowerCase(Locale.ROOT)));
+        texts.add(
+            MethodsWorkshop.blockSource(
+                new MethodsWorkshop.Block(
+                    "b0",
+                    action,
+                    "HINTEN",
+                    "kristalle",
+                    "sammeln",
+                    List.of("LINKS", "RECHTS"),
+                    MethodsWorkshop.ResultMode.REPLACE),
+                SoulweaverText::text));
+      }
       for (MethodsWorkshop.ResultMode mode : MethodsWorkshop.ResultMode.values())
         texts.add(SoulweaverText.text("methods.mode." + mode.name().toLowerCase(Locale.ROOT)));
       for (MethodsWorkshop.CheckStatus status : MethodsWorkshop.CheckStatus.values())
@@ -177,15 +197,73 @@ class SoulweaverLocalizationTest {
     assertEquals(
         "[color=#dbb463]Loop rune 3 · do-while[/color]\n> Give each property a matching vessel.",
         translator.translate(questLog));
+    assertEquals(
+        "{soulweaver.progress.missing}",
+        translator.translate(SoulweaverText.key("progress.missing")));
   }
 
   @Test
-  void trackedFailureReasonsStayGermanInAnEnglishProcess() {
+  void failedAttemptIsTrackedInGermanByAnEnglishHost() {
     Game.localization().currentLanguage(Language.EN);
-    String reason = SoulweaverText.key("loops.failure.pit-ahead");
+    LoopExecution execution =
+        new LoopExecution(0, LoopPuzzle.rune("archive-jump").orElseThrow(), true);
+    while (execution.next().isPresent()) execution.complete();
+    UUID participant = UUID.randomUUID();
 
-    assertEquals("Pit ahead. Step stopped.", SoulweaverText.translate(reason));
-    assertEquals("Grube voraus. Schritt gestoppt.", SoulweaverText.german(reason));
+    try (MockedStatic<Tracking> tracking = Mockito.mockStatic(Tracking.class)) {
+      SoulweaverProgress.attempt(
+          "cellar-0",
+          "archive-jump",
+          "code",
+          "springen();",
+          participant,
+          new AttemptDetails(0, false, List.of(execution.failure())));
+
+      tracking.verify(
+          () ->
+              Tracking.attempt(
+                  "cellar-0",
+                  "archive-jump",
+                  "code",
+                  "springen();",
+                  participant,
+                  new AttemptDetails(0, false, List.of("Sprung ohne Grube voraus."))));
+    }
+  }
+
+  @Test
+  void blockSourceShowsCommandsAndDirectionsInTheClientLanguage() {
+    var turn =
+        new MethodsWorkshop.Block(
+            "b0",
+            MethodsRoute.Action.TURN,
+            "LINKS",
+            "",
+            "",
+            List.of(),
+            MethodsWorkshop.ResultMode.REPLACE);
+    var call =
+        new MethodsWorkshop.Block(
+            "b1",
+            MethodsRoute.Action.CALL,
+            "",
+            "kristalle",
+            "sammeln",
+            List.of("RIGHT", "LINKSHERUM"),
+            MethodsWorkshop.ResultMode.ADD);
+    String transported = MethodsWorkshop.blockSource(turn, SoulweaverText::key);
+
+    Game.localization().currentLanguage(Language.DE);
+    assertEquals("DREHE(LINKS)", SoulweaverText.translate(transported));
+    assertEquals(
+        "kristalle += sammeln(RECHTS, LINKSHERUM)",
+        MethodsWorkshop.blockSource(call, SoulweaverText::text));
+
+    Game.localization().currentLanguage(Language.EN);
+    assertEquals("TURN(LEFT)", SoulweaverText.translate(transported));
+    assertEquals(
+        "kristalle += sammeln(RIGHT, LINKSHERUM)",
+        MethodsWorkshop.blockSource(call, SoulweaverText::text));
   }
 
   /**
@@ -227,7 +305,10 @@ class SoulweaverLocalizationTest {
     if (node.isArray()) node.forEach(child -> collectIncompleteTexts(path, child, out));
     if (!node.isObject()) return;
     if (node.has("de") || node.has("en")) {
-      if (!node.has("de") || !node.has("en")) out.add(path + ": " + node);
+      if (!node.path("de").isString()
+          || !node.path("en").isString()
+          || node.path("de").asString().isBlank()
+          || node.path("en").asString().isBlank()) out.add(path + ": " + node);
       return;
     }
     node.properties().forEach(entry -> collectIncompleteTexts(path, entry.getValue(), out));

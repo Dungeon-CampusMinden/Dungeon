@@ -1164,9 +1164,7 @@ final class SoulweaverGolemRuntime {
                     property.name() + "=" + selected,
                     participant,
                     new engine.tracking.AttemptDetails(
-                        help.level(vessel ? "vessels" : "essences"),
-                        false,
-                        failureReasons.stream().map(SoulweaverText::german).toList())));
+                        help.level(vessel ? "vessels" : "essences"), false, failureReasons)));
   }
 
   /**
@@ -1223,9 +1221,7 @@ final class SoulweaverGolemRuntime {
           attemptCode,
           attemptParticipant,
           new engine.tracking.AttemptDetails(
-              attemptHintLevel,
-              attemptAutomaticSolution,
-              failureReasons.stream().map(SoulweaverText::german).toList()));
+              attemptHintLevel, attemptAutomaticSolution, failureReasons));
   }
 
   private String currentChallenge() {

@@ -107,7 +107,7 @@
               "id": "post_06_schleifendurchlaeufe_nachvollziehen",
               "text": {
                 "de": "Ich kann nachvollziehen, wie oft eine Schleife anhand ihrer Bedingung ausgeführt wird.",
-                "en": "I can follow how often a loop is executed based on its condition."
+                "en": "I can follow how many times a loop is executed based on its condition."
               }
             },
             {
@@ -121,7 +121,7 @@
               "id": "post_08_methoden_erkennen",
               "text": {
                 "de": "Ich kann wiederkehrende Anweisungsblöcke erkennen, die sich als Methode zusammenfassen lassen.",
-                "en": "I can recognise recurring blocks of statements that can be combined into a method."
+                "en": "I can recognize recurring blocks of statements that can be combined into a method."
               }
             },
             {
@@ -135,7 +135,7 @@
               "id": "post_10_methodenergebnis_nutzen",
               "text": {
                 "de": "Ich kann einen Methodenaufruf verwenden und seinen Rückgabewert in einer weiteren Berechnung nutzen.",
-                "en": "I can use a method call and use its return value in a further calculation."
+                "en": "I can call a method and use its return value in a further calculation."
               }
             },
             {
@@ -259,7 +259,7 @@
               "id": "then_06_schleifendurchlaeufe_nachvollziehen",
               "text": {
                 "de": "Ich kann nachvollziehen, wie oft eine Schleife anhand ihrer Bedingung ausgeführt wird.",
-                "en": "I can follow how often a loop is executed based on its condition."
+                "en": "I can follow how many times a loop is executed based on its condition."
               }
             },
             {
@@ -273,7 +273,7 @@
               "id": "then_08_methoden_erkennen",
               "text": {
                 "de": "Ich kann wiederkehrende Anweisungsblöcke erkennen, die sich als Methode zusammenfassen lassen.",
-                "en": "I can recognise recurring blocks of statements that can be combined into a method."
+                "en": "I can recognize recurring blocks of statements that can be combined into a method."
               }
             },
             {
@@ -287,7 +287,7 @@
               "id": "then_10_methodenergebnis_nutzen",
               "text": {
                 "de": "Ich kann einen Methodenaufruf verwenden und seinen Rückgabewert in einer weiteren Berechnung nutzen.",
-                "en": "I can use a method call and use its return value in a further calculation."
+                "en": "I can call a method and use its return value in a further calculation."
               }
             },
             {
@@ -618,7 +618,7 @@
           "required": true,
           "text": {
             "de": "Wie oft wird der Inhalt der Schleife ausgeführt? `for (int i = 2; i < 7; i++) { ... }`",
-            "en": "How often is the loop body executed? `for (int i = 2; i < 7; i++) { ... }`"
+            "en": "How many times is the loop body executed? `for (int i = 2; i < 7; i++) { ... }`"
           },
           "options": [
             {
@@ -657,7 +657,7 @@
           "required": true,
           "text": {
             "de": "Wie oft wird der Inhalt der Schleife ausgeführt?\n`int i = 3; while (i < 20) { i = i + 4; }`",
-            "en": "How often is the loop body executed?\n`int i = 3; while (i < 20) { i = i + 4; }`"
+            "en": "How many times is the loop body executed?\n`int i = 3; while (i < 20) { i = i + 4; }`"
           },
           "options": [
             {
@@ -711,7 +711,7 @@
               "id": "a",
               "text": {
                 "de": "Sie legt fest, welche Farbe ein Programm hat.",
-                "en": "It determines what colour a program has."
+                "en": "It determines what color a program has."
               }
             },
             {
@@ -849,7 +849,7 @@
               "id": "d",
               "text": {
                 "de": "Die Methode für den Endpreis sollte das Ergebnis bereitstellen; die Begrüßungsmethode kann die Nachricht anzeigen, ohne ein Ergebnis zu liefern.",
-                "en": "The method for the final price should provide the result; the greeting method can display the message without returning a result."
+                "en": "The method for the final price should provide the result; the greeting method can display the message without providing a result."
               }
             }
           ]
@@ -907,7 +907,7 @@
           "required": true,
           "text": {
             "de": "Was passiert bei diesem Code, wenn `temperatur` den Wert `18` hat?\n`if (temperatur >= 20) { if (regen > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`",
-            "en": "What happens with this code if `temperatur` has the value `18`?\n`if (temperatur >= 20) { if (regen > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
+            "en": "What happens in this code if `temperatur` has the value `18`?\n`if (temperatur >= 20) { if (regen > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
           },
           "options": [
             {
@@ -1464,7 +1464,7 @@
           },
           "maxLabel": {
             "de": "Sehr gut",
-            "en": "Very well"
+            "en": "Very good"
           }
         }
       ]

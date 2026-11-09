@@ -406,7 +406,10 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
           title
               + (state.currentInstruction().isEmpty()
                   ? ""
-                  : "\n" + SoulweaverText.text("methods.ui.current", state.currentInstruction()))
+                  : "\n"
+                      + SoulweaverText.text(
+                          "methods.ui.current",
+                          SoulweaverText.translate(state.currentInstruction())))
               + "\n\n"
               + SoulweaverText.text("methods.ui.variables")
               + "\n"

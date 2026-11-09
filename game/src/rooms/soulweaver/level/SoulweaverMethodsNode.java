@@ -673,7 +673,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
           new Block(
               "",
               action,
-              action == Action.TURN ? "RECHTS" : "1",
+              action == Action.TURN ? SoulweaverText.text("methods.direction.right") : "1",
               action == Action.COLLECT ? "gesammelt" : action == Action.ASSIGN ? "kristalle" : "",
               "",
               List.of(),
@@ -931,7 +931,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
    * @return statement markup with its expression highlighted
    */
   private static String syntax(Block block) {
-    String source = MethodsWorkshop.blockSource(block);
+    String source = MethodsWorkshop.blockSource(block, SoulweaverText::text);
     int start =
         switch (block.action()) {
           case MOVE, TURN, PLACE, CALL -> source.indexOf('(') + 1;

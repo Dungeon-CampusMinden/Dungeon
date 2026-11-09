@@ -198,9 +198,7 @@ final class SoulweaverDecisionRuntime {
                         assisted,
                         correct
                             ? List.of()
-                            : List.of(
-                                SoulweaverText.german(
-                                    SoulweaverText.key("decisions.failure.other-door"))))));
+                            : List.of(SoulweaverText.key("decisions.failure.other-door")))));
     SoulweaverProgress.log(
         "decisions",
         SoulweaverText.key("decisions.log.attempt", failures + 1),

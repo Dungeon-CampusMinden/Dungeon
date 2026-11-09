@@ -89,7 +89,7 @@
     "progress": {
       "tab": {
         "tasks": "Tasks",
-        "findings": "Findings",
+        "findings": "Discoveries",
         "binding": "Act I · Soul binding",
         "cellar": "Act II · Cellar",
         "workshop": "Act III · Workshop",
@@ -150,7 +150,7 @@
       },
       "crystal_bottle": {
         "label": "Crystal bottle",
-        "capacity": "Numbers, fractions too"
+        "capacity": "Numbers with fractions"
       },
       "parchment": {
         "label": "Parchment",
@@ -187,14 +187,14 @@
       "movement-blocked": "Movement interrupted. Path blocked.",
       "wall-reached": "Wall or obstacle reached. Movement stopped.",
       "waiting-workshop": "Nox is waiting for a clear path in the workshop.",
-      "waiting-airlock": "Nox is waiting for a clear path to the sluice.",
+      "waiting-airlock": "Nox is waiting for a clear path to the airlock.",
       "goal-reached": "Goal reached",
       "status-title": "Nox · Control status"
     },
     "binding": {
       "chest-empty": "The chest is empty.",
-      "essences-packed": "Essences packed. Valerius' binding plan names the value for each socket. The supply is enough for several sockets.",
-      "vessels-packed": "Soul vessels packed. Each vessel bears an imprint for its contents. The supply is enough for several sockets.",
+      "essences-packed": "Essences collected. Valerius' binding plan names the value for each socket. The supply is enough for several sockets.",
+      "vessels-packed": "Soul vessels collected. Each vessel bears an imprint for its contents. The supply is enough for several sockets.",
       "vessels-solved": "All vessels are assigned.",
       "essences-solved": "The soul binding is complete. Activate Nox.",
       "feedback": {
@@ -250,7 +250,7 @@
         "note": {
           "name": "That is what I named him. The name stays, even when I renew his core.",
           "life_energy": "The charge for his heavy stone body. Less was not enough during the last attempt.",
-          "mana": "The amount for the soul binding. Do not leave out the half.",
+          "mana": "The amount for the soul binding. Don't forget the half.",
           "activated": "The release for the drive. Only activate the soul core once the binding is complete.",
           "view_direction": "O for Osten, the east in Valerius' own tongue. That is where he should turn after awakening.",
           "steps": "The step counter reading at the last maintenance. Restore this value during the binding."
@@ -291,11 +291,11 @@
     "help": {
       "no-rune": "No rune collected for this section yet.",
       "rune-location": {
-        "0": "A matching orange for rune lies in the rune archive, at the far left of the lower row of tables.",
-        "1": "A matching blue while rune lies in the rune archive on the lower row of tables, second from the left.",
-        "2": "A matching blue while rune lies in the rune archive on the middle table of the lower row, at its left end.",
+        "0": "A matching orange for-loop rune lies in the rune archive, at the far left of the lower row of tables.",
+        "1": "A matching blue while-loop rune lies in the rune archive on the lower row of tables, second from the left.",
+        "2": "A matching blue while-loop rune lies in the rune archive on the middle table of the lower row, at its left end.",
         "3": "A matching purple do-while rune lies in the rune archive, at the far left of the middle row of tables.",
-        "4": "A matching orange for rune lies in the rune archive on the right table of the lower row, to the left of the last rune."
+        "4": "A matching orange for-loop rune lies in the rune archive on the right table of the lower row, to the left of the last rune."
       },
       "tip-title": "$1 · Tip $2",
       "title": {
@@ -325,8 +325,8 @@
         },
         "methods": {
           "1": "Nox works through the connected main blocks. Compare the long starting program with the work stations and combine repeated sections.",
-          "2": "At most eight main blocks and six blocks per method. Call a method with parameters several times and use a return value. Both altars must be filled; Nox and kristalle must be at 0 at the end.",
-          "3": "The workbench now marks repeated statements and changing inputs in gold. Use direction and amount as parameters. Collecting returns the amount; the caller adds it to kristalle and subtracts the amounts placed again."
+          "2": "At most eight main blocks and six blocks per method. Call a method with parameters several times and use a return value. Both altars must be filled; at the end Nox must carry no crystals and kristalle must be 0.",
+          "3": "The workbench now marks repeated statements and changing inputs in gold. Use direction and amount as parameters. Collecting returns the amount; the caller adds it to kristalle and subtracts the amounts placed on the altars."
         },
         "decisions": {
           "1": "Read the rune from top to bottom. Insert Nox's current values into the first condition. If it is true, the indented block below it applies; otherwise the block after the matching ELSE.",
@@ -378,7 +378,7 @@
         "door-onward": "The door leads onward. Nox follows the executed branch.",
         "door-back": "This door leads back. Nox runs through the return passage to the START.",
         "heartfire": "The Heartfire has been reached. Read the scroll in front of the fire to make the offering and complete the room.",
-        "back-at-start": "Back at the START. Nox carries new starting values.",
+        "back-at-start": "Back at the START. Nox has new starting values.",
         "new-values": "New values, new decision. Read the rune again.",
         "clear-way": "Clear the way and choose Continue."
       },
@@ -449,7 +449,7 @@
         "method-incomplete": "A method needs a valid name and a method body.",
         "invalid-parameters": "Parameters need valid, distinct names. Direction names are reserved.",
         "too-many-instructions": "More than 512 statements. Run aborted.",
-        "move-range": "GEHE needs a distance from 1 to 32.",
+        "move-range": "MOVE needs a distance from 1 to 32.",
         "method-missing": "Method not built: $1",
         "argument-count": "Number of arguments does not match $1",
         "nested-calls": "Too many nested calls.",
@@ -492,7 +492,7 @@
       },
       "feedback": {
         "start": "Connect your main program. Every start resets Nox and all work stations.",
-        "keep-name": "An existing method keeps its name. New method creates a rune of its own.",
+        "keep-name": "An existing method keeps its name. The New method button creates a rune of its own.",
         "built": "Method $1 built. The rune can now be called.",
         "changed": "Code changed. Run the main program again to check it.",
         "running": "Nox is running the main program.",
@@ -522,7 +522,7 @@
         "controls": "Arrange code: Drag lines. Ctrl-click selects single lines, Shift-click a range.\nBuild a method: Set name and inputs, drag code in, choose Build method. Drag the new rune into the main program.\nChange values: Open ... on a line. Enter or leaving the field saves.\nWorkspace: Middle mouse button or Space + drag. The mouse wheel zooms over the background and scrolls over code.\nWindows: Drag the title; drag edges and corners with the left button to resize. Also possible with the right mouse button held down.\nExpressions: Numbers, variables, +, -, parentheses and your own methods. A method has at most $1 lines.",
         "run": "Run",
         "stop": "Stop",
-        "watch": "Watch room",
+        "watch": "View room",
         "to-code": "To code",
         "other-editor": "Another player is editing the code.",
         "failure-location": "Main program, line $1: $2",
@@ -552,8 +552,8 @@
         "rune": "Rune: $1($2)",
         "edit": "Edit",
         "note": {
-          "collect": "Use the collected amount as return value",
-          "return": "Take over this value at the call",
+          "collect": "Use the collected amount as the return value",
+          "return": "Use this value where the method is called",
           "call": "Adjust the inputs at the call"
         },
         "error": "Error: $1",
@@ -564,6 +564,20 @@
         "variable": "Variable",
         "delete": "Delete block",
         "drop-code": "Drop code here"
+      },
+      "command": {
+        "move": "MOVE",
+        "turn": "TURN",
+        "open_gate": "OPEN",
+        "activate_rune": "ACTIVATE",
+        "collect": "COLLECT_ALL",
+        "place": "PLACE",
+        "return": "RETURN"
+      },
+      "direction": {
+        "left": "LEFT",
+        "right": "RIGHT",
+        "back": "BACK"
       }
     },
     "workshop": {

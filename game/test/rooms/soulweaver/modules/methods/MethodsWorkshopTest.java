@@ -37,7 +37,9 @@ class MethodsWorkshopTest {
     if (stock != 0)
       add(workshop, "main", block(Action.ASSIGN, Integer.toString(stock), "kristalle"));
     List<Block> original = workshop.state().main();
-    assertEquals("\u00d6FFNE()", MethodsWorkshop.blockSource(original.getFirst()));
+    assertEquals(
+        SoulweaverText.key("methods.command.open_gate") + "()",
+        MethodsWorkshop.blockSource(original.getFirst(), SoulweaverText::key));
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
     run(workshop, 3, 5);
     workshop.finish(true, carried);

@@ -6,11 +6,16 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
 import rooms.soulweaver.modules.methods.MethodsRoute.Direction;
 import rooms.soulweaver.modules.methods.MethodsRoute.Step;
@@ -210,7 +215,7 @@ public final class MethodsWorkshop {
    * @param definitions built methods indexed by name
    * @param feedback latest editor or execution feedback
    * @param blockErrors feedback indexed by block identifier
-   * @param currentInstruction source of the block producing the latest physical action
+   * @param currentInstruction transport key of the block producing the latest physical action
    * @param variables variables visible in the current interpreter frame
    * @param compact whether the main program satisfies the block limit
    * @param parameterReuse whether a parameterized method was called repeatedly
@@ -257,7 +262,7 @@ public final class MethodsWorkshop {
      * @param definitions built methods indexed by name
      * @param feedback latest editor or execution feedback
      * @param blockErrors feedback indexed by block identifier
-     * @param currentInstruction source of the block producing the latest physical action
+     * @param currentInstruction transport key of the block producing the latest physical action
      * @param variables variables visible in the current interpreter frame
      * @param compact whether the main program satisfies the block limit
      * @param parameterReuse whether a parameterized method was called repeatedly
@@ -388,6 +393,9 @@ public final class MethodsWorkshop {
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final Set<String> DIRECTIONS =
       Set.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN");
+  private static final Pattern DIRECTION_LITERAL =
+      Pattern.compile(
+          "(?<![\\p{L}\\p{N}_])(?:" + String.join("|", DIRECTIONS) + ")(?![\\p{L}\\p{N}_])");
   private final List<Block> main = new ArrayList<>(), scrap = new ArrayList<>();
   private final Map<String, Definition> definitions = new LinkedHashMap<>();
   private Definition draft = new Definition("", List.of(), List.of());
@@ -1034,7 +1042,7 @@ public final class MethodsWorkshop {
             if (step.action() == Action.MOVE && (step.amount() < 1 || step.amount() > 32))
               throw new IllegalArgumentException(SoulweaverText.key("methods.error.move-range"));
             pending = block;
-            currentInstruction = blockSource(block);
+            currentInstruction = blockSource(block, SoulweaverText::key);
             revision++;
             return Optional.of(step);
           }
@@ -1369,26 +1377,37 @@ public final class MethodsWorkshop {
   }
 
   /**
-   * Renders the actual editable statement, including arguments and result assignment.
+   * Renders the actual editable statement, including arguments and result assignment. Command words
+   * and direction literals are language keys; the stored statement stays unchanged.
    *
    * @param b statement to render
+   * @param word renders a key below the {@code soulweaver} namespace, as text for this client or as
+   *     a transport key on the server
    * @return source text for the statement
    */
-  public static String blockSource(Block b) {
+  public static String blockSource(Block b, UnaryOperator<String> word) {
+    String command = "methods.command." + b.action().name().toLowerCase(Locale.ROOT);
+    UnaryOperator<String> expression =
+        source ->
+            DIRECTION_LITERAL
+                .matcher(source)
+                .replaceAll(
+                    match ->
+                        Matcher.quoteReplacement(
+                            word.apply(
+                                "methods.direction."
+                                    + direction(match.group()).name().toLowerCase(Locale.ROOT))));
     return switch (b.action()) {
-      case MOVE -> "GEHE(" + b.operand() + ")";
-      case TURN -> "DREHE(" + b.operand() + ")";
-      case OPEN_GATE -> "ÖFFNE()";
-      case ACTIVATE_RUNE -> "AKTIVIERE()";
-      case COLLECT -> b.target() + " = SAMMLE_ALLE()";
-      case PLACE -> "LEGE_AB(" + b.operand() + ")";
-      case RETURN -> "GIB_ZURÜCK " + b.operand();
-      case ASSIGN -> b.target() + b.mode().operator() + b.operand();
+      case MOVE, TURN, PLACE -> word.apply(command) + "(" + expression.apply(b.operand()) + ")";
+      case OPEN_GATE, ACTIVATE_RUNE -> word.apply(command) + "()";
+      case COLLECT -> b.target() + " = " + word.apply(command) + "()";
+      case RETURN -> word.apply(command) + " " + expression.apply(b.operand());
+      case ASSIGN -> b.target() + b.mode().operator() + expression.apply(b.operand());
       case CALL ->
           (b.target().isBlank() ? "" : b.target() + b.mode().operator())
               + b.method()
               + "("
-              + String.join(", ", b.arguments())
+              + b.arguments().stream().map(expression).collect(Collectors.joining(", "))
               + ")";
     };
   }

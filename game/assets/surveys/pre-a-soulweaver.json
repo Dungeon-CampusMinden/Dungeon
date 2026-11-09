@@ -96,7 +96,7 @@
               "id": "diverse",
               "text": {
                 "de": "Divers",
-                "en": "Diverse"
+                "en": "Non-binary / diverse"
               }
             },
             {
@@ -144,7 +144,7 @@
           },
           "maxLabel": {
             "de": "Trifft voll zu",
-            "en": "Fully applies"
+            "en": "Applies completely"
           }
         },
         {
@@ -163,7 +163,7 @@
           },
           "maxLabel": {
             "de": "Trifft voll zu",
-            "en": "Fully applies"
+            "en": "Applies completely"
           }
         },
         {
@@ -171,7 +171,7 @@
           "type": "singleChoice",
           "text": {
             "de": "Wie oft hast du vor diesem Spiel bereits einen Escape Room (vor Ort oder digital) gespielt?",
-            "en": "How often have you played an escape room (on site or digital) before this game?"
+            "en": "How many times have you played an escape room (on site or digital) before this game?"
           },
           "required": true,
           "options": [
@@ -299,7 +299,7 @@
           },
           "maxLabel": {
             "de": "Trifft voll zu",
-            "en": "Fully applies"
+            "en": "Applies completely"
           }
         },
         {
@@ -318,7 +318,7 @@
           },
           "maxLabel": {
             "de": "Trifft voll zu",
-            "en": "Fully applies"
+            "en": "Applies completely"
           }
         },
         {
@@ -337,7 +337,7 @@
           },
           "maxLabel": {
             "de": "Trifft voll zu",
-            "en": "Fully applies"
+            "en": "Applies completely"
           }
         },
         {
@@ -356,7 +356,7 @@
           },
           "maxLabel": {
             "de": "Trifft voll zu",
-            "en": "Fully applies"
+            "en": "Applies completely"
           }
         },
         {
@@ -375,7 +375,7 @@
           },
           "maxLabel": {
             "de": "Trifft voll zu",
-            "en": "Fully applies"
+            "en": "Applies completely"
           }
         }
       ]
@@ -646,7 +646,7 @@
           "required": true,
           "text": {
             "de": "Wie oft wird der Inhalt der Schleife ausgeführt? `for (int i = 1; i <= 4; i++) { ... }`",
-            "en": "How often is the loop body executed? `for (int i = 1; i <= 4; i++) { ... }`"
+            "en": "How many times is the loop body executed? `for (int i = 1; i <= 4; i++) { ... }`"
           },
           "options": [
             {
@@ -667,7 +667,7 @@
               "id": "c",
               "text": {
                 "de": "1-mal",
-                "en": "1 time"
+                "en": "Once"
               }
             },
             {
@@ -685,7 +685,7 @@
           "required": true,
           "text": {
             "de": "Wie oft wird der Inhalt der Schleife ausgeführt?\n`int i = 1; while (i < 10) { i = i * 2; }`",
-            "en": "How often is the loop body executed?\n`int i = 1; while (i < 10) { i = i * 2; }`"
+            "en": "How many times is the loop body executed?\n`int i = 1; while (i < 10) { i = i * 2; }`"
           },
           "options": [
             {
@@ -896,7 +896,7 @@
           "required": true,
           "text": {
             "de": "Mit welchem Wort beginnt man in Java die Prüfung einer Bedingung?",
-            "en": "Which word starts the check of a condition in Java?"
+            "en": "Which word begins a condition check in Java?"
           },
           "options": [
             {
@@ -935,7 +935,7 @@
           "required": true,
           "text": {
             "de": "Was passiert bei diesem Code, wenn `a` den Wert `-1` hat?\n`if (a > 0) { if (b > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`",
-            "en": "What happens with this code if `a` has the value `-1`?\n`if (a > 0) { if (b > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
+            "en": "What happens in this code if `a` has the value `-1`?\n`if (a > 0) { if (b > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
           },
           "options": [
             {

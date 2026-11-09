@@ -31,17 +31,6 @@ public final class SoulweaverTranslator extends Translator {
   /** Replaces every Soulweaver key in a dialog, cutscene, quest-log or room-state text. */
   @Override
   public String translate(String text) {
-    String result = replaceKeys(text);
-    // Arguments may themselves be keys, for example the label of a vessel in a feedback line.
-    for (int pass = 0; pass < 3 && KEY_PATTERN.matcher(result).find(); pass++) {
-      String next = replaceKeys(result);
-      if (next.equals(result)) break;
-      result = next;
-    }
-    return result;
-  }
-
-  private String replaceKeys(String text) {
     Matcher matcher = KEY_PATTERN.matcher(text);
     StringBuilder translated = new StringBuilder();
     while (matcher.find()) {
@@ -55,18 +44,20 @@ public final class SoulweaverTranslator extends Translator {
     return translated.toString();
   }
 
-  private static Object[] decode(String encodedValues) {
+  // Arguments may themselves be keys, for example the label of a vessel in a feedback line.
+  private Object[] decode(String encodedValues) {
     if (encodedValues.isEmpty()) return new Object[0];
     String[] values = encodedValues.split(",", -1);
     Object[] decoded = new Object[values.length];
     for (int index = 0; index < values.length; index++) {
+      String value;
       try {
-        decoded[index] =
-            new String(Base64.getUrlDecoder().decode(values[index]), StandardCharsets.UTF_8);
+        value = new String(Base64.getUrlDecoder().decode(values[index]), StandardCharsets.UTF_8);
       } catch (IllegalArgumentException malformed) {
         // Player notes in the quest log pass through here and may contain key-like text.
-        decoded[index] = values[index];
+        value = values[index];
       }
+      decoded[index] = translate(value);
     }
     return decoded;
   }

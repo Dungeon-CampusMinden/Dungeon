@@ -208,7 +208,8 @@ public final class SoulweaverProgress {
    * @param answerKind answer representation
    * @param rawAnswer complete submitted answer
    * @param participantId session-scoped anonymous participant
-   * @param details help state and final failure reasons
+   * @param details help state and final failure reasons, which may be transport keys; they are
+   *     tracked in German, independent of the language of this process
    */
   public static void attempt(
       String puzzleId,
@@ -218,7 +219,16 @@ public final class SoulweaverProgress {
       UUID participantId,
       AttemptDetails details) {
     if (Game.isMultiplayerClient()) return;
-    Tracking.attempt(puzzleId, objectId, answerKind, rawAnswer, participantId, details);
+    Tracking.attempt(
+        puzzleId,
+        objectId,
+        answerKind,
+        rawAnswer,
+        participantId,
+        new AttemptDetails(
+            details.hintLevel(),
+            details.automaticSolution(),
+            details.failureReasons().stream().map(SoulweaverText::german).toList()));
   }
 
   /**

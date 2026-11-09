@@ -357,10 +357,7 @@ final class SoulweaverWorkshopRuntime {
           "code",
           runCode,
           runParticipant,
-          new engine.tracking.AttemptDetails(
-              runHintLevel,
-              runAutomaticSolution,
-              reasons.stream().map(SoulweaverText::german).toList()));
+          new engine.tracking.AttemptDetails(runHintLevel, runAutomaticSolution, reasons));
     }
   }
 
