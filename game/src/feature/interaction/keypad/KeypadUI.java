@@ -13,6 +13,7 @@ import engine.Entity;
 import engine.Game;
 import engine.language.Translation;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.sound.Sounds;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
@@ -144,7 +145,9 @@ public class KeypadUI extends Group {
     parentTable.add(buttons);
     for (List<String> row : layout.rows()) {
       for (String action : row) {
-        TextButton button = new TextButton(buttonLabel(action), UIUtils.defaultSkin(), "keypad");
+        // Keys beep from the server, submit plays the result.
+        TextButton button =
+            Sounds.ownSound(new TextButton(buttonLabel(action), UIUtils.defaultSkin(), "keypad"));
         button.getLabel().setFontScale(action.length() == 1 ? 2f : layout.actionFontScale());
         button.addListener(
             new ClickListener() {

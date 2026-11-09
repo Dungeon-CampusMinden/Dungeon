@@ -1,6 +1,7 @@
 package engine.sound;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
@@ -53,7 +54,8 @@ public class Sounds {
   /**
    * Gives every button below the given actor its click sound: checkboxes play the toggle sound, all
    * other buttons the click sound. Each screen installs it once on its stage root, so buttons play
-   * no click sound of their own.
+   * no click sound of their own. A button whose press already makes its own sound opts out with
+   * {@link #ownSound}.
    *
    * <p>Listens in the capture phase, so the sound still plays when the click disposes the UI.
    *
@@ -66,11 +68,27 @@ public class Sounds {
           public void changed(ChangeEvent event, Actor actor) {
             if (actor instanceof CheckBox box) {
               playUi(CoreSounds.SETTINGS_TOGGLE_CLICK, box.isChecked() ? 1.0f : 0.8f);
-            } else if (actor instanceof Button) {
+            } else if (actor instanceof Button && !actor.getListeners().contains(OWN_SOUND, true)) {
               playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
             }
           }
         });
+  }
+
+  // Marker listener; it handles no events.
+  private static final EventListener OWN_SOUND = event -> false;
+
+  /**
+   * Marks a button whose press plays its own sound, such as a keypad beep, so that {@link
+   * #playButtonSounds} plays no click for it.
+   *
+   * @param button the button
+   * @param <T> the button type
+   * @return the same button
+   */
+  public static <T extends Button> T ownSound(T button) {
+    button.addListener(OWN_SOUND);
+    return button;
   }
 
   /**
