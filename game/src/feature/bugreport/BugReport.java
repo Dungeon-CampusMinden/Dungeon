@@ -15,8 +15,6 @@ import engine.language.Translation;
 import engine.network.NetworkUtils;
 import engine.network.input.InputCommandRouter;
 import engine.network.messages.c2s.InputMessage;
-import engine.sound.CoreSounds;
-import engine.sound.Sounds;
 import engine.tracking.Tracking;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
@@ -90,7 +88,6 @@ public final class BugReport {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             submit(player, input.getText());
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
             onSent.run();
           }
         });

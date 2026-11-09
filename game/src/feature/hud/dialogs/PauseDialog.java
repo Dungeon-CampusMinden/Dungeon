@@ -73,6 +73,7 @@ public class PauseDialog extends Table {
   private PauseDialog(Skin skin, DialogContext ctx) {
     contentTable = new Table(skin);
     contentTable.setBackground("window_background_big");
+    Sounds.playButtonSounds(this);
 
     mainMenu = createMainView(ctx);
     settingsMenu = createSettingsView();
@@ -189,7 +190,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
-            Sounds.playUi(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
     controlsBtn.addListener(
@@ -204,7 +204,6 @@ public class PauseDialog extends Table {
 
             ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             controlsSystem.showControlsFor(player, true);
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     questlogBtn.addListener(
@@ -216,7 +215,6 @@ public class PauseDialog extends Table {
                     .orElseThrow();
             ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             QuestLogUI.requestQuestLog(player);
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     achievementsBtn.addListener(
@@ -224,7 +222,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showAchievements();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     settingsBtn.addListener(
@@ -232,7 +229,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showSettings();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     clientInfosBtn.addListener(
@@ -240,7 +236,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showClientInfos();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     bugReportBtn.addListener(
@@ -248,7 +243,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showBugReport(ctx);
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     quitBtn.addListener(
@@ -256,7 +250,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             Game.exit("Quit from pause menu");
-            Sounds.playUi(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
 
@@ -299,7 +292,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     return AchievementMenuView.build(backBtn);
@@ -378,7 +370,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     List<Actor> settingsActors = new ArrayList<>();
@@ -453,7 +444,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
 
@@ -486,7 +476,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     showView(BugReport.view(player, backBtn, this::showMainView));
