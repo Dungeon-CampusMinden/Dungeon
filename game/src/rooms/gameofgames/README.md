@@ -22,6 +22,8 @@ keypads, pressure plates, pushable stones, water) and the node canvas behind the
 
 -   **Play from source:** `./gradlew :game:runGameOfGames`
 -   **Multiplayer:** one player chooses *Host Game*, the other *Join Game*.
--   **Level editor:** `./gradlew :game:runGameOfGamesLevelEditor`. Debug systems and the level
-    editor are switched on while `GameOfGames.DEBUG_MODE` is `true`.
+-   **[DEER-Editor] (level editor):** `./gradlew :game:runGameOfGamesLevelEditor`. Debug
+    systems and the editor are switched on while `GameOfGames.DEBUG_MODE` is `true`.
 -   Level: `game/assets/levels/gameOfGames/`
+
+  [DEER-Editor]: ../../../../game/doc/deer-editor.md

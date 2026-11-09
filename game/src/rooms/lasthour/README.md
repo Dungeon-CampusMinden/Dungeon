@@ -48,9 +48,10 @@ game; without consent, it runs without tracking.
     host's IP address. A dedicated server starts with `./gradlew :game:runTheLastHourServer`.
     Both devices must be on the same local network; play over the internet and local co-op on
     one device are not supported yet.
--   **Level editor:** `./gradlew :game:runTheLastHourLevelEditor`
+-   **[DEER-Editor] (level editor):** `./gradlew :game:runTheLastHourLevelEditor`
 -   **Tests:** `./gradlew :game:test --tests 'rooms.lasthour.*'`
 -   Texts: `game/assets/language/theLastHour/` (English and German)
 
   [releases]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=The+Last+Hour
   [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
+  [DEER-Editor]: ../../../../game/doc/deer-editor.md

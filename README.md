@@ -62,14 +62,31 @@ problems or suggestions, please feel free to contact us in English or German.
 Each room has its own README with a story teaser for players and a section for educators. The
 detailed concept documents behind them are in German.
 
+## Build your own escape room
+
+### Wizard: no programming needed
+
+Turn your own course material into an escape room. The [Wizard][low-code wizard] guides
+educators page by page through story, puzzles and game flow in the browser: number codes,
+multiple-choice questions, matching tasks and information sources to discover, with graded
+hints for every puzzle. A check in the background points to anything missing, and at the end
+the Wizard packs the room into a single JAR file that you hand out to all players. Start with
+the [step-by-step guide][Wizard guide].
+
+### DEER-Editor: build levels inside the game
+
+The DEER-Editor (DEER = Digital Educational Escape Room) is the level editor built into
+Dungeon. Paint the map, place decorations and connect ready-made prefabs such as doors, levers,
+keypads and pressure plates into puzzles, then press `F4` and play what you just built. Every
+room above has its own editor task, for example `./gradlew :game:runSoulweaverLevelEditor`.
+The [DEER-Editor guide] explains modes, controls and saving.
+
 ## For educators and developers
 
 -   [Framework documentation] and [quickstart guide] (German)
 -   [Escape room concepts] and [escape room research and design notes] (German)
--   The [low-code wizard] lets educators design a room in the browser without programming and
-    share it as a single JAR file (docs in German)
--   Level editor: each room above has its own task, e.g.
-    `./gradlew :game:runSoulweaverLevelEditor`
+-   [Wizard guide] and the [technical Wizard documentation][low-code wizard] (German)
+-   [DEER-Editor guide]
 -   [Contributing] and [license rules] for assets (German)
 -   [Publications][`doc/publication/`] and [citation]
 
@@ -140,27 +157,6 @@ JUnit tests, Checkstyle and similar tools.
 
 </details>
 
-## Credits
-
-The assets in [`game/assets/`] are a mix from free and self
-modified resources:
-
--   Textures and animations:
-    -   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
-    -   https://0x72.itch.io/dungeontileset-ii (CC0 1.0)
--   Music and sound effects:
-    -   https://alkakrab.itch.io/free-12-tracks-pixel-rpg-game-music-pack (CC0 1.0)
-    -   https://opengameart.org/content/50-rpg-sound-effects (CC0 1.0)
-    -   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
-    -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
-    -   https://freesound.org/s/578488/ (CC0 1.0)
--   Adapted and modified by [\@Flamtky][]:
-    -   Files (except [Health Potion]) in [`game/assets/items/potion/`] (originating from
-        [\@dkirshner])
-    -   Files in [`game/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating
-        from [\@dkirshner])
-    -   [`game/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
-
 ## Licenses
 
 Unless otherwise noted, this [work] by [contributors] is licensed under [MIT].
@@ -183,6 +179,8 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [Escape room concepts]: doc/escape_room/room_concepts/
   [escape room research and design notes]: game/doc/escapeRoom/readme.md
   [low-code wizard]: wizard/doc/README.md
+  [Wizard guide]: wizard/doc/teacher-guide.md
+  [DEER-Editor guide]: game/doc/deer-editor.md
   [Contributing]: CONTRIBUTING.md
   [license rules]: doc/license_rules.md
   [citation]: CITATION.cff
@@ -193,13 +191,6 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [EFRE/JTF NRW 2021--27]: https://www.efre.nrw/
   [produs repository]: https://github.com/Dungeon-CampusMinden/PRODUS
   [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
-  [`game/assets/`]: game/assets/
-  [\@Flamtky]: https://github.com/Flamtky
-  [Health Potion]: game/assets/items/potion/health_potion.png
-  [`game/assets/items/potion/`]: game/assets/items/potion/
-  [\@dkirshner]: https://github.com/dkirshner
-  [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
-  [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
   [contributors]: https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors
   [MIT]: LICENSE.md

@@ -1,7 +1,7 @@
 - Quelle: Screenshot aus dem Spiel (Das Erbe der Seelenweber)
 - Author: amatutat
 - License: CC0 1.0
-- Hinweis: Zeigt Spielgrafiken aus `game/assets/`; deren Herkunft und Lizenzen nennen die Credits in `README.md` und die `.license.md`-Dateien dort.
+- Hinweis: Zeigt Spielgrafiken aus `game/assets/`; deren Herkunft und Lizenzen nennen die `.license.md`-Dateien dort.
 
 <details>
 

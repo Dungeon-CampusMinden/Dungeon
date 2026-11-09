@@ -60,10 +60,11 @@ reasons for failure, and the hints used for each puzzle.
 -   **Play from source:** `./gradlew :game:runSoulweaver`
 -   **Multiplayer:** one player chooses *Spiel hosten* (host game), the other
     *Spiel beitreten* (join game).
--   **Level editor:** `./gradlew :game:runSoulweaverLevelEditor`
+-   **[DEER-Editor] (level editor):** `./gradlew :game:runSoulweaverLevelEditor`
 -   **Tests:** `./gradlew :game:test --tests 'rooms.soulweaver.*'`
 -   Texts: `game/assets/language/soulweaver/` (German and English)
 
   [Concept]: ../../../../doc/escape_room/room_concepts/soulweaver/soulweaver_concept.md
   [releases]: https://github.com/Dungeon-CampusMinden/Dungeon/releases?q=Seelenweber
   [Java SE Development Kit 25 LTS]: https://jdk.java.net/25/
+  [DEER-Editor]: ../../../../game/doc/deer-editor.md
