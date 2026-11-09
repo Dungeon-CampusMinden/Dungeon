@@ -69,8 +69,8 @@ public final class UiActions {
 
   /** The pause menu; its open action closes it as well. */
   public static final ContextSpec PAUSE =
-      ContextSpec.of("pause", ContextLayer.UI, NAV_UP, NAV_DOWN, CLICK)
-          .closedBy(CLOSE, CoreActions.PAUSE_MENU)
+      ContextSpec.of("pause", ContextLayer.UI, NAV_UP, NAV_DOWN, CLICK, CoreActions.PAUSE_MENU)
+          .closedBy(CLOSE)
           .blocking();
 
   /** Inventory and chest; the inventory action closes them as well. */

@@ -92,7 +92,7 @@ public class InventoryGUI extends CombinableGUI
   private final InventoryComponent inventoryComponent;
   private Texture textureSlots;
   private String title;
-  private String hoverDescriptionText;
+  private String hoverDescriptionShown;
   private RichLabel hoverDescriptionLabel;
   private int slotSize = 0;
   private int slotsPerRow = 0;
@@ -343,14 +343,15 @@ public class InventoryGUI extends CombinableGUI
 
     String title = displayText(itemToShow.displayName());
     String description = RichLabel.toRichText(displayText(itemToShow.description()));
+    // Prompts in the description follow the device.
+    String shown = description + GameInput.device() + GameInput.padName();
     if (hoverDescriptionLabel == null) {
       hoverDescriptionLabel = new RichLabel(description, 12, new Color(0x000000b0), false);
       hoverDescriptionLabel.setMaxPrefWidth(MAX_HOVER_DESCRIPTION_WIDTH);
-      hoverDescriptionText = description;
-    } else if (!description.equals(hoverDescriptionText)) {
+    } else if (!shown.equals(hoverDescriptionShown)) {
       hoverDescriptionLabel.setText(description);
-      hoverDescriptionText = description;
     }
+    hoverDescriptionShown = shown;
 
     GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
     float descriptionWidth = Math.max(1f, hoverDescriptionLabel.getPrefWidth());

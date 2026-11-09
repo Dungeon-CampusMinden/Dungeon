@@ -149,7 +149,19 @@ public class PauseDialog extends Table {
       return new HeadlessDialogGroup();
     }
 
-    return new BaseContainerUI(new PauseDialog(UIUtils.defaultSkin(), ctx));
+    PauseDialog pause = new PauseDialog(UIUtils.defaultSkin(), ctx);
+    BaseContainerUI container = new BaseContainerUI(pause);
+    UIUtils.onCloseRequest(container, () -> pause.back(ctx));
+    return container;
+  }
+
+  // Close leaves a submenu first and resumes only from the main view.
+  private void back(DialogContext ctx) {
+    if (contentTable.getChildren().contains(mainMenu, true)) {
+      ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
+    } else {
+      showMainView();
+    }
   }
 
   private Table createMainView(DialogContext ctx) {
