@@ -141,7 +141,7 @@ public class SoundSystem extends System {
             .playWithInstance(
                 soundInstanceId,
                 soundSpec.soundName(),
-                soundSpec.baseVolume() * Sounds.getEffectsVolume(),
+                soundSpec.baseVolume() * Sounds.effectsVolumeFactor(),
                 soundSpec.looping(),
                 soundSpec.pitch(),
                 0,
@@ -248,7 +248,7 @@ public class SoundSystem extends System {
     if (soundSpec.maxDistance() <= 0f) {
       var soundUpdate =
           ISoundPlayer.SoundUpdate.builder()
-              .volume(soundSpec.baseVolume() * Sounds.getEffectsVolume());
+              .volume(soundSpec.baseVolume() * Sounds.effectsVolumeFactor());
       soundPlayer.get().updateSound(playbackHandle.instanceId(), soundUpdate.build());
       return;
     }
@@ -257,7 +257,7 @@ public class SoundSystem extends System {
     float attenuationRatio = (distance / soundSpec.maxDistance()) * soundSpec.attenuationFactor();
     float newVolume =
         Math.clamp(soundSpec.maxDistance() * (1 - attenuationRatio), 0f, soundSpec.baseVolume())
-            * Sounds.getEffectsVolume();
+            * Sounds.effectsVolumeFactor();
     // Pan based on horizontal offset, normalized and clamped to [-1, 1]
     float offsetX = entityPosition.x() - listenerPosition.x();
     float pan = Math.clamp(offsetX / PAN_NORMALIZATION_DISTANCE, -1f, 1f);

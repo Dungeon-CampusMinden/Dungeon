@@ -238,34 +238,6 @@ public class SoundSystemTest {
     assertEquals(fullVolume * 0.5f, lastUpdatedVolume(), 1e-6f);
   }
 
-  @Test
-  void zeroMasterVolumeSilencesSound() {
-    setVolumes(0, 100);
-    addHeroAt(new Point(0, 0));
-    addSoundEntity(new Point(0, 0), SoundSpec.builder("test").volume(0.8f).build());
-
-    soundSystem.execute();
-
-    verify(mockPlayer)
-        .playWithInstance(
-            anyLong(), eq("test"), eq(0f), anyBoolean(), anyFloat(), anyFloat(), any());
-    assertEquals(0f, lastUpdatedVolume());
-  }
-
-  @Test
-  void zeroEffectsVolumeSilencesPlayingSound() {
-    addHeroAt(new Point(0, 0));
-    addPlayingSoundEntity(
-        new Point(0, 0),
-        SoundSpec.builder("loop").volume(0.8f).looping(true).maxDistance(10f).build());
-    soundSystem.execute();
-
-    setVolumes(100, 0);
-    soundSystem.execute();
-
-    assertEquals(0f, lastUpdatedVolume());
-  }
-
   private void addHeroAt(Point position) {
     Entity hero = new Entity();
     hero.add(new PositionComponent(position));

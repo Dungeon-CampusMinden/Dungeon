@@ -39,18 +39,18 @@ public class Sounds {
    */
   public static long playUi(ISound sound, float pitch, float volumeModifier) {
     long instanceId = Game.audio().newLocalInstanceId();
-    float volume = getEffectsVolume() * sound.volume() * volumeModifier;
+    float volume = effectsVolumeFactor() * sound.volume() * volumeModifier;
     Game.soundPlayer()
         .playWithInstance(instanceId, sound.soundName(), volume, false, pitch, 0, null);
     return instanceId;
   }
 
   /**
-   * Returns the volume factor for sound effects from the master and effects volume settings.
+   * Returns the factor that scales sound effect volumes: master volume times effects volume.
    *
    * @return the product of master and effects volume, in [0.0, 1.0]
    */
-  public static float getEffectsVolume() {
+  public static float effectsVolumeFactor() {
     float master = (float) ClientSettings.masterVolume() / 100;
     float effects = (float) ClientSettings.effectsVolume() / 100;
     return master * effects;
