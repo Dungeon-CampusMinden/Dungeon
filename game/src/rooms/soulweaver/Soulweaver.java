@@ -6,7 +6,6 @@ import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
-import engine.game.ServerLifecycle;
 import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
@@ -159,7 +158,6 @@ public final class Soulweaver {
   }
 
   private static void serverSetup() {
-    ServerLifecycle.install("Soulweaver server stopped");
     BlackFadeCutscene.register();
     QuestLogUI.register();
     SoulweaverTerminal.register();
