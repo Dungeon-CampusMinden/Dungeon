@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
@@ -15,6 +16,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
+import engine.language.Language;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.utils.Coordinate;
@@ -22,6 +24,8 @@ import engine.level.utils.LevelElement;
 import engine.systems.LevelSystem;
 import engine.systems.MoveSystem;
 import engine.systems.VelocitySystem;
+import engine.tracking.AttemptDetails;
+import engine.tracking.Tracking;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.state.StateMachine;
@@ -30,11 +34,14 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 import rooms.soulweaver.SoulweaverRoomController;
 import rooms.soulweaver.modules.loops.LoopMaze;
 import rooms.soulweaver.modules.loops.LoopProgram;
@@ -121,6 +128,38 @@ class SoulweaverGolemMovementTest {
     Game.removeAllEntities();
     Game.removeAllSystems();
     Game.currentLevel(null);
+  }
+
+  @Test
+  void englishHostTracksTheGermanRuneSource() {
+    Language previous = Game.localization().currentLanguage();
+    Game.localization().registerTranslationFile(Language.DE, "language/soulweaver/de.json");
+    Game.localization().registerTranslationFile(Language.EN, "language/soulweaver/en.json");
+    Game.localization().currentLanguage(Language.EN);
+    UUID participant = UUID.randomUUID();
+    try (MockedStatic<Tracking> tracking = mockStatic(Tracking.class)) {
+      tracking
+          .when(() -> Tracking.participantForEntity(player.id()))
+          .thenReturn(Optional.of(participant));
+
+      // A jump without a pit fails at once and records the attempt with the rune's source.
+      runtime.executeRune("archive-jump", player);
+
+      ArgumentCaptor<String> code = ArgumentCaptor.forClass(String.class);
+      tracking.verify(
+          () ->
+              Tracking.attempt(
+                  eq("cellar-0"),
+                  eq("archive-jump"),
+                  eq("code"),
+                  code.capture(),
+                  eq(participant),
+                  any(AttemptDetails.class)));
+      assertTrue(code.getValue().contains("springen();"), code.getValue());
+      assertFalse(code.getValue().contains("jump"), code.getValue());
+    } finally {
+      Game.localization().currentLanguage(previous);
+    }
   }
 
   @Test

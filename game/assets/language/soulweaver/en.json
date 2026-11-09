@@ -295,7 +295,7 @@
       "goal": "Drag a rune into the executor and guide Nox to the five waymarks.",
       "controls": "Start: Drag a rune into the executor.\nRead code: Hover the mouse over a rune.\nSwitch: After a failed attempt the executor is free again. Otherwise pull the rune out or replace it.\nObserve: The map shows Nox and the next waymark.",
       "simplified": "Gold shows the current path. Only matching rune groups are visible.",
-      "commands": "$1(): one tile forward\n$2(): over a pit, two tiles\n$3(): enemy directly ahead\n$4(): floor ahead, even with an enemy\n$5(): current goal reached\nTurning: a quarter turn",
+      "commands": "$1(): one tile forward\n$2(): over a pit, two tiles\n$3(): enemy directly ahead\n$4(): no pit ahead, even with an enemy\n$5(): current goal reached\nTurning: a quarter turn",
       "drop-rune": "Drop a rune here",
       "locked": "Locked",
       "pull-out": "Pull out",
@@ -342,7 +342,7 @@
         },
         "methods": {
           "1": "Nox works through the connected main blocks. Compare the long starting program with the work stations and combine repeated sections.",
-          "2": "At most eight main blocks and six blocks per method. Call a method with parameters several times and use a return value. Both altars must be filled; at the end Nox must carry no crystals and the variable crystals must be 0.",
+          "2": "At most eight main blocks and six blocks per method. Call a method with parameters several times and use a return value. Both altars must be filled; at the end Nox must carry nothing and the crystals variable must be 0.",
           "3": "The workbench now marks repeated statements and changing inputs in gold. Use direction and amount as parameters. Collecting returns the amount; the caller adds it to crystals and subtracts the amounts placed on the altars."
         },
         "decisions": {

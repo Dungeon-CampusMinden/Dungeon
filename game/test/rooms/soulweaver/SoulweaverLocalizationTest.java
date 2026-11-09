@@ -296,15 +296,43 @@ class SoulweaverLocalizationTest {
         state.definitions().get("hilfeRune").parameters().stream()
             .map(name -> MethodsWorkshop.localized(name, SoulweaverText::text))
             .toList());
-    // What an English player sees and saves unchanged maps back to the stored solution.
-    for (var block : state.main()) {
-      for (String stored :
-          List.of(block.target(), block.method(), String.join(", ", block.arguments())))
-        assertEquals(
-            stored,
-            MethodsWorkshop.stored(
-                MethodsWorkshop.localized(stored, SoulweaverText::text), SoulweaverText::text));
+    // What a player sees and saves unchanged maps back to the stored solution in both languages.
+    List<String> fields = new ArrayList<>();
+    List<MethodsWorkshop.Block> blocks = new ArrayList<>(state.main());
+    for (var definition : state.definitions().values()) {
+      fields.add(definition.name());
+      fields.add(String.join(", ", definition.parameters()));
+      blocks.addAll(definition.body());
     }
+    for (var block : blocks)
+      fields.addAll(
+          List.of(
+              block.operand(),
+              block.target(),
+              block.method(),
+              String.join(", ", block.arguments())));
+    for (Language language : List.of(Language.DE, Language.EN)) {
+      Game.localization().currentLanguage(language);
+      for (String stored : fields) assertEquals(stored, roundTrip(stored), language.name());
+    }
+  }
+
+  @Test
+  void everyGameNameAndDirectionRoundTripsInBothLanguages() {
+    List<String> names = new ArrayList<>(MethodsWorkshop.GAME_IDENTIFIERS);
+    for (var direction :
+        List.of(
+            MethodsRoute.Direction.LEFT, MethodsRoute.Direction.RIGHT, MethodsRoute.Direction.BACK))
+      names.add(direction.label());
+    for (Language language : List.of(Language.DE, Language.EN)) {
+      Game.localization().currentLanguage(language);
+      for (String name : names) assertEquals(name, roundTrip(name), language.name());
+    }
+  }
+
+  private static String roundTrip(String stored) {
+    return MethodsWorkshop.stored(
+        MethodsWorkshop.localized(stored, SoulweaverText::text), SoulweaverText::text);
   }
 
   @Test

@@ -16,7 +16,6 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
 import rooms.soulweaver.modules.methods.MethodsRoute.Direction;
 import rooms.soulweaver.modules.methods.MethodsRoute.Step;
@@ -396,7 +395,7 @@ public final class MethodsWorkshop {
       Set.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN");
 
   /** Names the game itself writes into programs; editors show them in the client's language. */
-  private static final Set<String> GAME_IDENTIFIERS =
+  public static final Set<String> GAME_IDENTIFIERS =
       Set.of(
           "kristalle",
           "gesammelt",
@@ -1433,22 +1432,15 @@ public final class MethodsWorkshop {
   public static String stored(String input, UnaryOperator<String> word) {
     return NAME.matcher(input)
         .replaceAll(
-            match ->
-                Stream.concat(
-                        GAME_IDENTIFIERS.stream()
-                            .filter(
-                                name ->
-                                    word.apply("methods.identifier." + name).equals(match.group())),
-                        Stream.of(Direction.LEFT, Direction.RIGHT, Direction.BACK)
-                            .filter(
-                                direction ->
-                                    word.apply(
-                                            "methods.direction."
-                                                + direction.name().toLowerCase(Locale.ROOT))
-                                        .equals(match.group()))
-                            .map(Direction::label))
-                    .findFirst()
-                    .orElse(match.group()));
+            match -> {
+              String name = match.group();
+              for (String identifier : GAME_IDENTIFIERS)
+                if (word.apply("methods.identifier." + identifier).equals(name)) return identifier;
+              for (Direction direction : List.of(Direction.LEFT, Direction.RIGHT, Direction.BACK))
+                if (word.apply("methods.direction." + direction.name().toLowerCase(Locale.ROOT))
+                    .equals(name)) return direction.label();
+              return name;
+            });
   }
 
   /**
