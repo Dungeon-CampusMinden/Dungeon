@@ -93,13 +93,6 @@
   },
   "decorations": [
     {
-      "type": "LabNeon",
-      "position": {
-        "x": 34.0,
-        "y": 8.8
-      }
-    },
-    {
       "type": "WaterDispenser",
       "position": {
         "x": 40.8,
@@ -118,13 +111,6 @@
       "position": {
         "x": 3.6,
         "y": 20.9
-      }
-    },
-    {
-      "type": "LabNeon",
-      "position": {
-        "x": 22.0,
-        "y": 21.0
       }
     },
     {
@@ -205,13 +191,6 @@
       }
     },
     {
-      "type": "LabNeon",
-      "position": {
-        "x": 9.0,
-        "y": 22.6
-      }
-    },
-    {
       "type": "LabBarrel",
       "position": {
         "x": 25.3,
@@ -226,13 +205,6 @@
       }
     },
     {
-      "type": "LabNeon",
-      "position": {
-        "x": 28.0,
-        "y": 22.6
-      }
-    },
-    {
       "type": "CouchBlue",
       "position": {
         "x": 34.6,
@@ -244,27 +216,6 @@
       "position": {
         "x": 28.3,
         "y": 3.0
-      }
-    },
-    {
-      "type": "LabScreenArrow",
-      "position": {
-        "x": 31.6,
-        "y": 8.19
-      }
-    },
-    {
-      "type": "LabScreenFace",
-      "position": {
-        "x": 34.2,
-        "y": 18.19
-      }
-    },
-    {
-      "type": "LabScreenQuestion",
-      "position": {
-        "x": 27.2,
-        "y": 18.19
       }
     },
     {
@@ -286,13 +237,6 @@
       "position": {
         "x": 8.0,
         "y": 19.6
-      }
-    },
-    {
-      "type": "LabNeon",
-      "position": {
-        "x": 3.0,
-        "y": 18.4
       }
     },
     {
@@ -321,13 +265,6 @@
       "position": {
         "x": 17.0,
         "y": 26.6
-      }
-    },
-    {
-      "type": "LabScreenArrow",
-      "position": {
-        "x": 9.6,
-        "y": 33.19
       }
     },
     {
@@ -370,10 +307,10 @@
       "type": "morphco-object",
       "properties": {
         "position": {
-          "x": 30.8,
+          "x": 31.0,
           "y": 8.19
         },
-        "kind": "warning-screen",
+        "kind": "sign-restricted",
         "number": 0
       }
     },
@@ -742,10 +679,10 @@
       "type": "morphco-object",
       "properties": {
         "position": {
-          "x": 13.2,
-          "y": 23.0
+          "x": 12.3,
+          "y": 34.19
         },
-        "kind": "sign-f04",
+        "kind": "sign-motto",
         "number": 0
       }
     },

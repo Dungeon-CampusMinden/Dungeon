@@ -67,7 +67,6 @@ final class MorphCoObjects {
     deco("sink", Deco.Sink);
     deco("mirror", Deco.LabWindowSmall);
     deco("fuse-box", Deco.LabElectricPanel);
-    deco("cctv", Deco.LabWallDevice);
     deco("cup", Deco.Cup);
     plain("tall-plant", "office/plant.png", 1.2f, new Rectangle(0.9f, 0.5f, 0.15f, 0f));
 
@@ -85,10 +84,12 @@ final class MorphCoObjects {
     texture("sign-kitchen", "sign_kitchen.png", 13 / 16f, null);
     texture("sign-storage", "sign_storage.png", 13 / 16f, null);
     texture("sign-production", "sign_production.png", 13 / 16f, null);
+    texture("sign-restricted", "sign_restricted.png", 15 / 16f, null);
+    texture("sign-motto", "sign_motto.png", 11 / 16f, null);
+    texture("cctv", "sign_cctv.png", 15 / 16f, null);
 
     // Entrance and control room.
     plain("card-slot", "objects/tech/Hand_scanner.png", 0.8f, null);
-    plain("warning-screen", "objects/tech/Screen_info_2.png", 0.9f, null);
     plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
     plain("desk-pc", "office/desk-with-pc.png", 2f, new Rectangle(1.9f, 0.9f, 0.05f, 0f));
     switchable(
