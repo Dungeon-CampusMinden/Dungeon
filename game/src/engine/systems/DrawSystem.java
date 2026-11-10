@@ -406,9 +406,7 @@ public final class DrawSystem extends System implements Disposable {
       List<DSData> sortedGroup =
           sortedEntities.get(depth).stream()
               .map(DSData::build)
-              .sorted(
-                  Comparator.comparingDouble(
-                      (DSData d) -> -(EntityUtils.getPosition(d.e).y() + d.dc.sortOffset())))
+              .sorted(Comparator.comparingDouble((DSData d) -> -sortY(d)))
               .filter(this::shouldDraw)
               .toList();
 
@@ -1210,6 +1208,12 @@ public final class DrawSystem extends System implements Disposable {
    */
   public static int shadersActiveLastFrame() {
     return getInstance().shadersActiveLastFrame;
+  }
+
+  // Entities are sorted where they are drawn, which can lie apart from their position.
+  private static float sortY(DSData d) {
+    float drawnApart = d.pc.renderPosition().y() - d.pc.position().y();
+    return EntityUtils.getPosition(d.e).y() + drawnApart + d.dc.sortOffset();
   }
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {
