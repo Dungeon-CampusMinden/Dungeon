@@ -256,9 +256,8 @@ public final class HudSystem extends System {
         Game.systems().values().forEach(System::stop);
       }
       if (filteredEntityStream(UIComponent.class).anyMatch(this::pausesGame)) {
-        if (!ipaused) {
-          pauseGame();
-        } else if (stepRequested && !PreRunConfiguration.multiplayerEnabled()) {
+        if (!ipaused) pauseGame();
+        if (stepRequested && !PreRunConfiguration.multiplayerEnabled()) {
           stepping = true;
           Game.systems().values().forEach(System::run);
         }

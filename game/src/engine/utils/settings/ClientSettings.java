@@ -111,7 +111,7 @@ public class ClientSettings {
     frameLimit.onChange(limit -> Gdx.graphics.setForegroundFPS(limit.fps()));
     registerSetting(frameLimit);
     BoolSetting vsync = new BoolSetting(KEY_VSYNC, true, KEY_VSYNC_DESCRIPTION);
-    vsync.onChange(Gdx.graphics::setVSync);
+    vsync.onChange(enabled -> Gdx.graphics.setVSync(enabled));
     registerSetting(vsync);
     registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
 
