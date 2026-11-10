@@ -65,8 +65,8 @@ public final class AttributeBarSystem extends System implements WorldOverlay {
     PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
     int spriteWidth = Math.round(dc.getWidth() * Math.abs(pc.scale().x()) / PIXEL);
     int spriteHeight = Math.round(dc.getHeight() * Math.abs(pc.scale().y()) / PIXEL);
-    float left = pc.position().x() + Math.round((spriteWidth - WIDTH) / 2f) * PIXEL;
-    float bottom = pc.position().y() + (spriteHeight + 1) * PIXEL;
+    float left = pc.renderPosition().x() + Math.round((spriteWidth - WIDTH) / 2f) * PIXEL;
+    float bottom = pc.renderPosition().y() + (spriteHeight + 1) * PIXEL;
 
     for (int i = 0; i < bars.size(); i++) {
       BarDisplayable bar = bars.get(i);

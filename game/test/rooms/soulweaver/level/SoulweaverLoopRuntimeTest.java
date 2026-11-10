@@ -10,7 +10,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Entity;
 import engine.Game;
-import engine.components.NetworkPositionComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
@@ -21,7 +20,6 @@ import engine.level.DungeonLevel;
 import engine.network.messages.c2s.InputMessage;
 import engine.network.server.ClientState;
 import engine.systems.LevelSystem;
-import engine.systems.NetworkPositionSmoothingSystem;
 import engine.utils.Direction;
 import engine.utils.Point;
 import feature.canvas.CanvasUI;
@@ -138,22 +136,16 @@ class SoulweaverLoopRuntimeTest {
     when(level.namedPoints()).thenReturn(Map.of("maze-origin", origin));
     Game.currentLevel(level);
     Entity golem = new Entity();
-    var position = new PositionComponent(origin);
+    var position = new PositionComponent(origin.translate(1, 0));
+    position.renderPosition(origin);
     golem.add(position);
-    golem.add(new NetworkPositionComponent(origin.translate(1, 0)));
     Game.add(golem);
     var state =
         new TerminalState(
             List.of(), 0, golem.id(), .2f, 0, true, true, "archive-long", "schritt()");
-    var smoothing = new NetworkPositionSmoothingSystem();
-    Game.add(smoothing);
-    for (int i = 0; i < 10; i++) {
-      smoothing.execute();
-      assertEquals(
-          (position.position().x() - origin.x()) / 5,
-          SoulweaverTerminal.mapPosition(state).x(),
-          .0001f);
-    }
+    assertEquals(new Point(0, 0), SoulweaverTerminal.mapPosition(state));
+    position.renderPosition(origin.translate(0.5f, 0));
+    assertEquals(0.1f, SoulweaverTerminal.mapPosition(state).x(), 0.0001f);
     assertEquals(state, SoulweaverTerminal.decode(SoulweaverTerminal.encode(state)));
   }
 

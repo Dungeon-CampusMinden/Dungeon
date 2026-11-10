@@ -262,7 +262,7 @@ public final class AtmosphereRenderer implements Disposable {
     // A little wider than the base; wide furniture gets a flat ellipse, not a tall blob.
     float w = MathUtils.clamp((right - left) * spriteWidth + 4 / 16f, 0.4f, 3.5f);
     float h = Math.min(w * 10f / 24f, 0.45f);
-    float centerX = pc.position().x() + (left + right) / 2f * spriteWidth;
+    float centerX = pc.renderPosition().x() + (left + right) / 2f * spriteWidth;
     float feetY = feetY(dc, pc, base);
     batch.setColor(alpha, alpha, alpha, alpha);
     batch.setBlendFunctionSeparate(
@@ -322,7 +322,7 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   private static float feetY(DrawComponent dc, PositionComponent pc, SpriteFootprints.Footprint b) {
-    return pc.position().y() + b.bottom() * dc.getHeight() * Math.abs(pc.scale().y());
+    return pc.renderPosition().y() + b.bottom() * dc.getHeight() * Math.abs(pc.scale().y());
   }
 
   /**
@@ -349,7 +349,7 @@ public final class AtmosphereRenderer implements Disposable {
    */
   public void addEntity(Entity entity, DrawComponent dc, PositionComponent pc, boolean grounded) {
     Rectangle v = view;
-    Point p = pc.position();
+    Point p = pc.renderPosition();
     if (p.x() < v.x() - LIGHT_MARGIN
         || p.y() < v.y() - LIGHT_MARGIN
         || p.x() > v.x() + v.width() + LIGHT_MARGIN

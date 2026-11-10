@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import engine.Component;
 import engine.Entity;
 import engine.Game;
 import engine.System;
@@ -108,6 +109,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -126,6 +128,7 @@ public final class GameLoop extends ScreenAdapter {
   private static final String T_DISCONNECTED_FROM_SERVER = "disconnected_from_server";
   private static final String T_DISCONNECTED_FROM_SERVER_REASON = "disconnected_from_server_reason";
   private static final Translation trans = new Translation("game_loop");
+  private static final Set<Class<? extends Component>> POSITIONED = Set.of(PositionComponent.class);
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
   private final TickAccumulator tickAccumulator = new TickAccumulator();
@@ -463,6 +466,11 @@ public final class GameLoop extends ScreenAdapter {
     tickAccumulator.beginFrame(delta);
     while (!Game.isExiting() && tickAccumulator.nextTick()) {
       tick(side);
+    }
+    if (Game.isSingleplayer()) {
+      // Frames fall between world ticks, so entities are drawn between their last two positions.
+      float alpha = tickAccumulator.alpha();
+      forEachPosition(position -> position.blendTick(alpha));
     }
     ECSManagement.executeFrame(side);
 
@@ -1080,11 +1088,17 @@ public final class GameLoop extends ScreenAdapter {
    */
   private static void tick(System.AuthoritativeSide side) {
     if (Game.isSingleplayer()) {
+      forEachPosition(PositionComponent::startTick);
       HeroController.drainAndApplyInputs();
     }
     PreRunConfiguration.userOnFrame().execute();
     PlayClockRuntime.tick();
     ECSManagement.executeTick(side);
+  }
+
+  private static void forEachPosition(Consumer<PositionComponent> action) {
+    ECSManagement.entities(POSITIONED)
+        .forEach(entity -> entity.fetch(PositionComponent.class).ifPresent(action));
   }
 
   static SnapshotMessage changedSnapshotForDelta(

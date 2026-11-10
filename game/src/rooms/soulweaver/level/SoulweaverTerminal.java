@@ -137,8 +137,9 @@ public final class SoulweaverTerminal {
                     .map(
                         position ->
                             new Point(
-                                (position.position().x() - origin.x()) / LoopMaze.CELL_WIDTH,
-                                (position.position().y() - origin.y()) / LoopMaze.CELL_HEIGHT)))
+                                (position.renderPosition().x() - origin.x()) / LoopMaze.CELL_WIDTH,
+                                (position.renderPosition().y() - origin.y())
+                                    / LoopMaze.CELL_HEIGHT)))
         .orElseGet(() -> new Point(state.cellX(), state.cellY()));
   }
 
