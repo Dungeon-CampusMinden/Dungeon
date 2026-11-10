@@ -971,7 +971,8 @@ public final class Game {
   /**
    * Get the current game tick.
    *
-   * <p>The game tick is incremented every world tick in the game loop.
+   * <p>The game tick is incremented every world tick in the game loop, also while a dialog pauses
+   * the game. It orders events; for time that stands still in a pause, use {@link #playClock()}.
    *
    * @return The current game tick.
    */
