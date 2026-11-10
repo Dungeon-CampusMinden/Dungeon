@@ -81,6 +81,7 @@ import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
+import feature.entities.HeroController;
 import feature.entities.deco.DecoFactory;
 import feature.hud.PauseMenuHudSystem;
 import feature.hud.UIUtils;
@@ -127,6 +128,7 @@ public final class GameLoop extends ScreenAdapter {
   private static final Translation trans = new Translation("game_loop");
   private static ISoundPlayer soundPlayer = new NoSoundPlayer();
   private static Stage stage;
+  private final TickAccumulator tickAccumulator = new TickAccumulator();
   private boolean doSetup = true;
   private int displayModeTransitionFrames = 0;
   private volatile boolean initialWorldCompleteReceived = false;
@@ -402,7 +404,7 @@ public final class GameLoop extends ScreenAdapter {
   /**
    * Get the current tick of the game.
    *
-   * <p>The tick is incremented every frame, starting from 0 at the beginning of the game.
+   * <p>The tick is incremented every world tick, starting from 0 at the beginning of the game.
    *
    * @return the current tick
    */
@@ -411,11 +413,13 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   /**
-   * Main game loop.
+   * Main game loop, called once per rendered frame.
    *
-   * <p>Triggers the execution of the systems and the event callbacks.
-   *
-   * <p>Will trigger {@link #frame} and {@link PreRunConfiguration#userOnFrame()}.
+   * <p>The world advances in fixed ticks of {@link Game#TICKS_PER_SECOND}: each frame runs as many
+   * ticks as its time covers (see {@link TickAccumulator}), then the systems that run per frame,
+   * then it renders. A tick triggers {@link PreRunConfiguration#userOnFrame()} and the systems of
+   * the simulation; on a multiplayer client only those of the client side, since the server
+   * simulates.
    *
    * <p>On the first frame, {@link #setup()} and {@link PreRunConfiguration#userOnSetup()} are
    * triggered.
@@ -449,15 +453,18 @@ public final class GameLoop extends ScreenAdapter {
     }
     tryCompleteInitialWorldHandshake();
     PlayClockRuntime.updateLocalPause();
-    frame(delta);
-    PlayClockRuntime.tick();
+    frame();
     clearScreen();
 
-    // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
-    ECSManagement.executeOneTick(
+    System.AuthoritativeSide side =
         Game.isMultiplayerClient()
             ? System.AuthoritativeSide.CLIENT
-            : System.AuthoritativeSide.BOTH);
+            : System.AuthoritativeSide.BOTH;
+    tickAccumulator.beginFrame(delta);
+    while (!Game.isExiting() && tickAccumulator.nextTick()) {
+      tick(side);
+    }
+    ECSManagement.executeFrame(side);
 
     CameraSystem.camera().update();
     // stage logic
@@ -1050,20 +1057,34 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   /**
-   * Called at the beginning of each frame, before the entities are updated and the systems are
-   * executed.
+   * Called at the beginning of each frame, before the world ticks and the systems are executed.
    *
-   * <p>This is the place to add basic logic that isn't part of any system.
-   *
-   * @param delta The time since the last loop.
+   * <p>This is the place to add basic per-frame logic that isn't part of any system.
    */
-  private void frame(float delta) {
+  private void frame() {
     fullscreenKey();
     if (displayModeTransitionFrames > 0) {
       synchronizeWindowSize();
       displayModeTransitionFrames--;
     }
+  }
+
+  /**
+   * Advances the world by one tick.
+   *
+   * <p>In singleplayer, the input the local player sent since the last tick is applied first, as a
+   * server does for its clients. Input from a frame without a tick waits for the next tick, and of
+   * several ticks in one frame only the first one sees it.
+   *
+   * @param side the authoritative side whose systems run
+   */
+  private static void tick(System.AuthoritativeSide side) {
+    if (Game.isSingleplayer()) {
+      HeroController.drainAndApplyInputs();
+    }
     PreRunConfiguration.userOnFrame().execute();
+    PlayClockRuntime.tick();
+    ECSManagement.executeTick(side);
   }
 
   static SnapshotMessage changedSnapshotForDelta(

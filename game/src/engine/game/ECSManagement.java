@@ -76,12 +76,6 @@ public final class ECSManagement {
     HudSystem.getInstance()
   };
 
-  /**
-   * Set to true if a new level was loaded during the current tick. This flag is used to interrupt
-   * system execution when a level change occurs.
-   */
-  private static boolean newLevelLoadedThisTick = false;
-
   static {
     entityFilters.add(new EntitySystemMapper());
     for (System system : ESSENTIAL_SYSTEMS) {
@@ -200,7 +194,7 @@ public final class ECSManagement {
    * Add a {@link System} to the game.
    *
    * <p>If a System is added to the game, the {@link System#execute} method will be called every
-   * frame.
+   * world tick, or every frame if the system {@link System#runsPerFrame() runs per frame}.
    *
    * <p>Additionally, the system will be informed about all new, changed, and removed entities.
    *
@@ -386,7 +380,7 @@ public final class ECSManagement {
    * Checks whether a system is part of the current execution side selected by the ECS runner.
    *
    * @param system the system to check
-   * @return true if the system would be considered for execution in the current ECS tick
+   * @return true if the system would be considered for execution on the current side
    */
   public static boolean isAuthoritativeInCurrentTick(System system) {
     return isAuthoritative(currentExecutionSide, system);
@@ -394,7 +388,7 @@ public final class ECSManagement {
 
   /**
    * Returns the current tick number, incremented each time {@link
-   * #executeOneTick(System.AuthoritativeSide)} is called.
+   * #executeTick(System.AuthoritativeSide)} is called.
    *
    * @return the current tick number
    */
@@ -403,35 +397,50 @@ public final class ECSManagement {
   }
 
   /**
-   * Execute one tick of the ECS.
+   * Executes one world tick of the ECS.
    *
-   * <p>This will call the {@link System#execute()} method of each registered {@link System} in the
-   * game, if the system is running and the required number of frames has passed since its last
-   * execution.
-   *
-   * <p>After executing all systems, if an OpenGL context is available, it will call the {@link
-   * System#render(float)} method of each registered {@link System}.
-   *
-   * <p>If a new level was loaded during this tick, the execution will be interrupted to prevent
-   * inconsistencies.
+   * <p>This will call the {@link System#execute()} method of each registered {@link System} that
+   * runs per tick, if the system is running and the required number of ticks has passed since its
+   * last execution.
    *
    * @param side the authoritative side for which to execute systems ({@link
    *     System.AuthoritativeSide#BOTH for all systems})
    */
-  public static void executeOneTick(System.AuthoritativeSide side) {
+  public static void executeTick(System.AuthoritativeSide side) {
+    execute(side, false);
+    currentTick++;
+  }
+
+  /**
+   * Executes one rendered frame of the ECS.
+   *
+   * <p>This will call the {@link System#execute()} method of each registered {@link System} that
+   * {@link System#runsPerFrame() runs per frame}, if the system is running and the required number
+   * of frames has passed since its last execution.
+   *
+   * <p>Afterwards, if an OpenGL context is available, it will call the {@link System#render(float)}
+   * method of each registered {@link System}.
+   *
+   * @param side the authoritative side for which to execute systems ({@link
+   *     System.AuthoritativeSide#BOTH for all systems})
+   */
+  public static void executeFrame(System.AuthoritativeSide side) {
+    execute(side, true);
+
+    if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
+      float delta = Gdx.graphics.getDeltaTime();
+      systems().values().forEach(system -> system.render(delta));
+    }
+  }
+
+  private static void execute(System.AuthoritativeSide side, boolean perFrame) {
     currentExecutionSide = side;
-    List<System> authoritativeSystems =
+    List<System> due =
         ECSManagement.systems().values().stream()
-            .filter(sys -> isAuthoritative(side, sys))
+            .filter(sys -> sys.runsPerFrame() == perFrame && isAuthoritative(side, sys))
             .toList();
 
-    // Execute logic for each system.
-    for (System system : authoritativeSystems) {
-      if (newLevelLoadedThisTick) {
-        currentTick++;
-        return; // Early exit if a new level was loaded this tick.
-      }
-
+    for (System system : due) {
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
 
       if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
@@ -439,15 +448,6 @@ public final class ECSManagement {
         system.lastExecuteInFrames(0);
       }
     }
-
-    if (!Game.isHeadless() && Game.windowHeight() > 0 && Game.windowWidth() > 0) {
-      // Render logic: Call the render method for each system if OpenGL context is available.
-      float delta = Gdx.graphics.getDeltaTime();
-      systems().values().forEach(system -> system.render(delta));
-    }
-
-    currentTick++;
-    newLevelLoadedThisTick = false;
   }
 
   /**

@@ -173,18 +173,18 @@ public final class PreRunConfiguration {
   }
 
   /**
-   * Gets the user-defined function for frame logic.
+   * Gets the user-defined function that runs once per world tick, before the systems.
    *
-   * @return The user-defined function for frame logic.
+   * @return The user-defined function for tick logic.
    */
   public static IVoidFunction userOnFrame() {
     return userOnFrame;
   }
 
   /**
-   * Sets the user-defined function for frame logic.
+   * Sets the user-defined function that runs once per world tick, before the systems.
    *
-   * @param userOnFrame The user-defined function for frame logic.
+   * @param userOnFrame The user-defined function for tick logic.
    */
   public static void userOnFrame(final IVoidFunction userOnFrame) {
     PreRunConfiguration.userOnFrame = userOnFrame;

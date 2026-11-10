@@ -85,6 +85,7 @@ public final class Game {
   private static final AudioApi AudioAPI = new AudioApi();
   private static final Localization localization = Localization.getInstance();
   private static final PlayClock PLAY_CLOCK = new PlayClock();
+  private static boolean exiting;
 
   static {
     PLAY_CLOCK.onTransition(TrackingRuntime::playClockChanged);
@@ -335,9 +336,9 @@ public final class Game {
   }
 
   /**
-   * Sets the user-defined function for frame updates in the pre-run configuration.
+   * Sets the user-defined function that runs once per world tick, before the systems.
    *
-   * @param userOnFrame The new user-defined function for frame updates.
+   * @param userOnFrame The new user-defined function for tick updates.
    */
   public static void userOnFrame(final IVoidFunction userOnFrame) {
     PreRunConfiguration.userOnFrame(userOnFrame);
@@ -901,6 +902,16 @@ public final class Game {
   }
 
   /**
+   * Checks whether the game was asked to exit. The application closes after the current frame;
+   * until then the world stands still, so nothing that ended the game happens a second time.
+   *
+   * @return true once {@link #exit(String)} or {@link #complete()} ran
+   */
+  public static boolean isExiting() {
+    return exiting;
+  }
+
+  /**
    * Ends play as solved unless the room already reported its result, then finishes tracking, warns
    * about pending remote events, shuts down the network with the reason {@code Game completed}, and
    * exits the GDX application.
@@ -911,6 +922,7 @@ public final class Game {
   }
 
   private static void shutdown(String reason) {
+    exiting = true;
     LOGGER.info("Exiting game: " + reason);
     TrackingRuntime.finishSession();
     TrackingRuntime.warnIfRemotePending();
@@ -959,7 +971,7 @@ public final class Game {
   /**
    * Get the current game tick.
    *
-   * <p>The game tick is incremented every frame in the game loop.
+   * <p>The game tick is incremented every world tick in the game loop.
    *
    * @return The current game tick.
    */

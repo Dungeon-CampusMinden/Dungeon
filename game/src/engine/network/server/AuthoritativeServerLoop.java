@@ -181,7 +181,9 @@ public final class AuthoritativeServerLoop {
   private void executeGameTick() {
     PreRunConfiguration.userOnFrame().execute();
     engine.time.PlayClockRuntime.tick();
-    ECSManagement.executeOneTick(engine.System.AuthoritativeSide.SERVER);
+    // A headless server renders no frames, so its tick also runs the per-frame systems.
+    ECSManagement.executeTick(engine.System.AuthoritativeSide.SERVER);
+    ECSManagement.executeFrame(engine.System.AuthoritativeSide.SERVER);
   }
 
   private void sendSnapshot() {

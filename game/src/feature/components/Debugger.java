@@ -15,7 +15,6 @@ import engine.level.elements.tile.ExitTile;
 import engine.level.utils.LevelElement;
 import engine.network.NetworkUtils;
 import engine.systems.CameraSystem;
-import engine.utils.IVoidFunction;
 import engine.utils.Point;
 import engine.utils.components.MissingComponentException;
 import engine.utils.components.path.SimpleIPath;
@@ -34,9 +33,6 @@ import java.util.List;
  *
  * <p>It provides useful functionalities that can aid in verifying the correct behavior of a game
  * implementation.
- *
- * <p>Add the Debugger in the Game-Loop by adding the {@link #execute()} call in {@link
- * Game#userOnFrame(IVoidFunction)}
  *
  * @see DebugActions
  */
