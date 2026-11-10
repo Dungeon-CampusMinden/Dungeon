@@ -286,10 +286,9 @@ könnten.
 Die Migration erzeugt folgende schreibgeschützte Analyse-Views:
 
 - `v_session_summary` leitet Spielerzahl, Status, `run_id`, Spielzeit der Sitzung und das bei der
-  Unterbrechung aktive Rätsel ab. Eine laufende Sitzung, deren Spiel ohne Abschluss endete, zeigt
-  sie als `ABANDONED`: Ihr Run hat eine spätere Sitzung, oder das Backend hat seit 24 Stunden
-  nichts von ihr gespeichert. Die Tabellenzeile bleibt `RUNNING`; ein später eintreffender
-  Abschluss wird angenommen und ersetzt den abgeleiteten Status.
+  Unterbrechung aktive Rätsel ab. Für `RUNNING` zeigt sie `ABANDONED`, sobald der Run eine spätere
+  Sitzung hat oder seit 24 Stunden kein Ereignis gespeichert wurde. Die Tabellenzeile bleibt
+  `RUNNING`, damit ein späterer Abschluss angenommen wird.
 - `v_run_events` enthält die Ereignisse eines Runs ohne den Fortschritt, den das Laden eines
   älteren Spielstands verworfen hat.
 - `v_run_summary` leitet je Run Gesamtspielzeit, Sitzungsanzahl, Spielerzahl, Abschluss und das

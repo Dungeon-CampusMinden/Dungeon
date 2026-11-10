@@ -13,12 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Uploads one self-contained JSONL outbox through the tracking HTTP API.
- *
- * <p>The importer CLI and the game use it for outboxes whose live upload did not complete. The
- * upload repeats the whole session, which the API accepts for data it already stores.
- */
+/** Replays an outbox through the idempotent tracking HTTP API. */
 public final class TrackingOutboxUpload {
   private TrackingOutboxUpload() {}
 

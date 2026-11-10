@@ -12,14 +12,7 @@ import tracking.core.TrackingJson;
 import tracking.core.TrackingJsonlReadResult;
 import tracking.core.TrackingOutboxUpload;
 
-/**
- * Uploads the outboxes that earlier sessions left behind.
- *
- * <p>An outbox stays behind when its session ended without a confirmed upload, for example because
- * the backend was unreachable or the game was killed. The backend accepts repeated data, so every
- * outbox is uploaded as a whole. One whose finish the backend confirms is deleted; one without a
- * finish record stays, because its session never ended properly.
- */
+/** Resends earlier outboxes and deletes only those with an acknowledged finish. */
 final class TrackingResend {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TrackingResend.class);
   private static final int BATCH_SIZE = 100;

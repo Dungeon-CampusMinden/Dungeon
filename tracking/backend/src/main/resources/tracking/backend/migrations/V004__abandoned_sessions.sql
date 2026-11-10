@@ -1,6 +1,4 @@
--- A running session whose game ended without sending its finish shows as ABANDONED: its run has a
--- later session, or the backend stored nothing from it for 24 hours. The table row stays RUNNING,
--- so a finish that still arrives is accepted and replaces the derived status.
+-- The table row stays RUNNING, so a finish that still arrives is accepted.
 CREATE OR REPLACE VIEW v_session_summary AS
 SELECT
     s.session_id,

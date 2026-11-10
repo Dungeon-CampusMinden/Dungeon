@@ -104,12 +104,11 @@ verpflichtenden `runId`, danach folgen geordnete Ereignisdatensätze. Eine ordnu
 schließt mit einem Abschlussdatensatz. Fehlt dieser, bleibt die Sitzung unvollständig. Diese eine
 Datei enthält alles für den Offline-Import.
 
-Startet die erste Sitzung eines Prozesses bei aktivem HTTP-Upload, lädt Dungeon im Hintergrund die
-Outboxes früherer Sitzungen vollständig hoch. Weitere Sitzungen desselben Prozesses lösen das nicht
-erneut aus. Bestätigt das Backend den Abschluss, löscht Dungeon die Datei. Eine Outbox ohne
-Abschlussdatensatz bleibt liegen, ebenso jede, deren Upload fehlschlägt; der nächste Spielstart
-versucht es erneut. Lösche eine Outbox von Hand erst, wenn das Backend die Sitzung bestätigt oder
-ein Betreiber sie importiert hat.
+Bei aktivem HTTP-Upload lädt Dungeon beim Start der ersten Sitzung einmal pro Prozess die Outboxes
+früherer Sitzungen im Hintergrund vollständig hoch. Bestätigt das Backend den Abschluss, löscht
+Dungeon die Datei. Outboxes ohne Abschluss oder mit fehlgeschlagenem Upload bleiben für den nächsten
+Spielstart liegen. Lösche eine Outbox von Hand erst, wenn das Backend die Sitzung bestätigt oder ein
+Betreiber sie importiert hat.
 
 Beendet sich ein über "Spiel hosten" gestarteter Server ohne bestätigte Speicherung, übermittelt
 sein Statuskanal den absoluten Outbox-Pfad und die konfigurierte Betreiber-E-Mail an den hostenden
