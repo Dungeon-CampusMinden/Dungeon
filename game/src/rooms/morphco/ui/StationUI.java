@@ -1,6 +1,7 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
@@ -51,12 +52,11 @@ final class StationUI extends MorphCoConsoleUI {
     // The same edges as the name plates of the bowls next to it.
     middle.content().pad(6, 12, 12, 12);
     middle.content().defaults().left().growX().padBottom(6);
-    middle
-        .content()
-        .add(MorphCoUI.tag(MorphCoText.text("ui.station.middle")))
-        .height(34)
-        .padBottom(14)
-        .row();
+    Table heading = new Table();
+    heading.setBackground(MorphCoUI.plate(MorphCoUI.TAG));
+    heading.pad(2, 8, 4, 8);
+    heading.add(MorphCoUI.bold(MorphCoText.text("ui.station.middle"), 18, MorphCoUI.INK)).growX();
+    middle.content().add(heading).height(34).padBottom(14).row();
     String[] assembled =
         context.find(MorphCoDialogs.ASSEMBLED, String[].class).orElse(new String[0]);
     if (assembled.length == 0) {
@@ -78,7 +78,6 @@ final class StationUI extends MorphCoConsoleUI {
       }
     }
 
-    button("ui.close", false, this::requestClose);
     button("ui.station.assemble", true, this::assemble);
   }
 

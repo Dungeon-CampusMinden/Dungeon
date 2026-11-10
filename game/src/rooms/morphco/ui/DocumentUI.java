@@ -36,7 +36,6 @@ final class DocumentUI extends MorphCoConsoleUI {
       case MORPH_2 -> boundMorphemes();
       default -> sheet.add(MorphCoUI.rich(t("handbook"), 20, MorphCoUI.INK)).row();
     }
-    button("documents.close", true, this::requestClose);
   }
 
   /**

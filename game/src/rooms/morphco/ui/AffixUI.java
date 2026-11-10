@@ -105,9 +105,7 @@ final class AffixUI extends MorphCoConsoleUI {
       float benchHeight = bench.fit(benchWidth);
       SortBoard.Flow flow =
           SortBoard.flow(
-              slots.stream().map(SortBoard.Slot::measure).toList(),
-              wordsWidth - partsLeft,
-              SortBoard.CHIP_HEIGHT);
+              slots.stream().map(SortBoard.Slot::measure).toList(), wordsWidth - partsLeft);
       bench.position(0, top - benchHeight);
       float slotTop = top - (benchHeight - SortBoard.CHIP_HEIGHT) / 2;
       for (int index = 0; index < slots.size(); index++) {

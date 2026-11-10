@@ -36,9 +36,13 @@ final class SortBoard {
   /** Space between chips and between rows of chips. */
   static final float GAP = 8;
 
+  private static final float BIN_GAP = 12;
   private static final float BIN_HEADER = 42;
   private static final float BIN_PAD = 12;
   private static final String HOME = "#home";
+  private static final float TEXT_LEFT = 16;
+  private static final float TEXT_RIGHT = 6;
+  private static final float TEXT_BOTTOM = 4;
 
   private final CanvasArea area;
   private final Runnable onChange;
@@ -60,26 +64,25 @@ final class SortBoard {
   }
 
   /**
-   * Places boxes of one height in rows from left to right, wrapping at the given width.
+   * Places chips in rows from left to right, wrapping at the given width.
    *
-   * @param widths box widths in order
+   * @param widths chip widths in order
    * @param maxWidth available width of a row
-   * @param height height of every box; rows are {@link #GAP} apart
-   * @return offset of every box from the top left corner (y grows downwards) and the total height
+   * @return offset of every chip from the top left corner (y grows downwards) and the total height
    */
-  static Flow flow(List<Float> widths, float maxWidth, float height) {
+  static Flow flow(List<Float> widths, float maxWidth) {
     List<Vector2> offsets = new ArrayList<>();
     float x = 0;
     float y = 0;
     for (float width : widths) {
       if (x > 0 && x + width > maxWidth) {
         x = 0;
-        y += height + GAP;
+        y += CHIP_HEIGHT + GAP;
       }
       offsets.add(new Vector2(x, y));
       x += width + GAP;
     }
-    return new Flow(offsets, widths.isEmpty() ? 0 : y + height);
+    return new Flow(offsets, widths.isEmpty() ? 0 : y + CHIP_HEIGHT);
   }
 
   /**
@@ -94,7 +97,7 @@ final class SortBoard {
   static float belt(PanelNode belt, List<Slot> slots, float top, float width) {
     float pad = 12;
     float indent = belt.content().getPrefWidth() + 24;
-    Flow flow = flow(slots.stream().map(Slot::measure).toList(), width - indent - pad, CHIP_HEIGHT);
+    Flow flow = flow(slots.stream().map(Slot::measure).toList(), width - indent - pad);
     float height = flow.height() + 2 * pad;
     belt.size(width, height).position(0, top - height);
     for (int index = 0; index < slots.size(); index++) {
@@ -115,7 +118,7 @@ final class SortBoard {
    * @return grid height
    */
   static float grid(List<Bin> bins, int columns, float left, float top, float width) {
-    float binWidth = (width - (columns - 1) * GAP * 1.5f) / columns;
+    float binWidth = (width - (columns - 1) * BIN_GAP) / columns;
     float y = top;
     for (int first = 0; first < bins.size(); first += columns) {
       List<Bin> row = bins.subList(first, Math.min(bins.size(), first + columns));
@@ -124,15 +127,15 @@ final class SortBoard {
       for (int index = 0; index < row.size(); index++) {
         row.get(index)
             .size(binWidth, height)
-            .position(left + index * (binWidth + GAP * 1.5f), y - height);
+            .position(left + index * (binWidth + BIN_GAP), y - height);
       }
-      y -= height + GAP * 1.5f;
+      y -= height + BIN_GAP;
     }
-    return top - y - GAP * 1.5f;
+    return top - y - BIN_GAP;
   }
 
   /**
-   * Result of {@link #flow(List, float, float)}.
+   * Result of {@link #flow(List, float)}.
    *
    * @param offsets offset of every box from the top left corner, y grows downwards
    * @param height total height of all rows
@@ -232,15 +235,6 @@ final class SortBoard {
   }
 
   /**
-   * Returns the item chosen by a click, which the next click on a bin places.
-   *
-   * @return selected item ID, or {@code null}
-   */
-  String selected() {
-    return selected;
-  }
-
-  /**
    * A click on the chip of an item.
    *
    * <p>At home it selects the item or drops the selection. In a bin it puts the item back, unless
@@ -273,21 +267,11 @@ final class SortBoard {
     if (selected != null) place(selected, bin);
   }
 
-  /**
-   * A chip released outside of every bin goes back home.
-   *
-   * @param item item ID
-   */
-  void dropOutside(String item) {
-    if (placement.containsKey(item)) remove(item);
-    else arrange();
-  }
-
   /** Moves every chip to its slot or into its bin; slots and bins must be placed already. */
   void arrange() {
     for (Bin bin : bins.values()) {
       List<String> items = itemsIn(bin.id());
-      Flow flow = flow(widths(items), bin.width() - 2 * BIN_PAD, CHIP_HEIGHT);
+      Flow flow = flow(widths(items), bin.width() - 2 * BIN_PAD);
       float top = bin.y() + bin.height() - BIN_HEADER - BIN_PAD;
       for (int index = 0; index < items.size(); index++) {
         Vector2 offset = flow.offsets().get(index);
@@ -312,6 +296,21 @@ final class SortBoard {
         .toList();
   }
 
+  // A factory tag with its punched hole; a lifted tag casts a shadow, a lifted or chosen one has a
+  // black edge.
+  private static void drawTag(
+      Batch batch, float alpha, CanvasNode tag, Color face, boolean lifted, boolean chosen) {
+    float x = tag.x();
+    float y = tag.y();
+    if (lifted)
+      CanvasGraphics.fill(
+          batch, Color.BLACK, alpha * .35f, x + 5, y - 5, tag.width(), tag.height());
+    MorphCoUI.plate(batch, face, alpha, x, y, tag.width(), tag.height());
+    CanvasGraphics.fill(batch, MorphCoUI.INSET, alpha, x + 6, y + tag.height() / 2 - 3, 6, 6);
+    if (lifted || chosen)
+      CanvasGraphics.outline(batch, MorphCoUI.INK, alpha, x, y, tag.width(), tag.height(), 2);
+  }
+
   private List<Float> widths(List<String> items) {
     return items.stream().map(id -> chips.get(id).measure()).toList();
   }
@@ -322,6 +321,8 @@ final class SortBoard {
     private final int size;
     private Label label;
     private boolean dragging;
+    private float startX;
+    private float startY;
 
     private Chip(String id, String text, int size) {
       super(id, 60, CHIP_HEIGHT);
@@ -345,37 +346,43 @@ final class SortBoard {
       label.setAlignment(Align.center);
       addActor(label);
       size(label.getPrefWidth() + 34, CHIP_HEIGHT);
-      slots.get(id()).size(width(), CHIP_HEIGHT);
     }
 
     @Override
     protected void layoutContent() {
-      label.setBounds(16, 4, width() - 22, height() - 8);
+      label.setBounds(
+          TEXT_LEFT, TEXT_BOTTOM, width() - TEXT_LEFT - TEXT_RIGHT, height() - 2 * TEXT_BOTTOM);
     }
 
     @Override
     protected void drawBackground(Batch batch, float alpha) {
       boolean chosen = id().equals(selected);
-      if (dragging)
-        CanvasGraphics.fill(batch, Color.BLACK, alpha * .35f, x() + 5, y() - 5, width(), height());
-      MorphCoUI.plate(
-          batch, chosen ? MorphCoUI.ORANGE : MorphCoUI.TAG, alpha, x(), y(), width(), height());
-      // The punched hole of a factory tag.
-      CanvasGraphics.fill(batch, MorphCoUI.INSET, alpha, x() + 6, y() + height() / 2 - 3, 6, 6);
-      if (dragging || chosen)
-        CanvasGraphics.outline(batch, MorphCoUI.INK, alpha, x(), y(), width(), height(), 2);
+      drawTag(batch, alpha, this, chosen ? MorphCoUI.ORANGE : MorphCoUI.TAG, dragging, chosen);
     }
 
     @Override
     public void onMove(float dx, float dy) {
-      dragging = true;
-      setUserObject(Cursors.GRABBING);
+      if (!dragging) {
+        dragging = true;
+        startX = x();
+        startY = y();
+        setUserObject(Cursors.GRABBING);
+      }
       super.onMove(dx, dy);
     }
 
+    // A chip whose item stays where it was goes back to where the drag started.
+    private void returnToStart() {
+      dragging = false;
+      setUserObject(Cursors.GRAB);
+      position(startX, startY);
+    }
+
+    // Released outside of all bins, a placed item goes back home.
     @Override
     public void onDrop(float worldX, float worldY) {
-      dropOutside(id());
+      if (placement.containsKey(id())) SortBoard.this.remove(id());
+      else returnToStart();
     }
 
     @Override
@@ -410,7 +417,8 @@ final class SortBoard {
      * @return slot width
      */
     float measure() {
-      return chips.get(item).measure();
+      ensureContentBuilt();
+      return width();
     }
 
     @Override
@@ -420,11 +428,13 @@ final class SortBoard {
       ghost.setWrap(false);
       ghost.setAlignment(Align.center);
       addActor(ghost);
+      size(chip.measure(), CHIP_HEIGHT);
     }
 
     @Override
     protected void layoutContent() {
-      ghost.setBounds(16, 4, width() - 22, height() - 8);
+      ghost.setBounds(
+          TEXT_LEFT, TEXT_BOTTOM, width() - TEXT_LEFT - TEXT_RIGHT, height() - 2 * TEXT_BOTTOM);
     }
 
     @Override
@@ -441,9 +451,7 @@ final class SortBoard {
     @Override
     protected void drawBackground(Batch batch, float alpha) {
       if (dragging) {
-        CanvasGraphics.fill(batch, Color.BLACK, alpha * .35f, x() + 5, y() - 5, width(), height());
-        MorphCoUI.plate(batch, MorphCoUI.TAG, alpha, x(), y(), width(), height());
-        CanvasGraphics.outline(batch, MorphCoUI.INK, alpha, x(), y(), width(), height(), 2);
+        drawTag(batch, alpha, this, MorphCoUI.TAG, true, false);
         return;
       }
       CanvasGraphics.fill(batch, MorphCoUI.INSET, alpha, x(), y(), width(), height());
@@ -473,7 +481,7 @@ final class SortBoard {
     @Override
     public void onDrop(float worldX, float worldY) {
       returnHome();
-      dropOutside(item);
+      SortBoard.this.remove(item);
     }
 
     @Override
@@ -515,7 +523,7 @@ final class SortBoard {
      * @return bin height
      */
     float fit(float width) {
-      Flow flow = flow(widths(itemsIn(id())), width - 2 * BIN_PAD, CHIP_HEIGHT);
+      Flow flow = flow(widths(itemsIn(id())), width - 2 * BIN_PAD);
       size(width, Math.max(minHeight, BIN_HEADER + 2 * BIN_PAD + flow.height()));
       return height();
     }
@@ -597,13 +605,14 @@ final class SortBoard {
     public boolean onNodeDropped(CanvasDragContext context) {
       over = false;
       if (!accepts(context)) return false;
-      String item = context.draggedNode().id();
-      if (context.draggedNode() instanceof Slot slot) {
+      CanvasNode dragged = context.draggedNode();
+      String item = dragged.id();
+      if (dragged instanceof Slot slot) {
         slot.returnHome();
         item = slot.item;
       }
-      if (id().equals(placement.get(item))) arrange();
-      else place(item, id());
+      if (!id().equals(placement.get(item))) place(item, id());
+      else if (dragged instanceof Chip chip) chip.returnToStart();
       return true;
     }
   }

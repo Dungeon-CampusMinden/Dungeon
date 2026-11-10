@@ -41,22 +41,23 @@ final class MorphCoUI {
   static final Color ORANGE = Color.valueOf("ff9b30");
   static final Color TAG = Color.valueOf("f3e9cb");
   static final Color GHOST = Color.valueOf("8d989f");
-  static final Color DISPLAY = Color.valueOf("0b1611");
   static final Color GO = Color.valueOf("63e283");
   static final Color STOP = Color.valueOf("ff7a68");
   static final Color PAPER = Color.valueOf("f4efe0");
   static final Color PAPER_HEADING = Color.valueOf("cdd8e2");
   static final Color PAPER_CELL = Color.valueOf("e8e1cc");
 
+  private static final Color DISPLAY = Color.valueOf("0b1611");
   private static final Color OUTLINE = Color.valueOf("0f1316");
   private static final Color RIVET = Color.valueOf("262e35");
   private static final Color RIVET_SHINE = Color.valueOf("9aa7b1");
+  private static final String DOT_FONT = "fonts/Doto_Rounded-ExtraBold.ttf";
   private static final Pattern MARKUP =
       Pattern.compile("\\[n\\]|\\[color=([^\\]]+)\\]|\\[/color\\]|\\[");
 
   private MorphCoUI() {}
 
-  static float density() {
+  private static float density() {
     return Math.max(
         (float) Gdx.graphics.getBackBufferWidth() / Math.max(1, Game.windowWidth()),
         (float) Gdx.graphics.getBackBufferHeight() / Math.max(1, Game.windowHeight()));
@@ -79,13 +80,21 @@ final class MorphCoUI {
    * @return wrapped, non-interactive label
    */
   static Label display(String text, int size, Color color) {
-    return label(text, size, color, "fonts/Doto_Rounded-ExtraBold.ttf");
+    return label(text, size, color, DOT_FONT);
+  }
+
+  // Fonts are rasterized for the window's pixel density and scaled back to their logical size.
+  private static int raster(int size) {
+    return Math.max(1, (int) Math.ceil(size * density()));
   }
 
   private static Label label(String text, int size, Color color, String path) {
-    int raster = Math.max(1, (int) Math.ceil(size * density()));
-    Label label = Scene2dElementFactory.createLabel(text, FontSpec.of(path, raster, color));
-    label.setFontScale((float) size / raster);
+    return setUp(
+        Scene2dElementFactory.createLabel(text, FontSpec.of(path, raster(size), color)), size);
+  }
+
+  private static Label setUp(Label label, int size) {
+    label.setFontScale((float) size / raster(size));
     label.setWrap(true);
     label.setAlignment(Align.topLeft);
     label.setTouchable(Touchable.disabled);
@@ -101,19 +110,13 @@ final class MorphCoUI {
    * @return wrapped, non-interactive label
    */
   static Label rich(String text, int size, Color color) {
-    int raster = Math.max(1, (int) Math.ceil(size * density()));
     BitmapFont font =
         FontHelper.getFont(
-            FontSpec.of(Scene2dElementFactory.FONT_PATH, raster, Color.WHITE),
+            FontSpec.of(Scene2dElementFactory.FONT_PATH, raster(size), Color.WHITE),
             FontHelper.FontRole.MARKUP);
     font.getData().markupEnabled = true;
     // Markup colors are tinted by the label color, so the default color is markup as well.
-    Label label = new Label(markup(text, color), new Label.LabelStyle(font, Color.WHITE));
-    label.setFontScale((float) size / raster);
-    label.setWrap(true);
-    label.setAlignment(Align.topLeft);
-    label.setTouchable(Touchable.disabled);
-    return label;
+    return setUp(new Label(markup(text, color), new Label.LabelStyle(font, Color.WHITE)), size);
   }
 
   /**
@@ -148,8 +151,7 @@ final class MorphCoUI {
    * @return the button
    */
   static TextButton button(String caption, boolean primary, Runnable action) {
-    int raster = Math.max(1, (int) Math.ceil(19 * density()));
-    TextButton button = Scene2dElementFactory.createButton(caption, "default", raster);
+    TextButton button = Scene2dElementFactory.createButton(caption, "default", raster(19));
     TextButton.TextButtonStyle style = new TextButton.TextButtonStyle(button.getStyle());
     style.fontColor = primary ? INK : TEXT;
     style.overFontColor = style.fontColor;
@@ -159,7 +161,7 @@ final class MorphCoUI {
     style.over = plate(face.cpy().lerp(Color.WHITE, .18f));
     style.down = plate(face.cpy().lerp(Color.BLACK, .2f));
     button.setStyle(style);
-    button.getLabel().setFontScale(19f / raster);
+    button.getLabel().setFontScale(19f / raster(19));
     button.pad(8, 18, 10, 18);
     button.addListener(
         new ChangeListener() {
@@ -214,17 +216,7 @@ final class MorphCoUI {
     };
   }
 
-  /**
-   * A steel plate with bevelled edges and a rivet in each corner.
-   *
-   * @param batch batch to draw with
-   * @param color plate color
-   * @param alpha inherited alpha
-   * @param x left edge
-   * @param y bottom edge
-   * @param width plate width
-   * @param height plate height
-   */
+  // A steel plate with bevelled edges and a rivet in each corner.
   static void plate(
       Batch batch, Color color, float alpha, float x, float y, float width, float height) {
     CanvasGraphics.fill(batch, color, alpha, x, y, width, height);
@@ -247,40 +239,21 @@ final class MorphCoUI {
     CanvasGraphics.fill(batch, RIVET_SHINE, alpha, x, y + 2, 2, 2);
   }
 
-  /**
-   * Yellow and black warning stripes, drawn in pixel steps like the floor markings of the hall.
-   *
-   * @param batch batch to draw with
-   * @param alpha inherited alpha
-   * @param x left edge
-   * @param y bottom edge
-   * @param width band width
-   * @param height band height
-   */
+  // Yellow and black warning stripes in pixel steps, like the floor markings of the hall.
   static void hazard(Batch batch, float alpha, float x, float y, float width, float height) {
     CanvasGraphics.fill(batch, SIGNAL, alpha, x, y, width, height);
     int rows = Math.max(1, (int) height);
-    float stripe = rows;
     for (int row = 0; row < rows; row++) {
-      for (float start = -stripe + row; start < width; start += stripe * 2) {
+      for (float start = -rows + row; start < width; start += rows * 2) {
         float left = Math.max(0, start);
-        float right = Math.min(width, start + stripe);
+        float right = Math.min(width, start + rows);
         if (right > left)
           CanvasGraphics.fill(batch, OUTLINE, alpha, x + left, y + row, right - left, 1);
       }
     }
   }
 
-  /**
-   * A display with scan lines in a dark bezel.
-   *
-   * @param batch batch to draw with
-   * @param alpha inherited alpha
-   * @param x left edge
-   * @param y bottom edge
-   * @param width display width
-   * @param height display height
-   */
+  // A display with scan lines in a dark bezel.
   static void screen(Batch batch, float alpha, float x, float y, float width, float height) {
     CanvasGraphics.fill(batch, DISPLAY, alpha, x, y, width, height);
     for (float line = y + 2; line < y + height - 2; line += 3)
@@ -288,16 +261,7 @@ final class MorphCoUI {
     CanvasGraphics.outline(batch, OUTLINE, alpha, x, y, width, height, 2);
   }
 
-  /**
-   * A conveyor belt: dark slats between two steel rails.
-   *
-   * @param batch batch to draw with
-   * @param alpha inherited alpha
-   * @param x left edge
-   * @param y bottom edge
-   * @param width belt width
-   * @param height belt height
-   */
+  // A conveyor belt: dark slats between two steel rails.
   static void belt(Batch batch, float alpha, float x, float y, float width, float height) {
     CanvasGraphics.fill(batch, INSET, alpha, x, y, width, height);
     for (float slat = x + 12; slat < x + width - 4; slat += 28)

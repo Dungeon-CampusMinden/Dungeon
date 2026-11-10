@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
@@ -146,7 +145,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
 
   /** Clears the feedback and places the nodes again before the next frame. */
   protected final void changed() {
-    clearFeedback();
+    feedback("", true);
     arrangedWidth = -1;
   }
 
@@ -177,12 +176,9 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    * @param key text key below {@code morphCo}
    * @param primary whether this is the yellow main button
    * @param action action on click
-   * @return the button
    */
-  TextButton button(String key, boolean primary, Runnable action) {
-    TextButton button = MorphCoUI.button(MorphCoText.text(key), primary, action);
-    buttons.add(button);
-    return button;
+  void button(String key, boolean primary, Runnable action) {
+    buttons.add(MorphCoUI.button(MorphCoText.text(key), primary, action));
   }
 
   /**
@@ -195,11 +191,6 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     feedback.setText(text);
     feedback.setColor(good ? MorphCoUI.GO : MorphCoUI.STOP);
     display.setVisible(!text.isEmpty());
-  }
-
-  /** Clears the feedback display. */
-  void clearFeedback() {
-    feedback("", true);
   }
 
   /**

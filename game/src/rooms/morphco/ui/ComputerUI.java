@@ -126,6 +126,7 @@ final class ComputerUI extends MorphCoConsoleUI {
     TextButton.TextButtonStyle style = button.getStyle();
     style.up = MorphCoUI.plate(active ? MorphCoUI.GO : MorphCoUI.STEEL_DARK);
     style.over = MorphCoUI.plate(active ? MorphCoUI.GO : MorphCoUI.STEEL);
+    style.down = style.over;
     style.fontColor = active ? MorphCoUI.INK : MorphCoUI.GO;
     style.overFontColor = style.fontColor;
     style.downFontColor = style.fontColor;
