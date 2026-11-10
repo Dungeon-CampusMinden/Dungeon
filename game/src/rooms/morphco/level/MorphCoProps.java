@@ -1,6 +1,7 @@
 package rooms.morphco.level;
 
 import engine.Entity;
+import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
@@ -13,6 +14,8 @@ import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
+import feature.emote.Emote;
+import feature.emote.EmoteFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
@@ -31,6 +34,8 @@ final class MorphCoProps {
 
   /** Default reach of an interaction in tiles. */
   static final float REACH = 2.1f;
+
+  private static final int EMOTE_DURATION_MS = 3000;
 
   private MorphCoProps() {}
 
@@ -149,6 +154,21 @@ final class MorphCoProps {
   }
 
   /**
+   * Shows an emote above a character for a few seconds, e.g. a reaction instead of a sentence.
+   *
+   * <p>The emote is a level entity of the server, so every player sees it. Dialogs cover the middle
+   * of the screen, where the characters stand, so an emote belongs after a dialog.
+   *
+   * @param character player or non-player character
+   * @param emote emote to show
+   */
+  static void emote(Entity character, Emote emote) {
+    Game.add(
+        EmoteFactory.createEmote(
+            EntityUtils.getPosition(character).translate(0f, 0.7f), emote, EMOTE_DURATION_MS));
+  }
+
+  /**
    * Shows a picture from the wall large, then its text.
    *
    * @param player acting player
@@ -173,6 +193,18 @@ final class MorphCoProps {
   static void popup(Entity player, String titleKey, String textKey, Object... values) {
     DialogUtils.showTextPopup(
         MorphCoText.key(textKey, values), MorphCoText.key(titleKey), player.id());
+  }
+
+  /**
+   * Shows a short text popup and, once it has been closed, the player's reaction as an emote.
+   *
+   * @param player acting player
+   * @param reaction emote above the player
+   * @param titleKey title key below {@code morphCo}
+   * @param textKey text key below {@code morphCo}
+   */
+  static void popupReaction(Entity player, Emote reaction, String titleKey, String textKey) {
+    popupThen(player, titleKey, textKey, () -> emote(player, reaction));
   }
 
   /**

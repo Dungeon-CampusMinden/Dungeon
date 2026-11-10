@@ -171,7 +171,8 @@ final class ControlRoom {
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.ALARM, "console", "choice", button, alarm, player);
     if (!alarm) {
-      MorphCoProps.popup(player, CONSOLE, "world.control.console-" + button + "-result");
+      MorphCoProps.popupReaction(
+          player, Emote.ANGER, CONSOLE, "world.control.console-" + button + "-result");
       return;
     }
     if (!level.complete(MorphCoMilestone.ALARM_OFF)) return;
@@ -182,7 +183,8 @@ final class ControlRoom {
     MorphCoTracking.solved(MorphCoTracking.Puzzle.ALARM);
     MorphCoTracking.started(MorphCoTracking.Puzzle.CAUSES);
     MorphCoAchievements.ALARM_OFF.unlock();
-    MorphCoProps.popup(player, CONSOLE, "world.control.console-alarm-off");
+    MorphCoProps.popupReaction(
+        player, Emote.FACE_HAPPY, CONSOLE, "world.control.console-alarm-off");
   }
 
   private void phone(Entity player) {
@@ -244,7 +246,7 @@ final class ControlRoom {
 
   private void computer(Entity player) {
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {
-      MorphCoProps.popup(player, "pc.title", "pc.too-loud");
+      MorphCoProps.popupReaction(player, Emote.SWIRL, "pc.title", "pc.too-loud");
       return;
     }
     if (level.complete(MorphCoMilestone.CAUSES_FOUND)) {

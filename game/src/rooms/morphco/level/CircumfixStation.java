@@ -6,6 +6,7 @@ import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
+import feature.emote.Emote;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -88,7 +89,7 @@ final class CircumfixStation {
     level.observe(MorphCoState.PILE_TAKEN);
     MorphCoTracking.started(MorphCoTracking.Puzzle.CIRCUMFIX);
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_drop_001").targets(player.id()));
-    MorphCoProps.popup(player, PILE, "world.a12.pile-taken");
+    MorphCoProps.popupReaction(player, Emote.QUESTION, PILE, "world.a12.pile-taken");
   }
 
   /**
@@ -176,7 +177,9 @@ final class CircumfixStation {
         STATION,
         "world.a12.station-assembled",
         () -> {
-          if (complete) MorphCoProps.popup(player, STATION, "world.a12.station-complete");
+          if (complete) {
+            MorphCoProps.popupReaction(player, Emote.STARS, STATION, "world.a12.station-complete");
+          }
         },
         circumfix.get().label(),
         circumfix.get().example());
