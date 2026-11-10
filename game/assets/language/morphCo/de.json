@@ -41,8 +41,16 @@
       },
       "entrance": {
         "warning-sign": "\"Zutritt nur für befugte Personen!\" Laut deiner Sicherheitskarte bist du eine davon.",
-        "card-slot": "Du hältst deine Sicherheitskarte an das Lesegerät. Piep! Wenigstens etwas funktioniert hier noch.",
-        "card-slot-open": "Piep. Die Tür ist doch schon offen."
+        "card-slot": "Du ziehst deine Sicherheitskarte durch das Lesegerät. Piep! Wenigstens etwas funktioniert hier noch.",
+        "card-slot-open": "Piep. Die Tür ist doch schon offen.",
+        "swipe-title": "Kartenleser",
+        "swipe-help": "Zieh die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam.",
+        "swipe-ready": "BITTE KARTE DURCHZIEHEN",
+        "swipe-too-fast": "Zu schnell. Nochmal. Das Gerät ist älter als du.",
+        "swipe-too-slow": "Zu langsam. Nochmal. Das Gerät ist kurz eingenickt.",
+        "swipe-incomplete": "Karte nicht erkannt. Bitte ganz durchziehen.",
+        "swipe-accepted": "Zugang gewährt. Willkommen bei Morph & Co.",
+        "card": "SICHERHEITSKARTE"
       },
       "control": {
         "enter": "Im Kontrollraum ist der Alarm nur noch halb so laut. Dafür ist er hier doppelt so rot.",

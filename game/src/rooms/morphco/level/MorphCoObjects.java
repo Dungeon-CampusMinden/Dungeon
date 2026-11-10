@@ -94,7 +94,7 @@ final class MorphCoObjects {
     LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
 
     // Entrance and control room.
-    plain("card-slot", "objects/tech/Hand_scanner.png", 0.8f, null);
+    texture("card-slot", "card_reader.png", 12 / 16f, null);
     plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
     plain("desk-pc", "office/desk-with-pc.png", 2f, new Rectangle(1.9f, 0.9f, 0.05f, 0f));
     switchable(

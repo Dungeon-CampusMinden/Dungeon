@@ -5,8 +5,10 @@ import engine.Game;
 import engine.level.elements.tile.DoorTile;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
+import feature.canvas.CanvasUI;
 import feature.components.UIComponent;
 import feature.emote.Emote;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -14,6 +16,7 @@ import feature.systems.EventScheduler;
 import java.util.List;
 import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
+import rooms.morphco.puzzles.CardSwipe;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
@@ -114,14 +117,39 @@ final class ControlRoom {
   }
 
   private void cardSlot(Entity player) {
-    DoorTile door = level.door("door_control");
-    if (door.isOpen()) {
+    if (level.door("door_control").isOpen()) {
       MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot-open");
       return;
     }
+    UIComponent ui =
+        DialogFactory.show(
+            DialogContext.builder().type(MorphCoDialogs.CARD_READER).build(), player.id());
+    ui.registerCallback(CanvasUI.EVENT_CLOSE, ignored -> UIUtils.closeDialog(ui));
+    ui.registerCallback(
+        MorphCoDialogs.SUBMIT,
+        payload -> {
+          if (!(payload instanceof DialogResponseMessage.StringValue(String swipe))) return;
+          if (CardSwipe.rate(swipe) != CardSwipe.Result.ACCEPTED) {
+            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            return;
+          }
+          Game.audio().playGlobal(SoundSpec.builder("kenney_ui_select_001"));
+          // The green light stays on for a moment before the reader closes.
+          EventScheduler.scheduleAction(
+              () -> {
+                UIUtils.closeDialog(ui, true);
+                openControlRoom(player);
+              },
+              700);
+        });
+  }
+
+  private void openControlRoom(Entity player) {
+    DoorTile door = level.door("door_control");
+    // Another player may have swiped a moment earlier.
+    if (door.isOpen()) return;
     door.open();
     level.observe(MorphCoState.CARD_USED);
-    Game.audio().playGlobal(SoundSpec.builder("kenney_ui_select_001"));
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);
     MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot");
