@@ -23,7 +23,7 @@ ext {
 
 
     // -- NETWORK / SERVER
-    nettyVersion = '4.2.19.Final'
+    nettyVersion = '4.2.20.Final'
 
     supportDependencies = [
         // Checkstyle runtime for the checkstyle Gradle plugin
