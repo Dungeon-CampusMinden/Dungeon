@@ -1,5 +1,6 @@
 package engine.utils.settings;
 
+import com.badlogic.gdx.Gdx;
 import engine.input.CoreActions;
 import engine.language.Language;
 import engine.language.Localization;
@@ -29,6 +30,10 @@ public class ClientSettings {
   /** Key for the setting that turns off visual effects for slow devices and a calmer picture. */
   public static final String KEY_REDUCE_EFFECTS = "settings.reduce_effects";
 
+  /** Key for the setting that limits the frames rendered per second. */
+  public static final String KEY_FRAME_LIMIT = "settings.frame_limit";
+
+  private static final String KEY_FRAME_LIMIT_UNLIMITED = "settings.frame_limit_unlimited";
   private static final String KEY_GRAPHICS_HEADER = "settings.graphics";
   private static final String KEY_CONTROLS_HEADER = "settings.controls_header";
   private static final String KEY_REDUCE_EFFECTS_DESCRIPTION =
@@ -90,6 +95,17 @@ public class ClientSettings {
 
     registerSetting(new SectionDividerSetting(KEY_GRAPHICS_HEADER));
     registerSetting(new IntSliderSetting(KEY_BRIGHTNESS, 100, 50, 150, 10, v -> v + " %"));
+    EnumSetting<FrameLimit> frameLimit =
+        new EnumSetting<>(
+            KEY_FRAME_LIMIT,
+            FrameLimit.DEFAULT,
+            FrameLimit.values(),
+            limit ->
+                limit == FrameLimit.UNLIMITED
+                    ? localization.text(KEY_FRAME_LIMIT_UNLIMITED)
+                    : String.valueOf(limit.fps()));
+    frameLimit.onChange(limit -> Gdx.graphics.setForegroundFPS(limit.fps()));
+    registerSetting(frameLimit);
     registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
 
     registerSetting(new SectionDividerSetting(KEY_CONTROLS_HEADER));

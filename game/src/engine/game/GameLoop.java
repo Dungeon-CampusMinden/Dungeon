@@ -79,6 +79,7 @@ import engine.utils.IVoidFunction;
 import engine.utils.components.MissingComponentException;
 import engine.utils.components.draw.DrawComponentFactory;
 import engine.utils.logging.DungeonLogger;
+import engine.utils.settings.FrameLimit;
 import feature.components.UIComponent;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
@@ -230,7 +231,7 @@ public final class GameLoop extends ScreenAdapter {
   public static void run() {
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setWindowSizeLimits(0, 0, 9999, 9999);
-    config.setForegroundFPS(60);
+    config.setForegroundFPS(FrameLimit.DEFAULT.fps());
     config.setResizable(PreRunConfiguration.resizeable());
     config.setTitle(Game.windowTitle());
     config.setWindowIcon(PreRunConfiguration.logoPath().pathString());

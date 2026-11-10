@@ -207,6 +207,8 @@
         "language": "Sprache",
         "graphics": "Grafik",
         "brightness": "Helligkeit",
+        "frame_limit": "FPS-Limit",
+        "frame_limit_unlimited": "Unbegrenzt",
         "reduce_effects": "Effekte reduzieren",
         "reduce_effects_description": "Weniger Leuchten, Nebel[n]und Partikel, ruhiges Licht"
     },
