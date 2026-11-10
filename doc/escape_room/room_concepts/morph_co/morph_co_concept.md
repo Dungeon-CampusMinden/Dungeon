@@ -47,12 +47,12 @@ bleiben …“
 | --- | --- | --- |
 | Eingang | Start | Schichtleitung (Hinweise), Lesegerät, Warnschild |
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon, Sicherungsbox, Tisch, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
-| Flur | nach dem PC | Türschilder, Pflanze; Küche und Abstellkammer verschlossen |
+| Flur | nach dem PC | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel |
 | F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, 2 Regale, Papierkorb, 2 Plakate, große Pflanze |
 | A-12 | Flur oder Verbindungstür | Affix-Sortieranlage mit Hebel, Display, Wartungsklappe und Schloss, Plakat, Murmeltier-Bild, Regal, Zirkumfixmontagestation, Kisten, Krimskrams |
 
-Die Tür „Zur Produktion“ öffnet sich, sobald das Produktionsleitsystem gelesen wurde. Danach ist
+Die Tür zur Produktion öffnet sich, sobald das Produktionsleitsystem gelesen wurde. Danach ist
 die Reihenfolge der Reparaturen frei.
 
 # 4. Ablauf und Lösungen
@@ -171,7 +171,7 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 
 ## Abweichungen vom Skript
 
-- Der PC lässt sich erst nach dem Alarm sinnvoll lesen, und die Tür „Zur Produktion“ öffnet
+- Der PC lässt sich erst nach dem Alarm sinnvoll lesen, und die Tür zur Produktion öffnet
   sich erst, wenn das Produktionsleitsystem gelesen wurde (so bleibt die Reihenfolge des Skripts
   erhalten).
 - Die vier Aufgaben stehen wie im Skript direkt nach dem PC im Questlog; „Produktion neu starten“

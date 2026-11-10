@@ -47,7 +47,7 @@ final class ShiftLead {
 
   /**
    * Shows how the shift lead feels about the progress: in a panic while the alarm is on, smiling
-   * once it is off and full of hearts after the restart.
+   * while the causes are searched and full of hearts after the restart.
    */
   void showMood() {
     switch (hint().key()) {

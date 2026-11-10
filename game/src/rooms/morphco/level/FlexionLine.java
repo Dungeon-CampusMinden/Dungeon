@@ -5,6 +5,7 @@ import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
+import feature.emote.Emote;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
@@ -198,8 +199,9 @@ final class FlexionLine {
           Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
           MorphCoTracking.solved(MorphCoTracking.Puzzle.WORD_CLASSES);
           MorphCoAchievements.WORD_CLASSES.unlock();
-          MorphCoProps.popup(
+          MorphCoProps.popupReaction(
               player,
+              Emote.STARS,
               "world.f04.crates-title",
               state.done(MorphCoMilestone.A12_REPAIRED)
                   ? "world.f04.crates-solved-a12"
@@ -234,6 +236,6 @@ final class FlexionLine {
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_conveyor_start"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.FLEXION);
     MorphCoAchievements.FLEXION.unlock();
-    MorphCoProps.popup(player, MACHINE, "world.f04.machine-repaired");
+    MorphCoProps.popupReaction(player, Emote.STARS, MACHINE, "world.f04.machine-repaired");
   }
 }

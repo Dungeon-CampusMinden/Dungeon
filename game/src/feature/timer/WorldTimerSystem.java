@@ -93,10 +93,8 @@ public class WorldTimerSystem extends System {
   }
 
   private void update(Data data) {
-    int secondsLeft = (int) ((data.tc.remainingMs() + 999) / 1000);
-
     // A stopwatch has no end, so it never expires.
-    if (!data.tc.countsUp() && secondsLeft <= 0 && !expiredFired) {
+    if (!data.tc.countsUp() && data.tc.remainingMs() <= 0 && !expiredFired) {
       expiredFired = true;
       if (onTimerExpired != null) {
         onTimerExpired.run();

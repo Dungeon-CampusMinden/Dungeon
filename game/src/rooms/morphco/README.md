@@ -20,7 +20,8 @@ Neue Rätsellogik gehört in den Controller ihres Bereichs; Meilensteine werden 
 
 Gefühle und Reaktionen zeigt der Raum als Emote über der Figur statt im Text:
 `MorphCoProps.popupReaction(...)` setzt das Emote über den Spieler, sobald das Popup geschlossen ist
-(Dialoge verdecken die Figuren), und die Schichtleitung zeigt ihre Stimmung nach jedem Gespräch.
+(Dialoge verdecken die Figuren). Die Schichtleitung zeigt nach einem Gespräch, wie es ihr gerade
+geht; während der Reparaturen wartet sie nur.
 
 ## Objekte platzieren
 
