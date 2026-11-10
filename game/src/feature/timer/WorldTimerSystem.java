@@ -21,8 +21,9 @@ import java.util.Map;
  * This system is responsible for rendering a timer image to a texture, which will be fed into the
  * DrawComponent of entities with a WorldTimerComponent.
  *
- * <p>The timer shows as a red LED display in a 3x5 pixel font. Each pixel of its texture covers one
- * art pixel of the world, so the digits stay sharp at every zoom.
+ * <p>The timer shows as a red LED display in a 3x5 pixel font: a countdown its remaining time, a
+ * stopwatch its elapsed time. Each pixel of its texture covers one art pixel of the world, so the
+ * digits stay sharp at every zoom.
  */
 public class WorldTimerSystem extends System {
 
@@ -94,14 +95,16 @@ public class WorldTimerSystem extends System {
   private void update(Data data) {
     int secondsLeft = (int) ((data.tc.remainingMs() + 999) / 1000);
 
-    if (secondsLeft <= 0 && !expiredFired) {
+    // A stopwatch has no end, so it never expires.
+    if (!data.tc.countsUp() && secondsLeft <= 0 && !expiredFired) {
       expiredFired = true;
       if (onTimerExpired != null) {
         onTimerExpired.run();
       }
     }
 
-    int displaySeconds = Math.max(0, secondsLeft);
+    int displaySeconds =
+        data.tc.countsUp() ? (int) (data.tc.elapsedMs() / 1000) : Math.max(0, secondsLeft);
     // Root locale: the display only has the digits 0 to 9.
     String timerString =
         String.format(Locale.ROOT, "%02d:%02d", displaySeconds / 60, displaySeconds % 60);

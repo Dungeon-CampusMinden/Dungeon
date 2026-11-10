@@ -11,6 +11,7 @@ import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
+import feature.timer.WorldTimerComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import rooms.morphco.puzzles.WordClassPuzzle;
+import rooms.systemRecovery.entities.TransportEntityFactory;
 
 /**
  * The objects of the room: what each kind looks like and what the room code does with it.
@@ -87,6 +89,9 @@ final class MorphCoObjects {
     texture("sign-restricted", "sign_restricted.png", 15 / 16f, null);
     texture("sign-motto", "sign_motto.png", 11 / 16f, null);
     texture("cctv", "sign_cctv.png", 15 / 16f, null);
+
+    // Corridor.
+    LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
 
     // Entrance and control room.
     plain("card-slot", "objects/tech/Hand_scanner.png", 0.8f, null);
@@ -215,19 +220,27 @@ final class MorphCoObjects {
             name, position, ART + file + ".png", 1.375f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
   }
 
-  // A conveyor belt of {@code number} tiles; every tile carries the instance name.
+  // A conveyor belt of {@code number} System Recovery segments; every segment carries the
+  // instance name. The belt lies under the word cards on it, like the other walkable objects.
   private static List<Entity> belt(String name, Point position, int number) {
-    List<Entity> tiles = new ArrayList<>();
+    List<Entity> segments = new ArrayList<>();
     for (int index = 0; index < Math.max(1, number); index++) {
-      tiles.add(
-          MorphCoProps.buildTexture(
-              name,
-              position.translate(index, 0),
-              "objects/tech/transport_conveyor_tile.png",
-              1f,
-              null));
+      Entity segment = TransportEntityFactory.conveyorSegment(position.translate(index, 0));
+      segment.name(name);
+      segment
+          .fetch(DrawComponent.class)
+          .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
+      segments.add(segment);
     }
-    return tiles;
+    return segments;
+  }
+
+  // The shift clock on the wall: an invisible spot on which the clients draw the active play time
+  // as a red LED display.
+  private static List<Entity> shiftClock(String name, Point position, int number) {
+    Entity clock = MorphCoProps.buildTexture(name, position, ART + "hotspot.png", 0.5f, null);
+    clock.add(WorldTimerComponent.stopwatch(0));
+    return List.of(clock);
   }
 
   // The control room table with the phone and the coffee cup on it.
