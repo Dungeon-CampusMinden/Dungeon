@@ -111,18 +111,43 @@ class SortBoardTest {
   }
 
   @Test
-  void chipDroppedOnItsOwnBinChangesNothing() {
+  void chipDroppedOnItsOwnBinGoesBackToWhereTheDragStarted() {
     board.place("a", "crate");
+    CanvasNode chip = area.nodeById("a").orElseThrow();
+    chip.position(20, 30);
+    chip.onMove(40, 10);
 
-    assertTrue(drop(area.nodeById("a").orElseThrow(), crate, 50, 50));
+    assertTrue(drop(chip, crate, 50, 50));
 
     assertEquals(Map.of("a", "crate"), board.placement());
     assertEquals(1, changes);
+    assertEquals(new Vector2(20, 30), new Vector2(chip.x(), chip.y()));
   }
 
   @Test
   void chipReleasedBesideTheBinIsNotTaken() {
     assertFalse(drop(area.nodeById("a").orElseThrow(), crate, 250, 50));
+
+    assertEquals(Map.of(), board.placement());
+  }
+
+  @Test
+  void homeChipReleasedOutsideOfAllBinsGoesBackToWhereTheDragStarted() {
+    CanvasNode chip = area.nodeById("a").orElseThrow();
+    chip.position(20, 30);
+    chip.onMove(40, 10);
+
+    chip.onDrop(0, 0);
+
+    assertEquals(new Vector2(20, 30), new Vector2(chip.x(), chip.y()));
+  }
+
+  @Test
+  void ghostReleasedOutsideOfAllBinsPutsTheItemBack() {
+    board.place("a", "crate");
+    ghostOfA.onMove(40, 10);
+
+    ghostOfA.onDrop(0, 0);
 
     assertEquals(Map.of(), board.placement());
   }
@@ -147,9 +172,10 @@ class SortBoardTest {
 
     board.removeItems("w0#");
     board.place("w0#0", "crate");
-    board.clickBin("bowl");
-
     assertEquals(Map.of("a", "crate"), board.placement());
+
+    board.clickChip("a");
+    assertEquals(Map.of(), board.placement());
   }
 
   @Test
