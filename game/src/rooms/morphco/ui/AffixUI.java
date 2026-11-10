@@ -1,16 +1,19 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.utils.Cursors;
-import engine.utils.Scene2dElementFactory;
+import feature.canvas.CanvasGraphics;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.ArrayList;
@@ -25,20 +28,22 @@ import rooms.morphco.util.MorphCoText;
 /**
  * The jammed affix sorter A-12, seen through its maintenance hatch.
  *
- * <p>Clicking between two letters cuts a word. The parts become chips that can be sorted into the
- * prefix, suffix and circumfix bins; a word without any affix goes as a whole into the bin "Kein
- * Affix". Changing the cuts of a word takes its parts out of the bins again.
+ * <p>Every word lies on a cutting bench. Clicking between two letters cuts it there. The parts
+ * become chips that can be sorted into the prefix, suffix and circumfix bins; a word without any
+ * affix goes as a whole into the bin "Kein Affix". Changing the cuts of a word takes its parts out
+ * of the bins again.
  */
-final class AffixUI extends MorphCoPanel {
+final class AffixUI extends MorphCoConsoleUI {
 
-  private static final Color GAP_OPEN = new Color(0.4f, 0.42f, 0.5f, 1f);
-  private static final Color GAP_CUT = new Color(0.75f, 0.1f, 0.1f, 1f);
+  private static final float SPACE = 16;
 
-  private final SortBoard board;
+  private final SortBoard board = new SortBoard(area(), this::changed);
   private final Map<String, TreeSet<Integer>> cuts = new HashMap<>();
-  private final Map<String, HorizontalGroup> partRows = new HashMap<>();
+  private final Map<String, PanelNode> benches = new LinkedHashMap<>();
   private final Map<String, Table> letterRows = new HashMap<>();
+  private final Map<String, List<SortBoard.Slot>> parts = new HashMap<>();
   private final Map<String, Label> marks = new HashMap<>();
+  private final List<SortBoard.Bin> bins = new ArrayList<>();
 
   private AffixUI(DialogContext context) {
     super(
@@ -46,39 +51,30 @@ final class AffixUI extends MorphCoPanel {
         MorphCoText.text("ui.affixes.title"),
         MorphCoText.text("ui.affixes.instruction"),
         MorphCoText.text("ui.affixes.help"));
-    board = new SortBoard(skin, this::clearFeedback);
-
-    Table words = new Table();
-    words.defaults().left().padBottom(5);
-    float wordsWidth = contentWidth() * 0.6f;
     for (AffixPuzzle.Word word : AffixPuzzle.words()) {
       cuts.put(word.id(), new TreeSet<>());
+      PanelNode bench =
+          area().addNode(new PanelNode("bench-" + word.id(), PanelNode.Look.PLATE, 6));
       Table letters = new Table();
+      Label mark = MorphCoUI.bold("", 16, Color.WHITE);
+      mark.setAlignment(Align.center);
+      Table display = new Table();
+      display.setBackground(MorphCoUI.screen());
+      display.add(mark).grow().pad(4, 6, 4, 6);
+      bench.content().left();
+      bench.content().add(letters).left().padLeft(6);
+      bench.content().add().growX();
+      bench.content().add(display).width(108).height(34).padLeft(SPACE);
+      benches.put(word.id(), bench);
       letterRows.put(word.id(), letters);
-      HorizontalGroup parts = new HorizontalGroup();
-      parts.space(6);
-      partRows.put(word.id(), parts);
-      Label mark = Scene2dElementFactory.createLabel("", 18, INK);
       marks.put(word.id(), mark);
-      words.add(letters).width(320).left();
-      words.add(parts).width(wordsWidth - 400f).left();
-      words.add(mark).width(80).right().row();
       rebuildWord(word);
     }
-    // The bins stand next to the words, so no part has to be dragged out of view.
-    float binsWidth = contentWidth() - wordsWidth - 20f;
-    Table bins = new Table();
-    bins.defaults().pad(4).grow().uniformX().width(binsWidth / 2f - 8f);
     for (AffixPuzzle.Bin bin : AffixPuzzle.Bin.values()) {
-      bins.add(board.bin(bin.name(), MorphCoText.text("ui.affixes." + bin.name()), 0, 120));
-      if (bin.ordinal() % 2 == 1) bins.row();
+      bins.add(board.bin(bin.name(), MorphCoText.text("ui.affixes." + bin.name()), 0, 130));
     }
-    body.add(words).width(wordsWidth).top().left();
-    body.add(bins).width(binsWidth).top().padLeft(20);
-    board.refresh();
-
-    button("ui.reset", "blue-outline", this::reset);
-    button("ui.check", "green", this::check);
+    button("ui.reset", false, this::reset);
+    button("ui.check", true, this::check);
   }
 
   /**
@@ -92,48 +88,60 @@ final class AffixUI extends MorphCoPanel {
     return new AffixUI(context);
   }
 
+  @Override
+  protected float arrange(float width, float height) {
+    // The bins stand next to the words, so no part has to be dragged out of view.
+    float binsWidth = Math.clamp(width * .36f, 340, 480);
+    float wordsWidth = width - binsWidth - 2 * SPACE;
+    float benchWidth = 0;
+    for (PanelNode bench : benches.values()) {
+      benchWidth = Math.max(benchWidth, bench.content().getPrefWidth() + 12);
+    }
+    float partsLeft = benchWidth + SPACE;
+    float top = 0;
+    for (Map.Entry<String, PanelNode> entry : benches.entrySet()) {
+      PanelNode bench = entry.getValue();
+      List<SortBoard.Slot> slots = parts.get(entry.getKey());
+      float benchHeight = bench.fit(benchWidth);
+      SortBoard.Flow flow =
+          SortBoard.flow(
+              slots.stream().map(SortBoard.Slot::measure).toList(),
+              wordsWidth - partsLeft,
+              SortBoard.CHIP_HEIGHT);
+      bench.position(0, top - benchHeight);
+      float slotTop = top - (benchHeight - SortBoard.CHIP_HEIGHT) / 2;
+      for (int index = 0; index < slots.size(); index++) {
+        Vector2 offset = flow.offsets().get(index);
+        slots.get(index).position(partsLeft + offset.x, slotTop - offset.y - SortBoard.CHIP_HEIGHT);
+      }
+      top -= Math.max(benchHeight, flow.height()) + 8;
+    }
+    float binsHeight = SortBoard.grid(bins, 2, wordsWidth + 2 * SPACE, 0, binsWidth);
+    board.arrange();
+    return Math.max(-top, binsHeight);
+  }
+
   private void rebuildWord(AffixPuzzle.Word word) {
     Table letters = letterRows.get(word.id());
     letters.clearChildren();
     String text = word.text();
     TreeSet<Integer> wordCuts = cuts.get(word.id());
     for (int index = 0; index < text.length(); index++) {
-      if (index > 0) letters.add(gap(word, index, wordCuts.contains(index))).height(30);
-      Label letter = Scene2dElementFactory.createLabel(String.valueOf(text.charAt(index)), 22, INK);
+      if (index > 0) letters.add(new Gap(word, index, wordCuts.contains(index))).size(14, 34);
+      Label letter = MorphCoUI.bold(String.valueOf(text.charAt(index)), 24, MorphCoUI.TEXT);
+      letter.setWrap(false);
       letters.add(letter);
     }
 
-    Label mark = marks.get(word.id());
-    if (mark != null) mark.setText("");
+    marks.get(word.id()).setText("");
     board.removeItems(word.id() + "#");
-    HorizontalGroup parts = partRows.get(word.id());
-    parts.clearChildren();
+    List<SortBoard.Slot> slots = new ArrayList<>();
     List<String> pieces = AffixPuzzle.split(text, new ArrayList<>(wordCuts));
     for (int index = 0; index < pieces.size(); index++) {
-      String id = word.id() + "#" + index;
-      board.item(id, pieces.get(index));
-      parts.addActor(board.homeChip(id, 18));
+      slots.add(board.item(word.id() + "#" + index, pieces.get(index), 19));
     }
-  }
-
-  private Table gap(AffixPuzzle.Word word, int position, boolean cut) {
-    Table gap = new Table();
-    gap.setTouchable(Touchable.enabled);
-    gap.setUserObject(Cursors.INTERACT);
-    gap.add(Scene2dElementFactory.createLabel(cut ? "|" : "·", 26, cut ? GAP_CUT : GAP_OPEN))
-        .width(14);
-    gap.addListener(
-        new ClickListener() {
-          @Override
-          public void clicked(InputEvent event, float x, float y) {
-            TreeSet<Integer> wordCuts = cuts.get(word.id());
-            if (!wordCuts.remove(position)) wordCuts.add(position);
-            rebuildWord(word);
-            board.refresh();
-            clearFeedback();
-          }
-        });
-    return gap;
+    parts.put(word.id(), slots);
+    changed();
   }
 
   private void reset() {
@@ -147,13 +155,13 @@ final class AffixUI extends MorphCoPanel {
     Map<String, AffixPuzzle.WordAnswer> answers = new LinkedHashMap<>();
     for (AffixPuzzle.Word word : AffixPuzzle.words()) {
       List<Integer> wordCuts = new ArrayList<>(cuts.get(word.id()));
-      int parts = AffixPuzzle.split(word.text(), wordCuts).size();
-      List<AffixPuzzle.Bin> bins = new ArrayList<>();
-      for (int index = 0; index < parts; index++) {
+      int count = AffixPuzzle.split(word.text(), wordCuts).size();
+      List<AffixPuzzle.Bin> wordBins = new ArrayList<>();
+      for (int index = 0; index < count; index++) {
         String bin = placement.get(word.id() + "#" + index);
-        bins.add(bin == null ? null : AffixPuzzle.Bin.valueOf(bin));
+        wordBins.add(bin == null ? null : AffixPuzzle.Bin.valueOf(bin));
       }
-      answers.put(word.id(), new AffixPuzzle.WordAnswer(wordCuts, bins));
+      answers.put(word.id(), new AffixPuzzle.WordAnswer(wordCuts, wordBins));
     }
     return answers;
   }
@@ -166,7 +174,7 @@ final class AffixUI extends MorphCoPanel {
       boolean correct = AffixPuzzle.correct(word, answers.get(word.id()));
       Label mark = marks.get(word.id());
       mark.setText(MorphCoText.text(correct ? "ui.affixes.mark-ok" : "ui.affixes.mark-wrong"));
-      mark.setColor(correct ? GOOD : BAD);
+      mark.setColor(correct ? MorphCoUI.GO : MorphCoUI.STOP);
     }
     if (result.solved()) {
       feedback(MorphCoText.text("world.a12.affixes-solved"), true);
@@ -174,6 +182,40 @@ final class AffixUI extends MorphCoPanel {
       feedback(
           MorphCoText.text("ui.affixes.feedback", result.correctWords(), result.totalWords()),
           false);
+    }
+  }
+
+  /** The space between two letters: a dotted line while open, a red blade once cut. */
+  private final class Gap extends Actor {
+    private final boolean cut;
+    private final ClickListener click;
+
+    private Gap(AffixPuzzle.Word word, int position, boolean cut) {
+      this.cut = cut;
+      setTouchable(Touchable.enabled);
+      setUserObject(Cursors.INTERACT);
+      click =
+          new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              TreeSet<Integer> wordCuts = cuts.get(word.id());
+              if (!wordCuts.remove(position)) wordCuts.add(position);
+              rebuildWord(word);
+            }
+          };
+      addListener(click);
+    }
+
+    @Override
+    public void draw(Batch batch, float alpha) {
+      Color color = click.isOver() ? MorphCoUI.SIGNAL : cut ? MorphCoUI.STOP : MorphCoUI.MUTED;
+      float center = getX() + getWidth() / 2;
+      if (cut) {
+        CanvasGraphics.fill(batch, color, alpha, center - 2, getY(), 4, getHeight());
+        return;
+      }
+      for (float y = getY() + 5; y < getY() + getHeight() - 5; y += 7)
+        CanvasGraphics.fill(batch, color, alpha, center - 1, y, 2, 3);
     }
   }
 }

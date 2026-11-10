@@ -1,38 +1,42 @@
 package rooms.morphco.ui;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import rooms.morphco.util.MorphCoText;
 
 /**
- * Books from the shelves of the factory.
+ * Books from the shelves of the factory, shown as a sheet of paper on the work area.
  *
  * <p>{@link MorphCoDialogs#HANDBOOK} is the manual of the inflection machine. {@link
  * MorphCoDialogs#MORPH_1} and {@link MorphCoDialogs#MORPH_2} are the two volumes of "Morphemtypen
  * und wo sie zu finden sind", the classification handout of the room split into free and bound
  * morphemes.
  */
-final class DocumentUI extends MorphCoPanel {
+final class DocumentUI extends MorphCoConsoleUI {
 
-  private static final Color HEADING = new Color(0.8f, 0.84f, 0.9f, 1f);
+  private static final float MAX_WIDTH = 980;
 
   private static final String HANDBOOK = MorphCoDialogs.HANDBOOK;
   private static final String MORPH_1 = MorphCoDialogs.MORPH_1;
   private static final String MORPH_2 = MorphCoDialogs.MORPH_2;
 
+  private final PanelNode paper = area().addNode(new PanelNode("paper", PanelNode.Look.PAPER, 34));
+  private final Table sheet = paper.content();
+
   private DocumentUI(DialogContext context, String document) {
     super(context, title(document), "", "");
-    body.defaults().growX().left();
+    sheet.defaults().growX().left();
     switch (document) {
       case MORPH_1 -> freeMorphemes();
       case MORPH_2 -> boundMorphemes();
-      default -> body.add(text(t("handbook"), 22)).row();
+      default -> sheet.add(MorphCoUI.rich(t("handbook"), 20, MorphCoUI.INK)).row();
     }
-    button("documents.close", "green", this::close);
+    button("documents.close", true, this::requestClose);
   }
 
   /**
@@ -59,57 +63,65 @@ final class DocumentUI extends MorphCoPanel {
     return MorphCoText.text("documents." + key);
   }
 
+  @Override
+  protected float arrange(float width, float height) {
+    float paperWidth = Math.min(MAX_WIDTH, width - 12);
+    // Room above the sheet for its strip of tape.
+    float paperHeight = paper.fit(paperWidth);
+    paper.position((width - paperWidth) / 2, -16 - paperHeight);
+    return paperHeight + 28;
+  }
+
   private void header() {
-    body.add(text("[size=26]" + t("morph-title"), 26)).padBottom(4).row();
-    body.add(text(t("morph-header"), 18)).padBottom(12).row();
+    sheet.add(MorphCoUI.bold(t("morph-title"), 24, MorphCoUI.INK)).colspan(2).padBottom(4).row();
+    sheet.add(MorphCoUI.rich(t("morph-header"), 17, MorphCoUI.INK)).colspan(2).padBottom(14).row();
+  }
+
+  private void footer(String note) {
+    sheet.add(MorphCoUI.rich(note, 19, MorphCoUI.INK)).colspan(2).padTop(14).padBottom(14).row();
+    sheet.add(MorphCoUI.rich(t("source"), 15, MorphCoUI.INK)).colspan(2).row();
   }
 
   private void freeMorphemes() {
     header();
-    Table table = new Table(skin);
-    table.defaults().grow().uniformX().pad(2);
-    table.add(cell("[size=22]" + t("morph-free"), true, true)).colspan(2).row();
-    table.add(cell(t("morph-lexical"), true));
-    table.add(cell(t("morph-grammatical"), true)).row();
-    table.add(cell(t("free-verbal"), false));
-    table.add(cell(t("free-pronoun"), false)).row();
-    table.add(cell(t("free-noun"), false));
-    table.add(cell(t("free-preposition"), false)).row();
-    table.add(cell(t("free-adjective"), false));
-    table.add(cell(t("free-conjunction"), false)).row();
-    table.add(cell(t("free-adverb"), false));
-    table.add(cell(t("free-article"), false)).row();
-    body.add(table).padBottom(12).row();
-    body.add(text(t("portmanteau"), 20)).padBottom(12).row();
-    body.add(text("[color=black]" + t("source"), 16)).row();
+    cell(t("morph-free"), true, 2);
+    cell(t("morph-lexical"), true, 1);
+    cell(t("morph-grammatical"), true, 1);
+    for (String[] pair :
+        new String[][] {
+          {"free-verbal", "free-pronoun"},
+          {"free-noun", "free-preposition"},
+          {"free-adjective", "free-conjunction"},
+          {"free-adverb", "free-article"}
+        }) {
+      cell(t(pair[0]), false, 1);
+      cell(t(pair[1]), false, 1);
+    }
+    footer(t("portmanteau"));
   }
 
   private void boundMorphemes() {
     header();
-    Table table = new Table(skin);
-    table.defaults().grow().uniformX().pad(2);
-    table.add(cell("[size=22]" + t("morph-bound"), true, true)).colspan(2).row();
-    table.add(cell(t("morph-lexical"), true));
-    table.add(cell(t("morph-grammatical"), true)).row();
-    table.add(cell(t("bound-unique") + "[n][n]" + t("bound-verbal"), false));
-    table.add(cell(t("bound-inflection"), false)).row();
-    table.add(cell(t("bound-derivation"), false, true)).colspan(2).row();
-    body.add(table).padBottom(12).row();
-    body.add(text(t("definitions"), 20)).padBottom(12).row();
-    body.add(text("[color=black]" + t("source"), 16)).row();
+    cell(t("morph-bound"), true, 2);
+    cell(t("morph-lexical"), true, 1);
+    cell(t("morph-grammatical"), true, 1);
+    cell(t("bound-unique") + "[n][n]" + t("bound-verbal"), false, 1);
+    cell(t("bound-inflection"), false, 1);
+    cell(t("bound-derivation"), false, 2);
+    footer(t("definitions"));
   }
 
-  private Table cell(String content, boolean heading) {
-    return cell(content, heading, false);
-  }
-
-  private Table cell(String content, boolean heading, boolean wide) {
-    Table cell = new Table(skin);
-    if (heading) cell.setBackground(skin.newDrawable("white", HEADING));
-    else cell.setBackground("generic-area");
-    cell.pad(8).top().left();
-    float width = wide ? contentWidth() - 50f : contentWidth() / 2f - 40f;
-    cell.add(text(content, heading ? 20 : 18, width)).growX().left();
-    return cell;
+  // A table cell of the handout; a full row ends after two columns.
+  private void cell(String content, boolean heading, int colspan) {
+    Label label = MorphCoUI.rich(content, heading ? 19 : 17, MorphCoUI.INK);
+    BaseDrawable background =
+        MorphCoUI.fill(heading ? MorphCoUI.PAPER_HEADING : MorphCoUI.PAPER_CELL);
+    background.setLeftWidth(10);
+    background.setRightWidth(10);
+    background.setTopHeight(8);
+    background.setBottomHeight(8);
+    label.getStyle().background = background;
+    var cell = sheet.add(label).colspan(colspan).uniformX().fill().pad(2);
+    if (colspan == 2 || cell.getColumn() == 1) cell.row();
   }
 }
