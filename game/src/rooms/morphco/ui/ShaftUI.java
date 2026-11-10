@@ -1,20 +1,23 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.util.MorphCoText;
 
 /** The input shafts of A-12: freed affixes go to word formation or to inflection. */
-final class ShaftUI extends MorphCoPanel {
+final class ShaftUI extends MorphCoConsoleUI {
 
-  private final SortBoard board;
+  private final SortBoard board = new SortBoard(area(), this::changed);
+  private final PanelNode tray = area().addNode(new PanelNode("tray", PanelNode.Look.BELT, 10));
+  private final List<SortBoard.Slot> slots = new ArrayList<>();
+  private final List<SortBoard.Bin> shafts = new ArrayList<>();
 
   private ShaftUI(DialogContext context) {
     super(
@@ -22,26 +25,14 @@ final class ShaftUI extends MorphCoPanel {
         MorphCoText.text("ui.affixes.shafts-title"),
         MorphCoText.text("ui.affixes.shafts-instruction"),
         MorphCoText.text("ui.affixes.shafts-help"));
-    board = new SortBoard(skin, this::clearFeedback);
-
-    HorizontalGroup tray = new HorizontalGroup();
-    tray.space(10);
     for (AffixPuzzle.FreedAffix affix : AffixPuzzle.affixes()) {
-      board.item(affix.id(), affix.label());
-      tray.addActor(board.homeChip(affix.id()));
+      slots.add(board.item(affix.id(), affix.label(), 21));
     }
-    body.add(tray).left().padBottom(18).row();
-
-    Table shafts = new Table();
-    shafts.defaults().pad(6).grow().uniformX().width(contentWidth() / 2f - 14f);
     for (AffixPuzzle.Shaft shaft : AffixPuzzle.Shaft.values()) {
-      shafts.add(board.bin(shaft.name(), MorphCoText.text("ui.affixes." + shaft.name()), 0, 160));
+      shafts.add(board.bin(shaft.name(), MorphCoText.text("ui.affixes." + shaft.name()), 0, 220));
     }
-    body.add(shafts).growX();
-    board.refresh();
-
-    button("ui.reset", "blue-outline", board::clear);
-    button("ui.check", "green", this::check);
+    button("ui.reset", false, board::clear);
+    button("ui.check", true, this::check);
   }
 
   /**
@@ -53,6 +44,14 @@ final class ShaftUI extends MorphCoPanel {
   static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
     return new ShaftUI(context);
+  }
+
+  @Override
+  protected float arrange(float width, float height) {
+    float top = -SortBoard.belt(tray, slots, 0, width) - 24;
+    top -= SortBoard.grid(shafts, shafts.size(), 0, top, width);
+    board.arrange();
+    return -top;
   }
 
   private void check() {
