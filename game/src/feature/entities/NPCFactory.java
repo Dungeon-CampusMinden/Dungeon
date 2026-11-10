@@ -35,7 +35,19 @@ public class NPCFactory {
    * @return the created NPC entity
    */
   public static Entity createNPC(Point pos, String path) {
-    Entity npc = new Entity("NPC");
+    return createNPC(new Entity("NPC"), pos, path);
+  }
+
+  /**
+   * Turns an existing entity into a Non-Player Character (NPC) at the specified position with
+   * animations loaded from the given path.
+   *
+   * @param npc the entity to add the NPC components to
+   * @param pos the position where the NPC should be created
+   * @param path the path to the spritesheet for the NPC's animations
+   * @return the given entity
+   */
+  public static Entity createNPC(Entity npc, Point pos, String path) {
     npc.add(new PositionComponent(pos));
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(new SimpleIPath(path));

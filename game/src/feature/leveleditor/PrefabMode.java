@@ -41,6 +41,7 @@ import feature.leveleditor.ui.StringSetting;
 import feature.leveleditor.ui.Vector2Setting;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactSlot;
+import feature.prefabs.GameFlags;
 import feature.prefabs.ImagePuzzleSettings;
 import feature.prefabs.Placeholders;
 import feature.prefabs.Prefab;
@@ -168,6 +169,7 @@ public final class PrefabMode extends LevelEditorMode {
     if (selectedName != null && selected().isEmpty()) selectedName = null;
     if (applyGroupedOrder()) levelChanged();
     getLevel().prefabRuntimeState().revertActivity(getLevel().prefabs());
+    GameFlags.clear();
     try {
       respawnAll();
     } catch (RuntimeException exception) {

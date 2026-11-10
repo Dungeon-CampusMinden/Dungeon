@@ -22,7 +22,8 @@
         "y" : 13.0
       },
       "code" : "1234",
-      "showDigitCount" : true
+      "showDigitCount" : true,
+      "clearOnWrong" : true
     },
     "inputs" : {
       "code" : [ {
@@ -39,7 +40,8 @@
         "y" : 13.0
       },
       "code" : "123",
-      "showDigitCount" : true
+      "showDigitCount" : true,
+      "clearOnWrong" : true
     }
   }, {
     "name" : "r1/door-7-10",
@@ -113,7 +115,8 @@
         }
       },
       "repetition" : "Once globally"
-    }
+    },
+    "active" : false
   }, {
     "name" : "r1/dialog",
     "type" : "dialog",
@@ -323,6 +326,9 @@
       }, {
         "source" : "dialog",
         "port" : "dialog-finished"
+      }, {
+        "source" : "r2/npc-advanced-door-trigger",
+        "port" : "triggered"
       } ],
       "close" : [ {
         "source" : "r1/door-lever-1",
@@ -462,30 +468,12 @@
       } ]
     }
   }, {
-    "name" : "r2/stone-3",
-    "type" : "pushable-stone",
-    "properties" : {
-      "position" : {
-        "x" : 30.0,
-        "y" : 8.0
-      }
-    }
-  }, {
     "name" : "r2/stone-1",
     "type" : "pushable-stone",
     "properties" : {
       "position" : {
         "x" : 26.0,
         "y" : 3.0
-      }
-    }
-  }, {
-    "name" : "r2/stone-2",
-    "type" : "pushable-stone",
-    "properties" : {
-      "position" : {
-        "x" : 28.0,
-        "y" : 7.0
       }
     }
   }, {
@@ -536,6 +524,252 @@
       "deactivate" : [ {
         "source" : "cat-npc",
         "port" : "required-item-removed"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-dialog",
+    "type" : "npc",
+    "properties" : {
+      "position" : {
+        "x" : 28.0,
+        "y" : 6.0
+      },
+      "character" : "Villager",
+      "mode" : "Dialog",
+      "view-direction" : "Left",
+      "face-interactor" : true,
+      "translate" : false,
+      "dialog-count" : 3,
+      "dialog-1" : "Hello there. Talk to me again, if you like.",
+      "dialog-2" : "Still here? I have one more thing to say.",
+      "dialog-3" : "That was all. From now on I only repeat myself.",
+      "dialog-4" : "Hello.",
+      "dialog-5" : "Hello.",
+      "dialog-6" : "Hello.",
+      "dialog-7" : "Hello.",
+      "dialog-8" : "Hello.",
+      "text" : "Do you want to continue?",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    }
+  }, {
+    "name" : "r2/npc-choice",
+    "type" : "npc",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 9.0
+      },
+      "character" : "Wizard",
+      "mode" : "Multiple Choice",
+      "view-direction" : "Down",
+      "face-interactor" : false,
+      "translate" : false,
+      "dialog-count" : 1,
+      "dialog-1" : "Hello.",
+      "dialog-2" : "Hello.",
+      "dialog-3" : "Hello.",
+      "dialog-4" : "Hello.",
+      "dialog-5" : "Hello.",
+      "dialog-6" : "Hello.",
+      "dialog-7" : "Hello.",
+      "dialog-8" : "Hello.",
+      "text" : "I never look up from my book.[p]But tell me: what is six times seven?",
+      "can-cancel" : true,
+      "option-count" : 3,
+      "option-1" : "36",
+      "option-2" : "42",
+      "option-3" : "67",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    }
+  }, {
+    "name" : "r2/npc-choice-right",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Correct!",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r2/npc-choice",
+        "port" : "option-2"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-choice-wrong",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "No, that is not it.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r2/npc-choice",
+        "port" : "option-1"
+      }, {
+        "source" : "r2/npc-choice",
+        "port" : "option-3"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-advanced",
+    "type" : "npc",
+    "properties" : {
+      "position" : {
+        "x" : 28.0,
+        "y" : 2.0
+      },
+      "character" : "Knight",
+      "mode" : "Advanced",
+      "view-direction" : "Up",
+      "face-interactor" : true,
+      "translate" : false,
+      "dialog-count" : 1,
+      "dialog-1" : "Hello.",
+      "dialog-2" : "Hello.",
+      "dialog-3" : "Hello.",
+      "dialog-4" : "Hello.",
+      "dialog-5" : "Hello.",
+      "dialog-6" : "Hello.",
+      "dialog-7" : "Hello.",
+      "dialog-8" : "Hello.",
+      "text" : "Do you want to continue?",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    }
+  }, {
+    "name" : "r2/npc-advanced-switch",
+    "type" : "flag-switch",
+    "properties" : {
+      "flag-count" : 2,
+      "flag-1" : "npc-advanced-door-open",
+      "flag-2" : "npc-advanced-greeted",
+      "flag-3" : "flag-3",
+      "flag-4" : "flag-4",
+      "flag-5" : "flag-5",
+      "flag-6" : "flag-6",
+      "flag-7" : "flag-7",
+      "flag-8" : "flag-8"
+    },
+    "inputs" : {
+      "check" : [ {
+        "source" : "r2/npc-advanced",
+        "port" : "interacted"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-advanced-greeting",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Ah, a visitor. Talk to me once more and I will open the door for you.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r2/npc-advanced-switch",
+        "port" : "no-flag"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-advanced-set-greeted",
+    "type" : "flag-set",
+    "properties" : {
+      "flag" : "npc-advanced-greeted",
+      "operation" : "Set"
+    },
+    "inputs" : {
+      "apply" : [ {
+        "source" : "r2/npc-advanced-switch",
+        "port" : "no-flag"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-advanced-set-door-open",
+    "type" : "flag-set",
+    "properties" : {
+      "flag" : "npc-advanced-door-open",
+      "operation" : "Set"
+    },
+    "inputs" : {
+      "apply" : [ {
+        "source" : "r2/npc-advanced-switch",
+        "port" : "flag-2"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-advanced-door-trigger",
+    "type" : "flag-trigger",
+    "properties" : {
+      "flag-count" : 1,
+      "flag-1" : "npc-advanced-door-open",
+      "when" : "Becomes Active",
+      "trigger-on-restore" : true
+    }
+  }, {
+    "name" : "r2/npc-advanced-farewell",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "The door is open. There is nothing more I can do for you.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r2/npc-advanced-switch",
+        "port" : "flag-1"
+      } ]
+    }
+  }, {
+    "name" : "r2/npc-choice-solved",
+    "type" : "flag-set",
+    "properties" : {
+      "flag" : "npc-choice-solved",
+      "operation" : "Set"
+    },
+    "inputs" : {
+      "apply" : [ {
+        "source" : "r2/npc-choice",
+        "port" : "option-2"
+      } ]
+    }
+  }, {
+    "name" : "r2/npcs-done-trigger",
+    "type" : "flag-and-trigger",
+    "properties" : {
+      "flag-count" : 2,
+      "flag-1" : "npc-choice-solved",
+      "flag-2" : "npc-advanced-door-open",
+      "when" : "Are Active"
+    }
+  }, {
+    "name" : "r2/npcs-done-dialog",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "You answered the wizard and got the door opened. Well done!",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r2/npcs-done-trigger",
+        "port" : "triggered"
       } ]
     }
   }, {
@@ -833,7 +1067,8 @@
         "x" : 9.0,
         "y" : 13.0
       },
-      "acceptedAnswers" : "OPEN"
+      "acceptedAnswers" : "OPEN",
+      "clearOnWrong" : true
     }
   }, {
     "name" : "image-puzzle",

@@ -36,6 +36,7 @@ public final class PrefabCatalog {
               "text-keypad",
               "card-reader",
               "deco-interaction",
+              "npc",
               "trigger",
               "phone"),
           new CategoryDefinition(
@@ -51,7 +52,16 @@ public final class PrefabCatalog {
           new CategoryDefinition(
               "Effects", "door-control", "dialog", "choice-dialog", "show-image", "sound-effect"),
           new CategoryDefinition(
-              "Logic", "random-code", "random-bool", "random-text", "delay", "once"),
+              "Logic",
+              "random-code",
+              "random-bool",
+              "random-text",
+              "delay",
+              "once",
+              "flag-set",
+              "flag-trigger",
+              "flag-and-trigger",
+              "flag-switch"),
           new CategoryDefinition("Visuals", "water", "shader", "level-hider"),
           new CategoryDefinition(
               "Level Setup", "invisible-wall", "available-character", "design-label-region"));
@@ -65,6 +75,7 @@ public final class PrefabCatalog {
           Map.entry("text-keypad", () -> texture("objects/keypad/off.png", "ABC")),
           Map.entry("card-reader", () -> texture("objects/card_reader/closed.png", null)),
           Map.entry("deco-interaction", () -> deco(Deco.BookshelfLarge, "!")),
+          Map.entry("npc", () -> spritesheet("character/char03", "idle_down", null)),
           Map.entry("image-puzzle", () -> texture("items/puzzle-piece.png", null)),
           Map.entry("sorting", () -> deco(Deco.LabWhiteboard, null)),
           Map.entry("item-receptacle", () -> deco(Deco.Cabinet, null)),
