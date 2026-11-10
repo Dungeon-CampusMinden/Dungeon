@@ -71,6 +71,15 @@ import java.util.stream.Stream;
  */
 public final class Game {
 
+  /**
+   * World ticks per second. The simulation advances in fixed ticks of this rate in singleplayer, on
+   * clients and on the server, whatever the render frame rate is.
+   */
+  public static final int TICKS_PER_SECOND = 60;
+
+  /** Length of one world tick in seconds. */
+  public static final float TICK_SECONDS = 1f / TICKS_PER_SECOND;
+
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
   private static INetworkHandler networkHandler;
   private static final AudioApi AudioAPI = new AudioApi();
@@ -238,24 +247,6 @@ public final class Game {
    */
   public static void windowHeight(int windowHeight) {
     PreRunConfiguration.windowHeight(windowHeight);
-  }
-
-  /**
-   * Retrieves the frame rate from the pre-run configuration.
-   *
-   * @return The frame rate.
-   */
-  public static int frameRate() {
-    return PreRunConfiguration.frameRate();
-  }
-
-  /**
-   * Sets the frame rate in the pre-run configuration.
-   *
-   * @param frameRate The new frame rate.
-   */
-  public static void frameRate(int frameRate) {
-    PreRunConfiguration.frameRate(frameRate);
   }
 
   /**

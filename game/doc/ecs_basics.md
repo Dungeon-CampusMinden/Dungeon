@@ -43,7 +43,6 @@ Einige Aspekte des Spiels lassen sich vor dem Start konfigurieren. Dafür könne
 
 ```java
 public static void main(String[] args) {
-    Game.frameRate(60);
     Game.disableAudio(true);
     Game.fullScreen(true);
 }

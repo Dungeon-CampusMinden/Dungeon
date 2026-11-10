@@ -9,7 +9,7 @@ import feature.components.StaminaComponent;
  *
  * <p>The restoration amount is calculated based on the stamina regeneration rate defined in each
  * {@code StaminaComponent}. To ensure frame-rate-independent behavior, the per-second restoration
- * value is divided by the current game frame rate.
+ * value is divided by the fixed world tick rate.
  */
 public class StaminaRestoreSystem extends System {
 
@@ -28,7 +28,7 @@ public class StaminaRestoreSystem extends System {
    * <p>For each entity, the system restores an amount of stamina equal to:
    *
    * <pre>
-   * restorePerSecond / Game.frameRate()
+   * restorePerSecond / Game.TICKS_PER_SECOND
    * </pre>
    *
    * <p>ensuring smooth, frame-rate-independent regeneration.
@@ -37,6 +37,6 @@ public class StaminaRestoreSystem extends System {
   public void execute() {
     filteredEntityStream()
         .flatMap(e -> e.fetch(StaminaComponent.class).stream())
-        .forEach(c -> c.restore(c.restorePerSecond() / Game.frameRate()));
+        .forEach(c -> c.restore(c.restorePerSecond() / Game.TICKS_PER_SECOND));
   }
 }

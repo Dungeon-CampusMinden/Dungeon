@@ -1,5 +1,6 @@
 package engine.network.config;
 
+import engine.Game;
 import engine.network.DefaultSnapshotTranslator;
 import engine.network.SnapshotTranslator;
 
@@ -87,13 +88,6 @@ public final class NetworkConfig {
   public static final int TCP_CONNECT_TIMEOUT_MS = 2_500;
 
   /**
-   * Server tick rate, in Hertz (Hz).
-   *
-   * <p>This defines how many times per second the server updates the game state.
-   */
-  public static final int SERVER_TICK_HZ = 60;
-
-  /**
    * Server delta snapshot rate, in Hertz (Hz).
    *
    * <p>Delta snapshots are sent against the latest client-acknowledged baseline and contain only
@@ -108,7 +102,7 @@ public final class NetworkConfig {
    * recovery. Retrying faster than this creates avoidable TCP bursts while the previous full
    * snapshot is still in flight.
    */
-  public static final int FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS = SERVER_TICK_HZ;
+  public static final int FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS = Game.TICKS_PER_SECOND;
 
   /**
    * Number of full snapshots retained server-side for delta baselines.
@@ -116,7 +110,7 @@ public final class NetworkConfig {
    * <p>This must comfortably retain acknowledged delta baselines during stable play, jitter, idle
    * periods, and client scheduling stalls instead of falling back to repeated full snapshots.
    */
-  public static final int SERVER_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
+  public static final int SERVER_DELTA_HISTORY_SIZE = Game.TICKS_PER_SECOND * 10;
 
   /**
    * Number of fully applied snapshots retained client-side for delta materialization.
@@ -124,7 +118,7 @@ public final class NetworkConfig {
    * <p>This mirrors the server-side retention so a normal client can keep materializing deltas
    * across jitter, idle periods, and local scheduling stalls.
    */
-  public static final int CLIENT_DELTA_HISTORY_SIZE = SERVER_TICK_HZ * 10;
+  public static final int CLIENT_DELTA_HISTORY_SIZE = Game.TICKS_PER_SECOND * 10;
 
   /**
    * Delay before sending an explicit reliable snapshot acknowledgement.

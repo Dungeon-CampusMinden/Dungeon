@@ -72,7 +72,6 @@ public final class MultiplayerJoinRun {
         .levels(Tuple.of(MultiplayerHostRun.GENERIC_LEVEL_NAME, RoomLevel.class))
         .snapshotTranslator(new DefaultSnapshotTranslator())
         .disableAudio(true)
-        .frameRate(60)
         .build();
   }
 }

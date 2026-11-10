@@ -1,6 +1,6 @@
 package engine.network;
 
-import engine.network.config.NetworkConfig;
+import engine.Game;
 import engine.network.telemetry.TelemetrySeverity;
 import java.util.Set;
 
@@ -17,7 +17,7 @@ final class NetworkTelemetryThresholds {
   private NetworkTelemetryThresholds() {}
 
   static long tickMicros() {
-    return 1_000_000L / NetworkConfig.SERVER_TICK_HZ;
+    return 1_000_000L / Game.TICKS_PER_SECOND;
   }
 
   static long substepMicros() {

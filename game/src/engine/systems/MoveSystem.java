@@ -87,8 +87,8 @@ public class MoveSystem extends System {
     }
     Vector2 absVelocity = Vector2.of(Math.abs(velocity.x()), Math.abs(velocity.y()));
 
-    // Calculate scaled velocity vector per frame time
-    Vector2 sv = velocity.scale(1f / Game.frameRate());
+    // Calculate scaled velocity vector per tick time
+    Vector2 sv = velocity.scale(Game.TICK_SECONDS);
     Point oldPos = data.pc.position();
     Collider collider = data.cc != null ? data.cc.collider() : null;
 
@@ -170,8 +170,7 @@ public class MoveSystem extends System {
       cornerCorrectTimers.put(data.e, CORNER_CORRECT_COOLDOWN);
     } else {
       cornerCorrectTimers.put(
-          data.e,
-          Math.max(0, cornerCorrectTimers.getOrDefault(data.e, 0f) - 1f / Game.frameRate()));
+          data.e, Math.max(0, cornerCorrectTimers.getOrDefault(data.e, 0f) - Game.TICK_SECONDS));
     }
 
     // Final check if newPos is accessible. If no, abort to oldPos.

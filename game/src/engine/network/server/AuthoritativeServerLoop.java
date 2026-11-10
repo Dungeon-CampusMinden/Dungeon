@@ -3,7 +3,6 @@ package engine.network.server;
 import static engine.network.config.NetworkConfig.FULL_SNAPSHOT_RECOVERY_RETRY_INTERVAL_TICKS;
 import static engine.network.config.NetworkConfig.SERVER_DELTA_HISTORY_SIZE;
 import static engine.network.config.NetworkConfig.SERVER_DELTA_SNAPSHOT_HZ;
-import static engine.network.config.NetworkConfig.SERVER_TICK_HZ;
 
 import engine.Entity;
 import engine.Game;
@@ -86,17 +85,15 @@ public final class AuthoritativeServerLoop {
    * tasks.
    */
   public void start() {
-    PreRunConfiguration.frameRate(SERVER_TICK_HZ);
-
     DungeonLoader.afterAllLevels(
         () -> {
           Game.network().broadcast(new GameOverEvent("All levels completed"), true);
           Game.complete();
         });
 
-    // Nanosecond periods keep the real tick rate at SERVER_TICK_HZ; whole milliseconds would round
-    // 60 Hz up to 62.5 Hz while the simulation advances 1/60 s per tick.
-    long tickPeriodNanos = TimeUnit.SECONDS.toNanos(1) / SERVER_TICK_HZ;
+    // Nanosecond periods keep the real tick rate at TICKS_PER_SECOND; whole milliseconds would
+    // round 60 Hz up to 62.5 Hz while the simulation advances 1/60 s per tick.
+    long tickPeriodNanos = TimeUnit.SECONDS.toNanos(1) / Game.TICKS_PER_SECOND;
     long snapshotPeriodNanos = TimeUnit.SECONDS.toNanos(1) / SERVER_DELTA_SNAPSHOT_HZ;
 
     executor.scheduleAtFixedRate(this::tick, 0, tickPeriodNanos, TimeUnit.NANOSECONDS);
@@ -121,7 +118,7 @@ public final class AuthoritativeServerLoop {
 
     LOGGER.info(
         "ServerLoop started: tickHz={}, fullSnapshots={}, deltaSnapshotHz={}",
-        SERVER_TICK_HZ,
+        Game.TICKS_PER_SECOND,
         "demand-driven",
         SERVER_DELTA_SNAPSHOT_HZ);
   }
@@ -206,7 +203,7 @@ public final class AuthoritativeServerLoop {
                   snapshot.serverTick(),
                   snapshotHistory.size(),
                   snapshotHistory.capacity(),
-                  SERVER_TICK_HZ);
+                  Game.TICKS_PER_SECOND);
               clients.forEach(client -> sendSnapshotToClient(client, snapshot));
             });
   }
@@ -222,7 +219,7 @@ public final class AuthoritativeServerLoop {
         ackTick,
         baselineInHistory,
         snapshotHistory.capacity(),
-        SERVER_TICK_HZ);
+        Game.TICKS_PER_SECOND);
 
     if (!hasAck) {
       if (snapshotSync.fullSnapshotRecoveryDue(

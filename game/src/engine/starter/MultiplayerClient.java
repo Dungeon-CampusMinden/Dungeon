@@ -23,7 +23,6 @@ public final class MultiplayerClient {
 
     // Game Settings
     Game.disableAudio(false);
-    Game.frameRate(60);
     Game.userOnSetup(
         () -> {
           Game.add(new Debugger());

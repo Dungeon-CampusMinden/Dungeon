@@ -216,7 +216,7 @@ final class SoulweaverWorkshopRuntime {
       }
     }
     if (executing && !moving && pause > 0) {
-      pause -= 1f / Game.frameRate();
+      pause -= Game.TICK_SECONDS;
       if (pause <= 0) advance();
     }
   }

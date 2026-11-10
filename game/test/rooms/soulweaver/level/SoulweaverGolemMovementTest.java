@@ -142,7 +142,7 @@ class SoulweaverGolemMovementTest {
       tick();
       assertTrue(
           Point.calculateDistance(previous, position.position())
-              <= 2.5f / Game.frameRate() + .001f);
+              <= 2.5f / Game.TICKS_PER_SECOND + .001f);
       if (position.position().x() < ORIGIN.x() + 4 * LoopMaze.CELL_WIDTH - .01f)
         assertFalse(runtime.terminalState().status().contains("Wand"));
     }
@@ -151,13 +151,14 @@ class SoulweaverGolemMovementTest {
     assertEquals(
         ORIGIN.x() + 5 * LoopMaze.CELL_WIDTH,
         feetRight,
-        2.5f / Game.frameRate() + .001f,
+        2.5f / Game.TICKS_PER_SECOND + .001f,
         "The invalid step must run until Nox's feet reach the wall");
     for (int i = 0; i < 2000 && runtime.terminalState().busy(); i++) {
       Point previous = position.position();
       tick();
       assertTrue(
-          Point.calculateDistance(previous, position.position()) <= 2.5f / Game.frameRate() + .001f,
+          Point.calculateDistance(previous, position.position())
+              <= 2.5f / Game.TICKS_PER_SECOND + .001f,
           "Returning must not teleport");
     }
     assertFalse(runtime.terminalState().busy());
@@ -235,7 +236,7 @@ class SoulweaverGolemMovementTest {
       assertTrue(position.position().x() <= previous.x());
       assertTrue(
           Point.calculateDistance(previous, position.position())
-              <= 2.5f / Game.frameRate() + .001f);
+              <= 2.5f / Game.TICKS_PER_SECOND + .001f);
     }
     assertFalse(runtime.terminalState().busy());
     assertEquals(ORIGIN, position.position());

@@ -34,7 +34,6 @@ public class DungeonShowcase {
    */
   public static void main(String[] args) {
     Game.disableAudio(true);
-    Game.frameRate(60);
     Game.userOnSetup(
         () -> {
           DungeonLoader.addLevel(Tuple.of("showcase", DungeonLevel.class));

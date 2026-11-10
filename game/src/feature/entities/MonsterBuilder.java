@@ -81,7 +81,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
 
   // Combat
   private int collideDamage = 0;
-  private int collideCooldown = Game.frameRate();
+  private int collideCooldown = Game.TICKS_PER_SECOND;
   private DamageType damageType = DamageType.PHYSICAL;
 
   // Drops

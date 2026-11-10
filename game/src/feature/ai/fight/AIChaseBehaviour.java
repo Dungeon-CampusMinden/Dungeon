@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class AIChaseBehaviour implements Consumer<Entity> {
   private final float chaseRange;
-  private final int delay = Game.frameRate();
+  private final int delay = Game.TICKS_PER_SECOND;
   private int timeSinceLastUpdate = delay;
   private GraphPath<Tile> path;
 
