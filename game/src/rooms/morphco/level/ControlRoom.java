@@ -2,14 +2,11 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.PositionComponent;
 import engine.level.elements.tile.DoorTile;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
-import engine.utils.Point;
 import feature.components.UIComponent;
 import feature.emote.Emote;
-import feature.emote.EmoteFactory;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -29,7 +26,6 @@ import rooms.morphco.util.MorphCoTracking;
  */
 final class ControlRoom {
 
-  private static final int EMOTE_DURATION_MS = 60 * 60 * 1000;
   private static final String CONSOLE = "world.control.console-title";
 
   private final MorphCoLevel level;
@@ -73,11 +69,8 @@ final class ControlRoom {
           MorphCoProps.interact(entity, (self, player) -> phone(player));
           if (state.has(MorphCoState.MESSAGE_HEARD)) return;
           if (phoneEmote != null) Game.remove(phoneEmote);
-          Point position = entity.fetch(PositionComponent.class).orElseThrow().position();
-          phoneEmote =
-              EmoteFactory.createEmote(
-                  position.translate(0f, 0.7f), Emote.EXCLAMATION, EMOTE_DURATION_MS);
-          Game.add(phoneEmote);
+          // Stays until the message has been heard.
+          phoneEmote = MorphCoProps.emote(entity, Emote.EXCLAMATION, Integer.MAX_VALUE);
         });
     on(
         "control-table",

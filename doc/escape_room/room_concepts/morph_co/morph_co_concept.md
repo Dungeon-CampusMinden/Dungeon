@@ -45,7 +45,7 @@ bleiben …“
 
 | Raum | Zugang | Inhalt |
 | --- | --- | --- |
-| Eingang | Start | Schichtleitung (Hinweise), Kartenschlitz, Warnschild |
+| Eingang | Start | Schichtleitung (Hinweise), Lesegerät, Warnschild |
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon, Sicherungsbox, Tisch, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
 | Flur | nach dem PC | Türschilder, Pflanze; Küche und Abstellkammer verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel |
@@ -59,7 +59,7 @@ die Reihenfolge der Reparaturen frei.
 
 | Schritt | Ort | Aufgabe | Lösung |
 | --- | --- | --- | --- |
-| 1 | Eingang | Kartenschlitz benutzen | Tür zum Kontrollraum öffnet sich |
+| 1 | Eingang | Sicherheitskarte an das Lesegerät halten | Tür zum Kontrollraum öffnet sich |
 | 2 | Kontrollraum | Konsole: Alarm ausschalten | Knopf „Nerviger Alarmton“ (andere Knöpfe geben witzige Rückmeldungen) |
 | 3 | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört; Tür zur Produktion öffnet |
 | 4a | F-04 | Regal: Handbuch FL3–10–9001 lesen | flektierbar sind Nomen, Adjektive, Verben, Artikel, Pronomina |
@@ -184,7 +184,7 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   nominal.
 - Die Statuszeilen des Neustarts erscheinen auf einer Schwarzblende statt nacheinander am PC.
 
-- Die Sicherheitskarte ist kein Inventargegenstand; der Kartenschlitz öffnet die Tür direkt.
+- Die Sicherheitskarte ist kein Inventargegenstand; das Lesegerät öffnet die Tür direkt.
 - Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
 - Zusätzliche Kleinigkeiten: Spiegel im WC, Kisten in A-12, Hinweise der Schichtleitung,
   versteckte Achievements.

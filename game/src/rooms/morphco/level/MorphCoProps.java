@@ -159,13 +159,28 @@ final class MorphCoProps {
    * <p>The emote is a level entity of the server, so every player sees it. Dialogs cover the middle
    * of the screen, where the characters stand, so an emote belongs after a dialog.
    *
-   * @param character player or non-player character
+   * @param target character or object the emote belongs to
    * @param emote emote to show
+   * @return the emote entity
    */
-  static void emote(Entity character, Emote emote) {
-    Game.add(
+  static Entity emote(Entity target, Emote emote) {
+    return emote(target, emote, EMOTE_DURATION_MS);
+  }
+
+  /**
+   * Shows an emote above a character or object.
+   *
+   * @param target character or object the emote belongs to
+   * @param emote emote to show
+   * @param durationMs how long the emote stays
+   * @return the emote entity, e.g. to remove it earlier
+   */
+  static Entity emote(Entity target, Emote emote, int durationMs) {
+    Entity entity =
         EmoteFactory.createEmote(
-            EntityUtils.getPosition(character).translate(0f, 0.7f), emote, EMOTE_DURATION_MS));
+            EntityUtils.getPosition(target).translate(0f, 0.7f), emote, durationMs);
+    Game.add(entity);
+    return entity;
   }
 
   /**
