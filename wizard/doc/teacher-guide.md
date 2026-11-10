@@ -35,10 +35,10 @@ The Wizard currently runs as a local program and is meant to be set up with tech
 6.  **Puzzles** (*Rätsel*): each puzzle has a title, at least one learning objective, a time
     estimate, information sources and at least one input. Available inputs are a number code
     (*Zahleneingabe*, 1 to 8 digits), a multiple-choice question (*Auswahlfrage*, 2 to 6
-    answers, one or more correct), a matching task (*Zuordnung*, 1 to 4 boxes, 2 to 8 items) and
-    collecting all materials of an information source (*Sammeln*). Add hints in order; each gets
-    one of the levels *Orientierung* (orientation), *Ansatz* (approach) or *Lösung* (solution).
-    Players have to confirm before a hint is shown.
+    answers, one or more correct), a matching task (*Zuordnung*, 1 to 4 boxes, 2 to 8 items)
+    and collecting all materials of an information source (*Sammeln*). Add hints in order;
+    each gets one of the levels *Orientierung* (orientation), *Ansatz* (approach) or *Lösung*
+    (solution). Players have to confirm before a hint is shown.
 7.  **Game flow** (*Spielablauf*): connect the puzzles between the start and the end. An arrow
     means the next puzzle becomes available after the previous one; several incoming arrows
     mean all of them have to be solved first.
@@ -46,9 +46,9 @@ The Wizard currently runs as a local program and is meant to be set up with tech
     texts shown on success (with a hard time limit also on failure). The exit opens as soon as
     all puzzles before the end are solved.
 9.  **Create the game** (*Spiel erstellen*): the Wizard checks the draft in the background and
-    lists all problems in the error overview (*Fehlerübersicht*); a click on a problem opens the
-    step it belongs to. Warnings do not block. *Spiel erstellen und herunterladen* (create and
-    download) builds the game file.
+    lists all problems in the error overview (*Fehlerübersicht*); a click on a problem opens
+    the step it belongs to. Warnings do not block. *Spiel erstellen und herunterladen* (create
+    and download) builds the game file.
 
 Before you hand out the game, check it yourself: can the solution be derived from the task and
 the material, is the task clear for the target group, do difficulty and time fit the lesson,
