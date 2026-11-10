@@ -30,6 +30,8 @@ final class TrackingResend {
   /**
    * Starts the single background pass of this process. A session calls it before creating its own
    * outbox, so the pass only sees files of earlier sessions.
+   *
+   * @param config configuration of the starting session; names the outbox directory and backend
    */
   static void startOnce(TrackingConfig config) {
     if (!STARTED.compareAndSet(false, true) || !Files.isDirectory(config.outboxDirectory())) {
