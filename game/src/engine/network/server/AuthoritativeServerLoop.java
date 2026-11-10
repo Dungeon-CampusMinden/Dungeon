@@ -20,6 +20,7 @@ import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.HeroBuilder;
 import feature.entities.HeroController;
+import feature.save.GameSaves;
 import feature.utils.EntityUtils;
 import java.util.HashSet;
 import java.util.Objects;
@@ -87,6 +88,8 @@ public final class AuthoritativeServerLoop {
   public void start() {
     DungeonLoader.afterAllLevels(
         () -> {
+          // A finished game cannot be continued.
+          GameSaves.delete();
           Game.network().broadcast(new GameOverEvent("All levels completed"), true);
           Game.complete();
         });

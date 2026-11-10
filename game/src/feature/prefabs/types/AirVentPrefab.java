@@ -30,6 +30,9 @@ import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Server-side air vent holding a list of items, which it blows out into the room when {@link #SPEW}
@@ -48,6 +51,7 @@ public final class AirVentPrefab extends Prefab {
   private static final float SPEW_MAX_SPEED = 45f;
   private static final float SPEW_MASS = 25f;
   private static final SpawnState<VentState> VENTS = new SpawnState<>();
+  private static final String STATE_SPEWED = "spewed";
 
   /** Position of the vent. */
   public static final PrefabProperty<Point> POSITION =
@@ -120,11 +124,20 @@ public final class AirVentPrefab extends Prefab {
 
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    // Creating the items also publishes them, consumers still need them after a restore.
+    List<Item> items = PrefabItems.create(context.level(), instance);
+    Optional<JsonNode> saved = restoredState(context, instance);
+    // Spewed items that were still lying around belong to the vent again, so a reset removes them.
+    List<Entity> spewed =
+        saved
+            .map(state -> PrefabStateJson.restoreWorldItems(state.path(STATE_SPEWED)))
+            .orElse(List.of());
     VENTS.start(
         context.level(),
         instance.name(),
         new VentState(
-            new ArrayList<>(PrefabItems.create(context.level(), instance)), new ArrayList<>()));
+            saved.isPresent() ? new ArrayList<>() : new ArrayList<>(items),
+            new ArrayList<>(spewed)));
 
     Entity vent = context.createEntity(instance.name());
     DecoFactory.createDeco(vent, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
@@ -138,7 +151,9 @@ public final class AirVentPrefab extends Prefab {
                   DialogFactory.showDialogDialog(message, () -> {}, who.id());
                   fire(context, instance, INTERACTED, who);
                 })));
-    return List.of(vent);
+    List<Entity> entities = new ArrayList<>(spewed);
+    entities.add(vent);
+    return entities;
   }
 
   @Override
@@ -170,6 +185,34 @@ public final class AirVentPrefab extends Prefab {
       feedback.label(
           position.translate(0f, -0.45f), "(" + count + (count == 1 ? " item)" : " items)"));
     }
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return VENTS
+        .get(context.level(), instance.name())
+        .filter(state -> state.items().isEmpty())
+        .map(
+            state -> {
+              ObjectNode saved = PrefabStateJson.object();
+              saved.set(STATE_SPEWED, PrefabStateJson.worldItems(present(state.spewed())));
+              return saved;
+            });
+  }
+
+  @Override
+  public List<Entity> savedEntities(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    List<Entity> saved = new ArrayList<>(entities);
+    VENTS.get(context.level(), instance.name()).ifPresent(state -> saved.addAll(state.spewed()));
+    return saved;
+  }
+
+  private static List<Entity> present(List<Entity> entities) {
+    return entities.stream()
+        .filter(entity -> Game.findEntityById(entity.id()).orElse(null) == entity)
+        .toList();
   }
 
   private static void spew(ActionContext context) {

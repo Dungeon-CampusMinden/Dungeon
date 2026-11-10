@@ -4,6 +4,7 @@ import engine.Game;
 import engine.level.loader.DungeonLoader;
 import feature.components.Debugger;
 import feature.entities.HeroBuilder;
+import feature.save.GameSaves;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import java.io.IOException;
@@ -67,6 +68,7 @@ public final class MainMenu {
     if (shouldRunMpServer(args)) {
       Game.localization().currentLanguage(game.language());
       Game.windowTitle(game.title());
+      game.saveGameId().ifPresent(id -> GameSaves.startServer(id, args));
       server.apply();
       ServerLifecycle.install(game.title() + " server stopped");
       Game.run();
@@ -107,6 +109,7 @@ public final class MainMenu {
     Game.windowTitle(game.title());
     // A title can depend on the language chosen in the menu or the in-game settings.
     Game.localization().registerLanguageChangeListener(language -> Game.windowTitle(game.title()));
+    game.saveGameId().ifPresent(GameSaves::prefillPlayerName);
     client.apply();
     Runnable levelEditorLauncher =
         server == null

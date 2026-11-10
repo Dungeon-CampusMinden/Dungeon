@@ -2,11 +2,15 @@ package feature.prefabs.types;
 
 import engine.Component;
 import engine.Entity;
+import engine.components.PlayerComponent;
 import feature.prefabs.PrefabProperty;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /** How often a trigger prefab may raise its event. */
 enum TriggerRepetition {
@@ -48,8 +52,12 @@ enum TriggerRepetition {
 
   /** Spawn-scoped history of a trigger, so a respawn or reset allows triggering again. */
   static final class History implements Component {
+    private static final String TRIGGERED = "triggered";
+    private static final String PLAYERS = "players";
+
     private final TriggerRepetition repetition;
-    private final Set<Entity> players = Collections.newSetFromMap(new IdentityHashMap<>());
+    // Names of the players that triggered, so the history survives reconnects and saves.
+    private final Set<String> players = new LinkedHashSet<>();
     private boolean triggered;
 
     /**
@@ -75,12 +83,41 @@ enum TriggerRepetition {
           return true;
         }
         case ONCE_PER_PLAYER -> {
-          return players.add(who);
+          return players.add(playerName(who));
         }
         default -> {
           return true;
         }
       }
+    }
+
+    /**
+     * Captures who already triggered, for a save of the game.
+     *
+     * @return the history, or empty if nobody triggered yet
+     */
+    Optional<JsonNode> capture() {
+      if (!triggered && players.isEmpty()) return Optional.empty();
+      ObjectNode state = PrefabStateJson.object().put(TRIGGERED, triggered);
+      ArrayNode names = state.putArray(PLAYERS);
+      players.forEach(names::add);
+      return Optional.of(state);
+    }
+
+    /**
+     * Restores a history captured by {@link #capture()}.
+     *
+     * @param saved captured history
+     */
+    void restore(JsonNode saved) {
+      triggered = saved.path(TRIGGERED).asBoolean();
+      saved.path(PLAYERS).forEach(name -> players.add(name.asString()));
+    }
+
+    private static String playerName(Entity who) {
+      return who.fetch(PlayerComponent.class)
+          .map(PlayerComponent::playerName)
+          .orElse("entity-" + who.id());
     }
   }
 }

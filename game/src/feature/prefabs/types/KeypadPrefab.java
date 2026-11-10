@@ -19,6 +19,7 @@ import feature.tasks.TaskComponent;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side keypad that raises an event when a code is entered. Link {@link #CORRECT_CODE} to
@@ -95,11 +96,19 @@ public final class KeypadPrefab extends Prefab {
         value(instance, POSITION),
         () -> code.get().orElse(""),
         value(instance, SHOW_DIGIT_COUNT));
-    keypad.fetch(KeypadComponent.class).orElseThrow().clearOnWrong(value(instance, CLEAR_ON_WRONG));
+    KeypadComponent state = keypad.fetch(KeypadComponent.class).orElseThrow();
+    state.clearOnWrong(value(instance, CLEAR_ON_WRONG));
+    restoredState(context, instance).ifPresent(saved -> KeypadStates.restore(saved, state));
     TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
     task.onCorrect(who -> fire(context, instance, CORRECT_CODE, who));
     task.onWrong(who -> fire(context, instance, WRONG_CODE, who));
     return List.of(keypad);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return KeypadStates.capture(entities);
   }
 
   @Override

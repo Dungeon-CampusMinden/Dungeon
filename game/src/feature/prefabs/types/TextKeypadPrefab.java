@@ -17,6 +17,7 @@ import feature.tasks.TaskComponent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side text keypad that raises an event when an answer is entered. Link {@link
@@ -87,11 +88,19 @@ public final class TextKeypadPrefab extends Prefab {
     Entity keypad =
         KeypadFactory.createTextKeypad(
             value(instance, POSITION), acceptedAnswers(value(instance, ACCEPTED_ANSWERS)));
-    keypad.fetch(KeypadComponent.class).orElseThrow().clearOnWrong(value(instance, CLEAR_ON_WRONG));
+    KeypadComponent state = keypad.fetch(KeypadComponent.class).orElseThrow();
+    state.clearOnWrong(value(instance, CLEAR_ON_WRONG));
+    restoredState(context, instance).ifPresent(saved -> KeypadStates.restore(saved, state));
     TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
     task.onCorrect(who -> fire(context, instance, CORRECT_ANSWER, who));
     task.onWrong(who -> fire(context, instance, WRONG_ANSWER, who));
     return List.of(keypad);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return KeypadStates.capture(entities);
   }
 
   @Override

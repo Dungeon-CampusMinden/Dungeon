@@ -31,6 +31,7 @@ import feature.prefabs.types.LeverPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
 import feature.prefabs.types.WaterPrefab;
+import feature.save.GameSaves;
 import feature.shader.ShaderComponent;
 import feature.shader.ShaderSystem;
 import java.util.List;
@@ -38,6 +39,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import rooms.gameofgames.canvas.GameOfGamesCanvas;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 /** Server-side level setup for the Game of Games escape room. */
 public class GameOfGamesLevel extends DungeonLevel {
@@ -52,6 +56,8 @@ public class GameOfGamesLevel extends DungeonLevel {
   private static final String FLOOD_KEYPAD = "r1/keypad-2";
   private static final String FLOOD_PLATE = "r1/flood-plate";
   private static final Region FLOOD_REGION = new Region(new Point(2, 1), new Point(5, 6));
+  private static final String STATE_FLOODED = "flooded";
+  private static final String STATE_EXTRA_RULES = "extra-rules";
 
   private Entity floodTrigger;
   private boolean floodTriggered;
@@ -91,6 +97,21 @@ public class GameOfGamesLevel extends DungeonLevel {
     setupCanvasTerminal();
     setupCanvasUnlock();
     setupFloodTrigger();
+  }
+
+  @Override
+  public Optional<JsonNode> saveState() {
+    ObjectNode state = JsonNodeFactory.instance.objectNode();
+    state.put(STATE_FLOODED, floodDone);
+    state.put(STATE_EXTRA_RULES, GameOfGamesCanvas.extraNodesUnlocked());
+    return Optional.of(state);
+  }
+
+  @Override
+  public void loadState(JsonNode state) {
+    if (state.path(STATE_EXTRA_RULES).asBoolean()) GameOfGamesCanvas.unlockExtraNodes(true);
+    // Flooding again respawns the flood prefabs, which take their saved state, e.g. the stone.
+    if (state.path(STATE_FLOODED).asBoolean()) flood();
   }
 
   @Override
@@ -138,6 +159,7 @@ public class GameOfGamesLevel extends DungeonLevel {
                   }
 
                   GameOfGamesCanvas.unlockExtraNodes(unlocked);
+                  GameSaves.requestSave();
                   DialogFactory.showDialogDialog(
                       unlocked
                           ? "You memorize two more rules. Reopen the rule board to see them."
@@ -178,6 +200,7 @@ public class GameOfGamesLevel extends DungeonLevel {
   // entities while the collision system iterates the entities is not safe.
   private void flood() {
     floodDone = true;
+    GameSaves.requestSave();
     Game.remove(floodTrigger);
 
     Optional<DoorControlPrefab> door = doorControlledBy(FLOOD_LEVER);

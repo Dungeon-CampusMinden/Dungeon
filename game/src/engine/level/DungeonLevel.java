@@ -38,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -398,6 +399,31 @@ public class DungeonLevel implements ILevel, ITickable {
    * @see ITickable
    */
   protected void onTick() {}
+
+  /**
+   * Captures the state of this level handler for a save of the game, e.g. which story steps a
+   * hand-crafted room has completed.
+   *
+   * <p>Prefabs, game flags, players and items lying in the world are saved by the game itself, a
+   * handler only has to add what it manages in its own code. Called on the server.
+   *
+   * @return the handler state, or empty if there is nothing to save
+   */
+  public Optional<JsonNode> saveState() {
+    return Optional.empty();
+  }
+
+  /**
+   * Restores the state {@link #saveState} captured, when the game continues from a save.
+   *
+   * <p>Called once on the server, right after {@link #onFirstTick()}. The prefabs of the level are
+   * already restored at this point. Prefabs the handler spawns in here still receive their saved
+   * state. The game flags of the save are restored afterwards, so flag triggers can still react to
+   * the state set up here.
+   *
+   * @param state the saved handler state
+   */
+  public void loadState(JsonNode state) {}
 
   @Override
   public void onTick(boolean isFirstTick) {

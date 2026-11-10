@@ -29,6 +29,7 @@ import feature.prefabs.PrefabSide;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side container players can put items into, e.g. a chest that reacts when the picture of a
@@ -118,6 +119,11 @@ public final class ItemReceptaclePrefab extends Prefab {
         container, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
     container.remove(DecoComponent.class);
     InventoryComponent inventory = new InventoryComponent(CAPACITY);
+    // Restored before the listeners exist, so placing the saved items raises no events.
+    restoredState(context, instance)
+        .ifPresent(
+            saved ->
+                PrefabStateJson.restoreItems(PrefabStateJson.inventoryItems(saved), inventory));
     container.add(inventory);
 
     ArtifactInput<ItemArtifact> required = input(context, instance, REQUIRED_ITEM);
@@ -164,6 +170,12 @@ public final class ItemReceptaclePrefab extends Prefab {
                   interactor.add(new UIComponent(dialog, true, interactor.id()));
                 })));
     return List.of(container);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return PrefabStateJson.inventoryState(entities);
   }
 
   @Override

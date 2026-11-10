@@ -36,6 +36,7 @@ import feature.prefabs.PrefabSide;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side chain lock on a door, which players open with a key item, like the archive door in
@@ -46,6 +47,8 @@ import java.util.Optional;
  * closed until the lock is opened, and is closed again when the instance is reset.
  */
 public final class DoorLockPrefab extends Prefab {
+
+  private static final String STATE_UNLOCKED = "unlocked";
 
   private static final String TYPE = "door-lock";
   private static final String DISPLAY_NAME = "Door Lock";
@@ -126,6 +129,12 @@ public final class DoorLockPrefab extends Prefab {
     Point doorPosition = value(instance, DOOR_POSITION);
     Optional<DoorTile> door = doorAt(context.level(), doorPosition);
     if (door.isEmpty()) return List.of();
+    if (restoredState(context, instance)
+        .map(saved -> saved.path(STATE_UNLOCKED).asBoolean())
+        .orElse(false)) {
+      door.get().open();
+      return List.of();
+    }
     door.get().close();
 
     Entity chain = context.createEntity(instance.name());
@@ -198,6 +207,16 @@ public final class DoorLockPrefab extends Prefab {
           fire(context, instance, UNLOCKED, who);
         });
     question.registerCallback(DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(question));
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    // Unlocking removes the chain, which is the only entity of a lock with a door.
+    if (!entities.isEmpty() || doorAt(context.level(), value(instance, DOOR_POSITION)).isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(PrefabStateJson.object().put(STATE_UNLOCKED, true));
   }
 
   private static void unlock(ActionContext context) {

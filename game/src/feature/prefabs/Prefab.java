@@ -710,6 +710,55 @@ public abstract class Prefab {
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {}
 
   /**
+   * Captures the runtime state of a spawned server-side instance for a save of the game.
+   *
+   * <p>Only state that players created directly belongs here, e.g. whether a lever is on or what
+   * was typed into a keypad. What links did to other prefabs, e.g. a door that a lever opened, is
+   * not captured: level designers rebuild it with flag triggers that fire on restore. When the game
+   * is loaded, the state is handed back to {@link #create} through {@link #restoredState}.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @param entities present entities of the spawn
+   * @return the state, or empty if the instance keeps nothing
+   */
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return Optional.empty();
+  }
+
+  /**
+   * Returns the entities whose state {@link #captureState} saves, so the save does not capture them
+   * a second time, e.g. as items lying in the level. These are the entities of the spawn, unless a
+   * prefab creates more later, like an air vent spewing items.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @param entities present entities of the spawn
+   * @return the entities the saved state covers
+   */
+  public List<Entity> savedEntities(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return entities;
+  }
+
+  /**
+   * Returns the state {@link #captureState} saved for an instance while it spawns from a loaded
+   * save. Spawns that do not restore a save, e.g. a reset, see none.
+   *
+   * <p>A prefab should use the state to create its entities in the saved state directly, without
+   * raising events: the effects of the original changes are restored separately.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @return the saved state, or empty if there is none
+   */
+  protected static Optional<JsonNode> restoredState(
+      PrefabCreationContext context, PrefabInstance instance) {
+    return PrefabSaveStates.restoring(context.level(), instance.name());
+  }
+
+  /**
    * Reads a typed property value from a normalized instance.
    *
    * @param instance normalized instance

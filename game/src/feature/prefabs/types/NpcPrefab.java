@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import tools.jackson.databind.JsonNode;
 
 /**
@@ -55,6 +56,7 @@ public final class NpcPrefab extends Prefab {
   private static final String MODE_ADVANCED = "Advanced";
   private static final float INTERACTION_RADIUS = 1.5f;
   private static final SpawnState<Conversation> CONVERSATIONS = new SpawnState<>();
+  private static final String STATE_NEXT_DIALOG = "next-dialog";
 
   /** Raised in advanced mode when a player interacted, with the player as payload. */
   public static final PrefabEvent<Entity> INTERACTED =
@@ -190,12 +192,25 @@ public final class NpcPrefab extends Prefab {
 
     Conversation conversation =
         CONVERSATIONS.start(context.level(), instance.name(), new Conversation());
+    restoredState(context, instance)
+        .ifPresent(saved -> conversation.nextDialog = saved.path(STATE_NEXT_DIALOG).asInt());
     npc.add(
         new InteractionComponent(
             new Interaction(
                 (self, who) -> interact(context, instance, conversation, self, who),
                 INTERACTION_RADIUS)));
     return List.of(npc);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return CONVERSATIONS
+        .get(context.level(), instance.name())
+        .filter(conversation -> conversation.nextDialog > 0)
+        .map(
+            conversation ->
+                PrefabStateJson.object().put(STATE_NEXT_DIALOG, conversation.nextDialog));
   }
 
   @Override

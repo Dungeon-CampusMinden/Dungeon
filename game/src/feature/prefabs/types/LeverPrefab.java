@@ -18,6 +18,7 @@ import feature.prefabs.PrefabSide;
 import feature.utils.ICommand;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side lever that raises an event when it is switched. Link {@link #SWITCHED_ON} and {@link
@@ -91,6 +92,7 @@ public final class LeverPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity lever = context.createEntity(instance.name());
+    Optional<JsonNode> saved = restoredState(context, instance);
     LeverFactory.createLever(
         lever,
         value(instance, POSITION),
@@ -105,8 +107,17 @@ public final class LeverPrefab extends Prefab {
             fire(context, instance, SWITCHED_OFF, null);
           }
         },
+        PrefabStateJson.leverOn(saved, false),
         !value(instance, REVERTABLE));
+    PrefabStateJson.restoreLeverLock(saved, lever);
     return List.of(lever);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    // A lever that cannot be reverted stops being interactable.
+    return PrefabStateJson.leverState(entities, true);
   }
 
   @Override

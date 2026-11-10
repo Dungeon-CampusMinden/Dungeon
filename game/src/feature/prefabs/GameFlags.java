@@ -26,6 +26,7 @@ public final class GameFlags {
   private static final Set<String> FLAGS = new LinkedHashSet<>();
   // Kept in registration order, so listeners are called in the order their prefabs spawned.
   private static final Set<Subscription> SUBSCRIPTIONS = new LinkedHashSet<>();
+  private static long revision;
 
   private GameFlags() {}
 
@@ -46,7 +47,9 @@ public final class GameFlags {
    * @param player player that caused the change, passed on to the listeners
    */
   public static void set(String name, Optional<Entity> player) {
-    if (FLAGS.add(name)) notifyListeners(Map.of(name, true), player, false);
+    if (!FLAGS.add(name)) return;
+    revision++;
+    notifyListeners(Map.of(name, true), player, false);
   }
 
   /**
@@ -56,7 +59,9 @@ public final class GameFlags {
    * @param player player that caused the change, passed on to the listeners
    */
   public static void remove(String name, Optional<Entity> player) {
-    if (FLAGS.remove(name)) notifyListeners(Map.of(name, false), player, false);
+    if (!FLAGS.remove(name)) return;
+    revision++;
+    notifyListeners(Map.of(name, false), player, false);
   }
 
   /**
@@ -78,6 +83,16 @@ public final class GameFlags {
    */
   public static void clear() {
     FLAGS.clear();
+  }
+
+  /**
+   * Returns a counter that grows whenever a flag is set or removed during play, so a save can
+   * notice progress. Restores and {@link #clear} do not count.
+   *
+   * @return current change counter
+   */
+  public static long revision() {
+    return revision;
   }
 
   /**

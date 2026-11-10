@@ -1,5 +1,6 @@
 package feature.prefabs.types;
 
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import feature.prefabs.ActionContext;
@@ -15,6 +16,9 @@ import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Server-side timer that passes a signal on after a delay, e.g. to close a door a few seconds after
@@ -29,6 +33,7 @@ public final class DelayPrefab extends Prefab {
   private static final String DISPLAY_NAME = "Delay";
   private static final SpawnState<List<EventScheduler.ScheduledAction>> PENDING =
       new SpawnState<>();
+  private static final String STATE_PENDING = "pending-ms";
 
   /** Time between a start and the finish, in milliseconds. */
   public static final PrefabProperty<Integer> DELAY =
@@ -78,8 +83,34 @@ public final class DelayPrefab extends Prefab {
 
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
-    PENDING.start(context.level(), instance.name(), new ArrayList<>());
+    List<EventScheduler.ScheduledAction> pending =
+        PENDING.start(context.level(), instance.name(), new ArrayList<>());
+    // Timers that were running when the game was saved continue, without their player.
+    restoredState(context, instance)
+        .ifPresent(
+            saved ->
+                saved
+                    .path(STATE_PENDING)
+                    .forEach(
+                        remaining ->
+                            schedule(context, instance, pending, remaining.asLong(), null)));
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    long now = TimeUtils.millis();
+    return PENDING
+        .get(context.level(), instance.name())
+        .filter(pending -> !pending.isEmpty())
+        .map(
+            pending -> {
+              ObjectNode state = PrefabStateJson.object();
+              ArrayNode remaining = state.putArray(STATE_PENDING);
+              pending.forEach(timer -> remaining.add(Math.max(1L, timer.executeAt() - now)));
+              return state;
+            });
   }
 
   @Override
@@ -98,22 +129,32 @@ public final class DelayPrefab extends Prefab {
         .ifPresent(
             pending -> {
               if (context.value(RESTART)) cancelAll(pending);
-              PrefabCreationContext creation = context.creationContext();
-              PrefabInstance instance = context.instance();
-              Entity player = context.player().orElse(null);
-              EventScheduler.ScheduledAction[] timer = new EventScheduler.ScheduledAction[1];
-              // At least one millisecond, so a timer started by a finishing timer is scheduled
-              // behind the one the scheduler is currently running.
-              long delay = Math.max(1L, context.value(DELAY));
-              timer[0] =
-                  EventScheduler.scheduleAction(
-                      () -> {
-                        pending.remove(timer[0]);
-                        fire(creation, instance, FINISHED, player);
-                      },
-                      delay);
-              pending.add(timer[0]);
+              schedule(
+                  context.creationContext(),
+                  context.instance(),
+                  pending,
+                  context.value(DELAY),
+                  context.player().orElse(null));
             });
+  }
+
+  private static void schedule(
+      PrefabCreationContext creation,
+      PrefabInstance instance,
+      List<EventScheduler.ScheduledAction> pending,
+      long delayMs,
+      Entity player) {
+    EventScheduler.ScheduledAction[] timer = new EventScheduler.ScheduledAction[1];
+    // At least one millisecond, so a timer started by a finishing timer is scheduled behind the
+    // one the scheduler is currently running.
+    timer[0] =
+        EventScheduler.scheduleAction(
+            () -> {
+              pending.remove(timer[0]);
+              fire(creation, instance, FINISHED, player);
+            },
+            Math.max(1L, delayMs));
+    pending.add(timer[0]);
   }
 
   private static void cancelAll(List<EventScheduler.ScheduledAction> pending) {

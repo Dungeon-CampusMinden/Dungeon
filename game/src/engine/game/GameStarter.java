@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import engine.language.Language;
 import engine.language.Localization;
 import feature.credits.CreditsDefinition;
+import feature.save.GameSaves;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
@@ -48,6 +49,7 @@ public final class GameStarter {
   private final boolean showJoinButton;
   private final boolean askPlayerName;
   private final Runnable beforeLevelEditorStart;
+  private final String saveGameId;
 
   private GameStarter(Builder builder) {
     this.title = builder.title;
@@ -69,6 +71,7 @@ public final class GameStarter {
     this.showJoinButton = builder.showJoinButton;
     this.askPlayerName = builder.askPlayerName;
     this.beforeLevelEditorStart = builder.beforeLevelEditorStart;
+    this.saveGameId = builder.saveGameId;
   }
 
   /**
@@ -171,6 +174,15 @@ public final class GameStarter {
       throw new IllegalStateException("No continue game configuration was provided.");
     }
     return continueServerArguments.clone();
+  }
+
+  /**
+   * Returns the identifier of the general save, if this game uses it.
+   *
+   * @return save identifier configured with {@link Builder#saveGame}
+   */
+  public Optional<String> saveGameId() {
+    return Optional.ofNullable(saveGameId);
   }
 
   /**
@@ -344,6 +356,7 @@ public final class GameStarter {
     private String creditsRoomId;
     private BooleanSupplier continueAvailable;
     private String[] continueServerArguments;
+    private String saveGameId;
     private Supplier<StartupConsent> startupConsent = () -> null;
     private Supplier<TrackingSettings> trackingSettings = () -> null;
     private Supplier<String> hostActionLabel;
@@ -469,6 +482,23 @@ public final class GameStarter {
       this.continueServerArguments =
           Arrays.stream(serverArguments).map(String::trim).toArray(String[]::new);
       return this;
+    }
+
+    /**
+     * Enables the general save system ({@link GameSaves}) for this game.
+     *
+     * <p>The server saves the game whenever it progresses. The main menu offers "Continue" while a
+     * save exists, starting a new game deletes it. Replaces the server and continue arguments.
+     *
+     * @param id identifier of the game, names the save file
+     * @return this builder
+     */
+    public Builder saveGame(String id) {
+      if (id == null || id.isBlank()) throw new IllegalArgumentException("Missing save id");
+      this.saveGameId = id;
+      serverArguments(ServerProcess.SERVER_ARGUMENT, GameSaves.NEW_GAME_ARGUMENT);
+      return continueGame(
+          () -> GameSaves.exists(id), ServerProcess.SERVER_ARGUMENT, GameSaves.LOAD_ARGUMENT);
     }
 
     /**

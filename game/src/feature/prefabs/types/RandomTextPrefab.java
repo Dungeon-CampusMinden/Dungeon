@@ -11,6 +11,7 @@ import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
+import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -29,6 +30,8 @@ import tools.jackson.databind.JsonNode;
  * the texts follow the same sequence in every session.
  */
 public final class RandomTextPrefab extends Prefab {
+
+  private static final String STATE_VALUE = "value";
 
   private static final String TYPE = "random-text";
   private static final String DISPLAY_NAME = "Random Text";
@@ -113,8 +116,19 @@ public final class RandomTextPrefab extends Prefab {
     String seed = value(instance, SEED).strip();
     Random random = seed.isEmpty() ? RANDOM : new Random(Long.parseLong(seed));
     GENERATORS.start(context.level(), instance.name(), random);
-    generate(context, instance, random);
+    Optional<JsonNode> saved = restoredState(context, instance);
+    // A loaded game keeps its text, players may have noted it down.
+    if (saved.isPresent())
+      publish(context, instance, TEXT, saved.get().path(STATE_VALUE).asString());
+    else generate(context, instance, random);
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return PrefabRuntime.artifact(context.level(), instance.name(), TEXT)
+        .map(text -> PrefabStateJson.object().put(STATE_VALUE, text));
   }
 
   @Override

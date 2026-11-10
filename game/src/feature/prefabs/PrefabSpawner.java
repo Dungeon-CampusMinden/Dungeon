@@ -158,6 +158,9 @@ public final class PrefabSpawner {
       created = List.copyOf(prefab.create(context, instance));
     } catch (RuntimeException e) {
       throw creationFailureWithCleanup(instance, prefab, context, added, null, e);
+    } finally {
+      // A saved state only applies to the first spawn of a loaded level.
+      PrefabSaveStates.consume(level, instance.name());
     }
     TrackedPrefab tracked = null;
     try {
@@ -176,6 +179,37 @@ public final class PrefabSpawner {
     } catch (RuntimeException e) {
       throw creationFailureWithCleanup(instance, prefab, context, added, tracked, e);
     }
+  }
+
+  /**
+   * Visits every tracked spawn of a level side with its present entities.
+   *
+   * @param level owning level
+   * @param side runtime side
+   * @param visitor called once per spawned instance, in spawn order
+   */
+  static void forEachSpawned(ILevel level, PrefabSide side, SpawnVisitor visitor) {
+    Map<PrefabSide, Map<String, TrackedPrefab>> bySide = TRACKED.get(level);
+    if (bySide == null || bySide.get(side) == null) return;
+    for (TrackedPrefab tracked : List.copyOf(bySide.get(side).values())) {
+      visitor.visit(
+          tracked.prefab(),
+          tracked.source(),
+          tracked.entities().stream().filter(PrefabSpawner::isPresent).toList());
+    }
+  }
+
+  /** Receives the spawned instances of {@link #forEachSpawned}. */
+  @FunctionalInterface
+  interface SpawnVisitor {
+    /**
+     * Called for one spawned instance.
+     *
+     * @param prefab definition of the instance
+     * @param instance normalized instance data the spawn was created from
+     * @param entities present entities of the spawn
+     */
+    void visit(Prefab prefab, PrefabInstance instance, List<Entity> entities);
   }
 
   /**

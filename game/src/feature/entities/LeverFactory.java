@@ -82,6 +82,23 @@ public class LeverFactory {
     return createLever(lever, pos, onInteract, LEVER_PATH, false, true, toggleOnce);
   }
 
+  /**
+   * Configures a supplied entity as a lever with the default lever design and an initial state.
+   *
+   * <p>A lever that starts switched on does not run its command for it.
+   *
+   * @param lever the entity to configure
+   * @param pos the position where the lever will be created
+   * @param onInteract the behavior when the lever is interacted with
+   * @param initiallyOn whether the lever starts switched on
+   * @param toggleOnce whether the lever stops being interactable after its first toggle
+   * @return the configured lever entity
+   */
+  public static Entity createLever(
+      Entity lever, Point pos, ICommand onInteract, boolean initiallyOn, boolean toggleOnce) {
+    return createLever(lever, pos, onInteract, LEVER_PATH, initiallyOn, true, toggleOnce);
+  }
+
   private static Entity createLever(
       Entity lever,
       Point pos,

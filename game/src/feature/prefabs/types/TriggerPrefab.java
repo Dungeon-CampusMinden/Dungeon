@@ -19,6 +19,7 @@ import feature.prefabs.Region;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side rectangular area that raises {@link #ENTERED} when a player enters it, e.g. to show a
@@ -89,7 +90,9 @@ public final class TriggerPrefab extends Prefab {
 
     Entity trigger = context.createEntity(instance.name());
     trigger.add(new PositionComponent(bottomLeft));
-    trigger.add(new TriggerRepetition.History(repetition));
+    TriggerRepetition.History history = new TriggerRepetition.History(repetition);
+    restoredState(context, instance).ifPresent(history::restore);
+    trigger.add(history);
     if (bottomLeft.equals(topRight)) return List.of(trigger);
     trigger.add(
         new CollideComponent(
@@ -99,13 +102,22 @@ public final class TriggerPrefab extends Prefab {
                   if (!who.isPresent(PlayerComponent.class)) return;
                   boolean allowed =
                       self.fetch(TriggerRepetition.History.class)
-                          .map(history -> history.tryTrigger(who))
+                          .map(repetitionHistory -> repetitionHistory.tryTrigger(who))
                           .orElse(false);
                   if (allowed) fire(context, instance, ENTERED, who);
                 },
                 CollideComponent.DEFAULT_COLLIDER)
             .isSolid(false));
     return List.of(trigger);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return entities.stream()
+        .findFirst()
+        .flatMap(trigger -> trigger.fetch(TriggerRepetition.History.class))
+        .flatMap(TriggerRepetition.History::capture);
   }
 
   @Override

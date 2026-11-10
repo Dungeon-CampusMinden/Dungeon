@@ -11,11 +11,13 @@ import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
+import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side generator of a random truth value, e.g. to decide which of two doors opens.
@@ -26,6 +28,8 @@ import java.util.Random;
  * session.
  */
 public final class RandomBoolPrefab extends Prefab {
+
+  private static final String STATE_VALUE = "value";
 
   private static final String TYPE = "random-bool";
   private static final String DISPLAY_NAME = "Random Bool";
@@ -102,8 +106,21 @@ public final class RandomBoolPrefab extends Prefab {
     String seed = value(instance, SEED).strip();
     Random random = seed.isEmpty() ? RANDOM : new Random(Long.parseLong(seed));
     GENERATORS.start(context.level(), instance.name(), random);
-    generate(context, instance, random);
+    Optional<JsonNode> saved = restoredState(context, instance);
+    // A loaded game keeps its value, without rolling again.
+    if (saved.isPresent()) {
+      publish(context, instance, VALUE, saved.get().path(STATE_VALUE).asBoolean());
+    } else {
+      generate(context, instance, random);
+    }
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return PrefabRuntime.artifact(context.level(), instance.name(), VALUE)
+        .map(value -> PrefabStateJson.object().put(STATE_VALUE, value));
   }
 
   @Override

@@ -17,6 +17,7 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /** Server-side pushable stone matching the mushroom-level push puzzle. */
 public final class PushableStonePrefab extends Prefab {
@@ -51,11 +52,24 @@ public final class PushableStonePrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity stone = context.createEntity(instance.name());
-    stone.add(new PositionComponent(value(instance, POSITION)));
+    stone.add(
+        new PositionComponent(
+            restoredState(context, instance)
+                .map(PrefabStateJson::point)
+                .orElse(value(instance, POSITION))));
     stone.add(new DrawComponent(new SimpleIPath("objects/push-stone.png")));
     stone.add(new CollideComponent(Vector2.of(0.05f, 0.05f), Vector2.of(0.9f, 0.9f)));
     stone.add(new VelocityComponent(5.0f));
     return List.of(stone);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return entities.stream()
+        .findFirst()
+        .flatMap(stone -> stone.fetch(PositionComponent.class))
+        .map(position -> PrefabStateJson.point(position.position()));
   }
 
   @Override
