@@ -5,7 +5,6 @@ import engine.Game;
 import engine.level.elements.tile.DoorTile;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
-import feature.canvas.CanvasUI;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.UIUtils;
@@ -124,7 +123,6 @@ final class ControlRoom {
     UIComponent ui =
         DialogFactory.show(
             DialogContext.builder().type(MorphCoDialogs.CARD_READER).build(), player.id());
-    ui.registerCallback(CanvasUI.EVENT_CLOSE, ignored -> UIUtils.closeDialog(ui));
     ui.registerCallback(
         MorphCoDialogs.SUBMIT,
         payload -> {

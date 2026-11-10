@@ -55,6 +55,8 @@ final class StationUI extends MorphCoConsoleUI {
     Table heading = new Table();
     heading.setBackground(MorphCoUI.plate(MorphCoUI.TAG));
     heading.pad(2, 8, 4, 8);
+    // Top aligned like the bowls' headings; a table would center the text in the plate.
+    heading.top();
     heading.add(MorphCoUI.bold(MorphCoText.text("ui.station.middle"), 18, MorphCoUI.INK)).growX();
     middle.content().add(heading).height(34).padBottom(14).row();
     String[] assembled =
