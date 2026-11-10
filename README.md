@@ -66,6 +66,8 @@ detailed concept documents behind them are in German.
 
 ### Wizard: no programming needed
 
+<p align="center"><img src="doc/img/readme/wizard.png" alt="Wizard page Eckdaten &amp; Lernziele with title, description, author and a learning objective"></p>
+
 Turn your own course material into an escape room. The [Wizard][low-code wizard] guides
 educators page by page through story, puzzles and game flow in the browser: number codes,
 multiple-choice questions, matching tasks and information sources to discover, each puzzle with

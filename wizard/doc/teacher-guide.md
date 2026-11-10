@@ -18,38 +18,41 @@ The Wizard currently runs as a local program and is meant to be set up with tech
 -   The pages of the Wizard are in German, and in this version the room content is German
     (`de-DE`) as well.
 
+<p align="center"><img src="../../doc/img/readme/wizard.png" alt="Wizard page Eckdaten &amp; Lernziele with title, description, author and a learning objective"></p>
+
 ## Step by step
 
-1.  **Start or continue** (*Starten oder fortsetzen*): create a new draft, continue the last
-    one or open another local draft.
-2.  **Basic details** (*Eckdaten*) and, after the story, **game settings**
-    (*Spieleinstellungen*): room title, content language, target group, prior knowledge,
-    number of players (1 to 4), time limit (5 to 240 minutes) and at least one learning
-    objective.
-3.  **Story** (*Geschichte*): the mission, the intro pages and the pages shown on success
-    (with a hard time limit also the pages shown on failure). Each page appears as its own
+1.  **My games** (*Meine Spiele*): start a new draft with *Neues Spiel* or open one of your
+    local drafts.
+2.  **Basic details and learning objectives** (*Eckdaten & Lernziele*): title, description,
+    author, an optional e-mail address for tracking notes, and at least one learning objective.
+3.  **Story** (*Geschichte*): theme, mission and intro texts. Each text appears as its own
     screen.
-4.  **Own images and files** (*Eigene Bilder und Dateien*): upload your own PNG or JPEG images,
+4.  **Game settings** (*Spieleinstellungen*): target group, prior knowledge, number of players
+    (1 to 4), time limit (5 to 240 minutes) and whether the limit is hard or only a guide.
+5.  **Own images and files** (*Eigene Bilder & Dateien*): upload your own PNG or JPEG images,
     or pick images from the game library.
-5.  **Puzzles** (*Rätsel*): each puzzle has a title, at least one learning objective, a time
+6.  **Puzzles** (*Rätsel*): each puzzle has a title, at least one learning objective, a time
     estimate, information sources and at least one input. Available inputs are a number code
-    (1 to 8 digits), a multiple-choice question (2 to 6 answers, one or more correct), a
-    matching task (1 to 4 boxes, 2 to 8 items) and finding an information source. Add hints in
-    order; each gets one of the levels *Orientierung* (orientation), *Lösungsweg* (approach) or
-    *Lösung* (solution). Players have to confirm before a hint is shown.
-6.  **Game flow** (*Spielablauf*): connect the puzzles between the start and the end. An arrow
+    (*Zahleneingabe*, 1 to 8 digits), a multiple-choice question (*Auswahlfrage*, 2 to 6
+    answers, one or more correct), a matching task (*Zuordnung*, 1 to 4 boxes, 2 to 8 items) and
+    collecting all materials of an information source (*Sammeln*). Add hints in order; each gets
+    one of the levels *Orientierung* (orientation), *Ansatz* (approach) or *Lösung* (solution).
+    Players have to confirm before a hint is shown.
+7.  **Game flow** (*Spielablauf*): connect the puzzles between the start and the end. An arrow
     means the next puzzle becomes available after the previous one; several incoming arrows
     mean all of them have to be solved first.
-7.  **End of the game** (*Spiel-Ende*): name the exit. It opens as soon as all puzzles before
-    the end are solved.
-8.  **Create the game** (*Spiel erstellen*): the Wizard checks the draft in the background and
-    lists all problems; a click on a problem opens the step it belongs to. Warnings do not
-    block. *Spiel erstellen und herunterladen* (create and download) builds the game file.
+8.  **End of the game** (*Spiel-Ende*): name the exit, add questions for the debriefing and the
+    texts shown on success (with a hard time limit also on failure). The exit opens as soon as
+    all puzzles before the end are solved.
+9.  **Create the game** (*Spiel erstellen*): the Wizard checks the draft in the background and
+    lists all problems in the error overview (*Fehlerübersicht*); a click on a problem opens the
+    step it belongs to. Warnings do not block. *Spiel erstellen und herunterladen* (create and
+    download) builds the game file.
 
-Before you hand out the game, go through the checklist the Wizard shows: can the solution be
-derived from the task and the material, is the task clear for the target group, do difficulty
-and time fit the lesson, does every hint help, and is the learning objective linked to the
-debriefing?
+Before you hand out the game, check it yourself: can the solution be derived from the task and
+the material, is the task clear for the target group, do difficulty and time fit the lesson,
+does every hint help, and is the learning objective linked to the debriefing?
 
 ## Playing the room
 
