@@ -66,7 +66,7 @@ payloads, or protocol versions.
 | --- | --- | --- |
 | Server telemetry snapshot age | `> 2000 ms` | Overlay staleness policy |
 | Client UDP ACK age | `> NetworkConfig.UDP_STALE_AFTER_MS` | Runtime UDP recovery config |
-| Client render frame | `> 1.5 * (1_000_000 / Game.TICKS_PER_SECOND)` | Hitch signal; avoids marking normal vsync jitter red |
+| Client render frame | `> 1.5 *` the longer of a world tick and the frame time of the FPS limit | Hitch signal; avoids marking normal vsync jitter red |
 | Server authoritative tick | `> 1_000_000 / Game.TICKS_PER_SECOND` | Runtime tick budget |
 | Queue age | `> max(50 ms, 3 ticks)` | Backlog signal; one frame/tick of queue age is normal when depth stays low |
 | Full snapshot apply and total full snapshot handler time | `> tick budget` | Full baseline application is larger than a small per-message slice but should not exceed one frame/tick budget |

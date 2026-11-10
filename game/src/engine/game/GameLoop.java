@@ -421,9 +421,9 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>The world advances in fixed ticks of {@link Game#TICKS_PER_SECOND}: each frame runs as many
    * ticks as its time covers (see {@link TickAccumulator}), then the systems that run per frame,
-   * then it renders. A tick triggers {@link PreRunConfiguration#userOnFrame()} and the systems of
-   * the simulation; on a multiplayer client only those of the client side, since the server
-   * simulates.
+   * then it renders. A tick triggers {@link PreRunConfiguration#userOnFrame()} and the systems that
+   * run per tick; on a multiplayer client these are only the systems of both sides, since the
+   * server simulates.
    *
    * <p>On the first frame, {@link #setup()} and {@link PreRunConfiguration#userOnSetup()} are
    * triggered.
@@ -1248,8 +1248,9 @@ public final class GameLoop extends ScreenAdapter {
   /** Create the systems. */
   private void createSystems() {
     ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new CameraSystem());
+    // The camera follows where the hero is drawn, so the render positions come first.
     ECSManagement.add(new NetworkPositionSmoothingSystem());
+    ECSManagement.add(new CameraSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
