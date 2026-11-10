@@ -371,8 +371,9 @@ $env:DUNGEON_TRACKING_OUTBOX = 'tracking-outbox'
 Die entsprechenden Java-Eigenschaften sind `dungeon.tracking.endpoint`,
 `dungeon.tracking.apiKey` und `dungeon.tracking.outbox`. Für das lokale Backend müssen diese Werte
 nicht gesetzt werden. Die Engine schreibt die Outbox immer, auch bei funktionierendem Upload. Ist
-das Backend nicht erreichbar, bleibt die Sitzung spielbar und der Betreiber kann später den
-Importer ausführen.
+das Backend nicht erreichbar, bleibt die Sitzung spielbar. Beim Start der nächsten Sitzung lädt das
+Spiel die Outboxes früherer Sitzungen nach und löscht jede, deren Abschluss das Backend bestätigt.
+Der Betreiber kann eine Outbox auch mit dem Importer einspielen.
 
 ## Stack betreiben und aktualisieren
 

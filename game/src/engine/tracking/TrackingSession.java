@@ -66,6 +66,9 @@ final class TrackingSession {
             Instant.now(),
             config.runId(),
             playClock.activeMs());
+    if (TrackingConfig.TRACKING_ENABLED) {
+      TrackingResend.startOnce(config);
+    }
     this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
     this.uploader =
         TrackingConfig.TRACKING_ENABLED ? new TrackingUploader(config, descriptor) : null;
