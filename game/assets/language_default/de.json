@@ -209,6 +209,8 @@
         "brightness": "Helligkeit",
         "frame_limit": "FPS-Limit",
         "frame_limit_unlimited": "Unbegrenzt",
+        "vsync": "VSync",
+        "vsync_description": "Höchstens so viele Bilder,[n]wie der Monitor zeigt",
         "reduce_effects": "Effekte reduzieren",
         "reduce_effects_description": "Weniger Leuchten, Nebel[n]und Partikel, ruhiges Licht"
     },

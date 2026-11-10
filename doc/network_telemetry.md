@@ -222,9 +222,9 @@ stable play; growth should line up with `missingLocalBase` and a bounded
 ## Client Timing
 
 `frame`
-: Latest client render frame time. Expected at 60 FPS: around `16.6 ms`. Lower is fine. Sustained
-values above `16.6 ms` mean the client is missing the 60 FPS frame budget, but the red highlight is
-reserved for larger hitch-sized samples.
+: Latest client render frame time. Expected: the frame time of the FPS limit, around `16.6 ms` at
+60 FPS and `33.3 ms` at 30 FPS. Lower is fine. Sustained values above that mean the client is
+missing its frame budget, but the red highlight is reserved for larger hitch-sized samples.
 
 `net`
 : Total time spent draining and dispatching network messages in the latest frame. Expected local:
