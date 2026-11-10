@@ -9,9 +9,9 @@ Morphologie-Escape-Room für 1–2 Spieler. Konzept, Lösungsweg und Technik:
 | --- | --- |
 | `MorphCo` | Starter, Server-/Client-Setup, Speicherpunkte, Tracking-Einwilligung |
 | `level` | `MorphCoLevel` (Server), `MorphCoClientLevel`, ein Controller pro Bereich: `ControlRoom`, `Corridor`, `FlexionLine`, `AffixSorter`, `CircumfixStation`, `ShiftLead`; Zustand und Questlog |
-| `puzzles` | reine Rätselmodelle ohne Framework-Abhängigkeiten (Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
+| `puzzles` | reine Rätselmodelle ohne Framework-Abhängigkeiten (Kartenleser, Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
 | `petrinet` | `MorphCoMilestone`, `MorphCoProgressNet` |
-| `ui` | eigene Dialoge: Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher |
+| `ui` | eigene Dialoge: Kartenleser, Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher |
 | `items` | Zirkumfix-Teile im Inventar |
 | `save`, `network`, `util` | Speicherstand, Snapshot-Erweiterung, Texte, Übersetzer, Achievements, Tracking |
 
