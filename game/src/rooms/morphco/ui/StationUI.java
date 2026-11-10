@@ -1,11 +1,12 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.morphco.puzzles.CircumfixPuzzle;
@@ -17,12 +18,17 @@ import rooms.morphco.util.MorphCoText;
  * <p>The tray shows the circumfix parts in the inventory of the player at the station. Assembling
  * sends {@code LEFT|RIGHT} to the server, which removes the parts from the inventory.
  */
-final class StationUI extends MorphCoPanel {
+final class StationUI extends MorphCoConsoleUI {
 
   private static final String LEFT = "left";
   private static final String RIGHT = "right";
 
-  private final SortBoard board;
+  private final SortBoard board = new SortBoard(area(), this::changed);
+  private final PanelNode tray = area().addNode(new PanelNode("tray", PanelNode.Look.BELT, 10));
+  private final List<SortBoard.Slot> slots = new ArrayList<>();
+  private final SortBoard.Bin left;
+  private final SortBoard.Bin right;
+  private final PanelNode middle = area().addNode(new PanelNode("middle", PanelNode.Look.PLATE, 0));
 
   private StationUI(DialogContext context) {
     super(
@@ -30,65 +36,51 @@ final class StationUI extends MorphCoPanel {
         MorphCoText.text("ui.station.title"),
         MorphCoText.text("ui.station.instruction"),
         "");
-    board = new SortBoard(skin, this::clearFeedback);
-
+    tray.content().add(MorphCoUI.tag(MorphCoText.text("ui.station.inventory"))).padTop(4);
     String[] fragments =
         context.find(MorphCoDialogs.FRAGMENTS, String[].class).orElse(new String[0]);
-    HorizontalGroup tray = new HorizontalGroup();
-    tray.space(10);
     for (int index = 0; index < fragments.length; index++) {
       int position = index;
       CircumfixPuzzle.Fragment.parse(fragments[index])
           .ifPresent(
-              fragment -> {
-                String id = fragment.name() + "#" + position;
-                board.item(id, fragment.label());
-                tray.addActor(board.homeChip(id));
-              });
+              fragment ->
+                  slots.add(board.item(fragment.name() + "#" + position, fragment.label(), 21)));
     }
-    body.add(text(MorphCoText.text("ui.station.inventory"), 20)).left().row();
-    body.add(tray).left().padBottom(16).row();
 
-    Table bowls = new Table();
-    bowls.defaults().pad(6).grow().uniformX().width(contentWidth() / 3f - 14f);
-    bowls.add(board.bin(LEFT, MorphCoText.text("ui.station.left"), 1, 80));
-    Table middle = new Table(skin);
-    middle.setBackground("generic-area");
-    middle.pad(8).top().left();
-    middle.defaults().left();
-    middle
-        .add(text(MorphCoText.text("ui.station.middle"), 20, contentWidth() / 3f - 30f))
-        .left()
-        .row();
+    left = board.bin(LEFT, MorphCoText.text("ui.station.left"), 1, 150);
+    right = board.bin(RIGHT, MorphCoText.text("ui.station.right"), 1, 150);
+    // The same edges as the name plates of the bowls next to it.
+    middle.content().pad(6, 12, 12, 12);
+    middle.content().defaults().left().growX().padBottom(6);
+    Table heading = new Table();
+    heading.setBackground(MorphCoUI.plate(MorphCoUI.TAG));
+    heading.pad(2, 8, 4, 8);
+    // Top aligned like the bowls' headings; a table would center the text in the plate.
+    heading.top();
+    heading.add(MorphCoUI.bold(MorphCoText.text("ui.station.middle"), 18, MorphCoUI.INK)).growX();
+    middle.content().add(heading).height(34).padBottom(14).row();
     String[] assembled =
         context.find(MorphCoDialogs.ASSEMBLED, String[].class).orElse(new String[0]);
     if (assembled.length == 0) {
       middle
-          .add(text(MorphCoText.text("ui.station.empty"), 18, contentWidth() / 3f - 30f))
-          .left()
+          .content()
+          .add(MorphCoUI.label(MorphCoText.text("ui.station.empty"), 18, MorphCoUI.MUTED))
           .row();
     }
     for (String name : assembled) {
       for (CircumfixPuzzle.Circumfix circumfix : CircumfixPuzzle.Circumfix.values()) {
         if (circumfix.name().equals(name)) {
           middle
+              .content()
               .add(
-                  text(
-                      circumfix.label() + " (" + circumfix.example() + ")",
-                      20,
-                      contentWidth() / 3f - 30f))
-              .left()
+                  MorphCoUI.bold(
+                      circumfix.label() + " (" + circumfix.example() + ")", 19, MorphCoUI.TEXT))
               .row();
         }
       }
     }
-    bowls.add(middle);
-    bowls.add(board.bin(RIGHT, MorphCoText.text("ui.station.right"), 1, 80));
-    body.add(bowls).growX();
-    board.refresh();
 
-    button("ui.close", "blue-outline", this::close);
-    button("ui.station.assemble", "green", this::assemble);
+    button("ui.station.assemble", true, this::assemble);
   }
 
   /**
@@ -102,6 +94,18 @@ final class StationUI extends MorphCoPanel {
     return new StationUI(context);
   }
 
+  @Override
+  protected float arrange(float width, float height) {
+    float top = -SortBoard.belt(tray, slots, 0, width) - 24;
+    float column = (width - 24) / 3;
+    float bowls = Math.max(Math.max(left.fit(column), right.fit(column)), middle.fit(column));
+    left.size(column, bowls).position(0, top - bowls);
+    middle.size(column, bowls).position(column + 12, top - bowls);
+    right.size(column, bowls).position(2 * (column + 12), top - bowls);
+    board.arrange();
+    return -top + bowls;
+  }
+
   private Optional<CircumfixPuzzle.Fragment> inBowl(Map<String, String> placement, String bowl) {
     return placement.entrySet().stream()
         .filter(entry -> entry.getValue().equals(bowl))
@@ -111,14 +115,14 @@ final class StationUI extends MorphCoPanel {
 
   private void assemble() {
     Map<String, String> placement = board.placement();
-    Optional<CircumfixPuzzle.Fragment> left = inBowl(placement, LEFT);
-    Optional<CircumfixPuzzle.Fragment> right = inBowl(placement, RIGHT);
-    if (left.isEmpty() || right.isEmpty()) {
+    Optional<CircumfixPuzzle.Fragment> leftPart = inBowl(placement, LEFT);
+    Optional<CircumfixPuzzle.Fragment> rightPart = inBowl(placement, RIGHT);
+    if (leftPart.isEmpty() || rightPart.isEmpty()) {
       feedback(MorphCoText.text("world.a12.station-missing"), false);
       return;
     }
-    submit(left.get().name() + "|" + right.get().name());
-    if (CircumfixPuzzle.combine(left.get(), right.get()).isEmpty()) {
+    submit(leftPart.get().name() + "|" + rightPart.get().name());
+    if (CircumfixPuzzle.combine(leftPart.get(), rightPart.get()).isEmpty()) {
       feedback(MorphCoText.text("world.a12.station-wrong"), false);
     }
   }

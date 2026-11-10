@@ -41,8 +41,16 @@
       },
       "entrance": {
         "warning-sign": "\"Zutritt nur für befugte Personen!\" Laut deiner Sicherheitskarte bist du eine davon.",
-        "card-slot": "Du hältst deine Sicherheitskarte an das Lesegerät. Piep! Wenigstens etwas funktioniert hier noch.",
-        "card-slot-open": "Piep. Die Tür ist doch schon offen."
+        "card-slot": "Piep! Die Tür surrt auf. Wenigstens etwas funktioniert hier noch.",
+        "card-slot-open": "Piep. Die Tür ist doch schon offen.",
+        "swipe-title": "Lesegerät",
+        "swipe-help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam.",
+        "swipe-ready": "BITTE KARTE DURCHZIEHEN",
+        "swipe-too-fast": "Zu schnell. Nochmal. Das Gerät ist älter als du.",
+        "swipe-too-slow": "Zu langsam. Nochmal. Das Gerät ist kurz eingenickt.",
+        "swipe-incomplete": "Karte nicht erkannt. Bitte ganz durchziehen.",
+        "swipe-accepted": "Zugang gewährt. Gute Schicht!",
+        "card": "SICHERHEITSKARTE"
       },
       "control": {
         "enter": "Im Kontrollraum ist der Alarm nur noch halb so laut. Dafür ist er hier doppelt so rot.",

@@ -14,6 +14,8 @@ import java.util.function.Function;
  * back through the callback {@link #SUBMIT}.
  */
 public enum MorphCoDialogs implements DialogType {
+  /** Swiping the security card through the reader at the entrance. */
+  CARD_READER("morphCoCardReader", CardReaderUI::build),
   /** Word classes for the crates next to the inflection machine. */
   WORD_CLASSES("morphCoWordClasses", WordClassUI::build),
   /** Cutting words and sorting their affixes in A-12. */

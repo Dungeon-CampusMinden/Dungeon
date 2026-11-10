@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import rooms.morphco.puzzles.AffixPuzzle;
+import rooms.morphco.puzzles.CardSwipe;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
@@ -74,6 +75,7 @@ final class MorphCoAutoplay {
     for (int index = 0; index < 4; index++) add("intro", player -> dismiss());
     add("entrance", player -> go(player, "card-slot"));
     add("card slot", player -> use(player, "card-slot"));
+    add("swipe card", player -> submit(CardSwipe.encode(600, true)));
     add("console", player -> dismissAndGo(player, "console"));
     show("alarm buttons", player -> use(player, "console"));
     add("press alarm", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "alarm"));
