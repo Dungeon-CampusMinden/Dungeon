@@ -96,7 +96,9 @@
         "sign-storage": "Storage room",
         "sign-restroom": "Restrooms",
         "sign-control": "Control room",
-        "sign-title": "Door sign"
+        "sign-title": "Door sign",
+        "clock-title": "Shift clock",
+        "clock": "Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
       },
       "restroom": {
         "sink-title": "Sink",

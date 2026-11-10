@@ -125,12 +125,6 @@
       "y" : 21.325
     }
   }, {
-    "type" : "Clock",
-    "position" : {
-      "x" : 26.0,
-      "y" : 21.0
-    }
-  }, {
     "type" : "FloorBarsRound",
     "position" : {
       "x" : 27.0,
@@ -403,6 +397,17 @@
       "number" : 0
     }
   }, {
+    "name" : "shift-clock",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 26.4,
+        "y" : 22.25
+      },
+      "kind" : "shift-clock",
+      "number" : 0
+    }
+  }, {
     "name" : "sign_kitchen",
     "type" : "morphco-object",
     "properties" : {
@@ -485,7 +490,7 @@
     "properties" : {
       "position" : {
         "x" : 3.0,
-        "y" : 30.1
+        "y" : 29.9
       },
       "kind" : "belt",
       "number" : 13
@@ -628,7 +633,7 @@
     "properties" : {
       "position" : {
         "x" : 25.0,
-        "y" : 29.9
+        "y" : 29.7
       },
       "kind" : "belt",
       "number" : 9
@@ -760,7 +765,7 @@
     "properties" : {
       "position" : {
         "x" : 6.4,
-        "y" : 30.05
+        "y" : 30.2
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -771,7 +776,7 @@
     "properties" : {
       "position" : {
         "x" : 8.6,
-        "y" : 30.05
+        "y" : 30.2
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -782,7 +787,7 @@
     "properties" : {
       "position" : {
         "x" : 10.8,
-        "y" : 30.05
+        "y" : 30.2
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -793,7 +798,7 @@
     "properties" : {
       "position" : {
         "x" : 13.0,
-        "y" : 30.05
+        "y" : 30.2
       },
       "kind" : "word-sheet",
       "number" : 0

@@ -96,7 +96,9 @@
         "sign-storage": "Abstellkammer",
         "sign-restroom": "Sanitäranlagen",
         "sign-control": "Kontrollraum",
-        "sign-title": "Türschild"
+        "sign-title": "Türschild",
+        "clock-title": "Schichtuhr",
+        "clock": "Die Produktion steht seit 13:37 Uhr still, die Uhr läuft trotzdem weiter."
       },
       "restroom": {
         "sink-title": "Waschbecken",

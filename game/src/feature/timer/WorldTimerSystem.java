@@ -21,8 +21,9 @@ import java.util.Map;
  * This system is responsible for rendering a timer image to a texture, which will be fed into the
  * DrawComponent of entities with a WorldTimerComponent.
  *
- * <p>The timer shows as a red LED display in a 3x5 pixel font. Each pixel of its texture covers one
- * art pixel of the world, so the digits stay sharp at every zoom.
+ * <p>The timer shows as a red LED display in a 3x5 pixel font: a countdown its remaining time, a
+ * stopwatch its elapsed time (from one hour on in hours and minutes). Each pixel of its texture
+ * covers one art pixel of the world, so the digits stay sharp at every zoom.
  */
 public class WorldTimerSystem extends System {
 
@@ -94,17 +95,15 @@ public class WorldTimerSystem extends System {
   private void update(Data data) {
     int secondsLeft = (int) ((data.tc.remainingMs() + 999) / 1000);
 
-    if (secondsLeft <= 0 && !expiredFired) {
+    // A stopwatch has no end, so it never expires.
+    if (!data.tc.countsUp() && secondsLeft <= 0 && !expiredFired) {
       expiredFired = true;
       if (onTimerExpired != null) {
         onTimerExpired.run();
       }
     }
 
-    int displaySeconds = Math.max(0, secondsLeft);
-    // Root locale: the display only has the digits 0 to 9.
-    String timerString =
-        String.format(Locale.ROOT, "%02d:%02d", displaySeconds / 60, displaySeconds % 60);
+    String timerString = text(data.tc);
     // The display changes once a second; rebuilding it costs a texture and a glow mask.
     if (timerString.equals(shown.put(data.e, timerString))) return;
     Pixmap pixmap = display(timerString);
@@ -118,6 +117,24 @@ public class WorldTimerSystem extends System {
 
     data.e.remove(DrawComponent.class);
     data.e.add(new DrawComponent(new Animation(ipath, new AnimationConfig().scaleX(0.5f))));
+  }
+
+  /**
+   * Returns the text a timer shows on the current play clock.
+   *
+   * @param timer the timer
+   * @return remaining minutes and seconds of a countdown, elapsed minutes and seconds of a
+   *     stopwatch, after an hour its hours and minutes
+   */
+  static String text(WorldTimerComponent timer) {
+    int seconds =
+        timer.countsUp()
+            ? (int) (timer.elapsedMs() / 1000)
+            : (int) ((timer.remainingMs() + 999) / 1000);
+    // After an hour a stopwatch shows hours and minutes, so it keeps its two digits per field.
+    int units = timer.countsUp() && seconds >= 3600 ? seconds / 60 : seconds;
+    // Root locale: the display only has the digits 0 to 9.
+    return String.format(Locale.ROOT, "%02d:%02d", units / 60, units % 60);
   }
 
   private static IPath texture(Entity e) {
