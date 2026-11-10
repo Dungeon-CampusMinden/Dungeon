@@ -1,6 +1,7 @@
 package rooms.morphco.level;
 
 import engine.Entity;
+import feature.emote.Emote;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -12,12 +13,13 @@ import rooms.morphco.util.MorphCoTracking;
  * The shift lead in front of the control room.
  *
  * <p>Talking to her gives a hint that fits the current progress. Hints are tracked like the hint
- * phone of the other rooms.
+ * phone of the other rooms. After a talk her mood shows as an emote above her.
  */
 final class ShiftLead {
 
   private final MorphCoLevel level;
   private final MorphCoState state;
+  private Entity npc;
 
   ShiftLead(MorphCoLevel level) {
     this.level = level;
@@ -29,6 +31,7 @@ final class ShiftLead {
     MorphCoObjects.on(
         "shift-lead",
         entity -> {
+          npc = entity;
           entity.remove(InteractionComponent.class);
           entity.add(
               new InteractionComponent(
@@ -39,7 +42,22 @@ final class ShiftLead {
   private void talk(Entity player) {
     Hint hint = hint();
     MorphCoTracking.hintUsed(hint.puzzle(), hint.key(), player);
-    DialogFactory.showDialogDialog(MorphCoText.shiftLead(hint.key()), () -> {}, player.id());
+    DialogFactory.showDialogDialog(MorphCoText.shiftLead(hint.key()), this::showMood, player.id());
+  }
+
+  /**
+   * Shows how the shift lead feels about the progress: in a panic while the alarm is on, smiling
+   * once it is off and full of hearts after the restart.
+   */
+  void showMood() {
+    switch (hint().key()) {
+      case "hint-alarm" -> MorphCoProps.emote(npc, Emote.EXCLAMATIONS);
+      case "hint-pc" -> MorphCoProps.emote(npc, Emote.FACE_HAPPY);
+      case "hint-done" -> MorphCoProps.emote(npc, Emote.HEARTS);
+      default -> {
+        // During the repairs she just waits.
+      }
+    }
   }
 
   /**

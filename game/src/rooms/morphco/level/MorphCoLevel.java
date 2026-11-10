@@ -51,6 +51,7 @@ public class MorphCoLevel extends DungeonLevel {
   private final Set<Integer> introduced = new HashSet<>();
   private final Set<Integer> playing = new HashSet<>();
   private ControlRoom controlRoom;
+  private ShiftLead shiftLead;
   private boolean continued;
   private boolean ending;
   private final Map<Integer, Long> alarmSounds = new HashMap<>();
@@ -104,7 +105,8 @@ public class MorphCoLevel extends DungeonLevel {
     new FlexionLine(this).spawn();
     new AffixSorter(this).spawn();
     new CircumfixStation(this).spawn();
-    new ShiftLead(this).spawn();
+    shiftLead = new ShiftLead(this);
+    shiftLead.spawn();
     new Corridor(this).spawn();
 
     questLog.sync(state);
@@ -150,7 +152,7 @@ public class MorphCoLevel extends DungeonLevel {
         MorphCoText.arrival(MorphCoText.playerImage(player)),
         () -> {
           observe(MorphCoState.ARRIVAL);
-          DialogFactory.showDialogDialog(MorphCoText.controls(), () -> {}, playerId);
+          DialogFactory.showDialogDialog(MorphCoText.controls(), shiftLead::showMood, playerId);
         },
         playerId);
   }

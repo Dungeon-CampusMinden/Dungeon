@@ -18,6 +18,10 @@ Morphologie-Escape-Room für 1–2 Spieler. Konzept, Lösungsweg und Technik:
 Neue Rätsellogik gehört in den Controller ihres Bereichs; Meilensteine werden nur über
 `MorphCoLevel.complete(...)` abgeschlossen, damit Questlog und Speicherstand mitlaufen.
 
+Gefühle und Reaktionen zeigt der Raum als Emote über der Figur statt im Text:
+`MorphCoProps.popupReaction(...)` setzt das Emote über den Spieler, sobald das Popup geschlossen ist
+(Dialoge verdecken die Figuren), und die Schichtleitung zeigt ihre Stimmung nach jedem Gespräch.
+
 ## Objekte platzieren
 
 Alle Objekte des Raums sind Prefab-Instanzen vom Typ `morphco-object` in der Level-Datei und werden

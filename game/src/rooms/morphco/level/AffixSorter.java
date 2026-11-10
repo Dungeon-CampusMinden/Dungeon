@@ -5,6 +5,7 @@ import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
+import feature.emote.Emote;
 import feature.hud.DialogUtils;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
@@ -103,7 +104,7 @@ final class AffixSorter {
     }
     if (state.pullLever() == LEVER_ACHIEVEMENT_PULLS) MorphCoAchievements.LEVER.unlock(player);
     MorphCoTracking.interaction("a12-lever", "pull", player);
-    MorphCoProps.popup(player, "world.a12.lever-title", "world.a12.lever");
+    MorphCoProps.popupReaction(player, Emote.DROPS, "world.a12.lever-title", "world.a12.lever");
   }
 
   private void lock(Entity player) {
@@ -218,7 +219,7 @@ final class AffixSorter {
           Game.audio().playGlobal(SoundSpec.builder("system_recovery_relay_activate"));
           MorphCoTracking.solved(MorphCoTracking.Puzzle.SHAFTS);
           MorphCoAchievements.MARIE_KONDO.unlock();
-          MorphCoProps.popup(player, MACHINE, "world.a12.shafts-solved");
+          MorphCoProps.popupReaction(player, Emote.STARS, MACHINE, "world.a12.shafts-solved");
         });
   }
 
