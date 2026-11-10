@@ -41,10 +41,7 @@ cd Dungeon
 On Windows, use `gradlew.bat` instead of `./gradlew`. Every room in the overview below starts
 the same way with its own task.
 
-### Known limitations
-
-Currently the path to the project files cannot contain any spaces, special characters or
-umlauts.
+### Language
 
 This project is intended as supplementary teaching material for German-language university
 courses and is therefore aimed at German-speaking students. If you have any questions,
