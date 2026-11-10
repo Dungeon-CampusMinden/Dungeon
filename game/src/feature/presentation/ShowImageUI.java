@@ -1,5 +1,6 @@
 package feature.presentation;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
@@ -92,7 +93,8 @@ public class ShowImageUI extends Group {
     this.setPosition(animationOffsetX(), animationOffsetY());
     this.setColor(1, 1, 1, animation);
     if (animation < 1) {
-      animation = Math.min(1, animation + (1f / transitionSpeed.framesToComplete));
+      animation =
+          Math.min(1, animation + Gdx.graphics.getDeltaTime() / transitionSpeed.secondsToComplete);
     }
 
     Color prev = batch.getColor();

@@ -130,11 +130,11 @@ public class RichLabel extends WidgetGroup implements Disposable {
   /** Accumulated time for shake effects, persists across layout calls. */
   private float shakeElapsed;
 
-  /** Frame counter for choppy shake updates. */
-  private int shakeFrameCounter;
+  /** Time since the shake positions were last updated. */
+  private float shakeSinceUpdate;
 
-  /** Only update shake positions every N frames for a more intense, choppy feel. */
-  private static final int SHAKE_UPDATE_INTERVAL = 3;
+  /** Seconds between updates of the shake positions, for a more intense, choppy feel. */
+  private static final float SHAKE_UPDATE_SECONDS = 0.05f;
 
   /** Actors that should be shaken each frame, rebuilt during layout. */
   private final List<RichLabelLayout.ShakeTarget> shakeTargets = new ArrayList<>();
@@ -468,8 +468,9 @@ public class RichLabel extends WidgetGroup implements Disposable {
     // Shake effect
     if (!shakeTargets.isEmpty()) {
       shakeElapsed += delta;
-      shakeFrameCounter++;
-      if (shakeFrameCounter % SHAKE_UPDATE_INTERVAL == 0) {
+      shakeSinceUpdate += delta;
+      if (shakeSinceUpdate >= SHAKE_UPDATE_SECONDS) {
+        shakeSinceUpdate %= SHAKE_UPDATE_SECONDS;
         applyShakeOffsets();
       }
     }
