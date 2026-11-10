@@ -32,6 +32,7 @@ class MorphCoSnapshotTranslatorTest {
     SnapshotMessage snapshot = new MorphCoSnapshotTranslator().translateToSnapshot(1).orElseThrow();
     Game.removeAllEntities();
     Entity clientClock = new Entity(7, "shift-clock");
+    clientClock.add(WorldTimerComponent.stopwatch(0));
     Game.add(clientClock);
 
     new MorphCoSnapshotTranslator().applySnapshot(snapshot, new MessageDispatcher());

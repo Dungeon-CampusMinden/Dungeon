@@ -103,12 +103,7 @@ public class WorldTimerSystem extends System {
       }
     }
 
-    int displaySeconds =
-        data.tc.countsUp() ? (int) (data.tc.elapsedMs() / 1000) : Math.max(0, secondsLeft);
-    // After an hour a stopwatch shows hours and minutes, so it keeps its two digits per field.
-    int units = data.tc.countsUp() && displaySeconds >= 3600 ? displaySeconds / 60 : displaySeconds;
-    // Root locale: the display only has the digits 0 to 9.
-    String timerString = String.format(Locale.ROOT, "%02d:%02d", units / 60, units % 60);
+    String timerString = text(data.tc);
     // The display changes once a second; rebuilding it costs a texture and a glow mask.
     if (timerString.equals(shown.put(data.e, timerString))) return;
     Pixmap pixmap = display(timerString);
@@ -122,6 +117,24 @@ public class WorldTimerSystem extends System {
 
     data.e.remove(DrawComponent.class);
     data.e.add(new DrawComponent(new Animation(ipath, new AnimationConfig().scaleX(0.5f))));
+  }
+
+  /**
+   * Returns the text a timer shows on the current play clock.
+   *
+   * @param timer the timer
+   * @return remaining minutes and seconds of a countdown, elapsed minutes and seconds of a
+   *     stopwatch, after an hour its hours and minutes
+   */
+  static String text(WorldTimerComponent timer) {
+    int seconds =
+        timer.countsUp()
+            ? (int) (timer.elapsedMs() / 1000)
+            : (int) ((timer.remainingMs() + 999) / 1000);
+    // After an hour a stopwatch shows hours and minutes, so it keeps its two digits per field.
+    int units = timer.countsUp() && seconds >= 3600 ? seconds / 60 : seconds;
+    // Root locale: the display only has the digits 0 to 9.
+    return String.format(Locale.ROOT, "%02d:%02d", units / 60, units % 60);
   }
 
   private static IPath texture(Entity e) {

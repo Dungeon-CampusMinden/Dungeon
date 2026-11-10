@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import engine.Entity;
 import engine.Game;
-import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,8 +41,7 @@ class WorldTimerSystemTest {
     Gdx.gl20 = previousGl20;
   }
 
-  // Shows the timer once and returns the width of its display.
-  private float run(WorldTimerComponent timer) {
+  private void run(WorldTimerComponent timer) {
     Entity entity = new Entity("timer");
     entity.add(new PositionComponent(new Point(0, 0)));
     entity.add(timer);
@@ -51,8 +49,6 @@ class WorldTimerSystemTest {
     WorldTimerSystem system = new WorldTimerSystem().onTimerExpired(expired::incrementAndGet);
     Game.add(system);
     system.execute();
-    Game.remove(entity);
-    return entity.fetch(DrawComponent.class).orElseThrow().getWidth();
   }
 
   @Test
@@ -70,12 +66,23 @@ class WorldTimerSystemTest {
   }
 
   @Test
-  void stopwatchShowsHoursAndMinutesAfterAnHour() {
+  void stopwatchShowsMinutesAndSecondsInTheFirstHour() {
     Game.playClock().synchronize(59 * 60_000 + 59_000, false);
-    float minutesAndSeconds = run(WorldTimerComponent.stopwatch(0));
-    // 100 minutes would need a third digit as minutes and seconds; 01:40 does not.
+
+    assertEquals("59:59", WorldTimerSystem.text(WorldTimerComponent.stopwatch(0)));
+  }
+
+  @Test
+  void stopwatchShowsHoursAndMinutesAfterAnHour() {
     Game.playClock().synchronize(100 * 60_000, false);
 
-    assertEquals(minutesAndSeconds, run(WorldTimerComponent.stopwatch(0)));
+    assertEquals("01:40", WorldTimerSystem.text(WorldTimerComponent.stopwatch(0)));
+  }
+
+  @Test
+  void countdownOfAnHourShowsSixtyMinutes() {
+    Game.playClock().synchronize(0, false);
+
+    assertEquals("60:00", WorldTimerSystem.text(new WorldTimerComponent(0, 3600)));
   }
 }
