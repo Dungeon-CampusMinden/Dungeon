@@ -14,19 +14,19 @@ public final class CardSwipe {
   public enum Result {
     /** Right pace, the door opens. */
     ACCEPTED,
-    /** Through the slot faster than {@link #MIN_MILLIS}. */
+    /** Through the slot in less than 0.3 s. */
     TOO_FAST,
-    /** Through the slot slower than {@link #MAX_MILLIS}. */
+    /** Through the slot in more than 1.2 s. */
     TOO_SLOW,
     /** Let go before the card reached the end of the slot. */
     INCOMPLETE
   }
 
   /** Fastest accepted swipe. Among Us asks for about 0.5 s; the reader is more forgiving. */
-  public static final long MIN_MILLIS = 300;
+  private static final long MIN_MILLIS = 300;
 
   /** Slowest accepted swipe. */
-  public static final long MAX_MILLIS = 1200;
+  private static final long MAX_MILLIS = 1200;
 
   private CardSwipe() {}
 

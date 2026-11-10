@@ -41,15 +41,15 @@
       },
       "entrance": {
         "warning-sign": "\"Authorized personnel only!\" According to your security card, that includes you.",
-        "card-slot": "You swipe your security card through the card reader. Beep! At least something still works around here.",
+        "card-slot": "Beep! The door whirs open. At least something still works around here.",
         "card-slot-open": "Beep. The door is already open.",
         "swipe-title": "Card reader",
         "swipe-help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Not too fast, not too slow.",
         "swipe-ready": "PLEASE SWIPE CARD",
-        "swipe-too-fast": "Too fast. Try again. This device is older than you.",
+        "swipe-too-fast": "Too fast. Try again. The device is older than you.",
         "swipe-too-slow": "Too slow. Try again. The device nodded off for a moment.",
         "swipe-incomplete": "Card not recognized. Swipe all the way through.",
-        "swipe-accepted": "Access granted. Welcome to Morph & Co.",
+        "swipe-accepted": "Access granted. Have a good shift!",
         "card": "SECURITY CARD"
       },
       "control": {

@@ -135,12 +135,7 @@ final class ControlRoom {
           }
           Game.audio().playGlobal(SoundSpec.builder("kenney_ui_select_001"));
           // The green light stays on for a moment before the reader closes.
-          EventScheduler.scheduleAction(
-              () -> {
-                UIUtils.closeDialog(ui, true);
-                openControlRoom(player);
-              },
-              700);
+          EventScheduler.scheduleAction(() -> openControlRoom(player), 700);
         });
   }
 
@@ -149,6 +144,12 @@ final class ControlRoom {
     // Another player may have swiped a moment earlier.
     if (door.isOpen()) return;
     door.open();
+    // Closes this reader and any other player's; nobody needs it any more.
+    Game.levelEntities()
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> ui.dialogContext().dialogType() == MorphCoDialogs.CARD_READER)
+        .toList()
+        .forEach(ui -> UIUtils.closeDialog(ui, true));
     level.observe(MorphCoState.CARD_USED);
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);

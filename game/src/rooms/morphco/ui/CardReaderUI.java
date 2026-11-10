@@ -31,7 +31,6 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.List;
-import java.util.Locale;
 import rooms.morphco.puzzles.CardSwipe;
 import rooms.morphco.util.MorphCoText;
 
@@ -142,6 +141,7 @@ final class CardReaderUI extends CanvasUI {
             if (!swipeKey(keycode) || !card.movable() || startedAt >= 0) return false;
             card.clearActions();
             card.setPosition(START_X, CARD_Y);
+            reader.reset();
             keyRun = true;
             startedAt = TimeUtils.millis();
             return true;
@@ -232,8 +232,19 @@ final class CardReaderUI extends CanvasUI {
       led = granted ? LED_GREEN : LED_RED;
       display.setText(
           MorphCoText.text(
-              "world.entrance.swipe-" + result.name().toLowerCase(Locale.ROOT).replace('_', '-')));
+              switch (result) {
+                case ACCEPTED -> "world.entrance.swipe-accepted";
+                case TOO_FAST -> "world.entrance.swipe-too-fast";
+                case TOO_SLOW -> "world.entrance.swipe-too-slow";
+                case INCOMPLETE -> "world.entrance.swipe-incomplete";
+              }));
       display.setColor(granted ? GRANTED : ERROR);
+    }
+
+    void reset() {
+      led = LED_OFF;
+      display.setText(MorphCoText.text("world.entrance.swipe-ready"));
+      display.setColor(READY);
     }
 
     @Override
@@ -257,7 +268,7 @@ final class CardReaderUI extends CanvasUI {
       CanvasGraphics.fill(batch, HOUSING, alpha, x, y, getWidth(), getHeight());
       CanvasGraphics.outline(batch, EDGE, alpha, x, y, getWidth(), getHeight(), 4);
       // Warning stripes along the top edge.
-      for (float stripe = 8; stripe < getWidth() - 8; stripe += 48) {
+      for (float stripe = 8; stripe + 24 <= getWidth() - 8; stripe += 48) {
         CanvasGraphics.fill(batch, SIGNAL, alpha, x + stripe, y + getHeight() - 16, 24, 8);
       }
       CanvasGraphics.fill(batch, EDGE, alpha, x + 24, y + 40, 592, 160);
@@ -285,7 +296,10 @@ final class CardReaderUI extends CanvasUI {
     @Override
     public void onMove(float dx, float dy) {
       if (!movable() || keyRun) return;
-      if (startedAt < 0) startedAt = TimeUtils.millis();
+      if (startedAt < 0) {
+        startedAt = TimeUtils.millis();
+        reader.reset();
+      }
       clearActions();
       pull += dx;
       setX(Math.clamp(START_X + pull, START_X, END_X));
@@ -315,9 +329,13 @@ final class CardReaderUI extends CanvasUI {
       CanvasGraphics.fill(batch, CARD, alpha, x, y, getWidth(), getHeight());
       CanvasGraphics.outline(batch, PHOTO, alpha, x, y, getWidth(), getHeight(), 2);
       CanvasGraphics.fill(batch, SIGNAL, alpha, x, y + 78, getWidth(), 28);
+      // Passport photo: head and shoulders.
       CanvasGraphics.fill(batch, PHOTO, alpha, x + 14, y + 12, 52, 58);
-      CanvasGraphics.fill(batch, CARD, alpha, x + 30, y + 40, 20, 20);
-      CanvasGraphics.fill(batch, CARD, alpha, x + 22, y + 12, 36, 22);
+      CanvasGraphics.fill(batch, HOUSING, alpha, x + 32, y + 42, 16, 22);
+      CanvasGraphics.fill(batch, HOUSING, alpha, x + 30, y + 45, 20, 16);
+      CanvasGraphics.fill(batch, HOUSING, alpha, x + 36, y + 36, 8, 6);
+      CanvasGraphics.fill(batch, HOUSING, alpha, x + 26, y + 32, 28, 4);
+      CanvasGraphics.fill(batch, HOUSING, alpha, x + 20, y + 12, 40, 20);
       for (int bar = 0; bar < 12; bar++) {
         CanvasGraphics.fill(
             batch, CARD_INK, alpha, x + 80 + bar * 11, y + 14, bar % 3 == 0 ? 6 : 3, 22);
