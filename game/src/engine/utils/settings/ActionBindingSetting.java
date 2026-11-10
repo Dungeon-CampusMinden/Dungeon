@@ -38,6 +38,8 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
     bindingEntry.add(bindingDisplay).growY().minWidth(64).left();
 
     Table table = new Table();
+    // A label wider than its column grows to the left, so the controls of all rows line up.
+    table.right();
     table.add(label).right().growX().padRight(10);
     table.add(bindingEntry).width(310);
     return table;
