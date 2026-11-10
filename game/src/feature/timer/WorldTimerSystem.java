@@ -22,8 +22,8 @@ import java.util.Map;
  * DrawComponent of entities with a WorldTimerComponent.
  *
  * <p>The timer shows as a red LED display in a 3x5 pixel font: a countdown its remaining time, a
- * stopwatch its elapsed time. Each pixel of its texture covers one art pixel of the world, so the
- * digits stay sharp at every zoom.
+ * stopwatch its elapsed time (from one hour on in hours and minutes). Each pixel of its texture
+ * covers one art pixel of the world, so the digits stay sharp at every zoom.
  */
 public class WorldTimerSystem extends System {
 
@@ -105,9 +105,10 @@ public class WorldTimerSystem extends System {
 
     int displaySeconds =
         data.tc.countsUp() ? (int) (data.tc.elapsedMs() / 1000) : Math.max(0, secondsLeft);
+    // After an hour a stopwatch shows hours and minutes, so it keeps its two digits per field.
+    int units = data.tc.countsUp() && displaySeconds >= 3600 ? displaySeconds / 60 : displaySeconds;
     // Root locale: the display only has the digits 0 to 9.
-    String timerString =
-        String.format(Locale.ROOT, "%02d:%02d", displaySeconds / 60, displaySeconds % 60);
+    String timerString = String.format(Locale.ROOT, "%02d:%02d", units / 60, units % 60);
     // The display changes once a second; rebuilding it costs a texture and a glow mask.
     if (timerString.equals(shown.put(data.e, timerString))) return;
     Pixmap pixmap = display(timerString);

@@ -93,12 +93,17 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
           .metadata()
           .map(metadata -> metadata.get(STOPWATCH_KEY))
           .ifPresent(
-              value ->
-                  Game.findEntityById(state.entityId())
-                      .filter(entity -> !entity.isPresent(WorldTimerComponent.class))
-                      .ifPresent(
-                          entity ->
-                              entity.add(WorldTimerComponent.stopwatch(Long.parseLong(value)))));
+              value -> {
+                WorldTimerComponent received = WorldTimerComponent.stopwatch(Long.parseLong(value));
+                Game.findEntityById(state.entityId())
+                    .filter(
+                        entity ->
+                            entity
+                                .fetch(WorldTimerComponent.class)
+                                .filter(received::equals)
+                                .isEmpty())
+                    .ifPresent(entity -> entity.add(received));
+              });
     }
   }
 

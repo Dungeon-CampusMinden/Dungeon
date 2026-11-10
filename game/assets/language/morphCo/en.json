@@ -98,7 +98,7 @@
         "sign-control": "Control room",
         "sign-title": "Door sign",
         "clock-title": "Shift clock",
-        "clock": "The shift clock counts how long your shift has been running. Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
+        "clock": "Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
       },
       "restroom": {
         "sink-title": "Sink",

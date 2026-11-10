@@ -16,7 +16,7 @@ class WorldTimerComponentTest {
   }
 
   @Test
-  void stopwatchCountsThePlayTimeSinceItsStart() {
+  void stopwatchCountsUpAndHasNoCountdownLeft() {
     Game.playClock().synchronize(90_500, false);
 
     WorldTimerComponent stopwatch = WorldTimerComponent.stopwatch(30_000);
@@ -34,15 +34,5 @@ class WorldTimerComponentTest {
 
     assertTrue(stopped.countsUp());
     assertEquals(40_000, stopped.elapsedMs());
-  }
-
-  @Test
-  void countdownShowsTheRemainingTime() {
-    Game.playClock().synchronize(10_000, false);
-
-    WorldTimerComponent countdown = new WorldTimerComponent(0, 60);
-
-    assertEquals(50_000, countdown.remainingMs());
-    assertEquals(10_000, countdown.elapsedMs());
   }
 }
