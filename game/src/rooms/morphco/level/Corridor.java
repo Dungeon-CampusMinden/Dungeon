@@ -3,7 +3,10 @@ package rooms.morphco.level;
 import engine.Entity;
 import java.util.function.BiConsumer;
 
-/** The corridor with its door signs, the locked kitchen and storage room and the restroom. */
+/**
+ * The corridor with its door signs, the shift clock, the locked kitchen and storage room and the
+ * restroom.
+ */
 final class Corridor {
 
   private static final String SIGN = "world.corridor.sign-title";
@@ -25,6 +28,10 @@ final class Corridor {
     sign("sign_control", "world.corridor.sign-control");
     on("sign_kitchen", (self, player) -> locked(player, "world.corridor.kitchen"));
     on("sign_storage", (self, player) -> locked(player, "world.corridor.storage"));
+    on(
+        "shift-clock",
+        (self, player) ->
+            MorphCoProps.popup(player, "world.corridor.clock-title", "world.corridor.clock"));
     on(
         "plant-corridor",
         (self, player) -> {

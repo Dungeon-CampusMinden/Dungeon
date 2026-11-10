@@ -12,6 +12,7 @@ import engine.network.messages.s2c.SnapshotMessage;
 import feature.collision.CollideSync;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.timer.WorldTimerComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +23,13 @@ import java.util.Optional;
  * Adds collider geometry and interaction reach to the ordinary world snapshots.
  *
  * <p>Clients predict their own movement, so they need the solid colliders of desks and machines.
- * The interaction reach lets them highlight the objects that can be used from where they stand.
+ * The interaction reach lets them highlight the objects that can be used from where they stand. The
+ * shift clock only needs its start; clients count from there on their synchronized play clock.
  */
 public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
   private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("morphCo.collider");
   private static final String RANGE_KEY = "morphCo.interactionRange";
+  private static final String STOPWATCH_KEY = "morphCo.stopwatch";
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
   @Override
@@ -55,6 +58,12 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
                         .map(component -> component.interaction().range())
                         .orElse(0f);
                 metadata.put(RANGE_KEY, Float.toString(range));
+                entity
+                    .get()
+                    .fetch(WorldTimerComponent.class)
+                    .ifPresent(
+                        timer ->
+                            metadata.put(STOPWATCH_KEY, Long.toString(timer.startedAtActiveMs())));
                 COLLIDE_SYNC.appendMetadata(entity.get(), metadata);
                 entities.add(withMergedMetadata(state, metadata));
               }
@@ -80,6 +89,21 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
               value ->
                   Game.findEntityById(state.entityId())
                       .ifPresent(entity -> applyInteractionRange(entity, Float.parseFloat(value))));
+      state
+          .metadata()
+          .map(metadata -> metadata.get(STOPWATCH_KEY))
+          .ifPresent(
+              value -> {
+                WorldTimerComponent received = WorldTimerComponent.stopwatch(Long.parseLong(value));
+                Game.findEntityById(state.entityId())
+                    .filter(
+                        entity ->
+                            entity
+                                .fetch(WorldTimerComponent.class)
+                                .filter(received::equals)
+                                .isEmpty())
+                    .ifPresent(entity -> entity.add(received));
+              });
     }
   }
 

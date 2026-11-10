@@ -38,6 +38,7 @@ import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
+import feature.timer.WorldTimerSystem;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -279,6 +280,7 @@ public final class MorphCo {
     Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     Game.add(new ControlsDialogSystem(MorphCoText::controls));
+    if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
     if (debugMode) addDebugSystems();
   }
 
