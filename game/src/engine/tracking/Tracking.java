@@ -274,7 +274,7 @@ public final class Tracking {
     }
   }
 
-  static boolean isTrackingFile(Path file) {
+  private static boolean isTrackingFile(Path file) {
     return Files.isRegularFile(file) && file.getFileName().toString().endsWith(".jsonl");
   }
 

@@ -1,7 +1,8 @@
 # Dungeon-Tracking
 
 Die beiden Tracking-Module implementieren das Datenmodell für Sitzungstracking. `core` enthält die
-vom Wizard unabhängigen Datensätze und den JSON-Codec. `backend` ist ein kleiner selbst gehosteter
+vom Wizard unabhängigen Datensätze, den JSON-Codec und den Upload einer Outbox über die HTTP-API.
+`backend` ist ein kleiner selbst gehosteter
 Referenzdienst, der diese Datensätze entgegennimmt und in PostgreSQL speichert. Es ist kein
 zentraler Dungeon-Dienst.
 
@@ -130,7 +131,8 @@ Das Backend bindet standardmäßig an `127.0.0.1:8088`. Beim Start führt es kei
 getrennte Migrationsbefehl wendet die enthaltenen Migrationen der Reihe nach an und vermerkt ihre
 Versionen in `tracking_schema_migrations`. `V001__tracking.sql` enthält das Ausgangsschema,
 `V002__bug_reports.sql` ergänzt `BUG_REPORTED`, `V003__votes.sql` ergänzt `VOTE_CAST` und
-`VOTE_RESOLVED`. Weil ein produktives Deployment existiert, kommt
+`VOTE_RESOLVED`, `V004__abandoned_sessions.sql` lässt `v_session_summary` Sitzungen ohne Abschluss
+als `ABANDONED` zeigen. Weil ein produktives Deployment existiert, kommt
 jede Schemaänderung in eine neue Migration; angewendete Migrationen bleiben unverändert. Ein
 Backend mit neuem Ereignistyp muss vor den Spiel-Builds ausgerollt werden, die ihn senden.
 
@@ -287,7 +289,7 @@ Die Migration erzeugt folgende schreibgeschützte Analyse-Views:
 
 - `v_session_summary` leitet Spielerzahl, Status, `run_id`, Spielzeit der Sitzung und das bei der
   Unterbrechung aktive Rätsel ab. Für `RUNNING` zeigt sie `ABANDONED`, sobald der Run eine spätere
-  Sitzung hat oder seit 24 Stunden kein Ereignis gespeichert wurde. Die Tabellenzeile bleibt
+  Sitzung hat oder ihr letztes Ereignis mehr als 24 Stunden zurückliegt. Die Tabellenzeile bleibt
   `RUNNING`, damit ein späterer Abschluss angenommen wird.
 - `v_run_events` enthält die Ereignisse eines Runs ohne den Fortschritt, den das Laden eines
   älteren Spielstands verworfen hat.
@@ -318,7 +320,8 @@ weiter gefassten Konfigurationen.
 
 ## Eine JSONL-Outbox importieren
 
-Das Spiel schreibt für jede Sitzung genau eine Datei `<sessionId>.jsonl`. Erfassung und Spiel
+Das Spiel schreibt für jede Sitzung genau eine Datei `<sessionId>.jsonl`, bei Upload zum
+eingebetteten Endpunkt `<sessionId>.central.jsonl`. Erfassung und Spiel
 benötigen kein laufendes Backend. Der erste typisierte Datensatz enthält den Sitzungsdeskriptor.
 Darauf folgen typisierte Ereignisdatensätze in Sequenzreihenfolge. Eine ordnungsgemäß geschlossene
 Sitzung hat einen letzten Abschlussdatensatz.
@@ -370,9 +373,18 @@ $env:DUNGEON_TRACKING_OUTBOX = 'tracking-outbox'
 Die entsprechenden Java-Eigenschaften sind `dungeon.tracking.endpoint`,
 `dungeon.tracking.apiKey` und `dungeon.tracking.outbox`. Für das lokale Backend müssen diese Werte
 nicht gesetzt werden. Die Engine schreibt die Outbox immer, auch bei funktionierendem Upload. Ist
-das Backend nicht erreichbar, bleibt die Sitzung spielbar. Nach dem nächsten Spielstart lädt das
-Spiel mit seiner ersten Sitzung die Outboxes früherer Sitzungen nach und löscht jede, deren
-Abschluss das Backend bestätigt. Der Betreiber kann eine Outbox auch mit dem Importer einspielen.
+das Backend nicht erreichbar, bleibt die Sitzung spielbar.
+
+Eine Sitzung, die zum eingebetteten Endpunkt hochlädt, schreibt ihre Outbox als
+`<sessionId>.central.jsonl`. Nach dem nächsten Spielstart lädt die erste solche Sitzung alle
+früheren `.central.jsonl`-Outboxes erneut vollständig hoch, auch die schon live übertragenen, und
+löscht jede, deren Abschluss das Backend bestätigt. Eine solche Outbox ist damit keine dauerhafte
+lokale Kopie. Eine Outbox ohne Abschluss sendet jeder Spielstart erneut und löscht sie nie. Lösche
+sie von Hand, sobald `GET /tracking/sessions/<sessionId>/ack` ihre letzte Sequenz meldet.
+
+Builds ohne eingebetteten Endpunkt und Sitzungen mit einem zur Laufzeit abweichenden Endpunkt
+schreiben `<sessionId>.jsonl`. Diese Dateien lädt das Spiel nie nach und löscht sie nicht. Der
+Betreiber kann jede Outbox mit dem Importer einspielen.
 
 ## Stack betreiben und aktualisieren
 

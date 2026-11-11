@@ -2,7 +2,9 @@ package engine.tracking;
 
 import engine.utils.logging.DungeonLogger;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -12,7 +14,10 @@ import tracking.core.TrackingJson;
 import tracking.core.TrackingJsonlReadResult;
 import tracking.core.TrackingOutboxUpload;
 
-/** Resends earlier outboxes and deletes only those with an acknowledged finish. */
+/**
+ * Resends earlier outboxes of sessions that uploaded to the endpoint built into the game and
+ * deletes only those with an acknowledged finish.
+ */
 final class TrackingResend {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TrackingResend.class);
   private static final int BATCH_SIZE = 100;
@@ -21,8 +26,9 @@ final class TrackingResend {
   private TrackingResend() {}
 
   /**
-   * Starts the single background pass of this process. A session calls it before creating its own
-   * outbox, so the pass only sees files of earlier sessions.
+   * Starts the single background pass of this process. A session that uploads to the built-in
+   * endpoint calls it before creating its own outbox, so the pass only sees files of earlier
+   * sessions.
    *
    * @param config configuration of the starting session; names the outbox directory and backend
    */
@@ -32,7 +38,7 @@ final class TrackingResend {
     }
     List<Path> outboxes;
     try (var files = Files.list(config.outboxDirectory())) {
-      outboxes = files.filter(Tracking::isTrackingFile).toList();
+      outboxes = files.filter(TrackingResend::isCentralOutbox).toList();
     } catch (IOException | RuntimeException exception) {
       LOGGER.warn("Could not list tracking outboxes in {}", config.outboxDirectory(), exception);
       return;
@@ -45,7 +51,18 @@ final class TrackingResend {
     }
   }
 
-  private static void resend(TrackingConfig config, List<Path> outboxes) {
+  private static boolean isCentralOutbox(Path file) {
+    return Files.isRegularFile(file)
+        && file.getFileName().toString().endsWith(TrackingOutbox.CENTRAL_SUFFIX);
+  }
+
+  /**
+   * Uploads each outbox completely and deletes it once the backend acknowledged its finish.
+   *
+   * @param config names the backend
+   * @param outboxes outbox files of earlier sessions
+   */
+  static void resend(TrackingConfig config, List<Path> outboxes) {
     HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
     for (Path outbox : outboxes) {
       try {
@@ -58,6 +75,9 @@ final class TrackingResend {
         }
       } catch (InterruptedException exception) {
         Thread.currentThread().interrupt();
+        return;
+      } catch (ConnectException | HttpConnectTimeoutException exception) {
+        LOGGER.warn("Tracking backend is unreachable; earlier outboxes stay for the next start");
         return;
       } catch (IOException | RuntimeException exception) {
         // Connection failures carry no message, so the log names the exception itself.

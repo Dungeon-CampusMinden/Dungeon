@@ -153,7 +153,7 @@ public final class TrackingOutboxUpload {
       throw new IOException("Backend acknowledged a different session");
     }
     if (acknowledgement.lastPersistedSequence() < minimumSequence) {
-      throw new IOException("Backend acknowledgement is behind the imported data");
+      throw new IOException("Backend acknowledgement is behind the uploaded data");
     }
     return acknowledgement;
   }
@@ -177,7 +177,7 @@ public final class TrackingOutboxUpload {
     HttpResponse<String> response =
         client.send(request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     if (response.statusCode() != 200) {
-      throw new IOException("Backend rejected import with HTTP " + response.statusCode());
+      throw new IOException("Backend rejected upload with HTTP " + response.statusCode());
     }
     return TrackingJson.read(response.body(), TrackingAck.class);
   }

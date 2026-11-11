@@ -98,17 +98,21 @@ er sie einmalig in ihrer ursprünglichen Reihenfolge direkt nach dem ersten
 `PARTICIPANT_JOINED`-Ereignis auf. Ihr `activeMs` ist der zu diesem Zeitpunkt noch eingefrorene
 Wert der Spieluhr.
 
-Jede konfigurierte Sitzung erzeugt eine neue Datei `<session UUID>.jsonl`. Eine vorhandene Datei
+Jede konfigurierte Sitzung erzeugt eine neue Datei `<session UUID>.jsonl`, bei Upload zum
+eingebetteten Build-Endpunkt `<session UUID>.central.jsonl`. Eine vorhandene Datei
 wird nie wiederverwendet. Die erste Zeile enthält den Sitzungsdeskriptor einschließlich der
 verpflichtenden `runId`, danach folgen geordnete Ereignisdatensätze. Eine ordnungsgemäß beendete Sitzung
 schließt mit einem Abschlussdatensatz. Fehlt dieser, bleibt die Sitzung unvollständig. Diese eine
 Datei enthält alles für den Offline-Import.
 
-Bei aktivem HTTP-Upload lädt Dungeon beim Start der ersten Sitzung einmal pro Prozess die Outboxes
-früherer Sitzungen im Hintergrund vollständig hoch. Bestätigt das Backend den Abschluss, löscht
-Dungeon die Datei. Outboxes ohne Abschluss oder mit fehlgeschlagenem Upload bleiben für den nächsten
-Spielstart liegen. Lösche eine Outbox von Hand erst, wenn das Backend die Sitzung bestätigt oder ein
-Betreiber sie importiert hat.
+Lädt die erste Sitzung eines Prozesses zum eingebetteten Build-Endpunkt hoch, sendet Dungeon dabei
+einmal im Hintergrund alle früheren `.central.jsonl`-Outboxes erneut vollständig, auch die schon
+live übertragenen. Bestätigt das Backend den Abschluss, löscht Dungeon die Datei; sie ist damit
+keine dauerhafte lokale Kopie. Outboxes mit fehlgeschlagenem Upload bleiben für den nächsten
+Spielstart liegen. Eine Outbox ohne Abschluss sendet jeder Spielstart erneut und löscht sie nie.
+Lösche sie von Hand, sobald `GET /tracking/sessions/<session UUID>/ack` ihre letzte Sequenz meldet.
+Dateien ohne `.central` stammen aus Sitzungen ohne Upload zum Build-Endpunkt. Dungeon lädt sie nie
+nach und löscht sie nicht.
 
 Beendet sich ein über "Spiel hosten" gestarteter Server ohne bestätigte Speicherung, übermittelt
 sein Statuskanal den absoluten Outbox-Pfad und die konfigurierte Betreiber-E-Mail an den hostenden
