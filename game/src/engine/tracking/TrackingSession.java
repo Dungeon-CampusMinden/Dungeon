@@ -66,7 +66,11 @@ final class TrackingSession {
             Instant.now(),
             config.runId(),
             playClock.activeMs());
-    this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor);
+    boolean central = config.usesBuildEndpoint();
+    if (central) {
+      TrackingResend.startOnce(config);
+    }
+    this.outbox = TrackingOutbox.create(config.outboxDirectory(), descriptor, central);
     this.uploader =
         TrackingConfig.TRACKING_ENABLED ? new TrackingUploader(config, descriptor) : null;
     LOGGER.info("Tracking session {} writes to {}", sessionId, outbox.path());
