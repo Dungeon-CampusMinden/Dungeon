@@ -473,6 +473,7 @@
         "no-return": "Methode $1 gibt keinen Wert zurück.",
         "aborted": "Lauf abgebrochen.",
         "invalid-variable": "Ungültiger Variablenname: $1",
+        "reserved-name": "Der Name $1 ist für das Spiel reserviert. Wähle einen anderen.",
         "unknown-variable": "Unbekannte Variable: $1",
         "number": "Zahl erwartet: $1",
         "direction": "Richtung erwartet: $1",

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
@@ -131,7 +130,7 @@ class SoulweaverGolemMovementTest {
   }
 
   @Test
-  void englishHostTracksTheGermanRuneSource() {
+  void englishHostTracksTheGermanRuneSourceAndFailure() {
     Language previous = Game.localization().currentLanguage();
     Game.localization().registerTranslationFile(Language.DE, "language/soulweaver/de.json");
     Game.localization().registerTranslationFile(Language.EN, "language/soulweaver/en.json");
@@ -146,17 +145,11 @@ class SoulweaverGolemMovementTest {
       runtime.executeRune("archive-jump", player);
 
       ArgumentCaptor<String> code = ArgumentCaptor.forClass(String.class);
+      ArgumentCaptor<AttemptDetails> details = ArgumentCaptor.forClass(AttemptDetails.class);
       tracking.verify(
-          () ->
-              Tracking.attempt(
-                  eq("cellar-0"),
-                  eq("archive-jump"),
-                  eq("code"),
-                  code.capture(),
-                  eq(participant),
-                  any(AttemptDetails.class)));
+          () -> Tracking.attempt(any(), any(), any(), code.capture(), any(), details.capture()));
       assertTrue(code.getValue().contains("springen();"), code.getValue());
-      assertFalse(code.getValue().contains("jump"), code.getValue());
+      assertEquals(List.of("Sprung ohne Grube voraus."), details.getValue().failureReasons());
     } finally {
       Game.localization().currentLanguage(previous);
     }

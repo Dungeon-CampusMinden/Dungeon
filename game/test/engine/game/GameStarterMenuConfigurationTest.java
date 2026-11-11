@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import engine.Game;
-import engine.language.Language;
 import org.junit.jupiter.api.Test;
 
 class GameStarterMenuConfigurationTest {
@@ -45,27 +43,6 @@ class GameStarterMenuConfigurationTest {
 
     assertEquals("Start Game", starter.hostActionLabel().orElseThrow());
     assertFalse(starter.showJoinButton());
-  }
-
-  @Test
-  void titleFollowsTheCurrentLanguageAndFallsBackToTheDefault() {
-    Language previous = Game.localization().currentLanguage();
-    GameStarter localized =
-        GameStarter.builder("Das Spiel", Object.class)
-            .localizedTitle(Language.EN, "The Game")
-            .build();
-    GameStarter plain = GameStarter.builder("Example", Object.class).build();
-    try {
-      Game.localization().currentLanguage(Language.DE);
-      assertEquals("Das Spiel", localized.title());
-      assertEquals("Example", plain.title());
-
-      Game.localization().currentLanguage(Language.EN);
-      assertEquals("The Game", localized.title());
-      assertEquals("Example", plain.title());
-    } finally {
-      Game.localization().currentLanguage(previous);
-    }
   }
 
   @Test

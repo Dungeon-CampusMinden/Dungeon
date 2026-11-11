@@ -183,13 +183,14 @@ final class SoulweaverGolemRuntime {
                 ? List.of()
                 : List.of(
                     SoulweaverText.key(
-                        "binding.failure.wrong-vessel", SoulweaverText.key(property.labelKey()))));
+                        "binding.failure.wrong-vessel",
+                        SoulweaverText.nested(SoulweaverText.key(property.labelKey())))));
         logBinding(
             true,
             SoulweaverText.key(
                 "binding.log.vessel",
-                SoulweaverText.key(property.labelKey()),
-                SoulweaverText.key(selected.labelKey())),
+                SoulweaverText.nested(SoulweaverText.key(property.labelKey())),
+                SoulweaverText.nested(SoulweaverText.key(selected.labelKey()))),
             SoulweaverText.key(
                 VariablePuzzle.vesselSolution().get(property) == selected
                     ? "binding.log.correct"
@@ -201,16 +202,16 @@ final class SoulweaverGolemRuntime {
                   ? SoulweaverText.key("binding.feedback.crystal-for-whole-number")
                   : SoulweaverText.key(
                       "binding.feedback.vessel-holds",
-                      SoulweaverText.key(selected.labelKey()),
-                      SoulweaverText.key(selected.capacityKey()));
+                      SoulweaverText.nested(SoulweaverText.key(selected.labelKey())),
+                      SoulweaverText.nested(SoulweaverText.key(selected.capacityKey())));
           return;
         }
         vessels.put(property, selected);
         bindingFeedback =
             SoulweaverText.key(
                 "binding.feedback.vessel-set",
-                SoulweaverText.key(property.labelKey()),
-                SoulweaverText.key(selected.labelKey()));
+                SoulweaverText.nested(SoulweaverText.key(property.labelKey())),
+                SoulweaverText.nested(SoulweaverText.key(selected.labelKey())));
         if (vessels.size() == GolemProperty.values().length) {
           controller.submitVessels(vessels);
           SoulweaverProgress.solved("vessels", SoulweaverText.key("binding.vessels-solved"));
@@ -228,31 +229,33 @@ final class SoulweaverGolemRuntime {
             container == null
                 ? List.of(
                     SoulweaverText.key(
-                        "binding.failure.vessel-missing", SoulweaverText.key(property.labelKey())))
+                        "binding.failure.vessel-missing",
+                        SoulweaverText.nested(SoulweaverText.key(property.labelKey()))))
                 : !VariablePuzzle.fits(container, selected)
                     ? List.of(
                         SoulweaverText.key(
                             "binding.failure.wrong-type",
-                            selected.literal(SoulweaverText::key),
-                            SoulweaverText.key(container.labelKey())))
+                            SoulweaverText.nested(selected.literal(SoulweaverText::key)),
+                            SoulweaverText.nested(SoulweaverText.key(container.labelKey()))))
                     : VariablePuzzle.essenceSolution().get(property) != selected
                         ? List.of(
                             SoulweaverText.key(
                                 "binding.failure.wrong-value",
-                                SoulweaverText.key(property.labelKey()),
-                                selected.literal(SoulweaverText::key)))
+                                SoulweaverText.nested(SoulweaverText.key(property.labelKey())),
+                                SoulweaverText.nested(selected.literal(SoulweaverText::key))))
                         : List.of());
         logBinding(
             false,
             SoulweaverText.key(
                 "binding.log.essence",
-                SoulweaverText.key(property.labelKey()),
-                selected.literal(SoulweaverText::key)),
+                SoulweaverText.nested(SoulweaverText.key(property.labelKey())),
+                SoulweaverText.nested(selected.literal(SoulweaverText::key))),
             container == null
                 ? SoulweaverText.key("binding.log.vessel-missing")
                 : !VariablePuzzle.fits(container, selected)
                     ? SoulweaverText.key(
-                        "binding.log.does-not-fit", SoulweaverText.key(container.labelKey()))
+                        "binding.log.does-not-fit",
+                        SoulweaverText.nested(SoulweaverText.key(container.labelKey())))
                     : SoulweaverText.key(
                         VariablePuzzle.essenceSolution().get(property) != selected
                             ? "binding.log.wrong-value"
@@ -262,12 +265,13 @@ final class SoulweaverGolemRuntime {
           bindingFeedback =
               container == null
                   ? SoulweaverText.key(
-                      "binding.feedback.no-vessel", selected.literal(SoulweaverText::key))
+                      "binding.feedback.no-vessel",
+                      SoulweaverText.nested(selected.literal(SoulweaverText::key)))
                   : SoulweaverText.key(
                       "binding.feedback.does-not-fit",
-                      selected.literal(SoulweaverText::key),
-                      SoulweaverText.key(container.labelKey()),
-                      SoulweaverText.key(container.capacityKey()));
+                      SoulweaverText.nested(selected.literal(SoulweaverText::key)),
+                      SoulweaverText.nested(SoulweaverText.key(container.labelKey())),
+                      SoulweaverText.nested(SoulweaverText.key(container.capacityKey())));
           return;
         }
         MagicalEssence previous = essences.put(property, selected);
@@ -281,8 +285,8 @@ final class SoulweaverGolemRuntime {
                 VariablePuzzle.essenceSolution().get(property) == selected
                     ? "binding.feedback.stored"
                     : "binding.feedback.stored-no-reaction",
-                SoulweaverText.key(property.labelKey()),
-                selected.literal(SoulweaverText::key));
+                SoulweaverText.nested(SoulweaverText.key(property.labelKey())),
+                SoulweaverText.nested(selected.literal(SoulweaverText::key)));
         if (VariablePuzzle.essencesCorrect(essences)) {
           controller.submitEssences(essences);
           SoulweaverProgress.solved("essences", SoulweaverText.key("binding.essences-solved"));
@@ -306,7 +310,9 @@ final class SoulweaverGolemRuntime {
           && controller.variableStage() == VariablePuzzleStage.VESSELS) vessels.remove(property);
       SoulweaverProgress.interaction(helpPuzzle(), "clear-" + property.name(), who);
       bindingFeedback =
-          SoulweaverText.key("binding.feedback.cleared", SoulweaverText.key(property.labelKey()));
+          SoulweaverText.key(
+              "binding.feedback.cleared",
+              SoulweaverText.nested(SoulweaverText.key(property.labelKey())));
     } catch (IllegalArgumentException ignored) {
       // Ignore unknown property IDs.
     }

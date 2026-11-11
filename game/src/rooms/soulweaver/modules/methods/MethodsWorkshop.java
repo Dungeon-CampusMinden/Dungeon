@@ -13,9 +13,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
 import rooms.soulweaver.modules.methods.MethodsRoute.Direction;
 import rooms.soulweaver.modules.methods.MethodsRoute.Step;
@@ -395,7 +397,7 @@ public final class MethodsWorkshop {
       Set.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN");
 
   /** Names the game itself writes into programs; editors show them in the client's language. */
-  public static final Set<String> GAME_IDENTIFIERS =
+  private static final Set<String> GAME_IDENTIFIERS =
       Set.of(
           "kristalle",
           "gesammelt",
@@ -405,6 +407,19 @@ public final class MethodsWorkshop {
           "hilfeRune",
           "hilfeSammeln",
           "hilfeAltar");
+
+  // The English spellings of the game's names (methods.identifier in en.json). An English client
+  // shows the game's names with them, so they cannot be own names in any language.
+  private static final Set<String> RESERVED =
+      Set.of(
+          "crystals",
+          "collected",
+          "amount",
+          "direction",
+          "helpGate",
+          "helpRune",
+          "helpCollect",
+          "helpAltar");
 
   private static final Pattern NAME =
       Pattern.compile("(?<![\\p{L}\\p{N}_])[\\p{L}_][\\p{L}\\p{N}_]*");
@@ -651,6 +666,8 @@ public final class MethodsWorkshop {
         case NAME -> {
           if (intent.value().length() > 40)
             return rejectEdit(SoulweaverText.key("methods.error.name-too-long"));
+          var reserved = reservedName(Stream.of(intent.value()));
+          if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
           draft = new Definition(intent.value(), draft.parameters(), draft.body());
         }
         case PARAMETER -> {
@@ -662,6 +679,8 @@ public final class MethodsWorkshop {
                       .toList();
           if (names.size() > 8 || names.stream().anyMatch(n -> n.length() > 40))
             return rejectEdit(SoulweaverText.key("methods.error.too-many-parameters"));
+          var reserved = reservedName(names.stream());
+          if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
           draft = new Definition(draft.name(), names, draft.body());
         }
         case DELETE_BLOCK -> {
@@ -736,6 +755,15 @@ public final class MethodsWorkshop {
    */
   private boolean applyBlockEdit(Operation operation, Edit edit) {
     try {
+      Block submitted = edit.block();
+      if (valid(submitted)) {
+        var reserved =
+            reservedName(
+                Stream.concat(
+                    Stream.of(submitted.operand(), submitted.target(), submitted.method()),
+                    submitted.arguments().stream()));
+        if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
+      }
       if (operation == Operation.EDIT_BLOCK) {
         if (!valid(edit.block()) || edit.id() == null)
           return rejectEdit(SoulweaverText.key("methods.error.invalid-block"));
@@ -1101,10 +1129,10 @@ public final class MethodsWorkshop {
     Definition method = definitions.get(name);
     if (method == null)
       throw new IllegalArgumentException(
-          SoulweaverText.key("methods.error.method-missing", localized(name, SoulweaverText::key)));
+          SoulweaverText.key("methods.error.method-missing", SoulweaverText.expression(name)));
     if (method.parameters().size() != arguments.size())
       throw new IllegalArgumentException(
-          SoulweaverText.key("methods.error.argument-count", localized(name, SoulweaverText::key)));
+          SoulweaverText.key("methods.error.argument-count", SoulweaverText.expression(name)));
     if (stack.size() >= 16)
       throw new IllegalArgumentException(SoulweaverText.key("methods.error.nested-calls"));
     Map<String, String> locals = new LinkedHashMap<>();
@@ -1118,7 +1146,7 @@ public final class MethodsWorkshop {
   private static void requireReturn(String method, String value) {
     if (value == null)
       throw new IllegalArgumentException(
-          SoulweaverText.key("methods.error.no-return", localized(method, SoulweaverText::key)));
+          SoulweaverText.key("methods.error.no-return", SoulweaverText.expression(method)));
   }
 
   private static List<String> arguments(Frame frame, int count) {
@@ -1190,6 +1218,21 @@ public final class MethodsWorkshop {
     return true;
   }
 
+  /**
+   * Refuses new input with a reserved name, so the stored program means the same in every language.
+   * Programs that already contain such a name keep running.
+   *
+   * @param texts names or expressions as submitted
+   * @return the rejection feedback for the first reserved name, or empty
+   */
+  private static Optional<String> reservedName(Stream<String> texts) {
+    return texts
+        .flatMap(text -> NAME.matcher(text).results().map(MatchResult::group))
+        .filter(RESERVED::contains)
+        .findFirst()
+        .map(name -> SoulweaverText.key("methods.error.reserved-name", name));
+  }
+
   private static boolean identifier(String value) {
     return value != null
         && !DIRECTIONS.contains(value)
@@ -1199,14 +1242,13 @@ public final class MethodsWorkshop {
   private void assign(Map<String, String> vars, String target, String value, ResultMode mode) {
     if (!identifier(target))
       throw new IllegalArgumentException(
-          SoulweaverText.key(
-              "methods.error.invalid-variable", localized(target, SoulweaverText::key)));
+          SoulweaverText.key("methods.error.invalid-variable", SoulweaverText.expression(target)));
     int amount = numeric(value);
     if (mode != ResultMode.REPLACE) {
       if (!vars.containsKey(target))
         throw new IllegalArgumentException(
             SoulweaverText.key(
-                "methods.error.unknown-variable", localized(target, SoulweaverText::key)));
+                "methods.error.unknown-variable", SoulweaverText.expression(target)));
       int current = numeric(vars.get(target));
       value =
           Integer.toString(
@@ -1225,7 +1267,7 @@ public final class MethodsWorkshop {
       return Integer.parseInt(value);
     } catch (NumberFormatException ex) {
       throw new IllegalArgumentException(
-          SoulweaverText.key("methods.error.number", localized(value, SoulweaverText::key)));
+          SoulweaverText.key("methods.error.number", SoulweaverText.expression(value)));
     }
   }
 
@@ -1236,7 +1278,7 @@ public final class MethodsWorkshop {
       case "BACK", "HINTEN" -> Direction.BACK;
       default ->
           throw new IllegalArgumentException(
-              SoulweaverText.key("methods.error.direction", localized(value, SoulweaverText::key)));
+              SoulweaverText.key("methods.error.direction", SoulweaverText.expression(value)));
     };
   }
 
@@ -1267,7 +1309,7 @@ public final class MethodsWorkshop {
           if (result == null)
             throw new IllegalArgumentException(
                 SoulweaverText.key(
-                    "methods.error.unknown-variable", localized(input, SoulweaverText::key)));
+                    "methods.error.unknown-variable", SoulweaverText.expression(input)));
           frame.values.push(result);
         }
       }
@@ -1392,8 +1434,7 @@ public final class MethodsWorkshop {
 
     private IllegalArgumentException invalid() {
       return new IllegalArgumentException(
-          SoulweaverText.key(
-              "methods.error.invalid-expression", localized(input, SoulweaverText::key)));
+          SoulweaverText.key("methods.error.invalid-expression", SoulweaverText.expression(input)));
     }
   }
 

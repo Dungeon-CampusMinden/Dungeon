@@ -127,7 +127,7 @@ public final class SoulweaverHelp {
       SoulweaverProgress.hint(
           expected,
           "step-" + step,
-          SoulweaverText.key("help.tip-title", state.title(), step),
+          SoulweaverText.key("help.tip-title", SoulweaverText.nested(state.title()), step),
           hint,
           who);
       if (step == 3) SoulweaverProgress.interaction(expected, "simplification", who);

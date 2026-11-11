@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import engine.Game;
+import engine.language.Language;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -353,12 +355,39 @@ class MethodsWorkshopTest {
     assertFalse(workshop.state().busy());
     String unknown =
         SoulweaverText.key(
-            "methods.error.unknown-variable", SoulweaverText.key("methods.identifier.kristalle"));
+            "methods.error.unknown-variable", SoulweaverText.expression("kristalle"));
     assertEquals(unknown, workshop.state().feedback());
     assertEquals(
         Map.of(workshop.state().main().get(4).id(), unknown), workshop.state().blockErrors());
     edit(workshop, Operation.BUILD, "");
     assertTrue(workshop.state().blockErrors().isEmpty());
+  }
+
+  @Test
+  void englishNamesAreStoredInGermanAndCannotBecomeOwnNames() {
+    Game.localization().registerTranslationFile(Language.DE, "language/soulweaver/de.json");
+    Game.localization().registerTranslationFile(Language.EN, "language/soulweaver/en.json");
+    Language previous = Game.localization().currentLanguage();
+    String transported =
+        MethodsWorkshop.blockSource(
+            block(Action.ASSIGN, "kristalle-menge-3", "kristalle"), SoulweaverText::key);
+    try {
+      Game.localization().currentLanguage(Language.EN);
+      assertEquals("crystals = crystals-amount-3", SoulweaverText.translate(transported));
+      assertEquals(
+          "kristalle-menge-3", MethodsWorkshop.stored("crystals-amount-3", SoulweaverText::text));
+      // amount would look like menge to an English player, so no client may store it as own name.
+      Game.localization().currentLanguage(Language.DE);
+      assertEquals("kristalle = kristalle-menge-3", SoulweaverText.translate(transported));
+      var workshop = claimed();
+      var before = workshop.state().main();
+      add(workshop, "main", block(Action.ASSIGN, "menge + 1", "amount"));
+      assertEquals(
+          SoulweaverText.key("methods.error.reserved-name", "amount"), workshop.state().feedback());
+      assertEquals(before, workshop.state().main());
+    } finally {
+      Game.localization().currentLanguage(previous);
+    }
   }
 
   @Test

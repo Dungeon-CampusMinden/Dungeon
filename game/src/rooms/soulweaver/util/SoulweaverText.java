@@ -24,6 +24,14 @@ public final class SoulweaverText {
   private static final SoulweaverTranslator TRANSLATOR = new SoulweaverTranslator();
   private static final SoulweaverTranslator GERMAN = new SoulweaverTranslator(Language.DE);
 
+  /** Prefix of an encoded argument that is server text with transport keys. */
+  static final char NESTED = '~';
+
+  /** Prefix of an encoded argument that is a stored program expression. */
+  static final char EXPRESSION = '*';
+
+  private record Marked(char kind, String text) {}
+
   private SoulweaverText() {}
 
   /**
@@ -41,8 +49,8 @@ public final class SoulweaverText {
    * Creates a transport key for text that the server sends to clients.
    *
    * @param key key relative to the {@code soulweaver} namespace
-   * @param values optional arguments, which may be transport keys themselves; they are encoded so
-   *     that they cannot break the key
+   * @param values optional arguments; they are encoded so that they cannot break the key. Clients
+   *     show them verbatim unless they are marked with {@link #nested} or {@link #expression}
    * @return transport key
    */
   public static String key(String key, Object... values) {
@@ -51,13 +59,40 @@ public final class SoulweaverText {
     return fullKey
         + "||"
         + Stream.of(values)
-            .map(String::valueOf)
             .map(
                 value ->
-                    Base64.getUrlEncoder()
-                        .withoutPadding()
-                        .encodeToString(value.getBytes(StandardCharsets.UTF_8)))
+                    value instanceof Marked marked
+                        ? marked.kind() + encode(marked.text())
+                        : encode(String.valueOf(value)))
             .collect(Collectors.joining(","));
+  }
+
+  /**
+   * Marks an argument of {@link #key} as server text that clients resolve, such as the label of a
+   * vessel. Unmarked arguments stay verbatim, so a player's input is never read as a key.
+   *
+   * @param text transport key or text containing transport keys
+   * @return argument for {@link #key}
+   */
+  public static Object nested(String text) {
+    return new Marked(NESTED, text);
+  }
+
+  /**
+   * Marks an argument of {@link #key} as a stored program expression; clients show the game's names
+   * and direction literals in it in their language and the player's own names verbatim.
+   *
+   * @param expression expression or name in its stored spelling
+   * @return argument for {@link #key}
+   */
+  public static Object expression(String expression) {
+    return new Marked(EXPRESSION, expression);
+  }
+
+  private static String encode(String value) {
+    return Base64.getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(value.getBytes(StandardCharsets.UTF_8));
   }
 
   /**

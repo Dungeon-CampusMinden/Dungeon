@@ -473,6 +473,7 @@
         "no-return": "Method $1 does not return a value.",
         "aborted": "Run aborted.",
         "invalid-variable": "Invalid variable name: $1",
+        "reserved-name": "The name $1 is reserved for the game. Choose another one.",
         "unknown-variable": "Unknown variable: $1",
         "number": "Number expected: $1",
         "direction": "Direction expected: $1",
