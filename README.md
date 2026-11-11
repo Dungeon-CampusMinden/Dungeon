@@ -2,7 +2,7 @@
 <!--  pandoc -s -f markdown -t markdown+smart+four_space_rule-grid_tables-multiline_tables-simple_tables --columns=94 --reference-links=true  README.md  -o xxx.md  -->
 
 <h1 align="center">Dungeon</h1>
-<p align="center"><img src="doc/img/readme/banner.png" alt="Pixel-art banner: an office, a golem forge and a server room side by side in a dungeon"></p>
+<p align="center"><img src="doc/img/readme/banner.png" alt="Three Dungeon rooms built from the game's sprites: a wizard's study, a golem hall and a server room"></p>
 
 Dungeon is a Java framework for the gamification of educational content, and its main use is
 didactic escape rooms. Step into a vanished scientist's office and tell real clues from
