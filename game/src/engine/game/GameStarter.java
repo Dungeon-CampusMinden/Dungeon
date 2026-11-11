@@ -5,6 +5,8 @@ import engine.language.Language;
 import engine.language.Localization;
 import feature.credits.CreditsDefinition;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -42,6 +44,7 @@ public final class GameStarter {
   private final Supplier<StartupConsent> startupConsent;
   private final Supplier<TrackingSettings> trackingSettings;
   private final Supplier<String> hostActionLabel;
+  private final Map<Language, String> localizedTitles;
   private final boolean showJoinButton;
   private final boolean askPlayerName;
   private final Runnable beforeLevelEditorStart;
@@ -62,6 +65,7 @@ public final class GameStarter {
     this.startupConsent = builder.startupConsent;
     this.trackingSettings = builder.trackingSettings;
     this.hostActionLabel = builder.hostActionLabel;
+    this.localizedTitles = Map.copyOf(builder.localizedTitles);
     this.showJoinButton = builder.showJoinButton;
     this.askPlayerName = builder.askPlayerName;
     this.beforeLevelEditorStart = builder.beforeLevelEditorStart;
@@ -79,10 +83,10 @@ public final class GameStarter {
   }
 
   /**
-   * @return human-readable game title
+   * @return human-readable game title in the current language, or the default title
    */
   public String title() {
-    return title;
+    return localizedTitles.getOrDefault(Localization.getInstance().currentLanguage(), title);
   }
 
   /**
@@ -343,6 +347,7 @@ public final class GameStarter {
     private Supplier<StartupConsent> startupConsent = () -> null;
     private Supplier<TrackingSettings> trackingSettings = () -> null;
     private Supplier<String> hostActionLabel;
+    private final Map<Language, String> localizedTitles = new EnumMap<>(Language.class);
     private boolean showJoinButton = true;
     private boolean askPlayerName = true;
     private Runnable beforeLevelEditorStart = () -> {};
@@ -497,6 +502,18 @@ public final class GameStarter {
      */
     public Builder hostActionLabel(Supplier<String> hostActionLabel) {
       this.hostActionLabel = Objects.requireNonNull(hostActionLabel, "hostActionLabel");
+      return this;
+    }
+
+    /**
+     * Replaces the default title in window and menu while the given language is active.
+     *
+     * @param language language the title belongs to
+     * @param title game title in that language
+     * @return this builder instance
+     */
+    public Builder localizedTitle(Language language, String title) {
+      localizedTitles.put(Objects.requireNonNull(language, "language"), validateTitle(title));
       return this;
     }
 

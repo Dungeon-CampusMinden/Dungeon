@@ -15,6 +15,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
+import engine.language.Language;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.utils.Coordinate;
@@ -22,6 +23,8 @@ import engine.level.utils.LevelElement;
 import engine.systems.LevelSystem;
 import engine.systems.MoveSystem;
 import engine.systems.VelocitySystem;
+import engine.tracking.AttemptDetails;
+import engine.tracking.Tracking;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.state.StateMachine;
@@ -30,15 +33,20 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 import rooms.soulweaver.SoulweaverRoomController;
 import rooms.soulweaver.modules.loops.LoopMaze;
+import rooms.soulweaver.modules.loops.LoopProgram;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
 import rooms.soulweaver.modules.variables.VariablePuzzle;
+import rooms.soulweaver.util.SoulweaverText;
 import testingUtils.MockNetworkHandler;
 
 /** Executes real loop instructions and movement against the generated cellar geometry. */
@@ -122,6 +130,32 @@ class SoulweaverGolemMovementTest {
   }
 
   @Test
+  void englishHostTracksTheGermanRuneSourceAndFailure() {
+    Language previous = Game.localization().currentLanguage();
+    Game.localization().registerTranslationFile(Language.DE, "language/soulweaver/de.json");
+    Game.localization().registerTranslationFile(Language.EN, "language/soulweaver/en.json");
+    UUID participant = UUID.randomUUID();
+    try (MockedStatic<Tracking> tracking = mockStatic(Tracking.class)) {
+      Game.localization().currentLanguage(Language.EN);
+      tracking
+          .when(() -> Tracking.participantForEntity(player.id()))
+          .thenReturn(Optional.of(participant));
+
+      // A jump without a pit fails at once and records the attempt with the rune's source.
+      runtime.executeRune("archive-jump", player);
+
+      ArgumentCaptor<String> code = ArgumentCaptor.forClass(String.class);
+      ArgumentCaptor<AttemptDetails> details = ArgumentCaptor.forClass(AttemptDetails.class);
+      tracking.verify(
+          () -> Tracking.attempt(any(), any(), any(), code.capture(), any(), details.capture()));
+      assertTrue(code.getValue().contains("springen();"), code.getValue());
+      assertEquals(List.of("Sprung ohne Grube voraus."), details.getValue().failureReasons());
+    } finally {
+      Game.localization().currentLanguage(previous);
+    }
+  }
+
+  @Test
   void mapReportsPhysicalPositionBetweenCells() {
     runtime.executeRune("forge-press-for", player);
     for (int i = 0; i < 12; i++) tick();
@@ -131,22 +165,24 @@ class SoulweaverGolemMovementTest {
         (position.position().x() - ORIGIN.x()) / LoopMaze.CELL_WIDTH,
         runtime.terminalState().cellX(),
         .0001f);
-    assertEquals("schritt()", runtime.terminalState().status());
+    assertEquals(
+        LoopProgram.Action.MOVE.code(SoulweaverText::key), runtime.terminalState().status());
   }
 
   @Test
   void longRuneReachesCorridorEndBeforeReportingWall() {
+    String wall = SoulweaverText.key("golem.wall-reached");
     runtime.executeRune("archive-long", player);
-    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains("Wand"); i++) {
+    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains(wall); i++) {
       Point previous = position.position();
       tick();
       assertTrue(
           Point.calculateDistance(previous, position.position())
               <= 2.5f / Game.frameRate() + .001f);
       if (position.position().x() < ORIGIN.x() + 4 * LoopMaze.CELL_WIDTH - .01f)
-        assertFalse(runtime.terminalState().status().contains("Wand"));
+        assertFalse(runtime.terminalState().status().contains(wall));
     }
-    assertTrue(runtime.terminalState().status().contains("Wand"), runtime.terminalState().status());
+    assertTrue(runtime.terminalState().status().contains(wall), runtime.terminalState().status());
     float feetRight = position.position().x() + 61f / 64f * position.scale().x();
     assertEquals(
         ORIGIN.x() + 5 * LoopMaze.CELL_WIDTH,
@@ -175,12 +211,13 @@ class SoulweaverGolemMovementTest {
     "4,heart-gate-for"
   })
   void correctRuneFinishesOnlyAfterPhysicalExecution(int checkpoint, String rune) {
+    String confirmed = SoulweaverText.key("golem.position-confirmed");
     for (int i = 0; i < checkpoint; i++)
       controller.completeExecutedLoop(LoopPuzzle.challenges().get(i));
     position.position(LoopMaze.world(ORIGIN, LoopMaze.checkpoints().get(checkpoint).start()));
     runtime.faceWorkshop(LoopMaze.checkpoints().get(checkpoint).facing());
     runtime.executeRune(rune, player);
-    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains("bestätigt"); i++) {
+    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains(confirmed); i++) {
       tick();
       assertEquals(
           (position.position().x() - ORIGIN.x()) / LoopMaze.CELL_WIDTH,
@@ -192,7 +229,7 @@ class SoulweaverGolemMovementTest {
           .0001f);
     }
     assertTrue(
-        runtime.terminalState().status().contains("bestätigt"), runtime.terminalState().status());
+        runtime.terminalState().status().contains(confirmed), runtime.terminalState().status());
     assertEquals(
         LoopMaze.world(ORIGIN, LoopMaze.checkpoints().get(checkpoint).goal()), position.position());
   }
@@ -205,7 +242,8 @@ class SoulweaverGolemMovementTest {
     movement.stop();
     for (int i = 0; i < 300; i++) runtime.tick();
     assertEquals(paused, position.position());
-    assertEquals("schritt()", runtime.terminalState().status());
+    assertEquals(
+        LoopProgram.Action.MOVE.code(SoulweaverText::key), runtime.terminalState().status());
     movement.run();
     tick();
     assertTrue(position.position().x() > paused.x());
@@ -213,10 +251,11 @@ class SoulweaverGolemMovementTest {
 
   @Test
   void interruptedStepReturnsFromActualPositionAndWaitsForBlockedReturn() {
+    String halted = SoulweaverText.key("golem.program-stopped");
     blocked.add(new Coordinate(27, 20));
     runtime.executeRune("forge-press-for", player);
-    for (int i = 0; i < 300 && !runtime.terminalState().status().contains("gestoppt"); i++) tick();
-    assertTrue(runtime.terminalState().status().contains("gestoppt"));
+    for (int i = 0; i < 300 && !runtime.terminalState().status().contains(halted); i++) tick();
+    assertTrue(runtime.terminalState().status().contains(halted));
     Point stopped = position.position();
     assertTrue(stopped.x() > ORIGIN.x());
     assertTrue(stopped.x() < ORIGIN.x() + LoopMaze.CELL_WIDTH);

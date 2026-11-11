@@ -195,6 +195,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private ConnectReject.Reason admissionRejection;
   private volatile ServerProcess pendingServer;
   private final Object networkStartLock = new Object();
+  private RichLabel titleBanner;
 
   private final InputContext menuContext =
       new InputContext(EditorActions.MENU)
@@ -370,11 +371,10 @@ public class MainMenuScreen extends ScreenAdapter {
    */
   private Actor buildTitleBanner() {
     String richTitle = RichLabel.toRichText(starter.title());
-    RichLabel title =
-        new RichLabel(richTitle, FontSpec.of(TITLE_FONT, TITLE_SIZE, starterAccent()));
-    title.setWrap(false);
-    title.setAlignment(Align.center);
-    return title;
+    titleBanner = new RichLabel(richTitle, FontSpec.of(TITLE_FONT, TITLE_SIZE, starterAccent()));
+    titleBanner.setWrap(false);
+    titleBanner.setAlignment(Align.center);
+    return titleBanner;
   }
 
   private Color starterAccent() {
@@ -1255,6 +1255,7 @@ public class MainMenuScreen extends ScreenAdapter {
     if (stage == null) {
       return;
     }
+    titleBanner.setText(RichLabel.toRichText(starter.title()));
     mainView = buildMainView();
     settingsView = buildSettingsView();
     achievementsView = buildAchievementsView();

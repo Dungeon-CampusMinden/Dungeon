@@ -19,6 +19,7 @@ import feature.interaction.InteractionComponent;
 import java.util.List;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
 import rooms.soulweaver.modules.loops.LoopRune;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Places the shared golem, assignment chests, collectible runes, and workshop notes. */
 final class SoulweaverRoomElements {
@@ -112,10 +113,10 @@ final class SoulweaverRoomElements {
                   if (!collectedBefore)
                     SoulweaverProgress.discover(
                         essenceChest ? "variables-essences" : "variables-vessels",
-                        essenceChest ? "Essenzen gefunden" : "Gefäße gefunden",
-                        essenceChest
-                            ? "Die Essenzen liegen jetzt am Bindungstisch bereit."
-                            : "Die Typgefäße liegen jetzt am Bindungstisch bereit.",
+                        SoulweaverText.key(
+                            essenceChest ? "findings.essences.title" : "findings.vessels.title"),
+                        SoulweaverText.key(
+                            essenceChest ? "findings.essences.text" : "findings.vessels.text"),
                         who);
                   interacted
                       .fetch(DrawComponent.class)
@@ -172,11 +173,11 @@ final class SoulweaverRoomElements {
 
   private static String title(String point) {
     return switch (point) {
-      case "archive-instructions" -> "Hinweise aus dem Archiv";
-      case "workshop-experiments" -> "Valerius' Versuchsnotizen";
-      case "intro-tablet" -> "Valerius' Brief";
-      case "forge-maintenance-note" -> "Wartungsnotiz";
-      default -> "Werkstattnotiz";
+      case "archive-instructions" -> SoulweaverText.key("findings.archive-instructions");
+      case "workshop-experiments" -> SoulweaverText.key("findings.workshop-experiments");
+      case "intro-tablet" -> SoulweaverText.key("findings.intro-tablet");
+      case "forge-maintenance-note" -> SoulweaverText.key("findings.forge-maintenance-note");
+      default -> SoulweaverText.key("findings.note");
     };
   }
 

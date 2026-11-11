@@ -1,35 +1,33 @@
 package rooms.soulweaver.modules.variables;
 
+import java.util.Locale;
+
 /** Fantasy vessels representing Java data types. */
 public enum SoulVessel {
-  IRON_CHEST("Eisenkiste", "Ganze Zahlen", "int"),
-  CRYSTAL_BOTTLE("Kristallflasche", "Zahlen, auch Bruchteile", "double"),
-  PARCHMENT("Pergament", "Wörter und Texte", "String"),
-  RUNE_STONE("Runenstein", "Ein einzelnes Zeichen", "char"),
-  LIGHT_ORB("Lichtkugel", "An oder aus", "boolean");
+  IRON_CHEST("int"),
+  CRYSTAL_BOTTLE("double"),
+  PARCHMENT("String"),
+  RUNE_STONE("char"),
+  LIGHT_ORB("boolean");
 
-  private final String label;
-  private final String capacity;
   private final String javaType;
 
-  SoulVessel(String label, String capacity, String javaType) {
-    this.label = label;
-    this.capacity = capacity;
+  SoulVessel(String javaType) {
     this.javaType = javaType;
   }
 
   /**
-   * @return the workshop name, without revealing a programming type
+   * @return language key of the workshop name, without revealing a programming type
    */
-  public String label() {
-    return label;
+  public String labelKey() {
+    return "vessel." + name().toLowerCase(Locale.ROOT) + ".label";
   }
 
   /**
-   * @return the kinds of values this vessel can hold
+   * @return language key of the kinds of values this vessel can hold
    */
-  public String capacity() {
-    return capacity;
+  public String capacityKey() {
+    return "vessel." + name().toLowerCase(Locale.ROOT) + ".capacity";
   }
 
   /**

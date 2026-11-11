@@ -20,7 +20,7 @@ public final class MethodsRoute {
     BACK;
 
     /**
-     * @return the direction as displayed in the learner's source code
+     * @return the canonical stored operand; editors show it in the client's language
      */
     public String label() {
       return switch (this) {

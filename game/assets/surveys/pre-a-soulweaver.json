@@ -3,30 +3,35 @@
   "roomId": "soulweaver",
   "questionnaireId": "soulweaver-evaluation-pre-a-v1",
   "title": {
-    "de": "Soulweaver - Vorher-Fragebogen"
+    "de": "Soulweaver - Vorher-Fragebogen",
+    "en": "Soulweaver - Pre-game questionnaire"
   },
   "skippable": false,
   "pages": [
     {
       "title": {
-        "de": "Vor Soulweaver"
+        "de": "Vor Soulweaver",
+        "en": "Before Soulweaver"
       },
       "questions": [
         {
           "id": "pre_survey_intro",
           "type": "info",
           "text": {
-            "de": "Vor dem Escape Room"
+            "de": "Vor dem Escape Room",
+            "en": "Before the escape room"
           },
           "description": {
-            "de": "Dieser Fragebogen enthält Angaben zu deinen bisherigen Erfahrungen, einen Wissenstest und Fragen zu Java-Programmierung. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten."
+            "de": "Dieser Fragebogen enthält Angaben zu deinen bisherigen Erfahrungen, einen Wissenstest und Fragen zu Java-Programmierung. Bitte beantworte die Wissensfragen selbstständig. Bei Fragen zu deinen persönlichen Erfahrungen gibt es keine richtigen oder falschen Antworten.",
+            "en": "This questionnaire covers your previous experience, a knowledge test and questions about Java programming. Please answer the knowledge questions on your own. For questions about your personal experience there are no right or wrong answers."
           }
         }
       ]
     },
     {
       "title": {
-        "de": "Datenerfassung"
+        "de": "Datenerfassung",
+        "en": "Data collection"
       },
       "questions": [
         {
@@ -34,19 +39,22 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ich bin damit einverstanden, dass meine Antworten und zugehörigen Spieldaten für die Auswertung des Spiels erfasst und verarbeitet werden. Ich gebe in Freitextfeldern keine Namen oder Kontaktdaten an."
+            "de": "Ich bin damit einverstanden, dass meine Antworten und zugehörigen Spieldaten für die Auswertung des Spiels erfasst und verarbeitet werden. Ich gebe in Freitextfeldern keine Namen oder Kontaktdaten an.",
+            "en": "I agree that my answers and the related game data may be collected and processed to evaluate the game. I will not enter names or contact details in free-text fields."
           },
           "options": [
             {
               "id": "yes",
               "text": {
-                "de": "Ja"
+                "de": "Ja",
+                "en": "Yes"
               }
             },
             {
               "id": "no",
               "text": {
-                "de": "Nein"
+                "de": "Nein",
+                "en": "No"
               },
               "declinesConsent": true
             }
@@ -57,7 +65,8 @@
           "type": "number",
           "required": true,
           "text": {
-            "de": "Alter"
+            "de": "Alter",
+            "en": "Age"
           }
         },
         {
@@ -65,31 +74,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Geschlecht"
+            "de": "Geschlecht",
+            "en": "Gender"
           },
           "options": [
             {
               "id": "male",
               "text": {
-                "de": "Männlich"
+                "de": "Männlich",
+                "en": "Male"
               }
             },
             {
               "id": "female",
               "text": {
-                "de": "Weiblich"
+                "de": "Weiblich",
+                "en": "Female"
               }
             },
             {
               "id": "diverse",
               "text": {
-                "de": "Divers"
+                "de": "Divers",
+                "en": "Non-binary / diverse"
               }
             },
             {
               "id": "prefer_not_to_say",
               "text": {
-                "de": "Keine Angabe"
+                "de": "Keine Angabe",
+                "en": "Prefer not to say"
               }
             }
           ]
@@ -98,17 +112,20 @@
     },
     {
       "title": {
-        "de": "Erfahrungen und Vorkenntnisse"
+        "de": "Erfahrungen und Vorkenntnisse",
+        "en": "Experience and prior knowledge"
       },
       "questions": [
         {
           "id": "erfahrung_intro",
           "type": "info",
           "text": {
-            "de": "Noch ein paar Fragen zu deinen Erfahrungen und Vorkenntnissen"
+            "de": "Noch ein paar Fragen zu deinen Erfahrungen und Vorkenntnissen",
+            "en": "A few more questions about your experience and prior knowledge"
           },
           "description": {
-            "de": "Im nächsten Abschnitt geht es um deine bisherigen Erfahrungen mit Programmieren, Java und Escape Rooms. Es gibt keine richtigen oder falschen Antworten. Bewerte bitte dein eigenes Können und antworte möglichst ehrlich. Gib keine Namen oder Kontaktdaten an."
+            "de": "Im nächsten Abschnitt geht es um deine bisherigen Erfahrungen mit Programmieren, Java und Escape Rooms. Es gibt keine richtigen oder falschen Antworten. Bewerte bitte dein eigenes Können und antworte möglichst ehrlich. Gib keine Namen oder Kontaktdaten an.",
+            "en": "The next section is about your previous experience with programming, Java and escape rooms. There are no right or wrong answers. Please rate your own skills and answer as honestly as possible. Do not enter names or contact details."
           }
         },
         {
@@ -118,13 +135,16 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich habe bereits Erfahrung mit realen (physischen) Escape Rooms."
+            "de": "Ich habe bereits Erfahrung mit realen (physischen) Escape Rooms.",
+            "en": "I already have experience with real (physical) escape rooms."
           },
           "minLabel": {
-            "de": "Trifft gar nicht zu"
+            "de": "Trifft gar nicht zu",
+            "en": "Does not apply at all"
           },
           "maxLabel": {
-            "de": "Trifft voll zu"
+            "de": "Trifft voll zu",
+            "en": "Applies completely"
           }
         },
         {
@@ -134,45 +154,53 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich habe bereits digitale Escape Rooms (im Browser oder als App) gespielt."
+            "de": "Ich habe bereits digitale Escape Rooms (im Browser oder als App) gespielt.",
+            "en": "I have already played digital escape rooms (in the browser or as an app)."
           },
           "minLabel": {
-            "de": "Trifft gar nicht zu"
+            "de": "Trifft gar nicht zu",
+            "en": "Does not apply at all"
           },
           "maxLabel": {
-            "de": "Trifft voll zu"
+            "de": "Trifft voll zu",
+            "en": "Applies completely"
           }
         },
         {
           "id": "q06_escape_rooms_haeufigkeit",
           "type": "singleChoice",
           "text": {
-            "de": "Wie oft hast du vor diesem Spiel bereits einen Escape Room (vor Ort oder digital) gespielt?"
+            "de": "Wie oft hast du vor diesem Spiel bereits einen Escape Room (vor Ort oder digital) gespielt?",
+            "en": "How many times have you played an escape room (on site or digital) before this game?"
           },
           "required": true,
           "options": [
             {
               "id": "never",
               "text": {
-                "de": "Noch nie"
+                "de": "Noch nie",
+                "en": "Never"
               }
             },
             {
               "id": "once_or_twice",
               "text": {
-                "de": "Ein- oder zweimal"
+                "de": "Ein- oder zweimal",
+                "en": "Once or twice"
               }
             },
             {
               "id": "several",
               "text": {
-                "de": "Drei- bis fünfmal"
+                "de": "Drei- bis fünfmal",
+                "en": "Three to five times"
               }
             },
             {
               "id": "many",
               "text": {
-                "de": "Öfter als fünfmal"
+                "de": "Öfter als fünfmal",
+                "en": "More than five times"
               }
             }
           ]
@@ -181,32 +209,37 @@
           "id": "q07_programmiererfahrung",
           "type": "singleChoice",
           "text": {
-            "de": "Wie viel Erfahrung hast du insgesamt mit Programmieren?"
+            "de": "Wie viel Erfahrung hast du insgesamt mit Programmieren?",
+            "en": "How much programming experience do you have overall?"
           },
           "required": true,
           "options": [
             {
               "id": "none",
               "text": {
-                "de": "Keine"
+                "de": "Keine",
+                "en": "None"
               }
             },
             {
               "id": "little",
               "text": {
-                "de": "Wenig"
+                "de": "Wenig",
+                "en": "Little"
               }
             },
             {
               "id": "some",
               "text": {
-                "de": "Etwas Erfahrung"
+                "de": "Etwas Erfahrung",
+                "en": "Some experience"
               }
             },
             {
               "id": "extensive",
               "text": {
-                "de": "Viel Erfahrung"
+                "de": "Viel Erfahrung",
+                "en": "A lot of experience"
               }
             }
           ]
@@ -215,32 +248,37 @@
           "id": "q08_javaerfahrung",
           "type": "singleChoice",
           "text": {
-            "de": "Wie viel Erfahrung hast du mit Java?"
+            "de": "Wie viel Erfahrung hast du mit Java?",
+            "en": "How much experience do you have with Java?"
           },
           "required": true,
           "options": [
             {
               "id": "none",
               "text": {
-                "de": "Keine"
+                "de": "Keine",
+                "en": "None"
               }
             },
             {
               "id": "beginner",
               "text": {
-                "de": "Grundkenntnisse"
+                "de": "Grundkenntnisse",
+                "en": "Basic knowledge"
               }
             },
             {
               "id": "intermediate",
               "text": {
-                "de": "Mittlere Kenntnisse"
+                "de": "Mittlere Kenntnisse",
+                "en": "Intermediate knowledge"
               }
             },
             {
               "id": "advanced",
               "text": {
-                "de": "Fortgeschrittene Kenntnisse"
+                "de": "Fortgeschrittene Kenntnisse",
+                "en": "Advanced knowledge"
               }
             }
           ]
@@ -252,13 +290,16 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich bin mit den typischen Mechaniken von Rätselspielen (z. B. Codes finden, Kombinieren von Gegenständen) vertraut."
+            "de": "Ich bin mit den typischen Mechaniken von Rätselspielen (z. B. Codes finden, Kombinieren von Gegenständen) vertraut.",
+            "en": "I am familiar with the typical mechanics of puzzle games (e.g. finding codes, combining items)."
           },
           "minLabel": {
-            "de": "Trifft gar nicht zu"
+            "de": "Trifft gar nicht zu",
+            "en": "Does not apply at all"
           },
           "maxLabel": {
-            "de": "Trifft voll zu"
+            "de": "Trifft voll zu",
+            "en": "Applies completely"
           }
         },
         {
@@ -268,13 +309,16 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich löse gerne komplexe logische Probleme und Rätsel."
+            "de": "Ich löse gerne komplexe logische Probleme und Rätsel.",
+            "en": "I enjoy solving complex logical problems and puzzles."
           },
           "minLabel": {
-            "de": "Trifft gar nicht zu"
+            "de": "Trifft gar nicht zu",
+            "en": "Does not apply at all"
           },
           "maxLabel": {
-            "de": "Trifft voll zu"
+            "de": "Trifft voll zu",
+            "en": "Applies completely"
           }
         },
         {
@@ -284,13 +328,16 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich lerne lieber spielerisch als durch klassische Texte oder Vorträge."
+            "de": "Ich lerne lieber spielerisch als durch klassische Texte oder Vorträge.",
+            "en": "I prefer learning through play rather than through classic texts or lectures."
           },
           "minLabel": {
-            "de": "Trifft gar nicht zu"
+            "de": "Trifft gar nicht zu",
+            "en": "Does not apply at all"
           },
           "maxLabel": {
-            "de": "Trifft voll zu"
+            "de": "Trifft voll zu",
+            "en": "Applies completely"
           }
         },
         {
@@ -300,13 +347,16 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich arbeite gerne unter Zeitdruck."
+            "de": "Ich arbeite gerne unter Zeitdruck.",
+            "en": "I like working under time pressure."
           },
           "minLabel": {
-            "de": "Trifft gar nicht zu"
+            "de": "Trifft gar nicht zu",
+            "en": "Does not apply at all"
           },
           "maxLabel": {
-            "de": "Trifft voll zu"
+            "de": "Trifft voll zu",
+            "en": "Applies completely"
           }
         },
         {
@@ -316,30 +366,36 @@
           "min": 1,
           "max": 5,
           "text": {
-            "de": "Ich finde es motivierend, wenn Lerninhalte in eine Geschichte (Storytelling) verpackt sind."
+            "de": "Ich finde es motivierend, wenn Lerninhalte in eine Geschichte (Storytelling) verpackt sind.",
+            "en": "I find it motivating when learning content is wrapped in a story (storytelling)."
           },
           "minLabel": {
-            "de": "Trifft gar nicht zu"
+            "de": "Trifft gar nicht zu",
+            "en": "Does not apply at all"
           },
           "maxLabel": {
-            "de": "Trifft voll zu"
+            "de": "Trifft voll zu",
+            "en": "Applies completely"
           }
         }
       ]
     },
     {
       "title": {
-        "de": "Variablen und Datentypen"
+        "de": "Variablen und Datentypen",
+        "en": "Variables and data types"
       },
       "questions": [
         {
           "id": "a_intro",
           "type": "info",
           "text": {
-            "de": "Hinweise zum Wissenstest"
+            "de": "Hinweise zum Wissenstest",
+            "en": "Notes on the knowledge test"
           },
           "description": {
-            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten."
+            "de": "Bitte beantworte die Fragen selbstständig und wähle jeweils genau eine Antwort. Es gibt während des Tests keine Rückmeldung zu einzelnen Antworten.",
+            "en": "Please answer the questions on your own and choose exactly one answer each. There is no feedback on individual answers during the test."
           }
         },
         {
@@ -347,31 +403,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Welcher Java-Datentyp kann die Werte `true` und `false` speichern?"
+            "de": "Welcher Java-Datentyp kann die Werte `true` und `false` speichern?",
+            "en": "Which Java data type can store the values `true` and `false`?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "`int`"
+                "de": "`int`",
+                "en": "`int`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "`boolean`"
+                "de": "`boolean`",
+                "en": "`boolean`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "`double`"
+                "de": "`double`",
+                "en": "`double`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "`char`"
+                "de": "`char`",
+                "en": "`char`"
               }
             }
           ]
@@ -381,31 +442,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Welche Zeile speichert genau ein Zeichen in einer Variable?"
+            "de": "Welche Zeile speichert genau ein Zeichen in einer Variable?",
+            "en": "Which line stores exactly one character in a variable?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "`String zeichen = 'K';`"
+                "de": "`String zeichen = 'K';`",
+                "en": "`String zeichen = 'K';`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "`char zeichen = \"K\";`"
+                "de": "`char zeichen = \"K\";`",
+                "en": "`char zeichen = \"K\";`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "`boolean zeichen = 'K';`"
+                "de": "`boolean zeichen = 'K';`",
+                "en": "`boolean zeichen = 'K';`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "`char zeichen = 'K';`"
+                "de": "`char zeichen = 'K';`",
+                "en": "`char zeichen = 'K';`"
               }
             }
           ]
@@ -415,31 +481,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Welchen Wert hat `endpreis` nach diesen Zeilen?\n`int preis = 18; int rabatt = 5; int endpreis = preis - rabatt;`"
+            "de": "Welchen Wert hat `endpreis` nach diesen Zeilen?\n`int preis = 18; int rabatt = 5; int endpreis = preis - rabatt;`",
+            "en": "What is the value of `endpreis` after these lines?\n`int preis = 18; int rabatt = 5; int endpreis = preis - rabatt;`"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "13"
+                "de": "13",
+                "en": "13"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "23"
+                "de": "23",
+                "en": "23"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "5"
+                "de": "5",
+                "en": "5"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "18"
+                "de": "18",
+                "en": "18"
               }
             }
           ]
@@ -449,31 +520,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Du möchtest den Namen „Mira“ als Text speichern. Welche Zeile passt dazu?"
+            "de": "Du möchtest den Namen „Mira“ als Text speichern. Welche Zeile passt dazu?",
+            "en": "You want to store the name “Mira” as text. Which line fits?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "`int name = \"Mira\";`"
+                "de": "`int name = \"Mira\";`",
+                "en": "`int name = \"Mira\";`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "`char name = 'M';`"
+                "de": "`char name = 'M';`",
+                "en": "`char name = 'M';`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "`String name = \"Mira\";`"
+                "de": "`String name = \"Mira\";`",
+                "en": "`String name = \"Mira\";`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "`boolean name = \"Mira\";`"
+                "de": "`boolean name = \"Mira\";`",
+                "en": "`boolean name = \"Mira\";`"
               }
             }
           ]
@@ -482,7 +558,8 @@
     },
     {
       "title": {
-        "de": "Schleifen"
+        "de": "Schleifen",
+        "en": "Loops"
       },
       "questions": [
         {
@@ -490,31 +567,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Bei welcher Java-Schleife wird der Inhalt der Schleife ausgeführt, bevor die Bedingung zum ersten Mal geprüft wird?"
+            "de": "Bei welcher Java-Schleife wird der Inhalt der Schleife ausgeführt, bevor die Bedingung zum ersten Mal geprüft wird?",
+            "en": "In which Java loop is the loop body executed before the condition is checked for the first time?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "`while`"
+                "de": "`while`",
+                "en": "`while`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "`for`"
+                "de": "`for`",
+                "en": "`for`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "`do-while`"
+                "de": "`do-while`",
+                "en": "`do-while`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "`if`"
+                "de": "`if`",
+                "en": "`if`"
               }
             }
           ]
@@ -524,31 +606,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Der Wert von `x` ist am Anfang 4. Die Schleife lautet `while (x < 0) { x++; }`. Welche Aussage ist richtig?"
+            "de": "Der Wert von `x` ist am Anfang 4. Die Schleife lautet `while (x < 0) { x++; }`. Welche Aussage ist richtig?",
+            "en": "The value of `x` is 4 at the start. The loop is `while (x < 0) { x++; }`. Which statement is correct?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "Der Inhalt der Schleife wird kein einziges Mal ausgeführt."
+                "de": "Der Inhalt der Schleife wird kein einziges Mal ausgeführt.",
+                "en": "The loop body is not executed even once."
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "Der Inhalt der Schleife wird genau einmal ausgeführt."
+                "de": "Der Inhalt der Schleife wird genau einmal ausgeführt.",
+                "en": "The loop body is executed exactly once."
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "Der Inhalt der Schleife wird viermal ausgeführt."
+                "de": "Der Inhalt der Schleife wird viermal ausgeführt.",
+                "en": "The loop body is executed four times."
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "Die Schleife wird immer mindestens einmal ausgeführt."
+                "de": "Die Schleife wird immer mindestens einmal ausgeführt.",
+                "en": "The loop is always executed at least once."
               }
             }
           ]
@@ -558,31 +645,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Wie oft wird der Inhalt der Schleife ausgeführt? `for (int i = 1; i <= 4; i++) { ... }`"
+            "de": "Wie oft wird der Inhalt der Schleife ausgeführt? `for (int i = 1; i <= 4; i++) { ... }`",
+            "en": "How many times is the loop body executed? `for (int i = 1; i <= 4; i++) { ... }`"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "3-mal"
+                "de": "3-mal",
+                "en": "3 times"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "5-mal"
+                "de": "5-mal",
+                "en": "5 times"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "1-mal"
+                "de": "1-mal",
+                "en": "Once"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "4-mal"
+                "de": "4-mal",
+                "en": "4 times"
               }
             }
           ]
@@ -592,31 +684,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Wie oft wird der Inhalt der Schleife ausgeführt?\n`int i = 1; while (i < 10) { i = i * 2; }`"
+            "de": "Wie oft wird der Inhalt der Schleife ausgeführt?\n`int i = 1; while (i < 10) { i = i * 2; }`",
+            "en": "How many times is the loop body executed?\n`int i = 1; while (i < 10) { i = i * 2; }`"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "3-mal"
+                "de": "3-mal",
+                "en": "3 times"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "4-mal"
+                "de": "4-mal",
+                "en": "4 times"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "5-mal"
+                "de": "5-mal",
+                "en": "5 times"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "10-mal"
+                "de": "10-mal",
+                "en": "10 times"
               }
             }
           ]
@@ -625,7 +722,8 @@
     },
     {
       "title": {
-        "de": "Methoden"
+        "de": "Methoden",
+        "en": "Methods"
       },
       "questions": [
         {
@@ -633,31 +731,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Welche Aussage beschreibt eine Methode am besten?"
+            "de": "Welche Aussage beschreibt eine Methode am besten?",
+            "en": "Which statement best describes a method?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "Sie ist ein einzelner gespeicherter Wert, der sich nicht ändern darf."
+                "de": "Sie ist ein einzelner gespeicherter Wert, der sich nicht ändern darf.",
+                "en": "It is a single stored value that must not change."
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "Sie fasst Arbeitsschritte unter einem Namen zusammen, damit sie bei Bedarf ausgeführt werden können."
+                "de": "Sie fasst Arbeitsschritte unter einem Namen zusammen, damit sie bei Bedarf ausgeführt werden können.",
+                "en": "It groups work steps under one name so that they can be executed when needed."
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "Sie entscheidet automatisch, ob eine Bedingung wahr ist."
+                "de": "Sie entscheidet automatisch, ob eine Bedingung wahr ist.",
+                "en": "It automatically decides whether a condition is true."
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "Sie sorgt dafür, dass eine Schleife immer genau einmal läuft."
+                "de": "Sie sorgt dafür, dass eine Schleife immer genau einmal läuft.",
+                "en": "It makes sure that a loop always runs exactly once."
               }
             }
           ]
@@ -667,31 +770,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Eine Methode soll eine feste Begrüßung anzeigen. Eine zweite soll beim Aufruf den Namen einer anderen Person erhalten und diese begrüßen. Welche Aussage passt?"
+            "de": "Eine Methode soll eine feste Begrüßung anzeigen. Eine zweite soll beim Aufruf den Namen einer anderen Person erhalten und diese begrüßen. Welche Aussage passt?",
+            "en": "One method should display a fixed greeting. A second one should receive another person's name when it is called and greet that person. Which statement fits?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "Beide Methoden müssen immer einen Parameter erhalten."
+                "de": "Beide Methoden müssen immer einen Parameter erhalten.",
+                "en": "Both methods must always receive a parameter."
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "Die zweite Methode kommt ohne Eingabewert aus, weil der Name automatisch bekannt ist."
+                "de": "Die zweite Methode kommt ohne Eingabewert aus, weil der Name automatisch bekannt ist.",
+                "en": "The second method needs no input value, because the name is known automatically."
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "Die erste Methode kann ohne Parameter arbeiten; die zweite kann den Namen als Parameter erhalten."
+                "de": "Die erste Methode kann ohne Parameter arbeiten; die zweite kann den Namen als Parameter erhalten.",
+                "en": "The first method can work without parameters; the second can receive the name as a parameter."
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "Ein Parameter legt fest, wie oft die Methode ausgeführt wird."
+                "de": "Ein Parameter legt fest, wie oft die Methode ausgeführt wird.",
+                "en": "A parameter determines how often the method is executed."
               }
             }
           ]
@@ -701,31 +809,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Eine Methode namens `summe` erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?"
+            "de": "Eine Methode namens `summe` erhält zwei Zahlen und liefert ihre Summe als Ergebnis. Welches Ergebnis liefert sie für 12 und 8?",
+            "en": "A method named `summe` receives two numbers and returns their sum as its result. Which result does it return for 12 and 8?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "96"
+                "de": "96",
+                "en": "96"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "4"
+                "de": "4",
+                "en": "4"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "20"
+                "de": "20",
+                "en": "20"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "12"
+                "de": "12",
+                "en": "12"
               }
             }
           ]
@@ -735,31 +848,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet eine Zahl, die danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text „Fertig!“ an. Welche Aussage passt?"
+            "de": "Ein Programm nutzt zwei Methoden: Eine berechnet eine Zahl, die danach für eine weitere Rechnung gebraucht wird. Die andere zeigt nur den Text „Fertig!“ an. Welche Aussage passt?",
+            "en": "A program uses two methods: one calculates a number that is then needed for another calculation. The other only displays the text “Done!”. Which statement fits?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "Beide Methoden müssen immer einen Zahlenwert als Ergebnis bereitstellen."
+                "de": "Beide Methoden müssen immer einen Zahlenwert als Ergebnis bereitstellen.",
+                "en": "Both methods must always provide a number as their result."
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "Die erste Methode sollte ihr Ergebnis bereitstellen; die zweite kann einfach den Text anzeigen."
+                "de": "Die erste Methode sollte ihr Ergebnis bereitstellen; die zweite kann einfach den Text anzeigen.",
+                "en": "The first method should provide its result; the second can simply display the text."
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "Die erste Methode braucht keine Berechnung, und die zweite muss Zahlen entgegennehmen."
+                "de": "Die erste Methode braucht keine Berechnung, und die zweite muss Zahlen entgegennehmen.",
+                "en": "The first method needs no calculation, and the second must receive numbers."
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "Keine der Methoden kann ohne eine Schleife genutzt werden."
+                "de": "Keine der Methoden kann ohne eine Schleife genutzt werden.",
+                "en": "Neither method can be used without a loop."
               }
             }
           ]
@@ -768,7 +886,8 @@
     },
     {
       "title": {
-        "de": "Bedingungen: if / else"
+        "de": "Bedingungen: if / else",
+        "en": "Conditions: if / else"
       },
       "questions": [
         {
@@ -776,31 +895,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Mit welchem Wort beginnt man in Java die Prüfung einer Bedingung?"
+            "de": "Mit welchem Wort beginnt man in Java die Prüfung einer Bedingung?",
+            "en": "Which word begins a condition check in Java?"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "`for`"
+                "de": "`for`",
+                "en": "`for`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "`else`"
+                "de": "`else`",
+                "en": "`else`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "`while`"
+                "de": "`while`",
+                "en": "`while`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "`if`"
+                "de": "`if`",
+                "en": "`if`"
               }
             }
           ]
@@ -810,31 +934,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Was passiert bei diesem Code, wenn `a` den Wert `-1` hat?\n`if (a > 0) { if (b > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
+            "de": "Was passiert bei diesem Code, wenn `a` den Wert `-1` hat?\n`if (a > 0) { if (b > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`",
+            "en": "What happens in this code if `a` has the value `-1`?\n`if (a > 0) { if (b > 0) { System.out.println(\"X\"); } } else { System.out.println(\"Y\"); }`"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "Die innere Bedingung wird immer zuerst geprüft."
+                "de": "Die innere Bedingung wird immer zuerst geprüft.",
+                "en": "The inner condition is always checked first."
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "Der äußere `else`-Zweig wird ausgeführt; die innere Bedingung wird nicht geprüft."
+                "de": "Der äußere `else`-Zweig wird ausgeführt; die innere Bedingung wird nicht geprüft.",
+                "en": "The outer `else` branch is executed; the inner condition is not checked."
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "Beide Ausgaben werden ausgeführt."
+                "de": "Beide Ausgaben werden ausgeführt.",
+                "en": "Both outputs are executed."
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "Das Programm wiederholt die `if`-Anweisung automatisch."
+                "de": "Das Programm wiederholt die `if`-Anweisung automatisch.",
+                "en": "The program repeats the `if` statement automatically."
               }
             }
           ]
@@ -844,31 +973,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Welche Ausgabe entsteht?\n`int punkte = 72; if (punkte >= 50) { System.out.println(\"Bestanden\"); } else { System.out.println(\"Nicht bestanden\"); }`"
+            "de": "Welche Ausgabe entsteht?\n`int punkte = 72; if (punkte >= 50) { System.out.println(\"Bestanden\"); } else { System.out.println(\"Nicht bestanden\"); }`",
+            "en": "Which output is produced?\n`int punkte = 72; if (punkte >= 50) { System.out.println(\"Bestanden\"); } else { System.out.println(\"Nicht bestanden\"); }`"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "`Nicht bestanden`"
+                "de": "`Nicht bestanden`",
+                "en": "`Nicht bestanden`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "Beide Texte"
+                "de": "Beide Texte",
+                "en": "Both texts"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "`Bestanden`"
+                "de": "`Bestanden`",
+                "en": "`Bestanden`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "Keine Ausgabe"
+                "de": "Keine Ausgabe",
+                "en": "No output"
               }
             }
           ]
@@ -878,31 +1012,36 @@
           "type": "singleChoice",
           "required": true,
           "text": {
-            "de": "Welche Ausgabe entsteht?\n`int temperatur = 22; int menge = 4; if (temperatur > 20) { if (menge >= 5) { System.out.println(\"A\"); } else { System.out.println(\"B\"); } } else { System.out.println(\"C\"); }`"
+            "de": "Welche Ausgabe entsteht?\n`int temperatur = 22; int menge = 4; if (temperatur > 20) { if (menge >= 5) { System.out.println(\"A\"); } else { System.out.println(\"B\"); } } else { System.out.println(\"C\"); }`",
+            "en": "Which output is produced?\n`int temperatur = 22; int menge = 4; if (temperatur > 20) { if (menge >= 5) { System.out.println(\"A\"); } else { System.out.println(\"B\"); } } else { System.out.println(\"C\"); }`"
           },
           "options": [
             {
               "id": "a",
               "text": {
-                "de": "`B`"
+                "de": "`B`",
+                "en": "`B`"
               }
             },
             {
               "id": "b",
               "text": {
-                "de": "`A`"
+                "de": "`A`",
+                "en": "`A`"
               }
             },
             {
               "id": "c",
               "text": {
-                "de": "`C`"
+                "de": "`C`",
+                "en": "`C`"
               }
             },
             {
               "id": "d",
               "text": {
-                "de": "Keine Ausgabe"
+                "de": "Keine Ausgabe",
+                "en": "No output"
               }
             }
           ]

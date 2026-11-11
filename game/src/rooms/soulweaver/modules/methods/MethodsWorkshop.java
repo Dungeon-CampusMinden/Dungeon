@@ -6,14 +6,22 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
 import rooms.soulweaver.modules.methods.MethodsRoute.Direction;
 import rooms.soulweaver.modules.methods.MethodsRoute.Step;
+import rooms.soulweaver.util.SoulweaverText;
 import tools.jackson.databind.json.JsonMapper;
 
 /** Server-owned block editor and incremental interpreter. Only connected main blocks execute. */
@@ -131,9 +139,7 @@ public final class MethodsWorkshop {
       for (int index = 0; index < body.size(); index++) {
         Block block = body.get(index);
         if (returnLine > 0)
-          errors.put(
-              block.id(),
-              "Nicht erreichbar: Die Methode endet bereits in Zeile " + returnLine + ".");
+          errors.put(block.id(), SoulweaverText.key("methods.error.unreachable", returnLine));
         else if (block.action() == Action.RETURN) returnLine = index + 1;
       }
       return Map.copyOf(errors);
@@ -191,7 +197,7 @@ public final class MethodsWorkshop {
    * One visible condition for opening the exit.
    *
    * @param status evaluation status of this condition
-   * @param message condition description shown to the player
+   * @param message transport key of the condition description shown to the player
    */
   public record Check(CheckStatus status, String message) {}
 
@@ -211,7 +217,7 @@ public final class MethodsWorkshop {
    * @param definitions built methods indexed by name
    * @param feedback latest editor or execution feedback
    * @param blockErrors feedback indexed by block identifier
-   * @param currentInstruction source of the block producing the latest physical action
+   * @param currentInstruction transport key of the block producing the latest physical action
    * @param variables variables visible in the current interpreter frame
    * @param compact whether the main program satisfies the block limit
    * @param parameterReuse whether a parameterized method was called repeatedly
@@ -258,7 +264,7 @@ public final class MethodsWorkshop {
      * @param definitions built methods indexed by name
      * @param feedback latest editor or execution feedback
      * @param blockErrors feedback indexed by block identifier
-     * @param currentInstruction source of the block producing the latest physical action
+     * @param currentInstruction transport key of the block producing the latest physical action
      * @param variables variables visible in the current interpreter frame
      * @param compact whether the main program satisfies the block limit
      * @param parameterReuse whether a parameterized method was called repeatedly
@@ -293,85 +299,82 @@ public final class MethodsWorkshop {
           check(
               evaluated,
               worldSolved,
-              worldSolved && evaluated
-                  ? "Alle Arbeitsstellen erledigt."
-                  : "Alle Arbeitsstellen erledigen: Tore, Runen und beide Altäre."),
+              SoulweaverText.key(
+                  worldSolved && evaluated ? "methods.check.world-done" : "methods.check.world")),
           check(
               evaluated,
               remainingCrystals == 0,
               evaluated
-                  ? "Nox trägt " + remainingCrystals + " Kristalle. Erwartet: 0."
-                  : "Nox soll am Ende keine Kristalle mehr tragen."),
+                  ? SoulweaverText.key("methods.check.carried", remainingCrystals)
+                  : SoulweaverText.key("methods.check.carry-none")),
           // Starting at 0 proves nothing; the counter must have held every collected crystal.
           check(
               evaluated,
               counted(),
               evaluated
-                  ? "Variable kristalle: gezählt "
-                      + countedCrystals
-                      + ", Endwert "
-                      + crystals
-                      + ". Erwartet: "
-                      + collectedCrystals
-                      + " gesammelte Kristalle, dann 0."
-                      + (counted() ? "" : " Prüfe die Rechnung beim Sammeln und Ablegen.")
-                  : "Die Variable kristalle muss alle gesammelten Kristalle zählen und am Ende 0 sein."),
+                  ? SoulweaverText.key(
+                      counted() ? "methods.check.counted" : "methods.check.counted-wrong",
+                      countedCrystals,
+                      crystals,
+                      collectedCrystals)
+                  : SoulweaverText.key("methods.check.count")),
           check(
               true,
               compact,
-              "Hauptprogramm: "
-                  + main.size()
-                  + " Blöcke, höchstens 8 erlaubt."
-                  + (compact ? "" : " Fasse Anweisungen in Methoden zusammen.")),
+              SoulweaverText.key(
+                  compact ? "methods.check.main-blocks" : "methods.check.main-blocks-too-many",
+                  main.size())),
           check(
               evaluated,
               parameterReuse,
-              parameterReuse && evaluated
-                  ? "Methode mit Parametern mehrfach aufgerufen."
-                  : "Rufe dieselbe Methode mit Parametern mindestens zweimal auf."),
+              SoulweaverText.key(
+                  parameterReuse && evaluated
+                      ? "methods.check.reuse-done"
+                      : "methods.check.reuse")),
           check(
               evaluated,
               returnedValueUsed,
-              returnedValueUsed && evaluated
-                  ? "Rückgabewert im Aufrufer verwendet."
-                  : "Verwende einen Rückgabewert in einer Zuweisung oder einem Ausdruck."));
+              SoulweaverText.key(
+                  returnedValueUsed && evaluated
+                      ? "methods.check.return-done"
+                      : "methods.check.return")));
     }
 
     /**
      * Short, explicit outcome shared by the canvas and observation view.
      *
-     * @return localized summary of the current execution outcome
+     * @return transport key of the summary of the current execution outcome
      */
     public String resultTitle() {
       return switch (runState) {
-        case NOT_RUN -> "Noch nicht geprüft";
-        case RUNNING -> "Programm läuft";
+        case NOT_RUN -> SoulweaverText.key("methods.result.not-run");
+        case RUNNING -> SoulweaverText.key("methods.result.running");
         case FINISHED ->
             completed
-                ? "Geschafft! Nebenausgang offen."
-                : "Noch nicht geschafft: "
-                    + checks().stream()
+                ? SoulweaverText.key("methods.result.done")
+                : SoulweaverText.key(
+                    "methods.result.not-done",
+                    checks().stream()
                         .filter(check -> check.status() == CheckStatus.PASSED)
-                        .count()
-                    + " / 6 Bedingungen erfüllt";
-        case FAILED -> "Ausführung wegen eines Fehlers abgebrochen";
-        case STOPPED -> "Programm angehalten. Prüfung nicht abgeschlossen.";
-        case CHANGED -> "Code geändert. Bitte erneut ausführen.";
+                        .count());
+        case FAILED -> SoulweaverText.key("methods.result.failed");
+        case STOPPED -> SoulweaverText.key("methods.result.stopped");
+        case CHANGED -> SoulweaverText.key("methods.result.changed");
       };
     }
 
     /**
      * Keeps the completed evaluation available after subsequent draft edits.
      *
-     * @return completion details, or empty before normal program termination
+     * @return transport keys of the completion details, or empty before normal program termination
      */
     public String resultFeedback() {
       if (runState != RunState.FINISHED) return "";
       return completed
-          ? "Alle Bedingungen erfüllt. Der Nebenausgang ist offen."
-          : (worldSolved
-                  ? "Alle Arbeitsstellen sind erledigt. Für den Ausgang fehlt noch:\n"
-                  : "Für den Ausgang fehlt noch:\n")
+          ? SoulweaverText.key("methods.result.complete")
+          : SoulweaverText.key(
+                  worldSolved ? "methods.result.missing-world-done" : "methods.result.missing")
+              + "\n"
               + checks().stream()
                   .filter(check -> check.status() == CheckStatus.FAILED)
                   .map(check -> "- " + check.message())
@@ -392,6 +395,35 @@ public final class MethodsWorkshop {
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final Set<String> DIRECTIONS =
       Set.of("LEFT", "RIGHT", "BACK", "LINKS", "RECHTS", "HINTEN");
+
+  /** Names the game itself writes into programs; editors show them in the client's language. */
+  private static final Set<String> GAME_IDENTIFIERS =
+      Set.of(
+          "kristalle",
+          "gesammelt",
+          "menge",
+          "richtung",
+          "hilfeTor",
+          "hilfeRune",
+          "hilfeSammeln",
+          "hilfeAltar");
+
+  // The English spellings of the game's names (methods.identifier in en.json). An English client
+  // shows the game's names with them, so they cannot be own names in any language. Update this list
+  // with every change to methods.identifier in en.json.
+  private static final Set<String> RESERVED =
+      Set.of(
+          "crystals",
+          "collected",
+          "amount",
+          "direction",
+          "helpGate",
+          "helpRune",
+          "helpCollect",
+          "helpAltar");
+
+  private static final Pattern NAME =
+      Pattern.compile("(?<![\\p{L}\\p{N}_])[\\p{L}_][\\p{L}\\p{N}_]*");
   private final List<Block> main = new ArrayList<>(), scrap = new ArrayList<>();
   private final Map<String, Definition> definitions = new LinkedHashMap<>();
   private Definition draft = new Definition("", List.of(), List.of());
@@ -403,8 +435,7 @@ public final class MethodsWorkshop {
   private boolean completed, parameterReuse, returnedValueUsed, worldSolved;
   private RunState runState = RunState.NOT_RUN;
   private int remainingCrystals, countedCrystals, collectedCrystals;
-  private String feedback =
-      "Verbinde dein Hauptprogramm. Jeder Start setzt Nox und alle Arbeitsstellen zurück.";
+  private String feedback = SoulweaverText.key("methods.feedback.start");
   private String currentInstruction = "";
   private final Deque<Frame> stack = new ArrayDeque<>();
   private final Map<String, Integer> calls = new HashMap<>();
@@ -635,7 +666,9 @@ public final class MethodsWorkshop {
       switch (intent.operation()) {
         case NAME -> {
           if (intent.value().length() > 40)
-            return rejectEdit("Name zu lang (höchstens 40 Zeichen).");
+            return rejectEdit(SoulweaverText.key("methods.error.name-too-long"));
+          var reserved = reservedName(Stream.of(intent.value()));
+          if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
           draft = new Definition(intent.value(), draft.parameters(), draft.body());
         }
         case PARAMETER -> {
@@ -646,7 +679,9 @@ public final class MethodsWorkshop {
                       .map(String::trim)
                       .toList();
           if (names.size() > 8 || names.stream().anyMatch(n -> n.length() > 40))
-            return rejectEdit("Höchstens 8 Parameter mit je 40 Zeichen.");
+            return rejectEdit(SoulweaverText.key("methods.error.too-many-parameters"));
+          var reserved = reservedName(names.stream());
+          if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
           draft = new Definition(draft.name(), names, draft.body());
         }
         case DELETE_BLOCK -> {
@@ -658,7 +693,7 @@ public final class MethodsWorkshop {
               removed = true;
             }
           }
-          if (!removed) return rejectEdit("Block nicht mehr vorhanden.");
+          if (!removed) return rejectEdit(SoulweaverText.key("methods.error.block-gone"));
         }
         case NEW_METHOD -> {
           archiveChangedDraft();
@@ -667,10 +702,10 @@ public final class MethodsWorkshop {
         }
         case EDIT_METHOD -> {
           var found = definitions.get(intent.value());
-          if (found == null) return rejectEdit("Methode ist noch nicht gebaut.");
+          if (found == null) return rejectEdit(SoulweaverText.key("methods.error.not-built"));
           int retained = totalBlocks() - (draftUnchanged() ? draft.body().size() : 0);
           if (retained + found.body().size() > 256)
-            return rejectEdit("Die Arbeitsfläche enthält höchstens 256 Blöcke.");
+            return rejectEdit(SoulweaverText.key("methods.error.workspace-full"));
           archiveChangedDraft();
           draft =
               new Definition(
@@ -683,17 +718,16 @@ public final class MethodsWorkshop {
           var invalid = definitionError(draft);
           if (invalid.isPresent()) return rejectEdit(invalid.orElseThrow());
           if (!editingName.isEmpty() && !editingName.equals(draft.name())) {
-            feedback =
-                "Für eine vorhandene Methode bleibt der Name gleich. Neue Methode erstellt eine eigene Rune.";
+            feedback = SoulweaverText.key("methods.feedback.keep-name");
             revision++;
             return true;
           }
           if (definitions.size() >= 32 && !definitions.containsKey(draft.name()))
-            return rejectEdit("Die Sammlung enthält höchstens 32 Methoden.");
+            return rejectEdit(SoulweaverText.key("methods.error.collection-full"));
           definitions.put(draft.name(), draft);
           invalidateResult();
           editingName = draft.name();
-          feedback = "Methode " + draft.name() + " gebaut. Die Rune kann jetzt aufgerufen werden.";
+          feedback = SoulweaverText.key("methods.feedback.built", draft.name());
         }
         case MOVE_BLOCKS -> {
           return moveBlocks(JSON.readValue(intent.value(), Move.class));
@@ -709,7 +743,7 @@ public final class MethodsWorkshop {
       revision++;
       return true;
     } catch (RuntimeException invalid) {
-      return rejectEdit("Ungültige Bearbeitung. Bitte erneut versuchen.");
+      return rejectEdit(SoulweaverText.key("methods.error.invalid-edit"));
     }
   }
 
@@ -722,8 +756,16 @@ public final class MethodsWorkshop {
    */
   private boolean applyBlockEdit(Operation operation, Edit edit) {
     try {
+      if (!valid(edit.block()))
+        return rejectEdit(SoulweaverText.key("methods.error.invalid-block"));
+      var reserved =
+          reservedName(
+              Stream.concat(
+                  Stream.of(edit.block().operand(), edit.block().target(), edit.block().method()),
+                  edit.block().arguments().stream()));
+      if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
       if (operation == Operation.EDIT_BLOCK) {
-        if (!valid(edit.block()) || edit.id() == null) return rejectEdit("Ungültiger Block.");
+        if (edit.id() == null) return rejectEdit(SoulweaverText.key("methods.error.invalid-block"));
         boolean found = false;
         for (String container : List.of("main", "scrap", "draft")) {
           var body = new ArrayList<>(body(container));
@@ -744,14 +786,13 @@ public final class MethodsWorkshop {
             }
           setBody(container, body);
         }
-        if (!found) return rejectEdit("Block nicht mehr vorhanden.");
+        if (!found) return rejectEdit(SoulweaverText.key("methods.error.block-gone"));
       } else {
         var destination = body(edit.container());
         if (edit.index() < 0 || edit.index() > destination.size())
-          return rejectEdit("Einfügeposition nicht mehr vorhanden.");
-        if (!valid(edit.block())) return rejectEdit("Ungültiger Block.");
+          return rejectEdit(SoulweaverText.key("methods.error.position-gone"));
         if (totalBlocks() >= 256)
-          return rejectEdit("Die Arbeitsfläche enthält höchstens 256 Blöcke.");
+          return rejectEdit(SoulweaverText.key("methods.error.workspace-full"));
         Block block = freshBlock(edit.block());
         int index = edit.index();
         var to = new ArrayList<>(body(edit.container()));
@@ -762,7 +803,7 @@ public final class MethodsWorkshop {
       revision++;
       return true;
     } catch (RuntimeException invalid) {
-      return rejectEdit("Ungültige Bearbeitung. Bitte erneut versuchen.");
+      return rejectEdit(SoulweaverText.key("methods.error.invalid-edit"));
     }
   }
 
@@ -786,7 +827,8 @@ public final class MethodsWorkshop {
   private boolean moveBlocks(Move move) {
     if (move.ids().isEmpty()
         || move.ids().stream().distinct().count() != move.ids().size()
-        || move.anchor() == null) return rejectEdit("Ungültige Blockauswahl.");
+        || move.anchor() == null)
+      return rejectEdit(SoulweaverText.key("methods.error.invalid-selection"));
     List<Block> destination = body(move.container());
     String source = null;
     for (String container : List.of("main", "draft", "scrap")) {
@@ -795,11 +837,11 @@ public final class MethodsWorkshop {
         break;
       }
     }
-    if (source == null) return rejectEdit("Blöcke nicht mehr im selben Fenster vorhanden.");
+    if (source == null) return rejectEdit(SoulweaverText.key("methods.error.blocks-moved"));
     if (!move.anchor().isEmpty()
         && (move.ids().contains(move.anchor())
             || destination.stream().noneMatch(block -> block.id().equals(move.anchor()))))
-      return rejectEdit("Einfügeposition nicht mehr vorhanden.");
+      return rejectEdit(SoulweaverText.key("methods.error.position-gone"));
     Map<String, Block> byId = new HashMap<>();
     body(source).forEach(block -> byId.put(block.id(), block));
     List<Block> moved = move.ids().stream().map(byId::get).toList();
@@ -823,22 +865,18 @@ public final class MethodsWorkshop {
   private static Optional<String> definitionError(Definition definition) {
     if (definition.body().size() > MAX_METHOD_BLOCKS)
       return Optional.of(
-          "Methode zu lang: "
-              + definition.body().size()
-              + " Zeilen, höchstens "
-              + MAX_METHOD_BLOCKS
-              + " erlaubt.");
+          SoulweaverText.key(
+              "methods.error.method-too-long", definition.body().size(), MAX_METHOD_BLOCKS));
     var unreachable = definition.unreachableBlocks();
     if (!unreachable.isEmpty()) return Optional.of(unreachable.values().iterator().next());
     if (!identifier(definition.name()) || definition.body().isEmpty())
-      return Optional.of("Methode braucht einen gültigen Namen und einen Methodenrumpf.");
+      return Optional.of(SoulweaverText.key("methods.error.method-incomplete"));
     if (definition.parameters().size() > 8
         || definition.parameters().stream().anyMatch(name -> !identifier(name))
         || definition.parameters().stream().distinct().count() != definition.parameters().size())
-      return Optional.of(
-          "Parameter brauchen gültige, unterschiedliche Namen. Richtungsnamen sind reserviert.");
+      return Optional.of(SoulweaverText.key("methods.error.invalid-parameters"));
     if (definition.body().stream().anyMatch(block -> !valid(block)))
-      return Optional.of("Ungültiger Block.");
+      return Optional.of(SoulweaverText.key("methods.error.invalid-block"));
     return Optional.empty();
   }
 
@@ -919,7 +957,7 @@ public final class MethodsWorkshop {
     completed = false;
     if (runState != RunState.NOT_RUN) {
       runState = RunState.CHANGED;
-      feedback = "Code geändert. Führe das Hauptprogramm erneut aus, um es zu prüfen.";
+      feedback = SoulweaverText.key("methods.feedback.changed");
     }
   }
 
@@ -970,7 +1008,7 @@ public final class MethodsWorkshop {
     worldSolved = false;
     completed = false;
     runState = RunState.RUNNING;
-    feedback = "Nox führt das Hauptprogramm aus.";
+    feedback = SoulweaverText.key("methods.feedback.running");
     revision++;
     executionRevision = revision;
     return true;
@@ -995,7 +1033,8 @@ public final class MethodsWorkshop {
           // Keep the caller selected while nested methods or physical actions are running.
           if (stack.size() == 1) activeMainBlockId = frame.active.id();
           if (++instructions > 512)
-            throw new IllegalArgumentException("Mehr als 512 Anweisungen. Lauf abgebrochen.");
+            throw new IllegalArgumentException(
+                SoulweaverText.key("methods.error.too-many-instructions"));
           switch (frame.active.action()) {
             case CALL -> frame.active.arguments().forEach(a -> parse(a, frame.expressions));
             case RETURN, ASSIGN, TURN, MOVE, PLACE ->
@@ -1038,9 +1077,9 @@ public final class MethodsWorkshop {
                   default -> Step.action(block.action(), 0);
                 };
             if (step.action() == Action.MOVE && (step.amount() < 1 || step.amount() > 32))
-              throw new IllegalArgumentException("GEHE braucht eine Entfernung von 1 bis 32.");
+              throw new IllegalArgumentException(SoulweaverText.key("methods.error.move-range"));
             pending = block;
-            currentInstruction = blockSource(block);
+            currentInstruction = blockSource(block, SoulweaverText::key);
             revision++;
             return Optional.of(step);
           }
@@ -1085,10 +1124,14 @@ public final class MethodsWorkshop {
 
   private void invoke(String name, List<String> arguments, Consumer<String> returnValue) {
     Definition method = definitions.get(name);
-    if (method == null) throw new IllegalArgumentException("Methode nicht gebaut: " + name);
+    if (method == null)
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.method-missing", SoulweaverText.expression(name)));
     if (method.parameters().size() != arguments.size())
-      throw new IllegalArgumentException("Argumentanzahl passt nicht zu " + name);
-    if (stack.size() >= 16) throw new IllegalArgumentException("Zu viele verschachtelte Aufrufe.");
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.argument-count", SoulweaverText.expression(name)));
+    if (stack.size() >= 16)
+      throw new IllegalArgumentException(SoulweaverText.key("methods.error.nested-calls"));
     Map<String, String> locals = new LinkedHashMap<>();
     for (int i = 0; i < arguments.size(); i++)
       locals.put(method.parameters().get(i), arguments.get(i));
@@ -1099,7 +1142,8 @@ public final class MethodsWorkshop {
 
   private static void requireReturn(String method, String value) {
     if (value == null)
-      throw new IllegalArgumentException("Methode " + method + " gibt keinen Wert zurück.");
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.no-return", SoulweaverText.expression(method)));
   }
 
   private static List<String> arguments(Frame frame, int count) {
@@ -1142,7 +1186,7 @@ public final class MethodsWorkshop {
     runState = RunState.FAILED;
     pending = null;
     errors++;
-    feedback = reason == null ? "Lauf abgebrochen." : reason;
+    feedback = reason == null ? SoulweaverText.key("methods.error.aborted") : reason;
     if (!activeMainBlockId.isEmpty()) blockErrors.put(activeMainBlockId, feedback);
     revision++;
   }
@@ -1165,10 +1209,25 @@ public final class MethodsWorkshop {
     runState = RunState.STOPPED;
     pending = null;
     stack.clear();
-    feedback = "Programm angehalten. Der nächste Start setzt die Welt zurück.";
+    feedback = SoulweaverText.key("methods.feedback.stopped");
     blockErrors.clear();
     revision++;
     return true;
+  }
+
+  /**
+   * Refuses new input with a reserved name, so the stored program means the same in every language.
+   * Programs that already contain such a name keep running.
+   *
+   * @param texts names or expressions as submitted
+   * @return the rejection feedback for the first reserved name, or empty
+   */
+  private static Optional<String> reservedName(Stream<String> texts) {
+    return texts
+        .flatMap(text -> NAME.matcher(text).results().map(MatchResult::group))
+        .filter(RESERVED::contains)
+        .findFirst()
+        .map(name -> SoulweaverText.key("methods.error.reserved-name", name));
   }
 
   private static boolean identifier(String value) {
@@ -1179,11 +1238,14 @@ public final class MethodsWorkshop {
 
   private void assign(Map<String, String> vars, String target, String value, ResultMode mode) {
     if (!identifier(target))
-      throw new IllegalArgumentException("Ungültiger Variablenname: " + target);
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.invalid-variable", SoulweaverText.expression(target)));
     int amount = numeric(value);
     if (mode != ResultMode.REPLACE) {
       if (!vars.containsKey(target))
-        throw new IllegalArgumentException("Unbekannte Variable: " + target);
+        throw new IllegalArgumentException(
+            SoulweaverText.key(
+                "methods.error.unknown-variable", SoulweaverText.expression(target)));
       int current = numeric(vars.get(target));
       value =
           Integer.toString(
@@ -1201,7 +1263,8 @@ public final class MethodsWorkshop {
     try {
       return Integer.parseInt(value);
     } catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("Zahl erwartet: " + value);
+      throw new IllegalArgumentException(
+          SoulweaverText.key("methods.error.number", SoulweaverText.expression(value)));
     }
   }
 
@@ -1210,7 +1273,9 @@ public final class MethodsWorkshop {
       case "LEFT", "LINKS" -> Direction.LEFT;
       case "RIGHT", "RECHTS" -> Direction.RIGHT;
       case "BACK", "HINTEN" -> Direction.BACK;
-      default -> throw new IllegalArgumentException("Richtung erwartet: " + value);
+      default ->
+          throw new IllegalArgumentException(
+              SoulweaverText.key("methods.error.direction", SoulweaverText.expression(value)));
     };
   }
 
@@ -1238,7 +1303,10 @@ public final class MethodsWorkshop {
           frame.values.push(input);
         } else {
           String result = frame.variables.get(input);
-          if (result == null) throw new IllegalArgumentException("Unbekannte Variable: " + input);
+          if (result == null)
+            throw new IllegalArgumentException(
+                SoulweaverText.key(
+                    "methods.error.unknown-variable", SoulweaverText.expression(input)));
           frame.values.push(result);
         }
       }
@@ -1249,7 +1317,7 @@ public final class MethodsWorkshop {
               Integer.toString(
                   arithmetic.operator() == '+' ? Math.addExact(a, b) : Math.subtractExact(a, b)));
         } catch (ArithmeticException ex) {
-          throw new IllegalArgumentException("Zahl zu groß.");
+          throw new IllegalArgumentException(SoulweaverText.key("methods.error.number-too-large"));
         }
       }
       case Function function ->
@@ -1266,7 +1334,7 @@ public final class MethodsWorkshop {
 
   private static void parse(String expression, Deque<Expression> output) {
     if (expression.isBlank() || expression.length() > 100)
-      throw new IllegalArgumentException("Ausdruck fehlt.");
+      throw new IllegalArgumentException(SoulweaverText.key("methods.error.expression-missing"));
     var parser = new ExpressionParser(expression, output);
     parser.sum();
     parser.whitespace();
@@ -1362,31 +1430,81 @@ public final class MethodsWorkshop {
     }
 
     private IllegalArgumentException invalid() {
-      return new IllegalArgumentException("Ungültiger Ausdruck: " + input);
+      return new IllegalArgumentException(
+          SoulweaverText.key("methods.error.invalid-expression", SoulweaverText.expression(input)));
     }
   }
 
   /**
-   * Renders the actual editable statement, including arguments and result assignment.
+   * Shows the direction literals and the game's own names in an expression in one language. The
+   * player's own names stay as entered; the interpreter accepts both direction spellings.
+   *
+   * @param source stored expression or name
+   * @param word renders a key below the {@code soulweaver} namespace, as text for this client or as
+   *     a transport key on the server
+   * @return expression with each direction literal and game name rendered by {@code word}
+   */
+  public static String localized(String source, UnaryOperator<String> word) {
+    return NAME.matcher(source)
+        .replaceAll(
+            match -> {
+              String name = match.group();
+              if (DIRECTIONS.contains(name))
+                return Matcher.quoteReplacement(
+                    word.apply(
+                        "methods.direction." + direction(name).name().toLowerCase(Locale.ROOT)));
+              if (GAME_IDENTIFIERS.contains(name))
+                return Matcher.quoteReplacement(word.apply("methods.identifier." + name));
+              return name;
+            });
+  }
+
+  /**
+   * Turns the game's names and direction literals typed in the client's language back into their
+   * stored spelling, so the interpreter, the solution checks and tracking stay unchanged.
+   *
+   * @param input expression or name as typed
+   * @param word renders a key below the {@code soulweaver} namespace as text for this client
+   * @return input with the game's names in their stored spelling
+   */
+  public static String stored(String input, UnaryOperator<String> word) {
+    return NAME.matcher(input)
+        .replaceAll(
+            match -> {
+              String name = match.group();
+              for (String identifier : GAME_IDENTIFIERS)
+                if (word.apply("methods.identifier." + identifier).equals(name)) return identifier;
+              for (Direction direction : List.of(Direction.LEFT, Direction.RIGHT, Direction.BACK))
+                if (word.apply("methods.direction." + direction.name().toLowerCase(Locale.ROOT))
+                    .equals(name)) return direction.label();
+              return name;
+            });
+  }
+
+  /**
+   * Renders the actual editable statement, including arguments and result assignment. Command words
+   * and direction literals are language keys; the stored statement stays unchanged.
    *
    * @param b statement to render
+   * @param word renders a key below the {@code soulweaver} namespace, as text for this client or as
+   *     a transport key on the server
    * @return source text for the statement
    */
-  public static String blockSource(Block b) {
+  public static String blockSource(Block b, UnaryOperator<String> word) {
+    String command = "methods.command." + b.action().name().toLowerCase(Locale.ROOT);
+    UnaryOperator<String> expression = source -> localized(source, word);
     return switch (b.action()) {
-      case MOVE -> "GEHE(" + b.operand() + ")";
-      case TURN -> "DREHE(" + b.operand() + ")";
-      case OPEN_GATE -> "ÖFFNE()";
-      case ACTIVATE_RUNE -> "AKTIVIERE()";
-      case COLLECT -> b.target() + " = SAMMLE_ALLE()";
-      case PLACE -> "LEGE_AB(" + b.operand() + ")";
-      case RETURN -> "GIB_ZURÜCK " + b.operand();
-      case ASSIGN -> b.target() + b.mode().operator() + b.operand();
+      case MOVE, TURN, PLACE -> word.apply(command) + "(" + expression.apply(b.operand()) + ")";
+      case OPEN_GATE, ACTIVATE_RUNE -> word.apply(command) + "()";
+      case COLLECT -> expression.apply(b.target()) + " = " + word.apply(command) + "()";
+      case RETURN -> word.apply(command) + " " + expression.apply(b.operand());
+      case ASSIGN ->
+          expression.apply(b.target()) + b.mode().operator() + expression.apply(b.operand());
       case CALL ->
-          (b.target().isBlank() ? "" : b.target() + b.mode().operator())
-              + b.method()
+          (b.target().isBlank() ? "" : expression.apply(b.target()) + b.mode().operator())
+              + expression.apply(b.method())
               + "("
-              + String.join(", ", b.arguments())
+              + b.arguments().stream().map(expression).collect(Collectors.joining(", "))
               + ")";
     };
   }

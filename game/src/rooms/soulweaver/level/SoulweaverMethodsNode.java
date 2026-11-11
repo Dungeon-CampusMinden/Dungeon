@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -40,12 +41,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import rooms.soulweaver.modules.methods.MethodsRoute.Action;
+import rooms.soulweaver.modules.methods.MethodsRoute.Direction;
 import rooms.soulweaver.modules.methods.MethodsWorkshop;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Block;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Definition;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Operation;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.ResultMode;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.State;
+import rooms.soulweaver.util.SoulweaverText;
 import tools.jackson.databind.json.JsonMapper;
 
 /** Code windows and frameless loose groups share the same instruction rows and editors. */
@@ -419,6 +422,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
       current.put(block.id() + ":target", block.target());
       current.put(block.id() + ":arguments", String.join(", ", block.arguments()));
     }
+    current.replaceAll((key, value) -> MethodsWorkshop.localized(value, SoulweaverText::text));
     return current;
   }
 
@@ -479,7 +483,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     if (container.equals("main")) {
       TextButton toggle =
           SoulweaverUI.zoomButton(
-              showOriginal ? "Mein Code" : "Original", showOriginal, this::toggleOriginal);
+              SoulweaverText.text(showOriginal ? "methods.ui.my-code" : "methods.ui.original"),
+              showOriginal,
+              this::toggleOriginal);
       toggle.setName("toggle-original-program");
       toggle.pad(4);
       header.add(toggle).width(106).height(30).padLeft(6);
@@ -489,9 +495,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
       content
           .add(
               SoulweaverUI.zoomLabel(
-                  "Original · "
-                      + ORIGINAL_PROGRAM.size()
-                      + " Zeilen · nur Lesen\nAusführen startet dein eigenes Programm.",
+                  SoulweaverText.text("methods.ui.original-info", ORIGINAL_PROGRAM.size()),
                   15,
                   SoulweaverUI.MUTED))
           .growX()
@@ -501,11 +505,8 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
       content
           .add(
               SoulweaverUI.zoomLabel(
-                  "Entwurf zu lang: "
-                      + methodLines
-                      + " Zeilen, höchstens "
-                      + MethodsWorkshop.MAX_METHOD_BLOCKS
-                      + " erlaubt. Kürze die Methode, bevor du sie baust.",
+                  SoulweaverText.text(
+                      "methods.ui.draft-too-long", methodLines, MethodsWorkshop.MAX_METHOD_BLOCKS),
                   16,
                   SoulweaverUI.ERROR))
           .growX()
@@ -515,7 +516,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
       content
           .add(
               SoulweaverUI.zoomLabel(
-                  unreachable.values().iterator().next(), 16, SoulweaverUI.ERROR))
+                  SoulweaverText.translate(unreachable.values().iterator().next()),
+                  16,
+                  SoulweaverUI.ERROR))
           .growX()
           .padBottom(8)
           .row();
@@ -578,7 +581,10 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
 
   private void methodHeader(Table table, boolean unreachable) {
     var definition = owner.state().draft();
-    table.add(SoulweaverUI.zoomLabel("Name", 15, SoulweaverUI.MUTED)).growX().row();
+    table
+        .add(SoulweaverUI.zoomLabel(SoulweaverText.text("methods.ui.name"), 15, SoulweaverUI.MUTED))
+        .growX()
+        .row();
     table
         .add(
             field(
@@ -589,7 +595,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
         .height(36)
         .row();
     table
-        .add(SoulweaverUI.zoomLabel("Eingaben · durch Kommas getrennt", 15, SoulweaverUI.MUTED))
+        .add(
+            SoulweaverUI.zoomLabel(
+                SoulweaverText.text("methods.ui.parameters"), 15, SoulweaverUI.MUTED))
         .growX()
         .padTop(5)
         .row();
@@ -605,7 +613,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     Table controls = new Table();
     TextButton build =
         SoulweaverUI.zoomButton(
-            "Methode bauen",
+            SoulweaverText.text("methods.ui.build"),
             true,
             () ->
                 owner.send(
@@ -626,7 +634,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     controls
         .add(
             editButton(
-                "Neue Methode",
+                SoulweaverText.text("methods.ui.new-method"),
                 false,
                 () -> {
                   owner.switchMethod(Operation.NEW_METHOD, "");
@@ -636,7 +644,8 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     table.add(controls).growX().padTop(8).padBottom(10).row();
     if (!buildFailure.isEmpty())
       table
-          .add(SoulweaverUI.zoomLabel(buildFailure, 17, SoulweaverUI.GOLD))
+          .add(
+              SoulweaverUI.zoomLabel(SoulweaverText.translate(buildFailure), 17, SoulweaverUI.GOLD))
           .growX()
           .padBottom(10)
           .row();
@@ -647,14 +656,14 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
       table
           .add(
               SoulweaverUI.zoomLabel(
-                  "Gold markiert wiederholte Folgen und Bausteine für Eingaben und Rückgaben. Unterschiedliche Mengen werden zu Eingaben.",
-                  16,
-                  SoulweaverUI.GOLD))
+                  SoulweaverText.text("methods.ui.simplified"), 16, SoulweaverUI.GOLD))
           .growX()
           .padBottom(12)
           .row();
     table
-        .add(SoulweaverUI.zoomLabel("Anweisungen hier herausziehen", 16, SoulweaverUI.MUTED))
+        .add(
+            SoulweaverUI.zoomLabel(
+                SoulweaverText.text("methods.ui.palette-hint"), 16, SoulweaverUI.MUTED))
         .growX()
         .padBottom(10)
         .row();
@@ -664,7 +673,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
           new Block(
               "",
               action,
-              action == Action.TURN ? "RECHTS" : "1",
+              action == Action.TURN ? Direction.RIGHT.label() : "1",
               action == Action.COLLECT ? "gesammelt" : action == Action.ASSIGN ? "kristalle" : "",
               "",
               List.of(),
@@ -672,7 +681,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
       paletteRow(table, caption(action), block);
     }
     table
-        .add(SoulweaverUI.zoomLabel("Gebaute Methoden", 22, SoulweaverUI.GOLD))
+        .add(
+            SoulweaverUI.zoomLabel(
+                SoulweaverText.text("methods.ui.built-methods"), 22, SoulweaverUI.GOLD))
         .growX()
         .padTop(20)
         .padBottom(8)
@@ -681,7 +692,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
       table
           .add(
               SoulweaverUI.zoomLabel(
-                  "Baue deine erste Methode im Methodenfenster.", 17, SoulweaverUI.MUTED))
+                  SoulweaverText.text("methods.ui.no-methods"), 17, SoulweaverUI.MUTED))
           .growX()
           .row();
     owner
@@ -691,7 +702,11 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
             (name, definition) -> {
               paletteRow(
                   table,
-                  "Rune: " + name + "(" + String.join(", ", definition.parameters()) + ")",
+                  SoulweaverText.text(
+                      "methods.ui.rune",
+                      MethodsWorkshop.localized(name, SoulweaverText::text),
+                      MethodsWorkshop.localized(
+                          String.join(", ", definition.parameters()), SoulweaverText::text)),
                   new Block(
                       "",
                       Action.CALL,
@@ -703,7 +718,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
               table
                   .add(
                       editButton(
-                          "Bearbeiten",
+                          SoulweaverText.text("methods.ui.edit"),
                           false,
                           () -> {
                             owner.switchMethod(Operation.EDIT_METHOD, name);
@@ -756,9 +771,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     if (owner.simplified()) {
       String note =
           switch (block.action()) {
-            case COLLECT -> "Sammelmenge als Rückgabe nutzen";
-            case RETURN -> "Diesen Wert am Aufruf übernehmen";
-            case CALL -> "Eingaben am Aufruf anpassen";
+            case COLLECT -> SoulweaverText.text("methods.ui.note.collect");
+            case RETURN -> SoulweaverText.text("methods.ui.note.return");
+            case CALL -> SoulweaverText.text("methods.ui.note.call");
             default -> "";
           };
       if (!note.isEmpty()) {
@@ -832,7 +847,11 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     row.add(options).width(28).height(26);
     if (row.failed) {
       row.row();
-      row.add(SoulweaverUI.zoomLabel("Fehler: " + error, 16, CodeRow.ERROR))
+      row.add(
+              SoulweaverUI.zoomLabel(
+                  SoulweaverText.text("methods.ui.error", SoulweaverText.translate(error)),
+                  16,
+                  CodeRow.ERROR))
           .colspan(2)
           .growX()
           .minWidth(0)
@@ -852,10 +871,14 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
             editor,
             block,
             "arguments",
-            "Argumente · durch Kommas getrennt",
+            SoulweaverText.text("methods.ui.arguments"),
             String.join(", ", block.arguments()));
         editField(
-            editor, block, "target", "Ergebnis speichern in · leer = ignorieren", block.target());
+            editor,
+            block,
+            "target",
+            SoulweaverText.text("methods.ui.result-target"),
+            block.target());
         editor
             .add(
                 editButton(
@@ -872,15 +895,19 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
               editor,
               block,
               "operand",
-              block.action() == Action.TURN ? "Richtung oder Parameter" : "Wert oder Ausdruck",
+              SoulweaverText.text(
+                  block.action() == Action.TURN ? "methods.ui.direction" : "methods.ui.value"),
               block.operand());
         if (block.action() == Action.COLLECT || block.action() == Action.ASSIGN)
-          editField(editor, block, "target", "Variable", block.target());
+          editField(
+              editor, block, "target", SoulweaverText.text("methods.ui.variable"), block.target());
       }
       editor
           .add(
               editButton(
-                  "Baustein löschen", false, () -> owner.send(Operation.DELETE_BLOCK, block.id())))
+                  SoulweaverText.text("methods.ui.delete"),
+                  false,
+                  () -> owner.send(Operation.DELETE_BLOCK, block.id())))
           .growX()
           .padTop(8)
           .row();
@@ -903,7 +930,7 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
    * @return statement markup with its expression highlighted
    */
   private static String syntax(Block block) {
-    String source = MethodsWorkshop.blockSource(block);
+    String source = MethodsWorkshop.blockSource(block, SoulweaverText::text);
     int start =
         switch (block.action()) {
           case MOVE, TURN, PLACE, CALL -> source.indexOf('(') + 1;
@@ -1074,10 +1101,15 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     return button;
   }
 
+  // Fields show the game's names and direction literals in this client's language and send them in
+  // their stored spelling. Saving sends only text the player has changed.
   private TextField field(String key, String initial, BiConsumer<String, Consumer<State>> commit) {
-    EditorField field = fields.computeIfAbsent(key, ignored -> new EditorField(key, initial));
-    field.commit = commit;
-    field.receive(initial);
+    String shown = MethodsWorkshop.localized(initial, SoulweaverText::text);
+    EditorField field = fields.computeIfAbsent(key, ignored -> new EditorField(key, shown));
+    field.commit =
+        (value, acknowledged) ->
+            commit.accept(MethodsWorkshop.stored(value, SoulweaverText::text), acknowledged);
+    field.receive(shown);
     field.setDisabled(!owner.editable());
     return field;
   }
@@ -1369,7 +1401,11 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     gap.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
     gap.setBackground(SoulweaverUI.background(Color.valueOf("20282b"), false));
     if (empty)
-      gap.add(SoulweaverUI.zoomLabel("Code hier ablegen", 18, SoulweaverUI.MUTED)).growX().pad(14);
+      gap.add(
+              SoulweaverUI.zoomLabel(
+                  SoulweaverText.text("methods.ui.drop-code"), 18, SoulweaverUI.MUTED))
+          .growX()
+          .pad(14);
     table.add(gap).growX().height(empty ? 65 : 6).row();
     target(gap, index, false);
   }
@@ -1489,25 +1525,11 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
   }
 
   private static String caption(Action action) {
-    return switch (action) {
-      case TURN -> "Drehen";
-      case MOVE -> "Gehen";
-      case OPEN_GATE -> "Tor öffnen";
-      case ACTIVATE_RUNE -> "Rune aktivieren";
-      case COLLECT -> "Kristalle sammeln";
-      case PLACE -> "Kristalle ablegen";
-      case RETURN -> "Wert zurückgeben";
-      case ASSIGN -> "Variable setzen";
-      case CALL -> "Methode aufrufen";
-    };
+    return SoulweaverText.text("methods.action." + action.name().toLowerCase(Locale.ROOT));
   }
 
   private static String resultModeLabel(ResultMode mode) {
-    return switch (mode) {
-      case REPLACE -> "Ergebnis ersetzen (=)";
-      case ADD -> "Ergebnis addieren (+)";
-      case SUBTRACT -> "Ergebnis subtrahieren (-)";
-    };
+    return SoulweaverText.text("methods.mode." + mode.name().toLowerCase(Locale.ROOT));
   }
 
   private static ResultMode nextResultMode(ResultMode mode) {

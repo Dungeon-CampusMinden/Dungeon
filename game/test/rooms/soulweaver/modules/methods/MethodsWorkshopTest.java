@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import engine.Game;
+import engine.language.Language;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,7 @@ import rooms.soulweaver.modules.methods.MethodsWorkshop.Move;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Operation;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.ResultMode;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.RunState;
+import rooms.soulweaver.util.SoulweaverText;
 import tools.jackson.databind.json.JsonMapper;
 
 class MethodsWorkshopTest {
@@ -36,7 +39,6 @@ class MethodsWorkshopTest {
     if (stock != 0)
       add(workshop, "main", block(Action.ASSIGN, Integer.toString(stock), "kristalle"));
     List<Block> original = workshop.state().main();
-    assertEquals("\u00d6FFNE()", MethodsWorkshop.blockSource(original.getFirst()));
     assertTrue(workshop.execute(1, intent(workshop, Operation.EXECUTE, "")));
     run(workshop, 3, 5);
     workshop.finish(true, carried);
@@ -54,17 +56,20 @@ class MethodsWorkshopTest {
     assertEquals(CheckStatus.FAILED, checks.get(4).status());
     assertEquals(CheckStatus.FAILED, checks.get(5).status());
     assertTrue(
-        workshop.state().feedback().contains(original.size() + " Blöcke, höchstens 8 erlaubt"));
+        workshop
+            .state()
+            .feedback()
+            .contains(SoulweaverText.key("methods.check.main-blocks-too-many", original.size())));
     if (stock != 0) {
       assertTrue(
           workshop
               .state()
               .feedback()
-              .contains(
-                  "Variable kristalle: gezählt 24, Endwert 16. Erwartet: 8 gesammelte Kristalle, dann 0."));
+              .contains(SoulweaverText.key("methods.check.counted-wrong", 24, 16, 8)));
     }
     if (carried != 0)
-      assertTrue(workshop.state().feedback().contains("Nox trägt 3 Kristalle. Erwartet: 0."));
+      assertTrue(
+          workshop.state().feedback().contains(SoulweaverText.key("methods.check.carried", 3)));
     String evaluation = workshop.state().resultFeedback();
     edit(workshop, Operation.NAME, "neuerEntwurf");
     assertEquals("", workshop.state().feedback());
@@ -117,7 +122,7 @@ class MethodsWorkshopTest {
     assertTrue(workshop.state().completed(), workshop.state().feedback());
     assertTrue(
         workshop.state().checks().stream().allMatch(check -> check.status() == CheckStatus.PASSED));
-    assertTrue(workshop.state().resultTitle().contains("Geschafft!"));
+    assertEquals(SoulweaverText.key("methods.result.done"), workshop.state().resultTitle());
     assertTrue(workshop.state().parameterReuse());
     assertTrue(workshop.state().returnedValueUsed());
     assertEquals(0, workshop.state().crystals());
@@ -276,7 +281,8 @@ class MethodsWorkshopTest {
     edit(workshop, Operation.BUILD, "");
     assertEquals(sixLines, workshop.state().definitions().get("tor"));
     assertEquals(7, workshop.state().draft().body().size());
-    assertTrue(workshop.state().feedback().contains("7 Zeilen, höchstens 6 erlaubt"));
+    assertEquals(
+        SoulweaverText.key("methods.error.method-too-long", 7, 6), workshop.state().feedback());
     edit(workshop, Operation.DELETE_BLOCK, workshop.state().draft().body().getFirst().id());
     edit(workshop, Operation.BUILD, "");
     assertEquals(workshop.state().draft(), workshop.state().definitions().get("tor"));
@@ -287,12 +293,11 @@ class MethodsWorkshopTest {
     assertEquals(3, draft.unreachableBlocks().size());
     for (Block unreachable : draft.body().subList(3, 6))
       assertEquals(
-          "Nicht erreichbar: Die Methode endet bereits in Zeile 3.",
+          SoulweaverText.key("methods.error.unreachable", 3),
           draft.unreachableBlocks().get(unreachable.id()));
     edit(workshop, Operation.BUILD, "");
     assertEquals(built, workshop.state().definitions().get("tor"));
-    assertEquals(
-        "Nicht erreichbar: Die Methode endet bereits in Zeile 3.", workshop.state().feedback());
+    assertEquals(SoulweaverText.key("methods.error.unreachable", 3), workshop.state().feedback());
     move(workshop, List.of(returnId), "draft", 6);
     assertTrue(workshop.state().draft().unreachableBlocks().isEmpty());
     edit(workshop, Operation.BUILD, "");
@@ -348,12 +353,41 @@ class MethodsWorkshopTest {
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
     run(workshop, 3, 5);
     assertFalse(workshop.state().busy());
-    assertTrue(workshop.state().feedback().contains("Unbekannte Variable: kristalle"));
+    String unknown =
+        SoulweaverText.key(
+            "methods.error.unknown-variable", SoulweaverText.expression("kristalle"));
+    assertEquals(unknown, workshop.state().feedback());
     assertEquals(
-        Map.of(workshop.state().main().get(4).id(), "Unbekannte Variable: kristalle"),
-        workshop.state().blockErrors());
+        Map.of(workshop.state().main().get(4).id(), unknown), workshop.state().blockErrors());
     edit(workshop, Operation.BUILD, "");
     assertTrue(workshop.state().blockErrors().isEmpty());
+  }
+
+  @Test
+  void englishNamesAreStoredInGermanAndCannotBecomeOwnNames() {
+    Game.localization().registerTranslationFile(Language.DE, "language/soulweaver/de.json");
+    Game.localization().registerTranslationFile(Language.EN, "language/soulweaver/en.json");
+    Language previous = Game.localization().currentLanguage();
+    String transported =
+        MethodsWorkshop.blockSource(
+            block(Action.ASSIGN, "kristalle-menge-3", "kristalle"), SoulweaverText::key);
+    try {
+      Game.localization().currentLanguage(Language.EN);
+      assertEquals("crystals = crystals-amount-3", SoulweaverText.translate(transported));
+      assertEquals(
+          "kristalle-menge-3", MethodsWorkshop.stored("crystals-amount-3", SoulweaverText::text));
+      // amount would look like menge to an English player, so no client may store it as own name.
+      Game.localization().currentLanguage(Language.DE);
+      assertEquals("kristalle = kristalle-menge-3", SoulweaverText.translate(transported));
+      var workshop = claimed();
+      var before = workshop.state().main();
+      add(workshop, "main", block(Action.ASSIGN, "menge + 1", "amount"));
+      assertEquals(
+          SoulweaverText.key("methods.error.reserved-name", "amount"), workshop.state().feedback());
+      assertEquals(before, workshop.state().main());
+    } finally {
+      Game.localization().currentLanguage(previous);
+    }
   }
 
   @Test
@@ -371,12 +405,12 @@ class MethodsWorkshopTest {
                 Operation.MOVE_BLOCKS,
                 JSON.writeValueAsString(new Move(List.of("b0"), "unknown", "")))));
     edit(workshop, Operation.ADD_BLOCK, new Edit("", "main", 0, block(Action.MOVE, null, "")));
-    assertEquals("Ungültiger Block.", workshop.state().feedback());
+    assertEquals(SoulweaverText.key("methods.error.invalid-block"), workshop.state().feedback());
     assertEquals(before.main(), workshop.state().main());
     assertEquals(before.draft(), workshop.state().draft());
     edit(workshop, Operation.NAME, "n".repeat(41));
     String nameError = workshop.state().feedback();
-    assertTrue(nameError.contains("Name zu lang"));
+    assertEquals(SoulweaverText.key("methods.error.name-too-long"), nameError);
     assertEquals(before.draft(), workshop.state().draft());
     edit(workshop, Operation.NAME, "gültigerName");
     assertEquals("gültigerName", workshop.state().draft().name());
@@ -415,7 +449,7 @@ class MethodsWorkshopTest {
     workshop.execute(1, intent(workshop, Operation.EXECUTE, ""));
     assertTrue(workshop.next().isEmpty());
     assertFalse(workshop.state().busy());
-    assertTrue(workshop.state().feedback().contains("verschachtelte"));
+    assertEquals(SoulweaverText.key("methods.error.nested-calls"), workshop.state().feedback());
     assertEquals(
         Map.of(workshop.state().main().getFirst().id(), workshop.state().feedback()),
         workshop.state().blockErrors());

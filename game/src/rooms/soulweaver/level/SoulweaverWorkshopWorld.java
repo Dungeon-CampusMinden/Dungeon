@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.soulweaver.modules.methods.MethodsRoute;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Contiguous workshop geometry derived from the executable method bodies. */
 final class SoulweaverWorkshopWorld {
@@ -248,7 +249,8 @@ final class SoulweaverWorkshopWorld {
    */
   static ActionResult perform(MethodsRoute.Action action, Point position, int amount) {
     Optional<Integer> target = stationAt(action, position);
-    if (target.isEmpty()) return new ActionResult(false, "Kein passendes Objekt in Reichweite.", 0);
+    if (target.isEmpty())
+      return new ActionResult(false, SoulweaverText.key("workshop.no-target"), 0);
     int station = target.orElseThrow();
     switch (action) {
       case OPEN_GATE -> {
@@ -267,8 +269,7 @@ final class SoulweaverWorkshopWorld {
       }
       case COLLECT -> {
         if (!activated[station - 2])
-          return new ActionResult(
-              false, "Der Runenstein hat dieses Kristallfeld noch nicht freigegeben.", 0);
+          return new ActionResult(false, SoulweaverText.key("workshop.field-locked"), 0);
         int collected = remaining[station];
         remaining[station] = 0;
         for (int i = 0; i < collected; i++) tint("crystal-" + station + "-" + i, 0xFFFFFF00);
@@ -278,13 +279,13 @@ final class SoulweaverWorkshopWorld {
         int capacity = MethodsRoute.STATIONS.get(station).amount() - supplied[station];
         if (amount < 0 || amount > capacity)
           return new ActionResult(
-              false, "Dieser Altar hat noch " + capacity + " freie Fassungen.", 0);
+              false, SoulweaverText.key("workshop.altar-capacity", capacity), 0);
         for (int i = supplied[station]; i < supplied[station] + amount; i++)
           socket(station, i, true);
         supplied[station] += amount;
       }
       default -> {
-        return new ActionResult(false, "Kein Weltbefehl.", 0);
+        return new ActionResult(false, SoulweaverText.key("workshop.no-world-command"), 0);
       }
     }
     return new ActionResult(true, "", amount);

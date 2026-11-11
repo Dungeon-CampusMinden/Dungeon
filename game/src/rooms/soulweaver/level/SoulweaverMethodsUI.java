@@ -30,6 +30,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +42,7 @@ import rooms.soulweaver.modules.methods.MethodsWorkshop.Block;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.Operation;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.RunState;
 import rooms.soulweaver.modules.methods.MethodsWorkshop.State;
+import rooms.soulweaver.util.SoulweaverText;
 import tools.jackson.databind.json.JsonMapper;
 
 /** A free code canvas and a world observation view share the same authoritative program. */
@@ -132,7 +134,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
     Table actions = new Table();
     helpButton =
         SoulweaverUI.referenceButton(
-            "Hilfe",
+            SoulweaverText.text("ui.help"),
             () -> {
               if (help) {
                 helpView.returnToPuzzle();
@@ -148,7 +150,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
     actions
         .add(
             SoulweaverUI.button(
-                "Quest-Log",
+                SoulweaverText.text("ui.questlog"),
                 false,
                 () ->
                     SoulweaverHelp.state()
@@ -158,14 +160,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
         .padLeft(8);
     helpView =
         new SoulweaverHelpUI(
-            "Code ordnen: Zeilen ziehen. Strg-Klick wählt einzelne Zeilen, Umschalt-Klick einen Bereich.\n"
-                + "Methode bauen: Namen und Eingaben festlegen, Code hineinziehen, Methode bauen wählen. Die neue Rune ins Hauptprogramm ziehen.\n"
-                + "Werte ändern: ... an einer Zeile öffnen. Enter oder Verlassen des Felds speichert.\n"
-                + "Arbeitsfläche: Mittlere Maustaste + Ziehen. Mausrad über Hintergrund zoomt, über Code scrollt es.\n"
-                + "Fenster: Titel ziehen; Ränder und Ecken mit links ziehen zum Vergrößern. Auch mit gedrückter rechter Maustaste möglich.\n"
-                + "Ausdrücke: Zahlen, Variablen, +, -, Klammern und eigene Methoden. Eine Methode hat höchstens "
-                + MethodsWorkshop.MAX_METHOD_BLOCKS
-                + " Zeilen.",
+            SoulweaverText.text("methods.ui.controls", MethodsWorkshop.MAX_METHOD_BLOCKS),
             this::helpEvent,
             () -> {
               help = false;
@@ -174,7 +169,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
             () -> editable() && pending < 0 && edits.isEmpty());
     run =
         SoulweaverUI.button(
-            "Ausführen",
+            SoulweaverText.text("methods.ui.run"),
             true,
             () -> {
               if (state.busy()) send(Operation.STOP, "");
@@ -187,7 +182,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
     actions.add(run).width(130).height(44).padLeft(8);
     watch =
         SoulweaverUI.button(
-            "Raum ansehen",
+            SoulweaverText.text("methods.ui.watch"),
             false,
             () -> {
               observing = !observing;
@@ -197,7 +192,9 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
     Table heading = new Table();
     heading.setBackground(SoulweaverUI.background(SoulweaverUI.INK, false));
     heading
-        .add(SoulweaverUI.header("Nox · Methodenwerkstatt", actions, this::requestClose))
+        .add(
+            SoulweaverUI.header(
+                SoulweaverText.text("methods.ui.title"), actions, this::requestClose))
         .growX()
         .row();
     shell.add(heading).growX().row();
@@ -226,9 +223,12 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
 
   private static List<CanvasNode> nodes() {
     return List.of(
-        new SoulweaverMethodsNode("main", "Hauptprogramm", 410, 490).position(0, 0),
-        new SoulweaverMethodsNode("draft", "Eigene Methode", 410, 490).position(435, 0),
-        new SoulweaverMethodsNode("palette", "Bausteine & Runen", 300, 490).position(870, 0));
+        new SoulweaverMethodsNode("main", SoulweaverText.text("methods.ui.main"), 410, 490)
+            .position(0, 0),
+        new SoulweaverMethodsNode("draft", SoulweaverText.text("methods.ui.draft"), 410, 490)
+            .position(435, 0),
+        new SoulweaverMethodsNode("palette", SoulweaverText.text("methods.ui.palette"), 300, 490)
+            .position(870, 0));
   }
 
   private static CanvasSnapshot snapshot() {
@@ -359,11 +359,14 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
           || !previous.checks().equals(state.checks())
           || !previous.blockErrors().equals(state.blockErrors())) refreshEvaluation();
     }
-    run.setText(state.busy() ? "Stoppen" : "Ausführen");
+    run.setText(SoulweaverText.text(state.busy() ? "methods.ui.stop" : "methods.ui.run"));
     run.setDisabled(state.editorId() != viewer || state.completed());
     feedback.setText(
-        (editFeedback.isEmpty() || state.busy() ? state.resultTitle() : editFeedback)
-            + (state.editorId() != viewer ? " · Ein anderer Spieler bearbeitet den Code." : ""));
+        SoulweaverText.translate(
+                editFeedback.isEmpty() || state.busy() ? state.resultTitle() : editFeedback)
+            + (state.editorId() != viewer
+                ? " · " + SoulweaverText.text("methods.ui.other-editor")
+                : ""));
     observation.setText(observationText());
     observation.setColor(resultColor());
   }
@@ -377,30 +380,44 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
   private String failureLocation() {
     for (int i = 0; i < state.main().size(); i++) {
       String error = state.blockErrors().get(state.main().get(i).id());
-      if (error != null) return "Hauptprogramm, Zeile " + (i + 1) + ": " + error;
+      if (error != null)
+        return SoulweaverText.text(
+            "methods.ui.failure-location", i + 1, SoulweaverText.translate(error));
     }
-    return state.feedback();
+    return SoulweaverText.translate(state.feedback());
   }
 
   private String observationText() {
-    String title = state.resultTitle();
+    String title = SoulweaverText.translate(state.resultTitle());
     return switch (state.runState()) {
-      case FINISHED -> state.completed() ? title : title + "\n\n" + state.resultFeedback();
+      case FINISHED ->
+          state.completed()
+              ? title
+              : title + "\n\n" + SoulweaverText.translate(state.resultFeedback());
       case FAILED ->
           title
               + "\n\n"
               + failureLocation()
-              + "\n\nMit Zum Code kommst du zurück zur markierten Fehlerzeile.";
-      case STOPPED -> title + "\n\nDer nächste Start setzt Nox und den Raum zurück.";
-      case NOT_RUN, CHANGED -> title + "\n\nStarte das Hauptprogramm mit Ausführen.";
+              + "\n\n"
+              + SoulweaverText.text("methods.ui.back-to-error");
+      case STOPPED -> title + "\n\n" + SoulweaverText.text("methods.ui.stopped-info");
+      case NOT_RUN, CHANGED -> title + "\n\n" + SoulweaverText.text("methods.ui.run-info");
       case RUNNING ->
           title
               + (state.currentInstruction().isEmpty()
                   ? ""
-                  : "\nAktuell: " + state.currentInstruction())
-              + "\n\nAktuelle Variablen:\n"
+                  : "\n"
+                      + SoulweaverText.text(
+                          "methods.ui.current",
+                          SoulweaverText.translate(state.currentInstruction())))
+              + "\n\n"
+              + SoulweaverText.text("methods.ui.variables")
+              + "\n"
               + state.variables().entrySet().stream()
-                  .map(entry -> entry.getKey() + " = " + entry.getValue())
+                  .map(
+                      entry ->
+                          MethodsWorkshop.localized(
+                              entry.getKey() + " = " + entry.getValue(), SoulweaverText::text))
                   .collect(java.util.stream.Collectors.joining("\n"));
     };
   }
@@ -414,7 +431,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
     }
     evaluation.top().left().pad(12);
     evaluation.setBackground(SoulweaverUI.background(SoulweaverUI.SURFACE, false));
-    feedback = SoulweaverUI.label(state.resultTitle(), 21, resultColor());
+    feedback = SoulweaverUI.label(SoulweaverText.translate(state.resultTitle()), 21, resultColor());
     evaluation.add(feedback).colspan(2).growX().padBottom(8).row();
     if (state.runState() == RunState.FAILED)
       evaluation
@@ -432,15 +449,13 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
             case PENDING -> SoulweaverUI.MUTED;
           };
       String status =
-          switch (check.status()) {
-            case PASSED -> "Erfüllt";
-            case FAILED -> "Offen";
-            case PENDING -> "Ungeprüft";
-          };
+          SoulweaverText.text("methods.ui.check." + check.status().name().toLowerCase(Locale.ROOT));
       Table item = new Table();
       item.top().left();
       item.add(SoulweaverUI.label(status, 16, color)).width(88).top().padRight(8);
-      item.add(SoulweaverUI.label(check.message(), 16, SoulweaverUI.TEXT)).growX().minWidth(0);
+      item.add(SoulweaverUI.label(SoulweaverText.translate(check.message()), 16, SoulweaverUI.TEXT))
+          .growX()
+          .minWidth(0);
       evaluation
           .add(item)
           .uniformX()
@@ -604,7 +619,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
     workspace.top().left();
     helpButton.setChecked(help);
     shell.setBackground(observing ? null : SoulweaverUI.background(SoulweaverUI.INK, false));
-    watch.setText(observing ? "Zum Code" : "Raum ansehen");
+    watch.setText(SoulweaverText.text(observing ? "methods.ui.to-code" : "methods.ui.watch"));
     refreshEvaluation();
     if (help) {
       workspace.add(helpView).grow().minSize(0);
@@ -709,7 +724,7 @@ final class SoulweaverMethodsUI extends CanvasUI implements CursorUtil.CursorOve
       refreshPanels();
     }
     if (pending >= 0 && (pendingSeconds += delta) > 2) {
-      String waiting = "Warte auf Bestätigung. Deine Änderungen bleiben vorgemerkt.";
+      String waiting = SoulweaverText.text("methods.ui.waiting");
       feedback.setText(waiting);
       if (observing) observation.setText(waiting + "\n\n" + observationText());
     }

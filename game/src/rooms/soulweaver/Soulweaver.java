@@ -38,6 +38,7 @@ import rooms.soulweaver.level.SoulweaverTerminal;
 import rooms.soulweaver.network.SoulweaverSnapshotTranslator;
 import rooms.soulweaver.save.SoulweaverSave;
 import rooms.soulweaver.state.SoulweaverPhase;
+import rooms.soulweaver.util.SoulweaverTranslator;
 
 /** Entry point for the Soulweaver escape room. */
 public final class Soulweaver {
@@ -109,6 +110,7 @@ public final class Soulweaver {
 
     GameStarter game =
         GameStarter.builder("Das Erbe der Seelenweber", Soulweaver.class)
+            .localizedTitle(Language.EN, "The Soulweavers' Legacy")
             .language(Language.DE)
             .levelEditor("levels/soulweaver")
             .serverArguments(ServerProcess.SERVER_ARGUMENT, NEW_GAME_ARGUMENT)
@@ -143,11 +145,15 @@ public final class Soulweaver {
             SoulweaverSave.currentCharacterAssignments()));
   }
 
-  /** Registers the shared escape-room translations used by the menu and its consent dialogs. */
+  /**
+   * Registers the shared escape-room translations used by the menu and its consent dialogs, and
+   * resolves the room's transport keys on this client.
+   */
   private static void initLocalization() {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
     localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
+    localization.setCurrentTranslator(new SoulweaverTranslator());
   }
 
   private static void serverSetup() {

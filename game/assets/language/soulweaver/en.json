@@ -72,5 +72,558 @@
       "name": "Practice makes perfect",
       "description": "Complete Valerius' methods trial after at least one failed execution."
     }
+  },
+  "soulweaver": {
+    "story": {
+      "intro": "Aethelgard\nThe forge of the missing master Valerius",
+      "ending": {
+        "heartfire": "The crystals burn away in the Heartfire.\nFor a moment, Nox's runes glow in time with the flames.",
+        "done": "You did it!\n\nYou brought Nox to life and guided him all the way to the Heartfire.\nVariables, loops, methods and conditions were your tools.\n\nThe Soulweavers' Legacy is complete.\nClick to end your journey."
+      },
+      "letter": "In case anyone is looking for me: I have gone to the Heartfire.\n\nThe second exit is stuck. Rubble is blocking the gate winch in the cellar, and hot steam is leaking from the old pipes. Do not go down there yourselves.\n\nI built Nox for work like this. He carries loads and keeps the machines clear. His soul binding has gone out, though. Vessels and essences are in the workshop chests.\n\nRestore his soul binding. He is to clear the gate winch so that the exit can be opened again.\n\nValerius",
+      "archive": "Work order · Machine cellar\n\nNox: clear the conveyor track, the pump access and the chain hoist. Cross the damaged cooling channel, then remove the rubble at the gate winch.\n\nThe brass markers are his work positions. The arrows show which way he must face. The control program has to end completely there. Only then does the separate clearing job begin. Merely touching a marker is not enough.\n\nControl programs are kept in the archive, among them old test runs. The control book takes one rhythm rune at a time. If the run does not fit the job, Nox returns to his last work position. The rune is kept. While he is moving or returning, he accepts no new program.\n\nThe viewing stone transmits his view from the cellar. The map only reports where an obstacle lies.\n\nValerius",
+      "maintenance": "Maintenance, gate winch\n\nThe lower bracket is badly rusted. It gives way under load.\n\nValerius",
+      "workshop": "The gate winch is destroyed. We still have the workshop's side exit. Activate the rune stones, collect their crystals and supply both altars.\n\nValerius' long program already does all that. But the exit control holds only eight commands in the main program. Move repeated sequences into methods of your own. Their calls save space. Parameters and return values make the same method usable several times.\n\nThe workshop is a test bench. Every start resets Nox and all objects. Open the control book on the workbench and try out your changes.",
+      "workshop-journal": "Valerius' workshop journal\n\nThe complete program is in the control book. Two gates, the same task twice. The runes require different directions. The fields yield three and five crystals. The altars need exactly these amounts.\n\nThe exit control has room for eight commands. Methods of your own have their own memory. I must combine the repetitions and pass their differences as parameters. A collection hands back its actual count as a return value.\n\nThe test bench resets everything before each run. Errors stay visible until the next attempt begins. The help in the book explains parameters and return values.\n\nValerius"
+    },
+    "progress": {
+      "tab": {
+        "tasks": "Tasks",
+        "findings": "Discoveries",
+        "binding": "Act I · Soul binding",
+        "cellar": "Act II · Cellar",
+        "workshop": "Act III · Workshop",
+        "labyrinth": "Act IV · Labyrinth"
+      },
+      "current-task": "Current task",
+      "continued": "Game continued from Act $1.",
+      "rune-title": "Loop rune $1 · $2",
+      "task": {
+        "explore": "Explore Valerius' workshop and find out how to awaken Nox again.",
+        "activate": "Activate Nox at the binding surface.",
+        "follow-workshop": "Follow Nox to the methods workshop.",
+        "follow-labyrinth": "Follow Nox through the side exit to the Labyrinth of Decisions.",
+        "offering": "Read the scroll in front of the Heartfire and make the offering.",
+        "next-step": "Nox is preparing the next step.",
+        "vessels": "Give each property a matching vessel.",
+        "first-marker": "Guide Nox to the first target marker and turn him the right way.",
+        "next-marker": "Guide Nox to the next target marker and turn him the right way.",
+        "essences": "Insert the values from the binding plan.",
+        "decisions": "Follow the six runes and guide Nox to the Heartfire.",
+        "methods": "Shorten the workshop program with methods and complete all work stations."
+      },
+      "assisted": "(help)"
+    },
+    "ending": {
+      "title": "At the Heartfire",
+      "message": "Place the crystals in the Heartfire.\n\nThis completes the room.\nAfter the closing scene, the game ends for everyone.",
+      "confirm": "Make the offering",
+      "waiting": "You did it!\nWait until everyone has finished their journey."
+    },
+    "findings": {
+      "essences": {
+        "title": "Essences found",
+        "text": "The essences are now ready at the binding table."
+      },
+      "vessels": {
+        "title": "Vessels found",
+        "text": "The type vessels are now ready at the binding table."
+      },
+      "archive-instructions": "Notes from the archive",
+      "workshop-experiments": "Valerius' experiment notes",
+      "intro-tablet": "Valerius' letter",
+      "forge-maintenance-note": "Maintenance note",
+      "note": "Workshop note"
+    },
+    "property": {
+      "name": "Name",
+      "life_energy": "Life energy",
+      "mana": "Mana",
+      "activated": "Activated",
+      "view_direction": "Facing",
+      "steps": "Steps",
+      "identifier": {
+        "name": "name",
+        "life_energy": "lifeEnergy",
+        "mana": "mana",
+        "activated": "activated",
+        "view_direction": "facing",
+        "steps": "steps"
+      }
+    },
+    "vessel": {
+      "iron_chest": {
+        "label": "Iron chest",
+        "capacity": "Whole numbers"
+      },
+      "crystal_bottle": {
+        "label": "Crystal bottle",
+        "capacity": "Numbers with fractions"
+      },
+      "parchment": {
+        "label": "Parchment",
+        "capacity": "Words and texts"
+      },
+      "rune_stone": {
+        "label": "Rune stone",
+        "capacity": "A single character"
+      },
+      "light_orb": {
+        "label": "Light orb",
+        "capacity": "On or off"
+      }
+    },
+    "golem": {
+      "binding-incomplete": "Soul binding incomplete.",
+      "trial-book": "Valerius' trial book lies at the entrance to the workshop.",
+      "activation-blocked": "Activation interrupted. Path blocked.",
+      "activating": "Activation in progress.",
+      "cellar-reached": "Cellar reached. Clearing job ready.",
+      "rubble-cleared": "The rubble is gone. Unfortunately, so is the winch.",
+      "position-confirmed": "Program finished. Work position confirmed.",
+      "clearing": "Clearing job in progress. Control program finished.",
+      "cellar-solved": "Nox reached the target marker and completed the clearing job.",
+      "next-position": "Clearing job done. Next work position ready.",
+      "program-finished": "Program finished.",
+      "program-stopped": "Program stopped.",
+      "returning": "Nox is returning.",
+      "wrong-facing": "Wrong facing direction.",
+      "marker-missed": "Target marker not reached.",
+      "returned": "Nox is back at the work position.",
+      "waiting-return": "Nox is waiting for a clear way back.",
+      "jump-blocked": "Jump path blocked.",
+      "movement-blocked": "Movement interrupted. Path blocked.",
+      "wall-reached": "Wall or obstacle reached. Movement stopped.",
+      "waiting-workshop": "Nox is waiting for a clear path in the workshop.",
+      "waiting-airlock": "Nox is waiting for a clear path to the airlock.",
+      "goal-reached": "Goal reached",
+      "status-title": "Nox · Control status"
+    },
+    "binding": {
+      "chest-empty": "The chest is empty.",
+      "essences-packed": "Essences collected. Valerius' binding plan names the value for each socket. The supply is enough for several sockets.",
+      "vessels-packed": "Soul vessels collected. Each vessel bears an imprint for its contents. The supply is enough for several sockets.",
+      "vessels-solved": "All vessels are assigned.",
+      "essences-solved": "The soul binding is complete. Activate Nox.",
+      "feedback": {
+        "supplies-missing": "Vessels and essences are missing. Open the two workshop chests.",
+        "supplies-ready": "Assign the vessels and insert the essences. Valerius' binding plan lies near the golem.",
+        "vessels-missing": "Vessel supply missing.",
+        "essences-missing": "Essence compartment missing.",
+        "crystal-for-whole-number": "The crystal bottle can hold whole numbers too. Valerius uses the iron chest here; crystal is meant for fractions.",
+        "vessel-holds": "$1 holds: $2. Choose a vessel that matches the value you need.",
+        "vessel-set": "$1: $2 inserted.",
+        "vessels-complete": "All vessels inserted. Add the missing fillings.",
+        "no-vessel": "$1 does not fit in this socket.",
+        "does-not-fit": "$1 does not fit in $2. $3.",
+        "stored": "$1 = $2 stored.",
+        "stored-no-reaction": "$1 = $2 stored. The binding does not react.",
+        "complete": "Soul binding complete. Vessel, name and value form a variable.",
+        "cleared": "$1: socket emptied."
+      },
+      "failure": {
+        "wrong-vessel": "Wrong vessel type for $1.",
+        "vessel-missing": "Vessel missing for $1.",
+        "wrong-type": "Wrong data type: $1 does not fit in $2.",
+        "wrong-value": "Wrong value for $1: $2."
+      },
+      "log": {
+        "vessel": "$1: $2",
+        "essence": "$1 = $2",
+        "correct": "correct",
+        "wrong-vessel": "wrong vessel type",
+        "vessel-missing": "vessel missing",
+        "does-not-fit": "does not fit in $1",
+        "wrong-value": "wrong value",
+        "solution": "Solution inserted",
+        "help": "Help"
+      },
+      "ui": {
+        "title": "Nox · Soul workbench",
+        "goal": "Bind vessel, name and value and awaken Nox.",
+        "controls": "Place: Drag a vessel or essence. Alternatively, click the supply first, then a socket.\nRemove: × on the socket. Supplies can be used several times.\nCheck: Once the binding is complete, choose Activate.",
+        "simplified": "Marked socket: $1 · Matching supplies are visible.",
+        "activate": "Activate",
+        "drop-vessel": "Place a vessel",
+        "empty": "empty",
+        "complete": "Soul binding complete",
+        "core": "Soul core",
+        "vessel-heading": "Vessel supply",
+        "essence-heading": "Essence compartment"
+      },
+      "book": {
+        "title": "Valerius · Binding plan",
+        "heading": "Valerius · Binding plan for Nox",
+        "pages": "Pages $1 and $2 of 6",
+        "note": {
+          "name": "That is what I named him. The name stays, even when I renew his core.",
+          "life_energy": "The charge for his heavy stone body. Less was not enough during the last attempt.",
+          "mana": "The amount for the soul binding. Don't forget the half.",
+          "activated": "The release for the drive. Only activate the soul core once the binding is complete.",
+          "view_direction": "E for east. That is where he should turn after awakening.",
+          "steps": "The step counter reading at the last maintenance. Restore this value during the binding."
+        }
+      }
+    },
+    "loops": {
+      "failure": {
+        "no-halt": "Execution aborted: the loop never stops.",
+        "jump-without-pit": "Jump without a pit ahead.",
+        "pit-ahead": "Pit ahead. Step stopped.",
+        "intruder": "An intruder is blocking the way.",
+        "off-path": "Left the path. Movement stopped."
+      },
+      "code": {
+        "move": "step",
+        "left": "turnLeft",
+        "right": "turnRight",
+        "attack": "attack",
+        "jump": "jump",
+        "free": "floorAhead",
+        "goal": "atWaymark"
+      }
+    },
+    "ui": {
+      "back-to-room": "Back to the room",
+      "help": "Help",
+      "questlog": "Quest log",
+      "previous": "Back",
+      "next": "Next"
+    },
+    "terminal": {
+      "title": "Nox · Cellar control",
+      "goal": "Drag a rune into the executor and guide Nox to the five waymarks.",
+      "controls": "Start: Drag a rune into the executor.\nRead code: Hover the mouse over a rune.\nSwitch: After a failed attempt the executor is free again. Otherwise pull the rune out or replace it.\nObserve: The map shows Nox and the next waymark.",
+      "simplified": "Gold shows the current path. Only matching rune groups are visible.",
+      "commands": "$1(): one tile forward\n$2(): over a pit, two tiles\n$3(): enemy directly ahead\n$4(): no pit ahead, even with an enemy\n$5(): current goal reached\nTurning: a quarter turn",
+      "drop-rune": "Drop a rune here",
+      "locked": "Locked",
+      "pull-out": "Pull out",
+      "heading": {
+        "map": "Cellar",
+        "executor": "Executor",
+        "commands": "Commands"
+      }
+    },
+    "help": {
+      "no-rune": "No rune collected for this section yet.",
+      "rune-location": {
+        "0": "A matching orange for-loop rune lies in the rune archive, at the far left of the lower row of tables.",
+        "1": "A matching blue while-loop rune lies in the rune archive on the lower row of tables, second from the left.",
+        "2": "A matching blue while-loop rune lies in the rune archive on the middle table of the lower row, at its left end.",
+        "3": "A matching purple do-while rune lies in the rune archive, at the far left of the middle row of tables.",
+        "4": "A matching orange for-loop rune lies in the rune archive on the right table of the lower row, to the left of the last rune."
+      },
+      "tip-title": "$1 · Tip $2",
+      "title": {
+        "vessels": "Assign vessels",
+        "essences": "Insert essences",
+        "methods": "Shorten the workshop program",
+        "decisions": "Labyrinth of Decisions",
+        "cellar": "Cellar job $1"
+      },
+      "goal": {
+        "vessels": "Give each property a vessel for its data type.",
+        "essences": "Fill the vessels with the values from Valerius' binding plan.",
+        "methods": "Complete all work stations with at most eight main blocks and reusable methods.",
+        "decisions": "Run the rune with Nox's current values and choose the door of the branch that is executed.",
+        "cellar": "Guide Nox to the target marker and turn him the right way for the clearing job."
+      },
+      "hint": {
+        "vessels": {
+          "1": "Open the vessel chest. Then read Valerius' binding plan and assign the vessels at the binding surface.",
+          "2": "Pay attention to the kind of value: text, whole number, fraction, truth value or single character. The vessels bear matching imprints.",
+          "3": "The next open socket is marked. Only matching vessels stay visible. Assign a matching vessel."
+        },
+        "essences": {
+          "1": "Open the essence chest if the essence compartment is still empty. Then read the required values in Valerius' binding plan and put essences into the sockets.",
+          "2": "A matching data type alone is not enough. Each value must also match the binding plan. A new essence overwrites the old value.",
+          "3": "The next open socket is marked. Only matching essences stay visible. Insert the value from the binding plan."
+        },
+        "methods": {
+          "1": "Nox works through the connected main blocks. Compare the long starting program with the work stations and combine repeated sections.",
+          "2": "At most eight main blocks and six blocks per method. Call a method with parameters several times and use a return value. Both altars must be filled; at the end Nox must carry nothing and the crystals variable must be 0.",
+          "3": "The workbench now marks repeated statements and changing inputs in gold. Use direction and amount as parameters. Collecting returns the amount; the caller adds it to crystals and subtracts the amounts placed on the altars."
+        },
+        "decisions": {
+          "1": "Read the rune from top to bottom. Insert Nox's current values into the first condition. If it is true, the indented block below it applies; otherwise the block after the matching ELSE.",
+          "2": "Only check the conditions on your path; skipped blocks do not count. With AND both parts must be true, with OR one is enough. Watch out for > and >=: 50 > 50 is false, 50 >= 50 is true.",
+          "3": "The rune book now inserts Nox's current values into the conditions. Just compare the numbers and follow the branch whose condition is true."
+        },
+        "cellar": {
+          "1": "Watch Nox and the target marker in the viewing stone. Collect program runes in the archive and place a rune in the executor of the cellar control.",
+          "2": {
+            "0": "Check the number of steps and the final left turn. A condition checked in advance can already be false at the start.",
+            "1": "Check when the condition is evaluated and how far the loop runs. Floor ahead and target marker are different conditions. Check the final turn as well.",
+            "2": "An intruder is blocking the way. The attack must happen before the step onto its tile. Check the final turn as well.",
+            "3": "There is a pit in front of Nox. Jump over it before moving on. Repeat the matching movement block and check the final turn.",
+            "4": "The path has repeated bends. Follow one whole loop body of steps and turns, then the number of repetitions."
+          },
+          "3": "The cellar control now shows the rune family for this section and marks the path. Compare their loops. If no rune is shown, collect this family in the rune archive."
+        }
+      },
+      "ui": {
+        "goal": "Your goal",
+        "tips": "Tips · $1 / 3",
+        "no-tip": "You have not requested a tip for this puzzle yet.",
+        "confirm-title": "Really solve the puzzle?",
+        "confirm-methods": "Your current code will be replaced by the solution and executed. The puzzle is solved for all players.",
+        "confirm-decisions": "At this junction, Nox takes the door of the executed branch. You keep deciding the following junctions yourself.",
+        "confirm": "The help inserts the solution for this puzzle. The puzzle is solved for all players.",
+        "solve-confirm": "Yes, solve the puzzle",
+        "cancel": "Cancel",
+        "solve": "Solve puzzle ...",
+        "next-tip": "Next tip",
+        "editor-only": "Only the player who is editing can insert the solution. Wait until all changes are saved.",
+        "controls": "Controls",
+        "earlier-tips": "Earlier tips from other puzzles"
+      }
+    },
+    "observation": {
+      "title": "Nox · Cellar view",
+      "torches": "Click torches: on / off"
+    },
+    "decisions": {
+      "feedback": {
+        "intro": "Six decision runes separate Nox from the Heartfire.",
+        "enter": "Nox enters the labyrinth. Climb onto Nox.",
+        "access-blocked": "The entrance is blocked. Clear the way and choose Continue.",
+        "mount": "Climb onto Nox and read the first rune.",
+        "read": "Read from top to bottom. Which branch leads to LEFT or RIGHT?",
+        "continue": "Nox continues on his way.",
+        "first-rune": "The first rune is waiting.",
+        "door-onward": "The door leads onward. Nox follows the executed branch.",
+        "door-back": "This door leads back. Nox runs through the return passage to the START.",
+        "heartfire": "The Heartfire has been reached. Read the scroll in front of the fire to make the offering and complete the room.",
+        "back-at-start": "Back at the START. Nox has new starting values.",
+        "new-values": "New values, new decision. Read the rune again.",
+        "clear-way": "Clear the way and choose Continue."
+      },
+      "occupied": "Another player is riding Nox.",
+      "failure": {
+        "other-door": "The executed branch leads to the other door."
+      },
+      "log": {
+        "attempt": "Attempt $1",
+        "junction": "Junction $1 · S$2 E$3 T$4",
+        "correct": "correct",
+        "wrong": "wrong, back to the START"
+      },
+      "code": {
+        "if": "IF",
+        "else": "ELSE",
+        "and": "AND",
+        "or": "OR",
+        "left": "LEFT",
+        "right": "RIGHT"
+      },
+      "attribute": {
+        "kraft": "Strength",
+        "energie": "Energy",
+        "temperatur": "Temperature"
+      },
+      "values": "STRENGTH $1     ENERGY $2     TEMPERATURE $3",
+      "change": {
+        "kraft": "STRENGTH $1",
+        "energie": "ENERGY $1",
+        "temperatur": "TEMPERATURE $1"
+      },
+      "event": {
+        "threshold": "Threshold rune",
+        "crystal-spring": "Crystal spring",
+        "strength-spring": "Spring of strength",
+        "fire": "Fire rune",
+        "forge": "Forge rune",
+        "heart-ember": "Heart ember",
+        "heartfire": "The Heartfire awakens."
+      },
+      "help": {
+        "completed": "The labyrinth is done.",
+        "moving": "Nox is on the move. Tips are available again at the next junction.",
+        "blocked": "Choose Continue so that Nox walks on to the next junction."
+      },
+      "ui": {
+        "resume": "Continue",
+        "controls": "Decide: Choose LEFT or RIGHT above the door.\nRune: Click the heading to expand or collapse it.\nContinue: Sends Nox on after an interruption or at the START.",
+        "junction": "Junction $1 / 6"
+      }
+    },
+    "methods": {
+      "error": {
+        "unreachable": "Unreachable: the method already ends in line $1.",
+        "name-too-long": "Name too long (at most 40 characters).",
+        "too-many-parameters": "At most 8 parameters with up to 40 characters each.",
+        "block-gone": "Block no longer exists.",
+        "not-built": "This method has not been built yet.",
+        "workspace-full": "The workspace holds at most 256 blocks.",
+        "collection-full": "The collection holds at most 32 methods.",
+        "invalid-edit": "Invalid edit. Please try again.",
+        "invalid-block": "Invalid block.",
+        "position-gone": "Insert position no longer exists.",
+        "invalid-selection": "Invalid block selection.",
+        "blocks-moved": "The blocks are no longer in the same window.",
+        "method-too-long": "Method too long: $1 lines, at most $2 allowed.",
+        "method-incomplete": "A method needs a valid name and a method body.",
+        "invalid-parameters": "Parameters need valid, distinct names. Direction names are reserved.",
+        "too-many-instructions": "More than 512 statements. Run aborted.",
+        "move-range": "MOVE needs a distance from 1 to 32.",
+        "method-missing": "Method not built: $1",
+        "argument-count": "Number of arguments does not match $1",
+        "nested-calls": "Too many nested calls.",
+        "no-return": "Method $1 does not return a value.",
+        "aborted": "Run aborted.",
+        "invalid-variable": "Invalid variable name: $1",
+        "reserved-name": "The name $1 is reserved for the game. Choose another one.",
+        "unknown-variable": "Unknown variable: $1",
+        "number": "Number expected: $1",
+        "direction": "Direction expected: $1",
+        "number-too-large": "Number too large.",
+        "expression-missing": "Expression missing.",
+        "invalid-expression": "Invalid expression: $1"
+      },
+      "check": {
+        "world-done": "All work stations done.",
+        "world": "Complete all work stations: gates, runes and both altars.",
+        "carried": "Nox is carrying $1 crystals. Expected: 0.",
+        "carry-none": "Nox should carry no crystals at the end.",
+        "counted": "Variable crystals: counted $1, final value $2. Expected: $3 collected crystals, then 0.",
+        "counted-wrong": "Variable crystals: counted $1, final value $2. Expected: $3 collected crystals, then 0. Check the calculation when collecting and placing.",
+        "count": "The variable crystals must count all collected crystals and be 0 at the end.",
+        "main-blocks": "Main program: $1 blocks, at most 8 allowed.",
+        "main-blocks-too-many": "Main program: $1 blocks, at most 8 allowed. Combine statements into methods.",
+        "reuse-done": "Method with parameters called several times.",
+        "reuse": "Call the same method with parameters at least twice.",
+        "return-done": "Return value used by the caller.",
+        "return": "Use a return value in an assignment or an expression."
+      },
+      "result": {
+        "not-run": "Not checked yet",
+        "running": "Program running",
+        "done": "Done! Side exit open.",
+        "not-done": "Not done yet: $1 / 6 conditions met",
+        "failed": "Execution aborted due to an error",
+        "stopped": "Program stopped. Check not completed.",
+        "changed": "Code changed. Please run it again.",
+        "complete": "All conditions met. The side exit is open.",
+        "missing-world-done": "All work stations are done. The exit still needs:",
+        "missing": "The exit still needs:"
+      },
+      "feedback": {
+        "start": "Connect your main program. Every start resets Nox and all work stations.",
+        "keep-name": "An existing method keeps its name. The New method button creates a rune of its own.",
+        "built": "Method $1 built. The rune can now be called.",
+        "changed": "Code changed. Run the main program again to check it.",
+        "running": "Nox is running the main program.",
+        "stopped": "Program stopped. The next start resets the world."
+      },
+      "action": {
+        "turn": "Turn",
+        "move": "Move",
+        "open_gate": "Open gate",
+        "activate_rune": "Activate rune",
+        "collect": "Collect crystals",
+        "place": "Place crystals",
+        "return": "Return value",
+        "assign": "Set variable",
+        "call": "Call method"
+      },
+      "mode": {
+        "replace": "Replace result (=)",
+        "add": "Add result (+)",
+        "subtract": "Subtract result (-)"
+      },
+      "ui": {
+        "title": "Nox · Methods workshop",
+        "main": "Main program",
+        "draft": "Your method",
+        "palette": "Blocks & runes",
+        "controls": "Arrange code: Drag lines. Ctrl-click selects single lines, Shift-click a range.\nBuild a method: Set name and inputs, drag code in, choose Build method. Drag the new rune into the main program.\nChange values: Open ... on a line. Enter or leaving the field saves.\nWorkspace: Middle mouse button + drag. The mouse wheel zooms over the background and scrolls over code.\nWindows: Drag the title; drag edges and corners with the left button to resize. Also possible with the right mouse button held down.\nExpressions: Numbers, variables, +, -, parentheses and your own methods. A method has at most $1 lines.",
+        "run": "Run",
+        "stop": "Stop",
+        "watch": "View room",
+        "to-code": "To code",
+        "other-editor": "Another player is editing the code.",
+        "failure-location": "Main program, line $1: $2",
+        "back-to-error": "To code takes you back to the marked error line.",
+        "stopped-info": "The next start resets Nox and the room.",
+        "run-info": "Start the main program with Run.",
+        "current": "Current: $1",
+        "variables": "Current variables:",
+        "check": {
+          "passed": "Met",
+          "failed": "Open",
+          "pending": "Unchecked"
+        },
+        "waiting": "Waiting for confirmation. Your changes are queued.",
+        "my-code": "My code",
+        "original": "Original",
+        "original-info": "Original · $1 lines · read only\nRun starts your own program.",
+        "draft-too-long": "Draft too long: $1 lines, at most $2 allowed. Shorten the method before you build it.",
+        "name": "Name",
+        "parameters": "Inputs · separated by commas",
+        "build": "Build method",
+        "new-method": "New method",
+        "simplified": "Gold marks repeated sequences and blocks for inputs and return values. Different amounts become inputs.",
+        "palette-hint": "Drag statements out from here",
+        "built-methods": "Built methods",
+        "no-methods": "Build your first method in the method window.",
+        "rune": "Rune: $1($2)",
+        "edit": "Edit",
+        "note": {
+          "collect": "Use the collected amount as the return value",
+          "return": "Use this value where the method is called",
+          "call": "Adjust the inputs at the call"
+        },
+        "error": "Error: $1",
+        "arguments": "Arguments · separated by commas",
+        "result-target": "Store result in · empty = ignore",
+        "direction": "Direction or parameter",
+        "value": "Value or expression",
+        "variable": "Variable",
+        "delete": "Delete block",
+        "drop-code": "Drop code here"
+      },
+      "command": {
+        "move": "MOVE",
+        "turn": "TURN",
+        "open_gate": "OPEN",
+        "activate_rune": "ACTIVATE",
+        "collect": "COLLECT_ALL",
+        "place": "PLACE",
+        "return": "RETURN"
+      },
+      "direction": {
+        "left": "LEFT",
+        "right": "RIGHT",
+        "back": "BACK"
+      },
+      "identifier": {
+        "kristalle": "crystals",
+        "gesammelt": "collected",
+        "menge": "amount",
+        "richtung": "direction",
+        "hilfeTor": "helpGate",
+        "hilfeRune": "helpRune",
+        "hilfeSammeln": "helpCollect",
+        "hilfeAltar": "helpAltar"
+      }
+    },
+    "workshop": {
+      "on-the-way-first": "Nox is on his way to the first work station.",
+      "not-enough-crystals": "Nox does not have enough crystals for this placement.",
+      "solved": "All work stations and program checks are complete. The side exit is open.",
+      "on-the-way": "Nox is on his way to the workshop.",
+      "log": {
+        "title": "Workshop program",
+        "run": "Run $1"
+      },
+      "no-target": "No matching object within reach.",
+      "field-locked": "The rune stone has not released this crystal field yet.",
+      "altar-capacity": "This altar still has $1 free sockets.",
+      "no-world-command": "Not a world command."
+    },
+    "essence": {
+      "view_direction": "'E'"
+    }
   }
 }

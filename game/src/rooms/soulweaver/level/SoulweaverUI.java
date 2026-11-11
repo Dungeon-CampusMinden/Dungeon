@@ -18,6 +18,7 @@ import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Shared visual language for Nox's workbenches, references and observation controls. */
 final class SoulweaverUI {
@@ -196,7 +197,7 @@ final class SoulweaverUI {
 
   static Table header(String title, Table actions, Runnable close) {
     Label heading = label(title, 27, TEXT);
-    TextButton leave = button("Zurück zum Raum", false, close);
+    TextButton leave = button(SoulweaverText.text("ui.back-to-room"), false, close);
     leave.setUserObject(Cursors.INTERACT);
     return new Table() {
       private boolean compact;

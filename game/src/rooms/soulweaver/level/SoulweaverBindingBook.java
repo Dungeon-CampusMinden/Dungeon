@@ -20,8 +20,10 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import java.util.Locale;
 import rooms.soulweaver.modules.variables.GolemProperty;
 import rooms.soulweaver.modules.variables.VariablePuzzle;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Valerius' separate reference book, using the open-book artwork from MushRoom. */
 final class SoulweaverBindingBook extends Group {
@@ -63,11 +65,14 @@ final class SoulweaverBindingBook extends Group {
         java.util.Arrays.stream(GolemProperty.values())
             .map(
                 property ->
-                    property.label()
+                    SoulweaverText.key(property.labelKey())
                         + ": "
-                        + VariablePuzzle.essenceSolution().get(property).literal())
+                        + VariablePuzzle.essenceSolution()
+                            .get(property)
+                            .literal(SoulweaverText::key))
             .collect(java.util.stream.Collectors.joining("\n"));
-    SoulweaverProgress.discover("variables-translation", "Valerius · Bindungsplan", reference, who);
+    SoulweaverProgress.discover(
+        "variables-translation", SoulweaverText.key("binding.book.title"), reference, who);
     SoulweaverTerminal.stopWalking(who);
     var ui =
         DialogFactory.show(
@@ -97,7 +102,7 @@ final class SoulweaverBindingBook extends Group {
     shell
         .add(
             SoulweaverUI.header(
-                "Valerius · Bindungsplan",
+                SoulweaverText.text("binding.book.title"),
                 new com.badlogic.gdx.scenes.scene2d.ui.Table(),
                 () -> DialogCallbackResolver.createButtonCallback(dialogId, "close").accept(null)))
         .growX()
@@ -121,8 +126,8 @@ final class SoulweaverBindingBook extends Group {
           }
         });
     shell.add(scroll).grow().minSize(0).row();
-    previous = SoulweaverUI.button("Zurück", false, () -> turn(-1));
-    next = SoulweaverUI.button("Weiter", true, () -> turn(1));
+    previous = SoulweaverUI.button(SoulweaverText.text("ui.previous"), false, () -> turn(-1));
+    next = SoulweaverUI.button(SoulweaverText.text("ui.next"), true, () -> turn(1));
     var navigation = new com.badlogic.gdx.scenes.scene2d.ui.Table();
     navigation.add(previous).width(125).minHeight(44);
     pageCount.setAlignment(Align.center);
@@ -149,7 +154,7 @@ final class SoulweaverBindingBook extends Group {
     page(GolemProperty.values()[spread * 2 + 1], 710, spread * 2 + 2);
     previous.setDisabled(spread == 0);
     next.setDisabled((spread + 1) * 2 >= GolemProperty.values().length);
-    pageCount.setText("Seiten " + (spread * 2 + 1) + " und " + (spread * 2 + 2) + " von 6");
+    pageCount.setText(SoulweaverText.text("binding.book.pages", spread * 2 + 1, spread * 2 + 2));
     scroll.setScrollY(0);
   }
 
@@ -161,9 +166,9 @@ final class SoulweaverBindingBook extends Group {
    * @param number printed page number, starting at one
    */
   private void page(GolemProperty property, float x, int number) {
-    Label heading = label("Valerius · Bindungsplan für Nox", 22, x, 782, 460, 38);
+    Label heading = label(SoulweaverText.text("binding.book.heading"), 22, x, 782, 460, 38);
     heading.setColor(FADED_INK);
-    label(property.label(), 40, x, 708, 460, 68);
+    label(SoulweaverText.text(property.labelKey()), 40, x, 708, 460, 68);
     String path =
         switch (property) {
           case NAME -> "character/monster/soulweaver_golem/soulweaver_golem.png";
@@ -183,21 +188,16 @@ final class SoulweaverBindingBook extends Group {
     content.addActor(drawing);
 
     Label value =
-        label(VariablePuzzle.essenceSolution().get(property).literal(), 48, x, 362, 460, 76);
+        label(
+            VariablePuzzle.essenceSolution().get(property).literal(SoulweaverText::text),
+            48,
+            x,
+            362,
+            460,
+            76);
     value.setAlignment(Align.center);
     String note =
-        switch (property) {
-          case NAME ->
-              "So habe ich ihn genannt. Der Name bleibt, auch wenn ich seinen Kern erneuere.";
-          case LIFE_ENERGY ->
-              "Die Ladung für seinen schweren Steinkörper. Weniger war beim letzten Versuch nicht genug.";
-          case MANA -> "Die Menge für die Seelenbindung. Den halben Anteil nicht weglassen.";
-          case ACTIVATED ->
-              "Die Freigabe für den Antrieb. Den Seelenkern erst aktivieren, wenn die Bindung vollständig ist.";
-          case VIEW_DIRECTION -> "O wie Osten. Dorthin soll er sich nach dem Erwachen wenden.";
-          case STEPS ->
-              "Stand des Schrittzählers bei der letzten Wartung. Diesen Wert bei der Bindung wiederherstellen.";
-        };
+        SoulweaverText.text("binding.book.note." + property.name().toLowerCase(Locale.ROOT));
     label(note, 26, x + 12, 195, 436, 128).setAlignment(Align.topLeft);
     Label pageNumber = label(number + " / " + GolemProperty.values().length, 22, x, 126, 460, 36);
     pageNumber.setAlignment(Align.center);

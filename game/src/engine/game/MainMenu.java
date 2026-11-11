@@ -65,8 +65,8 @@ public final class MainMenu {
   public static void run(
       String[] args, GameStarter game, ClientStarter client, ServerStarter server) {
     if (shouldRunMpServer(args)) {
-      Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
+      Game.windowTitle(game.title());
       server.apply();
       ServerLifecycle.install(game.title() + " server stopped");
       Game.run();
@@ -80,8 +80,8 @@ public final class MainMenu {
                   () ->
                       new IllegalStateException(
                           "Level editor launch requested, but no level-editor path is configured."));
-      Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
+      Game.windowTitle(game.title());
       client.apply();
       game.beforeLevelEditorStart();
       applyLevelEditor(client, server, pathToLevels);
@@ -103,8 +103,10 @@ public final class MainMenu {
   }
 
   private static void run(GameStarter game, ClientStarter client, ServerStarter server) {
-    Game.windowTitle(game.title());
     Game.localization().currentLanguage(game.language());
+    Game.windowTitle(game.title());
+    // A title can depend on the language chosen in the menu or the in-game settings.
+    Game.localization().registerLanguageChangeListener(language -> Game.windowTitle(game.title()));
     client.apply();
     Runnable levelEditorLauncher =
         server == null
