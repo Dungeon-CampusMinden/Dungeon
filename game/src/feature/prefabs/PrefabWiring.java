@@ -99,14 +99,15 @@ public final class PrefabWiring {
    * Returns whether a link would make an event run an action that needs a player without one.
    *
    * @param output output port
-   * @param input input port
+   * @param receiver instance receiving the link
+   * @param input input port of the receiver
    * @return true if the action would run for every player instead
    */
-  public static boolean lacksPlayer(PrefabPort output, PrefabPort input) {
+  public static boolean lacksPlayer(PrefabPort output, PrefabInstance receiver, PrefabPort input) {
     return output instanceof PrefabEvent<?> event
         && input instanceof PrefabAction action
-        && action.needsPlayer()
-        && !event.carriesPlayer();
+        && !event.carriesPlayer()
+        && action.needsPlayer(receiver);
   }
 
   /**
@@ -307,7 +308,7 @@ public final class PrefabWiring {
             new Problem(receiver, port, link, Severity.ERROR, "Artifact links form a cycle"));
         continue;
       }
-      if (lacksPlayer(output.get(), connection.input())) {
+      if (lacksPlayer(output.get(), connection.receiver(), connection.input())) {
         result.add(
             new Problem(
                 receiver,

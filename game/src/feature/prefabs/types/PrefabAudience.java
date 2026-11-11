@@ -3,6 +3,7 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.Game;
 import feature.prefabs.ActionContext;
+import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabProperty;
 import java.util.List;
 
@@ -27,6 +28,26 @@ final class PrefabAudience {
   static PrefabProperty<String> property(String displayName, String defaultValue) {
     return PrefabProperty.selection(
         "audience", displayName, defaultValue, List.of(EVERYONE, TRIGGERING_PLAYER));
+  }
+
+  /**
+   * Creates an action that acts on the audience chosen by a property, see {@link #players} and
+   * {@link PrefabAction#forAudience}.
+   *
+   * @param key stable serialized key
+   * @param displayName editor-facing name
+   * @param property audience property of the prefab, see {@link #property}, or another selection
+   *     between {@link #EVERYONE} and {@link #TRIGGERING_PLAYER}
+   * @param handler runs the action for one spawned instance
+   * @return new action
+   */
+  static PrefabAction action(
+      String key,
+      String displayName,
+      PrefabProperty<String> property,
+      PrefabAction.Handler handler) {
+    return PrefabAction.forAudience(
+        key, displayName, property, TRIGGERING_PLAYER, EVERYONE, handler);
   }
 
   /**

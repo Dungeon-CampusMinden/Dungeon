@@ -1,6 +1,7 @@
 package feature.prefabs.types;
 
 import engine.Entity;
+import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
@@ -97,6 +98,12 @@ public final class DoorControlPrefab extends Prefab {
     if (!hasOtherControl(context.level(), doorPosition, instance)) {
       doorAt(context.level(), doorPosition).ifPresent(DoorTile::open);
     }
+  }
+
+  @Override
+  public boolean suitsTile(Tile tile) {
+    // New instances are placed on a door they can act on.
+    return tile instanceof DoorTile;
   }
 
   @Override

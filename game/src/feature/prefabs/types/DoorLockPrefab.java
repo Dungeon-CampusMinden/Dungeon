@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
@@ -153,6 +154,12 @@ public final class DoorLockPrefab extends Prefab {
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     doorAt(context.level(), value(instance, DOOR_POSITION)).ifPresent(DoorTile::open);
+  }
+
+  @Override
+  public boolean suitsTile(Tile tile) {
+    // New instances are placed on a door they can act on.
+    return tile instanceof DoorTile;
   }
 
   @Override

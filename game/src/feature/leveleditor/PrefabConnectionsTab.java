@@ -226,7 +226,8 @@ final class PrefabConnectionsTab {
       header.add(test).width(54f).height(BUTTON_HEIGHT);
     }
     block.add(header).row();
-    portNote(port).ifPresent(note -> block.add(wrapped(note, HINT_FONT_SIZE, MUTED_COLOR)).row());
+    portNote(instance, port)
+        .ifPresent(note -> block.add(wrapped(note, HINT_FONT_SIZE, MUTED_COLOR)).row());
 
     Color linkColor = port.kind().isSignal() ? SIGNAL_COLOR : ARTIFACT_COLOR;
     if (port.kind().isInput()) {
@@ -367,8 +368,8 @@ final class PrefabConnectionsTab {
     return link.port();
   }
 
-  private static Optional<String> portNote(PrefabPort port) {
-    if (port instanceof PrefabAction action && action.needsPlayer()) {
+  private static Optional<String> portNote(PrefabInstance instance, PrefabPort port) {
+    if (port instanceof PrefabAction action && action.needsPlayer(instance)) {
       return Optional.of("Runs for the player that caused the event.");
     }
     if (port instanceof ArtifactSlot<?> slot) {

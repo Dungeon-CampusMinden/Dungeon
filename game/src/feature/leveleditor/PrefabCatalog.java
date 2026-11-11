@@ -124,6 +124,19 @@ public final class PrefabCatalog {
    * @return non-empty categories in palette order, ending with "All"
    */
   public static List<Category> categories() {
+    List<Category> categories = new ArrayList<>(typeCategories());
+    List<Prefab> all = new ArrayList<>();
+    for (Category category : categories) all.addAll(category.prefabs());
+    categories.add(new Category("All", all));
+    return categories;
+  }
+
+  /**
+   * Returns the categories the registered prefabs are sorted into, without the "All" category.
+   *
+   * @return non-empty categories in palette order; every prefab is in exactly one of them
+   */
+  public static List<Category> typeCategories() {
     Map<String, Prefab> byType = new HashMap<>();
     for (Prefab prefab : PrefabRegistry.all()) byType.put(prefab.type(), prefab);
     Set<String> categorized = new HashSet<>();
@@ -143,9 +156,6 @@ public final class PrefabCatalog {
       if (!categorized.contains(prefab.type())) other.add(prefab);
     }
     if (!other.isEmpty()) categories.add(new Category("Other", other));
-    List<Prefab> all = new ArrayList<>();
-    for (Category category : categories) all.addAll(category.prefabs());
-    categories.add(new Category("All", all));
     return categories;
   }
 

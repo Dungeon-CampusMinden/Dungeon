@@ -1,7 +1,9 @@
 package feature.prefabs;
 
 import engine.Entity;
+import engine.level.Tile;
 import engine.level.elements.ILevel;
+import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import java.util.ArrayList;
@@ -668,6 +670,17 @@ public abstract class Prefab {
    * @param instance normalized instance
    */
   protected void validate(PrefabInstance instance) {}
+
+  /**
+   * Decides whether a tile suits the first world position of a new instance the editor places by
+   * itself, e.g. next to the prefab the new instance is linked to.
+   *
+   * @param tile tile at the position
+   * @return true if a new instance fits there; by default on floor tiles
+   */
+  public boolean suitsTile(Tile tile) {
+    return tile.levelElement() == LevelElement.FLOOR;
+  }
 
   /**
    * Creates all runtime entities produced by this prefab.

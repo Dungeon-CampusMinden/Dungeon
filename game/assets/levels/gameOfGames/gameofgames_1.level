@@ -468,6 +468,73 @@
       } ]
     }
   }, {
+    "name" : "r1/timer",
+    "type" : "timer",
+    "properties" : {
+      "position" : {
+        "x" : 16.375,
+        "y" : 13.125
+      },
+      "duration" : 145,
+      "start-counting" : true
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "r1/timer-lever",
+        "port" : "switched-off"
+      } ],
+      "stop" : [ {
+        "source" : "r1/timer-lever",
+        "port" : "switched-on"
+      } ]
+    }
+  }, {
+    "name" : "r1/timer-lever",
+    "type" : "lever",
+    "properties" : {
+      "position" : {
+        "x" : 20.0,
+        "y" : 9.0
+      },
+      "revertable" : true
+    }
+  }, {
+    "name" : "r1/timer-expired",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Time is up!",
+      "translate" : false,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/timer",
+        "port" : "expired"
+      } ]
+    }
+  }, {
+    "name" : "r1/trash",
+    "type" : "trash-minigame",
+    "properties" : {
+      "position" : {
+        "x" : 12.0,
+        "y" : 7.0
+      },
+      "deco" : "TrashCanBlue",
+      "paper-count" : 30,
+      "reward" : "Linked Item",
+      "item" : "ItemKey",
+      "image" : "items/rpg/item_paper.png",
+      "hint-name" : "Note",
+      "hint-description" : "A crumpled note."
+    },
+    "inputs" : {
+      "reward-item" : [ {
+        "source" : "image-puzzle",
+        "port" : "piece-4"
+      } ]
+    }
+  }, {
     "name" : "r2/stone-1",
     "type" : "pushable-stone",
     "properties" : {
@@ -719,6 +786,13 @@
     "properties" : {
       "flag-count" : 1,
       "flag-1" : "npc-advanced-door-open",
+      "flag-2" : "flag-2",
+      "flag-3" : "flag-3",
+      "flag-4" : "flag-4",
+      "flag-5" : "flag-5",
+      "flag-6" : "flag-6",
+      "flag-7" : "flag-7",
+      "flag-8" : "flag-8",
       "when" : "Becomes Active",
       "trigger-on-restore" : true
     }
@@ -756,7 +830,14 @@
       "flag-count" : 2,
       "flag-1" : "npc-choice-solved",
       "flag-2" : "npc-advanced-door-open",
-      "when" : "Are Active"
+      "flag-3" : "flag-3",
+      "flag-4" : "flag-4",
+      "flag-5" : "flag-5",
+      "flag-6" : "flag-6",
+      "flag-7" : "flag-7",
+      "flag-8" : "flag-8",
+      "when" : "Are Active",
+      "trigger-on-restore" : false
     }
   }, {
     "name" : "r2/npcs-done-dialog",
@@ -771,6 +852,16 @@
         "source" : "r2/npcs-done-trigger",
         "port" : "triggered"
       } ]
+    }
+  }, {
+    "name" : "r2/outro-lever",
+    "type" : "lever",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 6.0
+      },
+      "revertable" : false
     }
   }, {
     "name" : "r3/water-1",
@@ -1426,6 +1517,16 @@
       "page-count" : 2,
       "page-1" : "Welcome to the Game of Games.",
       "page-2" : "Every game has rules. Find out who wrote them.",
+      "page-3" : "Page 3",
+      "page-4" : "Page 4",
+      "page-5" : "Page 5",
+      "page-6" : "Page 6",
+      "page-7" : "Page 7",
+      "page-8" : "Page 8",
+      "page-9" : "Page 9",
+      "page-10" : "Page 10",
+      "page-11" : "Page 11",
+      "page-12" : "Page 12",
       "font-size" : 32
     }
   }, {
@@ -1448,85 +1549,22 @@
       } ]
     }
   }, {
-    "name" : "r1/timer",
-    "type" : "timer",
-    "properties" : {
-      "position" : {
-        "x" : 19.0,
-        "y" : 9.0
-      },
-      "duration" : 45,
-      "start-counting" : true
-    },
-    "inputs" : {
-      "stop" : [ {
-        "source" : "r1/timer-lever",
-        "port" : "switched-on"
-      } ],
-      "start" : [ {
-        "source" : "r1/timer-lever",
-        "port" : "switched-off"
-      } ]
-    }
-  }, {
-    "name" : "r1/timer-lever",
-    "type" : "lever",
-    "properties" : {
-      "position" : {
-        "x" : 20.0,
-        "y" : 9.0
-      },
-      "revertable" : true
-    }
-  }, {
-    "name" : "r1/timer-expired",
-    "type" : "dialog",
-    "properties" : {
-      "text" : "Time is up!",
-      "translate" : false,
-      "audience" : "Everyone"
-    },
-    "inputs" : {
-      "show-dialog" : [ {
-        "source" : "r1/timer",
-        "port" : "expired"
-      } ]
-    }
-  }, {
-    "name" : "r1/trash",
-    "type" : "trash-minigame",
-    "properties" : {
-      "position" : {
-        "x" : 12.0,
-        "y" : 7.0
-      },
-      "deco" : "TrashCanBlue",
-      "paper-count" : 30,
-      "reward" : "Linked Item"
-    },
-    "inputs" : {
-      "reward-item" : [ {
-        "source" : "image-puzzle",
-        "port" : "piece-4"
-      } ]
-    }
-  }, {
-    "name" : "r2/outro-lever",
-    "type" : "lever",
-    "properties" : {
-      "position" : {
-        "x" : 31.0,
-        "y" : 6.0
-      },
-      "revertable" : false
-    }
-  }, {
     "name" : "game/outro",
     "type" : "outro-text",
     "properties" : {
       "page-count" : 2,
       "page-1" : "You found the rules of the game.",
       "page-2" : "Thanks for playing!",
+      "page-3" : "Page 3",
+      "page-4" : "Page 4",
+      "page-5" : "Page 5",
+      "page-6" : "Page 6",
+      "page-7" : "Page 7",
+      "page-8" : "Page 8",
+      "page-9" : "Page 9",
+      "page-10" : "Page 10",
+      "page-11" : "Page 11",
+      "page-12" : "Page 12",
       "font-size" : 32,
       "end-on-black" : true
     },

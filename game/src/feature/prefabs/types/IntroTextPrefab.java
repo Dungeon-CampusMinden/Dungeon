@@ -26,7 +26,8 @@ import tools.jackson.databind.node.ObjectNode;
  * once per player name.
  *
  * <p>The intro starts on a black screen, so joining players never see the level before it. Play
- * time only runs for players who finished the intro. While editing levels, the intro is skipped. A
+ * time only runs for players who finished the intro. Resetting or activating the intro during the
+ * game shows it to the players in the game again. While editing levels, the intro is skipped. A
  * level should have at most one intro.
  */
 public final class IntroTextPrefab extends Prefab {
@@ -68,11 +69,16 @@ public final class IntroTextPrefab extends Prefab {
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Intro intro = INTROS.start(context.level(), instance.name(), new Intro());
     // A continued game does not show the intro again to players who saw it.
-    restoredState(context, instance)
-        .ifPresent(
-            saved -> saved.path(STATE_SEEN).forEach(name -> intro.seen.add(name.asString())));
+    Optional<JsonNode> saved = restoredState(context, instance);
+    saved.ifPresent(
+        state -> state.path(STATE_SEEN).forEach(name -> intro.seen.add(name.asString())));
+    if (LevelEditing.active()) return List.of();
     // Play time waits until the players finished the intro.
-    if (!LevelEditing.active()) Game.playClock().playingParticipants(intro.playing);
+    Game.playClock().playingParticipants(intro.playing);
+    // Respawned during the game, e.g. by a reset: the players are ready already and see it now.
+    if (saved.isEmpty() && Game.playClock().activeMs() > 0) {
+      Game.allPlayers().toList().forEach(player -> onPlayerReady(context, instance, player));
+    }
     return List.of();
   }
 

@@ -55,7 +55,8 @@ public final class SoundEffectPrefab extends Prefab {
       PrefabAudience.property("Play For", PrefabAudience.EVERYONE);
 
   /** Plays the sound. */
-  public static final PrefabAction PLAY = PrefabAction.of("play", "Play", SoundEffectPrefab::play);
+  public static final PrefabAction PLAY =
+      PrefabAudience.action("play", "Play", AUDIENCE, SoundEffectPrefab::play);
 
   private static final List<PrefabProperty<?>> PROPERTIES = List.of(SOUND, VOLUME, PITCH, AUDIENCE);
 

@@ -34,10 +34,6 @@ public final class ShowImagePrefab extends Prefab {
   public static final PrefabEvent<Entity> IMAGE_CLOSED =
       PrefabEvent.withPlayer("image-closed", "Image Closed");
 
-  /** Shows the image to its audience. */
-  public static final PrefabAction SHOW_IMAGE =
-      PrefabAction.forPlayer("show-image", "Show Image", ShowImagePrefab::show);
-
   private static final String TYPE = "show-image";
   private static final String DISPLAY_NAME = "Show Image";
   // Images still shown by a spawned instance, closed without an event when it despawns.
@@ -49,6 +45,10 @@ public final class ShowImagePrefab extends Prefab {
   /** Who sees the image. */
   public static final PrefabProperty<String> AUDIENCE =
       PrefabAudience.property("Show For", PrefabAudience.TRIGGERING_PLAYER);
+
+  /** Shows the image to its audience. */
+  public static final PrefabAction SHOW_IMAGE =
+      PrefabAudience.action("show-image", "Show Image", AUDIENCE, ShowImagePrefab::show);
 
   private static final List<PrefabProperty<?>> PROPERTIES = List.of(IMAGE, AUDIENCE);
 

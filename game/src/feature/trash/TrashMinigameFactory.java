@@ -103,16 +103,6 @@ public final class TrashMinigameFactory {
   }
 
   /**
-   * Resolves the texture used for the winnable actor inside the minigame.
-   *
-   * <p>For {@link HintItem}s this is the referenced image (so the trash visual matches the popup
-   * the item opens when used from the inventory). For any other item this is the world-animation
-   * source path, falling back to a generic paper sprite if none is available.
-   *
-   * @param reward the item whose texture should be resolved
-   * @return the resolved texture path
-   */
-  /**
    * Gives the reward to the player, or drops it at the player's feet if the inventory is full.
    *
    * @param who winning player
@@ -137,6 +127,16 @@ public final class TrashMinigameFactory {
     }
   }
 
+  /**
+   * Resolves the texture used for the winnable actor inside the minigame.
+   *
+   * <p>For {@link HintItem}s this is the referenced image (so the trash visual matches the popup
+   * the item opens when used from the inventory). For any other item this is the world-animation
+   * source path, falling back to a generic paper sprite if none is available.
+   *
+   * @param reward the item whose texture should be resolved
+   * @return the resolved texture path
+   */
   private static String resolveTexturePath(Item reward) {
     if (reward instanceof HintItem hint) {
       return hint.imagePath().pathString();

@@ -32,8 +32,8 @@ public final class QuitGamePrefab extends Prefab {
 
   private static final String TYPE = "quit-game";
   private static final String DISPLAY_NAME = "Quit Game";
-  private static final String FOR_EVERYONE = "Everyone";
-  private static final String FOR_PLAYER = "Triggering Player";
+  private static final String FOR_EVERYONE = PrefabAudience.EVERYONE;
+  private static final String FOR_PLAYER = PrefabAudience.TRIGGERING_PLAYER;
   private static final String RESULT_SOLVED = "Solved";
   private static final String RESULT_FAILED = "Failed";
   private static final String REASON = "Game finished";
@@ -49,7 +49,8 @@ public final class QuitGamePrefab extends Prefab {
           "result", "Result", RESULT_SOLVED, List.of(RESULT_SOLVED, RESULT_FAILED));
 
   /** Quits the game. */
-  public static final PrefabAction QUIT = PrefabAction.of("quit", "Quit", QuitGamePrefab::quit);
+  public static final PrefabAction QUIT =
+      PrefabAudience.action("quit", "Quit", QUIT_FOR, QuitGamePrefab::quit);
 
   private static final List<PrefabProperty<?>> PROPERTIES = List.of(QUIT_FOR, RESULT);
 

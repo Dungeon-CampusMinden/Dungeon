@@ -35,10 +35,6 @@ public final class DialogPrefab extends Prefab {
   public static final PrefabEvent<Entity> DIALOG_FINISHED =
       PrefabEvent.withPlayer("dialog-finished", "Dialog Finished");
 
-  /** Shows the dialog to its audience. */
-  public static final PrefabAction SHOW_DIALOG =
-      PrefabAction.forPlayer("show-dialog", "Show Dialog", DialogPrefab::show);
-
   private static final String TYPE = "dialog";
   private static final String DISPLAY_NAME = "Dialog";
   // Dialogs still shown by a spawned instance, closed without an event when it despawns.
@@ -52,6 +48,10 @@ public final class DialogPrefab extends Prefab {
   /** Who sees the dialog. */
   public static final PrefabProperty<String> AUDIENCE =
       PrefabAudience.property("Show For", PrefabAudience.TRIGGERING_PLAYER);
+
+  /** Shows the dialog to its audience. */
+  public static final PrefabAction SHOW_DIALOG =
+      PrefabAudience.action("show-dialog", "Show Dialog", AUDIENCE, DialogPrefab::show);
 
   /** Values shown in the dialog script through {@code {alias}} placeholders. */
   public static final ArtifactSlot<String> VALUES =

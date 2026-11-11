@@ -18,6 +18,9 @@ import engine.Game;
 import engine.input.ActionId;
 import engine.input.GameInput;
 import engine.level.DungeonLevel;
+import engine.level.utils.Coordinate;
+import engine.level.utils.LevelElement;
+import engine.systems.CameraSystem;
 import engine.utils.Point;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
@@ -45,6 +48,7 @@ import feature.prefabs.GameFlags;
 import feature.prefabs.ImagePuzzleSettings;
 import feature.prefabs.Placeholders;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabLink;
@@ -78,11 +82,14 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /** Editor mode for authoring registered prefab instances in a level. */
 public final class PrefabMode extends LevelEditorMode {
 
   private static final float PICK_DISTANCE = 1.4f;
+  // How far from the instance it is linked to a new prefab may be placed, in tiles.
+  private static final int PLACEMENT_RADIUS = 8;
   private static final float ANCHOR_HIT_DISTANCE = 0.38f;
   private static final float DRAG_START_DISTANCE = 0.14f;
   private static final float POINT_ASSIGNMENT_PREVIEW_RADIUS = 0.12f;
@@ -131,7 +138,9 @@ public final class PrefabMode extends LevelEditorMode {
   // While set, the secondary details show the parameters of one shader property instead.
   private ShaderEditTarget shaderEditTarget;
   private DetailsTab detailsTab = DetailsTab.PROPERTIES;
-  private boolean showAllLinks;
+  // Whether the chips of all attached prefabs are shown, not only those related to the selection.
+  // Remembered between mode switches, which recreate the mode.
+  private static boolean showOffWorldLinks = true;
   // While set, the next click on a prefab in the world links it to this port.
   private PrefabConnectionsTab.LinkEnd pendingLinkPick;
   // Instances with a port that fits the pending pick, computed when the pick starts.
@@ -144,6 +153,8 @@ public final class PrefabMode extends LevelEditorMode {
       new PrefabConnectionsTab(new ConnectionsHost());
   // Positions of the instances without a world position, next to the prefabs they are linked to.
   private Map<String, AttachedPrefabLayout.Chip> chips = Map.of();
+  // Names of the chips that are drawn and can be clicked, see shownChips.
+  private Set<String> shownChips = Set.of();
   // Authored instances are immutable, so their normalized form is reused between frames.
   private Map<PrefabInstance, PrefabInstance> normalizedRenderInstances = new IdentityHashMap<>();
 
@@ -298,6 +309,7 @@ public final class PrefabMode extends LevelEditorMode {
     normalizedRenderInstances = normalized;
     List<PrefabWiring.Connection> connections = PrefabWiring.connections(level.prefabs());
     chips = layoutChips(connections);
+    shownChips = shownChips(connections);
     renderLinks(level, connections);
     renderChips(level, connections);
     if (pendingLinkPick != null) {
@@ -362,14 +374,14 @@ public final class PrefabMode extends LevelEditorMode {
     Set<String> related = chipsRelatedToSelection(connections);
     for (AttachedPrefabLayout.Chip chip : chips.values()) {
       PrefabInstance host = byName.get(chip.host());
-      if (host == null) continue;
+      if (host == null || !shownChips.contains(chip.name())) continue;
       Color leader = dimmed(CHIP_LEADER_COLOR, related.contains(chip.name()));
       linkAnchor(host)
           .ifPresent(anchor -> DebugDrawSystem.drawLine(anchor, chip.position(), false, leader));
     }
     for (AttachedPrefabLayout.Chip chip : chips.values()) {
       PrefabInstance source = byName.get(chip.name());
-      if (source == null) continue;
+      if (source == null || !shownChips.contains(chip.name())) continue;
       PrefabInstance instance = normalizedForRender(source);
       Prefab prefab = PrefabRegistry.require(instance.type());
       boolean selected = Objects.equals(selectedName, chip.name());
@@ -409,6 +421,27 @@ public final class PrefabMode extends LevelEditorMode {
       if (receiver.equals(selectedName)) related.add(source);
     }
     return related;
+  }
+
+  /**
+   * Returns the chips that are drawn and can be clicked: all of them while off-world links are
+   * shown, otherwise the chips related to the selection (see {@link #chipsRelatedToSelection}) and,
+   * while a link is picked in the world, the chips of the pick targets.
+   *
+   * @param connections links of the level
+   * @return names of the shown chips
+   */
+  private Set<String> shownChips(List<PrefabWiring.Connection> connections) {
+    if (showOffWorldLinks) return chips.keySet();
+    Set<String> wanted = new HashSet<>(chipsRelatedToSelection(connections));
+    if (pendingLinkPick != null) wanted.addAll(pickTargets);
+    Set<String> shown = new HashSet<>();
+    for (String name : wanted) {
+      // Also the chips it hangs from, so its leader line starts at a shown chip.
+      AttachedPrefabLayout.Chip chip = chips.get(name);
+      while (chip != null && shown.add(chip.name())) chip = chips.get(chip.host());
+    }
+    return shown;
   }
 
   private static Color dimmed(Color color, boolean related) {
@@ -468,9 +501,10 @@ public final class PrefabMode extends LevelEditorMode {
     for (PrefabWiring.Connection connection : connections) {
       String source = connection.link().source();
       String receiver = connection.receiver().name();
-      boolean involved =
-          Objects.equals(selectedName, source) || Objects.equals(selectedName, receiver);
-      if (!involved && !showAllLinks) continue;
+      // Only the links of the selected instance are drawn.
+      if (!Objects.equals(selectedName, source) && !Objects.equals(selectedName, receiver)) {
+        continue;
+      }
       PrefabInstance sourceInstance = byName.get(source);
       if (sourceInstance == null) continue;
       Optional<Point> from = linkAnchor(sourceInstance);
@@ -488,9 +522,8 @@ public final class PrefabMode extends LevelEditorMode {
               .filter(value -> value > 0f)
               .orElse(0f);
       color.lerp(Color.WHITE, pulse * 0.6f);
-      color.a = involved ? 0.9f : 0.3f;
-      color.a = Math.max(color.a, pulse);
-      float width = (involved ? 0.05f : 0.025f) * (1f + pulse * 1.5f);
+      color.a = Math.max(0.9f, pulse);
+      float width = 0.05f * (1f + pulse * 1.5f);
 
       String pairKey =
           source.compareTo(receiver) < 0 ? source + "\n" + receiver : receiver + "\n" + source;
@@ -507,7 +540,7 @@ public final class PrefabMode extends LevelEditorMode {
                 (from.get().x() + to.get().x()) * 0.5f,
                 (from.get().y() + to.get().y()) * 0.5f + 0.3f + stackIndex * LINK_LABEL_SPACING);
       }
-      if (involved && !withinChipGroup(source, receiver)) {
+      if (!withinChipGroup(source, receiver)) {
         String output = PrefabConnectionsTab.outputName(instances, connection.link());
         Color labelColor = color.cpy();
         labelColor.a = 1f;
@@ -632,7 +665,10 @@ public final class PrefabMode extends LevelEditorMode {
     content.add(actions).growX().padTop(4f).row();
     content
         .add(
-            new BooleanSetting("Show All Links", () -> showAllLinks, value -> showAllLinks = value))
+            new BooleanSetting(
+                "Show Off-World Links",
+                () -> showOffWorldLinks,
+                value -> showOffWorldLinks = value))
         .growX()
         .padTop(6f)
         .row();
@@ -723,7 +759,9 @@ public final class PrefabMode extends LevelEditorMode {
         errorLinks.add(new LinkKey(problem.instance(), problem.port(), problem.link()));
       }
     }
-    chips = layoutChips(PrefabWiring.connections(getLevel().prefabs()));
+    List<PrefabWiring.Connection> connections = PrefabWiring.connections(getLevel().prefabs());
+    chips = layoutChips(connections);
+    shownChips = shownChips(connections);
     instanceList.setItems(listItems(), selectedName, listOrder == ListOrder.LOAD_ORDER);
     if (!rebuildSecondary || secondaryContent == null || secondaryHeader == null) return;
     boolean preserveScroll =
@@ -1434,21 +1472,16 @@ public final class PrefabMode extends LevelEditorMode {
   private void addLink(String receiverName, PrefabPort input, PrefabLink link) {
     int index = indexOf(receiverName);
     if (index < 0) return;
-    PrefabInstance receiver = getLevel().prefabs().get(index);
-    Prefab prefab = PrefabRegistry.require(receiver.type());
-    List<PrefabLink> links = new ArrayList<>(receiver.links(input));
-    if (input instanceof ArtifactSlot<?> slot && !slot.multiple()) links.clear();
-    links.add(link);
     PrefabInstance replacement;
     try {
-      replacement = prefab.normalize(receiver.withLinks(input.key(), links));
+      replacement = withLink(getLevel().prefabs().get(index), input, link);
     } catch (IllegalArgumentException exception) {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       return;
     }
     if (!applyChange(() -> getLevel().replacePrefab(index, replacement))) return;
     Optional<PrefabPort> output = PrefabWiring.outputPort(getLevel().prefabs(), link);
-    if (output.isPresent() && PrefabWiring.lacksPlayer(output.get(), input)) {
+    if (output.isPresent() && PrefabWiring.lacksPlayer(output.get(), replacement, input)) {
       LevelEditorSystem.showFeedback(
           "'"
               + output.get().displayName()
@@ -1461,6 +1494,23 @@ public final class PrefabMode extends LevelEditorMode {
           "Linked " + link.source() + " > " + receiverName + "." + input.displayName(),
           Color.GREEN);
     }
+  }
+
+  /**
+   * Adds a link to an input of an instance. A single artifact slot loses its current link.
+   *
+   * @param receiver instance storing the link
+   * @param input input port of the receiver
+   * @param link the new link
+   * @return the normalized receiver with the link
+   */
+  private static PrefabInstance withLink(
+      PrefabInstance receiver, PrefabPort input, PrefabLink link) {
+    List<PrefabLink> links = new ArrayList<>(receiver.links(input));
+    if (input instanceof ArtifactSlot<?> slot && !slot.multiple()) links.clear();
+    links.add(link);
+    return PrefabRegistry.require(receiver.type())
+        .normalize(receiver.withLinks(input.key(), links));
   }
 
   private void removeLink(String receiverName, String port, PrefabLink link) {
@@ -1547,9 +1597,7 @@ public final class PrefabMode extends LevelEditorMode {
   private List<PortPickerPopup.Option> linkOptions(
       PrefabConnectionsTab.LinkEnd end, String onlyInstance) {
     List<PrefabInstance> instances = getLevel().prefabs();
-    Optional<PrefabInstance> owner = selectedInstance(end.instance());
-    if (owner.isEmpty())
-      owner = instances.stream().filter(i -> i.name().equals(end.instance())).findFirst();
+    Optional<PrefabInstance> owner = instanceNamed(end.instance());
     if (owner.isEmpty()) return List.of();
     List<PortPickerPopup.Option> options = new ArrayList<>();
     boolean endIsInput = end.port().kind().isInput();
@@ -1588,18 +1636,14 @@ public final class PrefabMode extends LevelEditorMode {
         if (linked) detail = "already linked";
         else if (cycle) detail = "would make the value depend on itself";
         else if (heldBy.isPresent()) detail = "held by " + heldBy.get();
-        else if (PrefabWiring.lacksPlayer(output, input)) detail = "runs for every player";
-        else if (input instanceof ArtifactSlot<?> slot
+        else if (PrefabWiring.lacksPlayer(output, receiver, input)) {
+          detail = "runs for every player";
+        } else if (input instanceof ArtifactSlot<?> slot
             && !slot.multiple()
             && !receiver.links(input).isEmpty()) {
           detail = "replaces the current link";
         }
-        String label = prefab.portDisplayName(candidate, port);
-        if (port instanceof ArtifactOutput<?> artifactOutput) {
-          label += " (" + artifactOutput.type().displayName() + ")";
-        } else if (port instanceof ArtifactSlot<?> slot) {
-          label += " (" + slot.type().displayName() + ")";
-        }
+        String label = pickerLabel(prefab, candidate, port);
         String group =
             candidate.name().equals(end.instance())
                 ? candidate.name() + " (this prefab)"
@@ -1618,13 +1662,240 @@ public final class PrefabMode extends LevelEditorMode {
     return options;
   }
 
+  /**
+   * Returns the label of a port in the link picker, naming the value type of artifact ports.
+   *
+   * @param prefab prefab owning the port
+   * @param instance instance owning the port
+   * @param port the port
+   * @return label of the port
+   */
+  private static String pickerLabel(Prefab prefab, PrefabInstance instance, PrefabPort port) {
+    String label = prefab.portDisplayName(instance, port);
+    if (port instanceof ArtifactOutput<?> artifactOutput) {
+      label += " (" + artifactOutput.type().displayName() + ")";
+    } else if (port instanceof ArtifactSlot<?> slot) {
+      label += " (" + slot.type().displayName() + ")";
+    }
+    return label;
+  }
+
+  /**
+   * Lists the ports of new prefabs that can be linked to a port of the selected instance, see
+   * {@link #createLinked}.
+   *
+   * <p>Lifecycle actions are left out: a new instance is active and has nothing to reset.
+   *
+   * @param end port of the selected instance
+   * @return choosable ports, grouped by prefab in palette order
+   */
+  private List<PortPickerPopup.Option> newPrefabOptions(PrefabConnectionsTab.LinkEnd end) {
+    List<PrefabInstance> instances = getLevel().prefabs();
+    Optional<PrefabInstance> owner = instanceNamed(end.instance());
+    if (owner.isEmpty()) return List.of();
+    boolean endIsInput = end.port().kind().isInput();
+    // An item can only be held in one place, a new prefab cannot take it either.
+    Optional<String> heldBy =
+        endIsInput
+            ? Optional.empty()
+            : PrefabWiring.holders(instances, end.instance(), end.port().key()).stream()
+                .map(holder -> holder.receiver().name())
+                .findFirst();
+    List<PortPickerPopup.Option> options = new ArrayList<>();
+    for (PrefabCatalog.Category category : PrefabCatalog.typeCategories()) {
+      for (Prefab prefab : category.prefabs()) {
+        PrefabInstance candidate = prefab.newInstance(prefab.type());
+        boolean inWorld = !isAttached(candidate);
+        for (PrefabPort port : prefab.ports(candidate)) {
+          if (port instanceof PrefabAction action && action.isLifecycle()) continue;
+          PrefabPort output = endIsInput ? port : end.port();
+          PrefabPort input = endIsInput ? end.port() : port;
+          if (port.kind().isInput() == endIsInput || !PrefabWiring.compatible(output, input)) {
+            continue;
+          }
+          PrefabInstance receiver =
+              endIsInput ? owner.get() : forEventWithoutPlayer(candidate, output, input);
+          boolean held =
+              input instanceof ArtifactSlot<?> slot && slot.holder() && heldBy.isPresent();
+          String detail = null;
+          if (held) detail = "held by " + heldBy.get();
+          else if (endIsInput
+              && input instanceof ArtifactSlot<?> slot
+              && !slot.multiple()
+              && !receiver.links(input).isEmpty()) {
+            detail = "replaces the current link";
+          } else if (PrefabWiring.lacksPlayer(output, receiver, input)) {
+            detail = "runs for every player";
+          }
+          options.add(
+              new PortPickerPopup.Option(
+                  prefab.type(),
+                  prefab.displayName() + "  -  " + category.name(),
+                  pickerLabel(prefab, candidate, port),
+                  detail,
+                  !held,
+                  inWorld,
+                  () -> createLinked(end, prefab, port)));
+        }
+      }
+    }
+    return options;
+  }
+
+  /**
+   * Adds a new instance of a prefab, links one of its ports to a port of another instance and
+   * selects the new instance.
+   *
+   * <p>Prefabs with a world position are placed near the other instance, see {@link
+   * #placementNear}, the others are attached to it. A new instance linked to an event without a
+   * player acts on every player, see {@link #forEventWithoutPlayer}.
+   *
+   * @param end port of the other instance
+   * @param prefab prefab of the new instance
+   * @param port port of the new instance to link to {@code end}
+   */
+  private void createLinked(PrefabConnectionsTab.LinkEnd end, Prefab prefab, PrefabPort port) {
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    cancelLinkPick();
+    Optional<PrefabInstance> owner = instanceNamed(end.instance());
+    if (owner.isEmpty()) return;
+    boolean endIsInput = end.port().kind().isInput();
+    PrefabPort output = endIsInput ? port : end.port();
+    PrefabPort input = endIsInput ? end.port() : port;
+    String name = newInstanceName(prefab);
+    PrefabInstance added;
+    // Stores the link: the other instance for a new event, the new instance for a new action.
+    PrefabInstance receiver;
+    boolean forEveryone;
+    try {
+      PrefabInstance created =
+          isAttached(prefab)
+              ? prefab.newInstance(name)
+              : placedInstance(prefab, name, placementNear(owner.get(), prefab));
+      if (endIsInput) {
+        added = created;
+        receiver = withLink(owner.get(), input, new PrefabLink(name, port.key()));
+        forEveryone = false;
+      } else {
+        PrefabInstance adjusted = forEventWithoutPlayer(created, output, input);
+        forEveryone = !adjusted.equals(created);
+        added = withLink(adjusted, input, new PrefabLink(owner.get().name(), end.port().key()));
+        receiver = added;
+      }
+    } catch (IllegalArgumentException exception) {
+      LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+      return;
+    }
+    boolean applied =
+        applyChange(
+            () -> {
+              if (endIsInput) getLevel().replacePrefab(indexOf(owner.get().name()), receiver);
+              getLevel().addPrefab(added);
+              applyGroupedOrder();
+              selectedName = name;
+            });
+    if (!applied) return;
+    detailsTab = DetailsTab.PROPERTIES;
+    if (PrefabWiring.lacksPlayer(output, receiver, input)) {
+      LevelEditorSystem.showFeedback(
+          "Added "
+              + name
+              + ", but '"
+              + output.displayName()
+              + "' has no player, so '"
+              + input.displayName()
+              + "' runs for every player.",
+          Color.YELLOW);
+    } else if (forEveryone) {
+      LevelEditorSystem.showFeedback(
+          "Added " + name + " for every player, as '" + output.displayName() + "' has no player.",
+          Color.GREEN);
+    } else {
+      LevelEditorSystem.showFeedback(
+          "Added " + name + ", linked to " + owner.get().name() + "." + end.port().displayName(),
+          Color.GREEN);
+    }
+  }
+
+  /**
+   * Makes a new instance act on every player if it is linked to an event without a player, so the
+   * link does not need a warning, see {@link PrefabAction#forEveryone}.
+   *
+   * @param created new instance receiving the link
+   * @param output output port of the link
+   * @param input input port of the new instance
+   * @return the instance acting on every player, or {@code created} if nothing changes
+   */
+  private static PrefabInstance forEventWithoutPlayer(
+      PrefabInstance created, PrefabPort output, PrefabPort input) {
+    if (!(input instanceof PrefabAction action)
+        || !PrefabWiring.lacksPlayer(output, created, input)) {
+      return created;
+    }
+    return action.forEveryone(created).orElse(created);
+  }
+
+  /**
+   * Finds where a new prefab linked to an instance is placed, near the instance: on the nearest
+   * free tile that suits the prefab (see {@link Prefab#suitsTile}), else on the nearest tile that
+   * suits it, e.g. a door that already has a door control, else on the nearest free floor tile.
+   *
+   * <p>Tiles holding the instance or a point of another prefab are not free. The designer moves the
+   * prefab to its final place anyway.
+   *
+   * @param owner instance the new prefab is linked to
+   * @param prefab prefab to place
+   * @return center of the chosen tile, to place the prefab like a cursor position would
+   */
+  private Point placementNear(PrefabInstance owner, Prefab prefab) {
+    Point origin =
+        linkAnchor(owner)
+            .orElseGet(
+                () ->
+                    new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y));
+    Coordinate center = origin.toCoordinate();
+    Set<Coordinate> taken = new HashSet<>();
+    taken.add(center);
+    for (PrefabInstance instance : getLevel().prefabs()) {
+      try {
+        for (WorldAnchor anchor : worldAnchors(instance)) {
+          if (anchor.corner() == AnchorCorner.POINT) {
+            taken.add(anchor.displayPosition().toCoordinate());
+          }
+        }
+      } catch (IllegalArgumentException invalidInstance) {
+        // An invalid instance takes no tile.
+      }
+    }
+    List<Coordinate> around = new ArrayList<>();
+    for (int dy = -PLACEMENT_RADIUS; dy <= PLACEMENT_RADIUS; dy++) {
+      for (int dx = -PLACEMENT_RADIUS; dx <= PLACEMENT_RADIUS; dx++) {
+        around.add(new Coordinate(center.x() + dx, center.y() + dy));
+      }
+    }
+    around.sort(Comparator.comparingInt(tile -> tile.distance(center)));
+    Predicate<Coordinate> free = tile -> !taken.contains(tile);
+    Predicate<Coordinate> suits =
+        tile -> getLevel().tileAt(tile).filter(prefab::suitsTile).isPresent();
+    Predicate<Coordinate> floor =
+        tile ->
+            getLevel().tileAt(tile).filter(t -> t.levelElement() == LevelElement.FLOOR).isPresent();
+    for (Predicate<Coordinate> rule : List.of(free.and(suits), suits, free.and(floor))) {
+      for (Coordinate tile : around) {
+        if (rule.test(tile)) return tile.toCenteredPoint();
+      }
+    }
+    return center.toCenteredPoint();
+  }
+
   private void openLinkPicker(PrefabConnectionsTab.LinkEnd end, Actor anchor) {
     cancelLinkPick();
     LevelEditorUI ui = editorUi(anchor);
     if (ui == null || anchor.getStage() == null) return;
     com.badlogic.gdx.math.Vector2 position =
         anchor.localToStageCoordinates(new com.badlogic.gdx.math.Vector2(0f, anchor.getHeight()));
-    showPicker(end, null, ui, position.x - 350f, position.y);
+    showPicker(end, null, ui, position.x - PortPickerPopup.WIDTH - 10f, position.y);
   }
 
   private void showPicker(
@@ -1636,13 +1907,34 @@ public final class PrefabMode extends LevelEditorMode {
             + end.port().displayName()
             + (end.port().kind().isInput() ? "' from:" : "' to:")
             + (onlyInstance == null ? "" : " (" + onlyInstance + ")");
-    showOptions(title, linkOptions(end, onlyInstance), onlyInstance == null, parent, x, y);
+    boolean allInstances = onlyInstance == null;
+    showOptions(
+        title,
+        linkOptions(end, onlyInstance),
+        allInstances,
+        allInstances ? newPrefabOptions(end) : List.of(),
+        "Adds the prefab next to '" + end.instance() + "' and links it.",
+        parent,
+        x,
+        y);
   }
 
   private void showOptions(
       String title,
       List<PortPickerPopup.Option> options,
       boolean worldTabs,
+      Group parent,
+      float x,
+      float y) {
+    showOptions(title, options, worldTabs, List.of(), null, parent, x, y);
+  }
+
+  private void showOptions(
+      String title,
+      List<PortPickerPopup.Option> options,
+      boolean worldTabs,
+      List<PortPickerPopup.Option> newOptions,
+      String newHint,
       Group parent,
       float x,
       float y) {
@@ -1653,6 +1945,8 @@ public final class PrefabMode extends LevelEditorMode {
             title,
             options,
             worldTabs,
+            newOptions,
+            newHint,
             () -> {
               if (openPicker == picker[0]) openPicker = null;
             });
@@ -2162,7 +2456,11 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private Optional<PrefabInstance> selected() {
-    return getLevel().prefabs().stream().filter(i -> i.name().equals(selectedName)).findFirst();
+    return instanceNamed(selectedName);
+  }
+
+  private Optional<PrefabInstance> instanceNamed(String name) {
+    return getLevel().prefabs().stream().filter(i -> i.name().equals(name)).findFirst();
   }
 
   private Optional<PrefabInstance> prefabNear(Point cursor) {
@@ -2196,7 +2494,8 @@ public final class PrefabMode extends LevelEditorMode {
     if (linkAnchor.isPresent()) {
       best = Math.min(best, (float) linkAnchor.get().distance(cursor));
     }
-    AttachedPrefabLayout.Chip chip = chips.get(instance.name());
+    AttachedPrefabLayout.Chip chip =
+        shownChips.contains(instance.name()) ? chips.get(instance.name()) : null;
     if (chip != null) {
       // Distance to the marker and its label.
       Point marker = chip.position();

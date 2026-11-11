@@ -41,10 +41,6 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
   // Dialogs still shown by a spawned instance, closed without an event when it despawns.
   private static final SpawnState<List<UIComponent>> OPEN = new SpawnState<>();
 
-  /** Shows the dialog to its audience. */
-  public static final PrefabAction SHOW_DIALOG =
-      PrefabAction.forPlayer("show-dialog", "Show Dialog", MultipleChoiceDialogPrefab::show);
-
   /** Raised on the server when a player cancelled the dialog, with the player as payload. */
   public static final PrefabEvent<Entity> CANCELLED =
       PrefabEvent.withPlayer("cancelled", "Cancelled");
@@ -58,6 +54,11 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
   /** Who sees the dialog. */
   public static final PrefabProperty<String> AUDIENCE =
       PrefabAudience.property("Show For", PrefabAudience.TRIGGERING_PLAYER);
+
+  /** Shows the dialog to its audience. */
+  public static final PrefabAction SHOW_DIALOG =
+      PrefabAudience.action(
+          "show-dialog", "Show Dialog", AUDIENCE, MultipleChoiceDialogPrefab::show);
 
   /** Whether the dialog has a cancel option and can be closed without choosing an answer. */
   public static final PrefabProperty<Boolean> CAN_CANCEL =
