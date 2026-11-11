@@ -134,9 +134,9 @@ class SoulweaverGolemMovementTest {
     Language previous = Game.localization().currentLanguage();
     Game.localization().registerTranslationFile(Language.DE, "language/soulweaver/de.json");
     Game.localization().registerTranslationFile(Language.EN, "language/soulweaver/en.json");
-    Game.localization().currentLanguage(Language.EN);
     UUID participant = UUID.randomUUID();
     try (MockedStatic<Tracking> tracking = mockStatic(Tracking.class)) {
+      Game.localization().currentLanguage(Language.EN);
       tracking
           .when(() -> Tracking.participantForEntity(player.id()))
           .thenReturn(Optional.of(participant));
@@ -171,23 +171,18 @@ class SoulweaverGolemMovementTest {
 
   @Test
   void longRuneReachesCorridorEndBeforeReportingWall() {
+    String wall = SoulweaverText.key("golem.wall-reached");
     runtime.executeRune("archive-long", player);
-    for (int i = 0;
-        i < 2000
-            && !runtime.terminalState().status().contains(SoulweaverText.key("golem.wall-reached"));
-        i++) {
+    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains(wall); i++) {
       Point previous = position.position();
       tick();
       assertTrue(
           Point.calculateDistance(previous, position.position())
               <= 2.5f / Game.frameRate() + .001f);
       if (position.position().x() < ORIGIN.x() + 4 * LoopMaze.CELL_WIDTH - .01f)
-        assertFalse(
-            runtime.terminalState().status().contains(SoulweaverText.key("golem.wall-reached")));
+        assertFalse(runtime.terminalState().status().contains(wall));
     }
-    assertTrue(
-        runtime.terminalState().status().contains(SoulweaverText.key("golem.wall-reached")),
-        runtime.terminalState().status());
+    assertTrue(runtime.terminalState().status().contains(wall), runtime.terminalState().status());
     float feetRight = position.position().x() + 61f / 64f * position.scale().x();
     assertEquals(
         ORIGIN.x() + 5 * LoopMaze.CELL_WIDTH,
@@ -216,18 +211,13 @@ class SoulweaverGolemMovementTest {
     "4,heart-gate-for"
   })
   void correctRuneFinishesOnlyAfterPhysicalExecution(int checkpoint, String rune) {
+    String confirmed = SoulweaverText.key("golem.position-confirmed");
     for (int i = 0; i < checkpoint; i++)
       controller.completeExecutedLoop(LoopPuzzle.challenges().get(i));
     position.position(LoopMaze.world(ORIGIN, LoopMaze.checkpoints().get(checkpoint).start()));
     runtime.faceWorkshop(LoopMaze.checkpoints().get(checkpoint).facing());
     runtime.executeRune(rune, player);
-    for (int i = 0;
-        i < 2000
-            && !runtime
-                .terminalState()
-                .status()
-                .contains(SoulweaverText.key("golem.position-confirmed"));
-        i++) {
+    for (int i = 0; i < 2000 && !runtime.terminalState().status().contains(confirmed); i++) {
       tick();
       assertEquals(
           (position.position().x() - ORIGIN.x()) / LoopMaze.CELL_WIDTH,
@@ -239,8 +229,7 @@ class SoulweaverGolemMovementTest {
           .0001f);
     }
     assertTrue(
-        runtime.terminalState().status().contains(SoulweaverText.key("golem.position-confirmed")),
-        runtime.terminalState().status());
+        runtime.terminalState().status().contains(confirmed), runtime.terminalState().status());
     assertEquals(
         LoopMaze.world(ORIGIN, LoopMaze.checkpoints().get(checkpoint).goal()), position.position());
   }
@@ -262,17 +251,11 @@ class SoulweaverGolemMovementTest {
 
   @Test
   void interruptedStepReturnsFromActualPositionAndWaitsForBlockedReturn() {
+    String halted = SoulweaverText.key("golem.program-stopped");
     blocked.add(new Coordinate(27, 20));
     runtime.executeRune("forge-press-for", player);
-    for (int i = 0;
-        i < 300
-            && !runtime
-                .terminalState()
-                .status()
-                .contains(SoulweaverText.key("golem.program-stopped"));
-        i++) tick();
-    assertTrue(
-        runtime.terminalState().status().contains(SoulweaverText.key("golem.program-stopped")));
+    for (int i = 0; i < 300 && !runtime.terminalState().status().contains(halted); i++) tick();
+    assertTrue(runtime.terminalState().status().contains(halted));
     Point stopped = position.position();
     assertTrue(stopped.x() > ORIGIN.x());
     assertTrue(stopped.x() < ORIGIN.x() + LoopMaze.CELL_WIDTH);

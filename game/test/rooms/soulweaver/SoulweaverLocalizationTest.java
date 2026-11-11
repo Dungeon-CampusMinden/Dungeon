@@ -1,6 +1,7 @@
 package rooms.soulweaver;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Game;
 import engine.language.Language;
@@ -27,6 +28,10 @@ class SoulweaverLocalizationTest {
           "Invalid expression: soulweaver.story.letter", SoulweaverText.translate(invalid));
       assertEquals("Ungültiger Ausdruck: soulweaver.story.letter", SoulweaverText.german(invalid));
       assertEquals("Invalid variable name: ", SoulweaverText.translate(empty));
+      assertTrue(
+          SoulweaverText.translate(
+                  SoulweaverText.key("methods.feedback.built", "soulweaver.story.letter"))
+              .contains("soulweaver.story.letter"));
       // A quest-log note is translated as a whole; a key that names no text stays as typed.
       assertEquals("Ask soulweaver.unknown", SoulweaverText.translate("Ask soulweaver.unknown"));
     } finally {

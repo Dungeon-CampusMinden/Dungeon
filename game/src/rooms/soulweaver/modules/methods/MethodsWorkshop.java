@@ -409,7 +409,8 @@ public final class MethodsWorkshop {
           "hilfeAltar");
 
   // The English spellings of the game's names (methods.identifier in en.json). An English client
-  // shows the game's names with them, so they cannot be own names in any language.
+  // shows the game's names with them, so they cannot be own names in any language. Update this list
+  // with every change to methods.identifier in en.json.
   private static final Set<String> RESERVED =
       Set.of(
           "crystals",
@@ -755,18 +756,16 @@ public final class MethodsWorkshop {
    */
   private boolean applyBlockEdit(Operation operation, Edit edit) {
     try {
-      Block submitted = edit.block();
-      if (valid(submitted)) {
-        var reserved =
-            reservedName(
-                Stream.concat(
-                    Stream.of(submitted.operand(), submitted.target(), submitted.method()),
-                    submitted.arguments().stream()));
-        if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
-      }
+      if (!valid(edit.block()))
+        return rejectEdit(SoulweaverText.key("methods.error.invalid-block"));
+      var reserved =
+          reservedName(
+              Stream.concat(
+                  Stream.of(edit.block().operand(), edit.block().target(), edit.block().method()),
+                  edit.block().arguments().stream()));
+      if (reserved.isPresent()) return rejectEdit(reserved.orElseThrow());
       if (operation == Operation.EDIT_BLOCK) {
-        if (!valid(edit.block()) || edit.id() == null)
-          return rejectEdit(SoulweaverText.key("methods.error.invalid-block"));
+        if (edit.id() == null) return rejectEdit(SoulweaverText.key("methods.error.invalid-block"));
         boolean found = false;
         for (String container : List.of("main", "scrap", "draft")) {
           var body = new ArrayList<>(body(container));
@@ -792,8 +791,6 @@ public final class MethodsWorkshop {
         var destination = body(edit.container());
         if (edit.index() < 0 || edit.index() > destination.size())
           return rejectEdit(SoulweaverText.key("methods.error.position-gone"));
-        if (!valid(edit.block()))
-          return rejectEdit(SoulweaverText.key("methods.error.invalid-block"));
         if (totalBlocks() >= 256)
           return rejectEdit(SoulweaverText.key("methods.error.workspace-full"));
         Block block = freshBlock(edit.block());
