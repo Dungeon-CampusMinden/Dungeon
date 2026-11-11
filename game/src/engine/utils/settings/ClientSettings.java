@@ -1,5 +1,6 @@
 package engine.utils.settings;
 
+import com.badlogic.gdx.Gdx;
 import engine.input.CoreActions;
 import engine.language.Language;
 import engine.language.Localization;
@@ -29,6 +30,14 @@ public class ClientSettings {
   /** Key for the setting that turns off visual effects for slow devices and a calmer picture. */
   public static final String KEY_REDUCE_EFFECTS = "settings.reduce_effects";
 
+  /** Key for the setting that limits the frames rendered per second. */
+  public static final String KEY_FRAME_LIMIT = "settings.frame_limit";
+
+  /** Key for the setting that ties the frame rate to the refresh rate of the display. */
+  public static final String KEY_VSYNC = "settings.vsync";
+
+  private static final String KEY_FRAME_LIMIT_UNLIMITED = "settings.frame_limit_unlimited";
+  private static final String KEY_VSYNC_DESCRIPTION = "settings.vsync_description";
   private static final String KEY_GRAPHICS_HEADER = "settings.graphics";
   private static final String KEY_CONTROLS_HEADER = "settings.controls_header";
   private static final String KEY_REDUCE_EFFECTS_DESCRIPTION =
@@ -90,6 +99,13 @@ public class ClientSettings {
 
     registerSetting(new SectionDividerSetting(KEY_GRAPHICS_HEADER));
     registerSetting(new IntSliderSetting(KEY_BRIGHTNESS, 100, 50, 150, 10, v -> v + " %"));
+    FrameLimitSetting frameLimit =
+        new FrameLimitSetting(KEY_FRAME_LIMIT, KEY_FRAME_LIMIT_UNLIMITED);
+    frameLimit.onChange(fps -> Gdx.graphics.setForegroundFPS(fps));
+    registerSetting(frameLimit);
+    BoolSetting vsync = new BoolSetting(KEY_VSYNC, true, KEY_VSYNC_DESCRIPTION);
+    vsync.onChange(enabled -> Gdx.graphics.setVSync(enabled));
+    registerSetting(vsync);
     registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
 
     registerSetting(new SectionDividerSetting(KEY_CONTROLS_HEADER));
@@ -135,6 +151,15 @@ public class ClientSettings {
    */
   public static int brightness() {
     return (int) getSetting(KEY_BRIGHTNESS).value();
+  }
+
+  /**
+   * Convenience method for accessing the limit of the frame rate.
+   *
+   * @return the frames per second, or {@link FrameLimitSetting#UNLIMITED}
+   */
+  public static int frameLimit() {
+    return (int) getSetting(KEY_FRAME_LIMIT).value();
   }
 
   /**

@@ -30,10 +30,11 @@ import java.util.stream.Stream;
  */
 public abstract class System {
   /**
-   * Determines how many frames pass between two executions of the {@link #execute()}-loop.
+   * Determines how many world ticks pass between two executions of the {@link #execute()}-loop, or
+   * how many frames for a system that {@link #runsPerFrame() runs per frame}.
    *
-   * <p>The value 1 means that no frames are skipped, the {@link #execute()}-loop is executed every
-   * frame.
+   * <p>The value 1 means that none are skipped, the {@link #execute()}-loop is executed every tick
+   * or frame.
    */
   public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
 
@@ -76,7 +77,7 @@ public abstract class System {
    * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
    *
    * @param authSide The authoritative side the system should run on.
-   * @param executeEveryXFrames how often the system should be executed 1 means every frame
+   * @param executeEveryXFrames how often the system should be executed, 1 means every tick or frame
    * @param filterRules Needed Component-Classes. Entities need the components to be processed by
    *     this system.
    */
@@ -98,7 +99,7 @@ public abstract class System {
    *
    * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
    *
-   * <p>This constructor will set the system to be executed every frame.
+   * <p>This constructor will set the system to be executed every tick or frame.
    *
    * <p>The system will be marked as running on {@link AuthoritativeSide#SERVER server} side.
    *
@@ -115,7 +116,7 @@ public abstract class System {
    *
    * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
    *
-   * <p>This constructor will set the system to be executed every frame.
+   * <p>This constructor will set the system to be executed every tick or frame.
    *
    * @param authSide The authoritative side the system should run on.
    * @param filterRules Needed Component-Classes. Entities need the components to be processed by
@@ -128,6 +129,20 @@ public abstract class System {
 
   /** Implements the functionality of the system. */
   public abstract void execute();
+
+  /**
+   * Tells whether {@link #execute()} runs once per rendered frame instead of once per world tick.
+   *
+   * <p>The simulation advances in fixed ticks of {@link Game#TICKS_PER_SECOND}, while input, UI,
+   * camera and sound follow the frame rate. Client systems therefore run per frame and server
+   * systems per tick. Systems of both sides run per tick unless they override this. A headless
+   * server renders no frames and runs both kinds in its tick.
+   *
+   * @return true if the system runs per frame
+   */
+  public boolean runsPerFrame() {
+    return authoritativeSide == AuthoritativeSide.CLIENT;
+  }
 
   /**
    * Implements the render functionality of the system.
@@ -257,14 +272,14 @@ public abstract class System {
   }
 
   /**
-   * @return the frame count the system should have between executes
+   * @return the number of ticks or frames the system should have between executes
    */
   public int executeEveryXFrames() {
     return executeEveryXFrames;
   }
 
   /**
-   * @return the amount of frames the System did not execute
+   * @return the number of ticks or frames the System did not execute
    */
   public int lastExecuteInFrames() {
     return lastExecuteInFrames;
@@ -273,7 +288,7 @@ public abstract class System {
   /**
    * Allows updating the time the system was last executed.
    *
-   * @param lastExecuteInFrames the Frames since the last execute
+   * @param lastExecuteInFrames the ticks or frames since the last execute
    */
   public void lastExecuteInFrames(int lastExecuteInFrames) {
     this.lastExecuteInFrames = lastExecuteInFrames;

@@ -9,7 +9,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import engine.Entity;
 import engine.Game;
-import engine.components.NetworkPositionComponent;
 import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
 import engine.network.messages.s2c.EntityState;
@@ -87,9 +86,12 @@ public class DefaultSnapshotTranslatorTest {
     assertEquals(1, inventory.count(ItemKey.class));
   }
 
-  /** Verifies multiplayer clients smooth small snapshot position updates instead of snapping. */
+  /**
+   * Verifies multiplayer clients take the snapshot position at once but keep drawing the entity
+   * where it was, and smooth from there instead of snapping.
+   */
   @Test
-  public void applySnapshotOnMultiplayerClientStoresNetworkPositionTarget() {
+  public void applySnapshotOnMultiplayerClientSmoothsOnlyTheRenderPosition() {
     PreRunConfiguration.multiplayerEnabled(true);
     PreRunConfiguration.isNetworkServer(false);
     DefaultSnapshotTranslator translator = new DefaultSnapshotTranslator();
@@ -105,10 +107,8 @@ public class DefaultSnapshotTranslatorTest {
 
     translator.applySnapshot(snapshot, new MessageDispatcher());
 
-    assertEquals(new Point(0, 0), position.position());
-    NetworkPositionComponent networkPosition =
-        entity.fetch(NetworkPositionComponent.class).orElseThrow();
-    assertEquals(new Point(1, 0), networkPosition.targetPosition());
+    assertEquals(new Point(1, 0), position.position());
+    assertEquals(new Point(0, 0), position.renderPosition());
 
     Graphics previousGraphics = Gdx.graphics;
     Gdx.graphics = mock(Graphics.class);
@@ -119,7 +119,8 @@ public class DefaultSnapshotTranslatorTest {
       Gdx.graphics = previousGraphics;
     }
 
-    assertEquals(0.55f, position.position().x(), 0.0001f);
-    assertEquals(0f, position.position().y(), 0.0001f);
+    assertEquals(new Point(1, 0), position.position());
+    assertEquals(0.55f, position.renderPosition().x(), 0.0001f);
+    assertEquals(0f, position.renderPosition().y(), 0.0001f);
   }
 }

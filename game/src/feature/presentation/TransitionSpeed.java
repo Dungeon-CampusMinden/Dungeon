@@ -3,22 +3,22 @@ package feature.presentation;
 /** Enum representing the speed of the transition animation. */
 public enum TransitionSpeed {
 
-  /** Fast transition speed (10 frames to complete). */
-  FAST(10),
+  /** Fast transition speed (a sixth of a second to complete). */
+  FAST(1 / 6f),
 
-  /** Medium transition speed (30 frames to complete). */
-  MEDIUM(30),
+  /** Medium transition speed (half a second to complete). */
+  MEDIUM(0.5f),
 
-  /** Slow transition speed (60 frames to complete). */
-  SLOW(60),
+  /** Slow transition speed (one second to complete). */
+  SLOW(1),
 
   /** Disabled transition (no animation). */
   DISABLED(0);
 
-  /** Number of frames the transition takes to complete. */
-  public final float framesToComplete;
+  /** Seconds the transition takes to complete. */
+  public final float secondsToComplete;
 
-  TransitionSpeed(final float framesToComplete) {
-    this.framesToComplete = framesToComplete;
+  TransitionSpeed(final float secondsToComplete) {
+    this.secondsToComplete = secondsToComplete;
   }
 }

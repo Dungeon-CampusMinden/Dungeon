@@ -66,7 +66,6 @@ public class SpriteTestRoom {
 
   private static void configGame() {
     Game.disableAudio(true);
-    Game.frameRate(60);
   }
 
   private static void createSystems() {

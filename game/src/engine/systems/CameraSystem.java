@@ -11,6 +11,7 @@ import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
 import engine.input.GameInput;
 import engine.level.Tile;
+import engine.utils.FrameSmoothing;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
@@ -32,6 +33,7 @@ public final class CameraSystem extends System {
   /** WTF? . */
   public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
 
+  /** Share of the remaining distance to the focus point the camera covers per world tick. */
   private static final float CAMERA_FOCUS_LERP = 0.2f;
 
   private static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
@@ -145,10 +147,9 @@ public final class CameraSystem extends System {
     if (actualPosition == null) {
       actualPosition = focusPoint;
     }
-    float newX =
-        actualPosition.x() * (1 - CAMERA_FOCUS_LERP) + (focusPoint.x() * CAMERA_FOCUS_LERP);
-    float newY =
-        actualPosition.y() * (1 - CAMERA_FOCUS_LERP) + (focusPoint.y() * CAMERA_FOCUS_LERP);
+    float lerp = FrameSmoothing.share(CAMERA_FOCUS_LERP);
+    float newX = actualPosition.x() * (1 - lerp) + (focusPoint.x() * lerp);
+    float newY = actualPosition.y() * (1 - lerp) + (focusPoint.y() * lerp);
     actualPosition = new Point(newX, newY);
 
     if (actualPosition.distance(focusPoint) <= 0.01f) {
@@ -167,7 +168,9 @@ public final class CameraSystem extends System {
   }
 
   private void focus(Entity entity) {
-    focus(EntityUtils.getPosition(entity));
+    // The camera follows the entity where it is drawn, or the two would drift apart between ticks.
+    PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
+    focus(EntityUtils.getPosition(entity).translate(pc.position().vectorTo(pc.renderPosition())));
   }
 
   private void focus(Point point) {

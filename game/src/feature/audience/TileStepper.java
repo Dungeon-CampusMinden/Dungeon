@@ -30,7 +30,7 @@ import java.util.function.Predicate;
  * Moves the hero exactly one tile per voted step and interacts with the tile in front of it, or
  * walks it to a chosen {@link AudienceTarget} along the shortest free route.
  *
- * <p>{@link #tick()} must run before the {@code VelocitySystem} in every frame: it steers the hero
+ * <p>{@link #tick()} must run before the {@code VelocitySystem} in every tick: it steers the hero
  * toward the destination through its velocity, so the walking animation plays, and settles it
  * exactly on the destination tile. A route is a series of such steps.
  *
@@ -331,7 +331,7 @@ final class TileStepper {
 
   /**
    * Steers the hero toward the destination and settles it there, then takes the next step of a
-   * route; call once per frame.
+   * route; call once per world tick.
    */
   void tick() {
     if (target == null && onArrival != null) {
@@ -353,7 +353,7 @@ final class TileStepper {
     PositionComponent position = hero.fetch(PositionComponent.class).orElseThrow();
     velocity.clearForces();
     Point from = position.position();
-    float delta = 1f / Game.frameRate();
+    float delta = Game.TICK_SECONDS;
     float distance = Point.calculateDistance(from, target);
     if (distance <= SPEED * delta) {
       velocity.currentVelocity(Vector2.ZERO);

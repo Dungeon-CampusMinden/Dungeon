@@ -15,7 +15,6 @@ import engine.level.elements.tile.ExitTile;
 import engine.level.utils.LevelElement;
 import engine.network.NetworkUtils;
 import engine.systems.CameraSystem;
-import engine.utils.IVoidFunction;
 import engine.utils.Point;
 import engine.utils.components.MissingComponentException;
 import engine.utils.components.path.SimpleIPath;
@@ -35,9 +34,6 @@ import java.util.List;
  * <p>It provides useful functionalities that can aid in verifying the correct behavior of a game
  * implementation.
  *
- * <p>Add the Debugger in the Game-Loop by adding the {@link #execute()} call in {@link
- * Game#userOnFrame(IVoidFunction)}
- *
  * @see DebugActions
  */
 public class Debugger extends System {
@@ -45,7 +41,6 @@ public class Debugger extends System {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Debugger.class);
   private final InputContext context = new InputContext(DebugActions.DEBUG);
   private static Entity pauseMenu;
-  private static int advanceTimer = 0;
   private static final List<Runnable> actions = new ArrayList<>();
 
   /** Use this value to quickly test different states or values in any other part of the game. */
@@ -191,18 +186,8 @@ public class Debugger extends System {
 
   private static void ADVANCE_FRAME() {
     if (!isPaused()) return;
-    unpause();
-    advanceTimer = 2; // Set to 2 to account for the current frame
-    LOGGER.info("Advanced one frame");
-  }
-
-  private static void checkFrameAdvance() {
-    if (advanceTimer > 0) {
-      advanceTimer--;
-      if (advanceTimer == 0) {
-        pause();
-      }
-    }
+    Game.hud().stepPausedGame();
+    LOGGER.info("Advanced one world tick");
   }
 
   private static void OPEN_DOORS() {
@@ -277,7 +262,5 @@ public class Debugger extends System {
       LOGGER.info("Executed actions.");
       executeActions();
     }
-
-    checkFrameAdvance();
   }
 }

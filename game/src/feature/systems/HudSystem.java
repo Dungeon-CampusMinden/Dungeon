@@ -46,6 +46,9 @@ public final class HudSystem extends System {
 
   private boolean dialogsSuppressed = false;
 
+  private boolean stepRequested = false;
+  private boolean stepping = false;
+
   /**
    * Returns the singleton HUD system.
    *
@@ -71,6 +74,14 @@ public final class HudSystem extends System {
   public boolean hasOpenPausingUI(Entity entity) {
     return entityUIComponentMap.values().stream()
         .anyMatch(component -> component.willPauseGame() && isVisibleFor(component, entity));
+  }
+
+  /**
+   * Lets a game that an open UI pauses run for its next world tick, to step through it while
+   * debugging. Without such a pause, and in multiplayer, nothing happens.
+   */
+  public void stepPausedGame() {
+    stepRequested = true;
   }
 
   /**
@@ -239,11 +250,21 @@ public final class HudSystem extends System {
   @Override
   public void execute() {
     try {
+      if (stepping) {
+        // The stepped tick is over.
+        stepping = false;
+        Game.systems().values().forEach(System::stop);
+      }
       if (filteredEntityStream(UIComponent.class).anyMatch(this::pausesGame)) {
         if (!ipaused) pauseGame();
+        if (stepRequested && !PreRunConfiguration.multiplayerEnabled()) {
+          stepping = true;
+          Game.systems().values().forEach(System::run);
+        }
       } else {
         if (ipaused) unpauseGame();
       }
+      stepRequested = false;
     } catch (Exception ignored) {
     } // only a hotfix for reconnecting clients
 

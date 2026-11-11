@@ -400,7 +400,7 @@ public final class SearchRobotRiddle {
     }
 
     Vector2 toWaypoint = position.position().vectorTo(currentPath.get(pathCursor).position());
-    double speed = Math.min(velocity.maxSpeed(), toWaypoint.length() * Game.frameRate());
+    double speed = Math.min(velocity.maxSpeed(), toWaypoint.length() * Game.TICKS_PER_SECOND);
     velocity.currentVelocity(toWaypoint.normalize().scale(speed));
     velocity.clearForces();
   }

@@ -28,7 +28,7 @@ public final class StaticRadiusWalk implements Consumer<Entity> {
    */
   public StaticRadiusWalk(float radius, int breakTimeInSeconds) {
     this.radius = radius;
-    this.breakTime = breakTimeInSeconds * Game.frameRate();
+    this.breakTime = breakTimeInSeconds * Game.TICKS_PER_SECOND;
   }
 
   @Override

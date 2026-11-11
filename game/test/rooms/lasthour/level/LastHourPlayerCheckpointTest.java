@@ -543,7 +543,7 @@ class LastHourPlayerCheckpointTest {
     assertEquals(revision, LastHourLevel.saveRevision());
     assertEquals(previous, LastHourLoad.read(saveFile).orElseThrow());
 
-    ECSManagement.executeOneTick(engine.System.AuthoritativeSide.SERVER);
+    ECSManagement.executeTick(engine.System.AuthoritativeSide.SERVER);
 
     assertTrue(level.playerStates.isUpdated());
     assertTrue(inventory(replacement).get(0).orElseThrow() instanceof UsbStickItem.BlueUsbStick);
@@ -559,7 +559,7 @@ class LastHourPlayerCheckpointTest {
     Game.remove(replacement);
     Entity reconnected = player("A", new Point(0, 0));
 
-    ECSManagement.executeOneTick(engine.System.AuthoritativeSide.SERVER);
+    ECSManagement.executeTick(engine.System.AuthoritativeSide.SERVER);
 
     assertTrue(inventory(reconnected).get(0).isEmpty());
     assertEquals(

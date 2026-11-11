@@ -78,12 +78,8 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public void sendInput(InputMessage input) {
-    Game.player()
-        .ifPresent(
-            hero -> {
-              HeroController.enqueueInput(dummyState, input);
-              HeroController.drainAndApplyInputs(); // Apply immediately in local mode
-            });
+    // The next world tick applies it, as on a server.
+    Game.player().ifPresent(hero -> HeroController.enqueueInput(dummyState, input));
   }
 
   @Override

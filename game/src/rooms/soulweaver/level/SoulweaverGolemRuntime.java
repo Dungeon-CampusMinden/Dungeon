@@ -802,23 +802,23 @@ final class SoulweaverGolemRuntime {
     velocity.clearForces();
     velocity.currentVelocity(Vector2.ZERO);
     if (machinery.working()) {
-      machinery.tick(1f / Game.frameRate());
+      machinery.tick(Game.TICK_SECONDS);
       return;
     }
     if (awaitingWorkshopRoute) {
-      workshopRouteRetry -= 1f / Game.frameRate();
+      workshopRouteRetry -= Game.TICK_SECONDS;
       if (workshopRouteRetry <= 0) beginWorkshopReturn();
     }
     workshop.tick();
     decisions.tick();
     if (wallBreakTime > 0) {
-      wallBreakTime -= 1f / Game.frameRate();
+      wallBreakTime -= Game.TICK_SECONDS;
       if (wallBreakTime <= 0) wall.forEach(draw -> draw.stateMachine().setState("broken", null));
     }
     if (!busy) {
       return;
     }
-    float delta = 1f / Game.frameRate();
+    float delta = Game.TICK_SECONDS;
     actionTime += delta;
     if (jumping) golem.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(0xBBDDFFFF));
     if (attacking) {

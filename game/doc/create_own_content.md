@@ -45,7 +45,7 @@ class MySystem extends System {
 }
 ```
 
-Die Funktionalität des Systems wird in der `execute`-Methode implementiert. Diese wird einmal pro Frame aufgerufen. In der `execute`-Methode kann mit `entityStream()` der Stream aus `Game` geholt werden, der alle Entitäten enthält, die von dem System verwaltet werden.
+Die Funktionalität des Systems wird in der `execute`-Methode implementiert. Diese wird einmal pro Welt-Tick aufgerufen, also 60-mal pro Sekunde unabhängig von der Framerate; Systeme der Client-Seite laufen einmal pro Frame (siehe `System#runsPerFrame`). Zeitabhängige Logik rechnet mit `Game.TICK_SECONDS`. In der `execute`-Methode kann mit `entityStream()` der Stream aus `Game` geholt werden, der alle Entitäten enthält, die von dem System verwaltet werden.
 
 ```java
 @Override

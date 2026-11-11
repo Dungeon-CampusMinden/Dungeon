@@ -252,7 +252,7 @@ public class GdxSoundPlayer implements ISoundPlayer {
     private final long soundId;
     private final Sound sound;
     private final long durationMs;
-    private long elapsedTime = 0;
+    private float elapsedSeconds = 0;
     private boolean stopped = false;
     private boolean looping = false;
 
@@ -359,14 +359,14 @@ public class GdxSoundPlayer implements ISoundPlayer {
       if (stopped) return false;
       if (looping) return true;
       if (durationMs != -1) {
-        return elapsedTime < durationMs;
+        return elapsedSeconds * 1000 < durationMs;
       }
       return true; // assume playing until stopped
     }
 
     @Override
     void update(float delta) {
-      elapsedTime += (long) (delta * 1000);
+      elapsedSeconds += delta;
       if (!stopped && !looping && !isPlaying()) {
         callFinished();
       }

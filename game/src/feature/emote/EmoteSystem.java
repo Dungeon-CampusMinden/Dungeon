@@ -20,7 +20,7 @@ public class EmoteSystem extends System {
   }
 
   private void process(Data data) {
-    data.ec().update(1f / Game.frameRate());
+    data.ec().update(Game.TICK_SECONDS);
     if (data.ec().isDone()) {
       Game.remove(data.e());
     } else {

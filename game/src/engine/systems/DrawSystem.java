@@ -406,9 +406,7 @@ public final class DrawSystem extends System implements Disposable {
       List<DSData> sortedGroup =
           sortedEntities.get(depth).stream()
               .map(DSData::build)
-              .sorted(
-                  Comparator.comparingDouble(
-                      (DSData d) -> -(EntityUtils.getPosition(d.e).y() + d.dc.sortOffset())))
+              .sorted(Comparator.comparingDouble((DSData d) -> -sortY(d)))
               .filter(this::shouldDraw)
               .toList();
 
@@ -680,7 +678,8 @@ public final class DrawSystem extends System implements Disposable {
       Rectangle worldBounds = new Rectangle(1, 1, 0, 0);
       if (pc != null) {
         worldBounds =
-            getFboWorldBounds(pc.position(), pc.scale(), Vector2.of(unscaledWidth, unscaledHeight));
+            getFboWorldBounds(
+                pc.renderPosition(), pc.scale(), Vector2.of(unscaledWidth, unscaledHeight));
       }
       Rectangle shaderBounds = pass.worldBounds();
       if (shaderBounds != null && !worldBounds.intersects(shaderBounds)) {
@@ -793,7 +792,7 @@ public final class DrawSystem extends System implements Disposable {
     // padding.
     Point offsetPosition =
         dsd.pc
-            .position()
+            .renderPosition()
             .translate(
                 -paddingX * dsd.pc.scale().x() * worldWidth,
                 -paddingY * dsd.pc.scale().y() * worldHeight);
@@ -841,7 +840,7 @@ public final class DrawSystem extends System implements Disposable {
     Sprite sprite = dsd.dc.getSprite();
     DrawConfig conf =
         makeConfig(dsd, Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()), dsd.pc.scale());
-    draw(dsd.pc.position(), sprite, conf);
+    draw(dsd.pc.renderPosition(), sprite, conf);
   }
 
   /**
@@ -901,7 +900,7 @@ public final class DrawSystem extends System implements Disposable {
       return CameraSystem.getCameraWorldBounds();
     }
     return getFboWorldBounds(
-        dsd.pc.position(), dsd.pc.scale(), Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
+        dsd.pc.renderPosition(), dsd.pc.scale(), Vector2.of(dsd.dc.getWidth(), dsd.dc.getHeight()));
   }
 
   private Rectangle getFboWorldBounds(Point pos, Vector2 scale, Vector2 size) {
@@ -1014,7 +1013,7 @@ public final class DrawSystem extends System implements Disposable {
               d.dc.getSprite(),
               conf.size().x(),
               conf.size().y(),
-              makeTransform(d.pc.position(), conf));
+              makeTransform(d.pc.renderPosition(), conf));
     }
     BlendUtils.setBlending(batch());
     batch().setColor(Color.WHITE);
@@ -1112,7 +1111,7 @@ public final class DrawSystem extends System implements Disposable {
               emissiveSprite,
               conf.size().x(),
               conf.size().y(),
-              makeTransform(d.pc.position(), conf));
+              makeTransform(d.pc.renderPosition(), conf));
     }
   }
 
@@ -1133,7 +1132,7 @@ public final class DrawSystem extends System implements Disposable {
               d.dc.getSprite(),
               conf.size().x(),
               conf.size().y(),
-              makeTransform(d.pc.position(), conf));
+              makeTransform(d.pc.renderPosition(), conf));
     }
     atmosphere.endBases(batch());
   }
@@ -1169,7 +1168,7 @@ public final class DrawSystem extends System implements Disposable {
 
     Rectangle cameraBounds = CameraSystem.getCameraWorldBounds();
 
-    Point pos = data.pc.position();
+    Point pos = data.pc.renderPosition();
     float width = data.dc.getWidth() * data.pc.scale().x();
     float height = data.dc.getHeight() * data.pc.scale().y();
     List<Point> corners =
@@ -1209,6 +1208,12 @@ public final class DrawSystem extends System implements Disposable {
    */
   public static int shadersActiveLastFrame() {
     return getInstance().shadersActiveLastFrame;
+  }
+
+  // Entities are sorted where they are drawn, which can lie apart from their position.
+  private static float sortY(DSData d) {
+    float drawnApart = d.pc.renderPosition().y() - d.pc.position().y();
+    return EntityUtils.getPosition(d.e).y() + drawnApart + d.dc.sortOffset();
   }
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {
