@@ -59,6 +59,7 @@ import engine.network.messages.s2c.SoundStopMessage;
 import engine.network.server.ClientState;
 import engine.network.server.Session;
 import engine.network.server.SoundTracker;
+import engine.sound.Sounds;
 import engine.sound.player.GdxSoundPlayer;
 import engine.sound.player.ISoundPlayer;
 import engine.sound.player.NoSoundPlayer;
@@ -385,6 +386,7 @@ public final class GameLoop extends ScreenAdapter {
     int height = currentWindowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     GameInput.stage(stage);
+    Sounds.playButtonSounds(stage.getRoot());
   }
 
   private static int currentWindowWidth() {

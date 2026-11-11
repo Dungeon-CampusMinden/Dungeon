@@ -8,8 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.language.Translation;
-import engine.sound.CoreSounds;
-import engine.sound.Sounds;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
 import java.util.Optional;
@@ -60,8 +58,6 @@ public class BoolSetting extends SettingValue<Boolean> {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             value(checkBox.isChecked());
-            float pitch = value() ? 1.0f : 0.8f;
-            Sounds.playUi(CoreSounds.SETTINGS_TOGGLE_CLICK, pitch);
           }
         });
 

@@ -56,8 +56,9 @@ public class JournalUI extends Group {
     addActor(bookImage);
 
     // Navigation Buttons
-    btnLeft = new TextButton("<", skin);
-    btnRight = new TextButton(">", skin);
+    // Turning a page plays the page flip instead of a click.
+    btnLeft = engine.sound.Sounds.ownSound(new TextButton("<", skin));
+    btnRight = engine.sound.Sounds.ownSound(new TextButton(">", skin));
 
     btnLeft.addListener(
         new ClickListener() {

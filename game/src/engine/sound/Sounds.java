@@ -1,5 +1,11 @@
 package engine.sound;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.Game;
 import engine.utils.settings.ClientSettings;
 
@@ -43,6 +49,50 @@ public class Sounds {
     Game.soundPlayer()
         .playWithInstance(instanceId, sound.soundName(), volume, false, pitch, 0, null);
     return instanceId;
+  }
+
+  /**
+   * Gives every button below the given actor its click sound: checkboxes play the toggle sound, all
+   * other buttons the click sound. Each screen installs it once on its stage root, so buttons play
+   * no click sound of their own. A button whose press already makes its own sound opts out with
+   * {@link #ownSound}.
+   *
+   * <p>Only the pressed button sounds. Buttons that change by code, such as the one a button group
+   * unchecks, stay silent. Listens in the capture phase, so the sound still plays when the click
+   * disposes the UI.
+   *
+   * @param root the stage root whose buttons click
+   */
+  public static void playButtonSounds(Group root) {
+    root.addCaptureListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            if (!(actor instanceof Button button) || !button.getClickListener().isPressed()) return;
+            if (button.getListeners().contains(OWN_SOUND, true)) return;
+            if (button instanceof CheckBox box) {
+              playUi(CoreSounds.SETTINGS_TOGGLE_CLICK, box.isChecked() ? 1.0f : 0.8f);
+            } else {
+              playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
+            }
+          }
+        });
+  }
+
+  // Marker listener; it handles no events.
+  private static final EventListener OWN_SOUND = event -> false;
+
+  /**
+   * Marks a button whose press plays its own sound, such as a keypad beep, so that {@link
+   * #playButtonSounds} plays no click for it.
+   *
+   * @param button the button
+   * @param <T> the button type
+   * @return the same button
+   */
+  public static <T extends Button> T ownSound(T button) {
+    button.addListener(OWN_SOUND);
+    return button;
   }
 
   /**
