@@ -31,7 +31,7 @@ final class NetworkTelemetryThresholds {
 
   // A frame is late once it takes half again as long as a tick, or as the FPS limit allows.
   static long clientFrameMicros() {
-    int limit = ClientSettings.frameLimit().fps();
+    int limit = ClientSettings.frameLimit();
     long expected = limit > 0 ? Math.max(tickMicros(), 1_000_000L / limit) : tickMicros();
     return expected + expected / 2L;
   }

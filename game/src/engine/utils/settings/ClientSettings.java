@@ -99,16 +99,9 @@ public class ClientSettings {
 
     registerSetting(new SectionDividerSetting(KEY_GRAPHICS_HEADER));
     registerSetting(new IntSliderSetting(KEY_BRIGHTNESS, 100, 50, 150, 10, v -> v + " %"));
-    EnumSetting<FrameLimit> frameLimit =
-        new EnumSetting<>(
-            KEY_FRAME_LIMIT,
-            FrameLimit.DEFAULT,
-            FrameLimit.values(),
-            limit ->
-                limit == FrameLimit.UNLIMITED
-                    ? localization.text(KEY_FRAME_LIMIT_UNLIMITED)
-                    : String.valueOf(limit.fps()));
-    frameLimit.onChange(limit -> Gdx.graphics.setForegroundFPS(limit.fps()));
+    FrameLimitSetting frameLimit =
+        new FrameLimitSetting(KEY_FRAME_LIMIT, KEY_FRAME_LIMIT_UNLIMITED);
+    frameLimit.onChange(fps -> Gdx.graphics.setForegroundFPS(fps));
     registerSetting(frameLimit);
     BoolSetting vsync = new BoolSetting(KEY_VSYNC, true, KEY_VSYNC_DESCRIPTION);
     vsync.onChange(enabled -> Gdx.graphics.setVSync(enabled));
@@ -163,10 +156,10 @@ public class ClientSettings {
   /**
    * Convenience method for accessing the limit of the frame rate.
    *
-   * @return the frame limit
+   * @return the frames per second, or {@link FrameLimitSetting#UNLIMITED}
    */
-  public static FrameLimit frameLimit() {
-    return (FrameLimit) getSetting(KEY_FRAME_LIMIT).value();
+  public static int frameLimit() {
+    return (int) getSetting(KEY_FRAME_LIMIT).value();
   }
 
   /**
