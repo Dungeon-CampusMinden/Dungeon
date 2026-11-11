@@ -26,6 +26,7 @@ import engine.network.codec.converters.s2c.EntitySpawnBatchConverter;
 import engine.network.codec.converters.s2c.EntitySpawnEventConverter;
 import engine.network.codec.converters.s2c.EntityStateConverter;
 import engine.network.codec.converters.s2c.GameOverConverter;
+import engine.network.codec.converters.s2c.InitialPresentationReadyConverter;
 import engine.network.codec.converters.s2c.InitialWorldCompleteConverter;
 import engine.network.codec.converters.s2c.LevelChangeConverter;
 import engine.network.codec.converters.s2c.PlayClockMessageConverter;
@@ -83,6 +84,7 @@ public final class CoreConverters {
     registry.register(new DebugTelemetrySnapshotConverter());
     registry.register(new DebugPongConverter());
     registry.register(new InitialWorldCompleteConverter());
+    registry.register(new InitialPresentationReadyConverter());
     registry.register(new PrefabChangeConverter());
   }
 }

@@ -23,6 +23,7 @@ import feature.interaction.sorting.SortingUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
 import feature.puzzle.PuzzleDialog;
+import feature.trash.TrashMinigameUI;
 import feature.utils.Translator;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,6 +83,8 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     register(DialogType.DefaultTypes.SORTING, SortingUI::build);
     register(DialogType.DefaultTypes.CABLES, CablesUI::build);
+    register(DialogType.DefaultTypes.TEXT_CUTSCENE, BlackFadeCutscene::build);
+    register(DialogType.DefaultTypes.TRASHCAN, TrashMinigameUI::build);
     LOGGER.debug("Registered built-in dialog types");
   }
 

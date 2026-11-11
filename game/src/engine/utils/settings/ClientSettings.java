@@ -6,7 +6,9 @@ import engine.language.Language;
 import engine.language.Localization;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 /** Manages client-side settings for the game, such as volume levels and control bindings. */
@@ -47,6 +49,8 @@ public class ClientSettings {
   private final HashMap<String, SettingValue<?>> settings;
   private final HashMap<String, Boolean> onlyIngame;
   private BiConsumer<String, Integer> onVolumeChange = (key, value) -> {};
+  // Further listeners, e.g. of music prefabs, called after onVolumeChange.
+  private final List<BiConsumer<String, Integer>> volumeListeners = new CopyOnWriteArrayList<>();
 
   private ClientSettings() {
     settings = new LinkedHashMap<>();
@@ -78,15 +82,33 @@ public class ClientSettings {
     getInstance().onVolumeChange = onChange;
   }
 
+  /**
+   * Adds a callback called when a volume setting changes, besides the one of {@link
+   * #setOnVolumeChange}. The callback receives the key of the changed setting and its new value.
+   *
+   * @param listener called on every volume change
+   * @return removes the listener again
+   */
+  public static Runnable addVolumeListener(BiConsumer<String, Integer> listener) {
+    List<BiConsumer<String, Integer>> listeners = getInstance().volumeListeners;
+    listeners.add(Objects.requireNonNull(listener, "listener"));
+    return () -> listeners.remove(listener);
+  }
+
+  private void volumeChanged(String key, int value) {
+    onVolumeChange.accept(key, value);
+    volumeListeners.forEach(listener -> listener.accept(key, value));
+  }
+
   private void init() {
     Localization localization = Localization.getInstance();
     IntSliderSetting masterVolume = new IntSliderSetting(KEY_MASTER_VOLUME, 70, 0, 100, 5);
     IntSliderSetting effectsVolume = new IntSliderSetting(KEY_EFFECTS_VOLUME, 70, 0, 100, 5);
     IntSliderSetting musicVolume = new IntSliderSetting(KEY_MUSIC_VOLUME, 5, 0, 100, 5);
 
-    masterVolume.onChange((v) -> onVolumeChange.accept(KEY_MASTER_VOLUME, v));
-    effectsVolume.onChange((v) -> onVolumeChange.accept(KEY_EFFECTS_VOLUME, v));
-    musicVolume.onChange((v) -> onVolumeChange.accept(KEY_MUSIC_VOLUME, v));
+    masterVolume.onChange((v) -> volumeChanged(KEY_MASTER_VOLUME, v));
+    effectsVolume.onChange((v) -> volumeChanged(KEY_EFFECTS_VOLUME, v));
+    musicVolume.onChange((v) -> volumeChanged(KEY_MUSIC_VOLUME, v));
 
     registerSetting(masterVolume);
     registerSetting(effectsVolume);

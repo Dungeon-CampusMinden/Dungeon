@@ -1419,5 +1419,135 @@
       "foamMaxWidth" : 3,
       "lineInterval" : 2.5
     }
+  }, {
+    "name" : "game/intro",
+    "type" : "intro-text",
+    "properties" : {
+      "page-count" : 2,
+      "page-1" : "Welcome to the Game of Games.",
+      "page-2" : "Every game has rules. Find out who wrote them.",
+      "font-size" : 32
+    }
+  }, {
+    "name" : "game/music",
+    "type" : "background-music",
+    "properties" : {
+      "track" : "background",
+      "volume" : 1.0,
+      "pitch" : 1.0,
+      "playing" : true
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "r1/torch",
+        "port" : "lit"
+      } ],
+      "stop" : [ {
+        "source" : "r1/torch",
+        "port" : "extinguished"
+      } ]
+    }
+  }, {
+    "name" : "r1/timer",
+    "type" : "timer",
+    "properties" : {
+      "position" : {
+        "x" : 19.0,
+        "y" : 9.0
+      },
+      "duration" : 45,
+      "start-counting" : true
+    },
+    "inputs" : {
+      "stop" : [ {
+        "source" : "r1/timer-lever",
+        "port" : "switched-on"
+      } ],
+      "start" : [ {
+        "source" : "r1/timer-lever",
+        "port" : "switched-off"
+      } ]
+    }
+  }, {
+    "name" : "r1/timer-lever",
+    "type" : "lever",
+    "properties" : {
+      "position" : {
+        "x" : 20.0,
+        "y" : 9.0
+      },
+      "revertable" : true
+    }
+  }, {
+    "name" : "r1/timer-expired",
+    "type" : "dialog",
+    "properties" : {
+      "text" : "Time is up!",
+      "translate" : false,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "r1/timer",
+        "port" : "expired"
+      } ]
+    }
+  }, {
+    "name" : "r1/trash",
+    "type" : "trash-minigame",
+    "properties" : {
+      "position" : {
+        "x" : 12.0,
+        "y" : 7.0
+      },
+      "deco" : "TrashCanBlue",
+      "paper-count" : 30,
+      "reward" : "Linked Item"
+    },
+    "inputs" : {
+      "reward-item" : [ {
+        "source" : "image-puzzle",
+        "port" : "piece-4"
+      } ]
+    }
+  }, {
+    "name" : "r2/outro-lever",
+    "type" : "lever",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 6.0
+      },
+      "revertable" : false
+    }
+  }, {
+    "name" : "game/outro",
+    "type" : "outro-text",
+    "properties" : {
+      "page-count" : 2,
+      "page-1" : "You found the rules of the game.",
+      "page-2" : "Thanks for playing!",
+      "font-size" : 32,
+      "end-on-black" : true
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "r2/outro-lever",
+        "port" : "switched-on"
+      } ]
+    }
+  }, {
+    "name" : "game/quit",
+    "type" : "quit-game",
+    "properties" : {
+      "quit-for" : "Everyone",
+      "result" : "Solved"
+    },
+    "inputs" : {
+      "quit" : [ {
+        "source" : "game/outro",
+        "port" : "finished"
+      } ]
+    }
   } ]
 }

@@ -1573,9 +1573,21 @@ public final class PrefabMode extends LevelEditorMode {
         if (artifact && link.source().equals(receiver.name())) continue;
         boolean linked = receiver.links(input).stream().anyMatch(l -> l.sameOutput(link));
         boolean cycle = artifact && artifactCycle.test(link.source(), receiver.name());
+        // An item can only be held in one place.
+        Optional<String> heldBy =
+            input instanceof ArtifactSlot<?> holding && holding.holder()
+                ? PrefabWiring.holders(instances, link.source(), link.port()).stream()
+                    .filter(
+                        holder ->
+                            !holder.receiver().name().equals(receiver.name())
+                                || !holder.input().key().equals(input.key()))
+                    .map(holder -> holder.receiver().name())
+                    .findFirst()
+                : Optional.empty();
         String detail = null;
         if (linked) detail = "already linked";
         else if (cycle) detail = "would make the value depend on itself";
+        else if (heldBy.isPresent()) detail = "held by " + heldBy.get();
         else if (PrefabWiring.lacksPlayer(output, input)) detail = "runs for every player";
         else if (input instanceof ArtifactSlot<?> slot
             && !slot.multiple()
@@ -1598,7 +1610,7 @@ public final class PrefabMode extends LevelEditorMode {
                 group,
                 label,
                 detail,
-                !linked && !cycle,
+                !linked && !cycle && heldBy.isEmpty(),
                 candidateInWorld,
                 () -> addLink(receiver.name(), input, link)));
       }

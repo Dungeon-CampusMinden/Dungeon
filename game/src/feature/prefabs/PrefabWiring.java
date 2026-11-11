@@ -171,6 +171,52 @@ public final class PrefabWiring {
   }
 
   /**
+   * Returns the links of holding slots that point at one output, see {@link
+   * ArtifactSlot#holding()}. Normally there is at most one.
+   *
+   * @param instances instances of the level
+   * @param source name of the producing instance
+   * @param port key of its item output
+   * @return holding links, in level order
+   */
+  public static List<Connection> holders(
+      List<PrefabInstance> instances, String source, String port) {
+    return outgoing(instances, source, port).stream()
+        .filter(connection -> connection.input() instanceof ArtifactSlot<?> slot && slot.holder())
+        .toList();
+  }
+
+  /**
+   * Returns whether another instance holds the item of an output, so its producer must not place
+   * the item itself.
+   *
+   * @param instances instances of the level
+   * @param source name of the producing instance
+   * @param port key of its item output
+   * @return true if a holding slot is linked to the output
+   */
+  public static boolean isHeld(List<PrefabInstance> instances, String source, String port) {
+    return !holders(instances, source, port).isEmpty();
+  }
+
+  /**
+   * Returns the outputs of an instance whose items other instances hold.
+   *
+   * @param instances instances of the level
+   * @param source name of the producing instance
+   * @return keys of the held outputs
+   */
+  public static Set<String> heldOutputs(List<PrefabInstance> instances, String source) {
+    Set<String> held = new HashSet<>();
+    for (Connection connection : outgoing(instances, source)) {
+      if (connection.input() instanceof ArtifactSlot<?> slot && slot.holder()) {
+        held.add(connection.link().port());
+      }
+    }
+    return held;
+  }
+
+  /**
    * Returns every link stored on the instances whose input port is known and offered.
    *
    * @param instances instances of the level
@@ -202,11 +248,33 @@ public final class PrefabWiring {
     Map<String, PrefabInstance> byName = new HashMap<>();
     for (PrefabInstance instance : instances) byName.put(instance.name(), instance);
     Set<Connection> cyclic = cyclicArtifactLinks(instances);
+    // First holder of every held output, by source and port.
+    Map<String, String> holders = new HashMap<>();
     List<Problem> result = new ArrayList<>();
     for (Connection connection : connections(instances)) {
       PrefabLink link = connection.link();
       String receiver = connection.receiver().name();
       String port = connection.input().key();
+      if (connection.input() instanceof ArtifactSlot<?> slot && slot.holder()) {
+        String holder =
+            holders.putIfAbsent(link.source() + "#" + link.port(), receiver + "." + port);
+        if (holder != null) {
+          result.add(
+              new Problem(
+                  receiver,
+                  port,
+                  link,
+                  Severity.ERROR,
+                  "'"
+                      + link.source()
+                      + "."
+                      + link.port()
+                      + "' is held by '"
+                      + holder
+                      + "' already, an item can only be in one place"));
+          continue;
+        }
+      }
       PrefabInstance source = byName.get(link.source());
       if (source == null) {
         result.add(

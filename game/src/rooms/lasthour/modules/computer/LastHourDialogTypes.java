@@ -7,9 +7,6 @@ public enum LastHourDialogTypes implements DialogType {
 
   /** The Computer UI dialog. */
   COMPUTER("computer"),
-
-  /** The trashcan minigame. */
-  TRASHCAN("trashcan"),
   ;
 
   private final String typeName;

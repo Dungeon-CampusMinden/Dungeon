@@ -137,6 +137,15 @@ public final class PlayClock {
         });
   }
 
+  /** Counts every participant as playing again, undoing {@link #playingParticipants}. */
+  public void allParticipantsPlaying() {
+    mutate(
+        () -> {
+          playingEntities = Optional.empty();
+          return reconcile();
+        });
+  }
+
   /**
    * Records only explicit pause screens, never task or input dialogs.
    *

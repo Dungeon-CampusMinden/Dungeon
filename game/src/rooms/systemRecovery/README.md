@@ -127,7 +127,7 @@ Die ausführliche, aktuelle Beschreibung steht in:
 
 `SystemRecoveryTimerFactory` erzeugt am Custom Point `timer` die Timer-Entity. Ihre Restzeit
 rechnet `SystemRecoveryTimeLimit` aus der gemeinsamen Spieluhr; `SystemRecoveryTimerSystem`
-friert sie bei `COMPLETE` ein und erkennt den Ablauf. `SystemRecoveryTimerSync` überträgt Start,
+friert sie bei `COMPLETE` ein und erkennt den Ablauf. `WorldTimerSync` überträgt Start,
 Dauer und Einfrierzeitpunkt, und `WorldTimerSystem` zeichnet die Restzeit mit der synchronisierten
 Spieluhr auf den Clients. Läuft die Zeit vor `COMPLETE` ab, zeigt `SystemRecoveryTimeoutEnding`
 das Fehler-Outro. Unabhängig davon löst `SystemRecoveryTimedHintSystem` die zeitgesteuerte Hilfe

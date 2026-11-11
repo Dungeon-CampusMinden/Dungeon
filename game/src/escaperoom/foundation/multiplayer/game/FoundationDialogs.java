@@ -20,9 +20,9 @@ import escaperoom.foundation.definition.HintSeverity;
 import escaperoom.foundation.presentation.GamePresentation;
 import escaperoom.foundation.presentation.GamePresentation.ResourcePresentation;
 import escaperoom.foundation.runtime.ReleasedHint;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.hud.dialogs.BlackFadeCutscene;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -51,7 +51,6 @@ public final class FoundationDialogs {
 
   /** Registers all Foundation dialog renderers on host and client. */
   public static void register() {
-    BlackFadeCutscene.register();
     DialogFactory.register(FoundationDialogType.RESOURCE, FoundationDialogs::resourceDialog);
   }
 

@@ -388,6 +388,27 @@ public final class PrefabRuntime {
     if (state.clearArtifacts(name)) notifyArtifactConsumers(level, name, null);
   }
 
+  /**
+   * Tells the spawned server-side instances of a level that a player is ready to see the world, see
+   * {@link Prefab#onPlayerReady}.
+   *
+   * @param level current level
+   * @param player the ready player
+   */
+  public static void playerReady(ILevel level, Entity player) {
+    PrefabSpawner.forEachSpawned(
+        level,
+        PrefabSide.SERVER,
+        (prefab, instance, entities) -> {
+          try {
+            prefab.onPlayerReady(
+                new PrefabCreationContext(level, PrefabSide.SERVER), instance, player);
+          } catch (RuntimeException e) {
+            LOGGER.error("Prefab '" + instance.name() + "' failed for a ready player", e);
+          }
+        });
+  }
+
   private static void notifyArtifactConsumers(ILevel level, String name, String port) {
     if (!(level instanceof DungeonLevel dungeonLevel)) return;
     PrefabRuntimeState state = dungeonLevel.prefabRuntimeState();

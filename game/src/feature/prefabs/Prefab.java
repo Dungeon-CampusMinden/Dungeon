@@ -710,6 +710,21 @@ public abstract class Prefab {
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {}
 
   /**
+   * Called on the server when a player is ready to see the world: when the player joined and
+   * received the level, and for every player in the game when a level was loaded. Not called again
+   * when the instance respawns.
+   *
+   * <p>Dialogs shown from here are the first thing a joining player sees, the world stays hidden on
+   * the client until they arrived.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @param player the ready player
+   */
+  public void onPlayerReady(
+      PrefabCreationContext context, PrefabInstance instance, Entity player) {}
+
+  /**
    * Captures the runtime state of a spawned server-side instance for a save of the game.
    *
    * <p>Only state that players created directly belongs here, e.g. whether a lever is on or what

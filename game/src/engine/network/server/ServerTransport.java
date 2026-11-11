@@ -39,6 +39,7 @@ import engine.network.messages.s2c.DebugPong;
 import engine.network.messages.s2c.DebugTelemetrySnapshot;
 import engine.network.messages.s2c.EntitySpawnBatch;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import engine.network.messages.s2c.InitialPresentationReady;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.PlayClockMessage;
@@ -48,6 +49,7 @@ import engine.tracking.TrackingRuntime;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
+import feature.prefabs.PrefabRuntime;
 import feature.shader.ShaderSystem;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -1202,6 +1204,12 @@ public final class ServerTransport {
     DialogTracker.instance().resyncDialogsToClient(state.clientId());
     SoundTracker.instance().resyncSoundsToClient(state.clientId());
     Game.system(ShaderSystem.class, shaderSystem -> shaderSystem.resyncToClient(state.clientId()));
+    Game.currentLevel()
+        .ifPresent(
+            level ->
+                state.playerEntity().ifPresent(player -> PrefabRuntime.playerReady(level, player)));
+    // Sent last: what the player should see first, e.g. an intro, is on its way already.
+    session.sendMessage(new InitialPresentationReady(), true);
     LOGGER.info("Client id={} completed initial world sync", state.clientId());
   }
 

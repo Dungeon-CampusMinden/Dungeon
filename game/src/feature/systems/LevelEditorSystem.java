@@ -57,6 +57,8 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static boolean activateOnStart = false;
+  // Whether the game was launched to edit levels, rather than to be played.
+  private static boolean editorLaunch = false;
   private static String pathToLevels = "";
   private static String defaultSaveFolder = "";
   private static boolean autoSave = true;
@@ -341,6 +343,18 @@ public class LevelEditorSystem extends System {
   /** Activates the editor on the first game tick after a local player has been created. */
   public static void activateOnStart() {
     activateOnStart = true;
+    editorLaunch = true;
+  }
+
+  /**
+   * Returns whether the game runs to edit levels: it was launched into the level editor, or the
+   * editor is open right now. Things that only make sense when playing, such as intros or quitting
+   * the game, are skipped then.
+   *
+   * @return true while editing levels
+   */
+  public static boolean editing() {
+    return editorLaunch || active;
   }
 
   @Override

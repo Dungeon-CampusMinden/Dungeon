@@ -12,6 +12,7 @@ import engine.network.messages.s2c.SnapshotMessage;
 import feature.collision.CollideSync;
 import feature.hud.AutoSaveIndicator;
 import feature.interaction.InteractionComponent;
+import feature.timer.WorldTimerSync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -121,7 +122,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     appendSearchRobotMetadata(entity, metadata);
     appendStorageMetadata(entity, metadata);
     appendSystemCoreMetadata(entity, metadata);
-    SystemRecoveryTimerSync.append(entity, metadata);
+    WorldTimerSync.append(entity, metadata);
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
   }

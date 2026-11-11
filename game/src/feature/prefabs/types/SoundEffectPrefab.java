@@ -105,7 +105,7 @@ public final class SoundEffectPrefab extends Prefab {
    *
    * @return sound names, sorted; empty if the asset list is not available
    */
-  private static List<String> soundNames() {
+  static List<String> soundNames() {
     if (soundNames != null) return soundNames;
     if (Gdx.files == null) return List.of();
     FileHandle assets = Gdx.files.internal("internal_assets.txt");

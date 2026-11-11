@@ -10,6 +10,8 @@ import feature.level.visibility.LevelHideSystem;
 import feature.prefabs.types.DesignLabelRegionPrefab;
 import feature.systems.LeverSystem;
 import feature.systems.PressurePlateSystem;
+import feature.timer.WorldTimerComponent;
+import feature.timer.WorldTimerSystem;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
@@ -24,8 +26,13 @@ public final class PrefabSpawner {
 
   private static final Set<Entity> CLIENT_ENTITIES = new LinkedHashSet<>();
 
+  // held: outputs whose items other instances held when the instance spawned.
   private record TrackedPrefab(
-      ILevel level, PrefabInstance source, Prefab prefab, List<Entity> entities) {}
+      ILevel level,
+      PrefabInstance source,
+      Prefab prefab,
+      List<Entity> entities,
+      Set<String> held) {}
 
   private static final Map<ILevel, Map<PrefabSide, Map<String, TrackedPrefab>>> TRACKED =
       new IdentityHashMap<>();
@@ -79,7 +86,14 @@ public final class PrefabSpawner {
           }
           for (PrefabInstance source : authored.values()) {
             TrackedPrefab tracked = trackedOf(level, side).get(source.name());
-            if (tracked == null || !isSpawnOf(tracked, source)) spawnInstance(level, source, side);
+            // A producer also respawns when other instances started or stopped holding its items.
+            if (tracked == null
+                || !isSpawnOf(tracked, source)
+                || !tracked
+                    .held()
+                    .equals(PrefabWiring.heldOutputs(level.activePrefabs(), source.name()))) {
+              spawnInstance(level, source, side);
+            }
           }
         });
   }
@@ -169,7 +183,13 @@ public final class PrefabSpawner {
         added.add(entity);
         Game.add(entity);
       }
-      tracked = new TrackedPrefab(level, instance, prefab, List.copyOf(added));
+      tracked =
+          new TrackedPrefab(
+              level,
+              instance,
+              prefab,
+              List.copyOf(added),
+              PrefabWiring.heldOutputs(level.activePrefabs(), instance.name()));
       TRACKED
           .computeIfAbsent(level, ignored -> new EnumMap<>(PrefabSide.class))
           .computeIfAbsent(side, ignored -> new LinkedHashMap<>())
@@ -486,6 +506,12 @@ public final class PrefabSpawner {
     if (entities.stream().anyMatch(entity -> entity.isPresent(LevelHideComponent.class))
         && !Game.systems().containsKey(LevelHideSystem.class)) {
       Game.add(new LevelHideSystem());
+    }
+    // Draws timers where the game itself shows the world, e.g. while editing levels.
+    if (!Game.isHeadless()
+        && entities.stream().anyMatch(entity -> entity.isPresent(WorldTimerComponent.class))
+        && !Game.systems().containsKey(WorldTimerSystem.class)) {
+      Game.add(new WorldTimerSystem());
     }
   }
 

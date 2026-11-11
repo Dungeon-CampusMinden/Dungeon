@@ -30,6 +30,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabWiring;
 import feature.prefabs.PuzzlePiecePlacement;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
@@ -96,6 +97,15 @@ public final class ImagePuzzlePrefab extends Prefab {
   /** The picture item granted for completing the puzzle, e.g. to require it in a receptacle. */
   public static final ArtifactOutput<ItemArtifact> COMPLETION_ITEM =
       ArtifactOutput.of("completion-item", "Completion Item", ArtifactType.ITEM);
+
+  /** Highest number of pieces that offer an output. */
+  public static final int MAX_PIECE_OUTPUTS = 32;
+
+  /**
+   * One output per piece, e.g. to hand a piece out as a reward instead of placing it. Instances
+   * only offer the outputs of their pieces, up to {@link #MAX_PIECE_OUTPUTS}.
+   */
+  public static final List<ArtifactOutput<ItemArtifact>> PIECES = pieceOutputs();
 
   private static final List<PrefabProperty<?>> PROPERTIES =
       List.of(IMAGE, ITEM_NAME, ITEM_DESCRIPTION, HINT_ITEM_NAME, HINT_ITEM_DESCRIPTION, SETTINGS);
@@ -175,7 +185,15 @@ public final class ImagePuzzlePrefab extends Prefab {
 
   @Override
   protected List<PrefabPort> declaredPorts() {
-    return List.of(COMPLETED, COMPLETION_ITEM);
+    List<PrefabPort> ports = new ArrayList<>(List.of(COMPLETED, COMPLETION_ITEM));
+    ports.addAll(PIECES);
+    return ports;
+  }
+
+  @Override
+  protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
+    int index = PIECES.indexOf(port);
+    return index < 0 || index < instance.get(SETTINGS).pieceCount();
   }
 
   @Override
@@ -221,6 +239,14 @@ public final class ImagePuzzlePrefab extends Prefab {
               .get(pieceIndex)
               .withDisplayIdentity(itemName, itemDescription)
               .withCompletionHintIdentity(hintItemName, hintItemDescription);
+      if (pieceIndex < PIECES.size()) {
+        ArtifactOutput<ItemArtifact> output = PIECES.get(pieceIndex);
+        publish(context, instance, output, ItemArtifact.of(piece));
+        // A held piece is handed out by its holder, e.g. as a reward, and not placed here.
+        if (PrefabWiring.isHeld(context.level().activePrefabs(), instance.name(), output.key())) {
+          continue;
+        }
+      }
       PuzzlePiecePlacement placement = settings.pieces().get(pieceIndex);
       List<Item> content = List.of(piece);
       if (savedContainers != null
@@ -309,5 +335,14 @@ public final class ImagePuzzlePrefab extends Prefab {
                               interactor.add(new UIComponent(dialog, true, interactor.id()));
                             }))));
     return container;
+  }
+
+  private static List<ArtifactOutput<ItemArtifact>> pieceOutputs() {
+    List<ArtifactOutput<ItemArtifact>> outputs = new ArrayList<>(MAX_PIECE_OUTPUTS);
+    for (int index = 0; index < MAX_PIECE_OUTPUTS; index++) {
+      int number = index + 1;
+      outputs.add(ArtifactOutput.of("piece-" + number, "Piece " + number, ArtifactType.ITEM));
+    }
+    return List.copyOf(outputs);
   }
 }

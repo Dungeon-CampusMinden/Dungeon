@@ -1,4 +1,4 @@
-package rooms.lasthour.modules.trash;
+package feature.trash;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
@@ -13,17 +13,20 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.input.GameInput;
+import engine.network.messages.s2c.ItemState;
+import engine.sound.CoreSounds;
 import engine.sound.Sounds;
 import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
+import engine.utils.logging.DungeonLogger;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.Optional;
-import rooms.lasthour.util.LastHourSounds;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * A minigame where the player has to find an important note (or item) hidden under crumbled papers
@@ -36,10 +39,18 @@ import rooms.lasthour.util.LastHourSounds;
  */
 public class TrashMinigameUI extends Group {
 
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TrashMinigameUI.class);
+  private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final String CRUMBLED_TEXTURE = "images/crumbled-paper.png";
 
   /** Key for the special (note or item) world-texture path for the Dialog API. */
   public static final String KEY_NOTE_PATH = "note_path";
+
+  /**
+   * Context key of the reward item as JSON of its {@link ItemState}. The client rebuilds the item
+   * from it, which creates generated textures such as those of puzzle pieces.
+   */
+  public static final String KEY_REWARD_ITEM = "reward_item";
 
   /** Key for the paper count for the Dialog API. */
   public static final String KEY_PAPER_COUNT = "paper_count";
@@ -97,12 +108,23 @@ public class TrashMinigameUI extends Group {
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup();
     }
+    dialogContext.find(KEY_REWARD_ITEM, String.class).ifPresent(TrashMinigameUI::prepareReward);
     return new TrashMinigameUI(
         path.orElse(null),
         paperCount.orElse(50),
         dialogContext.dialogId(),
         callbackKey,
         closeCallbackKey);
+  }
+
+  // Rebuilding the reward creates its texture on this client, e.g. a generated puzzle piece.
+  private static void prepareReward(String json) {
+    if (json.isBlank()) return;
+    try {
+      JSON.readValue(json, ItemState.class).toItem();
+    } catch (RuntimeException exception) {
+      LOGGER.warn("Could not prepare the reward of the trash minigame", exception);
+    }
   }
 
   /**
@@ -341,7 +363,7 @@ public class TrashMinigameUI extends Group {
       DialogCallbackResolver.createButtonCallback(dialogId, callbackKey).accept(null);
 
       toFront();
-      Sounds.playUi(LastHourSounds.TRASH_MINIGAME_WIN);
+      Sounds.playUi(CoreSounds.TRASH_MINIGAME_WIN);
       addAction(
           Actions.sequence(
               Actions.scaleTo(getScaleX() * 1.6f, getScaleY() * 1.6f, WIN_SCALE_DURATION),

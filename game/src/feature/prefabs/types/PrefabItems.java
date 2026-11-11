@@ -19,6 +19,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRuntime;
+import feature.prefabs.PrefabWiring;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,9 +85,12 @@ final class PrefabItems {
         LOGGER.warn("Prefab '" + instance.name() + "' can not create item '" + id + "'.");
         continue;
       }
-      items.add(item.get());
-      PrefabRuntime.publish(
-          level, instance.name(), OUTPUTS.get(index), ItemArtifact.of(item.get()));
+      ArtifactOutput<ItemArtifact> output = OUTPUTS.get(index);
+      PrefabRuntime.publish(level, instance.name(), output, ItemArtifact.of(item.get()));
+      // A held item is handed out by its holder, e.g. as a reward, not placed by this instance.
+      if (!PrefabWiring.isHeld(level.activePrefabs(), instance.name(), output.key())) {
+        items.add(item.get());
+      }
     }
     return items;
   }
@@ -128,7 +132,7 @@ final class PrefabItems {
                 })));
   }
 
-  private static Optional<Item> create(String id) {
+  static Optional<Item> create(String id) {
     try {
       return new ItemArtifact(id, Map.of(), id).create();
     } catch (RuntimeException exception) {
@@ -141,7 +145,7 @@ final class PrefabItems {
    *
    * @return registry IDs, sorted
    */
-  private static List<String> choices() {
+  static List<String> choices() {
     return ItemRegistry.entries().entrySet().stream()
         .filter(entry -> ItemArtifact.isInstantiable(entry.getValue()))
         .map(Map.Entry::getKey)

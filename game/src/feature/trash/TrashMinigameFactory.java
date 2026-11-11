@@ -1,16 +1,19 @@
-package rooms.lasthour.modules.trash;
+package feature.trash;
 
 import engine.Entity;
+import engine.components.PositionComponent;
+import engine.network.messages.s2c.ItemState;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogType;
 import feature.inventory.Item;
 import feature.inventory.items.HintItem;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
-import rooms.lasthour.modules.computer.LastHourDialogTypes;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Public, single-method API for opening the trashcan minigame.
@@ -34,8 +37,7 @@ import rooms.lasthour.modules.computer.LastHourDialogTypes;
 public final class TrashMinigameFactory {
 
   private static final String FALLBACK_TEXTURE_PATH = "items/rpg/item_paper.png";
-
-  private static boolean registered = false;
+  private static final JsonMapper JSON = JsonMapper.builder().build();
 
   private TrashMinigameFactory() {}
 
@@ -60,22 +62,23 @@ public final class TrashMinigameFactory {
    * @param reward the item awarded on win, or {@code null}
    * @param paperCount number of crumpled papers
    * @param canAward checked when the player wins, before the reward is added
-   * @param afterAward action run after a permitted reward is added
+   * @param afterAward action run after a permitted reward was added to the inventory, or dropped at
+   *     the player's feet because the inventory was full
    */
   public static void show(
       Entity who, Item reward, int paperCount, BooleanSupplier canAward, Runnable afterAward) {
     Objects.requireNonNull(who, "who");
     Objects.requireNonNull(canAward, "canAward");
-    ensureRegistered();
 
     DialogContext.Builder builder =
         DialogContext.builder()
-            .type(LastHourDialogTypes.TRASHCAN)
+            .type(DialogType.DefaultTypes.TRASHCAN)
             .put(TrashMinigameUI.KEY_PAPER_COUNT, paperCount);
 
     if (reward != null) {
       builder
           .put(TrashMinigameUI.KEY_NOTE_PATH, resolveTexturePath(reward))
+          .put(TrashMinigameUI.KEY_REWARD_ITEM, rewardJson(reward))
           .put(TrashMinigameUI.KEY_CALLBACK_KEY, TrashMinigameUI.DEFAULT_CALLBACK_KEY)
           .put(TrashMinigameUI.KEY_CLOSE_CALLBACK_KEY, TrashMinigameUI.DEFAULT_CLOSE_CALLBACK_KEY);
     }
@@ -90,7 +93,7 @@ public final class TrashMinigameFactory {
           TrashMinigameUI.DEFAULT_CALLBACK_KEY,
           payload -> {
             if (!canAward.getAsBoolean()) return;
-            who.fetch(InventoryComponent.class).ifPresent(inv -> inv.add(reward));
+            if (!give(who, reward)) return;
             if (afterAward != null) afterAward.run();
           });
       // Close the dialog only after the win animation has finished playing on the client.
@@ -109,6 +112,31 @@ public final class TrashMinigameFactory {
    * @param reward the item whose texture should be resolved
    * @return the resolved texture path
    */
+  /**
+   * Gives the reward to the player, or drops it at the player's feet if the inventory is full.
+   *
+   * @param who winning player
+   * @param reward found item
+   * @return false if the item could neither be added nor dropped
+   */
+  private static boolean give(Entity who, Item reward) {
+    if (who.fetch(InventoryComponent.class).map(inventory -> inventory.add(reward)).orElse(false)) {
+      return true;
+    }
+    return who.fetch(PositionComponent.class)
+        .flatMap(position -> reward.drop(position.position()))
+        .isPresent();
+  }
+
+  private static String rewardJson(Item reward) {
+    try {
+      return JSON.writeValueAsString(ItemState.fromItem(reward));
+    } catch (RuntimeException exception) {
+      // The client then shows the texture only, generated textures may be missing.
+      return "";
+    }
+  }
+
   private static String resolveTexturePath(Item reward) {
     if (reward instanceof HintItem hint) {
       return hint.imagePath().pathString();
@@ -118,11 +146,5 @@ public final class TrashMinigameFactory {
         .sourcePath()
         .map(p -> p.pathString())
         .orElse(FALLBACK_TEXTURE_PATH);
-  }
-
-  private static void ensureRegistered() {
-    if (registered) return;
-    DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
-    registered = true;
   }
 }
