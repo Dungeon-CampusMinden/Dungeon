@@ -386,9 +386,9 @@
     "decisions": {
       "feedback": {
         "intro": "Six decision runes separate Nox from the Heartfire.",
-        "enter": "Nox enters the labyrinth. Press E to climb onto Nox.",
+        "enter": "Nox enters the labyrinth. Climb onto Nox.",
         "access-blocked": "The entrance is blocked. Clear the way and choose Continue.",
-        "mount": "Press E to climb onto Nox and read the first rune.",
+        "mount": "Climb onto Nox and read the first rune.",
         "read": "Read from top to bottom. Which branch leads to LEFT or RIGHT?",
         "continue": "Nox continues on his way.",
         "first-rune": "The first rune is waiting.",
@@ -537,7 +537,7 @@
         "main": "Main program",
         "draft": "Your method",
         "palette": "Blocks & runes",
-        "controls": "Arrange code: Drag lines. Ctrl-click selects single lines, Shift-click a range.\nBuild a method: Set name and inputs, drag code in, choose Build method. Drag the new rune into the main program.\nChange values: Open ... on a line. Enter or leaving the field saves.\nWorkspace: Middle mouse button or Space + drag. The mouse wheel zooms over the background and scrolls over code.\nWindows: Drag the title; drag edges and corners with the left button to resize. Also possible with the right mouse button held down.\nExpressions: Numbers, variables, +, -, parentheses and your own methods. A method has at most $1 lines.",
+        "controls": "Arrange code: Drag lines. Ctrl-click selects single lines, Shift-click a range.\nBuild a method: Set name and inputs, drag code in, choose Build method. Drag the new rune into the main program.\nChange values: Open ... on a line. Enter or leaving the field saves.\nWorkspace: Middle mouse button + drag. The mouse wheel zooms over the background and scrolls over code.\nWindows: Drag the title; drag edges and corners with the left button to resize. Also possible with the right mouse button held down.\nExpressions: Numbers, variables, +, -, parentheses and your own methods. A method has at most $1 lines.",
         "run": "Run",
         "stop": "Stop",
         "watch": "View room",
