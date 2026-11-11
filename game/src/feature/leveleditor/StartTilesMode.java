@@ -1,15 +1,15 @@
 package feature.leveleditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Vector3;
+import engine.input.ActionId;
+import engine.input.GameInput;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
 import engine.level.utils.LevelElement;
 import engine.systems.CameraSystem;
-import engine.systems.input.InputManager;
 import engine.utils.FontHelper;
 import engine.utils.Point;
 import feature.systems.DebugDrawSystem;
@@ -51,9 +51,9 @@ public class StartTilesMode extends LevelEditorMode {
     // Primary Up/Down to change selected start tile index. The index can be between 0 and the lists
     // size. if its equal to the lists size, it adds a new point to the list.
     int maxIndex = getLevel().startTiles().size();
-    if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
+    if (GameInput.justPressed(EditorActions.PRIMARY_NEXT)) {
       currentStartTileIndex = (currentStartTileIndex + 1) % (maxIndex + 1);
-    } else if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
+    } else if (GameInput.justPressed(EditorActions.PRIMARY_PREV)) {
       currentStartTileIndex = Math.floorMod(currentStartTileIndex - 1, maxIndex + 1);
     }
 
@@ -61,9 +61,9 @@ public class StartTilesMode extends LevelEditorMode {
     // - LMB: set the selected start tile to the cursor position. if the index is equal to the list
     // size, add a new start tile at the cursor position.
     // - RMB: remove the start tile at the cursor position, if it exists.
-    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (GameInput.justPressed(EditorActions.PLACE)) {
       setStartTile();
-    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
+    } else if (GameInput.justPressed(EditorActions.ALT)) {
       removeStartTile();
     }
   }
@@ -117,12 +117,12 @@ public class StartTilesMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(Input.Buttons.LEFT, "Place Start Tile");
-    controls.put(Input.Buttons.RIGHT, "Delete Start Tile on Cursor");
-    controls.put(PRIMARY_UP, "Next Start Tile Index");
-    controls.put(PRIMARY_DOWN, "Prev Start Tile Index");
+  public Map<ActionId, String> controls() {
+    Map<ActionId, String> controls = new LinkedHashMap<>();
+    controls.put(EditorActions.PLACE, "Place Start Tile");
+    controls.put(EditorActions.ALT, "Delete Start Tile on Cursor");
+    controls.put(EditorActions.PRIMARY_NEXT, "Next Start Tile Index");
+    controls.put(EditorActions.PRIMARY_PREV, "Prev Start Tile Index");
     return controls;
   }
 

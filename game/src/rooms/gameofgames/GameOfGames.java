@@ -1,9 +1,7 @@
 package rooms.gameofgames;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
@@ -16,7 +14,6 @@ import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import feature.components.Debugger;
 import feature.emote.EmoteSystem;
@@ -63,10 +60,6 @@ public final class GameOfGames {
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
             .levels(Tuple.of(LEVEL_KEY, GameOfGamesLevel.class))
             .onConfigure(GameOfGames::initLocalization)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .snapshotTranslator(new GameOfGamesSnapshotTranslator())
             .entitySpawnStrategy(new GameOfGamesEntitySpawnStrategy())
             .onFrame(GameOfGames::onFrame)
@@ -106,7 +99,6 @@ public final class GameOfGames {
 
     if (DEBUG_MODE && !Game.isHeadless()) {
       ECSManagement.add(new Debugger());
-      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
       ECSManagement.add(new DebugDrawSystem());
       ECSManagement.add(new LevelEditorSystem());
     }

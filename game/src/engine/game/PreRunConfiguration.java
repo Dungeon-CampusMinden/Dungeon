@@ -1,11 +1,9 @@
 package engine.game;
 
-import engine.configuration.Configuration;
 import engine.utils.IVoidFunction;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import feature.entities.CharacterClass;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -245,18 +243,6 @@ public final class PreRunConfiguration {
    */
   public static void userOnLevelLoad(final Consumer<Boolean> userOnLevelLoad) {
     PreRunConfiguration.userOnLevelLoad = userOnLevelLoad;
-  }
-
-  /**
-   * Loads the configuration from the given path. If the configuration has already been loaded, the
-   * cached version will be used.
-   *
-   * @param path The path to the config file.
-   * @param klass The class where the ConfigKey fields are located.
-   * @throws IOException If the file could not be read.
-   */
-  public static void loadConfig(final IPath path, Class<?>... klass) throws IOException {
-    Configuration.loadAndGetConfiguration(path, klass);
   }
 
   /**

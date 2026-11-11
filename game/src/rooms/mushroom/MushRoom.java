@@ -1,13 +1,22 @@
 package rooms.mushroom;
 
+import static engine.input.Binding.key;
+import static engine.input.Binding.pad;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.game.PreRunConfiguration;
+import engine.input.ActionId;
+import engine.input.Binding.Pad;
+import engine.input.ContextLayer;
+import engine.input.ContextSpec;
+import engine.input.CoreActions;
+import engine.input.GameInput;
+import engine.input.InputContext;
 import engine.level.loader.DungeonLoader;
 import engine.utils.Tuple;
 import engine.utils.components.draw.ColorUtils;
@@ -15,7 +24,6 @@ import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.ShaderList;
-import engine.utils.components.path.SimpleIPath;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.EntityFactory;
@@ -28,7 +36,6 @@ import feature.systems.LevelTickSystem;
 import feature.systems.LeverSystem;
 import feature.systems.PressurePlateSystem;
 import feature.systems.ProjectileSystem;
-import java.io.IOException;
 import rooms.mushroom.modules.items.MagicLensItem;
 import rooms.mushroom.modules.journal.JournalItem;
 import rooms.mushroom.modules.mushrooms.Mushrooms;
@@ -48,9 +55,8 @@ public class MushRoom {
    * Main method to start the game.
    *
    * @param args The arguments passed to the game.
-   * @throws IOException If an I/O error occurs.
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     configGame();
     onSetup();
 
@@ -91,22 +97,26 @@ public class MushRoom {
     }
   }
 
+  private static final ActionId MAGIC_LENS =
+      new ActionId("mushroom", "magic_lens", key(Keys.V), pad(Pad.X));
+
   private static void createHero() {
     Entity hero = EntityFactory.newHero(CharacterClass.MUSHROOM_WIZARD);
-    hero.fetch(InputComponent.class)
-        .ifPresent(
-            ic -> {
-              ic.registerCallback(Input.Keys.B, JournalItem::openJournal, false, false);
-              ic.registerCallback(Input.Keys.V, MagicLensItem::toggleMagicLens, false, false);
-            });
     Game.add(hero);
+    GameInput.activate(
+        new InputContext(
+                ContextSpec.of(
+                    "mushroom",
+                    ContextLayer.ROOM,
+                    JournalItem.OPEN,
+                    CoreActions.QUESTLOG,
+                    MAGIC_LENS))
+            .onPress(JournalItem.OPEN, () -> Game.player().ifPresent(JournalItem::openJournal))
+            .onPress(CoreActions.QUESTLOG, () -> Game.player().ifPresent(JournalItem::openJournal))
+            .onPress(MAGIC_LENS, () -> Game.player().ifPresent(MagicLensItem::toggleMagicLens)));
   }
 
-  private static void configGame() throws IOException {
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        feature.input.configuration.KeyboardConfig.class,
-        engine.configuration.KeyboardConfig.class);
+  private static void configGame() {
     Game.disableAudio(false);
     Game.frameRate(60);
   }

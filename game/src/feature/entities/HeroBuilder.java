@@ -4,16 +4,12 @@ import engine.Entity;
 import engine.Game;
 import engine.components.CameraComponent;
 import engine.components.DrawComponent;
-import engine.components.InputComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.game.PreRunConfiguration;
-import engine.input.CursorUtils;
-import engine.network.messages.c2s.InputMessage;
 import engine.sound.SoundSpec;
 import engine.systems.VelocitySystem;
-import engine.systems.input.MovementInputSystem;
 import engine.utils.Direction;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
@@ -33,10 +29,6 @@ import feature.components.SpikyComponent;
 import feature.components.StaminaComponent;
 import feature.health.Damage;
 import feature.hud.DialogUtils;
-import feature.hud.UIUtils;
-import feature.hud.dialogs.PauseDialog;
-import feature.input.configuration.KeyboardConfig;
-import feature.questlog.QuestLogUI;
 import feature.skills.Skill;
 import feature.systems.HealthSystem;
 import feature.utils.EntityUtils;
@@ -270,21 +262,14 @@ public final class HeroBuilder {
                     }));
     hero.add(col);
 
-    InputComponent inputComp = new InputComponent();
     hero.add(
         new CatapultableComponent(
-            entity -> inputComp.deactivateControls(true),
-            entity -> inputComp.deactivateControls(false)));
-    hero.add(inputComp);
+            entity -> HeroController.controlsLocked(entity, true),
+            entity -> HeroController.controlsLocked(entity, false)));
 
     InventoryComponent invComp = new InventoryComponent(characterClass.inventorySize());
     characterClass.startItems().forEach(invComp::add);
     hero.add(invComp);
-
-    // only local player can control the hero
-    if (isLocal) {
-      setupControls(inputComp, characterClass);
-    }
 
     return hero;
   }
@@ -440,82 +425,4 @@ public final class HeroBuilder {
 
     return stateMachine;
   }
-
-  // region Bind Controls
-  private static void setupControls(InputComponent inputComp, CharacterClass characterClass) {
-    // WASD
-    inputComp.registerCallback(
-        engine.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        (caller) -> MovementInputSystem.hold(Direction.UP));
-    inputComp.registerCallback(
-        engine.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        (caller) -> MovementInputSystem.hold(Direction.DOWN));
-    inputComp.registerCallback(
-        engine.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        (caller) -> MovementInputSystem.hold(Direction.RIGHT));
-    inputComp.registerCallback(
-        engine.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        (caller) -> MovementInputSystem.hold(Direction.LEFT));
-
-    // Skills
-    inputComp.registerCallback(
-        KeyboardConfig.USE_MAIN_SKILL.value(),
-        (caller) ->
-            Game.network().sendInput(InputMessage.castSkill(CursorUtils.positionInWorld(), true)));
-    inputComp.registerCallback(
-        KeyboardConfig.MOUSE_USE_MAIN_SKILL.value(),
-        (caller) ->
-            Game.network().sendInput(InputMessage.castSkill(CursorUtils.positionInWorld(), true)));
-    inputComp.registerCallback(
-        KeyboardConfig.NEXT_MAIN_SKILL.value(),
-        caller -> Game.network().sendInput(InputMessage.nextSkill(true)),
-        false);
-    inputComp.registerCallback(
-        KeyboardConfig.PREV_MAIN_SKILL.value(),
-        caller -> Game.network().sendInput(InputMessage.prevSkill(true)),
-        false);
-    inputComp.registerCallback(
-        KeyboardConfig.MOUSE_USE_SECOND_SKILL.value(),
-        (caller) ->
-            Game.network().sendInput(InputMessage.castSkill(CursorUtils.positionInWorld(), false)));
-    inputComp.registerCallback(
-        KeyboardConfig.NEXT_SECOND_SKILL.value(),
-        caller -> Game.network().sendInput(InputMessage.nextSkill(false)),
-        false);
-    inputComp.registerCallback(
-        KeyboardConfig.PREV_SECOND_SKILL.value(),
-        caller -> Game.network().sendInput(InputMessage.prevSkill(false)),
-        false);
-
-    // Interact
-    inputComp.registerCallback(
-        KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-        (caller) -> HeroController.requestInteraction(caller, CursorUtils.positionInWorld()),
-        false);
-    inputComp.registerCallback(
-        KeyboardConfig.INTERACT_WORLD.value(),
-        (caller) -> HeroController.requestInteraction(caller, CursorUtils.positionInWorld()),
-        false);
-
-    // UI controls
-    inputComp.registerCallback(
-        KeyboardConfig.INVENTORY_OPEN.value(),
-        (caller) -> Game.network().sendInput(InputMessage.toggleInventory()),
-        false);
-    inputComp.registerCallback(
-        KeyboardConfig.CLOSE_UI.value(),
-        caller ->
-            Game.hud()
-                .topmostCloseRequestUI()
-                .ifPresentOrElse(
-                    ui -> UIUtils.requestCloseDialog(ui.b()),
-                    () -> PauseDialog.showPauseDialog(caller)),
-        false,
-        true);
-    inputComp.registerCallback(
-        KeyboardConfig.PAUSE_MENU.value(), PauseDialog::showPauseDialog, false, true);
-    inputComp.registerCallback(
-        KeyboardConfig.QUESTLOG_OPEN.value(), QuestLogUI::requestQuestLog, false, true);
-  }
-  // endregion
 }

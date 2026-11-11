@@ -1,10 +1,8 @@
 package feature.hud.dialogs;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -20,13 +18,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import engine.Game;
+import engine.input.UiActions;
 import engine.language.Translation;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.BaseContainerUI;
 import engine.utils.FontSpec;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
-import feature.input.configuration.KeyboardConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntConsumer;
@@ -41,17 +39,18 @@ import java.util.function.IntConsumer;
  * <p>Behaviour:
  *
  * <ul>
- *   <li>While the script is still revealing pages, clicks anywhere, {@code ESC}, and the configured
- *       interact key (see {@link feature.input.configuration.KeyboardConfig#INTERACT_WORLD})
- *       advance the script view, exactly like a {@link DialogDialog}.
+ *   <li>While the script is still revealing pages, clicks anywhere, {@link
+ *       engine.input.UiActions#CLOSE} and {@link engine.input.UiActions#CONFIRM} advance the script
+ *       view, exactly like a {@link DialogDialog}.
  *   <li>Once the last page's text has been fully revealed, the option rows slide in. After that,
  *       clicks outside the option rows are ignored (they do not confirm anything); option rows are
  *       hover-/click-selectable and confirm immediately on click.
  *   <li>With {@link DialogContextKeys#MULTIPLE_SELECTION}, option rows show a checkbox and toggle
  *       on click instead. An additional confirm row submits all checked option values as a {@link
  *       DialogResponseMessage.StringList}; it does nothing while no option is checked.
- *   <li>Keyboard W/S (or Up/Down) navigates between options; INTERACT_WORLD activates the
- *       highlighted row while choices are active, otherwise it advances the script.
+ *   <li>{@link engine.input.UiActions#NAV_UP} and {@code NAV_DOWN} move between options; {@code
+ *       CONFIRM} activates the highlighted row while choices are active, otherwise it advances the
+ *       script.
  * </ul>
  */
 final class MultipleChoiceDialog {
@@ -293,42 +292,6 @@ final class MultipleChoiceDialog {
     scriptView.addListener(advanceListener);
     root.addListener(advanceListener);
 
-    // Keyboard listener on root
-    root.addListener(
-        new InputListener() {
-          @Override
-          public boolean keyDown(InputEvent event, int keycode) {
-            int total = allEntries.size();
-
-            if (keycode == KeyboardConfig.INTERACT_WORLD.value()) {
-              if (!choicesActive[0]) {
-                scriptView.advance();
-                return true;
-              }
-              int current = selectedIndex[0];
-              if (current >= 0) {
-                activate.accept(current);
-              }
-              return true;
-            }
-
-            if (!choicesActive[0] || total == 0) return false;
-
-            int current = selectedIndex[0];
-            int next = current;
-            if (keycode == Input.Keys.W || keycode == Input.Keys.UP) {
-              next = current <= 0 ? total - 1 : current - 1;
-            } else if (keycode == Input.Keys.S || keycode == Input.Keys.DOWN) {
-              next = current >= total - 1 ? 0 : current + 1;
-            } else {
-              return false;
-            }
-
-            updateSelection(next, selectedIndex, rowTables, rowLabels, bgNormal, bgSelected);
-            return true;
-          }
-        });
-
     root.setTouchable(Touchable.enabled);
 
     // Hide all option rows initially; they slide in once the script's last page is revealed.
@@ -347,19 +310,6 @@ final class MultipleChoiceDialog {
 
     root.pack();
 
-    // Visible dialogs reclaim keyboard focus after mouse interaction.
-    root.addAction(
-        new Action() {
-          @Override
-          public boolean act(float delta) {
-            Stage stage = root.getStage();
-            if (stage != null && root.ancestorsVisible()) {
-              stage.setKeyboardFocus(root);
-            }
-            return false; // keep running every frame
-          }
-        });
-
     BaseContainerUI container =
         new BaseContainerUI(root) {
           @Override
@@ -374,6 +324,30 @@ final class MultipleChoiceDialog {
         container,
         () -> {
           if (!choicesActive[0]) scriptView.advance();
+        });
+    UIUtils.onUiAction(
+        container,
+        UiActions.CONFIRM,
+        () -> {
+          if (!choicesActive[0]) scriptView.advance();
+          else if (selectedIndex[0] >= 0) activate.accept(selectedIndex[0]);
+        });
+    int total = allEntries.size();
+    UIUtils.onUiAction(
+        container,
+        UiActions.NAV_UP,
+        () -> {
+          if (!choicesActive[0] || total == 0) return;
+          int next = selectedIndex[0] <= 0 ? total - 1 : selectedIndex[0] - 1;
+          updateSelection(next, selectedIndex, rowTables, rowLabels, bgNormal, bgSelected);
+        });
+    UIUtils.onUiAction(
+        container,
+        UiActions.NAV_DOWN,
+        () -> {
+          if (!choicesActive[0] || total == 0) return;
+          int next = selectedIndex[0] >= total - 1 ? 0 : selectedIndex[0] + 1;
+          updateSelection(next, selectedIndex, rowTables, rowLabels, bgNormal, bgSelected);
         });
     return container;
   }

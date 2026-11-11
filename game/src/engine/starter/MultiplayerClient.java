@@ -1,10 +1,8 @@
 package engine.starter;
 
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
-import engine.utils.components.path.SimpleIPath;
 import feature.components.Debugger;
 import java.io.IOException;
 
@@ -24,7 +22,6 @@ public final class MultiplayerClient {
     PreRunConfiguration.networkPort(7777);
 
     // Game Settings
-    Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(false);
     Game.frameRate(60);
     Game.userOnSetup(

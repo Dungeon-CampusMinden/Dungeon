@@ -159,6 +159,16 @@ public interface Vector2 {
   }
 
   /**
+   * Limits this vector to a maximum length, keeping its direction.
+   *
+   * @param maxLength the maximum length
+   * @return this vector, or a vector of length {@code maxLength} if this one is longer
+   */
+  default Vector2 clampLength(double maxLength) {
+    return lengthSquared() > maxLength * maxLength ? normalize().scale(maxLength) : this;
+  }
+
+  /**
    * Normalizes the vector to a unit vector (length of 1).
    *
    * <p>Normalization is useful for ensuring that the vector maintains its direction but has a

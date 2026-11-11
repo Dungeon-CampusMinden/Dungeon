@@ -35,6 +35,7 @@ logs/
 # Game Generated Files #
 ########################
 dungeon_config.json
+input_bindings.json*
 last_session.dat
 *achievement-unlock.json
 *-save.json

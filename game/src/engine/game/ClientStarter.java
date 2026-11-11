@@ -14,12 +14,10 @@ import java.util.Objects;
 public final class ClientStarter extends AbstractStarter {
 
   private final IVoidFunction initLocalization;
-  private final IVoidFunction registerSettings;
 
   private ClientStarter(Builder builder) {
     super(builder);
     this.initLocalization = builder.initLocalization;
-    this.registerSettings = builder.registerSettings;
   }
 
   /**
@@ -57,10 +55,9 @@ public final class ClientStarter extends AbstractStarter {
     PreRunConfiguration.isNetworkServer(false);
     PreRunConfiguration.networkPort(port);
     PreRunConfiguration.multiplayerCharacterClass(null); // server decides
-    // Initialize localization and register the client settings before the main menu is shown, so
-    // the main-menu settings (which use localized labels) and the in-game settings stay in sync.
+    // Initialize localization before the main menu is shown, so the main-menu settings (which use
+    // localized labels) and the in-game settings stay in sync.
     initLocalization.execute();
-    registerSettings.execute();
     applyShared();
   }
 
@@ -68,7 +65,6 @@ public final class ClientStarter extends AbstractStarter {
   public static final class Builder extends AbstractStarter.Builder<Builder> {
 
     private IVoidFunction initLocalization = () -> {};
-    private IVoidFunction registerSettings = () -> {};
 
     private Builder(IVoidFunction onSetup) {
       super(onSetup);
@@ -82,30 +78,15 @@ public final class ClientStarter extends AbstractStarter {
     /**
      * Sets the callback that initializes localization (registering translation files).
      *
-     * <p>It is invoked by {@link #apply()} (before the {@link MainMenu} shows the menu and before
-     * {@link #registerSettings(IVoidFunction)}), so localized labels are available for the
-     * main-menu settings and stay in sync with the in-game settings.
+     * <p>It is invoked by {@link #apply()} (before the {@link MainMenu} shows the menu), so
+     * localized labels are available for the main-menu settings and stay in sync with the in-game
+     * settings.
      *
      * @param initLocalization the localization-initialization callback
      * @return this builder
      */
     public Builder initLocalization(IVoidFunction initLocalization) {
       this.initLocalization = Objects.requireNonNull(initLocalization, "initLocalization");
-      return this;
-    }
-
-    /**
-     * Sets the callback that registers additional client settings.
-     *
-     * <p>It is invoked by {@link #apply()} (before the {@link MainMenu} shows the menu), so the
-     * registered settings are already available in the main-menu settings and stay in sync with the
-     * in-game settings.
-     *
-     * @param registerSettings the settings-registration callback
-     * @return this builder
-     */
-    public Builder registerSettings(IVoidFunction registerSettings) {
-      this.registerSettings = Objects.requireNonNull(registerSettings, "registerSettings");
       return this;
     }
 

@@ -4,13 +4,11 @@ import engine.Entity;
 import engine.Game;
 import engine.level.loader.DungeonLoader;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.EntityFactory;
 import feature.systems.AISystem;
 import feature.systems.CollisionSystem;
-import feature.systems.DecoTestSystem;
 import feature.systems.HealthSystem;
 import feature.systems.IdleSoundSystem;
 import feature.systems.LevelEditorSystem;
@@ -38,9 +36,8 @@ public class SpriteTestRoom {
    * Main method to start the game.
    *
    * @param args The arguments passed to the game.
-   * @throws IOException If an I/O error occurs.
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     configGame();
     onSetup();
 
@@ -67,18 +64,13 @@ public class SpriteTestRoom {
     Game.add(hero);
   }
 
-  private static void configGame() throws IOException {
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        feature.input.configuration.KeyboardConfig.class,
-        engine.configuration.KeyboardConfig.class);
+  private static void configGame() {
     Game.disableAudio(true);
     Game.frameRate(60);
   }
 
   private static void createSystems() {
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
-    if (DEBUG_MODE) Game.add(new DecoTestSystem());
     Game.add(new CollisionSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());

@@ -183,6 +183,7 @@ public class C2SConverterTest {
     InputMessage.CastSkill castSkill = roundTrip.payloadAs(InputMessage.CastSkill.class);
     assertEquals(3.0f, castSkill.target().x(), DELTA);
     assertEquals(4.0f, castSkill.target().y(), DELTA);
+    assertTrue(castSkill.mainSkill());
   }
 
   /** Verifies interact action conversion. */
@@ -228,6 +229,7 @@ public class C2SConverterTest {
     assertEquals(InputMessage.Action.NEXT_SKILL, roundTrip.action());
     InputMessage.SkillChange change = roundTrip.payloadAs(InputMessage.SkillChange.class);
     assertTrue(change.nextSkill());
+    assertTrue(change.mainSkill());
   }
 
   /** Verifies previous skill action conversion. */

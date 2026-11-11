@@ -40,7 +40,7 @@ final class SoulweaverDecisionRuntime {
     active = true;
     SoulweaverProgress.started(
         "decisions", "Verfolge die sechs Runen und führe Nox zum Herzfeuer.");
-    feedback = "Nox betritt das Labyrinth. Steige mit E auf Nox auf.";
+    feedback = "Nox betritt das Labyrinth. Steige auf Nox auf.";
     var approach = motion.workshopPath(SoulweaverDecisionWorld.START);
     if (approachBlocked(approach)) {
       blocked = true;
@@ -52,7 +52,7 @@ final class SoulweaverDecisionRuntime {
     travel(
         points,
         () -> {
-          feedback = "Steige mit E auf Nox auf und lies die erste Rune.";
+          feedback = "Steige auf Nox auf und lies die erste Rune.";
           publish();
           if (driver >= 0) enter();
         });
