@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.network.messages.c2s.DialogResponseMessage;
@@ -23,6 +22,7 @@ import engine.utils.Rectangle;
 import engine.utils.components.draw.shader.MagicBallShader;
 import feature.canvas.CanvasGraphics;
 import feature.components.UIComponent;
+import feature.entities.HeroController;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -110,7 +110,7 @@ public final class SoulweaverObservation {
     private final int golemId;
     private final boolean cinematic;
     private final SoulweaverCamera camera = new SoulweaverCamera();
-    private final Map<InputComponent, Boolean> inputs = new LinkedHashMap<>();
+    private final Map<Entity, Boolean> lockedPlayers = new LinkedHashMap<>();
     private final Label label;
     private final Actor torches;
     private final com.badlogic.gdx.scenes.scene2d.ui.Table header;
@@ -186,15 +186,12 @@ public final class SoulweaverObservation {
             .ifPresent(
                 golem -> {
                   if (cinematic) {
-                    ECSManagement.entities()
+                    Game.allPlayers()
                         .forEach(
-                            e ->
-                                e.fetch(InputComponent.class)
-                                    .ifPresent(
-                                        input -> {
-                                          inputs.put(input, input.deactivateControls());
-                                          input.deactivateControls(true);
-                                        }));
+                            player -> {
+                              lockedPlayers.put(player, HeroController.controlsLocked(player));
+                              HeroController.controlsLocked(player, true);
+                            });
                   }
                   camera.follow(golem, ECSManagement.entities());
                   if (!cinematic
@@ -320,8 +317,8 @@ public final class SoulweaverObservation {
           drawSystem = null;
         }
         camera.restore();
-        inputs.forEach(InputComponent::deactivateControls);
-        inputs.clear();
+        lockedPlayers.forEach(HeroController::controlsLocked);
+        lockedPlayers.clear();
       }
       super.setStage(stage);
     }

@@ -2,11 +2,11 @@ package rooms.systemRecovery.time;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.time.PlayClock;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.UIComponent;
 import feature.credits.CreditsFeature;
+import feature.entities.HeroController;
 import feature.hud.UIUtils;
 import feature.interaction.InteractionComponent;
 import feature.survey.SurveyFeature;
@@ -39,11 +39,7 @@ public final class SystemRecoveryTimeoutEnding {
     int[] newPlayers =
         Game.allPlayers()
             .filter(player -> SHOWN_TO.add(player.id()))
-            .peek(
-                player ->
-                    player
-                        .fetch(InputComponent.class)
-                        .ifPresent(input -> input.deactivateControls(true)))
+            .peek(player -> HeroController.controlsLocked(player, true))
             .mapToInt(Entity::id)
             .toArray();
     if (newPlayers.length == 0) return;

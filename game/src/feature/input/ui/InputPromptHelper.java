@@ -1,43 +1,35 @@
 package feature.input.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import engine.utils.components.draw.TextureMap;
-import engine.utils.components.path.SimpleIPath;
+import com.badlogic.gdx.utils.XmlReader;
+import engine.input.Binding;
+import engine.input.Binding.Pad;
+import engine.input.Binding.PadAxisId;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Helper for retrieving {@link TextureRegion}s that visually represent input prompts (keyboard
- * keys, mouse buttons, controller buttons, ...).
+ * Finds the input prompts (keyboard keys, mouse buttons, controller buttons) on the spritesheets
+ * located under {@code assets/hud/input/}, whose atlases are read on first use.
  *
- * <p>The class wraps the spritesheets located under {@code assets/hud/input/}. The underlying
- * {@link Texture} for each spritesheet is loaded lazily through {@link TextureMap#instance()} on
- * the first request and is kept alive for the lifetime of the application; this helper does not own
- * the texture and therefore does not need to dispose of it.
- *
- * <p>Currently only the {@link InputMethod#KEYBOARD} (keyboard & mouse) spritesheet is wired up.
- * Calls for other input methods will throw {@link UnsupportedOperationException} until support for
- * them is added.
- *
- * <p>Mouse button look-ups use the dedicated {@link #getMouseButton(int)} family of overloads to
- * avoid collisions with the keyboard key code space. Mouse buttons are always rendered using the
- * keyboard & mouse spritesheet regardless of the currently active input method.
+ * <p>Keys and mouse buttons live on the keyboard & mouse spritesheet, pad inputs on the controller
+ * spritesheets.
  */
 public final class InputPromptHelper {
 
   /** Path of the keyboard & mouse spritesheet inside the assets directory. */
   private static final String KEYBOARD_MOUSE_TEXTURE_PATH = "hud/input/keyboard_mouse.png";
 
-  /** Width and height (in pixels) of every region in the keyboard / mouse spritesheet. */
+  /** Path of the Xbox spritesheet inside the assets directory. */
+  private static final String XBOX_TEXTURE_PATH = "hud/input/xbox.png";
+
+  /** Path of the PlayStation spritesheet inside the assets directory. */
+  private static final String PLAYSTATION_TEXTURE_PATH = "hud/input/playstation.png";
+
+  /** Width and height (in pixels) of every region in the spritesheets. */
   private static final int REGION_SIZE = 128;
-
-  /** Currently active input method. Defaults to {@link InputMethod#KEYBOARD}. */
-  private static InputMethod currentInputMethod = InputMethod.KEYBOARD;
-
-  /** Maps the atlas region name to its {@code [x, y]} top-left position in the spritesheet. */
-  private static final Map<String, int[]> KEYBOARD_MOUSE_REGIONS = new HashMap<>();
 
   /**
    * Maps a libGDX {@link Input.Keys} key code to its base region name (without {@code _outline}).
@@ -50,111 +42,23 @@ public final class InputPromptHelper {
    */
   private static final Map<Integer, String> MOUSE_BUTTON_NAMES = new HashMap<>();
 
-  /** Cache of already created {@link TextureRegion}s keyed by region name. */
-  private static final Map<String, TextureRegion> REGION_CACHE = new HashMap<>();
+  /** Maps a pad binding to its base region name on the Xbox spritesheet. */
+  private static final Map<Binding, String> XBOX_PAD_NAMES = new HashMap<>();
+
+  /** Maps a pad binding to its base region name on the PlayStation spritesheet. */
+  private static final Map<Binding, String> PLAYSTATION_PAD_NAMES = new HashMap<>();
+
+  /** Maps region names to their {@code [x, y]} positions, per spritesheet. */
+  private static final Map<InputMethod, Map<String, int[]>> REGIONS =
+      new EnumMap<>(InputMethod.class);
 
   static {
-    initKeyboardMouseRegions();
     initKeyboardMappings();
     initMouseMappings();
+    initPadMappings();
   }
 
   private InputPromptHelper() {}
-
-  /**
-   * Returns the currently active input method.
-   *
-   * @return the active {@link InputMethod}.
-   */
-  public static InputMethod getInputMethod() {
-    return currentInputMethod;
-  }
-
-  /**
-   * Sets the currently active input method.
-   *
-   * @param inputMethod the {@link InputMethod} to activate.
-   */
-  public static void setInputMethod(InputMethod inputMethod) {
-    currentInputMethod = inputMethod;
-  }
-
-  /**
-   * Returns the texture region for the given keyboard key code under the given input method, using
-   * the solid (non-outline) variant.
-   *
-   * @param inputMethod the input method to look up the prompt for.
-   * @param keyCode a libGDX {@link Input.Keys} key code.
-   * @return the corresponding {@link TextureRegion}, or {@code null} if no mapping exists.
-   * @throws UnsupportedOperationException if the input method is not yet supported.
-   */
-  public static TextureRegion get(InputMethod inputMethod, int keyCode) {
-    return get(inputMethod, keyCode, false);
-  }
-
-  /**
-   * Returns the texture region for the given keyboard key code under the given input method.
-   *
-   * @param inputMethod the input method to look up the prompt for.
-   * @param keyCode a libGDX {@link Input.Keys} key code.
-   * @param outline if {@code true}, return the outlined variant if available.
-   * @return the corresponding {@link TextureRegion}, or {@code null} if no mapping exists.
-   * @throws UnsupportedOperationException if the input method is not yet supported.
-   */
-  public static TextureRegion get(InputMethod inputMethod, int keyCode, boolean outline) {
-    String baseName = keyNameMapFor(inputMethod).get(keyCode);
-    return regionFor(inputMethod, baseName, outline);
-  }
-
-  /**
-   * Returns the texture region for the given keyboard key code under the {@linkplain
-   * #getInputMethod() current input method}, using the solid (non-outline) variant.
-   *
-   * @param keyCode a libGDX {@link Input.Keys} key code.
-   * @return the corresponding {@link TextureRegion}, or {@code null} if no mapping exists.
-   */
-  public static TextureRegion get(int keyCode) {
-    return get(currentInputMethod, keyCode, false);
-  }
-
-  /**
-   * Returns the texture region for the given keyboard key code under the {@linkplain
-   * #getInputMethod() current input method}.
-   *
-   * @param keyCode a libGDX {@link Input.Keys} key code.
-   * @param outline if {@code true}, return the outlined variant if available.
-   * @return the corresponding {@link TextureRegion}, or {@code null} if no mapping exists.
-   */
-  public static TextureRegion get(int keyCode, boolean outline) {
-    return get(currentInputMethod, keyCode, outline);
-  }
-
-  /**
-   * Returns the texture region for the given mouse button, using the solid (non-outline) variant.
-   *
-   * <p>Mouse prompts are always rendered using the keyboard & mouse spritesheet, independently of
-   * the currently active {@link InputMethod}.
-   *
-   * @param button a libGDX {@link Input.Buttons} button code.
-   * @return the corresponding {@link TextureRegion}, or {@code null} if no mapping exists.
-   */
-  public static TextureRegion getMouseButton(int button) {
-    return getMouseButton(button, false);
-  }
-
-  /**
-   * Returns the texture region for the given mouse button.
-   *
-   * <p>Mouse prompts are always rendered using the keyboard & mouse spritesheet, independently of
-   * the currently active {@link InputMethod}.
-   *
-   * @param button a libGDX {@link Input.Buttons} button code.
-   * @param outline if {@code true}, return the outlined variant if available.
-   * @return the corresponding {@link TextureRegion}, or {@code null} if no mapping exists.
-   */
-  public static TextureRegion getMouseButton(int button, boolean outline) {
-    return regionFor(InputMethod.KEYBOARD, MOUSE_BUTTON_NAMES.get(button), outline);
-  }
 
   /**
    * Describes the location of a single input prompt within a spritesheet.
@@ -168,51 +72,65 @@ public final class InputPromptHelper {
   public record InputPromptRegion(String texturePath, int x, int y, int width, int height) {}
 
   /**
-   * Looks up the spritesheet location for a keyboard key prompt without creating a {@link
-   * TextureRegion}. This is useful for callers that load and crop the texture themselves (for
-   * example markup parsers that desugar a {@code [key]} tag into a regular image reference).
+   * Looks up the spritesheet location for a keyboard key prompt.
    *
-   * @param inputMethod the input method to look up the prompt for.
    * @param keyCode a libGDX {@link Input.Keys} key code.
-   * @param outline if {@code true}, return the outlined variant if available.
    * @return the {@link InputPromptRegion} describing the spritesheet location, or {@code null} if
    *     no mapping exists.
-   * @throws UnsupportedOperationException if the input method is not yet supported.
    */
-  public static InputPromptRegion lookupKey(InputMethod inputMethod, int keyCode, boolean outline) {
-    String baseName = keyNameMapFor(inputMethod).get(keyCode);
-    return lookupRegion(inputMethod, baseName, outline);
+  public static InputPromptRegion lookupKey(int keyCode) {
+    return lookupRegion(InputMethod.KEYBOARD, KEYBOARD_KEY_NAMES.get(keyCode));
   }
 
   /**
-   * Looks up the spritesheet location for a mouse button prompt without creating a {@link
-   * TextureRegion}. Mouse buttons always live on the keyboard & mouse spritesheet regardless of the
-   * active input method.
+   * Looks up the spritesheet location for a mouse button prompt.
    *
    * @param button a libGDX {@link Input.Buttons} button code.
-   * @param outline if {@code true}, return the outlined variant if available.
    * @return the {@link InputPromptRegion} describing the spritesheet location, or {@code null} if
    *     no mapping exists.
    */
-  public static InputPromptRegion lookupMouseButton(int button, boolean outline) {
-    return lookupRegion(InputMethod.KEYBOARD, MOUSE_BUTTON_NAMES.get(button), outline);
+  public static InputPromptRegion lookupMouseButton(int button) {
+    return lookupRegion(InputMethod.KEYBOARD, MOUSE_BUTTON_NAMES.get(button));
   }
 
   /**
-   * Resolves a base region name to its spritesheet location, honoring the {@code _outline} fallback
-   * rules used by {@link #regionFor(InputMethod, String, boolean)}.
+   * Looks up the spritesheet location for a pad button or axis prompt.
+   *
+   * @param inputMethod the controller look, {@link InputMethod#XBOX} or {@link
+   *     InputMethod#PLAYSTATION}.
+   * @param binding the pad binding.
+   * @return the {@link InputPromptRegion} describing the spritesheet location, or {@code null} if
+   *     no mapping exists.
+   */
+  public static InputPromptRegion lookupPad(InputMethod inputMethod, Binding binding) {
+    return lookupRegion(inputMethod, padRegionName(inputMethod, binding));
+  }
+
+  /**
+   * Names the region of a pad binding.
+   *
+   * @param inputMethod the controller look
+   * @param binding the pad binding
+   * @return the base region name, or {@code null} if no mapping exists
+   */
+  static String padRegionName(InputMethod inputMethod, Binding binding) {
+    return (inputMethod == InputMethod.PLAYSTATION ? PLAYSTATION_PAD_NAMES : XBOX_PAD_NAMES)
+        .get(binding);
+  }
+
+  /**
+   * Resolves a base region name to its spritesheet location, preferring its {@code _outline}
+   * variant. The sheets have none for a few inputs such as the sticks.
    *
    * @param inputMethod the input method whose spritesheet to look up.
    * @param baseName the base region name (without {@code _outline}), or {@code null}.
-   * @param outline if {@code true}, prefer the outlined variant when present.
    * @return the matching {@link InputPromptRegion}, or {@code null} if no mapping exists.
    */
-  private static InputPromptRegion lookupRegion(
-      InputMethod inputMethod, String baseName, boolean outline) {
+  private static InputPromptRegion lookupRegion(InputMethod inputMethod, String baseName) {
     if (baseName == null) return null;
-    Map<String, int[]> regions = regionMapFor(inputMethod);
+    Map<String, int[]> regions = REGIONS.computeIfAbsent(inputMethod, InputPromptHelper::readAtlas);
 
-    String name = outline ? baseName + "_outline" : baseName;
+    String name = baseName + "_outline";
     if (!regions.containsKey(name)) {
       name = baseName;
       if (!regions.containsKey(name)) return null;
@@ -222,338 +140,51 @@ public final class InputPromptHelper {
         texturePathFor(inputMethod), xy[0], xy[1], REGION_SIZE, REGION_SIZE);
   }
 
-  /**
-   * Returns the region map for the given input method.
-   *
-   * @param inputMethod the input method to resolve.
-   * @return the {@code regionName -> [x, y]} map for the input method's spritesheet.
-   * @throws UnsupportedOperationException if the input method has no spritesheet wired up yet.
-   */
-  private static Map<String, int[]> regionMapFor(InputMethod inputMethod) {
-    return switch (inputMethod) {
-      case KEYBOARD -> KEYBOARD_MOUSE_REGIONS;
-      case PLAYSTATION, XBOX, TOUCH ->
-          throw new UnsupportedOperationException(
-              "Input method " + inputMethod + " is not yet supported.");
-    };
+  private static Map<String, int[]> readAtlas(InputMethod inputMethod) {
+    String atlas = texturePathFor(inputMethod).replace(".png", ".xml");
+    Map<String, int[]> regions = new HashMap<>();
+    for (XmlReader.Element region :
+        new XmlReader().parse(Gdx.files.internal(atlas)).getChildrenByName("SubTexture")) {
+      regions.put(
+          region.getAttribute("name"),
+          new int[] {region.getIntAttribute("x"), region.getIntAttribute("y")});
+    }
+    return regions;
   }
 
-  /**
-   * Returns the spritesheet texture path for the given input method.
-   *
-   * @param inputMethod the input method to resolve.
-   * @return the asset path of the spritesheet texture for the input method.
-   * @throws UnsupportedOperationException if the input method has no spritesheet wired up yet.
-   */
   private static String texturePathFor(InputMethod inputMethod) {
     return switch (inputMethod) {
       case KEYBOARD -> KEYBOARD_MOUSE_TEXTURE_PATH;
-      case PLAYSTATION, XBOX, TOUCH ->
-          throw new UnsupportedOperationException(
-              "Input method " + inputMethod + " is not yet supported.");
+      case XBOX -> XBOX_TEXTURE_PATH;
+      case PLAYSTATION -> PLAYSTATION_TEXTURE_PATH;
     };
   }
 
-  /**
-   * Returns the libGDX-key-code -> base-region-name map for the given input method.
-   *
-   * @param inputMethod the input method to resolve.
-   * @return the {@code keyCode -> regionName} map for the input method.
-   * @throws UnsupportedOperationException if the input method has no spritesheet wired up yet.
-   */
-  private static Map<Integer, String> keyNameMapFor(InputMethod inputMethod) {
-    return switch (inputMethod) {
-      case KEYBOARD -> KEYBOARD_KEY_NAMES;
-      case PLAYSTATION, XBOX, TOUCH ->
-          throw new UnsupportedOperationException(
-              "Input method " + inputMethod + " is not yet supported.");
-    };
+  private static void putPad(Binding binding, String xbox, String playstation) {
+    XBOX_PAD_NAMES.put(binding, xbox);
+    PLAYSTATION_PAD_NAMES.put(binding, playstation);
   }
 
-  /**
-   * Resolves and caches a {@link TextureRegion} for the given base region name within the
-   * spritesheet of the given input method. If {@code outline} is {@code true} but no {@code
-   * _outline} variant exists, the base region is returned instead.
-   *
-   * @param inputMethod the input method whose spritesheet to use.
-   * @param baseName the base region name (without {@code _outline}), or {@code null}.
-   * @param outline if {@code true}, prefer the outlined variant when present.
-   * @return the cached {@link TextureRegion}, or {@code null} if no mapping exists.
-   */
-  private static TextureRegion regionFor(
-      InputMethod inputMethod, String baseName, boolean outline) {
-    if (baseName == null) return null;
-    Map<String, int[]> regions = regionMapFor(inputMethod);
-
-    String name = outline ? baseName + "_outline" : baseName;
-    if (!regions.containsKey(name)) {
-      name = baseName;
-      if (!regions.containsKey(name)) return null;
-    }
-
-    String cacheKey = inputMethod.name() + ":" + name;
-    TextureRegion cached = REGION_CACHE.get(cacheKey);
-    if (cached != null) return cached;
-
-    int[] xy = regions.get(name);
-    Texture texture = TextureMap.instance().textureAt(new SimpleIPath(texturePathFor(inputMethod)));
-    TextureRegion region = new TextureRegion(texture, xy[0], xy[1], REGION_SIZE, REGION_SIZE);
-    REGION_CACHE.put(cacheKey, region);
-    return region;
-  }
-
-  private static void putRegion(String name, int x, int y) {
-    KEYBOARD_MOUSE_REGIONS.put(name, new int[] {x, y});
-  }
-
-  /**
-   * Hard-coded mappings derived from kenney's texture atlas xml (coordinates doubled to match the
-   * 2x-scaled spritesheet, where every cell is 128x128 instead of 64x64).
-   */
-  private static void initKeyboardMouseRegions() {
-    putRegion("keyboard", 0, 0);
-    putRegion("keyboard_0", 128, 0);
-    putRegion("keyboard_0_outline", 256, 0);
-    putRegion("keyboard_1", 384, 0);
-    putRegion("keyboard_1_outline", 512, 0);
-    putRegion("keyboard_2", 640, 0);
-    putRegion("keyboard_2_outline", 768, 0);
-    putRegion("keyboard_3", 896, 0);
-    putRegion("keyboard_3_outline", 1024, 0);
-    putRegion("keyboard_4", 1152, 0);
-    putRegion("keyboard_4_outline", 1280, 0);
-    putRegion("keyboard_5", 1408, 0);
-    putRegion("keyboard_5_outline", 1536, 0);
-    putRegion("keyboard_6", 1664, 0);
-    putRegion("keyboard_6_outline", 1792, 0);
-    putRegion("keyboard_7", 1920, 0);
-    putRegion("keyboard_7_outline", 0, 128);
-    putRegion("keyboard_8", 128, 128);
-    putRegion("keyboard_8_outline", 256, 128);
-    putRegion("keyboard_9", 384, 128);
-    putRegion("keyboard_9_outline", 512, 128);
-    putRegion("keyboard_a", 640, 128);
-    putRegion("keyboard_a_outline", 768, 128);
-    putRegion("keyboard_alt", 896, 128);
-    putRegion("keyboard_alt_outline", 1024, 128);
-    putRegion("keyboard_any", 1152, 128);
-    putRegion("keyboard_any_outline", 1280, 128);
-    putRegion("keyboard_apostrophe", 1408, 128);
-    putRegion("keyboard_apostrophe_outline", 1536, 128);
-    putRegion("keyboard_arrow_down", 1664, 128);
-    putRegion("keyboard_arrow_down_outline", 1792, 128);
-    putRegion("keyboard_arrow_left", 1920, 128);
-    putRegion("keyboard_arrow_left_outline", 0, 256);
-    putRegion("keyboard_arrow_right", 128, 256);
-    putRegion("keyboard_arrow_right_outline", 256, 256);
-    putRegion("keyboard_arrow_up", 384, 256);
-    putRegion("keyboard_arrow_up_outline", 512, 256);
-    putRegion("keyboard_arrows", 640, 256);
-    putRegion("keyboard_arrows_all", 768, 256);
-    putRegion("keyboard_arrows_down", 896, 256);
-    putRegion("keyboard_arrows_down_outline", 1024, 256);
-    putRegion("keyboard_arrows_horizontal", 1152, 256);
-    putRegion("keyboard_arrows_horizontal_outline", 1280, 256);
-    putRegion("keyboard_arrows_left", 1408, 256);
-    putRegion("keyboard_arrows_left_outline", 1536, 256);
-    putRegion("keyboard_arrows_none", 1664, 256);
-    putRegion("keyboard_arrows_right", 1792, 256);
-    putRegion("keyboard_arrows_right_outline", 1920, 256);
-    putRegion("keyboard_arrows_up", 0, 384);
-    putRegion("keyboard_arrows_up_outline", 128, 384);
-    putRegion("keyboard_arrows_vertical", 256, 384);
-    putRegion("keyboard_arrows_vertical_outline", 384, 384);
-    putRegion("keyboard_asterisk", 512, 384);
-    putRegion("keyboard_asterisk_outline", 640, 384);
-    putRegion("keyboard_b", 768, 384);
-    putRegion("keyboard_b_outline", 896, 384);
-    putRegion("keyboard_backspace", 1024, 384);
-    putRegion("keyboard_backspace_icon", 1152, 384);
-    putRegion("keyboard_backspace_icon_alternative", 1280, 384);
-    putRegion("keyboard_backspace_icon_alternative_outline", 1408, 384);
-    putRegion("keyboard_backspace_icon_outline", 1536, 384);
-    putRegion("keyboard_backspace_outline", 1664, 384);
-    putRegion("keyboard_bracket_close", 1792, 384);
-    putRegion("keyboard_bracket_close_outline", 1920, 384);
-    putRegion("keyboard_bracket_greater", 0, 512);
-    putRegion("keyboard_bracket_greater_outline", 128, 512);
-    putRegion("keyboard_bracket_less", 256, 512);
-    putRegion("keyboard_bracket_less_outline", 384, 512);
-    putRegion("keyboard_bracket_open", 512, 512);
-    putRegion("keyboard_bracket_open_outline", 640, 512);
-    putRegion("keyboard_c", 768, 512);
-    putRegion("keyboard_c_outline", 896, 512);
-    putRegion("keyboard_capslock", 1024, 512);
-    putRegion("keyboard_capslock_icon", 1152, 512);
-    putRegion("keyboard_capslock_icon_outline", 1280, 512);
-    putRegion("keyboard_capslock_outline", 1408, 512);
-    putRegion("keyboard_caret", 1536, 512);
-    putRegion("keyboard_caret_outline", 1664, 512);
-    putRegion("keyboard_colon", 1792, 512);
-    putRegion("keyboard_colon_outline", 1920, 512);
-    putRegion("keyboard_comma", 0, 640);
-    putRegion("keyboard_comma_outline", 128, 640);
-    putRegion("keyboard_command", 256, 640);
-    putRegion("keyboard_command_outline", 384, 640);
-    putRegion("keyboard_ctrl", 512, 640);
-    putRegion("keyboard_ctrl_outline", 640, 640);
-    putRegion("keyboard_d", 768, 640);
-    putRegion("keyboard_d_outline", 896, 640);
-    putRegion("keyboard_delete", 1024, 640);
-    putRegion("keyboard_delete_outline", 1152, 640);
-    putRegion("keyboard_e", 1280, 640);
-    putRegion("keyboard_e_outline", 1408, 640);
-    putRegion("keyboard_end", 1536, 640);
-    putRegion("keyboard_end_outline", 1664, 640);
-    putRegion("keyboard_enter", 1792, 640);
-    putRegion("keyboard_enter_outline", 1920, 640);
-    putRegion("keyboard_equals", 0, 768);
-    putRegion("keyboard_equals_outline", 128, 768);
-    putRegion("keyboard_escape", 256, 768);
-    putRegion("keyboard_escape_outline", 384, 768);
-    putRegion("keyboard_exclamation", 512, 768);
-    putRegion("keyboard_exclamation_outline", 640, 768);
-    putRegion("keyboard_f", 768, 768);
-    putRegion("keyboard_f_outline", 896, 768);
-    putRegion("keyboard_f1", 1024, 768);
-    putRegion("keyboard_f1_outline", 1152, 768);
-    putRegion("keyboard_f10", 1280, 768);
-    putRegion("keyboard_f10_outline", 1408, 768);
-    putRegion("keyboard_f11", 1536, 768);
-    putRegion("keyboard_f11_outline", 1664, 768);
-    putRegion("keyboard_f12", 1792, 768);
-    putRegion("keyboard_f12_outline", 1920, 768);
-    putRegion("keyboard_f2", 0, 896);
-    putRegion("keyboard_f2_outline", 128, 896);
-    putRegion("keyboard_f3", 256, 896);
-    putRegion("keyboard_f3_outline", 384, 896);
-    putRegion("keyboard_f4", 512, 896);
-    putRegion("keyboard_f4_outline", 640, 896);
-    putRegion("keyboard_f5", 768, 896);
-    putRegion("keyboard_f5_outline", 896, 896);
-    putRegion("keyboard_f6", 1024, 896);
-    putRegion("keyboard_f6_outline", 1152, 896);
-    putRegion("keyboard_f7", 1280, 896);
-    putRegion("keyboard_f7_outline", 1408, 896);
-    putRegion("keyboard_f8", 1536, 896);
-    putRegion("keyboard_f8_outline", 1664, 896);
-    putRegion("keyboard_f9", 1792, 896);
-    putRegion("keyboard_f9_outline", 1920, 896);
-    putRegion("keyboard_function", 0, 1024);
-    putRegion("keyboard_function_outline", 128, 1024);
-    putRegion("keyboard_g", 256, 1024);
-    putRegion("keyboard_g_outline", 384, 1024);
-    putRegion("keyboard_h", 512, 1024);
-    putRegion("keyboard_h_outline", 640, 1024);
-    putRegion("keyboard_home", 768, 1024);
-    putRegion("keyboard_home_outline", 896, 1024);
-    putRegion("keyboard_i", 1024, 1024);
-    putRegion("keyboard_i_outline", 1152, 1024);
-    putRegion("keyboard_insert", 1280, 1024);
-    putRegion("keyboard_insert_outline", 1408, 1024);
-    putRegion("keyboard_j", 1536, 1024);
-    putRegion("keyboard_j_outline", 1664, 1024);
-    putRegion("keyboard_k", 1792, 1024);
-    putRegion("keyboard_k_outline", 1920, 1024);
-    putRegion("keyboard_l", 0, 1152);
-    putRegion("keyboard_l_outline", 128, 1152);
-    putRegion("keyboard_m", 256, 1152);
-    putRegion("keyboard_m_outline", 384, 1152);
-    putRegion("keyboard_minus", 512, 1152);
-    putRegion("keyboard_minus_outline", 640, 1152);
-    putRegion("keyboard_n", 768, 1152);
-    putRegion("keyboard_n_outline", 896, 1152);
-    putRegion("keyboard_numlock", 1024, 1152);
-    putRegion("keyboard_numlock_outline", 1152, 1152);
-    putRegion("keyboard_numpad_enter", 1280, 1152);
-    putRegion("keyboard_numpad_enter_outline", 1408, 1152);
-    putRegion("keyboard_numpad_plus", 1536, 1152);
-    putRegion("keyboard_numpad_plus_outline", 1664, 1152);
-    putRegion("keyboard_o", 1792, 1152);
-    putRegion("keyboard_o_outline", 1920, 1152);
-    putRegion("keyboard_option", 0, 1280);
-    putRegion("keyboard_option_outline", 128, 1280);
-    putRegion("keyboard_outline", 256, 1280);
-    putRegion("keyboard_p", 384, 1280);
-    putRegion("keyboard_p_outline", 512, 1280);
-    putRegion("keyboard_page_down", 640, 1280);
-    putRegion("keyboard_page_down_outline", 768, 1280);
-    putRegion("keyboard_page_up", 896, 1280);
-    putRegion("keyboard_page_up_outline", 1024, 1280);
-    putRegion("keyboard_period", 1152, 1280);
-    putRegion("keyboard_period_outline", 1280, 1280);
-    putRegion("keyboard_plus", 1408, 1280);
-    putRegion("keyboard_plus_outline", 1536, 1280);
-    putRegion("keyboard_printscreen", 1664, 1280);
-    putRegion("keyboard_printscreen_outline", 1792, 1280);
-    putRegion("keyboard_q", 1920, 1280);
-    putRegion("keyboard_q_outline", 0, 1408);
-    putRegion("keyboard_question", 128, 1408);
-    putRegion("keyboard_question_outline", 256, 1408);
-    putRegion("keyboard_quote", 384, 1408);
-    putRegion("keyboard_quote_outline", 512, 1408);
-    putRegion("keyboard_r", 640, 1408);
-    putRegion("keyboard_r_outline", 768, 1408);
-    putRegion("keyboard_return", 896, 1408);
-    putRegion("keyboard_return_outline", 1024, 1408);
-    putRegion("keyboard_s", 1152, 1408);
-    putRegion("keyboard_s_outline", 1280, 1408);
-    putRegion("keyboard_semicolon", 1408, 1408);
-    putRegion("keyboard_semicolon_outline", 1536, 1408);
-    putRegion("keyboard_shift", 1664, 1408);
-    putRegion("keyboard_shift_icon", 1792, 1408);
-    putRegion("keyboard_shift_icon_outline", 1920, 1408);
-    putRegion("keyboard_shift_outline", 0, 1536);
-    putRegion("keyboard_slash_back", 128, 1536);
-    putRegion("keyboard_slash_back_outline", 256, 1536);
-    putRegion("keyboard_slash_forward", 384, 1536);
-    putRegion("keyboard_slash_forward_outline", 512, 1536);
-    putRegion("keyboard_space", 640, 1536);
-    putRegion("keyboard_space_icon", 768, 1536);
-    putRegion("keyboard_space_icon_outline", 896, 1536);
-    putRegion("keyboard_space_outline", 1024, 1536);
-    putRegion("keyboard_t", 1152, 1536);
-    putRegion("keyboard_t_outline", 1280, 1536);
-    putRegion("keyboard_tab", 1408, 1536);
-    putRegion("keyboard_tab_icon", 1536, 1536);
-    putRegion("keyboard_tab_icon_alternative", 1664, 1536);
-    putRegion("keyboard_tab_icon_alternative_outline", 1792, 1536);
-    putRegion("keyboard_tab_icon_outline", 1920, 1536);
-    putRegion("keyboard_tab_outline", 0, 1664);
-    putRegion("keyboard_tilde", 128, 1664);
-    putRegion("keyboard_tilde_outline", 256, 1664);
-    putRegion("keyboard_u", 384, 1664);
-    putRegion("keyboard_u_outline", 512, 1664);
-    putRegion("keyboard_v", 640, 1664);
-    putRegion("keyboard_v_outline", 768, 1664);
-    putRegion("keyboard_w", 896, 1664);
-    putRegion("keyboard_w_outline", 1024, 1664);
-    putRegion("keyboard_win", 1152, 1664);
-    putRegion("keyboard_win_outline", 1280, 1664);
-    putRegion("keyboard_x", 1408, 1664);
-    putRegion("keyboard_x_outline", 1536, 1664);
-    putRegion("keyboard_y", 1664, 1664);
-    putRegion("keyboard_y_outline", 1792, 1664);
-    putRegion("keyboard_z", 1920, 1664);
-    putRegion("keyboard_z_outline", 0, 1792);
-    putRegion("mouse", 128, 1792);
-    putRegion("mouse_horizontal", 256, 1792);
-    putRegion("mouse_left", 384, 1792);
-    putRegion("mouse_left_outline", 512, 1792);
-    putRegion("mouse_move", 640, 1792);
-    putRegion("mouse_outline", 768, 1792);
-    putRegion("mouse_right", 896, 1792);
-    putRegion("mouse_right_outline", 1024, 1792);
-    putRegion("mouse_scroll", 1152, 1792);
-    putRegion("mouse_scroll_down", 1280, 1792);
-    putRegion("mouse_scroll_down_outline", 1408, 1792);
-    putRegion("mouse_scroll_outline", 1536, 1792);
-    putRegion("mouse_scroll_up", 1664, 1792);
-    putRegion("mouse_scroll_up_outline", 1792, 1792);
-    putRegion("mouse_scroll_vertical", 1920, 1792);
-    putRegion("mouse_scroll_vertical_outline", 0, 1920);
-    putRegion("mouse_small", 128, 1920);
-    putRegion("mouse_vertical", 256, 1920);
+  private static void initPadMappings() {
+    putPad(Binding.pad(Pad.A), "xbox_button_a", "playstation_button_cross");
+    putPad(Binding.pad(Pad.B), "xbox_button_b", "playstation_button_circle");
+    putPad(Binding.pad(Pad.X), "xbox_button_x", "playstation_button_square");
+    putPad(Binding.pad(Pad.Y), "xbox_button_y", "playstation_button_triangle");
+    putPad(Binding.pad(Pad.BACK), "xbox_button_view", "playstation4_button_share");
+    putPad(Binding.pad(Pad.START), "xbox_button_menu", "playstation4_button_options");
+    putPad(Binding.pad(Pad.LB), "xbox_lb", "playstation_trigger_l1");
+    putPad(Binding.pad(Pad.RB), "xbox_rb", "playstation_trigger_r1");
+    putPad(Binding.pad(Pad.DPAD_UP), "xbox_dpad_up", "playstation_dpad_up");
+    putPad(Binding.pad(Pad.DPAD_DOWN), "xbox_dpad_down", "playstation_dpad_down");
+    putPad(Binding.pad(Pad.DPAD_LEFT), "xbox_dpad_left", "playstation_dpad_left");
+    putPad(Binding.pad(Pad.DPAD_RIGHT), "xbox_dpad_right", "playstation_dpad_right");
+    putPad(Binding.pad(PadAxisId.LT), "xbox_lt", "playstation_trigger_l2");
+    putPad(Binding.pad(PadAxisId.RT), "xbox_rt", "playstation_trigger_r2");
+    putPad(Binding.pad(PadAxisId.LSTICK), "xbox_stick_l", "playstation_stick_l");
+    putPad(Binding.pad(PadAxisId.LSTICK_UP), "xbox_stick_l_up", "playstation_stick_l_up");
+    putPad(Binding.pad(PadAxisId.LSTICK_DOWN), "xbox_stick_l_down", "playstation_stick_l_down");
+    putPad(Binding.pad(PadAxisId.LSTICK_LEFT), "xbox_stick_l_left", "playstation_stick_l_left");
+    putPad(Binding.pad(PadAxisId.LSTICK_RIGHT), "xbox_stick_l_right", "playstation_stick_l_right");
   }
 
   /** Maps libGDX {@link Input.Keys} key codes to their base region names. */

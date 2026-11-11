@@ -50,7 +50,6 @@ abstract class SoulweaverWorkbenchUI extends CanvasUI {
                 .rubberBandEnabled(false)
                 .keyboardShortcutsEnabled(false)
                 .panButton(-1)
-                .panWithSpace(false)
                 .zoom(1, 1),
             false),
         new CanvasSnapshot(

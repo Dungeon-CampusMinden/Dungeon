@@ -1,16 +1,13 @@
 package rooms.gameofgames;
 
-import com.badlogic.gdx.Input;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
-import engine.configuration.KeyboardConfig;
 import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
-import engine.utils.CursorUtil;
 import engine.utils.components.draw.DrawComponentFactory;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
@@ -32,12 +29,10 @@ public final class GameOfGamesClient {
   /** Registers client-side handlers and systems for Game of Games. */
   public static void clientSetup() {
     registerEntitySpawnHandler();
-    Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
 
     if (GameOfGames.DEBUG_MODE) {
       Game.add(new Debugger());
-      KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
       Game.add(new DebugDrawSystem());
       Game.add(new LevelEditorSystem());
     }

@@ -41,6 +41,7 @@ public final class InputMessageConverter
         builder.setCastSkill(
             engine.network.proto.c2s.CastSkillAction.newBuilder()
                 .setTarget(CommonProtoConverters.toProto(castSkill.target()))
+                .setMainSkill(castSkill.mainSkill())
                 .build());
       }
       case INTERACT -> {
@@ -55,6 +56,7 @@ public final class InputMessageConverter
         builder.setSkillChange(
             engine.network.proto.c2s.SkillChangeAction.newBuilder()
                 .setNextSkill(change.nextSkill())
+                .setMainSkill(change.mainSkill())
                 .build());
       }
       case INV_DROP -> {

@@ -1,6 +1,5 @@
 package escaperoom.foundation.multiplayer.game;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -189,7 +188,6 @@ public final class FoundationDialogs {
                   .row();
             });
     dialog.button("Schliessen", true, skin.get("green", TextButton.TextButtonStyle.class));
-    dialog.key(Input.Keys.ESCAPE, true);
     dialog.pack();
     return new BaseContainerUI(dialog);
   }

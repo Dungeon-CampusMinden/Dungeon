@@ -1,5 +1,6 @@
 package engine.utils.settings;
 
+import engine.input.CoreActions;
 import engine.language.Language;
 import engine.language.Localization;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class ClientSettings {
   public static final String KEY_REDUCE_EFFECTS = "settings.reduce_effects";
 
   private static final String KEY_GRAPHICS_HEADER = "settings.graphics";
+  private static final String KEY_CONTROLS_HEADER = "settings.controls_header";
   private static final String KEY_REDUCE_EFFECTS_DESCRIPTION =
       "settings.reduce_effects_description";
 
@@ -89,6 +91,14 @@ public class ClientSettings {
     registerSetting(new SectionDividerSetting(KEY_GRAPHICS_HEADER));
     registerSetting(new IntSliderSetting(KEY_BRIGHTNESS, 100, 50, 150, 10, v -> v + " %"));
     registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
+
+    registerSetting(new SectionDividerSetting(KEY_CONTROLS_HEADER));
+    registerSetting(new ActionBindingSetting("settings.interact", CoreActions.INTERACT));
+    registerSetting(new ActionBindingSetting("settings.inventory", CoreActions.INVENTORY));
+    registerSetting(new ActionBindingSetting("settings.questlog", CoreActions.QUESTLOG));
+    registerSetting(new ActionBindingSetting("settings.pause", CoreActions.PAUSE_MENU));
+    registerSetting(new ActionBindingSetting("settings.skill_main", CoreActions.SKILL_MAIN));
+    registerSetting(new ActionBindingSetting("settings.skill_second", CoreActions.SKILL_SECOND));
   }
 
   /**

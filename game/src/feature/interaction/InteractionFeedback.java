@@ -6,6 +6,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.input.CursorUtils;
+import engine.input.GameInput;
 import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import engine.utils.Point;
@@ -39,9 +40,10 @@ public final class InteractionFeedback {
   /**
    * Updates cursor and outline feedback for the current mouse target.
    *
-   * <p>The entity under the cursor receives a semi-transparent discovery outline. If that entity is
-   * also within interaction range of the hero, it receives a solid outline and the world cursor
-   * switches to {@link Cursors#INTERACT}.
+   * <p>While a UI takes the input or blocks gameplay, nothing in the world can be used, so there is
+   * no feedback. Otherwise the entity under the cursor receives a semi-transparent discovery
+   * outline. If that entity is also within interaction range of the hero, it receives a solid
+   * outline and the world cursor switches to {@link Cursors#INTERACT}.
    *
    * <p>After {@link #showAlways(Supplier)}, the cursor plays no part. Every interactable entity
    * receives the discovery outline, and the entity the hero would use receives the solid one. After
@@ -50,7 +52,9 @@ public final class InteractionFeedback {
   public static void update() {
     Optional<Entity> hero = Game.player();
 
-    if (hero.isEmpty() || Game.hud().blocksGameplayInput(hero.orElseThrow())) {
+    if (hero.isEmpty()
+        || GameInput.uiOpen()
+        || Game.hud().blocksGameplayInput(hero.orElseThrow())) {
       clearFeedback();
       return;
     }

@@ -4,11 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
-import engine.Game;
+import engine.input.GameInput;
+import engine.input.InputDevice;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +25,8 @@ public class CursorUtil {
   }
 
   private static Cursors currentCursor;
+  private static boolean nativeCursorHidden;
+  private static Cursor hiddenCursor;
 
   /** Cache of native cursor objects keyed by cursor type to avoid repeated allocation. */
   private static final Map<Cursors, Cursor> cursorCache = new EnumMap<>(Cursors.class);
@@ -42,23 +44,32 @@ public class CursorUtil {
    * @param cursor the type of cursor to set
    */
   public static void setCursor(Cursors cursor) {
-    if (cursor == currentCursor) return;
-    Cursor nativeCursor =
-        cursorCache.computeIfAbsent(
-            cursor,
-            c -> {
-              Pixmap pixmap = new Pixmap(Gdx.files.internal(c.path()));
-              Cursor created = Gdx.graphics.newCursor(pixmap, c.hotspotX(), c.hotspotY());
-              pixmap.dispose();
-              return created;
-            });
-    Gdx.graphics.setCursor(nativeCursor);
+    boolean hide = GameInput.device() == InputDevice.PAD;
+    if (cursor == currentCursor && hide == nativeCursorHidden) return;
+    Gdx.graphics.setCursor(hide ? hiddenCursor() : nativeCursor(cursor));
     currentCursor = cursor;
+    nativeCursorHidden = hide;
   }
 
-  /** Reset the mouse cursor to the default type. */
-  public static void resetCursor() {
-    setCursor(Cursors.DEFAULT);
+  private static Cursor nativeCursor(Cursors cursor) {
+    return cursorCache.computeIfAbsent(
+        cursor,
+        c -> {
+          Pixmap pixmap = new Pixmap(Gdx.files.internal(c.path()));
+          Cursor created = Gdx.graphics.newCursor(pixmap, c.hotspotX(), c.hotspotY());
+          pixmap.dispose();
+          return created;
+        });
+  }
+
+  // The pad draws its own cursor, so the system cursor must not stay frozen next to it.
+  private static Cursor hiddenCursor() {
+    if (hiddenCursor == null) {
+      Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+      hiddenCursor = Gdx.graphics.newCursor(pixmap, 0, 0);
+      pixmap.dispose();
+    }
+    return hiddenCursor;
   }
 
   /**
@@ -78,7 +89,6 @@ public class CursorUtil {
    */
   public static void setWorldCursor(Cursors cursor) {
     worldCursorOverride = cursor;
-    refreshCursor();
   }
 
   /**
@@ -87,39 +97,19 @@ public class CursorUtil {
    */
   public static void clearWorldCursor() {
     worldCursorOverride = null;
-    refreshCursor();
-  }
-
-  private static void refreshCursor() {
-    Actor hit =
-        Game.stage()
-            .map(
-                stage -> {
-                  Vector2 pointer =
-                      stage.screenToStageCoordinates(
-                          new Vector2(Gdx.input.getX(), Gdx.input.getY()));
-                  return stage.hit(pointer.x, pointer.y, true);
-                })
-            .orElse(null);
-    setCursor(cursorFor(hit));
   }
 
   /**
-   * Initialize cursor management for the game stage. The cursor is resolved every frame, so UI that
-   * opens or closes under a resting pointer updates it as well.
+   * Resolves the cursor for the current screen. Runs every frame, so UI that opens or closes under
+   * a resting pointer updates it, and so does a change of the input device.
    *
-   * @param stage the game stage
+   * @param stage the stage of the current screen
    */
-  public static void initListener(Stage stage) {
-    resetCursor();
-    stage.addAction(
-        new Action() {
-          @Override
-          public boolean act(float delta) {
-            refreshCursor();
-            return false;
-          }
-        });
+  public static void update(Stage stage) {
+    Vector2 pointer =
+        stage.screenToStageCoordinates(
+            new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
+    setCursor(cursorFor(stage.hit(pointer.x, pointer.y, true)));
   }
 
   /**

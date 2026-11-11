@@ -1,11 +1,11 @@
 package rooms.soulweaver.level;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import engine.input.GameInput;
 import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
@@ -74,15 +74,17 @@ final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
     updateTooltip();
   }
 
+  private static Vector2 pointer() {
+    return new Vector2(GameInput.pointer().x(), GameInput.pointer().y());
+  }
+
   private void updateTooltip() {
     tooltip.setVisible(false);
-    if (getStage() == null || referenceOpen() || Gdx.input.isTouched()) return;
-    Vector2 stagePointer =
-        getStage().screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    if (getStage() == null || referenceOpen() || GameInput.pointerDown()) return;
+    Vector2 stagePointer = getStage().screenToStageCoordinates(pointer());
     var target = getStage().hit(stagePointer.x, stagePointer.y, true);
     if (target == null || !target.isDescendantOf(area())) return;
-    Vector2 pointer =
-        area().screenToLocalCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+    Vector2 pointer = area().screenToLocalCoordinates(pointer());
     if (pointer.x < 0
         || pointer.y < 0
         || pointer.x > area().getWidth()
@@ -99,8 +101,7 @@ final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
               code.setText(source);
               code.pack();
               tooltip.setSize(code.getWidth() + 28, code.getHeight() + 24);
-              Vector2 local =
-                  screenToLocalCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+              Vector2 local = screenToLocalCoordinates(pointer());
               tooltip.setPosition(
                   Math.max(8, Math.min(local.x + 18, getWidth() - tooltip.getWidth() - 8)),
                   Math.max(

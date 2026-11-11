@@ -35,7 +35,6 @@ import engine.utils.components.path.IPath;
 import engine.utils.logging.DungeonLogger;
 import engine.utils.logging.DungeonLoggerConfig;
 import feature.systems.HudSystem;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -369,19 +368,6 @@ public final class Game {
    */
   public static void userOnLevelLoad(final Consumer<Boolean> userOnLevelLoad) {
     PreRunConfiguration.userOnLevelLoad(userOnLevelLoad);
-  }
-
-  /**
-   * Loads the configuration from the given path. If the configuration has already been loaded, the
-   * cached version will be used.
-   *
-   * @param path The path to the config file.
-   * @param keyboardConfigClass The class where the ConfigKey fields are located.
-   * @throws IOException If the file could not be read.
-   */
-  public static void loadConfig(final IPath path, final Class<?>... keyboardConfigClass)
-      throws IOException {
-    PreRunConfiguration.loadConfig(path, keyboardConfigClass);
   }
 
   /**
