@@ -1,6 +1,5 @@
 package feature.canvas;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -11,7 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import engine.input.GameInput;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import engine.utils.logging.DungeonLogger;
 import feature.hud.dialogs.DialogCallbackResolver;
 import java.util.ArrayList;
@@ -57,7 +59,7 @@ import java.util.stream.Stream;
  * <p>Interactions of individual nodes take precedence: if a child actor of a node (a button for
  * example) already handled a touch, the canvas does not start a drag.
  */
-public class CanvasArea extends Group {
+public class CanvasArea extends Group implements CursorUtil.CursorOverride {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CanvasArea.class);
 
@@ -954,23 +956,16 @@ public class CanvasArea extends Group {
   }
 
   private boolean panRequested(int button) {
-    if (button == options.panButton()) {
-      return true;
-    }
-    return options.panWithSpace()
-        && button == Input.Buttons.LEFT
-        && Gdx.input != null
-        && Gdx.input.isKeyPressed(Input.Keys.SPACE);
+    return button == options.panButton();
   }
 
   private boolean additiveRequested() {
-    if (Gdx.input == null) {
-      return false;
-    }
-    return Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)
-        || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)
-        || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
-        || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+    return GameInput.ctrl() || GameInput.shift();
+  }
+
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    return dragMode == DragMode.NODE ? Optional.of(Cursors.GRABBING) : Optional.empty();
   }
 
   /** Routes pointer and keyboard input to view manipulation and node interactions. */
@@ -1046,6 +1041,7 @@ public class CanvasArea extends Group {
           draggedNode = hit;
           draggedGroup = List.of(hit);
           dragMode = DragMode.NODE;
+          GameInput.startDrag();
           return true;
         }
         boolean additive = additiveRequested();
@@ -1059,6 +1055,7 @@ public class CanvasArea extends Group {
         draggedNode = hit;
         draggedGroup = selection.contains(hit) ? List.copyOf(selection) : List.of(hit);
         dragMode = DragMode.NODE;
+        GameInput.startDrag();
         bringToFront(hit);
         return true;
       }

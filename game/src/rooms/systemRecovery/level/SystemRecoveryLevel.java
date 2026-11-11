@@ -2,7 +2,6 @@ package rooms.systemRecovery.level;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
@@ -1280,7 +1279,7 @@ public class SystemRecoveryLevel extends DungeonLevel {
                 Vector2.ONE,
                 (ignored, other, direction) -> {
                   if (!systemCoreRiddleCompleted || endingTriggered) return;
-                  if (other.fetch(InputComponent.class).isEmpty()) return;
+                  if (other.fetch(PlayerComponent.class).isEmpty()) return;
                   endingTriggered = true;
                   Game.playClock().end(PlayClock.Outcome.SUCCESS);
                   BlackFadeCutscene.show(

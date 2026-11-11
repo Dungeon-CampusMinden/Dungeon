@@ -1,15 +1,15 @@
 package feature.leveleditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import engine.input.ActionId;
+import engine.input.GameInput;
 import engine.level.DungeonLevel;
 import engine.level.utils.Coordinate;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.rendering.Atmosphere;
 import engine.rendering.TileTextures;
-import engine.systems.input.InputManager;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.leveleditor.ui.ColorSetting;
@@ -144,32 +144,30 @@ public class TilesMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (InputManager.isButtonJustReleased(Input.Buttons.LEFT)
-        || InputManager.isButtonJustReleased(Input.Buttons.RIGHT)) {
+    if (GameInput.justReleased(EditorActions.PLACE) || GameInput.justReleased(EditorActions.ALT)) {
       flushMouseLevelChange();
     }
 
-    if (InputManager.isKeyJustPressed(PRIMARY_DOWN)) {
-      if (InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+    if (GameInput.justPressed(EditorActions.PRIMARY_PREV)) {
+      if (GameInput.pressed(EditorActions.ALT)) {
         selectedTileIndexR -= 1;
       } else {
         selectedTileIndexL -= 1;
       }
-    } else if (InputManager.isKeyJustPressed(PRIMARY_UP)) {
-      if (InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+    } else if (GameInput.justPressed(EditorActions.PRIMARY_NEXT)) {
+      if (GameInput.pressed(EditorActions.ALT)) {
         selectedTileIndexR += 1;
       } else {
         selectedTileIndexL += 1;
       }
     }
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
+    if (GameInput.justPressed(EditorActions.SECONDARY_NEXT)) {
       brushSize = Math.min(MAX_BRUSH_SIZE, brushSize + 1);
-    } else if (InputManager.isKeyJustPressed(SECONDARY_DOWN)) {
+    } else if (GameInput.justPressed(EditorActions.SECONDARY_PREV)) {
       brushSize = Math.max(1, brushSize - 1);
     }
 
-    if (InputManager.isKeyJustPressed(QUARTERNARY)
-        || InputManager.isButtonJustPressed(Input.Buttons.MIDDLE)) {
+    if (GameInput.justPressed(EditorActions.PICK)) {
       // Pick tile under cursor to LMB
       Point cursorPos = getCursorPosition();
       getLevel()
@@ -187,7 +185,7 @@ public class TilesMode extends LevelEditorMode {
      */
     Optional<LevelElement> levelElement = Optional.empty();
     int targetBrushSize;
-    if (InputManager.isButtonPressed(Input.Buttons.LEFT)) {
+    if (GameInput.pressed(EditorActions.PLACE)) {
       levelElement =
           Optional.of(
               LevelElement.values()[
@@ -195,12 +193,12 @@ public class TilesMode extends LevelEditorMode {
       targetBrushSize = brushSize;
     } else {
       targetBrushSize = 1;
-      if (InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+      if (GameInput.pressed(EditorActions.ALT)) {
         levelElement =
             Optional.of(
                 LevelElement.values()[
                     Math.floorMod(selectedTileIndexR, LevelElement.values().length)]);
-      } else if (InputManager.isKeyPressed(TERTIARY)) {
+      } else if (GameInput.pressed(EditorActions.TERTIARY)) {
         levelElement = Optional.of(LevelElement.SKIP);
       }
     }
@@ -223,8 +221,7 @@ public class TilesMode extends LevelEditorMode {
           }
           CheckPatternPainter.paintCheckerPattern(getLevel().layout());
           if (changed) {
-            if (InputManager.isButtonPressed(Input.Buttons.LEFT)
-                || InputManager.isButtonPressed(Input.Buttons.RIGHT)) {
+            if (GameInput.pressed(EditorActions.PLACE) || GameInput.pressed(EditorActions.ALT)) {
               mouseLevelChangePending = true;
             } else {
               levelChanged();
@@ -290,13 +287,12 @@ public class TilesMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(Input.Buttons.LEFT, "Place Tile [L]");
-    controls.put(Input.Buttons.RIGHT, "Place Tile [R]");
-    controls.put(TERTIARY, "Place SKIP Tile");
-    controls.put(QUARTERNARY, "Pick tile from cursor");
-    controls.put(Input.Buttons.MIDDLE, "Pick tile from cursor");
+  public Map<ActionId, String> controls() {
+    Map<ActionId, String> controls = new LinkedHashMap<>();
+    controls.put(EditorActions.PLACE, "Place Tile [L]");
+    controls.put(EditorActions.ALT, "Place Tile [R]");
+    controls.put(EditorActions.TERTIARY, "Place SKIP Tile");
+    controls.put(EditorActions.PICK, "Pick tile from cursor");
     return controls;
   }
 

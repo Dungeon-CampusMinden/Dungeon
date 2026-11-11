@@ -50,7 +50,11 @@ public final class CreditsFeature {
     }
 
     DialogContext context =
-        DialogContext.builder().type(CreditsDialogType.CREDITS).put(ROOM_ID_KEY, roomId).build();
+        DialogContext.builder()
+            .type(CreditsDialogType.CREDITS)
+            .put(ROOM_ID_KEY, roomId)
+            .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
+            .build();
     UIComponent ui = DialogFactory.show(context, true, false, targetEntityIds);
     ui.registerCallback(
         DialogContextKeys.ON_RESUME,

@@ -121,7 +121,7 @@ final class CharacterCarousel extends Table {
     return options.isEmpty() ? -1 : 0;
   }
 
-  private void move(int amount) {
+  void move(int amount) {
     if (options.size() < 2) {
       return;
     }

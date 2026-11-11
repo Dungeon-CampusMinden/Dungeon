@@ -39,13 +39,18 @@ public class Sounds {
    */
   public static long playUi(ISound sound, float pitch, float volumeModifier) {
     long instanceId = Game.audio().newLocalInstanceId();
-    float volume = getEffectsVolume() * sound.volume() * volumeModifier;
+    float volume = effectsVolumeFactor() * sound.volume() * volumeModifier;
     Game.soundPlayer()
         .playWithInstance(instanceId, sound.soundName(), volume, false, pitch, 0, null);
     return instanceId;
   }
 
-  private static float getEffectsVolume() {
+  /**
+   * Returns the factor that scales sound effect volumes: master volume times effects volume.
+   *
+   * @return the product of master and effects volume, in [0.0, 1.0]
+   */
+  public static float effectsVolumeFactor() {
     float master = (float) ClientSettings.masterVolume() / 100;
     float effects = (float) ClientSettings.effectsVolume() / 100;
     return master * effects;
@@ -95,7 +100,8 @@ public class Sounds {
   }
 
   /**
-   * Play this sound with a custom pitch and volume.
+   * Play this sound with a custom pitch and volume. The volume settings are applied by {@link
+   * engine.systems.SoundSystem} on each client.
    *
    * @param sound the sound to play
    * @param pitch the playback pitch to apply
@@ -103,7 +109,7 @@ public class Sounds {
    * @return the id of the sound instance if playback started, or -1 if it failed to play
    */
   public static long play(ISound sound, float pitch, float volumeModifier) {
-    float volume = getEffectsVolume() * sound.volume() * volumeModifier;
+    float volume = sound.volume() * volumeModifier;
     return Game.audio()
         .playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
   }

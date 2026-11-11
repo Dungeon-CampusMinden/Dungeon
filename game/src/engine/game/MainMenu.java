@@ -1,8 +1,6 @@
 package engine.game;
 
-import com.badlogic.gdx.Input;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.level.loader.DungeonLoader;
 import feature.components.Debugger;
 import feature.entities.HeroBuilder;
@@ -162,7 +160,6 @@ public final class MainMenu {
                   .username(PreRunConfiguration.username())
                   .build());
           Game.add(new Debugger());
-          KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
           Game.add(new DebugDrawSystem());
           Game.add(new LevelEditorSystem(pathToLevels));
           LevelEditorSystem.activateOnStart();

@@ -8,15 +8,17 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import engine.Entity;
 import engine.Game;
+import engine.input.ActionId;
+import engine.input.UiActions;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogCallbackResolver;
-import feature.hud.dialogs.DialogCloseEvent;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
+import feature.hud.dialogs.DialogInput;
 import feature.hud.elements.GUICombination;
 import feature.inventory.ui.InventoryGUI;
 import java.util.Optional;
@@ -259,13 +261,14 @@ public final class UIUtils {
   }
 
   /**
-   * Registers local behavior for the configured dialog close shortcut.
+   * Registers local behavior for the close action; a dialog uses it to advance a sequence instead
+   * of closing.
    *
    * @param actor the dialog's outermost actor
    * @param handler behavior that consumes the close request
    */
   public static void onCloseRequest(Actor actor, Runnable handler) {
-    actor.addListener(new CloseRequestListener(handler));
+    onUiAction(actor, UiActions.CLOSE, handler);
   }
 
   /**
@@ -276,9 +279,20 @@ public final class UIUtils {
    */
   public static boolean hasCloseRequestHandler(Actor actor) {
     for (EventListener listener : actor.getListeners()) {
-      if (listener instanceof CloseRequestListener) return true;
+      if (listener instanceof UiActionListener l && l.action().equals(UiActions.CLOSE)) return true;
     }
     return false;
+  }
+
+  /**
+   * Registers a dialog's reaction to UI actions routed to its input context.
+   *
+   * @param actor the dialog's outermost actor
+   * @param action the action
+   * @param handler reaction to the action
+   */
+  public static void onUiAction(Actor actor, ActionId action, Runnable handler) {
+    actor.addListener(new UiActionListener(action, handler));
   }
 
   /**
@@ -290,7 +304,7 @@ public final class UIUtils {
    * @param uiComponent the dialog receiving the request
    */
   public static void requestCloseDialog(UIComponent uiComponent) {
-    DialogCloseEvent event = new DialogCloseEvent();
+    DialogInput.UiActionEvent event = new DialogInput.UiActionEvent(UiActions.CLOSE);
     uiComponent.dialog().fire(event);
     if (event.isHandled() || !uiComponent.canBeClosed()) return;
 
@@ -299,16 +313,11 @@ public final class UIUtils {
         .accept(null);
   }
 
-  private static final class CloseRequestListener implements EventListener {
-    private final Runnable handler;
-
-    private CloseRequestListener(Runnable handler) {
-      this.handler = handler;
-    }
-
+  private record UiActionListener(ActionId action, Runnable handler) implements EventListener {
     @Override
     public boolean handle(Event event) {
-      if (!(event instanceof DialogCloseEvent)) return false;
+      if (!(event instanceof DialogInput.UiActionEvent uiAction)) return false;
+      if (!uiAction.action().equals(action)) return false;
       handler.run();
       return true;
     }

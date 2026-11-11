@@ -7,10 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Disposable;
 import engine.Game;
+import engine.utils.CursorUtil;
+import engine.utils.Cursors;
 import engine.utils.Vector2;
 import feature.components.UIComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * An object of this class represents a combination of multiple {@link CombinableGUI
@@ -23,7 +26,7 @@ import java.util.Arrays;
  * com.badlogic.gdx.scenes.scene2d.Stage Stage} for display. This addition should be facilitated
  * through the use of a {@link UIComponent}.
  */
-public final class GUICombination extends Group implements Disposable {
+public final class GUICombination extends Group implements Disposable, CursorUtil.CursorOverride {
 
   /** The gap between the CombinableGUIs in pixels. */
   public static final int GAP = 10;
@@ -52,6 +55,8 @@ public final class GUICombination extends Group implements Disposable {
     // LibGDX rejects drops during the first 250 ms, which dropped quickly moved items into the
     // world.
     this.dragAndDrop.setDragTime(0);
+    // A press lifts the item at once; see GameInput#startDrag.
+    this.dragAndDrop.setTapSquareSize(-1);
     this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
 
     this.combinableGuis.forEach(
@@ -144,5 +149,11 @@ public final class GUICombination extends Group implements Disposable {
     if (this.dragAndDrop != null) {
       this.dragAndDrop.clear();
     }
+  }
+
+  @Override
+  public Optional<Cursors> cursorOverride() {
+    boolean dragging = dragAndDrop != null && dragAndDrop.isDragging();
+    return dragging ? Optional.of(Cursors.GRABBING) : Optional.empty();
   }
 }
