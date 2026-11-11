@@ -1,4 +1,6 @@
--- The table row stays RUNNING, so a finish that still arrives is accepted.
+-- Sessions without a finish: v_session_summary shows RUNNING as ABANDONED once the run has a later
+-- session or the last event happened more than 24 hours ago. The table row stays RUNNING, so a
+-- finish that still arrives is accepted.
 CREATE OR REPLACE VIEW v_session_summary AS
 SELECT
     s.session_id,
@@ -9,7 +11,7 @@ SELECT
     CASE WHEN s.status = 'RUNNING' AND (
             EXISTS (SELECT 1 FROM tracking_sessions later
                 WHERE later.run_id = s.run_id AND later.started_at > s.started_at)
-            OR COALESCE((SELECT max(e.persisted_at) FROM tracking_events e
+            OR COALESCE((SELECT max(e.occurred_at) FROM tracking_events e
                 WHERE e.session_id = s.session_id), s.started_at) < now() - interval '24 hours')
         THEN 'ABANDONED'
         ELSE s.status
