@@ -21,23 +21,25 @@ import java.util.function.Function;
  * Delay → Sound Effect are shown as an indented list next to the world prefab they start at.
  * Prefabs that are not linked to any prefab in the world, directly or through other attached
  * prefabs, are not placed.
+ *
+ * <p>The layout only decides the structure: which world prefab a chain hangs from, and the indent
+ * and row of every attached prefab in it. The editor turns that into screen positions, so the list
+ * keeps its size in pixels at every zoom level.
  */
 final class AttachedPrefabLayout {
 
-  private static final float OFFSET_X = 0.7f;
-  private static final float INDENT = 0.5f;
-  private static final float ROW_HEIGHT = 0.42f;
   private static final int TIERS = 4;
 
   /**
-   * Position of one attached prefab.
+   * Place of one attached prefab in the list next to its world prefab.
    *
    * @param name instance name
    * @param host name of the instance it is attached to
    * @param root name of the world instance the chain of hosts starts at
-   * @param position world position of its marker
+   * @param depth indent level, 0 for prefabs attached to the world instance itself
+   * @param row row in the list of the world instance, starting at 0
    */
-  record Chip(String name, String host, String root, Point position) {}
+  record Chip(String name, String host, String root, int depth, int row) {}
 
   private AttachedPrefabLayout() {}
 
@@ -90,10 +92,9 @@ final class AttachedPrefabLayout {
     }
     Map<String, Chip> result = new LinkedHashMap<>();
     for (PrefabInstance instance : instances) {
-      Point anchor = world.get(instance.name());
-      if (anchor == null) continue;
+      if (!world.containsKey(instance.name())) continue;
       int[] row = {0};
-      place(instance.name(), instance.name(), anchor, 0, row, children, result);
+      place(instance.name(), instance.name(), 0, row, children, result);
     }
     return result;
   }
@@ -101,16 +102,14 @@ final class AttachedPrefabLayout {
   private static void place(
       String host,
       String root,
-      Point anchor,
       int depth,
       int[] row,
       Map<String, List<String>> children,
       Map<String, Chip> result) {
     for (String child : children.getOrDefault(host, List.of())) {
-      Point position = anchor.translate(OFFSET_X + depth * INDENT, -row[0] * ROW_HEIGHT);
-      result.put(child, new Chip(child, host, root, position));
+      result.put(child, new Chip(child, host, root, depth, row[0]));
       row[0]++;
-      place(child, root, anchor, depth + 1, row, children, result);
+      place(child, root, depth + 1, row, children, result);
     }
   }
 

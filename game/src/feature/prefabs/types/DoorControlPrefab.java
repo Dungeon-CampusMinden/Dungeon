@@ -113,7 +113,8 @@ public final class DoorControlPrefab extends Prefab {
     Point offset = DOOR_POSITION.editorFeedbackOffset();
     Point marker = position.translate(offset.x(), offset.y());
     boolean hasDoor = doorAt(level, position).isPresent();
-    feedback.point(marker, hasDoor ? instance.name() : instance.name() + " (missing door)");
+    feedback.point(marker, instance.name());
+    if (!hasDoor) feedback.warning(marker, "missing door");
   }
 
   private static void setOpen(ActionContext context, boolean open) {

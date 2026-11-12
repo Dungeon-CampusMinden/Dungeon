@@ -18,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.UIUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,9 +44,9 @@ public final class PortPickerPopup extends Table {
 
   private static final float MAX_LIST_HEIGHT = 380f;
   private static final int FONT_SIZE = 14;
-  private static final Color GROUP_COLOR = ModeDetailsPanel.TEXT_COLOR.cpy().mul(1f, 1f, 1f, .65f);
-  private static final Color DISABLED_COLOR = new Color(0.45f, 0.45f, 0.45f, 1f);
-  private static final Color WARNING_COLOR = new Color(0.75f, 0.42f, 0f, 1f);
+  private static final Color GROUP_COLOR = EditorTheme.TEXT_MUTED;
+  private static final Color DISABLED_COLOR = EditorTheme.TEXT_DISABLED;
+  private static final Color WARNING_COLOR = EditorTheme.WARNING;
 
   /** The tab chosen last; shared by all popups showing tabs. */
   private static Tab rememberedTab = Tab.IN_WORLD;
@@ -118,23 +117,27 @@ public final class PortPickerPopup extends Table {
     }
     tabs = List.copyOf(shownTabs);
     setTouchable(Touchable.enabled);
-    setBackground(UIUtils.defaultSkin().getDrawable("generic-area"));
+    setBackground(
+        EditorTheme.rounded(
+            new Color(0.115f, 0.125f, 0.15f, 0.99f), new Color(1f, 1f, 1f, 0.12f), 6));
     pad(10f);
     top().left();
     defaults().growX().minWidth(0f);
 
-    Label titleLabel = Scene2dElementFactory.createLabel(title, 16, ModeDetailsPanel.TEXT_COLOR);
+    Label titleLabel = EditorTheme.boldLabel(title, 15, EditorTheme.TEXT);
     titleLabel.setWrap(true);
     add(titleLabel).padBottom(6f).row();
 
     tab = initialTab();
     if (!tabs.isEmpty()) {
-      tabBar.defaults().minWidth(0f).growX().uniformX().height(34f).pad(0f, 2f, 0f, 2f);
+      tabBar.setBackground(EditorTheme.rounded(EditorTheme.FIELD, null, 5));
+      tabBar.pad(3f);
+      tabBar.defaults().minWidth(0f).growX().uniformX().height(26f);
       rebuildTabs();
       add(tabBar).padBottom(6f).row();
     }
 
-    filter = Scene2dElementFactory.createTextField("", 16);
+    filter = EditorTheme.textField("", 15);
     filter.setMessageText("Filter...");
     Scene2dElementFactory.addTextFieldChangeListener(filter, text -> rebuildList());
     filter.addListener(
@@ -152,21 +155,16 @@ public final class PortPickerPopup extends Table {
             return false;
           }
         });
-    add(filter).height(36f).padBottom(6f).row();
+    add(filter).height(EditorTheme.CONTROL_HEIGHT).padBottom(6f).row();
 
     list.top().left();
     list.defaults().growX().minWidth(0f);
-    ScrollPane scroll = Scene2dElementFactory.createScrollPane(list, false, true);
-    ScrollPane.ScrollPaneStyle scrollStyle = new ScrollPane.ScrollPaneStyle(scroll.getStyle());
-    scrollStyle.background = null;
-    scroll.setStyle(scrollStyle);
-    scroll.setFlickScroll(false);
-    scroll.setFadeScrollBars(false);
+    ScrollPane scroll = EditorTheme.scrollPane(list);
     rebuildList();
     scrollCell = add(scroll).height(listHeight());
     row();
 
-    TextButton cancel = Scene2dElementFactory.createButton("Cancel", "default", FONT_SIZE);
+    TextButton cancel = EditorTheme.button("Cancel", EditorTheme.Variant.DEFAULT);
     cancel.addListener(
         new ChangeListener() {
           @Override
@@ -174,7 +172,7 @@ public final class PortPickerPopup extends Table {
             close();
           }
         });
-    add(cancel).height(30f).padTop(6f).row();
+    add(cancel).height(EditorTheme.CONTROL_HEIGHT).padTop(6f).row();
   }
 
   /**
@@ -248,10 +246,9 @@ public final class PortPickerPopup extends Table {
     tabBar.clearChildren();
     for (Tab shown : tabs) {
       TextButton button =
-          Scene2dElementFactory.createButton(
-              shown.label + " (" + tabOptions(shown).size() + ")",
-              shown == tab ? "blue-outline" : "default",
-              14);
+          EditorTheme.button(
+              shown.label + "  " + tabOptions(shown).size(),
+              shown == tab ? EditorTheme.Variant.ACTIVE : EditorTheme.Variant.GHOST);
       button.addListener(
           new ChangeListener() {
             @Override
@@ -323,7 +320,7 @@ public final class PortPickerPopup extends Table {
   private void rebuildList() {
     list.clearChildren();
     if (tab == Tab.NEW && newHint != null) {
-      Label hint = Scene2dElementFactory.createLabel(newHint, 12, GROUP_COLOR);
+      Label hint = EditorTheme.label(newHint, 12, GROUP_COLOR);
       hint.setWrap(true);
       list.add(hint).pad(0f, 2f, 2f, 2f).row();
     }
@@ -332,14 +329,14 @@ public final class PortPickerPopup extends Table {
       groups.computeIfAbsent(option.group(), ignored -> new ArrayList<>()).add(option);
     }
     if (groups.isEmpty()) {
-      Label empty = Scene2dElementFactory.createLabel(emptyMessage(), FONT_SIZE, GROUP_COLOR);
+      Label empty = EditorTheme.label(emptyMessage(), FONT_SIZE, GROUP_COLOR);
       empty.setWrap(true);
       list.add(empty).pad(4f).row();
       return;
     }
     groups.forEach(
         (group, groupOptions) -> {
-          Label header = Scene2dElementFactory.createLabel(group, FONT_SIZE, GROUP_COLOR);
+          Label header = EditorTheme.boldLabel(group, 13, GROUP_COLOR);
           header.setEllipsis(true);
           list.add(header).padTop(6f).padLeft(2f).row();
           for (Option option : groupOptions) list.add(optionActor(option)).padTop(2f).row();
@@ -365,13 +362,15 @@ public final class PortPickerPopup extends Table {
   private Actor optionActor(Option option) {
     if (!option.enabled()) {
       String text = option.label() + (option.detail() == null ? "" : " - " + option.detail());
-      Label label = Scene2dElementFactory.createLabel(text, FONT_SIZE, DISABLED_COLOR);
+      Label label = EditorTheme.label(text, FONT_SIZE, DISABLED_COLOR);
       label.setWrap(true);
       Table row = new Table();
       row.add(label).growX().minWidth(0f).pad(4f, 10f, 4f, 4f);
       return row;
     }
-    TextButton button = Scene2dElementFactory.createButton(option.label(), "default", FONT_SIZE);
+    TextButton button = EditorTheme.button(option.label(), EditorTheme.Variant.GHOST, FONT_SIZE);
+    button.getStyle().font = EditorTheme.font(FONT_SIZE);
+    button.setStyle(button.getStyle());
     button.getLabel().setAlignment(Align.left);
     button.getLabel().setEllipsis(true);
     button.getLabelCell().growX().minWidth(0f).padLeft(6f);
@@ -384,9 +383,9 @@ public final class PortPickerPopup extends Table {
         });
     Table row = new Table();
     row.defaults().growX().minWidth(0f);
-    row.add(button).height(30f).row();
+    row.add(button).height(26f).row();
     if (option.detail() == null) return row;
-    Label detail = Scene2dElementFactory.createLabel(option.detail(), 12, WARNING_COLOR);
+    Label detail = EditorTheme.label(option.detail(), 12, WARNING_COLOR);
     detail.setWrap(true);
     row.add(detail).padLeft(10f).row();
     return row;

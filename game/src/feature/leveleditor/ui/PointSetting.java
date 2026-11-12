@@ -5,7 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.Point;
-import engine.utils.Scene2dElementFactory;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -83,7 +82,10 @@ public class PointSetting extends EditorSetting {
             true);
 
     ImageButton cursorButton =
-        Scene2dElementFactory.createIconButton("cursors/cursor_alias.png", "default");
+        EditorTheme.iconButton(
+            EditorTheme.icon("target"),
+            EditorTheme.Variant.DEFAULT,
+            "Pick the point in the level: click where it should be");
     cursorButton.addListener(
         new ChangeListener() {
           @Override
@@ -94,12 +96,12 @@ public class PointSetting extends EditorSetting {
 
     row();
     Table coordinates = new Table();
-    coordinates.defaults().height(FONT_SIZE + 40);
+    coordinates.defaults().height(EditorTheme.CONTROL_HEIGHT + 20f);
     coordinates.add(xSetting).colspan(2);
     coordinates.add().width(10f);
     coordinates.add(ySetting).colspan(2);
     coordinates.add().width(10f);
-    coordinates.add(cursorButton);
+    coordinates.add(cursorButton).size(EditorTheme.CONTROL_HEIGHT).bottom();
     add(coordinates).grow();
   }
 

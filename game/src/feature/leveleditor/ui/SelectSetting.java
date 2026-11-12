@@ -1,12 +1,8 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import engine.utils.FontHelper;
-import engine.utils.Scene2dElementFactory;
-import feature.hud.dialogs.DialogDesign;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -41,10 +37,7 @@ public class SelectSetting<T> extends EditorSetting {
       boolean labelNewLine) {
     super(label);
     this.getter = getter;
-    selectBox = Scene2dElementFactory.createSelectBox(formatter);
-    BitmapFont font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
-    selectBox.getStyle().font = font;
-    selectBox.getList().getStyle().font = font;
+    selectBox = EditorTheme.selectBox(formatter);
     selectBox.setItems(values);
     selectBox.setSelected(getter.get());
     selectBox.addListener(
@@ -57,9 +50,9 @@ public class SelectSetting<T> extends EditorSetting {
 
     if (labelNewLine) {
       row();
-      add(selectBox).growX().left();
+      add(selectBox).growX().left().height(EditorTheme.CONTROL_HEIGHT).padTop(3f);
     } else {
-      add(selectBox).width(200f).right();
+      add(selectBox).width(170f).right().height(EditorTheme.CONTROL_HEIGHT);
     }
   }
 

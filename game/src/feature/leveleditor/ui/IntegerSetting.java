@@ -5,9 +5,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
-import engine.utils.FontHelper;
-import engine.utils.Scene2dElementFactory;
-import feature.hud.dialogs.DialogDesign;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
@@ -18,8 +15,8 @@ import java.util.function.IntSupplier;
  */
 public class IntegerSetting extends EditorSetting {
 
-  private static final int FONT_SIZE = 16;
-  private static final float BUTTON_SIZE = 30f;
+  private static final int FONT_SIZE = 15;
+  private static final float BUTTON_SIZE = EditorTheme.CONTROL_HEIGHT;
 
   private final TextField valueField;
   private final IntSupplier getter;
@@ -42,7 +39,7 @@ public class IntegerSetting extends EditorSetting {
     this.setter = setter;
     this.min = min;
     this.max = max;
-    TextButton minus = Scene2dElementFactory.createButton("-", "default", FONT_SIZE + 4);
+    TextButton minus = EditorTheme.button("-", EditorTheme.Variant.DEFAULT, FONT_SIZE + 2);
     minus.addListener(
         new ChangeListener() {
           @Override
@@ -51,18 +48,7 @@ public class IntegerSetting extends EditorSetting {
           }
         });
 
-    valueField = Scene2dElementFactory.createTextField(String.valueOf(getter.getAsInt()));
-    TextField.TextFieldStyle style = new TextField.TextFieldStyle(valueField.getStyle());
-    style.font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
-    style.messageFont = style.font;
-    style.background.setLeftWidth(10);
-    if (style.focusedBackground != null) {
-      style.focusedBackground.setLeftWidth(10);
-    }
-    if (style.disabledBackground != null) {
-      style.disabledBackground.setLeftWidth(10);
-    }
-    valueField.setStyle(style);
+    valueField = EditorTheme.textField(String.valueOf(getter.getAsInt()), FONT_SIZE);
     valueField.setTextFieldListener(
         (field, character) -> {
           if (character == '\r' || character == '\n') commitText();
@@ -76,7 +62,7 @@ public class IntegerSetting extends EditorSetting {
           }
         });
 
-    TextButton plus = Scene2dElementFactory.createButton("+", "default", FONT_SIZE + 4);
+    TextButton plus = EditorTheme.button("+", EditorTheme.Variant.DEFAULT, FONT_SIZE + 2);
     plus.addListener(
         new ChangeListener() {
           @Override
@@ -85,8 +71,8 @@ public class IntegerSetting extends EditorSetting {
           }
         });
 
-    add(minus).size(BUTTON_SIZE).padRight(4f);
-    add(valueField).width(80f).height(40f).padRight(4f);
+    add(minus).size(BUTTON_SIZE).padRight(3f);
+    add(valueField).width(70f).height(BUTTON_SIZE).padRight(3f);
     add(plus).size(BUTTON_SIZE);
   }
 

@@ -3,7 +3,6 @@ package feature.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import engine.Entity;
 import engine.Game;
@@ -74,8 +73,7 @@ public class LevelEditorSystem extends System {
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
-  private static float feedbackMessageTimer = 0.0f;
-  private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
+  private static long feedbackMessageTime = 0L;
 
   private static final float FREE_CAMERA_SPEED = 20f;
   private static final float FREE_CAMERA_SHIFT_SPEED_MULTIPLIER = 2f;
@@ -361,27 +359,6 @@ public class LevelEditorSystem extends System {
   public void render(float delta) {
     if (!active) return;
 
-    DebugDrawSystem.drawText(
-        FONT,
-        "( "
-            + GameInput.label(EditorActions.DEBUG_SHADER)
-            + " to toggle layer debug shader ["
-            + DrawSystem.shadersActiveLastFrame()
-            + "] )",
-        new Point(10.0f, Game.windowHeight() - 10.0f));
-
-    // Draw feedback message if timer > 0
-    if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
-      GlyphLayout layout = new GlyphLayout(FONT, feedbackMessage);
-      float x = 10;
-      float y = 10 + layout.height;
-      DebugDrawSystem.drawText(FONT, feedbackMessage, new Point(x, y), feedbackMessageColor);
-      feedbackMessageTimer -= Gdx.graphics.getDeltaTime();
-      if (feedbackMessageTimer <= 0.0f) {
-        feedbackMessage = "";
-      }
-    }
-
     // Draw level boundaries in green with alpha 0.3f
     Tile[][] layout = Game.currentLevel().orElseThrow().layout();
     DebugDrawSystem.drawRectangleOutline(
@@ -422,6 +399,7 @@ public class LevelEditorSystem extends System {
     if (cursorCaptured) {
       currentModeInstance.onCursorLeaveWorld();
     }
+    if (!internalStopped) currentModeInstance.executeShortcuts();
     updateFreeCamera(editorCamera, !cursorCaptured);
 
     Mode previousMode = currentMode;
@@ -439,12 +417,18 @@ public class LevelEditorSystem extends System {
   private static void updateFreeCamera(Entity editorCamera, boolean allowZoom) {
     PositionComponent positionComponent = editorCamera.fetch(PositionComponent.class).orElseThrow();
 
+    // Ctrl combinations, e.g. Ctrl+D to duplicate, do not move the camera.
+    boolean control = GameInput.ctrl();
     int horizontal =
-        (GameInput.pressed(EditorActions.CAMERA_RIGHT) ? 1 : 0)
-            - (GameInput.pressed(EditorActions.CAMERA_LEFT) ? 1 : 0);
+        control
+            ? 0
+            : (GameInput.pressed(EditorActions.CAMERA_RIGHT) ? 1 : 0)
+                - (GameInput.pressed(EditorActions.CAMERA_LEFT) ? 1 : 0);
     int vertical =
-        (GameInput.pressed(EditorActions.CAMERA_UP) ? 1 : 0)
-            - (GameInput.pressed(EditorActions.CAMERA_DOWN) ? 1 : 0);
+        control
+            ? 0
+            : (GameInput.pressed(EditorActions.CAMERA_UP) ? 1 : 0)
+                - (GameInput.pressed(EditorActions.CAMERA_DOWN) ? 1 : 0);
     engine.utils.Vector2 direction = engine.utils.Vector2.of(horizontal, vertical);
     if (!direction.isZero()) {
       float speedMultiplier =
@@ -533,7 +517,7 @@ public class LevelEditorSystem extends System {
   public static void showFeedback(String message, Color color) {
     feedbackMessage = message;
     feedbackMessageColor = color;
-    feedbackMessageTimer = FEEDBACK_MESSAGE_DURATION;
+    feedbackMessageTime = java.lang.System.nanoTime();
     if (color == Color.RED) {
       LOGGER.error(message);
     } else if (color == Color.YELLOW) {
@@ -541,6 +525,52 @@ public class LevelEditorSystem extends System {
     } else {
       LOGGER.info(message);
     }
+  }
+
+  /**
+   * Returns the last message of {@link #showFeedback}.
+   *
+   * @return the message, empty if there was none
+   */
+  public static String feedbackMessage() {
+    return feedbackMessage;
+  }
+
+  /**
+   * Returns the color of the last message of {@link #showFeedback}.
+   *
+   * @return the color
+   */
+  public static Color feedbackColor() {
+    return feedbackMessageColor;
+  }
+
+  /**
+   * Returns how long ago the last message of {@link #showFeedback} was shown.
+   *
+   * @return age in seconds
+   */
+  public static float feedbackAge() {
+    return (java.lang.System.nanoTime() - feedbackMessageTime) / 1e9f;
+  }
+
+  /**
+   * Returns the instance of the active editor mode.
+   *
+   * @return the active mode
+   */
+  public static LevelEditorMode currentModeInstance() {
+    return currentModeInstance;
+  }
+
+  /**
+   * Returns how many shaders were active in the last frame, shown while the layer debug shader is
+   * toggled.
+   *
+   * @return number of active shaders
+   */
+  public static int shadersActiveLastFrame() {
+    return DrawSystem.shadersActiveLastFrame();
   }
 
   @Override

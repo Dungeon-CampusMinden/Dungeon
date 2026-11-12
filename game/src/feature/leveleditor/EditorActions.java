@@ -63,6 +63,22 @@ public final class EditorActions {
   /** Alternative action at the cursor. */
   public static final ActionId ALT = editor("alt", mouse(Buttons.RIGHT));
 
+  /** Cancels what is in progress, or else clears the selection. */
+  public static final ActionId CANCEL = editor("cancel", key(Keys.ESCAPE));
+
+  /** Moves the camera to the selection. */
+  public static final ActionId FRAME_SELECTION = editor("frame_selection", key(Keys.F));
+
+  /** Focuses the search field. */
+  public static final ActionId SEARCH = editor("search", key(Keys.CONTROL_LEFT, Keys.F));
+
+  /** Duplicates the selection. */
+  public static final ActionId DUPLICATE = editor("duplicate", key(Keys.CONTROL_LEFT, Keys.D));
+
+  /** Shows the names of all prefabs while held. */
+  public static final ActionId SHOW_NAMES =
+      editor("show_names", key(Keys.ALT_LEFT), key(Keys.ALT_RIGHT));
+
   /** Editor modes 1 to 6, in order. */
   public static final ActionId[] MODES = {
     editor("mode_1", key(Keys.NUM_1)),
@@ -101,6 +117,11 @@ public final class EditorActions {
               PICK,
               PLACE,
               ALT,
+              CANCEL,
+              FRAME_SELECTION,
+              SEARCH,
+              DUPLICATE,
+              SHOW_NAMES,
               MODES[0],
               MODES[1],
               MODES[2],

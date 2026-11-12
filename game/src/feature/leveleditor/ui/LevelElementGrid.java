@@ -1,7 +1,6 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -10,18 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import engine.level.utils.LevelElement;
 import engine.rendering.TileTextures;
-import engine.utils.FontHelper;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
-import feature.hud.UIUtils;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
@@ -74,10 +69,7 @@ public class LevelElementGrid extends Table {
     defaults().pad(3f).size(BUTTON_SIZE);
 
     Label.LabelStyle markerStyle =
-        new Label.LabelStyle(
-            FontHelper.getFont(
-                Scene2dElementFactory.FONT_PATH_BOLD, MARKER_FONT_SIZE, Color.BLACK, 0),
-            Color.BLACK.cpy());
+        new Label.LabelStyle(EditorTheme.boldFont(MARKER_FONT_SIZE), EditorTheme.TEXT.cpy());
 
     LevelElement[] elements = LevelElement.values();
     for (int i = 0; i < elements.length; i++) {
@@ -163,24 +155,30 @@ public class LevelElementGrid extends Table {
   }
 
   private static void applyBackground(ImageButton button, String styleName) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
     ImageButton.ImageButtonStyle style = button.getStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
+    background(style, styleName);
     button.setStyle(style);
   }
 
   private static ImageButton.ImageButtonStyle style(String styleName, String texturePath) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
+    background(style, styleName);
     style.imageUp = texture(texturePath);
     return style;
+  }
+
+  // The primary element has the selection color, the secondary one the accent color.
+  private static void background(ImageButton.ImageButtonStyle style, String styleName) {
+    com.badlogic.gdx.graphics.Color border =
+        switch (styleName) {
+          case STYLE_PRIMARY -> EditorTheme.SELECTION;
+          case STYLE_SECONDARY -> EditorTheme.ACCENT;
+          default -> null;
+        };
+    style.up = EditorTheme.rounded(EditorTheme.FIELD, border, 5);
+    style.over =
+        EditorTheme.rounded(EditorTheme.BUTTON, border == null ? EditorTheme.LINE : border, 5);
+    style.down = EditorTheme.rounded(EditorTheme.BUTTON_DOWN, border, 5);
   }
 
   // Wall autotile atlases show their straight horizontal wall piece.

@@ -2,15 +2,15 @@ package feature.leveleditor;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
-import engine.utils.Scene2dElementFactory;
-import feature.leveleditor.ui.ModeDetailsPanel;
+import feature.leveleditor.ui.EditorTheme;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactSlot;
 import feature.prefabs.Prefab;
@@ -33,20 +33,25 @@ import java.util.Optional;
 final class PrefabConnectionsTab {
 
   /** Color of event and action links. */
-  static final Color SIGNAL_COLOR = new Color(1f, 0.55f, 0.1f, 1f);
+  static final Color SIGNAL_COLOR = new Color(1f, 0.6f, 0.2f, 1f);
 
   /** Color of artifact links. */
-  static final Color ARTIFACT_COLOR = new Color(0.25f, 0.65f, 1f, 1f);
+  static final Color ARTIFACT_COLOR = new Color(0.4f, 0.72f, 1f, 1f);
 
-  static final Color ERROR_COLOR = new Color(0.85f, 0.12f, 0.1f, 1f);
-  static final Color WARNING_COLOR = new Color(0.8f, 0.45f, 0f, 1f);
-  static final Color MUTED_COLOR = ModeDetailsPanel.TEXT_COLOR.cpy().mul(1f, 1f, 1f, .6f);
+  static final Color ERROR_COLOR = EditorTheme.ERROR;
+  static final Color WARNING_COLOR = EditorTheme.WARNING;
+  static final Color MUTED_COLOR = EditorTheme.TEXT_MUTED;
 
-  private static final int PORT_FONT_SIZE = 16;
+  private static final Color SUCCESS = EditorTheme.SUCCESS;
+  private static final int PORT_FONT_SIZE = 15;
   private static final int TEXT_FONT_SIZE = 14;
   private static final int HINT_FONT_SIZE = 12;
-  private static final int BUTTON_FONT_SIZE = 13;
-  private static final float BUTTON_HEIGHT = 26f;
+  private static final float ROW_HEIGHT = 28f;
+  private static final float BUTTON_SIZE = 26f;
+
+  // Whether the lifecycle actions are listed when none of them is linked. Remembered between
+  // selections.
+  private static boolean showLifecycle;
 
   /**
    * One end of a link that is being created: a port of the selected instance.
@@ -120,6 +125,9 @@ final class PrefabConnectionsTab {
      * @return true if actions can be run
      */
     boolean canTest();
+
+    /** Rebuilds the tab, e.g. after a section was expanded. */
+    void refresh();
   }
 
   private final Host host;
@@ -153,12 +161,6 @@ final class PrefabConnectionsTab {
     section(
         content,
         instance,
-        actions.stream().filter(port -> ((PrefabAction) port).isLifecycle()).toList(),
-        problems,
-        "Lifecycle Actions");
-    section(
-        content,
-        instance,
         prefab.ports(instance, PrefabPort.Kind.ARTIFACT_OUTPUT),
         problems,
         "Artifact Outputs");
@@ -168,6 +170,34 @@ final class PrefabConnectionsTab {
         prefab.ports(instance, PrefabPort.Kind.ARTIFACT_SLOT),
         problems,
         "Artifact Inputs");
+    List<PrefabPort> lifecycle =
+        actions.stream().filter(port -> ((PrefabAction) port).isLifecycle()).toList();
+    boolean lifecycleLinked = lifecycle.stream().anyMatch(port -> !instance.links(port).isEmpty());
+    if (!lifecycle.isEmpty()) {
+      boolean open = showLifecycle || lifecycleLinked;
+      Table header = new Table();
+      Image chevron =
+          new Image(
+              EditorTheme.icon(open ? "chevron-down" : "chevron-right", EditorTheme.TEXT_MUTED));
+      header.add(chevron).size(9f).padRight(6f);
+      header.add(EditorTheme.caption("Lifecycle Actions")).left().growX();
+      header.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
+      header.addListener(
+          new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
+            @Override
+            public void clicked(
+                com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+              showLifecycle = !open;
+              host.refresh();
+            }
+          });
+      EditorTheme.tooltip(header, "Activate, deactivate or reset this prefab from other prefabs.");
+      content.add(header).growX().padTop(16f).padLeft(2f).row();
+      if (open) {
+        for (PrefabPort port : lifecycle)
+          content.add(portBlock(instance, port, problems)).padTop(2f).row();
+      }
+    }
   }
 
   /**
@@ -190,14 +220,8 @@ final class PrefabConnectionsTab {
       List<PrefabWiring.Problem> problems,
       String title) {
     if (ports.isEmpty()) return;
-    content.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(12f).row();
-    content
-        .add(Scene2dElementFactory.createLabel(title, 18, ModeDetailsPanel.TEXT_COLOR))
-        .left()
-        .padTop(4f)
-        .padLeft(4f)
-        .row();
-    for (PrefabPort port : ports) content.add(portBlock(instance, port, problems)).padTop(6f).row();
+    content.add(EditorTheme.caption(title)).left().padTop(16f).padLeft(2f).padBottom(2f).row();
+    for (PrefabPort port : ports) content.add(portBlock(instance, port, problems)).padTop(2f).row();
   }
 
   private Table portBlock(
@@ -205,29 +229,62 @@ final class PrefabConnectionsTab {
     Table block = new Table();
     block.defaults().growX().minWidth(0f);
 
-    Table header = new Table();
-    Label name =
-        Scene2dElementFactory.createLabel(
-            portTitle(instance, port), PORT_FONT_SIZE, ModeDetailsPanel.TEXT_COLOR);
-    name.setEllipsis(true);
-    header.add(name).growX().minWidth(0f).left().padLeft(4f);
     List<PrefabWiring.Connection> outgoing =
         port.kind().isInput()
             ? List.of()
             : PrefabWiring.outgoing(host.instances(), instance.name(), port.key());
     boolean linked = port.kind().isInput() ? !instance.links(port).isEmpty() : !outgoing.isEmpty();
+
+    Table header = new Table();
+    Label name =
+        EditorTheme.label(
+            portTitle(instance, port),
+            PORT_FONT_SIZE,
+            linked ? EditorTheme.TEXT : EditorTheme.TEXT_MUTED);
+    name.setEllipsis(true);
+    header.add(name).growX().minWidth(0f).left().padLeft(2f);
     // Send and Run are only offered for ports that are part of a connection.
     if (port.kind().isSignal() && linked) {
-      TextButton test =
-          button(
-              port.kind() == PrefabPort.Kind.EVENT ? "Send" : "Run",
+      ImageButton test =
+          iconButton(
+              "play",
+              SUCCESS,
+              port.kind() == PrefabPort.Kind.EVENT
+                  ? "Send: raise this event in the running game"
+                  : "Run: run this action in the running game",
               () -> host.test(instance.name(), port));
       test.setDisabled(!host.canTest());
-      header.add(test).width(54f).height(BUTTON_HEIGHT);
+      header.add(test).size(BUTTON_SIZE);
     }
-    block.add(header).row();
+    boolean replaces =
+        port instanceof ArtifactSlot<?> slot && !slot.multiple() && !instance.links(port).isEmpty();
+    LinkEnd end = new LinkEnd(instance.name(), port);
+    ImageButton connect =
+        iconButton(
+            "plus",
+            EditorTheme.TEXT,
+            replaces ? "Replace the link..." : "Link to a prefab of the list...",
+            null);
+    connect.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            host.connect(end, connect);
+          }
+        });
+    header.add(connect).size(BUTTON_SIZE);
+    header
+        .add(
+            iconButton(
+                "target",
+                EditorTheme.TEXT,
+                "Pick in the level: click the prefab to link",
+                () -> host.pickInWorld(end)))
+        .size(BUTTON_SIZE);
+    block.add(header).height(ROW_HEIGHT).row();
     portNote(instance, port)
-        .ifPresent(note -> block.add(wrapped(note, HINT_FONT_SIZE, MUTED_COLOR)).row());
+        .ifPresent(
+            note -> block.add(wrapped(note, HINT_FONT_SIZE, MUTED_COLOR)).padLeft(14f).row());
 
     Color linkColor = port.kind().isSignal() ? SIGNAL_COLOR : ARTIFACT_COLOR;
     if (port.kind().isInput()) {
@@ -238,17 +295,22 @@ final class PrefabConnectionsTab {
         block
             .add(
                 linkRow(
-                    "<- " + link.source() + " > " + output,
+                    "from",
+                    link.source() + "  >  " + output,
                     problem.isPresent() ? severityColor(problem.get()) : linkColor,
                     link.source(),
                     () -> host.removeLink(instance.name(), port.key(), link),
                     port instanceof ArtifactSlot<?> slot && slot.multiple()
                         ? aliasField(instance.name(), port.key(), link)
                         : null))
-            .padTop(2f)
+            .padTop(1f)
             .row();
         problem.ifPresent(
-            p -> block.add(wrapped(p.message(), HINT_FONT_SIZE, severityColor(p))).row());
+            p ->
+                block
+                    .add(wrapped(p.message(), HINT_FONT_SIZE, severityColor(p)))
+                    .padLeft(14f)
+                    .row());
       }
     } else {
       for (PrefabWiring.Connection connection : outgoing) {
@@ -261,7 +323,8 @@ final class PrefabConnectionsTab {
         block
             .add(
                 linkRow(
-                    "-> " + connection.receiver().name() + " > " + connection.input().displayName(),
+                    "to",
+                    connection.receiver().name() + "  >  " + connection.input().displayName(),
                     problem.isPresent() ? severityColor(problem.get()) : linkColor,
                     connection.receiver().name(),
                     () ->
@@ -270,49 +333,46 @@ final class PrefabConnectionsTab {
                             connection.input().key(),
                             connection.link()),
                     null))
-            .padTop(2f)
+            .padTop(1f)
             .row();
         problem.ifPresent(
-            p -> block.add(wrapped(p.message(), HINT_FONT_SIZE, severityColor(p))).row());
+            p ->
+                block
+                    .add(wrapped(p.message(), HINT_FONT_SIZE, severityColor(p)))
+                    .padLeft(14f)
+                    .row());
       }
     }
-
-    Table actions = new Table();
-    actions.defaults().growX().uniformX().height(BUTTON_HEIGHT).pad(0f, 1f, 0f, 1f);
-    boolean replaces =
-        port instanceof ArtifactSlot<?> slot && !slot.multiple() && !instance.links(port).isEmpty();
-    LinkEnd end = new LinkEnd(instance.name(), port);
-    TextButton connect =
-        Scene2dElementFactory.createButton(
-            replaces ? "Replace..." : "+ Link...", "default", BUTTON_FONT_SIZE);
-    connect.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            host.connect(end, connect);
-          }
-        });
-    actions.add(connect);
-    actions.add(button("Pick in World", () -> host.pickInWorld(end)));
-    block.add(actions).padTop(3f).row();
     return block;
   }
 
   private Table linkRow(
-      String text, Color color, String other, Runnable remove, TextField aliasField) {
+      String direction,
+      String text,
+      Color color,
+      String other,
+      Runnable remove,
+      TextField aliasField) {
     Table row = new Table();
-    if (aliasField != null) row.add(aliasField).width(86f).height(BUTTON_HEIGHT).padRight(4f);
-    Label label = Scene2dElementFactory.createLabel(text, TEXT_FONT_SIZE, color);
+    row.setBackground(
+        EditorTheme.padded(EditorTheme.rounded(EditorTheme.alpha(color, 0.10f), null, 4), 6f, 1f));
+    Image arrow = new Image(EditorTheme.icon(direction.equals("to") ? "go" : "link", color));
+    arrow.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+    row.add(arrow).size(12f).padLeft(2f).padRight(6f);
+    if (aliasField != null) row.add(aliasField).width(80f).height(22f).padRight(6f);
+    Label label = EditorTheme.label(text, TEXT_FONT_SIZE, color);
     label.setEllipsis(true);
-    row.add(label).growX().minWidth(0f).left().padLeft(aliasField == null ? 10f : 0f);
-    row.add(button("Go", () -> host.focus(other))).width(36f).height(BUTTON_HEIGHT);
-    TextButton removeButton = button("X", remove, "red-outline");
-    row.add(removeButton).width(30f).height(BUTTON_HEIGHT).padLeft(2f);
-    return row;
+    row.add(label).growX().minWidth(0f).left();
+    row.add(iconButton("go", EditorTheme.TEXT_MUTED, "Select " + other, () -> host.focus(other)))
+        .size(22f);
+    row.add(iconButton("close", EditorTheme.ERROR, "Remove this link", remove)).size(22f);
+    Table indented = new Table();
+    indented.add(row).growX().minWidth(0f).height(26f).padLeft(12f);
+    return indented;
   }
 
   private TextField aliasField(String receiver, String port, PrefabLink link) {
-    TextField field = Scene2dElementFactory.createTextField(link.alias(), 14);
+    TextField field = EditorTheme.textField(link.alias(), 13);
     field.setMessageText("alias");
     field.setTextFieldFilter(
         (textField, character) ->
@@ -336,15 +396,16 @@ final class PrefabConnectionsTab {
             if (!focused) commit.run();
           }
         });
+    EditorTheme.tooltip(field, "Alias of this value, used as {alias} in texts.");
     return field;
   }
 
   private static String portTitle(PrefabInstance instance, PrefabPort port) {
     String name = PrefabRegistry.require(instance.type()).portDisplayName(instance, port);
     return switch (port) {
-      case ArtifactOutput<?> output -> name + " (" + output.type().displayName() + ")";
+      case ArtifactOutput<?> output -> name + "  (" + output.type().displayName() + ")";
       case ArtifactSlot<?> slot ->
-          name + " (" + slot.type().displayName() + (slot.multiple() ? ", any number" : "") + ")";
+          name + "  (" + slot.type().displayName() + (slot.multiple() ? ", any number" : "") + ")";
       default -> name;
     };
   }
@@ -400,25 +461,25 @@ final class PrefabConnectionsTab {
   }
 
   private static Label wrapped(String text, int fontSize, Color color) {
-    Label label = Scene2dElementFactory.createLabel(text, fontSize, color);
+    Label label = EditorTheme.label(text, fontSize, color);
     label.setWrap(true);
     label.setAlignment(Align.left);
     return label;
   }
 
-  private static TextButton button(String text, Runnable action) {
-    return button(text, action, "default");
-  }
-
-  private static TextButton button(String text, Runnable action, String style) {
-    TextButton button = Scene2dElementFactory.createButton(text, style, BUTTON_FONT_SIZE);
-    button.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            action.run();
-          }
-        });
+  private static ImageButton iconButton(String icon, Color color, String tooltip, Runnable action) {
+    ImageButton button =
+        EditorTheme.iconButton(EditorTheme.icon(icon, color), EditorTheme.Variant.GHOST, tooltip);
+    button.getImageCell().size(13f);
+    if (action != null) {
+      button.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              action.run();
+            }
+          });
+    }
     return button;
   }
 }

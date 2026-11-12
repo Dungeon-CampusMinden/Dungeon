@@ -6,8 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Timer;
-import feature.hud.UIUtils;
-import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.RichLabel;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -96,11 +94,9 @@ public final class NumberSliderSetting extends EditorSetting {
     this.max = max;
     this.step = step;
 
-    slider = new Slider(0f, 1f, SLIDER_STEP, false, UIUtils.defaultSkin());
+    slider = new Slider(0f, 1f, SLIDER_STEP, false, EditorTheme.sliderStyle());
     slider.setDisabled(min == max);
-    valueLabel =
-        new RichLabel(
-            format(checked(getter.get())), DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(16));
+    valueLabel = new RichLabel(format(checked(getter.get())), 14, EditorTheme.TEXT, false);
     lastCommittedValue = checked(getter.get());
     valueLabel.setAlignment(Align.right);
     valueLabel.setWrap(false);

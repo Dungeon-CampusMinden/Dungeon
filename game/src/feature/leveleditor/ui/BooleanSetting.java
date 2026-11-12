@@ -4,7 +4,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import feature.hud.UIUtils;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -24,7 +23,7 @@ public class BooleanSetting extends EditorSetting {
   public BooleanSetting(String label, BooleanSupplier getter, Consumer<Boolean> setter) {
     super(label);
     this.getter = getter;
-    checkBox = new CheckBox("", UIUtils.defaultSkin());
+    checkBox = EditorTheme.checkBox();
     checkBox.setChecked(getter.getAsBoolean());
     checkBox.addListener(
         new ChangeListener() {

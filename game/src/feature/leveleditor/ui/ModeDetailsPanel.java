@@ -2,16 +2,13 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
-import engine.input.ActionId;
-import engine.utils.Scene2dElementFactory;
-import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
 import feature.leveleditor.LevelEditorMode;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LevelEditorSystem.Mode;
-import java.util.Map;
 
 /**
  * Panel at the left side of the screen, holding the controls and displays of the currently selected
@@ -22,26 +19,28 @@ import java.util.Map;
  * <ol>
  *   <li>a header showing {@link LevelEditorMode#getHeader()}
  *   <li>the mode specific content built by {@link LevelEditorMode#buildDetailsUI(Table)}
- *   <li>a separator and the controls of the mode as a key/description grid, if it specifies any
  *   <li>a separator and {@link LevelEditorMode#additionalInformation()}, if it is not blank
  * </ol>
+ *
+ * <p>The controls of the mode are shown in the {@link StatusBar}.
  */
 public class ModeDetailsPanel extends Table {
 
   /** Font color used for all text rendered directly on the panel background. */
-  public static final Color TEXT_COLOR = Color.BLACK.cpy();
+  public static final Color TEXT_COLOR = EditorTheme.TEXT.cpy();
 
-  private static final int HEADER_FONT_SIZE = 24;
-  private static final int TEXT_FONT_SIZE = 16;
+  private static final int HEADER_FONT_SIZE = 17;
+  private static final int TEXT_FONT_SIZE = 14;
 
   private final Table modeContent = new Table();
-  private final Table controlsContent = new Table();
-  private final RichLabel header = new RichLabel("", HEADER_FONT_SIZE, TEXT_COLOR, false);
-  private final RichLabel informationLabel = new RichLabel("", TEXT_FONT_SIZE, TEXT_COLOR, false);
+  private final Label header = EditorTheme.boldLabel("", HEADER_FONT_SIZE, EditorTheme.TEXT);
+  private final RichLabel informationLabel =
+      new RichLabel("", TEXT_FONT_SIZE, EditorTheme.TEXT_MUTED, false);
 
   private LevelEditorMode mode = null;
   private String informationText = null;
   private final boolean secondary;
+  private static final float PADDING = 12f;
 
   /** Creates an empty details panel. */
   public ModeDetailsPanel() {
@@ -56,10 +55,10 @@ public class ModeDetailsPanel extends Table {
   public ModeDetailsPanel(boolean secondary) {
     this.secondary = secondary;
     setTouchable(Touchable.enabled);
-    setBackground(UIUtils.defaultSkin().getDrawable("generic-area"));
-    pad(12f);
+    setBackground(EditorTheme.panel());
+    pad(PADDING);
     top();
-    header.setAlignment(Align.center);
+    header.setAlignment(Align.left);
     informationLabel.setWrap(true);
   }
 
@@ -73,6 +72,16 @@ public class ModeDetailsPanel extends Table {
   }
 
   /**
+   * Returns whether the panel takes all the height there is, see {@link
+   * LevelEditorMode#fillsDetailsHeight()}.
+   *
+   * @return true to fill the available height
+   */
+  public boolean fillsHeight() {
+    return mode != null && !secondary && mode.fillsDetailsHeight();
+  }
+
+  /**
    * Sets the mode this panel displays and rebuilds the whole panel.
    *
    * @param mode the mode to display, can be {@code null} to clear the panel.
@@ -80,7 +89,6 @@ public class ModeDetailsPanel extends Table {
   public void mode(LevelEditorMode mode) {
     this.mode = mode;
     buildModeContent();
-    buildControlsContent();
     rebuild();
   }
 
@@ -93,33 +101,10 @@ public class ModeDetailsPanel extends Table {
     }
   }
 
-  /** Clears and rebuilds the controls grid of this panel. */
-  private void buildControlsContent() {
-    controlsContent.clearChildren();
-    if (secondary) return;
-    if (mode == null) return;
-    Map<ActionId, String> modeControls = mode.controls();
-    if (modeControls.isEmpty()) return;
-
-    controlsContent.add(text("Controls:")).colspan(2).left().padBottom(4f).row();
-    modeControls.forEach(
-        (id, action) -> {
-          controlsContent
-              .add(text("[action id=" + id + " all]"))
-              .left()
-              .padRight(10f)
-              .padBottom(2f);
-          RichLabel actionLabel = text(action);
-          actionLabel.setWrap(true);
-          actionLabel.setMaxPrefWidth(getWidth() - getPadLeft() - getPadRight() - 30f);
-          controlsContent.add(actionLabel).left().growX().padBottom(2f).row();
-        });
-  }
-
   /** Rebuilds the section layout of this panel from the current mode. */
   public void rebuild() {
     clearChildren();
-    pad(12f);
+    pad(PADDING);
     informationText = null;
     if (mode == null) return;
 
@@ -134,11 +119,10 @@ public class ModeDetailsPanel extends Table {
       add(header).growX().padBottom(10f).row();
     }
 
-    add(modeContent).growX().fillX().minWidth(0f).row();
-
-    if (controlsContent.hasChildren()) {
-      addSeparator();
-      add(controlsContent).growX().row();
+    if (mode.fillsDetailsHeight()) {
+      add(modeContent).grow().minWidth(0f).minHeight(0f).row();
+    } else {
+      add(modeContent).growX().fillX().minWidth(0f).row();
     }
 
     String information = mode.additionalInformation();
@@ -150,7 +134,7 @@ public class ModeDetailsPanel extends Table {
     }
 
     // Pushes all content to the top of the panel
-    add().grow().row();
+    if (!mode.fillsDetailsHeight()) add().grow().row();
   }
 
   @Override
@@ -167,7 +151,6 @@ public class ModeDetailsPanel extends Table {
     super.sizeChanged();
     float available = getWidth() - getPadLeft() - getPadRight();
     if (available <= 0) return;
-    header.setMaxPrefWidth(available);
     informationLabel.setMaxPrefWidth(available);
   }
 
@@ -190,10 +173,6 @@ public class ModeDetailsPanel extends Table {
   }
 
   private void addSeparator() {
-    add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(8f).padBottom(8f).row();
-  }
-
-  private static RichLabel text(String content) {
-    return new RichLabel(RichLabel.toRichText(content), TEXT_FONT_SIZE, TEXT_COLOR, false);
+    add(EditorTheme.divider()).growX().height(1f).padTop(10f).padBottom(8f).row();
   }
 }

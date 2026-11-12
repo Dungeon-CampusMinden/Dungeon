@@ -5,9 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.dialogs.DialogDesign;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,7 +13,7 @@ import java.util.function.Supplier;
 /** A labeled text field for a bounded, finite floating-point setting. */
 public class FloatSetting extends EditorSetting {
 
-  public static final int FONT_SIZE = 16;
+  public static final int FONT_SIZE = 15;
   private static final float HORIZONTAL_PADDING = 10f;
 
   private final Supplier<Float> getter;
@@ -67,18 +65,7 @@ public class FloatSetting extends EditorSetting {
     this.max = max;
 
     float initial = checked(getter.get());
-    textField = Scene2dElementFactory.createTextField(format(initial));
-    TextField.TextFieldStyle style = new TextField.TextFieldStyle(textField.getStyle());
-    style.font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
-    style.messageFont = style.font;
-    style.background.setLeftWidth(10);
-    if (style.focusedBackground != null) {
-      style.focusedBackground.setLeftWidth(10);
-    }
-    if (style.disabledBackground != null) {
-      style.disabledBackground.setLeftWidth(10);
-    }
-    textField.setStyle(style);
+    textField = EditorTheme.textField(format(initial), FONT_SIZE);
     if (commitOnFocusLost) {
       textField.setTextFieldListener(
           (field, character) -> {
@@ -97,7 +84,7 @@ public class FloatSetting extends EditorSetting {
     }
 
     row();
-    add(textField).growX().minWidth(0).height(40f).padTop(4f);
+    add(textField).growX().minWidth(0).height(EditorTheme.CONTROL_HEIGHT).padTop(3f);
   }
 
   /**

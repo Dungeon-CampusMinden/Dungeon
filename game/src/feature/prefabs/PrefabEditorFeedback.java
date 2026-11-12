@@ -57,6 +57,17 @@ public interface PrefabEditorFeedback {
   void label(Point position, String text);
 
   /**
+   * Draws a warning about the instance next to a position, e.g. that a door control has no door.
+   * The editor shows warnings even where it hides the names of instances.
+   *
+   * @param position position the warning belongs to, e.g. the instance's marker
+   * @param text warning text
+   */
+  default void warning(Point position, String text) {
+    label(position.translate(0f, -0.45f), "(" + text + ")");
+  }
+
+  /**
    * Draws a region with its two corner points and a label in its center.
    *
    * <p>A region collapsed to a single point is drawn as a single point marker instead, with the

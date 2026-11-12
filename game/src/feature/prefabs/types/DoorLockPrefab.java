@@ -169,7 +169,8 @@ public final class DoorLockPrefab extends Prefab {
     Point offset = DOOR_POSITION.editorFeedbackOffset();
     Point marker = position.translate(offset.x(), offset.y());
     boolean hasDoor = doorAt(level, position).isPresent();
-    feedback.point(marker, hasDoor ? instance.name() : instance.name() + " (missing door)");
+    feedback.point(marker, instance.name());
+    if (!hasDoor) feedback.warning(marker, "missing door");
     if (selected && instance.links(KEY).isEmpty()) {
       feedback.label(marker.translate(0f, -0.45f), "(no key linked)");
     }

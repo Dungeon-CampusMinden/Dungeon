@@ -2,16 +2,13 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import engine.utils.FontHelper;
-import engine.utils.Scene2dElementFactory;
-import feature.hud.dialogs.DialogDesign;
 import java.util.Objects;
 
 /** Base class for settings shown in the level editor. */
 public abstract class EditorSetting extends Table {
 
-  private static final int LABEL_FONT_SIZE = 18;
-  private static final int NESTED_LABEL_FONT_SIZE = 14;
+  private static final int LABEL_FONT_SIZE = 14;
+  private static final int NESTED_LABEL_FONT_SIZE = 13;
 
   private final String label;
   private final boolean isNested;
@@ -37,10 +34,10 @@ public abstract class EditorSetting extends Table {
     this.isNested = isNested;
     defaults().minWidth(0f);
     labelActor =
-        Scene2dElementFactory.createLabel(
+        EditorTheme.label(
             this.label,
             this.isNested ? NESTED_LABEL_FONT_SIZE : LABEL_FONT_SIZE,
-            ModeDetailsPanel.TEXT_COLOR);
+            EditorTheme.TEXT_MUTED);
     labelActor.setWrap(true);
     add(labelActor).growX().left();
   }
@@ -48,8 +45,7 @@ public abstract class EditorSetting extends Table {
   /** Applies the standard smaller label style used by settings nested in a compound setting. */
   protected final void useNestedLabelStyle() {
     Label.LabelStyle style = new Label.LabelStyle(labelActor.getStyle());
-    style.font =
-        FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(NESTED_LABEL_FONT_SIZE));
+    style.font = EditorTheme.font(NESTED_LABEL_FONT_SIZE);
     labelActor.setStyle(style);
   }
 }

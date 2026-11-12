@@ -4,13 +4,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import engine.components.DrawComponent;
 import feature.entities.deco.Deco;
-import feature.hud.UIUtils;
 
 /** An image button showing a decoration preview. */
 public class DecoButton extends ImageButton {
@@ -88,22 +86,23 @@ public class DecoButton extends ImageButton {
   }
 
   private void applyBackground(String styleName) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
     ImageButton.ImageButtonStyle style = getStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
+    background(style, styleName);
     setStyle(style);
   }
 
+  private static void background(ImageButton.ImageButtonStyle style, String styleName) {
+    com.badlogic.gdx.graphics.Color border =
+        STYLE_SELECTED.equals(styleName) ? EditorTheme.SELECTION : null;
+    style.up = EditorTheme.rounded(EditorTheme.FIELD, border, 5);
+    style.over =
+        EditorTheme.rounded(EditorTheme.BUTTON, border == null ? EditorTheme.LINE : border, 5);
+    style.down = EditorTheme.rounded(EditorTheme.BUTTON_DOWN, border, 5);
+  }
+
   private static ImageButton.ImageButtonStyle style(Deco deco, String styleName) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
+    background(style, styleName);
     DrawComponent draw = new DrawComponent(deco.path(), deco.config());
     style.imageUp = new TextureRegionDrawable(new TextureRegion(draw.getSprite()));
     return style;

@@ -160,6 +160,21 @@ public final class PrefabCatalog {
   }
 
   /**
+   * Returns the name of the category a prefab type is listed in.
+   *
+   * @param type prefab type
+   * @return category name, "Other" for prefabs in no category
+   */
+  public static String categoryOf(String type) {
+    for (CategoryDefinition definition : CATEGORIES) {
+      for (String member : definition.types()) {
+        if (member.equals(type)) return definition.name();
+      }
+    }
+    return "Other";
+  }
+
+  /**
    * Returns the palette icon of a prefab, loading its image on first use.
    *
    * @param prefab prefab definition
