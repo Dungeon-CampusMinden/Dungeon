@@ -14,6 +14,7 @@ import feature.canvas.CanvasDefinition;
 import feature.canvas.CanvasDialog;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.interaction.combinationlock.CombinationLockUI;
 import feature.interaction.keypad.KeypadUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
@@ -68,9 +69,11 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.ACHIEVEMENT_POPUP, AchievementPopup::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);
     register(DialogType.DefaultTypes.DIALOG_DIALOG, DialogDialog::build);
+    register(DialogType.DefaultTypes.CONTROLS, DialogDialog::build);
     register(DialogType.DefaultTypes.PUZZLE, PuzzleDialog::build);
     register(DialogType.DefaultTypes.CANVAS, CanvasDialog::build);
     register(DialogType.DefaultTypes.CLIENT_CONNECTION, ClientConnectionDialog::build);
+    register(DialogType.DefaultTypes.COMBINATION_LOCK, CombinationLockUI::build);
     LOGGER.debug("Registered built-in dialog types");
   }
 
@@ -701,7 +704,7 @@ public class DialogFactory {
 
   /**
    * Translates the texts of a dialog context into the current language: the message, the dialog
-   * script, the image, the option labels, and the title.
+   * script, the image, the option labels, the confirm label, and the title.
    *
    * @param context dialog context with texts or translation keys
    * @return the context with translated texts
@@ -712,6 +715,7 @@ public class DialogFactory {
     translated = translateText(DialogContextKeys.DIALOG, translated);
     translated = translateText(DialogContextKeys.IMAGE, translated);
     translated = translateText(DialogContextKeys.OPTIONS, translated);
+    translated = translateText(DialogContextKeys.CONFIRM_LABEL, translated);
     return translateText(DialogContextKeys.TITLE, translated);
   }
 

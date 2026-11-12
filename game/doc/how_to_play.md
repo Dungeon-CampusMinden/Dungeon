@@ -52,7 +52,7 @@ Aber Achtung, wenn du deine Antwort bestätigst, gibt es keinen Weg mehr zurück
 deiner Antworten entscheidet, welche Türen sich öffnen und welchen Weg du durch das Dungeon
 beschreiten kannst.
 
-Mit der Taste "M" kannst du dir dein aktuelles Questlog anzeigen lassen. Mit der Taste "L"
+Mit der Taste "B" kannst du dir dein aktuelles Questlog anzeigen lassen. Mit der Taste "L"
 kannst du dir einen Info-Screen anzeigen lassen. Dort siehst du, welche Aufgaben du bereits
 gelöst hast, wie viele Punkte du verdient hast, wie lange du spielst und wie deine Szenario-ID
 lautet.

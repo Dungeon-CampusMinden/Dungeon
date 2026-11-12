@@ -1,15 +1,12 @@
 package engine.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -25,6 +22,9 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Game;
+import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.UiActions;
 import engine.language.Language;
 import engine.language.Translation;
 import engine.network.ConnectionListener;
@@ -32,6 +32,7 @@ import engine.network.client.CharacterOptionsClient;
 import engine.network.client.ClientConnectionConfig;
 import engine.network.messages.s2c.CharacterOptions;
 import engine.network.messages.s2c.ConnectReject;
+import engine.sound.Sounds;
 import engine.tracking.TrackingRuntime;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
@@ -47,6 +48,7 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.ClientConnectionDialog;
 import feature.hud.dialogs.DialogDesign;
 import feature.hud.elements.RichLabel;
+import feature.leveleditor.EditorActions;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -193,6 +195,22 @@ public class MainMenuScreen extends ScreenAdapter {
   private ConnectReject.Reason admissionRejection;
   private volatile ServerProcess pendingServer;
   private final Object networkStartLock = new Object();
+  private RichLabel titleBanner;
+
+  private final InputContext menuContext =
+      new InputContext(EditorActions.MENU)
+          .onPress(
+              EditorActions.TOGGLE,
+              () -> {
+                if (activeView == View.MAIN) toggleLevelEditorOption();
+              });
+
+  private final InputContext uiContext =
+      new InputContext(UiActions.MENU)
+          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+          .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
+          .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1));
 
   /**
    * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
@@ -218,20 +236,10 @@ public class MainMenuScreen extends ScreenAdapter {
     int width = Game.windowWidth() > 0 ? Game.windowWidth() : PreRunConfiguration.windowWidth();
     int height = Game.windowHeight() > 0 ? Game.windowHeight() : PreRunConfiguration.windowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
-    stage
-        .getRoot()
-        .addListener(
-            new InputListener() {
-              @Override
-              public boolean keyDown(InputEvent event, int keycode) {
-                if (keycode == Input.Keys.F4 && activeView == View.MAIN) {
-                  toggleLevelEditorOption();
-                  return true;
-                }
-                return false;
-              }
-            });
-    Gdx.input.setInputProcessor(stage);
+    GameInput.stage(stage);
+    GameInput.activate(uiContext);
+    GameInput.activate(menuContext);
+    Sounds.playButtonSounds(stage.getRoot());
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);
@@ -363,11 +371,10 @@ public class MainMenuScreen extends ScreenAdapter {
    */
   private Actor buildTitleBanner() {
     String richTitle = RichLabel.toRichText(starter.title());
-    RichLabel title =
-        new RichLabel(richTitle, FontSpec.of(TITLE_FONT, TITLE_SIZE, starterAccent()));
-    title.setWrap(false);
-    title.setAlignment(Align.center);
-    return title;
+    titleBanner = new RichLabel(richTitle, FontSpec.of(TITLE_FONT, TITLE_SIZE, starterAccent()));
+    titleBanner.setWrap(false);
+    titleBanner.setAlignment(Align.center);
+    return titleBanner;
   }
 
   private Color starterAccent() {
@@ -521,6 +528,8 @@ public class MainMenuScreen extends ScreenAdapter {
             (key, setting) ->
                 settingsTable.add(setting.toUIActor()).width(500).pad(0, 10, 20, 10).row());
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(settingsTable, false, true);
+    // Dragging a slider moves the slider only; the wheel and the scroll bar still scroll.
+    scrollPane.setFlickScroll(false);
 
     Table menu = new Table();
     menu.add(title).padBottom(15).align(Align.center).row();
@@ -741,6 +750,10 @@ public class MainMenuScreen extends ScreenAdapter {
     setJoinControlsDisabled(discoveryInProgress || admissionCleanupPending);
     swapContent(joinView);
     stage.setKeyboardFocus(joinNameField);
+  }
+
+  private void moveCharacter(int amount) {
+    if (activeView == View.CHARACTER_SELECT) characterCarousel.move(amount);
   }
 
   private void showCharacterSelectionView() {
@@ -1242,6 +1255,7 @@ public class MainMenuScreen extends ScreenAdapter {
     if (stage == null) {
       return;
     }
+    titleBanner.setText(RichLabel.toRichText(starter.title()));
     mainView = buildMainView();
     settingsView = buildSettingsView();
     achievementsView = buildAchievementsView();
@@ -1478,6 +1492,7 @@ public class MainMenuScreen extends ScreenAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     stage.act(delta);
     stage.draw();
+    GameInput.draw(stage);
     if (activeView == View.CHARACTER_SELECT) {
       characterRefreshElapsed += delta;
       if (characterRefreshElapsed >= CharacterCarousel.AVAILABILITY_REFRESH_SECONDS
@@ -1507,6 +1522,8 @@ public class MainMenuScreen extends ScreenAdapter {
 
   @Override
   public void hide() {
+    GameInput.deactivate(menuContext);
+    GameInput.deactivate(uiContext);
     dispose();
   }
 

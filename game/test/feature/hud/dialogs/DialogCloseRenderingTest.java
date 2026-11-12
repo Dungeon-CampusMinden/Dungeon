@@ -22,6 +22,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import engine.Game;
+import engine.input.ActionId;
+import engine.input.UiActions;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.Sounds;
 import engine.utils.BaseContainerUI;
@@ -31,7 +33,6 @@ import engine.utils.Scene2dElementFactory;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
-import feature.input.configuration.KeyboardConfig;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -137,12 +138,12 @@ class DialogCloseRenderingTest {
     assertFalse(script.isOnLastPage());
     assertEquals(0, confirmations.get());
 
-    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    sendAction(dialog, UiActions.CONFIRM);
     assertTrue(script.isCurrentTypewriterFinished());
-    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    sendAction(dialog, UiActions.CONFIRM);
     assertTrue(script.isOnLastPage());
-    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
-    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    sendAction(dialog, UiActions.CONFIRM);
+    sendAction(dialog, UiActions.CONFIRM);
     assertEquals(1, confirmations.get());
   }
 
@@ -187,14 +188,14 @@ class DialogCloseRenderingTest {
     UIComponent component = component(dialog);
     Group content = (Group) ((BaseContainerUI) dialog).getContent();
     UIUtils.requestCloseDialog(component);
-    sendKey(content, Input.Keys.DOWN);
+    sendAction(dialog, UiActions.NAV_DOWN);
     sendKey(content, Input.Keys.ESCAPE);
     UIUtils.requestCloseDialog(component);
     UIUtils.requestCloseDialog(component);
 
     assertEquals(0, selections.get());
     assertEquals(0, closes.get());
-    sendKey(content, KeyboardConfig.INTERACT_WORLD.value());
+    sendAction(dialog, UiActions.CONFIRM);
     assertEquals(1, selections.get());
   }
 
@@ -246,6 +247,10 @@ class DialogCloseRenderingTest {
   private static void finishFade(Group dialog) {
     // Sequence actions advance to their next action on a later frame.
     for (int frame = 0; frame < 6; frame++) dialog.act(1f);
+  }
+
+  private static void sendAction(Group dialog, ActionId action) {
+    dialog.fire(new DialogInput.UiActionEvent(action));
   }
 
   private static void sendKey(Group actor, int keycode) {

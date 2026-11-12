@@ -17,6 +17,8 @@ uniform sampler2D u_light;     // light buffer (half intensity)
 uniform sampler2D u_bloomNear;
 uniform sampler2D u_bloomFar;
 uniform sampler2D u_emissive;  // white where sprites glow by themselves, premultiplied
+uniform sampler2D u_bases;     // base of the upright entity under each scene pixel
+uniform vec2 u_baseRange;      // lowest base and the range the 16 bits of u_bases span
 uniform float u_glow;          // 1 uses u_emissive, 0 ignores it
 uniform vec3 u_ambient;
 uniform vec3 u_shadowTint;     // grade of dark areas
@@ -52,6 +54,15 @@ float fbm(vec2 p) {
     return v;
 }
 
+// Where the light falls on the art pixel at p: for an upright entity (base read per scene pixel at
+// uv) in its lowest art pixel row, so a wall's shadow lights it as a whole; elsewhere at p.
+vec2 litPoint(vec2 p, vec2 uv) {
+    vec4 b = texture2D(u_bases, uv);
+    if (b.b < 0.5) return p;
+    float feet = u_baseRange.x + (b.r * 65280.0 + b.g * 255.0) / 65535.0 * u_baseRange.y;
+    return vec2(p.x, min(p.y, (floor(feet * 16.0 + 0.5) + 0.5) / 16.0));
+}
+
 // Light above full brightness saturates softly towards 1.35 instead of growing without bound.
 vec3 shoulder(vec3 light) {
     vec3 over = max(light - 1.0, 0.0);
@@ -63,7 +74,7 @@ void main() {
     vec2 world = u_view.xy + v_uv * u_view.zw;
     vec2 lightUv = (world - u_lightArea.xy) / u_lightArea.zw;
     // Each art pixel takes the light of its centre, so light steps stay as crisp as the sprites.
-    vec2 artPixel = (floor(world * 16.0) + 0.5) / 16.0;
+    vec2 artPixel = litPoint((floor(world * 16.0) + 0.5) / 16.0, v_uv);
     vec3 raw = texture2D(u_light, (artPixel - u_lightArea.xy) / u_lightArea.zw).rgb * 2.0;
 
     // Fog in art-pixel steps, drifting slowly; it glows where lights reach it.

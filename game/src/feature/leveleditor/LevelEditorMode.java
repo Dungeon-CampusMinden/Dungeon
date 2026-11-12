@@ -1,9 +1,9 @@
 package feature.leveleditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
 import engine.System;
+import engine.input.ActionId;
 import engine.input.CursorUtils;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
@@ -12,35 +12,14 @@ import engine.systems.LevelSystem;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.systems.LevelEditorSystem;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /** Abstract base class for different modes in the Level Editor. */
 public abstract class LevelEditorMode {
 
-  /** Primary action button. Direction UP */
-  public static final int PRIMARY_UP = Input.Keys.E;
-
-  /** Primary action button. Direction DOWN */
-  public static final int PRIMARY_DOWN = Input.Keys.Q;
-
-  /** Secondary action button. Direction UP */
-  public static final int SECONDARY_UP = Input.Keys.C;
-
-  /** Secondary action button. Direction DOWN. */
-  public static final int SECONDARY_DOWN = Input.Keys.Z;
-
-  /** Tertiary action button. */
-  public static final int TERTIARY = Input.Keys.X;
-
-  /** Quaternary action button. */
-  public static final int QUARTERNARY = Input.Keys.V;
-
   private final String name;
   private final Runnable levelChangedCallback;
-  private final Map<Integer, String> controls = new LinkedHashMap<>();
 
   /**
    * Constructs a new LevelEditorMode with the given name.
@@ -51,10 +30,6 @@ public abstract class LevelEditorMode {
   public LevelEditorMode(String name, Runnable levelChangedCallback) {
     this.name = name;
     this.levelChangedCallback = Objects.requireNonNull(levelChangedCallback);
-    Map<Integer, String> controls = getControls();
-    if (controls != null) {
-      this.controls.putAll(controls);
-    }
   }
 
   /**
@@ -161,49 +136,15 @@ public abstract class LevelEditorMode {
   }
 
   /**
-   * Gets the controls for this mode.
+   * Gets the controls of this mode, shown in the editor's details panel.
    *
-   * @return A map of key codes to their action descriptions.
+   * @return the actions of this mode with their descriptions, in display order
    */
-  public abstract Map<Integer, String> getControls();
-
-  /**
-   * Gets the controls of this mode as they were resolved when this mode was created.
-   *
-   * @return an unmodifiable map of key codes to their action descriptions.
-   */
-  public Map<Integer, String> controls() {
-    return Collections.unmodifiableMap(controls);
-  }
+  public abstract Map<ActionId, String> controls();
 
   /** Notifies the level editor system that this mode changed the level. */
   protected final void levelChanged() {
     levelChangedCallback.run();
-  }
-
-  /**
-   * Converts a key or mouse button code into a displayable name.
-   *
-   * <p>Also contains a quick and dirty fix for the german keyboard layout where Y and Z are
-   * swapped.
-   *
-   * @param key the key code, or one of {@link Input.Buttons#LEFT} / {@link Input.Buttons#RIGHT}
-   *     when {@code mouse} is set.
-   * @return the key as string.
-   */
-  public static String keyName(int key) {
-    if (key == Input.Buttons.LEFT) {
-      return "LMB";
-    } else if (key == Input.Buttons.RIGHT) {
-      return "RMB";
-    } else if (key == Input.Buttons.MIDDLE) {
-      return "MMB";
-    } else if (key == Input.Keys.Y) {
-      return "Z";
-    } else if (key == Input.Keys.Z) {
-      return "Y";
-    }
-    return Input.Keys.toString(key);
   }
 
   protected DungeonLevel getLevel() {

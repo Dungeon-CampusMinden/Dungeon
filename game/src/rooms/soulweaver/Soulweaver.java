@@ -1,12 +1,10 @@
 package rooms.soulweaver;
 
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
-import engine.game.ServerLifecycle;
 import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
@@ -17,9 +15,7 @@ import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
-import engine.utils.CursorUtil;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.entities.CharacterClass;
@@ -42,6 +38,7 @@ import rooms.soulweaver.level.SoulweaverTerminal;
 import rooms.soulweaver.network.SoulweaverSnapshotTranslator;
 import rooms.soulweaver.save.SoulweaverSave;
 import rooms.soulweaver.state.SoulweaverPhase;
+import rooms.soulweaver.util.SoulweaverTranslator;
 
 /** Entry point for the Soulweaver escape room. */
 public final class Soulweaver {
@@ -100,10 +97,6 @@ public final class Soulweaver {
             .characterClasses(CHARACTER_CLASSES)
             .maximumPlayers(2)
             .levels(Tuple.of(LEVEL_KEY, SoulweaverLevel.class))
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .snapshotTranslator(new SoulweaverSnapshotTranslator())
             .onFrame(HeroController::drainAndApplyInputs)
             .build();
@@ -117,6 +110,7 @@ public final class Soulweaver {
 
     GameStarter game =
         GameStarter.builder("Das Erbe der Seelenweber", Soulweaver.class)
+            .localizedTitle(Language.EN, "The Soulweavers' Legacy")
             .language(Language.DE)
             .levelEditor("levels/soulweaver")
             .serverArguments(ServerProcess.SERVER_ARGUMENT, NEW_GAME_ARGUMENT)
@@ -151,15 +145,18 @@ public final class Soulweaver {
             SoulweaverSave.currentCharacterAssignments()));
   }
 
-  /** Registers the shared escape-room translations used by the menu and its consent dialogs. */
+  /**
+   * Registers the shared escape-room translations used by the menu and its consent dialogs, and
+   * resolves the room's transport keys on this client.
+   */
   private static void initLocalization() {
     Localization localization = Game.localization();
     localization.registerTranslationFile(Language.DE, "language/escapeRoom/de.json");
     localization.registerTranslationFile(Language.EN, "language/escapeRoom/en.json");
+    localization.setCurrentTranslator(new SoulweaverTranslator());
   }
 
   private static void serverSetup() {
-    ServerLifecycle.install("Soulweaver server stopped");
     BlackFadeCutscene.register();
     QuestLogUI.register();
     SoulweaverTerminal.register();
@@ -175,7 +172,6 @@ public final class Soulweaver {
   }
 
   private static void clientSetup() {
-    Game.stage().ifPresent(CursorUtil::initListener);
     BlackFadeCutscene.register();
     QuestLogUI.register();
     SoulweaverTerminal.register();

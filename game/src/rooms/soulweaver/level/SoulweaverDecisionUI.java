@@ -16,6 +16,7 @@ import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogCallbackResolver;
 import rooms.soulweaver.modules.decisions.DecisionMaze;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Rune book below the rider, with choices attached to the two passage entrances. */
 final class SoulweaverDecisionUI extends Group {
@@ -70,18 +71,15 @@ final class SoulweaverDecisionUI extends Group {
     values.setWrap(true);
     feedback.setWrap(true);
     bar.add(values).growX();
-    resume = SoulweaverUI.button("Weiter", true, () -> send("RESUME"));
+    resume =
+        SoulweaverUI.button(SoulweaverText.text("decisions.ui.resume"), true, () -> send("RESUME"));
     bar.add(resume).width(110).height(38).padLeft(10);
     helpView =
         new SoulweaverHelpUI(
-            "Entscheiden: LINKS oder RECHTS über der Tür wählen.\n"
-                + "Rune: Überschrift anklicken zum Ein- oder Ausklappen.\n"
-                + "Weiter: Setzt Nox nach einer Unterbrechung oder am START fort.",
-            this::helpEvent,
-            () -> help(false));
+            SoulweaverText.text("decisions.ui.controls"), this::helpEvent, () -> help(false));
     helpButton =
         SoulweaverUI.referenceButton(
-            "Hilfe",
+            SoulweaverText.text("ui.help"),
             () -> {
               if (helpOpen) {
                 helpView.returnToPuzzle();
@@ -94,7 +92,7 @@ final class SoulweaverDecisionUI extends Group {
     bar.add(helpButton).width(95).height(38).padLeft(10);
     bar.add(
             SoulweaverUI.button(
-                "Quest-Log",
+                SoulweaverText.text("ui.questlog"),
                 false,
                 () ->
                     SoulweaverHelp.state()
@@ -107,8 +105,10 @@ final class SoulweaverDecisionUI extends Group {
     addActor(bar);
     helpView.setVisible(false);
     addActor(helpView);
-    left = SoulweaverUI.button("LINKS", true, () -> send("LEFT"));
-    right = SoulweaverUI.button("RECHTS", true, () -> send("RIGHT"));
+    left =
+        SoulweaverUI.button(SoulweaverText.text("decisions.code.left"), true, () -> send("LEFT"));
+    right =
+        SoulweaverUI.button(SoulweaverText.text("decisions.code.right"), true, () -> send("RIGHT"));
     addActor(left);
     addActor(right);
     update(initial);
@@ -172,12 +172,16 @@ final class SoulweaverDecisionUI extends Group {
    * @return current rune; after the third tip with Nox' values substituted into its conditions
    */
   private static String runeText(SoulweaverDecisions.State state) {
-    String rune = DecisionMaze.RUNES[Math.min(5, state.junction())];
+    String rune = DecisionMaze.rune(Math.min(5, state.junction()));
     if (!SoulweaverHelpUI.simplified("decisions")) return rune;
     var values = state.values();
-    return rune.replace("Kraft", String.valueOf(values.kraft()))
-        .replace("Energie", String.valueOf(values.energie()))
-        .replace("Temperatur", String.valueOf(values.temperatur()));
+    return rune.replace(
+            SoulweaverText.text("decisions.attribute.kraft"), String.valueOf(values.kraft()))
+        .replace(
+            SoulweaverText.text("decisions.attribute.energie"), String.valueOf(values.energie()))
+        .replace(
+            SoulweaverText.text("decisions.attribute.temperatur"),
+            String.valueOf(values.temperatur()));
   }
 
   private void arrangePanel() {
@@ -220,11 +224,14 @@ final class SoulweaverDecisionUI extends Group {
     state = next;
     revision = next.revision();
     if (arrived) showRune = true;
-    values.setText(next.values().label() + "     Versuch " + (next.failures() + 1));
-    feedback.setText(next.feedback());
+    values.setText(
+        next.values().label()
+            + "     "
+            + SoulweaverText.text("decisions.log.attempt", next.failures() + 1));
+    feedback.setText(SoulweaverText.translate(next.feedback()));
     // The completed state may arrive just before the server closes this dialog.
     int rune = Math.min(5, next.junction());
-    title = "Kreuzung " + (rune + 1) + " / 6";
+    title = SoulweaverText.text("decisions.ui.junction", rune + 1);
     if (newCode) {
       code.setText(runeText(next));
       scroll.setScrollX(0);

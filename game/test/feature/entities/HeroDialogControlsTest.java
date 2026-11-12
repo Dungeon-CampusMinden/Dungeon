@@ -9,30 +9,25 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
+import engine.input.Binding;
+import engine.input.ContextLayer;
+import engine.input.GameInput;
+import engine.input.InputDevice;
+import engine.input.InputResolver;
 import engine.network.handler.INetworkHandler;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.server.DialogTracker;
-import engine.systems.input.InputManager;
-import engine.systems.input.InputSystem;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
@@ -40,24 +35,20 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.PauseDialog;
-import java.lang.reflect.Method;
+import feature.input.systems.GameplayInputSystem;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import testingUtils.MockNetworkHandler;
 
-/** Tests the real player close binding through InputManager, InputSystem and the HUD. */
+/** Tests the real player close binding through the resolver, the HUD and the gameplay context. */
 class HeroDialogControlsTest {
 
-  private final AtomicReference<InputProcessor> processor = new AtomicReference<>();
-  private Input originalInput;
-  private InputSystem inputSystem;
+  private GameplayInputSystem gameplayInput;
+  private InputResolver resolver;
   private Entity player;
 
   @BeforeAll
@@ -66,47 +57,27 @@ class HeroDialogControlsTest {
   }
 
   @BeforeEach
-  void setUp() throws ReflectiveOperationException {
+  void setUp() {
     Game.removeAllEntities();
     Game.removeAllSystems();
     MockNetworkHandler.useLocalNetworkHandler();
     PreRunConfiguration.multiplayerEnabled(false);
     PreRunConfiguration.isNetworkServer(true);
+    GameInput.reset();
+    resolver = GameInput.resolver();
     Game.add(Game.hud());
-    inputSystem = new InputSystem();
-    Game.add(inputSystem);
+    gameplayInput = new GameplayInputSystem();
+    Game.add(gameplayInput);
 
     player = new Entity("player");
     player.add(new PlayerComponent());
-    InputComponent controls = new InputComponent();
-    Method setupControls =
-        HeroBuilder.class.getDeclaredMethod(
-            "setupControls", InputComponent.class, CharacterClass.class);
-    setupControls.setAccessible(true);
-    setupControls.invoke(null, controls, CharacterClass.WIZARD);
-    player.add(controls);
     Game.add(player);
-
-    originalInput = Gdx.input;
-    Gdx.input = mock(Input.class);
-    processor.set(new InputAdapter());
-    when(Gdx.input.getInputProcessor()).thenAnswer(ignored -> processor.get());
-    doAnswer(
-            invocation -> {
-              processor.set(invocation.getArgument(0));
-              return null;
-            })
-        .when(Gdx.input)
-        .setInputProcessor(any(InputProcessor.class));
-    InputManager.init();
+    gameplayInput.execute();
   }
 
   @AfterEach
   void tearDown() {
-    processor.get().keyUp(Input.Keys.ESCAPE);
-    processor.get().keyUp(Input.Keys.W);
-    InputManager.update();
-    Gdx.input = originalInput;
+    GameInput.reset();
     Game.removeAllEntities();
     Game.removeAllSystems();
     DialogTracker.instance().clear();
@@ -124,7 +95,7 @@ class HeroDialogControlsTest {
     pressEscape();
 
     assertEquals(1, closes.get());
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertEquals(0, uiContexts());
   }
 
   @Test
@@ -133,43 +104,13 @@ class HeroDialogControlsTest {
 
     pressEscape();
 
-    var pause = Game.hud().topmostCloseRequestUI().orElseThrow();
-    assertTrue(pause.a().isLocal());
-    assertEquals(DialogType.DefaultTypes.PAUSE_MENU, pause.b().dialogContext().dialogType());
+    assertTrue(pauseMenu().orElseThrow().dialogContext().ownerEntity().isLocal());
     assertFalse(player.isPresent(UIComponent.class));
 
     pressEscape();
 
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertEquals(0, uiContexts());
     verify(network, never()).send(anyShort(), any(), anyBoolean());
-  }
-
-  @Test
-  void escapeRemainsAvailableWhenATextFieldConsumesTheKey() {
-    UIComponent dialog = showDialog(true, true);
-    Stage stage = mock(Stage.class);
-    when(stage.getKeyboardFocus()).thenReturn(mock(TextField.class));
-    Gdx.input.setInputProcessor(
-        new InputAdapter() {
-          @Override
-          public boolean keyDown(int keycode) {
-            return true;
-          }
-        });
-    InputManager.init();
-
-    try (MockedStatic<Game> game = mockStatic(Game.class, Mockito.CALLS_REAL_METHODS)) {
-      game.when(Game::stage).thenReturn(Optional.of(stage));
-      pressEscape();
-    }
-
-    assertFalse(
-        dialog
-            .dialogContext()
-            .find(DialogContextKeys.OWNER_ENTITY, Integer.class)
-            .flatMap(Game::findEntityById)
-            .isPresent());
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
   }
 
   @Test
@@ -186,7 +127,7 @@ class HeroDialogControlsTest {
                 new DialogResponseMessage(
                     dialog.dialogContext().dialogId(), DialogContextKeys.ON_CLOSE, null)),
             eq(true));
-    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+    assertStillOpen(dialog);
   }
 
   @Test
@@ -197,12 +138,10 @@ class HeroDialogControlsTest {
 
     pressEscape();
 
-    assertEquals(
-        DialogType.DefaultTypes.PAUSE_MENU,
-        Game.hud().topmostCloseRequestUI().orElseThrow().b().dialogContext().dialogType());
+    assertTrue(pauseMenu().isPresent());
     assertTrue(bar.isVisible());
     pressEscape();
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertEquals(0, uiContexts());
     assertTrue(bar.isVisible());
   }
 
@@ -220,7 +159,7 @@ class HeroDialogControlsTest {
 
     assertEquals(1, closes.get());
     assertTrue(bar.isVisible());
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertEquals(0, uiContexts());
   }
 
   @Test
@@ -239,34 +178,37 @@ class HeroDialogControlsTest {
             eq((short) 0),
             eq(new DialogResponseMessage(context.dialogId(), DialogContextKeys.ON_CLOSE, null)),
             eq(true));
-    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+    assertStillOpen(dialog);
   }
 
   @Test
   void disabledGameplayControlsAllowClosingAPausingDialogWithoutSendingMovement() {
     INetworkHandler network = useNetworkClient();
-    player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
+    player.fetch(PlayerComponent.class).orElseThrow().controlsLocked(true);
+    gameplayInput.execute();
     UIComponent dialog = showDialog(true, true);
     AtomicInteger closes = new AtomicInteger();
     dialog.registerCallback(DialogContextKeys.ON_CLOSE, ignored -> closes.incrementAndGet());
 
-    processor.get().keyDown(Input.Keys.W);
+    resolver.keyDown(Input.Keys.W);
     pressEscape();
+    gameplayInput.execute();
 
     assertEquals(1, closes.get());
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertEquals(0, uiContexts());
     verify(network, never()).sendInput(any());
   }
 
   @Test
   void disabledControlsWithOnlyPassiveUIDoNotOpenMenus() {
     INetworkHandler network = useNetworkClient();
-    player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
+    player.fetch(PlayerComponent.class).orElseThrow().controlsLocked(true);
+    gameplayInput.execute();
     showPassiveUI();
 
     pressEscape();
 
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertEquals(0, uiContexts());
     verify(network, never()).sendInput(any());
   }
 
@@ -280,7 +222,7 @@ class HeroDialogControlsTest {
     pressEscape();
 
     assertEquals(1, advances.get());
-    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+    assertStillOpen(dialog);
     verify(network, never()).send(anyShort(), any(), anyBoolean());
   }
 
@@ -297,27 +239,26 @@ class HeroDialogControlsTest {
     pressEscape();
 
     assertEquals(1, advances.get());
-    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+    assertStillOpen(dialog);
     assertTrue(bar.isVisible());
-    assertFalse(
-        Game.entities()
-            .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-            .anyMatch(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU));
+    assertTrue(pauseMenu().isEmpty());
   }
 
   @Test
   void disabledGameplayControlsStillAllowTheNonCloseableDialogHandler() {
     INetworkHandler network = useNetworkClient();
-    player.fetch(InputComponent.class).orElseThrow().deactivateControls(true);
+    player.fetch(PlayerComponent.class).orElseThrow().controlsLocked(true);
+    gameplayInput.execute();
     UIComponent dialog = showDialog(true, false);
     AtomicInteger advances = new AtomicInteger();
     UIUtils.onCloseRequest(dialog.dialog(), advances::incrementAndGet);
 
-    processor.get().keyDown(Input.Keys.W);
+    resolver.keyDown(Input.Keys.W);
     pressEscape();
+    gameplayInput.execute();
 
     assertEquals(1, advances.get());
-    assertSame(dialog, Game.hud().topmostCloseRequestUI().orElseThrow().b());
+    assertStillOpen(dialog);
     verify(network, never()).sendInput(any());
   }
 
@@ -332,7 +273,7 @@ class HeroDialogControlsTest {
 
     assertEquals(0, yes.get());
     assertEquals(1, no.get());
-    assertTrue(Game.hud().topmostCloseRequestUI().isEmpty());
+    assertEquals(0, uiContexts());
   }
 
   @Test
@@ -351,10 +292,7 @@ class HeroDialogControlsTest {
     PauseDialog.showPauseDialog(player);
 
     assertSame(existing, player.fetch(UIComponent.class).orElseThrow());
-    assertFalse(
-        Game.entities()
-            .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-            .anyMatch(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU));
+    assertTrue(pauseMenu().isEmpty());
   }
 
   private UIComponent showPassiveUI() {
@@ -365,6 +303,18 @@ class HeroDialogControlsTest {
     owner.add(bar);
     Game.add(owner);
     return bar;
+  }
+
+  @Test
+  void padCloseLeavesANonCloseableDialogWithoutOpeningPause() {
+    UIComponent dialog = showDialog(true, false);
+
+    resolver.device(InputDevice.PAD);
+    resolver.padDown(Binding.pad(Binding.Pad.B));
+    resolver.advance(0);
+
+    assertStillOpen(dialog);
+    assertTrue(pauseMenu().isEmpty());
   }
 
   private UIComponent showDialog(boolean local, boolean closeable) {
@@ -385,10 +335,28 @@ class HeroDialogControlsTest {
   }
 
   private void pressEscape() {
-    processor.get().keyDown(Input.Keys.ESCAPE);
-    inputSystem.execute();
-    processor.get().keyUp(Input.Keys.ESCAPE);
-    InputManager.update();
+    resolver.keyDown(Input.Keys.ESCAPE);
+    resolver.advance(0);
+    resolver.keyUp(Input.Keys.ESCAPE);
+    resolver.advance(0);
+  }
+
+  private Optional<UIComponent> pauseMenu() {
+    return Game.entities()
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU)
+        .findFirst();
+  }
+
+  private long uiContexts() {
+    return resolver.contexts().stream()
+        .filter(context -> context.spec().layer() == ContextLayer.UI)
+        .count();
+  }
+
+  private void assertStillOpen(UIComponent dialog) {
+    assertTrue(dialog.isVisible());
+    assertEquals(1, uiContexts());
   }
 
   private enum TestDialogType implements DialogType {

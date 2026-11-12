@@ -1,7 +1,9 @@
 package feature.audience;
 
+import static engine.input.Binding.key;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,9 +25,14 @@ import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.input.ActionId;
+import engine.input.ContextLayer;
+import engine.input.ContextSpec;
+import engine.input.CoreActions;
+import engine.input.GameInput;
+import engine.input.InputContext;
 import engine.network.messages.c2s.InputMessage;
 import engine.systems.CameraSystem;
-import engine.systems.input.InputManager;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.components.UIComponent;
@@ -35,7 +42,6 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.hud.dialogs.PauseDialog;
-import feature.input.configuration.KeyboardConfig;
 import feature.interaction.InteractionFeedback;
 import io.nayuki.qrcodegen.QrCode;
 import java.net.URI;
@@ -59,6 +65,18 @@ import tracking.core.TrackingJson;
  * #install()} in the client setup.
  */
 public final class AudienceHud extends System {
+  private static final ActionId CONFIRM = new ActionId("audience", "confirm", key(Keys.ENTER));
+  private static final ActionId END = new ActionId("audience", "end", key(Keys.END));
+
+  /** Lies above all dialogs: Escape pauses here, because the server ignores closing dialogs. */
+  private static final ContextSpec HOST =
+      ContextSpec.of("audience_host", ContextLayer.AUDIENCE, CONFIRM, END, CoreActions.PAUSE_MENU);
+
+  private final InputContext hostInput =
+      new InputContext(HOST)
+          .onPress(
+              CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog));
+
   private static final String DOT_FONT = "fonts/Doto_Rounded-ExtraBold.ttf";
   private static final String TEXT_FONT = "fonts/Lexend-Regular.ttf";
   private static final String BOLD_FONT = "fonts/Lexend-Bold.ttf";
@@ -82,8 +100,6 @@ public final class AudienceHud extends System {
   // the overlay draws the screen itself.
   private static final DialogType JOIN_PAUSE = () -> "AUDIENCE_JOIN_PAUSE";
   private static UIComponent joinPause;
-  // Whether the pause menu was open in the previous frame.
-  private static boolean pauseMenuOpenBefore;
 
   private Table root;
   // Letter and name above each target while the audience picks one; behind the panels of root.
@@ -247,71 +263,23 @@ public final class AudienceHud extends System {
   }
 
   private static boolean pauseMenuOpen() {
-    return pauseMenu().isPresent();
-  }
-
-  private static Optional<UIComponent> pauseMenu() {
     return Game.entities()
         .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU)
-        .findFirst();
+        .anyMatch(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU);
   }
 
   private void hostKeys() {
     String phase = state.path("phase").asString("");
-    if (phase.equals("playing")) pauseOverDialogs();
-    // Dialogs hold the keyboard focus; the host's keys must work regardless.
-    if (phase.equals("lobby") && InputManager.isKeyJustPressed(Input.Keys.ENTER, true)) {
+    GameInput.activate(hostInput);
+    if (phase.equals("lobby") && GameInput.justPressed(CONFIRM)) {
       send(AudienceSystem.START);
-    } else if (phase.equals("playing")
-        && joinScreen
-        && InputManager.isKeyJustPressed(Input.Keys.ENTER, true)) {
+    } else if (phase.equals("playing") && joinScreen && GameInput.justPressed(CONFIRM)) {
       joinScreen = false;
-    } else if (phase.equals("playing") && InputManager.isKeyJustPressed(Input.Keys.END, true)) {
+    } else if (phase.equals("playing") && GameInput.justPressed(END)) {
       send(AudienceSystem.END);
-    } else if (phase.equals("ended") && InputManager.isKeyJustPressed(Input.Keys.ENTER, true)) {
+    } else if (phase.equals("ended") && GameInput.justPressed(CONFIRM)) {
       send(AudienceSystem.CLOSE);
     }
-  }
-
-  // A dialog is open during most of the game, and the engine's pause keys fail there: a dialog that
-  // holds the keyboard focus swallows them, and Esc only asks the dialog to close, which the server
-  // ignores in audience mode. The host needs the pause menu anyway, so the keys open and close it
-  // here whenever the engine does not.
-  private static void pauseOverDialogs() {
-    Optional<UIComponent> menu = pauseMenu();
-    boolean openBefore = pauseMenuOpenBefore;
-    pauseMenuOpenBefore = menu.isPresent();
-    int pause = KeyboardConfig.PAUSE_MENU.value();
-    int close = KeyboardConfig.CLOSE_UI.value();
-    if (!InputManager.isKeyJustPressed(pause, true)
-        && !InputManager.isKeyJustPressed(close, true)) {
-      return;
-    }
-    // The engine may handle the key earlier in the same frame; then it already closed the menu.
-    if (openBefore && menu.isEmpty()) return;
-    // The engine's Esc toggles the menu only when nothing else closable lies on top: it opens the
-    // menu without a dialog and closes it when the menu is the topmost closable UI.
-    boolean engineHandlesEsc =
-        InputManager.isKeyJustPressed(close)
-            && Game.hud()
-                .topmostCloseRequestUI()
-                .map(topmost -> menu.isPresent() && topmost.b() == menu.get())
-                .orElse(menu.isEmpty());
-    boolean engineToggles = InputManager.isKeyJustPressed(pause) || engineHandlesEsc;
-    if (menu.isPresent()) {
-      if (!engineToggles) UIUtils.closeDialog(menu.get());
-      return;
-    }
-    if (engineToggles) return;
-    // Next frame, so the engine's Esc handling in this frame cannot close the new menu right away.
-    Gdx.app.postRunnable(
-        () -> {
-          if (pauseMenuOpen()) return;
-          // The pause menu refuses to open while something holds the keyboard focus.
-          Game.stage().ifPresent(stage -> stage.setKeyboardFocus(null));
-          Game.player().ifPresent(PauseDialog::showPauseDialog);
-        });
   }
 
   private static void send(String route) {
@@ -350,7 +318,10 @@ public final class AudienceHud extends System {
           .padTop(20)
           .row();
     }
-    String next = paused ? "Pausiert. Enter oder Klick setzt fort." : "Enter startet die Runde.";
+    String next =
+        paused
+            ? "Pausiert. " + GameInput.label(CONFIRM) + " oder Klick setzt fort."
+            : GameInput.label(CONFIRM) + " startet die Runde.";
     text.add(label(next, TEXT_FONT, 24, MUTED)).padTop(20).row();
     panel.add(text);
     dimmed(panel);
@@ -646,7 +617,9 @@ public final class AudienceHud extends System {
         .row();
     panel.add(label(done + " / " + (open + done), DOT_FONT, 128, ACCENT)).padTop(24).row();
     panel.add(label("Umfragen abgeschickt", TEXT_FONT, 26, TEXT)).row();
-    panel.add(label("Enter beendet die Sitzung.", TEXT_FONT, 22, MUTED)).padTop(28);
+    panel
+        .add(label(GameInput.label(CONFIRM) + " beendet die Sitzung.", TEXT_FONT, 22, MUTED))
+        .padTop(28);
     dimmed(panel);
   }
 
@@ -657,7 +630,7 @@ public final class AudienceHud extends System {
       case "move", "goto" -> "Wohin geht es?";
       case "choice" -> context.path("multiple").asBoolean() ? "Antworten wählen" : "Antwort wählen";
       case "text" -> "Antwort eintippen";
-      case "code" -> "Code eingeben";
+      case "code", "lock" -> "Code eingeben";
       case "continue" -> "Weiterlesen?";
       default -> "";
     };

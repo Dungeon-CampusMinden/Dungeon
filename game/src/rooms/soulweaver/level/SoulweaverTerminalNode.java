@@ -17,8 +17,8 @@ import feature.canvas.NodeState;
 import java.util.Optional;
 import rooms.soulweaver.modules.loops.LoopMaze;
 import rooms.soulweaver.modules.loops.LoopPuzzle;
-import rooms.soulweaver.modules.loops.LoopRune;
 import rooms.soulweaver.modules.loops.TerminalState;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Room-specific map, program cards and the single execution slot. */
 final class SoulweaverTerminalNode extends CanvasNode {
@@ -141,16 +141,24 @@ final class SoulweaverTerminalNode extends CanvasNode {
 
   private String caption() {
     if (kind.equals("help"))
-      return "schritt(): ein Feld vorwärts\nspringen(): über eine Grube, zwei Felder\nangreifen(): Gegner direkt voraus\nbodenVoraus(): Boden, auch mit Gegner\namWegzeichen(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung";
+      return SoulweaverText.text(
+          "terminal.commands",
+          SoulweaverText.text("loops.code.move"),
+          SoulweaverText.text("loops.code.jump"),
+          SoulweaverText.text("loops.code.attack"),
+          SoulweaverText.text("loops.code.free"),
+          SoulweaverText.text("loops.code.goal"));
     if (kind.equals("status")) {
-      return state == null ? "Eine Rune hier ablegen" : state.status();
+      return state == null
+          ? SoulweaverText.text("terminal.drop-rune")
+          : SoulweaverText.translate(state.status());
     }
     return "";
   }
 
   private String slotCaption() {
     if (state == null || state.activeRune().isEmpty()) return "";
-    return state.busy() ? "Gesperrt" : "Herausziehen";
+    return SoulweaverText.text(state.busy() ? "terminal.locked" : "terminal.pull-out");
   }
 
   @Override
@@ -159,9 +167,9 @@ final class SoulweaverTerminalNode extends CanvasNode {
     heading =
         SoulweaverUI.zoomLabel(
             switch (kind) {
-              case "map" -> "Keller";
-              case "status" -> "Executor";
-              default -> "Befehle";
+              case "map" -> SoulweaverText.text("terminal.heading.map");
+              case "status" -> SoulweaverText.text("terminal.heading.executor");
+              default -> SoulweaverText.text("terminal.heading.commands");
             },
             22,
             SoulweaverUI.TEXT);
@@ -343,7 +351,7 @@ final class SoulweaverTerminalNode extends CanvasNode {
         kind.equals("rune")
             ? id()
             : kind.equals("executor") && state != null ? state.activeRune() : "";
-    return LoopPuzzle.rune(runeId).map(LoopRune::code);
+    return LoopPuzzle.rune(runeId).map(rune -> rune.code(SoulweaverText::text));
   }
 
   boolean dragging() {

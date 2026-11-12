@@ -7,6 +7,7 @@ import java.util.Optional;
 import rooms.soulweaver.modules.loops.LoopMaze.Cell;
 import rooms.soulweaver.modules.loops.LoopMaze.Direction;
 import rooms.soulweaver.modules.loops.LoopProgram.Action;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** One bounded attempt, advanced only after the previous physical action has finished. */
 public final class LoopExecution {
@@ -74,7 +75,8 @@ public final class LoopExecution {
         after = true;
         actions.addAll(program.after());
       } else {
-        if (iterations++ >= ITERATION_LIMIT) return fail("Ausführung ohne Halt abgebrochen.");
+        if (iterations++ >= ITERATION_LIMIT)
+          return fail(SoulweaverText.key("loops.failure.no-halt"));
         actions.addAll(program.body());
       }
     }
@@ -88,13 +90,14 @@ public final class LoopExecution {
       case MOVE, JUMP -> {
         Cell next = cell.next(facing);
         if (action == Action.JUMP) {
-          if (!next.equals(LoopMaze.pit())) return fail("Sprung ohne Grube voraus.");
+          if (!next.equals(LoopMaze.pit()))
+            return fail(SoulweaverText.key("loops.failure.jump-without-pit"));
           next = next.next(facing);
         }
         // Walking into a wall stops at the physical collision, not before the move begins.
-        if (next.equals(LoopMaze.pit())) return fail("Grube voraus. Schritt gestoppt.");
+        if (next.equals(LoopMaze.pit())) return fail(SoulweaverText.key("loops.failure.pit-ahead"));
         if (monsterAlive && next.equals(LoopMaze.monster()))
-          return fail("Ein Eindringling versperrt den Weg.");
+          return fail(SoulweaverText.key("loops.failure.intruder"));
         to = next;
       }
     }
@@ -113,7 +116,7 @@ public final class LoopExecution {
     if (!step.from().equals(step.to())) {
       cell = step.to();
       history.add(cell);
-      if (!LoopMaze.cells().contains(cell)) fail("Weg verlassen. Bewegung gestoppt.");
+      if (!LoopMaze.cells().contains(cell)) fail(SoulweaverText.key("loops.failure.off-path"));
     }
   }
 
@@ -155,7 +158,7 @@ public final class LoopExecution {
   }
 
   /**
-   * @return the stopping error, or an empty string for normal completion
+   * @return transport key of the stopping error, or an empty string for normal completion
    */
   public String failure() {
     return failure;

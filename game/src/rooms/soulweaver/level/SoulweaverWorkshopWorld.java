@@ -24,12 +24,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.soulweaver.modules.methods.MethodsRoute;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Contiguous workshop geometry derived from the executable method bodies. */
 final class SoulweaverWorkshopWorld {
   static final int TILE_STEP = 1;
   private static final Point INITIAL = new Point(30, 26);
   private static final Point EXIT = new Point(34, 46);
+  // Native pixel density of the 80x26 iron bars: five tiles wide, 26 pixels high, of which the
+  // lowest two are the contact shadow baked into the sprite.
+  private static final float BARS_SCALE = 26 / 16f;
+  private static final float BARS_FOOT = .5f + 2 / 16f;
 
   private static final boolean[] activated = new boolean[8];
   private static final int[] remaining = new int[8];
@@ -244,7 +249,8 @@ final class SoulweaverWorkshopWorld {
    */
   static ActionResult perform(MethodsRoute.Action action, Point position, int amount) {
     Optional<Integer> target = stationAt(action, position);
-    if (target.isEmpty()) return new ActionResult(false, "Kein passendes Objekt in Reichweite.", 0);
+    if (target.isEmpty())
+      return new ActionResult(false, SoulweaverText.key("workshop.no-target"), 0);
     int station = target.orElseThrow();
     switch (action) {
       case OPEN_GATE -> {
@@ -263,8 +269,7 @@ final class SoulweaverWorkshopWorld {
       }
       case COLLECT -> {
         if (!activated[station - 2])
-          return new ActionResult(
-              false, "Der Runenstein hat dieses Kristallfeld noch nicht freigegeben.", 0);
+          return new ActionResult(false, SoulweaverText.key("workshop.field-locked"), 0);
         int collected = remaining[station];
         remaining[station] = 0;
         for (int i = 0; i < collected; i++) tint("crystal-" + station + "-" + i, 0xFFFFFF00);
@@ -274,13 +279,13 @@ final class SoulweaverWorkshopWorld {
         int capacity = MethodsRoute.STATIONS.get(station).amount() - supplied[station];
         if (amount < 0 || amount > capacity)
           return new ActionResult(
-              false, "Dieser Altar hat noch " + capacity + " freie Fassungen.", 0);
+              false, SoulweaverText.key("workshop.altar-capacity", capacity), 0);
         for (int i = supplied[station]; i < supplied[station] + amount; i++)
           socket(station, i, true);
         supplied[station] += amount;
       }
       default -> {
-        return new ActionResult(false, "Kein Weltbefehl.", 0);
+        return new ActionResult(false, SoulweaverText.key("workshop.no-world-command"), 0);
       }
     }
     return new ActionResult(true, "", amount);
@@ -394,55 +399,38 @@ final class SoulweaverWorkshopWorld {
   }
 
   /**
-   * Small lattice panels retain source pixel density; the collider fills the wall opening.
+   * One sprite, so the whole gate is lit like the floor at its foot. It stands upright for the
+   * light pass, on a layer without the engine's contact shadow: the sprite carries a thin one below
+   * its spikes, so light still falls through the gaps. Heroes and Nox draw in front of it.
    *
    * @param name entity name suffix
-   * @param at lower-left gate anchor
+   * @param at lower-left corner of the gate opening
    * @return gate entity to receive the collider
    */
   private static Entity ironBars(String name, Point at) {
-    Point base = at.translate(0, -.5f);
-    Entity entity = ironPanel(name, base, 392, 344, 16, 8);
-    for (int row = 0; row < 3; row++)
-      for (int column = 0; column < 5; column++) {
-        if (row == 0 && column == 0) continue;
-        ironPanel(
-            name + "-bars-" + row + "-" + column,
-            base.translate(column, row * .5f),
-            392,
-            row == 0 ? 344 : 336,
-            16,
-            8);
-      }
-    return entity;
-  }
-
-  private static Entity ironPanel(String name, Point at, int x, int y, int width, int height) {
     Entity entity = new Entity("soulweaver-methods-" + name);
-    PositionComponent position = new PositionComponent(at);
-    position.scale(Math.min(width, height) / 16f);
+    PositionComponent position = new PositionComponent(at.translate(0, -BARS_FOOT));
+    position.scale(BARS_SCALE);
     entity.add(position);
     DrawComponent draw =
         new DrawComponent(
-            new SimpleIPath("spritesheets/FD_Dungeon_Free.png"),
-            new SpritesheetConfig(x, y, 1, 1, width, height));
-    draw.depth(DepthLayer.Player.depth());
+            new SimpleIPath("rooms/soulweaver/art/iron-bars.png"),
+            new SpritesheetConfig(0, 0, 1, 1, 80, 26));
+    draw.depth(DepthLayer.ForegroundDeco.depth());
     entity.add(draw);
     Game.add(entity);
     return entity;
   }
 
   private static CollideComponent gateCollider() {
-    // The first visible panel is half-scale and sits half a tile below the gate anchor.
-    return new CollideComponent(Vector2.of(0, 1), Vector2.of(10, 2));
+    // Fills the wall opening, which starts above the sprite's foot.
+    return new CollideComponent(
+        Vector2.of(0, BARS_FOOT / BARS_SCALE), Vector2.of(5 / BARS_SCALE, 1 / BARS_SCALE));
   }
 
   private static void tint(String suffix, int color) {
     Game.levelEntities()
-        .filter(
-            entity ->
-                entity.name().equals("soulweaver-methods-" + suffix)
-                    || entity.name().startsWith("soulweaver-methods-" + suffix + "-bars-"))
+        .filter(entity -> entity.name().equals("soulweaver-methods-" + suffix))
         .forEach(
             entity -> entity.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(color)));
   }

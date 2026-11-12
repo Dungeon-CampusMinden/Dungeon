@@ -63,6 +63,9 @@ public interface DialogType {
     /** Sequenced speaker dialogue (NPC talks). */
     DIALOG_DIALOG("DIALOG_DIALOG"),
 
+    /** The room's controls as a sequenced dialogue; the controls action closes them as well. */
+    CONTROLS("CONTROLS"),
+
     /** Jigsaw-style puzzle dialog. */
     PUZZLE("PUZZLE"),
 
@@ -70,7 +73,10 @@ public interface DialogType {
     CANVAS("CANVAS"),
 
     /** Local multiplayer client connection dialog. */
-    CLIENT_CONNECTION("CLIENT_CONNECTION");
+    CLIENT_CONNECTION("CLIENT_CONNECTION"),
+
+    /** Combination lock with digit wheels. */
+    COMBINATION_LOCK("COMBINATION_LOCK");
 
     private final String type;
 

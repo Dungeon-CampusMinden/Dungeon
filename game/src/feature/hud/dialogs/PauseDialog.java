@@ -92,9 +92,6 @@ public class PauseDialog extends Table {
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showPauseDialog(Entity caller) {
-    boolean isInInput = Game.stage().map(s -> s.getKeyboardFocus() != null).orElse(false);
-    if (isInInput) return null;
-
     var openMenu =
         Game.entities()
             .filter(Entity::isLocal)
@@ -152,7 +149,19 @@ public class PauseDialog extends Table {
       return new HeadlessDialogGroup();
     }
 
-    return new BaseContainerUI(new PauseDialog(UIUtils.defaultSkin(), ctx));
+    PauseDialog pause = new PauseDialog(UIUtils.defaultSkin(), ctx);
+    BaseContainerUI container = new BaseContainerUI(pause);
+    UIUtils.onCloseRequest(container, () -> pause.back(ctx));
+    return container;
+  }
+
+  // Close leaves a submenu first and resumes only from the main view.
+  private void back(DialogContext ctx) {
+    if (contentTable.getChildren().contains(mainMenu, true)) {
+      ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
+    } else {
+      showMainView();
+    }
   }
 
   private Table createMainView(DialogContext ctx) {
@@ -180,7 +189,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
-            Sounds.playUi(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
     controlsBtn.addListener(
@@ -195,7 +203,6 @@ public class PauseDialog extends Table {
 
             ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             controlsSystem.showControlsFor(player, true);
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     questlogBtn.addListener(
@@ -207,7 +214,6 @@ public class PauseDialog extends Table {
                     .orElseThrow();
             ctx.ownerEntity().fetch(UIComponent.class).ifPresent(UIUtils::closeDialog);
             QuestLogUI.requestQuestLog(player);
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     achievementsBtn.addListener(
@@ -215,7 +221,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showAchievements();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     settingsBtn.addListener(
@@ -223,7 +228,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showSettings();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     clientInfosBtn.addListener(
@@ -231,7 +235,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showClientInfos();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     bugReportBtn.addListener(
@@ -239,7 +242,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showBugReport(ctx);
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     quitBtn.addListener(
@@ -247,7 +249,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             Game.exit("Quit from pause menu");
-            Sounds.playUi(CoreSounds.INTERFACE_DIALOG_CLOSED);
           }
         });
 
@@ -290,7 +291,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     return AchievementMenuView.build(backBtn);
@@ -369,7 +369,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     List<Actor> settingsActors = new ArrayList<>();
@@ -444,7 +443,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
 
@@ -477,7 +475,6 @@ public class PauseDialog extends Table {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
             showMainView();
-            Sounds.playUi(CoreSounds.INTERFACE_BUTTON_CLICKED);
           }
         });
     showView(BugReport.view(player, backBtn, this::showMainView));

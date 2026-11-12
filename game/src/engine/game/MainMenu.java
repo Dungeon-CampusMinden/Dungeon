@@ -1,8 +1,6 @@
 package engine.game;
 
-import com.badlogic.gdx.Input;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.level.loader.DungeonLoader;
 import feature.components.Debugger;
 import feature.entities.HeroBuilder;
@@ -56,7 +54,8 @@ public final class MainMenu {
    * and shows the main menu.
    *
    * <p>The {@link GameStarter#language() configured language} is applied first, so the menu and the
-   * launched game are already shown in the desired language.
+   * launched game are already shown in the desired language. A dedicated server always installs
+   * {@link ServerLifecycle}, so a stopped server still finishes its tracking session.
    *
    * @param args the program arguments (checked for server and level-editor mode flags)
    * @param game the menu/hosting integration
@@ -66,9 +65,10 @@ public final class MainMenu {
   public static void run(
       String[] args, GameStarter game, ClientStarter client, ServerStarter server) {
     if (shouldRunMpServer(args)) {
-      Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
+      Game.windowTitle(game.title());
       server.apply();
+      ServerLifecycle.install(game.title() + " server stopped");
       Game.run();
       return;
     }
@@ -80,8 +80,8 @@ public final class MainMenu {
                   () ->
                       new IllegalStateException(
                           "Level editor launch requested, but no level-editor path is configured."));
-      Game.windowTitle(game.title());
       Game.localization().currentLanguage(game.language());
+      Game.windowTitle(game.title());
       client.apply();
       game.beforeLevelEditorStart();
       applyLevelEditor(client, server, pathToLevels);
@@ -103,8 +103,10 @@ public final class MainMenu {
   }
 
   private static void run(GameStarter game, ClientStarter client, ServerStarter server) {
-    Game.windowTitle(game.title());
     Game.localization().currentLanguage(game.language());
+    Game.windowTitle(game.title());
+    // A title can depend on the language chosen in the menu or the in-game settings.
+    Game.localization().registerLanguageChangeListener(language -> Game.windowTitle(game.title()));
     client.apply();
     Runnable levelEditorLauncher =
         server == null
@@ -158,7 +160,6 @@ public final class MainMenu {
                   .username(PreRunConfiguration.username())
                   .build());
           Game.add(new Debugger());
-          KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
           Game.add(new DebugDrawSystem());
           Game.add(new LevelEditorSystem(pathToLevels));
           LevelEditorSystem.activateOnStart();

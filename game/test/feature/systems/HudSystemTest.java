@@ -11,6 +11,8 @@ import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
 import engine.game.PreRunConfiguration;
+import engine.input.ContextLayer;
+import engine.input.GameInput;
 import engine.network.handler.NettyNetworkHandler;
 import engine.network.messages.s2c.DialogCloseMessage;
 import engine.network.messages.s2c.DialogShowMessage;
@@ -28,7 +30,6 @@ import feature.hud.dialogs.DialogType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,7 +81,6 @@ public class HudSystemTest {
     player.add(first);
 
     assertTrue(hudSystem.hasOpenUI(player));
-    assertSame(first, hudSystem.topmostCloseRequestUI().orElseThrow().b());
 
     UIComponent second = ui(player, false, player.id());
     player.add(second);
@@ -88,7 +88,6 @@ public class HudSystemTest {
     assertTrue(hudSystem.hasOpenUI(player));
     assertFalse(hudSystem.hasOpenPausingUI(player));
     assertSame(second, player.fetch(UIComponent.class).orElseThrow());
-    assertSame(second, hudSystem.topmostCloseRequestUI().orElseThrow().b());
 
     UIUtils.closeDialog(first);
     assertSame(second, player.fetch(UIComponent.class).orElseThrow());
@@ -98,30 +97,31 @@ public class HudSystemTest {
     assertFalse(hudSystem.hasOpenUI(player));
   }
 
-  /** The close query finds handlers without running them and ignores passive or hidden UI. */
+  /** Modal dialogs get an input context; passive and hidden UI do not. */
   @Test
-  public void closeRequestQueryIncludesHandlersButExcludesPassiveAndHiddenUi() {
+  public void onlyVisibleModalUiGetsAnInputContext() {
     Entity owner = player();
     UIComponent closeable = show(owner);
     Entity sequenceOwner = player();
     UIComponent sequence = ui(TestDialogType.TEST, sequenceOwner, true, false, true);
+    UIUtils.onCloseRequest(sequence.dialog(), () -> {});
     sequenceOwner.add(sequence);
-    AtomicInteger advances = new AtomicInteger();
-    UIUtils.onCloseRequest(sequence.dialog(), advances::incrementAndGet);
     Entity barOwner = player();
-    UIComponent bar = ui(TestDialogType.TEST, barOwner, false, false, true);
-    barOwner.add(bar);
-    Group stage = new Group();
-    stage.addActor(closeable.dialog());
-    stage.addActor(sequence.dialog());
-    stage.addActor(bar.dialog());
+    barOwner.add(ui(TestDialogType.TEST, barOwner, false, false, true));
 
-    assertSame(sequence, hudSystem.topmostCloseRequestUI().orElseThrow().b());
-    assertEquals(0, advances.get());
+    assertEquals(2, uiContexts());
     sequence.dialog().setVisible(false);
-    assertSame(closeable, hudSystem.topmostCloseRequestUI().orElseThrow().b());
+    hudSystem.execute();
+    assertEquals(1, uiContexts());
     closeable.dialog().setVisible(false);
-    assertTrue(hudSystem.topmostCloseRequestUI().isEmpty());
+    hudSystem.execute();
+    assertEquals(0, uiContexts());
+  }
+
+  private static long uiContexts() {
+    return GameInput.resolver().contexts().stream()
+        .filter(context -> context.spec().layer() == ContextLayer.UI)
+        .count();
   }
 
   /** Temporarily detaching the HUD keeps a dialog reusable until its component is removed. */

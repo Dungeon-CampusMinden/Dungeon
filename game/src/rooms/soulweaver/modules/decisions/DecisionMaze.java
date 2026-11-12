@@ -1,7 +1,9 @@
 package rooms.soulweaver.modules.decisions;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** The six programs and the persistent values carried through the labyrinth. */
 public final class DecisionMaze {
@@ -30,22 +32,20 @@ public final class DecisionMaze {
     }
 
     /**
-     * @return all three values with unambiguous labels
+     * @return all three values with unambiguous labels in the current language
      */
     public String label() {
-      return "KRAFT " + kraft + "     ENERGIE " + energie + "     TEMPERATUR " + temperatur;
+      return SoulweaverText.text("decisions.values", kraft, energie, temperatur);
     }
   }
 
   private enum Attribute {
-    KRAFT("Kraft"),
-    ENERGIE("Energie"),
-    TEMPERATUR("Temperatur");
+    KRAFT,
+    ENERGIE,
+    TEMPERATUR;
 
-    private final String label;
-
-    Attribute(String label) {
-      this.label = label;
+    String label() {
+      return SoulweaverText.text("decisions.attribute." + name().toLowerCase(Locale.ROOT));
     }
 
     int value(Values values) {
@@ -90,7 +90,7 @@ public final class DecisionMaze {
     }
 
     public String text() {
-      return attribute.label + " " + operator.symbol + " " + threshold;
+      return attribute.label() + " " + operator.symbol + " " + threshold;
     }
   }
 
@@ -100,7 +100,7 @@ public final class DecisionMaze {
     }
 
     public String text() {
-      return left.text() + " UND " + right.text();
+      return left.text() + " " + SoulweaverText.text("decisions.code.and") + " " + right.text();
     }
   }
 
@@ -110,7 +110,7 @@ public final class DecisionMaze {
     }
 
     public String text() {
-      return left.text() + " ODER " + right.text();
+      return left.text() + " " + SoulweaverText.text("decisions.code.or") + " " + right.text();
     }
   }
 
@@ -126,7 +126,9 @@ public final class DecisionMaze {
     }
 
     public String text(String indent) {
-      return indent + (side == Side.LEFT ? "LINKS" : "RECHTS") + "\n";
+      return indent
+          + SoulweaverText.text(side == Side.LEFT ? "decisions.code.left" : "decisions.code.right")
+          + "\n";
     }
   }
 
@@ -137,28 +139,29 @@ public final class DecisionMaze {
 
     public String text(String indent) {
       return indent
-          + "WENN "
+          + SoulweaverText.text("decisions.code.if")
+          + " "
           + condition.text()
           + ":\n"
           + yes.text(indent + "    ")
           + indent
-          + "SONST:\n"
+          + SoulweaverText.text("decisions.code.else")
+          + ":\n"
           + no.text(indent + "    ");
     }
   }
 
   private record Event(String name, Values change) {
     String text() {
-      return name
+      return SoulweaverText.key("decisions.event." + name)
           + ": "
           + java.util.Arrays.stream(Attribute.values())
               .filter(attribute -> attribute.value(change) != 0)
               .map(
                   attribute ->
-                      attribute.name()
-                          + " "
-                          + (attribute.value(change) > 0 ? "+" : "")
-                          + attribute.value(change))
+                      SoulweaverText.key(
+                          "decisions.change." + attribute.name().toLowerCase(Locale.ROOT),
+                          (attribute.value(change) > 0 ? "+" : "") + attribute.value(change)))
               .collect(Collectors.joining(" · "));
     }
   }
@@ -171,13 +174,13 @@ public final class DecisionMaze {
       List.of(
           new Rune(
               branch(gt(Attribute.ENERGIE, 50), branch(ge(Attribute.KRAFT, 40), RIGHT, LEFT), LEFT),
-              List.of(new Event("Schwellenrune", new Values(0, -30, 0)))),
+              List.of(new Event("threshold", new Values(0, -30, 0)))),
           new Rune(
               branch(
                   ge(Attribute.ENERGIE, 60),
                   branch(lt(Attribute.TEMPERATUR, 25), LEFT, RIGHT),
                   branch(ge(Attribute.KRAFT, 40), RIGHT, LEFT)),
-              List.of(new Event("Kristallquelle", new Values(0, 30, 0)))),
+              List.of(new Event("crystal-spring", new Values(0, 30, 0)))),
           new Rune(
               branch(
                   ge(Attribute.ENERGIE, 50),
@@ -187,8 +190,8 @@ public final class DecisionMaze {
                       RIGHT),
                   LEFT),
               List.of(
-                  new Event("Kraftquelle", new Values(10, 0, 0)),
-                  new Event("Feuerrune", new Values(0, 0, 5)))),
+                  new Event("strength-spring", new Values(10, 0, 0)),
+                  new Event("fire", new Values(0, 0, 5)))),
           new Rune(
               branch(
                   ge(Attribute.ENERGIE, 50),
@@ -197,7 +200,7 @@ public final class DecisionMaze {
                       branch(ge(Attribute.KRAFT, 60), RIGHT, LEFT),
                       branch(ge(Attribute.KRAFT, 40), RIGHT, LEFT)),
                   LEFT),
-              List.of(new Event("Schmiederune", new Values(13, -15, 0)))),
+              List.of(new Event("forge", new Values(13, -15, 0)))),
           new Rune(
               branch(
                   ge(Attribute.ENERGIE, 50),
@@ -207,7 +210,7 @@ public final class DecisionMaze {
                           new And(gt(Attribute.KRAFT, 60), lt(Attribute.ENERGIE, 60)), RIGHT, LEFT),
                       RIGHT),
                   LEFT),
-              List.of(new Event("Herzglut", new Values(0, -13, 4)))),
+              List.of(new Event("heart-ember", new Values(0, -13, 4)))),
           new Rune(
               branch(
                   ge(Attribute.ENERGIE, 40),
@@ -231,9 +234,6 @@ public final class DecisionMaze {
     new Values(35, 70, 15), // LLRRRL
     new Values(40, 75, 27) // RRLLLR
   };
-
-  public static final String[] RUNES =
-      PROGRAMS.stream().map(rune -> rune.program().text("")).toArray(String[]::new);
 
   private DecisionMaze() {}
 
@@ -263,6 +263,14 @@ public final class DecisionMaze {
 
   /**
    * @param junction zero-based rune index
+   * @return the displayed nested program in the current language
+   */
+  public static String rune(int junction) {
+    return PROGRAMS.get(junction).program().text("");
+  }
+
+  /**
+   * @param junction zero-based rune index
    * @param values current carried values
    * @return leaf reached by executing the displayed nested program
    */
@@ -284,12 +292,12 @@ public final class DecisionMaze {
 
   /**
    * @param junction successful junction being left
-   * @return visible explanation of its value changes
+   * @return transport key of the visible explanation of its value changes
    */
   public static String event(int junction) {
     List<Event> events = PROGRAMS.get(junction).events();
     return events.isEmpty()
-        ? "Das Herzfeuer erwacht."
+        ? SoulweaverText.key("decisions.event.heartfire")
         : events.stream().map(Event::text).collect(Collectors.joining(" · "));
   }
 }

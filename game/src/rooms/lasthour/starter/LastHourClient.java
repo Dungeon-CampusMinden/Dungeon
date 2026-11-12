@@ -1,7 +1,6 @@
 package rooms.lasthour.starter;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
@@ -12,19 +11,14 @@ import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
-import engine.utils.CursorUtil;
 import engine.utils.Tuple;
 import engine.utils.components.draw.DrawComponentFactory;
 import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.TextureMap;
-import engine.utils.components.draw.shader.ColorGradeShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.SimpleIPath;
-import engine.utils.settings.ButtonBindingSetting;
 import engine.utils.settings.ClientSettings;
-import engine.utils.settings.DescriptionSetting;
-import engine.utils.settings.SectionDividerSetting;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
 import feature.credits.CreditsFeature;
@@ -32,7 +26,6 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.hud.AutoSaveIndicator;
 import feature.hud.dialogs.DialogFactory;
-import feature.input.configuration.KeyboardConfig;
 import feature.input.systems.ControlsDialogSystem;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadSync;
@@ -81,7 +74,6 @@ public final class LastHourClient {
       Game.add(new Debugger());
     }
     TheLastHour.registerLocalWorldTimerSystem();
-    Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     Game.add(new ComputerStateSyncSystem());
 
@@ -235,30 +227,6 @@ public final class LastHourClient {
     }
   }
 
-  private static final String T_SETTINGS_CONTROLS_HEADER = "settings.controls_header";
-  private static final String T_SETTINGS_CONTROLS_DESCRIPTION = "settings.controls_description";
-  private static final String T_SETTINGS_PAUSE = "settings.pause";
-  private static final String T_SETTINGS_INTERACT = "settings.interact";
-  private static final String T_SETTINGS_INVENTORY = "settings.inventory";
-  private static final String T_SETTINGS_QUESTLOG = "settings.questlog";
-  private static final String T_SETTINGS_INVENTORY_DESCRIPTION = "settings.inventory_description";
-
-  /** Registers additional client settings. */
-  static void registerSettings() {
-    ClientSettings.registerSetting(new SectionDividerSetting(T_SETTINGS_CONTROLS_HEADER));
-    ClientSettings.registerSetting(
-        new DescriptionSetting(T_SETTINGS_CONTROLS_DESCRIPTION, Input.Keys.E));
-    ClientSettings.registerSetting(new ButtonBindingSetting(T_SETTINGS_PAUSE, Input.Keys.P, false));
-    ClientSettings.registerSetting(
-        new ButtonBindingSetting(T_SETTINGS_INTERACT, Input.Keys.E, false));
-    ClientSettings.registerSetting(
-        new ButtonBindingSetting(T_SETTINGS_INVENTORY, Input.Keys.I, false));
-    ClientSettings.registerSetting(
-        new ButtonBindingSetting(T_SETTINGS_QUESTLOG, KeyboardConfig.QUESTLOG_OPEN.value(), false));
-    ClientSettings.registerSetting(
-        new DescriptionSetting(T_SETTINGS_INVENTORY_DESCRIPTION, Input.Buttons.RIGHT));
-  }
-
   private static final List<Tuple<String, Color>> USB_TEXTURES =
       List.of(
           Tuple.of("items/usb-side-green.png", Color.GREEN),
@@ -280,14 +248,6 @@ public final class LastHourClient {
 
       TextureGenerator.registerRenderShaderTexture(basePath, outTexturePath, shaderList);
     }
-
-    // Invert the keyboard / mouse input-prompt spritesheet so the white-on-transparent icons
-    // read clearly against the dark HUD text used in this game.
-    String keyboardPromptPath = "hud/input/keyboard_mouse.png";
-    ShaderList invertShaders = new ShaderList();
-    invertShaders.add("invert", new ColorGradeShader().invert(true));
-    TextureGenerator.registerRenderShaderTexture(
-        keyboardPromptPath, keyboardPromptPath, invertShaders);
 
     // Put the first frame of the idle animation of the rogue and the char03 characters into a
     // special texture in "@gen/char03.png" and "@gen/rogue.png", so they can be used for Dialogs

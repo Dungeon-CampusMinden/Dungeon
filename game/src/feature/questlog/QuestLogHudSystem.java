@@ -1,6 +1,5 @@
 package feature.questlog;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -13,18 +12,21 @@ import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.System;
 import engine.components.PlayerComponent;
+import engine.input.CoreActions;
+import engine.input.GameInput;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.UIUtils;
-import feature.input.configuration.KeyboardConfig;
+import feature.hud.elements.RichLabel;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 /**
- * Client-side HUD button in the bottom-right corner that opens the quest log.
+ * Client-side HUD button in the bottom-right corner that opens the quest log. It does nothing while
+ * a UI takes the input.
  *
  * <p>The button shows the quest log key binding and a badge with the number of entries the local
  * player has not read yet. An entry counts as read once the quest log dialog displayed it on this
@@ -38,14 +40,14 @@ public final class QuestLogHudSystem extends System {
   private static final float SCREEN_MARGIN = 16f;
   private static final int MAX_BADGE_COUNT = 9;
   private static final FontSpec FONT_BADGE = FontSpec.of(14, Color.WHITE);
-  private static final FontSpec FONT_KEY = FontSpec.of(18, Color.WHITE, 2f, Color.BLACK);
+  private static final FontSpec FONT_KEY = FontSpec.of(28, Color.WHITE, 2f, Color.BLACK);
 
   private static final Set<ReadKey> READ_ENTRIES = new HashSet<>();
 
   private Table hud;
   private Table badge;
   private Label badgeLabel;
-  private Label keyLabel;
+  private RichLabel keyLabel;
 
   /** Creates the quest log HUD system. */
   public QuestLogHudSystem() {
@@ -70,7 +72,7 @@ public final class QuestLogHudSystem extends System {
               int unread = unreadCount();
               badge.setVisible(unread > 0);
               badgeLabel.setText(badgeText(unread));
-              keyLabel.setText(Input.Keys.toString(KeyboardConfig.QUESTLOG_OPEN.value()));
+              keyLabel.showBinding(CoreActions.QUESTLOG);
               hud.pack();
               hud.setPosition(stage.getWidth() - SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomRight);
             });
@@ -84,7 +86,8 @@ public final class QuestLogHudSystem extends System {
     badgeOverlay.top().right().add(badge).size(BADGE_SIZE);
 
     Stack iconStack = new Stack(icon, badgeOverlay);
-    keyLabel = Scene2dElementFactory.createLabel("", FONT_KEY);
+    keyLabel = new RichLabel("", FONT_KEY);
+    keyLabel.setWrap(false);
 
     Table table = new Table();
     table.setTouchable(Touchable.enabled);
@@ -94,7 +97,7 @@ public final class QuestLogHudSystem extends System {
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            Game.player().ifPresent(QuestLogUI::requestQuestLog);
+            if (!GameInput.uiOpen()) Game.player().ifPresent(QuestLogUI::requestQuestLog);
           }
         });
     return table;

@@ -1,15 +1,13 @@
 package feature.input.systems;
 
 import engine.Entity;
-import engine.Game;
 import engine.System;
 import engine.System.AuthoritativeSide;
-import engine.systems.input.InputManager;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
-import feature.input.configuration.KeyboardConfig;
+import feature.hud.dialogs.DialogType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -34,10 +32,6 @@ public final class ControlsDialogSystem extends System {
   @Override
   public void execute() {
     discardClosedDialogs();
-    if (Game.isHeadless() || !InputManager.isKeyJustPressed(KeyboardConfig.SHOW_CONTROLS.value())) {
-      return;
-    }
-    Game.player().ifPresent(this::showControlsFor);
   }
 
   /**
@@ -59,7 +53,9 @@ public final class ControlsDialogSystem extends System {
     discardClosedDialogs();
     int playerId = player.id();
     if (openDialogs.containsKey(playerId)) return;
-    DialogContext.Builder context = DialogFactory.dialogDialogContext(controlsDialog.get());
+    DialogContext.Builder context =
+        DialogFactory.dialogDialogContext(controlsDialog.get())
+            .type(DialogType.DefaultTypes.CONTROLS);
     if (pausesPlayClock) context.put(DialogContextKeys.PAUSES_PLAY_CLOCK, true);
     UIComponent dialog = DialogFactory.showDialogDialog(context.build(), () -> {}, playerId);
     openDialogs.put(playerId, dialog);

@@ -45,7 +45,6 @@ public final class CanvasOptions implements Serializable {
   private boolean snapToGrid = false;
 
   private int panButton = Input.Buttons.MIDDLE;
-  private boolean panWithSpace = true;
 
   private transient Color backgroundColor = Color.valueOf("333333CC");
   private transient Color gridColor = new Color(0.82f, 0.82f, 0.82f, 1f);
@@ -160,17 +159,6 @@ public final class CanvasOptions implements Serializable {
    */
   public CanvasOptions panButton(int button) {
     this.panButton = button;
-    return this;
-  }
-
-  /**
-   * Sets whether holding space additionally enables panning with the left mouse button.
-   *
-   * @param enabled true to allow space + left drag panning
-   * @return this instance for chaining
-   */
-  public CanvasOptions panWithSpace(boolean enabled) {
-    this.panWithSpace = enabled;
     return this;
   }
 
@@ -374,15 +362,6 @@ public final class CanvasOptions implements Serializable {
    */
   public int panButton() {
     return panButton;
-  }
-
-  /**
-   * Returns whether space + left drag pans the canvas.
-   *
-   * @return true if space panning is enabled
-   */
-  public boolean panWithSpace() {
-    return panWithSpace;
   }
 
   /**

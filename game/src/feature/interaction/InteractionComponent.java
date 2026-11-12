@@ -2,7 +2,6 @@ package feature.interaction;
 
 import engine.Component;
 import engine.Entity;
-import engine.systems.input.InputSystem;
 import feature.hud.DialogUtils;
 import java.util.function.BiConsumer;
 
@@ -10,8 +9,8 @@ import java.util.function.BiConsumer;
  * A component that enables an entity to perform interactions.
  *
  * <p>An interaction can be triggered using {@link #triggerInteraction(Entity, Entity)}, typically
- * through the {@link InputSystem} when the player presses the corresponding key and is within the
- * interaction range.
+ * through the {@link feature.input.systems.GameplayInputSystem} when the player presses the
+ * corresponding key and is within the interaction range.
  *
  * <p>The behavior of an interaction is defined by the {@link Interaction} provided to this
  * component. Each interaction internally uses a {@link BiConsumer} callback for its logic.

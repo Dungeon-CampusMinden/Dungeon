@@ -13,7 +13,6 @@ import static org.mockito.Mockito.times;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.InputComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
@@ -101,7 +100,6 @@ class SystemRecoveryTimerLifecycleTest {
     Game.currentLevel(level);
     player = new Entity("Ada");
     player.add(new PlayerComponent(true, "Ada"));
-    player.add(new InputComponent());
     player.add(new PositionComponent(new Point(1, 1)));
     Game.add(player);
     saves = mockStatic(SystemRecoverySave.class);
@@ -199,7 +197,7 @@ class SystemRecoveryTimerLifecycleTest {
     countdown.execute();
     countdown.execute();
 
-    assertTrue(player.fetch(InputComponent.class).orElseThrow().deactivateControls());
+    assertTrue(player.fetch(PlayerComponent.class).orElseThrow().controlsLocked());
     assertFalse(module.isPresent(InteractionComponent.class));
     assertEquals(
         SystemRecoveryLearningStep.ENERGY_ARRAY,

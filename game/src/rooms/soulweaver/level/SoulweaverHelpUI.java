@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.utils.Scene2dElementFactory;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Shared help overlay. Only the server releases tips or changes a puzzle. */
 final class SoulweaverHelpUI extends Table {
@@ -92,38 +93,38 @@ final class SoulweaverHelpUI extends Table {
 
   private void rebuild() {
     content.clearChildren();
-    line(state == null ? "Hilfe" : state.title(), 25, SoulweaverUI.GOLD);
+    line(
+        state == null ? SoulweaverText.text("ui.help") : SoulweaverText.translate(state.title()),
+        25,
+        SoulweaverUI.GOLD);
     if (state != null) {
-      line("Dein Ziel", 18, SoulweaverUI.GOLD);
-      line(state.goal(), 19, SoulweaverUI.TEXT);
+      line(SoulweaverText.text("help.ui.goal"), 18, SoulweaverUI.GOLD);
+      line(SoulweaverText.translate(state.goal()), 19, SoulweaverUI.TEXT);
       if (!confirming) {
-        line("Tipps · " + state.level() + " / 3", 18, SoulweaverUI.GOLD);
-        if (state.level() == 0)
-          line("Für dieses Rätsel hast du noch keinen Tipp angefordert.", 17, SoulweaverUI.MUTED);
+        line(SoulweaverText.text("help.ui.tips", state.level()), 18, SoulweaverUI.GOLD);
+        if (state.level() == 0) line(SoulweaverText.text("help.ui.no-tip"), 17, SoulweaverUI.MUTED);
         for (var tip :
             state.history().stream().filter(t -> t.puzzleId().equals(state.puzzleId())).toList()) {
-          line(tip.title() + " · Tipp " + tip.step(), 17, SoulweaverUI.GOLD);
-          line(tip.text(), 18, SoulweaverUI.TEXT);
+          tip(tip, 18);
         }
-        if (!state.status().isBlank()) line(state.status(), 17, SoulweaverUI.MUTED);
+        if (!state.status().isBlank())
+          line(SoulweaverText.translate(state.status()), 17, SoulweaverUI.MUTED);
       }
       if (confirming) {
-        line("Rätsel wirklich lösen?", 22, SoulweaverUI.GOLD);
+        line(SoulweaverText.text("help.ui.confirm-title"), 22, SoulweaverUI.GOLD);
         line(
-            switch (state.puzzleId()) {
-              case "methods" ->
-                  "Dein bisheriger Code wird durch die Lösung ersetzt und ausgeführt. Das Rätsel wird für alle Spieler gelöst.";
-              case "decisions" ->
-                  "Nox nimmt an dieser Kreuzung die Tür des ausgeführten Zweigs. Die folgenden Kreuzungen entscheidest du weiter selbst.";
-              default ->
-                  "Die Hilfe setzt die Lösung für dieses Rätsel ein. Das Rätsel wird für alle Spieler gelöst.";
-            },
+            SoulweaverText.text(
+                switch (state.puzzleId()) {
+                  case "methods" -> "help.ui.confirm-methods";
+                  case "decisions" -> "help.ui.confirm-decisions";
+                  default -> "help.ui.confirm";
+                }),
             18,
             SoulweaverUI.TEXT);
         content
             .add(
                 SoulweaverUI.button(
-                    "Ja, Rätsel lösen",
+                    SoulweaverText.text("help.ui.solve-confirm"),
                     true,
                     () -> {
                       if (!allowed.getAsBoolean()) return;
@@ -138,7 +139,7 @@ final class SoulweaverHelpUI extends Table {
         content
             .add(
                 SoulweaverUI.button(
-                    "Abbrechen",
+                    SoulweaverText.text("help.ui.cancel"),
                     false,
                     () -> {
                       event("help.cancel");
@@ -152,7 +153,7 @@ final class SoulweaverHelpUI extends Table {
       } else {
         var next =
             SoulweaverUI.button(
-                state.level() >= 3 ? "Rätsel lösen ..." : "Nächster Tipp",
+                SoulweaverText.text(state.level() >= 3 ? "help.ui.solve" : "help.ui.next-tip"),
                 true,
                 () -> {
                   if (state.level() >= 3) {
@@ -169,24 +170,28 @@ final class SoulweaverHelpUI extends Table {
       }
     }
     if (state != null && state.level() >= 3 && !allowed.getAsBoolean())
-      line(
-          "Nur der bearbeitende Spieler kann die Lösung einsetzen. Warte, bis alle Änderungen gespeichert sind.",
-          17,
-          SoulweaverUI.MUTED);
+      line(SoulweaverText.text("help.ui.editor-only"), 17, SoulweaverUI.MUTED);
     if (!confirming) {
-      line("Bedienung", 18, SoulweaverUI.GOLD);
+      line(SoulweaverText.text("help.ui.controls"), 18, SoulweaverUI.GOLD);
       for (String control : controls.split("\n")) line(control, 17, SoulweaverUI.TEXT);
     }
     if (!confirming
         && state != null
         && state.history().stream().anyMatch(t -> !t.puzzleId().equals(state.puzzleId()))) {
       content.add().height(24).row();
-      line("Bisherige Tipps aus anderen Rätseln", 18, SoulweaverUI.GOLD);
+      line(SoulweaverText.text("help.ui.earlier-tips"), 18, SoulweaverUI.GOLD);
       for (var tip :
           state.history().stream().filter(t -> !t.puzzleId().equals(state.puzzleId())).toList()) {
-        line(tip.title() + " · Tipp " + tip.step(), 17, SoulweaverUI.GOLD);
-        line(tip.text(), 17, SoulweaverUI.TEXT);
+        tip(tip, 17);
       }
     }
+  }
+
+  private void tip(SoulweaverHelp.ReleasedHint tip, int size) {
+    line(
+        SoulweaverText.text("help.tip-title", SoulweaverText.translate(tip.title()), tip.step()),
+        17,
+        SoulweaverUI.GOLD);
+    line(SoulweaverText.translate(tip.text()), size, SoulweaverUI.TEXT);
   }
 }

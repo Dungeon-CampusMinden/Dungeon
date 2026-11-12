@@ -1,6 +1,5 @@
 package engine.systems;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
@@ -10,6 +9,7 @@ import engine.System;
 import engine.components.CameraComponent;
 import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
+import engine.input.GameInput;
 import engine.level.Tile;
 import engine.utils.Point;
 import engine.utils.Rectangle;
@@ -100,11 +100,12 @@ public final class CameraSystem extends System {
    * @return True if the entity is hovered, false otherwise.
    */
   public static boolean isEntityHovered(Entity entity) {
-    if (Gdx.input == null || Game.isHeadless() || entity.fetch(PositionComponent.class).isEmpty()) {
+    if (Game.isHeadless() || entity.fetch(PositionComponent.class).isEmpty()) {
       return false;
     }
 
-    Vector3 mousePos = CAMERA.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+    engine.utils.Vector2 pointer = GameInput.pointer();
+    Vector3 mousePos = CAMERA.unproject(new Vector3(pointer.x(), pointer.y(), 0));
     Point mousePoint = new Point(mousePos.x, mousePos.y);
 
     return EntityUtils.isPointOverEntity(entity, mousePoint);

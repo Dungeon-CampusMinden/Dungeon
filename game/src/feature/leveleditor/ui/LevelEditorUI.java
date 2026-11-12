@@ -1,14 +1,16 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
+import engine.input.GameInput;
 import feature.leveleditor.LevelEditorMode;
 import feature.systems.LevelEditorSystem;
 
@@ -45,6 +47,14 @@ public class LevelEditorUI extends Group {
   /** Creates a new level editor UI group. */
   public LevelEditorUI() {
     setTouchable(Touchable.childrenOnly);
+    // Panels are operable UI: a press on their background must not reach the level below.
+    addListener(
+        new InputListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            return true;
+          }
+        });
     addActor(modePanel);
     addActor(detailsPanel);
     addActor(secondaryDetailsPanel);
@@ -102,7 +112,8 @@ public class LevelEditorUI extends Group {
     Stage stage = getStage();
     if (stage == null || !isVisible()) return false;
     Vector2 stagePosition =
-        stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+        stage.screenToStageCoordinates(
+            new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
     Actor hit = stage.hit(stagePosition.x, stagePosition.y, true);
     while (hit != null) {
       if (hit == this) return true;

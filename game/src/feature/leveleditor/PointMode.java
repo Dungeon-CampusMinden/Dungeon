@@ -1,10 +1,10 @@
 package feature.leveleditor;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import engine.input.ActionId;
+import engine.input.GameInput;
 import engine.level.utils.Coordinate;
 import engine.network.messages.c2s.DialogResponseMessage;
-import engine.systems.input.InputManager;
 import engine.utils.Point;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.DebugDrawSystem;
@@ -52,13 +52,13 @@ public class PointMode extends LevelEditorMode {
 
   @Override
   public void execute() {
-    if (InputManager.isKeyJustPressed(SECONDARY_UP)) {
+    if (GameInput.justPressed(EditorActions.SECONDARY_NEXT)) {
       snapMode = snapMode.nextMode();
     }
 
     Point cursorPos = getCursorPosition();
     Point snapPos = snapMode.getPosition(cursorPos);
-    if (InputManager.isButtonJustPressed(Input.Buttons.LEFT)) {
+    if (GameInput.justPressed(EditorActions.PLACE)) {
       if (heldPointName != null) {
         // Place held point
         getLevel().addNamedPoint(heldPointName, snapPos);
@@ -85,7 +85,7 @@ public class PointMode extends LevelEditorMode {
             },
             () -> {});
       }
-    } else if (InputManager.isButtonJustPressed(Input.Buttons.RIGHT)) {
+    } else if (GameInput.justPressed(EditorActions.ALT)) {
       Optional<String> clickedPoint = getOnPosition(cursorPos);
       if (clickedPoint.isPresent()) {
         String point = clickedPoint.get();
@@ -109,7 +109,7 @@ public class PointMode extends LevelEditorMode {
         getLevel().addNamedPoint(newPointName, snapPos);
         levelChanged();
       }
-    } else if (InputManager.isKeyPressed(TERTIARY)) {
+    } else if (GameInput.pressed(EditorActions.TERTIARY)) {
       // Delete point on cursor
       getOnPosition(cursorPos)
           .ifPresent(
@@ -159,12 +159,12 @@ public class PointMode extends LevelEditorMode {
   }
 
   @Override
-  public Map<Integer, String> getControls() {
-    Map<Integer, String> controls = new LinkedHashMap<>();
-    controls.put(Input.Buttons.LEFT, "Place Point");
-    controls.put(Input.Buttons.RIGHT, "Pickup Point / Clone Held Point");
-    controls.put(SECONDARY_UP, "Change Snap Mode");
-    controls.put(TERTIARY, "Delete Point");
+  public Map<ActionId, String> controls() {
+    Map<ActionId, String> controls = new LinkedHashMap<>();
+    controls.put(EditorActions.PLACE, "Place Point");
+    controls.put(EditorActions.ALT, "Pickup Point / Clone Held Point");
+    controls.put(EditorActions.SECONDARY_NEXT, "Change Snap Mode");
+    controls.put(EditorActions.TERTIARY, "Delete Point");
     return controls;
   }
 

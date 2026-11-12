@@ -20,6 +20,8 @@ import engine.components.DrawComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.SoundComponent;
+import engine.input.CoreActions;
+import engine.input.GameInput;
 import engine.language.Translation;
 import engine.level.loader.DungeonLoader;
 import engine.level.loader.LevelParser;
@@ -57,6 +59,7 @@ import engine.network.messages.s2c.SoundStopMessage;
 import engine.network.server.ClientState;
 import engine.network.server.Session;
 import engine.network.server.SoundTracker;
+import engine.sound.Sounds;
 import engine.sound.player.GdxSoundPlayer;
 import engine.sound.player.ISoundPlayer;
 import engine.sound.player.NoSoundPlayer;
@@ -68,10 +71,6 @@ import engine.systems.MoveSystem;
 import engine.systems.NetworkPositionSmoothingSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
-import engine.systems.input.InputManager;
-import engine.systems.input.InputSystem;
-import engine.systems.input.JoystickSystem;
-import engine.systems.input.MovementInputSystem;
 import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
@@ -87,7 +86,9 @@ import feature.hud.PauseMenuHudSystem;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogFeedbackRouter;
+import feature.input.systems.GameplayInputSystem;
 import feature.interaction.InteractionComponent;
+import feature.interaction.combinationlock.CombinationLockSync;
 import feature.interaction.keypad.KeypadSync;
 import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
@@ -242,6 +243,7 @@ public final class GameLoop extends ScreenAdapter {
           new com.badlogic.gdx.Game() {
             @Override
             public void create() {
+              GameInput.install();
               if (Gdx.audio != null && !PreRunConfiguration.disableAudio()) {
                 soundPlayer = new GdxSoundPlayer(new AssetManager());
               }
@@ -251,8 +253,15 @@ public final class GameLoop extends ScreenAdapter {
 
             @Override
             public void render() {
+              GameInput.update(Gdx.graphics.getDeltaTime());
               soundPlayer.update(Gdx.graphics.getDeltaTime());
               super.render();
+            }
+
+            @Override
+            public void pause() {
+              GameInput.applicationPaused();
+              super.pause();
             }
 
             @Override
@@ -364,21 +373,20 @@ public final class GameLoop extends ScreenAdapter {
   private static void updateStage(final Stage stage) {
     stage.act(Gdx.graphics.getDeltaTime());
     stage.draw();
+    GameInput.draw(stage);
   }
 
   @Override
   public void show() {
-    if (stage != null) {
-      Gdx.input.setInputProcessor(stage);
-      InputManager.init();
-    }
+    if (stage != null) GameInput.stage(stage);
   }
 
   private static void setupStage() {
     int width = currentWindowWidth();
     int height = currentWindowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
-    Gdx.input.setInputProcessor(stage);
+    GameInput.stage(stage);
+    Sounds.playButtonSounds(stage.getRoot());
   }
 
   private static int currentWindowWidth() {
@@ -451,7 +459,6 @@ public final class GameLoop extends ScreenAdapter {
             ? System.AuthoritativeSide.CLIENT
             : System.AuthoritativeSide.BOTH);
 
-    InputManager.update();
     CameraSystem.camera().update();
     // stage logic
     stage().ifPresent(GameLoop::updateStage);
@@ -558,8 +565,6 @@ public final class GameLoop extends ScreenAdapter {
         DialogFactory.showClientConnectionDialog();
       }
     }
-
-    if (!Game.isHeadless()) InputManager.init();
 
     // Multiplayer clients receive level state from the server instead of loading it locally.
     if (!Game.isMultiplayerClient()) {
@@ -683,6 +688,7 @@ public final class GameLoop extends ScreenAdapter {
             newEntity.add(new InteractionComponent());
           }
           KeypadSync.apply(newEntity, event.metadata());
+          CombinationLockSync.apply(newEntity, event.metadata());
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
           }
@@ -1075,8 +1081,7 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   private void fullscreenKey() {
-    if (InputManager.isKeyJustPressed(
-        engine.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+    if (GameInput.justPressed(CoreActions.FULLSCREEN)) {
       boolean modeChanged;
       if (!Gdx.graphics.isFullscreen()) {
         modeChanged = Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
@@ -1212,12 +1217,10 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new InputSystem());
+    ECSManagement.add(new GameplayInputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());
     ECSManagement.add(new QuestLogHudSystem());
     ECSManagement.add(new PauseMenuHudSystem());
-    ECSManagement.add(new JoystickSystem());
-    ECSManagement.add(new MovementInputSystem());
   }
 }

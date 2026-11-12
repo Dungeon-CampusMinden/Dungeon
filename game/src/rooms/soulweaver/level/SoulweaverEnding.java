@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import rooms.soulweaver.save.SoulweaverSave;
+import rooms.soulweaver.util.SoulweaverText;
 
 /**
  * One authoritative offering ends tracking; every connected player can finish reading the outro.
@@ -42,13 +43,9 @@ final class SoulweaverEnding {
     var context =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.TEXT)
-            .put(DialogContextKeys.TITLE, "Am Herzfeuer")
-            .put(
-                DialogContextKeys.MESSAGE,
-                "Lege die Kristalle ins Herzfeuer.\n\n"
-                    + "Damit schließt ihr den Raum ab.\n"
-                    + "Nach dem Abspann endet das Spiel für alle.")
-            .put(DialogContextKeys.CONFIRM_LABEL, "Opfergabe darbringen")
+            .put(DialogContextKeys.TITLE, SoulweaverText.key("ending.title"))
+            .put(DialogContextKeys.MESSAGE, SoulweaverText.key("ending.message"))
+            .put(DialogContextKeys.CONFIRM_LABEL, SoulweaverText.key("ending.confirm"))
             .build();
     UIComponent dialog = DialogFactory.show(context, who.id());
     dialog.registerCallback(
@@ -97,7 +94,7 @@ final class SoulweaverEnding {
           () -> {
             confirmed.add(player.id());
             BlackFadeCutscene.show(
-                    List.of(Tuple.of("Geschafft!\nWarte, bis alle ihre Reise beendet haben.", 30)),
+                    List.of(Tuple.of(SoulweaverText.key("ending.waiting"), 30)),
                     false,
                     false,
                     () -> {},

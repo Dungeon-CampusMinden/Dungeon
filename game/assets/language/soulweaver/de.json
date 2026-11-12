@@ -72,5 +72,558 @@
       "name": "Übung macht den Meister",
       "description": "Schließt Valerius' Methodenprüfung nach mindestens einer fehlgeschlagenen Ausführung ab."
     }
+  },
+  "soulweaver": {
+    "story": {
+      "intro": "Aethelgard\nDie Schmiede des vermissten Meisters Valerius",
+      "ending": {
+        "heartfire": "Die Kristalle verglühen im Herzfeuer.\nFür einen Moment leuchten Nox' Runen im selben Takt wie die Flammen.",
+        "done": "Du hast es geschafft!\n\nDu hast Nox zum Leben erweckt und bis zum Herzfeuer geführt.\nVariablen, Schleifen, Methoden und Bedingungen waren deine Werkzeuge.\n\nDas Erbe der Seelenweber ist abgeschlossen.\nKlicke, um deine Reise zu beenden."
+      },
+      "letter": "Falls jemand nach mir sucht: Ich bin zum Herzfeuer gegangen.\n\nDer zweite Ausgang klemmt. Schutt blockiert die Torwinde im Keller, und aus den alten Leitungen tritt heißer Dampf aus. Geht nicht selbst hinunter.\n\nIch habe Nox für solche Arbeiten gebaut. Er trägt Lasten und hält die Maschinen frei. Seine Seelenbindung ist allerdings erloschen. Gefäße und Essenzen liegen in den Werkstattkisten.\n\nStellt seine Seelenbindung wieder her. Er soll die Torwinde freiräumen, damit sich der Ausgang wieder öffnen lässt.\n\nValerius",
+      "archive": "Arbeitsauftrag · Maschinenkeller\n\nNox: Förderbahn, Pumpenzugang und Kettenzug freiräumen. Den beschädigten Kühlkanal überqueren, dann den Schutt an der Torwinde entfernen.\n\nDie Messingmarken sind seine Arbeitspositionen. Die Pfeile geben die Ausrichtung an. Das Steuerprogramm muss dort vollständig enden. Erst danach beginnt der separate Räumauftrag. Das Berühren einer Marke genügt nicht.\n\nSteuerprogramme liegen im Archiv, darunter alte Probeläufe. Das Steuerbuch nimmt jeweils eine Rhythmusrune an. Passt der Lauf nicht zum Auftrag, kehrt Nox zur letzten Arbeitsposition zurück. Die Rune bleibt erhalten. Während er läuft oder zurückkehrt, nimmt er kein neues Programm an.\n\nDer Sehstein überträgt sein Blickfeld aus dem Keller. Die Karte meldet nur, wo ein Hindernis liegt.\n\nValerius",
+      "maintenance": "Wartung, Torwinde\n\nDie untere Halterung ist stark verrostet. Unter Belastung gibt sie nach.\n\nValerius",
+      "workshop": "Die Torwinde ist zerstört. Der Nebenausgang der Werkstatt bleibt uns. Aktiviere die Runensteine, sammle ihre Kristalle und versorge beide Altäre.\n\nValerius' langes Programm erledigt das bereits. Doch die Steuerung des Ausgangs fasst nur acht Befehle im Hauptprogramm. Lagere wiederholte Abläufe in eigene Methoden aus. Ihre Aufrufe sparen Platz. Parameter und Rückgaben machen dieselbe Methode mehrfach nutzbar.\n\nDie Werkstatt ist ein Prüfstand. Jeder Start setzt Nox und alle Objekte zurück. Öffne das Steuerbuch auf der Werkbank und probiere deine Änderungen aus.",
+      "workshop-journal": "Valerius' Werkstattjournal\n\nDas vollständige Programm liegt im Steuerbuch. Zwei Tore, zweimal derselbe Handgriff. Die Runen verlangen unterschiedliche Richtungen. Die Felder liefern drei und fünf Kristalle. Die Altäre brauchen genau diese Mengen.\n\nDie Ausgangssteuerung hat Platz für acht Befehle. Eigene Methoden haben ihren eigenen Speicher. Ich muss die Wiederholungen zusammenfassen und ihre Unterschiede als Parameter übergeben. Eine Sammlung liefert ihre tatsächliche Anzahl als Rückgabe.\n\nDer Prüfstand setzt vor jedem Lauf alles zurück. Fehler bleiben sichtbar, bis der nächste Versuch beginnt. Die Hilfe im Buch erklärt Parameter und Rückgaben.\n\nValerius"
+    },
+    "progress": {
+      "tab": {
+        "tasks": "Aufgaben",
+        "findings": "Fundstücke",
+        "binding": "Akt I · Seelenbindung",
+        "cellar": "Akt II · Keller",
+        "workshop": "Akt III · Werkstatt",
+        "labyrinth": "Akt IV · Labyrinth"
+      },
+      "current-task": "Aktuelle Aufgabe",
+      "continued": "Spiel ab Akt $1 fortgesetzt.",
+      "rune-title": "Schleifenrune $1 · $2",
+      "task": {
+        "explore": "Erkunde Valerius' Werkstatt und finde heraus, wie du Nox wieder erwecken kannst.",
+        "activate": "Aktiviere Nox an der Bindungsfläche.",
+        "follow-workshop": "Folge Nox zur Methodenwerkstatt.",
+        "follow-labyrinth": "Folge Nox durch den Nebenausgang zum Labyrinth der Entscheidungen.",
+        "offering": "Lies die Schriftrolle vor dem Herzfeuer und bringe die Opfergabe dar.",
+        "next-step": "Nox bereitet den nächsten Schritt vor.",
+        "vessels": "Ordne jeder Eigenschaft ein passendes Gefäß zu.",
+        "first-marker": "Bringe Nox zur ersten Zielmarke und richte ihn aus.",
+        "next-marker": "Bringe Nox zur nächsten Zielmarke und richte ihn aus.",
+        "essences": "Setze die Werte aus dem Bindungsplan ein.",
+        "decisions": "Verfolge die sechs Runen und führe Nox zum Herzfeuer.",
+        "methods": "Kürze das Werkstattprogramm mit Methoden und erledige alle Arbeitsstellen."
+      },
+      "assisted": "(Hilfe)"
+    },
+    "ending": {
+      "title": "Am Herzfeuer",
+      "message": "Lege die Kristalle ins Herzfeuer.\n\nDamit schließt ihr den Raum ab.\nNach dem Abspann endet das Spiel für alle.",
+      "confirm": "Opfergabe darbringen",
+      "waiting": "Geschafft!\nWarte, bis alle ihre Reise beendet haben."
+    },
+    "findings": {
+      "essences": {
+        "title": "Essenzen gefunden",
+        "text": "Die Essenzen liegen jetzt am Bindungstisch bereit."
+      },
+      "vessels": {
+        "title": "Gefäße gefunden",
+        "text": "Die Typgefäße liegen jetzt am Bindungstisch bereit."
+      },
+      "archive-instructions": "Hinweise aus dem Archiv",
+      "workshop-experiments": "Valerius' Versuchsnotizen",
+      "intro-tablet": "Valerius' Brief",
+      "forge-maintenance-note": "Wartungsnotiz",
+      "note": "Werkstattnotiz"
+    },
+    "property": {
+      "name": "Name",
+      "life_energy": "Lebensenergie",
+      "mana": "Mana",
+      "activated": "Aktiviert",
+      "view_direction": "Blickrichtung",
+      "steps": "Schritte",
+      "identifier": {
+        "name": "name",
+        "life_energy": "lebensenergie",
+        "mana": "mana",
+        "activated": "aktiviert",
+        "view_direction": "blickrichtung",
+        "steps": "schritte"
+      }
+    },
+    "vessel": {
+      "iron_chest": {
+        "label": "Eisenkiste",
+        "capacity": "Ganze Zahlen"
+      },
+      "crystal_bottle": {
+        "label": "Kristallflasche",
+        "capacity": "Zahlen, auch Bruchteile"
+      },
+      "parchment": {
+        "label": "Pergament",
+        "capacity": "Wörter und Texte"
+      },
+      "rune_stone": {
+        "label": "Runenstein",
+        "capacity": "Ein einzelnes Zeichen"
+      },
+      "light_orb": {
+        "label": "Lichtkugel",
+        "capacity": "An oder aus"
+      }
+    },
+    "golem": {
+      "binding-incomplete": "Seelenbindung unvollständig.",
+      "trial-book": "Valerius' Prüfungsbuch liegt am Eingang zur Werkstatt.",
+      "activation-blocked": "Aktivierung unterbrochen. Laufweg blockiert.",
+      "activating": "Aktivierung läuft.",
+      "cellar-reached": "Keller erreicht. Räumauftrag bereit.",
+      "rubble-cleared": "Der Schutt ist beseitigt. Die Winde leider auch.",
+      "position-confirmed": "Programm beendet. Arbeitsposition bestätigt.",
+      "clearing": "Räumauftrag läuft. Steuerprogramm beendet.",
+      "cellar-solved": "Nox hat die Zielmarke erreicht und den Räumauftrag erledigt.",
+      "next-position": "Räumauftrag erledigt. Nächste Arbeitsposition bereit.",
+      "program-finished": "Programm beendet.",
+      "program-stopped": "Programm gestoppt.",
+      "returning": "Nox kehrt zurück.",
+      "wrong-facing": "Blickrichtung falsch.",
+      "marker-missed": "Zielmarke nicht erreicht.",
+      "returned": "Nox ist zurück an der Arbeitsposition.",
+      "waiting-return": "Nox wartet auf einen freien Rückweg.",
+      "jump-blocked": "Sprungbahn blockiert.",
+      "movement-blocked": "Bewegung unterbrochen. Laufweg blockiert.",
+      "wall-reached": "Wand oder Hindernis erreicht. Bewegung gestoppt.",
+      "waiting-workshop": "Nox wartet auf einen freien Weg in der Werkstatt.",
+      "waiting-airlock": "Nox wartet auf einen freien Weg zur Schleuse.",
+      "goal-reached": "Ziel erreicht",
+      "status-title": "Nox · Steuerungsstatus"
+    },
+    "binding": {
+      "chest-empty": "Die Kiste ist leer.",
+      "essences-packed": "Essenzen eingepackt. Valerius' Bindungsplan nennt den Wert für jede Fassung. Der Vorrat reicht für mehrere Fassungen.",
+      "vessels-packed": "Seelengefäße eingepackt. Jedes Gefäß trägt eine Prägung für seinen Inhalt. Der Vorrat reicht für mehrere Fassungen.",
+      "vessels-solved": "Alle Gefäße sind zugeordnet.",
+      "essences-solved": "Die Seelenbindung ist vollständig. Aktiviere Nox.",
+      "feedback": {
+        "supplies-missing": "Gefäße und Essenzen fehlen. Öffne die beiden Werkstattkisten.",
+        "supplies-ready": "Gefäße zuordnen und Essenzen einsetzen. Valerius' Bindungsplan liegt beim Golem.",
+        "vessels-missing": "Gefäßvorrat fehlt.",
+        "essences-missing": "Essenzfach fehlt.",
+        "crystal-for-whole-number": "Die Kristallflasche fasst auch ganze Zahlen. Valerius verwendet hier die Eisenkiste; Kristall ist für Bruchteile vorgesehen.",
+        "vessel-holds": "$1 trägt: $2. Wähle ein Gefäß, das zum benötigten Wert passt.",
+        "vessel-set": "$1: $2 eingesetzt.",
+        "vessels-complete": "Alle Gefäße eingesetzt. Fehlende Füllungen ergänzen.",
+        "no-vessel": "$1 passt nicht in diese Fassung.",
+        "does-not-fit": "$1 passt nicht in $2. $3.",
+        "stored": "$1 = $2 gespeichert.",
+        "stored-no-reaction": "$1 = $2 gespeichert. Bindung reagiert nicht.",
+        "complete": "Seelenbindung vollständig. Gefäß, Name und Wert bilden eine Variable.",
+        "cleared": "$1: Fassung geleert."
+      },
+      "failure": {
+        "wrong-vessel": "Falscher Gefäßtyp für $1.",
+        "vessel-missing": "Gefäß fehlt für $1.",
+        "wrong-type": "Falscher Datentyp: $1 passt nicht in $2.",
+        "wrong-value": "Falscher Wert für $1: $2."
+      },
+      "log": {
+        "vessel": "$1: $2",
+        "essence": "$1 = $2",
+        "correct": "richtig",
+        "wrong-vessel": "falscher Gefäßtyp",
+        "vessel-missing": "Gefäß fehlt",
+        "does-not-fit": "passt nicht in $1",
+        "wrong-value": "falscher Wert",
+        "solution": "Lösung eingesetzt",
+        "help": "Hilfe"
+      },
+      "ui": {
+        "title": "Nox · Seelenwerkbank",
+        "goal": "Binde Gefäß, Name und Wert und erwecke Nox.",
+        "controls": "Ablegen: Gefäß oder Essenz ziehen. Alternativ erst den Vorrat, dann eine Fassung anklicken.\nEntfernen: × an der Fassung. Vorräte sind mehrfach verwendbar.\nPrüfen: Nach vollständiger Bindung Aktivieren wählen.",
+        "simplified": "Markierte Fassung: $1 · Passende Vorräte sind sichtbar.",
+        "activate": "Aktivieren",
+        "drop-vessel": "Gefäß ablegen",
+        "empty": "leer",
+        "complete": "Seelenbindung vollständig",
+        "core": "Seelenkern",
+        "vessel-heading": "Gefäßvorrat",
+        "essence-heading": "Essenzfach"
+      },
+      "book": {
+        "title": "Valerius · Bindungsplan",
+        "heading": "Valerius · Bindungsplan für Nox",
+        "pages": "Seiten $1 und $2 von 6",
+        "note": {
+          "name": "So habe ich ihn genannt. Der Name bleibt, auch wenn ich seinen Kern erneuere.",
+          "life_energy": "Die Ladung für seinen schweren Steinkörper. Weniger war beim letzten Versuch nicht genug.",
+          "mana": "Die Menge für die Seelenbindung. Den halben Anteil nicht weglassen.",
+          "activated": "Die Freigabe für den Antrieb. Den Seelenkern erst aktivieren, wenn die Bindung vollständig ist.",
+          "view_direction": "O wie Osten. Dorthin soll er sich nach dem Erwachen wenden.",
+          "steps": "Stand des Schrittzählers bei der letzten Wartung. Diesen Wert bei der Bindung wiederherstellen."
+        }
+      }
+    },
+    "loops": {
+      "failure": {
+        "no-halt": "Ausführung ohne Halt abgebrochen.",
+        "jump-without-pit": "Sprung ohne Grube voraus.",
+        "pit-ahead": "Grube voraus. Schritt gestoppt.",
+        "intruder": "Ein Eindringling versperrt den Weg.",
+        "off-path": "Weg verlassen. Bewegung gestoppt."
+      },
+      "code": {
+        "move": "schritt",
+        "left": "linksDrehen",
+        "right": "rechtsDrehen",
+        "attack": "angreifen",
+        "jump": "springen",
+        "free": "bodenVoraus",
+        "goal": "amWegzeichen"
+      }
+    },
+    "ui": {
+      "back-to-room": "Zurück zum Raum",
+      "help": "Hilfe",
+      "questlog": "Quest-Log",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "terminal": {
+      "title": "Nox · Kellersteuerung",
+      "goal": "Ziehe eine Rune in den Executor und führe Nox zu den fünf Wegzeichen.",
+      "controls": "Starten: Rune in den Executor ziehen.\nCode lesen: Maus über eine Rune halten.\nWechseln: Nach einem Fehlversuch ist der Executor wieder frei. Sonst Rune herausziehen oder ersetzen.\nBeobachten: Die Karte zeigt Nox und das nächste Wegzeichen.",
+      "simplified": "Gold zeigt den aktuellen Weg. Nur passende Runengruppen sind sichtbar.",
+      "commands": "$1(): ein Feld vorwärts\n$2(): über eine Grube, zwei Felder\n$3(): Gegner direkt voraus\n$4(): Boden, auch mit Gegner\n$5(): aktuelles Ziel erreicht\nDrehen: eine Vierteldrehung",
+      "drop-rune": "Eine Rune hier ablegen",
+      "locked": "Gesperrt",
+      "pull-out": "Herausziehen",
+      "heading": {
+        "map": "Keller",
+        "executor": "Executor",
+        "commands": "Befehle"
+      }
+    },
+    "help": {
+      "no-rune": "Noch keine Rune für diesen Abschnitt gesammelt.",
+      "rune-location": {
+        "0": "Eine passende orange for-Rune liegt im Runenarchiv auf der unteren Tischreihe ganz links.",
+        "1": "Eine passende blaue while-Rune liegt im Runenarchiv auf der unteren Tischreihe, an zweiter Stelle von links.",
+        "2": "Eine passende blaue while-Rune liegt im Runenarchiv auf dem mittleren Tisch der unteren Reihe, an dessen linkem Ende.",
+        "3": "Eine passende violette do-while-Rune liegt im Runenarchiv auf der mittleren Tischreihe ganz links.",
+        "4": "Eine passende orange for-Rune liegt im Runenarchiv auf dem rechten Tisch der unteren Reihe, links neben der letzten Rune."
+      },
+      "tip-title": "$1 · Tipp $2",
+      "title": {
+        "vessels": "Gefäße zuordnen",
+        "essences": "Essenzen einsetzen",
+        "methods": "Werkstattprogramm kürzen",
+        "decisions": "Labyrinth der Entscheidungen",
+        "cellar": "Kellerauftrag $1"
+      },
+      "goal": {
+        "vessels": "Gib jeder Eigenschaft ein Gefäß für ihren Datentyp.",
+        "essences": "Fülle die Gefäße mit den Werten aus Valerius' Bindungsplan.",
+        "methods": "Erledige alle Arbeitsstellen mit höchstens acht Hauptblöcken und wiederverwendbaren Methoden.",
+        "decisions": "Führe die Rune mit Nox' aktuellen Werten aus und wähle die Tür des ausgeführten Zweigs.",
+        "cellar": "Bringe Nox zur Zielmarke und richte ihn für den Räumauftrag aus."
+      },
+      "hint": {
+        "vessels": {
+          "1": "Öffne die Gefäß-Kiste. Lies dann Valerius' Bindungsplan und ordne die Gefäße an der Bindungsfläche zu.",
+          "2": "Achte auf die Art des Wertes: Text, ganze Zahl, Bruchzahl, Wahrheitswert oder einzelnes Zeichen. Die Gefäße tragen passende Prägungen.",
+          "3": "Die nächste offene Fassung ist markiert. Nur passende Gefäße bleiben sichtbar. Ordne ein passendes Gefäß zu."
+        },
+        "essences": {
+          "1": "Öffne die Essenz-Kiste, falls das Essenzfach noch leer ist. Lies dann die gewünschten Werte in Valerius' Bindungsplan und setze Essenzen in die Fassungen.",
+          "2": "Ein passender Datentyp allein reicht nicht. Jeder Wert muss auch dem Bindungsplan entsprechen. Eine neue Essenz überschreibt den alten Wert.",
+          "3": "Die nächste offene Fassung ist markiert. Nur passende Essenzen bleiben sichtbar. Setze den Wert aus dem Bindungsplan ein."
+        },
+        "methods": {
+          "1": "Nox arbeitet die verbundenen Hauptblöcke ab. Vergleiche das lange Ausgangsprogramm mit den Arbeitsstellen und fasse wiederholte Abschnitte zusammen.",
+          "2": "Höchstens acht Hauptblöcke und sechs Blöcke je Methode. Rufe eine Methode mit Parametern mehrfach auf und verwende einen Rückgabewert. Beide Altäre müssen gefüllt sein; Nox und kristalle müssen am Ende 0 haben.",
+          "3": "Die Werkbank markiert jetzt wiederholte Anweisungen und veränderliche Eingaben in Gold. Nutze Richtung und Menge als Parameter. Sammeln gibt die Menge zurück; der Aufrufer addiert sie zu kristalle und zieht abgelegte Mengen wieder ab."
+        },
+        "decisions": {
+          "1": "Lies die Rune von oben nach unten. Setze Nox' aktuelle Werte in die erste Bedingung ein. Ist sie wahr, gilt der eingerückte Block darunter, sonst der Block nach dem zugehörigen SONST.",
+          "2": "Prüfe nur die Bedingungen auf deinem Weg; übersprungene Blöcke zählen nicht. Bei UND müssen beide Teile wahr sein, bei ODER reicht einer. Achte auf > und >=: 50 > 50 ist falsch, 50 >= 50 ist wahr.",
+          "3": "Das Runenbuch setzt jetzt Nox' aktuelle Werte in die Bedingungen ein. Vergleiche nur noch die Zahlen und folge dem Zweig, dessen Bedingung wahr ist."
+        },
+        "cellar": {
+          "1": "Beobachte Nox und die Zielmarke am Sehstein. Sammle Programmrunen im Archiv und lege in der Kellersteuerung eine Rune in den Executor.",
+          "2": {
+            "0": "Prüfe die Zahl der Schritte und die abschließende Linksdrehung. Eine vorab geprüfte Bedingung kann schon am Start falsch sein.",
+            "1": "Prüfe, wann die Bedingung ausgewertet wird und wie weit die Schleife läuft. Boden voraus und Zielmarke sind verschiedene Bedingungen. Prüfe auch die Schlussdrehung.",
+            "2": "Ein Eindringling versperrt den Weg. Der Angriff muss vor dem Schritt auf sein Feld erfolgen. Prüfe auch die Schlussdrehung.",
+            "3": "Vor Nox liegt eine Grube. Springe darüber, bevor du weitergehst. Wiederhole den passenden Bewegungsblock und prüfe die Schlussdrehung.",
+            "4": "Der Weg hat wiederholte Knicke. Verfolge einen ganzen Schleifenrumpf aus Schritten und Drehungen, dann die Anzahl der Wiederholungen."
+          },
+          "3": "Die Kellersteuerung zeigt jetzt die Runenfamilie für diesen Abschnitt und markiert den Weg. Vergleiche ihre Schleifen. Falls keine Rune angezeigt wird, sammle diese Familie im Runenarchiv."
+        }
+      },
+      "ui": {
+        "goal": "Dein Ziel",
+        "tips": "Tipps · $1 / 3",
+        "no-tip": "Für dieses Rätsel hast du noch keinen Tipp angefordert.",
+        "confirm-title": "Rätsel wirklich lösen?",
+        "confirm-methods": "Dein bisheriger Code wird durch die Lösung ersetzt und ausgeführt. Das Rätsel wird für alle Spieler gelöst.",
+        "confirm-decisions": "Nox nimmt an dieser Kreuzung die Tür des ausgeführten Zweigs. Die folgenden Kreuzungen entscheidest du weiter selbst.",
+        "confirm": "Die Hilfe setzt die Lösung für dieses Rätsel ein. Das Rätsel wird für alle Spieler gelöst.",
+        "solve-confirm": "Ja, Rätsel lösen",
+        "cancel": "Abbrechen",
+        "solve": "Rätsel lösen ...",
+        "next-tip": "Nächster Tipp",
+        "editor-only": "Nur der bearbeitende Spieler kann die Lösung einsetzen. Warte, bis alle Änderungen gespeichert sind.",
+        "controls": "Bedienung",
+        "earlier-tips": "Bisherige Tipps aus anderen Rätseln"
+      }
+    },
+    "observation": {
+      "title": "Nox · Kellerbeobachtung",
+      "torches": "Fackeln anklicken: an / aus"
+    },
+    "decisions": {
+      "feedback": {
+        "intro": "Sechs Entscheidungsrunen trennen Nox vom Herzfeuer.",
+        "enter": "Nox betritt das Labyrinth. Steige auf Nox auf.",
+        "access-blocked": "Der Zugang ist blockiert. Räume den Weg frei und wähle Weiter.",
+        "mount": "Steige auf Nox auf und lies die erste Rune.",
+        "read": "Lies von oben nach unten. Welcher Zweig führt zu LINKS oder RECHTS?",
+        "continue": "Nox setzt seinen Weg fort.",
+        "first-rune": "Die erste Rune wartet.",
+        "door-onward": "Die Tür führt weiter. Nox folgt dem ausgeführten Zweig.",
+        "door-back": "Diese Tür führt zurück. Nox läuft durch den Rückgang zum START.",
+        "heartfire": "Das Herzfeuer ist erreicht. Lies die Schriftrolle vor dem Feuer, um die Opfergabe darzubringen und den Raum abzuschließen.",
+        "back-at-start": "Zurück am START. Nox trägt neue Startwerte.",
+        "new-values": "Neue Werte, neue Entscheidung. Lies die Rune erneut.",
+        "clear-way": "Räume den Weg frei und wähle Weiter."
+      },
+      "occupied": "Ein anderer Spieler reitet Nox.",
+      "failure": {
+        "other-door": "Ausgeführter Zweig führt zur anderen Tür."
+      },
+      "log": {
+        "attempt": "Versuch $1",
+        "junction": "Kreuzung $1 · K$2 E$3 T$4",
+        "correct": "richtig",
+        "wrong": "falsch, zurück zum START"
+      },
+      "code": {
+        "if": "WENN",
+        "else": "SONST",
+        "and": "UND",
+        "or": "ODER",
+        "left": "LINKS",
+        "right": "RECHTS"
+      },
+      "attribute": {
+        "kraft": "Kraft",
+        "energie": "Energie",
+        "temperatur": "Temperatur"
+      },
+      "values": "KRAFT $1     ENERGIE $2     TEMPERATUR $3",
+      "change": {
+        "kraft": "KRAFT $1",
+        "energie": "ENERGIE $1",
+        "temperatur": "TEMPERATUR $1"
+      },
+      "event": {
+        "threshold": "Schwellenrune",
+        "crystal-spring": "Kristallquelle",
+        "strength-spring": "Kraftquelle",
+        "fire": "Feuerrune",
+        "forge": "Schmiederune",
+        "heart-ember": "Herzglut",
+        "heartfire": "Das Herzfeuer erwacht."
+      },
+      "help": {
+        "completed": "Das Labyrinth ist geschafft.",
+        "moving": "Nox ist unterwegs. Tipps gibt es wieder an der nächsten Kreuzung.",
+        "blocked": "Wähle Weiter, damit Nox zur nächsten Kreuzung läuft."
+      },
+      "ui": {
+        "resume": "Weiter",
+        "controls": "Entscheiden: LINKS oder RECHTS über der Tür wählen.\nRune: Überschrift anklicken zum Ein- oder Ausklappen.\nWeiter: Setzt Nox nach einer Unterbrechung oder am START fort.",
+        "junction": "Kreuzung $1 / 6"
+      }
+    },
+    "methods": {
+      "error": {
+        "unreachable": "Nicht erreichbar: Die Methode endet bereits in Zeile $1.",
+        "name-too-long": "Name zu lang (höchstens 40 Zeichen).",
+        "too-many-parameters": "Höchstens 8 Parameter mit je 40 Zeichen.",
+        "block-gone": "Block nicht mehr vorhanden.",
+        "not-built": "Methode ist noch nicht gebaut.",
+        "workspace-full": "Die Arbeitsfläche enthält höchstens 256 Blöcke.",
+        "collection-full": "Die Sammlung enthält höchstens 32 Methoden.",
+        "invalid-edit": "Ungültige Bearbeitung. Bitte erneut versuchen.",
+        "invalid-block": "Ungültiger Block.",
+        "position-gone": "Einfügeposition nicht mehr vorhanden.",
+        "invalid-selection": "Ungültige Blockauswahl.",
+        "blocks-moved": "Blöcke nicht mehr im selben Fenster vorhanden.",
+        "method-too-long": "Methode zu lang: $1 Zeilen, höchstens $2 erlaubt.",
+        "method-incomplete": "Methode braucht einen gültigen Namen und einen Methodenrumpf.",
+        "invalid-parameters": "Parameter brauchen gültige, unterschiedliche Namen. Richtungsnamen sind reserviert.",
+        "too-many-instructions": "Mehr als 512 Anweisungen. Lauf abgebrochen.",
+        "move-range": "GEHE braucht eine Entfernung von 1 bis 32.",
+        "method-missing": "Methode nicht gebaut: $1",
+        "argument-count": "Argumentanzahl passt nicht zu $1",
+        "nested-calls": "Zu viele verschachtelte Aufrufe.",
+        "no-return": "Methode $1 gibt keinen Wert zurück.",
+        "aborted": "Lauf abgebrochen.",
+        "invalid-variable": "Ungültiger Variablenname: $1",
+        "reserved-name": "Der Name $1 ist für das Spiel reserviert. Wähle einen anderen.",
+        "unknown-variable": "Unbekannte Variable: $1",
+        "number": "Zahl erwartet: $1",
+        "direction": "Richtung erwartet: $1",
+        "number-too-large": "Zahl zu groß.",
+        "expression-missing": "Ausdruck fehlt.",
+        "invalid-expression": "Ungültiger Ausdruck: $1"
+      },
+      "check": {
+        "world-done": "Alle Arbeitsstellen erledigt.",
+        "world": "Alle Arbeitsstellen erledigen: Tore, Runen und beide Altäre.",
+        "carried": "Nox trägt $1 Kristalle. Erwartet: 0.",
+        "carry-none": "Nox soll am Ende keine Kristalle mehr tragen.",
+        "counted": "Variable kristalle: gezählt $1, Endwert $2. Erwartet: $3 gesammelte Kristalle, dann 0.",
+        "counted-wrong": "Variable kristalle: gezählt $1, Endwert $2. Erwartet: $3 gesammelte Kristalle, dann 0. Prüfe die Rechnung beim Sammeln und Ablegen.",
+        "count": "Die Variable kristalle muss alle gesammelten Kristalle zählen und am Ende 0 sein.",
+        "main-blocks": "Hauptprogramm: $1 Blöcke, höchstens 8 erlaubt.",
+        "main-blocks-too-many": "Hauptprogramm: $1 Blöcke, höchstens 8 erlaubt. Fasse Anweisungen in Methoden zusammen.",
+        "reuse-done": "Methode mit Parametern mehrfach aufgerufen.",
+        "reuse": "Rufe dieselbe Methode mit Parametern mindestens zweimal auf.",
+        "return-done": "Rückgabewert im Aufrufer verwendet.",
+        "return": "Verwende einen Rückgabewert in einer Zuweisung oder einem Ausdruck."
+      },
+      "result": {
+        "not-run": "Noch nicht geprüft",
+        "running": "Programm läuft",
+        "done": "Geschafft! Nebenausgang offen.",
+        "not-done": "Noch nicht geschafft: $1 / 6 Bedingungen erfüllt",
+        "failed": "Ausführung wegen eines Fehlers abgebrochen",
+        "stopped": "Programm angehalten. Prüfung nicht abgeschlossen.",
+        "changed": "Code geändert. Bitte erneut ausführen.",
+        "complete": "Alle Bedingungen erfüllt. Der Nebenausgang ist offen.",
+        "missing-world-done": "Alle Arbeitsstellen sind erledigt. Für den Ausgang fehlt noch:",
+        "missing": "Für den Ausgang fehlt noch:"
+      },
+      "feedback": {
+        "start": "Verbinde dein Hauptprogramm. Jeder Start setzt Nox und alle Arbeitsstellen zurück.",
+        "keep-name": "Für eine vorhandene Methode bleibt der Name gleich. Neue Methode erstellt eine eigene Rune.",
+        "built": "Methode $1 gebaut. Die Rune kann jetzt aufgerufen werden.",
+        "changed": "Code geändert. Führe das Hauptprogramm erneut aus, um es zu prüfen.",
+        "running": "Nox führt das Hauptprogramm aus.",
+        "stopped": "Programm angehalten. Der nächste Start setzt die Welt zurück."
+      },
+      "action": {
+        "turn": "Drehen",
+        "move": "Gehen",
+        "open_gate": "Tor öffnen",
+        "activate_rune": "Rune aktivieren",
+        "collect": "Kristalle sammeln",
+        "place": "Kristalle ablegen",
+        "return": "Wert zurückgeben",
+        "assign": "Variable setzen",
+        "call": "Methode aufrufen"
+      },
+      "mode": {
+        "replace": "Ergebnis ersetzen (=)",
+        "add": "Ergebnis addieren (+)",
+        "subtract": "Ergebnis subtrahieren (-)"
+      },
+      "ui": {
+        "title": "Nox · Methodenwerkstatt",
+        "main": "Hauptprogramm",
+        "draft": "Eigene Methode",
+        "palette": "Bausteine & Runen",
+        "controls": "Code ordnen: Zeilen ziehen. Strg-Klick wählt einzelne Zeilen, Umschalt-Klick einen Bereich.\nMethode bauen: Namen und Eingaben festlegen, Code hineinziehen, Methode bauen wählen. Die neue Rune ins Hauptprogramm ziehen.\nWerte ändern: ... an einer Zeile öffnen. Enter oder Verlassen des Felds speichert.\nArbeitsfläche: Mittlere Maustaste + Ziehen. Mausrad über Hintergrund zoomt, über Code scrollt es.\nFenster: Titel ziehen; Ränder und Ecken mit links ziehen zum Vergrößern. Auch mit gedrückter rechter Maustaste möglich.\nAusdrücke: Zahlen, Variablen, +, -, Klammern und eigene Methoden. Eine Methode hat höchstens $1 Zeilen.",
+        "run": "Ausführen",
+        "stop": "Stoppen",
+        "watch": "Raum ansehen",
+        "to-code": "Zum Code",
+        "other-editor": "Ein anderer Spieler bearbeitet den Code.",
+        "failure-location": "Hauptprogramm, Zeile $1: $2",
+        "back-to-error": "Mit Zum Code kommst du zurück zur markierten Fehlerzeile.",
+        "stopped-info": "Der nächste Start setzt Nox und den Raum zurück.",
+        "run-info": "Starte das Hauptprogramm mit Ausführen.",
+        "current": "Aktuell: $1",
+        "variables": "Aktuelle Variablen:",
+        "check": {
+          "passed": "Erfüllt",
+          "failed": "Offen",
+          "pending": "Ungeprüft"
+        },
+        "waiting": "Warte auf Bestätigung. Deine Änderungen bleiben vorgemerkt.",
+        "my-code": "Mein Code",
+        "original": "Original",
+        "original-info": "Original · $1 Zeilen · nur Lesen\nAusführen startet dein eigenes Programm.",
+        "draft-too-long": "Entwurf zu lang: $1 Zeilen, höchstens $2 erlaubt. Kürze die Methode, bevor du sie baust.",
+        "name": "Name",
+        "parameters": "Eingaben · durch Kommas getrennt",
+        "build": "Methode bauen",
+        "new-method": "Neue Methode",
+        "simplified": "Gold markiert wiederholte Folgen und Bausteine für Eingaben und Rückgaben. Unterschiedliche Mengen werden zu Eingaben.",
+        "palette-hint": "Anweisungen hier herausziehen",
+        "built-methods": "Gebaute Methoden",
+        "no-methods": "Baue deine erste Methode im Methodenfenster.",
+        "rune": "Rune: $1($2)",
+        "edit": "Bearbeiten",
+        "note": {
+          "collect": "Sammelmenge als Rückgabe nutzen",
+          "return": "Diesen Wert am Aufruf übernehmen",
+          "call": "Eingaben am Aufruf anpassen"
+        },
+        "error": "Fehler: $1",
+        "arguments": "Argumente · durch Kommas getrennt",
+        "result-target": "Ergebnis speichern in · leer = ignorieren",
+        "direction": "Richtung oder Parameter",
+        "value": "Wert oder Ausdruck",
+        "variable": "Variable",
+        "delete": "Baustein löschen",
+        "drop-code": "Code hier ablegen"
+      },
+      "command": {
+        "move": "GEHE",
+        "turn": "DREHE",
+        "open_gate": "ÖFFNE",
+        "activate_rune": "AKTIVIERE",
+        "collect": "SAMMLE_ALLE",
+        "place": "LEGE_AB",
+        "return": "GIB_ZURÜCK"
+      },
+      "direction": {
+        "left": "LINKS",
+        "right": "RECHTS",
+        "back": "HINTEN"
+      },
+      "identifier": {
+        "kristalle": "kristalle",
+        "gesammelt": "gesammelt",
+        "menge": "menge",
+        "richtung": "richtung",
+        "hilfeTor": "hilfeTor",
+        "hilfeRune": "hilfeRune",
+        "hilfeSammeln": "hilfeSammeln",
+        "hilfeAltar": "hilfeAltar"
+      }
+    },
+    "workshop": {
+      "on-the-way-first": "Nox ist auf dem Weg zur ersten Arbeitsstelle.",
+      "not-enough-crystals": "Nox hat nicht genug Kristalle für diese Ablage.",
+      "solved": "Alle Arbeitsstellen und Programmprüfungen sind erfüllt. Der Nebenausgang ist offen.",
+      "on-the-way": "Nox ist auf dem Weg zur Werkstatt.",
+      "log": {
+        "title": "Werkstattprogramm",
+        "run": "Lauf $1"
+      },
+      "no-target": "Kein passendes Objekt in Reichweite.",
+      "field-locked": "Der Runenstein hat dieses Kristallfeld noch nicht freigegeben.",
+      "altar-capacity": "Dieser Altar hat noch $1 freie Fassungen.",
+      "no-world-command": "Kein Weltbefehl."
+    },
+    "essence": {
+      "view_direction": "'O'"
+    }
   }
 }

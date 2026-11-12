@@ -1,0 +1,193 @@
+{
+  "version": 3,
+  "design": "DEFAULT",
+  "layout": [
+    "WWWWWWWWWWWWWWW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WFFFFFFFFFFFFFW",
+    "WWWWWWWWWWWWWWW"
+  ],
+  "startTiles": [
+    {
+      "x": 7.0,
+      "y": 6.0
+    }
+  ],
+  "namedPoints": {
+    "chest_1": {
+      "x": 1.0,
+      "y": 1.0
+    },
+    "chest_2": {
+      "x": 2.0,
+      "y": 1.0
+    },
+    "chest_3": {
+      "x": 3.0,
+      "y": 1.0
+    },
+    "chest_4": {
+      "x": 4.0,
+      "y": 1.0
+    },
+    "container_1": {
+      "x": 3.0,
+      "y": 9.0
+    },
+    "container_2": {
+      "x": 3.0,
+      "y": 3.0
+    },
+    "container_3": {
+      "x": 7.0,
+      "y": 3.0
+    },
+    "container_4": {
+      "x": 11.0,
+      "y": 3.0
+    },
+    "door_east_1": {
+      "x": 14.0,
+      "y": 6.0
+    },
+    "door_east_2": {
+      "x": 14.0,
+      "y": 4.0
+    },
+    "door_north_1": {
+      "x": 5.0,
+      "y": 11.0
+    },
+    "door_north_2": {
+      "x": 7.0,
+      "y": 11.0
+    },
+    "door_south_1": {
+      "x": 5.0,
+      "y": 0.0
+    },
+    "door_south_2": {
+      "x": 9.0,
+      "y": 0.0
+    },
+    "door_west_1": {
+      "x": 0.0,
+      "y": 6.0
+    },
+    "door_west_2": {
+      "x": 0.0,
+      "y": 4.0
+    },
+    "hint_1": {
+      "x": 7.0,
+      "y": 6.0
+    },
+    "item_1": {
+      "x": 6.0,
+      "y": 1.0
+    },
+    "item_2": {
+      "x": 8.0,
+      "y": 1.0
+    },
+    "item_3": {
+      "x": 10.0,
+      "y": 1.0
+    },
+    "item_4": {
+      "x": 11.0,
+      "y": 1.0
+    },
+    "item_5": {
+      "x": 12.0,
+      "y": 1.0
+    },
+    "item_6": {
+      "x": 13.0,
+      "y": 1.0
+    },
+    "keypad_1": {
+      "x": 4.0,
+      "y": 11.0
+    },
+    "keypad_2": {
+      "x": 12.0,
+      "y": 11.0
+    },
+    "terminal_1": {
+      "x": 11.0,
+      "y": 9.0
+    },
+    "terminal_2": {
+      "x": 9.0,
+      "y": 3.0
+    }
+  },
+  "decorations": [
+    {
+      "type": "BookShelf",
+      "position": {
+        "x": 1.1,
+        "y": 9.0
+      }
+    },
+    {
+      "type": "DigitalArchiveShelf",
+      "position": {
+        "x": 8.0,
+        "y": 9.0
+      }
+    },
+    {
+      "type": "Clock",
+      "position": {
+        "x": 9.2,
+        "y": 11.35
+      }
+    },
+    {
+      "type": "PottedTree",
+      "position": {
+        "x": 13.0,
+        "y": 10.0
+      }
+    },
+    {
+      "type": "TableLong",
+      "position": {
+        "x": 5.0,
+        "y": 4.0
+      }
+    },
+    {
+      "type": "ChairBlue",
+      "position": {
+        "x": 4.0,
+        "y": 4.0
+      }
+    },
+    {
+      "type": "WaterDispenser",
+      "position": {
+        "x": 13.3,
+        "y": 5.0
+      }
+    },
+    {
+      "type": "Plant",
+      "position": {
+        "x": 1.25,
+        "y": 5.1
+      }
+    }
+  ],
+  "prefabs": []
+}

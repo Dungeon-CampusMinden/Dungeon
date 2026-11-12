@@ -204,6 +204,21 @@ public class QuestLogUITest {
     }
   }
 
+  /** Without a quest log nothing opens, not even a notice. */
+  @Test
+  void missingQuestLogOpensNoDialog() {
+    Entity requester = player("Requester");
+    Game.add(requester);
+
+    try (MockedStatic<DialogFactory> dialogs = Mockito.mockStatic(DialogFactory.class)) {
+      assertFalse(QuestLogUI.showQuestLogForPlayers(requester.id()));
+
+      dialogs.verify(
+          () -> DialogFactory.show(Mockito.any(DialogContext.class), Mockito.any(int[].class)),
+          never());
+    }
+  }
+
   /** Shared entries are sent in separate dialogs addressed to each requesting player. */
   @Test
   void simultaneousPlayerRequestsRemainIndividuallyTargeted() {

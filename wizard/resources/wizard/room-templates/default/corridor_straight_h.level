@@ -1,0 +1,27 @@
+{
+  "version": 3,
+  "design": "DEFAULT",
+  "layout": [
+    "WWWWWW",
+    "WFFFFW",
+    "WWWWWW"
+  ],
+  "startTiles": [
+    {
+      "x": 2.0,
+      "y": 1.0
+    }
+  ],
+  "namedPoints": {
+    "door_east_1": {
+      "x": 5.0,
+      "y": 1.0
+    },
+    "door_west_1": {
+      "x": 0.0,
+      "y": 1.0
+    }
+  },
+  "decorations": [],
+  "prefabs": []
+}

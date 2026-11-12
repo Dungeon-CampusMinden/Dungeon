@@ -11,19 +11,19 @@ ext {
 
     mockitoVersion = '5.24.0'
     protobufVersion = '4.36.2'
-    jk1licenseVersion = '3.1.4'
+    jk1licenseVersion = '3.1.5'
     gdxControllersVersion = '2.2.4'
     beryxRuntimeVersion = '2.0.1'
     jacksonVersion = '3.2.4'
     postgresVersion = '42.7.14'
-    jsonSchemaValidatorVersion = '3.0.8'
+    jsonSchemaValidatorVersion = '3.0.9'
     jsonCanonicalizationVersion = '1.1'
     qrcodegenVersion = '1.8.0'
     checkstyleVersion = '14.3.0'
 
 
     // -- NETWORK / SERVER
-    nettyVersion = '4.2.19.Final'
+    nettyVersion = '4.2.20.Final'
 
     supportDependencies = [
         // Checkstyle runtime for the checkstyle Gradle plugin

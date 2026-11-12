@@ -2,7 +2,6 @@ package rooms.escape;
 
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
@@ -17,7 +16,6 @@ import engine.time.PlayClock;
 import engine.tracking.Tracking;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import feature.audience.AudienceConfig;
 import feature.audience.AudienceHud;
@@ -91,10 +89,6 @@ public record EscapeRoom(
             .maximumPlayers(1)
             .levels(Tuple.of(roomId, level))
             .onConfigure(SurveyFeature::register)
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .onFrame(HeroController::drainAndApplyInputs)
             .build();
 
@@ -120,6 +114,15 @@ public record EscapeRoom(
             .build();
 
     MainMenu.run(args, game, client, server);
+  }
+
+  /**
+   * Says whether the room runs in the level editor, without an audience.
+   *
+   * @return true in the level editor
+   */
+  static boolean levelEditor() {
+    return levelEditorMode;
   }
 
   /** Ends the game once the hero reached the exit. The devices switch to the post survey. */

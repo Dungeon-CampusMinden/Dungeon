@@ -2,11 +2,18 @@ package feature.hud.elements.richlabel;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Align;
+import engine.input.ActionId;
+import engine.input.Binding;
+import engine.input.CoreActions;
+import engine.input.GameInput;
+import engine.input.InputDevice;
+import engine.input.KeyNames;
 import engine.utils.logging.DungeonLogger;
 import feature.input.ui.InputMethod;
 import feature.input.ui.InputPromptHelper;
 import feature.input.ui.InputPromptHelper.InputPromptRegion;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +34,7 @@ public class RichLabelParser {
           "\\[img=([^]]+)]"
               + "|\\[img((?:\\s+[^]]*))]"
               + "|\\[img-block((?:\\s+[^]]*))]"
-              + "|\\[key((?:\\s+[^]]*))]"
+              + "|\\[action((?:\\s+[^]]*))]"
               + "|\\[color=([^]]+)]|\\[/color]"
               + "|\\[size=([^]]+)]|\\[/size]"
               + "|\\[shake((?:\\s+[^]]*)?)]|\\[/shake]"
@@ -145,7 +152,7 @@ public class RichLabelParser {
                   rh,
                   noGapLeft,
                   noGapRight,
-                  tint == null ? null : parseColor(tint)));
+                  tint == null ? Color.WHITE : parseColor(tint)));
         }
       } else if (matcher.group(3) != null) {
         TagParams params = TagParams.parse(matcher.group(3));
@@ -155,8 +162,7 @@ public class RichLabelParser {
           runs.add(new ImageBlockRun(path, widthSpec));
         }
       } else if (matcher.group(4) != null) {
-        ImageRun keyImage = parseKeyTag(matcher.group(4), currentShake, currentSize);
-        if (keyImage != null) runs.add(keyImage);
+        parseActionTag(matcher.group(4), currentColor, currentShake, currentSize, runs);
       } else if (matcher.group(5) != null) {
         currentColor = parseColor(matcher.group(5));
       } else if (matcher.group(6) != null) {
@@ -296,64 +302,87 @@ public class RichLabelParser {
   }
 
   /**
-   * Parses a {@code [key]} tag's parameter string and resolves it to an {@link ImageRun} that
-   * references the matching cell of an input-prompt spritesheet. The {@code code} parameter is
-   * required and holds the libGDX key or button integer; the optional {@code type} parameter
-   * selects the lookup space ({@code keyboard} (default), {@code mouse}, {@code playstation},
-   * {@code xbox}, {@code touch}). The optional {@code outline} boolean flag selects the outlined
-   * spritesheet variant. The optional {@code color} parameter (a name like {@code black} or a hex
-   * value) tints the icon, e.g. to draw the white prompts in black on a light dialog. Returns
-   * {@code null} (and logs a warning) when the tag cannot be resolved, so the markup is silently
-   * dropped at render time instead of throwing.
+   * Resolves an {@code [action]} tag to the current binding of the action on the device the player
+   * used last. The required {@code id} parameter names the action, the optional {@code all} flag
+   * shows every binding of that device instead of the first. {@code core:move} shows the stick on
+   * the pad and the four movement keys otherwise. Keys, mouse buttons and pad inputs show the
+   * outlined variant of their prompt graphic in the color of the text, so prompts look the same on
+   * light and dark backgrounds; a combo shows one graphic per key. Inputs without a graphic and
+   * unbound actions show their label.
    *
-   * @param params the raw parameter string of the tag (everything after {@code [key} and before the
-   *     closing {@code ]}).
-   * @param shake the current shake effect to attach to the resulting image run, or {@code null}.
-   * @param sizeOverride the current font size override to scale the image with, or {@code -1}.
-   * @return the resolved {@link ImageRun}, or {@code null} when the tag cannot be resolved.
+   * @param params the raw parameter string of the tag (everything after {@code [action} and before
+   *     the closing {@code ]}).
+   * @param color the current text color, also used for the prompt graphics.
+   * @param shake the current shake effect to attach to the resulting runs, or {@code null}.
+   * @param sizeOverride the current font size override, or {@code -1}.
+   * @param runs receives the resolved runs.
    */
-  private static ImageRun parseKeyTag(String params, ShakeEffect shake, int sizeOverride) {
+  private static void parseActionTag(
+      String params, Color color, ShakeEffect shake, int sizeOverride, List<Run> runs) {
     TagParams tp = TagParams.parse(params);
-    String codeStr = tp.getString("code", null);
-    if (codeStr == null) {
-      LOGGER.warn("[key] tag is missing required 'code' parameter; ignoring");
-      return null;
+    String id = tp.getString("id", null);
+    if (id == null) {
+      LOGGER.warn("[action] tag is missing required 'id' parameter; ignoring");
+      return;
     }
-    int code;
+    ActionId action;
     try {
-      code = Integer.parseInt(codeStr);
-    } catch (NumberFormatException e) {
-      LOGGER.warn("[key] tag has non-integer code '" + codeStr + "'; ignoring");
-      return null;
+      action = ActionId.of(id);
+    } catch (IllegalArgumentException e) {
+      LOGGER.warn("[action] tag has invalid id '" + id + "'; ignoring");
+      return;
     }
-    String type = tp.getString("type", "keyboard").toLowerCase();
-    boolean outline = tp.getBoolean("outline");
-    String tint = tp.getString("color", null);
-
-    InputPromptRegion region;
-    try {
-      if ("mouse".equals(type)) {
-        region = InputPromptHelper.lookupMouseButton(code, outline);
-      } else {
-        InputMethod method;
-        try {
-          method = InputMethod.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException e) {
-          LOGGER.warn("[key] tag has unknown type '" + type + "'; ignoring");
-          return null;
-        }
-        region = InputPromptHelper.lookupKey(method, code, outline);
+    if (action.equals(CoreActions.MOVE) && GameInput.device() != InputDevice.PAD) {
+      for (ActionId key : CoreActions.MOVE_KEYS) {
+        GameInput.displayBindings(key).stream()
+            .findFirst()
+            .ifPresent(binding -> addBinding(binding, color, shake, sizeOverride, runs));
       }
-    } catch (UnsupportedOperationException e) {
-      LOGGER.warn("[key] tag uses unsupported input method '" + type + "'; ignoring");
-      return null;
+      return;
     }
+    List<Binding> bindings = GameInput.displayBindings(action);
+    if (bindings.isEmpty()) {
+      runs.add(new TextRun("-", color, sizeOverride, shake));
+      return;
+    }
+    int shown = tp.getBoolean("all") ? bindings.size() : 1;
+    for (int i = 0; i < shown; i++) {
+      if (i > 0) runs.add(new TextRun("/ ", color, sizeOverride, shake));
+      addBinding(bindings.get(i), color, shake, sizeOverride, runs);
+    }
+  }
 
-    if (region == null) {
-      LOGGER.warn(
-          "[key] tag has no prompt mapping for code=" + code + " type=" + type + "; ignoring");
-      return null;
+  private static void addBinding(
+      Binding binding, Color color, ShakeEffect shake, int sizeOverride, List<Run> runs) {
+    List<InputPromptRegion> regions = regions(binding);
+    if (regions.isEmpty() || regions.contains(null)) {
+      runs.add(new TextRun(KeyNames.label(binding), color, sizeOverride, shake));
+      return;
     }
+    for (InputPromptRegion region : regions) runs.add(imageRun(region, color, shake, sizeOverride));
+  }
+
+  private static List<InputPromptRegion> regions(Binding binding) {
+    if (binding instanceof Binding.MouseButton mouse) {
+      return Collections.singletonList(InputPromptHelper.lookupMouseButton(mouse.button()));
+    }
+    if (binding.isPad()) {
+      InputMethod method = InputMethod.ofController(GameInput.padName());
+      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding));
+    }
+    if (!(binding instanceof Binding.Key key)) return List.of();
+    List<InputPromptRegion> regions = new ArrayList<>();
+    key.prefixes().stream().sorted().forEach(prefix -> regions.add(keyRegion(prefix)));
+    regions.add(keyRegion(key.keycode()));
+    return regions;
+  }
+
+  private static InputPromptRegion keyRegion(int keycode) {
+    return InputPromptHelper.lookupKey(KeyNames.glyphKeycode(keycode));
+  }
+
+  private static ImageRun imageRun(
+      InputPromptRegion region, Color color, ShakeEffect shake, int sizeOverride) {
     return new ImageRun(
         region.texturePath(),
         shake,
@@ -365,7 +394,7 @@ public class RichLabelParser {
         region.height(),
         false,
         false,
-        tint == null ? null : parseColor(tint));
+        color);
   }
 
   private ShakeEffect parseShake(String params) {

@@ -1,7 +1,6 @@
 package feature.hud.elements.richlabel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.badlogic.gdx.graphics.Color;
 import java.util.List;
@@ -36,6 +35,6 @@ class RichLabelParserTest {
   /** Without a color the image is drawn unchanged. */
   @Test
   void noColorKeepsImageUntinted() {
-    assertNull(image("[img path=hud/input/keyboard_mouse.png]").tint());
+    assertEquals(Color.WHITE, image("[img path=hud/input/keyboard_mouse.png]").tint());
   }
 }

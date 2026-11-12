@@ -1,6 +1,8 @@
 package feature.hud.elements.richlabel;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -287,7 +289,7 @@ public class RichLabelLayout {
         TextureRegion region = getTextureRegion(ir);
         if (region == null) continue;
         Image image = new Image(new TextureRegionDrawable(region));
-        if (ir.tint() != null) image.setColor(ir.tint());
+        image.setColor(ir.tint() != null ? ir.tint() : fontSpec.color());
         float imgH = pr.height();
         float band = textAbove[line] + textBelow[line];
         // Bottom edge sits on the baseline for small images; tall images split the overflow
@@ -764,7 +766,17 @@ public class RichLabelLayout {
               new TextureRegion(
                   base.getTexture(), ir.regionX(), ir.regionY(), ir.regionW(), ir.regionH());
           sub.flip(false, true);
+          generateMipmaps(base.getTexture());
           return sub;
         });
+  }
+
+  // Sheet cells are far larger than their inline size; without mipmaps thin lines get lost
+  // unevenly.
+  private static void generateMipmaps(Texture texture) {
+    if (texture.getMinFilter() == Texture.TextureFilter.MipMapLinearLinear) return;
+    texture.bind();
+    Gdx.gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
+    texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
   }
 }

@@ -4,11 +4,11 @@ import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
-import feature.hud.DialogUtils;
 import feature.hud.dialogs.ChoiceOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.IntPredicate;
 import rooms.escape.EscapeRoomLevel;
 
 /**
@@ -211,9 +211,7 @@ public final class KiRoomLevel extends EscapeRoomLevel {
     tutorial(TUTORIAL_CODE);
     terminals(QUINLAN, CHEST_LOCK);
     computer("decision_tree", DECISION_TREE);
-    whiteboard(
-        QUINLAN_WHITEBOARD,
-        hero -> DialogUtils.showTextPopup(WHITEBOARD_RULE, "Whiteboard", hero.id()));
+    findingsBoard(QUINLAN_WHITEBOARD, KiRoomLevel::boardText);
     doorLock(
         new DoorLock(
             PANEL,
@@ -224,7 +222,7 @@ public final class KiRoomLevel extends EscapeRoomLevel {
   }
 
   // Shows the attribute a solved terminal stands for, its information gain and its digit of the
-  // door code.
+  // door code. The terminal then leaves the targets, so the text points to the whiteboard.
   @Override
   protected String revealText(int terminal) {
     int index = TERMINAL_ATTRIBUTES[terminal];
@@ -235,7 +233,34 @@ public final class KiRoomLevel extends EscapeRoomLevel {
         + attribute.gain()
         + " und daneben die Ziffer "
         + CODE.charAt(index)
-        + ".";
+        + ". Das Whiteboard merkt es sich.";
+  }
+
+  /**
+   * Writes the whiteboard. It lists every attribute the audience has found so far, in the order of
+   * the terminals, with its information gain and its digit, so the audience only has to sort them.
+   * Once Quinlan wrote the rule, it stands above the list.
+   *
+   * @param solved whether the audience has solved a terminal, by its index starting at 0
+   * @param ruleWritten whether Quinlan has written the rule
+   * @return text of the board
+   */
+  static String boardText(IntPredicate solved, boolean ruleWritten) {
+    StringBuilder text = new StringBuilder();
+    if (ruleWritten) text.append(WHITEBOARD_RULE).append("\n\n");
+    text.append("Bisher gefunden:");
+    for (int terminal = 0; terminal < TERMINAL_ATTRIBUTES.length; terminal++) {
+      if (!solved.test(terminal)) continue;
+      int index = TERMINAL_ATTRIBUTES[terminal];
+      Attribute attribute = ATTRIBUTES.get(index);
+      text.append("\n")
+          .append(attribute.name())
+          .append(" ")
+          .append(attribute.gain())
+          .append(" -> ")
+          .append(CODE.charAt(index));
+    }
+    return text.toString();
   }
 
   /**

@@ -230,11 +230,9 @@ Ein Computer- oder allgemeiner Device-Typ ist nicht Teil dieses Vertrags. Eine
 spätere Computer-Surface oder mehrere Bindungen an dieselbe Surface benötigen
 eine ausdrückliche Erweiterung des Profils, Schemas und der Runtime.
 
-Ein Rätsel besitzt keine `roomId`. Mehrere Räume und ein Raumgraph sind noch
-nicht Teil des Foundation-Slices. Eine spätere Mehrraum-Ableitung ordnet die
-bereits stabilen Surfaces Räumen zu; dadurch kann eine Informationsquelle in
-einem früheren Raum liegen als der zugehörige Input, ohne das Rätselmodell zu
-ändern.
+Ein Rätsel besitzt keine `roomId`. Der Runner leitet die Räume aus dem
+Spielablauf ab: Jedes Rätsel erhält einen eigenen Raum, der die Stationen
+seiner Surfaces aufnimmt. Lehrende bearbeiten weder Räume noch Türen.
 
 ## 6. riddleGraph
 
@@ -244,8 +242,8 @@ azyklischen Graphen verpflichtender AND-Abhängigkeiten. Jede direkte Kante
 mehreren eingehenden Kanten müssen alle direkten Vorgänger erfüllt sein.
 Jeder Knoten muss den einzigen Endknoten erreichen; deshalb bleiben sämtliche
 Rätsel verpflichtend. Vollständige geordnete Abschnittsgraphen sind ein
-gültiger einfacher Teilfall. OR-Verzweigungen, optionale oder bedingte Pfade,
-mehrere Ausgänge und mehrere Räume sind nicht darstellbar.
+gültiger einfacher Teilfall. OR-Verzweigungen, optionale oder bedingte Pfade
+und mehrere Ausgänge sind nicht darstellbar.
 
 Der Graph ist die einzige Progressionsquelle. Jedes Rätsel durchläuft
 serverautoritativ und monoton `LOCKED -> ACTIVE -> SOLVED`. Vor dem
@@ -558,13 +556,14 @@ Reihenfolge, Platzierungen und Runtime-Interaktionen. Er erzeugt generische
 Informationsquellen-, Collection- und Code-Interaktionen und übernimmt die
 End-Surface-Identität authentisch in Tür und Ausgang.
 
-Für die Präsentations- und Single-Room-Platzierungsreihenfolge sortiert der
-Runner Rätsel zuerst nach der längsten Vorgängerdistanz vom Start, dann nach
-der stabilen authorierten Rätsel-ID und zuletzt nach der Knoten-ID. Diese
-abgeleitete Ordnung ist reine Layoutmetadaten: Sie ergänzt, entfernt oder
-verkürzt keine Progressionskante. Gleiche validierte Topologie und gleicher
-Seed ergeben unabhängig von Node-, Edge- oder Riddle-Array-Reihenfolge dasselbe
-Layout.
+Für die Präsentations- und Platzierungsreihenfolge sortiert der Runner Rätsel
+zuerst nach der längsten Vorgängerdistanz vom Start, dann nach der stabilen
+authorierten Rätsel-ID und zuletzt nach der Knoten-ID. Diese abgeleitete
+Ordnung ist reine Layoutmetadaten: Sie ergänzt, entfernt oder verkürzt keine
+Progressionskante. Aus Graph, Stationen und `seed` erzeugt der Runner ein Level
+mit einem Raum pro Rätsel, bei Bedarf Nebenräumen, Fluren und Türen, die mit
+ihrem Rätsel öffnen. Gleiche validierte Topologie und gleicher Seed ergeben
+unabhängig von Node-, Edge- oder Riddle-Array-Reihenfolge dasselbe Layout.
 
 Host und Clients verwenden die vollständige DEER-Konfiguration mit Seed,
 Lösungen, Texten und Assetreferenzen sowie die verifizierten Custom-Assets als
@@ -625,9 +624,9 @@ Die semantische Prüfung ist auf dokumentübergreifende Regeln begrenzt:
 Damit kann kein Input vor Aktivierung seines Rätsels wirksamen Teilfortschritt
 erzeugen und kein Rätsel einen eigenen Progressionsvorgänger umgehen. Die
 statische Prüfung lehnt Zyklen, unerreichbare Rätsel, tote Erfolgswege und
-Selbstabhängigkeiten ab. Räumliche Erreichbarkeit wird erst zusammen mit einem
-späteren Raumgraphen validiert; sie wird im aktuellen Single-Room-Vertrag nicht
-vorweggenommen.
+Selbstabhängigkeiten ab. Die räumliche Erreichbarkeit stellt der Levelgenerator
+her; findet er keine Anordnung, meldet die Validierung `LAYOUT_UNPLACEABLE` am
+Spielablauf.
 
 Es gibt ausdrücklich keine semantischen Prüfungen von Lernziel-IDs sowie keine
 Learning-Objective-, Debriefing-, Difficulty-, Estimated-Minutes- oder

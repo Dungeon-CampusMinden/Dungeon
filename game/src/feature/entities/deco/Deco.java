@@ -102,7 +102,7 @@ public enum Deco {
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(392, 326, 1, 1, 16, 4)).scaleX(0.25f),
       null,
-      DepthLayer.Player.depth()),
+      DepthLayer.ForegroundDeco.depth()),
   /** Rune plinth in the Soulweaver room. */
   SoulweaverRunePlinth(
       "spritesheets/FD_Dungeon_Free.png",

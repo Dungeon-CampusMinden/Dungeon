@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.network.messages.c2s.DialogResponseMessage;
@@ -23,6 +22,7 @@ import engine.utils.Rectangle;
 import engine.utils.components.draw.shader.MagicBallShader;
 import feature.canvas.CanvasGraphics;
 import feature.components.UIComponent;
+import feature.entities.HeroController;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -32,6 +32,7 @@ import feature.utils.EntityUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import rooms.soulweaver.util.SoulweaverText;
 
 /** Live camera observation while the server continues executing the golem's program. */
 public final class SoulweaverObservation {
@@ -110,7 +111,7 @@ public final class SoulweaverObservation {
     private final int golemId;
     private final boolean cinematic;
     private final SoulweaverCamera camera = new SoulweaverCamera();
-    private final Map<InputComponent, Boolean> inputs = new LinkedHashMap<>();
+    private final Map<Entity, Boolean> lockedPlayers = new LinkedHashMap<>();
     private final Label label;
     private final Actor torches;
     private final com.badlogic.gdx.scenes.scene2d.ui.Table header;
@@ -156,7 +157,7 @@ public final class SoulweaverObservation {
       addActor(torches);
       header =
           SoulweaverUI.header(
-              "Nox · Kellerbeobachtung",
+              SoulweaverText.text("observation.title"),
               torchHint(),
               () ->
                   feature.hud.dialogs.DialogCallbackResolver.createButtonCallback(
@@ -180,21 +181,20 @@ public final class SoulweaverObservation {
       float headerHeight = getWidth() < 1180 ? 112 : 68;
       header.setBounds(20, getHeight() - headerHeight - 20, getWidth() - 40, headerHeight);
       label.setBounds(36, 32, Math.min(660, getWidth() - 72), 56);
-      if (!cinematic) SoulweaverTerminal.state().ifPresent(state -> label.setText(state.status()));
+      if (!cinematic)
+        SoulweaverTerminal.state()
+            .ifPresent(state -> label.setText(SoulweaverText.translate(state.status())));
       if (camera.target().isEmpty() && getStage() != null) {
         Game.findEntityById(golemId)
             .ifPresent(
                 golem -> {
                   if (cinematic) {
-                    ECSManagement.entities()
+                    Game.allPlayers()
                         .forEach(
-                            e ->
-                                e.fetch(InputComponent.class)
-                                    .ifPresent(
-                                        input -> {
-                                          inputs.put(input, input.deactivateControls());
-                                          input.deactivateControls(true);
-                                        }));
+                            player -> {
+                              lockedPlayers.put(player, HeroController.controlsLocked(player));
+                              HeroController.controlsLocked(player, true);
+                            });
                   }
                   camera.follow(golem, ECSManagement.entities());
                   if (!cinematic
@@ -236,7 +236,9 @@ public final class SoulweaverObservation {
 
     private static com.badlogic.gdx.scenes.scene2d.ui.Table torchHint() {
       var hint = new com.badlogic.gdx.scenes.scene2d.ui.Table();
-      hint.add(SoulweaverUI.label("Fackeln anklicken: an / aus", 17, SoulweaverUI.TEXT)).width(260);
+      hint.add(
+              SoulweaverUI.label(SoulweaverText.text("observation.torches"), 17, SoulweaverUI.TEXT))
+          .width(260);
       return hint;
     }
 
@@ -320,8 +322,8 @@ public final class SoulweaverObservation {
           drawSystem = null;
         }
         camera.restore();
-        inputs.forEach(InputComponent::deactivateControls);
-        inputs.clear();
+        lockedPlayers.forEach(HeroController::controlsLocked);
+        lockedPlayers.clear();
       }
       super.setStage(stage);
     }

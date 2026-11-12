@@ -1,10 +1,8 @@
 package rooms.lasthour.util.translation;
 
-import com.badlogic.gdx.Input;
 import engine.Game;
 import engine.language.Language;
 import engine.language.Translation;
-import feature.input.configuration.KeyboardConfig;
 import feature.puzzle.Puzzle;
 import feature.utils.Translator;
 import java.util.List;
@@ -52,21 +50,6 @@ public class LastHourTranslator extends Translator {
     String translatedText = text;
     for (String s : keysToBeReplaced) {
       switch (s) {
-        case TranslationKey.PostIntroDialogText2 ->
-            translatedText =
-                translatedText.replace(
-                    s,
-                    translation.text(
-                        s,
-                        engine.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-                        engine.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-                        engine.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-                        engine.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-                        KeyboardConfig.INTERACT_WORLD.value(),
-                        Input.Buttons.LEFT,
-                        KeyboardConfig.INVENTORY_OPEN.value(),
-                        KeyboardConfig.CLOSE_UI.value(),
-                        KeyboardConfig.PAUSE_MENU.value()));
         case TranslationKey.Ringing1 ->
             translatedText = translatedText.replace(s, translation.text(s, MertensColor));
         case TranslationKey.Ringing2 ->
