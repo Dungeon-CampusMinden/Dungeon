@@ -69,7 +69,8 @@ public class LevelEditorSystem extends System {
   private boolean debugShaderActive = false;
   private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
-  private static Mode currentMode = Mode.Tiles;
+  // The editor opens in prefab mode, later it reopens in the mode that was used last.
+  private static Mode currentMode = Mode.Prefabs;
   private static LevelEditorMode currentModeInstance =
       currentMode.getModeInstance(LevelEditorSystem::levelChanged);
 

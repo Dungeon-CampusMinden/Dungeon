@@ -231,6 +231,8 @@ public final class PrefabOutliner extends Table {
   private Actor pendingScrollTarget;
   private float autoScrollDirection;
   private String hovered;
+  // Instance clicked in this list, its selection does not scroll the list.
+  private String clickedName;
 
   /**
    * Creates an empty prefab list.
@@ -420,6 +422,9 @@ public final class PrefabOutliner extends Table {
    */
   public void setItems(List<Item> items, String selectedName, boolean loadOrder) {
     boolean selectionChanged = !Objects.equals(selectedName, this.selectedName);
+    // A row clicked in this list is in view already, so the list stays where it is.
+    boolean selectedHere = selectionChanged && Objects.equals(selectedName, clickedName);
+    if (selectionChanged) clickedName = null;
     boolean orderChanged = loadOrder != this.loadOrder;
     this.items = List.copyOf(items);
     this.selectedName = selectedName;
@@ -438,7 +443,7 @@ public final class PrefabOutliner extends Table {
                 ? "Load order: drag prefabs to change the order they are created in. Click to"
                     + " sort A-Z."
                 : "Sorted A-Z. Click to show the load order, which can be changed by dragging.");
-    rebuild(selectionChanged || orderChanged);
+    rebuild((selectionChanged && !selectedHere) || orderChanged);
   }
 
   private void collectGroups(List<Item> items, Set<String> groupIds, boolean expandSelection) {
@@ -634,8 +639,12 @@ public final class PrefabOutliner extends Table {
         new ClickListener(Input.Buttons.LEFT) {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            if (getTapCount() >= 2) listener.frame(entry.name());
-            else listener.select(entry.name());
+            if (getTapCount() >= 2) {
+              listener.frame(entry.name());
+            } else {
+              clickedName = entry.name();
+              listener.select(entry.name());
+            }
           }
         });
     return row;
