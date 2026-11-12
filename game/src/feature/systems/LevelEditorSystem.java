@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.Game;
 import engine.System;
@@ -39,6 +40,7 @@ import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
 import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -309,6 +311,15 @@ public class LevelEditorSystem extends System {
   }
 
   /**
+   * Returns the root group of the editor UI, e.g. to show a modal panel.
+   *
+   * @return the editor UI, empty while it was not created yet
+   */
+  public static Optional<LevelEditorUI> ui() {
+    return Optional.ofNullable(ui);
+  }
+
+  /**
    * Called by the {@link LevelEditorUI} once it removed itself from the stage, so a new group is
    * created if the system is added to the game again.
    */
@@ -517,7 +528,7 @@ public class LevelEditorSystem extends System {
   public static void showFeedback(String message, Color color) {
     feedbackMessage = message;
     feedbackMessageColor = color;
-    feedbackMessageTime = java.lang.System.nanoTime();
+    feedbackMessageTime = TimeUtils.nanoTime();
     if (color == Color.RED) {
       LOGGER.error(message);
     } else if (color == Color.YELLOW) {
@@ -551,7 +562,7 @@ public class LevelEditorSystem extends System {
    * @return age in seconds
    */
   public static float feedbackAge() {
-    return (java.lang.System.nanoTime() - feedbackMessageTime) / 1e9f;
+    return (TimeUtils.nanoTime() - feedbackMessageTime) / 1e9f;
   }
 
   /**

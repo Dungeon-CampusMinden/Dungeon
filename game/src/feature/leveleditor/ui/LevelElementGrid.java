@@ -1,6 +1,7 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -169,7 +170,7 @@ public class LevelElementGrid extends Table {
 
   // The primary element has the selection color, the secondary one the accent color.
   private static void background(ImageButton.ImageButtonStyle style, String styleName) {
-    com.badlogic.gdx.graphics.Color border =
+    Color border =
         switch (styleName) {
           case STYLE_PRIMARY -> EditorTheme.SELECTION;
           case STYLE_SECONDARY -> EditorTheme.ACCENT;

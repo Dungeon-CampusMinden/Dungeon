@@ -475,7 +475,7 @@
         "x" : 16.375,
         "y" : 13.125
       },
-      "duration" : 145,
+      "duration" : 545,
       "start-counting" : true
     },
     "inputs" : {
@@ -531,7 +531,7 @@
     "inputs" : {
       "reward-item" : [ {
         "source" : "image-puzzle",
-        "port" : "piece-4"
+        "port" : "piece-3"
       } ]
     }
   }, {
@@ -862,6 +862,13 @@
         "y" : 6.0
       },
       "revertable" : false
+    }
+  }, {
+    "name" : "r2/show-image",
+    "type" : "show-image",
+    "properties" : {
+      "image" : "images/binary_hex.jpg",
+      "audience" : "Triggering Player"
     }
   }, {
     "name" : "r3/water-1",

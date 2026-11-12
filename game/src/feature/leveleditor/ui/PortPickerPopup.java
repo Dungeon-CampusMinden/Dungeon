@@ -183,6 +183,7 @@ public final class PortPickerPopup extends Table {
    * @param stageY preferred top edge in stage coordinates
    */
   public void show(Group parent, float stageX, float stageY) {
+    EditorTheme.hideTooltips();
     parent.addActor(this);
     setWidth(WIDTH);
     validate();

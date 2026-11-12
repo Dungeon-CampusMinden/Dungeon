@@ -1,6 +1,7 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -92,8 +93,7 @@ public class DecoButton extends ImageButton {
   }
 
   private static void background(ImageButton.ImageButtonStyle style, String styleName) {
-    com.badlogic.gdx.graphics.Color border =
-        STYLE_SELECTED.equals(styleName) ? EditorTheme.SELECTION : null;
+    Color border = STYLE_SELECTED.equals(styleName) ? EditorTheme.SELECTION : null;
     style.up = EditorTheme.rounded(EditorTheme.FIELD, border, 5);
     style.over =
         EditorTheme.rounded(EditorTheme.BUTTON, border == null ? EditorTheme.LINE : border, 5);

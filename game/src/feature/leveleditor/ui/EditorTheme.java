@@ -24,12 +24,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
+import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.leveleditor.EditorOverlay;
+import feature.leveleditor.PrefabCatalog;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -139,6 +142,7 @@ public final class EditorTheme {
   private static final String FONT_PATH = "fonts/Roboto-Regular.ttf";
   private static final String BOLD_FONT_PATH = "fonts/Roboto-SemiBold.ttf";
   private static final int RADIUS = 4;
+  private static final float SCROLL_BAR_WIDTH = 10f;
 
   private static final Color OTHER_CATEGORY = new Color(0.62f, 0.66f, 0.71f, 1f);
   private static final Map<String, Color> CATEGORY_COLORS =
@@ -173,7 +177,7 @@ public final class EditorTheme {
   /**
    * Returns the color of a prefab category.
    *
-   * @param category category name, see {@link feature.leveleditor.PrefabCatalog}
+   * @param category category name, see {@link PrefabCatalog}
    * @return the category color, grey for unknown categories
    */
   public static Color categoryColor(String category) {
@@ -255,7 +259,7 @@ public final class EditorTheme {
    * @return the label
    */
   public static Label caption(String text) {
-    return boldLabel(text.toUpperCase(java.util.Locale.ROOT), 12, TEXT_MUTED);
+    return boldLabel(text.toUpperCase(Locale.ROOT), 12, TEXT_MUTED);
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -281,7 +285,8 @@ public final class EditorTheme {
    */
   public static Drawable rounded(Color fill, Color border, int radius) {
     String key = "r:" + fill + ":" + border + ":" + radius;
-    return DRAWABLES.computeIfAbsent(key, ignored -> createRounded(fill, border, radius, null));
+    return copy(
+        DRAWABLES.computeIfAbsent(key, ignored -> createRounded(fill, border, radius, null)));
   }
 
   /**
@@ -293,7 +298,12 @@ public final class EditorTheme {
    */
   public static Drawable barred(Color fill, Color bar) {
     String key = "b:" + fill + ":" + bar;
-    return DRAWABLES.computeIfAbsent(key, ignored -> createRounded(fill, null, RADIUS, bar));
+    return copy(DRAWABLES.computeIfAbsent(key, ignored -> createRounded(fill, null, RADIUS, bar)));
+  }
+
+  // The textures are shared, the sizes are not: callers may change the min size of their copy.
+  private static Drawable copy(Drawable drawable) {
+    return new NinePatchDrawable((NinePatchDrawable) drawable);
   }
 
   /**
@@ -455,7 +465,7 @@ public final class EditorTheme {
    */
   public static TextButton button(String text, Variant variant, int size) {
     TextButton button = new TextButton(text, buttonStyle(variant, size));
-    button.setUserObject(engine.utils.Cursors.INTERACT);
+    button.setUserObject(Cursors.INTERACT);
     return button;
   }
 
@@ -489,7 +499,7 @@ public final class EditorTheme {
     ImageButton button = new ImageButton(style);
     button.getImageCell().size(16f);
     button.getImage().setScaling(Scaling.fit);
-    button.setUserObject(engine.utils.Cursors.INTERACT);
+    button.setUserObject(Cursors.INTERACT);
     if (tooltip != null) tooltip(button, tooltip);
     return button;
   }
@@ -507,6 +517,14 @@ public final class EditorTheme {
     style.over = padded(style.over, 4f, 4f);
     style.down = padded(style.down, 4f, 4f);
     button.setStyle(style);
+  }
+
+  /**
+   * Hides all tooltips, including the ones about to show, e.g. when a button opened a popup that
+   * the tooltip of the button would cover.
+   */
+  public static void hideTooltips() {
+    if (tooltips != null) tooltips.hideAll();
   }
 
   /**
@@ -648,7 +666,7 @@ public final class EditorTheme {
   public static CheckBox checkBox() {
     CheckBox box = new CheckBox("", checkBoxStyle());
     box.getImageCell().size(18f);
-    box.setUserObject(engine.utils.Cursors.INTERACT);
+    box.setUserObject(Cursors.INTERACT);
     return box;
   }
 
@@ -679,11 +697,11 @@ public final class EditorTheme {
   public static ScrollPane.ScrollPaneStyle scrollPaneStyle() {
     ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
     Drawable knob = rounded(new Color(1f, 1f, 1f, 0.22f), null, 3);
-    knob.setMinWidth(6f);
+    knob.setMinWidth(SCROLL_BAR_WIDTH);
     knob.setMinHeight(24f);
     style.vScrollKnob = knob;
     Drawable horizontalKnob = rounded(new Color(1f, 1f, 1f, 0.22f), null, 3);
-    horizontalKnob.setMinHeight(6f);
+    horizontalKnob.setMinHeight(SCROLL_BAR_WIDTH);
     horizontalKnob.setMinWidth(24f);
     style.hScrollKnob = horizontalKnob;
     return style;
@@ -700,7 +718,8 @@ public final class EditorTheme {
     pane.setStyle(scrollPaneStyle());
     pane.setFlickScroll(false);
     pane.setFadeScrollBars(false);
-    pane.setScrollbarsOnTop(true);
+    // The bar gets its own column, so it never covers the end of a row.
+    pane.setScrollbarsOnTop(false);
     pane.setOverscroll(false, false);
     return pane;
   }

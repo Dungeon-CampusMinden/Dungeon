@@ -11,6 +11,7 @@ import feature.components.LeverComponent;
 import feature.entities.WorldItemBuilder;
 import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
+import feature.prefabs.Prefab;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,10 +20,7 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-/**
- * Helpers for the saved states of the prefabs in this package, see {@link
- * feature.prefabs.Prefab#captureState}.
- */
+/** Helpers for the saved states of the prefabs in this package, see {@link Prefab#captureState}. */
 final class PrefabStateJson {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(PrefabStateJson.class);

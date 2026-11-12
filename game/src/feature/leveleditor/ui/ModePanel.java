@@ -1,16 +1,19 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import engine.components.DrawComponent;
+import engine.utils.Cursors;
 import feature.entities.deco.Deco;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LevelEditorSystem.Mode;
@@ -22,7 +25,7 @@ import java.util.Map;
  *
  * <p>Every mode is a tab with an image, its name and the number key that selects it.
  */
-public class ModePanel extends com.badlogic.gdx.scenes.scene2d.ui.Table {
+public class ModePanel extends Table {
 
   private static final float ICON_SIZE = 20f;
   private static final float TAB_HEIGHT = 34f;
@@ -40,7 +43,7 @@ public class ModePanel extends com.badlogic.gdx.scenes.scene2d.ui.Table {
 
     for (Mode mode : Mode.values()) {
       Button button = new Button(new Button.ButtonStyle());
-      button.setUserObject(engine.utils.Cursors.INTERACT);
+      button.setUserObject(Cursors.INTERACT);
       button.pad(0f, 10f, 0f, 10f);
       Image image = new Image(icon(mode));
       image.setScaling(Scaling.fit);
@@ -81,8 +84,7 @@ public class ModePanel extends com.badlogic.gdx.scenes.scene2d.ui.Table {
           Drawable up =
               selected
                   ? EditorTheme.rounded(EditorTheme.BUTTON_OVER, null, 4)
-                  : EditorTheme.rounded(
-                      new com.badlogic.gdx.graphics.Color(0f, 0f, 0f, 0f), null, 4);
+                  : EditorTheme.rounded(new Color(0f, 0f, 0f, 0f), null, 4);
           style.up = up;
           style.over = selected ? up : EditorTheme.rounded(EditorTheme.ROW_OVER, null, 4);
           style.down = up;

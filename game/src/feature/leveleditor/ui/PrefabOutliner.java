@@ -15,12 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
+import engine.utils.Cursors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * List of the prefab instances of a level, in the style of the outliners of common editors: a
@@ -83,12 +87,7 @@ public final class PrefabOutliner extends Table {
    * @param status state the list points out
    */
   public record Entry(
-      String id,
-      String name,
-      String label,
-      String typeName,
-      java.util.function.Supplier<Actor> icon,
-      Status status)
+      String id, String name, String label, String typeName, Supplier<Actor> icon, Status status)
       implements Item {}
 
   /**
@@ -101,11 +100,7 @@ public final class PrefabOutliner extends Table {
    * @param children ordered child items
    */
   public record Group(
-      String id,
-      String label,
-      boolean area,
-      java.util.function.Supplier<Actor> icon,
-      List<Item> children)
+      String id, String label, boolean area, Supplier<Actor> icon, List<Item> children)
       implements Item {
     /**
      * Creates a group with an immutable child list.
@@ -224,7 +219,7 @@ public final class PrefabOutliner extends Table {
   private final Table filterBar = new Table();
   private final Label count = EditorTheme.label("", 13, EditorTheme.TEXT_MUTED);
   private final ImageButton orderButton;
-  private final com.badlogic.gdx.scenes.scene2d.ui.TextTooltip orderTooltip;
+  private final TextTooltip orderTooltip;
   private final ImageButton addButton;
   private final List<Actor> rows = new ArrayList<>();
   private final Map<String, GroupBlock> groups = new HashMap<>();
@@ -250,6 +245,31 @@ public final class PrefabOutliner extends Table {
     Table header = new Table();
     header.add(EditorTheme.boldLabel("Prefabs", 17, EditorTheme.TEXT)).left();
     header.add(count).left().padLeft(8f).padTop(2f).growX();
+    ImageButton expand =
+        EditorTheme.iconButton(
+            EditorTheme.icon("expand-all"),
+            EditorTheme.Variant.GHOST,
+            "Expand all groups by one level");
+    expand.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            expandLevel();
+          }
+        });
+    header.add(expand).size(28f);
+    ImageButton collapse =
+        EditorTheme.iconButton(
+            EditorTheme.icon("collapse-all"), EditorTheme.Variant.GHOST, "Collapse all groups");
+    collapse.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            expandedGroups.clear();
+            rebuild(false);
+          }
+        });
+    header.add(collapse).size(28f);
     orderButton =
         EditorTheme.iconButton(EditorTheme.icon("sort-alpha"), EditorTheme.Variant.GHOST, null);
     orderTooltip = EditorTheme.tooltip(orderButton, "");
@@ -648,6 +668,32 @@ public final class PrefabOutliner extends Table {
     }
   }
 
+  /**
+   * Expands the groups of the topmost level that is not fully expanded yet: the first click expands
+   * all top-level groups, the next one all groups inside of them, and so on.
+   */
+  private void expandLevel() {
+    List<List<Group>> levels = new ArrayList<>();
+    collectLevels(items, 0, levels);
+    for (List<Group> level : levels) {
+      boolean expanded = true;
+      for (Group group : level) expanded &= expandedGroups.contains(group.id());
+      if (expanded) continue;
+      for (Group group : level) expandedGroups.add(group.id());
+      break;
+    }
+    rebuild(false);
+  }
+
+  private static void collectLevels(List<Item> items, int depth, List<List<Group>> levels) {
+    for (Item item : items) {
+      if (!(item instanceof Group group)) continue;
+      while (levels.size() <= depth) levels.add(new ArrayList<>());
+      levels.get(depth).add(group);
+      collectLevels(group.children(), depth + 1, levels);
+    }
+  }
+
   private void toggle(String groupId) {
     if (!expandedGroups.remove(groupId)) expandedGroups.add(groupId);
     rebuild(false);
@@ -741,13 +787,13 @@ public final class PrefabOutliner extends Table {
   private class Row extends Table {
 
     private final boolean selected;
-    private com.badlogic.gdx.scenes.scene2d.utils.Drawable base;
+    private Drawable base;
     private boolean over;
 
     private Row(boolean selected, String hoverName) {
       this.selected = selected;
       setTouchable(Touchable.enabled);
-      setUserObject(engine.utils.Cursors.INTERACT);
+      setUserObject(Cursors.INTERACT);
       updateBackground();
       addListener(
           new InputListener() {
@@ -781,7 +827,7 @@ public final class PrefabOutliner extends Table {
       }
     }
 
-    private void base(com.badlogic.gdx.scenes.scene2d.utils.Drawable drawable) {
+    private void base(Drawable drawable) {
       base = drawable;
       updateBackground();
     }

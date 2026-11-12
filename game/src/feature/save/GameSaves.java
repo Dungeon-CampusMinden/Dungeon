@@ -21,6 +21,7 @@ import feature.components.ItemComponent;
 import feature.entities.WorldItemBuilder;
 import feature.inventory.Item;
 import feature.prefabs.GameFlags;
+import feature.prefabs.Prefab;
 import feature.prefabs.PrefabSaveStates;
 import feature.save.GameSave.LevelSave;
 import feature.save.GameSave.PlayerSave;
@@ -48,7 +49,7 @@ import java.util.UUID;
  *   <li>the level, play time and the character class of every player,
  *   <li>the {@link GameFlags game flags},
  *   <li>position and inventory of every player, restored when a player with the same name joins,
- *   <li>the state players gave to prefabs, see {@link feature.prefabs.Prefab#captureState},
+ *   <li>the state players gave to prefabs, see {@link Prefab#captureState},
  *   <li>items lying in the level,
  *   <li>the state of the level handler, see {@link DungeonLevel#saveState}.
  * </ul>

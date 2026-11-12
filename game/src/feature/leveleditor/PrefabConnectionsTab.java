@@ -2,14 +2,18 @@ package feature.leveleditor;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import feature.leveleditor.ui.EditorTheme;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactSlot;
@@ -181,12 +185,11 @@ final class PrefabConnectionsTab {
               EditorTheme.icon(open ? "chevron-down" : "chevron-right", EditorTheme.TEXT_MUTED));
       header.add(chevron).size(9f).padRight(6f);
       header.add(EditorTheme.caption("Lifecycle Actions")).left().growX();
-      header.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
+      header.setTouchable(Touchable.enabled);
       header.addListener(
-          new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
+          new ClickListener() {
             @Override
-            public void clicked(
-                com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+            public void clicked(InputEvent event, float x, float y) {
               showLifecycle = !open;
               host.refresh();
             }
@@ -357,7 +360,7 @@ final class PrefabConnectionsTab {
     row.setBackground(
         EditorTheme.padded(EditorTheme.rounded(EditorTheme.alpha(color, 0.10f), null, 4), 6f, 1f));
     Image arrow = new Image(EditorTheme.icon(direction.equals("to") ? "go" : "link", color));
-    arrow.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+    arrow.setScaling(Scaling.fit);
     row.add(arrow).size(12f).padLeft(2f).padRight(6f);
     if (aliasField != null) row.add(aliasField).width(80f).height(22f).padRight(6f);
     Label label = EditorTheme.label(text, TEXT_FONT_SIZE, color);

@@ -1,5 +1,7 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -10,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.input.GameInput;
@@ -55,6 +58,7 @@ public class LevelEditorUI extends Group {
   private final Label promptLabel = EditorTheme.boldLabel("", 15, EditorTheme.ON_SELECTION);
   private Table toolbar;
   private Table viewOptions;
+  private Table modal;
 
   /** Creates a new level editor UI group. */
   public LevelEditorUI() {
@@ -154,7 +158,7 @@ public class LevelEditorUI extends Group {
    *
    * @return the visible area of the level
    */
-  public com.badlogic.gdx.math.Rectangle worldArea() {
+  public Rectangle worldArea() {
     float left = 0f;
     float right = getWidth();
     if (detailsPanel.isVisible() && detailsPanel.getHeight() > 0f) {
@@ -164,7 +168,7 @@ public class LevelEditorUI extends Group {
       right = secondaryDetailsPanel.getX();
     }
     float bottom = statusBar.getHeight();
-    return new com.badlogic.gdx.math.Rectangle(left, bottom, right - left, getHeight() - bottom);
+    return new Rectangle(left, bottom, right - left, getHeight() - bottom);
   }
 
   /** Shows the toolbar the active mode currently asks for. */
@@ -197,6 +201,41 @@ public class LevelEditorUI extends Group {
       promptLabel.setText(text);
       prompt.pack();
     }
+  }
+
+  /**
+   * Shows a panel centered above the editor, on a dimmed backdrop that blocks the level and the
+   * other panels. While it is shown, the cursor counts as being over the editor UI, so the level
+   * does not react to clicks or the mouse wheel.
+   *
+   * @param panel panel to show
+   * @param onOutsideClick called when the backdrop next to the panel is clicked
+   */
+  public void showModal(Actor panel, Runnable onOutsideClick) {
+    closeModal();
+    EditorTheme.hideTooltips();
+    Table backdrop = new Table();
+    backdrop.setTouchable(Touchable.enabled);
+    backdrop.setBackground(EditorTheme.flat(new Color(0f, 0f, 0f, 0.45f)));
+    backdrop.add(panel).center();
+    backdrop.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            if (event.getTarget() == backdrop) onOutsideClick.run();
+          }
+        });
+    modal = backdrop;
+    addActor(backdrop);
+    backdrop.setBounds(0f, 0f, getWidth(), getHeight());
+    backdrop.validate();
+  }
+
+  /** Removes the panel shown by {@link #showModal}, if there is one. */
+  public void closeModal() {
+    if (modal == null) return;
+    modal.remove();
+    modal = null;
   }
 
   /** Keeps the group and its panels aligned with the current stage size. */
@@ -244,6 +283,11 @@ public class LevelEditorUI extends Group {
       prompt.setPosition(
           Math.round((stageWidth - prompt.getWidth()) / 2f),
           topRowBottom - prompt.getHeight() - PANEL_GAP);
+    }
+
+    if (modal != null) {
+      modal.setBounds(0f, 0f, stageWidth, stageHeight);
+      modal.toFront();
     }
 
     layoutSidePanel(detailsPanel, SCREEN_PADDING, DETAILS_PANEL_WIDTH, topRow, stageHeight, bottom);

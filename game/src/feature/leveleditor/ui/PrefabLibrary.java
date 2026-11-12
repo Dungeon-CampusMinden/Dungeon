@@ -1,6 +1,8 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -17,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
+import engine.utils.Cursors;
 import feature.leveleditor.PrefabCatalog;
 import feature.prefabs.Prefab;
 import java.util.ArrayList;
@@ -32,15 +35,17 @@ import java.util.function.Predicate;
  *
  * <p>Prefabs are dragged into the level to place them. Prefabs without a world position, e.g.
  * dialogs or logic, are dropped onto the prefab that triggers them, or clicked to attach them to
- * the selected prefab.
+ * the selected prefab. Their tiles have a link symbol.
  */
 public final class PrefabLibrary extends Table {
 
   private static final int COLUMNS = 4;
-  private static final float TILE_WIDTH = 66f;
+  // Four tiles and the scroll bar fit into the left panel.
+  private static final float TILE_WIDTH = 64f;
   private static final float TILE_HEIGHT = 68f;
   private static final float ICON_SIZE = 30f;
   private static final int MAX_RECENT = 8;
+  private static final Color LINKED_SYMBOL = new Color(0.55f, 0.74f, 1f, 1f);
 
   // Recently added prefab types, newest first. Remembered between mode switches.
   private static final LinkedList<String> RECENT = new LinkedList<>();
@@ -144,17 +149,7 @@ public final class PrefabLibrary extends Table {
     Table overlay = new Table();
     overlay.setTouchable(Touchable.disabled);
     overlay.add(glass).size(14f).padLeft(9f).left().expandX();
-    add(new Stack(search, overlay)).height(EditorTheme.CONTROL_HEIGHT).padBottom(6f).row();
-
-    Label hint =
-        EditorTheme.label(
-            "Drag a prefab into the level. Dialogs, sounds and logic go onto the prefab that"
-                + " triggers them: drop them there, or click them to attach them to the"
-                + " selection.",
-            12,
-            EditorTheme.TEXT_MUTED);
-    hint.setWrap(true);
-    add(hint).padBottom(4f).padLeft(2f).row();
+    add(new Stack(search, overlay)).height(EditorTheme.CONTROL_HEIGHT).padBottom(2f).row();
 
     content.top().left();
     ScrollPane scroll = EditorTheme.scrollPane(content);
@@ -179,7 +174,7 @@ public final class PrefabLibrary extends Table {
    */
   public void focusSearch() {
     if (getStage() != null) getStage().setKeyboardFocus(search);
-    com.badlogic.gdx.Gdx.app.postRunnable(
+    Gdx.app.postRunnable(
         () -> {
           if (getStage() != null) getStage().setKeyboardFocus(search);
         });
@@ -230,7 +225,8 @@ public final class PrefabLibrary extends Table {
     content.add(caption).colspan(COLUMNS).left().padTop(12f).padBottom(4f).padLeft(2f).row();
     int column = 0;
     for (Prefab prefab : prefabs) {
-      content.add(tile(prefab)).size(TILE_WIDTH, TILE_HEIGHT).pad(1f);
+      // Tiles grow with long names, all tiles of a row keep the same height.
+      content.add(tile(prefab)).width(TILE_WIDTH).minHeight(TILE_HEIGHT).fillY().pad(1f);
       if (++column == COLUMNS) {
         column = 0;
         content.row();
@@ -241,24 +237,37 @@ public final class PrefabLibrary extends Table {
   }
 
   private Actor tile(Prefab prefab) {
-    boolean logic = attached.test(prefab);
+    // Prefabs without a world position are linked to other prefabs instead of being placed.
+    boolean linked = attached.test(prefab);
     Table tile = new Table();
     tile.setTouchable(Touchable.enabled);
-    tile.setUserObject(engine.utils.Cursors.INTERACT);
+    tile.setUserObject(Cursors.INTERACT);
     tile.setBackground(EditorTheme.rounded(EditorTheme.FIELD, null, 5));
+    Table body = new Table();
+    body.top();
     Actor icon = PrefabIcons.create(prefab.type(), ICON_SIZE);
-    tile.add(icon).size(ICON_SIZE).padTop(6f).row();
+    body.add(icon).size(ICON_SIZE).padTop(7f).row();
     Label caption = EditorTheme.label(prefab.displayName(), 11, EditorTheme.TEXT);
-    caption.setFontScale(1f);
     caption.setWrap(true);
     caption.setAlignment(Align.center);
-    tile.add(caption).width(TILE_WIDTH - 2f).padTop(3f).expandY().top();
+    body.add(caption).width(TILE_WIDTH - 4f).padTop(3f).padBottom(5f).top();
+    if (linked) {
+      Image link = new Image(EditorTheme.icon("link", LINKED_SYMBOL));
+      link.setScaling(Scaling.fit);
+      Table corner = new Table();
+      corner.setTouchable(Touchable.disabled);
+      corner.add(link).size(11f).expand().top().right().pad(4f, 0f, 0f, 4f);
+      tile.add(new Stack(body, corner)).grow();
+    } else {
+      tile.add(body).grow();
+    }
     tile.addListener(
         new InputListener() {
           @Override
           public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-            if (pointer == -1)
+            if (pointer == -1) {
               tile.setBackground(EditorTheme.rounded(EditorTheme.BUTTON_OVER, null, 5));
+            }
           }
 
           @Override
@@ -274,13 +283,6 @@ public final class PrefabLibrary extends Table {
             listener.clicked(prefab);
           }
         });
-    EditorTheme.tooltip(
-        tile,
-        prefab.displayName()
-            + (logic
-                ? ": drop it onto the prefab that triggers it, or click to attach it to the"
-                    + " selection."
-                : ": drag it into the level."));
     dragAndDrop.addSource(
         new DragAndDrop.Source(tile) {
           @Override

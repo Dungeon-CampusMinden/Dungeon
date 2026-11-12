@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Scaling;
 import feature.leveleditor.PrefabCatalog;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabRegistry;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -74,7 +75,7 @@ public final class PrefabIcons {
   static String initials(String name) {
     String[] words = name.trim().split("[\\s_-]+");
     if (words.length == 0 || words[0].isEmpty()) return "?";
-    if (words.length == 1) return words[0].substring(0, 1).toUpperCase(java.util.Locale.ROOT);
-    return (words[0].substring(0, 1) + words[1].substring(0, 1)).toUpperCase(java.util.Locale.ROOT);
+    if (words.length == 1) return words[0].substring(0, 1).toUpperCase(Locale.ROOT);
+    return (words[0].substring(0, 1) + words[1].substring(0, 1)).toUpperCase(Locale.ROOT);
   }
 }

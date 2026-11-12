@@ -107,6 +107,11 @@ final class EditorIcons {
         pixmap.setColor(Color.WHITE);
         pen.line(25, 39, 39, 25, 5);
       }
+      case "expand-all", "collapse-all" -> {
+        pen.frame(9, 9, 46, 46, 5);
+        pen.line(20, 32, 44, 32, 6);
+        if (name.equals("expand-all")) pen.line(32, 20, 32, 44, 6);
+      }
       case "folder" -> {
         pixmap.fillRectangle(6, 14, 22, 8);
         pixmap.fillRectangle(6, 20, 52, 32);

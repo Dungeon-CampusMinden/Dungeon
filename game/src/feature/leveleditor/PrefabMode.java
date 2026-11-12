@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
+import com.badlogic.gdx.utils.Scaling;
 import engine.Entity;
 import engine.Game;
 import engine.input.ActionId;
@@ -1036,7 +1037,7 @@ public final class PrefabMode extends LevelEditorMode {
     controls.put(EditorActions.TERTIARY, "Pick last point again");
     controls.put(EditorActions.ALT, "Cancel link pick");
     controls.put(EditorActions.SHOW_NAMES, "Show all names");
-    controls.put(EditorActions.FRAME_SELECTION, "Frame selection");
+    controls.put(EditorActions.FRAME_SELECTION, "Center selection");
     controls.put(EditorActions.CANCEL, "Deselect");
     return controls;
   }
@@ -1164,8 +1165,8 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
-   * Builds the row below the name of the selected instance: its prefab and category, whether it is
-   * active, and buttons to frame, duplicate and delete it.
+   * Builds the row below the name of the selected instance: its prefab, whether it is active, and
+   * buttons to center the camera on it, duplicate it and delete it.
    *
    * @param prefab prefab of the instance
    * @param instance selected instance
@@ -1173,11 +1174,7 @@ public final class PrefabMode extends LevelEditorMode {
    */
   private Table inspectorActions(Prefab prefab, PrefabInstance instance) {
     Table row = new Table();
-    Label type =
-        EditorTheme.label(
-            prefab.displayName() + "  \u00b7  " + PrefabCatalog.categoryOf(prefab.type()),
-            13,
-            EditorTheme.TEXT_MUTED);
+    Label type = EditorTheme.label(prefab.displayName(), 13, EditorTheme.TEXT_MUTED);
     type.setEllipsis(true);
     row.add(type).growX().minWidth(0f).left().padLeft(2f);
     TextButton active =
@@ -1199,7 +1196,7 @@ public final class PrefabMode extends LevelEditorMode {
     row.add(active).height(26f).padRight(6f);
     ImageButton frame =
         EditorTheme.iconButton(
-            EditorTheme.icon("frame"), EditorTheme.Variant.GHOST, "Move the camera to it (F)");
+            EditorTheme.icon("frame"), EditorTheme.Variant.GHOST, "Center the camera on it (F)");
     frame.addListener(
         new ChangeListener() {
           @Override
@@ -1249,7 +1246,7 @@ public final class PrefabMode extends LevelEditorMode {
         EditorTheme.padded(EditorTheme.rounded(EditorTheme.alpha(color, 0.12f), null, 5), 8f, 6f));
     if (icon != null) {
       Image image = new Image(EditorTheme.icon(icon, color));
-      image.setScaling(com.badlogic.gdx.utils.Scaling.fit);
+      image.setScaling(Scaling.fit);
       box.add(image).size(14f).top().padRight(7f).padTop(1f);
     }
     Label label = EditorTheme.label(text, 13, color);
@@ -2391,6 +2388,7 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private void toggleLibrary() {
+    EditorTheme.hideTooltips();
     library = library == null ? new PrefabLibrary(new PaletteListener(), this::isAttached) : null;
     paletteDrag = null;
     showListOrLibrary();
