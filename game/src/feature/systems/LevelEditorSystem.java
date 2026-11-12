@@ -194,6 +194,7 @@ public class LevelEditorSystem extends System {
       }
       GameInput.deactivate(EDITOR_INPUT);
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
+      if (ui != null) ui.closeModal();
       currentModeInstance.onExit();
       Game.stage().ifPresent(Stage::unfocusAll);
       Game.hud().dialogsSuppressed(false);

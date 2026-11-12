@@ -541,7 +541,8 @@
       "position" : {
         "x" : 26.0,
         "y" : 3.0
-      }
+      },
+      "deco" : "PushStone"
     }
   }, {
     "name" : "r2/pressure-plate",
@@ -1593,6 +1594,16 @@
         "source" : "game/outro",
         "port" : "finished"
       } ]
+    }
+  }, {
+    "name" : "pushable-stone",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 12.0,
+        "y" : 2.0
+      },
+      "deco" : "Reeds"
     }
   } ]
 }

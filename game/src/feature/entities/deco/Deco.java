@@ -798,6 +798,13 @@ public enum Deco {
 
   /** A decoration. */
   Phone("office/phone.png", new AnimationConfig().scaleX(0.5f), new Rectangle(0.5f, 0.5f, 0, 0)),
+
+  /** The stone of the push puzzles, also the default look of the pushable stone prefab. */
+  PushStone(
+      "objects/push-stone.png",
+      new AnimationConfig(),
+      new Rectangle(0.9f, 0.9f, 0.05f, 0.05f),
+      DepthLayer.Normal.depth()),
   ;
 
   private IPath path;

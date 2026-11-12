@@ -24,7 +24,6 @@ import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.trash.TrashMinigameFactory;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,11 +61,7 @@ public final class TrashMinigamePrefab extends Prefab {
 
   /** Look of the trash can. */
   public static final PrefabProperty<String> DECO =
-      PrefabProperty.selection(
-          "deco",
-          "Decoration",
-          Deco.TrashCanBlue.name(),
-          Arrays.stream(Deco.values()).map(Enum::name).toList());
+      PrefabProperty.decoration("deco", "Decoration", Deco.TrashCanBlue);
 
   /** Number of crumpled papers to dig through. */
   public static final PrefabProperty<Integer> PAPER_COUNT =

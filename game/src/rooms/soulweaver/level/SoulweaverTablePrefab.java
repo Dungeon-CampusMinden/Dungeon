@@ -26,36 +26,35 @@ public final class SoulweaverTablePrefab extends Prefab {
   public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0));
   public static final PrefabProperty<String> FURNITURE =
-      PrefabProperty.selection(
+      PrefabProperty.decoration(
           "furniture",
           "Furniture",
-          "SoulweaverWorkbench",
+          Deco.SoulweaverWorkbench,
           List.of(
-              "SoulweaverWorkbench",
-              "SoulweaverRunePlinth",
-              "SoulweaverAltarPlinth",
-              "SoulweaverSourceBench",
-              "SoulweaverSmallPlinth",
-              "SoulweaverSourcePlinth",
-              "SoulweaverHeartPlinth"));
-  private static final List<String> ITEMS =
+              Deco.SoulweaverWorkbench,
+              Deco.SoulweaverRunePlinth,
+              Deco.SoulweaverAltarPlinth,
+              Deco.SoulweaverSourceBench,
+              Deco.SoulweaverSmallPlinth,
+              Deco.SoulweaverSourcePlinth,
+              Deco.SoulweaverHeartPlinth));
+  private static final List<Deco> ITEMS =
       List.of(
-          "none",
-          "SoulweaverTabletopVase",
-          "SoulweaverTabletopTools",
-          "SoulweaverTablet",
-          "SoulweaverDrainedVase",
-          "SoulweaverNote",
-          "SoulweaverSourceCrystal",
-          "SoulweaverStrengthStone",
-          "SoulweaverSourceTools",
-          "SoulweaverSourceKettle",
-          "SoulweaverCauldron",
-          "SoulweaverSealBook",
-          "SoulweaverSealGem");
+          Deco.SoulweaverTabletopVase,
+          Deco.SoulweaverTabletopTools,
+          Deco.SoulweaverTablet,
+          Deco.SoulweaverDrainedVase,
+          Deco.SoulweaverNote,
+          Deco.SoulweaverSourceCrystal,
+          Deco.SoulweaverStrengthStone,
+          Deco.SoulweaverSourceTools,
+          Deco.SoulweaverSourceKettle,
+          Deco.SoulweaverCauldron,
+          Deco.SoulweaverSealBook,
+          Deco.SoulweaverSealGem);
   public static final List<PrefabProperty<String>> ITEM =
       IntStream.rangeClosed(1, 4)
-          .mapToObj(i -> PrefabProperty.selection("item-" + i, "Item " + i, "none", ITEMS))
+          .mapToObj(i -> PrefabProperty.optionalDecoration("item-" + i, "Item " + i, ITEMS))
           .toList();
   public static final List<PrefabProperty<Vector2>> OFFSET =
       IntStream.rangeClosed(1, 4)
@@ -104,7 +103,7 @@ public final class SoulweaverTablePrefab extends Prefab {
     entities.add(deco(context, position, furniture));
     for (int i = 0; i < ITEM.size(); i++) {
       String item = value(instance, ITEM.get(i));
-      if (!item.equals("none")) {
+      if (!item.equals(PrefabProperty.NO_DECORATION)) {
         Entity entity = deco(context, position.translate(value(instance, OFFSET.get(i))), item);
         restOn(entity, position, Deco.valueOf(furniture));
         entities.add(entity);

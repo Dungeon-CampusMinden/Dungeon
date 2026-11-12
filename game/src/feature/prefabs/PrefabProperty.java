@@ -29,6 +29,9 @@ import tools.jackson.databind.node.ObjectNode;
  */
 public abstract class PrefabProperty<T> {
 
+  /** Value of an {@link #optionalDecoration} property without a decoration. */
+  public static final String NO_DECORATION = "none";
+
   private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final Point ZERO_POINT = new Point(0f, 0f);
 
@@ -551,11 +554,71 @@ public abstract class PrefabProperty<T> {
    */
   public static PrefabProperty<String> selection(
       String key, String displayName, String defaultValue, List<String> values) {
+    return selection(key, displayName, defaultValue, values, PrefabPropertyType.ENUM);
+  }
+
+  /**
+   * Creates a property choosing any decoration. The value is the {@link Deco} name, the editor
+   * shows the decorations as images.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default decoration
+   * @return decoration property descriptor
+   */
+  public static PrefabProperty<String> decoration(
+      String key, String displayName, Deco defaultValue) {
+    return decoration(key, displayName, defaultValue, List.of(Deco.values()));
+  }
+
+  /**
+   * Creates a property choosing one of some decorations. The value is the {@link Deco} name, the
+   * editor shows the decorations as images.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param defaultValue default decoration
+   * @param choices selectable decorations, in editor order
+   * @return decoration property descriptor
+   */
+  public static PrefabProperty<String> decoration(
+      String key, String displayName, Deco defaultValue, List<Deco> choices) {
+    return selection(
+        key,
+        displayName,
+        defaultValue.name(),
+        choices.stream().map(Deco::name).toList(),
+        PrefabPropertyType.DECO);
+  }
+
+  /**
+   * Creates a property choosing one of some decorations, or none. The value is the {@link Deco}
+   * name or {@link #NO_DECORATION}, which is the default.
+   *
+   * @param key serialized key
+   * @param displayName editor label
+   * @param choices selectable decorations, in editor order
+   * @return decoration property descriptor
+   */
+  public static PrefabProperty<String> optionalDecoration(
+      String key, String displayName, List<Deco> choices) {
+    List<String> values = new ArrayList<>();
+    values.add(NO_DECORATION);
+    for (Deco deco : choices) values.add(deco.name());
+    return selection(key, displayName, NO_DECORATION, values, PrefabPropertyType.DECO);
+  }
+
+  private static PrefabProperty<String> selection(
+      String key,
+      String displayName,
+      String defaultValue,
+      List<String> values,
+      PrefabPropertyType type) {
     List<String> allowedValues = List.copyOf(values);
     if (allowedValues.isEmpty() || !allowedValues.contains(defaultValue)) {
       throw new IllegalArgumentException("selection values must contain the default");
     }
-    return new PrefabProperty<>(key, displayName, PrefabPropertyType.ENUM, defaultValue) {
+    return new PrefabProperty<>(key, displayName, type, defaultValue) {
       @Override
       public String decode(JsonNode node) {
         if (!node.isTextual()) throw invalid(key, "must be a string");

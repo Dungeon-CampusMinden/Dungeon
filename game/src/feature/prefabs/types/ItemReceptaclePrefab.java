@@ -26,7 +26,6 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import tools.jackson.databind.JsonNode;
@@ -51,11 +50,7 @@ public final class ItemReceptaclePrefab extends Prefab {
 
   /** Decoration shown for the container. */
   public static final PrefabProperty<String> DECO =
-      PrefabProperty.selection(
-          "deco",
-          "Decoration",
-          Deco.Cabinet.name(),
-          Arrays.stream(Deco.values()).map(Enum::name).toList());
+      PrefabProperty.decoration("deco", "Decoration", Deco.Cabinet);
 
   /** Title of the container in the inventory dialog. */
   public static final PrefabProperty<String> TITLE =

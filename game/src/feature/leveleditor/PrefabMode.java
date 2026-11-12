@@ -30,6 +30,7 @@ import feature.entities.deco.Deco;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ColorSetting;
+import feature.leveleditor.ui.DecoSetting;
 import feature.leveleditor.ui.EditorTheme;
 import feature.leveleditor.ui.FloatSetting;
 import feature.leveleditor.ui.IntegerSetting;
@@ -1550,6 +1551,28 @@ public final class PrefabMode extends LevelEditorMode {
             .padTop(SETTINGS_PAD)
             .row();
       }
+      case DECO -> {
+        PrefabProperty<String> p = cast(property);
+        boolean optional = p.choices().contains(PrefabProperty.NO_DECORATION);
+        List<Deco> choices =
+            p.choices().stream()
+                .filter(value -> !value.equals(PrefabProperty.NO_DECORATION))
+                .map(Deco::valueOf)
+                .toList();
+        secondaryContent
+            .add(
+                new DecoSetting(
+                    p.displayName(),
+                    choices,
+                    optional,
+                    () -> decoOf(access.get(p)),
+                    deco ->
+                        access.set(
+                            p, deco == null ? PrefabProperty.NO_DECORATION : deco.name(), true)))
+            .growX()
+            .padTop(SETTINGS_PAD)
+            .row();
+      }
       case POINT -> {
         PrefabProperty<Point> p = cast(property);
         secondaryContent
@@ -1723,46 +1746,25 @@ public final class PrefabMode extends LevelEditorMode {
           == PuzzlePiecePlacement.Destination.DECO_INVENTORY) {
         pieceControls
             .add(
-                new SelectSetting<>(
+                new DecoSetting(
                     "Deco",
-                    Deco.values(),
+                    List.of(Deco.values()),
                     () -> access.get(property).pieces().get(index).deco(),
                     deco -> {
                       ImagePuzzleSettings settings = access.get(property);
                       PuzzlePiecePlacement placement = settings.pieces().get(index);
                       access.set(
                           property, settings.withPiece(index, placement.withDeco(deco)), true);
-                    },
-                    PrefabMode::decoDisplayName,
-                    true))
+                    }))
             .row();
       }
       secondaryContent.add(pieceControls).growX().padTop(SETTINGS_PAD).row();
     }
   }
 
-  private static String decoDisplayName(Deco deco) {
-    String name = deco.name();
-    StringBuilder displayName = new StringBuilder(name.length() + 8);
-    for (int index = 0; index < name.length(); index++) {
-      char current = name.charAt(index);
-      if (index > 0) {
-        char previous = name.charAt(index - 1);
-        boolean caseBoundary =
-            Character.isUpperCase(current)
-                && (Character.isLowerCase(previous)
-                    || (Character.isUpperCase(previous)
-                        && index + 1 < name.length()
-                        && Character.isLowerCase(name.charAt(index + 1))));
-        boolean numberBoundary =
-            (Character.isDigit(current) && Character.isLetter(previous))
-                || (Character.isLetter(current) && Character.isDigit(previous));
-        boolean wordBoundary = caseBoundary || numberBoundary;
-        if (wordBoundary) displayName.append(' ');
-      }
-      displayName.append(current);
-    }
-    return displayName.toString();
+  // The decoration of a decoration property value, null for none.
+  private static Deco decoOf(String value) {
+    return value.equals(PrefabProperty.NO_DECORATION) ? null : Deco.valueOf(value);
   }
 
   private <T> void setProperty(

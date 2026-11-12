@@ -59,11 +59,7 @@ public final class AirVentPrefab extends Prefab {
 
   /** Decoration shown for the vent. */
   public static final PrefabProperty<String> DECO =
-      PrefabProperty.selection(
-          "deco",
-          "Decoration",
-          Deco.FloorBarsSmall.name(),
-          Arrays.stream(Deco.values()).map(Enum::name).toList());
+      PrefabProperty.decoration("deco", "Decoration", Deco.FloorBarsSmall);
 
   /** Dialog script shown when a player interacts with the vent. */
   public static final PrefabProperty<String> MESSAGE =

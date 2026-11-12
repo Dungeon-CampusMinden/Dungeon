@@ -19,7 +19,6 @@ import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,11 +59,7 @@ public final class ItemSpawnerPrefab extends Prefab {
 
   /** Decoration holding the items, if the container is a decoration. */
   public static final PrefabProperty<String> DECO =
-      PrefabProperty.selection(
-              "deco",
-              "Decoration",
-              Deco.Cabinet.name(),
-              Arrays.stream(Deco.values()).map(Enum::name).toList())
+      PrefabProperty.decoration("deco", "Decoration", Deco.Cabinet)
           .visibleWhen(ItemSpawnerPrefab::isDecoContainer);
 
   /** Title of the decoration in the inventory dialog. */

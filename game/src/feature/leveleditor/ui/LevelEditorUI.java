@@ -16,6 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.UiActions;
+import feature.leveleditor.EditorActions;
 import feature.leveleditor.LevelEditorMode;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
@@ -59,6 +62,8 @@ public class LevelEditorUI extends Group {
   private Table toolbar;
   private Table viewOptions;
   private Table modal;
+  private Runnable modalOnClose;
+  private InputContext modalInput;
 
   /** Creates a new level editor UI group. */
   public LevelEditorUI() {
@@ -205,13 +210,15 @@ public class LevelEditorUI extends Group {
 
   /**
    * Shows a panel centered above the editor, on a dimmed backdrop that blocks the level and the
-   * other panels. While it is shown, the cursor counts as being over the editor UI, so the level
-   * does not react to clicks or the mouse wheel.
+   * other panels. Escape or a click on the backdrop next to the panel closes it.
+   *
+   * <p>While it is shown, its input context lies above the editor's and the cursor counts as being
+   * over the editor UI, so the level does not react to keys, clicks or the mouse wheel.
    *
    * @param panel panel to show
-   * @param onOutsideClick called when the backdrop next to the panel is clicked
+   * @param onClose called once when the panel is closed, in any way; may be {@code null}
    */
-  public void showModal(Actor panel, Runnable onOutsideClick) {
+  public void showModal(Actor panel, Runnable onClose) {
     closeModal();
     EditorTheme.hideTooltips();
     Table backdrop = new Table();
@@ -222,20 +229,34 @@ public class LevelEditorUI extends Group {
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            if (event.getTarget() == backdrop) onOutsideClick.run();
+            if (event.getTarget() == backdrop) closeModal();
           }
         });
     modal = backdrop;
+    modalOnClose = onClose;
+    modalInput =
+        new InputContext(EditorActions.EDITOR_POPUP).onPress(UiActions.CLOSE, this::closeModal);
+    GameInput.activate(modalInput);
     addActor(backdrop);
     backdrop.setBounds(0f, 0f, getWidth(), getHeight());
     backdrop.validate();
   }
 
-  /** Removes the panel shown by {@link #showModal}, if there is one. */
+  /** Closes the panel shown by {@link #showModal}, if there is one. */
   public void closeModal() {
     if (modal == null) return;
-    modal.remove();
+    Table closed = modal;
+    Runnable onClose = modalOnClose;
     modal = null;
+    modalOnClose = null;
+    GameInput.deactivate(modalInput);
+    modalInput = null;
+    Stage stage = closed.getStage();
+    if (stage != null && stage.getKeyboardFocus() != null) {
+      if (stage.getKeyboardFocus().isDescendantOf(closed)) stage.setKeyboardFocus(null);
+    }
+    closed.remove();
+    if (onClose != null) onClose.run();
   }
 
   /** Keeps the group and its panels aligned with the current stage size. */

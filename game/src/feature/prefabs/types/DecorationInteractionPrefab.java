@@ -19,7 +19,6 @@ import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.systems.PositionSync;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -47,11 +46,7 @@ public final class DecorationInteractionPrefab extends Prefab {
       PrefabProperty.point("position", "Position", new Point(0, 0));
 
   public static final PrefabProperty<String> DECO =
-      PrefabProperty.selection(
-          "deco",
-          "Decoration",
-          Deco.BookshelfLarge.name(),
-          Arrays.stream(Deco.values()).map(Enum::name).toList());
+      PrefabProperty.decoration("deco", "Decoration", Deco.BookshelfLarge);
 
   public static final PrefabProperty<Vector2> SCALE =
       PrefabProperty.vector2("scale", "Scale", Vector2.ONE);
