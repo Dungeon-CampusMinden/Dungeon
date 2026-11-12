@@ -4,7 +4,7 @@
     "menu": {
       "start": "Schicht beginnen"
     },
-    "controls": "[size=24]Steuerung:[n][n]Bewegen -> [key code=$1 color=black][key code=$2 color=black][key code=$3 color=black][key code=$4 color=black][n]Interagieren -> [key code=$5 color=black] / [key code=$6 type=mouse color=black][n]Inventar -> [key code=$7 color=black][n]Questlog -> [key code=$8 color=black][n]Dialog schließen -> [key code=$9 color=black][n]Einstellungen -> [key code=$10 color=black][n][size=18][color=black]Erledigte Aufgaben und gesammelte Indizien findest du im Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
+    "controls": "[size=24]Steuerung:[n][n]Bewegen -> [action id=core:move][n]Interagieren -> [action id=core:interact all][n]Inventar -> [action id=core:inventory][n]Questlog -> [action id=core:questlog][n]Dialog schließen -> [action id=ui:close][n]Einstellungen -> [action id=core:pause_menu][n][size=18][color=black]Erledigte Aufgaben und gesammelte Indizien findest du im Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
     "intro": {
       "page1": "Die berühmte Wörterfabrik der Firma Morph & Co. KG stellt seit Jahrhunderten alle deutschen Wörter her. Normalerweise läuft alles automatisch: Morpheme werden angeliefert. Wortbildungsaffixe werden angebaut. Flexive werden am Ende montiert. Komposita werden zusammengesetzt.",
       "page2": "Heute Morgen ist jedoch etwas schiefgelaufen: Ein Teil der Maschinen spielt verrückt und produziert Unsinn oder verweigert sogar total den Dienst. Präfixe landen an den falschen Wörtern und Flexive werden bis zur Unkenntlichkeit vertauscht.",

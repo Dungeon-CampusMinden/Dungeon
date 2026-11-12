@@ -1,8 +1,6 @@
 package rooms.morphco.util;
 
-import com.badlogic.gdx.Input;
 import engine.Entity;
-import engine.configuration.KeyboardConfig;
 import engine.language.Translation;
 import engine.utils.Tuple;
 import feature.components.CharacterClassComponent;
@@ -148,18 +146,7 @@ public final class MorphCoText {
         + " name=\"[color=black]"
         + key("story.shift-lead")
         + "[/color]\"]"
-        + key(
-            "controls",
-            KeyboardConfig.MOVEMENT_UP.value(),
-            KeyboardConfig.MOVEMENT_LEFT.value(),
-            KeyboardConfig.MOVEMENT_DOWN.value(),
-            KeyboardConfig.MOVEMENT_RIGHT.value(),
-            feature.input.configuration.KeyboardConfig.INTERACT_WORLD.value(),
-            Input.Buttons.LEFT,
-            feature.input.configuration.KeyboardConfig.INVENTORY_OPEN.value(),
-            feature.input.configuration.KeyboardConfig.QUESTLOG_OPEN.value(),
-            feature.input.configuration.KeyboardConfig.CLOSE_UI.value(),
-            feature.input.configuration.KeyboardConfig.PAUSE_MENU.value());
+        + key("controls");
   }
 
   /**

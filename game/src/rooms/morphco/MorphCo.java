@@ -1,9 +1,7 @@
 package rooms.morphco;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
-import engine.configuration.KeyboardConfig;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
 import engine.game.GameStarter;
@@ -20,9 +18,7 @@ import engine.systems.MoveSystem;
 import engine.systems.PositionSystem;
 import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
-import engine.utils.CursorUtil;
 import engine.utils.Tuple;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLoggerConfig;
 import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
@@ -137,10 +133,6 @@ public final class MorphCo {
             .characterClasses(CHARACTER_CLASSES)
             .maximumPlayers(MAXIMUM_PLAYERS)
             .levels(Tuple.of(LEVEL_KEY, MorphCoLevel.class))
-            .config(
-                new SimpleIPath("dungeon_config.json"),
-                feature.input.configuration.KeyboardConfig.class,
-                KeyboardConfig.class)
             .snapshotTranslator(new MorphCoSnapshotTranslator())
             .onFrame(HeroController::drainAndApplyInputs)
             .build();
@@ -277,7 +269,6 @@ public final class MorphCo {
   }
 
   private static void clientSetup() {
-    Game.stage().ifPresent(CursorUtil::initListener);
     Game.remove(AttributeBarSystem.class);
     Game.add(new ControlsDialogSystem(MorphCoText::controls));
     if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
@@ -286,7 +277,6 @@ public final class MorphCo {
 
   private static void addDebugSystems() {
     Game.add(new Debugger());
-    KeyboardConfig.PAUSE.value(Input.Keys.UNKNOWN);
     Game.add(new DebugDrawSystem());
     Game.add(new LevelEditorSystem());
   }
