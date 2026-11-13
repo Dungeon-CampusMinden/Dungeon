@@ -23,10 +23,12 @@ import java.util.List;
  * Screen-space overlay of the level editor: text on dark plates, markers and badges drawn on top of
  * the world with a constant size in pixels.
  *
- * <p>Requests are queued while a mode renders and drawn together by {@link #flush()}, highest
- * priority first. A label that would cover an already placed one tries its alternative side and is
- * left out if that is taken too, unless it is forced. Dense areas stay readable that way, the most
- * important labels win.
+ * <p>Requests are queued while a mode renders and drawn together by {@link #flush()}. Pinned labels
+ * and dots are placed first, exactly where they were requested, e.g. the rows of a list that can be
+ * clicked where they are drawn. The other labels follow, highest priority first: a label that would
+ * cover a pinned label or a dot moves up or down until it is clear of them. A label that would
+ * cover an already placed one tries its alternative side and is left out if that is taken too,
+ * unless it is forced. Dense areas stay readable that way, the most important labels win.
  */
 public final class EditorOverlay {
 
@@ -64,9 +66,6 @@ public final class EditorOverlay {
   /** Priority of instances that can be clicked to finish a link. */
   public static final int PRIORITY_TARGET = 80;
 
-  /** Priority of the attached prefabs in an expanded group. */
-  public static final int PRIORITY_CHIP = 70;
-
   /** Priority of instances linked to the selection. */
   public static final int PRIORITY_RELATED = 60;
 
@@ -81,11 +80,14 @@ public final class EditorOverlay {
   private static final float PAD_Y = 3f;
   private static final float CORNER = 4f;
   private static final float GAP = 2f;
+  // Distance kept to the pinned labels and dots a label moves out of, a pixel more than GAP.
+  private static final float CLEARANCE = GAP + 1f;
   private static final float DESCENT = 0.22f;
   private static final float EDGE = 4f;
   private static final float DOT_STEP = 10f;
   private static final float DOT_GAP = 3f;
   private static final float DOT_RADIUS = 3.6f;
+  private static final float RING_WIDTH = 2f;
 
   private static ShapeRenderer shapes;
   private static SpriteBatch batch;
@@ -94,7 +96,8 @@ public final class EditorOverlay {
   private final List<TextRequest> texts = new ArrayList<>();
   private final List<DotRequest> dots = new ArrayList<>();
   private final List<Rectangle> placed = new ArrayList<>();
-  private final List<Rectangle> lastPlaced = new ArrayList<>();
+  // Pinned labels and dots, which the other labels move out of.
+  private final List<Rectangle> obstacles = new ArrayList<>();
   private int sequence;
 
   /**
@@ -158,11 +161,41 @@ public final class EditorOverlay {
     if (text == null || text.isBlank()) return;
     texts.add(
         new TextRequest(
-            text, List.of(), screen, anchor, offset, fontSize, look, priority, force, sequence++));
+            text,
+            List.of(),
+            screen,
+            anchor,
+            offset,
+            fontSize,
+            look,
+            priority,
+            force,
+            false,
+            sequence++));
   }
 
   /**
-   * Queues a badge: a plate with colored dots, followed by an optional text.
+   * Queues a pinned label: it is drawn exactly at its position, even if it covers another pinned
+   * label, and the other labels move out of its way.
+   *
+   * @param text label text
+   * @param screen screen position the label is anchored at
+   * @param anchor where the label sits relative to the position
+   * @param offset distance from the position in pixels, not used by {@link Anchor#CENTER}
+   * @param fontSize font size in pixels
+   * @param look colors
+   */
+  public void pinnedText(
+      String text, Vector2 screen, Anchor anchor, float offset, int fontSize, Look look) {
+    if (text == null || text.isBlank()) return;
+    texts.add(
+        new TextRequest(
+            text, List.of(), screen, anchor, offset, fontSize, look, 0, true, true, sequence++));
+  }
+
+  /**
+   * Queues a badge: a plate with colored dots, followed by an optional text. Badges are pinned like
+   * {@link #pinnedText} labels.
    *
    * @param dots colors of the dots, in order
    * @param text text after the dots, may be empty
@@ -171,7 +204,6 @@ public final class EditorOverlay {
    * @param offset distance from the position in pixels, not used by {@link Anchor#CENTER}
    * @param fontSize font size of the text in pixels, also decides the plate height
    * @param look colors of the text and plate
-   * @param priority higher priorities are placed first
    */
   public void badge(
       List<Color> dots,
@@ -180,8 +212,7 @@ public final class EditorOverlay {
       Anchor anchor,
       float offset,
       int fontSize,
-      Look look,
-      int priority) {
+      Look look) {
     texts.add(
         new TextRequest(
             text == null ? "" : text,
@@ -191,13 +222,14 @@ public final class EditorOverlay {
             offset,
             fontSize,
             look,
-            priority,
+            0,
+            true,
             true,
             sequence++));
   }
 
   /**
-   * Queues a filled dot, drawn below all labels.
+   * Queues a filled dot, drawn below all labels. Dots are pinned: labels move out of their way.
    *
    * @param screen screen position of the center
    * @param radius radius in pixels
@@ -208,26 +240,15 @@ public final class EditorOverlay {
     dots.add(new DotRequest(screen, radius, fill, ring));
   }
 
-  /**
-   * Returns whether the given screen position is covered by a label of the last flush.
-   *
-   * @param screen screen position
-   * @return true if a label was drawn there
-   */
-  public boolean coversLabel(Vector2 screen) {
-    for (Rectangle rectangle : lastPlaced) {
-      if (rectangle.contains(screen)) return true;
-    }
-    return false;
-  }
-
   /** Places and draws all queued requests and clears the queue. */
   public void flush() {
     placed.clear();
+    obstacles.clear();
+    for (DotRequest dot : dots) obstacles.add(dot.bounds());
     List<Placement> placements = new ArrayList<>();
     texts.sort(
-        Comparator.comparingInt(TextRequest::priority)
-            .reversed()
+        Comparator.comparing((TextRequest request) -> !request.pinned())
+            .thenComparing(Comparator.comparingInt(TextRequest::priority).reversed())
             .thenComparingInt(TextRequest::sequence));
     float width = Game.windowWidth();
     float height = Game.windowHeight();
@@ -239,22 +260,81 @@ public final class EditorOverlay {
       }
       // Labels at the edge of the screen are moved in, so they can be read in full.
       clamp(box, width, height);
-      if (!request.force() && overlaps(box)) {
-        Anchor alternative = alternative(request.anchor());
-        if (alternative == null) continue;
-        box = box(request, alternative, size);
-        clamp(box, width, height);
-        if (overlaps(box)) continue;
+      if (request.pinned()) {
+        obstacles.add(box);
+      } else {
+        box = fit(request, size, box, width, height);
+        if (box == null) continue;
       }
       placed.add(box);
       placements.add(new Placement(request, box));
     }
-    lastPlaced.clear();
-    lastPlaced.addAll(placed);
     draw(placements);
     texts.clear();
     dots.clear();
     sequence = 0;
+  }
+
+  /**
+   * Finds the place of a label that is not pinned: its box, or its box on the alternative side,
+   * each moved out of the pinned labels and dots it covers.
+   *
+   * @param request the label
+   * @param size text size of the label
+   * @param preferred box at the requested position, moved onto the screen
+   * @param width screen width
+   * @param height screen height
+   * @return the first place that covers no other label; for a forced label the first place clear of
+   *     pinned labels and dots, or its preferred box; {@code null} if the label is left out
+   */
+  private Rectangle fit(
+      TextRequest request, Vector2 size, Rectangle preferred, float width, float height) {
+    List<Rectangle> candidates =
+        new ArrayList<>(unblocked(preferred, request.anchor() == Anchor.BELOW, height));
+    Anchor alternative = alternative(request.anchor());
+    if (alternative != null) {
+      Rectangle other = box(request, alternative, size);
+      clamp(other, width, height);
+      candidates.addAll(unblocked(other, alternative == Anchor.BELOW, height));
+    }
+    for (Rectangle candidate : candidates) {
+      if (!overlaps(candidate, placed)) return candidate;
+    }
+    if (!request.force()) return null;
+    return candidates.isEmpty() ? preferred : candidates.getFirst();
+  }
+
+  /**
+   * Returns a box if it covers no pinned label or dot, otherwise the box moved just past them,
+   * first in the given direction, then in the other one.
+   *
+   * @param box label box
+   * @param downFirst whether moving down is tried first, e.g. for labels below their position
+   * @param height screen height
+   * @return the box, or the moved boxes that stay on the screen; may be empty
+   */
+  private List<Rectangle> unblocked(Rectangle box, boolean downFirst, float height) {
+    if (!overlaps(box, obstacles)) return List.of(box);
+    List<Rectangle> result = new ArrayList<>(2);
+    for (boolean down : new boolean[] {downFirst, !downFirst}) {
+      Rectangle moved = slide(box, down, height);
+      if (moved != null) result.add(moved);
+    }
+    return result;
+  }
+
+  /* Moves a box up or down past the pinned labels and dots; null if it then leaves the screen. */
+  private Rectangle slide(Rectangle box, boolean down, float height) {
+    Rectangle moved = new Rectangle(box);
+    for (int step = 0; step <= obstacles.size(); step++) {
+      Rectangle obstacle = firstOverlap(moved, obstacles);
+      if (obstacle == null) {
+        return moved.y >= EDGE && moved.y + moved.height <= height - EDGE ? moved : null;
+      }
+      moved.y =
+          down ? obstacle.y - CLEARANCE - moved.height : obstacle.y + obstacle.height + CLEARANCE;
+    }
+    return null;
   }
 
   private static void clamp(Rectangle box, float width, float height) {
@@ -262,16 +342,21 @@ public final class EditorOverlay {
     box.y = Math.max(EDGE, Math.min(box.y, height - EDGE - box.height));
   }
 
-  private boolean overlaps(Rectangle box) {
-    for (Rectangle other : placed) {
+  private static boolean overlaps(Rectangle box, List<Rectangle> others) {
+    return firstOverlap(box, others) != null;
+  }
+
+  /* Returns the first rectangle closer to the box than GAP, or null. */
+  private static Rectangle firstOverlap(Rectangle box, List<Rectangle> others) {
+    for (Rectangle other : others) {
       if (box.x < other.x + other.width + GAP
           && box.x + box.width + GAP > other.x
           && box.y < other.y + other.height + GAP
           && box.y + box.height + GAP > other.y) {
-        return true;
+        return other;
       }
     }
-    return false;
+    return null;
   }
 
   private static Anchor alternative(Anchor anchor) {
@@ -316,7 +401,7 @@ public final class EditorOverlay {
     for (DotRequest dot : dots) {
       if (dot.ring() != null) {
         shapes.setColor(ColorUtils.pmaColor(dot.ring()));
-        shapes.circle(dot.screen().x, dot.screen().y, dot.radius() + 2f, 20);
+        shapes.circle(dot.screen().x, dot.screen().y, dot.radius() + RING_WIDTH, 20);
       }
       shapes.setColor(ColorUtils.pmaColor(dot.fill()));
       shapes.circle(dot.screen().x, dot.screen().y, dot.radius(), 20);
@@ -380,6 +465,7 @@ public final class EditorOverlay {
       Look look,
       int priority,
       boolean force,
+      boolean pinned,
       int sequence) {
 
     private float dotsWidth() {
@@ -387,7 +473,13 @@ public final class EditorOverlay {
     }
   }
 
-  private record DotRequest(Vector2 screen, float radius, Color fill, Color ring) {}
+  private record DotRequest(Vector2 screen, float radius, Color fill, Color ring) {
+
+    private Rectangle bounds() {
+      float outer = ring == null ? radius : radius + RING_WIDTH;
+      return new Rectangle(screen.x - outer, screen.y - outer, outer * 2f, outer * 2f);
+    }
+  }
 
   private record Placement(TextRequest request, Rectangle box) {}
 }

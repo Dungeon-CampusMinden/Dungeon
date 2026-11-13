@@ -683,15 +683,14 @@ public final class PrefabMode extends LevelEditorMode {
               ? look.nameLook()
               : instance.active() ? EditorTheme.LABEL_FOCUSED : EditorTheme.LABEL_INACTIVE;
       if (look.dimmed()) labelLook = EditorTheme.LABEL_INACTIVE;
-      overlay.text(
+      // Pinned: the rows are clicked where placeChips put them, other labels move out of the way.
+      overlay.pinnedText(
           label,
           placement.marker(),
           placement.left() ? EditorOverlay.Anchor.LEFT : EditorOverlay.Anchor.RIGHT,
           CHIP_DOT_RADIUS_PX + 4f,
           CHIP_FONT_SIZE,
-          labelLook,
-          Math.max(look.namePriority(), EditorOverlay.PRIORITY_CHIP + 15),
-          true);
+          labelLook);
     }
     for (List<ChipPlacement> group : collapsed.values()) {
       List<ChipPlacement> ordered = new ArrayList<>(group);
@@ -720,8 +719,7 @@ public final class PrefabMode extends LevelEditorMode {
           BADGE_FONT_SIZE,
           target
               ? new EditorOverlay.Look(EditorTheme.TARGET, new Color(0.04f, 0.24f, 0.1f, 0.92f))
-              : EditorTheme.LABEL_NORMAL,
-          EditorOverlay.PRIORITY_WARNING + 1);
+              : EditorTheme.LABEL_NORMAL);
     }
   }
 
