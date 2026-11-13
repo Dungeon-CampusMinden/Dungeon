@@ -2,7 +2,6 @@ package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
@@ -17,19 +16,14 @@ import rooms.morphco.util.MorphCoText;
  * und wo sie zu finden sind", the classification handout of the room split into free and bound
  * morphemes.
  */
-final class DocumentUI extends MorphCoConsoleUI {
-
-  private static final float MAX_WIDTH = 980;
+final class DocumentUI extends PaperUI {
 
   private static final String HANDBOOK = MorphCoDialogs.HANDBOOK;
   private static final String MORPH_1 = MorphCoDialogs.MORPH_1;
   private static final String MORPH_2 = MorphCoDialogs.MORPH_2;
 
-  private final PanelNode paper = area().addNode(new PanelNode("paper", PanelNode.Look.PAPER, 34));
-  private final Table sheet = paper.content();
-
   private DocumentUI(DialogContext context, String document) {
-    super(context, title(document), "", "");
+    super(context, title(document));
     sheet.defaults().growX().left();
     switch (document) {
       case MORPH_1 -> freeMorphemes();
@@ -60,15 +54,6 @@ final class DocumentUI extends MorphCoConsoleUI {
 
   private static String t(String key) {
     return MorphCoText.text("documents." + key);
-  }
-
-  @Override
-  protected float arrange(float width, float height) {
-    float paperWidth = Math.min(MAX_WIDTH, width - 12);
-    // Room above the sheet for its strip of tape.
-    float paperHeight = paper.fit(paperWidth);
-    paper.position((width - paperWidth) / 2, -16 - paperHeight);
-    return paperHeight + 28;
   }
 
   private void header() {

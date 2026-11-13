@@ -30,6 +30,8 @@ public enum MorphCoDialogs implements DialogType {
   STATION("morphCoStation", StationUI::build),
   /** The production control system in the control room. */
   COMPUTER("morphCoComputer", ComputerUI::build),
+  /** The book of hamster jokes on the shelf of A-12. */
+  HAMSTER_BOOK("morphCoHamsterBook", HamsterBookUI::build),
   /** Handbook and morpheme classification. */
   DOCUMENT("morphCoDocument", DocumentUI::build);
 
@@ -47,6 +49,12 @@ public enum MorphCoDialogs implements DialogType {
 
   /** Document: "Morphemtypen und wo sie zu finden sind", part 2 (bound morphemes). */
   public static final String MORPH_2 = "morph2";
+
+  /** Context key: number of the joke the hamster book falls open at. */
+  public static final String JOKE = "morphCoJoke";
+
+  /** Number of jokes in the hamster book. */
+  public static final int HAMSTER_JOKES = 100;
 
   /** Context key: whether F-04 has been repaired. */
   public static final String F04_OK = "morphCoF04Ok";
