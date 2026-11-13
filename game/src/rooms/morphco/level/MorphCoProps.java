@@ -6,6 +6,7 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.Rectangle;
+import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
@@ -168,7 +169,8 @@ final class MorphCoProps {
   }
 
   /**
-   * Shows an emote above a character or object.
+   * Shows an emote above a character or object. The emote follows it, e.g. when the character walks
+   * on.
    *
    * @param target character or object the emote belongs to
    * @param emote emote to show
@@ -176,9 +178,7 @@ final class MorphCoProps {
    * @return the emote entity, e.g. to remove it earlier
    */
   static Entity emote(Entity target, Emote emote, int durationMs) {
-    Entity entity =
-        EmoteFactory.createEmote(
-            EntityUtils.getPosition(target).translate(0f, 0.7f), emote, durationMs);
+    Entity entity = EmoteFactory.createEmote(target, Vector2.of(0f, 0.7f), emote, durationMs);
     Game.add(entity);
     return entity;
   }

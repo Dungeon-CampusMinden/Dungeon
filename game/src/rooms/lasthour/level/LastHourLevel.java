@@ -65,7 +65,6 @@ import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerAlarm;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
-import feature.utils.EntityUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -942,7 +941,7 @@ public class LastHourLevel extends DungeonLevel {
     if (ringingPhoneEmote == null) {
       ringingPhoneEmote =
           EmoteFactory.createEmote(
-              EntityUtils.getPosition(r2Phone), Emote.EXCLAMATION, PHONE_RINGING_EMOTE_DURATION_MS);
+              r2Phone, Vector2.ZERO, Emote.EXCLAMATION, PHONE_RINGING_EMOTE_DURATION_MS);
       Game.add(ringingPhoneEmote);
     }
   }
