@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
@@ -175,9 +176,23 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    * @param key text key below {@code morphCo}
    * @param primary whether this is the yellow main button
    * @param action action on click
+   * @return the button
    */
-  void button(String key, boolean primary, Runnable action) {
-    buttons.add(MorphCoUI.button(MorphCoText.text(key), primary, action));
+  TextButton button(String key, boolean primary, Runnable action) {
+    TextButton button = MorphCoUI.button(MorphCoText.text(key), primary, action);
+    buttons.add(button);
+    return button;
+  }
+
+  /** Removes every button from the panel's button row. */
+  void clearButtons() {
+    buttons.clearChildren();
+  }
+
+  /** Jumps back to the top of the work area, e.g. after turning a page. */
+  void scrollToTop() {
+    scroll.setScrollY(0);
+    scroll.updateVisualScroll();
   }
 
   /**

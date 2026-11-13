@@ -11,6 +11,8 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
@@ -38,6 +40,8 @@ final class AffixSorter {
 
   private final MorphCoLevel level;
   private final MorphCoState state;
+  private final List<Integer> hamsterJokes = new ArrayList<>();
+  private int lastJoke;
   private Entity lock;
   private Entity display;
 
@@ -254,9 +258,29 @@ final class AffixSorter {
     if ("morph2".equals(book)) {
       MorphCoDocuments.show(player, MorphCoDialogs.MORPH_2);
       level.observe(MorphCoState.MORPH2_READ);
+    } else if ("hamster".equals(book)) {
+      DialogFactory.show(
+          DialogContext.builder()
+              .type(MorphCoDialogs.HAMSTER_BOOK)
+              .put(MorphCoDialogs.JOKE, nextJoke())
+              .build(),
+          player.id());
     } else {
       DialogUtils.showTextPopup(
           MorphCoText.key("world.a12.book-" + book + "-text"), MorphCoText.key(SHELF), player.id());
     }
+  }
+
+  // Every opening shows another joke; once all have been shown, they are shuffled again, and the
+  // last one shown does not come first.
+  private int nextJoke() {
+    if (hamsterJokes.isEmpty()) {
+      for (int joke = 1; joke <= MorphCoDialogs.HAMSTER_JOKES; joke++) hamsterJokes.add(joke);
+      Collections.shuffle(hamsterJokes);
+      if (hamsterJokes.getLast() == lastJoke)
+        Collections.swap(hamsterJokes, 0, hamsterJokes.size() - 1);
+    }
+    lastJoke = hamsterJokes.removeLast();
+    return lastJoke;
   }
 }
