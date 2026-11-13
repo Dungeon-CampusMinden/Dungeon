@@ -80,7 +80,7 @@ public class MorphCoLevel extends DungeonLevel {
 
   @Override
   public void lights(List<Light> out) {
-    MorphCoLighting.lights(layout(), out);
+    MorphCoLighting.lights(layout(), doorTiles(), out);
   }
 
   @Override

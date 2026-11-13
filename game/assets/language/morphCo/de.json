@@ -65,10 +65,20 @@
         "console-coffee-result": "In der Personalküche gurgelt eine Kaffeemaschine. Leider ist die Küche abgeschlossen. Der Alarm heult weiter.",
         "console-music-result": "Im Flur beginnt leise Fahrstuhlmusik zu dudeln. Gegen den Alarm hat sie keine Chance.",
         "console-light-result": "Für einen Moment flackert die Notbeleuchtung. Dann ist alles wie vorher - inklusive Alarm.",
+        "console-light-on": "Die Notbeleuchtung ist an, seit die Sicherungsbox wieder verkabelt ist. Grüner wird es nicht. Der Alarm heult trotzdem weiter.",
         "console-alarm-off": "Endlich Stille! Oder ... fast. Irgendwo klappert eine Maschine und aus einem Lüftungsschacht dringt ein Geräusch, das verdächtig nach einem Drucker klingt, der gerade stirbt. Immerhin kannst du jetzt wieder klar denken. Zeit für den Computer.",
         "console-done": "Der Knopf 'Nerviger Alarmton' ist nicht mehr gedrückt. Und dabei bleibt es.",
         "fuse-box-title": "Sicherungsbox",
-        "fuse-box": "Alle Sicherungen sind drin. Daran liegt es also nicht.",
+        "fuse-box": "Alle Sicherungen sind drin. Dafür hat jemand sämtliche Kabel herausgezogen und ordentlich nebeneinandergelegt. Nach einem Wackelkontakt sieht das nicht aus.",
+        "fuse-box-help": "Ziehe jedes Kabelende in die Buchse mit derselben Beschriftung. Oder klicke erst ein Kabelende an und dann die Buchse.",
+        "fuse-box-f04": "F-04",
+        "fuse-box-a12": "A-12",
+        "fuse-box-corridor": "Flur",
+        "fuse-box-control": "Kontrollraum",
+        "fuse-box-emergency": "Notlicht",
+        "fuse-box-wrong": "Passt nicht. Das Kabel springt zurück.",
+        "fuse-box-done": "Alle Kabel stecken. Die Notbeleuchtung ist an.",
+        "fuse-box-wired": "Alle Kabel stecken, alle Lämpchen leuchten. So ordentlich war die Box vermutlich noch nie verkabelt. Wer die Kabel herausgezogen hat, verrät sie dir allerdings nicht.",
         "coffee-title": "Kaffeetasse",
         "coffee": "Leer. Der Kaffeerand am Tassenboden sieht älter aus als die Krise.",
         "plant-title": "Topfpflanze",
@@ -419,6 +429,10 @@
     "morphco_nobody_home": {
       "name": "Niemand zu Hause",
       "description": "Versuche, den Wachschutz und Rosi zu erreichen."
+    },
+    "morphco_fuse_box": {
+      "name": "Unter Strom",
+      "description": "Stecke alle Kabel in der Sicherungsbox des Kontrollraums wieder ein."
     },
     "morphco_posters": {
       "name": "Aushangkundig",

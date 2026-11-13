@@ -65,10 +65,20 @@
         "console-coffee-result": "In the staff kitchen a coffee machine gurgles. Unfortunately, the kitchen is locked. The alarm keeps wailing.",
         "console-music-result": "Soft elevator music starts tootling in the corridor. It doesn't stand a chance against the alarm.",
         "console-light-result": "For a moment the emergency lighting flickers. Then everything is back to how it was - alarm included.",
+        "console-light-on": "The emergency lighting has been on ever since the fuse box was rewired. It doesn't get any greener than this. The alarm keeps wailing anyway.",
         "console-alarm-off": "Silence at last! Or ... almost. Somewhere a machine is rattling, and from a ventilation shaft comes a noise that sounds suspiciously like a printer in its death throes. At least you can think straight again. Time for the computer.",
         "console-done": "The 'Annoying alarm sound' button is no longer pressed. And that's how it stays.",
         "fuse-box-title": "Fuse box",
-        "fuse-box": "All the fuses are in. So that's not the problem.",
+        "fuse-box": "All the fuses are in. Someone has pulled out every single cable, though, and laid them out neatly side by side. That doesn't look like a loose connection.",
+        "fuse-box-help": "Drag each cable end into the socket with the same label. Or click a cable end first and then the socket.",
+        "fuse-box-f04": "F-04",
+        "fuse-box-a12": "A-12",
+        "fuse-box-corridor": "Corridor",
+        "fuse-box-control": "Control room",
+        "fuse-box-emergency": "Emergency",
+        "fuse-box-wrong": "Wrong socket. The cable springs back.",
+        "fuse-box-done": "All cables are in. The emergency lighting is on.",
+        "fuse-box-wired": "Every cable is in, every lamp is lit. This box has probably never been wired this neatly. It won't tell you who pulled the cables out, though.",
         "coffee-title": "Coffee mug",
         "coffee": "Empty. The coffee ring at the bottom looks older than the crisis.",
         "plant-title": "Potted plant",
@@ -419,6 +429,10 @@
     "morphco_nobody_home": {
       "name": "Nobody Home",
       "description": "Try to reach security and Rosi."
+    },
+    "morphco_fuse_box": {
+      "name": "Live Wire",
+      "description": "Plug all the cables back into the fuse box in the control room."
     },
     "morphco_posters": {
       "name": "Poster Child",

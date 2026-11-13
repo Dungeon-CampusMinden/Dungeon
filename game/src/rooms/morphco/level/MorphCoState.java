@@ -63,6 +63,9 @@ public final class MorphCoState {
   /** Rosi has been called. */
   public static final String CALLED_ROSI = "called-rosi";
 
+  /** The cables of the fuse box are back in their sockets; the emergency lighting is on. */
+  public static final String FUSE_BOX_WIRED = "fuse-box-wired";
+
   /** Prefix of flags that record an inspected plant. */
   public static final String PLANT_PREFIX = "plant:";
 
