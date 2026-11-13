@@ -188,6 +188,9 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - Die Sicherheitskarte ist kein Inventargegenstand; das Lesegerät öffnet die Tür nach einem
   Swipe-Card-Minigame (wie in Among Us): zu schnell, zu langsam oder nicht ganz durchgezogen heißt
   nochmal.
+- Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel (wegziehen oder per Klick
+  hinauswerfen); drei davon zeigen Ausschusswörter. Darunter liegt die gefaltete Mängelmeldung, die
+  sich per Klick entfaltet. Sie bleibt ein optionales Indiz im Questlog.
 - Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
 - Die Sicherungsbox im Kontrollraum ist ein optionales Minigame: Jemand hat die Kabel
   herausgezogen. Wer jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung
