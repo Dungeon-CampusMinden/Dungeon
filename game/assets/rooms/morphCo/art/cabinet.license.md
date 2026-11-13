@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Schaltschrank), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Schaltschrank, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (OpenAI über Codex, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 22x28 Pixel verkleinert, Farbpalette reduziert)
+- Modified by: amatutat (zugeschnitten, auf 20x34 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt, Kabel gekürzt, Zeigerinstrument von Hand neu gepixelt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

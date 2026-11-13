@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Tischtelefon), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Tischtelefon, Draufsicht schräg von oben), per Skript als Pixel-Art gezeichnet
 - Author: amatutat
 - License: CC0 1.0
 

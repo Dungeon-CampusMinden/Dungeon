@@ -1,6 +1,5 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Werkzeugwagen), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Werkzeugwagen, Draufsicht schräg von oben), per Skript als Pixel-Art gezeichnet nach einer per KI-Bildgenerierung erzeugten Vorlage (OpenAI über Codex, im Auftrag von amatutat)
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 18x20 Pixel verkleinert, Farbpalette reduziert)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
