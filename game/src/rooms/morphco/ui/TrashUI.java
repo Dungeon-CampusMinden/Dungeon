@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Game;
-import engine.sound.ISound;
 import engine.sound.Sounds;
 import engine.utils.Cursors;
 import engine.utils.components.draw.TextureMap;
@@ -27,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -41,8 +41,6 @@ final class TrashUI extends MorphCoConsoleUI {
 
   /** Rejects on the top slips; German in every language, like the words on the conveyor belt. */
   private static final List<String> REJECTS = List.of("verunter", "größsts", "am vermutlichsten");
-
-  private static final ISound RUSTLE = new Sound("qubodup_rustle05", .6f);
 
   private static final float BASKET_WIDTH = 560;
   private static final float BASKET_HEIGHT = 360;
@@ -140,9 +138,6 @@ final class TrashUI extends MorphCoConsoleUI {
     String words = REJECTS.stream().filter(seen::contains).collect(Collectors.joining(", "));
     feedback(MorphCoText.text("world.f04.trash-rejects", words), true);
   }
-
-  // A sound of the dialog, played only for this player.
-  private record Sound(String soundName, float volume) implements ISound {}
 
   // Place of a slip relative to the basket's center, and its size.
   private record Spot(float x, float y, float size) {}
@@ -278,7 +273,7 @@ final class TrashUI extends MorphCoConsoleUI {
 
     // Moving a slip rustles; a reject shows its word for a moment.
     private void reveal() {
-      Sounds.playUi(RUSTLE, MathUtils.random(.9f, 1.15f));
+      Sounds.playUi(MorphCoSounds.RUSTLE, MathUtils.random(.9f, 1.15f));
       if (reject == null) return;
       tag.clearActions();
       tag.addAction(
@@ -324,7 +319,7 @@ final class TrashUI extends MorphCoConsoleUI {
     // Grows from the folded slip to where lieOpen() puts the sheet, then the text appears.
     private void unfold() {
       submit("complaint");
-      Sounds.playUi(RUSTLE, .75f);
+      Sounds.playUi(MorphCoSounds.RUSTLE, .75f);
       float foldedX = x();
       float foldedY = y();
       lieOpen();

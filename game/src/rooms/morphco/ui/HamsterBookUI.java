@@ -8,11 +8,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
-import engine.sound.ISound;
 import engine.sound.Sounds;
 import engine.utils.Cursors;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -25,7 +25,6 @@ import rooms.morphco.util.MorphCoText;
 final class HamsterBookUI extends PaperUI {
 
   private static final Color LINK = Color.valueOf("1f5fa8");
-  private static final ISound PAGE_FLIP = new Sound("flipping_through_book", 1);
   // First joke of each chapter.
   private static final int[] CHAPTERS = {1, 21, 41, 61, 76, 91};
   private static final int CONTENTS = 0;
@@ -66,7 +65,7 @@ final class HamsterBookUI extends PaperUI {
     if (page > CONTENTS) pageButton("hamster-jokes.back", false, page - 1);
     if (page < WISDOM) pageButton("hamster-jokes.next", true, page + 1);
     Game.soundPlayer().stopByInstance(pageFlip);
-    pageFlip = Sounds.playUi(PAGE_FLIP);
+    pageFlip = Sounds.playUi(MorphCoSounds.PAGE_FLIP);
     scrollToTop();
     changed();
   }
@@ -117,6 +116,4 @@ final class HamsterBookUI extends PaperUI {
   private void line(Label label, float padBottom) {
     sheet.add(label).colspan(2).growX().padBottom(padBottom).row();
   }
-
-  private record Sound(String soundName, float volume) implements ISound {}
 }

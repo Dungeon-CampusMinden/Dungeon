@@ -15,11 +15,14 @@ import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
+import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
+import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.utils.EntityUtils;
@@ -236,5 +239,21 @@ final class MorphCoProps {
       Entity player, String titleKey, String textKey, Runnable then, Object... values) {
     DialogUtils.showTextPopup(
         MorphCoText.key(textKey, values), MorphCoText.key(titleKey), then::run, player.id());
+  }
+
+  /**
+   * Closes the open dialogs of a type, e.g. those of the other players once a step has made them
+   * outdated.
+   *
+   * @param type dialog type
+   * @param except dialog that stays open, e.g. the one of the player who took the step; {@code
+   *     null} closes all
+   */
+  static void closeDialogs(DialogType type, UIComponent except) {
+    Game.levelEntities()
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> ui != except && ui.dialogContext().dialogType() == type)
+        .toList()
+        .forEach(ui -> UIUtils.closeDialog(ui, true));
   }
 }

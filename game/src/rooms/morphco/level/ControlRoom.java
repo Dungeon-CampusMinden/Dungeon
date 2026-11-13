@@ -7,7 +7,6 @@ import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
 import feature.emote.Emote;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -150,11 +149,7 @@ final class ControlRoom {
     if (door.isOpen()) return;
     door.open();
     // Closes this reader and any other player's; nobody needs it any more.
-    Game.levelEntities()
-        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType() == MorphCoDialogs.CARD_READER)
-        .toList()
-        .forEach(ui -> UIUtils.closeDialog(ui, true));
+    MorphCoProps.closeDialogs(MorphCoDialogs.CARD_READER, null);
     level.observe(MorphCoState.CARD_USED);
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);
@@ -231,6 +226,8 @@ final class ControlRoom {
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String wiring))) return;
           if (!FuseBox.wired(wiring) || !level.observe(MorphCoState.FUSE_BOX_WIRED)) return;
+          // The other players' boxes still show loose cables; this one shows the lit lamps.
+          MorphCoProps.closeDialogs(MorphCoDialogs.FUSE_BOX, ui);
           MorphCoTracking.interaction("fuse-box", "wired", player);
           level.save();
           switchOnEmergencyLight(box);

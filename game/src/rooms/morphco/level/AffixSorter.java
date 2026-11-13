@@ -10,13 +10,13 @@ import feature.hud.DialogUtils;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.LeverPull;
@@ -132,23 +132,6 @@ final class AffixSorter {
         });
   }
 
-  // Close-ups opened before a step still show the old state; clicking the sorter again opens a new
-  // one.
-  private static void closeCloseUps() {
-    closeUps().toList().forEach(ui -> UIUtils.closeDialog(ui, true));
-  }
-
-  // As above, but the close-up of the player who took the step stays open.
-  private static void closeOtherCloseUps(UIComponent own) {
-    closeUps().filter(ui -> ui != own).toList().forEach(ui -> UIUtils.closeDialog(ui, true));
-  }
-
-  private static Stream<UIComponent> closeUps() {
-    return Game.levelEntities()
-        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType() == MorphCoDialogs.AFFIX_SORTER);
-  }
-
   private void unlock(String answer, Entity player, UIComponent closeUp) {
     if (state.done(MorphCoMilestone.HATCH_UNLOCKED)) return;
     boolean correct = MorphemeQuestions.hatchAnswer(answer);
@@ -159,7 +142,9 @@ final class AffixSorter {
       return;
     }
     if (!level.complete(MorphCoMilestone.HATCH_UNLOCKED)) return;
-    closeOtherCloseUps(closeUp);
+    // Close-ups opened before a step still show the old state; clicking the sorter again opens a
+    // new one. The close-up of the player who took the step stays open.
+    MorphCoProps.closeDialogs(MorphCoDialogs.AFFIX_SORTER, closeUp);
     MorphCoProps.switchOn(lock);
     Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.HATCH);
@@ -167,7 +152,7 @@ final class AffixSorter {
   }
 
   private void hatch(Entity player, UIComponent closeUp) {
-    // The close-up answers a locked hatch and a sorted one itself.
+    // The close-up answers a locked hatch and one with filled shafts itself.
     if (!state.done(MorphCoMilestone.HATCH_UNLOCKED) || filled()) return;
     UIUtils.closeDialog(closeUp, true);
     if (state.done(MorphCoMilestone.AFFIXES_SORTED)) {
@@ -196,7 +181,7 @@ final class AffixSorter {
       return;
     }
     if (!level.complete(MorphCoMilestone.A12_REPAIRED)) return;
-    closeOtherCloseUps(closeUp);
+    MorphCoProps.closeDialogs(MorphCoDialogs.AFFIX_SORTER, closeUp);
     MorphCoProps.switchOn(display);
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_relay_activate"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.LEVER);
@@ -204,7 +189,8 @@ final class AffixSorter {
     EventScheduler.scheduleAction(
         () -> {
           // The player may have closed it already.
-          if (closeUps().anyMatch(ui -> ui == closeUp)) UIUtils.closeDialog(closeUp, true);
+          if (closeUp.dialogContext().findEntity(DialogContextKeys.OWNER_ENTITY).isPresent())
+            UIUtils.closeDialog(closeUp, true);
           MorphCoProps.popupReaction(player, Emote.STARS, MACHINE, "world.a12.shafts-solved");
         },
         RESTART_MILLIS);
@@ -233,7 +219,7 @@ final class AffixSorter {
           }
           UIUtils.closeDialog(ui, true);
           if (!level.complete(MorphCoMilestone.AFFIXES_SORTED)) return;
-          closeCloseUps();
+          MorphCoProps.closeDialogs(MorphCoDialogs.AFFIX_SORTER, null);
           Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
           MorphCoTracking.solved(MorphCoTracking.Puzzle.AFFIXES);
           MorphCoTracking.started(MorphCoTracking.Puzzle.SHAFTS);
@@ -260,7 +246,7 @@ final class AffixSorter {
           UIUtils.closeDialog(ui, true);
           if (!level.observe(MorphCoState.SHAFTS_FILLED)) return;
           level.save();
-          closeCloseUps();
+          MorphCoProps.closeDialogs(MorphCoDialogs.AFFIX_SORTER, null);
           Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
           MorphCoTracking.solved(MorphCoTracking.Puzzle.SHAFTS);
           MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);

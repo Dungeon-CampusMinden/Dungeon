@@ -50,10 +50,8 @@ final class FuseBoxUI extends MorphCoConsoleUI {
           FuseBox.Cable.CORRIDOR,
           FuseBox.Cable.A12);
 
-  private static final Color LAMP_OFF = Color.valueOf("26332b");
   private static final Color F04_RED = Color.valueOf("e0483e");
   private static final Color A12_BLUE = Color.valueOf("3d7be0");
-  private static final Color CABLE_EDGE = Color.valueOf("0f1316");
 
   private static final float BOX_WIDTH = 880;
   private static final float MARGIN = 16;
@@ -173,7 +171,7 @@ final class FuseBoxUI extends MorphCoConsoleUI {
     float middleX = (x1 + x2) / 2;
     float middleY = Math.min(y1, y2) - sag;
     for (int pass = 0; pass < 2; pass++) {
-      Color tint = pass == 0 ? CABLE_EDGE : color;
+      Color tint = pass == 0 ? MorphCoUI.OUTLINE : color;
       float thickness = pass == 0 ? 12 : 8;
       float fromX = x1;
       float fromY = y1;
@@ -249,7 +247,7 @@ final class FuseBoxUI extends MorphCoConsoleUI {
       float top = y + height();
       MorphCoUI.plate(batch, MorphCoUI.STEEL, alpha, x, y, width(), height());
       MorphCoUI.hazard(batch, alpha, x + 16, top - 18, width() - 32, 8);
-      Color lamp = allPlugged() ? MorphCoUI.GO : LAMP_OFF;
+      Color lamp = allPlugged() ? MorphCoUI.GO : MorphCoUI.LAMP_OFF;
       for (int index = 0; index < plugs.size(); index++) {
         CanvasGraphics.fill(
             batch, MorphCoUI.STEEL_DARK, alpha, x + 20 + index * 34, top - 50, 24, 24);
@@ -336,7 +334,7 @@ final class FuseBoxUI extends MorphCoConsoleUI {
       CanvasGraphics.fill(batch, MorphCoUI.TAG, alpha, x + 50, y + 8, width() - 88, 32);
       CanvasGraphics.fill(batch, MorphCoUI.STEEL_DARK, alpha, x + width() - 32, y + 14, 20, 20);
       CanvasGraphics.fill(
-          batch, lit ? MorphCoUI.GO : LAMP_OFF, alpha, x + width() - 28, y + 18, 12, 12);
+          batch, lit ? MorphCoUI.GO : MorphCoUI.LAMP_OFF, alpha, x + width() - 28, y + 18, 12, 12);
       if (lit) {
         CanvasGraphics.outline(batch, MorphCoUI.GO, alpha, x, y, width(), height(), 3);
       } else if (over || selected != null) {
