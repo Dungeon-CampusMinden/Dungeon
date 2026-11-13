@@ -21,6 +21,8 @@ public final class MorphCoTracking {
     AFFIXES,
     /** Push the affixes into the word-formation and inflection shafts. */
     SHAFTS,
+    /** Restart A-12 with an even pull on the lever. */
+    LEVER,
     /** Repair the inflection machine. */
     FLEXION,
     /** Assemble the broken circumfixes (optional). */

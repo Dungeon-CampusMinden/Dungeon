@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Schrotthaufen mit Zirkumfix-Bruchstücken), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Haufen Krimskrams mit Zirkumfix-Bruchstücken, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (OpenAI über Codex, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 36x24 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt)
+- Modified by: amatutat (zugeschnitten, auf 40x19 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

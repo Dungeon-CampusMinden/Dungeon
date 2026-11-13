@@ -6,6 +6,7 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.Rectangle;
+import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
@@ -14,11 +15,14 @@ import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
+import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
+import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.utils.EntityUtils;
@@ -56,14 +60,15 @@ final class MorphCoProps {
   }
 
   /**
-   * Prepares an object that lies on a table, before it is added to the game.
+   * Prepares an object that lies on a table or hangs in front of a machine, before it is added to
+   * the game.
    *
-   * <p>The object has no collider of its own (the table blocks the way). It is drawn in the same
-   * layer as the table and the players, but sorted as if it stood at the table's front edge: it
-   * lies on the table, and a player in front of the table still covers it.
+   * <p>The object has no collider of its own (the table or machine blocks the way). It is drawn in
+   * the same layer as the furniture and the players, but sorted as if it stood at the given front
+   * edge: it lies on the table or hangs on the machine, and a player in front still covers it.
    *
-   * @param entity the object, positioned on the table top
-   * @param tableFront front edge of the table (its bottom-left corner)
+   * @param entity the object, positioned on the table top or on the machine
+   * @param tableFront front edge to sort by, e.g. the table's bottom-left corner
    * @return the same object
    */
   static Entity onTable(Entity entity, Point tableFront) {
@@ -168,7 +173,8 @@ final class MorphCoProps {
   }
 
   /**
-   * Shows an emote above a character or object.
+   * Shows an emote above a character or object. The emote follows it, e.g. when the character walks
+   * on.
    *
    * @param target character or object the emote belongs to
    * @param emote emote to show
@@ -176,9 +182,7 @@ final class MorphCoProps {
    * @return the emote entity, e.g. to remove it earlier
    */
   static Entity emote(Entity target, Emote emote, int durationMs) {
-    Entity entity =
-        EmoteFactory.createEmote(
-            EntityUtils.getPosition(target).translate(0f, 0.7f), emote, durationMs);
+    Entity entity = EmoteFactory.createEmote(target, Vector2.of(0f, 0.7f), emote, durationMs);
     Game.add(entity);
     return entity;
   }
@@ -235,5 +239,21 @@ final class MorphCoProps {
       Entity player, String titleKey, String textKey, Runnable then, Object... values) {
     DialogUtils.showTextPopup(
         MorphCoText.key(textKey, values), MorphCoText.key(titleKey), then::run, player.id());
+  }
+
+  /**
+   * Closes the open dialogs of a type, e.g. those of the other players once a step has made them
+   * outdated.
+   *
+   * @param type dialog type
+   * @param except dialog that stays open, e.g. the one of the player who took the step; {@code
+   *     null} closes all
+   */
+  static void closeDialogs(DialogType type, UIComponent except) {
+    Game.levelEntities()
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> ui != except && ui.dialogContext().dialogType() == type)
+        .toList()
+        .forEach(ui -> UIUtils.closeDialog(ui, true));
   }
 }

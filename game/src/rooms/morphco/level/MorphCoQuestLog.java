@@ -73,6 +73,9 @@ final class MorphCoQuestLog {
       put(A12, "inspect", "inspect-done");
       put(A12, "sort", state.done(MorphCoMilestone.AFFIXES_SORTED) ? "sort-done" : "sort");
     }
+    if (state.has(MorphCoState.SHAFTS_FILLED) || a12) {
+      put(A12, "restart", a12 ? "restart-done" : "restart");
+    }
     if (a12) {
       put(A12, "repaired", "repaired");
       put(A12, "go-f04", f04 ? "go-f04-done" : "go-f04");

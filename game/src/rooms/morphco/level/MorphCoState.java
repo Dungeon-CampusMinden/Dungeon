@@ -51,6 +51,9 @@ public final class MorphCoState {
   /** The maintenance hatch has been opened and the sorter inspected. */
   public static final String HATCH_OPENED = "hatch-opened";
 
+  /** The affixes lie in the right input shafts; A-12 waits for the restart with the lever. */
+  public static final String SHAFTS_FILLED = "shafts-filled";
+
   /** The broken circumfix parts have been taken from the pile. */
   public static final String PILE_TAKEN = "pile-taken";
 
@@ -62,6 +65,9 @@ public final class MorphCoState {
 
   /** Rosi has been called. */
   public static final String CALLED_ROSI = "called-rosi";
+
+  /** The cables of the fuse box are back in their sockets; the emergency lighting is on. */
+  public static final String FUSE_BOX_WIRED = "fuse-box-wired";
 
   /** Prefix of flags that record an inspected plant. */
   public static final String PLANT_PREFIX = "plant:";

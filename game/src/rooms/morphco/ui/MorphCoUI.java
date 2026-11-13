@@ -34,6 +34,7 @@ final class MorphCoUI {
   static final Color STEEL = Color.valueOf("4f5b66");
   static final Color STEEL_DARK = Color.valueOf("323b43");
   static final Color INSET = Color.valueOf("1d2328");
+  static final Color OUTLINE = Color.valueOf("0f1316");
   static final Color TEXT = Color.valueOf("eef2f4");
   static final Color MUTED = Color.valueOf("aeb9c1");
   static final Color INK = Color.BLACK;
@@ -43,12 +44,13 @@ final class MorphCoUI {
   static final Color GHOST = Color.valueOf("8d989f");
   static final Color GO = Color.valueOf("63e283");
   static final Color STOP = Color.valueOf("ff7a68");
+  static final Color LED_OFF = Color.valueOf("4a2622");
+  static final Color LAMP_OFF = Color.valueOf("26332b");
   static final Color PAPER = Color.valueOf("f4efe0");
   static final Color PAPER_HEADING = Color.valueOf("cdd8e2");
   static final Color PAPER_CELL = Color.valueOf("e8e1cc");
 
   private static final Color DISPLAY = Color.valueOf("0b1611");
-  private static final Color OUTLINE = Color.valueOf("0f1316");
   private static final Color RIVET = Color.valueOf("262e35");
   private static final Color RIVET_SHINE = Color.valueOf("9aa7b1");
   private static final String DOT_FONT = "fonts/Doto_Rounded-ExtraBold.ttf";

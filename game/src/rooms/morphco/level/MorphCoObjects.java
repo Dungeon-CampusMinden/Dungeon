@@ -49,12 +49,12 @@ final class MorphCoObjects {
   private static final Map<String, Consumer<Entity>> BEHAVIOURS = new HashMap<>();
 
   static {
-    // Furniture in the room's own straight-on art.
+    // Furniture in the room's own top-down art.
     texture("server", "server.png", 15 / 16f, new Rectangle(0.9f, 0.6f, 0.02f, 0f));
-    texture("lockers", "lockers.png", 29 / 16f, new Rectangle(1.9f, 0.7f, 0.05f, 0f));
+    texture("lockers", "lockers.png", 31 / 16f, new Rectangle(1.9f, 0.7f, 0.05f, 0f));
     texture("chair", "chair.png", 14 / 16f, null);
-    texture("table", "table.png", 19 / 16f, new Rectangle(2.4f, 0.5f, 0.05f, 0f));
-    texture("cabinet", "cabinet.png", 22 / 16f, new Rectangle(1.3f, 0.6f, 0.03f, 0f));
+    texture("table", "table.png", 24 / 16f, new Rectangle(2.4f, 0.5f, 0.05f, 0f));
+    texture("cabinet", "cabinet.png", 20 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
     texture("tank", "tank.png", 18 / 16f, new Rectangle(1f, 0.6f, 0.06f, 0f));
     texture("cart", "cart.png", 18 / 16f, new Rectangle(1f, 0.5f, 0.06f, 0f));
     LOOKS.put("meeting-table", MorphCoObjects::meetingTable);
@@ -105,7 +105,8 @@ final class MorphCoObjects {
         new Rectangle(2f, 0.8f, 0.05f, 0f));
 
     // F-04.
-    texture("flexion-machine", "flexion_machine.png", 3f, new Rectangle(2.6f, 1.4f, 0.2f, 0f));
+    texture(
+        "flexion-machine", "flexion_machine.png", 44 / 16f, new Rectangle(2.4f, 2f, 0.2f, 0.4f));
     switchable("display-f04", "display_f04_error.png", "display_f04_ok.png", 1f, null);
     LOOKS.put("crate", MorphCoObjects::crate);
     LOOKS.put("belt", MorphCoObjects::belt);
@@ -114,25 +115,15 @@ final class MorphCoObjects {
     // A-12.
     texture("affix-sorter", "affix_sorter.png", 3f, new Rectangle(2.8f, 1.2f, 0.1f, 0f));
     switchable("display-a12", "display_a12_error.png", "display_a12_ok.png", 1f, null);
-    LOOKS.put(
-        "keypad",
-        (name, position, number) ->
-            List.of(
-                MorphCoProps.buildSwitchable(
-                    name,
-                    position,
-                    "objects/keypad/off.png",
-                    "objects/keypad/on.png",
-                    0.45f,
-                    null)));
+    LOOKS.put("keypad", MorphCoObjects::keypad);
     LOOKS.put(
         "click-area",
         (name, position, number) ->
             List.of(
                 MorphCoProps.buildTexture(
                     name, position, ART + "hotspot.png", number / 10f, null)));
-    texture("pile", "pile.png", 1.5f, new Rectangle(2f, 0.5f, 0.12f, 0f));
-    texture("station", "station.png", 1.5f, new Rectangle(2.9f, 0.6f, 0.05f, 0f));
+    texture("pile", "pile.png", 19 / 16f, new Rectangle(2.3f, 0.9f, 0.1f, 0f));
+    texture("station", "station.png", 32 / 16f, new Rectangle(2.9f, 1.2f, 0.05f, 0f));
 
     LOOKS.put("shift-lead", MorphCoObjects::shiftLead);
   }
@@ -243,19 +234,28 @@ final class MorphCoObjects {
     return List.of(clock);
   }
 
+  // A keypad that hangs in front of a machine, like the lock of the maintenance hatch of A-12.
+  private static List<Entity> keypad(String name, Point position, int number) {
+    return List.of(
+        MorphCoProps.onTable(
+            MorphCoProps.buildSwitchable(
+                name, position, "objects/keypad/off.png", "objects/keypad/on.png", 0.45f, null),
+            position));
+  }
+
   // The control room table with the phone and the coffee cup on it.
   private static List<Entity> meetingTable(String name, Point position, int number) {
     Entity table =
         MorphCoProps.buildTexture(
-            name, position, ART + "table.png", 19 / 16f, new Rectangle(2.4f, 0.5f, 0.05f, 0f));
+            name, position, ART + "table.png", 24 / 16f, new Rectangle(2.4f, 0.5f, 0.05f, 0f));
     Entity phone =
         MorphCoProps.onTable(
             MorphCoProps.buildTexture(
-                "phone", position.translate(0.35f, 0.3f), ART + "phone.png", 9 / 16f, null),
+                "phone", position.translate(0.35f, 0.6f), ART + "phone.png", 9 / 16f, null),
             position);
     Entity cup =
         MorphCoProps.onTable(
-            MorphCoProps.buildDeco("coffee", position.translate(1.8f, 0.25f), Deco.Cup), position);
+            MorphCoProps.buildDeco("coffee", position.translate(1.8f, 0.6f), Deco.Cup), position);
     return List.of(table, phone, cup);
   }
 

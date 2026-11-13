@@ -27,6 +27,8 @@ public enum MorphCoAchievements {
   LEVER,
   /** Both phone numbers have been called. */
   NOBODY_HOME,
+  /** The cables of the fuse box have been plugged back in. */
+  FUSE_BOX,
   /** Every poster has been read. */
   POSTERS,
   /** Every book on the shelves has been opened. */
