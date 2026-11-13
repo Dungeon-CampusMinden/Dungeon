@@ -9,9 +9,9 @@ Morphologie-Escape-Room für 1–2 Spieler. Konzept, Lösungsweg und Technik:
 | --- | --- |
 | `MorphCo` | Starter, Server-/Client-Setup, Speicherpunkte, Tracking-Einwilligung |
 | `level` | `MorphCoLevel` (Server), `MorphCoClientLevel`, ein Controller pro Bereich: `ControlRoom`, `Corridor`, `FlexionLine`, `AffixSorter`, `CircumfixStation`, `ShiftLead`; Zustand und Questlog |
-| `puzzles` | reine Rätselmodelle ohne Framework-Abhängigkeiten (Kartenleser, Sicherungsbox, Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
+| `puzzles` | reine Rätselmodelle ohne Framework-Abhängigkeiten (Kartenleser und Hebel von A-12 mit gemeinsamem Tempo-Modell `Pace`, Sicherungsbox, Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
 | `petrinet` | `MorphCoMilestone`, `MorphCoProgressNet` |
-| `ui` | eigene Dialoge: Kartenleser, Sicherungsbox, Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil |
+| `ui` | eigene Dialoge: Kartenleser, Sicherungsbox, Nahansicht der Affix-Sortieranlage, Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; `KeypadNode` ist ein wiederverwendbarer Ziffernblock |
 | `items` | Zirkumfix-Teile im Inventar |
 | `save`, `network`, `util` | Speicherstand, Snapshot-Erweiterung, Texte, Übersetzer, Achievements, Tracking |
 

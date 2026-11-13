@@ -83,6 +83,9 @@ final class ShiftLead {
       return new Hint("hint-repair", MorphCoTracking.Puzzle.CAUSES);
     }
     // A started branch is finished first; the order of the two machines is free.
+    if (state.has(MorphCoState.SHAFTS_FILLED) && !a12) {
+      return new Hint("hint-lever", MorphCoTracking.Puzzle.LEVER);
+    }
     if (state.done(MorphCoMilestone.AFFIXES_SORTED) && !a12) {
       return new Hint("hint-shafts", MorphCoTracking.Puzzle.SHAFTS);
     }

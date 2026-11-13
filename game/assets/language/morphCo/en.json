@@ -28,7 +28,8 @@
       "hint-flexion": "\"A-12 is sorting again? Then go and check whether the inflection machine is getting the right affixes now.\"",
       "hint-restart": "\"Everything repaired? Great! Then off to the control room and restart production at the computer.\"",
       "hint-done": "\"Do you hear that? They're running again! I never thought I'd be this happy about machine noise. Thank you!\"",
-      "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\""
+      "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\"",
+      "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\""
     },
     "world": {
       "titles": {
@@ -182,17 +183,14 @@
         "book-hamster": "100 Sophisticated Hamster Jokes for Everyday Use",
         "close-shelf": "Close shelf",
         "machine-title": "Affix sorting unit",
-        "machine": "There is a clacking inside, as if something were stuck.[n]The display reads: \"Sorting error. Manual inspection required. Open maintenance hatch.\"",
-        "machine-sorting": "The display reads: \"Sorting blocked. Sort affixes manually.\"",
         "machine-repaired": "The affix sorting unit is running again. Plop, plop, plop: every affix lands in the right category.",
         "lever-title": "Lever",
         "lever": "Hnnnnnnnnnng! The lever won't budge.",
         "lever-repaired": "The lever now moves effortlessly. Clack. Clack. Still, nothing happened.",
         "lock-title": "Electronic lock",
-        "lock-question": "How many different types of free morphemes\n(not counting the portmanteau morpheme) are distinguished?\nEnter a number to unlock the lock.",
+        "lock-question": "How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished? Enter a number to unlock the lock.",
         "lock-wrong": "The lock beeps grumpily. That wasn't the right number.",
         "lock-correct": "Click! Now the maintenance hatch can be opened.",
-        "lock-open": "The lock already got its number. It wants nothing more from you.",
         "hatch-title": "Maintenance hatch",
         "hatch-locked": "The hatch doesn't give an inch. The electronic lock next to it wants a number first.",
         "hatch-open": "You open the maintenance hatch. Inside, affixes have got jammed into each other and are blocking the sorting. No wonder the assignments are wrong! Sort the affixes to get the unit running again.",
@@ -212,7 +210,22 @@
         "station-complete": "All three circumfixes are assembled!",
         "boxes-title": "Boxes",
         "boxes": "Empty. The label reads: \"Prefixes - fragile!\"",
-        "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count."
+        "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count.",
+        "shafts-filled": "Every affix is in the right input shaft. The display flashes: \"Restart required.\" And the lever looks as if it might move now.",
+        "display-error": "ERROR 204",
+        "display-restart": "RESTART REQUIRED",
+        "display-ok": "STATUS: OK",
+        "display-locked": "Sorting error. Manual inspection required. Open maintenance hatch.",
+        "display-unlocked": "Sorting blocked. Sort affixes manually.",
+        "display-sorted": "Affixes sorted. Fill the input shafts.",
+        "display-filled": "Pull the lever all the way down at an even pace. Not too fast, not too slow.",
+        "lever-too-fast": "Too fast! The lever snaps back. A-12 needs an even pull.",
+        "lever-too-slow": "Too slow! A-12 fell asleep again while starting up.",
+        "lever-incomplete": "Aborted. Pull the lever all the way down.",
+        "lever-accepted": "Restart successful. Sorting resumed!",
+        "keypad-wrong": "WRONG",
+        "keypad-almost": "ALMOST",
+        "keypad-open": "OPEN"
       }
     },
     "documents": {
@@ -404,7 +417,14 @@
         "assemble": "Assemble",
         "empty": "empty"
       },
-      "cancel": "Cancel"
+      "sorter": {
+        "help": "Click the lock, the hatch or the lever. Drag the lever down with the mouse. Without a mouse: hold space or the down arrow key and let go at the bottom. You can also type the digits.",
+        "shafts": "Input shafts"
+      },
+      "keypad": {
+        "clear": "C",
+        "confirm": "OK"
+      }
     },
     "pc": {
       "title": "Computer",
@@ -485,6 +505,8 @@
         "inspect-done": "Inspect the affix sorting unit. (done)",
         "sort": "Sort the affixes. (new)",
         "sort-done": "Sort the affixes. (done)",
+        "restart": "Restart A-12 with the lever. (new)",
+        "restart-done": "Restart A-12 with the lever. (done)",
         "repaired": "Affix sorting unit repaired. (done)",
         "go-f04": "Go to the inflection machine.",
         "go-f04-done": "Go to the inflection machine. (done)"

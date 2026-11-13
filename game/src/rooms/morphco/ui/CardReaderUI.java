@@ -20,6 +20,7 @@ import feature.canvas.CanvasNode;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import rooms.morphco.puzzles.CardSwipe;
+import rooms.morphco.puzzles.Pace;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -28,11 +29,9 @@ import rooms.morphco.util.MorphCoText;
  * <p>The player drags the security card through the slot; what counts is the time until the card
  * reaches the end. Without a mouse the player holds space or the right arrow key while the card
  * runs through on its own; then the time until the key is let go counts. The reader's display rates
- * the swipe with {@link CardSwipe} right away; the server rates it again and opens the door.
+ * the swipe with {@link CardSwipe#PACE} right away; the server rates it again and opens the door.
  */
 final class CardReaderUI extends MorphCoConsoleUI {
-
-  private static final Color LED_OFF = Color.valueOf("4a2622");
 
   private static final float READER_WIDTH = 840;
   private static final float READER_HEIGHT = 220;
@@ -131,15 +130,15 @@ final class CardReaderUI extends MorphCoConsoleUI {
   }
 
   private void release(long millis) {
-    String swipe = CardSwipe.encode(millis, card.getX() >= left + END_X);
+    String swipe = Pace.encode(millis, card.getX() >= left + END_X);
     startedAt = -1;
     arrivedAt = -1;
     keyRun = false;
     pull = 0;
-    CardSwipe.Result result = CardSwipe.rate(swipe);
+    Pace.Result result = CardSwipe.PACE.rate(swipe);
     submit(swipe);
     reader.show(result);
-    if (result == CardSwipe.Result.ACCEPTED) {
+    if (result == Pace.Result.ACCEPTED) {
       card.movable(false);
       card.setUserObject(Cursors.DEFAULT);
     } else {
@@ -150,7 +149,7 @@ final class CardReaderUI extends MorphCoConsoleUI {
   /** Housing with the slot, the status display and the light. */
   private static final class Reader extends CanvasNode {
     private Label display;
-    private Color led = LED_OFF;
+    private Color led = MorphCoUI.LED_OFF;
 
     private Reader() {
       super("reader", READER_WIDTH, READER_HEIGHT);
@@ -160,8 +159,8 @@ final class CardReaderUI extends MorphCoConsoleUI {
       setTouchable(Touchable.disabled);
     }
 
-    void show(CardSwipe.Result result) {
-      boolean granted = result == CardSwipe.Result.ACCEPTED;
+    void show(Pace.Result result) {
+      boolean granted = result == Pace.Result.ACCEPTED;
       led = granted ? MorphCoUI.GO : MorphCoUI.STOP;
       display.setText(
           MorphCoText.text(
@@ -175,7 +174,7 @@ final class CardReaderUI extends MorphCoConsoleUI {
     }
 
     void reset() {
-      led = LED_OFF;
+      led = MorphCoUI.LED_OFF;
       display.setText(MorphCoText.text("world.entrance.swipe-ready"));
       display.setColor(MorphCoUI.SIGNAL);
     }

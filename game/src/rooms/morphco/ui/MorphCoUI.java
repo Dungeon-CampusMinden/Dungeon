@@ -43,6 +43,7 @@ final class MorphCoUI {
   static final Color GHOST = Color.valueOf("8d989f");
   static final Color GO = Color.valueOf("63e283");
   static final Color STOP = Color.valueOf("ff7a68");
+  static final Color LED_OFF = Color.valueOf("4a2622");
   static final Color PAPER = Color.valueOf("f4efe0");
   static final Color PAPER_HEADING = Color.valueOf("cdd8e2");
   static final Color PAPER_CELL = Color.valueOf("e8e1cc");

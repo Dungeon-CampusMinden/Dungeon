@@ -57,14 +57,15 @@ final class MorphCoProps {
   }
 
   /**
-   * Prepares an object that lies on a table, before it is added to the game.
+   * Prepares an object that lies on a table or hangs in front of a machine, before it is added to
+   * the game.
    *
-   * <p>The object has no collider of its own (the table blocks the way). It is drawn in the same
-   * layer as the table and the players, but sorted as if it stood at the table's front edge: it
-   * lies on the table, and a player in front of the table still covers it.
+   * <p>The object has no collider of its own (the table or machine blocks the way). It is drawn in
+   * the same layer as the furniture and the players, but sorted as if it stood at the given front
+   * edge: it lies on the table or hangs on the machine, and a player in front still covers it.
    *
-   * @param entity the object, positioned on the table top
-   * @param tableFront front edge of the table (its bottom-left corner)
+   * @param entity the object, positioned on the table top or on the machine
+   * @param tableFront front edge to sort by, e.g. the table's bottom-left corner
    * @return the same object
    */
   static Entity onTable(Entity entity, Point tableFront) {

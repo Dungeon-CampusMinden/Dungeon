@@ -19,6 +19,7 @@ import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.CardSwipe;
 import rooms.morphco.puzzles.FuseBox;
 import rooms.morphco.puzzles.MorphemeQuestions;
+import rooms.morphco.puzzles.Pace;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
@@ -133,7 +134,7 @@ final class ControlRoom {
         MorphCoDialogs.SUBMIT,
         payload -> {
           if (!(payload instanceof DialogResponseMessage.StringValue(String swipe))) return;
-          if (CardSwipe.rate(swipe) != CardSwipe.Result.ACCEPTED) {
+          if (CardSwipe.PACE.rate(swipe) != Pace.Result.ACCEPTED) {
             Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
             return;
           }

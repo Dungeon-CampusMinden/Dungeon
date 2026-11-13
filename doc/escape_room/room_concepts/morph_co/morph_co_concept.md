@@ -64,10 +64,11 @@ die Reihenfolge der Reparaturen frei.
 | 3 | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört; Tür zur Produktion öffnet |
 | 4a | F-04 | Regal: Handbuch FL3–10–9001 lesen | flektierbar sind Nomen, Adjektive, Verben, Artikel, Pronomina |
 | 4b | F-04 | Kisten: Wortarten sortieren | siehe Tabelle unten |
-| 5a | A-12 | Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Handout Teil 1 in F-04) |
+| 5a | A-12 | Nahansicht der Anlage: Ziffernblock am Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Handout Teil 1 in F-04) |
 | 5b | A-12 | Wartungsklappe: Wörter zerschneiden und Affixe sortieren | siehe unten |
 | 5c | A-12 | Eingabeschächte | Wortbildung: {un-}, {be-}, {-bar}, {-ung}; Flexion: {-ten}, {ge- … -et} |
-| 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5c erledigt sind |
+| 5d | A-12 | Hebel: Anlage neu starten | gleichmäßig ganz nach unten ziehen (0,6–2 s); vor 5c klemmt der Hebel |
+| 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5d erledigt sind |
 | 7 | Kontrollraum | PC: [NEUSTART], Sicherheitsfrage | *Überlegungen* = {über}{leg}{ung}{en} = **4** |
 | optional | A-12 | Krimskrams und Zirkumfixmontagestation | {ge}+{e}, {be}+{ig}, {ge}+{en} |
 
@@ -112,8 +113,11 @@ ALARM_OFF → CAUSES_FOUND ─┬→ HANDBOOK_READ → WORD_CLASSES_SORTED ─�
 ```
 
 F-04 setzt A-12 voraus, weil die Flexionsmaschine erst mit korrekt sortierten Affixen
-funktioniert. Beobachtungen ohne Gating (gelesene Plakate, Förderband, Papierkorb, …) sind Flags in
-`MorphCoState`.
+funktioniert. `A12_REPAIRED` wird erst mit dem Hebelzug abgeschlossen; dass die Eingabeschächte
+befüllt sind, merkt sich das Flag `shafts-filled` in `MorphCoState`. Ein eigener Meilenstein hätte
+alte Speicherstände mit `A12_REPAIRED` ungültig gemacht; so lädt ein alter Stand mit `A12_REPAIRED`
+als repariert und einer mit `AFFIXES_SORTED` vor den Eingabeschächten. Beobachtungen ohne Gating
+(gelesene Plakate, Förderband, Papierkorb, …) sind Flags in `MorphCoState`.
 
 # 6. Questlog
 
@@ -124,7 +128,7 @@ ersetzen ihren Eintrag und behalten den ursprünglichen Zeitstempel.
 | --- | --- |
 | Auftrag | Alarm, Ursachen feststellen, A-12 reparieren, F-04 reparieren, Produktion neu starten |
 | F-04 Flexionsstraße | Handbuch gelesen, Flexionsmaschine überprüfen, Wortarten identifiziert, A-12 inspizieren, repariert |
-| A-12 Affix-Sortieranlage | inspiziert, Affixe sortieren, repariert, zur Flexionsmaschine gehen |
+| A-12 Affix-Sortieranlage | inspiziert, Affixe sortieren, mit dem Hebel neu starten, repariert, zur Flexionsmaschine gehen |
 | Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch, Morphemtypen Teil 1/2 (aufklappbar), Display, Schlossfrage, Zirkumfix-Teile |
 
 # 7. Achievements
@@ -139,7 +143,7 @@ ersetzen ihren Eintrag und behalten den ursprünglichen Zeitstempel.
 | `morphco_restart` | All systems nominal | Produktion neu gestartet |
 | `morphco_first_try` (versteckt) | Schnitt sitzt | Affixe im ersten Versuch richtig |
 | `morphco_plants` (versteckt) | Was hast du erwartet? | alle 3 Pflanzen |
-| `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am Hebel ziehen |
+| `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am klemmenden Hebel ziehen |
 | `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz und Rosi anrufen |
 | `morphco_fuse_box` (versteckt) | Unter Strom | alle Kabel der Sicherungsbox eingesteckt |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
@@ -158,12 +162,13 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Lokalisierung:** Alle Texte stehen in `game/assets/language/morphCo/de.json` und `en.json`.
   Der Server verschickt Schlüssel (`MorphCoText.key`), `MorphCoTranslator` löst sie auf dem Client
   auf. Die deutschen Beispielwörter bleiben auch in der englischen Fassung deutsch.
-- **Speichern:** `MorphCoSave` schreibt nach jedem Meilenstein `morph-co-save.json` (Meilensteine,
-  Flags, montierte Zirkumfixe, Spielzeit, Run-ID, Tracking-Einwilligung). „Fortsetzen“ stellt den
-  Stand wieder her; Inventare werden nicht gespeichert, deshalb gibt der Krimskrams nach dem Laden
-  die noch nicht montierten Zirkumfix-Teile erneut heraus.
-- **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`)
-  und Hinweise der Schichtleitung über `MorphCoTracking`.
+- **Speichern:** `MorphCoSave` schreibt nach jedem Meilenstein und nach den Eingabeschächten
+  `morph-co-save.json` (Meilensteine, Flags, montierte Zirkumfixe, Spielzeit, Run-ID,
+  Tracking-Einwilligung). „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht
+  gespeichert, deshalb gibt der Krimskrams nach dem Laden die noch nicht montierten Zirkumfix-Teile
+  erneut heraus.
+- **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
+  `pull` für den Hebel) und Hinweise der Schichtleitung über `MorphCoTracking`.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und
@@ -196,6 +201,12 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   herausgezogen. Wer jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung
   steckt, schaltet die grüne Notbeleuchtung über den Türen ein. Licht und verstecktes Achievement
   gibt es für beide Spieler.
+- Die Affix-Sortieranlage hat eine Nahansicht mit Display, Hebel, Wartungsklappe und Schloss. Jede
+  ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Das Schloss
+  ist ein Ziffernblock statt eines Eingabefelds.
+- Nach den Eingabeschächten läuft A-12 erst nach einem gleichmäßigen Zug am Hebel wieder (Minigame
+  wie beim Kartenleser: zu schnell, zu langsam oder nicht ganz unten heißt nochmal). Vorher klemmt
+  der Hebel wie im Skript.
 - Zusätzliche Kleinigkeiten: Spiegel im WC, Kisten in A-12, Hinweise der Schichtleitung,
   versteckte Achievements.
 - Der Alarm ist eine Sirene, die beim Ausschalten verstummt; das Leiserwerden beim Schließen der
