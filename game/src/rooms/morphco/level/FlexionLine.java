@@ -79,12 +79,7 @@ final class FlexionLine {
 
     on("shelf-f04-a", (self, player) -> shelf(player));
     on("shelf-f04-b", (self, player) -> shelf(player));
-    on(
-        "trash-f04",
-        (self, player) -> {
-          level.observe(MorphCoState.COMPLAINT_SEEN);
-          MorphCoProps.popup(player, "world.f04.trash-title", "world.f04.trash");
-        });
+    on("trash-f04", (self, player) -> trash(player));
     poster("poster_f04_1", "poster_form", "world.f04.poster1");
     poster("poster_f04_2", "poster_warning", "world.f04.poster2");
     on(
@@ -164,6 +159,19 @@ final class FlexionLine {
       }
       default -> MorphCoProps.popup(player, SHELF, "world.f04.book-" + book + "-text");
     }
+  }
+
+  // Optional clue: finding the report only adds it to the quest log, nothing waits for it.
+  private void trash(Entity player) {
+    UIComponent ui =
+        DialogFactory.show(
+            DialogContext.builder()
+                .type(MorphCoDialogs.TRASH)
+                .put(MorphCoDialogs.COMPLAINT_FOUND, state.has(MorphCoState.COMPLAINT_SEEN))
+                .build(),
+            player.id());
+    ui.registerCallback(
+        MorphCoDialogs.SUBMIT, payload -> level.observe(MorphCoState.COMPLAINT_SEEN));
   }
 
   private void crates(Entity player) {

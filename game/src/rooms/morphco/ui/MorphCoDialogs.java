@@ -18,6 +18,8 @@ public enum MorphCoDialogs implements DialogType {
   CARD_READER("morphCoCardReader", CardReaderUI::build),
   /** Word classes for the crates next to the inflection machine. */
   WORD_CLASSES("morphCoWordClasses", WordClassUI::build),
+  /** Digging through the waste paper basket in F-04 for the defect report. */
+  TRASH("morphCoTrash", TrashUI::build),
   /** Cutting words and sorting their affixes in A-12. */
   AFFIXES("morphCoAffixes", AffixUI::build),
   /** Pushing the freed affixes into the input shafts of A-12. */
@@ -46,6 +48,9 @@ public enum MorphCoDialogs implements DialogType {
 
   /** Context key: whether F-04 has been repaired. */
   public static final String F04_OK = "morphCoF04Ok";
+
+  /** Context key: whether the defect report in the waste paper basket of F-04 has been found. */
+  public static final String COMPLAINT_FOUND = "morphCoComplaintFound";
 
   /** Context key: whether A-12 has been repaired. */
   public static final String A12_OK = "morphCoA12Ok";
