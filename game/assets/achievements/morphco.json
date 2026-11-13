@@ -61,6 +61,12 @@
       "hidden": true
     },
     {
+      "id": "morphco_fuse_box",
+      "imagePath": "objects/tech/Wall_electric_pannel_1.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
       "id": "morphco_posters",
       "imagePath": "items/rpg/item_paper.png",
       "unlockForAll": true,

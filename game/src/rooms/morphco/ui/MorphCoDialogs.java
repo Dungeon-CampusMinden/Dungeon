@@ -16,6 +16,8 @@ import java.util.function.Function;
 public enum MorphCoDialogs implements DialogType {
   /** Swiping the security card through the reader at the entrance. */
   CARD_READER("morphCoCardReader", CardReaderUI::build),
+  /** Plugging the cables of the fuse box in the control room back in. */
+  FUSE_BOX("morphCoFuseBox", FuseBoxUI::build),
   /** Word classes for the crates next to the inflection machine. */
   WORD_CLASSES("morphCoWordClasses", WordClassUI::build),
   /** Cutting words and sorting their affixes in A-12. */

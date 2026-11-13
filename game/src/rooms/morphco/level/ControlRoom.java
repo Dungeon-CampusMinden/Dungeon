@@ -12,10 +12,12 @@ import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.EventScheduler;
+import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.CardSwipe;
+import rooms.morphco.puzzles.FuseBox;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
@@ -23,8 +25,9 @@ import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
 /**
- * The entrance and the control room: card slot, alarm console, phone and the production control
- * system, which restarts the production at the end.
+ * The entrance and the control room: card slot, alarm console, phone, the optional fuse box that
+ * switches on the emergency lighting and the production control system, which restarts the
+ * production at the end.
  */
 final class ControlRoom {
 
@@ -35,6 +38,7 @@ final class ControlRoom {
   private Entity alarmLight;
   private Entity console;
   private Entity phoneEmote;
+  private Entity emergencyLight;
 
   ControlRoom(MorphCoLevel level) {
     this.level = level;
@@ -88,10 +92,12 @@ final class ControlRoom {
           MorphCoProps.popup(player, "world.control.plant-title", "world.control.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "control", player);
         });
-    on(
+    MorphCoObjects.on(
         "fuse-box",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.control.fuse-box-title", "world.control.fuse-box"));
+        entity -> {
+          MorphCoProps.interact(entity, this::fuseBox);
+          if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
+        });
     on(
         "cctv",
         (self, player) ->
@@ -191,8 +197,12 @@ final class ControlRoom {
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.ALARM, "console", "choice", button, alarm, player);
     if (!alarm) {
+      boolean lit = "light".equals(button) && state.has(MorphCoState.FUSE_BOX_WIRED);
       MorphCoProps.popupReaction(
-          player, Emote.ANGER, CONSOLE, "world.control.console-" + button + "-result");
+          player,
+          Emote.ANGER,
+          CONSOLE,
+          lit ? "world.control.console-light-on" : "world.control.console-" + button + "-result");
       return;
     }
     if (!level.complete(MorphCoMilestone.ALARM_OFF)) return;
@@ -205,6 +215,39 @@ final class ControlRoom {
     MorphCoAchievements.ALARM_OFF.unlock();
     MorphCoProps.popupReaction(
         player, Emote.FACE_HAPPY, CONSOLE, "world.control.console-alarm-off");
+  }
+
+  private void fuseBox(Entity box, Entity player) {
+    if (state.has(MorphCoState.FUSE_BOX_WIRED)) {
+      MorphCoProps.popup(player, "world.control.fuse-box-title", "world.control.fuse-box-wired");
+      return;
+    }
+    UIComponent ui =
+        DialogFactory.show(
+            DialogContext.builder().type(MorphCoDialogs.FUSE_BOX).build(), player.id());
+    ui.registerCallback(
+        MorphCoDialogs.SUBMIT,
+        payload -> {
+          if (!(payload instanceof DialogResponseMessage.StringValue(String wiring))) return;
+          if (!FuseBox.wired(wiring) || !level.observe(MorphCoState.FUSE_BOX_WIRED)) return;
+          MorphCoTracking.interaction("fuse-box", "wired", player);
+          level.save();
+          switchOnEmergencyLight(box);
+          MorphCoAchievements.FUSE_BOX.unlock(player);
+        });
+  }
+
+  // The entity at the fuse box tells every client that the emergency lighting is on.
+  private void switchOnEmergencyLight(Entity box) {
+    if (emergencyLight != null) Game.remove(emergencyLight);
+    emergencyLight =
+        MorphCoProps.buildTexture(
+            MorphCoLighting.EMERGENCY_LIGHT,
+            EntityUtils.getPosition(box),
+            MorphCoProps.ART + "hotspot.png",
+            0.5f,
+            null);
+    Game.add(emergencyLight);
   }
 
   private void phone(Entity player) {

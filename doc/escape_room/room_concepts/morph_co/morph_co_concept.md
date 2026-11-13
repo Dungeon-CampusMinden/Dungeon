@@ -141,6 +141,7 @@ ersetzen ihren Eintrag und behalten den ursprünglichen Zeitstempel.
 | `morphco_plants` (versteckt) | Was hast du erwartet? | alle 3 Pflanzen |
 | `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am Hebel ziehen |
 | `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz und Rosi anrufen |
+| `morphco_fuse_box` (versteckt) | Unter Strom | alle Kabel der Sicherungsbox eingesteckt |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
 | `morphco_bookworm` (versteckt) | Leseratte | alle 8 Bücher |
 | `morphco_platinum` | Mitarbeiter*in des Monats | alle anderen |
@@ -188,6 +189,10 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   Swipe-Card-Minigame (wie in Among Us): zu schnell, zu langsam oder nicht ganz durchgezogen heißt
   nochmal.
 - Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
+- Die Sicherungsbox im Kontrollraum ist ein optionales Minigame: Jemand hat die Kabel
+  herausgezogen. Wer jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung
+  steckt, schaltet die grüne Notbeleuchtung über den Türen ein. Licht und verstecktes Achievement
+  gibt es für beide Spieler.
 - Zusätzliche Kleinigkeiten: Spiegel im WC, Kisten in A-12, Hinweise der Schichtleitung,
   versteckte Achievements.
 - Der Alarm ist eine Sirene, die beim Ausschalten verstummt; das Leiserwerden beim Schließen der
