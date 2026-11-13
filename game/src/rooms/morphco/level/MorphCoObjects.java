@@ -114,17 +114,7 @@ final class MorphCoObjects {
     // A-12.
     texture("affix-sorter", "affix_sorter.png", 3f, new Rectangle(2.8f, 1.2f, 0.1f, 0f));
     switchable("display-a12", "display_a12_error.png", "display_a12_ok.png", 1f, null);
-    LOOKS.put(
-        "keypad",
-        (name, position, number) ->
-            List.of(
-                MorphCoProps.buildSwitchable(
-                    name,
-                    position,
-                    "objects/keypad/off.png",
-                    "objects/keypad/on.png",
-                    0.45f,
-                    null)));
+    LOOKS.put("keypad", MorphCoObjects::keypad);
     LOOKS.put(
         "click-area",
         (name, position, number) ->
@@ -241,6 +231,15 @@ final class MorphCoObjects {
     Entity clock = MorphCoProps.buildTexture(name, position, ART + "hotspot.png", 0.5f, null);
     clock.add(WorldTimerComponent.stopwatch(0));
     return List.of(clock);
+  }
+
+  // A keypad that hangs in front of a machine, like the lock of the maintenance hatch of A-12.
+  private static List<Entity> keypad(String name, Point position, int number) {
+    return List.of(
+        MorphCoProps.onTable(
+            MorphCoProps.buildSwitchable(
+                name, position, "objects/keypad/off.png", "objects/keypad/on.png", 0.45f, null),
+            position));
   }
 
   // The control room table with the phone and the coffee cup on it.

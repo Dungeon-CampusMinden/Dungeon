@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import rooms.morphco.puzzles.AffixPuzzle;
-import rooms.morphco.puzzles.CardSwipe;
+import rooms.morphco.puzzles.Pace;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
@@ -75,7 +75,7 @@ final class MorphCoAutoplay {
     for (int index = 0; index < 4; index++) add("intro", player -> dismiss());
     add("entrance", player -> go(player, "card-slot"));
     add("card slot", player -> use(player, "card-slot"));
-    add("swipe card", player -> submit(CardSwipe.encode(600, true)));
+    add("swipe card", player -> submit(Pace.encode(600, true)));
     add("console", player -> dismissAndGo(player, "console"));
     show("alarm buttons", player -> use(player, "console"));
     add("press alarm", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "alarm"));
@@ -97,13 +97,22 @@ final class MorphCoAutoplay {
     add("machine", player -> dismissAndGo(player, "flexion-machine"));
     add("inspect machine", player -> use(player, "flexion-machine"));
     add("hall A-12", player -> dismissAndGo(player, "hatch-lock"));
-    add("lock", player -> use(player, "hatch-lock"));
-    add("answer lock", player -> answer(DialogContextKeys.ON_CONFIRM, "8"));
-    add("hatch", player -> dismissThen(() -> use(player, "hatch")));
+    show("lock", player -> use(player, "hatch-lock"));
+    add(
+        "answer lock",
+        player -> submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_LOCK, "8")));
+    add("hatch", player -> submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_HATCH, "")));
     show("affix sorter", player -> dismiss());
     add("sort affixes", player -> submit(AffixPuzzle.encodeWords(affixes())));
     show("input shafts", player -> dismiss());
     add("fill shafts", player -> submit(AffixPuzzle.encodeShafts(shafts())));
+    show("lever", player -> dismiss());
+    add(
+        "pull lever",
+        player ->
+            submit(
+                MorphCoDialogs.A12Answer.encode(
+                    MorphCoDialogs.A12_LEVER, Pace.encode(1200, true))));
     add("pile", player -> dismissAndGo(player, "pile"));
     add("take parts", player -> use(player, "pile"));
     add("yes", player -> answer(DialogContextKeys.ON_YES, null));

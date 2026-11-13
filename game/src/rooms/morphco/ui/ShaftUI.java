@@ -59,7 +59,7 @@ final class ShaftUI extends MorphCoConsoleUI {
     board.placement().forEach((id, shaft) -> placement.put(id, AffixPuzzle.Shaft.valueOf(shaft)));
     submit(AffixPuzzle.encodeShafts(placement));
     if (AffixPuzzle.checkShafts(placement)) {
-      feedback(MorphCoText.text("world.a12.shafts-solved"), true);
+      feedback(MorphCoText.text("world.a12.shafts-filled"), true);
     } else {
       feedback(
           MorphCoText.text("ui.affixes.shafts-feedback", AffixPuzzle.wrongShafts(placement)),

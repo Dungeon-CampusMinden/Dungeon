@@ -28,7 +28,8 @@
       "hint-flexion": "\"A-12 sortiert wieder? Dann sieh nach, ob die Flexionsmaschine jetzt die richtigen Affixe bekommt.\"",
       "hint-restart": "\"Alles repariert? Großartig! Dann ab in den Kontrollraum und die Produktion am Computer neu starten.\"",
       "hint-done": "\"Hörst du das? Sie laufen wieder! Nie hätte ich gedacht, dass ich mich mal so über Maschinenlärm freue. Danke!\"",
-      "hint-shafts": "\"Wortbildung oder Flexion? In 'Morphemtypen und wo sie zu finden sind: Teil 2' im Regal von A-12 steht es: Ein Flexionsaffix bildet eine neue Wortform, ein Derivationsaffix ein neues Wort.\""
+      "hint-shafts": "\"Wortbildung oder Flexion? In 'Morphemtypen und wo sie zu finden sind: Teil 2' im Regal von A-12 steht es: Ein Flexionsaffix bildet eine neue Wortform, ein Derivationsaffix ein neues Wort.\"",
+      "hint-lever": "\"A-12 muss nach der Wartung neu starten. Zieh den Hebel gleichmäßig ganz nach unten - nicht reißen, aber auch nicht dabei einschlafen.\""
     },
     "world": {
       "titles": {
@@ -169,17 +170,14 @@
         "book-hamster-text": "Witz Nr. 37: Treffen sich zwei Hamster. Sagt der eine: \"Ich habe heute ein Präfix gefunden.\" Sagt der andere: \"Unglaublich!\"[n][n]Du klappst das Buch schnell wieder zu.",
         "close-shelf": "Regal schließen",
         "machine-title": "Affix-Sortieranlage",
-        "machine": "Aus dem Inneren klackert es, als hinge etwas fest.[n]Auf dem Display: \"Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen.\"",
-        "machine-sorting": "Auf dem Display: \"Sortierung blockiert. Affixe manuell sortieren.\"",
         "machine-repaired": "Die Affix-Sortieranlage läuft wieder. Plop, plop, plop: Jedes Affix landet in der richtigen Kategorie.",
         "lever-title": "Hebel",
         "lever": "Hnnnnnnnnnng! Der Hebel rührt sich nicht.",
         "lever-repaired": "Der Hebel lässt sich jetzt mühelos bewegen. Klack. Klack. Passiert ist trotzdem nichts.",
         "lock-title": "Elektronisches Schloss",
-        "lock-question": "Wie viele unterschiedliche Typen von freien Morphemen\n(ohne das Portmanteaumorphem) unterscheidet man?\nGib eine Zahl ein, um das Schloss zu entsperren.",
+        "lock-question": "Wie viele unterschiedliche Typen von freien Morphemen (ohne das Portmanteaumorphem) unterscheidet man? Gib eine Zahl ein, um das Schloss zu entsperren.",
         "lock-wrong": "Das Schloss piept unwillig. Das war nicht die richtige Zahl.",
         "lock-correct": "Klick! Jetzt lässt sich die Wartungsklappe öffnen.",
-        "lock-open": "Das Schloss hat seine Zahl bekommen. Mehr will es nicht von dir.",
         "hatch-title": "Wartungsklappe",
         "hatch-locked": "Die Klappe gibt keinen Millimeter nach. Das elektronische Schloss daneben will erst eine Zahl sehen.",
         "hatch-open": "Du öffnest die Wartungsklappe. Drinnen haben sich Affixe ineinander verkeilt und blockieren die Sortierung. Kein Wunder, dass die Zuordnungen falsch sind! Sortiere die Affixe, um die Anlage wieder in Gang zu bekommen.",
@@ -199,7 +197,22 @@
         "station-complete": "Alle drei Zirkumfixe sind montiert!",
         "boxes-title": "Kisten",
         "boxes": "Leer. Auf dem Etikett steht: \"Präfixe - zerbrechlich!\"",
-        "lock-almost": "Das Schloss piept unwillig. Fast - aber das Portmanteaumorphem zählt nicht mit."
+        "lock-almost": "Das Schloss piept unwillig. Fast - aber das Portmanteaumorphem zählt nicht mit.",
+        "shafts-filled": "Alle Affixe liegen im richtigen Eingabeschacht. Auf dem Display blinkt: \"Neustart erforderlich.\" Und der Hebel sieht aus, als ließe er sich jetzt bewegen.",
+        "display-error": "FEHLER 204",
+        "display-restart": "NEUSTART ERFORDERLICH",
+        "display-ok": "STATUS: OK",
+        "display-locked": "Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen.",
+        "display-unlocked": "Sortierung blockiert. Affixe manuell sortieren.",
+        "display-sorted": "Affixe sortiert. Eingabeschächte befüllen.",
+        "display-filled": "Hebel gleichmäßig ganz nach unten ziehen. Nicht zu schnell, nicht zu langsam.",
+        "lever-too-fast": "Zu schnell! Der Hebel schnellt zurück. A-12 braucht einen gleichmäßigen Zug.",
+        "lever-too-slow": "Zu langsam! A-12 ist beim Hochfahren wieder eingeschlafen.",
+        "lever-incomplete": "Abgebrochen. Hebel ganz nach unten ziehen.",
+        "lever-accepted": "Neustart erfolgreich. Die Sortierung läuft!",
+        "keypad-wrong": "FALSCH",
+        "keypad-almost": "FAST",
+        "keypad-open": "OFFEN"
       }
     },
     "documents": {
@@ -276,7 +289,14 @@
         "assemble": "Montieren",
         "empty": "leer"
       },
-      "cancel": "Abbrechen"
+      "sorter": {
+        "help": "Klicke auf Schloss, Klappe oder Hebel. Den Hebel ziehst du mit der Maus nach unten. Ohne Maus: Leertaste oder Pfeil nach unten gedrückt halten und unten loslassen. Die Ziffern kannst du auch tippen.",
+        "shafts": "Eingabeschächte"
+      },
+      "keypad": {
+        "clear": "C",
+        "confirm": "OK"
+      }
     },
     "pc": {
       "title": "Computer",
@@ -357,6 +377,8 @@
         "inspect-done": "Die Affix-Sortieranlage inspizieren. (erledigt)",
         "sort": "Affixe sortieren. (neu)",
         "sort-done": "Affixe sortieren. (erledigt)",
+        "restart": "A-12 mit dem Hebel neu starten. (neu)",
+        "restart-done": "A-12 mit dem Hebel neu starten. (erledigt)",
         "repaired": "Affix-Sortieranlage repariert. (erledigt)",
         "go-f04": "Gehe zur Flexionsmaschine.",
         "go-f04-done": "Gehe zur Flexionsmaschine. (erledigt)"

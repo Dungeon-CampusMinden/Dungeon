@@ -12,6 +12,9 @@ public final class MorphemeQuestions {
   /** Morphemes in "Überlegungen": {über} + {leg} + {ung} + {en}. */
   public static final String RESTART_CODE = "4";
 
+  /** Types of free morphemes with the portmanteau morpheme. */
+  private static final String HATCH_ALMOST = "9";
+
   private MorphemeQuestions() {}
 
   /**
@@ -22,6 +25,16 @@ public final class MorphemeQuestions {
    */
   public static boolean hatchAnswer(String answer) {
     return HATCH_CODE.equals(normalize(answer));
+  }
+
+  /**
+   * Checks whether the answer at the maintenance hatch counts the portmanteau morpheme as well.
+   *
+   * @param answer entered digits
+   * @return whether the answer is nine, one type too many
+   */
+  public static boolean hatchAlmost(String answer) {
+    return HATCH_ALMOST.equals(normalize(answer));
   }
 
   /**
