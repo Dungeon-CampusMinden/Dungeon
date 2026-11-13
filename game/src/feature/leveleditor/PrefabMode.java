@@ -106,6 +106,8 @@ public final class PrefabMode extends LevelEditorMode {
   private static final float CHIP_INDENT_PX = 14f;
   private static final float CHIP_ROW_PX = 22f;
   private static final float CHIP_DOT_RADIUS_PX = 4f;
+  // Distance the list of a selected attached prefab keeps to the edges of the view.
+  private static final float CHIP_VIEW_MARGIN_PX = 6f;
   private static final int CHIP_FONT_SIZE = 14;
   private static final int BADGE_FONT_SIZE = 12;
   private static final int BADGE_MAX_DOTS = 4;
@@ -546,9 +548,13 @@ public final class PrefabMode extends LevelEditorMode {
 
   /**
    * Decides where the attached prefabs are drawn this frame. The prefabs attached to a world prefab
-   * are listed next to it while they are in focus: while the world prefab or one of them is
+   * are listed right of it while they are in focus: while the world prefab or one of them is
    * selected or hovered, linked to the selection or a target of a link pick. Otherwise they are
    * collapsed into a badge next to the world prefab, or hidden, see {@link LogicDisplay}.
+   *
+   * <p>Lists and badges stay next to their world prefab, also at the edge of the screen. Only the
+   * list of a selected attached prefab moves, to stay in view, see {@link #keepInView}. It hides
+   * the lists and badges of other world prefabs it covers.
    *
    * @param level edited level
    * @param related names of the instances linked to the selection
@@ -575,75 +581,128 @@ public final class PrefabMode extends LevelEditorMode {
     }
     Map<String, PrefabInstance> byName = new HashMap<>();
     for (PrefabInstance instance : level.prefabs()) byName.put(instance.name(), instance);
-    Rectangle area = visibleArea();
+    AttachedPrefabLayout.Chip selectedChip = selectedName == null ? null : chips.get(selectedName);
     Map<String, ChipPlacement> result = new HashMap<>();
-    shown.forEach(
-        (rootName, group) -> {
-          PrefabInstance root = byName.get(rootName);
-          Optional<Point> rootAnchor =
-              root == null ? Optional.empty() : worldLinkAnchor(normalizedForRender(root));
-          if (rootAnchor.isEmpty()) return;
-          com.badlogic.gdx.math.Vector2 base = EditorOverlay.toScreen(rootAnchor.get());
-          boolean listed = listedRoots.contains(rootName);
-          Map<String, Float> widths = new HashMap<>();
-          float listWidth = 0f;
-          int rows = 1;
-          for (AttachedPrefabLayout.Chip chip : group) {
-            PrefabInstance instance = byName.get(chip.name());
-            String label =
-                instance == null
-                    ? chip.name()
-                    : chipLabel(chip, instance) + (instance.active() ? "" : "  (inactive)");
-            float width =
-                listed
-                    ? CHIP_DOT_RADIUS_PX * 2 + 14f + EditorOverlay.textSize(label, CHIP_FONT_SIZE).x
-                    : BADGE_MAX_DOTS * 10f + 30f;
-            widths.put(chip.name(), width);
-            listWidth = Math.max(listWidth, chip.depth() * CHIP_INDENT_PX + width);
-            rows = Math.max(rows, chip.row() + 1);
-          }
-          // Lists that do not fit right of their world prefab are drawn left of it.
-          boolean left =
-              base.x + CHIP_OFFSET_PX + listWidth > area.x + area.width
-                  && base.x - CHIP_OFFSET_PX - listWidth >= area.x;
-          // Lists that would reach below the visible area are moved up.
-          float lowest = base.y - (listed ? rows - 1 : 0) * CHIP_ROW_PX - CHIP_ROW_PX / 2f;
-          float shift = Math.max(0f, area.y + 4f - lowest);
-          float side = left ? -1f : 1f;
-          for (AttachedPrefabLayout.Chip chip : group) {
-            int depth = listed ? chip.depth() : 0;
-            int row = listed ? chip.row() : 0;
-            com.badlogic.gdx.math.Vector2 marker =
-                new com.badlogic.gdx.math.Vector2(
-                    base.x + side * (CHIP_OFFSET_PX + CHIP_DOT_RADIUS_PX + depth * CHIP_INDENT_PX),
-                    base.y + shift - row * CHIP_ROW_PX);
-            float width = widths.get(chip.name());
-            Rectangle hitBox =
-                left
-                    ? new Rectangle(
-                        marker.x + CHIP_DOT_RADIUS_PX + 3f - width - 6f,
-                        marker.y - CHIP_ROW_PX / 2f,
-                        width + 6f,
-                        CHIP_ROW_PX)
-                    : new Rectangle(
-                        marker.x - CHIP_DOT_RADIUS_PX - 3f,
-                        marker.y - CHIP_ROW_PX / 2f,
-                        width + 6f,
-                        CHIP_ROW_PX);
-            result.put(
-                chip.name(),
-                new ChipPlacement(
-                    chip, marker, EditorOverlay.toWorld(marker), listed, left, hitBox));
-          }
-        });
+    Rectangle inView = null;
+    for (Map.Entry<String, List<AttachedPrefabLayout.Chip>> entry : shown.entrySet()) {
+      String rootName = entry.getKey();
+      List<AttachedPrefabLayout.Chip> group = entry.getValue();
+      PrefabInstance root = byName.get(rootName);
+      Optional<Point> rootAnchor =
+          root == null ? Optional.empty() : worldLinkAnchor(normalizedForRender(root));
+      if (rootAnchor.isEmpty()) continue;
+      com.badlogic.gdx.math.Vector2 base = EditorOverlay.toScreen(rootAnchor.get());
+      boolean listed = listedRoots.contains(rootName);
+      float badgeWidth =
+          EditorOverlay.badgeSize(
+                  Math.min(group.size(), BADGE_MAX_DOTS), badgeCount(group.size()), BADGE_FONT_SIZE)
+              .x;
+      Map<String, Float> widths = new HashMap<>();
+      for (AttachedPrefabLayout.Chip chip : group) {
+        PrefabInstance instance = byName.get(chip.name());
+        widths.put(chip.name(), listed ? rowWidth(chip, instance) : badgeWidth);
+      }
+      if (listed && selectedChip != null && selectedChip.root().equals(rootName)) {
+        inView = keepInView(base, group, widths);
+      }
+      for (AttachedPrefabLayout.Chip chip : group) {
+        com.badlogic.gdx.math.Vector2 marker =
+            listed ? rowMarker(base, chip.depth(), chip.row()) : rowMarker(base, 0, 0);
+        Rectangle hitBox =
+            new Rectangle(
+                marker.x - CHIP_DOT_RADIUS_PX - 3f,
+                marker.y - CHIP_ROW_PX / 2f,
+                widths.get(chip.name()) + 6f,
+                CHIP_ROW_PX);
+        result.put(
+            chip.name(),
+            new ChipPlacement(chip, marker, EditorOverlay.toWorld(marker), listed, hitBox));
+      }
+    }
+    if (inView != null) {
+      // The list of the selection covers the lists and badges of other world prefabs below it.
+      Rectangle covering = inView;
+      String coveringRoot = selectedChip.root();
+      result
+          .values()
+          .removeIf(
+              placement ->
+                  !placement.chip().root().equals(coveringRoot)
+                      && placement.hitBox().overlaps(covering));
+    }
     chipPlacements = result;
   }
 
-  // The part of the screen where the level is not covered by panels.
-  private Rectangle visibleArea() {
+  /**
+   * Returns the screen position of the dot of a row in a list of attached prefabs.
+   *
+   * @param base screen position of the world prefab, the list starts right of it
+   * @param depth indentation of the row
+   * @param row index of the row, from the top
+   * @return center of the dot
+   */
+  private static com.badlogic.gdx.math.Vector2 rowMarker(
+      com.badlogic.gdx.math.Vector2 base, int depth, int row) {
+    return new com.badlogic.gdx.math.Vector2(
+        base.x + CHIP_OFFSET_PX + CHIP_DOT_RADIUS_PX + depth * CHIP_INDENT_PX,
+        base.y - row * CHIP_ROW_PX);
+  }
+
+  /**
+   * Returns the width of a listed row on the screen, from the left edge of its dot to the end of
+   * its label.
+   *
+   * @param chip the attached prefab
+   * @param source its authored instance, or {@code null} if it is missing
+   * @return width in pixels
+   */
+  private float rowWidth(AttachedPrefabLayout.Chip chip, PrefabInstance source) {
+    String text = source == null ? chip.name() : rowText(chip, normalizedForRender(source));
+    return CHIP_DOT_RADIUS_PX * 2 + 14f + EditorOverlay.textSize(text, CHIP_FONT_SIZE).x;
+  }
+
+  /**
+   * Returns the label of a listed row: the name of the attached prefab, whether it is inactive and,
+   * while it is selected, its summary.
+   *
+   * @param chip the attached prefab
+   * @param instance its normalized instance
+   * @return label text
+   */
+  private String rowText(AttachedPrefabLayout.Chip chip, PrefabInstance instance) {
+    String text = chipLabel(chip, instance) + (instance.active() ? "" : "  (inactive)");
+    if (!instance.name().equals(selectedName)) return text;
+    Optional<String> summary = PrefabRegistry.require(instance.type()).editorSummary(instance);
+    return summary.isPresent() ? text + "  (" + summary.get() + ")" : text;
+  }
+
+  /**
+   * Moves the list of the selected attached prefab as a whole, as little as needed to keep it in
+   * view: when the camera moves away from its world prefab, the list stays at the edge of the
+   * screen, clear of the panels, see {@link LevelEditorUI#keepInView}.
+   *
+   * @param base screen position of the world prefab the list starts at, moved in place
+   * @param group the listed attached prefabs
+   * @param widths row widths by name, see {@link #rowWidth}
+   * @return screen area of the list, after moving it
+   */
+  private Rectangle keepInView(
+      com.badlogic.gdx.math.Vector2 base,
+      List<AttachedPrefabLayout.Chip> group,
+      Map<String, Float> widths) {
+    float width = 0f;
+    int rows = 1;
+    for (AttachedPrefabLayout.Chip chip : group) {
+      width = Math.max(width, chip.depth() * CHIP_INDENT_PX + widths.get(chip.name()));
+      rows = Math.max(rows, chip.row() + 1);
+    }
+    float x = base.x + CHIP_OFFSET_PX;
+    float y = base.y + CHIP_ROW_PX / 2f - rows * CHIP_ROW_PX;
+    Rectangle list = new Rectangle(x, y, width, rows * CHIP_ROW_PX);
     LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
-    if (ui == null) return new Rectangle(0f, 0f, Game.windowWidth(), Game.windowHeight());
-    return ui.worldArea();
+    if (ui != null) ui.keepInView(list, CHIP_VIEW_MARGIN_PX);
+    base.add(list.x - x, list.y - y);
+    return list;
   }
 
   // Draws the instances without a world position next to the prefabs they are attached to.
@@ -673,11 +732,7 @@ public final class PrefabMode extends LevelEditorMode {
           CHIP_DOT_RADIUS_PX,
           fill,
           look.selected() || look.hovered() ? Color.WHITE : null);
-      String label = chipLabel(placement.chip(), instance) + look.nameSuffix();
-      if (look.selected()) {
-        Optional<String> summary = PrefabRegistry.require(instance.type()).editorSummary(instance);
-        if (summary.isPresent()) label += "  (" + summary.get() + ")";
-      }
+      String label = rowText(placement.chip(), instance);
       EditorOverlay.Look labelLook =
           look.namePriority() > EditorOverlay.PRIORITY_NORMAL
               ? look.nameLook()
@@ -687,7 +742,7 @@ public final class PrefabMode extends LevelEditorMode {
       overlay.pinnedText(
           label,
           placement.marker(),
-          placement.left() ? EditorOverlay.Anchor.LEFT : EditorOverlay.Anchor.RIGHT,
+          EditorOverlay.Anchor.RIGHT,
           CHIP_DOT_RADIUS_PX + 4f,
           CHIP_FONT_SIZE,
           labelLook);
@@ -704,23 +759,26 @@ public final class PrefabMode extends LevelEditorMode {
                 ? EditorTheme.TEXT_DISABLED
                 : EditorTheme.alpha(categoryColor(instance), pendingLinkPick != null ? 0.35f : 1f));
       }
-      String count = ordered.size() > BADGE_MAX_DOTS ? "+" + (ordered.size() - BADGE_MAX_DOTS) : "";
+      String count = badgeCount(ordered.size());
       boolean target =
           ordered.stream().anyMatch(placement -> pickTargets.contains(placement.chip().name()));
-      ChipPlacement first = ordered.getFirst();
-      com.badlogic.gdx.math.Vector2 marker = first.marker();
+      com.badlogic.gdx.math.Vector2 marker = ordered.getFirst().marker();
       overlay.badge(
           dots,
           count,
-          new com.badlogic.gdx.math.Vector2(
-              marker.x + (first.left() ? CHIP_DOT_RADIUS_PX : -CHIP_DOT_RADIUS_PX), marker.y),
-          first.left() ? EditorOverlay.Anchor.LEFT : EditorOverlay.Anchor.RIGHT,
+          new com.badlogic.gdx.math.Vector2(marker.x - CHIP_DOT_RADIUS_PX, marker.y),
+          EditorOverlay.Anchor.RIGHT,
           0f,
           BADGE_FONT_SIZE,
           target
               ? new EditorOverlay.Look(EditorTheme.TARGET, new Color(0.04f, 0.24f, 0.1f, 0.92f))
               : EditorTheme.LABEL_NORMAL);
     }
+  }
+
+  /* Text after the dots of the badge of a collapsed list, for the prefabs without a dot. */
+  private static String badgeCount(int prefabs) {
+    return prefabs > BADGE_MAX_DOTS ? "+" + (prefabs - BADGE_MAX_DOTS) : "";
   }
 
   /* Inside the area of the world prefab a chain starts at, the area prefix is omitted. */
@@ -889,15 +947,13 @@ public final class PrefabMode extends LevelEditorMode {
    * @param marker screen position of its marker, or of the badge of its collapsed list
    * @param world world position of the marker, where its links start and end
    * @param listed whether it is listed with its name, not collapsed into a badge
-   * @param left whether the list is drawn left of its world prefab, because it does not fit right
-   * @param hitBox screen area that selects it when clicked, if it is listed
+   * @param hitBox screen area of its row or badge; a row selects it when clicked
    */
   private record ChipPlacement(
       AttachedPrefabLayout.Chip chip,
       com.badlogic.gdx.math.Vector2 marker,
       Point world,
       boolean listed,
-      boolean left,
       Rectangle hitBox) {}
 
   /**
@@ -1935,8 +1991,28 @@ public final class PrefabMode extends LevelEditorMode {
     cancelAnchorDrag();
     clearPendingPointAssignment();
     selectedName = name;
-    linkAnchor(instance.get()).ifPresent(LevelEditorSystem::focusCamera);
+    focusPoint(instance.get()).ifPresent(LevelEditorSystem::focusCamera);
     requestRebuild();
+  }
+
+  /**
+   * Returns where the camera is centered to show an instance: its link anchor, for an attached
+   * prefab its row next to its world prefab, also while its list is kept in view elsewhere.
+   *
+   * @param instance the instance
+   * @return camera position, if the instance has a world position or is attached to a prefab
+   */
+  private Optional<Point> focusPoint(PrefabInstance instance) {
+    AttachedPrefabLayout.Chip chip = chips.get(instance.name());
+    if (chip == null) return linkAnchor(instance);
+    return getLevel().prefabs().stream()
+        .filter(root -> root.name().equals(chip.root()))
+        .findFirst()
+        .flatMap(root -> worldLinkAnchor(normalizedForRender(root)))
+        .map(
+            anchor ->
+                EditorOverlay.toWorld(
+                    rowMarker(EditorOverlay.toScreen(anchor), chip.depth(), chip.row())));
   }
 
   @SuppressWarnings("unchecked")

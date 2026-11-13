@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.utils.Cursors;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +57,8 @@ public final class PrefabOutliner extends Table {
   private static final float AUTO_SCROLL_MARGIN = 30f;
   private static final float AUTO_SCROLL_SPEED = 400f;
   private static final int FONT = 14;
+  // Longest time between the two clicks of a double click, as for the default ClickListener.
+  private static final long DOUBLE_CLICK_MILLIS = 400L;
 
   /** One list item. */
   public sealed interface Item permits Entry, Group {
@@ -233,6 +236,9 @@ public final class PrefabOutliner extends Table {
   private String hovered;
   // Instance clicked in this list, its selection does not scroll the list.
   private String clickedName;
+  // Last single click on an instance, which a second click turns into a double click.
+  private String lastClickName;
+  private long lastClickMillis;
 
   /**
    * Creates an empty prefab list.
@@ -639,7 +645,7 @@ public final class PrefabOutliner extends Table {
         new ClickListener(Input.Buttons.LEFT) {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            if (getTapCount() >= 2) {
+            if (isDoubleClick(entry.name())) {
               listener.frame(entry.name());
             } else {
               clickedName = entry.name();
@@ -648,6 +654,22 @@ public final class PrefabOutliner extends Table {
           }
         });
     return row;
+  }
+
+  /**
+   * Returns whether a click on an instance follows a click on the same instance quickly enough to
+   * be a double click. The clicks are counted here and not by the click listener of the row,
+   * because a click that changes the selection rebuilds the rows.
+   *
+   * @param name clicked instance name
+   * @return true for the second click of a double click
+   */
+  private boolean isDoubleClick(String name) {
+    long now = TimeUtils.millis();
+    boolean second = name.equals(lastClickName) && now - lastClickMillis <= DOUBLE_CLICK_MILLIS;
+    lastClickName = second ? null : name;
+    lastClickMillis = now;
+    return second;
   }
 
   private static void addStatus(Table row, Status status) {

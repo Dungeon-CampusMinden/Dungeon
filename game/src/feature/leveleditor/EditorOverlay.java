@@ -24,11 +24,12 @@ import java.util.List;
  * the world with a constant size in pixels.
  *
  * <p>Requests are queued while a mode renders and drawn together by {@link #flush()}. Pinned labels
- * and dots are placed first, exactly where they were requested, e.g. the rows of a list that can be
- * clicked where they are drawn. The other labels follow, highest priority first: a label that would
- * cover a pinned label or a dot moves up or down until it is clear of them. A label that would
- * cover an already placed one tries its alternative side and is left out if that is taken too,
- * unless it is forced. Dense areas stay readable that way, the most important labels win.
+ * and dots are placed first, exactly where they were requested, also at the edge of the screen,
+ * e.g. the rows of a list that can be clicked where they are drawn. The other labels follow,
+ * highest priority first, moved onto the screen: a label that would cover a pinned label or a dot
+ * moves up or down until it is clear of them. A label that would cover an already placed one tries
+ * its alternative side and is left out if that is taken too, unless it is forced. Dense areas stay
+ * readable that way, the most important labels win.
  */
 public final class EditorOverlay {
 
@@ -138,6 +139,18 @@ public final class EditorOverlay {
   }
 
   /**
+   * Returns the screen size of a badge, see {@link #badge}.
+   *
+   * @param dots number of dots
+   * @param text text after the dots, may be empty
+   * @param fontSize font size of the text in pixels
+   * @return width and height of the badge with its plate
+   */
+  public static Vector2 badgeSize(int dots, String text, int fontSize) {
+    return plateSize(textSize(text, fontSize), dotsWidth(dots, text), fontSize);
+  }
+
+  /**
    * Queues a label.
    *
    * @param text label text
@@ -176,7 +189,7 @@ public final class EditorOverlay {
 
   /**
    * Queues a pinned label: it is drawn exactly at its position, even if it covers another pinned
-   * label, and the other labels move out of its way.
+   * label or reaches past the edge of the screen, and the other labels move out of its way.
    *
    * @param text label text
    * @param screen screen position the label is anchored at
@@ -258,11 +271,11 @@ public final class EditorOverlay {
       if (box.x > width || box.y > height || box.x + box.width < 0 || box.y + box.height < 0) {
         continue;
       }
-      // Labels at the edge of the screen are moved in, so they can be read in full.
-      clamp(box, width, height);
       if (request.pinned()) {
         obstacles.add(box);
       } else {
+        // Labels at the edge of the screen are moved in, so they can be read in full.
+        clamp(box, width, height);
         box = fit(request, size, box, width, height);
         if (box == null) continue;
       }
@@ -368,9 +381,9 @@ public final class EditorOverlay {
   }
 
   private static Rectangle box(TextRequest request, Anchor anchor, Vector2 size) {
-    float boxWidth = size.x + 2 * PAD_X + request.dotsWidth();
-    // Room for descenders below the baseline.
-    float boxHeight = size.y + 2 * PAD_Y + request.fontSize() * DESCENT;
+    Vector2 plate = plateSize(size, request.dotsWidth(), request.fontSize());
+    float boxWidth = plate.x;
+    float boxHeight = plate.y;
     Vector2 at = request.screen();
     return switch (anchor) {
       case ABOVE ->
@@ -386,6 +399,16 @@ public final class EditorOverlay {
           new Rectangle(
               at.x - request.offset() - boxWidth, at.y - boxHeight / 2f, boxWidth, boxHeight);
     };
+  }
+
+  private static Vector2 plateSize(Vector2 textSize, float dotsWidth, int fontSize) {
+    // Room for descenders below the baseline.
+    return new Vector2(
+        textSize.x + 2 * PAD_X + dotsWidth, textSize.y + 2 * PAD_Y + fontSize * DESCENT);
+  }
+
+  private static float dotsWidth(int dots, String text) {
+    return dots == 0 ? 0f : dots * DOT_STEP + (text.isEmpty() ? 0f : DOT_GAP);
   }
 
   private void draw(List<Placement> placements) {
@@ -469,7 +492,7 @@ public final class EditorOverlay {
       int sequence) {
 
     private float dotsWidth() {
-      return dots.isEmpty() ? 0f : dots.size() * DOT_STEP + (text.isEmpty() ? 0f : DOT_GAP);
+      return EditorOverlay.dotsWidth(dots.size(), text);
     }
   }
 

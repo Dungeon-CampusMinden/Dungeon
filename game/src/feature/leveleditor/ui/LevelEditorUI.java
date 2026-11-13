@@ -64,6 +64,8 @@ public class LevelEditorUI extends Group {
   private Table modal;
   private Runnable modalOnClose;
   private InputContext modalInput;
+  // The bars at the top of the screen, as laid out in the last frame.
+  private final List<Actor> topRow = new ArrayList<>();
 
   /** Creates a new level editor UI group. */
   public LevelEditorUI() {
@@ -158,22 +160,38 @@ public class LevelEditorUI extends Group {
   }
 
   /**
-   * Returns the part of the screen where the level is not covered by the side panels or the status
-   * bar, in stage coordinates.
+   * Moves an area drawn over the level, e.g. a list in the level overlay, as little as needed to
+   * keep it in view: on the screen, above the status bar and clear of the panels. It moves sideways
+   * out of a side panel and down out of the bars at the top. An area too large for the space keeps
+   * its top left corner in view.
    *
-   * @return the visible area of the level
+   * @param box area in stage coordinates, moved in place
+   * @param margin distance kept to the panels and the edges of the screen
    */
-  public Rectangle worldArea() {
-    float left = 0f;
-    float right = getWidth();
-    if (detailsPanel.isVisible() && detailsPanel.getHeight() > 0f) {
-      left = detailsPanel.getX() + detailsPanel.getWidth();
+  public void keepInView(Rectangle box, float margin) {
+    box.x = Math.max(margin, Math.min(box.x, getWidth() - margin - box.width));
+    box.y =
+        Math.min(
+            getHeight() - margin - box.height, Math.max(box.y, statusBar.getHeight() + margin));
+    for (Actor bar : topRow) {
+      if (near(bar, box, margin)) box.y = bar.getY() - margin - box.height;
     }
-    if (secondaryDetailsPanel.isVisible() && secondaryDetailsPanel.getHeight() > 0f) {
-      right = secondaryDetailsPanel.getX();
+    if (secondaryDetailsPanel.isVisible() && near(secondaryDetailsPanel, box, margin)) {
+      box.x = secondaryDetailsPanel.getX() - margin - box.width;
     }
-    float bottom = statusBar.getHeight();
-    return new Rectangle(left, bottom, right - left, getHeight() - bottom);
+    if (detailsPanel.isVisible() && near(detailsPanel, box, margin)) {
+      box.x = detailsPanel.getX() + detailsPanel.getWidth() + margin;
+    }
+  }
+
+  // Whether an actor covers an area or comes closer to it than the margin.
+  private static boolean near(Actor actor, Rectangle box, float margin) {
+    return actor.getWidth() > 0f
+        && actor.getHeight() > 0f
+        && actor.getX() < box.x + box.width + margin
+        && actor.getX() + actor.getWidth() + margin > box.x
+        && actor.getY() < box.y + box.height + margin
+        && actor.getY() + actor.getHeight() + margin > box.y;
   }
 
   /** Shows the toolbar the active mode currently asks for. */
@@ -272,7 +290,7 @@ public class LevelEditorUI extends Group {
     statusBar.setBounds(0f, 0f, stageWidth, StatusBar.HEIGHT);
     float bottom = StatusBar.HEIGHT + SCREEN_PADDING;
 
-    List<Actor> topRow = new ArrayList<>();
+    topRow.clear();
     modePanel.pack();
     float rowWidth = modePanel.getWidth();
     if (viewOptions != null) {
