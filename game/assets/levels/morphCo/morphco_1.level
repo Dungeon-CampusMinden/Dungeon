@@ -863,8 +863,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 6.05,
-        "y" : 31.6
+        "x" : 8.2,
+        "y" : 23.0
       },
       "kind" : "cart",
       "number" : 0
