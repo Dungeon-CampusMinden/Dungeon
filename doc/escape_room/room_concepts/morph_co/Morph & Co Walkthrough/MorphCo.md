@@ -32,10 +32,9 @@ Start aus dem Repository: `./gradlew :game:runMorphCo`
 | 13 | A-12 | Haufen mit Krimskrams (optional) |
 | 14 | A-12 | Zirkumfixmontagestation (optional) |
 
-Vom Eingang führt eine Tür in den Kontrollraum. Die Tür gegenüber vom Eingang führt vom
-Kontrollraum in den Flur. Vom Flur aus erreicht man F-04 (links), A-12 (rechts) und die
-Sanitäranlagen. Küche und Abstellkammer bleiben verschlossen. Zwischen F-04 und A-12 gibt es zusätzlich eine
-Verbindungstür.
+Vom Eingang führt eine Tür in den Kontrollraum. Die Tür gegenüber vom Eingang führt vom Kontrollraum
+in den Flur. Vom Flur aus erreicht man F-04 (links), A-12 (rechts) und die Sanitäranlagen. Küche und
+Abstellkammer bleiben verschlossen. Zwischen F-04 und A-12 gibt es zusätzlich eine Verbindungstür.
 
 ## Bedienung
 
@@ -429,6 +428,8 @@ Wer 11 und 17 anruft, bekommt das versteckte Achievement „Niemand zu Hause“.
 ### Weitere Kleinigkeiten
 
 - **Plakate:** vier im Kontrollraum, zwei in F-04, eines in A-12. Ein Klick zeigt das Plakat groß.
+  Das linke Plakat in F-04 hängt über den Kisten. Man erreicht es durch den Durchgang zwischen der
+  Flexionsmaschine und der Kiste „VERB“; er führt hinter die Kisten.
 - **Topfpflanzen:** je eine im Kontrollraum, im Flur und in F-04.
 - **Förderband in F-04:** Die vier Wortformen *du schreiben*, *Gemäuse*, *undes* und *zerkleinst*
   lassen sich einzeln ansehen und kommen als Indiz ins Questlog.
@@ -455,6 +456,6 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, bevor die Eingabeschächte befüllt sind | ja |
 | Niemand zu Hause | Wachschutz (11) und Rosi (17) anrufen | ja |
 | Unter Strom | alle Kabel der Sicherungsbox einstecken | ja |
-| Aushangkundig | alle sieben Plakate ansehen | ja |
+| Aushangkundig | alle sieben Plakate ansehen (Weg zum Plakat über den Kisten in F-04: siehe „Weitere Kleinigkeiten“) | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |
 | Mitarbeitende des Monats | alle anderen Achievements freischalten | nein |

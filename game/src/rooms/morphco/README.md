@@ -31,13 +31,13 @@ the production. The handout "Morphemtypen und wo sie zu finden sind" is split in
 in each hall, so both halls depend on each other. Optional extras: a circumfix assembly station, a
 fuse box, a wastepaper basket, phone numbers to try and a book with 100 hamster jokes.
 
-**Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E;
-B opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or
-click a piece and then its target), and the timing puzzles also work with the keyboard. Wrong
-answers cost nothing. The shift supervisor at the entrance gives a hint for the current step. For
-the same step, the technical hotline (phone in the control room, extension **42**) gives a
-direction first, then a tip and finally the solution, and asks before it reveals the solution.
-The quest log keeps tasks, clues and every hint heard.
+**Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E; B
+opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or click
+a piece and then its target), and the timing puzzles also work with the keyboard. Wrong answers cost
+nothing. The shift supervisor at the entrance gives a hint for the current step. The technical
+hotline (phone in the control room, extension **42**) helps with the same step in three stages: a
+direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
+tasks, clues and every hint heard.
 
 **Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
 and the hints used.
