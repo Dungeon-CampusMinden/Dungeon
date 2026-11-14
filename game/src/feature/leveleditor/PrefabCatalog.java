@@ -36,7 +36,8 @@ public final class PrefabCatalog {
               "text-keypad",
               "card-reader",
               "deco-interaction",
-              "trigger"),
+              "trigger",
+              "phone"),
           new CategoryDefinition(
               "Puzzles & Items",
               "image-puzzle",
@@ -74,6 +75,7 @@ public final class PrefabCatalog {
           Map.entry("pushable-stone", () -> texture("objects/push-stone.png", null)),
           Map.entry("door-control", () -> texture("dungeon/default/door/top_closed.png", null)),
           Map.entry("trigger", () -> text("Trigger")),
+          Map.entry("phone", () -> deco(Deco.Phone, null)),
           Map.entry("dialog", () -> texture("emotes/emote_dots3.png", null)),
           Map.entry("choice-dialog", () -> texture("emotes/emote_question.png", null)),
           Map.entry("sound-effect", () -> texture("emotes/emote_music.png", null)),

@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
+import feature.interaction.keypad.DigitEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -19,9 +20,10 @@ import rooms.morphco.util.MorphCoText;
  * A keypad on a control panel: the digits 0 to 9, a clear and a confirm key and a small display
  * with a light.
  *
- * <p>The display shows the typed digits. Confirming hands them to the owner, which answers on the
- * display with {@link #show(String, Color)}; the next key starts a new entry. {@link #type(char)}
- * takes digits, backspace and enter from the keyboard.
+ * <p>The keys type into the engine's {@link DigitEntry}; the display shows the typed digits.
+ * Confirming hands them to the owner, which answers on the display with {@link #show(String,
+ * Color)}; the next key starts a new entry. {@link #type(char)} takes digits, backspace and enter
+ * from the keyboard.
  */
 final class KeypadNode extends CanvasNode {
 
@@ -35,16 +37,11 @@ final class KeypadNode extends CanvasNode {
   private static final float DISPLAY_HEIGHT = 46;
   private static final String CLEAR = "clear";
   private static final String CONFIRM = "confirm";
-  // Only on the keyboard: removes the last digit.
-  private static final String BACKSPACE = "backspace";
 
-  private final int maxDigits;
-  private final Consumer<String> onConfirm;
+  private final DigitEntry entry;
   private final Table content = new Table();
   private final List<TextButton> keys = new ArrayList<>();
   private Label display;
-  private String digits = "";
-  private boolean answered;
   private boolean enabled = true;
   private Color light = MorphCoUI.LED_OFF;
 
@@ -57,8 +54,7 @@ final class KeypadNode extends CanvasNode {
    */
   KeypadNode(String id, int maxDigits, Consumer<String> onConfirm) {
     super(id, WIDTH, HEIGHT);
-    this.maxDigits = maxDigits;
-    this.onConfirm = onConfirm;
+    entry = new DigitEntry(maxDigits, onConfirm);
     movable(false);
     selectable(false);
     deletable(false);
@@ -80,7 +76,7 @@ final class KeypadNode extends CanvasNode {
    */
   void show(String text, Color color) {
     ensureContentBuilt();
-    answered = true;
+    entry.answer();
     light = color;
     display.setText(text);
     display.setColor(color);
@@ -104,38 +100,25 @@ final class KeypadNode extends CanvasNode {
    * @return whether the keypad used it
    */
   boolean type(char character) {
-    if (!enabled) return false;
-    if (Character.isDigit(character)) press(String.valueOf(character));
-    else if (character == '\r' || character == '\n') press(CONFIRM);
-    else if (character == '\b') press(BACKSPACE);
-    else return false;
+    if (!enabled || !entry.type(character)) return false;
+    showDigits();
     return true;
   }
 
   private void press(String key) {
-    if (key.equals(CONFIRM)) {
-      // Confirming again or without digits keeps the display as it is.
-      if (!answered && !digits.isEmpty()) onConfirm.accept(digits);
-      return;
-    }
-    // The first key after an answer clears it.
-    if (answered) {
-      answered = false;
-      digits = "";
-      light = MorphCoUI.LED_OFF;
-    }
     switch (key) {
-      case CLEAR -> digits = "";
-      case BACKSPACE -> digits = digits.substring(0, Math.max(0, digits.length() - 1));
-      default -> {
-        if (digits.length() < maxDigits) digits += key;
-      }
+      case CLEAR -> entry.clear();
+      case CONFIRM -> entry.confirm();
+      default -> entry.digit(key.charAt(0));
     }
     showDigits();
   }
 
+  // An answer stays on the display until the next key.
   private void showDigits() {
-    display.setText(digits.isEmpty() ? "_" : digits);
+    if (entry.answered()) return;
+    light = MorphCoUI.LED_OFF;
+    display.setText(entry.digits().isEmpty() ? "_" : entry.digits());
     display.setColor(MorphCoUI.SIGNAL);
   }
 
