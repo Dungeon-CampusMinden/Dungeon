@@ -176,6 +176,15 @@
         },
         "inventory_dialog": {
             "title": "INVENTAR"
+        },
+        "sorting_dialog": {
+            "title": "Begriffe zuordnen",
+            "help": "Ziehe jeden Begriff in das passende Fach oder klicke erst auf den Begriff und dann auf das Fach. Begriffe, die in kein Fach gehören, bleiben liegen. Esc schließt das Fenster.",
+            "close": "Schließen",
+            "reset": "Zurücksetzen",
+            "check": "Prüfen",
+            "wrong": "$1 noch falsch",
+            "solved": "Alles richtig zugeordnet!"
         }
     },
     "achievement": {

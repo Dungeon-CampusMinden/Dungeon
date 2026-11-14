@@ -11,7 +11,7 @@ Morphologie-Escape-Room für 1–2 Spieler. Konzept, Lösungsweg und Technik:
 | `level` | `MorphCoLevel` (Server), `MorphCoClientLevel`, ein Controller pro Bereich: `ControlRoom`, `Corridor`, `FlexionLine`, `AffixSorter`, `CircumfixStation`, `ShiftLead`; Zustand und Questlog |
 | `puzzles` | reine Rätselmodelle ohne Framework-Abhängigkeiten (Kartenleser und Hebel von A-12 mit gemeinsamem Tempo-Modell `Pace`, Sicherungsbox `FuseBox`, Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
 | `petrinet` | `MorphCoMilestone`, `MorphCoProgressNet` |
-| `ui` | eigene Dialoge: Kartenleser, Sicherungsbox, Papierkorb, Nahansicht der Affix-Sortieranlage mit wiederverwendbarem Ziffernblock `KeypadNode`, Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher und Hamsterbuch auf dem gemeinsamen Papierblatt `PaperUI`; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil |
+| `ui` | eigene Dialoge: Kartenleser, Sicherungsbox, Papierkorb, Nahansicht der Affix-Sortieranlage mit wiederverwendbarem Ziffernblock `KeypadNode`, Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher und Hamsterbuch auf dem gemeinsamen Papierblatt `PaperUI`; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf dem Zuordnungs-Board `SortBoard` aus `feature.interaction.sorting` im Aussehen `MorphCoSortBoard` |
 | `items` | Zirkumfix-Teile im Inventar |
 | `save`, `network`, `util` | Speicherstand, Snapshot-Erweiterung, Texte, Übersetzer, Achievements, Tracking, Sounds der Dialoge |
 

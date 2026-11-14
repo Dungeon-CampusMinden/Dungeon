@@ -39,6 +39,7 @@ public final class PrefabCatalog {
           new CategoryDefinition(
               "Puzzles & Items",
               "image-puzzle",
+              "sorting",
               "item-spawner",
               "item-receptacle",
               "door-lock",
@@ -61,6 +62,7 @@ public final class PrefabCatalog {
           Map.entry("text-keypad", () -> texture("objects/keypad/off.png", "ABC")),
           Map.entry("deco-interaction", () -> deco(Deco.BookshelfLarge, "!")),
           Map.entry("image-puzzle", () -> texture("items/puzzle-piece.png", null)),
+          Map.entry("sorting", () -> deco(Deco.LabWhiteboard, null)),
           Map.entry("item-receptacle", () -> deco(Deco.Cabinet, null)),
           Map.entry("item-spawner", () -> texture("items/rpg/item_sack.png", null)),
           Map.entry("door-lock", () -> texture("other/chain_lock.png", null)),

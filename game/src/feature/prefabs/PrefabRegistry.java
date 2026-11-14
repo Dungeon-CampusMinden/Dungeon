@@ -25,6 +25,7 @@ import feature.prefabs.types.RandomCodePrefab;
 import feature.prefabs.types.RandomTextPrefab;
 import feature.prefabs.types.ShaderPrefab;
 import feature.prefabs.types.ShowImagePrefab;
+import feature.prefabs.types.SortingPrefab;
 import feature.prefabs.types.SoundEffectPrefab;
 import feature.prefabs.types.TextKeypadPrefab;
 import feature.prefabs.types.TorchPrefab;
@@ -76,6 +77,7 @@ public final class PrefabRegistry {
     register(new AirVentPrefab(), AirVentPrefab::new);
     register(new SoundEffectPrefab(), SoundEffectPrefab::new);
     register(new DoorLockPrefab(), DoorLockPrefab::new);
+    register(new SortingPrefab(), SortingPrefab::new);
   }
 
   private PrefabRegistry() {}

@@ -76,7 +76,10 @@ public interface DialogType {
     CLIENT_CONNECTION("CLIENT_CONNECTION"),
 
     /** Combination lock with digit wheels. */
-    COMBINATION_LOCK("COMBINATION_LOCK");
+    COMBINATION_LOCK("COMBINATION_LOCK"),
+
+    /** Board on which terms are sorted into labelled bins. */
+    SORTING("SORTING");
 
     private final String type;
 

@@ -161,6 +161,10 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   sofortiges Feedback und senden jede Eingabe als `StringValue` an den Server
   (`MorphCoDialogs.SUBMIT`); die Sicherungsbox schickt erst die fertige Verkabelung.
   `MorphCoSnapshotTranslator` überträgt Kollider und Interaktionsreichweiten.
+- **Zuordnen:** Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf
+  dem Zuordnungs-Board des Engine-Features `feature.interaction.sorting` (`SortBoard`, im Aussehen
+  der Halle `MorphCoSortBoard`). Rätselmodelle, Prüfungen und Antworten bleiben im Raum, deshalb
+  behalten die vier Dialoge ihre eigenen Dialogtypen.
 - **Lokalisierung:** Alle Texte stehen in `game/assets/language/morphCo/de.json` und `en.json`.
   Der Server verschickt Schlüssel (`MorphCoText.key`), `MorphCoTranslator` löst sie auf dem Client
   auf. Die deutschen Beispielwörter bleiben auch in der englischen Fassung deutsch.
