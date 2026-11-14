@@ -23,12 +23,12 @@ import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.interaction.cardreader.Pace;
 import java.util.ArrayList;
 import java.util.List;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.LeverPull;
 import rooms.morphco.puzzles.MorphemeQuestions;
-import rooms.morphco.puzzles.Pace;
 import rooms.morphco.util.MorphCoText;
 
 /**

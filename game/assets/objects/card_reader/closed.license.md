@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Kartenleser neben der Kontrollraumtür), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Asset (Kartenleser mit roter Lampe, zuerst für Morph & Co. neben der Kontrollraumtür), per Skript als Pixel-Art gezeichnet
 - Author: amatutat
 - License: CC0 1.0
 

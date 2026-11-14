@@ -4,9 +4,9 @@ title: "DEER-Editor"
 
 The DEER-Editor (DEER = Digital Educational Escape Room) is Dungeon's built-in level editor. It
 runs inside the game: you paint the map, place decorations and named points, and connect
-ready-made building blocks (prefabs) such as doors, levers, keypads, pressure plates, dialogs
-and item spawners into puzzles. In the code it is still called the level editor
-(`LevelEditorSystem`, `feature.leveleditor`).
+ready-made building blocks (prefabs) such as doors, levers, keypads, card readers, phones,
+pressure plates, dialogs, sorting boards and item spawners into puzzles. In the code it is still
+called the level editor (`LevelEditorSystem`, `feature.leveleditor`).
 
 <p align="center"><img src="../../doc/img/readme/deer-editor.png" alt="DEER-Editor in prefab mode: the prefab list on the left, labelled prefabs such as levers, dialogs and pressure plates in the level"></p>
 

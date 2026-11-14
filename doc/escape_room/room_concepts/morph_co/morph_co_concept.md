@@ -190,8 +190,18 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Server/Client:** Der Server entscheidet über Fortschritt, Türen, Items und Dialoge. Eigene
   Dialogtypen (`MorphCoDialogs`) werden auf Server und Client registriert. Die UIs prüfen lokal für
   sofortiges Feedback und senden jede Eingabe als `StringValue` an den Server
-  (`MorphCoDialogs.SUBMIT`); die Sicherungsbox schickt erst die fertige Verkabelung.
+  (`MorphCoDialogs.SUBMIT`). Der Kartenleser am Eingang ist der Kartenleser der Engine
+  (`feature.interaction.cardreader`): Der Raum registriert für dessen Dialogtyp `CARD_READER` sein
+  eigenes Aussehen; Messung und Bewertung des Durchziehens kommen aus der Engine. Er schickt jedes
+  Durchziehen über `CardReaderFactory.SWIPE` statt über `MorphCoDialogs.SUBMIT`. Die Sicherungsbox
+  ist das Kabel-Rätsel der Engine (`feature.interaction.cables`) im Aussehen des Raums:
+  `MorphCoDialogs` registriert `FuseBoxUI` für den Dialogtyp `CABLES`, der Server prüft die fertige
+  Verkabelung und schließt danach die Boxen der anderen Spieler.
   `MorphCoSnapshotTranslator` überträgt Kollider und Interaktionsreichweiten.
+- **Zuordnen:** Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf
+  dem Zuordnungs-Board des Engine-Features `feature.interaction.sorting` (`SortBoard`, im Aussehen
+  der Halle `MorphCoSortBoard`). Rätselmodelle, Prüfungen und Antworten bleiben im Raum, deshalb
+  behalten die vier Dialoge ihre eigenen Dialogtypen.
 - **Lokalisierung:** Alle Texte stehen in `game/assets/language/morphCo/de.json` und `en.json`.
   Der Server verschickt Schlüssel (`MorphCoText.key`), `MorphCoTranslator` löst sie auf dem Client
   auf. Die deutschen Beispielwörter bleiben auch in der englischen Fassung deutsch.
@@ -204,9 +214,12 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
   `pull` für den Hebel) und Hinweise über `MorphCoTracking`: die der Schichtleitung als Schritt
   (`hint-alarm`), die der Technik-Hotline mit Stufe (`hint-alarm:direction`, `:tip`, `:solution`).
-- **Telefon:** `PhoneUI` prüft die Nummer mit `PhoneLine` und zeigt „Kein Anschluss“ sofort. Jede
-  Nummer geht an den Server; er schlägt sie erneut nach. Bei einer bekannten Nummer schließt er den
-  Telefondialog und lässt die Leitung antworten. Hinweistexte kommen als Schlüssel beim Client an.
+- **Telefon:** Das Telefon nutzt das Engine-Feature `feature.interaction.phone`. `ControlRoom`
+  legt seine Leitungen an und hängt an jede die Reaktion des Raums, an die 42 die Technik-Hotline.
+  Der Raum registriert für den Dialogtyp `PHONE` sein eigenes Aussehen (`PhoneUI` mit
+  Mailbox-Lampe); der Dialog zeigt „Kein Anschluss“ sofort. Jede Nummer geht an den Server; er
+  schlägt sie erneut nach. Bei einer bekannten Nummer schließt er den Telefondialog und lässt die
+  Leitung antworten. Hinweistexte kommen als Schlüssel beim Client an.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und

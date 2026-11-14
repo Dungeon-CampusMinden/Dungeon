@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.interaction.sorting.SortBoard;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,7 +15,7 @@ import rooms.morphco.util.MorphCoText;
 /** The input shafts of A-12: freed affixes go to word formation or to inflection. */
 final class ShaftUI extends MorphCoConsoleUI {
 
-  private final SortBoard board = new SortBoard(area(), this::changed);
+  private final SortBoard board = new MorphCoSortBoard(area(), this::changed);
   private final PanelNode tray = area().addNode(new PanelNode("tray", PanelNode.Look.BELT, 10));
   private final List<SortBoard.Slot> slots = new ArrayList<>();
   private final List<SortBoard.Bin> shafts = new ArrayList<>();
@@ -48,7 +49,7 @@ final class ShaftUI extends MorphCoConsoleUI {
 
   @Override
   protected float arrange(float width, float height) {
-    float top = -SortBoard.belt(tray, slots, 0, width) - 24;
+    float top = -MorphCoSortBoard.belt(tray, slots, 0, width) - 24;
     top -= SortBoard.grid(shafts, shafts.size(), 0, top, width);
     board.arrange();
     return -top;

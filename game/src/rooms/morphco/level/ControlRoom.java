@@ -1,27 +1,31 @@
 package rooms.morphco.level;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
-import engine.level.elements.tile.DoorTile;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
 import feature.emote.Emote;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import feature.interaction.cables.CablePuzzle;
+import feature.interaction.cables.Cables;
+import feature.interaction.cables.CablesComponent;
+import feature.interaction.cardreader.CardReaderComponent;
+import feature.interaction.cardreader.CardReaderFactory;
+import feature.interaction.phone.PhoneComponent;
+import feature.interaction.phone.PhoneFactory;
+import feature.interaction.phone.PhoneLine;
 import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import rooms.morphco.petrinet.MorphCoMilestone;
-import rooms.morphco.puzzles.CardSwipe;
-import rooms.morphco.puzzles.FuseBox;
 import rooms.morphco.puzzles.MorphemeQuestions;
-import rooms.morphco.puzzles.Pace;
-import rooms.morphco.puzzles.PhoneLine;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
@@ -34,8 +38,27 @@ import rooms.morphco.util.MorphCoTracking;
  */
 final class ControlRoom {
 
+  /** Number of the mailbox with the message of the morning. */
+  static final String MAILBOX = "99";
+
+  // Extensions in the building have up to four digits.
+  private static final int EXTENSION_DIGITS = 4;
   private static final String CONSOLE = "world.control.console-title";
   private static final String PHONE = "world.control.phone-title";
+
+  // The cables of the fuse box from top to bottom; a cable and its socket share label and color.
+  // The sockets sit in the order control room, emergency lighting, F-04, corridor, A-12.
+  private static final CablePuzzle FUSE_BOX =
+      new CablePuzzle(
+          List.of(
+              new CablePuzzle.Cable(fuseBoxLabel("f04"), Color.valueOf("e0483e"), 2),
+              new CablePuzzle.Cable(fuseBoxLabel("a12"), Color.valueOf("3d7be0"), 4),
+              new CablePuzzle.Cable(fuseBoxLabel("corridor"), Color.valueOf("f7c31d"), 3),
+              new CablePuzzle.Cable(fuseBoxLabel("control"), Color.valueOf("eef2f4"), 0),
+              new CablePuzzle.Cable(fuseBoxLabel("emergency"), Color.valueOf("63e283"), 1)),
+          Stream.of("control", "emergency", "f04", "corridor", "a12")
+              .map(ControlRoom::fuseBoxLabel)
+              .toList());
 
   private final MorphCoLevel level;
   private final MorphCoState state;
@@ -56,7 +79,7 @@ final class ControlRoom {
     if (!state.has(MorphCoState.CARD_USED)) level.door("door_control").close();
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) level.door("door_production").close();
 
-    on("card-slot", (self, player) -> cardSlot(player));
+    MorphCoObjects.on("card-slot", this::setUpCardReader);
     on(
         "warning-sign",
         (self, player) ->
@@ -78,7 +101,15 @@ final class ControlRoom {
     MorphCoObjects.on(
         "phone",
         entity -> {
-          MorphCoProps.interact(entity, (self, player) -> phone(player));
+          entity.add(phone());
+          MorphCoProps.interact(
+              entity,
+              (self, player) ->
+                  PhoneFactory.use(
+                      self,
+                      player,
+                      Map.of(
+                          MorphCoDialogs.MESSAGE_WAITING, !state.has(MorphCoState.MESSAGE_HEARD))));
           if (state.has(MorphCoState.MESSAGE_HEARD)) return;
           if (phoneEmote != null) Game.remove(phoneEmote);
           // Stays until the message has been heard.
@@ -101,6 +132,10 @@ final class ControlRoom {
     MorphCoObjects.on(
         "fuse-box",
         entity -> {
+          CablesComponent cables = new CablesComponent(FUSE_BOX, true);
+          cables.connected(state.has(MorphCoState.FUSE_BOX_WIRED));
+          cables.onConnected(player -> wired(entity, player));
+          entity.add(cables);
           MorphCoProps.interact(entity, this::fuseBox);
           if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
         });
@@ -127,35 +162,24 @@ final class ControlRoom {
         });
   }
 
-  private void cardSlot(Entity player) {
+  private void setUpCardReader(Entity entity) {
+    CardReaderComponent reader = new CardReaderComponent(CardReaderFactory.DEFAULT_PACE);
+    reader.onAccepted(this::openControlRoom);
+    entity.add(reader);
+    MorphCoProps.interact(entity, this::cardSlot);
+  }
+
+  private void cardSlot(Entity reader, Entity player) {
     if (level.door("door_control").isOpen()) {
       MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot-open");
       return;
     }
-    UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder().type(MorphCoDialogs.CARD_READER).build(), player.id());
-    ui.registerCallback(
-        MorphCoDialogs.SUBMIT,
-        payload -> {
-          if (!(payload instanceof DialogResponseMessage.StringValue(String swipe))) return;
-          if (CardSwipe.PACE.rate(swipe) != Pace.Result.ACCEPTED) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
-            return;
-          }
-          Game.audio().playGlobal(SoundSpec.builder("kenney_ui_select_001"));
-          // The green light stays on for a moment before the reader closes.
-          EventScheduler.scheduleAction(() -> openControlRoom(player), 700);
-        });
+    CardReaderFactory.use(reader, player);
   }
 
+  // The reader accepts a single swipe and has already closed for every player.
   private void openControlRoom(Entity player) {
-    DoorTile door = level.door("door_control");
-    // Another player may have swiped a moment earlier.
-    if (door.isOpen()) return;
-    door.open();
-    // Closes this reader and any other player's; nobody needs it any more.
-    MorphCoProps.closeDialogs(MorphCoDialogs.CARD_READER, null);
+    level.door("door_control").open();
     level.observe(MorphCoState.CARD_USED);
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);
@@ -224,21 +248,24 @@ final class ControlRoom {
       MorphCoProps.popup(player, "world.control.fuse-box-title", "world.control.fuse-box-wired");
       return;
     }
-    UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder().type(MorphCoDialogs.FUSE_BOX).build(), player.id());
-    ui.registerCallback(
-        MorphCoDialogs.SUBMIT,
-        payload -> {
-          if (!(payload instanceof DialogResponseMessage.StringValue(String wiring))) return;
-          if (!FuseBox.wired(wiring) || !level.observe(MorphCoState.FUSE_BOX_WIRED)) return;
-          // The other players' boxes still show loose cables; this one shows the lit lamps.
-          MorphCoProps.closeDialogs(MorphCoDialogs.FUSE_BOX, ui);
-          MorphCoTracking.interaction("fuse-box", "wired", player);
-          level.save();
-          switchOnEmergencyLight(box);
-          MorphCoAchievements.FUSE_BOX.unlock(player);
-        });
+    // Cables closes the other players' boxes once all cables are in.
+    Cables.show(
+        box,
+        player,
+        MorphCoText.key("world.control.fuse-box-title"),
+        MorphCoText.key("world.control.fuse-box-help"));
+  }
+
+  private static String fuseBoxLabel(String part) {
+    return MorphCoText.key("world.control.fuse-box-" + part);
+  }
+
+  private void wired(Entity box, Entity player) {
+    if (!level.observe(MorphCoState.FUSE_BOX_WIRED)) return;
+    MorphCoTracking.interaction("fuse-box", "wired", player);
+    level.save();
+    switchOnEmergencyLight(box);
+    MorphCoAchievements.FUSE_BOX.unlock(player);
   }
 
   // The entity at the fuse box tells every client that the emergency lighting is on.
@@ -254,54 +281,42 @@ final class ControlRoom {
     Game.add(emergencyLight);
   }
 
-  private void phone(Entity player) {
-    UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder()
-                .type(MorphCoDialogs.PHONE)
-                .put(MorphCoDialogs.MESSAGE_WAITING, !state.has(MorphCoState.MESSAGE_HEARD))
-                .build(),
-            player.id());
-    ui.registerCallback(
-        MorphCoDialogs.SUBMIT,
-        payload -> {
-          if (!(payload instanceof DialogResponseMessage.StringValue(String number))) return;
-          Optional<PhoneLine> line = PhoneLine.dial(number);
-          if (line.isEmpty()) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
-            return;
-          }
-          // The line answers in its own dialog.
-          UIUtils.closeDialog(ui, true);
-          call(line.get(), number, player);
-        });
+  // The note on the phone lists the mailbox, the hotline and the security service. Rosi's
+  // extension is on the shift plan on the table; the error codes of F-04 and A-12 come from the
+  // production control system and get an announcement.
+  private PhoneComponent phone() {
+    PhoneComponent phone = new PhoneComponent(EXTENSION_DIGITS);
+    phone.addLine(new PhoneLine(MAILBOX, "ui.phone.MAILBOX", true), this::mailbox);
+    phone.addLine(new PhoneLine("42", "ui.phone.HOTLINE", true), hotline::call);
+    phone.addLine(
+        new PhoneLine("11", "ui.phone.SECURITY", true),
+        player ->
+            nobodyAnswers(
+                player, MorphCoState.CALLED_SECURITY, "world.control.phone-security-result"));
+    phone.addLine(
+        new PhoneLine("17", "", false),
+        player ->
+            nobodyAnswers(player, MorphCoState.CALLED_ROSI, "world.control.phone-rosi-result"));
+    for (String code : List.of("133", "204")) {
+      phone.addLine(
+          new PhoneLine(code, "", false),
+          player -> MorphCoProps.popup(player, PHONE, "world.control.phone-error-code", code));
+    }
+    return phone;
   }
 
-  private void call(PhoneLine line, String number, Entity player) {
-    switch (line) {
-      case MAILBOX -> {
-        boolean fresh = level.observe(MorphCoState.MESSAGE_HEARD);
-        if (phoneEmote != null) Game.remove(phoneEmote);
-        phoneEmote = null;
-        MorphCoProps.popup(
-            player,
-            PHONE,
-            fresh ? "world.control.phone-message" : "world.control.phone-no-message");
-      }
-      case HOTLINE -> hotline.call(player);
-      case SECURITY -> {
-        boolean first = level.observe(MorphCoState.CALLED_SECURITY);
-        MorphCoProps.popup(player, PHONE, "world.control.phone-security-result");
-        if (first) nobodyHome(player);
-      }
-      case ROSI -> {
-        boolean first = level.observe(MorphCoState.CALLED_ROSI);
-        MorphCoProps.popup(player, PHONE, "world.control.phone-rosi-result");
-        if (first) nobodyHome(player);
-      }
-      case ERROR_CODE ->
-          MorphCoProps.popup(player, PHONE, "world.control.phone-error-code", number);
-    }
+  private void mailbox(Entity player) {
+    boolean fresh = level.observe(MorphCoState.MESSAGE_HEARD);
+    if (phoneEmote != null) Game.remove(phoneEmote);
+    phoneEmote = null;
+    MorphCoProps.popup(
+        player, PHONE, fresh ? "world.control.phone-message" : "world.control.phone-no-message");
+  }
+
+  private void nobodyAnswers(Entity player, String flag, String textKey) {
+    boolean first = level.observe(flag);
+    MorphCoProps.popup(player, PHONE, textKey);
+    if (first) nobodyHome(player);
   }
 
   // Only the first call of a line can complete the pair, so the achievement pops up once.

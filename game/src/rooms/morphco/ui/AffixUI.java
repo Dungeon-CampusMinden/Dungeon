@@ -16,6 +16,7 @@ import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.interaction.sorting.SortBoard;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,7 +38,7 @@ final class AffixUI extends MorphCoConsoleUI {
 
   private static final float SPACE = 16;
 
-  private final SortBoard board = new SortBoard(area(), this::changed);
+  private final SortBoard board = new MorphCoSortBoard(area(), this::changed);
   private final Map<String, TreeSet<Integer>> cuts = new HashMap<>();
   private final Map<String, PanelNode> benches = new LinkedHashMap<>();
   private final Map<String, Table> letterRows = new HashMap<>();
