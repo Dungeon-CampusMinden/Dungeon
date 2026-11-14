@@ -15,16 +15,17 @@ import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import java.util.List;
-import rooms.morphco.puzzles.PhoneLine;
+import feature.interaction.phone.Dialer;
+import feature.interaction.phone.PhoneLine;
 import rooms.morphco.util.MorphCoText;
 
 /**
- * The phone in the control room: handset, mailbox lamp, keypad and the note with the important
- * extensions.
+ * The engine's phone in the control room, in the look of the room's consoles: handset, mailbox
+ * lamp, keypad and the note with the important extensions.
  *
- * <p>Confirming the digits dials. An unknown number gets "no connection" right away; for a {@link
- * PhoneLine} the server closes the phone and lets the line answer.
+ * <p>Confirming the digits dials through the engine's {@link Dialer}. An unknown number gets "no
+ * connection" right away; for a line the server closes the phone and lets the line answer. The
+ * names of the listed lines are text keys of the room.
  */
 final class PhoneUI extends MorphCoConsoleUI {
 
@@ -39,9 +40,10 @@ final class PhoneUI extends MorphCoConsoleUI {
   private static final Color HANDSET_EDGE = Color.valueOf("96461a");
 
   private final boolean messageWaiting;
+  private final Dialer dialer;
   private final Phone phone = area().addNode(new Phone());
-  private final KeypadNode keypad = area().addNode(new KeypadNode("keypad", 4, this::dial));
-  private final PanelNode note = area().addNode(new PanelNode("note", PanelNode.Look.PAPER, 16));
+  private final KeypadNode keypad;
+  private final PanelNode note;
 
   private PhoneUI(DialogContext context) {
     super(
@@ -51,6 +53,9 @@ final class PhoneUI extends MorphCoConsoleUI {
             messageWaiting(context) ? "world.control.phone" : "world.control.phone-quiet"),
         MorphCoText.text("ui.phone.help"));
     messageWaiting = messageWaiting(context);
+    dialer = new Dialer(context);
+    keypad = area().addNode(new KeypadNode("keypad", dialer.maxDigits(), this::dial));
+    note = area().addNode(new PanelNode("note", PanelNode.Look.PAPER, 16));
     // Below the strip of tape.
     note.content().padTop(8).defaults().left();
     note.content()
@@ -59,9 +64,9 @@ final class PhoneUI extends MorphCoConsoleUI {
         .growX()
         .padBottom(10)
         .row();
-    for (PhoneLine line : List.of(PhoneLine.MAILBOX, PhoneLine.HOTLINE, PhoneLine.SECURITY)) {
+    for (PhoneLine line : dialer.note()) {
       note.content()
-          .add(MorphCoUI.label(MorphCoText.text("ui.phone." + line.name()), 16, MorphCoUI.INK))
+          .add(MorphCoUI.label(MorphCoText.text(line.name()), 16, MorphCoUI.INK))
           .growX()
           .padBottom(6);
       Label number = MorphCoUI.bold(line.number(), 18, MorphCoUI.INK);
@@ -111,8 +116,7 @@ final class PhoneUI extends MorphCoConsoleUI {
   }
 
   private void dial(String digits) {
-    submit(digits);
-    if (PhoneLine.dial(digits).isPresent()) {
+    if (dialer.dial(digits)) {
       // The display keeps the call until the server closes the phone, so OK cannot dial twice.
       keypad.show(MorphCoText.text("ui.phone.calling"), MorphCoUI.SIGNAL);
       return;

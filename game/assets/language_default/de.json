@@ -169,6 +169,16 @@
             "fallback_username": "Player",
             "client_version": "Client-Version"
         },
+        "phone_dialog": {
+            "title": "Telefon",
+            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf.",
+            "clear": "C",
+            "dial": "OK",
+            "calling": "WÄHLE ...",
+            "no_connection_short": "UNBEKANNT",
+            "no_connection": "Kein Anschluss unter dieser Nummer.",
+            "note_title": "Wichtige Durchwahlen"
+        },
         "keypad_dialog": {
             "back": "Zurück",
             "space": "Leertaste",

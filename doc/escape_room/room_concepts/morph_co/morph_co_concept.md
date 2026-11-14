@@ -204,9 +204,12 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
   `pull` für den Hebel) und Hinweise über `MorphCoTracking`: die der Schichtleitung als Schritt
   (`hint-alarm`), die der Technik-Hotline mit Stufe (`hint-alarm:direction`, `:tip`, `:solution`).
-- **Telefon:** `PhoneUI` prüft die Nummer mit `PhoneLine` und zeigt „Kein Anschluss“ sofort. Jede
-  Nummer geht an den Server; er schlägt sie erneut nach. Bei einer bekannten Nummer schließt er den
-  Telefondialog und lässt die Leitung antworten. Hinweistexte kommen als Schlüssel beim Client an.
+- **Telefon:** Das Telefon nutzt das Engine-Feature `feature.interaction.phone`. `ControlRoom`
+  legt seine Leitungen an und hängt an jede die Reaktion des Raums, an die 42 die Technik-Hotline.
+  Der Raum registriert für den Dialogtyp `PHONE` sein eigenes Aussehen (`PhoneUI` mit
+  Mailbox-Lampe); der Dialog zeigt „Kein Anschluss“ sofort. Jede Nummer geht an den Server; er
+  schlägt sie erneut nach. Bei einer bekannten Nummer schließt er den Telefondialog und lässt die
+  Leitung antworten. Hinweistexte kommen als Schlüssel beim Client an.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und

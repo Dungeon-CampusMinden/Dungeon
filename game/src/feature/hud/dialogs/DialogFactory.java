@@ -16,6 +16,7 @@ import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.interaction.combinationlock.CombinationLockUI;
 import feature.interaction.keypad.KeypadUI;
+import feature.interaction.phone.PhoneUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
 import feature.puzzle.PuzzleDialog;
@@ -65,6 +66,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.DUAL_INVENTORY, InventoryGUI::buildDual);
     register(DialogType.DefaultTypes.KEYPAD, c -> KeypadUI.build(c, KeypadUI.Layout.NUMERIC));
     register(DialogType.DefaultTypes.TEXT_KEYPAD, c -> KeypadUI.build(c, KeypadUI.Layout.TEXT));
+    register(DialogType.DefaultTypes.PHONE, PhoneUI::build);
     register(DialogType.DefaultTypes.PAUSE_MENU, PauseDialog::build);
     register(DialogType.DefaultTypes.ACHIEVEMENT_POPUP, AchievementPopup::build);
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, MultipleChoiceDialog::build);

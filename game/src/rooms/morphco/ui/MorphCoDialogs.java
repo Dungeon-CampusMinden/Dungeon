@@ -32,8 +32,6 @@ public enum MorphCoDialogs implements DialogType {
   STATION("morphCoStation", StationUI::build),
   /** The production control system in the control room. */
   COMPUTER("morphCoComputer", ComputerUI::build),
-  /** The phone in the control room with its keypad and the note of important extensions. */
-  PHONE("morphCoPhone", PhoneUI::build),
   /** The book of hamster jokes on the shelf of A-12. */
   HAMSTER_BOOK("morphCoHamsterBook", HamsterBookUI::build),
   /** Handbook and morpheme classification. */
@@ -115,9 +113,13 @@ public enum MorphCoDialogs implements DialogType {
     return type;
   }
 
-  /** Registers all dialogs; safe to call several times. */
+  /**
+   * Registers all dialogs and the room's look of the engine's phone in the control room; safe to
+   * call several times.
+   */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
+    DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);
   }
 
   /**
