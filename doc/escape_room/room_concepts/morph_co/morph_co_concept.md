@@ -190,7 +190,11 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Server/Client:** Der Server entscheidet über Fortschritt, Türen, Items und Dialoge. Eigene
   Dialogtypen (`MorphCoDialogs`) werden auf Server und Client registriert. Die UIs prüfen lokal für
   sofortiges Feedback und senden jede Eingabe als `StringValue` an den Server
-  (`MorphCoDialogs.SUBMIT`); die Sicherungsbox schickt erst die fertige Verkabelung.
+  (`MorphCoDialogs.SUBMIT`); die Sicherungsbox schickt erst die fertige Verkabelung. Der
+  Kartenleser am Eingang ist der Kartenleser der Engine (`feature.interaction.cardreader`): Der
+  Raum registriert für dessen Dialogtyp `CARD_READER` sein eigenes Aussehen; Messung und Bewertung
+  des Durchziehens kommen aus der Engine. Er schickt jedes Durchziehen über
+  `CardReaderFactory.SWIPE` statt über `MorphCoDialogs.SUBMIT`.
   `MorphCoSnapshotTranslator` überträgt Kollider und Interaktionsreichweiten.
 - **Lokalisierung:** Alle Texte stehen in `game/assets/language/morphCo/de.json` und `en.json`.
   Der Server verschickt Schlüssel (`MorphCoText.key`), `MorphCoTranslator` löst sie auf dem Client

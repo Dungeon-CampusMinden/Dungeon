@@ -1,8 +1,8 @@
-package rooms.morphco.puzzles;
+package feature.interaction.cardreader;
 
 /**
- * A movement that only counts at the right pace, like the card through the reader or the lever of
- * A-12.
+ * A movement that only counts at the right pace, like the card through a card reader or a lever
+ * that has to be pulled evenly.
  *
  * <p>The client measures how long the movement took to its end and sends it encoded with {@link
  * #encode(long, boolean)}. The server rates it again with {@link #rate(String)}.

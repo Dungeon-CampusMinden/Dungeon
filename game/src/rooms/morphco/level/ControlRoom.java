@@ -2,7 +2,6 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
-import engine.level.elements.tile.DoorTile;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
@@ -11,16 +10,16 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import feature.interaction.cardreader.CardReaderComponent;
+import feature.interaction.cardreader.CardReaderFactory;
 import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
-import rooms.morphco.puzzles.CardSwipe;
 import rooms.morphco.puzzles.FuseBox;
 import rooms.morphco.puzzles.MorphemeQuestions;
-import rooms.morphco.puzzles.Pace;
 import rooms.morphco.puzzles.PhoneLine;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
@@ -56,7 +55,7 @@ final class ControlRoom {
     if (!state.has(MorphCoState.CARD_USED)) level.door("door_control").close();
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) level.door("door_production").close();
 
-    on("card-slot", (self, player) -> cardSlot(player));
+    MorphCoObjects.on("card-slot", this::setUpCardReader);
     on(
         "warning-sign",
         (self, player) ->
@@ -127,35 +126,24 @@ final class ControlRoom {
         });
   }
 
-  private void cardSlot(Entity player) {
+  private void setUpCardReader(Entity entity) {
+    CardReaderComponent reader = new CardReaderComponent(CardReaderFactory.DEFAULT_PACE);
+    reader.onAccepted(this::openControlRoom);
+    entity.add(reader);
+    MorphCoProps.interact(entity, this::cardSlot);
+  }
+
+  private void cardSlot(Entity reader, Entity player) {
     if (level.door("door_control").isOpen()) {
       MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot-open");
       return;
     }
-    UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder().type(MorphCoDialogs.CARD_READER).build(), player.id());
-    ui.registerCallback(
-        MorphCoDialogs.SUBMIT,
-        payload -> {
-          if (!(payload instanceof DialogResponseMessage.StringValue(String swipe))) return;
-          if (CardSwipe.PACE.rate(swipe) != Pace.Result.ACCEPTED) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
-            return;
-          }
-          Game.audio().playGlobal(SoundSpec.builder("kenney_ui_select_001"));
-          // The green light stays on for a moment before the reader closes.
-          EventScheduler.scheduleAction(() -> openControlRoom(player), 700);
-        });
+    CardReaderFactory.use(reader, player);
   }
 
+  // The reader accepts a single swipe and has already closed for every player.
   private void openControlRoom(Entity player) {
-    DoorTile door = level.door("door_control");
-    // Another player may have swiped a moment earlier.
-    if (door.isOpen()) return;
-    door.open();
-    // Closes this reader and any other player's; nobody needs it any more.
-    MorphCoProps.closeDialogs(MorphCoDialogs.CARD_READER, null);
+    level.door("door_control").open();
     level.observe(MorphCoState.CARD_USED);
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);

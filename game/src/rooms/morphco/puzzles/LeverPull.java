@@ -1,5 +1,7 @@
 package rooms.morphco.puzzles;
 
+import feature.interaction.cardreader.Pace;
+
 /**
  * The lever of the affix sorter A-12: once the input shafts are filled, an even pull from the top
  * to the bottom restarts the sorter.

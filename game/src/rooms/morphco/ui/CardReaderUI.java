@@ -1,35 +1,29 @@
 package rooms.morphco.ui;
 
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import rooms.morphco.puzzles.CardSwipe;
-import rooms.morphco.puzzles.Pace;
+import feature.interaction.cardreader.CardSwipe;
+import feature.interaction.cardreader.Pace;
+import java.util.Optional;
 import rooms.morphco.util.MorphCoText;
 
 /**
- * The card reader next to the control room door.
+ * The card reader next to the control room door, in the look of the room's consoles.
  *
- * <p>The player drags the security card through the slot; what counts is the time until the card
- * reaches the end. Without a mouse the player holds space or the right arrow key while the card
- * runs through on its own; then the time until the key is let go counts. The reader's display rates
- * the swipe with {@link CardSwipe#PACE} right away; the server rates it again and opens the door.
+ * <p>The swipe works like the engine's card reader, see {@link CardSwipe}: the player drags the
+ * security card through the slot or holds space or the right arrow key. The reader's display rates
+ * the swipe right away; the server rates it again and opens the door.
  */
 final class CardReaderUI extends MorphCoConsoleUI {
 
@@ -48,16 +42,11 @@ final class CardReaderUI extends MorphCoConsoleUI {
   private static final float LCD_HEIGHT = 156;
   private static final float LCD_PAD = 20;
 
-  /** Without a mouse the card needs this long for the slot, so letting go at the end fits. */
-  private static final float KEY_RUN_SECONDS = 0.45f;
-
   private final Reader reader = area().addNode(new Reader());
   private final Card card = area().addNode(new Card());
+  private final CardSwipe swipe;
+  private Optional<Pace.Result> shown = Optional.empty();
   private float left;
-  private long startedAt = -1;
-  private long arrivedAt = -1;
-  private boolean keyRun;
-  private float pull;
 
   private CardReaderUI(DialogContext context) {
     super(
@@ -65,26 +54,8 @@ final class CardReaderUI extends MorphCoConsoleUI {
         MorphCoText.text("world.entrance.swipe-title"),
         "",
         MorphCoText.text("world.entrance.swipe-help"));
-    addListener(
-        new InputListener() {
-          @Override
-          public boolean keyDown(InputEvent event, int keycode) {
-            if (!swipeKey(keycode) || !card.movable() || startedAt >= 0) return false;
-            card.clearActions();
-            card.setX(left + START_X);
-            reader.reset();
-            keyRun = true;
-            startedAt = TimeUtils.millis();
-            return true;
-          }
-
-          @Override
-          public boolean keyUp(InputEvent event, int keycode) {
-            if (!swipeKey(keycode) || !keyRun) return false;
-            release(TimeUtils.timeSinceMillis(startedAt));
-            return true;
-          }
-        });
+    swipe = new CardSwipe(context);
+    addListener(swipe.keys());
   }
 
   /**
@@ -98,18 +69,11 @@ final class CardReaderUI extends MorphCoConsoleUI {
     return new CardReaderUI(context);
   }
 
-  private static boolean swipeKey(int keycode) {
-    return keycode == Input.Keys.SPACE || keycode == Input.Keys.RIGHT;
-  }
-
   @Override
   protected float arrange(float width, float height) {
-    // The card keeps its place in the slot when the reader moves to the new center.
-    float inSlot = card.getX() - left;
     left = Math.max(0, Math.round((width - READER_WIDTH) / 2));
     reader.position(left, -MARGIN - READER_HEIGHT);
-    card.clearActions();
-    card.position(left + inSlot, -MARGIN - READER_HEIGHT - CARD_HEIGHT);
+    card.position(cardX(), -MARGIN - READER_HEIGHT - CARD_HEIGHT);
     return MARGIN + READER_HEIGHT + CARD_HEIGHT + MARGIN;
   }
 
@@ -123,27 +87,19 @@ final class CardReaderUI extends MorphCoConsoleUI {
   @Override
   public void act(float delta) {
     super.act(delta);
-    if (keyRun) {
-      float step = (END_X - START_X) / KEY_RUN_SECONDS * delta;
-      card.setX(Math.min(left + END_X, card.getX() + step));
+    swipe.act(delta);
+    card.setX(cardX());
+    if (swipe.result().equals(shown)) return;
+    shown = swipe.result();
+    shown.ifPresentOrElse(reader::show, reader::reset);
+    if (swipe.accepted()) {
+      card.movable(false);
+      card.setUserObject(Cursors.DEFAULT);
     }
   }
 
-  private void release(long millis) {
-    String swipe = Pace.encode(millis, card.getX() >= left + END_X);
-    startedAt = -1;
-    arrivedAt = -1;
-    keyRun = false;
-    pull = 0;
-    Pace.Result result = CardSwipe.PACE.rate(swipe);
-    submit(swipe);
-    reader.show(result);
-    if (result == Pace.Result.ACCEPTED) {
-      card.movable(false);
-      card.setUserObject(Cursors.DEFAULT);
-    } else {
-      card.addAction(Actions.moveTo(left + START_X, card.getY(), 0.25f, Interpolation.pow2Out));
-    }
+  private float cardX() {
+    return left + START_X + swipe.position() * (END_X - START_X);
   }
 
   /** Housing with the slot, the status display and the light. */
@@ -222,21 +178,12 @@ final class CardReaderUI extends MorphCoConsoleUI {
 
     @Override
     public void onMove(float dx, float dy) {
-      if (!movable() || keyRun) return;
-      if (startedAt < 0) {
-        startedAt = TimeUtils.millis();
-        reader.reset();
-      }
-      clearActions();
-      pull += dx;
-      setX(left + Math.clamp(START_X + pull, START_X, END_X));
-      if (getX() >= left + END_X && arrivedAt < 0) arrivedAt = TimeUtils.millis();
+      swipe.drag(dx / (END_X - START_X));
     }
 
     @Override
     public void onDrop(float worldX, float worldY) {
-      if (startedAt < 0 || keyRun) return;
-      release((arrivedAt < 0 ? TimeUtils.millis() : arrivedAt) - startedAt);
+      swipe.drop();
     }
 
     @Override

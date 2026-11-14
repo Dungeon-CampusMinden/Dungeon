@@ -1,8 +1,9 @@
 package rooms.morphco.puzzles;
 
+import static feature.interaction.cardreader.Pace.encode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static rooms.morphco.puzzles.Pace.encode;
 
+import feature.interaction.cardreader.Pace;
 import org.junit.jupiter.api.Test;
 
 class LeverPullTest {
