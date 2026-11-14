@@ -34,6 +34,7 @@ public final class PrefabCatalog {
               "torch",
               "keypad",
               "text-keypad",
+              "card-reader",
               "deco-interaction",
               "trigger"),
           new CategoryDefinition(
@@ -59,6 +60,7 @@ public final class PrefabCatalog {
           Map.entry("torch", () -> spritesheet("objects/torch", "on", null)),
           Map.entry("keypad", () -> texture("objects/keypad/on.png", "123")),
           Map.entry("text-keypad", () -> texture("objects/keypad/off.png", "ABC")),
+          Map.entry("card-reader", () -> texture("objects/card_reader/closed.png", null)),
           Map.entry("deco-interaction", () -> deco(Deco.BookshelfLarge, "!")),
           Map.entry("image-puzzle", () -> texture("items/puzzle-piece.png", null)),
           Map.entry("item-receptacle", () -> deco(Deco.Cabinet, null)),

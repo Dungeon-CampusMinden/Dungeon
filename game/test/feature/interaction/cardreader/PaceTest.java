@@ -1,13 +1,13 @@
-package rooms.morphco.puzzles;
+package feature.interaction.cardreader;
 
+import static feature.interaction.cardreader.Pace.encode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static rooms.morphco.puzzles.Pace.encode;
 
 import org.junit.jupiter.api.Test;
 
-class CardSwipeTest {
+class PaceTest {
 
-  private static final Pace PACE = CardSwipe.PACE;
+  private static final Pace PACE = CardReaderFactory.DEFAULT_PACE;
 
   @Test
   void swipeAtAModeratePaceIsAccepted() {

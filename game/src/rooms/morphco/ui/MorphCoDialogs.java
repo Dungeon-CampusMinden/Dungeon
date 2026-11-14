@@ -14,8 +14,6 @@ import java.util.function.Function;
  * back through the callback {@link #SUBMIT}.
  */
 public enum MorphCoDialogs implements DialogType {
-  /** Swiping the security card through the reader at the entrance. */
-  CARD_READER("morphCoCardReader", CardReaderUI::build),
   /** Plugging the cables of the fuse box in the control room back in. */
   FUSE_BOX("morphCoFuseBox", FuseBoxUI::build),
   /** Word classes for the crates next to the inflection machine. */
@@ -110,9 +108,13 @@ public enum MorphCoDialogs implements DialogType {
     return type;
   }
 
-  /** Registers all dialogs; safe to call several times. */
+  /**
+   * Registers all dialogs and the room's look of the engine's card reader at the entrance; safe to
+   * call several times.
+   */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
+    DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
   }
 
   /**

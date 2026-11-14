@@ -16,12 +16,16 @@ import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogCallbackResolver;
+import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
 import feature.hud.dialogs.DialogInput;
+import feature.hud.dialogs.DialogType;
 import feature.hud.elements.GUICombination;
 import feature.inventory.ui.InventoryGUI;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
@@ -366,5 +370,21 @@ public final class UIUtils {
     } catch (DialogCreationException e) {
       LOGGER.warn("Could not close dialog: {}", e.getMessage());
     }
+  }
+
+  /**
+   * Closes every open dialog of a type that matches a filter, even if the user could not close it,
+   * e.g. the dialogs of the other players once a step has made them outdated.
+   *
+   * @param type dialog type
+   * @param filter selects the dialogs to close by their context
+   */
+  public static void closeDialogs(DialogType type, Predicate<DialogContext> filter) {
+    Game.entities(Set.of(UIComponent.class))
+        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+        .filter(ui -> ui.dialogContext().dialogType() == type)
+        .filter(ui -> filter.test(ui.dialogContext()))
+        .toList()
+        .forEach(ui -> closeDialog(ui, true));
   }
 }
