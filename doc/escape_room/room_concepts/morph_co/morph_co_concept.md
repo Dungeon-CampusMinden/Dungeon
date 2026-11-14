@@ -196,6 +196,10 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   des Durchziehens kommen aus der Engine. Er schickt jedes Durchziehen über
   `CardReaderFactory.SWIPE` statt über `MorphCoDialogs.SUBMIT`.
   `MorphCoSnapshotTranslator` überträgt Kollider und Interaktionsreichweiten.
+- **Zuordnen:** Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf
+  dem Zuordnungs-Board des Engine-Features `feature.interaction.sorting` (`SortBoard`, im Aussehen
+  der Halle `MorphCoSortBoard`). Rätselmodelle, Prüfungen und Antworten bleiben im Raum, deshalb
+  behalten die vier Dialoge ihre eigenen Dialogtypen.
 - **Lokalisierung:** Alle Texte stehen in `game/assets/language/morphCo/de.json` und `en.json`.
   Der Server verschickt Schlüssel (`MorphCoText.key`), `MorphCoTranslator` löst sie auf dem Client
   auf. Die deutschen Beispielwörter bleiben auch in der englischen Fassung deutsch.

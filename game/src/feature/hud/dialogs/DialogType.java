@@ -79,7 +79,10 @@ public interface DialogType {
     COMBINATION_LOCK("COMBINATION_LOCK"),
 
     /** Card reader through which a card is swiped at the right pace. */
-    CARD_READER("CARD_READER");
+    CARD_READER("CARD_READER"),
+
+    /** Board on which terms are sorted into labelled bins. */
+    SORTING("SORTING");
 
     private final String type;
 

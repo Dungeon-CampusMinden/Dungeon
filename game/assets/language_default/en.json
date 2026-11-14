@@ -185,6 +185,15 @@
         },
         "inventory_dialog": {
             "title": "INVENTORY"
+        },
+        "sorting_dialog": {
+            "title": "Sort the terms",
+            "help": "Drag each term into the matching box, or click the term and then the box. Leave terms that don't belong in any box where they are. Esc closes the window.",
+            "close": "Close",
+            "reset": "Reset",
+            "check": "Check",
+            "wrong": "$1 still wrong",
+            "solved": "Everything sorted correctly!"
         }
     },
     "achievement": {

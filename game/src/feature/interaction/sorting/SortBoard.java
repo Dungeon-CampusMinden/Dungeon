@@ -1,13 +1,16 @@
-package rooms.morphco.ui;
+package feature.interaction.sorting;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.Cursors;
+import engine.utils.FontSpec;
+import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasArea;
 import feature.canvas.CanvasDragContext;
 import feature.canvas.CanvasGraphics;
@@ -27,22 +30,44 @@ import java.util.Map;
  *
  * <p>Bins handle their clicks themselves: the canvas raises every node it handles a press on, which
  * would cover the chips lying in them.
+ *
+ * <p>The dialog places slots and bins, e.g. with {@link #flow} and {@link #grid}, and then calls
+ * {@link #arrange()}. The board draws in the plain look of the engine's {@link SortingUI}; a room
+ * gives it its own look by overriding {@link #label}, {@link #ink}, {@link #ghost}, {@link
+ * #drawChip}, {@link #drawSlot} and {@link #drawBin}.
  */
-final class SortBoard {
+public class SortBoard {
 
   /** Height of a chip. */
-  static final float CHIP_HEIGHT = 36;
+  public static final float CHIP_HEIGHT = 36;
 
   /** Space between chips and between rows of chips. */
   static final float GAP = 8;
 
+  /** Height of the title strip at the top of a bin. */
+  protected static final float BIN_HEADER = 42;
+
+  /** Space between the edge of a bin and its chips. */
+  protected static final float BIN_PAD = 12;
+
   private static final float BIN_GAP = 12;
-  private static final float BIN_HEADER = 42;
-  private static final float BIN_PAD = 12;
   private static final String HOME = "#home";
   private static final float TEXT_LEFT = 16;
   private static final float TEXT_RIGHT = 6;
   private static final float TEXT_BOTTOM = 4;
+
+  /** Text color of the engine's look, shared with {@link SortingUI}. */
+  static final Color INK = Color.valueOf("1b1f27");
+
+  private static final Color GHOST = Color.valueOf("8a919e");
+  private static final Color CARD = Color.valueOf("fbfbf8");
+  private static final Color CHOSEN = Color.valueOf("f6d76b");
+  private static final Color EDGE = Color.valueOf("5b6474");
+  private static final Color RECESS = Color.valueOf("e2ddd0");
+  private static final Color BIN = Color.valueOf("d3ccbc");
+  private static final Color WELL = Color.valueOf("f7f5ef");
+  private static final Color WELL_OVER = Color.valueOf("dce8f5");
+  private static final Color SIGNAL = Color.valueOf("3b6ea8");
 
   private final CanvasArea area;
   private final Runnable onChange;
@@ -58,7 +83,7 @@ final class SortBoard {
    * @param area canvas that shows the chips, slots and bins
    * @param onChange called after every change of the placement
    */
-  SortBoard(CanvasArea area, Runnable onChange) {
+  public SortBoard(CanvasArea area, Runnable onChange) {
     this.area = area;
     this.onChange = onChange;
   }
@@ -70,7 +95,7 @@ final class SortBoard {
    * @param maxWidth available width of a row
    * @return offset of every chip from the top left corner (y grows downwards) and the total height
    */
-  static Flow flow(List<Float> widths, float maxWidth) {
+  public static Flow flow(List<Float> widths, float maxWidth) {
     List<Vector2> offsets = new ArrayList<>();
     float x = 0;
     float y = 0;
@@ -86,28 +111,6 @@ final class SortBoard {
   }
 
   /**
-   * Lays out slots in rows on a belt or tray, right of the belt's own content such as a label.
-   *
-   * @param belt the belt; it gets the given width and the height its rows need
-   * @param slots slots on the belt in order
-   * @param top upper edge of the belt
-   * @param width belt width
-   * @return belt height
-   */
-  static float belt(PanelNode belt, List<Slot> slots, float top, float width) {
-    float pad = 12;
-    float indent = belt.content().getPrefWidth() + 24;
-    Flow flow = flow(slots.stream().map(Slot::measure).toList(), width - indent - pad);
-    float height = flow.height() + 2 * pad;
-    belt.size(width, height).position(0, top - height);
-    for (int index = 0; index < slots.size(); index++) {
-      Vector2 offset = flow.offsets().get(index);
-      slots.get(index).position(indent + offset.x, top - pad - offset.y - CHIP_HEIGHT);
-    }
-    return height;
-  }
-
-  /**
    * Lays out bins in a grid; the bins of a row share the height of the fullest one.
    *
    * @param bins bins in order
@@ -117,7 +120,7 @@ final class SortBoard {
    * @param width grid width
    * @return grid height
    */
-  static float grid(List<Bin> bins, int columns, float left, float top, float width) {
+  public static float grid(List<Bin> bins, int columns, float left, float top, float width) {
     float binWidth = (width - (columns - 1) * BIN_GAP) / columns;
     float y = top;
     for (int first = 0; first < bins.size(); first += columns) {
@@ -140,7 +143,7 @@ final class SortBoard {
    * @param offsets offset of every box from the top left corner, y grows downwards
    * @param height total height of all rows
    */
-  record Flow(List<Vector2> offsets, float height) {}
+  public record Flow(List<Vector2> offsets, float height) {}
 
   /**
    * Registers an item with its chip and home slot.
@@ -150,7 +153,7 @@ final class SortBoard {
    * @param size font size of the chip
    * @return home slot; the dialog positions it and the chip follows
    */
-  Slot item(String id, String label, int size) {
+  public Slot item(String id, String label, int size) {
     Chip chip = area.addNode(new Chip(id, label, size));
     chip.z(2);
     chips.put(id, chip);
@@ -168,7 +171,7 @@ final class SortBoard {
    * @param minHeight minimum height of the bin
    * @return the bin
    */
-  Bin bin(String id, String title, int capacity, float minHeight) {
+  public Bin bin(String id, String title, int capacity, float minHeight) {
     Bin bin = area.addNode(new Bin(id, title, capacity, minHeight));
     bins.put(id, bin);
     return bin;
@@ -179,7 +182,7 @@ final class SortBoard {
    *
    * @param prefix ID prefix
    */
-  void removeItems(String prefix) {
+  public void removeItems(String prefix) {
     placement.keySet().removeIf(id -> id.startsWith(prefix));
     for (String id : List.copyOf(chips.keySet())) {
       if (!id.startsWith(prefix)) continue;
@@ -195,7 +198,7 @@ final class SortBoard {
    * @param item item ID
    * @param bin bin ID
    */
-  void place(String item, String bin) {
+  public void place(String item, String bin) {
     if (!chips.containsKey(item) || !bins.containsKey(bin)) return;
     int capacity = bins.get(bin).capacity;
     if (capacity > 0 && !bin.equals(placement.get(item))) {
@@ -219,7 +222,7 @@ final class SortBoard {
   }
 
   /** Puts all items back home. */
-  void clear() {
+  public void clear() {
     placement.clear();
     selected = null;
     onChange.run();
@@ -230,7 +233,7 @@ final class SortBoard {
    *
    * @return copy of the bin of every placed item
    */
-  Map<String, String> placement() {
+  public Map<String, String> placement() {
     return new LinkedHashMap<>(placement);
   }
 
@@ -268,7 +271,7 @@ final class SortBoard {
   }
 
   /** Moves every chip to its slot or into its bin; slots and bins must be placed already. */
-  void arrange() {
+  public void arrange() {
     for (Bin bin : bins.values()) {
       List<String> items = itemsIn(bin.id());
       Flow flow = flow(widths(items), bin.width() - 2 * BIN_PAD);
@@ -296,23 +299,128 @@ final class SortBoard {
         .toList();
   }
 
-  // A factory tag with its punched hole; a lifted tag casts a shadow, a lifted or chosen one has a
-  // black edge.
-  private static void drawTag(
-      Batch batch, float alpha, CanvasNode tag, Color face, boolean lifted, boolean chosen) {
-    float x = tag.x();
-    float y = tag.y();
-    if (lifted)
-      CanvasGraphics.fill(
-          batch, Color.BLACK, alpha * .35f, x + 5, y - 5, tag.width(), tag.height());
-    MorphCoUI.plate(batch, face, alpha, x, y, tag.width(), tag.height());
-    CanvasGraphics.fill(batch, MorphCoUI.INSET, alpha, x + 6, y + tag.height() / 2 - 3, 6, 6);
-    if (lifted || chosen)
-      CanvasGraphics.outline(batch, MorphCoUI.INK, alpha, x, y, tag.width(), tag.height(), 2);
-  }
-
   private List<Float> widths(List<String> items) {
     return items.stream().map(id -> chips.get(id).measure()).toList();
+  }
+
+  // The look creates the label; wrapping, alignment and clicks stay with the board.
+  private Label text(String text, int size, Color color, int align) {
+    Label label = label(text, size, color);
+    label.setWrap(false);
+    label.setAlignment(align);
+    label.setTouchable(Touchable.disabled);
+    return label;
+  }
+
+  /**
+   * Creates the text of a chip, of a ghost or of a bin title.
+   *
+   * @param text displayed text
+   * @param size logical font size
+   * @param color text color
+   * @return the label
+   */
+  protected Label label(String text, int size, Color color) {
+    return Scene2dElementFactory.createLabel(
+        text, FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, size, color));
+  }
+
+  /**
+   * Returns the color of chip texts and bin titles.
+   *
+   * @return text color
+   */
+  protected Color ink() {
+    return INK;
+  }
+
+  /**
+   * Returns the color of the grey ghost that a placed item leaves in its slot.
+   *
+   * @return ghost color
+   */
+  protected Color ghost() {
+    return GHOST;
+  }
+
+  /**
+   * Draws a chip, or the ghost of a placed item while it is dragged. The text is drawn on top, with
+   * some more room on the left than on the right.
+   *
+   * @param batch batch to draw with
+   * @param alpha inherited alpha
+   * @param chip the chip or slot
+   * @param lifted whether it is being dragged
+   * @param chosen whether its item is selected, so a click on a bin places it there
+   */
+  protected void drawChip(
+      Batch batch, float alpha, CanvasNode chip, boolean lifted, boolean chosen) {
+    float x = chip.x();
+    float y = chip.y();
+    if (lifted)
+      CanvasGraphics.fill(
+          batch, Color.BLACK, alpha * .25f, x + 4, y - 4, chip.width(), chip.height());
+    CanvasGraphics.fill(batch, chosen ? CHOSEN : CARD, alpha, x, y, chip.width(), chip.height());
+    // A grip on the left shows that the chip can be moved.
+    for (int row = 0; row < 3; row++) {
+      for (int column = 0; column < 2; column++) {
+        CanvasGraphics.fill(batch, GHOST, alpha, x + 5 + 4 * column, y + 12 + 5 * row, 2, 2);
+      }
+    }
+    CanvasGraphics.outline(
+        batch, lifted || chosen ? INK : EDGE, alpha, x, y, chip.width(), chip.height(), 2);
+  }
+
+  /**
+   * Draws the empty home slot of an item; the ghost of a placed item is drawn on top.
+   *
+   * @param batch batch to draw with
+   * @param alpha inherited alpha
+   * @param slot the slot
+   * @param chosen whether its item is selected, so a click on a bin moves it there
+   */
+  protected void drawSlot(Batch batch, float alpha, CanvasNode slot, boolean chosen) {
+    CanvasGraphics.fill(batch, RECESS, alpha, slot.x(), slot.y(), slot.width(), slot.height());
+    CanvasGraphics.outline(
+        batch,
+        chosen ? SIGNAL : GHOST,
+        alpha,
+        slot.x(),
+        slot.y(),
+        slot.width(),
+        slot.height(),
+        chosen ? 2 : 1);
+  }
+
+  /**
+   * Draws a bin with a title strip of {@link #BIN_HEADER} at the top, whose title is drawn on top,
+   * and room for chips {@link #BIN_PAD} inside its edges.
+   *
+   * @param batch batch to draw with
+   * @param alpha inherited alpha
+   * @param bin the bin
+   * @param over whether a chip is held over the bin
+   * @param armed whether an item is selected, so a click on the bin places it there
+   */
+  protected void drawBin(Batch batch, float alpha, CanvasNode bin, boolean over, boolean armed) {
+    CanvasGraphics.fill(batch, BIN, alpha, bin.x(), bin.y(), bin.width(), bin.height());
+    CanvasGraphics.fill(
+        batch,
+        over ? WELL_OVER : WELL,
+        alpha,
+        bin.x() + BIN_PAD - 4,
+        bin.y() + BIN_PAD - 4,
+        bin.width() - 2 * BIN_PAD + 8,
+        bin.height() - BIN_HEADER - 2 * BIN_PAD + 8);
+    CanvasGraphics.outline(
+        batch,
+        over || armed ? SIGNAL : EDGE,
+        alpha,
+        bin.x(),
+        bin.y(),
+        bin.width(),
+        bin.height(),
+        over ? 4 : 2);
   }
 
   /** The movable label of an item. */
@@ -341,9 +449,7 @@ final class SortBoard {
 
     @Override
     protected void buildContent() {
-      label = MorphCoUI.bold(text, size, MorphCoUI.INK);
-      label.setWrap(false);
-      label.setAlignment(Align.center);
+      label = text(text, size, ink(), Align.center);
       addActor(label);
       size(label.getPrefWidth() + 34, CHIP_HEIGHT);
     }
@@ -356,8 +462,7 @@ final class SortBoard {
 
     @Override
     protected void drawBackground(Batch batch, float alpha) {
-      boolean chosen = id().equals(selected);
-      drawTag(batch, alpha, this, chosen ? MorphCoUI.ORANGE : MorphCoUI.TAG, dragging, chosen);
+      drawChip(batch, alpha, this, dragging, id().equals(selected));
     }
 
     @Override
@@ -397,7 +502,7 @@ final class SortBoard {
    * <p>The ghost can be clicked or dragged like the chip: onto another bin to move the item there,
    * anywhere else to put it back.
    */
-  final class Slot extends CanvasNode {
+  public final class Slot extends CanvasNode {
     private final String item;
     private Label ghost;
     private boolean dragging;
@@ -416,7 +521,7 @@ final class SortBoard {
      *
      * @return slot width
      */
-    float measure() {
+    public float measure() {
       ensureContentBuilt();
       return width();
     }
@@ -424,9 +529,7 @@ final class SortBoard {
     @Override
     protected void buildContent() {
       Chip chip = chips.get(item);
-      ghost = MorphCoUI.bold(chip.text, chip.size, Color.WHITE);
-      ghost.setWrap(false);
-      ghost.setAlignment(Align.center);
+      ghost = text(chip.text, chip.size, Color.WHITE, Align.center);
       addActor(ghost);
       size(chip.measure(), CHIP_HEIGHT);
     }
@@ -443,20 +546,15 @@ final class SortBoard {
       boolean placed = placement.containsKey(item);
       if (ghost != null) {
         ghost.setVisible(placed);
-        ghost.setColor(dragging ? MorphCoUI.INK : MorphCoUI.GHOST);
+        ghost.setColor(dragging ? ink() : ghost());
       }
       setUserObject(placed ? dragging ? Cursors.GRABBING : Cursors.GRAB : Cursors.DEFAULT);
     }
 
     @Override
     protected void drawBackground(Batch batch, float alpha) {
-      if (dragging) {
-        drawTag(batch, alpha, this, MorphCoUI.TAG, true, false);
-        return;
-      }
-      CanvasGraphics.fill(batch, MorphCoUI.INSET, alpha, x(), y(), width(), height());
-      Color edge = item.equals(selected) ? MorphCoUI.ORANGE : MorphCoUI.GHOST;
-      CanvasGraphics.outline(batch, edge, alpha * .8f, x(), y(), width(), height(), 1);
+      if (dragging) drawChip(batch, alpha, this, true, false);
+      else drawSlot(batch, alpha, this, item.equals(selected));
     }
 
     @Override
@@ -491,8 +589,8 @@ final class SortBoard {
     }
   }
 
-  /** A crate, shaft or bowl that takes chips. */
-  final class Bin extends CanvasNode {
+  /** A crate, shaft, bowl or box that takes chips. */
+  public final class Bin extends CanvasNode {
     private final String title;
     private final int capacity;
     private final float minHeight;
@@ -522,7 +620,7 @@ final class SortBoard {
      * @param width bin width
      * @return bin height
      */
-    float fit(float width) {
+    public float fit(float width) {
       Flow flow = flow(widths(itemsIn(id())), width - 2 * BIN_PAD);
       size(width, Math.max(minHeight, BIN_HEADER + 2 * BIN_PAD + flow.height()));
       return height();
@@ -530,8 +628,7 @@ final class SortBoard {
 
     @Override
     protected void buildContent() {
-      heading = MorphCoUI.bold(title, 18, MorphCoUI.INK);
-      heading.setWrap(false);
+      heading = text(title, 18, ink(), Align.topLeft);
       heading.setEllipsis(true);
       addActor(heading);
     }
@@ -549,33 +646,7 @@ final class SortBoard {
 
     @Override
     protected void drawBackground(Batch batch, float alpha) {
-      MorphCoUI.plate(batch, MorphCoUI.STEEL, alpha, x(), y(), width(), height());
-      MorphCoUI.plate(
-          batch,
-          MorphCoUI.TAG,
-          alpha,
-          x() + 12,
-          y() + height() - BIN_HEADER + 2,
-          width() - 24,
-          BIN_HEADER - 8);
-      CanvasGraphics.fill(
-          batch,
-          over ? MorphCoUI.STEEL_DARK : MorphCoUI.INSET,
-          alpha,
-          x() + BIN_PAD - 4,
-          y() + BIN_PAD - 4,
-          width() - 2 * BIN_PAD + 8,
-          height() - BIN_HEADER - 2 * BIN_PAD + 8);
-      if (over || selected != null)
-        CanvasGraphics.outline(
-            batch,
-            MorphCoUI.SIGNAL,
-            alpha * (over ? 1 : .6f),
-            x(),
-            y(),
-            width(),
-            height(),
-            over ? 4 : 2);
+      drawBin(batch, alpha, this, over, selected != null);
     }
 
     @Override

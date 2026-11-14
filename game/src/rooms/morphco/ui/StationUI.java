@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.interaction.sorting.SortBoard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,7 @@ final class StationUI extends MorphCoConsoleUI {
   private static final String LEFT = "left";
   private static final String RIGHT = "right";
 
-  private final SortBoard board = new SortBoard(area(), this::changed);
+  private final SortBoard board = new MorphCoSortBoard(area(), this::changed);
   private final PanelNode tray = area().addNode(new PanelNode("tray", PanelNode.Look.BELT, 10));
   private final List<SortBoard.Slot> slots = new ArrayList<>();
   private final SortBoard.Bin left;
@@ -96,7 +97,7 @@ final class StationUI extends MorphCoConsoleUI {
 
   @Override
   protected float arrange(float width, float height) {
-    float top = -SortBoard.belt(tray, slots, 0, width) - 24;
+    float top = -MorphCoSortBoard.belt(tray, slots, 0, width) - 24;
     float column = (width - 24) / 3;
     float bowls = Math.max(Math.max(left.fit(column), right.fit(column)), middle.fit(column));
     left.size(column, bowls).position(0, top - bowls);

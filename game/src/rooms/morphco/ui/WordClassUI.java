@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.interaction.sorting.SortBoard;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ import rooms.morphco.util.MorphCoText;
  */
 final class WordClassUI extends MorphCoConsoleUI {
 
-  private final SortBoard board = new SortBoard(area(), this::changed);
+  private final SortBoard board = new MorphCoSortBoard(area(), this::changed);
   private final List<PanelNode> belts = new ArrayList<>();
   private final List<List<SortBoard.Slot>> sentences = new ArrayList<>();
   private final List<SortBoard.Bin> crates = new ArrayList<>();
@@ -68,7 +69,7 @@ final class WordClassUI extends MorphCoConsoleUI {
   protected float arrange(float width, float height) {
     float top = 0;
     for (int sentence = 0; sentence < belts.size(); sentence++) {
-      top -= SortBoard.belt(belts.get(sentence), sentences.get(sentence), top, width) + 14;
+      top -= MorphCoSortBoard.belt(belts.get(sentence), sentences.get(sentence), top, width) + 14;
     }
     top -= 10;
     top -= SortBoard.grid(crates, width >= 900 ? crates.size() : 3, 0, top, width);
