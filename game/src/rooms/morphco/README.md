@@ -1,9 +1,71 @@
 # Morph & Co. KG – Die Wörterfabrik
 
-Morphologie-Escape-Room für 1–2 Spieler. Konzept, Lösungsweg und Technik:
-[morph_co_concept.md](../../../../doc/escape_room/room_concepts/morph_co/morph_co_concept.md).
+<p align="center"><img src="../../../../doc/img/readme/morph-co.png" alt="Morph &amp; Co. KG: a technician in the word factory in front of crates for the word classes and a conveyor belt"></p>
 
-## Aufbau
+A morphology escape room for 1–2 players. There is no release yet. From the repository:
+`./gradlew :game:runMorphCo`
+
+## For players
+
+For centuries, the word factory of Morph & Co. KG has produced every German word. This morning
+the machines went haywire: prefixes end up on the wrong words, inflections get mixed up, and
+quality control has stopped the production. When you arrive, the alarm is so loud that the shift
+supervisor can only shout "ZU LAUT. ALARM!" at you. Silence the alarm, find out what is broken,
+repair the affix sorting unit and the inflection line and restart the production before
+communication collapses. Play alone or with a partner.
+
+## For educators
+
+| | |
+| --- | --- |
+| Subject | German linguistics (Germanistische Linguistik), morphology |
+| Contents | inflectable word classes, prefixes, suffixes and circumfixes, word formation vs. inflection, free morphemes, morpheme analysis |
+| Players | 1–2, alone or in multiplayer |
+| Duration | Planned for 30 to 45 minutes; not yet confirmed in playtests |
+
+Players switch off the alarm in the control room and learn from the production control system
+that two machines are broken. In any order, they sort the words of two sentences into crates for
+the inflectable word classes, cut words into morphemes, sort the affixes and tell word formation
+from inflection, and finally answer a question about the morphemes of *Überlegungen* to restart
+the production. The handout "Morphemtypen und wo sie zu finden sind" is split into two books, one
+in each hall, so both halls depend on each other. Optional extras: a circumfix assembly station, a
+fuse box, a wastepaper basket, phone numbers to try and a book with 100 hamster jokes.
+
+**Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E; B
+opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or click
+a piece and then its target), and the timing puzzles also work with the keyboard. Wrong answers cost
+nothing. The shift supervisor at the entrance gives a hint for the current step. The technical
+hotline (phone in the control room, extension **42**) helps with the same step in three stages: a
+direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
+tasks, clues and every hint heard.
+
+**Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
+and the hints used.
+
+-   [Walkthrough] with screenshots (German, full spoilers, also as [PDF][Walkthrough PDF])
+-   [Concept] (German)
+-   [Handout "Morphemtypen und wo sie zu finden sind"][Handout] (German)
+
+## Technical notes
+
+-   **Play from source:** `./gradlew :game:runMorphCo`
+-   **Multiplayer:** one player chooses *Schicht beginnen* (start shift), the other
+    *Spiel beitreten* (join game). A dedicated server starts with
+    `./gradlew :game:runMorphCoServer`.
+-   **[DEER-Editor] (level editor):** `./gradlew :game:runMorphCoLevelEditor`
+-   **Autoplay:** `./gradlew :game:runMorphCoAutoplay` plays the room once from start to end.
+-   **Tests:** `./gradlew :game:test --tests 'rooms.morphco.*'`
+-   Texts: `game/assets/language/morphCo/` (German and English)
+
+  [Walkthrough]: ../../../../doc/escape_room/room_concepts/morph_co/Morph%20&%20Co%20Walkthrough/MorphCo.md
+  [Walkthrough PDF]: ../../../../doc/escape_room/room_concepts/morph_co/Morph%20&%20Co%20Walkthrough/MorphCo.pdf
+  [Concept]: ../../../../doc/escape_room/room_concepts/morph_co/morph_co_concept.md
+  [Handout]: ../../../../doc/escape_room/room_concepts/morph_co/Handout_Morphemtypen.pdf
+  [DEER-Editor]: ../../../../game/doc/deer_editor.md
+
+## Developer notes (German)
+
+### Aufbau
 
 | Paket | Inhalt |
 | --- | --- |
@@ -15,6 +77,13 @@ Morphologie-Escape-Room für 1–2 Spieler. Konzept, Lösungsweg und Technik:
 | `items` | Zirkumfix-Teile im Inventar |
 | `save`, `network`, `util` | Speicherstand, Snapshot-Erweiterung, Texte, Übersetzer, Achievements, Tracking, Sounds der Dialoge |
 
+Kartenleser, Zuordnungs-Board, Kabel-Stecken und Telefon sind Engine-Features mit Prefabs im
+DEER-Editor (`feature.interaction.cardreader`, `feature.interaction.sorting`,
+`feature.interaction.cables`, `feature.interaction.phone`). Messung, Zuordnen, Stecken und Wählen
+kommen aus der Engine. Morph & Co. liefert nur das Aussehen (`CardReaderUI`, `MorphCoSortBoard`,
+`FuseBoxUI`, `PhoneUI`) und die Rätseldaten: Wörter, Fächer und Prüfungen in `puzzles`, die Kabel
+der Sicherungsbox und die Leitungen des Telefons in `ControlRoom`.
+
 Neue Rätsellogik gehört in den Controller ihres Bereichs; Meilensteine werden nur über
 `MorphCoLevel.complete(...)` abgeschlossen, damit Questlog und Speicherstand mitlaufen.
 
@@ -23,7 +92,7 @@ Gefühle und Reaktionen zeigt der Raum als Emote über der Figur statt im Text:
 (Dialoge verdecken die Figuren). Die Schichtleitung zeigt nach einem Gespräch, wie es ihr gerade
 geht; während der Reparaturen wartet sie nur.
 
-## Objekte platzieren
+### Objekte platzieren
 
 Alle Objekte des Raums sind Prefab-Instanzen vom Typ `morphco-object` in der Level-Datei und werden
 im Level-Editor im Prefab-Modus (4) gesetzt und verschoben. Eine Instanz hat Position, Objektart
@@ -36,12 +105,3 @@ erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es nur noch für 
 Auslöseflächen. Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen
 genügt. Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
 (`*_large.png`).
-
-## Starten
-
-```sh
-./gradlew :game:runMorphCo
-./gradlew :game:runMorphCoLevelEditor
-./gradlew :game:runMorphCoAutoplay
-./gradlew :game:test --tests 'rooms.morphco.*'
-```

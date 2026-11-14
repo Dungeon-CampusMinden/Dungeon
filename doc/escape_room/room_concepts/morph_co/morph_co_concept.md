@@ -4,6 +4,9 @@ Dieses Dokument beschreibt den umgesetzten Escape Room. Grundlage sind das Skrip
 „Morph & Co.“ und das Handout [Morphemtypen und wo sie zu finden sind](Handout_Morphemtypen.pdf)
 (angepasst nach Busch & Stenschke 2014, *Germanistische Linguistik*, S. 83).
 
+Den kompletten Lösungsweg mit Screenshots, Bedienung, Hilfesystem und Achievements zeigt der
+[Walkthrough](Morph%20&%20Co%20Walkthrough/MorphCo.md) ([PDF](Morph%20&%20Co%20Walkthrough/MorphCo.pdf)).
+
 # 1. Überblick
 
 | | |
