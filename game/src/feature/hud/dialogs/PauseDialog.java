@@ -92,22 +92,7 @@ public class PauseDialog extends Table {
    * @return The {@link UIComponent} containing the dialog
    */
   public static UIComponent showPauseDialog(Entity caller) {
-    var openMenu =
-        Game.entities()
-            .filter(Entity::isLocal)
-            .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-            .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.PAUSE_MENU)
-            .filter(
-                ui ->
-                    ui.dialogContext()
-                        .find(DialogContextKeys.ENTITY, Integer.class)
-                        .filter(id -> id == caller.id())
-                        .isPresent())
-            .findFirst();
-    if (openMenu.isPresent()) {
-      UIUtils.closeDialog(openMenu.orElseThrow());
-      return null;
-    }
+    if (UIUtils.closeDialogs(DialogType.DefaultTypes.PAUSE_MENU, caller)) return null;
 
     Entity owner = Entity.createLocalEntity("pause-menu");
     Game.add(owner);

@@ -3,6 +3,8 @@ package feature.prefabs;
 import engine.level.elements.ILevel;
 import feature.prefabs.types.AirVentPrefab;
 import feature.prefabs.types.AvailableCharacterPrefab;
+import feature.prefabs.types.CablesPrefab;
+import feature.prefabs.types.CardReaderPrefab;
 import feature.prefabs.types.DecorationInteractionPrefab;
 import feature.prefabs.types.DelayPrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
@@ -18,6 +20,7 @@ import feature.prefabs.types.LevelHiderPrefab;
 import feature.prefabs.types.LeverPrefab;
 import feature.prefabs.types.MultipleChoiceDialogPrefab;
 import feature.prefabs.types.OncePrefab;
+import feature.prefabs.types.PhonePrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
 import feature.prefabs.types.RandomBoolPrefab;
@@ -25,6 +28,7 @@ import feature.prefabs.types.RandomCodePrefab;
 import feature.prefabs.types.RandomTextPrefab;
 import feature.prefabs.types.ShaderPrefab;
 import feature.prefabs.types.ShowImagePrefab;
+import feature.prefabs.types.SortingPrefab;
 import feature.prefabs.types.SoundEffectPrefab;
 import feature.prefabs.types.TextKeypadPrefab;
 import feature.prefabs.types.TorchPrefab;
@@ -47,6 +51,7 @@ public final class PrefabRegistry {
   static {
     register(new KeypadPrefab(), KeypadPrefab::new);
     register(new TextKeypadPrefab(), TextKeypadPrefab::new);
+    register(new PhonePrefab(), PhonePrefab::new);
     register(new ImagePuzzlePrefab(), ImagePuzzlePrefab::new);
     register(new AvailableCharacterPrefab(), AvailableCharacterPrefab::new);
     register(
@@ -76,6 +81,9 @@ public final class PrefabRegistry {
     register(new AirVentPrefab(), AirVentPrefab::new);
     register(new SoundEffectPrefab(), SoundEffectPrefab::new);
     register(new DoorLockPrefab(), DoorLockPrefab::new);
+    register(new CardReaderPrefab(), CardReaderPrefab::new);
+    register(new SortingPrefab(), SortingPrefab::new);
+    register(new CablesPrefab(), CablesPrefab::new);
   }
 
   private PrefabRegistry() {}

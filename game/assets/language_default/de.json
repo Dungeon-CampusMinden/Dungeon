@@ -169,13 +169,47 @@
             "fallback_username": "Player",
             "client_version": "Client-Version"
         },
+        "phone_dialog": {
+            "title": "Telefon",
+            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf.",
+            "clear": "C",
+            "dial": "OK",
+            "calling": "WÄHLE ...",
+            "no_connection_short": "UNBEKANNT",
+            "no_connection": "Kein Anschluss unter dieser Nummer.",
+            "note_title": "Wichtige Durchwahlen"
+        },
         "keypad_dialog": {
             "back": "Zurück",
             "space": "Leertaste",
             "submit": "Bestätigen"
         },
+        "card_reader_dialog": {
+            "title": "Kartenleser",
+            "help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam. Esc schließt den Kartenleser.",
+            "ready": "BITTE KARTE DURCHZIEHEN",
+            "accepted": "Karte akzeptiert.",
+            "too_fast": "Zu schnell. Bitte noch einmal.",
+            "too_slow": "Zu langsam. Bitte noch einmal.",
+            "incomplete": "Karte nicht erkannt. Bitte ganz durchziehen."
+        },
         "inventory_dialog": {
             "title": "INVENTAR"
+        },
+        "sorting_dialog": {
+            "title": "Begriffe zuordnen",
+            "help": "Ziehe jeden Begriff in das passende Fach oder klicke erst auf den Begriff und dann auf das Fach. Begriffe, die in kein Fach gehören, bleiben liegen. Esc schließt das Fenster.",
+            "close": "Schließen",
+            "reset": "Zurücksetzen",
+            "check": "Prüfen",
+            "wrong": "$1 noch falsch",
+            "solved": "Alles richtig zugeordnet!"
+        },
+        "cables_dialog": {
+            "title": "Kabel",
+            "help": "Ziehe jedes Kabelende in die passende Buchse. Oder klicke erst ein Kabelende an und dann die Buchse.",
+            "wrong": "Passt nicht. Das Kabel springt zurück.",
+            "done": "Alle Kabel stecken."
         }
     },
     "achievement": {
@@ -256,7 +290,8 @@
             "hunter": "Jäger",
             "mushroom_wizard": "Pilz-Zauberer",
             "the_last_hour_rogue": "Schurke",
-            "the_last_hour_char03": "Char03"
+            "the_last_hour_char03": "Char03",
+            "technician": "Technikerin"
         }
     }
 }

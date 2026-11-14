@@ -139,6 +139,7 @@ public class RichLabelParser {
           float scale = params.getFloat("scale", 1f);
           boolean noGapLeft = params.getBoolean("noGapLeft");
           boolean noGapRight = params.getBoolean("noGapRight");
+          String tint = params.getString("color", null);
           runs.add(
               new ImageRun(
                   path,
@@ -151,7 +152,7 @@ public class RichLabelParser {
                   rh,
                   noGapLeft,
                   noGapRight,
-                  Color.WHITE));
+                  tint == null ? Color.WHITE : parseColor(tint)));
         }
       } else if (matcher.group(3) != null) {
         TagParams params = TagParams.parse(matcher.group(3));

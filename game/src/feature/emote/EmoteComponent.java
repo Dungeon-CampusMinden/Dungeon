@@ -1,8 +1,11 @@
 package feature.emote;
 
 import engine.Component;
+import engine.Entity;
+import engine.utils.Vector2;
+import java.util.Optional;
 
-/** Component that stores the emote to be displayed and its duration. */
+/** Component that stores the emote to be displayed, its duration and the entity it follows. */
 public class EmoteComponent implements Component {
 
   private static final float ANIMATION_LENGTH = 1f; // Duration for 1 cycle of wobbling up and down
@@ -10,19 +13,36 @@ public class EmoteComponent implements Component {
 
   private final Emote emote;
   private final int duration;
+  private final Entity target;
+  private final Vector2 offset;
   private float elapsedTime = 0f;
   private float oldT = 0f;
   private float t = 0f;
 
   /**
-   * Creates a new EmoteComponent with the specified emote and duration.
+   * Creates a new EmoteComponent with the specified emote and duration. The emote stays where it
+   * was created.
    *
    * @param emote the emote to be displayed
    * @param duration the duration in milliseconds for which the emote should be displayed
    */
   public EmoteComponent(Emote emote, int duration) {
+    this(emote, duration, null, Vector2.ZERO);
+  }
+
+  /**
+   * Creates a new EmoteComponent for an emote that follows an entity.
+   *
+   * @param emote the emote to be displayed
+   * @param duration the duration in milliseconds for which the emote should be displayed
+   * @param target the entity the emote follows
+   * @param offset offset of the emote's position from the target's center
+   */
+  public EmoteComponent(Emote emote, int duration, Entity target, Vector2 offset) {
     this.emote = emote;
     this.duration = duration;
+    this.target = target;
+    this.offset = offset;
   }
 
   /**
@@ -41,6 +61,24 @@ public class EmoteComponent implements Component {
    */
   public int duration() {
     return duration;
+  }
+
+  /**
+   * Gets the entity the emote follows.
+   *
+   * @return the entity the emote follows, or an empty Optional if the emote stays in place
+   */
+  public Optional<Entity> target() {
+    return Optional.ofNullable(target);
+  }
+
+  /**
+   * Gets the offset of the emote's position from the center of the entity it follows.
+   *
+   * @return the offset from the target's center
+   */
+  public Vector2 offset() {
+    return offset;
   }
 
   /**
@@ -66,9 +104,20 @@ public class EmoteComponent implements Component {
    * @return difference in vertical offset since last frame
    */
   public float getWobbleMoveFrame() {
-    float wobbleOffset = (float) Math.sin(t * 2 * Math.PI) * WOBBLE_DISTANCE;
-    float oldWobbleOffset = (float) Math.sin(oldT * 2 * Math.PI) * WOBBLE_DISTANCE;
-    return wobbleOffset - oldWobbleOffset;
+    return wobbleOffset(t) - wobbleOffset(oldT);
+  }
+
+  /**
+   * Calculates the vertical offset for the wobbling animation in the current frame.
+   *
+   * @return vertical offset from the emote's resting position
+   */
+  public float getWobbleOffset() {
+    return wobbleOffset(t);
+  }
+
+  private static float wobbleOffset(float t) {
+    return (float) Math.sin(t * 2 * Math.PI) * WOBBLE_DISTANCE;
   }
 
   /**

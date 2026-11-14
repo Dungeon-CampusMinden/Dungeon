@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.sound.Sounds;
 import engine.utils.Point;
+import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
@@ -12,7 +13,6 @@ import feature.entities.deco.DecoFactory;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
-import feature.utils.EntityUtils;
 import rooms.lasthour.util.LastHourSounds;
 import rooms.systemRecovery.util.SystemRecoveryAchievements;
 import rooms.systemRecovery.util.SystemRecoveryQuestLogUtil;
@@ -184,8 +184,7 @@ public final class SystemRecoveryPhoneController {
     updatePhoneInteraction();
     if (ringingPhoneEmote == null) {
       ringingPhoneEmote =
-          EmoteFactory.createEmote(
-              EntityUtils.getPosition(phone), Emote.EXCLAMATION, 60 * 60 * 1000);
+          EmoteFactory.createEmote(phone, Vector2.ZERO, Emote.EXCLAMATION, 60 * 60 * 1000);
       Game.add(ringingPhoneEmote);
     }
   }

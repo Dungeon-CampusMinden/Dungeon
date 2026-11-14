@@ -169,13 +169,47 @@
             "fallback_username": "Player",
             "client_version": "Client Version"
         },
+        "phone_dialog": {
+            "title": "Phone",
+            "help": "Dial a number and press OK. You can also type the digits; Enter dials. Esc hangs up.",
+            "clear": "C",
+            "dial": "OK",
+            "calling": "DIALING ...",
+            "no_connection_short": "NO LINE",
+            "no_connection": "The number you have dialed is not in service.",
+            "note_title": "Important extensions"
+        },
         "keypad_dialog": {
             "back": "Back",
             "space": "Spacebar",
             "submit": "Submit"
         },
+        "card_reader_dialog": {
+            "title": "Card reader",
+            "help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Not too fast, not too slow. Esc closes the card reader.",
+            "ready": "PLEASE SWIPE CARD",
+            "accepted": "Card accepted.",
+            "too_fast": "Too fast. Please try again.",
+            "too_slow": "Too slow. Please try again.",
+            "incomplete": "Card not recognized. Swipe all the way through."
+        },
         "inventory_dialog": {
             "title": "INVENTORY"
+        },
+        "sorting_dialog": {
+            "title": "Sort the terms",
+            "help": "Drag each term into the matching box, or click the term and then the box. Leave terms that don't belong in any box where they are. Esc closes the window.",
+            "close": "Close",
+            "reset": "Reset",
+            "check": "Check",
+            "wrong": "$1 still wrong",
+            "solved": "Everything sorted correctly!"
+        },
+        "cables_dialog": {
+            "title": "Cables",
+            "help": "Drag every cable end into the socket it belongs to. Or click a cable end first and then the socket.",
+            "wrong": "Wrong socket. The cable springs back.",
+            "done": "All cables are plugged in."
         }
     },
     "achievement": {
@@ -256,7 +290,8 @@
             "hunter": "Hunter",
             "mushroom_wizard": "Mushroom Wizard",
             "the_last_hour_rogue": "Rogue",
-            "the_last_hour_char03": "Char03"
+            "the_last_hour_char03": "Char03",
+            "technician": "Technician"
         }
     }
 }

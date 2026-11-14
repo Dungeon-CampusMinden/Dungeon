@@ -1,0 +1,39 @@
+name: Build and Release MorphCo
+
+on:
+    workflow_dispatch:
+
+jobs:
+    build:
+        uses: ./.github/workflows/buildRelease.yml
+        with:
+            game: MorphCo
+        secrets:
+            DUNGEON_TRACKING_ENDPOINT: ${{ secrets.DUNGEON_TRACKING_ENDPOINT }}
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+            - name: Download all artifacts
+              uses: actions/download-artifact@v8
+              with:
+                  merge-multiple: true
+            - name: Create draft GitHub release
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  TAG="morph-co-v1.0.${{ github.run_number }}"
+                  gh release create "$TAG" *.jar *.zip *.tar.gz \
+                    --target "${{ github.sha }}" \
+                    --title "Morph & Co. KG – Die Wörterfabrik (Morphology Escape Room)" \
+                    --notes-file ".github/workflows/releaseInstructionsMorphCo.md" \
+                    --draft=true \
+                    --prerelease=false
