@@ -89,7 +89,7 @@ class MorphCoLocalizationTest {
     Map<String, String> german = flat("de");
     Pattern literal =
         Pattern.compile(
-            "\"((?:world|pc|ui|story|documents|items|ending|intro|menu)\\.[a-z0-9.\\-]*[a-z0-9])\"");
+            "\"((?:world|pc|ui|story|hotline|documents|items|ending|intro|menu)\\.[a-z0-9.\\-]*[a-z0-9])\"");
     List<String> missing = new ArrayList<>();
     try (Stream<Path> files = Files.walk(Path.of("src/rooms/morphco"))) {
       for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {

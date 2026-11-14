@@ -5,6 +5,7 @@ import feature.emote.Emote;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import java.util.Locale;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
@@ -40,9 +41,9 @@ final class ShiftLead {
   }
 
   private void talk(Entity player) {
-    Hint hint = hint();
-    MorphCoTracking.hintUsed(hint.puzzle(), hint.key(), player);
-    DialogFactory.showDialogDialog(MorphCoText.shiftLead(hint.key()), this::showMood, player.id());
+    Step step = hint(state);
+    MorphCoTracking.hintUsed(step.puzzle(), step.key(), player);
+    DialogFactory.showDialogDialog(MorphCoText.shiftLead(step.key()), this::showMood, player.id());
   }
 
   /**
@@ -50,10 +51,10 @@ final class ShiftLead {
    * while the causes are searched and full of hearts after the restart.
    */
   void showMood() {
-    switch (hint().key()) {
-      case "hint-alarm" -> MorphCoProps.emote(npc, Emote.EXCLAMATIONS);
-      case "hint-pc" -> MorphCoProps.emote(npc, Emote.FACE_HAPPY);
-      case "hint-done" -> MorphCoProps.emote(npc, Emote.HEARTS);
+    switch (hint(state)) {
+      case ALARM -> MorphCoProps.emote(npc, Emote.EXCLAMATIONS);
+      case PC -> MorphCoProps.emote(npc, Emote.FACE_HAPPY);
+      case DONE -> MorphCoProps.emote(npc, Emote.HEARTS);
       default -> {
         // During the repairs she just waits.
       }
@@ -61,59 +62,110 @@ final class ShiftLead {
   }
 
   /**
-   * Chooses the hint for the first open step.
+   * Chooses the hint for the first open step. The hint hotline gives its staged hints for the same
+   * step.
    *
-   * @return hint key and puzzle
+   * @param state current room state
+   * @return the first open step
    */
-  Hint hint() {
+  static Step hint(MorphCoState state) {
     if (state.done(MorphCoMilestone.PRODUCTION_RESTARTED)) {
-      return new Hint("hint-done", MorphCoTracking.Puzzle.RESTART);
+      return Step.DONE;
     }
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {
-      return new Hint("hint-alarm", MorphCoTracking.Puzzle.ALARM);
+      return Step.ALARM;
     }
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) {
-      return new Hint("hint-pc", MorphCoTracking.Puzzle.CAUSES);
+      return Step.PC;
     }
     boolean a12 = state.done(MorphCoMilestone.A12_REPAIRED);
     boolean f04 = state.done(MorphCoMilestone.F04_REPAIRED);
-    if (a12 && f04) return new Hint("hint-restart", MorphCoTracking.Puzzle.RESTART);
+    if (a12 && f04) return Step.RESTART;
     boolean a12Started = state.has(MorphCoState.LOCK_SEEN) || state.has(MorphCoState.HATCH_OPENED);
     if (!state.has(MorphCoState.F04_ENTERED) && !a12Started) {
-      return new Hint("hint-repair", MorphCoTracking.Puzzle.CAUSES);
+      return Step.REPAIR;
     }
     // A started branch is finished first; the order of the two machines is free.
     if (state.has(MorphCoState.SHAFTS_FILLED) && !a12) {
-      return new Hint("hint-lever", MorphCoTracking.Puzzle.LEVER);
+      return Step.LEVER;
     }
     if (state.done(MorphCoMilestone.AFFIXES_SORTED) && !a12) {
-      return new Hint("hint-shafts", MorphCoTracking.Puzzle.SHAFTS);
+      return Step.SHAFTS;
     }
     if (state.done(MorphCoMilestone.HATCH_UNLOCKED) && !a12) {
-      return new Hint("hint-affixes", MorphCoTracking.Puzzle.AFFIXES);
+      return Step.AFFIXES;
     }
     if (a12Started
         && !state.done(MorphCoMilestone.HATCH_UNLOCKED)
         && !state.done(MorphCoMilestone.WORD_CLASSES_SORTED)) {
-      return new Hint("hint-hatch", MorphCoTracking.Puzzle.HATCH);
+      return Step.HATCH;
     }
     if (!state.done(MorphCoMilestone.HANDBOOK_READ)) {
-      return new Hint("hint-handbook", MorphCoTracking.Puzzle.WORD_CLASSES);
+      return Step.HANDBOOK;
     }
     if (!state.done(MorphCoMilestone.WORD_CLASSES_SORTED)) {
-      return new Hint("hint-word-classes", MorphCoTracking.Puzzle.WORD_CLASSES);
+      return Step.WORD_CLASSES;
     }
     if (!state.done(MorphCoMilestone.HATCH_UNLOCKED)) {
-      return new Hint("hint-hatch", MorphCoTracking.Puzzle.HATCH);
+      return Step.HATCH;
     }
-    return new Hint("hint-flexion", MorphCoTracking.Puzzle.FLEXION);
+    return Step.FLEXION;
   }
 
   /**
-   * A hint of the shift lead.
+   * The steps the shift lead gives a hint for, in the order of the solution.
    *
-   * @param key story key below {@code morphCo.story}
-   * @param puzzle puzzle the hint belongs to
+   * <p>The names make up the tracking IDs and the savegame flags of the hints; renaming a step
+   * breaks old savegames and the tracking data.
    */
-  record Hint(String key, MorphCoTracking.Puzzle puzzle) {}
+  enum Step {
+    /** Switch off the alarm at the console. */
+    ALARM(MorphCoTracking.Puzzle.ALARM),
+    /** Read the production control system. */
+    PC(MorphCoTracking.Puzzle.CAUSES),
+    /** Go to the halls; neither machine has been started. */
+    REPAIR(MorphCoTracking.Puzzle.CAUSES),
+    /** Read the handbook of the inflection machine. */
+    HANDBOOK(MorphCoTracking.Puzzle.WORD_CLASSES),
+    /** Sort the word classes into the crates of F-04. */
+    WORD_CLASSES(MorphCoTracking.Puzzle.WORD_CLASSES),
+    /** Unlock the maintenance hatch of A-12. */
+    HATCH(MorphCoTracking.Puzzle.HATCH),
+    /** Cut and sort the affixes. */
+    AFFIXES(MorphCoTracking.Puzzle.AFFIXES),
+    /** Fill the input shafts. */
+    SHAFTS(MorphCoTracking.Puzzle.SHAFTS),
+    /** Restart A-12 with the lever. */
+    LEVER(MorphCoTracking.Puzzle.LEVER),
+    /** Repair the inflection machine. */
+    FLEXION(MorphCoTracking.Puzzle.FLEXION),
+    /** Restart the production at the computer. */
+    RESTART(MorphCoTracking.Puzzle.RESTART),
+    /** The production runs again; nothing is left to do. */
+    DONE(MorphCoTracking.Puzzle.RESTART);
+
+    private final MorphCoTracking.Puzzle puzzle;
+
+    Step(MorphCoTracking.Puzzle puzzle) {
+      this.puzzle = puzzle;
+    }
+
+    /**
+     * Returns the key of the shift lead's hint, also its tracking ID.
+     *
+     * @return story key below {@code morphCo.story}, such as {@code hint-word-classes}
+     */
+    String key() {
+      return "hint-" + name().toLowerCase(Locale.ROOT).replace('_', '-');
+    }
+
+    /**
+     * Returns the puzzle the step belongs to.
+     *
+     * @return puzzle for the tracking
+     */
+    MorphCoTracking.Puzzle puzzle() {
+      return puzzle;
+    }
+  }
 }

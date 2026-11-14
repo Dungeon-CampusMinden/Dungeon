@@ -23,6 +23,7 @@ final class MorphCoQuestLog {
   private static final String F04 = "f04";
   private static final String A12 = "a12";
   private static final String CLUES = "clues";
+  private static final String HINTS = "hints";
 
   private final Map<String, QuestLogEntry> entries = new HashMap<>();
 
@@ -89,6 +90,16 @@ final class MorphCoQuestLog {
     if (state.has(MorphCoState.A12_DISPLAY_SEEN)) put(CLUES, "a12-display", "a12-display");
     if (state.has(MorphCoState.LOCK_SEEN)) put(CLUES, "lock-question", "lock-question");
     if (state.has(MorphCoState.PILE_TAKEN)) put(CLUES, "fragments", "fragments");
+
+    for (ShiftLead.Step step : ShiftLead.Step.values()) {
+      for (HintHotline.Stage stage : HintHotline.Stage.values()) {
+        HintHotline.Offer hint = new HintHotline.Offer(step, stage);
+        if (!state.has(hint.flag())) continue;
+        String text =
+            MorphCoText.questKey(HINTS + ".entries." + stage.key(), MorphCoText.key(hint.text()));
+        replace(HINTS, hint.id(), text, Optional.empty());
+      }
+    }
   }
 
   private void put(String tab, String id, String entry) {
