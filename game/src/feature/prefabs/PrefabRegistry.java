@@ -3,6 +3,7 @@ package feature.prefabs;
 import engine.level.elements.ILevel;
 import feature.prefabs.types.AirVentPrefab;
 import feature.prefabs.types.AvailableCharacterPrefab;
+import feature.prefabs.types.CablesPrefab;
 import feature.prefabs.types.DecorationInteractionPrefab;
 import feature.prefabs.types.DelayPrefab;
 import feature.prefabs.types.DesignLabelRegionPrefab;
@@ -76,6 +77,7 @@ public final class PrefabRegistry {
     register(new AirVentPrefab(), AirVentPrefab::new);
     register(new SoundEffectPrefab(), SoundEffectPrefab::new);
     register(new DoorLockPrefab(), DoorLockPrefab::new);
+    register(new CablesPrefab(), CablesPrefab::new);
   }
 
   private PrefabRegistry() {}

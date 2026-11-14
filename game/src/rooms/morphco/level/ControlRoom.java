@@ -1,5 +1,6 @@
 package rooms.morphco.level;
 
+import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
 import engine.level.elements.tile.DoorTile;
@@ -10,13 +11,16 @@ import feature.emote.Emote;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import feature.interaction.cables.CablePuzzle;
+import feature.interaction.cables.Cables;
+import feature.interaction.cables.CablesComponent;
 import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.CardSwipe;
-import rooms.morphco.puzzles.FuseBox;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.puzzles.Pace;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -32,6 +36,20 @@ import rooms.morphco.util.MorphCoTracking;
 final class ControlRoom {
 
   private static final String CONSOLE = "world.control.console-title";
+
+  // The cables of the fuse box from top to bottom; a cable and its socket share label and color.
+  // The sockets sit in the order control room, emergency lighting, F-04, corridor, A-12.
+  private static final CablePuzzle FUSE_BOX =
+      new CablePuzzle(
+          List.of(
+              new CablePuzzle.Cable(fuseBoxLabel("f04"), Color.valueOf("e0483e"), 2),
+              new CablePuzzle.Cable(fuseBoxLabel("a12"), Color.valueOf("3d7be0"), 4),
+              new CablePuzzle.Cable(fuseBoxLabel("corridor"), Color.valueOf("f7c31d"), 3),
+              new CablePuzzle.Cable(fuseBoxLabel("control"), Color.valueOf("eef2f4"), 0),
+              new CablePuzzle.Cable(fuseBoxLabel("emergency"), Color.valueOf("63e283"), 1)),
+          Stream.of("control", "emergency", "f04", "corridor", "a12")
+              .map(ControlRoom::fuseBoxLabel)
+              .toList());
 
   private final MorphCoLevel level;
   private final MorphCoState state;
@@ -95,6 +113,10 @@ final class ControlRoom {
     MorphCoObjects.on(
         "fuse-box",
         entity -> {
+          CablesComponent cables = new CablesComponent(FUSE_BOX, true);
+          cables.connected(state.has(MorphCoState.FUSE_BOX_WIRED));
+          cables.onConnected(player -> wired(entity, player));
+          entity.add(cables);
           MorphCoProps.interact(entity, this::fuseBox);
           if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
         });
@@ -218,21 +240,24 @@ final class ControlRoom {
       MorphCoProps.popup(player, "world.control.fuse-box-title", "world.control.fuse-box-wired");
       return;
     }
-    UIComponent ui =
-        DialogFactory.show(
-            DialogContext.builder().type(MorphCoDialogs.FUSE_BOX).build(), player.id());
-    ui.registerCallback(
-        MorphCoDialogs.SUBMIT,
-        payload -> {
-          if (!(payload instanceof DialogResponseMessage.StringValue(String wiring))) return;
-          if (!FuseBox.wired(wiring) || !level.observe(MorphCoState.FUSE_BOX_WIRED)) return;
-          // The other players' boxes still show loose cables; this one shows the lit lamps.
-          MorphCoProps.closeDialogs(MorphCoDialogs.FUSE_BOX, ui);
-          MorphCoTracking.interaction("fuse-box", "wired", player);
-          level.save();
-          switchOnEmergencyLight(box);
-          MorphCoAchievements.FUSE_BOX.unlock(player);
-        });
+    // Cables closes the other players' boxes once all cables are in.
+    Cables.show(
+        box,
+        player,
+        MorphCoText.key("world.control.fuse-box-title"),
+        MorphCoText.key("world.control.fuse-box-help"));
+  }
+
+  private static String fuseBoxLabel(String part) {
+    return MorphCoText.key("world.control.fuse-box-" + part);
+  }
+
+  private void wired(Entity box, Entity player) {
+    if (!level.observe(MorphCoState.FUSE_BOX_WIRED)) return;
+    MorphCoTracking.interaction("fuse-box", "wired", player);
+    level.save();
+    switchOnEmergencyLight(box);
+    MorphCoAchievements.FUSE_BOX.unlock(player);
   }
 
   // The entity at the fuse box tells every client that the emergency lighting is on.

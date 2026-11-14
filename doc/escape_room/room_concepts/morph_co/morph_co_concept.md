@@ -159,7 +159,10 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Server/Client:** Der Server entscheidet über Fortschritt, Türen, Items und Dialoge. Eigene
   Dialogtypen (`MorphCoDialogs`) werden auf Server und Client registriert. Die UIs prüfen lokal für
   sofortiges Feedback und senden jede Eingabe als `StringValue` an den Server
-  (`MorphCoDialogs.SUBMIT`); die Sicherungsbox schickt erst die fertige Verkabelung.
+  (`MorphCoDialogs.SUBMIT`). Die Sicherungsbox ist das Kabel-Rätsel der Engine
+  (`feature.interaction.cables`) im Aussehen des Raums: `MorphCoDialogs` registriert `FuseBoxUI` für
+  den Dialogtyp `CABLES`, der Server prüft die fertige Verkabelung und schließt danach die Boxen der
+  anderen Spieler.
   `MorphCoSnapshotTranslator` überträgt Kollider und Interaktionsreichweiten.
 - **Lokalisierung:** Alle Texte stehen in `game/assets/language/morphCo/de.json` und `en.json`.
   Der Server verschickt Schlüssel (`MorphCoText.key`), `MorphCoTranslator` löst sie auf dem Client

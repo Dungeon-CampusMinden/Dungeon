@@ -42,6 +42,7 @@ public final class PrefabCatalog {
               "item-spawner",
               "item-receptacle",
               "door-lock",
+              "cables",
               "air-vent",
               "pushable-stone"),
           new CategoryDefinition(
@@ -64,6 +65,7 @@ public final class PrefabCatalog {
           Map.entry("item-receptacle", () -> deco(Deco.Cabinet, null)),
           Map.entry("item-spawner", () -> texture("items/rpg/item_sack.png", null)),
           Map.entry("door-lock", () -> texture("other/chain_lock.png", null)),
+          Map.entry("cables", () -> deco(Deco.LabElectricPanel, null)),
           Map.entry("air-vent", () -> deco(Deco.FloorBarsSmall, null)),
           Map.entry("pushable-stone", () -> texture("objects/push-stone.png", null)),
           Map.entry("door-control", () -> texture("dungeon/default/door/top_closed.png", null)),

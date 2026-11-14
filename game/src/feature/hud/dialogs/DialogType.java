@@ -76,7 +76,10 @@ public interface DialogType {
     CLIENT_CONNECTION("CLIENT_CONNECTION"),
 
     /** Combination lock with digit wheels. */
-    COMBINATION_LOCK("COMBINATION_LOCK");
+    COMBINATION_LOCK("COMBINATION_LOCK"),
+
+    /** Cable puzzle: loose cables are plugged into their sockets. */
+    CABLES("CABLES");
 
     private final String type;
 

@@ -11,13 +11,12 @@ import java.util.function.Function;
  *
  * <p>Every dialog is registered on the server and on each client. The server opens it with {@link
  * DialogFactory#show(DialogContext, int...)}, the client renders it and sends the players' answers
- * back through the callback {@link #SUBMIT}.
+ * back through the callback {@link #SUBMIT}. The fuse box is the engine's cable dialog in the look
+ * of the room.
  */
 public enum MorphCoDialogs implements DialogType {
   /** Swiping the security card through the reader at the entrance. */
   CARD_READER("morphCoCardReader", CardReaderUI::build),
-  /** Plugging the cables of the fuse box in the control room back in. */
-  FUSE_BOX("morphCoFuseBox", FuseBoxUI::build),
   /** Word classes for the crates next to the inflection machine. */
   WORD_CLASSES("morphCoWordClasses", WordClassUI::build),
   /** Digging through the waste paper basket in F-04 for the defect report. */
@@ -110,9 +109,10 @@ public enum MorphCoDialogs implements DialogType {
     return type;
   }
 
-  /** Registers all dialogs; safe to call several times. */
+  /** Registers all dialogs and the look of the cable dialog; safe to call several times. */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
+    DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
   }
 
   /**
