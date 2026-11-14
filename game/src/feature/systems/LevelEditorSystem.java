@@ -20,6 +20,8 @@ import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.loader.DungeonLoader;
 import engine.level.loader.DungeonSaver;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
 import engine.systems.input.InputManager;
@@ -97,6 +99,7 @@ public class LevelEditorSystem extends System {
 
   private static LevelEditorUI ui = null;
   private static boolean cursorCapturedByUI = false;
+  private final Res<ILevel> level;
 
   /**
    * Creates a new LevelEditorSystem.
@@ -104,7 +107,7 @@ public class LevelEditorSystem extends System {
    * @param pathToLevels the default folder used to construct the initial save file path.
    */
   public LevelEditorSystem(String pathToLevels) {
-    super();
+    this(Resources.level());
     settingsLevelPath = null;
     defaultSaveFolder = normalizePath(pathToLevels);
     LevelEditorSystem.pathToLevels = defaultSaveFolder;
@@ -113,7 +116,19 @@ public class LevelEditorSystem extends System {
 
   /** Creates a new LevelEditorSystem. */
   public LevelEditorSystem() {
+    this(Resources.level());
+  }
+
+  /**
+   * Creates a new LevelEditorSystem that uses the level of the given handle.
+   *
+   * <p>Intended for tests, which can pass a fixed or mutable handle instead of the game state.
+   *
+   * @param level handle to the level whose boundaries are drawn
+   */
+  LevelEditorSystem(final Res<ILevel> level) {
     super();
+    this.level = level;
   }
 
   private static void clearTextFieldFocusOnOutsideClick() {
@@ -405,7 +420,8 @@ public class LevelEditorSystem extends System {
     }
 
     // Draw level boundaries in green with alpha 0.3f
-    Tile[][] layout = Game.currentLevel().orElseThrow().layout();
+    Tile[][] layout = level.get().orElseThrow().layout();
+
     DebugDrawSystem.drawRectangleOutline(
         0, 0, layout[0].length, layout.length, new Color(0, 1, 0, 0.3f));
 
