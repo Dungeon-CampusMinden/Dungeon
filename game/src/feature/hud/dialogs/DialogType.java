@@ -82,7 +82,10 @@ public interface DialogType {
     CARD_READER("CARD_READER"),
 
     /** Board on which terms are sorted into labelled bins. */
-    SORTING("SORTING");
+    SORTING("SORTING"),
+
+    /** Cable puzzle: loose cables are plugged into their sockets. */
+    CABLES("CABLES");
 
     private final String type;
 

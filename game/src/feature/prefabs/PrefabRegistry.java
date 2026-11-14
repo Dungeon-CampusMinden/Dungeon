@@ -3,6 +3,7 @@ package feature.prefabs;
 import engine.level.elements.ILevel;
 import feature.prefabs.types.AirVentPrefab;
 import feature.prefabs.types.AvailableCharacterPrefab;
+import feature.prefabs.types.CablesPrefab;
 import feature.prefabs.types.CardReaderPrefab;
 import feature.prefabs.types.DecorationInteractionPrefab;
 import feature.prefabs.types.DelayPrefab;
@@ -80,6 +81,7 @@ public final class PrefabRegistry {
     register(new DoorLockPrefab(), DoorLockPrefab::new);
     register(new CardReaderPrefab(), CardReaderPrefab::new);
     register(new SortingPrefab(), SortingPrefab::new);
+    register(new CablesPrefab(), CablesPrefab::new);
   }
 
   private PrefabRegistry() {}

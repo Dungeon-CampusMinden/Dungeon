@@ -194,6 +194,12 @@
             "check": "Check",
             "wrong": "$1 still wrong",
             "solved": "Everything sorted correctly!"
+        },
+        "cables_dialog": {
+            "title": "Cables",
+            "help": "Drag every cable end into the socket it belongs to. Or click a cable end first and then the socket.",
+            "wrong": "Wrong socket. The cable springs back.",
+            "done": "All cables are plugged in."
         }
     },
     "achievement": {

@@ -14,6 +14,7 @@ import feature.canvas.CanvasDefinition;
 import feature.canvas.CanvasDialog;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.interaction.cables.CablesUI;
 import feature.interaction.cardreader.CardReaderUI;
 import feature.interaction.combinationlock.CombinationLockUI;
 import feature.interaction.keypad.KeypadUI;
@@ -78,6 +79,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.COMBINATION_LOCK, CombinationLockUI::build);
     register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     register(DialogType.DefaultTypes.SORTING, SortingUI::build);
+    register(DialogType.DefaultTypes.CABLES, CablesUI::build);
     LOGGER.debug("Registered built-in dialog types");
   }
 
