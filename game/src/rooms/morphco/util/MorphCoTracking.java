@@ -97,10 +97,11 @@ public final class MorphCoTracking {
   }
 
   /**
-   * Records a hint given by the shift lead.
+   * Records a hint given by the shift lead or a stage given by the hint hotline.
    *
    * @param puzzle puzzle the hint is about
-   * @param hintId stable hint identifier
+   * @param hintId stable hint identifier: the step, e.g. {@code hint-alarm}, and for the hotline
+   *     also the stage, e.g. {@code hint-alarm:tip}
    * @param player player who asked
    */
   public static void hintUsed(Puzzle puzzle, String hintId, Entity player) {

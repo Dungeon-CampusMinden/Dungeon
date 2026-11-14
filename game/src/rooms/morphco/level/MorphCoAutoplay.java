@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.Pace;
+import rooms.morphco.puzzles.PhoneLine;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
@@ -81,7 +82,7 @@ final class MorphCoAutoplay {
     add("press alarm", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "alarm"));
     add("phone", player -> dismissAndGo(player, "phone"));
     add("call", player -> use(player, "phone"));
-    add("message", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "messages"));
+    add("mailbox", player -> submit(PhoneLine.MAILBOX.number()));
     add("computer", player -> dismissAndGo(player, "pc"));
     show("status screen", player -> use(player, "pc"));
     add("corridor", player -> dismissAndGo(player, "sign_f04"));

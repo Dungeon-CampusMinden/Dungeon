@@ -32,6 +32,8 @@ public enum MorphCoDialogs implements DialogType {
   STATION("morphCoStation", StationUI::build),
   /** The production control system in the control room. */
   COMPUTER("morphCoComputer", ComputerUI::build),
+  /** The phone in the control room with its keypad and the note of important extensions. */
+  PHONE("morphCoPhone", PhoneUI::build),
   /** The book of hamster jokes on the shelf of A-12. */
   HAMSTER_BOOK("morphCoHamsterBook", HamsterBookUI::build),
   /** Handbook and morpheme classification. */
@@ -63,6 +65,9 @@ public enum MorphCoDialogs implements DialogType {
 
   /** Context key: whether the defect report in the waste paper basket of F-04 has been found. */
   public static final String COMPLAINT_FOUND = "morphCoComplaintFound";
+
+  /** Context key: whether the mailbox of the phone still holds the unheard message. */
+  public static final String MESSAGE_WAITING = "morphCoMessageWaiting";
 
   /** Context key: whether A-12 has been repaired. */
   public static final String A12_OK = "morphCoA12Ok";

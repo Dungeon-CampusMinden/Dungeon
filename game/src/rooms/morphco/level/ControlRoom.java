@@ -7,34 +7,39 @@ import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
 import feature.emote.Emote;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.CardSwipe;
 import rooms.morphco.puzzles.FuseBox;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.puzzles.Pace;
+import rooms.morphco.puzzles.PhoneLine;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
 /**
- * The entrance and the control room: card slot, alarm console, phone, the optional fuse box that
- * switches on the emergency lighting and the production control system, which restarts the
- * production at the end.
+ * The entrance and the control room: card slot, alarm console, phone with the hint hotline, the
+ * optional fuse box that switches on the emergency lighting and the production control system,
+ * which restarts the production at the end.
  */
 final class ControlRoom {
 
   private static final String CONSOLE = "world.control.console-title";
+  private static final String PHONE = "world.control.phone-title";
 
   private final MorphCoLevel level;
   private final MorphCoState state;
+  private final HintHotline hotline;
   private Entity alarmLight;
   private Entity console;
   private Entity phoneEmote;
@@ -43,6 +48,7 @@ final class ControlRoom {
   ControlRoom(MorphCoLevel level) {
     this.level = level;
     this.state = level.state();
+    this.hotline = new HintHotline(level);
   }
 
   /** Creates the objects of the entrance and the control room and sets the doors. */
@@ -249,56 +255,56 @@ final class ControlRoom {
   }
 
   private void phone(Entity player) {
-    String intro = state.has(MorphCoState.MESSAGE_HEARD) ? "phone-quiet" : "phone";
-    List<ChoiceOption> options =
-        List.of(
-            option("phone-messages", "messages"),
-            option("phone-security", "security"),
-            option("phone-rosi", "rosi"),
-            option("phone-hang-up", "hang-up"));
-    DialogFactory.showMultipleChoiceDialog(
-        MorphCoText.key("world.control." + intro),
-        MorphCoText.key("world.control.phone-title"),
-        options,
-        false,
-        true,
+    UIComponent ui =
+        DialogFactory.show(
+            DialogContext.builder()
+                .type(MorphCoDialogs.PHONE)
+                .put(MorphCoDialogs.MESSAGE_WAITING, !state.has(MorphCoState.MESSAGE_HEARD))
+                .build(),
+            player.id());
+    ui.registerCallback(
+        MorphCoDialogs.SUBMIT,
         payload -> {
-          if (payload instanceof DialogResponseMessage.StringValue(String choice)) {
-            call(choice, player);
+          if (!(payload instanceof DialogResponseMessage.StringValue(String number))) return;
+          Optional<PhoneLine> line = PhoneLine.dial(number);
+          if (line.isEmpty()) {
+            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            return;
           }
-        },
-        () -> {},
-        player.id());
+          // The line answers in its own dialog.
+          UIUtils.closeDialog(ui, true);
+          call(line.get(), number, player);
+        });
   }
 
-  private void call(String choice, Entity player) {
-    switch (choice) {
-      case "messages" -> {
+  private void call(PhoneLine line, String number, Entity player) {
+    switch (line) {
+      case MAILBOX -> {
         boolean fresh = level.observe(MorphCoState.MESSAGE_HEARD);
         if (phoneEmote != null) Game.remove(phoneEmote);
         phoneEmote = null;
         MorphCoProps.popup(
             player,
-            "world.control.phone-title",
+            PHONE,
             fresh ? "world.control.phone-message" : "world.control.phone-no-message");
       }
-      case "security" -> {
-        level.observe(MorphCoState.CALLED_SECURITY);
-        MorphCoProps.popup(
-            player, "world.control.phone-title", "world.control.phone-security-result");
-        nobodyHome(player);
+      case HOTLINE -> hotline.call(player);
+      case SECURITY -> {
+        boolean first = level.observe(MorphCoState.CALLED_SECURITY);
+        MorphCoProps.popup(player, PHONE, "world.control.phone-security-result");
+        if (first) nobodyHome(player);
       }
-      case "rosi" -> {
-        level.observe(MorphCoState.CALLED_ROSI);
-        MorphCoProps.popup(player, "world.control.phone-title", "world.control.phone-rosi-result");
-        nobodyHome(player);
+      case ROSI -> {
+        boolean first = level.observe(MorphCoState.CALLED_ROSI);
+        MorphCoProps.popup(player, PHONE, "world.control.phone-rosi-result");
+        if (first) nobodyHome(player);
       }
-      default -> {
-        // Hanging up needs no feedback.
-      }
+      case ERROR_CODE ->
+          MorphCoProps.popup(player, PHONE, "world.control.phone-error-code", number);
     }
   }
 
+  // Only the first call of a line can complete the pair, so the achievement pops up once.
   private void nobodyHome(Entity player) {
     if (state.has(MorphCoState.CALLED_SECURITY) && state.has(MorphCoState.CALLED_ROSI)) {
       MorphCoAchievements.NOBODY_HOME.unlock(player);

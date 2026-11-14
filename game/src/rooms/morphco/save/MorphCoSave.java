@@ -1,7 +1,9 @@
 package rooms.morphco.save;
 
+import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
+import engine.game.ServerProcess;
 import engine.network.server.CharacterSelection;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.CharacterClass;
@@ -10,6 +12,7 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -128,12 +131,19 @@ public final class MorphCoSave {
   }
 
   /**
-   * Returns the name of the first connected player, the host of the run.
+   * Returns the name of the host of the run.
    *
-   * @return player name, or {@code null} before a player has joined
+   * <p>A server started by the host's client knows the host's name from its launch. A server
+   * started on its own takes the first connected player: the players come from an unordered set,
+   * and the host joined first and has the lowest entity ID.
+   *
+   * @return player name, or {@code null} before a player has joined a server started on its own
    */
   public static String currentPlayerName() {
+    String hostName = System.getProperty(ServerProcess.HOST_PLAYER_NAME_PROPERTY);
+    if (hostName != null && !hostName.isBlank()) return hostName;
     return Game.allPlayers()
+        .sorted(Comparator.comparingInt(Entity::id))
         .flatMap(player -> player.fetch(PlayerComponent.class).stream())
         .map(PlayerComponent::playerName)
         .filter(name -> name != null && !name.isBlank())

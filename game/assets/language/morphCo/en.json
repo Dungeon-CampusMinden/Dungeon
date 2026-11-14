@@ -20,7 +20,7 @@
       "arrival-card": "You pull out your security card. First the noise, then the questions.",
       "hint-alarm": "\"TOO LOUD! ALARM! CONTROL ROOM!\" That's all you can make out. She points to the door with the card reader.",
       "hint-pc": "\"Thank you! Finally you can hear yourself think again. Please check the computer in the control room. The production control system knows what is broken.\"",
-      "hint-repair": "\"F-04 and A-12 are on strike. It doesn't matter in which order you repair them. The door opposite the entrance leads from the control room to the corridor. There are shelves with manuals in the halls.\"",
+      "hint-repair": "\"F-04 and A-12 are on strike. It doesn't matter in which order you repair them. The door opposite the entrance leads from the control room to the corridor. There are shelves with manuals in the halls. And if you get stuck: you can call the technical hotline from the phone in the control room, extension 42.\"",
       "hint-handbook": "\"I wouldn't touch the inflection machine without the manual. Have a look at the bookshelf in F-04.\"",
       "hint-word-classes": "\"Next to the inflection machine there are crates for the inflectable parts of speech. I bet a lot of things are in the wrong place there.\"",
       "hint-hatch": "\"The maintenance hatch of A-12 has a number lock. The answer is in 'Morpheme Types and Where to Find Them: Part 1'. That book is on the shelf in F-04.\"",
@@ -30,6 +30,65 @@
       "hint-done": "\"Do you hear that? They're running again! I never thought I'd be this happy about machine noise. Thank you!\"",
       "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\"",
       "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\""
+    },
+    "hotline": {
+      "title": "Technical hotline",
+      "warning": "\"I can tell you the solution. But then the puzzle is solved before you have solved it.\" Do you really want to hear the solution?",
+      "hint-alarm": {
+        "direction": "\"I can hear that alarm all the way over here. You switch it off at the console in the control room.\"",
+        "tip": "\"Every button on the console is labelled. Only one of them really has anything to do with the noise.\"",
+        "solution": "\"Press the 'Annoying alarm sound' button on the console. That'll shut it up.\""
+      },
+      "hint-pc": {
+        "direction": "\"The production control system knows what is broken. It runs on the computer in the control room.\"",
+        "tip": "\"Go to the computer in the control room, click to dismiss the screensaver and read the unit status.\"",
+        "solution": "\"Use the computer in the control room. It reports error 133 for F-04 and error 204 for A-12. After that the door opposite the entrance is open; it leads to the corridor.\""
+      },
+      "hint-repair": {
+        "direction": "\"F-04 and A-12 are down. It doesn't matter in which order you repair them. You reach both halls through the corridor.\"",
+        "tip": "\"The door opposite the entrance leads from the control room to the corridor. The halls have shelves with books that will help you.\"",
+        "solution": "\"Start in F-04: through the door opposite the entrance into the corridor and from there into the inflection line. Its shelf holds the manual of the inflection machine and Part 1 of 'Morpheme Types and Where to Find Them'.\""
+      },
+      "hint-handbook": {
+        "direction": "\"Nobody tinkers with the inflection machine without the manual. Have a look at the bookshelf in F-04.\"",
+        "tip": "\"The shelf in F-04 holds the manual of the inflection machine FL3-10-9001. It explains which parts of speech may go into the machine.\"",
+        "solution": "\"Open 'Manual: Inflection machine FL3-10-9001' on the shelf in F-04 and read it. After that you can sort the crates next to the machine.\""
+      },
+      "hint-word-classes": {
+        "direction": "\"Next to the inflection machine there are crates for the inflectable parts of speech. Quite a lot is in the wrong place there.\"",
+        "tip": "\"Only inflectable words go into the crates: nouns, adjectives, verbs, articles and pronouns. Adverbs, particles, conjunctions and prepositions stay where they are.\"",
+        "solution": "\"Sentence 1: Ein - articles, Hamster - nouns, kommt - verbs, spät - adjectives; selten and zu stay where they are. Sentence 2: Grüne, lecker and gut - adjectives, Törtchen - nouns, sind, gewesen and schmecken - verbs, diese - pronouns; äußerst and 'und' stay where they are.\""
+      },
+      "hint-hatch": {
+        "direction": "\"The maintenance hatch of A-12 has a number lock. The question for it is stuck next to the keypad in the close-up of the unit.\"",
+        "tip": "\"The answer is in 'Morpheme Types and Where to Find Them: Part 1' on the shelf in F-04. Count the types of free morphemes, but without the portmanteau morpheme.\"",
+        "solution": "\"The lock opens with 8: verbal, nominal, adjectival, adverbial, pronominal, prepositional and conjunctional base morphemes plus the article. Type 8 on the keypad in the close-up of A-12 and press OK.\""
+      },
+      "hint-affixes": {
+        "direction": "\"Words have jammed behind the maintenance hatch of A-12. Click the hatch in the close-up, cut off the affixes and sort them into the compartments.\"",
+        "tip": "\"A click between two letters cuts. Stems stay where they are. Words without an affix, compounds like Schornstein too, go into the 'No affix' compartment as a whole. For a circumfix, both parts go to the circumfixes.\"",
+        "solution": "\"un·be·zahl·bar: {un-} and {be-} to the prefixes, {-bar} to the suffixes. ge·regn·et: {ge-} and {-et} to the circumfixes. Stör·ung: {-ung} to the suffixes. sag·ten: {-ten} to the suffixes. auf, Schornstein and Hamster go undivided into the 'No affix' compartment.\""
+      },
+      "hint-shafts": {
+        "direction": "\"The cut-off affixes belong in the input shafts of A-12: one for word formation, one for inflection. You get there through the maintenance hatch in the close-up.\"",
+        "tip": "\"'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 explains the difference: an inflectional affix forms a new word form, a derivational affix (word formation) forms a new word.\"",
+        "solution": "\"{un-}, {be-}, {-bar} and {-ung} go into the word formation shaft, {-ten} and {ge- ... -et} into the inflection shaft.\""
+      },
+      "hint-lever": {
+        "direction": "\"After the maintenance A-12 has to restart. That's what the lever in the close-up of the unit is for.\"",
+        "tip": "\"The lever wants an even pull, not jerky and not at a snail's pace. Only let go at the very bottom.\"",
+        "solution": "\"Pull the lever all the way down in about one second and only let go there; anything between 0.6 and 2 seconds works. Without a mouse: hold space and let go at the bottom.\""
+      },
+      "hint-flexion": {
+        "direction": "\"A-12 is sorting again. Now it's the inflection machine's turn in F-04.\"",
+        "tip": "\"If the crates are right and A-12 delivers the right affixes, the inflection machine runs again. You only have to check it.\"",
+        "solution": "\"Go to the inflection machine in F-04 and use it. Crates and affixes are right, so it starts up.\""
+      },
+      "hint-restart": {
+        "direction": "\"Both units running again? Then back to the control room and the computer.\"",
+        "tip": "\"Before the restart, the computer asks how many morphemes the word Überlegungen consists of. Count the prefix, the stem, the derivational suffix and the inflectional suffix.\"",
+        "solution": "\"Über·leg·ung·en: {über}, {leg}, {ung} and {en}, that makes 4 morphemes. Enter 4 at the computer under RESTART.\""
+      }
     },
     "world": {
       "titles": {
@@ -87,7 +146,7 @@
         "cctv-title": "Notice",
         "cctv": "\"Attention, this area is under video surveillance.\" You can't spot a camera anywhere. Maybe that's exactly the trick.",
         "table-title": "Table",
-        "table": "Loose shift schedules lie between the phone and the coffee mug. Under today's date someone has scrawled: \"Cover is coming (hopefully)\".",
+        "table": "Loose shift schedules lie between the phone and the coffee mug. Early shift, control room: Rosi, extension 17. Under today's date someone has scrawled: \"Cover is coming (hopefully)\".",
         "poster-title": "Poster",
         "poster1": "Safety notice: Do not leave your luggage unattended.",
         "poster2": "Invitation to the summer party: All employees are cordially invited to this year's summer party. 12 June, 4:30 pm, behind the classifier control towers. Potluck buffet as always (NO quiches, we all still remember last year!!!) - Bring FUN! - signed, the Summer Party Committee",
@@ -96,14 +155,11 @@
         "phone-title": "Telephone",
         "phone": "You pick up the receiver. It beeps impatiently in your ear.",
         "phone-quiet": "You pick up the receiver. Dial tone.",
-        "phone-messages": "Listen to messages",
-        "phone-security": "Call security at the entrance",
-        "phone-rosi": "Call Rosi",
-        "phone-hang-up": "Hang up",
         "phone-message": "\"You have one new message. First new message, received at 1:31 pm: Wuuuuuuh, wuuuuuh, wuuuuuh, wuuuuuh.\"",
         "phone-no-message": "\"You have no new messages.\"",
         "phone-security-result": "Beeep ... beeep ... beeep ... Nobody picks up at the security desk.",
-        "phone-rosi-result": "Beeep ... beeep ... beeep ... Whoever Rosi is: she's not picking up."
+        "phone-rosi-result": "Beeep ... beeep ... beeep ... Whoever Rosi is: she's not picking up.",
+        "phone-error-code": "A recorded announcement: \"Error $1 is not an extension. For malfunctions, please call the technical hotline, extension 42.\""
       },
       "corridor": {
         "door-locked-title": "Locked",
@@ -424,6 +480,17 @@
       "keypad": {
         "clear": "C",
         "confirm": "OK"
+      },
+      "phone": {
+        "help": "Dial a number and press OK. You can also type the digits; Enter dials.",
+        "note-title": "Important extensions",
+        "MAILBOX": "Listen to the mailbox",
+        "HOTLINE": "Technical hotline (maintenance)",
+        "SECURITY": "Security at the entrance",
+        "lamp": "Mailbox",
+        "calling": "DIALING",
+        "no-line-short": "WRONG",
+        "no-line": "The number you have dialed is not in service."
       }
     },
     "pc": {
@@ -526,6 +593,14 @@
         "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
         "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
         "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station."
+      }
+    },
+    "hints": {
+      "tab": "Hints",
+      "entries": {
+        "direction": "Hint: $1",
+        "tip": "Tip: $1",
+        "solution": "Solution: $1"
       }
     }
   },

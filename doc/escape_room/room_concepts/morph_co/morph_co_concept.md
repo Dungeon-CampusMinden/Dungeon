@@ -46,7 +46,7 @@ bleiben …“
 | Raum | Zugang | Inhalt |
 | --- | --- | --- |
 | Eingang | Start | Schichtleitung (Hinweise), Lesegerät, Warnschild |
-| Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon, Sicherungsbox, Tisch, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
+| Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
 | Flur | nach dem PC | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel |
 | F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, 2 Regale, Papierkorb, 2 Plakate, große Pflanze |
@@ -99,9 +99,35 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
   liegen; der Server prüft jede Eingabe erneut und trackt sie.
 - Die Schichtleitung gibt jederzeit einen Hinweis zum ersten offenen Schritt. Ein begonnener
   Zweig (A-12 oder F-04) wird dabei zuerst zu Ende geführt.
+- Die Technik-Hotline am Telefon gibt zum selben Schritt gestufte Hinweise bis zur Lösung (siehe
+  unten).
 - Das Handout ist auf zwei Bände verteilt, wie im Skript („Bestseller in zwei Bänden“):
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
+
+## Telefon und Technik-Hotline
+
+Ein Klick auf das Telefon im Kontrollraum öffnet Hörer und Ziffernblock. Daneben klebt der Zettel
+„Wichtige Durchwahlen“. Gewählt wird mit OK oder Enter.
+
+| Nummer | Steht auf | Ergebnis |
+| --- | --- | --- |
+| 99 | Zettel am Telefon | Mailbox: die Nachricht vom Morgen; das Ausrufezeichen am Telefon verschwindet |
+| 42 | Zettel am Telefon | Technik-Hotline (Instandhaltung) mit gestuften Hinweisen |
+| 11 | Zettel am Telefon | Wachschutz am Eingang: niemand nimmt ab |
+| 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab (mit 11 das versteckte Achievement „Niemand zu Hause“) |
+| 133, 204 | Fehlercodes am PC | Bandansage, die auf die Technik-Hotline verweist |
+| jede andere | – | „Kein Anschluss unter dieser Nummer.“ |
+
+Die Hotline hilft bei dem Schritt, zu dem die Schichtleitung gerade etwas sagen würde
+(`ShiftLead.hint`), in drei Stufen: erst die Richtung, dann ein konkreter Tipp, zuletzt die
+Lösung. Vor der Lösung fragt sie nach („Willst du wirklich die Lösung hören?“); Nein kostet
+nichts. Danach wiederholt sie die Lösung. Ist der Schritt gelöst, beginnt der nächste wieder bei
+der ersten Stufe. Die Stufen gelten für den ganzen Raum: Im Multiplayer setzt der zweite Spieler
+dort fort, wo der erste aufgehört hat. Jede gehörte Stufe steht im Questlog-Tab „Hinweise“. Die
+Hotline antwortet schon vor dem Alarm (Hinweise zum Alarm). Die Spieler erfahren von ihr durch den
+Zettel am Telefon, die Bandansage zu den Fehlercodes und den Hinweis `hint-repair` der
+Schichtleitung.
 
 # 5. Fortschritt (Petri-Netz)
 
@@ -132,6 +158,11 @@ ersetzen ihren Eintrag und behalten den ursprünglichen Zeitstempel.
 | F-04 Flexionsstraße | Handbuch gelesen, Flexionsmaschine überprüfen, Wortarten identifiziert, A-12 inspizieren, repariert |
 | A-12 Affix-Sortieranlage | inspiziert, Affixe sortieren, mit dem Hebel neu starten, repariert, zur Flexionsmaschine gehen |
 | Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch, Morphemtypen Teil 1/2 (aufklappbar), Display, Schlossfrage, Zirkumfix-Teile |
+| Hinweise | jede gehörte Stufe der Technik-Hotline („Hinweis“, „Tipp“, „Lösung“), der neueste oben |
+
+Die Hinweise haben einen eigenen Tab statt eines Eintrags im passenden Aufgaben-Tab: Die anderen
+Tabs sind Aufgabenlisten, in denen Einträge zu „(erledigt)“ wechseln. Im eigenen Tab steht der
+Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man schon geholt hat.
 
 # 7. Achievements
 
@@ -146,7 +177,7 @@ ersetzen ihren Eintrag und behalten den ursprünglichen Zeitstempel.
 | `morphco_first_try` (versteckt) | Schnitt sitzt | Affixe im ersten Versuch richtig |
 | `morphco_plants` (versteckt) | Was hast du erwartet? | alle 3 Pflanzen |
 | `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am klemmenden Hebel ziehen |
-| `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz und Rosi anrufen |
+| `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17) anrufen |
 | `morphco_fuse_box` (versteckt) | Unter Strom | alle Kabel der Sicherungsbox eingesteckt |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
 | `morphco_bookworm` (versteckt) | Leseratte | alle 8 Bücher |
@@ -166,11 +197,16 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   auf. Die deutschen Beispielwörter bleiben auch in der englischen Fassung deutsch.
 - **Speichern:** `MorphCoSave` schreibt nach jedem Meilenstein, nach den Eingabeschächten und nach
   der Sicherungsbox `morph-co-save.json` (Meilensteine, Flags, montierte Zirkumfixe, Spielzeit,
-  Run-ID, Tracking-Einwilligung). „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht
-  gespeichert, deshalb gibt der Krimskrams nach dem Laden die noch nicht montierten Zirkumfix-Teile
-  erneut heraus.
+  Run-ID, Tracking-Einwilligung). Gehörte Hotline-Stufen sind Flags `hint:<schritt>:<stufe>` und
+  werden nach jedem Hinweis gespeichert; ein Stand ohne solche Flags beginnt bei Stufe 1.
+  „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht gespeichert, deshalb gibt der
+  Krimskrams nach dem Laden die noch nicht montierten Zirkumfix-Teile erneut heraus.
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
-  `pull` für den Hebel) und Hinweise der Schichtleitung über `MorphCoTracking`.
+  `pull` für den Hebel) und Hinweise über `MorphCoTracking`: die der Schichtleitung als Schritt
+  (`hint-alarm`), die der Technik-Hotline mit Stufe (`hint-alarm:direction`, `:tip`, `:solution`).
+- **Telefon:** `PhoneUI` prüft die Nummer mit `PhoneLine` und zeigt „Kein Anschluss“ sofort. Jede
+  Nummer geht an den Server; er schlägt sie erneut nach. Bei einer bekannten Nummer schließt er den
+  Telefondialog und lässt die Leitung antworten. Hinweistexte kommen als Schlüssel beim Client an.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und
@@ -197,6 +233,9 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; drei davon zeigen Ausschusswörter.
   Darunter liegt die gefaltete Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
 - Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
+- Am Telefon wählt man eine Nummer, statt eine Option aus einer Liste zu nehmen. Neu sind die
+  Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan und die Bandansage
+  zu den Fehlercodes.
 - Die Sicherungsbox im Kontrollraum ist ein optionales Minigame: Jemand hat die Kabel
   herausgezogen. Notbeleuchtung und verstecktes Achievement gibt es für beide Spieler.
 - Die Affix-Sortieranlage hat eine Nahansicht mit Display, Hebel, Wartungsklappe und Schloss. Jede
@@ -245,5 +284,6 @@ Abspann.
 ./gradlew :game:test --tests 'rooms.morphco.*'
 ```
 
-Geprüft werden die Rätselmodelle, das Petri-Netz, Speicherstände, Sprachdateien (Schlüssel- und
-Platzhaltergleichheit, alle im Code genutzten Schlüssel), Achievements und die Level-Datei.
+Geprüft werden die Rätselmodelle, das Petri-Netz, Speicherstände, die Stufen der Technik-Hotline,
+Sprachdateien (Schlüssel- und Platzhaltergleichheit, alle im Code genutzten Schlüssel),
+Achievements und die Level-Datei.
