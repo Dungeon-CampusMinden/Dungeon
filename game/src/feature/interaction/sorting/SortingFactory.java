@@ -15,7 +15,6 @@ import feature.interaction.InteractionComponent;
 import feature.systems.EventScheduler;
 import feature.tasks.TaskComponent;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Factory for sorting boards, and the server side of their dialog.
@@ -94,21 +93,7 @@ public final class SortingFactory {
       return;
     }
     Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
-    EventScheduler.scheduleAction(() -> closeDialogs(board), CLOSE_DELAY_MS);
-  }
-
-  // Closes the dialog of every player who has this board open.
-  private static void closeDialogs(Entity board) {
-    Game.entities(Set.of(UIComponent.class))
-        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType() == DialogType.DefaultTypes.SORTING)
-        .filter(
-            ui ->
-                ui.dialogContext()
-                    .find(DialogContextKeys.ENTITY, Integer.class)
-                    .filter(id -> id == board.id())
-                    .isPresent())
-        .toList()
-        .forEach(ui -> UIUtils.closeDialog(ui, true));
+    EventScheduler.scheduleAction(
+        () -> UIUtils.closeDialogs(DialogType.DefaultTypes.SORTING, board), CLOSE_DELAY_MS);
   }
 }

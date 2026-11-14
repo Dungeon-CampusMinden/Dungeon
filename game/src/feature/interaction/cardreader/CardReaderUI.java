@@ -1,5 +1,14 @@
 package feature.interaction.cardreader;
 
+import static feature.interaction.FeatureDialogStyle.GO;
+import static feature.interaction.FeatureDialogStyle.INK;
+import static feature.interaction.FeatureDialogStyle.MUTED;
+import static feature.interaction.FeatureDialogStyle.PANEL;
+import static feature.interaction.FeatureDialogStyle.SCREEN;
+import static feature.interaction.FeatureDialogStyle.STEEL;
+import static feature.interaction.FeatureDialogStyle.STOP;
+import static feature.interaction.FeatureDialogStyle.tinted;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -14,10 +23,8 @@ import engine.Game;
 import engine.language.Translation;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
-import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.Optional;
@@ -30,15 +37,8 @@ import java.util.Optional;
 public final class CardReaderUI extends Table {
 
   private static final Translation TRANSLATION = new Translation("dialog.card_reader_dialog");
-  private static final Color PANEL = Color.valueOf("f2efe6ff");
-  private static final Color INK = Color.valueOf("1b1f27ff");
-  private static final Color MUTED = Color.valueOf("4a5262ff");
-  private static final Color STEEL = Color.valueOf("5b6474ff");
   private static final Color STEEL_DARK = Color.valueOf("2b313bff");
-  private static final Color SCREEN = Color.valueOf("d4e6c9ff");
   private static final Color LIGHT_OFF = Color.valueOf("8a919eff");
-  private static final Color GO = Color.valueOf("1f7a3aff");
-  private static final Color STOP = Color.valueOf("b42323ff");
   private static final Color CARD = Color.valueOf("fbfbf8ff");
   private static final Color CARD_BAND = Color.valueOf("3b6ea8ff");
   private static final Color CHIP = Color.valueOf("d9b44aff");
@@ -78,15 +78,15 @@ public final class CardReaderUI extends Table {
   private CardReaderUI(DialogContext context) {
     swipe = new CardSwipe(context);
     setUserObject(Cursors.DEFAULT);
-    setBackground(UIUtils.defaultSkin().newDrawable("white", PANEL));
+    setBackground(tinted(PANEL));
     pad(28, 40, 32, 40);
     defaults().left();
-    add(label(TRANSLATION.text("title"), Scene2dElementFactory.FONT_PATH_BOLD, 34, INK)).row();
-    Label help = label(TRANSLATION.text("help"), Scene2dElementFactory.FONT_PATH, 20, MUTED);
+    add(Scene2dElementFactory.createBoldLabel(TRANSLATION.text("title"), 34, INK)).row();
+    Label help = Scene2dElementFactory.createLabel(TRANSLATION.text("help"), 20, MUTED);
     help.setWrap(true);
     add(help).width(TEXT_WIDTH).padTop(12).padBottom(24).row();
 
-    display = label("", Scene2dElementFactory.FONT_PATH_BOLD, 26, Color.WHITE);
+    display = Scene2dElementFactory.createBoldLabel("", 26, Color.WHITE);
     display.setWrap(true);
     display.setAlignment(Align.center);
     display.setBounds(
@@ -153,10 +153,6 @@ public final class CardReaderUI extends Table {
       display.setColor(light);
     }
     card.setUserObject(swipe.accepted() ? Cursors.DEFAULT : Cursors.GRAB);
-  }
-
-  private static Label label(String text, String font, int size, Color color) {
-    return Scene2dElementFactory.createLabel(text, FontSpec.of(font, size, color));
   }
 
   /** Housing with the display, the light and the slot along its bottom edge. */

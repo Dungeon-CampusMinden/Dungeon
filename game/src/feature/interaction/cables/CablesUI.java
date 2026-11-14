@@ -1,5 +1,8 @@
 package feature.interaction.cables;
 
+import static feature.interaction.FeatureDialogStyle.INK;
+import static feature.interaction.FeatureDialogStyle.MUTED;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -7,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
-import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasLayout;
@@ -32,8 +34,6 @@ import java.util.List;
 public final class CablesUI extends CanvasUI {
 
   private static final Color BOARD = Color.valueOf("e9e4d8");
-  private static final Color RIM = Color.valueOf("4a5262");
-  private static final Color INK = Color.valueOf("1b1f27");
   private static final Color TAG = Color.valueOf("fbf8f0");
   private static final Color SOCKET = Color.valueOf("cfc8b8");
   private static final Color TIP_METAL = Color.valueOf("9aa1ab");
@@ -115,12 +115,9 @@ public final class CablesUI extends CanvasUI {
 
   private static Label inkLabel(String text, int size, boolean bold) {
     Label label =
-        Scene2dElementFactory.createLabel(
-            text,
-            FontSpec.of(
-                bold ? Scene2dElementFactory.FONT_PATH_BOLD : Scene2dElementFactory.FONT_PATH,
-                size,
-                INK));
+        bold
+            ? Scene2dElementFactory.createBoldLabel(text, size, INK)
+            : Scene2dElementFactory.createLabel(text, size, INK);
     label.setTouchable(Touchable.disabled);
     return label;
   }
@@ -188,9 +185,9 @@ public final class CablesUI extends CanvasUI {
       float x = x();
       float y = y();
       CanvasGraphics.fill(batch, BOARD, alpha, x, y, width(), height());
-      CanvasGraphics.outline(batch, RIM, alpha, x, y, width(), height(), 3);
+      CanvasGraphics.outline(batch, MUTED, alpha, x, y, width(), height(), 3);
       CanvasGraphics.fill(
-          batch, RIM, alpha, x + DUCT_X, y + BOTTOM, DUCT_WIDTH, height() - TOP - BOTTOM);
+          batch, MUTED, alpha, x + DUCT_X, y + BOTTOM, DUCT_WIDTH, height() - TOP - BOTTOM);
       if (!feedback.isEmpty()) {
         Color tint = good ? GOOD : BAD;
         CanvasGraphics.fill(
@@ -249,7 +246,7 @@ public final class CablesUI extends CanvasUI {
       boolean lit = lit();
       CanvasGraphics.fill(batch, SOCKET, alpha, x, y, width(), height());
       // The jack takes the color of the cable once the cable is in, so it gives nothing away.
-      CanvasGraphics.fill(batch, lit ? cableColor() : RIM, alpha, x + 10, y + 7, 32, 32);
+      CanvasGraphics.fill(batch, lit ? cableColor() : MUTED, alpha, x + 10, y + 7, 32, 32);
       CanvasGraphics.fill(batch, INK, alpha, x + 18, y + 15, 16, 16);
       CanvasGraphics.fill(batch, TAG, alpha, x + 50, y + 6, width() - 84, height() - 12);
       CanvasGraphics.fill(batch, lit ? GOOD : LAMP_OFF, alpha, x + width() - 26, y + 17, 12, 12);
@@ -258,7 +255,7 @@ public final class CablesUI extends CanvasUI {
       } else if (over() || waiting()) {
         CanvasGraphics.outline(batch, CHOSEN, alpha, x, y, width(), height(), over() ? 4 : 2);
       } else {
-        CanvasGraphics.outline(batch, RIM, alpha, x, y, width(), height(), 1);
+        CanvasGraphics.outline(batch, MUTED, alpha, x, y, width(), height(), 1);
       }
     }
   }

@@ -1,5 +1,14 @@
 package feature.interaction.phone;
 
+import static feature.interaction.FeatureDialogStyle.GO;
+import static feature.interaction.FeatureDialogStyle.INK;
+import static feature.interaction.FeatureDialogStyle.MUTED;
+import static feature.interaction.FeatureDialogStyle.PANEL;
+import static feature.interaction.FeatureDialogStyle.SCREEN;
+import static feature.interaction.FeatureDialogStyle.STEEL;
+import static feature.interaction.FeatureDialogStyle.STOP;
+import static feature.interaction.FeatureDialogStyle.tinted;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -9,15 +18,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.language.Translation;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
-import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.keypad.DigitEntry;
@@ -30,16 +36,7 @@ import feature.interaction.keypad.DigitEntry;
 public final class PhoneUI extends Table {
 
   private static final Translation TRANSLATION = new Translation("dialog.phone_dialog");
-  private static final String TEXT_FONT = "fonts/Lexend-Regular.ttf";
-  private static final String BOLD_FONT = "fonts/Lexend-Bold.ttf";
-  private static final Color PANEL = Color.valueOf("f2efe6ff");
-  private static final Color INK = Color.valueOf("1b1f27ff");
-  private static final Color MUTED = Color.valueOf("4a5262ff");
-  private static final Color STEEL = Color.valueOf("5b6474ff");
-  private static final Color SCREEN = Color.valueOf("d4e6c9ff");
   private static final Color PAPER = Color.valueOf("fbf6dcff");
-  private static final Color GO = Color.valueOf("1f7a3aff");
-  private static final Color STOP = Color.valueOf("b42323ff");
   private static final String CLEAR = "clear";
   private static final String DIAL = "dial";
   private static final String[] KEYS = {
@@ -53,8 +50,8 @@ public final class PhoneUI extends Table {
   private final Dialer dialer;
   private final DigitEntry entry;
   private final String noConnection;
-  private final Label display = label("", BOLD_FONT, 28, Color.WHITE);
-  private final Label feedback = label("", TEXT_FONT, 20, STOP);
+  private final Label display = Scene2dElementFactory.createBoldLabel("", 28, Color.WHITE);
+  private final Label feedback = Scene2dElementFactory.createLabel("", 20, STOP);
 
   private PhoneUI(DialogContext context) {
     dialer = new Dialer(context);
@@ -65,8 +62,8 @@ public final class PhoneUI extends Table {
     setBackground(tinted(PANEL));
     pad(28, 40, 32, 40);
     defaults().left();
-    add(label(TRANSLATION.text("title"), BOLD_FONT, 34, INK)).row();
-    Label help = label(TRANSLATION.text("help"), TEXT_FONT, 20, MUTED);
+    add(Scene2dElementFactory.createBoldLabel(TRANSLATION.text("title"), 34, INK)).row();
+    Label help = Scene2dElementFactory.createLabel(TRANSLATION.text("help"), 20, MUTED);
     help.setWrap(true);
     add(help).width(TEXT_WIDTH).padTop(12).padBottom(24).row();
 
@@ -144,13 +141,17 @@ public final class PhoneUI extends Table {
     note.setBackground(tinted(PAPER));
     note.pad(16, 20, 16, 20);
     note.defaults().left();
-    note.add(label(TRANSLATION.text("note_title"), BOLD_FONT, 22, INK))
+    note.add(Scene2dElementFactory.createBoldLabel(TRANSLATION.text("note_title"), 22, INK))
         .colspan(2)
         .padBottom(10)
         .row();
     for (PhoneLine line : dialer.note()) {
-      note.add(label(line.name(), TEXT_FONT, 20, INK)).padBottom(6);
-      note.add(label(line.number(), BOLD_FONT, 20, INK)).right().padLeft(24).padBottom(6).row();
+      note.add(Scene2dElementFactory.createLabel(line.name(), 20, INK)).padBottom(6);
+      note.add(Scene2dElementFactory.createBoldLabel(line.number(), 20, INK))
+          .right()
+          .padLeft(24)
+          .padBottom(6)
+          .row();
     }
     return note;
   }
@@ -179,13 +180,5 @@ public final class PhoneUI extends Table {
     display.setText(TRANSLATION.text(connected ? "calling" : "no_connection_short"));
     display.setColor(connected ? GO : STOP);
     feedback.setText(connected ? "" : noConnection);
-  }
-
-  private static Drawable tinted(Color color) {
-    return UIUtils.defaultSkin().newDrawable("white", color);
-  }
-
-  private static Label label(String text, String font, int size, Color color) {
-    return Scene2dElementFactory.createLabel(text, FontSpec.of(font, size, color));
   }
 }

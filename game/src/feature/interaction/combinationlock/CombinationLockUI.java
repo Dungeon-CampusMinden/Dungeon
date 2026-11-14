@@ -1,5 +1,8 @@
 package feature.interaction.combinationlock;
 
+import static feature.interaction.FeatureDialogStyle.INK;
+import static feature.interaction.FeatureDialogStyle.tinted;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,15 +14,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.BaseContainerUI;
-import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
@@ -38,12 +38,9 @@ import java.util.Optional;
  */
 public final class CombinationLockUI extends Table {
 
-  private static final String TEXT_FONT = "fonts/Lexend-Regular.ttf";
-  private static final String BOLD_FONT = "fonts/Lexend-Bold.ttf";
   private static final Color STEEL = Color.valueOf("2b313bf5");
   private static final Color RIM = Color.valueOf("4a5262ff");
   private static final Color FACE = Color.valueOf("ece6d6ff");
-  private static final Color INK = Color.valueOf("1b1f27ff");
   private static final Color TEXT = Color.valueOf("e8eaefff");
   private static final Color MUTED = Color.valueOf("a3aab8ff");
   private static final Color ACCENT = Color.valueOf("f0b43cff");
@@ -73,7 +70,7 @@ public final class CombinationLockUI extends Table {
     // Text beside the dial, so the dialog fits a screen 720 pixels high.
     Table text = new Table();
     text.defaults().left();
-    text.add(label(title, BOLD_FONT, 34, TEXT)).row();
+    text.add(Scene2dElementFactory.createBoldLabel(title, 34, TEXT)).row();
     if (!question.isBlank()) {
       text.add(wrapped(question, 24, TEXT)).width(TEXT_WIDTH).padTop(12).row();
     }
@@ -191,16 +188,8 @@ public final class CombinationLockUI extends Table {
     return Game.localization().getCurrentTranslator().translate(text);
   }
 
-  private static Drawable tinted(Color color) {
-    return UIUtils.defaultSkin().newDrawable("white", color);
-  }
-
-  private static Label label(String text, String font, int size, Color color) {
-    return Scene2dElementFactory.createLabel(text, FontSpec.of(font, size, color));
-  }
-
   private static Label wrapped(String text, int size, Color color) {
-    Label label = label(text, TEXT_FONT, size, color);
+    Label label = Scene2dElementFactory.createLabel(text, size, color);
     label.setWrap(true);
     label.setAlignment(Align.left);
     return label;
@@ -263,7 +252,7 @@ public final class CombinationLockUI extends Table {
       setClip(true);
       add(strip).size(WHEEL_WIDTH, 3 * ROW);
       for (int i = 0; i < slots.length; i++) {
-        slots[i] = label("", BOLD_FONT, 76, INK);
+        slots[i] = Scene2dElementFactory.createBoldLabel("", 76, INK);
         slots[i].setAlignment(Align.center);
         slots[i].setSize(WHEEL_WIDTH, ROW);
         strip.addActor(slots[i]);

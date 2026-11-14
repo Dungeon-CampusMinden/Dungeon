@@ -158,13 +158,7 @@ public final class CardReaderFactory {
     }
     EventScheduler.scheduleAction(
         () -> {
-          UIUtils.closeDialogs(
-              DialogType.DefaultTypes.CARD_READER,
-              context ->
-                  context
-                      .find(DialogContextKeys.ENTITY, Integer.class)
-                      .filter(id -> id == reader.id())
-                      .isPresent());
+          UIUtils.closeDialogs(DialogType.DefaultTypes.CARD_READER, reader);
           // A reader reset or removed meanwhile raises nothing.
           if (Game.findEntityById(reader.id()).isEmpty()) return;
           component.onAccepted.accept(user);

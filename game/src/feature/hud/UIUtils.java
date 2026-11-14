@@ -23,6 +23,7 @@ import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogType;
 import feature.hud.elements.GUICombination;
 import feature.inventory.ui.InventoryGUI;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -378,13 +379,34 @@ public final class UIUtils {
    *
    * @param type dialog type
    * @param filter selects the dialogs to close by their context
+   * @return whether a dialog was closed
    */
-  public static void closeDialogs(DialogType type, Predicate<DialogContext> filter) {
-    Game.entities(Set.of(UIComponent.class))
-        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(ui -> ui.dialogContext().dialogType() == type)
-        .filter(ui -> filter.test(ui.dialogContext()))
-        .toList()
-        .forEach(ui -> closeDialog(ui, true));
+  public static boolean closeDialogs(DialogType type, Predicate<DialogContext> filter) {
+    List<UIComponent> dialogs =
+        Game.entities(Set.of(UIComponent.class))
+            .flatMap(entity -> entity.fetch(UIComponent.class).stream())
+            .filter(ui -> ui.dialogContext().dialogType() == type)
+            .filter(ui -> filter.test(ui.dialogContext()))
+            .toList();
+    dialogs.forEach(ui -> closeDialog(ui, true));
+    return !dialogs.isEmpty();
+  }
+
+  /**
+   * Closes every open dialog of a type that belongs to an entity, i.e. whose {@link
+   * DialogContextKeys#ENTITY} is the entity, even if the user could not close it.
+   *
+   * @param type dialog type
+   * @param entity the entity the dialogs belong to, e.g. the card reader they show
+   * @return whether a dialog was closed
+   */
+  public static boolean closeDialogs(DialogType type, Entity entity) {
+    return closeDialogs(
+        type,
+        context ->
+            context
+                .find(DialogContextKeys.ENTITY, Integer.class)
+                .filter(id -> id == entity.id())
+                .isPresent());
   }
 }

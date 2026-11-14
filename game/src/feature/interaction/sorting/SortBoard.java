@@ -1,5 +1,7 @@
 package feature.interaction.sorting;
 
+import static feature.interaction.FeatureDialogStyle.INK;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
@@ -55,9 +57,6 @@ public class SortBoard {
   private static final float TEXT_LEFT = 16;
   private static final float TEXT_RIGHT = 6;
   private static final float TEXT_BOTTOM = 4;
-
-  /** Text color of the engine's look, shared with {@link SortingUI}. */
-  static final Color INK = Color.valueOf("1b1f27");
 
   private static final Color GHOST = Color.valueOf("8a919e");
   private static final Color CARD = Color.valueOf("fbfbf8");

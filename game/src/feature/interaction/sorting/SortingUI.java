@@ -1,5 +1,12 @@
 package feature.interaction.sorting;
 
+import static feature.interaction.FeatureDialogStyle.GO;
+import static feature.interaction.FeatureDialogStyle.INK;
+import static feature.interaction.FeatureDialogStyle.MUTED;
+import static feature.interaction.FeatureDialogStyle.PANEL;
+import static feature.interaction.FeatureDialogStyle.STOP;
+import static feature.interaction.FeatureDialogStyle.tinted;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
@@ -15,12 +22,10 @@ import engine.language.Translation;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
-import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasArea;
 import feature.canvas.CanvasNode;
 import feature.canvas.CanvasOptions;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.HeadlessDialogGroup;
@@ -39,10 +44,6 @@ import java.util.stream.IntStream;
 public final class SortingUI extends Table {
 
   private static final Translation TRANSLATION = new Translation("dialog.sorting_dialog");
-  private static final Color PANEL = Color.valueOf("f2efe6");
-  private static final Color MUTED = Color.valueOf("4a5262");
-  private static final Color GO = Color.valueOf("1f7a3a");
-  private static final Color STOP = Color.valueOf("b42323");
   private static final float MAX_WIDTH = 960;
   // Room for the dialog's padding and a margin to the window edges.
   private static final float MARGIN = 160;
@@ -50,9 +51,7 @@ public final class SortingUI extends Table {
   private static final float BIN_HEIGHT = 130;
 
   private final Sorting sorting;
-  private final Label feedback =
-      Scene2dElementFactory.createLabel(
-          "", FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 20, Color.WHITE));
+  private final Label feedback = Scene2dElementFactory.createBoldLabel("", 20, Color.WHITE);
   private final CanvasArea area;
   private final SortBoard board;
   private final List<SortBoard.Slot> slots = new ArrayList<>();
@@ -86,17 +85,13 @@ public final class SortingUI extends Table {
     }
 
     setUserObject(Cursors.DEFAULT);
-    setBackground(UIUtils.defaultSkin().newDrawable("white", PANEL));
+    setBackground(tinted(PANEL));
     pad(28, 40, 28, 40);
     defaults().left();
     String title = sorting.title().isBlank() ? TRANSLATION.text("title") : sorting.title();
     String help = sorting.help().isBlank() ? TRANSLATION.text("help") : sorting.help();
-    add(Scene2dElementFactory.createLabel(
-            title, FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 34, SortBoard.INK)))
-        .row();
-    Label helpLabel =
-        Scene2dElementFactory.createLabel(
-            help, FontSpec.of(Scene2dElementFactory.FONT_PATH, 20, MUTED));
+    add(Scene2dElementFactory.createBoldLabel(title, 34, INK)).row();
+    Label helpLabel = Scene2dElementFactory.createLabel(help, 20, MUTED);
     helpLabel.setWrap(true);
     add(helpLabel).growX().padTop(12).padBottom(20).row();
     add(area).size(MAX_WIDTH, BIN_HEIGHT).row();

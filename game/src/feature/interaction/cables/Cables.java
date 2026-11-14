@@ -1,7 +1,6 @@
 package feature.interaction.cables;
 
 import engine.Entity;
-import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -9,7 +8,6 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
-import java.util.Set;
 
 /**
  * Opens the dialog of a cable puzzle and checks the players' wiring on the server.
@@ -68,7 +66,15 @@ public final class Cables {
         payload -> {
           if (payload instanceof DialogResponseMessage.IntList(int[] wiring)
               && cables.connect(wiring, player)) {
-            closeOthers(entity, ui);
+            // The other players' dialogs of the entity still show loose cables.
+            UIUtils.closeDialogs(
+                DialogType.DefaultTypes.CABLES,
+                other ->
+                    other != ui.dialogContext()
+                        && other
+                            .find(DialogContextKeys.ENTITY, Integer.class)
+                            .filter(id -> id == entity.id())
+                            .isPresent());
           }
         });
     ui.registerCallback(
@@ -79,22 +85,5 @@ public final class Cables {
           }
         });
     return ui;
-  }
-
-  // The other players' dialogs of the entity still show loose cables.
-  private static void closeOthers(Entity entity, UIComponent ui) {
-    Game.entities(Set.of(UIComponent.class))
-        .map(owner -> owner.fetch(UIComponent.class).orElseThrow())
-        .filter(
-            other ->
-                other != ui
-                    && other.dialogContext().dialogType() == DialogType.DefaultTypes.CABLES
-                    && other
-                        .dialogContext()
-                        .find(DialogContextKeys.ENTITY, Integer.class)
-                        .filter(id -> id == entity.id())
-                        .isPresent())
-        .toList()
-        .forEach(other -> UIUtils.closeDialog(other, true));
   }
 }
