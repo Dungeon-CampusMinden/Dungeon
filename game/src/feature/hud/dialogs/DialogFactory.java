@@ -18,6 +18,7 @@ import feature.interaction.cardreader.CardReaderUI;
 import feature.interaction.combinationlock.CombinationLockUI;
 import feature.interaction.keypad.KeypadUI;
 import feature.interaction.phone.PhoneUI;
+import feature.interaction.sorting.SortingUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
 import feature.puzzle.PuzzleDialog;
@@ -78,6 +79,7 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.CLIENT_CONNECTION, ClientConnectionDialog::build);
     register(DialogType.DefaultTypes.COMBINATION_LOCK, CombinationLockUI::build);
     register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
+    register(DialogType.DefaultTypes.SORTING, SortingUI::build);
     LOGGER.debug("Registered built-in dialog types");
   }
 
