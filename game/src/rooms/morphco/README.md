@@ -1,8 +1,8 @@
-# Morph & Co. KG – Die Wörterfabrik
+# Morph & Co. KG: Die Wörterfabrik
 
 <p align="center"><img src="../../../../doc/img/readme/morph-co.png" alt="Morph &amp; Co. KG: a technician in the word factory in front of crates for the word classes and a conveyor belt"></p>
 
-A morphology escape room for 1–2 players. There is no release yet. From the repository:
+A morphology escape room for 1 or 2 players. There is no release yet. From the repository:
 `./gradlew :game:runMorphCo`
 
 ## For players
@@ -20,7 +20,7 @@ communication collapses. Play alone or with a partner.
 | --- | --- |
 | Subject | German linguistics (Germanistische Linguistik), morphology |
 | Contents | inflectable word classes, prefixes, suffixes and circumfixes, word formation vs. inflection, free morphemes, morpheme analysis |
-| Players | 1–2, alone or in multiplayer |
+| Players | 1 or 2, alone or in multiplayer |
 | Duration | Planned for 30 to 45 minutes; not yet confirmed in playtests |
 
 Players switch off the alarm in the control room and learn from the production control system

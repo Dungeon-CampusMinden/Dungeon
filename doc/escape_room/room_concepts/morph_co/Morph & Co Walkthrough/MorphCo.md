@@ -1,4 +1,4 @@
-# Morph & Co. KG – Walkthrough
+# Morph & Co. KG: Walkthrough
 
 Die Wörterfabrik der Morph & Co. KG steht still. Die Spielenden schalten den Alarm aus, lesen am
 Computer die Fehlermeldungen, reparieren die Affix-Sortieranlage A-12 und die Flexionsstraße F-04
@@ -139,8 +139,8 @@ Solange der Alarm läuft, meldet der Computer nur: „Erst muss der Alarm aus.�
 Am Computer (4) ist ein Bildschirmschoner aktiv; ein Klick beendet ihn. Der Tab „[ANLAGENSTATUS]“
 meldet:
 
-- **F-04 Flexionsstraße – Fehler 133:** Flexionsparadigma inkonsistent.
-- **A-12 Affix-Sortieranlage – Fehler 204:** Unzulässiger Morphemtyp im Materialmagazin.
+- **F-04 Flexionsstraße - Fehler 133:** Flexionsparadigma inkonsistent.
+- **A-12 Affix-Sortieranlage - Fehler 204:** Unzulässiger Morphemtyp im Materialmagazin.
 
 Sobald der Computer benutzt wurde, öffnet sich die Tür zum Flur. Im Questlog stehen jetzt die
 Aufgaben „A-12 reparieren“ und „F-04 reparieren“. Im Tab „[NEUSTART]“ steht noch „Nicht verfügbar.“
@@ -218,9 +218,9 @@ Das Display zeigt immer den nächsten Schritt:
 
 | Display | Nächster Schritt |
 | --- | --- |
-| FEHLER 204 – Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen. | Schloss öffnen |
-| FEHLER 204 – Sortierung blockiert. Affixe manuell sortieren. | Wartungsklappe anklicken |
-| FEHLER 204 – Affixe sortiert. Eingabeschächte befüllen. | Wartungsklappe anklicken |
+| FEHLER 204: Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen. | Schloss öffnen |
+| FEHLER 204: Sortierung blockiert. Affixe manuell sortieren. | Wartungsklappe anklicken |
+| FEHLER 204: Affixe sortiert. Eingabeschächte befüllen. | Wartungsklappe anklicken |
 | NEUSTART ERFORDERLICH | Hebel ziehen |
 | STATUS: OK | erledigt |
 
@@ -258,12 +258,12 @@ Teile zu den Zirkumfixen.
 | Wort | Schnitte | Fächer |
 | --- | --- | --- |
 | unbezahlbar | un · be · zahl · bar | un → Präfixe, be → Präfixe, bar → Suffixe |
-| auf | – | ganzes Wort → Kein Affix |
+| auf | keine | ganzes Wort → Kein Affix |
 | geregnet | ge · regn · et | ge → Zirkumfixe, et → Zirkumfixe |
 | Störung | Stör · ung | ung → Suffixe |
 | sagten | sag · ten | ten → Suffixe |
-| Schornstein | – | ganzes Wort → Kein Affix |
-| Hamster | – | ganzes Wort → Kein Affix |
+| Schornstein | keine | ganzes Wort → Kein Affix |
+| Hamster | keine | ganzes Wort → Kein Affix |
 
 Auch die feineren Segmentierungen *ge · regne · t* (ge und t zu den Zirkumfixen) und
 *sag · te · n* (te und n zu den Suffixen) werden akzeptiert.
@@ -322,7 +322,7 @@ oder A-12 noch nicht stimmen.
 
 ![Sicherheitsfrage am Computer](images/pc_neustart.png)
 
-Im Kontrollraum zeigt der Computer jetzt „ALLE ANLAGEN BEREIT – NEUSTART MÖGLICH“. Im Tab
+Im Kontrollraum zeigt der Computer jetzt „ALLE ANLAGEN BEREIT - NEUSTART MÖGLICH“. Im Tab
 „[NEUSTART]“ öffnet der Knopf „NEUSTART“ die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das
 Wort Überlegungen?“
 
@@ -397,7 +397,7 @@ Krimskrams die noch fehlenden Teile erneut heraus.
 | F-04 | Handbuch: Flexionsmaschine FL3-10-9001 | Pflicht, Schritt 5 |
 | F-04 | Evidentia erzählt | Geschichten aus der Fabrik |
 | F-04 | Morphemtypen und wo sie zu finden sind: Teil 1 | freie Morpheme, Schritt 8 |
-| A-12 | Syntagma – Ein Grammatik-Abenteuer | Abenteuerroman über Satzglieder |
+| A-12 | Syntagma - Ein Grammatik-Abenteuer | Abenteuerroman über Satzglieder |
 | A-12 | Morphemtypen und wo sie zu finden sind: Teil 2 | gebundene Morpheme, Schritt 10 |
 | A-12 | 100 anspruchsvolle Hamsterwitze für den täglichen Gebrauch | Hamsterbuch |
 
@@ -421,7 +421,7 @@ Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffer
 | 11 | Zettel am Telefon | Wachschutz am Eingang: niemand nimmt ab |
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
-| jede andere | – | „Kein Anschluss unter dieser Nummer.“ |
+| jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Wer 11 und 17 anruft, bekommt das versteckte Achievement „Niemand zu Hause“.
 

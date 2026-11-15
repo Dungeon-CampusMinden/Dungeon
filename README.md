@@ -21,7 +21,7 @@ Wizard lets educators build their own rooms without programming.
     <td width="50%"><a href="game/src/rooms/gameofgames/README.md"><img src="doc/img/readme/game-of-games.png" alt="Game of Games: a wizard in a room with bookshelves, a lever, chests and water"></a><br><a href="game/src/rooms/gameofgames/README.md"><b>Game of Games</b></a> (work in progress, no release yet)</td>
   </tr>
   <tr>
-    <td width="50%"><a href="game/src/rooms/morphco/README.md"><img src="doc/img/readme/morph-co.png" alt="Morph &amp; Co. KG: a technician in the word factory in front of crates for the word classes and a conveyor belt"></a><br><a href="game/src/rooms/morphco/README.md"><b>Morph &amp; Co. KG – Die Wörterfabrik</b></a> (German linguistics, morphology; no release yet)</td>
+    <td width="50%"><a href="game/src/rooms/morphco/README.md"><img src="doc/img/readme/morph-co.png" alt="Morph &amp; Co. KG: a technician in the word factory in front of crates for the word classes and a conveyor belt"></a><br><a href="game/src/rooms/morphco/README.md"><b>Morph &amp; Co. KG: Die Wörterfabrik</b></a> (German linguistics, morphology; no release yet)</td>
     <td width="50%"></td>
   </tr>
 </table>
@@ -59,7 +59,7 @@ problems or suggestions, please feel free to contact us in English or German.
 | [System Recovery] | Programming 1, arrays in Java: energy fields, modules, sorting and two-dimensional data become puzzles in a damaged facility. | 1–2 | `./gradlew :game:runSystemRecovery` | [Release][System Recovery release] |
 | [Das Erbe der Seelenweber][Soulweaver] (Soulweaver) | Introduction to programming, first semester: variables and data types, loops, methods and nested conditions, which players use to instruct the golem Nox. | 1–2 | `./gradlew :game:runSoulweaver` | [Release][Soulweaver release] |
 | [Game of Games] | Work in progress without a subject concept yet: levers, keypads, pressure plates and pushable stones placed in the level editor. | 1–2 | `./gradlew :game:runGameOfGames` | none yet |
-| [Morph & Co. KG – Die Wörterfabrik][Morph & Co.] | German linguistics, morphology: the machines of a word factory have stopped, and players sort word classes, cut words into morphemes and tell word formation from inflection. | 1–2 | `./gradlew :game:runMorphCo` | none yet |
+| [Morph & Co. KG: Die Wörterfabrik][Morph & Co.] | German linguistics, morphology: the machines of a word factory have stopped, and players sort word classes, cut words into morphemes and tell word formation from inflection. | 1 or 2 | `./gradlew :game:runMorphCo` | none yet |
 
 Each room has its own README with a story teaser for players and a section for educators. The
 detailed concept documents behind them are in German.

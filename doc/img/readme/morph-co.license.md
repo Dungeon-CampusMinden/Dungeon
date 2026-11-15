@@ -1,4 +1,4 @@
-- Quelle: Screenshot aus dem Spiel (Morph & Co. KG – Die Wörterfabrik)
+- Quelle: Screenshot aus dem Spiel (Morph & Co. KG: Die Wörterfabrik)
 - Author: amatutat
 - License: CC0 1.0
 - Hinweis: Zeigt Spielgrafiken aus `game/assets/`; deren Herkunft und Lizenzen stehen, soweit vorhanden, in den `.license.md`-Dateien dort.

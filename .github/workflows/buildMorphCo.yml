@@ -33,7 +33,7 @@ jobs:
                   TAG="morph-co-v1.0.${{ github.run_number }}"
                   gh release create "$TAG" *.jar *.zip *.tar.gz \
                     --target "${{ github.sha }}" \
-                    --title "Morph & Co. KG – Die Wörterfabrik (Morphology Escape Room)" \
+                    --title "Morph & Co. KG: Die Wörterfabrik (Morphology Escape Room)" \
                     --notes-file ".github/workflows/releaseInstructionsMorphCo.md" \
                     --draft=true \
                     --prerelease=false

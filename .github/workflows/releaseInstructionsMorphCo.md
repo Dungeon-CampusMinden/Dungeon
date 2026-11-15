@@ -1,4 +1,4 @@
-# Morph & Co. KG – Die Wörterfabrik
+# Morph & Co. KG: Die Wörterfabrik
 
 Morph & Co. KG is a German-linguistics escape room on morphology for one or two players. The word factory has stopped its production: switch off the alarm, find out what is broken, repair the affix sorter A-12 and the inflection line F-04 with your knowledge of word classes, affixes and morpheme types, and restart the production. The game is in German; an English interface is available, the language examples stay German.
 
