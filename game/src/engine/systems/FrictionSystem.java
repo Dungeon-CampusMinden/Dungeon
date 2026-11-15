@@ -43,17 +43,18 @@ public class FrictionSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream()
-      .filter(entity -> !entity.isPresent(FlyComponent.class))
-      .map(this::buildDataObject)
-      .forEach(this::applyFriction);
+        .filter(entity -> !entity.isPresent(FlyComponent.class))
+        .map(this::buildDataObject)
+        .forEach(this::applyFriction);
   }
 
   private void applyFriction(FSData data) {
     float friction =
-      level.get()
-        .flatMap(currentLevel -> currentLevel.tileAt(data.pc.position()))
-        .map(Tile::friction)
-        .orElse(DEFAULT_FRICTION);
+        level
+            .get()
+            .flatMap(currentLevel -> currentLevel.tileAt(data.pc.position()))
+            .map(Tile::friction)
+            .orElse(DEFAULT_FRICTION);
 
     Vector2 force = data.vc().currentVelocity().scale(friction).inverse();
     if (force.isZero()) force = Vector2.ZERO;
@@ -62,12 +63,12 @@ public class FrictionSystem extends System {
 
   private FSData buildDataObject(Entity e) {
     VelocityComponent vc =
-      e.fetch(VelocityComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
+        e.fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, VelocityComponent.class));
 
     PositionComponent pc =
-      e.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
 
     return new FSData(e, vc, pc);
   }
