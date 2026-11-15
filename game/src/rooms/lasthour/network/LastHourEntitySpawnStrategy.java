@@ -1,11 +1,11 @@
 package rooms.lasthour.network;
 
 import engine.Entity;
+import engine.collision.CollideSync;
 import engine.components.PositionComponent;
 import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
-import feature.collision.CollideSync;
 import feature.components.ItemComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
@@ -21,7 +21,7 @@ import rooms.lasthour.modules.computer.ComputerStateComponent;
 /**
  * Entity spawn strategy for The Last Hour that supports metadata-only spawn events for {@link
  * ComputerStateComponent}, {@link KeypadComponent}, {@link WorldTimerComponent}, and {@link
- * feature.components.CollideComponent} entities.
+ * engine.components.CollideComponent} entities.
  */
 public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
   private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("collider");

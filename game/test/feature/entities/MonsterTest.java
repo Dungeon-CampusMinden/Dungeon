@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
@@ -12,7 +13,6 @@ import engine.level.utils.LevelElement;
 import engine.systems.LevelSystem;
 import engine.utils.Point;
 import feature.components.AIComponent;
-import feature.components.CollideComponent;
 import feature.components.HealthComponent;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;

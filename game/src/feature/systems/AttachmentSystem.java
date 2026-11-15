@@ -3,6 +3,7 @@ package feature.systems;
 import engine.Entity;
 import engine.System;
 import engine.components.PositionComponent;
+import engine.systems.PositionSync;
 import engine.utils.components.MissingComponentException;
 import feature.components.AttachmentComponent;
 import java.util.HashMap;

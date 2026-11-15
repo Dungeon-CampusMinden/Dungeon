@@ -2,6 +2,7 @@ package rooms.systemRecovery.network;
 
 import engine.Entity;
 import engine.Game;
+import engine.collision.CollideSync;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.network.DefaultSnapshotTranslator;
@@ -9,7 +10,6 @@ import engine.network.MessageDispatcher;
 import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
-import feature.collision.CollideSync;
 import feature.hud.AutoSaveIndicator;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;

@@ -1,11 +1,11 @@
 package rooms.systemRecovery.entities;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;

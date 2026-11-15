@@ -1,11 +1,11 @@
-package feature.collision;
+package engine.collision;
 
 import engine.Entity;
+import engine.components.CollideComponent;
+import engine.systems.PositionSync;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.logging.DungeonLogger;
-import feature.components.CollideComponent;
-import feature.systems.PositionSync;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

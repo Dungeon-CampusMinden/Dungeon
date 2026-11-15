@@ -1,6 +1,7 @@
 package feature.entities.deco;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
@@ -8,7 +9,6 @@ import engine.utils.Rectangle;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
-import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 
 /**

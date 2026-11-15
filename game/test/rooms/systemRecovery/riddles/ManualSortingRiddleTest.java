@@ -15,10 +15,10 @@ import static org.mockito.Mockito.when;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.utils.Point;
-import feature.components.CollideComponent;
 import feature.entities.WorldItemBuilder;
 import feature.hud.DialogUtils;
 import feature.hud.dialogs.DialogFactory;

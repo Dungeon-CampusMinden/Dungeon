@@ -2,6 +2,7 @@ package rooms.soulweaver.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
@@ -13,7 +14,6 @@ import engine.utils.components.draw.state.CharacterStateFactory;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.List;

@@ -1,4 +1,4 @@
-package feature.collision;
+package engine.collision;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.CollideComponent;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;

@@ -2,16 +2,16 @@ package feature.audience;
 
 import engine.Entity;
 import engine.Game;
+import engine.collision.CollisionUtils;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.level.Tile;
+import engine.systems.PositionSync;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.collision.CollisionUtils;
-import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
-import feature.systems.PositionSync;
 import java.util.Comparator;
 import java.util.Optional;
 

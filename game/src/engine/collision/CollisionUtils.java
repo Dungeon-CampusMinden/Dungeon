@@ -1,16 +1,12 @@
-package feature.collision;
+package engine.collision;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.PlayerComponent;
-import engine.components.VelocityComponent;
-import engine.level.Tile;
-import engine.level.utils.LevelElement;
+import engine.systems.CollisionSystem;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.CollideComponent;
-import feature.systems.CollisionSystem;
-import java.util.List;
 import java.util.Set;
 
 /** Utility class for handling various collision detection things. */
@@ -48,49 +44,7 @@ public class CollisionUtils {
     return colliding;
   }
 
-  /**
-   * Checks if a point is colliding with a non-accessible level tile.
-   *
-   * @param pos the position to check for collision
-   * @param vc the velocity component containing movement capabilities
-   * @return true if the tile at the given position is not accessible, false otherwise
-   */
-  public static boolean isCollidingWithLevel(Point pos, VelocityComponent vc) {
-    return !tileIsAccessible(Game.tileAt(pos).orElse(null), vc);
-  }
-
-  /**
-   * Checks if a collider, when set on a specific position, is colliding with any level tiles that
-   * are not accessible.
-   *
-   * @param collider the collider
-   * @param pos the position to check for collision
-   * @param vc the velocity component containing movement capabilities
-   * @return true if any corner of the collider is colliding with a non-accessible tile, false
-   *     otherwise
-   */
-  public static boolean isCollidingWithLevel(Collider collider, Point pos, VelocityComponent vc) {
-    List<Vector2> corners = collider.cornersScaled();
-    return corners.stream()
-        .anyMatch(v -> !tileIsAccessible(Game.tileAt(pos.translate(v)).orElse(null), vc));
-  }
-
-  /**
-   * Helper method to determine if a tile can be entered by the entity.
-   *
-   * <p>Considers both whether the tile is accessible and whether the entity is allowed to enter
-   * walls.
-   *
-   * @param tile the tile to check for accessibility
-   * @param vc the velocity component containing movement capabilities
-   * @return true if tile is accessible or a wall that can be entered, false otherwise
-   */
-  private static boolean tileIsAccessible(Tile tile, VelocityComponent vc) {
-    boolean canEnterWalls = vc != null && vc.canEnterWalls();
-    return tile != null
-        && (tile.isAccessible()
-            || (canEnterWalls && tile.levelElement().equals(LevelElement.WALL)));
-  }
+  // Collision checks against the level are in LevelCollisionView.
 
   // ========== Collision Math ==========
 

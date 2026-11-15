@@ -2,6 +2,7 @@ package rooms.audience;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
@@ -15,7 +16,6 @@ import engine.utils.Vector2;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.audience.AudienceSystem;
-import feature.components.CollideComponent;
 import feature.components.UIComponent;
 import feature.hud.DialogUtils;
 import feature.hud.UIUtils;

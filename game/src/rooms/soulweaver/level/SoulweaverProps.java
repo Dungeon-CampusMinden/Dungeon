@@ -2,13 +2,13 @@ package rooms.soulweaver.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.components.LeverComponent;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;

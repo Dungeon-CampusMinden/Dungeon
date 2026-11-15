@@ -11,6 +11,9 @@ import engine.components.CameraComponent;
 import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
 import engine.level.Tile;
+import engine.level.elements.ILevel;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
@@ -40,14 +43,27 @@ public final class CameraSystem extends System {
 
   private Point actualPosition;
   private Point focusPoint;
+  private final Res<ILevel> level;
 
   static {
     camera().zoom = DEFAULT_ZOOM_FACTOR;
   }
 
-  /** Create a new {@link CameraSystem}. */
+  /** Create a new {@link CameraSystem} that uses the level of the game. */
   public CameraSystem() {
+    this(Resources.level());
+  }
+
+  /**
+   * Create a new {@link CameraSystem} that uses the level of the given handle.
+   *
+   * <p>Intended for tests, which can pass a fixed or mutable handle instead of the game state.
+   *
+   * @param level handle to the level whose start tile is focused without a camera entity
+   */
+  CameraSystem(final Res<ILevel> level) {
     super(AuthoritativeSide.CLIENT, CameraComponent.class, PositionComponent.class);
+    this.level = level;
   }
 
   static float viewportWidth() {
@@ -158,10 +174,8 @@ public final class CameraSystem extends System {
   }
 
   private void focus() {
-    Point focusPoint;
-    if (Game.currentLevel().isEmpty()) focusPoint = new Point(0, 0);
-    else focusPoint = Game.startTile().map(Tile::position).orElse(new Point(0, 0));
-
+    Point focusPoint =
+        level.get().flatMap(ILevel::startTile).map(Tile::position).orElse(new Point(0, 0));
     focus(focusPoint);
   }
 

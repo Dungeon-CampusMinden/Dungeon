@@ -2,6 +2,7 @@ package feature.inventory.items;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.level.Tile;
 import engine.level.elements.tile.FloorTile;
 import engine.utils.Direction;
@@ -10,7 +11,6 @@ import engine.utils.TriConsumer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.components.HealthComponent;
 import feature.entities.WorldItemBuilder;
 import feature.inventory.Item;

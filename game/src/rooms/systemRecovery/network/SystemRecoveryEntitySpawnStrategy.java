@@ -1,11 +1,11 @@
 package rooms.systemRecovery.network;
 
 import engine.Entity;
+import engine.collision.CollideSync;
 import engine.components.PositionComponent;
 import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
-import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import java.util.HashMap;

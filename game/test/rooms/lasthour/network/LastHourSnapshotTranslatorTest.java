@@ -7,16 +7,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.LevelState;
 import engine.network.messages.s2c.SnapshotMessage;
+import engine.systems.PositionSync;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.CollideComponent;
 import feature.interaction.keypad.KeypadComponent;
-import feature.systems.PositionSync;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

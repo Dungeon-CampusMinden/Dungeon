@@ -1,6 +1,7 @@
 package feature.entities;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
@@ -14,7 +15,6 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.components.LeverComponent;
 import feature.components.PressurePlateComponent;
 import feature.components.ProjectileComponent;

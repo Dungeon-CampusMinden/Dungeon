@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
@@ -25,7 +26,6 @@ import engine.systems.VelocitySystem;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.state.StateMachine;
-import feature.components.CollideComponent;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;

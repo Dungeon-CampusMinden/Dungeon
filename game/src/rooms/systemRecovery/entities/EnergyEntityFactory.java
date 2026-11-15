@@ -2,6 +2,7 @@ package rooms.systemRecovery.entities;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
@@ -9,7 +10,6 @@ import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.DialogUtils;

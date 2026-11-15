@@ -1,19 +1,23 @@
-package feature.systems;
+package engine.systems;
 
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.collision.Collider;
+import engine.collision.CollisionUtils;
+import engine.collision.LevelCollisionView;
+import engine.components.CollideComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
+import engine.level.elements.ILevel;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
 import engine.utils.logging.DungeonLogger;
-import feature.collision.Collider;
-import feature.collision.CollisionUtils;
-import feature.components.CollideComponent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -46,9 +50,24 @@ public final class CollisionSystem extends System {
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
-  /** Create a new CollisionSystem. */
+  private final LevelCollisionView levelCollisionView;
+
+  /** Create a new CollisionSystem that checks solid collisions against the level of the game. */
   public CollisionSystem() {
+    this(Resources.level());
+  }
+
+  /**
+   * Create a new CollisionSystem that checks solid collisions against the level of the given
+   * handle.
+   *
+   * <p>Intended for tests, which can pass a fixed or mutable handle instead of the game state.
+   *
+   * @param level handle to the level to check solid collisions against
+   */
+  CollisionSystem(final Res<ILevel> level) {
     super(CollideComponent.class);
+    this.levelCollisionView = new LevelCollisionView(level);
     onEntityAdd = this::onAddEntity;
     onEntityRemove = this::onRemoveEntity;
   }
@@ -323,7 +342,7 @@ public final class CollisionSystem extends System {
     VelocityComponent vcb = eb.fetch(VelocityComponent.class).orElse(null);
 
     if (!aStationary
-        && (CollisionUtils.isCollidingWithLevel(b, newPos, vcb)
+        && (levelCollisionView.isBlocked(b, newPos, vcb != null && vcb.canEnterWalls())
             || CollisionUtils.isCollidingWithOtherSolids(eb, newPos))) {
       if (firstCollision) solidCollide(eb, b, ea, a, direction.opposite(), false, false);
       return;

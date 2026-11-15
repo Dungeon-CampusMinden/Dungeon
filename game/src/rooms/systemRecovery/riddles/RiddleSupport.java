@@ -1,9 +1,9 @@
 package rooms.systemRecovery.riddles;
 
 import engine.Entity;
+import engine.systems.PositionSync;
 import engine.utils.Point;
 import feature.components.CharacterClassComponent;
-import feature.systems.PositionSync;
 import java.util.NoSuchElementException;
 import rooms.lasthour.starter.LastHourClient;
 

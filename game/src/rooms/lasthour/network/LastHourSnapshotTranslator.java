@@ -2,6 +2,8 @@ package rooms.lasthour.network;
 
 import engine.Entity;
 import engine.Game;
+import engine.collision.CollideSync;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.network.DefaultSnapshotTranslator;
 import engine.network.MessageDispatcher;
@@ -9,8 +11,6 @@ import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.logging.DungeonLogger;
-import feature.collision.CollideSync;
-import feature.components.CollideComponent;
 import feature.hud.AutoSaveIndicator;
 import feature.interaction.keypad.KeypadComponent;
 import feature.timer.WorldTimerComponent;

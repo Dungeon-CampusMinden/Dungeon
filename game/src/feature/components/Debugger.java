@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;

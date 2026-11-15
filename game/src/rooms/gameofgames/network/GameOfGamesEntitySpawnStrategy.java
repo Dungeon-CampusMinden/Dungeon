@@ -1,11 +1,11 @@
 package rooms.gameofgames.network;
 
 import engine.Entity;
+import engine.collision.CollideSync;
 import engine.components.PositionComponent;
 import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
-import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
 import java.util.HashMap;
 import java.util.Map;

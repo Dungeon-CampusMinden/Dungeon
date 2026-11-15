@@ -23,6 +23,7 @@ import engine.network.handler.INetworkHandler;
 import engine.network.handler.LocalNetworkHandler;
 import engine.network.handler.NettyNetworkHandler;
 import engine.network.handler.SlowNettyNetworkHandler;
+import engine.resources.Resources;
 import engine.sound.AudioApi;
 import engine.sound.player.ISoundPlayer;
 import engine.systems.LevelSystem;
@@ -618,10 +619,16 @@ public final class Game {
   /**
    * Get the current level.
    *
+   * <p>New code should not use this method, but request a handle via {@link Resources#level()} in
+   * its constructor.
+   *
    * @return the currently loaded level or an empty Optional if there is no level.
+   * @deprecated Request a level handle via {@link Resources#level()} in the constructor and keep it
+   *     in a field instead. Existing callers are migrated step by step.
    */
+  @Deprecated
   public static Optional<ILevel> currentLevel() {
-    return LevelSystem.level();
+    return Resources.level().get();
   }
 
   /**

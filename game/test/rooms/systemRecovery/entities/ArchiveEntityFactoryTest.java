@@ -3,12 +3,12 @@ package rooms.systemRecovery.entities;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import engine.Entity;
+import engine.collision.Collider;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.utils.Point;
 import engine.utils.components.draw.DrawComponentFactory;
 import engine.utils.components.draw.DrawInfoData;
-import feature.collision.Collider;
-import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
 import org.junit.jupiter.api.Test;
 

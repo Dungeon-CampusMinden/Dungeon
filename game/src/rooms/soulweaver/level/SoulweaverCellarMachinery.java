@@ -6,6 +6,7 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.rendering.TileTextures;
+import engine.systems.PositionSync;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
@@ -212,7 +213,7 @@ final class SoulweaverCellarMachinery {
       SoulweaverGates.open(level, 2);
       // The camera is on the archive wall; Nox enters the upstairs end of the closed sluice.
       golem.fetch(PositionComponent.class).orElseThrow().position(level.getPoint("loop-departure"));
-      feature.systems.PositionSync.syncPosition(golem);
+      PositionSync.syncPosition(golem);
     }
     if (time >= 7.4f) {
       if (scene != null) UIUtils.closeDialog(scene, true);

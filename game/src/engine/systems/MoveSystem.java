@@ -3,17 +3,18 @@ package engine.systems;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.collision.Collider;
+import engine.collision.LevelCollisionView;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
+import engine.level.elements.ILevel;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
-import feature.collision.Collider;
-import feature.collision.CollisionUtils;
-import feature.components.CollideComponent;
-import feature.systems.CollisionSystem;
-import feature.systems.PositionSync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,12 +41,26 @@ public class MoveSystem extends System {
 
   private final Map<Entity, Float> cornerCorrectTimers = new HashMap<>();
 
+  private final LevelCollisionView levelCollisionView;
+
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
-   * PositionComponent}.
+   * PositionComponent} and checks collisions against the level of the game.
    */
   public MoveSystem() {
+    this(Resources.level());
+  }
+
+  /**
+   * Constructs a MoveSystem that checks collisions against the level of the given handle.
+   *
+   * <p>Intended for tests, which can pass a fixed or mutable handle instead of the game state.
+   *
+   * @param level handle to the level to check collisions against
+   */
+  MoveSystem(final Res<ILevel> level) {
     super(VelocityComponent.class, PositionComponent.class);
+    this.levelCollisionView = new LevelCollisionView(level);
   }
 
   /**
@@ -213,9 +228,10 @@ public class MoveSystem extends System {
     Point testPos = start;
     for (int i = 0; i < stepCount; i++) {
       testPos = testPos.translate(step);
-      if (collider == null && !CollisionUtils.isCollidingWithLevel(testPos, vc)) {
+      if (collider == null && !levelCollisionView.isBlocked(testPos, vc.canEnterWalls())) {
         return Optional.of(testPos);
-      } else if (collider != null && !CollisionUtils.isCollidingWithLevel(collider, testPos, vc)) {
+      } else if (collider != null
+          && !levelCollisionView.isBlocked(collider, testPos, vc.canEnterWalls())) {
         return Optional.of(testPos);
       }
     }
@@ -224,9 +240,9 @@ public class MoveSystem extends System {
 
   private boolean isCollidingWithLevel(CollideComponent cc, Point position, VelocityComponent vc) {
     if (cc == null) {
-      return CollisionUtils.isCollidingWithLevel(position, vc);
+      return levelCollisionView.isBlocked(position, vc.canEnterWalls());
     }
-    return CollisionUtils.isCollidingWithLevel(cc.collider(), position, vc);
+    return levelCollisionView.isBlocked(cc.collider(), position, vc.canEnterWalls());
   }
 
   /**

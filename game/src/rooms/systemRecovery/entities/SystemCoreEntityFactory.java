@@ -1,11 +1,11 @@
 package rooms.systemRecovery.entities;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 
 /** Builds the data entries and map cells displayed by riddle 10. */
 public final class SystemCoreEntityFactory {

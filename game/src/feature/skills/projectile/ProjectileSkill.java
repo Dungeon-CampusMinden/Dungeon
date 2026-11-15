@@ -2,6 +2,7 @@ package feature.skills.projectile;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
@@ -13,7 +14,6 @@ import engine.utils.Tuple;
 import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
 import engine.utils.components.path.IPath;
-import feature.components.CollideComponent;
 import feature.components.FlyComponent;
 import feature.components.ProjectileComponent;
 import feature.components.WallHitStateComponent;

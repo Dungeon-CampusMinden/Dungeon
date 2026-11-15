@@ -1,12 +1,12 @@
-package feature.components;
+package engine.components;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import engine.Entity;
 import engine.Game;
+import engine.systems.CollisionSystem;
 import engine.utils.Direction;
 import engine.utils.Vector2;
-import feature.systems.CollisionSystem;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,6 +2,7 @@ package rooms.soulweaver.network;
 
 import engine.Entity;
 import engine.Game;
+import engine.collision.CollideSync;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.ILevel;
@@ -10,7 +11,6 @@ import engine.network.MessageDispatcher;
 import engine.network.SnapshotTranslator;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
-import feature.collision.CollideSync;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.ArrayList;

@@ -11,17 +11,18 @@ import static org.mockito.Mockito.when;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
+import engine.level.elements.ILevel;
 import engine.level.loader.parsers.V2FormatParser;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.resources.MutableRes;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.CollideComponent;
-import feature.systems.CollisionSystem;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -29,13 +30,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for the {@link MoveSystem}. */
+/**
+ * Unit tests for the {@link MoveSystem}.
+ *
+ * <p>The system gets its own level handle, so the tests set the level with {@code
+ * levelRes.set(...)} instead of changing the global game state.
+ */
 public class MoveSystemTest {
 
   private static final float EPSILON = 0.00001f;
 
   private static final Point START_POSITION = new Point(5, 5);
   private static final float MAX_SPEED = 10f;
+  private MutableRes<ILevel> levelRes;
   private MoveSystem system;
   private Entity entity;
   private VelocityComponent vc;
@@ -44,7 +51,8 @@ public class MoveSystemTest {
 
   @BeforeEach
   void setup() {
-    system = new MoveSystem();
+    levelRes = new MutableRes<>(null);
+    system = new MoveSystem(levelRes);
     entity = new Entity();
     pc = new PositionComponent(START_POSITION);
     entity.add(pc);
@@ -53,7 +61,6 @@ public class MoveSystemTest {
     cc = new CollideComponent();
     entity.add(cc);
     Game.add(entity);
-    Game.add(new LevelSystem());
 
     // Setup initial position and velocity default
     vc.currentVelocity(Vector2.ZERO);
@@ -96,7 +103,7 @@ public class MoveSystemTest {
 
     // Mock the current level and its tile accessibility
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
-    Game.currentLevel(mockedLevel);
+    levelRes.set(mockedLevel);
     Tile mockedTile = mock(Tile.class);
     when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(mockedTile));
     when(mockedTile.isAccessible()).thenReturn(true);
@@ -124,7 +131,7 @@ public class MoveSystemTest {
 
     // Mock accessible level and tile
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
-    Game.currentLevel(mockedLevel);
+    levelRes.set(mockedLevel);
     Tile mockedTile = mock(Tile.class);
     when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(mockedTile));
     when(mockedTile.isAccessible()).thenReturn(true);
@@ -169,7 +176,7 @@ public class MoveSystemTest {
     LevelElement[][] layout =
         V2FormatParser.loadLevelLayout(Arrays.stream(layoutStr.split("\n")).toList());
     DungeonLevel l = new DungeonLevel(layout, DesignLabel.DEFAULT);
-    Game.currentLevel(l);
+    levelRes.set(l);
 
     Consumer<Entity> onWallHit = mock(Consumer.class);
     vc.onWallHit(onWallHit);
@@ -203,7 +210,7 @@ public class MoveSystemTest {
     LevelElement[][] layout =
         V2FormatParser.loadLevelLayout(Arrays.stream(layoutStr.split("\n")).toList());
     DungeonLevel l = new DungeonLevel(layout, DesignLabel.DEFAULT);
-    Game.currentLevel(l);
+    levelRes.set(l);
 
     Consumer<Entity> onWallHit = mock(Consumer.class);
     vc.onWallHit(onWallHit);
@@ -224,7 +231,7 @@ public class MoveSystemTest {
 
     // Setup accessible tile for movement check
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
-    Game.currentLevel(mockedLevel);
+    levelRes.set(mockedLevel);
     Tile accessibleTile = mock(Tile.class);
     when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(accessibleTile));
     when(accessibleTile.isAccessible()).thenReturn(true);
@@ -248,7 +255,7 @@ public class MoveSystemTest {
 
     // Setup accessible tile for movement check
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
-    Game.currentLevel(mockedLevel);
+    levelRes.set(mockedLevel);
     Tile accessibleTile = mock(Tile.class);
     when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(accessibleTile));
     when(accessibleTile.isAccessible()).thenReturn(true);
@@ -288,7 +295,7 @@ public class MoveSystemTest {
         pc.position()
             .translate(Vector2.of(10, 10).normalize().scale(5f).scale(1f / Game.frameRate()));
     when(level.tileAt(any(Point.class))).thenReturn(Optional.of(accessibleTile));
-    Game.currentLevel(level);
+    levelRes.set(level);
 
     // Execute system
     system.execute();
@@ -328,7 +335,7 @@ public class MoveSystemTest {
     when(level.tileAt(eq(newPos))).thenReturn(Optional.of(newPosTile));
     when(level.tileAt(eq(xMove))).thenReturn(Optional.of(xMoveTile));
     when(level.tileAt(eq(yMove))).thenReturn(Optional.of(yMoveTile));
-    Game.currentLevel(level);
+    levelRes.set(level);
 
     Consumer<Entity> onWallHit = mock(Consumer.class);
     vc.onWallHit(onWallHit);

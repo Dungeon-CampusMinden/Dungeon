@@ -2,6 +2,7 @@ package rooms.systemRecovery.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.InputComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
@@ -16,7 +17,6 @@ import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
 import escaperoom.foundation.ui.BlackFadeCutscene;
-import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.components.ItemComponent;

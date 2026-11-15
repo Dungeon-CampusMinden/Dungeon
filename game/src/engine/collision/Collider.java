@@ -1,10 +1,10 @@
-package feature.collision;
+package engine.collision;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
-import feature.components.CollideComponent;
 import java.security.InvalidParameterException;
 import java.util.List;
 

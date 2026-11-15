@@ -10,6 +10,7 @@ import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.codec.ShaderComponentCodec;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import engine.systems.PositionSync;
 import engine.utils.CursorUtil;
 import engine.utils.components.draw.DrawComponentFactory;
 import feature.components.Debugger;
@@ -20,7 +21,6 @@ import feature.puzzle.PuzzleNetworkSync;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
-import feature.systems.PositionSync;
 import java.util.Objects;
 import rooms.gameofgames.network.GameOfGamesSnapshotTranslator;
 

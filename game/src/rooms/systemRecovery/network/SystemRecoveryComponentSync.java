@@ -1,11 +1,11 @@
 package rooms.systemRecovery.network;
 
 import engine.Entity;
+import engine.collision.CollideSync;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
-import feature.collision.CollideSync;
-import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadComponent;
 import java.util.ArrayList;

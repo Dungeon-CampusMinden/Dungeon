@@ -1,6 +1,7 @@
 package feature.entities;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
@@ -16,7 +17,6 @@ import feature.ai.fight.StationarySentryAttack;
 import feature.ai.idle.SentryPatrolWalk;
 import feature.ai.transition.RangeTransition;
 import feature.components.AIComponent;
-import feature.components.CollideComponent;
 import feature.skills.projectile.DamageProjectileSkill;
 import java.util.Arrays;
 import java.util.List;

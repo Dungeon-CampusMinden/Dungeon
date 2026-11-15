@@ -1,15 +1,15 @@
-package feature.components;
+package engine.components;
 
 import engine.Component;
 import engine.Entity;
-import engine.components.VelocityComponent;
+import engine.collision.Collider;
+import engine.collision.Hitbox;
+import engine.systems.CollisionSystem;
 import engine.utils.Direction;
 import engine.utils.Rectangle;
 import engine.utils.TriConsumer;
 import engine.utils.Vector2;
 import engine.utils.logging.DungeonLogger;
-import feature.collision.Collider;
-import feature.collision.Hitbox;
 import java.util.function.Function;
 
 /**
@@ -19,14 +19,14 @@ import java.util.function.Function;
  * default size is {@link #DEFAULT_SIZE}, but you can configure the size of the hitbox in the
  * constructor parameter.
  *
- * <p>The {@link feature.systems.CollisionSystem} will check if the hitbox collides with another
- * hitbox of a different entity. The system can detect two different types of collisions. The first
- * one is a new collision, which occurs if the collision between the two hitboxes was not present at
- * the last check. If a new collision is detected, the {@link feature.systems.CollisionSystem} will
- * call {@link #onEnter(Entity, Entity, Direction)}. The second type of collision is a leaving
- * collision, which occurs if a collision that was present in the last check is no longer present in
- * the current check. If a leaving collision is detected, the {@link
- * feature.systems.CollisionSystem} will call {@link #collideLeave(TriConsumer)}.
+ * <p>The {@link CollisionSystem} will check if the hitbox collides with another hitbox of a
+ * different entity. The system can detect two different types of collisions. The first one is a new
+ * collision, which occurs if the collision between the two hitboxes was not present at the last
+ * check. If a new collision is detected, the {@link CollisionSystem} will call {@link
+ * #onEnter(Entity, Entity, Direction)}. The second type of collision is a leaving collision, which
+ * occurs if a collision that was present in the last check is no longer present in the current
+ * check. If a leaving collision is detected, the {@link CollisionSystem} will call {@link
+ * #collideLeave(TriConsumer)}.
  *
  * <p>Example use cases for a collision are pushing an object like a chest or getting damaged by a
  * spiky monster.
@@ -39,7 +39,7 @@ import java.util.function.Function;
  *
  * <p>The {@link #collideHold} will be executed for ongoing collisions.
  *
- * @see feature.systems.CollisionSystem
+ * @see CollisionSystem
  */
 public final class CollideComponent implements Component {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CollideComponent.class);

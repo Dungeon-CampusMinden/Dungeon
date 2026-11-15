@@ -6,7 +6,6 @@ import engine.System;
 import engine.components.NetworkPositionComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
-import feature.systems.PositionSync;
 
 /**
  * Smooths client-side entity positions toward authoritative network snapshot targets.

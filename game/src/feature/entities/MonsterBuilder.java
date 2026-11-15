@@ -2,6 +2,7 @@ package feature.entities;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
@@ -16,7 +17,6 @@ import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.AIComponent;
-import feature.components.CollideComponent;
 import feature.components.HealthComponent;
 import feature.components.IdleSoundComponent;
 import feature.components.InventoryComponent;

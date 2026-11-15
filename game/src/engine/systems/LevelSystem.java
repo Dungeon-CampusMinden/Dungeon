@@ -9,6 +9,7 @@ import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.elements.tile.ExitTile;
 import engine.level.loader.DungeonLoader;
+import engine.resources.Resources;
 import engine.utils.IVoidFunction;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLogger;
@@ -17,7 +18,8 @@ import java.util.Optional;
 /**
  * Manages the dungeon game world.
  *
- * <p>The system will store the currently active level.
+ * <p>The system owns the currently active level and stores it in the {@link Resources} registry.
+ * Other systems should access the level through {@link Resources#level()}.
  *
  * <p>The system will check if one of the entities managed by this system is positioned on the end
  * tile of the level. If so, the next level will be loaded.
@@ -39,7 +41,6 @@ public final class LevelSystem extends System {
 
   private static final String SOUND_EFFECT = "enterDoor";
 
-  private static ILevel currentLevel;
   private IVoidFunction onLevelLoad = () -> {};
   private IVoidFunction onEndTile;
 
@@ -59,9 +60,12 @@ public final class LevelSystem extends System {
    * Get the currently loaded level.
    *
    * @return The currently loaded level or an empty Optional if there is no level.
+   * @deprecated The level is stored in the {@link Resources} registry. Request a level handle via
+   *     {@link Resources#level()} in the constructor and keep it in a field instead.
    */
+  @Deprecated
   public static Optional<ILevel> level() {
-    return Optional.ofNullable(currentLevel);
+    return Resources.level().get();
   }
 
   /**
@@ -72,7 +76,7 @@ public final class LevelSystem extends System {
    * @param level The level to be set.
    */
   public void loadLevel(final ILevel level) {
-    currentLevel = level;
+    Resources.insert(ILevel.class, level);
     onLevelLoad.execute();
     LOGGER.info("A new level was loaded.");
   }
@@ -110,7 +114,7 @@ public final class LevelSystem extends System {
    */
   @Override
   public void execute() {
-    if (currentLevel == null) {
+    if (level().isEmpty()) {
       return;
     }
 

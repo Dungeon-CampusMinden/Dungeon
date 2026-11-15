@@ -2,11 +2,13 @@ package feature.entities;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.level.elements.tile.DoorTile;
 import engine.systems.DrawSystem;
+import engine.systems.PositionSync;
 import engine.utils.Direction;
 import engine.utils.IVoidFunction;
 import engine.utils.Point;
@@ -18,7 +20,6 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CatapultableComponent;
-import feature.components.CollideComponent;
 import feature.components.FlyComponent;
 import feature.components.InventoryComponent;
 import feature.components.ProjectileComponent;
@@ -41,7 +42,6 @@ import feature.inventory.items.ItemHeart;
 import feature.inventory.items.ItemKey;
 import feature.inventory.items.ItemWoodenArrow;
 import feature.skills.SkillTools;
-import feature.systems.PositionSync;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -93,7 +93,7 @@ public final class MiscFactory {
    * <p>The Entity is not added to the game yet.
    *
    * <p>The Entity will have a {@link InteractionComponent}, {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
+   * engine.components.DrawComponent}, {@link engine.components.CollideComponent} and {@link
    * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
    * interaction.
    *
@@ -111,7 +111,7 @@ public final class MiscFactory {
    * <p>The Entity is not added to the game yet.
    *
    * <p>The Entity will have a {@link InteractionComponent}, {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
+   * engine.components.DrawComponent}, {@link engine.components.CollideComponent} and {@link
    * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
    * interaction.
    *
@@ -168,7 +168,7 @@ public final class MiscFactory {
    * <p>The Entity is not added to the game yet.
    *
    * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
+   * engine.components.DrawComponent}, {@link CollideComponent} and {@link
    * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
    * interaction.
    *

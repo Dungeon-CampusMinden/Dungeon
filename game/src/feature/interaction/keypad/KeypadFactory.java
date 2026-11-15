@@ -1,6 +1,7 @@
 package feature.interaction.keypad;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
@@ -10,7 +11,6 @@ import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
-import feature.components.CollideComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;

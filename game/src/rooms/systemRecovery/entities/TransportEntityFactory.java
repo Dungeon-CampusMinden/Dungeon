@@ -2,6 +2,7 @@ package rooms.systemRecovery.entities;
 
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
@@ -11,7 +12,6 @@ import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.CollideComponent;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;

@@ -2,13 +2,13 @@ package feature.entities;
 
 import engine.Entity;
 import engine.components.CameraComponent;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.utils.Direction;
 import engine.utils.Point;
 import feature.components.AIComponent;
-import feature.components.CollideComponent;
 import feature.components.HealthComponent;
 import feature.components.InventoryComponent;
 import feature.interaction.DropItemsInteraction;
@@ -37,7 +37,7 @@ public final class EntityFactory {
    *
    * <p>It will have a {@link CameraComponent}, {@link engine.components.PlayerComponent}. {@link
    * PositionComponent}, {@link VelocityComponent} {@link engine.components.DrawComponent}, {@link
-   * feature.components.CollideComponent} and {@link HealthComponent}.
+   * engine.components.CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
    */
@@ -52,7 +52,7 @@ public final class EntityFactory {
    *
    * <p>It will have a {@link CameraComponent}, {@link engine.components.PlayerComponent}. {@link
    * PositionComponent}, {@link VelocityComponent} {@link engine.components.DrawComponent}, {@link
-   * feature.components.CollideComponent} and {@link HealthComponent}.
+   * engine.components.CollideComponent} and {@link HealthComponent}.
    *
    * @param deathCallback function that will be executed if the player dies
    * @return A new Entity.
@@ -67,7 +67,7 @@ public final class EntityFactory {
    *
    * <p>It will have a {@link CameraComponent}, {@link engine.components.PlayerComponent}. {@link
    * PositionComponent}, {@link VelocityComponent} {@link engine.components.DrawComponent}, {@link
-   * feature.components.CollideComponent} and {@link HealthComponent}.
+   * engine.components.CollideComponent} and {@link HealthComponent}.
    *
    * @param characterClass The character class of the hero.
    * @return A new Entity.
@@ -104,7 +104,7 @@ public final class EntityFactory {
    * <p>The Entity is not added to the game yet. *
    *
    * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
+   * engine.components.DrawComponent}, {@link engine.components.CollideComponent} and {@link
    * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
    * interaction.
    *
@@ -122,7 +122,7 @@ public final class EntityFactory {
    * <p>The Entity is not added to the game yet.
    *
    * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-   * engine.components.DrawComponent}, {@link feature.components.CollideComponent} and {@link
+   * engine.components.DrawComponent}, {@link engine.components.CollideComponent} and {@link
    * feature.components.InventoryComponent}. It will use the {@link DropItemsInteraction} on
    * interaction.
    *

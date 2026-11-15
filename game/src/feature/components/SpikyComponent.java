@@ -1,6 +1,7 @@
 package feature.components;
 
 import engine.Component;
+import engine.components.CollideComponent;
 import feature.health.Damage;
 import feature.health.DamageType;
 

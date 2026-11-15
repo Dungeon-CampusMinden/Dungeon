@@ -1,4 +1,4 @@
-package feature.collision;
+package engine.collision;
 
 import engine.utils.Point;
 import engine.utils.Vector2;

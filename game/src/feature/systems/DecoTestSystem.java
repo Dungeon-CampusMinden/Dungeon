@@ -6,15 +6,16 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.input.CursorUtils;
+import engine.systems.PositionSync;
 import engine.systems.input.InputManager;
 import engine.utils.ClipboardUtil;
 import engine.utils.FontHelper;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.logging.DungeonLogger;
-import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 

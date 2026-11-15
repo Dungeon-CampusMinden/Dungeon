@@ -1,8 +1,8 @@
-package feature.systems;
+package engine.systems;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
-import feature.components.CollideComponent;
 
 /**
  * This system syncs the position of entities with other components that rely on mid-frame position

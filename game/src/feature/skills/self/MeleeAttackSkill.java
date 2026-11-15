@@ -2,6 +2,7 @@ package feature.skills.self;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
@@ -10,7 +11,6 @@ import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.AttachmentComponent;
-import feature.components.CollideComponent;
 import feature.components.HealthComponent;
 import feature.health.Damage;
 import feature.health.DamageType;

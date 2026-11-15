@@ -1,11 +1,11 @@
 package feature.prefabs.types;
 
 import engine.Entity;
+import engine.components.CollideComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.CollideComponent;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;

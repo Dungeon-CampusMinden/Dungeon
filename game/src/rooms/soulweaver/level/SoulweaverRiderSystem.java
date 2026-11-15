@@ -3,17 +3,17 @@ package rooms.soulweaver.level;
 import engine.Entity;
 import engine.Game;
 import engine.System;
+import engine.components.CollideComponent;
 import engine.components.DrawComponent;
 import engine.components.InputComponent;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.systems.DrawSystem;
+import engine.systems.PositionSync;
 import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.state.StateMachine;
-import feature.components.CollideComponent;
-import feature.systems.PositionSync;
 
 /** Attaches the real Act IV player to Nox after movement, on the host and receiving clients. */
 final class SoulweaverRiderSystem extends System {
