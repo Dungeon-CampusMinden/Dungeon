@@ -37,7 +37,7 @@ public final class WorldTimerAlarm {
     long remaining =
         Game.entities()
             .flatMap(entity -> entity.fetch(WorldTimerComponent.class).stream())
-            .filter(timer -> timer.stoppedAtActiveMs() == Long.MAX_VALUE)
+            .filter(timer -> !timer.countsUp() && timer.stoppedAtActiveMs() == Long.MAX_VALUE)
             .mapToLong(WorldTimerComponent::remainingMs)
             .filter(ms -> ms > 0 && ms <= LAST_MINUTE_MS)
             .min()
