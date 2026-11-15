@@ -1,4 +1,4 @@
-# Morph & Co. KG – Die Wörterfabrik
+# Morph & Co. KG: Die Wörterfabrik
 
 Dieses Dokument beschreibt den umgesetzten Escape Room. Grundlage sind das Skript
 „Morph & Co.“ und das Handout [Morphemtypen und wo sie zu finden sind](Handout_Morphemtypen.pdf)
@@ -62,15 +62,15 @@ die Reihenfolge der Reparaturen frei.
 
 | Schritt | Ort | Aufgabe | Lösung |
 | --- | --- | --- | --- |
-| 1 | Eingang | Sicherheitskarte durch das Lesegerät ziehen | im richtigen Tempo (0,3–1,2 s) öffnet sich die Tür zum Kontrollraum |
+| 1 | Eingang | Sicherheitskarte durch das Lesegerät ziehen | im richtigen Tempo (0,3 bis 1,2 s) öffnet sich die Tür zum Kontrollraum |
 | 2 | Kontrollraum | Konsole: Alarm ausschalten | Knopf „Nerviger Alarmton“ (andere Knöpfe geben witzige Rückmeldungen) |
 | 3 | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört; Tür zur Produktion öffnet |
-| 4a | F-04 | Regal: Handbuch FL3–10–9001 lesen | flektierbar sind Nomen, Adjektive, Verben, Artikel, Pronomina |
+| 4a | F-04 | Regal: Handbuch FL3-10-9001 lesen | flektierbar sind Nomen, Adjektive, Verben, Artikel, Pronomina |
 | 4b | F-04 | Kisten: Wortarten sortieren | siehe Tabelle unten |
 | 5a | A-12 | Nahansicht der Anlage: Ziffernblock am Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Handout Teil 1 in F-04) |
 | 5b | A-12 | Wartungsklappe: Wörter zerschneiden und Affixe sortieren | siehe unten |
 | 5c | A-12 | Eingabeschächte | Wortbildung: {un-}, {be-}, {-bar}, {-ung}; Flexion: {-ten}, {ge- … -et} |
-| 5d | A-12 | Hebel: Anlage neu starten | gleichmäßig ganz nach unten ziehen (0,6–2 s); vor 5c klemmt der Hebel |
+| 5d | A-12 | Hebel: Anlage neu starten | gleichmäßig ganz nach unten ziehen (0,6 bis 2 s); vor 5c klemmt der Hebel |
 | 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5d erledigt sind |
 | 7 | Kontrollraum | PC: [NEUSTART], Sicherheitsfrage | *Überlegungen* = {über}{leg}{ung}{en} = **4** |
 | optional | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung über den Türen geht an |
@@ -90,11 +90,11 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
 | Wort | Schnitte | Fächer |
 | --- | --- | --- |
 | unbezahlbar | un · be · zahl · bar | {un-}, {be-} → Präfixe; {-bar} → Suffixe |
-| auf | – | ganzes Wort → Kein Affix |
+| auf | keine | ganzes Wort → Kein Affix |
 | geregnet | ge · regn · et (auch ge · regne · t) | {ge-}, {-et} → Zirkumfixe |
 | Störung | Stör · ung | {-ung} → Suffixe |
 | sagten | sag · ten (auch sag · te · n) | {-ten} → Suffixe |
-| Schornstein, Hamster | – | ganzes Wort → Kein Affix |
+| Schornstein, Hamster | keine | ganzes Wort → Kein Affix |
 
 ## Gemeinsame Regeln
 
@@ -120,7 +120,7 @@ Ein Klick auf das Telefon im Kontrollraum öffnet Hörer und Ziffernblock. Daneb
 | 11 | Zettel am Telefon | Wachschutz am Eingang: niemand nimmt ab |
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab (mit 11 das versteckte Achievement „Niemand zu Hause“) |
 | 133, 204 | Fehlercodes am PC | Bandansage, die auf die Technik-Hotline verweist |
-| jede andere | – | „Kein Anschluss unter dieser Nummer.“ |
+| jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Die Hotline hilft bei dem Schritt, zu dem die Schichtleitung gerade etwas sagen würde
 (`ShiftLead.hint`), in drei Stufen: erst die Richtung, dann ein konkreter Tipp, zuletzt die
@@ -277,13 +277,13 @@ umgesetzt**, weil sie den Inhalt der Vorlage betreffen:
    Eingabeschächte verlangen aber {ge- ... -et} unter Flexion (und das Handout führt {ge-}+{-t}
    als Flexionsaffix). Vorschlag: „Wortbildungspräfixe und -zirkumfixe …; Ausnahme: das Zirkumfix
    des Partizips II.“
-2. *selten* bleibt liegen, *spät* kommt zu den Adjektiven – beide sind hier adverbial gebrauchte
+2. *selten* bleibt liegen, *spät* kommt zu den Adjektiven; beide sind hier adverbial gebrauchte
    Adjektive (seltener, später). Vorschlag: ein echtes Adverb, z. B. „Ein Hamster kommt nie zu spät“.
 3. Handout: {nimm} ist selbst eine Imperativform; gemeint ist vermutlich {nehm}. {-thek} ist eher
    ein Konfix (Bibliothek, Videothek) als unikal. {be-}+{-t} (*berühmt*) ist umstritten
    (*beherzt*, *bebrillt* wären klarer).
-4. {be- ... -ig} (*begierig*) wird meist als *Begier* + {-ig} analysiert; *gehen – ging –
-   gegangen* ist eher Suppletion als ein reines Ablautbeispiel (*singen – sang – gesungen*).
+4. {be- ... -ig} (*begierig*) wird meist als *Begier* + {-ig} analysiert; *gehen, ging,
+   gegangen* ist eher Suppletion als ein reines Ablautbeispiel (*singen, sang, gesungen*).
 5. Die Schlossfrage nennt 8 als allgemeine Zahl; sie gilt für die Klassifikation des Handouts.
 
 # 10. Autoplay
