@@ -24,7 +24,7 @@ class EntitySystemMapperTest {
   private final System system = mock(System.class);
 
   @Test
-  public void acceptsAnEntityOnlyOnceAndOnlyWithAllRequiredComponents() {
+  void acceptsAnEntityOnlyOnceAndOnlyWithAllRequiredComponents() {
     EntitySystemMapper mapper =
         new EntitySystemMapper(Set.of(PositionComponent.class, VelocityComponent.class));
     when(entity.isPresent(PositionComponent.class)).thenReturn(true);
@@ -37,7 +37,7 @@ class EntitySystemMapperTest {
   }
 
   @Test
-  public void notifiesTheSystemWhenAnEntityGainsOrLosesAComponent() {
+  void notifiesTheSystemWhenAnEntityGainsOrLosesAComponent() {
     EntitySystemMapper mapper = new EntitySystemMapper(Set.of(PositionComponent.class));
     mapper.add(system);
 
@@ -53,7 +53,7 @@ class EntitySystemMapperTest {
   }
 
   @Test
-  public void registersAndRemovesASystemForExistingEntities() {
+  void registersAndRemovesASystemForExistingEntities() {
     EntitySystemMapper mapper = new EntitySystemMapper();
     mapper.add(entity);
 
@@ -70,7 +70,7 @@ class EntitySystemMapperTest {
   }
 
   @Test
-  public void removingAnUnknownEntityReturnsFalseAndKeepsTheExistingEntity() {
+  void removingAnUnknownEntityReturnsFalseAndKeepsTheExistingEntity() {
     EntitySystemMapper mapper = new EntitySystemMapper();
     mapper.add(entity);
     Entity unknown = mock(Entity.class);
@@ -80,7 +80,7 @@ class EntitySystemMapperTest {
   }
 
   @Test
-  public void matchesOnlyTheSameComponentFilter() {
+  void matchesOnlyTheSameComponentFilter() {
     EntitySystemMapper mapper = new EntitySystemMapper(Set.of(PositionComponent.class));
 
     assertTrue(mapper.equals(Set.of(PositionComponent.class)));
@@ -88,7 +88,7 @@ class EntitySystemMapperTest {
   }
 
   @Test
-  public void mappersAreEqualWhenTheirComponentFiltersMatch() {
+  void mappersAreEqualWhenTheirComponentFiltersMatch() {
     EntitySystemMapper first = new EntitySystemMapper(Set.of(PositionComponent.class));
     EntitySystemMapper sameFilter = new EntitySystemMapper(Set.of(PositionComponent.class));
     EntitySystemMapper otherFilter = new EntitySystemMapper(Set.of(VelocityComponent.class));

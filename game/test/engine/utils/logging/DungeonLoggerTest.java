@@ -35,28 +35,28 @@ class DungeonLoggerTest {
   }
 
   @Test
-  public void fillsPlaceholdersInOrder() {
+  void fillsPlaceholdersInOrder() {
     logger.info("Collected {} of {} keys", 2, 5);
 
     assertEquals("Collected 2 of 5 keys", handler.records.getFirst().getMessage());
   }
 
   @Test
-  public void leavesPlaceholdersWithoutAnArgumentInTheMessage() {
+  void leavesPlaceholdersWithoutAnArgumentInTheMessage() {
     logger.info("Move from {} to {}", "spawn");
 
     assertEquals("Move from spawn to {}", handler.records.getFirst().getMessage());
   }
 
   @Test
-  public void aNullFormatProducesANullMessage() {
+  void aNullFormatProducesANullMessage() {
     logger.info(null, "unused");
 
     assertNull(handler.records.getFirst().getMessage());
   }
 
   @Test
-  public void skipsDebugBelowTheInfoThreshold() {
+  void skipsDebugBelowTheInfoThreshold() {
     logger.debug("Checking inventory");
     logger.info("Inventory ready");
 
@@ -65,7 +65,7 @@ class DungeonLoggerTest {
   }
 
   @Test
-  public void keepsTheExceptionSeparateFromTheFormattedMessage() {
+  void keepsTheExceptionSeparateFromTheFormattedMessage() {
     Exception failure = new IllegalStateException("Missing texture");
     logger.error("Cannot load {}", "hero.png", failure);
 
@@ -75,7 +75,7 @@ class DungeonLoggerTest {
   }
 
   @Test
-  public void varargsUsesTheLastExceptionAsTheCause() {
+  void varargsUsesTheLastExceptionAsTheCause() {
     Exception failure = new IllegalStateException("Save failed");
     logger.error("Save {} at ({}, {}): {}", "slot1", 3, 4, failure);
 

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class PointTest {
 
   @Test
-  public void distanceFromOriginToThreeFourIsFive() {
+  void distanceFromOriginToThreeFourIsFive() {
     Point start = new Point(0, 0);
     Point end = new Point(3, 4);
 
@@ -20,7 +20,7 @@ class PointTest {
   }
 
   @Test
-  public void squaredDistanceFromOriginToThreeFourIsTwentyFive() {
+  void squaredDistanceFromOriginToThreeFourIsTwentyFive() {
     Point start = new Point(0, 0);
     Point end = new Point(3, 4);
 
@@ -28,7 +28,7 @@ class PointTest {
   }
 
   @Test
-  public void inRangeIncludesTheExactDistance() {
+  void inRangeIncludesTheExactDistance() {
     Point start = new Point(0, 0);
     Point end = new Point(3, 4);
 
@@ -38,7 +38,7 @@ class PointTest {
   }
 
   @Test
-  public void translationAndVectorToUseTheSameDisplacement() {
+  void translationAndVectorToUseTheSameDisplacement() {
     Point start = new Point(1, 2);
     Vector2 step = Vector2.of(3, -1);
     Point end = new Point(4, 1);
@@ -49,7 +49,7 @@ class PointTest {
   }
 
   @Test
-  public void convertsAPointToItsTileCoordinatesAndCenter() {
+  void convertsAPointToItsTileCoordinatesAndCenter() {
     Point point = new Point(-1.75f, 2.75f);
 
     assertEquals(new Coordinate(-1, 2), point.toCoordinate());
@@ -57,7 +57,7 @@ class PointTest {
   }
 
   @Test
-  public void floorRoundsNegativeValuesTowardZero() {
+  void floorRoundsNegativeValuesTowardZero() {
     Point point = new Point(-1.75f, 2.75f);
 
     assertEquals(new Point(-1, 2), point.floor());

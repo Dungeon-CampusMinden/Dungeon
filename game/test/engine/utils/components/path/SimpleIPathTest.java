@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class SimpleIPathTest {
 
   @Test
-  public void keepsTheOriginalPathAndUsesZeroPriority() {
+  void keepsTheOriginalPathAndUsesZeroPriority() {
     SimpleIPath path = new SimpleIPath("textures/../Hero.png");
 
     assertEquals("textures/../Hero.png", path.pathString());
@@ -17,7 +17,7 @@ class SimpleIPathTest {
   }
 
   @Test
-  public void distinctInstancesWithTheSamePathAreNotEqual() {
+  void distinctInstancesWithTheSamePathAreNotEqual() {
     SimpleIPath first = new SimpleIPath("textures/Hero.png");
     SimpleIPath second = new SimpleIPath("textures/Hero.png");
 

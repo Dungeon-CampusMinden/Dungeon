@@ -79,7 +79,7 @@ class DungeonLoggerConfigTest {
   }
 
   @Test
-  public void keepsTheHandlersAndLevelsFromTheFirstConfiguration() {
+  void keepsTheHandlersAndLevelsFromTheFirstConfiguration() {
     DungeonLoggerConfig.builder().consoleLevel(Level.WARNING).fileLevel(Level.INFO).build();
     Handler[] firstHandlers = root.getHandlers();
     assertEquals(2, firstHandlers.length);
@@ -94,7 +94,7 @@ class DungeonLoggerConfigTest {
   }
 
   @Test
-  public void disablingFileOutputKeepsOnlyTheConsole() {
+  void disablingFileOutputKeepsOnlyTheConsole() {
     DungeonLoggerConfig.builder().enableFile(false).useTimestampInFilename(false).build();
 
     assertEquals(1, root.getHandlers().length);
@@ -103,7 +103,7 @@ class DungeonLoggerConfigTest {
   }
 
   @Test
-  public void disablingConsoleOutputWritesOnlyToTheFile() throws IOException {
+  void disablingConsoleOutputWritesOnlyToTheFile() throws IOException {
     DungeonLoggerConfig.builder()
         .enableConsole(false)
         .fileLevel(Level.INFO)

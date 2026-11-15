@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class RectangleTest {
 
   @Test
-  public void twoCornersDefineTheSameRectangleInEitherOrder() {
+  void twoCornersDefineTheSameRectangleInEitherOrder() {
     Point first = new Point(1, 5);
     Point second = new Point(4, 1);
     Rectangle expected = new Rectangle(3, 4, 1, 1);
@@ -20,7 +20,7 @@ class RectangleTest {
   }
 
   @Test
-  public void containsPointsOnTheEdge() {
+  void containsPointsOnTheEdge() {
     Rectangle room = new Rectangle(4, 3);
 
     assertTrue(room.contains(new Point(2, 1)));
@@ -30,7 +30,7 @@ class RectangleTest {
   }
 
   @Test
-  public void intersectsRequiresAnOverlappingRectangle() {
+  void intersectsRequiresAnOverlappingRectangle() {
     Rectangle room = new Rectangle(4, 3);
 
     assertTrue(room.intersects(new Rectangle(2, 2, 3, 1)));
@@ -40,7 +40,7 @@ class RectangleTest {
   }
 
   @Test
-  public void expandsAllSidesAndKeepsTheSizeWhenMoved() {
+  void expandsAllSidesAndKeepsTheSizeWhenMoved() {
     Rectangle room = new Rectangle(4, 3, 1, 2);
 
     assertEquals(new Rectangle(6, 5, 0, 1), room.expand(1));
