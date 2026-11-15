@@ -77,6 +77,18 @@ public class Scene2dElementFactory {
   }
 
   /**
+   * Creates a Label in the bold font with the specified text, font size, and color.
+   *
+   * @param text the text to display in the label
+   * @param fontSize the size of the font
+   * @param fontColor the color of the font
+   * @return a new Label instance
+   */
+  public static Label createBoldLabel(String text, int fontSize, Color fontColor) {
+    return createLabel(text, FontSpec.of(FONT_PATH_BOLD, fontSize, fontColor));
+  }
+
+  /**
    * Creates a Label with the specified text and font size, using the default white color.
    *
    * @param text the text to display in the label
