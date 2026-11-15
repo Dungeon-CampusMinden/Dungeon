@@ -17,6 +17,7 @@ import engine.sound.Sounds;
 import engine.systems.DrawSystem;
 import engine.utils.IVoidFunction;
 import engine.utils.Point;
+import engine.utils.Vector2;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.deco.Deco;
@@ -75,9 +76,9 @@ class SystemRecoveryPhoneControllerTest {
     questLog = mockStatic(SystemRecoveryQuestLogUtil.class);
     decorations.when(() -> DecoFactory.createDeco(point, Deco.Phone)).thenReturn(phone);
     draw.when(DrawSystem::getInstance).thenReturn(mock(DrawSystem.class));
-    entities.when(() -> EntityUtils.getPosition(phone)).thenReturn(point);
     emotes
-        .when(() -> EmoteFactory.createEmote(point, Emote.EXCLAMATION, 60 * 60 * 1000))
+        .when(
+            () -> EmoteFactory.createEmote(phone, Vector2.ZERO, Emote.EXCLAMATION, 60 * 60 * 1000))
         .thenReturn(emote);
     dialogs
         .when(

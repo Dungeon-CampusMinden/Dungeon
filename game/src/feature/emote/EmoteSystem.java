@@ -5,8 +5,13 @@ import engine.Game;
 import engine.System;
 import engine.components.PositionComponent;
 import engine.utils.Point;
+import feature.utils.EntityUtils;
+import java.util.Optional;
 
-/** System that processes emotes, updating their wobbling. */
+/**
+ * System that processes emotes, updating their wobbling and keeping them above the entity they
+ * follow.
+ */
 public class EmoteSystem extends System {
 
   /** Create a new EmoteSystem that processes emote entities. */
@@ -21,8 +26,12 @@ public class EmoteSystem extends System {
 
   private void process(Data data) {
     data.ec().update(1f / Game.frameRate());
-    if (data.ec().isDone()) {
+    Optional<Entity> target = data.ec().target();
+    if (data.ec().isDone() || (target.isPresent() && !Game.existInGame(target.get()))) {
       Game.remove(data.e());
+    } else if (target.isPresent()) {
+      Point anchor = EntityUtils.getPosition(target.get()).translate(data.ec().offset());
+      data.pc().position(anchor.translate(0, data.ec().getWobbleOffset()));
     } else {
       Point pos = data.pc.position();
       float translate = data.ec().getWobbleMoveFrame();
