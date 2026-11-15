@@ -17,9 +17,9 @@ Jeder Raum hat bis zu zwei Umfragen:
 | `game/assets/surveys/pre-<roomId>.json` | Bei einem neuen Spiel vor dem Intro. „Weiter“ nach dem Absenden startet das Intro. Ein geladener Spielstand fragt nicht erneut. |
 | `game/assets/surveys/post-<roomId>.json` | Als letzter Schritt nach dem Raumergebnis und dem Abspann. „Beenden“ nach dem Absenden schließt die Umfrage; sobald alle Spieler fertig sind, endet das Spiel. |
 
-`<roomId>` ist die Raum-ID, unter der der Raum getrackt wird: `system-recovery`, `soulweaver` oder
-`the-last-hour`. Gibt es eine Datei nicht, entfällt diese Umfrage. Ist sie fehlerhaft, entfällt sie
-ebenfalls und das Log nennt den Fehler.
+`<roomId>` ist die Raum-ID, unter der der Raum getrackt wird: `system-recovery`, `soulweaver`,
+`the-last-hour` oder `morph-co`. Gibt es eine Datei nicht, entfällt diese Umfrage. Ist sie
+fehlerhaft, entfällt sie ebenfalls und das Log nennt den Fehler.
 
 Jeder Spieler beantwortet die Umfrage für sich. Ohne Tracking-Zustimmung im Hauptmenü erscheint
 keine Umfrage, weil die Antworten dann nicht gespeichert werden dürfen. Spielzeit und

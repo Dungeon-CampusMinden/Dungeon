@@ -261,6 +261,33 @@ tasks.register('runTheLastHourServer', JavaExec) {
     args '--server'
 }
 
+tasks.register('runMorphCo', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.morphco.MorphCo'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runMorphCoLevelEditor', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.morphco.MorphCo'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--leveleditor'
+}
+
+tasks.register('runMorphCoAutoplay', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.morphco.MorphCo'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--leveleditor', '--autoplay'
+}
+
+tasks.register('runMorphCoServer', JavaExec) {
+    group 'starter'
+    mainClass = 'rooms.morphco.MorphCo'
+    classpath = sourceSets.main.runtimeClasspath
+    args '--server'
+}
+
 tasks.named('test', Test) {
     useJUnitPlatform()
 }
@@ -389,6 +416,26 @@ tasks.register('buildSoulweaverJar', Jar) {
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
+tasks.register('buildMorphCoJar', Jar) {
+    group = 'jar'
+    dependsOn configurations.runtimeClasspath
+    archiveBaseName.set('MorphCo')
+    archiveFileName.set('MorphCo.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'rooms.morphco.MorphCo'
+    }
+
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
 tasks.register('buildTheLastHourServerJar', Jar) {
     group = 'jar'
     dependsOn configurations.runtimeClasspath
@@ -436,6 +483,15 @@ tasks.register('installSoulweaverDist', Sync) {
 
     into layout.buildDirectory.dir('installSoulweaver/soulweaver/lib')
     from tasks.named('buildSoulweaverJar')
+    from configurations.runtimeClasspath
+}
+
+tasks.register('installMorphCoDist', Sync) {
+    group = 'build'
+    dependsOn tasks.named('buildMorphCoJar')
+
+    into layout.buildDirectory.dir('installMorphCo/morphCo/lib')
+    from tasks.named('buildMorphCoJar')
     from configurations.runtimeClasspath
 }
 
@@ -537,6 +593,17 @@ tasks.register('jpackageImageSoulweaver', Exec) {
         'Soulweaver',
         'Soulweaver.jar',
         'rooms.soulweaver.Soulweaver'
+    )
+}
+
+tasks.register('jpackageImageMorphCo', Exec) {
+    configureRoomJpackageImage(
+        it,
+        tasks.named('installMorphCoDist'),
+        'installMorphCo/morphCo/lib',
+        'MorphCo',
+        'MorphCo.jar',
+        'rooms.morphco.MorphCo'
     )
 }
 
