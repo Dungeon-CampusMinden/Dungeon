@@ -76,7 +76,7 @@ final class MorphCoObjects {
     deco("mirror", Deco.LabWindowSmall);
     deco("fuse-box", Deco.LabElectricPanel);
     deco("cup", Deco.Cup);
-    plain("tall-plant", "office/plant.png", 1.2f, new Rectangle(0.9f, 0.5f, 0.15f, 0f));
+    texture("tall-plant", "potted_plant.png", 26 / 16f, new Rectangle(0.8f, 0.4f, 0.4f, 0f));
 
     // Small framed pictures on the wall; interacting shows the large picture.
     for (String poster :
@@ -84,7 +84,7 @@ final class MorphCoObjects {
       texture("picture-" + poster, "wall_" + poster + ".png", 9 / 16f, null);
     }
 
-    // Door and hall signs.
+    // Door and hall signs, drawn with 32 pixels per tile so that their lettering stays legible.
     texture("sign-f04", "sign_f04.png", 15 / 16f, null);
     texture("sign-a12", "sign_a12.png", 15 / 16f, null);
     texture("sign-wc", "sign_wc.png", 15 / 16f, null);
@@ -102,7 +102,7 @@ final class MorphCoObjects {
     // Entrance and control room.
     plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);
     plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
-    plain("desk-pc", "office/desk-with-pc.png", 2f, new Rectangle(1.9f, 0.9f, 0.05f, 0f));
+    texture("desk-pc", "desk_pc.png", 40 / 16f, new Rectangle(2.8f, 0.9f, 0.1f, 0f));
     switchable(
         "console",
         "console_alarm.png",
@@ -113,13 +113,30 @@ final class MorphCoObjects {
     // F-04.
     texture(
         "flexion-machine", "flexion_machine.png", 44 / 16f, new Rectangle(2.4f, 2f, 0.2f, 0.4f));
-    switchable("display-f04", "display_f04_error.png", "display_f04_ok.png", 1f, null);
+    // A display on a stand, 32 pixels per tile like the signs; each of its two frames is 80x70.
+    blinking(
+        "display-f04",
+        "display_f04_error.png",
+        80,
+        70,
+        "display_f04_ok.png",
+        70 / 32f,
+        new Rectangle(0.9f, 0.3f, 0.8f, 0f));
     LOOKS.put("crate", MorphCoObjects::crate);
     LOOKS.put("belt", MorphCoObjects::belt);
     plain("word-sheet", "items/rpg/item_paper.png", 0.7f, null);
 
     // A-12.
-    texture("affix-sorter", "affix_sorter.png", 3f, new Rectangle(2.8f, 1.2f, 0.1f, 0f));
+    // The red light of the broken sorter blinks; it turns green after the repair. Each of the two
+    // frames is 48x51, the size of the sorter picture.
+    blinking(
+        "affix-sorter",
+        "affix_sorter.png",
+        48,
+        51,
+        "affix_sorter_ok.png",
+        3f,
+        new Rectangle(2.8f, 1.2f, 0.1f, 0f));
     switchable("display-a12", "display_a12_error.png", "display_a12_ok.png", 1f, null);
     LOOKS.put("keypad", MorphCoObjects::keypad);
     LOOKS.put(
@@ -200,6 +217,22 @@ final class MorphCoObjects {
         (name, position, number) ->
             List.of(
                 MorphCoProps.buildSwitchable(name, position, ART + off, ART + on, size, collider)));
+  }
+
+  private static void blinking(
+      String kind,
+      String off,
+      int frameWidth,
+      int frameHeight,
+      String on,
+      float size,
+      Rectangle collider) {
+    LOOKS.put(
+        kind,
+        (name, position, number) ->
+            List.of(
+                MorphCoProps.buildBlinking(
+                    name, position, ART + off, frameWidth, frameHeight, ART + on, size, collider)));
   }
 
   private static void deco(String kind, Deco deco) {

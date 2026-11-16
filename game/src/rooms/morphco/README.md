@@ -104,7 +104,9 @@ Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten häng
 erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es nur noch für Türen und
 Auslöseflächen. Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen
 genügt. Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
-(`*_large.png`).
+(`*_large.png`). Die Raumgrafik hat 16 Pixel pro Kachel; Schilder und Displays mit Schrift haben 32,
+damit die Wörter lesbar bleiben. Die Fehleranzeige von F-04 und die Warnlampe von A-12 blinken,
+solange die Anlage kaputt ist (`MorphCoProps.buildBlinking`: zwei Bilder nebeneinander).
 
 ### Geräusche und Musik
 

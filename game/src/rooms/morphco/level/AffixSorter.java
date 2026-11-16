@@ -51,6 +51,7 @@ final class AffixSorter {
   private final MorphCoState state;
   private final List<Integer> hamsterJokes = new ArrayList<>();
   private int lastJoke;
+  private Entity sorter;
   private Entity lock;
   private Entity display;
 
@@ -61,8 +62,14 @@ final class AffixSorter {
 
   /** Creates the sorter, its lock and hatch and the inventory of the hall. */
   void spawn() {
-    // The whole machine: nothing to highlight in the close-up.
-    on("affix-sorter", (self, player) -> closeUp(player, ""));
+    MorphCoObjects.on(
+        "affix-sorter",
+        entity -> {
+          sorter = entity;
+          // The whole machine: nothing to highlight in the close-up.
+          MorphCoProps.interact(entity, (self, player) -> closeUp(player, ""));
+          if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
+        });
     // Lever and hatch are part of the sorter's picture; their objects are click areas.
     on("a12-lever", (self, player) -> closeUp(player, MorphCoDialogs.A12_LEVER));
     on("hatch", (self, player) -> closeUp(player, MorphCoDialogs.A12_HATCH));
@@ -193,6 +200,7 @@ final class AffixSorter {
     if (!level.complete(MorphCoMilestone.A12_REPAIRED)) return;
     UIUtils.closeDialogs(
         MorphCoDialogs.AFFIX_SORTER, context -> context != closeUp.dialogContext());
+    MorphCoProps.switchOn(sorter);
     MorphCoProps.switchOn(display);
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_relay_activate"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.LEVER);

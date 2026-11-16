@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Türschild „ABSTELLKAMMER“), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Türschild „ABSTELLKAMMER“), per Skript als Pixel-Art mit 32 Pixeln pro Kachel gezeichnet; Schrift: Roboto Bold (SIL Open Font License 1.1, `game/assets/fonts/Roboto-Bold.ttf`, siehe `game/assets/fonts/Roboto.license.md`) ohne Kantenglättung
 - Author: amatutat
 - License: CC0 1.0
 
