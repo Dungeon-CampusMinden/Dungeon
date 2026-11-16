@@ -174,9 +174,8 @@ public class Debugger extends System {
   }
 
   private static void pause() {
-    UIComponent ui = PauseDialog.showPauseDialog(Game.player().orElseThrow());
-    if (ui == null) return;
-    pauseMenu = ui.dialogContext().ownerEntity();
+    PauseDialog.showPauseDialog(Game.player().orElseThrow())
+        .ifPresent(ui -> pauseMenu = ui.dialogContext().ownerEntity());
   }
 
   private static void unpause() {

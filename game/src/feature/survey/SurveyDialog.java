@@ -1,5 +1,7 @@
 package feature.survey;
 
+import static feature.hud.UIUtils.tinted;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -363,7 +365,7 @@ final class SurveyDialog {
 
     private Table card(Question question) {
       Table card = new Table();
-      card.setBackground(tint(question instanceof Info ? INFO : CARD));
+      card.setBackground(tinted(question instanceof Info ? INFO : CARD));
       card.pad(14, CARD_PAD, 14, CARD_PAD);
       card.defaults().left();
       String title = richText(question.text().text(language));
@@ -585,8 +587,8 @@ final class SurveyDialog {
       style.listStyle.font = style.font;
       style.listStyle.fontColorUnselected = INK;
       style.listStyle.fontColorSelected = Color.WHITE;
-      style.listStyle.selection = padded(tint(ACCENT));
-      style.listStyle.over = padded(tint(ACCENT_LIGHT));
+      style.listStyle.selection = padded(tinted(ACCENT));
+      style.listStyle.over = padded(tinted(ACCENT_LIGHT));
       SelectBox<String> box = new SelectBox<>(style);
       List<String> items = new ArrayList<>();
       items.add(T.text("select"));
@@ -652,7 +654,7 @@ final class SurveyDialog {
             for (int index = 0; index < rows.size(); index++) {
               boolean missing = invalid && groups.get(index).getCheckedIndex() < 0;
               Color color = missing ? ROW_MISSING : index % 2 == 0 ? STRIPE : null;
-              rows.get(index).setBackground(color == null ? null : tint(color));
+              rows.get(index).setBackground(color == null ? null : tinted(color));
             }
           };
       field.marker.accept(false);
@@ -717,7 +719,7 @@ final class SurveyDialog {
           error.setVisible(false);
         }
         marker.accept(problem.isPresent());
-        card.setBackground(tint(problem.isPresent() ? CARD_ERROR : CARD));
+        card.setBackground(tinted(problem.isPresent() ? CARD_ERROR : CARD));
         card.invalidateHierarchy();
         return problem.isEmpty();
       }
@@ -764,7 +766,7 @@ final class SurveyDialog {
     if (outbox.isPresent() && email.isPresent()) {
       Value inner = value(() -> dialogWidth(620) - 2 * WINDOW_PAD_X - 2 * CARD_PAD);
       Table recovery = new Table();
-      recovery.setBackground(tint(CARD));
+      recovery.setBackground(tinted(CARD));
       recovery.pad(12, CARD_PAD, 12, CARD_PAD);
       recovery
           .add(wrappedLabel(T.text("result.recovery", email.get()), 16, INK, FONT_REGULAR))
@@ -902,7 +904,7 @@ final class SurveyDialog {
    * @return bordered drawable
    */
   private static Drawable outlined(Drawable base, Color color) {
-    Drawable line = tint(color);
+    Drawable line = tinted(color);
     return new BaseDrawable(base) {
       @Override
       public void draw(Batch batch, float x, float y, float width, float height) {
@@ -974,10 +976,6 @@ final class SurveyDialog {
 
   private static BitmapFont font(String path, int size) {
     return FontHelper.getFont(FontSpec.of(path, size, Color.WHITE));
-  }
-
-  private static Drawable tint(Color color) {
-    return UIUtils.defaultSkin().newDrawable("white", color);
   }
 
   /**
