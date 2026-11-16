@@ -78,6 +78,11 @@ public final class MorphCoState {
   /** Prefix of flags that record an opened book. */
   public static final String BOOK_PREFIX = "book:";
 
+  /**
+   * Prefix of flags that record a book a player has received, followed by document and player name.
+   */
+  public static final String BOOK_ITEM_PREFIX = "carried:";
+
   /** Prefix of flags that record a stage of the hint hotline, followed by step and stage. */
   public static final String HINT_PREFIX = "hint:";
 

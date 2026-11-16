@@ -14,13 +14,15 @@ import rooms.morphco.util.MorphCoText;
  * <p>{@link MorphCoDialogs#HANDBOOK} is the manual of the inflection machine. {@link
  * MorphCoDialogs#MORPH_1} and {@link MorphCoDialogs#MORPH_2} are the two volumes of "Morphemtypen
  * und wo sie zu finden sind", the classification handout of the room split into free and bound
- * morphemes.
+ * morphemes. {@link MorphCoDialogs#HANDOUT} shows both volumes one below the other, the handout
+ * that players put together in their inventory.
  */
 final class DocumentUI extends PaperUI {
 
   private static final String HANDBOOK = MorphCoDialogs.HANDBOOK;
   private static final String MORPH_1 = MorphCoDialogs.MORPH_1;
   private static final String MORPH_2 = MorphCoDialogs.MORPH_2;
+  private static final String HANDOUT = MorphCoDialogs.HANDOUT;
 
   private DocumentUI(DialogContext context, String document) {
     super(context, title(document));
@@ -28,6 +30,10 @@ final class DocumentUI extends PaperUI {
     switch (document) {
       case MORPH_1 -> freeMorphemes();
       case MORPH_2 -> boundMorphemes();
+      case HANDOUT -> {
+        freeMorphemes();
+        boundMorphemes();
+      }
       default -> sheet.add(MorphCoUI.rich(t("handbook"), 20, MorphCoUI.INK)).row();
     }
   }
@@ -48,6 +54,7 @@ final class DocumentUI extends PaperUI {
     return switch (document) {
       case MORPH_1 -> t("morph1-title");
       case MORPH_2 -> t("morph2-title");
+      case HANDOUT -> t("handout-title");
       default -> t("handbook-title");
     };
   }

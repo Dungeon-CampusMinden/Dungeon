@@ -102,8 +102,10 @@ Zettel am Telefon, die Bandansage unter den Fehlercodes 133 und 204 und die Schi
 ![Questlog mit dem Tab Hinweise](images/questlog_hinweise.png)
 
 Das Questlog (B) hat die Tabs „Auftrag“, „F-04 Flexionsstraße“, „A-12 Affix-Sortieranlage“,
-„Indizien“ und „Hinweise“. Erledigte Aufgaben werden als „(erledigt)“ markiert. Unter „Indizien“
-stehen gefundene Hinweise, etwa das Handbuch, beide Teile des Handouts und die Frage am Schloss.
+„Indizien“ und „Hinweise“. Jede Aufgabe hat ein Kästchen, das abgehakt wird, sobald sie erledigt
+ist. In den Tabs von F-04 und A-12 stehen die Schritte der Reparatur eingerückt unter ihr. Unter
+„Indizien“ stehen gefundene Hinweise, etwa das Handbuch, ein Verweis auf die Morphemtypen-Bände im
+Inventar und die Frage am Schloss.
 Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste oben.
 
 ## Walkthrough
@@ -170,7 +172,10 @@ Kisten öffnen.
 ![Handbuch der Flexionsmaschine](images/f04_handbuch.png)
 
 Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** mit den freien
-Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 8).
+Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 8). Wer es anklickt, nimmt es
+ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Zieht man
+im Inventar einen Band auf den anderen, werden beide zum Handout „Morphemtypen“ mit allen
+Morphemtypen auf einem Blatt. Jeder Spieler nimmt sein eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 
@@ -385,8 +390,9 @@ klickt „Montieren“:
 | {ge} | {en} | {ge- ... -en} | gelesen |
 
 Andere Paare passen nicht zusammen. Sind alle drei Zirkumfixe montiert, gibt es das Achievement
-„Kombinatorisch 1A!“. Inventare werden nicht gespeichert; nach dem Laden eines Spielstands gibt der
-Krimskrams die noch fehlenden Teile erneut heraus.
+„Kombinatorisch 1A!“. Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines
+Spielstands gibt der Krimskrams die noch fehlenden Teile erneut heraus. Die Morphemtypen-Bände und
+das Handout bekommt dagegen jeder Spieler nach dem Laden zurück.
 
 ### Bücher und Hamsterwitze
 

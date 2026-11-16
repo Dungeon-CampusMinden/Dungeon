@@ -133,6 +133,7 @@ public class MorphCoLevel extends DungeonLevel {
   private void welcome(Entity player) {
     int id = player.id();
     startAlarm(id);
+    MorphCoBooks.carry(this, player);
     if (continued) {
       playReady(id);
       return;

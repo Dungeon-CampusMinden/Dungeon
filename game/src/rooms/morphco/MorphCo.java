@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import rooms.morphco.items.CircumfixFragmentItem;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.level.MorphCoClientLevel;
 import rooms.morphco.level.MorphCoLevel;
 import rooms.morphco.level.MorphCoObjectPrefab;
@@ -253,6 +254,7 @@ public final class MorphCo {
     QuestLogUI.register();
     MorphCoDialogs.register();
     CircumfixFragmentItem.ensureRegistration();
+    MorphemeTypesItem.ensureRegistration();
   }
 
   private static void serverSetup() {
