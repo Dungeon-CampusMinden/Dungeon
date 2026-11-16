@@ -3,7 +3,6 @@ package rooms.morphco.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
@@ -49,14 +48,10 @@ final class PanelNode extends CanvasNode {
     deletable(false);
     selectable(false);
     content.top().left();
-    // Panels are scenery: a press must not let the canvas raise them above the chips on them.
+    // Panels are scenery: a press must not let the canvas raise them above the chips on them. A
+    // plain event listener, not an input listener, so the D-pad does not stop at them either.
     addListener(
-        new InputListener() {
-          @Override
-          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            return true;
-          }
-        });
+        event -> event instanceof InputEvent input && input.getType() == InputEvent.Type.touchDown);
   }
 
   /**

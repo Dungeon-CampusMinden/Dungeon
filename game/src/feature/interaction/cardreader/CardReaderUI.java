@@ -101,6 +101,7 @@ public final class CardReaderUI extends Table {
     shown = swipe.result();
     show();
     addListener(swipe.keys());
+    card.addListener(swipe.padHold());
   }
 
   /**

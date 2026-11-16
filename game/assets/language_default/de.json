@@ -171,7 +171,7 @@
         },
         "phone_dialog": {
             "title": "Telefon",
-            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf.",
+            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf. Controller: Das Steuerkreuz wählt, A drückt.",
             "clear": "C",
             "dial": "OK",
             "calling": "WÄHLE ...",
@@ -186,7 +186,7 @@
         },
         "card_reader_dialog": {
             "title": "Kartenleser",
-            "help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam. Esc schließt den Kartenleser.",
+            "help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Controller: auf der Karte A gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam. Esc schließt den Kartenleser.",
             "ready": "BITTE KARTE DURCHZIEHEN",
             "accepted": "Karte akzeptiert.",
             "too_fast": "Zu schnell. Bitte noch einmal.",
@@ -198,7 +198,7 @@
         },
         "sorting_dialog": {
             "title": "Begriffe zuordnen",
-            "help": "Ziehe jeden Begriff in das passende Fach oder klicke erst auf den Begriff und dann auf das Fach. Begriffe, die in kein Fach gehören, bleiben liegen. Esc schließt das Fenster.",
+            "help": "Ziehe jeden Begriff in das passende Fach oder klicke erst auf den Begriff und dann auf das Fach. Begriffe, die in kein Fach gehören, bleiben liegen. Controller: Das Steuerkreuz wählt, A nimmt und legt ab. Esc schließt das Fenster.",
             "close": "Schließen",
             "reset": "Zurücksetzen",
             "check": "Prüfen",
@@ -207,7 +207,7 @@
         },
         "cables_dialog": {
             "title": "Kabel",
-            "help": "Ziehe jedes Kabelende in die passende Buchse. Oder klicke erst ein Kabelende an und dann die Buchse.",
+            "help": "Ziehe jedes Kabelende in die passende Buchse. Oder klicke erst ein Kabelende an und dann die Buchse. Controller: Das Steuerkreuz wählt, A nimmt ein Kabelende und steckt es ein.",
             "wrong": "Passt nicht. Das Kabel springt zurück.",
             "done": "Alle Kabel stecken."
         }
