@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Türschild „LEITSTAND“), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Türschild „KONTROLLRAUM“), per Skript als Pixel-Art gezeichnet
 - Author: amatutat
 - License: CC0 1.0
 

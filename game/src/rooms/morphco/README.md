@@ -105,3 +105,27 @@ erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es nur noch für 
 Auslöseflächen. Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen
 genügt. Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
 (`*_large.png`).
+
+### Geräusche und Musik
+
+Der Server entscheidet, was zu hören ist, spielt aber selbst nichts ab: Er schickt die Geräusche an
+die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler bei der Begrüßung eigene
+Schleifen (`targets`), denn ein Geräusch von vor dem Verbindungsaufbau erreicht keinen Client.
+
+| Auslöser | Datei (`game/assets/sounds/`) | Quelle des Geräuschs | Lautstärke, Reichweite |
+| --- | --- | --- | --- |
+| Alarm aus | `morphco_printer_dying` (einmal: Drucker im Lüftungsschacht) | global | 0.3 |
+| F-04 kaputt / repariert | `morphco_f04_squeak` / `morphco_f04_hum` | `flexion-machine` | 0.35 / 0.3, 10 Kacheln |
+| Band in F-04 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `conveyor` | 0.2 / 0.2, 8 Kacheln |
+| A-12 kaputt / repariert | `morphco_a12_clatter` / `morphco_a12_plop` | `affix-sorter` | 0.25 / 0.4, 8 Kacheln |
+| Band in A-12 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `a12-conveyor` | 0.15 / 0.2, 6 Kacheln |
+
+`MorphCoAmbience` startet die Maschinenschleifen und tauscht sie, sobald `MorphCoLevel.complete(...)`
+eine Reparatur meldet. Jeder Client verrechnet die Lautstärken noch mit Gesamt- und
+Effektlautstärke aus den Einstellungen. Die Engine dämpft ein Geräusch mit Reichweite nicht mit dem
+Abstand, sondern schaltet es außerhalb der Reichweite stumm; die Reichweiten sind so gewählt, dass
+man vor allem die Maschinen der eigenen Halle hört.
+
+Die Hintergrundmusik (`game/assets/rooms/morphCo/factory_music.ogg`) spielt jeder Client selbst in
+Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und liegt bei den
+Standardeinstellungen unter den Maschinengeräuschen.

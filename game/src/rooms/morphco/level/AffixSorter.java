@@ -265,8 +265,7 @@ final class AffixSorter {
         List.of(
             book("book-syntagma", "syntagma"),
             book("book-morph2", "morph2"),
-            book("book-hamster", "hamster"),
-            ChoiceOption.of(MorphCoText.key("world.a12.close-shelf"), "close"));
+            book("book-hamster", "hamster"));
     DialogFactory.showMultipleChoiceDialog(
         MorphCoText.key("world.a12.shelf"),
         MorphCoText.key(SHELF),
@@ -285,7 +284,6 @@ final class AffixSorter {
   }
 
   private void read(String book, Entity player) {
-    if ("close".equals(book)) return;
     level.seen(MorphCoState.BOOK_PREFIX, "a12-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     if ("morph2".equals(book)) {
