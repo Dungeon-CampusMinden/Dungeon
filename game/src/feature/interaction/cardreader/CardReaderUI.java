@@ -1,13 +1,13 @@
 package feature.interaction.cardreader;
 
-import static feature.interaction.FeatureDialogStyle.GO;
-import static feature.interaction.FeatureDialogStyle.INK;
-import static feature.interaction.FeatureDialogStyle.MUTED;
-import static feature.interaction.FeatureDialogStyle.PANEL;
-import static feature.interaction.FeatureDialogStyle.SCREEN;
-import static feature.interaction.FeatureDialogStyle.STEEL;
-import static feature.interaction.FeatureDialogStyle.STOP;
-import static feature.interaction.FeatureDialogStyle.tinted;
+import static feature.hud.UIUtils.tinted;
+import static feature.interaction.InteractionDialogColors.GO;
+import static feature.interaction.InteractionDialogColors.INK;
+import static feature.interaction.InteractionDialogColors.MUTED;
+import static feature.interaction.InteractionDialogColors.PANEL;
+import static feature.interaction.InteractionDialogColors.SCREEN;
+import static feature.interaction.InteractionDialogColors.STEEL;
+import static feature.interaction.InteractionDialogColors.STOP;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
