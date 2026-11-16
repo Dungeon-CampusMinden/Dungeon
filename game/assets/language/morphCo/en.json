@@ -32,7 +32,6 @@
       "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\""
     },
     "hotline": {
-      "title": "Technical hotline",
       "warning": "\"I can tell you the solution. But then the puzzle is solved before you have solved it.\" Do you really want to hear the solution?",
       "hint-alarm": {
         "direction": "\"I can hear that alarm all the way over here. You switch it off at the console in the control room.\"",
@@ -198,7 +197,7 @@
         "screen-fixed": "READY. Below it, in tiny letters: \"Thank you.\"",
         "trash-title": "Wastepaper basket",
         "trash-instruction": "Crumpled production slips, right up to the rim. Maybe there's something useful underneath.",
-        "trash-help": "Drag the slips out of the basket or click one to toss it out. Click a folded sheet to unfold it.",
+        "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the arrow keys pick a slip or the sheet, space tosses the slip or unfolds the sheet.",
         "trash-rejects": "More rejects: $1. So the machine didn't just start acting up today.",
         "trash-report-title": "DEFECT REPORT F-04",
         "trash-report": "Repeated misassignment of inflectional suffixes. Technical inspection urgently recommended.",
@@ -288,6 +287,7 @@
       "morph-title": "Morpheme Types and Where to Find Them",
       "morph1-title": "Morpheme Types and Where to Find Them: Part 1",
       "morph2-title": "Morpheme Types and Where to Find Them: Part 2",
+      "handout-title": "Morpheme Types",
       "morph-header": "Classification for affix sorting unit, type designation: NCC-585-AS[n]Attention: For internal use only![n]The morphemes listed for each type are examples, not an exhaustive list!",
       "morph-free": "free morphemes",
       "morph-bound": "bound morphemes",
@@ -444,7 +444,7 @@
       "affixes": {
         "title": "Affix sorting unit A-12 - Maintenance mode",
         "instruction": "Decide whether the following words contain affixes. If they do, sort them correctly.",
-        "help": "Click between two letters to cut a word at that point (another click joins it back together). Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
+        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
         "KEIN_AFFIX": "No affix",
         "PRAEFIX": "Prefixes",
         "SUFFIX": "Suffixes",
@@ -478,11 +478,12 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Dial a number and press OK. You can also type the digits; Enter dials.",
+        "help": "Dial a number and press the green call button; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes.",
         "note-title": "Important extensions",
         "MAILBOX": "Listen to the mailbox",
         "HOTLINE": "Technical hotline (maintenance)",
         "SECURITY": "Security at the entrance",
+        "ROSI": "Rosi (mobile)",
         "lamp": "Mailbox",
         "calling": "DIALING",
         "no-line-short": "WRONG",
@@ -530,7 +531,10 @@
     },
     "items": {
       "fragment-name": "Circumfix piece $1",
-      "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off."
+      "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off.",
+      "volume-description": "A volume from the shelf. Read it with [action id=ui:use_item]. Drag one volume onto the other to combine them into the 'Morpheme Types' handout.",
+      "handout-description": "Both volumes in one handout. Read it with [action id=ui:use_item].",
+      "volume-taken": "You take the volume with you and can read it again from your inventory at any time. Once you have both parts, drag one onto the other in your inventory to combine them into the 'Morpheme Types' handout."
     }
   },
   "questlog": {
@@ -538,41 +542,32 @@
       "tab": "Assignment",
       "entries": {
         "alarm": "Switch off the alarm. The shift supervisor pointed to the control room.",
-        "alarm-done": "Alarm switched off. (done)",
+        "alarm-done": "Alarm switched off.",
         "causes": "Determine the causes of the production stop. The computer in the control room knows more.",
-        "causes-done": "Determine the causes of the production stop. (done) - F-04 and A-12 are reporting errors. The order of the repairs doesn't matter.",
+        "causes-done": "Causes of the production stop determined: F-04 and A-12 are reporting errors. The order of the repairs doesn't matter.",
         "repair-a12": "Repair A-12.",
         "repair-f04": "Repair F-04.",
-        "a12-done": "Repair A-12. (done)",
-        "f04-done": "Repair F-04. (done)",
         "restart": "Restart production: go back to the computer in the control room.",
-        "restart-done": "Production restarted. (done) - All systems nominal.",
+        "restart-done": "Production restarted. All systems nominal.",
         "restart-open": "Restart the production - at the computer in the control room, once F-04 and A-12 run again."
       }
     },
     "f04": {
       "tab": "F-04 Inflection line",
       "entries": {
-        "handbook": "Manual read. (done)",
-        "inspect-machine": "Check the inflection machine. (new)",
-        "word-classes": "Inflectable parts of speech for the inflection machine identified. (done)",
-        "inspect-a12": "Inspect the affix sorting unit.",
-        "repaired": "Inflection machine repaired. (completed)",
-        "inspect-machine-done": "Check the inflection machine. (done)",
-        "inspect-a12-done": "Inspect the affix sorter. (done)"
+        "handbook": "Manual read.",
+        "inspect-machine": "Check the inflection machine.",
+        "word-classes": "Inflectable parts of speech for the inflection machine identified.",
+        "inspect-a12": "Inspect the affix sorting unit."
       }
     },
     "a12": {
       "tab": "A-12 Affix sorting unit",
       "entries": {
-        "inspect-done": "Inspect the affix sorting unit. (done)",
-        "sort": "Sort the affixes. (new)",
-        "sort-done": "Sort the affixes. (done)",
-        "restart": "Restart A-12 with the lever. (new)",
-        "restart-done": "Restart A-12 with the lever. (done)",
-        "repaired": "Affix sorting unit repaired. (done)",
-        "go-f04": "Go to the inflection machine.",
-        "go-f04-done": "Go to the inflection machine. (done)"
+        "inspect": "Inspect the affix sorting unit.",
+        "sort": "Sort the affixes.",
+        "restart": "Restart A-12 with the lever.",
+        "go-f04": "Go to the inflection machine."
       }
     },
     "clues": {
@@ -582,10 +577,9 @@
         "complaint": "Defect report F-04 from the wastepaper basket: Repeated misassignment of inflectional suffixes. More rejects: verunter, größsts, am vermutlichsten.",
         "handbook-title": "Manual: Inflection machine FL3-10-9001",
         "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes and circumfixes do not belong in the inflection machine.",
-        "morph1-title": "Morpheme types, Part 1: free morphemes",
-        "morph1": "Lexical: verbal base morpheme {komm}, nominal {Fisch}, adjectival {schön}, adverbial {bald}.[n]Grammatical: pronominal base morpheme {ihr}, prepositional {auf}, conjunctional {und}, article {das}.[n]Portmanteau morphemes: {im} (= in dem), {beim} (= bei dem).",
-        "morph2-title": "Morpheme types, Part 2: bound morphemes",
-        "morph2": "Lexical: unique (cranberry) morpheme {Brom-}, {-thek}; verbal base morpheme if the stem does not occur as an imperative.[n]Inflectional affixes (new word form): circumfix {ge-} + {-t}, suffix {-t}/{-et}.[n]Derivational affixes (new word): prefix {un-}, {ver-}; circumfix {ge-} + {-e}, {be-} + {-t}; suffix {-ei}, {-ung}.",
+        "morph1": "'Morpheme Types and Where to Find Them: Part 1' on free morphemes is on the shelf in F-04. Take the volume with you to read it in your inventory.",
+        "morph2": "'Morpheme Types and Where to Find Them: Part 2' on bound morphemes is on the shelf in A-12. Take the volume with you to read it in your inventory.",
+        "handout": "Once you have both parts, combine them in your inventory into the 'Morpheme Types' handout: every morpheme type at a glance.",
         "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
         "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
         "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station."

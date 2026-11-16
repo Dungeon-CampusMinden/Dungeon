@@ -33,7 +33,8 @@ final class MorphCoSortBoard extends SortBoard {
     float pad = 12;
     float indent = belt.content().getPrefWidth() + 24;
     Flow flow = flow(slots.stream().map(Slot::measure).toList(), width - indent - pad);
-    float height = flow.height() + 2 * pad;
+    // An emptied tray keeps the height of one row for its label.
+    float height = Math.max(flow.height(), CHIP_HEIGHT) + 2 * pad;
     belt.size(width, height).position(0, top - height);
     for (int index = 0; index < slots.size(); index++) {
       Vector2 offset = flow.offsets().get(index);

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.LeverPull;
@@ -30,10 +31,11 @@ import rooms.morphco.util.MorphCoTracking;
 /**
  * The affix sorter A-12.
  *
- * <p>Every part of the sorter in the world opens its close-up. The maintenance hatch is locked with
- * a question about free morphemes. Behind it, players cut the jammed words into morphs and sort the
- * affixes. The freed affixes then go into the input shafts for word formation or inflection, and an
- * even pull on the lever restarts the sorter.
+ * <p>Every part of the sorter in the world opens its close-up; the monitor on the wall shows the
+ * sorter's status, like the screen in F-04. The maintenance hatch is locked with a question about
+ * free morphemes. Behind it, players cut the jammed words into morphs and sort the affixes. The
+ * freed affixes then go into the input shafts for word formation or inflection, and an even pull on
+ * the lever restarts the sorter.
  */
 final class AffixSorter {
 
@@ -83,7 +85,14 @@ final class AffixSorter {
         entity -> {
           display = entity;
           MorphCoProps.interact(
-              entity, (self, player) -> closeUp(player, MorphCoDialogs.A12_DISPLAY));
+              entity,
+              (self, player) ->
+                  MorphCoProps.popup(
+                      player,
+                      MACHINE,
+                      state.done(MorphCoMilestone.A12_REPAIRED)
+                          ? "pc.status-a12-ok"
+                          : "pc.status-a12-error"));
           if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
         });
     on(
@@ -295,7 +304,7 @@ final class AffixSorter {
     level.seen(MorphCoState.BOOK_PREFIX, "a12-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     if ("morph2".equals(book)) {
-      MorphCoDocuments.show(player, MorphCoDialogs.MORPH_2);
+      MorphCoBooks.take(player, new MorphemeTypesItem.Part2());
       level.observe(MorphCoState.MORPH2_READ);
     } else if ("hamster".equals(book)) {
       DialogFactory.show(
