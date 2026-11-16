@@ -113,7 +113,7 @@ final class MorphCoObjects {
     // F-04.
     texture(
         "flexion-machine", "flexion_machine.png", 44 / 16f, new Rectangle(2.4f, 2f, 0.2f, 0.4f));
-    // A display on a stand, 32 pixels per tile like the signs.
+    // A display on a stand, 32 pixels per tile like the signs; each of its two frames is 80x70.
     blinking(
         "display-f04",
         "display_f04_error.png",
@@ -127,7 +127,8 @@ final class MorphCoObjects {
     plain("word-sheet", "items/rpg/item_paper.png", 0.7f, null);
 
     // A-12.
-    // The red light of the broken sorter blinks; it turns green after the repair.
+    // The red light of the broken sorter blinks; it turns green after the repair. Each of the two
+    // frames is 48x51, the size of the sorter picture.
     blinking(
         "affix-sorter",
         "affix_sorter.png",

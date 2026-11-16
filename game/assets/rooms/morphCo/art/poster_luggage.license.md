@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Plakat „GEPÄCK NICHT ALLEIN“), per Skript als Pixel-Art gezeichnet; Schrift: Roboto Bold (Apache License 2.0, `game/assets/fonts/Roboto-Bold.ttf`) ohne Kantenglättung
+- Quelle: Eigenes Morph-&-Co.-Asset (Plakat „GEPÄCK NICHT ALLEIN“), per Skript als Pixel-Art gezeichnet; Schrift: Roboto Bold (SIL Open Font License 1.1, `game/assets/fonts/Roboto-Bold.ttf`, siehe `game/assets/fonts/Roboto.license.md`) ohne Kantenglättung
 - Author: amatutat
 - Modified by: amatutat (auf 96x120 Pixel neu aufgebaut: Bild dreifach vergrößert, Text in ganzen Wörtern neu gesetzt)
 - License: CC0 1.0

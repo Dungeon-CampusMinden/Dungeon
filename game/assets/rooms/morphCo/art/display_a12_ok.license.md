@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Wanddisplay „OK“), per Skript als Pixel-Art mit 32 Pixeln pro Kachel gezeichnet; Schrift: Roboto Bold (Apache License 2.0, `game/assets/fonts/Roboto-Bold.ttf`) ohne Kantenglättung
+- Quelle: Eigenes Morph-&-Co.-Asset (Wanddisplay „OK“), per Skript als Pixel-Art mit 32 Pixeln pro Kachel gezeichnet; Schrift: Roboto Bold (SIL Open Font License 1.1, `game/assets/fonts/Roboto-Bold.ttf`, siehe `game/assets/fonts/Roboto.license.md`) ohne Kantenglättung
 - Author: amatutat
 - License: CC0 1.0
 
