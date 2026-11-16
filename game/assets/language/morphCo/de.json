@@ -32,7 +32,6 @@
       "hint-lever": "\"A-12 muss nach der Wartung neu starten. Zieh den Hebel gleichmäßig ganz nach unten - nicht reißen, aber auch nicht dabei einschlafen.\""
     },
     "hotline": {
-      "title": "Technik-Hotline",
       "warning": "\"Ich kann dir die Lösung sagen. Dann ist das Rätsel aber gelöst, bevor du es gelöst hast.\" Willst du wirklich die Lösung hören?",
       "hint-alarm": {
         "direction": "\"Den Alarm hör ich bis hierher. Ausschalten lässt er sich an der Konsole im Kontrollraum.\"",
@@ -478,11 +477,12 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt.",
+        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht.",
         "note-title": "Wichtige Durchwahlen",
         "MAILBOX": "Mailbox abhören",
         "HOTLINE": "Technik-Hotline (Instandhaltung)",
         "SECURITY": "Wachschutz am Eingang",
+        "ROSI": "Rosi (Handy)",
         "lamp": "Mailbox",
         "calling": "WÄHLE",
         "no-line-short": "FALSCH",

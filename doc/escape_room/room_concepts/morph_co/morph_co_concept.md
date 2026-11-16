@@ -111,7 +111,9 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
 ## Telefon und Technik-Hotline
 
 Ein Klick auf das Telefon im Kontrollraum öffnet Hörer und Ziffernblock. Daneben klebt der Zettel
-„Wichtige Durchwahlen“. Gewählt wird mit OK oder Enter.
+„Wichtige Durchwahlen“. Gewählt wird mit dem grünen Hörer oder Enter, der rote Hörer legt auf.
+Ansagen und die Rückfrage der Hotline erscheinen auf einem Bildschirm unter dem Apparat; das
+Telefon bleibt offen, danach wählt man gleich weiter.
 
 | Nummer | Steht auf | Ergebnis |
 | --- | --- | --- |
@@ -119,6 +121,7 @@ Ein Klick auf das Telefon im Kontrollraum öffnet Hörer und Ziffernblock. Daneb
 | 42 | Zettel am Telefon | Technik-Hotline (Instandhaltung) mit gestuften Hinweisen |
 | 11 | Zettel am Telefon | Wachschutz am Eingang: niemand nimmt ab |
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab (mit 11 das versteckte Achievement „Niemand zu Hause“) |
+| 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab (zählt wie die 17) |
 | 133, 204 | Fehlercodes am PC | Bandansage, die auf die Technik-Hotline verweist |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
@@ -181,7 +184,7 @@ Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man
 | `morphco_first_try` (versteckt) | Schnitt sitzt | Affixe im ersten Versuch richtig |
 | `morphco_plants` (versteckt) | Was hast du erwartet? | alle 3 Pflanzen |
 | `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am klemmenden Hebel ziehen |
-| `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17) anrufen |
+| `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen |
 | `morphco_fuse_box` (versteckt) | Unter Strom | alle Kabel der Sicherungsbox eingesteckt |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
 | `morphco_bookworm` (versteckt) | Leseratte | alle 8 Bücher |
@@ -221,9 +224,11 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Telefon:** Das Telefon nutzt das Engine-Feature `feature.interaction.phone`. `ControlRoom`
   legt seine Leitungen an und hängt an jede die Reaktion des Raums, an die 42 die Technik-Hotline.
   Der Raum registriert für den Dialogtyp `PHONE` sein eigenes Aussehen (`PhoneUI` mit
-  Mailbox-Lampe); der Dialog zeigt „Kein Anschluss“ sofort. Jede Nummer geht an den Server; er
-  schlägt sie erneut nach. Bei einer bekannten Nummer schließt er den Telefondialog und lässt die
-  Leitung antworten. Hinweistexte kommen als Schlüssel beim Client an.
+  Mailbox-Lampe, Ziffernblock `KeypadNode` im Aussehen `PHONE`); der Dialog zeigt „Kein Anschluss“
+  sofort. Jede Nummer geht an den Server; er schlägt sie erneut nach. Bei einer bekannten Nummer
+  antwortet die Leitung über `PhoneCall` im offenen Telefon: `say` für Ansagen, `ask` für die
+  Rückfrage der Hotline, deren Ja an den Server zurückgeht. Die Antwort geht nur an den Client des
+  Anrufers und erscheint dort unter dem Apparat. Hinweistexte kommen als Schlüssel beim Client an.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und
@@ -251,8 +256,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   der Maus ein Ausschusswort, ein Klick wirft ihn hinaus. Darunter liegt die gefaltete Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
 - Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
 - Am Telefon wählt man eine Nummer, statt eine Option aus einer Liste zu nehmen. Neu sind die
-  Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan und die Bandansage
-  zu den Fehlercodes.
+  Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan, ihre absurd lange
+  Handynummer auf dem Zettel und die Bandansage zu den Fehlercodes.
 - Die Sicherungsbox im Kontrollraum ist ein optionales Minigame: Jemand hat die Kabel
   herausgezogen. Notbeleuchtung und verstecktes Achievement gibt es für beide Spieler.
 - Die Affix-Sortieranlage hat eine Nahansicht mit Display, Hebel, Wartungsklappe und Schloss. Jede

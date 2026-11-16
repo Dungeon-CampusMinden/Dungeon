@@ -92,6 +92,9 @@ bei demselben Schritt wie die Schichtleitung, in drei Stufen:
 3. **Lösung:** Vorher fragt die Hotline nach, ob man die Lösung wirklich hören will. „Nein“ kostet
    nichts. Danach wiederholt sie bei jedem Anruf die Lösung.
 
+Was die Hotline sagt, erscheint im Telefon auf dem Bildschirm unter dem Apparat. Bei der Rückfrage
+stehen dort die Knöpfe „Ja“ und „Nein“.
+
 Jeder Anruf gibt die nächste Stufe. Ist der Schritt gelöst, beginnt der nächste wieder bei Stufe 1.
 Die Stufen gelten für den ganzen Raum: Im Multiplayer macht die zweite Person dort weiter, wo die
 erste aufgehört hat. Die Hotline hilft auch schon, solange der Alarm noch läuft. Auf sie weisen der
@@ -420,7 +423,9 @@ Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „
 
 ![Telefon mit Ziffernblock und dem Zettel „Wichtige Durchwahlen“](images/telefon.png)
 
-Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt „OK“.
+Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt den
+grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint auf dem
+Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen.
 
 | Nummer | Fundort | Ergebnis |
 | --- | --- | --- |
@@ -428,10 +433,12 @@ Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffer
 | 42 | Zettel am Telefon | Technik-Hotline mit gestuften Hinweisen |
 | 11 | Zettel am Telefon | Wachschutz am Eingang: niemand nimmt ab |
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab |
+| 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
-Wer 11 und 17 anruft, bekommt das versteckte Achievement „Niemand zu Hause“.
+Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte Achievement
+„Niemand zu Hause“.
 
 ### Weitere Kleinigkeiten
 
@@ -462,7 +469,7 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | Schnitt sitzt | Affixe in A-12 beim ersten Prüfen richtig zerschneiden und sortieren | ja |
 | Was hast du erwartet? | alle drei Topfpflanzen untersuchen | ja |
 | Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, bevor die Eingabeschächte befüllt sind | ja |
-| Niemand zu Hause | Wachschutz (11) und Rosi (17) anrufen | ja |
+| Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen | ja |
 | Unter Strom | alle Kabel der Sicherungsbox einstecken | ja |
 | Aushangkundig | alle sieben Plakate ansehen (Weg zum Plakat über den Kisten in F-04: siehe „Weitere Kleinigkeiten“) | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |

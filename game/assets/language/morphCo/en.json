@@ -32,7 +32,6 @@
       "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\""
     },
     "hotline": {
-      "title": "Technical hotline",
       "warning": "\"I can tell you the solution. But then the puzzle is solved before you have solved it.\" Do you really want to hear the solution?",
       "hint-alarm": {
         "direction": "\"I can hear that alarm all the way over here. You switch it off at the console in the control room.\"",
@@ -478,11 +477,12 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Dial a number and press OK. You can also type the digits; Enter dials.",
+        "help": "Dial a number and press the green call button; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes.",
         "note-title": "Important extensions",
         "MAILBOX": "Listen to the mailbox",
         "HOTLINE": "Technical hotline (maintenance)",
         "SECURITY": "Security at the entrance",
+        "ROSI": "Rosi (mobile)",
         "lamp": "Mailbox",
         "calling": "DIALING",
         "no-line-short": "WRONG",
