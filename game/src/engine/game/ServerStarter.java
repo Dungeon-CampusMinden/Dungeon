@@ -10,7 +10,7 @@ import java.util.Objects;
  *
  * <p>{@link #apply()} sets the shared server role flags (multiplayer enabled, network server) and
  * the bind port (honoring the {@link ServerProcess#PORT_PROPERTY} forwarded by a hosting client),
- * applies the {@link AbstractStarter shared configuration}, and registers the optional per-frame
+ * applies the {@link AbstractStarter shared configuration}, and registers the optional per-tick
  * callback. The {@link MainMenu} invokes it when the process is started as a server (see {@link
  * MainMenu#shouldRunMpServer(String[])}).
  */
@@ -48,7 +48,7 @@ public final class ServerStarter extends AbstractStarter {
   }
 
   /**
-   * @return the per-frame callback of this server
+   * @return the per-tick callback of this server
    */
   IVoidFunction onFrame() {
     return onFrame;
@@ -110,9 +110,9 @@ public final class ServerStarter extends AbstractStarter {
     }
 
     /**
-     * Sets the per-frame callback (registered via {@link Game#userOnFrame}).
+     * Sets the callback that runs once per world tick (registered via {@link Game#userOnFrame}).
      *
-     * @param onFrame the per-frame callback
+     * @param onFrame the per-tick callback
      * @return this builder
      */
     public Builder onFrame(IVoidFunction onFrame) {

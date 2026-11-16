@@ -118,7 +118,6 @@ public class MushRoom {
 
   private static void configGame() {
     Game.disableAudio(false);
-    Game.frameRate(60);
   }
 
   private static void createSystems() {

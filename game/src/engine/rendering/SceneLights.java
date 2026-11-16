@@ -63,7 +63,7 @@ final class SceneLights {
     if (!dc.isVisible() || (dc.tintColor() & 0xff) == 0) return false;
     float w = dc.getWidth() * pc.scale().x();
     float h = dc.getHeight() * pc.scale().y();
-    Point origin = pc.position();
+    Point origin = pc.renderPosition();
 
     if (entity.isPresent(PlayerComponent.class)) {
       if (lantern > 0) {

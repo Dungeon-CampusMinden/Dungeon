@@ -20,6 +20,12 @@ GameInput.pointer();                           // Zeiger 0: Maus oder Pad-Cursor
 Pro Frame erreicht je Action höchstens eine Kante den Aufrufer. Mehrere Drücke innerhalb eines
 Frames gehen nicht verloren, sondern kommen in den nächsten Frames an.
 
+Diese Abfragen gelten für den aktuellen Frame und gehören deshalb in Code, der pro Frame läuft
+(Kontext-Handler, Systeme der Client-Seite). Die Spielwelt läuft in festen Welt-Ticks, von denen
+auf einen Frame keiner oder mehrere fallen können. Gameplay-Eingaben gehen deshalb als
+`InputMessage` an die Simulation (`Game.network().sendInput`): Im Einzelspieler wendet der nächste
+Tick sie genau einmal an, im Multiplayer der Server.
+
 ## Kontexte
 
 Ein `InputContext` deklariert seine Actions über eine `ContextSpec`, liegt auf einer `ContextLayer`
