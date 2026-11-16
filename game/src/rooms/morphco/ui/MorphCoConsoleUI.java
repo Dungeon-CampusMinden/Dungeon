@@ -189,12 +189,6 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     buttons.clearChildren();
   }
 
-  /** Jumps back to the top of the work area, e.g. after turning a page. */
-  void scrollToTop() {
-    scroll.setScrollY(0);
-    scroll.updateVisualScroll();
-  }
-
   /**
    * Shows feedback on the display next to the buttons.
    *
