@@ -171,6 +171,7 @@ public final class MorphCoText {
   public static List<Tuple<String, Integer>> endingPages() {
     return List.of(
         Tuple.of(key("ending.brrr"), 30),
+        Tuple.of(key("ending.status"), 40),
         Tuple.of(key("ending.final"), 30),
         Tuple.of(key("title"), 64));
   }

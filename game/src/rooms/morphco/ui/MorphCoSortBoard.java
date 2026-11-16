@@ -41,7 +41,9 @@ final class MorphCoSortBoard extends SortBoard {
 
   private final CanvasArea area;
   private final Look look;
+  // Items placed since the last arrange() drop into their bin; their chips fall until done.
   private final Set<String> dropped = new HashSet<>();
+  private final Set<CanvasNode> falling = new HashSet<>();
 
   MorphCoSortBoard(CanvasArea area, Look look, Runnable onChange) {
     super(area, onChange);
@@ -80,12 +82,14 @@ final class MorphCoSortBoard extends SortBoard {
 
   @Override
   public void arrange() {
+    // A chip that is sent home or moves on while it falls stops falling.
+    falling.forEach(CanvasNode::clearActions);
+    falling.clear();
     super.arrange();
     placement()
         .forEach(
             (item, bin) -> {
               CanvasNode chip = area.nodeById(item).orElseThrow();
-              chip.clearActions();
               if (look == Look.BOWL) {
                 CanvasNode bowl = area.nodeById(bin).orElseThrow();
                 Vector2 hollow =
@@ -96,6 +100,7 @@ final class MorphCoSortBoard extends SortBoard {
               float y = chip.y();
               chip.setY(y + DROP);
               chip.addAction(Actions.moveTo(chip.x(), y, DROP_SECONDS, Interpolation.bounceOut));
+              falling.add(chip);
             });
     dropped.clear();
   }

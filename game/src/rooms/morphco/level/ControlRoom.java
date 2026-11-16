@@ -222,6 +222,8 @@ final class ControlRoom {
       return;
     }
     if (!level.complete(MorphCoMilestone.ALARM_OFF)) return;
+    // Close-ups of other players still show the alarm; clicking the console again shows it is off.
+    UIUtils.closeDialogs(MorphCoDialogs.CONSOLE, context -> true);
     level.stopAlarm();
     MorphCoProps.switchOn(console);
     if (alarmLight != null) Game.remove(alarmLight);

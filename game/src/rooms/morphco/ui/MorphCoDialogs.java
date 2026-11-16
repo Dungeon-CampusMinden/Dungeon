@@ -125,6 +125,7 @@ public enum MorphCoDialogs implements DialogType {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
     DialogInput.register(HAMSTER_BOOK, BookUI.INPUT);
     DialogInput.register(DOCUMENT, BookUI.INPUT);
+    DialogInput.register(CONSOLE, AlarmConsoleUI.INPUT);
     DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
     DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);

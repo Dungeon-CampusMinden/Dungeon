@@ -474,7 +474,7 @@
         "shafts": "Input shafts"
       },
       "console": {
-        "help": "Click a button. Without a mouse: tab or the arrow keys pick a button, space or enter presses it."
+        "help": "Click a button. Without a mouse, the arrow keys or Tab pick a button and space or Enter presses it; on a controller, use the D-pad and A."
       },
       "keypad": {
         "clear": "C",
@@ -529,7 +529,7 @@
     },
     "ending": {
       "brrr": "The screen goes black. With a loud BRRRRRRRR that somehow sounds strangely grateful, the inflection machine in the next room starts up again.",
-      "status": "A-12: online[n]Sensors: online[n]F-04: online[n]All systems nominal.",
+      "status": "A-12: online\nSensors: online\nF-04: online\nAll systems nominal.",
       "final": "Done! Production at Morph & Co. KG can carry on. But how did the incident actually happen? Was it sabotage? A material defect? An unfortunate series of coincidences? That will have to remain open until the next adventure ..."
     },
     "items": {

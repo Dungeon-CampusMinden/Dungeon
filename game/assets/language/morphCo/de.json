@@ -474,7 +474,7 @@
         "shafts": "Eingabeschächte"
       },
       "console": {
-        "help": "Klicke auf einen Knopf. Ohne Maus: Tab oder die Pfeiltasten wählen einen Knopf, Leertaste oder Enter drückt ihn."
+        "help": "Klicke auf einen Knopf. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller Steuerkreuz und A."
       },
       "keypad": {
         "clear": "C",
@@ -529,7 +529,7 @@
     },
     "ending": {
       "brrr": "Der Bildschirm wird schwarz. Mit einem lauten BRRRRRRRR, das irgendwie seltsam dankbar klingt, springt im Nebenraum die Flexionsmaschine wieder an.",
-      "status": "A-12: online[n]Sensoren: online[n]F-04: online[n]All systems nominal.",
+      "status": "A-12: online\nSensoren: online\nF-04: online\nAll systems nominal.",
       "final": "Geschafft! Die Produktion der Morph & Co. KG kann weiterlaufen. Doch wie kam es eigentlich zu dem Vorfall? War es Sabotage? Ein Materialfehler? Unglückliche Zufälle? Das muss bis zum nächsten Abenteuer offen bleiben ..."
     },
     "items": {

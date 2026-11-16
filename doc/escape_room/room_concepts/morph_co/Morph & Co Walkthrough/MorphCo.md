@@ -133,8 +133,8 @@ die Tür zum Kontrollraum. Drinnen ist die Sirene nur noch halb so laut.
 
 Die Konsole (3) steht in der Mitte des Kontrollraums. Ein Klick öffnet ihre Nahansicht mit fünf
 beschrifteten Knöpfen, Anzeigen, Reglern und der blinkenden Alarmlampe. Der Knopf „Nerviger
-Alarmton“ ist eingedrückt und zittert. Ohne Maus wählen Tab oder die Pfeiltasten einen Knopf, Leertaste
-oder Enter drückt ihn.
+Alarmton“ ist eingedrückt und zittert. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste
+oder Enter drückt ihn; mit dem Controller Steuerkreuz und A.
 
 **Lösung:** Knopf **„Nerviger Alarmton“**. Die Sirene verstummt, und das Achievement „Wuuuuuuh-o,
 wuuuuuh-o“ wird freigeschaltet. Die anderen Knöpfe („Förderband-Turbo“, „Kaffeemaschine
@@ -347,7 +347,8 @@ Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen T
 
 Nach der richtigen Antwort wird der Bildschirm schwarz. In grüner Terminalschrift tippt der Computer
 nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“ und
-„All systems nominal.“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte, und es gibt das
+„All systems nominal.“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte; sie zeigen die
+Statuszeilen noch einmal, auch für Mitspieler, die nicht am Computer stehen, und es gibt das
 Achievement „All systems nominal“.
 
 ![Letzter Text des Spiels](images/ende.png)

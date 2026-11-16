@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -14,9 +15,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
+import engine.input.ContextSpec;
+import engine.input.GameInput;
+import engine.input.UiActions;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.ArrayList;
@@ -29,9 +34,20 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>The button "Nerviger Alarmton" is pushed in and trembles with the siren. A pressed button
  * sends its name to the server, which closes the close-up and answers like the console always did.
- * Without a mouse, tab and the arrow keys pick a button and space or enter presses it.
+ * Without a mouse, the arrow keys, Tab or the pad's direction keys pick a button; space, enter or
+ * the pad's A button presses it. The mouse picks the button it rests on.
  */
 final class AlarmConsoleUI extends MorphCoConsoleUI {
+
+  /** Input of the console: the direction keys pick a button, confirming presses it. */
+  static final ContextSpec INPUT =
+      UiActions.modal(
+          "morphco_console",
+          UiActions.NAV_LEFT,
+          UiActions.NAV_RIGHT,
+          UiActions.NAV_UP,
+          UiActions.NAV_DOWN,
+          UiActions.CONFIRM);
 
   private static final String ALARM = "alarm";
 
@@ -70,20 +86,17 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
         MorphCoText.text("world.control.console"),
         MorphCoText.text("ui.console.help"));
     for (Spec spec : BUTTONS) buttons.add(area().addNode(new PushButton(spec)));
+    UIUtils.onUiAction(this, UiActions.NAV_UP, () -> focusNext(-1));
+    UIUtils.onUiAction(this, UiActions.NAV_DOWN, () -> focusNext(1));
+    UIUtils.onUiAction(this, UiActions.CONFIRM, this::pressFocused);
+    // Tab and enter are no UI actions; they work like the arrow keys and space.
     addListener(
         new InputListener() {
           @Override
           public boolean keyDown(InputEvent event, int keycode) {
-            switch (keycode) {
-              case Input.Keys.TAB, Input.Keys.RIGHT -> focusNext(1);
-              case Input.Keys.LEFT -> focusNext(-1);
-              case Input.Keys.SPACE, Input.Keys.ENTER -> {
-                if (focused != null) press(focused);
-              }
-              default -> {
-                return false;
-              }
-            }
+            if (keycode == Input.Keys.TAB) focusNext(1);
+            else if (keycode == Input.Keys.ENTER) pressFocused();
+            else return false;
             return true;
           }
         });
@@ -114,14 +127,28 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
   @Override
   protected void setStage(Stage stage) {
     super.setStage(stage);
-    // Tab, the arrow keys and space belong to the buttons, not to the hero.
+    // Tab and enter belong to the buttons, not to the hero.
     if (stage != null) stage.setKeyboardFocus(this);
+  }
+
+  // The dialog input routes only up and down as events; left and right are polled like in BookUI.
+  @Override
+  public void act(float delta) {
+    super.act(delta);
+    if (GameInput.justPressed(UiActions.NAV_LEFT)) focusNext(-1);
+    if (GameInput.justPressed(UiActions.NAV_RIGHT)) focusNext(1);
   }
 
   private void focusNext(int step) {
     int index = buttons.indexOf(focused);
     focused =
         index < 0 ? buttons.getFirst() : buttons.get(Math.floorMod(index + step, buttons.size()));
+  }
+
+  // Without a picked button, confirming picks the first one.
+  private void pressFocused() {
+    if (focused == null) focusNext(1);
+    else press(focused);
   }
 
   // The button stays down until the server closes the close-up, so it cannot be pressed twice.
@@ -195,22 +222,30 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
   /** A push button with its label plate below; the alarm button is stuck halfway down. */
   private final class PushButton extends CanvasNode {
     private final Spec spec;
-    private final ClickListener click =
-        new ClickListener() {
-          @Override
-          public void clicked(InputEvent event, float x, float y) {
-            press(PushButton.this);
-          }
-        };
+    private final boolean stuck;
 
     private PushButton(Spec spec) {
       super("button-" + spec.name(), SLOT, BUTTON_HEIGHT);
       this.spec = spec;
+      stuck = ALARM.equals(spec.name());
       movable(false);
       selectable(false);
       deletable(false);
       setUserObject(Cursors.INTERACT);
-      addListener(click);
+      // The mouse picks the button it rests on, so there is only ever one picked button.
+      addListener(
+          new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+              super.enter(event, x, y, pointer, fromActor);
+              focused = PushButton.this;
+            }
+
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              press(PushButton.this);
+            }
+          });
     }
 
     @Override
@@ -227,23 +262,27 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
     protected void drawBackground(Batch batch, float alpha) {
       float x = x();
       float y = y();
-      boolean stuck = ALARM.equals(spec.name());
-      boolean over = click.isOver() && pressed == null;
+      boolean picked = focused == this && pressed == null;
       float capX = x + (width() - CAP_WIDTH) / 2;
       float capY = y + CAP_Y;
       CanvasGraphics.fill(
           batch, MorphCoUI.OUTLINE, alpha, capX - 8, capY - 8, CAP_WIDTH + 16, CAP_HEIGHT + 16);
       // A pressed button sits deep in its collar; the stuck alarm button sits halfway down and
       // trembles in time with the siren.
-      float depth = pressed == this ? 18 : stuck ? 10 : 0;
-      if (stuck && pressed != this) capX += TimeUtils.millis() / 60 % 2 == 0 ? -1 : 1;
-      Color face = over ? spec.cap().cpy().lerp(Color.WHITE, .25f) : spec.cap();
+      float depth = 0;
+      if (pressed == this) {
+        depth = 18;
+      } else if (stuck) {
+        depth = 10;
+        capX += TimeUtils.millis() / 60 % 2 == 0 ? -1 : 1;
+      }
+      Color face = picked ? spec.cap().cpy().lerp(Color.WHITE, .25f) : spec.cap();
       if (depth > 0) face = face.cpy().lerp(Color.BLACK, depth / 50);
       MorphCoUI.plate(batch, face, alpha, capX, capY, CAP_WIDTH, CAP_HEIGHT - depth);
       CanvasGraphics.fill(
           batch, Color.WHITE, alpha * .35f, capX + 8, capY + CAP_HEIGHT - depth - 12, 24, 4);
       MorphCoUI.plate(batch, MorphCoUI.TAG, alpha, x + 8, y + 4, width() - 16, PLATE_HEIGHT);
-      if (over || focused == this)
+      if (picked)
         CanvasGraphics.outline(batch, MorphCoUI.SIGNAL, alpha, x, y, width(), height(), 3);
     }
   }

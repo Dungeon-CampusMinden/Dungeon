@@ -226,7 +226,7 @@ final class ComputerUI extends MorphCoConsoleUI {
   private void showTerminal() {
     terminalLines = new ArrayList<>();
     terminalLines.add(MorphCoText.text("pc.security-correct"));
-    terminalLines.addAll(List.of(MorphCoText.text("ending.status").split("\\[n\\]")));
+    terminalLines.addAll(MorphCoText.text("ending.status").lines().toList());
     restartedAt = TimeUtils.millis();
     terminal = MorphCoUI.display("", 34, MorphCoUI.GO);
     monitor.look(PanelNode.Look.TERMINAL);
