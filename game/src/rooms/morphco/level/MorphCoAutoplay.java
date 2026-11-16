@@ -80,7 +80,7 @@ final class MorphCoAutoplay {
     add("swipe card", player -> answer(CardReaderFactory.SWIPE, Pace.encode(600, true)));
     add("console", player -> dismissAndGo(player, "console"));
     show("alarm buttons", player -> use(player, "console"));
-    add("press alarm", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "alarm"));
+    add("press alarm", player -> submit("alarm"));
     add("phone", player -> dismissAndGo(player, "phone"));
     add("call", player -> use(player, "phone"));
     add("mailbox", player -> answer(PhoneFactory.DIAL, ControlRoom.MAILBOX));

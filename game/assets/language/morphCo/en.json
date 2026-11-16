@@ -258,7 +258,7 @@
         "station-title": "Circumfix assembly station",
         "station-empty": "The station's three small bowls are empty. You don't have any suitable parts.",
         "station-done": "In the middle bowl lie three freshly assembled circumfixes: {ge- ... -e}, {be- ... -ig} and {ge- ... -en}.",
-        "station-wrong": "The pieces don't fit together like this. The middle bowl stays empty.",
+        "station-wrong": "These two pieces don't fit together.",
         "station-missing": "You're missing one of the two pieces.",
         "station-assembled": "$1 appears in the middle bowl - as in \"$2\".",
         "station-complete": "All three circumfixes are assembled!",
@@ -472,6 +472,9 @@
       "sorter": {
         "help": "Click the lock, the hatch or the lever. Drag the lever down with the mouse. Without a mouse: hold space or the down arrow key and let go at the bottom. You can also type the digits.",
         "shafts": "Input shafts"
+      },
+      "console": {
+        "help": "Click a button. Without a mouse: tab or the arrow keys pick a button, space or enter presses it."
       },
       "keypad": {
         "clear": "C",

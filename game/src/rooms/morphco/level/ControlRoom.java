@@ -7,7 +7,7 @@ import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
 import feature.emote.Emote;
-import feature.hud.dialogs.ChoiceOption;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.cables.CablePuzzle;
@@ -191,30 +191,17 @@ final class ControlRoom {
       MorphCoProps.popup(player, CONSOLE, "world.control.console-done");
       return;
     }
-    List<ChoiceOption> options =
-        List.of(
-            option("console-conveyor", "conveyor"),
-            option("console-alarm", "alarm"),
-            option("console-coffee", "coffee"),
-            option("console-music", "music"),
-            option("console-light", "light"));
-    DialogFactory.showMultipleChoiceDialog(
-        MorphCoText.key("world.control.console"),
-        MorphCoText.key(CONSOLE),
-        options,
-        false,
-        true,
+    UIComponent ui =
+        DialogFactory.show(
+            DialogContext.builder().type(MorphCoDialogs.CONSOLE).build(), player.id());
+    ui.registerCallback(
+        MorphCoDialogs.SUBMIT,
         payload -> {
-          if (payload instanceof DialogResponseMessage.StringValue(String choice)) {
-            pressButton(choice, player);
+          if (payload instanceof DialogResponseMessage.StringValue(String button)) {
+            UIUtils.closeDialog(ui, true);
+            pressButton(button, player);
           }
-        },
-        () -> {},
-        player.id());
-  }
-
-  private static ChoiceOption option(String key, String value) {
-    return ChoiceOption.of(MorphCoText.key("world.control." + key), value);
+        });
   }
 
   private void pressButton(String button, Entity player) {
@@ -362,8 +349,10 @@ final class ControlRoom {
               answer,
               correct,
               player);
-          // A short pause lets the player read the confirmation on the screen.
-          if (correct) EventScheduler.scheduleAction(() -> level.finish(player), 1500);
+          // The ending waits until the systems have reported back on the screen.
+          if (correct)
+            EventScheduler.scheduleAction(
+                () -> level.finish(player), MorphCoDialogs.RESTART_MILLIS);
         });
   }
 }
