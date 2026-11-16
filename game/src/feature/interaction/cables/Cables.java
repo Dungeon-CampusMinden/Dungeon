@@ -48,9 +48,8 @@ public final class Cables {
    * @param player the player plugging the cables
    * @param title title of the dialog, may be a translation key; empty for the default title
    * @param help how to plug the cables, may be a translation key; empty for the default help
-   * @return the dialog
    */
-  public static UIComponent show(Entity entity, Entity player, String title, String help) {
+  public static void show(Entity entity, Entity player, String title, String help) {
     CablesComponent cables = entity.fetch(CablesComponent.class).orElseThrow();
     DialogContext.Builder context =
         DialogContext.builder()
@@ -84,6 +83,5 @@ public final class Cables {
             cables.plugWrong(plug, player);
           }
         });
-    return ui;
   }
 }
