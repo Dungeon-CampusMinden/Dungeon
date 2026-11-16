@@ -74,7 +74,7 @@ die Reihenfolge der Reparaturen frei.
 | 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5d erledigt sind |
 | 7 | Kontrollraum | PC: [NEUSTART], Sicherheitsfrage | *Überlegungen* = {über}{leg}{ung}{en} = **4** |
 | optional | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung über den Türen geht an |
-| optional | F-04 | Papierkorb durchwühlen | Zettel wegziehen oder per Klick hinauswerfen, dann die gefaltete Mängelmeldung per Klick entfalten |
+| optional | F-04 | Papierkorb durchwühlen | Wort beim Überfahren lesen, Zettel wegziehen oder per Klick hinauswerfen, dann die gefaltete Mängelmeldung per Klick entfalten |
 | optional | A-12 | Krimskrams und Zirkumfixmontagestation | {ge}+{e}, {be}+{ig}, {ge}+{en} |
 
 **Wortarten-Kisten** (Wörter ohne passende Kiste bleiben liegen):
@@ -252,8 +252,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - Die Sicherheitskarte ist kein Inventargegenstand; das Lesegerät öffnet die Tür nach einem
   Swipe-Card-Minigame (wie in Among Us): zu schnell, zu langsam oder nicht ganz durchgezogen heißt
   nochmal.
-- Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; drei davon zeigen Ausschusswörter.
-  Darunter liegt die gefaltete Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
+- Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; jeder zeigt beim Überfahren mit
+  der Maus ein Ausschusswort, ein Klick wirft ihn hinaus. Darunter liegt die gefaltete Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
 - Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
 - Am Telefon wählt man eine Nummer, statt eine Option aus einer Liste zu nehmen. Neu sind die
   Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan, ihre absurd lange
@@ -261,7 +261,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - Die Sicherungsbox im Kontrollraum ist ein optionales Minigame: Jemand hat die Kabel
   herausgezogen. Notbeleuchtung und verstecktes Achievement gibt es für beide Spieler.
 - Die Affix-Sortieranlage hat eine Nahansicht mit Display, Hebel, Wartungsklappe und Schloss. Jede
-  ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Das Schloss
+  ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Der kleine
+  Bildschirm daneben zeigt wie der in F-04 nur die Fehlermeldung. Das Schloss
   ist ein Ziffernblock statt eines Eingabefelds.
 - Nach den Eingabeschächten läuft A-12 erst nach einem gleichmäßigen Zug am Hebel wieder (Minigame
   wie beim Kartenleser: zu schnell, zu langsam oder nicht ganz unten heißt nochmal). Vorher klemmt

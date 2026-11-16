@@ -220,6 +220,25 @@ public final class AffixPuzzle {
   }
 
   /**
+   * Splits a word like {@link #split(String, List)} and names every part after the letters it
+   * spans, e.g. {@code 02-04} for "be" in "unbezahlbar". Another cut renames only the part it
+   * splits, so the other parts can keep their place.
+   *
+   * @param text word to split
+   * @param cuts positions between letters; invalid and duplicate positions are ignored
+   * @return the parts in reading order by name; all names have the same length
+   */
+  public static Map<String, String> parts(String text, List<Integer> cuts) {
+    Map<String, String> parts = new LinkedHashMap<>();
+    int start = 0;
+    for (String part : split(text, cuts)) {
+      parts.put("%02d-%02d".formatted(start, start + part.length()), part);
+      start += part.length();
+    }
+    return parts;
+  }
+
+  /**
    * Checks whether one word has been cut and sorted correctly.
    *
    * @param word word on the conveyor

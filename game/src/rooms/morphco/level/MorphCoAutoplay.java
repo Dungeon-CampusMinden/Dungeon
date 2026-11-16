@@ -119,8 +119,9 @@ final class MorphCoAutoplay {
     add("take parts", player -> use(player, "pile"));
     add("yes", player -> answer(DialogContextKeys.ON_YES, null));
     add("station", player -> dismissAndGo(player, "station"));
+    show("open station", player -> use(player, "station"));
+    // The station stays open after every pair.
     for (String pair : List.of("GE|E", "BE|IG", "GE|EN")) {
-      show("open station", player -> dismissThen(() -> use(player, "station")));
       add("assemble " + pair, player -> submit(pair));
     }
     add("back to F-04", player -> dismissAndGo(player, "flexion-machine"));
