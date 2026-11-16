@@ -28,6 +28,7 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabWiring;
@@ -184,6 +185,17 @@ public final class ImagePuzzlePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "An image cut into pieces that are hidden in the level as items. Players who put it"
+        + " together get the picture as an item and raise 'Completed'.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("jigsaw", "pieces", "picture");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     List<PrefabPort> ports = new ArrayList<>(List.of(COMPLETED, COMPLETION_ITEM));
     ports.addAll(PIECES);
@@ -194,6 +206,11 @@ public final class ImagePuzzlePrefab extends Prefab {
   protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
     int index = PIECES.indexOf(port);
     return index < 0 || index < instance.get(SETTINGS).pieceCount();
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabAssets.missingImage(instance, IMAGE).stream().toList();
   }
 
   @Override

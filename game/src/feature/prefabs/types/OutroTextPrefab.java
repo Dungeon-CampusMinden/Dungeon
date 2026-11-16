@@ -12,8 +12,10 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabWiring;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -67,8 +69,35 @@ public final class OutroTextPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Text pages on a black screen for all players when 'Start' runs, e.g. the ending. Link"
+        + " 'Finished' to a Quit Game to end the game.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("ending", "credits", "end", "cutscene");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(START, FINISHED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    if (!value(instance, END_ON_BLACK)
+        || !PrefabWiring.outgoing(level.prefabs(), instance.name(), FINISHED.key()).isEmpty()) {
+      return List.of();
+    }
+    return List.of(
+        PrefabProblem.error(
+            instance.name(),
+            "'"
+                + END_ON_BLACK.displayName()
+                + "' keeps the screen black, but nothing is linked to '"
+                + FINISHED.displayName()
+                + "', e.g. a Quit Game"));
   }
 
   @Override

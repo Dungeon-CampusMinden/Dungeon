@@ -87,6 +87,17 @@ public final class RandomCodePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Generates a random digit code, e.g. the code of a keypad, shown as a hint in a"
+        + " dialog. With a seed, the code is the same in every session.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("rng", "random number", "digits", "random");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(CODE, GENERATED, REGENERATE);
   }

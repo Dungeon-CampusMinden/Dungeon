@@ -21,6 +21,7 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.trash.TrashMinigameFactory;
@@ -119,6 +120,17 @@ public final class TrashMinigamePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A trash can players dig through in a minigame. It can hide an item, a hint note or an"
+        + " item of another prefab, e.g. a puzzle piece.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("garbage", "bin", "search", "dig");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(REWARD_ITEM_SLOT, ITEM_FOUND);
   }
@@ -126,6 +138,24 @@ public final class TrashMinigamePrefab extends Prefab {
   @Override
   protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
     return port != REWARD_ITEM_SLOT || instance.get(REWARD).equals(REWARD_LINKED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return switch (value(instance, REWARD)) {
+      case REWARD_LINKED ->
+          instance.links(REWARD_ITEM_SLOT).isEmpty()
+              ? List.of(
+                  PrefabProblem.error(
+                      instance.name(),
+                      "No item is linked to '"
+                          + REWARD_ITEM_SLOT.displayName()
+                          + "', so the trash can hides nothing"))
+              : List.of();
+      case REWARD_ITEM -> PrefabItems.unknownItem(instance, ITEM).stream().toList();
+      case REWARD_HINT -> PrefabAssets.missingImage(instance, IMAGE).stream().toList();
+      default -> List.of();
+    };
   }
 
   @Override

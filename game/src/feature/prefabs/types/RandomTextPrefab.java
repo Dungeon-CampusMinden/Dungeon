@@ -107,6 +107,17 @@ public final class RandomTextPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Generates random letters or picks an entry of a list, e.g. a password that changes"
+        + " every session and is shown in a dialog.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("rng", "random word", "letters", "random");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(TEXT, GENERATED, REGENERATE);
   }

@@ -31,7 +31,8 @@ import java.util.function.Predicate;
 /**
  * Library of all prefabs that can be added to a level, shown in the left panel instead of the
  * prefab list while adding. Prefabs are grouped by category, with the recently added ones on top,
- * and can be searched by name.
+ * and can be searched by name, category and their aliases, see {@link Prefab#aliases}. Hovering a
+ * prefab shows its description.
  *
  * <p>Prefabs are dragged into the level to place them. Prefabs without a world position, e.g.
  * dialogs or logic, are dropped onto the prefab that triggers them, or clicked to attach them to
@@ -199,7 +200,10 @@ public final class PrefabLibrary extends Table {
     for (PrefabCatalog.Category category : categories) {
       List<Prefab> matching = new ArrayList<>();
       for (Prefab prefab : category.prefabs()) {
-        String text = (prefab.displayName() + " " + category.name()).toLowerCase(Locale.ROOT);
+        String text =
+            String.join(
+                    " ", prefab.displayName(), category.name(), String.join(" ", prefab.aliases()))
+                .toLowerCase(Locale.ROOT);
         if (query.isEmpty() || matchesAll(text, query)) matching.add(prefab);
       }
       any |= section(category.name(), matching);
@@ -283,6 +287,7 @@ public final class PrefabLibrary extends Table {
             listener.clicked(prefab);
           }
         });
+    if (!prefab.description().isBlank()) EditorTheme.tooltip(tile, prefab.description());
     dragAndDrop.addSource(
         new DragAndDrop.Source(tile) {
           @Override

@@ -127,6 +127,17 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A dialog ending in a question; every answer raises its own event. E.g. 'Pull the"
+        + " lever?' where Yes opens a door.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("question", "answer", "choice", "options");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     List<PrefabPort> ports = new ArrayList<>();
     ports.add(SHOW_DIALOG);

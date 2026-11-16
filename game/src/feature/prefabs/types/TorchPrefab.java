@@ -90,6 +90,17 @@ public final class TorchPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A torch players can light and extinguish. 'Lit' and 'Extinguished' trigger other"
+        + " prefabs, e.g. lighting a torch opens a hidden door.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("fire", "light", "flame");
+  }
+
+  @Override
   protected void validate(PrefabInstance instance) {
     Vector2 scale = value(instance, SCALE);
     if (!Float.isFinite(scale.x())

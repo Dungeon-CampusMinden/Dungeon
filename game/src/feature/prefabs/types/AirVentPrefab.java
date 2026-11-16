@@ -107,6 +107,18 @@ public final class AirVentPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A vent holding items that it blows out into the room when 'Spew Items' runs, e.g."
+        + " paper snippets after a lever was pulled. Players can not take the items out"
+        + " themselves.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("vent", "grate", "spew", "blow");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     List<PrefabPort> ports = new ArrayList<>(PrefabItems.OUTPUTS);
     ports.addAll(List.of(SPEW, ITEMS_SPEWED, INTERACTED));

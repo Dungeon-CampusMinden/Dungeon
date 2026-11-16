@@ -62,6 +62,17 @@ public final class PressurePlatePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A plate on the floor, pressed while a player or a stone is on it, e.g. to keep a door"
+        + " open while someone stands on it.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("button", "floor switch", "plate");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(PRESSED, RELEASED);
   }

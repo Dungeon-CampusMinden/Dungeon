@@ -1,24 +1,38 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import engine.input.ActionId;
+import engine.utils.Cursors;
 import feature.hud.elements.RichLabel;
 import feature.leveleditor.EditorActions;
 import feature.leveleditor.LevelEditorMode;
+import feature.leveleditor.LevelProblems;
+import feature.prefabs.PrefabProblem;
 import feature.systems.LevelEditorSystem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 /**
- * Bar along the bottom of the screen: the last feedback message of the editor on the left, the
- * state of the active mode in the middle and its controls on the right, with key and mouse symbols.
+ * Bar along the bottom of the screen: the number of problems of the level and the last feedback
+ * message of the editor on the left, the state of the active mode in the middle and its controls on
+ * the right, with key and mouse symbols.
+ *
+ * <p>Clicking the number of problems opens the list of the problems, see {@link ProblemsPanel}.
  */
 public final class StatusBar extends Table {
 
@@ -31,6 +45,17 @@ public final class StatusBar extends Table {
   // Room kept for the message and the status of the mode.
   private static final float MESSAGE_WIDTH = 560f;
 
+  private final Table problems = new Table();
+  // White, so the color of the label sets the color of the text.
+  private final Label errorCount = EditorTheme.label("0", FONT_SIZE, Color.WHITE);
+  private final Label warningCount = EditorTheme.label("0", FONT_SIZE, Color.WHITE);
+  private final Image errorIcon = new Image(EditorTheme.icon("error", Color.WHITE));
+  private final Image warningIcon = new Image(EditorTheme.icon("warning", Color.WHITE));
+  private final BooleanSupplier problemsShown;
+  private int shownErrors = -1;
+  private int shownWarnings = -1;
+  private boolean problemsHovered;
+  private boolean problemsHighlighted;
   private final Label message = EditorTheme.label("", FONT_SIZE, EditorTheme.TEXT);
   private final Label status = EditorTheme.label("", FONT_SIZE, EditorTheme.TEXT_MUTED);
   private final RichLabel hints = new RichLabel("", FONT_SIZE, EditorTheme.TEXT_MUTED, false);
@@ -39,11 +64,19 @@ public final class StatusBar extends Table {
   private final List<String> hintItems = new ArrayList<>();
   private float fittedWidth = -1f;
 
-  /** Creates an empty status bar. */
-  public StatusBar() {
+  /**
+   * Creates an empty status bar.
+   *
+   * @param toggleProblems opens or closes the list of the problems of the level
+   * @param problemsShown whether the list of the problems is open
+   */
+  public StatusBar(Runnable toggleProblems, BooleanSupplier problemsShown) {
+    this.problemsShown = problemsShown;
     setTouchable(Touchable.enabled);
     setBackground(EditorTheme.flat(new Color(0.06f, 0.065f, 0.08f, 0.94f)));
-    pad(0f, 12f, 0f, 12f);
+    pad(0f, 6f, 0f, 12f);
+    buildProblems(toggleProblems);
+    add(problems).height(HEIGHT - 6f).left().padRight(10f);
     message.setEllipsis(true);
     status.setEllipsis(true);
     hints.setWrap(false);
@@ -54,9 +87,70 @@ public final class StatusBar extends Table {
     add(hints).right();
   }
 
+  // Looks like plain text, the outline and background only show on hover or while the list is open.
+  private void buildProblems(Runnable toggleProblems) {
+    problems.setTouchable(Touchable.enabled);
+    problems.setUserObject(Cursors.INTERACT);
+    problems.pad(0f, 7f, 0f, 7f);
+    errorIcon.setScaling(Scaling.fit);
+    warningIcon.setScaling(Scaling.fit);
+    problems.add(errorCount);
+    problems.add(errorIcon).size(13f).padLeft(5f);
+    problems.add(warningCount).padLeft(12f);
+    problems.add(warningIcon).size(13f).padLeft(5f);
+    problems.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            if (pointer == -1) problemsHovered = true;
+          }
+
+          @Override
+          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            if (pointer != -1 || (toActor != null && toActor.isDescendantOf(problems))) return;
+            problemsHovered = false;
+          }
+        });
+    problems.addListener(
+        new ClickListener(Input.Buttons.LEFT) {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            toggleProblems.run();
+          }
+        });
+  }
+
+  private void updateProblems() {
+    int errors = LevelProblems.count(PrefabProblem.Severity.ERROR);
+    int warnings = LevelProblems.count(PrefabProblem.Severity.WARNING);
+    // More digits take room from the hints.
+    if (errors != shownErrors || warnings != shownWarnings) fittedWidth = -1f;
+    if (errors != shownErrors) {
+      shownErrors = errors;
+      errorCount.setText(String.valueOf(errors));
+      Color color = errors > 0 ? EditorTheme.ERROR : EditorTheme.TEXT_DISABLED;
+      errorCount.setColor(color);
+      errorIcon.setColor(color);
+    }
+    if (warnings != shownWarnings) {
+      shownWarnings = warnings;
+      warningCount.setText(String.valueOf(warnings));
+      Color color = warnings > 0 ? EditorTheme.WARNING : EditorTheme.TEXT_DISABLED;
+      warningCount.setColor(color);
+      warningIcon.setColor(color);
+    }
+    boolean highlighted = problemsHovered || problemsShown.getAsBoolean();
+    if (highlighted != problemsHighlighted) {
+      problemsHighlighted = highlighted;
+      problems.setBackground(
+          highlighted ? EditorTheme.rounded(EditorTheme.ROW_OVER, EditorTheme.LINE, 4) : null);
+    }
+  }
+
   @Override
   public void act(float delta) {
     super.act(delta);
+    if (LevelEditorSystem.active()) updateProblems();
     LevelEditorMode current = LevelEditorSystem.currentModeInstance();
     if (current != mode) {
       mode = current;
@@ -109,7 +203,8 @@ public final class StatusBar extends Table {
   // Leaves out the last hints while they do not fit next to the message.
   private void fitHints() {
     fittedWidth = getWidth();
-    float available = getWidth() - MESSAGE_WIDTH - getPadLeft() - getPadRight();
+    float available =
+        getWidth() - MESSAGE_WIDTH - problems.getPrefWidth() - getPadLeft() - getPadRight();
     for (int count = hintItems.size(); count >= 0; count--) {
       String text = String.join("     ", hintItems.subList(0, count));
       if (!text.equals(hintText)) {

@@ -11,8 +11,10 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /** Server-side logic prefab that sets, removes or toggles a {@link GameFlags game flag}. */
 public final class FlagSetPrefab extends Prefab {
@@ -56,6 +58,17 @@ public final class FlagSetPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Sets, removes or toggles a game flag: a named on/off state saved with the game, e.g."
+        + " to remember that a puzzle was solved.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("variable", "state", "remember", "progress");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(APPLY);
   }
@@ -68,6 +81,30 @@ public final class FlagSetPrefab extends Prefab {
   @Override
   public Optional<String> editorSummary(PrefabInstance instance) {
     return Optional.of(value(instance, OPERATION) + " \"" + value(instance, FLAG) + "\"");
+  }
+
+  @Override
+  public Set<String> changedFlags(PrefabInstance instance, PrefabAction action) {
+    return action == APPLY ? Set.of(value(instance, FLAG)) : Set.of();
+  }
+
+  /**
+   * Returns the flags the Flag Set instances of a level change, the inactive ones included.
+   *
+   * @param level level to search
+   * @return names of the changed flags
+   */
+  static Set<String> flagsChangedIn(ILevel level) {
+    Set<String> flags = new HashSet<>();
+    for (PrefabInstance instance : level.prefabs()) {
+      if (!instance.type().equals(TYPE)) continue;
+      try {
+        flags.add(FLAG.get(instance));
+      } catch (IllegalArgumentException invalid) {
+        // An invalid instance changes nothing, its own problem is reported.
+      }
+    }
+    return flags;
   }
 
   private static void apply(ActionContext context) {

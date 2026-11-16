@@ -82,6 +82,17 @@ public final class TimerPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A countdown on a display in the world that raises 'Expired' at zero, e.g. players"
+        + " have five minutes to solve a puzzle.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("countdown", "clock", "time limit");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(START, STOP, EXPIRED);
   }

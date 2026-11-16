@@ -79,6 +79,17 @@ public final class TextKeypadPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Like a keypad, but players type a text answer, e.g. the solution of a riddle. It can"
+        + " accept several answers.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("password", "riddle", "answer", "word");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(CORRECT_ANSWER, WRONG_ANSWER);
   }

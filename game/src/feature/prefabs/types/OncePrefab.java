@@ -3,6 +3,7 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import feature.prefabs.ActionContext;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
@@ -62,8 +63,24 @@ public final class OncePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Passes a signal on only the first time, e.g. to show a dialog only once. A reset"
+        + " opens it again.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("first time", "only once", "single", "one shot");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(TRIGGER, TRIGGERED);
+  }
+
+  @Override
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    return PlayerSource.passing(TRIGGER);
   }
 
   @Override

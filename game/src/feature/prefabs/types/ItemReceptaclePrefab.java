@@ -24,8 +24,11 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabWiring;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import tools.jackson.databind.JsonNode;
@@ -103,8 +106,39 @@ public final class ItemReceptaclePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A container players put items into. It raises an event when the required item, linked"
+        + " from another prefab, is put inside, e.g. the finished puzzle picture into a chest.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("chest", "container", "slot", "socket", "deposit");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(REQUIRED_ITEM, REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED, OTHER_ITEM_PLACED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    if (!instance.links(REQUIRED_ITEM).isEmpty()) return List.of();
+    List<String> never = new ArrayList<>();
+    for (PrefabEvent<?> event : List.of(REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED)) {
+      if (!PrefabWiring.outgoing(level.prefabs(), instance.name(), event.key()).isEmpty()) {
+        never.add("'" + event.displayName() + "'");
+      }
+    }
+    if (never.isEmpty()) return List.of();
+    return List.of(
+        PrefabProblem.error(
+            instance.name(),
+            "No item is linked to '"
+                + REQUIRED_ITEM.displayName()
+                + "', so "
+                + String.join(" and ", never)
+                + (never.size() == 1 ? " never happens" : " never happen")));
   }
 
   @Override

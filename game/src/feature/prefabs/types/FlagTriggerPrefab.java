@@ -3,11 +3,13 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import feature.prefabs.GameFlags;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
@@ -62,6 +64,17 @@ public final class FlagTriggerPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Raises 'Triggered' when one of its flags is set, removed or changed, e.g. to open a"
+        + " door once the flag of a solved puzzle is set, also after loading a save.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("listen", "watch", "condition", "variable");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(TRIGGERED);
   }
@@ -86,6 +99,16 @@ public final class FlagTriggerPrefab extends Prefab {
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     SUBSCRIPTIONS.end(context.level(), instance.name()).ifPresent(Runnable::run);
+  }
+
+  @Override
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    return FLAGS.triggerPlayers(instance);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return FLAGS.unchangedFlags(level, instance);
   }
 
   @Override

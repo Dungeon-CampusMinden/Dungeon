@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import feature.prefabs.ActionContext;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
@@ -77,8 +78,24 @@ public final class DelayPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Passes a signal on after a time, e.g. to close a door five seconds after it opened.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("wait", "timeout", "later", "sleep");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(START, CANCEL, FINISHED);
+  }
+
+  @Override
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    // Timers continued from a save have no player, the checks leave saves out.
+    return PlayerSource.passing(START);
   }
 
   @Override

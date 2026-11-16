@@ -53,6 +53,7 @@ import feature.leveleditor.ui.Vector2Setting;
 import feature.leveleditor.ui.ViewOptionsBar;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactSlot;
+import feature.prefabs.EventPlayers;
 import feature.prefabs.GameFlags;
 import feature.prefabs.ImagePuzzleSettings;
 import feature.prefabs.Placeholders;
@@ -64,6 +65,7 @@ import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabLink;
 import feature.prefabs.PrefabNames;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabPropertyType;
 import feature.prefabs.PrefabRegistry;
@@ -159,7 +161,8 @@ public final class PrefabMode extends LevelEditorMode {
   // Instances with a port that fits the pending pick, computed when the pick starts.
   private Set<String> pickTargets = Set.of();
   private PortPickerPopup openPicker;
-  private List<PrefabWiring.Problem> problems = List.of();
+  // Problems of the level, see LevelProblems.
+  private List<PrefabProblem> problems = List.of();
   // Links with an error problem, to color them while rendering.
   private Set<LinkKey> errorLinks = Set.of();
   private final PrefabConnectionsTab connectionsTab =
@@ -831,6 +834,21 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
+   * Returns whether an instance has a position in the level, e.g. a point or a region, rather than
+   * being attached to the prefabs it is linked to.
+   *
+   * @param instance the instance
+   * @return true if it has a world position; false for invalid instances
+   */
+  static boolean hasWorldPosition(PrefabInstance instance) {
+    try {
+      return !worldAnchors(instance).isEmpty();
+    } catch (IllegalArgumentException invalidInstance) {
+      return false;
+    }
+  }
+
+  /**
    * Draws the links of the selected instance with their port names, faint links of the hovered
    * instance, and all other links faintly if {@link LinkDisplay#ALL} is chosen.
    *
@@ -1110,10 +1128,10 @@ public final class PrefabMode extends LevelEditorMode {
 
   private void rebuildDetails(boolean rebuildSecondary) {
     if (outliner == null) return;
-    problems = PrefabWiring.problems(getLevel().prefabs());
+    problems = LevelProblems.current();
     errorLinks = new HashSet<>();
-    for (PrefabWiring.Problem problem : problems) {
-      if (problem.severity() == PrefabWiring.Severity.ERROR) {
+    for (PrefabProblem problem : problems) {
+      if (problem.isLinkProblem() && problem.severity() == PrefabProblem.Severity.ERROR) {
         errorLinks.add(new LinkKey(problem.instance(), problem.port(), problem.link()));
       }
     }
@@ -1397,9 +1415,23 @@ public final class PrefabMode extends LevelEditorMode {
   private void addProblemNotice(PrefabInstance instance) {
     long errors = 0;
     long warnings = 0;
-    for (PrefabWiring.Problem problem : problemsOf(instance.name())) {
-      if (problem.severity() == PrefabWiring.Severity.ERROR) errors++;
-      else warnings++;
+    for (PrefabProblem problem : problemsOf(instance.name())) {
+      if (!problem.isLinkProblem()) {
+        boolean error = problem.severity() == PrefabProblem.Severity.ERROR;
+        secondaryContent
+            .add(
+                notice(
+                    problem.message(),
+                    error ? EditorTheme.ERROR : EditorTheme.WARNING,
+                    error ? "error" : "warning"))
+            .growX()
+            .padTop(SETTINGS_PAD)
+            .row();
+      } else if (problem.severity() == PrefabProblem.Severity.ERROR) {
+        errors++;
+      } else {
+        warnings++;
+      }
     }
     if (errors + warnings == 0) return;
     secondaryContent
@@ -1415,10 +1447,12 @@ public final class PrefabMode extends LevelEditorMode {
         .row();
   }
 
-  private List<PrefabWiring.Problem> problemsOf(String instance) {
-    List<PrefabWiring.Problem> result = new ArrayList<>();
-    for (PrefabWiring.Problem problem : problems) {
-      if (problem.instance().equals(instance) || problem.link().source().equals(instance)) {
+  // The problems of an instance itself and of the links it stores or is the source of.
+  private List<PrefabProblem> problemsOf(String instance) {
+    List<PrefabProblem> result = new ArrayList<>();
+    for (PrefabProblem problem : problems) {
+      if (problem.instance().equals(instance)
+          || (problem.isLinkProblem() && problem.link().source().equals(instance))) {
         result.add(problem);
       }
     }
@@ -2029,15 +2063,10 @@ public final class PrefabMode extends LevelEditorMode {
       return;
     }
     if (!applyChange(() -> getLevel().replacePrefab(index, replacement))) return;
-    Optional<PrefabPort> output = PrefabWiring.outputPort(getLevel().prefabs(), link);
-    if (output.isPresent() && PrefabWiring.lacksPlayer(output.get(), replacement, input)) {
+    Optional<PrefabProblem> problem = linkProblem(receiverName, input.key(), link);
+    if (problem.isPresent()) {
       LevelEditorSystem.showFeedback(
-          "'"
-              + output.get().displayName()
-              + "' has no player, so '"
-              + input.displayName()
-              + "' runs for every player.",
-          Color.YELLOW);
+          "Linked, but " + problem.get().message() + ".", feedbackColor(problem.get()));
     } else {
       LevelEditorSystem.showFeedback(
           "Linked " + link.source() + " > " + receiverName + "." + input.displayName(),
@@ -2093,6 +2122,18 @@ public final class PrefabMode extends LevelEditorMode {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       requestRebuild();
     }
+  }
+
+  /**
+   * Selects a prefab and centers the camera on it, e.g. to fix one of its problems.
+   *
+   * @param name name of the prefab instance
+   * @param links whether to show the links of the prefab rather than its properties
+   */
+  public void reveal(String name, boolean links) {
+    if (library != null) toggleLibrary();
+    detailsTab = links ? DetailsTab.CONNECTIONS : DetailsTab.PROPERTIES;
+    focus(name);
   }
 
   private void focus(String name) {
@@ -2171,6 +2212,7 @@ public final class PrefabMode extends LevelEditorMode {
     List<PortPickerPopup.Option> options = new ArrayList<>();
     boolean endIsInput = end.port().kind().isInput();
     BiPredicate<String, String> artifactCycle = PrefabWiring.artifactCycleCheck(instances);
+    EventPlayers players = EventPlayers.of(instances);
     for (PrefabInstance candidate : instances) {
       if (onlyInstance != null && !candidate.name().equals(onlyInstance)) continue;
       Prefab prefab = PrefabRegistry.require(candidate.type());
@@ -2201,12 +2243,13 @@ public final class PrefabMode extends LevelEditorMode {
                     .map(holder -> holder.receiver().name())
                     .findFirst()
                 : Optional.empty();
+        String noPlayer = missingPlayer(players.of(link), receiver, input);
         String detail = null;
         if (linked) detail = "already linked";
         else if (cycle) detail = "would make the value depend on itself";
         else if (heldBy.isPresent()) detail = "held by " + heldBy.get();
-        else if (PrefabWiring.lacksPlayer(output, receiver, input)) {
-          detail = "runs for every player";
+        else if (noPlayer != null) {
+          detail = noPlayer;
         } else if (input instanceof ArtifactSlot<?> slot
             && !slot.multiple()
             && !receiver.links(input).isEmpty()) {
@@ -2271,6 +2314,7 @@ public final class PrefabMode extends LevelEditorMode {
                 .map(holder -> holder.receiver().name())
                 .findFirst();
     List<PortPickerPopup.Option> options = new ArrayList<>();
+    EventPlayers players = EventPlayers.of(instances);
     for (PrefabCatalog.Category category : PrefabCatalog.typeCategories()) {
       for (Prefab prefab : category.prefabs()) {
         PrefabInstance candidate = prefab.newInstance(prefab.type());
@@ -2282,8 +2326,11 @@ public final class PrefabMode extends LevelEditorMode {
           if (port.kind().isInput() == endIsInput || !PrefabWiring.compatible(output, input)) {
             continue;
           }
+          EventPlayers.Presence presence =
+              playersOfNewLink(players, end, prefab, candidate, output);
           PrefabInstance receiver =
-              endIsInput ? owner.get() : forEventWithoutPlayer(candidate, output, input);
+              endIsInput ? owner.get() : forEventWithoutPlayer(candidate, presence, input);
+          String noPlayer = missingPlayer(presence, receiver, input);
           boolean held =
               input instanceof ArtifactSlot<?> slot && slot.holder() && heldBy.isPresent();
           String detail = null;
@@ -2293,8 +2340,8 @@ public final class PrefabMode extends LevelEditorMode {
               && !slot.multiple()
               && !receiver.links(input).isEmpty()) {
             detail = "replaces the current link";
-          } else if (PrefabWiring.lacksPlayer(output, receiver, input)) {
-            detail = "runs for every player";
+          } else if (noPlayer != null) {
+            detail = noPlayer;
           }
           options.add(
               new PortPickerPopup.Option(
@@ -2333,6 +2380,10 @@ public final class PrefabMode extends LevelEditorMode {
     PrefabPort output = endIsInput ? port : end.port();
     PrefabPort input = endIsInput ? end.port() : port;
     String name = newInstanceName(prefab);
+    PrefabLink link =
+        endIsInput
+            ? new PrefabLink(name, port.key())
+            : new PrefabLink(owner.get().name(), end.port().key());
     // The new instance joins the group of the instance it is linked to.
     String group = hierarchy.groupOf(owner.get().name()).orElse(null);
     PrefabInstance added;
@@ -2346,12 +2397,14 @@ public final class PrefabMode extends LevelEditorMode {
               : placedInstance(prefab, name, placementNear(owner.get(), prefab));
       if (endIsInput) {
         added = created;
-        receiver = withLink(owner.get(), input, new PrefabLink(name, port.key()));
+        receiver = withLink(owner.get(), input, link);
         forEveryone = false;
       } else {
-        PrefabInstance adjusted = forEventWithoutPlayer(created, output, input);
+        EventPlayers.Presence presence =
+            EventPlayers.of(getLevel().prefabs()).of(owner.get().name(), end.port().key());
+        PrefabInstance adjusted = forEventWithoutPlayer(created, presence, input);
         forEveryone = !adjusted.equals(created);
-        added = withLink(adjusted, input, new PrefabLink(owner.get().name(), end.port().key()));
+        added = withLink(adjusted, input, link);
         receiver = added;
       }
     } catch (IllegalArgumentException exception) {
@@ -2368,16 +2421,10 @@ public final class PrefabMode extends LevelEditorMode {
             });
     if (!applied) return;
     detailsTab = DetailsTab.PROPERTIES;
-    if (PrefabWiring.lacksPlayer(output, receiver, input)) {
+    Optional<PrefabProblem> problem = linkProblem(receiver.name(), input.key(), link);
+    if (problem.isPresent()) {
       LevelEditorSystem.showFeedback(
-          "Added "
-              + name
-              + ", but '"
-              + output.displayName()
-              + "' has no player, so '"
-              + input.displayName()
-              + "' runs for every player.",
-          Color.YELLOW);
+          "Added " + name + ", but " + problem.get().message() + ".", feedbackColor(problem.get()));
     } else if (forEveryone) {
       LevelEditorSystem.showFeedback(
           "Added " + name + " for every player, as '" + output.displayName() + "' has no player.",
@@ -2390,21 +2437,80 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
-   * Makes a new instance act on every player if it is linked to an event without a player, so the
-   * link does not need a warning, see {@link PrefabAction#forEveryone}.
+   * Makes a new instance act on every player if it is linked to an event that never has a player,
+   * so the link is no problem, see {@link PrefabAction#forEveryone}.
    *
    * @param created new instance receiving the link
-   * @param output output port of the link
+   * @param presence whether the event of the link carries a player
    * @param input input port of the new instance
    * @return the instance acting on every player, or {@code created} if nothing changes
    */
   private static PrefabInstance forEventWithoutPlayer(
-      PrefabInstance created, PrefabPort output, PrefabPort input) {
+      PrefabInstance created, EventPlayers.Presence presence, PrefabPort input) {
     if (!(input instanceof PrefabAction action)
-        || !PrefabWiring.lacksPlayer(output, created, input)) {
+        || presence != EventPlayers.Presence.NEVER
+        || !action.needsPlayer(created)) {
       return created;
     }
     return action.forEveryone(created).orElse(created);
+  }
+
+  /**
+   * Returns whether the event of a link to a new prefab carries a player. The event of a new prefab
+   * only has the players it raises by itself, it has no links yet.
+   *
+   * @param players players of the events of the level
+   * @param end port of the instance the new prefab is linked to
+   * @param prefab prefab of the new instance
+   * @param candidate new instance
+   * @param output output port of the link
+   * @return the presence of the player; {@link EventPlayers.Presence#NONE} for artifacts
+   */
+  private static EventPlayers.Presence playersOfNewLink(
+      EventPlayers players,
+      PrefabConnectionsTab.LinkEnd end,
+      Prefab prefab,
+      PrefabInstance candidate,
+      PrefabPort output) {
+    if (!(output instanceof PrefabEvent<?> event)) return EventPlayers.Presence.NONE;
+    if (!end.port().kind().isInput()) return players.of(end.instance(), event.key());
+    return EventPlayers.own(prefab.playerSource(candidate, event));
+  }
+
+  /**
+   * Describes why an action that needs a player would run for every player when linked to an event,
+   * following the players through the level, see {@link EventPlayers}.
+   *
+   * @param presence whether the event of the link carries a player
+   * @param receiver instance receiving the link
+   * @param input input port of the link
+   * @return a short note, or {@code null} if the action needs no player or always gets one
+   */
+  private static String missingPlayer(
+      EventPlayers.Presence presence, PrefabInstance receiver, PrefabPort input) {
+    if (!(input instanceof PrefabAction action) || !action.needsPlayer(receiver)) return null;
+    return switch (presence) {
+      case NEVER -> "runs for every player";
+      case SOMETIMES -> "may run for every player";
+      default -> null;
+    };
+  }
+
+  // The most severe problem of a link stored on an instance, if it has one.
+  private static Optional<PrefabProblem> linkProblem(
+      String receiver, String port, PrefabLink link) {
+    return LevelProblems.current().stream()
+        .filter(
+            problem ->
+                problem.isLinkProblem()
+                    && problem.instance().equals(receiver)
+                    && problem.port().equals(port)
+                    && problem.link().sameOutput(link))
+        .max(Comparator.comparing(PrefabProblem::severity));
+  }
+
+  private static Color feedbackColor(PrefabProblem problem) {
+    return problem.severity() == PrefabProblem.Severity.ERROR ? Color.RED : Color.YELLOW;
   }
 
   /**
@@ -2829,14 +2935,14 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private List<PrefabOutliner.Item> listItems() {
-    Map<String, PrefabWiring.Severity> worst = new HashMap<>();
-    for (PrefabWiring.Problem problem : problems) {
+    Map<String, PrefabProblem.Severity> worst = new HashMap<>();
+    for (PrefabProblem problem : problems) {
       worst.merge(problem.instance(), problem.severity(), (a, b) -> a.compareTo(b) >= 0 ? a : b);
     }
     Function<PrefabInstance, PrefabOutliner.Status> status =
         instance -> {
-          PrefabWiring.Severity severity = worst.get(instance.name());
-          int problem = severity == null ? 0 : severity == PrefabWiring.Severity.ERROR ? 2 : 1;
+          PrefabProblem.Severity severity = worst.get(instance.name());
+          int problem = severity == null ? 0 : severity == PrefabProblem.Severity.ERROR ? 2 : 1;
           return new PrefabOutliner.Status(!instance.active(), isUnplaced(instance), problem);
         };
     List<PrefabOutliner.Item> items = new ArrayList<>();
@@ -3128,7 +3234,7 @@ public final class PrefabMode extends LevelEditorMode {
         .min(Comparator.comparingDouble(anchor -> anchor.displayPosition().distance(cursor)));
   }
 
-  private List<WorldAnchor> worldAnchors(PrefabInstance instance) {
+  private static List<WorldAnchor> worldAnchors(PrefabInstance instance) {
     Prefab prefab = PrefabRegistry.require(instance.type());
     List<WorldAnchor> anchors = new ArrayList<>();
     for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {

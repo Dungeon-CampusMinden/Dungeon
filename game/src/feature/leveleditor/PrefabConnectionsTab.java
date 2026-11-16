@@ -22,6 +22,7 @@ import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabLink;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabWiring;
 import java.util.List;
@@ -150,9 +151,9 @@ final class PrefabConnectionsTab {
    *
    * @param content table to fill
    * @param instance normalized selected instance
-   * @param problems wiring problems of the level
+   * @param problems problems of the level, see {@link LevelProblems}
    */
-  void build(Table content, PrefabInstance instance, List<PrefabWiring.Problem> problems) {
+  void build(Table content, PrefabInstance instance, List<PrefabProblem> problems) {
     Prefab prefab = PrefabRegistry.require(instance.type());
     section(content, instance, prefab.ports(instance, PrefabPort.Kind.EVENT), problems, "Events");
     List<PrefabPort> actions = prefab.ports(instance, PrefabPort.Kind.ACTION);
@@ -220,15 +221,14 @@ final class PrefabConnectionsTab {
       Table content,
       PrefabInstance instance,
       List<PrefabPort> ports,
-      List<PrefabWiring.Problem> problems,
+      List<PrefabProblem> problems,
       String title) {
     if (ports.isEmpty()) return;
     content.add(EditorTheme.caption(title)).left().padTop(16f).padLeft(2f).padBottom(2f).row();
     for (PrefabPort port : ports) content.add(portBlock(instance, port, problems)).padTop(2f).row();
   }
 
-  private Table portBlock(
-      PrefabInstance instance, PrefabPort port, List<PrefabWiring.Problem> problems) {
+  private Table portBlock(PrefabInstance instance, PrefabPort port, List<PrefabProblem> problems) {
     Table block = new Table();
     block.defaults().growX().minWidth(0f);
 
@@ -292,8 +292,7 @@ final class PrefabConnectionsTab {
     Color linkColor = port.kind().isSignal() ? SIGNAL_COLOR : ARTIFACT_COLOR;
     if (port.kind().isInput()) {
       for (PrefabLink link : instance.links(port)) {
-        Optional<PrefabWiring.Problem> problem =
-            problemOf(problems, instance.name(), port.key(), link);
+        Optional<PrefabProblem> problem = problemOf(problems, instance.name(), port.key(), link);
         String output = outputName(host.instances(), link);
         block
             .add(
@@ -317,7 +316,7 @@ final class PrefabConnectionsTab {
       }
     } else {
       for (PrefabWiring.Connection connection : outgoing) {
-        Optional<PrefabWiring.Problem> problem =
+        Optional<PrefabProblem> problem =
             problemOf(
                 problems,
                 connection.receiver().name(),
@@ -448,19 +447,20 @@ final class PrefabConnectionsTab {
     return Optional.empty();
   }
 
-  private static Optional<PrefabWiring.Problem> problemOf(
-      List<PrefabWiring.Problem> problems, String receiver, String port, PrefabLink link) {
+  private static Optional<PrefabProblem> problemOf(
+      List<PrefabProblem> problems, String receiver, String port, PrefabLink link) {
     return problems.stream()
         .filter(
             problem ->
-                problem.instance().equals(receiver)
+                problem.isLinkProblem()
+                    && problem.instance().equals(receiver)
                     && problem.port().equals(port)
                     && problem.link().equals(link))
         .min((a, b) -> b.severity().compareTo(a.severity()));
   }
 
-  private static Color severityColor(PrefabWiring.Problem problem) {
-    return problem.severity() == PrefabWiring.Severity.ERROR ? ERROR_COLOR : WARNING_COLOR;
+  private static Color severityColor(PrefabProblem problem) {
+    return problem.severity() == PrefabProblem.Severity.ERROR ? ERROR_COLOR : WARNING_COLOR;
   }
 
   private static Label wrapped(String text, int fontSize, Color color) {

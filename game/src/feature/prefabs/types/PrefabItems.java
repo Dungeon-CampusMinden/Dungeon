@@ -17,6 +17,7 @@ import feature.prefabs.ArtifactType;
 import feature.prefabs.ItemArtifact;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabWiring;
@@ -130,6 +131,38 @@ final class PrefabItems {
                           .build();
                   interactor.add(new UIComponent(dialog, true, interactor.id()));
                 })));
+  }
+
+  /**
+   * Checks whether an item named by a property of an instance exists.
+   *
+   * @param instance normalized instance
+   * @param property item property of its prefab type, see {@link #choices}
+   * @return an error if the item does not exist; empty if it exists or no items are registered
+   */
+  static Optional<PrefabProblem> unknownItem(
+      PrefabInstance instance, PrefabProperty<String> property) {
+    String id = property.get(instance);
+    List<String> known = choices();
+    if (known.isEmpty() || known.contains(id)) return Optional.empty();
+    return Optional.of(
+        PrefabProblem.error(
+            instance.name(), "There is no item '" + id + "' for '" + property.displayName() + "'"));
+  }
+
+  /**
+   * Checks whether the used items of an instance with an item list exist.
+   *
+   * @param instance normalized instance with an item list
+   * @return an error for every item that does not exist
+   */
+  static List<PrefabProblem> unknownItems(PrefabInstance instance) {
+    List<PrefabProblem> problems = new ArrayList<>();
+    int count = COUNT.get(instance);
+    for (int index = 0; index < count; index++) {
+      unknownItem(instance, ITEMS.get(index)).ifPresent(problems::add);
+    }
+    return problems;
   }
 
   static Optional<Item> create(String id) {

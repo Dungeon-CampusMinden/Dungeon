@@ -715,6 +715,69 @@ public abstract class Prefab {
   }
 
   /**
+   * Describes what the prefab is for, with a use case or an example. The level editor shows it as
+   * the tooltip of the prefab when adding prefabs to a level.
+   *
+   * @return description, empty if there is none
+   */
+  public String description() {
+    return "";
+  }
+
+  /**
+   * Returns other names a level designer might search for to find this prefab, e.g. "gate" for a
+   * door control. They are not shown anywhere.
+   *
+   * @return search aliases; empty by default
+   */
+  public List<String> aliases() {
+    return List.of();
+  }
+
+  /**
+   * Finds the problems that keep an instance from working as intended, e.g. a door control that is
+   * not placed on a door. The level editor lists them, see {@link PrefabChecks}.
+   *
+   * <p>Problems of the links and of the players actions get are found for every prefab, as are
+   * positions outside of the level.
+   *
+   * @param level level of the instance
+   * @param instance normalized instance
+   * @return the problems; none by default
+   */
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return List.of();
+  }
+
+  /**
+   * Returns where the player an event of an instance carries comes from, so the level editor can
+   * check whether actions that need a player get one, see {@link EventPlayers}.
+   *
+   * <p>By default, events declared {@link PrefabEvent#withPlayer with a player} always carry the
+   * player that caused them, and other events never carry one. Prefabs that pass on the player of
+   * an action override this, e.g. a delay raising "Finished" with the player that started it.
+   *
+   * @param instance normalized instance of this prefab type
+   * @param event event of this prefab type
+   * @return origin of the player
+   */
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    return event.carriesPlayer() ? PlayerSource.PLAYER : PlayerSource.NO_PLAYER;
+  }
+
+  /**
+   * Returns the game flags an action of an instance changes, with the player of its triggering
+   * event. Prefabs watching the flags pass that player on, see {@link PlayerSource#flags()}.
+   *
+   * @param instance normalized instance of this prefab type
+   * @param action action of this prefab type
+   * @return changed flags; none by default
+   */
+  public Set<String> changedFlags(PrefabInstance instance, PrefabAction action) {
+    return Set.of();
+  }
+
+  /**
    * Cleans up side effects created while spawning an instance.
    *
    * @param context side-aware creation context

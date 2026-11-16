@@ -84,6 +84,17 @@ public final class WaterPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Animated water in a rectangle, with a shore where it meets other ground, e.g. a pond"
+        + " or a flooded room.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("pond", "lake", "river", "flood");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Region region = value(instance, REGION);
     int layer = value(instance, LAYER);

@@ -85,6 +85,17 @@ public final class LeverPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A lever players switch on and off. 'Switched On' and 'Switched Off' trigger other"
+        + " prefabs, e.g. to open and close a door.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("switch", "toggle");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(SWITCHED_ON, SWITCHED_OFF, SWITCH_ON, SWITCH_OFF, TOGGLE);
   }

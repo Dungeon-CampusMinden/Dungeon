@@ -70,6 +70,17 @@ public final class QuitGamePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Ends the game as solved or failed, for all players or only the triggering one, e.g."
+        + " after the outro.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("end game", "exit", "win", "lose", "finish");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(QUIT);
   }

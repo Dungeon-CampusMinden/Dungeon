@@ -10,6 +10,7 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
@@ -77,8 +78,24 @@ public final class ShowImagePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Shows an image when 'Show Image' runs, to the triggering player or to everyone, e.g."
+        + " a map found in a drawer.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("picture", "map", "letter", "photo");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(SHOW_IMAGE, IMAGE_CLOSED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabAssets.missingImage(instance, IMAGE).stream().toList();
   }
 
   @Override

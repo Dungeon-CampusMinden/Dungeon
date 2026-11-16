@@ -86,6 +86,17 @@ public final class DialogPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Text in a dialog box, shown when 'Show Dialog' runs, to the triggering player or to"
+        + " everyone. E.g. a note read at a desk; placeholders show linked values like a code.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("text", "message", "speech", "talk", "note", "say");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(SHOW_DIALOG, DIALOG_FINISHED, VALUES);
   }

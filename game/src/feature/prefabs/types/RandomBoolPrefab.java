@@ -97,6 +97,17 @@ public final class RandomBoolPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Rolls true or false with a chance and raises 'Rolled True' or 'Rolled False', e.g. to"
+        + " decide which of two doors opens.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("rng", "coin", "chance", "random");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(VALUE, GENERATED, ROLLED_TRUE, ROLLED_FALSE, REGENERATE);
   }

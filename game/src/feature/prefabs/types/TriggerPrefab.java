@@ -13,6 +13,7 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.Region;
@@ -77,8 +78,27 @@ public final class TriggerPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "An invisible area that raises 'Entered' when a player walks in, e.g. to show a dialog"
+        + " when a room is entered. It can be limited to once per player or once in total.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("area", "zone", "region", "enter");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(ENTERED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    Region region = value(instance, REGION);
+    if (!region.bottomLeft().equals(region.topRight())) return List.of();
+    return List.of(
+        PrefabProblem.error(instance.name(), "The region has no area, so no player enters it"));
   }
 
   @Override

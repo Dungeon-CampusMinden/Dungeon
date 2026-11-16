@@ -83,6 +83,17 @@ public final class KeypadPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A keypad where players enter a digit code. 'Correct Code' triggers other prefabs,"
+        + " e.g. a Door Control; the code can come from a Random Code.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("code", "pin", "number lock", "combination");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(CORRECT_CODE, WRONG_CODE, CODE_INPUT);
   }

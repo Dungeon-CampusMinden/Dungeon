@@ -88,6 +88,17 @@ public final class DecorationInteractionPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A decoration players can interact with. 'Interacted' triggers other prefabs, e.g. a"
+        + " Dialog when a bookshelf is inspected.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("interact", "inspect", "use", "bookshelf", "object");
+  }
+
+  @Override
   protected void validate(PrefabInstance instance) {
     Vector2 scale = value(instance, SCALE);
     if (!Float.isFinite(scale.x())

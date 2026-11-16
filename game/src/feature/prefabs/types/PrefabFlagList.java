@@ -1,10 +1,14 @@
 package feature.prefabs.types;
 
+import engine.level.elements.ILevel;
 import feature.prefabs.GameFlags;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Authored list of {@link GameFlags game flag} names on a flag prefab: the number of flags and one
@@ -57,6 +61,38 @@ record PrefabFlagList(PrefabProperty<Integer> count, List<PrefabProperty<String>
    */
   List<String> values(PrefabInstance instance) {
     return PrefabTextList.values(instance, count, names);
+  }
+
+  /**
+   * Returns where the player of the event of a flag trigger comes from: the players changing its
+   * flags, and no player if restoring a save can raise it, see {@link #TRIGGER_ON_RESTORE}.
+   *
+   * @param instance flag trigger holding the list
+   * @return origin of the player
+   */
+  PlayerSource triggerPlayers(PrefabInstance instance) {
+    PlayerSource changes = PlayerSource.flags(values(instance));
+    return instance.get(TRIGGER_ON_RESTORE) ? changes.or(PlayerSource.NO_PLAYER) : changes;
+  }
+
+  /**
+   * Warns about the used flags of an instance that no Flag Set of the level changes, so they do not
+   * change while the level is played.
+   *
+   * @param level level of the instance
+   * @param instance instance holding the list
+   * @return a warning, or none if every flag is changed somewhere
+   */
+  List<PrefabProblem> unchangedFlags(ILevel level, PrefabInstance instance) {
+    Set<String> changed = FlagSetPrefab.flagsChangedIn(level);
+    List<String> unchanged =
+        values(instance).stream().filter(flag -> !changed.contains(flag)).distinct().toList();
+    if (unchanged.isEmpty()) return List.of();
+    return List.of(
+        PrefabProblem.warning(
+            instance.name(),
+            "No Flag Set in this level changes "
+                + String.join(", ", unchanged.stream().map(flag -> "\"" + flag + "\"").toList())));
   }
 
   /**

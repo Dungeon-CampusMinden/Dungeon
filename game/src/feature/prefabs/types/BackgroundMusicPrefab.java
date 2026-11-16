@@ -14,9 +14,11 @@ import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.lwjgl.openal.AL10;
@@ -79,8 +81,39 @@ public final class BackgroundMusicPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Plays a looping music track for all players. 'Start' and 'Stop' switch it, e.g. tense"
+        + " music while a timer runs.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("music", "song", "soundtrack", "audio", "ambience");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(START, STOP);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    List<PrefabProblem> problems = new ArrayList<>();
+    PrefabAssets.missingSound(instance, TRACK).ifPresent(problems::add);
+    if (instance.active() && value(instance, PLAYING)) {
+      List<String> others =
+          level.prefabs().stream()
+              .filter(other -> other.active() && other.type().equals(TYPE))
+              .filter(other -> !other.name().equals(instance.name()) && PLAYING.get(other))
+              .map(other -> "'" + other.name() + "'")
+              .toList();
+      if (!others.isEmpty()) {
+        problems.add(
+            PrefabProblem.warning(
+                instance.name(), "Plays at the same time as " + String.join(", ", others)));
+      }
+    }
+    return problems;
   }
 
   @Override

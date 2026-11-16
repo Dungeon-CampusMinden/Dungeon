@@ -82,6 +82,17 @@ public final class PushableStonePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A stone players can push, e.g. onto a pressure plate in a push puzzle. Any decoration"
+        + " can be made pushable.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("boulder", "rock", "push", "crate", "box");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(SET_PUSHABLE, UNSET_PUSHABLE);
   }

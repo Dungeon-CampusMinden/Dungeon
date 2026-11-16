@@ -54,6 +54,17 @@ public final class DesignLabelRegionPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Gives the tiles in a region another look, e.g. a different floor and wall style for"
+        + " one room.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("tileset", "theme", "style", "look", "texture");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     return List.of();
   }

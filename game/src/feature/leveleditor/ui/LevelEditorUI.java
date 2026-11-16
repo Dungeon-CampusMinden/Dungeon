@@ -41,6 +41,7 @@ import java.util.List;
  *   <li>a prompt below the top bar while the mode waits for a click, see {@link
  *       LevelEditorMode#prompt()}.
  *   <li>the {@link StatusBar} along the bottom of the screen.
+ *   <li>the {@link ProblemsPanel} above the status bar, while it is opened from there.
  * </ul>
  *
  * <p>The group removes itself from the stage as soon as the {@link LevelEditorSystem} is no longer
@@ -56,7 +57,8 @@ public class LevelEditorUI extends Group {
   private final ModePanel modePanel = new ModePanel();
   private final ModeDetailsPanel detailsPanel = new ModeDetailsPanel();
   private final ModeDetailsPanel secondaryDetailsPanel = new ModeDetailsPanel(true);
-  private final StatusBar statusBar = new StatusBar();
+  private final StatusBar statusBar = new StatusBar(this::toggleProblems, this::problemsShown);
+  private final ProblemsPanel problemsPanel = new ProblemsPanel(this::toggleProblems);
   private final Table prompt = new Table();
   private final Label promptLabel = EditorTheme.boldLabel("", 15, EditorTheme.ON_SELECTION);
   private Table toolbar;
@@ -89,6 +91,24 @@ public class LevelEditorUI extends Group {
     prompt.add(promptLabel);
     prompt.setVisible(false);
     addActor(prompt);
+    problemsPanel.setVisible(false);
+    addActor(problemsPanel);
+  }
+
+  /** Opens the list of the problems of the level, or closes it if it is open. */
+  public void toggleProblems() {
+    EditorTheme.hideTooltips();
+    problemsPanel.setVisible(!problemsPanel.isVisible());
+    if (problemsPanel.isVisible()) problemsPanel.toFront();
+  }
+
+  /**
+   * Returns whether the list of the problems of the level is open.
+   *
+   * @return true while the problems panel is shown
+   */
+  public boolean problemsShown() {
+    return problemsPanel.isVisible();
   }
 
   /**
@@ -175,6 +195,9 @@ public class LevelEditorUI extends Group {
             getHeight() - margin - box.height, Math.max(box.y, statusBar.getHeight() + margin));
     for (Actor bar : topRow) {
       if (near(bar, box, margin)) box.y = bar.getY() - margin - box.height;
+    }
+    if (problemsPanel.isVisible() && near(problemsPanel, box, margin)) {
+      box.x = problemsPanel.getX() + problemsPanel.getWidth() + margin;
     }
     if (secondaryDetailsPanel.isVisible() && near(secondaryDetailsPanel, box, margin)) {
       box.x = secondaryDetailsPanel.getX() - margin - box.width;
@@ -322,6 +345,14 @@ public class LevelEditorUI extends Group {
       prompt.setPosition(
           Math.round((stageWidth - prompt.getWidth()) / 2f),
           topRowBottom - prompt.getHeight() - PANEL_GAP);
+    }
+
+    if (problemsPanel.isVisible()) {
+      problemsPanel.setWidth(ProblemsPanel.WIDTH);
+      problemsPanel.validate();
+      float maxHeight = Math.max(120f, (stageHeight - bottom) * 0.5f);
+      float height = Math.min(problemsPanel.getPrefHeight(), maxHeight);
+      problemsPanel.setBounds(SCREEN_PADDING, bottom, ProblemsPanel.WIDTH, height);
     }
 
     if (modal != null) {

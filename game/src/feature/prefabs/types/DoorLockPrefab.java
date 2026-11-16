@@ -25,6 +25,7 @@ import feature.prefabs.ArtifactInput;
 import feature.prefabs.ArtifactSlot;
 import feature.prefabs.ArtifactType;
 import feature.prefabs.ItemArtifact;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
@@ -32,8 +33,10 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -121,6 +124,17 @@ public final class DoorLockPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A chain lock on a door that players open with a key item, linked e.g. from an Item"
+        + " Spawner. Without the key, they see a locked dialog.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("key", "chain", "locked door", "padlock");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(KEY, UNLOCKED, UNLOCK);
   }
@@ -160,6 +174,29 @@ public final class DoorLockPrefab extends Prefab {
   public boolean suitsTile(Tile tile) {
     // New instances are placed on a door they can act on.
     return tile instanceof DoorTile;
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    List<PrefabProblem> problems = new ArrayList<>();
+    Point position = value(instance, DOOR_POSITION);
+    // Positions outside of the level are reported for every prefab.
+    if (level.tileAt(position).isPresent() && doorAt(level, position).isEmpty()) {
+      problems.add(
+          PrefabProblem.error(instance.name(), "Not placed on a door, so it locks nothing"));
+    }
+    if (instance.links(KEY).isEmpty() && instance.links(UNLOCK).isEmpty()) {
+      problems.add(
+          PrefabProblem.error(
+              instance.name(), "No key is linked and nothing runs 'Unlock', so it never opens"));
+    }
+    return problems;
+  }
+
+  @Override
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    // Players open the lock with the key, the action passes its player on.
+    return PlayerSource.PLAYER.or(PlayerSource.passing(UNLOCK));
   }
 
   @Override

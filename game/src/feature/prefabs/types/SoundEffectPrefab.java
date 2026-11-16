@@ -12,6 +12,7 @@ import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.Arrays;
@@ -76,8 +77,24 @@ public final class SoundEffectPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Plays a sound when 'Play' runs, for everyone or the triggering player, e.g. a chime"
+        + " when a puzzle was solved.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("audio", "sfx", "noise", "sound");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(PLAY);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabAssets.missingSound(instance, SOUND).stream().toList();
   }
 
   @Override

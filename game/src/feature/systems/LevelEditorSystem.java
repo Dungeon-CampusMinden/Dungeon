@@ -30,6 +30,7 @@ import feature.leveleditor.DecoMode;
 import feature.leveleditor.EditorActions;
 import feature.leveleditor.LevelEditorMode;
 import feature.leveleditor.LevelEditorSettings;
+import feature.leveleditor.LevelProblems;
 import feature.leveleditor.PointMode;
 import feature.leveleditor.PrefabMode;
 import feature.leveleditor.SettingsMode;
@@ -261,6 +262,7 @@ public class LevelEditorSystem extends System {
 
   /** Saves the current level when auto-save is enabled. */
   public static void levelChanged() {
+    LevelProblems.levelChanged();
     if (autoSave) DungeonSaver.saveCurrentDungeon(pathToLevels, false);
   }
 
@@ -310,6 +312,18 @@ public class LevelEditorSystem extends System {
       ui.detailsPanel().mode(currentModeInstance);
       ui.secondaryDetailsPanel().mode(currentModeInstance);
     }
+  }
+
+  /**
+   * Switches to the prefab mode, selects a prefab and centers the camera on it, e.g. to fix one of
+   * its problems.
+   *
+   * @param name name of the prefab instance
+   * @param links whether to show the links of the prefab rather than its properties
+   */
+  public static void revealPrefab(String name, boolean links) {
+    currentMode(Mode.Prefabs);
+    if (currentModeInstance instanceof PrefabMode prefabs) prefabs.reveal(name, links);
   }
 
   /**

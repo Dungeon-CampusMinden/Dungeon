@@ -13,6 +13,7 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
@@ -77,6 +78,17 @@ public final class DoorControlPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Opens, closes or toggles a door when its actions run. Place it on a door and link"
+        + " e.g. a lever or a keypad to it.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("door", "gate", "open", "close");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(OPEN, CLOSE, TOGGLE, OPENED, CLOSED);
   }
@@ -104,6 +116,15 @@ public final class DoorControlPrefab extends Prefab {
   public boolean suitsTile(Tile tile) {
     // New instances are placed on a door they can act on.
     return tile instanceof DoorTile;
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    Point position = value(instance, DOOR_POSITION);
+    // Positions outside of the level are reported for every prefab.
+    if (level.tileAt(position).isEmpty() || doorAt(level, position).isPresent()) return List.of();
+    return List.of(
+        PrefabProblem.error(instance.name(), "Not placed on a door, so it controls nothing"));
   }
 
   @Override

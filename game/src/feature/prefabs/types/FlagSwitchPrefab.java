@@ -4,12 +4,14 @@ import engine.Entity;
 import engine.level.elements.ILevel;
 import feature.prefabs.ActionContext;
 import feature.prefabs.GameFlags;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
@@ -62,6 +64,17 @@ public final class FlagSwitchPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Checks flags when 'Check Flags' runs and raises the event of the first set flag, or"
+        + " 'No Flag Set'. E.g. an NPC answers depending on the progress.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("if", "branch", "condition", "variable");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     List<PrefabPort> ports = new ArrayList<>();
     ports.add(CHECK);
@@ -86,6 +99,16 @@ public final class FlagSwitchPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     return List.of();
+  }
+
+  @Override
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    return PlayerSource.passing(CHECK);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return FLAGS.unchangedFlags(level, instance);
   }
 
   @Override

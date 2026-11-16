@@ -20,8 +20,10 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabWiring;
 import feature.utils.EntityUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -152,6 +154,17 @@ public final class NpcPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A character players talk to. It says a list of dialogs, asks a multiple choice"
+        + " question, or only raises 'Interacted' for your own logic.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("character", "person", "talk", "villager");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     List<PrefabPort> ports = new ArrayList<>();
     ports.add(INTERACTED);
@@ -176,6 +189,22 @@ public final class NpcPrefab extends Prefab {
     int option = MultipleChoiceDialogPrefab.OPTION_CHOSEN.indexOf(port);
     if (option < 0 || option >= instance.get(OPTION_COUNT)) return port.displayName();
     return PrefabTextList.portName(port, OPTIONS.get(option).get(instance));
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    if (!value(instance, MODE).equals(MODE_ADVANCED)
+        || !PrefabWiring.outgoing(level.prefabs(), instance.name(), INTERACTED.key()).isEmpty()) {
+      return List.of();
+    }
+    return List.of(
+        PrefabProblem.warning(
+            instance.name(),
+            "Mode '"
+                + MODE_ADVANCED
+                + "' only raises '"
+                + INTERACTED.displayName()
+                + "', but nothing is linked to it"));
   }
 
   @Override

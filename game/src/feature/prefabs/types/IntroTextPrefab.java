@@ -10,6 +10,7 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.HashSet;
@@ -61,8 +62,35 @@ public final class IntroTextPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Text pages on a black screen, shown to every player entering the level, e.g. the"
+        + " story at the start. A level has at most one intro.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("story", "start", "cutscene", "opening");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(FINISHED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    if (!instance.active()) return List.of();
+    List<String> others =
+        level.prefabs().stream()
+            .filter(other -> other.active() && other.type().equals(TYPE))
+            .map(PrefabInstance::name)
+            .filter(name -> !name.equals(instance.name()))
+            .map(name -> "'" + name + "'")
+            .toList();
+    if (others.isEmpty()) return List.of();
+    return List.of(
+        PrefabProblem.error(
+            instance.name(), "Shows at the same time as the intro " + String.join(", ", others)));
   }
 
   @Override

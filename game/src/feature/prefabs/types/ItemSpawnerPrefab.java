@@ -16,6 +16,7 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
@@ -85,6 +86,17 @@ public final class ItemSpawnerPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Places items on the ground, in a chest or inside a decoration players can open, e.g."
+        + " a key in a cabinet. Other prefabs can use its items, e.g. a Door Lock.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("item", "loot", "key", "chest", "drop");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.copyOf(PrefabItems.OUTPUTS);
   }
@@ -92,6 +104,11 @@ public final class ItemSpawnerPrefab extends Prefab {
   @Override
   protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
     return PrefabItems.isPortAvailable(instance, port);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabItems.unknownItems(instance);
   }
 
   @Override

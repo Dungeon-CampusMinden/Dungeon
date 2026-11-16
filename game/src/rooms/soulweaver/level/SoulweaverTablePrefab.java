@@ -96,6 +96,17 @@ public final class SoulweaverTablePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A Soulweaver workbench or plinth with up to four decorations on top, e.g. a vase and"
+        + " a book on an altar.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("workbench", "plinth", "altar", "furniture");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point position = value(instance, POSITION);
     List<Entity> entities = new ArrayList<>();
