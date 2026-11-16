@@ -4,7 +4,7 @@
     "menu": {
       "start": "Schicht beginnen"
     },
-    "controls": "[size=24]Steuerung:[n][n]Bewegen -> [action id=core:move][n]Interagieren -> [action id=core:interact all][n]Inventar -> [action id=core:inventory][n]Questlog -> [action id=core:questlog][n]Dialog schließen -> [action id=ui:close][n]Einstellungen -> [action id=core:pause_menu][n][size=18][color=black]Erledigte Aufgaben und gesammelte Indizien findest du im Questlog.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
+    "controls": "[size=24]Steuerung:[n][n]Bewegen -> [action id=core:move][n]Interagieren -> [action id=core:interact all][n]Inventar -> [action id=core:inventory][n]Questlog -> [action id=core:questlog][n]Dialog schließen -> [action id=ui:close][n]Einstellungen -> [action id=core:pause_menu][n][size=18][color=black]Erledigte Aufgaben und gesammelte Indizien findest du im Questlog. Kommst du nicht weiter? Sprich mit der Schichtleitung oder ruf die Technik-Hotline an: Telefon im Kontrollraum, Durchwahl 42.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
     "intro": {
       "page1": "Die berühmte Wörterfabrik der Firma Morph & Co. KG stellt seit Jahrhunderten alle deutschen Wörter her. Normalerweise läuft alles automatisch: Morpheme werden angeliefert. Wortbildungsaffixe werden angebaut. Flexive werden am Ende montiert. Komposita werden zusammengesetzt.",
       "page2": "Heute Morgen ist jedoch etwas schiefgelaufen: Ein Teil der Maschinen spielt verrückt und produziert Unsinn oder verweigert sogar total den Dienst. Präfixe landen an den falschen Wörtern und Flexive werden bis zur Unkenntlichkeit vertauscht.",
@@ -516,8 +516,8 @@
       "log-a12": "A-12: manuelle Reparatur abgeschlossen",
       "log-f04": "F-04: manuelle Reparatur abgeschlossen",
       "restart-unavailable": "Nicht verfügbar.",
-      "restart-unavailable-hint": "Ein Neustart ist erst möglich, wenn alle Anlagen fehlerfrei laufen.",
-      "restart-available": "Verfügbar.",
+      "restart-unavailable-hint": "Für den Neustart fehlt die Produktionsfreigabe. Sie wird erst erteilt, wenn alle Anlagen repariert sind.",
+      "restart-available": "Produktionsfreigabe erteilt. Neustart möglich.",
       "restart-button": "NEUSTART",
       "security-question": "Sicherheitsfrage: Aus wie vielen Morphemen besteht das Wort Überlegungen? Gib eine Zahl ein.",
       "security-placeholder": "Zahl",
