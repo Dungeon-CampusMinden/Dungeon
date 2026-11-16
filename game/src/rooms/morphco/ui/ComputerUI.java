@@ -10,11 +10,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
 import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import java.util.ArrayList;
+import java.util.List;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.util.MorphCoText;
 
@@ -23,9 +26,17 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>A screen saver hides the status screen until it is clicked. The tabs show the plant status,
  * the error log and the restart. The restart becomes available when F-04 and A-12 run again and is
- * protected by a security question about morphemes.
+ * protected by a security question about morphemes. After the right answer the systems report back
+ * on the screen like in a terminal, line by line behind a blinking cursor, until the server starts
+ * the ending.
  */
 final class ComputerUI extends MorphCoConsoleUI {
+
+  // The terminal types a character every CHAR_MILLIS and waits LINE_MILLIS after every line; all
+  // lines are on the screen well before MorphCoDialogs.RESTART_MILLIS.
+  private static final long CHAR_MILLIS = 35;
+  private static final long LINE_MILLIS = 350;
+  private static final long BLINK_MILLIS = 400;
 
   private final boolean f04Ok;
   private final boolean a12Ok;
@@ -36,6 +47,9 @@ final class ComputerUI extends MorphCoConsoleUI {
   private boolean restartAsked;
   private boolean restarting;
   private int wrongAnswers;
+  private List<String> terminalLines = List.of();
+  private Label terminal;
+  private long restartedAt;
 
   private ComputerUI(DialogContext context) {
     super(context, MorphCoText.text("pc.title"), "", "");
@@ -199,7 +213,7 @@ final class ComputerUI extends MorphCoConsoleUI {
     boolean correct = MorphemeQuestions.restartAnswer(value);
     if (correct) {
       restarting = true;
-      feedback(MorphCoText.text("pc.security-correct"), true);
+      showTerminal();
     } else {
       wrongAnswers++;
       String text = MorphCoText.text("pc.security-wrong");
@@ -207,6 +221,40 @@ final class ComputerUI extends MorphCoConsoleUI {
       feedback(text, false);
     }
     submit(value.trim());
+  }
+
+  private void showTerminal() {
+    terminalLines = new ArrayList<>();
+    terminalLines.add(MorphCoText.text("pc.security-correct"));
+    terminalLines.addAll(MorphCoText.text("ending.status").lines().toList());
+    restartedAt = TimeUtils.millis();
+    terminal = MorphCoUI.display("", 34, MorphCoUI.GO);
+    monitor.look(PanelNode.Look.TERMINAL);
+    screen.clearChildren();
+    screen.top().left();
+    screen.add(terminal).growX();
+    changed();
+  }
+
+  @Override
+  public void act(float delta) {
+    super.act(delta);
+    if (terminal != null) terminal.setText(typed(TimeUtils.timeSinceMillis(restartedAt)));
+  }
+
+  // The lines typed so far and the cursor, which blinks behind them.
+  private String typed(long millis) {
+    StringBuilder text = new StringBuilder();
+    long time = millis;
+    for (String line : terminalLines) {
+      int chars = Math.clamp(time / CHAR_MILLIS, 0, line.length());
+      text.append(line, 0, chars);
+      if (chars < line.length()) break;
+      text.append('\n');
+      time -= line.length() * CHAR_MILLIS + LINE_MILLIS;
+    }
+    if (millis / BLINK_MILLIS % 2 == 0) text.append('_');
+    return text.toString();
   }
 
   private static Label line(String text, Color color) {

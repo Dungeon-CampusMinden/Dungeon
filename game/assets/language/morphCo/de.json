@@ -257,7 +257,7 @@
         "station-title": "Zirkumfixmontagestation",
         "station-empty": "Die drei Schälchen der Station sind leer. Dir fehlen passende Teile.",
         "station-done": "Im mittleren Schälchen liegen drei frisch montierte Zirkumfixe: {ge- ... -e}, {be- ... -ig} und {ge- ... -en}.",
-        "station-wrong": "Die Teile passen so nicht zusammen. Das Schälchen in der Mitte bleibt leer.",
+        "station-wrong": "Diese beiden Teile passen nicht zusammen.",
         "station-missing": "Dir fehlt eines der beiden Teile.",
         "station-assembled": "Im mittleren Schälchen erscheint $1 - wie in \"$2\".",
         "station-complete": "Alle drei Zirkumfixe sind montiert!",
@@ -473,6 +473,9 @@
         "help": "Klicke auf Schloss, Klappe oder Hebel. Den Hebel ziehst du mit der Maus nach unten. Ohne Maus: Leertaste oder Pfeil nach unten gedrückt halten und unten loslassen. Die Ziffern kannst du auch tippen.",
         "shafts": "Eingabeschächte"
       },
+      "console": {
+        "help": "Klicke auf einen Knopf. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller Steuerkreuz und A."
+      },
       "keypad": {
         "clear": "C",
         "confirm": "OK"
@@ -526,7 +529,7 @@
     },
     "ending": {
       "brrr": "Der Bildschirm wird schwarz. Mit einem lauten BRRRRRRRR, das irgendwie seltsam dankbar klingt, springt im Nebenraum die Flexionsmaschine wieder an.",
-      "status": "A-12: online[n]Sensoren: online[n]F-04: online[n]All systems nominal.",
+      "status": "A-12: online\nSensoren: online\nF-04: online\nAll systems nominal.",
       "final": "Geschafft! Die Produktion der Morph & Co. KG kann weiterlaufen. Doch wie kam es eigentlich zu dem Vorfall? War es Sabotage? Ein Materialfehler? Unglückliche Zufälle? Das muss bis zum nächsten Abenteuer offen bleiben ..."
     },
     "items": {

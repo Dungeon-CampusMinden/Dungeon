@@ -52,8 +52,8 @@ Abstellkammer bleiben verschlossen. Zwischen F-04 und A-12 gibt es zusätzlich e
 - **Interagieren:** Fährt man mit der Maus über ein Objekt, mit dem man interagieren kann, bekommt
   es einen Umriss. Steht die Figur nah genug davor, wird der Umriss kräftiger und der Mauszeiger
   wechselt; dann reicht ein Klick.
-- **Dialoge:** Texte bestätigt man mit „OK“. In Auswahldialogen (Konsole, Bücherregale) klickt man
-  die gewünschte Option an.
+- **Dialoge:** Texte bestätigt man mit „OK“. In Auswahldialogen (Bücherregale) klickt man die
+  gewünschte Option an. An der Konsole klickt man direkt auf einen Knopf.
 - **Zuordnen:** In den Kisten, den Affix-Fächern, den Eingabeschächten, an der
   Zirkumfixmontagestation und in der Sicherungsbox zieht man ein Teil mit der Maus an sein Ziel.
   Alternativ klickt man erst das Teil und dann das Ziel an. In den Sortierdialogen legt
@@ -131,7 +131,10 @@ die Tür zum Kontrollraum. Drinnen ist die Sirene nur noch halb so laut.
 
 ![Konsole mit den beschrifteten Knöpfen](images/kontrollraum_konsole.png)
 
-Die Konsole (3) steht in der Mitte des Kontrollraums. Sie hat fünf beschriftete Knöpfe.
+Die Konsole (3) steht in der Mitte des Kontrollraums. Ein Klick öffnet ihre Nahansicht mit fünf
+beschrifteten Knöpfen, Anzeigen, Reglern und der blinkenden Alarmlampe. Der Knopf „Nerviger
+Alarmton“ ist eingedrückt und zittert. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste
+oder Enter drückt ihn; mit dem Controller Steuerkreuz und A.
 
 **Lösung:** Knopf **„Nerviger Alarmton“**. Die Sirene verstummt, und das Achievement „Wuuuuuuh-o,
 wuuuuuh-o“ wird freigeschaltet. Die anderen Knöpfe („Förderband-Turbo“, „Kaffeemaschine
@@ -342,8 +345,11 @@ die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das Wort Überlegungen
 **Lösung: 4.** *Überlegungen* = {über} + {leg} + {ung} + {en}: Präfix, Stamm, Wortbildungssuffix und
 Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen Tipp ein.
 
-Nach der richtigen Antwort laufen die Abschlusstexte, und es gibt das Achievement „All systems
-nominal“.
+Nach der richtigen Antwort wird der Bildschirm schwarz. In grüner Terminalschrift tippt der Computer
+nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“ und
+„All systems nominal.“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte; sie zeigen die
+Statuszeilen noch einmal, auch für Mitspieler, die nicht am Computer stehen, und es gibt das
+Achievement „All systems nominal“.
 
 ![Letzter Text des Spiels](images/ende.png)
 
@@ -390,8 +396,8 @@ Im Haufen mit Krimskrams (13) unten links in A-12 liegen zerbrochene Zirkumfix-T
 ob man welche mitnehmen möchte, antwortet man „Ja“. Ins Inventar kommen sechs Teile: {ge}, {be},
 {ig}, {ge}, {e}, {en}.
 
-An der Zirkumfixmontagestation (14) legt man ein Teil ins linke und eins ins rechte Schälchen und
-klickt „Montieren“:
+An der Zirkumfixmontagestation (14) stehen drei Schälchen auf einer Werkbank. Man legt ein Teil ins
+linke und eins ins rechte Schälchen und klickt „Montieren“:
 
 | Links | Rechts | Zirkumfix | Beispiel |
 | --- | --- | --- | --- |
