@@ -130,7 +130,6 @@ final class AffixSorterUI extends MorphCoConsoleUI {
           case MorphCoDialogs.A12_LOCK -> KEYPAD;
           case MorphCoDialogs.A12_HATCH -> HATCH;
           case MorphCoDialogs.A12_LEVER -> LEVER;
-          case MorphCoDialogs.A12_DISPLAY -> DISPLAY;
           default -> null;
         };
     // Below the strip of tape.

@@ -7,7 +7,6 @@ import engine.sound.SoundSpec;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.emote.Emote;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
@@ -29,7 +28,7 @@ import rooms.morphco.util.MorphCoTracking;
  * <p>The pile of odds and ends hands out six broken circumfix parts. At the assembly station they
  * become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again. The parts live in the inventory of
  * the player who took them; a loaded savegame hands out the parts that were not assembled yet
- * again.
+ * again. The station stays open after an assembly and shows the result itself.
  */
 final class CircumfixStation {
 
@@ -131,7 +130,7 @@ final class CircumfixStation {
         MorphCoDialogs.SUBMIT,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String answer)) {
-            assemble(answer, player, ui);
+            assemble(answer, player);
           }
         });
   }
@@ -147,7 +146,7 @@ final class CircumfixStation {
         .orElse(List.of());
   }
 
-  private void assemble(String answer, Entity player, UIComponent ui) {
+  private void assemble(String answer, Entity player) {
     String[] bowls = answer.split("\\|");
     if (bowls.length != 2) return;
     Optional<CircumfixPuzzle.Fragment> left = CircumfixPuzzle.Fragment.parse(bowls[0]);
@@ -167,23 +166,11 @@ final class CircumfixStation {
       return;
     }
     if (!consume(player, left.get(), right.get())) return;
-    UIUtils.closeDialog(ui, true);
     if (!state.assemble(circumfix.get())) return;
     level.save();
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_confirmation_002"));
-    boolean complete = state.assembled().size() == CircumfixPuzzle.Circumfix.values().length;
-    MorphCoProps.popupThen(
-        player,
-        STATION,
-        "world.a12.station-assembled",
-        () -> {
-          if (complete) {
-            MorphCoProps.popupReaction(player, Emote.STARS, STATION, "world.a12.station-complete");
-          }
-        },
-        circumfix.get().label(),
-        circumfix.get().example());
-    if (complete) {
+    if (state.assembled().size() == CircumfixPuzzle.Circumfix.values().length) {
+      MorphCoProps.emote(player, Emote.STARS);
       MorphCoTracking.solved(MorphCoTracking.Puzzle.CIRCUMFIX);
       MorphCoAchievements.COMBINATORIAL.unlock();
     }

@@ -198,7 +198,7 @@
         "screen-fixed": "BEREIT. Darunter, ganz klein: \"Danke.\"",
         "trash-title": "Papierkorb",
         "trash-instruction": "Zerknüllte Produktionszettel bis zum Rand. Vielleicht liegt darunter ja etwas Brauchbares.",
-        "trash-help": "Ziehe die Zettel aus dem Korb oder klicke einen an, um ihn hinauszuwerfen. Ein gefaltetes Blatt öffnest du mit einem Klick.",
+        "trash-help": "Fahre mit der Maus über einen Zettel, um ihn zu lesen. Ein Klick wirft ihn aus dem Korb, du kannst ihn auch beiseiteziehen. Ein gefaltetes Blatt öffnest du mit einem Klick. Ohne Maus: Tab oder die Pfeiltasten wählen einen Zettel oder das Blatt, die Leertaste wirft den Zettel hinaus oder öffnet das Blatt.",
         "trash-rejects": "Noch mehr Ausschuss: $1. Die Maschine spinnt also nicht erst seit heute.",
         "trash-report-title": "MÄNGELMELDUNG F-04",
         "trash-report": "Wiederholte Fehlzuordnung von Flexionssuffixen. Technische Überprüfung dringend empfohlen.",
@@ -448,7 +448,7 @@
       "affixes": {
         "title": "Affix-Sortieranlage A-12 - Wartungsmodus",
         "instruction": "Entscheide, ob die folgenden Wörter Affixe enthalten. Wenn das der Fall ist, sortiere sie korrekt.",
-        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\".",
+        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Schon einsortierte Teile bleiben in ihrem Fach, wenn du den Rest weiter zerschneidest. Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\".",
         "KEIN_AFFIX": "Kein Affix",
         "PRAEFIX": "Präfixe",
         "SUFFIX": "Suffixe",

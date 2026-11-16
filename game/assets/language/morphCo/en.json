@@ -198,7 +198,7 @@
         "screen-fixed": "READY. Below it, in tiny letters: \"Thank you.\"",
         "trash-title": "Wastepaper basket",
         "trash-instruction": "Crumpled production slips, right up to the rim. Maybe there's something useful underneath.",
-        "trash-help": "Drag the slips out of the basket or click one to toss it out. Click a folded sheet to unfold it.",
+        "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the arrow keys pick a slip or the sheet, space tosses the slip or unfolds the sheet.",
         "trash-rejects": "More rejects: $1. So the machine didn't just start acting up today.",
         "trash-report-title": "DEFECT REPORT F-04",
         "trash-report": "Repeated misassignment of inflectional suffixes. Technical inspection urgently recommended.",
@@ -448,7 +448,7 @@
       "affixes": {
         "title": "Affix sorting unit A-12 - Maintenance mode",
         "instruction": "Decide whether the following words contain affixes. If they do, sort them correctly.",
-        "help": "Click between two letters to cut a word at that point (another click joins it back together). Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
+        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
         "KEIN_AFFIX": "No affix",
         "PRAEFIX": "Prefixes",
         "SUFFIX": "Suffixes",

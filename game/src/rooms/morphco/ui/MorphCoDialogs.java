@@ -88,9 +88,6 @@ public enum MorphCoDialogs implements DialogType {
   /** Part of A-12: the lever, see {@link A12Answer}. */
   public static final String A12_LEVER = "lever";
 
-  /** Part of A-12: the display. */
-  public static final String A12_DISPLAY = "display";
-
   /** Context key: fragments in the inventory of the player at the station. */
   public static final String FRAGMENTS = "morphCoFragments";
 
