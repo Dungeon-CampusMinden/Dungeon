@@ -66,8 +66,8 @@ payloads, or protocol versions.
 | --- | --- | --- |
 | Server telemetry snapshot age | `> 2000 ms` | Overlay staleness policy |
 | Client UDP ACK age | `> NetworkConfig.UDP_STALE_AFTER_MS` | Runtime UDP recovery config |
-| Client render frame | `> 1.5 * (1_000_000 / NetworkConfig.SERVER_TICK_HZ)` | Hitch signal; avoids marking normal vsync jitter red |
-| Server authoritative tick | `> 1_000_000 / NetworkConfig.SERVER_TICK_HZ` | Runtime tick budget |
+| Client render frame | `> 1.5 *` the longer of a world tick and the frame time of the FPS limit | Hitch signal; avoids marking normal vsync jitter red |
+| Server authoritative tick | `> 1_000_000 / Game.TICKS_PER_SECOND` | Runtime tick budget |
 | Queue age | `> max(50 ms, 3 ticks)` | Backlog signal; one frame/tick of queue age is normal when depth stays low |
 | Full snapshot apply and total full snapshot handler time | `> tick budget` | Full baseline application is larger than a small per-message slice but should not exceed one frame/tick budget |
 | Dispatch, decode, network batch, snapshot build, stale check, delta materialization, reconcile, and ACK queue slices | `> tick budget / 4` | Strict work-slice diagnostic budget |
@@ -76,7 +76,7 @@ payloads, or protocol versions.
 | Full snapshot bytes | `> 256 KiB` | Soft overlay diagnostic limit |
 | Debug RTT | `> 100 ms` | Overlay responsiveness target |
 | Server per-client ACK age | informational while `hist=true` | Baseline availability is the health signal; inactive clients can legitimately stop ACKing until new snapshots arrive |
-| Queue depth | `> NetworkConfig.SERVER_TICK_HZ` | Runtime tick-rate-sized backlog budget |
+| Queue depth | `> Game.TICKS_PER_SECOND` | Runtime tick-rate-sized backlog budget |
 | Per-client full snapshots per second | `> 1` | Full-snapshot churn diagnostic |
 | UDP fallback, oversized, send failure, dropped | `> 0` | Expected-zero health counter |
 | Stale snapshots and stale full snapshot bytes | `> 0` | Expected-zero health counter |
@@ -222,9 +222,9 @@ stable play; growth should line up with `missingLocalBase` and a bounded
 ## Client Timing
 
 `frame`
-: Latest client render frame time. Expected at 60 FPS: around `16.6 ms`. Lower is fine. Sustained
-values above `16.6 ms` mean the client is missing the 60 FPS frame budget, but the red highlight is
-reserved for larger hitch-sized samples.
+: Latest client render frame time. Expected: the frame time of the FPS limit, around `16.6 ms` at
+60 FPS and `33.3 ms` at 30 FPS. Lower is fine. Sustained values above that mean the client is
+missing its frame budget, but the red highlight is reserved for larger hitch-sized samples.
 
 `net`
 : Total time spent draining and dispatching network messages in the latest frame. Expected local:

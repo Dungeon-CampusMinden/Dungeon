@@ -11,7 +11,6 @@ public class EmoteComponent implements Component {
   private final Emote emote;
   private final int duration;
   private float elapsedTime = 0f;
-  private float oldT = 0f;
   private float t = 0f;
 
   /**
@@ -53,7 +52,6 @@ public class EmoteComponent implements Component {
     elapsedTime += deltaTime * 1000;
 
     // Update t for the wobbling animation
-    oldT = t;
     t += deltaTime / ANIMATION_LENGTH;
     if (t > 1f) {
       t -= 1f; // Loop t back to 0 after completing a cycle
@@ -61,14 +59,12 @@ public class EmoteComponent implements Component {
   }
 
   /**
-   * Calculates the vertical offset for the wobbling animation, as difference to last frame.
+   * Calculates the vertical offset for the wobbling animation in the current frame.
    *
-   * @return difference in vertical offset since last frame
+   * @return vertical offset from the emote's resting position
    */
-  public float getWobbleMoveFrame() {
-    float wobbleOffset = (float) Math.sin(t * 2 * Math.PI) * WOBBLE_DISTANCE;
-    float oldWobbleOffset = (float) Math.sin(oldT * 2 * Math.PI) * WOBBLE_DISTANCE;
-    return wobbleOffset - oldWobbleOffset;
+  public float wobbleOffset() {
+    return (float) Math.sin(t * 2 * Math.PI) * WOBBLE_DISTANCE;
   }
 
   /**

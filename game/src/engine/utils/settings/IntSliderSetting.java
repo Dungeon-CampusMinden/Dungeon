@@ -101,6 +101,8 @@ public class IntSliderSetting extends SettingValue<Integer> {
         });
 
     Table table = new Table();
+    // A label wider than its column grows to the left, so the controls of all rows line up.
+    table.right();
     table.setTouchable(Touchable.enabled);
     table.add(label).right().growX().padRight(10);
     table.add(slider).center().width(250).padRight(10);

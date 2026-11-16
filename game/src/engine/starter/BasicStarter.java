@@ -26,7 +26,6 @@ public class BasicStarter {
     DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
     Game.disableAudio(true);
     Game.userOnSetup(() -> Game.add(EntityFactory.newHero()));
-    Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
     Game.run();
   }

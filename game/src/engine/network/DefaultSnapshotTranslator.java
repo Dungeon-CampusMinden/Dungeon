@@ -3,7 +3,6 @@ package engine.network;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.components.NetworkPositionComponent;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.level.elements.tile.DoorTile;
@@ -364,30 +363,13 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
             });
   }
 
+  // Sets the position of an entity to the snapshot state. On a multiplayer client the entity stays
+  // drawn where it was; NetworkPositionSmoothingSystem moves it from there to the new position.
   private void applySnapshotPosition(Entity entity, PositionComponent pc, Point target) {
-    if (!shouldSmoothSnapshotPosition(pc, target)) {
-      pc.position(target);
-      entity
-          .fetch(NetworkPositionComponent.class)
-          .ifPresent(networkPosition -> networkPosition.targetPosition(target));
-      PositionSync.syncPosition(entity);
-      return;
-    }
-
-    entity
-        .fetch(NetworkPositionComponent.class)
-        .ifPresentOrElse(
-            networkPosition -> networkPosition.targetPosition(target),
-            () -> entity.add(new NetworkPositionComponent(target)));
-  }
-
-  private boolean shouldSmoothSnapshotPosition(PositionComponent pc, Point target) {
-    if (!Game.isMultiplayerClient()) {
-      return false;
-    }
-    Point current = pc.position();
-    return !current.equals(PositionComponent.ILLEGAL_POSITION)
-        && current.distanceSquared(target) < 4;
+    Point drawn = pc.renderPosition();
+    pc.position(target);
+    if (Game.isMultiplayerClient()) pc.renderPosition(drawn);
+    PositionSync.syncPosition(entity);
   }
 
   private void applyLevelState(LevelState levelState) {

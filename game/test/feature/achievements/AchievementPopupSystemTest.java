@@ -113,7 +113,9 @@ class AchievementPopupSystemTest {
     popups.enqueue("first", "first.png");
     popups.enqueue("second", "second.png");
 
-    ECSManagement.executeOneTick(System.AuthoritativeSide.BOTH);
+    // The world tick pauses the gameplay, the frame shows the popup.
+    ECSManagement.executeTick(System.AuthoritativeSide.BOTH);
+    ECSManagement.executeFrame(System.AuthoritativeSide.BOTH);
 
     assertFalse(gameplay.isRunning());
     assertTrue(popups.isRunning());
@@ -122,19 +124,19 @@ class AchievementPopupSystemTest {
     assertTrue(dialog.isVisible());
 
     now.set(AchievementPopupQueue.DISPLAY_DURATION_MS - 1);
-    ECSManagement.executeOneTick(System.AuthoritativeSide.BOTH);
+    ECSManagement.executeFrame(System.AuthoritativeSide.BOTH);
     assertTrue(stageRoot.getChildren().contains(firstCard, true));
     assertNull(secondCard.getParent());
 
     now.set(AchievementPopupQueue.DISPLAY_DURATION_MS);
-    ECSManagement.executeOneTick(System.AuthoritativeSide.BOTH);
+    ECSManagement.executeFrame(System.AuthoritativeSide.BOTH);
     assertNull(firstCard.getParent());
     assertTrue(stageRoot.getChildren().contains(secondCard, true));
     assertFalse(gameplay.isRunning());
     assertTrue(dialog.isVisible());
 
     now.set(2 * AchievementPopupQueue.DISPLAY_DURATION_MS);
-    ECSManagement.executeOneTick(System.AuthoritativeSide.BOTH);
+    ECSManagement.executeFrame(System.AuthoritativeSide.BOTH);
     assertNull(secondCard.getParent());
     cards.verify(() -> AchievementPopup.buildCard("first.png", "first"), times(1));
     cards.verify(() -> AchievementPopup.buildCard("second.png", "second"), times(1));
