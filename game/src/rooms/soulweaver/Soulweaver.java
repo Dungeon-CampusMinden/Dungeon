@@ -22,6 +22,7 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.questlog.QuestLogUI;
 import feature.survey.SurveyFeature;
+import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.CollisionSystem;
 import java.util.Arrays;
@@ -167,6 +168,7 @@ public final class Soulweaver {
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new AttachmentSystem());
     ECSManagement.remove(AttributeBarSystem.class);
     ECSManagement.add(new CollisionSystem());
   }

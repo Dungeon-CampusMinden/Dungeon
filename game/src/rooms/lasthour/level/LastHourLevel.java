@@ -65,7 +65,6 @@ import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerAlarm;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
-import feature.utils.EntityUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,6 +139,9 @@ public class LastHourLevel extends DungeonLevel {
 
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
+
+  /** Offset of emotes above the PC from the PC's center. */
+  public static final Vector2 PC_EMOTE_OFFSET = Vector2.of(-0.1f, 0.75f);
 
   private static final String PC_STATE_ON = "on";
   private static final String PC_STATE_VIRUS = "virus";
@@ -942,7 +944,7 @@ public class LastHourLevel extends DungeonLevel {
     if (ringingPhoneEmote == null) {
       ringingPhoneEmote =
           EmoteFactory.createEmote(
-              EntityUtils.getPosition(r2Phone), Emote.EXCLAMATION, PHONE_RINGING_EMOTE_DURATION_MS);
+              r2Phone, Vector2.ZERO, Emote.EXCLAMATION, PHONE_RINGING_EMOTE_DURATION_MS);
       Game.add(ringingPhoneEmote);
     }
   }
@@ -1266,8 +1268,7 @@ public class LastHourLevel extends DungeonLevel {
       int currentVisibleComments = BlogTab.countVisibleComments();
       if (currentVisibleComments > lastKnownVisibleCommentCount) {
         Sounds.play(LastHourSounds.COMPUTER_COMMENT_RECEIVED);
-        Game.add(
-            EmoteFactory.createEmote(getPoint("pc-main").translate(1, 1.5f), Emote.IDEA, 4000));
+        Game.add(EmoteFactory.createEmote(pc, PC_EMOTE_OFFSET, Emote.IDEA, 4000));
       }
       lastKnownVisibleCommentCount = currentVisibleComments;
     }

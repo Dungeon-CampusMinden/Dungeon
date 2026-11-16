@@ -35,6 +35,7 @@ import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.entities.deco.DecoFactory;
+import feature.systems.AttachmentSystem;
 import feature.systems.CollisionSystem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -146,6 +147,7 @@ public final class MultiplayerHostRun {
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new AttachmentSystem());
     ECSManagement.add(new CollisionSystem());
     Game.add(bootstrapMarker);
   }

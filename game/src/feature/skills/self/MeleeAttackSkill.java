@@ -9,7 +9,6 @@ import engine.utils.Tuple;
 import engine.utils.Vector2;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.AttachmentComponent;
 import feature.components.CollideComponent;
 import feature.components.HealthComponent;
 import feature.health.Damage;
@@ -29,7 +28,6 @@ public class MeleeAttackSkill extends Skill {
 
   private static final long COOLDOWN = 500;
   private final long TIME_ALIVE = 230;
-  private final float SCALE = 0.75f;
 
   private static final IPath TEXTURE = new SimpleIPath("skills/melee");
   private int damage;
@@ -113,12 +111,6 @@ public class MeleeAttackSkill extends Skill {
               }
 
               attack.add(attackPositionComponent);
-              AttachmentComponent ac =
-                  new AttachmentComponent(
-                      Vector2.ZERO, attackPositionComponent, casterPositionComponent);
-              ac.setScale(SCALE);
-              ac.setTextureRotating(true);
-              attack.add(ac);
 
               CollideComponent collideComponent =
                   new CollideComponent(

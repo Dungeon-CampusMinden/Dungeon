@@ -6,7 +6,12 @@ import engine.System;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 
-/** System that processes emotes, updating their wobbling. */
+/**
+ * System that processes emotes, updating their wobbling.
+ *
+ * <p>The wobble is added to the position the {@link feature.systems.AttachmentSystem} sets, so this
+ * system has to run after it.
+ */
 public class EmoteSystem extends System {
 
   /** Create a new EmoteSystem that processes emote entities. */
@@ -24,9 +29,8 @@ public class EmoteSystem extends System {
     if (data.ec().isDone()) {
       Game.remove(data.e());
     } else {
-      Point pos = data.pc.position();
-      float translate = data.ec().getWobbleMoveFrame();
-      data.pc().position(pos.translate(0, translate));
+      Point pos = data.pc().position();
+      data.pc().position(pos.translate(0, data.ec().wobbleOffset()));
     }
   }
 
