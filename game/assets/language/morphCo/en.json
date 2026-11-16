@@ -76,7 +76,7 @@
       "hint-lever": {
         "direction": "\"After the maintenance A-12 has to restart. That's what the lever in the close-up of the unit is for.\"",
         "tip": "\"The lever wants an even pull, not jerky and not at a snail's pace. Only let go at the very bottom.\"",
-        "solution": "\"Pull the lever all the way down in about one second and only let go there; anything between 0.6 and 2 seconds works. Without a mouse: hold space and let go at the bottom.\""
+        "solution": "\"Pull the lever all the way down in about one second and only let go there; anything between 0.6 and 2 seconds works. Without a mouse: hold space and let go at the bottom. With a controller: hold A on the lever and let go at the bottom.\""
       },
       "hint-flexion": {
         "direction": "\"A-12 is sorting again. Now it's the inflection machine's turn in F-04.\"",
@@ -103,7 +103,7 @@
         "card-slot": "Beep! The door whirs open. At least something still works around here.",
         "card-slot-open": "Beep. The door is already open.",
         "swipe-title": "Card reader",
-        "swipe-help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Not too fast, not too slow.",
+        "swipe-help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Controller: hold A on the card and let go at the end. Not too fast, not too slow.",
         "swipe-ready": "PLEASE SWIPE CARD",
         "swipe-too-fast": "Too fast. Try again. The device is older than you.",
         "swipe-too-slow": "Too slow. Try again. The device nodded off for a moment.",
@@ -129,7 +129,7 @@
         "console-done": "The 'Annoying alarm sound' button is no longer pressed. And that's how it stays.",
         "fuse-box-title": "Fuse box",
         "fuse-box": "All the fuses are in. Someone has pulled out every single cable, though, and laid them out neatly side by side. That doesn't look like a loose connection.",
-        "fuse-box-help": "Drag each cable end into the socket with the same label. Or click a cable end first and then the socket.",
+        "fuse-box-help": "Drag each cable end into the socket with the same label. Or click a cable end first and then the socket. Controller: the D-pad selects, A takes a cable end and plugs it in.",
         "fuse-box-f04": "F-04",
         "fuse-box-a12": "A-12",
         "fuse-box-corridor": "Corridor",
@@ -197,7 +197,7 @@
         "screen-fixed": "READY. Below it, in tiny letters: \"Thank you.\"",
         "trash-title": "Wastepaper basket",
         "trash-instruction": "Crumpled production slips, right up to the rim. Maybe there's something useful underneath.",
-        "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the arrow keys pick a slip or the sheet, space tosses the slip or unfolds the sheet.",
+        "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the arrow keys pick a slip or the sheet, space tosses the slip or unfolds the sheet. Controller: the D-pad selects, A tosses the slip or unfolds the sheet.",
         "trash-rejects": "More rejects: $1. So the machine didn't just start acting up today.",
         "trash-report-title": "DEFECT REPORT F-04",
         "trash-report": "Repeated misassignment of inflectional suffixes. Technical inspection urgently recommended.",
@@ -430,7 +430,7 @@
       "word-classes": {
         "title": "Crates next to the inflection machine",
         "instruction": "Sort the words in the following sentences into the matching crates by their part of speech. If there is no crate for a word, just leave it where it is. That way only inflectable words end up in the crates - exactly the ones that belong in the inflection machine.",
-        "help": "Drag a word onto a crate, or click the word first and then the crate. Clicking a word in a crate puts it back.",
+        "help": "Drag a word onto a crate, or click the word first and then the crate. Clicking a word in a crate puts it back. Controller: the D-pad selects, A picks up and drops.",
         "VERBEN": "Verbs",
         "ADJEKTIVE": "Adjectives",
         "NOMEN": "Nouns",
@@ -444,7 +444,7 @@
       "affixes": {
         "title": "Affix sorting unit A-12 - Maintenance mode",
         "instruction": "Decide whether the following words contain affixes. If they do, sort them correctly.",
-        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
+        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin. Controller: the D-pad selects, A cuts, picks up and drops.",
         "KEIN_AFFIX": "No affix",
         "PRAEFIX": "Prefixes",
         "SUFFIX": "Suffixes",
@@ -452,7 +452,7 @@
         "feedback": "Handled correctly: $1 of $2 words. The marks on the right show which words are already right.",
         "shafts-title": "Affix sorting unit A-12 - Input shafts",
         "shafts-instruction": "Sort the prefixes, suffixes and circumfixes into the input shafts for word formation or inflection, depending on where they belong.",
-        "shafts-help": "Drag each affix into a shaft, or click the affix first and then the shaft.",
+        "shafts-help": "Drag each affix into a shaft, or click the affix first and then the shaft. Controller: the D-pad selects, A picks up and drops.",
         "WORTBILDUNG": "Word formation",
         "FLEXION": "Inflection",
         "shafts-feedback": "Not quite. Not in the right shaft: $1",
@@ -470,18 +470,18 @@
         "empty": "empty"
       },
       "sorter": {
-        "help": "Click the lock, the hatch or the lever. Drag the lever down with the mouse. Without a mouse: hold space or the down arrow key and let go at the bottom. You can also type the digits.",
+        "help": "Click the lock, the hatch or the lever. Drag the lever down with the mouse. Without a mouse: hold space or the down arrow key and let go at the bottom. You can also type the digits. Controller: the D-pad selects, A presses; hold A on the lever and let go at the bottom.",
         "shafts": "Input shafts"
       },
       "console": {
-        "help": "Click a button. Without a mouse, the arrow keys or Tab pick a button and space or Enter presses it; on a controller, use the D-pad and A."
+        "help": "Click a button. Without a mouse, the arrow keys or Tab pick a button and space or Enter presses it. Controller: the D-pad selects, A presses."
       },
       "keypad": {
         "clear": "C",
         "confirm": "OK"
       },
       "phone": {
-        "help": "Dial a number and press the green call button; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes.",
+        "help": "Dial a number and press the green call button; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes. Controller: the D-pad moves between keys, A presses them.",
         "note-title": "Important extensions",
         "MAILBOX": "Listen to the mailbox",
         "HOTLINE": "Technical hotline (maintenance)",

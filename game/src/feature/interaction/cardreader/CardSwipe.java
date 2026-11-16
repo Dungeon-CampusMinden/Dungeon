@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.TimeUtils;
+import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.network.messages.c2s.DialogResponseMessage;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
@@ -15,9 +17,10 @@ import java.util.function.Consumer;
  * The card in the slot of a card reader dialog: where it is and how long the swipe took.
  *
  * <p>The player drags the card through the slot; what counts is the time until it reaches the end.
- * Without a mouse the player holds space or the right arrow key while the card runs through on its
- * own; then the time until the key is let go counts. Each swipe is rated with the reader's {@link
- * Pace} right away and sent to the server, which rates it again.
+ * Without a mouse the player holds space or the right arrow key, or A with the pad cursor on the
+ * card, while the card runs through on its own; then the time until the key is let go counts. Each
+ * swipe is rated with the reader's {@link Pace} right away and sent to the server, which rates it
+ * again.
  *
  * <p>A dialog of a card reader passes its input on to this class and only draws the card at {@link
  * #position()} and the rating of {@link #result()}. {@link CardReaderUI} is the engine's look; a
@@ -83,8 +86,40 @@ public final class CardSwipe {
     };
   }
 
+  /**
+   * Returns the listener for swipes with the pad: holding A with the pad cursor on the card runs it
+   * through like a held key. The mouse drags the card instead. A dialog adds it to the card.
+   *
+   * @return the listener for the card
+   */
+  public InputListener padHold() {
+    return new InputListener() {
+      @Override
+      public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+        return GameInput.device() == InputDevice.PAD && startKeyRun();
+      }
+
+      @Override
+      public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+        // A hold cut off by focus loss or an unplugged pad is no swipe; the card slides back.
+        if (keyRun && event.isTouchFocusCancel()) {
+          startedAt = -1;
+          keyRun = false;
+          returnFrom = position;
+          returned = 0;
+        } else if (keyRun) {
+          release(TimeUtils.timeSinceMillis(startedAt));
+        }
+      }
+    };
+  }
+
   private boolean keyDown(int keycode) {
-    if (!swipeKey(keycode) || accepted() || startedAt >= 0) return false;
+    return swipeKey(keycode) && startKeyRun();
+  }
+
+  private boolean startKeyRun() {
+    if (accepted() || startedAt >= 0) return false;
     position = 0;
     returned = RETURN_SECONDS;
     result = null;

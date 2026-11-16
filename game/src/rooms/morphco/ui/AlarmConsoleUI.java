@@ -35,7 +35,8 @@ import rooms.morphco.util.MorphCoText;
  * <p>The button "Nerviger Alarmton" is pushed in and trembles with the siren. A pressed button
  * sends its name to the server, which closes the close-up and answers like the console always did.
  * Without a mouse, the arrow keys, Tab or the pad's direction keys pick a button; space, enter or
- * the pad's A button presses it. The mouse picks the button it rests on.
+ * the pad's A button presses it. The first button is picked from the start, so the first press
+ * already pushes it. The mouse picks the button it rests on.
  */
 final class AlarmConsoleUI extends MorphCoConsoleUI {
 
@@ -86,16 +87,17 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
         MorphCoText.text("world.control.console"),
         MorphCoText.text("ui.console.help"));
     for (Spec spec : BUTTONS) buttons.add(area().addNode(new PushButton(spec)));
+    focused = buttons.getFirst();
     UIUtils.onUiAction(this, UiActions.NAV_UP, () -> focusNext(-1));
     UIUtils.onUiAction(this, UiActions.NAV_DOWN, () -> focusNext(1));
-    UIUtils.onUiAction(this, UiActions.CONFIRM, this::pressFocused);
+    UIUtils.onUiAction(this, UiActions.CONFIRM, () -> press(focused));
     // Tab and enter are no UI actions; they work like the arrow keys and space.
     addListener(
         new InputListener() {
           @Override
           public boolean keyDown(InputEvent event, int keycode) {
             if (keycode == Input.Keys.TAB) focusNext(1);
-            else if (keycode == Input.Keys.ENTER) pressFocused();
+            else if (keycode == Input.Keys.ENTER) press(focused);
             else return false;
             return true;
           }
@@ -140,15 +142,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
   }
 
   private void focusNext(int step) {
-    int index = buttons.indexOf(focused);
-    focused =
-        index < 0 ? buttons.getFirst() : buttons.get(Math.floorMod(index + step, buttons.size()));
-  }
-
-  // Without a picked button, confirming picks the first one.
-  private void pressFocused() {
-    if (focused == null) focusNext(1);
-    else press(focused);
+    focused = buttons.get(Math.floorMod(buttons.indexOf(focused) + step, buttons.size()));
   }
 
   // The button stays down until the server closes the close-up, so it cannot be pressed twice.

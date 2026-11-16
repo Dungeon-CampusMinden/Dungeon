@@ -50,8 +50,12 @@ public final class UiActions {
       ContextSpec.of("menu_ui", ContextLayer.BASE, CLICK, NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT)
           .blocking();
 
-  /** A modal dialog without a confirm action; the pad works through its cursor. */
-  public static final ContextSpec DIALOG = modal("dialog", NAV_UP, NAV_DOWN, CLICK);
+  /**
+   * A modal dialog without a confirm action; the pad works through its cursor, which the D-pad
+   * moves from control to control.
+   */
+  public static final ContextSpec DIALOG =
+      modal("dialog", NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT, CLICK);
 
   /**
    * A modal dialog with a confirm action. It does not take {@link #CLICK}: both lie on the same pad

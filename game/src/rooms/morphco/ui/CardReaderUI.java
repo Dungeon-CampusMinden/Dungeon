@@ -22,8 +22,9 @@ import rooms.morphco.util.MorphCoText;
  * The card reader next to the control room door, in the look of the room's consoles.
  *
  * <p>The swipe works like the engine's card reader, see {@link CardSwipe}: the player drags the
- * security card through the slot or holds space or the right arrow key. The reader's display rates
- * the swipe right away; the server rates it again and opens the door.
+ * security card through the slot, holds space or the right arrow key or holds A on the card with
+ * the pad. The reader's display rates the swipe right away; the server rates it again and opens the
+ * door.
  */
 final class CardReaderUI extends MorphCoConsoleUI {
 
@@ -56,6 +57,7 @@ final class CardReaderUI extends MorphCoConsoleUI {
         MorphCoText.text("world.entrance.swipe-help"));
     swipe = new CardSwipe(context);
     addListener(swipe.keys());
+    card.addListener(swipe.padHold());
   }
 
   /**

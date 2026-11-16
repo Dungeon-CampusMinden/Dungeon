@@ -18,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
+import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
@@ -148,23 +150,12 @@ final class AffixSorterUI extends MorphCoConsoleUI {
         new InputListener() {
           @Override
           public boolean keyDown(InputEvent event, int keycode) {
-            if (!leverKey(keycode) || startedAt >= 0) return false;
-            if (progress.compareTo(Progress.FILLED) < 0) {
-              release(0);
-              return true;
-            }
-            lever.clearActions();
-            lever.setY(LEVER_TOP);
-            startPull();
-            keyRun = true;
-            return true;
+            return leverKey(keycode) && pullByKey();
           }
 
           @Override
           public boolean keyUp(InputEvent event, int keycode) {
-            if (!leverKey(keycode) || !keyRun) return false;
-            release(TimeUtils.timeSinceMillis(startedAt));
-            return true;
+            return leverKey(keycode) && letGoByKey();
           }
 
           @Override
@@ -222,6 +213,26 @@ final class AffixSorterUI extends MorphCoConsoleUI {
     super.setStage(stage);
     // Space and the arrow key belong to the lever, the digits to the keypad, not to the hero.
     if (stage != null) stage.setKeyboardFocus(this);
+  }
+
+  // Without a mouse the lever runs down on its own while the key is held.
+  private boolean pullByKey() {
+    if (startedAt >= 0) return false;
+    if (progress.compareTo(Progress.FILLED) < 0) {
+      release(0);
+      return true;
+    }
+    lever.clearActions();
+    lever.setY(LEVER_TOP);
+    startPull();
+    keyRun = true;
+    return true;
+  }
+
+  private boolean letGoByKey() {
+    if (!keyRun) return false;
+    release(TimeUtils.timeSinceMillis(startedAt));
+    return true;
   }
 
   @Override
@@ -509,6 +520,24 @@ final class AffixSorterUI extends MorphCoConsoleUI {
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
               over = false;
+            }
+
+            // The pad holds A on the handle like the key; the mouse drags it.
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              return GameInput.device() == InputDevice.PAD && pullByKey();
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+              // A hold cut off by focus loss or an unplugged pad is no pull.
+              if (keyRun && event.isTouchFocusCancel()) {
+                startedAt = -1;
+                keyRun = false;
+                lever.back();
+              } else {
+                letGoByKey();
+              }
             }
           });
     }

@@ -83,8 +83,10 @@ public final class DialogInput {
             .onPress(
                 CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
             .onPress(UiActions.CONFIRM, () -> confirm(ui))
-            .onPress(UiActions.NAV_UP, () -> navigate(ui, UiActions.NAV_UP, -1))
-            .onPress(UiActions.NAV_DOWN, () -> navigate(ui, UiActions.NAV_DOWN, 1))
+            .onPress(UiActions.NAV_UP, () -> navigate(ui, spec, UiActions.NAV_UP, 0, 1))
+            .onPress(UiActions.NAV_DOWN, () -> navigate(ui, spec, UiActions.NAV_DOWN, 0, -1))
+            .onPress(UiActions.NAV_LEFT, () -> navigate(ui, spec, UiActions.NAV_LEFT, -1, 0))
+            .onPress(UiActions.NAV_RIGHT, () -> navigate(ui, spec, UiActions.NAV_RIGHT, 1, 0))
             .onPress(
                 UiActions.USE_ITEM, () -> inventories(ui).forEach(InventoryGUI::useItemAtPointer))
             .onPress(
@@ -121,8 +123,12 @@ public final class DialogInput {
     return event.isHandled();
   }
 
-  // Dialogs without a selection scroll their text instead, which also serves the pad.
-  private static void navigate(UIComponent ui, ActionId action, int scroll) {
-    if (!fire(ui, action)) GameInput.scroll(scroll);
+  // Dialogs without a selection of their own let the D-pad move the pad cursor between their
+  // controls. Up and down scroll the text where that finds none, which also serves the keyboard.
+  private static void navigate(UIComponent ui, ContextSpec spec, ActionId action, int dx, int dy) {
+    if (fire(ui, action)) return;
+    boolean padCursor = spec == UiActions.DIALOG && GameInput.device() == InputDevice.PAD;
+    if (padCursor && PadNavigation.move(ui.dialog(), dx, dy)) return;
+    if (dy != 0) GameInput.scroll(-dy);
   }
 }

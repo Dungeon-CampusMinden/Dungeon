@@ -17,6 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Game;
+import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.sound.Sounds;
 import engine.utils.Cursors;
 import engine.utils.components.draw.TextureMap;
@@ -41,7 +43,7 @@ import rooms.morphco.util.MorphCoText;
  * out, a drag pulls it aside. Below the top slips lies a folded sheet; a click unfolds the defect
  * report and tells the server that it has been found. Once found, the basket opens with the report
  * already unfolded. Without a mouse, tab and the arrow keys pick a slip or the uncovered sheet, and
- * space or enter tosses or unfolds it.
+ * space or enter tosses or unfolds it. With the pad, A tosses the slip under the cursor at once.
  */
 final class TrashUI extends MorphCoConsoleUI {
 
@@ -268,6 +270,14 @@ final class TrashUI extends MorphCoConsoleUI {
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
               over = false;
+            }
+
+            // The pad tosses at once; holding a slip to pull it aside is for the mouse.
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              if (GameInput.device() != InputDevice.PAD) return false;
+              toss();
+              return true;
             }
           });
     }
