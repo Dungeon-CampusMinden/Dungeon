@@ -40,15 +40,12 @@ class SearchRobotMovementTest {
   private MoveSystem move;
   private CollisionSystem collision;
   private DungeonLevel level;
-  private int previousFrameRate;
 
   @BeforeEach
   void setUp() throws Exception {
     Game.removeAllEntities();
     Game.removeAllSystems();
     Game.add(new LevelSystem());
-    previousFrameRate = Game.frameRate();
-    Game.frameRate(60);
     try (InputStream resource =
         getClass().getResourceAsStream("/levels/systemRecovery/systemrecovery_1.level")) {
       assertNotNull(resource);
@@ -70,7 +67,6 @@ class SearchRobotMovementTest {
     Game.removeAllEntities();
     Game.currentLevel(null);
     Game.removeAllSystems();
-    Game.frameRate(previousFrameRate);
   }
 
   @Test

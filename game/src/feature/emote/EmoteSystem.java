@@ -25,7 +25,7 @@ public class EmoteSystem extends System {
   }
 
   private void process(Data data) {
-    data.ec().update(1f / Game.frameRate());
+    data.ec().update(Game.TICK_SECONDS);
     Optional<Entity> target = data.ec().target();
     if (data.ec().isDone() || (target.isPresent() && !Game.existInGame(target.get()))) {
       Game.remove(data.e());

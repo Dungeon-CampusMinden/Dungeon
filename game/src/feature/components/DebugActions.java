@@ -63,7 +63,7 @@ public final class DebugActions {
   /** Pauses the game. */
   public static final ActionId PAUSE = debug("pause", key(Keys.F3, Keys.P));
 
-  /** Advances one frame while paused. */
+  /** Advances one world tick while paused. */
   public static final ActionId ADVANCE_FRAME = debug("advance_frame", key(Keys.M));
 
   /** Lies above editor and dialogs and below text fields, so typing triggers nothing. */

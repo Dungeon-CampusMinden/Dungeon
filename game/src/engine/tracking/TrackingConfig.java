@@ -74,6 +74,14 @@ record TrackingConfig(
     runId = Objects.requireNonNull(runId, "runId");
   }
 
+  /**
+   * Whether sessions of this configuration upload to the endpoint built into the game. Only their
+   * outboxes are covered by the consent to central storage and resent at a later start.
+   */
+  boolean usesBuildEndpoint() {
+    return BUILD_ENDPOINT.filter(endpoint::equals).isPresent();
+  }
+
   /** Creates a builder with the required stable room ID. */
   private static Builder builder(String roomId) {
     return new Builder(roomId);

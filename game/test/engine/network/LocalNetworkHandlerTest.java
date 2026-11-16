@@ -2,7 +2,14 @@ package engine.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import engine.Entity;
+import engine.Game;
+import engine.components.PlayerComponent;
+import engine.game.PreRunConfiguration;
 import engine.network.handler.LocalNetworkHandler;
+import engine.network.input.InputCommandRouter;
+import engine.network.messages.c2s.InputMessage;
+import feature.entities.HeroController;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
@@ -48,5 +55,40 @@ public class LocalNetworkHandlerTest {
     handler.shutdown(disconnectReason);
     assertEquals(1, disconnected.get());
     assertEquals(disconnectReason, lastReason[0]);
+  }
+
+  /**
+   * Tests that local input waits for the next world tick: a frame without a tick applies nothing,
+   * and of several ticks in one frame only the first one applies it.
+   *
+   * @throws Exception if any unexpected error occurs during the test execution.
+   */
+  @Test
+  public void sendInput_waitsForTheNextTick_andIsAppliedOnce() throws Exception {
+    String route = "test:local_input";
+    AtomicInteger applied = new AtomicInteger();
+    PreRunConfiguration.multiplayerEnabled(false);
+    PreRunConfiguration.isNetworkServer(true);
+    Game.removeAllEntities();
+    Entity player = new Entity("player");
+    player.add(new PlayerComponent());
+    Game.add(player);
+    LocalNetworkHandler handler = new LocalNetworkHandler();
+    handler.initialize(true, "localhost", 0, "user", Optional.empty());
+    handler.start();
+    InputCommandRouter.register(route, true, context -> applied.incrementAndGet());
+    try {
+      handler.sendInput(InputMessage.custom(route));
+      assertEquals(0, applied.get());
+
+      HeroController.drainAndApplyInputs();
+      assertEquals(1, applied.get());
+      HeroController.drainAndApplyInputs();
+      assertEquals(1, applied.get());
+    } finally {
+      InputCommandRouter.unregister(route);
+      handler.shutdown("Test finished");
+      Game.removeAllEntities();
+    }
   }
 }

@@ -35,7 +35,7 @@ Die Methode `GameLoop#render` ist die Game-Loop. Das ECS wird durch die in Weiß
 
 Neu erzeugte Entitäten werden im Game registriert und im [`EntitySystemMapper`](./entity_system_mapper.md) hinterlegt.
 
-Die Systeme registrieren sich in `Game` und geben dabei an, auf welche Entitäten sie agieren wollen, heißt: Welche Components eine Entität implementieren muss, um vom System bearbeitet zu werden. Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#fetch` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Components` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Components`. Systemlogiken werden einmal pro Frame ausgeführt.
+Die Systeme registrieren sich in `Game` und geben dabei an, auf welche Entitäten sie agieren wollen, heißt: Welche Components eine Entität implementieren muss, um vom System bearbeitet zu werden. Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#fetch` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Components` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Components`. Systemlogiken werden einmal pro Welt-Tick ausgeführt, also 60-mal pro Sekunde unabhängig von der Framerate. Systeme der Client-Seite (`AuthoritativeSide.CLIENT`: Eingabe, Kamera, Sound) laufen stattdessen einmal pro Frame; ein System kann das über `System#runsPerFrame` selbst festlegen.
 
 ## Prerun Konfiguration
 
@@ -43,7 +43,6 @@ Einige Aspekte des Spiels lassen sich vor dem Start konfigurieren. Dafür könne
 
 ```java
 public static void main(String[] args) {
-    Game.frameRate(60);
     Game.disableAudio(true);
     Game.fullScreen(true);
 }
@@ -59,7 +58,7 @@ Damit auch eigene Logik in die GameLoop (abseits der Systeme) eingebunden werden
 Mit `Game#onUserSetup` kann eine Methode hinterlegt werden, welche einmalig ausgeführt wird. Diese Methode wird nach dem internen Setup ausgeführt aber bevor dem Start des eigentlichen Spiels. Hier lassen sich vor allem neue Systeme im Spiel registrieren.
 
 2. `Game#onUserFrame`
-Mit `Game#onUserFrame` kann eine Methode hinterlegt werden, welche jeden Frame nach der Ausführung der Systeme aufgerufen wird.
+Mit `Game#onUserFrame` kann eine Methode hinterlegt werden, welche jeden Welt-Tick vor der Ausführung der Systeme aufgerufen wird.
 
 3. `Game#onUserLevelLoad`
 Mit `Game#onUserLevelLoad` kann eine Methode hinterlegt werden, welche dann ausgeführt wird, wenn ein neues Level geladen wurde. Die Methode wird mit einem Boolean aufgerufen, welcher angibt, ob das Level schon einmal geladen wurde oder nicht. Diese Methode kann gut genutzt werden, um neue Entitäten im Level zu erzeugen.
