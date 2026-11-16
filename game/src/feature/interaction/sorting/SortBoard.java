@@ -1,6 +1,6 @@
 package feature.interaction.sorting;
 
-import static feature.interaction.FeatureDialogStyle.INK;
+import static feature.interaction.InteractionDialogColors.INK;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
