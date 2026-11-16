@@ -121,7 +121,6 @@ public final class MultiplayerHostRun {
                     HeroController.drainAndApplyInputs();
                   })
               .disableAudio(true)
-              .frameRate(30)
               .build();
       starter.apply();
       prepareLevel();

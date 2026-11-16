@@ -539,6 +539,12 @@ public class LevelEditorSystem extends System {
     internalStopped = false;
   }
 
+  /** The editor reads input and moves its camera with the frame rate. */
+  @Override
+  public boolean runsPerFrame() {
+    return true;
+  }
+
   /** The available modes of the level editor. */
   public enum Mode {
     /** Mode to place and remove level tiles. */

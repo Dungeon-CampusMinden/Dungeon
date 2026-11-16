@@ -92,9 +92,14 @@ alle API-Methoden dieser Klassen über `Game` erreichen.
 beinhaltet die **Game-Loop**.
 
 Die **Game-Loop** ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame
-aufgerufen wird. Das Spiel läuft in 30 FPS (also 30 frames per seconds), die Game-Loop wird also 30-mal in der Sekunde
-aufgerufen. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von
+aufgerufen wird. Alle Aktionen, die wiederholt ausgeführt werden müssen, wie zum Beispiel das Bewegen und Zeichnen von
 Figuren, müssen innerhalb der Game-Loop stattfinden.
+
+Die Spielwelt läuft dabei in festen **Welt-Ticks**: 60-mal pro Sekunde (`Game.TICKS_PER_SECOND`), unabhängig davon, wie
+viele Frames pro Sekunde gezeichnet werden. Die Game-Loop führt pro Frame so viele Ticks aus, wie seit dem letzten Frame
+fällig geworden sind. Bei 144 FPS sind das meist keiner oder einer, bei 30 FPS zwei. Gezeichnet wird in jedem Frame;
+bewegte Figuren werden dafür zwischen ihren letzten beiden Tick-Positionen dargestellt. Das FPS-Limit ist eine
+Einstellung im Spiel und ändert nur, wie oft gezeichnet wird.
 
 ![Game Loop](img/gameloop.png)
 
@@ -114,8 +119,8 @@ Zugriff haben, weshalb wir `render` als unseren Game-Loop benutzen.
 -   `userOnSetup(IVoidFucntion)` erlaubt Ihnen einen Callback hinterlegen, welcher wie `setup` zu Beginn des Spiels
     aufgerufen wird.
 -   `frame()` wird in jedem Frame einmal aufgerufen.
--   `userOnFrame(IVoidFucntion)`erlaubt Ihnen einen Callback hinterlegen, welcher wie `frame` einmal pro Frame
-    aufgerufen wird.
+-   `userOnFrame(IVoidFucntion)`erlaubt Ihnen einen Callback hinterlegen, welcher einmal pro Welt-Tick vor den
+    Systemen aufgerufen wird.
 -   `onLevelLoad()` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die
     initial im Level verteilt werden.
 -   `userOnLevelLoad(Consumer<Boolean>)` erlaubt Ihnen eine eigene Callback-Methode hinterlegen. Der Boolean gibt an, ob

@@ -50,7 +50,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   public PatrolWalk(float radius, int numberCheckpoints, int pauseTime, final MODE mode) {
     this.radius = radius;
     this.numberCheckpoints = numberCheckpoints;
-    this.pauseFrames = pauseTime / (1000 / Game.frameRate());
+    this.pauseFrames = pauseTime / (1000 / Game.TICKS_PER_SECOND);
     this.mode = mode;
   }
 

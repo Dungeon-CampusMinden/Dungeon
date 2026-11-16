@@ -71,11 +71,21 @@ import java.util.stream.Stream;
  */
 public final class Game {
 
+  /**
+   * World ticks per second. The simulation advances in fixed ticks of this rate in singleplayer, on
+   * clients and on the server, whatever the render frame rate is.
+   */
+  public static final int TICKS_PER_SECOND = 60;
+
+  /** Length of one world tick in seconds. */
+  public static final float TICK_SECONDS = 1f / TICKS_PER_SECOND;
+
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
   private static INetworkHandler networkHandler;
   private static final AudioApi AudioAPI = new AudioApi();
   private static final Localization localization = Localization.getInstance();
   private static final PlayClock PLAY_CLOCK = new PlayClock();
+  private static boolean exiting;
 
   static {
     PLAY_CLOCK.onTransition(TrackingRuntime::playClockChanged);
@@ -241,24 +251,6 @@ public final class Game {
   }
 
   /**
-   * Retrieves the frame rate from the pre-run configuration.
-   *
-   * @return The frame rate.
-   */
-  public static int frameRate() {
-    return PreRunConfiguration.frameRate();
-  }
-
-  /**
-   * Sets the frame rate in the pre-run configuration.
-   *
-   * @param frameRate The new frame rate.
-   */
-  public static void frameRate(int frameRate) {
-    PreRunConfiguration.frameRate(frameRate);
-  }
-
-  /**
    * Checks if the game-window can be resized.
    *
    * @return True if the game-window can be resized. , false otherwise.
@@ -344,9 +336,9 @@ public final class Game {
   }
 
   /**
-   * Sets the user-defined function for frame updates in the pre-run configuration.
+   * Sets the user-defined function that runs once per world tick, before the systems.
    *
-   * @param userOnFrame The new user-defined function for frame updates.
+   * @param userOnFrame The new user-defined function for tick updates.
    */
   public static void userOnFrame(final IVoidFunction userOnFrame) {
     PreRunConfiguration.userOnFrame(userOnFrame);
@@ -910,6 +902,16 @@ public final class Game {
   }
 
   /**
+   * Checks whether the game was asked to exit. The application closes after the current frame;
+   * until then the world stands still, so nothing that ended the game happens a second time.
+   *
+   * @return true once {@link #exit(String)} or {@link #complete()} ran
+   */
+  public static boolean isExiting() {
+    return exiting;
+  }
+
+  /**
    * Ends play as solved unless the room already reported its result, then finishes tracking, warns
    * about pending remote events, shuts down the network with the reason {@code Game completed}, and
    * exits the GDX application.
@@ -920,6 +922,7 @@ public final class Game {
   }
 
   private static void shutdown(String reason) {
+    exiting = true;
     LOGGER.info("Exiting game: " + reason);
     TrackingRuntime.finishSession();
     TrackingRuntime.warnIfRemotePending();
@@ -968,7 +971,8 @@ public final class Game {
   /**
    * Get the current game tick.
    *
-   * <p>The game tick is incremented every frame in the game loop.
+   * <p>The game tick is incremented every world tick in the game loop, also while a dialog pauses
+   * the game. It orders events; for time that stands still in a pause, use {@link #playClock()}.
    *
    * @return The current game tick.
    */

@@ -207,6 +207,10 @@
         "language": "Language",
         "graphics": "Graphics",
         "brightness": "Brightness",
+        "frame_limit": "FPS limit",
+        "frame_limit_unlimited": "Unlimited",
+        "vsync": "VSync",
+        "vsync_description": "At most as many frames[n]as the display shows",
         "reduce_effects": "Reduce effects",
         "reduce_effects_description": "Less glow, fog and[n]particles, steady light"
     },

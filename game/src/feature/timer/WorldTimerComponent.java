@@ -4,16 +4,30 @@ import engine.Component;
 import engine.Game;
 
 /**
- * Countdown measured against the server's active play clock. It stands still until the room starts
- * the clock with {@code Game.playClock().ready()}.
+ * Countdown or stopwatch measured against the server's active play clock. It stands still until the
+ * room starts the clock with {@code Game.playClock().ready()}.
  *
- * @param startedAtActiveMs active play time when the countdown began
- * @param duration the duration of the timer in seconds
- * @param stoppedAtActiveMs active play time at which the countdown froze, {@link Long#MAX_VALUE}
- *     while it runs
+ * @param startedAtActiveMs active play time when the timer began
+ * @param duration the duration of a countdown in seconds; a stopwatch ignores it
+ * @param stoppedAtActiveMs active play time at which the timer froze, {@link Long#MAX_VALUE} while
+ *     it runs
+ * @param countsUp whether the timer shows the elapsed instead of the remaining time
  */
-public record WorldTimerComponent(long startedAtActiveMs, int duration, long stoppedAtActiveMs)
+public record WorldTimerComponent(
+    long startedAtActiveMs, int duration, long stoppedAtActiveMs, boolean countsUp)
     implements Component {
+
+  /**
+   * Creates a countdown.
+   *
+   * @param startedAtActiveMs active play time when the countdown began
+   * @param duration the duration of the timer in seconds
+   * @param stoppedAtActiveMs active play time at which the countdown froze, {@link Long#MAX_VALUE}
+   *     while it runs
+   */
+  public WorldTimerComponent(long startedAtActiveMs, int duration, long stoppedAtActiveMs) {
+    this(startedAtActiveMs, duration, stoppedAtActiveMs, false);
+  }
 
   /**
    * Creates a running countdown.
@@ -26,9 +40,29 @@ public record WorldTimerComponent(long startedAtActiveMs, int duration, long sto
   }
 
   /**
+   * Creates a running stopwatch.
+   *
+   * @param startedAtActiveMs active play time from which the stopwatch counts
+   * @return stopwatch
+   */
+  public static WorldTimerComponent stopwatch(long startedAtActiveMs) {
+    return new WorldTimerComponent(startedAtActiveMs, 0, Long.MAX_VALUE, true);
+  }
+
+  /**
+   * Returns the milliseconds since the timer started on the current play clock.
+   *
+   * @return elapsed milliseconds, never negative
+   */
+  public long elapsedMs() {
+    long activeMs = Math.min(Game.playClock().activeMs(), stoppedAtActiveMs);
+    return Math.max(0, activeMs - startedAtActiveMs);
+  }
+
+  /**
    * Returns the countdown's remaining milliseconds on the current play clock.
    *
-   * @return remaining milliseconds, never negative
+   * @return remaining milliseconds, never negative, 0 for a stopwatch
    */
   public long remainingMs() {
     long activeMs = Math.min(Game.playClock().activeMs(), stoppedAtActiveMs);
@@ -36,12 +70,12 @@ public record WorldTimerComponent(long startedAtActiveMs, int duration, long sto
   }
 
   /**
-   * Returns this countdown frozen at the given play time.
+   * Returns this timer frozen at the given play time.
    *
-   * @param activeMs active play time at which the countdown stops
-   * @return frozen countdown
+   * @param activeMs active play time at which the timer stops
+   * @return frozen timer
    */
   public WorldTimerComponent stoppedAt(long activeMs) {
-    return new WorldTimerComponent(startedAtActiveMs, duration, activeMs);
+    return new WorldTimerComponent(startedAtActiveMs, duration, activeMs, countsUp);
   }
 }

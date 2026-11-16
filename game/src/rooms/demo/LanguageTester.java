@@ -39,7 +39,6 @@ public class LanguageTester {
     DungeonLoader.addLevel(Tuple.of("language", DungeonLevel.class));
     addLanguageSystem();
     Game.disableAudio(true);
-    Game.frameRate(60);
     Game.userOnSetup(
         () -> {
           TextureGenerator.registerGenerateColorTexture(TEST_PATH_DE, 100, 100, Color.RED);

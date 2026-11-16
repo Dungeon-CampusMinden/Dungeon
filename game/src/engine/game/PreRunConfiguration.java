@@ -11,8 +11,8 @@ import java.util.function.Consumer;
 /**
  * Offers API functions for the configuration of the game.
  *
- * <p>Includes various settings such as window dimensions, frame rate, full-screen mode, and more.
- * This class contains all the necessary configurations that need to be set before the game starts.
+ * <p>Includes various settings such as window dimensions, full-screen mode, and more. This class
+ * contains all the necessary configurations that need to be set before the game starts.
  *
  * <p>Use {@link #userOnFrame(IVoidFunction)}, {@link #userOnSetup(IVoidFunction)}, and {@link
  * #userOnLevelLoad(Consumer)} to configure event callbacks. This is the best way to include your
@@ -35,7 +35,6 @@ public final class PreRunConfiguration {
 
   private static int WINDOW_WIDTH = 1280;
   private static int WINDOW_HEIGHT = 720;
-  private static int FRAME_RATE = 30;
   private static boolean FULL_SCREEN = false;
 
   private static boolean RESIZEABLE = true;
@@ -80,24 +79,6 @@ public final class PreRunConfiguration {
    */
   public static void windowHeight(int windowHeight) {
     WINDOW_HEIGHT = windowHeight;
-  }
-
-  /**
-   * Gets the frame rate of the game.
-   *
-   * @return The frame rate of the game.
-   */
-  public static int frameRate() {
-    return FRAME_RATE;
-  }
-
-  /**
-   * Sets the frame rate of the game.
-   *
-   * @param frameRate The frame rate of the game.
-   */
-  public static void frameRate(int frameRate) {
-    FRAME_RATE = frameRate;
   }
 
   /**
@@ -192,18 +173,18 @@ public final class PreRunConfiguration {
   }
 
   /**
-   * Gets the user-defined function for frame logic.
+   * Gets the user-defined function that runs once per world tick, before the systems.
    *
-   * @return The user-defined function for frame logic.
+   * @return The user-defined function for tick logic.
    */
   public static IVoidFunction userOnFrame() {
     return userOnFrame;
   }
 
   /**
-   * Sets the user-defined function for frame logic.
+   * Sets the user-defined function that runs once per world tick, before the systems.
    *
-   * @param userOnFrame The user-defined function for frame logic.
+   * @param userOnFrame The user-defined function for tick logic.
    */
   public static void userOnFrame(final IVoidFunction userOnFrame) {
     PreRunConfiguration.userOnFrame = userOnFrame;

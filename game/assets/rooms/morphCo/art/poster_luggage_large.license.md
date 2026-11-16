@@ -1,6 +1,5 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Großansicht, abgeleitet von `poster_luggage.png`), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Plakat, Großansicht), per Skript als Pixel-Art in 32×40 Pixeln gezeichnet und 8-fach ohne Glättung vergrößert
 - Author: amatutat
-- Modified by: amatutat (8-fach ohne Glättung vergrößert)
 - License: CC0 1.0
 
 <details>

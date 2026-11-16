@@ -33,7 +33,7 @@ public class FireShockWaveSkill extends Skill {
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final int REMOVE_AFTER = 2000;
   private static final long DELAY_BETWEEN_WAVES = 250L;
-  private static final int HIT_COOLDOWN = Game.frameRate() / 4;
+  private static final int HIT_COOLDOWN = Game.TICKS_PER_SECOND / 4;
 
   private final int radius;
   private final int damage;
