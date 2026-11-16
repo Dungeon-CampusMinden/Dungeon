@@ -24,12 +24,16 @@ import java.util.List;
  * moving the cursor with the right stick. A frame marks the control under the cursor.
  *
  * <p>Controls are the innermost visible, touchable actors with an input listener, buttons for
- * example, and the movable nodes of a canvas, whose drags the canvas handles. A control partly
- * covered by others is aimed at where it shows, one hidden entirely is skipped; one scrolled out of
- * its scroll pane is scrolled into view.
+ * example, and the movable nodes of a canvas, whose drags the canvas handles. Mere scenery that
+ * must swallow presses takes a plain event listener instead of an input listener, so the D-pad
+ * passes it by. A control partly covered by others is aimed at where it shows, one hidden entirely
+ * is skipped; one scrolled out of its scroll pane is scrolled into view. A scroll pane under the
+ * cursor keeps the D-pad for scrolling until its end.
  */
 final class PadNavigation {
   private static final Color FRAME = Color.valueOf("f0b43c");
+  // Added to the score of controls outside the 45-degree cone, so they count only without others.
+  private static final float OUT_OF_CONE = 1e6f;
   private static final float[][] SPOTS = {
     {.5f, .5f},
     {.5f, .25f},
@@ -52,7 +56,8 @@ final class PadNavigation {
    * @param dialog the dialog's outermost actor
    * @param dx horizontal direction, -1, 0 or 1
    * @param dy vertical direction in stage coordinates (up is 1), -1, 0 or 1
-   * @return true if the cursor moved
+   * @return true if the cursor moved; false also while the scroll pane under it can still scroll
+   *     vertically in the direction
    */
   static boolean move(Group dialog, int dx, int dy) {
     Stage stage = dialog.getStage();
@@ -64,9 +69,12 @@ final class PadNavigation {
     collect(dialog, controls);
     Actor current =
         controls.stream().filter(control -> hits(stage, control, pointer)).findFirst().orElse(null);
+    if (current instanceof ScrollPane pane
+        && (dy > 0 && pane.getScrollY() > 0 || dy < 0 && pane.getScrollY() < pane.getMaxY())) {
+      return false;
+    }
 
     Actor best = null;
-    boolean bestInCone = false;
     float bestScore = Float.MAX_VALUE;
     for (Actor control : controls) {
       if (control == current) continue;
@@ -76,11 +84,10 @@ final class PadNavigation {
       float along = offset.x * dx + offset.y * dy;
       float across = Math.abs(offset.x * dy - offset.y * dx);
       if (current != null && along <= 0) continue;
-      boolean inCone = current == null || across <= along;
-      float score = current != null ? along + 2 * across : offset.len();
-      if (inCone && !bestInCone || inCone == bestInCone && score < bestScore) {
+      float score =
+          current == null ? offset.len() : along + 2 * across + (across <= along ? 0 : OUT_OF_CONE);
+      if (score < bestScore) {
         best = control;
-        bestInCone = inCone;
         bestScore = score;
       }
     }

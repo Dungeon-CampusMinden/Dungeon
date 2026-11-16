@@ -101,7 +101,15 @@ public final class CardSwipe {
 
       @Override
       public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-        if (keyRun) release(TimeUtils.timeSinceMillis(startedAt));
+        // A hold cut off by focus loss or an unplugged pad is no swipe; the card slides back.
+        if (keyRun && event.isTouchFocusCancel()) {
+          startedAt = -1;
+          keyRun = false;
+          returnFrom = position;
+          returned = 0;
+        } else if (keyRun) {
+          release(TimeUtils.timeSinceMillis(startedAt));
+        }
       }
     };
   }

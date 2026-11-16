@@ -530,7 +530,14 @@ final class AffixSorterUI extends MorphCoConsoleUI {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-              letGoByKey();
+              // A hold cut off by focus loss or an unplugged pad is no pull.
+              if (keyRun && event.isTouchFocusCancel()) {
+                startedAt = -1;
+                keyRun = false;
+                lever.back();
+              } else {
+                letGoByKey();
+              }
             }
           });
     }

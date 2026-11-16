@@ -76,7 +76,7 @@
       "hint-lever": {
         "direction": "\"Nach der Wartung muss A-12 neu starten. Dafür ist der Hebel in der Nahansicht der Anlage da.\"",
         "tip": "\"Der Hebel will gleichmäßig gezogen werden, nicht ruckartig und nicht im Schneckentempo. Lass ihn erst ganz unten los.\"",
-        "solution": "\"Zieh den Hebel in etwa einer Sekunde ganz nach unten und lass ihn erst dort los; alles zwischen 0,6 und 2 Sekunden klappt. Ohne Maus: Leertaste gedrückt halten und unten loslassen. Mit dem Controller: auf dem Hebel A gedrückt halten.\""
+        "solution": "\"Zieh den Hebel in etwa einer Sekunde ganz nach unten und lass ihn erst dort los; alles zwischen 0,6 und 2 Sekunden klappt. Ohne Maus: Leertaste gedrückt halten und unten loslassen. Mit dem Controller: auf dem Hebel A gedrückt halten und unten loslassen.\""
       },
       "hint-flexion": {
         "direction": "\"A-12 sortiert wieder. Jetzt ist die Flexionsmaschine in F-04 dran.\"",
@@ -129,7 +129,7 @@
         "console-done": "Der Knopf 'Nerviger Alarmton' ist nicht mehr gedrückt. Und dabei bleibt es.",
         "fuse-box-title": "Sicherungsbox",
         "fuse-box": "Alle Sicherungen sind drin. Dafür hat jemand sämtliche Kabel herausgezogen und ordentlich nebeneinandergelegt. Nach einem Wackelkontakt sieht das nicht aus.",
-        "fuse-box-help": "Ziehe jedes Kabelende in die Buchse mit derselben Beschriftung. Oder klicke erst ein Kabelende an und dann die Buchse. Controller: Das Steuerkreuz wählt, A nimmt ein Kabelende und steckt es ein.",
+        "fuse-box-help": "Ziehe jedes Kabelende in die Buchse mit derselben Beschriftung. Oder klicke erst ein Kabelende an und dann die Buchse. Controller: Das Steuerkreuz wählt aus, A nimmt ein Kabelende und steckt es ein.",
         "fuse-box-f04": "F-04",
         "fuse-box-a12": "A-12",
         "fuse-box-corridor": "Flur",
@@ -197,7 +197,7 @@
         "screen-fixed": "BEREIT. Darunter, ganz klein: \"Danke.\"",
         "trash-title": "Papierkorb",
         "trash-instruction": "Zerknüllte Produktionszettel bis zum Rand. Vielleicht liegt darunter ja etwas Brauchbares.",
-        "trash-help": "Fahre mit der Maus über einen Zettel, um ihn zu lesen. Ein Klick wirft ihn aus dem Korb, du kannst ihn auch beiseiteziehen. Ein gefaltetes Blatt öffnest du mit einem Klick. Ohne Maus: Tab oder die Pfeiltasten wählen einen Zettel oder das Blatt, die Leertaste wirft den Zettel hinaus oder öffnet das Blatt. Controller: Das Steuerkreuz wählt, A wirft den Zettel hinaus oder öffnet das Blatt.",
+        "trash-help": "Fahre mit der Maus über einen Zettel, um ihn zu lesen. Ein Klick wirft ihn aus dem Korb, du kannst ihn auch beiseiteziehen. Ein gefaltetes Blatt öffnest du mit einem Klick. Ohne Maus: Tab oder die Pfeiltasten wählen einen Zettel oder das Blatt, die Leertaste wirft den Zettel hinaus oder öffnet das Blatt. Controller: Das Steuerkreuz wählt aus, A wirft den Zettel hinaus oder öffnet das Blatt.",
         "trash-rejects": "Noch mehr Ausschuss: $1. Die Maschine spinnt also nicht erst seit heute.",
         "trash-report-title": "MÄNGELMELDUNG F-04",
         "trash-report": "Wiederholte Fehlzuordnung von Flexionssuffixen. Technische Überprüfung dringend empfohlen.",
@@ -430,7 +430,7 @@
       "word-classes": {
         "title": "Kisten neben der Flexionsmaschine",
         "instruction": "Sortiere die Wörter der folgenden Sätze nach ihrer Wortart in die passenden Kisten. Gibt es für ein Wort keine Kiste, lass es einfach liegen. So landen nur flektierbare Wörter in den Kisten - genau die, die in die Flexionsmaschine gehören.",
-        "help": "Ziehe ein Wort auf eine Kiste oder klicke erst das Wort und dann die Kiste an. Ein Klick auf ein Wort in einer Kiste legt es zurück. Controller: Das Steuerkreuz wählt, A nimmt und legt ab.",
+        "help": "Ziehe ein Wort auf eine Kiste oder klicke erst das Wort und dann die Kiste an. Ein Klick auf ein Wort in einer Kiste legt es zurück. Controller: Das Steuerkreuz wählt aus, A nimmt auf und legt ab.",
         "VERBEN": "Verben",
         "ADJEKTIVE": "Adjektive",
         "NOMEN": "Nomen",
@@ -444,7 +444,7 @@
       "affixes": {
         "title": "Affix-Sortieranlage A-12 - Wartungsmodus",
         "instruction": "Entscheide, ob die folgenden Wörter Affixe enthalten. Wenn das der Fall ist, sortiere sie korrekt.",
-        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Schon einsortierte Teile bleiben in ihrem Fach, wenn du den Rest weiter zerschneidest. Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\". Controller: Das Steuerkreuz wählt, A schneidet, nimmt und legt ab.",
+        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Schon einsortierte Teile bleiben in ihrem Fach, wenn du den Rest weiter zerschneidest. Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\". Controller: Das Steuerkreuz wählt aus, A schneidet, nimmt auf und legt ab.",
         "KEIN_AFFIX": "Kein Affix",
         "PRAEFIX": "Präfixe",
         "SUFFIX": "Suffixe",
@@ -452,7 +452,7 @@
         "feedback": "Richtig bearbeitet: $1 von $2 Wörtern. Die Markierung rechts zeigt, welche Wörter schon stimmen.",
         "shafts-title": "Affix-Sortieranlage A-12 - Eingabeschächte",
         "shafts-instruction": "Sortiere die Präfixe, Suffixe und Zirkumfixe in die Eingabeschächte für Wortbildung oder Flexion, je nachdem, wo sie hingehören.",
-        "shafts-help": "Ziehe jedes Affix in einen Schacht oder klicke erst das Affix und dann den Schacht an. Controller: Das Steuerkreuz wählt, A nimmt und legt ab.",
+        "shafts-help": "Ziehe jedes Affix in einen Schacht oder klicke erst das Affix und dann den Schacht an. Controller: Das Steuerkreuz wählt aus, A nimmt auf und legt ab.",
         "WORTBILDUNG": "Wortbildung",
         "FLEXION": "Flexion",
         "shafts-feedback": "Noch nicht ganz. Nicht im richtigen Schacht: $1",
@@ -470,18 +470,18 @@
         "empty": "leer"
       },
       "sorter": {
-        "help": "Klicke auf Schloss, Klappe oder Hebel. Den Hebel ziehst du mit der Maus nach unten. Ohne Maus: Leertaste oder Pfeil nach unten gedrückt halten und unten loslassen. Die Ziffern kannst du auch tippen. Controller: Das Steuerkreuz wählt, A drückt; auf dem Hebel A gedrückt halten und unten loslassen.",
+        "help": "Klicke auf Schloss, Klappe oder Hebel. Den Hebel ziehst du mit der Maus nach unten. Ohne Maus: Leertaste oder Pfeil nach unten gedrückt halten und unten loslassen. Die Ziffern kannst du auch tippen. Controller: Das Steuerkreuz wählt aus, A drückt; auf dem Hebel A gedrückt halten und unten loslassen.",
         "shafts": "Eingabeschächte"
       },
       "console": {
-        "help": "Klicke auf einen Knopf. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller Steuerkreuz und A."
+        "help": "Klicke auf einen Knopf. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn. Controller: Das Steuerkreuz wählt aus, A drückt."
       },
       "keypad": {
         "clear": "C",
         "confirm": "OK"
       },
       "phone": {
-        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht. Controller: Das Steuerkreuz wählt, A drückt.",
+        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie.",
         "note-title": "Wichtige Durchwahlen",
         "MAILBOX": "Mailbox abhören",
         "HOTLINE": "Technik-Hotline (Instandhaltung)",
