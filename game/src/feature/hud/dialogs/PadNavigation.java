@@ -70,7 +70,7 @@ final class PadNavigation {
     Actor current =
         controls.stream().filter(control -> hits(stage, control, pointer)).findFirst().orElse(null);
     if (current instanceof ScrollPane pane
-        && (dy > 0 && pane.getScrollY() > 0 || dy < 0 && pane.getScrollY() < pane.getMaxY())) {
+        && ((dy > 0 && pane.getScrollY() > 0) || (dy < 0 && pane.getScrollY() < pane.getMaxY()))) {
       return false;
     }
 
@@ -81,6 +81,8 @@ final class PadNavigation {
       Vector2 point = visiblePoint(stage, control);
       if (point == null) continue;
       Vector2 offset = point.sub(pointer);
+      // Off every control, the cursor must not pick one it already points at, or it never moves.
+      if (current == null && offset.len() < 1) continue;
       float along = offset.x * dx + offset.y * dy;
       float across = Math.abs(offset.x * dy - offset.y * dx);
       if (current != null && along <= 0) continue;
@@ -167,7 +169,10 @@ final class PadNavigation {
     ScrollPane pane = scrollPane(control);
     if (pane == null) return;
     Vector2 corner = control.localToActorCoordinates(pane.getWidget(), new Vector2());
-    pane.scrollTo(corner.x, corner.y, control.getWidth(), control.getHeight());
+    // libGDX's scrollTo takes the top edge as y, despite its y-up coordinates; with the bottom edge
+    // it misses by the control's height.
+    pane.scrollTo(
+        corner.x, corner.y + control.getHeight(), control.getWidth(), control.getHeight());
     pane.updateVisualScroll();
     pane.layout();
   }

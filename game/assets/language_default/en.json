@@ -171,7 +171,7 @@
         },
         "phone_dialog": {
             "title": "Phone",
-            "help": "Dial a number and press OK. You can also type the digits; Enter dials. Esc hangs up. Controller: the D-pad moves between keys, A presses them, B closes.",
+            "help": "Dial a number and press OK. You can also type the digits; Enter dials. Esc hangs up. Controller: the D-pad moves between keys, A presses them, B hangs up.",
             "clear": "C",
             "dial": "OK",
             "calling": "DIALING ...",
@@ -186,7 +186,7 @@
         },
         "card_reader_dialog": {
             "title": "Card reader",
-            "help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Controller: hold A on the card and let go at the end. Not too fast, not too slow. Esc closes the card reader.",
+            "help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Controller: hold A on the card and let go at the end. Not too fast, not too slow. Esc or B closes the card reader.",
             "ready": "PLEASE SWIPE CARD",
             "accepted": "Card accepted.",
             "too_fast": "Too fast. Please try again.",

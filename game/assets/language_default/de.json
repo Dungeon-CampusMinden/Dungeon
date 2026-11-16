@@ -171,7 +171,7 @@
         },
         "phone_dialog": {
             "title": "Telefon",
-            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie, B schließt.",
+            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie, B legt auf.",
             "clear": "C",
             "dial": "OK",
             "calling": "WÄHLE ...",
@@ -186,7 +186,7 @@
         },
         "card_reader_dialog": {
             "title": "Kartenleser",
-            "help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Controller: auf der Karte A gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam. Esc schließt den Kartenleser.",
+            "help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Controller: auf der Karte A gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam. Esc oder B schließt den Kartenleser.",
             "ready": "BITTE KARTE DURCHZIEHEN",
             "accepted": "Karte akzeptiert.",
             "too_fast": "Zu schnell. Bitte noch einmal.",
