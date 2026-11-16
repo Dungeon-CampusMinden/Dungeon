@@ -62,7 +62,7 @@ public record WorldTimerComponent(
   /**
    * Returns the countdown's remaining milliseconds on the current play clock.
    *
-   * @return remaining milliseconds, never negative
+   * @return remaining milliseconds, never negative, 0 for a stopwatch
    */
   public long remainingMs() {
     long activeMs = Math.min(Game.playClock().activeMs(), stoppedAtActiveMs);
