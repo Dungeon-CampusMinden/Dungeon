@@ -458,7 +458,8 @@ Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte 
 ### Weitere Kleinigkeiten
 
 - **Plakate:** vier im Kontrollraum, zwei in F-04, eines in A-12. Ein Klick zeigt das Plakat groß.
-  Das linke Plakat in F-04 hängt an der Rückwand über den Kisten.
+  Das linke Plakat in F-04 hängt an der Rückwand links neben dem Schild „Seit 1785“, über der Lücke
+  zwischen den Kisten „ADJ“ und „NOMEN“.
 - **Topfpflanzen:** je eine im Kontrollraum, im Flur und in F-04.
 - **Förderband in F-04:** Die vier Wortformen *du schreiben*, *Gemäuse*, *undes* und *zerkleinst*
   lassen sich einzeln ansehen und kommen als Indiz ins Questlog.
@@ -485,6 +486,6 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, bevor die Eingabeschächte befüllt sind | ja |
 | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen | ja |
 | Unter Strom | alle Kabel der Sicherungsbox einstecken | ja |
-| Aushangkundig | alle sieben Plakate ansehen (Weg zum Plakat über den Kisten in F-04: siehe „Weitere Kleinigkeiten“) | ja |
+| Aushangkundig | alle sieben Plakate ansehen | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |
 | Mitarbeitende des Monats | alle anderen Achievements freischalten | nein |
