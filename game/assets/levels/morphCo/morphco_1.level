@@ -163,8 +163,8 @@
   }, {
     "type" : "LabBarrel",
     "position" : {
-      "x" : 2.4,
-      "y" : 28.0
+      "x" : 21.0,
+      "y" : 25.0
     }
   }, {
     "type" : "SoulweaverSmallCrate",
@@ -199,14 +199,56 @@
   }, {
     "type" : "FloorBarsSquare",
     "position" : {
-      "x" : 8.0,
-      "y" : 26.6
+      "x" : 18.5,
+      "y" : 30.0
     }
   }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 31.0,
       "y" : 26.4
+    }
+  }, {
+    "type" : "LabScreenCross",
+    "position" : {
+      "x" : 33.95,
+      "y" : 18.1
+    }
+  }, {
+    "type" : "LabScreenQuestion",
+    "position" : {
+      "x" : 35.150000000000006,
+      "y" : 18.1
+    }
+  }, {
+    "type" : "LabScreenArrow",
+    "position" : {
+      "x" : 36.35,
+      "y" : 18.1
+    }
+  }, {
+    "type" : "LabScreenFace",
+    "position" : {
+      "x" : 37.550000000000004,
+      "y" : 18.1
+    }
+  }, {
+    "type" : "Cabinet",
+    "position" : {
+      "x" : 27.1,
+      "y" : 15.5
+    }
+  }, {
+    "type" : "LabDesk",
+    "position" : {
+      "x" : 36.0,
+      "y" : 10.4
+    }
+  }, {
+    "type" : "Printer1",
+    "position" : {
+      "x" : 38.3,
+      "y" : 10.4
     }
   } ],
   "prefabs" : [ {
@@ -236,8 +278,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 33.11666,
-        "y" : 15.040072
+        "x" : 33.4,
+        "y" : 15.2
       },
       "kind" : "console",
       "number" : 0
@@ -247,8 +289,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 35.2,
-        "y" : 14.84
+        "x" : 33.0,
+        "y" : 16.1
       },
       "kind" : "alarm-light",
       "number" : 0
@@ -258,8 +300,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 26.4,
-        "y" : 15.5
+        "x" : 35.6,
+        "y" : 15.2
       },
       "kind" : "desk-pc",
       "number" : 0
@@ -269,8 +311,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 36.6,
-        "y" : 12.0
+        "x" : 38.7,
+        "y" : 15.2
       },
       "kind" : "meeting-table",
       "number" : 0
@@ -291,8 +333,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 40.4,
-        "y" : 14.0
+        "x" : 40.45,
+        "y" : 13.3
       },
       "kind" : "fuse-box",
       "number" : 0
@@ -302,7 +344,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 40.2,
+        "x" : 31.15,
         "y" : 18.19
       },
       "kind" : "cctv",
@@ -335,7 +377,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 38.4,
+        "x" : 28.7,
         "y" : 18.19
       },
       "kind" : "picture-safety",
@@ -467,8 +509,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 2.8,
-        "y" : 31.2
+        "x" : 2.2,
+        "y" : 27.4
       },
       "kind" : "flexion-machine",
       "number" : 0
@@ -478,8 +520,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 8.8,
-        "y" : 27.4
+        "x" : 2.4,
+        "y" : 31.0
       },
       "kind" : "display-f04",
       "number" : 0
@@ -490,10 +532,10 @@
     "properties" : {
       "position" : {
         "x" : 3.0,
-        "y" : 29.9
+        "y" : 26.0
       },
       "kind" : "belt",
-      "number" : 13
+      "number" : 7
     }
   }, {
     "name" : "shelf-f04-a",
@@ -507,23 +549,12 @@
       "number" : 0
     }
   }, {
-    "name" : "shelf-f04-b",
-    "type" : "morphco-object",
-    "properties" : {
-      "position" : {
-        "x" : 18.0,
-        "y" : 32.6
-      },
-      "kind" : "bookshelf-large",
-      "number" : 0
-    }
-  }, {
     "name" : "trash-f04",
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 22.4,
-        "y" : 23.0
+        "x" : 10.35,
+        "y" : 26.15
       },
       "kind" : "trash-can",
       "number" : 0
@@ -578,7 +609,7 @@
     "properties" : {
       "position" : {
         "x" : 27.2,
-        "y" : 31.4
+        "y" : 28.9
       },
       "kind" : "affix-sorter",
       "number" : 0
@@ -589,7 +620,7 @@
     "properties" : {
       "position" : {
         "x" : 27.3,
-        "y" : 32.0
+        "y" : 29.5
       },
       "kind" : "click-area",
       "number" : 8
@@ -600,7 +631,7 @@
     "properties" : {
       "position" : {
         "x" : 28.4,
-        "y" : 32.0
+        "y" : 29.5
       },
       "kind" : "click-area",
       "number" : 10
@@ -611,7 +642,7 @@
     "properties" : {
       "position" : {
         "x" : 29.6,
-        "y" : 31.9
+        "y" : 29.4
       },
       "kind" : "keypad",
       "number" : 0
@@ -632,11 +663,11 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 25.0,
-        "y" : 29.7
+        "x" : 24.0,
+        "y" : 27.8
       },
-      "kind" : "belt",
-      "number" : 9
+      "kind" : "belt-left",
+      "number" : 6
     }
   }, {
     "name" : "poster_a12",
@@ -688,7 +719,7 @@
     "properties" : {
       "position" : {
         "x" : 35.0,
-        "y" : 23.0
+        "y" : 24.4
       },
       "kind" : "station",
       "number" : 0
@@ -709,8 +740,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 7.4,
-        "y" : 31.6
+        "x" : 5.6,
+        "y" : 29.45
       },
       "kind" : "crate",
       "number" : 0
@@ -720,8 +751,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 8.95,
-        "y" : 31.6
+        "x" : 7.1499999999999995,
+        "y" : 29.45
       },
       "kind" : "crate",
       "number" : 1
@@ -731,8 +762,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 10.5,
-        "y" : 31.6
+        "x" : 8.7,
+        "y" : 29.45
       },
       "kind" : "crate",
       "number" : 2
@@ -742,8 +773,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 12.05,
-        "y" : 31.6
+        "x" : 10.25,
+        "y" : 29.45
       },
       "kind" : "crate",
       "number" : 3
@@ -753,8 +784,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 13.6,
-        "y" : 31.6
+        "x" : 11.8,
+        "y" : 29.45
       },
       "kind" : "crate",
       "number" : 4
@@ -764,8 +795,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 6.4,
-        "y" : 30.2
+        "x" : 4.9,
+        "y" : 26.3
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -775,8 +806,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 8.6,
-        "y" : 30.2
+        "x" : 6.2,
+        "y" : 26.3
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -786,8 +817,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 10.8,
-        "y" : 30.2
+        "x" : 7.5,
+        "y" : 26.3
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -797,8 +828,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 13.0,
-        "y" : 30.2
+        "x" : 8.8,
+        "y" : 26.3
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -885,8 +916,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 33.78899,
-        "y" : 13.804507
+        "x" : 34.0,
+        "y" : 14.3
       },
       "kind" : "chair",
       "number" : 0
@@ -896,8 +927,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 27.2,
-        "y" : 14.9
+        "x" : 36.65,
+        "y" : 14.3
       },
       "kind" : "chair",
       "number" : 0
@@ -1010,6 +1041,83 @@
         "y" : 23.0
       },
       "kind" : "tank",
+      "number" : 0
+    }
+  }, {
+    "name" : "server-6",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.0,
+        "y" : 15.8
+      },
+      "kind" : "server",
+      "number" : 0
+    }
+  }, {
+    "name" : "server-7",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.95,
+        "y" : 15.8
+      },
+      "kind" : "server",
+      "number" : 0
+    }
+  }, {
+    "name" : "server-8",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 24.1,
+        "y" : 10.1
+      },
+      "kind" : "server",
+      "number" : 0
+    }
+  }, {
+    "name" : "chair-3",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 36.55,
+        "y" : 9.6
+      },
+      "kind" : "chair",
+      "number" : 0
+    }
+  }, {
+    "name" : "f04-feed",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 4.8,
+        "y" : 27.8
+      },
+      "kind" : "belt-left",
+      "number" : 19
+    }
+  }, {
+    "name" : "a12-supply",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 30.0,
+        "y" : 29.9
+      },
+      "kind" : "belt-left",
+      "number" : 12
+    }
+  }, {
+    "name" : "a12-stool",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 36.05,
+        "y" : 23.5
+      },
+      "kind" : "chair",
       "number" : 0
     }
   } ]

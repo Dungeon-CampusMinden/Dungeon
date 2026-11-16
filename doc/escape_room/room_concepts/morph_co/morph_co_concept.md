@@ -52,7 +52,7 @@ bleiben …“
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
 | Flur | nach dem PC | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel |
-| F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, 2 Regale, Papierkorb, 2 Plakate, große Pflanze |
+| F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, Regal, Papierkorb am Bandende, 2 Plakate, große Pflanze |
 | A-12 | Flur oder Verbindungstür | Affix-Sortieranlage mit Hebel, Display, Wartungsklappe und Schloss, Plakat, Murmeltier-Bild, Regal, Zirkumfixmontagestation, Kisten, Krimskrams |
 
 Die Tür zur Produktion öffnet sich, sobald das Produktionsleitsystem gelesen wurde. Danach ist
