@@ -390,7 +390,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 27.13332,
+        "x" : 26.24,
         "y" : 18.07664
       },
       "kind" : "sign-control",
@@ -423,7 +423,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 13.078777,
+        "x" : 13.0,
         "y" : 17.967674
       },
       "kind" : "sign-storage",

@@ -45,6 +45,9 @@ public class MorphCoLevel extends DungeonLevel {
 
   private static final String LEVEL_NAME = "morph-co";
   private static final float ENTER_RADIUS = 1.1f;
+  private static final float ALARM_VOLUME = 0.35f;
+  // Behind the door of the control room the siren sounds about half as loud.
+  private static final float ALARM_VOLUME_MUFFLED = 0.12f;
 
   private final MorphCoState state = new MorphCoState();
   private final MorphCoQuestLog questLog = new MorphCoQuestLog();
@@ -54,7 +57,7 @@ public class MorphCoLevel extends DungeonLevel {
   private ShiftLead shiftLead;
   private boolean continued;
   private boolean ending;
-  private final Map<Integer, Long> alarmSounds = new HashMap<>();
+  private final Map<Integer, Siren> alarmSounds = new HashMap<>();
   private MorphCoAutoplay autoplay;
 
   /**
@@ -121,6 +124,7 @@ public class MorphCoLevel extends DungeonLevel {
     if (autoplay != null) autoplay.tick();
     if (ending) return;
     Game.allPlayers().filter(player -> introduced.add(player.id())).forEach(this::welcome);
+    muffleAlarm();
     observeArea(
         "control_enter",
         MorphCoState.CONTROL_ENTERED,
@@ -281,21 +285,49 @@ public class MorphCoLevel extends DungeonLevel {
    */
   private void startAlarm(int playerId) {
     if (state.done(MorphCoMilestone.ALARM_OFF) || alarmSounds.containsKey(playerId)) return;
-    alarmSounds.put(
-        playerId,
+    alarmSounds.put(playerId, playAlarm(playerId, false));
+  }
+
+  private static Siren playAlarm(int playerId, boolean muffled) {
+    long instance =
         Game.audio()
             .playGlobal(
                 SoundSpec.builder("system_recovery_alarm_siren")
                     .looping(true)
-                    .volume(0.35f)
-                    .targets(playerId)));
+                    .volume(muffled ? ALARM_VOLUME_MUFFLED : ALARM_VOLUME)
+                    .targets(playerId));
+    return new Siren(instance, muffled);
+  }
+
+  /**
+   * Plays the siren quieter for players beyond the door of the control room and louder again in the
+   * entrance. A sound cannot change its volume over the network, so the siren starts anew.
+   */
+  private void muffleAlarm() {
+    if (alarmSounds.isEmpty()) return;
+    float doorY = getPoint("door_control").y();
+    Game.allPlayers()
+        .forEach(
+            player -> {
+              Siren siren = alarmSounds.get(player.id());
+              boolean muffled =
+                  player
+                      .fetch(PositionComponent.class)
+                      .map(position -> position.position().y() > doorY + 1)
+                      .orElse(false);
+              if (siren == null || siren.muffled() == muffled) return;
+              Game.audio().stopInstance(siren.instance());
+              alarmSounds.put(player.id(), playAlarm(player.id(), muffled));
+            });
   }
 
   /** Stops the sirens of all players. */
   void stopAlarm() {
-    alarmSounds.values().forEach(Game.audio()::stopInstance);
+    alarmSounds.values().forEach(siren -> Game.audio().stopInstance(siren.instance()));
     alarmSounds.clear();
   }
+
+  private record Siren(long instance, boolean muffled) {}
 
   /**
    * Restarts the production and plays the ending for all players.

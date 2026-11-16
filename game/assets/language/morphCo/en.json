@@ -4,7 +4,7 @@
     "menu": {
       "start": "Start shift"
     },
-    "controls": "[size=24]Controls:[n][n]Move -> [action id=core:move][n]Interact -> [action id=core:interact all][n]Inventory -> [action id=core:inventory][n]Quest log -> [action id=core:questlog][n]Close dialog -> [action id=ui:close][n]Settings -> [action id=core:pause_menu][n][size=18][color=black]You can find completed tasks and collected clues in the quest log.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
+    "controls": "[size=24]Controls:[n][n]Move -> [action id=core:move][n]Interact -> [action id=core:interact all][n]Inventory -> [action id=core:inventory][n]Quest log -> [action id=core:questlog][n]Close dialog -> [action id=ui:close][n]Settings -> [action id=core:pause_menu][n][size=18][color=black]You can find completed tasks and collected clues in the quest log. Stuck? Talk to the shift supervisor or call the technical hotline: phone in the control room, extension 42.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
     "intro": {
       "page1": "For centuries, the famous word factory of Morph & Co. KG has been producing every single German word. Normally everything runs automatically: morphemes are delivered, word-formation affixes are attached, inflectional endings are mounted at the very end, and compounds are assembled.",
       "page2": "This morning, however, something went wrong: some of the machines have gone haywire and are producing nonsense or have stopped working altogether. Prefixes end up on the wrong words, and inflectional endings get mixed up beyond recognition.",
@@ -516,8 +516,8 @@
       "log-a12": "A-12: manual repair completed",
       "log-f04": "F-04: manual repair completed",
       "restart-unavailable": "Not available.",
-      "restart-unavailable-hint": "A restart is only possible once all units are running without errors.",
-      "restart-available": "Available.",
+      "restart-unavailable-hint": "The restart needs production clearance. It is only granted once all units have been repaired.",
+      "restart-available": "Production clearance granted. Restart possible.",
       "restart-button": "RESTART",
       "security-question": "Security question: How many morphemes does the word Überlegungen consist of? Enter a number.",
       "security-placeholder": "Number",

@@ -102,8 +102,8 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
   liegen; der Server prüft jede Eingabe erneut und trackt sie.
 - Die Schichtleitung gibt jederzeit einen Hinweis zum ersten offenen Schritt. Ein begonnener
   Zweig (A-12 oder F-04) wird dabei zuerst zu Ende geführt.
-- Die Technik-Hotline am Telefon gibt zum selben Schritt gestufte Hinweise bis zur Lösung (siehe
-  unten).
+- Die Technik-Hotline am Telefon ist das Hilfesystem des Raums. Sie gibt zum selben Schritt
+  gestufte Hinweise bis zur Lösung (siehe unten).
 - Das Handout ist auf zwei Bände verteilt, wie im Skript („Bestseller in zwei Bänden“):
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
@@ -128,9 +128,10 @@ Lösung. Vor der Lösung fragt sie nach („Willst du wirklich die Lösung höre
 nichts. Danach wiederholt sie die Lösung. Ist der Schritt gelöst, beginnt der nächste wieder bei
 der ersten Stufe. Die Stufen gelten für den ganzen Raum: Im Multiplayer setzt der zweite Spieler
 dort fort, wo der erste aufgehört hat. Jede gehörte Stufe steht im Questlog-Tab „Hinweise“. Die
-Hotline antwortet schon vor dem Alarm (Hinweise zum Alarm). Die Spieler erfahren von ihr durch den
-Zettel am Telefon, die Bandansage zu den Fehlercodes und den Hinweis `hint-repair` der
-Schichtleitung.
+Hotline antwortet schon vor dem Alarm (Hinweise zum Alarm). Im Skript gibt es sie nicht; damit
+die Spieler sie als Hilfe erkennen, nennt sie schon der Steuerungsdialog der Schichtleitung zu
+Beginn („Kommst du nicht weiter? …“). Außerdem weisen der Zettel am Telefon, die Bandansage zu den
+Fehlercodes und der Hinweis `hint-repair` der Schichtleitung auf sie hin.
 
 # 5. Fortschritt (Petri-Netz)
 
@@ -265,8 +266,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   wiederholt, wenn alle gezeigt wurden, und lässt sich ganz durchblättern.
 - Zusätzliche Kleinigkeiten: Spiegel im WC, Kisten in A-12, Hinweise der Schichtleitung,
   versteckte Achievements.
-- Der Alarm ist eine Sirene, die beim Ausschalten verstummt; das Leiserwerden beim Schließen der
-  Tür entfällt.
+- Der Alarm ist eine Sirene, die beim Ausschalten verstummt. Die Tür zum Kontrollraum bleibt offen;
+  hinter ihr klingt die Sirene trotzdem nur noch etwa halb so laut.
 
 # 9. Offene fachliche Fragen an die Autorin
 
