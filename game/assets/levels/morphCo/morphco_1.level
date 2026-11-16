@@ -86,7 +86,7 @@
     "type" : "LabBarrel",
     "position" : {
       "x" : 25.3,
-      "y" : 24.4
+      "y" : 25.6
     }
   }, {
     "type" : "SoulweaverCrate",
@@ -181,8 +181,8 @@
   }, {
     "type" : "SoulweaverSmallCrate",
     "position" : {
-      "x" : 27.8,
-      "y" : 23.0
+      "x" : 25.2,
+      "y" : 24.35
     }
   }, {
     "type" : "LabRedBarrel",
@@ -217,7 +217,7 @@
   }, {
     "type" : "LabScreenQuestion",
     "position" : {
-      "x" : 35.150000000000006,
+      "x" : 35.15,
       "y" : 18.1
     }
   }, {
@@ -229,14 +229,8 @@
   }, {
     "type" : "LabScreenFace",
     "position" : {
-      "x" : 37.550000000000004,
+      "x" : 37.55,
       "y" : 18.1
-    }
-  }, {
-    "type" : "Cabinet",
-    "position" : {
-      "x" : 27.1,
-      "y" : 15.5
     }
   }, {
     "type" : "LabDesk",
@@ -740,7 +734,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 5.6,
+        "x" : 6.5,
         "y" : 29.45
       },
       "kind" : "crate",
@@ -751,7 +745,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 7.1499999999999995,
+        "x" : 7.95,
         "y" : 29.45
       },
       "kind" : "crate",
@@ -762,7 +756,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 8.7,
+        "x" : 12.6,
         "y" : 29.45
       },
       "kind" : "crate",
@@ -773,7 +767,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 10.25,
+        "x" : 14.05,
         "y" : 29.45
       },
       "kind" : "crate",
@@ -784,7 +778,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 11.8,
+        "x" : 15.5,
         "y" : 29.45
       },
       "kind" : "crate",
@@ -890,6 +884,17 @@
       "number" : 0
     }
   }, {
+    "name" : "cabinet-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 27.15,
+        "y" : 15.5
+      },
+      "kind" : "cabinet",
+      "number" : 0
+    }
+  }, {
     "name" : "cart-1",
     "type" : "morphco-object",
     "properties" : {
@@ -905,8 +910,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 29.0,
-        "y" : 23.0
+        "x" : 28.9,
+        "y" : 24.9
       },
       "kind" : "cart",
       "number" : 0
@@ -1110,7 +1115,7 @@
       "number" : 12
     }
   }, {
-    "name" : "a12-stool",
+    "name" : "chair-4",
     "type" : "morphco-object",
     "properties" : {
       "position" : {

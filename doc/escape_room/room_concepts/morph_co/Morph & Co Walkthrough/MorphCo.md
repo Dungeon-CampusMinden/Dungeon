@@ -131,10 +131,11 @@ die Tür zum Kontrollraum. Drinnen ist die Sirene nur noch halb so laut.
 
 ![Konsole mit den beschrifteten Knöpfen](images/kontrollraum_konsole.png)
 
-Die Konsole (3) steht oben im Kontrollraum, neben dem Computer und dem Tisch mit dem Telefon. Ein
-Klick öffnet ihre Nahansicht mit fünf beschrifteten Knöpfen, Anzeigen, Reglern und der blinkenden
-Alarmlampe. Der Knopf „Nerviger Alarmton“ ist eingedrückt und zittert. Ohne Maus wählen die
-Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller Steuerkreuz und A.
+Die Konsole (3) steht oben im Kontrollraum, links neben dem Computer; rechts davon steht der Tisch
+mit dem Telefon. Ein Klick öffnet ihre Nahansicht mit fünf beschrifteten Knöpfen, Anzeigen, Reglern
+und der blinkenden Alarmlampe. Der Knopf „Nerviger Alarmton“ ist eingedrückt und zittert. Ohne Maus
+wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller
+Steuerkreuz und A.
 
 **Lösung:** Knopf **„Nerviger Alarmton“**. Die Sirene verstummt, und das Achievement „Wuuuuuuh-o,
 wuuuuuh-o“ wird freigeschaltet. Die anderen Knöpfe („Förderband-Turbo“, „Kaffeemaschine
@@ -170,9 +171,9 @@ Hinweis für das Schloss in A-12 steht.
 
 ![Die Halle F-04 mit Flexionsmaschine, Kisten und Förderband](images/f04_halle.png)
 
-In F-04 steht links die Flexionsmaschine (9), daneben stehen die fünf Kisten (8). Unter der Maschine
-läuft das Förderband mit vier fehlerhaften Wortformen in den Papierkorb (10). Oben steht das
-Bücherregal (7).
+In F-04 steht links die Flexionsmaschine (9), daneben die fünf Kisten (8). Von rechts läuft das Band
+aus A-12 in die Maschine; unter ihr führt das Förderband mit vier fehlerhaften Wortformen in den
+Papierkorb (10). Oben an der Wand steht das Bücherregal (7).
 
 **Lösung:** Im Regal das Buch **„Handbuch: Flexionsmaschine FL3-10-9001“** lesen. Es sagt, dass nur
 flektierbare Wortarten in die Maschine dürfen: **Nomen, Adjektive, Verben, Artikel und Pronomina**.
@@ -225,7 +226,7 @@ falsche Affixe aus A-12 ankommen. Weiter geht es in A-12.
 
 ![Die Halle A-12 mit der Affix-Sortieranlage](images/a12_halle.png)
 
-Die Affix-Sortieranlage (11) steht links in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
+Die Affix-Sortieranlage (11) steht oben links in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
 Wartungsklappe, Schloss) öffnet dieselbe Nahansicht. Darin sieht man das Display, den Hebel, die
 Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock. Der kleine
 Bildschirm mit „F204“ zeigt wie der Bildschirm in F-04 nur die Fehlermeldung.
@@ -457,8 +458,7 @@ Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte 
 ### Weitere Kleinigkeiten
 
 - **Plakate:** vier im Kontrollraum, zwei in F-04, eines in A-12. Ein Klick zeigt das Plakat groß.
-  Das linke Plakat in F-04 hängt über den Kisten. Man erreicht es durch den Durchgang zwischen der
-  Flexionsmaschine und der Kiste „VERB“; er führt hinter die Kisten.
+  Das linke Plakat in F-04 hängt an der Rückwand über den Kisten.
 - **Topfpflanzen:** je eine im Kontrollraum, im Flur und in F-04.
 - **Förderband in F-04:** Die vier Wortformen *du schreiben*, *Gemäuse*, *undes* und *zerkleinst*
   lassen sich einzeln ansehen und kommen als Indiz ins Questlog.

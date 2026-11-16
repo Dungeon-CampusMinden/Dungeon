@@ -98,8 +98,8 @@ Alle Objekte des Raums sind Prefab-Instanzen vom Typ `morphco-object` in der Lev
 im Level-Editor im Prefab-Modus (4) gesetzt und verschoben. Eine Instanz hat Position, Objektart
 (`MorphCoObjects.kinds()`, z. B. `console`, `crate`, `picture-summer`, `server`) und eine Zahl
 (Kistenindex, Bandlänge, Größe einer Klickfläche in Zehntelkacheln). Förderbänder gibt es als `belt`
-(Pfeile nach rechts) und `belt-left` (Pfeile nach links); sie beginnen und enden an einer Maschine,
-einer Wand oder einer Tür.
+(Pfeile nach rechts) und `belt-left` (Pfeile nach links). Im Level beginnen und enden sie an einer
+Maschine, einer Wand, einer Tür oder am Papierkorb.
 
 Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen
 (`MorphCoObjects.on("console", ...)`); das greift auch, wenn der Editor ein verschobenes Objekt neu
