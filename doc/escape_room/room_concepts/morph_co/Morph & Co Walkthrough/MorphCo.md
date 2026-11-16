@@ -92,6 +92,9 @@ bei demselben Schritt wie die Schichtleitung, in drei Stufen:
 3. **Lösung:** Vorher fragt die Hotline nach, ob man die Lösung wirklich hören will. „Nein“ kostet
    nichts. Danach wiederholt sie bei jedem Anruf die Lösung.
 
+Was die Hotline sagt, erscheint im Telefon auf dem Bildschirm unter dem Apparat. Bei der Rückfrage
+stehen dort die Knöpfe „Ja“ und „Nein“.
+
 Jeder Anruf gibt die nächste Stufe. Ist der Schritt gelöst, beginnt der nächste wieder bei Stufe 1.
 Die Stufen gelten für den ganzen Raum: Im Multiplayer macht die zweite Person dort weiter, wo die
 erste aufgehört hat. Die Hotline hilft auch schon, solange der Alarm noch läuft. Auf sie weisen der
@@ -178,7 +181,7 @@ Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** m
 Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 8). Wer es anklickt, nimmt es
 ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Zieht man
 im Inventar einen Band auf den anderen, werden beide zum Handout „Morphemtypen“ mit allen
-Morphemtypen auf einem Blatt. Alle Spielenden nehmen ihr eigenes Exemplar mit.
+Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 
@@ -219,8 +222,9 @@ falsche Affixe aus A-12 ankommen. Weiter geht es in A-12.
 ![Die Halle A-12 mit der Affix-Sortieranlage](images/a12_halle.png)
 
 Die Affix-Sortieranlage (11) steht oben in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
-Wartungsklappe, Schloss, Display) öffnet dieselbe Nahansicht. Darin sieht man das Display, den
-Hebel, die Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock.
+Wartungsklappe, Schloss) öffnet dieselbe Nahansicht. Darin sieht man das Display, den Hebel, die
+Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock. Der kleine
+Bildschirm mit „F204“ zeigt wie der Bildschirm in F-04 nur die Fehlermeldung.
 
 Das Display zeigt immer den nächsten Schritt:
 
@@ -258,8 +262,9 @@ mit „OK“ bestätigt. Danach zeigt das Display „OFFEN“.
 ![Zerschnittene Wörter und befüllte Fächer](images/a12_affixe.png)
 
 Ein Klick auf die Wartungsklappe öffnet den Wartungsmodus. Links stehen sieben Wörter. Ein Klick
-zwischen zwei Buchstaben schneidet das Wort dort; ein zweiter Klick fügt es wieder zusammen. Die
-abgeschnittenen Affixe kommen in die Fächer „Präfixe“, „Suffixe“ oder „Zirkumfixe“. Stämme bleiben
+zwischen zwei Buchstaben schneidet das Wort dort; ein zweiter Klick fügt es wieder zusammen. Ein
+neuer Schnitt teilt nur das Stück, in dem er liegt; schon einsortierte Teile bleiben in ihren
+Fächern. Die abgeschnittenen Affixe kommen in die Fächer „Präfixe“, „Suffixe“ oder „Zirkumfixe“. Stämme bleiben
 liegen. Wörter ohne Affix kommen ungeteilt ins Fach „Kein Affix“. Bei einem Zirkumfix kommen beide
 Teile zu den Zirkumfixen.
 
@@ -370,10 +375,12 @@ die Notbeleuchtung an ist.
 
 ![Papierkorb mit entfalteter Mängelmeldung](images/f04_papierkorb.png)
 
-Unten rechts in F-04 steht der Papierkorb (10). Die zerknüllten Zettel zieht man aus dem Korb oder
-wirft sie mit einem Klick hinaus. Drei Zettel zeigen weitere Ausschusswörter (*verunter*, *größsts*,
-*am vermutlichsten*). Darunter liegt ein gefaltetes Blatt; ein Klick entfaltet die „Mängelmeldung
-F-04“. Sie landet als Indiz im Questlog.
+Unten rechts in F-04 steht der Papierkorb (10). Fährt man mit der Maus über einen zerknüllten
+Zettel, zeigt er eines der Ausschusswörter *verunter*, *größsts* oder *am vermutlichsten*. Mit einem
+Klick wirft man ihn aus dem Korb, oder man zieht ihn beiseite. Unter den obersten drei Zetteln liegt
+ein gefaltetes Blatt; ein Klick entfaltet die „Mängelmeldung F-04“. Sie landet als Indiz im
+Questlog. Ohne Maus wählen Tab oder die Pfeiltasten einen Zettel oder das Blatt, die Leertaste wirft
+den Zettel hinaus oder entfaltet das Blatt.
 
 ### Zirkumfixmontagestation
 
@@ -392,7 +399,9 @@ klickt „Montieren“:
 | {be} | {ig} | {be- ... -ig} | begierig |
 | {ge} | {en} | {ge- ... -en} | gelesen |
 
-Andere Paare passen nicht zusammen. Sind alle drei Zirkumfixe montiert, gibt es das Achievement
+Die Station bleibt dabei offen: Das montierte Zirkumfix erscheint im mittleren Schälchen, die
+Meldung steht unten im Fenster, und man kann gleich das nächste Paar montieren. Andere Paare passen
+nicht zusammen. Sind alle drei Zirkumfixe montiert, gibt es das Achievement
 „Kombinatorisch 1A!“. Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines
 Spielstands gibt der Krimskrams die noch fehlenden Teile erneut heraus. Die Morphemtypen-Bände und
 das Handout bekommen dagegen alle Spielenden nach dem Laden zurück.
@@ -421,7 +430,9 @@ Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „
 
 ![Telefon mit Ziffernblock und dem Zettel „Wichtige Durchwahlen“](images/telefon.png)
 
-Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt „OK“.
+Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt den
+grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint auf dem
+Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen.
 
 | Nummer | Fundort | Ergebnis |
 | --- | --- | --- |
@@ -429,10 +440,12 @@ Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffer
 | 42 | Zettel am Telefon | Technik-Hotline mit gestuften Hinweisen |
 | 11 | Zettel am Telefon | Wachschutz am Eingang: niemand nimmt ab |
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab |
+| 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
-Wer 11 und 17 anruft, bekommt das versteckte Achievement „Niemand zu Hause“.
+Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte Achievement
+„Niemand zu Hause“.
 
 ### Weitere Kleinigkeiten
 
@@ -463,7 +476,7 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | Schnitt sitzt | Affixe in A-12 beim ersten Prüfen richtig zerschneiden und sortieren | ja |
 | Was hast du erwartet? | alle drei Topfpflanzen untersuchen | ja |
 | Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, bevor die Eingabeschächte befüllt sind | ja |
-| Niemand zu Hause | Wachschutz (11) und Rosi (17) anrufen | ja |
+| Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen | ja |
 | Unter Strom | alle Kabel der Sicherungsbox einstecken | ja |
 | Aushangkundig | alle sieben Plakate ansehen (Weg zum Plakat über den Kisten in F-04: siehe „Weitere Kleinigkeiten“) | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |

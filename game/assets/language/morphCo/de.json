@@ -32,7 +32,6 @@
       "hint-lever": "\"A-12 muss nach der Wartung neu starten. Zieh den Hebel gleichmäßig ganz nach unten - nicht reißen, aber auch nicht dabei einschlafen.\""
     },
     "hotline": {
-      "title": "Technik-Hotline",
       "warning": "\"Ich kann dir die Lösung sagen. Dann ist das Rätsel aber gelöst, bevor du es gelöst hast.\" Willst du wirklich die Lösung hören?",
       "hint-alarm": {
         "direction": "\"Den Alarm hör ich bis hierher. Ausschalten lässt er sich an der Konsole im Kontrollraum.\"",
@@ -198,7 +197,7 @@
         "screen-fixed": "BEREIT. Darunter, ganz klein: \"Danke.\"",
         "trash-title": "Papierkorb",
         "trash-instruction": "Zerknüllte Produktionszettel bis zum Rand. Vielleicht liegt darunter ja etwas Brauchbares.",
-        "trash-help": "Ziehe die Zettel aus dem Korb oder klicke einen an, um ihn hinauszuwerfen. Ein gefaltetes Blatt öffnest du mit einem Klick.",
+        "trash-help": "Fahre mit der Maus über einen Zettel, um ihn zu lesen. Ein Klick wirft ihn aus dem Korb, du kannst ihn auch beiseiteziehen. Ein gefaltetes Blatt öffnest du mit einem Klick. Ohne Maus: Tab oder die Pfeiltasten wählen einen Zettel oder das Blatt, die Leertaste wirft den Zettel hinaus oder öffnet das Blatt.",
         "trash-rejects": "Noch mehr Ausschuss: $1. Die Maschine spinnt also nicht erst seit heute.",
         "trash-report-title": "MÄNGELMELDUNG F-04",
         "trash-report": "Wiederholte Fehlzuordnung von Flexionssuffixen. Technische Überprüfung dringend empfohlen.",
@@ -445,7 +444,7 @@
       "affixes": {
         "title": "Affix-Sortieranlage A-12 - Wartungsmodus",
         "instruction": "Entscheide, ob die folgenden Wörter Affixe enthalten. Wenn das der Fall ist, sortiere sie korrekt.",
-        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\".",
+        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Schon einsortierte Teile bleiben in ihrem Fach, wenn du den Rest weiter zerschneidest. Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\".",
         "KEIN_AFFIX": "Kein Affix",
         "PRAEFIX": "Präfixe",
         "SUFFIX": "Suffixe",
@@ -479,11 +478,12 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt.",
+        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht.",
         "note-title": "Wichtige Durchwahlen",
         "MAILBOX": "Mailbox abhören",
         "HOTLINE": "Technik-Hotline (Instandhaltung)",
         "SECURITY": "Wachschutz am Eingang",
+        "ROSI": "Rosi (Handy)",
         "lamp": "Mailbox",
         "calling": "WÄHLE",
         "no-line-short": "FALSCH",
@@ -579,7 +579,7 @@
         "handbook": "Flektierbar sind Nomen, Adjektive, Verben, Artikel und Pronomina - nur diese Wortarten dürfen in die Flexionsmaschine. Adverbien, Partikeln, Konjunktionen und Präpositionen nicht. Flexion geschieht über Affixe (v. a. Suffixe) und Veränderungen des Wortstamms (Ablaut, Umlaut). Präfixe und Zirkumfixe gehören nicht in die Flexionsmaschine.",
         "morph1": "'Morphemtypen und wo sie zu finden sind: Teil 1' über freie Morpheme steht im Regal in F-04. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
         "morph2": "'Morphemtypen und wo sie zu finden sind: Teil 2' über gebundene Morpheme steht im Regal in A-12. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
-        "handout": "Wer beide Teile hat, fügt sie im Inventar zum Handout 'Morphemtypen' zusammen: alle Morphemtypen auf einem Blatt.",
+        "handout": "Wer beide Teile hat, fügt sie im Inventar zum Handout 'Morphemtypen' zusammen: alle Morphemtypen auf einen Blick.",
         "a12-display": "Display der Affix-Sortieranlage: \"Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen.\" Die Wartungsklappe ist mit einem Zahlenschloss gesichert.",
         "lock-question": "Frage am Schloss der Wartungsklappe: Wie viele unterschiedliche Typen von freien Morphemen (ohne das Portmanteaumorphem) unterscheidet man?",
         "fragments": "Zerbrochene Zirkumfix-Teile aus dem Krimskrams in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. An der Zirkumfixmontagestation lassen sie sich vielleicht wieder zusammensetzen."

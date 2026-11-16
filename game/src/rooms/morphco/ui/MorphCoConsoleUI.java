@@ -38,6 +38,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
   private final Table buttons = new Table();
   private final Table display = new Table();
   private final Label feedback = MorphCoUI.label("", 18, Color.WHITE);
+  private final Label instruction = MorphCoUI.label("", 19, MorphCoUI.TEXT);
   private final Table canvasContent = new Table();
   private final ScrollPane scroll;
   private float arrangedWidth = -1;
@@ -90,8 +91,8 @@ abstract class MorphCoConsoleUI extends CanvasUI {
         .minHeight(46);
     shell.add(header).growX().row();
     shell.add(new Stripes()).growX().height(8).padTop(8).padBottom(10).row();
-    if (!instruction.isBlank())
-      shell.add(MorphCoUI.label(instruction, 19, MorphCoUI.TEXT)).growX().padBottom(4).row();
+    this.instruction.setText(instruction);
+    if (!instruction.isBlank()) shell.add(this.instruction).growX().padBottom(4).row();
     if (!help.isBlank())
       shell.add(MorphCoUI.label(help, 16, MorphCoUI.MUTED)).growX().padBottom(4).row();
 
@@ -178,6 +179,15 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    */
   void button(String key, boolean primary, Runnable action) {
     buttons.add(MorphCoUI.button(MorphCoText.text(key), primary, action));
+  }
+
+  /**
+   * Replaces the instruction below the name plate, e.g. once the situation has changed.
+   *
+   * @param text localized instruction; the dialog must have been created with one
+   */
+  void instruction(String text) {
+    instruction.setText(text);
   }
 
   /**

@@ -32,7 +32,6 @@
       "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\""
     },
     "hotline": {
-      "title": "Technical hotline",
       "warning": "\"I can tell you the solution. But then the puzzle is solved before you have solved it.\" Do you really want to hear the solution?",
       "hint-alarm": {
         "direction": "\"I can hear that alarm all the way over here. You switch it off at the console in the control room.\"",
@@ -198,7 +197,7 @@
         "screen-fixed": "READY. Below it, in tiny letters: \"Thank you.\"",
         "trash-title": "Wastepaper basket",
         "trash-instruction": "Crumpled production slips, right up to the rim. Maybe there's something useful underneath.",
-        "trash-help": "Drag the slips out of the basket or click one to toss it out. Click a folded sheet to unfold it.",
+        "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the arrow keys pick a slip or the sheet, space tosses the slip or unfolds the sheet.",
         "trash-rejects": "More rejects: $1. So the machine didn't just start acting up today.",
         "trash-report-title": "DEFECT REPORT F-04",
         "trash-report": "Repeated misassignment of inflectional suffixes. Technical inspection urgently recommended.",
@@ -445,7 +444,7 @@
       "affixes": {
         "title": "Affix sorting unit A-12 - Maintenance mode",
         "instruction": "Decide whether the following words contain affixes. If they do, sort them correctly.",
-        "help": "Click between two letters to cut a word at that point (another click joins it back together). Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
+        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin.",
         "KEIN_AFFIX": "No affix",
         "PRAEFIX": "Prefixes",
         "SUFFIX": "Suffixes",
@@ -479,11 +478,12 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Dial a number and press OK. You can also type the digits; Enter dials.",
+        "help": "Dial a number and press the green call button; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes.",
         "note-title": "Important extensions",
         "MAILBOX": "Listen to the mailbox",
         "HOTLINE": "Technical hotline (maintenance)",
         "SECURITY": "Security at the entrance",
+        "ROSI": "Rosi (mobile)",
         "lamp": "Mailbox",
         "calling": "DIALING",
         "no-line-short": "WRONG",
@@ -579,7 +579,7 @@
         "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes and circumfixes do not belong in the inflection machine.",
         "morph1": "'Morpheme Types and Where to Find Them: Part 1' on free morphemes is on the shelf in F-04. Take the volume with you to read it in your inventory.",
         "morph2": "'Morpheme Types and Where to Find Them: Part 2' on bound morphemes is on the shelf in A-12. Take the volume with you to read it in your inventory.",
-        "handout": "Once you have both parts, combine them in your inventory into the 'Morpheme Types' handout: every morpheme type on one sheet.",
+        "handout": "Once you have both parts, combine them in your inventory into the 'Morpheme Types' handout: every morpheme type at a glance.",
         "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
         "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
         "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station."
