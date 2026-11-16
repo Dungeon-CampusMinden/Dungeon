@@ -191,6 +191,25 @@ final class MorphCoUI {
     return tag;
   }
 
+  /**
+   * Measures the height a table needs at a given width.
+   *
+   * @param table table with wrapped labels
+   * @param width width of the table
+   * @return preferred height at that width
+   */
+  static float prefHeight(Table table, float width) {
+    float height = table.getPrefHeight();
+    // Wrapped labels learn their width in a layout pass; the second pass measures their height.
+    for (int pass = 0; pass < 2; pass++) {
+      table.setSize(width, height);
+      table.validate();
+      table.invalidate();
+      height = table.getPrefHeight();
+    }
+    return height;
+  }
+
   static BaseDrawable plate(Color color) {
     return new BaseDrawable() {
       @Override
