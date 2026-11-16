@@ -1,8 +1,7 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Porträt der Schichtleitung), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Dialogporträt der Schichtleiterin), abgeleitet von `game/assets/character/shift_lead/shift_lead.png`
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 96 Pixel Breite verkleinert, Farbpalette reduziert)
+- Modified by: amatutat (Kopf des ersten Standbilds auf 16×16 Pixel zugeschnitten und 6-fach ohne Glättung vergrößert)
 - License: CC0 1.0
-- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 
