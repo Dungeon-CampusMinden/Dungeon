@@ -4,13 +4,13 @@ import engine.Component;
 import engine.Game;
 
 /**
- * Countdown measured against the server's active play clock. It stands still until the room starts
- * the clock with {@code Game.playClock().ready()}. A stopwatch counts the elapsed time up instead.
+ * Countdown or stopwatch measured against the server's active play clock. It stands still until the
+ * room starts the clock with {@code Game.playClock().ready()}.
  *
- * @param startedAtActiveMs active play time when the countdown began
- * @param duration the duration of the timer in seconds
- * @param stoppedAtActiveMs active play time at which the countdown froze, {@link Long#MAX_VALUE}
- *     while it runs
+ * @param startedAtActiveMs active play time when the timer began
+ * @param duration the duration of a countdown in seconds; a stopwatch ignores it
+ * @param stoppedAtActiveMs active play time at which the timer froze, {@link Long#MAX_VALUE} while
+ *     it runs
  * @param countsUp whether the timer shows the elapsed instead of the remaining time
  */
 public record WorldTimerComponent(

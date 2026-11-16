@@ -73,10 +73,10 @@ class WorldTimerSystemTest {
   }
 
   @Test
-  void stopwatchShowsHoursAndMinutesAfterAnHour() {
-    Game.playClock().synchronize(100 * 60_000, false);
+  void stopwatchKeepsMinutesAndSecondsAfterAnHour() {
+    Game.playClock().synchronize(61 * 60_000 + 5_000, false);
 
-    assertEquals("01:40", WorldTimerSystem.text(WorldTimerComponent.stopwatch(0)));
+    assertEquals("61:05", WorldTimerSystem.text(WorldTimerComponent.stopwatch(0)));
   }
 
   @Test
