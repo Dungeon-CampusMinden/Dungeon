@@ -72,15 +72,7 @@ final class PanelNode extends CanvasNode {
    */
   float fit(float width) {
     ensureContentBuilt();
-    float height = content.getPrefHeight();
-    // Wrapped labels learn their width in a layout pass; the second pass measures their height.
-    for (int pass = 0; pass < 2; pass++) {
-      content.setSize(width - 2 * pad, height);
-      content.validate();
-      content.invalidate();
-      height = content.getPrefHeight();
-    }
-    size(width, height + 2 * pad);
+    size(width, MorphCoUI.prefHeight(content, width - 2 * pad) + 2 * pad);
     return height();
   }
 

@@ -2,6 +2,7 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.DrawComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
@@ -69,10 +70,16 @@ final class FlexionLine {
     for (int index = 0; index < WordClassPuzzle.Crate.values().length; index++) {
       on("crate" + index, (self, player) -> crates(player));
     }
-    on(
+    // The belt is one long object; it can be used from in front of either end.
+    MorphCoObjects.on(
         "conveyor",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"));
+        entity ->
+            MorphCoProps.interact(
+                entity,
+                (self, player) ->
+                    MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"),
+                MorphCoProps.REACH
+                    + entity.fetch(DrawComponent.class).orElseThrow().getWidth() / 2));
     for (int index = 0; index < FAULTY_FORMS.size(); index++) {
       String form = FAULTY_FORMS.get(index);
       on("conveyor-word" + index, (self, player) -> conveyorWord(player, form));
@@ -125,7 +132,6 @@ final class FlexionLine {
     options.add(book("book-handbook", "handbook"));
     options.add(book("book-evidentia", "evidentia"));
     options.add(book("book-morph1", "morph1"));
-    options.add(ChoiceOption.of(MorphCoText.key("world.f04.close-shelf"), "close"));
     DialogFactory.showMultipleChoiceDialog(
         MorphCoText.key("world.f04.shelf"),
         MorphCoText.key(SHELF),
@@ -144,7 +150,6 @@ final class FlexionLine {
   }
 
   private void read(String book, Entity player) {
-    if ("close".equals(book)) return;
     level.seen(MorphCoState.BOOK_PREFIX, "f04-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     switch (book) {

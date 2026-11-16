@@ -8,6 +8,9 @@ import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
+import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.draw.animation.AnimationConfig;
+import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
@@ -33,6 +36,9 @@ import rooms.systemRecovery.entities.TransportEntityFactory;
 final class MorphCoObjects {
 
   private static final String ART = MorphCoProps.ART;
+
+  /** Pixels per tile of the room's own art. */
+  private static final int PIXELS_PER_TILE = 16;
 
   /**
    * Builds the entities of an object kind. The entities are not added to the game yet.
@@ -211,19 +217,35 @@ final class MorphCoObjects {
             name, position, ART + file + ".png", 1.375f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
   }
 
-  // A conveyor belt of {@code number} System Recovery segments; every segment carries the
-  // instance name. The belt lies under the word cards on it, like the other walkable objects.
+  // A conveyor belt of {@code number} System Recovery segments. The belt lies under the word cards
+  // on it, like the other walkable objects. The segments are high-resolution pictures, so each
+  // would
+  // get its own hairline outline. An almost invisible area over the whole belt carries the instance
+  // name instead: the belt is one object with an outline as wide as on the room's own art.
   private static List<Entity> belt(String name, Point position, int number) {
-    List<Entity> segments = new ArrayList<>();
-    for (int index = 0; index < Math.max(1, number); index++) {
+    int length = Math.max(1, number);
+    List<Entity> entities = new ArrayList<>();
+    for (int index = 0; index < length; index++) {
       Entity segment = TransportEntityFactory.conveyorSegment(position.translate(index, 0));
-      segment.name(name);
       segment
           .fetch(DrawComponent.class)
           .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
-      segments.add(segment);
+      entities.add(segment);
     }
-    return segments;
+    DrawComponent segment = entities.getFirst().fetch(DrawComponent.class).orElseThrow();
+    int width = Math.round((length - 1 + segment.getWidth()) * PIXELS_PER_TILE);
+    int height = Math.round(segment.getHeight() * PIXELS_PER_TILE);
+    AnimationConfig config =
+        new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, width, height))
+            .scaleX((float) Math.min(width, height) / PIXELS_PER_TILE);
+    Entity area = new Entity(name);
+    area.add(new PositionComponent(position));
+    DrawComponent draw =
+        new DrawComponent(new Animation(new SimpleIPath(ART + "belt_area.png"), config));
+    draw.depth(DepthLayer.BackgroundDeco.depth());
+    area.add(draw);
+    entities.add(area);
+    return entities;
   }
 
   // The shift clock on the wall: an invisible spot on which the clients draw the active play time

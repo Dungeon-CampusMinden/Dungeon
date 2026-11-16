@@ -693,11 +693,11 @@ public class HeroController {
    *   <li>Retrieves the player's inventory and the other open inventory (if any)
    *   <li>Decodes the slot indices based on the encoding scheme to determine source and target
    *       inventories
-   *   <li>Within one inventory, replaces both items by their combination if the dragged item
-   *       combines with the target item (see {@link Item#combine(Item)}); otherwise swaps them
-   *   <li>Removes the item from the source inventory
-   *   <li>If the target slot is occupied, swaps the items; otherwise, places the item in the target
-   *       slot
+   *   <li>Within one inventory: replaces both items by their combination if the dragged item
+   *       combines with the target item (see {@link Item#combine(Item)}); otherwise swaps the two
+   *       slots
+   *   <li>Between two inventories: removes the item from the source inventory; if the target slot
+   *       is occupied, swaps the items, otherwise places the item in the target slot
    * </ol>
    *
    * @param player the player entity performing the item movement

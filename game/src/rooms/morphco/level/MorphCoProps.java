@@ -141,8 +141,19 @@ final class MorphCoProps {
    * @param onInteract called with the object and the acting player
    */
   static void interact(Entity entity, BiConsumer<Entity, Entity> onInteract) {
+    interact(entity, onInteract, REACH);
+  }
+
+  /**
+   * Makes an object interactable with its own reach, replacing a previous interaction.
+   *
+   * @param entity the object
+   * @param onInteract called with the object and the acting player
+   * @param reach reach in tiles, measured from the object's center
+   */
+  static void interact(Entity entity, BiConsumer<Entity, Entity> onInteract, float reach) {
     entity.remove(InteractionComponent.class);
-    entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
+    entity.add(new InteractionComponent(new Interaction(onInteract, reach, true)));
   }
 
   /**

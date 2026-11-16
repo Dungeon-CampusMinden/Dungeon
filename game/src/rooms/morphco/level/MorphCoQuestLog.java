@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.morphco.petrinet.MorphCoMilestone;
-import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -30,7 +29,6 @@ final class MorphCoQuestLog {
   private static final String OPEN = "[img=rooms/morphCo/art/task_open.png] ";
   private static final String DONE = "[img=rooms/morphCo/art/task_done.png] ";
   private static final String INDENT = "      ";
-  private static final String LINE = "[n]";
 
   private final Map<String, QuestLogEntry> entries = new HashMap<>();
 
@@ -64,7 +62,8 @@ final class MorphCoQuestLog {
       put(MAIN, "f04", task(0, f04, MAIN, "repair-f04"));
       // The goal is visible from the start, as in the script; it becomes concrete once both run.
       boolean restarted = state.done(MorphCoMilestone.PRODUCTION_RESTARTED);
-      String restart = restarted ? "restart-done" : a12 && f04 ? "restart" : "restart-open";
+      String restart = a12 && f04 ? "restart" : "restart-open";
+      if (restarted) restart = "restart-done";
       put(MAIN, "restart", task(0, restarted, MAIN, restart));
     }
 
@@ -77,7 +76,7 @@ final class MorphCoQuestLog {
         steps.add(task(2, true, F04, "word-classes"));
       }
       if (inspected) steps.add(task(1, hatch || a12, F04, "inspect-a12"));
-      put(F04, "tasks", String.join(LINE, steps));
+      put(F04, "tasks", String.join("\n", steps));
     }
     if (hatch || sorted) {
       List<String> steps = new ArrayList<>();
@@ -86,7 +85,7 @@ final class MorphCoQuestLog {
       steps.add(task(1, sorted, A12, "sort"));
       if (state.has(MorphCoState.SHAFTS_FILLED) || a12) steps.add(task(1, a12, A12, "restart"));
       if (a12) steps.add(task(1, f04, A12, "go-f04"));
-      put(A12, "tasks", String.join(LINE, steps));
+      put(A12, "tasks", String.join("\n", steps));
     }
 
     if (state.has(MorphCoState.CONVEYOR_SEEN)) put(CLUES, "faulty-forms", clue("faulty-forms"));
@@ -94,9 +93,7 @@ final class MorphCoQuestLog {
     if (handbook) putCollapsible("handbook");
     if (state.has(MorphCoState.MORPH1_READ)) put(CLUES, "morph1", clue("morph1"));
     if (state.has(MorphCoState.MORPH2_READ)) put(CLUES, "morph2", clue("morph2"));
-    if (state.count(MorphCoState.BOOK_ITEM_PREFIX + MorphCoDialogs.HANDOUT + ":") > 0) {
-      put(CLUES, "handout", clue("handout"));
-    }
+    if (MorphCoBooks.anyHandout(state)) put(CLUES, "handout", clue("handout"));
     if (state.has(MorphCoState.A12_DISPLAY_SEEN)) put(CLUES, "a12-display", clue("a12-display"));
     if (state.has(MorphCoState.LOCK_SEEN)) put(CLUES, "lock-question", clue("lock-question"));
     if (state.has(MorphCoState.PILE_TAKEN)) put(CLUES, "fragments", clue("fragments"));

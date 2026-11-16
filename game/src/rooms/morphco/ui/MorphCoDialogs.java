@@ -3,6 +3,7 @@ package rooms.morphco.ui;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogType;
 import java.util.function.Function;
 
@@ -114,11 +115,14 @@ public enum MorphCoDialogs implements DialogType {
   }
 
   /**
-   * Registers all dialogs and the room's look of the engine's card reader at the entrance, of the
-   * cable dialog and of the phone in the control room; safe to call several times.
+   * Registers all dialogs, the page turning of the books and the room's look of the engine's card
+   * reader at the entrance, of the cable dialog and of the phone in the control room; safe to call
+   * several times.
    */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
+    DialogInput.register(HAMSTER_BOOK, BookUI.INPUT);
+    DialogInput.register(DOCUMENT, BookUI.INPUT);
     DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
     DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);

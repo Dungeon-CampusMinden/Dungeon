@@ -2,40 +2,49 @@ package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 import rooms.morphco.util.MorphCoText;
 
 /**
- * Books from the shelves of the factory, shown as a sheet of paper on the work area.
+ * Books from the shelves of the factory, opened like the hamster book.
  *
  * <p>{@link MorphCoDialogs#HANDBOOK} is the manual of the inflection machine. {@link
  * MorphCoDialogs#MORPH_1} and {@link MorphCoDialogs#MORPH_2} are the two volumes of "Morphemtypen
  * und wo sie zu finden sind", the classification handout of the room split into free and bound
- * morphemes. {@link MorphCoDialogs#HANDOUT} shows both volumes one below the other, the handout
- * that players put together in their inventory.
+ * morphemes. {@link MorphCoDialogs#HANDOUT} holds both tables, the handout that players put
+ * together from the two volumes in their inventory. Each book starts with its title; its paragraphs
+ * and table rows flow over the pages.
  */
-final class DocumentUI extends PaperUI {
+final class DocumentUI extends BookUI {
 
   private static final String HANDBOOK = MorphCoDialogs.HANDBOOK;
   private static final String MORPH_1 = MorphCoDialogs.MORPH_1;
   private static final String MORPH_2 = MorphCoDialogs.MORPH_2;
   private static final String HANDOUT = MorphCoDialogs.HANDOUT;
+  private static final Pattern PARAGRAPH = Pattern.compile(Pattern.quote("[n][n]"));
 
   private DocumentUI(DialogContext context, String document) {
-    super(context, title(document));
-    sheet.defaults().growX().left();
+    super(context);
+    List<Table> blocks = new ArrayList<>();
+    blocks.add(block(MorphCoUI.bold(title(document), 24, MorphCoUI.INK), 12));
     switch (document) {
-      case MORPH_1 -> freeMorphemes();
-      case MORPH_2 -> boundMorphemes();
+      case MORPH_1 -> blocks.addAll(handout(freeMorphemes(), "portmanteau"));
+      case MORPH_2 -> blocks.addAll(handout(boundMorphemes(), "definitions"));
       case HANDOUT -> {
-        freeMorphemes();
-        boundMorphemes();
+        List<Table> rows = new ArrayList<>(freeMorphemes());
+        rows.addAll(boundMorphemes());
+        blocks.addAll(handout(rows, "portmanteau", "definitions"));
       }
-      default -> sheet.add(MorphCoUI.rich(t("handbook"), 20, MorphCoUI.INK)).row();
+      default -> blocks.addAll(paragraphs(t("handbook")));
     }
+    sections.add(blocks);
   }
 
   /**
@@ -63,21 +72,32 @@ final class DocumentUI extends PaperUI {
     return MorphCoText.text("documents." + key);
   }
 
-  private void header() {
-    sheet.add(MorphCoUI.bold(t("morph-title"), 24, MorphCoUI.INK)).colspan(2).padBottom(4).row();
-    sheet.add(MorphCoUI.rich(t("morph-header"), 17, MorphCoUI.INK)).colspan(2).padBottom(14).row();
+  // A page break may fall between two paragraphs of the handbook.
+  private static List<Table> paragraphs(String text) {
+    return PARAGRAPH
+        .splitAsStream(text)
+        .map(paragraph -> block(MorphCoUI.rich(paragraph, 20, MorphCoUI.INK), 16))
+        .toList();
   }
 
-  private void footer(String note) {
-    sheet.add(MorphCoUI.rich(note, 19, MorphCoUI.INK)).colspan(2).padTop(14).padBottom(14).row();
-    sheet.add(MorphCoUI.rich(t("source"), 15, MorphCoUI.INK)).colspan(2).row();
+  // The classification header, the table rows, the notes below the table and the source.
+  private static List<Table> handout(List<Table> rows, String... notes) {
+    List<Table> blocks = new ArrayList<>();
+    blocks.add(block(MorphCoUI.rich(t("morph-header"), 17, MorphCoUI.INK), 14));
+    blocks.addAll(rows);
+    for (String note : notes) {
+      Table paragraph = block(MorphCoUI.rich(t(note), 19, MorphCoUI.INK), 14);
+      paragraph.padTop(12);
+      blocks.add(paragraph);
+    }
+    blocks.add(block(MorphCoUI.rich(t("source"), 15, MorphCoUI.INK), 0));
+    return blocks;
   }
 
-  private void freeMorphemes() {
-    header();
-    cell(t("morph-free"), true, 2);
-    cell(t("morph-lexical"), true, 1);
-    cell(t("morph-grammatical"), true, 1);
+  private static List<Table> freeMorphemes() {
+    List<Table> blocks = new ArrayList<>();
+    blocks.add(row(cell(t("morph-free"), true)));
+    blocks.add(row(cell(t("morph-lexical"), true), cell(t("morph-grammatical"), true)));
     for (String[] pair :
         new String[][] {
           {"free-verbal", "free-pronoun"},
@@ -85,25 +105,31 @@ final class DocumentUI extends PaperUI {
           {"free-adjective", "free-conjunction"},
           {"free-adverb", "free-article"}
         }) {
-      cell(t(pair[0]), false, 1);
-      cell(t(pair[1]), false, 1);
+      blocks.add(row(cell(t(pair[0]), false), cell(t(pair[1]), false)));
     }
-    footer(t("portmanteau"));
+    return blocks;
   }
 
-  private void boundMorphemes() {
-    header();
-    cell(t("morph-bound"), true, 2);
-    cell(t("morph-lexical"), true, 1);
-    cell(t("morph-grammatical"), true, 1);
-    cell(t("bound-unique") + "[n][n]" + t("bound-verbal"), false, 1);
-    cell(t("bound-inflection"), false, 1);
-    cell(t("bound-derivation"), false, 2);
-    footer(t("definitions"));
+  private static List<Table> boundMorphemes() {
+    List<Table> blocks = new ArrayList<>();
+    blocks.add(row(cell(t("morph-bound"), true)));
+    blocks.add(row(cell(t("morph-lexical"), true), cell(t("morph-grammatical"), true)));
+    blocks.add(
+        row(
+            cell(t("bound-unique") + "[n][n]" + t("bound-verbal"), false),
+            cell(t("bound-inflection"), false)));
+    blocks.add(row(cell(t("bound-derivation"), false)));
+    return blocks;
   }
 
-  // A table cell of the handout; a full row ends after two columns.
-  private void cell(String content, boolean heading, int colspan) {
+  // A row of the handout: one cell across both columns or two cells of the same width.
+  private static Table row(Label... cells) {
+    Table row = new Table();
+    for (Label cell : cells) row.add(cell).uniformX().grow().pad(2);
+    return row;
+  }
+
+  private static Label cell(String content, boolean heading) {
     Label label = MorphCoUI.rich(content, heading ? 19 : 17, MorphCoUI.INK);
     BaseDrawable background =
         MorphCoUI.fill(heading ? MorphCoUI.PAPER_HEADING : MorphCoUI.PAPER_CELL);
@@ -112,7 +138,6 @@ final class DocumentUI extends PaperUI {
     background.setTopHeight(8);
     background.setBottomHeight(8);
     label.getStyle().background = background;
-    var cell = sheet.add(label).colspan(colspan).uniformX().fill().pad(2);
-    if (colspan == 2 || cell.getColumn() == 1) cell.row();
+    return label;
   }
 }

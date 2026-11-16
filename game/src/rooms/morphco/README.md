@@ -73,7 +73,7 @@ and the hints used.
 | `level` | `MorphCoLevel` (Server), `MorphCoClientLevel`, ein Controller pro Bereich: `ControlRoom`, `Corridor`, `FlexionLine`, `AffixSorter`, `CircumfixStation`, `ShiftLead`; die Technik-Hotline `HintHotline` am Telefon (gestufte Hinweise zum Schritt der Schichtleitung); Zustand und Questlog |
 | `puzzles` | reine Rätselmodelle (Hebel von A-12 mit dem Tempo-Modell `Pace` aus `feature.interaction.cardreader`, Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
 | `petrinet` | `MorphCoMilestone`, `MorphCoProgressNet` |
-| `ui` | eigene Dialoge: Aussehen des Engine-Kartenlesers (`feature.interaction.cardreader`, für dessen Dialogtyp `CARD_READER` registriert), Sicherungsbox (Aussehen des Engine-Kabeldialogs `feature.interaction.cables`, die Kabel legt `ControlRoom` fest), Aussehen des Engine-Telefons (`feature.interaction.phone`, für dessen Dialogtyp `PHONE` registriert), Papierkorb, Nahansicht der Affix-Sortieranlage mit wiederverwendbarem Ziffernblock `KeypadNode` (Zifferneingabe `DigitEntry` der Engine), Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher und Hamsterbuch auf dem gemeinsamen Papierblatt `PaperUI`; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf dem Zuordnungs-Board `SortBoard` aus `feature.interaction.sorting` im Aussehen `MorphCoSortBoard` |
+| `ui` | eigene Dialoge: Aussehen des Engine-Kartenlesers (`feature.interaction.cardreader`, für dessen Dialogtyp `CARD_READER` registriert), Sicherungsbox (Aussehen des Engine-Kabeldialogs `feature.interaction.cables`, die Kabel legt `ControlRoom` fest), Aussehen des Engine-Telefons (`feature.interaction.phone`, für dessen Dialogtyp `PHONE` registriert), Papierkorb, Nahansicht der Affix-Sortieranlage mit wiederverwendbarem Ziffernblock `KeypadNode` (Zifferneingabe `DigitEntry` der Engine), Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; die Bücher (Handbuch, Morphemtypen, Hamsterbuch) ohne Rahmen als aufgeschlagenes Buch `BookUI` (`images/open-book.png`) über dem abgedunkelten Spiel, das ihren Inhalt nach gemessener Höhe auf die Seiten verteilt und mit Pfeilen, Pfeiltasten oder Controller umblättert; Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf dem Zuordnungs-Board `SortBoard` aus `feature.interaction.sorting` im Aussehen `MorphCoSortBoard` |
 | `items` | Zirkumfix-Teile und die Bände „Morphemtypen“ im Inventar |
 | `save`, `network`, `util` | Speicherstand, Snapshot-Erweiterung, Texte, Übersetzer, Achievements, Tracking, Sounds der Dialoge |
 
@@ -105,3 +105,27 @@ erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es nur noch für 
 Auslöseflächen. Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen
 genügt. Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
 (`*_large.png`).
+
+### Geräusche und Musik
+
+Der Server entscheidet, was zu hören ist, spielt aber selbst nichts ab: Er schickt die Geräusche an
+die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler bei der Begrüßung eigene
+Schleifen (`targets`), denn ein Geräusch von vor dem Verbindungsaufbau erreicht keinen Client.
+
+| Auslöser | Datei (`game/assets/sounds/`) | Quelle des Geräuschs | Lautstärke, Reichweite |
+| --- | --- | --- | --- |
+| Alarm aus | `morphco_printer_dying` (einmal: Drucker im Lüftungsschacht) | global | 0.3 |
+| F-04 kaputt / repariert | `morphco_f04_squeak` / `morphco_f04_hum` | `flexion-machine` | 0.35 / 0.3, 10 Kacheln |
+| Band in F-04 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `conveyor` | 0.2 / 0.2, 8 Kacheln |
+| A-12 kaputt / repariert | `morphco_a12_clatter` / `morphco_a12_plop` | `affix-sorter` | 0.25 / 0.4, 8 Kacheln |
+| Band in A-12 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `a12-conveyor` | 0.15 / 0.2, 6 Kacheln |
+
+`MorphCoAmbience` startet die Maschinenschleifen und tauscht sie, sobald `MorphCoLevel.complete(...)`
+eine Reparatur meldet. Jeder Client verrechnet die Lautstärken noch mit Gesamt- und
+Effektlautstärke aus den Einstellungen. Die Engine dämpft ein Geräusch mit Reichweite nicht mit dem
+Abstand, sondern schaltet es außerhalb der Reichweite stumm; die Reichweiten sind so gewählt, dass
+man vor allem die Maschinen der eigenen Halle hört.
+
+Die Hintergrundmusik (`game/assets/rooms/morphCo/factory_music.ogg`) spielt jeder Client selbst in
+Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und liegt bei den
+Standardeinstellungen unter den Maschinengeräuschen.

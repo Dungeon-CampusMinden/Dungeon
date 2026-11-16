@@ -95,7 +95,8 @@ bei demselben Schritt wie die Schichtleitung, in drei Stufen:
 Jeder Anruf gibt die nächste Stufe. Ist der Schritt gelöst, beginnt der nächste wieder bei Stufe 1.
 Die Stufen gelten für den ganzen Raum: Im Multiplayer macht die zweite Person dort weiter, wo die
 erste aufgehört hat. Die Hotline hilft auch schon, solange der Alarm noch läuft. Auf sie weisen der
-Zettel am Telefon, die Bandansage unter den Fehlercodes 133 und 204 und die Schichtleitung hin.
+Steuerungsdialog zu Beginn, der Zettel am Telefon, die Bandansage unter den Fehlercodes 133 und 204
+und die Schichtleitung hin.
 
 ### Questlog
 
@@ -103,7 +104,8 @@ Zettel am Telefon, die Bandansage unter den Fehlercodes 133 und 204 und die Schi
 
 Das Questlog (B) hat die Tabs „Auftrag“, „F-04 Flexionsstraße“, „A-12 Affix-Sortieranlage“,
 „Indizien“ und „Hinweise“. Jede Aufgabe hat ein Kästchen, das abgehakt wird, sobald sie erledigt
-ist. In den Tabs von F-04 und A-12 stehen die Schritte der Reparatur eingerückt unter ihr. Unter
+ist. In den Tabs von F-04 und A-12 stehen die Schritte der Reparatur eingerückt unter „F-04
+reparieren“ bzw. „A-12 reparieren“. Unter
 „Indizien“ stehen gefundene Hinweise, etwa das Handbuch, ein Verweis auf die Morphemtypen-Bände im
 Inventar und die Frage am Schloss.
 Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste oben.
@@ -120,7 +122,7 @@ rechts durch den Schlitz gezogen.
 
 **Lösung:** Die Karte in einem Zug ganz durchziehen und dafür **zwischen 0,3 und 1,2 Sekunden**
 brauchen. Zu schnell, zu langsam oder nicht ganz durchgezogen heißt: noch einmal. Danach öffnet sich
-die Tür zum Kontrollraum.
+die Tür zum Kontrollraum. Drinnen ist die Sirene nur noch halb so laut.
 
 ### 2. Kontrollraum: Alarm ausschalten
 
@@ -146,6 +148,7 @@ meldet:
 
 Sobald der Computer benutzt wurde, öffnet sich die Tür zum Flur. Im Questlog stehen jetzt die
 Aufgaben „A-12 reparieren“ und „F-04 reparieren“. Im Tab „[NEUSTART]“ steht noch „Nicht verfügbar.“
+Die Produktionsfreigabe für den Neustart wird erst erteilt, wenn alle Anlagen repariert sind.
 
 Ebenfalls im Kontrollraum: das Telefon (5) mit der Mailbox (99) und der Technik-Hotline (42) und
 die optionale Sicherungsbox (6), siehe [Optionales](#optionales).
@@ -175,7 +178,7 @@ Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** m
 Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 8). Wer es anklickt, nimmt es
 ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Zieht man
 im Inventar einen Band auf den anderen, werden beide zum Handout „Morphemtypen“ mit allen
-Morphemtypen auf einem Blatt. Jeder Spieler nimmt sein eigenes Exemplar mit.
+Morphemtypen auf einem Blatt. Alle Spielenden nehmen ihr eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 
@@ -236,7 +239,7 @@ Das Display zeigt immer den nächsten Schritt:
 Die Frage am Schloss lautet: „Wie viele unterschiedliche Typen von freien Morphemen (ohne das
 Portmanteaumorphem) unterscheidet man?“
 
-**Lösung: 8.** Im Handout „Morphemtypen und wo sie zu finden sind: Teil 1“ (Regal in F-04) stehen
+**Lösung: 8.** Im Band „Morphemtypen und wo sie zu finden sind: Teil 1“ (Regal in F-04) stehen
 acht Typen freier Morpheme:
 
 | Lexikalisch | Grammatisch |
@@ -328,8 +331,8 @@ oder A-12 noch nicht stimmen.
 ![Sicherheitsfrage am Computer](images/pc_neustart.png)
 
 Im Kontrollraum zeigt der Computer jetzt „ALLE ANLAGEN BEREIT - NEUSTART MÖGLICH“. Im Tab
-„[NEUSTART]“ öffnet der Knopf „NEUSTART“ die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das
-Wort Überlegungen?“
+„[NEUSTART]“ steht „Produktionsfreigabe erteilt. Neustart möglich.“, und der Knopf „NEUSTART“ öffnet
+die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das Wort Überlegungen?“
 
 **Lösung: 4.** *Überlegungen* = {über} + {leg} + {ung} + {en}: Präfix, Stamm, Wortbildungssuffix und
 Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen Tipp ein.
@@ -392,7 +395,7 @@ klickt „Montieren“:
 Andere Paare passen nicht zusammen. Sind alle drei Zirkumfixe montiert, gibt es das Achievement
 „Kombinatorisch 1A!“. Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines
 Spielstands gibt der Krimskrams die noch fehlenden Teile erneut heraus. Die Morphemtypen-Bände und
-das Handout bekommt dagegen jeder Spieler nach dem Laden zurück.
+das Handout bekommen dagegen alle Spielenden nach dem Laden zurück.
 
 ### Bücher und Hamsterwitze
 

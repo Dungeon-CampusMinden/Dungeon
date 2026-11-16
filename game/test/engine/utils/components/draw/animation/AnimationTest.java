@@ -262,4 +262,19 @@ class AnimationTest {
     assertEquals(32, anim.getSpriteWidth(), 1e-6);
     assertEquals(16, anim.getSpriteHeight(), 1e-6);
   }
+
+  // ---------- size without a GL context ----------
+
+  @Test
+  void withoutGl_sizeComesFromTheImageFile_alsoAfterLoading() {
+    // Locker.png is 26x74 pixels. The server has no GL context but needs the clients' proportions.
+    Animation anim = new Animation(new SimpleIPath("objects/tech/Locker.png"));
+    assertEquals(1f, anim.getWidth(), 1e-4);
+    assertEquals(74 / 26f, anim.getHeight(), 1e-4);
+
+    anim.getSprite();
+
+    assertEquals(1f, anim.getWidth(), 1e-4);
+    assertEquals(74 / 26f, anim.getHeight(), 1e-4);
+  }
 }

@@ -57,9 +57,8 @@ final class MorphCoBooks {
    * @param player joining player
    */
   static void carry(MorphCoLevel level, Entity player) {
-    String name = player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse("");
-    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
-    if (name.isBlank() || inventory == null) return;
+    String name = player.fetch(PlayerComponent.class).orElseThrow().playerName();
+    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElseThrow();
     restore(level.state(), name, inventory);
     Consumer<Item> previous = inventory.onItemAdded();
     inventory.onItemAdded(
@@ -88,6 +87,16 @@ final class MorphCoBooks {
         List.of(new MorphemeTypesItem.Part1(), new MorphemeTypesItem.Part2())) {
       if (state.has(flag(volume.document(), name))) inventory.add(volume);
     }
+  }
+
+  /**
+   * Checks whether any player has put the handout together.
+   *
+   * @param state room state
+   * @return whether a player has received the handout
+   */
+  static boolean anyHandout(MorphCoState state) {
+    return state.count(flag(MorphCoDialogs.HANDOUT, "")) > 0;
   }
 
   /**
