@@ -80,7 +80,7 @@ public final class SortingFactory {
    * @param placement bin of every term or {@link Sorting#NONE}
    * @param player the player who sent the placement
    */
-  static void submit(
+  private static void submit(
       Entity board,
       Sorting sorting,
       TaskComponent<Map<String, String>> task,

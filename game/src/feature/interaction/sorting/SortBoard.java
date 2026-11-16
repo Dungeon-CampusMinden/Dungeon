@@ -44,7 +44,7 @@ public class SortBoard {
   public static final float CHIP_HEIGHT = 36;
 
   /** Space between chips and between rows of chips. */
-  static final float GAP = 8;
+  private static final float GAP = 8;
 
   /** Height of the title strip at the top of a bin. */
   protected static final float BIN_HEADER = 42;
@@ -244,7 +244,7 @@ public class SortBoard {
    *
    * @param item item ID
    */
-  void clickChip(String item) {
+  private void clickChip(String item) {
     String bin = placement.get(item);
     if (bin == null) selected = item.equals(selected) ? null : item;
     else if (selected != null && !selected.equals(item)) place(selected, bin);
@@ -256,7 +256,7 @@ public class SortBoard {
    *
    * @param item item ID
    */
-  void clickSlot(String item) {
+  private void clickSlot(String item) {
     if (placement.containsKey(item)) selected = item.equals(selected) ? null : item;
   }
 
@@ -265,7 +265,7 @@ public class SortBoard {
    *
    * @param bin bin ID
    */
-  void clickBin(String bin) {
+  private void clickBin(String bin) {
     if (selected != null) place(selected, bin);
   }
 
