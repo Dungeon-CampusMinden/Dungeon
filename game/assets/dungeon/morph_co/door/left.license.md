@@ -3,6 +3,7 @@
 - Author: amatutat
 - License: CC0 1.0
 - Modified by: amatutat (per Skript in die Stahlpalette des Raums umgefärbt)
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 
