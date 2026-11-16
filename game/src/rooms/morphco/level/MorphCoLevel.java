@@ -51,6 +51,7 @@ public class MorphCoLevel extends DungeonLevel {
 
   private final MorphCoState state = new MorphCoState();
   private final MorphCoQuestLog questLog = new MorphCoQuestLog();
+  private final MorphCoAmbience ambience = new MorphCoAmbience(state);
   private final Set<Integer> introduced = new HashSet<>();
   private final Set<Integer> playing = new HashSet<>();
   private ControlRoom controlRoom;
@@ -137,6 +138,7 @@ public class MorphCoLevel extends DungeonLevel {
   private void welcome(Entity player) {
     int id = player.id();
     startAlarm(id);
+    ambience.welcome(id);
     if (continued) {
       playReady(id);
       return;
@@ -260,6 +262,7 @@ public class MorphCoLevel extends DungeonLevel {
   boolean complete(MorphCoMilestone milestone) {
     if (!MorphCoProgressNet.complete(milestone)) return false;
     questLog.sync(state);
+    ambience.completed(milestone);
     if (milestone != MorphCoMilestone.PRODUCTION_RESTARTED) save();
     return true;
   }
