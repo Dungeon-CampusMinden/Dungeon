@@ -18,6 +18,9 @@ import tracking.core.TrackingSessionFinish;
 final class TrackingOutbox {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(TrackingOutbox.class);
 
+  // Marks outboxes of sessions that upload to the endpoint built into the game.
+  static final String CENTRAL_SUFFIX = ".central.jsonl";
+
   private final Path path;
   private boolean failed;
   private Throwable failureCause;
@@ -26,8 +29,10 @@ final class TrackingOutbox {
     this.path = path;
   }
 
-  static TrackingOutbox create(Path directory, TrackingSessionDescriptor descriptor) {
-    Path path = directory.resolve(descriptor.sessionId() + ".jsonl").toAbsolutePath().normalize();
+  static TrackingOutbox create(
+      Path directory, TrackingSessionDescriptor descriptor, boolean central) {
+    String suffix = central ? CENTRAL_SUFFIX : ".jsonl";
+    Path path = directory.resolve(descriptor.sessionId() + suffix).toAbsolutePath().normalize();
     TrackingOutbox outbox = new TrackingOutbox(path);
     try {
       Files.createDirectories(path.getParent());
