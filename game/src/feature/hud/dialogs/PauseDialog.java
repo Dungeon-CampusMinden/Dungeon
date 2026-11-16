@@ -36,6 +36,7 @@ import feature.input.systems.ControlsDialogSystem;
 import feature.questlog.QuestLogUI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Package-private builder for the pause menu.
@@ -89,10 +90,11 @@ public class PauseDialog extends Table {
    * Shows the pause menu dialog for the given target entity.
    *
    * @param caller the entity for which the pause menu should be shown.
-   * @return The {@link UIComponent} containing the dialog
+   * @return The {@link UIComponent} containing the dialog, or empty if the call closed the caller's
+   *     open pause menu instead
    */
-  public static UIComponent showPauseDialog(Entity caller) {
-    if (UIUtils.closeDialogs(DialogType.DefaultTypes.PAUSE_MENU, caller)) return null;
+  public static Optional<UIComponent> showPauseDialog(Entity caller) {
+    if (UIUtils.closeDialogs(DialogType.DefaultTypes.PAUSE_MENU, caller)) return Optional.empty();
 
     Entity owner = Entity.createLocalEntity("pause-menu");
     Game.add(owner);
@@ -117,7 +119,7 @@ public class PauseDialog extends Table {
         data -> {
           Game.exit("Quit from pause menu");
         });
-    return ui;
+    return Optional.of(ui);
   }
 
   /**

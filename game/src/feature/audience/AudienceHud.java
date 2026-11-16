@@ -1,6 +1,7 @@
 package feature.audience;
 
 import static engine.input.Binding.key;
+import static feature.hud.UIUtils.tinted;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -722,11 +723,6 @@ public final class AudienceHud extends System {
     texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     pixmap.dispose();
     return texture;
-  }
-
-  // A plain area of the color, from the skin's white pixel.
-  private static Drawable tinted(Color color) {
-    return UIUtils.defaultSkin().newDrawable("white", color);
   }
 
   private static Label label(String text, String font, int size, Color color) {

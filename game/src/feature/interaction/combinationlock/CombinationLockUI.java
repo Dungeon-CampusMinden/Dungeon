@@ -1,7 +1,6 @@
 package feature.interaction.combinationlock;
 
-import static feature.interaction.FeatureDialogStyle.INK;
-import static feature.interaction.FeatureDialogStyle.tinted;
+import static feature.hud.UIUtils.tinted;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -41,6 +40,7 @@ public final class CombinationLockUI extends Table {
   private static final Color STEEL = Color.valueOf("2b313bf5");
   private static final Color RIM = Color.valueOf("4a5262ff");
   private static final Color FACE = Color.valueOf("ece6d6ff");
+  private static final Color INK = Color.valueOf("1b1f27ff");
   private static final Color TEXT = Color.valueOf("e8eaefff");
   private static final Color MUTED = Color.valueOf("a3aab8ff");
   private static final Color ACCENT = Color.valueOf("f0b43cff");

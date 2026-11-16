@@ -1,11 +1,13 @@
 package feature.hud;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import engine.Entity;
 import engine.Game;
 import engine.input.ActionId;
@@ -57,6 +59,16 @@ public final class UIUtils {
       }
     }
     return DEFAULT_SKIN;
+  }
+
+  /**
+   * Creates a plain area in one color, e.g. as the background of a table.
+   *
+   * @param color fill color
+   * @return a new drawable from the default skin
+   */
+  public static Drawable tinted(Color color) {
+    return defaultSkin().newDrawable("white", color);
   }
 
   /**
@@ -377,6 +389,9 @@ public final class UIUtils {
    * Closes every open dialog of a type that matches a filter, even if the user could not close it,
    * e.g. the dialogs of the other players once a step has made them outdated.
    *
+   * <p>Close synchronized dialogs on the server or in singleplayer; on a multiplayer client this
+   * only removes them locally while {@link engine.network.server.DialogTracker} keeps them open.
+   *
    * @param type dialog type
    * @param filter selects the dialogs to close by their context
    * @return whether a dialog was closed
@@ -394,10 +409,11 @@ public final class UIUtils {
 
   /**
    * Closes every open dialog of a type that belongs to an entity, i.e. whose {@link
-   * DialogContextKeys#ENTITY} is the entity, even if the user could not close it.
+   * DialogContextKeys#ENTITY} is the entity, even if the user could not close it. For synchronized
+   * dialogs the same restriction as in {@link #closeDialogs(DialogType, Predicate)} applies.
    *
    * @param type dialog type
-   * @param entity the entity the dialogs belong to, e.g. the card reader they show
+   * @param entity the entity the dialogs belong to, e.g. the device they show
    * @return whether a dialog was closed
    */
   public static boolean closeDialogs(DialogType type, Entity entity) {
